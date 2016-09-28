@@ -36,6 +36,7 @@
 			else ChessStatus = ChessStatus.Stalemate;
 		}
 
+		// check — это шах
 		private static bool IsCheckForWhite()
 		{
 			var isCheck = false;

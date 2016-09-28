@@ -17,10 +17,34 @@ namespace Chess
 		}
 
 		[Test]
-		public void Test()
+		public void RepeatedMethodCallDoNotChangeBehaviour()
 		{
+			var board = new[]
+			{
+				"        ",
+				"        ",
+				"        ",
+				"   q    ",
+				"    K   ",
+				" Q      ",
+				"        ",
+				"        ",
+			};
+			ChessProblem.LoadFrom(board);
+			ChessProblem.CalculateChessStatus();
+			Assert.AreEqual(ChessStatus.Check, ChessProblem.ChessStatus);
+			
+			// Now check that internal board modifictions during the first call do not change answer
+			ChessProblem.CalculateChessStatus();
+			Assert.AreEqual(ChessStatus.Check, ChessProblem.ChessStatus);
+		}
+
+		[Test]
+		public void FullTests()
+		{
+			var dir = TestContext.CurrentContext.TestDirectory;
 			var testsCount = 0;
-			foreach (var filename in Directory.GetFiles("ChessTests", "*.in"))
+			foreach (var filename in Directory.GetFiles(Path.Combine(dir, "ChessTests"), "*.in"))
 			{
 				TestOnFile(filename);
 				testsCount++;

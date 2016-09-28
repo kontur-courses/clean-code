@@ -19,7 +19,6 @@ namespace Chess
 		{
 			foreach (var f in new[] {King, Queen, Rook, Knight, Bishop})
 				map[f.Sign] = f;
-			map['.'] = null;
 		}
 
 		public Piece(bool infinit, char sign, params Location[] ds)
