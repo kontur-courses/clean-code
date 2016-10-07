@@ -18,8 +18,9 @@ namespace Chess.Solved
         [Test]
         public void Test()
         {
+            var dir = TestContext.CurrentContext.TestDirectory;
             var testsCount = 0;
-            foreach (var filename in Directory.GetFiles("ChessTests", "*.in"))
+            foreach (var filename in Directory.GetFiles(Path.Combine(dir, "ChessTests"), "*.in"))
             {
                 TestOnFile(filename);
                 testsCount++;
