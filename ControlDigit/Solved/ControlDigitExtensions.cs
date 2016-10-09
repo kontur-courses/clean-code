@@ -67,14 +67,14 @@ namespace ControlDigit.Solved
     [TestFixture]
 	public class ControlDigitExtensions_Tests
 	{
-		[TestCase(0, Result = 0)]
-		[TestCase(1, Result = 1)]
-		[TestCase(2, Result = 2)]
-		[TestCase(9, Result = 9)]
-		[TestCase(10, Result = 3)]
-		[TestCase(15, Result = 8)]
-		[TestCase(17, Result = 1)]
-		[TestCase(18, Result = 0)]
+		[TestCase(0, ExpectedResult = 0)]
+		[TestCase(1, ExpectedResult = 1)]
+		[TestCase(2, ExpectedResult = 2)]
+		[TestCase(9, ExpectedResult = 9)]
+		[TestCase(10, ExpectedResult = 3)]
+		[TestCase(15, ExpectedResult = 8)]
+		[TestCase(17, ExpectedResult = 1)]
+		[TestCase(18, ExpectedResult = 0)]
 		public int TestControlDigit(long x)
 		{
 			return x.ControlDigit();
