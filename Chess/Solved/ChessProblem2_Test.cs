@@ -5,13 +5,13 @@ using NUnit.Framework;
 namespace Chess.Solved
 {
     [TestFixture]
-    public class ChessProblem_Test
+    public class ChessProblem2_Test
     {
         private static void TestOnFile(string filename)
         {
             var board = new BoardParser().ParseBoard(File.ReadAllLines(filename));
             var expectedAnswer = File.ReadAllText(Path.ChangeExtension(filename, ".ans")).Trim();
-            var whiteStatus = new ChessProblem_Solved(board).GetStatusFor(PieceColor.White);
+            var whiteStatus = new ChessProblem_Solved2(board).GetStatusFor(PieceColor.White);
             Assert.AreEqual(expectedAnswer, whiteStatus.ToString().ToLower(), "Failed test " + filename);
         }
 

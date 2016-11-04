@@ -1,6 +1,8 @@
+using System;
+
 namespace Chess
 {
-	public enum ChessStatus
+    public enum ChessStatus
 	{
 		Ok = 0,
 		Check,

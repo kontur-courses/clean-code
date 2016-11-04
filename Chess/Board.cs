@@ -5,71 +5,53 @@ using System.Text;
 
 namespace Chess
 {
-	public class Board
+    public class Board
 	{
-		private readonly ColoredPiece[,] cells = new ColoredPiece[8, 8];
+		private readonly Piece[,] cells;
 
-		public Board(string[] lines)
+	    public Board(Piece[,] cells)
+	    {
+	        this.cells = cells;
+	    }
+
+        public IEnumerable<Location> GetPieces(PieceColor color) => 
+            AllBoard().Where(loc => GetPiece(loc).Is(color));
+
+        public Piece GetPiece(Location location) => 
+            Contains(location) ? cells[location.X, location.Y] : null;
+
+        public void Set(Location location, Piece cell) => 
+            cells[location.X, location.Y] = cell;
+
+        public TemporaryPieceMove PerformTemporaryMove(Location from, Location to)
 		{
-			if (lines.Length != 8) throw new ArgumentException("Should be exactly 8 lines");
-			if (lines.Any(line => line.Length != 8)) throw new ArgumentException("All lines should have 8 chars length");
-			for (var y = 0; y < 8; y++)
-			{
-				var line = lines[y];
-				if (line == null) throw new Exception("incorrect input");
-				for (var x = 0; x < 8; x++)
-				{
-					var pieceSign = line[x];
-					var color = char.IsUpper(pieceSign) ? PieceColor.White : PieceColor.Black;
-					Set(new Location(x, y), new ColoredPiece(Piece.FromChar(pieceSign), color));
-				}
-			}
+			var old = GetPiece(to);
+			Set(to, GetPiece(from));
+			Set(from, null);
+			return new TemporaryPieceMove(this, from, to, old);
 		}
 
-		public IEnumerable<Location> GetPieces(PieceColor color)
-		{
-			return Location.AllBoard().Where(loc => Get(loc).Piece != null && Get(loc).Color == color);
-		}
+        private IEnumerable<Location> AllBoard()
+        {
+            return 
+                from y in Enumerable.Range(0, cells.GetLength(0))
+                from x in Enumerable.Range(0, cells.GetLength(1))
+                select new Location(x, y);
+        }
 
-		public ColoredPiece Get(Location location)
-		{
-			return !location.InBoard ? ColoredPiece.Empty : cells[location.X, location.Y];
-		}
-
-		public void Set(Location location, ColoredPiece cell)
-		{
-			cells[location.X, location.Y] = cell;
-		}
-
-		public override string ToString()
-		{
-			var b = new StringBuilder();
-			for (var y = 0; y < 8; y++)
-			{
-				for (var x = 0; x < 8; x++)
-					b.Append(Get(new Location(x, y)));
-				b.AppendLine();
-			}
-			return b.ToString();
-		}
-
-		public PieceMove PerformMove(Location from, Location to)
-		{
-			var old = Get(to);
-			Set(to, Get(from));
-			Set(from, ColoredPiece.Empty);
-			return new PieceMove(this, from, to, old);
-		}
+        public bool Contains(Location loc) =>
+            loc.X >= 0 && loc.X <= cells.GetLength(0) && 
+            loc.Y >= 0 && loc.Y <= cells.GetLength(1);
 	}
 
-	public class PieceMove
+	public class TemporaryPieceMove : IDisposable
 	{
 		private readonly Board board;
 		private readonly Location from;
-		private readonly ColoredPiece oldDestinationPiece;
+		private readonly Piece oldDestinationPiece;
 		private readonly Location to;
 
-		public PieceMove(Board board, Location from, Location to, ColoredPiece oldDestinationPiece)
+		public TemporaryPieceMove(Board board, Location from, Location to, Piece oldDestinationPiece)
 		{
 			this.board = board;
 			this.from = from;
@@ -79,8 +61,13 @@ namespace Chess
 
 		public void Undo()
 		{
-			board.Set(from, board.Get(to));
+			board.Set(from, board.GetPiece(to));
 			board.Set(to, oldDestinationPiece);
 		}
+
+	    public void Dispose()
+	    {
+	        Undo();
+	    }
 	}
 }

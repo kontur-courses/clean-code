@@ -55,13 +55,19 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Board.cs" />
+    <Compile Include="BoardParser.cs" />
     <Compile Include="ChessStatus.cs" />
-    <Compile Include="ColoredPiece.cs" />
+    <Compile Include="Piece.cs" />
     <Compile Include="ChessProblem.cs" />
     <Compile Include="ChessProblem_Test.cs" />
-    <Compile Include="Piece.cs" />
+    <Compile Include="PieceColor.cs" />
+    <Compile Include="PieceType.cs" />
     <Compile Include="Location.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="Solved\ChessProblem_Solved.cs" />
+    <Compile Include="Solved\ChessProblem_Solved2.cs" />
+    <Compile Include="Solved\ChessProblem2_Test.cs" />
+    <Compile Include="Solved\ChessProblem_Test.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="ChessTests\*">
@@ -71,6 +77,7 @@
   </ItemGroup>
   <ItemGroup>
     <Content Include="README.txt" />
+    <Content Include="Solved\Tips.txt" />
   </ItemGroup>
   <ItemGroup />
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />

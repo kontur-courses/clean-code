@@ -7,7 +7,7 @@
 
 		public static void LoadFrom(string[] lines)
 		{
-			board = new Board(lines);
+			board = new BoardParser().ParseBoard(lines);
 		}
 
 		// Определяет мат, шах или пат белым.
@@ -17,14 +17,14 @@
 			var hasMoves = false;
 			foreach (var locFrom in board.GetPieces(PieceColor.White))
 			{
-				foreach (var locTo in board.Get(locFrom).Piece.GetMoves(locFrom, board))
+				foreach (var locTo in board.GetPiece(locFrom).GetMoves(locFrom, board))
 				{
-					var old = board.Get(locTo);
-					board.Set(locTo, board.Get(locFrom));
-					board.Set(locFrom, ColoredPiece.Empty);
+					var old = board.GetPiece(locTo);
+					board.Set(locTo, board.GetPiece(locFrom));
+					board.Set(locFrom, null);
 					if (!IsCheckForWhite())
 						hasMoves = true;
-					board.Set(locFrom, board.Get(locTo));
+					board.Set(locFrom, board.GetPiece(locTo));
 					board.Set(locTo, old);
 				}
 			}
@@ -42,11 +42,11 @@
 			var isCheck = false;
 			foreach (var loc in board.GetPieces(PieceColor.Black))
 			{
-				var cell = board.Get(loc);
-				var moves = cell.Piece.GetMoves(loc, board);
+				var piece = board.GetPiece(loc);
+				var moves = piece.GetMoves(loc, board);
 				foreach (var destination in moves)
 				{
-					if (board.Get(destination).Is(PieceColor.White, Piece.King))
+					if (board.GetPiece(destination).Is(PieceColor.White, PieceType.King))
 						isCheck = true;
 				}
 			}
