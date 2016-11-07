@@ -1,13 +1,15 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
-# Visual Studio 2013
-VisualStudioVersion = 12.0.31101.0
+# Visual Studio 14
+VisualStudioVersion = 14.0.25420.1
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Chess", "Chess\Chess.csproj", "{B5BE8C34-C38B-477A-A095-904B4BBC3F6C}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ControlDigit", "ControlDigit\ControlDigit.csproj", "{218B6EE0-8519-4A53-9059-2CB669D3C205}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Samples", "Samples\Samples.csproj", "{9ED89DE1-D257-450E-B66C-3B28D10F331D}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Markdown", "Markdown\Markdown.csproj", "{9A6FC5A2-1067-46A7-90ED-B9B360C0DFB9}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -53,10 +55,20 @@ Global
 		{9ED89DE1-D257-450E-B66C-3B28D10F331D}.Release|Mixed Platforms.Build.0 = Release|Any CPU
 		{9ED89DE1-D257-450E-B66C-3B28D10F331D}.Release|x86.ActiveCfg = Release|Any CPU
 		{9ED89DE1-D257-450E-B66C-3B28D10F331D}.Release|x86.Build.0 = Release|Any CPU
+		{9A6FC5A2-1067-46A7-90ED-B9B360C0DFB9}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{9A6FC5A2-1067-46A7-90ED-B9B360C0DFB9}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{9A6FC5A2-1067-46A7-90ED-B9B360C0DFB9}.Debug|Mixed Platforms.ActiveCfg = Debug|Any CPU
+		{9A6FC5A2-1067-46A7-90ED-B9B360C0DFB9}.Debug|Mixed Platforms.Build.0 = Debug|Any CPU
+		{9A6FC5A2-1067-46A7-90ED-B9B360C0DFB9}.Debug|x86.ActiveCfg = Debug|Any CPU
+		{9A6FC5A2-1067-46A7-90ED-B9B360C0DFB9}.Debug|x86.Build.0 = Debug|Any CPU
+		{9A6FC5A2-1067-46A7-90ED-B9B360C0DFB9}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{9A6FC5A2-1067-46A7-90ED-B9B360C0DFB9}.Release|Any CPU.Build.0 = Release|Any CPU
+		{9A6FC5A2-1067-46A7-90ED-B9B360C0DFB9}.Release|Mixed Platforms.ActiveCfg = Release|Any CPU
+		{9A6FC5A2-1067-46A7-90ED-B9B360C0DFB9}.Release|Mixed Platforms.Build.0 = Release|Any CPU
+		{9A6FC5A2-1067-46A7-90ED-B9B360C0DFB9}.Release|x86.ActiveCfg = Release|Any CPU
+		{9A6FC5A2-1067-46A7-90ED-B9B360C0DFB9}.Release|x86.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
-	EndGlobalSection
-	GlobalSection(NestedProjects) = preSolution
 	EndGlobalSection
 EndGlobal
