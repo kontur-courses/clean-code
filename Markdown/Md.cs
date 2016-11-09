@@ -5,9 +5,9 @@ using System.Text;
 
 namespace Markdown
 {
-    class Md
+    public class Md
     {
-        private List<Shell> mdShells; 
+        private List<IShell> mdShells; 
         public Md()
         {
             throw new NotImplementedException();
@@ -18,12 +18,7 @@ namespace Markdown
             return GetHtmlCode(text, mdShells);
         }
 
-        private static string GetFramedText(string text, Shell shell)
-        {
-            throw new NotImplementedException();
-        }
-
-        private static string GetHtmlCode(string text, List<Shell> shells)
+        private static string GetHtmlCode(string text, List<IShell> shells)
         {
             var result = new StringBuilder();
             var tokenizer = new Tokenizer();
@@ -32,9 +27,9 @@ namespace Markdown
             {
                 if (token.HasShell())
                 {
-                    var shellsInToken = shells.Where(s => s.IncludedInsideShell(token.Shell)).ToList();
+                    var shellsInToken = shells.Where(s => s.Contains(token.Shell)).ToList();
                     var resultTextToken = GetHtmlCode(token.Text, shellsInToken);
-                    result.Append(GetFramedText(resultTextToken, token.Shell));
+                    result.Append(token.Shell.RenderToHtml(resultTextToken));
                 }
                 else
                 {

@@ -1,10 +1,10 @@
 ﻿namespace Markdown
 {
-    class Token
+    public class Token
     {
         public readonly string Text;
-        public readonly Shell Shell;
-        public Token(string text, Shell shell = null)
+        public readonly IShell Shell;
+        public Token(string text, IShell shell = null)
         {
             Text = text;
             Shell = shell;

@@ -3,9 +3,9 @@ using System.Collections.Generic;
 
 namespace Markdown
 {
-    class Tokenizer
+    public class Tokenizer
     {
-        public IEnumerable<Token> SplitToTokens(string text, IEnumerable<Shell> shells)
+        public IEnumerable<Token> SplitToTokens(string text, IEnumerable<IShell> shells)
         {
             throw new NotImplementedException();
         }
