@@ -2,7 +2,7 @@
 
 namespace Markdown
 {
-    class SingleUnderline : IShell
+    public class SingleUnderline : IShell
     {
         private const string Prefix = "_";
         private const string Suffix = "_";
