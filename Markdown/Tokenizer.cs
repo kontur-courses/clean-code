@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Text;
 
 namespace Markdown
 {
@@ -23,19 +24,31 @@ namespace Markdown
         public IShell GetNextShell(string text, ref int startPosition, IEnumerable<IShell> shells )
         {
             var currentPosition = startPosition;
-            if (!shells.Any(s => s.GetPrefix().StartsWith(text[currentPosition].ToString())))
+            var prefix = new StringBuilder();
+            IShell rightShell = null;
+            while (currentPosition < text.Length)
             {
-                return null;
+                prefix.Append(text[currentPosition]);
+                if (shells.Any(s => s.GetPrefix().StartsWith(prefix.ToString())))
+                {
+                    var suitableShells = shells.Where(s => s.GetPrefix() == prefix.ToString());
+                    if (suitableShells.Any())
+                    {
+                        rightShell = suitableShells.First();
+                    }
+                    currentPosition++;
+                }
+                else
+                {
+                    break;
+                }
+                
             }
-            var prefix = text[currentPosition].ToString();
-            currentPosition++;
-            var rightShells = shells.Where(s => s.GetPrefix() == prefix);
-            if (rightShells.Any())
+            if (rightShell != null)
             {
                 startPosition = currentPosition;
-                return rightShells.First();
             }
-            throw new NotImplementedException();
+            return rightShell;
         }
 
         public int GetEndPositionTextToken(string text, ref int startPosition, IShell currenShell)
