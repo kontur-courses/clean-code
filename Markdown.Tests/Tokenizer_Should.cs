@@ -84,8 +84,17 @@ namespace Markdown.Tests
             var position = 5;
             IShell currentShell = null;
             var endToken = tokenizer.GetEndPositionToken(text, position, shells, currentShell);
-            endToken.Item1.Should().Be(23);
-            endToken.Item2.Should().BeNull();
+            endToken.Should().Be(23);
+        }
+
+        [Test]
+        public void findEndToken_WhenOpenSingleUnderline()
+        {
+            var text = "asdf_qwerty_";
+            var position = 5;
+            IShell currentshell = new SingleUnderline();
+            var endToken = tokenizer.GetEndPositionToken(text, position, shells, currentshell);
+            endToken.Should().Be(10);
         }
 
 

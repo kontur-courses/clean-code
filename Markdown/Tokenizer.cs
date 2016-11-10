@@ -43,7 +43,7 @@ namespace Markdown
                     break;
                 }
             }
-            if (currentPosition == text.Length || text[currentPosition] == ' ')
+            if (currentPosition >= text.Length || text[currentPosition] == ' ')
             {
                 return null;
             }
@@ -54,28 +54,38 @@ namespace Markdown
             return correctShell;
         }
 
-        public Tuple<int, IShell> GetEndPositionToken(string text, int currentPosition, List<IShell> shells, IShell currentShell)
+        private bool isSubstring(string text, int start, string substring)
         {
-            var startOtherShell = -1;
-            IShell otherShell = null;
-            while (currentPosition < text.Length)
+            for (var i = 0; i < substring.Length; i++)
             {
-                if (startOtherShell == -1)
+                if (text[start + i] != substring[i])
                 {
-                    otherShell = ReadNextShell(text, ref currentPosition, shells);
-                    if (otherShell != null)
+                    return false;
+                }
+            }
+            return true;
+        }
+
+        public int GetEndPositionToken(string text, int currentPosition, List<IShell> shells, IShell currentShell)
+        {
+            for (; currentPosition < text.Length; currentPosition++)
+            {
+                if (currentShell == null)
+                {
+                    if (shells.Any(s => isSubstring(text, currentPosition, s.GetPrefix())))
                     {
-                        startOtherShell = currentPosition - otherShell.GetPrefix().Length;
-                        currentPosition--;
-                        if (currentShell == null)
-                        {
-                            break;
-                        }
+                        break;
                     }
                 }
-                currentPosition++;
+                else
+                {
+                    if (isSubstring(text, currentPosition, currentShell.GetPrefix()))
+                    {
+                        break;
+                    }
+                }
             }
-            return Tuple.Create(startOtherShell - 1, currentShell);
+            return currentPosition - 1;
         }
     }
 }
