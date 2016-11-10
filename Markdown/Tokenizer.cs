@@ -1,5 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 
 namespace Markdown
 {
@@ -7,7 +6,7 @@ namespace Markdown
     {
         public IEnumerable<Token> SplitToTokens(string text, IEnumerable<IShell> shells)
         {
-            throw new NotImplementedException();
+            return new List<Token> {new Token(text)};
         }
     }
 }
