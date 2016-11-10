@@ -115,7 +115,7 @@ namespace Markdown.Tests
             Token token = tokenizer.ReadNextToken(text, ref position, shells);
             token.Shell.Should().BeNull();
             token.Text.Should().Be("not formatted text");
-            position.Should().Be(20);
+            position.Should().Be(23);
         }
     }
 }
