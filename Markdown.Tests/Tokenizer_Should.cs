@@ -20,7 +20,7 @@ namespace Markdown.Tests
             };
             tokenizer = new Tokenizer();
         }
-
+        
         [Test]
         public void notChangeText_WhenNotFormatting()
         {
@@ -29,5 +29,14 @@ namespace Markdown.Tests
             tokens.First().HasShell().Should().BeFalse();
         }
 
+        [Test]
+        public void returnNullShell_WhenNotFormatting()
+        {
+            var text = "_abc_text";
+            var position = 5;
+            var shell = tokenizer.GetNextShell(text, ref position, shells);
+            position.Should().Be(text.Length);
+            shell.Should().BeNull();
+        }
     }
 }
