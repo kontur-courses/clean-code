@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 
 namespace Markdown
 {
@@ -6,9 +7,9 @@ namespace Markdown
     {
         private const string Prefix = "__";
         private const string Suffix = "__";
-        private List<IShell> innerShells = new List<IShell>()
+        private readonly List<Type> innerShellsTypes = new List<Type>()
         {
-
+            typeof(SingleUnderline)
         };
         public string GetPrefix()
         {
@@ -27,7 +28,7 @@ namespace Markdown
 
         public bool Contains(IShell shell)
         {
-            throw new System.NotImplementedException();
+            return innerShellsTypes.Contains(shell.GetType());
         }
     }
 }
