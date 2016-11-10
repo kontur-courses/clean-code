@@ -97,6 +97,25 @@ namespace Markdown.Tests
             endToken.Should().Be(10);
         }
 
+        [Test]
+        public void findEndToken_WhenOpenDoubleUnderline()
+        {
+            var text = "__qwerty__32";
+            var position = 2;
+            IShell currentshell = new DoubleUnderline();
+            var endToken = tokenizer.GetEndPositionToken(text, position, shells, currentshell);
+            endToken.Should().Be(7);
+        }
 
+        [Test]
+        public void readToken_WhenNotFormatting()
+        {
+            var text = "_abc_not formatted text_def_";
+            var position = 5;
+            Token token = tokenizer.ReadNextToken(text, ref position, shells);
+            token.Shell.Should().BeNull();
+            token.Text.Should().Be("not formatted text");
+            position.Should().Be(20);
+        }
     }
 }

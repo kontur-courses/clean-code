@@ -7,16 +7,16 @@ namespace Markdown
 {
     public class Tokenizer
     {
-        public IEnumerable<Token> SplitToTokens(string text, IEnumerable<IShell> shells)
+        public IEnumerable<Token> SplitToTokens(string text, List<IShell> shells)
         {
             var currentPosition = 0;
             while (currentPosition < text.Length)
             {
-                yield return ReadNextToken(text, ref currentPosition);
+                yield return ReadNextToken(text, ref currentPosition, shells);
             }
         }
 
-        public Token ReadNextToken(string text, ref int startPosition)
+        public Token ReadNextToken(string text, ref int startPosition, List<IShell> shells)
         {
             throw new NotImplementedException();
         }
