@@ -35,8 +35,18 @@ namespace Markdown.Tests
             var text = "_abc_text";
             var position = 5;
             var shell = tokenizer.GetNextShell(text, ref position, shells);
-            position.Should().Be(text.Length);
+            position.Should().Be(position);
             shell.Should().BeNull();
+        }
+
+        [Test]
+        public void findShell_WhenPositionInSingleUnderline()
+        {
+            var text = "_italic text_";
+            var position = 0;
+            var shell = tokenizer.GetNextShell(text, ref position, shells);
+            position.Should().Be(1);
+            shell.Should().BeOfType(typeof(SingleUnderline));
         }
     }
 }
