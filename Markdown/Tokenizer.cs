@@ -25,7 +25,7 @@ namespace Markdown
         {
             var currentPosition = startPosition;
             var prefix = new StringBuilder();
-            IShell rightShell = null;
+            IShell correctShell = null;
             while (currentPosition < text.Length)
             {
                 prefix.Append(text[currentPosition]);
@@ -34,7 +34,7 @@ namespace Markdown
                     var suitableShells = shells.Where(s => s.GetPrefix() == prefix.ToString()).ToList();
                     if (suitableShells.Any())
                     {
-                        rightShell = suitableShells.First();
+                        correctShell = suitableShells.First();
                     }
                     currentPosition++;
                 }
@@ -47,16 +47,35 @@ namespace Markdown
             {
                 return null;
             }
-            if (rightShell != null)
+            if (correctShell != null)
             {
                 startPosition = currentPosition;
             }
-            return rightShell;
+            return correctShell;
         }
 
-        public Tuple<int, IShell> GetEndPositionToken(string text, int startPosition, List<IShell> shells, IShell currentShell)
+        public Tuple<int, IShell> GetEndPositionToken(string text, int currentPosition, List<IShell> shells, IShell currentShell)
         {
-            throw new NotImplementedException();
+            var startOtherShell = -1;
+            IShell otherShell = null;
+            while (currentPosition < text.Length)
+            {
+                if (startOtherShell == -1)
+                {
+                    otherShell = ReadNextShell(text, ref currentPosition, shells);
+                    if (otherShell != null)
+                    {
+                        startOtherShell = currentPosition - otherShell.GetPrefix().Length;
+                        currentPosition--;
+                        if (currentShell == null)
+                        {
+                            break;
+                        }
+                    }
+                }
+                currentPosition++;
+            }
+            return Tuple.Create(startOtherShell - 1, currentShell);
         }
     }
 }

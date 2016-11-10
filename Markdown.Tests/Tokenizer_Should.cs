@@ -82,10 +82,10 @@ namespace Markdown.Tests
         {
             var text = "_abc_ not formatted text_abc_";
             var position = 5;
-            IShell currentShell;
-            var endToken = tokenizer.GetEndPositionToken(text, position, shells, out currentShell);
-            endToken.Should().Be(23);
-            currentShell.Should().BeNull();
+            IShell currentShell = null;
+            var endToken = tokenizer.GetEndPositionToken(text, position, shells, currentShell);
+            endToken.Item1.Should().Be(23);
+            endToken.Item2.Should().BeNull();
         }
 
 
