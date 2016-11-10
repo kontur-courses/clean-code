@@ -71,7 +71,7 @@ namespace Markdown.Tests
         [Test]
         public void notFindShell_WhenSpaceAfterPrefix()
         {
-            var text = "abc _ def_";
+            var text = "abc __ def__";
             var position = 4;
             tokenizer.GetNextShell(text, ref position, shells).Should().BeNull();
             position.Should().Be(4);
