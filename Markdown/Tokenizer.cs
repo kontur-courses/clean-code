@@ -22,7 +22,15 @@ namespace Markdown
 
         public IShell GetNextShell(string text, ref int startPosition, IEnumerable<IShell> shells )
         {
-            throw new NotImplementedException();
+            var currentPosition = startPosition;
+            if (!shells.Any(s => s.GetPrefix().StartsWith(text[currentPosition].ToString())))
+            {
+                return null;
+            }
+            else
+            {
+                throw new NotImplementedException();
+            }
         }
 
         public int GetEndPositionTextToken(string text, ref int startPosition, IShell currenShell)
