@@ -27,10 +27,15 @@ namespace Markdown
             {
                 return null;
             }
-            else
+            var prefix = text[currentPosition].ToString();
+            currentPosition++;
+            var rightShells = shells.Where(s => s.GetPrefix() == prefix);
+            if (rightShells.Any())
             {
-                throw new NotImplementedException();
+                startPosition = currentPosition;
+                return rightShells.First();
             }
+            throw new NotImplementedException();
         }
 
         public int GetEndPositionTextToken(string text, ref int startPosition, IShell currenShell)
