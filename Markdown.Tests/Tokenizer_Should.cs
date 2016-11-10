@@ -34,7 +34,7 @@ namespace Markdown.Tests
         {
             var text = "_abc_text";
             var position = 5;
-            var shell = tokenizer.GetNextShell(text, ref position, shells);
+            var shell = tokenizer.ReadNextShell(text, ref position, shells);
             position.Should().Be(5);
             shell.Should().BeNull();
         }
@@ -44,7 +44,7 @@ namespace Markdown.Tests
         {
             var text = "_italic text_";
             var position = 0;
-            var shell = tokenizer.GetNextShell(text, ref position, shells);
+            var shell = tokenizer.ReadNextShell(text, ref position, shells);
             position.Should().Be(1);
             shell.Should().BeOfType(typeof(SingleUnderline));
         }
@@ -54,7 +54,7 @@ namespace Markdown.Tests
         {
             var text = "some text__bold text__";
             var position = 9;
-            var shell = tokenizer.GetNextShell(text, ref position, shells);
+            var shell = tokenizer.ReadNextShell(text, ref position, shells);
             position.Should().Be(11);
             shell.Should().BeOfType(typeof(DoubleUnderline));
         }
@@ -64,7 +64,7 @@ namespace Markdown.Tests
         {
             var text = "abcd efgh";
             var position = 10;
-            tokenizer.GetNextShell(text, ref position, shells).Should().BeNull();
+            tokenizer.ReadNextShell(text, ref position, shells).Should().BeNull();
         }
 
 
@@ -73,8 +73,19 @@ namespace Markdown.Tests
         {
             var text = "abc __ def__";
             var position = 4;
-            tokenizer.GetNextShell(text, ref position, shells).Should().BeNull();
+            tokenizer.ReadNextShell(text, ref position, shells).Should().BeNull();
             position.Should().Be(4);
+        }
+
+        [Test]
+        public void findEndToken_WhenNotFormatting()
+        {
+            var text = "_abc_ not formatted text_abc_";
+            var position = 5;
+            IShell currentShell;
+            var endToken = tokenizer.GetEndPositionToken(text, position, shells, out currentShell);
+            endToken.Should().Be(23);
+            currentShell.Should().BeNull();
         }
 
 
