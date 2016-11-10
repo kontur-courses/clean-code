@@ -30,12 +30,12 @@ namespace Markdown.Tests
         }
 
         [Test]
-        public void returnNullShell_WhenNotFormatting()
+        public void notFindShell_WhenNotFormatting()
         {
             var text = "_abc_text";
             var position = 5;
             var shell = tokenizer.GetNextShell(text, ref position, shells);
-            position.Should().Be(position);
+            position.Should().Be(5);
             shell.Should().BeNull();
         }
 
@@ -48,5 +48,35 @@ namespace Markdown.Tests
             position.Should().Be(1);
             shell.Should().BeOfType(typeof(SingleUnderline));
         }
+
+        [Test]
+        public void findShell_WhenPositionInDoubleUnderline()
+        {
+            var text = "some text__bold text__";
+            var position = 9;
+            var shell = tokenizer.GetNextShell(text, ref position, shells);
+            position.Should().Be(11);
+            shell.Should().BeOfType(typeof(DoubleUnderline));
+        }
+
+        [Test]
+        public void notFindShell_WhenPositionIsOutside()
+        {
+            var text = "abcd efgh";
+            var position = 10;
+            tokenizer.GetNextShell(text, ref position, shells).Should().BeNull();
+        }
+
+
+        [Test]
+        public void notFindShell_WhenSpaceAfterPrefix()
+        {
+            var text = "abc _ def_";
+            var position = 4;
+            tokenizer.GetNextShell(text, ref position, shells).Should().BeNull();
+            position.Should().Be(4);
+        }
+
+
     }
 }
