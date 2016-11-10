@@ -17,11 +17,11 @@ namespace Markdown
         }
 
         public Token ReadNextToken(string text, ref int startPosition, List<IShell> shells)
-        {
-            var left = startPosition;
+        {            
             var shell = ReadNextShell(text, ref startPosition, shells);
+            var left = startPosition;
             var right = GetEndPositionToken(text, startPosition, shells, shell);
-            startPosition = right + 1 + (shell != null ? shell.GetSuffix().Length : 0);
+            startPosition = right + 1 + (shell?.GetSuffix().Length ?? 0);
             return new Token(text.Substring(left, right - left + 1), shell);
         }
 

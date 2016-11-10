@@ -117,5 +117,26 @@ namespace Markdown.Tests
             token.Text.Should().Be("not formatted text");
             position.Should().Be(23);
         }
+
+        [Test]
+        public void readToken_WhenNextSingleUnderline()
+        {
+            var text = "abc_italic text_";
+            var position = 3;
+            Token token = tokenizer.ReadNextToken(text, ref position, shells);
+            token.Shell.Should().BeOfType(typeof(SingleUnderline));
+            token.Text.Should().Be("italic text");
+            position.Should().Be(16);
+        }
+        [Test]
+        public void readToken_WhenNextDoubleUnderline()
+        {
+            var text = "qwerty__bold text__88";
+            var position = 6;
+            Token token = tokenizer.ReadNextToken(text, ref position, shells);
+            token.Shell.Should().BeOfType(typeof(DoubleUnderline));
+            token.Text.Should().Be("bold text");
+            position.Should().Be(19);
+        }
     }
 }
