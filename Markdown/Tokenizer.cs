@@ -21,7 +21,7 @@ namespace Markdown
             throw new NotImplementedException();
         }
 
-        public IShell GetNextShell(string text, ref int startPosition, IEnumerable<IShell> shells )
+        public IShell GetNextShell(string text, ref int startPosition, List<IShell> shells )
         {
             var currentPosition = startPosition;
             var prefix = new StringBuilder();
@@ -31,7 +31,7 @@ namespace Markdown
                 prefix.Append(text[currentPosition]);
                 if (shells.Any(s => s.GetPrefix().StartsWith(prefix.ToString())))
                 {
-                    var suitableShells = shells.Where(s => s.GetPrefix() == prefix.ToString());
+                    var suitableShells = shells.Where(s => s.GetPrefix() == prefix.ToString()).ToList();
                     if (suitableShells.Any())
                     {
                         rightShell = suitableShells.First();
@@ -42,7 +42,10 @@ namespace Markdown
                 {
                     break;
                 }
-                
+            }
+            if (currentPosition == text.Length || text[currentPosition] == ' ')
+            {
+                return null;
             }
             if (rightShell != null)
             {
@@ -51,7 +54,7 @@ namespace Markdown
             return rightShell;
         }
 
-        public int GetEndPositionTextToken(string text, ref int startPosition, IShell currenShell)
+        public int GetEndPositionToken(string text, ref int startPosition, IShell currenShell)
         {
             throw new NotImplementedException();
         }
