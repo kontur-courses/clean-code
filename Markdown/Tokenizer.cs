@@ -25,7 +25,9 @@ namespace Markdown
             if (!IsRestrictedShell(text, shell, right))
             {
                 currentPosition = startPosition;
-                return ReadNextToken(text, ref currentPosition, shells.Where(s => !s.Equals(shell)).ToList());
+                left = startPosition;
+                shell = null;
+                right = GetEndPositionToken(text, currentPosition, shells, null);
             }
             currentPosition = right + 1 + (shell?.GetSuffix().Length ?? 0);
             return new Token(text.Substring(left, right - left + 1), shell);
@@ -85,7 +87,7 @@ namespace Markdown
         public int GetEndPositionToken(string text, int currentPosition, List<IShell> shells, IShell currentShell)
         {
             var start = currentPosition;
-            for (; currentPosition < text.Length; currentPosition++)
+            for (currentPosition++; currentPosition < text.Length; currentPosition++)
             {
                 if (currentShell == null)
                 {

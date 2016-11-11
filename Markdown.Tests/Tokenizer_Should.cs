@@ -160,25 +160,14 @@ namespace Markdown.Tests
         }
 
         [Test]
-        public void returnPrefixStringIsToken_WhenAfterPrefixSpace()
+        public void readOneChar_WhenUnpairedTag()
         {
             var text = "__ text__";
             var position = 0;
             var token = tokenizer.ReadNextToken(text, ref position, shells);
             token.Shell.Should().BeNull();
-            token.Text.Should().Be("__");
-            position.Should().Be(2);
-        }
-
-        [Test]
-        public void readToken_WhenShellIsNotClosed()
-        {
-            var text = "__unclosed token_italic text_";
-            var position = 0;
-            var token = tokenizer.ReadNextToken(text, ref position, shells);
-            token.Shell.Should().BeNull();
-            token.Text.Should().Be("__unclosed token");
-            position.Should().Be(2);
+            token.Text.Should().Be("_");
+            position.Should().Be(1);
         }
     }
 }
