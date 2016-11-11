@@ -54,14 +54,15 @@ namespace Markdown
                     break;
                 }
             }
-            if (IsIncorrectEndingShell(text, currentPosition))
+            if (IsIncorrectEndingShell(text, currentPosition) || correctShell == null)
             {
                 return null;
             }
-            if (correctShell != null)
+            if (ShellIsSurroundedByNumbers(text, startPosition, currentPosition - 1))
             {
-                startPosition = currentPosition;
+                return null;
             }
+            startPosition = currentPosition;
             return correctShell;
         }
 
@@ -86,6 +87,13 @@ namespace Markdown
                 }
             }
             return currentPosition - 1;
+        }
+
+        private static bool ShellIsSurroundedByNumbers(string text, int startPrefix, int endSuffix)
+        {
+            int temp;
+            return startPrefix > 0 && int.TryParse(text[startPrefix - 1].ToString(), out temp) &&
+                   endSuffix + 1 < text.Length && int.TryParse(text[endSuffix + 1].ToString(), out temp);
         }
 
         private static bool IsRestrictedShell(string text, IShell shell, int endToken)
