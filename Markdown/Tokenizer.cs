@@ -60,14 +60,7 @@ namespace Markdown
 
         private bool isSubstring(string text, int start, string substring)
         {
-            for (var i = 0; i < substring.Length; i++)
-            {
-                if (text[start + i] != substring[i])
-                {
-                    return false;
-                }
-            }
-            return true;
+            return !substring.Where((t, i) => text[start + i] != t).Any();
         }
 
         public int GetEndPositionToken(string text, int currentPosition, List<IShell> shells, IShell currentShell)

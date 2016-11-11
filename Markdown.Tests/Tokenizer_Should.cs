@@ -123,7 +123,7 @@ namespace Markdown.Tests
         {
             var text = "abc_italic text_";
             var position = 3;
-            Token token = tokenizer.ReadNextToken(text, ref position, shells);
+            var token = tokenizer.ReadNextToken(text, ref position, shells);
             token.Shell.Should().BeOfType(typeof(SingleUnderline));
             token.Text.Should().Be("italic text");
             position.Should().Be(16);
@@ -133,10 +133,19 @@ namespace Markdown.Tests
         {
             var text = "qwerty__bold text__88";
             var position = 6;
-            Token token = tokenizer.ReadNextToken(text, ref position, shells);
+            var token = tokenizer.ReadNextToken(text, ref position, shells);
             token.Shell.Should().BeOfType(typeof(DoubleUnderline));
             token.Text.Should().Be("bold text");
             position.Should().Be(19);
+        }
+
+        [Test]
+        public void notFindEndToken_WhenSpaceBeforeSuffix()
+        {
+            var text = "_some _text_";
+            var position = 1;
+            var end = tokenizer.GetEndPositionToken(text, position, shells, new SingleUnderline());
+            end.Should().Be(10);
         }
     }
 }
