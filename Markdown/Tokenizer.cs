@@ -33,7 +33,7 @@ namespace Markdown
 
         private bool IsRestrictedShell(string text, IShell shell, int endToken)
         {
-            return shell == null || isSubstring(text, endToken + 1, shell.GetSuffix());
+            return shell == null || IsSubstring(text, endToken + 1, shell.GetSuffix());
         }
 
         public IShell ReadNextShell(string text, ref int startPosition, List<IShell> shells )
@@ -73,7 +73,7 @@ namespace Markdown
             return correctShell;
         }
 
-        private bool isSubstring(string text, int start, string substring)
+        private bool IsSubstring(string text, int start, string substring)
         {
             if (start + substring.Length > text.Length)
             {
@@ -88,14 +88,14 @@ namespace Markdown
             {
                 if (currentShell == null)
                 {
-                    if (shells.Any(s => isSubstring(text, currentPosition, s.GetPrefix())))
+                    if (shells.Any(s => IsSubstring(text, currentPosition, s.GetPrefix())))
                     {
                         break;
                     }
                 }
                 else
                 {
-                    if (isSubstring(text, currentPosition, currentShell.GetPrefix()))
+                    if (IsSubstring(text, currentPosition, currentShell.GetPrefix()))
                     {
                         if (currentPosition - 1 < 0 || text[currentPosition - 1] != ' ')
                         {

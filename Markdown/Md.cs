@@ -7,11 +7,11 @@ namespace Markdown
 {
     public class Md
     {
-        private List<IShell> mdShells; 
-        public Md()
+        private readonly List<IShell> mdShells = new List<IShell>()
         {
-            throw new NotImplementedException();
-        }
+            new SingleUnderline(),
+            new DoubleUnderline()
+        }; 
 
         public string Render(string text)
         {
@@ -33,7 +33,7 @@ namespace Markdown
                 }
                 else
                 {
-                    result.Append(token.Text);
+                    result.Append(token.Shell.RenderToHtml(token.Text));
                 }
             }
             return result.ToString();
