@@ -42,5 +42,12 @@ namespace Markdown.Tests
             md.Render(text).Should().Be("<strong>bold <em>italic and bold</em> bold</strong>");
         }
 
+        [Test]
+        public void notRenderBold_WhenInsideItalicTag()
+        {
+            var text = "_italic __not bold__ italic_";
+            md.Render(text).Should().Be("<em>italic _</em>not bold__ italic_");
+        }
+
     }
 }
