@@ -78,7 +78,11 @@ namespace Markdown
                 {
                     if (isSubstring(text, currentPosition, currentShell.GetPrefix()))
                     {
-                        break;
+                        if (currentPosition - 1 < 0 || text[currentPosition - 1] != ' ')
+                        {
+                            break;
+                        }
+                        
                     }
                 }
             }
