@@ -6,16 +6,16 @@ namespace Markdown
 {
     public class Md
     {
-        private readonly List<IShell> mdShells = new List<IShell>()
-        {
-            new SingleUnderline(),
-            new DoubleUnderline()
-        }; 
-
         public string Render(string text)
         {
             return GetHtmlCode(text, mdShells);
         }
+
+        private readonly List<IShell> mdShells = new List<IShell>()
+        {
+            new SingleUnderline(),
+            new DoubleUnderline()
+        };
 
         private static string GetHtmlCode(string text, List<IShell> shells)
         {
