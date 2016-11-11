@@ -147,5 +147,15 @@ namespace Markdown.Tests
             var end = tokenizer.GetEndPositionToken(text, position, shells, new SingleUnderline());
             end.Should().Be(10);
         }
+
+        [Test]
+        public void notFindShell_WhenBeforePrefixShielding()
+        {
+            var text = "abc\\__italic_";
+            var position = 4;
+            var shell = tokenizer.ReadNextShell(text, ref position, shells);
+            shell.Should().BeNull();
+            position.Should().Be(4);
+        }
     }
 }

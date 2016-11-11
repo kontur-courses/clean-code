@@ -51,6 +51,10 @@ namespace Markdown
             {
                 return null;
             }
+            if (currentPosition - 1 < 0 || text[currentPosition - 1] != '\\')
+            {
+                return null;
+            }
             if (correctShell != null)
             {
                 startPosition = currentPosition;
