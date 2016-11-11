@@ -20,5 +20,19 @@ namespace Markdown.Tests
             var text = "text without formatting";
             md.Render(text).Should().Be(text);
         }
+
+        [Test]
+        public void addItalicTag_WhenIsSingleUnderline()
+        {
+            var text = "_italic text_";
+            md.Render(text).Should().Be("<em>italic text</em>");
+        }
+
+        [Test]
+        public void addBoldTag_WhenIsDoubleUnderline()
+        {
+            var text = "__bold text__";
+            md.Render(text).Should().Be("<strong>bold text</strong>");
+        }
     }
 }
