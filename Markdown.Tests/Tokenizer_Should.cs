@@ -157,5 +157,16 @@ namespace Markdown.Tests
             shell.Should().BeNull();
             position.Should().Be(4);
         }
+
+        [Test]
+        public void readToken_WhenShellIsNotClosed()
+        {
+            var text = "__unclosed token_italic text_";
+            var position = 0;
+            var token = tokenizer.ReadNextToken(text, ref position, shells);
+            token.Should().BeNull();
+            token.Text.Should().Be("__unclosed token");
+            position.Should().Be(16);
+        }
     }
 }
