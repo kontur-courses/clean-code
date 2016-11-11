@@ -169,5 +169,14 @@ namespace Markdown.Tests
             token.Text.Should().Be("_");
             position.Should().Be(1);
         }
+
+        [Test]
+        public void notFindShell_WhenPrefixSurroundedByNumbers()
+        {
+            var text = "12_2text_";
+            var position = 2;
+            tokenizer.ReadNextShell(text, ref position, shells).Should().BeNull();
+            position.Should().Be(2);
+        }
     }
 }
