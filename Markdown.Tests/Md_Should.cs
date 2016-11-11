@@ -34,5 +34,13 @@ namespace Markdown.Tests
             var text = "__bold text__";
             md.Render(text).Should().Be("<strong>bold text</strong>");
         }
+
+        [Test]
+        public void renderItalic_WhenInsideBoldTag()
+        {
+            var text = "__bold _italic and bold_ bold__";
+            md.Render(text).Should().Be("<strong>bold <em>italic and bold</em> bold</strong>");
+        }
+
     }
 }
