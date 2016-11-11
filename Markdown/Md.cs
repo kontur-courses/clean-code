@@ -1,5 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 
@@ -27,7 +26,7 @@ namespace Markdown
             {
                 if (token.HasShell())
                 {
-                    var shellsInToken = shells.Where(s => s.Contains(token.Shell)).ToList();
+                    var shellsInToken = shells.Where(s => token.Shell.Contains(s)).ToList();
                     var resultTextToken = GetHtmlCode(token.Text, shellsInToken);
                     result.Append(token.Shell.RenderToHtml(resultTextToken));
                 }
