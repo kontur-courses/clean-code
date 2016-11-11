@@ -71,11 +71,12 @@ namespace Markdown.Tests
         [Test]
         public void notFindShell_WhenSpaceAfterPrefix()
         {
-            var text = "abc __ def__";
+            var text = "abc _ def_";
             var position = 4;
             tokenizer.ReadNextShell(text, ref position, shells).Should().BeNull();
             position.Should().Be(4);
         }
+
 
         [Test]
         public void findEndToken_WhenNotFormatting()
@@ -159,13 +160,24 @@ namespace Markdown.Tests
         }
 
         [Test]
+        public void returnPrefixStringIsToken_WhenAfterPrefixSpace()
+        {
+            var text = "__ text__";
+            var position = 0;
+            var token = tokenizer.ReadNextToken(text, ref position, shells);
+            token.Shell.Should().BeNull();
+            token.Text.Should().Be("__");
+            position.Should().Be(2);
+        }
+
+        [Test]
         public void readToken_WhenShellIsNotClosed()
         {
             var text = "__unclosed token_italic text_";
             var position = 0;
             var token = tokenizer.ReadNextToken(text, ref position, shells);
-            token.Shell.Should().BeOfType(typeof(SingleUnderline));
-            token.Text.Should().Be("");
+            token.Shell.Should().BeNull();
+            token.Text.Should().Be("__unclosed token");
             position.Should().Be(2);
         }
     }

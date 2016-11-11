@@ -84,6 +84,7 @@ namespace Markdown
 
         public int GetEndPositionToken(string text, int currentPosition, List<IShell> shells, IShell currentShell)
         {
+            var start = currentPosition;
             for (; currentPosition < text.Length; currentPosition++)
             {
                 if (currentShell == null)
@@ -104,6 +105,10 @@ namespace Markdown
                         
                     }
                 }
+            }
+            if (currentPosition - 1 < start)
+            {
+                return currentPosition;
             }
             return currentPosition - 1;
         }
