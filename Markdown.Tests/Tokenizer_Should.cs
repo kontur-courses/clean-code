@@ -164,9 +164,9 @@ namespace Markdown.Tests
             var text = "__unclosed token_italic text_";
             var position = 0;
             var token = tokenizer.ReadNextToken(text, ref position, shells);
-            token.Should().BeNull();
-            token.Text.Should().Be("__unclosed token");
-            position.Should().Be(16);
+            token.Shell.Should().BeOfType(typeof(SingleUnderline));
+            token.Text.Should().Be("");
+            position.Should().Be(2);
         }
     }
 }

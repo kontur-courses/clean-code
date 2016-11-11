@@ -16,18 +16,33 @@ namespace Markdown
             }
         }
 
-        public Token ReadNextToken(string text, ref int startPosition, List<IShell> shells)
-        {            
-            var shell = ReadNextShell(text, ref startPosition, shells);
-            var left = startPosition;
-            var right = GetEndPositionToken(text, startPosition, shells, shell);
-            startPosition = right + 1 + (shell?.GetSuffix().Length ?? 0);
+        public Token ReadNextToken(string text, ref int currentPosition, List<IShell> shells)
+        {
+            var startPosition = currentPosition;
+            var shell = ReadNextShell(text, ref currentPosition, shells);
+            var left = currentPosition;
+            var right = GetEndPositionToken(text, currentPosition, shells, shell);
+            if (!IsRestrictedShell(text, shell, right))
+            {
+                currentPosition = startPosition;
+                return ReadNextToken(text, ref currentPosition, shells.Where(s => !s.Equals(shell)).ToList());
+            }
+            currentPosition = right + 1 + (shell?.GetSuffix().Length ?? 0);
             return new Token(text.Substring(left, right - left + 1), shell);
+        }
+
+        private bool IsRestrictedShell(string text, IShell shell, int endToken)
+        {
+            return shell == null || isSubstring(text, endToken + 1, shell.GetSuffix());
         }
 
         public IShell ReadNextShell(string text, ref int startPosition, List<IShell> shells )
         {
             var currentPosition = startPosition;
+            if (currentPosition - 1 >= 0 && currentPosition < text.Length && text[currentPosition - 1] == '\\')
+            {
+                return null;
+            }
             var prefix = new StringBuilder();
             IShell correctShell = null;
             while (currentPosition < text.Length)
@@ -51,10 +66,6 @@ namespace Markdown
             {
                 return null;
             }
-            if (currentPosition - 1 < 0 || text[currentPosition - 1] != '\\')
-            {
-                return null;
-            }
             if (correctShell != null)
             {
                 startPosition = currentPosition;
@@ -64,6 +75,10 @@ namespace Markdown
 
         private bool isSubstring(string text, int start, string substring)
         {
+            if (start + substring.Length > text.Length)
+            {
+                return false;
+            }
             return !substring.Where((t, i) => text[start + i] != t).Any();
         }
 
