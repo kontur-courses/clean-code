@@ -14,5 +14,10 @@
         {
             return Shell != null;
         }
+
+        public string RenderToHtml()
+        {
+            return Shell?.RenderToHtml(Text) ?? Text;
+        }
     }
 }

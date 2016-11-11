@@ -33,7 +33,7 @@ namespace Markdown
                 }
                 else
                 {
-                    result.Append(token.Shell.RenderToHtml(token.Text));
+                    result.Append(token.RenderToHtml());
                 }
             }
             return result.ToString();
