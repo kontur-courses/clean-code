@@ -50,11 +50,10 @@ namespace Markdown.Tests
         }
 
         [Test]
-        public void DoSomething_WhenSomething()
+        public void notFindShell_WhenSurroundedByNumbers()
         {
             var text = "_italic2_0italic_";
             md.Render(text).Should().Be("<em>italic2_0italic</em>");
         }
-
     }
 }
