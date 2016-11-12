@@ -28,7 +28,7 @@ namespace Markdown.Tokenizer
         {
             if (!HasMoreTokens())
             {
-                throw new InvalidOperationException();
+                throw new InvalidOperationException("impossible to get the next token. all tokens listed");
             }
             var startPosition = currentPosition;
             var shell = ReadNextShell();
