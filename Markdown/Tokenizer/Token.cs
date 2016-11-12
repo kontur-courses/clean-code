@@ -1,4 +1,4 @@
-﻿using Markdown.Shells;
+﻿using Markdown.Shell;
 
 namespace Markdown.Tokenizer
 {

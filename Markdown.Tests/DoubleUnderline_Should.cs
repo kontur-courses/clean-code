@@ -1,6 +1,7 @@
-﻿using NUnit.Framework;
+﻿using System;
+using NUnit.Framework;
 using FluentAssertions;
-using Markdown.Shells;
+using Markdown.Shell;
 
 namespace Markdown.Tests
 {
@@ -35,6 +36,11 @@ namespace Markdown.Tests
         public void ContainsSingleUnderline()
         {
             doubleUnderline.Contains(new SingleUnderline()).Should().BeTrue();
+        }
+        [Test]
+        public void CheckedForRestriction()
+        {
+            doubleUnderline.IsRestricted("__abcd__", 6);
         }
     }
 }

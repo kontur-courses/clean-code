@@ -1,7 +1,7 @@
 ﻿using System.Collections.Generic;
 using System.Linq;
 using System.Text;
-using Markdown.Shells;
+using Markdown.Shell;
 
 namespace Markdown.Tokenizer
 {
@@ -23,13 +23,18 @@ namespace Markdown.Tokenizer
             return currentPosition < text.Length;
         }
 
+        private static bool IsRestrictedShell(string text, IShell shell, int endToken)
+        {
+            return shell == null || shell.GetSuffix().IsSubstring(text, endToken + 1);
+        }
+
         public Token NextToken()
         {
             var startPosition = currentPosition;
             var shell = ReadNextShell();
             var leftBorder = currentPosition;
             var rightBorder = GetEndPositionToken(shell);
-            if (!IsRestrictedShell(text, shell, rightBorder))
+            if (!shell?.IsRestricted(text, rightBorder + 1) ?? true)
             {
                 currentPosition = startPosition;
                 leftBorder = startPosition;
@@ -43,7 +48,7 @@ namespace Markdown.Tokenizer
         private IShell ReadNextShell()
         {
             var positionAfterShell = currentPosition;
-            if (PreviousSymbolIsShielding(text, positionAfterShell))
+            if (text.IsEscapedCharacter(positionAfterShell))
             {
                 return null;
             }
@@ -62,7 +67,7 @@ namespace Markdown.Tokenizer
                     break;
                 }
             }
-            if (IsIncorrectEndingShell(text, positionAfterShell) || correctShell == null)
+            if (text.IsIncorrectEndingShell(positionAfterShell) || correctShell == null)
             {
                 return null;
             }
@@ -81,13 +86,13 @@ namespace Markdown.Tokenizer
             {
                 if (currentShell == null)
                 {
-                    var newShell = shells.FirstOrDefault(s => IsSubstring(text, endPositionToken, s.GetPrefix()));
+                    var newShell = shells.FirstOrDefault(s => s.GetPrefix().IsSubstring(text, endPositionToken));
                     if (newShell == null)
                     {
                         continue;
                     }
                     if (!IsSurroundedByNumbers(text, endPositionToken,
-                            GetPositionEndSubstring(endPositionToken, newShell.GetSuffix())))
+                            GetPositionEndSubstring(newShell.GetSuffix(), endPositionToken)))
                     {
                         break;
                     }
@@ -98,12 +103,12 @@ namespace Markdown.Tokenizer
                     {
                         continue;
                     }
-                    if (!IsSubstring(text, endPositionToken, currentShell.GetPrefix()))
+                    if (!currentShell.GetPrefix().IsSubstring(text, endPositionToken))
                     {
                         continue;
                     }
                     if (!IsSurroundedByNumbers(text, endPositionToken,
-                            GetPositionEndSubstring(endPositionToken, currentShell.GetSuffix())))
+                            GetPositionEndSubstring(currentShell.GetSuffix(), endPositionToken)))
                     {
                         break;
                     }
@@ -119,38 +124,14 @@ namespace Markdown.Tokenizer
                    endSuffix + 1 < text.Length && int.TryParse(text[endSuffix + 1].ToString(), out temp);
         }
 
-        private static int GetPositionEndSubstring(int startPosition, string text)
+        public static int GetPositionEndSubstring(string substring, int startPosition)
         {
-            return startPosition + text.Length - 1;
-        }
-
-        private static bool IsRestrictedShell(string text, IShell shell, int endToken)
-        {
-            return shell == null || IsSubstring(text, endToken + 1, shell.GetSuffix());
-        }
-
-        private static bool PreviousSymbolIsShielding(string text, int currentPosition)
-        {
-            return currentPosition - 1 >= 0 && currentPosition < text.Length && text[currentPosition - 1] == '\\';
-        }
-
-        private static bool IsIncorrectEndingShell(string text, int currentPosition)
-        {
-            return currentPosition >= text.Length || text[currentPosition] == ' ';
+            return startPosition + substring.Length - 1;
         }
 
         private static IShell GetShellWithPrefix(IEnumerable<IShell> shells, string prefix)
         {
             return shells.FirstOrDefault(s => s.GetPrefix() == prefix);
-        }
-
-        private static bool IsSubstring(string text, int start, string substring)
-        {
-            if (start + substring.Length > text.Length)
-            {
-                return false;
-            }
-            return !substring.Where((t, i) => text[start + i] != t).Any();
         }
     }
 }

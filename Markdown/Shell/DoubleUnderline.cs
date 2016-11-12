@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
-
-namespace Markdown.Shells
+namespace Markdown.Shell
 {
     public class DoubleUnderline : IShell
     {
@@ -29,6 +28,10 @@ namespace Markdown.Shells
         public bool Contains(IShell shell)
         {
             return innerShellsTypes.Contains(shell.GetType());
+        }
+        public bool IsRestricted(string text, int startSuffix)
+        {
+            return GetSuffix().IsSubstring(text, startSuffix);
         }
     }
 }
