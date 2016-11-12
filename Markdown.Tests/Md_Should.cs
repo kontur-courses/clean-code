@@ -97,6 +97,14 @@ namespace Markdown.Tests
             return md.Render(text);
         }
 
+        [TestCase("abcd _italic_aer __Bold__", ExpectedResult = "abcd <em>italic</em>aer <strong>Bold</strong>")]
+        [TestCase("__bold___italic_", ExpectedResult = "<strong>bold</strong><em>italic</em>")]
+        [TestCase("__b _i_b_i_ b__", ExpectedResult = "<strong>b <em>i</em>b<em>i</em> b</strong>")]
+        public string RenderMultipleTokens(string text)
+        {
+            return md.Render(text);
+        }
+
         [Test]
         public void shouldWorkInLinearTime_WhenBigData()
         {

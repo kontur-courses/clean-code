@@ -6,101 +6,109 @@ namespace Markdown
 {
     public class Tokenizer
     {
-        public IEnumerable<Token> SplitToTokens(string text, List<IShell> shells)
+        private readonly string text;
+        private readonly List<IShell> shells;
+        private int currentPosition;
+
+        public Tokenizer(string text, List<IShell> shells)
         {
-            var currentPosition = 0;
-            while (currentPosition < text.Length)
-            {
-                yield return ReadNextToken(text, ref currentPosition, shells);
-            }
+            this.text = text;
+            this.shells = shells;
         }
 
-        public Token ReadNextToken(string text, ref int currentPosition, List<IShell> shells)
+
+        public bool HasMoreTokens()
+        {
+            return currentPosition < text.Length;
+        }
+
+        public Token NextToken()
         {
             var startPosition = currentPosition;
-            var shell = ReadNextShell(text, ref currentPosition, shells);
+            var shell = ReadNextShell();
             var leftBorder = currentPosition;
-            var rightBorder = GetEndPositionToken(text, currentPosition, shells, shell);
+            var rightBorder = GetEndPositionToken(shell);
             if (!IsRestrictedShell(text, shell, rightBorder))
             {
                 currentPosition = startPosition;
                 leftBorder = startPosition;
                 shell = null;
-                rightBorder = GetEndPositionToken(text, currentPosition, shells, null);
+                rightBorder = GetEndPositionToken(null);
             }
             currentPosition = rightBorder + 1 + (shell?.GetSuffix().Length ?? 0);
             return new Token(text.Substring(leftBorder, rightBorder - leftBorder + 1), shell);
         }
 
-        public IShell ReadNextShell(string text, ref int startPosition, List<IShell> shells)
+        public IShell ReadNextShell()
         {
-            var currentPosition = startPosition;
-            if (PreviousSymbolIsShielding(text, currentPosition))
+            var position = currentPosition;
+            if (PreviousSymbolIsShielding(text, position))
             {
                 return null;
             }
             var prefix = new StringBuilder();
             IShell correctShell = null;
-            while (currentPosition < text.Length)
+            while (position < text.Length)
             {
-                prefix.Append(text[currentPosition]);
+                prefix.Append(text[position]);
                 if (shells.Any(s => s.GetPrefix().StartsWith(prefix.ToString())))
                 {
                     correctShell = GetShellWithPrefix(shells, prefix.ToString());
-                    currentPosition++;
+                    position++;
                 }
                 else
                 {
                     break;
                 }
             }
-            if (IsIncorrectEndingShell(text, currentPosition) || correctShell == null)
+            if (IsIncorrectEndingShell(text, position) || correctShell == null)
             {
                 return null;
             }
-            if (IsSurroundedByNumbers(text, startPosition, currentPosition - 1))
+            if (IsSurroundedByNumbers(text, currentPosition, position - 1))
             {
                 return null;
             }
-            startPosition = currentPosition;
+            currentPosition = position;
             return correctShell;
         }
 
-        public int GetEndPositionToken(string text, int currentPosition, List<IShell> shells, IShell currentShell)
+        public int GetEndPositionToken(IShell currentShell)
         {
-            for (currentPosition++; currentPosition < text.Length; currentPosition++)
+            var endPositionToken = currentPosition;
+            for (endPositionToken++; endPositionToken < text.Length; endPositionToken++)
             {
                 if (currentShell == null)
                 {
-                    var newShell = shells.FirstOrDefault(s => IsSubstring(text, currentPosition, s.GetPrefix()));
+                    var newShell = shells.FirstOrDefault(s => IsSubstring(text, endPositionToken, s.GetPrefix()));
                     if (newShell == null)
                     {
                         continue;
                     }
-                    if (!IsSurroundedByNumbers(text, currentPosition,
-                            GetPositionEndText(currentPosition, newShell.GetSuffix())))
+                    if (!IsSurroundedByNumbers(text, endPositionToken,
+                            GetPositionEndText(endPositionToken, newShell.GetSuffix())))
                     {
                         break;
                     }
                 }
                 else
                 {
-                    if (text[currentPosition - 1] == '\\' || text[currentPosition - 1] == ' ')
+                    if (text[endPositionToken - 1] == '\\' || text[endPositionToken - 1] == ' ')
                     {
                         continue;
                     }
-                    if (!IsSubstring(text, currentPosition, currentShell.GetPrefix()))
+                    if (!IsSubstring(text, endPositionToken, currentShell.GetPrefix()))
                     {
                         continue;
                     }
-                    if (!IsSurroundedByNumbers(text, currentPosition,
-                            GetPositionEndText(currentPosition, currentShell.GetSuffix())))
+                    if (!IsSurroundedByNumbers(text, endPositionToken,
+                            GetPositionEndText(endPositionToken, currentShell.GetSuffix())))
                     {
                         break;
                     }
                 }
             }
-            return currentPosition - 1;
+            return endPositionToken - 1;
         }
 
         private static bool IsSurroundedByNumbers(string text, int startPrefix, int endSuffix)

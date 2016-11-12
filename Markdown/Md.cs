@@ -20,10 +20,10 @@ namespace Markdown
         private static string GetHtmlCode(string text, List<IShell> shells)
         {
             var result = new StringBuilder();
-            var tokenizer = new Tokenizer();
-            var tokens = tokenizer.SplitToTokens(text, shells);
-            foreach (var token in tokens)
+            var tokenizer = new Tokenizer(text, shells);
+            while (tokenizer.HasMoreTokens())
             {
+                var token = tokenizer.NextToken();
                 if (token.HasShell())
                 {
                     var shellsInToken = shells.Where(s => token.Shell.Contains(s)).ToList();
