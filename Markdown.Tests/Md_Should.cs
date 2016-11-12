@@ -122,10 +122,13 @@ namespace Markdown.Tests
             }
             for (var i = 0; i < measurementResult.Count - 1; i++)
             {
-                var firstResult = measurementResult[i];
-                var secondResult = measurementResult[i + 1];
-                var quotientSizes = (double) secondResult.Item1/firstResult.Item1;
-                ((double)secondResult.Item2/firstResult.Item2).Should().BeLessThan(quotientSizes * 2);
+                var firstTime = measurementResult[i].Item2;
+                var secondTime = measurementResult[i + 1].Item2;
+                var firstSize = measurementResult[i].Item1;
+                var secondSize = measurementResult[i + 1].Item1;
+                var quotientSizes = (double) secondSize/firstSize;
+                var quotientTimes = (double) secondTime/firstTime;
+                quotientTimes.Should().BeLessThan(quotientSizes * 2);
             }
 
         }
