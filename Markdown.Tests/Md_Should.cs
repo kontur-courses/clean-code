@@ -117,8 +117,7 @@ namespace Markdown.Tests
                 stopwatch.Start();
                 md.Render(text);
                 stopwatch.Stop();
-                measurementResult.Add(Tuple.Create(size, stopwatch.ElapsedMilliseconds));
-                
+                measurementResult.Add(Tuple.Create(size, stopwatch.ElapsedTicks));
             }
             for (var i = 0; i < measurementResult.Count - 1; i++)
             {
@@ -126,9 +125,9 @@ namespace Markdown.Tests
                 var secondTime = measurementResult[i + 1].Item2;
                 var firstSize = measurementResult[i].Item1;
                 var secondSize = measurementResult[i + 1].Item1;
-                var quotientSizes = (double) secondSize/firstSize;
-                var quotientTimes = (double) secondTime/firstTime;
-                quotientTimes.Should().BeLessThan(quotientSizes * 2);
+                var quotientSizes = (double) firstSize/secondSize;
+                var quotientTimes = (double) firstTime/secondTime;
+                quotientTimes.Should().BeGreaterThan(quotientSizes / 2);
             }
 
         }
