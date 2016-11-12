@@ -71,7 +71,7 @@ namespace Markdown.Tokenizer
             {
                 return null;
             }
-            if (IsSurroundedByNumbers(text, currentPosition, positionAfterShell - 1))
+            if (text.IsSurroundedByNumbers(currentPosition, positionAfterShell - 1))
             {
                 return null;
             }
@@ -91,7 +91,7 @@ namespace Markdown.Tokenizer
                     {
                         continue;
                     }
-                    if (!IsSurroundedByNumbers(text, endPositionToken,
+                    if (!text.IsSurroundedByNumbers(endPositionToken,
                             GetPositionEndSubstring(newShell.GetSuffix(), endPositionToken)))
                     {
                         break;
@@ -107,7 +107,7 @@ namespace Markdown.Tokenizer
                     {
                         continue;
                     }
-                    if (!IsSurroundedByNumbers(text, endPositionToken,
+                    if (!text.IsSurroundedByNumbers(endPositionToken,
                             GetPositionEndSubstring(currentShell.GetSuffix(), endPositionToken)))
                     {
                         break;
@@ -117,12 +117,7 @@ namespace Markdown.Tokenizer
             return endPositionToken - 1;
         }
 
-        private static bool IsSurroundedByNumbers(string text, int startPrefix, int endSuffix)
-        {
-            int temp;
-            return startPrefix > 0 && int.TryParse(text[startPrefix - 1].ToString(), out temp) &&
-                   endSuffix + 1 < text.Length && int.TryParse(text[endSuffix + 1].ToString(), out temp);
-        }
+
 
         public static int GetPositionEndSubstring(string substring, int startPosition)
         {

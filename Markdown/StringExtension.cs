@@ -22,7 +22,12 @@ namespace Markdown
         {
             return currentPosition - 1 >= 0 && currentPosition < text.Length && text[currentPosition - 1] == '\\';
         }
-        
+        public static bool IsSurroundedByNumbers(this string text, int startPrefix, int endSuffix)
+        {
+            int temp;
+            return startPrefix > 0 && int.TryParse(text[startPrefix - 1].ToString(), out temp) &&
+                   endSuffix + 1 < text.Length && int.TryParse(text[endSuffix + 1].ToString(), out temp);
+        }
     }
     
 }
