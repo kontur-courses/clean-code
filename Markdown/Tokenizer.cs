@@ -58,7 +58,7 @@ namespace Markdown
             {
                 return null;
             }
-            if (ShellIsSurroundedByNumbers(text, startPosition, currentPosition - 1))
+            if (IsSurroundedByNumbers(text, startPosition, currentPosition - 1))
             {
                 return null;
             }
@@ -74,15 +74,15 @@ namespace Markdown
                 {
                     var newShell = shells.FirstOrDefault(s => IsSubstring(text, currentPosition, s.GetPrefix()));
                     if (newShell == null) continue;
-                    if (!ShellIsSurroundedByNumbers(text, currentPosition, currentPosition - 1 + newShell.GetSuffix().Length))
+                    if (!IsSurroundedByNumbers(text, currentPosition, currentPosition - 1 + newShell.GetSuffix().Length))
                         break;
                 }
                 else
                 {
-                    if (text[currentPosition - 1] == '\\') continue;
+                    if (text[currentPosition - 1] == '\\' || text[currentPosition - 1] == ' ') continue;
                     if (!IsSubstring(text, currentPosition, currentShell.GetPrefix())) continue;
-                    if (IsIncorrectEndingShell(text, currentPosition - 1)) continue;
-                    if (!ShellIsSurroundedByNumbers(text, currentPosition, GetPositionEndText(currentPosition, currentShell.GetSuffix())))
+                    if (!IsSurroundedByNumbers(text, currentPosition,
+                            GetPositionEndText(currentPosition, currentShell.GetSuffix())))
                     {
                         break;
                     }
@@ -91,7 +91,7 @@ namespace Markdown
             return currentPosition - 1;
         }
 
-        private static bool ShellIsSurroundedByNumbers(string text, int startPrefix, int endSuffix)
+        private static bool IsSurroundedByNumbers(string text, int startPrefix, int endSuffix)
         {
             int temp;
             return startPrefix > 0 && int.TryParse(text[startPrefix - 1].ToString(), out temp) &&
