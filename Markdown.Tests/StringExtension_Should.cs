@@ -6,18 +6,20 @@ namespace Markdown.Tests
     [TestFixture]
     class StringExtension_Should
     {
-        [Test]
-        public void FindSubstringStartingWithPosition()
+        [TestCase("defg", "abcdefgh", 3, ExpectedResult = true)]
+        [TestCase("deft", "abcdef", 3, ExpectedResult = false)]
+        [TestCase("abc", "qweab", 3, ExpectedResult = false)]
+        public bool FindSubstringStartingWithPosition(string substring, string text, int position)
         {
-            "defg".IsSubstring("abcdefgh", 3).Should().BeTrue();
-            "deft".IsSubstring("abcdef", 3).Should().BeFalse();
+            return substring.IsSubstring(text, position);
         }
 
-        [Test]
-        public void CheckSymbolForShielding()
+        [TestCase("ab\\cd", 3, ExpectedResult = true)]
+        [TestCase("a\\bcd", 1, ExpectedResult = false)]
+        [TestCase("abc", 0, ExpectedResult = false)]
+        public bool CheckSymbolForShielding(string text, int position)
         {
-            "ab\\cd".IsEscapedCharacter(3).Should().BeTrue();
-            "a\\bcd".IsEscapedCharacter(1).Should().BeFalse();
+            return text.IsEscapedCharacter(position);
         }
 
         [Test]
@@ -27,11 +29,12 @@ namespace Markdown.Tests
             "_a_b".IsIncorrectEndingShell(3).Should().BeFalse();
         }
 
-        [Test]
-        public void CheckSubstringSurroundedByNumbers()
+        [TestCase("abc1__2", 4, 5, ExpectedResult = true)]
+        [TestCase("abc2_r", 4, 4, ExpectedResult = false)]
+        [TestCase("9_-1", 1, 1, ExpectedResult = false)]
+        public bool CheckSubstringSurroundedByNumbers(string text, int start, int end)
         {
-            "abc1__2".IsSurroundedByNumbers(4, 5).Should().BeTrue();
-            "abc2_r".IsSurroundedByNumbers(4, 4).Should().BeFalse();
+            return text.IsSurroundedByNumbers(start, end);
         }
 
         [Test]
