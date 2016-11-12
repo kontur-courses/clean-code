@@ -33,5 +33,17 @@ namespace Markdown.Tests
             "abc1__2".IsSurroundedByNumbers(4, 5).Should().BeTrue();
             "abc2_r".IsSurroundedByNumbers(4, 4).Should().BeFalse();
         }
+
+        [Test]
+        public void RemoveEscapeСharacters()
+        {
+            "\\abc\\qwe\\_".RemoveEscapeСharacters().Should().Be("abcqwe_");
+        }
+
+        [Test]
+        public void GetEndSubstringStartingFromPosition()
+        {
+            "123".GetPositionEndSubstring(10).Should().Be(12);
+        }
     }
 }

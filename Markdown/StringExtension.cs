@@ -1,4 +1,5 @@
-﻿using System.Linq;
+﻿using System;
+using System.Linq;
 
 namespace Markdown
 {
@@ -27,6 +28,15 @@ namespace Markdown
             int temp;
             return startPrefix > 0 && int.TryParse(text[startPrefix - 1].ToString(), out temp) &&
                    endSuffix + 1 < text.Length && int.TryParse(text[endSuffix + 1].ToString(), out temp);
+        }
+        public static string RemoveEscapeСharacters(this string text)
+        {
+            return text.Replace("\\", "");
+        }
+
+        public static int GetPositionEndSubstring(this string substring, int startPosition)
+        {
+            return startPosition + substring.Length - 1;
         }
     }
     

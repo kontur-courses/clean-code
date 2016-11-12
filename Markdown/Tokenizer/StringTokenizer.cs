@@ -92,7 +92,7 @@ namespace Markdown.Tokenizer
                         continue;
                     }
                     if (!text.IsSurroundedByNumbers(endPositionToken,
-                            GetPositionEndSubstring(newShell.GetSuffix(), endPositionToken)))
+                            newShell.GetSuffix().GetPositionEndSubstring(endPositionToken)))
                     {
                         break;
                     }
@@ -108,20 +108,13 @@ namespace Markdown.Tokenizer
                         continue;
                     }
                     if (!text.IsSurroundedByNumbers(endPositionToken,
-                            GetPositionEndSubstring(currentShell.GetSuffix(), endPositionToken)))
+                            currentShell.GetSuffix().GetPositionEndSubstring(endPositionToken)))
                     {
                         break;
                     }
                 }
             }
             return endPositionToken - 1;
-        }
-
-
-
-        public static int GetPositionEndSubstring(string substring, int startPosition)
-        {
-            return startPosition + substring.Length - 1;
         }
 
         private static IShell GetShellWithPrefix(IEnumerable<IShell> shells, string prefix)

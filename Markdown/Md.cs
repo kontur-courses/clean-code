@@ -8,16 +8,16 @@ namespace Markdown
 {
     public class Md
     {
-        public string Render(string text)
-        {
-            return GetHtmlCode(text, mdShells);
-        }
-
         private readonly List<IShell> mdShells = new List<IShell>()
         {
             new SingleUnderline(),
             new DoubleUnderline()
         };
+
+        public string Render(string text)
+        {
+            return GetHtmlCode(text, mdShells);
+        }
 
         private static string GetHtmlCode(string text, List<IShell> shells)
         {
@@ -34,16 +34,11 @@ namespace Markdown
                 }
                 else
                 {
-                    var resultTextToken = RemoveEscapeСharacters(token.RenderToHtml());
+                    var resultTextToken = token.RenderToHtml().RemoveEscapeСharacters();
                     result.Append(resultTextToken);
                 }
             }
             return result.ToString();
-        }
-
-        private static string RemoveEscapeСharacters(string text)
-        {
-            return text.Replace("\\", "");
         }
     }
 }
