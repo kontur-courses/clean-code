@@ -79,6 +79,7 @@ namespace Markdown
                 }
                 else
                 {
+                    if (text[currentPosition - 1] == '\\') continue;
                     if (!IsSubstring(text, currentPosition, currentShell.GetPrefix())) continue;
                     if (IsIncorrectEndingShell(text, currentPosition - 1)) continue;
                     if (!ShellIsSurroundedByNumbers(text, currentPosition, GetPositionEndText(currentPosition, currentShell.GetSuffix())))

@@ -27,15 +27,21 @@ namespace Markdown
                 if (token.HasShell())
                 {
                     var shellsInToken = shells.Where(s => token.Shell.Contains(s)).ToList();
-                    var resultTextToken = GetHtmlCode(token.Text, shellsInToken);
+                    var resultTextToken = RemoveEscapeСharacters(GetHtmlCode(token.Text, shellsInToken));
                     result.Append(token.Shell.RenderToHtml(resultTextToken));
                 }
                 else
                 {
-                    result.Append(token.RenderToHtml());
+                    var resultText = RemoveEscapeСharacters(token.RenderToHtml());
+                    result.Append(resultText);
                 }
             }
             return result.ToString();
+        }
+
+        private static string RemoveEscapeСharacters(string text)
+        {
+            return text.Replace("\\", "");
         }
     }
 }

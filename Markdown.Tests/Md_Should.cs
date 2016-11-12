@@ -56,11 +56,13 @@ namespace Markdown.Tests
             md.Render(text).Should().Be("<em>italic2_0italic</em>");
         }
 
-        [Test]
-        public void removeShieldingCharacters_AfterRender()
+        [TestCase("\\_simple text\\_", ExpectedResult = "_simple text_")]
+        [TestCase("_italic\\_ text_", ExpectedResult = "<em>italic_ text</em>")]
+        public string removeShieldingCharacters_AfterRender(string text)
         {
-            var text = "\\_simple text\\_";
-            md.Render(text).Should().Be("_simple text_");
+            return md.Render(text);
         }
+
+
     }
 }
