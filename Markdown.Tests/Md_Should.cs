@@ -55,5 +55,12 @@ namespace Markdown.Tests
             var text = "_italic2_0italic_";
             md.Render(text).Should().Be("<em>italic2_0italic</em>");
         }
+
+        [Test]
+        public void removeShieldingCharacters_AfterRender()
+        {
+            var text = "\\_simple text\\_";
+            md.Render(text).Should().Be("_simple text_");
+        }
     }
 }
