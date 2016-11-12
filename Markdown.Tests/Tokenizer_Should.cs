@@ -1,6 +1,8 @@
 ﻿using System.Collections.Generic;
 using System.Linq;
 using FluentAssertions;
+using Markdown.Shells;
+using Markdown.Tokenizer;
 using NUnit.Framework;
 
 namespace Markdown.Tests
@@ -18,7 +20,7 @@ namespace Markdown.Tests
         public void notFindShell_WhenNotFormatting()
         {
             var text = "text";
-            var tokenizer = new Tokenizer(text, shells);
+            var tokenizer = new StringTokenizer(text, shells);
             
             var token = tokenizer.NextToken();
             token.Shell.Should().BeNull();
@@ -28,7 +30,7 @@ namespace Markdown.Tests
         public void findShell_WhenPositionInSingleUnderline()
         {
             var text = "_italic text_";
-            var tokenizer = new Tokenizer(text, shells);
+            var tokenizer = new StringTokenizer(text, shells);
             var token = tokenizer.NextToken();
             token.Shell.Should().BeOfType(typeof(SingleUnderline));
         }
@@ -37,7 +39,7 @@ namespace Markdown.Tests
         public void findShell_WhenPositionInDoubleUnderline()
         {
             var text = "__bold text__";
-            var tokenizer = new Tokenizer(text, shells);
+            var tokenizer = new StringTokenizer(text, shells);
             var token = tokenizer.NextToken();
             token.Shell.Should().BeOfType(typeof(DoubleUnderline));
         }
@@ -46,7 +48,7 @@ namespace Markdown.Tests
         public void notFindShell_WhenSpaceAfterPrefix()
         {
             var text = "_ def_";
-            var tokenizer = new Tokenizer(text, shells);
+            var tokenizer = new StringTokenizer(text, shells);
             var token = tokenizer.NextToken();
             token.Shell.Should().BeNull();
             token.Text.Should().Be("_ def");
@@ -56,7 +58,7 @@ namespace Markdown.Tests
         public void readToken_WhenNotFormatting()
         {
             var text = "not formatted text_def_";
-            var tokenizer = new Tokenizer(text, shells);
+            var tokenizer = new StringTokenizer(text, shells);
             var token = tokenizer.NextToken();
             token.Shell.Should().BeNull();
             token.Text.Should().Be("not formatted text");
@@ -66,7 +68,7 @@ namespace Markdown.Tests
         public void readToken_WhenNextSingleUnderline()
         {
             var text = "_italic text_123";
-            var tokenizer = new Tokenizer(text, shells);
+            var tokenizer = new StringTokenizer(text, shells);
             var token = tokenizer.NextToken();
             token.Shell.Should().BeOfType(typeof(SingleUnderline));
             token.Text.Should().Be("italic text");
@@ -75,7 +77,7 @@ namespace Markdown.Tests
         public void readToken_WhenNextDoubleUnderline()
         {
             var text = "__bold text__88";
-            var tokenizer = new Tokenizer(text, shells);
+            var tokenizer = new StringTokenizer(text, shells);
             var token = tokenizer.NextToken();
             token.Shell.Should().BeOfType(typeof(DoubleUnderline));
             token.Text.Should().Be("bold text");
@@ -85,7 +87,7 @@ namespace Markdown.Tests
         public void notFindEndToken_WhenSpaceBeforeSuffix()
         {
             var text = "_some _text_";
-            var tokenizer = new Tokenizer(text, shells);
+            var tokenizer = new StringTokenizer(text, shells);
             var token = tokenizer.NextToken();
             token.Shell.Should().BeOfType(typeof(SingleUnderline));
         }
@@ -94,7 +96,7 @@ namespace Markdown.Tests
         public void notFindShell_WhenBeforePrefixShielding()
         {
             var text = "\\_italic_";
-            var tokenizer = new Tokenizer(text, shells);
+            var tokenizer = new StringTokenizer(text, shells);
             while (tokenizer.HasMoreTokens())
             {
                 tokenizer.NextToken().Shell.Should().BeNull();
@@ -106,7 +108,7 @@ namespace Markdown.Tests
         public void readOneChar_WhenUnpairedTag()
         {
             var text = "__ text__";
-            var tokenizer = new Tokenizer(text, shells);
+            var tokenizer = new StringTokenizer(text, shells);
             var token = tokenizer.NextToken();
             token.Shell.Should().BeNull();
             token.Text.Should().Be("_");
@@ -116,7 +118,7 @@ namespace Markdown.Tests
         public void notFindShell_WhenPrefixSurroundedByNumbers()
         {
             var text = "12_2text_";
-            var tokenizer = new Tokenizer(text, shells);
+            var tokenizer = new StringTokenizer(text, shells);
             tokenizer.NextToken().Text.Should().Be("12_2text");
         }
     }

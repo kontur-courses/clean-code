@@ -1,16 +1,17 @@
 ﻿using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using Markdown.Shells;
 
-namespace Markdown
+namespace Markdown.Tokenizer
 {
-    public class Tokenizer
+    public class StringTokenizer
     {
         private readonly string text;
         private readonly List<IShell> shells;
         private int currentPosition;
 
-        public Tokenizer(string text, List<IShell> shells)
+        public StringTokenizer(string text, List<IShell> shells)
         {
             this.text = text;
             this.shells = shells;
@@ -41,35 +42,35 @@ namespace Markdown
 
         private IShell ReadNextShell()
         {
-            var position = currentPosition;
-            if (PreviousSymbolIsShielding(text, position))
+            var positionAfterShell = currentPosition;
+            if (PreviousSymbolIsShielding(text, positionAfterShell))
             {
                 return null;
             }
             var prefix = new StringBuilder();
             IShell correctShell = null;
-            while (position < text.Length)
+            while (positionAfterShell < text.Length)
             {
-                prefix.Append(text[position]);
+                prefix.Append(text[positionAfterShell]);
                 if (shells.Any(s => s.GetPrefix().StartsWith(prefix.ToString())))
                 {
                     correctShell = GetShellWithPrefix(shells, prefix.ToString());
-                    position++;
+                    positionAfterShell++;
                 }
                 else
                 {
                     break;
                 }
             }
-            if (IsIncorrectEndingShell(text, position) || correctShell == null)
+            if (IsIncorrectEndingShell(text, positionAfterShell) || correctShell == null)
             {
                 return null;
             }
-            if (IsSurroundedByNumbers(text, currentPosition, position - 1))
+            if (IsSurroundedByNumbers(text, currentPosition, positionAfterShell - 1))
             {
                 return null;
             }
-            currentPosition = position;
+            currentPosition = positionAfterShell;
             return correctShell;
         }
 
@@ -86,7 +87,7 @@ namespace Markdown
                         continue;
                     }
                     if (!IsSurroundedByNumbers(text, endPositionToken,
-                            GetPositionEndText(endPositionToken, newShell.GetSuffix())))
+                            GetPositionEndSubstring(endPositionToken, newShell.GetSuffix())))
                     {
                         break;
                     }
@@ -102,7 +103,7 @@ namespace Markdown
                         continue;
                     }
                     if (!IsSurroundedByNumbers(text, endPositionToken,
-                            GetPositionEndText(endPositionToken, currentShell.GetSuffix())))
+                            GetPositionEndSubstring(endPositionToken, currentShell.GetSuffix())))
                     {
                         break;
                     }
@@ -118,7 +119,7 @@ namespace Markdown
                    endSuffix + 1 < text.Length && int.TryParse(text[endSuffix + 1].ToString(), out temp);
         }
 
-        private static int GetPositionEndText(int startPosition, string text)
+        private static int GetPositionEndSubstring(int startPosition, string text)
         {
             return startPosition + text.Length - 1;
         }

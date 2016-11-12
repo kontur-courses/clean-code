@@ -2,6 +2,7 @@
 using System.Linq;
 using System.Text;
 using Markdown.Shells;
+using Markdown.Tokenizer;
 
 namespace Markdown
 {
@@ -21,7 +22,7 @@ namespace Markdown
         private static string GetHtmlCode(string text, List<IShell> shells)
         {
             var result = new StringBuilder();
-            var tokenizer = new Tokenizer(text, shells);
+            var tokenizer = new StringTokenizer(text, shells);
             while (tokenizer.HasMoreTokens())
             {
                 var token = tokenizer.NextToken();

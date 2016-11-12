@@ -1,6 +1,6 @@
 ﻿using Markdown.Shells;
 
-namespace Markdown
+namespace Markdown.Tokenizer
 {
     public class Token
     {

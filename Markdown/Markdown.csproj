@@ -36,14 +36,14 @@
     <Reference Include="System.Core" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="DoubleUnderline.cs" />
+    <Compile Include="Shells\DoubleUnderline.cs" />
     <Compile Include="Md.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
-    <Compile Include="IShell.cs" />
-    <Compile Include="SingleUnderline.cs" />
-    <Compile Include="Token.cs" />
-    <Compile Include="Tokenizer.cs" />
+    <Compile Include="Shells\IShell.cs" />
+    <Compile Include="Shells\SingleUnderline.cs" />
+    <Compile Include="Tokenizer\Token.cs" />
+    <Compile Include="Tokenizer\StringTokenizer.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="App.config" />
