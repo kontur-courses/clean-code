@@ -1,16 +1,13 @@
 ﻿using System;
 using System.Collections.Generic;
 
-namespace Markdown
+namespace Markdown.Shells
 {
-    public class DoubleUnderline : IShell
+    public class SingleUnderline : IShell
     {
-        private const string Prefix = "__";
-        private const string Suffix = "__";
-        private readonly List<Type> innerShellsTypes = new List<Type>()
-        {
-            typeof(SingleUnderline)
-        };
+        private const string Prefix = "_";
+        private const string Suffix = "_";
+        private readonly List<Type> innerShellsTypes = new List<Type>();
         public string GetPrefix()
         {
             return Prefix;
@@ -23,7 +20,7 @@ namespace Markdown
 
         public string RenderToHtml(string text)
         {
-            return $"<strong>{text}</strong>";
+            return $"<em>{text}</em>";
         }
 
         public bool Contains(IShell shell)

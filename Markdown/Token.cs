@@ -1,4 +1,6 @@
-﻿namespace Markdown
+﻿using Markdown.Shells;
+
+namespace Markdown
 {
     public class Token
     {

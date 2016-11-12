@@ -1,4 +1,5 @@
 ﻿using FluentAssertions;
+using Markdown.Shells;
 using NUnit.Framework;
 
 namespace Markdown.Tests

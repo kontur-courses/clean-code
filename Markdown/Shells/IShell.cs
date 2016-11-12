@@ -1,4 +1,4 @@
-﻿namespace Markdown
+﻿namespace Markdown.Shells
 {
     public interface IShell
     {
