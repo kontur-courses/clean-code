@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using Markdown.Shell;
@@ -23,13 +24,12 @@ namespace Markdown.Tokenizer
             return currentPosition < text.Length;
         }
 
-        private static bool IsRestrictedShell(string text, IShell shell, int endToken)
-        {
-            return shell == null || shell.GetSuffix().IsSubstring(text, endToken + 1);
-        }
-
         public Token NextToken()
         {
+            if (!HasMoreTokens())
+            {
+                throw new InvalidOperationException();
+            }
             var startPosition = currentPosition;
             var shell = ReadNextShell();
             var leftBorder = currentPosition;

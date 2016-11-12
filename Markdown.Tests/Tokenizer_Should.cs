@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using FluentAssertions;
 using Markdown.Shell;
 using Markdown.Tokenizer;
@@ -119,6 +120,15 @@ namespace Markdown.Tests
             var text = "12_2text_";
             var tokenizer = new StringTokenizer(text, shells);
             tokenizer.NextToken().Text.Should().Be("12_2text");
+        }
+
+        [Test]
+        public void throwException_WhenIsImpossibleGetToken()
+        {
+            var text = "token";
+            var tokenizer = new StringTokenizer(text, shells);
+            tokenizer.NextToken();
+            Assert.Throws<InvalidOperationException>(() => tokenizer.NextToken());
         }
     }
 }
