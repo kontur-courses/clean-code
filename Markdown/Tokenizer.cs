@@ -72,15 +72,16 @@ namespace Markdown
             {
                 if (currentShell == null)
                 {
-                    if (shells.Any(s => IsSubstring(text, currentPosition, s.GetPrefix())))
-                    {
+                    var newShell = shells.FirstOrDefault(s => IsSubstring(text, currentPosition, s.GetPrefix()));
+                    if (newShell == null) continue;
+                    if (!ShellIsSurroundedByNumbers(text, currentPosition, currentPosition - 1 + newShell.GetSuffix().Length))
                         break;
-                    }
                 }
                 else
                 {
                     if (!IsSubstring(text, currentPosition, currentShell.GetPrefix())) continue;
-                    if (!IsIncorrectEndingShell(text, currentPosition - 1))
+                    if (IsIncorrectEndingShell(text, currentPosition - 1)) continue;
+                    if (!ShellIsSurroundedByNumbers(text, currentPosition, GetPositionEndText(currentPosition, currentShell.GetSuffix())))
                     {
                         break;
                     }
@@ -94,6 +95,11 @@ namespace Markdown
             int temp;
             return startPrefix > 0 && int.TryParse(text[startPrefix - 1].ToString(), out temp) &&
                    endSuffix + 1 < text.Length && int.TryParse(text[endSuffix + 1].ToString(), out temp);
+        }
+
+        private static int GetPositionEndText(int startPosition, string text)
+        {
+            return startPosition + text.Length - 1;
         }
 
         private static bool IsRestrictedShell(string text, IShell shell, int endToken)
@@ -113,8 +119,7 @@ namespace Markdown
 
         private static IShell GetShellWithPrefix(IEnumerable<IShell> shells, string prefix)
         {
-            var suitableShells = shells.Where(s => s.GetPrefix() == prefix).ToList();
-            return suitableShells.Any() ? suitableShells.First() : null;
+            return shells.FirstOrDefault(s => s.GetPrefix() == prefix);
         }
 
         private static bool IsSubstring(string text, int start, string substring)
