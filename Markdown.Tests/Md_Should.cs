@@ -49,5 +49,12 @@ namespace Markdown.Tests
             md.Render(text).Should().Be("<em>italic _</em>not bold__ italic_");
         }
 
+        [Test]
+        public void DoSomething_WhenSomething()
+        {
+            var text = "_italic2_0italic_";
+            md.Render(text).Should().Be("<em>italic2_0italic</em>");
+        }
+
     }
 }
