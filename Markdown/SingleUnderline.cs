@@ -7,10 +7,7 @@ namespace Markdown
     {
         private const string Prefix = "_";
         private const string Suffix = "_";
-        private readonly List<Type> innerShellsTypes = new List<Type>()
-        {
-            
-        };
+        private readonly List<Type> innerShellsTypes = new List<Type>();
         public string GetPrefix()
         {
             return Prefix;

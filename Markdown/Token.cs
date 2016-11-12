@@ -2,8 +2,8 @@
 {
     public class Token
     {
-        public readonly string Text;
-        public readonly IShell Shell;
+        public string Text { get; }
+        public IShell Shell { get; }
         public Token(string text, IShell shell = null)
         {
             Text = text;

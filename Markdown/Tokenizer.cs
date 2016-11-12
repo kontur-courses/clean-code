@@ -73,14 +73,26 @@ namespace Markdown
                 if (currentShell == null)
                 {
                     var newShell = shells.FirstOrDefault(s => IsSubstring(text, currentPosition, s.GetPrefix()));
-                    if (newShell == null) continue;
-                    if (!IsSurroundedByNumbers(text, currentPosition, currentPosition - 1 + newShell.GetSuffix().Length))
+                    if (newShell == null)
+                    {
+                        continue;
+                    }
+                    if (!IsSurroundedByNumbers(text, currentPosition,
+                            GetPositionEndText(currentPosition, newShell.GetSuffix())))
+                    {
                         break;
+                    }
                 }
                 else
                 {
-                    if (text[currentPosition - 1] == '\\' || text[currentPosition - 1] == ' ') continue;
-                    if (!IsSubstring(text, currentPosition, currentShell.GetPrefix())) continue;
+                    if (text[currentPosition - 1] == '\\' || text[currentPosition - 1] == ' ')
+                    {
+                        continue;
+                    }
+                    if (!IsSubstring(text, currentPosition, currentShell.GetPrefix()))
+                    {
+                        continue;
+                    }
                     if (!IsSurroundedByNumbers(text, currentPosition,
                             GetPositionEndText(currentPosition, currentShell.GetSuffix())))
                     {
