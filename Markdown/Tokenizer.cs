@@ -39,7 +39,7 @@ namespace Markdown
             return new Token(text.Substring(leftBorder, rightBorder - leftBorder + 1), shell);
         }
 
-        public IShell ReadNextShell()
+        private IShell ReadNextShell()
         {
             var position = currentPosition;
             if (PreviousSymbolIsShielding(text, position))
@@ -73,7 +73,7 @@ namespace Markdown
             return correctShell;
         }
 
-        public int GetEndPositionToken(IShell currentShell)
+        private int GetEndPositionToken(IShell currentShell)
         {
             var endPositionToken = currentPosition;
             for (endPositionToken++; endPositionToken < text.Length; endPositionToken++)

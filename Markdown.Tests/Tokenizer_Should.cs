@@ -19,8 +19,9 @@ namespace Markdown.Tests
         {
             var text = "text";
             var tokenizer = new Tokenizer(text, shells);
-            var shell = tokenizer.ReadNextShell();
-            shell.Should().BeNull();
+            
+            var token = tokenizer.NextToken();
+            token.Shell.Should().BeNull();
         }
 
         [Test]
@@ -28,8 +29,8 @@ namespace Markdown.Tests
         {
             var text = "_italic text_";
             var tokenizer = new Tokenizer(text, shells);
-            var shell = tokenizer.ReadNextShell();
-            shell.Should().BeOfType(typeof(SingleUnderline));
+            var token = tokenizer.NextToken();
+            token.Shell.Should().BeOfType(typeof(SingleUnderline));
         }
 
         [Test]
@@ -37,37 +38,18 @@ namespace Markdown.Tests
         {
             var text = "__bold text__";
             var tokenizer = new Tokenizer(text, shells);
-            var shell = tokenizer.ReadNextShell();
-            shell.Should().BeOfType(typeof(DoubleUnderline));
+            var token = tokenizer.NextToken();
+            token.Shell.Should().BeOfType(typeof(DoubleUnderline));
         }
 
         [Test]
         public void notFindShell_WhenSpaceAfterPrefix()
         {
-            var text = "abc _ def_";
+            var text = "_ def_";
             var tokenizer = new Tokenizer(text, shells);
-            tokenizer.ReadNextShell().Should().BeNull();
-        }
-
-
-        [Test]
-        public void findEndToken_WhenNotFormatting()
-        {
-            var text = "not formatted text_abc_";
-            var tokenizer = new Tokenizer(text, shells);
-            var endToken = tokenizer.GetEndPositionToken(null);
-            endToken.Should().Be(17);
-        }
-
-        [Test]
-        public void findEndToken_WhenOpenSingleUnderline()
-        {
-            var text = "_qwerty_";
-            var tokenizer = new Tokenizer(text, shells);
-            var shell = tokenizer.ReadNextShell();
-            shell.Should().BeOfType(typeof(SingleUnderline));
-            var endToken = tokenizer.GetEndPositionToken(shell);
-            endToken.Should().Be(6);
+            var token = tokenizer.NextToken();
+            token.Shell.Should().BeNull();
+            token.Text.Should().Be("_ def");
         }
 
         [Test]
@@ -104,17 +86,20 @@ namespace Markdown.Tests
         {
             var text = "_some _text_";
             var tokenizer = new Tokenizer(text, shells);
-            var end = tokenizer.GetEndPositionToken(new SingleUnderline());
-            end.Should().Be(10);
+            var token = tokenizer.NextToken();
+            token.Shell.Should().BeOfType(typeof(SingleUnderline));
         }
 
         [Test]
         public void notFindShell_WhenBeforePrefixShielding()
         {
-            var text = "\\__italic_";
+            var text = "\\_italic_";
             var tokenizer = new Tokenizer(text, shells);
-            var shell = tokenizer.ReadNextShell();
-            shell.Should().BeNull();
+            while (tokenizer.HasMoreTokens())
+            {
+                tokenizer.NextToken().Shell.Should().BeNull();
+            }
+
         }
 
         [Test]
@@ -132,7 +117,7 @@ namespace Markdown.Tests
         {
             var text = "12_2text_";
             var tokenizer = new Tokenizer(text, shells);
-            tokenizer.ReadNextShell().Should().BeNull();
+            tokenizer.NextToken().Text.Should().Be("12_2text");
         }
     }
 }
