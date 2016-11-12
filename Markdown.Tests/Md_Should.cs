@@ -1,4 +1,8 @@
-﻿using FluentAssertions;
+﻿using System;
+using System.Collections.Generic;
+using System.Diagnostics;
+using System.Text;
+using FluentAssertions;
 using NUnit.Framework;
 
 namespace Markdown.Tests
@@ -7,6 +11,36 @@ namespace Markdown.Tests
     public class Md_Should
     {
         private Md md;
+
+        private string RandomString(int size)
+        {
+            var characters = new List<char>()
+            {
+                'a',
+                'b',
+                'c',
+                'd',
+                'e',
+                'f',
+                ' ',
+                '\\',
+                ' ',
+                '_',
+                '_',
+                '1',
+                '2'
+                
+            };
+            StringBuilder builder = new StringBuilder();
+            Random random = new Random();
+            for (var i = 0; i < size; i++)
+            {
+                var symbol = characters[random.Next(characters.Count)];
+                builder.Append(symbol);
+            }
+
+            return builder.ToString();
+        }
 
         [SetUp]
         public void SetUp()
@@ -63,6 +97,29 @@ namespace Markdown.Tests
             return md.Render(text);
         }
 
+        [Test]
+        public void shouldWorkInLinearTime_WhenBigData()
+        {
+            var measurementResult = new List<Tuple<int, long>>();
+            var stopwatch = new Stopwatch();
+            for (var size = 500; size < 10000000; size *= 5)
+            {
+                stopwatch.Reset();
+                var text = RandomString(size);
+                stopwatch.Start();
+                md.Render(text);
+                stopwatch.Stop();
+                measurementResult.Add(Tuple.Create(size, stopwatch.ElapsedMilliseconds));
+                
+            }
+            for (var i = 0; i < measurementResult.Count - 1; i++)
+            {
+                var firstResult = measurementResult[i];
+                var secondResult = measurementResult[i + 1];
+                var quotientSizes = (double) secondResult.Item1/firstResult.Item1;
+                ((double)secondResult.Item2/firstResult.Item2).Should().BeLessThan(quotientSizes * 2);
+            }
 
+        }
     }
 }
