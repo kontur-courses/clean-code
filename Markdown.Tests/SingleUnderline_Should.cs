@@ -15,31 +15,12 @@ namespace Markdown.Tests
             singleUnderline = new SingleUnderline();
         }
 
-        [Test]
-        public void HavePrefixSingleUnderline()
-        {
-            singleUnderline.GetPrefix().Should().Be("_");
-        }
-        [Test]
-        public void HaveSuffixSingleUnderline()
-        {
-            singleUnderline.GetSuffix().Should().Be("_");
-        }
 
-        [Test]
-        public void RenderTextToHtml()
-        {
-            singleUnderline.RenderToHtml("some text").Should().Be("<em>some text</em>");
-        }
         [Test]
         public void NotContainsDoubleUnderline()
         {
             singleUnderline.Contains(new DoubleUnderline()).Should().BeFalse();
         }
-        [Test]
-        public void CheckedForRestriction()
-        {
-            singleUnderline.IsRestricted("_abcd_", 5);
-        }
+
     }
 }

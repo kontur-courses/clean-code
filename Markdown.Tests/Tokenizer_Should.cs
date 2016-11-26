@@ -105,16 +105,6 @@ namespace Markdown.Tests
         }
 
         [Test]
-        public void readOneChar_WhenUnpairedTag()
-        {
-            var text = "__ text__";
-            var tokenizer = new StringTokenizer(text, shells);
-            var token = tokenizer.NextToken();
-            token.Shell.Should().BeNull();
-            token.Text.Should().Be("_");
-        }
-
-        [Test]
         public void notFindShell_WhenPrefixSurroundedByNumbers()
         {
             var text = "12_2text_";

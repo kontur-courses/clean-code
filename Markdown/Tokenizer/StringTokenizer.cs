@@ -18,6 +18,14 @@ namespace Markdown.Tokenizer
             this.shells = shells;
         }
 
+        public IEnumerable<Token> ReadAllTokens()
+        {
+            while (HasMoreTokens())
+            {
+                yield return NextToken();
+            }
+        }
+
 
         public bool HasMoreTokens()
         {
@@ -32,94 +40,73 @@ namespace Markdown.Tokenizer
             }
             var startPosition = currentPosition;
             var shell = ReadNextShell();
-            var leftBorder = currentPosition;
-            var rightBorder = GetEndPositionToken(shell);
-            if (!shell?.IsRestricted(text, rightBorder + 1) ?? true)
+            if (shell == null)
             {
-                currentPosition = startPosition;
-                leftBorder = startPosition;
-                shell = null;
-                rightBorder = GetEndPositionToken(null);
+                return new Token(ReadRawText(), new List<Attribute>());
             }
-            currentPosition = rightBorder + 1 + (shell?.GetSuffix().Length ?? 0);
-            return new Token(text.Substring(leftBorder, rightBorder - leftBorder + 1), shell);
+            var shellSuffix = GetShellEnd(shell);
+            if (shellSuffix != null)
+            {
+                var tokenText = text.Substring(currentPosition, shellSuffix.Start - currentPosition);
+                currentPosition = shellSuffix.End + 1;
+                return new Token(tokenText, shellSuffix.Attributes, shell);
+            }
+            currentPosition = startPosition;
+            return new Token(ReadRawText(), new List<Attribute>());
         }
 
         private IShell ReadNextShell()
         {
-            var positionAfterShell = currentPosition;
-            if (text.IsEscapedCharacter(positionAfterShell))
+            var maxPrefix = 0;
+            IShell resultShell = null;
+            var startPosition = currentPosition;
+            foreach (var shell in shells)
             {
-                return null;
-            }
-            var prefix = new StringBuilder();
-            IShell correctShell = null;
-            while (positionAfterShell < text.Length)
-            {
-                prefix.Append(text[positionAfterShell]);
-                if (shells.Any(s => s.GetPrefix().StartsWith(prefix.ToString())))
+                MatchObject matchObject;
+                if (shell.TryOpen(text, startPosition, out matchObject))
                 {
-                    correctShell = GetShellWithPrefix(shells, prefix.ToString());
-                    positionAfterShell++;
+                    if (matchObject.Length > maxPrefix)
+                    {
+                        resultShell = shell;
+                        currentPosition = matchObject.End + 1;
+                    }
                 }
-                else
+            }
+            return resultShell;
+        }
+
+        private string ReadRawText()
+        {
+            var readPosition = currentPosition;
+            var tokenText = new StringBuilder();
+            for (; readPosition < text.Length; readPosition++)
+            {
+                tokenText.Append(text[readPosition]);
+                MatchObject tempMatchObject;
+                if (readPosition != text.Length - 1 &&
+                    shells.Any(s => s.TryOpen(text, readPosition + 1, out tempMatchObject)))
                 {
+                    readPosition++;
                     break;
                 }
             }
-            if (text.IsIncorrectEndingShell(positionAfterShell) || correctShell == null)
-            {
-                return null;
-            }
-            if (text.IsSurroundedByNumbers(currentPosition, positionAfterShell - 1))
-            {
-                return null;
-            }
-            currentPosition = positionAfterShell;
-            return correctShell;
+            currentPosition = readPosition;
+
+            return tokenText.ToString();
         }
 
-        private int GetEndPositionToken(IShell currentShell)
+        private MatchObject GetShellEnd(IShell currentShell)
         {
-            var endPositionToken = currentPosition;
-            for (endPositionToken++; endPositionToken < text.Length; endPositionToken++)
+            var readPosition = currentPosition;
+            for (; readPosition < text.Length; readPosition++)
             {
-                if (currentShell == null)
+                MatchObject matchObject;
+                if (currentShell.TryClose(text, readPosition, out matchObject))
                 {
-                    var newShell = shells.FirstOrDefault(s => s.GetPrefix().IsSubstring(text, endPositionToken));
-                    if (newShell == null)
-                    {
-                        continue;
-                    }
-                    if (!text.IsSurroundedByNumbers(endPositionToken,
-                            newShell.GetSuffix().GetPositionEndSubstring(endPositionToken)))
-                    {
-                        break;
-                    }
-                }
-                else
-                {
-                    if (text[endPositionToken - 1] == '\\' || text[endPositionToken - 1] == ' ')
-                    {
-                        continue;
-                    }
-                    if (!currentShell.GetPrefix().IsSubstring(text, endPositionToken))
-                    {
-                        continue;
-                    }
-                    if (!text.IsSurroundedByNumbers(endPositionToken,
-                            currentShell.GetSuffix().GetPositionEndSubstring(endPositionToken)))
-                    {
-                        break;
-                    }
+                    return matchObject;
                 }
             }
-            return endPositionToken - 1;
-        }
-
-        private static IShell GetShellWithPrefix(IEnumerable<IShell> shells, string prefix)
-        {
-            return shells.FirstOrDefault(s => s.GetPrefix() == prefix);
+            return null;
         }
     }
 }

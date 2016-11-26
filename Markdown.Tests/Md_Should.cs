@@ -28,11 +28,15 @@ namespace Markdown.Tests
                 '_',
                 '_',
                 '1',
-                '2'
+                '2',
+                '[',
+                ']',
+                '(',
+                ')'
                 
             };
-            StringBuilder builder = new StringBuilder();
-            Random random = new Random();
+            var builder = new StringBuilder();
+            var random = new Random();
             for (var i = 0; i < size; i++)
             {
                 var symbol = characters[random.Next(characters.Count)];
@@ -80,7 +84,7 @@ namespace Markdown.Tests
         public void notRenderBold_WhenInsideItalicTag()
         {
             var text = "_italic __not bold__ italic_";
-            md.Render(text).Should().Be("<em>italic _</em>not bold__ italic_");
+            md.Render(text).Should().Be("<em>italic _</em>not bold<em></em> italic_");
         }
 
         [Test]
@@ -129,7 +133,31 @@ namespace Markdown.Tests
                 var quotientTimes = (double) firstTime/secondTime;
                 quotientTimes.Should().BeGreaterThan(quotientSizes / 2);
             }
-
         }
+
+        [TestCase("__bold__", "qwerty", ExpectedResult = "<strong style=qwerty>bold</strong>")]
+        [TestCase("_italic_", "css", ExpectedResult = "<em style=css>italic</em>")]
+        [TestCase("[text](link)", "aaa", ExpectedResult = "<a href=link style=aaa>text</a>")]
+        public string addStyleAttribute_WhenSetCss(string content, string attributeValue)
+        {
+            md.CssAtribute = attributeValue;
+            return md.Render(content);
+        }
+
+        [Test]
+        public void RenderTextWithUrlFormatting()
+        {
+            const string text = "[text](http://link.com)";
+            md.Render(text).Should().Be("<a href=http://link.com>text</a>");
+        }
+
+        [Test]
+        public void AddBaseUrlToAttribute()
+        {
+            md.BaseUrl = "base_url/";
+            const string text = "[text](relative_url)";
+            md.Render(text).Should().Be("<a href=base_url/relative_url>text</a>");
+        }
+
     }
 }

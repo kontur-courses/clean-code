@@ -1,15 +1,18 @@
-﻿using Markdown.Shell;
+﻿using System.Collections.Generic;
+using Markdown.Shell;
 
 namespace Markdown.Tokenizer
 {
     public class Token
     {
-        public string Text { get; }
+        public string Text { get; set; }
         public IShell Shell { get; }
-        public Token(string text, IShell shell = null)
-        {
+        public List<Attribute> Attributes;
+        public Token(string text, List<Attribute> attributes, IShell shell = null)
+        {  
             Text = text;
             Shell = shell;
+            Attributes = attributes;
         }
 
         public bool HasShell()
@@ -17,9 +20,5 @@ namespace Markdown.Tokenizer
             return Shell != null;
         }
 
-        public string RenderToHtml()
-        {
-            return Shell?.RenderToHtml(Text) ?? Text;
-        }
     }
 }

@@ -2,10 +2,8 @@
 {
     public interface IShell
     {
-        string GetPrefix();
-        string GetSuffix();
-        string RenderToHtml(string text);
         bool Contains(IShell shell);
-        bool IsRestricted(string text, int startSuffix);
+        bool TryOpen(string text, int startPrefix, out MatchObject matchObject);
+        bool TryClose(string text, int startSuffix, out MatchObject matchObject);
     }
 }

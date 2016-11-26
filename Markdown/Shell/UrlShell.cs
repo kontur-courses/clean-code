@@ -3,18 +3,16 @@ using System.Collections.Generic;
 
 namespace Markdown.Shell
 {
-    public class SingleUnderline : IShell
+    class UrlShell : IShell
     {
-        private const string Prefix = "_";
-        private const string Suffix = "_";
+        private const string Prefix = "[";
         private readonly List<Type> innerShellsTypes = new List<Type>();
-
+        
 
         public bool Contains(IShell shell)
         {
             return innerShellsTypes.Contains(shell.GetType());
         }
-
 
         private static bool IsIncorrectTagPosition(string text, int startPosition, int endPosition)
         {
@@ -27,32 +25,32 @@ namespace Markdown.Shell
 
         public bool TryOpen(string text, int startPrefix, out MatchObject matchObject)
         {
-            if (text.HasSpace(startPrefix + Prefix.Length))
+            if (IsIncorrectTagPosition(text, startPrefix, startPrefix + Prefix.Length - 1))
             {
                 matchObject = null;
                 return false;
             }
-            return TryMatch(text, Prefix, startPrefix, out matchObject);
+            return text.TryMatchSubstring(Prefix, startPrefix, out matchObject);
         }
 
         public bool TryClose(string text, int startSuffix, out MatchObject matchObject)
         {
-            if (text.HasSpace(startSuffix - 1))
+            matchObject = null;
+            if (!"](".IsSubstring(text, startSuffix))
             {
-                matchObject = null;
                 return false;
             }
-            return TryMatch(text, Suffix, startSuffix, out matchObject);
-        }
-
-        private static bool TryMatch(string text, string substring, int startPosition, out MatchObject matchObject)
-        {
-            if (IsIncorrectTagPosition(text, startPosition, startPosition + substring.Length - 1))
+            for (var i = startSuffix + 3; i < text.Length; i++)
             {
-                matchObject = null;
-                return false;
+                if (text[i] == ')' && !text.IsEscapedCharacter(i))
+                {
+                    var attributeText = text.Substring(startSuffix + 2, i - startSuffix - 2).RemoveEscapeСharacters();
+                    var attribute = new Attribute(attributeText, AttributeType.Url);
+                    matchObject = new MatchObject(startSuffix, i, new List<Attribute> {attribute});
+                    return true;
+                }
             }
-            return text.TryMatchSubstring(substring, startPosition, out matchObject);
+            return false;
         }
     }
 }
