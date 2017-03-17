@@ -40,8 +40,8 @@ namespace Chess
         }
 
         public bool Contains(Location loc) =>
-            loc.X >= 0 && loc.X <= cells.GetLength(0) && 
-            loc.Y >= 0 && loc.Y <= cells.GetLength(1);
+            loc.X >= 0 && loc.X < cells.GetLength(0) && 
+            loc.Y >= 0 && loc.Y < cells.GetLength(1);
 	}
 
 	public class TemporaryPieceMove : IDisposable
