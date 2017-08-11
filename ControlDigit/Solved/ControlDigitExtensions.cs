@@ -33,7 +33,7 @@ namespace ControlDigit.Solved
         public static int ControlDigit2(this long number)
         {
             var sum = number
-                .DigitsFromLeastSignificant()
+                .GetDigitsFromLeastSignificant()
                 .SumWithWeights(weights) % 11;
             return sum == 10 ? 1 : sum;
         }
@@ -42,7 +42,7 @@ namespace ControlDigit.Solved
     // Общий код, ничего не знает про контрольные разряды и прикладную задачу.
     public static class MoreEnumerableExtensions
     {
-        public static IEnumerable<int> DigitsFromLeastSignificant(this long number)
+        public static IEnumerable<int> GetDigitsFromLeastSignificant(this long number)
         {
             do
             {
