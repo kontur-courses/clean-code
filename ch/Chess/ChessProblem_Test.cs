@@ -34,7 +34,7 @@ namespace Chess
 			ChessProblem.CalculateChessStatus();
 			Assert.AreEqual(ChessStatus.Check, ChessProblem.ChessStatus);
 			
-			// Now check that internal board modifictions during the first call do not change answer
+			// Now check that internal board modifications during the first call do not change answer
 			ChessProblem.CalculateChessStatus();
 			Assert.AreEqual(ChessStatus.Check, ChessProblem.ChessStatus);
 		}
