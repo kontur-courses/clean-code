@@ -18,7 +18,7 @@ export class ChessProblem {
 
         for (let locFrom of this.board.getPieces(PieceColor.white)) {
             for (let locTo of this.board.getPiece(locFrom).getMoves(locFrom, this.board)) {
-                const old = this.board.getPiece(locFrom);
+                const old = this.board.getPiece(locTo);
                 this.board.set(locTo, this.board.getPiece(locFrom))
                 this.board.set(locFrom, null);
                 if (!ChessProblem.isCheckForWhite())

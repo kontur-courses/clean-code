@@ -12,7 +12,7 @@ class Board {
     }
 
     set(location, cell) {
-        return this.cells[location.y][location.x] = cell;
+        this.cells[location.y][location.x] = cell;
     }
 
     performTemporaryMove(from, to) {
