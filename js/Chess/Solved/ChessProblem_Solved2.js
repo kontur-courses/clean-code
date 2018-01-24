@@ -1,57 +1,61 @@
-import BoardParser from '../BoardParser'
 import PieceColor from '../PieceColor'
 import PieceType from '../PieceType'
 import ChessStatus from '../ChessStatus'
 
-export class ChessProblem {
+export default class ChessProblem {
     static board
-    static chessStatus
 
-    static loadFrom(lines) {
-        this.board = new BoardParser().parseBoard(lines);
+    constructor(board) {
+        this.board = board;
     }
 
-    // Определяет мат, шах или пат белым.
-    static calculateChessStatus() {
-        const isCheck = ChessProblem.isCheckForWhite();
-        let hasMoves = false;
-
-        for (let locFrom of this.board.getPieces(PieceColor.white)) {
-            for (let locTo of this.board.getPiece(locFrom).getMoves(locFrom, this.board)) {
-                const old = this.board.getPiece(locTo);
-                this.board.set(locTo, this.board.getPiece(locFrom))
-                this.board.set(locFrom, null);
-                if (!ChessProblem.isCheckForWhite())
-                    hasMoves = true;
-                this.board.set(locFrom, this.board.getPiece(locTo));
-                this.board.set(locTo, old);
-            }
-        }
-
-        if (isCheck)
-            if (hasMoves)
-                this.chessStatus = ChessStatus.check;
-            else this.chessStatus = ChessStatus.mate;
-        else if (hasMoves) this.chessStatus = ChessStatus.ok;
-        else this.chessStatus = ChessStatus.stalemate;
+    getStatusFor(color) {
+          const isCheck = this.isCheckFor(color);
+          const hasMoves = this.hasSafeMovesFor(color);
+          if (isCheck)
+            return hasMoves ? ChessStatus.check : ChessStatus.mate;
+          else
+            return hasMoves ? ChessStatus.ok : ChessStatus.stalemate;
     }
 
-    // check — это шах
-    static isCheckForWhite() {
+    isCheckFor(color) {
+          const invertedColor = color === PieceColor.white ? PieceColor.black : PieceColor.white;
+          return this.getAllMovesOf(invertedColor).some(move => {
+              const piece = this.board.getPiece(move.to)
+              if (piece) {
+                return piece.is(color, PieceType.King)
+              }
+              return false
+          })
+    }
 
-        let isCheck = false;
-        for (let loc of this.board.getPieces(PieceColor.black)) {
-            const piece = this.board.getPiece(loc);
-            const moves = piece.getMoves(loc, this.board);
+    hasSafeMovesFor(color) {
+        return this.getAllMovesOf(color).some(this.isSafeMove, this)
+    }
 
-            for (let destination of moves) {
-                const destinationPiece = this.board.getPiece(destination)
-                if (destinationPiece && destinationPiece.is(PieceColor.white, PieceType.King))
-                    isCheck = true;
-            }
-        }
-        if (isCheck === true) return true;
-        return false;
+    getAllMovesOf(color) {
+        return this.board.getPieces(color).reduce((acc,location) => acc.concat(this.getMoves(location)), [])
+    }
+
+    getMoves = (pieceLoc) => {
+        return this.board.getPiece(pieceLoc)
+                .getMoves(pieceLoc, this.board)
+                .map(destination => new ChessMove(pieceLoc, destination))
+    }
+
+    isSafeMove(move) {
+        const pieceColor = this.board.getPiece(move.from).color;
+        const temporaryMove = this.board.performTemporaryMove(move.from, move.to);
+        const isValid = !this.isCheckFor(pieceColor);
+        temporaryMove.undo();
+        return isValid;
+    }
+}
+
+class ChessMove {
+    constructor(from, to) {
+        this.from = from;
+        this.to = to;
     }
 }
 

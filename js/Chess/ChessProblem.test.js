@@ -1,12 +1,19 @@
 import { ChessProblem } from './ChessProblem'
 import ChessStatus from './ChessStatus'
+import fs from 'fs'
 
 describe('ChessProblem', () => {
     test('tests', () => {
-        for (let i = 0; i < 2; i++) {
-            const board = getTest(i);
+        const dirPath = './Chess/ChessTests';
+        const readFile = (path) => fs.readFileSync(path).toString().trim().split('\r\n');
+        const allFilesNames = fs.readdirSync(dirPath);
+        const inputFiles = allFilesNames.filter(fileName => fileName.endsWith('.in'));
+        const answerFiles = allFilesNames.filter(fileName => fileName.endsWith('.ans'));
+
+        for (let i = 0; i < inputFiles.length; i++) {
+            const board = readFile(dirPath + '/' + inputFiles[i]);
             ChessProblem.loadFrom(board);
-            const expectedAnswer = getAnswer(i);
+            const expectedAnswer = fs.readFileSync(dirPath + '/' + answerFiles[i]).toString().trim();
             ChessProblem.calculateChessStatus();
             expect(ChessProblem.chessStatus).toBe(expectedAnswer);
         }
@@ -32,35 +39,3 @@ describe('ChessProblem', () => {
         expect(ChessProblem.chessStatus).toBe(ChessStatus.check);
     });
 })
-
-function getTest(index) {
-    const testBoards = [[
-        'Krk.....',
-        'R.n.....',
-        'qnb.....',
-        '........',
-        '........',
-        '........',
-        '........',
-        '........',
-    ], [
-        '........',
-        '........',
-        '........',
-        '........',
-        '........',
-        'knb.....',
-        'r.n.....',
-        'KRq.....',
-    ]];
-
-    return testBoards[index]
-}
-
-function getAnswer(index) {
-    const answers = [
-        'mate', 'mate',
-    ]
-
-    return answers[index]
-}
