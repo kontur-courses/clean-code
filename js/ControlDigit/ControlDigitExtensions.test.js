@@ -1,5 +1,4 @@
-const controlDigit = require('./ControlDigitExtensions').controlDigit
-const controlDigit2 = require('./ControlDigitExtensions').controlDigit2
+import {controlDigit, controlDigit2} from './ControlDigitExtensions'
 
 test('ControlDigit', () => {
   expect(controlDigit(0)).toBe(0);

@@ -1,7 +1,7 @@
-const pieceColor = require('./PieceColor')
-const Piece = require('./Piece')
-const PieceType = require('./PieceType')
-const Board = require('./Board')
+import pieceColor from './PieceColor'
+import Piece from './Piece'
+import PieceType from './PieceType'
+import Board from './Board'
 
 export default class BoardParser {
     parseBoard(lines) {

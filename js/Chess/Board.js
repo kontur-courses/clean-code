@@ -1,4 +1,4 @@
-class Board {
+export default class Board {
     constructor(cells) {
         this.cells = cells;
     }
@@ -25,7 +25,8 @@ class Board {
     allBoard() {
         return this.cells.reduce((allLocations, row, x) =>
             allLocations.concat(row.reduce((rowLocations, _, y) =>
-                rowLocations.concat({x, y}), [])),
+                    rowLocations.concat({x, y}),
+                [])),
             [])
     }
 
@@ -52,5 +53,3 @@ class TemporaryPieceMove {
         this.undo();
     }
 }
-
-module.exports = Board;

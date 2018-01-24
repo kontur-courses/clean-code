@@ -1,7 +1,6 @@
-const controlDigit = require('./ControlDigitExtensions').controlDigit
-const controlDigit2 = require('./ControlDigitExtensions').controlDigit2
+import {controlDigit, controlDigit2} from './ControlDigitExtensions'
 
-test('ControlDigit', () => {
+xtest('ControlDigit', () => {
   expect(controlDigit(0)).toBe(0);
   expect(controlDigit(1)).toBe(1);
   expect(controlDigit(2)).toBe(2);
@@ -14,7 +13,7 @@ test('ControlDigit', () => {
 });
 
 
-test('ControlDigit2', () => {
+xtest('ControlDigit2', () => {
   expect(controlDigit2(0)).toBe(0);
   expect(controlDigit2(1)).toBe(1);
   expect(controlDigit2(2)).toBe(2);
@@ -26,7 +25,7 @@ test('ControlDigit2', () => {
   expect(controlDigit2(12345678)).toBe(2);
 });
 
-test('Compare speed of implementation', () => {
+xtest('Compare speed of implementation', () => {
   const count = 1000000;
   console.time('ControlDigit')
   for (let i = 0; i < count; i++) {

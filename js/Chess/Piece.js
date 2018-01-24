@@ -1,6 +1,6 @@
-const pieceColor = require('./PieceColor')
+import pieceColor from './PieceColor'
 
-class Piece {
+export default class Piece {
     constructor(pieceType, color) {
         this.pieceType = pieceType;
         this.color = color;
@@ -24,6 +24,3 @@ class Piece {
         }
     }
 }
-
-
-module.exports = Piece;

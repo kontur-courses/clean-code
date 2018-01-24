@@ -1,4 +1,4 @@
-class PieceType {
+export default class PieceType {
     static Rook = new PieceType(true, 'R', {x: 1, y: 0}, {x: 0, y: 1});
     static King = new PieceType(false, 'K', {x: 1, y: 1}, {x: 1, y: 0}, {x: 0, y: 1});
     static Queen = new PieceType(true, 'Q', {x: 1, y: 1}, {x: 1, y: 0}, {x: 0, y: 1});
@@ -47,9 +47,6 @@ class PieceType {
         return this.sign;
     }
 }
-
-
-module.exports = PieceType;
 
 function equals(a, b) {
     return a.x === b.x && a.y === b.y

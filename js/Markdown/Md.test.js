@@ -1,4 +1,4 @@
-const renderToHtml = require('./Md')
+import renderToHtml from './Md'
 
 describe('renderToHtml', () => {
     test('Должен возвращать строку', () => {

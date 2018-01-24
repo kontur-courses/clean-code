@@ -1,4 +1,4 @@
-function controlDigit(number) {
+export function controlDigit(number) {
   let sum = 0;
   let factor = 1;
 
@@ -17,7 +17,7 @@ function controlDigit(number) {
   return result;
 }
 
-function controlDigit2(number) {
+export function controlDigit2(number) {
   const digits = getDigitsFromLeastSignificant(number);
   const weights = createWeights();
   const sum = sumWithWeights(digits, weights) % 11;
@@ -42,10 +42,4 @@ function createWeights() {
 function sumWithWeights(digits, weights) {
   const factoredDigits = digits.map((item, index) => item * weights[index])
   return factoredDigits.reduce((sum, item) => sum + item)
-}
-
-
-module.exports = {
-  controlDigit,
-  controlDigit2
 }

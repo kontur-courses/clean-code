@@ -1,5 +1,3 @@
-function renderToHtml(markdown) {
+export default function renderToHtml(markdown) {
     return markdown; // TODO
 }
-
-module.exports = renderToHtml

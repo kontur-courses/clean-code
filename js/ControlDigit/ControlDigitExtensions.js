@@ -1,4 +1,4 @@
-function controlDigit(number) {
+export function controlDigit(number) {
   let sum = 0;
   let factor = 1;
 
@@ -17,11 +17,6 @@ function controlDigit(number) {
   return result;
 }
 
-function controlDigit2(number) {
+export function controlDigit2(number) {
   return 0;
-}
-
-module.exports = {
-  controlDigit,
-  controlDigit2
 }

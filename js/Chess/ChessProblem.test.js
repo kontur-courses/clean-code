@@ -1,5 +1,5 @@
-const ChessProblem = require('./ChessProblem').ChessProblem
-const ChessStatus = require('./ChessStatus').default
+import { ChessProblem } from './ChessProblem'
+import ChessStatus from './ChessStatus'
 
 describe('ChessProblem', () => {
     test('tests', () => {
