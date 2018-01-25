@@ -1,7 +1,8 @@
-import ChessProblem from './ChessProblem_Solved2'
+import ChessProblem from './ChessProblem_Solved'
 import BoardParser from '../BoardParser'
 import PieceColor from '../PieceColor'
 import fs from 'fs'
+
 
 xdescribe('ChessProblem', () => {
     test('tests', () => {
