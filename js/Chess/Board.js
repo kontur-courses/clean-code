@@ -19,7 +19,7 @@ export default class Board {
         const old = this.getPiece(to);
         this.set(to, this.getPiece(from));
         this.set(from, null)
-        return new TemporaryPieceMove(this, from, to, old)
+        return new TemporaryPieceMove(this, from, to, old);
     }
 
     allBoard() {
@@ -27,7 +27,7 @@ export default class Board {
             allLocations.concat(row.reduce((rowLocations, _, y) =>
                     rowLocations.concat({x, y}),
                 [])),
-            [])
+            []);
     }
 
     contains(location) {
@@ -47,9 +47,5 @@ class TemporaryPieceMove {
     undo() {
         this.board.set(this.from, this.board.getPiece(this.to));
         this.board.set(this.to, this.oldDestinationPiece);
-    }
-
-    dispose() {
-        this.undo();
     }
 }

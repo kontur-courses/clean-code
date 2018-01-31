@@ -9,6 +9,7 @@ namespace Chess
         {
             if (lines.Length != 8) throw new ArgumentException("Should be exactly 8 lines");
             if (lines.Any(line => line.Length != 8)) throw new ArgumentException("All lines should have 8 chars length");
+
             var cells = new Piece[8, 8];
             for (var y = 0; y < 8; y++)
             {

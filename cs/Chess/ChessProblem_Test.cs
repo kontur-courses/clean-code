@@ -7,15 +7,6 @@ namespace Chess
 	[TestFixture]
 	public class ChessProblem_Test
 	{
-		private static void TestOnFile(string filename)
-		{
-			var board = File.ReadAllLines(filename);
-			ChessProblem.LoadFrom(board);
-			var expectedAnswer = File.ReadAllText(Path.ChangeExtension(filename, ".ans")).Trim();
-			ChessProblem.CalculateChessStatus();
-			Assert.AreEqual(expectedAnswer, ChessProblem.ChessStatus.ToString().ToLower(), "Failed test " + filename);
-		}
-
 		[Test]
 		public void RepeatedMethodCallDoNotChangeBehaviour()
 		{
@@ -33,14 +24,14 @@ namespace Chess
 			ChessProblem.LoadFrom(board);
 			ChessProblem.CalculateChessStatus();
 			Assert.AreEqual(ChessStatus.Check, ChessProblem.ChessStatus);
-			
+
 			// Now check that internal board modifications during the first call do not change answer
 			ChessProblem.CalculateChessStatus();
 			Assert.AreEqual(ChessStatus.Check, ChessProblem.ChessStatus);
 		}
 
 		[Test]
-		public void FullTests()
+		public void AllTests()
 		{
 			var dir = TestContext.CurrentContext.TestDirectory;
 			var testsCount = 0;
@@ -50,6 +41,15 @@ namespace Chess
 				testsCount++;
 			}
 			Console.WriteLine("Tests passed: " + testsCount);
+		}
+
+		private static void TestOnFile(string filename)
+		{
+			var board = File.ReadAllLines(filename);
+			ChessProblem.LoadFrom(board);
+			var expectedAnswer = File.ReadAllText(Path.ChangeExtension(filename, ".ans")).Trim();
+			ChessProblem.CalculateChessStatus();
+			Assert.AreEqual(expectedAnswer, ChessProblem.ChessStatus.ToString().ToLower(), "Failed test " + filename);
 		}
 	}
 }

@@ -11,25 +11,25 @@ namespace Chess
 		public static readonly PieceType Bishop = new PieceType(true, 'B', new Location(1, 1));
 		public static readonly PieceType Knight = new PieceType(false, 'N', new Location(2, 1), new Location(1, 2));
 
-		private readonly Location[] ds;
+		private readonly Location[] directions;
 		private readonly bool infinit;
 	    private readonly char sign;
 
-	    private PieceType(bool infinit, char sign, params Location[] ds)
+	    private PieceType(bool infinit, char sign, params Location[] directions)
 		{
 			this.infinit = infinit;
 	        this.sign = sign;
-	        this.ds = ds
-				.Union(ds.Select(dd => new Location(-dd.X, dd.Y)))
-				.Union(ds.Select(dd => new Location(dd.X, -dd.Y)))
-				.Union(ds.Select(dd => new Location(-dd.X, -dd.Y)))
+	        this.directions = directions
+				.Union(directions.Select(d => new Location(-d.X, d.Y)))
+				.Union(directions.Select(d => new Location(d.X, -d.Y)))
+				.Union(directions.Select(d => new Location(-d.X, -d.Y)))
 				.ToArray();
 		}
 
 	    public override string ToString() => sign.ToString();
 
 	    public IEnumerable<Location> GetMoves(Location location, Board board) => 
-            ds.SelectMany(d => MovesInOneDirection(location, board, d, infinit));
+            directions.SelectMany(d => MovesInOneDirection(location, board, d, infinit));
 
 	    private static IEnumerable<Location> MovesInOneDirection(Location from, Board board, Location dir, bool infinit)
 		{

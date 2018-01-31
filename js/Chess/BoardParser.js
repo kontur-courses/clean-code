@@ -25,13 +25,13 @@ export default class BoardParser {
                 cells[y][x] = this.parsePiece(line[y]);
             }
         }
-        return new Board(cells)
+        return new Board(cells);
     }
 
     parsePiece(pieceSign) {
         const color = /[A-Z]/.test(pieceSign) ? pieceColor.white : pieceColor.black;
         const pieceType = this.parsePieceType(pieceSign.toUpperCase());
-        return pieceType === null ? null : new Piece(pieceType, color)
+        return pieceType === null ? null : new Piece(pieceType, color);
     }
 
     parsePieceType(sign) {

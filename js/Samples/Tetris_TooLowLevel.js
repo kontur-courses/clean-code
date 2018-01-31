@@ -40,7 +40,6 @@ class Field {
                 lineIndex--;
                 this.addEmptyLineOnTop();
             }
-
         }
         return score;
     }

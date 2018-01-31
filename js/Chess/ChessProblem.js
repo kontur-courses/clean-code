@@ -4,8 +4,8 @@ import PieceType from './PieceType'
 import ChessStatus from './ChessStatus'
 
 export class ChessProblem {
-    static board
-    static chessStatus
+    static board;
+    static chessStatus;
 
     static loadFrom(lines) {
         this.board = new BoardParser().parseBoard(lines);
@@ -38,19 +38,17 @@ export class ChessProblem {
 
     // check — это шах
     static isCheckForWhite() {
-
         let isCheck = false;
         for (let loc of this.board.getPieces(PieceColor.black)) {
             const piece = this.board.getPiece(loc);
             const moves = piece.getMoves(loc, this.board);
-
             for (let destination of moves) {
                 const destinationPiece = this.board.getPiece(destination)
                 if (destinationPiece && destinationPiece.is(PieceColor.white, PieceType.King))
                     isCheck = true;
             }
         }
-        if (isCheck === true) return true;
+        if (isCheck) return true;
         return false;
     }
 }

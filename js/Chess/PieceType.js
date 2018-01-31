@@ -5,24 +5,22 @@ export default class PieceType {
     static Bishop = new PieceType(true, 'B', {x: 1, y: 1});
     static Knight = new PieceType(false, 'N', {x: 2, y: 1}, {x: 1, y: 2});
 
-
     constructor(infinite, sign, ...directions) {
         this.infinite = infinite;
         this.sign = sign;
-        this.directions = getPermutations(directions)
+        this.directions = getPermutations(directions);
     }
 
     getMoves(from, board) {
         return this.directions.reduce((res, direction) => res
             .concat(this.movesInOneDirection(from, board, direction)),
-        [])
+        []);
     }
 
     movesInOneDirection(from, board, direction) {
         const piece = board.getPiece(from);
         const result = [];
         let distance = 1;
-
 
         do {
             const to = sum(from, multiply(direction, distance))
@@ -85,10 +83,8 @@ function getPermutations(directions) {
     ];
 
     const permutations = [];
-
-
-    for (let direction of directions) {
-        for (let delta of deltas) {
+    for (const direction of directions) {
+        for (const delta of deltas) {
             const current = multiply(direction, delta)
             if (!contains(permutations, current)) {
                 permutations.push(current)
@@ -96,5 +92,4 @@ function getPermutations(directions) {
         }
     }
     return permutations
-
 }

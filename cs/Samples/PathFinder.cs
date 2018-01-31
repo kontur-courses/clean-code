@@ -7,14 +7,10 @@ namespace Samples
 	public class PathFinder
 	{
 		public static IMaze maze;
-
 		private static readonly Queue<Point> queue = new Queue<Point>();
 		private static readonly ISet<Point> used = new HashSet<Point>();
 
-		public static void GenerateRandomMaze()
-		{
-			// maze = ...
-		}
+		public static void GenerateRandomMaze() { /* maze = ... */ }
 
 		public static Point GetNextStepToTarget(Point source, Point target)
 		{
@@ -37,7 +33,6 @@ namespace Samples
 			return source;
 		}
 
-
 		private static IEnumerable<Point> GetNeighbours(Point from)
 		{
 			return new[] { new Size(1, 0), new Size(-1, 0), new Size(0, 1), new Size(0, -1) }
@@ -47,17 +42,9 @@ namespace Samples
 		}
 	}
 
-	#region stuff
-
-	internal class Wall
-	{
-	}
-
 	public interface IMaze
 	{
 		bool InsideMaze(Point location);
 		bool IsFree(Point location);
 	}
-
-	#endregion
 }

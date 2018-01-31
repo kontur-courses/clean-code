@@ -10,7 +10,6 @@ class Field {
         const notFullLines = this.getAllNotFullLines();
         const clearedLinesCount = this.height - notFullLines.length;
         const newLinesArray = this.createNewLinesArray(clearedLinesCount, notFullLines);
-
         return new Field(this.width, this.height, newLinesArray, this.score + clearedLinesCount)
     }
 

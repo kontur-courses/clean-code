@@ -67,19 +67,4 @@ namespace Samples
 			throw new NotImplementedException(y.ToString());
 		}
 	}
-
-
-	public class Cell
-	{
-		public readonly bool State;
-		public readonly int X;
-		public readonly int Y;
-
-		public Cell(int x, int y, bool state)
-		{
-			X = x;
-			Y = y;
-			State = state;
-		}
-	}
 }
