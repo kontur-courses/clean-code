@@ -6,7 +6,7 @@ import fs from 'fs'
 xdescribe('ChessProblem', () => {
     test('tests', () => {
         const dirPath = './Chess/ChessTests';
-        const readFile = (path) => fs.readFileSync(path).toString().trim().split('\r\n');
+        const readFile = (path) => fs.readFileSync(path).toString().trim().split('\n');
         const allFilesNames = fs.readdirSync(dirPath);
         const inputFiles = allFilesNames.filter(fileName => fileName.endsWith('.in'));
         const answerFiles = allFilesNames.filter(fileName => fileName.endsWith('.ans'));

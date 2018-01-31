@@ -3,8 +3,6 @@ import PieceType from '../PieceType'
 import ChessStatus from '../ChessStatus'
 
 export default class ChessProblem {
-    static board
-
     constructor(board) {
         this.board = board;
     }
@@ -19,28 +17,24 @@ export default class ChessProblem {
     }
 
     isCheckFor(color) {
-          const invertedColor = color === PieceColor.white ? PieceColor.black : PieceColor.white;
-          return this.getAllMovesOf(invertedColor).some(move => {
-              const piece = this.board.getPiece(move.to)
-              if (piece) {
-                return piece.is(color, PieceType.King)
-              }
-              return false
+          return this.getAllMovesOf(invertColor(color)).some(move => {
+              const piece = this.board.getPiece(move.to);
+              return piece ? piece.is(color, PieceType.King) : false;
           })
     }
 
     hasSafeMovesFor(color) {
-        return this.getAllMovesOf(color).some(this.isSafeMove, this)
+        return this.getAllMovesOf(color).some(this.isSafeMove, this);
     }
 
     getAllMovesOf(color) {
-        return this.board.getPieces(color).reduce((acc,location) => acc.concat(this.getMoves(location)), [])
+        return this.board.getPieces(color).reduce((acc,location) => acc.concat(this.getMoves(location)), []);
     }
 
     getMoves = (pieceLoc) => {
         return this.board.getPiece(pieceLoc)
                 .getMoves(pieceLoc, this.board)
-                .map(destination => new ChessMove(pieceLoc, destination))
+                .map(destination => new ChessMove(pieceLoc, destination));
     }
 
     isSafeMove(move) {
@@ -59,3 +53,6 @@ class ChessMove {
     }
 }
 
+function invertColor(color) {
+    return color === PieceColor.black ? PieceColor.white : PieceColor.black;
+}

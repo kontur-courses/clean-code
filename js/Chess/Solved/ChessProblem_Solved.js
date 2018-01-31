@@ -3,8 +3,6 @@ import PieceType from '../PieceType'
 import ChessStatus from '../ChessStatus'
 
 export default class ChessProblem {
-    static board
-
     constructor(board) {
         this.board = board;
     }
@@ -20,20 +18,16 @@ export default class ChessProblem {
     }
 
     isCheckFor(color) {
-        const invertedColor = color === PieceColor.white ? PieceColor.black : PieceColor.white;
-        return this.hasMovesFor(invertedColor, (from, to) => {
-            const piece = this.board.getPiece(to)
-            if (piece) {
-                return piece.is(color, PieceType.King)
-            }
-            return false
+        return this.hasMovesFor(invertColor(color), (from, to) => {
+            const piece = this.board.getPiece(to);
+            return piece ? piece.is(color, PieceType.King) : false;
         })
     }
 
     hasMovesFor(color, isAcceptableMove) {
         const moves = this.board.getPieces(color).filter(pieceLoc =>
             this.getMoves(pieceLoc).filter(destLoc => isAcceptableMove(pieceLoc, destLoc)).length
-        )
+        );
 
         return Boolean(moves.length);
     }
@@ -49,4 +43,8 @@ export default class ChessProblem {
         move.undo();
         return isValid;
     }
+}
+
+function invertColor(color) {
+    return color === PieceColor.black ? PieceColor.white : PieceColor.black;
 }
