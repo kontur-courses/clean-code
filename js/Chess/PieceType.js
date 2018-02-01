@@ -1,9 +1,11 @@
+import Location from './Location'
+
 export default class PieceType {
-    static Rook = new PieceType(true, 'R', {x: 1, y: 0}, {x: 0, y: 1});
-    static King = new PieceType(false, 'K', {x: 1, y: 1}, {x: 1, y: 0}, {x: 0, y: 1});
-    static Queen = new PieceType(true, 'Q', {x: 1, y: 1}, {x: 1, y: 0}, {x: 0, y: 1});
-    static Bishop = new PieceType(true, 'B', {x: 1, y: 1});
-    static Knight = new PieceType(false, 'N', {x: 2, y: 1}, {x: 1, y: 2});
+    static Rook = new PieceType(true, 'R', new Location(1, 0), new Location(0, 1));
+    static King = new PieceType(false, 'K', new Location(1, 1), new Location(1, 0), new Location(0, 1));
+    static Queen = new PieceType(true, 'Q', new Location(1, 1), new Location(1, 0), new Location(0, 1));
+    static Bishop = new PieceType(true, 'B', new Location(1, 1));
+    static Knight = new PieceType(false, 'N', new Location(2, 1), new Location(1, 2));
 
     constructor(infinite, sign, ...directions) {
         this.infinite = infinite;
@@ -23,7 +25,7 @@ export default class PieceType {
         let distance = 1;
 
         do {
-            const to = sum(from, multiply(direction, distance))
+            const to = sum(from, multiply(direction, distance));
             if (!board.contains(to)) {
                 break;
             }
@@ -36,7 +38,7 @@ export default class PieceType {
                 }
                 break;
             }
-        } while (this.infinite && distance++)
+        } while (this.infinite && distance++);
 
         return result;
     }
@@ -47,31 +49,22 @@ export default class PieceType {
 }
 
 function equals(a, b) {
-    return a.x === b.x && a.y === b.y
+    return a.x === b.x && a.y === b.y;
 }
 
 function multiply(a, b) {
     if (typeof b === 'number') {
-        return {
-            x: a.x * b,
-            y: a.y * b,
-        }
+        return new Location(a.x * b, a.y * b);
     }
-    return {
-        x: a.x * b.x,
-        y: a.y * b.y,
-    }
+    return new Location(a.x * b.x, a.y * b.y);
 }
 
 function sum(a, b) {
-    return {
-        x: a.x + b.x,
-        y: a.y + b.y,
-    }
+    return new Location(a.x + b.x, a.y + b.y);
 }
 
 function contains(arr, val) {
-    return arr.some(item => equals(val, item))
+    return arr.some(item => equals(val, item));
 }
 
 function getPermutations(directions) {
@@ -85,11 +78,11 @@ function getPermutations(directions) {
     const permutations = [];
     for (const direction of directions) {
         for (const delta of deltas) {
-            const current = multiply(direction, delta)
+            const current = multiply(direction, delta);
             if (!contains(permutations, current)) {
-                permutations.push(current)
+                permutations.push(current);
             }
         }
     }
-    return permutations
+    return permutations;
 }

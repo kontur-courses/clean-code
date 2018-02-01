@@ -1,6 +1,6 @@
 import {controlDigit, controlDigit2} from './ControlDigitExtensions'
 
-describe('ControlDigit', () => {
+xdescribe('ControlDigit', () => {
     [
         {input: 0, expectedResult: 0},
         {input: 1, expectedResult: 1},
@@ -17,14 +17,15 @@ describe('ControlDigit', () => {
         });
     });
 
-    xtest('Compare implementations', () => {
+    test('Compare implementations', () => {
         for (let i = 0; i < 10000; i++) {
             expect(controlDigit(i)).toBe(controlDigit2(i));
         }
     });
 });
 
-describe('ControlDigit performance tests', () => {
+
+xdescribe('ControlDigit performance tests', () => {
     test('Text ControlDigit speed', () => {
         const count = 1000000;
         console.time('Old');

@@ -1,39 +1,41 @@
-function generateRandomMaze() {
-    return {
-        insideMaze: (location) => {},
-        isFree: (location) => {}
-    }
-}
+class PathFinder_Refactored {
+    getNextStepToTarget(maze, source, target) {
+        const queue = [];
+        const used = [];
+        queue.push(target);
+        used.push(target);
 
-function getNextStepToTarget(maze, source, target) {
-    const queue = [];
-    const used = [];
-    queue.push(target);
-    used.push(target);
-
-    while (queue.length) {
-        const p = queue.shift();
-        for (let neighbour of getNeighbours(p, maze)) {
-            const isPointVisited = contains(used, source);
-            if (isPointVisited) continue;
-            if (comparePoints(neighbour, source)) {
-                return p;
-            }
-            queue.push(neighbour);
-            if (!isPointVisited) {
-                used.push(neighbour);
+        while (queue.length) {
+            const p = queue.shift();
+            for (const neighbour of this.getNeighbours(p, maze)) {
+                const isPointVisited = contains(used, source);
+                if (isPointVisited) continue;
+                if (comparePoints(neighbour, source)) {
+                    return p;
+                }
+                queue.push(neighbour);
+                if (!isPointVisited) {
+                    used.push(neighbour);
+                }
             }
         }
+
+        return source;
     }
 
-    return source;
-}
+    generateRandomWorld() {
+        return {
+            insideMaze: (location) => {},
+            isFree: (location) => {}
+        };
+    }
 
-function getNeighbours(from, maze) {
-    return [{x: 1, y: 0}, {x: -1, y: 0}, {x: 0, y: 1}, {x: 0, y: -1}]
-        .map(shift => ({ x: shift.x + from.x, y: shift.y + from.y }))
-        .filter(maze.insideMaze)
-        .filter(maze.isFree);
+    getNeighbours(from, maze) {
+        return [{x: 1, y: 0}, {x: -1, y: 0}, {x: 0, y: 1}, {x: 0, y: -1}]
+            .map(shift => ({ x: shift.x + from.x, y: shift.y + from.y }))
+            .filter(maze.insideMaze)
+            .filter(maze.isFree);
+    }
 }
 
 function contains(arr, source) {

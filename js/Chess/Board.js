@@ -1,3 +1,6 @@
+import Location from './Location'
+import TemporaryPieceMove from './TemporaryPieceMove'
+
 export default class Board {
     constructor(cells) {
         this.cells = cells;
@@ -8,44 +11,34 @@ export default class Board {
     }
 
     getPiece(location) {
-        return this.contains(location) ? this.cells[location.y][location.x] : null;
+        return this.contains(location) ? this.cells[location.x][location.y] : null;
     }
 
     set(location, cell) {
-        this.cells[location.y][location.x] = cell;
+        this.cells[location.x][location.y] = cell;
     }
 
     performTemporaryMove(from, to) {
         const old = this.getPiece(to);
         this.set(to, this.getPiece(from));
-        this.set(from, null)
+        this.set(from, null);
         return new TemporaryPieceMove(this, from, to, old);
     }
 
     allBoard() {
-        return this.cells.reduce((allLocations, row, x) =>
-            allLocations.concat(row.reduce((rowLocations, _, y) =>
-                    rowLocations.concat({x, y}),
-                [])),
-            []);
+        const result = [];
+
+        for (let y = 0; y < this.cells.length; y++) {
+            for (let x = 0; x < this.cells.length; x++) {
+                result.push(new Location(x, y));
+            }
+        }
+
+        return result;
     }
 
     contains(location) {
         return location.x >= 0 && location.x < this.cells[0].length &&
             location.y >= 0 && location.y < this.cells.length;
-    }
-}
-
-class TemporaryPieceMove {
-    constructor(board, from, to, oldDestinationPiece) {
-        this.board = board;
-        this.from = from;
-        this.to = to;
-        this.oldDestinationPiece = oldDestinationPiece;
-    }
-
-    undo() {
-        this.board.set(this.from, this.board.getPiece(this.to));
-        this.board.set(this.to, this.oldDestinationPiece);
     }
 }

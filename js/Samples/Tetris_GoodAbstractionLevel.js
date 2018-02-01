@@ -3,14 +3,14 @@ class Field {
         this.width = width;
         this.height = height;
         this.score = score;
-        this.filledCellsLineByLine = filledCellsLineByLine
+        this.filledCellsLineByLine = filledCellsLineByLine;
     }
 
     clearFullLines() {
         const notFullLines = this.getAllNotFullLines();
         const clearedLinesCount = this.height - notFullLines.length;
         const newLinesArray = this.createNewLinesArray(clearedLinesCount, notFullLines);
-        return new Field(this.width, this.height, newLinesArray, this.score + clearedLinesCount)
+        return new Field(this.width, this.height, newLinesArray, this.score + clearedLinesCount);
     }
 
     createNewLinesArray(emptyLinesCount, nonEmptyLines) {

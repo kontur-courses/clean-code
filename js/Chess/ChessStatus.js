@@ -1,6 +1,6 @@
 export default {
     ok: 'ok',
-    check: 'check',
-    stalemate: 'stalemate',
-    mate: 'mate',
+    check: 'check', // шах
+    stalemate: 'stalemate', // пат
+    mate: 'mate', // мат
 }

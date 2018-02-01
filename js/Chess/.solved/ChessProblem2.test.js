@@ -12,8 +12,8 @@ xdescribe('ChessProblem', () => {
         const answerFiles = allFilesNames.filter(fileName => fileName.endsWith('.ans'));
 
         for (let i = 0; i < inputFiles.length; i++) {
-            const rawData = readFile(dirPath + '/' + inputFiles[i]);
-            const board = new BoardParser().parseBoard(rawData);
+            const boardLines = readFile(dirPath + '/' + inputFiles[i]);
+            const board = new BoardParser().parseBoard(boardLines);
             const expectedAnswer = fs.readFileSync(dirPath + '/' + answerFiles[i]).toString().trim();
             const whiteStatus = new ChessProblem(board).getStatusFor(PieceColor.white)
 

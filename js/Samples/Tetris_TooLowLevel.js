@@ -1,4 +1,4 @@
-class Field {
+class Tetris_TooLowLevel {
     constructor(width, height, isFilled) {
         this.width = width;
         this.height = height;
@@ -11,7 +11,7 @@ class Field {
             let fullY = 0;
 
             for (let x = 0; x < this.width; x++) {
-                if (this.isFilled[y][x]) {
+                if (this.isFilled[x][y]) {
                     count++;
                     if (count === this.width) {
                         fullY = y;
@@ -22,11 +22,11 @@ class Field {
             if (count === this.width) {
                 for (let yy = fullY; yy < this.height; yy++) {
                     for (let x = 0; x < this.width; x++) {
-                        this.isFilled[yy][x] = this.isFilled[yy+1][x];
+                        this.isFilled[x][yy] = this.isFilled[x][yy+1];
                     }
                 }
                 for (let x = 0; x < this.width; x++) {
-                    this.isFilled[this.height][x] = false;
+                    this.isFilled[x][this.height] = false;
                 }
             }
         }
@@ -46,16 +46,16 @@ class Field {
 
     addEmptyLineOnTop()
     {
-        throw new Error();
+        throw new Error('not implemented addEmptyLineOnTop');
     }
 
     shiftLinesDown(lineIndex)
     {
-        throw new Error(lineIndex.ToString());
+        throw new Error(`not implemented shiftLinesDown, arg: ${lineIndex}`);
     }
 
     lineIsFull(y)
     {
-        throw new Error(y.ToString());
+        throw new Error(`not implemented lineIsFull, arg: ${y}`);
     }
 }

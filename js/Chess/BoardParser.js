@@ -12,17 +12,17 @@ export default class BoardParser {
             throw new Error('All lines should have 8 chars length');
         }
 
-        const cells = []
-        for (let x = 0; x < 8; x++) {
-            const line = lines[x];
+        const cells = [];
+        for (let y = 0; y < 8; y++) {
+            const line = lines[y];
             if (!line) {
                 throw new Error('incorrect input');
             }
-            for (let y = 0; y < 8; y++) {
-                if (!cells[y]) {
-                    cells[y] = []
+            for (let x = 0; x < 8; x++) {
+                if (!cells[x]) {
+                    cells[x] = [];
                 }
-                cells[y][x] = this.parsePiece(line[y]);
+                cells[x][y] = this.parsePiece(line[x]);
             }
         }
         return new Board(cells);

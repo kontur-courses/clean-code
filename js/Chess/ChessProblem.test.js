@@ -1,10 +1,10 @@
-import { ChessProblem } from './ChessProblem'
+import ChessProblem from './ChessProblem'
 import ChessStatus from './ChessStatus'
 import fs from 'fs'
 
 describe('ChessProblem', () => {
     test('repeated method call do not change behaviour', () => {
-        const board = [
+        const boardLines = [
             "        ",
             "        ",
             "        ",
@@ -14,13 +14,11 @@ describe('ChessProblem', () => {
             "        ",
             "        ",
         ];
-        ChessProblem.loadFrom(board);
-        ChessProblem.calculateChessStatus();
-        expect(ChessProblem.chessStatus).toBe(ChessStatus.check);
+
+        testChess(true, ChessStatus.check, boardLines);
 
         // Now check that internal board modifications during the first call do not change answer
-        ChessProblem.calculateChessStatus();
-        expect(ChessProblem.chessStatus).toBe(ChessStatus.check);
+        testChess(false, ChessStatus.check);
     });
 
     test('all tests', () => {
@@ -31,11 +29,17 @@ describe('ChessProblem', () => {
         const answerFiles = allFilesNames.filter(fileName => fileName.endsWith('.ans'));
 
         for (let i = 0; i < inputFiles.length; i++) {
-            const board = readFile(dirPath + '/' + inputFiles[i]);
-            ChessProblem.loadFrom(board);
+            const boardLines = readFile(dirPath + '/' + inputFiles[i]);
             const expectedAnswer = fs.readFileSync(dirPath + '/' + answerFiles[i]).toString().trim();
-            ChessProblem.calculateChessStatus();
-            expect(ChessProblem.chessStatus).toBe(expectedAnswer);
+            testChess(true, expectedAnswer, boardLines);
         }
     });
-})
+});
+
+function testChess (needLoad, expectedAnswer, boardLines) {
+    if (needLoad) {
+        ChessProblem.loadFrom(boardLines);
+    }
+    ChessProblem.calculateChessStatus();
+    expect(ChessProblem.chessStatus).toBe(expectedAnswer);
+}
