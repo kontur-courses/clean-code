@@ -43,11 +43,11 @@
     <Reference Include="System.Data" />
     <Reference Include="System.Net.Http" />
     <Reference Include="System.Xml" />
+    <Reference Include="nunit.framework">
+      <HintPath>..\packages\NUnit.3.9.0\lib\net45\nunit.framework.dll</HintPath>
+    </Reference>
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="DataSaver_Refactored1.cs" />
-    <Compile Include="DataSaver.cs" />
-    <Compile Include="DataSaver_Refactored2.cs" />
     <Compile Include="PathFinder.cs" />
     <Compile Include="PathFinder_Refactored.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
