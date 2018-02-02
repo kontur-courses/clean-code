@@ -10,7 +10,7 @@ namespace Chess
 		[Test]
 		public void RepeatedMethodCallDoNotChangeBehaviour()
 		{
-			var board = new[]
+            var boardLines = new[]
 			{
 				"        ",
 				"        ",
@@ -21,7 +21,7 @@ namespace Chess
 				"        ",
 				"        ",
 			};
-			ChessProblem.LoadFrom(board);
+			ChessProblem.LoadFrom(boardLines);
 			ChessProblem.CalculateChessStatus();
 			Assert.AreEqual(ChessStatus.Check, ChessProblem.ChessStatus);
 
@@ -45,8 +45,8 @@ namespace Chess
 
 		private static void TestOnFile(string filename)
 		{
-			var board = File.ReadAllLines(filename);
-			ChessProblem.LoadFrom(board);
+			var boardLines = File.ReadAllLines(filename);
+            ChessProblem.LoadFrom(boardLines);
 			var expectedAnswer = File.ReadAllText(Path.ChangeExtension(filename, ".ans")).Trim();
 			ChessProblem.CalculateChessStatus();
 			Assert.AreEqual(expectedAnswer, ChessProblem.ChessStatus.ToString().ToLower(), "Failed test " + filename);
