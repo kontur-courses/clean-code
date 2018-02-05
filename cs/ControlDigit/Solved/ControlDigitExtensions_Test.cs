@@ -1,8 +1,10 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Diagnostics;
+using System.Linq;
 using NUnit.Framework;
 
-namespace ControlDigit
+namespace ControlDigit.Solved
 {
     [TestFixture]
     public class ControlDigitExtensions_Tests
@@ -45,4 +47,5 @@ namespace ControlDigit
             Console.WriteLine("New " + sw.Elapsed);
         }
     }
+
 }

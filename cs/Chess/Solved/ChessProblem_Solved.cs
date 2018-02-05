@@ -25,7 +25,7 @@ namespace Chess.Solved
 
         private bool IsCheckFor(PieceColor color) =>
             HasMovesFor(color.Invert(),
-                (from, to) => board.GetPiece(to).Is(color, PieceType.King));
+                (from, to) => Piece.Is(board.GetPiece(to), color, PieceType.King));
 
         private bool HasMovesFor(PieceColor color,
             Func<Location, Location, bool> isAcceptableMove)

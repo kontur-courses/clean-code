@@ -17,9 +17,10 @@ export function controlDigit (number) {
     return result;
 }
 
+const weights = createWeights();
+
 export function controlDigit2 (number) {
     const digits = getDigitsFromLeastSignificant(number);
-    const weights = createWeights();
     const sum = sumWithWeights(digits, weights) % 11;
     return sum === 10 ? 1 : sum;
 }

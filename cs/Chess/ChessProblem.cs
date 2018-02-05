@@ -46,7 +46,8 @@
 				var moves = piece.GetMoves(loc, board);
 				foreach (var destination in moves)
 				{
-					if (board.GetPiece(destination).Is(PieceColor.White, PieceType.King))
+                    if (Piece.Is(board.GetPiece(destination),
+                                 PieceColor.White, PieceType.King))
 						isCheck = true;
 				}
 			}

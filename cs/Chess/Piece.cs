@@ -21,14 +21,11 @@ namespace Chess
 			var c = PieceType == null ? " ." : " " + PieceType;
 			return Color == PieceColor.Black ? c.ToLower() : c;
 		}
-	}
 
-    public static class PieceExtensions
-    {
-        public static bool Is(this Piece piece, PieceColor color) => 
+        public static bool Is(Piece piece, PieceColor color) =>
             piece != null && piece.Color == color;
 
-        public static bool Is(this Piece piece, PieceColor color, PieceType pieceType) => 
-            piece.Is(color) && piece.PieceType == pieceType;
-    }
+        public static bool Is(Piece piece, PieceColor color, PieceType pieceType) =>
+            Is(piece, color) && piece.PieceType == pieceType;
+	}
 }

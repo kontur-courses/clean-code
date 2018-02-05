@@ -25,7 +25,7 @@ namespace Chess.Solved
 
         private bool IsCheckFor(PieceColor color) =>
             GetAllMovesOf(color.Invert())
-                .Any(m => board.GetPiece(m.To).Is(color, PieceType.King));
+                .Any(m => Piece.Is(board.GetPiece(m.To), color, PieceType.King));
 
 
         private bool HasSafeMovesFor(PieceColor color) =>
