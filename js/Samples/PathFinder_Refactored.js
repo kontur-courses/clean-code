@@ -1,4 +1,18 @@
 class PathFinder_Refactored {
+    *getPathToTarget(maze, start, target) {
+        let source = start;
+        const prev = {};
+
+        while (source) {
+            if (prev[source.toString()] === undefined) {
+                prev[source.toString()] = this.getNextStepToTarget(source, target);
+            }
+
+            yield prev[source.toString()];
+            source = prev[source.toString()];
+        }
+    }
+
     getNextStepToTarget(maze, source, target) {
         const queue = [];
         const used = [];
@@ -8,7 +22,7 @@ class PathFinder_Refactored {
         while (queue.length) {
             const p = queue.shift();
             for (const neighbour of this.getNeighbours(p, maze)) {
-                const isPointVisited = contains(used, source);
+                const isPointVisited = contains(used, neighbour);
                 if (isPointVisited) continue;
                 if (comparePoints(neighbour, source)) {
                     return p;

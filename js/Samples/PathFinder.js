@@ -1,36 +1,50 @@
-class PathFinder {
-    maze = {};
-    queue = [];
-    used = [];
+let maze = {};
+let queue = [];
+let used = [];
+let prev = [];
 
+class PathFinder {
     generateRandomMaze() {
-        this.maze = { insideMaze: (location) => { /*...*/ }, isFree: (location) => { /*...*/ } };
+        maze = { insideMaze: (location) => { /*...*/ }, isFree: (location) => { /*...*/ } };
+    }
+
+    *getPathToTarget(start, target) {
+        let source = start;
+
+        while (source) {
+            if (prev[source.toString()] === undefined) {
+                prev[source.toString()] = this.getNextStepToTarget(source, target);
+            }
+
+            yield prev[source.toString()];
+            source = prev[source.toString()];
+        }
     }
 
     getNextStepToTarget(source, target) {
-        this.queue.length = 0;
-        this.used.length = 0;
-        this.queue.push(target);
-        this.used.push(target);
-        while (this.queue.length) {
-            const p = this.queue.shift();
+        queue.length = 0;
+        used.length = 0;
+        queue.push(target);
+        used.push(target);
+        while (queue.length) {
+            const p = queue.shift();
             for (const neighbour of this.getNeighbours(p)) {
-                if (contains(this.used, source)) continue;
+                if (contains(used, neighbour)) continue;
                 if (isPointsEqual(neighbour, source)) {
                     return p;
                 }
-                this.queue.push(neighbour);
-                this.used.push(neighbour);
+                queue.push(neighbour);
+                used.push(neighbour);
             }
         }
-        return source;
+        return null;
     }
 
     getNeighbours(from) {
         return [{x: 1, y: 0}, {x: -1, y: 0}, {x: 0, y: 1}, {x: 0, y: -1}]
             .map(shift => ({ x: shift.x + from.x, y: shift.y + from.y }))
-            .filter(this.maze.insideMaze)
-            .filter(this.maze.isFree);
+            .filter(maze.insideMaze)
+            .filter(maze.isFree);
     }
 }
 
