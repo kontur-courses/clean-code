@@ -23,7 +23,7 @@ describe('ChessProblem', () => {
 
     test('all tests', () => {
         const dirPath = './Chess/ChessTests';
-        const readFile = (path) => fs.readFileSync(path).toString().trim().split('\n');
+        const readFile = (path) => fs.readFileSync(path).toString().trim().split('\n').map(line => line.trim());
         const allFilesNames = fs.readdirSync(dirPath);
         const inputFiles = allFilesNames.filter(fileName => fileName.endsWith('.in'));
         const answerFiles = allFilesNames.filter(fileName => fileName.endsWith('.ans'));

@@ -10,13 +10,14 @@ namespace Chess
             if (lines.Length != 8) throw new ArgumentException("Should be exactly 8 lines");
             if (lines.Any(line => line.Length != 8)) throw new ArgumentException("All lines should have 8 chars length");
 
-            var cells = new Piece[8, 8];
+            var cells = new Piece[8][];
             for (var y = 0; y < 8; y++)
             {
                 var line = lines[y];
                 if (line == null) throw new Exception("incorrect input");
+                cells[y] = new Piece[8];
                 for (var x = 0; x < 8; x++)
-                    cells[x, y] = ParsePiece(line[x]);
+                    cells[y][x] = ParsePiece(line[x]);
             }
             return new Board(cells);
         }

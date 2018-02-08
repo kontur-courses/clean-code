@@ -1,4 +1,3 @@
-using System;
 using System.Collections.Generic;
 using System.Linq;
 
@@ -6,9 +5,9 @@ namespace Chess
 {
     public class Board
 	{
-		private readonly Piece[,] cells;
+		private readonly Piece[][] cells;
 
-	    public Board(Piece[,] cells)
+	    public Board(Piece[][] cells)
 	    {
 	        this.cells = cells;
 	    }
@@ -17,10 +16,10 @@ namespace Chess
             AllBoard().Where(loc => Piece.Is(GetPiece(loc), color));
 
         public Piece GetPiece(Location location) => 
-            Contains(location) ? cells[location.X, location.Y] : null;
+            Contains(location) ? cells[location.Y][location.X] : null;
 
         public void Set(Location location, Piece cell) => 
-            cells[location.X, location.Y] = cell;
+            cells[location.Y][location.X] = cell;
 
         public TemporaryPieceMove PerformTemporaryMove(Location from, Location to)
 		{
@@ -32,14 +31,13 @@ namespace Chess
 
         private IEnumerable<Location> AllBoard()
         {
-            return 
-                from y in Enumerable.Range(0, cells.GetLength(0))
-                from x in Enumerable.Range(0, cells.GetLength(1))
-                select new Location(x, y);
+	        for (int y = 0; y < cells.Length; y++)
+	        for (int x = 0; x < cells[0].Length; x++)
+		        yield return new Location(x, y);
         }
 
         public bool Contains(Location loc) =>
-            loc.X >= 0 && loc.X < cells.GetLength(0) && 
-            loc.Y >= 0 && loc.Y < cells.GetLength(1);
+            loc.X >= 0 && loc.X < cells[0].Length && 
+            loc.Y >= 0 && loc.Y < cells.Length;
 	}
 }

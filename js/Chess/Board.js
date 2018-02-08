@@ -29,7 +29,7 @@ export default class Board {
         const result = [];
 
         for (let y = 0; y < this.cells.length; y++) {
-            for (let x = 0; x < this.cells.length; x++) {
+            for (let x = 0; x < this.cells[0].length; x++) {
                 result.push(new Location(x, y));
             }
         }

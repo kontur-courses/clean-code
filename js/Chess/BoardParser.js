@@ -8,6 +8,7 @@ export default class BoardParser {
         if (lines.length !== 8) {
             throw new Error('Should be exactly 8 lines');
         }
+
         if (lines.some(line => line.length !== 8)) {
             throw new Error('All lines should have 8 chars length');
         }
@@ -18,11 +19,9 @@ export default class BoardParser {
             if (!line) {
                 throw new Error('incorrect input');
             }
+            cells[y] = [];
             for (let x = 0; x < 8; x++) {
-                if (!cells[x]) {
-                    cells[x] = [];
-                }
-                cells[x][y] = this.parsePiece(line[x]);
+                cells[y][x] = this.parsePiece(line[x]);
             }
         }
         return new Board(cells);
