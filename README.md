@@ -11,7 +11,7 @@
 
 Понадобится знание C# или JS
 
-Рекомендуется пройти блок [Тестирование](https://github.com/kontur-csharper/testing)
+Рекомендуется пройти блок [Тестирование](https://github.com/kontur-courses/testing)
 
 
 ## Самостоятельная подготовка
