@@ -17,7 +17,7 @@ describe('ControlDigit', () => {
         });
     });
 
-    xtest('Compare implementations', () => {
+    test('Compare implementations', () => {
         for (let i = 0; i < 10000; i++) {
             expect(controlDigit(i)).toBe(controlDigit2(i));
         }
