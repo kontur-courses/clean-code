@@ -37,7 +37,7 @@ function getDigitsFromLeastSignificant (number) {
 }
 
 function createWeights () {
-    const generator = repeat([1, 3])
+    const generator = repeat([1, 3]);
     return Array.from(new Array(20), () => generator.next().value);
 }
 
