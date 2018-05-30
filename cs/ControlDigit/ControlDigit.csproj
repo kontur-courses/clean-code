@@ -44,16 +44,18 @@
     </Reference>
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="ControlDigitExtensions.cs" />
+    <Compile Include="Isbn13\UpcExtensions.cs" />
+    <Compile Include="Snils\SnilsExtensions.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
-    <Compile Include="ControlDigitExtensions_Test.cs" />
-  </ItemGroup>
-  <ItemGroup>
-    <Content Include="README.txt" />
+    <Compile Include="Snils\SnilsExtensions_Tests.cs" />
+    <Compile Include="Upc\UpcExtensions.cs" />
+    <Compile Include="Upc\UpcExtensions_Tests.cs" />
+    <Compile Include="Upc\Upc_PerformanceTests.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="packages.config" />
   </ItemGroup>
+  <ItemGroup />
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
        Other similar extension points exist, see Microsoft.Common.targets.
