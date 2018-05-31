@@ -1,4 +1,4 @@
-export function controlDigit (number) {
+export function isbn13 (number) {
     let sum = 0;
     let factor = 1;
 
@@ -10,13 +10,9 @@ export function controlDigit (number) {
     } while (number > 0);
 
 
-    let result = sum % 11;
-    if (result === 10)
-        result = 1;
+    let m = sum % 10;
+    if (m === 0)
+        return 0;
 
-    return result;
-}
-
-export function controlDigit2 (number) {
-    return 0;
+    return 10 - m;
 }
