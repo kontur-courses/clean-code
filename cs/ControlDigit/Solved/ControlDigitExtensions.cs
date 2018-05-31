@@ -8,10 +8,18 @@ namespace ControlDigit.Solved
 {
 	public static class ControlDigitExtensions
 	{
-		public static int ControlDigit(this long number)
+		public static int CalculateSnils(this long number)
+		{
+			var sum = number
+						  .GetDigitsFromLeastSignificant()
+						  .SumWithWeights(Enumerable.Range(1, 9)) % 101;
+			return sum == 100 ? 0 : sum;
+		}
+
+		public static int CalculateUpcOld(this long number)
 		{
 			int sum = 0;
-			int factor = 1;
+			int factor = 3;
 			do
 			{
 				int digit = (int)(number % 10);
@@ -22,46 +30,46 @@ namespace ControlDigit.Solved
 			}
 			while (number > 0);
 
-			int result = sum % 11;
-			if (result == 10)
-				result = 1;
-			return result;
+			int m = sum % 10;
+			if (m == 0)
+				return 0;
+			return 10 - m;
 		}
 
-        private static readonly int[] weights = new[] { 1, 3 }.Repeat().Take(20).ToArray();
+		private static readonly int[] weights = new[] { 3, 1 }.Repeat().Take(11).ToArray();
 
-        public static int ControlDigit2(this long number)
-        {
-            var sum = number
-                .GetDigitsFromLeastSignificant()
-                .SumWithWeights(weights) % 11;
-            return sum == 10 ? 1 : sum;
-        }
-    }
+		public static int CalculateUpc(this long number)
+		{
+			var m = number
+				.GetDigitsFromLeastSignificant()
+				.SumWithWeights(weights) % 10;
+			return m == 0 ? 0 : 10 - m;
+		}
+	}
 
-    // Общий код, ничего не знает про контрольные разряды и прикладную задачу.
-    public static class MoreEnumerableExtensions
-    {
-        public static IEnumerable<int> GetDigitsFromLeastSignificant(this long number)
-        {
-            do
-            {
-                yield return (int)(number % 10);
-                number /= 10;
-            } while (number > 0);
-        }
+	// Общий код, ничего не знает про контрольные разряды и прикладную задачу.
+	public static class MoreEnumerableExtensions
+	{
+		public static IEnumerable<int> GetDigitsFromLeastSignificant(this long number)
+		{
+			do
+			{
+				yield return (int)(number % 10);
+				number /= 10;
+			} while (number > 0);
+		}
 
-        public static int SumWithWeights(this IEnumerable<int> numbers, IEnumerable<int> weights)
-        {
-            return numbers.Zip(weights, (n, w) => n * w).Sum();
-        }
+		public static int SumWithWeights(this IEnumerable<int> numbers, IEnumerable<int> weights)
+		{
+			return numbers.Zip(weights, (n, w) => n * w).Sum();
+		}
 
-        public static IEnumerable<T> Repeat<T>(this IEnumerable<T> items)
-        {
-            var i2 = items.ToList();
-            while (true)
-                foreach (var item in i2) yield return item;
-            // ReSharper disable once FunctionNeverReturns
-        }
-    }
+		public static IEnumerable<T> Repeat<T>(this IEnumerable<T> items)
+		{
+			var i2 = items.ToList();
+			while (true)
+				foreach (var item in i2) yield return item;
+			// ReSharper disable once FunctionNeverReturns
+		}
+	}
 }
