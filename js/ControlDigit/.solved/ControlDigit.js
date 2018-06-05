@@ -3,9 +3,10 @@
 export function getDigitsFromLeastSignificant (number) {
     const digits = [];
     do {
-        digits.push(number % 10);
-        number = Math.floor(number / 10);
-    } while (number > 0);
+        const digit = number % 10 >> 0; // Быстрая альтернатива Math.floor(number % 10)
+        digits.push(digit);
+        number = number / 10;
+    } while (number >= 1);
 
     return digits;
 }
