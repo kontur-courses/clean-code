@@ -5,11 +5,11 @@ function upcFast(number) {
     let factor = 3;
 
     do {
-        const digit = number % 10;
+        const digit = number % 10 >> 0;
         sum += factor * digit;
         factor = 4 - factor;
-        number = Math.floor(number / 10);
-    } while (number > 0);
+        number = number / 10;
+    } while (number >= 1);
 
 
     let m = sum % 10;
@@ -21,7 +21,7 @@ function upcFast(number) {
 
 describe('Upc performance tests', () => {
     test('Text Upc speed', () => {
-        const count = 1000000;
+        const count = 10000000;
         console.time('DoWhile');
         for (let i = 0; i < count; i++) {
             upcFast(12345678);
