@@ -8,7 +8,6 @@ namespace ControlDigit
         public static int CalculateSnils(this long number)
         {
             var controlSum = Helpers.GetReversedDigitsEnumerable(number)
-                .ToArray()
                 .Select((d, i) => d * (i + 1))
                 .Sum();
 

@@ -8,7 +8,6 @@ namespace ControlDigit
         public static int CalculateUpc(this long number)
         {
             var controlSum = Helpers.GetReversedDigitsEnumerable(number)
-                .ToArray()
                 .Select((d, i) => (i % 2 == 0) ? d * 3 : d)
                 .Sum();
             
