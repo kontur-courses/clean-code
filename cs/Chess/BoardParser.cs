@@ -3,9 +3,9 @@ using System.Linq;
 
 namespace Chess
 {
-    public class BoardParser
+    public static class BoardParser
     {
-        public Board ParseBoard(string[] lines)
+        public static Board ParseBoardByLines(string[] lines)
         {
             if (lines.Length != 8) throw new ArgumentException("Should be exactly 8 lines");
             if (lines.Any(line => line.Length != 8)) throw new ArgumentException("All lines should have 8 chars length");

@@ -7,7 +7,27 @@ namespace ControlDigit
     {
         public static int CalculateSnils(this long number)
         {
-            throw new NotImplementedException();
+            var controlSum = Helpers.GetReversedDigitsEnumerable(number)
+                .ToArray()
+                .Select((d, i) => d * (i + 1))
+                .Sum();
+
+            do
+            {
+                if (controlSum == 100 || controlSum == 101)
+                {
+                    return 0;
+                }
+                
+                if (controlSum < 100)
+                {
+                    return controlSum;
+                }
+
+                controlSum %= 101;
+            } while (controlSum >= 100);
+
+            return controlSum;
         }
     }
 }

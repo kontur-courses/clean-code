@@ -44,6 +44,7 @@
     </Reference>
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Helpers.cs" />
     <Compile Include="Isbn13\UpcExtensions.cs" />
     <Compile Include="Snils\SnilsExtensions.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />

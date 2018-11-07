@@ -7,27 +7,28 @@ namespace Chess
     [TestFixture]
     public class ChessProblem_Test
     {
+        private static string[] _testBoardLines =
+        {
+            "        ",
+            "        ",
+            "        ",
+            "   q    ",
+            "    K   ",
+            " Q      ",
+            "        ",
+            "        ",
+        };
+        
         [Test]
         public void RepeatedMethodCallDoNotChangeBehaviour()
         {
-            var boardLines = new[]
-            {
-                "        ",
-                "        ",
-                "        ",
-                "   q    ",
-                "    K   ",
-                " Q      ",
-                "        ",
-                "        ",
-            };
-            ChessProblem.LoadFrom(boardLines);
-            ChessProblem.CalculateChessStatus();
-            Assert.AreEqual(ChessStatus.Check, ChessProblem.ChessStatus);
+            var board = BoardParser.ParseBoardByLines(_testBoardLines);
+            var chesProblem = new ChessProblem(board);
+            
+            Assert.AreEqual(ChessStatus.Check, chesProblem.CalculateChessStatus());
 
             // Now check that internal board modifications during the first call do not change answer
-            ChessProblem.CalculateChessStatus();
-            Assert.AreEqual(ChessStatus.Check, ChessProblem.ChessStatus);
+            Assert.AreEqual(ChessStatus.Check, chesProblem.CalculateChessStatus());
         }
 
         [Test]
@@ -46,10 +47,12 @@ namespace Chess
         private static void TestOnFile(string filename)
         {
             var boardLines = File.ReadAllLines(filename);
-            ChessProblem.LoadFrom(boardLines);
+            var board = BoardParser.ParseBoardByLines(boardLines);
+            var chesProblem = new ChessProblem(board);
+            
             var expectedAnswer = File.ReadAllText(Path.ChangeExtension(filename, ".ans")).Trim();
-            ChessProblem.CalculateChessStatus();
-            Assert.AreEqual(expectedAnswer, ChessProblem.ChessStatus.ToString().ToLower(), "Failed test " + filename);
+            var resultStatus = chesProblem.CalculateChessStatus();
+            Assert.AreEqual(expectedAnswer, resultStatus.ToString().ToLower(), "Failed test " + filename);
         }
     }
 }
