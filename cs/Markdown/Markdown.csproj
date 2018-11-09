@@ -50,6 +50,8 @@
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="MarkdownParser\HtmlTag.cs" />
     <Compile Include="MarkdownParser\MarkdownParser.cs" />
+    <Compile Include="StringExtension.cs" />
+    <Compile Include="StringIndexator.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="App.config" />

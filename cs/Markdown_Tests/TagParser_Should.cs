@@ -58,7 +58,7 @@ namespace Markdown_Tests
         {
             var text = "plain text before underscores_italic_";
             ISpanElement currentSpanElement = null;
-            var closingSpanElement = parser.GetSpanElementClosingIndex(text, 0, currentSpanElement, spanElements);
+            var closingSpanElement = StringIndexator.GetClosingIndex(text, 0, currentSpanElement, spanElements);
             closingSpanElement.Should().Be(28);
         }
 
@@ -79,10 +79,10 @@ namespace Markdown_Tests
         }
 
         [Test]
-        public void GetSpanElementClosingIndex_WhiteSpaceBeforeClosingTag_SkipClosingTag()
+        public void GetClosingIndex_WhiteSpaceBeforeClosingTag_SkipClosingTag()
         {
             var text = "_italic _text_";
-            var closingSpanElement = parser.GetSpanElementClosingIndex(text, 1, new SingleUnderscore(), spanElements);
+            var closingSpanElement = StringIndexator.GetClosingIndex(text, 1, new SingleUnderscore(), spanElements);
             closingSpanElement.Should().Be(12);
         }
 
@@ -94,6 +94,7 @@ namespace Markdown_Tests
             tag.Should().BeNull();
             parser.Position.Should().Be(5);
         }
+
 
     }
 

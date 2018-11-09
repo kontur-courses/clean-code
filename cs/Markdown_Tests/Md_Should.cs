@@ -17,7 +17,7 @@ namespace Markdown_Tests
         }
 
         [TestCase("without underscores", ExpectedResult = "without underscores", TestName = "PlainText_ReturnWithoutChanges")]
-        [TestCase("____too much____", ExpectedResult = "____too much____", TestName = "UnknownAmountOfUnderscores_ReturnWithoutChanges")]
+        [TestCase("____too much____", ExpectedResult = "<strong>__too much</strong>__", TestName = "UnknownAmountOfUnderscores_ReturnWithMostAppropriateFormatting")]
         [TestCase("_text", ExpectedResult = "_text", TestName = "PairlessSingleUnderscore_ReturnWithoutChanges")]
         [TestCase("__text", ExpectedResult = "__text", TestName = "PairlessDoubleUnderscore_ReturnWithoutChanges")]
         [TestCase("__plain _text", ExpectedResult = "__plain _text", TestName = "PairlessTags_ReturnWithoutChanges")]
@@ -30,8 +30,8 @@ namespace Markdown_Tests
         [TestCase("_italic __without changes__ italic_", ExpectedResult = "<em>italic _</em>without changes__ italic_")]
         [TestCase("_two __", ExpectedResult = "<em>two _</em>", TestName = "TwoDifferentTagsIntersectEachOther_ReplaceWithLeadingTag")]
 
-        [TestCase(@"\_save underscores_", ExpectedResult = "_save underscores_", TestName = "EscapeFirstUnderscore_PreventFormatingFirstTag")]
-        [TestCase(@"_save underscores\\_", ExpectedResult = "_save underscores_", TestName = "EscapeBothUnderscores_PreventFormatingBothTags")]
+        [TestCase("\\_simple text\\_", ExpectedResult = "_simple text_", TestName = "EscapeFirstUnderscore_PreventFormatingFirstTag")]
+        [TestCase(@"\_save underscores\_", ExpectedResult = "_save underscores_", TestName = "EscapeBothUnderscores_PreventFormatingBothTags")]
         [TestCase("__pairless double_not italic text_", ExpectedResult = "_<em>pairless double</em>not italic text_", TestName = "PairlessTag_FormatByClosingTag")]
         public String Render_ConvertMarkdownToHtmlCorrectly(String markdown)
         {

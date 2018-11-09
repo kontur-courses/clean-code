@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Text;
 
 namespace Markdown
 {
@@ -19,7 +20,8 @@ namespace Markdown
 
         public string ConvertMarkdownToHtml(string markdown, List<ISpanElement> spanElements)
         {
-            var result = "";
+            var convertedTag = String.Empty;
+            var result = new StringBuilder();
             var markdownParser = new MarkdownParser();
             var tags = markdownParser.ParseMarkdownOnHtmlTags(markdown, spanElements);
             foreach (var tag in tags)
@@ -27,16 +29,15 @@ namespace Markdown
                 if (tag.HasHtmlWrap())
                 {
                     var possibleInnerElements = spanElements.Where(e => tag.SpanElement.Contains(e)).ToList();
-                    var tagContent = ConvertMarkdownToHtml(tag.Content, possibleInnerElements);
-                    result += tag.SpanElement.ToHtml(tagContent);
-
+                    var tagContent = ConvertMarkdownToHtml(tag.Content, possibleInnerElements).RemoveEscapes();
+                    convertedTag = tag.SpanElement.ToHtml(tagContent);
                 }
                 else
-                {
-                    result += tag.ToHtml();
-                }
+                    convertedTag = tag.ToHtml().RemoveEscapes();
+
+                result.Append(convertedTag);
             }
-            return result;
+            return result.ToString();
         }
 
     }
