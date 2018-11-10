@@ -19,14 +19,14 @@ namespace Markdown_Tests
             spanElements = new List<ISpanElement>();
             spanElements.Add(new SingleUnderscore());
             spanElements.Add(new DoubleUnderscore());
-            parser = new MarkdownParser();
         }
 
         [Test]
         public void SplitMarkdownOnTags_GetPlainText_ReturnWithoutChanges()
         {
             var markdown = "plain text";
-            var tags = parser.ParseMarkdownOnHtmlTags(markdown, spanElements);
+            parser = new MarkdownParser(markdown, spanElements);
+            var tags = parser.ParseMarkdownOnHtmlTags();
             tags.First().HasHtmlWrap().Should().BeFalse();
         }
 
@@ -34,15 +34,17 @@ namespace Markdown_Tests
         public void GetNextSpanElement_GetPlainText_NoSpanElementDetected()
         {
             var markdown = "plain text";
+            parser = new MarkdownParser(markdown, spanElements);
             for (int i = 0; i < markdown.Length; i++)
-                parser.DetermineSpanElement(markdown, i, spanElements).Should().BeNull();
+                parser.DetermineSpanElement().Should().BeNull();
         }
 
         [TestCase("_single underscore_", typeof(SingleUnderscore), TestName = "DetectSingleUnderscoreSpanElement")]
         [TestCase("__double underscore__", typeof(DoubleUnderscore), TestName = "DetectDoubleUnderscoreSpanElement")]
         public void GetNextSpanElement_GetFormattedText(string markdown, Type type)
         {
-            var span = parser.DetermineSpanElement(markdown, 0, spanElements);
+            parser = new MarkdownParser(markdown, spanElements);
+            var span = parser.DetermineSpanElement();
             span.Should().BeOfType(type);
         }
 
@@ -50,49 +52,53 @@ namespace Markdown_Tests
         [TestCase("__ whitespace after double underscore_", TestName = "WhiteSpaceAfterDoubleUnderscore")]
         public void GetNextSpanElement_NoSpanElementDecetected(string markdown)
         {
-            parser.DetermineSpanElement(markdown, 0, spanElements).Should().BeNull();            
+            parser = new MarkdownParser(markdown, spanElements);
+            parser.DetermineSpanElement().Should().BeNull();            
         }
 
         [Test]
         public void GetTagClosingPosition_GetPlainText_RetunIndexBeforeClosingIndicator()
         {
-            var text = "plain text before underscores_italic_";
+            var markdown = "plain text before underscores_italic_";
             ISpanElement currentSpanElement = null;
-            var closingSpanElement = StringIndexator.GetClosingIndex(text, 0, currentSpanElement, spanElements);
+            var closingSpanElement = StringIndexator.GetClosingIndex(markdown, 0, currentSpanElement, spanElements);
             closingSpanElement.Should().Be(28);
         }
 
         [Test]
         public void ParseNextTag_GetPlainText_ReturnWithoutFormatting()
         {
-            var text = "_italic_hello world_italic_";
-            var tag = parser.ParseNextTag(text, 8, spanElements);
-            tag.Content.Should().Be("hello world");
+            var markdown = "_italic_hello world_italic_";
+            parser = new MarkdownParser(markdown, spanElements);
+            parser.ParseNextTag().Content.Should().Be("italic");
+            parser.ParseNextTag().HasHtmlWrap().Should().BeFalse();
+            parser.ParseNextTag().Content.Should().Be("italic");
         }
 
         [TestCase("some_italic_words", ExpectedResult = "italic")]
         [TestCase("some__bold__words", ExpectedResult = "bold")]
-        public String ParseNextTag_GetItalicText_ReturnItalicTag(string markdown)
+        public String ParseNextTag_GetMarkdownText_ReturnParsedTag(string markdown)
         {
-            var tag = parser.ParseNextTag(markdown, 4, spanElements);
-            return tag.Content;
+            parser = new MarkdownParser(markdown, spanElements);
+            parser.ParseNextTag();
+            return parser.ParseNextTag().Content;
         }
 
         [Test]
         public void GetClosingIndex_WhiteSpaceBeforeClosingTag_SkipClosingTag()
         {
-            var text = "_italic _text_";
-            var closingSpanElement = StringIndexator.GetClosingIndex(text, 1, new SingleUnderscore(), spanElements);
+            var markdown = "_italic _text_";
+            var closingSpanElement = StringIndexator.GetClosingIndex(markdown, 1, new SingleUnderscore(), spanElements);
             closingSpanElement.Should().Be(12);
         }
 
         [Test]
         public void ParseNextTag_EscapedUnderscore_DoNotParseTag()
         {
-            var text = "some\\__italic_";
-            var tag = parser.DetermineSpanElement(text, 5, spanElements);
+            var markdown = "some\\__italic_";
+            parser = new MarkdownParser(markdown, spanElements);
+            var tag = parser.DetermineSpanElement();
             tag.Should().BeNull();
-            parser.Position.Should().Be(5);
         }
 
 

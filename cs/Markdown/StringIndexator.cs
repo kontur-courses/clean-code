@@ -10,24 +10,24 @@ namespace Markdown
     {
         public static int GetClosingIndex(string markdown, int currentPosition, ISpanElement currentSpanElement, List<ISpanElement> spanElements)
         {
-            for (currentPosition++; currentPosition < markdown.Length; currentPosition++)
+            var closingIndex = currentPosition;
+            for (closingIndex++; closingIndex < markdown.Length; closingIndex++)
             {
                 if (currentSpanElement == null)
                 {
-                    if (markdown.IsSpanElementOpening(currentPosition, spanElements))
+                    if (markdown.IsSpanElementOpening(closingIndex, spanElements))
                         break;
                 }
                 else
                 {
-                    if (markdown.ElementAt(currentPosition - 1) == '\\' || markdown.ElementAt(currentPosition - 1) == ' ') continue;
-                    if (!markdown.IsSubstring(currentPosition, currentSpanElement.GetOpeningIndicator()))
+                    if (!markdown.IsSubstring(closingIndex, currentSpanElement.GetOpeningIndicator()))
                         continue;
-                    if (!markdown.IsWrongBoundary(currentPosition - 1))
+                    if (!markdown.IsWrongBoundary(closingIndex - 1))
                         break;
                 }
             }
 
-            return currentPosition - 1;
+            return closingIndex - 1;
         }
 
     }

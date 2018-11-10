@@ -33,6 +33,9 @@ namespace Markdown_Tests
         [TestCase("\\_simple text\\_", ExpectedResult = "_simple text_", TestName = "EscapeFirstUnderscore_PreventFormatingFirstTag")]
         [TestCase(@"\_save underscores\_", ExpectedResult = "_save underscores_", TestName = "EscapeBothUnderscores_PreventFormatingBothTags")]
         [TestCase("__pairless double_not italic text_", ExpectedResult = "_<em>pairless double</em>not italic text_", TestName = "PairlessTag_FormatByClosingTag")]
+
+        [TestCase("__bold___italic_", ExpectedResult = "<strong>bold</strong><em>italic</em>")]
+        [TestCase("__bold _italic_bold_italic_ bold__", ExpectedResult = "<strong>bold <em>italic</em>bold<em>italic</em> bold</strong>")]
         public String Render_ConvertMarkdownToHtmlCorrectly(String markdown)
         {
             return md.Render(markdown);

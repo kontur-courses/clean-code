@@ -22,8 +22,8 @@ namespace Markdown
         {
             var convertedTag = String.Empty;
             var result = new StringBuilder();
-            var markdownParser = new MarkdownParser();
-            var tags = markdownParser.ParseMarkdownOnHtmlTags(markdown, spanElements);
+            var markdownParser = new MarkdownParser(markdown, spanElements);
+            var tags = markdownParser.ParseMarkdownOnHtmlTags();
             foreach (var tag in tags)
             {
                 if (tag.HasHtmlWrap())
