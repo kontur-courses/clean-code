@@ -41,8 +41,14 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="IParser.cs" />
+    <Compile Include="ITagTranslator.cs" />
+    <Compile Include="MarkdownToHtmlTagTranslator.cs" />
     <Compile Include="Markdown.cs" />
+    <Compile Include="MarkdownParser.cs" />
+    <Compile Include="MarkdownTagLanguage.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="TagSymbolSpecification.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="MarkdownSpec.md" />
