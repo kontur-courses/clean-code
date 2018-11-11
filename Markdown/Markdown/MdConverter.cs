@@ -50,13 +50,13 @@ namespace Markdown
 			}
 
 			var sortedTagIndexes = GetSortedTagIndexes();
-			var textInHtml = TransformToHtml(sortedTagIndexes);
+			var textInHtml = GetHtmlCode(sortedTagIndexes);
 
 
 			return textInHtml.Replace("\\", "");
 		}
 
-		private string TransformToHtml(List<int> sortedTagIndexes)
+		private string GetHtmlCode(List<int> sortedTagIndexes)
 		{
 			var startIndex = 0;
 			var htmlBuilder = new StringBuilder();
