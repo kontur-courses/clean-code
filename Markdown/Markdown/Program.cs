@@ -10,7 +10,9 @@ namespace Markdown
 	{
 		static void Main()
 		{
-			var text = "Hello World";
+			var md = new Md();
+			Console.WriteLine(md.Render("_world_ lalala"));
+
 		}
 	}
 }
