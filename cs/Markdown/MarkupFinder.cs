@@ -6,13 +6,13 @@ using System.Threading.Tasks;
 
 namespace Markdown
 {
-    class MarkupFinder
+    public class MarkupFinder
     {
         public MarkupFinder(List<Markup> markups)
         {
         }
 
-        public Dictionary<Markup, List<MarkupPosition>> GetMarkupsWithPositions()
+        public Dictionary<Markup, List<MarkupPosition>> GetMarkupsWithPositions(string paragraph)
         {
             throw new NotImplementedException();
         }

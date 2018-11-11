@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace Markdown
 {
-    class Markup
+    public class Markup
     {
         public string Name { get; }
         public string TemplateOfStart { get; }

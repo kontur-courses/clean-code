@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace Markdown
 {
-    class MarkupPosition
+    public class MarkupPosition
     {
         public MarkupPosition(int start, int end)
         {

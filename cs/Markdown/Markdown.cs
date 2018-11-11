@@ -12,7 +12,7 @@ namespace Markdown
         {
             var markupsList = new List<Markup>();
 
-            var markups = new MarkupFinder(markupsList).GetMarkupsWithPositions();
+            var markups = new MarkupFinder(markupsList).GetMarkupsWithPositions(paragraph);
             return new Md2HtmlTranslator(markupsList).TranslateMdToHtml(paragraph, markups);
         }
     }
