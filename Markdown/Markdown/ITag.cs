@@ -5,6 +5,10 @@ namespace Markdown
 	interface ITag
 	{
 		char Symbol { get; set; }
-		string Wrap(StringBuilder text);
+		int OpenIndex { get; set; }
+		int CloseIndex { get; set; }
+		string HtmlOpen { get; set; }
+		string HtmlClose { get; set; }
+		int FindCloseIndex(string text);
 	}
 }

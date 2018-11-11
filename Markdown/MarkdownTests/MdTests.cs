@@ -1,7 +1,8 @@
 ﻿using System;
+using Markdown;
 using NUnit.Framework;
 
-namespace Markdown
+namespace MarkdownTests
 {
 	[TestFixture]
 	class MdTests

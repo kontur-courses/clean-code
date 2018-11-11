@@ -1,17 +1,24 @@
-﻿using System.Text;
-
-namespace Markdown
+﻿namespace Markdown
 {
 	public class UnderLineTag : ITag
 	{
 		public char Symbol { get; set; } = '_';
-		private readonly string htmlOpenTag = "<em>";
-		private readonly string htmlCloseTag = "</em>";
+		public int OpenIndex { get; set; }
+		public int CloseIndex { get; set; }
+		public string HtmlOpen { get; set; } = "<em>";
+		public string HtmlClose { get; set; } = "</em>";
 
-		public string Wrap(StringBuilder text)
+		public int FindCloseIndex(string text)
 		{
-			var body = text.ToString(1, text.Length - 2);
-			return $"{htmlOpenTag}{body}{htmlCloseTag}";
+			for (var i = OpenIndex + 2; i < text.Length; i++)
+			{
+				var nextSymbol = i == text.Length - 1 ? '^' : text[i + 1];
+				if (text[i] == Symbol && (char.IsWhiteSpace(nextSymbol) || i == text.Length - 1)
+				                      && !char.IsWhiteSpace(text[i - 1]))
+					return i;
+			}
+
+			return -1;
 		}
 	}
 }
