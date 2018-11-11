@@ -12,7 +12,7 @@ namespace Chess
             this.cells = cells;
         }
 
-        public IEnumerable<Location> GetPieces(PieceColor color) => 
+        public IEnumerable<Location> GetPiecesLocations(PieceColor color) => 
             AllBoard().Where(loc => Piece.Is(GetPiece(loc), color));
 
         public Piece GetPiece(Location location) => 
