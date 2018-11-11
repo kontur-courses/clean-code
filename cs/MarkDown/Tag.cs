@@ -7,7 +7,7 @@ using System.Threading.Tasks;
 
 namespace MarkDown
 {
-    class Tag
+    public class Tag
     {
         public Tag Parent;
         public int PositionInsideParent;
@@ -20,6 +20,11 @@ namespace MarkDown
             PositionInsideParent = positionInsideParent;
             TagType = tagType;
             Text = text;
+        }
+
+        public string ParseToHtml()
+        {
+            throw new NotImplementedException();
         }
     }
 }
