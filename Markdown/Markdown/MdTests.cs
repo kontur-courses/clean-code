@@ -18,14 +18,32 @@ namespace Markdown
 			md = new Md();
 		}
 
+		[Test]
+		public void WithoutSpecialCharacters_ShouldRenderWithoutChanges()
+		{
+			var text = "hello world";
+			var actual = md.Render(text);
+
+			Assert.AreEqual(actual, "hello world");
+		}
+
 
 		[Test]
-		public void Render_LineWithUnderLineTag_ShouldReturnLineWithHtmlTag()
+		public void UnderLineCharacter_ShouldRenderToHtmlTag()
 		{
 			var text = "hello _world_";
 			var actual = md.Render(text);
 
 			Assert.AreEqual(actual, "hello <em>world</em>");
+		}
+
+		[Test]
+		public void ScreenUnderLineCharacter_ShouldRenderWithoutChanges()
+		{
+			var text = @"hello \_world\_";
+			var actual = md.Render(text);
+
+			Assert.AreEqual(actual, "hello _world_");
 		}
 	}
 }

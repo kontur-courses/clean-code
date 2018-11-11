@@ -33,6 +33,14 @@ namespace Markdown
 				var prevSymbol = position == 0 ? '^' : text[position - 1];
 				var nextSymbol = isEndOfText ? '^' : text[position + 1];
 
+				if (symbol == '\\' && !isEndOfText)
+				{
+					position++;
+					textStorage.Append(text[position]);
+					position++;
+					continue;
+				}
+
 				if (isEndOfText)
 				{
 					AddLast(symbol);
@@ -61,6 +69,7 @@ namespace Markdown
 				position++;
 			}
 
+			result.Add(textStorage.ToString());
 			return string.Join("", result);
 		}
 
