@@ -6,8 +6,10 @@ using System.Threading.Tasks;
 
 namespace Markdown
 {
-    enum TokenType
+    public enum TokenType
     {
-        
+        Raw,
+        Single,
+        Double
     } 
 }
