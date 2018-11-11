@@ -10,7 +10,8 @@ namespace Markdown
 
 		public string Wrap(StringBuilder text)
 		{
-			return $"{htmlOpenTag}{text}{htmlCloseTag}";
+			var body = text.ToString(1, text.Length - 2);
+			return $"{htmlOpenTag}{body}{htmlCloseTag}";
 		}
 	}
 }

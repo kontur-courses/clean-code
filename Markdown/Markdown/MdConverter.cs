@@ -17,7 +17,7 @@ namespace Markdown
 
 		public MdConverter(string text)
 		{
-			this.text = text;
+			this.text = text ?? throw new ArgumentNullException("The text should not be null");
 			textStorage = new StringBuilder();
 			result = new List<string>();
 			stopTags = new List<ITag> { new UnderLineTag() };
@@ -52,6 +52,7 @@ namespace Markdown
 
 				if (IsCloseTag(symbol, nextSymbol, prevSymbol))
 				{
+					textStorage.Append(symbol);
 					var tag = stopTags.Single(s => s.Symbol == symbol);
 					var wrappedText = tag.Wrap(textStorage);
 					result.Add(wrappedText);
@@ -64,6 +65,7 @@ namespace Markdown
 					var tag = stopTags.Single(s => s.Symbol == symbol);
 					tagStorage.Add(tag);
 					textStorage.Clear();
+					textStorage.Append(symbol);
 				}
 
 				position++;
@@ -94,6 +96,7 @@ namespace Markdown
 		{
 			if (tagStorage.Any(t => t.Symbol == symbol))
 			{
+				textStorage.Append(symbol);
 				var tag = stopTags.Single(s => s.Symbol == symbol);
 				var wrappedText = tag.Wrap(textStorage);
 				result.Add(wrappedText);

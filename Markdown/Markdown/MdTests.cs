@@ -1,8 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using NUnit.Framework;
 
 namespace Markdown
@@ -16,6 +12,12 @@ namespace Markdown
 		public void SetUp()
 		{
 			md = new Md();
+		}
+
+		[Test]
+		public void NullString_ShouldRenderNull()
+		{
+			Assert.Throws<ArgumentNullException>(() => md.Render(null));
 		}
 
 		[Test]
