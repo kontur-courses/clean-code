@@ -3,6 +3,8 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using Markdown.Elements;
+using Markdown.Parsers;
 
 namespace Markdown
 {
@@ -10,7 +12,8 @@ namespace Markdown
     {
         public string Render(string markdown)
         {
-            throw new NotImplementedException();
+            ParsingResult result = EmphasisParser.ParseElement(markdown, 0, RootElementType.Create());
+            return HtmlRender.RenderToHtml(result.Element);
         }
     }
 }

@@ -1,13 +1,13 @@
 ﻿using System.Collections.Generic;
 
-namespace Markdown
+namespace Markdown.Elements
 {
-    interface IMarkdownElement
+    public interface IMarkdownElement
     {
-        string Indicator { get; }
+        IElementType ElementType { get; }
+        string Markdown { get; }
         int StartPosition { get; }
         int EndPosition { get; }
         IReadOnlyList<IMarkdownElement> InnerElements { get; }
-        bool CanContainElement(IMarkdownElement element);
     }
 }
