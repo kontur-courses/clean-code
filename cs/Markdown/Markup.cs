@@ -1,9 +1,4 @@
-﻿using System;
-using System.CodeDom.Compiler;
-using System.Text;
-using System.Threading.Tasks;
-
-namespace Markdown
+﻿namespace Markdown
 {
     public class Markup
     {

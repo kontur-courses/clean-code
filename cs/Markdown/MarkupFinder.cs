@@ -1,8 +1,5 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace Markdown
 {
@@ -30,7 +27,7 @@ namespace Markdown
             }
         }
 
-        private Dictionary<Markup, List<MarkupPosition>> GetMarkupPositions()
+        private Dictionary<Markup, List<MarkupPosition>> GetMarkupBoarders()
         {
             var markup = markups.First();
             var dict = new Dictionary<Markup, List<MarkupPosition>>
@@ -53,7 +50,7 @@ namespace Markdown
         {
             FindOpeningAndClosingTemplates(paragraph);
 
-            return GetMarkupPositions();
+            return GetMarkupBoarders();
         }
     }
 }

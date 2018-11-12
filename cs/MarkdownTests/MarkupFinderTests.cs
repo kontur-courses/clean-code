@@ -24,6 +24,7 @@ namespace MarkdownTests
 
             markupsWithPositions[simpleUnderscore].First().ShouldBeEquivalentTo(new MarkupPosition(0, 3));
         }
+
         [TestMethod]
         public void FindDoubleUnderscore()
         {
