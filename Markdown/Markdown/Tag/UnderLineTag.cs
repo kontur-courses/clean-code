@@ -1,8 +1,9 @@
-﻿namespace Markdown
+﻿namespace Markdown.Tag
 {
 	public class UnderLineTag : ITag
 	{
-		public char Symbol { get; set; } = '_';
+		public string Symbol { get; set; } = "_";
+		public int Length { get; set; } = 1;
 		public int OpenIndex { get; set; }
 		public int CloseIndex { get; set; }
 		public string HtmlOpen { get; set; } = "<em>";
@@ -13,7 +14,7 @@
 			for (var i = OpenIndex + 2; i < text.Length; i++)
 			{
 				var nextSymbol = i == text.Length - 1 ? '^' : text[i + 1];
-				if (text[i] == Symbol && (char.IsWhiteSpace(nextSymbol) || i == text.Length - 1)
+				if (text[i].ToString() == Symbol && (char.IsWhiteSpace(nextSymbol) || i == text.Length - 1)
 				                      && !char.IsWhiteSpace(text[i - 1]))
 					return i;
 			}

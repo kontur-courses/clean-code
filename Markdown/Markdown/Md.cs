@@ -8,7 +8,8 @@ namespace Markdown
 	{
 		public string Render(string text)
 		{
-			var converter = new MdConverter(text);
+			var stream = new TextStream(text);
+			var converter = new MdConverter(stream);
 			return converter.ConvertToHtml();
 		}
 	}

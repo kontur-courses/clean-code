@@ -1,60 +1,69 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using Markdown.Tag;
 
 namespace Markdown
 {
 	public class MdConverter
 	{
-		private readonly string text;
-		private int position;
-		private readonly List<ITag> existedTags;
-		readonly Dictionary<char, ITag> dictionaryTags;
+		private readonly TextStream stream;
+		private List<ITag> existedPairedTags;
+		readonly Dictionary<string, ITag> dictionaryTags;
 
-		public MdConverter(string text)
+		public MdConverter(TextStream stream)
 		{
-			this.text = text ?? throw new ArgumentNullException("The text should not be null");
-			existedTags = new List<ITag>();
-			dictionaryTags = new Dictionary<char, ITag>
+			this.stream = stream;
+			existedPairedTags = new List<ITag>();
+			dictionaryTags = new Dictionary<string, ITag>
 			{
-				{'_', new UnderLineTag()}
+				{"_", new UnderLineTag()},
+				{"__", new DoubleUnderLineTag()}
 			};
 		}
 
 		public string ConvertToHtml()
 		{
-			while (position < text.Length)
-			{
-				var symbol = text[position];
+			existedPairedTags = GetPairedTags();
 
-				if (IsOpenTag(symbol))
-				{
-					var tag = dictionaryTags[symbol];
-					tag.OpenIndex = position;
-					existedTags.Add(tag);
-				}
-
-				position++;
-			}
-
-			if (existedTags.Count == 0)
-				return text.Replace("\\", "");
-
-			foreach (var tag in existedTags)
-			{
-				var closeIndex = tag.FindCloseIndex(text);
-				if (closeIndex == -1)
-					existedTags.Remove(tag);
-				tag.CloseIndex = closeIndex;
-			}
+			if (existedPairedTags.Count == 0)
+				return stream.Text();
 
 			var sortedTagIndexes = GetSortedTagIndexes();
 			var textInHtml = GetHtmlCode(sortedTagIndexes);
 
 
-			return textInHtml.Replace("\\", "");
+			return textInHtml;
 		}
+
+		private List<ITag> GetPairedTags()
+		{
+			while (stream.Position() < stream.Length())
+			{
+				var symbol = stream.Current();
+
+				if (IsOpenTag(symbol))
+				{
+					var tag = GetTag(symbol);
+					tag.OpenIndex = stream.Position();
+					tag.CloseIndex = tag.FindCloseIndex(stream.Text());
+
+					if (tag.CloseIndex != -1)
+						existedPairedTags.Add(tag);
+				}
+
+				stream.MoveNext();
+			}
+
+			return existedPairedTags;
+		}
+
+		private ITag GetTag(char symbol) => 
+			IsDoubleUnderLineTag(symbol) ? new DoubleUnderLineTag() : dictionaryTags[symbol.ToString()];
+
+		private bool IsDoubleUnderLineTag(char symbol) =>
+			symbol == '_' && stream.Lookahead(1) == '_' && !char.IsWhiteSpace(stream.Lookahead(2))
+			&& (char.IsWhiteSpace(stream.Lookahead(-1)) || stream.Position() == 0);
 
 		private string GetHtmlCode(List<int> sortedTagIndexes)
 		{
@@ -62,21 +71,24 @@ namespace Markdown
 			var htmlBuilder = new StringBuilder();
 			foreach (var tagIndex in sortedTagIndexes)
 			{
-				htmlBuilder.Append(text.Substring(startIndex, tagIndex - startIndex));
-				var isOpen = existedTags.Any(t => t.OpenIndex == tagIndex);
+				htmlBuilder.Append(stream.Text().Substring(startIndex, tagIndex - startIndex));
+				var isOpen = existedPairedTags.Any(t => t.OpenIndex == tagIndex);
+				int tagLength;
 
 				if (isOpen)
 				{
-					var tag = existedTags.Single(t => t.OpenIndex == tagIndex);
+					var tag = existedPairedTags.Single(t => t.OpenIndex == tagIndex);
+					tagLength = tag.Length;
 					htmlBuilder.Append(tag.HtmlOpen);
 				}
 				else
 				{
-					var tag = existedTags.Single(t => t.CloseIndex == tagIndex);
+					var tag = existedPairedTags.Single(t => t.CloseIndex == tagIndex);
+					tagLength = tag.Length;
 					htmlBuilder.Append(tag.HtmlClose);
 				}
 
-				startIndex = tagIndex + 1;
+				startIndex = tagIndex + tagLength;
 			}
 
 			return htmlBuilder.ToString();
@@ -84,19 +96,19 @@ namespace Markdown
 
 		private List<int> GetSortedTagIndexes()
 		{
-			var tagIndexes = existedTags.Select(t => t.OpenIndex).ToList();
-			tagIndexes.AddRange(existedTags.Select(t => t.CloseIndex));
+			var tagIndexes = existedPairedTags.Select(t => t.OpenIndex).ToList();
+			tagIndexes.AddRange(existedPairedTags.Select(t => t.CloseIndex));
 			tagIndexes.Sort();
 			return tagIndexes;
 		}
 
 		private bool IsOpenTag(char symbol)
 		{
-			var prevSymbol = position == 0 ? '-' : text[position - 1];
-			var nextSymbol = position == text.Length - 1 ? '-' : text[position + 1];
+			var prevSymbol = stream.Lookahead(-1);
+			var nextSymbol = stream.Lookahead(1);
 
-			return dictionaryTags.ContainsKey(symbol) && !char.IsWhiteSpace(nextSymbol)
-			                                          && (char.IsWhiteSpace(prevSymbol) || position == 0);
+			return dictionaryTags.ContainsKey(symbol.ToString()) && !char.IsWhiteSpace(nextSymbol)
+			                                                     && (char.IsWhiteSpace(prevSymbol) || stream.Position() == 0);
 		}
 	}
 }

@@ -48,5 +48,14 @@ namespace MarkdownTests
 
 			Assert.AreEqual(actual, "hello _world_");
 		}
+
+		[Test]
+		public void DoubleUnderLineCharacter_ShouldRenderToHtmlTag()
+		{
+			var text = "hello __world__";
+			var actual = md.Render(text);
+
+			Assert.AreEqual(actual, "hello <strong>world</strong>");
+		}
 	}
 }

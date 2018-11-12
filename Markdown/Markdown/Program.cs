@@ -11,7 +11,7 @@ namespace Markdown
 		static void Main()
 		{
 			var md = new Md();
-			Console.WriteLine(md.Render("_hello world_"));
+			Console.WriteLine(md.Render("__hello world__"));
 
 		}
 	}
