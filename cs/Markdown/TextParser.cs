@@ -1,55 +1,84 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
+using System.Linq;
+using FluentAssertions;
+using NUnit.Framework;
 
 namespace Markdown
 {
     internal class TextParser
     {
-        public TextParser(IEnumerable<LexerRule> lexerRules)
+        private readonly List<ILexerRule> rules;
+
+        public TextParser(IEnumerable<ILexerRule> rules)
         {
-            LexerRules = lexerRules;
+            this.rules = rules.ToList();
         }
 
-        public IEnumerable<LexerRule> LexerRules { get; }
+        public void AddRule(ILexerRule rule) => rules.Add(rule);
 
         /// <summary>
-        /// Тут будет какой-то конечный автомат по символам строки.
-        /// Для каждого нового символа будем выбирать обработчик из LexerRules.
-        /// Идея для парных разделителей в том, чтобы сделать нечто вроде алгоритма Дейкстры для ОПН -
-        ///  - складывать в стек и "закрывать", как скобки.
-        /// 
+        ///     Тут будет какой-то конечный автомат по символам строки.
+        ///     Для каждого нового символа будем выбирать обработчик из LexerRules.
+        ///     Идея для парных разделителей в том, чтобы сделать нечто вроде алгоритма Дейкстры для ОПН -
+        ///     - складывать в стек и "закрывать", как скобки.
         /// </summary>
         public IEnumerable<Token> Parse(string text)
         {
             var delimiters = GetDelimiterPositions(text);
+            delimiters = RemoveEscapedDelimiters(delimiters, text);
+            delimiters = RemoveNonValidDelimiters(delimiters, text);
+            delimiters = RemoveNonPairedDelimiters(delimiters, text);
+
             return GetTokensFromDelimiters(delimiters, text);
         }
 
-        private IEnumerable<Token> GetTokensFromDelimiters(IEnumerable<Delimiter> delimiters, string text)
+        internal IEnumerable<Delimiter> RemoveNonPairedDelimiters(IEnumerable<Delimiter> delimiters, string text) =>
+            delimiters;
+
+        internal IEnumerable<Delimiter> RemoveNonValidDelimiters(IEnumerable<Delimiter> delimiters, string text) =>
+            delimiters;
+
+        internal IEnumerable<Delimiter> RemoveEscapedDelimiters(IEnumerable<Delimiter> delimiters, string text) =>
+            delimiters;
+
+        internal IEnumerable<Token> GetTokensFromDelimiters(IEnumerable<Delimiter> delimiters, string text) =>
+            new List<Token>();
+
+        internal IEnumerable<Delimiter> GetDelimiterPositions(string text) => new List<Delimiter>();
+
+        internal ILexerRule GetRuleForSymbol(char symbol)
         {
-            throw new NotImplementedException();
+            return rules.FirstOrDefault(rule => rule.Check(symbol));
+        }
+    }
+
+    [TestFixture]
+    public class TextParser_Tests
+    {
+        [SetUp]
+        public void SetUp()
+        {
+            parser = new TextParser(null);
         }
 
-        private IEnumerable<Delimiter> GetDelimiterPositions(string text)
+        private TextParser parser;
+
+        [Category("GetDelimiterPositions_Should")]
+        [TestCase]
+        public void ReturnEmptyList_WhenNoDelimiters()
         {
-            throw new NotImplementedException();
+            parser.GetDelimiterPositions("abcd efg")
+                  .Should()
+                  .BeEmpty();
         }
-        
-        private class Delimiter
+
+        [Category("GetDelimiterPositions_Should")]
+        [TestCase]
+        public void ReturnOneDelimiterOfGivenRule_WhenOneExistsOfThisRule()
         {
-            public Delimiter(bool isPaired, string value, int position, TokenType originatingToken)
-            {
-                IsPaired = isPaired;
-                Value = value;
-                Position = position;
-                OriginatingToken = originatingToken;
-            }
-
-            public TokenType OriginatingToken { get; private set; }
-            public int Position { get; private set; }
-            public string Value { get; private set; }
-            public bool IsPaired { get; private set; }
-
+            parser.GetDelimiterPositions("abcd_efg")
+                  .Should()
+                  .BeEmpty();
         }
     }
 }
