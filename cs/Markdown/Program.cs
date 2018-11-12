@@ -10,6 +10,7 @@ namespace Markdown
     {
         static void Main(string[] args)
         {
+            Console.WriteLine(new Markdown().Render("_saf_"));
         }
     }
 }

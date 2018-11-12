@@ -44,6 +44,7 @@
   <ItemGroup>
     <Compile Include="Markdown.cs" />
     <Compile Include="Markup.cs" />
+    <Compile Include="MarkupExtensions.cs" />
     <Compile Include="MarkupFinder.cs" />
     <Compile Include="MarkupPosition.cs" />
     <Compile Include="Md2HtmlTranslator.cs" />
