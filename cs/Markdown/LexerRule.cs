@@ -7,9 +7,24 @@
     /// </summary>
     public interface ILexerRule
     {
-        string Delimiter { get; }
-        Delimiter ProcessIncomingChar(char incomingChar, Delimiter previousDelimiter);
+        Delimiter ProcessIncomingChar(int position, Delimiter previousDelimiter, out bool shouldRemovePrevious);
 
         bool Check(char symbol);
+    }
+
+    public class UnderscoreRule : ILexerRule
+    {
+        public Delimiter ProcessIncomingChar(int position, Delimiter previousDelimiter, out bool shouldRemovePrevious)
+        {
+            shouldRemovePrevious = false;
+            if (previousDelimiter != null && previousDelimiter.Position + 1 == position && previousDelimiter.Value == "_")
+            {
+                shouldRemovePrevious = true;
+                return new Delimiter(true, "__", position - 1);
+            }
+            return new Delimiter(true, "_", position);
+        }
+
+        public bool Check(char symbol) => symbol == '_';
     }
 }

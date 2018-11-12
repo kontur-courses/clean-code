@@ -53,6 +53,7 @@
     <Compile Include="Delimiter.cs" />
     <Compile Include="LexerRule.cs" />
     <Compile Include="IHtmlCreator.cs" />
+    <Compile Include="ListExtensions.cs" />
     <Compile Include="Md.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="TextParser.cs" />
