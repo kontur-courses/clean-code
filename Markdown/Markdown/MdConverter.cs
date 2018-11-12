@@ -15,7 +15,7 @@ namespace Markdown
 
 		public string ConvertToHtml(TextStream stream)
 		{
-			var existingPairedTags = GetPairedTags(stream);
+			var existingPairedTags = GetAllPairedTags(stream);
 
 			if (existingPairedTags.Count == 0)
 				return stream.Text.RemoveScreenCharacters();
@@ -26,7 +26,7 @@ namespace Markdown
 			return textInHtml.RemoveScreenCharacters();
 		}
 
-		private List<ITag> GetPairedTags(TextStream stream)
+		private List<ITag> GetAllPairedTags(TextStream stream)
 		{
 			var pairedTags = new List<ITag>();
 			while (stream.Position < stream.Text.Length - 2)
@@ -35,10 +35,10 @@ namespace Markdown
 				var twoSymbol = stream.Text.Substring(stream.Position, 2);
 
 				if (IsOpenTag(twoSymbol, stream, 2))
-					pairedTags.AddRange(GetPairedTags(twoSymbol, stream));
+					pairedTags.AddRange(GetOnePairOfTags(twoSymbol, stream));
 
 				if (IsOpenTag(symbol.ToString(), stream, 1))
-					pairedTags.AddRange(GetPairedTags(symbol.ToString(), stream));
+					pairedTags.AddRange(GetOnePairOfTags(symbol.ToString(), stream));
 
 				else
 					stream.MoveNext();
@@ -47,7 +47,7 @@ namespace Markdown
 			return pairedTags;
 		}
 
-		private List<ITag> GetPairedTags(string symbol, TextStream stream)
+		private List<ITag> GetOnePairOfTags(string symbol, TextStream stream)
 		{
 			var pairedTags = new List<ITag>();
 			var tag = dictionaryTags[symbol];
@@ -84,7 +84,7 @@ namespace Markdown
 				htmlBuilder.Append(text.Substring(startIndex, tag.OpenIndex - startIndex));
 				htmlBuilder.Append(tag.HtmlOpen);
 
-				var innerPairedTags = GetPairedTags(new TextStream(innerText));
+				var innerPairedTags = GetAllPairedTags(new TextStream(innerText));
 				htmlBuilder.Append(innerPairedTags.Count == 0 ? innerText : GetHtmlCode(innerPairedTags, innerText));
 
 				htmlBuilder.Append(tag.HtmlClose);

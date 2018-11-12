@@ -12,11 +12,13 @@
 		public int FindCloseIndex(string text)
 		{
 			var stream = new TextStream(text);
+
 			for (var i = OpenIndex + 2; i < text.Length; i++)
 			{
-				var symbolAfterTag = stream.Lookahead(i + 2);
+				var symbolAfterTag = stream.Lookahead(i + Length);
 				var symbolBeforeTag = stream.Lookahead(i - 1);
-				if (text.Substring(i, 2) == Symbol && (char.IsWhiteSpace(symbolAfterTag) || i == text.Length - 2)
+
+				if (text.Substring(i, Length) == Symbol && (char.IsWhiteSpace(symbolAfterTag) || i == text.Length - Length)
 					                                && !char.IsWhiteSpace(symbolBeforeTag))
 					return i;
 			}
