@@ -1,29 +1,26 @@
 ﻿using System;
+using System.Collections.Generic;
 
 namespace Markdown
 {
     public class MarkdownToHtmlTagTranslator : ITagTranslator
     {
-        private readonly MarkdownTagLanguage language;
+        private readonly Dictionary<string, string> translations;
 
-        public MarkdownToHtmlTagTranslator(MarkdownTagLanguage language)
+        public MarkdownToHtmlTagTranslator(Dictionary<string, string> translations)
         {
-            this.language = language;
+            this.translations = translations;
         }
 
-        public string Translate(string tagBody, string tagSymbol)
-        {
-            throw new NotImplementedException();
-        }
+        public string TranslateOpeningTag(string tag) => BuildTag("<", tag, ">");
 
-        private string BuildOpeningTag(string tagSymbol)
-        {
-            throw new NotImplementedException();
-        }
+        public string TranslateClosingTag(string tag) => BuildTag("</", tag, ">");
 
-        private string BuildClosingTag(string tagSymbol)
+        private string BuildTag(string leftEdge, string tag, string rightEdge)
         {
-            throw new NotImplementedException();
+            if (translations.TryGetValue(tag, out var translation))
+                return leftEdge + translation + rightEdge;
+            throw new ArgumentException("No such tag in translations dictionary");
         }
     }
 }
