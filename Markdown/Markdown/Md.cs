@@ -9,10 +9,8 @@ namespace Markdown
     public class Md
     {
         private readonly List<Tag> tags;
-        private string markdownString;
-        private int lastIndex;
-        private StringBuilder builder;
         private int i;
+        private Tag emptyTag = new Tag("", "", "", "");
 
         public Md()
         {
@@ -23,81 +21,56 @@ namespace Markdown
             };
         }
 
-        public string Render(string rowString)
+        public string Render(string markdownString)
         {
-            markdownString = rowString;
-            lastIndex = 0;
             i = 0;
-            builder = new StringBuilder();
-            return ParseWithoutRegexp();
+            return ParseWithoutRegexp(markdownString);
         }
 
-        private string ParseWithoutRegexp()
+        private string ParseWithoutRegexp(string markdownString)
         {
-            var tokens = new List<Token>();
-            var wasEscape = false;
+            var builder = new StringBuilder();
+            var mainSpan = new Span(emptyTag, 0, markdownString.Length - 1);
+            var openedSpans = new List<Span>();
 
             for (; i < markdownString.Length; i++)
             {
-                var found = false;
+                
                 if (markdownString[i] == '\\')
                 {
-                    wasEscape = true;
-                    builder.Append(markdownString.Substring(lastIndex, i - lastIndex));
-                    lastIndex = i + 1;
+                    mainSpan.Spans.Add(new Span(emptyTag, i, i + 1));
+                    i += 1;
                     continue;
                 }
 
-                if (wasEscape)
+                if (openedSpans.Count != 0)
                 {
-                    wasEscape = false;
-                    continue;
+                    var found = FindSpanEnd(markdownString, openedSpans);
+                    if (found)
+                    {
+                        mainSpan.Spans.AddRange(openedSpans.Where(t => t.EndIndex != 0));
+                        openedSpans = openedSpans.Where(t => t.EndIndex == 0).ToList();
+                        continue;
+                    }
                 }
 
-                //проверяем чтобы закрыть токен
-                if (tokens.Count != 0)
-                    found = FindEndToken(tokens);
-                //foreach (var token in tokens)
-                //{
-                //    if (markdownString[i] == token.Tag.MarkdownEnd[0])
-                //    {
-                //        token.EndIndex = i + token.Tag.MarkdownEnd.Length - 1;
-                //        lastIndex = i + token.Tag.MarkdownEnd.Length;
-                //        builder.Append(token.Assembly(markdownString));
-                //        found = true;
-                //        break;
-                //    }
-                //}
-
-                tokens = tokens.Where(t => t.EndIndex == 0).ToList();
-
-                if (found)
-                    continue;
-
-                //проверяем на тег
-                var newToken = FindToken();
+                var newToken = FindStartToken(markdownString);
                 if (newToken != null)
                 {
-                    tokens.Add(newToken);
+                    openedSpans.Add(newToken);
                 }
-
-
             }
-
-            if (lastIndex < markdownString.Length)
-                builder.Append(markdownString.Substring(lastIndex));
-            return builder.ToString();
+            
+            return mainSpan.Assembly(markdownString);
         }
 
-        public Token FindToken()
+        private Span FindStartToken(string markdownString)
         {
             var possibleTags = tags.Where(tag => markdownString[i] == tag.MarkdownStart[0]).ToList();
 
             if (possibleTags.Count == 0)
                 return null;
             
-            builder.Append(markdownString.Substring(lastIndex, i - lastIndex));
-
             for (var j = 1; possibleTags.Count > 1; j++)
             {
                 var posTags = new List<Tag>();
@@ -123,10 +96,10 @@ namespace Markdown
 
             var startIndex = i;
             i = i + possibleTags[0].MarkdownStart.Length - 1;
-            return new Token(possibleTags[0], startIndex);
+            return new Span(possibleTags[0], startIndex);
             
         }
-        public bool FindEndToken(List<Token> tokens)
+        private bool FindSpanEnd(string markdownString, List<Span> tokens)
         {
             var possibleTokens = tokens.Where(token => markdownString[i] == token.Tag.MarkdownEnd[0]).ToList();
 
@@ -135,8 +108,8 @@ namespace Markdown
 
             for (var j = 1; possibleTokens.Count > 1; j++)
             {
-                var posTokens = new List<Token>();
-                var shortTokens = new List<Token>();
+                var posTokens = new List<Span>();
+                var shortTokens = new List<Span>();
                 foreach (var token in possibleTokens)
                 {
                     if (token.Tag.MarkdownEnd.Length <= j)
@@ -155,12 +128,9 @@ namespace Markdown
 
             if (possibleTokens.Count != 1)
                 return false;
-
-            //end index мкеньше
+            
             var possibleToken = possibleTokens[0];
-            possibleToken.EndIndex = i + possibleToken.Tag.MarkdownEnd.Length - 1;
-            lastIndex = i + possibleToken.Tag.MarkdownEnd.Length;
-            builder.Append(possibleToken.Assembly(markdownString));
+            possibleToken.EndIndex = i;
             i = i + possibleToken.Tag.MarkdownEnd.Length - 1;
             return true;
         }

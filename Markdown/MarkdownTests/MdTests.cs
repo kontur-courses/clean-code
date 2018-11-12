@@ -9,6 +9,9 @@ namespace MarkdownTests
     [TestFixture]
     public class MdTests
     {
+        //Одинаковые тесты по сути то
+
+        [TestCase("aa_bb_aa", @"aa<em>bb<\em>aa", TestName = "A")]
         [TestCase("_abc_", @"<em>abc<\em>")]
         [TestCase(" _abc_", @" <em>abc<\em>")]
         [TestCase("_abc_ ", @"<em>abc<\em> ")]
@@ -19,8 +22,6 @@ namespace MarkdownTests
             var result = parser.Render(rowString);
             result.Should().BeEquivalentTo(expected);
         }
-
-        //Одинаковые тесты по сути то
 
         [TestCase(@"\_asd\_", "_asd_")]
         [TestCase(@" \_ ", " _ ")]
