@@ -7,7 +7,7 @@ namespace Markdown
 {
 	public class MdConverter
 	{
-		readonly Dictionary<string, ITag> dictionaryTags = new Dictionary<string, ITag>
+		private readonly Dictionary<string, ITag> dictionaryTags = new Dictionary<string, ITag>
 		{
 			{"_", new SingleUnderLineTag()},
 			{"__", new DoubleUnderLineTag()}
