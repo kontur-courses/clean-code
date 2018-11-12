@@ -4,29 +4,23 @@ namespace Markdown
 {
 	public class TextStream
 	{
-		private readonly string text;
-		private int position;
+		public string Text { get; private set; }
+		public int Position { get; private set; }
 
 		public TextStream(string text)
 		{
-			this.text = text ?? throw new ArgumentNullException(nameof(text));
+			Text = text ?? throw new ArgumentNullException(nameof(text));
 		}
 
-		public char Current() => text[position];
+		public char Current() => Text[Position];
 
-		public void MoveNext() => position++;
-		public void MoveTo(int index) => position = index;
+		public void MoveNext() => Position++;
+		public void MoveTo(int index) => Position = index;
 
 		public char Lookahead(int number)
 		{
-			var isIndexInBorders = position + number <= text.Length - 1 && position + number >= 0;
-			return isIndexInBorders ? text[position + number] : '\0';
+			var isIndexInBorders = Position + number <= Text.Length - 1 && Position + number >= 0;
+			return isIndexInBorders ? Text[Position + number] : '\0';
 		}
-
-		public string Text() => text;
-
-		public int Length() => text.Length;
-
-		public int Position() => position;
 	}
 }

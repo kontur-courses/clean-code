@@ -18,9 +18,9 @@ namespace Markdown
 			var existingPairedTags = GetPairedTags(stream);
 
 			if (existingPairedTags.Count == 0)
-				return stream.Text().RemoveScreenCharacters();
+				return stream.Text.RemoveScreenCharacters();
 
-			var textInHtml = GetHtmlCode(existingPairedTags, stream.Text());
+			var textInHtml = GetHtmlCode(existingPairedTags, stream.Text);
 
 
 			return textInHtml.RemoveScreenCharacters();
@@ -29,36 +29,48 @@ namespace Markdown
 		private List<ITag> GetPairedTags(TextStream stream)
 		{
 			var pairedTags = new List<ITag>();
-			while (stream.Position() < stream.Length())
+			while (stream.Position < stream.Text.Length - 2)
 			{
 				var symbol = stream.Current();
+				var twoSymbol = stream.Text.Substring(stream.Position, 2);
 
-				if (IsOpenTag(symbol, stream))
-				{
-					var tag = GetTag(symbol, stream);
-					tag.OpenIndex = stream.Position();
-					tag.CloseIndex = tag.FindCloseIndex(stream.Text());
+				if (IsOpenTag(twoSymbol, stream, 2))
+					pairedTags.AddRange(GetPairedTags(twoSymbol, stream));
 
-					if (tag.CloseIndex != -1)
-					{
-						pairedTags.Add(tag);
-						stream.MoveTo(pairedTags.Last().CloseIndex + pairedTags.Last().Length);
-						continue;
-					}
-				}
+				if (IsOpenTag(symbol.ToString(), stream, 1))
+					pairedTags.AddRange(GetPairedTags(symbol.ToString(), stream));
 
-				stream.MoveNext();
+				else
+					stream.MoveNext();
 			}
 
 			return pairedTags;
 		}
 
-		private ITag GetTag(char symbol, TextStream stream) => 
-			IsDoubleUnderLineTag(symbol, stream) ? new DoubleUnderLineTag() : dictionaryTags[symbol.ToString()];
+		private List<ITag> GetPairedTags(string symbol, TextStream stream)
+		{
+			var pairedTags = new List<ITag>();
+			var tag = dictionaryTags[symbol];
+			tag.OpenIndex = stream.Position;
+			tag.CloseIndex = tag.FindCloseIndex(stream.Text);
 
-		private bool IsDoubleUnderLineTag(char symbol, TextStream stream) =>
-			symbol == '_' && stream.Lookahead(1) == '_' && !char.IsWhiteSpace(stream.Lookahead(2))
-			&& (char.IsWhiteSpace(stream.Lookahead(-1)) || stream.Position() == 0);
+			if (tag.CloseIndex != -1)
+			{
+				pairedTags.Add(tag);
+				stream.MoveTo(pairedTags.Last().CloseIndex + pairedTags.Last().Length);
+			}
+
+			return pairedTags;
+		}
+
+		private bool IsOpenTag(string symbol, TextStream stream, int tagLength)
+		{
+			var prevSymbol = stream.Lookahead(-1);
+			var nextSymbol = stream.Lookahead(tagLength);
+
+			return dictionaryTags.ContainsKey(symbol) && !char.IsWhiteSpace(nextSymbol)
+			                                                     && (char.IsWhiteSpace(prevSymbol) || stream.Position == 0);
+		}
 
 		private string GetHtmlCode(List<ITag> pairedTags, string text)
 		{
@@ -82,15 +94,6 @@ namespace Markdown
 			}
 
 			return htmlBuilder.ToString();
-		}
-
-		private bool IsOpenTag(char symbol, TextStream stream)
-		{
-			var prevSymbol = stream.Lookahead(-1);
-			var nextSymbol = stream.Lookahead(1);
-
-			return dictionaryTags.ContainsKey(symbol.ToString()) && !char.IsWhiteSpace(nextSymbol)
-			                                                     && (char.IsWhiteSpace(prevSymbol) || stream.Position() == 0);
 		}
 	}
 }
