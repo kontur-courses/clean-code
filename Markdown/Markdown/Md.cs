@@ -9,7 +9,7 @@ namespace Markdown
     public class Md
     {
         private readonly List<Tag> tags;
-        private int i;
+        private int index;
         private readonly Tag emptyTag = new Tag("", "", "", "");
 
         public Md()
@@ -23,21 +23,21 @@ namespace Markdown
 
         public string Render(string markdownString)
         {
-            i = 0;
+            index = 0;
             return ParseWithoutRegexp(markdownString);
         }
 
         private string ParseWithoutRegexp(string markdownString)
         {
-            var mainSpan = new Span(emptyTag, 0, markdownString.Length - 1);
+            var mainSpan = new Span(emptyTag, 0, markdownString.Length);
             var openedSpans = new List<Span>();
 
-            for (; i < markdownString.Length; i++)
+            for (; index < markdownString.Length; index++)
             {
-                if (markdownString[i] == '\\')
+                if (markdownString[index] == '\\')
                 {
-                    PutSpanInSpan(new Span(emptyTag, i, i + 1), mainSpan);
-                    i += 1;
+                    PutSpanInSpan(new Span(emptyTag, index, index + 1), mainSpan);
+                    index += 1;
                     continue;
                 }
 
@@ -93,8 +93,8 @@ namespace Markdown
             if (tag == null)
                 return null;
 
-            var startIndex = i;
-            i = i + tag.MarkdownStart.Length - 1;
+            var startIndex = index;
+            index = index + tag.MarkdownStart.Length - 1;
             return new Span(tag, startIndex);
             
         }
@@ -106,11 +106,10 @@ namespace Markdown
 
             foreach (var openedSpan in openedSpans)
             {
-                //странно что tag.equals не работает
-                if (openedSpan.Tag.MarkdownEnd == tag.MarkdownEnd)
+                if (Equals(openedSpan.Tag, tag))
                 {
-                    openedSpan.EndIndex = i;
-                    i = i + openedSpan.Tag.MarkdownEnd.Length - 1;
+                    openedSpan.EndIndex = index;
+                    index = index + openedSpan.Tag.MarkdownEnd.Length - 1;
                     return openedSpan;
                 }
 
@@ -126,14 +125,14 @@ namespace Markdown
             {
                 var str = param(tag);
                 var length = str.Length;
-                if (markdownString.Length - i < length)
-                    length = markdownString.Length - i;
+                if (markdownString.Length - index < length)
+                    length = markdownString.Length - index;
 
-                if (str == markdownString.Substring(i, length))
+                if (str == markdownString.Substring(index, length))
                     possibleTags.Add(tag);
             }
 
-            return possibleTags.Count == 0 ? null : possibleTags.OrderByDescending(t => param(t).Length).First();
+            return possibleTags.OrderByDescending(t => param(t).Length).FirstOrDefault();
         }
     }
 }

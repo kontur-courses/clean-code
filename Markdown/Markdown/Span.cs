@@ -34,13 +34,14 @@ namespace Markdown
                 return "";
 
             var builder = new StringBuilder();
+            Spans = Spans.OrderBy(s => s.StartIndex).ToList();
             
             builder.Append(Tag.HtmlStart);
 
             if (Spans.Count == 0)
             {
                 builder.Append(rowString.Substring(StartIndex + Tag.MarkdownStart.Length,
-                    EndIndex - (StartIndex + Tag.MarkdownEnd.Length))); 
+                    EndIndex - (StartIndex + Tag.MarkdownStart.Length))); 
             }
             else
             {
@@ -56,9 +57,10 @@ namespace Markdown
 
                 var lastSpan = Spans[Spans.Count - 1];
                 builder.Append(lastSpan.Assembly(rowString));
-
-                builder.Append(rowString.Substring(lastSpan.EndIndex  + lastSpan.Tag.MarkdownEnd.Length,
-                    EndIndex - (lastSpan.EndIndex + lastSpan.Tag.MarkdownEnd.Length - 1))); //-1??
+                
+                //проблема
+                builder.Append(rowString.Substring(lastSpan.EndIndex + lastSpan.Tag.MarkdownEnd.Length,
+                    EndIndex - (lastSpan.EndIndex + lastSpan.Tag.MarkdownEnd.Length)));
             }
             builder.Append(Tag.HtmlEnd);
 

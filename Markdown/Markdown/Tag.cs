@@ -29,7 +29,7 @@ namespace Markdown
 
         public override bool Equals(object obj)
         {
-            if (obj == null || obj.GetType() == this.GetType())
+            if (obj == null || obj.GetType() != GetType())
                 return false;
 
             var otherTag = (Tag) obj;
