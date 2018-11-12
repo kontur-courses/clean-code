@@ -1,6 +1,6 @@
 ﻿namespace Markdown.Tag
 {
-	public class UnderLineTag : ITag
+	public class SingleUnderLineTag : ITag
 	{
 		public string Symbol { get; set; } = "_";
 		public int Length { get; set; } = 1;
@@ -21,5 +21,7 @@
 
 			return -1;
 		}
+
+		public string Body(string text) => text.Substring(OpenIndex + Length, CloseIndex - OpenIndex - Length);
 	}
 }

@@ -9,5 +9,6 @@
 		string HtmlClose { get; set; }
 		int Length { get; set; }
 		int FindCloseIndex(string text);
+		string Body(string text);
 	}
 }

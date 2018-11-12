@@ -7,102 +7,84 @@ namespace Markdown
 {
 	public class MdConverter
 	{
-		private readonly TextStream stream;
-		private List<ITag> existedPairedTags;
-		readonly Dictionary<string, ITag> dictionaryTags;
-
-		public MdConverter(TextStream stream)
+		readonly Dictionary<string, ITag> dictionaryTags = new Dictionary<string, ITag>
 		{
-			this.stream = stream;
-			existedPairedTags = new List<ITag>();
-			dictionaryTags = new Dictionary<string, ITag>
-			{
-				{"_", new UnderLineTag()},
-				{"__", new DoubleUnderLineTag()}
-			};
-		}
+			{"_", new SingleUnderLineTag()},
+			{"__", new DoubleUnderLineTag()}
+		};
 
-		public string ConvertToHtml()
+		public string ConvertToHtml(TextStream stream)
 		{
-			existedPairedTags = GetPairedTags();
+			var existingPairedTags = GetPairedTags(stream);
 
-			if (existedPairedTags.Count == 0)
+			if (existingPairedTags.Count == 0)
 				return stream.Text().RemoveScreenCharacters();
 
-			var sortedTagIndexes = GetSortedTagIndexes();
-			var textInHtml = GetHtmlCode(sortedTagIndexes);
+			var textInHtml = GetHtmlCode(existingPairedTags, stream.Text());
 
 
 			return textInHtml.RemoveScreenCharacters();
 		}
 
-		private List<ITag> GetPairedTags()
+		private List<ITag> GetPairedTags(TextStream stream)
 		{
+			var pairedTags = new List<ITag>();
 			while (stream.Position() < stream.Length())
 			{
 				var symbol = stream.Current();
 
-				if (IsOpenTag(symbol))
+				if (IsOpenTag(symbol, stream))
 				{
-					var tag = GetTag(symbol);
+					var tag = GetTag(symbol, stream);
 					tag.OpenIndex = stream.Position();
 					tag.CloseIndex = tag.FindCloseIndex(stream.Text());
 
 					if (tag.CloseIndex != -1)
-						existedPairedTags.Add(tag);
+					{
+						pairedTags.Add(tag);
+						stream.MoveTo(pairedTags.Last().CloseIndex + pairedTags.Last().Length);
+						continue;
+					}
 				}
 
 				stream.MoveNext();
 			}
 
-			return existedPairedTags;
+			return pairedTags;
 		}
 
-		private ITag GetTag(char symbol) => 
-			IsDoubleUnderLineTag(symbol) ? new DoubleUnderLineTag() : dictionaryTags[symbol.ToString()];
+		private ITag GetTag(char symbol, TextStream stream) => 
+			IsDoubleUnderLineTag(symbol, stream) ? new DoubleUnderLineTag() : dictionaryTags[symbol.ToString()];
 
-		private bool IsDoubleUnderLineTag(char symbol) =>
+		private bool IsDoubleUnderLineTag(char symbol, TextStream stream) =>
 			symbol == '_' && stream.Lookahead(1) == '_' && !char.IsWhiteSpace(stream.Lookahead(2))
 			&& (char.IsWhiteSpace(stream.Lookahead(-1)) || stream.Position() == 0);
 
-		private string GetHtmlCode(List<int> sortedTagIndexes)
+		private string GetHtmlCode(List<ITag> pairedTags, string text)
 		{
 			var startIndex = 0;
 			var htmlBuilder = new StringBuilder();
-			foreach (var tagIndex in sortedTagIndexes)
+
+			foreach (var tag in pairedTags)
 			{
-				htmlBuilder.Append(stream.Text().Substring(startIndex, tagIndex - startIndex));
-				var isOpen = existedPairedTags.Any(t => t.OpenIndex == tagIndex);
-				int tagLength;
+				var innerText = tag.Body(text);
 
-				if (isOpen)
-				{
-					var tag = existedPairedTags.Single(t => t.OpenIndex == tagIndex);
-					tagLength = tag.Length;
-					htmlBuilder.Append(tag.HtmlOpen);
-				}
-				else
-				{
-					var tag = existedPairedTags.Single(t => t.CloseIndex == tagIndex);
-					tagLength = tag.Length;
-					htmlBuilder.Append(tag.HtmlClose);
-				}
+				htmlBuilder.Append(text.Substring(startIndex, tag.OpenIndex - startIndex));
+				htmlBuilder.Append(tag.HtmlOpen);
 
-				startIndex = tagIndex + tagLength;
+				var innerPairedTags = GetPairedTags(new TextStream(innerText));
+				htmlBuilder.Append(innerPairedTags.Count == 0 ? innerText : GetHtmlCode(innerPairedTags, innerText));
+
+				htmlBuilder.Append(tag.HtmlClose);
+				htmlBuilder.Append(text.Substring(tag.CloseIndex + tag.Length));
+
+				startIndex = tag.CloseIndex + tag.Length;
 			}
 
 			return htmlBuilder.ToString();
 		}
 
-		private List<int> GetSortedTagIndexes()
-		{
-			var tagIndexes = existedPairedTags.Select(t => t.OpenIndex).ToList();
-			tagIndexes.AddRange(existedPairedTags.Select(t => t.CloseIndex));
-			tagIndexes.Sort();
-			return tagIndexes;
-		}
-
-		private bool IsOpenTag(char symbol)
+		private bool IsOpenTag(char symbol, TextStream stream)
 		{
 			var prevSymbol = stream.Lookahead(-1);
 			var nextSymbol = stream.Lookahead(1);

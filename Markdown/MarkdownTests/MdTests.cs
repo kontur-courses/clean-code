@@ -22,7 +22,7 @@ namespace MarkdownTests
 		}
 
 		[Test]
-		public void WithoutSpecialCharacters_ShouldRenderWithoutChanges()
+		public void WithoutTags_ShouldRenderWithoutChanges()
 		{
 			var text = "hello world";
 			var actual = md.Render(text);
@@ -32,7 +32,7 @@ namespace MarkdownTests
 
 
 		[Test]
-		public void UnderLineCharacter_ShouldRenderToHtmlTag()
+		public void SingleUnderLineTag_ShouldRenderToHtmlTag()
 		{
 			var text = "hello _world_";
 			var actual = md.Render(text);
@@ -41,7 +41,7 @@ namespace MarkdownTests
 		}
 
 		[Test]
-		public void ScreenUnderLineCharacter_ShouldRenderWithoutChanges()
+		public void ScreenSingleUnderLineTag_ShouldRenderWithoutChanges()
 		{
 			var text = @"hello \_world\_";
 			var actual = md.Render(text);
@@ -50,12 +50,21 @@ namespace MarkdownTests
 		}
 
 		[Test]
-		public void DoubleUnderLineCharacter_ShouldRenderToHtmlTag()
+		public void DoubleUnderLineTag_ShouldRenderToHtmlTag()
 		{
 			var text = "hello __world__";
 			var actual = md.Render(text);
 
 			Assert.AreEqual(actual, "hello <strong>world</strong>");
+		}
+
+		[Test]
+		public void SingleUnderLineTagIsInsideDoubleUnderLineTag_DoubleUnderLineTag_ShouldRenderToHtmlTag()
+		{
+			var text = "__hello _happy_ world__";
+			var actual = md.Render(text);
+
+			Assert.AreEqual(actual, "<strong>hello <em>happy</em> world</strong>");
 		}
 	}
 }

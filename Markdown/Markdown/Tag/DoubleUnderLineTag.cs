@@ -8,6 +8,7 @@
 		public int CloseIndex { get; set; }
 		public string HtmlOpen { get; set; } = "<strong>";
 		public string HtmlClose { get; set; } = "</strong>";
+
 		public int FindCloseIndex(string text)
 		{
 			var stream = new TextStream(text);
@@ -22,5 +23,7 @@
 
 			return -1;
 		}
+
+		public string Body(string text) => text.Substring(OpenIndex + Length, CloseIndex - OpenIndex - Length);
 	}
 }

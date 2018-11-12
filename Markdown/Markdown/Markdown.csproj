@@ -49,7 +49,7 @@
     <Compile Include="MdConverter.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
-    <Compile Include="Tag\UnderLineTag.cs" />
+    <Compile Include="Tag\SingleUnderLineTag.cs" />
     <Compile Include="TextStream.cs" />
   </ItemGroup>
   <ItemGroup>

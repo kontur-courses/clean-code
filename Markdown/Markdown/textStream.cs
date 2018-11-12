@@ -15,6 +15,7 @@ namespace Markdown
 		public char Current() => text[position];
 
 		public void MoveNext() => position++;
+		public void MoveTo(int index) => position = index;
 
 		public char Lookahead(int number)
 		{
