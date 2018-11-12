@@ -6,18 +6,15 @@ using System.Threading.Tasks;
 
 namespace Markdown
 {
-    class Token
+    public class Token
     {
-        public readonly int StartIndex;
         public readonly string Text;
-        public readonly TokenType Type;
+        public readonly Mark Mark;
 
-
-        public Token(int startIndex, string text, TokenType type)
+        public Token(string text, Mark mark)
         {
-            StartIndex = startIndex;
             Text = text;
-            Type = type;
+            Mark = mark;
         }
     }
 }

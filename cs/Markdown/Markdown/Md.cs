@@ -6,22 +6,25 @@ using System.Threading.Tasks;
 
 namespace Markdown
 {
-    class Md
+    public class Md
     {
-        private readonly TokenParser tokenParser;
+        private readonly HashSet<Mark> marks = new HashSet<Mark>();
 
-        private readonly HtmlBuilder htmlBuilder;
-
-        public Md(TokenParser tokenParser, HtmlBuilder htmlBuilder)
+        public Md(Mark firstMark, params Mark[] remainingMarks)
         {
-            this.tokenParser = tokenParser;
-            this.htmlBuilder = htmlBuilder;
+            marks.Add(firstMark);
+            foreach (var mark in remainingMarks)
+                marks.Add(mark);
         }
 
         public string Render(string text)
         {
-            var tokens = tokenParser.Parse(text);
-            return htmlBuilder.Build(tokens);
+            foreach (var mark in marks)
+            {
+                text = HtmlBuilder.Build(TokenParser.ParseByOne(text, mark));
+            }
+            text = HtmlBuilder.RemoveRedundantBackSlashes(text, marks);
+            return text;
         }
     }
 }

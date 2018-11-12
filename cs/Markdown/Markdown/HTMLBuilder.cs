@@ -6,18 +6,46 @@ using System.Threading.Tasks;
 
 namespace Markdown
 {
-    class HtmlBuilder
+    public static class HtmlBuilder
     {
-        private readonly Dictionary<TokenType, string> markupReplacement;
-
-        public HtmlBuilder(Dictionary<TokenType, string> markupReplacement)
+        public static string Build(IEnumerable<Token> tokens)
         {
-            this.markupReplacement = markupReplacement;
+            var htmlText = new StringBuilder();
+            foreach (var token in tokens)
+            {
+                htmlText.Append(token.Mark.OpeningTag);
+                htmlText.Append(token.Text);
+                htmlText.Append(token.Mark.ClosingTag);
+            }
+
+            return htmlText.ToString();
         }
 
-        public string Build(IEnumerable<Token> tokens)
+        public static string RemoveRedundantBackSlashes(string text, IEnumerable<Mark> marks)
         {
-            throw new NotImplementedException();
+            var backSlashesCount = 0;
+            var builder = new StringBuilder(text);
+            var curIndex = 0;
+            foreach (var oneSymbolMark in marks.Where(m => m.Sign.Length == 1))
+            {
+                while (curIndex < builder.Length)
+                {
+                    if (builder[curIndex] == '\\')
+                        backSlashesCount++;
+                    else
+                    {
+                        if (builder[curIndex].ToString() == oneSymbolMark.Sign && backSlashesCount % 2 == 1)
+                        {
+                            builder.Remove(curIndex - 1, 1);
+                            curIndex--;
+                        }
+                        backSlashesCount = 0;
+                    }
+                    curIndex++;
+                }
+            }
+            builder.Replace(@"\\", @"\");
+            return builder.ToString();
         }
     }
 }
