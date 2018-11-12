@@ -53,6 +53,7 @@ namespace MarkdownTests
         }
 
         [TestCase(@"_abc __cde__ abc_", @"<em>abc <strong>cde<\strong> abc<\em>")]
+        [TestCase(@"__abc _cde_ abc__", @"<strong>abc <em>cde<\em> abc<\strong>")]
         public void ShouldParse_StrongInItalic(string rowString, string expected)
         {
             var parser = new Md();

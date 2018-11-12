@@ -32,6 +32,7 @@ namespace Markdown
         {
             if (EndIndex - StartIndex == 1)
                 return "";
+
             var builder = new StringBuilder();
             
             builder.Append(Tag.HtmlStart);
@@ -39,7 +40,7 @@ namespace Markdown
             if (Spans.Count == 0)
             {
                 builder.Append(rowString.Substring(StartIndex + Tag.MarkdownStart.Length,
-                    EndIndex - StartIndex - Tag.MarkdownEnd.Length)); 
+                    EndIndex - (StartIndex + Tag.MarkdownEnd.Length))); 
             }
             else
             {
@@ -57,7 +58,7 @@ namespace Markdown
                 builder.Append(lastSpan.Assembly(rowString));
 
                 builder.Append(rowString.Substring(lastSpan.EndIndex  + lastSpan.Tag.MarkdownEnd.Length,
-                    EndIndex - (lastSpan.EndIndex + lastSpan.Tag.MarkdownEnd.Length - 1)));
+                    EndIndex - (lastSpan.EndIndex + lastSpan.Tag.MarkdownEnd.Length - 1))); //-1??
             }
             builder.Append(Tag.HtmlEnd);
 

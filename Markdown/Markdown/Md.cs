@@ -10,7 +10,7 @@ namespace Markdown
     {
         private readonly List<Tag> tags;
         private int i;
-        private Tag emptyTag = new Tag("", "", "", "");
+        private readonly Tag emptyTag = new Tag("", "", "", "");
 
         public Md()
         {
@@ -34,10 +34,9 @@ namespace Markdown
 
             for (; i < markdownString.Length; i++)
             {
-                
                 if (markdownString[i] == '\\')
                 {
-                    mainSpan.Spans.Add(new Span(emptyTag, i, i + 1));
+                    PutSpanInSpan(new Span(emptyTag, i, i + 1), mainSpan);
                     i += 1;
                     continue;
                 }
@@ -47,8 +46,6 @@ namespace Markdown
                     var span = FindSpanEnd(markdownString, openedSpans);
                     if (span != null)
                     {
-                        PutSpanInSpan(span, mainSpan);
-
                         openedSpans = openedSpans.Where(t => t.EndIndex == 0).ToList();
                         continue;
                     }
@@ -57,12 +54,7 @@ namespace Markdown
                 var newSpan = FindSpanStart(markdownString);
                 if (newSpan != null)
                 {
-                    if (openedSpans.Count != 0)
-                    {
-                        openedSpans = openedSpans.OrderByDescending(s => s.StartIndex).ToList();
-                        openedSpans[0].Spans.Add(newSpan);
-                    }
-
+                    PutSpanInSpan(newSpan, mainSpan);
                     openedSpans.Add(newSpan);
                 }
             }
@@ -72,26 +64,26 @@ namespace Markdown
 
         private void PutSpanInSpan(Span child, Span parent)
         {
-
-            var parentSpan = parent;
             while (true)
             {
-                if (parentSpan.Spans.Count == 0)
+                if (parent.Spans.Count == 0)
                 {
-                    parentSpan.Spans.Add(child);
+                    parent.Spans.Add(child);
                     break;
                 }
 
-                var nextSpan = parentSpan.Spans.FirstOrDefault(
-                    s => s.StartIndex < child.StartIndex && s.EndIndex > child.EndIndex);
+                var nextSpan = parent.Spans
+                    .OrderByDescending(s => s.StartIndex)
+                    .FirstOrDefault(s => s.StartIndex < child.StartIndex &&
+                                        (s.EndIndex > child.StartIndex || s.EndIndex == 0));
 
                 if (nextSpan == null)
                 {
-                    parentSpan.Spans.Add(child);
+                    parent.Spans.Add(child);
                     break;
                 }
 
-                parentSpan = nextSpan;
+                parent = nextSpan;
             }
         }
 
