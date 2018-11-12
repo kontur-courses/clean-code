@@ -27,13 +27,13 @@ namespace Markdown
 			existedPairedTags = GetPairedTags();
 
 			if (existedPairedTags.Count == 0)
-				return stream.Text();
+				return stream.Text().RemoveScreenCharacters();
 
 			var sortedTagIndexes = GetSortedTagIndexes();
 			var textInHtml = GetHtmlCode(sortedTagIndexes);
 
 
-			return textInHtml;
+			return textInHtml.RemoveScreenCharacters();
 		}
 
 		private List<ITag> GetPairedTags()

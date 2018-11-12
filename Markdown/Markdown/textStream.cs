@@ -1,8 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace Markdown
 {
@@ -13,7 +9,7 @@ namespace Markdown
 
 		public TextStream(string text)
 		{
-			this.text = text ?? throw new ArgumentNullException("The text should not be null");
+			this.text = text ?? throw new ArgumentNullException(nameof(text));
 		}
 
 		public char Current() => text[position];

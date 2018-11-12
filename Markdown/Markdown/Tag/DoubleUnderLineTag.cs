@@ -1,6 +1,4 @@
-﻿using System;
-
-namespace Markdown.Tag
+﻿namespace Markdown.Tag
 {
 	class DoubleUnderLineTag : ITag
 	{
@@ -15,10 +13,10 @@ namespace Markdown.Tag
 			var stream = new TextStream(text);
 			for (var i = OpenIndex + 2; i < text.Length; i++)
 			{
-				var nextSymbol = stream.Lookahead(i + 2);
-				var prevSymbol = stream.Lookahead(i - 1);
-				if (text.Substring(i, 2) == Symbol && (char.IsWhiteSpace(nextSymbol) || i == text.Length - 2)
-					                                && !char.IsWhiteSpace(prevSymbol))
+				var symbolAfterTag = stream.Lookahead(i + 2);
+				var symbolBeforeTag = stream.Lookahead(i - 1);
+				if (text.Substring(i, 2) == Symbol && (char.IsWhiteSpace(symbolAfterTag) || i == text.Length - 2)
+					                                && !char.IsWhiteSpace(symbolBeforeTag))
 					return i;
 			}
 

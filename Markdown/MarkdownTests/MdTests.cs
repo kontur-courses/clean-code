@@ -5,7 +5,7 @@ using NUnit.Framework;
 namespace MarkdownTests
 {
 	[TestFixture]
-	class MdTests
+	public class MdTests
 	{
 		private Md md;
 
