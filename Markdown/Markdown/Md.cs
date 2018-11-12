@@ -9,6 +9,8 @@ namespace Markdown
     public class Md
     {
         private readonly List<Tag> tags;
+        private string markdownString;
+        private int lastIndex;
 
         public Md()
         {
@@ -20,25 +22,42 @@ namespace Markdown
 
         public string Render(string rowString)
         {
-            return ParseWithoutRegexp(rowString);
+            markdownString = rowString;
+            lastIndex = 0;
+            return ParseWithoutRegexp();
         }
 
-        private string ParseWithoutRegexp(string rowString)
+        private string ParseWithoutRegexp()
         {
             var builder = new StringBuilder();
             var tokens = new List<Token>();
+            var wasEscape = false;
 
-            var lastIndex = 0;
-            for (var i = 0; i < rowString.Length; i++)
+            for (var i = 0; i < markdownString.Length; i++)
             {
                 var found = false;
+                if (markdownString[i] == '/')
+                {
+                    wasEscape = true;
+                    builder.Append(markdownString.Substring(lastIndex, i - lastIndex));
+                    lastIndex = i + 1;
+                    continue;
+                }
+
+                if (wasEscape)
+                {
+                    wasEscape = false;
+                    continue;
+                }
+
+                //проверяем чтобы закрыть токен
                 foreach (var token in tokens)
                 {
-                    if (rowString[i] == token.Tag.MarkdownEnd[0])
+                    if (markdownString[i] == token.Tag.MarkdownEnd[0])
                     {
                         token.EndIndex = i;
                         lastIndex = i + token.Tag.MarkdownEnd.Length;
-                        builder.Append(token.Assembly(rowString));
+                        builder.Append(token.Assembly(markdownString));
                         found = true;
                         break;
                     }
@@ -49,21 +68,20 @@ namespace Markdown
                 if (found)
                     continue;
 
+                //проверяем на тег
                 foreach (var tag in tags)
                 {
-                    if (rowString[i] == tag.MarkdownStart[0])
+
+                    if (markdownString[i] == tag.MarkdownStart[0])
                     {
-                        builder.Append(rowString.Substring(lastIndex, i - lastIndex));
+                        builder.Append(markdownString.Substring(lastIndex, i - lastIndex));
                         tokens.Add(new Token(tag, i));
                     }
                 }
             }
 
-
-            builder.Append(rowString.Substring(lastIndex));
-
+            builder.Append(markdownString.Substring(lastIndex));
             return builder.ToString();
         }
-
     }
 }
