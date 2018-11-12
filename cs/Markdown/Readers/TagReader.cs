@@ -46,7 +46,7 @@ namespace Markdown.Readers
                    !char.IsWhiteSpace(text[position - 1]);
         }
 
-        private IToken Tokenise(string text, int index)
+        private IToken GetToken(string text, int index)
         {
             return readers.Select(reader => reader.ReadToken(text, index))
                 .FirstOrDefault(token => token != null);
@@ -69,7 +69,7 @@ namespace Markdown.Readers
                         return new Tag(text.Substring(position, i - position + mdTag.Length), htmlTag, tokens);
                     }
 
-                    token = Tokenise(text, i);
+                    token = GetToken(text, i);
                 }
 
                 tokens.Add(token);
