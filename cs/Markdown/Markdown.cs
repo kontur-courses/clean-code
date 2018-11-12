@@ -1,19 +1,24 @@
 ﻿using System;
+using System.Collections.Generic;
 
 namespace Markdown
 {
     public class Markdown
     {
-        private IParser parser;
+        private readonly ITokenParser parser;
+        private readonly ITokenTreeBuilder treeBuilder;
+        private readonly ITokenTreeTranslator translator;
 
-        public Markdown(IParser parser)
+        public Markdown(ITokenParser parser, ITokenTreeTranslator translator, ITokenTreeBuilder treeBuilder)
         {
             this.parser = parser;
+            this.translator = translator;
+            this.treeBuilder = treeBuilder;
         }
 
         public string Render(string markdownText)
         {
-            throw new NotImplementedException();
+            return translator.Translate(treeBuilder.BuildTree(parser.GetTokens(markdownText)));
         }
     }
 }
