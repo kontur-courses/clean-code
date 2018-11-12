@@ -2,6 +2,7 @@
 {
     public interface ITagTranslator
     {
-        string Translate(string tagBody, string tagSymbol);
+        string TranslateOpeningTag(string tag);
+        string TranslateClosingTag(string tag);
     }
 }
