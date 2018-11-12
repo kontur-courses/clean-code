@@ -44,6 +44,8 @@ namespace Markdown
 
             if (currentNode.Type == TokenType.Tag)
                 textBuilder.Append(tagTranslator.TranslateClosingTag(currentNode.Text));
+            if (currentNode.Type == TokenType.Text && currentNode.Children.Count > 0)
+                textBuilder.Append(currentNode.Text);
         }
     }
 }
