@@ -44,7 +44,16 @@ namespace MarkdownTests
         }
 
         [TestCase(@"_abc_ __abc__", @"<em>abc<\em> <strong>abc<\strong>")]
+        [TestCase(@"__abc__ _abc_", @"<strong>abc<\strong> <em>abc<\em>")]
         public void ShouldParse_StrongAndItalic(string rowString, string expected)
+        {
+            var parser = new Md();
+            var result = parser.Render(rowString);
+            result.Should().BeEquivalentTo(expected);
+        }
+
+        [TestCase(@"_abc __cde__ abc_", @"<em>abc <strong>cde<\strong> abc<\em>")]
+        public void ShouldParse_StrongInItalic(string rowString, string expected)
         {
             var parser = new Md();
             var result = parser.Render(rowString);

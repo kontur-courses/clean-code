@@ -54,17 +54,23 @@ namespace Markdown
                     }
                 }
 
-                var newToken = FindStartToken(markdownString);
-                if (newToken != null)
+                var newSpan = FindSpanStart(markdownString);
+                if (newSpan != null)
                 {
-                    openedSpans.Add(newToken);
+                    if (openedSpans.Count != 0)
+                    {
+                        openedSpans = openedSpans.OrderByDescending(s => s.StartIndex).ToList();
+                        openedSpans[0].Spans.Add(newSpan);
+                    }
+
+                    openedSpans.Add(newSpan);
                 }
             }
             
             return mainSpan.Assembly(markdownString);
         }
 
-        private Span FindStartToken(string markdownString)
+        private Span FindSpanStart(string markdownString)
         {
             var possibleTags = tags.Where(tag => markdownString[i] == tag.MarkdownStart[0]).ToList();
 
