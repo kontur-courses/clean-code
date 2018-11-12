@@ -29,7 +29,6 @@ namespace Markdown
 
         private string ParseWithoutRegexp(string markdownString)
         {
-            var builder = new StringBuilder();
             var mainSpan = new Span(emptyTag, 0, markdownString.Length - 1);
             var openedSpans = new List<Span>();
 
@@ -45,10 +44,11 @@ namespace Markdown
 
                 if (openedSpans.Count != 0)
                 {
-                    var found = FindSpanEnd(markdownString, openedSpans);
-                    if (found)
+                    var span = FindSpanEnd(markdownString, openedSpans);
+                    if (span != null)
                     {
-                        mainSpan.Spans.AddRange(openedSpans.Where(t => t.EndIndex != 0));
+                        PutSpanInSpan(span, mainSpan);
+
                         openedSpans = openedSpans.Where(t => t.EndIndex == 0).ToList();
                         continue;
                     }
@@ -70,75 +70,78 @@ namespace Markdown
             return mainSpan.Assembly(markdownString);
         }
 
-        private Span FindSpanStart(string markdownString)
+        private void PutSpanInSpan(Span child, Span parent)
         {
-            var possibleTags = tags.Where(tag => markdownString[i] == tag.MarkdownStart[0]).ToList();
 
-            if (possibleTags.Count == 0)
-                return null;
-            
-            for (var j = 1; possibleTags.Count > 1; j++)
+            var parentSpan = parent;
+            while (true)
             {
-                var posTags = new List<Tag>();
-                var shortTags = new List<Tag>();
-                foreach (var tag in possibleTags)
+                if (parentSpan.Spans.Count == 0)
                 {
-                    if (tag.MarkdownStart.Length <= j)
-                        shortTags.Add(tag);
-                    if (tag.MarkdownStart.Length > j && tag.MarkdownStart[j] == markdownString[i + j])
-                    {
-                        posTags.Add(tag);
-                    }
+                    parentSpan.Spans.Add(child);
+                    break;
                 }
 
-                if (posTags.Count == 0)
-                    posTags = shortTags;
+                var nextSpan = parentSpan.Spans.FirstOrDefault(
+                    s => s.StartIndex < child.StartIndex && s.EndIndex > child.EndIndex);
 
-                possibleTags = posTags;
+                if (nextSpan == null)
+                {
+                    parentSpan.Spans.Add(child);
+                    break;
+                }
+
+                parentSpan = nextSpan;
             }
+        }
 
-            if (possibleTags.Count != 1)
+        private Span FindSpanStart(string markdownString)
+        {
+            var tag = MatchTag(markdownString, t => t.MarkdownStart);
+            if (tag == null)
                 return null;
 
             var startIndex = i;
-            i = i + possibleTags[0].MarkdownStart.Length - 1;
-            return new Span(possibleTags[0], startIndex);
+            i = i + tag.MarkdownStart.Length - 1;
+            return new Span(tag, startIndex);
             
         }
-        private bool FindSpanEnd(string markdownString, List<Span> tokens)
+        private Span FindSpanEnd(string markdownString, List<Span> openedSpans)
         {
-            var possibleTokens = tokens.Where(token => markdownString[i] == token.Tag.MarkdownEnd[0]).ToList();
+            var tag = MatchTag(markdownString, t => t.MarkdownEnd);
+            if (tag == null)
+                return null;
 
-            if (possibleTokens.Count == 0)
-                return false;
-
-            for (var j = 1; possibleTokens.Count > 1; j++)
+            foreach (var openedSpan in openedSpans)
             {
-                var posTokens = new List<Span>();
-                var shortTokens = new List<Span>();
-                foreach (var token in possibleTokens)
+                //странно что tag.equals не работает
+                if (openedSpan.Tag.MarkdownEnd == tag.MarkdownEnd)
                 {
-                    if (token.Tag.MarkdownEnd.Length <= j)
-                        shortTokens.Add(token);
-                    if (token.Tag.MarkdownEnd.Length > j && token.Tag.MarkdownEnd[j] == markdownString[i + j])
-                    {
-                        posTokens.Add(token);
-                    }
+                    openedSpan.EndIndex = i;
+                    i = i + openedSpan.Tag.MarkdownEnd.Length - 1;
+                    return openedSpan;
                 }
 
-                if (posTokens.Count == 0)
-                    posTokens = shortTokens;
-
-                possibleTokens = posTokens;
             }
 
-            if (possibleTokens.Count != 1)
-                return false;
-            
-            var possibleToken = possibleTokens[0];
-            possibleToken.EndIndex = i;
-            i = i + possibleToken.Tag.MarkdownEnd.Length - 1;
-            return true;
+            return null;
+        }
+
+        private Tag MatchTag(string markdownString, Func<Tag, string> param)
+        {
+            var possibleTags = new List<Tag>();
+            foreach (var tag in tags)
+            {
+                var str = param(tag);
+                var length = str.Length;
+                if (markdownString.Length - i < length)
+                    length = markdownString.Length - i;
+
+                if (str == markdownString.Substring(i, length))
+                    possibleTags.Add(tag);
+            }
+
+            return possibleTags.Count == 0 ? null : possibleTags.OrderByDescending(t => param(t).Length).First();
         }
     }
 }

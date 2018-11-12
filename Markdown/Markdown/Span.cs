@@ -46,7 +46,7 @@ namespace Markdown
                 builder.Append(rowString.Substring(StartIndex + Tag.MarkdownStart.Length,
                             Spans[0].StartIndex - (StartIndex + Tag.MarkdownStart.Length)));
 
-                for (var i = 0; i < Spans.Count -1; i++)
+                for (var i = 0; i < Spans.Count - 1; i++)
                 {
                     builder.Append(Spans[i].Assembly(rowString));
                     builder.Append(rowString.Substring(Spans[i].EndIndex + Spans[i].Tag.MarkdownEnd.Length,

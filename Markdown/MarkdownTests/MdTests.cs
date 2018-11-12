@@ -11,7 +11,7 @@ namespace MarkdownTests
     {
         //Одинаковые тесты по сути то
 
-        [TestCase("aa_bb_aa", @"aa<em>bb<\em>aa", TestName = "A")]
+        [TestCase("aa_bb_aa", @"aa<em>bb<\em>aa")]
         [TestCase("_abc_", @"<em>abc<\em>")]
         [TestCase(" _abc_", @" <em>abc<\em>")]
         [TestCase("_abc_ ", @"<em>abc<\em> ")]
