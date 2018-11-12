@@ -20,6 +20,8 @@ namespace Markdown
 
         public string Assembly(string rowString)
         {
+            Console.WriteLine(StartIndex + ":" + EndIndex);
+            
             var builder = new StringBuilder();
             builder.Append(Tag.HtmlStart);
             builder.Append(rowString.Substring(StartIndex + Tag.MarkdownStart.Length, EndIndex - StartIndex - Tag.MarkdownEnd.Length));
