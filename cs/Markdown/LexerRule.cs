@@ -8,23 +8,11 @@
     public interface ILexerRule
     {
         Delimiter ProcessIncomingChar(int position, Delimiter previousDelimiter, out bool shouldRemovePrevious);
-
+        string[] PossibleDelimitersStrings { get; }
         bool Check(char symbol);
-    }
-
-    public class UnderscoreRule : ILexerRule
-    {
-        public Delimiter ProcessIncomingChar(int position, Delimiter previousDelimiter, out bool shouldRemovePrevious)
-        {
-            shouldRemovePrevious = false;
-            if (previousDelimiter != null && previousDelimiter.Position + 1 == position && previousDelimiter.Value == "_")
-            {
-                shouldRemovePrevious = true;
-                return new Delimiter(true, "__", position - 1);
-            }
-            return new Delimiter(true, "_", position);
-        }
-
-        public bool Check(char symbol) => symbol == '_';
+        bool Check(Delimiter delimiter);
+        Delimiter Escape(Delimiter delimiter, string text);
+        bool IsValid(Delimiter delimiter, string text);
+        Token GetToken(Delimiter delimiter, string text);
     }
 }

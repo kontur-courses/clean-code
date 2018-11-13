@@ -56,9 +56,17 @@
     <Compile Include="ListExtensions.cs" />
     <Compile Include="Md.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="StringToken.cs" />
     <Compile Include="TextParser.cs" />
+    <Compile Include="TextParser_GetDelimitersPositions_Should.cs" />
+    <Compile Include="TextParser_GetTokensFromDelimiters_Should.cs" />
+    <Compile Include="TextParser_RemoveEscapedDelimiters_Should.cs" />
+    <Compile Include="TextParser_RemoveNonValidDelimiters_Should.cs" />
+    <Compile Include="TextParser_ValidatePairs_Should.cs" />
     <Compile Include="Token.cs" />
     <Compile Include="TokenType.cs" />
+    <Compile Include="UnderscoreRule.cs" />
+    <Compile Include="UnderscoreToken.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="packages.config" />

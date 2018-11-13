@@ -2,16 +2,17 @@
 {
     public class Delimiter
     {
-        public Delimiter(bool isPaired, string value, int position)
+        public Delimiter(string value, int position)
         {
-            IsPaired = isPaired;
             Value = value;
             Position = position;
         }
 
         public int Position { get; }
         public string Value { get; }
-        public bool IsPaired { get; }
+        public bool IsFirst { get; set; }
+        public bool IsLast { get; set; }
 
+        public Delimiter Partner { get; set; }
     }
 }

@@ -1,6 +1,4 @@
-﻿using FluentAssertions;
-using NUnit.Framework;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Linq;
 
 namespace Markdown
@@ -9,7 +7,7 @@ namespace Markdown
     {
         private readonly List<ILexerRule> rules;
 
-        public TextParser(IEnumerable<ILexerRule> rules)
+        public TextParser(IEnumerable<ILexerRule> rules = null)
         {
             this.rules = rules?.ToList() ?? new List<ILexerRule>();
         }
@@ -27,92 +25,114 @@ namespace Markdown
             var delimiters = GetDelimiterPositions(text);
             delimiters = RemoveEscapedDelimiters(delimiters, text);
             delimiters = RemoveNonValidDelimiters(delimiters, text);
-            delimiters = RemoveNonPairedDelimiters(delimiters, text);
+            delimiters = ValidatePairs(delimiters, text);
 
             return GetTokensFromDelimiters(delimiters, text);
         }
 
-        internal IEnumerable<Delimiter> RemoveNonPairedDelimiters(IEnumerable<Delimiter> delimiters, string text) =>
-            delimiters;
+        internal List<Delimiter> ValidatePairs(List<Delimiter> delimiters, string text)
+        {
+            var stack = new Stack<Delimiter>();
+            foreach (var delimiter in delimiters)
+                if (stack.Count > 0 &&
+                    stack.Peek()
+                         .Value ==
+                    delimiter.Value)
+                {
+                    var firstDelimiter = stack.Pop();
+                    firstDelimiter.Partner = delimiter;
+                    delimiter.Partner = firstDelimiter;
+                    delimiter.IsLast = firstDelimiter.IsFirst = true;
+                }
+                else
+                {
+                    stack.Push(delimiter);
+                }
 
-        internal IEnumerable<Delimiter> RemoveNonValidDelimiters(IEnumerable<Delimiter> delimiters, string text) =>
-            delimiters;
+            var rest = stack.ToArray()
+                            .ToHashSet();
+            delimiters.RemoveAll(d => rest.Contains(d));
 
-        internal IEnumerable<Delimiter> RemoveEscapedDelimiters(IEnumerable<Delimiter> delimiters, string text) =>
-            delimiters;
+            return delimiters;
+        }
 
-        internal IEnumerable<Token> GetTokensFromDelimiters(IEnumerable<Delimiter> delimiters, string text) =>
-            new List<Token>();
+        internal List<Delimiter> RemoveNonValidDelimiters(List<Delimiter> delimiters, string text) =>
+            delimiters.Where(d => GetSuitableRule(d)
+                                 .IsValid(d, text))
+                      .ToList();
 
-        internal IEnumerable<Delimiter> GetDelimiterPositions(string text)
+        internal List<Delimiter> RemoveEscapedDelimiters(List<Delimiter> delimiters, string text)
+        {
+            return delimiters.Select(d => GetSuitableRule(d)
+                                         .Escape(d, text))
+                             .Where(p => p != null)
+                             .ToList();
+        }
+
+        private ILexerRule GetSuitableRule(Delimiter delimiter)
+        {
+            return rules.FirstOrDefault(r => r.Check(delimiter));
+        }
+
+        internal List<Token> GetTokensFromDelimiters(List<Delimiter> delimiters, string text)
+        {
+            if (!delimiters.Any())
+                return new List<Token> {new StringToken(0, text.Length, text)};
+
+            var tokens = new LinkedList<Token>();
+
+            foreach (var delimiter in delimiters)
+            {
+                var rule = GetSuitableRule(delimiter);
+
+                var token = rule.GetToken(delimiter, text);
+                if (token != null)
+                    tokens.AddLast(token);
+            }
+
+            var currentToken = tokens.First;
+
+            tokens.AddLast(new UnderscoreToken(text.Length, 0, ""));
+            var start = 0;
+            while (currentToken != null)
+            {
+                var end = currentToken.Value.Position;
+                var length = end - start;
+                var value = text.Substring(start, length);
+                if (end != start)
+                {
+                    tokens.AddBefore(currentToken, new StringToken(start, length, value));
+                }
+
+                start = end + currentToken.Value.Length;
+                currentToken = currentToken.Next;
+            }
+            tokens.RemoveLast();
+
+            return tokens.ToList();
+        }
+
+        internal List<Delimiter> GetDelimiterPositions(string text)
         {
             var delimiters = new List<Delimiter>();
-            foreach (var (symbol, position) in text.Select((symbol, i)=>(symbol, i)))
+            foreach (var (symbol, position) in text.Select((symbol, i) => (symbol, i)))
             {
-                var rule = GetRuleForSymbol(symbol);
+                var rule = GetSuitableRule(symbol);
                 if (rule == null)
                     continue;
-                var delimiter = rule.ProcessIncomingChar(position, delimiters.LastOrDefault(), out var shouldRemovePrevious);
+                var delimiter =
+                    rule.ProcessIncomingChar(position, delimiters.LastOrDefault(), out var shouldRemovePrevious);
                 if (shouldRemovePrevious)
-                    delimiters.RemoveAt(delimiters.Count-1);
+                    delimiters.RemoveAt(delimiters.Count - 1);
                 delimiters.Add(delimiter);
             }
 
             return delimiters;
         }
 
-        internal ILexerRule GetRuleForSymbol(char symbol)
+        internal ILexerRule GetSuitableRule(char symbol)
         {
             return rules.FirstOrDefault(rule => rule.Check(symbol));
-        }
-    }
-
-    [TestFixture]
-    public class TextParser_Tests
-    {
-        [SetUp]
-        public void SetUp()
-        {
-            parser = new TextParser(null);
-        }
-
-        private TextParser parser;
-
-        [Category("GetDelimiterPositions_Should")]
-        [Test]
-        public void ReturnEmptyList_WhenNoDelimiters()
-        {
-            parser.GetDelimiterPositions("abcd efg")
-                  .Should()
-                  .BeEmpty();
-        }
-
-        [Category("GetDelimiterPositions_Should")]
-        [Test]
-        public void ReturnOneDelimiterOfUnderscoreRule_WhenOneExistsOfThisRule()
-        {
-            parser.AddRule(new UnderscoreRule());
-            parser.GetDelimiterPositions("abcd_efg")
-                  .Should().HaveCount(1).And.Subject.First().ShouldBeEquivalentTo(new Delimiter(true, "_", 4));
-
-        }
-        [Category("GetDelimiterPositions_Should")]
-        [Test]
-        public void ReturnOneDelimiterOfDoubleUnderscoreRule_WhenOneExistsOfThisRule()
-        {
-            parser.AddRule(new UnderscoreRule());
-            parser.GetDelimiterPositions("abcd__efg")
-                  .Should().HaveCount(1).And.Subject.First().ShouldBeEquivalentTo(new Delimiter(true, "__", 4));
-
-        }
-        [Category("GetDelimiterPositions_Should")]
-        [Test]
-        public void ReturnOneDelimiterOfDoubleUnderscoreRuleAndOneOfUnderscore_WhenThereAre3Underscores()
-        {
-            parser.AddRule(new UnderscoreRule());
-            parser.GetDelimiterPositions("abcd___efg")
-                  .Should().HaveCount(2).And.Subject.ShouldBeEquivalentTo(new[] { new Delimiter(true, "__", 4), new Delimiter(true, "_", 6) });
-
         }
     }
 }
