@@ -1,6 +1,4 @@
-﻿using NUnit.Framework;
-
-namespace ControlDigit
+﻿namespace ControlDigit
 {
     [TestFixture]
     public class UpcExtensions_Tests

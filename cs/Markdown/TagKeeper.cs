@@ -1,0 +1,6 @@
+﻿namespace Markdown
+{
+    class TagKeeper
+    {
+    }
+}

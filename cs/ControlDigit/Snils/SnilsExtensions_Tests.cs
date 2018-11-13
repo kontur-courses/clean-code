@@ -1,8 +1,4 @@
-﻿using System;
-using System.Diagnostics;
-using NUnit.Framework;
-
-namespace ControlDigit
+﻿namespace ControlDigit
 {
     [TestFixture]
     public class SnilsExtensions_Tests
