@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace Markdown.Elements
 {
-    class RootElementType : IElementType
+    public class RootElementType : IElementType
     {
         private static readonly RootElementType Instance = new RootElementType();
         private static readonly IElementType[] PossibleInnerElementTypes =
@@ -25,6 +25,11 @@ namespace Markdown.Elements
         public bool CanContainElement(IElementType elementType)
         {
             return PossibleInnerElementTypes.Contains(elementType);
+        }
+
+        public bool IsIndicatorAt(string markdown, int position)
+        {
+            return false;
         }
     }
 }

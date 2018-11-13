@@ -40,15 +40,17 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="Elements\DoubleUnderscoreElement.cs" />
-    <Compile Include="Parsers\DoubleUnderscoreElementParser.cs" />
-    <Compile Include="Parsers\IElementParser.cs" />
-    <Compile Include="Elements\IMarkdownElement.cs" />
-    <Compile Include="Elements\MarkdownElementBase.cs" />
+    <Compile Include="Elements\DoubleUnderscoreElementType.cs" />
+    <Compile Include="Elements\IElementType.cs" />
+    <Compile Include="Elements\MarkdownElement.cs" />
+    <Compile Include="Elements\RootElementType.cs" />
+    <Compile Include="Elements\UnderscoreElementType.cs" />
+    <Compile Include="HtmlRenderer.cs" />
+    <Compile Include="Parsers\EmphasisParser.cs" />
     <Compile Include="Md.cs" />
+    <Compile Include="Parsers\ParsingResult.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
-    <Compile Include="Elements\UnderscoreElement.cs" />
-    <Compile Include="Parsers\UnderscoreElementParser.cs" />
+    <Compile Include="StringExtension.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
 </Project>

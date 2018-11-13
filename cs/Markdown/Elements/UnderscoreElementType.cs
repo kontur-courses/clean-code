@@ -18,5 +18,13 @@
         {
             return false;
         }
+
+        public bool IsIndicatorAt(string markdown, int position)
+        {
+            if (markdown.Substring(position, 1) != Indicator)
+                return false;
+            return position + 1 >= markdown.Length ||
+                   markdown.Substring(position + 1, 1) != Indicator;
+        }
     }
 }

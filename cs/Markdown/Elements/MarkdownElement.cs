@@ -2,7 +2,7 @@
 
 namespace Markdown.Elements
 {
-    public class MarkdownElement : IMarkdownElement
+    public class MarkdownElement
     {
         public IElementType ElementType { get; protected set; }
 
@@ -12,10 +12,10 @@ namespace Markdown.Elements
 
         public int EndPosition { get; protected set; }
 
-        public IReadOnlyList<IMarkdownElement> InnerElements { get; protected set; }
+        public IReadOnlyList<MarkdownElement> InnerElements { get; protected set; }
 
         public MarkdownElement(IElementType type, string markdown, int start, int end,
-            IReadOnlyList<IMarkdownElement> innerElements)
+            IReadOnlyList<MarkdownElement> innerElements)
         {
             ElementType = type;
             Markdown = markdown;

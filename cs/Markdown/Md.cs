@@ -13,7 +13,7 @@ namespace Markdown
         public string Render(string markdown)
         {
             ParsingResult result = EmphasisParser.ParseElement(markdown, 0, RootElementType.Create());
-            return HtmlRender.RenderToHtml(result.Element);
+            return HtmlRenderer.RenderToHtml(result.Element);
         }
     }
 }

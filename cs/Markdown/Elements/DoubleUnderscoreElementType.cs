@@ -22,5 +22,10 @@ namespace Markdown.Elements
         {
             return PossibleInnerElementTypes.Contains(elementType);
         }
+
+        public bool IsIndicatorAt(string markdown, int position)
+        {
+            return false;
+        }
     }
 }

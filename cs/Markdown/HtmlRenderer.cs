@@ -3,9 +3,9 @@ using Markdown.Elements;
 
 namespace Markdown
 {
-    class HtmlRender
+    class HtmlRenderer
     {
-        public static string RenderToHtml(IMarkdownElement markdownRoot)
+        public static string RenderToHtml(MarkdownElement markdownRoot)
         {
             throw new NotImplementedException();
         }
