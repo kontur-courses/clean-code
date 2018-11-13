@@ -16,7 +16,8 @@ namespace Markdown_Tests
             var expected = new MarkdownElement(
                 RootElementType.Create(), markdown, 0, markdown.Length, new List<MarkdownElement>());
 
-            var actual = EmphasisParser.ParseElement(markdown, 0, RootElementType.Create());
+            var parser = new EmphasisParser(markdown, 0, RootElementType.Create());
+            var actual = parser.Parse();
             actual.Should().BeEquivalentTo(expected);
         }
 
@@ -27,7 +28,8 @@ namespace Markdown_Tests
             var expected = new MarkdownElement(
                 UnderscoreElementType.Create(), markdown, 1, markdown.Length - 1, new List<MarkdownElement>());
 
-            var actual = EmphasisParser.ParseElement(markdown, 1, UnderscoreElementType.Create());
+            var parser = new EmphasisParser(markdown, 1, UnderscoreElementType.Create());
+            var actual = parser.Parse();
             actual.Should().BeEquivalentTo(expected);
         }
 
@@ -38,7 +40,8 @@ namespace Markdown_Tests
             var expected = new MarkdownElement(
                 DoubleUnderscoreElementType.Create(), markdown, 2, markdown.Length - 2, new List<MarkdownElement>());
 
-            var actual = EmphasisParser.ParseElement(markdown, 2, DoubleUnderscoreElementType.Create());
+            var parser = new EmphasisParser(markdown, 2, DoubleUnderscoreElementType.Create());
+            var actual = parser.Parse();
             actual.Should().BeEquivalentTo(expected);
         }
 
@@ -49,7 +52,8 @@ namespace Markdown_Tests
             var expected = new MarkdownElement(
                 BrokenElementType.Create(), markdown, 1, markdown.Length, new List<MarkdownElement>());
 
-            var actual = EmphasisParser.ParseElement(markdown, 1, UnderscoreElementType.Create());
+            var parser = new EmphasisParser(markdown, 1, UnderscoreElementType.Create());
+            var actual = parser.Parse();
             actual.Should().BeEquivalentTo(expected);
         }
 
@@ -65,7 +69,8 @@ namespace Markdown_Tests
                         UnderscoreElementType.Create(), markdown, 7, markdown.Length - 1, new List<MarkdownElement>())
                 });
 
-            var actual = EmphasisParser.ParseElement(markdown, 0, RootElementType.Create());
+            var parser = new EmphasisParser(markdown, 0, RootElementType.Create());
+            var actual = parser.Parse();
             actual.Should().BeEquivalentTo(expected);
         }
 
@@ -76,7 +81,8 @@ namespace Markdown_Tests
             var expected = new MarkdownElement(
                 BrokenElementType.Create(), markdown, 1, markdown.Length - 2, new List<MarkdownElement>());
 
-            var actual = EmphasisParser.ParseElement(markdown, 1, UnderscoreElementType.Create());
+            var parser = new EmphasisParser(markdown, 1, UnderscoreElementType.Create());
+            var actual = parser.Parse();
             actual.Should().BeEquivalentTo(expected);
         }
 
@@ -92,7 +98,8 @@ namespace Markdown_Tests
                         UnderscoreElementType.Create(), markdown, 9, markdown.Length - 5, new List<MarkdownElement>())
                 });
 
-            var actual = EmphasisParser.ParseElement(markdown, 2, DoubleUnderscoreElementType.Create());
+            var parser = new EmphasisParser(markdown, 2, DoubleUnderscoreElementType.Create());
+            var actual = parser.Parse();
             actual.Should().BeEquivalentTo(expected);
         }
 
@@ -108,7 +115,8 @@ namespace Markdown_Tests
                         DoubleUnderscoreElementType.Create(), markdown, 9, 14, new List<MarkdownElement>())
                 });
         
-            var actual = EmphasisParser.ParseElement(markdown, 0, RootElementType.Create());
+            var parser = new EmphasisParser(markdown, 0, RootElementType.Create());
+            var actual = parser.Parse();
             actual.Should().BeEquivalentTo(expected);
         }
     }

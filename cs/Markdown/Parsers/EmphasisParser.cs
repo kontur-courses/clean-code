@@ -12,10 +12,23 @@ namespace Markdown.Parsers
             UnderscoreElementType.Create(), DoubleUnderscoreElementType.Create()
         };
 
-        public static MarkdownElement ParseElement(string markdown, int startPosition, IElementType elementType)
+        private readonly string markdown;
+        private readonly int startPosition;
+        private readonly IElementType elementType;
+        private int currentPosition;
+        private List<MarkdownElement> innerElements;
+
+        public EmphasisParser(string markdown, int startPosition, IElementType elementType)
         {
-            var currentPosition = startPosition;
-            var innerElements = new List<MarkdownElement>();
+            this.markdown = markdown;
+            this.startPosition = startPosition;
+            this.elementType = elementType;
+        }
+
+        public MarkdownElement Parse()
+        {
+            currentPosition = startPosition;
+            innerElements = new List<MarkdownElement>();
 
             while (currentPosition < markdown.Length)
             {
@@ -27,24 +40,12 @@ namespace Markdown.Parsers
                 var closingElementType = GetClosingElementType(markdown, currentPosition);
                 
                 if (openingElementType != null && elementType.CanContainElement(openingElementType))
-                {
-                    var innerElement = ParseElement(
-                        markdown,
-                        currentPosition + openingElementType.Indicator.Length,
-                        openingElementType);
+                    HandleInnerElement(openingElementType);
 
-                    if (innerElement.ElementType == BrokenElementType.Create())
-                        innerElements = innerElements.Concat(innerElement.InnerElements).ToList();
-                    else
-                        innerElements.Add(innerElement);
-                    currentPosition = innerElement.EndPosition + innerElement.ElementType.Indicator.Length;
-                }  
                 else if (openingElementType != null || 
                          closingElementType != null && elementType != RootElementType.Create())
-                {
                     return new MarkdownElement(
                         BrokenElementType.Create(), markdown, startPosition, currentPosition, innerElements);
-                }
                 else
                     currentPosition++;
             }
@@ -54,6 +55,22 @@ namespace Markdown.Parsers
             return new MarkdownElement(
                 isBrokenElement ? BrokenElementType.Create() : elementType, 
                 markdown, startPosition, currentPosition, innerElements);
+        }
+
+        private void HandleInnerElement(IElementType innerElementType)
+        {
+            var innerElementParser = new EmphasisParser(
+                markdown,
+                currentPosition + innerElementType.Indicator.Length,
+                innerElementType);
+
+            var innerElement = innerElementParser.Parse();
+
+            if (innerElement.ElementType == BrokenElementType.Create())
+                innerElements = innerElements.Concat(innerElement.InnerElements).ToList();
+            else
+                innerElements.Add(innerElement);
+            currentPosition = innerElement.EndPosition + innerElement.ElementType.Indicator.Length;
         }
 
         private static IElementType GetOpeningElementType(string markdown, int position)
