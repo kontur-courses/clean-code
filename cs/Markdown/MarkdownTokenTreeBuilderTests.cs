@@ -124,10 +124,10 @@ namespace Markdown
 
                 tokens = new[] { "_", "a", " ", "_" , "b", "_" };
                 root = new TokenTreeNode();
-                AddChild(root, TokenType.Text, "_");
-                AddChild(root, TokenType.Text, "a");
-                AddChild(root, TokenType.Space, " ");
                 tag = AddChild(root, TokenType.Tag, "_");
+                AddChild(tag, TokenType.Text, "a");
+                AddChild(tag, TokenType.Space, " ");
+                AddChild(tag, TokenType.Text, "_");
                 AddChild(tag, TokenType.Text, "b");
                 yield return new TestCaseData(tokens, root).SetName("SameOpeningBeforeShortTag");
 
@@ -142,10 +142,10 @@ namespace Markdown
 
                 tokens = new[] { "_", "a", " ", "_", "b", "_", " ", "c", "_" };
                 root = new TokenTreeNode();
-                AddChild(root, TokenType.Text, "_");
-                AddChild(root, TokenType.Text, "a");
-                AddChild(root, TokenType.Space, " ");
                 tag = AddChild(root, TokenType.Tag, "_");
+                AddChild(tag, TokenType.Text, "a");
+                AddChild(tag, TokenType.Space, " ");
+                AddChild(tag, TokenType.Text, "_");
                 AddChild(tag, TokenType.Text, "b");
                 AddChild(root, TokenType.Space, " ");
                 AddChild(root, TokenType.Text, "c");
@@ -154,10 +154,10 @@ namespace Markdown
 
                 tokens = new[] { "__", "a", " ", "__", "b", "__", " ", "c", "__" };
                 root = new TokenTreeNode();
-                AddChild(root, TokenType.Text, "__");
-                AddChild(root, TokenType.Text, "a");
-                AddChild(root, TokenType.Space, " ");
                 tag = AddChild(root, TokenType.Tag, "__");
+                AddChild(tag, TokenType.Text, "a");
+                AddChild(tag, TokenType.Space, " ");
+                AddChild(tag, TokenType.Text, "__");
                 AddChild(tag, TokenType.Text, "b");
                 AddChild(root, TokenType.Space, " ");
                 AddChild(root, TokenType.Text, "c");
@@ -169,7 +169,7 @@ namespace Markdown
                 tag = AddChild(root, TokenType.Tag, "_");
                 AddChild(tag, TokenType.Text, "a");
                 AddChild(tag, TokenType.Space, " ");
-                var innerText = AddChild(tag, TokenType.Text, "__");
+                var innerText = AddChild(tag, TokenType.Tag, "__", true);
                 AddChild(innerText, TokenType.Text, "b");
                 AddChild(tag, TokenType.Space, " ");
                 AddChild(tag, TokenType.Text, "c");
@@ -200,9 +200,9 @@ namespace Markdown
             }
         }
 
-        private static TokenTreeNode AddChild(TokenTreeNode parent, TokenType type, string text)
+        private static TokenTreeNode AddChild(TokenTreeNode parent, TokenType type, string text, bool isRaw = false)
         {
-            var child = new TokenTreeNode(type, text, parent);
+            var child = new TokenTreeNode(type, text) {IsRaw = isRaw};
             parent.Children.Add(child);
             return child;
         }
@@ -219,8 +219,7 @@ namespace Markdown
 
             var tree = builder.BuildTree(tokens);
 
-            tree.Should().BeEquivalentTo(expectedTree,
-                options => options.Excluding(node => node.SelectedMemberInfo.Name == nameof(TokenTreeNode.Parent)));
+            tree.Should().BeEquivalentTo(expectedTree);
         }
     }
 }

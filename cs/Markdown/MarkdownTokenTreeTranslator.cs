@@ -37,15 +37,15 @@ namespace Markdown
                     text = "\\";
                     break;
             }
-
             textBuilder.Append(text);
+
             foreach (var child in currentNode.Children)
                 TranslateNode(child, textBuilder);
 
-            if (currentNode.Type == TokenType.Tag)
-                textBuilder.Append(tagTranslator.TranslateClosingTag(currentNode.Text));
-            if (currentNode.Type == TokenType.Text && currentNode.Children.Count > 0)
-                textBuilder.Append(currentNode.Text);
+            if (currentNode.Type != TokenType.Tag)
+                return;
+            text = currentNode.IsRaw ? currentNode.Text : tagTranslator.TranslateClosingTag(currentNode.Text);
+            textBuilder.Append(text);
         }
     }
 }

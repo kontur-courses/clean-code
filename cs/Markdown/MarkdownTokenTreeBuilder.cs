@@ -15,106 +15,76 @@ namespace Markdown
 
         public TokenTreeNode BuildTree(IEnumerable<string> tokens)
         {
-            var nodeStack = new Stack<TokenTreeNode>();
-            nodeStack.Push(new TokenTreeNode());
+            var openedTags = new Stack<TokenTreeNode>();
+            openedTags.Push(new TokenTreeNode());
             var tokensArray = tokens as string[] ?? tokens.ToArray();
             for (var i = 0; i < tokensArray.Length; i++)
             {
                 var token = tokensArray[i];
-                var lastNode = nodeStack.Peek();
                 var tokenType = GetTokenType(token);
                 var previousTokenType = i > 0 ? GetTokenType(tokensArray[i - 1]) : TokenType.Space;
+                var nextTokenType = i < tokensArray.Length - 1 ? GetTokenType(tokensArray[i + 1]) : TokenType.Space;
+
                 if (tokenType == TokenType.Space || tokenType == TokenType.Text || previousTokenType == TokenType.EscapeSymbol)
-                {
-                    lastNode.Children.Add(new TokenTreeNode(tokenType == TokenType.Tag ? TokenType.Text : tokenType, token, lastNode));
-                    continue;
-                }
-                if (tokenType == TokenType.Tag)
-                    ProcessTagToken(nodeStack, tokensArray, i, lastNode, previousTokenType);
+                    openedTags.Peek().Children.Add(new TokenTreeNode(tokenType == TokenType.Tag ? TokenType.Text : tokenType, token));
+                else if (tokenType == TokenType.Tag)
+                    ProcessTagToken(openedTags, token, previousTokenType, nextTokenType);
             }
-            var root = nodeStack.Count > 1 ? GetTreeRoot(nodeStack) : nodeStack.Peek();
+            var root = GetTreeRoot(openedTags);
             foreach (var child in root.Children)
                 FixInnerTags(child);
             return root;
         }
 
-        private void ProcessTagToken(Stack<TokenTreeNode> nodeStack, string[] tokensArray, int i, TokenTreeNode lastNode, TokenType previousTokenType)
+        private void ProcessTagToken(Stack<TokenTreeNode> openedTags, string token, TokenType previousTokenType, TokenType nexTokenType)
         {
-            var token = tokensArray[i];
-            var nextTokenIsSpace = i == tokensArray.Length - 1 || GetTokenType(tokensArray[i + 1]) == TokenType.Space;
-            var tagIsOpened = nodeStack.Any(node => node.Type == TokenType.Tag && tagsInfo[node.Text].ClosingTag == token);
-            if (previousTokenType == TokenType.Space && !nextTokenIsSpace)
+            var tagIsOpened = openedTags.Any(node => node.Type == TokenType.Tag && tagsInfo[node.Text].ClosingTag == token);
+            if (previousTokenType == TokenType.Space && nexTokenType != TokenType.Space && !tagIsOpened)
             {
-                OpenTag(nodeStack, lastNode, token);
+                openedTags.Push(new TokenTreeNode(TokenType.Tag, token));
             }
-            else if (tagIsOpened && previousTokenType != TokenType.EscapeSymbol && 
-                     previousTokenType != TokenType.Space && nextTokenIsSpace)
+            else if (tagIsOpened && nexTokenType == TokenType.Space &&
+                     previousTokenType != TokenType.EscapeSymbol && previousTokenType != TokenType.Space)
             {
-                CloseTag(nodeStack, token);
+                CloseTag(openedTags, token);
             }
             else
             {
-                lastNode.Children.Add(new TokenTreeNode(TokenType.Text, token, lastNode));
+                openedTags.Peek().Children.Add(new TokenTreeNode(TokenType.Text, token));
             }
-        }
-
-        private static void OpenTag(Stack<TokenTreeNode> nodeStack, TokenTreeNode lastNode, string token)
-        {
-            if (nodeStack.Any(node => node.Type == TokenType.Tag && node.Text == token))
-                RemoveOpenedTag(nodeStack, token);
-            nodeStack.Push(new TokenTreeNode(TokenType.Tag, token, lastNode));
         }
 
         private void CloseTag(Stack<TokenTreeNode> nodeStack, string token)
         {
             while (tagsInfo[nodeStack.Peek().Text].ClosingTag != token)
-                ShiftStack(nodeStack);
+                DeleteOpenedTag(nodeStack);
             var tag = nodeStack.Pop();
             nodeStack.Peek().Children.Add(tag);
-        }
-
-        private static void RemoveOpenedTag(Stack<TokenTreeNode> nodeStack, string tagToClose)
-        {
-            var tempStack = new Stack<TokenTreeNode>();
-            while (nodeStack.Peek().Type != TokenType.Tag && nodeStack.Peek().Text != tagToClose)
-            {
-                tempStack.Push(nodeStack.Pop());
-            }
-            var tokenToRemove = nodeStack.Pop();
-            var parent = tokenToRemove.Parent;
-            parent.Children.Add(new TokenTreeNode(TokenType.Text, tokenToRemove.Text, parent));
-            parent.AddChildren(tokenToRemove.Children);
-            while (tempStack.Count > 0)
-            {
-                nodeStack.Push(tempStack.Pop());
-            }
         }
 
         private void FixInnerTags(TokenTreeNode node, bool isInTag = false)
         {
             if (isInTag && node.Type == TokenType.Tag && !tagsInfo[node.Text].CanBeInsideOtherTag)
-                node.Type = TokenType.Text;
+                node.IsRaw = true;
             foreach (var child in node.Children.Where(token => token.Type == TokenType.Tag))
                 FixInnerTags(child, true);
         }
 
-        private static TokenTreeNode GetTreeRoot(Stack<TokenTreeNode> nodeStack)
+        private static TokenTreeNode GetTreeRoot(Stack<TokenTreeNode> openedTags)
         {
-            TokenTreeNode root;
-            do
-            {
-                root = ShiftStack(nodeStack);
-            } while (nodeStack.Count > 1);
-            return root;
+            if (openedTags.Count == 1)
+                return openedTags.Peek();
+            while (openedTags.Count > 1)
+                DeleteOpenedTag(openedTags);
+            return openedTags.Peek();
         }
 
-        private static TokenTreeNode ShiftStack(Stack<TokenTreeNode> nodeStack)
+        private static void DeleteOpenedTag(Stack<TokenTreeNode> nodeStack)
         {
             var previousNode = nodeStack.Pop();
             var parent = nodeStack.Peek();
-            parent.Children.Add(new TokenTreeNode(TokenType.Text, previousNode.Text, parent));
-            parent.AddChildren(previousNode.Children);
-            return parent;
+            parent.Children.Add(new TokenTreeNode(TokenType.Text, previousNode.Text));
+            parent.Children.AddRange(previousNode.Children);
         }
 
         private TokenType GetTokenType(string token)
