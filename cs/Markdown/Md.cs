@@ -1,8 +1,6 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Linq;
 using System.Text;
-using System.Threading.Tasks;
 using Markdown.Readers;
 using Markdown.Tags;
 
@@ -24,14 +22,14 @@ namespace Markdown
             {
                 var token = readers.Select(reader => reader.ReadToken(markdown, i)).FirstOrDefault(element => element != null);
                 if (token == null) continue;
-                i += token.Text.Length - 1;
+                i = token.Position;
                 tokens.Add(token);
             }
 
             var result = new StringBuilder();
             foreach (var token in tokens)
             {
-                result.Append(token.GetContent());
+                result.Append(token.ToHtml());
             }
 
             return result.ToString();

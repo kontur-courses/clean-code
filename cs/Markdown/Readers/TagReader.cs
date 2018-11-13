@@ -1,8 +1,5 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using Markdown.Tags;
 using Markdown.Tokens;
 
@@ -27,14 +24,18 @@ namespace Markdown.Readers
 
         private bool IsOpenTag(string text, int position)
         {
-            return position < text.Length - mdTag.Length - 1  &&
-                    CanHandle(text, position) &&
-                    !char.IsWhiteSpace(text[position + mdTag.Length]) &&
-                   (text.Substring(position + mdTag.Length, mdTag.Length) != mdTag) &&
-                    !char.IsDigit(text[position + mdTag.Length]);
+            return position < text.Length - mdTag.Length - 1 &&
+                   CanReadTag(text, position) &&
+                   (char.IsLetter(text[position + mdTag.Length])||
+                    text[position + mdTag.Length] == '\\');
+//                    
+//                    !char.IsWhiteSpace(text[position + mdTag.Length]) &&
+//                   (text.Substring(position + mdTag.Length, mdTag.Length) != mdTag) &&
+//                    
+//                    !char.IsDigit(text[position + mdTag.Length]);
         }
 
-        public bool CanHandle(string text, int position)
+        private bool CanReadTag(string text, int position)
         {
             return position <= text.Length - mdTag.Length &&
                    text.Substring(position, mdTag.Length) == mdTag;
@@ -42,7 +43,7 @@ namespace Markdown.Readers
 
         private bool IsClosedTag(string text, int position)
         {
-            return CanHandle(text, position) && 
+            return CanReadTag(text, position) && 
                    !char.IsWhiteSpace(text[position - 1]);
         }
 
@@ -66,14 +67,15 @@ namespace Markdown.Readers
 
                     if (IsClosedTag(text, i))
                     {
-                        return new Tag(text.Substring(position, i - position + mdTag.Length), htmlTag, tokens);
+                        var rightPosition = tokens.Select(t => t.Position).Max();
+                        return new Tag(text.Substring(position, i - position + mdTag.Length), htmlTag, tokens, rightPosition + mdTag.Length);
                     }
 
                     token = GetToken(text, i);
                 }
-
+                if (token.Text.Any(char.IsDigit)) break;
                 tokens.Add(token);
-                i += token.Text.Length - 1;
+                i += token.Position - i;
             }
 
             return null;
@@ -81,9 +83,9 @@ namespace Markdown.Readers
 
         private IToken GetSkippedToken(string text, int i)
         {
-            var maxTokenTagLength = skippedReaders.Where(reader => reader.CanHandle(text, i))
+            var maxTokenTagLength = skippedReaders.Where(reader => reader.CanReadTag(text, i))
                 .Select(reader => reader.mdTag.Length).Concat(new []{0}).Max();
-            return new Token(text.Substring(i, maxTokenTagLength));
+            return new TextToken(text.Substring(i, maxTokenTagLength), i + maxTokenTagLength - 1);
         }
     }
 }

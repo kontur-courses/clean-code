@@ -55,13 +55,14 @@
     <Compile Include="Readers\CharReader.cs" />
     <Compile Include="Readers\EmReader.cs" />
     <Compile Include="Readers\IReader.cs" />
+    <Compile Include="Readers\SetupReaders.cs" />
     <Compile Include="Readers\SlashReader.cs" />
     <Compile Include="Readers\StrongReader.cs" />
     <Compile Include="Readers\TagReader.cs" />
     <Compile Include="Tests\MdTests.cs" />
     <Compile Include="Tokens\IToken.cs" />
     <Compile Include="Tokens\Tag.cs" />
-    <Compile Include="Tokens\Token.cs" />
+    <Compile Include="Tokens\TextToken.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="App.config" />

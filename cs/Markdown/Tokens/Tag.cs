@@ -1,8 +1,5 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using Markdown.Tags;
 
 namespace Markdown.Tokens
@@ -10,21 +7,23 @@ namespace Markdown.Tokens
     class Tag : IToken
     {
         public string Text { get; }
+        public int Position { get; }
         private List<IToken> tokens;
-        private string tag;
-        private string closeTag;
+        private string htmlTag;
+        private string closingHtmlTag;
 
-        public Tag(string text, string tag, List<IToken> tokens)
+        public Tag(string text, string htmlTag, List<IToken> tokens, int position)
         {
-            this.tag = tag;
-            closeTag = tag.Insert(1, "/");
+            this.htmlTag = htmlTag;
+            closingHtmlTag = htmlTag.Insert(1, "/");
             Text = text;
             this.tokens = tokens;
+            this.Position = position;
         }
 
-        public string GetContent()
+        public string ToHtml()
         {
-            var result = string.Concat(tokens.Aggregate(tag, (current, token) => current + token.GetContent()), closeTag);
+            var result = string.Concat(tokens.Aggregate(htmlTag, (current, token) => current + token.ToHtml()), closingHtmlTag);
             return result;
         }
     }
