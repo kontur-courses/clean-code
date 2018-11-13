@@ -10,16 +10,13 @@ namespace Markdown
     {
         private string markdownInput;
         public Token currentToken;
-        public Token RootToken;
         private int index;
         private List<Delimiter> delimiters = new List<Delimiter>();
 
         public MarkdownParser(string markdownInput)
         {
             this.markdownInput = markdownInput;
-            RootToken = new Token();
-            currentToken = RootToken;
-            currentToken.rootToken = RootToken;
+            currentToken = new Token();
             index = 0;
         }
 
@@ -52,7 +49,7 @@ namespace Markdown
 
                 if (closed)
                 {
-                    currentToken = currentToken.parentToken;
+                    currentToken = currentToken.ParentToken;
                 }
 
                 var prevIndex = nextDelimeter.index;
@@ -70,7 +67,7 @@ namespace Markdown
                 currentToken.AddText(text);
             }
 
-            return currentToken.rootToken;
+            return currentToken.RootToken;
         }
 
         private bool TryCloseToken(Delimiter closingDelimiter)
@@ -79,9 +76,9 @@ namespace Markdown
             while (token.StartingDelimiter.delimiter != closingDelimiter.delimiter &&
                    token.ClosingDelimiter is null)
             {
-                if (token.parentToken is null)
+                if (token.ParentToken is null)
                     return false;
-                token = token.parentToken;
+                token = token.ParentToken;
             }
 
             if (token.StartingDelimiter.delimiter == closingDelimiter.delimiter)

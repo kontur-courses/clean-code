@@ -11,32 +11,33 @@ namespace Markdown
         public Delimiter StartingDelimiter;
         public Delimiter ClosingDelimiter;
         public List<Token> tokens = new List<Token>();
-        public Token parentToken;
-        public Token rootToken;
+        public Token ParentToken { get; private set; }
+        public Token RootToken { get; private set; }
         public string text { get; private set; }
 
         public Token()
         {
             tokens = new List<Token>();
+            RootToken = this;
         }
 
         public Token(Delimiter startingDelimiter)
         {
-            this.StartingDelimiter = startingDelimiter;
-            rootToken = this;
+            StartingDelimiter = startingDelimiter;
+            RootToken = this;
         }
 
         public void AddToken(Token token)
         {
             tokens.Add(token);
-            token.parentToken = this;
-            token.rootToken = this.rootToken;
+            token.ParentToken = this;
+            token.RootToken = this.RootToken;
         }
 
         public void InsertToken(int position, Token token)
         {
             tokens.Insert(position, token);
-            token.parentToken = this;
+            token.ParentToken = this;
         }
 
         public void AddText(string text)
