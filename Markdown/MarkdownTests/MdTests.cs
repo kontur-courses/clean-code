@@ -75,5 +75,23 @@ namespace MarkdownTests
 
 			Assert.AreEqual(actual, "<em>hello __happy__ world</em>");
 		}
+
+		[Test]
+		public void SingleUnderLineTagInsideTheNumber_ShouldRenderWithoutChanges()
+		{
+			var text = "_12_3";
+			var actual = md.Render(text);
+
+			Assert.AreEqual(actual, "_12_3");
+		}
+
+		[Test]
+		public void UnPairedTags_ShouldRenderWithoutChanges()
+		{
+			var text = "__hello _world";
+			var actual = md.Render(text);
+
+			Assert.AreEqual(actual, "__hello _world");
+		}
 	}
 }

@@ -60,6 +60,8 @@ namespace Markdown
 				pairedTags.Add(tag);
 				stream.MoveTo(pairedTags.Last().CloseIndex + pairedTags.Last().Length);
 			}
+			else
+				stream.MoveNext();
 
 			return pairedTags;
 		}

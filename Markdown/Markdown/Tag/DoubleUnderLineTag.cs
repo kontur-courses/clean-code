@@ -12,7 +12,8 @@
 		public int FindCloseIndex(TextStream stream)
 		{
 			var text = stream.Text;
-			for (var i = OpenIndex + 2; i < text.Length; i++)
+			for (var i = OpenIndex + 2; i < text.Length - 1; i++)
+
 			{
 				var symbolAfterTag = stream.LookAt(i + Length);
 				var symbolBeforeTag = stream.LookAt(i - 1);
