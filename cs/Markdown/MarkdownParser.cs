@@ -54,16 +54,20 @@ namespace Markdown
 
                 var prevIndex = nextDelimeter.index;
                 var prevLength = nextDelimeter.delimiter.Length;
+
                 nextDelimeter = GetNextDelimiter();
+
+                int textLength;
                 if (nextDelimeter is null)
                 {
-                    text = markdownInput.Substring(prevIndex + prevLength);
-                    currentToken.AddText(text);
-                    break;
+                    textLength = markdownInput.Length - (prevIndex + prevLength);
+                }
+                else
+                {
+                    textLength = nextDelimeter.index - prevIndex - prevLength;
                 }
 
-                text = markdownInput.Substring
-                    (prevIndex + prevLength, nextDelimeter.index - prevIndex - prevLength);
+                text = markdownInput.Substring(prevIndex + prevLength, textLength);
                 currentToken.AddText(text);
             }
 
@@ -72,7 +76,7 @@ namespace Markdown
 
         private bool TryCloseToken(Delimiter closingDelimiter)
         {
-            var token = this.currentToken;
+            var token = currentToken;
             while (token.StartingDelimiter.delimiter != closingDelimiter.delimiter &&
                    token.ClosingDelimiter is null)
             {
@@ -105,7 +109,6 @@ namespace Markdown
                 return null;
             while (index < markdownInput.Length && markdownInput[index] != '_')
             {
-                var e = markdownInput[index];
                 index++;
             }
 

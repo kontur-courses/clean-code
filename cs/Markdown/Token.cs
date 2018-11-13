@@ -8,6 +8,9 @@ namespace Markdown
 {
     public class Token
     {
+        //Текст - это токен;
+        //Текст, окруженный разделителями - это токен;
+        //Токен содержит вложенные токены;
         public Delimiter StartingDelimiter;
         public Delimiter ClosingDelimiter;
         public List<Token> tokens = new List<Token>();
@@ -37,7 +40,7 @@ namespace Markdown
         public void InsertToken(int position, Token token)
         {
             tokens.Insert(position, token);
-            token.ParentToken = this;
+            token.ParentToken = this;C:\Users\eliyy\Desktop\shpora\clean-code\cs\Markdown\Token.cs
         }
 
         public void AddText(string text)
@@ -50,6 +53,7 @@ namespace Markdown
         {
             var textToken = new Token {text = text};
             InsertToken(position, textToken);
+            
         }
     }
 }
