@@ -9,8 +9,10 @@ namespace Markdown
         {
             if (startIndex < 0 || startIndex + markup.Template.Length >= text.Length)
                 return false;
-            if (startIndex != 0 &&
-                (text[startIndex + markup.Template.Length] == ' ' || text[startIndex - 1] == '\\'))
+            if (text[startIndex + markup.Template.Length] == ' ' ||
+                (startIndex != 0 && text[startIndex - 1] == '\\')
+                || text[startIndex + markup.Template.Length] == text[startIndex]
+                || (startIndex > 0 && text[startIndex - 1] == text[startIndex]))
                 return false;
 
             return markup.Template.Equals(text.Substring(startIndex, markup.Template.Length));
@@ -20,9 +22,12 @@ namespace Markdown
         {
             if (startIndex <= 0 || startIndex + markup.Template.Length > text.Length)
                 return false;
-            if (startIndex + markup.Template.Length != text.Length
-                && text[startIndex - 1] == ' ' 
-                || text[startIndex - 1] == '\\')
+            if (text[startIndex - 1] == ' ' ||
+                text[startIndex - 1] == '\\'
+                || (
+                    startIndex + markup.Template.Length < text.Length &&
+                    text[startIndex + markup.Template.Length] == text[startIndex])
+                || text[startIndex - 1] == text[startIndex])
                 return false;
 
             return markup.Template.Equals(text.Substring(startIndex, markup.Template.Length));

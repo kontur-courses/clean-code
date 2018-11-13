@@ -2,16 +2,16 @@
 {
     public class Markup
     {
-        public Markup(string name, string template, string HTMLTag)
+        public Markup(string name, string template, string htmlTag)
         {
             Name = name;
             Template = template;
-            this.HTMLTag = HTMLTag;
+            HtmlTag = htmlTag;
         }
 
         public string Name { get; }
         public string Template { get; }
-        public string HTMLTag { get; }
+        public string HtmlTag { get; }
 
         public override string ToString()
         {

@@ -6,7 +6,7 @@ namespace Markdown
     {
         static void Main(string[] args)
         {
-            Console.WriteLine(new Markdown().Render("__s _dsf_ f__"));
+            Console.WriteLine(new Markdown().Render("_s __dsf__ f_"));
         }
     }
 }

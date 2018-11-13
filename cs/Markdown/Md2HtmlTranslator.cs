@@ -44,12 +44,12 @@ namespace Markdown
                     sortedPositionsWithTags.Add(
                         position.Start,
                         new Tuple<string, string>(
-                            $"<{markupWithPositions.Key.HTMLTag}>",
+                            $"<{markupWithPositions.Key.HtmlTag}>",
                             markupWithPositions.Key.Template));
                     sortedPositionsWithTags.Add(
                         position.End,
                         new Tuple<string, string>(
-                            $"</{markupWithPositions.Key.HTMLTag}>",
+                            $"</{markupWithPositions.Key.HtmlTag}>",
                             markupWithPositions.Key.Template));
                 }
 
