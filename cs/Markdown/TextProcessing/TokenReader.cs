@@ -20,7 +20,7 @@ namespace Markdown.TextProcessing
             var startPosition = Position;
             while (IsNotEndOfToken(isStopChar))
             {
-                if (Content[Position] == '\\')
+                if (Position + 1 < Content.Length && isStopChar(Content[Position + 1]) && Content[Position] == '\\')
                 {
                     Position++;
                     continue;
@@ -33,9 +33,15 @@ namespace Markdown.TextProcessing
             return new Token(startPosition, length, value, typeToken);
         }
 
+        //Выглядит это ужасно, позже надо будет заменить.
         private bool IsNotEndOfToken(Func<char, bool> isStopChar)
         {
-            return Position < Content.Length && (!isStopChar(Content[Position]) || Position > 0 && Content[Position - 1] == '\\');
+            var isEscapeCharacter = Position > 0 && Content[Position - 1] == '\\';
+            var isNotStopChar = Position + 1 < Content.Length && Position - 1 >= 0 &&
+                                isStopChar(Content[Position]) &&
+                                char.IsLetterOrDigit(Content[Position - 1]) &&
+                                char.IsLetterOrDigit(Content[Position + 1]);
+            return Position < Content.Length && (!isStopChar(Content[Position]) || isEscapeCharacter || isNotStopChar);
         }
     }
 }
