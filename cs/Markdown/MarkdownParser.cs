@@ -32,6 +32,8 @@ namespace Markdown
         public Token GetTokens()
         {
             var nextDelimeter = GetNextDelimiter();
+            var text = markdownInput.Substring(0, nextDelimeter.index);
+            currentToken.AddText(text);
             while (!(nextDelimeter is null))
             {
                 bool closed;
@@ -53,7 +55,19 @@ namespace Markdown
                     currentToken = currentToken.parentToken;
                 }
 
+                var prevIndex = nextDelimeter.index;
+                var prevLength = nextDelimeter.delimiter.Length;
                 nextDelimeter = GetNextDelimiter();
+                if (nextDelimeter is null)
+                {
+                    text = markdownInput.Substring(prevIndex + prevLength);
+                    currentToken.AddText(text);
+                    break;
+                }
+
+                text = markdownInput.Substring
+                    (prevIndex + prevLength, nextDelimeter.index - prevIndex - prevLength);
+                currentToken.AddText(text);
             }
 
             return currentToken.rootToken;
@@ -92,12 +106,9 @@ namespace Markdown
         {
             if (index >= markdownInput.Length)
                 return null;
-
-            var text = new StringBuilder();
             while (index < markdownInput.Length && markdownInput[index] != '_')
             {
                 var e = markdownInput[index];
-                text.Append(e);
                 index++;
             }
 
@@ -115,19 +126,12 @@ namespace Markdown
                 canBeStarting = true;
             }
 
-            //if (!(canBeStarting || canBeClosing))
-            //{
-            //    text.Append("_");
-            //    currentToken.AddText(text.ToString());
-            //    index++;
-            //    return GetNextDelimiter();
-            //}
 
-            currentToken.AddText(text.ToString());
-            index++;
             if (index >= markdownInput.Length)
                 return null;
-            return new Delimiter("_", index, canBeClosing, canBeStarting);
+            var delimiter = new Delimiter("_", index, canBeClosing, canBeStarting);
+            index++;
+            return delimiter;
         }
     }
 }

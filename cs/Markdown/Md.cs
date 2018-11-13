@@ -17,6 +17,8 @@ namespace Markdown
 
         public string Render(string markDownInput)
         {
+            //Сейчас написана реализация только для одного нижнего подчеркивания, 
+            //Планируется расширить для произвольных разделителей
             var converter = new MdToHTMLConverter();
             var result = converter.Convert(markDownInput);
             return result;
