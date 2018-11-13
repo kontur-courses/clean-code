@@ -1,33 +1,37 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace Markdown
 {
     public static class StringIndexator
     {
-        public static int GetClosingIndex(string markdown, int currentPosition, ISpanElement currentSpanElement, List<ISpanElement> spanElements)
+        public static ElementInfo GetClosingElementInfo(string markdown, int currentPosition, ISpanElement currentSpanElement, List<ISpanElement> spanElements)
         {
-            var closingIndex = currentPosition;
-            for (closingIndex++; closingIndex < markdown.Length; closingIndex++)
+            var position = currentPosition;
+
+            for (; position < markdown.Length; position++)
             {
-                if (currentSpanElement == null)
+                if (currentSpanElement != null)
                 {
-                    if (markdown.IsSpanElementOpening(closingIndex, spanElements))
-                        break;
-                }
-                else
-                {
-                    if (!markdown.IsSubstring(closingIndex, currentSpanElement.GetOpeningIndicator()))
-                        continue;
-                    if (!markdown.IsWrongBoundary(closingIndex - 1))
-                        break;
+                    var elementInfo = markdown.GetClosingTag(position, currentSpanElement.GetClosingIndicator());
+                    if (elementInfo != null)
+                    {
+                        var positionToCheck = elementInfo.OpeningIndex + elementInfo.Length;
+                        if (positionToCheck < markdown.Length && markdown.ElementAt(positionToCheck) !=  ' ')
+                        {
+                            var potentialClosingTag = String.Concat(currentSpanElement.GetClosingIndicator(),
+                                                                                        markdown.ElementAt(positionToCheck));
+                            if (!markdown.IsSpanElementClosing(positionToCheck, potentialClosingTag, spanElements))
+                                return null;
+
+                        }
+
+                        return elementInfo;
+                    }
                 }
             }
-
-            return closingIndex - 1;
+            return null;
         }
 
     }

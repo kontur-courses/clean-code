@@ -48,49 +48,31 @@ namespace Markdown_Tests
             span.Should().BeOfType(type);
         }
 
-        [TestCase("_ whitespace after single underscore_", TestName = "WhiteSpaceAfterSingleUnderscore")]
+        [TestCase("_ whitespace after single underscore_",  TestName = "WhiteSpaceAfterSingleUnderscore")]
         [TestCase("__ whitespace after double underscore_", TestName = "WhiteSpaceAfterDoubleUnderscore")]
         public void GetNextSpanElement_NoSpanElementDecetected(string markdown)
         {
             parser = new MarkdownParser(markdown, spanElements);
-            parser.DetermineSpanElement().Should().BeNull();            
+            parser.ParseNextTag();
+            parser.ParseNextTag().SpanElement.Should().BeNull();
         }
 
         [Test]
         public void GetTagClosingPosition_GetPlainText_RetunIndexBeforeClosingIndicator()
         {
             var markdown = "plain text before underscores_italic_";
-            ISpanElement currentSpanElement = null;
-            var closingSpanElement = StringIndexator.GetClosingIndex(markdown, 0, currentSpanElement, spanElements);
-            closingSpanElement.Should().Be(28);
+            parser = new MarkdownParser(markdown, spanElements);
+            parser.ParseNextTag().Content.Should().Be("plain text before underscores");
         }
 
         [Test]
         public void ParseNextTag_GetPlainText_ReturnWithoutFormatting()
         {
-            var markdown = "_italic_hello world_italic_";
+            var markdown = "__italic _hello world_ italic__";
             parser = new MarkdownParser(markdown, spanElements);
-            parser.ParseNextTag().Content.Should().Be("italic");
-            parser.ParseNextTag().HasHtmlWrap().Should().BeFalse();
-            parser.ParseNextTag().Content.Should().Be("italic");
+            parser.ParseNextTag().Content.Should().Be("italic _hello world_ italic");
         }
 
-        [TestCase("some_italic_words", ExpectedResult = "italic")]
-        [TestCase("some__bold__words", ExpectedResult = "bold")]
-        public String ParseNextTag_GetMarkdownText_ReturnParsedTag(string markdown)
-        {
-            parser = new MarkdownParser(markdown, spanElements);
-            parser.ParseNextTag();
-            return parser.ParseNextTag().Content;
-        }
-
-        [Test]
-        public void GetClosingIndex_WhiteSpaceBeforeClosingTag_SkipClosingTag()
-        {
-            var markdown = "_italic _text_";
-            var closingSpanElement = StringIndexator.GetClosingIndex(markdown, 1, new SingleUnderscore(), spanElements);
-            closingSpanElement.Should().Be(12);
-        }
 
         [Test]
         public void ParseNextTag_EscapedUnderscore_DoNotParseTag()

@@ -42,6 +42,7 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="ElementInfo.cs" />
     <Compile Include="SpanElements\DoubleUnderscore.cs" />
     <Compile Include="SpanElements\SingleUnderscore.cs" />
     <Compile Include="SpanElements\ISpanElement.cs" />

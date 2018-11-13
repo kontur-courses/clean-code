@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 
@@ -20,69 +21,77 @@ namespace Markdown
         {
             currentPosition = 0;
             while (currentPosition < markdown.Length)
-            {
                 yield return ParseNextTag();
-            }
         }
 
         public HtmlTag ParseNextTag()
         {
+            var tagContent = String.Empty;
             var startPosition = currentPosition;
             var spanElement = DetermineSpanElement();
-            var openingIndex = currentPosition;
-            var closingIndex = StringIndexator.GetClosingIndex(markdown, currentPosition, spanElement, spanElements);
-            if (!markdown.IsExistingSpanElement(spanElement, closingIndex))
-            {
-                currentPosition = startPosition;
-                openingIndex = startPosition;
-                spanElement = null;
-                closingIndex = StringIndexator.GetClosingIndex(markdown, currentPosition, null, spanElements);
-            }
-            var spanElementClosingLength = spanElement?.GetClosingIndicator().Length ?? 0;
-            currentPosition = closingIndex + 1 + spanElementClosingLength;
-            return new HtmlTag(markdown.Substring(openingIndex, closingIndex - openingIndex + 1), spanElement);
 
+            if (spanElement == null)
+            {
+                tagContent = GetTagContent();
+                return new HtmlTag(tagContent);
+            }
+
+            var elementInfo = StringIndexator.GetClosingElementInfo(markdown, currentPosition, spanElement, spanElements);
+
+            if (elementInfo != null)
+            {
+                tagContent = markdown.Substring(currentPosition, elementInfo.OpeningIndex - currentPosition);
+                currentPosition = elementInfo.ClosingIndex + 1;
+                if (tagContent == String.Empty)
+                {
+                    tagContent = String.Concat(spanElement.GetOpeningIndicator(), spanElement.GetClosingIndicator());
+                    spanElement = null;
+                }
+                return new HtmlTag(tagContent, spanElement);
+            }
+
+            currentPosition = startPosition + 1;
+            tagContent = GetTagContent();
+
+            return new HtmlTag(String.Concat(markdown.ElementAt(startPosition), tagContent));
         }
 
+        private string GetTagContent()
+        {
+            var position = currentPosition;
+            var tagContent = new StringBuilder();
+            for (; position < markdown.Length; position++)
+            {
+                tagContent.Append(markdown.ElementAt(position));
+                if (position != markdown.Length && spanElements.Any(e => markdown
+                                                                             .GetOpeningTag(position + 1, e.GetOpeningIndicator()) != null))
+                {
+                    position++;
+                    break;
+                }
+            }
+            currentPosition = position;
+            return tagContent.ToString();
+        }
 
         public ISpanElement DetermineSpanElement()
         {
             var position = currentPosition;
-            if (markdown.IsPreviousCharEscape(position))
-                return null;
-
-            var markdownSubstring = new StringBuilder();
             ISpanElement currentSpanElement = null;
-            while (position < markdown.Length)
+            foreach (var spanElement in spanElements)
             {
-                var currentChar = markdown.ElementAt(position);
-                markdownSubstring.Append(currentChar);
-                var recognizedSpanElements = TryGetSpanElement(markdownSubstring.ToString());
-                if (recognizedSpanElements.Any())
+                var elementInfo = markdown.GetOpeningTag(position, spanElement.GetOpeningIndicator());
+                if (elementInfo != null)
                 {
-                    currentSpanElement = recognizedSpanElements.First();
-                    position++;
+                    if (elementInfo.Length > 0)
+                    {
+                        currentSpanElement = spanElement;
+                        currentPosition = elementInfo.ClosingIndex + 1;
+                    }
                 }
-                else break;
             }
 
-            if (markdown.IsWrongBoundary(position))
-                return null;
-
-            if (currentSpanElement != null)
-            {
-                currentPosition = position;
-            }
             return currentSpanElement;
-        }
-
-
-
-        private IEnumerable<ISpanElement> TryGetSpanElement(string substring)
-        {
-            return spanElements
-                            .Where(e => e.GetOpeningIndicator()
-                                .StartsWith(substring));
         }
 
     }
