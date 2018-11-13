@@ -23,11 +23,5 @@ namespace Markdown
 			var isIndexInBorders = Position + number <= Text.Length - 1 && Position + number >= 0;
 			return isIndexInBorders ? Text[Position + number] : '\0';
 		}
-
-		public char LookAt(int index)
-		{
-			var isIndexInBorders = index <= Text.Length - 1 && index >= 0;
-			return isIndexInBorders ? Text[index] : '\0';
-		}
 	}
 }

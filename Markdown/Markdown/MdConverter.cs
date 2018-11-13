@@ -7,7 +7,7 @@ namespace Markdown
 {
 	public class MdConverter
 	{
-		private readonly Dictionary<string, ITag> dictionaryTags = new Dictionary<string, ITag>
+		public static readonly Dictionary<string, ITag> dictionaryTags = new Dictionary<string, ITag>
 		{
 			{"_", new SingleUnderLineTag()},
 			{"__", new DoubleUnderLineTag()}
@@ -32,14 +32,14 @@ namespace Markdown
 
 			while (stream.Position < stream.Text.Length - 2)
 			{
-				var symbol = stream.Current();
+				var symbol = stream.Current().ToString();
 				var twoSymbol = stream.Text.Substring(stream.Position, 2);
 
-				if (IsOpenTag(twoSymbol, stream, 2))
+				if (twoSymbol.IsOpenTag(stream, 2))
 					pairedTags.AddRange(GetOnePairOfTags(twoSymbol, stream));
 
-				if (IsOpenTag(symbol.ToString(), stream, 1))
-					pairedTags.AddRange(GetOnePairOfTags(symbol.ToString(), stream));
+				if (symbol.IsOpenTag(stream, 1))
+					pairedTags.AddRange(GetOnePairOfTags(symbol, stream));
 
 				else
 					stream.MoveNext();
@@ -53,7 +53,7 @@ namespace Markdown
 			var pairedTags = new List<ITag>();
 			var tag = dictionaryTags[symbol];
 			tag.OpenIndex = stream.Position;
-			tag.CloseIndex = tag.FindCloseIndex(stream);
+			tag.CloseIndex = stream.Text.FindCloseTagIndex(tag);
 
 			if (tag.CloseIndex != -1)
 			{
@@ -64,15 +64,6 @@ namespace Markdown
 				stream.MoveNext();
 
 			return pairedTags;
-		}
-
-		private bool IsOpenTag(string symbol, TextStream stream, int tagLength)
-		{
-			var prevSymbol = stream.Lookahead(-1);
-			var nextSymbol = stream.Lookahead(tagLength);
-
-			return dictionaryTags.ContainsKey(symbol) && char.IsLetter(nextSymbol)
-			                                          && (char.IsWhiteSpace(prevSymbol) || stream.Position == 0);
 		}
 
 		private string GetHtmlCode(List<ITag> pairedTags, string text)
@@ -96,7 +87,7 @@ namespace Markdown
 
 		private string GetInnerFormattedText(ITag tag, string text)
 		{
-			var innerText = tag.Body(text);
+			var innerText = text.GetBodyInside(tag);
 			var innerPairedTags = GetAllPairedTags(new TextStream(innerText));
 
 			return innerPairedTags.Count != 0 && innerPairedTags.Last().Length > tag.Length || innerPairedTags.Count == 0

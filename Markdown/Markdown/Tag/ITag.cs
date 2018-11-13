@@ -1,6 +1,6 @@
 ﻿namespace Markdown.Tag
 {
-	interface ITag
+	public interface ITag
 	{
 		string Symbol { get; set; }
 		int OpenIndex { get; set; }
@@ -8,7 +8,5 @@
 		string HtmlOpen { get; set; }
 		string HtmlClose { get; set; }
 		int Length { get; set; }
-		int FindCloseIndex(TextStream text);
-		string Body(string text);
 	}
 }

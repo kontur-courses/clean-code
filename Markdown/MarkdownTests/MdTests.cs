@@ -93,5 +93,14 @@ namespace MarkdownTests
 
 			Assert.AreEqual(actual, "__hello _world");
 		}
+
+		[Test]
+		public void IncorrectOpenTag_ShouldRenderWithoutChanges()
+		{
+			var text = "hello_ world_";
+			var actual = md.Render(text);
+
+			Assert.AreEqual(actual, "hello_ world_");
+		}
 	}
 }
