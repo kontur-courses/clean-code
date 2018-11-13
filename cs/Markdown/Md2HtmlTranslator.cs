@@ -1,29 +1,59 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
+using System.Text;
 
 namespace Markdown
 {
-    class Md2HtmlTranslator
+    public class Md2HtmlTranslator
     {
-        public Md2HtmlTranslator(List<Markup> markups)
+        public string TranslateMdToHtml(string mdText, Dictionary<Markup, List<MarkupPosition>> markups)
         {
+            var sortedPositions = GetSortedPositionsWithTags(markups);
+            return GetHtmlText(mdText, sortedPositions);
         }
-        
-        public string TranslateMdToHtml(string mdInput, Dictionary<Markup, List<MarkupPosition>> markups)
+
+        private string GetHtmlText(string mdText, SortedDictionary<int, Tuple<string,string>> sortedPositionsWithTags)
         {
-            var htmlText = mdInput;
-            foreach (var markupWithPosition in markups)
+            var htmlBuilder = new StringBuilder();
+            var mdIndex = 0;
+
+            while (mdIndex < mdText.Length)
             {
-                var markupTemplate = markupWithPosition.Key;
-                foreach (var position in markupWithPosition.Value)
+                if (!sortedPositionsWithTags.ContainsKey(mdIndex))
                 {
-                    htmlText = htmlText.Remove(position.Start, markupTemplate.Template.Length);
-                    htmlText = htmlText.Insert(position.Start, $"<{markupTemplate.HTMLTag}>");
-                    htmlText = htmlText.Remove(position.End, markupTemplate.Template.Length);
-                    htmlText = htmlText.Insert(position.End, $"</{markupTemplate.HTMLTag}>");
+                    htmlBuilder.Append(mdText[mdIndex]);
+                    mdIndex++;
+                }
+                else
+                {
+                    var currentPair = sortedPositionsWithTags[mdIndex];
+                    htmlBuilder.Append(currentPair.Item1);
+                    mdIndex += currentPair.Item2.Length;
                 }
             }
 
-            return htmlText;
+            return htmlBuilder.ToString();
+        }
+
+        private SortedDictionary<int, Tuple<string,string>> GetSortedPositionsWithTags(Dictionary<Markup, List<MarkupPosition>> markups)
+        {
+            var sortedPositionsWithTags = new SortedDictionary<int, Tuple<string, string>>();
+            foreach (var markupWithPositions in markups)
+                foreach (var position in markupWithPositions.Value)
+                {
+                    sortedPositionsWithTags.Add(
+                        position.Start,
+                        new Tuple<string, string>(
+                            $"<{markupWithPositions.Key.HTMLTag}>",
+                            markupWithPositions.Key.Template));
+                    sortedPositionsWithTags.Add(
+                        position.End,
+                        new Tuple<string, string>(
+                            $"</{markupWithPositions.Key.HTMLTag}>",
+                            markupWithPositions.Key.Template));
+                }
+
+            return sortedPositionsWithTags;
         }
     }
 }

@@ -8,6 +8,7 @@ namespace Markdown
         private readonly List<Markup> markups;
         private readonly Dictionary<int, Markup> openingPositions = new Dictionary<int, Markup>();
         private readonly Dictionary<int, Markup> closingPositions = new Dictionary<int, Markup>();
+
         public MarkupFinder(List<Markup> markups)
         {
             this.markups = markups;
@@ -29,19 +30,21 @@ namespace Markdown
 
         private Dictionary<Markup, List<MarkupPosition>> GetMarkupBoarders()
         {
-            var markup = markups.First();
-            var dict = new Dictionary<Markup, List<MarkupPosition>>
-            {{
-                markup,
-                new List<MarkupPosition>()
-            }};
+            var dict = new Dictionary<Markup, List<MarkupPosition>>();
 
             var stackOfOpening = new Stack<int>(openingPositions.Keys);
             var queueOfClosing = new Queue<int>(closingPositions.Keys);
 
             while (stackOfOpening.Count > 0 && queueOfClosing.Count > 0)
             {
-                dict[markup].Add(new MarkupPosition(stackOfOpening.Pop(), queueOfClosing.Dequeue()));
+                var openingPosition = stackOfOpening.Pop();
+                var closingPosition = queueOfClosing.Dequeue();
+
+                var markup = openingPositions[openingPosition];
+
+                if (!dict.ContainsKey(markup))
+                    dict.Add(markup, new List<MarkupPosition>());
+                dict[markup].Add(new MarkupPosition(openingPosition, closingPosition));
             }
             return dict;
         }
