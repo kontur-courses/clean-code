@@ -54,6 +54,7 @@
   <ItemGroup>
     <Compile Include="Renderers\HtmlRenderer.cs" />
     <Compile Include="IMdParser.cs" />
+    <Compile Include="Renderers\HtmlRendererTests.cs" />
     <Compile Include="Renderers\IRenderer.cs" />
     <Compile Include="MdParser.cs" />
     <Compile Include="MdParserTests.cs" />

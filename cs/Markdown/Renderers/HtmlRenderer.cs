@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Text;
 
 namespace Markdown
@@ -16,6 +17,12 @@ namespace Markdown
 
         public string Render(Token[] tokens)
         {
+
+            if (tokens == null)
+            {
+                throw new ArgumentException("Given tokens can't be null", nameof(tokens));
+            }
+
             var result = new StringBuilder();
 
             foreach (var token in tokens)

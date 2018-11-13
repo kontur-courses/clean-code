@@ -10,6 +10,12 @@ namespace Markdown
 
         public Token[] Parse(string str)
         {
+
+            if (str == null)
+            {
+                throw new ArgumentException("Given string can't be null", nameof(str));
+            }
+
             var result = new List<Token>();
 
             using (emphasisRecognizer = new EmphasisRecognizer(result))

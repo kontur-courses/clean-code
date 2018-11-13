@@ -15,6 +15,15 @@ namespace Markdown
             lexicalParser = new MdParser();
         }
 
+        [Test]
+        public void Parse_ThrowsException_OnNullString()
+        {
+            Action a = () => lexicalParser.Parse(null);
+            a
+                .Should()
+                .Throw<ArgumentException>();
+        }
+
         private static Tuple<string, Token[]>[] LexerCasesWithoutMarkdownTags =
         {
             new Tuple<string, Token[]>("plain text", new[]
