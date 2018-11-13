@@ -14,7 +14,7 @@ namespace MarkdownTests
     {
         [TestCase("f _d", 2, ExpectedResult = true, TestName = "After whitespace")]
         [TestCase("_d", 0, ExpectedResult = true, TestName = "In paragraph beginning")]
-        [TestCase("f_d", 1, ExpectedResult = false, TestName = "Without whitespace before")]
+        [TestCase("f_d", 1, ExpectedResult = true, TestName = "Without whitespace before")]
         public bool ValidOpeningPositionTest(string text, int openingPosition)
         {
             var markup = new Markup("singleUnderscore", "_", "em");
@@ -24,7 +24,7 @@ namespace MarkdownTests
 
         [TestCase("d_ d", 1, ExpectedResult = true, TestName = "Before whitespace")]
         [TestCase("d_", 1, ExpectedResult = true, TestName = "In paragraph ending")]
-        [TestCase("d_f", 1, ExpectedResult = false, TestName = "Without whitespace after")]
+        [TestCase("d_f", 1, ExpectedResult = true, TestName = "Without whitespace after")]
         public bool ValidClosingPositionTest(string text, int closingPosition)
         {
             var markup = new Markup("singleUnderscore", "_", "em");

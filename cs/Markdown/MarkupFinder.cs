@@ -6,8 +6,8 @@ namespace Markdown
     public class MarkupFinder
     {
         private readonly List<Markup> markups;
-        private readonly Dictionary<int, Markup> openingPositions = new Dictionary<int, Markup>();
-        private readonly Dictionary<int, Markup> closingPositions = new Dictionary<int, Markup>();
+        private readonly Dictionary<Markup, List<int>> openingPositionsForMarkups = new Dictionary<Markup, List<int>>();
+        private readonly Dictionary<Markup, List<int>> closingPositionsForMarkups = new Dictionary<Markup, List<int>>();
 
         public MarkupFinder(List<Markup> markups)
         {
@@ -21,10 +21,27 @@ namespace Markdown
                 var openingMarkup = markups.GetOpeningMarkup(paragraph, index);
                 var closingMarkup = markups.GetClosingMarkup(paragraph, index);
 
+                var shift = 0;
+
                 if (openingMarkup != null)
-                    openingPositions[index] = openingMarkup;
+                {
+                    if (!openingPositionsForMarkups.ContainsKey(openingMarkup))
+                        openingPositionsForMarkups[openingMarkup] = new List<int>();
+                    openingPositionsForMarkups[openingMarkup].Add(index);
+                    if (shift < openingMarkup.Template.Length)
+                        shift = openingMarkup.Template.Length;
+                }
                 if (closingMarkup != null)
-                    closingPositions[index] = closingMarkup;
+                {
+                    if (!closingPositionsForMarkups.ContainsKey(closingMarkup))
+                        closingPositionsForMarkups[closingMarkup] = new List<int>();
+                    closingPositionsForMarkups[closingMarkup].Add(index);
+                    if (shift < closingMarkup.Template.Length)
+                        shift = closingMarkup.Template.Length;
+                }
+
+                if (shift != 0)
+                    index += shift - 1;
             }
         }
 
@@ -32,21 +49,44 @@ namespace Markdown
         {
             var dict = new Dictionary<Markup, List<MarkupPosition>>();
 
-            var stackOfOpening = new Stack<int>(openingPositions.Keys);
-            var queueOfClosing = new Queue<int>(closingPositions.Keys);
-
-            while (stackOfOpening.Count > 0 && queueOfClosing.Count > 0)
+            foreach (var openingPositionsForMarkup in openingPositionsForMarkups)
             {
-                var openingPosition = stackOfOpening.Pop();
-                var closingPosition = queueOfClosing.Dequeue();
-
-                var markup = openingPositions[openingPosition];
-
-                if (!dict.ContainsKey(markup))
-                    dict.Add(markup, new List<MarkupPosition>());
-                dict[markup].Add(new MarkupPosition(openingPosition, closingPosition));
+                var markup = openingPositionsForMarkup.Key;
+                if (!closingPositionsForMarkups.ContainsKey(markup)) continue;
+                
+                dict.Add(markup, GetPositionsForMarkup(markup));
             }
+
             return dict;
+        }
+
+        private List<MarkupPosition> GetPositionsForMarkup(Markup markup)
+        {
+            var positionsForMarkups = new List<MarkupPosition>();
+
+            var openingPositions = new SortedSet<int>(openingPositionsForMarkups[markup]);
+            var closingPositions = new SortedSet<int>(closingPositionsForMarkups[markup]);
+
+            var usedPositions = new HashSet<int>();
+
+            foreach (var openingPosition in openingPositions.Reverse())
+            {
+                if (usedPositions.Contains(openingPosition))
+                    continue;
+                var closingPosition = closingPositions
+                    .FirstOrDefault(
+                        position => 
+                            position > openingPosition &&
+                            !usedPositions.Contains(position));
+                if (closingPosition == 0)
+                    continue;
+                
+                positionsForMarkups.Add(new MarkupPosition(openingPosition, closingPosition));
+                usedPositions.Add(openingPosition);
+                usedPositions.Add(closingPosition);
+            }
+
+            return positionsForMarkups;
         }
 
         public Dictionary<Markup, List<MarkupPosition>> GetMarkupsWithPositions(string paragraph)
