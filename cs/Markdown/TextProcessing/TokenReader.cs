@@ -5,16 +5,37 @@ namespace Markdown.TextProcessing
 {
     public class TokenReader
     {
-        private int Position { get; set; }
+        public int Position { get; set; }
+        public string Content { get; set; }
 
-        public Token ReadUntil(Func<char, bool> isStopChar)
+        public TokenReader(string content)
         {
-            throw new NotImplementedException();
+            Content = content;
         }
 
-        public Token ReadWhile(Func<char, bool> accept)
+        public Token ReadUntil(Func<char, bool> isStopChar, TypeToken typeToken)
         {
-            throw new NotImplementedException();
-        } 
+            var value = "";
+            var length = 0;
+            var startPosition = Position;
+            while (IsNotEndOfToken(isStopChar))
+            {
+                if (Content[Position] == '\\')
+                {
+                    Position++;
+                    continue;
+                }
+                length++;
+                value += Content[Position];
+                Position++;
+            }
+            Position++;
+            return new Token(startPosition, length, value, typeToken);
+        }
+
+        private bool IsNotEndOfToken(Func<char, bool> isStopChar)
+        {
+            return Position < Content.Length && (!isStopChar(Content[Position]) || Position > 0 && Content[Position - 1] == '\\');
+        }
     }
 }
