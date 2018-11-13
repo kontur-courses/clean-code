@@ -25,7 +25,13 @@ namespace Markdown.Elements
 
         public bool IsIndicatorAt(string markdown, int position)
         {
-            return false;
+            if (position + Indicator.Length > markdown.Length)
+                return false;
+            if (markdown.Substring(position, Indicator.Length) != Indicator)
+                return false;
+            int positionAfterIndicator = position + Indicator.Length;
+            return positionAfterIndicator >= markdown.Length ||
+                   markdown.Substring(positionAfterIndicator, 1) != "_";
         }
     }
 }

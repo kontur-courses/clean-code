@@ -1,9 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using Markdown.Elements;
+﻿using Markdown.Elements;
 using Markdown.Parsers;
 
 namespace Markdown
@@ -12,8 +7,8 @@ namespace Markdown
     {
         public string Render(string markdown)
         {
-            ParsingResult result = EmphasisParser.ParseElement(markdown, 0, RootElementType.Create());
-            return HtmlRenderer.RenderToHtml(result.Element);
+            MarkdownElement rootElement = EmphasisParser.ParseElement(markdown, 0, RootElementType.Create());
+            return HtmlRenderer.RenderToHtml(rootElement);
         }
     }
 }

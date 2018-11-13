@@ -60,7 +60,9 @@
     <Reference Include="System.Xml.Linq" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="DoubleUnderscoreElementTest.cs" />
     <Compile Include="EmphasisParser_Should.cs" />
+    <Compile Include="StringExtensionTest.cs" />
     <Compile Include="UnderscoreElementTest.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>

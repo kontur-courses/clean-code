@@ -24,7 +24,7 @@
             if (markdown.Substring(position, 1) != Indicator)
                 return false;
             return position + 1 >= markdown.Length ||
-                   markdown.Substring(position + 1, 1) != Indicator;
+                   markdown.Substring(position + 1, 1) != "_";
         }
     }
 }
