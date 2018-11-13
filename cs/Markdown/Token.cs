@@ -40,7 +40,7 @@ namespace Markdown
         public void InsertToken(int position, Token token)
         {
             tokens.Insert(position, token);
-            token.ParentToken = this;C:\Users\eliyy\Desktop\shpora\clean-code\cs\Markdown\Token.cs
+            token.ParentToken = this;
         }
 
         public void AddText(string text)
