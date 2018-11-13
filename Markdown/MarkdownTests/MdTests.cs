@@ -59,12 +59,21 @@ namespace MarkdownTests
 		}
 
 		[Test]
-		public void SingleUnderLineTagIsInsideDoubleUnderLineTag_DoubleUnderLineTag_ShouldRenderToHtmlTag()
+		public void SingleUnderLineTagIsInsideDoubleUnderLineTag_ShouldAllTagsRenderToHtmlTag()
 		{
 			var text = "__hello _happy_ world__";
 			var actual = md.Render(text);
 
 			Assert.AreEqual(actual, "<strong>hello <em>happy</em> world</strong>");
+		}
+
+		[Test]
+		public void DoubleUnderLineTagIsInsideSingleUnderLineTag_ShouldOnlyOutterTagRenderToHtmlTag()
+		{
+			var text = "_hello __happy__ world_";
+			var actual = md.Render(text);
+
+			Assert.AreEqual(actual, "<em>hello __happy__ world</em>");
 		}
 	}
 }

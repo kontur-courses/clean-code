@@ -29,6 +29,7 @@ namespace Markdown
 		private List<ITag> GetAllPairedTags(TextStream stream)
 		{
 			var pairedTags = new List<ITag>();
+
 			while (stream.Position < stream.Text.Length - 2)
 			{
 				var symbol = stream.Current();
@@ -68,8 +69,8 @@ namespace Markdown
 			var prevSymbol = stream.Lookahead(-1);
 			var nextSymbol = stream.Lookahead(tagLength);
 
-			return dictionaryTags.ContainsKey(symbol) && !char.IsWhiteSpace(nextSymbol)
-			                                                     && (char.IsWhiteSpace(prevSymbol) || stream.Position == 0);
+			return dictionaryTags.ContainsKey(symbol) && char.IsLetter(nextSymbol)
+			                                          && (char.IsWhiteSpace(prevSymbol) || stream.Position == 0);
 		}
 
 		private string GetHtmlCode(List<ITag> pairedTags, string text)
@@ -79,14 +80,9 @@ namespace Markdown
 
 			foreach (var tag in pairedTags)
 			{
-				var innerText = tag.Body(text);
-
 				htmlBuilder.Append(text.Substring(startIndex, tag.OpenIndex - startIndex));
 				htmlBuilder.Append(tag.HtmlOpen);
-
-				var innerPairedTags = GetAllPairedTags(new TextStream(innerText));
-				htmlBuilder.Append(innerPairedTags.Count == 0 ? innerText : GetHtmlCode(innerPairedTags, innerText));
-
+				htmlBuilder.Append(GetInnerFormattedText(tag, text));
 				htmlBuilder.Append(tag.HtmlClose);
 				htmlBuilder.Append(text.Substring(tag.CloseIndex + tag.Length));
 
@@ -94,6 +90,16 @@ namespace Markdown
 			}
 
 			return htmlBuilder.ToString();
+		}
+
+		private string GetInnerFormattedText(ITag tag, string text)
+		{
+			var innerText = tag.Body(text);
+			var innerPairedTags = GetAllPairedTags(new TextStream(innerText));
+
+			return innerPairedTags.Count != 0 && innerPairedTags.Last().Length > tag.Length || innerPairedTags.Count == 0
+				? innerText
+				: GetHtmlCode(innerPairedTags, innerText);
 		}
 	}
 }
