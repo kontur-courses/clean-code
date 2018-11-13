@@ -6,13 +6,13 @@ namespace Markdown
 	{
 		public static string RemoveScreenCharacters(this string text) => text.Replace("\\", "");
 
-		public static bool IsOpenTag(this string symbol, TextStream stream, int tagLength)
+		public static bool IsOpenTag(this string symbol, string text, int position, int tagLength)
 		{
-			var prevSymbol = stream.Lookahead(-1);
-			var nextSymbol = stream.Lookahead(tagLength);
+			var prevSymbol = text.LookAt(position - 1);
+			var nextSymbol = text.LookAt(position + tagLength);
 
 			return MdConverter.dictionaryTags.ContainsKey(symbol) && !char.IsWhiteSpace(nextSymbol)
-			                                                      && (char.IsWhiteSpace(prevSymbol) || stream.Position == 0);
+			                                                      && (char.IsWhiteSpace(prevSymbol) || position == 0);
 		}
 
 		public static int FindCloseTagIndex(this string text, ITag tag)
