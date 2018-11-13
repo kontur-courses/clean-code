@@ -52,7 +52,7 @@ namespace Markdown
 			var pairedTags = new List<ITag>();
 			var tag = dictionaryTags[symbol];
 			tag.OpenIndex = stream.Position;
-			tag.CloseIndex = tag.FindCloseIndex(stream.Text);
+			tag.CloseIndex = tag.FindCloseIndex(stream);
 
 			if (tag.CloseIndex != -1)
 			{

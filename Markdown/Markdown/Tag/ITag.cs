@@ -8,7 +8,7 @@
 		string HtmlOpen { get; set; }
 		string HtmlClose { get; set; }
 		int Length { get; set; }
-		int FindCloseIndex(string text);
+		int FindCloseIndex(TextStream text);
 		string Body(string text);
 	}
 }

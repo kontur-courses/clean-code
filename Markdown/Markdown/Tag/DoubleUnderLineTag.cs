@@ -9,17 +9,16 @@
 		public string HtmlOpen { get; set; } = "<strong>";
 		public string HtmlClose { get; set; } = "</strong>";
 
-		public int FindCloseIndex(string text)
+		public int FindCloseIndex(TextStream stream)
 		{
-			var stream = new TextStream(text);
-
+			var text = stream.Text;
 			for (var i = OpenIndex + 2; i < text.Length; i++)
 			{
-				var symbolAfterTag = stream.Lookahead(i + Length);
-				var symbolBeforeTag = stream.Lookahead(i - 1);
+				var symbolAfterTag = stream.LookAt(i + Length);
+				var symbolBeforeTag = stream.LookAt(i - 1);
 
 				if (text.Substring(i, Length) == Symbol && (char.IsWhiteSpace(symbolAfterTag) || i == text.Length - Length)
-					                                && !char.IsWhiteSpace(symbolBeforeTag))
+				                                        && char.IsLetter(symbolBeforeTag))
 					return i;
 			}
 
