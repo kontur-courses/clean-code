@@ -11,6 +11,7 @@ namespace ConsoleApplication1.ConnectionHandlers.Containers
         public readonly int ResidualStrength;
         public MdConvertedItem(Direction direction, IReadOnlyCollection<MdSelectionType> selections, int residualStrength)
         {
+            RaiseIfRemainingStrengthIsIncorrect(residualStrength);
             Direction = direction;
             Selections = selections;
             ResidualStrength = residualStrength;

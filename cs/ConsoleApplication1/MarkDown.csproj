@@ -65,6 +65,8 @@
     <Compile Include="ConnectionHandlers\Tests\ConverterConnectionsToMarkdown_Should.cs" />
     <Compile Include="ConnectionHandlers\Tests\FilterMeaninglessMdConnection_Should.cs" />
     <Compile Include="ConnectionHandlers\Tests\ItemsConnecter_Should.cs" />
+    <Compile Include="ConnectionHandlers\Tests\MdConvertedItemNotSave_Should.cs" />
+    <Compile Include="ConnectionHandlers\Tests\MdConvertedItems_Should.cs" />
     <Compile Include="ConnectionHandlers\Tests\MdHandlerConnections_Should.cs" />
     <Compile Include="ConnectionHandlers\Tests\TranslatorDirectedItemsToMdSelection_Should.cs" />
     <Compile Include="Directions\TextDirectionDetector.cs" />

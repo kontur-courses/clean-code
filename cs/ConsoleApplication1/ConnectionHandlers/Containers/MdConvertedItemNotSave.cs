@@ -7,8 +7,8 @@ namespace ConsoleApplication1.ConnectionHandlers.Containers
     public class MdConvertedItemNotSafe
     {
         public Direction Direction = Direction.None;
-        public int ResidualStrength;
-        public List<MdSelectionType> Selections = new List<MdSelectionType>();
+        public readonly int ResidualStrength;
+        public readonly List<MdSelectionType> Selections = new List<MdSelectionType>();
         public MdConvertedItemNotSafe(int residualStrength)
         {
             RaiseIfRemainingStrengthIsIncorrect(residualStrength);
@@ -22,6 +22,6 @@ namespace ConsoleApplication1.ConnectionHandlers.Containers
         }
 
         public MdConvertedItem ToSafe()
-            => new MdConvertedItem(Direction, Array.AsReadOnly<MdSelectionType>(Selections.ToArray()), ResidualStrength);
+            => new MdConvertedItem(Direction, Array.AsReadOnly(Selections.ToArray()), ResidualStrength);
     }
 }

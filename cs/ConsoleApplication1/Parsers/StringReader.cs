@@ -6,7 +6,7 @@ namespace ConsoleApplication1.Parsers
     public class StringReader: IReader
     {
         private readonly string text;
-        private int pointer = 0;
+        private int pointer;
         public StringReader(string text)
         {
             if (text == null)
