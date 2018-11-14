@@ -1,7 +1,8 @@
 ﻿using FluentAssertions;
+using Markdown.TokenParser;
 using NUnit.Framework;
 
-namespace Markdown
+namespace MarkdownTests
 {
     [TestFixture]
     public class MarkdownTokenParserTests

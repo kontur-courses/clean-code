@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 
-namespace Markdown
+namespace Markdown.TreeTranslator
 {
     public class MarkdownToHtmlTagTranslator : ITagTranslator
     {

@@ -1,6 +1,7 @@
 ﻿using System.Collections.Generic;
+using Markdown.Data.Nodes;
 
-namespace Markdown
+namespace Markdown.TreeBuilder
 {
     public interface ITokenTreeBuilder
     {

@@ -1,14 +1,15 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <Project ToolsVersion="15.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <Import Project="..\packages\NUnit.3.11.0\build\NUnit.props" Condition="Exists('..\packages\NUnit.3.11.0\build\NUnit.props')" />
   <Import Project="$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props" Condition="Exists('$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props')" />
   <PropertyGroup>
     <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
     <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
-    <ProjectGuid>{2321333A-BC85-4759-9612-0729E55E5F41}</ProjectGuid>
+    <ProjectGuid>{F0A529AD-B000-41F0-A8FA-0A8F6C6C52D6}</ProjectGuid>
     <OutputType>Library</OutputType>
     <AppDesignerFolder>Properties</AppDesignerFolder>
-    <RootNamespace>Markdown</RootNamespace>
-    <AssemblyName>Markdown</AssemblyName>
+    <RootNamespace>MarkdownTests</RootNamespace>
+    <AssemblyName>MarkdownTests</AssemblyName>
     <TargetFrameworkVersion>v4.6.1</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
     <Deterministic>true</Deterministic>
@@ -33,8 +34,17 @@
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
   <ItemGroup>
+    <Reference Include="FluentAssertions, Version=5.5.0.0, Culture=neutral, PublicKeyToken=33f2691a05b67b6a, processorArchitecture=MSIL">
+      <HintPath>..\packages\FluentAssertions.5.5.0\lib\net45\FluentAssertions.dll</HintPath>
+    </Reference>
+    <Reference Include="nunit.framework, Version=3.11.0.0, Culture=neutral, PublicKeyToken=2638cd05610744eb, processorArchitecture=MSIL">
+      <HintPath>..\packages\NUnit.3.11.0\lib\net45\nunit.framework.dll</HintPath>
+    </Reference>
     <Reference Include="System" />
     <Reference Include="System.Core" />
+    <Reference Include="System.ValueTuple, Version=4.0.2.0, Culture=neutral, PublicKeyToken=cc7b13ffcd2ddd51, processorArchitecture=MSIL">
+      <HintPath>..\packages\System.ValueTuple.4.4.0\lib\net461\System.ValueTuple.dll</HintPath>
+    </Reference>
     <Reference Include="System.Xml.Linq" />
     <Reference Include="System.Data.DataSetExtensions" />
     <Reference Include="Microsoft.CSharp" />
@@ -43,32 +53,25 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="Data\TagsInfo\BoldTagInfo.cs" />
-    <Compile Include="Data\TagsInfo\ItalicTagInfo.cs" />
-    <Compile Include="TreeBuilder\ITokenTreeBuilder.cs" />
-    <Compile Include="TreeTranslator\ITokenTreeTranslator.cs" />
     <Compile Include="MarkdownTests.cs" />
-    <Compile Include="TreeTranslator\MarkdownToHtmlTagTranslator.cs" />
-    <Compile Include="MarkdownTokenTreeBuilderTests.cs" />
-    <Compile Include="TreeTranslator\MarkdownTokenTreeTranslator.cs" />
     <Compile Include="MarkdownTokenParserTests.cs" />
-    <Compile Include="TokenParser\ITokenParser.cs" />
-    <Compile Include="TreeTranslator\ITagTranslator.cs" />
-    <Compile Include="Markdown.cs" />
+    <Compile Include="MarkdownTokenTreeBuilderTests.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
-    <Compile Include="TokenParser\MarkdownTokenParser.cs" />
-    <Compile Include="Data\Nodes\RootTreeNode.cs" />
-    <Compile Include="Data\Nodes\SpaceTreeNode.cs" />
-    <Compile Include="Data\TagsInfo\ITagInfo.cs" />
-    <Compile Include="Data\Tag.cs" />
-    <Compile Include="Data\Nodes\TagTreeNode.cs" />
-    <Compile Include="Data\Nodes\TextTreeNode.cs" />
-    <Compile Include="Data\Nodes\TokenTreeNode.cs" />
-    <Compile Include="TreeBuilder\MarkdownTokenTreeBuilder.cs" />
-    <Compile Include="Data\TokenType.cs" />
   </ItemGroup>
   <ItemGroup>
-    <None Include="MarkdownSpec.md" />
+    <ProjectReference Include="..\Markdown\Markdown.csproj">
+      <Project>{2321333a-bc85-4759-9612-0729e55e5f41}</Project>
+      <Name>Markdown</Name>
+    </ProjectReference>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="packages.config" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
+  <Target Name="EnsureNuGetPackageBuildImports" BeforeTargets="PrepareForBuild">
+    <PropertyGroup>
+      <ErrorText>Данный проект ссылается на пакеты NuGet, отсутствующие на этом компьютере. Используйте восстановление пакетов NuGet, чтобы скачать их.  Дополнительную информацию см. по адресу: http://go.microsoft.com/fwlink/?LinkID=322105. Отсутствует следующий файл: {0}.</ErrorText>
+    </PropertyGroup>
+    <Error Condition="!Exists('..\packages\NUnit.3.11.0\build\NUnit.props')" Text="$([System.String]::Format('$(ErrorText)', '..\packages\NUnit.3.11.0\build\NUnit.props'))" />
+  </Target>
 </Project>

@@ -1,4 +1,4 @@
-﻿namespace Markdown
+﻿namespace Markdown.Data
 {
     public enum TokenType
     {

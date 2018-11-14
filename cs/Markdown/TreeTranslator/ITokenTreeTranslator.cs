@@ -1,4 +1,6 @@
-﻿namespace Markdown
+﻿using Markdown.Data.Nodes;
+
+namespace Markdown.TreeTranslator
 {
     public interface ITokenTreeTranslator
     {

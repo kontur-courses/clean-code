@@ -1,8 +1,13 @@
 ﻿using System.Linq;
 using FluentAssertions;
+using Markdown.Data;
+using Markdown.Data.TagsInfo;
+using Markdown.TokenParser;
+using Markdown.TreeBuilder;
+using Markdown.TreeTranslator;
 using NUnit.Framework;
 
-namespace Markdown
+namespace MarkdownTests
 {
     [TestFixture]
     public class MarkdownTests
@@ -14,13 +19,13 @@ namespace Markdown
         {
             var tags = new[]
             {
-                new Tag("_", true, "_", "em"),
-                new Tag("__", false, "__", "strong")
+                new Tag(new ItalicTagInfo(), "em"),
+                new Tag(new BoldTagInfo(), "strong")
             };
 
-            var allTags = tags.Select(tag => tag.OpeningTag).Concat(tags.Select(tag => tag.ClosingTag));
-            var tagsTranslations = tags.ToDictionary(tag => tag.OpeningTag, tag => tag.Translation);
-            var tagsInfo = tags.ToDictionary(tag => tag.OpeningTag, tag => tag.ToInfo());
+            var allTags = tags.Select(tag => tag.Info.OpeningTag).Concat(tags.Select(tag => tag.Info.ClosingTag));
+            var tagsTranslations = tags.ToDictionary(tag => tag.Info.OpeningTag, tag => tag.Translation);
+            var tagsInfo = tags.Select(tag => tag.Info);
 
             var parser = new MarkdownTokenParser(allTags);
             var tagTranslator = new MarkdownToHtmlTagTranslator(tagsTranslations);

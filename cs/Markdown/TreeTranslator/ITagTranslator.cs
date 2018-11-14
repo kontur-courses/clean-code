@@ -1,4 +1,4 @@
-﻿namespace Markdown
+﻿namespace Markdown.TreeTranslator
 {
     public interface ITagTranslator
     {
