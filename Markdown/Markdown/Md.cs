@@ -8,35 +8,27 @@ namespace Markdown
 {
     public class Md
     {
-        private readonly List<Tag> tags;
+        private List<TagPair> tags;
         private int index;
-        private readonly Tag emptyTag = new Tag("", "", "", "");
+        private readonly TagPair emptyTagPair = new TagPair("", "", "", "");
 
-        public Md()
+        public string Render(string markdownString, Markup from, Markup to)
         {
-            tags = new List<Tag>
-            {
-                new Tag("_", "_", "<em>", @"<\em>"),
-                new Tag("__", "__", "<strong>", @"<\strong>")
-            };
-        }
-
-        public string Render(string markdownString)
-        {
+            tags = GetTags(from, to);
             index = 0;
-            return ParseWithoutRegexp(markdownString);
+            return Parse(markdownString);
         }
 
-        private string ParseWithoutRegexp(string markdownString)
+        private string Parse(string markdownString)
         {
-            var mainSpan = new Span(emptyTag, 0, markdownString.Length);
+            var mainSpan = new Span(emptyTagPair, 0, markdownString.Length);
             var openedSpans = new List<Span>();
 
             for (; index < markdownString.Length; index++)
             {
                 if (markdownString[index] == '\\')
                 {
-                    PutSpanInSpan(new Span(emptyTag, index, index + 1), mainSpan);
+                    mainSpan.PutSpan(new Span(emptyTagPair, index, index + 1));
                     index += 1;
                     continue;
                 }
@@ -54,7 +46,7 @@ namespace Markdown
                 var newSpan = FindSpanStart(markdownString);
                 if (newSpan != null)
                 {
-                    PutSpanInSpan(newSpan, mainSpan);
+                    mainSpan.PutSpan(newSpan);
                     openedSpans.Add(newSpan);
                 }
             }
@@ -62,54 +54,29 @@ namespace Markdown
             return mainSpan.Assembly(markdownString);
         }
 
-        private void PutSpanInSpan(Span child, Span parent)
-        {
-            while (true)
-            {
-                if (parent.Spans.Count == 0)
-                {
-                    parent.Spans.Add(child);
-                    break;
-                }
-
-                var nextSpan = parent.Spans
-                    .OrderByDescending(s => s.StartIndex)
-                    .FirstOrDefault(s => s.StartIndex < child.StartIndex &&
-                                        (s.EndIndex > child.StartIndex || s.EndIndex == 0));
-
-                if (nextSpan == null)
-                {
-                    parent.Spans.Add(child);
-                    break;
-                }
-
-                parent = nextSpan;
-            }
-        }
-
         private Span FindSpanStart(string markdownString)
         {
-            var tag = MatchTag(markdownString, t => t.MarkdownStart);
+            var tag = MatchTag(markdownString, t => t.InitialOpen);
             if (tag == null)
                 return null;
 
             var startIndex = index;
-            index = index + tag.MarkdownStart.Length - 1;
+            index = index + tag.InitialOpen.Length - 1;
             return new Span(tag, startIndex);
             
         }
         private Span FindSpanEnd(string markdownString, List<Span> openedSpans)
         {
-            var tag = MatchTag(markdownString, t => t.MarkdownEnd);
+            var tag = MatchTag(markdownString, t => t.InitialClose);
             if (tag == null)
                 return null;
 
             foreach (var openedSpan in openedSpans)
             {
-                if (Equals(openedSpan.Tag, tag))
+                if (Equals(openedSpan.TagPair, tag))
                 {
                     openedSpan.EndIndex = index;
-                    index = index + openedSpan.Tag.MarkdownEnd.Length - 1;
+                    index = index + openedSpan.TagPair.InitialClose.Length - 1;
                     return openedSpan;
                 }
 
@@ -118,9 +85,9 @@ namespace Markdown
             return null;
         }
 
-        private Tag MatchTag(string markdownString, Func<Tag, string> param)
+        private TagPair MatchTag(string markdownString, Func<TagPair, string> param)
         {
-            var possibleTags = new List<Tag>();
+            var possibleTags = new List<TagPair>();
             foreach (var tag in tags)
             {
                 var str = param(tag);
@@ -133,6 +100,21 @@ namespace Markdown
             }
 
             return possibleTags.OrderByDescending(t => param(t).Length).FirstOrDefault();
+        }
+
+        private List<TagPair> GetTags(Markup from, Markup to)
+        {
+            var result = new List<TagPair>();
+            foreach (var tag in from.Tags)
+            {
+                var endTag = to.Tags.FirstOrDefault(t => t.Name == tag.Name);
+                if (endTag == null)
+                    continue;
+
+                result.Add(new TagPair(tag.Open, tag.Close, endTag.Open, endTag.Close));
+            }
+
+            return result;
         }
     }
 }

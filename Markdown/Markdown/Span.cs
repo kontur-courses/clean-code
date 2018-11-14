@@ -8,21 +8,21 @@ namespace Markdown
 {
     public class Span
     {
-        public Tag Tag;
-        public int StartIndex;
-        public int EndIndex;
-        public List<Span> Spans;
+        public TagPair TagPair { get; set; }
+        public int StartIndex { get; set; }
+        public int EndIndex { get; set; }
+        public List<Span> Spans { get; set; }
 
-        public Span(Tag tag, int startIndex)
+        public Span(TagPair tagPair, int startIndex)
         {
-            Tag = tag;
+            TagPair = tagPair;
             StartIndex = startIndex;
             Spans = new List<Span>();
         }
 
-        public Span(Tag tag, int startIndex, int endIndex)
+        public Span(TagPair tagPair, int startIndex, int endIndex)
         {
-            Tag = tag;
+            TagPair = tagPair;
             StartIndex = startIndex;
             EndIndex = endIndex;
             Spans = new List<Span>();
@@ -36,35 +36,56 @@ namespace Markdown
             var builder = new StringBuilder();
             Spans = Spans.OrderBy(s => s.StartIndex).ToList();
             
-            builder.Append(Tag.HtmlStart);
+            builder.Append(TagPair.FinalOpen);
 
             if (Spans.Count == 0)
             {
-                builder.Append(rowString.Substring(StartIndex + Tag.MarkdownStart.Length,
-                    EndIndex - (StartIndex + Tag.MarkdownStart.Length))); 
+                builder.Append(rowString.Substring(StartIndex + TagPair.InitialOpen.Length,
+                    EndIndex - (StartIndex + TagPair.InitialOpen.Length))); 
             }
             else
             {
-                builder.Append(rowString.Substring(StartIndex + Tag.MarkdownStart.Length,
-                            Spans[0].StartIndex - (StartIndex + Tag.MarkdownStart.Length)));
+                builder.Append(rowString.Substring(StartIndex + TagPair.InitialOpen.Length,
+                            Spans[0].StartIndex - (StartIndex + TagPair.InitialOpen.Length)));
 
                 for (var i = 0; i < Spans.Count - 1; i++)
                 {
                     builder.Append(Spans[i].Assembly(rowString));
-                    builder.Append(rowString.Substring(Spans[i].EndIndex + Spans[i].Tag.MarkdownEnd.Length,
-                        Spans[i + 1].StartIndex - (Spans[i].EndIndex + Spans[i].Tag.MarkdownEnd.Length)));
+                    builder.Append(rowString.Substring(Spans[i].EndIndex + Spans[i].TagPair.InitialClose.Length,
+                        Spans[i + 1].StartIndex - (Spans[i].EndIndex + Spans[i].TagPair.InitialClose.Length)));
                 }
 
                 var lastSpan = Spans[Spans.Count - 1];
                 builder.Append(lastSpan.Assembly(rowString));
                 
-                //проблема
-                builder.Append(rowString.Substring(lastSpan.EndIndex + lastSpan.Tag.MarkdownEnd.Length,
-                    EndIndex - (lastSpan.EndIndex + lastSpan.Tag.MarkdownEnd.Length)));
+                builder.Append(rowString.Substring(lastSpan.EndIndex + lastSpan.TagPair.InitialClose.Length,
+                    EndIndex - (lastSpan.EndIndex + lastSpan.TagPair.InitialClose.Length)));
             }
-            builder.Append(Tag.HtmlEnd);
+            builder.Append(TagPair.FinalClose);
 
             return builder.ToString();
+        }
+
+        public void PutSpan(Span span)
+        {
+            if (Spans.Count == 0)
+            {
+                Spans.Add(span);
+                return;
+            }
+
+            var nextSpan = Spans
+                .OrderByDescending(s => s.StartIndex)
+                .FirstOrDefault(s => s.StartIndex < span.StartIndex &&
+                            (s.EndIndex > span.StartIndex || s.EndIndex == 0));
+
+            if (nextSpan == null)
+            {
+                Spans.Add(span);
+                return;
+            }
+
+            nextSpan.PutSpan(span);
         }
     }
 }
