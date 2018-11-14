@@ -32,7 +32,7 @@ namespace MarkdownTests
             var treeTranslator = new MarkdownTokenTreeTranslator(tagTranslator);
             var treeBuilder = new MarkdownTokenTreeBuilder(tagsInfo);
 
-            var markdown = new Markdown(parser, treeTranslator, treeBuilder);
+            var markdown = new Markdown.Markdown(parser, treeTranslator, treeBuilder);
 
             var translation = markdown.Render(inputString);
 

@@ -47,11 +47,8 @@
     <Compile Include="Data\TagsInfo\ItalicTagInfo.cs" />
     <Compile Include="TreeBuilder\ITokenTreeBuilder.cs" />
     <Compile Include="TreeTranslator\ITokenTreeTranslator.cs" />
-    <Compile Include="MarkdownTests.cs" />
     <Compile Include="TreeTranslator\MarkdownToHtmlTagTranslator.cs" />
-    <Compile Include="MarkdownTokenTreeBuilderTests.cs" />
     <Compile Include="TreeTranslator\MarkdownTokenTreeTranslator.cs" />
-    <Compile Include="MarkdownTokenParserTests.cs" />
     <Compile Include="TokenParser\ITokenParser.cs" />
     <Compile Include="TreeTranslator\ITagTranslator.cs" />
     <Compile Include="Markdown.cs" />
