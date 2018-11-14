@@ -102,5 +102,14 @@ namespace MarkdownTests
 
 			Assert.AreEqual(actual, "hello_ world_");
 		}
+
+		[Test]
+		public void SeveralSingleUnderLineTagsInsideDoubeUnderLineTag_ShouldAllTagsRenderToHtmlTag()
+		{
+			var text = "__a _b_ _c_ d__";
+			var actual = md.Render(text);
+
+			Assert.AreEqual(actual, "<strong>a <em>b</em> <em>c</em> d</strong>");
+		}
 	}
 }

@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 using Markdown.Tag;
 
@@ -51,18 +52,21 @@ namespace Markdown
 		private List<ITag> GetOnePairOfTags(string symbol, string text)
 		{
 			var pairedTags = new List<ITag>();
-			var tag = dictionaryTags[symbol];
-			tag.OpenIndex = position;
-			tag.CloseIndex = text.FindCloseTagIndex(tag);
+			var tagType = dictionaryTags[symbol].GetType();
+			if (Activator.CreateInstance(tagType) is ITag tag)
+			{
+				tag.OpenIndex = position;
+				tag.CloseIndex = text.FindCloseTagIndex(tag);
 
-			if (tag.CloseIndex != -1)
-			{
-				pairedTags.Add(tag);
-				position = pairedTags.Last().CloseIndex + pairedTags.Last().Length;
-			}
-			else
-			{
-				position++;
+				if (tag.CloseIndex != -1)
+				{
+					pairedTags.Add(tag);
+					position = pairedTags.Last().CloseIndex + pairedTags.Last().Length;
+				}
+				else
+				{
+					position++;
+				}
 			}
 
 			return pairedTags;

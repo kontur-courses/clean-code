@@ -21,15 +21,20 @@ namespace Markdown
 			var startIndex = 0;
 			var htmlBuilder = new StringBuilder();
 
-			foreach (var tag in pairedTags)
+			for (var i = 0; i < pairedTags.Count; i++)
 			{
+				var tag = pairedTags[i];
+				var nextTag = i + 1 < pairedTags.Count ? pairedTags[i + 1] : null;
 				htmlBuilder.Append(text.Substring(startIndex, tag.OpenIndex - startIndex));
 				htmlBuilder.Append(tag.HtmlOpen);
 				htmlBuilder.Append(GetInnerFormattedText(tag));
 				htmlBuilder.Append(tag.HtmlClose);
-				htmlBuilder.Append(text.Substring(tag.CloseIndex + tag.Length));
 
-				startIndex = tag.CloseIndex + tag.Length;
+				htmlBuilder.Append(nextTag != null
+					? text.Substring(tag.CloseIndex + tag.Length, nextTag.OpenIndex - tag.CloseIndex - tag.Length)
+					: text.Substring(tag.CloseIndex + tag.Length));
+
+				startIndex = nextTag?.OpenIndex ?? tag.CloseIndex + tag.Length;
 			}
 
 			return htmlBuilder.ToString();
@@ -37,20 +42,16 @@ namespace Markdown
 
 		private string GetInnerFormattedText(ITag tag)
 		{
-			
-
-
 			var innerText = text.GetBodyInside(tag);
 			var mdConverter = new MdConverter();
-			var innerPairedTags = mdConverter.GetAllPairedTags(innerText);
+			var innerPairedTags = mdConverter.GetAllPairedTags(innerText).Where(t => t.Length <= tag.Length).ToList();
+
+			if (innerPairedTags.Count == 0)
+				return innerText;
+
 			var helperForMdConverter = new MdConverterHelper(innerPairedTags, innerText);
 			var htmlText = helperForMdConverter.GetHtmlCode();
-			var isNeedToConvert = (innerPairedTags.Count == 0 || innerPairedTags.Last().Length <= tag.Length) &&
-			                      innerPairedTags.Count != 0;
-
-			return isNeedToConvert
-			? htmlText
-			: innerText;
+			return htmlText;
 		}
 	}
 }
