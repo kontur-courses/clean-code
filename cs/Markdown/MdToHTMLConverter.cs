@@ -26,6 +26,7 @@ namespace Markdown
             var result = new StringBuilder();
             if (!(token.StartingDelimiter is null))
             {
+
                 if (token.ClosingDelimiter is null)
                 {
                     result.Append(token.StartingDelimiter.delimiter);
@@ -33,6 +34,8 @@ namespace Markdown
 
                 else if (token.StartingDelimiter.delimiter == "_")
                     result.Append("<em>");
+                else if (token.StartingDelimiter.delimiter == "__")
+                    result.Append("<strong>");
             }
 
             if (token.tokens.Count == 0)
@@ -50,6 +53,8 @@ namespace Markdown
             {
                 if (token.StartingDelimiter.delimiter == "_")
                     result.Append("</em>");
+                if (token.StartingDelimiter.delimiter == "__")
+                    result.Append("</strong>");
             }
 
             return result.ToString();

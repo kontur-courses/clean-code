@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using NUnit.Framework;
 
 namespace Markdown
 {
@@ -11,7 +12,7 @@ namespace Markdown
         private string markdownInput;
         public Token currentToken;
         private int index;
-        private List<Delimiter> delimiters = new List<Delimiter>();
+        private HashSet<string> delimiters = new HashSet<string>() {"_", "__", "\\"};
 
         public MarkdownParser(string markdownInput)
         {
@@ -19,6 +20,7 @@ namespace Markdown
             currentToken = new Token();
             index = 0;
         }
+
 
         public bool IsCorrectToken(Token token)
         {
@@ -28,23 +30,39 @@ namespace Markdown
 
         public Token GetTokens()
         {
-            var nextDelimeter = GetNextDelimiter();
-            var text = markdownInput.Substring(0, nextDelimeter.index);
-            currentToken.AddText(text);
-            while (!(nextDelimeter is null))
+            var allDelimiters = GetAllDelimiters();
+            var prevIndex = 0;
+            var prevLength = 0;
+            foreach (var delimiter in allDelimiters)
             {
-                bool closed;
-                closed = nextDelimeter.canBeClosing && TryCloseToken(nextDelimeter);
+                var textLength = delimiter.index - prevIndex - prevLength;
+                currentToken.AddText(markdownInput.Substring(prevIndex + prevLength, textLength));
 
-                if (!closed && nextDelimeter.canBeStarting)
+
+                if (currentToken.ParentToken?.StartingDelimiter != null &&
+                    currentToken.ParentToken.StartingDelimiter.delimiter == "\\")
                 {
-                    var newTocken = new Token(nextDelimeter);
+                    if (textLength == 0)
+                    {
+                        currentToken.ParentToken.AddText(delimiter.delimiter);
+                    }
+
+                    currentToken = currentToken.ParentToken.ParentToken;
+                }
+
+                var closed = delimiter.canBeClosing && TryCloseToken(delimiter);
+
+                if (!closed && delimiter.canBeStarting)
+                {
+                    var newTocken = new Token(delimiter);
                     currentToken.AddToken(newTocken);
+
+
                     currentToken = newTocken;
                 }
-                else if (!closed && !nextDelimeter.canBeStarting)
+                else if (!closed && !delimiter.canBeStarting)
                 {
-                    currentToken.AddText(nextDelimeter.delimiter);
+                    currentToken.AddText(delimiter.delimiter);
                 }
 
                 if (closed)
@@ -52,24 +70,11 @@ namespace Markdown
                     currentToken = currentToken.ParentToken;
                 }
 
-                var prevIndex = nextDelimeter.index;
-                var prevLength = nextDelimeter.delimiter.Length;
-
-                nextDelimeter = GetNextDelimiter();
-
-                int textLength;
-                if (nextDelimeter is null)
-                {
-                    textLength = markdownInput.Length - (prevIndex + prevLength);
-                }
-                else
-                {
-                    textLength = nextDelimeter.index - prevIndex - prevLength;
-                }
-
-                text = markdownInput.Substring(prevIndex + prevLength, textLength);
-                currentToken.AddText(text);
+                prevIndex = delimiter.index;
+                prevLength = delimiter.delimiter.Length;
             }
+
+            currentToken.AddText(markdownInput.Substring(prevIndex + prevLength));
 
             return currentToken.RootToken;
         }
@@ -103,35 +108,46 @@ namespace Markdown
         }
 
 
-        private Delimiter GetNextDelimiter()
+        private List<Delimiter> GetAllDelimiters()
         {
-            if (index >= markdownInput.Length)
-                return null;
-            while (index < markdownInput.Length && markdownInput[index] != '_')
+            var result = new List<Delimiter>();
+            var searcher = new StringSearcher();
+            var delimitersSubstrings = searcher.GetAllSubstrings(delimiters, markdownInput);
+
+            foreach (var substring in delimitersSubstrings)
             {
-                index++;
+                var canBeClosing = CanBeClosing(substring);
+                var canBeStarting = CanBeStarting(substring);
+                var escaped = IsEscaped(substring);
+                if ((canBeStarting || canBeClosing) && !escaped)
+                {
+                    var delimiter = new Delimiter(substring.Value, substring.Index, canBeClosing, canBeStarting);
+                    result.Add(delimiter);
+                }
             }
 
-
-            var canBeClosing = false;
-            var canBeStarting = false;
-            if (index > 0 && markdownInput[index - 1] != ' ')
-            {
-                canBeClosing = true;
-            }
-
-
-            if (index < markdownInput.Length - 1 && markdownInput[index + 1] != ' ')
-            {
-                canBeStarting = true;
-            }
-
-
-            if (index >= markdownInput.Length)
-                return null;
-            var delimiter = new Delimiter("_", index, canBeClosing, canBeStarting);
-            index++;
-            return delimiter;
+            return result;
         }
+
+        private bool IsEscaped(Substring substring)
+        {
+            return substring.Index != 0 && markdownInput[substring.Index - 1] == '\\';
+        }
+
+        private bool CanBeStarting(Substring substring)
+        {
+            return substring.Index + substring.Length + 1 < markdownInput.Length &&
+                   markdownInput[substring.Index + substring.Length + 1] != ' ';
+        }
+
+        private bool CanBeClosing(Substring substring)
+        {
+            return substring.Index != 0 && markdownInput[substring.Index - 1] != ' ';
+        }
+    }
+
+    [TestFixture]
+    public class MarkdownParser_Tests
+    {
     }
 }

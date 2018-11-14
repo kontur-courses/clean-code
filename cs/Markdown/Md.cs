@@ -48,6 +48,13 @@ namespace Markdown
             md.Render("_text_").Should().Be("<em>text</em>");
         }
 
+
+        [Test]
+        public void Render_ShouldConvert_WhenSingleTokenBold()
+        {
+            md.Render("__text__").Should().Be("<strong>text</strong>");
+        }
+
         [Test]
         public void Render_ShouldConvert_WhenTwoTokens()
         {
@@ -55,10 +62,23 @@ namespace Markdown
         }
 
         [Test]
+        public void Render_ShouldConvert_WhenTwoTokensBold()
+        {
+            md.Render("__tex__ __t__").Should().Be("<strong>tex</strong> <strong>t</strong>");
+        }
+
+        [Test]
         public void Render_ShouldConvert_When_SingleNonPairDelimiter()
         {
             md.Render("_tex _t_ _abc_").Should().Be("_tex <em>t</em> <em>abc</em>");
         }
+
+        [Test]
+        public void Render_ShouldConvert_When_SingleNonPairDelimiterBold()
+        {
+            md.Render("__tex __t__ __abc__").Should().Be("__tex <strong>t</strong> <strong>abc</strong>");
+        }
+
         [Test]
         public void Render_ShouldConvert_When_SingleNonPairDelimiter2()
         {
@@ -69,6 +89,19 @@ namespace Markdown
         public void Render_ShouldConvert_When_Smth()
         {
             md.Render("_abc_ _def_ xyz").Should().Be("<em>abc</em> <em>def</em> xyz");
+        }
+
+        [Test]
+        public void Render_ShouldIgnore_EscapeSymbols()
+        {
+            md.Render("\\_abc\\_").Should().Be("_abc_");
+        }
+
+
+        [Test]
+        public void Render_ShouldIgnore_EscapeSymbols1()
+        {
+            md.Render("\\\\_abc_").Should().Be("<em>abc</em>");
         }
     }
 }
