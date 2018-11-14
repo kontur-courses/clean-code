@@ -8,6 +8,7 @@ namespace Markdown
 {
     public class Span
     {
+        private Span parent;
         public TagPair TagPair { get; set; }
         public int StartIndex { get; set; }
         public int EndIndex { get; set; }
@@ -68,12 +69,6 @@ namespace Markdown
 
         public void PutSpan(Span span)
         {
-            if (Spans.Count == 0)
-            {
-                Spans.Add(span);
-                return;
-            }
-
             var nextSpan = Spans
                 .OrderByDescending(s => s.StartIndex)
                 .FirstOrDefault(s => s.StartIndex < span.StartIndex &&
@@ -82,10 +77,36 @@ namespace Markdown
             if (nextSpan == null)
             {
                 Spans.Add(span);
+                span.parent = this;
                 return;
             }
 
             nextSpan.PutSpan(span);
+        }
+
+        public void RemoveNotClosedSpans()
+        {
+            foreach (var span in Spans.ToArray())
+            {
+                span.RemoveNotClosedSpans();
+                if (span.EndIndex == 0)
+                {
+                    Spans.Remove(span);
+                    Spans.AddRange(Spans);
+                }
+            }
+        //}
+        //public void RemoveNotClosedSpans()
+        //{
+        //    foreach (var span in Spans.ToArray())
+        //    {
+        //        span.RemoveNotClosedSpans();
+        //        if (EndIndex == 0)
+        //        {
+        //            parent.Spans.Remove(this);
+        //            parent.Spans.AddRange(Spans);
+        //        }
+        //    }
         }
     }
 }

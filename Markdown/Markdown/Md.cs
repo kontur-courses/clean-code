@@ -51,6 +51,7 @@ namespace Markdown
                 }
             }
             
+            mainSpan.RemoveNotClosedSpans();
             return mainSpan.Assembly(markdownString);
         }
 
