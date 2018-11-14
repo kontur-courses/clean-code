@@ -1,7 +1,5 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Linq;
-using System.Text;
 using Markdown.Tag;
 
 namespace Markdown
@@ -10,7 +8,7 @@ namespace Markdown
 	{
 		private int position;
 
-		public static readonly Dictionary<string, ITag> dictionaryTags = new Dictionary<string, ITag>
+		public readonly Dictionary<string, ITag> dictionaryTags = new Dictionary<string, ITag>
 		{
 			{"_", new SingleUnderLineTag()},
 			{"__", new DoubleUnderLineTag()}
@@ -21,19 +19,16 @@ namespace Markdown
 			var existingPairedTags = GetAllPairedTags(text);
 
 			if (existingPairedTags.Count == 0)
-				return text.RemoveScreenCharacters();
+				return text;
 
-			var textInHtml = GetHtmlCode(existingPairedTags, text);
+			var helperOfMdConverter = new MdConverterHelper(existingPairedTags, text);
+			var textInHtml = helperOfMdConverter.GetHtmlCode();
 
-
-			return textInHtml.RemoveScreenCharacters();
+			return textInHtml;
 		}
 
-		private List<ITag> GetAllPairedTags(string text)
+		public List<ITag> GetAllPairedTags(string text)
 		{
-			if (text == null)
-				throw new ArgumentNullException(nameof(text));
-
 			var pairedTags = new List<ITag>();
 			position = 0;
 
@@ -42,12 +37,10 @@ namespace Markdown
 				var symbol = text[position].ToString();
 				var twoSymbol = text.Substring(position, 2);
 
-				if (twoSymbol.IsOpenTag(text, position, 2))
+				if (twoSymbol.IsOpenTag(text, position, dictionaryTags, 2))
 					pairedTags.AddRange(GetOnePairOfTags(twoSymbol, text));
-
-				if (symbol.IsOpenTag(text, position, 1))
+				if (symbol.IsOpenTag(text, position, dictionaryTags, 1))
 					pairedTags.AddRange(GetOnePairOfTags(symbol, text));
-
 				else
 					position++;
 			}
@@ -68,38 +61,11 @@ namespace Markdown
 				position = pairedTags.Last().CloseIndex + pairedTags.Last().Length;
 			}
 			else
-				position++;
-
-			return pairedTags;
-		}
-
-		private string GetHtmlCode(List<ITag> pairedTags, string text)
-		{
-			var startIndex = 0;
-			var htmlBuilder = new StringBuilder();
-
-			foreach (var tag in pairedTags)
 			{
-				htmlBuilder.Append(text.Substring(startIndex, tag.OpenIndex - startIndex));
-				htmlBuilder.Append(tag.HtmlOpen);
-				htmlBuilder.Append(GetInnerFormattedText(tag, text));
-				htmlBuilder.Append(tag.HtmlClose);
-				htmlBuilder.Append(text.Substring(tag.CloseIndex + tag.Length));
-
-				startIndex = tag.CloseIndex + tag.Length;
+				position++;
 			}
 
-			return htmlBuilder.ToString();
-		}
-
-		private string GetInnerFormattedText(ITag tag, string text)
-		{
-			var innerText = text.GetBodyInside(tag);
-			var innerPairedTags = GetAllPairedTags(innerText);
-
-			return innerPairedTags.Count != 0 && innerPairedTags.Last().Length > tag.Length || innerPairedTags.Count == 0
-				? innerText
-				: GetHtmlCode(innerPairedTags, innerText);
+			return pairedTags;
 		}
 	}
 }

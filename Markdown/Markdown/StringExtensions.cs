@@ -1,4 +1,5 @@
-﻿using Markdown.Tag;
+﻿using System.Collections.Generic;
+using Markdown.Tag;
 
 namespace Markdown
 {
@@ -6,13 +7,14 @@ namespace Markdown
 	{
 		public static string RemoveScreenCharacters(this string text) => text.Replace("\\", "");
 
-		public static bool IsOpenTag(this string symbol, string text, int position, int tagLength)
+		public static bool IsOpenTag(this string symbol, string text, int position, Dictionary<string, ITag> dictionaryTags,
+			int tagLength)
 		{
 			var prevSymbol = text.LookAt(position - 1);
 			var nextSymbol = text.LookAt(position + tagLength);
 
-			return MdConverter.dictionaryTags.ContainsKey(symbol) && !char.IsWhiteSpace(nextSymbol)
-			                                                      && (char.IsWhiteSpace(prevSymbol) || position == 0);
+			return dictionaryTags.ContainsKey(symbol) && !char.IsWhiteSpace(nextSymbol)
+			                                          && (char.IsWhiteSpace(prevSymbol) || position == 0);
 		}
 
 		public static int FindCloseTagIndex(this string text, ITag tag)
