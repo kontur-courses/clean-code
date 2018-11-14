@@ -37,6 +37,8 @@ namespace MarkDown_Tests
         [TestCase("aa_aa_aa__a__", ExpectedResult = "<p>aa<em>aa</em>aa<strong>a</strong></p>", TestName = "when no whitespace before and after")]
         [TestCase("___a___", ExpectedResult = "<p>_<strong>a</strong>_</p>", TestName = "when three correctly paired underscore")]
         [TestCase("____a____", ExpectedResult = "<p>__<strong>a</strong>__</p>", TestName = "when four correctly paired underscore")]
+        [TestCase(" __a\\\\a__ ", ExpectedResult = "<p> <strong>a\\a</strong> </p>", TestName = "when screening screen character")]
+        [TestCase("__a\\a__", ExpectedResult = "<p><strong>aa</strong></p>", TestName = "when screen character")]
         public string Render_ReturnCorrectlyParsedTag(string text) => markDown.Render(text);
         
     }

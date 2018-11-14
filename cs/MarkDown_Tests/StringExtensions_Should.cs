@@ -1,4 +1,5 @@
-﻿using FluentAssertions;
+﻿using System.Linq;
+using FluentAssertions;
 using MarkDown;
 using NUnit.Framework;
 
@@ -16,7 +17,8 @@ namespace MarkDown_Tests
         [Test]
         public void RemoveScreening_RemovesScreeningCharacters()
         {
-            "aaa\\aa".RemoveScreening().Should().Be("aaaaa");
+            var screeningSpec = new[] {"_", "__", "\\"};
+            "aaa\\aa".RemoveScreening(screeningSpec).Should().Be("aaaaa");
         }
 
         [TestCase("_AAA_", 0, "_", ExpectedResult = true, TestName = "when string at start position is opening tag")]

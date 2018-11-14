@@ -14,7 +14,9 @@ namespace MarkDown
             this.availableTagTypes = availableTagTypes.ToList();
         }
 
-        public string Render(string textParagraph) => new ParagraphTag().ToHtml(ProcessText(textParagraph, availableTagTypes));
+        public string Render(string textParagraph) => new ParagraphTag()
+            .ToHtml(ProcessText(textParagraph, availableTagTypes))
+            .RemoveScreening(availableTagTypes.Select(t => t.SpecialSymbol));
 
         private string ProcessText(string text, IEnumerable<TagType> tagTypes)
         {
@@ -27,11 +29,11 @@ namespace MarkDown
                 if (token.TokenType == TokenType.Tag)
                 {
                     var innerTagTypes = availableTagTypes.Where(e => token.TagType.IsInAvailableNestedTagTypes(e)).ToList();
-                    var tokenContent = innerTagTypes.Any() ? ProcessText(token.Content, innerTagTypes).RemoveScreening() : token.Content;
+                    var tokenContent = innerTagTypes.Any() ? ProcessText(token.Content, innerTagTypes) : token.Content;
                     htmlTag = token.TagType.ToHtml(tokenContent);
                 }
                 else
-                    htmlTag = token.Content.RemoveScreening();
+                    htmlTag = token.Content;
 
                 result.Append(htmlTag);
             }

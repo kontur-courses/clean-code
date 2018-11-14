@@ -1,4 +1,9 @@
-﻿namespace MarkDown
+﻿using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Text;
+
+namespace MarkDown
 {
     public static class StringExtensions
     {
@@ -7,7 +12,14 @@
             ? '\0'
             : text[currentPosition + delta];
 
-        public static string RemoveScreening(this string text) => text.Replace("\\", "");
+        public static string RemoveScreening(this string text, IEnumerable<string> specSymbols)
+        {
+            var res = specSymbols.Aggregate(text, (current, s) => current.Replace($"\\{s}", $"{s}"));
+            var r1 = res.Replace("\\\\", '\0'.ToString());
+            var r2 = r1.Replace("\\", "");
+            return r2.Replace('\0'.ToString(), "\\");
+        }
+
 
         public static bool IsOpeningTag(this string text, int startPosition, string specialSymbol)
         {
