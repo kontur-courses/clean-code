@@ -45,6 +45,7 @@
   <ItemGroup>
     <Compile Include="Data\TagsInfo\BoldTagInfo.cs" />
     <Compile Include="Data\TagsInfo\ItalicTagInfo.cs" />
+    <Compile Include="Data\TagsInfo\StandardMarkdownTagInfo.cs" />
     <Compile Include="TreeBuilder\ITokenTreeBuilder.cs" />
     <Compile Include="TreeTranslator\ITokenTreeTranslator.cs" />
     <Compile Include="TreeTranslator\MarkdownToHtmlTagTranslator.cs" />

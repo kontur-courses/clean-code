@@ -34,8 +34,7 @@ namespace Markdown.TreeBuilder
                 AddTokenToTree(openedTags, token, previousTokenType, nextTokenType);
             }
             var root = GetTreeRoot(openedTags);
-            foreach (var child in root.Children)
-                FixInnerTags(child);
+            FixTagsNesting(root);
             return root;
         }
 
@@ -82,12 +81,14 @@ namespace Markdown.TreeBuilder
             nodeStack.Peek().Children.Add(tag);
         }
 
-        private static void FixInnerTags(TokenTreeNode node, bool isInTag = false)
+        private static void FixTagsNesting(TokenTreeNode node, bool isInTag = false)
         {
-            if (isInTag && node is TagTreeNode tagNode && tagNode.TagInfo.CanBeInsideOtherTag)
+            if (!(node is TagTreeNode tagNode))
+                return;
+            if (isInTag && !tagNode.TagInfo.CanBeInsideOtherTag)
                 tagNode.IsRaw = true;
-            foreach (var child in node.Children.Where(token => token is TagTreeNode))
-                FixInnerTags(child, true);
+            foreach (var child in node.Children)
+                FixTagsNesting(child, !(tagNode is RootTreeNode));
         }
 
         private static TokenTreeNode GetTreeRoot(Stack<TagTreeNode> openedTags)

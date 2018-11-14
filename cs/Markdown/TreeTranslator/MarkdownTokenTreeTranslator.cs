@@ -46,6 +46,8 @@ namespace Markdown.TreeTranslator
                     return textNode.Text;
                 case SpaceTreeNode _:
                     return " ";
+                case TagTreeNode rawOpenedTagNode when rawOpenedTagNode.IsRaw:
+                    return rawOpenedTagNode.TagInfo.OpeningTag;
                 case TagTreeNode openedTagNode:
                     return tagTranslator.TranslateOpeningTag(openedTagNode.TagInfo.OpeningTag);
             }
