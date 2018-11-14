@@ -52,7 +52,7 @@
     <Compile Include="MarkdownParser\HtmlTag.cs" />
     <Compile Include="MarkdownParser\MarkdownParser.cs" />
     <Compile Include="StringExtension.cs" />
-    <Compile Include="StringIndexator.cs" />
+    <Compile Include="StringReader.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="App.config" />

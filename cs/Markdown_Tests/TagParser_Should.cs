@@ -36,7 +36,7 @@ namespace Markdown_Tests
             var markdown = "plain text";
             parser = new MarkdownParser(markdown, spanElements);
             for (int i = 0; i < markdown.Length; i++)
-                parser.DetermineSpanElement().Should().BeNull();
+                parser.stringReader.DetermineSpanElement().Should().BeNull();
         }
 
         [TestCase("_single underscore_", typeof(SingleUnderscore), TestName = "DetectSingleUnderscoreSpanElement")]
@@ -44,7 +44,7 @@ namespace Markdown_Tests
         public void GetNextSpanElement_GetFormattedText(string markdown, Type type)
         {
             parser = new MarkdownParser(markdown, spanElements);
-            var span = parser.DetermineSpanElement();
+            var span = parser.stringReader.DetermineSpanElement();
             span.Should().BeOfType(type);
         }
 
@@ -79,7 +79,7 @@ namespace Markdown_Tests
         {
             var markdown = "some\\__italic_";
             parser = new MarkdownParser(markdown, spanElements);
-            var tag = parser.DetermineSpanElement();
+            var tag = parser.stringReader.DetermineSpanElement();
             tag.Should().BeNull();
         }
 
