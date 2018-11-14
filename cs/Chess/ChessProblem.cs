@@ -1,4 +1,7 @@
-﻿namespace Chess
+﻿using System;
+using System.Linq;
+
+namespace Chess
 {
     public class ChessProblem
     {
@@ -13,7 +16,15 @@
         // Определяет мат, шах или пат белым.
         public static void CalculateChessStatus()
         {
-            var isCheck = IsCheckForWhite();
+            var hasMoves = HasMoves();
+            if (IsCheckForWhite())
+                ChessStatus = hasMoves ? ChessStatus.Check : ChessStatus.Mate;
+            else if (hasMoves) ChessStatus = ChessStatus.Ok;
+            else ChessStatus = ChessStatus.Stalemate;
+        }
+
+        private static bool HasMoves()
+        {
             var hasMoves = false;
             foreach (var locFrom in board.GetPieces(PieceColor.White))
             {
@@ -28,31 +39,24 @@
                     board.Set(locTo, old);
                 }
             }
-            if (isCheck)
-                if (hasMoves)
-                    ChessStatus = ChessStatus.Check;
-                else ChessStatus = ChessStatus.Mate;
-            else if (hasMoves) ChessStatus = ChessStatus.Ok;
-            else ChessStatus = ChessStatus.Stalemate;
+            return hasMoves;
         }
+        
+        
 
         // check — это шах
         private static bool IsCheckForWhite()
         {
-            var isCheck = false;
-            foreach (var loc in board.GetPieces(PieceColor.Black))
-            {
-                var piece = board.GetPiece(loc);
-                var moves = piece.GetMoves(loc, board);
-                foreach (var destination in moves)
-                {
-                    if (Piece.Is(board.GetPiece(destination),
-                                 PieceColor.White, PieceType.King))
-                        isCheck = true;
-                }
-            }
-            if (isCheck) return true;
-            return false;
+            return (from loc in board.GetPieces(PieceColor.Black)
+                let piece = board.GetPiece(loc)
+                where piece.GetMoves(loc, board).Any(destination =>
+                    Piece.Is(board.GetPiece(destination), PieceColor.White, PieceType.King))
+                select loc).Any();
+        }
+        
+        private static void WithAct()
+        {
+            
         }
     }
 }
