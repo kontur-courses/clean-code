@@ -8,7 +8,7 @@ namespace Markdown
 	public class MdConverter
 	{
 		private int position;
-
+		private readonly List<string> escapedSymbols = new List<string> {"\\"};
 		public readonly Dictionary<string, ITag> dictionaryTags = new Dictionary<string, ITag>
 		{
 			{"_", new SingleUnderLineTag()},
@@ -18,6 +18,8 @@ namespace Markdown
 		public string ConvertToHtml(string text)
 		{
 			var existingPairedTags = GetAllPairedTags(text);
+
+			text = text.RemoveEscapedSymbols(escapedSymbols, dictionaryTags);
 
 			if (existingPairedTags.Count == 0)
 				return text;
@@ -33,20 +35,30 @@ namespace Markdown
 			var pairedTags = new List<ITag>();
 			position = 0;
 
-			while (position < text.Length - 2)
+			while (position < text.Length - 1)
 			{
 				var symbol = text[position].ToString();
 				var twoSymbol = text.Substring(position, 2);
 
-				if (twoSymbol.IsOpenTag(text, position, dictionaryTags, 2))
+				if (IsOpenTag(twoSymbol, text))
 					pairedTags.AddRange(GetOnePairOfTags(twoSymbol, text));
-				if (symbol.IsOpenTag(text, position, dictionaryTags, 1))
+
+				if (IsOpenTag(symbol, text))
 					pairedTags.AddRange(GetOnePairOfTags(symbol, text));
-				else
-					position++;
+
+				position++;
 			}
 
 			return pairedTags;
+		}
+
+		public bool IsOpenTag(string symbol, string text)
+		{
+			var prevSymbol = text.LookAt(position - 1);
+			var nextSymbol = text.LookAt(position + symbol.Length);
+
+			return dictionaryTags.ContainsKey(symbol) && !char.IsWhiteSpace(nextSymbol)
+			                                          && (char.IsWhiteSpace(prevSymbol) || position == 0);
 		}
 
 		private List<ITag> GetOnePairOfTags(string symbol, string text)
@@ -61,11 +73,7 @@ namespace Markdown
 				if (tag.CloseIndex != -1)
 				{
 					pairedTags.Add(tag);
-					position = pairedTags.Last().CloseIndex + pairedTags.Last().Length;
-				}
-				else
-				{
-					position++;
+					position = pairedTags.Last().CloseIndex + pairedTags.Last().Length - 1;
 				}
 			}
 

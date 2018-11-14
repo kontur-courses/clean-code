@@ -41,7 +41,7 @@ namespace MarkdownTests
 		}
 
 		[Test]
-		public void ScreenSingleUnderLineTag_ShouldRenderWithoutChanges()
+		public void EscapedSingleUnderLineTags_ShouldRenderWithoutHtmlAndEscapedCharacters()
 		{
 			var text = @"hello \_world\_";
 			var actual = md.Render(text);

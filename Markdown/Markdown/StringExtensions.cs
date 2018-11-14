@@ -5,17 +5,28 @@ namespace Markdown
 {
 	public static class StringExtensions
 	{
-		public static string RemoveScreenCharacters(this string text) => text.Replace("\\", "");
-
-		public static bool IsOpenTag(this string symbol, string text, int position, Dictionary<string, ITag> dictionaryTags,
-			int tagLength)
+		public static string RemoveEscapedSymbols(this string text, List<string> escapedSymbols,
+			Dictionary<string, ITag> dictionaryTags)
 		{
-			var prevSymbol = text.LookAt(position - 1);
-			var nextSymbol = text.LookAt(position + tagLength);
+			var position = 0;
 
-			return dictionaryTags.ContainsKey(symbol) && !char.IsWhiteSpace(nextSymbol)
-			                                          && (char.IsWhiteSpace(prevSymbol) || position == 0);
+			while (position < text.Length - 1)
+			{
+				var symbol = text.LookAt(position).ToString();
+				var nextSymbol = text.LookAt(position + 1).ToString();
+
+				if (symbol.IsEscapedSymbol(nextSymbol, escapedSymbols, dictionaryTags))
+					text = text.Remove(position, 1);
+
+				position++;
+			}
+
+			return text;
 		}
+
+		private static bool IsEscapedSymbol(this string symbol, string nextSymbol, List<string> escapedSymbols,
+			Dictionary<string, ITag> dictionaryTags) =>
+			escapedSymbols.Contains(symbol) && dictionaryTags.ContainsKey(nextSymbol);
 
 		public static int FindCloseTagIndex(this string text, ITag tag)
 		{

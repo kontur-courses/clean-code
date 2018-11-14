@@ -29,7 +29,6 @@ namespace Markdown
 				htmlBuilder.Append(tag.HtmlOpen);
 				htmlBuilder.Append(GetInnerFormattedText(tag));
 				htmlBuilder.Append(tag.HtmlClose);
-
 				htmlBuilder.Append(nextTag != null
 					? text.Substring(tag.CloseIndex + tag.Length, nextTag.OpenIndex - tag.CloseIndex - tag.Length)
 					: text.Substring(tag.CloseIndex + tag.Length));
