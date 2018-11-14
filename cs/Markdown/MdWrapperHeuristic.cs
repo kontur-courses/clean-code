@@ -8,20 +8,23 @@ namespace Markdown
     public class MdWrapperHeuristic : IMdHeuristic
     {
         private readonly string wrappingSequence;
+        private readonly Md target;
+        public HtmlTextWriterTag Tag { get; }
+        
 
         public MdWrapperHeuristic(string wrappingSequence, HtmlTextWriterTag tag, Md target)
         {
             this.wrappingSequence = wrappingSequence;
+            this.target = target;
+            Tag = tag;
         }
 
-        public int OpenHeuristicLength => wrappingSequence.Length + 1;
-        public bool OpenHeuristic(char[] str)
+        public int OpenHeuristic(int index)
         {
             throw new NotImplementedException();
         }
 
-        public int CloseHeuristicLength => wrappingSequence.Length + 1;
-        public bool CloseHeuristic(char[] str)
+        public int CloseHeuristic(int index)
         {
             throw new NotImplementedException();
         }

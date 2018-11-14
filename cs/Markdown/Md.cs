@@ -10,7 +10,7 @@ namespace Markdown
     {
         private readonly IMdHeuristic[] orderedHeuristics;
         private readonly Stack<HtmlTextWriterTag> openTags = new Stack<HtmlTextWriterTag>();
-        
+        private string renderingString;
         
         public Md(IMdHeuristic[] orderedHeuristics)
         {
