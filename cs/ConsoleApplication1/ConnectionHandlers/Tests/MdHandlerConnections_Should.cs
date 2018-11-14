@@ -18,21 +18,21 @@ namespace ConsoleApplication1.ConnectionHandlers.Tests
         [TestCase(new[] { 1, 3, 7 }, TestName = "a couple of items with all different strengths")]
         [TestCase(new[] { 1, 1, 1 }, TestName = "all strengths have the same strength")]
         [TestCase(new[] { 1, 1, 5, 9 }, TestName = "half of strengths has the same value")]
-        public void TranslateConnections_ReturnsCorrectResidualStrengths_WhenThereIsNoConnections(int[] residentalStrengths)
+        public void TranslateConnections_ReturnsCorrectResidualStrengths_WhenThereIsNoConnections(int[] residualStrengths)
         {
-            var mdConvertedItems = handlerConnections.TranslateConnections(Enumerable.Empty<MarkdownConnection>(), residentalStrengths);
+            var mdConvertedItems = handlerConnections.TranslateConnections(Enumerable.Empty<MarkdownConnection>(), residualStrengths);
 
-            var actualResidualStrength = mdConvertedItems.Select(x => x.ResidentalStrength).ToArray();
+            var actualResidualStrength = mdConvertedItems.Select(x => x.ResidualStrength).ToArray();
 
-            actualResidualStrength.Should().BeEquivalentTo(residentalStrengths,
+            actualResidualStrength.Should().BeEquivalentTo(residualStrengths,
                 assertionOptions => assertionOptions.WithStrictOrdering());
         }
 
         [TestCase(new[] { 1 }, TestName = "one strength")]
         [TestCase(new[] { 1, 3, 9 }, TestName = "many strengths")]
-        public void TranslateConnections_ReturnsNonDirectedItems_WhenThereIsNoConnections(int[] residentalStrengths)
+        public void TranslateConnections_ReturnsNonDirectedItems_WhenThereIsNoConnections(int[] residualStrengths)
         {
-            var mdConvertedItems = handlerConnections.TranslateConnections(Enumerable.Empty<MarkdownConnection>(), residentalStrengths);
+            var mdConvertedItems = handlerConnections.TranslateConnections(Enumerable.Empty<MarkdownConnection>(), residualStrengths);
 
             mdConvertedItems.Should().OnlyContain(x => x.Direction == Direction.None);
         }
@@ -40,10 +40,10 @@ namespace ConsoleApplication1.ConnectionHandlers.Tests
         [TestCase(new[] { 1 }, TestName = "one strength")]
         [TestCase(new[] { 1, 9, 7 }, TestName = "many strengths")]
         [TestCase(new int[] { }, TestName = "no strengths")]
-        public void TranslateConnections_ReturnsCorrectCountOfStrengths_WhenThereIsNoConnection(int[] residentalStrengths)
+        public void TranslateConnections_ReturnsCorrectCountOfStrengths_WhenThereIsNoConnection(int[] residualStrengths)
         {
-            var mdConvertedItems = handlerConnections.TranslateConnections(Enumerable.Empty<MarkdownConnection>(), residentalStrengths);
-            var expectedLength = residentalStrengths.Length;
+            var mdConvertedItems = handlerConnections.TranslateConnections(Enumerable.Empty<MarkdownConnection>(), residualStrengths);
+            var expectedLength = residualStrengths.Length;
 
             mdConvertedItems.Should().HaveCount(expectedLength);
         }

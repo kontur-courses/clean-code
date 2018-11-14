@@ -8,17 +8,17 @@ namespace ConsoleApplication1.ConnectionHandlers.Containers
     {
         public readonly Direction Direction;
         public readonly IReadOnlyCollection<MdSelectionType> Selections;
-        public readonly int ResidentalStrength;
-        public MdConvertedItem(Direction direction, IReadOnlyCollection<MdSelectionType> selections, int residentalStrength)
+        public readonly int ResidualStrength;
+        public MdConvertedItem(Direction direction, IReadOnlyCollection<MdSelectionType> selections, int residualStrength)
         {
             Direction = direction;
             Selections = selections;
-            ResidentalStrength = residentalStrength;
+            ResidualStrength = residualStrength;
         }
 
-        private void RaiseIfRemainingStrengthIsIncorrect(int residentalStrength)
+        private void RaiseIfRemainingStrengthIsIncorrect(int residualStrength)
         {
-            if (residentalStrength < 0)
+            if (residualStrength < 0)
                 throw new ArgumentException("Remaining strength should be a non-negative number");
         }
     }

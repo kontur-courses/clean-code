@@ -7,21 +7,21 @@ namespace ConsoleApplication1.ConnectionHandlers.Containers
     public class MdConvertedItemNotSafe
     {
         public Direction Direction = Direction.None;
-        public int ResidentalStrength;
+        public int ResidualStrength;
         public List<MdSelectionType> Selections = new List<MdSelectionType>();
-        public MdConvertedItemNotSafe(int residentalStrength)
+        public MdConvertedItemNotSafe(int residualStrength)
         {
-            RaiseIfRemainingStrengthIsIncorrect(residentalStrength);
-            ResidentalStrength = residentalStrength;
+            RaiseIfRemainingStrengthIsIncorrect(residualStrength);
+            ResidualStrength = residualStrength;
         }
 
-        private void RaiseIfRemainingStrengthIsIncorrect(int residentalStrength)
+        private void RaiseIfRemainingStrengthIsIncorrect(int residualStrength)
         {
-            if (residentalStrength < 0)
+            if (residualStrength < 0)
                 throw new ArgumentException("Remaining strength should be a non-negative number");
         }
 
         public MdConvertedItem ToSafe()
-            => new MdConvertedItem(Direction, Array.AsReadOnly<MdSelectionType>(Selections.ToArray()), ResidentalStrength);
+            => new MdConvertedItem(Direction, Array.AsReadOnly<MdSelectionType>(Selections.ToArray()), ResidualStrength);
     }
 }
