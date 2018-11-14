@@ -8,7 +8,7 @@ namespace Markdown
     {
         static void Main(string[] args)
         {
-            var input = "_a _";
+            var input = "__a__";
 
             SetupReaders.Setup();
 

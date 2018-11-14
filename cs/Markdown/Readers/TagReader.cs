@@ -25,14 +25,13 @@ namespace Markdown.Readers
         private bool IsOpenTag(string text, int position)
         {
             return position < text.Length - mdTag.Length - 1 &&
-                   CanReadTag(text, position) &&
-                   (char.IsLetter(text[position + mdTag.Length])||
-                    text[position + mdTag.Length] == '\\');
-//                    
-//                    !char.IsWhiteSpace(text[position + mdTag.Length]) &&
-//                   (text.Substring(position + mdTag.Length, mdTag.Length) != mdTag) &&
-//                    
-//                    !char.IsDigit(text[position + mdTag.Length]);
+                   CanReadTag(text, position) && 
+                   IsLetterOrSlash(text[position + mdTag.Length]);
+        }
+
+        private bool IsLetterOrSlash(char symbol)
+        {
+            return char.IsLetter(symbol) || symbol == '\\';
         }
 
         private bool CanReadTag(string text, int position)
@@ -75,7 +74,7 @@ namespace Markdown.Readers
                 }
                 if (token.Text.Any(char.IsDigit)) break;
                 tokens.Add(token);
-                i += token.Position - i;
+                i = token.Position;
             }
 
             return null;
