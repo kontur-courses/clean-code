@@ -10,21 +10,17 @@ namespace Markdown
     {
         private readonly HashSet<Mark> marks = new HashSet<Mark>();
 
-        public Md(Mark firstMark, params Mark[] remainingMarks)
+        public Md(params Mark[] remainingMarks)
         {
-            marks.Add(firstMark);
             foreach (var mark in remainingMarks)
                 marks.Add(mark);
         }
 
         public string Render(string text)
         {
-            foreach (var mark in marks)
-            {
-                text = HtmlBuilder.Build(TokenParser.ParseByOne(text, mark));
-            }
-            text = HtmlBuilder.RemoveRedundantBackSlashes(text, marks);
-            return text;
+            var tokenParser = new TokenParser(marks);
+            var tokens = tokenParser.Parse(text);
+            return HtmlBuilder.RemoveRedundantBackSlashes(HtmlBuilder.Build(tokens, text), marks);
         }
     }
 }

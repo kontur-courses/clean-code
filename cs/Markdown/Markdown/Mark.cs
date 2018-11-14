@@ -26,6 +26,11 @@ namespace Markdown
             ClosingTag = closingTag;
         }
 
+        public bool Fits(Mark mark)
+        {
+            return Sign == mark.Sign ;
+        }
+
         public int FindOpeningIndex(string text,int startIndex)
         {
             while (startIndex < text.Length - Sign.Length * 2)

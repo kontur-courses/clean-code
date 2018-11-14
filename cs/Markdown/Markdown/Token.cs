@@ -8,13 +8,21 @@ namespace Markdown
 {
     public class Token
     {
-        public readonly string Text;
+        public readonly int StartIndex;
+        public int EndIndex { get; private set; }
         public readonly Mark Mark;
-
-        public Token(string text, Mark mark)
+        public List<Token> ChildTokens = new List<Token>();
+        public readonly Token FatherToken;
+        public Token(int startIndex, Mark mark, Token fatherToken = null)
         {
-            Text = text;
+            StartIndex = startIndex;
             Mark = mark;
+            FatherToken = fatherToken;
+        }
+
+        public void SetEndIndex(int endIndex)
+        {
+            EndIndex = endIndex;
         }
     }
 }
