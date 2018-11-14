@@ -12,6 +12,8 @@ namespace Markdown
             MdText = mdText;
         }
 
+        public void Skip(int stepsCount) => Position += stepsCount;
+
         public Token ReadUntil(Func<char, bool> isStopChar)
         {
             return ReadToken(c => !isStopChar(c));
@@ -25,13 +27,13 @@ namespace Markdown
         private Token ReadToken(Func<char, bool> condition)
         {
             var startPosition = Position;
-            while (condition(MdText[Position]) && Position < MdText.Length)
+            while (Position < MdText.Length && condition(MdText[Position]))
                 Position++;
 
             return new Token
             {
                 Length = Position - startPosition,
-                Position = Position
+                Position = startPosition
             };
         }
     }

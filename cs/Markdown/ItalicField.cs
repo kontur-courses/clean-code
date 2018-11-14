@@ -13,12 +13,23 @@ namespace Markdown
 
         public bool CheckIfOpen(char symbol, char left, char right)
         {
-            throw new NotImplementedException();
+            return SpecChecks(symbol, left, right) && !char.IsWhiteSpace(right);
         }
-
+        
         public bool CheckIfClosing(char symbol, char left, char right)
         {
-            throw new NotImplementedException();
+            return SpecChecks(symbol, left, right) && !char.IsWhiteSpace(left);
+        }
+
+        private bool SpecChecks(char symbol, char left, char right)
+        {
+            if (symbol != Marker[0])
+                return false;
+            if (left == '\\')
+                return false;
+            if (char.IsDigit(left) || char.IsDigit(right))
+                return false;
+            return right != '_';
         }
 
         public Type[] SupportedInnerTypes() => new Type[0];

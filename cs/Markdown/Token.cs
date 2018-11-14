@@ -1,4 +1,8 @@
-﻿namespace Markdown
+﻿using System;
+using System.Collections.Generic;
+using System.Linq;
+
+namespace Markdown
 {
     public class Token
     {
@@ -6,7 +10,7 @@
         public int Length;
         //public string Text;
         public ITokenType Type;
-        public Token[] InnerTokens;
+        public List<Token> InnerTokens = new List<Token>();
 
         public string ToHtml(string mdText)
         {
@@ -15,5 +19,13 @@
         }
 
         public string GetText(string mdText) => mdText.Substring(Position, Length);
+
+        public void Concat(Token another)
+        {
+            Position = Math.Min(Position, another.Position);
+            var endPosition = Math.Max(Position + Length, another.Position + another.Length);
+            Length = endPosition - Position;
+            InnerTokens.AddRange(another.InnerTokens);
+        }
     }
 }
