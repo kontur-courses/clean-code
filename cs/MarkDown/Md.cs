@@ -1,41 +1,42 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Linq;
 using System.Text;
-using System.Threading.Tasks;
+using MarkDown.TagTypes;
 
 namespace MarkDown
 {
-    //Непосредственно процессор
-    //Тестов пока нет, потому что все реализации тут - наброски, чтобы примерно показать архитектуру и нагрузки не несут
     public class Md
     {
-        private Tag firstTag;
-        private TagParser tagParser;
-        private int currentPosition;
-        private IEnumerable<TagType> availableTagTypes;
+        private readonly List<TagType> availableTagTypes;
 
         public Md(IEnumerable<TagType> availableTagTypes)
         {
-            tagParser = new TagParser();
-            this.availableTagTypes = availableTagTypes;
+            this.availableTagTypes = availableTagTypes.ToList();
         }
 
-        public string Renderer(string textParagraph)
-        {
-            currentPosition = 0;
-            firstTag = new Tag(null, 0, new ParagraphTag(), textParagraph);
-            return ParseMd(textParagraph).ParseToHtml();
-        }
+        public string Render(string textParagraph) => new ParagraphTag().ToHtml(ProcessText(textParagraph, availableTagTypes));
 
-        private Tag ParseMd(string text)
+        private string ProcessText(string text, IEnumerable<TagType> tagTypes)
         {
-            
-            //идти пока не найдешь спецсимвол любого из availableTags
-            //отдаем парсеру, парсер пытается найти закрывающий символ по всем канонам, если нашел, вернет true и в out тэг запишет
-            //полученный тэг назначаем родителем firstTag
-            //
-            throw new NotImplementedException();
+            var parser = new MarkDownParser(text, tagTypes);
+            var tokens = parser.GetTokens();
+            var result = new StringBuilder();
+            foreach (var token in tokens)
+            {
+                string htmlTag;
+                if (token.TokenType == TokenType.Tag)
+                {
+                    var innerTagTypes = availableTagTypes.Where(e => token.TagType.IsInAvailableNestedTagTypes(e)).ToList();
+                    var tokenContent = innerTagTypes.Any() ? ProcessText(token.Content, innerTagTypes).RemoveScreening() : token.Content;
+                    htmlTag = token.TagType.ToHtml(tokenContent);
+                }
+                else
+                    htmlTag = token.Content.RemoveScreening();
+
+                result.Append(htmlTag);
+            }
+
+            return result.ToString();
         }
     }
 }
