@@ -43,7 +43,7 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="StringExtensions.cs" />
-    <Compile Include="MdConverterHelper.cs" />
+    <Compile Include="ReplacementTags.cs" />
     <Compile Include="Tag\DoubleUnderLineTag.cs" />
     <Compile Include="Tag\ITag.cs" />
     <Compile Include="Md.cs" />

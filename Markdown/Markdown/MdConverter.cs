@@ -22,8 +22,8 @@ namespace Markdown
 			if (existingPairedTags.Count == 0)
 				return text;
 
-			var helperOfMdConverter = new MdConverterHelper(existingPairedTags, text);
-			var textInHtml = helperOfMdConverter.GetHtmlCode();
+			var replacementTags = new ReplacementTags(existingPairedTags, text);
+			var textInHtml = replacementTags.ReplaceToHtml();
 
 			return textInHtml;
 		}

@@ -5,18 +5,18 @@ using Markdown.Tag;
 
 namespace Markdown
 {
-	public class MdConverterHelper
+	public class ReplacementTags
 	{
 		private readonly List<ITag> pairedTags;
 		private readonly string text;
 
-		public MdConverterHelper(List<ITag> pairedTags, string text)
+		public ReplacementTags(List<ITag> pairedTags, string text)
 		{
 			this.pairedTags = pairedTags;
 			this.text = text;
 		}
 
-		public string GetHtmlCode()
+		public string ReplaceToHtml()
 		{
 			var startIndex = 0;
 			var htmlBuilder = new StringBuilder();
@@ -49,8 +49,8 @@ namespace Markdown
 			if (innerPairedTags.Count == 0)
 				return innerText;
 
-			var helperForMdConverter = new MdConverterHelper(innerPairedTags, innerText);
-			var htmlText = helperForMdConverter.GetHtmlCode();
+			var replacementTags = new ReplacementTags(innerPairedTags, innerText);
+			var htmlText = replacementTags.ReplaceToHtml();
 			return htmlText;
 		}
 	}
