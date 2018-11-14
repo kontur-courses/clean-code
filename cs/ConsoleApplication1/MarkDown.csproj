@@ -1,0 +1,130 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="14.0" DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <Import Project="..\packages\NUnit.3.11.0\build\NUnit.props" Condition="Exists('..\packages\NUnit.3.11.0\build\NUnit.props')" />
+  <Import Project="$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props" Condition="Exists('$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props')" />
+  <PropertyGroup>
+    <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
+    <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
+    <ProjectGuid>{F573F7DA-CF51-45EB-8C24-040AA3E49550}</ProjectGuid>
+    <OutputType>Exe</OutputType>
+    <AppDesignerFolder>Properties</AppDesignerFolder>
+    <RootNamespace>ConsoleApplication1</RootNamespace>
+    <AssemblyName>ConsoleApplication1</AssemblyName>
+    <TargetFrameworkVersion>v4.5.2</TargetFrameworkVersion>
+    <FileAlignment>512</FileAlignment>
+    <AutoGenerateBindingRedirects>true</AutoGenerateBindingRedirects>
+    <NuGetPackageImportStamp>
+    </NuGetPackageImportStamp>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
+    <PlatformTarget>AnyCPU</PlatformTarget>
+    <DebugSymbols>true</DebugSymbols>
+    <DebugType>full</DebugType>
+    <Optimize>false</Optimize>
+    <OutputPath>bin\Debug\</OutputPath>
+    <DefineConstants>DEBUG;TRACE</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
+    <PlatformTarget>AnyCPU</PlatformTarget>
+    <DebugType>pdbonly</DebugType>
+    <Optimize>true</Optimize>
+    <OutputPath>bin\Release\</OutputPath>
+    <DefineConstants>TRACE</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+  </PropertyGroup>
+  <ItemGroup>
+    <Reference Include="FluentAssertions, Version=5.5.0.0, Culture=neutral, PublicKeyToken=33f2691a05b67b6a, processorArchitecture=MSIL">
+      <HintPath>..\packages\FluentAssertions.5.5.0\lib\net45\FluentAssertions.dll</HintPath>
+      <Private>True</Private>
+    </Reference>
+    <Reference Include="nunit.framework, Version=3.11.0.0, Culture=neutral, PublicKeyToken=2638cd05610744eb, processorArchitecture=MSIL">
+      <HintPath>..\packages\NUnit.3.11.0\lib\net45\nunit.framework.dll</HintPath>
+      <Private>True</Private>
+    </Reference>
+    <Reference Include="System" />
+    <Reference Include="System.Core" />
+    <Reference Include="System.ValueTuple, Version=4.0.2.0, Culture=neutral, PublicKeyToken=cc7b13ffcd2ddd51, processorArchitecture=MSIL">
+      <HintPath>..\packages\System.ValueTuple.4.4.0\lib\netstandard1.0\System.ValueTuple.dll</HintPath>
+      <Private>True</Private>
+    </Reference>
+    <Reference Include="System.Xml.Linq" />
+    <Reference Include="System.Data.DataSetExtensions" />
+    <Reference Include="Microsoft.CSharp" />
+    <Reference Include="System.Data" />
+    <Reference Include="System.Net.Http" />
+    <Reference Include="System.Xml" />
+  </ItemGroup>
+  <ItemGroup>
+    <Compile Include="ConnectionHandlers\Containers\Connection.cs" />
+    <Compile Include="ConnectionHandlers\Containers\MdConvertedItemNotSave.cs" />
+    <Compile Include="ConnectionHandlers\DataHandlers\ConverterConnectionsToMarkdown.cs" />
+    <Compile Include="ConnectionHandlers\Tests\Connection_Should.cs" />
+    <Compile Include="ConnectionHandlers\Tests\ConverterConnectionsToMarkdown_Should.cs" />
+    <Compile Include="ConnectionHandlers\Tests\FilterMeaninglessMdConnection_Should.cs" />
+    <Compile Include="ConnectionHandlers\Tests\ItemsConnecter_Should.cs" />
+    <Compile Include="ConnectionHandlers\Tests\MdHandlerConnections_Should.cs" />
+    <Compile Include="ConnectionHandlers\Tests\TranslatorDirectedItemsToMdSelection_Should.cs" />
+    <Compile Include="Directions\TextDirectionDetector.cs" />
+    <Compile Include="Extensions\CharacterTypeExtensions.cs" />
+    <Compile Include="Extensions\ItemsConnecterExtensions.cs" />
+    <Compile Include="Extensions\StringReaderExtensions.cs" />
+    <Compile Include="Extensions\TextParserExtensions.cs" />
+    <Compile Include="Extensions\TypesTextExtensions.cs" />
+    <Compile Include="Interfaces\IDirectionChooser.cs" />
+    <Compile Include="Interfaces\ITextConverter.cs" />
+    <Compile Include="Parsers\Tests\StringReader_Should.cs" />
+    <Compile Include="Parsers\Tests\TextParser_Should.cs" />
+    <Compile Include="TextsConverter\TransformerMdSelectionsToHtmlData.cs" />
+    <Compile Include="UsefulEnums\Direction.cs" />
+    <Compile Include="ConnectionHandlers\DataHandlers\FilterMeaninglessMdConnection.cs" />
+    <Compile Include="Interfaces\IConnecter.cs" />
+    <Compile Include="Interfaces\IConverter.cs" />
+    <Compile Include="Interfaces\IFilter.cs" />
+    <Compile Include="Interfaces\IHandlerConnections.cs" />
+    <Compile Include="Interfaces\IParser.cs" />
+    <Compile Include="Interfaces\IReader.cs" />
+    <Compile Include="ConnectionHandlers\DataHandlers\ItemsConnecter.cs" />
+    <Compile Include="Interfaces\ITextRender.cs" />
+    <Compile Include="Interfaces\ITranslatterItems.cs" />
+    <Compile Include="UsefulEnums\MarkdownConnectionType.cs" />
+    <Compile Include="ConnectionHandlers\Containers\MarkdownConnection.cs" />
+    <Compile Include="Md.cs" />
+    <Compile Include="ConnectionHandlers\Containers\MdConvertedItem.cs" />
+    <Compile Include="ConnectionHandlers\DataHandlers\MdHandlerConnections.cs" />
+    <Compile Include="UsefulEnums\MdSelectionType.cs" />
+    <Compile Include="Program.cs" />
+    <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="RenderMdToHtml.cs" />
+    <Compile Include="Parsers\StringReader.cs" />
+    <Compile Include="Parsers\TextPart.cs" />
+    <Compile Include="Parsers\TextParser.cs" />
+    <Compile Include="UsefulEnums\TextTypes.cs" />
+    <Compile Include="ConnectionHandlers\DataHandlers\TranslatorDirectedItemsToMdSelection.cs" />
+    <Compile Include="UsefulEnums\CharacterType.cs" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="App.config" />
+    <None Include="packages.config" />
+  </ItemGroup>
+  <ItemGroup>
+    <Service Include="{82A7F48D-3B50-4B1E-B82E-3ADA8210C358}" />
+  </ItemGroup>
+  <ItemGroup />
+  <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
+  <Target Name="EnsureNuGetPackageBuildImports" BeforeTargets="PrepareForBuild">
+    <PropertyGroup>
+      <ErrorText>Данный проект ссылается на пакеты NuGet, отсутствующие на этом компьютере. Используйте восстановление пакетов NuGet, чтобы скачать их.  Дополнительную информацию см. по адресу: http://go.microsoft.com/fwlink/?LinkID=322105. Отсутствует следующий файл: {0}.</ErrorText>
+    </PropertyGroup>
+    <Error Condition="!Exists('..\packages\NUnit.3.11.0\build\NUnit.props')" Text="$([System.String]::Format('$(ErrorText)', '..\packages\NUnit.3.11.0\build\NUnit.props'))" />
+  </Target>
+  <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
+       Other similar extension points exist, see Microsoft.Common.targets.
+  <Target Name="BeforeBuild">
+  </Target>
+  <Target Name="AfterBuild">
+  </Target>
+  -->
+</Project>
