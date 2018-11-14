@@ -42,9 +42,12 @@
   <ItemGroup>
     <Compile Include="Language.cs" />
     <Compile Include="Md.cs" />
-    <Compile Include="SpecialSymbolMarker.cs" />
+    <Compile Include="TagMarker.cs" />
     <Compile Include="Tag.cs" />
     <Compile Include="TagKeeper.cs" />
+  </ItemGroup>
+  <ItemGroup>
+    <Reference Include="System" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
 </Project>
