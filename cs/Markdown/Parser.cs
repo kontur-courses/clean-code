@@ -34,6 +34,14 @@ namespace Markdown
                 tokens.Add(token);
             }
 
+            if (currentTokenType != null &&
+                !currentTokenType.CheckIfClosing(MdText[MdText.Length - 1], MdText[MdText.Length - 1], ' '))
+            {
+                tokens[tokens.Count - 1].Type = null;
+                tokens[tokens.Count - 1].Position--;
+                tokens[tokens.Count - 1].Length++;
+            }
+
             return tokens.ToArray();
         }
 
