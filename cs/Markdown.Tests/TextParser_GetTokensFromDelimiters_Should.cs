@@ -3,7 +3,7 @@ using System.Linq;
 using FluentAssertions;
 using NUnit.Framework;
 
-namespace Markdown
+namespace Markdown.Tests
 {
     [TestFixture]
     public class TextParser_GetTokensFromDelimiters_Should
@@ -21,15 +21,21 @@ namespace Markdown
         [TestCase("__delimiter__", 0, 13, TestName = "double underscore")]
         public void ReturnOneUnderscoreToken_WhenTwoDelimitersAtEdges(string text, int start, int length)
         {
-            var delimiters = parser.GetDelimiterPositions(text);
-            delimiters = parser.RemoveEscapedDelimiters(delimiters, text);
-            delimiters = parser.RemoveNonValidDelimiters(delimiters, text);
-            delimiters = parser.ValidatePairs(delimiters, text);
+            var delimiters = GetDelimiters(text);
             parser.GetTokensFromDelimiters(delimiters, text)
                   .Should()
                   .HaveCount(1)
                   .And.Subject.First()
                   .ShouldBeEquivalentTo(new UnderscoreToken(0, length, text.Substring(start, length)));
+        }
+
+        private List<Delimiter> GetDelimiters(string text)
+        {
+            var delimiters = parser.GetDelimiterPositions(text);
+            delimiters = parser.RemoveEscapedDelimiters(delimiters, text);
+            delimiters = parser.RemoveNonValidDelimiters(delimiters, text);
+            delimiters = parser.ValidatePairs(delimiters, text);
+            return delimiters;
         }
 
         [Category("UnderscoreRule")]
@@ -38,10 +44,8 @@ namespace Markdown
         //  [TestCase("__delimiter__", 2, 9, TestName = "double underscore")]
         public void ReturnStringToken_When(string text, int start, int length)
         {
-            var delimiters = parser.GetDelimiterPositions(text);
-            delimiters = parser.RemoveEscapedDelimiters(delimiters, text);
-            delimiters = parser.RemoveNonValidDelimiters(delimiters, text);
-            delimiters = parser.ValidatePairs(delimiters, text);
+            var delimiters = GetDelimiters(text);
+
             parser.GetTokensFromDelimiters(delimiters, text)
                   .Should()
                   .HaveCount(1)
@@ -54,10 +58,8 @@ namespace Markdown
         public void ReturnOneStringToken_WhenNoDelimiters()
         {
             const string text = "no text at all";
-            var delimiters = parser.GetDelimiterPositions(text);
-            delimiters = parser.RemoveEscapedDelimiters(delimiters, text);
-            delimiters = parser.RemoveNonValidDelimiters(delimiters, text);
-            delimiters = parser.ValidatePairs(delimiters, text);
+            var delimiters = GetDelimiters(text);
+
             parser.GetTokensFromDelimiters(delimiters, text)
                   .Should()
                   .HaveCount(1)
@@ -69,11 +71,9 @@ namespace Markdown
         [Test]
         public void ReturnStringTokenAndUnderscoreTokenAndStringToken_When()
         {
-            var text = "it`s a _del_ imiter";
-            var delimiters = parser.GetDelimiterPositions(text);
-            delimiters = parser.RemoveEscapedDelimiters(delimiters, text);
-            delimiters = parser.RemoveNonValidDelimiters(delimiters, text);
-            delimiters = parser.ValidatePairs(delimiters, text);
+            const string text = "it`s a _del_ imiter";
+            var delimiters = GetDelimiters(text);
+
             parser.GetTokensFromDelimiters(delimiters, text)
                   .ShouldBeEquivalentTo(new List<Token>
                   {
@@ -87,15 +87,32 @@ namespace Markdown
         [Test]
         public void ReturnUnderscoreTokenAndStringToken_When()
         {
-            var text = "_del_ imiter";
-            var delimiters = parser.GetDelimiterPositions(text);
-            delimiters = parser.RemoveEscapedDelimiters(delimiters, text);
-            delimiters = parser.RemoveNonValidDelimiters(delimiters, text);
-            delimiters = parser.ValidatePairs(delimiters, text);
+            const string text = "_del_ imiter";
+            var delimiters = GetDelimiters(text);
+
             parser.GetTokensFromDelimiters(delimiters, text)
                   .ShouldBeEquivalentTo(new List<Token>
                   {
                       new UnderscoreToken(0, 5, "_del_"), new StringToken(5, 7, " imiter")
+                  });
+        }
+        [Category("UnderscoreRule")]
+        [Test]
+        public void ReturnNestedUnderscoreTokens()
+        {
+            const string text = "_a __b__ a_";
+            var delimiters = GetDelimiters(text);
+
+            parser.GetTokensFromDelimiters(delimiters, text)
+                  .ShouldBeEquivalentTo(new List<Token>
+                  {
+                      new UnderscoreToken(0, 5, text)
+                      {
+                          InnerTokens = new List<Token>()
+                          {
+                              new UnderscoreToken(3,5,"__b__")
+                          }
+                      }
                   });
         }
     }

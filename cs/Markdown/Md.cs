@@ -5,9 +5,9 @@ namespace Markdown
     class Md
     {
         private readonly TextParser parser;
-        private readonly IHtmlCreator creator;
+        private readonly HtmlCreator creator;
 
-        public Md(TextParser parser, IHtmlCreator creator)
+        public Md(TextParser parser, HtmlCreator creator)
         {
             this.parser = parser;
             this.creator = creator;

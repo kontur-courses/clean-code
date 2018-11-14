@@ -1,8 +1,8 @@
-﻿using System.Collections.Generic;
-using System.Linq;
-using NUnit.Framework;
+﻿using System.Linq;
 using FluentAssertions;
-namespace Markdown
+using NUnit.Framework;
+
+namespace Markdown.Tests
 {
     [TestFixture]
     public class TextParser_GetDelimitersPositions_Should

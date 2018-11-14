@@ -1,6 +1,6 @@
 ﻿namespace Markdown
 {
-    public class UnderscoreRule : ILexerRule
+    internal class UnderscoreRule : ILexerRule
     {
         public Delimiter ProcessIncomingChar(int position, Delimiter previousDelimiter, out bool shouldRemovePrevious)
         {

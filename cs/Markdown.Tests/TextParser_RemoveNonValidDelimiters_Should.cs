@@ -1,7 +1,7 @@
 ﻿using FluentAssertions;
 using NUnit.Framework;
 
-namespace Markdown
+namespace Markdown.Tests
 {
     [TestFixture]
     public class TextParser_RemoveNonValidDelimiters_Should
