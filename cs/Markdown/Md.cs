@@ -1,53 +1,29 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿using System.Collections.Generic;
+using Markdown.Element;
+using Markdown.Token;
 
 namespace Markdown
 {
     public class Md
     {
-        public string Render(string markdown)
+        private readonly List<IElement> elements = new List<IElement>();
+
+        public Md(params IElement[] elements)
         {
-            var result = new StringBuilder(markdown);
-
-//            var allIndexesOf = markdown.AllIndexesOf("_");
-//            if (allIndexesOf.Count == 0)
-//                return markdown;
-
-            var emOpened = false;
-            var strongOpened = false;
-
-            for (int i = 0; i < result.Length; i++)
+            foreach (var element in elements)
             {
-                if (result[i] == '_')
-                {
-                    if (i == 0 || (i - 1 >= 0 && result[i - 1] != '\\'))
-                    {
-                        if (result[i + 1] == '_')
-                        {
-                            result.Remove(i, 2);
-                            result.Insert(i, strongOpened ? "</strong>" : "<strong>");
-                            strongOpened = !strongOpened;
+                this.elements.Add(element);
+            }
+        }
 
-
-                        }
-                        else
-                        {
-                            var check = i - 1 >= 0;
-                            if (i == 0 || check && result[i - 1] != '_')
-                            {
-                                result.Remove(i, 1);
-                                result.Insert(i, emOpened ? "</em>" : "<em>");
-                                emOpened = !emOpened;
-                            }
-                        }
-                    }
-                }
+        public string Render(string text)
+        {
+            foreach (var element in elements)
+            {
+                text = ResultFormatter.Form(TokenParser.Parse(text, element));
             }
 
-            return result.ToString();
+            return text.Replace(@"\", ""); ;
         }
     }
 }
