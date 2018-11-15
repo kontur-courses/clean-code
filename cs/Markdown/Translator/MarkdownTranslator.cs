@@ -21,18 +21,17 @@ namespace Markdown.Translator
                 new Bold()
             };
             tagsNesting = new Stack<MarkdownTag>();
-            pointer = 0;
         }
 
         public MarkdownTranslator(IReadOnlyCollection<MarkdownTag> tagsCollection)
         {
             this.tagsCollection = tagsCollection;
             tagsNesting = new Stack<MarkdownTag>();
-            pointer = 0;
         }
 
         public string Translate(string text)
         {
+            pointer = 0;
             var result = new StringBuilder();
             for (; pointer < text.Length; pointer++)
             {
@@ -86,10 +85,10 @@ namespace Markdown.Translator
         {
             if (startIndex + tag.Length >= line.Length)
                 return false;
-            if (startIndex != 0 && line.ElementAt(startIndex - 1) == '\\')
+            if (startIndex != 0 && line[startIndex - 1] == '\\')
                 return false;
 
-            var nextChar = line.ElementAt(startIndex + tag.Length);
+            var nextChar = line[startIndex + tag.Length];
             return
                  line.Substring(startIndex, tag.Length) == tag &&
                 char.IsLetter(nextChar);
@@ -102,7 +101,7 @@ namespace Markdown.Translator
                 startIndex = line.IndexOf(tag, startIndex, StringComparison.CurrentCulture);
                 if (startIndex == -1)
                     return false;
-                var previousChar = line.ElementAt(startIndex - 1);
+                var previousChar = line[startIndex - 1];
                 if (char.IsLetter(previousChar) &&
                     line.Substring(startIndex, tag.Length) == tag)
                     return true;

@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Diagnostics;
 using FluentAssertions;
 using NUnit.Framework;
 
@@ -29,7 +30,7 @@ namespace Markdown.Tests
             var result = md.Render(markdown);
 
             result.Should().StartWith("<p>")
-                       .And.EndWith("</p>");
+                .And.EndWith("</p>");
         }
 
         [TestCase("_em_", TestName = "Then input is \"_em_\"")]
@@ -114,6 +115,39 @@ namespace Markdown.Tests
             var result = md.Render(markdown);
 
             result.Should().NotContainAll("<em>", "</em>", "<strong>", "</strong>");
+        }
+
+        [TestCase(10)]
+        [TestCase(15)]
+        [TestCase(18)]
+        [TestCase(20)]
+        public void WorksAlmostLinearly(int maxRepeats)
+        {
+            var hugeLine = " _almost huge string_ with spaces  and e.t.c.!@^$&* __1__ ";
+            for (var i = 0; i < maxRepeats; i++)
+                hugeLine += hugeLine;
+            var halfOfHugeLine = hugeLine.Substring(hugeLine.Length / 2);
+
+            var elapsedMsForHuge = GetElapsedMsForLine(hugeLine);
+            var elapsedMsForHalfOfHuge = GetElapsedMsForLine(halfOfHugeLine);
+
+            elapsedMsForHuge.Should().BeInRange(elapsedMsForHalfOfHuge,
+                                                elapsedMsForHalfOfHuge * 4);
+        }
+
+        private long GetElapsedMsForLine(string line)
+        {
+            var md = new Md();
+            var watch = new Stopwatch();
+
+            watch.Start();
+            md.Render(line);
+            watch.Stop();
+
+            var lineLength = line.Length;
+            TestContext.WriteLine($"{lineLength / watch.ElapsedMilliseconds} characters per ms");
+
+            return watch.ElapsedMilliseconds;
         }
     }
 }
