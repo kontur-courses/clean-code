@@ -2,28 +2,34 @@
 
 namespace Markdown
 {
-    static class MarkupLanguage
+    internal static class MarkupLanguage
     {
         public static HashSet<string> KeyWords = new HashSet<string>();
         public static Dictionary<char, List<string>> KeywordsByFirstLetter = new Dictionary<char, List<string>>();
+        public static string Screening = @"\";
 
         static MarkupLanguage()
         {
+            // todo get Teg children (container)
             KeyWords.Add("__");
             KeyWords.Add("_");
 
-            foreach (var s in KeyWords)
+            KeyWords.Add(@"\");
+
+            foreach (var keyWord in KeyWords)
             {
-                if (KeywordsByFirstLetter.ContainsKey(s[0]))
+                if (KeywordsByFirstLetter.ContainsKey(keyWord[0]))
                 {
-                    KeywordsByFirstLetter[s[0]].Add(s);
+                    KeywordsByFirstLetter[keyWord[0]].Add(keyWord);
                 }
                 else
                 {
-                    var list = new List<string> {s};
-                    KeywordsByFirstLetter.Add(s[0], list);
+                    var list = new List<string> {keyWord};
+                    KeywordsByFirstLetter.Add(keyWord[0], list);
                 }
             }
+
+
         }
 
         public static bool IsKeyWords(string word)

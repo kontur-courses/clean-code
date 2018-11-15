@@ -2,13 +2,7 @@
 {
     public class TegStrong : Teg
     {
-        public TegStrong()
-        {
-            Rule = new Rule((t) => true);
-        }
-        public override string ToString()
-        {
-            return "strong";
-        }
+        public TegStrong() => TegRule = new TegRule((t) => true);
+        public override string ToString() => "strong";
     }
 }

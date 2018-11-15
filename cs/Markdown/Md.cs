@@ -7,37 +7,35 @@ namespace Markdown
 {
     public class Md
     {
-        private List<string> text;
-        private Stack<Teg> textSeparatorStack = new Stack<Teg>();
+        private List<string> splittedText = new List<string>();
+        private readonly Stack<Teg> textSeparatorStack = new Stack<Teg>();
         public string Render(string input)
         {
-            text = SplitList(input);
-            var res = new StringBuilder();
-            for (var index = 0; index < text.Count; index++)
+            splittedText = SplitList(input);
+            var result = new StringBuilder();
+            for (var index = 0; index < splittedText.Count; index++)
             {
-                if (!MarkupLanguage.IsKeyWords(text[index])) continue;
+                if (!MarkupLanguage.IsKeyWords(splittedText[index])) continue;
 
-                int number;
-                if (int.TryParse(text[index - 1], out number) || int.TryParse(text[index + 1], out number))
+                if (int.TryParse(splittedText[index - 1], out _) || int.TryParse(splittedText[index + 1], out _)) // todo highlight
                     continue;
 
-                if (index>0 && !text[index - 1].EndsWith(" ") && !IsNullOrEmpty(text[index - 1]))
+                if (splittedText[index] == MarkupLanguage.Screening) // todo highlight
                 {
-                    ClosingTeg(index);
+                    splittedText.RemoveAt(index++);
+                    continue;
                 }
 
-                if (!text[index + 1].StartsWith(" ") && !IsNullOrEmpty(text[index + 1]))
-                {
-                    OpeningTeg(index);
-                }
+                if (index > 0 && !splittedText[index - 1].EndsWith(" ") && !IsNullOrEmpty(splittedText[index - 1])) ClosingTeg(index);
+                else if (!splittedText[index + 1].StartsWith(" ") && !IsNullOrEmpty(splittedText[index + 1])) OpeningTeg(index);
             }
-            text.ForEach(t => res.Append(t));
-            return res.ToString();
+            splittedText.ForEach(t => result.Append(t));
+            return result.ToString();
         }
 
         private void OpeningTeg(int index)
         {
-            var currentSep = new TextSeparator(text[index], index);
+            var currentSep = new TextSeparator(splittedText[index], index);
             textSeparatorStack.Push(Teg.CreateTegOnTextSeparator(currentSep));
         }
 
@@ -45,22 +43,21 @@ namespace Markdown
         {
             TextSeparator currentSep;
             if (textSeparatorStack.Count <= 0 ||
-                (currentSep = textSeparatorStack.Peek().StartSeparator).separator != text[index])
+                (currentSep = textSeparatorStack.Peek().StartSeparator).Separator != splittedText[index])
                 return false;
             var teg = Teg.CreateTegOnTextSeparator(currentSep);
-            if (textSeparatorStack.All(t => t.Rule.Check(teg)))// в текущем контексте это нормально, но если тег не может содержать сам себя работать не будет
+            if (textSeparatorStack.All(t => t.TegRule.Check(teg))) // todo в текущем контексте это нормально, но если тег не может содержать сам себя работать не будет
             {
-                text[currentSep.index] = $"<{teg}>";
-                text[index] = $"</{teg}>";
+                splittedText[currentSep.Index] = $"<{teg}>";
+                splittedText[index] = $"</{teg}>";
             }
             textSeparatorStack.Pop();
             return true;
         }
 
-        public static List<string> SplitList(string input)
+        public List<string> SplitList(string input)
         {
             var text = new StringBuilder(input);
-            var splitedText = new List<string>();
             var currentToken = new StringBuilder();
             for (var i = 0; i < text.Length; i++)
             {
@@ -71,8 +68,8 @@ namespace Markdown
                     {
                         if (!CompareStringBuilderPartWithString(possibleKeyWord, text, i)) continue;
                         i += possibleKeyWord.Length-1;
-                        splitedText.Add(currentToken.ToString());
-                        splitedText.Add(possibleKeyWord);
+                        splittedText.Add(currentToken.ToString());
+                        splittedText.Add(possibleKeyWord);
                         currentToken.Clear();
                         break;
                     }
@@ -80,8 +77,8 @@ namespace Markdown
                 else
                     currentToken.Append(text[i]);
             }
-            splitedText.Add(currentToken.ToString());
-            return splitedText;
+            splittedText.Add(currentToken.ToString());
+            return splittedText;
         }
 
         private static bool CompareStringBuilderPartWithString(string possibleKeyWord, StringBuilder text, int index)

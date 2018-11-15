@@ -1,14 +1,14 @@
 ﻿namespace Markdown
 {
-    public class TextSeparator
+    public struct TextSeparator
     {
-        public string separator;
-        public int index;
+        public string Separator { get; }
+        public int Index { get; }
 
         public TextSeparator(string separator, int index)
         {
-            this.separator = separator;
-            this.index = index;
+            Separator = separator;
+            Index = index;
         }
     }
 }

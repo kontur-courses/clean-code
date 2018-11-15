@@ -61,7 +61,7 @@
     <Compile Include="Md_Should.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
-    <Compile Include="Rule.cs" />
+    <Compile Include="TegRule.cs" />
     <Compile Include="Teg.cs" />
     <Compile Include="TegEm.cs" />
     <Compile Include="TegStrong.cs" />
