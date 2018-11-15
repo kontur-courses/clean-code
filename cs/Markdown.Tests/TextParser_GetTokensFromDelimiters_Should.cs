@@ -1,6 +1,7 @@
 ﻿using System.Collections.Generic;
 using System.Linq;
 using FluentAssertions;
+using FluentAssertions.Equivalency;
 using NUnit.Framework;
 
 namespace Markdown.Tests
@@ -55,6 +56,25 @@ namespace Markdown.Tests
 
         [Category("UnderscoreRule")]
         [Test]
+        public void ReturnNestedUnderscoreTokens()
+        {
+            const string text = "_a __b__ a_";
+            var delimiters = GetDelimiters(text);
+            var outerToken = new UnderscoreToken(0, 11, text);
+            var innerToken = new UnderscoreToken(3, 5, "__b__");
+            innerToken.ParentToken = outerToken;
+            outerToken.InnerTokens = new List<Token> {innerToken};
+
+            parser.GetTokensFromDelimiters(delimiters, text)
+                  .Should()
+                  .HaveCount(1)
+                  .And.Subject.First()
+                  .ShouldBeEquivalentTo(outerToken,
+                                        options => options.ExcludeMember(nameof(Token.ParentToken)));
+        }
+
+        [Category("UnderscoreRule")]
+        [Test]
         public void ReturnOneStringToken_WhenNoDelimiters()
         {
             const string text = "no text at all";
@@ -96,24 +116,16 @@ namespace Markdown.Tests
                       new UnderscoreToken(0, 5, "_del_"), new StringToken(5, 7, " imiter")
                   });
         }
-        [Category("UnderscoreRule")]
-        [Test]
-        public void ReturnNestedUnderscoreTokens()
-        {
-            const string text = "_a __b__ a_";
-            var delimiters = GetDelimiters(text);
+    }
 
-            parser.GetTokensFromDelimiters(delimiters, text)
-                  .ShouldBeEquivalentTo(new List<Token>
-                  {
-                      new UnderscoreToken(0, 5, text)
-                      {
-                          InnerTokens = new List<Token>()
-                          {
-                              new UnderscoreToken(3,5,"__b__")
-                          }
-                      }
-                  });
+    public static class FluentAssertionsOptionsExtensions
+    {
+        public static EquivalencyAssertionOptions<TDeclaring> ExcludeMember<TDeclaring>(
+            this EquivalencyAssertionOptions<TDeclaring> options,
+            string fieldName)
+        {
+            return options.Excluding(info => info.SelectedMemberInfo.Name.Equals(fieldName) &&
+                                             info.SelectedMemberInfo.DeclaringType == typeof(TDeclaring));
         }
     }
 }

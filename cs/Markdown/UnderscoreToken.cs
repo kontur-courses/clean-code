@@ -19,7 +19,7 @@ namespace Markdown
         public override string Value { get; set; }
         public override List<Token> InnerTokens { get; set; }
         public override Token ParentToken { get; set; }
-        public override string ToHtml()
+        public override string  ToHtml()
         {
 
             if (InnerTokens == null || InnerTokens.Count == 0)
@@ -29,12 +29,13 @@ namespace Markdown
             foreach (var innerToken in InnerTokens)
             {
                 var htmlToken = innerToken.ToHtml();
-                text = text.Substring(0, innerToken.Position) +
+                var position = innerToken.Position - Position;
+                text = text.Substring(0, position) +
                        htmlToken +
-                       text.Substring(innerToken.Position + innerToken.Length);
+                       text.Substring(position + innerToken.Length);
 
             }
-            text = single ? text.Substring(1, text.Length - 2) : text.Substring(2, text.Length - 3);
+            text = single ? text.Substring(1, text.Length - 2) : text.Substring(2, text.Length - 4);
             text = single ? $"<em>{text}</em>" : $"<strong>{text}</strong>";
             return text;
         }

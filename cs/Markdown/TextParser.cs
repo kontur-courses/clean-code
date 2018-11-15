@@ -32,7 +32,7 @@ namespace Markdown
 
         internal List<Delimiter> ValidatePairs(List<Delimiter> delimiters, string text)
         {
-            var stack = new Stack<Delimiter>();
+            var stack =  new Stack<Delimiter>();
             foreach (var delimiter in delimiters)
                 if (stack.Count > 0 &&
                     stack.Peek()
@@ -80,14 +80,43 @@ namespace Markdown
                 return new List<Token> {new StringToken(0, text.Length, text)};
 
             var tokens = new LinkedList<Token>();
-
+            Token currentParent = null;
+            Delimiter endOfParent = null;
             foreach (var delimiter in delimiters)
             {
                 var rule = GetSuitableRule(delimiter);
-
                 var token = rule.GetToken(delimiter, text);
+
                 if (token != null)
-                    tokens.AddLast(token);
+                {
+                    if (currentParent == null)
+                    {
+                        currentParent = token;
+                        endOfParent = delimiter.Partner;
+                        tokens.AddLast(token);
+
+                    }
+
+                    if (delimiter.Partner.Position < endOfParent.Position)
+                    {
+                        token.ParentToken = currentParent;
+                        if (currentParent.InnerTokens == null)
+                            currentParent.InnerTokens = new List<Token>();
+                        currentParent.InnerTokens.Add(token);
+                    }
+                    
+
+
+                }
+
+                else if (currentParent != null)
+                {
+                    if (delimiter.Position >= endOfParent.Position)
+                    {
+                        currentParent = null;
+                        endOfParent = null;
+                    }
+                }
             }
 
             var currentToken = tokens.First;
