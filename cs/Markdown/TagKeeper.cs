@@ -26,7 +26,7 @@
                    && Md.Equals(otherTagKeeper.Md);
         }
 
-        public bool Contains(string value)
-            => Html.Value.Contains(value) || Md.Value.Contains(value);
+        public bool ContainsMd(string value)
+            => Md.Value.Contains(value);
     }
 }

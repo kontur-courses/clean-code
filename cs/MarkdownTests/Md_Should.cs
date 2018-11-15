@@ -14,11 +14,21 @@ namespace MarkdownTests
         [SetUp]
         public void SetUp()
         {
-            var tagHtml = new Tag("<em>", Language.Html);
-            var tagMd = new Tag("_", Language.Md);
-            var tagKeeper = new TagKeeper(tagHtml, tagMd);
-            var tagList = new List<TagKeeper> { tagKeeper };
+            var emTag = MakeTag("_", "<em>");
+            var strongTag = MakeTag("__", "<strong>");
+            var tagList = new List<TagKeeper>
+            {
+                emTag,
+                strongTag
+            };
             md = new Md(tagList);
+        }
+
+        private TagKeeper MakeTag(string md, string html)
+        {
+            var tagHtml = new Tag(html, Language.Html);
+            var tagMd = new Tag(md, Language.Md);
+            return new TagKeeper(tagHtml, tagMd);
         }
 
         [Test]
@@ -36,6 +46,17 @@ namespace MarkdownTests
         {
             var input = "_word_";
             var expected = "<em>word</em>";
+
+            var result = md.Render(input);
+
+            result.Should().Be(expected);
+        }
+
+        [Test]
+        public void ReplaceTwoGroundSymbolsToStrongTags()
+        {
+            var input = "__word__";
+            var expected = "<strong>word</strong>";
 
             var result = md.Render(input);
 

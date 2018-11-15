@@ -58,7 +58,7 @@ namespace Markdown
 
         private void AddMdTagMarker(string mdTag, int position)
         {
-            var tagKeeper = tags.First(t => t.Is(mdTag));
+            var tagKeeper = tags.FirstOrDefault(t => t.Is(mdTag));
             if (tagKeeper == null)
                 return;
             var marker = new TagMarker(tagKeeper, position);
@@ -66,7 +66,7 @@ namespace Markdown
         }
 
         private bool IsSpecialSymbol(string symbol)
-            => tags.Any(t => t.Contains(symbol));
+            => tags.Any(t => t.ContainsMd(symbol));
 
         private void ReplaceTags(StringBuilder line)
         {
@@ -94,7 +94,7 @@ namespace Markdown
         private Tuple<TagMarker, TagMarker> FindMarkersToChange()
         {
             var tagToChange = mdTagsBuffer.Pop();
-            if (!mdTagsBuffer.Any(m => m.TagKeeper.Equals(tagToChange.TagKeeper)))
+            if (!IsCloserTag(tagToChange))
             {
                 mdTagsBuffer.Push(tagToChange);
                 return null;
@@ -109,6 +109,9 @@ namespace Markdown
 
             return null;
         }
+
+        private bool IsCloserTag(TagMarker marker)
+            => mdTagsBuffer.Any(m => m.TagKeeper.Equals(marker.TagKeeper));
 
         private bool IsEscape(StringBuilder line, int position)
             => line[position] == '\\';
