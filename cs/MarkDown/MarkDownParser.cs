@@ -26,7 +26,6 @@ namespace MarkDown
                 if (tagToken != null)
                 {
                     var possibleTextTag = new Token(textTokenStart, text.Substring(textTokenStart, currentPosition - textTokenStart));
-
                     result.ConditionalAdd(textTokenStart != currentPosition, possibleTextTag);
                     result.Add(tagToken);
 
@@ -59,11 +58,17 @@ namespace MarkDown
                 if (!text.IsClosingTag(i, specialSymbol)) continue;
                 var content = text.Substring(currentPosition + specialSymbol.Length,
                     i - currentPosition - specialSymbol.Length);
-
-                return new Token(currentPosition, content, tagType);
+                
+                return IsNumberLessToken(i) ? new Token(currentPosition, content, tagType) : null;
             }
             
             return null;
+        }
+
+        private bool IsNumberLessToken(int endPosition)
+        {
+            return !(text.Substring(0, currentPosition).Split().Last().Any(char.IsDigit)
+                && text.Substring(endPosition).Split().First().Any(char.IsDigit));
         }
     }
 }

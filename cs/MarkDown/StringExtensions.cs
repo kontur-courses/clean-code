@@ -28,7 +28,7 @@ namespace MarkDown
             return (previousChar == '\0' || !char.IsDigit(previousChar))
                    && previousChar != '\\'
                    && nextChar != '\0'
-                   && char.IsLetter(nextChar)
+                   && char.IsLetterOrDigit(nextChar)
                    && text.Substring(startPosition).StartsWith(specialSymbol);
         }
 
@@ -38,7 +38,7 @@ namespace MarkDown
             var previousChar = text.SeekFromPosition(startPosition, -1);
             var nextChar = text.SeekFromPosition(startPosition, specialSymbol.Length);
             return (nextChar == '\0' || !char.IsDigit(nextChar)) 
-                   && char.IsLetter(previousChar) 
+                   && char.IsLetterOrDigit(previousChar) 
                    && previousChar != '\\' 
                    && nextChar.ToString() != specialSymbol 
                    && text.Substring(startPosition).StartsWith(specialSymbol);
