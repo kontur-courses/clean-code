@@ -38,34 +38,54 @@ namespace Markdown
             var builder = new StringBuilder();
             Spans = Spans.OrderBy(s => s.StartIndex).ToList();
 
-            builder.Append(!TagPair.CanBeInside && Parent != null && Parent.IsMainSpan == false ? TagPair.InitialOpen : TagPair.FinalOpen);
-
-            if (Spans.Count == 0)
-            {
-                builder.Append(rowString.Substring(StartIndex + TagPair.InitialOpen.Length,
-                    EndIndex - (StartIndex + TagPair.InitialOpen.Length))); 
-            }
-            else
-            {
-                builder.Append(rowString.Substring(StartIndex + TagPair.InitialOpen.Length,
-                            Spans[0].StartIndex - (StartIndex + TagPair.InitialOpen.Length)));
-
-                for (var i = 0; i < Spans.Count - 1; i++)
-                {
-                    builder.Append(Spans[i].Assembly(rowString));
-                    builder.Append(rowString.Substring(Spans[i].EndIndex + Spans[i].TagPair.InitialClose.Length,
-                        Spans[i + 1].StartIndex - (Spans[i].EndIndex + Spans[i].TagPair.InitialClose.Length)));
-                }
-
-                var lastSpan = Spans[Spans.Count - 1];
-                builder.Append(lastSpan.Assembly(rowString));
-                
-                builder.Append(rowString.Substring(lastSpan.EndIndex + lastSpan.TagPair.InitialClose.Length,
-                    EndIndex - (lastSpan.EndIndex + lastSpan.TagPair.InitialClose.Length)));
-            }
-            builder.Append(!TagPair.CanBeInside && Parent != null && Parent.IsMainSpan == false ? TagPair.InitialClose : TagPair.FinalClose);
+            builder.Append(GetOpenTag());
+            builder.Append(Spans.Count == 0 ? GetRowSpan(rowString) : GetFullSpan(rowString));
+            builder.Append(GetCloseTag());
 
             return builder.ToString();
+        }
+
+        private string GetRowSpan(string rowString)
+        {
+            return rowString.Substring(StartIndex + TagPair.InitialOpen.Length,
+                EndIndex - (StartIndex + TagPair.InitialOpen.Length));
+        }
+
+        private string GetFullSpan(string rowString)
+        {
+            var builder = new StringBuilder();
+
+            builder.Append(rowString.Substring(StartIndex + TagPair.InitialOpen.Length,
+                Spans[0].StartIndex - (StartIndex + TagPair.InitialOpen.Length)));
+
+            for (var i = 0; i < Spans.Count - 1; i++)
+            {
+                builder.Append(Spans[i].Assembly(rowString));
+                builder.Append(rowString.Substring(Spans[i].EndIndex + Spans[i].TagPair.InitialClose.Length,
+                    Spans[i + 1].StartIndex - (Spans[i].EndIndex + Spans[i].TagPair.InitialClose.Length)));
+            }
+
+            var lastSpan = Spans[Spans.Count - 1];
+            builder.Append(lastSpan.Assembly(rowString));
+
+            builder.Append(rowString.Substring(lastSpan.EndIndex + lastSpan.TagPair.InitialClose.Length,
+                EndIndex - (lastSpan.EndIndex + lastSpan.TagPair.InitialClose.Length)));
+
+            return builder.ToString();
+        }
+
+        private string GetOpenTag()
+        {
+            return !TagPair.CanBeInside && Parent != null && Parent.IsMainSpan == false
+                ? TagPair.InitialOpen
+                : TagPair.FinalOpen;
+        }
+
+        private string GetCloseTag()
+        {
+            return !TagPair.CanBeInside && Parent != null && Parent.IsMainSpan == false
+                ? TagPair.InitialClose
+                : TagPair.FinalClose;
         }
 
         public void PutSpan(Span span)

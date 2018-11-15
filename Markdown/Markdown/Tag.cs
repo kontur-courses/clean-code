@@ -20,5 +20,21 @@ namespace Markdown
             Close = close;
             CanBeInside = canBeInside;
         }
+
+        public override int GetHashCode()
+        {
+            return Name.GetHashCode() ^ (Open.GetHashCode() * Close.GetHashCode());
+            
+        }
+
+        public override bool Equals(object obj)
+        {
+            if (obj == null || obj.GetType() != GetType())
+                return false;
+
+            var otherTag = (Tag)obj;
+            return Open == otherTag.Open && Close == otherTag.Open &&
+                   Name == otherTag.Name && CanBeInside == otherTag.CanBeInside;
+        }
     }
 }

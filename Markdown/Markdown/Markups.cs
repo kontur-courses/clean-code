@@ -20,7 +20,7 @@ namespace Markdown
             new Tag("strong", "__", "__", false),
             new Tag("italic", "_", "_")
         });
-
+        
         public static Markup Rtf { get; } = new Markup("HTML", new List<Tag>()
         {
             new Tag("strong", "@{\b", "}", false),
