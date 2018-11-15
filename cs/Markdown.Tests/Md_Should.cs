@@ -36,7 +36,7 @@ namespace Markdown.Tests
         [TestCase("_a_", TestName = "Then input is \"_a_\"")]
         [TestCase("_a_ _a_", 2, TestName = "Then input is \"_a_ _a_\"")]
         [TestCase("_long string   with spaces_", TestName = "Then input is \"_long string   with spaces_\"")]
-        public void RenderParsesInputWithEmTag(string markdown, int pairCount = 1)
+        public void RenderParsesInput_WithEmTag(string markdown, int pairCount = 1)
         {
             var md = new Md();
             var renderedMd = md.Render(markdown);
@@ -50,7 +50,7 @@ namespace Markdown.Tests
         [TestCase("__s__ __s__", 2, TestName = "Then input is \"__s__ __s__\"")]
         [TestCase("__a__", TestName = "Then input is \"__a__\"")]
         [TestCase("__long string   with spaces__", TestName = "Then input is \"__long string   with spaces__\"")]
-        public void RenderParsesInputWithStrongTag(string markdown, int pairCount = 1)
+        public void RenderParsesInput_WithStrongTag(string markdown, int pairCount = 1)
         {
             var md = new Md();
             var renderedMd = md.Render(markdown);
@@ -79,7 +79,7 @@ namespace Markdown.Tests
         }
 
         [Test]
-        public void RenderParsesInputWithCombinableNestedTags()
+        public void RenderParsesInput_WithCombinableNestedTags()
         {
             var md = new Md();
 
@@ -89,7 +89,7 @@ namespace Markdown.Tests
         }
 
         [Test]
-        public void RenderParsesInputWithUncombinableNestedTags()
+        public void RenderParsesInput_WithUncombinableNestedTags()
         {
             var md = new Md();
 

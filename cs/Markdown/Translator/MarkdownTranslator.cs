@@ -11,8 +11,7 @@ namespace Markdown.Translator
     {
         private readonly IReadOnlyCollection<MarkdownTag> tagsCollection;
         private readonly Stack<MarkdownTag> tagsNesting;
-        private readonly StringBuilder sb;
-        private int index;
+        private int pointer;
 
         public MarkdownTranslator()
         {
@@ -22,79 +21,77 @@ namespace Markdown.Translator
                 new Bold()
             };
             tagsNesting = new Stack<MarkdownTag>();
-            sb = new StringBuilder();
-            index = 0;
+            pointer = 0;
         }
 
         public MarkdownTranslator(IReadOnlyCollection<MarkdownTag> tagsCollection)
         {
             this.tagsCollection = tagsCollection;
             tagsNesting = new Stack<MarkdownTag>();
-            sb = new StringBuilder();
-            index = 0;
+            pointer = 0;
         }
 
         public string Translate(string text)
         {
-            for (; index < text.Length; index++)
+            var result = new StringBuilder();
+            for (; pointer < text.Length; pointer++)
             {
-                var currentTag = GetTag(text, index);
+                var currentTag = GetTag(text, pointer);
                 if (currentTag != default(MarkdownTag))
                 {
                     if (tagsNesting.Any())
                     {
                         var previousTag = tagsNesting.Peek();
                         if (currentTag != previousTag && previousTag.CanContain(currentTag))
-                            ParseTagOpening(currentTag);
+                            result.Append(ParseTagOpening(currentTag));
                         else
-                            ParseTagEnding(currentTag);
+                            result.Append(ParseTagEnding(tagsNesting.Pop()));
                     }
-                    else if (HasCorrectEnding(currentTag.Tag, text, index + currentTag.Length))
-                        ParseTagOpening(currentTag);
+                    else if (HasCorrectEnding(currentTag.Tag, text, pointer + currentTag.Length))
+                        result.Append(ParseTagOpening(currentTag));
                 }
                 else
-                    sb.Append(text[index]);
+                    result.Append(text[pointer]);
             }
 
-            return sb.ToString();
+            return result.ToString();
         }
 
-        private void ParseTagOpening(MarkdownTag tag)
+        private string ParseTagOpening(MarkdownTag tag)
         {
-            sb.Append(tag.OpenTagTranslation);
-            index += tag.Length - 1;
+            pointer += tag.Length - 1;
             tagsNesting.Push(tag);
+            return tag.OpenTagTranslation;
         }
 
-        private void ParseTagEnding(MarkdownTag tag)
+        private string ParseTagEnding(MarkdownTag tag)
         {
-            sb.Append(tag.CloseTagTranslation);
-            index += tag.Length - 1;
-            tagsNesting.Pop();
+            pointer += tag.Length - 1;
+            return tag.CloseTagTranslation;
         }
 
-        private MarkdownTag GetTag(string line, int i)
+        private MarkdownTag GetTag(string line, int index)
         {
             var possibleTags = tagsCollection
-                .Where(tag => tag.StartsWith(line[i]));
+                .Where(tag => tag.StartsWith(line[index]));
 
-            if (tagsNesting.Any(tag => tag.Tag == line.Substring(i, tag.Length)))
+            if (tagsNesting.Any(tag => tag.Tag == line.Substring(index, tag.Length)))
                 return tagsNesting
-                    .First(tag => HasCorrectEnding(tag.Tag, line, i));
+                    .First(tag => HasCorrectEnding(tag.Tag, line, index));
 
-            return possibleTags.FirstOrDefault(t => IsCorrectTagOpening(t.Tag, line, i));
+            return possibleTags.FirstOrDefault(t => IsCorrectTagOpening(t.Tag, line, index));
         }
 
-        private bool IsCorrectTagOpening(string tag, string line, int index)
+        private bool IsCorrectTagOpening(string tag, string line, int startIndex)
         {
-            if (index + tag.Length >= line.Length)
+            if (startIndex + tag.Length >= line.Length)
                 return false;
-            if (index != 0 && line.ElementAt(index - 1) == '\\')
+            if (startIndex != 0 && line.ElementAt(startIndex - 1) == '\\')
                 return false;
 
-            var nextChar = line.ElementAt(index + tag.Length);
+            var nextChar = line.ElementAt(startIndex + tag.Length);
             return
-                 line.Substring(index, tag.Length) == tag &&
+                 line.Substring(startIndex, tag.Length) == tag &&
                 char.IsLetter(nextChar);
         }
 

@@ -13,7 +13,8 @@ namespace Markdown.Tag
 
         protected MarkdownTag(string tag, string translation, params Type[] possibleInnerTags)
         {
-            Tag = tag;
+            translation = translation.ToLower();
+            Tag = tag.ToLower();
             OpenTagTranslation = $"<{translation}>";
             CloseTagTranslation = $"</{translation}>";
             this.possibleInnerTags = possibleInnerTags;
