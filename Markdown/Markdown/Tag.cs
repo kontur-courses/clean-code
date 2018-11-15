@@ -11,12 +11,14 @@ namespace Markdown
         public string Name { get; }
         public string Open { get; }
         public string Close { get; }
+        public bool CanBeInside { get; }
 
-        public Tag(string name, string open, string close)
+        public Tag(string name, string open, string close, bool canBeInside=true)
         {
             Name = name;
             Open = open;
             Close = close;
+            CanBeInside = canBeInside;
         }
     }
 }

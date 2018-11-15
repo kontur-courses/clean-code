@@ -56,7 +56,15 @@ namespace MarkdownTests
         
         [TestCase(@"__abc _cde_ abc__", @"<strong>abc <em>cde</em> abc</strong>")]
         [TestCase(@"__abc _cde_ _cde_ abc__", @"<strong>abc <em>cde</em> <em>cde</em> abc</strong>")]
-        public void ShouldParse_TagInTag(string rowString, string expected)
+        public void ShouldParse_ItalicInStrong(string rowString, string expected)
+        {
+            var result = parser.Render(rowString, Markups.Markdown, Markups.Html);
+            result.Should().BeEquivalentTo(expected);
+        }
+
+        [TestCase(@"_abc __cde__ abc_", @"<em>abc __cde__ abc</em>")]
+        [TestCase(@"_abc __cde__ __cde__ abc_", @"<em>abc __cde__ __cde__ abc</em>")]
+        public void ShouldParse_StrongInItalic_AsSymbols(string rowString, string expected)
         {
             var result = parser.Render(rowString, Markups.Markdown, Markups.Html);
             result.Should().BeEquivalentTo(expected);

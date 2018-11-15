@@ -8,11 +8,12 @@ namespace Markdown
 {
     public class Span
     {
-        private Span parent;
         public TagPair TagPair { get; set; }
         public int StartIndex { get; set; }
         public int EndIndex { get; set; }
         public List<Span> Spans { get; set; }
+        public Span Parent { get; set; }
+        public bool IsMainSpan = false;
 
         public Span(TagPair tagPair, int startIndex)
         {
@@ -36,8 +37,8 @@ namespace Markdown
 
             var builder = new StringBuilder();
             Spans = Spans.OrderBy(s => s.StartIndex).ToList();
-            
-            builder.Append(TagPair.FinalOpen);
+
+            builder.Append(!TagPair.CanBeInside && Parent != null && Parent.IsMainSpan == false ? TagPair.InitialOpen : TagPair.FinalOpen);
 
             if (Spans.Count == 0)
             {
@@ -62,7 +63,7 @@ namespace Markdown
                 builder.Append(rowString.Substring(lastSpan.EndIndex + lastSpan.TagPair.InitialClose.Length,
                     EndIndex - (lastSpan.EndIndex + lastSpan.TagPair.InitialClose.Length)));
             }
-            builder.Append(TagPair.FinalClose);
+            builder.Append(!TagPair.CanBeInside && Parent != null && Parent.IsMainSpan == false ? TagPair.InitialClose : TagPair.FinalClose);
 
             return builder.ToString();
         }
@@ -77,7 +78,7 @@ namespace Markdown
             if (nextSpan == null)
             {
                 Spans.Add(span);
-                span.parent = this;
+                span.Parent = this;
                 return;
             }
 
@@ -89,24 +90,16 @@ namespace Markdown
             foreach (var span in Spans.ToArray())
             {
                 span.RemoveNotClosedSpans();
-                if (span.EndIndex == 0)
+                if (span.EndIndex != 0)
+                    continue;
+
+                Spans.Remove(span);
+                foreach (var spanSpan in span.Spans)
                 {
-                    Spans.Remove(span);
-                    Spans.AddRange(Spans);
+                    Spans.Add(spanSpan);
+                    spanSpan.Parent = this;
                 }
             }
-        //}
-        //public void RemoveNotClosedSpans()
-        //{
-        //    foreach (var span in Spans.ToArray())
-        //    {
-        //        span.RemoveNotClosedSpans();
-        //        if (EndIndex == 0)
-        //        {
-        //            parent.Spans.Remove(this);
-        //            parent.Spans.AddRange(Spans);
-        //        }
-        //    }
         }
     }
 }

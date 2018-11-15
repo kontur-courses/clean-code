@@ -12,13 +12,15 @@ namespace Markdown
         public string InitialClose { get; }
         public string FinalOpen { get; }
         public string FinalClose { get; }
+        public bool CanBeInside { get; }
 
-        public TagPair(string initialStart, string initialEnd, string finalOpen, string finalClose)
+        public TagPair(string initialStart, string initialEnd, string finalOpen, string finalClose, bool canBeInside=true)
         {
             InitialOpen = initialStart;
             InitialClose = initialEnd;
             FinalOpen = finalOpen;
             FinalClose = finalClose;
+            CanBeInside = canBeInside;
         }
 
         public override int GetHashCode()

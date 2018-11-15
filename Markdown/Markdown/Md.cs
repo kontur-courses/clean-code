@@ -21,7 +21,7 @@ namespace Markdown
 
         private string Parse(string markdownString)
         {
-            var mainSpan = new Span(emptyTagPair, 0, markdownString.Length);
+            var mainSpan = new Span(emptyTagPair, 0, markdownString.Length ) { IsMainSpan = true };
             var openedSpans = new List<Span>();
 
             for (; index < markdownString.Length; index++)
@@ -112,7 +112,7 @@ namespace Markdown
                 if (endTag == null)
                     continue;
 
-                result.Add(new TagPair(tag.Open, tag.Close, endTag.Open, endTag.Close));
+                result.Add(new TagPair(tag.Open, tag.Close, endTag.Open, endTag.Close, endTag.CanBeInside && tag.CanBeInside));
             }
 
             return result;
