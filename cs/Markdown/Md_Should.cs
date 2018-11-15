@@ -4,7 +4,7 @@ using NUnit.Framework;
 namespace Markdown
 {
     [TestFixture]
-    public class Md_Should//todo возможно стоит переписать на тест кейсы
+    public class Md_Should // todo возможно стоит переписать на тест кейсы
     {
         private Md md;
 
@@ -105,7 +105,7 @@ namespace Markdown
         }
 
         [Test]
-        public void Return_ClosingItalicTegBetweenTwoWods()
+        public void Return_ClosingItalicTegBetweenTwoWords()
         {
             md.Render("word _word_word_ word").Should().Be("word <em>word</em>word_ word");
         }
