@@ -8,20 +8,20 @@ namespace Markdown
 {
     public class Md
     {
-        private readonly IMdHeuristic[] orderedHeuristics;
+        private readonly IMdTag[] orderedTags;
         private readonly Stack<HtmlTextWriterTag> openTags = new Stack<HtmlTextWriterTag>();
         private string renderingString;
         
-        public Md(IMdHeuristic[] orderedHeuristics)
+        public Md(IMdTag[] orderedTags)
         {
-            this.orderedHeuristics = orderedHeuristics;
+            this.orderedTags = orderedTags;
         }
 
         public Md() =>
             new Md(new []
             {
-                new MdWrapperHeuristic("__", HtmlTextWriterTag.Strong,this),
-                new MdWrapperHeuristic("_", HtmlTextWriterTag.U,this),
+                new MdWrappingTag("__", HtmlTextWriterTag.Strong,this),
+                new MdWrappingTag("_", HtmlTextWriterTag.U,this),
             });
 
         public IEnumerable<HtmlTextWriterTag> OpenTags => openTags;

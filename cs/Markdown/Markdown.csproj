@@ -90,12 +90,13 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="IMdHeuristic.cs" />
+    <Compile Include="IMdTag.cs" />
     <Compile Include="Md.cs" />
-    <Compile Include="MdWrapperHeuristic.cs" />
+    <Compile Include="MdWrappingTag.cs" />
     <Compile Include="Md_Should.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="StringChange.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="packages.config" />
