@@ -61,7 +61,11 @@
     <Compile Include="MdToHTMLConverter.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="Specification.cs" />
     <Compile Include="StringSearcher.cs" />
+    <Compile Include="Substring.cs" />
+    <Compile Include="Tests\MdTests.cs" />
+    <Compile Include="Tests\StringSearcherTests.cs" />
     <Compile Include="Token.cs" />
   </ItemGroup>
   <ItemGroup>

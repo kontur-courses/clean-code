@@ -10,25 +10,10 @@ using NUnit.Framework.Constraints;
 
 namespace Markdown
 {
-    class Substring
-    {
-        public int Index { get; private set; }
-        public string Value { get; private set; }
-        public int Length => Value.Length;
-
-        public Substring(int index, string value)
-        {
-            Index = index;
-            Value = value;
-        }
-    }
+    
 
     class StringSearcher
     {
-        public StringSearcher()
-        {
-        }
-
         public IEnumerable<Substring> GetAllSubstrings(HashSet<string> substrings, string stringToSearch)
         {
             if (substrings.Count == 0)
@@ -47,7 +32,6 @@ namespace Markdown
                     }
                 }
 
-
                 if (current.Length == 0)
                     continue;
 
@@ -56,48 +40,6 @@ namespace Markdown
             }
 
             return result;
-        }
-    }
-
-    [TestFixture]
-    public class StringSearcher_Should
-    {
-        private StringSearcher searcher = new StringSearcher();
-
-        [Test]
-        public void GetAllIndexesOfSubstrings_WorksOn_SingleSubstring()
-        {
-            var input = "someinput";
-            var substrings = new HashSet<string>() {"in"};
-            searcher.GetAllSubstrings(substrings, input)
-                .Should()
-                .BeEquivalentTo(new List<Substring>() {new Substring(4, "in")});
-        }
-
-        [Test]
-        public void GetAllIndexesOfSubstrings_WorksOn_TwoSubstrings()
-        {
-            var input = "someinput";
-            var substrings = new HashSet<string>() {"put", "in",};
-            searcher.GetAllSubstrings(substrings, input)
-                .Should()
-                .BeEquivalentTo(new List<Substring>() {new Substring(4, "in"), new Substring(6, "put")});
-        }
-
-        [Test]
-        public void GetAllIndexesOfSubstrings_ReturnsEmpty_WhenEmptySubstrings()
-        {
-            var input = "someinput";
-            var substrings = new HashSet<string>();
-            searcher.GetAllSubstrings(substrings, input).Should().BeEmpty();
-        }
-
-        [Test]
-        public void GetAllIndexesOfSubstrings_ReturnsEmpty_WhenNothingFound()
-        {
-            var input = "someinput";
-            var substrings = new HashSet<string>() {"hi"};
-            searcher.GetAllSubstrings(substrings, input).Should().BeEmpty();
         }
     }
 }

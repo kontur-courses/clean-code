@@ -12,6 +12,7 @@ namespace Markdown
         public readonly bool canBeStarting;
         public int index;
         public string delimiter;
+        public DelimeterType delimiterType;
 
         public Delimiter(string delimiter, int index, bool canBeClosing, bool canBeStarting)
         {
@@ -20,5 +21,10 @@ namespace Markdown
             this.canBeClosing = canBeClosing;
             this.canBeStarting = canBeStarting;
         }
+    }
+
+    public class DelimeterType
+    {
+        
     }
 }

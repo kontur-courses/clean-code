@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Globalization;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -14,6 +15,14 @@ namespace Markdown
         private int index;
         private HashSet<string> delimiters = new HashSet<string>() {"_", "__", "\\"};
 
+        private Dictionary<string, TokenType> semantic = new Dictionary<string, TokenType>()
+        {
+            {"_", TokenType.italic},
+            {"__", TokenType.bold},
+            {" ", TokenType.text},
+            {"\\", TokenType.escaped},
+        };
+
         public MarkdownParser(string markdownInput)
         {
             this.markdownInput = markdownInput;
@@ -27,6 +36,10 @@ namespace Markdown
             return true;
         }
 
+        private bool TokensCanBeNested(Token childToken, Token parentToken)
+        {
+            return false;
+        }
 
         public Token GetTokens()
         {
@@ -38,16 +51,22 @@ namespace Markdown
                 var textLength = delimiter.index - prevIndex - prevLength;
                 currentToken.AddText(markdownInput.Substring(prevIndex + prevLength, textLength));
 
+                prevIndex = delimiter.index;
+                prevLength = delimiter.delimiter.Length;
 
-                if (currentToken.ParentToken?.StartingDelimiter != null &&
-                    currentToken.ParentToken.StartingDelimiter.delimiter == "\\")
+                if (currentToken.StartingDelimiter != null &&
+                    currentToken.StartingDelimiter.delimiter == "\\")
                 {
                     if (textLength == 0)
                     {
-                        currentToken.ParentToken.AddText(delimiter.delimiter);
+                        currentToken.AddText(delimiter.delimiter);
                     }
 
-                    currentToken = currentToken.ParentToken.ParentToken;
+                    currentToken.closed = true;
+                    currentToken.tokenType = TokenType.escaped;
+
+                    currentToken = currentToken.ParentToken;
+                    continue;
                 }
 
                 var closed = delimiter.canBeClosing && TryCloseToken(delimiter);
@@ -69,9 +88,6 @@ namespace Markdown
                 {
                     currentToken = currentToken.ParentToken;
                 }
-
-                prevIndex = delimiter.index;
-                prevLength = delimiter.delimiter.Length;
             }
 
             currentToken.AddText(markdownInput.Substring(prevIndex + prevLength));
@@ -82,11 +98,16 @@ namespace Markdown
         private bool TryCloseToken(Delimiter closingDelimiter)
         {
             var token = currentToken;
+            if (token?.StartingDelimiter is null)
+                return false;
             while (token.StartingDelimiter.delimiter != closingDelimiter.delimiter &&
                    token.ClosingDelimiter is null)
             {
                 if (token.ParentToken is null)
+                {
                     return false;
+                }
+
                 token = token.ParentToken;
             }
 
@@ -96,13 +117,16 @@ namespace Markdown
             }
 
             if (IsCorrectToken(token))
+            {
+                token.closed = true;
+                token.tokenType = semantic[token.StartingDelimiter.delimiter];
                 return true;
+            }
             else
             {
                 token.ClosingDelimiter = null;
                 token.StartingDelimiter = null;
                 token.InsertText(0, closingDelimiter.delimiter);
-
                 return false;
             }
         }
@@ -118,8 +142,7 @@ namespace Markdown
             {
                 var canBeClosing = CanBeClosing(substring);
                 var canBeStarting = CanBeStarting(substring);
-                var escaped = IsEscaped(substring);
-                if ((canBeStarting || canBeClosing) && !escaped)
+                if ((canBeStarting || canBeClosing))
                 {
                     var delimiter = new Delimiter(substring.Value, substring.Index, canBeClosing, canBeStarting);
                     result.Add(delimiter);
@@ -136,18 +159,13 @@ namespace Markdown
 
         private bool CanBeStarting(Substring substring)
         {
-            return substring.Index + substring.Length + 1 < markdownInput.Length &&
-                   markdownInput[substring.Index + substring.Length + 1] != ' ';
+            return substring.Index + substring.Length < markdownInput.Length &&
+                   markdownInput[substring.Index + substring.Length] != ' ';
         }
 
         private bool CanBeClosing(Substring substring)
         {
-            return substring.Index != 0 && markdownInput[substring.Index - 1] != ' ';
+            return substring.Value != "\\" && substring.Index != 0 && markdownInput[substring.Index - 1] != ' ';
         }
-    }
-
-    [TestFixture]
-    public class MarkdownParser_Tests
-    {
     }
 }

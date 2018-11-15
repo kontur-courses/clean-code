@@ -6,6 +6,14 @@ using System.Threading.Tasks;
 
 namespace Markdown
 {
+    public enum TokenType
+    {
+        italic,
+        bold,
+        text,
+        escaped
+    }
+
     public class Token
     {
         //Текст - это токен;
@@ -17,6 +25,9 @@ namespace Markdown
         public Token ParentToken { get; private set; }
         public Token RootToken { get; private set; }
         public string text { get; private set; }
+        public bool closed;
+        public TokenType tokenType = TokenType.text;
+
 
         public Token()
         {
@@ -53,7 +64,6 @@ namespace Markdown
         {
             var textToken = new Token {text = text};
             InsertToken(position, textToken);
-            
         }
     }
 }

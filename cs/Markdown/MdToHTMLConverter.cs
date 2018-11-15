@@ -8,6 +8,13 @@ namespace Markdown
 {
     public class MdToHTMLConverter
     {
+        private Dictionary<TokenType, string> semantic = new Dictionary<TokenType, string>
+        {
+            {TokenType.italic, "em"},
+            {TokenType.bold, "strong"},
+            {TokenType.escaped, ""}
+        };
+
         public MdToHTMLConverter()
         {
         }
@@ -23,41 +30,36 @@ namespace Markdown
 
         public string GetStringFromToken(Token token)
         {
+            if (token.text != null)
+                return token.text;
             var result = new StringBuilder();
-            if (!(token.StartingDelimiter is null))
-            {
-
-                if (token.ClosingDelimiter is null)
-                {
-                    result.Append(token.StartingDelimiter.delimiter);
-                }
-
-                else if (token.StartingDelimiter.delimiter == "_")
-                    result.Append("<em>");
-                else if (token.StartingDelimiter.delimiter == "__")
-                    result.Append("<strong>");
-            }
-
-            if (token.tokens.Count == 0)
-            {
-                result.Append(token.text);
-                return result.ToString();
-            }
-
             foreach (var tkn in token.tokens)
             {
                 result.Append(GetStringFromToken(tkn));
             }
 
-            if (!(token.ClosingDelimiter is null))
+            string startString = "";
+            string closingString = "";
+            if (token.tokenType == TokenType.text)
             {
-                if (token.StartingDelimiter.delimiter == "_")
-                    result.Append("</em>");
-                if (token.StartingDelimiter.delimiter == "__")
-                    result.Append("</strong>");
+                if (token.StartingDelimiter != null)
+                {
+                    startString = token.StartingDelimiter.delimiter;
+                }
+
+                if (token.ClosingDelimiter != null)
+                {
+                    closingString = token.ClosingDelimiter.delimiter;
+                }
             }
 
-            return result.ToString();
+            else if (token.tokenType != TokenType.escaped)
+            {
+                startString = "<" + semantic[token.tokenType] + ">";
+                closingString = "</" + semantic[token.tokenType] + ">";
+            }
+
+            return startString + result.ToString() + closingString;
         }
     }
 }
