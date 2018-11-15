@@ -63,6 +63,7 @@
     <Compile Include="DoubleUnderscoreElementTest.cs" />
     <Compile Include="EmphasisParser_Should.cs" />
     <Compile Include="HtmlRenderer_Should.cs" />
+    <Compile Include="MdTest.cs" />
     <Compile Include="StringExtensionTest.cs" />
     <Compile Include="UnderscoreElementTest.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
