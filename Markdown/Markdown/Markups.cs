@@ -11,7 +11,7 @@ namespace Markdown
         //properties
         public static Markup Html { get; } = new Markup("HTML", new List<Tag>()
         {
-            new Tag("strong", "<strong>", "</strong>", false),
+            new Tag("strong", "<strong>", "</strong>"),
             new Tag("italic", "<em>", "</em>")
         });
 
@@ -23,7 +23,7 @@ namespace Markdown
         
         public static Markup Rtf { get; } = new Markup("HTML", new List<Tag>()
         {
-            new Tag("strong", "@{\b", "}", false),
+            new Tag("strong", "@{\b", "}"),
             new Tag("italic", @"{\i", "}")
         });
     }
