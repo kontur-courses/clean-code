@@ -36,6 +36,28 @@ namespace MarkdownTests
             });
         }
 
+        [TestMethod]
+        public void TokenizeSimpleUnderscores()
+        {
+            var markdownSource = "Hello, _world_!";
+
+            Tokenizer.Tokenize(markdownSource).Should().BeEquivalentTo(new[]
+            {
+                new Token(7, 14, Tag.Em)
+            });
+        }
+
+        [Test]
+        public void TokenizeSimpleDoubleUnderscores()
+        {
+            var markdownSource = "Hello, __world__!";
+
+            Tokenizer.Tokenize(markdownSource).Should().BeEquivalentTo(new[]
+            {
+                new Token(7, 16, Tag.Strong)
+            });
+        }
+
         [TestCase("hello _people", Description = "Single updaired underscore")]
         [TestCase("hello __people", Description = "Single unpaired double-underscore")]
         [TestCase("hel_lo__people", Description = "Mix of unpaired underscores")]

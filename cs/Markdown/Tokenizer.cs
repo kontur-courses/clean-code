@@ -9,5 +9,20 @@ namespace Markdown
         {
             throw new NotImplementedException();
         }
+
+        public Token ReadRawToken(TokenReader reader)
+        {
+            throw new NotImplementedException();
+        }
+
+        public Token ReadEmToken(TokenReader reader)
+        {
+            throw new NotImplementedException();
+        }
+
+        public Token ReadStrongToken(TokenReader reader)
+        {
+            throw new NotImplementedException();
+        }
     }
 }

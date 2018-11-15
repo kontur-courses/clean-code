@@ -49,6 +49,7 @@
     <Compile Include="Tag.cs" />
     <Compile Include="Token.cs" />
     <Compile Include="Tokenizer.cs" />
+    <Compile Include="TokenReader.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="App.config" />
