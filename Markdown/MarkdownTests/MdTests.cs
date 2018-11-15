@@ -14,77 +14,31 @@ namespace MarkdownTests
         [SetUp]
         public void SetUp()
         {
-            parser = new Md(new MarkdownParser());
+            
         }
 
-        [TestCase("aa _bb_ aa", @"aa <em>bb</em> aa")]
-        [TestCase("_abc_", @"<em>abc</em>")]
-        [TestCase(" _abc_", @" <em>abc</em>")]
-        [TestCase("_abc_ ", @"<em>abc</em> ")]
-        [TestCase("_abc_ d _abc_", @"<em>abc</em> d <em>abc</em>")]
-        public void ShouldParse_Italic(string rowString, string expected)
+        [TestCase("_abc_", @"<em>abc</em>", TestName = "Tagged italic word")]
+        [TestCase("__abc__", @"<strong>abc</strong>", TestName = "Tagged strong word")]
+        [TestCase("aa _bb_ aa", @"aa <em>bb</em> aa", TestName = "Tagged word between words")]
+        [TestCase("_abc_ d _abc_", @"<em>abc</em> d <em>abc</em>", TestName = "Word between tagged words")]
+        [TestCase(@"\_asd\_", "_asd_", TestName = "Escape both tags")]
+        [TestCase(@" \_ ", " _ ", TestName = "Escape one symbol")]
+        [TestCase(@"_\_a_", @"<em>_a</em>", TestName = "Escape half of tag")]
+        [TestCase(@"_abc_ __abc__", @"<em>abc</em> <strong>abc</strong>", TestName = "Italic and strong")]
+        [TestCase(@"__abc__ _abc_", @"<strong>abc</strong> <em>abc</em>", TestName = "Strong and italic")]
+        [TestCase(@"__abc _cde_ abc__", @"<strong>abc <em>cde</em> abc</strong>", TestName = "Italic in strong")]
+        [TestCase(@"__abc _cde_ _cde_ abc__", @"<strong>abc <em>cde</em> <em>cde</em> abc</strong>", TestName = "Two italic in strong")]
+        [TestCase(@"_abc __cde__ abc_", @"<em>abc __cde__ abc</em>", TestName = "Strong in italic")]
+        [TestCase(@"_abc __cde__ __cde__ abc_", @"<em>abc __cde__ __cde__ abc</em>", TestName = "Two strong in italic")]
+        [TestCase("_a", "_a", TestName = "Not closed tag")]
+        [TestCase("_a __b", "_a __b", TestName = "Not closed tags")]
+        [TestCase("_a __abc__", @"_a <strong>abc</strong>", TestName = "Not closed before closed")]
+        [TestCase("_ __a _", "<em> __a </em>", TestName = "Not closed in closed")]
+        [TestCase("a_a_", "a_a_", TestName = "No whitespace before tag")]
+        [TestCase("_a_a", "_a_a", TestName = "No whitespace after tag")]
+        public void ParserShould(string rowString, string expected)
         {
-            var result = parser.Render(rowString, Markups.Html);
-            result.Should().BeEquivalentTo(expected);
-        }
-
-        [TestCase(@"\_asd\_", "_asd_")]
-        [TestCase(@" \_ ", " _ ")]
-        [TestCase(@" \_ _\_a_ \_", @" _ <em>_a</em> _")]
-        [TestCase(@" \_abcdefg\_ ", " _abcdefg_ ")]
-        //[TestCase(@"\", @"\")]
-        public void ShouldParse_EscapeSymbols(string rowString, string expected)
-        {
-            var result = parser.Render(rowString, Markups.Html);
-            result.Should().BeEquivalentTo(expected);
-        }
-
-        [TestCase("__abc__", @"<strong>abc</strong>")]
-        public void ShouldParse_Strong(string rowString, string expected)
-        {
-            var result = parser.Render(rowString, Markups.Html);
-            result.Should().BeEquivalentTo(expected);
-        }
-
-        [TestCase(@"_abc_ __abc__", @"<em>abc</em> <strong>abc</strong>")]
-        [TestCase(@"__abc__ _abc_", @"<strong>abc</strong> <em>abc</em>")]
-        public void ShouldParse_StrongAndItalic(string rowString, string expected)
-        {
-            var result = parser.Render(rowString, Markups.Html);
-            result.Should().BeEquivalentTo(expected);
-        }
-        
-        [TestCase(@"__abc _cde_ abc__", @"<strong>abc <em>cde</em> abc</strong>")]
-        [TestCase(@"__abc _cde_ _cde_ abc__", @"<strong>abc <em>cde</em> <em>cde</em> abc</strong>")]
-        public void ShouldParse_ItalicInStrong(string rowString, string expected)
-        {
-            var result = parser.Render(rowString, Markups.Html);
-            result.Should().BeEquivalentTo(expected);
-        }
-
-        [TestCase(@"_abc __cde__ abc_", @"<em>abc __cde__ abc</em>")]
-        [TestCase(@"_abc __cde__ __cde__ abc_", @"<em>abc __cde__ __cde__ abc</em>")]
-        public void ShouldParse_StrongInItalic_AsSymbols(string rowString, string expected)
-        {
-            var result = parser.Render(rowString, Markups.Html);
-            result.Should().BeEquivalentTo(expected);
-        }
-
-        [TestCase("_a", "_a")]
-        [TestCase("_a __b", "_a __b")]
-        [TestCase("_a __abc__", @"_a <strong>abc</strong>")]
-        [TestCase("__a _abc_", @"__a <em>abc</em>")]
-        [TestCase("_ __a _", "<em> __a </em>")]
-        public void ShouldParse_NotClosed_AsSymbols(string rowString, string expected)
-        {
-            var result = parser.Render(rowString, Markups.Html);
-            result.Should().BeEquivalentTo(expected);
-        }
-
-        [TestCase("a_a_", "a_a_")]
-        [TestCase("_a_a", "_a_a")]
-        public void ShouldParse_OnlyTagsWithWhitespacesAtTheEdges(string rowString, string expected)
-        {
+            var parser = new Md(new MarkdownParser());
             var result = parser.Render(rowString, Markups.Html);
             result.Should().BeEquivalentTo(expected);
         }
