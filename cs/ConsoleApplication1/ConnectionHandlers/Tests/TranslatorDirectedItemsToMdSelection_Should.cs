@@ -12,7 +12,7 @@ namespace ConsoleApplication1.ConnectionHandlers.Tests
     [TestFixture]
     public class TranslatorDirectedItemsToMdSelection_Should
     {
-        private ITranslatorDirectedItems<int, MdConvertedItem> translator;
+        private ITranslatorDirectedItems<int> translator;
         private readonly Random random = new Random();
 
         [SetUp]

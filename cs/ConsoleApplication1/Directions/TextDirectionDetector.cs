@@ -6,9 +6,20 @@ namespace ConsoleApplication1.Directions
 {
     public class DetectorTextDirection : IDirectionChooser<TextType>
     {
-        public Direction GetDirection(TextType leftItem, TextType rightItem)
+        public Direction GetDirection(TextType leftType, TextType rightType)
         {
-            throw new NotImplementedException();
+            if (IsItText(leftType))
+            {
+                return IsItText(rightType)
+                    ? Direction.BothSides
+                    : Direction.Left;
+            }
+            return IsItText(rightType)
+                ? Direction.Right
+                : Direction.None;
         }
+
+        private bool IsItText(TextType type)
+            => type == TextType.SimpleText;
     }
 }

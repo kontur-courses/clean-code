@@ -69,6 +69,7 @@
     <Compile Include="ConnectionHandlers\Tests\MdConvertedItems_Should.cs" />
     <Compile Include="ConnectionHandlers\Tests\MdHandlerConnections_Should.cs" />
     <Compile Include="ConnectionHandlers\Tests\TranslatorDirectedItemsToMdSelection_Should.cs" />
+    <Compile Include="Directions\DetectorTextDirection_Should.cs" />
     <Compile Include="Directions\TextDirectionDetector.cs" />
     <Compile Include="Extensions\CharacterTypeExtensions.cs" />
     <Compile Include="Extensions\ItemsConnecterExtensions.cs" />
@@ -79,7 +80,10 @@
     <Compile Include="Interfaces\ITextConverter.cs" />
     <Compile Include="Parsers\Tests\StringReader_Should.cs" />
     <Compile Include="Parsers\Tests\TextParser_Should.cs" />
-    <Compile Include="TextsConverter\TransformerMdSelectionsToHtmlData.cs" />
+    <Compile Include="Renders\RenderMdToHtml_Should.cs" />
+    <Compile Include="Tests\Md_Should.cs" />
+    <Compile Include="TextsConverter\ConverterMdSelectionsToHtmlData.cs" />
+    <Compile Include="TextsConverter\ConverterMdSelectionsToHtmlData_Should.cs" />
     <Compile Include="UsefulEnums\Direction.cs" />
     <Compile Include="ConnectionHandlers\DataHandlers\FilterMeaninglessMdConnection.cs" />
     <Compile Include="Interfaces\IConnecter.cs" />
@@ -99,7 +103,7 @@
     <Compile Include="UsefulEnums\MdSelectionType.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
-    <Compile Include="RenderMdToHtml.cs" />
+    <Compile Include="Renders\RenderMdToHtml.cs" />
     <Compile Include="Parsers\StringReader.cs" />
     <Compile Include="Parsers\TextPart.cs" />
     <Compile Include="Parsers\TextParser.cs" />

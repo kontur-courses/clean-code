@@ -7,7 +7,7 @@ using ConsoleApplication1.UsefulEnums;
 
 namespace ConsoleApplication1.ConnectionHandlers.DataHandlers
 {
-    public class TranslatorDirectedItemsToMdSelection : ITranslatorDirectedItems<int, MdConvertedItem>
+    public class TranslatorDirectedItemsToMdSelection : ITranslatorDirectedItems<int>
     {
         private readonly IConnecter connecter;
         private readonly IConverter<Connection, MarkdownConnection> converter;
@@ -27,9 +27,11 @@ namespace ConsoleApplication1.ConnectionHandlers.DataHandlers
                 .Select(x => filter.Filter(x));
         }
 
-        public IEnumerable<MdConvertedItem> ExtractConvertedItems()
+        public IReadOnlyCollection<MdConvertedItem> ExtractConvertedItems()
         {
-            return handler.TranslateConnections(ExtractConnections(), connecter.GetResidualStrength().ToList());
+            return handler
+                .TranslateConnections(ExtractConnections(), connecter.GetResidualStrength())
+                .ToArray();
         }
 
         private void RaiseIfGivenStrengthIsIncorrect(int strength)

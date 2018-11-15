@@ -4,6 +4,6 @@ namespace ConsoleApplication1.Interfaces
 {
     public interface IDirectionChooser<in TKey>
     {
-        Direction GetDirection(TKey leftItem, TKey rightItem);
+        Direction GetDirection(TKey leftType, TKey rightType);
     }
 }
