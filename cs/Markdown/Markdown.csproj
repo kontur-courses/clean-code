@@ -61,7 +61,6 @@
     <Compile Include="Md.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
-    <Compile Include="MarkdownToHTML.cs" />
     <Compile Include="Tests.cs" />
   </ItemGroup>
   <ItemGroup>

@@ -11,9 +11,9 @@ namespace Markdown
 {
     class Tests
     {
-        [TestCase("__w\nw__", TestName = "Md Render Should Not Transform __ Tag In Diferent Lines", ExpectedResult = "__w\nw__")]
-        [TestCase("_w\nw_", TestName = "Md Render Should Not Transform _ Tag In Diferent Lines", ExpectedResult = "_w\nw_")]
-        [TestCase("__w_w_w__", TestName = "Md Render Should Transform _ Tag Into __ Tag", ExpectedResult = "<strong>w<em>w</em>w</strong>")]
+        [TestCase("__w\nw__", TestName = "Md Render Should Not Transform __ Tag In Different Lines", ExpectedResult = "__w\nw__")]
+        [TestCase("_w\nw_", TestName = "Md Render Should Not Transform _ Tag In Different Lines", ExpectedResult = "_w\nw_")]
+        [TestCase("__w_w_w__", TestName = "Md Render Should Transform _ Tag In __ Tag", ExpectedResult = "<strong>w<em>w</em>w</strong>")]
         [TestCase("__w_", TestName = "Md Render Should Not Transform Tags Without Pair", ExpectedResult = "__w_")]
         [TestCase(@"\_w_", TestName = "Md Render Should Not Transform Shielded _ Tag", ExpectedResult = "_w_")]
         [TestCase(@"\__w__", TestName = "Md Render Should Not Transform Shielded __ Tag", ExpectedResult = "__w__")]
