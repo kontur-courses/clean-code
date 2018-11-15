@@ -7,38 +7,54 @@ namespace Markdown
 {
     public class Md
     {
+        private List<string> text;
+        private Stack<Teg> textSeparatorStack = new Stack<Teg>();
         public string Render(string input)
         {
-            var text = SplitList(input);
+            text = SplitList(input);
             var res = new StringBuilder();
-            var textSeparatorStack = new Stack<Teg>();
-            for (var i = 0; i < text.Count; i++)
+            for (var index = 0; index < text.Count; index++)
             {
-                if (!MarkupLanguage.IsKeyWords(text[i])) continue;
+                if (!MarkupLanguage.IsKeyWords(text[index])) continue;
 
-                if(i>0 && !text[i - 1].EndsWith(" ") && !IsNullOrEmpty(text[i - 1]))
+                int number;
+                if (int.TryParse(text[index - 1], out number) || int.TryParse(text[index + 1], out number))
+                    continue;
+
+                if (index>0 && !text[index - 1].EndsWith(" ") && !IsNullOrEmpty(text[index - 1]))
                 {
-                    TextSeparator currentSep;
-                    if (textSeparatorStack.Count <= 0 ||
-                        (currentSep = textSeparatorStack.Peek().StartSeparator).separator != text[i])
-                        continue;
-                    var teg = Teg.CreateTegOnTextSeparator(currentSep);
-                    if (textSeparatorStack.All(t => t.Rule.Check(teg)))// в текущем контексте это нормально, но если тег не может содержать сам себя работать не будет
-                    {
-                        text[currentSep.index] = $"<{teg}>";
-                        text[i] = $"</{teg}>";
-                    }
-                    textSeparatorStack.Pop();
+                    ClosingTeg(index);
                 }
 
-                if (!text[i + 1].StartsWith(" ") && !IsNullOrEmpty(text[i + 1]))
+                if (!text[index + 1].StartsWith(" ") && !IsNullOrEmpty(text[index + 1]))
                 {
-                    var currentSep = new TextSeparator(text[i], i);
-                    textSeparatorStack.Push(Teg.CreateTegOnTextSeparator(currentSep));
+                    OpeningTeg(index);
                 }
             }
             text.ForEach(t => res.Append(t));
             return res.ToString();
+        }
+
+        private void OpeningTeg(int index)
+        {
+            var currentSep = new TextSeparator(text[index], index);
+            textSeparatorStack.Push(Teg.CreateTegOnTextSeparator(currentSep));
+        }
+
+        private bool ClosingTeg(int index)
+        {
+            TextSeparator currentSep;
+            if (textSeparatorStack.Count <= 0 ||
+                (currentSep = textSeparatorStack.Peek().StartSeparator).separator != text[index])
+                return false;
+            var teg = Teg.CreateTegOnTextSeparator(currentSep);
+            if (textSeparatorStack.All(t => t.Rule.Check(teg)))// в текущем контексте это нормально, но если тег не может содержать сам себя работать не будет
+            {
+                text[currentSep.index] = $"<{teg}>";
+                text[index] = $"</{teg}>";
+            }
+            textSeparatorStack.Pop();
+            return true;
         }
 
         public static List<string> SplitList(string input)
@@ -48,36 +64,32 @@ namespace Markdown
             var currentToken = new StringBuilder();
             for (var i = 0; i < text.Length; i++)
             {
-                var tt = MarkupLanguage.GetKeyWordsOnFirstLetter(text[i]);
-                if (tt.Count > 0)
+                var possibleKeyWords = MarkupLanguage.GetKeyWordsOnFirstLetter(text[i]);
+                if (possibleKeyWords.Count > 0)
                 {
-                    var sovpadenie = false;
-                    string keyWord = null;
-                    foreach (var t in tt)
+                    foreach (var possibleKeyWord in possibleKeyWords)
                     {
-                        for (var indexPlus = 0; indexPlus < t.Length; indexPlus++)
-                        {
-                            if (i + indexPlus >= text.Length || text[i + indexPlus] != t[indexPlus])
-                                break;
-                            if (indexPlus + 1 != t.Length) continue;
-                            sovpadenie = true;
-                            keyWord = t;
-                            i += indexPlus;
-                        }
-                        if (sovpadenie)
-                            break;
+                        if (!CompareStringBuilderPartWithString(possibleKeyWord, text, i)) continue;
+                        i += possibleKeyWord.Length-1;
+                        splitedText.Add(currentToken.ToString());
+                        splitedText.Add(possibleKeyWord);
+                        currentToken.Clear();
+                        break;
                     }
-
-                    if (!sovpadenie) continue;
-                    splitedText.Add(currentToken.ToString());
-                    splitedText.Add(keyWord);
-                    currentToken = new StringBuilder();
                 }
                 else
                     currentToken.Append(text[i]);
             }
             splitedText.Add(currentToken.ToString());
             return splitedText;
+        }
+
+        private static bool CompareStringBuilderPartWithString(string possibleKeyWord, StringBuilder text, int index)
+        {
+            return possibleKeyWord
+                .TakeWhile((t, indexPlus) => index + indexPlus < text.Length && text[index + indexPlus] == t)
+                .Where((t, indexPlus) => indexPlus + 1 == possibleKeyWord.Length)
+                .Any();
         }
     }
 }

@@ -94,7 +94,7 @@ namespace Markdown
         [Test]
         public void Return_NumbersThroughUnderscore()
         {
-            //Md.Render("word _1_1_1_1_ word").Should().Be("word _1_1_1_1_ word");
+            Md.Render("word _1_1_1_1_ word").Should().Be("word _1_1_1_1_ word");
         }
 
 
