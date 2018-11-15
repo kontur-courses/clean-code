@@ -50,10 +50,23 @@ namespace Markdown.Tests
             md.Render("__tex__ __t__").Should().Be("<strong>tex</strong> <strong>t</strong>");
         }
 
+
         [Test]
         public void Render_ShouldConvert_When_SingleNonPairDelimiter()
         {
             md.Render("_tex _t_ _abc_").Should().Be("_tex <em>t</em> <em>abc</em>");
+        }
+
+        [Test]
+        public void Render_ShouldConvert_When_SingleUnderscoreBetweenDouble()
+        {
+            md.Render("__a _text_ b__").Should().Be("<strong>a <em>text</em> b</strong>");
+        }
+
+        [Test]
+        public void Render_ShouldConvert_When_DoubleUnderscoreBetweenSingle()
+        {
+            md.Render("_a __text__ b_").Should().Be("<em>a __text__ b</em>");
         }
 
         [Test]

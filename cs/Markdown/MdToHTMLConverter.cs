@@ -3,18 +3,12 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using NUnit.Framework.Constraints;
 
 namespace Markdown
 {
     public class MdToHTMLConverter
     {
-        private Dictionary<TokenType, string> semantic = new Dictionary<TokenType, string>
-        {
-            {TokenType.italic, "em"},
-            {TokenType.bold, "strong"},
-            {TokenType.escaped, ""}
-        };
-
         public MdToHTMLConverter()
         {
         }
@@ -52,11 +46,15 @@ namespace Markdown
                     closingString = token.ClosingDelimiter.delimiter;
                 }
             }
+            else if (token.tokenType == TokenType.escaped)
+            {
+                closingString = token.ClosingDelimiter.delimiter;
+            }
 
             else if (token.tokenType != TokenType.escaped)
             {
-                startString = "<" + semantic[token.tokenType] + ">";
-                closingString = "</" + semantic[token.tokenType] + ">";
+                startString = "<" + Specification.TokenTypeToHTML[token.tokenType] + ">";
+                closingString = "</" + Specification.TokenTypeToHTML[token.tokenType] + ">";
             }
 
             return startString + result.ToString() + closingString;
