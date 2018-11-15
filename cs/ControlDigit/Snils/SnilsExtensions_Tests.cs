@@ -4,7 +4,7 @@ using NUnit.Framework;
 
 namespace ControlDigit
 {
-    [TestFixture]
+    [TestFixture, Ignore("")]
     public class SnilsExtensions_Tests
     {
         [TestCase(1, ExpectedResult = 1)]

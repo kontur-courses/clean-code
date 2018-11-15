@@ -4,7 +4,7 @@ using NUnit.Framework;
 
 namespace ControlDigit
 {
-    [TestFixture]
+    [TestFixture, Ignore("")]
     public class Upc_PerformanceTests
     {
         public static int CalculateUpcFast(long number)
