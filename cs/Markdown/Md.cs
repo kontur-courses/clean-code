@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Runtime.InteropServices;
 using System.Text;
 
 namespace Markdown
@@ -9,6 +10,8 @@ namespace Markdown
     {
         private TagKeeper[] tags;
         private Stack<TagMarker> mdTagsBuffer;
+        private StringBuilder strBuilder;
+        private string incorrectSymbols = " 0123456789";
 
         public Md(IEnumerable<TagKeeper> tags)
         {
@@ -18,7 +21,7 @@ namespace Markdown
 
         public string Render(string paragraph)
         {
-            var strBuilder = new StringBuilder(paragraph);
+            strBuilder = new StringBuilder(paragraph);
             var specialSymbols = new StringBuilder();
             int? position = null;
             for (var i = 0; i < strBuilder.Length; i++)
@@ -99,11 +102,16 @@ namespace Markdown
                 mdTagsBuffer.Push(tagToChange);
                 return null;
             }
+
+            if (!IsCorrectCloser(strBuilder, tagToChange.Position))
+                return null;
             while (mdTagsBuffer.Count > 0)
             {
                 var currentTag = mdTagsBuffer.Pop();
                 if (!currentTag.TagKeeper.Is(tagToChange.TagKeeper))
                     continue;
+                if (!IsCorrectOpener(strBuilder, currentTag.Position, currentTag.TagKeeper.Md.Value.Length))
+                    return null;
                 return new Tuple<TagMarker, TagMarker>(currentTag, tagToChange);
             }
 
@@ -112,6 +120,12 @@ namespace Markdown
 
         private bool IsCloserTag(TagMarker marker)
             => mdTagsBuffer.Any(m => m.TagKeeper.Equals(marker.TagKeeper));
+
+        private bool IsCorrectOpener(StringBuilder line, int position, int length)
+            => !incorrectSymbols.Contains(line[position + length]);
+
+        private bool IsCorrectCloser(StringBuilder line, int position)
+            => !incorrectSymbols.Contains(line[position - 1]);
 
         private bool IsEscape(StringBuilder line, int position)
             => line[position] == '\\';

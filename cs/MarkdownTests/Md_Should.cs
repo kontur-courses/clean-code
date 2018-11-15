@@ -73,5 +73,38 @@ namespace MarkdownTests
 
             result.Should().Be(expected);
         }
+
+        [Test]
+        public void DoesntReplace_WhenWhitespaceAfterOpenerTag()
+        {
+            var input = @"_ word_";
+            var expected = "_ word_";
+
+            var result = md.Render(input);
+
+            result.Should().Be(expected);
+        }
+
+        [Test]
+        public void DoesntReplace_WhenWhitespaceBeforeCloserTag()
+        {
+            var input = @"_word _";
+            var expected = "_word _";
+
+            var result = md.Render(input);
+
+            result.Should().Be(expected);
+        }
+
+        [Test]
+        public void DoesntReplace_WhenTagInsideDigits()
+        {
+            var input = @"_word1_ 3_";
+            var expected = "_word1_ 3_";
+
+            var result = md.Render(input);
+
+            result.Should().Be(expected);
+        }
     }
 }
