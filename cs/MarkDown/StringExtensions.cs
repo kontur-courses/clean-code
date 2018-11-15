@@ -14,10 +14,11 @@ namespace MarkDown
 
         public static string RemoveScreening(this string text, IEnumerable<string> specSymbols)
         {
-            var res = specSymbols.Aggregate(text, (current, s) => current.Replace($"\\{s}", $"{s}"));
-            var r1 = res.Replace("\\\\", '\0'.ToString());
-            var r2 = r1.Replace("\\", "");
-            return r2.Replace('\0'.ToString(), "\\");
+            return specSymbols
+                .Aggregate(text, (current, s) => current.Replace($"\\{s}", $"{s}"))
+                .Replace("\\\\", '\0'.ToString())
+                .Replace("\\", "")
+                .Replace('\0'.ToString(), "\\");
         }
 
 
