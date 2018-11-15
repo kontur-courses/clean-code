@@ -104,12 +104,21 @@ namespace MarkdownTests
 		}
 
 		[Test]
-		public void SeveralSingleUnderLineTagsInsideDoubeUnderLineTag_ShouldAllTagsRenderToHtmlTag()
+		public void SeveralSingleUnderLineTagsInsideDoubeUnderLineTag_ShouldAllTagsRenderToHtml()
 		{
 			var text = "__a _b_ _c_ d__";
 			var actual = md.Render(text);
 
 			Assert.AreEqual(actual, "<strong>a <em>b</em> <em>c</em> d</strong>");
+		}
+
+		[Test]
+		public void ManyTags_ShouldAllRenderToHtml()
+		{
+			var text = "__a__ _b_ #c#";
+			var actual = md.Render(text);
+
+			Assert.AreEqual(actual, "<strong>a</strong> <em>b</em> <h1>c</h1>");
 		}
 	}
 }

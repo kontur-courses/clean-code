@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
 using Markdown.Tag;
 
 namespace Markdown
@@ -12,13 +11,13 @@ namespace Markdown
 		public readonly Dictionary<string, ITag> dictionaryTags = new Dictionary<string, ITag>
 		{
 			{"_", new SingleUnderLineTag()},
-			{"__", new DoubleUnderLineTag()}
+			{"__", new DoubleUnderLineTag()},
+			{"#", new SharpTag()}
 		};
 
 		public string ConvertToHtml(string text)
 		{
 			var existingPairedTags = GetAllPairedTags(text);
-
 			text = text.RemoveEscapedSymbols(escapedSymbols, dictionaryTags);
 
 			if (existingPairedTags.Count == 0)
@@ -37,14 +36,19 @@ namespace Markdown
 
 			while (position < text.Length - 1)
 			{
-				var symbol = text[position].ToString();
 				var twoSymbol = text.Substring(position, 2);
+				if (IsOpenTag(twoSymbol, text) && TryGetOnePairOfTags(twoSymbol, text, out var tag))
+				{
+					pairedTags.Add(tag);
+					position = tag.CloseIndex + tag.Length - 1;
+				}
 
-				if (IsOpenTag(twoSymbol, text))
-					pairedTags.AddRange(GetOnePairOfTags(twoSymbol, text));
-
-				if (IsOpenTag(symbol, text))
-					pairedTags.AddRange(GetOnePairOfTags(symbol, text));
+				var symbol = text[position].ToString();
+				if (IsOpenTag(symbol, text) && TryGetOnePairOfTags(symbol, text, out tag))
+				{
+					pairedTags.Add(tag);
+					position = tag.CloseIndex + tag.Length - 1;
+				}
 
 				position++;
 			}
@@ -61,23 +65,14 @@ namespace Markdown
 			                                          && (char.IsWhiteSpace(prevSymbol) || position == 0);
 		}
 
-		private List<ITag> GetOnePairOfTags(string symbol, string text)
+		private bool TryGetOnePairOfTags(string symbol, string text, out ITag tag)
 		{
-			var pairedTags = new List<ITag>();
 			var tagType = dictionaryTags[symbol].GetType();
-			if (Activator.CreateInstance(tagType) is ITag tag)
-			{
-				tag.OpenIndex = position;
-				tag.CloseIndex = text.FindCloseTagIndex(tag);
+			tag = (ITag) Activator.CreateInstance(tagType);
+			tag.OpenIndex = position;
+			tag.CloseIndex = text.FindCloseTagIndex(tag);
 
-				if (tag.CloseIndex != -1)
-				{
-					pairedTags.Add(tag);
-					position = pairedTags.Last().CloseIndex + pairedTags.Last().Length - 1;
-				}
-			}
-
-			return pairedTags;
+			return tag.CloseIndex != -1;
 		}
 	}
 }

@@ -50,6 +50,7 @@
     <Compile Include="MdConverter.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="Tag\SharpTag.cs" />
     <Compile Include="Tag\SingleUnderLineTag.cs" />
   </ItemGroup>
   <ItemGroup>
