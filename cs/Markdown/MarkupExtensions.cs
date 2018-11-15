@@ -35,7 +35,7 @@ namespace Markdown
 
         public static Markup GetClosingMarkup(this List<Markup> markups, string text, int startIndex)
         {
-            return markups.FirstOrDefault(markup => ValidClosingPosition((Markup)markup, text, startIndex));
+            return markups.FirstOrDefault(markup => ValidClosingPosition(markup, text, startIndex));
         }
 
         public static Markup GetOpeningMarkup(this List<Markup> markups, string text, int startIndex)
