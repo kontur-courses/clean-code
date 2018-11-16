@@ -43,20 +43,21 @@ namespace Markdown
         private Dictionary<Markup, List<MarkupPosition>> GetMarkupBoarders()
         {
             var dict = new Dictionary<Markup, List<MarkupPosition>>();
-            var usedPositions = new HashSet<int>();
             foreach (var openingPositionsForMarkup in openingPositionsForMarkups)
             {
                 var markup = openingPositionsForMarkup.Key;
                 if (!closingPositionsForMarkups.ContainsKey(markup)) continue;
                 
-                dict.Add(markup, GetPositionsForMarkup(markup, usedPositions));
+                dict.Add(markup, GetPositionsForMarkup(markup));
             }
 
             return dict;
         }
 
-        private List<MarkupPosition> GetPositionsForMarkup(Markup markup, HashSet<int> usedPositions)
+        private List<MarkupPosition> GetPositionsForMarkup(Markup markup)
         {
+            var usedPositions = new HashSet<int>();
+
             var positionsForMarkups = new List<MarkupPosition>();
 
             var openingPositions = new List<int>(openingPositionsForMarkups[markup]);
