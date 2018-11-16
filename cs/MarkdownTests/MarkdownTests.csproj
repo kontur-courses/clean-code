@@ -57,6 +57,7 @@
     <Compile Include="MarkdownTokenParserTests.cs" />
     <Compile Include="MarkdownTokenTreeBuilderTests.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="TestTreeBuilder.cs" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\Markdown\Markdown.csproj">
