@@ -7,7 +7,7 @@ using Markdown;
 namespace MarkdownTests
 {
     [TestFixture]
-    public class MarkupFinderTests
+    class MarkupFinderTests
     {
         [TestCase("__f _d_ f__", new[] { 4, 6 }, new[] { 0, 9 }, TestName = "Should find simple and double markup")]
         public void FindDoubleAndSimple(string paragraph, int[] simpleUnderscorePositions,

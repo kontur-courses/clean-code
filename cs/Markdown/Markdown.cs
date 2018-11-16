@@ -2,7 +2,7 @@
 
 namespace Markdown
 {
-    class Markdown
+    public class Markdown
     {
         public string Render(string paragraph)
         {
