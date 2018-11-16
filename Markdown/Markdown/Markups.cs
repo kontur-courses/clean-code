@@ -17,7 +17,7 @@ namespace Markdown
 
         public static Markup Markdown { get; } = new Markup("Markdown", new List<Tag>()
         {
-            new Tag(TagValue.Strong, "__", "__", false),
+            new Tag(TagValue.Strong, "__", "__", new List<TagValue> { TagValue.Italic }),
             new Tag(TagValue.Italic, "_", "_")
         });
         

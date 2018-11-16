@@ -27,24 +27,25 @@ namespace Markdown
             return builder.ToString();
         }
 
-        private string GetOpenTag(Span span)
+        private string GetOpenTag(Span initialSpan)
         {
-            var tagOpen = Markups.Html.Tags.FirstOrDefault(t => t.Value == span.Tag.Value);
+            var tagOpen = Markups.Html.Tags.FirstOrDefault(t => t.Value == initialSpan.Tag.Value);
             if (tagOpen == null)
-                return span.Tag.Open;
-            return !span.Tag.CanBeInside && span.Parent?.Parent != null
-                ? span.Tag.Open
+                return initialSpan.Tag.Open;
+
+            return initialSpan.Parent?.Parent != null && initialSpan.Tag.CantBeInside.Contains(initialSpan.Parent.Tag.Value)
+                ? initialSpan.Tag.Open
                 : tagOpen.Open;
         }
 
-        private string GetCloseTag(Span span)
+        private string GetCloseTag(Span initialSpan)
         {
-            var tagClose = Markups.Html.Tags.FirstOrDefault(t => t.Value == span.Tag.Value);
+            var tagClose = Markups.Html.Tags.FirstOrDefault(t => t.Value == initialSpan.Tag.Value);
             if (tagClose == null)
-                return span.Tag.Close;
+                return initialSpan.Tag.Close;
 
-            return !span.Tag.CanBeInside && span.Parent?.Parent != null
-                ? span.Tag.Close
+            return initialSpan.Parent?.Parent != null && initialSpan.Tag.CantBeInside.Contains(initialSpan.Parent.Tag.Value)
+                ? initialSpan.Tag.Close
                 : tagClose.Close;
         }
 

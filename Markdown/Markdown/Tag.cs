@@ -11,14 +11,13 @@ namespace Markdown
         public TagValue Value { get; }
         public string Open { get; }
         public string Close { get; }
-        public bool CanBeInside { get; }
-
-        public Tag(TagValue value, string open, string close, bool canBeInside=true)
+        public List<TagValue> CantBeInside { get; }
+        public Tag(TagValue value, string open, string close, List<TagValue> cantBeInside=null)
         {
             Value = value;
             Open = open;
             Close = close;
-            CanBeInside = canBeInside;
+            CantBeInside = cantBeInside ?? new List<TagValue>();
         }
 
         public override int GetHashCode()
@@ -33,7 +32,7 @@ namespace Markdown
 
             var otherTag = (Tag)obj;
             return Open == otherTag.Open && Close == otherTag.Open &&
-                   Value == otherTag.Value && CanBeInside == otherTag.CanBeInside;
+                   Value == otherTag.Value && CantBeInside.Equals(otherTag.CantBeInside);
         }
     }
 }
