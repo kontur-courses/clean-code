@@ -1,4 +1,5 @@
-﻿using Markdown.TokenParser;
+﻿using System;
+using Markdown.TokenParser;
 using Markdown.TreeBuilder;
 using Markdown.TreeTranslator;
 
@@ -19,6 +20,10 @@ namespace Markdown
 
         public string Render(string markdownText)
         {
+            if (markdownText == null)
+                throw new ArgumentNullException(nameof(markdownText));
+            if (markdownText.Contains("\n\n"))
+                throw new ArgumentException("Input string can't contain \\n\\n");
             return translator.Translate(treeBuilder.BuildTree(parser.GetTokens(markdownText)));
         }
     }

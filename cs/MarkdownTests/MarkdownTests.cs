@@ -1,4 +1,5 @@
-﻿using System.Linq;
+﻿using System;
+using System.Linq;
 using FluentAssertions;
 using Markdown.Data;
 using Markdown.Data.TagsInfo;
@@ -12,6 +13,29 @@ namespace MarkdownTests
     [TestFixture]
     public class MarkdownTests
     {
+        private Markdown.Markdown markdown;
+
+        [SetUp]
+        public void SetUp()
+        {
+            var tags = new[]
+            {
+                new Tag(new ItalicTagInfo(), "em"),
+                new Tag(new BoldTagInfo(), "strong")
+            };
+
+            var allTags = tags.Select(tag => tag.Info.OpeningTag).Concat(tags.Select(tag => tag.Info.ClosingTag));
+            var tagsTranslations = tags.Select(tag => tag.ToTranslationInfo);
+            var tagsInfo = tags.Select(tag => tag.Info);
+
+            var parser = new MarkdownTokenParser(allTags);
+            var tagTranslator = new MarkdownToHtmlTagTranslator(tagsTranslations);
+            var treeTranslator = new MarkdownTokenTreeTranslator(tagTranslator);
+            var treeBuilder = new MarkdownTokenTreeBuilder(tagsInfo);
+
+            markdown = new Markdown.Markdown(parser, treeTranslator, treeBuilder);
+        }
+
         [TestCase("a", "a", TestName = "OnlyText")]
         [TestCase(" ", " ", TestName = "OnlySpace")]
         [TestCase("\\\\", "\\", TestName = "EscapedEscapeSymbol")]
@@ -39,26 +63,25 @@ namespace MarkdownTests
         [TestCase("__a __b__ c__", "<strong>a __b</strong> c__", TestName = "BoldTagInBoldTag")]
         public void TestRender(string inputString, string expectedResult)
         {
-            var tags = new[]
-            {
-                new Tag(new ItalicTagInfo(), "em"),
-                new Tag(new BoldTagInfo(), "strong")
-            };
-
-            var allTags = tags.Select(tag => tag.Info.OpeningTag).Concat(tags.Select(tag => tag.Info.ClosingTag));
-            var tagsTranslations = tags.Select(tag => tag.ToTranslationInfo);
-            var tagsInfo = tags.Select(tag => tag.Info);
-
-            var parser = new MarkdownTokenParser(allTags);
-            var tagTranslator = new MarkdownToHtmlTagTranslator(tagsTranslations);
-            var treeTranslator = new MarkdownTokenTreeTranslator(tagTranslator);
-            var treeBuilder = new MarkdownTokenTreeBuilder(tagsInfo);
-
-            var markdown = new Markdown.Markdown(parser, treeTranslator, treeBuilder);
-
             var translation = markdown.Render(inputString);
 
             translation.Should().Be(expectedResult);
+        }
+
+        [Test]
+        public void Render_ShouldThrowArgumentNullException_OnNullInput()
+        {
+            Action action = () => markdown.Render(null);
+
+            action.Should().Throw<ArgumentNullException>();
+        }
+
+        [Test]
+        public void Render_ShouldThrowArgumentException_OnNotParagraphInput()
+        {
+            Action action = () => markdown.Render("a\n\nb");
+
+            action.Should().Throw<ArgumentException>();
         }
     }
 }
