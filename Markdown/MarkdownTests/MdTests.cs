@@ -40,7 +40,7 @@ namespace MarkdownTests
         }
 
         [Test]
-        public void HtmlConverter_ShouldConvert()
+        public void HtmlConverter_ShouldConvertCorrectly()
         {
             var converter = new HtmlConverter();
             var span = new Span(new Tag(TagValue.Italic, "_", "_"), 0, 2);

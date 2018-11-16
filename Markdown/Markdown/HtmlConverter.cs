@@ -13,21 +13,21 @@ namespace Markdown
             return Assembly(rawString, span);
         }
 
-        public string Assembly(string rawString, Span span)
+        private string Assembly(string rawString, Span span)
         {
-            if (span.EndIndex - span.StartIndex == 1)
+            if (span.EndIndex - span.StartIndex == 1 && rawString[span.StartIndex] == '\\')
                 return "";
 
             var builder = new StringBuilder();
 
             builder.Append(GetOpenTag(span));
-            builder.Append(span.Spans.Count == 0 ? GetrawSpan(rawString, span) : GetFullSpan(rawString, span));
+            builder.Append(span.Spans.Count == 0 ? GetSpanRowString(rawString, span) : GetSpanAssembledString(rawString, span));
             builder.Append(GetCloseTag(span));
 
             return builder.ToString();
         }
 
-        private string GetOpenTag(Span initialSpan)
+        private static string GetOpenTag(Span initialSpan)
         {
             var tagOpen = Markups.Html.Tags.FirstOrDefault(t => t.Value == initialSpan.Tag.Value);
             if (tagOpen == null)
@@ -38,7 +38,7 @@ namespace Markdown
                 : tagOpen.Open;
         }
 
-        private string GetCloseTag(Span initialSpan)
+        private static string GetCloseTag(Span initialSpan)
         {
             var tagClose = Markups.Html.Tags.FirstOrDefault(t => t.Value == initialSpan.Tag.Value);
             if (tagClose == null)
@@ -49,13 +49,13 @@ namespace Markdown
                 : tagClose.Close;
         }
 
-        private string GetrawSpan(string rawString, Span span)
+        private static string GetSpanRowString(string rawString, Span span)
         {
             return rawString.Substring(span.StartIndex + span.Tag.Open.Length,
                 span.EndIndex - (span.StartIndex + span.Tag.Open.Length));
         }
 
-        private string GetFullSpan(string rawString, Span span)
+        private string GetSpanAssembledString(string rawString, Span span)
         {
             var builder = new StringBuilder();
 
