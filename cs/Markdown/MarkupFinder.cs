@@ -9,9 +9,13 @@ namespace Markdown
         private readonly Dictionary<Markup, List<int>> openingPositionsForMarkups = new Dictionary<Markup, List<int>>();
         private readonly Dictionary<Markup, List<int>> closingPositionsForMarkups = new Dictionary<Markup, List<int>>();
 
-        public MarkupFinder(List<Markup> markups)
+        public MarkupFinder()
         {
-            this.markups = markups;
+            markups = new List<Markup>
+            {
+                new Markup("simpleUnderscore", "_", "em"),
+                new Markup("doubleUnderscore", "__", "strong")
+            };
         }
 
         private void FindOpeningAndClosingTemplates(string paragraph)

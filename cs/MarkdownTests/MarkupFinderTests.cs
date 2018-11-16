@@ -22,29 +22,22 @@ namespace MarkdownTests
                 expectedDoubleUnderscorePositions.Add(new MarkupPosition(doubleUnderscorePositions[i],
                     doubleUnderscorePositions[i + 1]));
 
-            var doubleUnderscore = new Markup("doubleUnderscore", "__", "strong");
-            var simpleUnderscore = new Markup("simpleUnderscore", "_", "em");
-            var markups = new List<Markup> { doubleUnderscore, simpleUnderscore };
-
-            var markupFinder = new MarkupFinder(markups);
+            var markupFinder = new MarkupFinder();
             var markupsWithPositions = markupFinder.GetMarkupsWithPositions(paragraph);
 
-            markupsWithPositions[simpleUnderscore].ShouldBeEquivalentTo(expectedSimpleUnderscorePositions);
-            markupsWithPositions[doubleUnderscore].ShouldBeEquivalentTo(expectedDoubleUnderscorePositions);
+            markupsWithPositions.First(markup => markup.Key.Name == "simpleUnderscore").Value.ShouldBeEquivalentTo(expectedSimpleUnderscorePositions);
+            markupsWithPositions.First(markup => markup.Key.Name == "doubleUnderscore").Value.ShouldBeEquivalentTo(expectedDoubleUnderscorePositions);
         }
 
         [Test]
         public void ShouldFindDoubleUnderscore()
         {
-            var doubleUnderscore = new Markup("doubleUnderscore", "__", "strong");
-            var markups = new List<Markup> { doubleUnderscore };
-
-            var markupFinder = new MarkupFinder(markups);
+            var markupFinder = new MarkupFinder();
 
             var paragraph = "__f__";
             var markupsWithPositions = markupFinder.GetMarkupsWithPositions(paragraph);
 
-            markupsWithPositions[doubleUnderscore].First().ShouldBeEquivalentTo(new MarkupPosition(0, 3));
+            markupsWithPositions.First(markup => markup.Key.Name == "doubleUnderscore").Value.First().ShouldBeEquivalentTo(new MarkupPosition(0, 3));
         }
 
         [TestCase("_ff\\_", TestName = "Should not find finishing markup with screening")]
@@ -54,9 +47,8 @@ namespace MarkdownTests
         public void FindSimpleUnderscore(string paragraph)
         {
             var simpleUnderscore = new Markup("simpleUnderscore", "_", "em");
-            var markups = new List<Markup> { simpleUnderscore };
 
-            var markupFinder = new MarkupFinder(markups);
+            var markupFinder = new MarkupFinder();
             var markupsWithPositions = markupFinder.GetMarkupsWithPositions(paragraph);
 
             markupsWithPositions.Should().NotContainKey(simpleUnderscore);
@@ -70,14 +62,11 @@ namespace MarkdownTests
             var listOfExpectedPositions = new List<MarkupPosition>();
             for (var i = 0; i < positions.Length; i += 2)
                 listOfExpectedPositions.Add(new MarkupPosition(positions[i], positions[i + 1]));
-
-            var simpleUnderscore = new Markup("simpleUnderscore", "_", "em");
-            var markups = new List<Markup> { simpleUnderscore };
-
-            var markupFinder = new MarkupFinder(markups);
+            
+            var markupFinder = new MarkupFinder();
             var markupsWithPositions = markupFinder.GetMarkupsWithPositions(paragraph);
 
-            markupsWithPositions[simpleUnderscore].ShouldBeEquivalentTo(listOfExpectedPositions);
+            markupsWithPositions.First(markup => markup.Key.Name == "simpleUnderscore").Value.ShouldBeEquivalentTo(listOfExpectedPositions);
         }
     }
 }
