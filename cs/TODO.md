@@ -9,6 +9,7 @@
 * MarkupExtensionsTests дописать тесты, которые возвращают false
 * MarkupFinderTests завернуть for в LINQ
 * Сделать SetUp на инициализацию Markup
+* Переименовать MarkupPosition
 
 # DONE
 * Исправить зоны видимости 
