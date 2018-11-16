@@ -11,43 +11,42 @@
         }
 
         // Определяет мат, шах или пат белым.
-        public static void CalculateChessStatus()
+        public static void CalculateChessStatus(PieceColor playerColor = PieceColor.White)
         {
-            var isCheck = IsCheckForWhite();
+            var isCheck = IsCheck(playerColor);
             var hasMoves = false;
-            foreach (var locFrom in board.GetPieces(PieceColor.White))
+            foreach (var startLocation in board.GetPiecesPositions(playerColor))
             {
-                foreach (var locTo in board.GetPiece(locFrom).GetMoves(locFrom, board))
+                foreach (var nextPossibleLocation in board.GetPiece(startLocation).GetMoves(startLocation, board))
                 {
-                    var old = board.GetPiece(locTo);
-                    board.Set(locTo, board.GetPiece(locFrom));
-                    board.Set(locFrom, null);
-                    if (!IsCheckForWhite())
+                    var old = board.GetPiece(nextPossibleLocation);
+                    board.Set(nextPossibleLocation, board.GetPiece(startLocation));
+                    board.Set(startLocation, null);
+                    if (!IsCheck(playerColor))
                         hasMoves = true;
-                    board.Set(locFrom, board.GetPiece(locTo));
-                    board.Set(locTo, old);
+                    board.Set(startLocation, board.GetPiece(nextPossibleLocation));
+                    board.Set(nextPossibleLocation, old);
                 }
             }
+
             if (isCheck)
-                if (hasMoves)
-                    ChessStatus = ChessStatus.Check;
-                else ChessStatus = ChessStatus.Mate;
-            else if (hasMoves) ChessStatus = ChessStatus.Ok;
-            else ChessStatus = ChessStatus.Stalemate;
+                ChessStatus = hasMoves ? ChessStatus.Check : ChessStatus.Mate;
+            else
+                ChessStatus = hasMoves ? ChessStatus.Ok : ChessStatus.Stalemate;
         }
 
         // check — это шах
-        private static bool IsCheckForWhite()
+        private static bool IsCheck(PieceColor playerColor)
         {
+            var opponentColor = playerColor == PieceColor.White ? PieceColor.Black : PieceColor.White;
             var isCheck = false;
-            foreach (var loc in board.GetPieces(PieceColor.Black))
+            foreach (var loc in board.GetPiecesPositions(opponentColor))
             {
                 var piece = board.GetPiece(loc);
                 var moves = piece.GetMoves(loc, board);
                 foreach (var destination in moves)
                 {
-                    if (Piece.Is(board.GetPiece(destination),
-                                 PieceColor.White, PieceType.King))
+                    if (Piece.Is(board.GetPiece(destination), playerColor, PieceType.King))
                         isCheck = true;
                 }
             }

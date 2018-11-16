@@ -6,6 +6,7 @@ namespace Chess
     {
         public readonly PieceColor Color;
         public readonly PieceType PieceType;
+        public bool IsOpponentPiece(Piece location) => location.Color != Color;
 
         public Piece(PieceType pieceType, PieceColor color)
         {
