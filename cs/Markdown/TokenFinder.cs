@@ -5,25 +5,20 @@ namespace Markdown
 {
     public class TokenFinder
     {
-        private readonly List<MarkdownToken> markdownTokens;
-        private readonly Dictionary<MarkdownToken, List<int>> openingPositionsForTokens = new Dictionary<MarkdownToken, List<int>>();
-        private readonly Dictionary<MarkdownToken, List<int>> closingPositionsForTokens = new Dictionary<MarkdownToken, List<int>>();
-
-        public TokenFinder()
+        private static readonly List<MarkdownToken> MarkdownTokens = new List<MarkdownToken>
         {
-            markdownTokens = new List<MarkdownToken>
-            {
-                new MarkdownToken("simpleUnderscore", "_", "em"),
-                new MarkdownToken("doubleUnderscore", "__", "strong")
-            };
-        }
+            new MarkdownToken("simpleUnderscore", "_", "em"),
+            new MarkdownToken("doubleUnderscore", "__", "strong")
+        };
 
-        private void FindOpeningAndClosingTemplates(string paragraph)
+        private void FindOpeningAndClosingTemplates(string paragraph,
+            Dictionary<MarkdownToken, List<int>> openingPositionsForTokens, 
+            Dictionary<MarkdownToken, List<int>> closingPositionsForTokens)
         {
             for (var index = 0; index < paragraph.Length; index++)
             {
-                var openingToken = markdownTokens.GetOpeningToken(paragraph, index);
-                var closingToken = markdownTokens.GetClosingToken(paragraph, index);
+                var openingToken = MarkdownTokens.GetOpeningToken(paragraph, index);
+                var closingToken = MarkdownTokens.GetClosingToken(paragraph, index);
 
                 if (openingToken != null)
                 {
@@ -40,21 +35,26 @@ namespace Markdown
             }
         }
 
-        private Dictionary<MarkdownToken, List<TokenPosition>> GetTokensBoarders()
+        private Dictionary<MarkdownToken, List<TokenPosition>> GetTokensBoarders(
+            Dictionary<MarkdownToken, List<int>> openingPositionsForTokens, 
+            Dictionary<MarkdownToken, List<int>> closingPositionsForTokens)
         {
             var tokensBoarders = new Dictionary<MarkdownToken, List<TokenPosition>>();
             foreach (var openingPositionsForToken in openingPositionsForTokens)
             {
                 var token = openingPositionsForToken.Key;
                 if (!closingPositionsForTokens.ContainsKey(token)) continue;
-                
-                tokensBoarders.Add(token, GetPositionsForToken(token));
+
+                tokensBoarders.Add(token, GetPositionsForToken(token, openingPositionsForTokens, closingPositionsForTokens));
             }
 
             return tokensBoarders;
         }
 
-        private List<TokenPosition> GetPositionsForToken(MarkdownToken markdownToken)
+        private List<TokenPosition> GetPositionsForToken(
+            MarkdownToken markdownToken,
+            Dictionary<MarkdownToken, List<int>> openingPositionsForTokens, 
+            Dictionary<MarkdownToken, List<int>> closingPositionsForTokens)
         {
             var usedPositions = new HashSet<int>();
 
@@ -70,12 +70,12 @@ namespace Markdown
                     continue;
                 var closingPosition = closingPositions
                     .FirstOrDefault(
-                        position => 
+                        position =>
                             position > openingPosition &&
                             !usedPositions.Contains(position));
                 if (closingPosition == 0)
                     continue;
-                
+
                 positionsForTokens.Add(new TokenPosition(openingPosition, closingPosition));
                 usedPositions.Add(openingPosition);
                 usedPositions.Add(closingPosition);
@@ -86,9 +86,11 @@ namespace Markdown
 
         public Dictionary<MarkdownToken, List<TokenPosition>> GetTokensWithPositions(string paragraph)
         {
-            FindOpeningAndClosingTemplates(paragraph);
+            var openingPositionsForTokens = new Dictionary<MarkdownToken, List<int>>();
+            var closingPositionsForTokens = new Dictionary<MarkdownToken, List<int>>();
+            FindOpeningAndClosingTemplates(paragraph, openingPositionsForTokens, closingPositionsForTokens);
 
-            return GetTokensBoarders();
+            return GetTokensBoarders(openingPositionsForTokens, closingPositionsForTokens);
         }
     }
 }
