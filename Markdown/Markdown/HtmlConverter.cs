@@ -8,12 +8,12 @@ namespace Markdown
 {
     public class HtmlConverter : IConverter
     {
-        public string Convert(string rowString, Span span)
+        public string Convert(string rawString, Span span)
         {
-            return Assembly(rowString, span);
+            return Assembly(rawString, span);
         }
 
-        public string Assembly(string rowString, Span span)
+        public string Assembly(string rawString, Span span)
         {
             if (span.EndIndex - span.StartIndex == 1)
                 return "";
@@ -21,7 +21,7 @@ namespace Markdown
             var builder = new StringBuilder();
 
             builder.Append(GetOpenTag(span));
-            builder.Append(span.Spans.Count == 0 ? GetRowSpan(rowString, span) : GetFullSpan(rowString, span));
+            builder.Append(span.Spans.Count == 0 ? GetrawSpan(rawString, span) : GetFullSpan(rawString, span));
             builder.Append(GetCloseTag(span));
 
             return builder.ToString();
@@ -49,30 +49,30 @@ namespace Markdown
                 : tagClose.Close;
         }
 
-        private string GetRowSpan(string rowString, Span span)
+        private string GetrawSpan(string rawString, Span span)
         {
-            return rowString.Substring(span.StartIndex + span.Tag.Open.Length,
+            return rawString.Substring(span.StartIndex + span.Tag.Open.Length,
                 span.EndIndex - (span.StartIndex + span.Tag.Open.Length));
         }
 
-        private string GetFullSpan(string rowString, Span span)
+        private string GetFullSpan(string rawString, Span span)
         {
             var builder = new StringBuilder();
 
-            builder.Append(rowString.Substring(span.StartIndex + span.Tag.Open.Length,
+            builder.Append(rawString.Substring(span.StartIndex + span.Tag.Open.Length,
                 span.Spans[0].StartIndex - (span.StartIndex + span.Tag.Open.Length)));
 
             for (var i = 0; i < span.Spans.Count - 1; i++)
             {
-                builder.Append(Assembly(rowString, span.Spans[i]));
-                builder.Append(rowString.Substring(span.Spans[i].EndIndex + span.Spans[i].Tag.Close.Length,
+                builder.Append(Assembly(rawString, span.Spans[i]));
+                builder.Append(rawString.Substring(span.Spans[i].EndIndex + span.Spans[i].Tag.Close.Length,
                     span.Spans[i + 1].StartIndex - (span.Spans[i].EndIndex + span.Spans[i].Tag.Close.Length)));
             }
 
             var lastSpan = span.Spans[span.Spans.Count - 1];
-            builder.Append(Assembly(rowString, lastSpan));
+            builder.Append(Assembly(rawString, lastSpan));
 
-            builder.Append(rowString.Substring(lastSpan.EndIndex + lastSpan.Tag.Close.Length,
+            builder.Append(rawString.Substring(lastSpan.EndIndex + lastSpan.Tag.Close.Length,
                 span.EndIndex - (lastSpan.EndIndex + lastSpan.Tag.Close.Length)));
 
             return builder.ToString();

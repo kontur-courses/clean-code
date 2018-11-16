@@ -17,9 +17,9 @@ namespace Markdown
             converter = new HtmlConverter();
         }
 
-        public string Render(string rowString)
+        public string Render(string rawString)
         {
-            return converter.Convert(rowString, parser.Parse(rowString));
+            return converter.Convert(rawString, parser.Parse(rawString));
         }
     }
 }

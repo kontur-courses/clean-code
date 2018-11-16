@@ -25,13 +25,14 @@ namespace MarkdownTests
         [TestCase("_a", "_a", TestName = "Not closed tag")]
         [TestCase("_a __b", "_a __b", TestName = "Not closed tags")]
         [TestCase("_a __abc__", @"_a <strong>abc</strong>", TestName = "Not closed before closed")]
-        [TestCase("_ __a _", "<em> __a </em>", TestName = "Not closed in closed")]
-        [TestCase("a_a_", "a_a_", TestName = "No whitespace before tag")]
-        [TestCase("_a_a", "_a_a", TestName = "No whitespace after tag")]
-        public void ParserShould(string rowString, string expected)
+        [TestCase("_a __a a_", "<em>a __a a</em>", TestName = "Not closed in closed")]
+        [TestCase("a_ a_", "a_ a_", TestName = "No whitespace after tag open")]
+        [TestCase("_a _a", "_a _a", TestName = "No whitespace before tag close")]
+        [TestCase("a_ _a", "a_ _a")]
+        public void ParserShould(string rawString, string expected)
         {
             var parser = new Md();
-            var result = parser.Render(rowString);
+            var result = parser.Render(rawString);
             result.Should().BeEquivalentTo(expected);
         }
 

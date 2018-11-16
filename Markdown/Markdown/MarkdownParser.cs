@@ -13,9 +13,9 @@ namespace Markdown
         private readonly Tag emptyTag = new Tag(TagValue.None, "", "");
         private string markdownString;
 
-        public Span Parse(string rowString)
+        public Span Parse(string rawString)
         {
-            markdownString = rowString;
+            markdownString = rawString;
             tags = Markups.Markdown.Tags;
             index = 0;
 
@@ -55,11 +55,11 @@ namespace Markdown
 
         private Span FindSpanStart()
         {
-            if (index > 0 && !char.IsWhiteSpace(markdownString[index - 1]))
-                return null;
-
             var tag = MatchTag(t => t.Open);
             if (tag == null)
+                return null;
+
+            if (tag.Open.Length + index < markdownString.Length && char.IsWhiteSpace(markdownString[tag.Open.Length + index]))
                 return null;
 
             var startIndex = index;
@@ -69,16 +69,13 @@ namespace Markdown
         }
         private Span FindSpanEnd(List<Span> openedSpans)
         {
-
             var tag = MatchTag(t => t.Close);
             if (tag == null)
                 return null;
 
             foreach (var openedSpan in openedSpans)
             {
-                if (Equals(openedSpan.Tag, tag) &&
-                    (index + openedSpan.Tag.Close.Length - 1 == markdownString.Length - 1 ||
-                     char.IsWhiteSpace(markdownString[index + openedSpan.Tag.Close.Length])))
+                if (Equals(openedSpan.Tag, tag) && (index == 0 || (!char.IsWhiteSpace(markdownString[index - 1]))))
                 {
                     openedSpan.Close(index);
                     index = index + openedSpan.Tag.Close.Length - 1;
