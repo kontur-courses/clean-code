@@ -5,6 +5,7 @@
 * MarkupFinderTests завернуть for в LINQ
 * Сделать SetUp на инициализацию Markup
 * Переименовать MarkupPosition
+* Отрефакторить весь код
 
 # DONE
 * Исправить зоны видимости 
@@ -14,4 +15,3 @@
 * MarkupExtansions.ValidOpeningPosition и MarkupExtansions.ValidClosingPosition сделать более читаемым (разбить на несколько методов или разбить одно большое условие на несколько более простых)
 * Переназвать Markup на Token или MarkdownToken или что-нибудь еще
 * Убрать состояние из MarkupFinder
-* 
