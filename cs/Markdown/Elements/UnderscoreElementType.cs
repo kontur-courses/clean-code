@@ -1,6 +1,6 @@
 ﻿namespace Markdown.Elements
 {
-    public class UnderscoreElementType : IElementType
+    public class UnderscoreElementType : ElementTypeBase
     {
         private static readonly UnderscoreElementType Instance = new UnderscoreElementType();
 
@@ -12,14 +12,14 @@
             return Instance;
         }
 
-        public string Indicator => "_";
+        public override string Indicator => "_";
 
-        public bool CanContainElement(IElementType elementType)
+        public override bool CanContainElement(IElementType elementType)
         {
             return false;
         }
 
-        public bool IsIndicatorAt(string markdown, int position)
+        public override bool IsIndicatorAt(string markdown, int position)
         {
             if (markdown.Substring(position, 1) != Indicator)
                 return false;

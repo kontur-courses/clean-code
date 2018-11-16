@@ -1,12 +1,8 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿using System.Linq;
 
 namespace Markdown.Elements
 {
-    public class RootElementType : IElementType
+    public class RootElementType : ElementTypeBase
     {
         private static readonly RootElementType Instance = new RootElementType();
         private static readonly IElementType[] PossibleInnerElementTypes =
@@ -20,14 +16,14 @@ namespace Markdown.Elements
             return Instance;
         }
 
-        public string Indicator => "";
+        public override string Indicator => "";
 
-        public bool CanContainElement(IElementType elementType)
+        public override bool CanContainElement(IElementType elementType)
         {
             return PossibleInnerElementTypes.Contains(elementType);
         }
 
-        public bool IsIndicatorAt(string markdown, int position)
+        public override bool IsIndicatorAt(string markdown, int position)
         {
             return false;
         }

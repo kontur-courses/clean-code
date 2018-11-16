@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace Markdown.Elements
 {
-    public class BrokenElementType : IElementType
+    public class BrokenElementType : ElementTypeBase
     {
         private static readonly BrokenElementType Instance = new BrokenElementType();
 
@@ -18,14 +18,14 @@ namespace Markdown.Elements
             return Instance;
         }
 
-        public string Indicator => "";
+        public override string Indicator => "";
 
-        public bool CanContainElement(IElementType elementType)
+        public override bool CanContainElement(IElementType elementType)
         {
             return true;
         }
 
-        public bool IsIndicatorAt(string markdown, int position)
+        public override bool IsIndicatorAt(string markdown, int position)
         {
             return false;
         }

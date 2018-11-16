@@ -2,11 +2,11 @@
 
 namespace Markdown.Elements
 {
-    public class DoubleUnderscoreElementType : IElementType
+    public class DoubleUnderscoreElementType : ElementTypeBase
     {
         private static readonly DoubleUnderscoreElementType Instance = new DoubleUnderscoreElementType();
         private static readonly IElementType[] PossibleInnerElementTypes = 
-            new[] { UnderscoreElementType.Create() };
+            { UnderscoreElementType.Create() };
 
         private DoubleUnderscoreElementType()
         { }
@@ -16,14 +16,14 @@ namespace Markdown.Elements
             return Instance;
         }
 
-        public string Indicator => "__";
+        public override string Indicator => "__";
 
-        public bool CanContainElement(IElementType elementType)
+        public override bool CanContainElement(IElementType elementType)
         {
             return PossibleInnerElementTypes.Contains(elementType);
         }
 
-        public bool IsIndicatorAt(string markdown, int position)
+        public override bool IsIndicatorAt(string markdown, int position)
         {
             if (position + Indicator.Length > markdown.Length)
                 return false;

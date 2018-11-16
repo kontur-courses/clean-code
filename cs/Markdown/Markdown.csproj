@@ -45,6 +45,7 @@
   <ItemGroup>
     <Compile Include="Elements\BrokenElement.cs" />
     <Compile Include="Elements\DoubleUnderscoreElementType.cs" />
+    <Compile Include="Elements\ElementTypeBase.cs" />
     <Compile Include="Elements\IElementType.cs" />
     <Compile Include="Elements\MarkdownElement.cs" />
     <Compile Include="Elements\RootElementType.cs" />

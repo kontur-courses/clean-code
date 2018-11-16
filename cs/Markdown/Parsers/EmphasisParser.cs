@@ -23,16 +23,15 @@ namespace Markdown.Parsers
             this.markdown = markdown;
             this.startPosition = startPosition;
             this.elementType = elementType;
+            currentPosition = startPosition;
+            innerElements = new List<MarkdownElement>();
         }
 
         public MarkdownElement Parse()
         {
-            currentPosition = startPosition;
-            innerElements = new List<MarkdownElement>();
-
             while (currentPosition < markdown.Length)
             {
-                if (IsClosingOfElement(markdown, currentPosition, elementType))
+                if (elementType.IsClosingOfElement(markdown, currentPosition))
                     return new MarkdownElement(
                         elementType, markdown, startPosition, currentPosition, innerElements);
 
@@ -67,7 +66,7 @@ namespace Markdown.Parsers
             var innerElement = innerElementParser.Parse();
 
             if (innerElement.ElementType == BrokenElementType.Create())
-                innerElements = innerElements.Concat(innerElement.InnerElements).ToList();
+                innerElements.AddRange(innerElement.InnerElements);
             else
                 innerElements.Add(innerElement);
             currentPosition = innerElement.EndPosition + innerElement.ElementType.Indicator.Length;
@@ -76,33 +75,13 @@ namespace Markdown.Parsers
         private static IElementType GetOpeningElementType(string markdown, int position)
         {
             return PossibleElementTypes
-                .FirstOrDefault(type => IsOpeningOfElement(markdown, position, type));
+                .FirstOrDefault(type => type.IsOpeningOfElement(markdown, position));
         }
 
         private static IElementType GetClosingElementType(string markdown, int position)
         {
             return PossibleElementTypes
-                .FirstOrDefault(type => IsClosingOfElement(markdown, position, type));
-        }
-
-        private static bool IsOpeningOfElement(string markdown, int position, IElementType elementType)
-        {
-            if (markdown.IsEscapedCharAt(position))
-                return false;
-
-            int positionAfterIndicator = position + elementType.Indicator.Length;
-            return elementType.IsIndicatorAt(markdown, position) &&
-                   positionAfterIndicator < markdown.Length &&
-                   !Char.IsWhiteSpace(markdown[positionAfterIndicator]);
-        }
-
-        private static bool IsClosingOfElement(string markdown, int position, IElementType elementType)
-        {
-            if (markdown.IsEscapedCharAt(position))
-                return false;
-
-            return elementType.IsIndicatorAt(markdown, position) &&
-                   position >= 1 && !Char.IsWhiteSpace(markdown[position - 1]);
+                .FirstOrDefault(type => type.IsClosingOfElement(markdown, position));
         }
     }
 }
