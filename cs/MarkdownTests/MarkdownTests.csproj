@@ -60,7 +60,7 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="MarkdownTokenExtensionsTests.cs" />
-    <Compile Include="MarkupFinderTests.cs" />
+    <Compile Include="TokenFinderTests.cs" />
     <Compile Include="Md2HtmlTranslatorTests.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
