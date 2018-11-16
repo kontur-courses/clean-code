@@ -8,13 +8,13 @@ namespace Markdown
 {
     public class Span
     {
-        public Tag Tag { get; set; }
-        public int StartIndex { get; set; }
+        public Tag Tag { get; }
+        public int StartIndex { get; }
         public int EndIndex { get; private set; }
 
-        public List<Span> Spans { get; set; }
-        public Span Parent { get; set; }
-        public bool IsClosed { get; set; } = false;
+        public List<Span> Spans { get; private set; }
+        public Span Parent { get; private set; }
+        public bool IsClosed { get; private set; }
 
         public Span(Tag tag, int startIndex)
         {
@@ -71,6 +71,7 @@ namespace Markdown
                     childSpan.Parent = this;
                 }
             }
+            Spans = Spans.OrderBy(s => s.StartIndex).ToList();
         }
     }
 }

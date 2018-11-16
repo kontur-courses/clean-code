@@ -19,7 +19,6 @@ namespace Markdown
                 return "";
 
             var builder = new StringBuilder();
-            span.Spans = span.Spans.OrderBy(s => s.StartIndex).ToList();
 
             builder.Append(GetOpenTag(span));
             builder.Append(span.Spans.Count == 0 ? GetRowSpan(rowString, span) : GetFullSpan(rowString, span));

@@ -81,7 +81,6 @@ namespace Markdown
                      char.IsWhiteSpace(markdownString[index + openedSpan.Tag.Close.Length])))
                 {
                     openedSpan.Close(index);
-                    openedSpan.IsClosed = true;
                     index = index + openedSpan.Tag.Close.Length - 1;
                     return openedSpan;
                 }
