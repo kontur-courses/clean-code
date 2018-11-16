@@ -14,9 +14,9 @@ namespace Markdown
 
         [Test]
         public void Render_ShouldThrowArgumentException_WhenTextIsNull() =>
-            Assert.Throws<ArgumentException>(
+            Assert.Throws<ArgumentNullException>(
                 () => md.Render(null),
-                "text should not be null"
+                "text"
             );
 
         [Test]

@@ -6,7 +6,10 @@ namespace Markdown
     {
         public string Render(string text)
         {
-            throw new NotImplementedException();
+            if (text is null)
+                throw new ArgumentNullException(nameof(text));
+
+            return text;
         }
     }
 }
