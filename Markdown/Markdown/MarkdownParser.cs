@@ -8,28 +8,25 @@ namespace Markdown
 {
     public class MarkdownParser : IParser
     {
-        private List<TagPair> tags;
+        private List<Tag> tags;
         private int index;
-        private readonly TagPair emptyTagPair = new TagPair("", "", "", "");
+        private readonly Tag emptyTag = new Tag(TagValue.None, "", "");
         private string markdownString;
 
-        public string ParseTo(string rowString, Markup markup)
+        public Span Parse(string rowString)
         {
-            if (markup == Markups.Markdown)
-                return rowString;
-
             markdownString = rowString;
-            tags = GetTags(Markups.Markdown, markup);
+            tags = Markups.Markdown.Tags;
             index = 0;
 
-            var mainSpan = new Span(emptyTagPair, 0, markdownString.Length) { IsMainSpan = true };
+            var mainSpan = new Span(emptyTag, 0, markdownString.Length) {IsClosed = true};
             var openedSpans = new List<Span>();
 
             for (; index < markdownString.Length; index++)
             {
                 if (markdownString[index] == '\\')
                 {
-                    mainSpan.PutSpan(new Span(emptyTagPair, index, index + 1));
+                    mainSpan.PutSpan(new Span(emptyTag, index, index + 1) {IsClosed = true});
                     index += 1;
                     continue;
                 }
@@ -39,7 +36,7 @@ namespace Markdown
                     var span = FindSpanEnd(openedSpans);
                     if (span != null)
                     {
-                        openedSpans = openedSpans.Where(t => t.EndIndex == 0).ToList();
+                        openedSpans = openedSpans.Where(t => !t.IsClosed).ToList();
                         continue;
                     }
                 }
@@ -53,7 +50,7 @@ namespace Markdown
             }
 
             mainSpan.RemoveNotClosedSpans();
-            return Assembly(markdownString, mainSpan);
+            return mainSpan;
         }
 
         private Span FindSpanStart()
@@ -61,30 +58,31 @@ namespace Markdown
             if (index > 0 && !char.IsWhiteSpace(markdownString[index - 1]))
                 return null;
 
-            var tag = MatchTag(t => t.InitialOpen);
+            var tag = MatchTag(t => t.Open);
             if (tag == null)
                 return null;
 
             var startIndex = index;
-            index = index + tag.InitialOpen.Length - 1;
+            index = index + tag.Open.Length - 1;
             return new Span(tag, startIndex);
 
         }
         private Span FindSpanEnd(List<Span> openedSpans)
         {
 
-            var tag = MatchTag(t => t.InitialClose);
+            var tag = MatchTag(t => t.Close);
             if (tag == null)
                 return null;
 
             foreach (var openedSpan in openedSpans)
             {
-                if (Equals(openedSpan.TagPair, tag) &&
-                    (index + openedSpan.TagPair.InitialClose.Length - 1 == markdownString.Length - 1 ||
-                     char.IsWhiteSpace(markdownString[index + openedSpan.TagPair.InitialClose.Length])))
+                if (Equals(openedSpan.Tag, tag) &&
+                    (index + openedSpan.Tag.Close.Length - 1 == markdownString.Length - 1 ||
+                     char.IsWhiteSpace(markdownString[index + openedSpan.Tag.Close.Length])))
                 {
                     openedSpan.EndIndex = index;
-                    index = index + openedSpan.TagPair.InitialClose.Length - 1;
+                    openedSpan.IsClosed = true;
+                    index = index + openedSpan.Tag.Close.Length - 1;
                     return openedSpan;
                 }
 
@@ -93,9 +91,9 @@ namespace Markdown
             return null;
         }
 
-        private TagPair MatchTag(Func<TagPair, string> param)
+        private Tag MatchTag(Func<Tag, string> param)
         {
-            var possibleTags = new List<TagPair>();
+            var possibleTags = new List<Tag>();
             foreach (var tag in tags)
             {
                 var str = param(tag);
@@ -108,78 +106,6 @@ namespace Markdown
             }
 
             return possibleTags.OrderByDescending(t => param(t).Length).FirstOrDefault();
-        }
-
-        private List<TagPair> GetTags(Markup from, Markup to)
-        {
-            var result = new List<TagPair>();
-            foreach (var tag in from.Tags)
-            {
-                var endTag = to.Tags.FirstOrDefault(t => t.Name == tag.Name);
-                if (endTag == null)
-                    continue;
-
-                result.Add(new TagPair(tag.Open, tag.Close, endTag.Open, endTag.Close, endTag.CanBeInside && tag.CanBeInside));
-            }
-
-            return result;
-        }
-        public string Assembly(string rowString, Span span)
-        {
-            if (span.EndIndex - span.StartIndex == 1)
-                return "";
-
-            var builder = new StringBuilder();
-            span.Spans = span.Spans.OrderBy(s => s.StartIndex).ToList();
-
-            builder.Append(GetOpenTag(span));
-            builder.Append(span.Spans.Count == 0 ? GetRowSpan(rowString, span) : GetFullSpan(rowString, span));
-            builder.Append(GetCloseTag(span));
-
-            return builder.ToString();
-        }
-        
-        private string GetOpenTag(Span span)
-        {
-            return !span.TagPair.CanBeInside && span.Parent != null && span.Parent.IsMainSpan == false
-                ? span.TagPair.InitialOpen
-                : span.TagPair.FinalOpen;
-        }
-
-        private string GetCloseTag(Span span)
-        {
-            return !span.TagPair.CanBeInside && span.Parent != null && span.Parent.IsMainSpan == false
-                ? span.TagPair.InitialClose
-                : span.TagPair.FinalClose;
-        }
-
-        private string GetRowSpan(string rowString, Span span)
-        {
-            return rowString.Substring(span.StartIndex + span.TagPair.InitialOpen.Length,
-                span.EndIndex - (span.StartIndex + span.TagPair.InitialOpen.Length));
-        }
-
-        private string GetFullSpan(string rowString, Span span)
-        {
-            var builder = new StringBuilder();
-
-            builder.Append(rowString.Substring(span.StartIndex + span.TagPair.InitialOpen.Length,
-                span.Spans[0].StartIndex - (span.StartIndex + span.TagPair.InitialOpen.Length)));
-
-            for (var i = 0; i < span.Spans.Count - 1; i++)
-            {
-                builder.Append(Assembly(rowString, span.Spans[i]));
-                builder.Append(rowString.Substring(span.Spans[i].EndIndex + span.Spans[i].TagPair.InitialClose.Length,
-                    span.Spans[i + 1].StartIndex - (span.Spans[i].EndIndex + span.Spans[i].TagPair.InitialClose.Length)));
-            }
-
-            var lastSpan = span.Spans[span.Spans.Count - 1];
-            builder.Append(Assembly(rowString, lastSpan));
-
-            builder.Append(rowString.Substring(lastSpan.EndIndex + lastSpan.TagPair.InitialClose.Length,
-                span.EndIndex - (lastSpan.EndIndex + lastSpan.TagPair.InitialClose.Length)));
-
-            return builder.ToString();
         }
     }
 }

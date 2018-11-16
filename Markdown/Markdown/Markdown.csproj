@@ -42,6 +42,8 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="HtmlConverter.cs" />
+    <Compile Include="IConverter.cs" />
     <Compile Include="IParser.cs" />
     <Compile Include="MarkdownParser.cs" />
     <Compile Include="Tag.cs" />
@@ -49,9 +51,9 @@
     <Compile Include="Md.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
-    <Compile Include="TagPair.cs" />
     <Compile Include="Span.cs" />
     <Compile Include="Markups.cs" />
+    <Compile Include="TagValue.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="App.config" />

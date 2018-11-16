@@ -9,15 +9,17 @@ namespace Markdown
     public class Md
     {
         private readonly IParser parser;
+        private readonly IConverter converter;
 
-        public Md(IParser parser)
+        public Md()
         {
-            this.parser = parser;
+            parser = new MarkdownParser();
+            converter = new HtmlConverter();
         }
 
-        public string Render(string rowString, Markup markup)
+        public string Render(string rowString)
         {
-            return parser.ParseTo(rowString, markup);
+            return converter.Convert(rowString, parser.Parse(rowString));
         }
     }
 }

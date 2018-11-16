@@ -9,14 +9,6 @@ namespace MarkdownTests
     [TestFixture]
     public class MdTests
     {
-        private Md parser;
-        //Одинаковые тесты по сути то
-        [SetUp]
-        public void SetUp()
-        {
-            
-        }
-
         [TestCase("_abc_", @"<em>abc</em>", TestName = "Tagged italic word")]
         [TestCase("__abc__", @"<strong>abc</strong>", TestName = "Tagged strong word")]
         [TestCase("aa _bb_ aa", @"aa <em>bb</em> aa", TestName = "Tagged word between words")]
@@ -38,9 +30,18 @@ namespace MarkdownTests
         [TestCase("_a_a", "_a_a", TestName = "No whitespace after tag")]
         public void ParserShould(string rowString, string expected)
         {
-            var parser = new Md(new MarkdownParser());
-            var result = parser.Render(rowString, Markups.Html);
+            var parser = new Md();
+            var result = parser.Render(rowString);
             result.Should().BeEquivalentTo(expected);
+        }
+
+        [Test]
+        public void HtmlConverter_ShouldConvert()
+        {
+            var converter = new HtmlConverter();
+            var span = new Span(new Tag(TagValue.Italic, "_", "_"), 0, 2);
+            var result = converter.Convert("_a_", span);
+            result.Should().BeEquivalentTo("<em>a</em>");
         }
     }
 }

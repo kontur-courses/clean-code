@@ -6,8 +6,8 @@ using System.Threading.Tasks;
 
 namespace Markdown
 {
-    public interface IParser
+    public enum TagValue
     {
-        Span Parse(string rowString);
+        None, Strong, Italic
     }
 }

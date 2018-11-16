@@ -8,23 +8,23 @@ namespace Markdown
 {
     public class Span
     {
-        public TagPair TagPair { get; set; }
+        public Tag Tag { get; set; }
         public int StartIndex { get; set; }
         public int EndIndex { get; set; }
         public List<Span> Spans { get; set; }
         public Span Parent { get; set; }
-        public bool IsMainSpan = false;
+        public bool IsClosed { get; set; } = false;
 
-        public Span(TagPair tagPair, int startIndex)
+        public Span(Tag tag, int startIndex)
         {
-            TagPair = tagPair;
+            Tag = tag;
             StartIndex = startIndex;
             Spans = new List<Span>();
         }
 
-        public Span(TagPair tagPair, int startIndex, int endIndex)
+        public Span(Tag tag, int startIndex, int endIndex)
         {
-            TagPair = tagPair;
+            Tag = tag;
             StartIndex = startIndex;
             EndIndex = endIndex;
             Spans = new List<Span>();
@@ -52,14 +52,14 @@ namespace Markdown
             foreach (var span in Spans.ToArray())
             {
                 span.RemoveNotClosedSpans();
-                if (span.EndIndex != 0)
+                if (span.IsClosed)
                     continue;
 
                 Spans.Remove(span);
-                foreach (var spanSpan in span.Spans)
+                foreach (var childSpan in span.Spans)
                 {
-                    Spans.Add(spanSpan);
-                    spanSpan.Parent = this;
+                    Spans.Add(childSpan);
+                    childSpan.Parent = this;
                 }
             }
         }

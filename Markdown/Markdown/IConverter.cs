@@ -6,8 +6,8 @@ using System.Threading.Tasks;
 
 namespace Markdown
 {
-    public interface IParser
+    public interface IConverter
     {
-        Span Parse(string rowString);
+        string Convert(string rowString, Span span);
     }
 }
