@@ -27,7 +27,19 @@ namespace MarkdownTests
         }
 
         [Test]
-        public void TestBuildTree_OnTextToken()
+        public void TestTranslate_OnNoTokens()
+        {
+            const string expectedTranslation = "";
+            var tree = treeBuilder
+                .Build();
+
+            var translation = treeTranslator.Translate(tree);
+
+            translation.Should().BeEquivalentTo(expectedTranslation);
+        }
+
+        [Test]
+        public void TestTranslate_OnTextToken()
         {
             const string expectedTranslation = "a";
             var tree = treeBuilder
@@ -40,7 +52,7 @@ namespace MarkdownTests
         }
 
         [Test]
-        public void TestBuildTree_OnSpaceToken()
+        public void TestTranslate_OnSpaceToken()
         {
             const string expectedTranslation = " ";
             var tree = treeBuilder
@@ -53,7 +65,7 @@ namespace MarkdownTests
         }
 
         [Test]
-        public void TestBuildTree_OnItalicTag()
+        public void TestTranslate_OnItalicTag()
         {
             const string expectedTranslation = "_";
             var tree = treeBuilder.WithText("_").Build();
@@ -64,7 +76,7 @@ namespace MarkdownTests
         }
 
         [Test]
-        public void TestBuildTree_OnBoldTag()
+        public void TestTranslate_OnBoldTag()
         {
             const string expectedTranslation = "__";
             var tree = treeBuilder
@@ -77,7 +89,7 @@ namespace MarkdownTests
         }
 
         [Test]
-        public void TestBuildTree_OnDoubleEscapeSymbol()
+        public void TestTranslate_OnDoubleEscapeSymbol()
         {
             const string expectedTranslation = @"\";
             var tree = treeBuilder
@@ -90,7 +102,7 @@ namespace MarkdownTests
         }
 
         [Test]
-        public void TestBuildTree_OnItalicTagWithText()
+        public void TestTranslate_OnItalicTagWithText()
         {
             const string expectedTranslation = "<em>a</em>";
             var tree = treeBuilder
@@ -106,7 +118,7 @@ namespace MarkdownTests
         }
 
         [Test]
-        public void TestBuildTree_OnNotClosedItalicTag()
+        public void TestTranslate_OnNotClosedItalicTag()
         {
             const string expectedTranslation = "_a";
             var tree = treeBuilder
@@ -120,7 +132,7 @@ namespace MarkdownTests
         }
 
         [Test]
-        public void TestBuildTree_OnNotOpenedItalicTag()
+        public void TestTranslate_OnNotOpenedItalicTag()
         {
             const string expectedTranslation = "a_";
             var tree = treeBuilder
@@ -134,7 +146,7 @@ namespace MarkdownTests
         }
 
         [Test]
-        public void TestBuildTree_OnSpaceAfterOpeningItalicTag()
+        public void TestTranslate_OnSpaceAfterOpeningItalicTag()
         {
             const string expectedTranslation = "_ a_";
             var tree = treeBuilder
@@ -150,7 +162,7 @@ namespace MarkdownTests
         }
 
         [Test]
-        public void TestBuildTree_OnSpaceBeforeClosingItalicTag()
+        public void TestTranslate_OnSpaceBeforeClosingItalicTag()
         {
             const string expectedTranslation = "_a _";
             var tree = treeBuilder
@@ -166,7 +178,7 @@ namespace MarkdownTests
         }
 
         [Test]
-        public void TestBuildTree_OnOpeningItalicTagInText()
+        public void TestTranslate_OnOpeningItalicTagInText()
         {
             const string expectedTranslation = "a_b_";
             var tree = treeBuilder
@@ -182,7 +194,7 @@ namespace MarkdownTests
         }
 
         [Test]
-        public void TestBuildTree_OnClosingItalicTagInText()
+        public void TestTranslate_OnClosingItalicTagInText()
         {
             const string expectedTranslation = "_a_b";
             var tree = treeBuilder
@@ -198,7 +210,7 @@ namespace MarkdownTests
         }
 
         [Test]
-        public void TestBuildTree_OnEscapeBeforeOpeningItalicTag()
+        public void TestTranslate_OnEscapeBeforeOpeningItalicTag()
         {
             const string expectedTranslation = @"_a_";
             var tree = treeBuilder
@@ -213,7 +225,7 @@ namespace MarkdownTests
         }
 
         [Test]
-        public void TestBuildTree_OnEscapeBeforeClosingItalicTag()
+        public void TestTranslate_OnEscapeBeforeClosingItalicTag()
         {
             const string expectedTranslation = @"_a_";
             var tree = treeBuilder
@@ -228,7 +240,7 @@ namespace MarkdownTests
         }
 
         [Test]
-        public void TestBuildTree_OnEscapedOpeningSortTagInsideItalicTag()
+        public void TestTranslate_OnEscapedOpeningSortTagInsideItalicTag()
         {
             const string expectedTranslation = @"<em>a _b</em>";
             var tree = treeBuilder
@@ -247,7 +259,7 @@ namespace MarkdownTests
         }
 
         [Test]
-        public void TestBuildTree_OnEscapedClosingSortTagInsideItalicTag()
+        public void TestTranslate_OnEscapedClosingSortTagInsideItalicTag()
         {
             const string expectedTranslation = @"<em>a b_</em>";
             var tree = treeBuilder
@@ -266,7 +278,7 @@ namespace MarkdownTests
         }
 
         [Test]
-        public void TestBuildTree_OnSameOpeningBeforeItalicTag()
+        public void TestTranslate_OnSameOpeningBeforeItalicTag()
         {
             const string expectedTranslation = "<em>a _b</em>";
             var tree = treeBuilder
@@ -285,7 +297,7 @@ namespace MarkdownTests
         }
 
         [Test]
-        public void TestBuildTree_OnSameClosingItalicTag()
+        public void TestTranslate_OnSameClosingItalicTag()
         {
             const string expectedTranslation = "<em>a</em> b_";
             var tree = treeBuilder
@@ -304,7 +316,7 @@ namespace MarkdownTests
         }
 
         [Test]
-        public void TestBuildTree_OnItalicTagInItalicTag()
+        public void TestTranslate_OnItalicTagInItalicTag()
         {
             const string expectedTranslation = "<em>a _b</em> c_";
             var tree = treeBuilder
@@ -326,7 +338,7 @@ namespace MarkdownTests
         }
 
         [Test]
-        public void TestBuildTree_OnBoldTagInBoldTag()
+        public void TestTranslate_OnBoldTagInBoldTag()
         {
             const string expectedTranslation = "<strong>a __b</strong> c__";
             var tree = treeBuilder
@@ -348,7 +360,7 @@ namespace MarkdownTests
         }
 
         [Test]
-        public void TestBuildTree_OnBoldTagInsideItalicTag()
+        public void TestTranslate_OnBoldTagInsideItalicTag()
         {
             const string expectedTranslation = "<em>a __b__ c</em>";
             var tree = treeBuilder
@@ -371,7 +383,7 @@ namespace MarkdownTests
         }
 
         [Test]
-        public void TestBuildTree_OnItalicTagInsideBoldTag()
+        public void TestTranslate_OnItalicTagInsideBoldTag()
         {
             const string expectedTranslation = "<strong>a <em>b</em> c</strong>";
             var tree = treeBuilder
@@ -394,7 +406,7 @@ namespace MarkdownTests
         }
 
         [Test]
-        public void TestBuildTree_OnOuterTagClosedBeforeInner()
+        public void TestTranslate_OnOuterTagClosedBeforeInner()
         {
             const string expectedTranslation = "<strong>a _b</strong> c_";
             var tree = treeBuilder

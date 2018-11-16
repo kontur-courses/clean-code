@@ -33,7 +33,7 @@ namespace Markdown.TokenParser
         {
             if (token.Length == 0)
                 return true;
-            if (token == "\\" || nextSymbol == '\\')
+            if (token == "\\" || nextSymbol == '\\' || token == "\n" || nextSymbol == '\n')
                 return false;
             if (tags.Contains(token))
                 return tags.Contains(token + nextSymbol);

@@ -7,12 +7,12 @@
         public bool CanBeInsideOtherTag { get; }
 
         public bool MustBeOpened(bool isOpened, TokenType previousTokenType, TokenType nexTokenType) =>
-            previousTokenType != TokenType.EscapeSymbol && previousTokenType == TokenType.Space &&
-            nexTokenType != TokenType.Space && !isOpened;
+            previousTokenType != TokenType.EscapeSymbol && previousTokenType.IsSeparator() &&
+            !nexTokenType.IsSeparator() && !isOpened;
 
         public bool MustBeClosed(bool isOpened, TokenType previousTokenType, TokenType nexTokenType) =>
-            previousTokenType != TokenType.EscapeSymbol && previousTokenType != TokenType.Space &&
-            nexTokenType == TokenType.Space && isOpened;
+            previousTokenType != TokenType.EscapeSymbol && !previousTokenType.IsSeparator() &&
+            nexTokenType.IsSeparator() && isOpened;
 
         public StandardMarkdownTagInfo(string tag, bool canBeInsideOtherTag)
         {

@@ -28,8 +28,8 @@ namespace Markdown.TreeBuilder
             for (var i = 0; i < tokensArray.Length; i++)
             {
                 var token = tokensArray[i];
-                var previousTokenType = i > 0 ? GetTokenType(tokensArray[i - 1]) : TokenType.Space;
-                var nextTokenType = i < tokensArray.Length - 1 ? GetTokenType(tokensArray[i + 1]) : TokenType.Space;
+                var previousTokenType = i > 0 ? GetTokenType(tokensArray[i - 1]) : TokenType.ParagraphStart;
+                var nextTokenType = i < tokensArray.Length - 1 ? GetTokenType(tokensArray[i + 1]) : TokenType.ParagraphEnd;
 
                 AddTokenToTree(openedTags, token, previousTokenType, nextTokenType);
             }
@@ -46,6 +46,7 @@ namespace Markdown.TreeBuilder
             switch (tokenType)
             {
                 case TokenType.Space:
+                case TokenType.NewLine:
                     currentTag.Children.Add(new SpaceTreeNode());
                     break;
                 case TokenType.Text:
@@ -114,10 +115,12 @@ namespace Markdown.TreeBuilder
                 throw new ArgumentException("token should be not empty string");
             if (token == "\\")
                 return TokenType.EscapeSymbol;
-            if (string.IsNullOrWhiteSpace(token))
-                return TokenType.Space;
             if (tagsInfo.ContainsKey(token))
                 return TokenType.Tag;
+            if (token == "\n")
+                return TokenType.NewLine;
+            if (string.IsNullOrWhiteSpace(token))
+                return TokenType.Space;
             return TokenType.Text;
         }
     }

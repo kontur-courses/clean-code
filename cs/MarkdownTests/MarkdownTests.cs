@@ -36,8 +36,12 @@ namespace MarkdownTests
             markdown = new Markdown.Markdown(parser, treeTranslator, treeBuilder);
         }
 
+        [TestCase("\n", " ", TestName = "OnlyNewLine")]
+        [TestCase("", "", TestName = "EmptyString")]
         [TestCase("a", "a", TestName = "OnlyText")]
         [TestCase(" ", " ", TestName = "OnlySpace")]
+        [TestCase("a b", "a b", TestName = "TextWithSpace")]
+        [TestCase("a\nb", "a b", TestName = "TextWithSpace")]
         [TestCase("\\\\", "\\", TestName = "EscapedEscapeSymbol")]
         [TestCase("_a_", "<em>a</em>", TestName = "ItalicTag")]
         [TestCase("__a__", "<strong>a</strong>", TestName = "BoldTag")]

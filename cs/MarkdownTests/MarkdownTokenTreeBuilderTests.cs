@@ -22,6 +22,18 @@ namespace MarkdownTests
         }
 
         [Test]
+        public void TestBuildTree_OnNoTokens()
+        {
+            var tokens = new string[0];
+            var expectedTree = testTreeBuilder
+                .Build();
+
+            var tree = builder.BuildTree(tokens);
+
+            tree.Should().BeEquivalentTo(expectedTree);
+        }
+
+        [Test]
         public void TestBuildTree_OnTextToken()
         {
             var tokens = new[] { "a" };
@@ -38,6 +50,19 @@ namespace MarkdownTests
         public void TestBuildTree_OnSpaceToken()
         {
             var tokens = new[] { " " };
+            var expectedTree = testTreeBuilder
+                .WithSpace()
+                .Build();
+
+            var tree = builder.BuildTree(tokens);
+
+            tree.Should().BeEquivalentTo(expectedTree);
+        }
+
+        [Test]
+        public void TestBuildTree_OnNewLineToken()
+        {
+            var tokens = new[] { "\n" };
             var expectedTree = testTreeBuilder
                 .WithSpace()
                 .Build();
@@ -77,6 +102,36 @@ namespace MarkdownTests
             var tokens = new[] { "\\", "\\" };
             var expectedTree = testTreeBuilder
                 .WithText("\\")
+                .Build();
+
+            var tree = builder.BuildTree(tokens);
+
+            tree.Should().BeEquivalentTo(expectedTree);
+        }
+
+        [Test]
+        public void TestBuildTree_OnTextWithSpace()
+        {
+            var tokens = new[] { "a", " ", "b" };
+            var expectedTree = testTreeBuilder
+                .WithText("a")
+                .WithSpace()
+                .WithText("b")
+                .Build();
+
+            var tree = builder.BuildTree(tokens);
+
+            tree.Should().BeEquivalentTo(expectedTree);
+        }
+
+        [Test]
+        public void TestBuildTree_OnTextWithNewLine()
+        {
+            var tokens = new[] { "a", "\n", "b" };
+            var expectedTree = testTreeBuilder
+                .WithText("a")
+                .WithSpace()
+                .WithText("b")
                 .Build();
 
             var tree = builder.BuildTree(tokens);
