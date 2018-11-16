@@ -11,7 +11,7 @@ namespace Markdown
             new Dictionary<IElementType, (string open, string close)>
                 {
                     { RootElementType.Create(), (open: "", close: "") },
-                    { UnderscoreElementType.Create(), (open: "<em>", close: "</em>") },
+                    { SingleUnderscoreElementType.Create(), (open: "<em>", close: "</em>") },
                     { DoubleUnderscoreElementType.Create(), (open: "<strong>", close: "</strong>") }
                 };
     

@@ -20,9 +20,9 @@ namespace Markdown_Tests
             TestName = "allow em contain strong")]
         [TestCase("_hello __world__ !_", ExpectedResult = "_hello <strong>world</strong> !_",
             TestName = "not allow strong contain em")]
-        [TestCase("___hello___", ExpectedResult = "___hello___)",
+        [TestCase("___hello___", ExpectedResult = "___hello___",
             TestName = "not convert unrecognized paired underscores")]
-        [TestCase("___hello__", ExpectedResult = "___hello__)",
+        [TestCase("___hello__", ExpectedResult = "___hello__",
             TestName = "not convert unrecognized unpaired underscores")]
         public string RenderShould(string markdown)
         {

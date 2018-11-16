@@ -49,12 +49,13 @@
     <Compile Include="Elements\IElementType.cs" />
     <Compile Include="Elements\MarkdownElement.cs" />
     <Compile Include="Elements\RootElementType.cs" />
-    <Compile Include="Elements\UnderscoreElementType.cs" />
+    <Compile Include="Elements\UnderscoreElementTypeBase.cs" />
+    <Compile Include="Elements\SingleUnderscoreElementType.cs" />
+    <Compile Include="EscapesAnalyzer.cs" />
     <Compile Include="HtmlRenderer.cs" />
     <Compile Include="Parsers\EmphasisParser.cs" />
     <Compile Include="Md.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
-    <Compile Include="StringExtension.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="packages.config" />

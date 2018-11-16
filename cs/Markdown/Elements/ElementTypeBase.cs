@@ -6,27 +6,27 @@ namespace Markdown.Elements
     {
         public abstract string Indicator { get; }
 
-        public virtual bool IsOpeningOfElement(string markdown, int position)
+        public virtual bool IsOpeningOfElement(string markdown, bool[] escapeBitMask, int position)
         {
-            if (markdown.IsEscapedCharAt(position))
+            if (escapeBitMask[position])
                 return false;
 
             int positionAfterIndicator = position + Indicator.Length;
-            return IsIndicatorAt(markdown, position) &&
+            return IsIndicatorAt(markdown, escapeBitMask, position) &&
                    positionAfterIndicator < markdown.Length &&
                    !Char.IsWhiteSpace(markdown[positionAfterIndicator]);
         }
 
-        public virtual bool IsClosingOfElement(string markdown, int position)
+        public virtual bool IsClosingOfElement(string markdown, bool[] escapeBitMask, int position)
         {
-            if (markdown.IsEscapedCharAt(position))
+            if (escapeBitMask[position])
                 return false;
 
-            return IsIndicatorAt(markdown, position) &&
+            return IsIndicatorAt(markdown, escapeBitMask, position) &&
                    position >= 1 && !Char.IsWhiteSpace(markdown[position - 1]);
         }
 
         public abstract bool CanContainElement(IElementType element);
-        public abstract bool IsIndicatorAt(string markdown, int position);
+        public abstract bool IsIndicatorAt(string markdown, bool[] escapeBitMask, int position);
     }
 }

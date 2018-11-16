@@ -1,5 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Linq;
 using Markdown.Elements;
 
@@ -9,7 +8,7 @@ namespace Markdown.Parsers
     {
         private static readonly IElementType[] PossibleElementTypes = new IElementType[]
         {
-            UnderscoreElementType.Create(), DoubleUnderscoreElementType.Create()
+            SingleUnderscoreElementType.Create(), DoubleUnderscoreElementType.Create()
         };
 
         private readonly string markdown;
@@ -17,6 +16,7 @@ namespace Markdown.Parsers
         private readonly IElementType elementType;
         private int currentPosition;
         private List<MarkdownElement> innerElements;
+        private bool[] escapeBitMask;
 
         public EmphasisParser(string markdown, int startPosition, IElementType elementType)
         {
@@ -25,18 +25,19 @@ namespace Markdown.Parsers
             this.elementType = elementType;
             currentPosition = startPosition;
             innerElements = new List<MarkdownElement>();
+            escapeBitMask = EscapesAnalyzer.GetBitMaskOfEscapedChars(markdown);
         }
 
         public MarkdownElement Parse()
         {
             while (currentPosition < markdown.Length)
             {
-                if (elementType.IsClosingOfElement(markdown, currentPosition))
+                if (elementType.IsClosingOfElement(markdown, escapeBitMask, currentPosition))
                     return new MarkdownElement(
                         elementType, markdown, startPosition, currentPosition, innerElements);
 
-                var openingElementType = GetOpeningElementType(markdown, currentPosition);
-                var closingElementType = GetClosingElementType(markdown, currentPosition);
+                var openingElementType = GetOpeningElementType(currentPosition);
+                var closingElementType = GetClosingElementType(currentPosition);
                 
                 if (openingElementType != null && elementType.CanContainElement(openingElementType))
                     HandleInnerElement(openingElementType);
@@ -72,16 +73,16 @@ namespace Markdown.Parsers
             currentPosition = innerElement.EndPosition + innerElement.ElementType.Indicator.Length;
         }
 
-        private static IElementType GetOpeningElementType(string markdown, int position)
+        private IElementType GetOpeningElementType(int position)
         {
             return PossibleElementTypes
-                .FirstOrDefault(type => type.IsOpeningOfElement(markdown, position));
+                .FirstOrDefault(type => type.IsOpeningOfElement(markdown, escapeBitMask, position));
         }
 
-        private static IElementType GetClosingElementType(string markdown, int position)
+        private IElementType GetClosingElementType(int position)
         {
             return PossibleElementTypes
-                .FirstOrDefault(type => type.IsClosingOfElement(markdown, position));
+                .FirstOrDefault(type => type.IsClosingOfElement(markdown, escapeBitMask, position));
         }
     }
 }

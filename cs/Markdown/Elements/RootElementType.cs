@@ -6,7 +6,7 @@ namespace Markdown.Elements
     {
         private static readonly RootElementType Instance = new RootElementType();
         private static readonly IElementType[] PossibleInnerElementTypes =
-             { UnderscoreElementType.Create(), DoubleUnderscoreElementType.Create() };
+             { SingleUnderscoreElementType.Create(), DoubleUnderscoreElementType.Create() };
 
         private RootElementType()
         { }
@@ -23,7 +23,7 @@ namespace Markdown.Elements
             return PossibleInnerElementTypes.Contains(elementType);
         }
 
-        public override bool IsIndicatorAt(string markdown, int position)
+        public override bool IsIndicatorAt(string markdown, bool[] escapeBitMask, int position)
         {
             return false;
         }

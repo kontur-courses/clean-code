@@ -24,7 +24,7 @@ namespace Markdown_Tests
         public void ReturnWrappedToEm_WhenUnderscoreElement()
         {
             var content = "_content_";
-            var markdownRoot = new MarkdownElement(UnderscoreElementType.Create(), content, 
+            var markdownRoot = new MarkdownElement(SingleUnderscoreElementType.Create(), content, 
                 1, content.Length - 1, new List<MarkdownElement>());
             var expected = "<em>content</em>";
 
@@ -55,7 +55,7 @@ namespace Markdown_Tests
                 new List<MarkdownElement>
                 {
                     new MarkdownElement(
-                        UnderscoreElementType.Create(), content, 7, 12,
+                        SingleUnderscoreElementType.Create(), content, 7, 12,
                         new List<MarkdownElement>())
                 });
 
@@ -77,7 +77,7 @@ namespace Markdown_Tests
                         DoubleUnderscoreElementType.Create(), content, 2, 7,
                         new List<MarkdownElement>()),
                     new MarkdownElement(
-                        UnderscoreElementType.Create(), content, 11, 16,
+                        SingleUnderscoreElementType.Create(), content, 11, 16,
                         new List<MarkdownElement>())
                 });
 
@@ -100,7 +100,7 @@ namespace Markdown_Tests
                         new List<MarkdownElement>
                         {
                             new MarkdownElement(
-                                UnderscoreElementType.Create(), content, 9, 14,
+                                SingleUnderscoreElementType.Create(), content, 9, 14,
                                 new List<MarkdownElement>())
                         })
                 });
