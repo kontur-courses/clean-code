@@ -1,15 +1,20 @@
 ﻿using System;
 using System.Collections.Generic;
+using Markdown.Data;
 
 namespace Markdown.TreeTranslator
 {
     public class MarkdownToHtmlTagTranslator : ITagTranslator
     {
-        private readonly Dictionary<string, string> translations;
+        private readonly Dictionary<string, string> translations = new Dictionary<string, string>();
 
-        public MarkdownToHtmlTagTranslator(Dictionary<string, string> translations)
+        public MarkdownToHtmlTagTranslator(IEnumerable<TagTranslationInfo> translations)
         {
-            this.translations = translations;
+            foreach (var translation in translations)
+            {
+                this.translations[translation.OpeningTag] = translation.Translation;
+                this.translations[translation.ClosingTag] = translation.Translation;
+            }
         }
 
         public string TranslateOpeningTag(string tag) => BuildTag("<", tag, ">");

@@ -12,5 +12,7 @@ namespace Markdown.Data
             Translation = translation;
             Info = info;
         }
+
+        public TagTranslationInfo ToTranslationInfo => new TagTranslationInfo(Info.OpeningTag, Info.ClosingTag, Translation);
     }
 }

@@ -46,7 +46,7 @@ namespace MarkdownTests
             };
 
             var allTags = tags.Select(tag => tag.Info.OpeningTag).Concat(tags.Select(tag => tag.Info.ClosingTag));
-            var tagsTranslations = tags.ToDictionary(tag => tag.Info.OpeningTag, tag => tag.Translation);
+            var tagsTranslations = tags.Select(tag => tag.ToTranslationInfo);
             var tagsInfo = tags.Select(tag => tag.Info);
 
             var parser = new MarkdownTokenParser(allTags);
