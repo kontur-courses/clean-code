@@ -10,7 +10,8 @@ namespace Markdown
     {
         public Tag Tag { get; set; }
         public int StartIndex { get; set; }
-        public int EndIndex { get; set; }
+        public int EndIndex { get; private set; }
+
         public List<Span> Spans { get; set; }
         public Span Parent { get; set; }
         public bool IsClosed { get; set; } = false;
@@ -22,12 +23,20 @@ namespace Markdown
             Spans = new List<Span>();
         }
 
-        public Span(Tag tag, int startIndex, int endIndex)
+        public Span(Tag tag, int startIndex, int endIndex, bool isClosed=true)
         {
             Tag = tag;
             StartIndex = startIndex;
             EndIndex = endIndex;
             Spans = new List<Span>();
+            IsClosed = isClosed;
+        }
+
+        public void Close(int endIndex)
+        {
+            EndIndex = endIndex;
+            IsClosed = true;
+
         }
 
         public void PutSpan(Span span)

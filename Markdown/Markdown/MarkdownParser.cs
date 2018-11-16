@@ -19,14 +19,14 @@ namespace Markdown
             tags = Markups.Markdown.Tags;
             index = 0;
 
-            var mainSpan = new Span(emptyTag, 0, markdownString.Length) {IsClosed = true};
+            var mainSpan = new Span(emptyTag, 0, markdownString.Length);
             var openedSpans = new List<Span>();
 
             for (; index < markdownString.Length; index++)
             {
                 if (markdownString[index] == '\\')
                 {
-                    mainSpan.PutSpan(new Span(emptyTag, index, index + 1) {IsClosed = true});
+                    mainSpan.PutSpan(new Span(emptyTag, index, index + 1));
                     index += 1;
                     continue;
                 }
@@ -80,7 +80,7 @@ namespace Markdown
                     (index + openedSpan.Tag.Close.Length - 1 == markdownString.Length - 1 ||
                      char.IsWhiteSpace(markdownString[index + openedSpan.Tag.Close.Length])))
                 {
-                    openedSpan.EndIndex = index;
+                    openedSpan.Close(index);
                     openedSpan.IsClosed = true;
                     index = index + openedSpan.Tag.Close.Length - 1;
                     return openedSpan;
