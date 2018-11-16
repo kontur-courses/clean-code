@@ -59,10 +59,11 @@ namespace Markdown
         {
             var positionsForMarkups = new List<MarkupPosition>();
 
-            var openingPositions = new SortedSet<int>(openingPositionsForMarkups[markup]);
-            var closingPositions = new SortedSet<int>(closingPositionsForMarkups[markup]);
+            var openingPositions = new List<int>(openingPositionsForMarkups[markup]);
+            var closingPositions = new List<int>(closingPositionsForMarkups[markup]);
+            openingPositions.Reverse();
 
-            foreach (var openingPosition in openingPositions.Reverse())
+            foreach (var openingPosition in openingPositions)
             {
                 if (usedPositions.Contains(openingPosition))
                     continue;
