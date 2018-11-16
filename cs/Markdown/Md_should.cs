@@ -19,8 +19,9 @@ namespace Markdown
                 "text"
             );
 
-        [Test]
-        public void Render_ShouldReturnEmptyString_WhenTextIsEmpty() =>
-            md.Render("").Should().Be("");
+        [TestCase("", TestName = "text is empty")]
+        [TestCase("some text", TestName = "text not contains special symbols")]
+        public void Render_ShouldReturnText_When(string text) =>
+            md.Render(text).Should().Be(text);
     }
 }
