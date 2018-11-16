@@ -6,9 +6,9 @@ namespace Markdown
 {
     public class Md2HtmlTranslator
     {
-        public string TranslateMdToHtml(string mdText, Dictionary<Markup, List<MarkupPosition>> markups)
+        public string TranslateMdToHtml(string mdText, Dictionary<MarkdownToken, List<TokenPosition>> markdownTokens)
         {
-            var sortedPositions = GetSortedPositionsWithTags(markups);
+            var sortedPositions = GetSortedPositionsWithTags(markdownTokens);
             return GetHtmlText(mdText, sortedPositions);
         }
 
@@ -35,22 +35,22 @@ namespace Markdown
             return htmlBuilder.ToString();
         }
 
-        private SortedDictionary<int, Tuple<string,string>> GetSortedPositionsWithTags(Dictionary<Markup, List<MarkupPosition>> markups)
+        private SortedDictionary<int, Tuple<string,string>> GetSortedPositionsWithTags(Dictionary<MarkdownToken, List<TokenPosition>> markdownTokens)
         {
             var sortedPositionsWithTags = new SortedDictionary<int, Tuple<string, string>>();
-            foreach (var markupWithPositions in markups)
-                foreach (var position in markupWithPositions.Value)
+            foreach (var tokenWithPositions in markdownTokens)
+                foreach (var position in tokenWithPositions.Value)
                 {
                     sortedPositionsWithTags.Add(
                         position.Start,
                         new Tuple<string, string>(
-                            $"<{markupWithPositions.Key.HtmlTag}>",
-                            markupWithPositions.Key.Template));
+                            $"<{tokenWithPositions.Key.HtmlTag}>",
+                            tokenWithPositions.Key.Template));
                     sortedPositionsWithTags.Add(
                         position.End,
                         new Tuple<string, string>(
-                            $"</{markupWithPositions.Key.HtmlTag}>",
-                            markupWithPositions.Key.Template));
+                            $"</{tokenWithPositions.Key.HtmlTag}>",
+                            tokenWithPositions.Key.Template));
                 }
 
             return sortedPositionsWithTags;

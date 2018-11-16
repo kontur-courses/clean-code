@@ -43,10 +43,10 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Markdown.cs" />
-    <Compile Include="Markup.cs" />
-    <Compile Include="MarkupExtensions.cs" />
-    <Compile Include="MarkupFinder.cs" />
-    <Compile Include="MarkupPosition.cs" />
+    <Compile Include="MarkdownToken.cs" />
+    <Compile Include="MarkdownTokenExtensions.cs" />
+    <Compile Include="TokenFinder.cs" />
+    <Compile Include="TokenPosition.cs" />
     <Compile Include="Md2HtmlTranslator.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />

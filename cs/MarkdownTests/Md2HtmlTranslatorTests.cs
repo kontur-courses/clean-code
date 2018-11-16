@@ -12,12 +12,12 @@ namespace MarkdownTests
         public void GetHtmlText_AfterMdWithSingleUnderscore()
         {
             var translator = new Md2HtmlTranslator();
-            var markups = new Dictionary<Markup, List<MarkupPosition>>
+            var tokens = new Dictionary<MarkdownToken, List<TokenPosition>>
             {
-                {new Markup("singleUnderscore", "_", "em"), new List<MarkupPosition> {new MarkupPosition(0, 3)}}
+                {new MarkdownToken("singleUnderscore", "_", "em"), new List<TokenPosition> {new TokenPosition(0, 3)}}
             };
 
-            var htmlText = translator.TranslateMdToHtml("_ff_", markups);
+            var htmlText = translator.TranslateMdToHtml("_ff_", tokens);
 
             htmlText.ShouldBeEquivalentTo("<em>ff</em>");
         }
@@ -26,12 +26,12 @@ namespace MarkdownTests
         public void GetHtmlText_AfterMdWithNestedSingleUnderscore()
         {
             var translator = new Md2HtmlTranslator();
-            var markups = new Dictionary<Markup, List<MarkupPosition>>
+            var tokens = new Dictionary<MarkdownToken, List<TokenPosition>>
             {
-                {new Markup("singleUnderscore", "_", "em"), new List<MarkupPosition> {new MarkupPosition(0, 8), new MarkupPosition(3,5)}}
+                {new MarkdownToken("singleUnderscore", "_", "em"), new List<TokenPosition> {new TokenPosition(0, 8), new TokenPosition(3,5)}}
             };
 
-            var htmlText = translator.TranslateMdToHtml("_f _f_ f_", markups);
+            var htmlText = translator.TranslateMdToHtml("_f _f_ f_", tokens);
 
             htmlText.ShouldBeEquivalentTo("<em>f <em>f</em> f</em>");
         }
@@ -40,12 +40,12 @@ namespace MarkdownTests
         public void GetHtmlText_AfterMdWithDoubleUnderscore()
         {
             var translator = new Md2HtmlTranslator();
-            var markups = new Dictionary<Markup, List<MarkupPosition>>
+            var tokens = new Dictionary<MarkdownToken, List<TokenPosition>>
             {
-                {new Markup("doubleUnderscore", "__", "strong"), new List<MarkupPosition> {new MarkupPosition(0, 4)}}
+                {new MarkdownToken("doubleUnderscore", "__", "strong"), new List<TokenPosition> {new TokenPosition(0, 4)}}
             };
 
-            var htmlText = translator.TranslateMdToHtml("__ff__", markups);
+            var htmlText = translator.TranslateMdToHtml("__ff__", tokens);
 
             htmlText.ShouldBeEquivalentTo("<strong>ff</strong>");
         }
@@ -54,13 +54,13 @@ namespace MarkdownTests
         public void GetHtmlText_AfterMdWithSingleAndDoubleUnderscore()
         {
             var translator = new Md2HtmlTranslator();
-            var markups = new Dictionary<Markup, List<MarkupPosition>>
+            var tokens = new Dictionary<MarkdownToken, List<TokenPosition>>
             {
-                {new Markup("doubleUnderscore", "__", "strong"), new List<MarkupPosition> {new MarkupPosition(0, 4)}},
-                {new Markup("singleUnderscore", "_", "em"), new List<MarkupPosition> {new MarkupPosition(7, 9)}}
+                {new MarkdownToken("doubleUnderscore", "__", "strong"), new List<TokenPosition> {new TokenPosition(0, 4)}},
+                {new MarkdownToken("singleUnderscore", "_", "em"), new List<TokenPosition> {new TokenPosition(7, 9)}}
             };
 
-            var htmlText = translator.TranslateMdToHtml("__ff__ _f_", markups);
+            var htmlText = translator.TranslateMdToHtml("__ff__ _f_", tokens);
 
             htmlText.ShouldBeEquivalentTo("<strong>ff</strong> <em>f</em>");
         }

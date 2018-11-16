@@ -1,8 +1,8 @@
 ﻿namespace Markdown
 {
-    public class MarkupPosition
+    public class TokenPosition
     {
-        public MarkupPosition(int start, int end)
+        public TokenPosition(int start, int end)
         {
             Start = start;
             End = end;

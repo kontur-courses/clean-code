@@ -59,7 +59,7 @@
     <Reference Include="System.Xml.Linq" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="MarkupExtensionsTests.cs" />
+    <Compile Include="MarkdownTokenExtensionsTests.cs" />
     <Compile Include="MarkupFinderTests.cs" />
     <Compile Include="Md2HtmlTranslatorTests.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />

@@ -6,8 +6,8 @@ namespace Markdown
     {
         public string Render(string paragraph)
         {
-            var markups = new MarkupFinder().GetMarkupsWithPositions(paragraph);
-            return new Md2HtmlTranslator().TranslateMdToHtml(paragraph, markups);
+            var tokens = new TokenFinder().GetTokensWithPositions(paragraph);
+            return new Md2HtmlTranslator().TranslateMdToHtml(paragraph, tokens);
         }
     }
 }
