@@ -59,9 +59,14 @@ namespace Markdown
             if (tag == null)
                 return null;
 
-            if (tag.Open.Length + index < markdownString.Length && char.IsWhiteSpace(markdownString[tag.Open.Length + index]))
+            if (tag.Open.Length + index < markdownString.Length &&
+                (char.IsWhiteSpace(markdownString[tag.Open.Length + index]) ||
+                char.IsDigit(markdownString[tag.Open.Length + index])))
                 return null;
 
+            if (index > 0 && char.IsDigit(markdownString[index - 1]))
+                return null;
+            
             var startIndex = index;
             index = index + tag.Open.Length - 1;
             return new Span(tag, startIndex);
@@ -75,7 +80,9 @@ namespace Markdown
 
             foreach (var openedSpan in openedSpans)
             {
-                if (Equals(openedSpan.Tag, tag) && (index == 0 || (!char.IsWhiteSpace(markdownString[index - 1]))))
+                if (Equals(openedSpan.Tag, tag) &&
+                    (index == 0 || (!char.IsWhiteSpace(markdownString[index - 1]))) &&
+                    (index + tag.Close.Length == markdownString.Length || (!char.IsDigit(markdownString[index + tag.Close.Length]))))
                 {
                     openedSpan.Close(index);
                     index = index + openedSpan.Tag.Close.Length - 1;

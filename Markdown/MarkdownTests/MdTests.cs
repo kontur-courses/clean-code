@@ -29,6 +29,9 @@ namespace MarkdownTests
         [TestCase("a_ a_", "a_ a_", TestName = "No whitespace after tag open")]
         [TestCase("_a _a", "_a _a", TestName = "No whitespace before tag close")]
         [TestCase("a_ _a", "a_ _a")]
+        [TestCase("_3", "_3")]
+        [TestCase("1_", "1_")]
+        [TestCase("abc_12_3", "abc_12_3")]
         public void ParserShould(string rawString, string expected)
         {
             var parser = new Md();
