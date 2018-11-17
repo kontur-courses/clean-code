@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using Markdown.Languages;
 
 namespace Markdown.Tokenizing
@@ -7,28 +8,38 @@ namespace Markdown.Tokenizing
     {
         private readonly Language language;
         private readonly int maxTagLength;
+        private readonly Stack<Token> tokenStack;
 
         public Tokenizer(Language language)
         {
             this.language = language;
             maxTagLength = language.MaxTagLength;
+            tokenStack = new Stack<Token>();
         }
 
         public List<Token> Tokenize(string source)
         {
+            if (string.IsNullOrEmpty(source))
+                throw new ArgumentException("Should not be null or empty", nameof(source));
+
             var result = new List<Token>();
             var rawTagStart = 0;
 
             for (var i = 0; i < source.Length; i++)
             {
-                if (TryParseToken(source.Substring(i, maxTagLength), out var token))
+                if (TryParseToken(source.Substring(i, Math.Min(source.Length - i, maxTagLength)), out var token))
                 {
-                    result.Add(new Token(Tag.Raw, false, source.Substring(rawTagStart, i - rawTagStart)));
+                    if (i != rawTagStart)
+                        result.Add(new Token(Tag.Raw, false, source.Substring(rawTagStart, i - rawTagStart)));
                     result.Add(token);
 
+                    if (token.IsOpening)
+                        tokenStack.Push(token);
+                    else tokenStack.Pop();
+
                     var tokenLength = GetTokenLength(token);
-                    i += tokenLength;
-                    rawTagStart = i;
+                    i += tokenLength - 1;
+                    rawTagStart = i + 1;
                 }
             }
 
@@ -44,7 +55,15 @@ namespace Markdown.Tokenizing
             {
                 if (language.TryParseOpeningTag(source.Substring(0, length), out var tag))
                 {
-                    token = new Token(tag, true);
+                    var isOpening = true;
+
+                    if (tokenStack.Count != 0)
+                    {
+                        var lastToken = tokenStack.Peek();
+                        isOpening = !(language.ConvertOpeningTag(tag) == language.ConvertClosingTag(tag) && lastToken.Tag == tag && lastToken.IsOpening);
+                    }
+
+                    token = new Token(tag, isOpening);
                     return true;
                 }
 
