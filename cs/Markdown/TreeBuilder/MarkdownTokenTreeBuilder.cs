@@ -65,9 +65,9 @@ namespace Markdown.TreeBuilder
             var tagIsOpened = openedTags.Any(node => node.TagInfo?.ClosingTag == token);
             var tagInfo = tagsInfo[token];
 
-            if (tagInfo.MustBeOpened(tagIsOpened, previousTokenType, nexTokenType))
+            if (tagInfo.MustBeOpened(token, tagIsOpened, previousTokenType, nexTokenType))
                 openedTags.Push(new TagTreeNode(tagInfo));
-            else if (tagInfo.MustBeClosed(tagIsOpened, previousTokenType, nexTokenType))
+            else if (tagInfo.MustBeClosed(token, tagIsOpened, previousTokenType, nexTokenType))
                 CloseTag(openedTags, token);
             else
                 openedTags.Peek().Children.Add(new TextTreeNode(token));

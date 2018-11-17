@@ -1,4 +1,5 @@
 ﻿using System.Collections.Generic;
+using System.Linq;
 
 namespace Markdown.TokenParser
 {
@@ -8,7 +9,7 @@ namespace Markdown.TokenParser
 
         public MarkdownTokenParser(IEnumerable<string> tags)
         {
-            this.tags = new HashSet<string>(tags);
+            this.tags = new HashSet<string>(tags.OrderByDescending(tag => tag.Length));
         }
 
         public IEnumerable<string> GetTokens(string text)
@@ -35,8 +36,9 @@ namespace Markdown.TokenParser
                 return true;
             if (token == "\\" || nextSymbol == '\\' || token == "\n" || nextSymbol == '\n')
                 return false;
-            if (tags.Contains(token))
-                return tags.Contains(token + nextSymbol);
+            var tokenTag = tags.FirstOrDefault(tag => tag.StartsWith(token));
+            if (tokenTag != null)
+                return tokenTag.StartsWith(token + nextSymbol);
             if (string.IsNullOrWhiteSpace(token))
                 return char.IsWhiteSpace(nextSymbol);
             return char.IsLetterOrDigit(nextSymbol);

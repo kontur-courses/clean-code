@@ -46,7 +46,7 @@ namespace MarkdownTests
         [TestCase("\\\\", "\\", TestName = "EscapedEscapeSymbol")]
         [TestCase("_a_", "<em>a</em>", TestName = "ItalicTag")]
         [TestCase("__a__", "<strong>a</strong>", TestName = "BoldTag")]
-        [TestCase("# a\n", "<h1> a</h1>", TestName = "HeadingWithText")]
+        [TestCase("# a\n", "<h1>a</h1>", TestName = "HeadingWithText")]
         [TestCase("\\_a_", "_a_", TestName = "ItalicTagWithEscapedOpening")]
         [TestCase("\\__a__", "__a__", TestName = "BoldTagWithEscapedOpening")]
         [TestCase("_a\\_", "_a_", TestName = "ItalicTagWithEscapedClosing")]

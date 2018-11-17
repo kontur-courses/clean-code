@@ -6,10 +6,10 @@
         public string ClosingTag { get; }
         public bool CanBeInsideOtherTag { get; }
 
-        public bool MustBeOpened(bool isOpened, TokenType previousTokenType, TokenType nexTokenType) =>
+        public bool MustBeOpened(string token, bool isOpened, TokenType previousTokenType, TokenType nexTokenType) =>
             previousTokenType.IsSeparator() && !nexTokenType.IsSeparator() && !isOpened;
 
-        public bool MustBeClosed(bool isOpened, TokenType previousTokenType, TokenType nexTokenType) =>
+        public bool MustBeClosed(string token, bool isOpened, TokenType previousTokenType, TokenType nexTokenType) =>
             previousTokenType != TokenType.EscapeSymbol && !previousTokenType.IsSeparator() &&
             nexTokenType.IsSeparator() && isOpened;
 
