@@ -1,11 +1,11 @@
 # TODO 
-* MarkupExtensionsTests дописать тесты, которые возвращают false
 * MarkupFinderTests завернуть for в LINQ
-* Сделать SetUp на инициализацию Markup
 * Отрефакторить весь код
 * Подумать над оптимизацией поиска закрывающих тегов
 
 # DONE
+* Сделать SetUp на инициализацию Markup
+* MarkupExtensionsTests дописать тесты, которые возвращают false
 * Исправить зоны видимости 
 * Перенести инициализацию Markup'ов в MarkupFinder
 * Заменить SortedSet на List в MarkupFinder.GetPositionsForMarkup

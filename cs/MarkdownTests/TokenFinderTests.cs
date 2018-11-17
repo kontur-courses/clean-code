@@ -9,12 +9,13 @@ namespace MarkdownTests
     [TestFixture]
     class TokenFinderTests
     {
-
         private List<TokenPosition> GetTokenPositions(int[] indexes)
         {
             var result = new List<TokenPosition>();
+
             for (var i = 0; i < indexes.Length; i += 2)
                 result.Add(new TokenPosition(indexes[i], indexes[i + 1]));
+
             return result;
         }
 
@@ -43,10 +44,8 @@ namespace MarkdownTests
 
             var finder = new TokenFinder();
             var validator = new TokensValidator();
-
             var tokensPositions = finder.GetTokensOpeningAndClosingPositions(paragraph);
-            var tokensWithPositions =
-                validator.GetPositionsForTokens(tokensPositions);
+            var tokensWithPositions = validator.GetPositionsForTokens(tokensPositions);
 
             tokensWithPositions.First(token => token.Key.Name == "doubleUnderscore").Value.First()
                 .ShouldBeEquivalentTo(new TokenPosition(0, 3));
@@ -62,7 +61,6 @@ namespace MarkdownTests
 
             var finder = new TokenFinder();
             var validator = new TokensValidator();
-
             var tokensPositions = finder.GetTokensOpeningAndClosingPositions(paragraph);
             var tokensWithPositions = validator.GetPositionsForTokens(tokensPositions);
 
@@ -79,7 +77,6 @@ namespace MarkdownTests
 
             var finder = new TokenFinder();
             var validator = new TokensValidator();
-
             var tokensPositions = finder.GetTokensOpeningAndClosingPositions(paragraph);
             var tokensWithPositions = validator.GetPositionsForTokens(tokensPositions);
 

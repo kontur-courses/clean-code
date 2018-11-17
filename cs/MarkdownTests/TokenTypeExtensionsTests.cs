@@ -10,6 +10,7 @@ namespace MarkdownTests
         [TestCase("f _d", 2, ExpectedResult = true, TestName = "After whitespace")]
         [TestCase("_d", 0, ExpectedResult = true, TestName = "In paragraph beginning")]
         [TestCase("f_d", 1, ExpectedResult = true, TestName = "Without whitespace before")]
+        [TestCase("d \\_d", 4, ExpectedResult = false, TestName = "Is not valid after backslash")]
         public bool ValidOpeningPositionTest(string text, int openingPosition)
         {
             var token = new TokenType("singleUnderscore", "_", "em");
@@ -20,6 +21,7 @@ namespace MarkdownTests
         [TestCase("d_ d", 1, ExpectedResult = true, TestName = "Before whitespace")]
         [TestCase("d_", 1, ExpectedResult = true, TestName = "In paragraph ending")]
         [TestCase("d_f", 1, ExpectedResult = true, TestName = "Without whitespace after")]
+        [TestCase("dd\\_ d", 4, ExpectedResult = false, TestName = "Is not valid after backslash")]
         public bool ValidClosingPositionTest(string text, int closingPosition)
         {
             var token = new TokenType("singleUnderscore", "_", "em");
