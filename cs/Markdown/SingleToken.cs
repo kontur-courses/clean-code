@@ -11,12 +11,19 @@ namespace Markdown
         public SingleToken(TokenType tokenType, TokenPosition tokenPosition, LocationType locationType)
         {
             TokenType = tokenType;
-            TokenPosition = tokenPosition;
+            this.tokenPosition = tokenPosition;
             LocationType = locationType;
         }
 
         public TokenType TokenType { get; }
-        public TokenPosition TokenPosition { get; }
+        private readonly TokenPosition tokenPosition;
         public LocationType LocationType { get; }
+
+        public int GetPosition()
+        {
+            return LocationType == LocationType.Opening ? tokenPosition.Start :
+                LocationType == LocationType.Closing ? tokenPosition.End :
+                throw new InvalidOperationException();
+        }
     }
 }

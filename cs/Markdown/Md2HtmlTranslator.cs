@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Text;
 
 namespace Markdown
@@ -12,46 +13,36 @@ namespace Markdown
             return GetHtmlText(mdText, sortedPositions);
         }
 
-        private string GetHtmlText(string mdText, SortedDictionary<int, Tuple<string,string>> sortedPositionsWithTags)
+        private string GetHtmlText(string mdText, List<SingleToken> tokensStream)
         {
             var htmlBuilder = new StringBuilder();
-            var mdIndex = 0;
-
-            while (mdIndex < mdText.Length)
+            var lastIndex = 0;
+            foreach (var token in tokensStream.OrderBy(token => token.GetPosition()))
             {
-                if (!sortedPositionsWithTags.ContainsKey(mdIndex))
-                {
-                    htmlBuilder.Append(mdText[mdIndex]);
-                    mdIndex++;
-                }
-                else
-                {
-                    var currentPair = sortedPositionsWithTags[mdIndex];
-                    htmlBuilder.Append(currentPair.Item1);
-                    mdIndex += currentPair.Item2.Length;
-                }
+                htmlBuilder.Append(mdText.Substring(lastIndex, token.GetPosition() - lastIndex));
+                var htmlTag = token.LocationType == LocationType.Opening ? $"<{token.TokenType.HtmlTag}>" :
+                    token.LocationType == LocationType.Closing ? $"</{token.TokenType.HtmlTag}>" :
+                    throw new InvalidOperationException("Invalid token location type");
+                htmlBuilder.Append(htmlTag);
+                lastIndex = token.GetPosition() + token.TokenType.Template.Length;
             }
 
             return htmlBuilder.ToString();
         }
 
-        private SortedDictionary<int, Tuple<string,string>> GetSortedPositionsWithTags(Dictionary<TokenType, List<TokenPosition>> positionsForTokensTypes)
+        private List<SingleToken> GetSortedPositionsWithTags
+            (Dictionary<TokenType, List<TokenPosition>> positionsForTokensTypes)
         {
-            var sortedPositionsWithTags = new SortedDictionary<int, Tuple<string, string>>();
+            var sortedPositionsWithTags = new List<SingleToken>();
             foreach (var tokenWithPositions in positionsForTokensTypes)
-                foreach (var position in tokenWithPositions.Value)
-                {
-                    sortedPositionsWithTags.Add(
-                        position.Start,
-                        new Tuple<string, string>(
-                            $"<{tokenWithPositions.Key.HtmlTag}>",
-                            tokenWithPositions.Key.Template));
-                    sortedPositionsWithTags.Add(
-                        position.End,
-                        new Tuple<string, string>(
-                            $"</{tokenWithPositions.Key.HtmlTag}>",
-                            tokenWithPositions.Key.Template));
-                }
+            foreach (var position in tokenWithPositions.Value)
+            {
+                sortedPositionsWithTags.Add
+                    (new SingleToken(tokenWithPositions.Key, position, LocationType.Opening));
+
+                sortedPositionsWithTags.Add
+                    (new SingleToken(tokenWithPositions.Key, position, LocationType.Closing));
+            }
 
             return sortedPositionsWithTags;
         }
