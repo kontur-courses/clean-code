@@ -8,22 +8,15 @@ namespace Markdown
 {
     public class SingleToken
     {
-        public SingleToken(TokenType tokenType, TokenPosition tokenPosition, LocationType locationType)
+        public SingleToken(TokenType tokenType, int tokenPosition, LocationType locationType)
         {
             TokenType = tokenType;
-            this.tokenPosition = tokenPosition;
+            TokenPosition = tokenPosition;
             LocationType = locationType;
         }
 
         public TokenType TokenType { get; }
-        private readonly TokenPosition tokenPosition;
+        public int TokenPosition { get; }
         public LocationType LocationType { get; }
-
-        public int GetPosition()
-        {
-            return LocationType == LocationType.Opening ? tokenPosition.Start :
-                LocationType == LocationType.Closing ? tokenPosition.End :
-                throw new InvalidOperationException();
-        }
     }
 }

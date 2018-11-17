@@ -17,14 +17,14 @@ namespace Markdown
         {
             var htmlBuilder = new StringBuilder();
             var lastIndex = 0;
-            foreach (var token in tokensStream.OrderBy(token => token.GetPosition()))
+            foreach (var token in tokensStream.OrderBy(token => token.TokenPosition))
             {
-                htmlBuilder.Append(mdText.Substring(lastIndex, token.GetPosition() - lastIndex));
+                htmlBuilder.Append(mdText.Substring(lastIndex, token.TokenPosition - lastIndex));
                 var htmlTag = token.LocationType == LocationType.Opening ? $"<{token.TokenType.HtmlTag}>" :
                     token.LocationType == LocationType.Closing ? $"</{token.TokenType.HtmlTag}>" :
                     throw new InvalidOperationException("Invalid token location type");
                 htmlBuilder.Append(htmlTag);
-                lastIndex = token.GetPosition() + token.TokenType.Template.Length;
+                lastIndex = token.TokenPosition + token.TokenType.Template.Length;
             }
 
             return htmlBuilder.ToString();
@@ -38,10 +38,10 @@ namespace Markdown
             foreach (var position in tokenWithPositions.Value)
             {
                 sortedPositionsWithTags.Add
-                    (new SingleToken(tokenWithPositions.Key, position, LocationType.Opening));
+                    (new SingleToken(tokenWithPositions.Key, position.Start, LocationType.Opening));
 
                 sortedPositionsWithTags.Add
-                    (new SingleToken(tokenWithPositions.Key, position, LocationType.Closing));
+                    (new SingleToken(tokenWithPositions.Key, position.End, LocationType.Closing));
             }
 
             return sortedPositionsWithTags;
