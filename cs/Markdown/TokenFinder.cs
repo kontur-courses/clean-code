@@ -12,38 +12,29 @@ namespace Markdown
             new TokenType("doubleUnderscore", "__", "strong")
         };
 
-        private void FindOpeningAndClosingTemplates(string paragraph,
-            Dictionary<TokenType, List<int>> openingPositionsForTokens, 
-            Dictionary<TokenType, List<int>> closingPositionsForTokens)
+        private List<SingleToken> FindOpeningAndClosingTemplates(string paragraph)
         {
+            var tokens = new List<SingleToken>();
+
             for (var index = 0; index < paragraph.Length; index++)
             {
                 var openingToken = TokensTypes.GetOpeningToken(paragraph, index);
                 var closingToken = TokensTypes.GetClosingToken(paragraph, index);
 
                 if (openingToken != null)
-                {
-                    if (!openingPositionsForTokens.ContainsKey(openingToken))
-                        openingPositionsForTokens[openingToken] = new List<int>();
-                    openingPositionsForTokens[openingToken].Add(index);
-                }
+                    tokens.Add(new SingleToken(openingToken, index, LocationType.Opening));
                 if (closingToken != null)
-                {
-                    if (!closingPositionsForTokens.ContainsKey(closingToken))
-                        closingPositionsForTokens[closingToken] = new List<int>();
-                    closingPositionsForTokens[closingToken].Add(index);
-                }
+                    tokens.Add(new SingleToken(closingToken, index, LocationType.Closing));
             }
+
+            return tokens;
         }
-        public (Dictionary<TokenType, List<int>> OpeningPositions, Dictionary<TokenType, List<int>> ClosingPositions) GetTokensOpeningAndClosingPositions(string paragraph)
+
+        public List<SingleToken> GetTokensOpeningAndClosingPositions(string paragraph)
         {
-            var openingPositionsForTokens = new Dictionary<TokenType, List<int>>();
-            var closingPositionsForTokens = new Dictionary<TokenType, List<int>>();
-            FindOpeningAndClosingTemplates(paragraph, openingPositionsForTokens, closingPositionsForTokens);
+            var tokens = FindOpeningAndClosingTemplates(paragraph);
 
-            return (openingPositionsForTokens, closingPositionsForTokens);
+            return tokens;
         }
-
-
     }
 }

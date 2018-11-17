@@ -28,8 +28,7 @@ namespace MarkdownTests
             var finder = new TokenFinder();
             var validator = new TokensValidator();
             var tokensPositions = finder.GetTokensOpeningAndClosingPositions(paragraph);
-            var tokensWithPositions =
-                validator.GetPositionsForTokens(tokensPositions.OpeningPositions, tokensPositions.ClosingPositions);
+            var tokensWithPositions = validator.GetPositionsForTokens(tokensPositions);
 
             tokensWithPositions.First(token => token.Key.Name == "simpleUnderscore").Value
                 .ShouldBeEquivalentTo(expectedSimpleUnderscorePositions);
@@ -47,7 +46,7 @@ namespace MarkdownTests
 
             var tokensPositions = finder.GetTokensOpeningAndClosingPositions(paragraph);
             var tokensWithPositions =
-                validator.GetPositionsForTokens(tokensPositions.OpeningPositions, tokensPositions.ClosingPositions);
+                validator.GetPositionsForTokens(tokensPositions);
 
             tokensWithPositions.First(token => token.Key.Name == "doubleUnderscore").Value.First()
                 .ShouldBeEquivalentTo(new TokenPosition(0, 3));
@@ -65,8 +64,7 @@ namespace MarkdownTests
             var validator = new TokensValidator();
 
             var tokensPositions = finder.GetTokensOpeningAndClosingPositions(paragraph);
-            var tokensWithPositions =
-                validator.GetPositionsForTokens(tokensPositions.OpeningPositions, tokensPositions.ClosingPositions);
+            var tokensWithPositions = validator.GetPositionsForTokens(tokensPositions);
 
             tokensWithPositions.Should().NotContainKey(simpleUnderscore);
         }
@@ -83,8 +81,7 @@ namespace MarkdownTests
             var validator = new TokensValidator();
 
             var tokensPositions = finder.GetTokensOpeningAndClosingPositions(paragraph);
-            var tokensWithPositions =
-                validator.GetPositionsForTokens(tokensPositions.OpeningPositions, tokensPositions.ClosingPositions);
+            var tokensWithPositions = validator.GetPositionsForTokens(tokensPositions);
 
             tokensWithPositions.First(token => token.Key.Name == "simpleUnderscore").Value
                 .ShouldBeEquivalentTo(listOfExpectedPositions);
