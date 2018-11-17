@@ -17,12 +17,12 @@ namespace Markdown.Renderer
 
         public string Render(string line)
         {
-            foreach (var replaceRule in replaceRules)
+            foreach (var replaceRool in replaceRules)
             {
-                var tagStart = $"<{replaceRule.Key}>";
-                var tagEnd = $"</{replaceRule.Key}>";
-                var htmlTagStart = $"<{replaceRule.Value}>";
-                var htmlTagEnd = $"</{replaceRule.Value}>";
+                var tagStart = $"<{replaceRool.Key}>";
+                var tagEnd = $"</{replaceRool.Key}>";
+                var htmlTagStart = $"<{replaceRool.Value}>";
+                var htmlTagEnd = $"</{replaceRool.Value}>";
                 line = line.Replace(tagStart, htmlTagStart);
                 line = line.Replace(tagEnd, htmlTagEnd);
             }
