@@ -1,7 +1,6 @@
 # TODO 
 * MarkupFinderTests завернуть for в LINQ
 * Отрефакторить весь код
-* Подумать над оптимизацией поиска закрывающих тегов
 
 # DONE
 * Сделать SetUp на инициализацию Markup
@@ -16,3 +15,4 @@
 * GetSortedPositionsWithTags переделать Tuple на ValueTuple (убрал Tuple)
 * Md2HtmlTranslator убрать ContainsKey, заменить на TryGetValue
 * GetMarkupBoarders переименовать
+* Подумать над оптимизацией поиска закрывающих тегов
