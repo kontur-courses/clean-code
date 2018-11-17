@@ -9,79 +9,60 @@ namespace Markdown
         public Dictionary<TokenType, List<TokenPosition>> GetPositionsForTokens(List<SingleToken> tokens)
         {
             var separatedTokens = SeparateOpeningAndClosingTokens(tokens);
-            var separatedOpeningTokens = separatedTokens.openingTokens;
-            var separatedClosingTokens = separatedTokens.closingTokens;
 
-            var tokensBoarders = new Dictionary<TokenType, List<TokenPosition>>();
-            foreach (var openingTokens in separatedOpeningTokens)
+            var tokensPositions = new Dictionary<TokenType, List<TokenPosition>>();
+
+            foreach (var tokensForType in separatedTokens)
             {
-                var token = openingTokens.Key;
-                if (separatedClosingTokens.TryGetValue(token, out var closingTokens))
-                    tokensBoarders.Add(token, GetPositionsForToken(openingTokens.Value, closingTokens));
+                var token = tokensForType.Key;
+                tokensPositions.Add(token, GetPositionsForToken(separatedTokens[token]));
             }
 
-            return tokensBoarders;
+            return tokensPositions;
         }
 
-        private (Dictionary<TokenType, List<SingleToken>> openingTokens, Dictionary<TokenType, List<SingleToken>> closingTokens) SeparateOpeningAndClosingTokens(List<SingleToken> tokens)
+        private Dictionary<TokenType, List<SingleToken>> SeparateOpeningAndClosingTokens(List<SingleToken> tokens)
         {
-            var openingsTokens = new Dictionary<TokenType, List<SingleToken>>();
-            var closingTokens = new Dictionary<TokenType, List<SingleToken>>();
+            var tokensForTokenTypes = new Dictionary<TokenType, List<SingleToken>>();
 
             foreach (var token in tokens)
             {
-                switch (token.LocationType)
-                {
-                    case LocationType.Opening:
-                        if (!openingsTokens.ContainsKey(token.TokenType))
-                            openingsTokens.Add(token.TokenType, new List<SingleToken>());
-                        openingsTokens[token.TokenType].Add(token);
+                if (!tokensForTokenTypes.ContainsKey(token.TokenType))
+                    tokensForTokenTypes.Add(token.TokenType, new List<SingleToken>());
+                tokensForTokenTypes[token.TokenType].Add(token);
+            }
 
-                        break;
-                    case LocationType.Closing:
-                        if (!closingTokens.ContainsKey(token.TokenType))
-                            closingTokens.Add(token.TokenType, new List<SingleToken>());
-                        closingTokens[token.TokenType].Add(token);
-                        break;
-                    default:
-                        throw new InvalidOperationException("Invalid token location type");
+            return tokensForTokenTypes;
+        }
+
+        private List<TokenPosition> GetPositionsForToken(List<SingleToken> tokens)
+        {
+            var localTokens = new List<SingleToken>(tokens);
+            var positions = new List<TokenPosition>();
+
+            var index = 0;
+
+            while (localTokens.Count > 0 && index < localTokens.Count)
+            {
+                if (localTokens[index].LocationType == LocationType.Closing)
+                {
+                    if (index > 0)
+                    {
+                        positions.Add(new TokenPosition(localTokens[index - 1].TokenPosition,
+                            localTokens[index].TokenPosition));
+                        localTokens.RemoveAt(index - 1);
+                        index -= 1;
+                    }
+
+                    localTokens.RemoveAt(index);
+                }
+                else if (localTokens[index].LocationType == LocationType.Opening)
+                {
+                    index += 1;
                 }
             }
 
-            return (openingsTokens, closingTokens);
-        }
-
-        private List<TokenPosition> GetPositionsForToken(
-            List<SingleToken> openingPositionsForTokens,
-            List<SingleToken> closingPositionsForTokens)
-        {
-            var usedPositions = new HashSet<int>();
-
-            var positionsForTokens = new List<TokenPosition>();
-
-            var openingPositions = new List<int>(openingPositionsForTokens.Select(token => token.TokenPosition));
-            var closingPositions = new List<int>(closingPositionsForTokens.Select(token => token.TokenPosition));
-
-            openingPositions.Reverse();
-
-            foreach (var openingPosition in openingPositions)
-            {
-                if (usedPositions.Contains(openingPosition))
-                    continue;
-                var closingPosition = closingPositions
-                    .FirstOrDefault(
-                        position =>
-                            position > openingPosition &&
-                            !usedPositions.Contains(position));
-                if (closingPosition == 0)
-                    continue;
-
-                positionsForTokens.Add(new TokenPosition(openingPosition, closingPosition));
-                usedPositions.Add(openingPosition);
-                usedPositions.Add(closingPosition);
-            }
-
-            return positionsForTokens;
+            return positions;
         }
     }
 }
