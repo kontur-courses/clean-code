@@ -18,5 +18,9 @@ namespace Markdown
         public TokenType TokenType { get; }
         public int TokenPosition { get; }
         public LocationType LocationType { get; }
+        public override string ToString()
+        {
+            return $"Type: {TokenType}, Position: {TokenPosition}, LocationType: {LocationType}";
+        }
     }
 }

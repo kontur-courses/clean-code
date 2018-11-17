@@ -12,7 +12,7 @@ namespace Markdown
             new TokenType("doubleUnderscore", "__", "strong")
         };
 
-        private List<SingleToken> FindOpeningAndClosingTemplates(string paragraph)
+        public List<SingleToken> FindTokensInMdText(string paragraph)
         {
             var tokens = new List<SingleToken>();
 
@@ -26,13 +26,6 @@ namespace Markdown
                 if (closingToken != null)
                     tokens.Add(new SingleToken(closingToken, index, LocationType.Closing));
             }
-
-            return tokens;
-        }
-
-        public List<SingleToken> GetTokensOpeningAndClosingPositions(string paragraph)
-        {
-            var tokens = FindOpeningAndClosingTemplates(paragraph);
 
             return tokens;
         }

@@ -9,31 +9,36 @@ namespace Markdown
     {
         public string TranslateMdToHtml(string mdText, Dictionary<TokenType, List<TokenPosition>> positionsForTokensTypes)
         {
-            var sortedPositions = GetSortedPositionsWithTags(positionsForTokensTypes);
-            return GetHtmlText(mdText, sortedPositions);
+            var sortedPositions = GetTokensSortedByPosition(positionsForTokensTypes);
+            var htmlText = GetHtmlText(mdText, sortedPositions);
+
+            return htmlText;
         }
 
-        private string GetHtmlText(string mdText, List<SingleToken> tokensStream)
+        private string GetHtmlText(string mdText, IEnumerable<SingleToken> tokensStream)
         {
             var htmlBuilder = new StringBuilder();
             var lastIndex = 0;
-            foreach (var token in tokensStream.OrderBy(token => token.TokenPosition))
+
+            foreach (var token in tokensStream)
             {
-                htmlBuilder.Append(mdText.Substring(lastIndex, token.TokenPosition - lastIndex));
                 var htmlTag = token.LocationType == LocationType.Opening ? $"<{token.TokenType.HtmlTag}>" :
                     token.LocationType == LocationType.Closing ? $"</{token.TokenType.HtmlTag}>" :
                     throw new InvalidOperationException("Invalid token location type");
+
+                htmlBuilder.Append(mdText.Substring(lastIndex, token.TokenPosition - lastIndex));
                 htmlBuilder.Append(htmlTag);
+
                 lastIndex = token.TokenPosition + token.TokenType.Template.Length;
             }
 
             return htmlBuilder.ToString();
         }
 
-        private List<SingleToken> GetSortedPositionsWithTags
-            (Dictionary<TokenType, List<TokenPosition>> positionsForTokensTypes)
+        private IEnumerable<SingleToken> GetTokensSortedByPosition(Dictionary<TokenType, List<TokenPosition>> positionsForTokensTypes)
         {
             var sortedPositionsWithTags = new List<SingleToken>();
+
             foreach (var tokenWithPositions in positionsForTokensTypes)
             foreach (var position in tokenWithPositions.Value)
             {
@@ -44,7 +49,7 @@ namespace Markdown
                     (new SingleToken(tokenWithPositions.Key, position.End, LocationType.Closing));
             }
 
-            return sortedPositionsWithTags;
+            return sortedPositionsWithTags.OrderBy(token => token.TokenPosition);
         }
     }
 }
