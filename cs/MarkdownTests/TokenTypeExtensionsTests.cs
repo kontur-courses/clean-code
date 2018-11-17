@@ -1,16 +1,11 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿using System.Collections.Generic;
 using Markdown;
 using NUnit.Framework;
-using NUnit.Framework.Internal;
 
 namespace MarkdownTests
 {
     [TestFixture]
-    class MarkdownTokenExtensionsTests
+    class TokenTypeExtensionsTests
     {
         [TestCase("f _d", 2, ExpectedResult = true, TestName = "After whitespace")]
         [TestCase("_d", 0, ExpectedResult = true, TestName = "In paragraph beginning")]
