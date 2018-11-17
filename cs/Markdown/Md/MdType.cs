@@ -1,4 +1,4 @@
-﻿namespace Markdown
+﻿namespace Markdown.Md
 {
     public enum MdType
     {

@@ -1,23 +1,20 @@
 ﻿using System;
-using System.Collections.Generic;
+using System.Collections;
 using System.Text;
 
-namespace Markdown
+namespace Markdown.Md.Renderers
 {
-    public class HtmlRenderer : IRenderer
+    public class MdHtmlRenderer : IRenderer
     {
-        private readonly Dictionary<MdType, string> mdTypeHtmlSpec = new Dictionary<MdType, string>
-        {
-            {MdType.Text, ""},
-            {MdType.OpenEmphasis, "<ul>"},
-            {MdType.CloseEmphasis, "</ul>"},
-            {MdType.OpenStrongEmphasis, "<strong>"},
-            {MdType.CloseStrongEmphasis, "</strong>"},
-        };
+        private readonly IDictionary htmlRules;
 
-        public string Render(Token[] tokens)
+        public MdHtmlRenderer(IDictionary htmlRules)
         {
+            this.htmlRules = htmlRules;
+        }
 
+        public string Render(MdToken[] tokens)
+        {
             if (tokens == null)
             {
                 throw new ArgumentException("Given tokens can't be null", nameof(tokens));
@@ -27,7 +24,7 @@ namespace Markdown
 
             foreach (var token in tokens)
             {
-                var type = mdTypeHtmlSpec[token.Type];
+                var type = htmlRules[token.Type];
 
                 result.Append(type);
 

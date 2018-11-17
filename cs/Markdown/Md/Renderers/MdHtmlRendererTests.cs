@@ -1,25 +1,22 @@
 ﻿using System;
-using System.Collections.Generic;
 using FluentAssertions;
 using NUnit.Framework;
-using NUnit.Framework.Internal;
 
-namespace Markdown
+namespace Markdown.Md.Renderers
 {
-
     [TestFixture]
-    public class HtmlRendererTests
+    public class MdHtmlRendererTests
     {
-        private HtmlRenderer htmlRenderer;
+        private IRenderer htmlRenderer;
 
         [SetUp]
         public void DoBeforeAnyTest()
         {
-            htmlRenderer = new HtmlRenderer();
+            htmlRenderer = new MdHtmlRenderer(MdSpecification.HtmlRules);
         }
 
         [Test]
-        public void Render_ThrowsException_OnNullTokens()
+        public void Render_WhenNullTokens_ThrowsException()
         {
             Action action = () => htmlRenderer.Render(null);
             action
@@ -33,10 +30,10 @@ namespace Markdown
         [TestCase(MdType.CloseEmphasis, "</ul>", "", TestName = "close emphasis")]
         [TestCase(MdType.OpenStrongEmphasis, "<strong>", "", TestName = "open strong emphasis")]
         [TestCase(MdType.CloseStrongEmphasis, "</strong>", "", TestName = "close strong emphasis")]
-        public void Render_ReturnsCorrectHtmlString_WithMdType(MdType type, string expected, string value = "")
+        public void Render_WhenMdType_ReturnsCorrectHtmlString(MdType type, string expected, string value = "")
         {
-            var token = new Token(type, value);
-            var result =  htmlRenderer.Render(new[] {token});
+            var token = new MdToken(type, value);
+            var result = htmlRenderer.Render(new[] {token});
 
             result
                 .Should()
@@ -44,15 +41,15 @@ namespace Markdown
         }
 
         [Test]
-        public void Render_ReturnsCorrectHtmlString_WithDifferentTags()
+        public void Render_WhenDifferentTags_ReturnsCorrectHtmlString()
         {
             var tokens = new[]
             {
-                new Token(MdType.OpenStrongEmphasis, ""), 
-                new Token(MdType.OpenEmphasis, ""), 
-                new Token(MdType.Text, "Hello"), 
-                new Token(MdType.CloseEmphasis, ""), 
-                new Token(MdType.CloseStrongEmphasis, ""), 
+                new MdToken(MdType.OpenStrongEmphasis, ""),
+                new MdToken(MdType.OpenEmphasis, ""),
+                new MdToken(MdType.Text, "Hello"),
+                new MdToken(MdType.CloseEmphasis, ""),
+                new MdToken(MdType.CloseStrongEmphasis, ""),
             };
 
             var expected = "<strong><ul>Hello</ul></strong>";

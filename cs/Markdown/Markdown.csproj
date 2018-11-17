@@ -39,6 +39,9 @@
     <Reference Include="FluentAssertions, Version=5.5.0.0, Culture=neutral, PublicKeyToken=33f2691a05b67b6a, processorArchitecture=MSIL">
       <HintPath>..\packages\FluentAssertions.5.5.0\lib\net47\FluentAssertions.dll</HintPath>
     </Reference>
+    <Reference Include="FluentCommandLineParser, Version=1.4.3.0, Culture=neutral, processorArchitecture=MSIL">
+      <HintPath>..\packages\FluentCommandLineParser.1.4.3\lib\net35\FluentCommandLineParser.dll</HintPath>
+    </Reference>
     <Reference Include="nunit.framework, Version=3.11.0.0, Culture=neutral, PublicKeyToken=2638cd05610744eb, processorArchitecture=MSIL">
       <HintPath>..\packages\NUnit.3.11.0\lib\net45\nunit.framework.dll</HintPath>
     </Reference>
@@ -52,20 +55,31 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="Renderers\HtmlRenderer.cs" />
-    <Compile Include="IMdParser.cs" />
-    <Compile Include="Renderers\HtmlRendererTests.cs" />
-    <Compile Include="Renderers\IRenderer.cs" />
-    <Compile Include="MdParser.cs" />
-    <Compile Include="MdParserTests.cs" />
-    <Compile Include="MdSpecification.cs" />
-    <Compile Include="Md.cs" />
-    <Compile Include="MdTagRecognizers\EmphasisRecognizer.cs" />
-    <Compile Include="MdTagRecognizers\IMdTagRecognizer.cs" />
-    <Compile Include="Token.cs" />
+    <Compile Include="CmdInterface\CmdCallbacks.cs" />
+    <Compile Include="CmdInterface\CmdInterface.cs" />
+    <Compile Include="IConverter.cs" />
+    <Compile Include="IToken.cs" />
+    <Compile Include="Md\MdPairedTagsState.cs" />
+    <Compile Include="Md\PairedTagsHandlers\CloseEmphasisHandler.cs" />
+    <Compile Include="Md\PairedTagsHandlers\CloseStrongEmphasisHandler.cs" />
+    <Compile Include="Md\PairedTagsHandlers\OpenStrongEmphasisHandler.cs" />
+    <Compile Include="Md\PairedTagsHandlers\PairedTagsHandler.cs" />
+    <Compile Include="Md\PairedTagsHandlers\OpenEmphasisHandler.cs" />
+    <Compile Include="Md\TagHandlers\TextHandler.cs" />
+    <Compile Include="Md\Renderers\MdHtmlRenderer.cs" />
+    <Compile Include="IParser.cs" />
+    <Compile Include="Md\Renderers\MdHtmlRendererTests.cs" />
+    <Compile Include="IRenderer.cs" />
+    <Compile Include="Md\MdParser.cs" />
+    <Compile Include="Md\MdParserTests.cs" />
+    <Compile Include="Md\MdSpecification.cs" />
+    <Compile Include="Md\Md.cs" />
+    <Compile Include="Md\TagHandlers\EmphasisHandler.cs" />
+    <Compile Include="Md\TagHandlers\MdTagHandler.cs" />
+    <Compile Include="Md\MdToken.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
-    <Compile Include="MdType.cs" />
+    <Compile Include="Md\MdType.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="App.config" />
