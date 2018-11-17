@@ -1,17 +1,18 @@
 ﻿using System.Collections.Generic;
+using Markdown.Tag.Standart;
 
 namespace Markdown.Renderer
 {
     public class HtmlRenderer : IRenderer
     {
-        private Dictionary<string, string> replaceRules;
+        private readonly IReadOnlyDictionary<string, string> replaceRules;
 
         public HtmlRenderer()
         {
             replaceRules = new Dictionary<string, string>
             {
-                {"italic", "em"},
-                {"bold", "strong"}
+                {new Italic().Translation, "em"},
+                {new Bold().Translation, "strong"}
             };
         }
 

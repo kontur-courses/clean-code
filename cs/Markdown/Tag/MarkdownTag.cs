@@ -1,33 +1,39 @@
-﻿using System;
-using System.Linq;
+﻿using System.Linq;
 
 namespace Markdown.Tag
 {
     public class MarkdownTag
     {
-        public string Tag { get; }
-        public int Length => Tag.Length;
-        public string OpenTagTranslation { get; }
-        public string CloseTagTranslation { get; }
-        private readonly Type[] possibleInnerTags;
+        public string Value { get; }
+        public int Length => Value.Length;
+        public readonly string Translation;
+        private readonly MarkdownTag[] possibleInnerTags;
 
-        protected MarkdownTag(string tag, string translation, params Type[] possibleInnerTags)
+        protected MarkdownTag(string value, string translation, params MarkdownTag[] possibleInnerTags)
         {
-            translation = translation.ToLower();
-            Tag = tag.ToLower();
-            OpenTagTranslation = $"<{translation}>";
-            CloseTagTranslation = $"</{translation}>";
+            Translation = translation.ToLower();
+            Value = value;
             this.possibleInnerTags = possibleInnerTags;
         }
 
-        public bool StartsWith(char letter)
+        public string GetTranslation()
         {
-            return Tag.StartsWith(letter.ToString());
+            return $"<{Translation}>";
+        }
+
+        public string GetTranslationWithBackslash()
+        {
+            return $"</{Translation}>";
         }
 
         public bool CanContain(MarkdownTag tag)
         {
-            return possibleInnerTags.Contains(tag.GetType());
+            return possibleInnerTags.Any(t => t.Value == tag.Value);
+        }
+
+        public bool IsInnerTagOf(MarkdownTag outerTag)
+        {
+            return this != outerTag && outerTag.CanContain(this);
         }
     }
 }

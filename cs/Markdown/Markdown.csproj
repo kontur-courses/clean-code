@@ -45,7 +45,7 @@
     <Compile Include="Translator\ITranslator.cs" />
     <Compile Include="Translator\MarkdownTranslator.cs" />
     <Compile Include="Tag\MarkdownTag.cs" />
-    <Compile Include="Renderer\HtmlReporter.cs" />
+    <Compile Include="Renderer\HtmlRenderer.cs" />
     <Compile Include="Renderer\IRenderer.cs" />
     <Compile Include="Md.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />

@@ -7,24 +7,12 @@ using Markdown.Tag.Standart;
 
 namespace Markdown.Translator
 {
-
-    public class PretenderInfo
-    {
-        public MarkdownTag Tag;
-        public int Position;
-
-        public PretenderInfo(MarkdownTag tag, int position)
-        {
-            this.Tag = tag;
-            this.Position = position;
-        }
-    }
-
     public class MarkdownTranslator : IMarkdownTranslator
     {
         private readonly IReadOnlyCollection<MarkdownTag> tagsCollection;
         private readonly Stack<MarkdownTag> tagsNesting;
         private int pointer;
+        private string currentText;
 
         public MarkdownTranslator()
         {
@@ -36,92 +24,113 @@ namespace Markdown.Translator
             tagsNesting = new Stack<MarkdownTag>();
         }
 
-        public MarkdownTranslator(IReadOnlyCollection<MarkdownTag> tagsCollection)
-        {
-            this.tagsCollection = tagsCollection;
-            tagsNesting = new Stack<MarkdownTag>();
-        }
-
         public string Translate(string text)
         {
-            pointer = 0;
-            var result = new StringBuilder();
-            for (; pointer < text.Length; pointer++)
+            currentText = text;
+            return GetTranslation();
+        }
+
+        private string GetTranslation()
+        {
+            var translation = new StringBuilder();
+
+            for (pointer = 0; pointer < currentText.Length; pointer++)
             {
-                var currentTag = GetTag(text, pointer);
-                if (currentTag != default(MarkdownTag))
+                var currentTag = GetTagAtPointer();
+                if (currentTag != null)
                 {
-                    if (tagsNesting.Any())
-                    {
-                        var previousTag = tagsNesting.Peek();
-                        if (currentTag != previousTag && previousTag.CanContain(currentTag))
-                            result.Append(ParseTagOpening(currentTag));
-                        else
-                            result.Append(ParseTagEnding(tagsNesting.Pop()));
-                    }
-                    else if (HasCorrectEnding(currentTag.Tag, text, pointer + currentTag.Length))
-                        result.Append(ParseTagOpening(currentTag));
+                    translation.Append(ParseTag(currentTag));
+                    pointer += currentTag.Length - 1;
                 }
                 else
-                    result.Append(text[pointer]);
+                    translation.Append(currentText[pointer]);
             }
 
-            return result.ToString();
+            return translation.ToString();
         }
 
-        private string ParseTagOpening(MarkdownTag tag)
+        private string ParseTag(MarkdownTag tag)
         {
-            pointer += tag.Length - 1;
+            return tagsNesting.Any()
+                ? ParseNewOrPreviousTag(tag)
+                : ParseNewTag(tag);
+        }
+
+        private string ParseNewOrPreviousTag(MarkdownTag currentTag)
+        {
+            var previousTag = tagsNesting.Peek();
+            return currentTag
+                .IsInnerTagOf(previousTag)
+                ? ParseNewTag(currentTag)
+                : ParsePreviousTag();
+        }
+
+        private string ParseNewTag(MarkdownTag tag)
+        {
             tagsNesting.Push(tag);
-            return tag.OpenTagTranslation;
+            return tag.GetTranslation();
         }
 
-        private string ParseTagEnding(MarkdownTag tag)
+        private string ParsePreviousTag()
         {
-            pointer += tag.Length - 1;
-            return tag.CloseTagTranslation;
+            return tagsNesting
+                .Pop()
+                .GetTranslationWithBackslash();
         }
 
-        private MarkdownTag GetTag(string line, int index)
+        private MarkdownTag GetTagAtPointer()
         {
-            var possibleTags = tagsCollection
-                .Where(tag => tag.StartsWith(line[index]));
-
-            if (tagsNesting.Any(tag => tag.Tag == line.Substring(index, tag.Length)))
-                return tagsNesting
-                    .First(tag => HasCorrectEnding(tag.Tag, line, index));
-
-            return possibleTags.FirstOrDefault(t => IsCorrectTagOpening(t.Tag, line, index));
-        }
-
-        private bool IsCorrectTagOpening(string tag, string line, int startIndex)
-        {
-            if (startIndex + tag.Length >= line.Length)
-                return false;
-            if (startIndex != 0 && line[startIndex - 1] == '\\')
-                return false;
-
-            var nextChar = line[startIndex + tag.Length];
-            return
-                 line.Substring(startIndex, tag.Length) == tag &&
-                char.IsLetter(nextChar);
-        }
-
-        private bool HasCorrectEnding(string tag, string line, int startIndex)
-        {
-            while (startIndex < line.Length)
+            if (tagsNesting.Any())
             {
-                startIndex = line.IndexOf(tag, startIndex, StringComparison.CurrentCulture);
+                var previousTag = tagsNesting.Peek();
+                if (IsPointerAtTag(previousTag))
+                    return previousTag;
+            }
+
+            return tagsCollection
+                .FirstOrDefault(HasCorrectBounds);
+        }
+
+        private bool HasCorrectBounds(MarkdownTag tag)
+        {
+            if (!IsPointerAtTag(tag))
+                return false;
+            return HasCorrectOpening(tag, pointer)
+                   && HasCorrectEnding(tag, pointer + tag.Length);
+        }
+
+        private bool HasCorrectOpening(MarkdownTag tag, int indexOfTag)
+        {
+            if (indexOfTag + tag.Length >= currentText.Length)
+                return false;
+            if (indexOfTag != 0 && currentText[indexOfTag - 1] == '\\')
+                return false;
+
+            var nextChar = currentText[indexOfTag + tag.Length];
+            return char.IsLetter(nextChar);
+        }
+
+        private bool HasCorrectEnding(MarkdownTag tag, int startIndex)
+        {
+            while (startIndex < currentText.Length)
+            {
+                startIndex = currentText.IndexOf(tag.Value, startIndex, StringComparison.CurrentCulture);
                 if (startIndex == -1)
                     return false;
-                var previousChar = line[startIndex - 1];
-                if (char.IsLetter(previousChar) &&
-                    line.Substring(startIndex, tag.Length) == tag)
+                var previousChar = currentText[startIndex - 1];
+                if (char.IsLetter(previousChar))
                     return true;
                 startIndex++;
             }
 
             return false;
+        }
+
+        private bool IsPointerAtTag(MarkdownTag tag)
+        {
+            if (tag.Length + pointer > currentText.Length)
+                return false;
+            return currentText.Substring(pointer, tag.Length) == tag.Value;
         }
     }
 }

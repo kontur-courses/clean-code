@@ -11,19 +11,13 @@ namespace Markdown
 
         public Md()
         {
-            this.renderer = new HtmlRenderer();
-            this.markdownTranslator = new MarkdownTranslator();
-        }
-
-        public Md(IRenderer renderer,IMarkdownTranslator markdownTranslator)
-        {
-            this.renderer = renderer;
-            this.markdownTranslator = markdownTranslator;
+            renderer = new HtmlRenderer();
+            markdownTranslator = new MarkdownTranslator();
         }
 
         public string Render(string paragraph)
         {
-            if(paragraph == null)
+            if (paragraph == null)
                 throw new ArgumentException("Paragraph can't be null");
 
             var translatedParagraph = markdownTranslator.Translate(paragraph);

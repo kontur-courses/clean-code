@@ -2,6 +2,6 @@
 {
     public class Bold : MarkdownTag
     {
-        public Bold() : base("__", "bold", typeof(Italic)) { }
+        public Bold() : base("__", "bold", new Italic()) { }
     }
 }
