@@ -10,6 +10,7 @@
 
         public int Start { get; }
         public int End { get; }
+
         public override string ToString()
         {
             return $"Start: {Start}, End: {End}";
