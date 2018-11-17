@@ -1,8 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace Markdown
 {
@@ -19,7 +17,7 @@ namespace Markdown
             {
                 var token = openingTokens.Key;
                 if (separatedClosingTokens.TryGetValue(token, out var closingTokens))
-                    tokensBoarders.Add(token, GetPositionsForToken(token, openingTokens.Value, closingTokens));
+                    tokensBoarders.Add(token, GetPositionsForToken(openingTokens.Value, closingTokens));
             }
 
             return tokensBoarders;
@@ -54,7 +52,6 @@ namespace Markdown
         }
 
         private List<TokenPosition> GetPositionsForToken(
-            TokenType tokenType,
             List<SingleToken> openingPositionsForTokens,
             List<SingleToken> closingPositionsForTokens)
         {
@@ -62,8 +59,9 @@ namespace Markdown
 
             var positionsForTokens = new List<TokenPosition>();
 
-            var openingPositions = new List<int>(openingPositionsForTokens.Select(token=>token.TokenPosition));
+            var openingPositions = new List<int>(openingPositionsForTokens.Select(token => token.TokenPosition));
             var closingPositions = new List<int>(closingPositionsForTokens.Select(token => token.TokenPosition));
+
             openingPositions.Reverse();
 
             foreach (var openingPosition in openingPositions)

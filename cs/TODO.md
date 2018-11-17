@@ -1,5 +1,4 @@
-# TODO
-* GetMarkupBoarders переименовать 
+# TODO 
 * MarkupExtensionsTests дописать тесты, которые возвращают false
 * MarkupFinderTests завернуть for в LINQ
 * Сделать SetUp на инициализацию Markup
@@ -16,3 +15,4 @@
 * Убрать состояние из MarkupFinder
 * GetSortedPositionsWithTags переделать Tuple на ValueTuple (убрал Tuple)
 * Md2HtmlTranslator убрать ContainsKey, заменить на TryGetValue
+* GetMarkupBoarders переименовать
