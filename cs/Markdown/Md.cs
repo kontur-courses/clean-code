@@ -9,7 +9,8 @@ namespace Markdown
         {
             var parser = new EmphasisParser(markdown, 0, RootElementType.Create());
             MarkdownElement rootElement = parser.Parse();
-            return HtmlRenderer.RenderToHtml(rootElement);
+            var html = HtmlRenderer.RenderToHtml(rootElement);
+            return EscapesAnalyzer.RemoveEscapeSlashes(html, new []{'_', '\\'});
         }
     }
 }

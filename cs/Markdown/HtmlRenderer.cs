@@ -1,7 +1,6 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using Markdown.Elements;
-using System.Linq;
+using System.Text;
 
 namespace Markdown
 {
@@ -18,7 +17,7 @@ namespace Markdown
         public static string RenderToHtml(MarkdownElement markdownRoot)
         {
             var currentPosition = markdownRoot.StartPosition;
-            var result = "";
+            var result = new StringBuilder();
 
             foreach (var innerElement in markdownRoot.InnerElements)
             {
@@ -28,15 +27,16 @@ namespace Markdown
 
                 var innerElementRenderResult = RenderToHtml(innerElement);
 
-                result += partBeforeInnerElement + innerElementRenderResult;
+                result.Append(partBeforeInnerElement);
+                result.Append(innerElementRenderResult);
                 currentPosition = innerElement.EndPosition + innerElement.ElementType.Indicator.Length;
             }
 
             var remainder = markdownRoot.Markdown.Substring(
                 currentPosition, markdownRoot.EndPosition - currentPosition);
-            result += remainder;
+            result.Append(remainder);
 
-            return WrapString(result, markdownRoot.ElementType);
+            return WrapString(result.ToString(), markdownRoot.ElementType);
         }
 
         private static string WrapString(string str, IElementType element)

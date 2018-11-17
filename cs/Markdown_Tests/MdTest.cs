@@ -17,13 +17,23 @@ namespace Markdown_Tests
         [TestCase("_ hello _", ExpectedResult = "_ hello _",
             TestName = "not convert invalid open and close underscores")]
         [TestCase("__hello _world_ !__", ExpectedResult = "<strong>hello <em>world</em> !</strong>",
-            TestName = "allow em contain strong")]
+            TestName = "allow strong contain em")]
         [TestCase("_hello __world__ !_", ExpectedResult = "_hello <strong>world</strong> !_",
-            TestName = "not allow strong contain em")]
+            TestName = "not allow em contain strong")]
         [TestCase("___hello___", ExpectedResult = "___hello___",
             TestName = "not convert unrecognized paired underscores")]
         [TestCase("___hello__", ExpectedResult = "___hello__",
             TestName = "not convert unrecognized unpaired underscores")]
+        [TestCase(@"\_hello\_", ExpectedResult = "_hello_", 
+            TestName = "not convert escaped underscores")]
+        [TestCase(@"\\hello", ExpectedResult = @"\hello",
+            TestName = "remover escape slash")]
+        [TestCase(@"\__hello_", ExpectedResult = "_<em>hello</em>",
+            TestName = "not convert to em when first underscore is escaped")]
+        [TestCase(@"\__hello__", ExpectedResult = "__hello__",
+            TestName = "not convert to strong when first underscore is escaped")]
+        [TestCase("__hello _world__ !_", ExpectedResult = "<strong>hello _world</strong> !_",
+            TestName = "markup strong and ignore em when underscores intersect")]
         public string RenderShould(string markdown)
         {
             var md = new Md();
