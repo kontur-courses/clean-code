@@ -24,18 +24,15 @@ namespace Markdown
             {
                 var twoSymbol = text.Substring(position, 2);
                 var symbol = text[position].ToString();
+                var isLastSymbol = position == text.Length - 2;
 
-                if (position == text.Length - 2)
-                {
-                    if (TryParseTextTag(text, pairedTags, text.Length, out var textTag))
+                if (isLastSymbol && TryParseTextTag(text, pairedTags, text.Length, out var textTag))
                         pairedTags.Add(textTag);
-                }
 
                 if (IsOpenTag(twoSymbol, text) && TryParseOnePairOfTags(twoSymbol, text, out var tag))
                 {
-                    if (TryParseTextTag(text, pairedTags, position, out var textTag))
+                    if (TryParseTextTag(text, pairedTags, position, out textTag))
                         pairedTags.Add(textTag);
-
 
                     pairedTags.Add(tag);
                     position = tag.CloseIndex + tag.Length - 1;
@@ -44,14 +41,12 @@ namespace Markdown
 
                 if (IsOpenTag(symbol, text) && TryParseOnePairOfTags(symbol, text, out tag))
                 {
-                    if (TryParseTextTag(text, pairedTags, position, out var textTag))
+                    if (TryParseTextTag(text, pairedTags, position, out textTag))
                         pairedTags.Add(textTag);
 
                     pairedTags.Add(tag);
                     position = tag.CloseIndex + tag.Length - 1;
                 }
-
-
 
                 position++;
             }
@@ -66,11 +61,11 @@ namespace Markdown
                 OpenIndex = pairedTags.Count == 0
                     ? 0
                     : pairedTags.Last().CloseIndex + pairedTags.Last().Length,
-                CloseIndex = closeIndex-1
+                CloseIndex = closeIndex - 1
             };
             if (textTag.CloseIndex - textTag.OpenIndex >= 0)
             {
-                textTag.Content = text.Substring(textTag.OpenIndex, textTag.CloseIndex - textTag.OpenIndex + 1);
+                textTag.Content = textTag.GetTextContent(text);
                 return true;
             }
 
@@ -94,9 +89,12 @@ namespace Markdown
             tag.CloseIndex = text.FindCloseTagIndex(tag);
 
             if (tag.CloseIndex != -1)
-                tag.Content = text.Substring(tag.OpenIndex + tag.Length, tag.CloseIndex - tag.OpenIndex - tag.Length);
+            {
+                tag.Content = tag.GetTagContent(text);
+                return true;
+            }
 
-            return tag.CloseIndex != -1;
+            return false;
         }
     }
 }

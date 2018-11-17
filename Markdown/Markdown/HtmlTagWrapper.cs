@@ -1,7 +1,5 @@
 ﻿using System.Collections.Generic;
-using System.Linq;
 using System.Text;
-using System.Xml;
 using Markdown.Tag;
 
 namespace Markdown
@@ -37,17 +35,17 @@ namespace Markdown
         private string GetInnerFormattedText(ITag tag)
         {
             var mdTagConverter = new MdTagConverter(dictionaryTags);
-            var innerTags = mdTagConverter.Parse(tag.Content);
+            var tags = mdTagConverter.Parse(tag.Content);
 
-            var result = new List<ITag>();
-            foreach (var t in innerTags)
-                result.Add(t.Length > tag.Length ? t.ToTextTag() : t);
+            var checkedTags = new List<ITag>();
+            foreach (var t in tags)
+                checkedTags.Add(t.Length > tag.Length ? t.ToTextTag() : t);
 
-            if (result.Count == 0)
+            if (checkedTags.Count == 0)
                 return tag.Content;
 
             var htmlTagWrapper = new HtmlTagWrapper();
-            var htmlText = htmlTagWrapper.ConvertToHtml(result);
+            var htmlText = htmlTagWrapper.ConvertToHtml(checkedTags);
             return htmlText;
         }
     }
