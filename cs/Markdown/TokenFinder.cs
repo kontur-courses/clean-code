@@ -5,20 +5,20 @@ namespace Markdown
 {
     public class TokenFinder
     {
-        private static readonly List<MarkdownToken> MarkdownTokens = new List<MarkdownToken>
+        private static readonly List<TokenType> TokensTypes = new List<TokenType>
         {
-            new MarkdownToken("simpleUnderscore", "_", "em"),
-            new MarkdownToken("doubleUnderscore", "__", "strong")
+            new TokenType("simpleUnderscore", "_", "em"),
+            new TokenType("doubleUnderscore", "__", "strong")
         };
 
         private void FindOpeningAndClosingTemplates(string paragraph,
-            Dictionary<MarkdownToken, List<int>> openingPositionsForTokens, 
-            Dictionary<MarkdownToken, List<int>> closingPositionsForTokens)
+            Dictionary<TokenType, List<int>> openingPositionsForTokens, 
+            Dictionary<TokenType, List<int>> closingPositionsForTokens)
         {
             for (var index = 0; index < paragraph.Length; index++)
             {
-                var openingToken = MarkdownTokens.GetOpeningToken(paragraph, index);
-                var closingToken = MarkdownTokens.GetClosingToken(paragraph, index);
+                var openingToken = TokensTypes.GetOpeningToken(paragraph, index);
+                var closingToken = TokensTypes.GetClosingToken(paragraph, index);
 
                 if (openingToken != null)
                 {
@@ -35,11 +35,11 @@ namespace Markdown
             }
         }
 
-        private Dictionary<MarkdownToken, List<TokenPosition>> GetTokensBoarders(
-            Dictionary<MarkdownToken, List<int>> openingPositionsForTokens, 
-            Dictionary<MarkdownToken, List<int>> closingPositionsForTokens)
+        private Dictionary<TokenType, List<TokenPosition>> GetTokensBoarders(
+            Dictionary<TokenType, List<int>> openingPositionsForTokens, 
+            Dictionary<TokenType, List<int>> closingPositionsForTokens)
         {
-            var tokensBoarders = new Dictionary<MarkdownToken, List<TokenPosition>>();
+            var tokensBoarders = new Dictionary<TokenType, List<TokenPosition>>();
             foreach (var openingPositionsForToken in openingPositionsForTokens)
             {
                 var token = openingPositionsForToken.Key;
@@ -52,16 +52,16 @@ namespace Markdown
         }
 
         private List<TokenPosition> GetPositionsForToken(
-            MarkdownToken markdownToken,
-            Dictionary<MarkdownToken, List<int>> openingPositionsForTokens, 
-            Dictionary<MarkdownToken, List<int>> closingPositionsForTokens)
+            TokenType tokenType,
+            Dictionary<TokenType, List<int>> openingPositionsForTokens, 
+            Dictionary<TokenType, List<int>> closingPositionsForTokens)
         {
             var usedPositions = new HashSet<int>();
 
             var positionsForTokens = new List<TokenPosition>();
 
-            var openingPositions = new List<int>(openingPositionsForTokens[markdownToken]);
-            var closingPositions = new List<int>(closingPositionsForTokens[markdownToken]);
+            var openingPositions = new List<int>(openingPositionsForTokens[tokenType]);
+            var closingPositions = new List<int>(closingPositionsForTokens[tokenType]);
             openingPositions.Reverse();
 
             foreach (var openingPosition in openingPositions)
@@ -84,10 +84,10 @@ namespace Markdown
             return positionsForTokens;
         }
 
-        public Dictionary<MarkdownToken, List<TokenPosition>> GetTokensWithPositions(string paragraph)
+        public Dictionary<TokenType, List<TokenPosition>> GetTokensWithPositions(string paragraph)
         {
-            var openingPositionsForTokens = new Dictionary<MarkdownToken, List<int>>();
-            var closingPositionsForTokens = new Dictionary<MarkdownToken, List<int>>();
+            var openingPositionsForTokens = new Dictionary<TokenType, List<int>>();
+            var closingPositionsForTokens = new Dictionary<TokenType, List<int>>();
             FindOpeningAndClosingTemplates(paragraph, openingPositionsForTokens, closingPositionsForTokens);
 
             return GetTokensBoarders(openingPositionsForTokens, closingPositionsForTokens);

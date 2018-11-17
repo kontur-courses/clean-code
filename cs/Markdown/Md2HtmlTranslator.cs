@@ -6,9 +6,9 @@ namespace Markdown
 {
     public class Md2HtmlTranslator
     {
-        public string TranslateMdToHtml(string mdText, Dictionary<MarkdownToken, List<TokenPosition>> markdownTokens)
+        public string TranslateMdToHtml(string mdText, Dictionary<TokenType, List<TokenPosition>> positionsForTokensTypes)
         {
-            var sortedPositions = GetSortedPositionsWithTags(markdownTokens);
+            var sortedPositions = GetSortedPositionsWithTags(positionsForTokensTypes);
             return GetHtmlText(mdText, sortedPositions);
         }
 
@@ -35,10 +35,10 @@ namespace Markdown
             return htmlBuilder.ToString();
         }
 
-        private SortedDictionary<int, Tuple<string,string>> GetSortedPositionsWithTags(Dictionary<MarkdownToken, List<TokenPosition>> markdownTokens)
+        private SortedDictionary<int, Tuple<string,string>> GetSortedPositionsWithTags(Dictionary<TokenType, List<TokenPosition>> positionsForTokensTypes)
         {
             var sortedPositionsWithTags = new SortedDictionary<int, Tuple<string, string>>();
-            foreach (var tokenWithPositions in markdownTokens)
+            foreach (var tokenWithPositions in positionsForTokensTypes)
                 foreach (var position in tokenWithPositions.Value)
                 {
                     sortedPositionsWithTags.Add(

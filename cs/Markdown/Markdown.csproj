@@ -43,8 +43,8 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Markdown.cs" />
-    <Compile Include="MarkdownToken.cs" />
-    <Compile Include="MarkdownTokenExtensions.cs" />
+    <Compile Include="TokenType.cs" />
+    <Compile Include="TokenTypeExtensions.cs" />
     <Compile Include="TokenFinder.cs" />
     <Compile Include="TokenPosition.cs" />
     <Compile Include="Md2HtmlTranslator.cs" />

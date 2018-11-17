@@ -1,8 +1,8 @@
 ﻿namespace Markdown
 {
-    public class MarkdownToken
+    public class TokenType
     {
-        public MarkdownToken(string name, string template, string htmlTag)
+        public TokenType(string name, string template, string htmlTag)
         {
             Name = name;
             Template = template;

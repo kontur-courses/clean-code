@@ -52,7 +52,7 @@ namespace MarkdownTests
         [TestCase("_f", TestName = "Should not find token without finishing token")]
         public void FindSimpleUnderscore(string paragraph)
         {
-            var simpleUnderscore = new MarkdownToken("simpleUnderscore", "_", "em");
+            var simpleUnderscore = new TokenType("simpleUnderscore", "_", "em");
 
             var tokenFinder = new TokenFinder();
             var tokensWithPositions = tokenFinder.GetTokensWithPositions(paragraph);
