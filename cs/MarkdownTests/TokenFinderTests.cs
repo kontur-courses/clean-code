@@ -26,7 +26,10 @@ namespace MarkdownTests
             var expectedSimpleUnderscorePositions = GetTokenPositions(simpleUnderscorePositions);
 
             var finder = new TokenFinder();
-            var tokensWithPositions = finder.GetTokensWithPositions(paragraph);
+            var validator = new TokensValidator();
+            var tokensPositions = finder.GetTokensOpeningAndClosingPositions(paragraph);
+            var tokensWithPositions =
+                validator.GetPositionsForTokens(tokensPositions.OpeningPositions, tokensPositions.ClosingPositions);
 
             tokensWithPositions.First(token => token.Key.Name == "simpleUnderscore").Value
                 .ShouldBeEquivalentTo(expectedSimpleUnderscorePositions);
@@ -37,10 +40,14 @@ namespace MarkdownTests
         [Test]
         public void ShouldFindDoubleUnderscore()
         {
-            var tokenFinder = new TokenFinder();
-
             var paragraph = "__f__";
-            var tokensWithPositions = tokenFinder.GetTokensWithPositions(paragraph);
+
+            var finder = new TokenFinder();
+            var validator = new TokensValidator();
+
+            var tokensPositions = finder.GetTokensOpeningAndClosingPositions(paragraph);
+            var tokensWithPositions =
+                validator.GetPositionsForTokens(tokensPositions.OpeningPositions, tokensPositions.ClosingPositions);
 
             tokensWithPositions.First(token => token.Key.Name == "doubleUnderscore").Value.First()
                 .ShouldBeEquivalentTo(new TokenPosition(0, 3));
@@ -54,8 +61,12 @@ namespace MarkdownTests
         {
             var simpleUnderscore = new TokenType("simpleUnderscore", "_", "em");
 
-            var tokenFinder = new TokenFinder();
-            var tokensWithPositions = tokenFinder.GetTokensWithPositions(paragraph);
+            var finder = new TokenFinder();
+            var validator = new TokensValidator();
+
+            var tokensPositions = finder.GetTokensOpeningAndClosingPositions(paragraph);
+            var tokensWithPositions =
+                validator.GetPositionsForTokens(tokensPositions.OpeningPositions, tokensPositions.ClosingPositions);
 
             tokensWithPositions.Should().NotContainKey(simpleUnderscore);
         }
@@ -68,8 +79,12 @@ namespace MarkdownTests
         {
             var listOfExpectedPositions = GetTokenPositions(positions);
 
-            var tokenFinder = new TokenFinder();
-            var tokensWithPositions = tokenFinder.GetTokensWithPositions(paragraph);
+            var finder = new TokenFinder();
+            var validator = new TokensValidator();
+
+            var tokensPositions = finder.GetTokensOpeningAndClosingPositions(paragraph);
+            var tokensWithPositions =
+                validator.GetPositionsForTokens(tokensPositions.OpeningPositions, tokensPositions.ClosingPositions);
 
             tokensWithPositions.First(token => token.Key.Name == "simpleUnderscore").Value
                 .ShouldBeEquivalentTo(listOfExpectedPositions);
