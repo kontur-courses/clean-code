@@ -1,27 +1,40 @@
-﻿namespace Markdown.TokenizerClasses.Scanners
+﻿using System.Text;
+
+namespace Markdown.TokenizerClasses.Scanners
 {
-    public class PlainTextScanner
+    public class PlainTextScanner : IScanner
     {
-        private const string TokenType = "TEXT";
-
-        public Token Scan(string text)
+        public bool TryScan(string text, out Token token)
         {
-            if (string.IsNullOrEmpty(text))
-                return null;
-
-            var tokenLength = 0;
-            var scanner = new TagScanner();
-            foreach (var t in text)
+            if (!string.IsNullOrEmpty(text))
             {
-                if (scanner.Scan(t.ToString()) != null)
-                    break;
+                var value = GetTokenValue(text);
+                if (!string.IsNullOrEmpty(value))
+                {
+                    token = new Token(TokenType.Text, value);
 
-                tokenLength++;
+                    return true;
+                }
             }
 
-            var token = text.Substring(0, tokenLength);
+            token = Token.Null;
 
-            return new Token(TokenType, token);
+            return false;
+        }
+
+        private string GetTokenValue(string text)
+        {
+            var tokenValue = new StringBuilder();
+            var tagScanner = new TagScanner();;
+            foreach (var c in text)
+            {
+                if (tagScanner.TryScan(c.ToString(), out _))
+                    break;
+
+                tokenValue.Append(c);
+            }
+
+            return tokenValue.ToString();
         }
     }
 }

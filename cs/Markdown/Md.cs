@@ -16,17 +16,19 @@ namespace Markdown
             Console.ReadKey();
         }
 
-        public static string Render(string markdownText)
+        private static string Render(string markdownText)
         {
             var tokenizer = new Tokenizer();
-            var parser = new Parser();
+            //var parser = new Parser();
             var generator = new HTMLGenerator();
 
-            var tokens = tokenizer.Tokenize(markdownText);
-            var abstractSyntaxTree = parser.Parse(tokens);
-            var htmlText = generator.Generate(abstractSyntaxTree);
+//            var tokens = tokenizer.Tokenize(markdownText);
+//            var abstractSyntaxTree = parser.Parse(tokens);
+//            var htmlText = generator.Generate(abstractSyntaxTree);
+//
+//            return htmlText;
 
-            return htmlText;
+            throw new NotImplementedException();
         }
     }
 }

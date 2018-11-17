@@ -1,54 +1,44 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using Markdown.TokenizerClasses.Scanners;
 
 namespace Markdown.TokenizerClasses
 {
     public class Tokenizer
     {
-        private List<Func<string, Token>> tokenScanners = new List<Func<string, Token>>
+        private readonly List<IScanner> tokenScanners = new List<IScanner>
         {
-            new TagScanner().Scan,
-            new PlainTextScanner().Scan
+            new TagScanner(),
+            new PlainTextScanner()
         };
 
-        public TokenList Tokenize(string text)
+        public IEnumerable<Token> Tokenize(string text)
         {
-            var tokens = TokenizeToList(text);
-
-            return new TokenList(tokens);
-        }
-
-        public List<Token> TokenizeToList(string text)
-        {
-            if (string.IsNullOrEmpty(text))
-                return new List<Token> {new Token("EOF", "")};
-
-            Token token;
             var tokens = new List<Token>();
+            Token token;
 
             do
             {
-                token = ScanToken(text);
+                token = GetNextToken(text);
                 tokens.Add(token);
-                text = text.Substring(token.Value.Length, text.Length - token.Value.Length);
-            } while (!string.IsNullOrEmpty(text));
+                text = text.Substring(token.Length, text.Length - token.Length);
+            }
+            while (token.Type != TokenType.EOF);
+
+            if (tokens.Count > 0)
+                tokens.RemoveAt(tokens.Count - 1);
 
             return tokens;
         }
 
-        public Token ScanToken(string text)
+        public Token GetNextToken(string text)
         {
-            Token token = null;
             foreach (var scanner in tokenScanners)
             {
-                token = scanner(text);
-
-                if (token != null)
-                    break;
+                if (scanner.TryScan(text, out var token))
+                    return token;
             }
 
-            return token;
+            return Token.EOF;
         }
     }
 }

@@ -6,16 +6,16 @@ using Markdown.TokenizerClasses;
 
 namespace Markdown.ParserClasses
 {
-    public class Parser
-    {
-        public ContentNode Parse(TokenList tokens)
-        {
-            var content = new ContentParser().Parse(tokens);
-
-            if (tokens.Tokens.Count != content.Consumed)
-                throw new SyntaxErrorException();
-
-            return content;
-        }
-    }
+//    public class Parser
+//    {
+//        public ContentNode Parse(TokenList tokens)
+//        {
+//            var content = new ContentParser().Parse(tokens);
+//
+//            if (tokens.Tokens.Count != content.Consumed)
+//                throw new SyntaxErrorException();
+//
+//            return content;
+//        }
+//    }
 }
