@@ -21,7 +21,8 @@ namespace MarkdownTests
             var tags = new[]
             {
                 new Tag(new ItalicTagInfo(), "em"),
-                new Tag(new BoldTagInfo(), "strong")
+                new Tag(new BoldTagInfo(), "strong"),
+                new Tag(new H1TagInfo(), "h1"), 
             };
 
             var allTags = tags.Select(tag => tag.Info.OpeningTag).Concat(tags.Select(tag => tag.Info.ClosingTag));
@@ -36,15 +37,16 @@ namespace MarkdownTests
             markdown = new Markdown.Markdown(parser, treeTranslator, treeBuilder);
         }
 
-        [TestCase("\n", " ", TestName = "OnlyNewLine")]
+        [TestCase("\n", "\n", TestName = "OnlyNewLine")]
         [TestCase("", "", TestName = "EmptyString")]
         [TestCase("a", "a", TestName = "OnlyText")]
         [TestCase(" ", " ", TestName = "OnlySpace")]
         [TestCase("a b", "a b", TestName = "TextWithSpace")]
-        [TestCase("a\nb", "a b", TestName = "TextWithSpace")]
+        [TestCase("a\nb", "a\nb", TestName = "TextWithNewLine")]
         [TestCase("\\\\", "\\", TestName = "EscapedEscapeSymbol")]
         [TestCase("_a_", "<em>a</em>", TestName = "ItalicTag")]
         [TestCase("__a__", "<strong>a</strong>", TestName = "BoldTag")]
+        [TestCase("# a\n", "<h1> a</h1>", TestName = "HeadingWithText")]
         [TestCase("\\_a_", "_a_", TestName = "ItalicTagWithEscapedOpening")]
         [TestCase("\\__a__", "__a__", TestName = "BoldTagWithEscapedOpening")]
         [TestCase("_a\\_", "_a_", TestName = "ItalicTagWithEscapedClosing")]

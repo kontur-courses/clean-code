@@ -16,7 +16,7 @@ namespace MarkdownTests
         [SetUp]
         public void SetUp()
         {
-            tagsInfo = new ITagInfo[] { new ItalicTagInfo(), new BoldTagInfo() };
+            tagsInfo = new ITagInfo[] { new ItalicTagInfo(), new BoldTagInfo(), new H1TagInfo() };
             builder = new MarkdownTokenTreeBuilder(tagsInfo);
             testTreeBuilder = TestTreeBuilder.Tree();
         }
@@ -64,7 +64,7 @@ namespace MarkdownTests
         {
             var tokens = new[] { "\n" };
             var expectedTree = testTreeBuilder
-                .WithSpace()
+                .WithText("\n")
                 .Build();
 
             var tree = builder.BuildTree(tokens);
@@ -130,7 +130,7 @@ namespace MarkdownTests
             var tokens = new[] { "a", "\n", "b" };
             var expectedTree = testTreeBuilder
                 .WithText("a")
-                .WithSpace()
+                .WithText("\n")
                 .WithText("b")
                 .Build();
 

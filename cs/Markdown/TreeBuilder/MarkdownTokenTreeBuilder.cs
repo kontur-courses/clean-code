@@ -46,7 +46,6 @@ namespace Markdown.TreeBuilder
             switch (tokenType)
             {
                 case TokenType.Space:
-                case TokenType.NewLine:
                     currentTag.Children.Add(new SpaceTreeNode());
                     break;
                 case TokenType.Text:
@@ -117,8 +116,6 @@ namespace Markdown.TreeBuilder
                 return TokenType.EscapeSymbol;
             if (tagsInfo.ContainsKey(token))
                 return TokenType.Tag;
-            if (token == "\n")
-                return TokenType.NewLine;
             if (string.IsNullOrWhiteSpace(token))
                 return TokenType.Space;
             return TokenType.Text;
