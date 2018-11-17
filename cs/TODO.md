@@ -1,6 +1,5 @@
 # TODO 
 * MarkupFinderTests завернуть for в LINQ
-* Отрефакторить весь код
 
 # DONE
 * Сделать SetUp на инициализацию Markup
@@ -16,3 +15,4 @@
 * Md2HtmlTranslator убрать ContainsKey, заменить на TryGetValue
 * GetMarkupBoarders переименовать
 * Подумать над оптимизацией поиска закрывающих тегов
+* Отрефакторить весь код
