@@ -1,6 +1,6 @@
 ﻿namespace Markdown.Elements
 {
-    public abstract class UnderscoreElementTypeBase : ElementTypeBase
+    public abstract class UnderscoreElementTypeBase : EmphasisTypeBase
     {
         public override bool IsIndicatorAt(string markdown, bool[] escapeBitMask, int position)
         {

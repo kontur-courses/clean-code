@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace Markdown.Elements
 {
-    public class BrokenElementType : ElementTypeBase
+    public class BrokenElementType : EmphasisTypeBase
     {
         private static readonly BrokenElementType Instance = new BrokenElementType();
 

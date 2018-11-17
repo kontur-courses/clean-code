@@ -2,7 +2,7 @@
 
 namespace Markdown.Elements
 {
-    public class RootElementType : ElementTypeBase
+    public class RootElementType : EmphasisTypeBase
     {
         private static readonly RootElementType Instance = new RootElementType();
         private static readonly IElementType[] PossibleInnerElementTypes =

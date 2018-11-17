@@ -48,10 +48,39 @@ namespace Markdown_Tests
         [TestCase(@"\___", new[] { false, true, false, false }, 2,
             ExpectedResult = true,
             TestName = "true when underscore before is escaped")]
-        public bool IsIndicatorAt_ShouldReturn(string markdown, bool[] escapeBitMask, int position)
+        public bool DoubleUnderscore_IsIndicatorAt_ShouldReturn(string markdown, bool[] escapeBitMask, int position)
         {
             return DoubleUnderscoreElementType.Create()
                 .IsIndicatorAt(markdown, escapeBitMask, position);
+        }
+
+
+        [TestCase("_a", new []{false, false}, 0, ExpectedResult = true,
+            TestName = "true when valid open")]
+        [TestCase("a_", new[] { false, false }, 1, ExpectedResult = false,
+            TestName = "false when no symbols after")]
+        [TestCase("a_ ", new[] { false, false, false }, 1, ExpectedResult = false,
+            TestName = "false when whitespace after")]
+        [TestCase(@"\_a", new[] { false, true, false }, 1, ExpectedResult = false,
+            TestName = "false when escaped")]
+        public bool SingleUnderscore_IsOpeningOfElement_ShouldReturn(string markdown, bool[] escapeBitMask, int position)
+        {
+            return SingleUnderscoreElementType.Create()
+                .IsOpeningOfElement(markdown, escapeBitMask, position);
+        }
+
+        [TestCase("a_", new[] { false, false }, 1, ExpectedResult = true,
+            TestName = "true when valid close")]
+        [TestCase("_a", new[] { false, false }, 0, ExpectedResult = false,
+            TestName = "false when no symbols before")]
+        [TestCase(" _", new[] { false, false }, 1, ExpectedResult = false,
+            TestName = "false when whitespace before")]
+        [TestCase(@"a\_", new[] { false, false, true }, 2, ExpectedResult = false,
+            TestName = "false when escaped")]
+        public bool SingleUnderscore_IsClosingOfElement_ShouldReturn(string markdown, bool[] escapeBitMask, int position)
+        {
+            return SingleUnderscoreElementType.Create()
+                .IsClosingOfElement(markdown, escapeBitMask, position);
         }
 
     }

@@ -2,7 +2,7 @@
 
 namespace Markdown.Elements
 {
-    public abstract class ElementTypeBase : IElementType
+    public abstract class EmphasisTypeBase : IElementType
     {
         public abstract string Indicator { get; }
 
