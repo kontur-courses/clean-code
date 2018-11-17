@@ -9,7 +9,7 @@ namespace Markdown.Tests
     public class Md_Should
     {
         [Test]
-        public void RenderThrowArgumentException_ThenInputIsNull()
+        public void RenderThrowArgumentException_WhenInputIsNull()
         {
             var md = new Md();
 
@@ -18,11 +18,11 @@ namespace Markdown.Tests
             result.Should().Throw<ArgumentException>();
         }
 
-        [TestCase("", TestName = "Then input is empty")]
-        [TestCase("1", TestName = "Then input is \"1\"")]
-        [TestCase("a", TestName = "Then input is \"a\"")]
-        [TestCase("_", TestName = "Then input is \"_\"")]
-        [TestCase("__", TestName = "Then input is \"__\"")]
+        [TestCase("", TestName = "When input is empty")]
+        [TestCase("1", TestName = "When input is \"1\"")]
+        [TestCase("a", TestName = "When input is \"a\"")]
+        [TestCase("_", TestName = "When input is \"_\"")]
+        [TestCase("__", TestName = "When input is \"__\"")]
         public void RenderReturnHtmlParagraph(string markdown)
         {
             var md = new Md();
@@ -33,10 +33,10 @@ namespace Markdown.Tests
                 .And.EndWith("</p>");
         }
 
-        [TestCase("_em_", TestName = "Then input is \"_em_\"")]
-        [TestCase("_a_", TestName = "Then input is \"_a_\"")]
-        [TestCase("_a_ _a_", 2, TestName = "Then input is \"_a_ _a_\"")]
-        [TestCase("_long string   with spaces_", TestName = "Then input is \"_long string   with spaces_\"")]
+        [TestCase("_em_", TestName = "When input is \"_em_\"")]
+        [TestCase("_a_", TestName = "When input is \"_a_\"")]
+        [TestCase("_a_ _a_", 2, TestName = "When input is \"_a_ _a_\"")]
+        [TestCase("_long string   with spaces_", TestName = "When input is \"_long string   with spaces_\"")]
         public void RenderParsesInput_WithEmTag(string markdown, int pairCount = 1)
         {
             var md = new Md();
@@ -47,10 +47,10 @@ namespace Markdown.Tests
             result.Should().Be(pairCount);
         }
 
-        [TestCase("__strong__", TestName = "Then input is \"__strong__\"")]
-        [TestCase("__s__ __s__", 2, TestName = "Then input is \"__s__ __s__\"")]
-        [TestCase("__a__", TestName = "Then input is \"__a__\"")]
-        [TestCase("__long string   with spaces__", TestName = "Then input is \"__long string   with spaces__\"")]
+        [TestCase("__strong__", TestName = "When input is \"__strong__\"")]
+        [TestCase("__s__ __s__", 2, TestName = "When input is \"__s__ __s__\"")]
+        [TestCase("__a__", TestName = "When input is \"__a__\"")]
+        [TestCase("__long string   with spaces__", TestName = "When input is \"__long string   with spaces__\"")]
         public void RenderParsesInput_WithStrongTag(string markdown, int pairCount = 1)
         {
             var md = new Md();
@@ -100,14 +100,14 @@ namespace Markdown.Tests
                 .And.ContainAll("<em>", "</em>");
         }
 
-        [TestCase("_1_", TestName = "Then input is \"_1_\"")]
-        [TestCase("__1 with space and words 1__", TestName = "Then input is \"__1 with space and words 1__\"")]
-        [TestCase("_a 1_", TestName = "Then input is \"_a 1_\"")]
-        [TestCase("__1 a__", TestName = "Then input is \"__1 a__\"")]
-        [TestCase("_a b__", TestName = "Then unpaired characters")]
-        [TestCase("_a b _", TestName = "Then input is \"_a b _\"")]
-        [TestCase("_ a b_", TestName = "Then input is \"_ a b_\"")]
-        [TestCase("__a b_", TestName = "Then unpaired characters 2")]
+        [TestCase("_1_", TestName = "When input is \"_1_\"")]
+        [TestCase("__1 with space and words 1__", TestName = "When input is \"__1 with space and words 1__\"")]
+        [TestCase("_a 1_", TestName = "When input is \"_a 1_\"")]
+        [TestCase("__1 a__", TestName = "When input is \"__1 a__\"")]
+        [TestCase("_a b__", TestName = "When unpaired characters")]
+        [TestCase("_a b _", TestName = "When input is \"_a b _\"")]
+        [TestCase("_ a b_", TestName = "When input is \"_ a b_\"")]
+        [TestCase("__a b_", TestName = "When unpaired characters 2")]
         public void RenderDoesntParsesTag(string markdown)
         {
             var md = new Md();

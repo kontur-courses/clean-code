@@ -4,11 +4,11 @@ namespace Markdown.Renderer
 {
     public class HtmlRenderer : IRenderer
     {
-        private Dictionary<string, string> replaceRools;
+        private Dictionary<string, string> replaceRules;
 
         public HtmlRenderer()
         {
-            replaceRools = new Dictionary<string, string>
+            replaceRules = new Dictionary<string, string>
             {
                 {"italic", "em"},
                 {"bold", "strong"}
@@ -17,7 +17,7 @@ namespace Markdown.Renderer
 
         public string Render(string line)
         {
-            foreach (var replaceRool in replaceRools)
+            foreach (var replaceRool in replaceRules)
             {
                 var tagStart = $"<{replaceRool.Key}>";
                 var tagEnd = $"</{replaceRool.Key}>";
