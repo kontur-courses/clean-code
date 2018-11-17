@@ -1,8 +1,5 @@
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+using Markdown.Languages;
+using Markdown.Tokenizing;
 
 namespace Markdown
 {
@@ -10,7 +7,11 @@ namespace Markdown
     {
         static void Main(string[] args)
         {
-            
+            var htmlSource = "hello <strong>people I'm <em>so</em> glad</strong> to see <strong>you</strong>";
+            var markSource = "hello __people I'm _so_ glad__ to see __you__";
+
+            var htmlRes = new Tokenizer(new HtmlLanguage()).Tokenize(htmlSource);
+            var markRes = new Tokenizer(new MarkdownLanguage()).Tokenize(markSource);
         }
     }
 }

@@ -43,16 +43,19 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="EntryPoint.cs" />
-    <Compile Include="Md.cs" />
-    <Compile Include="Parser.cs" />
+    <Compile Include="Languages\HtmlLanguage.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
-    <Compile Include="Tag.cs" />
-    <Compile Include="Token.cs" />
-    <Compile Include="Tokenizer.cs" />
-    <Compile Include="TokenReader.cs" />
+    <Compile Include="Languages\Language.cs" />
+    <Compile Include="Languages\MarkdownLanguage.cs" />
+    <Compile Include="Tokenizing\Token.cs" />
+    <Compile Include="Tokenizing\Tokenizer.cs" />
+    <Compile Include="Tokenizing\Tag.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="App.config" />
+  </ItemGroup>
+  <ItemGroup>
+    <Content Include="spec.txt" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
 </Project>
