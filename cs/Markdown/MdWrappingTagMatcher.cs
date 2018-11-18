@@ -8,20 +8,22 @@ namespace Markdown
 {
     public class MdWrappingTagMatcher : IMdTagMatcher
     {
-        private readonly string wrappingSequence;
         private readonly Lazy<Md> target;
         private string targetString;
+        private readonly Func<bool> externalCheck;
 
-        public MdWrappingTagMatcher(string wrappingSequence, HtmlTextWriterTag tag, Lazy<Md> target)
+        public MdWrappingTagMatcher(string wrappingSequence, HtmlTextWriterTag tag, Lazy<Md> target, Func<bool> externalCheck = null)
         {
-            this.wrappingSequence = wrappingSequence;
+            WrappingSequence = wrappingSequence;
             this.target = target;
+            this.externalCheck = externalCheck;
             HtmlPairs = new HtmlPairReplacingsManager(tag);
         }
 
         public HtmlPairReplacingsManager HtmlPairs { get; }
+        public string WrappingSequence { get; }
 
-        public int AmountSkippedCharsWhileMatching => wrappingSequence.Length - 1;
+        public int AmountSkippedCharsWhileMatching => WrappingSequence.Length - 1;
 
         public bool MatchMdTag(int machStartIndex)
         {
@@ -31,22 +33,24 @@ namespace Markdown
             var result = HtmlPairs.IsOpened ?  
                 MatchCloseMdTag(machStartIndex):
                 MatchOpenMdTag(machStartIndex);
-            if (result) HtmlPairs.AddUniversalTag(machStartIndex, wrappingSequence.Length);
+            if (result) HtmlPairs.AddUniversalTag(machStartIndex, WrappingSequence.Length);
             return result;
         }
 
         private bool MatchOpenMdTag(int machStartIndex)
         {
-            return targetString.Length >= wrappingSequence.Length + machStartIndex + 1 &&
-                   !char.IsWhiteSpace(targetString[machStartIndex + wrappingSequence.Length]) &&
-                   targetString.Substring(machStartIndex, wrappingSequence.Length) == wrappingSequence;
+            return (externalCheck?.Invoke() ?? true) &&
+                   targetString.Length >= WrappingSequence.Length + machStartIndex + 1 &&
+                   !char.IsWhiteSpace(targetString[machStartIndex + WrappingSequence.Length]) &&
+                   targetString.Substring(machStartIndex, WrappingSequence.Length) == WrappingSequence;
         }
 
         private bool MatchCloseMdTag(int machStartIndex)
         {
-            return targetString.Length >= wrappingSequence.Length + machStartIndex &&
+            return (externalCheck?.Invoke() ?? true) &&
+                   targetString.Length >= WrappingSequence.Length + machStartIndex &&
                    !char.IsWhiteSpace(targetString[machStartIndex - 1]) && 
-                   targetString.Substring(machStartIndex, wrappingSequence.Length) == wrappingSequence;
+                   targetString.Substring(machStartIndex, WrappingSequence.Length) == WrappingSequence;
         }
     }
 }

@@ -5,25 +5,25 @@ using System.IO;
 using System.Linq;
 using System.Text;
 using System.Web.UI;
+using System.Web.UI.WebControls.WebParts;
 
 namespace Markdown
 {
     public class Md
-    {
-        private readonly IMdTagMatcher[] orderedTagsMatcher;
+    {   
+        private readonly IMdTagMatcher[] orderedTagsMatchers;
         private readonly Stack<HtmlTextWriterTag> openTags = new Stack<HtmlTextWriterTag>();
         
-        public Md(IMdTagMatcher[] orderedTagsMatcher)
-        {
-            this.orderedTagsMatcher = orderedTagsMatcher;
-        }
+        public Md(IMdTagMatcher[] orderedTagsMatchers)=>
+            this.orderedTagsMatchers = orderedTagsMatchers;
+        
 
         public Md() =>
-            new Md(new []
+            this.orderedTagsMatchers = new []
             {
-                new MdWrappingTagMatcher("__", HtmlTextWriterTag.Strong,new Lazy<Md>(()=>this)),
+                new MdWrappingTagMatcher("__", HtmlTextWriterTag.Strong,new Lazy<Md>(()=>this), () => !HaveOpened("_")),
                 new MdWrappingTagMatcher("_", HtmlTextWriterTag.U,new Lazy<Md>(()=>this)),
-            });
+            };
 
         public IEnumerable<HtmlTextWriterTag> OpenTags => openTags;
         public string RenderingString { get; private set; }
@@ -43,7 +43,7 @@ namespace Markdown
         private void LocateTagPairs()
         {   
             for (int i = 0; i < RenderingString.Length; i++)
-                foreach (var tag in orderedTagsMatcher)
+                foreach (var tag in orderedTagsMatchers)
                     if (tag.MatchMdTag(i))
                     {
                         i += tag.AmountSkippedCharsWhileMatching;
@@ -53,7 +53,7 @@ namespace Markdown
 
         private void ReplaceMdToHtml(HtmlTextWriter writer)
         {
-            var changes = orderedTagsMatcher
+            var changes = orderedTagsMatchers
                 .SelectMany(x => x.HtmlPairs.GetWrappings)
                 .SelectMany(x=>x.GetChanges(writer))
                 .OrderBy(x=>x.index)
@@ -69,5 +69,12 @@ namespace Markdown
             }
             writer.Write(RenderingString.Substring(lastIndex));
         }
+
+        private bool HaveOpened(string mdTag) =>
+            orderedTagsMatchers
+                .OfType<MdWrappingTagMatcher>()
+                .Where(x => x.HtmlPairs.IsOpened)
+                .Select(x => x.WrappingSequence)
+                .Contains(mdTag);
     }
 }

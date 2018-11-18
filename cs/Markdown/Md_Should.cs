@@ -14,11 +14,7 @@ namespace Markdown
         [SetUp]
         public void SetUp()
         {
-            rendererer = new Md(new []
-            {
-                new MdWrappingTagMatcher("__",HtmlTextWriterTag.Strong,new Lazy<Md>(()=>rendererer)),
-                new MdWrappingTagMatcher("_",HtmlTextWriterTag.U,new Lazy<Md>(()=>rendererer)),
-            });
+            rendererer = new Md();
         }
 
         [TestCase("__Hello__","<strong>Hello</strong>")]
@@ -30,6 +26,9 @@ namespace Markdown
         [TestCase("Hello_ world!","Hello_ world!")]
         [TestCase("Hello __world!","Hello __world!")]
         [TestCase("Hello world__!","Hello world__!")]
+        [TestCase("__Hello _markdown_ world!__","<strong>Hello <u>markdown</u> world!</strong>")]
+        [TestCase("_Hello __markdown__ world!_","<u>Hello __markdown__ world!</u>")]
+        //[TestCase("Hello world!","<u>Hello world!</u>")]
         public void RenderIntoHtml(string markdowned, string expectedRendered) =>
             rendererer.Render(markdowned).Should().Be(expectedRendered);
     }

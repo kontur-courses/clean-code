@@ -5,6 +5,7 @@ namespace Markdown
 {
     public class HtmlPairReplacingsManager
     {
+        //TODO Consider: make you unique for every tag!            
         
         private readonly List<HtmlTagPairReplacing> wrappings;
         private HtmlTagPairReplacing? currentPairReplacing;

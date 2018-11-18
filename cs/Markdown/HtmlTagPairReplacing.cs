@@ -26,7 +26,7 @@ namespace Markdown
         public static HtmlTagPairReplacing Open(int openIndex, int replaceLength, HtmlTextWriterTag tag)=>
                 new HtmlTagPairReplacing(openIndex,replaceLength,tag);
 
-        //TODO make only one closing
+        //TODO Refactor: make only one closing.
         public HtmlTagPairReplacing Close(int closeIndex, int replaceLength)
         {
             this.closeIndex = closeIndex;
@@ -40,11 +40,5 @@ namespace Markdown
             yield return (openIndex, openReplaceLength, () => writer.RenderBeginTag(tag));
             yield return (closeIndex, closeReplaceLength, writer.RenderEndTag);
         }
-        
-//        public void ApplyTo(StringBuilder sb)
-//        {
-//            sb.Remove(startIndex, length);
-//            sb.Insert(startIndex, tag);
-//        }
     }
 }
