@@ -10,19 +10,19 @@ namespace Markdown
 {
     public class Md
     {
-        private readonly IMdTagLocator[] orderedTagsLocator;
+        private readonly IMdTagMatcher[] orderedTagsMatcher;
         private readonly Stack<HtmlTextWriterTag> openTags = new Stack<HtmlTextWriterTag>();
         
-        public Md(IMdTagLocator[] orderedTagsLocator)
+        public Md(IMdTagMatcher[] orderedTagsMatcher)
         {
-            this.orderedTagsLocator = orderedTagsLocator;
+            this.orderedTagsMatcher = orderedTagsMatcher;
         }
 
         public Md() =>
             new Md(new []
             {
-                new MdWrappingTagLocator("__", HtmlTextWriterTag.Strong,new Lazy<Md>(()=>this)),
-                new MdWrappingTagLocator("_", HtmlTextWriterTag.U,new Lazy<Md>(()=>this)),
+                new MdWrappingTagMatcher("__", HtmlTextWriterTag.Strong,new Lazy<Md>(()=>this)),
+                new MdWrappingTagMatcher("_", HtmlTextWriterTag.U,new Lazy<Md>(()=>this)),
             });
 
         public IEnumerable<HtmlTextWriterTag> OpenTags => openTags;
@@ -43,10 +43,9 @@ namespace Markdown
         private void LocateTagPairs()
         {   
             for (int i = 0; i < RenderingString.Length; i++)
-                foreach (var tag in orderedTagsLocator)
+                foreach (var tag in orderedTagsMatcher)
                     if (tag.MatchMdTag(i))
                     {
-                    
                         i += tag.AmountSkippedCharsWhileMatching;
                         break;
                     }
@@ -54,7 +53,7 @@ namespace Markdown
 
         private void ReplaceMdToHtml(HtmlTextWriter writer)
         {
-            var changes = orderedTagsLocator
+            var changes = orderedTagsMatcher
                 .SelectMany(x => x.HtmlPairs.GetWrappings)
                 .SelectMany(x=>x.GetChanges(writer))
                 .OrderBy(x=>x.index)

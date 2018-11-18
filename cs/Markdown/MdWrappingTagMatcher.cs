@@ -6,13 +6,13 @@ using System.Web.UI;
 
 namespace Markdown
 {
-    public class MdWrappingTagLocator : IMdTagLocator
+    public class MdWrappingTagMatcher : IMdTagMatcher
     {
         private readonly string wrappingSequence;
         private readonly Lazy<Md> target;
         private string targetString;
 
-        public MdWrappingTagLocator(string wrappingSequence, HtmlTextWriterTag tag, Lazy<Md> target)
+        public MdWrappingTagMatcher(string wrappingSequence, HtmlTextWriterTag tag, Lazy<Md> target)
         {
             this.wrappingSequence = wrappingSequence;
             this.target = target;

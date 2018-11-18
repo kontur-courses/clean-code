@@ -2,7 +2,7 @@ using System.Collections.Generic;
 
 namespace Markdown
 {
-    public interface IMdTagLocator
+    public interface IMdTagMatcher
     {
         HtmlPairReplacingsManager HtmlPairs { get; }
         int AmountSkippedCharsWhileMatching { get; }
