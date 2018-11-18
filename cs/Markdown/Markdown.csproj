@@ -42,7 +42,7 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="Element\BlankElement.cs" />
+    <Compile Include="Element\TextElement.cs" />
     <Compile Include="Element\IElement.cs" />
     <Compile Include="Extensions\ElementExtensions.cs" />
     <Compile Include="ResultFormatter.cs" />

@@ -6,7 +6,7 @@ namespace Markdown.Token
 {
     public class TokenParser
     {
-        private static IElement blankElement = new BlankElement();
+        private static IElement textElement = new TextElement();
 
         public static IEnumerable<Token> Parse(string markdown, IElement element)
         {
@@ -20,13 +20,13 @@ namespace Markdown.Token
 
                 if (openIndex == -1 || closeIndex == -1)
                 {
-                    result.Add(new Token(markdown.Substring(currentIndex), blankElement)); 
+                    result.Add(new Token(markdown.Substring(currentIndex), textElement)); 
                     break;
                 }
 
                 if (openIndex != currentIndex)
                 {
-                    result.Add(CreateToken(markdown, currentIndex, openIndex, blankElement));
+                    result.Add(CreateToken(markdown, currentIndex, openIndex, textElement));
                 }
 
                 result.Add(CreateToken(markdown, openIndex, closeIndex, element));

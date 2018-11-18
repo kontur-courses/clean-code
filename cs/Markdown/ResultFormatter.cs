@@ -19,5 +19,7 @@ namespace Markdown
 
             return result.ToString();
         }
+
+        public static string RemoveSlashes(string str) => str.Replace(@"\", "");
     }
 }
