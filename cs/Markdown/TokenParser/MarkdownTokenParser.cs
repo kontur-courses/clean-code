@@ -5,11 +5,11 @@ namespace Markdown.TokenParser
 {
     public class MarkdownTokenParser : ITokenParser
     {
-        private readonly HashSet<string> tags;
+        private readonly IEnumerable<string> tags;
 
         public MarkdownTokenParser(IEnumerable<string> tags)
         {
-            this.tags = new HashSet<string>(tags.OrderByDescending(tag => tag.Length));
+            this.tags = tags;
         }
 
         public IEnumerable<string> GetTokens(string text)
@@ -36,12 +36,22 @@ namespace Markdown.TokenParser
                 return true;
             if (token == "\\" || nextSymbol == '\\' || token == "\n" || nextSymbol == '\n')
                 return false;
-            var tokenTag = tags.FirstOrDefault(tag => tag.StartsWith(token));
-            if (tokenTag != null)
-                return tokenTag.StartsWith(token + nextSymbol);
+            if (TryCheckThatPartOfTag(token, nextSymbol, out var nextSymbolIsPartOfTag))
+                return nextSymbolIsPartOfTag;
             if (string.IsNullOrWhiteSpace(token))
                 return char.IsWhiteSpace(nextSymbol);
             return char.IsLetterOrDigit(nextSymbol);
+        }
+
+        private bool TryCheckThatPartOfTag(string token, char nextSymbol, out bool nextSymbolIsPartOfTag)
+        {
+            nextSymbolIsPartOfTag = false;
+            var tokenTags = tags.Where(tag => tag.StartsWith(token));
+            var tagVariants = tokenTags as string[] ?? tokenTags.ToArray();
+            if (tagVariants.Length <= 0)
+                return false;
+            nextSymbolIsPartOfTag = tagVariants.Any(tag => tag.StartsWith(token + nextSymbol));
+            return true;
         }
     }
 }
