@@ -2,12 +2,12 @@
 
 namespace Markdown.Readers
 {
-    class StrongReader : TagReader
+    public class StrongReader : TagReader
     {
         public static  IEnumerable<IReader> readers;
         public static  IEnumerable<TagReader> skippedReaders;
 
-        public StrongReader() : base("__", "<strong>", readers, skippedReaders)
+        public StrongReader(string mdTag, (string, string) tagShell) : base(mdTag, tagShell, readers, skippedReaders)
         {
         }
     }

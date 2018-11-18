@@ -6,7 +6,7 @@ using Markdown.Tags;
 
 namespace Markdown
 {
-    class Md
+    public class Md
     {
         private IEnumerable<IReader> readers;
 

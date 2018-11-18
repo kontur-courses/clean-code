@@ -1,6 +1,6 @@
 ﻿namespace Markdown.Tags
 {
-    interface IToken
+    public interface IToken
     {
         string Text { get; }
         int Position { get; }

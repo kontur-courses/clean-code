@@ -3,7 +3,7 @@ using Markdown.Tokens;
 
 namespace Markdown.Readers
 {
-    class SlashReader : IReader
+    public class SlashReader : IReader
     {
         public IToken ReadToken(string text, int position)
         {

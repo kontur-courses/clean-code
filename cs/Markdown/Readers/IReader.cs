@@ -2,7 +2,7 @@
 
 namespace Markdown.Readers
 {
-    interface IReader
+    public interface IReader
     {
         IToken ReadToken(string text, int position);
     }

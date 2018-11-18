@@ -5,20 +5,20 @@ using Markdown.Tokens;
 
 namespace Markdown.Readers
 {
-    class TagReader : IReader
+    public class TagReader : IReader
     {
         private IEnumerable<IReader> readers;
         private IEnumerable<TagReader> skippedReaders;
         private string mdTag;
-        private string htmlTag;
+        private (string, string) tagShell;
 
-        public TagReader(string mdTag, string htmlTag,
+        public TagReader(string mdTag, (string, string) tagShell,
             IEnumerable<IReader> readers,
             IEnumerable<TagReader> skippedReaders)
         {
             this.mdTag = mdTag;
             this.readers = readers;
-            this.htmlTag = htmlTag;
+            this.tagShell = tagShell;
             this.skippedReaders = skippedReaders;
         }
 
@@ -67,7 +67,7 @@ namespace Markdown.Readers
                     if (IsClosedTag(text, i))
                     {
                         var rightPosition = tokens.Select(t => t.Position).Max();
-                        return new Tag(text.Substring(position, i - position + mdTag.Length), htmlTag, tokens, rightPosition + mdTag.Length);
+                        return new Tag(text.Substring(position, i - position + mdTag.Length), tagShell, tokens, rightPosition + mdTag.Length);
                     }
 
                     token = GetToken(text, i);
@@ -80,11 +80,11 @@ namespace Markdown.Readers
             return null;
         }
 
-        private IToken GetSkippedToken(string text, int i)
+        private IToken GetSkippedToken(string text, int position)
         {
-            var maxTokenTagLength = skippedReaders.Where(reader => reader.CanReadTag(text, i))
+            var maxTokenTagLength = skippedReaders.Where(reader => reader.CanReadTag(text, position))
                 .Select(reader => reader.mdTag.Length).Concat(new []{0}).Max();
-            return new TextToken(text.Substring(i, maxTokenTagLength), i + maxTokenTagLength - 1);
+            return new TextToken(text.Substring(position, maxTokenTagLength), position + maxTokenTagLength - 1);
         }
     }
 }

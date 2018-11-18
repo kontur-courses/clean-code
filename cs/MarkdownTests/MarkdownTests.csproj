@@ -5,10 +5,10 @@
   <PropertyGroup>
     <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
     <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
-    <ProjectGuid>{BAEC1E89-415E-464A-B0FE-79EF395C0EAA}</ProjectGuid>
+    <ProjectGuid>{2DE2411F-84F2-456D-B642-C1266FED4181}</ProjectGuid>
     <OutputType>Exe</OutputType>
-    <RootNamespace>Markdown</RootNamespace>
-    <AssemblyName>Markdown</AssemblyName>
+    <RootNamespace>MarkdownTests</RootNamespace>
+    <AssemblyName>MarkdownTests</AssemblyName>
     <TargetFrameworkVersion>v4.6.1</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
     <AutoGenerateBindingRedirects>true</AutoGenerateBindingRedirects>
@@ -36,11 +36,11 @@
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
   <ItemGroup>
+    <Reference Include="nunit.framework, Version=3.11.0.0, Culture=neutral, PublicKeyToken=2638cd05610744eb, processorArchitecture=MSIL">
+      <HintPath>..\packages\NUnit.3.11.0\lib\net45\nunit.framework.dll</HintPath>
+    </Reference>
     <Reference Include="System" />
     <Reference Include="System.Core" />
-    <Reference Include="System.ValueTuple, Version=4.0.1.0, Culture=neutral, PublicKeyToken=cc7b13ffcd2ddd51, processorArchitecture=MSIL">
-      <HintPath>..\packages\System.ValueTuple.4.3.0\lib\netstandard1.0\System.ValueTuple.dll</HintPath>
-    </Reference>
     <Reference Include="System.Xml.Linq" />
     <Reference Include="System.Data.DataSetExtensions" />
     <Reference Include="Microsoft.CSharp" />
@@ -49,24 +49,19 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="Md.cs" />
+    <Compile Include="MdTests.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
-    <Compile Include="Readers\CharReader.cs" />
-    <Compile Include="Readers\EmReader.cs" />
-    <Compile Include="Readers\IReader.cs" />
-    <Compile Include="Readers\CreateReaders.cs" />
-    <Compile Include="Readers\SlashReader.cs" />
-    <Compile Include="Readers\StrongReader.cs" />
-    <Compile Include="Readers\TagReader.cs" />
-    <Compile Include="Tokens\IToken.cs" />
-    <Compile Include="Tokens\Tag.cs" />
-    <Compile Include="Tokens\TextToken.cs" />
-    <Compile Include="Translator\Translator.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="App.config" />
     <None Include="packages.config" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\Markdown\Markdown.csproj">
+      <Project>{baec1e89-415e-464a-b0fe-79ef395c0eaa}</Project>
+      <Name>Markdown</Name>
+    </ProjectReference>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <Target Name="EnsureNuGetPackageBuildImports" BeforeTargets="PrepareForBuild">

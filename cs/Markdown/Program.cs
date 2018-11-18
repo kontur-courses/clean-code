@@ -10,9 +10,7 @@ namespace Markdown
         {
             var input = "__a__";
 
-            SetupReaders.Setup();
-
-            var readers = new List<IReader> {new SlashReader(), new StrongReader(), new EmReader(),  new CharReader()};
+            var readers = CreateReaders.Create();
             var md = new Md(readers);
             Console.WriteLine(md.Render(input));
             Console.Read();

@@ -12,10 +12,10 @@ namespace Markdown.Tokens
         private string htmlTag;
         private string closingHtmlTag;
 
-        public Tag(string text, string htmlTag, List<IToken> tokens, int position)
+        public Tag(string text, (string openTag, string closingTag) tagShell, List<IToken> tokens, int position)
         {
-            this.htmlTag = htmlTag;
-            closingHtmlTag = htmlTag.Insert(1, "/");
+            this.htmlTag = tagShell.openTag;
+            this.closingHtmlTag = tagShell.closingTag;
             Text = text;
             this.tokens = tokens;
             this.Position = position;
