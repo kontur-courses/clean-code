@@ -12,7 +12,7 @@ namespace Markdown.Token
         {
             var result = new List<Token>();
             var currentIndex = 0;
-
+            
             while (currentIndex < markdown.Length)
             {
                 var openIndex = element.GetOpenIndex(markdown, currentIndex);
@@ -20,7 +20,7 @@ namespace Markdown.Token
 
                 if (openIndex == -1 || closeIndex == -1)
                 {
-                    result.Add(new Token(markdown.Substring(currentIndex), textElement)); 
+                    result.Add(new Token(markdown.Substring(currentIndex), textElement));
                     break;
                 }
 

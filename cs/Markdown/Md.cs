@@ -23,7 +23,7 @@ namespace Markdown
                 text = ResultFormatter.Form(TokenParser.Parse(text, element));
             }
 
-            return ResultFormatter.RemoveSlashes(text);
+            return ResultFormatter.PrepareResult(text);
         }
     }
 }
