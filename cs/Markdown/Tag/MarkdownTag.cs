@@ -7,13 +7,15 @@ namespace Markdown.Tag
         public string Value { get; }
         public int Length => Value.Length;
         public readonly string Translation;
-        private readonly MarkdownTag[] possibleInnerTags;
+        private readonly string[] uncombinableTags;
 
-        protected MarkdownTag(string value, string translation, params MarkdownTag[] possibleInnerTags)
+        protected MarkdownTag(string value, string translation, params MarkdownTag[] uncombinableTags)
         {
             Translation = translation.ToLower();
             Value = value;
-            this.possibleInnerTags = possibleInnerTags;
+            this.uncombinableTags = uncombinableTags
+                .Select(t => t.Value)
+                .ToArray();
         }
 
         public string GetTranslation()
@@ -28,12 +30,7 @@ namespace Markdown.Tag
 
         public bool CanContain(MarkdownTag tag)
         {
-            return possibleInnerTags.Any(t => t.Value == tag.Value);
-        }
-
-        public bool IsInnerTagOf(MarkdownTag outerTag)
-        {
-            return this != outerTag && outerTag.CanContain(this);
+            return uncombinableTags.Any(t => t == tag.Value);
         }
     }
 }

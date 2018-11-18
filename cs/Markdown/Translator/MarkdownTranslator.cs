@@ -11,6 +11,7 @@ namespace Markdown.Translator
     {
         private readonly IReadOnlyCollection<MarkdownTag> tagsCollection;
         private readonly Stack<MarkdownTag> tagsNesting;
+        private readonly HashSet<char> tagsOpening;
         private int pointer;
         private string currentText;
 
@@ -22,11 +23,16 @@ namespace Markdown.Translator
                 new Bold()
             };
             tagsNesting = new Stack<MarkdownTag>();
+            tagsOpening = new HashSet<char>();
+            foreach (var markdownTag in tagsCollection)
+                tagsOpening.Add(markdownTag.Value[0]);
         }
 
         public string Translate(string text)
         {
             currentText = text;
+            pointer = 0;
+            tagsNesting.Clear();
             return GetTranslation();
         }
 
@@ -34,35 +40,38 @@ namespace Markdown.Translator
         {
             var translation = new StringBuilder();
 
-            for (pointer = 0; pointer < currentText.Length; pointer++)
-            {
-                var currentTag = GetTagAtPointer();
-                if (currentTag != null)
-                {
-                    translation.Append(ParseTag(currentTag));
-                    pointer += currentTag.Length - 1;
-                }
-                else
-                    translation.Append(currentText[pointer]);
-            }
+            while (pointer < currentText.Length)
+                translation.Append(
+                    ParseTag(
+                        DetermineTag(currentText[pointer])));
 
             return translation.ToString();
         }
 
-        private string ParseTag(MarkdownTag tag)
+        private bool IsTag(char c)
         {
-            return tagsNesting.Any()
-                ? ParseNewOrPreviousTag(tag)
-                : ParseNewTag(tag);
+            return tagsOpening.Contains(c);
         }
 
-        private string ParseNewOrPreviousTag(MarkdownTag currentTag)
+        private bool IsLetter(char c)
         {
-            var previousTag = tagsNesting.Peek();
-            return currentTag
-                .IsInnerTagOf(previousTag)
-                ? ParseNewTag(currentTag)
-                : ParsePreviousTag();
+            return !tagsOpening.Contains(c);
+        }
+
+        private string ParseTag(MarkdownTag tag)
+        {
+            if (tag is Text)
+                return tag.Value;
+            if (tagsNesting.Any())
+            {
+                var previousTag = tagsNesting.Peek();
+                if (IsCorrectEnding(previousTag))
+                    return ParsePreviousTag();
+                if (previousTag != tag && !previousTag.CanContain(tag))
+                    return tag.Value;
+            }
+
+            return ParseNewTag(tag);
         }
 
         private string ParseNewTag(MarkdownTag tag)
@@ -78,59 +87,85 @@ namespace Markdown.Translator
                 .GetTranslationWithBackslash();
         }
 
-        private MarkdownTag GetTagAtPointer()
+        private MarkdownTag DetermineTag(char c)
         {
+            var tag = IsLetter(c)
+                ? ReadUntil(IsLetter, pointer)
+                : ReadUntil(IsTag, pointer);
+
+            pointer += tag.Length;
+
             if (tagsNesting.Any())
             {
                 var previousTag = tagsNesting.Peek();
-                if (IsPointerAtTag(previousTag))
+                if (previousTag.Value == tag)
                     return previousTag;
             }
 
-            return tagsCollection
-                .FirstOrDefault(HasCorrectBounds);
+            var suitableTag = tagsCollection
+                .FirstOrDefault(t => t.Value == tag);
+
+            return HasCorrectBounds(suitableTag)
+                ? suitableTag
+                : new Text(tag);
+        }
+
+        private string ReadUntil(Func<char, bool> continuator, int startIndex)
+        {
+            var result = new StringBuilder();
+            while (true)
+            {
+                result.Append(currentText[startIndex]);
+                startIndex++;
+                if (startIndex >= currentText.Length)
+                    break;
+                if (!continuator(currentText[startIndex]))
+                    break;
+            }
+
+            return result.ToString();
         }
 
         private bool HasCorrectBounds(MarkdownTag tag)
         {
-            if (!IsPointerAtTag(tag))
+            if (tag == null)
                 return false;
-            return HasCorrectOpening(tag, pointer)
-                   && HasCorrectEnding(tag, pointer + tag.Length);
+            return HasCorrectOpening(tag) && HasCorrectEnding(tag);
         }
 
-        private bool HasCorrectOpening(MarkdownTag tag, int indexOfTag)
+        private bool HasCorrectOpening(MarkdownTag tag)
         {
-            if (indexOfTag + tag.Length >= currentText.Length)
+            if (pointer >= currentText.Length)
                 return false;
-            if (indexOfTag != 0 && currentText[indexOfTag - 1] == '\\')
+            if (pointer - tag.Length != 0 && currentText[pointer - tag.Length - 1] == '\\')
                 return false;
 
-            var nextChar = currentText[indexOfTag + tag.Length];
-            return char.IsLetter(nextChar);
+            return char.IsLetter(currentText[pointer]);
         }
 
-        private bool HasCorrectEnding(MarkdownTag tag, int startIndex)
+        private bool HasCorrectEnding(MarkdownTag tag)
         {
-            while (startIndex < currentText.Length)
+            var index = pointer;
+            while (index < currentText.Length)
             {
-                startIndex = currentText.IndexOf(tag.Value, startIndex, StringComparison.CurrentCulture);
-                if (startIndex == -1)
+                index = currentText.IndexOf(tag.Value, index, StringComparison.Ordinal);
+                if (index == -1)
                     return false;
-                var previousChar = currentText[startIndex - 1];
-                if (char.IsLetter(previousChar))
+                var previousChar = currentText[index - 1];
+                var tagValue = ReadUntil(IsTag, index);
+                index += tagValue.Length;
+                if (char.IsLetter(previousChar) && tagValue == tag.Value)
                     return true;
-                startIndex++;
             }
 
             return false;
         }
 
-        private bool IsPointerAtTag(MarkdownTag tag)
+        private bool IsCorrectEnding(MarkdownTag tag)
         {
-            if (tag.Length + pointer > currentText.Length)
-                return false;
-            return currentText.Substring(pointer, tag.Length) == tag.Value;
+            var previousChar = currentText[pointer - tag.Length - 1];
+            var tagValue = ReadUntil(IsTag, pointer - tag.Length);
+            return char.IsLetter(previousChar) && tagValue == tag.Value;
         }
     }
 }
