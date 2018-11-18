@@ -18,14 +18,15 @@ namespace Markdown.Parsers
         private readonly List<MarkdownElement> innerElements;
         private readonly bool[] isEscapedCharAt;
 
-        public EmphasisParser(string markdown, int startPosition, IElementType elementType)
+        public EmphasisParser(string markdown, bool[] isEscapedCharAt, 
+            int startPosition, IElementType elementType)
         {
             this.markdown = markdown;
             this.startPosition = startPosition;
             this.elementType = elementType;
             currentPosition = startPosition;
             innerElements = new List<MarkdownElement>();
-            isEscapedCharAt = EscapesAnalyzer.GetBitMaskOfEscapedChars(markdown);
+            this.isEscapedCharAt = isEscapedCharAt;
         }
 
         public MarkdownElement Parse()
@@ -61,6 +62,7 @@ namespace Markdown.Parsers
         {
             var innerElementParser = new EmphasisParser(
                 markdown,
+                isEscapedCharAt,
                 currentPosition + innerElementType.Indicator.Length,
                 innerElementType);
 
