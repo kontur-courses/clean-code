@@ -33,7 +33,7 @@ namespace Markdown
 
                 if (openedSpans.Count != 0)
                 {
-                    var span = FindSpanEnd(openedSpans);
+                    var span = GetSpanEnd(openedSpans);
                     if (span != null)
                     {
                         openedSpans = openedSpans.Where(t => !t.IsClosed).ToList();
@@ -41,7 +41,7 @@ namespace Markdown
                     }
                 }
 
-                var newSpan = FindSpanStart();
+                var newSpan = GetSpanStart();
                 if (newSpan != null)
                 {
                     mainSpan.PutSpan(newSpan);
@@ -53,18 +53,26 @@ namespace Markdown
             return mainSpan;
         }
 
-        private Span FindSpanStart()
+        private bool CanBeStartTag(Tag tag)
+        {
+            if (tag == null)
+                return false;
+
+            if (tag.Open.Length + index < markdownString.Length)
+            {
+                var nextChar = markdownString[tag.Open.Length + index];
+
+                if (char.IsWhiteSpace(nextChar) || char.IsDigit(nextChar))
+                    return false;
+            }
+
+            return true;
+        }
+
+        private Span GetSpanStart()
         {
             var tag = MatchTag(t => t.Open);
-            if (tag == null)
-                return null;
-
-            if (tag.Open.Length + index < markdownString.Length &&
-                (char.IsWhiteSpace(markdownString[tag.Open.Length + index]) ||
-                char.IsDigit(markdownString[tag.Open.Length + index])))
-                return null;
-
-            if (index > 0 && char.IsDigit(markdownString[index - 1]))
+            if (!CanBeStartTag(tag))
                 return null;
             
             var startIndex = index;
@@ -72,7 +80,20 @@ namespace Markdown
             return new Span(tag, startIndex);
 
         }
-        private Span FindSpanEnd(List<Span> openedSpans)
+
+        private bool CanBeEndTag(Tag openedTag, Tag tag)
+        {
+            if (!Equals(openedTag, tag))
+                return false;
+            if (index != 0 && char.IsWhiteSpace(markdownString[index - 1]))
+                return false;
+            if (index + tag.Close.Length != markdownString.Length &&
+                char.IsDigit(markdownString[index + tag.Close.Length]))
+                return false;
+
+            return true;
+        }
+        private Span GetSpanEnd(IEnumerable<Span> openedSpans)
         {
             var tag = MatchTag(t => t.Close);
             if (tag == null)
@@ -80,14 +101,12 @@ namespace Markdown
 
             foreach (var openedSpan in openedSpans)
             {
-                if (Equals(openedSpan.Tag, tag) &&
-                    (index == 0 || (!char.IsWhiteSpace(markdownString[index - 1]))) &&
-                    (index + tag.Close.Length == markdownString.Length || (!char.IsDigit(markdownString[index + tag.Close.Length]))))
-                {
-                    openedSpan.Close(index);
-                    index = index + openedSpan.Tag.Close.Length - 1;
-                    return openedSpan;
-                }
+                if (!CanBeEndTag(openedSpan.Tag, tag))
+                    continue;
+
+                openedSpan.Close(index);
+                index = index + openedSpan.Tag.Close.Length - 1;
+                return openedSpan;
 
             }
 

@@ -33,7 +33,7 @@ namespace Markdown
             if (tag == null)
                 return getTag(initialSpan.Tag);
 
-            return initialSpan.Parent?.Parent != null && !initialSpan.Tag.CanBeInside.Contains(initialSpan.Parent.Tag.Type)
+            return initialSpan.CanBeInside
                 ? getTag(initialSpan.Tag)
                 : getTag(tag);
         }
