@@ -41,15 +41,15 @@ namespace MarkDown_Tests
         [TestCase("____a____", ExpectedResult = "<p><strong><em>_a_</em></strong></p>", TestName = "when four correctly paired underscore")]
         [TestCase("_____a_____", ExpectedResult = "<p><strong><em>__a__</em></strong></p>", TestName = "when five correctly paired underscore")]
         [TestCase(@" __a\\a__ ", ExpectedResult = @"<p> <strong>a\a</strong> </p>", TestName = "when escaping escape character")]
-        [TestCase(@"__a\a__", ExpectedResult = @"<p><strong>a\a</strong></p>", TestName = "when escape character")]
+        [TestCase(@"__a\a__", ExpectedResult = @"<p><strong>a\a</strong></p>", TestName = "when escape character escaping not special symbol")]
         [TestCase("number_12_3", ExpectedResult = "<p>number_12_3</p>", TestName = "when inside text with numbers only numbers in it")]
         [TestCase("te1xt_with_nu1mbers", ExpectedResult = "<p>te1xt_with_nu1mbers</p>", TestName = "when inside text with numbers and letters in it")]
         [TestCase("te1xt _w1th_ nu1mbers", ExpectedResult = "<p>te1xt <em>w1th</em> nu1mbers</p>", TestName = "when text with numbers and letters in it inside and out with whitespaces")]
         [TestCase("_te1xt with nu1mbers_", ExpectedResult = "<p><em>te1xt with nu1mbers</em></p>", TestName = "when outside text with numbers and letters in it")]
         [TestCase("_12_ 3", ExpectedResult = "<p><em>12</em> 3</p>", TestName = "when outside text with numbers and letters in it")]
         [TestCase(@"\\_a_", ExpectedResult = @"<p>\_a_</p>", TestName = "when escaping escpae character before special symbol")]
-        [TestCase(@"aaa\", ExpectedResult = @"<p>aaa\</p>", TestName = "when escpae symbol at the end of string")]
-        [TestCase(@"a\ ", ExpectedResult = @"<p>a\ </p>", TestName = "when escpae symbol before space")]
+        [TestCase(@"aaa\", ExpectedResult = @"<p>aaa\</p>", TestName = "when escape symbol at the end of string")]
+        [TestCase(@"a\ ", ExpectedResult = @"<p>a\ </p>", TestName = "when escape symbol before space")]
         public string Render_TextCorrectly(string text) => markDown.Render(text);
     }
 }
