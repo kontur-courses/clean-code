@@ -48,8 +48,8 @@
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Languages\Language.cs" />
     <Compile Include="Languages\MarkdownLanguage.cs" />
+    <Compile Include="Tokenizing\MarkdownTokenizer.cs" />
     <Compile Include="Tokenizing\Token.cs" />
-    <Compile Include="Tokenizing\Tokenizer.cs" />
     <Compile Include="Tokenizing\Tag.cs" />
   </ItemGroup>
   <ItemGroup>

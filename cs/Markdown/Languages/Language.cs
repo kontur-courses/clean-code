@@ -1,29 +1,45 @@
 ﻿using System.Collections.Generic;
+using System.Collections.ObjectModel;
 using System.Linq;
 using Markdown.Tokenizing;
 
 namespace Markdown.Languages
 {
-    public abstract class Language
+    public class Language
     {
-        protected abstract Dictionary<Tag, string> OpeningTags { get; }
-        protected abstract Dictionary<Tag, string> ClosingTags { get; }
+        public ReadOnlyDictionary<Tag, string> OpeningTags => new ReadOnlyDictionary<Tag, string>(openingTags);
+        public ReadOnlyDictionary<Tag, string> ClosingTags => new ReadOnlyDictionary<Tag, string>(closingTags);
 
-        public int MaxTagLength => OpeningTags.Concat(ClosingTags).Max(pair => pair.Value.Length);
+        private Dictionary<Tag, string> openingTags;
+        private Dictionary<Tag, string> closingTags;
+
+        public int MaxTagLength => openingTags.Concat(closingTags).Max(pair => pair.Value.Length);
+
+        public Language()
+        {
+            openingTags = new Dictionary<Tag, string>();
+            closingTags = new Dictionary<Tag, string>();
+        }
+
+        protected void AddTag(Tag tag, string openingTag, string closingTag)
+        {
+            openingTags.Add(tag, openingTag);
+            closingTags.Add(tag, closingTag);
+        }
 
         public string ConvertOpeningTag(Tag tag)
         {
-            return OpeningTags[tag];
+            return openingTags[tag];
         }
 
         public string ConvertClosingTag(Tag tag)
         {
-            return ClosingTags[tag];
+            return closingTags[tag];
         }
 
         public bool TryParseOpeningTag(string code, out Tag tag)
         {
-            tag = OpeningTags
+            tag = openingTags
                 .FirstOrDefault(pair => pair.Value == code)
                 .Key;
 
@@ -32,7 +48,7 @@ namespace Markdown.Languages
 
         public bool TryParseClosingTag(string code, out Tag tag)
         {
-            tag = ClosingTags
+            tag = closingTags
                 .FirstOrDefault(pair => pair.Value == code)
                 .Key;
 

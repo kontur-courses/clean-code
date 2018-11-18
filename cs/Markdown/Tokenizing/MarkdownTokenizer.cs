@@ -1,23 +1,35 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
 using Markdown.Languages;
 
 namespace Markdown.Tokenizing
 {
-    public class Tokenizer
+    public class MarkdownTokenizer
     {
         private readonly Language language;
         private readonly int maxTagLength;
         private readonly Stack<Token> tokenStack;
 
-        public Tokenizer(Language language)
+        private int currentIndex;
+        private readonly string source;
+
+        public MarkdownTokenizer(string source)
         {
-            this.language = language;
+            language = new MarkdownLanguage();
             maxTagLength = language.MaxTagLength;
             tokenStack = new Stack<Token>();
+
+            currentIndex = 0;
+            this.source = source;
         }
 
-        public List<Token> Tokenize(string source)
+        public static List<Token> Tokenize(string source)
+        {
+            return new MarkdownTokenizer(source).Tokenize();
+        }
+
+        private List<Token> Tokenize()
         {
             if (string.IsNullOrEmpty(source))
                 throw new ArgumentException("Should not be null or empty", nameof(source));
@@ -83,5 +95,20 @@ namespace Markdown.Tokenizing
             return (token.IsOpening ? language.ConvertOpeningTag(token.Tag) : language.ConvertClosingTag(token.Tag))
                 .Length;
         }
+
+        #region New
+
+        private IEnumerable<char> ReadUntilTag()
+        {
+            var substring = source.Substring(currentIndex);
+
+            if (language.OpeningTags.Any(p => substring.StartsWith(p.Value)) ||
+                language.ClosingTags.Any(p => substring.StartsWith(p.Value)))
+                yield break;
+            yield return source[currentIndex++];
+        }
+
+        #endregion
+
     }
 }

@@ -9,18 +9,10 @@ namespace MarkdownTests
     [TestFixture]
     public class MarkdownTokenizerShould
     {
-        private Tokenizer tokenizer;
-
-        [SetUp]
-        public void SetUp()
-        {
-            tokenizer = new Tokenizer(new Markdown.Languages.MarkdownLanguage());
-        }
-
         [Test, TestCaseSource(nameof(InvalidStringsTestCases))]
         public void ProcessInvalidStringCorrectly(string source)
         {
-            Action act = () => tokenizer.Tokenize(source);
+            Action act = () => MarkdownTokenizer.Tokenize(source);
 
             act.Should().ThrowExactly<ArgumentException>();
         }
@@ -38,7 +30,7 @@ namespace MarkdownTests
         [Test, TestCaseSource(nameof(EmphasizeTagTestCases))]
         public void ProcessEmphasizeTagsCorrectly(string source, params Token[] expected)
         {
-            tokenizer.Tokenize(source).Should().BeEquivalentTo(expected, options => options.WithStrictOrdering());
+            MarkdownTokenizer.Tokenize(source).Should().BeEquivalentTo(expected, options => options.WithStrictOrdering());
         }
 
         private static IEnumerable EmphasizeTagTestCases
