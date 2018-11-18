@@ -51,15 +51,15 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="ListExtensions_Should.cs" />
+    <Compile Include="StringExtensions_Should.cs" />
     <Compile Include="TagTypes_Tests\EmTag_Should.cs" />
     <Compile Include="MarkDownParser_Should.cs" />
     <Compile Include="Md_Should.cs" />
     <Compile Include="TagTypes_Tests\ParagraphTag_Should.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
-    <Compile Include="StringExtensions_Should.cs" />
     <Compile Include="TagTypes_Tests\StrongTag_Should.cs" />
+    <Compile Include="TextStream_Should.cs" />
     <Compile Include="TokenType_Should.cs" />
   </ItemGroup>
   <ItemGroup>

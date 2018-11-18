@@ -19,7 +19,7 @@ namespace MarkDown_Tests
         [Test]
         public void GetTokens_ParseTextToken()
         {
-            var parser = new MarkDownParser("just some text", availableTagTypes);
+            var parser = new MarkDownParser(new TextStream("just some text"), availableTagTypes);
             var expectedTokens = new List<Token>() { new Token(0, "just some text")};
             parser.GetTokens().Should().BeEquivalentTo(expectedTokens);
         }
@@ -27,7 +27,7 @@ namespace MarkDown_Tests
         [Test]
         public void GetTokens_ParseEmTagToken()
         {
-            var parser = new MarkDownParser("_just some text_", availableTagTypes);
+            var parser = new MarkDownParser(new TextStream("_just some text_"), availableTagTypes);
             var expectedTokens = new List<Token>() { new Token(0, "just some text", new EmTag()) };
             parser.GetTokens().Should().BeEquivalentTo(expectedTokens);
         }
@@ -35,7 +35,7 @@ namespace MarkDown_Tests
         [Test]
         public void GetTokens_ParseStrongTagToken()
         {
-            var parser = new MarkDownParser("__just some text__", availableTagTypes);
+            var parser = new MarkDownParser(new TextStream("__just some text__"), availableTagTypes);
             var expectedTokens = new List<Token>() { new Token(0, "just some text", new StrongTag()) };
             parser.GetTokens().Should().BeEquivalentTo(expectedTokens);
         }
@@ -43,7 +43,7 @@ namespace MarkDown_Tests
         [Test]
         public void GetTokens_ParseStrongTagWithInnerEmTagToken()
         {
-            var parser = new MarkDownParser("__just _some_ text__", availableTagTypes);
+            var parser = new MarkDownParser(new TextStream("__just _some_ text__"), availableTagTypes);
             var expectedTokens = new List<Token>() { new Token(0, "just _some_ text", new StrongTag()) };
             parser.GetTokens().Should().BeEquivalentTo(expectedTokens);
         }
@@ -51,7 +51,7 @@ namespace MarkDown_Tests
         [Test]
         public void GetTokens_ParseEmTagWithInnerStrongTagToken()
         {
-            var parser = new MarkDownParser("_just __some__ text_", availableTagTypes);
+            var parser = new MarkDownParser(new TextStream("_just __some__ text_"), availableTagTypes);
             var expectedTokens = new List<Token>() { new Token(0, "just __some__ text", new EmTag()) };
             parser.GetTokens().Should().BeEquivalentTo(expectedTokens);
         }
@@ -59,7 +59,7 @@ namespace MarkDown_Tests
         [Test]
         public void GetTokens_ParseMultipleDifferentTokensCorrectly()
         {
-            var parser = new MarkDownParser("_just_ __some__ __different _tokens", availableTagTypes);
+            var parser = new MarkDownParser(new TextStream("_just_ __some__ __different _tokens"), availableTagTypes);
             var expectedTokens = new List<Token>()
             {
                 new Token(0, "just", new EmTag()),
