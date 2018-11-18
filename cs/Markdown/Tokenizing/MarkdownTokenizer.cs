@@ -10,7 +10,6 @@ namespace Markdown.Tokenizing
     {
         private readonly Language markdown;
         private readonly int maxTagLength;
-        private readonly List<Token> tokens;
 
         private int currentIndex;
         private readonly string source;
@@ -19,7 +18,6 @@ namespace Markdown.Tokenizing
         {
             markdown = new MarkdownLanguage();
             maxTagLength = markdown.MaxTagLength;
-            tokens = new List<Token>();
 
             currentIndex = 0;
             this.source = source;
@@ -35,6 +33,8 @@ namespace Markdown.Tokenizing
 
         private List<Token> Tokenize()
         {
+            var tokens = new List<Token>();
+
             while (currentIndex < source.Length)
             {
                 var rawContent = string.Concat(ReadUntilTag());
@@ -55,7 +55,62 @@ namespace Markdown.Tokenizing
                 tokens.Add(newToken);
             }
 
-            return tokens;
+            var unpairedTokens = FilterUnpairedTokens(tokens);
+            ConvertTokensToRaw(unpairedTokens);
+            return ConcatRawTokens(tokens);
+        }
+
+        private IEnumerable<Token> FilterUnpairedTokens(IEnumerable<Token> tokens)
+        {
+            var stack = new Stack<Token>();
+            foreach (var token in tokens.Where(t => t.Tag != Tag.Raw))
+            {
+                if (token.IsOpening)
+                    stack.Push(token);
+                else if (stack.Count == 0)
+                    stack.Push(token);
+                else
+                {
+                    var previousToken = stack.Peek();
+                    if (previousToken.Tag == token.Tag && previousToken.IsOpening)
+                        stack.Pop();
+                    else
+                        stack.Push(token);
+                }
+            }
+
+            return stack;
+        }
+
+        private List<Token> ConcatRawTokens(List<Token> tokens)
+        {
+            var result = new List<Token>();
+
+            foreach (var token in tokens)
+            {
+                if (result.Count == 0)
+                {
+                    result.Add(token);
+                    continue;
+                }
+
+                var lastAddedToken = result.Last();
+                if (token.Tag == Tag.Raw && lastAddedToken.Tag == Tag.Raw)
+                    lastAddedToken.Content += token.Content;
+                else
+                    result.Add(token);
+            }
+
+            return result;
+        }
+
+        private void ConvertTokensToRaw(IEnumerable<Token> tokensToConvert)
+        {
+            foreach (var token in tokensToConvert)
+            {
+                token.Content = markdown.OpeningTags.First(pair => pair.Key == token.Tag).Value;
+                token.Tag = Tag.Raw;
+            }
         }
 
         private Token ParseToken(IEnumerable<char> tag, bool opening)
@@ -70,7 +125,9 @@ namespace Markdown.Tokenizing
             {
                 if (currentIndex == source.Length)
                     yield break;
-                yield return source[currentIndex++];
+                if (source[currentIndex] != '\\')
+                    yield return source[currentIndex];
+                currentIndex++;
             }
         }
 
@@ -83,7 +140,7 @@ namespace Markdown.Tokenizing
 
             var maxLengthTag = markdown.OpeningTags
                 .Where(pair => currentSubstring.StartsWith(pair.Value))
-                .OrderBy(pair => pair.Value.Length)
+                .OrderByDescending(pair => pair.Value.Length)
                 .FirstOrDefault()
                 .Value;
 
