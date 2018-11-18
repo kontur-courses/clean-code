@@ -6,69 +6,66 @@ namespace MarkDown
 {
     public class MarkDownParser
     {
-        private int currentPosition;
         private readonly List<TagType> availableTagTypes;
-        private readonly string text;
+        private readonly TextStream textStream;
 
-        public MarkDownParser(string text, IEnumerable<TagType> availableTagTypes)
+        public MarkDownParser(TextStream textStream, IEnumerable<TagType> availableTagTypes)
         {
-            this.text = text;
+            this.textStream = textStream;
             this.availableTagTypes = availableTagTypes.ToList();
         }
+        
         public IEnumerable<Token> GetTokens()
         {
-            currentPosition = 0;
-            var textTokenStart = currentPosition;
-            var result = new List<Token>();
-            while (currentPosition < text.Length)
+            var textTokenStart = textStream.CurrentPosition;
+            while (textStream.CurrentPosition < textStream.Length)
             {
-                var tagToken = GetTagToken();
-                if (tagToken != null)
+                if (TryGetTagToken(out var tagToken))
                 {
-                    var possibleTextTag = new Token(textTokenStart, text.Substring(textTokenStart, currentPosition - textTokenStart));
-                    result.ConditionalAdd(textTokenStart != currentPosition, possibleTextTag);
-                    result.Add(tagToken);
+                    if (textTokenStart != textStream.CurrentPosition && textStream.TryGetSubstring(textTokenStart, 
+                            textStream.CurrentPosition - textTokenStart, out var posContent))
+                        yield return new Token(textTokenStart, posContent);
+                    yield return tagToken;
 
-                    currentPosition += tagToken.Length;
-                    textTokenStart = currentPosition;
+                    textStream.TryMoveNext(tagToken.Length);
+                    textTokenStart = textStream.CurrentPosition;
 
                     continue;
                 }
-                currentPosition++;
+                textStream.TryMoveNext();
             }
-
-            if(!result.Any() || textTokenStart != currentPosition)
-                result.Add(new Token(textTokenStart, text.Substring(textTokenStart, currentPosition - textTokenStart)));
-
-            return result;
+            if (textTokenStart == textStream.CurrentPosition) yield break;
+            if (textStream.TryGetSubstring(textTokenStart, textStream.CurrentPosition - textTokenStart, out var content))
+                yield return new Token(textTokenStart,content);
         }
 
-        private TagType GetTagType() =>
-            availableTagTypes
-                .Where(t => t.SpecialSymbol.Length * 2 <= text.Length)
-                .FirstOrDefault(t => text.IsOpeningTag(currentPosition, t.SpecialSymbol));
-
-        private Token GetTagToken()
+        private bool TryGetTagType(out TagType tagType)
         {
-            var tagType = GetTagType();
-            if (tagType == null) return null;
+            tagType = availableTagTypes
+                .Where(t => t.SpecialSymbol.Length * 2 <= textStream.Length)
+                .OrderByDescending(s => s.SpecialSymbol)
+                .FirstOrDefault(t => textStream
+                    .IsCurrentOpening(t.SpecialSymbol, availableTagTypes
+                        .Where(s => s.SpecialSymbol != t.SpecialSymbol).Select(s => s.SpecialSymbol)));
+            return tagType != null;
+        }
+
+        private bool TryGetTagToken(out Token token)
+        {
+            token = null;
+            if (!TryGetTagType(out var tagType)) return false;
             var specialSymbol = tagType.SpecialSymbol;
-            for (var i = currentPosition + 2; i < text.Length - specialSymbol.Length + 1; i++)
+            for (var i = textStream.CurrentPosition + 2; i < textStream.Length - specialSymbol.Length + 1; i++)
             {
-                if (!text.IsClosingTag(i, specialSymbol)) continue;
-                var content = text.Substring(currentPosition + specialSymbol.Length,
-                    i - currentPosition - specialSymbol.Length);
-                
-                return IsNumberLessToken(i) ? new Token(currentPosition, content, tagType) : null;
+                var symbols = availableTagTypes.Where(s => s.SpecialSymbol != specialSymbol).Select(s => s.SpecialSymbol);
+                if (!textStream.IsSymbolAtPositionClosing(i, specialSymbol, symbols)) continue;
+                var startPosition = textStream.CurrentPosition + specialSymbol.Length;
+                var length = i - textStream.CurrentPosition - specialSymbol.Length;
+                if (!textStream.TryGetSubstring(startPosition, length, out var content)) continue;
+                if (textStream.IsTokenAtCurrentNumberLess(i))
+                    token = new Token(textStream.CurrentPosition, content, tagType);
             }
-            
-            return null;
-        }
-
-        private bool IsNumberLessToken(int endPosition)
-        {
-            return !(text.Substring(0, currentPosition).Split().Last().Any(char.IsDigit)
-                && text.Substring(endPosition).Split().First().Any(char.IsDigit));
+            return token != null;
         }
     }
 }

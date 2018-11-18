@@ -14,13 +14,14 @@ namespace MarkDown
             this.availableTagTypes = availableTagTypes.ToList();
         }
 
-        public string Render(string textParagraph) => new ParagraphTag()
-            .ToHtml(ProcessText(textParagraph, availableTagTypes))
-            .RemoveScreening(availableTagTypes.Select(t => t.SpecialSymbol));
+        public string Render(string textParagraph) => 
+            new ParagraphTag().ToHtml(ProcessText(textParagraph, availableTagTypes))
+                .Escape(availableTagTypes.Select(t => t.SpecialSymbol));
 
         private string ProcessText(string text, IEnumerable<TagType> tagTypes)
         {
-            var parser = new MarkDownParser(text, tagTypes);
+            var textStream = new TextStream(text);
+            var parser = new MarkDownParser(textStream, tagTypes);
             var tokens = parser.GetTokens();
             var result = new StringBuilder();
             foreach (var token in tokens)
