@@ -4,15 +4,15 @@ namespace Markdown.Elements
 {
     public class MarkdownElement
     {
-        public IElementType ElementType { get; protected set; }
+        public IElementType ElementType { get; }
 
-        public string Markdown { get; protected set; }
+        public string Markdown { get; }
 
-        public int StartPosition { get; protected set; }
+        public int StartPosition { get; }
 
-        public int EndPosition { get; protected set; }
+        public int EndPosition { get; }
 
-        public IReadOnlyList<MarkdownElement> InnerElements { get; protected set; }
+        public IReadOnlyList<MarkdownElement> InnerElements { get; }
 
         public MarkdownElement(IElementType type, string markdown, int start, int end,
             IReadOnlyList<MarkdownElement> innerElements)

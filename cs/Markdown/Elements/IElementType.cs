@@ -4,7 +4,7 @@
     {
         string Indicator { get; }
         bool CanContainElement(IElementType element);
-        bool IsOpeningOfElement(string markdown, bool[] escapeBitMask,int position);
-        bool IsClosingOfElement(string markdown, bool[] escapeBitMask, int position);
+        bool IsOpeningOfElement(string markdown, bool[] isEscapedCharAt,int position);
+        bool IsClosingOfElement(string markdown, bool[] isEscapedCharAt, int position);
     }
 }

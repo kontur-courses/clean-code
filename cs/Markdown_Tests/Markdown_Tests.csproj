@@ -63,7 +63,9 @@
     <Compile Include="EmphasisParser_Should.cs" />
     <Compile Include="EscapeAnalyzerTest.cs" />
     <Compile Include="HtmlRenderer_Should.cs" />
+    <Compile Include="MdLoadTests.cs" />
     <Compile Include="MdTest.cs" />
+    <Compile Include="StringExtensionTest.cs" />
     <Compile Include="UnderscoreElementTest.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
@@ -75,6 +77,32 @@
       <Project>{aa229b09-f742-4e10-8cd4-21998a7102b3}</Project>
       <Name>Markdown</Name>
     </ProjectReference>
+  </ItemGroup>
+  <ItemGroup>
+    <Content Include="GeneratedTests\high_depth_ans7000.txt">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
+    <Content Include="GeneratedTests\high_depth_ans70000.txt">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
+    <Content Include="GeneratedTests\high_depth_test7000.txt">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
+    <Content Include="GeneratedTests\high_depth_test70000.txt">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
+    <Content Include="GeneratedTests\many_rendering_ans3500.txt">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
+    <Content Include="GeneratedTests\many_rendering_ans35000.txt">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
+    <Content Include="GeneratedTests\many_rendering_test3500.txt">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
+    <Content Include="GeneratedTests\many_rendering_test35000.txt">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
   </ItemGroup>
   <Import Project="$(VSToolsPath)\TeamTest\Microsoft.TestTools.targets" Condition="Exists('$(VSToolsPath)\TeamTest\Microsoft.TestTools.targets')" />
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />

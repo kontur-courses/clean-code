@@ -25,7 +25,7 @@ namespace Markdown.Elements
             return true;
         }
 
-        public override bool IsIndicatorAt(string markdown, bool[] escapeBitMask, int position)
+        public override bool IsIndicatorAt(string markdown, bool[] isEscapedCharAt, int position)
         {
             return false;
         }

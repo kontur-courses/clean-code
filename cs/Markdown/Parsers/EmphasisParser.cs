@@ -15,8 +15,8 @@ namespace Markdown.Parsers
         private readonly int startPosition;
         private readonly IElementType elementType;
         private int currentPosition;
-        private List<MarkdownElement> innerElements;
-        private bool[] escapeBitMask;
+        private readonly List<MarkdownElement> innerElements;
+        private readonly bool[] isEscapedCharAt;
 
         public EmphasisParser(string markdown, int startPosition, IElementType elementType)
         {
@@ -25,14 +25,14 @@ namespace Markdown.Parsers
             this.elementType = elementType;
             currentPosition = startPosition;
             innerElements = new List<MarkdownElement>();
-            escapeBitMask = EscapesAnalyzer.GetBitMaskOfEscapedChars(markdown);
+            isEscapedCharAt = EscapesAnalyzer.GetBitMaskOfEscapedChars(markdown);
         }
 
         public MarkdownElement Parse()
         {
             while (currentPosition < markdown.Length)
             {
-                if (elementType.IsClosingOfElement(markdown, escapeBitMask, currentPosition))
+                if (elementType.IsClosingOfElement(markdown, isEscapedCharAt, currentPosition))
                     return new MarkdownElement(
                         elementType, markdown, startPosition, currentPosition, innerElements);
 
@@ -76,13 +76,13 @@ namespace Markdown.Parsers
         private IElementType GetOpeningElementType(int position)
         {
             return PossibleElementTypes
-                .FirstOrDefault(type => type.IsOpeningOfElement(markdown, escapeBitMask, position));
+                .FirstOrDefault(type => type.IsOpeningOfElement(markdown, isEscapedCharAt, position));
         }
 
         private IElementType GetClosingElementType(int position)
         {
             return PossibleElementTypes
-                .FirstOrDefault(type => type.IsClosingOfElement(markdown, escapeBitMask, position));
+                .FirstOrDefault(type => type.IsClosingOfElement(markdown, isEscapedCharAt, position));
         }
     }
 }

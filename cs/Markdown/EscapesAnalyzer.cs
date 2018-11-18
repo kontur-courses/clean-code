@@ -1,4 +1,5 @@
-﻿using System.Text;
+﻿using System.Linq;
+using System.Text;
 
 namespace Markdown
 {
@@ -24,7 +25,7 @@ namespace Markdown
             var isEscapedCharAt = GetBitMaskOfEscapedChars(markdown);
 
             for (var index = 0; index < markdown.Length - 1; index++)
-                if (!isEscapedCharAt[index + 1])
+                if (!(isEscapedCharAt[index + 1] && escapeChars.Contains(markdown[index + 1])))
                     result.Append(markdown[index]);
             result.Append(markdown[markdown.Length - 1]);
 

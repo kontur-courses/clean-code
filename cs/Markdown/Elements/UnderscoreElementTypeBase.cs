@@ -2,23 +2,20 @@
 {
     public abstract class UnderscoreElementTypeBase : EmphasisTypeBase
     {
-        public override bool IsIndicatorAt(string markdown, bool[] escapeBitMask, int position)
+        public override bool IsIndicatorAt(string markdown, bool[] isEscapedCharAt, int position)
         {
-            if (position + Indicator.Length > markdown.Length)
+            var positionAfterIndicator = position + Indicator.Length;
+            if (positionAfterIndicator > markdown.Length)
                 return false;
 
-            var underscoreBefore = position != 0 &&
-                                   markdown[position - 1] == '_' &&
-                                   !escapeBitMask[position - 1];
+            var underscoreBefore = markdown.IsCharAt(position - 1, '_') &&
+                                   !isEscapedCharAt[position - 1];
 
-            var positionAfterIndicator = position + Indicator.Length;
-
-            var underscoreAfter = positionAfterIndicator != markdown.Length &&
-                                  markdown[positionAfterIndicator] == '_';
+            var underscoreAfter = markdown.IsCharAt(positionAfterIndicator, '_');
 
             return !underscoreBefore &&
                    markdown.Substring(position, Indicator.Length) == Indicator &&
-                   !escapeBitMask[position] &&
+                   !isEscapedCharAt[position] &&
                    !underscoreAfter;
         }
     }
