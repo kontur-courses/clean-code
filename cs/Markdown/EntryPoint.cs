@@ -1,6 +1,5 @@
 using System;
 using Markdown.Languages;
-using Markdown.Parsing;
 using Markdown.Tokenizing;
 
 namespace Markdown
@@ -9,6 +8,7 @@ namespace Markdown
     {
         static void Main(string[] args)
         {
+            var res = MarkdownTokenizer.Tokenize("_hello_ people");
         }
     }
 }

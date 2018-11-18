@@ -7,18 +7,20 @@ namespace Markdown.Tokenizing
 {
     public class MarkdownTokenizer
     {
-        private readonly Language language;
+        private readonly Language markdown;
         private readonly int maxTagLength;
         private readonly Stack<Token> tokenStack;
+        private readonly List<Token> tokens;
 
         private int currentIndex;
         private readonly string source;
 
         public MarkdownTokenizer(string source)
         {
-            language = new MarkdownLanguage();
-            maxTagLength = language.MaxTagLength;
+            markdown = new MarkdownLanguage();
+            maxTagLength = markdown.MaxTagLength;
             tokenStack = new Stack<Token>();
+            tokens = new List<Token>();
 
             currentIndex = 0;
             this.source = source;
@@ -31,84 +33,72 @@ namespace Markdown.Tokenizing
 
         private List<Token> Tokenize()
         {
-            if (string.IsNullOrEmpty(source))
-                throw new ArgumentException("Should not be null or empty", nameof(source));
-
-            var result = new List<Token>();
-            var rawTagStart = 0;
-
-            for (var i = 0; i < source.Length; i++)
+            while (currentIndex < source.Length)
             {
-                if (TryParseToken(source.Substring(i, Math.Min(source.Length - i, maxTagLength)), out var token))
-                {
-                    if (i != rawTagStart)
-                        result.Add(new Token(Tag.Raw, false, source.Substring(rawTagStart, i - rawTagStart)));
-                    result.Add(token);
+                var rawContent = string.Concat(ReadUntilTag());
+                if (!string.IsNullOrEmpty(rawContent))
+                    tokens.Add(new Token(Tag.Raw, false, rawContent));
 
-                    if (token.IsOpening)
-                        tokenStack.Push(token);
-                    else tokenStack.Pop();
+                Token newToken;
+                var tag = ReadTag();
+                if (!NextCharacterIsWhiteSpace)
+                    newToken = ParseToken(tag, true);
+                else if (!PreviousCharacterIsWhiteSpace)
+                    newToken = ParseToken(tag, false);
+                else newToken = new Token(Tag.Raw, false, string.Concat(tag));
 
-                    var tokenLength = GetTokenLength(token);
-                    i += tokenLength - 1;
-                    rawTagStart = i + 1;
-                }
+                tokens.Add(newToken);
             }
 
-            if (rawTagStart != source.Length)
-                result.Add(new Token(Tag.Raw, false, source.Substring(rawTagStart, source.Length - rawTagStart)));
-
-            return result;
+            return tokens;
         }
 
-        public bool TryParseToken(string source, out Token token)
+        private Token ParseToken(IEnumerable<char> tag, bool opening)
         {
-            for (var length = source.Length; length > 0; length--)
-            {
-                if (language.TryParseOpeningTag(source.Substring(0, length), out var tag))
-                {
-                    var isOpening = true;
-
-                    if (tokenStack.Count != 0)
-                    {
-                        var lastToken = tokenStack.Peek();
-                        isOpening = !(language.ConvertOpeningTag(tag) == language.ConvertClosingTag(tag) && lastToken.Tag == tag && lastToken.IsOpening);
-                    }
-
-                    token = new Token(tag, isOpening);
-                    return true;
-                }
-
-                if (language.TryParseClosingTag(source.Substring(0, length), out tag))
-                {
-                    token = new Token(tag, false);
-                    return true;
-                }
-            }
-
-            token = null;
-            return false;
+            var stringTag = string.Concat(tag);
+            return new Token(markdown.OpeningTags.First(pair => pair.Value == stringTag).Key, opening);
         }
-
-        private int GetTokenLength(Token token)
-        {
-            return (token.IsOpening ? language.ConvertOpeningTag(token.Tag) : language.ConvertClosingTag(token.Tag))
-                .Length;
-        }
-
-        #region New
 
         private IEnumerable<char> ReadUntilTag()
         {
-            var substring = source.Substring(currentIndex);
+            var currentSubstring = Substring;
 
-            if (language.OpeningTags.Any(p => substring.StartsWith(p.Value)) ||
-                language.ClosingTags.Any(p => substring.StartsWith(p.Value)))
+            if (markdown.OpeningTags.Any(p => currentSubstring.StartsWith(p.Value)) && !CurrentCharacterIsEscaped)
                 yield break;
             yield return source[currentIndex++];
         }
 
-        #endregion
+        private IEnumerable<char> ReadTag()
+        {
+            var currentSubstring = Substring;
 
+            if (CurrentCharacterIsEscaped)
+                yield break;
+
+            var maxLengthTag = markdown.OpeningTags
+                .Where(pair => currentSubstring.StartsWith(pair.Value))
+                .OrderBy(pair => pair.Value.Length)
+                .FirstOrDefault()
+                .Value;
+
+            if (string.IsNullOrEmpty(maxLengthTag))
+                yield break;
+
+            foreach (var letter in maxLengthTag)
+            {
+                currentIndex++;
+                yield return letter;
+            }
+        }
+
+        private bool CurrentCharacterIsEscaped => currentIndex > 0 && source[currentIndex - 1] == '\\';
+
+        private bool NextCharacterIsWhiteSpace =>
+            currentIndex < source.Length - 1 && char.IsWhiteSpace(source[currentIndex + 1]);
+
+        private bool PreviousCharacterIsWhiteSpace =>
+            currentIndex > 0 && char.IsWhiteSpace(source[currentIndex - 1]);
+
+        private string Substring => source.Substring(currentIndex, maxTagLength);
     }
 }
