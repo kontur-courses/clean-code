@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using Markdown.Languages;
+using JetBrains.Annotations;
 
 namespace Markdown.Tokenizing
 {
@@ -9,7 +10,6 @@ namespace Markdown.Tokenizing
     {
         private readonly Language markdown;
         private readonly int maxTagLength;
-        private readonly Stack<Token> tokenStack;
         private readonly List<Token> tokens;
 
         private int currentIndex;
@@ -19,15 +19,17 @@ namespace Markdown.Tokenizing
         {
             markdown = new MarkdownLanguage();
             maxTagLength = markdown.MaxTagLength;
-            tokenStack = new Stack<Token>();
             tokens = new List<Token>();
 
             currentIndex = 0;
             this.source = source;
         }
 
-        public static List<Token> Tokenize(string source)
+        public static List<Token> Tokenize([NotNull] string source)
         {
+            if (string.IsNullOrEmpty(source))
+                throw new ArgumentException("Source can't be null or empty", nameof(source));
+
             return new MarkdownTokenizer(source).Tokenize();
         }
 
@@ -39,13 +41,16 @@ namespace Markdown.Tokenizing
                 if (!string.IsNullOrEmpty(rawContent))
                     tokens.Add(new Token(Tag.Raw, false, rawContent));
 
+                var tag = string.Concat(ReadTag());
+                if (string.IsNullOrEmpty(tag))
+                    continue;
+
                 Token newToken;
-                var tag = ReadTag();
-                if (!NextCharacterIsWhiteSpace)
+                if (TagIsOpening(tag))
                     newToken = ParseToken(tag, true);
-                else if (!PreviousCharacterIsWhiteSpace)
+                else if (TagIsClosing(tag))
                     newToken = ParseToken(tag, false);
-                else newToken = new Token(Tag.Raw, false, string.Concat(tag));
+                else newToken = new Token(Tag.Raw, false, tag);
 
                 tokens.Add(newToken);
             }
@@ -61,11 +66,12 @@ namespace Markdown.Tokenizing
 
         private IEnumerable<char> ReadUntilTag()
         {
-            var currentSubstring = Substring;
-
-            if (markdown.OpeningTags.Any(p => currentSubstring.StartsWith(p.Value)) && !CurrentCharacterIsEscaped)
-                yield break;
-            yield return source[currentIndex++];
+            while (!SubstringStartsWithTag)
+            {
+                if (currentIndex == source.Length)
+                    yield break;
+                yield return source[currentIndex++];
+            }
         }
 
         private IEnumerable<char> ReadTag()
@@ -91,14 +97,28 @@ namespace Markdown.Tokenizing
             }
         }
 
-        private bool CurrentCharacterIsEscaped => currentIndex > 0 && source[currentIndex - 1] == '\\';
+        private bool CurrentCharacterIsEscaped =>
+            currentIndex > 0 && source[currentIndex - 1] == '\\';
 
-        private bool NextCharacterIsWhiteSpace =>
-            currentIndex < source.Length - 1 && char.IsWhiteSpace(source[currentIndex + 1]);
+        private string Substring =>
+            source.Substring(currentIndex, Math.Min(maxTagLength, source.Length - currentIndex));
 
-        private bool PreviousCharacterIsWhiteSpace =>
-            currentIndex > 0 && char.IsWhiteSpace(source[currentIndex - 1]);
+        private bool SubstringStartsWithTag =>
+            markdown.OpeningTags.Any(pair => Substring.StartsWith(pair.Value)) && !CurrentCharacterIsEscaped;
 
-        private string Substring => source.Substring(currentIndex, maxTagLength);
+        private bool TagIsOpening(string tag)
+        {
+            return !CharacterIsWhiteSpace(currentIndex);
+        }
+
+        private bool TagIsClosing(string tag)
+        {
+            return !CharacterIsWhiteSpace(currentIndex - 1 - tag.Length);
+        }
+
+        private bool CharacterIsWhiteSpace(int index)
+        {
+            return index < 0 || index >= source.Length || char.IsWhiteSpace(source[index]);
+        }
     }
 }

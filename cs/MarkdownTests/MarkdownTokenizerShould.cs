@@ -9,23 +9,14 @@ namespace MarkdownTests
     [TestFixture]
     public class MarkdownTokenizerShould
     {
-        [Test, TestCaseSource(nameof(InvalidStringsTestCases))]
-        public void ProcessInvalidStringCorrectly(string source)
+        [TestCase("", TestName = "OnEmptyString")]
+        [TestCase(null, TestName = "OnNullString")]
+        public void ThrowExpetionOnInvalidString(string source)
         {
             Action act = () => MarkdownTokenizer.Tokenize(source);
 
-            act.Should().ThrowExactly<ArgumentException>();
+            act.Should().ThrowExactly<ArgumentException>().And.Message.Should().Contain("can't be null or empty");
         }
-
-        private static IEnumerable InvalidStringsTestCases
-        {
-            get
-            {
-                yield return new TestCaseData("").SetName("EmptyString");
-                yield return new TestCaseData(null).SetName("NullString");
-            }
-        }
-
 
         [Test, TestCaseSource(nameof(EmphasizeTagTestCases))]
         public void ProcessEmphasizeTagsCorrectly(string source, params Token[] expected)
@@ -37,12 +28,12 @@ namespace MarkdownTests
         {
             get
             {
-                yield return new TestCaseData("_people_, hello", new[]
+                yield return new TestCaseData("_people_ hello", new[]
                 {
                     new Token(Tag.Emphasize, true),
                     new Token(Tag.Raw, false, "people"),
                     new Token(Tag.Emphasize, false),
-                    new Token(Tag.Raw, false, ", hello"),
+                    new Token(Tag.Raw, false, " hello"),
                 }).SetName("OnTagAtTheStart");
 
                 yield return new TestCaseData("hello _people_", new[]
@@ -53,7 +44,7 @@ namespace MarkdownTests
                     new Token(Tag.Emphasize, false),
                 }).SetName("OnTagAtTheEnd");
 
-                yield return new TestCaseData("_hello_ dear _people_!", new[]
+                yield return new TestCaseData("_hello_ dear _people_ !", new[]
                 {
                     new Token(Tag.Emphasize, true),
                     new Token(Tag.Raw, false, "hello"),
@@ -62,7 +53,7 @@ namespace MarkdownTests
                     new Token(Tag.Emphasize, true),
                     new Token(Tag.Raw, false, "people"),
                     new Token(Tag.Emphasize, false),
-                    new Token(Tag.Raw, false, "!"),
+                    new Token(Tag.Raw, false, " !"),
                 }).SetName("OnMultipleTags");
 
                 yield return new TestCaseData(@"hello \_people\_", new[]

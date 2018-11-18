@@ -4,7 +4,7 @@ using System.Text;
 using Markdown.Languages;
 using Markdown.Tokenizing;
 
-namespace Markdown.Translator
+namespace Markdown.Translating
 {
     public class Translator
     {
@@ -20,9 +20,7 @@ namespace Markdown.Translator
             var stringBuilder = new StringBuilder();
 
             foreach (var token in tokens)
-            {
                 stringBuilder.Append(TranslateToken(token));
-            }
 
             return stringBuilder.ToString();
         }

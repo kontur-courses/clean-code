@@ -2,9 +2,9 @@
 {
     public class Token
     {
-        public Tag Tag;
-        public string Content;
-        public bool IsOpening;
+        public readonly Tag Tag;
+        public readonly string Content;
+        public readonly bool IsOpening;
 
         public Token(Tag tag, bool isOpening, string content = null)
         {

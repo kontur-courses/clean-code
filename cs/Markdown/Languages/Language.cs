@@ -26,33 +26,5 @@ namespace Markdown.Languages
             openingTags.Add(tag, openingTag);
             closingTags.Add(tag, closingTag);
         }
-
-        //public string ConvertOpeningTag(Tag tag)
-        //{
-        //    return openingTags[tag];
-        //}
-
-        //public string ConvertClosingTag(Tag tag)
-        //{
-        //    return closingTags[tag];
-        //}
-
-        //public bool TryParseOpeningTag(string code, out Tag tag)
-        //{
-        //    tag = openingTags
-        //        .FirstOrDefault(pair => pair.Value == code)
-        //        .Key;
-
-        //    return tag != default(Tag);  // нормально ли, что моя логика по сути зависит от дефолтного состояния (первый в списке enum)
-        //}
-
-        //public bool TryParseClosingTag(string code, out Tag tag)
-        //{
-        //    tag = closingTags
-        //        .FirstOrDefault(pair => pair.Value == code)
-        //        .Key;
-
-        //    return tag != default(Tag);
-        //}
     }
 }
