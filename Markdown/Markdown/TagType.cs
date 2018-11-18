@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace Markdown
 {
-    public enum TagValue
+    public enum TagType
     {
         None, Strong, Italic
     }

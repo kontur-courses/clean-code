@@ -12,43 +12,35 @@ namespace Markdown
         public int StartIndex { get; }
         public int EndIndex { get; private set; }
 
-        public List<Span> Spans { get; private set; }
+        private List<Span> children = new List<Span>();
+        public List<Span> Children => children;
         public Span Parent { get; private set; }
-        public bool IsClosed { get; private set; }
+        public bool IsClosed => EndIndex != 0;
 
-        public Span(Tag tag, int startIndex)
-        {
-            Tag = tag;
-            StartIndex = startIndex;
-            Spans = new List<Span>();
-        }
-
-        public Span(Tag tag, int startIndex, int endIndex, bool isClosed=true)
+        public Span(Tag tag, int startIndex, int endIndex=0)
         {
             Tag = tag;
             StartIndex = startIndex;
             EndIndex = endIndex;
-            Spans = new List<Span>();
-            IsClosed = isClosed;
         }
 
         public void Close(int endIndex)
         {
-            EndIndex = endIndex;
-            IsClosed = true;
+            if (!IsClosed)
+                EndIndex = endIndex;
 
         }
 
         public void PutSpan(Span span)
         {
-            var nextSpan = Spans
+            var nextSpan = Children
                 .OrderByDescending(s => s.StartIndex)
                 .FirstOrDefault(s => s.StartIndex < span.StartIndex &&
-                            (s.EndIndex > span.StartIndex || s.EndIndex == 0));
+                            (s.EndIndex > span.StartIndex || !s.IsClosed));
 
             if (nextSpan == null)
             {
-                Spans.Add(span);
+                children.Add(span);
                 span.Parent = this;
                 return;
             }
@@ -58,20 +50,20 @@ namespace Markdown
 
         public void RemoveNotClosedSpans()
         {
-            foreach (var span in Spans.ToArray())
+            foreach (var span in children.ToArray())
             {
                 span.RemoveNotClosedSpans();
                 if (span.IsClosed)
                     continue;
 
-                Spans.Remove(span);
-                foreach (var childSpan in span.Spans)
+                children.Remove(span);
+                foreach (var childSpan in span.children)
                 {
-                    Spans.Add(childSpan);
+                    children.Add(childSpan);
                     childSpan.Parent = this;
                 }
             }
-            Spans = Spans.OrderBy(s => s.StartIndex).ToList();
+            children = children.OrderBy(s => s.StartIndex).ToList();
         }
     }
 }

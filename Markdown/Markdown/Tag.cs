@@ -8,21 +8,21 @@ namespace Markdown
 {
     public class Tag
     {
-        public TagValue Value { get; }
+        public TagType Type { get; }
         public string Open { get; }
         public string Close { get; }
-        public List<TagValue> CantBeInside { get; }
-        public Tag(TagValue value, string open, string close, List<TagValue> cantBeInside=null)
+        public List<TagType> CanBeInside { get; }
+        public Tag(TagType type, string open, string close, List<TagType> canBeInside=null)
         {
-            Value = value;
+            Type = type;
             Open = open;
             Close = close;
-            CantBeInside = cantBeInside ?? new List<TagValue>();
+            CanBeInside = canBeInside ?? new List<TagType>();
         }
 
         public override int GetHashCode()
         {
-            return Value.GetHashCode() ^ (Open.GetHashCode() * Close.GetHashCode());
+            return Type.GetHashCode() ^ (Open.GetHashCode() * Close.GetHashCode());
         }
 
         public override bool Equals(object obj)
@@ -32,7 +32,7 @@ namespace Markdown
 
             var otherTag = (Tag)obj;
             return Open == otherTag.Open && Close == otherTag.Open &&
-                   Value == otherTag.Value && CantBeInside.Equals(otherTag.CantBeInside);
+                   Type == otherTag.Type && CanBeInside.Equals(otherTag.CanBeInside);
         }
     }
 }

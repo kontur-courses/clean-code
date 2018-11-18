@@ -11,20 +11,20 @@ namespace Markdown
         //properties
         public static Markup Html { get; } = new Markup("HTML", new List<Tag>()
         {
-            new Tag(TagValue.Strong, "<strong>", "</strong>"),
-            new Tag(TagValue.Italic, "<em>", "</em>")
+            new Tag(TagType.Strong, "<strong>", "</strong>"),
+            new Tag(TagType.Italic, "<em>", "</em>")
         });
 
         public static Markup Markdown { get; } = new Markup("Markdown", new List<Tag>()
         {
-            new Tag(TagValue.Strong, "__", "__", new List<TagValue> { TagValue.Italic }),
-            new Tag(TagValue.Italic, "_", "_")
+            new Tag(TagType.Strong, "__", "__"),
+            new Tag(TagType.Italic, "_", "_", new List<TagType> { TagType.Strong })
         });
         
         public static Markup Rtf { get; } = new Markup("Rtf", new List<Tag>()
         {
-            new Tag(TagValue.Strong, "@{\b", "}"),
-            new Tag(TagValue.Italic, @"{\i", "}")
+            new Tag(TagType.Strong, "@{\b", "}"),
+            new Tag(TagType.Italic, @"{\i", "}")
         });
     }
 }

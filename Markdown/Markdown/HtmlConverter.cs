@@ -20,33 +20,22 @@ namespace Markdown
 
             var builder = new StringBuilder();
 
-            builder.Append(GetOpenTag(span));
-            builder.Append(span.Spans.Count == 0 ? GetSpanRowString(rawString, span) : GetSpanAssembledString(rawString, span));
-            builder.Append(GetCloseTag(span));
+            builder.Append(GetTagValue(span, t => t.Open));
+            builder.Append(span.Children.Count == 0 ? GetSpanRowString(rawString, span) : GetSpanAssembledString(rawString, span));
+            builder.Append(GetTagValue(span, t => t.Close));
 
             return builder.ToString();
         }
 
-        private static string GetOpenTag(Span initialSpan)
+        private static string GetTagValue(Span initialSpan, Func<Tag, string> getTag)
         {
-            var tagOpen = Markups.Html.Tags.FirstOrDefault(t => t.Value == initialSpan.Tag.Value);
-            if (tagOpen == null)
-                return initialSpan.Tag.Open;
+            var tag = Markups.Html.Tags.FirstOrDefault(t => t.Type == initialSpan.Tag.Type);
+            if (tag == null)
+                return getTag(initialSpan.Tag);
 
-            return initialSpan.Parent?.Parent != null && initialSpan.Tag.CantBeInside.Contains(initialSpan.Parent.Tag.Value)
-                ? initialSpan.Tag.Open
-                : tagOpen.Open;
-        }
-
-        private static string GetCloseTag(Span initialSpan)
-        {
-            var tagClose = Markups.Html.Tags.FirstOrDefault(t => t.Value == initialSpan.Tag.Value);
-            if (tagClose == null)
-                return initialSpan.Tag.Close;
-
-            return initialSpan.Parent?.Parent != null && initialSpan.Tag.CantBeInside.Contains(initialSpan.Parent.Tag.Value)
-                ? initialSpan.Tag.Close
-                : tagClose.Close;
+            return initialSpan.Parent?.Parent != null && !initialSpan.Tag.CanBeInside.Contains(initialSpan.Parent.Tag.Type)
+                ? getTag(initialSpan.Tag)
+                : getTag(tag);
         }
 
         private static string GetSpanRowString(string rawString, Span span)
@@ -60,16 +49,16 @@ namespace Markdown
             var builder = new StringBuilder();
 
             builder.Append(rawString.Substring(span.StartIndex + span.Tag.Open.Length,
-                span.Spans[0].StartIndex - (span.StartIndex + span.Tag.Open.Length)));
+                span.Children[0].StartIndex - (span.StartIndex + span.Tag.Open.Length)));
 
-            for (var i = 0; i < span.Spans.Count - 1; i++)
+            for (var i = 0; i < span.Children.Count - 1; i++)
             {
-                builder.Append(Assembly(rawString, span.Spans[i]));
-                builder.Append(rawString.Substring(span.Spans[i].EndIndex + span.Spans[i].Tag.Close.Length,
-                    span.Spans[i + 1].StartIndex - (span.Spans[i].EndIndex + span.Spans[i].Tag.Close.Length)));
+                builder.Append(Assembly(rawString, span.Children[i]));
+                builder.Append(rawString.Substring(span.Children[i].EndIndex + span.Children[i].Tag.Close.Length,
+                    span.Children[i + 1].StartIndex - (span.Children[i].EndIndex + span.Children[i].Tag.Close.Length)));
             }
 
-            var lastSpan = span.Spans[span.Spans.Count - 1];
+            var lastSpan = span.Children[span.Children.Count - 1];
             builder.Append(Assembly(rawString, lastSpan));
 
             builder.Append(rawString.Substring(lastSpan.EndIndex + lastSpan.Tag.Close.Length,

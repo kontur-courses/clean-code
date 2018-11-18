@@ -10,7 +10,7 @@ namespace Markdown
     {
         private List<Tag> tags;
         private int index;
-        private readonly Tag emptyTag = new Tag(TagValue.None, "", "");
+        private readonly Tag emptyTag = new Tag(TagType.None, "", "");
         private string markdownString;
 
         public Span Parse(string rawString)
@@ -100,11 +100,7 @@ namespace Markdown
             foreach (var tag in tags)
             {
                 var str = param(tag);
-                var length = str.Length;
-                if (markdownString.Length - index < length)
-                    length = markdownString.Length - index;
-
-                if (str == markdownString.Substring(index, length))
+                if (markdownString.ContainsFrom(str, index))
                     possibleTags.Add(tag);
             }
 
