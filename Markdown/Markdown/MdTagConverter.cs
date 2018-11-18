@@ -24,14 +24,10 @@ namespace Markdown
             {
                 var twoSymbol = text.Substring(position, 2);
                 var symbol = text[position].ToString();
-                var isLastSymbol = position == text.Length - 2;
-
-                if (isLastSymbol && TryParseTextTag(text, pairedTags, text.Length, out var textTag))
-                        pairedTags.Add(textTag);
 
                 if (IsOpenTag(twoSymbol, text) && TryParseOnePairOfTags(twoSymbol, text, out var tag))
                 {
-                    if (TryParseTextTag(text, pairedTags, position, out textTag))
+                    if (TryParseTextTag(text, pairedTags, position, out var textTag))
                         pairedTags.Add(textTag);
 
                     pairedTags.Add(tag);
@@ -41,7 +37,7 @@ namespace Markdown
 
                 if (IsOpenTag(symbol, text) && TryParseOnePairOfTags(symbol, text, out tag))
                 {
-                    if (TryParseTextTag(text, pairedTags, position, out textTag))
+                    if (TryParseTextTag(text, pairedTags, position, out var textTag))
                         pairedTags.Add(textTag);
 
                     pairedTags.Add(tag);
@@ -50,6 +46,9 @@ namespace Markdown
 
                 position++;
             }
+
+            if (TryParseTextTag(text, pairedTags, text.Length, out var lastTextTag))
+                pairedTags.Add(lastTextTag);
 
             return pairedTags;
         }

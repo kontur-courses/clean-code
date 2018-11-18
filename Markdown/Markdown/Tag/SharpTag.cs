@@ -2,12 +2,17 @@
 {
     public class SharpTag : ITag
     {
+        public SharpTag()
+        {
+            Length = Symbol.Length;
+        }
+
         public string Symbol { get; set; } = "#";
-        public int Length { get; set; } = 1;
+        public int Length { get; set; }
         public string Content { get; set; }
+        public MdType Type { get; set; } = MdType.Sharp;
         public int OpenIndex { get; set; }
         public int CloseIndex { get; set; }
-        public string HtmlOpen { get; set; } = "<h1>";
-        public string HtmlClose { get; set; } = "</h1>";
+        public string Html { get; set; } = "h1";
     }
 }

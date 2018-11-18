@@ -5,9 +5,9 @@
         string Symbol { get; set; }
         int OpenIndex { get; set; }
         int CloseIndex { get; set; }
-        string HtmlOpen { get; set; }
-        string HtmlClose { get; set; }
+        string Html { get; set; }
         int Length { get; set; }
         string Content { get; set; }
+        MdType Type { get; set; }
     }
 }

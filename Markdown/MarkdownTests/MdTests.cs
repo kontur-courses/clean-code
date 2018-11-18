@@ -27,7 +27,7 @@ namespace MarkdownTests
         [Test]
         public void NullString_ShouldRenderNull()
         {
-            Assert.Throws<ArgumentNullException>(() => md.Render(null));
+            Assert.Throws<ArgumentNullException>(() => md.Render((string) null));
         }
 
         [Test]

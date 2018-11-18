@@ -1,6 +1,4 @@
-﻿using Markdown.Tag;
-
-namespace Markdown
+﻿namespace Markdown.Tag
 {
     public static class TagExtensions
     {

@@ -4,7 +4,7 @@ using Markdown.Tag;
 
 namespace Markdown
 {
-    internal class Program
+    public class Program
     {
         private static void Main()
         {
@@ -16,7 +16,7 @@ namespace Markdown
             };
 
             var md = new Md(dictionaryTags);
-            Console.WriteLine(md.Render("__a _b_ c__"));
+            Console.WriteLine(md.Render("_a __b__ c_"));
         }
     }
 }
