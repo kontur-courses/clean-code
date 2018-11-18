@@ -1,8 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using NUnit.Framework;
 using FluentAssertions;
 
@@ -17,7 +13,7 @@ namespace Markdown
         [SetUp]
         public void SetUp()
         {
-            md = new Md(new Mark("__", "<strong>", "</strong>"), new Mark("_", "<em>", "</em>"));
+            md = new Md(new HtmlMark("__", "<strong>"), new HtmlMark("_", "<em>"));
         }
 
         [TestCase("", TestName = "empty string")]
@@ -38,6 +34,8 @@ namespace Markdown
         [TestCase("1_23_", TestName = "opening underscore between digits")]
         [TestCase("1__23__", TestName = "opening double underscore between digits")]
         [TestCase("_____", TestName = "multiple underscores with no text")]
+        [TestCase("_abc__", TestName = "text starting with underscore and finishing with double underscore")]
+        [TestCase("__abc_", TestName = "text starting with double underscore and finishing with underscore")]
         public void Render_ReturnsRawText_On(string text)
         {
             md.Render(text).Should().Be(text);
@@ -54,18 +52,16 @@ namespace Markdown
         [TestCase("_abc__d__f_", "<em>abc<strong>d</strong>f</em>", TestName = "double underscores inside underscores in the middle")]
         [TestCase("___abc__df_", "<strong>_abc</strong>df_", TestName = "double underscores inside underscores at the beginning")]
         [TestCase("_abc__df___", "<em>abc<strong>df</strong></em>", TestName = "double underscores inside underscores in the end")]
-        [TestCase("_abc__df___", "<em>abc<strong>df</strong></em>", TestName = "double underscores inside underscores in the end")]
         [TestCase("_a1_3b_", "<em>a1_3b</em>", TestName = "opening underscore between digits that are inside underscores")]
         [TestCase("__a1_3b__", "<strong>a1_3b</strong>", TestName = "opening underscore between digits that are inside double underscores")]
         [TestCase(@"\_abc_", "_abc_", TestName = "single backslash before opening underscore")]
         [TestCase(@"_abc\_", "_abc_", TestName = "single backslash before closing underscore")]
         [TestCase(@"\\_abc_", @"\<em>abc</em>", TestName = "double backslashes before opening underscore")]
         [TestCase(@"_abc\\_", @"<em>abc\</em>", TestName = "double backslashes before closing underscore")]
-        [TestCase(@"\__abc__", "_<em>abc</em>_", TestName = "single backslash before opening double underscore")]
+        [TestCase(@"\__abc__", "__abc__", TestName = "single backslash before opening double underscore")]
         [TestCase(@"__abc\__", "__abc__", TestName = "single backslash before closing double underscore")]
         [TestCase(@"\\\\\\\\", @"\\\\", TestName = "even number of backslashes")]
         [TestCase(@"\\\\\\\\\", @"\\\\\", TestName = "odd number of backslashes")]
-        [TestCase("a_abc_", "a<em>abc</em>", TestName = "new")]
         public void Render_ReturnsCorrectString_On(string text, string expected)
         {
             md.Render(text).Should().Be(expected);

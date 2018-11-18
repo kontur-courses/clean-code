@@ -52,6 +52,7 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="HtmlBuilder.cs" />
+    <Compile Include="HtmlMark.cs" />
     <Compile Include="Mark.cs" />
     <Compile Include="Md.cs" />
     <Compile Include="MdTests.cs" />

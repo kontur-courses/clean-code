@@ -1,13 +1,5 @@
-﻿using System;
-using System.Collections.Generic;
-using System.IO;
+﻿using System.Collections.Generic;
 using System.Linq;
-using System.Net.Configuration;
-using System.Security.Cryptography.X509Certificates;
-using System.Text;
-using System.Threading.Tasks;
-using NUnit.Framework.Api;
-using NUnit.Framework.Constraints;
 
 namespace Markdown
 {
@@ -20,114 +12,108 @@ namespace Markdown
             Marks = marks;
         }
 
+        private int backSlashesCount = 0;
+
         public IEnumerable<Token> Parse(string text)
         {
-            var stack = new Stack<Token>();
-            var backSlashesCount = 0;
+            var result = new List<Token>();
+            backSlashesCount = 0;
             var index = 0;
-            while (index<text.Length)
+            var openedTokens = new Stack<Token>();
+            while (index < text.Length)
             {
-                if (text[index] == '\\')
-                    backSlashesCount++;
-                var isBackSlashed = backSlashesCount % 2 == 1;
-                if (text[index] != '\\')
-                    backSlashesCount = 0;
+                var isBackSlashed = BackSlashesCountIsOddBeforeUpdate(text, index);
                 var mark = DefineMarkAt(text, index, isBackSlashed);
-                if (mark!=null)
+                if (mark != null)
                 {
-                    foreach (var token in GetFirstRawToken(stack, index))
-                        yield return token;
-                    if (stack.Count != 0)
-                        foreach (var token in GetClosedTokensAndAddNotClosed(stack, mark, index, text))
-                            yield return token;
+                    AddPreviousRawToken(openedTokens, result, index);
+                    if (IsClosing(openedTokens, mark, text, index))
+                        AddToFatherOrToResult(openedTokens, result, mark, index);
                     else
-                        stack.Push(new Token(index + mark.Sign.Length, mark));
-                    index += mark.Sign.Length - 1;
-                }
-                if (stack.Count == 0 && mark == null)
-                    stack.Push(new Token(index, Mark.RawMark));
-                index++;
-            }
-            foreach (var token in getLastRawToken(stack, index))
-                yield return token;
-        }
-
-        private IEnumerable<Token> GetClosedTokensAndAddNotClosed(Stack<Token> stack, Mark mark, int index, string text)
-        {
-            if (stack.Peek().Mark.Fits(mark) &&!IsWhiteSpaceAfter(stack.Peek(), text) &&!IsWhiteSpaceBefore(index, text))
-                foreach (var token in GetClosedTokenOrAddItToFather(stack, index))
-                    yield return token;
-            else
-                if (stack.Peek().FatherToken != null && stack.Peek().FatherToken.Mark.Fits(mark))
-                {
-                    foreach (var token in GetClosedFatherToken(stack, index))
-                    {
-                        index += token.Mark.Sign.Length - 2;
-                        yield return token;
-                    }
+                        PushTokenIfCanBeOpening(openedTokens, mark, text, index);
+                    index += mark.Length;
                 }
                 else
-                    stack.Push(new Token(index + mark.Sign.Length, mark, stack.Peek()));
-        }
-
-        private bool IsWhiteSpaceAfter(Token token, string text)
-        {
-            return token.StartIndex + token.Mark.Sign.Length < text.Length && 
-                   Char.IsWhiteSpace(text[token.StartIndex + token.Mark.Sign.Length]);
-        }
-
-        private bool IsWhiteSpaceBefore( int index, string text)
-        {
-            return index > 0 && Char.IsWhiteSpace(text[index-1]);
-        }
-
-        private IEnumerable<Token> GetFirstRawToken(Stack<Token> stack, int index)
-        {
-            if (stack.Count != 0 && stack.Peek().Mark.Equals(Mark.RawMark))
-            {
-                var token = stack.Pop();
-                token.SetEndIndex(index - 1);
-                yield return token;
-            }
-        }
-
-        private IEnumerable<Token> GetClosedTokenOrAddItToFather(Stack<Token> stack, int index)
-        {
-            var token = stack.Pop();
-            token.SetEndIndex(index - 1);
-
-            if (stack.Count != 0)
-            {
-                stack.Peek().ChildTokens.Add(token);
-            }
-            else
-            {
-                yield return token;
-            }
-        }
-
-        private IEnumerable<Token> GetClosedFatherToken(Stack<Token> stack, int index)
-        {
-            stack.Pop();
-            var token = stack.Pop();
-            token.SetEndIndex(index - 1);
-            yield return token;
-
-        }
-
-        private IEnumerable<Token> getLastRawToken(Stack<Token> stack, int index)
-        {
-            if (stack.Count != 0)
-            {
-                while (stack.Count != 1)
                 {
-                    stack.Pop();
+                    if (openedTokens.Count==0)
+                        openedTokens.Push(new Token(index, Mark.RawMark));
+                    index++;
                 }
-                var lastToken = stack.Pop();
-                var token = new Token(lastToken.StartIndex - lastToken.Mark.Sign.Length, Mark.RawMark);
-                token.SetEndIndex(index - 1);
-                yield return token;
             }
+            AddAllRemainingTokensAsRowToken(result, openedTokens, index);
+            return result;
+        }
+
+
+        private void PushTokenIfCanBeOpening(Stack<Token> openedTokens, Mark mark, string text, int index)
+        {
+            var fatherToken = openedTokens.Count == 0 ? null : openedTokens.Peek();
+            var token = new Token(index+mark.Length, mark,fatherToken);
+            var indexAfterMark = token.StartIndex + token.Mark.Length;
+            if (indexAfterMark >= text.Length || indexAfterMark < text.Length  && !char.IsWhiteSpace(text[indexAfterMark]))
+                openedTokens.Push(token);
+        }
+
+        private void AddToFatherOrToResult(Stack<Token> openedTokens, List<Token> result, Mark mark, int index)
+        {
+            var previousToken = openedTokens.Pop();
+            while (!previousToken.Mark.Fits(mark))
+                previousToken = openedTokens.Pop();
+            previousToken.SetEndIndex(index-1);
+            if (previousToken.FatherToken == null)
+                result.Add(previousToken);
+            else
+                previousToken.FatherToken.ChildTokens.Add(previousToken);
+        }
+
+        private bool IsClosing(Stack<Token> openedTokens, Mark mark, string text, int index)
+        {
+            var indexBeforeMark = index -1;
+            var afterIsWhiteSpace = indexBeforeMark > 0 && char.IsWhiteSpace(text[indexBeforeMark]);
+            if (afterIsWhiteSpace || openedTokens.Count==0)
+                return false;
+            var previousToken = openedTokens.Peek();
+            while (previousToken != null)
+            {
+                if (previousToken.Mark.Fits(mark) && previousToken.StartIndex!=index)
+                    return true;
+                previousToken = previousToken.FatherToken;
+            }
+            return false;
+        }
+
+        private void AddPreviousRawToken(Stack<Token> stack, List<Token> result, int index)
+        {
+            if (stack.Count == 0 || !stack.Peek().Mark.Equals(Mark.RawMark))
+                return;
+            var token = stack.Pop();
+            token.SetEndIndex(index - 1);
+            result.Add(token);
+        }
+
+        private bool BackSlashesCountIsOddBeforeUpdate(string text, int index)
+        {
+            if (text[index] == '\\')
+                backSlashesCount++;
+            var isOdd = backSlashesCount % 2 == 1;
+            if (text[index] != '\\')
+                backSlashesCount = 0;
+            return isOdd;
+        }
+
+
+        private void AddAllRemainingTokensAsRowToken(List<Token> result, Stack<Token> openedTokens, int index)
+        {
+            if (openedTokens.Count == 0)
+                return;
+            while (openedTokens.Count != 1)
+            {
+                openedTokens.Pop();
+            }
+            var lastToken = openedTokens.Pop();
+            var token = new Token(lastToken.StartIndex - lastToken.Mark.Length, Mark.RawMark);
+            token.SetEndIndex(index - 1);
+            result.Add(token);
         }
 
         private Mark DefineMarkAt(string text, int index, bool isBackSlashed)
@@ -164,14 +150,13 @@ namespace Markdown
         {
             while (index > 0)
             {
-                if (Char.IsDigit(text[index - 1]))
+                if (char.IsDigit(text[index - 1]))
                     return true;
                 if (index - mark.Sign.Length > -1 && text.Substring(index - mark.Sign.Length, mark.Sign.Length) == mark.Sign)
                     index -= mark.Sign.Length;
                 else
                     return false;
             }
-
             return false;
         }
 
@@ -179,14 +164,13 @@ namespace Markdown
         {
             while (index + mark.Sign.Length < text.Length)
             {
-                if (Char.IsDigit(text[index + mark.Sign.Length]))
+                if (char.IsDigit(text[index + mark.Sign.Length]))
                     return true;
                 if (index + 2 * mark.Sign.Length < text.Length && text.Substring(index + mark.Sign.Length, mark.Sign.Length) == mark.Sign)
                     index += mark.Sign.Length;
                 else
                     return false;
             }
-
             return false;
         }
     }
