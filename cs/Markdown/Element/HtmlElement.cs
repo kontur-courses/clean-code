@@ -10,7 +10,12 @@
         {
             Indicator = indicator;
             OpenTag = htmlTag;
-            ClosingTag = htmlTag.Insert(1, "/");
+            ClosingTag = GenerateClosingTag(htmlTag);
+        }
+
+        private static string GenerateClosingTag(string htmlTag)
+        {
+            return htmlTag.Insert(1, "/");
         }
     }
 }

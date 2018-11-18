@@ -12,7 +12,7 @@ namespace Markdown.Extensions
                     && !char.IsWhiteSpace(markdown[startIndex + element.Indicator.Length]) 
                     && !element.IsInsideTwoDigits(markdown, startIndex)
                     && !element.EqualsNextElement(markdown, startIndex)
-                    && !IsEcranned(markdown, startIndex))
+                    && !IsEscaped(markdown, startIndex))
 
                     return startIndex;
 
@@ -33,7 +33,7 @@ namespace Markdown.Extensions
                     && !char.IsWhiteSpace(markdown[closeIndex - 1])
                     && !element.IsInsideTwoDigits(markdown, closeIndex) 
                     && !element.EqualsPreviousElement(markdown, closeIndex) 
-                    && !IsEcranned(markdown, closeIndex)
+                    && !IsEscaped(markdown, closeIndex)
                     )
                     return closeIndex;
                 closeIndex++;
@@ -98,10 +98,10 @@ namespace Markdown.Extensions
         {
             return index - htmlElement.Indicator.Length > -1 
                    && markdown.Substring(index - htmlElement.Indicator.Length, htmlElement.Indicator.Length) == htmlElement.Indicator
-                   && !IsEcranned(markdown, index - htmlElement.Indicator.Length);
+                   && !IsEscaped(markdown, index - htmlElement.Indicator.Length);
         }
 
-        private static bool IsEcranned(string markdown, int index)
+        private static bool IsEscaped(string markdown, int index)
         {
             var slashCount = 0;
 
