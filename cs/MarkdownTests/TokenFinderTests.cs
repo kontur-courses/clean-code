@@ -9,6 +9,12 @@ namespace MarkdownTests
     [TestFixture]
     class TokenFinderTests
     {
+        private static readonly List<TokenType> TokensTypes = new List<TokenType>
+        {
+            new TokenType("simpleUnderscore", "_", "em"),
+            new TokenType("doubleUnderscore", "__", "strong")
+        };
+
         private List<TokenPosition> GetTokenPositions(int[] indexes)
         {
             var result = new List<TokenPosition>();
@@ -28,7 +34,7 @@ namespace MarkdownTests
 
             var finder = new TokenFinder();
             var validator = new TokensValidator();
-            var tokensPositions = finder.FindTokensInMdText(paragraph);
+            var tokensPositions = finder.FindTokensInMdText(paragraph, TokensTypes);
             var tokensWithPositions = validator.GetPositionsForTokens(tokensPositions);
 
             tokensWithPositions.First(token => token.Key.Name == "simpleUnderscore").Value
@@ -44,7 +50,7 @@ namespace MarkdownTests
 
             var finder = new TokenFinder();
             var validator = new TokensValidator();
-            var tokensPositions = finder.FindTokensInMdText(paragraph);
+            var tokensPositions = finder.FindTokensInMdText(paragraph, TokensTypes);
             var tokensWithPositions = validator.GetPositionsForTokens(tokensPositions);
 
             tokensWithPositions.First(token => token.Key.Name == "doubleUnderscore").Value.First()
@@ -61,7 +67,7 @@ namespace MarkdownTests
 
             var finder = new TokenFinder();
             var validator = new TokensValidator();
-            var tokensPositions = finder.FindTokensInMdText(paragraph);
+            var tokensPositions = finder.FindTokensInMdText(paragraph, TokensTypes);
             var tokensWithPositions = validator.GetPositionsForTokens(tokensPositions);
 
             tokensWithPositions.Should().NotContainKey(simpleUnderscore);
@@ -77,7 +83,7 @@ namespace MarkdownTests
 
             var finder = new TokenFinder();
             var validator = new TokensValidator();
-            var tokensPositions = finder.FindTokensInMdText(paragraph);
+            var tokensPositions = finder.FindTokensInMdText(paragraph, TokensTypes);
             var tokensWithPositions = validator.GetPositionsForTokens(tokensPositions);
 
             tokensWithPositions.First(token => token.Key.Name == "simpleUnderscore").Value
