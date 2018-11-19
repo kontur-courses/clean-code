@@ -20,9 +20,9 @@ namespace Markdown
 
             var builder = new StringBuilder();
 
-            builder.Append(GetTagValue(span, t => t.Open));
-            builder.Append(span.Children.Count == 0 ? GetSpanRowString(rawString, span) : GetSpanAssembledString(rawString, span));
-            builder.Append(GetTagValue(span, t => t.Close));
+            builder.Append(GetTagValue(span, t => t.Open))
+                   .Append(span.Children.Count == 0 ? GetSpanRowString(rawString, span) : GetSpanAssembledString(rawString, span))
+                   .Append(GetTagValue(span, t => t.Close));
 
             return builder.ToString();
         }
@@ -48,21 +48,21 @@ namespace Markdown
         {
             var builder = new StringBuilder();
 
-            builder.Append(rawString.Substring(span.StartIndex + span.Tag.Open.Length,
-                span.Children[0].StartIndex - (span.StartIndex + span.Tag.Open.Length)));
+            builder.Append(rawString.Substring(span.IndexAfterStart,
+                span.Children[0].StartIndex - span.IndexAfterStart));
 
             for (var i = 0; i < span.Children.Count - 1; i++)
             {
                 builder.Append(Assembly(rawString, span.Children[i]));
-                builder.Append(rawString.Substring(span.Children[i].EndIndex + span.Children[i].Tag.Close.Length,
-                    span.Children[i + 1].StartIndex - (span.Children[i].EndIndex + span.Children[i].Tag.Close.Length)));
+                builder.Append(rawString.Substring(span.Children[i].IndexAfterEnd,
+                    span.Children[i + 1].StartIndex - span.Children[i].IndexAfterEnd));
             }
 
             var lastSpan = span.Children[span.Children.Count - 1];
             builder.Append(Assembly(rawString, lastSpan));
 
-            builder.Append(rawString.Substring(lastSpan.EndIndex + lastSpan.Tag.Close.Length,
-                span.EndIndex - (lastSpan.EndIndex + lastSpan.Tag.Close.Length)));
+            builder.Append(rawString.Substring(lastSpan.IndexAfterEnd,
+                span.EndIndex - lastSpan.IndexAfterEnd));
 
             return builder.ToString();
         }

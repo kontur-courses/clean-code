@@ -8,17 +8,19 @@ namespace Markdown
 {
     public class Tag
     {
+        public static Tag EmptyTag => new Tag(TagType.None, "", "");
         public TagType Type { get; }
         public string Open { get; }
         public string Close { get; }
         public List<TagType> CanBeInside { get; }
-
-        public Tag(TagType type, string open, string close, List<TagType> canBeInside = null)
+        public Tag(TagType type, string open, string close, IEnumerable<TagType> canBeInside = null)
         {
             Type = type;
             Open = open;
             Close = close;
-            CanBeInside = canBeInside ?? new List<TagType>();
+            CanBeInside = new List<TagType>();
+            if (canBeInside != null)
+                CanBeInside.AddRange(canBeInside);
             CanBeInside.Add(TagType.None);
         }
 

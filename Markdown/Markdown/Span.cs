@@ -16,7 +16,9 @@ namespace Markdown
         public List<Span> Children => children;
         public Span Parent { get; private set; }
         public bool IsClosed => EndIndex != 0;
-        public bool CanBeInside => Parent != null && !Tag.CanBeInside.Contains(Parent.Tag.Type);
+        public bool CanBeInside => Tag.Type == TagType.None || (Parent != null && !Tag.CanBeInside.Contains(Parent.Tag.Type));
+        public int IndexAfterStart => StartIndex + Tag.Open.Length;
+        public int IndexAfterEnd => EndIndex + Tag.Close.Length;
 
         public Span(Tag tag, int startIndex, int endIndex=0)
         {
