@@ -13,7 +13,7 @@ namespace MarkdownTests
         [SetUp]
         public void SetUp()
         {
-            var tags = new[] { "_", "__", "#", "\n" };
+            var tags = new MarkdownLanguage().GetAllTags;
             parser = new MarkdownTokenParser(tags);
         }
 
@@ -80,10 +80,50 @@ namespace MarkdownTests
         }
 
         [Test]
-        public void TestGetTokens_OnHeadingTag()
+        public void TestGetTokens_OnHeading1Tag()
         {
-            const string inputString = "#";
-            var expectedResult = new[] { new Token(TokenType.Tag, "#") };
+            const string inputString = "# ";
+            var expectedResult = new[] { new Token(TokenType.Tag, "# ") };
+            parser.GetTokens(inputString).Should().BeEquivalentTo(expectedResult);
+        }
+
+        [Test]
+        public void TestGetTokens_OnHeading2Tag()
+        {
+            const string inputString = "## ";
+            var expectedResult = new[] { new Token(TokenType.Tag, "## ") };
+            parser.GetTokens(inputString).Should().BeEquivalentTo(expectedResult);
+        }
+
+        [Test]
+        public void TestGetTokens_OnHeading3Tag()
+        {
+            const string inputString = "### ";
+            var expectedResult = new[] { new Token(TokenType.Tag, "### ") };
+            parser.GetTokens(inputString).Should().BeEquivalentTo(expectedResult);
+        }
+
+        [Test]
+        public void TestGetTokens_OnHeading4Tag()
+        {
+            const string inputString = "#### ";
+            var expectedResult = new[] { new Token(TokenType.Tag, "#### ") };
+            parser.GetTokens(inputString).Should().BeEquivalentTo(expectedResult);
+        }
+
+        [Test]
+        public void TestGetTokens_OnHeading5Tag()
+        {
+            const string inputString = "##### ";
+            var expectedResult = new[] { new Token(TokenType.Tag, "##### ") };
+            parser.GetTokens(inputString).Should().BeEquivalentTo(expectedResult);
+        }
+
+        [Test]
+        public void TestGetTokens_OnHeading6Tag()
+        {
+            const string inputString = "###### ";
+            var expectedResult = new[] { new Token(TokenType.Tag, "###### ") };
             parser.GetTokens(inputString).Should().BeEquivalentTo(expectedResult);
         }
 

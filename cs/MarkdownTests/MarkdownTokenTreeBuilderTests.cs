@@ -2,6 +2,8 @@
 using FluentAssertions;
 using Markdown.Data;
 using Markdown.Data.TagsInfo;
+using Markdown.Data.TagsInfo.Headings;
+using Markdown.Data.TagsInfo.StandardTags;
 using Markdown.TreeBuilder;
 using NUnit.Framework;
 
@@ -17,7 +19,7 @@ namespace MarkdownTests
         [SetUp]
         public void SetUp()
         {
-            tagsInfo = new ITagInfo[] { new ItalicTagInfo(), new BoldTagInfo(), new H1TagInfo() };
+            tagsInfo = new MarkdownLanguage().GetTagsInfo;
             builder = new MarkdownTokenTreeBuilder(tagsInfo);
             testTreeBuilder = TestTreeBuilder.Tree();
         }
@@ -165,6 +167,132 @@ namespace MarkdownTests
             var expectedTree = testTreeBuilder
                 .WithTag(TestTreeBuilder
                     .Tag(new ItalicTagInfo())
+                    .WithText("a")
+                    .Build())
+                .Build();
+
+            var tree = builder.BuildTree(tokens);
+
+            tree.Should().BeEquivalentTo(expectedTree);
+        }
+
+        [Test]
+        public void TestBuildTree_OnHeading1WithText()
+        {
+            var tokens = new[]
+            {
+                new Token(TokenType.Tag, "# "),
+                new Token(TokenType.Text, "a"),
+                new Token(TokenType.Tag, "\n")
+            };
+            var expectedTree = testTreeBuilder
+                .WithTag(TestTreeBuilder
+                    .Tag(new H1TagInfo())
+                    .WithText("a")
+                    .Build())
+                .Build();
+
+            var tree = builder.BuildTree(tokens);
+
+            tree.Should().BeEquivalentTo(expectedTree);
+        }
+
+        [Test]
+        public void TestBuildTree_OnHeading2WithText()
+        {
+            var tokens = new[]
+            {
+                new Token(TokenType.Tag, "## "),
+                new Token(TokenType.Text, "a"),
+                new Token(TokenType.Tag, "\n")
+            };
+            var expectedTree = testTreeBuilder
+                .WithTag(TestTreeBuilder
+                    .Tag(new H2TagInfo())
+                    .WithText("a")
+                    .Build())
+                .Build();
+
+            var tree = builder.BuildTree(tokens);
+
+            tree.Should().BeEquivalentTo(expectedTree);
+        }
+
+        [Test]
+        public void TestBuildTree_OnHeading3WithText()
+        {
+            var tokens = new[]
+            {
+                new Token(TokenType.Tag, "### "),
+                new Token(TokenType.Text, "a"),
+                new Token(TokenType.Tag, "\n")
+            };
+            var expectedTree = testTreeBuilder
+                .WithTag(TestTreeBuilder
+                    .Tag(new H3TagInfo())
+                    .WithText("a")
+                    .Build())
+                .Build();
+
+            var tree = builder.BuildTree(tokens);
+
+            tree.Should().BeEquivalentTo(expectedTree);
+        }
+
+        [Test]
+        public void TestBuildTree_OnHeading4WithText()
+        {
+            var tokens = new[]
+            {
+                new Token(TokenType.Tag, "#### "),
+                new Token(TokenType.Text, "a"),
+                new Token(TokenType.Tag, "\n")
+            };
+            var expectedTree = testTreeBuilder
+                .WithTag(TestTreeBuilder
+                    .Tag(new H4TagInfo())
+                    .WithText("a")
+                    .Build())
+                .Build();
+
+            var tree = builder.BuildTree(tokens);
+
+            tree.Should().BeEquivalentTo(expectedTree);
+        }
+
+        [Test]
+        public void TestBuildTree_OnHeading5WithText()
+        {
+            var tokens = new[]
+            {
+                new Token(TokenType.Tag, "##### "),
+                new Token(TokenType.Text, "a"),
+                new Token(TokenType.Tag, "\n")
+            };
+            var expectedTree = testTreeBuilder
+                .WithTag(TestTreeBuilder
+                    .Tag(new H5TagInfo())
+                    .WithText("a")
+                    .Build())
+                .Build();
+
+            var tree = builder.BuildTree(tokens);
+
+            tree.Should().BeEquivalentTo(expectedTree);
+        }
+
+        [Test]
+        public void TestBuildTree_OnHeading6WithText()
+        {
+            var tokens = new[]
+            {
+                new Token(TokenType.Tag, "###### "),
+                new Token(TokenType.Text, "a"),
+                new Token(TokenType.Tag, "\n")
+            };
+            var expectedTree = testTreeBuilder
+                .WithTag(TestTreeBuilder
+                    .Tag(new H6TagInfo())
                     .WithText("a")
                     .Build())
                 .Build();

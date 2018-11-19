@@ -25,9 +25,10 @@ namespace Markdown.TreeTranslator.NodeTranslator
 
         public void Translate(TagTreeNode node, StringBuilder textBuilder)
         {
-            textBuilder.Append(node.IsRaw ? node.TagInfo.OpeningTag : tagTranslator.TranslateOpeningTag(node.TagInfo.OpeningTag));
+            var translation = tagTranslator.Translate(node.TagInfo);
+            textBuilder.Append(node.IsRaw ? node.TagInfo.OpeningTag : translation.OpeningTranslation);
             TranslateChildren(node, textBuilder);
-            textBuilder.Append(node.IsRaw ? node.TagInfo.ClosingTag : tagTranslator.TranslateClosingTag(node.TagInfo.ClosingTag));
+            textBuilder.Append(node.IsRaw ? node.TagInfo.ClosingTag : translation.ClosingTranslation);
         }
 
         private void TranslateChildren(TokenTreeNode node, StringBuilder textBuilder)

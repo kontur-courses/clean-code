@@ -1,4 +1,4 @@
-﻿namespace Markdown.Data.TagsInfo
+﻿namespace Markdown.Data.TagsInfo.StandardTags
 {
     public class StandardMarkdownTagInfo : ITagInfo
     {

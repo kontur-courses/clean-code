@@ -3,6 +3,8 @@ using System.Linq;
 using FluentAssertions;
 using Markdown.Data;
 using Markdown.Data.TagsInfo;
+using Markdown.Data.TagsInfo.Headings;
+using Markdown.Data.TagsInfo.StandardTags;
 using Markdown.TreeTranslator;
 using Markdown.TreeTranslator.NodeTranslator;
 using Markdown.TreeTranslator.TagTranslator;
@@ -22,8 +24,7 @@ namespace MarkdownTests
         [SetUp]
         public void SetUp()
         {
-            translations = new[] {new Tag(new ItalicTagInfo(), "em"), new Tag(new BoldTagInfo(), "strong")}
-                    .Select(tag => tag.ToTranslationInfo);
+            translations = new MarkdownLanguage().GetTranslations;
             tagTranslator = new MarkdownToHtmlTagTranslator(translations);
             nodeTranslator = new MarkdownNodeTranslator(tagTranslator);
             treeTranslator = new MarkdownTokenTreeTranslator(nodeTranslator);
@@ -112,6 +113,118 @@ namespace MarkdownTests
             var tree = treeBuilder
                 .WithTag(TestTreeBuilder
                     .Tag(new ItalicTagInfo())
+                    .WithText("a")
+                    .Build())
+                .Build();
+
+            var translation = treeTranslator.Translate(tree);
+
+            translation.Should().BeEquivalentTo(expectedTranslation);
+        }
+
+        [Test]
+        public void TestTranslate_OnBoldTagWithText()
+        {
+            const string expectedTranslation = "<strong>a</strong>";
+            var tree = treeBuilder
+                .WithTag(TestTreeBuilder
+                    .Tag(new BoldTagInfo())
+                    .WithText("a")
+                    .Build())
+                .Build();
+
+            var translation = treeTranslator.Translate(tree);
+
+            translation.Should().BeEquivalentTo(expectedTranslation);
+        }
+
+        [Test]
+        public void TestTranslate_OnHeading1WithText()
+        {
+            const string expectedTranslation = "<h1>a</h1>";
+            var tree = treeBuilder
+                .WithTag(TestTreeBuilder
+                    .Tag(new H1TagInfo())
+                    .WithText("a")
+                    .Build())
+                .Build();
+
+            var translation = treeTranslator.Translate(tree);
+
+            translation.Should().BeEquivalentTo(expectedTranslation);
+        }
+
+        [Test]
+        public void TestTranslate_OnHeading2WithText()
+        {
+            const string expectedTranslation = "<h2>a</h2>";
+            var tree = treeBuilder
+                .WithTag(TestTreeBuilder
+                    .Tag(new H2TagInfo())
+                    .WithText("a")
+                    .Build())
+                .Build();
+
+            var translation = treeTranslator.Translate(tree);
+
+            translation.Should().BeEquivalentTo(expectedTranslation);
+        }
+
+        [Test]
+        public void TestTranslate_OnHeading3WithText()
+        {
+            const string expectedTranslation = "<h3>a</h3>";
+            var tree = treeBuilder
+                .WithTag(TestTreeBuilder
+                    .Tag(new H3TagInfo())
+                    .WithText("a")
+                    .Build())
+                .Build();
+
+            var translation = treeTranslator.Translate(tree);
+
+            translation.Should().BeEquivalentTo(expectedTranslation);
+        }
+
+        [Test]
+        public void TestTranslate_OnHeading4WithText()
+        {
+            const string expectedTranslation = "<h4>a</h4>";
+            var tree = treeBuilder
+                .WithTag(TestTreeBuilder
+                    .Tag(new H4TagInfo())
+                    .WithText("a")
+                    .Build())
+                .Build();
+
+            var translation = treeTranslator.Translate(tree);
+
+            translation.Should().BeEquivalentTo(expectedTranslation);
+        }
+
+        [Test]
+        public void TestTranslate_OnHeading5WithText()
+        {
+            const string expectedTranslation = "<h5>a</h5>";
+            var tree = treeBuilder
+                .WithTag(TestTreeBuilder
+                    .Tag(new H5TagInfo())
+                    .WithText("a")
+                    .Build())
+                .Build();
+
+            var translation = treeTranslator.Translate(tree);
+
+            translation.Should().BeEquivalentTo(expectedTranslation);
+        }
+
+        [Test]
+        public void TestTranslate_OnHeading6WithText()
+        {
+            const string expectedTranslation = "<h6>a</h6>";
+            var tree = treeBuilder
+                .WithTag(TestTreeBuilder
+                    .Tag(new H6TagInfo())
                     .WithText("a")
                     .Build())
                 .Build();

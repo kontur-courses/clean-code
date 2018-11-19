@@ -2,7 +2,8 @@
 using System.Linq;
 using FluentAssertions;
 using Markdown.Data;
-using Markdown.Data.TagsInfo;
+using Markdown.Data.TagsInfo.Headings;
+using Markdown.Data.TagsInfo.StandardTags;
 using Markdown.TokenParser;
 using Markdown.TreeBuilder;
 using Markdown.TreeTranslator;
@@ -20,22 +21,13 @@ namespace MarkdownTests
         [SetUp]
         public void SetUp()
         {
-            var tags = new[]
-            {
-                new Tag(new ItalicTagInfo(), "em"),
-                new Tag(new BoldTagInfo(), "strong"),
-                new Tag(new H1TagInfo(), "h1"), 
-            };
+            var language = new MarkdownLanguage();
 
-            var allTags = tags.Select(tag => tag.Info.OpeningTag).Concat(tags.Select(tag => tag.Info.ClosingTag));
-            var tagsTranslations = tags.Select(tag => tag.ToTranslationInfo);
-            var tagsInfo = tags.Select(tag => tag.Info);
-
-            var parser = new MarkdownTokenParser(allTags);
-            var tagTranslator = new MarkdownToHtmlTagTranslator(tagsTranslations);
+            var parser = new MarkdownTokenParser(language.GetAllTags);
+            var tagTranslator = new MarkdownToHtmlTagTranslator(language.GetTranslations);
             var nodeTranslator = new MarkdownNodeTranslator(tagTranslator);
             var treeTranslator = new MarkdownTokenTreeTranslator(nodeTranslator);
-            var treeBuilder = new MarkdownTokenTreeBuilder(tagsInfo);
+            var treeBuilder = new MarkdownTokenTreeBuilder(language.GetTagsInfo);
 
             markdown = new Markdown.Markdown(parser, treeTranslator, treeBuilder);
         }
@@ -49,7 +41,12 @@ namespace MarkdownTests
         [TestCase("\\\\", "\\", TestName = "EscapedEscapeSymbol")]
         [TestCase("_a_", "<em>a</em>", TestName = "ItalicTag")]
         [TestCase("__a__", "<strong>a</strong>", TestName = "BoldTag")]
-        [TestCase("# a\n", "<h1>a</h1>", TestName = "HeadingWithText")]
+        [TestCase("# a\n", "<h1>a</h1>", TestName = "Heading1WithText")]
+        [TestCase("## a\n", "<h2>a</h2>", TestName = "Heading2WithText")]
+        [TestCase("### a\n", "<h3>a</h3>", TestName = "Heading3WithText")]
+        [TestCase("#### a\n", "<h4>a</h4>", TestName = "Heading4WithText")]
+        [TestCase("##### a\n", "<h5>a</h5>", TestName = "Heading5WithText")]
+        [TestCase("###### a\n", "<h6>a</h6>", TestName = "Heading6WithText")]
         [TestCase("\\_a_", "_a_", TestName = "ItalicTagWithEscapedOpening")]
         [TestCase("\\__a__", "__a__", TestName = "BoldTagWithEscapedOpening")]
         [TestCase("_a\\_", "_a_", TestName = "ItalicTagWithEscapedClosing")]

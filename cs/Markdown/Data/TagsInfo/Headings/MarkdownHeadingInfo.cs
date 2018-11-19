@@ -1,4 +1,4 @@
-﻿namespace Markdown.Data.TagsInfo
+﻿namespace Markdown.Data.TagsInfo.Headings
 {
     public class MarkdownHeadingInfo : ITagInfo
     {
@@ -12,9 +12,9 @@
         public bool MustBeClosed(string token, bool isOpened, TokenType previousTokenType, TokenType nexTokenType) =>
             token == ClosingTag && previousTokenType != TokenType.EscapeSymbol && isOpened;
 
-        public MarkdownHeadingInfo(string openingTag)
+        public MarkdownHeadingInfo(int numberOfSharps)
         {
-            OpeningTag = openingTag + " ";
+            OpeningTag = new string('#', numberOfSharps) + " ";
         }
     }
 }

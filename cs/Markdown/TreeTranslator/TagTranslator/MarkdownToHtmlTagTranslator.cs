@@ -1,30 +1,24 @@
 ﻿using System;
 using System.Collections.Generic;
 using Markdown.Data;
+using Markdown.Data.TagsInfo;
 
 namespace Markdown.TreeTranslator.TagTranslator
 {
     public class MarkdownToHtmlTagTranslator : ITagTranslator
     {
-        private readonly Dictionary<string, string> translations = new Dictionary<string, string>();
+        private readonly Dictionary<(string, string), string> translations = new Dictionary<(string, string), string>();
 
         public MarkdownToHtmlTagTranslator(IEnumerable<TagTranslationInfo> translations)
         {
             foreach (var translation in translations)
-            {
-                this.translations[translation.OpeningTag] = translation.Translation;
-                this.translations[translation.ClosingTag] = translation.Translation;
-            }
+                this.translations[(translation.OpeningTag, translation.ClosingTag)] = translation.Translation;
         }
 
-        public string TranslateOpeningTag(string tag) => BuildTag("<", tag, ">");
-
-        public string TranslateClosingTag(string tag) => BuildTag("</", tag, ">");
-
-        private string BuildTag(string leftEdge, string tag, string rightEdge)
+        public TagTranslationResult Translate(ITagInfo tagInfo)
         {
-            if (translations.TryGetValue(tag, out var translation))
-                return leftEdge + translation + rightEdge;
+            if (translations.TryGetValue((tagInfo.OpeningTag, tagInfo.ClosingTag), out var translation))
+                return new TagTranslationResult($"<{translation}>", $"</{translation}>");
             throw new ArgumentException("No such tag in translations dictionary");
         }
     }

@@ -1,8 +1,10 @@
-﻿namespace Markdown.TreeTranslator.TagTranslator
+﻿using Markdown.Data;
+using Markdown.Data.TagsInfo;
+
+namespace Markdown.TreeTranslator.TagTranslator
 {
     public interface ITagTranslator
     {
-        string TranslateOpeningTag(string tag);
-        string TranslateClosingTag(string tag);
+        TagTranslationResult Translate(ITagInfo tagInfo);
     }
 }
