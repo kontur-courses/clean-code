@@ -104,13 +104,8 @@ namespace Markdown
             return token.Length > 0;
         }
 
-        public static bool TryParseNumberWithUnderlines(string input, int begin, int end, out Token token)
+        public static bool IsNumberWithUnderlines(string input, int begin, int end)
         {
-            token = new Token()
-            {
-                Position = begin
-            };
-
             var currentPos = begin;
             var hasNumbers = false;
             
@@ -124,20 +119,15 @@ namespace Markdown
                     hasNumbers = true;
                 }
                 
-                if (!(isNumber || isUnderline) || currentPos == end - 1)
+                if (!(isNumber || isUnderline))
                 {
-                    if (hasNumbers)
-                    {
-                        token.Length = currentPos - begin - 1;
-                    }
-                    
-                    break;
+                    return false;
                 }
                 
                 currentPos++;
             }
 
-            return token.Length > 0;
+            return hasNumbers;
         }
         
         public static bool TryParseSingleUnderlineTag(string input, int begin, int end, out Token token)

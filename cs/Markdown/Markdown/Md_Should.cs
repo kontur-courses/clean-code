@@ -32,6 +32,8 @@ namespace Markdown
         [TestCase("_text_ ", ExpectedResult = "<em>text</em> ", TestName = "Valid em tag with right outer spaces")]
         [TestCase(" _text_", ExpectedResult = " <em>text</em>", TestName = "Valid em tag with left outer spaces")]
         [TestCase("_a 1_", ExpectedResult = "<em>a 1</em>", TestName = "Valid em tag ends by number divided by space")]
+        [TestCase("_1 a_", ExpectedResult = "<em>1 a</em>", TestName = "Valid em tag starts by number divided by space")]
+        [TestCase("_1_2_3 4_", ExpectedResult = "<em>1_2_3 4</em>", TestName = "Valid em tag with numbers divided by space")]
         public string MdRender_ShouldReturnCorrectHtml_WhenEmTag(string md)
         {
             return _md.Render(md);
@@ -44,17 +46,18 @@ namespace Markdown
         [TestCase("__text__ ", ExpectedResult = "<strong>text</strong> ", TestName = "Valid strong tag with right outer spaces")]
         [TestCase(" __text__", ExpectedResult = " <strong>text</strong>", TestName = "Valid strong tag with left outer spaces")]
         [TestCase("__a 1__", ExpectedResult = "<strong>a 1</strong>", TestName = "Valid strong tag ends by number divided by space")]
+        [TestCase("__1 a__", ExpectedResult = "<strong>1 a</strong>", TestName = "Valid strong tag starts by number divided by space")]
+        [TestCase("__1_2_3 4__", ExpectedResult = "<strong>1_2_3 4</strong>", TestName = "Valid strong tag with numbers divided by space")]
         public string MdRender_ShouldReturnCorrectHtml_WhenStrongTag(string md)
         {
             return _md.Render(md);
         }
         
         [TestCase("_12_", ExpectedResult = "_12_", TestName = "Number like em tag")]
-        [TestCase("_1 2_", ExpectedResult = "_1 2_", TestName = "Number like em tag divided by space")]
-        [TestCase("__1 2__", ExpectedResult = "__1 2__", TestName = "Number like strong tag divided by space")]
         [TestCase("_12", ExpectedResult = "_12", TestName = "Number starts with underline")]
         [TestCase("12_", ExpectedResult = "12_", TestName = "Number ends with underline")]
-        [TestCase("_1_23_4", ExpectedResult = "_1_23_4", TestName = "Number with multiple underlines")]
+        [TestCase("_1_23_4", ExpectedResult = "_1_23_4", TestName = "Numbers divided by single underline")]
+        [TestCase("__1___23_4____1", ExpectedResult = "__1___23_4____1", TestName = "Numbers divided by multiple underlines")]
         public string MdRender_ShouldReturnCorrectHtml_WhenNumber(string md)
         {
             return _md.Render(md);

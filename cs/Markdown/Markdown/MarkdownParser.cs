@@ -55,15 +55,15 @@ namespace Markdown
             var currentPos = begin;
             while (currentPos < end)
             {
-                if (TokenReader.TryParseNumberWithUnderlines(_input, currentPos, end, out token))
-                {
-                    currentPos = token.Position + token.Length;
-                    continue;
-                }
-                
                 if (TokenReader.TryParseDoubleUnderlineTag(_input, currentPos, end, out token))
                 {
                     if (!parentNode.IsRoot && parentNode.Type == NodeType.SingleUnderlineTag)
+                    {
+                        currentPos = token.Position + token.Length;
+                        continue;
+                    }
+
+                    if (TokenReader.IsNumberWithUnderlines(_input, token.Position, token.Position + token.Length))
                     {
                         currentPos = token.Position + token.Length;
                         continue;
@@ -75,6 +75,12 @@ namespace Markdown
 
                 if (TokenReader.TryParseSingleUnderlineTag(_input, currentPos, end, out token))
                 {
+                    if (TokenReader.IsNumberWithUnderlines(_input, token.Position, token.Position + token.Length))
+                    {
+                        currentPos = token.Position + token.Length;
+                        continue;
+                    }
+                    
                     node.Type = NodeType.SingleUnderlineTag;
                     return true;
                 }
