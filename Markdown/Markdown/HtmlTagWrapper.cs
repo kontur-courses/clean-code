@@ -6,12 +6,13 @@ namespace Markdown
 {
     public class HtmlTagWrapper
     {
-        public readonly Dictionary<string, ITag> dictionaryTags;
+        public readonly List<MdType> types;
 
-        public HtmlTagWrapper(Dictionary<string, ITag> dictionaryTags)
+        public HtmlTagWrapper(List<MdType> types)
         {
-            this.dictionaryTags = dictionaryTags;
+            this.types = types;
         }
+
         public string ConvertToHtml(List<ITag> pairedTags)
         {
             var htmlBuilder = new StringBuilder();
@@ -23,13 +24,13 @@ namespace Markdown
         }
 
         private string Wrap(ITag tag) => tag.Type == MdType.Text
-            ? tag.Content.RemoveEscapedSymbols(dictionaryTags)
+            ? tag.Content.RemoveEscapedSymbols(types)
             : $"<{tag.Html}>{GetInnerFormattedText(tag)}</{tag.Html}>";
 
         private string GetInnerFormattedText(ITag tag)
         {
-            var md = new Md(dictionaryTags);
-            return md.Render(tag);
+            var md = new Md(tag.AllowedInnerTypes);
+            return md.Render(tag.Content);
         }
     }
 }

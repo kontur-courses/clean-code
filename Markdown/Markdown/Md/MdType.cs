@@ -5,6 +5,7 @@
         SingleUnderLine,
         DoubleUnderLine,
         Sharp,
+        TripleGraveAccent,
         Text
     }
 }

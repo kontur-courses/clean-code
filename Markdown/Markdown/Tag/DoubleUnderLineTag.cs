@@ -1,18 +1,18 @@
-﻿namespace Markdown.Tag
+﻿using System.Collections.Generic;
+
+namespace Markdown.Tag
 {
     public class DoubleUnderLineTag : ITag
     {
-        public DoubleUnderLineTag()
-        {
-            Length = Symbol.Length;
-        }
+        public string Symbol => "__";
+        public string Html => "strong";
+        public int Length => Symbol.Length;
+        public MdType Type => MdType.DoubleUnderLine;
 
-        public string Symbol { get; set; } = "__";
-        public int Length { get; set; }
+        public List<MdType> AllowedInnerTypes =>
+            new List<MdType> {MdType.DoubleUnderLine, MdType.SingleUnderLine, MdType.Sharp};
         public string Content { get; set; }
-        public MdType Type { get; set; } = MdType.DoubleUnderLine;
         public int OpenIndex { get; set; }
         public int CloseIndex { get; set; }
-        public string Html { get; set; } = "strong";
     }
 }

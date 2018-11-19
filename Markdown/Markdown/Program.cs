@@ -1,6 +1,5 @@
 using System;
 using System.Collections.Generic;
-using Markdown.Tag;
 
 namespace Markdown
 {
@@ -8,14 +7,14 @@ namespace Markdown
     {
         private static void Main()
         {
-            var dictionaryTags = new Dictionary<string, ITag>
+            var types = new List<MdType>
             {
-                {"_", new SingleUnderLineTag()},
-                {"__", new DoubleUnderLineTag()},
-                {"#", new SharpTag()}
+                MdType.SingleUnderLine,
+                MdType.DoubleUnderLine,
+                MdType.Sharp,
+                MdType.TripleGraveAccent
             };
-
-            var md = new Md(dictionaryTags);
+            var md = new Md(types);
             Console.WriteLine(md.Render("_a __b__ c_"));
         }
     }
