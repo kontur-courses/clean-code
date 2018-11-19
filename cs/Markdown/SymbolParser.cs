@@ -1,5 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 
 namespace Markdown
 {
@@ -18,28 +17,27 @@ namespace Markdown
                 if (symbol == SymbolType.DoubleUnderscore)
                     i++;
             }
+
             return tagsPosition;
         }
 
         private SymbolType GetSymbolType(int index, string mdText)
         {
-            if (!CorrectIndex(index, mdText))
-                throw new IndexOutOfRangeException();
             var symbol = mdText[index];
             var nextIndex = index + 1;
-            if (CorrectIndex(nextIndex, mdText))
+            switch (symbol)
             {
-                var nextSymbol = mdText[nextIndex];
-                if (symbol == '_' && nextSymbol == '_')
+                case '_' when CorrectIndex(nextIndex, mdText) && nextIndex == '_':
                     return SymbolType.DoubleUnderscore;
+                case '_':
+                    return SymbolType.Underscore;
+                case '`':
+                    return SymbolType.GraveAccent;
+                case '\\':
+                    return SymbolType.Backslash;
+                default:
+                    return SymbolType.Ordinary;
             }
-            if (symbol == '_')
-                return SymbolType.Underscore;
-            if (symbol == '`')
-                return SymbolType.GraveAccent;
-            if (symbol == '\\')
-                return SymbolType.Backslash;
-            return SymbolType.Ordinary;
         }
 
         private bool CorrectIndex(int index, string mdText)

@@ -53,8 +53,8 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="Md.cs" />
-    <Compile Include="MdTests.cs" />
+    <Compile Include="Markdown.cs" />
+    <Compile Include="MarkdownTests.cs" />
     <Compile Include="Position.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="RulesChecker.cs" />

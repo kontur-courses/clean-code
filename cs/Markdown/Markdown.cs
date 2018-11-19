@@ -2,7 +2,7 @@
 
 namespace Markdown
 {
-    public class Md
+    public class Markdown
     {
         private readonly SymbolParser parser = new SymbolParser();
         private readonly RulesChecker checker = new RulesChecker();
