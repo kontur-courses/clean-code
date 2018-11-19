@@ -7,41 +7,64 @@ namespace Markdown.TextProcessing
     {
         public int Position { get; set; }
         public string Content { get; set; }
+        public TextBuilder Builder { get; set; }
 
         public TokenReader(string content)
         {
             Content = content;
+            Builder = new TextBuilder();
         }
 
-        public Token ReadUntil(Func<char, bool> isStopChar, TypeToken typeToken)
+        public IToken ReadToken(Func<char, bool> isStopChar, IToken iToken)
+        {
+            var startPosition = Position;
+            var value = ReadWhile(isStopChar, iToken);
+            var length = Position - startPosition;
+            if (Position == Content.Length && !iToken.IsStopToken(Content, Position - 1))
+            {
+                value = iToken.TokenAssociation + value;
+                return new SimpleToken(startPosition, length, value);
+            }
+            Position += iToken.TokenAssociation.Length == 0 ? 1 : iToken.TokenAssociation.Length;
+            return CreateToken(iToken, startPosition, length, value);
+        }
+
+        private string ReadWhile(Func<char, bool> isStopChar, IToken iToken)
         {
             var value = "";
-            var length = 0;
-            var startPosition = Position;
-            while (IsNotEndOfToken(isStopChar))
+            while (Position < Content.Length && (!isStopChar(Content[Position]) || !iToken.IsStopToken(Content, Position)))
             {
                 if (Position + 1 < Content.Length && isStopChar(Content[Position + 1]) && Content[Position] == '\\')
                 {
                     Position++;
                     continue;
                 }
-                length++;
+                if (isStopChar(Content[Position]) && iToken.IsStartToken(Content, Position))
+                {
+                    value += iToken.TokenAssociation;
+                    Position += iToken.TokenAssociation.Length;
+                    continue;
+                }
+                if (isStopChar(Content[Position]) && iToken.IsNestedToken(Content, Position))
+                {
+                    Position++;
+                    value += Builder.BuildToken(ReadToken(isStopChar, iToken.GetNextNestedToken(Content, Position)));
+                    continue;
+                }
                 value += Content[Position];
                 Position++;
             }
-            Position++;
-            return new Token(startPosition, length, value, typeToken);
+
+            return value;
         }
 
-        //Выглядит это ужасно, позже надо будет заменить.
-        private bool IsNotEndOfToken(Func<char, bool> isStopChar)
+        public IToken CreateToken(IToken token, int startPosition, int length, string value)
         {
-            var isEscapeCharacter = Position > 0 && Content[Position - 1] == '\\';
-            var isNotStopChar = Position + 1 < Content.Length && Position - 1 >= 0 &&
-                                isStopChar(Content[Position]) &&
-                                char.IsLetterOrDigit(Content[Position - 1]) &&
-                                char.IsLetterOrDigit(Content[Position + 1]);
-            return Position < Content.Length && (!isStopChar(Content[Position]) || isEscapeCharacter || isNotStopChar);
+            if (token is EmToken)
+                return new EmToken(startPosition, length, value);
+            if (token is StrongToken)
+                return new StrongToken(startPosition, length, value);
+            return new SimpleToken(startPosition, length, value);
         }
     }
 }

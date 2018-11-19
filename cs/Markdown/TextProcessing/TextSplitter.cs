@@ -1,6 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Diagnostics;
+﻿using System.Collections.Generic;
 using Markdown.Types;
 
 namespace Markdown.TextProcessing
@@ -15,35 +13,34 @@ namespace Markdown.TextProcessing
         {
             Content = content;
             Reader = new TokenReader(content);
-            station = TypeToken.SimpleText;
+            station = TypeToken.Simple;
         }
 
-        public List<Token> SplitToTokens()
+        public List<IToken> SplitToTokens()
         {
-            var tokens = new List<Token>();
+            var tokens = new List<IToken>();
             var position = 0;
             while (position < Content.Length)
             {
-                var token = new Token(0,0,"", TypeToken.SimpleText);
+                IToken token = new SimpleToken();
                 switch (station)
                 {
-                    case TypeToken.SimpleText:
-                        token = Reader.ReadUntil(x => x == '_', TypeToken.SimpleText);
-                        station = TypeToken.Em;
+                    case TypeToken.Simple:
                         break;
                     case TypeToken.Em:
-                        token = Reader.ReadUntil(x => x == '_', TypeToken.Em);
-                        station = token.Length == 0? TypeToken.Strong:TypeToken.SimpleText;
+                        token = new EmToken();
                         break;
                     case TypeToken.Strong:
-                        token = Reader.ReadUntil(x => x == '_', TypeToken.Strong);
-                        station = token.Length == 0 ? TypeToken.SimpleText : TypeToken.Strong;
+                        token = new StrongToken();
                         break;
                 }
-
+                token = Reader.ReadToken(token.IsStopChar, token);
                 position = Reader.Position;
+                station = token.GetNextTypeToken(Content, position - 1);
+                if (station == TypeToken.Strong)
+                    Reader.Position++;
                 if (token.Length != 0)
-                tokens.Add(token);
+                    tokens.Add(token);
             }
             return tokens;
         }

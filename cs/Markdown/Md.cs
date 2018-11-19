@@ -1,10 +1,4 @@
-﻿using System;
-using System.CodeDom;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using Markdown.TextProcessing;
+﻿using Markdown.TextProcessing;
 
 namespace Markdown
 {
@@ -14,8 +8,8 @@ namespace Markdown
         {
             var splitter = new TextSplitter(content);
             var tokens = splitter.SplitToTokens();
-            var builder = new TextBuilder(tokens);
-            var htmlCode = builder.BuildText();
+            var builder = new TextBuilder();
+            var htmlCode = builder.BuildText(tokens);
             return htmlCode;
         }
     }

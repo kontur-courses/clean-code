@@ -58,8 +58,11 @@
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="TextProcessing\TextBuilder.cs" />
     <Compile Include="TextProcessing\TextSplitter.cs" />
-    <Compile Include="Types\Token.cs" />
+    <Compile Include="Types\IToken.cs" />
+    <Compile Include="Types\EmToken.cs" />
     <Compile Include="TextProcessing\TokenReader.cs" />
+    <Compile Include="Types\SimpleToken.cs" />
+    <Compile Include="Types\StrongToken.cs" />
     <Compile Include="Types\TypeToken.cs" />
   </ItemGroup>
   <ItemGroup>

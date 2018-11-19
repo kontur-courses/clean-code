@@ -2,6 +2,6 @@
 {
     public enum TypeToken
     {
-        Em, Strong, SimpleText
+        Em, Strong, Simple
     }
 }
