@@ -23,7 +23,7 @@ namespace Markdown.TokenParser
             foreach (var symbol in text)
             {
                 var token = new string(currentToken.ToArray());
-                if (!IsPartOfToken(token, symbol))
+                if (!IsPartOfToken(token, symbol, previousTokenType))
                 {
                     var newToken = GetToken(token, previousTokenType);
                     yield return newToken;
@@ -35,11 +35,13 @@ namespace Markdown.TokenParser
             yield return GetToken(new string(currentToken.ToArray()), previousTokenType);
         }
 
-        private bool IsPartOfToken(string token, char nextSymbol)
+        private bool IsPartOfToken(string token, char nextSymbol, TokenType previousTokenType)
         {
             if (token.Length == 0)
                 return true;
             if (token == "\\" || nextSymbol == '\\' || token == "\n" || nextSymbol == '\n')
+                return false;
+            if (previousTokenType == TokenType.EscapeSymbol && tags.Contains(token))
                 return false;
             if (TryCheckThatPartOfTag(token, nextSymbol, out var nextSymbolIsPartOfTag))
                 return nextSymbolIsPartOfTag;

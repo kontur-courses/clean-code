@@ -50,6 +50,7 @@ namespace MarkdownTests
         [TestCase("\\__a__", "__a__", TestName = "Bold Tag With Escaped Opening")]
         [TestCase("_a\\_", "_a_", TestName = "Italic Tag With Escaped Closing")]
         [TestCase("__a\\__", "__a__", TestName = "Bold Tag With Escaped Closing")]
+        [TestCase("_\\__", "<em>_</em>", TestName = "Escaped Italic Tag In Italic Tag Opening")]
         [TestCase("a _b_", "a <em>b</em>", TestName = "Text And Italic Tag")]
         [TestCase("a __b__", "a <strong>b</strong>", TestName = "Text And Bold Tag")]
         [TestCase("a _b_ c", "a <em>b</em> c", TestName = "Italic Tag With Text Around")]
