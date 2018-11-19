@@ -39,7 +39,8 @@ namespace Markdown.Types
                 (char.IsLetterOrDigit(content[position + -1]) || content[position + -1] == '_'))
                 return true;
 
-            return position > 0 && position + 2 < content.Length && (char.IsSeparator(content[position + 2]) || char.IsSeparator(content[position + 2])) &&
+            return position > 0 && position + 2 < content.Length && 
+                   (char.IsSeparator(content[position + 2]) || char.IsPunctuation(content[position + 2])) &&
                    content[position] == '_' && content[position + 1] == '_' &&
                    (char.IsLetterOrDigit(content[position - 1]) || content[position - 1] == '_');
         }
