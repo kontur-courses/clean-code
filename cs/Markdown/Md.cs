@@ -1,92 +1,85 @@
 ﻿using System.Collections.Generic;
 using System.Linq;
 using System.Text;
-using static System.String;
 
 namespace Markdown
 {
     public class Md
     {
-        private List<string> splittedText = new List<string>();
-        private readonly Stack<Teg> textSeparatorStack = new Stack<Teg>();
-        public string Render(string input)
+        private LinkedList<string> tokens = new LinkedList<string>();
+        private readonly Stack<Tag> openTags = new Stack<Tag>();
+        public string Render(string inputText)
         {
-            splittedText = SplitList(input);
+            if (inputText == "") return "";
+            tokens = SplitInputText(inputText);
             var result = new StringBuilder();
-            for (var index = 0; index < splittedText.Count; index++)
+            var currentNode = tokens.First;
+            do
             {
-                if (!MarkupLanguage.IsKeyWords(splittedText[index])) continue;
+                if (!MarkupLanguage.IsKeyWords(currentNode.Value)) continue;
+                if (MarkupLanguage.LanguageRules.Any(r => !r(currentNode))) continue;
 
-                if (int.TryParse(splittedText[index - 1], out _) || int.TryParse(splittedText[index + 1], out _)) // todo highlight
-                    continue;
+                if ((!currentNode.Previous?.Value.EndsWith(" ") ?? false))
+                    CloseTag(currentNode);
+                else if ((!currentNode.Next?.Value.StartsWith(" ") ?? false))
+                    CreateTag(currentNode);
 
-                if (splittedText[index] == MarkupLanguage.Screening) // todo highlight
-                {
-                    splittedText.RemoveAt(index++);
-                    continue;
-                }
+            } while ((currentNode = currentNode.Next) != null);
 
-                if (index > 0 && !splittedText[index - 1].EndsWith(" ") && !IsNullOrEmpty(splittedText[index - 1])) ClosingTeg(index);
-                else if (!splittedText[index + 1].StartsWith(" ") && !IsNullOrEmpty(splittedText[index + 1])) OpeningTeg(index);
-            }
-            splittedText.ForEach(t => result.Append(t));
+            foreach (var token in tokens)
+                result.Append(token);
+
             return result.ToString();
         }
 
-        private void OpeningTeg(int index)
+        private void CreateTag(LinkedListNode<string> node)
         {
-            var currentSep = new TextSeparator(splittedText[index], index);
-            textSeparatorStack.Push(Teg.CreateTegOnTextSeparator(currentSep));
+            var tag = Tag.CreateTagOnTextSeparator(new TextSeparator(node.Value, node));
+            if (tag is IPairTag)
+                openTags.Push(tag);
+            else
+                node.Value = tag.ToString();
         }
 
-        private bool ClosingTeg(int index)
+        private bool CloseTag(LinkedListNode<string> node)
         {
-            TextSeparator currentSep;
-            if (textSeparatorStack.Count <= 0 ||
-                (currentSep = textSeparatorStack.Peek().StartSeparator).Separator != splittedText[index])
-                return false;
-            var teg = Teg.CreateTegOnTextSeparator(currentSep);
-            if (textSeparatorStack.All(t => t.TegRule.Check(teg))) // todo в текущем контексте это нормально, но если тег не может содержать сам себя работать не будет
+            if (openTags.Count == 0) return false;
+            var lastOpenTag = openTags.Peek().StartSeparator;
+            if (lastOpenTag.Separator != node.Value) return false;
+            var tag = Tag.CreateTagOnTextSeparator(lastOpenTag);
+            if (openTags.All(t => t is IPairTag pairTag && pairTag.CanIContainThisTagRule(tag))) // todo в текущем контексте это нормально, но если тег не может содержать сам себя работать не будет
             {
-                splittedText[currentSep.Index] = $"<{teg}>";
-                splittedText[index] = $"</{teg}>";
+                lastOpenTag.Index.Value = ((IPairTag)tag).StartTag;
+                node.Value = ((IPairTag)tag).EndTag;
             }
-            textSeparatorStack.Pop();
+            openTags.Pop();
             return true;
         }
 
-        public List<string> SplitList(string input)
+        public LinkedList<string> SplitInputText(string inputText)
         {
-            var text = new StringBuilder(input);
+            var textFromTokens = new StringBuilder(inputText);
             var currentToken = new StringBuilder();
-            for (var i = 0; i < text.Length; i++)
+            for (var i = 0; i < textFromTokens.Length; i++)
             {
-                var possibleKeyWords = MarkupLanguage.GetKeyWordsOnFirstLetter(text[i]);
-                if (possibleKeyWords.Count > 0)
+                var possibleKeyWords = MarkupLanguage.GetKeyWordsOnFirstLetter(textFromTokens[i]);
+                if (possibleKeyWords.Count == 0)
                 {
-                    foreach (var possibleKeyWord in possibleKeyWords)
-                    {
-                        if (!CompareStringBuilderPartWithString(possibleKeyWord, text, i)) continue;
-                        i += possibleKeyWord.Length-1;
-                        splittedText.Add(currentToken.ToString());
-                        splittedText.Add(possibleKeyWord);
-                        currentToken.Clear();
-                        break;
-                    }
+                    currentToken.Append(textFromTokens[i]);
+                    continue;
                 }
-                else
-                    currentToken.Append(text[i]);
+                foreach (var possibleKeyWord in possibleKeyWords)
+                {
+                    if (!inputText.Substring(i).StartsWith(possibleKeyWord)) continue;
+                    i += possibleKeyWord.Length - 1;
+                    if (currentToken.Length > 0) tokens.AddLast(currentToken.ToString());
+                    tokens.AddLast(possibleKeyWord);
+                    currentToken.Clear();
+                    break;
+                }
             }
-            splittedText.Add(currentToken.ToString());
-            return splittedText;
-        }
-
-        private static bool CompareStringBuilderPartWithString(string possibleKeyWord, StringBuilder text, int index)
-        {
-            return possibleKeyWord
-                .TakeWhile((t, indexPlus) => index + indexPlus < text.Length && text[index + indexPlus] == t)
-                .Where((t, indexPlus) => indexPlus + 1 == possibleKeyWord.Length)
-                .Any();
+            if (currentToken.Length > 0) tokens.AddLast(currentToken.ToString());
+            return tokens;
         }
     }
 }

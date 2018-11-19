@@ -1,12 +1,14 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 
 namespace Markdown
 {
     internal static class MarkupLanguage
     {
-        public static HashSet<string> KeyWords = new HashSet<string>();
-        public static Dictionary<char, List<string>> KeywordsByFirstLetter = new Dictionary<char, List<string>>();
-        public static string Screening = @"\";
+        private static readonly HashSet<string> KeyWords = new HashSet<string>();
+        private static readonly Dictionary<char, List<string>> KeywordsByFirstLetter = new Dictionary<char, List<string>>();
+        public static readonly List<Func<LinkedListNode<string>, bool>> LanguageRules = new List<Func<LinkedListNode<string>, bool>>();
+        public static string EscapeCharacter { get; } = "\\";
 
         static MarkupLanguage()
         {
@@ -14,35 +16,39 @@ namespace Markdown
             KeyWords.Add("__");
             KeyWords.Add("_");
 
-            KeyWords.Add(@"\");
+            KeyWords.Add(EscapeCharacter);
 
             foreach (var keyWord in KeyWords)
             {
                 if (KeywordsByFirstLetter.ContainsKey(keyWord[0]))
-                {
                     KeywordsByFirstLetter[keyWord[0]].Add(keyWord);
-                }
                 else
-                {
-                    var list = new List<string> {keyWord};
-                    KeywordsByFirstLetter.Add(keyWord[0], list);
-                }
+                    KeywordsByFirstLetter.Add(keyWord[0], new List<string> { keyWord });
             }
 
+            bool LowLineForNumbersRule(LinkedListNode<string> currentNode) => 
+                !(currentNode.Value.Contains("_") && (int.TryParse(currentNode.Previous?.Value, out _) || int.TryParse(currentNode.Next?.Value, out _)));
 
+            bool ScreeningRule(LinkedListNode<string> currentNode)
+            {
+                if (currentNode.Previous?.Value != EscapeCharacter) return currentNode.Value != EscapeCharacter;
+                // ReSharper disable once AssignNullToNotNullAttribute
+                currentNode.List.Remove(currentNode.Previous);
+                return false;
+            }
+
+            LanguageRules.Add(LowLineForNumbersRule);
+            LanguageRules.Add(ScreeningRule);
         }
 
-        public static bool IsKeyWords(string word)
-        {
-            return KeyWords.Contains(word);
-        }
+        public static bool IsKeyWords(string word) => KeyWords.Contains(word);
 
-        public static List<string> GetKeyWordsOnFirstLetter(char symbol)
+        public static List<string> GetKeyWordsOnFirstLetter(char letter)
         {
-            if (!KeywordsByFirstLetter.ContainsKey(symbol)) return new List<string>();
-            var res = KeywordsByFirstLetter[symbol];
-            res.Sort((a, b) => b.Length - a.Length);
-            return res;
+            if (!KeywordsByFirstLetter.ContainsKey(letter)) return new List<string>();
+            var keyWords = KeywordsByFirstLetter[letter];
+            keyWords.Sort((a, b) => b.Length - a.Length);
+            return keyWords;
         }
     }
 }
