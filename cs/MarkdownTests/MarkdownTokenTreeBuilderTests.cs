@@ -1,5 +1,6 @@
 ﻿using System.Collections.Generic;
 using FluentAssertions;
+using Markdown.Data;
 using Markdown.Data.TagsInfo;
 using Markdown.TreeBuilder;
 using NUnit.Framework;
@@ -24,7 +25,7 @@ namespace MarkdownTests
         [Test]
         public void TestBuildTree_OnNoTokens()
         {
-            var tokens = new string[0];
+            var tokens = new Token[0];
             var expectedTree = testTreeBuilder
                 .Build();
 
@@ -36,7 +37,7 @@ namespace MarkdownTests
         [Test]
         public void TestBuildTree_OnTextToken()
         {
-            var tokens = new[] { "a" };
+            var tokens = new[] { new Token(TokenType.Text, "a") };
             var expectedTree = testTreeBuilder
                 .WithText("a")
                 .Build();
@@ -49,7 +50,7 @@ namespace MarkdownTests
         [Test]
         public void TestBuildTree_OnSpaceToken()
         {
-            var tokens = new[] { " " };
+            var tokens = new[] { new Token(TokenType.Space, " ") };
             var expectedTree = testTreeBuilder
                 .WithSpace()
                 .Build();
@@ -62,7 +63,7 @@ namespace MarkdownTests
         [Test]
         public void TestBuildTree_OnNewLineToken()
         {
-            var tokens = new[] { "\n" };
+            var tokens = new[] { new Token(TokenType.Tag, "\n") };
             var expectedTree = testTreeBuilder
                 .WithText("\n")
                 .Build();
@@ -75,8 +76,10 @@ namespace MarkdownTests
         [Test]
         public void TestBuildTree_OnItalicTag()
         {
-            var tokens = new[] { "_" };
-            var expectedTree = testTreeBuilder.WithText("_").Build();
+            var tokens = new[] { new Token(TokenType.Tag, "_") };
+            var expectedTree = testTreeBuilder
+                .WithText("_")
+                .Build();
 
             var tree = builder.BuildTree(tokens);
 
@@ -86,7 +89,7 @@ namespace MarkdownTests
         [Test]
         public void TestBuildTree_OnBoldTag()
         {
-            var tokens = new[] { "__" };
+            var tokens = new[] { new Token(TokenType.Tag, "__") };
             var expectedTree = testTreeBuilder
                 .WithText("__")
                 .Build();
@@ -99,7 +102,7 @@ namespace MarkdownTests
         [Test]
         public void TestBuildTree_OnDoubleEscapeSymbol()
         {
-            var tokens = new[] { "\\", "\\" };
+            var tokens = new[] { new Token(TokenType.EscapeSymbol, "\\"), new Token(TokenType.EscapeSymbol, "\\") };
             var expectedTree = testTreeBuilder
                 .WithText("\\")
                 .Build();
@@ -112,7 +115,12 @@ namespace MarkdownTests
         [Test]
         public void TestBuildTree_OnTextWithSpace()
         {
-            var tokens = new[] { "a", " ", "b" };
+            var tokens = new[] 
+            {
+                new Token(TokenType.Text, "a"),
+                new Token(TokenType.Space, " "),
+                new Token(TokenType.Text, "b")
+            };
             var expectedTree = testTreeBuilder
                 .WithText("a")
                 .WithSpace()
@@ -127,7 +135,13 @@ namespace MarkdownTests
         [Test]
         public void TestBuildTree_OnTextWithNewLine()
         {
-            var tokens = new[] { "a", "\n", "b" };
+            var tokens = new[]
+            {
+                new Token(TokenType.Text, "a"),
+                new Token(TokenType.Text, "\n"),
+                new Token(TokenType.Text, "b")
+            };
+
             var expectedTree = testTreeBuilder
                 .WithText("a")
                 .WithText("\n")
@@ -142,7 +156,12 @@ namespace MarkdownTests
         [Test]
         public void TestBuildTree_OnItalicTagWithText()
         {
-            var tokens = new[] { "_", "a", "_" };
+            var tokens = new[]
+            {
+                new Token(TokenType.Tag, "_"),
+                new Token(TokenType.Text, "a"),
+                new Token(TokenType.Tag, "_")
+            };
             var expectedTree = testTreeBuilder
                 .WithTag(TestTreeBuilder
                     .Tag(new ItalicTagInfo())
@@ -158,7 +177,7 @@ namespace MarkdownTests
         [Test]
         public void TestBuildTree_OnNotClosedItalicTag()
         {
-            var tokens = new[] { "_", "a" };
+            var tokens = new[] { new Token(TokenType.Tag, "_"), new Token(TokenType.Text, "a") };
             var expectedTree = testTreeBuilder
                 .WithText("_")
                 .WithText("a")
@@ -172,7 +191,7 @@ namespace MarkdownTests
         [Test]
         public void TestBuildTree_OnNotOpenedItalicTag()
         {
-            var tokens = new[] { "a", "_" };
+            var tokens = new[] { new Token(TokenType.Text, "a"), new Token(TokenType.Tag, "_") };
             var expectedTree = testTreeBuilder
                 .WithText("a")
                 .WithText("_")
@@ -186,7 +205,13 @@ namespace MarkdownTests
         [Test]
         public void TestBuildTree_OnSpaceAfterOpeningItalicTag()
         {
-            var tokens = new[] { "_", " ", "a", "_" };
+            var tokens = new[]
+            {
+                new Token(TokenType.Tag, "_"),
+                new Token(TokenType.Space, " "),
+                new Token(TokenType.Text, "a"),
+                new Token(TokenType.Tag, "_")
+            };
             var expectedTree = testTreeBuilder
                 .WithText("_")
                 .WithSpace()
@@ -202,7 +227,13 @@ namespace MarkdownTests
         [Test]
         public void TestBuildTree_OnSpaceBeforeClosingItalicTag()
         {
-            var tokens = new[] { "_", "a", " ", "_" };
+            var tokens = new[]
+            {
+                new Token(TokenType.Tag, "_"),
+                new Token(TokenType.Text, "a"),
+                new Token(TokenType.Space, " "),
+                new Token(TokenType.Tag, "_") 
+            };
             var expectedTree = testTreeBuilder
                 .WithText("_")
                 .WithText("a")
@@ -218,7 +249,13 @@ namespace MarkdownTests
         [Test]
         public void TestBuildTree_OnOpeningItalicTagInText()
         {
-            var tokens = new[] { "a", "_", "b", "_" };
+            var tokens = new[]
+            {
+                new Token(TokenType.Text, "a"),
+                new Token(TokenType.Tag, "_"),
+                new Token(TokenType.Text, "b"),
+                new Token(TokenType.Tag, "_")
+            };
             var expectedTree = testTreeBuilder
                 .WithText("a")
                 .WithText("_")
@@ -234,7 +271,13 @@ namespace MarkdownTests
         [Test]
         public void TestBuildTree_OnClosingItalicTagInText()
         {
-            var tokens = new[] { "_", "a", "_", "b" };
+            var tokens = new[]
+            {
+                new Token(TokenType.Tag, "_"),
+                new Token(TokenType.Text, "a"),
+                new Token(TokenType.Tag, "_"),
+                new Token(TokenType.Text, "b")
+            };
             var expectedTree = testTreeBuilder
                 .WithText("_")
                 .WithText("a")
@@ -250,7 +293,13 @@ namespace MarkdownTests
         [Test]
         public void TestBuildTree_OnEscapeBeforeOpeningItalicTag()
         {
-            var tokens = new[] { "\\", "_", "a", "_" };
+            var tokens = new[]
+            {
+                new Token(TokenType.EscapeSymbol, "\\"),
+                new Token(TokenType.Tag, "_"),
+                new Token(TokenType.Text, "a"),
+                new Token(TokenType.Tag, "_")
+            };
             var expectedTree = testTreeBuilder
                 .WithText("_")
                 .WithText("a")
@@ -265,7 +314,13 @@ namespace MarkdownTests
         [Test]
         public void TestBuildTree_OnEscapeBeforeClosingItalicTag()
         {
-            var tokens = new[] { "_", "a", "\\", "_" };
+            var tokens = new[]
+            {
+                new Token(TokenType.Tag, "_"),
+                new Token(TokenType.Text, "a"),
+                new Token(TokenType.EscapeSymbol, "\\"),
+                new Token(TokenType.Tag, "_")
+            };
             var expectedTree = testTreeBuilder
                 .WithText("_")
                 .WithText("a")
@@ -280,7 +335,16 @@ namespace MarkdownTests
         [Test]
         public void TestBuildTree_OnEscapedOpeningSortTagInsideItalicTag()
         {
-            var tokens = new[] { "_", "a", " ", "\\", "_", "b", "_" };
+            var tokens = new[] 
+                {
+                    new Token(TokenType.Tag, "_"),
+                    new Token(TokenType.Text, "a"),
+                    new Token(TokenType.Space, " "),
+                    new Token(TokenType.EscapeSymbol, "\\"),
+                    new Token(TokenType.Tag, "_"),
+                    new Token(TokenType.Text, "b"),
+                    new Token(TokenType.Tag, "_")
+                };
             var expectedTree = testTreeBuilder
                 .WithTag(TestTreeBuilder
                     .Tag(new ItalicTagInfo())
@@ -299,7 +363,16 @@ namespace MarkdownTests
         [Test]
         public void TestBuildTree_OnEscapedClosingSortTagInsideItalicTag()
         {
-            var tokens = new[] { "_", "a", " ", "b", "\\", "_", "_" };
+            var tokens = new[]
+            {
+                new Token(TokenType.Tag, "_"),
+                new Token(TokenType.Text, "a"),
+                new Token(TokenType.Space, " "),
+                new Token(TokenType.Text, "b"),
+                new Token(TokenType.EscapeSymbol, "\\"),
+                new Token(TokenType.Tag, "_"),
+                new Token(TokenType.Tag, "_")
+            };
             var expectedTree = testTreeBuilder
                 .WithTag(TestTreeBuilder
                     .Tag(new ItalicTagInfo())
@@ -318,7 +391,15 @@ namespace MarkdownTests
         [Test]
         public void TestBuildTree_OnSameOpeningBeforeItalicTag()
         {
-            var tokens = new[] { "_", "a", " ", "_", "b", "_" };
+            var tokens = new[]
+            {
+                new Token(TokenType.Tag, "_"),
+                new Token(TokenType.Text, "a"),
+                new Token(TokenType.Space, " "),
+                new Token(TokenType.Tag, "_"),
+                new Token(TokenType.Text, "b"),
+                new Token(TokenType.Tag, "_")
+            };
             var expectedTree = testTreeBuilder
                 .WithTag(TestTreeBuilder
                     .Tag(new ItalicTagInfo())
@@ -337,7 +418,15 @@ namespace MarkdownTests
         [Test]
         public void TestBuildTree_OnSameClosingItalicTag()
         {
-            var tokens = new[] { "_", "a", "_", " ", "b", "_" };
+            var tokens = new[]
+            {
+                new Token(TokenType.Tag, "_"),
+                new Token(TokenType.Text, "a"),
+                new Token(TokenType.Tag, "_"),
+                new Token(TokenType.Space, " "),
+                new Token(TokenType.Text, "b"),
+                new Token(TokenType.Tag, "_")
+            };
             var expectedTree = testTreeBuilder
                 .WithTag(TestTreeBuilder
                     .Tag(new ItalicTagInfo())
@@ -356,7 +445,18 @@ namespace MarkdownTests
         [Test]
         public void TestBuildTree_OnItalicTagInItalicTag()
         {
-            var tokens = new[] { "_", "a", " ", "_", "b", "_", " ", "c", "_" };
+            var tokens = new[]
+            {
+                new Token(TokenType.Tag, "_"),
+                new Token(TokenType.Text, "a"),
+                new Token(TokenType.Space, " "),
+                new Token(TokenType.Tag, "_"),
+                new Token(TokenType.Text, "b"),
+                new Token(TokenType.Tag, "_"),
+                new Token(TokenType.Space, " "),
+                new Token(TokenType.Text, "c"),
+                new Token(TokenType.Tag, "_"),
+            };
             var expectedTree = testTreeBuilder
                 .WithTag(TestTreeBuilder
                     .Tag(new ItalicTagInfo())
@@ -378,7 +478,18 @@ namespace MarkdownTests
         [Test]
         public void TestBuildTree_OnBoldTagInBoldTag()
         {
-            var tokens = new[] { "__", "a", " ", "__", "b", "__", " ", "c", "__" };
+            var tokens = new[]
+            {
+                new Token(TokenType.Tag, "__"),
+                new Token(TokenType.Text, "a"),
+                new Token(TokenType.Space, " "),
+                new Token(TokenType.Tag, "__"),
+                new Token(TokenType.Text, "b"),
+                new Token(TokenType.Tag, "__"),
+                new Token(TokenType.Space, " "),
+                new Token(TokenType.Text, "c"),
+                new Token(TokenType.Tag, "__"),
+            };
             var expectedTree = testTreeBuilder
                 .WithTag(TestTreeBuilder
                     .Tag(new ItalicTagInfo())
@@ -400,7 +511,18 @@ namespace MarkdownTests
         [Test]
         public void TestBuildTree_OnBoldTagInsideItalicTag()
         {
-            var tokens = new[] { "_", "a", " ", "__", "b", "__", " ", "c", "_" };
+            var tokens = new[]
+            {
+                new Token(TokenType.Tag, "_"),
+                new Token(TokenType.Text, "a"),
+                new Token(TokenType.Space, " "),
+                new Token(TokenType.Tag, "__"),
+                new Token(TokenType.Text, "b"),
+                new Token(TokenType.Tag, "__"),
+                new Token(TokenType.Space, " "),
+                new Token(TokenType.Text, "c"),
+                new Token(TokenType.Tag, "_"),
+            };
             var expectedTree = testTreeBuilder
                 .WithTag(TestTreeBuilder
                     .Tag(new ItalicTagInfo())
@@ -423,7 +545,18 @@ namespace MarkdownTests
         [Test]
         public void TestBuildTree_OnItalicTagInsideBoldTag()
         {
-            var tokens = new[] { "__", "a", " ", "_", "b", "_", " ", "c", "__" };
+            var tokens = new[]
+            {
+                new Token(TokenType.Tag, "__"),
+                new Token(TokenType.Text, "a"),
+                new Token(TokenType.Space, " "),
+                new Token(TokenType.Tag, "_"),
+                new Token(TokenType.Text, "b"),
+                new Token(TokenType.Tag, "_"),
+                new Token(TokenType.Space, " "),
+                new Token(TokenType.Text, "c"),
+                new Token(TokenType.Tag, "__"),
+            };
             var expectedTree = testTreeBuilder
                 .WithTag(TestTreeBuilder
                     .Tag(new BoldTagInfo())
@@ -446,7 +579,18 @@ namespace MarkdownTests
         [Test]
         public void TestBuildTree_OnOuterTagClosedBeforeInner()
         {
-            var tokens = new[] { "__", "a", " ", "_", "b", "__", " ", "c", "_" };
+            var tokens = new[]
+            {
+                new Token(TokenType.Tag, "__"),
+                new Token(TokenType.Text, "a"),
+                new Token(TokenType.Space, " "),
+                new Token(TokenType.Tag, "_"),
+                new Token(TokenType.Text, "b"),
+                new Token(TokenType.Tag, "__"),
+                new Token(TokenType.Space, " "),
+                new Token(TokenType.Text, "c"),
+                new Token(TokenType.Tag, "_"),
+            };
             var expectedTree = testTreeBuilder
                 .WithTag(TestTreeBuilder
                     .Tag(new BoldTagInfo())

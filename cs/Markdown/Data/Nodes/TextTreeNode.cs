@@ -1,4 +1,8 @@
-﻿namespace Markdown.Data.Nodes
+﻿using System.Text;
+using Markdown.TreeTranslator;
+using Markdown.TreeTranslator.NodeTranslator;
+
+namespace Markdown.Data.Nodes
 {
     public class TextTreeNode : TokenTreeNode
     {
@@ -8,5 +12,8 @@
         {
             Text = text;
         }
+
+        public override void Translate(INodeTranslator translator, StringBuilder textBuilder) =>
+            translator.Translate(this, textBuilder);
     }
 }

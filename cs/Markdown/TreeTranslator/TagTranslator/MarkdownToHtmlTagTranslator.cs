@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using Markdown.Data;
 
-namespace Markdown.TreeTranslator
+namespace Markdown.TreeTranslator.TagTranslator
 {
     public class MarkdownToHtmlTagTranslator : ITagTranslator
     {

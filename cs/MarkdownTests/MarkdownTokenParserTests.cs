@@ -1,4 +1,5 @@
 ﻿using FluentAssertions;
+using Markdown.Data;
 using Markdown.TokenParser;
 using NUnit.Framework;
 
@@ -12,39 +13,303 @@ namespace MarkdownTests
         [SetUp]
         public void SetUp()
         {
-            var tags = new[] { "_", "__" };
+            var tags = new[] { "_", "__", "#", "\n" };
             parser = new MarkdownTokenParser(tags);
         }
 
-        [TestCase(null, new string[0], TestName = "Null")]
-        [TestCase("", new string[0], TestName = "EmptyString")]
-        [TestCase("abc", new[] { "abc" }, TestName = "Letters")]
-        [TestCase("123", new[] { "123" }, TestName = "Digits")]
-        [TestCase("!?(),.:;\"\'-", new[] { "!", "?", "(", ")", ",", ".", ":", ";", "\"", "\'", "-" }, TestName = "PunctuationSymbols")]
-        [TestCase("_", new[] { "_" }, TestName = "ShortTag")]
-        [TestCase("__", new[] { "__" }, TestName = "LongTag")]
-        [TestCase(" ", new[] { " " }, TestName = "OneSpace")]
-        [TestCase("\n", new[] { "\n" }, TestName = "OneNewLine")]
-        [TestCase("\\", new[] { "\\" }, TestName = "EscapeSymbol")]
-        [TestCase("  ", new[] { "  " }, TestName = "TwoSpaces")]
-        [TestCase("\t", new[] { "\t" }, TestName = "Tab")]
-        [TestCase("a ", new[] { "a", " " }, TestName = "LetterAndSpace")]
-        [TestCase(" a", new[] { " ", "a" }, TestName = "SpaceAndLetter")]
-        [TestCase("a b", new[] { "a", " ", "b" }, TestName = "SpaceBetweenLetters")]
-        [TestCase("a\nb", new[] { "a", "\n", "b" }, TestName = "NewLineBetweenLetters")]
-        [TestCase("_a", new[] { "_", "a" }, TestName = "ShortTagAndLetter")]
-        [TestCase("a_", new[] { "a", "_" }, TestName = "LetterAndShortTag")]
-        [TestCase("_a_", new[] { "_", "a", "_" }, TestName = "LetterBetweenShortTag")]
-        [TestCase("__a", new[] { "__", "a" }, TestName = "LongTagAndLetter")]
-        [TestCase("a__", new[] { "a", "__" }, TestName = "LetterAndLongTag")]
-        [TestCase("__a__", new[] { "__", "a", "__" }, TestName = "LetterBetweenLongTag")]
-        [TestCase("\\a", new[] { "\\", "a" }, TestName = "EscapeSymbolAndLetter")]
-        [TestCase("a\\", new[] { "a", "\\" }, TestName = "LetterAndEscapeSymbol")]
-        [TestCase("___", new[] { "__", "_" }, TestName = "BothTags")]
-        [TestCase(" _ ", new[] { " ", "_", " " }, TestName = "ShortTagBetweenSpaces")]
-        [TestCase("a_b", new[] { "a", "_", "b" }, TestName = "ShortTagBetweenLetters")]
-        public void TestGetTokens(string inputString, string[] expectedResult)
+        [Test]
+        public void TestGetTokens_OnNull()
         {
+            const string inputString = null;
+            var expectedResult = new Token[0];
+            parser.GetTokens(inputString).Should().BeEquivalentTo(expectedResult);
+        }
+
+        [Test]
+        public void TestGetTokens_OnEmptyString()
+        {
+            const string inputString = "";
+            var expectedResult = new Token[0];
+            parser.GetTokens(inputString).Should().BeEquivalentTo(expectedResult);
+        }
+
+        [Test]
+        public void TestGetTokens_OnLetters()
+        {
+            const string inputString = "abc";
+            var expectedResult = new[] { new Token(TokenType.Text, "abc") };
+            parser.GetTokens(inputString).Should().BeEquivalentTo(expectedResult);
+        }
+
+        [Test]
+        public void TestGetTokens_OnDigits()
+        {
+            var inputString = "123";
+            var expectedResult = new[] { new Token(TokenType.Text, "123") };
+            parser.GetTokens(inputString).Should().BeEquivalentTo(expectedResult);
+        }
+
+        [Test]
+        public void TestGetTokens_OnPunctuationSymbols()
+        {
+            const string inputString = "!?.,";
+            var expectedResult = new[]
+            {
+                new Token(TokenType.Text, "!"),
+                new Token(TokenType.Text, "?"),
+                new Token(TokenType.Text, "."),
+                new Token(TokenType.Text, ",")
+            };
+            parser.GetTokens(inputString).Should().BeEquivalentTo(expectedResult);
+        }
+
+        [Test]
+        public void TestGetTokens_OnShortTag()
+        {
+            const string inputString = "_";
+            var expectedResult = new[] { new Token(TokenType.Tag, "_") };
+            parser.GetTokens(inputString).Should().BeEquivalentTo(expectedResult);
+        }
+
+        [Test]
+        public void TestGetTokens_OnLongTag()
+        {
+            const string inputString = "__";
+            var expectedResult = new[] { new Token(TokenType.Tag, "__") };
+            parser.GetTokens(inputString).Should().BeEquivalentTo(expectedResult);
+        }
+
+        [Test]
+        public void TestGetTokens_OnHeadingTag()
+        {
+            const string inputString = "#";
+            var expectedResult = new[] { new Token(TokenType.Tag, "#") };
+            parser.GetTokens(inputString).Should().BeEquivalentTo(expectedResult);
+        }
+
+        [Test]
+        public void TestGetTokens_OnOneSpace()
+        {
+            var inputString = " ";
+            var expectedResult = new[] { new Token(TokenType.Space, " ") };
+            parser.GetTokens(inputString).Should().BeEquivalentTo(expectedResult);
+        }
+
+        [Test]
+        public void TestGetTokens_OnOneNewLine()
+        {
+            const string inputString = "\n";
+            var expectedResult = new[] { new Token(TokenType.Tag, "\n") };
+            parser.GetTokens(inputString).Should().BeEquivalentTo(expectedResult);
+        }
+
+        [Test]
+        public void TestGetTokens_OnEscapeSymbol()
+        {
+            const string inputString = "\\";
+            var expectedResult = new[] { new Token(TokenType.EscapeSymbol, "\\") };
+            parser.GetTokens(inputString).Should().BeEquivalentTo(expectedResult);
+        }
+
+        [Test]
+        public void TestGetTokens_OnTwoSpaces()
+        {
+            const string inputString = "  ";
+            var expectedResult = new[] { new Token(TokenType.Space, "  ") };
+            parser.GetTokens(inputString).Should().BeEquivalentTo(expectedResult);
+        }
+
+        [Test]
+        public void TestGetTokens_OnTab()
+        {
+            const string inputString = "\t";
+            var expectedResult = new[] { new Token(TokenType.Space, "\t") };
+            parser.GetTokens(inputString).Should().BeEquivalentTo(expectedResult);
+        }
+
+        [Test]
+        public void TestGetTokens_OnLetterAndSpace()
+        {
+            const string inputString = "a ";
+            var expectedResult = new[]
+            {
+                new Token(TokenType.Text, "a"),
+                new Token(TokenType.Space, " ")
+            };
+            parser.GetTokens(inputString).Should().BeEquivalentTo(expectedResult);
+        }
+
+        [Test]
+        public void TestGetTokens_OnSpaceAndLetter()
+        {
+            const string inputString = " a";
+            var expectedResult = new[]
+            {
+                new Token(TokenType.Space, " "),
+                new Token(TokenType.Text, "a")
+            };
+            parser.GetTokens(inputString).Should().BeEquivalentTo(expectedResult);
+        }
+
+        [Test]
+        public void TestGetTokens_OnSpaceBetweenLetters()
+        {
+            const string inputString = "a b";
+            var expectedResult = new[]
+            {
+                new Token(TokenType.Text, "a"),
+                new Token(TokenType.Space, " "),
+                new Token(TokenType.Text, "b")
+            };
+            parser.GetTokens(inputString).Should().BeEquivalentTo(expectedResult);
+        }
+
+        [Test]
+        public void TestGetTokens_OnShortTagAndLetter()
+        {
+            const string inputString = "_a";
+            var expectedResult = new[]
+            {
+                new Token(TokenType.Tag, "_"),
+                new Token(TokenType.Text, "a")
+            };
+            parser.GetTokens(inputString).Should().BeEquivalentTo(expectedResult);
+        }
+
+        [Test]
+        public void TestGetTokens_OnNewLineBetweenLetters()
+        {
+            const string inputString = "a\nb";
+            var expectedResult = new[]
+            {
+                new Token(TokenType.Text, "a"),
+                new Token(TokenType.Tag, "\n"),
+                new Token(TokenType.Text, "b")
+            };
+            parser.GetTokens(inputString).Should().BeEquivalentTo(expectedResult);
+        }
+
+        [Test]
+        public void TestGetTokens_OnLetterAndShortTag()
+        {
+            const string inputString = "a_";
+            var expectedResult = new[]
+            {
+                new Token(TokenType.Text, "a"),
+                new Token(TokenType.Tag, "_") 
+            };
+            parser.GetTokens(inputString).Should().BeEquivalentTo(expectedResult);
+        }
+
+        [Test]
+        public void TestGetTokens_OnLetterBetweenShortTag()
+        {
+            const string inputString = "_a_";
+            var expectedResult = new[]
+            {
+                new Token(TokenType.Tag, "_"),
+                new Token(TokenType.Text, "a"),
+                new Token(TokenType.Tag, "_") 
+            };
+            parser.GetTokens(inputString).Should().BeEquivalentTo(expectedResult);
+        }
+
+        [Test]
+        public void TestGetTokens_OnLongTagAndLetter()
+        {
+            const string inputString = "__a";
+            var expectedResult = new[]
+            {
+                new Token(TokenType.Tag, "__"),
+                new Token(TokenType.Text, "a") 
+            };
+            parser.GetTokens(inputString).Should().BeEquivalentTo(expectedResult);
+        }
+
+        [Test]
+        public void TestGetTokens_OnLetterAndLongTag()
+        {
+            const string inputString = "a__";
+            var expectedResult = new[]
+            {
+                new Token(TokenType.Text, "a"),
+                new Token(TokenType.Tag, "__") 
+            };
+            parser.GetTokens(inputString).Should().BeEquivalentTo(expectedResult);
+        }
+
+        [Test]
+        public void TestGetTokens_OnLetterBetweenLongTag()
+        {
+            const string inputString = "__a__";
+            var expectedResult = new[]
+            {
+                new Token(TokenType.Tag, "__"),
+                new Token(TokenType.Text, "a"),
+                new Token(TokenType.Tag, "__") 
+            };
+            parser.GetTokens(inputString).Should().BeEquivalentTo(expectedResult);
+        }
+
+        [Test]
+        public void TestGetTokens_OnEscapeSymbolAndLetter()
+        {
+            const string inputString = "\\a";
+            var expectedResult = new[]
+            {
+                new Token(TokenType.EscapeSymbol, "\\"),
+                new Token(TokenType.Text, "a") 
+            };
+            parser.GetTokens(inputString).Should().BeEquivalentTo(expectedResult);
+        }
+
+        [Test]
+        public void TestGetTokens_OnLetterAndEscapeSymbol()
+        {
+            const string inputString = "a\\";
+            var expectedResult = new[]
+            {
+                new Token(TokenType.Text, "a"),
+                new Token(TokenType.EscapeSymbol, "\\") 
+            };
+            parser.GetTokens(inputString).Should().BeEquivalentTo(expectedResult);
+        }
+
+        [Test]
+        public void TestGetTokens_OnBothTags()
+        {
+            const string inputString = "___";
+            var expectedResult = new[]
+            {
+                new Token(TokenType.Tag, "__"),
+                new Token(TokenType.Tag, "_")
+            };
+            parser.GetTokens(inputString).Should().BeEquivalentTo(expectedResult);
+        }
+
+        [Test]
+        public void TestGetTokens_OnShortTagBetweenSpaces()
+        {
+            const string inputString = " _ ";
+            var expectedResult = new[]
+            {
+                new Token(TokenType.Space, " "),
+                new Token(TokenType.Tag, "_"),
+                new Token(TokenType.Space, " ") 
+            };
+            parser.GetTokens(inputString).Should().BeEquivalentTo(expectedResult);
+        }
+
+        [Test]
+        public void TestGetTokens_OnShortTagBetweenLetters()
+        {
+            const string inputString = "a_b";
+            var expectedResult = new[]
+            {
+                new Token(TokenType.Text, "a"),
+                new Token(TokenType.Tag, "_"),
+                new Token(TokenType.Text, "b") 
+            };
             parser.GetTokens(inputString).Should().BeEquivalentTo(expectedResult);
         }
     }

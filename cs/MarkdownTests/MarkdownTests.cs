@@ -6,6 +6,8 @@ using Markdown.Data.TagsInfo;
 using Markdown.TokenParser;
 using Markdown.TreeBuilder;
 using Markdown.TreeTranslator;
+using Markdown.TreeTranslator.NodeTranslator;
+using Markdown.TreeTranslator.TagTranslator;
 using NUnit.Framework;
 
 namespace MarkdownTests
@@ -31,7 +33,8 @@ namespace MarkdownTests
 
             var parser = new MarkdownTokenParser(allTags);
             var tagTranslator = new MarkdownToHtmlTagTranslator(tagsTranslations);
-            var treeTranslator = new MarkdownTokenTreeTranslator(tagTranslator);
+            var nodeTranslator = new MarkdownNodeTranslator(tagTranslator);
+            var treeTranslator = new MarkdownTokenTreeTranslator(nodeTranslator);
             var treeBuilder = new MarkdownTokenTreeBuilder(tagsInfo);
 
             markdown = new Markdown.Markdown(parser, treeTranslator, treeBuilder);

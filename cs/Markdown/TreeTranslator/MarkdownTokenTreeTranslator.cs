@@ -1,57 +1,23 @@
 ﻿using System.Text;
 using Markdown.Data.Nodes;
+using Markdown.TreeTranslator.NodeTranslator;
 
 namespace Markdown.TreeTranslator
 {
     public class MarkdownTokenTreeTranslator : ITokenTreeTranslator
     {
-        private readonly ITagTranslator tagTranslator;
+        private readonly INodeTranslator nodeTranslator;
 
-        public MarkdownTokenTreeTranslator(ITagTranslator tagTranslator)
+        public MarkdownTokenTreeTranslator(INodeTranslator nodeTranslator)
         {
-            this.tagTranslator = tagTranslator;
+            this.nodeTranslator = nodeTranslator;
         }
 
         public string Translate(TokenTreeNode tokenTree)
         {
             var textBuilder = new StringBuilder();
-            foreach (var child in tokenTree.Children)
-                TranslateNode(child, textBuilder);
+            tokenTree.Translate(nodeTranslator, textBuilder);
             return textBuilder.ToString();
-        }
-
-        private void TranslateNode(TokenTreeNode currentNode, StringBuilder textBuilder)
-        {
-            textBuilder.Append(GetNodeText(currentNode));
-
-            foreach (var child in currentNode.Children)
-                TranslateNode(child, textBuilder);
-
-            if (currentNode is TagTreeNode closedTagNode)
-                textBuilder.Append(GetClosedTagNodeText(closedTagNode));
-        }
-
-        private string GetClosedTagNodeText(TagTreeNode closedTagNode)
-        {
-            return closedTagNode.IsRaw
-                ? closedTagNode.TagInfo.ClosingTag
-                : tagTranslator.TranslateClosingTag(closedTagNode.TagInfo.ClosingTag);
-        }
-
-        private string GetNodeText(TokenTreeNode currentNode)
-        {
-            switch (currentNode)
-            {
-                case TextTreeNode textNode:
-                    return textNode.Text;
-                case SpaceTreeNode _:
-                    return " ";
-                case TagTreeNode rawOpenedTagNode when rawOpenedTagNode.IsRaw:
-                    return rawOpenedTagNode.TagInfo.OpeningTag;
-                case TagTreeNode openedTagNode:
-                    return tagTranslator.TranslateOpeningTag(openedTagNode.TagInfo.OpeningTag);
-            }
-            return null;
         }
     }
 }

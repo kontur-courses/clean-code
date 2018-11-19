@@ -1,9 +1,10 @@
 ﻿using System.Collections.Generic;
+using Markdown.Data;
 
 namespace Markdown.TokenParser
 {
     public interface ITokenParser
     {
-        IEnumerable<string> GetTokens(string text);
+        IEnumerable<Token> GetTokens(string text);
     }
 }

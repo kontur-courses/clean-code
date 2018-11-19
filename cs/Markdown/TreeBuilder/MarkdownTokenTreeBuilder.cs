@@ -20,16 +20,16 @@ namespace Markdown.TreeBuilder
             }
         }
 
-        public TokenTreeNode BuildTree(IEnumerable<string> tokens)
+        public TokenTreeNode BuildTree(IEnumerable<Token> tokens)
         {
             var openedTags = new Stack<TagTreeNode>();
             openedTags.Push(new RootTreeNode());
-            var tokensArray = tokens as string[] ?? tokens.ToArray();
+            var tokensArray = tokens as Token[] ?? tokens.ToArray();
             for (var i = 0; i < tokensArray.Length; i++)
             {
                 var token = tokensArray[i];
-                var previousTokenType = i > 0 ? GetTokenType(tokensArray[i - 1]) : TokenType.ParagraphStart;
-                var nextTokenType = i < tokensArray.Length - 1 ? GetTokenType(tokensArray[i + 1]) : TokenType.ParagraphEnd;
+                var previousTokenType = i > 0 ? tokensArray[i - 1].Type : TokenType.ParagraphStart;
+                var nextTokenType = i < tokensArray.Length - 1 ? tokensArray[i + 1].Type : TokenType.ParagraphEnd;
 
                 AddTokenToTree(openedTags, token, previousTokenType, nextTokenType);
             }
@@ -38,24 +38,23 @@ namespace Markdown.TreeBuilder
             return root;
         }
 
-        private void AddTokenToTree(Stack<TagTreeNode> openedTags, string token, TokenType previousTokenType, TokenType nextTokenType)
+        private void AddTokenToTree(Stack<TagTreeNode> openedTags, Token token, TokenType previousTokenType, TokenType nextTokenType)
         {
             var currentTag = openedTags.Peek();
-            var tokenType = GetTokenType(token);
 
-            switch (tokenType)
+            switch (token.Type)
             {
                 case TokenType.Space:
-                    currentTag.Children.Add(new SpaceTreeNode());
+                    currentTag.Children.Add(new TextTreeNode(" "));
                     break;
                 case TokenType.Text:
-                    currentTag.Children.Add(new TextTreeNode(token));
+                    currentTag.Children.Add(new TextTreeNode(token.Text));
                     break;
                 case TokenType.EscapeSymbol when previousTokenType == TokenType.EscapeSymbol:
                     currentTag.Children.Add(new TextTreeNode("\\"));
                     break;
                 case TokenType.Tag:
-                    AddTagToken(openedTags, token, previousTokenType, nextTokenType);
+                    AddTagToken(openedTags, token.Text, previousTokenType, nextTokenType);
                     break;
             }
         }
@@ -76,7 +75,7 @@ namespace Markdown.TreeBuilder
         private static void CloseTag(Stack<TagTreeNode> nodeStack, string token)
         {
             while (nodeStack.Peek().TagInfo.ClosingTag != token)
-                RemoveOpenedTag(nodeStack);
+                CancelLastOpenedTag(nodeStack);
             var tag = nodeStack.Pop();
             nodeStack.Peek().Children.Add(tag);
         }
@@ -96,29 +95,16 @@ namespace Markdown.TreeBuilder
             if (openedTags.Count == 1)
                 return openedTags.Peek();
             while (openedTags.Count > 1)
-                RemoveOpenedTag(openedTags);
+                CancelLastOpenedTag(openedTags);
             return openedTags.Peek();
         }
 
-        private static void RemoveOpenedTag(Stack<TagTreeNode> nodeStack)
+        private static void CancelLastOpenedTag(Stack<TagTreeNode> nodeStack)
         {
             var previousNode = nodeStack.Pop();
             var parent = nodeStack.Peek();
             parent.Children.Add(new TextTreeNode(previousNode.TagInfo.OpeningTag));
             parent.Children.AddRange(previousNode.Children);
-        }
-
-        private TokenType GetTokenType(string token)
-        {
-            if (string.IsNullOrEmpty(token))
-                throw new ArgumentException("token should be not empty string");
-            if (token == "\\")
-                return TokenType.EscapeSymbol;
-            if (tagsInfo.ContainsKey(token))
-                return TokenType.Tag;
-            if (string.IsNullOrWhiteSpace(token))
-                return TokenType.Space;
-            return TokenType.Text;
         }
     }
 }

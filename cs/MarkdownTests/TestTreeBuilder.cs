@@ -32,7 +32,7 @@ namespace MarkdownTests
 
         public TestTreeBuilder WithSpace()
         {
-            node.Children.Add(new SpaceTreeNode());
+            node.Children.Add(new TextTreeNode(" "));
             return this;
         }
 

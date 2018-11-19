@@ -4,6 +4,8 @@ using FluentAssertions;
 using Markdown.Data;
 using Markdown.Data.TagsInfo;
 using Markdown.TreeTranslator;
+using Markdown.TreeTranslator.NodeTranslator;
+using Markdown.TreeTranslator.TagTranslator;
 using NUnit.Framework;
 
 namespace MarkdownTests
@@ -13,6 +15,7 @@ namespace MarkdownTests
     {
         private MarkdownTokenTreeTranslator treeTranslator;
         private MarkdownToHtmlTagTranslator tagTranslator;
+        private MarkdownNodeTranslator nodeTranslator;
         private IEnumerable<TagTranslationInfo> translations;
         private TestTreeBuilder treeBuilder;
 
@@ -22,7 +25,8 @@ namespace MarkdownTests
             translations = new[] {new Tag(new ItalicTagInfo(), "em"), new Tag(new BoldTagInfo(), "strong")}
                     .Select(tag => tag.ToTranslationInfo);
             tagTranslator = new MarkdownToHtmlTagTranslator(translations);
-            treeTranslator = new MarkdownTokenTreeTranslator(tagTranslator);
+            nodeTranslator = new MarkdownNodeTranslator(tagTranslator);
+            treeTranslator = new MarkdownTokenTreeTranslator(nodeTranslator);
             treeBuilder = TestTreeBuilder.Tree();
         }
 

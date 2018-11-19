@@ -1,5 +1,7 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Linq;
+using Markdown.Data;
 
 namespace Markdown.TokenParser
 {
@@ -12,7 +14,7 @@ namespace Markdown.TokenParser
             this.tags = tags;
         }
 
-        public IEnumerable<string> GetTokens(string text)
+        public IEnumerable<Token> GetTokens(string text)
         {
             if (string.IsNullOrEmpty(text))
                 yield break;
@@ -22,12 +24,12 @@ namespace Markdown.TokenParser
                 var token = new string(currentToken.ToArray());
                 if (!IsPartOfToken(token, symbol))
                 {
-                    yield return token;
+                    yield return GetToken(token);
                     currentToken.Clear();
                 }
                 currentToken.Enqueue(symbol);
             }
-            yield return new string(currentToken.ToArray());
+            yield return GetToken(new string(currentToken.ToArray()));
         }
 
         private bool IsPartOfToken(string token, char nextSymbol)
@@ -52,6 +54,19 @@ namespace Markdown.TokenParser
                 return false;
             nextSymbolIsPartOfTag = tagVariants.Any(tag => tag.StartsWith(token + nextSymbol));
             return true;
+        }
+
+        private Token GetToken(string token)
+        {
+            if (string.IsNullOrEmpty(token))
+                throw new ArgumentException("token should be not empty string");
+            if (token == "\\")
+                return new Token(TokenType.EscapeSymbol, token);
+            if (tags.Contains(token))
+                return new Token(TokenType.Tag, token);
+            if (string.IsNullOrWhiteSpace(token))
+                return new Token(TokenType.Space, token);
+            return new Token(TokenType.Text, token);
         }
     }
 }

@@ -1,4 +1,7 @@
-﻿using Markdown.Data.TagsInfo;
+﻿using System.Text;
+using Markdown.Data.TagsInfo;
+using Markdown.TreeTranslator;
+using Markdown.TreeTranslator.NodeTranslator;
 
 namespace Markdown.Data.Nodes
 {
@@ -11,5 +14,8 @@ namespace Markdown.Data.Nodes
         {
             TagInfo = tagInfo;
         }
+
+        public override void Translate(INodeTranslator translator, StringBuilder textBuilder) =>
+            translator.Translate(this, textBuilder);
     }
 }
