@@ -5,10 +5,7 @@ namespace Markdown.Markups
 {
     public class Underscore : Markup
     {
-        public readonly string opening = "_";
-        public readonly string closing = "_";
-
-        public Underscore() : base(new List<Type>())
+        public Underscore() : base("_", "_", "em", new List<Type>())
         {
 
         }

@@ -1,5 +1,4 @@
-﻿using System;
-using Markdown.Markups;
+﻿using Markdown.Markups;
 
 namespace Markdown
 {
@@ -21,7 +20,7 @@ namespace Markdown
 
         public string ConvertToHtml(string text)
         {
-            throw new NotImplementedException();
+            return Markup.GetTaggedText(text);
         }
     }
 }
