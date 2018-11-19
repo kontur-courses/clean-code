@@ -1,5 +1,4 @@
 ﻿using System.Text;
-using Markdown.TreeTranslator;
 using Markdown.TreeTranslator.NodeTranslator;
 
 namespace Markdown.Data.Nodes

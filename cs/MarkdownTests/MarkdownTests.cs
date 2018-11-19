@@ -1,9 +1,6 @@
 ﻿using System;
-using System.Linq;
 using FluentAssertions;
 using Markdown.Data;
-using Markdown.Data.TagsInfo.Headings;
-using Markdown.Data.TagsInfo.StandardTags;
 using Markdown.TokenParser;
 using Markdown.TreeBuilder;
 using Markdown.TreeTranslator;
@@ -32,41 +29,43 @@ namespace MarkdownTests
             markdown = new Markdown.Markdown(parser, treeTranslator, treeBuilder);
         }
 
-        [TestCase("\n", "\n", TestName = "OnlyNewLine")]
-        [TestCase("", "", TestName = "EmptyString")]
-        [TestCase("a", "a", TestName = "OnlyText")]
-        [TestCase(" ", " ", TestName = "OnlySpace")]
-        [TestCase("a b", "a b", TestName = "TextWithSpace")]
-        [TestCase("a\nb", "a\nb", TestName = "TextWithNewLine")]
-        [TestCase("\\\\", "\\", TestName = "EscapedEscapeSymbol")]
-        [TestCase("_a_", "<em>a</em>", TestName = "ItalicTag")]
-        [TestCase("__a__", "<strong>a</strong>", TestName = "BoldTag")]
-        [TestCase("# a\n", "<h1>a</h1>", TestName = "Heading1WithText")]
-        [TestCase("## a\n", "<h2>a</h2>", TestName = "Heading2WithText")]
-        [TestCase("### a\n", "<h3>a</h3>", TestName = "Heading3WithText")]
-        [TestCase("#### a\n", "<h4>a</h4>", TestName = "Heading4WithText")]
-        [TestCase("##### a\n", "<h5>a</h5>", TestName = "Heading5WithText")]
-        [TestCase("###### a\n", "<h6>a</h6>", TestName = "Heading6WithText")]
-        [TestCase("\\_a_", "_a_", TestName = "ItalicTagWithEscapedOpening")]
-        [TestCase("\\__a__", "__a__", TestName = "BoldTagWithEscapedOpening")]
-        [TestCase("_a\\_", "_a_", TestName = "ItalicTagWithEscapedClosing")]
-        [TestCase("__a\\__", "__a__", TestName = "BoldTagWithEscapedClosing")]
-        [TestCase("a _b_", "a <em>b</em>", TestName = "TextAndItalicTag")]
-        [TestCase("a __b__", "a <strong>b</strong>", TestName = "TextAndBoldTag")]
-        [TestCase("a _b_ c", "a <em>b</em> c", TestName = "ItalicTagWithTextAround")]
-        [TestCase("a __b__ c", "a <strong>b</strong> c", TestName = "BoldTagWithTextAround")]
-        [TestCase("_a_ b", "<em>a</em> b", TestName = "ItalicTagAndText")]
-        [TestCase("__a__ b", "<strong>a</strong> b", TestName = "BoldTagAndText")]
-        [TestCase("a_b_ c", "a_b_ c", TestName = "ItalicTagOpeningInText")]
-        [TestCase("a__b__ c", "a__b__ c", TestName = "BoldOpeningTagInText")]
-        [TestCase("a _b_c", "a _b_c", TestName = "ItalicTagClosingInText")]
-        [TestCase("a __b__c", "a __b__c", TestName = "BoldTagClosingInText")]
-        [TestCase("a_b_c", "a_b_c", TestName = "ItalicTagInText")]
-        [TestCase("a__b__c", "a__b__c", TestName = "BoldTagInText")]
-        [TestCase("__a _b_ c__", "<strong>a <em>b</em> c</strong>", TestName = "ItalicTagInBoldTag")]
-        [TestCase("_a __b__ c_", "<em>a __b__ c</em>", TestName = "BoldTagInItalicTag")]
-        [TestCase("_a _b_ c_", "<em>a _b</em> c_", TestName = "ItalicTagInItalicTag")]
-        [TestCase("__a __b__ c__", "<strong>a __b</strong> c__", TestName = "BoldTagInBoldTag")]
+        [TestCase("\n", "\n", TestName = "Only New Line")]
+        [TestCase("", "", TestName = "Empty String")]
+        [TestCase("a", "a", TestName = "Only Text")]
+        [TestCase(" ", " ", TestName = "Only Space")]
+        [TestCase("a b", "a b", TestName = "Text With Space")]
+        [TestCase("a\nb", "a\nb", TestName = "Text With New Line")]
+        [TestCase("\\\\", "\\", TestName = "Escaped Escape Symbol")]
+        [TestCase("_\\\\_", "<em>\\</em>", TestName = "Escaped Escape Symbol In Tag")]
+        [TestCase("_a_", "<em>a</em>", TestName = "Italic Tag")]
+        [TestCase("__a__", "<strong>a</strong>", TestName = "Bold Tag")]
+        [TestCase("# a\n", "<h1>a</h1>", TestName = "Heading1")]
+        [TestCase("## a\n", "<h2>a</h2>", TestName = "Heading2")]
+        [TestCase("### a\n", "<h3>a</h3>", TestName = "Heading3")]
+        [TestCase("#### a\n", "<h4>a</h4>", TestName = "Heading4")]
+        [TestCase("##### a\n", "<h5>a</h5>", TestName = "Heading5")]
+        [TestCase("###### a\n", "<h6>a</h6>", TestName = "Heading6")]
+        [TestCase("a _b_ __c__", "a <em>b</em> <strong>c</strong>", TestName = "Different Tags")]
+        [TestCase("\\_a_", "_a_", TestName = "Italic Tag With Escaped Opening")]
+        [TestCase("\\__a__", "__a__", TestName = "Bold Tag With Escaped Opening")]
+        [TestCase("_a\\_", "_a_", TestName = "Italic Tag With Escaped Closing")]
+        [TestCase("__a\\__", "__a__", TestName = "Bold Tag With Escaped Closing")]
+        [TestCase("a _b_", "a <em>b</em>", TestName = "Text And Italic Tag")]
+        [TestCase("a __b__", "a <strong>b</strong>", TestName = "Text And Bold Tag")]
+        [TestCase("a _b_ c", "a <em>b</em> c", TestName = "Italic Tag With Text Around")]
+        [TestCase("a __b__ c", "a <strong>b</strong> c", TestName = "Bold Tag With Text Around")]
+        [TestCase("_a_ b", "<em>a</em> b", TestName = "Italic Tag And Text")]
+        [TestCase("__a__ b", "<strong>a</strong> b", TestName = "Bold Tag And Text")]
+        [TestCase("a_b_ c", "a_b_ c", TestName = "Italic Tag Opening In Text")]
+        [TestCase("a__b__ c", "a__b__ c", TestName = "Bold Opening Tag In Text")]
+        [TestCase("a _b_c", "a _b_c", TestName = "Italic Tag Closing In Text")]
+        [TestCase("a __b__c", "a __b__c", TestName = "Bold Tag Closing In Text")]
+        [TestCase("a_b_c", "a_b_c", TestName = "Italic Tag In Text")]
+        [TestCase("a__b__c", "a__b__c", TestName = "Bold Tag In Text")]
+        [TestCase("__a _b_ c__", "<strong>a <em>b</em> c</strong>", TestName = "Italic Tag In Bold Tag")]
+        [TestCase("_a __b__ c_", "<em>a __b__ c</em>", TestName = "Bold Tag In Italic Tag")]
+        [TestCase("_a _b_ c_", "<em>a _b</em> c_", TestName = "Italic Tag In Italic Tag")]
+        [TestCase("__a __b__ c__", "<strong>a __b</strong> c__", TestName = "Bold Tag In Bold Tag")]
         public void TestRender(string inputString, string expectedResult)
         {
             var translation = markdown.Render(inputString);

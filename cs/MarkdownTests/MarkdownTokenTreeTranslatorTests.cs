@@ -1,8 +1,6 @@
 ﻿using System.Collections.Generic;
-using System.Linq;
 using FluentAssertions;
 using Markdown.Data;
-using Markdown.Data.TagsInfo;
 using Markdown.Data.TagsInfo.Headings;
 using Markdown.Data.TagsInfo.StandardTags;
 using Markdown.TreeTranslator;

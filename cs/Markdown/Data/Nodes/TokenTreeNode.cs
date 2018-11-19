@@ -1,6 +1,5 @@
 ﻿using System.Collections.Generic;
 using System.Text;
-using Markdown.TreeTranslator;
 using Markdown.TreeTranslator.NodeTranslator;
 
 namespace Markdown.Data.Nodes

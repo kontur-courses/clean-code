@@ -19,17 +19,20 @@ namespace Markdown.TokenParser
             if (string.IsNullOrEmpty(text))
                 yield break;
             var currentToken = new Queue<char>();
+            var previousTokenType = TokenType.ParagraphStart;
             foreach (var symbol in text)
             {
                 var token = new string(currentToken.ToArray());
                 if (!IsPartOfToken(token, symbol))
                 {
-                    yield return GetToken(token);
+                    var newToken = GetToken(token, previousTokenType);
+                    yield return newToken;
+                    previousTokenType = newToken.Type;
                     currentToken.Clear();
                 }
                 currentToken.Enqueue(symbol);
             }
-            yield return GetToken(new string(currentToken.ToArray()));
+            yield return GetToken(new string(currentToken.ToArray()), previousTokenType);
         }
 
         private bool IsPartOfToken(string token, char nextSymbol)
@@ -56,10 +59,12 @@ namespace Markdown.TokenParser
             return true;
         }
 
-        private Token GetToken(string token)
+        private Token GetToken(string token, TokenType previousTokenType)
         {
             if (string.IsNullOrEmpty(token))
                 throw new ArgumentException("token should be not empty string");
+            if (previousTokenType == TokenType.EscapeSymbol)
+                return new Token(TokenType.Text, token);
             if (token == "\\")
                 return new Token(TokenType.EscapeSymbol, token);
             if (tags.Contains(token))
