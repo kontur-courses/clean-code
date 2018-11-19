@@ -4,7 +4,7 @@ namespace Markdown
 {
     public class Markdown
     {
-        private readonly SymbolParser parser = new SymbolParser();
+        private readonly SymbolMap parser = new SymbolMap();
         private readonly RulesChecker checker = new RulesChecker();
 
         public string Render(string mdText)

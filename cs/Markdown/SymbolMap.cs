@@ -2,7 +2,7 @@
 
 namespace Markdown
 {
-    public class SymbolParser
+    public class SymbolMap
     {
         public SortedDictionary<int, SymbolType> GetTagsPosition(string mdText)
         {

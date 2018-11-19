@@ -59,8 +59,8 @@
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="RulesChecker.cs" />
     <Compile Include="RulesCkeckerTests.cs" />
-    <Compile Include="SymbolParser.cs" />
-    <Compile Include="SymbolParserTests.cs" />
+    <Compile Include="SymbolMap.cs" />
+    <Compile Include="SymbolMapTests.cs" />
     <Compile Include="SymbolType.cs" />
     <Compile Include="SymbolAndTagConnection.cs" />
   </ItemGroup>
