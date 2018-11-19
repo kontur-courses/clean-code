@@ -15,7 +15,9 @@ namespace Markdown
             parser.registerGlobalReader(new ParagraphRegister());
             parser.registerGlobalReader(new HorLineRegister());
 
-            var result = parser.Parse("some surface\n***\n in my life");
+            parser.registerLocalReader(new StrongRegister());
+
+            var result = parser.Parse("some __surface__\n***\n in my life");
 
             Console.WriteLine(result);
 
