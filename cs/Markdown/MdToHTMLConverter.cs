@@ -1,18 +1,9 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using NUnit.Framework.Constraints;
+﻿using System.Text;
 
 namespace Markdown
 {
     public class MdToHTMLConverter
     {
-        public MdToHTMLConverter()
-        {
-        }
-
         public string Convert(string mdInput)
         {
             if (mdInput == string.Empty)
@@ -24,40 +15,36 @@ namespace Markdown
 
         public string GetStringFromToken(Token token)
         {
-            if (token.text != null)
-                return token.text;
+            if (token.Text != null)
+                return token.Text;
             var result = new StringBuilder();
-            foreach (var tkn in token.tokens)
+            foreach (var tkn in token.Tokens)
             {
                 result.Append(GetStringFromToken(tkn));
             }
 
             string startString = "";
             string closingString = "";
-            if (token.tokenType == TokenType.text)
+            if (token.TokenType == TokenType.Text)
             {
                 if (token.StartingDelimiter != null)
                 {
-                    startString = token.StartingDelimiter.delimiter;
+                    startString = token.StartingDelimiter.Value;
                 }
 
                 if (token.ClosingDelimiter != null)
                 {
-                    closingString = token.ClosingDelimiter.delimiter;
+                    closingString = token.ClosingDelimiter.Value;
                 }
             }
-            else if (token.tokenType == TokenType.escaped)
+
+            else
             {
-                closingString = token.ClosingDelimiter.delimiter;
+                startString = $"<{Specification.TokenTypeToHTML[token.TokenType]}>";
+                closingString = $"</{Specification.TokenTypeToHTML[token.TokenType]}>";
             }
 
-            else if (token.tokenType != TokenType.escaped)
-            {
-                startString = "<" + Specification.TokenTypeToHTML[token.tokenType] + ">";
-                closingString = "</" + Specification.TokenTypeToHTML[token.tokenType] + ">";
-            }
-
-            return startString + result.ToString() + closingString;
+            return startString + result + closingString;
         }
     }
 }

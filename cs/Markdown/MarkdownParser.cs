@@ -1,103 +1,97 @@
-﻿using System;
-using System.Collections.Generic;
-using System.ComponentModel;
-using System.Globalization;
+﻿using System.Collections.Generic;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using NUnit.Framework;
 
 namespace Markdown
 {
     public class MarkdownParser
     {
-        private string markdownInput;
-        public Token currentToken;
-        private int index;
+        private readonly string markdownInput;
+        public Token CurrentToken;
 
 
         public MarkdownParser(string markdownInput)
         {
             this.markdownInput = markdownInput;
-            currentToken = new Token();
-            var firstToken = new Token(new Delimiter("", 0, false, true));
-            currentToken.AddToken(firstToken);
-            currentToken = firstToken;
-            index = 0;
+            CurrentToken = new Token();
         }
 
-
-        public bool IsCorrectToken(Token token)
-        {
-            return true;
-        }
-
-        private bool TokensCanBeNested(Token childToken, Token parentToken)
-        {
-            return false;
-        }
 
         public Token GetTokens()
         {
             var searcher = new StringSearcher();
-            var substrings = searcher.SplitBySubstrings(Specification.Delimiters, markdownInput);
-            substrings.Add(new Substring(markdownInput.Length, ""));
+            var allKeyWords = new HashSet<string>();
+            allKeyWords.UnionWith(Specification.KeyWords);
+            allKeyWords.UnionWith(Specification.Digits);
+            var substrings = searcher.SplitBySubstrings(allKeyWords, markdownInput);
 
-            foreach (var substring in substrings)
+            for (int i = 0; i < substrings.Count; i++)
             {
-                if (!Specification.Delimiters.Contains(substring.Value))
+                if (substrings[i].Value == "\\")
                 {
-                    currentToken.AddText(substring.Value);
-                    if (currentToken.StartingDelimiter.delimiter == "\\")
+                    if (i + 1 < substrings.Count && Specification.KeyWords.Contains(substrings[i + 1].Value))
                     {
-                        currentToken.closed = true;
-                        currentToken = currentToken.ParentToken;
+                        CurrentToken.AddText(substrings[i + 1].Value);
+                        i += 1;
+                    }
+                    else
+                    {
+                        CurrentToken.AddText(substrings[i].Value);
+                    }
+
+                    continue;
+                }
+
+                if (Specification.KeyWords.Contains(substrings[i].Value))
+                {
+                    if (i + 1 < substrings.Count && Specification.Digits.Contains(substrings[i + 1].Value) ||
+                        i - 1 >= 0 && Specification.Digits.Contains(substrings[i - 1].Value))
+                    {
+                        CurrentToken.AddText(substrings[i].Value);
+                        continue;
                     }
                 }
+
+                var substring = substrings[i];
+                if (!Specification.KeyWords.Contains(substring.Value))
+                {
+                    CurrentToken.AddText(substring.Value);
+                }
+
                 else
                 {
                     var canBeClosing = Specification.CanBeClosing(substring, markdownInput);
                     var canBeStarting = Specification.CanBeStarting(substring, markdownInput);
                     var delimiter = new Delimiter(substring.Value, substring.Index, canBeClosing, canBeStarting);
-                    var closed = false;
-                    if (delimiter.canBeClosing)
+                    if (delimiter.CanBeClosing)
                     {
-                        Token closedToken;
-                        closed = TryCloseToken(delimiter, out closedToken);
+                        var closed = TryCloseToken(delimiter, out var closedToken);
                         if (closed)
                         {
                             ResolveToken(closedToken);
-                            currentToken = closedToken.ParentToken;
-                            if (closedToken.ClosingDelimiter.delimiter == " ")
-                            {
-                                var newTextToken = new Token(new Delimiter("", 0, false, true));
-                                currentToken.AddToken(newTextToken);
-                                currentToken = newTextToken;
-                            }
-
+                            CurrentToken = closedToken.ParentToken;
                             continue;
                         }
                     }
 
-                    if (!closed && delimiter.canBeStarting)
+                    if (delimiter.CanBeStarting)
                     {
                         var newToken = new Token(delimiter);
-                        currentToken.AddToken(newToken);
-                        currentToken = newToken;
+                        CurrentToken.AddToken(newToken);
+                        CurrentToken = newToken;
                     }
                     else
                     {
-                        currentToken.AddText(delimiter.delimiter);
+                        CurrentToken.AddText(delimiter.Value);
                     }
                 }
             }
 
-            return currentToken.RootToken;
+            return CurrentToken.RootToken;
         }
 
         private void ResolveToken(Token token)
         {
-            var parents = new List<Token> {};
+            var parents = new List<Token>();
             ResolveTokenByParents(token, parents);
         }
 
@@ -105,30 +99,30 @@ namespace Markdown
         {
             foreach (var parent in parents)
             {
-                if (!Specification.possibleNesting[parent.tokenType].Contains(token.tokenType))
+                if (Specification.ImpossibleNesting.ContainsKey(parent.TokenType) &&
+                    Specification.ImpossibleNesting[parent.TokenType].Contains(token.TokenType))
                 {
-                    token.tokenType = TokenType.text;
+                    token.TokenType = TokenType.Text;
                 }
             }
 
             Token[] newParents = new Token[parents.Count + 1];
             parents.CopyTo(newParents);
             newParents[newParents.Length - 1] = token;
-            foreach (var tkn in token.tokens)
+            foreach (var tkn in token.Tokens)
             {
                 ResolveTokenByParents(tkn, newParents.ToList());
             }
-
         }
 
 
         private bool TryCloseToken(Delimiter closingDelimiter, out Token closedToken)
         {
             closedToken = null;
-            var token = currentToken;
+            var token = CurrentToken;
             if (token.StartingDelimiter is null)
                 return false;
-            while (!Specification.DelimetersCanBePair(token.StartingDelimiter, closingDelimiter))
+            while (token != null && !Specification.DelimitersCanBePair(token.StartingDelimiter, closingDelimiter))
             {
                 if (token.ParentToken?.StartingDelimiter is null)
                 {
@@ -138,17 +132,14 @@ namespace Markdown
                 token = token.ParentToken;
             }
 
-            token.closed = true;
+            token.Closed = true;
 
             token.ClosingDelimiter = closingDelimiter;
 
 
-            token.tokenType = Specification.MdToTokenTypes[token.StartingDelimiter.delimiter];
+            token.TokenType = Specification.MdToTokenTypes[token.StartingDelimiter.Value];
             closedToken = token;
             return true;
         }
-
-
-        
     }
 }

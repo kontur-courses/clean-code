@@ -1,10 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-
-namespace Markdown
+﻿namespace Markdown
 {
     class Substring
     {
@@ -14,9 +8,9 @@ namespace Markdown
             Value = value;
         }
 
-        public int Index { get; private set; }
+        public int Index { get; }
 
-        public string Value { get; private set; }
+        public string Value { get; }
 
         public int Length => Value.Length;
     }

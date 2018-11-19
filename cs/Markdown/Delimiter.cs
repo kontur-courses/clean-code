@@ -1,30 +1,18 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-
-namespace Markdown
+﻿namespace Markdown
 {
     public class Delimiter
     {
-        public readonly bool canBeClosing;
-        public readonly bool canBeStarting;
-        public int index;
-        public string delimiter;
-        public DelimeterType delimiterType;
+        public readonly bool CanBeClosing;
+        public readonly bool CanBeStarting;
+        public readonly int Index;
+        public readonly string Value;
 
-        public Delimiter(string delimiter, int index, bool canBeClosing, bool canBeStarting)
+        public Delimiter(string value, int index, bool canBeClosing, bool canBeStarting)
         {
-            this.delimiter = delimiter;
-            this.index = index;
-            this.canBeClosing = canBeClosing;
-            this.canBeStarting = canBeStarting;
+            Value = value;
+            Index = index;
+            CanBeClosing = canBeClosing;
+            CanBeStarting = canBeStarting;
         }
-    }
-
-    public class DelimeterType
-    {
-        
     }
 }

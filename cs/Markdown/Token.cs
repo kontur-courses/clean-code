@@ -1,17 +1,12 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿using System.Collections.Generic;
 
 namespace Markdown
 {
     public enum TokenType
     {
-        italic,
-        bold,
-        text,
-        escaped
+        Italic,
+        Bold,
+        Text
     }
 
     public class Token
@@ -21,17 +16,17 @@ namespace Markdown
         //Токен содержит вложенные токены;
         public Delimiter StartingDelimiter;
         public Delimiter ClosingDelimiter;
-        public List<Token> tokens = new List<Token>();
+        public List<Token> Tokens = new List<Token>();
         public Token ParentToken { get; private set; }
         public Token RootToken { get; private set; }
-        public string text { get; private set; }
-        public bool closed;
-        public TokenType tokenType = TokenType.text;
+        public string Text { get; private set; }
+        public bool Closed;
+        public TokenType TokenType = TokenType.Text;
 
 
         public Token()
         {
-            tokens = new List<Token>();
+            Tokens = new List<Token>();
             RootToken = this;
         }
 
@@ -43,27 +38,15 @@ namespace Markdown
 
         public void AddToken(Token token)
         {
-            tokens.Add(token);
+            Tokens.Add(token);
             token.ParentToken = this;
-            token.RootToken = this.RootToken;
-        }
-
-        public void InsertToken(int position, Token token)
-        {
-            tokens.Insert(position, token);
-            token.ParentToken = this;
+            token.RootToken = RootToken;
         }
 
         public void AddText(string text)
         {
-            var textToken = new Token {text = text};
+            var textToken = new Token {Text = text};
             AddToken(textToken);
-        }
-
-        public void InsertText(int position, string text)
-        {
-            var textToken = new Token {text = text};
-            InsertToken(position, textToken);
         }
     }
 }

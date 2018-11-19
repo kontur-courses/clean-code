@@ -1,8 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿using System.Collections.Generic;
 using FluentAssertions;
 using NUnit.Framework;
 
@@ -11,42 +7,35 @@ namespace Markdown.Tests
     [TestFixture]
     public class StringSearcher_Tests
     {
-        private StringSearcher searcher = new StringSearcher();
+        private readonly StringSearcher searcher = new StringSearcher();
+        private const string Input = "someinput";
 
         [Test]
         public void GetAllIndexesOfSubstrings_WorksOn_SingleSubstring()
         {
-            var input = "someinput";
-            var substrings = new HashSet<string>() { "in" };
-            searcher.GetAllSubstrings(substrings, input)
+            var substrings = new HashSet<string>() {"in"};
+            searcher.SplitBySubstrings(substrings, Input)
                 .Should()
-                .BeEquivalentTo(new List<Substring>() { new Substring(4, "in") });
+                .BeEquivalentTo(new List<Substring>()
+                    {new Substring(0, "some"), new Substring(4, "in"), new Substring(6, "put")});
         }
 
         [Test]
         public void GetAllIndexesOfSubstrings_WorksOn_TwoSubstrings()
         {
-            var input = "someinput";
-            var substrings = new HashSet<string>() { "put", "in", };
-            searcher.GetAllSubstrings(substrings, input)
+            var substrings = new HashSet<string>() {"put", "in",};
+            searcher.SplitBySubstrings(substrings, Input)
                 .Should()
-                .BeEquivalentTo(new List<Substring>() { new Substring(4, "in"), new Substring(6, "put") });
+                .BeEquivalentTo(new List<Substring>()
+                    {new Substring(0, "some"), new Substring(4, "in"), new Substring(6, "put")});
         }
 
         [Test]
         public void GetAllIndexesOfSubstrings_ReturnsEmpty_WhenEmptySubstrings()
         {
-            var input = "someinput";
             var substrings = new HashSet<string>();
-            searcher.GetAllSubstrings(substrings, input).Should().BeEmpty();
-        }
-
-        [Test]
-        public void GetAllIndexesOfSubstrings_ReturnsEmpty_WhenNothingFound()
-        {
-            var input = "someinput";
-            var substrings = new HashSet<string>() { "hi" };
-            searcher.GetAllSubstrings(substrings, input).Should().BeEmpty();
+            searcher.SplitBySubstrings(substrings, Input).Should()
+                .BeEquivalentTo(new List<Substring>() {new Substring(0, "someinput")});
         }
     }
 }

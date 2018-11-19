@@ -1,9 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using FluentAssertions;
+﻿using FluentAssertions;
 using NUnit.Framework;
 
 namespace Markdown.Tests
@@ -99,6 +94,18 @@ namespace Markdown.Tests
         public void Render_ShouldNotIgnore_LetterAfterEscape()
         {
             md.Render("\\abc").Should().Be("\\abc");
+        }
+
+        [Test]
+        public void Render_ShouldIgnore_TagAfterDigit()
+        {
+            md.Render("a0_abc_").Should().Be("a0_abc_");
+        }
+
+        [Test]
+        public void Render_ShouldIgnore_TagBeforeDigit()
+        {
+            md.Render("_abc_8a").Should().Be("_abc_8a");
         }
     }
 }
