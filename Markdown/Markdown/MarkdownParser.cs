@@ -10,7 +10,6 @@ namespace Markdown
     {
         private List<Tag> tags;
         private int index;
-        private readonly Tag emptyTag = new Tag(TagType.None, "", "");
         private string markdownString;
 
         public Span Parse(string rawString)
@@ -19,14 +18,14 @@ namespace Markdown
             tags = Markups.Markdown.Tags;
             index = 0;
 
-            var mainSpan = new Span(emptyTag, 0, markdownString.Length);
+            var mainSpan = new Span(Tag.Empty, 0, markdownString.Length);
             var openedSpans = new List<Span>();
 
             for (; index < markdownString.Length; index++)
             {
                 if (markdownString[index] == '\\')
                 {
-                    mainSpan.PutSpan(new Span(emptyTag, index, index + 1));
+                    mainSpan.PutSpan(new Span(Tag.Empty, index, index + 1));
                     index += 1;
                     continue;
                 }
@@ -50,6 +49,7 @@ namespace Markdown
             }
 
             mainSpan.RemoveNotClosedSpans();
+            mainSpan.Segment();
             return mainSpan;
         }
 

@@ -8,7 +8,7 @@ namespace Markdown
 {
     public class Tag
     {
-        public static Tag EmptyTag => new Tag(TagType.None, "", "");
+        public static Tag Empty => new Tag(TagType.None, "", "");
         public TagType Type { get; }
         public string Open { get; }
         public string Close { get; }

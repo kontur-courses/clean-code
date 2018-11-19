@@ -68,5 +68,30 @@ namespace Markdown
             }
             children = children.OrderBy(s => s.StartIndex).ToList();
         }
+
+        public void Segment()
+        {
+            if (Children.Count == 0)
+                return;
+
+            foreach (var child in children)
+            {
+                child.Segment();
+            }
+
+            var newChildren = new List<Span>();
+
+            newChildren.Add(new Span(Tag.Empty, IndexAfterStart, children[0].StartIndex));
+            newChildren.Add(children[0]);
+            for (var i = 1; i < children.Count; i++)
+            {
+                newChildren.Add(new Span(Tag.Empty, children[i - 1].IndexAfterEnd, children[i].StartIndex));
+                newChildren.Add(children[i]);
+            }
+            
+            newChildren.Add(new Span(Tag.Empty, children[children.Count - 1].IndexAfterEnd, EndIndex));
+
+            children = newChildren;
+        }
     }
 }
