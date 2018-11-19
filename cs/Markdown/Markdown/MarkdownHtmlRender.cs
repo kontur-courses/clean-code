@@ -20,7 +20,7 @@ namespace Markdown
                 {
                     case NodeType.Text:
                         var textNode = (TextNode) node;
-                        stringBuilder.Append(textNode.Text);
+                        stringBuilder.Append(RemoveBackslashes(textNode.Text));
                         break;
                     
                     case NodeType.DoubleUnderlineTag:
@@ -34,6 +34,11 @@ namespace Markdown
             }
 
             return stringBuilder.ToString();
+        }
+
+        private static string RemoveBackslashes(string str)
+        {
+            return str.Replace("\\", "");
         }
     }
 }
