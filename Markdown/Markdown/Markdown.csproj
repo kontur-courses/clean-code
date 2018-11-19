@@ -61,7 +61,6 @@
   </ItemGroup>
   <ItemGroup>
     <None Include="App.config" />
-    <None Include="Markdown.md" />
     <None Include="MarkdownSpec.md" />
     <None Include="packages.config" />
   </ItemGroup>
