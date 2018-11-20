@@ -76,6 +76,5 @@ namespace Markdown_Tests
             return SingleUnderscoreElementType.Create()
                 .IsClosingOfElement(SyntaxAnalyzer.AnalyzeSyntax(markdown), position);
         }
-
     }
 }

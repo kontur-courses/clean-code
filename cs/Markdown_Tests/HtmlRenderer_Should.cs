@@ -1,4 +1,5 @@
 ﻿using System.Collections.Generic;
+using FluentAssertions;
 using NUnit.Framework;
 using Markdown;
 using Markdown.Elements;
@@ -14,10 +15,9 @@ namespace Markdown_Tests
             var content = "content";
             var markdownRoot = new MarkdownElement(RootElementType.Create(), content, 0,
                 content.Length, new List<MarkdownElement>());
-            
-            var resultHtml = HtmlRenderer.RenderToHtml(markdownRoot);
 
-            Assert.AreEqual(content, resultHtml);
+            var resultHtml = HtmlRenderer.RenderToHtml(markdownRoot);
+            resultHtml.Should().BeEquivalentTo(content);
         }
 
         [Test]
@@ -29,8 +29,7 @@ namespace Markdown_Tests
             var expected = "<em>content</em>";
 
             var resultHtml = HtmlRenderer.RenderToHtml(markdownRoot);
-
-            Assert.AreEqual(expected, resultHtml);
+            resultHtml.Should().BeEquivalentTo(expected);
         }
 
         [Test]
@@ -42,8 +41,7 @@ namespace Markdown_Tests
             var expected = "<strong>content</strong>";
 
             var resultHtml = HtmlRenderer.RenderToHtml(markdownRoot);
-
-            Assert.AreEqual(expected, resultHtml);
+            resultHtml.Should().BeEquivalentTo(expected);
         }
 
         [Test]
@@ -60,9 +58,9 @@ namespace Markdown_Tests
                 });
 
             var expected = "hello <em>world</em>";
-            var actual = HtmlRenderer.RenderToHtml(markdownRoot);
 
-            Assert.AreEqual(expected, actual);
+            var resultHtml = HtmlRenderer.RenderToHtml(markdownRoot);
+            resultHtml.Should().BeEquivalentTo(expected);
         }
 
         [Test]
@@ -82,9 +80,9 @@ namespace Markdown_Tests
                 });
 
             var expected = "<strong>hello</strong> <em>world</em>";
-            var actual = HtmlRenderer.RenderToHtml(markdownRoot);
 
-            Assert.AreEqual(expected, actual);
+            var resultHtml = HtmlRenderer.RenderToHtml(markdownRoot);
+            resultHtml.Should().BeEquivalentTo(expected);
         }
 
         [Test]
@@ -106,9 +104,9 @@ namespace Markdown_Tests
                 });
 
             var expected = "<strong>hello <em>world</em>.</strong>";
-            var actual = HtmlRenderer.RenderToHtml(markdownRoot);
 
-            Assert.AreEqual(expected, actual);
+            var resultHtml = HtmlRenderer.RenderToHtml(markdownRoot);
+            resultHtml.Should().BeEquivalentTo(expected);
         }
     }
 }

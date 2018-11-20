@@ -1,6 +1,7 @@
 ﻿using System.Diagnostics;
 using System.Reflection;
 using System.IO;
+using FluentAssertions;
 using NUnit.Framework;
 using Markdown;
 
@@ -19,6 +20,10 @@ namespace Markdown_Tests
             TestName = "test many rendering with 3500 symbols")]
         [TestCase("many_rendering_test35000.txt", "many_rendering_ans35000.txt",
             TestName = "test many rendering with 35000 symbols")]
+        [TestCase("high_depth_test210000.txt", "high_depth_ans210000.txt",
+            TestName = "test high depth with 210000 symbols")]
+        [TestCase("many_rendering_test120000.txt", "many_rendering_ans120000.txt",
+            TestName = "test many rendering with 120000 symbols")]
         public void TestPerformance(string testFileName, string answerFileName)
         {
             var testContent = LoadContent(testFileName);
@@ -30,7 +35,7 @@ namespace Markdown_Tests
             var elapsedMilliseconds = stopwatch.ElapsedMilliseconds;
 
             TestContext.Out.WriteLine($"done in {elapsedMilliseconds} milliseconds");
-            Assert.AreEqual(expectedAnswer, actualAnswer);
+            actualAnswer.Should().BeEquivalentTo(expectedAnswer);
         }
 
         private string LoadContent(string fileName)

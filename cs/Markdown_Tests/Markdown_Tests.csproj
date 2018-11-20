@@ -80,10 +80,16 @@
     </ProjectReference>
   </ItemGroup>
   <ItemGroup>
+    <Content Include="GeneratedTests\high_depth_ans210000.txt">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
     <Content Include="GeneratedTests\high_depth_ans7000.txt">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
     <Content Include="GeneratedTests\high_depth_ans70000.txt">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
+    <Content Include="GeneratedTests\high_depth_test210000.txt">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
     <Content Include="GeneratedTests\high_depth_test7000.txt">
@@ -92,10 +98,16 @@
     <Content Include="GeneratedTests\high_depth_test70000.txt">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
+    <Content Include="GeneratedTests\many_rendering_ans120000.txt">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
     <Content Include="GeneratedTests\many_rendering_ans3500.txt">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
     <Content Include="GeneratedTests\many_rendering_ans35000.txt">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
+    <Content Include="GeneratedTests\many_rendering_test120000.txt">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
     <Content Include="GeneratedTests\many_rendering_test3500.txt">
