@@ -1,6 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
+﻿using System.Collections.Generic;
 
 namespace Markdown
 {
@@ -8,7 +6,10 @@ namespace Markdown
     {
         private readonly List<TokenType> tokensTypes = new List<TokenType>
         {
-            new TokenType("lattice", "#", "strong", TokenLocationType.InlineToken),
+            new TokenType("lattice", "#", "h1", TokenLocationType.InlineToken),
+            new TokenType("lattice", "##", "h2", TokenLocationType.InlineToken),
+            new TokenType("lattice", "###", "h3", TokenLocationType.InlineToken),
+            new TokenType("lattice", "####", "h4", TokenLocationType.InlineToken),
             new TokenType("star", "*", "li", TokenLocationType.InlineToken)
         };
 
