@@ -2,7 +2,7 @@
 
 namespace Markdown
 {
-    interface IPairTag
+    internal interface IPairTag
     {
         string StartTag
         {
