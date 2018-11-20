@@ -83,6 +83,12 @@ namespace Markdown.Tests
             md.Render("\\_abc\\_").Should().Be("_abc_");
         }
 
+        [Test]
+        public void Render_ShouldIgnore_EscapedDoubleUnderscore()
+        {
+            md.Render("\\__abc\\__").Should().Be("__abc__");
+        }
+
 
         [Test]
         public void Render_ShouldIgnore_DoubleEscape()
@@ -97,15 +103,33 @@ namespace Markdown.Tests
         }
 
         [Test]
-        public void Render_ShouldIgnore_TagAfterDigit()
+        public void Render_ShouldIgnore_UnderscoreAfterDigit()
         {
             md.Render("a0_abc_").Should().Be("a0_abc_");
         }
 
         [Test]
-        public void Render_ShouldIgnore_TagBeforeDigit()
+        public void Render_ShouldIgnore_UnderscoreBeforeDigit()
         {
             md.Render("_abc_8a").Should().Be("_abc_8a");
+        }
+
+        [Test]
+        public void Render_ShouldIgnore_DoubleUnderscoreAfterDigit()
+        {
+            md.Render("a0__abc__").Should().Be("a0__abc__");
+        }
+
+        [Test]
+        public void Render_ShouldIgnore_DoubleUnderscoreBeforeDigit()
+        {
+            md.Render("__abc__8a").Should().Be("__abc__8a");
+        }
+
+        [Test]
+        public void RenderConvert_When_NestingOfSameType()
+        {
+            md.Render("_a _abc_ a_").Should().Be("<em>a <em>abc</em> a</em>");
         }
     }
 }

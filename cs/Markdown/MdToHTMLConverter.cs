@@ -27,14 +27,14 @@ namespace Markdown
             string closingString = "";
             if (token.TokenType == TokenType.Text)
             {
-                if (token.StartingDelimiter != null)
+                if (token.Delimiter != null)
                 {
-                    startString = token.StartingDelimiter.Value;
+                    startString = token.Delimiter.Value;
                 }
 
-                if (token.ClosingDelimiter != null)
+                if (token.Closed)
                 {
-                    closingString = token.ClosingDelimiter.Value;
+                    closingString = token.Delimiter.Value;
                 }
             }
 
