@@ -10,7 +10,7 @@ namespace Markdown
             new TokenType("doubleUnderscore", "__", "strong", TokenLocationType.InlineToken)
         };
 
-        public List<SingleToken> FindTokensInMdText(string paragraph)
+        public List<SingleToken> FindInlineTokensInMdText(string paragraph)
         {
             var tokens = new List<SingleToken>();
 

@@ -28,7 +28,7 @@ namespace MarkdownTests
 
             var finder = new InlineTokenFinder();
             var validator = new InlineTokensValidator();
-            var tokensPositions = finder.FindTokensInMdText(paragraph);
+            var tokensPositions = finder.FindInlineTokensInMdText(paragraph);
             var tokensWithPositions = validator.GetPositionsForTokens(tokensPositions);
 
             tokensWithPositions.First(token => token.Key.Name == "simpleUnderscore").Value
@@ -44,7 +44,7 @@ namespace MarkdownTests
 
             var finder = new InlineTokenFinder();
             var validator = new InlineTokensValidator();
-            var tokensPositions = finder.FindTokensInMdText(paragraph);
+            var tokensPositions = finder.FindInlineTokensInMdText(paragraph);
             var tokensWithPositions = validator.GetPositionsForTokens(tokensPositions);
 
             tokensWithPositions.First(token => token.Key.Name == "doubleUnderscore").Value.First()
@@ -61,7 +61,7 @@ namespace MarkdownTests
 
             var finder = new InlineTokenFinder();
             var validator = new InlineTokensValidator();
-            var tokensPositions = finder.FindTokensInMdText(paragraph);
+            var tokensPositions = finder.FindInlineTokensInMdText(paragraph);
             var tokensWithPositions = validator.GetPositionsForTokens(tokensPositions);
 
             tokensWithPositions.Should().NotContainKey(simpleUnderscore);
@@ -77,7 +77,7 @@ namespace MarkdownTests
 
             var finder = new InlineTokenFinder();
             var validator = new InlineTokensValidator();
-            var tokensPositions = finder.FindTokensInMdText(paragraph);
+            var tokensPositions = finder.FindInlineTokensInMdText(paragraph);
             var tokensWithPositions = validator.GetPositionsForTokens(tokensPositions);
 
             tokensWithPositions.First(token => token.Key.Name == "simpleUnderscore").Value
