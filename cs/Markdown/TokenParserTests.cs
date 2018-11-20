@@ -3,7 +3,7 @@
 namespace Markdown
 {
     [TestFixture]
-    public class MarkdownTests
+    public class TokenParserTests
     {
     }
 }

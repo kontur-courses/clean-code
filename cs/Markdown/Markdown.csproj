@@ -53,16 +53,18 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="CompositeRule.cs" />
+    <Compile Include="DoubleUnderscoreBetweenUnderscoreRule.cs" />
+    <Compile Include="IRule.cs" />
     <Compile Include="Markdown.cs" />
     <Compile Include="MarkdownTests.cs" />
-    <Compile Include="Position.cs" />
+    <Compile Include="TokenType.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
-    <Compile Include="RulesChecker.cs" />
-    <Compile Include="RulesCkeckerTests.cs" />
-    <Compile Include="SymbolMap.cs" />
-    <Compile Include="SymbolMapTests.cs" />
+    <Compile Include="TokenParser.cs" />
+    <Compile Include="TokenParserTests.cs" />
     <Compile Include="SymbolType.cs" />
-    <Compile Include="SymbolAndTagConnection.cs" />
+    <Compile Include="Token.cs" />
+    <Compile Include="UnpairedSymbolsRule.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="app.config" />

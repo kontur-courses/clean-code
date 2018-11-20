@@ -2,7 +2,7 @@
 {
     public enum SymbolType
     {
-        Underscore, 
+        Underscore,
         DoubleUnderscore,
         Backslash,
         GraveAccent,
