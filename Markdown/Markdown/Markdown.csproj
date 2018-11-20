@@ -42,11 +42,10 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="Md\MdTagCreator.cs" />
-    <Compile Include="Md\MdTagSymbolDetector.cs" />
     <Compile Include="Md\MdType.cs" />
     <Compile Include="StringExtensions.cs" />
     <Compile Include="HtmlTagWrapper.cs" />
+    <Compile Include="TagFactory.cs" />
     <Compile Include="Tag\TagExtensions.cs" />
     <Compile Include="Tag\DoubleUnderLineTag.cs" />
     <Compile Include="Tag\ITag.cs" />

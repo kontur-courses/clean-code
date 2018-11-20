@@ -1,5 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Linq;
 using Markdown.Tag;
 
@@ -7,15 +6,13 @@ namespace Markdown
 {
     public class MdTagConverter
     {
-        private readonly Dictionary<string, Func<string, ITag>> dictionaryTags;
+        private readonly Dictionary<string, MdType> symbolMdTypeDictionary;
         private int position;
         private string rawText;
 
-        public MdTagConverter(List<MdType> types)
+        public MdTagConverter(Dictionary<string, MdType> symbolMdTypeDictionary)
         {
-            dictionaryTags = new Dictionary<string, Func<string, ITag>>();
-            foreach (var type in types)
-                dictionaryTags.Add(MdTagSymbolDetector.Detect(type), MdTagCreator.Create);
+            this.symbolMdTypeDictionary = symbolMdTypeDictionary;
         }
 
         public List<ITag> Parse(string text)
@@ -23,7 +20,7 @@ namespace Markdown
             position = 0;
             rawText = text;
             var pairedTags = new List<ITag>();
-            var tagLengths = dictionaryTags.Keys.Select(t => t.Length)
+            var tagLengths = symbolMdTypeDictionary.Keys.Select(t => t.Length)
                 .Distinct().OrderByDescending(l => l).ToArray();
 
             while (position < rawText.Length)
@@ -79,13 +76,14 @@ namespace Markdown
             var prevSymbol = rawText.LookAt(position - 1);
             var nextSymbol = rawText.LookAt(position + symbol.Length);
 
-            return dictionaryTags.ContainsKey(symbol) && !char.IsWhiteSpace(nextSymbol)
+            return symbolMdTypeDictionary.ContainsKey(symbol) && !char.IsWhiteSpace(nextSymbol)
                                                       && (char.IsWhiteSpace(prevSymbol) || position == 0);
         }
 
         private bool TryParseOnePairOfTags(string symbol, out ITag tag)
         {
-            tag = MdTagCreator.Create(symbol);
+            var type = symbolMdTypeDictionary[symbol];
+            tag = TagFactory.Create(type);
             tag.OpenIndex = position;
             tag.CloseIndex = rawText.FindCloseTagIndex(tag);
 

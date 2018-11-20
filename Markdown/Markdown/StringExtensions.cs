@@ -6,7 +6,7 @@ namespace Markdown
 {
     public static class StringExtensions
     {
-        public static string RemoveEscapedSymbols(this string text, List<MdType> types)
+        public static string RemoveEscapedSymbols(this string text, List<string> symbols)
         {
             var position = 0;
 
@@ -15,7 +15,7 @@ namespace Markdown
                 var symbol = text.LookAt(position).ToString();
                 var nextSymbol = text.LookAt(position + 1).ToString();
 
-                if (symbol.IsEscapedSymbol(nextSymbol, types))
+                if (symbol.IsEscapedSymbol(nextSymbol, symbols))
                     text = text.Remove(position, 1);
 
                 position++;
@@ -24,9 +24,8 @@ namespace Markdown
             return text;
         }
 
-        private static bool IsEscapedSymbol(this string symbol, string nextSymbol, IEnumerable<MdType> types)
+        private static bool IsEscapedSymbol(this string symbol, string nextSymbol, IEnumerable<string> symbols)
         {
-            var symbols = types.Select(MdTagSymbolDetector.Detect).ToList();
             return symbol == "\\" && symbols.Contains(nextSymbol);
         }
 

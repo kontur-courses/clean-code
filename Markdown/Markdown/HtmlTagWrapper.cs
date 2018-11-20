@@ -6,11 +6,11 @@ namespace Markdown
 {
     public class HtmlTagWrapper
     {
-        public readonly List<MdType> types;
+        public readonly List<string> symbols;
 
-        public HtmlTagWrapper(List<MdType> types)
+        public HtmlTagWrapper(List<string> symbols)
         {
-            this.types = types;
+            this.symbols = symbols;
         }
 
         public string ConvertToHtml(List<ITag> pairedTags)
@@ -24,7 +24,7 @@ namespace Markdown
         }
 
         private string Wrap(ITag tag) => tag.Type == MdType.Text
-            ? tag.Content.RemoveEscapedSymbols(types)
+            ? tag.Content.RemoveEscapedSymbols(symbols)
             : $"<{tag.Html}>{GetInnerFormattedText(tag)}</{tag.Html}>";
 
         private string GetInnerFormattedText(ITag tag)
