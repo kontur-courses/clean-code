@@ -19,7 +19,7 @@ namespace Markdown.Tokens
         public string Text { get; }
         public int Position { get; }
 
-        public string Accept(ITranslator translator)
+        public string Translate(ITranslator translator)
         {
 //            var result = string.Concat(tokens.Aggregate(htmlTag, (current, token) => current + token.ToHtml()), closingHtmlTag);
 //            return result;

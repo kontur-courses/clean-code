@@ -8,12 +8,11 @@ namespace Markdown
     {
         static void Main(string[] args)
         {
-            var input = "___a___";
+            var input = "_a _a _a _a _a _a";
 
             var readers = ReaderCreator.Create();
             var md = new Md(readers);
             Console.WriteLine(md.Render(input));
-            Console.Read();
         }
     }
 }

@@ -4,6 +4,6 @@
     {
         string Text { get; }
         int Position { get; }
-        string Accept(ITranslator translator);
+        string Translate(ITranslator translator);
     }
 }

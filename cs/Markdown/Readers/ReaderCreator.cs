@@ -10,16 +10,20 @@ namespace Markdown.Readers
             IReader slashReader = new SlashReader();
             IReader charReader = new CharReader();
 
-            EmReader.Readers = new[] { slashReader, charReader };
+            CodeReader.Readers =  new[] { slashReader, charReader };
+            CodeReader.SkippedReaders = new List<TagReader> {new StrongReader("__"), new EmReader("_")};
+            CodeReader codeReader = new CodeReader("`");
+            
+            EmReader.Readers = new[] { slashReader, codeReader, charReader};
             EmReader.SkippedReaders = new TagReader[] { new StrongReader("__") };
+            EmReader emTagReader = new EmReader("_");
 
-            TagReader emTagReader = new EmReader("_");
-
-            StrongReader.Readers = new[] { slashReader, emTagReader, charReader };
+            StrongReader.Readers = new[] { slashReader, codeReader, emTagReader, charReader };
             StrongReader.SkippedReaders = new TagReader[0];
-            TagReader strongTagReader = new StrongReader("__");
-
-            return new List<IReader> { slashReader, strongTagReader, emTagReader, charReader };
+            StrongReader strongTagReader = new StrongReader("__");
+            
+            
+            return new List<IReader> { slashReader, codeReader, strongTagReader, emTagReader, charReader };
         }
     }
 }

@@ -14,7 +14,7 @@ namespace Markdown.Tokens
             Position = position;
         }
 
-        public string Accept(ITranslator translator)
+        public string Translate(ITranslator translator)
         {
             return translator.VisitText(this);
         }

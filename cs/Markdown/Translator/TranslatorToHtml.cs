@@ -6,16 +6,19 @@ namespace Markdown
 {
     public class TranslatorToHtml : ITranslator
     {
-        private static Dictionary<string, (string, string)> translateDictionary = new Dictionary<string, (string, string)>
-        {
-            {"_", ("<em>", "</em>" )},
-            {"__", ("<strong>", "</strong>")},
-            {"`", ("<code>", "</code>")}
-        };
+        private static readonly Dictionary<string, (string, string)> translateDictionary =
+            new Dictionary<string, (string, string)>
+            {
+                {"_", ("<em>", "</em>")},
+                {"__", ("<strong>", "</strong>")},
+                {"`", ("<code>", "</code>")}
+            };
+
         public string VisitTag(TagToken tagToken)
         {
             var (openTag, closingTag) = translateDictionary[tagToken.EmTag];
-            return string.Concat(tagToken.Tokens.Aggregate(openTag, (current, token) => current + token.Accept(this)), closingTag);
+            return string.Concat(tagToken.Tokens.Aggregate(openTag, (current, token) => current + token.Translate(this)),
+                closingTag);
         }
 
         public string VisitText(TextToken textToken)

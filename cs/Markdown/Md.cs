@@ -26,11 +26,11 @@ namespace Markdown
                 tokens.Add(token);
             }
             
-            var testTranslator = new TranslatorToHtml();
+            var translatorToHtml = new TranslatorToHtml();
             var result = new StringBuilder();
             foreach (var token in tokens)
             {
-                result.Append(token.Accept(testTranslator));
+                result.Append(token.Translate(translatorToHtml));
             }
 
             return result.ToString();
