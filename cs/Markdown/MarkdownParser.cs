@@ -8,86 +8,111 @@ namespace Markdown
         private readonly string markdownInput;
         public Token CurrentToken;
 
-
         public MarkdownParser(string markdownInput)
         {
             this.markdownInput = markdownInput;
             CurrentToken = new Token();
         }
 
-
         public Token GetTokens()
         {
             var searcher = new StringSearcher();
             var allKeyWords = new HashSet<string>();
+            var mdDelimiters = new HashSet<string>(Specification.MdToTokenTypes.Keys.ToList());
             allKeyWords.UnionWith(Specification.KeyWords);
-            allKeyWords.UnionWith(Specification.Digits);
-            var substrings = searcher.SplitBySubstrings(allKeyWords, markdownInput);
+            allKeyWords.UnionWith(Specification.ProhibitionСharacters);
+            allKeyWords.UnionWith(mdDelimiters);
+            var lexemes = searcher.SplitBySubstrings(allKeyWords, markdownInput);
 
-            for (int i = 0; i < substrings.Count; i++)
+            for (var lexemeIndex = 0; lexemeIndex < lexemes.Count; lexemeIndex++)
             {
-                if (substrings[i].Value == "\\")
-                {
-                    if (i + 1 < substrings.Count && Specification.KeyWords.Contains(substrings[i + 1].Value))
-                    {
-                        CurrentToken.AddText(substrings[i + 1].Value);
-                        i += 1;
-                    }
-                    else
-                    {
-                        CurrentToken.AddText(substrings[i].Value);
-                    }
+                var lexeme = lexemes[lexemeIndex];
 
+                if (lexeme.Value == "\\")
+                {
+                    lexemeIndex = Escape(lexemes, lexemeIndex);
                     continue;
                 }
 
-                if (Specification.KeyWords.Contains(substrings[i].Value))
+                if (mdDelimiters.Contains(lexeme.Value) &&
+                    SurroundedByDigits(lexemes, lexemeIndex))
                 {
-                    if (i + 1 < substrings.Count && Specification.Digits.Contains(substrings[i + 1].Value) ||
-                        i - 1 >= 0 && Specification.Digits.Contains(substrings[i - 1].Value))
-                    {
-                        CurrentToken.AddText(substrings[i].Value);
-                        continue;
-                    }
+                    CurrentToken.AddText(lexeme.Value);
+                    continue;
                 }
 
-                var substring = substrings[i];
-                if (!Specification.KeyWords.Contains(substring.Value))
+                if (!mdDelimiters.Contains(lexeme.Value))
                 {
-                    CurrentToken.AddText(substring.Value);
+                    CurrentToken.AddText(lexeme.Value);
                 }
 
                 else
                 {
-                    var canBeClosing = Specification.CanBeClosing(substring, markdownInput);
-                    var canBeStarting = Specification.CanBeStarting(substring, markdownInput);
-                    var delimiter = new Delimiter(substring.Value, substring.Index, canBeClosing, canBeStarting);
-                    if (delimiter.CanBeClosing)
-                    {
-                        var closed = TryCloseToken(delimiter, out var closedToken);
-                        if (closed)
-                        {
-                            ResolveToken(closedToken);
-                            CurrentToken = closedToken.ParentToken;
-                            continue;
-                        }
-                    }
-
-                    if (delimiter.CanBeStarting)
-                    {
-                        var newToken = new Token(delimiter);
-                        CurrentToken.AddToken(newToken);
-                        CurrentToken = newToken;
-                    }
-                    else
-                    {
-                        CurrentToken.AddText(delimiter.Value);
-                    }
+                    AddNewDelimiter(lexeme);
                 }
             }
 
             return CurrentToken.RootToken;
         }
+
+        private void AddNewDelimiter(Substring lexeme)
+        {
+            var canBeClosing = Specification.CanBeClosing(lexeme, markdownInput);
+            var canBeStarting = Specification.CanBeStarting(lexeme, markdownInput);
+            var delimiter = new Delimiter(lexeme.Value, lexeme.Index, canBeClosing, canBeStarting);
+            if (delimiter.CanBeClosing)
+            {
+                var closed = TryCloseToken(delimiter, out var closedToken);
+                if (closed)
+                {
+                    ResolveToken(closedToken);
+                    CurrentToken = closedToken.ParentToken;
+                    return;
+                }
+            }
+
+            if (delimiter.CanBeStarting)
+            {
+                var newToken = new Token(delimiter);
+                CurrentToken.AddToken(newToken);
+                CurrentToken = newToken;
+            }
+            else
+            {
+                CurrentToken.AddText(delimiter.Value);
+            }
+        }
+
+
+        private int Escape(List<Substring> substrings, int lexemeIndex)
+        {
+            var mdDelimiters = new HashSet<string>(Specification.MdToTokenTypes.Keys);
+            var charactersToEscape = new HashSet<string>();
+            charactersToEscape.UnionWith(mdDelimiters);
+            charactersToEscape.UnionWith(Specification.KeyWords);
+            var result = lexemeIndex;
+            if (lexemeIndex + 1 < substrings.Count &&
+                charactersToEscape.Contains(substrings[lexemeIndex + 1].Value))
+            {
+                CurrentToken.AddText(substrings[lexemeIndex + 1].Value);
+                result += 1;
+            }
+            else
+            {
+                CurrentToken.AddText(substrings[lexemeIndex].Value);
+            }
+
+            return result;
+        }
+
+        private bool SurroundedByDigits(List<Substring> substrings, int lexemeIndex)
+        {
+            return lexemeIndex + 1 < substrings.Count &&
+                   Specification.ProhibitionСharacters.Contains(substrings[lexemeIndex + 1].Value) ||
+                   lexemeIndex - 1 >= 0 &&
+                   Specification.ProhibitionСharacters.Contains(substrings[lexemeIndex - 1].Value);
+        }
+
 
         private void ResolveToken(Token token)
         {
@@ -115,16 +140,15 @@ namespace Markdown
             }
         }
 
-
         private bool TryCloseToken(Delimiter closingDelimiter, out Token closedToken)
         {
             closedToken = null;
             var token = CurrentToken;
-            if (token.StartingDelimiter is null)
+            if (token.Delimiter is null)
                 return false;
-            while (token != null && !Specification.DelimitersCanBePair(token.StartingDelimiter, closingDelimiter))
+            while (token != null && token.Delimiter.Value != closingDelimiter.Value)
             {
-                if (token.ParentToken?.StartingDelimiter is null)
+                if (token.ParentToken?.Delimiter is null)
                 {
                     return false;
                 }
@@ -133,11 +157,7 @@ namespace Markdown
             }
 
             token.Closed = true;
-
-            token.ClosingDelimiter = closingDelimiter;
-
-
-            token.TokenType = Specification.MdToTokenTypes[token.StartingDelimiter.Value];
+            token.TokenType = Specification.MdToTokenTypes[token.Delimiter.Value];
             closedToken = token;
             return true;
         }
