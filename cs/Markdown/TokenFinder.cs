@@ -4,7 +4,13 @@ namespace Markdown
 {
     public class TokenFinder
     {
-        public List<SingleToken> FindTokensInMdText(string paragraph, List<TokenType> tokensTypes)
+        private readonly List<TokenType> tokensTypes = new List<TokenType>
+        {
+            new TokenType("simpleUnderscore", "_", "em"),
+            new TokenType("doubleUnderscore", "__", "strong")
+        };
+
+        public List<SingleToken> FindTokensInMdText(string paragraph)
         {
             var tokens = new List<SingleToken>();
 
