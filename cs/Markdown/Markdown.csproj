@@ -63,6 +63,7 @@
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Tag.cs" />
+    <Compile Include="TagA.cs" />
     <Compile Include="TagEm.cs" />
     <Compile Include="TagStrong.cs" />
     <Compile Include="TextSeparator.cs" />

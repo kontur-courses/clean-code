@@ -19,10 +19,28 @@ namespace Markdown
                 if (!MarkupLanguage.IsKeyWords(currentNode.Value)) continue;
                 if (MarkupLanguage.LanguageRules.Any(r => !r(currentNode))) continue;
 
-                if ((!currentNode.Previous?.Value.EndsWith(" ") ?? false))
-                    CloseTag(currentNode);
-                else if ((!currentNode.Next?.Value.StartsWith(" ") ?? false))
-                    CreateTag(currentNode);
+                if (openTags.Count > 0 && Tag.rkarak(currentNode, openTags.Peek()))
+                {
+                    var tag = openTags.Peek() as IPairTag;
+                    currentNode.Value = tag.EndTag;
+                    openTags.Peek().nodeFun.Value = tag.StartTag;
+                    openTags.Pop();
+                }
+                else if(Tag.FindMyPapapap(currentNode, out var tag))
+                {
+                    if (tag is IPairTag && openTags.All(t => t is IPairTag pairTag && pairTag.CanIContainThisTagRule(tag)))
+                        openTags.Push(tag);
+                    //else
+                    //    currentNode.Value = tag.ToString();
+                }
+                 
+
+                //Tag.
+
+                //if ((!currentNode.Previous?.Value.EndsWith(" ") ?? false)) // todo переделать
+                //    CloseTag(currentNode); // todo переделать
+                //else if ((!currentNode.Next?.Value.StartsWith(" ") ?? false)) // todo переделать
+                //    CreateTag(currentNode); // todo переделать
 
             } while ((currentNode = currentNode.Next) != null);
 

@@ -9,12 +9,17 @@ namespace Markdown
         private static readonly Dictionary<char, List<string>> KeywordsByFirstLetter = new Dictionary<char, List<string>>();
         public static readonly List<Func<LinkedListNode<string>, bool>> LanguageRules = new List<Func<LinkedListNode<string>, bool>>();
         public static string EscapeCharacter { get; } = "\\";
+        public static bool EscapeMode { get; private set; } = false;
 
         static MarkupLanguage()
         {
             // todo get Teg children (container)
             KeyWords.Add("__");
             KeyWords.Add("_");
+            KeyWords.Add("(");
+            KeyWords.Add(")");
+            KeyWords.Add("[");
+            KeyWords.Add("]");
 
             KeyWords.Add(EscapeCharacter);
 
@@ -26,19 +31,38 @@ namespace Markdown
                     KeywordsByFirstLetter.Add(keyWord[0], new List<string> { keyWord });
             }
 
-            bool LowLineForNumbersRule(LinkedListNode<string> currentNode) => 
+            bool LowLineForNumbersRule(LinkedListNode<string> currentNode) =>
                 !(currentNode.Value.Contains("_") && (int.TryParse(currentNode.Previous?.Value, out _) || int.TryParse(currentNode.Next?.Value, out _)));
-
-            bool ScreeningRule(LinkedListNode<string> currentNode)
-            {
-                if (currentNode.Previous?.Value != EscapeCharacter) return currentNode.Value != EscapeCharacter;
-                // ReSharper disable once AssignNullToNotNullAttribute
-                currentNode.List.Remove(currentNode.Previous);
-                return false;
-            }
 
             LanguageRules.Add(LowLineForNumbersRule);
             LanguageRules.Add(ScreeningRule);
+        }
+
+        private static bool ScreeningRule(LinkedListNode<string> currentNode)
+        {
+            if (currentNode.Previous == null) return true;
+            if (currentNode.Value == ")")
+            {
+                EscapeMode = false;
+                return true;
+            }
+            if (EscapeMode)
+            {
+                currentNode.Value = currentNode.Previous.Value + currentNode.Value;
+                currentNode.List.Remove(currentNode.Previous);
+                if (currentNode.Next == null || currentNode.Next.Value == ")") return true;
+                currentNode.Value += currentNode.Next.Value;
+                currentNode.List.Remove(currentNode.Next);
+                return true;
+            }
+            if (currentNode.Value == "(")
+            {
+                EscapeMode = true;
+                return true;
+            }
+            if (currentNode.Previous.Value != EscapeCharacter) return currentNode.Value != EscapeCharacter;
+            currentNode.List.Remove(currentNode.Previous);
+            return false;
         }
 
         public static bool IsKeyWords(string word) => KeyWords.Contains(word);
