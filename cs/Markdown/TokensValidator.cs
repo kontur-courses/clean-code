@@ -39,7 +39,7 @@ namespace Markdown
 
             var index = 0;
 
-            while (positions.Count > 0 && index < positions.Count)
+            while (localTokens.Count > 0 && index < localTokens.Count)
             {
                 if (localTokens[index].LocationType == LocationType.Closing)
                 {
