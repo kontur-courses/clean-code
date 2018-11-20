@@ -1,24 +1,26 @@
-﻿namespace Markdown
+﻿using System;
+
+namespace Markdown
 {
-    public class ItalicField : ITokenType
+    public class StrongField : ITokenType
     {
-        public readonly string Marker = "_";
+        public readonly string Marker = "__";
 
         public string ToHtml(string text, bool opened, bool closed)
         {
             var html = text;
             if (opened)
-                html = $"<em>{html}";
+                html = $"<strong>{html}";
             if (closed)
-                html = $"{html}</em>";
+                html = $"{html}</strong>";
             return html;
         }
 
         public bool CheckIfOpen(char symbol, char left, string right)
         {
-            return SpecificationCheck(symbol, left, right) && !char.IsWhiteSpace(right[0]);
+            return SpecificationCheck(symbol, left, right) && !char.IsWhiteSpace(right[1]);
         }
-        
+
         public bool CheckIfClosing(char symbol, char left, string right)
         {
             return SpecificationCheck(symbol, left, right) && !char.IsWhiteSpace(left);
@@ -30,16 +32,13 @@
                 return false;
             if (left == '\\')
                 return false;
-            if (char.IsDigit(left) || char.IsDigit(right[0]))
+            if (char.IsDigit(left) || char.IsDigit(right[1]))
                 return false;
-            return right[0] != '_';
+            return right[0] == '_';
         }
 
-        public ITokenType[] SupportedInnerTypes() => new ITokenType[0];
+        public ITokenType[] SupportedInnerTypes() => new ITokenType[] { new ItalicField() };
 
-        public string GetMarker()
-        {
-            return Marker;
-        }
+        public string GetMarker() => Marker;
     }
 }

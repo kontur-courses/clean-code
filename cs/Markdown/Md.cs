@@ -1,12 +1,13 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Text;
 
 namespace Markdown
 {
     public class Md
     {
-        private readonly ITokenType[] fieldTypes = { new ItalicField() };
+        private readonly ITokenType[] fieldTypes = { new ItalicField(), new StrongField() };
 
         public string Render(string mdText)
         {
@@ -19,7 +20,7 @@ namespace Markdown
         private string TokensToHtml(IEnumerable<Token> tokens, string mdText)
         {
             var builder = new StringBuilder();
-            foreach (var token in tokens)
+            foreach (var token in tokens.Where(token => token != null))
             {
                 builder.Append(token.ToHtml(mdText));
             }

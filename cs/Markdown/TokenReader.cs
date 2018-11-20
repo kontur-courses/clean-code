@@ -19,11 +19,6 @@ namespace Markdown
             return ReadToken(c => !isStopChar(c));
         }
 
-        public Token ReadWhile(Func<char, bool> accept)
-        {
-            return ReadToken(accept);
-        }
-
         private Token ReadToken(Func<char, bool> condition)
         {
             var startPosition = Position;
