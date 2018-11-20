@@ -1,6 +1,4 @@
-﻿using System;
-
-namespace Markdown
+﻿namespace Markdown
 {
     public class StrongField : ITokenType
     {

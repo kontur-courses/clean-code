@@ -1,12 +1,11 @@
-﻿using System.Text;
-using NUnit.Framework;
+﻿using NUnit.Framework;
 using FluentAssertions;
 
 namespace Markdown
 {
     public class Md_Should
     {
-        private Md reader = new Md();
+        private readonly Md reader = new Md();
         [TestCase("aghtr _something_", "aghtr <em>something</em>", TestName = "SimpleUnderscore")]
         [TestCase("aghtr _12_5", "aghtr _12_5", TestName = "NotTranslateWithNumbers")]
         [TestCase("_text_", "<em>text</em>", TestName = "TheWholeText")]
@@ -18,6 +17,9 @@ namespace Markdown
         [TestCase("xyz __abc _cde__ fg_", "xyz <strong>abc _cde</strong> fg_", TestName = "NotClosedNestingUnderscore")]
         [TestCase("xyz __abc _cd_ e__ fg_", "xyz <strong>abc <em>cd</em> e</strong> fg_", TestName = "NestedUnderscores")]
         [TestCase("xyz __abc__ fz __cd _ghu", "xyz <strong>abc</strong> fz __cd _ghu", TestName = "DoubleNotClosedAtEndUnderscores")]
+        [TestCase("xyz __abc _cd_ _cd_ e__ fg", "xyz <strong>abc <em>cd</em> <em>cd</em> e</strong> fg", TestName = "TwoNestedUnderscores")]
+        [TestCase("__abc _smth__ hog", "<strong>abc _smth</strong> hog", TestName = "StartsWithUnderscore")]
+        [TestCase("ftr \\__abc _smth\\__ hog", "ftr _<em>abc _smth_</em> hog", TestName = "IfOneIsScreened")]
         public void Solve(string mdText, string htmlText)
         {
             var result = reader.Render(mdText);
