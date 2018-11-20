@@ -13,16 +13,22 @@ namespace Markdown
 
         static MarkupLanguage()
         {
-            // todo get Teg children (container)
             KeyWords.Add("__");
             KeyWords.Add("_");
             KeyWords.Add("(");
             KeyWords.Add(")");
             KeyWords.Add("[");
             KeyWords.Add("]");
-
             KeyWords.Add(EscapeCharacter);
 
+            InitializeKeywordsByFirstLetter();
+            
+            LanguageRules.Add(LowLineForNumbersRule);
+            LanguageRules.Add(ScreeningRule);
+        }
+
+        private static void InitializeKeywordsByFirstLetter()
+        {
             foreach (var keyWord in KeyWords)
             {
                 if (KeywordsByFirstLetter.ContainsKey(keyWord[0]))
@@ -30,40 +36,45 @@ namespace Markdown
                 else
                     KeywordsByFirstLetter.Add(keyWord[0], new List<string> { keyWord });
             }
-
-            bool LowLineForNumbersRule(LinkedListNode<string> currentNode) =>
-                !(currentNode.Value.Contains("_") && (int.TryParse(currentNode.Previous?.Value, out _) || int.TryParse(currentNode.Next?.Value, out _)));
-
-            LanguageRules.Add(LowLineForNumbersRule);
-            LanguageRules.Add(ScreeningRule);
         }
 
         private static bool ScreeningRule(LinkedListNode<string> currentNode)
         {
+            switch (currentNode.Value)
+            {
+                case "(":
+                    EscapeMode = true;
+                    return true;
+                case ")":
+                    EscapeMode = false;
+                    return true;
+                default:
+                    return EscapeModeRule(currentNode) || EscapeCharacterRule(currentNode);
+            }
+        }
+
+        private static bool EscapeCharacterRule(LinkedListNode<string> currentNode)
+        {
             if (currentNode.Previous == null) return true;
-            if (currentNode.Value == ")")
-            {
-                EscapeMode = false;
-                return true;
-            }
-            if (EscapeMode)
-            {
-                currentNode.Value = currentNode.Previous.Value + currentNode.Value;
-                currentNode.List.Remove(currentNode.Previous);
-                if (currentNode.Next == null || currentNode.Next.Value == ")") return true;
-                currentNode.Value += currentNode.Next.Value;
-                currentNode.List.Remove(currentNode.Next);
-                return true;
-            }
-            if (currentNode.Value == "(")
-            {
-                EscapeMode = true;
-                return true;
-            }
             if (currentNode.Previous.Value != EscapeCharacter) return currentNode.Value != EscapeCharacter;
             currentNode.List.Remove(currentNode.Previous);
             return false;
         }
+
+        private static bool EscapeModeRule(LinkedListNode<string> currentNode)
+        {
+            if (!EscapeMode) return false;
+            if (currentNode.Previous == null || currentNode.Next == null) return true;
+            currentNode.Value = currentNode.Previous.Value + currentNode.Value;
+            currentNode.List.Remove(currentNode.Previous);
+            currentNode.Value += currentNode.Next.Value;
+            currentNode.List.Remove(currentNode.Next);
+            return true;
+        }
+
+        private static bool LowLineForNumbersRule(LinkedListNode<string> currentNode) =>
+            !(currentNode.Value.Contains("_") && (int.TryParse(currentNode.Previous?.Value, out _) || int.TryParse(currentNode.Next?.Value, out _)));
+
 
         public static bool IsKeyWords(string word) => KeyWords.Contains(word);
 

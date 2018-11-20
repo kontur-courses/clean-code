@@ -4,7 +4,7 @@ namespace Markdown
 {
     public class TagA : Tag, IPairTag
     {
-        private string herf;
+        private string link;
         public TagA()
         {
             End = ")";
@@ -13,11 +13,7 @@ namespace Markdown
             CloseRule = (currentNode) =>
             {
                 if (currentNode?.Value != End) return false;
-
-                herf = currentNode?.Previous?.Value;
-
-
-
+                link = currentNode?.Previous?.Value;
                 if (currentNode?.Previous?.Previous?.Previous != null)
                     currentNode.Previous.Value = currentNode.Previous.Previous.Value =
                         currentNode.Previous.Previous.Previous.Value = "";
@@ -25,7 +21,7 @@ namespace Markdown
             };
         }
         public override string ToString() => "a";
-        public string StartTag => $"<a href=\"{herf}\">";
+        public string StartTag => $"<a href=\"{link}\">";
         public string EndTag { get; } = "</a>";
         public Func<Tag, bool> CanIContainThisTagRule { get; } = t => true;
     }

@@ -15,6 +15,5 @@ namespace Markdown
         public string StartTag { get; } = "<strong>";
         public string EndTag { get; } = "</strong>";
         public Func<Tag, bool> CanIContainThisTagRule { get; } = t => true;
-
     }
 }
