@@ -1,5 +1,6 @@
 ﻿using System.Collections.Generic;
 using System.Text;
+using Markdown.Extensions;
 using Markdown.Tag;
 
 namespace Markdown

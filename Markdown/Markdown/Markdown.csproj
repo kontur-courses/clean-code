@@ -43,10 +43,10 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Md\MdType.cs" />
-    <Compile Include="StringExtensions.cs" />
+    <Compile Include="Extensions\StringExtensions.cs" />
     <Compile Include="HtmlTagWrapper.cs" />
     <Compile Include="TagFactory.cs" />
-    <Compile Include="Tag\TagExtensions.cs" />
+    <Compile Include="Extensions\TagExtensions.cs" />
     <Compile Include="Tag\DoubleUnderLineTag.cs" />
     <Compile Include="Tag\ITag.cs" />
     <Compile Include="Md\Md.cs" />
@@ -60,7 +60,6 @@
   </ItemGroup>
   <ItemGroup>
     <None Include="App.config" />
-    <None Include="MarkdownSpec.md" />
     <None Include="packages.config" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />

@@ -2,7 +2,7 @@
 using System.Linq;
 using Markdown.Tag;
 
-namespace Markdown
+namespace Markdown.Extensions
 {
     public static class StringExtensions
     {
@@ -43,11 +43,6 @@ namespace Markdown
             }
 
             return -1;
-        }
-
-        public static string GetBodyInside(this string text, ITag tag)
-        {
-            return text.Substring(tag.OpenIndex + tag.Length, tag.CloseIndex - tag.OpenIndex - tag.Length);
         }
 
         public static char LookAt(this string text, int index)
