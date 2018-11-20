@@ -13,12 +13,25 @@ namespace Markdown
             new TokenType("star", "*", "li", TokenLocationType.InlineToken)
         };
 
+        private bool TryMatchWordToTokens(string word, int currentIndex, HashSet<TokenType> usedTokens, out SingleToken token)
+        {
+            foreach (var tokenType in tokensTypes)
+                if (!usedTokens.Contains(tokenType) && tokenType.Template == word)
+                {
+                    token = new SingleToken(tokenType, currentIndex, LocationType.Single);
+                   return true;
+                }
+
+            token = null;
+            return false;
+        }
+
         public List<SingleToken> FindStartingTokens(string paragraph)
         {
             var tokens = new List<SingleToken>();
 
             var currentIndex = 0;
-            var usedTokens = new HashSet<TokenType>();
+            var usedTokensTypes = new HashSet<TokenType>();
 
             foreach (var word in paragraph.Split())
             {
@@ -28,18 +41,10 @@ namespace Markdown
                     continue;
                 }
 
-                var finded = false;
-                foreach (var tokenType in tokensTypes)
-                    if (!usedTokens.Contains(tokenType) && tokenType.Template == word)
-                    {
-                        tokens.Add(new SingleToken(tokenType, currentIndex, LocationType.Single));
-                        usedTokens.Add(tokenType);
-                        finded = true;
-                        break;
-                    }
-
-                if (!finded)
+                if (!TryMatchWordToTokens(word, currentIndex, usedTokensTypes, out var token))
                     return tokens;
+                tokens.Add(token);
+                usedTokensTypes.Add(token.TokenType);
 
                 currentIndex += word.Length + 1;
             }
