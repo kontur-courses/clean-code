@@ -61,7 +61,7 @@
   <ItemGroup>
     <Compile Include="StartingTokensFinderTest.cs" />
     <Compile Include="TokenTypeExtensionsTests.cs" />
-    <Compile Include="TokenFinderTests.cs" />
+    <Compile Include="InlineTokenFinderTests.cs" />
     <Compile Include="Md2HtmlTranslatorTests.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>

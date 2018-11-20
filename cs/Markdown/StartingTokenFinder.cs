@@ -6,11 +6,11 @@ namespace Markdown
     {
         private readonly List<TokenType> tokensTypes = new List<TokenType>
         {
-            new TokenType("lattice", "#", "h1", TokenLocationType.InlineToken),
-            new TokenType("double lattice", "##", "h2", TokenLocationType.InlineToken),
-            new TokenType("triple lattice", "###", "h3", TokenLocationType.InlineToken),
-            new TokenType("quadruple lattice", "####", "h4", TokenLocationType.InlineToken),
-            new TokenType("star", "*", "li", TokenLocationType.InlineToken)
+            new TokenType("lattice", "#", "h1", TokenLocationType.StartingToken),
+            new TokenType("double lattice", "##", "h2", TokenLocationType.StartingToken),
+            new TokenType("triple lattice", "###", "h3", TokenLocationType.StartingToken),
+            new TokenType("quadruple lattice", "####", "h4", TokenLocationType.StartingToken),
+            new TokenType("star", "*", "li", TokenLocationType.StartingToken)
         };
 
         private bool TryMatchWordToTokens(string word, int currentIndex, HashSet<TokenType> usedTokens, out SingleToken token)
@@ -19,7 +19,7 @@ namespace Markdown
                 if (!usedTokens.Contains(tokenType) && tokenType.Template == word)
                 {
                     token = new SingleToken(tokenType, currentIndex, LocationType.Single);
-                   return true;
+                    return true;
                 }
 
             token = null;

@@ -6,7 +6,7 @@ namespace Markdown
 {
     public class InlineTokensValidator
     {
-        public List<SingleToken> GetPositionsForTokens(List<SingleToken> tokens)
+        public List<SingleToken> GetValidTokens(List<SingleToken> tokens)
         {
             var tokensStream = new List<SingleToken>();
             var notClosedTokens = new List<SingleToken>();

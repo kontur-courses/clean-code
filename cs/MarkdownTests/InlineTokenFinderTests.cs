@@ -6,7 +6,7 @@ using Markdown;
 namespace MarkdownTests
 {
     [TestFixture]
-    class TokenFinderTests
+    class InlineTokenFinderTests
     {
         [TestCase("__f _d_ f__", new[] { 4, 6 }, new[] { 0, 9 }, TestName = "Should find simple and double token")]
         [TestCase("__f _d__ f_", new int[0] , new[] { 0, 6 }, TestName = "Should works correct on crossing of different tokens")]
@@ -16,7 +16,7 @@ namespace MarkdownTests
             var finder = new InlineTokenFinder();
             var validator = new InlineTokensValidator();
             var tokensPositions = finder.FindInlineTokensInMdText(paragraph);
-            var tokensWithPositions = validator.GetPositionsForTokens(tokensPositions);
+            var tokensWithPositions = validator.GetValidTokens(tokensPositions);
 
             var positionsForSimpleUnderscore =
                 tokensWithPositions.Where(token => token.TokenType.Name == "simpleUnderscore")
@@ -37,7 +37,7 @@ namespace MarkdownTests
             var finder = new InlineTokenFinder();
             var validator = new InlineTokensValidator();
             var tokensPositions = finder.FindInlineTokensInMdText(paragraph);
-            var tokensWithPositions = validator.GetPositionsForTokens(tokensPositions);
+            var tokensWithPositions = validator.GetValidTokens(tokensPositions);
 
             tokensWithPositions.Where(token => token.TokenType.Name == "doubleUnderscore")
                 .Select(token => token.TokenPosition)
@@ -53,7 +53,7 @@ namespace MarkdownTests
             var finder = new InlineTokenFinder();
             var validator = new InlineTokensValidator();
             var tokensPositions = finder.FindInlineTokensInMdText(paragraph);
-            var tokensWithPositions = validator.GetPositionsForTokens(tokensPositions);
+            var tokensWithPositions = validator.GetValidTokens(tokensPositions);
 
             tokensWithPositions.Select(token => token.TokenType.Name).Should().NotContain("simpleUnderscore");
         }
@@ -68,7 +68,7 @@ namespace MarkdownTests
             var finder = new InlineTokenFinder();
             var validator = new InlineTokensValidator();
             var tokensPositions = finder.FindInlineTokensInMdText(paragraph);
-            var tokensWithPositions = validator.GetPositionsForTokens(tokensPositions);
+            var tokensWithPositions = validator.GetValidTokens(tokensPositions);
 
             tokensWithPositions.Where(token => token.TokenType.Name == "simpleUnderscore")
                 .Select(token => token.TokenPosition)

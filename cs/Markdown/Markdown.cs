@@ -8,7 +8,7 @@ namespace Markdown
         public string Render(string paragraph)
         {
             var inlineTokens = new InlineTokenFinder().FindInlineTokensInMdText(paragraph);
-            var validInlineTokens = new InlineTokensValidator().GetPositionsForTokens(inlineTokens);
+            var validInlineTokens = new InlineTokensValidator().GetValidTokens(inlineTokens);
             var startingTokens = new StartingTokenFinder().FindStartingTokens(paragraph);
 
             var validTokens = validInlineTokens.Union(startingTokens);

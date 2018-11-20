@@ -61,19 +61,30 @@ namespace Markdown
             return lastStartingToken.TokenPosition + lastStartingToken.TokenType.Template.Length + 1;
         }
 
-        private string GetHtmlText(string mdText, IEnumerable<SingleToken> tokensStream)
+        private (List<SingleToken> inlineTokens, List<SingleToken> startingTokens)
+            GetSeparatedTokensByLocationTypes(IEnumerable<SingleToken> tokensStream)
         {
             var inlineTokens = new List<SingleToken>();
             var startingTokens = new List<SingleToken>();
             foreach (var token in tokensStream)
             {
-                if (token.LocationType == LocationType.Single)
+                if (token.TokenType.TokenLocationType == TokenLocationType.StartingToken)
                     startingTokens.Add(token);
-                else if (token.LocationType == LocationType.Opening || token.LocationType == LocationType.Closing)
+                else if (token.TokenType.TokenLocationType == TokenLocationType.InlineToken)
                     inlineTokens.Add(token);
                 else
                     throw new InvalidOperationException("Invalid token location type");
             }
+
+            return (inlineTokens, startingTokens);
+        }
+
+        private string GetHtmlText(string mdText, IEnumerable<SingleToken> tokensStream)
+        {
+            var separatedTokens = GetSeparatedTokensByLocationTypes(tokensStream);
+            var startingTokens = separatedTokens.startingTokens;
+            var inlineTokens = separatedTokens.inlineTokens;
+
             var htmlBuilder = new StringBuilder();
 
             htmlBuilder.Append(GetOpeningHtmlTagsForStartingTokens(startingTokens));
