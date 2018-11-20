@@ -1,22 +1,10 @@
-﻿
-namespace Markdown.Types
+﻿using Markdown.Types;
+namespace Markdown.TextProcessing
 {
-    public class EmToken : SimpleToken
+    public class EmTokenHandler : SimpleTokenHandler
     {
-        public EmToken(int position, int length, string value)
+        public EmTokenHandler()
         {
-            Position = position;
-            Length = length;
-            Value = value;
-            TypeToken = TypeToken.Em;
-            TokenAssociation = "_";
-            IsStopChar = stopChar => stopChar == '_';
-        }
-
-        public EmToken()
-        {
-            TypeToken = TypeToken.Em;
-            Value = "";
             TokenAssociation = "_";
             IsStopChar = stopChar => stopChar == '_';
         }
@@ -26,7 +14,8 @@ namespace Markdown.Types
             if (position == 0 && content.Length > 1 && content[position] == '_' && char.IsLetterOrDigit(content[position + 1]))
                 return true;
 
-            return position > 0 && position + 1 < content.Length && (char.IsSeparator(content[position - 1]) || content[position - 1] == '_') &&
+            return position > 1 && position + 1 < content.Length &&
+                   (char.IsSeparator(content[position - 1]) || content[position - 1] == '_') &&
                    content[position] == '_' && char.IsLetterOrDigit(content[position + 1]);
         }
 
@@ -51,9 +40,9 @@ namespace Markdown.Types
             return false;
         }
 
-        public override IToken GetNextNestedToken(string content, int position)
+        public override ITokenHandler GetNextNestedToken(string content, int position)
         {
-            return new SimpleToken();
+            return new SimpleTokenHandler();
         }
     }
 }

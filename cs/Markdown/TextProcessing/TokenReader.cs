@@ -15,21 +15,19 @@ namespace Markdown.TextProcessing
             Builder = new TextBuilder();
         }
 
-        public IToken ReadToken(Func<char, bool> isStopChar, IToken iToken)
+        public Token ReadToken(Func<char, bool> isStopChar, ITokenHandler iToken)
         {
-            var startPosition = Position;
             var value = ReadWhile(isStopChar, iToken);
-            var length = Position - startPosition;
             if (Position == Content.Length && !iToken.IsStopToken(Content, Position - 1))
             {
                 value = iToken.TokenAssociation + value;
-                return new SimpleToken(startPosition, length, value);
+                return new Token(TypeToken.Simple, value);
             }
             Position += iToken.TokenAssociation.Length == 0 ? 1 : iToken.TokenAssociation.Length;
-            return CreateToken(iToken, startPosition, length, value);
+            return CreateToken(iToken, value);
         }
 
-        private string ReadWhile(Func<char, bool> isStopChar, IToken iToken)
+        private string ReadWhile(Func<char, bool> isStopChar, ITokenHandler iToken)
         {
             var value = "";
             while (Position < Content.Length && (!isStopChar(Content[Position]) || !iToken.IsStopToken(Content, Position)))
@@ -48,7 +46,7 @@ namespace Markdown.TextProcessing
                 if (isStopChar(Content[Position]) && iToken.IsNestedToken(Content, Position))
                 {
                     Position++;
-                    value += Builder.BuildToken(ReadToken(isStopChar, iToken.GetNextNestedToken(Content, Position)));
+                    value += Builder.BuildTokenValue(ReadToken(isStopChar, iToken.GetNextNestedToken(Content, Position)));
                     continue;
                 }
                 value += Content[Position];
@@ -58,13 +56,13 @@ namespace Markdown.TextProcessing
             return value;
         }
 
-        public IToken CreateToken(IToken token, int startPosition, int length, string value)
+        public Token CreateToken(ITokenHandler token, string value)
         {
-            if (token is EmToken)
-                return new EmToken(startPosition, length, value);
-            if (token is StrongToken)
-                return new StrongToken(startPosition, length, value);
-            return new SimpleToken(startPosition, length, value);
+            if (token is EmTokenHandler)
+                return new Token(TypeToken.Em, value);
+            if (token is StrongTokenHandler)
+                return new Token(TypeToken.Strong, value);
+            return new Token(TypeToken.Simple, value);
         }
     }
 }

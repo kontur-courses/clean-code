@@ -1,22 +1,11 @@
-﻿
-namespace Markdown.Types
-{
-    public class StrongToken : SimpleToken
-    {
-        public StrongToken(int position, int length, string value)
-        {
-            Position = position;
-            Length = length;
-            Value = value;
-            TypeToken = TypeToken.Strong;
-            TokenAssociation = "__";
-            IsStopChar = stopChar => stopChar == '_';
-        }
+﻿using Markdown.Types;
 
-        public StrongToken()
+namespace Markdown.TextProcessing
+{
+    public class StrongTokenHandler : SimpleTokenHandler
+    {
+        public StrongTokenHandler()
         {
-            TypeToken = TypeToken.Strong;
-            Value = "";
             TokenAssociation = "__";
             IsStopChar = stopChar => stopChar == '_';
         }
@@ -27,7 +16,8 @@ namespace Markdown.Types
                 char.IsLetterOrDigit(content[position + 2]))
                 return true;
 
-            return position > 0 && position + 2 < content.Length && char.IsSeparator(content[position - 1]) &&
+            return position > 1 && position + 2 < content.Length &&
+                   char.IsSeparator(content[position - 1]) &&
                    content[position] == '_' && content[position + 1] == '_' &&
                    (char.IsLetterOrDigit(content[position + 2]) || content[position + 2] == '_');
         }
@@ -39,7 +29,7 @@ namespace Markdown.Types
                 (char.IsLetterOrDigit(content[position + -1]) || content[position + -1] == '_'))
                 return true;
 
-            return position > 0 && position + 2 < content.Length && 
+            return position > 0 && position + 2 < content.Length &&
                    (char.IsSeparator(content[position + 2]) || char.IsPunctuation(content[position + 2])) &&
                    content[position] == '_' && content[position + 1] == '_' &&
                    (char.IsLetterOrDigit(content[position - 1]) || content[position - 1] == '_');
@@ -52,13 +42,13 @@ namespace Markdown.Types
 
         public override bool IsNestedToken(string content, int position)
         {
-            var emToken = new EmToken();
+            var emToken = new EmTokenHandler();
             return emToken.IsStartToken(content, position);
         }
 
-        public override IToken GetNextNestedToken(string content, int position)
+        public override ITokenHandler GetNextNestedToken(string content, int position)
         {
-            return new EmToken();
+            return new EmTokenHandler();
         }
     }
 }

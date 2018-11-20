@@ -6,7 +6,7 @@ namespace Markdown.TextProcessing
 {
     public class TextBuilder
     {
-        public string BuildText(List<IToken> tokens)
+        public string BuildText(List<Token> tokens)
         {
             var strBuilder = new StringBuilder();
             foreach (var token in tokens)
@@ -19,7 +19,19 @@ namespace Markdown.TextProcessing
             return strBuilder.ToString();
         }
 
-        public string BuildToken(IToken token)
+        public string BuildText(List<string> paragraphs)
+        {
+            var strBuilder = new StringBuilder();
+            for(int i = 0; i<paragraphs.Count;i++)
+            {
+                strBuilder.Append(paragraphs[i]);
+                if(i!= paragraphs.Count-1)
+                strBuilder.Append("\r\n\r\n");
+            }
+            return strBuilder.ToString();
+        }
+
+        public string BuildTokenValue(Token token)
         {
             if (token.Value.Length == 0) return "";
             if (token.TypeToken == TypeToken.Simple)

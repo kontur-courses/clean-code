@@ -16,31 +16,30 @@ namespace Markdown.TextProcessing
             station = TypeToken.Simple;
         }
 
-        public List<IToken> SplitToTokens()
+        public List<Token> SplitToTokens()
         {
-            var tokens = new List<IToken>();
+            var tokens = new List<Token>();
             var position = 0;
             while (position < Content.Length)
             {
-                IToken token = new SimpleToken();
+                ITokenHandler tokenHandler = new SimpleTokenHandler();
                 switch (station)
                 {
                     case TypeToken.Simple:
                         break;
                     case TypeToken.Em:
-                        token = new EmToken();
+                        tokenHandler = new EmTokenHandler();
                         break;
                     case TypeToken.Strong:
-                        token = new StrongToken();
+                        tokenHandler = new StrongTokenHandler();
                         break;
                 }
-                token = Reader.ReadToken(token.IsStopChar, token);
+                var token = Reader.ReadToken(tokenHandler.IsStopChar, tokenHandler);
                 position = Reader.Position;
-                station = token.GetNextTypeToken(Content, position - 1);
+                station = tokenHandler.GetNextTypeToken(Content, position - 1);
                 if (station == TypeToken.Strong)
                     Reader.Position++;
-                if (token.Length != 0)
-                    tokens.Add(token);
+                tokens.Add(token);
             }
             return tokens;
         }

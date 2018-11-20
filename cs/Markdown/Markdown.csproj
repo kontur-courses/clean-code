@@ -56,20 +56,37 @@
     <Compile Include="MdTesting.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="Properties\Resources.Designer.cs">
+      <AutoGen>True</AutoGen>
+      <DesignTime>True</DesignTime>
+      <DependentUpon>Resources.resx</DependentUpon>
+    </Compile>
     <Compile Include="TextProcessing\TextBuilder.cs" />
     <Compile Include="TextProcessing\TextSplitter.cs" />
-    <Compile Include="Types\IToken.cs" />
-    <Compile Include="Types\EmToken.cs" />
+    <Compile Include="Types\ITokenHandler.cs" />
+    <Compile Include="TextProcessing\EmTokenHandler.cs" />
     <Compile Include="TextProcessing\TokenReader.cs" />
-    <Compile Include="Types\SimpleToken.cs" />
-    <Compile Include="Types\StrongToken.cs" />
+    <Compile Include="TextProcessing\SimpleTokenHandler.cs" />
+    <Compile Include="TextProcessing\StrongTokenHandler.cs" />
+    <Compile Include="Types\Token.cs" />
     <Compile Include="Types\TypeToken.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="App.config" />
     <None Include="packages.config" />
   </ItemGroup>
-  <ItemGroup />
+  <ItemGroup>
+    <EmbeddedResource Include="Properties\Resources.resx">
+      <Generator>ResXFileCodeGenerator</Generator>
+      <LastGenOutput>Resources.Designer.cs</LastGenOutput>
+    </EmbeddedResource>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Resources\FastTest.txt" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Resources\FastTestResult.txt" />
+  </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <Target Name="EnsureNuGetPackageBuildImports" BeforeTargets="PrepareForBuild">
     <PropertyGroup>
