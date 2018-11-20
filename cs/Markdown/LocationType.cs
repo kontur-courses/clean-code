@@ -3,6 +3,7 @@
     public enum LocationType
     {
         Opening,
-        Closing
+        Closing,
+        Single
     } 
 }

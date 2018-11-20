@@ -59,6 +59,7 @@
     <Reference Include="System.Xml.Linq" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="StartingTokensFinderTest.cs" />
     <Compile Include="TokenTypeExtensionsTests.cs" />
     <Compile Include="TokenFinderTests.cs" />
     <Compile Include="Md2HtmlTranslatorTests.cs" />
