@@ -4,9 +4,9 @@ namespace Markdown
 {
     public enum TokenType
     {
+        Text,
         Italic,
-        Bold,
-        Text
+        Bold
     }
 
     public class Token
@@ -14,8 +14,8 @@ namespace Markdown
         //Текст - это токен;
         //Текст, окруженный разделителями - это токен;
         //Токен содержит вложенные токены;
-        public Delimiter StartingDelimiter;
-        public Delimiter ClosingDelimiter;
+
+        public Delimiter Delimiter;
         public List<Token> Tokens = new List<Token>();
         public Token ParentToken { get; private set; }
         public Token RootToken { get; private set; }
@@ -30,9 +30,9 @@ namespace Markdown
             RootToken = this;
         }
 
-        public Token(Delimiter startingDelimiter)
+        public Token(Delimiter delimiter)
         {
-            StartingDelimiter = startingDelimiter;
+            Delimiter = delimiter;
             RootToken = this;
         }
 
