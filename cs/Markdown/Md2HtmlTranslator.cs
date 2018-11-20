@@ -7,7 +7,7 @@ namespace Markdown
 {
     public class Md2HtmlTranslator
     {
-        public string TranslateMdToHtml(string mdText, List<SingleToken> tokens)
+        public string TranslateMdToHtml(string mdText, IEnumerable<SingleToken> tokens)
         {
             var htmlText = GetHtmlText(mdText, tokens.OrderBy(token => token.TokenPosition));
 
@@ -67,18 +67,12 @@ namespace Markdown
             var startingTokens = new List<SingleToken>();
             foreach (var token in tokensStream)
             {
-                switch (token.LocationType)
-                {
-                    case LocationType.Single:
-                        startingTokens.Add(token);
-                        break;
-                    case LocationType.Opening:
-                    case LocationType.Closing:
-                        inlineTokens.Add(token);
-                        break;
-                    default:
-                        throw new InvalidOperationException("Invalid token location type");
-                }
+                if (token.LocationType == LocationType.Single)
+                    startingTokens.Add(token);
+                else if (token.LocationType == LocationType.Opening || token.LocationType == LocationType.Closing)
+                    inlineTokens.Add(token);
+                else
+                    throw new InvalidOperationException("Invalid token location type");
             }
             var htmlBuilder = new StringBuilder();
 
@@ -89,23 +83,6 @@ namespace Markdown
             htmlBuilder.Append(GetClosingHtmlTagsForStartingTokens(startingTokens));
 
             return htmlBuilder.ToString();
-        }
-
-        private IEnumerable<SingleToken> GetTokensSortedByPosition(Dictionary<TokenType, List<TokenPosition>> positionsForTokensTypes)
-        {
-            var sortedPositionsWithTokens = new List<SingleToken>();
-
-            foreach (var tokenWithPositions in positionsForTokensTypes)
-                foreach (var position in tokenWithPositions.Value)
-                {
-                    sortedPositionsWithTokens.Add
-                        (new SingleToken(tokenWithPositions.Key, position.Start, LocationType.Opening));
-
-                    sortedPositionsWithTokens.Add
-                        (new SingleToken(tokenWithPositions.Key, position.End, LocationType.Closing));
-                }
-
-            return sortedPositionsWithTokens.OrderBy(token => token.TokenPosition);
         }
     }
 }

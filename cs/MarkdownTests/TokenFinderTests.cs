@@ -1,5 +1,4 @@
-﻿using System.Collections.Generic;
-using System.Linq;
+﻿using System.Linq;
 using NUnit.Framework;
 using FluentAssertions;
 using Markdown;
@@ -10,6 +9,7 @@ namespace MarkdownTests
     class TokenFinderTests
     {
         [TestCase("__f _d_ f__", new[] { 4, 6 }, new[] { 0, 9 }, TestName = "Should find simple and double token")]
+        [TestCase("__f _d__ f_", new int[0] , new[] { 0, 6 }, TestName = "Should works correct on crossing of different tokens")]
         public void FindDoubleAndSimple(string paragraph, int[] simpleUnderscorePositions,
             int[] doubleUnderscorePositions)
         {
