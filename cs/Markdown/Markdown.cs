@@ -1,4 +1,5 @@
 ﻿using System.Collections.Generic;
+using System.Linq;
 
 namespace Markdown
 {
@@ -8,11 +9,12 @@ namespace Markdown
         {
             var tokens = new InlineTokenFinder().FindInlineTokensInMdText(paragraph);
 
-            var inlineTokensPositions = new InlineTokensValidator().GetPositionsForTokens(tokens);
+            var inlineTokens = new InlineTokensValidator().GetPositionsForTokens(tokens);
             var startingTokens = new StartingTokenFinder().FindStartingTokens(paragraph);
 
+            var validTokens = inlineTokens.Concat(startingTokens);
             //передавать поток токенов 
-            var htmlParagraph = new Md2HtmlTranslator().TranslateMdToHtml(paragraph, inlineTokensPositions, startingTokens);
+            var htmlParagraph = new Md2HtmlTranslator().TranslateMdToHtml(paragraph, tokens);
 
             return htmlParagraph;
         }

@@ -1,21 +1,29 @@
-﻿using System.Collections.Generic;
+﻿using System.Collections;
+using System.Collections.Generic;
+using System.Linq;
+using System.Xml;
 
 namespace Markdown
 {
     public class InlineTokensValidator
     {
-        public Dictionary<TokenType, List<TokenPosition>> GetPositionsForTokens(List<SingleToken> tokens)
+        public List<SingleToken> GetPositionsForTokens(List<SingleToken> tokens)
         {
             var separatedTokens = GetTokensForTokenTypes(tokens);
-            var tokensPositions = new Dictionary<TokenType, List<TokenPosition>>();
+            var tokensStream = new List<SingleToken>();
 
             foreach (var tokensForType in separatedTokens)
             {
                 var token = tokensForType.Key;
-                tokensPositions.Add(token, GetPositionsForTokenType(separatedTokens[token]));
+                var tokensPositions = GetPositionsForTokenType(separatedTokens[token]);
+                foreach (var tokenPosition in tokensPositions)
+                {
+                    tokensStream.Add(new SingleToken(tokensForType.Key, tokenPosition.Start, LocationType.Opening));
+                    tokensStream.Add(new SingleToken(tokensForType.Key, tokenPosition.End, LocationType.Closing));
+                }
             }
 
-            return tokensPositions;
+            return tokensStream;
         }
 
         private Dictionary<TokenType, List<SingleToken>> GetTokensForTokenTypes(List<SingleToken> tokens)
@@ -32,7 +40,7 @@ namespace Markdown
             return allTokens;
         }
 
-        private List<TokenPosition> GetPositionsForTokenType(List<SingleToken> tokens)
+        private IEnumerable<TokenPosition> GetPositionsForTokenType(IEnumerable<SingleToken> tokens)
         {
             var localTokens = new List<SingleToken>(tokens);
             var positions = new List<TokenPosition>();

@@ -7,10 +7,9 @@ namespace Markdown
 {
     public class Md2HtmlTranslator
     {
-        public string TranslateMdToHtml(string mdText, Dictionary<TokenType, List<TokenPosition>> positionsForTokensTypes, List<SingleToken> startingTokens)
+        public string TranslateMdToHtml(string mdText, List<SingleToken> tokens)
         {
-            var inlineTokens = GetTokensSortedByPosition(positionsForTokensTypes);
-            var htmlText = GetHtmlText(mdText, startingTokens.Concat(inlineTokens));
+            var htmlText = GetHtmlText(mdText, tokens.OrderBy(token => token.TokenPosition));
 
             return htmlText;
         }
@@ -57,6 +56,8 @@ namespace Markdown
 
         private int GetParagraphStartIndex(SingleToken lastStartingToken)
         {
+            if (lastStartingToken == null)
+                return 0;
             return lastStartingToken.TokenPosition + lastStartingToken.TokenType.Template.Length + 1;
         }
 

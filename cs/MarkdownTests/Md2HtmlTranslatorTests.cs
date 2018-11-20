@@ -11,10 +11,12 @@ namespace MarkdownTests
         [Test]
         public void GetHtmlText_AfterMdWithSingleUnderscore()
         {
+            var simpleUnderScore = new TokenType("singleUnderscore", "_", "em", TokenLocationType.InlineToken);
             var translator = new Md2HtmlTranslator();
-            var tokens = new Dictionary<TokenType, List<TokenPosition>>
+            var tokens = new List<SingleToken>
             {
-                {new TokenType("singleUnderscore", "_", "em", TokenLocationType.InlineToken), new List<TokenPosition> {new TokenPosition(0, 3)}}
+                new SingleToken(simpleUnderScore, 0, LocationType.Opening),
+                new SingleToken(simpleUnderScore, 3, LocationType.Closing)
             };
 
             var htmlText = translator.TranslateMdToHtml("_ff_", tokens);
@@ -25,10 +27,14 @@ namespace MarkdownTests
         [Test]
         public void GetHtmlText_AfterMdWithNestedSingleUnderscore()
         {
+            var simpleUnderScore = new TokenType("singleUnderscore", "_", "em", TokenLocationType.InlineToken);
             var translator = new Md2HtmlTranslator();
-            var tokens = new Dictionary<TokenType, List<TokenPosition>>
+            var tokens = new List<SingleToken>
             {
-                {new TokenType("singleUnderscore", "_", "em", TokenLocationType.InlineToken), new List<TokenPosition> {new TokenPosition(0, 8), new TokenPosition(3,5)}}
+                new SingleToken(simpleUnderScore, 0, LocationType.Opening),
+                new SingleToken(simpleUnderScore, 3, LocationType.Opening),
+                new SingleToken(simpleUnderScore, 5, LocationType.Closing),
+                new SingleToken(simpleUnderScore, 8, LocationType.Closing)
             };
 
             var htmlText = translator.TranslateMdToHtml("_f _f_ f_", tokens);
@@ -39,10 +45,12 @@ namespace MarkdownTests
         [Test]
         public void GetHtmlText_AfterMdWithDoubleUnderscore()
         {
+            var doubleUnderScore = new TokenType("doubleUnderscore", "__", "strong", TokenLocationType.InlineToken);
             var translator = new Md2HtmlTranslator();
-            var tokens = new Dictionary<TokenType, List<TokenPosition>>
+            var tokens = new List<SingleToken>
             {
-                {new TokenType("doubleUnderscore", "__", "strong", TokenLocationType.InlineToken), new List<TokenPosition> {new TokenPosition(0, 4)}}
+                new SingleToken(doubleUnderScore, 0, LocationType.Opening),
+                new SingleToken(doubleUnderScore, 4, LocationType.Closing)
             };
 
             var htmlText = translator.TranslateMdToHtml("__ff__", tokens);
@@ -53,11 +61,16 @@ namespace MarkdownTests
         [Test]
         public void GetHtmlText_AfterMdWithSingleAndDoubleUnderscore()
         {
+            var doubleUnderScore = new TokenType("doubleUnderscore", "__", "strong", TokenLocationType.InlineToken);
+            var simpleUnderScore = new TokenType("singleUnderscore", "_", "em", TokenLocationType.InlineToken);
+
             var translator = new Md2HtmlTranslator();
-            var tokens = new Dictionary<TokenType, List<TokenPosition>>
+            var tokens = new List<SingleToken>
             {
-                {new TokenType("doubleUnderscore", "__", "strong", TokenLocationType.InlineToken), new List<TokenPosition> {new TokenPosition(0, 4)}},
-                {new TokenType("singleUnderscore", "_", "em", TokenLocationType.InlineToken), new List<TokenPosition> {new TokenPosition(7, 9)}}
+                new SingleToken(doubleUnderScore, 0, LocationType.Opening),
+                new SingleToken(doubleUnderScore, 4, LocationType.Closing),
+                new SingleToken(simpleUnderScore, 7, LocationType.Opening),
+                new SingleToken(simpleUnderScore, 9, LocationType.Closing),
             };
 
             var htmlText = translator.TranslateMdToHtml("__ff__ _f_", tokens);
