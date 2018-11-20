@@ -13,7 +13,7 @@ namespace MarkdownTests
         [TestCase("d \\_d", 4, ExpectedResult = false, TestName = "Is not valid after backslash")]
         public bool ValidOpeningPositionTest(string text, int openingPosition)
         {
-            var token = new TokenType("singleUnderscore", "_", "em");
+            var token = new TokenType("singleUnderscore", "_", "em", TokenLocationType.InlineToken);
 
             return token.ValidOpeningPosition(text, openingPosition);
         }
@@ -24,19 +24,19 @@ namespace MarkdownTests
         [TestCase("dd\\_ d", 4, ExpectedResult = false, TestName = "Is not valid after backslash")]
         public bool ValidClosingPositionTest(string text, int closingPosition)
         {
-            var token = new TokenType("singleUnderscore", "_", "em");
+            var token = new TokenType("singleUnderscore", "_", "em", TokenLocationType.InlineToken);
 
             return token.ValidClosingPosition(text, closingPosition);
         }
 
-        [TestCase("__f",0, ExpectedResult = "doubleUnderscore", TestName = "Find double underscore")]
+        [TestCase("__f", 0, ExpectedResult = "doubleUnderscore", TestName = "Find double underscore")]
         [TestCase("_f", 0, ExpectedResult = "simpleUnderscore", TestName = "Find simple underscore")]
         public string GetOpeningTokenTest(string text, int startIndex)
         {
             var tokens = new List<TokenType>
             {
-                new TokenType("doubleUnderscore", "__", "strong"),
-                new TokenType("simpleUnderscore", "_", "em")
+                new TokenType("doubleUnderscore", "__", "strong",TokenLocationType.InlineToken),
+                new TokenType("simpleUnderscore", "_", "em",TokenLocationType.InlineToken)
             };
 
             return tokens.GetOpeningToken(text, startIndex).Name;
@@ -48,8 +48,8 @@ namespace MarkdownTests
         {
             var tokens = new List<TokenType>
             {
-                new TokenType("doubleUnderscore", "__", "strong"),
-                new TokenType("simpleUnderscore", "_", "em")
+                new TokenType("doubleUnderscore", "__", "strong", TokenLocationType.InlineToken),
+                new TokenType("simpleUnderscore", "_", "em", TokenLocationType.InlineToken)
             };
 
             return tokens.GetClosingToken(text, startIndex).Name;

@@ -14,7 +14,7 @@ namespace MarkdownTests
             var translator = new Md2HtmlTranslator();
             var tokens = new Dictionary<TokenType, List<TokenPosition>>
             {
-                {new TokenType("singleUnderscore", "_", "em"), new List<TokenPosition> {new TokenPosition(0, 3)}}
+                {new TokenType("singleUnderscore", "_", "em", TokenLocationType.InlineToken), new List<TokenPosition> {new TokenPosition(0, 3)}}
             };
 
             var htmlText = translator.TranslateMdToHtml("_ff_", tokens);
@@ -28,7 +28,7 @@ namespace MarkdownTests
             var translator = new Md2HtmlTranslator();
             var tokens = new Dictionary<TokenType, List<TokenPosition>>
             {
-                {new TokenType("singleUnderscore", "_", "em"), new List<TokenPosition> {new TokenPosition(0, 8), new TokenPosition(3,5)}}
+                {new TokenType("singleUnderscore", "_", "em", TokenLocationType.InlineToken), new List<TokenPosition> {new TokenPosition(0, 8), new TokenPosition(3,5)}}
             };
 
             var htmlText = translator.TranslateMdToHtml("_f _f_ f_", tokens);
@@ -42,7 +42,7 @@ namespace MarkdownTests
             var translator = new Md2HtmlTranslator();
             var tokens = new Dictionary<TokenType, List<TokenPosition>>
             {
-                {new TokenType("doubleUnderscore", "__", "strong"), new List<TokenPosition> {new TokenPosition(0, 4)}}
+                {new TokenType("doubleUnderscore", "__", "strong", TokenLocationType.InlineToken), new List<TokenPosition> {new TokenPosition(0, 4)}}
             };
 
             var htmlText = translator.TranslateMdToHtml("__ff__", tokens);
@@ -56,8 +56,8 @@ namespace MarkdownTests
             var translator = new Md2HtmlTranslator();
             var tokens = new Dictionary<TokenType, List<TokenPosition>>
             {
-                {new TokenType("doubleUnderscore", "__", "strong"), new List<TokenPosition> {new TokenPosition(0, 4)}},
-                {new TokenType("singleUnderscore", "_", "em"), new List<TokenPosition> {new TokenPosition(7, 9)}}
+                {new TokenType("doubleUnderscore", "__", "strong", TokenLocationType.InlineToken), new List<TokenPosition> {new TokenPosition(0, 4)}},
+                {new TokenType("singleUnderscore", "_", "em", TokenLocationType.InlineToken), new List<TokenPosition> {new TokenPosition(7, 9)}}
             };
 
             var htmlText = translator.TranslateMdToHtml("__ff__ _f_", tokens);

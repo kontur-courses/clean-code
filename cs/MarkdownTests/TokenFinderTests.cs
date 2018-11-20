@@ -9,12 +9,6 @@ namespace MarkdownTests
     [TestFixture]
     class TokenFinderTests
     {
-        private static readonly List<TokenType> TokensTypes = new List<TokenType>
-        {
-            new TokenType("simpleUnderscore", "_", "em"),
-            new TokenType("doubleUnderscore", "__", "strong")
-        };
-
         private List<TokenPosition> GetTokenPositions(int[] indexes)
         {
             var result = new List<TokenPosition>();
@@ -34,7 +28,7 @@ namespace MarkdownTests
 
             var finder = new TokenFinder();
             var validator = new TokensValidator();
-            var tokensPositions = finder.FindTokensInMdText(paragraph, TokensTypes);
+            var tokensPositions = finder.FindTokensInMdText(paragraph);
             var tokensWithPositions = validator.GetPositionsForTokens(tokensPositions);
 
             tokensWithPositions.First(token => token.Key.Name == "simpleUnderscore").Value
@@ -50,7 +44,7 @@ namespace MarkdownTests
 
             var finder = new TokenFinder();
             var validator = new TokensValidator();
-            var tokensPositions = finder.FindTokensInMdText(paragraph, TokensTypes);
+            var tokensPositions = finder.FindTokensInMdText(paragraph);
             var tokensWithPositions = validator.GetPositionsForTokens(tokensPositions);
 
             tokensWithPositions.First(token => token.Key.Name == "doubleUnderscore").Value.First()
@@ -63,11 +57,11 @@ namespace MarkdownTests
         [TestCase("_f", TestName = "Should not find token without finishing token")]
         public void FindSimpleUnderscore(string paragraph)
         {
-            var simpleUnderscore = new TokenType("simpleUnderscore", "_", "em");
+            var simpleUnderscore = new TokenType("simpleUnderscore", "_", "em", TokenLocationType.InlineToken);
 
             var finder = new TokenFinder();
             var validator = new TokensValidator();
-            var tokensPositions = finder.FindTokensInMdText(paragraph, TokensTypes);
+            var tokensPositions = finder.FindTokensInMdText(paragraph);
             var tokensWithPositions = validator.GetPositionsForTokens(tokensPositions);
 
             tokensWithPositions.Should().NotContainKey(simpleUnderscore);
@@ -83,7 +77,7 @@ namespace MarkdownTests
 
             var finder = new TokenFinder();
             var validator = new TokensValidator();
-            var tokensPositions = finder.FindTokensInMdText(paragraph, TokensTypes);
+            var tokensPositions = finder.FindTokensInMdText(paragraph);
             var tokensWithPositions = validator.GetPositionsForTokens(tokensPositions);
 
             tokensWithPositions.First(token => token.Key.Name == "simpleUnderscore").Value
