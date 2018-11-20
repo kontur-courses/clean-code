@@ -4,8 +4,10 @@ namespace Markdown
 {
     static class Specification
     {
-        public static HashSet<string> KeyWords = new HashSet<string>() {"_", "__", "\\"};
-        public static HashSet<string> Digits = new HashSet<string> {"0", "1", "2", "3", "4", "5", "6", "7", "8", "9"};
+        public static HashSet<string> KeyWords = new HashSet<string>() {"\\"};
+
+        public static HashSet<string> ProhibitionСharacters = new HashSet<string>
+            {"0", "1", "2", "3", "4", "5", "6", "7", "8", "9"};
 
 
         public static Dictionary<TokenType, HashSet<TokenType>> ImpossibleNesting =
@@ -17,7 +19,7 @@ namespace Markdown
         public static Dictionary<string, TokenType> MdToTokenTypes = new Dictionary<string, TokenType>()
         {
             {"_", TokenType.Italic},
-            {"__", TokenType.Bold},
+            {"__", TokenType.Bold}
         };
 
         public static Dictionary<TokenType, string> TokenTypeToHTML = new Dictionary<TokenType, string>
@@ -35,11 +37,6 @@ namespace Markdown
         public static bool CanBeClosing(Substring substring, string markdownInput)
         {
             return substring.Index != 0 && markdownInput[substring.Index - 1] != ' ';
-        }
-
-        public static bool DelimitersCanBePair(Delimiter startDelimiter, Delimiter closingDelimiter)
-        {
-            return startDelimiter.Value == closingDelimiter.Value;
         }
     }
 }
