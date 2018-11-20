@@ -1,29 +1,41 @@
 ﻿using System.Collections.Generic;
+using Markdown.Md.TagHandlers;
+using Markdown.Md.TagHandlersFactory;
 
 namespace Markdown.Md
 {
     public static class MdSpecification
     {
-        public static Dictionary<MdType, string> Tags = new Dictionary<MdType, string>
+        public static string Emphasis = "emphasis";
+        public static string StrongEmphasis = "strong";
+        public static string Text = "text";
+
+        public static Dictionary<string, string> Tags = new Dictionary<string, string>
         {
-            {MdType.OpenEmphasis, "_"},
-            {MdType.CloseEmphasis, "_"},
-            {MdType.OpenStrongEmphasis, "__"},
-            {MdType.CloseStrongEmphasis, "__"},
+            {Emphasis, "_"},
+            {StrongEmphasis, "__"},
+            {Text, ""},
         };
 
-        public static readonly Dictionary<MdType, string> HtmlRules = new Dictionary<MdType, string>
+        public static readonly Dictionary<string, string> HtmlRules = new Dictionary<string, string>
         {
-            {MdType.Text, ""},
-            {MdType.OpenEmphasis, "<ul>"},
-            {MdType.CloseEmphasis, "</ul>"},
-            {MdType.OpenStrongEmphasis, "<strong>"},
-            {MdType.CloseStrongEmphasis, "</strong>"},
+            {Text, ""},
+            {Emphasis, "<ul>"},
+            {StrongEmphasis, "<strong>"},
         };
 
         public static bool IsEscape(string str, int position)
         {
             return position - 1 >= 0 && str[position - 1] == '\\';
+        }
+
+        public static TagHandler GetTagHandlerChain()
+        {
+            var emphasisHandler = new EmphasisHandlerFactory().Create();
+            var strongEmphasisHandler = new StrongEmphasisHandlerFactory().Create();
+            var textHandler = new TextHandlerFactory().Create();
+
+            return strongEmphasisHandler.SetSuccessor(emphasisHandler.SetSuccessor(textHandler));
         }
     }
 }

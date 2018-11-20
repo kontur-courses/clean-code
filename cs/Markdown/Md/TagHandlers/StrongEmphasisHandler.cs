@@ -3,7 +3,7 @@ using System.Collections.Generic;
 
 namespace Markdown.Md.TagHandlers
 {
-    public class EmphasisHandler : TagHandler
+    public class StrongEmphasisHandler : TagHandler
     {
         public override TokenNode Handle(string str, int position, Stack<TokenNode> openingTokens)
         {
@@ -23,6 +23,14 @@ namespace Markdown.Md.TagHandlers
 
             if (result.PairType == TokenPairType.Open)
             {
+                if (openingTokens.Count != 0 && openingTokens.Peek()
+                    .Type == MdSpecification.Emphasis)
+                {
+                    result.Type = MdSpecification.Text;
+
+                    return result;
+                }
+
                 openingTokens.Push(result);
             }
 
@@ -32,7 +40,8 @@ namespace Markdown.Md.TagHandlers
                 {
                     var peek = openingTokens.Peek();
 
-                    if (peek.Type == MdSpecification.Emphasis)
+                    if (peek.Type == MdSpecification.StrongEmphasis
+                        && peek.PairType == TokenPairType.Open)
                     {
                         openingTokens.Pop();
 
@@ -54,17 +63,18 @@ namespace Markdown.Md.TagHandlers
                 return new TokenNode(MdSpecification.Text, "");
             }
 
-            if (IsEmphasis(str, position)
+            if (IsStrongEmphasis(str, position)
                 && IsClosedEmphasis(str, position)
-                && (position - 1 < 0 || str[position - 1] != '_'))
+                && (position + 2 >= str.Length || str[position + 2] != '_'))
             {
-                return new TokenNode(MdSpecification.Emphasis, "", TokenPairType.Close);
+                return new TokenNode(MdSpecification.StrongEmphasis, "", TokenPairType.Close);
             }
 
-            if (IsEmphasis(str, position)
-                && IsOpenedEmphasis(str, position))
+            if (IsStrongEmphasis(str, position)
+                && IsOpenedEmphasis(str, position + 1)
+                && (position - 1 < 0 || str[position - 1] == ' '))
             {
-                return new TokenNode(MdSpecification.Emphasis, "", TokenPairType.Open);
+                return new TokenNode(MdSpecification.StrongEmphasis, "", TokenPairType.Open);
             }
 
             return new TokenNode(MdSpecification.Text, "");
@@ -88,9 +98,11 @@ namespace Markdown.Md.TagHandlers
                 && (position + 1 >= str.Length || !char.IsLetter(str[position + 1]));
         }
 
-        private static bool IsEmphasis(string str, int position)
+        private static bool IsStrongEmphasis(string str, int position)
         {
-            return str[position] == '_';
+            return position + 1 < str.Length
+                && str[position] == '_'
+                && str[position + 1] == '_';
         }
     }
 }

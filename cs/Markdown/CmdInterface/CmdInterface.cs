@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using Fclp;
 using Markdown.Md;
-using Markdown.Md.Renderers;
+using Markdown.Renderers;
 
 namespace Markdown.CmdInterface
 {
@@ -23,7 +23,9 @@ namespace Markdown.CmdInterface
             callbacks = new CmdCallbacks();
             parser = new FluentCommandLineParser();
 
-            converters.Add("markdown2html", new Md.Md(new MdParser(), new MdHtmlRenderer(MdSpecification.HtmlRules)));
+            converters.Add("markdown2html",
+                new Md.Md(new Parser(MdSpecification.GetTagHandlerChain()),
+                    new HtmlRenderer(MdSpecification.HtmlRules)));
 
             parser.SetupHelp("?", "help")
                 .Callback(text => Console.Write(callbacks.GetHelpInformation()));

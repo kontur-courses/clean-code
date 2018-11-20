@@ -1,11 +1,13 @@
-﻿namespace Markdown.Md
+﻿using Markdown.Renderers;
+
+namespace Markdown.Md
 {
     public class Md : IConverter
     {
-        private readonly IParser<MdToken> parser;
+        private readonly IParser parser;
         private readonly IRenderer renderer;
 
-        public Md(IParser<MdToken> parser, IRenderer renderer)
+        public Md(IParser parser, IRenderer renderer)
         {
             this.parser = parser;
             this.renderer = renderer;

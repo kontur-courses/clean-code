@@ -1,8 +1,10 @@
-﻿namespace Markdown.Md.TagHandlers
+﻿using System.Collections.Generic;
+
+namespace Markdown.Md.TagHandlers
 {
-    public class TextHandler : MdTagHandler
+    public class TextHandler : TagHandler
     {
-        public override MdToken Handle(string str, int position)
+        public override TokenNode Handle(string str, int position, Stack<TokenNode> openingTokens)
         {
             if (IsText(str, position, out var result))
             {
@@ -11,12 +13,12 @@
                     result += str[position];
                 }
 
-                return new MdToken(MdType.Text, result);
+                return new TokenNode(MdSpecification.Text, result);
             }
 
-            Successor?.Handle(str, position);
+            Successor?.Handle(str, position, openingTokens);
 
-            return new MdToken(MdType.Text, "");
+            return new TokenNode(MdSpecification.Text, "");
         }
 
         public static bool IsText(string str, int position, out string result)
