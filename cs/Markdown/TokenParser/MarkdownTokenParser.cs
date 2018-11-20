@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Text;
 using Markdown.Data;
 
 namespace Markdown.TokenParser
@@ -18,11 +19,11 @@ namespace Markdown.TokenParser
         {
             if (string.IsNullOrEmpty(text))
                 yield break;
-            var currentToken = new Queue<char>();
+            var currentToken = new StringBuilder();
             var previousTokenType = TokenType.ParagraphStart;
             foreach (var symbol in text)
             {
-                var token = new string(currentToken.ToArray());
+                var token = currentToken.ToString();
                 if (!IsPartOfToken(token, symbol, previousTokenType))
                 {
                     var newToken = GetToken(token, previousTokenType);
@@ -30,35 +31,24 @@ namespace Markdown.TokenParser
                     previousTokenType = newToken.Type;
                     currentToken.Clear();
                 }
-                currentToken.Enqueue(symbol);
+                currentToken.Append(symbol);
             }
-            yield return GetToken(new string(currentToken.ToArray()), previousTokenType);
+            yield return GetToken(currentToken.ToString(), previousTokenType);
         }
 
         private bool IsPartOfToken(string token, char nextSymbol, TokenType previousTokenType)
         {
             if (token.Length == 0)
                 return true;
-            if (token == "\\" || nextSymbol == '\\' || token == "\n" || nextSymbol == '\n')
+            if (token == "\\")
                 return false;
-            if (previousTokenType == TokenType.EscapeSymbol && tags.Contains(token))
+            if (previousTokenType == TokenType.EscapeSymbol)
                 return false;
-            if (TryCheckThatPartOfTag(token, nextSymbol, out var nextSymbolIsPartOfTag))
-                return nextSymbolIsPartOfTag;
+            if (tags.Any(tag => tag.StartsWith(token)))
+                return tags.Any(tag => tag.StartsWith(token + nextSymbol));
             if (string.IsNullOrWhiteSpace(token))
                 return char.IsWhiteSpace(nextSymbol);
             return char.IsLetterOrDigit(nextSymbol);
-        }
-
-        private bool TryCheckThatPartOfTag(string token, char nextSymbol, out bool nextSymbolIsPartOfTag)
-        {
-            nextSymbolIsPartOfTag = false;
-            var tokenTags = tags.Where(tag => tag.StartsWith(token));
-            var tagVariants = tokenTags as string[] ?? tokenTags.ToArray();
-            if (tagVariants.Length <= 0)
-                return false;
-            nextSymbolIsPartOfTag = tagVariants.Any(tag => tag.StartsWith(token + nextSymbol));
-            return true;
         }
 
         private Token GetToken(string token, TokenType previousTokenType)
