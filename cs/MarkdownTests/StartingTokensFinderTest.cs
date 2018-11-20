@@ -9,7 +9,9 @@ namespace MarkdownTests
     class StartingTokensFinderTest
     {
         [TestCase("# word", new[] { 0 }, TestName = "Should find single lattice position")]
-        [TestCase("# # word", new[] { 0, 2}, TestName = "Should find double single lattice position")]
+        [TestCase("# * word", new[] { 0, 2 }, TestName = "Should find lattice and star position")]
+        [TestCase("# # word", new[] { 0 }, TestName = "Should not find double lattice position")]
+        [TestCase("#  * word", new[] { 0, 3 }, TestName = "Should find lattice and star positions separated by double space")]
         public void CheckTokensPositions(string paragraph, int[] positions)
         {
             var finder = new StartingTokenFinder();
@@ -19,7 +21,9 @@ namespace MarkdownTests
         }
 
         [TestCase("# word", new[] { "lattice" }, TestName = "Should find double single lattice name")]
-        [TestCase("# # word", new[] { "lattice", "lattice" }, TestName = "Should find single lattice name")]
+        [TestCase("# * word", new[] { "lattice", "star" }, TestName = "Should find lattice and star name")]
+        [TestCase("# # word", new[] { "lattice" }, TestName = "Should not find double lattice name")]
+        [TestCase("#  * word", new[] { "lattice", "star" }, TestName = "Should find lattice and star names separated by double space")]
         public void CheckTokensNames(string paragraph, string[] names)
         {
             var finder = new StartingTokenFinder();

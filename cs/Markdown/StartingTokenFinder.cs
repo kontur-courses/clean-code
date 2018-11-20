@@ -18,17 +18,22 @@ namespace Markdown
             var tokens = new List<SingleToken>();
 
             var currentIndex = 0;
+            var usedTokens = new HashSet<TokenType>();
 
             foreach (var word in paragraph.Split())
             {
                 if (word == string.Empty)
+                {
                     currentIndex += 1;
+                    continue;
+                }
 
                 var finded = false;
                 foreach (var tokenType in tokensTypes)
-                    if (tokenType.Template == word)
+                    if (!usedTokens.Contains(tokenType) && tokenType.Template == word)
                     {
                         tokens.Add(new SingleToken(tokenType, currentIndex, LocationType.Single));
+                        usedTokens.Add(tokenType);
                         finded = true;
                         break;
                     }
