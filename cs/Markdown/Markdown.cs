@@ -6,8 +6,8 @@ namespace Markdown
     {
         public string Render(string paragraph)
         {
-            var tokens = new TokenFinder().FindTokensInMdText(paragraph);
-            var tokensPositions = new TokensValidator().GetPositionsForTokens(tokens);
+            var tokens = new InlineTokenFinder().FindTokensInMdText(paragraph);
+            var tokensPositions = new InlineTokensValidator().GetPositionsForTokens(tokens);
             var htmlParagraph = new Md2HtmlTranslator().TranslateMdToHtml(paragraph, tokensPositions);
 
             return htmlParagraph;

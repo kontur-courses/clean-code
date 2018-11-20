@@ -2,7 +2,7 @@
 
 namespace Markdown
 {
-    public class TokensValidator
+    public class InlineTokensValidator
     {
         public Dictionary<TokenType, List<TokenPosition>> GetPositionsForTokens(List<SingleToken> tokens)
         {

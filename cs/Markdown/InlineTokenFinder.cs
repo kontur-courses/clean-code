@@ -2,7 +2,7 @@
 
 namespace Markdown
 {
-    public class TokenFinder
+    public class InlineTokenFinder
     {
         private readonly List<TokenType> tokensTypes = new List<TokenType>
         {

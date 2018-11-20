@@ -46,10 +46,10 @@
     <Compile Include="Markdown.cs" />
     <Compile Include="SingleToken.cs" />
     <Compile Include="TokenLocationType.cs" />
-    <Compile Include="TokensValidator.cs" />
+    <Compile Include="InlineTokensValidator.cs" />
     <Compile Include="TokenType.cs" />
     <Compile Include="TokenTypeExtensions.cs" />
-    <Compile Include="TokenFinder.cs" />
+    <Compile Include="InlineTokenFinder.cs" />
     <Compile Include="TokenPosition.cs" />
     <Compile Include="Md2HtmlTranslator.cs" />
     <Compile Include="Program.cs" />

@@ -26,8 +26,8 @@ namespace MarkdownTests
             var expectedDoubleUnderscorePositions = GetTokenPositions(doubleUnderscorePositions);
             var expectedSimpleUnderscorePositions = GetTokenPositions(simpleUnderscorePositions);
 
-            var finder = new TokenFinder();
-            var validator = new TokensValidator();
+            var finder = new InlineTokenFinder();
+            var validator = new InlineTokensValidator();
             var tokensPositions = finder.FindTokensInMdText(paragraph);
             var tokensWithPositions = validator.GetPositionsForTokens(tokensPositions);
 
@@ -42,8 +42,8 @@ namespace MarkdownTests
         {
             var paragraph = "__f__";
 
-            var finder = new TokenFinder();
-            var validator = new TokensValidator();
+            var finder = new InlineTokenFinder();
+            var validator = new InlineTokensValidator();
             var tokensPositions = finder.FindTokensInMdText(paragraph);
             var tokensWithPositions = validator.GetPositionsForTokens(tokensPositions);
 
@@ -59,8 +59,8 @@ namespace MarkdownTests
         {
             var simpleUnderscore = new TokenType("simpleUnderscore", "_", "em", TokenLocationType.InlineToken);
 
-            var finder = new TokenFinder();
-            var validator = new TokensValidator();
+            var finder = new InlineTokenFinder();
+            var validator = new InlineTokensValidator();
             var tokensPositions = finder.FindTokensInMdText(paragraph);
             var tokensWithPositions = validator.GetPositionsForTokens(tokensPositions);
 
@@ -75,8 +75,8 @@ namespace MarkdownTests
         {
             var listOfExpectedPositions = GetTokenPositions(positions);
 
-            var finder = new TokenFinder();
-            var validator = new TokensValidator();
+            var finder = new InlineTokenFinder();
+            var validator = new InlineTokensValidator();
             var tokensPositions = finder.FindTokensInMdText(paragraph);
             var tokensWithPositions = validator.GetPositionsForTokens(tokensPositions);
 
