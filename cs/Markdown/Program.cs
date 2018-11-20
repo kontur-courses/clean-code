@@ -8,7 +8,7 @@ namespace Markdown
     {
         static void Main(string[] args)
         {
-            var input = "__a__";
+            var input = "___a___";
 
             var readers = ReaderCreator.Create();
             var md = new Md(readers);

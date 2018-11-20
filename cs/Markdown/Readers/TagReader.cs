@@ -10,15 +10,13 @@ namespace Markdown.Readers
         private IEnumerable<IReader> readers;
         private IEnumerable<TagReader> skippedReaders;
         private string mdTag;
-        private (string, string) tagShell;
 
-        public TagReader(string mdTag, (string, string) tagShell,
+        public TagReader(string mdTag,
             IEnumerable<IReader> readers,
             IEnumerable<TagReader> skippedReaders)
         {
             this.mdTag = mdTag;
             this.readers = readers;
-            this.tagShell = tagShell;
             this.skippedReaders = skippedReaders;
         }
 
@@ -67,7 +65,7 @@ namespace Markdown.Readers
                     if (IsClosedTag(text, i))
                     {
                         var rightPosition = tokens.Select(t => t.Position).Max();
-                        return new Tag(text.Substring(position, i - position + mdTag.Length), tagShell, tokens, rightPosition + mdTag.Length);
+                        return new TagToken(text.Substring(position, i - position + mdTag.Length), mdTag, tokens, rightPosition + mdTag.Length);
                     }
 
                     token = GetToken(text, i);

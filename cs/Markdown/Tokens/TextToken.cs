@@ -3,7 +3,7 @@ using Markdown.Tags;
 
 namespace Markdown.Tokens
 {
-    class TextToken : IToken
+    public class TextToken : IToken
     {
         public string Text { get; }
         public int Position { get; }
@@ -14,9 +14,9 @@ namespace Markdown.Tokens
             Position = position;
         }
 
-        public string ToHtml()
+        public string Accept(ITranslator translator)
         {
-            return Text;
+            return translator.VisitText(this);
         }
     }
 }

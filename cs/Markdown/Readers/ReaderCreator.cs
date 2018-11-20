@@ -3,21 +3,21 @@ using System.Collections.Generic;
 
 namespace Markdown.Readers
 {
-    public class ReaderCreator
+    public static class ReaderCreator
     {
         public static List<IReader> Create()
         {
             IReader slashReader = new SlashReader();
             IReader charReader = new CharReader();
 
-            EmReader.readers = new[] { slashReader, charReader };
-            EmReader.skippedReaders = new TagReader[] { new StrongReader("__", Translator.TranslateDictionary["__"]) };
+            EmReader.Readers = new[] { slashReader, charReader };
+            EmReader.SkippedReaders = new TagReader[] { new StrongReader("__") };
 
-            TagReader emTagReader = new EmReader("_", Translator.TranslateDictionary["_"]);
+            TagReader emTagReader = new EmReader("_");
 
-            StrongReader.readers = new[] { slashReader, emTagReader, charReader };
-            StrongReader.skippedReaders = new TagReader[0];
-            TagReader strongTagReader = new StrongReader("__", Translator.TranslateDictionary["__"]);
+            StrongReader.Readers = new[] { slashReader, emTagReader, charReader };
+            StrongReader.SkippedReaders = new TagReader[0];
+            TagReader strongTagReader = new StrongReader("__");
 
             return new List<IReader> { slashReader, strongTagReader, emTagReader, charReader };
         }

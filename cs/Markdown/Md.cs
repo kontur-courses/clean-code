@@ -25,11 +25,12 @@ namespace Markdown
                 i = token.Position;
                 tokens.Add(token);
             }
-
+            
+            var testTranslator = new TranslatorToHtml();
             var result = new StringBuilder();
             foreach (var token in tokens)
             {
-                result.Append(token.ToHtml());
+                result.Append(token.Accept(testTranslator));
             }
 
             return result.ToString();

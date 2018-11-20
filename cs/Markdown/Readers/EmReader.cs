@@ -5,10 +5,10 @@ namespace Markdown.Readers
     public class EmReader : TagReader
         
     {
-        public static  IEnumerable<IReader> readers;
-        public static  IEnumerable<TagReader> skippedReaders;
+        public static  IEnumerable<IReader> Readers;
+        public static  IEnumerable<TagReader> SkippedReaders;
 
-        public EmReader(string mdTag, (string, string) tagShell) : base(mdTag, tagShell, readers, skippedReaders)
+        public EmReader(string mdTag) : base(mdTag, Readers, SkippedReaders)
         {
         }
     }

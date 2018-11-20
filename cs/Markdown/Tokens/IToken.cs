@@ -4,6 +4,6 @@
     {
         string Text { get; }
         int Position { get; }
-        string ToHtml();
+        string Accept(ITranslator translator);
     }
 }

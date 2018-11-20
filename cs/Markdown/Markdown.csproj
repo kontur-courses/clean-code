@@ -60,9 +60,10 @@
     <Compile Include="Readers\StrongReader.cs" />
     <Compile Include="Readers\TagReader.cs" />
     <Compile Include="Tokens\IToken.cs" />
-    <Compile Include="Tokens\Tag.cs" />
+    <Compile Include="Tokens\TagToken.cs" />
     <Compile Include="Tokens\TextToken.cs" />
-    <Compile Include="Translator\Translator.cs" />
+    <Compile Include="Translator\ITranslator.cs" />
+    <Compile Include="Translator\TranslatorToHtml.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="App.config" />

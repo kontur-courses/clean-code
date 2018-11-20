@@ -1,8 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿
 using Markdown.Readers;
 using NUnit.Framework;
 
@@ -41,6 +37,7 @@ namespace Markdown.Tests
         [TestCase("__simple text__", ExpectedResult = "<strong>simple text</strong>", TestName = "when sentence inner strong tag")]
         [TestCase("\\__a_", ExpectedResult = "_<em>a</em>", TestName = "when in text using slash")]
         [TestCase("__", ExpectedResult = "__", TestName = "when text is only one not pair tag")]
+        [TestCase("___abc___", ExpectedResult = "<strong><em>abc</em></strong>")]
         public string Md_ShouldCorrectRenderText(string input)
         {
            return md.Render(input);
