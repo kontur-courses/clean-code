@@ -20,10 +20,10 @@ namespace MarkdownTests
             tokens.Select(token => token.TokenPosition).ShouldAllBeEquivalentTo(positions);
         }
 
-        [TestCase("# word", new[] { "lattice" }, TestName = "Should find double single lattice name")]
-        [TestCase("# * word", new[] { "lattice", "star" }, TestName = "Should find lattice and star name")]
-        [TestCase("# # word", new[] { "lattice" }, TestName = "Should not find double lattice name")]
-        [TestCase("#  * word", new[] { "lattice", "star" }, TestName = "Should find lattice and star names separated by double space")]
+        [TestCase("# word", new[] { "Lattice" }, TestName = "Should find double single lattice name")]
+        [TestCase("# * word", new[] { "Lattice", "Star" }, TestName = "Should find lattice and star name")]
+        [TestCase("# # word", new[] { "Lattice" }, TestName = "Should not find double lattice name")]
+        [TestCase("#  * word", new[] { "Lattice", "Star" }, TestName = "Should find lattice and star names separated by double space")]
         public void CheckTokensNames(string paragraph, string[] names)
         {
             var finder = new StartingTokenFinder();

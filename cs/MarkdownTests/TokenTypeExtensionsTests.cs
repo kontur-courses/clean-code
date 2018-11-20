@@ -8,9 +8,9 @@ namespace MarkdownTests
     class TokenTypeExtensionsTests
     {
         private readonly TokenType singleUnderscore =
-            new TokenType("singleUnderscore", "_", "em", TokenLocationType.InlineToken);
+            new TokenType(TokenTypeEnum.SingleUnderscore, "_", "em", TokenLocationType.InlineToken);
         private readonly TokenType doubleUnderscore =
-            new TokenType("doubleUnderscore", "__", "strong", TokenLocationType.InlineToken);
+            new TokenType(TokenTypeEnum.DoubleUnderscore, "__", "strong", TokenLocationType.InlineToken);
 
         [TestCase("f _d", 2, ExpectedResult = true, TestName = "After whitespace")]
         [TestCase("_d", 0, ExpectedResult = true, TestName = "In paragraph beginning")]
@@ -30,8 +30,8 @@ namespace MarkdownTests
             return singleUnderscore.ValidClosingPosition(text, closingPosition);
         }
 
-        [TestCase("__f", 0, ExpectedResult = "doubleUnderscore", TestName = "Find double underscore")]
-        [TestCase("_f", 0, ExpectedResult = "simpleUnderscore", TestName = "Find simple underscore")]
+        [TestCase("__f", 0, ExpectedResult = "DoubleUnderscore", TestName = "Find double underscore")]
+        [TestCase("_f", 0, ExpectedResult = "SingleUnderscore", TestName = "Find single underscore")]
         public string GetOpeningTokenTest(string text, int startIndex)
         {
             var tokens = new List<TokenType>
@@ -40,11 +40,11 @@ namespace MarkdownTests
                 singleUnderscore
             };
 
-            return tokens.GetOpeningToken(text, startIndex).Name;
+            return tokens.GetOpeningToken(text, startIndex).Name.ToString();
         }
 
-        [TestCase("f__", 1, ExpectedResult = "doubleUnderscore", TestName = "Find double underscore")]
-        [TestCase("f_", 1, ExpectedResult = "simpleUnderscore", TestName = "Find simple underscore")]
+        [TestCase("f__", 1, ExpectedResult = "DoubleUnderscore", TestName = "Find double underscore")]
+        [TestCase("f_", 1, ExpectedResult = "SingleUnderscore", TestName = "Find single underscore")]
         public string GetClosingTokenTest(string text, int startIndex)
         {
             var tokens = new List<TokenType>
@@ -53,7 +53,7 @@ namespace MarkdownTests
                 singleUnderscore
             };
 
-            return tokens.GetClosingToken(text, startIndex).Name;
+            return tokens.GetClosingToken(text, startIndex).Name.ToString();
         }
     }
 }

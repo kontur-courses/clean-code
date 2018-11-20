@@ -6,11 +6,11 @@ namespace Markdown
     {
         private readonly List<TokenType> tokensTypes = new List<TokenType>
         {
-            new TokenType("lattice", "#", "h1", TokenLocationType.StartingToken),
-            new TokenType("double lattice", "##", "h2", TokenLocationType.StartingToken),
-            new TokenType("triple lattice", "###", "h3", TokenLocationType.StartingToken),
-            new TokenType("quadruple lattice", "####", "h4", TokenLocationType.StartingToken),
-            new TokenType("star", "*", "li", TokenLocationType.StartingToken)
+            new TokenType(TokenTypeEnum.Lattice, "#", "h1", TokenLocationType.StartingToken),
+            new TokenType(TokenTypeEnum.DoubleLattice, "##", "h2", TokenLocationType.StartingToken),
+            new TokenType(TokenTypeEnum.TripleLattice, "###", "h3", TokenLocationType.StartingToken),
+            new TokenType(TokenTypeEnum.QuadrupleLattice, "####", "h4", TokenLocationType.StartingToken),
+            new TokenType(TokenTypeEnum.Star, "*", "li", TokenLocationType.StartingToken)
         };
 
         private bool TryMatchWordToTokens(string word, int currentIndex, HashSet<TokenType> usedTokens, out SingleToken token)

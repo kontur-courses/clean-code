@@ -8,8 +8,8 @@ namespace MarkdownTests
     [TestFixture]
     class Md2HtmlTranslatorTests
     {
-        private readonly TokenType singleUnderscore = new TokenType("singleUnderscore", "_", "em", TokenLocationType.InlineToken);
-        private readonly TokenType doubleUnderscore = new TokenType("doubleUnderscore", "__", "strong", TokenLocationType.InlineToken);
+        private readonly TokenType singleUnderscore = new TokenType(TokenTypeEnum.SingleUnderscore, "_", "em", TokenLocationType.InlineToken);
+        private readonly TokenType doubleUnderscore = new TokenType(TokenTypeEnum.DoubleUnderscore, "__", "strong", TokenLocationType.InlineToken);
 
         [Test]
         public void GetHtmlText_AfterMdWithSingleUnderscore()

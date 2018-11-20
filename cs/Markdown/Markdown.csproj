@@ -49,6 +49,7 @@
     <Compile Include="TokenLocationType.cs" />
     <Compile Include="InlineTokensValidator.cs" />
     <Compile Include="TokenType.cs" />
+    <Compile Include="TokenTypeEnum.cs" />
     <Compile Include="TokenTypeExtensions.cs" />
     <Compile Include="InlineTokenFinder.cs" />
     <Compile Include="TokenPosition.cs" />

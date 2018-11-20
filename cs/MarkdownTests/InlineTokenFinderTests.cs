@@ -9,6 +9,11 @@ namespace MarkdownTests
     [TestFixture]
     class InlineTokenFinderTests
     {
+        private readonly TokenType singleUnderscore =
+            new TokenType(TokenTypeEnum.SingleUnderscore, "_", "em", TokenLocationType.InlineToken);
+        private readonly TokenType doubleUnderscore =
+            new TokenType(TokenTypeEnum.DoubleUnderscore, "__", "strong", TokenLocationType.InlineToken);
+
         private List<SingleToken> GetValidTokens(string paragraph)
         {
             var finder = new InlineTokenFinder();
@@ -26,10 +31,10 @@ namespace MarkdownTests
             var validTokens = GetValidTokens(paragraph);
 
             var positionsForSimpleUnderscore =
-                validTokens.Where(token => token.TokenType.Name == "simpleUnderscore")
+                validTokens.Where(token => token.TokenType.Name == singleUnderscore.Name)
                     .Select(token => token.TokenPosition);
             var positionsForDoubleUnderscore =
-                validTokens.Where(token => token.TokenType.Name == "doubleUnderscore")
+                validTokens.Where(token => token.TokenType.Name == doubleUnderscore.Name)
                     .Select(token => token.TokenPosition);
 
             positionsForSimpleUnderscore.ShouldBeEquivalentTo(simpleUnderscorePositions);
@@ -41,7 +46,7 @@ namespace MarkdownTests
         {
             var validTokens = GetValidTokens("__f__");
 
-            validTokens.Where(token => token.TokenType.Name == "doubleUnderscore")
+            validTokens.Where(token => token.TokenType.Name == doubleUnderscore.Name)
                 .Select(token => token.TokenPosition)
                 .ShouldBeEquivalentTo(new[] { 0, 3 });
         }
@@ -54,7 +59,8 @@ namespace MarkdownTests
         {
             var validTokens = GetValidTokens(paragraph);
 
-            validTokens.Select(token => token.TokenType.Name).Should().NotContain("simpleUnderscore");
+            validTokens.Select(token => token.TokenType.Name)
+                .Should().NotContain(singleUnderscore.Name);
         }
 
         [TestCase("_ff_", new[] { 0, 3 }, TestName = "Should find simple token")]
@@ -64,7 +70,7 @@ namespace MarkdownTests
         {
             var validTokens = GetValidTokens(paragraph);
 
-            validTokens.Where(token => token.TokenType.Name == "simpleUnderscore")
+            validTokens.Where(token => token.TokenType.Name == singleUnderscore.Name)
                 .Select(token => token.TokenPosition)
                 .ShouldBeEquivalentTo(positions);
         }
