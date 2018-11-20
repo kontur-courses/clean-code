@@ -4,7 +4,7 @@ namespace Markdown.Analyzers
 {
     public class WordsContainingDigitsAnalyzer
     {
-        public static bool[] Analyze(string text)
+        public static bool[] GetMarkersOfIncludingToWordWithDigits(string text)
         {
             bool[] isInsideWordWithDigits = new bool[text.Length];
             int currentPosition = 0;

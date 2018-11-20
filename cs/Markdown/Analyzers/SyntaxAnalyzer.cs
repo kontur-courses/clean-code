@@ -5,7 +5,7 @@
         public static SyntaxAnalysisResult AnalyzeSyntax(string markdown)
         {
             var isEscapeCharAt = EscapesAnalyzer.GetBitMaskOfEscapedChars(markdown);
-            var isInsideWordWithDigitsAt = WordsContainingDigitsAnalyzer.Analyze(markdown);
+            var isInsideWordWithDigitsAt = WordsContainingDigitsAnalyzer.GetMarkersOfIncludingToWordWithDigits(markdown);
 
             return new SyntaxAnalysisResult(markdown, isEscapeCharAt, isInsideWordWithDigitsAt);
         }
