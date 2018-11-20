@@ -2,9 +2,9 @@
 
 namespace Markdown
 {
-    class Program
+    public class Program
     {
-        static void Main(string[] args)
+        public static void Main(string[] args)
         {
             var md = new Md();
             var mdText = @"_a__a_";

@@ -2,11 +2,12 @@
 
 namespace Markdown.Readers
 {
-    public class AnyCharReader : IReader
+    public class AnyCharReader : AbstractReader
     {
-        public (IToken, int) ReadToken(string text, int idx, ReadingOptions options)
+        public override (IToken token, int read) ReadToken(string text, int offset, ReadingOptions options)
         {
-            return idx < text.Length ? (new TextToken(text[idx].ToString()), 1) : (null, 0);
+            CheckArguments(text, offset);
+            return offset == text.Length ? (null, 0) : (new TextToken(text[offset].ToString()), 1);
         }
     }
 }

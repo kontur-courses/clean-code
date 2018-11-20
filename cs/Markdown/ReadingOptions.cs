@@ -5,31 +5,31 @@ namespace Markdown
 {
     public class ReadingOptions
     {
-        public List<IReader> AllowedReaders { get; }
-        public Dictionary<IReader, HashSet<IReader>> MutedInnerReaders { get; }
+        public List<AbstractReader> AllowedReaders { get; }
+        private Dictionary<AbstractReader, HashSet<AbstractReader>> AllowedInnerReadersByDefault { get; }
 
-        public ReadingOptions(List<IReader> allowedReaders, Dictionary<IReader, HashSet<IReader>> mutedInnerReaders)
+        public ReadingOptions(List<AbstractReader> allowedReaders, Dictionary<AbstractReader, HashSet<AbstractReader>> allowedInnerReaders)
         {
             AllowedReaders = allowedReaders;
-            MutedInnerReaders = mutedInnerReaders;
+            AllowedInnerReadersByDefault = allowedInnerReaders;
         }
 
-        public List<IReader> GetAvailableInnerReadersFor(IReader reader)
+        public List<AbstractReader> GetAvailableInnerReadersFor(AbstractReader reader)
         {
-            var res = new List<IReader>();
-            if (!MutedInnerReaders.TryGetValue(reader, out var mutedReaders) || mutedReaders.Count == 0)
-                return AllowedReaders;
+            var res = new List<AbstractReader>();
+            if (!AllowedInnerReadersByDefault.TryGetValue(reader, out var allowedInnerReaders) || allowedInnerReaders.Count == 0)
+                return res;
 
             foreach (var innerReader in AllowedReaders)
-                if (!mutedReaders.Contains(innerReader))
+                if (allowedInnerReaders.Contains(innerReader))
                     res.Add(innerReader);
 
             return res;
         }
 
-        public ReadingOptions UpdateAllowedReaders(List<IReader> allowedReaders)
+        public ReadingOptions WithNewAllowedReaders(List<AbstractReader> allowedReaders)
         {
-            return new ReadingOptions(allowedReaders, this.MutedInnerReaders);
+            return new ReadingOptions(allowedReaders, this.AllowedInnerReadersByDefault);
         }
     }
 }

@@ -29,11 +29,11 @@ namespace Markdown
             var textReader = new TextReader("_\\");
             var anyCharReader = new AnyCharReader();
 
-            var allowedReaders = new List<IReader> {
+            var allowedReaders = new List<AbstractReader> {
                 strongReader, emReader, backslashReader, textReader, anyCharReader };
-            var mutedReaders = new Dictionary<IReader, HashSet<IReader>> {
-                [emReader] = new HashSet<IReader> {emReader, strongReader},
-                [strongReader] = new HashSet<IReader> {strongReader}
+            var mutedReaders = new Dictionary<AbstractReader, HashSet<AbstractReader>> {
+                [emReader] = new HashSet<AbstractReader> { backslashReader, textReader, anyCharReader },
+                [strongReader] = new HashSet<AbstractReader> { emReader, backslashReader, textReader, anyCharReader }
             };
 
             return new ReadingOptions(allowedReaders, mutedReaders);

@@ -1,9 +1,10 @@
 ﻿using System.Collections.Generic;
+using System.Linq;
 using Markdown.Tokens;
 
 namespace Markdown.Readers
 {
-    public class PairedTagReader : IReader
+    public class PairedTagReader : AbstractReader
     {
         public string TagName { get; }
         public string TagSymbols { get; }
@@ -14,32 +15,28 @@ namespace Markdown.Readers
             TagSymbols = tagSymbols;
         }
 
-        public (IToken, int) ReadToken(string text, int idx, ReadingOptions options)
+        public override (IToken token, int read) ReadToken(string text, int offset, ReadingOptions options)
         {
+            CheckArguments(text, offset);
             var innerTokens = new List<IToken>();
-            var currentIdx = idx;
+            var currentIdx = offset;
 
-            if (!CanReadStart(text, idx))
+            if (!CanReadStart(text, offset))
                 return (null, 0);
             currentIdx += TagSymbols.Length;
             var allowedInnerReaders = options.GetAvailableInnerReadersFor(this);
             do
             {
-                (IToken token, int read) readingResult = (null, 0);
-                foreach (var innerReader in allowedInnerReaders)
-                {
-                    readingResult = innerReader.ReadToken(
-                        text, currentIdx, options.UpdateAllowedReaders(allowedInnerReaders));
-                    if (readingResult.token == null) continue;
-                    innerTokens.Add(readingResult.token);
-                    currentIdx += readingResult.read;
-                    break;
-                }
-                if (readingResult.token == null) return (null, 0);
+                var (innerToken, innerRead) = allowedInnerReaders
+                    .Select(reader => reader.ReadToken(text, currentIdx, options.WithNewAllowedReaders(allowedInnerReaders)))
+                    .FirstOrDefault(readingResult => readingResult.token != null);
+                if (innerRead == 0) return (null, 0);
+                innerTokens.Add(innerToken);
+                currentIdx += innerRead;
             } while (!CanReadEnd(text, currentIdx));
 
             currentIdx += TagSymbols.Length;
-            return (new PairedTagToken(TagName, innerTokens), currentIdx - idx);
+            return (new PairedTagToken(TagName, innerTokens), currentIdx - offset);
         }
 
         private bool CanReadStart(string text, int idx)

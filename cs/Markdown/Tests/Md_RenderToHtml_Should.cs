@@ -1,4 +1,5 @@
-﻿using NUnit.Framework;
+﻿using System;
+using NUnit.Framework;
 using FluentAssertions;
 
 namespace Markdown.Tests
@@ -8,92 +9,86 @@ namespace Markdown.Tests
     {
         private readonly Md md = new Md();
         
-        [TestCase("abcd", TestName = "and contains only letters")]
-        [TestCase("as df", TestName = "and contains whitespace")]
-        [TestCase("as.df", TestName = "and contains with non-letter character")]
-        public void ReturnTextWithoutChanges_WhenTextDoesNotContainSpecialSymbols(string originalText)
+        [TestCase("abcd", ExpectedResult = "abcd", TestName = "and contains only letters")]
+        [TestCase("as df", ExpectedResult = "as df", TestName = "and contains whitespace")]
+        [TestCase("as.df", ExpectedResult = "as.df", TestName = "and contains with non-letter character")]
+        public string ReturnTextWithoutChanges_WhenTextDoesNotContainSpecialSymbols(string originalText)
         {
-            CheckRenderingFromMdToHtml(mdText: originalText, expHtmlText: originalText);
+            return md.RenderToHtml(originalText);
         }
         
-        [TestCase("___a___", "<strong><em>a</em></strong>", TestName = "when em-tag is located immediately after strong-tag")]
-        [TestCase("a__b_c_b__a", "a<strong>b<em>c</em>b</strong>a", TestName = "when letters between these opening and closing tags")]
-        public void BeAbleToRenderEmTagInsideStrongTag(string mdText, string expHtmlText)
+        [TestCase("___a___", ExpectedResult = "<strong><em>a</em></strong>", TestName = "when em-tag is located immediately after strong-tag")]
+        [TestCase("a__b_c_b__a", ExpectedResult = "a<strong>b<em>c</em>b</strong>a", TestName = "when letters between these opening and closing tags")]
+        public string BeAbleToRenderEmTagInsideStrongTag(string mdText)
         {
-            CheckRenderingFromMdToHtml(mdText, expHtmlText);
+            return md.RenderToHtml(mdText);
         }
 
-        [TestCase("_a__b_", "<em>a</em><em>b</em>", TestName = "when tags are em-tags")]
-        [TestCase("__a____b__", "<strong>a</strong><strong>b</strong>", TestName = "when tags are strong-tags")]
-        public void BeAbleToRenderSeveralIdenticalTagsInARow(string mdText, string expHtmlText)
+        [TestCase("_a__b_", ExpectedResult = "<em>a</em><em>b</em>", TestName = "when tags are em-tags")]
+        [TestCase("__a____b__", ExpectedResult = "<strong>a</strong><strong>b</strong>", TestName = "when tags are strong-tags")]
+        public string BeAbleToRenderSeveralIdenticalTagsInARow(string mdText)
         {
-            CheckRenderingFromMdToHtml(mdText, expHtmlText);
+            return md.RenderToHtml(mdText);
         }
 
-        [TestCase("__a _a", TestName = "when tags are unclosed")]
-        [TestCase("a_ a__", TestName = "when tags are unopened")]
-        public void NotRenderTagSymbolsToHtml(string originalText)
+        [TestCase("__a _a", ExpectedResult = "__a _a", TestName = "when tags are unclosed")]
+        [TestCase("a_ a__", ExpectedResult = "a_ a__", TestName = "when tags are unopened")]
+        public string NotRenderTagSymbolsToHtml(string originalText)
         {
-            CheckRenderingFromMdToHtml(mdText: originalText, expHtmlText: originalText);
+            return md.RenderToHtml(originalText);
         }
 
-        [Test]
-        public void ReadTextInsideEmTag_UntilMeetingStrictlyClosingTagButNotOpening()
+        [Test(ExpectedResult = "<em>a _b</em>")]
+        public string ReadTextInsideEmTag_UntilMeetingStrictlyClosingTagButNotOpening()
         {
-            CheckRenderingFromMdToHtml(mdText: "_a _b_", expHtmlText: "<em>a _b</em>");
+            return md.RenderToHtml("_a _b_");
         }
 
-        [TestCase(@"a \_b_", "a _b_", TestName = "Opening tag is screened")]
-        [TestCase(@"a _b\_", "a _b_", TestName = "Closing tag is screened")]
-        public void NotRenderTag_WhenTagSymbolIsScreenedByBackslash(string mdText, string expHtmlText)
+        [TestCase(@"a \_b_", ExpectedResult = "a _b_", TestName = "Opening tag is screened")]
+        [TestCase(@"a _b\_", ExpectedResult = "a _b_", TestName = "Closing tag is screened")]
+        public string NotRenderTag_WhenTagSymbolIsScreenedByBackslash(string mdText)
         {
-            CheckRenderingFromMdToHtml(mdText, expHtmlText);
+            return md.RenderToHtml(mdText);
         }
 
-        [TestCase("_a_1", TestName = "when it is between letter and number")]
-        [TestCase("_a1_1", TestName = "when it is between numbers")]
-        public void NotRenderClosingTag(string originalText)
+        [TestCase("_a_1", ExpectedResult = "_a_1", TestName = "when it is between letter and number")]
+        [TestCase("_a1_1", ExpectedResult = "_a1_1", TestName = "when it is between numbers")]
+        public string NotRenderClosingTag(string originalText)
         {
-            CheckRenderingFromMdToHtml(mdText: originalText, expHtmlText: originalText);
+            return md.RenderToHtml(originalText);
         }
 
-        [TestCase("a_1_", TestName = "when it is between letter and number")]
-        [TestCase("a1_1_", TestName = "when it is between numbers")]
-        public void NotRenderOpeningTag(string originalText)
+        [TestCase("a_1_", ExpectedResult = "a_1_", TestName = "when it is between letter and number")]
+        [TestCase("a1_1_", ExpectedResult = "a1_1_", TestName = "when it is between numbers")]
+        public string NotRenderOpeningTag(string originalText)
         {
-            CheckRenderingFromMdToHtml(mdText: originalText, expHtmlText: originalText);
+            return md.RenderToHtml(originalText);
         }
 
-        [TestCase("a _ a_a_", "a _ a<em>a</em>", TestName = "and it can be a opening tag")]
-        [TestCase("_a _ a_", "<em>a _ a</em>", TestName = "and it can be a closing tag")]
-        public void NotRenderTag_WhenItIsSurroundedWithWhitespaces(string mdText, string expHtmlText)
+        [TestCase("a _ a_a_", ExpectedResult = "a _ a<em>a</em>", TestName = "and it can be a opening tag")]
+        [TestCase("_a _ a_", ExpectedResult = "<em>a _ a</em>", TestName = "and it can be a closing tag")]
+        public string NotRenderTag_WhenItIsSurroundedWithWhitespaces(string mdText)
         {
-            CheckRenderingFromMdToHtml(mdText, expHtmlText);
+            return md.RenderToHtml(mdText);
         }
 
-        [TestCase(@"\\_a_", @"\<em>a</em>", TestName = "and it's opening tag")]
-        [TestCase(@"_a\\_", @"<em>a\</em>", TestName = "and it's closing tag")]
-        public void BeAbleToRenderTag_WhenBeforeItScreenedBackslash(string mdText, string expHtmlText)
+        [TestCase(@"\\_a_", ExpectedResult = @"\<em>a</em>", TestName = "and it's opening tag")]
+        [TestCase(@"_a\\_", ExpectedResult = @"<em>a\</em>", TestName = "and it's closing tag")]
+        public string BeAbleToRenderTag_WhenBeforeItScreenedBackslash(string mdText)
         {
-            CheckRenderingFromMdToHtml(mdText, expHtmlText);
+            return md.RenderToHtml(mdText);
         }
 
-        [Test]
-        public void RenderEmTagAsPartOfStrongTag_WhenStrongTagInsideEm()
+        [Test(ExpectedResult = "<em>a _</em>b<em>_ a</em>")]
+        public string RenderEmTagAsPartOfStrongTag_WhenStrongTagInsideEm()
         {
-            CheckRenderingFromMdToHtml(mdText: "_a __b__ a_", expHtmlText: "<em>a _</em>b<em>_ a</em>");
+            return md.RenderToHtml("_a __b__ a_");
         }
 
-        [Test]
-        public void NotRenderEmptyPairedTag()
+        [Test(ExpectedResult = "__")]
+        public string NotRenderEmptyPairedTag()
         {
-            CheckRenderingFromMdToHtml(mdText: "__", expHtmlText: "__");
-        }
-
-        private void CheckRenderingFromMdToHtml(string mdText, string expHtmlText)
-        {
-            var res = md.RenderToHtml(mdText);
-            res.Should().Be(expHtmlText);
+            return md.RenderToHtml("__");
         }
     }
 }

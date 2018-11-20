@@ -1,4 +1,5 @@
-﻿using NUnit.Framework;
+﻿using System;
+using NUnit.Framework;
 using FluentAssertions;
 using Markdown.Readers;
 using Markdown.Tokens;
@@ -8,6 +9,17 @@ namespace Markdown.Tests
     [TestFixture]
     public class TextReader_Should
     {
+        [TestCase(null, 0, TestName = "When text is null")]
+        [TestCase("", 0, TestName = "When text is empty")]
+        [TestCase("abc", -1, TestName = "When offset is negative")]
+        [TestCase("abc", 5, TestName = "When offset is more than text's length")]
+        public void ThrowArgumentException_When(string text, int offset)
+        {
+            var textReader = new TextReader("");
+            Action readingAction = () => textReader.ReadToken(text, offset, options: null);
+            readingAction.Should().Throw<ArgumentException>();
+        }
+
         [Test]
         public void NotReadBannedSymbol()
         {

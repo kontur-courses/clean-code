@@ -20,9 +20,12 @@ namespace Markdown.Tests
             tagName = "em";
             tagSymbols = "_";
             emReader = new PairedTagReader(tagName, tagSymbols);
+            var textReader = new TextReader(tagSymbols[0].ToString());
             options = new ReadingOptions(
-                new List<IReader> { new TextReader("_") },
-                new Dictionary<IReader, HashSet<IReader>>()
+                new List<AbstractReader> { textReader },
+                new Dictionary<AbstractReader, HashSet<AbstractReader>> {
+                    [emReader] = new HashSet<AbstractReader> { textReader }
+                }
             );
         }
 

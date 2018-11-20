@@ -4,31 +4,32 @@ using Markdown.Tokens;
 
 namespace Markdown.Readers
 {
-    public class TextReader : IReader
+    public class TextReader : AbstractReader
     {
-        private readonly HashSet<char> bannedChars;
+        private readonly HashSet<char> tokenEndChars;
 
-        public TextReader(IEnumerable<char> bannedChars)
+        public TextReader(IEnumerable<char> tokenEndChars)
         {
-            this.bannedChars = new HashSet<char>(bannedChars);
+            this.tokenEndChars = new HashSet<char>(tokenEndChars);
         }
 
-        public (IToken, int) ReadToken(string text, int idx, ReadingOptions options)
+        public override (IToken token, int read) ReadToken(string text, int offset, ReadingOptions options)
         {
+            CheckArguments(text, offset);
             var res = new StringBuilder();
-            var currentIdx = idx;
+            var currentIdx = offset;
 
             while (currentIdx < text.Length)
             {
                 var currentChar = text[currentIdx];
-                if (bannedChars.Contains(currentChar)) break;
+                if (tokenEndChars.Contains(currentChar)) break;
                 res.Append(currentChar);
                 currentIdx++;
             }
 
-            if (currentIdx == idx)
+            if (currentIdx == offset)
                 return (null, 0);
-            return (new TextToken(res.ToString()), currentIdx - idx);
+            return (new TextToken(res.ToString()), currentIdx - offset);
         }
     }
 }

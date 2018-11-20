@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
 using Markdown.Tokens;
 
 namespace Markdown
@@ -20,18 +21,13 @@ namespace Markdown
 
             while (curIdx < text.Length)
             {
-                IToken token = null;
-                foreach (var reader in readingOptions.AllowedReaders)
-                {
-                    int read;
-                    (token, read) = reader.ReadToken(text, curIdx, readingOptions);
-                    if (read == 0) continue;
-                    res.Add(token);
-                    curIdx += read;
-                    break;
-                }
+                var (token, read) = readingOptions.AllowedReaders
+                    .Select(reader => reader.ReadToken(text, curIdx, readingOptions))
+                    .FirstOrDefault(readingResult => readingResult.token != null);
                 if (token == null)
                     throw new InvalidOperationException("Can't parse text with given reading options");
+                res.Add(token);
+                curIdx += read;
             }
 
             return res;
