@@ -34,6 +34,8 @@ namespace Markdown_Tests
             TestName = "not convert to strong when first underscore is escaped")]
         [TestCase("__hello _world__ !_", ExpectedResult = "<strong>hello _world</strong> !_",
             TestName = "markup strong and ignore em when underscores intersect")]
+        [TestCase("do not123_recognize_", ExpectedResult = "do not123_recognize_",
+            TestName = "ignore underscores inside word with digits")]
         public string RenderShould(string markdown)
         {
             var md = new Md();

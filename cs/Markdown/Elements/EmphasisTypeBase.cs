@@ -1,4 +1,5 @@
 ﻿using System;
+using Markdown.Analyzers;
 
 namespace Markdown.Elements
 {
@@ -6,26 +7,20 @@ namespace Markdown.Elements
     {
         public abstract string Indicator { get; }
 
-        public virtual bool IsOpeningOfElement(string markdown, bool[] isEscapedCharAt, int position)
+        public virtual bool IsOpeningOfElement(SyntaxAnalysisResult syntaxAnalysisResult, int position)
         {
-            if (isEscapedCharAt[position])
-                return false;
-
             int positionAfterIndicator = position + Indicator.Length;
-            return IsIndicatorAt(markdown, isEscapedCharAt, position) &&
-                   markdown.IsNonWhitespaceAt(positionAfterIndicator);
+            return IsIndicatorAt(syntaxAnalysisResult, position) &&
+                   syntaxAnalysisResult.Markdown.IsNonWhitespaceAt(positionAfterIndicator);
         }
 
-        public virtual bool IsClosingOfElement(string markdown, bool[] isEscapedCharAt, int position)
+        public virtual bool IsClosingOfElement(SyntaxAnalysisResult syntaxAnalysisResult, int position)
         {
-            if (isEscapedCharAt[position])
-                return false;
-
-            return IsIndicatorAt(markdown, isEscapedCharAt, position) &&
-                   markdown.IsNonWhitespaceAt(position - 1);
+            return IsIndicatorAt(syntaxAnalysisResult, position) &&
+                   syntaxAnalysisResult.Markdown.IsNonWhitespaceAt(position - 1);
         }
 
         public abstract bool CanContainElement(IElementType element);
-        public abstract bool IsIndicatorAt(string markdown, bool[] isEscapedCharAt, int position);
+        public abstract bool IsIndicatorAt(SyntaxAnalysisResult syntaxAnalysisResult, int position);
     }
 }

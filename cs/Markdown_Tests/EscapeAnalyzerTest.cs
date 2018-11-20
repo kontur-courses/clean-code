@@ -1,4 +1,4 @@
-﻿using Markdown;
+﻿using Markdown.Analyzers;
 using NUnit.Framework;
 
 namespace Markdown_Tests

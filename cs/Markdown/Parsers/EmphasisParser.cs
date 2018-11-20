@@ -1,5 +1,6 @@
 ﻿using System.Collections.Generic;
 using System.Linq;
+using Markdown.Analyzers;
 using Markdown.Elements;
 
 namespace Markdown.Parsers
@@ -16,24 +17,24 @@ namespace Markdown.Parsers
         private readonly IElementType elementType;
         private int currentPosition;
         private readonly List<MarkdownElement> innerElements;
-        private readonly bool[] isEscapedCharAt;
+        private readonly SyntaxAnalysisResult syntaxAnalysisResult;
 
-        public EmphasisParser(string markdown, bool[] isEscapedCharAt, 
-            int startPosition, IElementType elementType)
+        public EmphasisParser(SyntaxAnalysisResult syntaxAnalysisResult, int startPosition, 
+            IElementType elementType)
         {
-            this.markdown = markdown;
+            markdown = syntaxAnalysisResult.Markdown;
             this.startPosition = startPosition;
             this.elementType = elementType;
             currentPosition = startPosition;
             innerElements = new List<MarkdownElement>();
-            this.isEscapedCharAt = isEscapedCharAt;
+            this.syntaxAnalysisResult = syntaxAnalysisResult;
         }
 
         public MarkdownElement Parse()
         {
             while (currentPosition < markdown.Length)
             {
-                if (elementType.IsClosingOfElement(markdown, isEscapedCharAt, currentPosition))
+                if (elementType.IsClosingOfElement(syntaxAnalysisResult, currentPosition))
                     return new MarkdownElement(
                         elementType, markdown, startPosition, currentPosition, innerElements);
 
@@ -61,8 +62,7 @@ namespace Markdown.Parsers
         private void HandleInnerElement(IElementType innerElementType)
         {
             var innerElementParser = new EmphasisParser(
-                markdown,
-                isEscapedCharAt,
+                syntaxAnalysisResult,
                 currentPosition + innerElementType.Indicator.Length,
                 innerElementType);
 
@@ -78,13 +78,13 @@ namespace Markdown.Parsers
         private IElementType GetOpeningElementType(int position)
         {
             return PossibleElementTypes
-                .FirstOrDefault(type => type.IsOpeningOfElement(markdown, isEscapedCharAt, position));
+                .FirstOrDefault(type => type.IsOpeningOfElement(syntaxAnalysisResult, position));
         }
 
         private IElementType GetClosingElementType(int position)
         {
             return PossibleElementTypes
-                .FirstOrDefault(type => type.IsClosingOfElement(markdown, isEscapedCharAt, position));
+                .FirstOrDefault(type => type.IsClosingOfElement(syntaxAnalysisResult, position));
         }
     }
 }

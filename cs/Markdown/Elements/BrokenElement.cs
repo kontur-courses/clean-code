@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using Markdown.Analyzers;
 
 namespace Markdown.Elements
 {
@@ -25,7 +26,7 @@ namespace Markdown.Elements
             return true;
         }
 
-        public override bool IsIndicatorAt(string markdown, bool[] isEscapedCharAt, int position)
+        public override bool IsIndicatorAt(SyntaxAnalysisResult syntaxAnalysisResult, int position)
         {
             return false;
         }

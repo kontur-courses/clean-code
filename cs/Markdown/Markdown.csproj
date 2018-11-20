@@ -43,6 +43,9 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Analyzers\SyntaxAnalysisResult.cs" />
+    <Compile Include="Analyzers\SyntaxAnalyzer.cs" />
+    <Compile Include="Analyzers\WordsWithDigitsAnalyzer.cs" />
     <Compile Include="Elements\BrokenElement.cs" />
     <Compile Include="Elements\DoubleUnderscoreElementType.cs" />
     <Compile Include="Elements\EmphasisTypeBase.cs" />
@@ -51,7 +54,7 @@
     <Compile Include="Elements\RootElementType.cs" />
     <Compile Include="Elements\UnderscoreElementTypeBase.cs" />
     <Compile Include="Elements\SingleUnderscoreElementType.cs" />
-    <Compile Include="EscapesAnalyzer.cs" />
+    <Compile Include="Analyzers\EscapesAnalyzer.cs" />
     <Compile Include="HtmlRenderer.cs" />
     <Compile Include="Parsers\EmphasisParser.cs" />
     <Compile Include="Md.cs" />

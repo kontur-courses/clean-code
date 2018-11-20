@@ -1,4 +1,5 @@
 ﻿using System.Linq;
+using Markdown.Analyzers;
 
 namespace Markdown.Elements
 {
@@ -23,7 +24,7 @@ namespace Markdown.Elements
             return PossibleInnerElementTypes.Contains(elementType);
         }
 
-        public override bool IsIndicatorAt(string markdown, bool[] isEscapedCharAt, int position)
+        public override bool IsIndicatorAt(SyntaxAnalysisResult syntaxAnalysisResult, int position)
         {
             return false;
         }

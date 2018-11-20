@@ -1,7 +1,7 @@
 ﻿using System.Linq;
 using System.Text;
 
-namespace Markdown
+namespace Markdown.Analyzers
 {
     public class EscapesAnalyzer
     {

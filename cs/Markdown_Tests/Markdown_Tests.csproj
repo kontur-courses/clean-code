@@ -68,6 +68,7 @@
     <Compile Include="StringExtensionTest.cs" />
     <Compile Include="UnderscoreElementTest.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="WordsContainigDigitsAnalyzerTest.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="packages.config" />
