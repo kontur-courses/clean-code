@@ -37,19 +37,19 @@ namespace Markdown
 
         private IEnumerable<SingleToken> GetTokensSortedByPosition(Dictionary<TokenType, List<TokenPosition>> positionsForTokensTypes)
         {
-            var sortedPositionsWithTags = new List<SingleToken>();
+            var sortedPositionsWithTokens = new List<SingleToken>();
 
             foreach (var tokenWithPositions in positionsForTokensTypes)
             foreach (var position in tokenWithPositions.Value)
             {
-                sortedPositionsWithTags.Add
+                sortedPositionsWithTokens.Add
                     (new SingleToken(tokenWithPositions.Key, position.Start, LocationType.Opening));
 
-                sortedPositionsWithTags.Add
+                sortedPositionsWithTokens.Add
                     (new SingleToken(tokenWithPositions.Key, position.End, LocationType.Closing));
             }
 
-            return sortedPositionsWithTags.OrderBy(token => token.TokenPosition);
+            return sortedPositionsWithTokens.OrderBy(token => token.TokenPosition);
         }
     }
 }

@@ -10,7 +10,7 @@ namespace Markdown
             if (startIndex < 0 || startIndex + tokenType.Template.Length >= text.Length)
                 return false;
 
-            if (tokenType.HasWhitespaceAfterToken(text, startIndex) || tokenType.IsValidForSomeTag(text, startIndex))
+            if (tokenType.HasWhitespaceAfterToken(text, startIndex) || tokenType.IsValidForSomeToken(text, startIndex))
                 return false;
 
             return tokenType.Template.Equals(text.Substring(startIndex, tokenType.Template.Length));
@@ -21,7 +21,7 @@ namespace Markdown
             if (startIndex <= 0 || startIndex + tokenType.Template.Length > text.Length)
                 return false;
 
-            if (HasWhitespaceBeforeToken(text, startIndex) || tokenType.IsValidForSomeTag(text, startIndex))
+            if (HasWhitespaceBeforeToken(text, startIndex) || tokenType.IsValidForSomeToken(text, startIndex))
                 return false;
 
             return tokenType.Template.Equals(text.Substring(startIndex, tokenType.Template.Length));
@@ -63,7 +63,7 @@ namespace Markdown
             return startIndex > 0 && text[startIndex - 1] == text[startIndex];
         }
 
-        private static bool IsValidForSomeTag(this TokenType tokenType, string text, int startIndex)
+        private static bool IsValidForSomeToken(this TokenType tokenType, string text, int startIndex)
         {
             return HasBackslashBeforeToken(text, startIndex) ||
                    TokenStartsInThisPosition(text, startIndex) ||
