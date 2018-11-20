@@ -3,7 +3,7 @@ using System.Collections.Generic;
 
 namespace Markdown.Readers
 {
-    public class CreateReaders
+    public class ReaderCreator
     {
         public static List<IReader> Create()
         {

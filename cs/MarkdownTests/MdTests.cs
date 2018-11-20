@@ -16,7 +16,7 @@ namespace Markdown.Tests
         [SetUp]
         public void SetUp()
         {
-            md = new Md(CreateReaders.Create());
+            md = new Md(ReaderCreator.Create());
         }
       
         [TestCase("simple text", ExpectedResult = "simple text", TestName = "when text without tags")]

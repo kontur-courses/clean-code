@@ -55,7 +55,7 @@
     <Compile Include="Readers\CharReader.cs" />
     <Compile Include="Readers\EmReader.cs" />
     <Compile Include="Readers\IReader.cs" />
-    <Compile Include="Readers\CreateReaders.cs" />
+    <Compile Include="Readers\ReaderCreator.cs" />
     <Compile Include="Readers\SlashReader.cs" />
     <Compile Include="Readers\StrongReader.cs" />
     <Compile Include="Readers\TagReader.cs" />
