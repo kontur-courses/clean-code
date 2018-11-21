@@ -1,35 +1,24 @@
 using System.Collections.Generic;
-using System.Linq;
 
 namespace Markdown
 {
     public class Token
     {
-        public string Value;
-        public bool IsTaged;
+        public  string Value;
+        public bool IsWhiteSpace;
+        public bool IsOpen;
+        public bool IsClose;
+        public bool HasNumber;
+        public Tag PosibleTag;
 
-        public Token(string value, bool taged)
+        public Token()
         {
-            this.Value = value;
-            this.IsTaged = taged;
+            Value = "";
+            IsWhiteSpace = false;
+            HasNumber = false;
+            PosibleTag = null;
+            IsOpen = false;
+            IsClose = false;
         }
-    }
-
-    public static class TokenExtensions
-    {
-        public static bool IsOpen(this List<Token> tokens, int position)
-        {
-            if (position < 0 || position >= tokens.Count - 1)
-                return false;
-            return !string.IsNullOrWhiteSpace(tokens[position + 1].Value);
-
-        }
-        public static bool IsClose(this List<Token> tokens, int position)
-        {
-            if (position <= 0 || position > tokens.Count)
-                return false;
-            return !string.IsNullOrWhiteSpace(tokens[position - 1].Value);
-        }
-        
     }
 }

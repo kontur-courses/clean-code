@@ -2,63 +2,76 @@ using System;
 using System.Collections.Generic;
 using System.Configuration;
 using System.Linq;
+using System.Security.Cryptography.X509Certificates;
 using NUnit.Framework.Constraints;
 
 namespace Markdown
 {
     public class Markdown
     {
-        private Dictionary<string, string> tokenToTags;
+        public readonly Dictionary<string, Tag> Tags;
 
         public Markdown()
         {
-            tokenToTags = new Dictionary<string, string>(); 
+            Tags = new Dictionary<string, Tag>();
         }
         
-        public void AddNewTag(string pref, string tag)
+        public string Render(string input,TokenSelector tokenSelector)
         {
-            tokenToTags[pref] = tag;
-        }
-        
-        public string Render(string input)
-        {
-            var tokenReader = new TokenReader(tokenToTags.Keys);
-            var tokens = tokenReader.ReadTokens(input).ToList();
-            tokens = tokens.Take(tokens.Count - 1).ToList();
-
-            foreach (var token in tokens)
-            {
-                Console.WriteLine(token.Value);
-            }
-
-            var tokenStacks = new Dictionary<string, Stack<Token>>();
-            foreach (var key in tokenToTags.Keys)
-                tokenStacks[key] = new Stack<Token>();
-
-            for (int i = 0; i < tokens.Count; i++)
-            {
-                if (tokens[i].IsTaged)
-                {
-                    if (tokens.IsOpen(i))
-                        tokenStacks[tokens[i].Value].Push(tokens[i]);
-                    else if (tokens.IsClose(i))
-                    {
-                        if (tokenStacks[tokens[i].Value].Count != 0)
-                        {
-                            var rtoken = tokenStacks[tokens[i].Value].Pop();
-                            rtoken.Value = "<" + tokenToTags[rtoken.Value] + ">";
-                            tokens[i].Value = "</" + tokenToTags[tokens[i].Value] + ">";
-                        }
-                    }
-                    
-                }
-            }
+            var tokenReader = new TokenReader(Tags);
+            var tokens = tokenReader.ReadTokens(input);
+            var tags = tokenSelector.SelectTokens(tokens);
+            HandleTags(tags,new List<Tag>());
+           
             return string.Join("",tokens.Select(x => x.Value));
         }
 
-       
-        
+        public void HandleTags(IEnumerable<Token> tags, List<Tag> upperTags)
+        {
+            int OpenTagPos = 0;
+            Token OpenTag = null;
+            
+            foreach (var tag in tags)
+            {
+                if (tag.IsOpen && tag.PosibleTag.IsValidTag(upperTags))
+                {
+                    OpenTag = tag;
+                    break;
+                }
+                OpenTagPos++;
+            }
+            
+            if(OpenTag == null)
+                return;
+            
+
+            int CloseTagPos = OpenTagPos + 1;
+            Token CloseTag = null;
+            
+            foreach (var tag in tags.Skip(OpenTagPos + 1))
+            {
+                if (tag.IsClose && tag.PosibleTag == OpenTag.PosibleTag)
+                {
+                    CloseTag = tag;
+                    break;
+                }
+                CloseTagPos++;
+            }
+
+            if (CloseTag == null)
+                HandleTags(tags.Skip(OpenTagPos + 1),upperTags);
+            
+            else
+            {
+                upperTags.Add(OpenTag.PosibleTag);
+                HandleTags(tags.Skip(OpenTagPos + 1).Take(CloseTagPos - OpenTagPos - 1),upperTags);
+                upperTags.RemoveRange(upperTags.Count - 1,1);
+                HandleTags(tags.Skip(CloseTagPos + 1),upperTags);
+                OpenTag.Value = "<" + OpenTag.PosibleTag.HtmlRepresentation + ">";
+                CloseTag.Value = "</" + CloseTag.PosibleTag.HtmlRepresentation + ">";
+            }
+
+        }
+
     }
-
-
 }

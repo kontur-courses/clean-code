@@ -52,12 +52,13 @@
   <ItemGroup>
     <Compile Include="Markdown.cs" />
     <Compile Include="Markdown_should.cs" />
-    <Compile Include="MatchingTree.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
-    <Compile Include="SpecialLinkedList.cs" />
+    <Compile Include="Tag.cs" />
     <Compile Include="Token.cs" />
     <Compile Include="TokenReader.cs" />
+    <Compile Include="TokeSelector.cs" />
+    <Compile Include="TwoWayEnumerator.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="packages.config" />
