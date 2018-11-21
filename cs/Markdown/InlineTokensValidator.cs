@@ -8,10 +8,10 @@ namespace Markdown
     {
         public List<SingleToken> GetValidTokens(List<SingleToken> tokens)
         {
-            var tokensStream = new List<SingleToken>();
+            var validTokens = new List<SingleToken>();
             var notClosedTokens = new List<SingleToken>();
 
-            foreach (var token in tokens)
+            foreach (var token in validTokens)
             {
                 if (token.LocationType == LocationType.Opening)
                 {
@@ -24,8 +24,8 @@ namespace Markdown
                         .LastIndexOf(token.TokenType);
                     if (lastIndex < 0)
                         continue;
-                    tokensStream.Add(token);
-                    tokensStream.Add(notClosedTokens[lastIndex]);
+                    validTokens.Add(token);
+                    validTokens.Add(notClosedTokens[lastIndex]);
                     notClosedTokens.RemoveRange(lastIndex, notClosedTokens.Count - lastIndex);
                 }
                 else
@@ -34,7 +34,7 @@ namespace Markdown
                 }
             }
 
-            return tokensStream;
+            return validTokens;
         }
     }
 }
