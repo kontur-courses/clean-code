@@ -15,38 +15,38 @@ namespace Markdown.TextProcessing
             Builder = new TextBuilder();
         }
 
-        public Token ReadToken(Func<char, bool> isStopChar, ITokenHandler iToken)
+        public Token ReadToken(Func<char, bool> isStopChar, ITokenHandler tokenHandler)
         {
-            var value = ReadWhile(isStopChar, iToken);
-            if (Position == Content.Length && !iToken.IsStopToken(Content, Position - 1))
+            var value = ReadWhile(isStopChar, tokenHandler);
+            if (Position == Content.Length && !tokenHandler.IsStopToken(Content, Position - 1))
             {
-                value = iToken.TokenAssociation + value;
+                value = tokenHandler.TokenAssociation + value;
                 return new Token(TypeToken.Simple, value);
             }
-            Position += iToken.TokenAssociation.Length == 0 ? 1 : iToken.TokenAssociation.Length;
-            return CreateToken(iToken, value);
+            Position += tokenHandler.TokenAssociation.Length == 0 ? 1 : tokenHandler.TokenAssociation.Length;
+            return CreateToken(tokenHandler, value);
         }
 
-        private string ReadWhile(Func<char, bool> isStopChar, ITokenHandler iToken)
+        private string ReadWhile(Func<char, bool> isStopChar, ITokenHandler tokenHandler)
         {
             var value = "";
-            while (Position < Content.Length && (!isStopChar(Content[Position]) || !iToken.IsStopToken(Content, Position)))
+            while (Position < Content.Length && (!isStopChar(Content[Position]) || !tokenHandler.IsStopToken(Content, Position)))
             {
                 if (Position + 1 < Content.Length && isStopChar(Content[Position + 1]) && Content[Position] == '\\')
                 {
                     Position++;
                     continue;
                 }
-                if (isStopChar(Content[Position]) && iToken.IsStartToken(Content, Position))
+                if (isStopChar(Content[Position]) && tokenHandler.IsStartToken(Content, Position))
                 {
-                    value += iToken.TokenAssociation;
-                    Position += iToken.TokenAssociation.Length;
+                    value += tokenHandler.TokenAssociation;
+                    Position += tokenHandler.TokenAssociation.Length;
                     continue;
                 }
-                if (isStopChar(Content[Position]) && iToken.IsNestedToken(Content, Position))
+                if (isStopChar(Content[Position]) && tokenHandler.IsNestedToken(Content, Position))
                 {
                     Position++;
-                    value += Builder.BuildTokenValue(ReadToken(isStopChar, iToken.GetNextNestedToken(Content, Position)));
+                    value += Builder.BuildTokenValue(ReadToken(isStopChar, tokenHandler.GetNextNestedToken(Content, Position)));
                     continue;
                 }
                 value += Content[Position];
