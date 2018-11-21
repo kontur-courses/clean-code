@@ -1,8 +1,9 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Diagnostics;
+using System.Collections.Generic;
 using FluentAssertions;
 using NUnit.Framework;
 using Markdown;
-using NUnit.Framework.Constraints;
 
 namespace MarkdownTests
 {
@@ -75,6 +76,51 @@ namespace MarkdownTests
             result.Should().Be(expected);
         }
 
-        //Todo: добавить тест на сложность О(n)
+        [Test]
+        public void WorkWithLinearTimeHardness()
+        {
+            var input = @"\_quoted words\_ \_quoted words\_ \_quoted words\_ \_quoted words\_ \_quoted words\_
+                \_quoted words\_ _unquoted_ __double sdaakfajsldfoehifwaef;sdfa;jhasfdh __ _f wfealkfsjad _ asfj;sdkjf;awehf;h
+                asdfkha;wkjefh;ajehf ;kjasdhf;_ __ asdlfkjhal __ ___ asdfh_ _ sdfakjhkh__ dflakjhwefkjhsf;adkjh__\_quoted words\_ \_quoted words\_ \_quoted words\_ \_quoted words\_ \_quoted words\_
+                \_quoted words\_ _unquoted_ __double sdaakfajsldfoehifwaef;sdfa;jhasfdh __ _f wfealkfsjad _ asfj;sdkjf;awehf;h
+                asdfkha;wkjefh;ajehf ;kjasdhf;_ __ asdlfkjhal __ ___ asdfh_ _ sdfakjhkh__ dflakjhwefkjhsf;adkjh__\_quoted words\_ \_quoted words\_ \_quoted words\_ \_quoted words\_ \_quoted words\_
+                \_quoted words\_ _unquoted_ __double sdaakfajsldfoehifwaef;sdfa;jhasfdh __ _f wfealkfsjad _ asfj;sdkjf;awehf;h
+                asdfkha;wkjefh;ajehf ;kjasdhf;_ __ asdlfkjhal __ ___ asdfh_ _ sdfakjhkh__ dflakjhwefkjhsf;adkjh__\_quoted words\_ \_quoted words\_ \_quoted words\_ \_quoted words\_ \_quoted words\_
+                \_quoted words\_ _unquoted_ __double sdaakfajsldfoehifwaef;sdfa;jhasfdh __ _f wfealkfsjad _ asfj;sdkjf;awehf;h
+                asdfkha;wkjefh;ajehf ;kjasdhf;_ __ asdlfkjhal __ ___ asdfh_ _ sdfakjhkh__ dflakjhwefkjhsf;adkjh__\_quoted words\_ \_quoted words\_ \_quoted words\_ \_quoted words\_ \_quoted words\_
+                \_quoted words\_ _unquoted_ __double sdaakfajsldfoehifwaef;sdfa;jhasfdh __ _f wfealkfsjad _ asfj;sdkjf;awehf;h
+                asdfkha;wkjefh;ajehf ;kjasdhf;_ __ asdlfkjhal __ ___ asdfh_ _ sdfakjhkh__ dflakjhwefkjhsf;adkjh__\_quoted words\_ \_quoted words\_ \_quoted words\_ \_quoted words\_ \_quoted words\_
+                \_quoted words\_ _unquoted_ __double sdaakfajsldfoehifwaef;sdfa;jhasfdh __ _f wfealkfsjad _ asfj;sdkjf;awehf;h
+                asdfkha;wkjefh;ajehf ;kjasdhf;_ __ asdlfkjhal __ ___ asdfh_ _ sdfakjhkh__ dflakjhwefkjhsf;adkjh__\_quoted words\_ \_quoted words\_ \_quoted words\_ \_quoted words\_ \_quoted words\_
+                \_quoted words\_ _unquoted_ __double sdaakfajsldfoehifwaef;sdfa;jhasfdh __ _f wfealkfsjad _ asfj;sdkjf;awehf;h
+                asdfkha;wkjefh;ajehf ;kjasdhf;_ __ asdlfkjhal __ ___ asdfh_ _ sdfakjhkh__ dflakjhwefkjhsf;adkjh__\_quoted words\_ \_quoted words\_ \_quoted words\_ \_quoted words\_ \_quoted words\_
+                \_quoted words\_ _unquoted_ __double sdaakfajsldfoehifwaef;sdfa;jhasfdh __ _f wfealkfsjad _ asfj;sdkjf;awehf;h
+                asdfkha;wkjefh;ajehf ;kjasdhf;_ __ asdlfkjhal __ ___ asdfh_ _ sdfakjhkh__ dflakjhwefkjhsf;adkjh__\_quoted words\_ \_quoted words\_ \_quoted words\_ \_quoted words\_ \_quoted words\_
+                \_quoted words\_ _unquoted_ __double sdaakfajsldfoehifwaef;sdfa;jhasfdh __ _f wfealkfsjad _ asfj;sdkjf;awehf;h
+                asdfkha;wkjefh;ajehf ;kjasdhf;_ __ asdlfkjhal __ ___ asdfh_ _ sdfakjhkh__ dflakjhwefkjhsf;adkjh__\_quoted words\_ \_quoted words\_ \_quoted words\_ \_quoted words\_ \_quoted words\_
+                \_quoted words\_ _unquoted_ __double sdaakfajsldfoehifwaef;sdfa;jhasfdh __ _f wfealkfsjad _ asfj;sdkjf;awehf;h
+                asdfkha;wkjefh;ajehf ;kjasdhf;_ __ asdlfkjhal __ ___ asdfh_ _ sdfakjhkh__ dflakjhwefkjhsf;adkjh__\_quoted words\_ \_quoted words\_ \_quoted words\_ \_quoted words\_ \_quoted words\_
+                \_quoted words\_ _unquoted_ __double sdaakfajsldfoehifwaef;sdfa;jhasfdh __ _f wfealkfsjad _ asfj;sdkjf;awehf;h
+                asdfkha;wkjefh;ajehf ;kjasdhf;_ __ asdlfkjhal __ ___ asdfh_ _ sdfakjhkh__ dflakjhwefkjhsf;adkjh__\_quoted words\_ \_quoted words\_ \_quoted words\_ \_quoted words\_ \_quoted words\_
+                \_quoted words\_ _unquoted_ __double sdaakfajsldfoehifwaef;sdfa;jhasfdh __ _f wfealkfsjad _ asfj;sdkjf;awehf;h
+                asdfkha;wkjefh;ajehf ;kjasdhf;_ __ asdlfkjhal __ ___ asdfh_ _ sdfakjhkh__ dflakjhwefkjhsf;adkjh__\_quoted words\_ \_quoted words\_ \_quoted words\_ \_quoted words\_ \_quoted words\_
+                \_quoted words\_ _unquoted_ __double sdaakfajsldfoehifwaef;sdfa;jhasfdh __ _f wfealkfsjad _ asfj;sdkjf;awehf;h
+                asdfkha;wkjefh;ajehf ;kjasdhf;_ __ asdlfkjhal __ ___ asdfh_ _ sdfakjhkh__ dflakjhwefkjhsf;adkjh__\_quoted words\_ \_quoted words\_ \_quoted words\_ \_quoted words\_ \_quoted words\_
+                \_quoted words\_ _unquoted_ __double sdaakfajsldfoehifwaef;sdfa;jhasfdh __ _f wfealkfsjad _ asfj;sdkjf;awehf;h
+                asdfkha;wkjefh;ajehf ;kjasdhf;_ __ asdlfkjhal __ ___ asdfh_ _ sdfakjhkh__ dflakjhwefkjhsf;adkjh__\_quoted words\_ \_quoted words\_ \_quoted words\_ \_quoted words\_ \_quoted words\_
+                \_quoted words\_ _unquoted_ __double sdaakfajsldfoehifwaef;sdfa;jhasfdh __ _f wfealkfsjad _ asfj;sdkjf;awehf;h
+                asdfkha;wkjefh;ajehf ;kjasdhf;_ __ asdlfkjhal __ ___ asdfh_ _ sdfakjhkh__ dflakjhwefkjhsf;adkjh__";
+            var time = DetectExecutionTime(md.Render, input);
+            time.Should().BeLessThan(60);
+        }
+
+        private int DetectExecutionTime(Func<string, string> func, string input)
+        {
+            var stopwatch = new Stopwatch();
+            stopwatch.Start();
+            func.Invoke(input);
+            stopwatch.Stop();
+            return stopwatch.Elapsed.Milliseconds;
+        }
     }
 }
