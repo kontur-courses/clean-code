@@ -1,8 +1,5 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace Markdown
 {
@@ -23,11 +20,10 @@ namespace Markdown
         {
             var inlineTokens = new InlineTokenFinder()
                 .FindInlineTokens(paragraph, tokensTypes.Where(t => t.TokenLocationType == TokenLocationType.InlineToken));
-            var validInlineTokens = new InlineTokensValidator().GetValidTokens(inlineTokens);
             var startingTokens = new StartingTokenFinder()
                 .FindStartingTokens(paragraph, tokensTypes.Where(t => t.TokenLocationType == TokenLocationType.StartingToken));
 
-            return validInlineTokens.Union(startingTokens);
+            return inlineTokens.Union(startingTokens);
         }
     }
 }

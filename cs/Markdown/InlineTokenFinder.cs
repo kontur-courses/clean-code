@@ -4,7 +4,7 @@ namespace Markdown
 {
     public class InlineTokenFinder
     {
-        public List<SingleToken> FindInlineTokens(string paragraph, IEnumerable<TokenType> tokensTypes)
+        public List<SingleToken> ExtractInlineTokensFromText(string paragraph, IEnumerable<TokenType> tokensTypes)
         {
             var tokens = new List<SingleToken>();
 
@@ -20,6 +20,14 @@ namespace Markdown
             }
 
             return tokens;
+        }
+
+        public List<SingleToken> FindInlineTokens(string paragraph, IEnumerable<TokenType> tokensTypes)
+        {
+            var inlineTokens = ExtractInlineTokensFromText(paragraph, tokensTypes);
+            var validInlineTokens = new InlineTokensValidator().GetValidTokens(inlineTokens);
+
+            return validInlineTokens;
         }
     }
 }

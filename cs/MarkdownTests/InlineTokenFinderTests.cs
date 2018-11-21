@@ -24,24 +24,22 @@ namespace MarkdownTests
             };
 
             var finder = new InlineTokenFinder();
-            var validator = new InlineTokensValidator();
             var tokens = finder.FindInlineTokens(paragraph, tokenTypes);
-            var validTokens = validator.GetValidTokens(tokens);
 
-            return validTokens;
+            return tokens;
         }
 
         [TestCase("__f _d_ f__", new[] { 4, 6 }, new[] { 0, 9 }, TestName = "Should find simple and double token")]
         [TestCase("__f _d__ f_", new int[0], new[] { 0, 6 }, TestName = "Should works correct on crossing of different tokens")]
         public void FindDoubleAndSimple(string paragraph, int[] simpleUnderscorePositions, int[] doubleUnderscorePositions)
         {
-            var validTokens = GetValidTokens(paragraph);
+            var tokens = GetValidTokens(paragraph);
 
             var positionsForSimpleUnderscore =
-                validTokens.Where(token => token.TokenType.Name == singleUnderscore.Name)
+                tokens.Where(token => token.TokenType.Name == singleUnderscore.Name)
                     .Select(token => token.TokenPosition);
             var positionsForDoubleUnderscore =
-                validTokens.Where(token => token.TokenType.Name == doubleUnderscore.Name)
+                tokens.Where(token => token.TokenType.Name == doubleUnderscore.Name)
                     .Select(token => token.TokenPosition);
 
             positionsForSimpleUnderscore.ShouldBeEquivalentTo(simpleUnderscorePositions);
@@ -51,9 +49,9 @@ namespace MarkdownTests
         [Test]
         public void ShouldFindDoubleUnderscore()
         {
-            var validTokens = GetValidTokens("__f__");
+            var tokens = GetValidTokens("__f__");
 
-            validTokens.Where(token => token.TokenType.Name == doubleUnderscore.Name)
+            tokens.Where(token => token.TokenType.Name == doubleUnderscore.Name)
                 .Select(token => token.TokenPosition)
                 .ShouldBeEquivalentTo(new[] { 0, 3 });
         }
@@ -75,9 +73,9 @@ namespace MarkdownTests
         [TestCase("_f _f _f_ f_ f_", new[] { 0, 14, 3, 11, 6, 8 }, TestName = "Should find multiple nesting")]
         public void FindSimpleUnderscore(string paragraph, int[] positions)
         {
-            var validTokens = GetValidTokens(paragraph);
+            var tokens = GetValidTokens(paragraph);
 
-            validTokens.Where(token => token.TokenType.Name == singleUnderscore.Name)
+            tokens.Where(token => token.TokenType.Name == singleUnderscore.Name)
                 .Select(token => token.TokenPosition)
                 .ShouldBeEquivalentTo(positions);
         }
