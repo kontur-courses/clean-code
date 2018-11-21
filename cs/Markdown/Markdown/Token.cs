@@ -9,12 +9,12 @@ namespace Markdown
         public int EndIndex { get; private set; }
         public readonly Mark Mark;
         public List<Token> ChildTokens = new List<Token>();
-        public readonly Token FatherToken;
-        public Token(int startIndex, Mark mark, Token fatherToken = null)
+        public readonly Token ParentToken;
+        public Token(int startIndex, Mark mark, Token parentToken = null)
         {
             StartIndex = startIndex;
             Mark = mark;
-            FatherToken = fatherToken;
+            ParentToken = parentToken;
         }
 
         public void SetEndIndex(int endIndex)

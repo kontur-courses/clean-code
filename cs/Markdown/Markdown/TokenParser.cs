@@ -35,7 +35,7 @@ namespace Markdown
                 }
                 else
                 {
-                    if (openedTokens.Count==0)
+                    if (openedTokens.Count == 0)
                         openedTokens.Push(new Token(index, Mark.RawMark));
                     index++;
                 }
@@ -48,47 +48,47 @@ namespace Markdown
         private void PushTokenIfCanBeOpening(Stack<Token> openedTokens, Mark mark, string text, int index)
         {
             var fatherToken = openedTokens.Count == 0 ? null : openedTokens.Peek();
-            var token = new Token(index+mark.Length, mark,fatherToken);
+            var token = new Token(index + mark.Length, mark, fatherToken);
             var indexAfterMark = token.StartIndex + token.Mark.Length;
-            if (indexAfterMark >= text.Length || indexAfterMark < text.Length  && !char.IsWhiteSpace(text[indexAfterMark]))
+            if (indexAfterMark >= text.Length || indexAfterMark < text.Length && !char.IsWhiteSpace(text[indexAfterMark]))
                 openedTokens.Push(token);
         }
 
-        private void AddToFatherOrToResult(Stack<Token> openedTokens, List<Token> result, Mark mark, int index)
+        private void AddToFatherOrToResult(Stack<Token> openedTokens, List<Token> tokens, Mark mark, int index)
         {
             var previousToken = openedTokens.Pop();
             while (!previousToken.Mark.Fits(mark))
                 previousToken = openedTokens.Pop();
-            previousToken.SetEndIndex(index-1);
-            if (previousToken.FatherToken == null)
-                result.Add(previousToken);
+            previousToken.SetEndIndex(index - 1);
+            if (previousToken.ParentToken == null)
+                tokens.Add(previousToken);
             else
-                previousToken.FatherToken.ChildTokens.Add(previousToken);
+                previousToken.ParentToken.ChildTokens.Add(previousToken);
         }
 
         private bool IsClosing(Stack<Token> openedTokens, Mark mark, string text, int index)
         {
-            var indexBeforeMark = index -1;
+            var indexBeforeMark = index - 1;
             var afterIsWhiteSpace = indexBeforeMark > 0 && char.IsWhiteSpace(text[indexBeforeMark]);
-            if (afterIsWhiteSpace || openedTokens.Count==0)
+            if (afterIsWhiteSpace || openedTokens.Count == 0)
                 return false;
             var previousToken = openedTokens.Peek();
             while (previousToken != null)
             {
-                if (previousToken.Mark.Fits(mark) && previousToken.StartIndex!=index)
+                if (previousToken.Mark.Fits(mark) && previousToken.StartIndex != index)
                     return true;
-                previousToken = previousToken.FatherToken;
+                previousToken = previousToken.ParentToken;
             }
             return false;
         }
 
-        private void AddPreviousRawToken(Stack<Token> stack, List<Token> result, int index)
+        private void AddPreviousRawToken(Stack<Token> stack, List<Token> tokens, int index)
         {
             if (stack.Count == 0 || !stack.Peek().Mark.Equals(Mark.RawMark))
                 return;
             var token = stack.Pop();
             token.SetEndIndex(index - 1);
-            result.Add(token);
+            tokens.Add(token);
         }
 
         private bool BackSlashesCountIsOddBeforeUpdate(string text, int index)
@@ -102,7 +102,7 @@ namespace Markdown
         }
 
 
-        private void AddAllRemainingTokensAsRowToken(List<Token> result, Stack<Token> openedTokens, int index)
+        private void AddAllRemainingTokensAsRowToken(List<Token> tokens, Stack<Token> openedTokens, int index)
         {
             if (openedTokens.Count == 0)
                 return;
@@ -113,7 +113,7 @@ namespace Markdown
             var lastToken = openedTokens.Pop();
             var token = new Token(lastToken.StartIndex - lastToken.Mark.Length, Mark.RawMark);
             token.SetEndIndex(index - 1);
-            result.Add(token);
+            tokens.Add(token);
         }
 
         private Mark DefineMarkAt(string text, int index, bool isBackSlashed)
@@ -126,12 +126,12 @@ namespace Markdown
             return mark;
         }
 
-        private  Mark DefineDoubledMarkAt(string text, int index)
+        private Mark DefineDoubledMarkAt(string text, int index)
         {
             if (index + 1 >= text.Length)
                 return null;
-            return Marks.SingleOrDefault(m =>m.Sign.Length == 2 
-                                             && text[index] == m.Sign[0] 
+            return Marks.SingleOrDefault(m => m.Sign.Length == 2
+                                             && text[index] == m.Sign[0]
                                              && text[index + 1] == m.Sign[1]);
         }
 
@@ -141,9 +141,9 @@ namespace Markdown
                                               && text[index] == m.Sign[0]);
         }
 
-        private bool IsBetweenDigits(Mark mark,string text, int index)
+        private bool IsBetweenDigits(Mark mark, string text, int index)
         {
-            return BeforeIsDigit(mark, text, index) && AfterIsDigit( mark, text, index);
+            return BeforeIsDigit(mark, text, index) && AfterIsDigit(mark, text, index);
         }
 
         private bool BeforeIsDigit(Mark mark, string text, int index)

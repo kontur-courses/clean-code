@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 
@@ -28,16 +29,12 @@ namespace Markdown
             builder.Append(token.Mark.ClosingTag);
             var offset = token.Mark.OpeningTag.Length - token.Mark.Sign.Length;
             var tokens = GetAllChildTokens(token);
-            foreach (var t in tokens)
+            var sortedStartsEndEnds = tokens.SelectMany(t => new []{Tuple.Create(t.StartIndex-t.Mark.Length, t.Mark.OpeningTag, t.Mark.Sign),
+                Tuple.Create(t.EndIndex+1, t.Mark.ClosingTag, t.Mark.Sign)}).OrderByDescending(el=>el);
+            foreach (var pair in sortedStartsEndEnds)
             {
-                builder.Remove(t.StartIndex - t.Mark.Sign.Length+offset, t.Mark.Sign.Length);
-                offset -= t.Mark.Sign.Length;
-                builder.Insert(t.StartIndex+offset, t.Mark.OpeningTag);
-                offset += t.Mark.OpeningTag.Length;
-
-                builder.Remove(t.EndIndex +1 + offset, t.Mark.Sign.Length);
-                builder.Insert(t.EndIndex + 1 + offset, t.Mark.ClosingTag);
-                offset += t.Mark.ClosingTag.Length-t.Mark.Sign.Length;
+                builder.Remove(pair.Item1 + offset, pair.Item3.Length);
+                builder.Insert(pair.Item1 + offset, pair.Item2);
             }
 
             return builder.ToString();
@@ -51,11 +48,12 @@ namespace Markdown
             while (stack.Count != 0)
             {
                 var popped = stack.Pop();
+                var childTokens = popped.ChildTokens;
+                childTokens.Reverse();
                 foreach (var childToken in popped.ChildTokens)
                 {
                     stack.Push(childToken);
                 }
-
                 if (!popped.Equals(token))
                 {
                     yield return popped;
@@ -66,11 +64,11 @@ namespace Markdown
 
         public static string RemoveRedundantBackSlashes(string text, IEnumerable<Mark> marks)
         {
-            var backSlashesCount = 0;
             var builder = new StringBuilder(text);
-            var curIndex = 0;
-            foreach (var oneSymbolMark in marks.Where(m => m.Sign.Length == 1))
+            foreach (var oneSymbolMark in marks.Where(m => m.Length == 1))
             {
+                var curIndex = 0;
+                var backSlashesCount = 0;
                 while (curIndex < builder.Length)
                 {
                     if (builder[curIndex] == '\\')
