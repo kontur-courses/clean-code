@@ -1,6 +1,8 @@
 ﻿using System;
 using System.Diagnostics;
 using System.Collections.Generic;
+using System.Linq;
+using System.Text;
 using FluentAssertions;
 using NUnit.Framework;
 using Markdown;
@@ -73,39 +75,29 @@ namespace MarkdownTests
         [Test]
         public void WorkWithLinearTimeHardness()
         {
-            var input = @"\_quoted words\_ \_quoted words\_ \_quoted words\_ \_quoted words\_ \_quoted words\_
-                \_quoted words\_ _unquoted_ __double sdaakfajsldfoehifwaef;sdfa;jhasfdh __ _f wfealkfsjad _ asfj;sdkjf;awehf;h
-                asdfkha;wkjefh;ajehf ;kjasdhf;_ __ asdlfkjhal __ ___ asdfh_ _ sdfakjhkh__ dflakjhwefkjhsf;adkjh__\_quoted words\_ \_quoted words\_ \_quoted words\_ \_quoted words\_ \_quoted words\_
-                \_quoted words\_ _unquoted_ __double sdaakfajsldfoehifwaef;sdfa;jhasfdh __ _f wfealkfsjad _ asfj;sdkjf;awehf;h
-                asdfkha;wkjefh;ajehf ;kjasdhf;_ __ asdlfkjhal __ ___ asdfh_ _ sdfakjhkh__ dflakjhwefkjhsf;adkjh__\_quoted words\_ \_quoted words\_ \_quoted words\_ \_quoted words\_ \_quoted words\_
-                \_quoted words\_ _unquoted_ __double sdaakfajsldfoehifwaef;sdfa;jhasfdh __ _f wfealkfsjad _ asfj;sdkjf;awehf;h
-                asdfkha;wkjefh;ajehf ;kjasdhf;_ __ asdlfkjhal __ ___ asdfh_ _ sdfakjhkh__ dflakjhwefkjhsf;adkjh__\_quoted words\_ \_quoted words\_ \_quoted words\_ \_quoted words\_ \_quoted words\_
-                \_quoted words\_ _unquoted_ __double sdaakfajsldfoehifwaef;sdfa;jhasfdh __ _f wfealkfsjad _ asfj;sdkjf;awehf;h
-                asdfkha;wkjefh;ajehf ;kjasdhf;_ __ asdlfkjhal __ ___ asdfh_ _ sdfakjhkh__ dflakjhwefkjhsf;adkjh__\_quoted words\_ \_quoted words\_ \_quoted words\_ \_quoted words\_ \_quoted words\_
-                \_quoted words\_ _unquoted_ __double sdaakfajsldfoehifwaef;sdfa;jhasfdh __ _f wfealkfsjad _ asfj;sdkjf;awehf;h
-                asdfkha;wkjefh;ajehf ;kjasdhf;_ __ asdlfkjhal __ ___ asdfh_ _ sdfakjhkh__ dflakjhwefkjhsf;adkjh__\_quoted words\_ \_quoted words\_ \_quoted words\_ \_quoted words\_ \_quoted words\_
-                \_quoted words\_ _unquoted_ __double sdaakfajsldfoehifwaef;sdfa;jhasfdh __ _f wfealkfsjad _ asfj;sdkjf;awehf;h
-                asdfkha;wkjefh;ajehf ;kjasdhf;_ __ asdlfkjhal __ ___ asdfh_ _ sdfakjhkh__ dflakjhwefkjhsf;adkjh__\_quoted words\_ \_quoted words\_ \_quoted words\_ \_quoted words\_ \_quoted words\_
-                \_quoted words\_ _unquoted_ __double sdaakfajsldfoehifwaef;sdfa;jhasfdh __ _f wfealkfsjad _ asfj;sdkjf;awehf;h
-                asdfkha;wkjefh;ajehf ;kjasdhf;_ __ asdlfkjhal __ ___ asdfh_ _ sdfakjhkh__ dflakjhwefkjhsf;adkjh__\_quoted words\_ \_quoted words\_ \_quoted words\_ \_quoted words\_ \_quoted words\_
-                \_quoted words\_ _unquoted_ __double sdaakfajsldfoehifwaef;sdfa;jhasfdh __ _f wfealkfsjad _ asfj;sdkjf;awehf;h
-                asdfkha;wkjefh;ajehf ;kjasdhf;_ __ asdlfkjhal __ ___ asdfh_ _ sdfakjhkh__ dflakjhwefkjhsf;adkjh__\_quoted words\_ \_quoted words\_ \_quoted words\_ \_quoted words\_ \_quoted words\_
-                \_quoted words\_ _unquoted_ __double sdaakfajsldfoehifwaef;sdfa;jhasfdh __ _f wfealkfsjad _ asfj;sdkjf;awehf;h
-                asdfkha;wkjefh;ajehf ;kjasdhf;_ __ asdlfkjhal __ ___ asdfh_ _ sdfakjhkh__ dflakjhwefkjhsf;adkjh__\_quoted words\_ \_quoted words\_ \_quoted words\_ \_quoted words\_ \_quoted words\_
-                \_quoted words\_ _unquoted_ __double sdaakfajsldfoehifwaef;sdfa;jhasfdh __ _f wfealkfsjad _ asfj;sdkjf;awehf;h
-                asdfkha;wkjefh;ajehf ;kjasdhf;_ __ asdlfkjhal __ ___ asdfh_ _ sdfakjhkh__ dflakjhwefkjhsf;adkjh__\_quoted words\_ \_quoted words\_ \_quoted words\_ \_quoted words\_ \_quoted words\_
-                \_quoted words\_ _unquoted_ __double sdaakfajsldfoehifwaef;sdfa;jhasfdh __ _f wfealkfsjad _ asfj;sdkjf;awehf;h
-                asdfkha;wkjefh;ajehf ;kjasdhf;_ __ asdlfkjhal __ ___ asdfh_ _ sdfakjhkh__ dflakjhwefkjhsf;adkjh__\_quoted words\_ \_quoted words\_ \_quoted words\_ \_quoted words\_ \_quoted words\_
-                \_quoted words\_ _unquoted_ __double sdaakfajsldfoehifwaef;sdfa;jhasfdh __ _f wfealkfsjad _ asfj;sdkjf;awehf;h
-                asdfkha;wkjefh;ajehf ;kjasdhf;_ __ asdlfkjhal __ ___ asdfh_ _ sdfakjhkh__ dflakjhwefkjhsf;adkjh__\_quoted words\_ \_quoted words\_ \_quoted words\_ \_quoted words\_ \_quoted words\_
-                \_quoted words\_ _unquoted_ __double sdaakfajsldfoehifwaef;sdfa;jhasfdh __ _f wfealkfsjad _ asfj;sdkjf;awehf;h
-                asdfkha;wkjefh;ajehf ;kjasdhf;_ __ asdlfkjhal __ ___ asdfh_ _ sdfakjhkh__ dflakjhwefkjhsf;adkjh__\_quoted words\_ \_quoted words\_ \_quoted words\_ \_quoted words\_ \_quoted words\_
-                \_quoted words\_ _unquoted_ __double sdaakfajsldfoehifwaef;sdfa;jhasfdh __ _f wfealkfsjad _ asfj;sdkjf;awehf;h
-                asdfkha;wkjefh;ajehf ;kjasdhf;_ __ asdlfkjhal __ ___ asdfh_ _ sdfakjhkh__ dflakjhwefkjhsf;adkjh__\_quoted words\_ \_quoted words\_ \_quoted words\_ \_quoted words\_ \_quoted words\_
-                \_quoted words\_ _unquoted_ __double sdaakfajsldfoehifwaef;sdfa;jhasfdh __ _f wfealkfsjad _ asfj;sdkjf;awehf;h
-                asdfkha;wkjefh;ajehf ;kjasdhf;_ __ asdlfkjhal __ ___ asdfh_ _ sdfakjhkh__ dflakjhwefkjhsf;adkjh__";
-            var time = DetectExecutionTime(md.Render, input);
-            time.Should().BeLessThan(60);
+            var baseLine = @"_em tag_ \_quoted\_ __nested _tag___ __double_";
+            var input = new StringBuilder(baseLine);
+            var measuring = new List<int>();
+            DetectExecutionTime(md.Render, input.ToString());
+            for (var i = 1; i < 500; i++)
+            {
+                input.Append(baseLine);
+                var measure = DetectExecutionTime(md.Render, input.ToString());
+                measuring.Add(measure);
+            }
+            var result = IsLinear(measuring);
+            result.Should().BeTrue();
+        }
+
+        private bool IsLinear(List<int> values)
+        {
+            for (var i = 1; i < values.Count; i++)
+            {
+                if (Math.Abs(values[i] - values[i - 1]) > 50)
+                    return false;
+            }
+
+            return true;
         }
 
         private int DetectExecutionTime(Func<string, string> func, string input)
@@ -114,7 +106,7 @@ namespace MarkdownTests
             stopwatch.Start();
             func.Invoke(input);
             stopwatch.Stop();
-            return stopwatch.Elapsed.Milliseconds;
+            return (int)stopwatch.ElapsedMilliseconds;
         }
     }
 }
