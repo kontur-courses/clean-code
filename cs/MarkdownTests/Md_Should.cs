@@ -67,12 +67,14 @@ namespace MarkdownTests
         [TestCase("_word _", "_word _", TestName = "when whitespace before closer tag")]
         [TestCase("_word1_ 3_", "_word1_ 3_", TestName = "when tag inside digits")]
         [TestCase(@"\_word\_", "_word_", TestName = "when symbols are escaped")]
-        [TestCase("_some __sentence__ here_", "_some __sentence__ here_", TestName = "when double grounding tags inside once grounding tags")]
+        [TestCase("_some __sentence__ here_", "<em>some __sentence__ here</em>", TestName = "when double grounding tags inside once grounding tags")]
         public void DoesntReplace(string input, string expected)
         {
             var result = md.Render(input);
 
             result.Should().Be(expected);
         }
+
+        //Todo: добавить тест на сложность О(n)
     }
 }

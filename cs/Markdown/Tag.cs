@@ -18,7 +18,7 @@ namespace Markdown
         {
             Md = md;
             Html = html;
-            IgnoringNestedTags = ignoringNestedTags?.ToArray();
+            IgnoringNestedTags = ignoringNestedTags == null ? new string[0] : ignoringNestedTags.ToArray();
         }
 
         private int GetLengthOfSpecialSymbols(string text, int position)

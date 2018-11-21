@@ -25,7 +25,6 @@ namespace Markdown
             markerPairs = RemoveUnpairedTags(markerPairs);
             return ReplaceTags(text, markerPairs);
         }
-        //TODO: fix ignoring nested
 
         private List<MarkerPair> RemoveUnpairedTags(List<MarkerPair> markerPairs)
             => markerPairs.Where(p => p.Closer != null && p.Opener != null).ToList();
@@ -94,16 +93,24 @@ namespace Markdown
 
         private void AddMarker(Tag tag, StringBuilder text, Queue<Marker> markersQueue, int position)
         {
-            if (!HasWhitespaceAfter(text, position))
+            if (!HasWhitespaceAfter(text, position) && !IsIgnoringTag(markersQueue, tag))
             {
                 var marker = new Marker(tag, TagType.Opener, position);
                 markersQueue.Enqueue(marker);
             }
-            else if (!HasWhitespaceBefore(text, position))
+            else if (!HasWhitespaceBefore(text, position) && !IsIgnoringTag(markersQueue, tag))
             {
                 var marker = new Marker(tag, TagType.Closer, position);
                 markersQueue.Enqueue(marker);
             }
+        }
+
+        private bool IsIgnoringTag(Queue<Marker> markersQueue, Tag tag)
+        {
+            if (markersQueue.Count == 0)
+                return false;
+            var lastMarker = markersQueue.Peek();
+            return lastMarker.TagType == TagType.Opener && lastMarker.Tag.IsIgnoringMd(tag.Md);
         }
 
         private bool HasWhitespaceAfter(StringBuilder text, int position)
