@@ -37,7 +37,12 @@ namespace MarkdownTests
         public void TestGetTokens_OnLetters()
         {
             const string inputString = "abc";
-            var expectedResult = new[] { new Token(TokenType.Text, "abc") };
+            var expectedResult = new[]
+            {
+                new Token(TokenType.Text, "a"),
+                new Token(TokenType.Text, "b"),
+                new Token(TokenType.Text, "c")
+            };
             parser.GetTokens(inputString).Should().BeEquivalentTo(expectedResult);
         }
 
@@ -45,7 +50,12 @@ namespace MarkdownTests
         public void TestGetTokens_OnDigits()
         {
             var inputString = "123";
-            var expectedResult = new[] { new Token(TokenType.Text, "123") };
+            var expectedResult = new[]
+            {
+                new Token(TokenType.Text, "1"),
+                new Token(TokenType.Text, "2"),
+                new Token(TokenType.Text, "3")
+            };
             parser.GetTokens(inputString).Should().BeEquivalentTo(expectedResult);
         }
 
@@ -134,7 +144,7 @@ namespace MarkdownTests
             var expectedResult = new[]
             {
                 new Token(TokenType.Text, "#"),
-                new Token(TokenType.Text, "a") 
+                new Token(TokenType.Text, "a")
             };
             parser.GetTokens(inputString).Should().BeEquivalentTo(expectedResult);
         }
@@ -159,7 +169,7 @@ namespace MarkdownTests
         public void TestGetTokens_OnEscapeSymbol()
         {
             const string inputString = "\\";
-            var expectedResult = new[] { new Token(TokenType.EscapeSymbol, "\\") };
+            var expectedResult = new[] { new Token(TokenType.Text, "\\") };
             parser.GetTokens(inputString).Should().BeEquivalentTo(expectedResult);
         }
 
@@ -248,7 +258,7 @@ namespace MarkdownTests
             var expectedResult = new[]
             {
                 new Token(TokenType.Text, "a"),
-                new Token(TokenType.Tag, "_") 
+                new Token(TokenType.Tag, "_")
             };
             parser.GetTokens(inputString).Should().BeEquivalentTo(expectedResult);
         }
@@ -261,7 +271,7 @@ namespace MarkdownTests
             {
                 new Token(TokenType.Tag, "_"),
                 new Token(TokenType.Text, "a"),
-                new Token(TokenType.Tag, "_") 
+                new Token(TokenType.Tag, "_")
             };
             parser.GetTokens(inputString).Should().BeEquivalentTo(expectedResult);
         }
@@ -273,7 +283,7 @@ namespace MarkdownTests
             var expectedResult = new[]
             {
                 new Token(TokenType.Tag, "__"),
-                new Token(TokenType.Text, "a") 
+                new Token(TokenType.Text, "a")
             };
             parser.GetTokens(inputString).Should().BeEquivalentTo(expectedResult);
         }
@@ -285,7 +295,7 @@ namespace MarkdownTests
             var expectedResult = new[]
             {
                 new Token(TokenType.Text, "a"),
-                new Token(TokenType.Tag, "__") 
+                new Token(TokenType.Tag, "__")
             };
             parser.GetTokens(inputString).Should().BeEquivalentTo(expectedResult);
         }
@@ -298,7 +308,7 @@ namespace MarkdownTests
             {
                 new Token(TokenType.Tag, "__"),
                 new Token(TokenType.Text, "a"),
-                new Token(TokenType.Tag, "__") 
+                new Token(TokenType.Tag, "__")
             };
             parser.GetTokens(inputString).Should().BeEquivalentTo(expectedResult);
         }
@@ -309,8 +319,8 @@ namespace MarkdownTests
             const string inputString = "\\a";
             var expectedResult = new[]
             {
-                new Token(TokenType.EscapeSymbol, "\\"),
-                new Token(TokenType.Text, "a") 
+                new Token(TokenType.Text, "\\"),
+                new Token(TokenType.Text, "a")
             };
             parser.GetTokens(inputString).Should().BeEquivalentTo(expectedResult);
         }
@@ -322,7 +332,7 @@ namespace MarkdownTests
             var expectedResult = new[]
             {
                 new Token(TokenType.Text, "a"),
-                new Token(TokenType.EscapeSymbol, "\\") 
+                new Token(TokenType.Text, "\\")
             };
             parser.GetTokens(inputString).Should().BeEquivalentTo(expectedResult);
         }
@@ -347,7 +357,7 @@ namespace MarkdownTests
             {
                 new Token(TokenType.Space, " "),
                 new Token(TokenType.Tag, "_"),
-                new Token(TokenType.Space, " ") 
+                new Token(TokenType.Space, " ")
             };
             parser.GetTokens(inputString).Should().BeEquivalentTo(expectedResult);
         }
@@ -360,7 +370,7 @@ namespace MarkdownTests
             {
                 new Token(TokenType.Text, "a"),
                 new Token(TokenType.Tag, "_"),
-                new Token(TokenType.Text, "b") 
+                new Token(TokenType.Text, "b")
             };
             parser.GetTokens(inputString).Should().BeEquivalentTo(expectedResult);
         }

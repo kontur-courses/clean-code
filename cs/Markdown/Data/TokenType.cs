@@ -5,7 +5,6 @@
         Text,
         Tag,
         Space,
-        EscapeSymbol,
         ParagraphStart,
         ParagraphEnd
     }

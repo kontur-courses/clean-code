@@ -49,9 +49,6 @@ namespace Markdown.TreeBuilder
                 case TokenType.Text:
                     currentTag.Children.Add(new TextTreeNode(token.Text));
                     break;
-                case TokenType.EscapeSymbol when previousTokenType == TokenType.EscapeSymbol:
-                    currentTag.Children.Add(new TextTreeNode("\\"));
-                    break;
                 case TokenType.Tag:
                     AddTagToken(openedTags, token.Text, previousTokenType, nextTokenType);
                     break;

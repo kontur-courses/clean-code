@@ -102,9 +102,9 @@ namespace MarkdownTests
         }
 
         [Test]
-        public void TestBuildTree_OnDoubleEscapeSymbol()
+        public void TestBuildTree_OnEscapedEscapeSymbol()
         {
-            var tokens = new[] { new Token(TokenType.EscapeSymbol, "\\"), new Token(TokenType.EscapeSymbol, "\\") };
+            var tokens = new[] { new Token(TokenType.Text, "\\") };
             var expectedTree = testTreeBuilder
                 .WithText("\\")
                 .Build();
@@ -423,8 +423,7 @@ namespace MarkdownTests
         {
             var tokens = new[]
             {
-                new Token(TokenType.EscapeSymbol, "\\"),
-                new Token(TokenType.Tag, "_"),
+                new Token(TokenType.Text, "_"),
                 new Token(TokenType.Text, "a"),
                 new Token(TokenType.Tag, "_")
             };
@@ -446,8 +445,7 @@ namespace MarkdownTests
             {
                 new Token(TokenType.Tag, "_"),
                 new Token(TokenType.Text, "a"),
-                new Token(TokenType.EscapeSymbol, "\\"),
-                new Token(TokenType.Tag, "_")
+                new Token(TokenType.Text, "_")
             };
             var expectedTree = testTreeBuilder
                 .WithText("_")
@@ -468,8 +466,7 @@ namespace MarkdownTests
                     new Token(TokenType.Tag, "_"),
                     new Token(TokenType.Text, "a"),
                     new Token(TokenType.Space, " "),
-                    new Token(TokenType.EscapeSymbol, "\\"),
-                    new Token(TokenType.Tag, "_"),
+                    new Token(TokenType.Text, "_"),
                     new Token(TokenType.Text, "b"),
                     new Token(TokenType.Tag, "_")
                 };
@@ -497,8 +494,7 @@ namespace MarkdownTests
                 new Token(TokenType.Text, "a"),
                 new Token(TokenType.Space, " "),
                 new Token(TokenType.Text, "b"),
-                new Token(TokenType.EscapeSymbol, "\\"),
-                new Token(TokenType.Tag, "_"),
+                new Token(TokenType.Text, "_"),
                 new Token(TokenType.Tag, "_")
             };
             var expectedTree = testTreeBuilder

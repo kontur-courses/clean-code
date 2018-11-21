@@ -10,7 +10,7 @@
               token == OpeningTag && previousTokenType.IsSeparator() && !isOpened;
 
         public bool MustBeClosed(string token, bool isOpened, TokenType previousTokenType, TokenType nexTokenType) =>
-            token == ClosingTag && previousTokenType != TokenType.EscapeSymbol && isOpened;
+            token == ClosingTag && isOpened;
 
         public MarkdownHeadingInfo(int numberOfSharps)
         {

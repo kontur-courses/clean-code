@@ -60,6 +60,12 @@
     <Compile Include="Data\TagTranslationInfo.cs" />
     <Compile Include="Data\TagTranslationResult.cs" />
     <Compile Include="Data\Token.cs" />
+    <Compile Include="Data\TokenReaderResult.cs" />
+    <Compile Include="TokenParser\TokenReaders\EscapedTokenReader.cs" />
+    <Compile Include="TokenParser\TokenReaders\ITokenReader.cs" />
+    <Compile Include="TokenParser\TokenReaders\SpaceTokenReader.cs" />
+    <Compile Include="TokenParser\TokenReaders\TagTokenParser.cs" />
+    <Compile Include="TokenParser\TokenReaders\TextTokenReader.cs" />
     <Compile Include="TreeBuilder\ITokenTreeBuilder.cs" />
     <Compile Include="TreeTranslator\NodeTranslator\INodeTranslator.cs" />
     <Compile Include="TreeTranslator\ITokenTreeTranslator.cs" />

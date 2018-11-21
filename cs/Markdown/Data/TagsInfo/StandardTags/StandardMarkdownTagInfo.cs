@@ -10,8 +10,7 @@
             previousTokenType.IsSeparator() && !nexTokenType.IsSeparator() && !isOpened;
 
         public bool MustBeClosed(string token, bool isOpened, TokenType previousTokenType, TokenType nexTokenType) =>
-            previousTokenType != TokenType.EscapeSymbol && !previousTokenType.IsSeparator() &&
-            nexTokenType.IsSeparator() && isOpened;
+            !previousTokenType.IsSeparator() && nexTokenType.IsSeparator() && isOpened;
 
         public StandardMarkdownTagInfo(string tag, bool canBeInsideOtherTag)
         {
