@@ -36,6 +36,12 @@ namespace Markdown_Tests
             TestName = "markup strong and ignore em when underscores intersect")]
         [TestCase("do not123_recognize_", ExpectedResult = "do not123_recognize_",
             TestName = "ignore underscores inside word with digits")]
+        [TestCase("__d _a _b_ a_ d__", ExpectedResult = "__d _a <em>b</em> a_ d__", 
+            TestName = "markup only the deepest element when outer are invalid")]
+        [TestCase("__d _a _b_ a d__", ExpectedResult = "<strong>d _a <em>b</em> a d</strong>",
+            TestName = "markup outer element when it contains invalid elements")]
+        [TestCase("__d _a_ __d__", ExpectedResult = "__d <em>a</em> <strong>d</strong>",
+            TestName = "markup valid inner elements inside broken emphasis")]
         public string RenderShould(string markdown)
         {
             var md = new Md();

@@ -2,9 +2,9 @@
 
 namespace Markdown.Analyzers
 {
-    public class WordsContainingDigitsAnalyzer
+    public class IncludingToWordWithDigitsAnalyzer
     {
-        public static bool[] GetMarkersOfIncludingToWordWithDigits(string text)
+        public static bool[] GetMarkers(string text)
         {
             bool[] isInsideWordWithDigits = new bool[text.Length];
             int currentPosition = 0;

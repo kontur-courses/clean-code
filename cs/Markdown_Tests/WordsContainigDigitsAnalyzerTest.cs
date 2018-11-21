@@ -3,7 +3,7 @@ using NUnit.Framework;
 
 namespace Markdown_Tests
 {
-    class WordsContainingDigitsAnalyzerTest
+    class IncludingToWordWithDigitsAnalyzerTest
     {
         [TestCase("1a2", ExpectedResult = new []{true, true, true}, 
             TestName = "set true when symbol in word containing digits")]
@@ -11,7 +11,7 @@ namespace Markdown_Tests
             TestName = "not set true when symbol separated with whitespace")]
         public bool[] GetMarkersOfIncludingToWordWithDigits_Should(string text)
         {
-            return WordsContainingDigitsAnalyzer.GetMarkersOfIncludingToWordWithDigits(text);
+            return IncludingToWordWithDigitsAnalyzer.GetMarkers(text);
         }
     }
 }
