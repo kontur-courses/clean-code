@@ -1,10 +1,10 @@
 namespace Markdown
 {
-    public class MarkdownParser
+    public class Parser
     {
         private string _input;
         
-        public MarkdownParser(string input)
+        public Parser(string input)
         {
             _input = input;
         }

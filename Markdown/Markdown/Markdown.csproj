@@ -39,10 +39,12 @@
     <Compile Include="Document\TreeNode.cs" />
     <Compile Include="HtmlRender.cs" />
     <Compile Include="Md.cs" />
-    <Compile Include="Md_Should.cs" />
-    <Compile Include="Parser\MarkdownParser.cs" />
+    <Compile Include="MdTest.cs" />
+    <Compile Include="Parser\Parser.cs" />
+    <Compile Include="Parser\ParserTest.cs" />
     <Compile Include="Parser\Token.cs" />
     <Compile Include="Parser\TokenReader.cs" />
+    <Compile Include="Parser\TokenReaderTest.cs" />
   </ItemGroup>
   <ItemGroup>
     <Reference Include="FluentAssertions, Version=5.5.1.0, Culture=neutral, PublicKeyToken=33f2691a05b67b6a">

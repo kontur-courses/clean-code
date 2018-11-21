@@ -34,7 +34,7 @@ namespace Markdown
         [TestCase("_a 1_", ExpectedResult = "<em>a 1</em>", TestName = "Valid em tag ends by number divided by space")]
         [TestCase("_1 a_", ExpectedResult = "<em>1 a</em>", TestName = "Valid em tag starts by number divided by space")]
         [TestCase("_1_2_3 4_", ExpectedResult = "<em>1_2_3 4</em>", TestName = "Valid em tag with numbers divided by space")]
-        public string MdRender_ShouldReturnCorrectHtml_WhenEmTag(string md)
+        public string MdRender_ShouldReturnCorrectEmHtmlTag_When(string md)
         {
             return _md.Render(md);
         }
@@ -48,7 +48,7 @@ namespace Markdown
         [TestCase("__a 1__", ExpectedResult = "<strong>a 1</strong>", TestName = "Valid strong tag ends by number divided by space")]
         [TestCase("__1 a__", ExpectedResult = "<strong>1 a</strong>", TestName = "Valid strong tag starts by number divided by space")]
         [TestCase("__1_2_3 4__", ExpectedResult = "<strong>1_2_3 4</strong>", TestName = "Valid strong tag with numbers divided by space")]
-        public string MdRender_ShouldReturnCorrectHtml_WhenStrongTag(string md)
+        public string MdRender_ShouldReturnCorrectStrongHtmlTag_When(string md)
         {
             return _md.Render(md);
         }
@@ -58,7 +58,7 @@ namespace Markdown
         [TestCase("12_", ExpectedResult = "12_", TestName = "Number ends with underline")]
         [TestCase("_1_23_4", ExpectedResult = "_1_23_4", TestName = "Numbers divided by single underline")]
         [TestCase("__1___23_4____1", ExpectedResult = "__1___23_4____1", TestName = "Numbers divided by multiple underlines")]
-        public string MdRender_ShouldReturnCorrectHtml_WhenNumber(string md)
+        public string MdRender_ShouldReturnCorrectNumber_When(string md)
         {
             return _md.Render(md);
         }
@@ -66,7 +66,7 @@ namespace Markdown
         [TestCase("text with \\escape", ExpectedResult = "text with escape", TestName = "Some text with escapes")]
         [TestCase("\\_text\\_", ExpectedResult = "_text_", TestName = "Escaped em tag with word")]
         [TestCase("\\__text\\__", ExpectedResult = "__text__", TestName = "Escaped strong tag with word")]
-        public string MdRender_ShouldReturnCorrectHtml_WhenEscape(string md)
+        public string MdRender_ShouldReturnCorrectEscapedCharacters_When(string md)
         {
             return _md.Render(md);
         }
