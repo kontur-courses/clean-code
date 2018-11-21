@@ -9,12 +9,12 @@ namespace MarkDown
         private readonly List<TagType> availableTagTypes;
         private readonly TextStream textStream;
 
-        public MarkDownParser(TextStream textStream, IEnumerable<TagType> availableTagTypes)
+        public MarkDownParser(string textStream, IEnumerable<TagType> availableTagTypes)
         {
-            this.textStream = textStream;
+            this.textStream = new TextStream(textStream);
             this.availableTagTypes = availableTagTypes.ToList();
         }
-        
+
         public IEnumerable<Token> GetTokens()
         {
             var textTokenStart = textStream.CurrentPosition;
@@ -22,50 +22,86 @@ namespace MarkDown
             {
                 if (TryGetTagToken(out var tagToken))
                 {
-                    if (textTokenStart != textStream.CurrentPosition && textStream.TryGetSubstring(textTokenStart, 
-                            textStream.CurrentPosition - textTokenStart, out var posContent))
-                        yield return new Token(textTokenStart, posContent);
+                    if (textTokenStart != tagToken.Position && textStream.TryGetSubstring(textTokenStart, 
+                            tagToken.Position - textTokenStart, out var possibleContent))
+                        yield return new Token(textTokenStart, possibleContent);
+                    var nestedTagTypes = tagToken.TagType.GetNestedTagTypes(availableTagTypes);
+                    tagToken.InnerTokens = nestedTagTypes.Any() ? new MarkDownParser(tagToken.Content, nestedTagTypes).GetTokens() 
+                        : new[] {new Token(0, tagToken.Content)};
                     yield return tagToken;
-
+                    if (tagToken.Content == "")
+                    {
+                        textTokenStart = textStream.CurrentPosition;
+                        continue;
+                    };
                     textStream.TryMoveNext(tagToken.Length);
                     textTokenStart = textStream.CurrentPosition;
-
                     continue;
                 }
                 textStream.TryMoveNext();
             }
-            if (textTokenStart == textStream.CurrentPosition) yield break;
-            if (textStream.TryGetSubstring(textTokenStart, textStream.CurrentPosition - textTokenStart, out var content))
+
+            if (textTokenStart != textStream.CurrentPosition && textStream
+                    .TryGetSubstring(textTokenStart, textStream.CurrentPosition - textTokenStart, out var content))
                 yield return new Token(textTokenStart,content);
         }
 
-        private bool TryGetTagType(out TagType tagType)
+        private bool IsCurrentParameter(out TagType param)
         {
-            tagType = availableTagTypes
-                .Where(t => t.SpecialSymbol.Length * 2 <= textStream.Length)
-                .OrderByDescending(s => s.SpecialSymbol)
+            param = availableTagTypes
+                .Where(t => t.Parameter != null && t.Parameter.OpeningSymbol.Length + t.Parameter.ClosingSymbol.Length <= textStream.Length)
                 .FirstOrDefault(t => textStream
-                    .IsCurrentOpening(t.SpecialSymbol, availableTagTypes
-                        .Where(s => s.SpecialSymbol != t.SpecialSymbol).Select(s => s.SpecialSymbol)));
+                    .IsCurrentOpening(t.Parameter.OpeningSymbol, availableTagTypes.Select(s => s.OpeningSymbol)));
+            return param != null;
+        }
+
+        private bool TryGetTagType(out TagType tagType)
+        {               
+            tagType = availableTagTypes
+                .Where(t => t.OpeningSymbol.Length + t.ClosingSymbol.Length <= textStream.Length)
+                .OrderByDescending(t => t.OpeningSymbol)
+                .FirstOrDefault(t => textStream
+                    .IsCurrentOpening(t.OpeningSymbol, availableTagTypes.Select(s => s.OpeningSymbol)));
             return tagType != null;
         }
 
         private bool TryGetTagToken(out Token token)
         {
-            token = null;
-            if (!TryGetTagType(out var tagType)) return false;
-            var specialSymbol = tagType.SpecialSymbol;
-            for (var i = textStream.CurrentPosition + 2; i < textStream.Length - specialSymbol.Length + 1; i++)
+            if (!IsCurrentParameter(out var tagType))
             {
-                var symbols = availableTagTypes.Where(s => s.SpecialSymbol != specialSymbol).Select(s => s.SpecialSymbol);
-                if (!textStream.IsSymbolAtPositionClosing(i, specialSymbol, symbols)) continue;
-                var startPosition = textStream.CurrentPosition + specialSymbol.Length;
-                var length = i - textStream.CurrentPosition - specialSymbol.Length;
-                if (!textStream.TryGetSubstring(startPosition, length, out var content)) continue;
-                if (textStream.IsTokenAtCurrentNumberLess(i))
-                    token = new Token(textStream.CurrentPosition, content, tagType);
+                if (!textStream.Contains("[") || !textStream.Contains("]"))
+                    return TryGetParametrizedTagToken(out token);
+                token = null;
+                return false;
             }
+            var paramSymbols = availableTagTypes.Where(s => s.ClosingSymbol != tagType.Parameter.ClosingSymbol)
+                .Select(s => s.ClosingSymbol);
+            return textStream.TryReadUntilClosing(tagType.Parameter.ClosingSymbol, paramSymbols, out var paramContent) 
+                ? TryGetParametrizedTagToken(out token, tagType, paramContent) 
+                : TryGetParametrizedTagToken(out token);
+        }
+
+        private bool TryGetParametrizedTagToken(out Token token, TagType parametrizedTagType = null, string paramContent = "")
+        {
+            token = null;
+            var position = paramContent != "" 
+                ? textStream.CurrentPosition - paramContent.Length - parametrizedTagType.Parameter.OpeningSymbol.Length 
+                  - parametrizedTagType.Parameter.ClosingSymbol.Length
+                : textStream.CurrentPosition;
+            if (!TryGetTagType(out var tagType) && parametrizedTagType == null) return false;
+            if (parametrizedTagType != null && (tagType == null || tagType.GetType() != parametrizedTagType.GetType()))
+            {
+                token = new Token(position, "", parametrizedTagType, paramContent);
+                return true;
+            }
+            var closingSymbol = tagType.ClosingSymbol;
+            var symbols = availableTagTypes.Where(s => s.ClosingSymbol != closingSymbol)
+                .Select(s => s.ClosingSymbol);
+            if (!textStream.TryReadUntilClosing(closingSymbol, symbols, out var tokenContent, true))
+                return token != null;
+            token = new Token(position, tokenContent, tagType, paramContent);
             return token != null;
         }
+        
     }
 }

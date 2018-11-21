@@ -14,29 +14,36 @@ namespace MarkDown
             this.availableTagTypes = availableTagTypes.ToList();
         }
 
-        public string Render(string textParagraph) => 
-            new ParagraphTag().ToHtml(ProcessText(textParagraph, availableTagTypes))
-                .Escape(availableTagTypes.Select(t => t.SpecialSymbol));
-
-        private string ProcessText(string text, IEnumerable<TagType> tagTypes)
-        {
-            var textStream = new TextStream(text);
-            var parser = new MarkDownParser(textStream, tagTypes);
+        public string Render(string textParagraph) {
+            var parser = new MarkDownParser(textParagraph, availableTagTypes);
             var tokens = parser.GetTokens();
+            var toEscape = GetSymbolsToEscape();
+            return new ParagraphTag().ToHtml(ProcessText(tokens).Escape(toEscape));
+        }
+
+        private List<string> GetSymbolsToEscape()
+        {   
+            var result = new List<string>();
+            foreach (var tagType in availableTagTypes)
+            {
+                result.Add(tagType.OpeningSymbol);
+                result.Add(tagType.ClosingSymbol);
+                if (tagType.Parameter == null) continue;
+                result.Add(tagType.Parameter.OpeningSymbol);
+                result.Add(tagType.Parameter.ClosingSymbol);
+            }
+            result.Add(@"\");
+            return result;
+        }
+
+        private string ProcessText(IEnumerable<Token> tokens)
+        {
             var result = new StringBuilder();
             foreach (var token in tokens)
             {
-                string htmlTag;
-                if (token.TokenType == TokenType.Tag)
-                {
-                    var innerTagTypes = availableTagTypes.Where(e => token.TagType.IsInAvailableNestedTagTypes(e)).ToList();
-                    var tokenContent = innerTagTypes.Any() ? ProcessText(token.Content, innerTagTypes) : token.Content;
-                    htmlTag = token.TagType.ToHtml(tokenContent);
-                }
-                else
-                    htmlTag = token.Content;
+                var tagContent = token.TokenType == TokenType.Tag ? ProcessText(token.InnerTokens) : token.Content;
 
-                result.Append(htmlTag);
+                result.Append(token.ToHtml(tagContent));
             }
 
             return result.ToString();

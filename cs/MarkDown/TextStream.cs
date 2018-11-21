@@ -27,31 +27,34 @@ namespace MarkDown
 
         public bool IsCurrentOpening(string specialSymbol, IEnumerable<string> symbols)
         {
+            const int symbolLength = 1;
             if (!TryGetSubstring(CurrentPosition, specialSymbol.Length, out var cur)) 
                 return false;
-            var part = IsParOfAnotherSpecSymbol(CurrentPosition, cur, symbols);
-            if (!TryGetSubstring(CurrentPosition - 1, 1, out var prev) && cur != specialSymbol && !part) 
+            var isParOfAnotherSpecSymbol = IsParOfAnotherSpecSymbol(CurrentPosition, cur, symbols);
+            if (!TryGetSubstring(CurrentPosition - symbolLength, symbolLength, out var prev) && cur != specialSymbol && !isParOfAnotherSpecSymbol) 
                 return false;
-            if (!TryGetSubstring(CurrentPosition + specialSymbol.Length, 1, out var next)) 
+            if (!TryGetSubstring(CurrentPosition + specialSymbol.Length, symbolLength, out var next)) 
                 return false;
-            return prev != @"\" && next != " " && cur.StartsWith(specialSymbol) && !part;
+            return prev != @"\" && next != " " && cur.Equals(specialSymbol) && !isParOfAnotherSpecSymbol;
         }
 
         public bool IsSymbolAtPositionClosing(int position, string specialSymbol, IEnumerable<string> symbols)
         {
+            const int symbolLength = 1;
             if (!TryGetSubstring(position, specialSymbol.Length, out var cur)) 
                 return false;            
-            var part = IsParOfAnotherSpecSymbol(position, cur, symbols);
-            if (!TryGetSubstring(position + specialSymbol.Length, 1, out var next) && cur != specialSymbol && !part)
+            var isParOfAnotherSpecSymbol = IsParOfAnotherSpecSymbol(position, cur, symbols);
+            if (!TryGetSubstring(position + specialSymbol.Length, symbolLength, out var next) && cur != specialSymbol && !isParOfAnotherSpecSymbol)
                 return false;
-            if (!TryGetSubstring(position - 1, 1, out var prev)) return false;
-            return prev != " " && prev != @"\" && cur.StartsWith(specialSymbol) && !part;
+            if (!TryGetSubstring(position - symbolLength, symbolLength, out var prev)) return false;
+            return prev != " " && prev != @"\" && cur.Equals(specialSymbol) && !isParOfAnotherSpecSymbol;
         }
 
         private bool IsParOfAnotherSpecSymbol(int position, string symbol, IEnumerable<string> symbols)
         {
             foreach (var sym in symbols)
             {
+                if (sym == symbol) return false;
                 TryGetSubstring(position, sym.Length, out var curNext);
                 TryGetSubstring(position - sym.Length + 1, sym.Length, out var curPrev);
                 return curNext == sym && curNext.StartsWith(symbol)
@@ -61,16 +64,41 @@ namespace MarkDown
             return false;
         }
 
-        public bool IsTokenAtCurrentNumberLess(int endPosition)
+        public bool IsTokenAtCurrentNumberless(int endPosition)
         {
-            return !(Text.Substring(0, CurrentPosition).Split().Last().Any(char.IsDigit)
-                     || Text.Substring(endPosition).Split().First().Any(char.IsDigit));
+            var prev = Text.Substring(0, CurrentPosition);
+            var next = Text.Substring(endPosition + 1);
+            if (next.StartsWith(" ") || prev.EndsWith(" ")) return true;
+            return !(next.Any(char.IsDigit) || next.Any(char.IsDigit));
         }
 
         public bool TryGetSubstring(int startPosition, int length, out string substring)
         {
-            substring = startPosition < 0 || startPosition + length > Length ? Empty : Text.Substring(startPosition, length);
+            substring = (startPosition < 0 || startPosition + length > Length) ? Empty : Text.Substring(startPosition, length);
             return substring != Empty;
+        }
+
+        public bool Contains(string value) => Text.Contains(value);
+
+        public bool TryReadUntilClosing(string closingSymbol, IEnumerable<string> symbols, out string content, bool checkToken = false)
+        {
+            var length = closingSymbol.Length;
+            content = null;
+            for (var i = CurrentPosition + length; i < Length - length + 1; i++)
+            {
+                if (!IsSymbolAtPositionClosing(i, closingSymbol, symbols)) 
+                    continue;
+                if (!TryGetSubstring(CurrentPosition + length, i - CurrentPosition - length, out content)) 
+                    continue;
+                if (checkToken)
+                {
+                    content = closingSymbol != "__" && closingSymbol != "_" || IsTokenAtCurrentNumberless(i) ? content: null;
+                    continue;;
+                }
+                CurrentPosition = i + 1;
+                return true;
+            }
+            return content != null;
         }
     }
 }

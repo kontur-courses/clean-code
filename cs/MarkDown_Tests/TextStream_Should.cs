@@ -93,7 +93,7 @@ namespace MarkDown_Tests
         {
             textStream = new TextStream(text);
             textStream.TryMoveNext(4);
-            return textStream.IsTokenAtCurrentNumberLess(6);
+            return textStream.IsTokenAtCurrentNumberless(6);
         }
 
         [TestCase("_aaa_", 0, "_", ExpectedResult = true, TestName = "when symbol at position is single undersocre opening")]

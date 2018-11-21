@@ -1,23 +1,33 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 
 namespace MarkDown.TagTypes
 {
     public abstract class TagType
     {
-        public string SpecialSymbol { get;}
+        public string OpeningSymbol { get;}
+        public string ClosingSymbol { get; }
         public string HtmlTag { get; }
-        private readonly IEnumerable<TagType> availableNestedTagTypes;
-
-        protected TagType(string specialSymbol, string htmlTag, IEnumerable<TagType> availableNestedTagTypes)
+        public Parameter Parameter { get; }
+        private readonly IEnumerable<Type> unavailableNestedTagTypes;
+        
+        protected TagType(string openingSymbol, string closingSymbol, string htmlTag, IEnumerable<Type> unavailableNestedTagTypes, Parameter parameter = null)
         {
-            SpecialSymbol = specialSymbol;
-            this.HtmlTag = htmlTag;
-            this.availableNestedTagTypes = availableNestedTagTypes;
+            OpeningSymbol = openingSymbol;
+            ClosingSymbol = closingSymbol;
+            HtmlTag = htmlTag;
+            this.unavailableNestedTagTypes = unavailableNestedTagTypes;
+            Parameter = parameter;
         }
 
-        public bool IsInAvailableNestedTagTypes(TagType tagType) => availableNestedTagTypes.Any(t => t.GetType() == tagType.GetType());
+        public List<TagType> GetNestedTagTypes(IEnumerable<TagType> tagTypes)
+        {
+            return tagTypes.Where(tagType => !unavailableNestedTagTypes.Contains(tagType.GetType())).ToList();
+        }
 
-        public string ToHtml(string text) => $"<{HtmlTag}>{text}</{HtmlTag}>";
+        public string ToHtml(string text, string param = "") => 
+            Parameter == null ? $"<{HtmlTag}>{text}</{HtmlTag}>" : 
+                $@"<{HtmlTag} {Parameter.Name}=""{param}"">{text}</{HtmlTag}>";
     }
 }

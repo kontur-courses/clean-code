@@ -14,7 +14,7 @@ namespace MarkDown_Tests
         [SetUp]
         public void SetUp()
         {
-            markDown = new Md( new List<TagType>(){ new StrongTag(), new EmTag()});
+            markDown = new Md( new List<TagType>(){ new StrongTag(), new EmTag(), new ATag()});
         }
 
         [TestCase("a", ExpectedResult = "<p>a</p>", TestName = "when text have no tags")]
@@ -47,9 +47,21 @@ namespace MarkDown_Tests
         [TestCase("te1xt _w1th_ nu1mbers", ExpectedResult = "<p>te1xt <em>w1th</em> nu1mbers</p>", TestName = "when text with numbers and letters in it inside and out with whitespaces")]
         [TestCase("_te1xt with nu1mbers_", ExpectedResult = "<p><em>te1xt with nu1mbers</em></p>", TestName = "when outside text with numbers and letters in it")]
         [TestCase("_12_ 3", ExpectedResult = "<p><em>12</em> 3</p>", TestName = "when outside text with numbers and letters in it")]
-        [TestCase(@"\\_a_", ExpectedResult = @"<p>\_a_</p>", TestName = "when escaping escpae character before special symbol")]
+        [TestCase(@"\\_a_", ExpectedResult = @"<p>_a_</p>", TestName = "when escaping escpae character before special symbol")]
         [TestCase(@"aaa\", ExpectedResult = @"<p>aaa\</p>", TestName = "when escape symbol at the end of string")]
         [TestCase(@"a\ ", ExpectedResult = @"<p>a\ </p>", TestName = "when escape symbol before space")]
+        [TestCase("[foo](bar)", ExpectedResult = @"<p><a href=""foo"">bar</a></p>", TestName = "when link")]
+        [TestCase("[foo](_bar)_", ExpectedResult = @"<p><a href=""foo"">_bar</a>_</p>", TestName = "when single underscore crossed with link tag from the end")]
+        [TestCase("[foo](_bar_)", ExpectedResult = @"<p><a href=""foo""><em>bar</em></a></p>", TestName = "when link outside single underscore")]
+        [TestCase("_[foo](bar)_", ExpectedResult = @"<p>_<a href=""foo"">bar</a>_</p>", TestName = "when link inside single underscore")]
+        [TestCase("_[foo](_bar)", ExpectedResult = @"<p>_<a href=""foo"">_bar</a></p>", TestName = "when single underscore crossed with link tag from start")]
+        [TestCase("[foo](__bar)__", ExpectedResult = @"<p><a href=""foo"">__bar</a>__</p>", TestName = "when double underscore crossed with link tag from the end")]
+        [TestCase("[foo](__bar__)", ExpectedResult = @"<p><a href=""foo""><strong>bar</strong></a></p>", TestName = "when link outside double underscore")]
+        [TestCase("__[foo](bar)__", ExpectedResult = @"<p>__<a href=""foo"">bar</a>__</p>", TestName = "when link inside double underscore")]
+        [TestCase("__[foo](__bar)", ExpectedResult = @"<p>__<a href=""foo"">__bar</a></p>", TestName = "when double underscore crossed with link tag from start")]
+        [TestCase(@"[foo]\(bar)", ExpectedResult = @"<p><a href=""foo""></a>(bar)</p>", TestName = "when escaping opening link")]
+        [TestCase(@"[foo]\(bar\)", ExpectedResult = @"<p><a href=""foo""></a>(bar)</p>", TestName = "when escaping both symbols in link")]
+        [TestCase(@"\[foo\](bar)", ExpectedResult = @"<p>[foo](bar)</p>", TestName = "when escaping both symbols in link 2")]
         public string Render_TextCorrectly(string text) => markDown.Render(text);
     }
 }

@@ -1,6 +1,8 @@
-﻿using FluentAssertions;
+﻿using System.Collections.Generic;
+using FluentAssertions;
 using MarkDown.TagTypes;
 using NUnit.Framework;
+using NUnit.Framework.Internal;
 
 namespace MarkDown_Tests.TagTypes_Tests
 {
@@ -8,18 +10,27 @@ namespace MarkDown_Tests.TagTypes_Tests
     public class EmTag_Should
     {
         private EmTag tag;
+        private List<TagType> availableTagTypes;
 
         [SetUp]
         public void SetUp()
         {
             tag = new EmTag();
+            availableTagTypes = new List<TagType>(){new ATag(), new EmTag(), new StrongTag()};
         }
 
         [Test]
-        public void HaveCorrectSpecialSymbol_AfterCreation()
+        public void HaveCorrectOpeningSymbol_AfterCreation()
         {
-            tag.SpecialSymbol.Should().Be("_");
+            tag.OpeningSymbol.Should().Be("_");
+        }        
+        
+        [Test]
+        public void HaveCorrectClosingSymbol_AfterCreation()
+        {
+            tag.OpeningSymbol.Should().Be("_");
         }
+        
         [Test]
         public void HaveCorrectHtmlTag_AfterCreation()
         {
@@ -27,13 +38,15 @@ namespace MarkDown_Tests.TagTypes_Tests
         }
 
         [Test]
-        public void IsInAvailableNestedTagTypes_BeFalse_OnStrongTag() =>
-            tag.IsInAvailableNestedTagTypes(new StrongTag()).Should().BeFalse();
+        public void HaveCorrectParameter_AfterCreation()
+        {
+            tag.Parameter.Should().BeNull();
+        }
 
         [Test]
-        public void IsInAvailableNestedTagTypes_BeFalse_OnEmTag() =>
-            tag.IsInAvailableNestedTagTypes(new EmTag()).Should().BeFalse();
-
+        public void GetNestedTagTypes_Correctly() =>
+            tag.GetNestedTagTypes(availableTagTypes).Should().BeEmpty();
+        
 
         [Test]
         public void ToHtml_ReturnCorrectHtmlString() => tag.ToHtml("a").Should().Be("<em>a</em>");
