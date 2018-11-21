@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
+using Markdown.StringExtension;
 using Markdown.Tags;
 using Markdown.Tokens;
 
@@ -12,7 +13,7 @@ namespace Markdown.Readers
         private readonly string mdTag;
         private readonly IEnumerable<IReader> readers;
         private readonly IEnumerable<TagReader> skippedReaders;
-        private readonly List<IToken> tokens = new List<IToken>();
+        private readonly List<IToken> innerTokens = new List<IToken>();
 
         public TagReader(string mdTag,
             IEnumerable<IReader> readers,
@@ -32,8 +33,9 @@ namespace Markdown.Readers
             {
                 if (IsClosedTag(text, i))
                 {
-                    var rightPosition = tokens.Select(t => t.Position).Max();
-                    return new TagToken(text.Substring(position, i - position + mdTag.Length), mdTag, tokens,
+                    var rightPosition = innerTokens.Last().Position;
+
+                    return new TagToken(text.Substring(position, i - position + mdTag.Length), mdTag, innerTokens,
                         rightPosition + mdTag.Length);
                 }
                 
@@ -47,7 +49,7 @@ namespace Markdown.Readers
                     token = GetToken(text, i);
 
                 if (token.Text.Any(char.IsDigit)) break;
-                tokens.Add(token);
+                innerTokens.Add(token);
                 i = token.Position;
             }
 
@@ -56,13 +58,11 @@ namespace Markdown.Readers
 
         private bool IsOpenTag(string text, int position)
         {
-            var nextTagIsNotCurrent = true;
-            if (position + 1 + mdTag.Length < text.Length)
-                nextTagIsNotCurrent = text.Substring(position + mdTag.Length, mdTag.Length) != mdTag;
+            var nextTagIsNotCurrent = text.CompareWithSubstring(position, mdTag.Length, mdTag);
 
-            return position < text.Length - mdTag.Length - 1 &&
+            return nextTagIsNotCurrent &&
                    CanReadTag(text, position) &&
-                   IsLetterOrSlash(text[position + mdTag.Length]) && nextTagIsNotCurrent;
+                   IsLetterOrSlash(text[position + mdTag.Length]);
         }
 
         private bool IsLetterOrSlash(char symbol)
@@ -78,19 +78,12 @@ namespace Markdown.Readers
 
         private bool IsClosedTag(string text, int position)
         {
-            var nextTagIsNotOpen = true;
-            if (position < text.Length - mdTag.Length) nextTagIsNotOpen = !AfterClosingTagHaveOpenTag(text, position);
-
+            var  nextTagIsNotOpen = !IsOpenTag(text, position + mdTag.Length);
+            
             return CanReadTag(text, position) &&
-                   !char.IsWhiteSpace(text[position - 1]) && nextTagIsNotOpen && tokens.Count != 0;
-        }
-
-        private bool AfterClosingTagHaveOpenTag(string text, int position)
-        {
-            TagReader strongTagReader = new StrongReader("__");
-            TagReader emTagReader = new EmReader("_");
-            var temp = new[] {strongTagReader, emTagReader};
-            return temp.Any(reader => reader.IsOpenTag(text, position + mdTag.Length));
+                   !char.IsWhiteSpace(text[position - 1]) &&
+                   nextTagIsNotOpen &&
+                   innerTokens.Count != 0;
         }
 
         private IToken GetToken(string text, int index)
@@ -102,7 +95,8 @@ namespace Markdown.Readers
         private IToken GetSkippedToken(string text, int position)
         {
             var maxTokenTagLength = skippedReaders.Where(reader => reader.CanReadTag(text, position))
-                .Select(reader => reader.mdTag.Length).Concat(new[] {0}).Max();
+                .Select(reader => reader.mdTag.Length).DefaultIfEmpty(0).Max();
+            
             return new TextToken(text.Substring(position, maxTokenTagLength), position + maxTokenTagLength - 1);
         }
     }

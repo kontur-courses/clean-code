@@ -5,14 +5,14 @@ namespace Markdown.Tokens
 {
     public class TagToken : IToken
     {
-        public readonly List<IToken> Tokens;
-        public readonly string EmTag;
+        public readonly List<IToken> TokensInnerTag;
+        public readonly string MdTag;
 
-        public TagToken(string text, string emTag, List<IToken> tokens, int position)
+        public TagToken(string text, string mdTag, List<IToken> tokensInnerTag, int position)
         {
-            EmTag = emTag;
+            MdTag = mdTag;
             Text = text;
-            Tokens = tokens;
+            TokensInnerTag = tokensInnerTag;
             Position = position;
         }
 
@@ -21,8 +21,6 @@ namespace Markdown.Tokens
 
         public string Translate(ITranslator translator)
         {
-//            var result = string.Concat(tokens.Aggregate(htmlTag, (current, token) => current + token.ToHtml()), closingHtmlTag);
-//            return result;
             return translator.VisitTag(this);
         }
     }

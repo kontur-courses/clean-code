@@ -16,8 +16,9 @@ namespace Markdown
 
         public string VisitTag(TagToken tagToken)
         {
-            var (openTag, closingTag) = translateDictionary[tagToken.EmTag];
-            return string.Concat(tagToken.Tokens.Aggregate(openTag, (current, token) => current + token.Translate(this)),
+            var (openTag, closingTag) = translateDictionary[tagToken.MdTag];
+            
+            return string.Concat(tagToken.TokensInnerTag.Aggregate(openTag, (current, token) => current + token.Translate(this)),
                 closingTag);
         }
 

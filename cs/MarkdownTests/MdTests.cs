@@ -16,7 +16,8 @@ namespace Markdown.Tests
         [SetUp]
         public void SetUp()
         {
-            md = new Md(ReaderCreator.Create());
+            var readers = ReaderCreator.Create();
+            md = new Md(readers);
         }
       
         [TestCase("simple text", ExpectedResult = "simple text", TestName = "when text without tags")]
@@ -45,7 +46,7 @@ namespace Markdown.Tests
         [TestCase("__a_b_c__", ExpectedResult = "<strong>a<em>b</em>c</strong>", TestName = "when em tag inner strong tag")]
         [TestCase("_a__b__c_", ExpectedResult = "<em>a__b__c</em>", TestName = "when strong tag inner em tag")]
         [TestCase("_a_ __b__", ExpectedResult = "<em>a</em> <strong>b</strong>", TestName = "when text have em and strong tags in line")]
-        [TestCase("___abc___", ExpectedResult = "<strong><em>abc</em></strong>", TestName = "when em tag and strong tag stay together")]
+        [TestCase("___e___", ExpectedResult = "<strong><em>e</em></strong>", TestName = "when em tag and strong tag stay together")]
         
         [TestCase("`simple code`", ExpectedResult = "<code>simple code</code>", TestName = "when use code tag")]
         [TestCase("_`simple code`_", ExpectedResult = "<em><code>simple code</code></em>", TestName = "when use code tag inner em tag")]
@@ -54,6 +55,8 @@ namespace Markdown.Tests
         [TestCase("`__simple code__`", ExpectedResult = "<code>__simple code__</code>", TestName = "when strong tag inner code tag")]
         public string Md_ShouldCorrectRenderText(string input)
         {
+            var readers = ReaderCreator.Create();
+            md = new Md(readers);
            return md.Render(input);
         }
     }

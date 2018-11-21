@@ -60,6 +60,7 @@
     <Compile Include="Readers\SlashReader.cs" />
     <Compile Include="Readers\StrongReader.cs" />
     <Compile Include="Readers\TagReader.cs" />
+    <Compile Include="StringExtension\StringExtension.cs" />
     <Compile Include="Tokens\IToken.cs" />
     <Compile Include="Tokens\TagToken.cs" />
     <Compile Include="Tokens\TextToken.cs" />
