@@ -1,10 +1,19 @@
-﻿using NUnit.Framework;
+﻿using System.Text;
+using NUnit.Framework;
 
 namespace Markdown.Tests
 {
     [TestFixture]
     public class Md_Should
     {
+        private Md md;
+
+        [SetUp]
+        public void Setup()
+        {
+            md = new Md(new Element.HtmlElement("__", "<strong>"), new Element.HtmlElement("_", "<em>"));
+        }
+
         [TestCase("plain text", ExpectedResult = "plain text", TestName = "Plain text as is")]
         [TestCase("", ExpectedResult = "", TestName = "Empty string as is")]
 
@@ -60,8 +69,20 @@ namespace Markdown.Tests
         [TestCase("1_23_4", ExpectedResult = "1_23_4", TestName = "Single underscore all text inside digits")]
         public string Render(string markdown)
         {
-            var md = new Md(new Element.HtmlElement("__", "<strong>"), new Element.HtmlElement("_", "<em>"));
             return md.Render(markdown);
+        }
+
+        // Проходит на Intel Core i7-4771
+        [Test, Timeout(100)]
+        public void Render_InTimeLimit()
+        {
+            var stringBuilder = new StringBuilder();
+            for (var i = 0; i < 10000; i++)
+                stringBuilder.Append("_single underscored_ ");
+
+            var markdown = stringBuilder.ToString();
+
+            md.Render(markdown);
         }
     }
 }
