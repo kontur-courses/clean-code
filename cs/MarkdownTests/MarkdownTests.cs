@@ -34,6 +34,8 @@ namespace MarkdownTests
         [TestCase("a", "a", TestName = "Only Text")]
         [TestCase(" ", " ", TestName = "Only Space")]
         [TestCase("a b", "a b", TestName = "Text With Space")]
+        [TestCase("a  b", "a b", TestName = "Text With More Than One Space")]
+        [TestCase("a\tb", "a b", TestName = "Tab In Text")]
         [TestCase("a\nb", "a\nb", TestName = "Text With New Line")]
         [TestCase("\\\\", "\\", TestName = "Escaped Escape Symbol")]
         [TestCase("_\\\\_", "<em>\\</em>", TestName = "Escaped Escape Symbol In Tag")]

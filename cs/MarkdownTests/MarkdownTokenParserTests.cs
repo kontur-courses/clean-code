@@ -128,6 +128,18 @@ namespace MarkdownTests
         }
 
         [Test]
+        public void TestGetTokens_OnHeading1TagWithoutSpace()
+        {
+            const string inputString = "#a";
+            var expectedResult = new[]
+            {
+                new Token(TokenType.Text, "#"),
+                new Token(TokenType.Text, "a") 
+            };
+            parser.GetTokens(inputString).Should().BeEquivalentTo(expectedResult);
+        }
+
+        [Test]
         public void TestGetTokens_OnOneSpace()
         {
             var inputString = " ";

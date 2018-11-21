@@ -40,9 +40,7 @@ namespace Markdown.TokenParser
         {
             if (token.Length == 0)
                 return true;
-            if (token == "\\")
-                return false;
-            if (previousTokenType == TokenType.EscapeSymbol)
+            if (token == "\\" || previousTokenType == TokenType.EscapeSymbol)
                 return false;
             if (tags.Any(tag => tag.StartsWith(token)))
                 return tags.Any(tag => tag.StartsWith(token + nextSymbol));
