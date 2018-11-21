@@ -19,8 +19,8 @@ namespace Markdown
         private static string Render(string markdownText)
         {
             var tokenizer = new Tokenizer();
-            //var parser = new Parser();
-            var generator = new HTMLGenerator();
+//            var parser = new Parser();
+//            var generator = new HTMLGenerator();
 
 //            var tokens = tokenizer.Tokenize(markdownText);
 //            var abstractSyntaxTree = parser.Parse(tokens);

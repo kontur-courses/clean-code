@@ -24,8 +24,7 @@ namespace Markdown.TokenizerClasses
             }
             while (token.Type != TokenType.EOF);
 
-            if (tokens.Count > 0)
-                tokens.RemoveAt(tokens.Count - 1);
+            RemoveEOFToken(tokens);
 
             return tokens;
         }
@@ -39,6 +38,12 @@ namespace Markdown.TokenizerClasses
             }
 
             return Token.EOF;
+        }
+
+        private static void RemoveEOFToken(List<Token> tokens)
+        {
+            if (tokens.Count > 0)
+                tokens.RemoveAt(tokens.Count - 1);
         }
     }
 }
