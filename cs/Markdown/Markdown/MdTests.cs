@@ -101,6 +101,42 @@ namespace Markdown
         }
 
         [Test]
+        public void Render_WorksFast_OnNotNested1000MultipleTags()
+        {
+            var builder = new StringBuilder();
+            for (var i = 0; i < 1000; i++)
+                builder.Append("_k_");
+            var text = builder.ToString();
+            Action action = () => md.Render(text);
+            action.ExecutionTime().ShouldNotExceed(1000.Milliseconds());
+        }
+
+        [Test]
+        public void Render_WorksFast_OnNested1000MultipleTags()
+        {
+            var builder = new StringBuilder();
+            for (var i = 0; i < 1000; i++)
+            {
+                builder.Append("_~k~_");
+            }
+
+            var text = builder.ToString();
+            Action action = () => md.Render(text);
+            action.ExecutionTime().ShouldNotExceed(1000.Milliseconds());
+        }
+
+        [Test]
+        public void Render_WorksFast_ORawStringWith10000Chars()
+        {
+            var builder = new StringBuilder();
+            for (var i = 0; i < 10000; i++)
+                builder.Append("A");
+            var text = builder.ToString();
+            Action action = () => md.Render(text);
+            action.ExecutionTime().ShouldNotExceed(1000.Milliseconds());
+        }
+
+        [Test]
         public void Render_ReturnsCorrectString_OnMultipleNestedTags()
         {
             var text = "_a_b__c__~d~e~~f~~g";
