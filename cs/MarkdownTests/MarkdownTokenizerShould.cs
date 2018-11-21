@@ -112,6 +112,36 @@ namespace MarkdownTests
             {
                 new Token(Tag.Raw, false, "start_ end"),
             }).SetName("when second underscore is unpaired");
+
+            yield return new TestCaseData("text_another_text", new[]
+            {
+                new Token(Tag.Raw, false, "text_another_text"),
+            }).SetName("underscores inside text");
+
+            yield return new TestCaseData(" _text_text ", new[]
+            {
+                new Token(Tag.Raw, false, " _text_text "),
+            }).SetName("when second underscore inside text");
+
+            yield return new TestCaseData("text_text_ ", new[]
+            {
+                new Token(Tag.Raw, false, "text_text_ "),
+            }).SetName("when first underscore inside text");
+
+            yield return new TestCaseData("digits_12_3", new[]
+            {
+                new Token(Tag.Raw, false, "digits_12_3"),
+            }).SetName("underscores with digits");
+
+            yield return new TestCaseData(" _text2_3text ", new[]
+            {
+                new Token(Tag.Raw, false, " _text2_3text "),
+            }).SetName("when second underscore near digits");
+
+            yield return new TestCaseData("text1_text_ ", new[]
+            {
+                new Token(Tag.Raw, false, "text1_text_ "),
+            }).SetName("when first underscore near digits");
         }
 
         #endregion
@@ -211,6 +241,36 @@ namespace MarkdownTests
             {
                 new Token(Tag.Raw, false, "start__ end"),
             }).SetName("when second double underscore is unpaired");
+
+            yield return new TestCaseData("text__another__text", new[]
+            {
+                new Token(Tag.Raw, false, "text__another__text"),
+            }).SetName("double underscores in the middle of text");
+
+            yield return new TestCaseData(" __text__text ", new[]
+            {
+                new Token(Tag.Raw, false, " __text__text "),
+            }).SetName("when second double underscore inside text");
+
+            yield return new TestCaseData("text__text__ ", new[]
+            {
+                new Token(Tag.Raw, false, "text__text__ "),
+            }).SetName("when first double underscore inside text");
+
+            yield return new TestCaseData("digits__12__3", new[]
+            {
+                new Token(Tag.Raw, false, "digits__12__3"),
+            }).SetName("double underscores with digits");
+
+            yield return new TestCaseData(" __text2__3text ", new[]
+            {
+                new Token(Tag.Raw, false, " __text2__3text "),
+            }).SetName("when second double underscore near digits");
+
+            yield return new TestCaseData("text1__text__ ", new[]
+            {
+                new Token(Tag.Raw, false, "text1__text__ "),
+            }).SetName("when first double underscore near digits");
         }
 
         #endregion
