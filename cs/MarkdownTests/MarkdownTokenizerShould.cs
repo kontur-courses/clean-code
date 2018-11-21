@@ -274,5 +274,37 @@ namespace MarkdownTests
         }
 
         #endregion
+
+        [Test]
+        public void WrapInEmpasizeTagInsideStrong()
+        {
+            var source = "__strong _em em_ strong__";
+            var expected = new[]
+            {
+                new Token(Tag.Strong, true),
+                new Token(Tag.Raw, false, "strong "),
+                new Token(Tag.Emphasize, true),
+                new Token(Tag.Raw, false, "em em"),
+                new Token(Tag.Emphasize, false),
+                new Token(Tag.Raw, false, " strong"),
+                new Token(Tag.Strong, false),
+            };
+
+            MarkdownTokenizer.Tokenize(source).Should().BeEquivalentTo(expected, options => options.WithStrictOrdering());
+        }
+
+        [Test]
+        public void NotWrapInStrongTagInsideEmphasize()
+        {
+            var source = "_em __strong strong__ em_";
+            var expected = new[]
+            {
+                new Token(Tag.Emphasize, true),
+                new Token(Tag.Raw, false, "em __strong strong__ em"),
+                new Token(Tag.Emphasize, false),
+            };
+
+            MarkdownTokenizer.Tokenize(source).Should().BeEquivalentTo(expected, options => options.WithStrictOrdering());
+        }
     }
 }
