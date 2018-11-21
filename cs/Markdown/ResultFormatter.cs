@@ -33,14 +33,16 @@ namespace Markdown
             var strongOpen = str.AllIndexesOf(strongHtmlElement.OpenTag);
             var strongClose = str.AllIndexesOf(strongHtmlElement.ClosingTag);
 
-            var s = new StringBuilder(str);
+            if (strongOpen.Count <= 0)
+                return str.Replace(@"\", "");
 
-            if (strongOpen.Count <= 0) return s.ToString().Replace(@"\", "");
+            var s = new StringBuilder(str);
 
             for (var index = 0; index < emOpen.Count; index++)
             {
                 if (index >= strongClose.Count || emOpen[index] >= strongOpen[index] ||
-                    emClose[index] <= strongClose[index]) continue;
+                    emClose[index] <= strongClose[index])
+                    continue;
 
                 s.Remove(strongClose[index], strongHtmlElement.ClosingTag.Length);
                 s.Insert(strongClose[index], strongHtmlElement.Indicator);
