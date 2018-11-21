@@ -9,9 +9,9 @@ namespace Markdown
             _input = input;
         }
         
-        public MarkdownDocument Parse()
+        public Document Parse()
         {
-            var document = new MarkdownDocument();
+            var document = new Document();
             ParseSegment(0, _input.Length, document.RootNode);
             return document;
         }

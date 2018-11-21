@@ -33,13 +33,16 @@
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
   <ItemGroup>
-    <Compile Include="MarkdownHtmlRender.cs" />
-    <Compile Include="MarkdownDocument.cs" />
-    <Compile Include="MarkdownParser.cs" />
+    <Compile Include="Document\Document.cs" />
+    <Compile Include="Document\NodeType.cs" />
+    <Compile Include="Document\TextNode.cs" />
+    <Compile Include="Document\TreeNode.cs" />
+    <Compile Include="HtmlRender.cs" />
     <Compile Include="Md.cs" />
     <Compile Include="Md_Should.cs" />
-    <Compile Include="Token.cs" />
-    <Compile Include="TokenReader.cs" />
+    <Compile Include="Parser\MarkdownParser.cs" />
+    <Compile Include="Parser\Token.cs" />
+    <Compile Include="Parser\TokenReader.cs" />
   </ItemGroup>
   <ItemGroup>
     <Reference Include="FluentAssertions, Version=5.5.1.0, Culture=neutral, PublicKeyToken=33f2691a05b67b6a">

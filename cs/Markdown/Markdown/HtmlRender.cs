@@ -5,7 +5,7 @@ namespace Markdown
 {
     public static class HtmlRender
     {
-        public static string RenderDocument(MarkdownDocument document)
+        public static string RenderDocument(Document document)
         {
             return RenderNode(document.RootNode);
         }
