@@ -8,126 +8,145 @@ namespace Markdown
 {
     public class Md
     {
-        private TagKeeper[] tags;
-        private Stack<TagMarker> mdTagsBuffer;
-        private StringBuilder strBuilder;
-        private string incorrectSymbols = " 0123456789";
+        private readonly Tag[] tags;
+        private readonly char[] forbiddenSymbols;
 
-        public Md(IEnumerable<TagKeeper> tags)
+        public Md(IEnumerable<Tag> tags, char[] forbiddenSymbols)
         {
             this.tags = tags.ToArray();
-            mdTagsBuffer = new Stack<TagMarker>();
+            this.forbiddenSymbols = forbiddenSymbols;
         }
 
         public string Render(string paragraph)
         {
-            strBuilder = new StringBuilder(paragraph);
-            var specialSymbols = new StringBuilder();
-            int? position = null;
-            for (var i = 0; i < strBuilder.Length; i++)
+            var text = new StringBuilder(paragraph);
+            var markersQueue = FillTagMarkers(text);
+            var markerPairs = ConvertToPairs(markersQueue);
+            markerPairs = RemoveUnpairedTags(markerPairs);
+            return ReplaceTags(text, markerPairs);
+        }
+        //TODO: fix ignoring nested
+
+        private List<MarkerPair> RemoveUnpairedTags(List<MarkerPair> markerPairs)
+            => markerPairs.Where(p => p.Closer != null && p.Opener != null).ToList();
+
+        private List<MarkerPair> ConvertToPairs(Queue<Marker> tagMarkersQueue)
+        {
+            var result = new List<MarkerPair>();
+            while (tagMarkersQueue.Count > 0)
             {
-                var currentSymbol = strBuilder[i].ToString();
-                if (IsEscape(strBuilder, i))
+                var marker = tagMarkersQueue.Dequeue();
+                var openerMarker = result.FirstOrDefault(m => m.Closer == null && m.Opener.Tag.Equals(marker.Tag));
+                if (openerMarker == null)
                 {
-                    strBuilder.Remove(i, 1);
-                    continue;
-                }
-                if (IsSpecialSymbol(currentSymbol))
-                {
-                    if (position == null)
-                        position = i;
-                    specialSymbols.Append(currentSymbol);
+                    var tagPair = new MarkerPair(marker, null);
+                    result.Add(tagPair);
                 }
                 else
                 {
-                    if (position == null)
-                        continue;
-                    AddMdTagMarker(specialSymbols.ToString(), (int)position);
-                    specialSymbols.Clear();
-                    ReplaceTags(strBuilder);
-                    position = null;
+                    marker.TagType = TagType.Closer;
+                    openerMarker.Closer = marker;
                 }
             }
 
-            if (position != null)
+            return result;
+        }
+
+        private Queue<Marker> FillTagMarkers(StringBuilder text)
+        {
+            var markersQueue = new Queue<Marker>();
+            for (var i = 0; i < text.Length; i++)
             {
-                AddMdTagMarker(specialSymbols.ToString(), (int) position);
-                specialSymbols.Clear();
-                ReplaceTags(strBuilder);
+                var currentSymbol = text[i].ToString();
+                if (IsEscape(text.ToString(), i))
+                {
+                    text.Remove(i, 1);
+                    continue;
+                }
+
+                if (IsSpecialSymbol(currentSymbol) && !HaveForbiddenSymbolsAround(text, i))
+                {
+                    var tag = tags.FirstOrDefault(t => t.IsMd(text.ToString(), i));
+                    if (tag == null)
+                        continue;
+                    AddMarker(tag, text, markersQueue, i);
+                    i += tag.Md.Length;
+                }
             }
 
-            return strBuilder.ToString();
+            return markersQueue;
         }
 
-        private void AddMdTagMarker(string mdTag, int position)
+        private bool HaveForbiddenSymbolsAround(StringBuilder text, int position)
         {
-            var tagKeeper = tags.FirstOrDefault(t => t.Is(mdTag));
-            if (tagKeeper == null)
-                return;
-            var marker = new TagMarker(tagKeeper, position);
-            mdTagsBuffer.Push(marker);
+            if (position == 0)
+                return HasForbiddenAfter(text, position);
+            if (position == text.Length - 1)
+                return HasForbiddenBefore(text, position);
+            return HasForbiddenBefore(text, position) || HasForbiddenAfter(text, position);
         }
+
+        private bool HasForbiddenBefore(StringBuilder text, int position)
+            => forbiddenSymbols.Contains(text[position - 1]);
+
+        private bool HasForbiddenAfter(StringBuilder text, int position)
+            => forbiddenSymbols.Contains(text[position + 1]);
+
+        private void AddMarker(Tag tag, StringBuilder text, Queue<Marker> markersQueue, int position)
+        {
+            if (!HasWhitespaceAfter(text, position))
+            {
+                var marker = new Marker(tag, TagType.Opener, position);
+                markersQueue.Enqueue(marker);
+            }
+            else if (!HasWhitespaceBefore(text, position))
+            {
+                var marker = new Marker(tag, TagType.Closer, position);
+                markersQueue.Enqueue(marker);
+            }
+        }
+
+        private bool HasWhitespaceAfter(StringBuilder text, int position)
+            => position == text.Length - 1 || char.IsWhiteSpace(text[position + 1]);
+
+        private bool HasWhitespaceBefore(StringBuilder text, int position)
+            => position == 0 || char.IsWhiteSpace(text[position - 1]);
 
         private bool IsSpecialSymbol(string symbol)
-            => tags.Any(t => t.ContainsMd(symbol));
+            => tags.Any(t => t.ContainsMdSymbols(symbol));
 
-        private void ReplaceTags(StringBuilder line)
+        private List<Marker> PresentAsListOfMarkers(IEnumerable<MarkerPair> markerPairs)
         {
-            var markersToChange = FindMarkersToChange();
-            if (markersToChange == null)
-                return;
-            ReplaceTag(line, markersToChange.Item2, true);
-            ReplaceTag(line, markersToChange.Item1);
-        }
-
-        private void ReplaceTag(
-            StringBuilder line, 
-            TagMarker tagMarker, 
-            bool isCloser = false)
-        {
-            var lengthToRemove = tagMarker.TagKeeper.Md.Value.Length;
-            var position = tagMarker.Position;
-            var htmlTag = tagMarker.TagKeeper.Html.Value;
-            if (isCloser)
-                htmlTag = htmlTag.Insert(1, "/");
-            line.Remove(position, lengthToRemove);
-            line.Insert(position, htmlTag);
-        }
-
-        private Tuple<TagMarker, TagMarker> FindMarkersToChange()
-        {
-            var tagToChange = mdTagsBuffer.Pop();
-            if (!IsCloserTag(tagToChange))
+            var markers = new List<Marker>();
+            foreach (var pair in markerPairs)
             {
-                mdTagsBuffer.Push(tagToChange);
-                return null;
+                markers.Add(pair.Opener);
+                markers.Add(pair.Closer);
             }
 
-            if (!IsCorrectCloser(strBuilder, tagToChange.Position))
-                return null;
-            while (mdTagsBuffer.Count > 0)
-            {
-                var currentTag = mdTagsBuffer.Pop();
-                if (!currentTag.TagKeeper.Is(tagToChange.TagKeeper))
-                    continue;
-                if (!IsCorrectOpener(strBuilder, currentTag.Position, currentTag.TagKeeper.Md.Value.Length))
-                    return null;
-                return new Tuple<TagMarker, TagMarker>(currentTag, tagToChange);
-            }
-
-            return null;
+            return markers;
         }
 
-        private bool IsCloserTag(TagMarker marker)
-            => mdTagsBuffer.Any(m => m.TagKeeper.Equals(marker.TagKeeper));
+        private string ReplaceTags(StringBuilder text, IEnumerable<MarkerPair> markerPairs)
+        {
+            var result = new StringBuilder(text.ToString());
+            var markers = PresentAsListOfMarkers(markerPairs);
+            var sortedMarkers = markers.OrderByDescending(m => m.Position);
+            foreach (var marker in sortedMarkers)
+            {
+                var lengthToRemove = marker.Tag.Md.Length;
+                result.Remove(marker.Position, lengthToRemove);
+                var tagToInsert = GetTagToInsert(marker);
+                result.Insert(marker.Position, tagToInsert);
+            }
 
-        private bool IsCorrectOpener(StringBuilder line, int position, int length)
-            => !incorrectSymbols.Contains(line[position + length]);
+            return result.ToString();
+        }
 
-        private bool IsCorrectCloser(StringBuilder line, int position)
-            => !incorrectSymbols.Contains(line[position - 1]);
+        private string GetTagToInsert(Marker marker)
+            => marker.TagType == TagType.Opener ? marker.Tag.Html : marker.Tag.CloserHtml;
 
-        private bool IsEscape(StringBuilder line, int position)
+        private bool IsEscape(string line, int position)
             => line[position] == '\\';
     }
 }

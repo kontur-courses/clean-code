@@ -40,11 +40,11 @@
     <None Include="README.md" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="Language.cs" />
+    <Compile Include="Marker.cs" />
     <Compile Include="Md.cs" />
-    <Compile Include="TagMarker.cs" />
     <Compile Include="Tag.cs" />
-    <Compile Include="TagKeeper.cs" />
+    <Compile Include="MarkerPair.cs" />
+    <Compile Include="TagType.cs" />
   </ItemGroup>
   <ItemGroup>
     <Reference Include="System" />

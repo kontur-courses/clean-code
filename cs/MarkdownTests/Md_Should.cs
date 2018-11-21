@@ -14,22 +14,22 @@ namespace MarkdownTests
         [SetUp]
         public void SetUp()
         {
-            var emTag = MakeTag("_", "<em>");
+            var forbiddenSymbols = "0123456789".ToCharArray();
+            var emTag = MakeTag("_", "<em>", new List<string> { "__" });
             var strongTag = MakeTag("__", "<strong>");
-            var tagList = new List<TagKeeper>
+            var tagList = new List<Tag>
             {
                 emTag,
                 strongTag
             };
-            md = new Md(tagList);
+            md = new Md(tagList, forbiddenSymbols);
         }
 
-        private TagKeeper MakeTag(string md, string html)
-        {
-            var tagHtml = new Tag(html, Language.Html);
-            var tagMd = new Tag(md, Language.Md);
-            return new TagKeeper(tagHtml, tagMd);
-        }
+        private Tag MakeTag(
+            string md,
+            string html,
+            IEnumerable<string> ignoringNested = null)
+            => new Tag(md, html, ignoringNested);
 
         [Test]
         public void ReturnEmptyString_WhenInputIsEmpty()
@@ -63,45 +63,13 @@ namespace MarkdownTests
             result.Should().Be(expected);
         }
 
-        [Test]
-        public void DoesntReplaceEscapedSymbols()
+        [TestCase("_ word_", "_ word_", TestName = "when whitespace after opener tag")]
+        [TestCase("_word _", "_word _", TestName = "when whitespace before closer tag")]
+        [TestCase("_word1_ 3_", "_word1_ 3_", TestName = "when tag inside digits")]
+        [TestCase(@"\_word\_", "_word_", TestName = "when symbols are escaped")]
+        [TestCase("_some __sentence__ here_", "_some __sentence__ here_", TestName = "when double grounding tags inside once grounding tags")]
+        public void DoesntReplace(string input, string expected)
         {
-            var input = @"\_word\_";
-            var expected = "_word_";
-
-            var result = md.Render(input);
-
-            result.Should().Be(expected);
-        }
-
-        [Test]
-        public void DoesntReplace_WhenWhitespaceAfterOpenerTag()
-        {
-            var input = @"_ word_";
-            var expected = "_ word_";
-
-            var result = md.Render(input);
-
-            result.Should().Be(expected);
-        }
-
-        [Test]
-        public void DoesntReplace_WhenWhitespaceBeforeCloserTag()
-        {
-            var input = @"_word _";
-            var expected = "_word _";
-
-            var result = md.Render(input);
-
-            result.Should().Be(expected);
-        }
-
-        [Test]
-        public void DoesntReplace_WhenTagInsideDigits()
-        {
-            var input = @"_word1_ 3_";
-            var expected = "_word1_ 3_";
-
             var result = md.Render(input);
 
             result.Should().Be(expected);
