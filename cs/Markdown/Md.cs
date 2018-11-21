@@ -28,9 +28,10 @@ namespace Markdown
             
             var translatorToHtml = new TranslatorToHtml();
             var result = new StringBuilder();
+            
             foreach (var token in tokens)
             {
-                result.Append(token.Translate(translatorToHtml));
+                token.Translate(translatorToHtml, result);
             }
 
             return result.ToString();

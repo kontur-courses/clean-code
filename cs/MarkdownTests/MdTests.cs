@@ -55,8 +55,6 @@ namespace Markdown.Tests
         [TestCase("`__simple code__`", ExpectedResult = "<code>__simple code__</code>", TestName = "when strong tag inner code tag")]
         public string Md_ShouldCorrectRenderText(string input)
         {
-            var readers = ReaderCreator.Create();
-            md = new Md(readers);
            return md.Render(input);
         }
     }

@@ -1,4 +1,5 @@
 ﻿using System.Net.Mime;
+using System.Text;
 using Markdown.Tags;
 
 namespace Markdown.Tokens
@@ -14,9 +15,9 @@ namespace Markdown.Tokens
             Position = position;
         }
 
-        public string Translate(ITranslator translator)
+        public void Translate(ITranslator translator, StringBuilder stringBuilder)
         {
-            return translator.VisitText(this);
+            translator.VisitText(this, stringBuilder);
         }
     }
 }

@@ -1,5 +1,6 @@
 using System.Collections.Generic;
 using System.Linq;
+using System.Text;
 using Markdown.Tokens;
 
 namespace Markdown
@@ -14,17 +15,21 @@ namespace Markdown
                 {"`", ("<code>", "</code>")}
             };
 
-        public string VisitTag(TagToken tagToken)
+        public void VisitText(TextToken textToken, StringBuilder stringBuilder)
         {
-            var (openTag, closingTag) = translateDictionary[tagToken.MdTag];
-            
-            return string.Concat(tagToken.TokensInnerTag.Aggregate(openTag, (current, token) => current + token.Translate(this)),
-                closingTag);
+            stringBuilder.Append(textToken.Text);
         }
 
-        public string VisitText(TextToken textToken)
+        public void VisitTag(TagToken tagToken, StringBuilder stringBuilder)
         {
-            return textToken.Text;
+            var (openTag, closingTag) = translateDictionary[tagToken.MdTag];
+            stringBuilder.Append(openTag);
+            foreach (var children in tagToken.ChildrenTokens)
+            {
+                children.Translate(this, stringBuilder);
+            }
+
+            stringBuilder.Append(closingTag);
         }
     }
 }

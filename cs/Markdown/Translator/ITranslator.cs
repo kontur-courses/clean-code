@@ -1,10 +1,11 @@
+using System.Text;
 using Markdown.Tokens;
 
 namespace Markdown
 {
     public interface ITranslator
     {
-        string VisitTag(TagToken tagToken);
-        string VisitText(TextToken textToken);
+        void VisitText(TextToken textToken, StringBuilder stringBuilder);
+        void VisitTag(TagToken tagToken, StringBuilder stringBuilder);
     }
 }

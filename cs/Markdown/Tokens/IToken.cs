@@ -1,9 +1,11 @@
-﻿namespace Markdown.Tags
+﻿using System.Text;
+
+namespace Markdown.Tags
 {
     public interface IToken
     {
         string Text { get; }
         int Position { get; }
-        string Translate(ITranslator translator);
+        void Translate(ITranslator translator, StringBuilder stringBuilder);
     }
 }

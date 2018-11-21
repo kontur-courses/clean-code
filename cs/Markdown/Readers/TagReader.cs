@@ -58,7 +58,7 @@ namespace Markdown.Readers
 
         private bool IsOpenTag(string text, int position)
         {
-            var nextTagIsNotCurrent = text.CompareWithSubstring(position, mdTag.Length, mdTag);
+            var nextTagIsNotCurrent = text.CompareWithSubstring(position + mdTag.Length, mdTag);
 
             return nextTagIsNotCurrent &&
                    CanReadTag(text, position) &&

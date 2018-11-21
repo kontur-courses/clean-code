@@ -6,7 +6,6 @@ namespace Markdown.Readers
 
     {
         public static IEnumerable<IReader> Readers;
-
         public static IEnumerable<TagReader> SkippedReaders;
 
         public EmReader() : base("_", Readers, SkippedReaders)
