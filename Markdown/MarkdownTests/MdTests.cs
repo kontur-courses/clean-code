@@ -68,8 +68,8 @@ namespace MarkdownTests
         [TestCase("```hello world```",
             ExpectedResult = "<code>hello world</code>",
             TestName = "TrippleGraveAccent")]
-        [TestCase("[hello](world)",
-            ExpectedResult = "<a href=\"world\">hello</a>",
+        [TestCase("[hello](world.md)",
+            ExpectedResult = "<a href=\"world.md\">hello</a>",
             TestName = "Link")]
         public string Render(string input) =>
             md.Render(input);

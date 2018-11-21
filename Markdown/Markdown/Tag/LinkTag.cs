@@ -11,7 +11,8 @@ namespace Markdown.Tag
         public int Length => Symbol.Length;
         public string Content { get; set; }
         public MdType Type => MdType.Link;
-        public List<MdType> AllowedInnerTypes { get; }
+        public List<MdType> AllowedInnerTypes =>
+            new List<MdType> { MdType.DoubleUnderLine, MdType.SingleUnderLine, MdType.Sharp };
         public int MiddleIndex { get; set; }
 
         public int FindCloseIndex(string text)
