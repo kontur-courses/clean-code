@@ -1,5 +1,6 @@
 ﻿using System.Collections.Generic;
 using System.Linq;
+using System.Text;
 
 namespace Markdown
 {
@@ -8,15 +9,19 @@ namespace Markdown
         public string Md { get; }
         public string Html { get; }
         public string[] IgnoringNestedTags { get; }
-        public string CloserHtml => Html.Insert(1, "/");
+        public string OpenerHtml => $"<{Html}>";
+        public string CloserHtml => $"</{Html}>";
+        public char[] NeutralizingSymbols;
 
         public Tag(
             string md,
             string html,
+            IEnumerable<char> neutralizingSymbols = null,
             IEnumerable<string> ignoringNestedTags = null)
         {
             Md = md;
             Html = html;
+            NeutralizingSymbols = neutralizingSymbols == null ? new char[0] : neutralizingSymbols.ToArray();
             IgnoringNestedTags = ignoringNestedTags == null ? new string[0] : ignoringNestedTags.ToArray();
         }
 
@@ -48,6 +53,21 @@ namespace Markdown
 
         public bool ContainsMdSymbols(string symbols)
             => Md.Contains(symbols);
+
+        public bool HaveNeutralizingSymbolsAround(StringBuilder text, int position)
+        {
+            if (position == 0)
+                return HasNeutralizingAfter(text, position);
+            if (position == text.Length - 1)
+                return HasNeutralizingBefore(text, position);
+            return HasNeutralizingBefore(text, position) || HasNeutralizingAfter(text, position);
+        }
+
+        private bool HasNeutralizingBefore(StringBuilder text, int position)
+            => NeutralizingSymbols.Contains(text[position - 1]);
+
+        private bool HasNeutralizingAfter(StringBuilder text, int position)
+            => NeutralizingSymbols.Contains(text[position + 1]);
 
         public override bool Equals(object obj)
         {

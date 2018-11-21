@@ -7,13 +7,10 @@ namespace Markdown
     public class Md
     {
         private readonly Tag[] tags;
-        private readonly char[] forbiddenSymbols;
 
-        public Md(IEnumerable<Tag> tags, char[] forbiddenSymbols)
-        {
-            this.tags = tags.ToArray();
-            this.forbiddenSymbols = forbiddenSymbols;
-        }
+        public Md(IEnumerable<Tag> tags)
+            => this.tags = tags.ToArray();
+
 
         public string Render(string paragraph)
         {
@@ -61,9 +58,11 @@ namespace Markdown
                     continue;
                 }
 
-                if (IsSpecialSymbol(currentSymbol) && !HaveForbiddenSymbolsAround(text, i))
+                if (IsSpecialSymbol(currentSymbol))
                 {
-                    var tag = tags.FirstOrDefault(t => t.IsMd(text.ToString(), i));
+                    var tag = tags
+                        .FirstOrDefault(t => t.IsMd(text.ToString(), i) 
+                                             && !t.HaveNeutralizingSymbolsAround(text, i));
                     if (tag == null)
                         continue;
                     AddMarker(tag, text, markersQueue, i);
@@ -73,21 +72,6 @@ namespace Markdown
 
             return markersQueue;
         }
-
-        private bool HaveForbiddenSymbolsAround(StringBuilder text, int position)
-        {
-            if (position == 0)
-                return HasForbiddenAfter(text, position);
-            if (position == text.Length - 1)
-                return HasForbiddenBefore(text, position);
-            return HasForbiddenBefore(text, position) || HasForbiddenAfter(text, position);
-        }
-
-        private bool HasForbiddenBefore(StringBuilder text, int position)
-            => forbiddenSymbols.Contains(text[position - 1]);
-
-        private bool HasForbiddenAfter(StringBuilder text, int position)
-            => forbiddenSymbols.Contains(text[position + 1]);
 
         private void AddMarker(Tag tag, StringBuilder text, Queue<Marker> markersQueue, int position)
         {
@@ -149,7 +133,7 @@ namespace Markdown
         }
 
         private string GetTagToInsert(Marker marker)
-            => marker.TagType == TagType.Opener ? marker.Tag.Html : marker.Tag.CloserHtml;
+            => marker.TagType == TagType.Opener ? marker.Tag.OpenerHtml : marker.Tag.CloserHtml;
 
         private bool IsEscape(string line, int position)
             => line[position] == '\\';

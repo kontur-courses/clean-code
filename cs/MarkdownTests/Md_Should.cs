@@ -15,22 +15,16 @@ namespace MarkdownTests
         [SetUp]
         public void SetUp()
         {
-            var forbiddenSymbols = "0123456789".ToCharArray();
-            var emTag = MakeTag("_", "<em>", new List<string> { "__" });
-            var strongTag = MakeTag("__", "<strong>");
+            var neutralizingSymbols = "0123456789".ToCharArray();
+            var emTag = new Tag("_", "em", neutralizingSymbols, new List<string> { "__" });
+            var strongTag = new Tag("__", "strong", neutralizingSymbols);
             var tagList = new List<Tag>
             {
                 emTag,
                 strongTag
             };
-            md = new Md(tagList, forbiddenSymbols);
+            md = new Md(tagList);
         }
-
-        private Tag MakeTag(
-            string md,
-            string html,
-            IEnumerable<string> ignoringNested = null)
-            => new Tag(md, html, ignoringNested);
 
         [Test]
         public void ReturnEmptyString_WhenInputIsEmpty()
