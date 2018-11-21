@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Text;
 using Markdown.Languages;
 using JetBrains.Annotations;
 
@@ -8,59 +9,66 @@ namespace Markdown.Tokenizing
 {
     public class MarkdownTokenizer
     {
-        private readonly Language markdown;
-        private readonly int maxTagLength;
+        private static readonly Language Markdown = new MarkdownLanguage();
+        private static int MaxTagLength => Markdown.MaxTagLength;
 
-        private int currentIndex;
-        private readonly string source;
-
-        public MarkdownTokenizer(string source)
-        {
-            markdown = new MarkdownLanguage();
-            maxTagLength = markdown.MaxTagLength;
-
-            currentIndex = 0;
-            this.source = source;
-        }
 
         public static List<Token> Tokenize([NotNull] string source)
         {
             if (string.IsNullOrEmpty(source))
                 throw new ArgumentException("Source can't be null or empty", nameof(source));
 
-            return new MarkdownTokenizer(source).Tokenize();
-        }
-
-        private List<Token> Tokenize()
-        {
             var tokens = new List<Token>();
+            var currentIndex = 0;
+            var rawContent = new StringBuilder();
 
             while (currentIndex < source.Length)
             {
-                var rawContent = string.Concat(ReadUntilTag());
-                if (!string.IsNullOrEmpty(rawContent))
-                    tokens.Add(new Token(Tag.Raw, false, rawContent));
+                if (!CharacterIsEscaped(currentIndex - 1, source) && TryReadTag(currentIndex, source, out var tag))
+                {
+                    if (rawContent.Length != 0)
+                        tokens.Add(ParseRawToken(rawContent));
 
-                var tag = string.Concat(ReadTag());
-                if (string.IsNullOrEmpty(tag))
+                    Token token;
+
+                    if (!CharacterIsWhiteSpace(currentIndex + tag.Length, source))
+                        token = ParseToken(tag, true);
+                    else if (!CharacterIsWhiteSpace(currentIndex - 1, source))
+                        token = ParseToken(tag, false);
+                    else token = new Token(Tag.Raw, false, tag);
+
+                    tokens.Add(token);
+                    currentIndex += tag.Length;
                     continue;
+                }
 
-                Token newToken;
-                if (TagIsOpening(tag))
-                    newToken = ParseToken(tag, true);
-                else if (TagIsClosing(tag))
-                    newToken = ParseToken(tag, false);
-                else newToken = new Token(Tag.Raw, false, tag);
-
-                tokens.Add(newToken);
+                if (source[currentIndex] != '\\')
+                    rawContent.Append(source[currentIndex]);
+                currentIndex++;
             }
+
+            if (rawContent.Length != 0)
+                tokens.Add(ParseRawToken(rawContent));
 
             var unpairedTokens = FilterUnpairedTokens(tokens);
             ConvertTokensToRaw(unpairedTokens);
             return ConcatRawTokens(tokens);
         }
 
-        private IEnumerable<Token> FilterUnpairedTokens(IEnumerable<Token> tokens)
+        private static bool TryReadTag(int start, string source, out string tag)
+        {
+            var possibleTag = Substring(start, source);
+
+            tag = Markdown.OpeningTags
+                .Where(pair => possibleTag.StartsWith(pair.Value))
+                .OrderByDescending(pair => pair.Value.Length)
+                .FirstOrDefault()
+                .Value;
+
+            return !string.IsNullOrEmpty(tag);
+        }
+
+        private static IEnumerable<Token> FilterUnpairedTokens(IEnumerable<Token> tokens)
         {
             var stack = new Stack<Token>();
             foreach (var token in tokens.Where(t => t.Tag != Tag.Raw))
@@ -82,7 +90,7 @@ namespace Markdown.Tokenizing
             return stack;
         }
 
-        private List<Token> ConcatRawTokens(List<Token> tokens)
+        private static List<Token> ConcatRawTokens(List<Token> tokens)
         {
             var result = new List<Token>();
 
@@ -104,78 +112,40 @@ namespace Markdown.Tokenizing
             return result;
         }
 
-        private void ConvertTokensToRaw(IEnumerable<Token> tokensToConvert)
+        private static void ConvertTokensToRaw(IEnumerable<Token> tokensToConvert)
         {
             foreach (var token in tokensToConvert)
             {
-                token.Content = markdown.OpeningTags.First(pair => pair.Key == token.Tag).Value;
+                token.Content = Markdown.OpeningTags.First(pair => pair.Key == token.Tag).Value;
                 token.Tag = Tag.Raw;
             }
         }
 
-        private Token ParseToken(IEnumerable<char> tag, bool opening)
+        private static Token ParseRawToken(StringBuilder stringBuilder)
         {
-            var stringTag = string.Concat(tag);
-            return new Token(markdown.OpeningTags.First(pair => pair.Value == stringTag).Key, opening);
+            var token = new Token(Tag.Raw, false, stringBuilder.ToString());
+            stringBuilder.Clear();
+            return token;
         }
 
-        private IEnumerable<char> ReadUntilTag()
+        private static Token ParseToken(string tag, bool opening)
         {
-            while (!SubstringStartsWithTag)
-            {
-                if (currentIndex == source.Length)
-                    yield break;
-                if (source[currentIndex] != '\\')
-                    yield return source[currentIndex];
-                currentIndex++;
-            }
+            return new Token(Markdown.OpeningTags.First(pair => pair.Value == tag).Key, opening);
         }
 
-        private IEnumerable<char> ReadTag()
+        private static bool CharacterIsEscaped(int index, string source)
         {
-            var currentSubstring = Substring;
-
-            if (CurrentCharacterIsEscaped)
-                yield break;
-
-            var maxLengthTag = markdown.OpeningTags
-                .Where(pair => currentSubstring.StartsWith(pair.Value))
-                .OrderByDescending(pair => pair.Value.Length)
-                .FirstOrDefault()
-                .Value;
-
-            if (string.IsNullOrEmpty(maxLengthTag))
-                yield break;
-
-            foreach (var letter in maxLengthTag)
-            {
-                currentIndex++;
-                yield return letter;
-            }
+            return index > 0 && source[index] == '\\';
         }
 
-        private bool CurrentCharacterIsEscaped =>
-            currentIndex > 0 && source[currentIndex - 1] == '\\';
-
-        private string Substring =>
-            source.Substring(currentIndex, Math.Min(maxTagLength, source.Length - currentIndex));
-
-        private bool SubstringStartsWithTag =>
-            markdown.OpeningTags.Any(pair => Substring.StartsWith(pair.Value)) && !CurrentCharacterIsEscaped;
-
-        private bool TagIsOpening(string tag)
-        {
-            return !CharacterIsWhiteSpace(currentIndex);
-        }
-
-        private bool TagIsClosing(string tag)
-        {
-            return !CharacterIsWhiteSpace(currentIndex - 1 - tag.Length);
-        }
-
-        private bool CharacterIsWhiteSpace(int index)
+        private static bool CharacterIsWhiteSpace(int index, string source)
         {
             return index < 0 || index >= source.Length || char.IsWhiteSpace(source[index]);
+        }
+
+        private static string Substring(int start, string source)
+        {
+            return source.Substring(start, Math.Min(MaxTagLength, source.Length - start));
         }
     }
 }

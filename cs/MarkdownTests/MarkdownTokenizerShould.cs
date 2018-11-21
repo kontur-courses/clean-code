@@ -116,7 +116,6 @@ namespace MarkdownTests
 
         #endregion
 
-
         #region Tag.Strong
 
         [Test, TestCaseSource(nameof(WrapInStrongTagTestCases))]

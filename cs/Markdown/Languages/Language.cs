@@ -10,8 +10,8 @@ namespace Markdown.Languages
         public ReadOnlyDictionary<Tag, string> OpeningTags => new ReadOnlyDictionary<Tag, string>(openingTags);
         public ReadOnlyDictionary<Tag, string> ClosingTags => new ReadOnlyDictionary<Tag, string>(closingTags);
 
-        private Dictionary<Tag, string> openingTags;
-        private Dictionary<Tag, string> closingTags;
+        private readonly Dictionary<Tag, string> openingTags;
+        private readonly Dictionary<Tag, string> closingTags;
 
         public int MaxTagLength => openingTags.Concat(closingTags).Max(pair => pair.Value.Length);
 
