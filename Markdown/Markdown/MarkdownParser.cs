@@ -119,7 +119,6 @@ namespace Markdown
         private List<Tag> MatchTag(Func<Tag, string> param)
         {
             return tags.Where(tag => markdownString.ContainsFrom(param(tag), index)).ToList();
-            //return possibleTags.OrderByDescending(t => param(t).Length).FirstOrDefault();
         }
     }
 }
