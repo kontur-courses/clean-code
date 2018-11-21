@@ -12,69 +12,76 @@ namespace Markdown
     public class Md
     {   
         private readonly IMdTagMatcher[] orderedTagsMatchers;
-        private readonly Stack<HtmlTextWriterTag> openTags = new Stack<HtmlTextWriterTag>();
         
         public Md(IMdTagMatcher[] orderedTagsMatchers)=>
             this.orderedTagsMatchers = orderedTagsMatchers;
         
-
         public Md() =>
             this.orderedTagsMatchers = new []
             {
-                new MdWrappingTagMatcher("__", HtmlTextWriterTag.Strong,new Lazy<Md>(()=>this), () => !HaveOpened("_")),
-                new MdWrappingTagMatcher("_", HtmlTextWriterTag.U,new Lazy<Md>(()=>this)),
+                new MdWrappingTagMatcher("__", HtmlTextWriterTag.Strong),
+                new MdWrappingTagMatcher("_", HtmlTextWriterTag.U),
             };
 
-        public IEnumerable<HtmlTextWriterTag> OpenTags => openTags;
-        public string RenderingString { get; private set; }
+        private string renderingString;
         
         public string Render(string markdowned)
         {
-            RenderingString = markdowned;
-            LocateTagPairs();
+            renderingString = markdowned;
+            foreach (var matcher in orderedTagsMatchers)
+                matcher.TargetString = renderingString;
+            
+            var collector = CollectTagPairs();
             
             var writer = new StringWriter();
             using (var htmlWriter = new HtmlTextWriter(writer))
-                ReplaceMdToHtml(htmlWriter);
+                ReplaceMdToHtml(htmlWriter, collector.GetReplacings);
             
             return writer.ToString();
         }
 
-        private void LocateTagPairs()
+        private HtmlReplacingsCollector CollectTagPairs()
         {   
-            for (int i = 0; i < RenderingString.Length; i++)
-                foreach (var tag in orderedTagsMatchers)
-                    if (tag.MatchMdTag(i))
+            var collector = new HtmlReplacingsCollector();
+            for (int i = 0; i < renderingString.Length; i++)
+                foreach (var matcher in orderedTagsMatchers)
+                    if (Shitpile(collector,i,matcher))
                     {
-                        i += tag.AmountSkippedCharsWhileMatching;
+                        i += matcher.AmountSkippedCharsWhileMatching;
                         break;
                     }
+
+            return collector;
+        }
+        
+        private bool Shitpile(HtmlReplacingsCollector collector, int startIndex, IMdTagMatcher matcher)
+        {
+            var m1 = matcher.MatchCloseMdTag(startIndex);
+            var m2 = matcher.MatchOpenMdTag(startIndex);
+            var matchingRange = new Range(startIndex,((MdWrappingTagMatcher) matcher).wrappingSequence.Length);
+            if (m1 && collector.TryCloseTag(((MdWrappingTagMatcher) matcher).tag, matchingRange))
+                return true;
+            if (m2 && collector.TryOpenTag(((MdWrappingTagMatcher) matcher).tag, matchingRange))
+                return true;
+            return m1 || m2;
         }
 
-        private void ReplaceMdToHtml(HtmlTextWriter writer)
+        private void ReplaceMdToHtml(HtmlTextWriter writer,IEnumerable<HtmlTagPairReplacing> replacings)
         {
-            var changes = orderedTagsMatchers
-                .SelectMany(x => x.HtmlPairs.GetWrappings)
+            var changes = replacings
                 .SelectMany(x=>x.GetChanges(writer))
-                .OrderBy(x=>x.index)
+                .OrderBy(x=>x.replacingRange.Index)
                 .ToArray();
 
             var lastIndex = 0;
             foreach(var tup in changes)
             {
-                var text = RenderingString.Substring(lastIndex, tup.index - lastIndex);
+                var text = renderingString.Substring(lastIndex, tup.replacingRange.Index - lastIndex);
                 writer.Write(text);
-                lastIndex = tup.index + tup.replacingLength;
+                lastIndex = tup.replacingRange.Index + tup.replacingRange.Length;
                 tup.tagInsertion();
             }
-            writer.Write(RenderingString.Substring(lastIndex));
+            writer.Write(renderingString.Substring(lastIndex));
         }
-
-        private bool HaveOpened(string mdTag) =>
-            orderedTagsMatchers
-                .OfType<MdWrappingTagMatcher>()
-                .Where(x => x.HtmlPairs.IsOpened)
-                .Select(x => x.WrappingSequence)
-                .Contains(mdTag);
     }
 }

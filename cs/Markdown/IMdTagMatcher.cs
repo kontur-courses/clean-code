@@ -4,8 +4,10 @@ namespace Markdown
 {
     public interface IMdTagMatcher
     {
-        HtmlPairReplacingsManager HtmlPairs { get; }
+        string TargetString { set; }
+        
         int AmountSkippedCharsWhileMatching { get; }
-        bool MatchMdTag(int machStartIndex);
+        bool MatchOpenMdTag(int machStartIndex);
+        bool MatchCloseMdTag(int machStartIndex);
     }
 }
