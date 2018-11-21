@@ -29,14 +29,7 @@ namespace Markdown.Tokenizing
                     if (rawContent.Length != 0)
                         tokens.Add(ParseRawToken(rawContent));
 
-                    Token token;
-
-                    if (!CharacterIsWhiteSpace(currentIndex + tag.Length, source))
-                        token = ParseToken(tag, true);
-                    else if (!CharacterIsWhiteSpace(currentIndex - 1, source))
-                        token = ParseToken(tag, false);
-                    else token = new Token(Tag.Raw, false, tag);
-
+                    var token = ParseToken(currentIndex, source, tag);
                     tokens.Add(token);
                     currentIndex += tag.Length;
                     continue;
@@ -128,9 +121,15 @@ namespace Markdown.Tokenizing
             return token;
         }
 
-        private static Token ParseToken(string tag, bool opening)
+        private static Token ParseToken(int index, string source, string tag)
         {
-            return new Token(Markdown.OpeningTags.First(pair => pair.Value == tag).Key, opening);
+            var tagIsOpening = !CharacterIsWhiteSpace(index + tag.Length, source);
+            var tagIsClosing = !CharacterIsWhiteSpace(index - 1, source);
+
+            if (tagIsOpening && tagIsClosing || !tagIsOpening && !tagIsClosing)
+                return new Token(Tag.Raw, true, tag);
+
+            return new Token(Markdown.OpeningTags.First(pair => pair.Value == tag).Key, tagIsOpening);
         }
 
         private static bool CharacterIsEscaped(int index, string source)
