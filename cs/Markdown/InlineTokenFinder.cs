@@ -4,13 +4,7 @@ namespace Markdown
 {
     public class InlineTokenFinder
     {
-        private readonly List<TokenType> tokensTypes = new List<TokenType>
-        {
-            new TokenType(TokenTypeEnum.SingleUnderscore, "_", "em", TokenLocationType.InlineToken),
-            new TokenType(TokenTypeEnum.DoubleUnderscore, "__", "strong", TokenLocationType.InlineToken)
-        };
-
-        public List<SingleToken> FindInlineTokensInMdText(string paragraph)
+        public List<SingleToken> FindInlineTokens(string paragraph, IEnumerable<TokenType> tokensTypes)
         {
             var tokens = new List<SingleToken>();
 

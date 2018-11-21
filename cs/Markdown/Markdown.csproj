@@ -46,6 +46,7 @@
     <Compile Include="Markdown.cs" />
     <Compile Include="SingleToken.cs" />
     <Compile Include="StartingTokenFinder.cs" />
+    <Compile Include="TokenFinder.cs" />
     <Compile Include="TokenLocationType.cs" />
     <Compile Include="InlineTokensValidator.cs" />
     <Compile Include="TokenType.cs" />

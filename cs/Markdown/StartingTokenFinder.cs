@@ -4,16 +4,7 @@ namespace Markdown
 {
     public class StartingTokenFinder
     {
-        private readonly List<TokenType> tokensTypes = new List<TokenType>
-        {
-            new TokenType(TokenTypeEnum.Lattice, "#", "h1", TokenLocationType.StartingToken),
-            new TokenType(TokenTypeEnum.DoubleLattice, "##", "h2", TokenLocationType.StartingToken),
-            new TokenType(TokenTypeEnum.TripleLattice, "###", "h3", TokenLocationType.StartingToken),
-            new TokenType(TokenTypeEnum.QuadrupleLattice, "####", "h4", TokenLocationType.StartingToken),
-            new TokenType(TokenTypeEnum.Star, "*", "li", TokenLocationType.StartingToken)
-        };
-
-        private bool TryMatchWordToTokens(string word, int currentIndex, HashSet<TokenType> usedTokens, out SingleToken token)
+        private bool TryMatchWordToTokens(string word, int currentIndex, HashSet<TokenType> usedTokens, IEnumerable<TokenType> tokensTypes, out SingleToken token)
         {
             foreach (var tokenType in tokensTypes)
                 if (!usedTokens.Contains(tokenType) && tokenType.Template == word)
@@ -26,7 +17,7 @@ namespace Markdown
             return false;
         }
 
-        public List<SingleToken> FindStartingTokens(string paragraph)
+        public List<SingleToken> FindStartingTokens(string paragraph, IEnumerable<TokenType> tokensTypes)
         {
             var tokens = new List<SingleToken>();
 
@@ -41,7 +32,7 @@ namespace Markdown
                     continue;
                 }
 
-                if (!TryMatchWordToTokens(word, currentIndex, usedTokensTypes, out var token))
+                if (!TryMatchWordToTokens(word, currentIndex, usedTokensTypes, tokensTypes, out var token))
                     return tokens;
                 tokens.Add(token);
                 usedTokensTypes.Add(token.TokenType);

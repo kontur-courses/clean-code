@@ -27,12 +27,12 @@ namespace Markdown
             return tokenType.Template.Equals(text.Substring(startIndex, tokenType.Template.Length));
         }
 
-        public static TokenType GetClosingToken(this List<TokenType> tokens, string text, int startIndex)
+        public static TokenType GetClosingToken(this IEnumerable<TokenType> tokens, string text, int startIndex)
         {
             return tokens.FirstOrDefault(token => ValidClosingPosition(token, text, startIndex));
         }
 
-        public static TokenType GetOpeningToken(this List<TokenType> tokens, string text, int startIndex)
+        public static TokenType GetOpeningToken(this IEnumerable<TokenType> tokens, string text, int startIndex)
         {
             return tokens.FirstOrDefault(token => token.ValidOpeningPosition(text, startIndex));
         }

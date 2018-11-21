@@ -11,14 +11,21 @@ namespace MarkdownTests
     {
         private readonly TokenType singleUnderscore =
             new TokenType(TokenTypeEnum.SingleUnderscore, "_", "em", TokenLocationType.InlineToken);
+
         private readonly TokenType doubleUnderscore =
             new TokenType(TokenTypeEnum.DoubleUnderscore, "__", "strong", TokenLocationType.InlineToken);
 
         private List<SingleToken> GetValidTokens(string paragraph)
         {
+            var tokenTypes = new List<TokenType>
+            {
+                singleUnderscore,
+                doubleUnderscore
+            };
+
             var finder = new InlineTokenFinder();
             var validator = new InlineTokensValidator();
-            var tokens = finder.FindInlineTokensInMdText(paragraph);
+            var tokens = finder.FindInlineTokens(paragraph, tokenTypes);
             var validTokens = validator.GetValidTokens(tokens);
 
             return validTokens;

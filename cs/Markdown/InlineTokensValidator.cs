@@ -11,7 +11,7 @@ namespace Markdown
             var validTokens = new List<SingleToken>();
             var notClosedTokens = new List<SingleToken>();
 
-            foreach (var token in validTokens)
+            foreach (var token in tokens)
             {
                 if (token.LocationType == LocationType.Opening)
                 {
