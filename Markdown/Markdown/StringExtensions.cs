@@ -13,5 +13,10 @@ namespace Markdown
             return str.Length >= substr.Length + position &&
                    str.Substring(position, substr.Length) == substr;
         }
+
+        public static string Segment(this string str, int startIndex, int endIndex)
+        {
+            return str.Substring(startIndex, endIndex - startIndex);
+        }
     }
 }

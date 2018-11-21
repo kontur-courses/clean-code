@@ -13,12 +13,13 @@ namespace Markdown
         public int EndIndex { get; private set; }
 
         private List<Span> children = new List<Span>();
-        public List<Span> Children => children;
+        public IReadOnlyList<Span> Children => children;
         public Span Parent { get; private set; }
         public bool IsClosed => EndIndex != 0;
         public bool CanBeInside => Tag.Type == TagType.None || (Parent != null && !Tag.CanBeInside.Contains(Parent.Tag.Type));
         public int IndexAfterStart => StartIndex + Tag.Open.Length;
         public int IndexAfterEnd => EndIndex + Tag.Close.Length;
+        public bool IsIgnored { get; set; }
 
         public Span(Tag tag, int startIndex, int endIndex=0)
         {
@@ -34,12 +35,17 @@ namespace Markdown
 
         }
 
+        public bool CanContainSpan(Span span)
+        {
+            return StartIndex < span.StartIndex &&
+                   (EndIndex > span.StartIndex || !IsClosed);
+        }
+
         public void PutSpan(Span span)
         {
             var nextSpan = Children
                 .OrderByDescending(s => s.StartIndex)
-                .FirstOrDefault(s => s.StartIndex < span.StartIndex &&
-                            (s.EndIndex > span.StartIndex || !s.IsClosed));
+                .FirstOrDefault(s => s.CanContainSpan(span));
 
             if (nextSpan == null)
             {
@@ -68,7 +74,6 @@ namespace Markdown
             }
             children = children.OrderBy(s => s.StartIndex).ToList();
         }
-
         public void Segment()
         {
             if (Children.Count == 0)

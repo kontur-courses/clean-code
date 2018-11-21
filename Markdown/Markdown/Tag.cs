@@ -12,16 +12,17 @@ namespace Markdown
         public TagType Type { get; }
         public string Open { get; }
         public string Close { get; }
-        public List<TagType> CanBeInside { get; }
+        private List<TagType> canBeInside;
+        public IReadOnlyList<TagType> CanBeInside => canBeInside;
         public Tag(TagType type, string open, string close, IEnumerable<TagType> canBeInside = null)
         {
             Type = type;
             Open = open;
             Close = close;
-            CanBeInside = new List<TagType>();
+            this.canBeInside = new List<TagType>();
             if (canBeInside != null)
-                CanBeInside.AddRange(canBeInside);
-            CanBeInside.Add(TagType.None);
+                this.canBeInside.AddRange(canBeInside);
+            this.canBeInside.Add(TagType.None);
         }
 
         public override int GetHashCode()

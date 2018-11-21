@@ -15,7 +15,7 @@ namespace Markdown
 
         private string Assembly(string rawString, Span span)
         {
-            if (span.EndIndex - span.StartIndex == 1 && rawString[span.StartIndex] == '\\')
+            if (span.IsIgnored)
                 return "";
 
             var builder = new StringBuilder();
@@ -23,7 +23,7 @@ namespace Markdown
             builder.Append(GetTagValue(span, t => t.Open));
 
             if (span.Children.Count == 0)
-                builder.Append(GetSpanRawString(rawString, span));
+                builder.Append(rawString.Segment(span.IndexAfterStart, span.EndIndex));
 
             foreach (var child in span.Children)
                 builder.Append(Assembly(rawString, child));
@@ -42,12 +42,6 @@ namespace Markdown
             return initialSpan.CanBeInside
                 ? getTag(initialSpan.Tag)
                 : getTag(tag);
-        }
-
-        private static string GetSpanRawString(string rawString, Span span)
-        {
-            return rawString.Substring(span.StartIndex + span.Tag.Open.Length,
-                span.EndIndex - (span.StartIndex + span.Tag.Open.Length));
         }
     }
 }

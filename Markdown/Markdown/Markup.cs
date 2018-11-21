@@ -10,11 +10,12 @@ namespace Markdown
     public class Markup
     {
         public string Name { get; }
-        public List<Tag> Tags { get; }
+        private List<Tag> tags;
+        public IReadOnlyList<Tag> Tags => tags;
         public Markup(string name, List<Tag> tags)
         {
             Name = name;
-            Tags = tags;
+            this.tags = tags;
         }
     }
 }
