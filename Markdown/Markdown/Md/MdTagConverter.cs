@@ -92,7 +92,7 @@ namespace Markdown
             if (tag.CloseIndex != -1)
             {
                 tag.Content = tag.GetContent(rawText);
-                if(tag.Type == MdType.Link)
+                if (tag.Type == MdType.Link)
                     tag.Attribute = tag.GetLinkTagAttribute(rawText);
                 return true;
             }

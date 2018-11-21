@@ -1,9 +1,10 @@
 ﻿using System.Collections.Generic;
+using Markdown.Attribute;
 using Markdown.Extensions;
 
 namespace Markdown.Tag
 {
-    class TrippleGraveAccentTag : ITag
+    internal class TrippleGraveAccentTag : ITag
     {
         public string Symbol => "```";
         public string Html => "code";
@@ -12,6 +13,7 @@ namespace Markdown.Tag
         public int CloseIndex { get; set; }
         public string Content { get; set; }
         public MdType Type => MdType.TripleGraveAccent;
+
         public List<MdType> AllowedInnerTypes => new List<MdType>
         {
             MdType.TripleGraveAccent,
@@ -19,8 +21,17 @@ namespace Markdown.Tag
             MdType.Sharp,
             MdType.SingleUnderLine
         };
-        public int FindCloseIndex(string text) => this.FindClosePairedTagIndex(text);
-        public string GetContent(string text) => this.GetPairedTagContent(text);
+
+        public int FindCloseIndex(string text)
+        {
+            return this.FindClosePairedTagIndex(text);
+        }
+
+        public string GetContent(string text)
+        {
+            return this.GetPairedTagContent(text);
+        }
+
         public IAttribute Attribute { get; set; }
     }
 }

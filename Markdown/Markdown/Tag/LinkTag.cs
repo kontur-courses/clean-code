@@ -1,9 +1,11 @@
 ﻿using System.Collections.Generic;
+using Markdown.Attribute;
 
 namespace Markdown.Tag
 {
     public class LinkTag : ITag
     {
+        public int MiddleIndex { get; set; }
         public string Symbol => "[";
         public int OpenIndex { get; set; }
         public int CloseIndex { get; set; }
@@ -11,9 +13,9 @@ namespace Markdown.Tag
         public int Length => Symbol.Length;
         public string Content { get; set; }
         public MdType Type => MdType.Link;
+
         public List<MdType> AllowedInnerTypes =>
-            new List<MdType> { MdType.DoubleUnderLine, MdType.SingleUnderLine, MdType.Sharp };
-        public int MiddleIndex { get; set; }
+            new List<MdType> {MdType.DoubleUnderLine, MdType.SingleUnderLine, MdType.Sharp};
 
         public int FindCloseIndex(string text)
         {
@@ -26,7 +28,7 @@ namespace Markdown.Tag
                     break;
                 }
             }
-            
+
             if (MiddleIndex == 0)
                 return -1;
 
@@ -37,7 +39,10 @@ namespace Markdown.Tag
             return -1;
         }
 
-        public string GetContent(string text) => text.Substring(OpenIndex + Length, MiddleIndex - OpenIndex - Length);
+        public string GetContent(string text)
+        {
+            return text.Substring(OpenIndex + Length, MiddleIndex - OpenIndex - Length);
+        }
 
         public IAttribute Attribute { get; set; }
     }

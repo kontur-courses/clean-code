@@ -5,8 +5,10 @@ namespace Markdown.Extensions
 {
     public static class TagExtensions
     {
-        public static string GetPairedTagContent(this ITag tag, string text) =>
-            text.Substring(tag.OpenIndex + tag.Length, tag.CloseIndex - tag.OpenIndex - tag.Length);
+        public static string GetPairedTagContent(this ITag tag, string text)
+        {
+            return text.Substring(tag.OpenIndex + tag.Length, tag.CloseIndex - tag.OpenIndex - tag.Length);
+        }
 
         public static int FindClosePairedTagIndex(this ITag tag, string text)
         {

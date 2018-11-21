@@ -1,5 +1,6 @@
-﻿using System.Collections.Generic;
-using Markdown.Extensions;
+﻿using System;
+using System.Collections.Generic;
+using Markdown.Attribute;
 
 namespace Markdown.Tag
 {
@@ -16,10 +17,14 @@ namespace Markdown.Tag
 
         public int FindCloseIndex(string text)
         {
-            throw new System.NotImplementedException();
+            throw new NotImplementedException();
         }
 
-        public string GetContent(string text) => text.Substring(OpenIndex, CloseIndex - OpenIndex + 1);
+        public string GetContent(string text)
+        {
+            return text.Substring(OpenIndex, CloseIndex - OpenIndex + 1);
+        }
+
         public IAttribute Attribute { get; set; }
     }
 }

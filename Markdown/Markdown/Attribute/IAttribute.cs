@@ -1,4 +1,4 @@
-﻿namespace Markdown
+﻿namespace Markdown.Attribute
 {
     public interface IAttribute
     {

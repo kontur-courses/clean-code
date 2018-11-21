@@ -1,6 +1,5 @@
 ﻿using System.Collections.Generic;
 using System.Linq;
-using Markdown.Tag;
 
 namespace Markdown.Extensions
 {
