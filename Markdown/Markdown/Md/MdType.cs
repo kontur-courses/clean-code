@@ -6,6 +6,7 @@
         DoubleUnderLine,
         Sharp,
         TripleGraveAccent,
+        Link,
         Text
     }
 }

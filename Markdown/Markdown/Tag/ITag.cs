@@ -12,5 +12,8 @@ namespace Markdown.Tag
         string Content { get; set; }
         MdType Type { get; }
         List<MdType> AllowedInnerTypes { get; }
+        int FindCloseIndex(string text);
+        string GetContent(string text);
+        IAttribute Attribute { get; set; }
     }
 }

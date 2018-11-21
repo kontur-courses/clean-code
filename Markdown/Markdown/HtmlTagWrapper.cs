@@ -24,9 +24,19 @@ namespace Markdown
             return htmlBuilder.ToString();
         }
 
-        private string Wrap(ITag tag) => tag.Type == MdType.Text
-            ? tag.Content.RemoveEscapedSymbols(symbols)
-            : $"<{tag.Html}>{GetInnerFormattedText(tag)}</{tag.Html}>";
+        private string Wrap(ITag tag)
+        {
+            switch (tag.Type)
+            {
+                case MdType.Text:
+                    return tag.Content.RemoveEscapedSymbols(symbols);
+                case MdType.Link:
+                    return
+                        $"<{tag.Html} {tag.Attribute.Name}=\"{tag.Attribute.Value}\">{tag.Content}</{tag.Html}>";
+            }
+
+            return $"<{tag.Html}>{GetInnerFormattedText(tag)}</{tag.Html}>";
+        }
 
         private string GetInnerFormattedText(ITag tag)
         {

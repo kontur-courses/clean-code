@@ -12,10 +12,11 @@ namespace Markdown
                 MdType.SingleUnderLine,
                 MdType.DoubleUnderLine,
                 MdType.Sharp,
-                MdType.TripleGraveAccent
+                MdType.TripleGraveAccent,
+                MdType.Link
             };
             var md = new Md(types);
-            Console.WriteLine(md.Render("_a __b__ c_"));
+            Console.WriteLine(md.Render("[gaga](haha)"));
         }
     }
 }

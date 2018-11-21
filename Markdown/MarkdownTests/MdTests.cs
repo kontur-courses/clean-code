@@ -15,7 +15,8 @@ namespace MarkdownTests
             MdType.SingleUnderLine,
             MdType.DoubleUnderLine,
             MdType.Sharp,
-            MdType.TripleGraveAccent
+            MdType.TripleGraveAccent,
+            MdType.Link
         };
 
     [SetUp]
@@ -67,6 +68,9 @@ namespace MarkdownTests
         [TestCase("```hello world```",
             ExpectedResult = "<code>hello world</code>",
             TestName = "TrippleGraveAccent")]
+        [TestCase("[hello](world)",
+            ExpectedResult = "<a href=\"world\">hello</a>",
+            TestName = "Link")]
         public string Render(string input) =>
             md.Render(input);
     }

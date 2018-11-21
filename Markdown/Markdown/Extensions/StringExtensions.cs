@@ -29,22 +29,6 @@ namespace Markdown.Extensions
             return symbol == "\\" && symbols.Contains(nextSymbol);
         }
 
-        public static int FindCloseTagIndex(this string text, ITag tag)
-        {
-            for (var i = tag.OpenIndex + 2; i < text.Length - tag.Length + 1; i++)
-            {
-                var symbolAfterTag = text.LookAt(i + tag.Length);
-                var symbolBeforeTag = text.LookAt(i - 1);
-
-                if (text.Substring(i, tag.Length) == tag.Symbol && (char.IsWhiteSpace(symbolAfterTag) ||
-                                                                    i == text.Length - tag.Length)
-                                                                && char.IsLetter(symbolBeforeTag))
-                    return i;
-            }
-
-            return -1;
-        }
-
         public static char LookAt(this string text, int index)
         {
             var isIndexInBorders = index <= text.Length - 1 && index >= 0;

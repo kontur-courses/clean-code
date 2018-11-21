@@ -16,6 +16,8 @@ namespace Markdown
                     return new SharpTag();
                 case MdType.TripleGraveAccent:
                     return new TrippleGraveAccentTag();
+                case MdType.Link:
+                    return new LinkTag();
             }
 
             return new TextTag();

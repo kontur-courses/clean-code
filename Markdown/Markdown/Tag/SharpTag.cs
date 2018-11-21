@@ -1,4 +1,5 @@
 ﻿using System.Collections.Generic;
+using Markdown.Extensions;
 
 namespace Markdown.Tag
 {
@@ -13,5 +14,8 @@ namespace Markdown.Tag
         public int OpenIndex { get; set; }
         public int CloseIndex { get; set; }
         public string Content { get; set; }
+        public int FindCloseIndex(string text) => this.FindClosePairedTagIndex(text);
+        public string GetContent(string text) => this.GetPairedTagContent(text);
+        public IAttribute Attribute { get; set; }
     }
 }

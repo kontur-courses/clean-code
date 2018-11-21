@@ -65,7 +65,7 @@ namespace Markdown
             };
             if (textTag.CloseIndex - textTag.OpenIndex >= 0)
             {
-                textTag.Content = textTag.GetTextContent(rawText);
+                textTag.Content = textTag.GetContent(rawText);
                 return true;
             }
 
@@ -78,7 +78,8 @@ namespace Markdown
             var nextSymbol = rawText.LookAt(position + symbol.Length);
 
             return symbolMdTypeDictionary.ContainsKey(symbol) && !char.IsWhiteSpace(nextSymbol)
-                                                      && (char.IsWhiteSpace(prevSymbol) || position == 0);
+                                                              && (char.IsWhiteSpace(prevSymbol) || position == 0) ||
+                   symbol == "[";
         }
 
         private bool TryParseOnePairOfTags(string symbol, out ITag tag)
@@ -86,11 +87,13 @@ namespace Markdown
             var type = symbolMdTypeDictionary[symbol];
             tag = TagFactory.Create(type);
             tag.OpenIndex = position;
-            tag.CloseIndex = rawText.FindCloseTagIndex(tag);
+            tag.CloseIndex = tag.FindCloseIndex(rawText);
 
             if (tag.CloseIndex != -1)
             {
-                tag.Content = tag.GetTagContent(rawText);
+                tag.Content = tag.GetContent(rawText);
+                if(tag.Type == MdType.Link)
+                    tag.Attribute = tag.GetLinkTagAttribute(rawText);
                 return true;
             }
 
