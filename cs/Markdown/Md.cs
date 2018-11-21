@@ -53,7 +53,9 @@ namespace Markdown
 
             return collector;
         }
-        
+
+        #region Shitpile method! Do not read!
+
         private bool Shitpile(HtmlReplacingsCollector collector, int startIndex, IMdTagMatcher matcher)
         {
             var m1 = matcher.MatchCloseMdTag(startIndex);
@@ -65,6 +67,9 @@ namespace Markdown
                 return true;
             return m1 || m2;
         }
+
+        #endregion
+        
 
         private void ReplaceMdToHtml(HtmlTextWriter writer,IEnumerable<HtmlTagPairReplacing> replacings)
         {
