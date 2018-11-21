@@ -1,16 +1,17 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
 
 namespace Markdown.Markups
 {
     public abstract class Markup
     {
-        public readonly string Opening;
-        public readonly string Closing;
+        public string Opening { get; }
+        public string Closing { get; }
         private readonly string tag;
-        private readonly List<Type> nestedMarkupTypes;
+        private readonly IReadOnlyList<Type> nestedMarkupTypes;
 
-        protected Markup(string opening, string closing, string tag, List<Type> markupTypes)
+        protected Markup(string opening, string closing, string tag, IReadOnlyList<Type> markupTypes)
         {
             Opening = opening;
             Closing = closing;
@@ -25,7 +26,6 @@ namespace Markdown.Markups
 
         public string GetTaggedText(string text)
         {
-            //return text != string.Empty ? $"<{tag}>{text}</{tag}>" : string.Empty;
             return $"<{tag}>{text}</{tag}>";
         }
 

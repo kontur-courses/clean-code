@@ -5,13 +5,13 @@ using Markdown.Markups;
 
 namespace Markdown
 {
-    class TokenReader
+    public class TokenReader
     {
         private readonly string text;
-        private readonly List<Markup> markups;
+        private readonly IReadOnlyList<Markup> markups;
         private int currentPosition;
 
-        public TokenReader(string text, List<Markup> markups)
+        public TokenReader(string text, IReadOnlyList<Markup> markups)
         {
             this.text = text;
             this.markups = markups;
@@ -34,9 +34,9 @@ namespace Markdown
             var openingLength = 0;
             foreach (var markup in markups)
             {
-                var tmpToken = markup.GetRawToken(text, currentPosition);
-                if (tmpToken?.Markup.Opening.Length > openingLength)
-                    rawToken = tmpToken;
+                var possibleToken = markup.GetRawToken(text, currentPosition);
+                if (possibleToken?.Markup.Opening.Length > openingLength)
+                    rawToken = possibleToken;
             }
 
             if (rawToken == null || rawToken.Empty())

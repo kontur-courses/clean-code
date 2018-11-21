@@ -5,7 +5,7 @@ namespace Markdown
 {
     public class Md
     {
-        private readonly List<Markup> allMarkups = new List<Markup>()
+        private readonly IReadOnlyList<Markup> allMarkups = new List<Markup>()
         {
             new Underscore(),
             new DoubleUnderscore()

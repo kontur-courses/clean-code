@@ -4,7 +4,7 @@ using Markdown.Markups;
 
 namespace Markdown
 {
-    public static class StringExtensions
+    internal static class StringExtensions
     {
         public static bool IsEscaped(this string text, int currentPosition)
         {
@@ -23,7 +23,7 @@ namespace Markdown
             return position >= text.Length || string.IsNullOrWhiteSpace(text.Substring(position, 1));
         }
 
-        public static string RemoveEscapes(this string text, List<Markup> markups)
+        public static string RemoveEscapes(this string text, IReadOnlyList<Markup> markups)
         {
             foreach (var markup in markups)
             {

@@ -2,7 +2,7 @@
 
 namespace Markdown
 {
-    class Token
+    public class Token
     {
         public readonly string Text;
         public readonly Markup Markup;

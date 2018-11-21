@@ -5,9 +5,9 @@ using Markdown.Markups;
 
 namespace Markdown
 {
-    class MdParser
+    public class MdParser
     {
-        public string GetHtml(string text, List<Markup> markups)
+        public string GetHtml(string text, IReadOnlyList<Markup> markups)
         {
             var result = new StringBuilder();
             var tokenReader = new TokenReader(text, markups);
