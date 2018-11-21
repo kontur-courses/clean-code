@@ -21,7 +21,7 @@ namespace Markdown.Readers
             var innerTokens = new List<IToken>();
             var currentIdx = offset;
 
-            if (!CanReadStart(text, offset))
+            if (!CanReadTagSymbols(text, offset, inStart: true))
                 return (null, 0);
             currentIdx += TagSymbols.Length;
             var allowedInnerReaders = options.GetAvailableInnerReadersFor(this);
@@ -33,30 +33,22 @@ namespace Markdown.Readers
                 if (innerRead == 0) return (null, 0);
                 innerTokens.Add(innerToken);
                 currentIdx += innerRead;
-            } while (!CanReadEnd(text, currentIdx));
+            } while (!CanReadTagSymbols(text, currentIdx, inStart: false));
 
             currentIdx += TagSymbols.Length;
             return (new PairedTagToken(TagName, innerTokens), currentIdx - offset);
         }
-
-        private bool CanReadStart(string text, int idx)
+        
+        private bool CanReadTagSymbols(string text, int offset, bool inStart)
         {
-            var symbolAfterTagIdx = idx + TagSymbols.Length;
-            var symbolBeforeTagIdx = idx - 1;
-            return text.StartsWith(TagSymbols, idx) &&
-                   (symbolAfterTagIdx >= text.Length || !char.IsWhiteSpace(text[symbolAfterTagIdx])) &&
+            var symbolAfterTagIdx = offset + TagSymbols.Length;
+            var symbolBeforeTagIdx = offset - 1;
+            return text.StartsWith(TagSymbols, offset) &&
                    (symbolAfterTagIdx >= text.Length || symbolBeforeTagIdx < 0 ||
-                    !(char.IsLetterOrDigit(text[symbolBeforeTagIdx]) && char.IsDigit(text[symbolAfterTagIdx])));
-        }
-
-        private bool CanReadEnd(string text, int idx)
-        {
-            var symbolAfterTagIdx = idx + TagSymbols.Length;
-            var symbolBeforeTagIdx = idx - 1;
-            return text.StartsWith(TagSymbols, idx) &&
-                   (idx == 0 || !char.IsWhiteSpace(text[symbolBeforeTagIdx])) &&
-                   (symbolAfterTagIdx >= text.Length ||
-                    !(char.IsLetterOrDigit(text[symbolBeforeTagIdx]) && char.IsDigit(text[symbolAfterTagIdx])));
+                    !(char.IsLetterOrDigit(text[symbolBeforeTagIdx]) && char.IsDigit(text[symbolAfterTagIdx]))) &&
+                   (inStart
+                       ? symbolAfterTagIdx >= text.Length || !char.IsWhiteSpace(text[symbolAfterTagIdx])
+                       : offset == 0 || !char.IsWhiteSpace(text[symbolBeforeTagIdx]));
         }
     }
 }
