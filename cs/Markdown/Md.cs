@@ -7,14 +7,13 @@ namespace Markdown
 {
     public class Md
     {
-        private List<IReadable> globalReaders, localReaders;
-        private Stack<Tuple<int, string>> closeBrackets;
+        private List<IReadable> globalReaders;
+        private List<IReadable> localReaders;
 
         public Md()
         {
             globalReaders = new List<IReadable>();
             localReaders = new List<IReadable>();
-            closeBrackets = new Stack<Tuple<int, string>>();
         }
 
         public void registerGlobalReader(IReadable reader)
@@ -35,25 +34,27 @@ namespace Markdown
 
             for (int i = 0; i < input.Length; i++)
             {
-                var tokens = new SortedList<int, Token>();
+                var tokens = new List<Token>();
 
                 foreach (var reader in currentReaders)
                 {
                     var t = reader.tryGetToken(ref input, i);
                     if(t != null)
-                        tokens.Add(t.Priority, t);
+                        tokens.Add(t);
                 }
 
                 if (tokens.Count != 0)
                 {
+                    var token = tokens.OrderBy(t => t.Priority).First();
+
                     if (i != 0)
                         result.Append(sep);
 
-                    result.Append(tokens.ElementAt(0).Value.OpenBracket);
-                    result.Append(Parse(tokens.ElementAt(0).Value.Value, false));   // если внутрь парсить не нужно, то оставляю value пустым
-                    result.Append(tokens.ElementAt(0).Value.CloseBracket);
+                    result.Append(token.OpenBracket);
+                    result.Append(Parse(token.Value, false));   // если внутрь парсить не нужно, то оставляю value пустым (при создании токена)
+                    result.Append(token.CloseBracket);
 
-                    i += tokens.ElementAt(0).Value.TextValue.Length - 1;
+                    i += tokens[0].TextValue.Length - 1;
                 }
                 else
                 {

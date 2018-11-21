@@ -8,10 +8,12 @@ namespace Markdown
 {
     class HorLineRegister : BaseRegister
     {
+        readonly char[] ableDigits = { '*', '-', '_' };
+
         public override Token tryGetToken(ref string input, int startPos)
         {
             bool isStartSpaces = true;
-            char[] ableDigits = new char[]{'*', '-', '_'};
+            
             char currDigit = '\0';
             int digitCount = 0, i;
 

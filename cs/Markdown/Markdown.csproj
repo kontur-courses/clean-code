@@ -43,6 +43,7 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="BaseRegister.cs" />
+    <Compile Include="EmRegister.cs" />
     <Compile Include="HorLineRegister.cs" />
     <Compile Include="IReadable.cs" />
     <Compile Include="Md.cs" />

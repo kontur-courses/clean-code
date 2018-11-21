@@ -2,37 +2,36 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
-using System.Threading;
 using System.Threading.Tasks;
 
 namespace Markdown
 {
-    class StrongRegister : BaseRegister
+    class EmRegister : BaseRegister
     {
         public override Token tryGetToken(ref string input, int startPos)
         {
             if (startPos != 0 && input.Length > 0 && input[startPos - 1] == '\\')
                 return null;
 
-            string strongDigits = startWith("**", ref input, startPos) ? "**" :
-                                  startWith("__", ref input, startPos) ? "__" : null;
+            string emDigit = startWith("*", ref input, startPos) ? "*" :
+                (startWith("_", ref input, startPos) && !isInsideWord(startPos, ref input)) ? "_" : null;
 
-            if (strongDigits == null || (startPos + 2 >= input.Length || Char.IsWhiteSpace(input[startPos + 2])))
+            if (emDigit == null || (startPos + 1 >= input.Length) || Char.IsWhiteSpace(input[startPos + 1]))
                 return null;
 
-            int endIndex = indexOfCloseBracket(strongDigits, ref input, startPos + 2);
+            int endIndex = indexOfCloseBracket(emDigit, ref input, startPos + 1);
 
             if (endIndex == -1)
                 return null;
 
             string strOrig, strValue;
-            strOrig = input.Substring(startPos, endIndex + 2 - startPos);
-            strValue = input.Substring(startPos + 2, endIndex - 2 - startPos);
+            strOrig = input.Substring(startPos, endIndex + 1 - startPos);
+            strValue = input.Substring(startPos + 1, endIndex - 1 - startPos);
 
-            return new Token("strong", strOrig, strValue, "<strong>", 0, "<\\strong>"); 
+            return new Token("em", strOrig, strValue, "<em>", 1, "<\\em>");
         }
 
-        public static bool startWith(string word, ref string str, int startPos)
+        private static bool startWith(string word, ref string str, int startPos)
         {
             if (str.Length - startPos < word.Length)
                 return false;
@@ -44,7 +43,6 @@ namespace Markdown
                     return false;
                 }
             }
-
             return true;
         }
 
@@ -55,11 +53,17 @@ namespace Markdown
             {
                 if (startWith(word, ref str, i))
                 {
-                    if (!(Char.IsWhiteSpace(str[i - 1]) || str[i - 1] == '\\' ))
+                    if (!(Char.IsWhiteSpace(str[i - 1]) || str[i - 1] == '\\' || isInsideWord(i, ref str)))
                         endIndex = i;
                 }
             }
             return endIndex;
+        }
+
+        private static bool isInsideWord(int indexOfDigit, ref string text)
+        {
+            return (indexOfDigit != 0 && Char.IsLetterOrDigit(text[indexOfDigit - 1])) && 
+                   (indexOfDigit != text.Length-1 && Char.IsLetterOrDigit(text[indexOfDigit + 1]));
         }
     }
 }

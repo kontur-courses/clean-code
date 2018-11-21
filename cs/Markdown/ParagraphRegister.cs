@@ -10,9 +10,9 @@ namespace Markdown
     {
         public override Token tryGetToken(ref string input, int startPos)
         {
-            int index = input.IndexOf('\n', startPos);
             string strOrig, strValue;
-
+            int index = input.IndexOf('\n', startPos);
+            
             if (index >= 0)
             {
                 strOrig = input.Substring(startPos, index + 1 - startPos);
