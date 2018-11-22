@@ -46,7 +46,7 @@ namespace Markdown
             if (markdownString[index] != '\\')
                 return false;
 
-            var ignoredSpan = new Span(Tag.Empty, index, index + 1) {IsIgnored = true};
+            var ignoredSpan = new Span(Tag.Empty, index, index + 1, true);
             mainSpan.PutSpan(ignoredSpan);
             index += 1;
 

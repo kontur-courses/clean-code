@@ -12,7 +12,13 @@ namespace MarkdownTests
     [TestFixture]
     public class MdTests
     {
-        private Random rnd = new Random();
+        private Random rnd;
+
+        [SetUp]
+        public void SetUp()
+        {
+            rnd = new Random(1);
+        }
 
         [TestCase("_abc_", @"<em>abc</em>", TestName = "Tagged italic word")]
         [TestCase("__abc__", @"<strong>abc</strong>", TestName = "Tagged strong word")]
@@ -52,65 +58,34 @@ namespace MarkdownTests
 
         [TestCase(100)]
         [TestCase(1000)]
+        [TestCase(5000)]
         [TestCase(10000)]
+        [TestCase(20000)]
         public void MarkdownParserWorkTime_ShouldBe_Linear(int length)
         {
-            #region string creation
-            var alphabet = "()_qwertyuioopasdfgjkl ";
-            var builder = new StringBuilder();
-            for (var i = 0; i < length; i++)
-            {
-                if (rnd.Next(100) > 90)
-                    builder.Append(GetRandomChar(alphabet));
-                else
-                {
-                    builder.Append("__");
-                }
-            }
-
-            var rawString = builder.ToString();
-            #endregion
-
+            var rawString = GetRandomString(length);
             var parser = new MarkdownParser();
             var stopwatch = Stopwatch.StartNew();
             parser.Parse(rawString);
             stopwatch.Stop();
-            stopwatch.ElapsedMilliseconds.Should().BeLessOrEqualTo(rawString.Length);
+            Console.WriteLine(stopwatch.ElapsedMilliseconds);
         }
 
         [TestCase(100)]
         [TestCase(1000)]
+        [TestCase(5000)]
         [TestCase(10000)]
+        [TestCase(20000)]
         public void HtmlConverterWorkTime_ShouldBe_Linear(int length)
         {
-            #region string creation
-            var alphabet = "()_qwertyuioopasdfgjkl ";
-            var builder = new StringBuilder();
-            for (var i = 0; i < length; i++)
-            {
-                if (rnd.Next(100) > 90)
-                    builder.Append(GetRandomChar(alphabet));
-                else
-                {
-                    builder.Append("__");
-                }
-            }
-
-            var rawString = builder.ToString();
-            #endregion
-            
+            var rawString = GetRandomString(length);
             var parser = new MarkdownParser();
             var converter = new HtmlConverter();
             var parsedSpan = parser.Parse(rawString);
             var stopwatch = Stopwatch.StartNew();
             converter.Convert(rawString, parsedSpan);
             stopwatch.Stop();
-            stopwatch.ElapsedMilliseconds.Should().BeLessOrEqualTo(rawString.Length);
-        }
-
-        public char GetRandomChar(string alphabet)
-        {
-            return alphabet[rnd.Next(alphabet.Length)];
+            Console.WriteLine(stopwatch.ElapsedMilliseconds);
         }
 
         [Test]
@@ -120,6 +95,29 @@ namespace MarkdownTests
             var span = new Span(new Tag(TagType.Italic, "_", "_"), 0, 2);
             var result = converter.Convert("_a_", span);
             result.Should().BeEquivalentTo("<em>a</em>");
+        }
+
+        private string GetRandomString(int length)
+        {
+
+            var alphabet = "()_qwertyuioopasdfgjkl ";
+            var builder = new StringBuilder();
+            for (var i = 0; i < length; i++)
+            {
+                if (rnd.Next(100) > 90)
+                    builder.Append(GetRandomChar(alphabet));
+                else
+                {
+                    builder.Append("__");
+                }
+            }
+
+            return builder.ToString();
+        }
+
+        private char GetRandomChar(string alphabet)
+        {
+            return alphabet[rnd.Next(alphabet.Length)];
         }
     }
 }

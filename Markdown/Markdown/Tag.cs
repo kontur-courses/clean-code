@@ -8,11 +8,11 @@ namespace Markdown
 {
     public class Tag
     {
+        private List<TagType> canBeInside;
         public static Tag Empty => new Tag(TagType.None, "", "");
         public TagType Type { get; }
         public string Open { get; }
         public string Close { get; }
-        private List<TagType> canBeInside;
         public IReadOnlyList<TagType> CanBeInside => canBeInside;
         public Tag(TagType type, string open, string close, IEnumerable<TagType> canBeInside = null)
         {

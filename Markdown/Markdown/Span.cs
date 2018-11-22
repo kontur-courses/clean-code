@@ -8,24 +8,24 @@ namespace Markdown
 {
     public class Span
     {
+        private List<Span> children = new List<Span>();
         public Tag Tag { get; }
         public int StartIndex { get; }
         public int EndIndex { get; private set; }
-
-        private List<Span> children = new List<Span>();
         public IReadOnlyList<Span> Children => children;
         public Span Parent { get; private set; }
         public bool IsClosed => EndIndex != 0;
         public bool CanBeInside => Tag.Type == TagType.None || (Parent != null && !Tag.CanBeInside.Contains(Parent.Tag.Type));
         public int IndexAfterStart => StartIndex + Tag.Open.Length;
         public int IndexAfterEnd => EndIndex + Tag.Close.Length;
-        public bool IsIgnored { get; set; }
+        public bool IsIgnored { get; }
 
-        public Span(Tag tag, int startIndex, int endIndex=0)
+        public Span(Tag tag, int startIndex, int endIndex=0, bool isIgnored=false)
         {
             Tag = tag;
             StartIndex = startIndex;
             EndIndex = endIndex;
+            IsIgnored = isIgnored;
         }
 
         public void Close(int endIndex)
