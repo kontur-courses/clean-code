@@ -1,13 +1,8 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Net.Mail;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace Markdown
 {
-    class EmRegister : BaseRegister
+    class EmphasisRegister : BaseRegister
     {
         protected int suffixLength = 1;
         protected string[] suffixes =  {"*", "_"};

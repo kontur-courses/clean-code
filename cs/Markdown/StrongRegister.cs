@@ -7,7 +7,7 @@ using System.Threading.Tasks;
 
 namespace Markdown
 {
-    class StrongRegister : EmRegister
+    class StrongRegister : EmphasisRegister
     {
         public StrongRegister()
         {
