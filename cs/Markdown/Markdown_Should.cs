@@ -16,9 +16,9 @@ namespace Markdown
         }
 
         [TestCase("", ExpectedResult="")]
-        [TestCase("\n", ExpectedResult = "<p></p>")]
+        [TestCase("\n", ExpectedResult = "")]
         [TestCase("some text", ExpectedResult= "<p>some text</p>")]
-        [TestCase("some\ndiff\nlines", ExpectedResult = "<p>some</p>\n<p>diff</p>\n<p>lines</p>")]
+        [TestCase("some\ndiff\n\nlines", ExpectedResult = "<p>some\ndiff</p>\n<p>lines</p>")]
         public string ShouldBeWithParagraphTag(string input)
         {
             return parser.Render(input);
