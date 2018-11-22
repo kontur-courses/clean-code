@@ -58,10 +58,9 @@
     <Compile Include="CmdInterface\CmdCallbacks.cs" />
     <Compile Include="CmdInterface\CmdInterface.cs" />
     <Compile Include="IConverter.cs" />
-    <Compile Include="ITagHandlersFactory.cs" />
-    <Compile Include="Md\TagHandlersFactory\EmphasisHandlerFactory.cs" />
-    <Compile Include="Md\TagHandlersFactory\StrongEmphasisHandlerFactory.cs" />
-    <Compile Include="Md\TagHandlersFactory\TextHandlerFactory.cs" />
+    <Compile Include="Md\HtmlTagHandlers\EmphasisHandler.cs" />
+    <Compile Include="Md\HtmlTagHandlers\StrongEmphasisHandler.cs" />
+    <Compile Include="Md\HtmlTagHandlers\TextHandler.cs" />
     <Compile Include="Parser\ITokenNode.cs" />
     <Compile Include="Md\TagHandlers\StrongEmphasisHandler.cs" />
     <Compile Include="Md\TagHandlers\TextHandler.cs" />
@@ -79,11 +78,13 @@
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Parser\TokenPairType.cs" />
+    <Compile Include="Renderers\HtmlTagHandler.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="App.config" />
     <None Include="packages.config" />
   </ItemGroup>
+  <ItemGroup />
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <Target Name="EnsureNuGetPackageBuildImports" BeforeTargets="PrepareForBuild">
     <PropertyGroup>

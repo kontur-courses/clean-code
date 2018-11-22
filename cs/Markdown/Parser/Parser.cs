@@ -40,21 +40,32 @@ namespace Markdown
             var current = tagHandler.Handle(str, position, openingTokens);
             position += current.Value.Length;
 
+            if (current.PairType == TokenPairType.Open)
+            {
+                openingTokens.Push(current);
+            }
+
             if (current.PairType == TokenPairType.Close)
             {
-                return current;
+                if (openingTokens.Count != 0)
+                {
+                    var peek = openingTokens.Peek();
+
+                    if (peek.Type == current.Type)
+                    {
+                        openingTokens.Pop();
+
+                        return current;
+                    }
+                }
+
+                current.Type = MdSpecification.Text;
+                current.PairType = TokenPairType.NotPair;
             }
 
             parent.Children.Add(current);
 
-            var recursiveParentNode = parent;
-
-            if (current.PairType == TokenPairType.Open)
-            {
-                recursiveParentNode = current;
-            }
-
-            var result = BuildTree(recursiveParentNode, str);
+            var result = BuildTree(current.PairType == TokenPairType.Open ? current : parent, str);
 
             if (result == null)
             {
@@ -63,14 +74,14 @@ namespace Markdown
 
             if (current.PairType == TokenPairType.Open)
             {
-                if (current.PairType != result.PairType && current.Type == result.Type)
+                if (result.PairType == TokenPairType.Close && current.Type == result.Type)
                 {
                     parent.Children.Add(result);
 
                     return BuildTree(parent, str);
                 }
 
-                if (current.PairType != result.PairType)
+                if (result.PairType != TokenPairType.Close)
                 {
                     current.Type = MdSpecification.Text;
                     current.PairType = TokenPairType.NotPair;

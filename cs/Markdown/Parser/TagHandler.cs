@@ -13,6 +13,6 @@ namespace Markdown.Md.TagHandlers
             return this;
         }
 
-        public abstract TokenNode Handle(string str, int position, Stack<TokenNode> openingTokens);
+        public abstract TokenNode Handle(string str, int position, IReadOnlyCollection<ITokenNode> openingTokenNodes);
     }
 }

@@ -1,16 +1,16 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
 
 namespace Markdown.Md.TagHandlers
 {
     public class StrongEmphasisHandler : TagHandler
     {
-        public override TokenNode Handle(string str, int position, Stack<TokenNode> openingTokens)
+        public override TokenNode Handle(string str, int position, IReadOnlyCollection<ITokenNode> openingTokenNodes)
         {
             var result = Recognize(str, position);
-            result.Value = MdSpecification.Tags[result.Type];
 
-            if (result.Type == MdSpecification.Text)
+            if (result == null)
             {
                 if (Successor == null)
                 {
@@ -18,37 +18,16 @@ namespace Markdown.Md.TagHandlers
                         "Can't transfer control to the next chain element because it was null");
                 }
 
-                return Successor.Handle(str, position, openingTokens);
+                return Successor.Handle(str, position, openingTokenNodes);
             }
 
-            if (result.PairType == TokenPairType.Open)
-            {
-                if (openingTokens.Count != 0 && openingTokens.Peek()
+            result.Value = MdSpecification.Tags[result.Type];
+
+            if (result.PairType == TokenPairType.Open
+                && openingTokenNodes.Count != 0
+                && openingTokenNodes.First()
                     .Type == MdSpecification.Emphasis)
-                {
-                    result.Type = MdSpecification.Text;
-
-                    return result;
-                }
-
-                openingTokens.Push(result);
-            }
-
-            if (result.PairType == TokenPairType.Close)
             {
-                if (openingTokens.Count != 0)
-                {
-                    var peek = openingTokens.Peek();
-
-                    if (peek.Type == MdSpecification.StrongEmphasis
-                        && peek.PairType == TokenPairType.Open)
-                    {
-                        openingTokens.Pop();
-
-                        return result;
-                    }
-                }
-
                 result.Type = MdSpecification.Text;
                 result.PairType = TokenPairType.NotPair;
             }
@@ -60,7 +39,7 @@ namespace Markdown.Md.TagHandlers
         {
             if (MdSpecification.IsEscape(str, position))
             {
-                return new TokenNode(MdSpecification.Text, "");
+                return null;
             }
 
             if (IsStrongEmphasis(str, position)
@@ -77,7 +56,7 @@ namespace Markdown.Md.TagHandlers
                 return new TokenNode(MdSpecification.StrongEmphasis, "", TokenPairType.Open);
             }
 
-            return new TokenNode(MdSpecification.Text, "");
+            return null;
         }
 
         private static bool IsOpenedEmphasis(string str, int position)

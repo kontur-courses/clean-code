@@ -1,16 +1,15 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Text;
 
 namespace Markdown.Renderers
 {
     public class HtmlRenderer : IRenderer
     {
-        private readonly IDictionary<string, string> htmlRules;
+        private readonly HtmlTagHandler tagHandler;
 
-        public HtmlRenderer(IDictionary<string, string> htmlRules)
+        public HtmlRenderer(HtmlTagHandler tagHandler)
         {
-            this.htmlRules = htmlRules;
+            this.tagHandler = tagHandler;
         }
 
         public string Render(ITokenNode tokenNode)
@@ -20,35 +19,16 @@ namespace Markdown.Renderers
                 throw new ArgumentException("Given tokenNode can't be null", nameof(tokenNode));
             }
 
-            var result = new StringBuilder();
-
-            foreach (var token in GetNextTokenNode(tokenNode.Children))
-            {
-                var type = htmlRules[token.Type];
-
-                if (token.PairType == TokenPairType.Close)
-                {
-                    type = type.Insert(1, "/");
-                }
-
-                result.Append(type);
-
-                if (token.PairType == TokenPairType.NotPair)
-                {
-                    result.Append(token.Value);
-                }
-            }
-
-            return result.ToString();
+            return string.Join("", GetNextHtmlTag(tokenNode.Children));
         }
 
-        public IEnumerable<ITokenNode> GetNextTokenNode(ICollection<ITokenNode> children)
+        public IEnumerable<string> GetNextHtmlTag(ICollection<ITokenNode> children)
         {
             foreach (var child in children)
             {
-                yield return child;
+                yield return tagHandler.Handle(child);
 
-                foreach (var subChild in GetNextTokenNode(child.Children))
+                foreach (var subChild in GetNextHtmlTag(child.Children))
                     yield return subChild;
             }
         }

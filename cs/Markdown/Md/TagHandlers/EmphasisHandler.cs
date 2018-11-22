@@ -5,12 +5,11 @@ namespace Markdown.Md.TagHandlers
 {
     public class EmphasisHandler : TagHandler
     {
-        public override TokenNode Handle(string str, int position, Stack<TokenNode> openingTokens)
+        public override TokenNode Handle(string str, int position, IReadOnlyCollection<ITokenNode> openingTokenNodes)
         {
             var result = Recognize(str, position);
-            result.Value = MdSpecification.Tags[result.Type];
 
-            if (result.Type == MdSpecification.Text)
+            if (result == null)
             {
                 if (Successor == null)
                 {
@@ -18,31 +17,10 @@ namespace Markdown.Md.TagHandlers
                         "Can't transfer control to the next chain element because it was null");
                 }
 
-                return Successor.Handle(str, position, openingTokens);
+                return Successor.Handle(str, position, openingTokenNodes);
             }
 
-            if (result.PairType == TokenPairType.Open)
-            {
-                openingTokens.Push(result);
-            }
-
-            if (result.PairType == TokenPairType.Close)
-            {
-                if (openingTokens.Count != 0)
-                {
-                    var peek = openingTokens.Peek();
-
-                    if (peek.Type == MdSpecification.Emphasis)
-                    {
-                        openingTokens.Pop();
-
-                        return result;
-                    }
-                }
-
-                result.Type = MdSpecification.Text;
-                result.PairType = TokenPairType.NotPair;
-            }
+            result.Value = MdSpecification.Tags[result.Type];
 
             return result;
         }
@@ -51,7 +29,7 @@ namespace Markdown.Md.TagHandlers
         {
             if (MdSpecification.IsEscape(str, position))
             {
-                return new TokenNode(MdSpecification.Text, "");
+                return null;
             }
 
             if (IsEmphasis(str, position)
@@ -67,7 +45,7 @@ namespace Markdown.Md.TagHandlers
                 return new TokenNode(MdSpecification.Emphasis, "", TokenPairType.Open);
             }
 
-            return new TokenNode(MdSpecification.Text, "");
+            return null;
         }
 
         private static bool IsOpenedEmphasis(string str, int position)

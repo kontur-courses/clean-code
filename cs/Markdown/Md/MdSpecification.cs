@@ -1,6 +1,6 @@
 ﻿using System.Collections.Generic;
 using Markdown.Md.TagHandlers;
-using Markdown.Md.TagHandlersFactory;
+using Markdown.Renderers;
 
 namespace Markdown.Md
 {
@@ -17,13 +17,6 @@ namespace Markdown.Md
             {Text, ""},
         };
 
-        public static readonly Dictionary<string, string> HtmlRules = new Dictionary<string, string>
-        {
-            {Text, ""},
-            {Emphasis, "<ul>"},
-            {StrongEmphasis, "<strong>"},
-        };
-
         public static bool IsEscape(string str, int position)
         {
             return position - 1 >= 0 && str[position - 1] == '\\';
@@ -31,11 +24,16 @@ namespace Markdown.Md
 
         public static TagHandler GetTagHandlerChain()
         {
-            var emphasisHandler = new EmphasisHandlerFactory().Create();
-            var strongEmphasisHandler = new StrongEmphasisHandlerFactory().Create();
-            var textHandler = new TextHandlerFactory().Create();
+            return new StrongEmphasisHandler()
+                .SetSuccessor(new EmphasisHandler()
+                    .SetSuccessor(new TextHandler()));
+        }
 
-            return strongEmphasisHandler.SetSuccessor(emphasisHandler.SetSuccessor(textHandler));
+        public static HtmlTagHandler GetHtmlTagHandlerChain()
+        {
+            return new HtmlTagHandlers.StrongEmphasisHandler()
+                .SetSuccessor(new HtmlTagHandlers.EmphasisHandler()
+                    .SetSuccessor(new HtmlTagHandlers.TextHandler()));
         }
     }
 }

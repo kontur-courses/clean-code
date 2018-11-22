@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections;
 using System.Collections.Generic;
+using Fclp.Internals.Extensions;
 using FluentAssertions;
 using NUnit.Framework;
 
@@ -227,7 +228,7 @@ namespace Markdown.Md
             var tokenNode = lexicalParser.Parse(data.Item1);
             var result = GetNextTokenNode(tokenNode.Children);
             result.Should()
-                .BeEquivalentTo(data.Item2);
+                .BeEquivalentTo(data.Item2, options => options.Excluding(z => z.Children));
         }
 
         public IEnumerable<ITokenNode> GetNextTokenNode(ICollection<ITokenNode> token)

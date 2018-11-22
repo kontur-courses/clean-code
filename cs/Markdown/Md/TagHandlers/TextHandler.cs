@@ -1,10 +1,11 @@
 ﻿using System.Collections.Generic;
+using System.Text;
 
 namespace Markdown.Md.TagHandlers
 {
     public class TextHandler : TagHandler
     {
-        public override TokenNode Handle(string str, int position, Stack<TokenNode> openingTokens)
+        public override TokenNode Handle(string str, int position, IReadOnlyCollection<ITokenNode> openingTokenNodes)
         {
             if (IsText(str, position, out var result))
             {
@@ -16,7 +17,7 @@ namespace Markdown.Md.TagHandlers
                 return new TokenNode(MdSpecification.Text, result);
             }
 
-            Successor?.Handle(str, position, openingTokens);
+            Successor?.Handle(str, position, openingTokenNodes);
 
             return new TokenNode(MdSpecification.Text, "");
         }
@@ -24,6 +25,7 @@ namespace Markdown.Md.TagHandlers
         public static bool IsText(string str, int position, out string result)
         {
             result = string.Empty;
+            var sb = new StringBuilder();
 
             for (var i = position; i < str.Length; i++)
             {
@@ -34,8 +36,10 @@ namespace Markdown.Md.TagHandlers
                     break;
                 }
 
-                result += str[i];
+                sb.Append(str[i]);
             }
+
+            result = sb.ToString();
 
             return true;
         }

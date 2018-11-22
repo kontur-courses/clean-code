@@ -13,7 +13,7 @@ namespace Markdown.Renderers
         [SetUp]
         public void DoBeforeAnyTest()
         {
-            htmlRenderer = new HtmlRenderer(MdSpecification.HtmlRules);
+            htmlRenderer = new HtmlRenderer(MdSpecification.GetHtmlTagHandlerChain());
         }
 
         [Test]
