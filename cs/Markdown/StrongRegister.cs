@@ -7,27 +7,14 @@ using System.Threading.Tasks;
 
 namespace Markdown
 {
-    class StrongRegister : BaseRegister
+    class StrongRegister : EmRegister
     {
-        public override Token tryGetToken(ref string input, int startPos)       // TODO объединить с EmRegister
+        public StrongRegister()
         {
-            if (startPos != 0 && input.Length > 0 && input[startPos - 1] == '\\' || input.startWith("***", startPos) || input.startWith("___", startPos))
-                return null;
-
-            string strongDigits = input.startWith("**", startPos) ? "**" :
-                                  input.startWith("__", startPos) && !input.isInsideWord(startPos, 2) ? "__" : null;
-
-            if (strongDigits == null || (startPos + 2 >= input.Length || Char.IsWhiteSpace(input[startPos + 2])) || input[startPos + 1] == '\"')    
-                return null;
-
-            int endIndex = input.indexOfCloseTag(strongDigits, startPos + 2);
-
-            if (endIndex == -1)
-                return null;
-
-            var strValue = input.Substring(startPos + 2, endIndex - 2 - startPos);
-
-            return new Token(strValue, "<strong>", "</strong>", 0, endIndex - startPos + 2, true); 
+            suffixLength = 2;
+            suffixes = new string[] { "**", "__" };
+            priority = 1;
+            tags = new string[] { "<strong>", "</strong>" };
         }
     }
 }

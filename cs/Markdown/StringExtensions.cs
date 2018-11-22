@@ -34,10 +34,34 @@ namespace Markdown
             return endIndex;
         }
 
-        public static bool isInsideWord(this string text, int index, int wordLen)
+        public static bool isInsideWord(this string text, int index)
         {
-            return (index != 0 && Char.IsLetterOrDigit(text[index - 1])) &&
-                   (index < text.Length - wordLen - 1 && Char.IsLetterOrDigit(text[index + wordLen]));
+            bool leftSide = false, rightSide = false;
+
+            for (int i = index-1; i >= 0; i--)
+            {
+                if (Char.IsLetterOrDigit(text[i]))
+                {
+                    leftSide = true;
+                    break;
+                }
+
+                if (Char.IsWhiteSpace(text[i]))         // TODO Рассмотреть какие еще символы продходят кроме пробелов
+                    break;
+            }
+
+            for (int i = index + 1; i < text.Length; i++)
+            {
+                if (Char.IsLetterOrDigit(text[i]))
+                {
+                    rightSide = true;
+                    break;
+                }
+                if (Char.IsWhiteSpace(text[i]))         // TODO Рассмотреть какие еще символы продходят кроме пробелов
+                    break;
+            }
+
+            return leftSide && rightSide;
         }
     }
 }
