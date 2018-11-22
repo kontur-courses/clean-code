@@ -9,9 +9,9 @@ namespace Markdown
 {
     public class Markup
     {
-        private List<Tag> tags;
         public string Name { get; }
         public IReadOnlyList<Tag> Tags => tags;
+        private List<Tag> tags;
         public Markup(string name, List<Tag> tags)
         {
             Name = name;

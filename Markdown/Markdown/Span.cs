@@ -8,7 +8,6 @@ namespace Markdown
 {
     public class Span
     {
-        private List<Span> children = new List<Span>();
         public Tag Tag { get; }
         public int StartIndex { get; }
         public int EndIndex { get; private set; }
@@ -19,6 +18,7 @@ namespace Markdown
         public int IndexAfterStart => StartIndex + Tag.Open.Length;
         public int IndexAfterEnd => EndIndex + Tag.Close.Length;
         public bool IsIgnored { get; }
+        private List<Span> children = new List<Span>();
 
         public Span(Tag tag, int startIndex, int endIndex=0, bool isIgnored=false)
         {
