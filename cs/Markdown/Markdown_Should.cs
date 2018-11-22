@@ -4,7 +4,7 @@ using NUnit.Framework;
 
 namespace Markdown
 {
-    [NUnit.Framework.TestFixture]
+    [TestFixture]
     public class Markdown_Should
     {
         private Md parser;
@@ -57,7 +57,6 @@ namespace Markdown
         [TestCase("", ExpectedResult = "")]
         [TestCase("a * foo bar*", ExpectedResult = "<p>a * foo bar*</p>")]
         [TestCase("* a *", ExpectedResult = "<p>* a *</p>")]
-        [TestCase("a*\"foo\"*", ExpectedResult = "<p>a*\"foo\"*</p>")]
         [TestCase("foo_bar_", ExpectedResult = "<p>foo_bar_</p>")]
         [TestCase("_foo*", ExpectedResult = "<p>_foo*</p>")]
         public string ShouldNotBeWithEmphasisTag(string input)
@@ -65,7 +64,11 @@ namespace Markdown
             return parser.Render(input);
         }
 
-        //TODO Тест на производительность
+        [TestCase(), Timeout(2000)]
+        public void PotentiallyLongRunningTest()
+        {
+            // TODO
+        }
 
         [Test]
         public void ComplexTest()
