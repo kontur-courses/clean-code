@@ -37,7 +37,8 @@ namespace Markdown
                 foreach (var reader in readers)
                 {
                     var t = reader.tryGetToken(ref input, i);
-                    if (token == null || t != null && t.Priority > token.Priority)
+                    if (token == null || t != null && (t.OriginalTextLen > token.OriginalTextLen 
+                                                       || t.OriginalTextLen == token.OriginalTextLen && t.Priority > token.Priority))
                         token = t;
                 }
 

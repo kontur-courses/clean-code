@@ -34,13 +34,13 @@ namespace Markdown
             return parser.Render(input);
         }
 
-        //[TestCase("5__6__78", ExpectedResult = "<p>5__6__78</p>")]
-        //[TestCase("__ foo bar__", ExpectedResult = "<p>__ foo bar__</p>")]
-        //[TestCase("** foo bar**", ExpectedResult = "<p>** foo bar**</p>")]
-        //public string ShouldNotBeWithStrongTag(string input)
-        //{
-        //    return parser.Render(input);
-        //}
+        [TestCase("5__6__78", ExpectedResult = "<p>5__6__78</p>")]
+        [TestCase("__ foo bar__", ExpectedResult = "<p>__ foo bar__</p>")]
+        [TestCase("** foo bar**", ExpectedResult = "<p>** foo bar**</p>")]
+        public string ShouldNotBeWithStrongTag(string input)
+        {
+            return parser.Render(input);
+        }
 
         [TestCase("", ExpectedResult = "")]
         [TestCase("*foo bar*", ExpectedResult = "<p><em>foo bar</em></p>")]

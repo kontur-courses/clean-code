@@ -16,9 +16,7 @@ namespace Markdown
             for (int i = 0; i < word.Length; i++)
             {
                 if (word[i] != str[i + startPos])
-                {
                     return false;
-                }
             }
             return true;
         }
