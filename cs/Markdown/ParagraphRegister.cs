@@ -24,7 +24,7 @@ namespace Markdown
                 strValue = strOrig;
             }
 
-            return new Token("p", strOrig, strValue, "<p>", 1, "<\\p>");   // TODO оптимизировать взятие подстроки
+            return new Token("p", strOrig, strValue, "<p>", 1, "</p>");   // TODO оптимизировать взятие подстроки
         }
     }
 }

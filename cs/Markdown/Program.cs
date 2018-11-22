@@ -10,18 +10,6 @@ namespace Markdown
         {
             // TODO Обернуть в try case
 
-            var parser = new Md();
-
-            parser.registerGlobalReader(new ParagraphRegister());
-            parser.registerGlobalReader(new HorLineRegister());
-
-            parser.registerLocalReader(new StrongRegister());
-            parser.registerLocalReader(new EmRegister());
-
-            var result = parser.Parse("_some __dick_ is__");
-
-            Console.WriteLine(result);
-
         }
     }
 }

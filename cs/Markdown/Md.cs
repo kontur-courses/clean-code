@@ -26,7 +26,12 @@ namespace Markdown
             localReaders.Add(reader);
         }
 
-        public string Parse(string input, bool isGlobalTag=true)        // TODO Убрать возможность извне менять параметр глобальности
+        public string Render(string input)
+        {
+            return Parse(input, true);
+        }
+
+        private string Parse(string input, bool isGlobalTag)
         {
             StringBuilder result = new StringBuilder();
             string sep = isGlobalTag ? "\n" : "";
@@ -51,7 +56,7 @@ namespace Markdown
                         result.Append(sep);
 
                     result.Append(token.OpenBracket);
-                    result.Append(Parse(token.Value, false));   // если внутрь парсить не нужно, то оставляю value пустым (при создании токена)
+                    result.Append(Parse(token.Value, false));
                     result.Append(token.CloseBracket);
 
                     i += tokens[0].TextValue.Length - 1;
@@ -61,6 +66,8 @@ namespace Markdown
                     result.Append(input[i]);
                 }
             }
+            
+
             return result.ToString();
         }
     }

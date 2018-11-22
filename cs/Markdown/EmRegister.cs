@@ -28,7 +28,7 @@ namespace Markdown
             strOrig = input.Substring(startPos, endIndex + 1 - startPos);
             strValue = input.Substring(startPos + 1, endIndex - 1 - startPos);
 
-            return new Token("em", strOrig, strValue, "<em>", 1, "<\\em>");
+            return new Token("em", strOrig, strValue, "<em>", 1, "</em>");
         }
 
         private static bool startWith(string word, ref string str, int startPos)

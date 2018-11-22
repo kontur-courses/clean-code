@@ -29,7 +29,7 @@ namespace Markdown
             strOrig = input.Substring(startPos, endIndex + 2 - startPos);
             strValue = input.Substring(startPos + 2, endIndex - 2 - startPos);
 
-            return new Token("strong", strOrig, strValue, "<strong>", 0, "<\\strong>"); 
+            return new Token("strong", strOrig, strValue, "<strong>", 0, "</strong>"); 
         }
 
         public static bool startWith(string word, ref string str, int startPos)
