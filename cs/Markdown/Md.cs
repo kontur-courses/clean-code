@@ -23,34 +23,31 @@ namespace Markdown
 
         public string Render(string input)
         {
-            return Parse(input, true);
+            return Parse(input, globalReaders);
         }
 
-        private string Parse(string input, bool isGlobalTag)
+        public string Parse(string input, List<IReadable> readers)
         {
             StringBuilder result = new StringBuilder();
-            var currentReaders = isGlobalTag ? globalReaders : localReaders;
 
             for (int i = 0; i < input.Length; i++)
             {
-                var tokens = new List<Token>();
+                Token token = null;
 
-                foreach (var reader in currentReaders)
+                foreach (var reader in readers)
                 {
                     var t = reader.tryGetToken(ref input, i);
-                    if(t != null)
-                        tokens.Add(t);
+                    if (token == null || t != null && t.Priority > token.Priority)
+                        token = t;
                 }
 
-                if (tokens.Count != 0)
+                if (token != null)
                 {
-                    var token = tokens.OrderBy(t => t.Priority).First();
-
-                    if (i != 0 && isGlobalTag)
-                        result.Append("\n");
+                    if (readers == globalReaders && i != 0)
+                        result.Append('\n');
 
                     result.Append(token.OpenTag);
-                    result.Append(Parse(token.Value, false));
+                    result.Append(Parse(token.Value, localReaders));
                     result.Append(token.CloseTag);
 
                     i += token.OriginalTextLen - 1;
