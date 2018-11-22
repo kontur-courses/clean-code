@@ -57,7 +57,7 @@ namespace Markdown
                     rightSide = true;
                     break;
                 }
-                if (Char.IsWhiteSpace(text[i]))         // TODO Рассмотреть какие еще символы продходят кроме пробелов
+                if (Char.IsWhiteSpace(text[i]))       
                     break;
             }
 

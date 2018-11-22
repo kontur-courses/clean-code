@@ -1,4 +1,6 @@
 ﻿using System;
+using System.CodeDom.Compiler;
+using System.Text;
 
 namespace Markdown
 {
@@ -19,8 +21,16 @@ namespace Markdown
                     return new Token(strValue, "<p>", "</p>\n", 1, strValue.Length + 1, true);
                 }
             }
+            StringBuilder result = new StringBuilder();
+
             strValue = input.Substring(startPos, input.Length - startPos);
-            return new Token(strValue, "<p>", "</p>", 1, strValue.Length + 1, true); 
+            foreach (var str in strValue.Split('\n'))
+            {
+                result.Append(str.TrimStart(' ', '\r'));
+                result.Append('\n');
+            }
+            result.Remove(result.Length - 1, 1);
+            return new Token(result.ToString(), "<p>", "</p>", 1, strValue.Length + 1, true); 
         }
     }
 }
