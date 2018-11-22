@@ -1,11 +1,12 @@
 ﻿using System.Collections.Generic;
+using System.Collections.Immutable;
 using System.Text;
 
 namespace Markdown.Md.TagHandlers
 {
     public class TextHandler : TagHandler
     {
-        public override TokenNode Handle(string str, int position, IReadOnlyCollection<ITokenNode> openingTokenNodes)
+        public override TokenNode Handle(string str, int position, ImmutableStack<TokenNode> openingTokenNodes)
         {
             if (IsText(str, position, out var result))
             {

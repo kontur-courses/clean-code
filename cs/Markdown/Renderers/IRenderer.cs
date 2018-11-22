@@ -2,6 +2,6 @@
 {
     public interface IRenderer
     {
-        string Render(ITokenNode tokenNode);
+        string Render(Tag tag);
     }
 }

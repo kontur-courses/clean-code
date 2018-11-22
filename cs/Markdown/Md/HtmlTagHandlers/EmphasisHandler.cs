@@ -5,11 +5,15 @@ namespace Markdown.Md.HtmlTagHandlers
 {
     public class EmphasisHandler : HtmlTagHandler
     {
-        public override string Handle(ITokenNode tokenNode)
+        private bool isOpening;
+
+        public override string Handle(Tag tag)
         {
-            if (tokenNode.Type == MdSpecification.Emphasis)
+            if (tag.Type == MdSpecification.Emphasis)
             {
-                return tokenNode.PairType == TokenPairType.Open ? "<ul>" : "</ul>";
+                isOpening = !isOpening;
+
+                return isOpening ? "<ul>" : "</ul>";
             }
 
             if (Successor == null)
@@ -18,7 +22,7 @@ namespace Markdown.Md.HtmlTagHandlers
                     "Can't transfer control to the next chain element because it was null");
             }
 
-            return Successor.Handle(tokenNode);
+            return Successor.Handle(tag);
         }
     }
 }

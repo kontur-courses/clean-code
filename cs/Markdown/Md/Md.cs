@@ -1,4 +1,5 @@
-﻿using Markdown.Renderers;
+﻿using System;
+using Markdown.Renderers;
 
 namespace Markdown.Md
 {
@@ -16,7 +17,6 @@ namespace Markdown.Md
         public string Convert(string markdown)
         {
             var result = parser.Parse(markdown);
-
             return renderer.Render(result);
         }
     }

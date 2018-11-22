@@ -1,12 +1,13 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Collections.Immutable;
 using System.Linq;
 
 namespace Markdown.Md.TagHandlers
 {
     public class StrongEmphasisHandler : TagHandler
     {
-        public override TokenNode Handle(string str, int position, IReadOnlyCollection<ITokenNode> openingTokenNodes)
+        public override TokenNode Handle(string str, int position, ImmutableStack<TokenNode> openingTokenNodes)
         {
             var result = Recognize(str, position);
 
@@ -24,8 +25,8 @@ namespace Markdown.Md.TagHandlers
             result.Value = MdSpecification.Tags[result.Type];
 
             if (result.PairType == TokenPairType.Open
-                && openingTokenNodes.Count != 0
-                && openingTokenNodes.First()
+                && !openingTokenNodes.IsEmpty
+                && openingTokenNodes.Peek()
                     .Type == MdSpecification.Emphasis)
             {
                 result.Type = MdSpecification.Text;

@@ -1,11 +1,12 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Collections.Immutable;
 
 namespace Markdown.Md.TagHandlers
 {
     public class EmphasisHandler : TagHandler
     {
-        public override TokenNode Handle(string str, int position, IReadOnlyCollection<ITokenNode> openingTokenNodes)
+        public override TokenNode Handle(string str, int position, ImmutableStack<TokenNode> openingTokenNodes)
         {
             var result = Recognize(str, position);
 

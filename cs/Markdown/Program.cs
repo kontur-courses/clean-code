@@ -1,4 +1,8 @@
-﻿namespace Markdown
+﻿using System;
+using System.Collections.Generic;
+using Markdown.Md;
+
+namespace Markdown
 {
     class Program
     {

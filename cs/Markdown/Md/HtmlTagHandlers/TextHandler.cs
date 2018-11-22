@@ -5,11 +5,11 @@ namespace Markdown.Md.HtmlTagHandlers
 {
     public class TextHandler : HtmlTagHandler
     {
-        public override string Handle(ITokenNode tokenNode)
+        public override string Handle(Tag tag)
         {
-            if (tokenNode.PairType == TokenPairType.NotPair)
+            if (tag.Type == MdSpecification.Text)
             {
-                return tokenNode.Value;
+                return tag.Value;
             }
 
             if (Successor == null)
@@ -18,7 +18,7 @@ namespace Markdown.Md.HtmlTagHandlers
                     "Can't transfer control to the next chain element because it was null");
             }
 
-            return Successor.Handle(tokenNode);
+            return Successor.Handle(tag);
         }
     }
 }

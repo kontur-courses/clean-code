@@ -11,6 +11,6 @@
             return this;
         }
 
-        public abstract string Handle(ITokenNode tokenNode);
+        public abstract string Handle(Tag tag);
     }
 }

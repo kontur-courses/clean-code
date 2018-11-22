@@ -12,24 +12,39 @@ namespace Markdown.Renderers
             this.tagHandler = tagHandler;
         }
 
-        public string Render(ITokenNode tokenNode)
+        public string Render(Tag tag)
         {
-            if (tokenNode == null)
+            if (tag == null)
             {
-                throw new ArgumentException("Given tokenNode can't be null", nameof(tokenNode));
+                throw new ArgumentException("Given tag can't be null", nameof(tag));
             }
 
-            return string.Join("", GetNextHtmlTag(tokenNode.Children));
+            return string.Join("", GetNextHtmlTag(tag));
         }
 
-        public IEnumerable<string> GetNextHtmlTag(ICollection<ITokenNode> children)
+        private IEnumerable<string> GetNextHtmlTag(Tag root)
         {
-            foreach (var child in children)
+            if (root.Type != "root")
             {
-                yield return tagHandler.Handle(child);
+                yield return tagHandler.Handle(root);
+            }
 
-                foreach (var subChild in GetNextHtmlTag(child.Children))
-                    yield return subChild;
+            if (root.Tags == null)
+            {
+                yield break;
+            }
+
+            foreach (var tag in root.Tags)
+            {
+                foreach (var subtag in GetNextHtmlTag(tag))
+                {
+                    yield return subtag;
+                }
+            }
+
+            if (root.Type != "root")
+            {
+                yield return tagHandler.Handle(root);
             }
         }
     }

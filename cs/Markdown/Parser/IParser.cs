@@ -2,6 +2,6 @@
 {
     public interface IParser
     {
-        ITokenNode Parse(string str);
+        Tag Parse(string str);
     }
 }

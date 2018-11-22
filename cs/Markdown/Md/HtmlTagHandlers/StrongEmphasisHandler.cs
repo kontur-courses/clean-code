@@ -5,11 +5,15 @@ namespace Markdown.Md.HtmlTagHandlers
 {
     public class StrongEmphasisHandler : HtmlTagHandler
     {
-        public override string Handle(ITokenNode tokenNode)
+        private bool isOpening;
+
+        public override string Handle(Tag tag)
         {
-            if (tokenNode.Type == MdSpecification.StrongEmphasis)
+            if (tag.Type == MdSpecification.StrongEmphasis)
             {
-                return tokenNode.PairType == TokenPairType.Open ? "<strong>" : "</strong>";
+                isOpening = !isOpening;
+
+                return isOpening ? "<strong>" : "</strong>";
             }
 
             if (Successor == null)
@@ -18,7 +22,7 @@ namespace Markdown.Md.HtmlTagHandlers
                     "Can't transfer control to the next chain element because it was null");
             }
 
-            return Successor.Handle(tokenNode);
+            return Successor.Handle(tag);
         }
     }
 }
