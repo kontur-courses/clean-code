@@ -19,16 +19,13 @@ namespace Markdown
             if (emDigit == null || (startPos + 1 >= input.Length) || Char.IsWhiteSpace(input[startPos + 1]))
                 return null;
 
-            int endIndex = input.indexOfCloseBracket(emDigit, startPos + 1);
+            int endIndex = input.indexOfCloseTag(emDigit, startPos + 1);
 
             if (endIndex == -1)
                 return null;
 
-            string strOrig, strValue;
-            strOrig = input.Substring(startPos, endIndex + 1 - startPos);
-            strValue = input.Substring(startPos + 1, endIndex - 1 - startPos);
-
-            return new Token("em", strOrig, strValue, "<em>", 1, "</em>");
+            var strValue = input.Substring(startPos + 1, endIndex - 1 - startPos);
+            return new Token(strValue, "<em>", "</em>", 1, endIndex - startPos + 1, true);
         }
     }
 }

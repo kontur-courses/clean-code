@@ -9,7 +9,7 @@ namespace Markdown
 {
     class StrongRegister : BaseRegister
     {
-        public override Token tryGetToken(ref string input, int startPos)
+        public override Token tryGetToken(ref string input, int startPos)       // TODO объединить с EmRegister
         {
             if (startPos != 0 && input.Length > 0 && input[startPos - 1] == '\\')
                 return null;
@@ -20,16 +20,14 @@ namespace Markdown
             if (strongDigits == null || (startPos + 2 >= input.Length || Char.IsWhiteSpace(input[startPos + 2])))
                 return null;
 
-            int endIndex = input.indexOfCloseBracket(strongDigits, startPos + 2);
+            int endIndex = input.indexOfCloseTag(strongDigits, startPos + 2);
 
             if (endIndex == -1)
                 return null;
 
-            string strOrig, strValue;
-            strOrig = input.Substring(startPos, endIndex + 2 - startPos);
-            strValue = input.Substring(startPos + 2, endIndex - 2 - startPos);
+            var strValue = input.Substring(startPos + 2, endIndex - 2 - startPos);
 
-            return new Token("strong", strOrig, strValue, "<strong>", 0, "</strong>"); 
+            return new Token(strValue, "<strong>", "</strong>", 0, endIndex - startPos + 4, true); 
         }
     }
 }

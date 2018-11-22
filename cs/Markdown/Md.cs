@@ -13,17 +13,12 @@ namespace Markdown
         public Md()
         {
             globalReaders = new List<IReadable>();
+            globalReaders.Add(new ParagraphRegister());
+            globalReaders.Add(new HorLineRegister());
+            
             localReaders = new List<IReadable>();
-        }
-
-        public void registerGlobalReader(IReadable reader)
-        {
-            globalReaders.Add(reader);
-        }
-
-        public void registerLocalReader(IReadable reader)
-        {
-            localReaders.Add(reader);
+            localReaders.Add(new StrongRegister());
+            localReaders.Add(new EmRegister());
         }
 
         public string Render(string input)
@@ -34,7 +29,6 @@ namespace Markdown
         private string Parse(string input, bool isGlobalTag)
         {
             StringBuilder result = new StringBuilder();
-            string sep = isGlobalTag ? "\n" : "";
             var currentReaders = isGlobalTag ? globalReaders : localReaders;
 
             for (int i = 0; i < input.Length; i++)
@@ -52,22 +46,20 @@ namespace Markdown
                 {
                     var token = tokens.OrderBy(t => t.Priority).First();
 
-                    if (i != 0)
-                        result.Append(sep);
+                    if (i != 0 && isGlobalTag)
+                        result.Append("\n");
 
-                    result.Append(token.OpenBracket);
+                    result.Append(token.OpenTag);
                     result.Append(Parse(token.Value, false));
-                    result.Append(token.CloseBracket);
+                    result.Append(token.CloseTag);
 
-                    i += tokens[0].TextValue.Length - 1;
+                    i += token.OriginalTextLen - 1;
                 }
                 else
                 {
                     result.Append(input[i]);
                 }
             }
-            
-
             return result.ToString();
         }
     }

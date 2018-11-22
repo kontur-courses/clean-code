@@ -2,20 +2,19 @@
 {
     public class Token
     {
-        public readonly string Name;
-        public readonly string TextValue, Value;
-        public readonly string OpenBracket, CloseBracket;
-        public readonly int Priority;
+        public readonly string Value, OpenTag, CloseTag;
+        public readonly bool IsCanParse;
+        public readonly int Priority, OriginalTextLen;
 
-        public Token(string name, string textValue, string value, string openBracket, int priority, string closeBracket = null)
+        public Token(string value, string openTag, string closeTag, int priority, int originalTextLen, bool isCanParse)
         {
-            Name = name;
-            TextValue = textValue;
             Value = value;
+            OpenTag = openTag;
+            CloseTag = closeTag;
 
-            OpenBracket = openBracket;
-            CloseBracket = closeBracket;
             Priority = priority;
+            OriginalTextLen = originalTextLen;
+            IsCanParse = isCanParse;
         }
     }
 }

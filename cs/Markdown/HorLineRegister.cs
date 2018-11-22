@@ -57,7 +57,7 @@ namespace Markdown
             if (digitCount < 3)
                 return null;
 
-            return new Token("hr", input.Substring(startPos, i-startPos+1), "", "<hr>", 0, ""); 
+            return new Token("", "<hr>", "", 0, i - startPos, false); 
 
         }
 

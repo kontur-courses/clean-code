@@ -1,30 +1,22 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-
-namespace Markdown
+﻿namespace Markdown
 {
     class ParagraphRegister : BaseRegister
     {
         public override Token tryGetToken(ref string input, int startPos)
         {
-            string strOrig, strValue;
+            string strValue;
             int index = input.IndexOf('\n', startPos);
             
             if (index >= 0)
             {
-                strOrig = input.Substring(startPos, index + 1 - startPos);
                 strValue = input.Substring(startPos, index - startPos);
             }
             else
             {
-                strOrig = input.Substring(startPos, input.Length - startPos);
-                strValue = strOrig;
+                strValue = input.Substring(startPos, input.Length - startPos);
             }
 
-            return new Token("p", strOrig, strValue, "<p>", 1, "</p>");   // TODO оптимизировать взятие подстроки
+            return new Token(strValue, "<p>", "</p>", 1, strValue.Length + 1, true); 
         }
     }
 }

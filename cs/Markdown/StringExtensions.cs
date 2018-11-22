@@ -6,9 +6,9 @@ using System.Threading.Tasks;
 
 namespace Markdown
 {
-    public static class StringExtension
+    public static class StringExtensions
     {
-        public static bool startWith(this string str, string word, int startPos)
+        public static bool startWith(this string str, string word, int startPos = 0)
         {
             if (str.Length - startPos < word.Length)
                 return false;
@@ -22,7 +22,7 @@ namespace Markdown
             }
             return true;
         }
-        public static int indexOfCloseBracket(this string str, string word, int startPos)       // TODO Переименовать методы
+        public static int indexOfCloseTag(this string str, string word, int startPos)       // TODO Переименовать методы
         {
             int endIndex = -1;
             for (int i = startPos; i <= str.Length - word.Length; i++)
@@ -36,10 +36,10 @@ namespace Markdown
             return endIndex;
         }
 
-        public static bool isInsideWord(this string text, int indexOfDigit)
+        public static bool isInsideWord(this string text, int index)
         {
-            return (indexOfDigit != 0 && Char.IsLetterOrDigit(text[indexOfDigit - 1])) &&
-                   (indexOfDigit != text.Length - 1 && Char.IsLetterOrDigit(text[indexOfDigit + 1]));
+            return (index != 0 && Char.IsLetterOrDigit(text[index - 1])) &&
+                   (index != text.Length - 1 && Char.IsLetterOrDigit(text[index + 1]));
         }
     }
 }

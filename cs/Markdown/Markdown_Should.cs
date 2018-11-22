@@ -15,49 +15,47 @@ namespace Markdown
             parser = new Md();
         }
 
-        [TestCase("")]
-        [TestCase("Some text with some _wooords_ !")]
-        [TestCase("__hahaha__")]
-        public void ShouldBeSameString_WhenNoRegisters(string str)
-        {
-            parser.Render(str).Should().Be(str);
-        }
-
         [TestCase("", ExpectedResult="")]
         [TestCase("\n", ExpectedResult = "<p></p>")]
         [TestCase("some text", ExpectedResult= "<p>some text</p>")]
         [TestCase("some\ndiff\nlines", ExpectedResult = "<p>some</p>\n<p>diff</p>\n<p>lines</p>")]
         public string ShouldBeWithParagraphTag(string input)
         {
-            parser.registerGlobalReader(new ParagraphRegister());
-
             return parser.Render(input);
         }
 
-        [TestCase("__some__", ExpectedResult = "<strong>some</strong>")]
+        [TestCase("__some__", ExpectedResult = "<p><strong>some</strong></p>")]
         public string ShouldBeWithStrongTag(string input)
         {
-            parser.registerLocalReader(new StrongRegister());
             return parser.Render(input);
         }
 
         [TestCase("", ExpectedResult = "")]
         public string ShouldNotBeWithStrongTag(string input)
         {
-            parser.registerLocalReader(new StrongRegister());
             return parser.Render(input);
         }
 
-        [Test]
+        [TestCase("", ExpectedResult = "")]
+        [TestCase("*foo bar*", ExpectedResult = "<p><em>foo bar</em></p>")]
+        [TestCase("*(*foo*)*", ExpectedResult = "<p><em>(<em>foo</em>)</em></p>")]
+        [TestCase("_(_foo_)_", ExpectedResult = "<p><em>(<em>foo</em>)</em></p>")]
+        [TestCase("_foo bar_", ExpectedResult = "<p><em>foo bar</em></p>")]
+        [TestCase("5*6*78", ExpectedResult = "<p>5<em>6</em>78</p>")]
         public string ShouldBeWithEmTag(string input)
         {
-            return null;
+            return parser.Render(input);
         }
 
-        [Test]
+        [TestCase("", ExpectedResult = "")]
+        [TestCase("a * foo bar*", ExpectedResult = "<p>a * foo bar*</p>")]
+        [TestCase("* a *", ExpectedResult = "<p>* a *</p>")]
+        [TestCase("a*\"foo\"*", ExpectedResult = "<p>a*\"foo\"*</p>")]
+        [TestCase("foo_bar_", ExpectedResult = "<p>foo_bar_</p>")]
+        [TestCase("_foo*", ExpectedResult = "<p>_foo*</p>")]
         public string ShouldNotBeWithEmTag(string input)
         {
-            return null;
+            return parser.Render(input);
         }
 
         //TODO Тест на производительность
@@ -65,12 +63,6 @@ namespace Markdown
         [NUnit.Framework.Test]
         public void ComplexTest()
         {
-            parser.registerGlobalReader(new ParagraphRegister());
-            parser.registerGlobalReader(new HorLineRegister());
-
-            parser.registerLocalReader(new StrongRegister());
-            parser.registerLocalReader(new EmRegister());
-
             parser.Render("_some __bike_ is__").Should().Be("<p><em>some <em><em>bike</em> is</em></em></p>");
         }
     }
