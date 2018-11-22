@@ -14,10 +14,9 @@ namespace Markdown
             Child = new List<TreeNode>();
         }
 
-        public TreeNode AppendNode(TreeNode node)
+        public void AppendNode(TreeNode node)
         {
             Child.Add(node);
-            return node;
         }
 
         public TreeNode AppendTextNode(string text)
