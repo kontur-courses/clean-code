@@ -1,4 +1,5 @@
-﻿using System.IO;
+﻿using System;
+using System.IO;
 using System.Text;
 
 namespace Markdown
@@ -9,29 +10,29 @@ namespace Markdown
         {
             var result = new StringBuilder();
             var md = new Md();
-            using (StreamReader reader = new StreamReader(@"examples.md"))
+            var data = "";
+            try
             {
-                while (!reader.EndOfStream)
-                {
-                    var mdParagraph = new StringBuilder();
-                    var currentString = reader.ReadLine();
+                data = File.ReadAllText(@"examples.md");
+            }
+            catch (IOException e)
+            {
+                Console.Error.WriteLine("Something went wrong! Check the correctness of file path.", e);
+            }
+            var mdParagraph = new StringBuilder();
 
-                    while (currentString.Length != 0)
-                    {
-                        mdParagraph.Append(currentString);
-                        if (!reader.EndOfStream)
-                            currentString = reader.ReadLine();
-                        else
-                            break;
-                    }
-                    result.Append(md.Render(mdParagraph.ToString()));
-                    if (reader.EndOfStream)
-                        result.Append("\n");
-                    else
-                        result.Append("\n\n");
+            foreach (var mdLine in data.Split('\n'))
+            {
+                if (mdLine.Length > 0 && mdLine != "\r")
+                    mdParagraph.Append(mdLine);
+                else
+                {
+                    result.Append(md.Render(mdParagraph.ToString()) + "\n\n");
                     mdParagraph.Clear();
                 }
             }
+
+            result.Remove(result.Length - 1, 1);
 
             using (StreamWriter writer = new StreamWriter(@"examples.html"))
             {
