@@ -36,10 +36,10 @@ namespace Markdown
             return endIndex;
         }
 
-        public static bool isInsideWord(this string text, int index)
+        public static bool isInsideWord(this string text, int index, int wordLen)
         {
             return (index != 0 && Char.IsLetterOrDigit(text[index - 1])) &&
-                   (index != text.Length - 1 && Char.IsLetterOrDigit(text[index + 1]));
+                   (index < text.Length - wordLen - 1 && Char.IsLetterOrDigit(text[index + wordLen]));
         }
     }
 }

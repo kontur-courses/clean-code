@@ -14,9 +14,9 @@ namespace Markdown
                 return null;
 
             string emDigit = input.startWith("*", startPos) ? "*" :
-                (input.startWith("_", startPos) && !input.isInsideWord(startPos)) ? "_" : null;
+                (input.startWith("_", startPos) && !input.isInsideWord(startPos, 1)) ? "_" : null;
 
-            if (emDigit == null || (startPos + 1 >= input.Length) || Char.IsWhiteSpace(input[startPos + 1]))
+            if (emDigit == null || (startPos + 1 >= input.Length) || Char.IsWhiteSpace(input[startPos + 1]) || input[startPos + 1] == '\"')
                 return null;
 
             int endIndex = input.indexOfCloseTag(emDigit, startPos + 1);

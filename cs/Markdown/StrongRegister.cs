@@ -11,13 +11,13 @@ namespace Markdown
     {
         public override Token tryGetToken(ref string input, int startPos)       // TODO объединить с EmRegister
         {
-            if (startPos != 0 && input.Length > 0 && input[startPos - 1] == '\\')
+            if (startPos != 0 && input.Length > 0 && input[startPos - 1] == '\\' || input.startWith("***", startPos) || input.startWith("___", startPos))
                 return null;
 
             string strongDigits = input.startWith("**", startPos) ? "**" :
-                                  input.startWith("__", startPos) ? "__" : null;
+                                  input.startWith("__", startPos) && !input.isInsideWord(startPos, 2) ? "__" : null;
 
-            if (strongDigits == null || (startPos + 2 >= input.Length || Char.IsWhiteSpace(input[startPos + 2])))
+            if (strongDigits == null || (startPos + 2 >= input.Length || Char.IsWhiteSpace(input[startPos + 2])) || input[startPos + 1] == '\"')    
                 return null;
 
             int endIndex = input.indexOfCloseTag(strongDigits, startPos + 2);
@@ -27,7 +27,7 @@ namespace Markdown
 
             var strValue = input.Substring(startPos + 2, endIndex - 2 - startPos);
 
-            return new Token(strValue, "<strong>", "</strong>", 0, endIndex - startPos + 4, true); 
+            return new Token(strValue, "<strong>", "</strong>", 0, endIndex - startPos + 2, true); 
         }
     }
 }
