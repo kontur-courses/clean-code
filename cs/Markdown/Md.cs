@@ -43,9 +43,6 @@ namespace Markdown
 
                 if (token != null)
                 {
-                    if (readers == globalReaders && i != 0)
-                        result.Append('\n');
-
                     result.Append(token.OpenTag);
                     result.Append(Parse(token.Value, localReaders));
                     result.Append(token.CloseTag);
