@@ -1,7 +1,6 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using NUnit.Framework;
 
 namespace Markdown
 {
@@ -25,13 +24,13 @@ namespace Markdown
         }
 
         public static bool IsOpenTag(LinkedListNode<Token> token)
-         {
-             return token.Next != null && !token.Next.Value.IsWhiteSpace;
-         }
-         
-         public static bool IsCloseTag(LinkedListNode<Token> token)
-         {
-             return token.Previous != null && !token.Previous.Value.IsWhiteSpace;
-         }
-     }
- }
+        {
+            return token.Next != null && !token.Next.Value.IsWhiteSpace;
+        }
+
+        public static bool IsCloseTag(LinkedListNode<Token> token)
+        {
+            return token.Previous != null && !token.Previous.Value.IsWhiteSpace;
+        }
+    }
+}

@@ -1,15 +1,13 @@
-using System.Collections.Generic;
-
 namespace Markdown
 {
     public class Token
     {
-        public  string Value;
-        public bool IsWhiteSpace;
-        public bool IsOpen;
-        public bool IsClose;
         public bool HasNumber;
+        public bool IsClose;
+        public bool IsOpen;
+        public bool IsWhiteSpace;
         public Tag PosibleTag;
+        public string Value;
 
         public Token()
         {
