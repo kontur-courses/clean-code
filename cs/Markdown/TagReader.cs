@@ -8,7 +8,7 @@ namespace Markdown
 {
     public class TagReader
     {
-        public int Position { get; set; }
+        public int Position { get; private set; }
         public string Source { get; }
         public TagInfo[] Tags { get; }
         private readonly Token rootToken = new Token(0, new PTagInfo());

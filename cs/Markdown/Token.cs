@@ -33,10 +33,9 @@ namespace Markdown
             var openingIndex = Position - Parent.Position;
             var openingTag = $"<{Tag.TagText}>";
             var closingTag = $"</{Tag.TagText}>";
-            var tagValue = new StringBuilder(Value.ToString());
-            tagValue = tagValue
+            var tagValue = Value
                 .Remove(0, Tag.TagLength)
-                .Remove(tagValue.Length - Tag.TagLength, Tag.TagLength);
+                .Remove(Value.Length - Tag.TagLength, Tag.TagLength);
             var finalValue = openingTag + tagValue + closingTag;
 
             Parent.Value.Remove(openingIndex, Length);
