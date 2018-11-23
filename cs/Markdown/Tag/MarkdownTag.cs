@@ -9,13 +9,13 @@ namespace Markdown.Tag
         public readonly string Translation;
         private readonly HashSet<string> uncombinableTags;
 
-        protected MarkdownTag(string value, string translation, params MarkdownTag[] uncombinableTags)
+        protected MarkdownTag(string value, string translation, params string[] uncombinableTagsTranslates)
         {
             Translation = translation.ToLower();
             Value = value;
-            this.uncombinableTags = new HashSet<string>();
-            foreach (var uncombinableTag in uncombinableTags)
-                this.uncombinableTags.Add(uncombinableTag.Value);
+            uncombinableTags = new HashSet<string>();
+            foreach (var uncombinableTagsTranslate in uncombinableTagsTranslates)
+                uncombinableTags.Add(uncombinableTagsTranslate);
         }
 
         public string GetTranslation()
@@ -30,7 +30,7 @@ namespace Markdown.Tag
 
         public bool CanContain(MarkdownTag tag)
         {
-            return !uncombinableTags.Contains(tag.Value);
+            return !uncombinableTags.Contains(tag.Translation);
         }
     }
 }

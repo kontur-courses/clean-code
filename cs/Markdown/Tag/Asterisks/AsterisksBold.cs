@@ -4,6 +4,6 @@ namespace Markdown.Tag.Asterisks
 {
     public class AsterisksBold : MarkdownTag
     {
-        public AsterisksBold() : base("**", "bold", new Italic(), new AsterisksItalic()){ }
+        public AsterisksBold() : base("**", "bold", new Italic().Translation) { }
     }
 }
