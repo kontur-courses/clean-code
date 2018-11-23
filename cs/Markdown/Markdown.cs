@@ -6,9 +6,9 @@ using System.Threading.Tasks;
 
 namespace Markdown
 {
-    public class Md
+    public static class Markdown
     {
-        public string Render(string text)
+        public static string Render(string text)
         {
             if (text == null)
                 throw new ArgumentNullException(nameof(text));

@@ -5,7 +5,7 @@ using NUnit.Framework;
 namespace Markdown
 {
     [TestFixture]
-    public class Render_Should
+    public class Markdown_Render_Should
     {
         [TestCase("", "", TestName = "empty string")]
         [TestCase("text", "text", TestName = "no tags")]
@@ -22,9 +22,7 @@ namespace Markdown
         [TestCase("___text__", "_<strong>text</strong>", TestName = "clustered underscores")]
         public void WorkCorrectlyOn(string input, string expectedResult)
         {
-            var md = new Md();
-
-            var result = md.Render(input);
+            var result = Markdown.Render(input);
 
             result.Should().Be(expectedResult);
         }
@@ -32,9 +30,7 @@ namespace Markdown
         [Test]
         public void ThrowArgumentNullException()
         {
-            var md = new Md();
-
-            Action render = () => md.Render(null);
+            Action render = () => Markdown.Render(null);
 
             render.ShouldThrow<ArgumentNullException>();
         }
