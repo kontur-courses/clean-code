@@ -12,7 +12,7 @@ namespace Markdown.Renderers
         [SetUp]
         public void DoBeforeAnyTest()
         {
-            converter = new Md.Md(new Parser(MdSpecification.GetTagHandlerChain()),
+            converter = new Md.Md(new Parser(MdSpecification.GetTagHandlerChain(), new TagToTextTagConverter()),
                 new HtmlRenderer(MdSpecification.GetHtmlTagHandlerChain()));
         }
 

@@ -24,7 +24,7 @@ namespace Markdown.CmdInterface
             parser = new FluentCommandLineParser();
 
             converters.Add("markdown2html",
-                new Md.Md(new Parser(MdSpecification.GetTagHandlerChain()),
+                new Md.Md(new Parser(MdSpecification.GetTagHandlerChain(), new TagToTextTagConverter()),
                     new HtmlRenderer(MdSpecification.GetHtmlTagHandlerChain())));
 
             parser.SetupHelp("?", "help")

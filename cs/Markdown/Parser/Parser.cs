@@ -9,12 +9,14 @@ namespace Markdown
     public class Parser : IParser
     {
         private readonly TagHandler tagHandler;
+        private readonly ITagConverter tagConverter;
         private int position;
         private string str;
 
-        public Parser(TagHandler tagHandler)
+        public Parser(TagHandler tagHandler, ITagConverter tagConverter)
         {
             this.tagHandler = tagHandler;
+            this.tagConverter = tagConverter;
         }
 
         public Tag Parse(string str)
@@ -52,12 +54,12 @@ namespace Markdown
 
                         if (openedTokens.IsEmpty)
                         {
-                            return new Tag
+                            return tagConverter.Convert(new Tag
                             {
-                                Type = MdSpecification.Text,
+                                Type = currentToken.Type,
                                 Tags = nestedTags,
                                 Value = currentToken.Value
-                            };
+                            });
                         }
 
                         if (openedTokens.Peek()
@@ -74,7 +76,13 @@ namespace Markdown
                         }
                         else
                         {
-                            nestedTags.Add(new Tag {Type = MdSpecification.Text, Value = currentToken.Value});
+                            nestedTags.Add(
+                                tagConverter.Convert(new Tag
+                                {
+                                    Type = currentToken.Type,
+                                    Value = currentToken.Value
+                                })
+                            );
                         }
 
                         break;

@@ -15,7 +15,7 @@ namespace Markdown.Md
         [SetUp]
         public void DoBeforeAnyTest()
         {
-            lexicalParser = new Parser(MdSpecification.GetTagHandlerChain());
+            lexicalParser = new Parser(MdSpecification.GetTagHandlerChain(), new TagToTextTagConverter());
         }
 
         [Test]

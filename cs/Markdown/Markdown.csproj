@@ -64,6 +64,8 @@
     <Compile Include="Md\HtmlTagHandlers\EmphasisHandler.cs" />
     <Compile Include="Md\HtmlTagHandlers\StrongEmphasisHandler.cs" />
     <Compile Include="Md\HtmlTagHandlers\TextHandler.cs" />
+    <Compile Include="Md\TagToTextTagConverter.cs" />
+    <Compile Include="Parser\ITagConverter.cs" />
     <Compile Include="Parser\ITokenNode.cs" />
     <Compile Include="Md\TagHandlers\StrongEmphasisHandler.cs" />
     <Compile Include="Md\TagHandlers\TextHandler.cs" />
