@@ -40,6 +40,8 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Tag\Asterisks\AsterisksBold.cs" />
+    <Compile Include="Tag\Asterisks\AsterisksItalic.cs" />
     <Compile Include="Tag\Standart\Text.cs" />
     <Compile Include="Tag\Standart\Bold.cs" />
     <Compile Include="Tag\Standart\Italic.cs" />

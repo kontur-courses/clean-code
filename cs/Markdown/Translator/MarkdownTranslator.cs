@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using Markdown.Tag;
+using Markdown.Tag.Asterisks;
 using Markdown.Tag.Standart;
 
 namespace Markdown.Translator
@@ -20,7 +21,9 @@ namespace Markdown.Translator
             tagsCollection = new List<MarkdownTag>
             {
                 new Italic(),
-                new Bold()
+                new AsterisksItalic(),
+                new Bold(),
+                new AsterisksBold()
             };
             tagsNesting = new Stack<MarkdownTag>();
             tagsOpening = new HashSet<char>();

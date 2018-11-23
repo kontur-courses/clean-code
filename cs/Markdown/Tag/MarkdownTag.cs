@@ -1,4 +1,4 @@
-﻿using System.Linq;
+﻿using System.Collections.Generic;
 
 namespace Markdown.Tag
 {
@@ -7,15 +7,15 @@ namespace Markdown.Tag
         public string Value { get; }
         public int Length => Value.Length;
         public readonly string Translation;
-        private readonly string[] uncombinableTags;
+        private readonly HashSet<string> uncombinableTags;
 
         protected MarkdownTag(string value, string translation, params MarkdownTag[] uncombinableTags)
         {
             Translation = translation.ToLower();
             Value = value;
-            this.uncombinableTags = uncombinableTags
-                .Select(t => t.Value)
-                .ToArray();
+            this.uncombinableTags = new HashSet<string>();
+            foreach (var uncombinableTag in uncombinableTags)
+                this.uncombinableTags.Add(uncombinableTag.Value);
         }
 
         public string GetTranslation()
@@ -30,7 +30,7 @@ namespace Markdown.Tag
 
         public bool CanContain(MarkdownTag tag)
         {
-            return uncombinableTags.Any(t => t == tag.Value);
+            return !uncombinableTags.Contains(tag.Value);
         }
     }
 }
