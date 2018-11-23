@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 
 namespace Markdown
 {
@@ -6,10 +7,8 @@ namespace Markdown
     {
         public string Render(string text)
         {
-            if (text is null)
-                throw new ArgumentNullException(nameof(text));
-
-            return text;
+            var tokens = new Tokenizer().GetTokens(text, new List<string>{"_", "__"});
+            throw new NotImplementedException();
         }
     }
 }
