@@ -27,8 +27,8 @@ namespace Markdown
             while (Position < Source.Length)
             {
                 if (TrySkipEscapeSymbol()) continue;
-                if (TryCloseToken()) continue;
-                if (TryOpenToken()) continue;
+                if (TryCloseTag()) continue;
+                if (TryOpenTag()) continue;
                 
                 AddCharacterToTokens(Window[0]);
 
@@ -66,7 +66,7 @@ namespace Markdown
             [-1] = Position == 0 ? (char) 0 : Source[Position - 1]
         };
 
-        private bool TryOpenToken()
+        private bool TryOpenTag()
         {
             foreach (var tag in Tags)
             {
@@ -79,7 +79,7 @@ namespace Markdown
             return false;
         }
 
-        private bool TryCloseToken()
+        private bool TryCloseTag()
         {
             foreach (var token in TokenList.Reverse())
             {

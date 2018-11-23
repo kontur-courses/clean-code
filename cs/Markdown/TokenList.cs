@@ -27,8 +27,8 @@ namespace Markdown
                 currentToken = currentToken.Child;
             }
 
-            currentToken.Child = tag.GetNewToken(position);
-            currentToken.Child.Parent = currentToken;
+            currentToken.SetChild(tag.GetNewToken(position));
+            currentToken.Child.SetParent(currentToken);
 
             return true;
         }

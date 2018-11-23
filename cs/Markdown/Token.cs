@@ -1,4 +1,5 @@
-﻿using System.Text;
+﻿using System;
+using System.Text;
 
 namespace Markdown
 {
@@ -7,8 +8,8 @@ namespace Markdown
         public int Position { get; }
         public int Length { get; private set; }
         public StringBuilder Value { get; } = new StringBuilder();
-        public Token Parent { get; set; }
-        public Token Child { get; set; }
+        public Token Parent { get; private set; }
+        public Token Child { get; private set; }
         public TagInfo Tag { get; }
 
         public Token(int position, TagInfo tag)
@@ -17,9 +18,18 @@ namespace Markdown
             Tag = tag;
 		}
 
-        public void AddChild(Token token)
+        public void SetChild(Token token)
         {
+            if (Child != null)
+                throw new InvalidOperationException("This token already has a child");
             Child = token;
+        }
+
+        public void SetParent(Token token)
+        {
+            if (Parent != null)
+                throw new InvalidOperationException("This token already has a parent");
+            Parent = token;
         }
 
         public void AddCharacter(char c)
