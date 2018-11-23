@@ -1,20 +1,21 @@
 using System.Collections.Generic;
 using System.Text;
 using Markdown.Properties;
+using Markdown.Properties.Implementations;
 
 namespace Markdown
 {
     public class TokenReader
     {
-        private readonly FiniteDerminationAutomaton automaton;
-        private readonly Dictionary<State, Tag> terminateStates;
+        private readonly MarkDownFiniteDetermentationAutomaton automaton;
+        private readonly Dictionary<State<char>, Tag> terminateStates;
         private readonly TokenFlagLayouter tokenFlagLayouter;
 
 
         public TokenReader(Dictionary<string, Tag> tags)
         {
-            terminateStates = new Dictionary<State, Tag>();
-            automaton = new FiniteDerminationAutomaton();
+            terminateStates = new Dictionary<State<char>, Tag>();
+            automaton = new MarkDownFiniteDetermentationAutomaton();
             foreach (var tag in tags)
                 terminateStates[automaton.AddNewTag(tag.Key)] = tag.Value;
 
