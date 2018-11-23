@@ -1,5 +1,6 @@
 using System.Collections.Generic;
 using System.Diagnostics;
+using NUnit.Framework;
 
 namespace Markdown.HTMLTransducer
 {
@@ -31,7 +32,7 @@ namespace Markdown.HTMLTransducer
 
                 if (rules.ContainsRuleFor(token))
                     token = ProcessControlToken(token, index, rules, 
-                        controlTokensStack, result);
+                        controlTokensStack, result, tokens);
                 
                 result.Add(token);
             }
@@ -41,7 +42,7 @@ namespace Markdown.HTMLTransducer
 
         private Token ProcessControlToken(Token token, int index,
             Rules rules, Stack<(Token, int)> controlTokensStack, 
-            IList<Token> result)
+            IList<Token> result, IReadOnlyList<Token> tokens)
         {
             var isOpening = true;
             
@@ -57,10 +58,55 @@ namespace Markdown.HTMLTransducer
                 }
             }
             
-            if (isOpening)
+            if (IsMarkingValid(tokens, token, index, rules, controlTokensStack))
                 controlTokensStack.Push((token, index));
 
             return token;
         }
+
+        private bool IsMarkingValid(IReadOnlyList<Token> tokens,
+            Token token, int index, Rules rules, 
+            Stack<(Token, int)> controlTokensStack) =>
+            NextTokenNotStartWithSpace(tokens, token, index) &&
+            NotInsideDigitsTokens(tokens, token, index) &&
+            AllowInheritToken(tokens, token, index, rules, controlTokensStack);
+
+        private bool AllowInheritToken(IReadOnlyList<Token> tokens,
+            Token token, int index, Rules rules,
+            Stack<(Token, int)> controlTokensStack)
+        {
+            if (controlTokensStack.Count == 0)
+                return true;
+
+            var (parentToken, _) = controlTokensStack.Peek();
+            return !rules.ContainsProhibitInheritRuleFor(parentToken, token);
+        }
+            
+
+        private bool NotInsideDigitsTokens(IReadOnlyList<Token> tokens, Token token, int index)
+        {
+            var previousToken = TryGetToken(tokens, index - 1);
+            var nextToken = TryGetToken(tokens, index + 1);
+
+            if (previousToken == null || nextToken == null)
+                return true;
+
+            var previousSymbol = previousToken.Value[previousToken.Length - 1];
+            var nextSymbol = nextToken.Value[0];
+
+            return !(char.IsDigit(previousSymbol) && char.IsDigit(nextSymbol));
+        }
+
+        private bool NextTokenNotStartWithSpace(IReadOnlyList<Token> tokens, Token token, int index)
+        {
+            var nextToken = TryGetToken(tokens, index + 1);
+            return nextToken == null || !nextToken.Value.StartsWith(" ");
+        }
+
+
+        private Token TryGetToken(IReadOnlyList<Token> tokens, int index) =>
+            index >= 0 && index < tokens.Count 
+                ? tokens[index] 
+                : null;
     }
 }

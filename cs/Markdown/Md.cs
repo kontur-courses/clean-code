@@ -20,7 +20,13 @@ namespace Markdown
             {
                 new Rule(new Token("_", true), "<em>", doubleTagged: true),
                 new Rule(new Token("__", true), "<strong>", doubleTagged: true)
-            }, new HashSet<Token>{new Token("\\", true)});
+            }, 
+            new HashSet<Token>{new Token("\\", true),},
+            new List<ProhibitInheritTokenRule>
+            {
+                new ProhibitInheritTokenRule(new Token("_", true), 
+                    new Token("__", true))
+            });
             var transducer = new Transducer();
             tokens = transducer.Transform(tokens, rules);
 

@@ -54,6 +54,7 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="HTMLTransducer\ProhibitInheritTokenRule.cs" />
     <Compile Include="HTMLTransducer\Rule.cs" />
     <Compile Include="HTMLTransducer\Rules.cs" />
     <Compile Include="HTMLTransducer\Transducer.cs" />
