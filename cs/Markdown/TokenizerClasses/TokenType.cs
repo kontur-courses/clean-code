@@ -3,8 +3,9 @@ namespace Markdown.TokenizerClasses
     public enum TokenType
     {
         Text,
-        Digit,
+        Num,
         Underscore,
+        DoubleUnderscore,
         EscapeChar,
         Space,
         CarriageReturn,

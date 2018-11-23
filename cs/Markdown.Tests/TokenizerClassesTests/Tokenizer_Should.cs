@@ -29,48 +29,48 @@ namespace Markdown.Tests.TokenizerClassesTests
         }
 
         [Test]
-        public void Tokenize_TextsSpacesAndDigits_Successfully()
+        public void Tokenize_Nums_Successfully()
         {
             var text = "0If 1You 2Can't 3Stand 4the 5Heat, 6Get 7Out 8the 9Kitchen";
             var expected = new List<Token>
             {
-                new Token(TokenType.Digit, "0"),
+                new Token(TokenType.Num, "0"),
                 new Token(TokenType.Text, "If"),
                 new Token(TokenType.Space, " "),
 
-                new Token(TokenType.Digit, "1"),
+                new Token(TokenType.Num, "1"),
                 new Token(TokenType.Text, "You"),
                 new Token(TokenType.Space, " "),
 
-                new Token(TokenType.Digit, "2"),
+                new Token(TokenType.Num, "2"),
                 new Token(TokenType.Text, "Can't"),
                 new Token(TokenType.Space, " "),
 
-                new Token(TokenType.Digit, "3"),
+                new Token(TokenType.Num, "3"),
                 new Token(TokenType.Text, "Stand"),
                 new Token(TokenType.Space, " "),
 
-                new Token(TokenType.Digit, "4"),
+                new Token(TokenType.Num, "4"),
                 new Token(TokenType.Text, "the"),
                 new Token(TokenType.Space, " "),
 
-                new Token(TokenType.Digit, "5"),
+                new Token(TokenType.Num, "5"),
                 new Token(TokenType.Text, "Heat,"),
                 new Token(TokenType.Space, " "),
 
-                new Token(TokenType.Digit, "6"),
+                new Token(TokenType.Num, "6"),
                 new Token(TokenType.Text, "Get"),
                 new Token(TokenType.Space, " "),
 
-                new Token(TokenType.Digit, "7"),
+                new Token(TokenType.Num, "7"),
                 new Token(TokenType.Text, "Out"),
                 new Token(TokenType.Space, " "),
 
-                new Token(TokenType.Digit, "8"),
+                new Token(TokenType.Num, "8"),
                 new Token(TokenType.Text, "the"),
                 new Token(TokenType.Space, " "),
 
-                new Token(TokenType.Digit, "9"),
+                new Token(TokenType.Num, "9"),
                 new Token(TokenType.Text, "Kitchen"),
             };
 
@@ -80,18 +80,15 @@ namespace Markdown.Tests.TokenizerClassesTests
         }
 
         [Test]
-        public void Tokenize_TextsSpacesDigitsAndUnderscores_Successfully()
+        public void Tokenize_Underscore_Successfully()
         {
-            var text = "_0Ugly _1Duckling";
+            var text = "Ugly 0_";
             var expected = new List<Token>
             {
-                new Token(TokenType.Underscore, "_"),
-                new Token(TokenType.Digit, "0"),
                 new Token(TokenType.Text, "Ugly"),
                 new Token(TokenType.Space, " "),
+                new Token(TokenType.Num, "0"),
                 new Token(TokenType.Underscore, "_"),
-                new Token(TokenType.Digit, "1"),
-                new Token(TokenType.Text, "Duckling"),
             };
 
             tokenizer.Tokenize(text)
@@ -100,14 +97,58 @@ namespace Markdown.Tests.TokenizerClassesTests
         }
 
         [Test]
-        public void Tokenize_TextsSpacesDigitsUnderscoresAndEscapeChars_Successfully()
+        public void Tokenize_DoubleUnderscore_Successfully()
         {
-            var text = "\\_0 satisfaction";
+            var text = @"express 7__";
             var expected = new List<Token>
             {
-                new Token(TokenType.EscapeChar, "\\"),
+                new Token(TokenType.Text, "express"),
+                new Token(TokenType.Space, " "),
+                new Token(TokenType.Num, "7"),
+                new Token(TokenType.DoubleUnderscore, "__")
+            };
+
+            tokenizer.Tokenize(text)
+                .Should()
+                .BeEquivalentTo(expected);
+        }
+
+        [TestCase(@"\_", @"_", TestName = "underscore")]
+        [TestCase(@"\\", @"\", TestName = "escape char")]
+        public void Tokenize_EscapedTokenAsTextToken(string escapedToken, string expectedValue)
+        {
+            var expected = new Token(TokenType.Text, expectedValue);
+
+            tokenizer.Tokenize(escapedToken)
+                .Should()
+                .BeEquivalentTo(expected);
+        }
+
+        [Test]
+        public void Tokenize_EscapedDoubleUnderscoreAsTwoTextUnderscores()
+        {
+            var text = @"\_\_";
+            var expected = new List<Token>
+            {
+                new Token(TokenType.Text, "_"),
+                new Token(TokenType.Text, "_")
+            };
+
+            tokenizer.Tokenize(text)
+                .Should()
+                .BeEquivalentTo(expected);
+        }
+
+        [Test]
+        public void Tokenize_EscapeChar_Successfully()
+        {
+            var text = @"\ _0 satisfaction";
+            var expected = new List<Token>
+            {
+                new Token(TokenType.EscapeChar, @"\"),
+                new Token(TokenType.Space, " "),
                 new Token(TokenType.Underscore, "_"),
-                new Token(TokenType.Digit, "0"),
+                new Token(TokenType.Num, "0"),
                 new Token(TokenType.Space, " "),
                 new Token(TokenType.Text, "satisfaction")
             };
@@ -117,44 +158,17 @@ namespace Markdown.Tests.TokenizerClassesTests
                 .BeEquivalentTo(expected);
         }
 
-        [Test]
-        public void Tokenize_TextsSpacesDigitsUnderscoresEscapeCharsAndCarriageReturn_Successfully()
+        [TestCase("73", TestName = "two-digit num")]
+        [TestCase("314", TestName = "three-digit num")]
+        [TestCase("1234567890", TestName = "ten-digit num")]
+        public void Tokenize_ConsecutiveNumsAsSingleNum(string text)
         {
-            var text = " 1\\_cherry\r";
-            var expected = new List<Token>
-            {
-                new Token(TokenType.Space, " "),
-                new Token(TokenType.Digit, "1"),
-                new Token(TokenType.EscapeChar, "\\"),
-                new Token(TokenType.Underscore, "_"),
-                new Token(TokenType.Text, "cherry"),
-                new Token(TokenType.CarriageReturn, "\r")
-            };
+            var expected = new Token(TokenType.Num, text);
 
             tokenizer.Tokenize(text)
                 .Should()
                 .BeEquivalentTo(expected);
-        }
 
-        [Test]
-        public void Tokenize_TextsSpacesDigitsUnderscoresEscapeCharsCarriageReturnsAndNewlines_Successfully()
-        {
-            var text = "0\\_Playing Possum\r\n";
-            var expected = new List<Token>
-            {
-                new Token(TokenType.Digit, "0"),
-                new Token(TokenType.EscapeChar, "\\"),
-                new Token(TokenType.Underscore, "_"),
-                new Token(TokenType.Text, "Playing"),
-                new Token(TokenType.Space, " "),
-                new Token(TokenType.Text, "Possum"),
-                new Token(TokenType.CarriageReturn, "\r"),
-                new Token(TokenType.Newline, "\n")
-            };
-
-            tokenizer.Tokenize(text)
-                .Should()
-                .BeEquivalentTo(expected);
         }
 
         [TestCase("", TestName = "empty text")]
@@ -166,16 +180,16 @@ namespace Markdown.Tests.TokenizerClassesTests
                 .BeEquivalentTo(Token.EOF);
         }
 
-        [TestCase("0", TokenType.Digit, "0", TestName = "digit 0")]
-        [TestCase("1", TokenType.Digit, "1", TestName = "digit 1")]
-        [TestCase("2", TokenType.Digit, "2", TestName = "digit 2")]
-        [TestCase("3", TokenType.Digit, "3", TestName = "digit 3")]
-        [TestCase("4", TokenType.Digit, "4", TestName = "digit 4")]
-        [TestCase("5", TokenType.Digit, "5", TestName = "digit 5")]
-        [TestCase("6", TokenType.Digit, "6", TestName = "digit 6")]
-        [TestCase("7", TokenType.Digit, "7", TestName = "digit 7")]
-        [TestCase("8", TokenType.Digit, "8", TestName = "digit 8")]
-        [TestCase("9", TokenType.Digit, "9", TestName = "digit 9")]
+        [TestCase("0", TokenType.Num, "0", TestName = "digit 0")]
+        [TestCase("1", TokenType.Num, "1", TestName = "digit 1")]
+        [TestCase("2", TokenType.Num, "2", TestName = "digit 2")]
+        [TestCase("3", TokenType.Num, "3", TestName = "digit 3")]
+        [TestCase("4", TokenType.Num, "4", TestName = "digit 4")]
+        [TestCase("5", TokenType.Num, "5", TestName = "digit 5")]
+        [TestCase("6", TokenType.Num, "6", TestName = "digit 6")]
+        [TestCase("7", TokenType.Num, "7", TestName = "digit 7")]
+        [TestCase("8", TokenType.Num, "8", TestName = "digit 8")]
+        [TestCase("9", TokenType.Num, "9", TestName = "digit 9")]
         [TestCase("_", TokenType.Underscore, "_", TestName = "underscore tag")]
         [TestCase("\\", TokenType.EscapeChar, "\\", TestName = "escape character")]
         [TestCase(" ", TokenType.Space, " ", TestName = "space")]

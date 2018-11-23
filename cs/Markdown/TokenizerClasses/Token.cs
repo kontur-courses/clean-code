@@ -4,8 +4,7 @@
     {
         public TokenType Type { get; }
         public string Value { get; }
-
-        public int Length => Value.Length;
+        public int Length;
 
         public static Token EOF { get; } = new Token(TokenType.EOF, "");
         public static Token Null { get; } = new Token(TokenType.Null, "\0");
@@ -14,6 +13,7 @@
         {
             Type = type;
             Value = value;
+            Length = Type == TokenType.Text ? Value.Length : 1;
         }
     }
 }

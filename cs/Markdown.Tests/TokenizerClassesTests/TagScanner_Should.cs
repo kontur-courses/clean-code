@@ -37,9 +37,9 @@ namespace Markdown.Tests.TokenizerClassesTests
         [TestCase("7", TestName = "digit 7")]
         [TestCase("8", TestName = "digit 8")]
         [TestCase("9", TestName = "digit 9")]
-        public void TryScan_Digit_SuccessfullyAndReturnAppropriateToken(string digit)
+        public void TryScan_Num_SuccessfullyAndReturnAppropriateToken(string digit)
         {
-            var expected = new Token(TokenType.Digit, digit);
+            var expected = new Token(TokenType.Num, digit);
 
             scanner.TryScan(digit, out var token)
                 .Should()
