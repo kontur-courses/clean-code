@@ -54,6 +54,9 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="HTMLTransducer\Rule.cs" />
+    <Compile Include="HTMLTransducer\Rules.cs" />
+    <Compile Include="HTMLTransducer\Transducer.cs" />
     <Compile Include="Md.cs" />
     <Compile Include="Md_should.cs" />
     <Compile Include="Program.cs" />
