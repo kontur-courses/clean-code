@@ -3,14 +3,14 @@
     public class Token
     {
         public readonly Tag Tag;
-        public readonly int Position;
-        public readonly bool IsOpen;
+        public readonly int StartPosition;
+        public readonly int EndPosition;
 
-        public Token(Tag tag, int position, bool isOpen = true)
+        public Token(Tag tag, int startPosition, int endPosition)
         {
             Tag = tag;
-            Position = position;
-            IsOpen = isOpen;
+            StartPosition = startPosition;
+            EndPosition = endPosition;
         }
     }
 }

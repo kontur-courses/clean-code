@@ -2,13 +2,19 @@
 {
     public struct Tag
     {
-        public readonly string MD;
-        public readonly string HTML;
+        public readonly string Md;
+        public readonly string Html;
+        public readonly string HtmlOpen;
+        public readonly string HtmlClose;
+        public readonly bool WithClosure;
 
-        public Tag(string md, string html)
+        public Tag(string md, string html, bool withClosure = true)
         {
-            MD = md;
-            HTML = html;
+            Md = md;
+            Html = html;
+            HtmlOpen = $"<{html}>";
+            WithClosure = withClosure;
+            HtmlClose = withClosure ? $"</{html}>" : "";
         }
     }
 }
