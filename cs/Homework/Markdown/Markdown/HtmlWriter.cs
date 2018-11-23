@@ -90,7 +90,7 @@ namespace Markdown
                 position = line.IndexOf(@"\", position);
             }
 
-            if (previousPosition != line.Length - 1)
+            if (previousPosition <= line.Length - 1)
                 result.Append(line.Substring(previousPosition, line.Length - previousPosition));
 
             return result.ToString();

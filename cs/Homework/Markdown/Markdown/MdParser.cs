@@ -17,7 +17,7 @@ namespace Markdown
             new Tag("###", "h3", withClosure: false),
             new Tag("####", "h4", withClosure: false),
             new Tag("#####", "h5", withClosure: false),
-            new Tag("######", "h6", withClosure: false),
+            new Tag("######", "h6", withClosure: false)
         };
 
         public static List<Token> GetAllTokens(string mdParagraph)
