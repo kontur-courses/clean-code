@@ -12,7 +12,7 @@ namespace Markdown
         public string Source { get; }
         public TagInfo[] Tags { get; }
         private TokenList TokenList { get; }
-        private Window Window => GetWindow();
+        private Window Window { get; }
 
 
         public TagReader(string source, params TagInfo[] tags)
@@ -20,12 +20,14 @@ namespace Markdown
             Source = source;
             Tags = tags;
             TokenList = new TokenList(new PTagInfo().GetNewToken(0));
+            Window = new Window(Source, 0);
         }
 
         public string Evaluate()
         {
             while (Position < Source.Length)
             {
+                Window.Position = Position;
                 if (TrySkipEscapeSymbol()) continue;
                 if (TryCloseTag()) continue;
                 if (TryOpenTag()) continue;
@@ -54,14 +56,6 @@ namespace Markdown
                 token.AddCharacter(c);
             }
         }
-
-        private Window GetWindow() => new Window
-        {
-            [2] = Position >= Source.Length - 2 ? (char) 0 : Source[Position + 2],
-            [1] = Position >= Source.Length - 1 ? (char) 0 : Source[Position + 1],
-            [0] = Source[Position],
-            [-1] = Position == 0 ? (char) 0 : Source[Position - 1]
-        };
 
         private bool TryOpenTag()
         {
