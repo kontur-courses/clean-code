@@ -21,7 +21,7 @@ namespace MarkDown_Tests
         }
 
         [Test]
-        public void GetTokens_ParseToken()
+        public void GetTokens_FromFirstLayCorrectly_WhenMultipleLayers()
         {
             var parser = new MarkDownParser("__just _some_ text__".GetCharStates(specCharacters), availableTagTypes);
             var token = parser.GetTokens().First();
@@ -33,7 +33,7 @@ namespace MarkDown_Tests
         }
 
         [Test]
-        public void GetTokens_ParseInnerTextTokensAtStart()
+        public void GetTokens_FromSecondLayerCorrectly_WhenMultipleLayersAndTextTokenInStart()
         {
             var parser = new MarkDownParser("__just _some_ text__".GetCharStates(specCharacters), availableTagTypes);
             var tokens = parser.GetTokens().First().InnerTokens.ToList();
@@ -45,7 +45,7 @@ namespace MarkDown_Tests
         }        
         
         [Test]
-        public void GetTokens_ParseInnerTextTokensAtTheEnd()
+        public void GetTokens_FromSecondLayerCorrectly_WhenMultipleLayersAndTextTokenAtTheEnd()
         {
             var parser = new MarkDownParser("__just _some_ text__".GetCharStates(specCharacters), availableTagTypes);
             var tokens = parser.GetTokens().First().InnerTokens.ToList();
@@ -57,7 +57,7 @@ namespace MarkDown_Tests
         }       
         
         [Test]
-        public void GetTokens_ParseInnerTagToken()
+        public void GetTokens_FromSecondLayerCorrectly_WhenMultipleLayersAndInnerTagToken()
         {
             var parser = new MarkDownParser("__just _some_ text__".GetCharStates(specCharacters), availableTagTypes);
             var tokens = parser.GetTokens().First().InnerTokens.ToList();

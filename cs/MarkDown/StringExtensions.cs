@@ -1,12 +1,13 @@
 ﻿using System.Collections.Generic;
 using System.Linq;
+using System.Runtime.CompilerServices;
 using System.Text;
 
 namespace MarkDown
 {
-    public static class StringExtensions
+    internal static class StringExtensions
     {
-        public static List<Character> GetCharStates(this string text, List<string> specSymbols)
+        internal static List<Character> GetCharStates(this string text, List<string> specSymbols)
         {
             var result = text.Select(s => new Character(s, CharState.NotEscaped)).ToList();
             for (var i = 0; i < text.Length; i++)

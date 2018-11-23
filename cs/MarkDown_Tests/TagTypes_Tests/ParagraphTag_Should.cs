@@ -44,6 +44,6 @@ namespace MarkDown_Tests.TagTypes_Tests
 
 
         [Test]
-        public void ToHtml_ReturnCorrectHtmlString() => tag.ToHtml("a").Should().Be("<p>a</p>");
+        public void RenderToHtml_And_ReturnCorrectHtmlString() => tag.ToHtml("a").Should().Be("<p>a</p>");
     }
 }
