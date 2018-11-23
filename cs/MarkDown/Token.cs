@@ -8,18 +8,18 @@ namespace MarkDown
     public class Token
     {
         public int Position { get; }
-        
-        public TokenType TokenType => TagType == null ? TokenType.Text : TokenType.Tag; 
+
+        public TokenType TokenType => TagType == null ? TokenType.Text : TokenType.Tag;
 
         public TagType TagType { get; }
 
         private List<Character> ParamContent { get; }
 
         public List<Character> Content { get; }
-        
+
         public int Length => Content.Count + (TagType?.OpeningSymbol.Length + TagType?.ClosingSymbol.Length ?? 0);
 
-        public IEnumerable<Token> InnerTokens { get; set; }
+    public IEnumerable<Token> InnerTokens { get; set; }
 
         public Token(int position, List<Character> content, TagType tagType = null, List<Character> paramContent = null)
         {

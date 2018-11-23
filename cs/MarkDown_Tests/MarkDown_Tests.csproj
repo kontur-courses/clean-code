@@ -51,6 +51,7 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="MarkDownParser_Should.cs" />
     <Compile Include="StringExtensions_Should.cs" />
     <Compile Include="TagTypes_Tests\ATag_Should.cs" />
     <Compile Include="TagTypes_Tests\EmTag_Should.cs" />

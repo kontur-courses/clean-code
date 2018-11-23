@@ -11,84 +11,61 @@ namespace MarkDown_Tests
     public class MarkDownParser_Should
     {
         private List<TagType> availableTagTypes;
+        private List<string> specCharacters;
+
         [SetUp]
         public void SetUp()
         {
+            specCharacters = new List<string>(){"_", "__", "\\", "[", "]", "(", ")"}; 
             availableTagTypes = new List<TagType>(){new EmTag(), new StrongTag(), new ATag()};
         }
 
         [Test]
-        public void GetTokens_ParseTextToken()
+        public void GetTokens_ParseToken()
         {
-            var parser = new MarkDownParser("just some text".GetCharStates(), availableTagTypes);
-            var expectedTokens = new List<Token>() { new Token(0, "just some text".GetCharStates())};
-            parser.GetTokens().Should().BeEquivalentTo(expectedTokens);
+            var parser = new MarkDownParser("__just _some_ text__".GetCharStates(specCharacters), availableTagTypes);
+            var token = parser.GetTokens().First();
+            token.Position.Should().Be(0);
+            token.Length.Should().Be(20);
+            token.TagType.GetType().Should().Be(typeof(StrongTag));
+            token.TokenType.Should().Be(TokenType.Tag);
+            string.Concat(token.Content.Select(s => s.Char)).Should().Be("just _some_ text");
         }
 
         [Test]
-        public void GetTokens_ParseEmTagToken()
+        public void GetTokens_ParseInnerTextTokensAtStart()
         {
-            var parser = new MarkDownParser("_just some text_".GetCharStates(), availableTagTypes);
-            var expectedTokens = new List<Token>() { new Token(0, "just some text".GetCharStates(), new EmTag()) };
-            expectedTokens[0].InnerTokens = new[] {new Token(0, "just some text".GetCharStates())};
-            parser.GetTokens().Should().BeEquivalentTo(expectedTokens);
-        }
-
+            var parser = new MarkDownParser("__just _some_ text__".GetCharStates(specCharacters), availableTagTypes);
+            var tokens = parser.GetTokens().First().InnerTokens.ToList();
+            tokens[0].Position.Should().Be(0);
+            tokens[0].Length.Should().Be(5);
+            tokens[0].TagType.Should().BeNull();
+            tokens[0].TokenType.Should().Be(TokenType.Text);
+            string.Concat(tokens[0].Content.Select(s => s.Char)).Should().Be("just ");
+        }        
+        
         [Test]
-        public void GetTokens_ParseStrongTagToken()
+        public void GetTokens_ParseInnerTextTokensAtTheEnd()
         {
-            var parser = new MarkDownParser("__just some text__".GetCharStates(), availableTagTypes);
-            var expectedTokens = new List<Token>() { new Token(0, "just some text".GetCharStates(), new StrongTag()) };
-            expectedTokens[0].InnerTokens = new[] { new Token(0, "just some text".GetCharStates())};
-            var tokens = parser.GetTokens().ToList();
-            tokens.Should().BeEquivalentTo(expectedTokens);
-        }
-
+            var parser = new MarkDownParser("__just _some_ text__".GetCharStates(specCharacters), availableTagTypes);
+            var tokens = parser.GetTokens().First().InnerTokens.ToList();
+            tokens[2].Position.Should().Be(11);
+            tokens[2].Length.Should().Be(5);
+            tokens[2].TagType.Should().BeNull();
+            tokens[2].TokenType.Should().Be(TokenType.Text);
+            string.Concat(tokens[2].Content.Select(s => s.Char)).Should().Be(" text");
+        }       
+        
         [Test]
-        public void GetTokens_ParseStrongTagWithInnerEmTagToken()
+        public void GetTokens_ParseInnerTagToken()
         {
-            var parser = new MarkDownParser("__just _some_ text__", availableTagTypes);
-            var expectedTokens = new List<Token>() { new Token(0, "just _some_ text", new StrongTag()) };
-            var innerTokens = new[] { new Token(0, "just "), new Token(5, "some", new EmTag()), new Token(11, " text")};
-            innerTokens[1].InnerTokens = new[] {new Token(0, "some")};
-            expectedTokens[0].InnerTokens = innerTokens;
-            var tokens = parser.GetTokens().ToList();
-            tokens.Should().BeEquivalentTo(expectedTokens);
-        }
-
-        [Test]
-        public void GetTokens_ParseEmTagWithInnerStrongTagToken()
-        {
-            var parser = new MarkDownParser("_just __some__ text_", availableTagTypes);
-            var expectedTokens = new List<Token>() { new Token(0, "just __some__ text", new EmTag()) };
-            expectedTokens[0].InnerTokens = new[] {new Token(0, "just __some__ text")};
-            parser.GetTokens().Should().BeEquivalentTo(expectedTokens);
-        }
-
-        [Test]
-        public void GetTokens_ParseMultipleDifferentTokensCorrectly()
-        {
-            var parser = new MarkDownParser("_just_ __some__ __different _tokens", availableTagTypes);
-            var expectedTokens = new List<Token>()
-            {
-                new Token(0, "just", new EmTag()),
-                new Token(6, " "),
-                new Token(7, "some", new StrongTag()),
-                new Token(15, " __different _tokens")
-            };
-
-            expectedTokens[0].InnerTokens = new[] {new Token(0, "just")};
-            expectedTokens[2].InnerTokens = new[] {new Token(0, "some")};
-            parser.GetTokens().Should().BeEquivalentTo(expectedTokens);
-        }
-
-        [Test]
-        public void GetTokens_ParseATag()
-        {
-            var parser = new MarkDownParser("[foo](bar)", availableTagTypes);
-            var expectedTokens = new[] { new Token(0, "bar", new ATag(), "foo")};
-            expectedTokens[0].InnerTokens = new[] { new Token(0, "bar")};
-            parser.GetTokens().Should().BeEquivalentTo(expectedTokens);
+            var parser = new MarkDownParser("__just _some_ text__".GetCharStates(specCharacters), availableTagTypes);
+            var tokens = parser.GetTokens().First().InnerTokens.ToList();
+            tokens[1].Position.Should().Be(5);
+            tokens[1].Length.Should().Be(6);
+            tokens[1].TagType.GetType().Should().Be(typeof(EmTag));
+            tokens[1].TokenType.Should().Be(TokenType.Tag);
+            string.Concat(tokens[1].Content.Select(s => s.Char)).Should().Be("some");
         }
     }
 }
