@@ -45,10 +45,7 @@ namespace Markdown
             }
         }
 
-        public void Skip(int amount)
-        {
-            for (var startPosition = Position; Position < startPosition + amount; Position++) ;
-        }
+        public void Skip(int amount) => Position += amount;
 
         private void AddCharacterToTokens(char c)
         {
