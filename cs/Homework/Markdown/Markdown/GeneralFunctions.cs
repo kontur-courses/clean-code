@@ -7,7 +7,6 @@
             var escapesCount = 0;
             for (var i = position - 1; i >= 0; i--)
             {
-                var a = line[i];
                 if (line[i] != '\\')
                     break;
                 escapesCount++;
