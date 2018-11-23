@@ -1,19 +1,20 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Diagnostics;
 using System.Drawing;
 using NUnit.Framework;
 
-namespace Markdown.Testing
+namespace MarkdownTests
 {
-    [TestFixture]
+   [TestFixture]
     public class Markdown_Tests
     {
-         private Markdown markdown;
+         private Markdown.Markdown markdown;
 
         [SetUp]
         public void CreateMd()
         {
-            markdown = new Markdown();
+            markdown = new Markdown.Markdown();
         }
 
         [TestCase("_paragraph_", ExpectedResult = "<em>paragraph</em>", TestName = "Нижнее подчеркивание на простой строке")]
@@ -54,7 +55,7 @@ namespace Markdown.Testing
                 
                 points.Add(new Point(paragraph.Length, sw.Elapsed.Milliseconds ));
                 paragraph += " " + paragraph;
-                markdown = new Markdown();
+                markdown = new Markdown.Markdown();
             }
             
             Assert.IsTrue(true);

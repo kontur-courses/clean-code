@@ -1,0 +1,8 @@
+language: csharp
+solution: ./cs/clean-code.sln
+install:
+  - nuget restore ./cs/clean-code.sln
+  - nuget install NUnit.ConsoleRunner -Version 3.9.0 -OutputDirectory testrunner
+script:
+  - xbuild /p:Configuration=Release ./cs/clean-code.sln
+  - mono ./testrunner/NUnit.ConsoleRunner.3.9.0/tools/nunit3-console.exe ./cs/MarkdownTests/bin/Release/MarkdownTests.dll

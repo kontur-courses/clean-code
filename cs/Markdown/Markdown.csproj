@@ -219,7 +219,6 @@
     <Compile Include="Tag\HtmlTagPrototype.cs" />
     <Compile Include="Tag\OpeningAndClosingTagPair.cs" />
     <Compile Include="Tag\TagBuilder.cs" />
-    <Compile Include="Testing\Markdown_Tests.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="App.config" />
