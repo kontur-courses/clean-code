@@ -1,4 +1,5 @@
 ﻿using System.Collections.Generic;
+using FluentAssertions;
 using MarkDown;
 using NUnit.Framework;
 
@@ -14,12 +15,21 @@ namespace MarkDown_Tests
             specialCharacters = new List<string>(){"_", "__", @"\"};
         }
 
-        [TestCase(@"\a", ExpectedResult = @"\a", TestName = "when escaping not special character")]
-        [TestCase(@"\_a\_", ExpectedResult = @"_a_", TestName = "when escaping single underscore")]
-        [TestCase(@"\__a\__", ExpectedResult = @"__a__", TestName = "when escaping double underscore")]
-        [TestCase(@"\__a\__", ExpectedResult = @"__a__", TestName = "when escaping double underscore")]
-        [TestCase(@"\\_a\\_", ExpectedResult = @"_a_", TestName = "when escaping escaped single underscore")]
-        [TestCase(@"a\\a", ExpectedResult = @"a\a", TestName = "when escaping escape character")]
-        public string Escape_CharactersCorrectly(string text) => text.Escape(specialCharacters);
+        public void GetCharStates_Correctly(string text) 
+        {
+            var expected = new List<Character>
+            {
+                new Character('\\', CharState.NotEscaped),
+                new Character('a', CharState.NotEscaped),
+                new Character('_', CharState.NotEscaped),
+                new Character('a', CharState.NotEscaped),
+                new Character('\\', CharState.Ignored),
+                new Character('\\', CharState.Escaped),
+                new Character('_', CharState.NotEscaped),
+                new Character('\\', CharState.Ignored),
+                new Character('_', CharState.Escaped)               
+            };
+            @"\a_a\\_\_".GetCharStates(specialCharacters).Should().BeEquivalentTo(expected);
+        }
     }
 }

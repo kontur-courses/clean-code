@@ -1,4 +1,5 @@
-﻿using FluentAssertions;
+﻿using System.Collections.Generic;
+using FluentAssertions;
 using MarkDown;
 using MarkDown.TagTypes;
 using NUnit.Framework;
@@ -10,12 +11,14 @@ namespace MarkDown_Tests
     {
         private Token tagToken;
         private Token textToken;
+        private List<string> specCharacters;
 
         [SetUp]
         public void SetUp()
         {
-            tagToken = new Token(0, "aaa", new EmTag());
-            textToken = new Token(0, "aaa");
+            specCharacters = new List<string>(){"_", "__", "\\", "[", "]", "(", ")"}; 
+            tagToken = new Token(0, "aaa".GetCharStates(specCharacters), new EmTag());
+            textToken = new Token(0, "aaa".GetCharStates(specCharacters));
         }
 
         [Test]
@@ -29,7 +32,7 @@ namespace MarkDown_Tests
         public void HaveCorrectTokenType_AfterCreation_OnTagToken() => tagToken.TokenType.Should().Be(TokenType.Tag);
 
         [Test]
-        public void HaveCorrectContent_AfterCreation_OnTagToken() => tagToken.Content.Should().Be("aaa");
+        public void HaveCorrectContent_AfterCreation_OnTagToken() => tagToken.Content.Should().BeEquivalentTo("aaa".GetCharStates(specCharacters));
 
         [Test]
         public void HaveCorrectLength_AfterCreation_OnTagToken() => tagToken.Length.Should().Be(5);
@@ -44,7 +47,7 @@ namespace MarkDown_Tests
         public void HaveCorrectTokenType_AfterCreation_OnTextToken() => textToken.TokenType.Should().Be(TokenType.Text);
 
         [Test]
-        public void HaveCorrectContent_AfterCreation_OnTextToken() => textToken.Content.Should().Be("aaa");
+        public void HaveCorrectContent_AfterCreation_OnTextToken() => textToken.Content.Should().BeEquivalentTo("aaa".GetCharStates(specCharacters));
 
         [Test]
         public void HaveCorrectLength_AfterCreation_OnTextToken() => textToken.Length.Should().Be(3);

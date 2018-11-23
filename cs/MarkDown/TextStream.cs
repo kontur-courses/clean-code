@@ -8,19 +8,22 @@ namespace MarkDown
     {
         public int CurrentPosition { get; private set; }
 
-        public int Length => Text.Length;
+        public int Length => Text.Count;
 
-        private string Text { get; }
+        private List<Character> Text { get; }
 
-        public TextStream(string text)
+        public bool HaveLink { get; }
+
+        public TextStream(List<Character> text)
         {
             Text = text;
+            HaveLink = Contains("[") && Contains("]");
             CurrentPosition = 0;
         }
 
         public bool TryMoveNext(int delta = 1)
         {
-            if (CurrentPosition + delta > Text.Length) return false;
+            if (CurrentPosition + delta > Text.Count) return false;
             CurrentPosition+=delta;
             return true;
         }
@@ -28,59 +31,65 @@ namespace MarkDown
         public bool IsCurrentOpening(string specialSymbol, IEnumerable<string> symbols)
         {
             const int symbolLength = 1;
-            if (!TryGetSubstring(CurrentPosition, specialSymbol.Length, out var cur)) 
-                return false;
-            var isParOfAnotherSpecSymbol = IsParOfAnotherSpecSymbol(CurrentPosition, cur, symbols);
-            if (!TryGetSubstring(CurrentPosition - symbolLength, symbolLength, out var prev) && cur != specialSymbol && !isParOfAnotherSpecSymbol) 
+            if (!TryGetSubstring(CurrentPosition, specialSymbol.Length, out var cur)) return false;
+            var curString = Concat(cur.Select(s => s.Char));
+            var isPartOfSpecSymbol = IsParOfAnotherSpecSymbol(CurrentPosition, curString, symbols);
+            if (!TryGetSubstring(CurrentPosition + specialSymbol.Length, symbolLength, out var prev)
+                && !curString.Equals(specialSymbol) && !isPartOfSpecSymbol)
                 return false;
             if (!TryGetSubstring(CurrentPosition + specialSymbol.Length, symbolLength, out var next)) 
-                return false;
-            return prev != @"\" && next != " " && cur.Equals(specialSymbol) && !isParOfAnotherSpecSymbol;
+                    return false;
+            return cur.All(s => s.CharState != CharState.Escaped)
+                   && next.All(s => !char.IsWhiteSpace(s.Char)) && curString == specialSymbol 
+                   && !isPartOfSpecSymbol;
         }
 
         public bool IsSymbolAtPositionClosing(int position, string specialSymbol, IEnumerable<string> symbols)
         {
             const int symbolLength = 1;
-            if (!TryGetSubstring(position, specialSymbol.Length, out var cur)) 
-                return false;            
-            var isParOfAnotherSpecSymbol = IsParOfAnotherSpecSymbol(position, cur, symbols);
-            if (!TryGetSubstring(position + specialSymbol.Length, symbolLength, out var next) && cur != specialSymbol && !isParOfAnotherSpecSymbol)
+            if (!TryGetSubstring(position, specialSymbol.Length, out var cur))
+                return false;
+            var curString = Concat(cur.Select(s => s.Char));
+            var isPartOfSpecSymbol = IsParOfAnotherSpecSymbol(position, curString, symbols);
+            if (!TryGetSubstring(position + specialSymbol.Length, symbolLength, out var next) 
+                && curString != specialSymbol && !isPartOfSpecSymbol)
                 return false;
             if (!TryGetSubstring(position - symbolLength, symbolLength, out var prev)) return false;
-            return prev != " " && prev != @"\" && cur.Equals(specialSymbol) && !isParOfAnotherSpecSymbol;
+            return cur.All(s => s.CharState != CharState.Escaped)
+                   && prev.All(s => !char.IsWhiteSpace(s.Char)) && curString == specialSymbol
+                   && !isPartOfSpecSymbol;
         }
 
         private bool IsParOfAnotherSpecSymbol(int position, string symbol, IEnumerable<string> symbols)
         {
             foreach (var sym in symbols)
             {
-                if (sym == symbol) return false;
-                TryGetSubstring(position, sym.Length, out var curNext);
-                TryGetSubstring(position - sym.Length + 1, sym.Length, out var curPrev);
-                return curNext == sym && curNext.StartsWith(symbol)
-                    || curPrev == sym && curPrev.EndsWith(symbol);
+                if (sym == symbol) continue;
+                if (TryGetSubstring(position, sym.Length, out var curNext) 
+                    && Concat(curNext.Select(s => s.Char)) == sym && curNext.First().Char.ToString().Equals(symbol) 
+                    || TryGetSubstring(position - sym.Length + 1, sym.Length, out var curPrev)
+                    && Concat(curPrev.Select(s => s.Char)) == sym && curPrev.Last().Char.ToString().Equals(symbol))
+                return true;
             }
-
             return false;
         }
 
         public bool IsTokenAtCurrentNumberless(int endPosition)
         {
-            var prev = Text.Substring(0, CurrentPosition);
-            var next = Text.Substring(endPosition + 1);
-            if (next.StartsWith(" ") || prev.EndsWith(" ")) return true;
-            return !(next.Any(char.IsDigit) || next.Any(char.IsDigit));
+            var prev = Text.GetRange(0, CurrentPosition);
+            var next = Text.Skip(endPosition + 1).ToList();
+            if (next.Count != 0 && next.First().Char.Equals(' ') 
+                || prev.Count != 0 && prev.Last().Char.Equals(' ')) return true;
+            return !(next.Any(s => char.IsDigit(s.Char)) || prev.Any(s => char.IsDigit(s.Char)));
         }
 
-        public bool TryGetSubstring(int startPosition, int length, out string substring)
+        public bool TryGetSubstring(int startPosition, int length, out List<Character> substring)
         {
-            substring = (startPosition < 0 || startPosition + length > Length) ? Empty : Text.Substring(startPosition, length);
-            return substring != Empty;
+            substring = (startPosition < 0 || startPosition + length > Length) ? null : Text.GetRange(startPosition, length);
+            return substring != null;
         }
 
-        public bool Contains(string value) => Text.Contains(value);
-
-        public bool TryReadUntilClosing(string closingSymbol, IEnumerable<string> symbols, out string content, bool checkToken = false)
+        public bool TryReadUntilClosing(string closingSymbol, IEnumerable<string> symbols, out List<Character> content, bool checkToken = false)
         {
             var length = closingSymbol.Length;
             content = null;
@@ -99,6 +108,11 @@ namespace MarkDown
                 return true;
             }
             return content != null;
+        }
+
+        private bool Contains(string val)
+        {
+            return Concat(Text.Select(s => s.Char)).Contains(val);
         }
     }
 }

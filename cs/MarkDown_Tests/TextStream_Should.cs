@@ -1,3 +1,4 @@
+using System.Collections.Generic;
 using System.Linq;
 using FluentAssertions;
 using MarkDown;
@@ -9,10 +10,12 @@ namespace MarkDown_Tests
     public class TextStream_Should
     {
         private TextStream textStream;
+        private List<string> specCharacters;
         [SetUp]
         public void SetUp()
         {
-            textStream = new TextStream("just");   
+            specCharacters = new List<string>(){"_", "__", "\\", "[", "]", "(", ")"};
+            textStream = new TextStream("just".GetCharStates(specCharacters));   
         }
 
         [Test]
@@ -63,7 +66,7 @@ namespace MarkDown_Tests
         public void TryGetSubstring_And_WriteResultToOut_WhenInBounds()
         {
             textStream.TryGetSubstring(0, 2, out var res);
-            res.Should().Be("ju");
+            res.Should().BeEquivalentTo("ju".GetCharStates(specCharacters));
         }        
         
         [Test]
@@ -80,9 +83,9 @@ namespace MarkDown_Tests
             textStream.TryGetSubstring(0, 5, out var res);
             textStream.TryGetSubstring(-1, 3, out var res1);
             textStream.TryGetSubstring(-1, 5, out var res2);
-            res.Should().BeEmpty();
-            res1.Should().BeEmpty();
-            res2.Should().BeEmpty();
+            res.Should().BeNull();
+            res1.Should().BeNull();
+            res2.Should().BeNull();
         }
 
         [TestCase("f1x _a_ 1g", ExpectedResult = true, TestName = "when text with numbers is outside")]
@@ -91,7 +94,7 @@ namespace MarkDown_Tests
         [TestCase("f1xx_a_1gg", ExpectedResult = false, TestName = "when inside text with numbers")]
         public bool Check_IsTokenAtCurrentNumberLess_And_ReturnExpected(string text)
         {
-            textStream = new TextStream(text);
+            textStream = new TextStream(text.GetCharStates(specCharacters));
             textStream.TryMoveNext(4);
             return textStream.IsTokenAtCurrentNumberless(6);
         }
@@ -105,7 +108,7 @@ namespace MarkDown_Tests
         public bool Check_IsCurrentOpening_And_ReturnExpected(string text, int toMove, string specialSymbol)
         {
             var symbols = new []{"_", "__"}.Where(s => s != specialSymbol);
-            textStream = new TextStream(text);
+            textStream = new TextStream(text.GetCharStates(specCharacters));
             textStream.TryMoveNext(toMove);
             return textStream.IsCurrentOpening(specialSymbol, symbols);
         }
@@ -119,7 +122,7 @@ namespace MarkDown_Tests
         public bool Check_IsSymbolAtPositionClosing(string text, int position, string specialSymbol)
         {
             var symbols = new []{"_", "__"}.Where(s => s != specialSymbol);
-            textStream = new TextStream(text);
+            textStream = new TextStream(text.GetCharStates(specCharacters));
             return textStream.IsSymbolAtPositionClosing(position, specialSymbol, symbols);
         }
     }

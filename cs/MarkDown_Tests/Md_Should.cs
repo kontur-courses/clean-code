@@ -14,7 +14,7 @@ namespace MarkDown_Tests
         [SetUp]
         public void SetUp()
         {
-            markDown = new Md( new List<TagType>(){ new StrongTag(), new EmTag(), new ATag()});
+            markDown = new Md( new List<TagType>(){ new ATag(), new EmTag(), new StrongTag()});
         }
 
         [TestCase("a", ExpectedResult = "<p>a</p>", TestName = "when text have no tags")]
@@ -47,7 +47,7 @@ namespace MarkDown_Tests
         [TestCase("te1xt _w1th_ nu1mbers", ExpectedResult = "<p>te1xt <em>w1th</em> nu1mbers</p>", TestName = "when text with numbers and letters in it inside and out with whitespaces")]
         [TestCase("_te1xt with nu1mbers_", ExpectedResult = "<p><em>te1xt with nu1mbers</em></p>", TestName = "when outside text with numbers and letters in it")]
         [TestCase("_12_ 3", ExpectedResult = "<p><em>12</em> 3</p>", TestName = "when outside text with numbers and letters in it")]
-        [TestCase(@"\\_a_", ExpectedResult = @"<p>_a_</p>", TestName = "when escaping escpae character before special symbol")]
+        [TestCase(@"\\_a_", ExpectedResult = @"<p>\<em>a</em></p>", TestName = "when escaping escpae character before special symbol")]
         [TestCase(@"aaa\", ExpectedResult = @"<p>aaa\</p>", TestName = "when escape symbol at the end of string")]
         [TestCase(@"a\ ", ExpectedResult = @"<p>a\ </p>", TestName = "when escape symbol before space")]
         [TestCase("[foo](bar)", ExpectedResult = @"<p><a href=""foo"">bar</a></p>", TestName = "when link")]

@@ -20,26 +20,26 @@ namespace MarkDown_Tests
         [Test]
         public void GetTokens_ParseTextToken()
         {
-            var parser = new MarkDownParser("just some text", availableTagTypes);
-            var expectedTokens = new List<Token>() { new Token(0, "just some text")};
+            var parser = new MarkDownParser("just some text".GetCharStates(), availableTagTypes);
+            var expectedTokens = new List<Token>() { new Token(0, "just some text".GetCharStates())};
             parser.GetTokens().Should().BeEquivalentTo(expectedTokens);
         }
 
         [Test]
         public void GetTokens_ParseEmTagToken()
         {
-            var parser = new MarkDownParser("_just some text_", availableTagTypes);
-            var expectedTokens = new List<Token>() { new Token(0, "just some text", new EmTag()) };
-            expectedTokens[0].InnerTokens = new[] {new Token(0, "just some text")};
+            var parser = new MarkDownParser("_just some text_".GetCharStates(), availableTagTypes);
+            var expectedTokens = new List<Token>() { new Token(0, "just some text".GetCharStates(), new EmTag()) };
+            expectedTokens[0].InnerTokens = new[] {new Token(0, "just some text".GetCharStates())};
             parser.GetTokens().Should().BeEquivalentTo(expectedTokens);
         }
 
         [Test]
         public void GetTokens_ParseStrongTagToken()
         {
-            var parser = new MarkDownParser("__just some text__", availableTagTypes);
-            var expectedTokens = new List<Token>() { new Token(0, "just some text", new StrongTag()) };
-            expectedTokens[0].InnerTokens = new[] { new Token(0, "just some text")};
+            var parser = new MarkDownParser("__just some text__".GetCharStates(), availableTagTypes);
+            var expectedTokens = new List<Token>() { new Token(0, "just some text".GetCharStates(), new StrongTag()) };
+            expectedTokens[0].InnerTokens = new[] { new Token(0, "just some text".GetCharStates())};
             var tokens = parser.GetTokens().ToList();
             tokens.Should().BeEquivalentTo(expectedTokens);
         }

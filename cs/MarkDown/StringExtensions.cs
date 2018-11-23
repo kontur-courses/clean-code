@@ -1,35 +1,35 @@
 ﻿using System.Collections.Generic;
+using System.Linq;
 using System.Text;
 
 namespace MarkDown
 {
     public static class StringExtensions
     {
-        public static string Escape(this string text, List<string> specSymbols)
+        public static List<Character> GetCharStates(this string text, List<string> specSymbols)
         {
-            var result = new StringBuilder();
+            var result = text.Select(s => new Character(s, CharState.NotEscaped)).ToList();
             for (var i = 0; i < text.Length; i++)
             {
-                if (i != text.Length - 1 && text[i] == '\\')
+                if (i == text.Length - 1 || text[i] != '\\' || result[i].CharState == CharState.Escaped) continue;
+                foreach (var specSymbol in specSymbols)
                 {
-                    if (!ShouldEscape(specSymbols, i + 1, text))
-                        result.Append(text[i]);
-                    continue;
+                    if (i+1 + specSymbol.Length > text.Length) continue;
+                    var next = text.Substring(i+1, specSymbol.Length);
+                    if (!next.Equals(specSymbol)) continue;
+                    result[i] = new Character(text[i], CharState.Ignored);
+                    result = result.Escape(i + 1, specSymbol.Length);
+                    break;
                 }
-                result.Append(text[i]);
-            }            
-            return result.ToString();
-        }
-
-        private static bool ShouldEscape(List<string> specSymbols, int position, string text)
-        {
-            foreach (var specSymbol in specSymbols)
-            {
-                if (position + specSymbol.Length > text.Length) continue;
-                var next = text.Substring(position, specSymbol.Length);
-                if (next.Equals(specSymbol)) return true;
             }
-            return false;
+            return result;
+        }
+        
+        private static List<Character> Escape(this List<Character> charStates, int start, int length)
+        {
+            for (var i = start; i < start + length; i++)
+                charStates[i] = new Character(charStates[i].Char, CharState.Escaped);
+            return charStates;
         }
     }
 }

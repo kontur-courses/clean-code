@@ -9,9 +9,9 @@ namespace MarkDown
         private readonly List<TagType> availableTagTypes;
         private readonly TextStream textStream;
 
-        public MarkDownParser(string textStream, IEnumerable<TagType> availableTagTypes)
+        public MarkDownParser(List<Character> text, IEnumerable<TagType> availableTagTypes)
         {
-            this.textStream = new TextStream(textStream);
+            this.textStream = new TextStream(text);
             this.availableTagTypes = availableTagTypes.ToList();
         }
 
@@ -29,7 +29,7 @@ namespace MarkDown
                     tagToken.InnerTokens = nestedTagTypes.Any() ? new MarkDownParser(tagToken.Content, nestedTagTypes).GetTokens() 
                         : new[] {new Token(0, tagToken.Content)};
                     yield return tagToken;
-                    if (tagToken.Content == "")
+                    if (tagToken.Content.Count == 0)
                     {
                         textTokenStart = textStream.CurrentPosition;
                         continue;
@@ -59,7 +59,6 @@ namespace MarkDown
         {               
             tagType = availableTagTypes
                 .Where(t => t.OpeningSymbol.Length + t.ClosingSymbol.Length <= textStream.Length)
-                .OrderByDescending(t => t.OpeningSymbol)
                 .FirstOrDefault(t => textStream
                     .IsCurrentOpening(t.OpeningSymbol, availableTagTypes.Select(s => s.OpeningSymbol)));
             return tagType != null;
@@ -69,7 +68,7 @@ namespace MarkDown
         {
             if (!IsCurrentParameter(out var tagType))
             {
-                if (!textStream.Contains("[") || !textStream.Contains("]"))
+                if (!textStream.HaveLink)
                     return TryGetParametrizedTagToken(out token);
                 token = null;
                 return false;
@@ -81,17 +80,17 @@ namespace MarkDown
                 : TryGetParametrizedTagToken(out token);
         }
 
-        private bool TryGetParametrizedTagToken(out Token token, TagType parametrizedTagType = null, string paramContent = "")
+        private bool TryGetParametrizedTagToken(out Token token, TagType parametrizedTagType = null, List<Character> paramContent = null)
         {
             token = null;
-            var position = paramContent != "" 
-                ? textStream.CurrentPosition - paramContent.Length - parametrizedTagType.Parameter.OpeningSymbol.Length 
+            var position = paramContent != null 
+                ? textStream.CurrentPosition - paramContent.Count - parametrizedTagType.Parameter.OpeningSymbol.Length 
                   - parametrizedTagType.Parameter.ClosingSymbol.Length
                 : textStream.CurrentPosition;
             if (!TryGetTagType(out var tagType) && parametrizedTagType == null) return false;
             if (parametrizedTagType != null && (tagType == null || tagType.GetType() != parametrizedTagType.GetType()))
             {
-                token = new Token(position, "", parametrizedTagType, paramContent);
+                token = new Token(position, null, parametrizedTagType, paramContent);
                 return true;
             }
             var closingSymbol = tagType.ClosingSymbol;

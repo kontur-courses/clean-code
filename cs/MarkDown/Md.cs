@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using MarkDown.TagTypes;
@@ -14,11 +15,12 @@ namespace MarkDown
             this.availableTagTypes = availableTagTypes.ToList();
         }
 
-        public string Render(string textParagraph) {
-            var parser = new MarkDownParser(textParagraph, availableTagTypes);
+        public string Render(string textParagraph) 
+        {
+            var text = textParagraph.GetCharStates(GetSymbolsToEscape());
+            var parser = new MarkDownParser(text, availableTagTypes);
             var tokens = parser.GetTokens();
-            var toEscape = GetSymbolsToEscape();
-            return new ParagraphTag().ToHtml(ProcessText(tokens).Escape(toEscape));
+            return new ParagraphTag().ToHtml(ProcessText(tokens));
         }
 
         private List<string> GetSymbolsToEscape()
@@ -41,7 +43,8 @@ namespace MarkDown
             var result = new StringBuilder();
             foreach (var token in tokens)
             {
-                var tagContent = token.TokenType == TokenType.Tag ? ProcessText(token.InnerTokens) : token.Content;
+                var escapedContent = token.Content == null ? string.Empty : string.Concat(token.Content.Where(s => s.CharState != CharState.Ignored).Select(s => s.Char));
+                var tagContent = token.TokenType == TokenType.Tag ? ProcessText(token.InnerTokens) : escapedContent;
 
                 result.Append(token.ToHtml(tagContent));
             }
