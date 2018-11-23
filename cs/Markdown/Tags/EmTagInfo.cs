@@ -24,10 +24,5 @@ namespace Markdown
             t => t.SkipAndAdd(TagLength);
         public override string TagText => "em";
         public override int TagLength => 1;
-
-        public override Token GetNewToken(int position)
-		{
-            return new Token(position, this);
-        }
     }
 }

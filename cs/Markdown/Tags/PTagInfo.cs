@@ -14,10 +14,5 @@ namespace Markdown
         public override Action<TagReader> OnTagEnd { get; }
         public override string TagText => "p";
         public override int TagLength => 0;
-
-        public override Token GetNewToken(int position)
-		{
-            throw new NotImplementedException();
-        }
     }
 }

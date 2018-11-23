@@ -11,7 +11,7 @@ namespace Markdown
         public int Position { get; private set; }
         public string Source { get; }
         public TagInfo[] Tags { get; }
-        private readonly Token rootToken = new Token(0, new PTagInfo());
+        private TokenList TokenList { get; }
         private Window Window => GetWindow();
 
 
@@ -19,6 +19,7 @@ namespace Markdown
         {
             Source = source;
             Tags = tags;
+            TokenList = new TokenList(new PTagInfo().GetNewToken(0));
         }
 
         public string Evaluate()
@@ -33,7 +34,7 @@ namespace Markdown
 
                 Position++;
             }
-            return rootToken.Value.ToString();
+            return TokenList.RootValue;
         }
 
         public void SkipAndAdd(int amount)
@@ -51,7 +52,7 @@ namespace Markdown
 
         private void AddCharacterToTokens(char c)
         {
-            foreach (var token in GetTokens())
+            foreach (var token in TokenList)
             {
                 token.AddCharacter(c);
             }
@@ -65,34 +66,12 @@ namespace Markdown
             [-1] = Position == 0 ? (char) 0 : Source[Position - 1]
         };
 
-        private bool TryAddNewToken(TagInfo tag)
-        {
-            var currentToken = rootToken;
-            while (currentToken.Child != null)
-            {
-                if (currentToken.Tag == tag)
-                    return false;
-                currentToken = currentToken.Child;
-            }
-
-            if (currentToken.Tag is EmTagInfo && tag is StrongTagInfo)
-            {
-                SkipAndAdd(tag.TagLength);
-                return false;
-            }
-
-            currentToken.Child = tag.GetNewToken(Position);
-            currentToken.Child.Parent = currentToken;
-
-            return true;
-        }
-
         private bool TryOpenToken()
         {
             foreach (var tag in Tags)
             {
                 if (!tag.StartCondition(Window)) continue;
-                if (!TryAddNewToken(tag)) continue;
+                if (!TokenList.TryAddNewToken(tag, Position)) continue;
                 tag.OnTagStart(this);
                 return true;
             }
@@ -102,7 +81,7 @@ namespace Markdown
 
         private bool TryCloseToken()
         {
-            foreach (var token in GetTokens().Reverse())
+            foreach (var token in TokenList.Reverse())
             {
                 if (!token.Tag.EndCondition(Window)) continue;
                 token.Tag.OnTagEnd(this);
@@ -119,16 +98,6 @@ namespace Markdown
             Skip(1);
             SkipAndAdd(1);
             return true;
-        }
-
-        private IEnumerable<Token> GetTokens()
-        {
-            var currentToken = rootToken;
-            do
-            {
-                yield return currentToken;
-                currentToken = currentToken.Child;
-            } while (currentToken != null);
         }
     }
 }

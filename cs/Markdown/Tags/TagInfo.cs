@@ -14,6 +14,10 @@ namespace Markdown
         public abstract Action<TagReader> OnTagEnd { get; }
         public abstract string TagText { get; }
         public abstract int TagLength { get; }
-        public abstract Token GetNewToken(int position);
+
+        public Token GetNewToken(int position)
+        {
+            return new Token(position, this);
+        }
     }
 }
