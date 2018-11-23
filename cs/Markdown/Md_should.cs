@@ -34,7 +34,35 @@ namespace Markdown
 
         [Test]
         public void Render_ShouldMarkEmInsideStrong() =>
-            md.Render("__ _some_ text__")
-              .Should().Be("<strong> <em>some</em> text</strong>");
+            md.Render("__a_some_ text__")
+              .Should().Be("<strong>a<em>some</em> text</strong>");
+        
+        [Test]
+        public void Render_ShouldNotMarkStrongInsideEm() =>
+            md.Render("_a__some__ text_")
+                .Should().Be("<em>a__some__ text</em>");
+        
+        [TestCase("\\_text\\_", TestName = "contains escaped _")]
+        [TestCase("\\_\\_text\\_\\_", TestName = "contains escaped __")]
+        public void Render_ShouldNotMarkEscaped_WhenText(string text) =>
+            md.Render(text)
+                .Should().Be(text);
+        
+        [Test]
+        public void Render_ShouldNotMarkTextWithDigits() =>
+            md.Render("12_3_456")
+                .Should().Be("12_3_456");
+        
+        [TestCase("_word__")]
+        [TestCase("__word_")]
+        public void Render_ShouldNotMarkUnpaired(string text) =>
+            md.Render(text)
+                .Should().Be(text);
+        
+        [TestCase("_ some_")]
+        [TestCase("__ another__")]
+        public void Render_ShouldNotMark_WhenSpaceAfterOpenedControl(string text) =>
+            md.Render(text)
+                .Should().Be(text);
     }
 }
