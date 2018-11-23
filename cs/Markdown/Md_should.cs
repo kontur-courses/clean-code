@@ -46,7 +46,7 @@ namespace Markdown
         [TestCase("\\_\\_text\\_\\_", TestName = "contains escaped __")]
         public void Render_ShouldNotMarkEscaped_WhenText(string text) =>
             md.Render(text)
-                .Should().Be(text);
+                .Should().Be(text.Replace("\\", ""));
         
         [Test]
         public void Render_ShouldNotMarkTextWithDigits() =>

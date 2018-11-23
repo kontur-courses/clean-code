@@ -13,14 +13,14 @@ namespace Markdown
                 throw new ArgumentNullException(nameof(text));
             
             var tokens = new Tokenizer()
-                .GetTokens(text, new List<string>{"_", "__"})
+                .GetTokens(text, new List<string>{"_", "__", "\\"})
                 .ToList();
             
             var rules = new Rules(new List<Rule>
             {
                 new Rule(new Token("_", true), "<em>", doubleTagged: true),
                 new Rule(new Token("__", true), "<strong>", doubleTagged: true)
-            });
+            }, new HashSet<Token>{new Token("\\", true)});
             var transducer = new Transducer();
             tokens = transducer.Transform(tokens, rules);
 
