@@ -36,27 +36,44 @@ namespace Markdown
 
                 if (startingIsPossible)
                 {
-                    if (!TryGetWordFromThisPosition(paragraph, index, out var word)) continue;
-
-                    startingIsPossible = TryMatchWordToTokens(word, index, new HashSet<TokenType>(),
-                        tokensTypes.Where(t => t.TokenLocationType == TokenLocationType.StartingToken),
-                        out var startingToken);
-                    if (startingIsPossible)
+                    var startingToken = GetStartingToken(paragraph, index, out startingIsPossible);
+                    if (startingToken != null)
                         tokens.Add(startingToken);
                 }
 
-                if (paragraph[index] == '\n')
+                var endLineToken = GetEndLineToken(paragraph, index);
+                if (endLineToken != null)
                 {
-                    tokens.Add(new SingleToken(
-                        new TokenType(TokenTypeEnum.EndLine, "\n", null, TokenLocationType.EndLineToken), index,
-                        LocationType.Single));
-
+                    tokens.Add(endLineToken);
                     startingIsPossible = true;
                 }
 
             }
 
             return tokens;
+        }
+
+        private SingleToken GetEndLineToken(string paragraph, int index)
+        {
+            if (paragraph[index] == '\n')
+            {
+                return new SingleToken(
+                    new TokenType(TokenTypeEnum.EndLine, "\n", null, TokenLocationType.EndLineToken), index,
+                    LocationType.Single);
+            }
+
+            return null;
+        }
+
+        private SingleToken GetStartingToken(string paragraph, int index, out bool startingIsPossible)
+        {
+            startingIsPossible = true;
+            if (!TryGetWordFromThisPosition(paragraph, index, out var word)) return null;
+
+            startingIsPossible = TryMatchWordToStartingTokens(word, index, new HashSet<TokenType>(),
+                tokensTypes.Where(t => t.TokenLocationType == TokenLocationType.StartingToken),
+                out var startingToken);
+            return startingToken;
         }
 
         private bool TryGetWordFromThisPosition(string paragraph, int currentIndex, out string word)
@@ -76,13 +93,13 @@ namespace Markdown
             return word.Length > 0;
         }
 
-        private bool TryMatchWordToTokens(string word, int currentIndex, HashSet<TokenType> usedTokens,
-            IEnumerable<TokenType> tokensTypes, out SingleToken token)
+        private bool TryMatchWordToStartingTokens(string word, int currentIndex, HashSet<TokenType> usedTokens,
+            IEnumerable<TokenType> startingTokensTypes, out SingleToken token)
         {
-            foreach (var tokenType in tokensTypes)
-                if (!usedTokens.Contains(tokenType) && tokenType.Template == word)
+            foreach (var startingTokenType in startingTokensTypes)
+                if (!usedTokens.Contains(startingTokenType) && startingTokenType.Template == word)
                 {
-                    token = new SingleToken(tokenType, currentIndex, LocationType.Single);
+                    token = new SingleToken(startingTokenType, currentIndex, LocationType.Single);
                     return true;
                 }
 
