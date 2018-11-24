@@ -1,9 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using NUnit;
 using FluentAssertions;
 using NUnit.Framework;
 
@@ -140,10 +136,26 @@ namespace Markdown.MarkdownTests
         [TestCase("a/_b")]
         public void ParseShould(string str)
         {
-            var parser = new Parser('/');
+            var parser = new Parser();
             var result = parser.Parse(str);
 
-            var expected = new List<StringPart>() {new StringPart("a/_b", ActionType.NotAnAction, TagType.String)};
+            var expected = new List<StringPart>() {new StringPart("a_b", ActionType.NotAnAction, TagType.String)};
+
+            expected.ShouldBeEquivalentTo(result);
+        }
+
+        [TestCase("a_b")]
+        public void ParseShould0(string str)
+        {
+            var parser = new Parser();
+            var result = parser.Parse(str);
+
+            var expected = new List<StringPart>()
+            {
+                new StringPart("a", ActionType.NotAnAction, TagType.String),
+                new StringPart("_", ActionType.OpenOrClose, TagType.Em),
+                new StringPart("b", ActionType.NotAnAction, TagType.String)
+            };
 
             expected.ShouldBeEquivalentTo(result);
         }
@@ -151,7 +163,7 @@ namespace Markdown.MarkdownTests
         [TestCase("Abc")]
         public void ParseShould1(string str)
         {
-            var parser = new Parser('/');
+            var parser = new Parser();
             var result = parser.Parse(str);
 
             var expected = new List<StringPart>() { new StringPart("Abc", ActionType.NotAnAction, TagType.String) };
@@ -162,7 +174,7 @@ namespace Markdown.MarkdownTests
         [TestCase("_Abc")]
         public void ParseShould2(string str)
         {
-            var parser = new Parser('/');
+            var parser = new Parser();
             var result = parser.Parse(str);
 
             var expected = new List<StringPart>() { new StringPart("_", ActionType.Open, TagType.Em), new StringPart("Abc", ActionType.NotAnAction, TagType.String) };
@@ -173,7 +185,7 @@ namespace Markdown.MarkdownTests
         [TestCase("__Abc")]
         public void ParseShould3(string str)
         {
-            var parser = new Parser('/');
+            var parser = new Parser();
             var result = parser.Parse(str);
 
             var expected = new List<StringPart>() { new StringPart("__", ActionType.Open, TagType.Strong), new StringPart("Abc", ActionType.NotAnAction, TagType.String) };
@@ -184,7 +196,7 @@ namespace Markdown.MarkdownTests
         [TestCase("Abc_")]
         public void ParseShould4(string str)
         {
-            var parser = new Parser('/');
+            var parser = new Parser();
             var result = parser.Parse(str);
 
             var expected = new List<StringPart>() { new StringPart("Abc", ActionType.NotAnAction, TagType.String), new StringPart("_", ActionType.Close, TagType.Em) };
@@ -195,10 +207,41 @@ namespace Markdown.MarkdownTests
         [TestCase("Abc__")]
         public void ParseShould5(string str)
         {
-            var parser = new Parser('/');
+            var parser = new Parser();
             var result = parser.Parse(str);
 
             var expected = new List<StringPart>() { new StringPart("Abc", ActionType.NotAnAction, TagType.String), new StringPart("__", ActionType.Close, TagType.Strong) };
+
+            expected.ShouldBeEquivalentTo(result);
+        }
+
+        [TestCase("  _ab cd_\n __ef_gh__ij /_")]
+        public void ParseShould6(string str)
+        {
+            var parser = new Parser();
+            var result = parser.Parse(str);
+
+            var expected = new List<StringPart>()
+            {
+                new StringPart("  ", ActionType.NotAnAction, TagType.String),
+                new StringPart("_", ActionType.Open, TagType.Em),
+                new StringPart("ab", ActionType.NotAnAction, TagType.String),
+
+                new StringPart(" ", ActionType.NotAnAction, TagType.String),
+                new StringPart("cd", ActionType.NotAnAction, TagType.String),
+                new StringPart("_", ActionType.Close, TagType.Em),
+
+                new StringPart("\n ", ActionType.NotAnAction, TagType.String),
+                new StringPart("__", ActionType.Open, TagType.Strong),
+                new StringPart("ef", ActionType.NotAnAction, TagType.String),
+                new StringPart("_", ActionType.OpenOrClose, TagType.Em),
+                new StringPart("gh", ActionType.NotAnAction, TagType.String),
+                new StringPart("__", ActionType.OpenOrClose, TagType.Strong),
+                new StringPart("ij", ActionType.NotAnAction, TagType.String),
+
+                new StringPart(" ", ActionType.NotAnAction, TagType.String),
+                new StringPart("_", ActionType.NotAnAction, TagType.String),
+            };
 
             expected.ShouldBeEquivalentTo(result);
         }

@@ -7,15 +7,13 @@ namespace Markdown
     class Parser
     {
         private List<StringPart> _result;
-        private bool _escapeSymbol;
         private StringPart _lastStringPart;
         public readonly char EscapeSymbol;
 
-        public Parser(char escapeSymbol)
+        public Parser(char escapeSymbol = '/')
         {
             EscapeSymbol = escapeSymbol;
             _result = new List<StringPart>();
-            _escapeSymbol = false;
             _lastStringPart = null;
         }
 
@@ -32,37 +30,21 @@ namespace Markdown
 
                 result.AddRange(ParseSubString(subStr));
                 _result = new List<StringPart>();
-                _escapeSymbol = false;
                 _lastStringPart = null;
             }
 
             return result;
         }
 
-        private List<StringPart> ParseSubString(string subString)
-        {
-            if (subString.Length == 0 || IsWhitespace(subString[0]) || StrContainsSymbolsAndDigits(subString))
-                return new List<StringPart>() {new StringPart(subString, ActionType.NotAnAction, TagType.String) };
-
-            subString = AddToResultFirstAndLastItems(subString);
-
-            ParseSubStringBody(subString);
-
-            if (_lastStringPart != null)
-                _result.Add(_lastStringPart);
-
-            return _result;
-        }
-
-
-        private List<StringPart> ParseSubStringTest(string subString)
+        public List<StringPart> ParseSubString(string subString)
         {
             if (subString.Length == 0 || IsWhitespace(subString[0]) || StrContainsSymbolsAndDigits(subString))
                 return new List<StringPart>() { new StringPart(subString, ActionType.NotAnAction, TagType.String) };
 
             subString = AddToResultFirstAndLastItems(subString);
 
-            ParseSubStringBodyTest(subString);
+            var tmp = ParseSubStringBody(subString, EscapeSymbol);
+            _result.AddRange(tmp);
 
             if (_lastStringPart != null)
                 _result.Add(_lastStringPart);
@@ -70,127 +52,65 @@ namespace Markdown
             return _result;
         }
 
-        private void ParseSubStringBodyTest(string subString)
+        public static List<StringPart> ParseSubStringBody(string subString, char escapeSymbol)
         {
-            var tmpResult = "";
-            for (var i = 0; i < subString.Length; i++)
+            var result = new List<StringPart>();
+            var length = subString.Length;
+            for (var i = 0; i < length; i++)
             {
-                var nextSpecialSymbolIndex = FindNextSpecialSymbolIndex(subString, i);
-                if (nextSpecialSymbolIndex == null)
-                {
-                    tmpResult += subString.Substring(i);
+                var nextSpecialIndex = FindNextSpecialSymbolIndex(subString, i, '_');
+
+                if (i != nextSpecialIndex)
+                    result.Add(new StringPart(
+                        subString.Substring(i, nextSpecialIndex - i).ClearFromSymbol(escapeSymbol),
+                        ActionType.NotAnAction, TagType.String));
+
+                if (nextSpecialIndex == length)
                     break;
+
+                //тут встретили специальный символ
+                i = nextSpecialIndex;
+
+                if (i + 1 < length && subString[i + 1] == '_') // case _ _ 
+                {
+                    if (i + 2 < length)
+                    {
+                        if (subString[i + 2] == '_')
+                            result.Add(new StringPart("_", ActionType.NotAnAction, TagType.String));
+                        else
+                        {
+                            result.Add(new StringPart("__", ActionType.OpenOrClose, TagType.Strong));
+                            i++;
+                        }
+                    }
+                    else
+                    {
+                        result.Add(new StringPart("__", ActionType.NotAnAction, TagType.String));
+                        break;
+                    }
                 }
-
+                else
+                    result.Add(i + 1 < length
+                        ? new StringPart("_", ActionType.OpenOrClose, TagType.Em)
+                        : new StringPart("_", ActionType.NotAnAction, TagType.String));
             }
-            //for (var i = 0; i < subString.Length; i++)
-            //{
-            //    if (tmpResult[i] != '_')
-            //        tmpResult += tmpResult[i];
-            //    else
-            //    {
-            //        if (i - 1 >= 0 && tmpResult[i - 1] == EscapeSymbol)
-            //            tmpResult += tmpResult[i];
-            //        else if (i + 2 < subString.Length && subString[i + 1] == '_' && subString[i + 2] == '_')
-            //            tmpResult += tmpResult[i];
-            //        else if (i + 2 < subString.Length && subString[i + 1] == '_' && subString[i + 2] != '_')
-            //        {
 
-            //        }
-            //    }
-            //}
+            return result;
         }
 
-        public int? FindNextSpecialSymbolIndex(string subString, int startIndex)
+        public static int FindNextSpecialSymbolIndex
+            (string subString, int currentIndex, char specialSymbol, char escapeSymbol = '/')
         {
-            var currentIndex = startIndex;
             for (; currentIndex < subString.Length; currentIndex++)
             {
-                if (subString[currentIndex] == EscapeSymbol)
+                var isPreviousSymbolIsNotEscapeSymbol = currentIndex - 1 < 0 || subString[currentIndex - 1] != escapeSymbol;
+                if (subString[currentIndex] == specialSymbol && isPreviousSymbolIsNotEscapeSymbol)
                     return currentIndex;
             }
 
-            return null;
+            return subString.Length;
         }
-
-        private void ParseSubStringBody(string subString)
-        {
-            var tmpResult = "";
-
-            foreach (var symbol in subString)
-            {
-                if (_escapeSymbol)
-                {
-                    _escapeSymbol = false;
-                    tmpResult = AddSymbolAndRecalculateResults(tmpResult, symbol);
-                }
-                else
-                if (symbol == EscapeSymbol)
-                    _escapeSymbol = true;
-                else
-                    tmpResult = symbol != '_' ?
-                        AddSymbolAndRecalculateResults(tmpResult, symbol) :
-                        AddSpecialSymbolAndRecalculateResults(tmpResult, symbol);
-            }
-
-            if (tmpResult.Length != 0)
-                _result.Add(new StringPart(tmpResult, ActionType.NotAnAction, TagType.String));
-        }
-
-        private string AddSymbolAndRecalculateResults(string tmpResult, char symbol)
-        {
-            if (tmpResult == "_")
-            {
-                _result.Add(new StringPart("_", ActionType.Open, TagType.Em));
-                return symbol.ToString();
-            }
-
-            if (tmpResult == "__")
-            {
-                _result.Add(new StringPart("__", ActionType.Open, TagType.Strong));
-                return symbol.ToString();
-            }
-
-            if (tmpResult.EndsWith("__"))
-            {
-                _result.Add(new StringPart(tmpResult.Substring(0, tmpResult.Length - 2), ActionType.NotAnAction, TagType.String));
-                _result.Add(new StringPart("__", ActionType.OpenOrClose, TagType.Strong));
-                return symbol.ToString();
-            }
-
-            if (tmpResult.EndsWith("_"))
-            {
-                _result.Add(new StringPart(tmpResult.Substring(0, tmpResult.Length - 1), ActionType.NotAnAction, TagType.String));
-                _result.Add(new StringPart("__", ActionType.OpenOrClose, TagType.Em));
-                return symbol.ToString();
-            }
-
-            return tmpResult + symbol;
-        }
-
-        private string AddSpecialSymbolAndRecalculateResults(string tmpResult, char symbol)
-        {
-            if (tmpResult == "_")
-            {
-                return tmpResult + symbol;
-            }
-
-            if (tmpResult == "__")
-            {
-                _result.Add(new StringPart("_", ActionType.NotAnAction, TagType.String));
-                return tmpResult + symbol;
-            }
-
-            if (tmpResult.EndsWith("__"))
-            {
-                _result.Add(new StringPart(tmpResult.Substring(0, tmpResult.Length - 2), ActionType.NotAnAction, TagType.String));
-                _result.Add(new StringPart("__", ActionType.Close, TagType.Strong));
-                return symbol.ToString();
-            }
-
-            return tmpResult + symbol;
-        }
-
+        
         public static string GetSubString(string str, int startIndex)
         {
             if (str == null)
