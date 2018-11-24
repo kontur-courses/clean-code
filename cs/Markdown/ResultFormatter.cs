@@ -24,8 +24,8 @@ namespace Markdown
 
         public static string PrepareResult(string str)
         {
-            var emHtmlElement = new HtmlElement("_", "<em>");
-            var strongHtmlElement = new HtmlElement("__", "<strong>");
+            var emHtmlElement = new HtmlElement("_", "em");
+            var strongHtmlElement = new HtmlElement("__", "strong");
 
             var emOpen = str.AllIndexesOf(emHtmlElement.OpenTag);
             var emClose = str.AllIndexesOf(emHtmlElement.ClosingTag);

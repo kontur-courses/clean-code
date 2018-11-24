@@ -11,7 +11,7 @@ namespace Markdown.Tests
         [SetUp]
         public void Setup()
         {
-            md = new Md(new Element.HtmlElement("__", "<strong>"), new Element.HtmlElement("_", "<em>"));
+            md = new Md(new Element.HtmlElement("__", "strong"), new Element.HtmlElement("_", "em"));
         }
 
         [TestCase("plain text", ExpectedResult = "plain text", TestName = "Plain text as is")]

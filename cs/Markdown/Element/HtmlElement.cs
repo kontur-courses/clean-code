@@ -9,13 +9,8 @@
         public HtmlElement(string indicator, string htmlTag)
         {
             Indicator = indicator;
-            OpenTag = htmlTag;
-            ClosingTag = GenerateClosingTag(htmlTag);
-        }
-
-        private static string GenerateClosingTag(string htmlTag)
-        {
-            return htmlTag.Insert(1, "/");
+            OpenTag = $"<{htmlTag}>";
+            ClosingTag = $"</{htmlTag}>";
         }
     }
 }
