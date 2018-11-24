@@ -1,4 +1,5 @@
 ﻿using System.Collections.Generic;
+using System.Linq;
 using Markdown.Element;
 using Markdown.Extensions;
 
@@ -11,7 +12,22 @@ namespace Markdown.Token
         public static IEnumerable<Token> Parse(string markdown, IElement element)
         {
             var result = new List<Token>();
+
+            if (element is HeaderHtmlElement headerHtmlElement)
+            {
+                var depth = markdown.TakeWhile(e => e.ToString() == element.Indicator).ToArray();
+
+                if (depth.Length > 0 && depth.Length <= 6 && markdown[depth.Length] == ' ')
+                {
+                    result.Add(CreateToken(markdown, depth.Length, markdown.Length, 
+                        new HeaderHtmlElement(headerHtmlElement.HtmlTag, depth.Length, headerHtmlElement.Indicator)));
+                    return result;
+                }
+            }
+
             var currentIndex = 0;
+
+
             
             while (currentIndex < markdown.Length)
             {

@@ -44,6 +44,7 @@
   <ItemGroup>
     <Compile Include="Element\TextElement.cs" />
     <Compile Include="Element\IElement.cs" />
+    <Compile Include="Element\HeaderHtmlElement.cs" />
     <Compile Include="Extensions\ElementExtensions.cs" />
     <Compile Include="ResultFormatter.cs" />
     <Compile Include="Element\HtmlElement.cs" />

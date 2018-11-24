@@ -1,4 +1,5 @@
 ﻿using System.Text;
+using Markdown.Element;
 using NUnit.Framework;
 
 namespace Markdown.Tests
@@ -11,23 +12,23 @@ namespace Markdown.Tests
         [SetUp]
         public void Setup()
         {
-            md = new Md(new Element.HtmlElement("__", "strong"), new Element.HtmlElement("_", "em"));
+            md = new Md(new HtmlElement("__", "strong"), new HtmlElement("_", "em"), new HeaderHtmlElement("#", "h"));
         }
 
         [TestCase("plain text", ExpectedResult = "plain text", TestName = "Plain text as is")]
         [TestCase("", ExpectedResult = "", TestName = "Empty string as is")]
-
+        
 
         [TestCase("_undersored_ text", ExpectedResult = "<em>undersored</em> text", TestName = "Underscored text in italic")]
         [TestCase("_undersored_ and again _undersored_ text", ExpectedResult = "<em>undersored</em> and again <em>undersored</em> text", 
             TestName = "Several occurences of underscored text in italic")]
-        [TestCase(@"ecranned \_undersored\_ text", ExpectedResult = @"ecranned _undersored_ text", 
-            TestName = "Ecranned underscored text in plain text")]
+        [TestCase(@"escaped \_undersored\_ text", ExpectedResult = @"escaped _undersored_ text", 
+            TestName = "Escaped underscored text in plain text")]
 
         [TestCase("double __undersored__ text", ExpectedResult = "double <strong>undersored</strong> text", 
             TestName = "Double underscored text in bold")]
         [TestCase(@"double \_\_undersored\_\_ text", ExpectedResult = @"double __undersored__ text",
-            TestName = "Ecranned double underscored text in plain text")]
+            TestName = "Escaped double underscored text in plain text")]
         [TestCase("double __undersored__ and again double __undersored__ text",
             ExpectedResult = "double <strong>undersored</strong> and again double <strong>undersored</strong> text",
             TestName = "Several occurences of double underscored text in bold")]
@@ -67,6 +68,24 @@ namespace Markdown.Tests
         [TestCase("__12__3", ExpectedResult = "__12__3", TestName = "Double underscore inside digits")]
         [TestCase("1__23__4", ExpectedResult = "1__23__4", TestName = "Double underscore all text inside digits")]
         [TestCase("1_23_4", ExpectedResult = "1_23_4", TestName = "Single underscore all text inside digits")]
+
+        
+        [TestCase("# sharped text", ExpectedResult = "<h1>sharped text</h1>", TestName = "1 level header")]
+        [TestCase("## sharped text", ExpectedResult = "<h2>sharped text</h2>", TestName = "2 level header")]
+        [TestCase("### sharped text", ExpectedResult = "<h3>sharped text</h3>", TestName = "3 level header")]
+        [TestCase("#### sharped text", ExpectedResult = "<h4>sharped text</h4>", TestName = "4 level header")]
+        [TestCase("##### sharped text", ExpectedResult = "<h5>sharped text</h5>", TestName = "5 level header")]
+        [TestCase("###### sharped text", ExpectedResult = "<h6>sharped text</h6>", TestName = "6 level header")]
+
+        [TestCase("#sharped text", ExpectedResult = "#sharped text", TestName = "1 sharped text with no space as plain text")]
+        [TestCase("##sharped text", ExpectedResult = "##sharped text", TestName = "2 sharped text with no space as plain text")]
+        [TestCase("sharped # text", ExpectedResult = "sharped # text", TestName = "Text with sharp in the middle as is")]
+        [TestCase("####### sharped text", ExpectedResult = "####### sharped text", TestName = "Text with more than 6 sharps as is")]
+
+
+
+
+
         public string Render(string markdown)
         {
             return md.Render(markdown);
