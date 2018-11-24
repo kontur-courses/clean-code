@@ -55,6 +55,9 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Concatenator.cs" />
+    <Compile Include="MarkdownTests\MdTests.cs" />
+    <Compile Include="Md.cs" />
     <Compile Include="StringPart.cs" />
     <Compile Include="MarkdownTests\ParserTestsShould.cs" />
     <Compile Include="MarkdownTests\StringExtensionTests.cs" />

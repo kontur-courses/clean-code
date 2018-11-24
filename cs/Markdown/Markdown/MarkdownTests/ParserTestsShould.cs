@@ -245,5 +245,24 @@ namespace Markdown.MarkdownTests
 
             expected.ShouldBeEquivalentTo(result);
         }
+
+        [TestCase("_a __abc__")]
+        public void ParseShould7(string str)
+        {
+            var parser = new Parser();
+            var result = parser.Parse(str);
+
+            var expected = new List<StringPart>()
+            {
+                new StringPart("_", ActionType.Open, TagType.Em),
+                new StringPart("a"),
+                new StringPart(" "),
+                new StringPart("__", ActionType.Open, TagType.Strong),
+                new StringPart("abc"),
+                new StringPart("__", ActionType.Close, TagType.Strong),
+            };
+
+            expected.ShouldBeEquivalentTo(result); 
+        }
     }
 }
