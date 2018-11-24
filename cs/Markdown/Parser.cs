@@ -21,13 +21,13 @@ namespace Markdown
 
             while (curIdx < text.Length)
             {
-                var (token, read) = readingOptions.AllowedReaders
+                var (token, length) = readingOptions.AllowedReaders
                     .Select(reader => reader.ReadToken(text, curIdx, readingOptions))
                     .FirstOrDefault(readingResult => readingResult.token != null);
                 if (token == null)
                     throw new InvalidOperationException("Can't parse text with given reading options");
                 res.Add(token);
-                curIdx += read;
+                curIdx += length;
             }
 
             return res;

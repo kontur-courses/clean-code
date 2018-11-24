@@ -27,7 +27,7 @@ namespace Markdown
             return res;
         }
 
-        public ReadingOptions WithNewAllowedReaders(List<AbstractReader> allowedReaders)
+        public ReadingOptions WithAllowedReaders(List<AbstractReader> allowedReaders)
         {
             return new ReadingOptions(allowedReaders, this.AllowedInnerReadersByDefault);
         }

@@ -90,5 +90,31 @@ namespace Markdown.Tests
         {
             return md.RenderToHtml("__");
         }
+
+        [TestCase("[desc](https://site.s/index)", ExpectedResult = "<a href=\"https://site.s/index\">desc</a>",
+            TestName = "link inside link-tag is full")]
+        [TestCase("[_desc_](link)", ExpectedResult = "<a href=\"link\"><em>desc</em></a>",
+            TestName = "em-tag in its description")]
+        [TestCase("[__desc__](link)", ExpectedResult = "<a href=\"link\"><strong>desc</strong></a>",
+            TestName = "strong-tag in its description")]
+        [TestCase(@"[desc\]desc](link)", ExpectedResult = "<a href=\"link\">desc]desc</a>",
+            TestName = "screened ']' inside description")]
+        public string RenderLinkTag_When(string mdText)
+        {
+            return md.RenderToHtml(mdText);
+        }
+
+        [Test(ExpectedResult = "<a href=\"link1\">a [b</a> ](link2)")]
+        public string NotRenderLinkInsideAnotherLink()
+        {
+            return md.RenderToHtml("[a [b](link1) ](link2)");
+        }
+
+        [TestCase("_[d](l)_", ExpectedResult = "<em>[d](l)</em>", TestName = "when another tag is em-tag")]
+        [TestCase("__[d](l)__", ExpectedResult = "<strong>[d](l)</strong>", TestName = "when another tag is strong-tag")]
+        public string NotRenderLinkTagInsideAnotherTag(string mdText)
+        {
+            return md.RenderToHtml(mdText);
+        }
     }
 }

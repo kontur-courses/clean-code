@@ -7,25 +7,18 @@ using Markdown.Tokens;
 namespace Markdown.Tests
 {
     [TestFixture]
-    public class TextReader_Should
+    public class TextReader_Should : Reader_Should<TextReader>
     {
-        [TestCase(null, 0, TestName = "When text is null")]
-        [TestCase("", 0, TestName = "When text is empty")]
-        [TestCase("abc", -1, TestName = "When offset is negative")]
-        [TestCase("abc", 5, TestName = "When offset is more than text's length")]
-        public void ThrowArgumentException_When(string text, int offset)
+        [OneTimeSetUp]
+        public void OneTimeSetUp()
         {
-            var textReader = new TextReader("");
-            Action readingAction = () => textReader.ReadToken(text, offset, options: null);
-            readingAction.Should().Throw<ArgumentException>();
+            defaultReader = new TextReader("_");
         }
 
         [Test]
         public void NotReadBannedSymbol()
         {
-            var textReader = new TextReader("_");
-
-            var (token, read) = textReader.ReadToken("abb_ccc", 1, null);
+            var (token, read) = defaultReader.ReadToken("abb_ccc", 1, null);
 
             read.Should().Be(2);
             token.Should().Be(new TextToken("bb"));
@@ -34,9 +27,7 @@ namespace Markdown.Tests
         [Test]
         public void ReturnNullTokenAndZero_WhenReadingStartsWithBannedSymbol()
         {
-            var textReader = new TextReader("_");
-
-            var (token, read) = textReader.ReadToken("_abc", 0, null);
+            var (token, read) = defaultReader.ReadToken("_abc", 0, null);
             
             token.Should().BeNull();
             read.Should().Be(0);

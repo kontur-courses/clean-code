@@ -15,7 +15,7 @@ namespace Markdown.Readers
             TagSymbols = tagSymbols;
         }
 
-        public override (IToken token, int read) ReadToken(string text, int offset, ReadingOptions options)
+        public override (IToken token, int length) ReadToken(string text, int offset, ReadingOptions options)
         {
             CheckArguments(text, offset);
             var innerTokens = new List<IToken>();
@@ -27,12 +27,12 @@ namespace Markdown.Readers
             var allowedInnerReaders = options.GetAvailableInnerReadersFor(this);
             do
             {
-                var (innerToken, innerRead) = allowedInnerReaders
-                    .Select(reader => reader.ReadToken(text, currentIdx, options.WithNewAllowedReaders(allowedInnerReaders)))
+                var (innerToken, innerTokenLength) = allowedInnerReaders
+                    .Select(reader => reader.ReadToken(text, currentIdx, options.WithAllowedReaders(allowedInnerReaders)))
                     .FirstOrDefault(readingResult => readingResult.token != null);
-                if (innerRead == 0) return (null, 0);
+                if (innerTokenLength == 0) return (null, 0);
                 innerTokens.Add(innerToken);
-                currentIdx += innerRead;
+                currentIdx += innerTokenLength;
             } while (!CanReadTagSymbols(text, currentIdx, inStart: false));
 
             currentIdx += TagSymbols.Length;

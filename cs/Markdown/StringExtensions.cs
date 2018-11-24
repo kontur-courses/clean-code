@@ -13,5 +13,17 @@
             }
             return true;
         }
+
+        public static int IndexOf(this string originalString, char value, int startIndex)
+        {
+            var res = -1;
+            for (int i = startIndex; i < originalString.Length; i++)
+                if (originalString[i] == value)
+                {
+                    res = i;
+                    break;
+                }
+            return res;
+        }
     }
 }

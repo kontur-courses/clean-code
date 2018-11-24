@@ -4,7 +4,7 @@ namespace Markdown.Readers
 {
     public class BackslashReader : AbstractReader
     {
-        public override (IToken token, int read) ReadToken(string text, int offset, ReadingOptions options)
+        public override (IToken token, int length) ReadToken(string text, int offset, ReadingOptions options)
         {
             CheckArguments(text, offset);
             var nextSymbolIdx = offset + 1;

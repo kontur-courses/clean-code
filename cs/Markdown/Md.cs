@@ -26,17 +26,19 @@ namespace Markdown
             var emReader = new PairedTagReader("em", "_");
             var strongReader = new PairedTagReader("strong", "__");
             var backslashReader = new BackslashReader();
-            var textReader = new TextReader("_\\");
+            var textReader = new TextReader("_\\[]");
             var anyCharReader = new AnyCharReader();
+            var linkReader = new LinkReader();
 
             var allowedReaders = new List<AbstractReader> {
-                strongReader, emReader, backslashReader, textReader, anyCharReader };
-            var mutedReaders = new Dictionary<AbstractReader, HashSet<AbstractReader>> {
+                strongReader, emReader, linkReader, backslashReader, textReader, anyCharReader };
+            var allowedInnerReaders = new Dictionary<AbstractReader, HashSet<AbstractReader>> {
                 [emReader] = new HashSet<AbstractReader> { backslashReader, textReader, anyCharReader },
-                [strongReader] = new HashSet<AbstractReader> { emReader, backslashReader, textReader, anyCharReader }
+                [strongReader] = new HashSet<AbstractReader> { emReader, backslashReader, textReader, anyCharReader },
+                [linkReader] = new HashSet<AbstractReader> { strongReader, emReader, backslashReader, textReader, anyCharReader }
             };
 
-            return new ReadingOptions(allowedReaders, mutedReaders);
+            return new ReadingOptions(allowedReaders, allowedInnerReaders);
         }
     }
 }

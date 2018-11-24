@@ -7,7 +7,7 @@ using Markdown.Tokens;
 namespace Markdown.Tests
 {
     [TestFixture]
-    public class EmReaderWithTextReaderInside_Should
+    public class EmReaderWithTextReaderInside_Should : Reader_Should<PairedTagReader>
     {
         private PairedTagReader emReader;
         private ReadingOptions options;
@@ -27,6 +27,7 @@ namespace Markdown.Tests
                     [emReader] = new HashSet<AbstractReader> { textReader }
                 }
             );
+            defaultReader = emReader;
         }
 
         [Test]

@@ -13,7 +13,7 @@ namespace Markdown.Readers
             this.tokenEndChars = new HashSet<char>(tokenEndChars);
         }
 
-        public override (IToken token, int read) ReadToken(string text, int offset, ReadingOptions options)
+        public override (IToken token, int length) ReadToken(string text, int offset, ReadingOptions options)
         {
             CheckArguments(text, offset);
             var res = new StringBuilder();

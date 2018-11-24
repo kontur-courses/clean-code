@@ -2,6 +2,6 @@
 {
     public interface IToken
     {
-        TokenType Type { get; }
+        
     }
 }

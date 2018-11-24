@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Text;
 using Markdown.Tokens;
+using System.Net;
 
 namespace Markdown
 {
@@ -11,35 +12,47 @@ namespace Markdown
         {
             var res = new StringBuilder();
             foreach (var token in tokens)
-                res.Append(HandleToken(token));
+                res.Append(RenderToken(token));
             return res.ToString();
         }
 
-        private string HandleToken(IToken token)
+        private string RenderToken(IToken token)
         {
-            switch (token.Type)
+            switch (token)
             {
-                case TokenType.Text:
-                    return HandleTextToken((TextToken) token);
-                case TokenType.PairedTag:
-                    return HandlePairedTagToken((PairedTagToken) token);
+                case TextToken textToken:
+                    return RenderTextToken(textToken);
+                case PairedTagToken pairedTagToken:
+                    return RenderPairedTagToken(pairedTagToken);
+                case LinkToken linkToken:
+                    return RenderLinkToken(linkToken);
                 default:
-                    throw new ArgumentOutOfRangeException($"Unexpected token type: {nameof(token.Type)}");
+                    throw new ArgumentOutOfRangeException($"Unexpected token type: {token.GetType()}");
             }
         }
 
-        private string HandleTextToken(TextToken textToken)
+        private string RenderTextToken(TextToken textToken)
         {
             return textToken.Value.Replace("&", "&amp;").Replace("<", "&lt;");
         }
 
-        private string HandlePairedTagToken(PairedTagToken tagToken)
+        private string RenderPairedTagToken(PairedTagToken tagToken)
         {
             var res = new StringBuilder();
             res.Append($"<{tagToken.Name}>");
             foreach (var innerToken in tagToken.Children)
-                res.Append(HandleToken(innerToken));
+                res.Append(RenderToken(innerToken));
             res.Append($"</{tagToken.Name}>");
+            return res.ToString();
+        }
+
+        private string RenderLinkToken(LinkToken linkToken)
+        {
+            var res = new StringBuilder();
+            res.Append($"<a href=\"{linkToken.Link}\">");
+            foreach (var innerToken in linkToken.Description)
+                res.Append(RenderToken(innerToken));
+            res.Append("</a>");
             return res.ToString();
         }
     }
