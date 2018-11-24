@@ -8,6 +8,7 @@
         DoubleLattice,
         TripleLattice,
         QuadrupleLattice,
-        Star
+        Star,
+        EndLine
     }
 }
