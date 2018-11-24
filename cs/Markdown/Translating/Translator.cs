@@ -17,7 +17,7 @@ namespace Markdown.Translating
 
         public string Translate(List<Token> tokens)
         {
-            var stringBuilder = new StringBuilder();
+           var stringBuilder = new StringBuilder();
 
             foreach (var token in tokens)
                 stringBuilder.Append(TranslateToken(token));
@@ -30,8 +30,10 @@ namespace Markdown.Translating
             if (token.Tag == Tag.Raw)
                 return token.Content;
 
-            return language.OpeningTags.FirstOrDefault(pair => pair.Key == token.Tag).Value ??
-                   language.ClosingTags.First(pair => pair.Key == token.Tag).Value;
+            if (token.IsOpening)
+                return language.OpeningTags.First(pair => pair.Key == token.Tag).Value;
+
+            return language.ClosingTags.First(pair => pair.Key == token.Tag).Value;
         }
     }
 }
