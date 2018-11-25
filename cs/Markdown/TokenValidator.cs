@@ -6,10 +6,11 @@ namespace Markdown
 {
     public class TokenValidator
     {
-        public IEnumerable<Paragraph> GetValidParagraphs(IEnumerable<SingleToken> tokens, string mdText)
+        public IEnumerable<Paragraph> GetParagraphsWithValidTokens(IEnumerable<SingleToken> tokens, string mdText)
         {
             var paragraphs = SeparateByParagraphs(tokens, mdText);
-            FillParagraphWithHtmlTags(paragraphs);
+            FillParagraphWithValidTokens(paragraphs);
+
             return paragraphs;
         }
 
@@ -56,26 +57,16 @@ namespace Markdown
             return paragraphs;
         }
 
-        private void FillParagraphWithHtmlTags(IEnumerable<Paragraph> paragraphs)
+        private void FillParagraphWithValidTokens(IEnumerable<Paragraph> paragraphs)
         {
             foreach (var paragraph in paragraphs)
             {
-                FillParagraphWithHtmlTagsOfInlineTokens(paragraph);
-                FillParagraphWithHtmlTagsOfStartingTokens(paragraph);
+                paragraph.ValidTokens.AddRange(GetValidStartingTokens(paragraph.StartingTokens, paragraph.End, paragraph.Start));
+                paragraph.ValidTokens.AddRange(GetValidInlineTokens(paragraph.InlineTokens));
             }
         }
 
-        private void FillParagraphWithHtmlTagsOfStartingTokens(Paragraph paragraph)
-        {
-            paragraph.ValidTokens.AddRange(GetHtmlTagsOfStartingTokens(paragraph.StartingTokens, paragraph.End, paragraph.Start));
-        }
-
-        private void FillParagraphWithHtmlTagsOfInlineTokens(Paragraph paragraph)
-        {
-            paragraph.ValidTokens.AddRange(GetHtmlTagsOfInlineTokens(paragraph.InlineTokens));
-        }
-
-        private IEnumerable<SingleToken> GetHtmlTagsOfStartingTokens(IEnumerable<SingleToken> tokens, int paragraphEnd, int paragraphStart)
+        private IEnumerable<SingleToken> GetValidStartingTokens(IEnumerable<SingleToken> tokens, int paragraphEnd, int paragraphStart)
         {
             var validHtmlTags = new List<SingleToken>();
             var firstToken = tokens.FirstOrDefault();
@@ -94,9 +85,9 @@ namespace Markdown
             return validHtmlTags;
         }
 
-        private IEnumerable<SingleToken> GetHtmlTagsOfInlineTokens(IEnumerable<SingleToken> tokens)
+        private IEnumerable<SingleToken> GetValidInlineTokens(IEnumerable<SingleToken> tokens)
         {
-            var validHtmlTags = new List<SingleToken>();
+            var validTokens = new List<SingleToken>();
             var notClosedTokens = new List<SingleToken>();
 
             foreach (var token in tokens)
@@ -115,8 +106,8 @@ namespace Markdown
                     if (lastIndex < 0)
                         continue;
 
-                    validHtmlTags.Add(token);
-                    validHtmlTags.Add(notClosedTokens[lastIndex]);
+                    validTokens.Add(token);
+                    validTokens.Add(notClosedTokens[lastIndex]);
                     notClosedTokens.RemoveRange(lastIndex, notClosedTokens.Count - lastIndex);
                 }
                 else
@@ -125,12 +116,7 @@ namespace Markdown
                 }
             }
 
-            return validHtmlTags;
-        }
-
-        public IEnumerable<SingleToken> ValidStartingTokens()
-        {
-            throw new NotImplementedException();
+            return validTokens;
         }
     }
 }

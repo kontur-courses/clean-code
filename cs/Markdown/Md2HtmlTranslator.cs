@@ -13,7 +13,7 @@ namespace Markdown
             foreach (var paragraph in paragraphs)
             {
                 var lastPosition = 0;
-                var tags = paragraph.ValidTokens.OrderBy(t => t.TokenPosition).ThenBy(t => t.TokenType.Template.Length);
+                var tags = paragraph.ValidTokens.OrderBy(t => t.TokenPosition).ThenBy(t => t.TokenType.TokenLocationType);
                 foreach (var htmlTag in tags)
                 {
                     htmlBuilder.Append(paragraph.MdText.Substring(lastPosition, htmlTag.TokenPosition - lastPosition));
