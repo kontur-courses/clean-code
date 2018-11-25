@@ -2,17 +2,17 @@
 {
     public class Token
     {
-        public readonly string Value, OpenTag, CloseTag;
-        public readonly int Priority, OriginalTextLen;
+        public readonly string value, openTag, closeTag;
+        public readonly int priority, shift;
 
-        public Token(string value, string openTag, string closeTag, int priority, int originalTextLen)
+        public Token(string value, string openTag, string closeTag, int priority, int shift)
         {
-            Value = value;
-            OpenTag = openTag;
-            CloseTag = closeTag;
+            this.value = value;
+            this.openTag = openTag;
+            this.closeTag = closeTag;
 
-            Priority = priority;
-            OriginalTextLen = originalTextLen;
+            this.priority = priority;
+            this.shift = shift;
         }
     }
 }

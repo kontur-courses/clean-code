@@ -1,5 +1,4 @@
 ﻿using System.Collections.Generic;
-using System.Linq;
 
 namespace Markdown
 {
@@ -7,7 +6,7 @@ namespace Markdown
     {
         readonly HashSet<char> ableDigits = new HashSet<char>(new [] { '*', '-', '_' });
 
-        public Token tryGetToken(string input, int startPos)
+        public Token TryGetToken(string input, int startPos)
         {
             bool isStartSpaces = true;
             
@@ -55,8 +54,6 @@ namespace Markdown
                 return null;
 
             return new Token("", "<hr>", "", 0, i - startPos); 
-
         }
-
     }
 }

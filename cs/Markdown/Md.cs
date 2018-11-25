@@ -5,19 +5,15 @@ namespace Markdown
 {
     public class Md
     {
-        private List<IReadable> blockReaders;
-        private List<IReadable> inlineReaders;
+        private readonly List<IReadable> blockReaders;
+        private readonly List<IReadable> inlineReaders;
 
         public Md()
         {
-            blockReaders = new List<IReadable>();
-            inlineReaders = new List<IReadable>();
-
-            blockReaders.Add(new ParagraphRegister());
-            blockReaders.Add(new HorLineRegister());
-            
-            inlineReaders.Add(new StrongRegister());
-            inlineReaders.Add(new EmphasisRegister());
+            blockReaders = new List<IReadable> {new ParagraphRegister(),
+                                                new HorLineRegister()};
+            inlineReaders = new List<IReadable> {new StrongRegister(),
+                                                 new EmphasisRegister()};
         }
 
         public string Render(string input)
@@ -25,34 +21,36 @@ namespace Markdown
             return Parse(input, false);
         }
 
-        private Token TryGetToken(string strData, int startPosIndex, List<IReadable> readers)
+        private Token TryGetToken(string strData, int startPosIndex, bool isInline)
         {
             Token token = null;
+            var readers = isInline ? inlineReaders : blockReaders;
+
             foreach (var reader in readers)
             {
-                var t = reader.tryGetToken(strData, startPosIndex);
-                if (token == null || t != null && (t.OriginalTextLen > token.OriginalTextLen
-                                                   || t.OriginalTextLen == token.OriginalTextLen && t.Priority > token.Priority))
+                var t = reader.TryGetToken(strData, startPosIndex);
+
+                if (token == null || t != null && (t.shift > token.shift
+                                                   || t.shift == token.shift && t.priority > token.priority))
                     token = t;
             }
             return token;
         }
 
-        public string Parse(string input, bool isInline)
+        private string Parse(string input, bool isInline)
         {
             StringBuilder result = new StringBuilder();
-            var readers = isInline ? inlineReaders : blockReaders;
 
             for (int i = 0; i < input.Length; i++)
             {
-                var token = TryGetToken(input, i, readers);
+                var token = TryGetToken(input, i, isInline);
                 if (token != null)
                 {
-                    result.Append(token.OpenTag);
-                    result.Append(Parse(token.Value, true));
-                    result.Append(token.CloseTag);
+                    result.Append(token.openTag);
+                    result.Append(Parse(token.value, true));
+                    result.Append(token.closeTag);
 
-                    i += token.OriginalTextLen - 1;
+                    i += token.shift - 1;
                 }
                 else
                     result.Append(input[i]);

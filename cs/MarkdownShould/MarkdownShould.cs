@@ -16,7 +16,7 @@ namespace MarkdownShould
         }
 
         [TestCase("", ExpectedResult = "")]
-        //[TestCase("\n", ExpectedResult = "")]
+        [TestCase("\n", ExpectedResult = "")]
         [TestCase("            some\n       another\n                 text", ExpectedResult = "<p>some\nanother\ntext</p>")]
         [TestCase("aaa\nbbb\n\nccc\nddd", ExpectedResult = "<p>aaa\nbbb</p>\n<p>ccc\nddd</p>")]
         [TestCase("some\ndiff\n\nlines", ExpectedResult = "<p>some\ndiff</p>\n<p>lines</p>")]

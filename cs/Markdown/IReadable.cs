@@ -2,6 +2,6 @@
 {
     public interface IReadable
     {
-        Token tryGetToken(string input, int startPos);
+        Token TryGetToken(string input, int startPos);
     }
 }
