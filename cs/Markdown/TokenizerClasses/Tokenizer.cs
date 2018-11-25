@@ -1,5 +1,6 @@
 ﻿using System.Collections.Generic;
 using System.Linq;
+using Markdown.ParserClasses;
 using Markdown.TokenizerClasses.Scanners;
 
 namespace Markdown.TokenizerClasses
@@ -12,7 +13,7 @@ namespace Markdown.TokenizerClasses
             new PlainTextScanner()
         };
 
-        public IEnumerable<Token> Tokenize(string text)
+        public List<Token> Tokenize(string text)
         {
             var tokens = new List<Token>();
             Token token;
@@ -31,7 +32,14 @@ namespace Markdown.TokenizerClasses
                         token = newToken;
                         tokens.RemoveLast();
                     }
+
+                    if (CheckUnderscoreBetweenNumbers(token, tokens, out newToken))
+                    {
+                        tokens.RemoveLast();
+                        tokens.Add(newToken);
+                    }
                 }
+
                 tokens.Add(token);
 
                 if (token.Length > text.Length)
@@ -56,52 +64,63 @@ namespace Markdown.TokenizerClasses
 
         private static void RemoveEOFToken(List<Token> tokens) => tokens.RemoveLast();
 
-        private bool CheckDoubleUnderscore(Token token, Token previousToken, out Token newToken)
+        private bool CheckDoubleUnderscore(Token currentToken, Token previousToken, out Token newToken)
         {
-            if (token.Type == TokenType.Underscore && previousToken.Type == TokenType.Underscore)
+            if (currentToken.Type == TokenType.Underscore && previousToken.Type == TokenType.Underscore)
             {
                 newToken = new Token(TokenType.DoubleUnderscore, "__");
                 return true;
             }
 
-            newToken = token;
+            newToken = currentToken;
             return false;
         }
 
-        private bool CheckConsecutiveNumbers(Token token, Token previousToken, out Token newToken)
+        private bool CheckConsecutiveNumbers(Token currentToken, Token previousToken, out Token newToken)
         {
-            if (token.Type == TokenType.Num && previousToken.Type == TokenType.Num)
+            if (currentToken.Type == TokenType.Num && previousToken.Type == TokenType.Num)
             {
-                newToken = new Token(TokenType.Num, previousToken.Value + token.Value);
+                newToken = new Token(TokenType.Num, previousToken.Value + currentToken.Value);
                 return true;
             }
 
-            newToken = token;
+            newToken = currentToken;
             return false;
         }
 
-        private bool CheckEscapedTokens(Token token, Token previousToken, out Token newToken)
+        private bool CheckEscapedTokens(Token currentToken, Token previousToken, out Token newToken)
         {
-            if ((token.Type == TokenType.Underscore
-                || token.Type == TokenType.DoubleUnderscore
-                || token.Type == TokenType.EscapeChar)
+            if ((currentToken.Type == TokenType.Underscore
+                 || currentToken.Type == TokenType.DoubleUnderscore
+                 || currentToken.Type == TokenType.EscapeChar)
                 && previousToken.Type == TokenType.EscapeChar)
             {
-                newToken = new Token(TokenType.Text, token.Value);
+                newToken = new Token(TokenType.Text, currentToken.Value);
                 return true;
             }
 
-            newToken = token;
+            newToken = currentToken;
             return false;
         }
-    }
 
-    public static class TokenizeExtensions
-    {
-        public static void RemoveLast(this List<Token> tokens)
+        private bool CheckUnderscoreBetweenNumbers(Token currentToken, List<Token> tokens, out Token newToken)
         {
-            if (tokens.Count > 0)
-                tokens.RemoveAt(tokens.Count - 1);
+            if (tokens.Count >= 2)
+            {
+                var previousToken = tokens.Last();
+                var penultimateToken = tokens.Penultimate();
+
+                if (currentToken.Type == TokenType.Num
+                    && (previousToken.Type == TokenType.Underscore || previousToken.Type == TokenType.DoubleUnderscore)
+                    && penultimateToken.Type == TokenType.Num)
+                {
+                    newToken = new Token(TokenType.Text, previousToken.Value);
+                    return true;
+                }
+            }
+
+            newToken = null;
+            return false;
         }
     }
 }

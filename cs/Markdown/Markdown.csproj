@@ -33,6 +33,10 @@
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
   <ItemGroup>
+    <Reference Include="FluentCommandLineParser, Version=1.5.0.20, Culture=neutral, PublicKeyToken=null">
+      <HintPath>..\packages\FluentCommandLineParser.1.5.0.20-commands\lib\net35\FluentCommandLineParser.dll</HintPath>
+      <Private>True</Private>
+    </Reference>
     <Reference Include="System" />
     <Reference Include="System.Core" />
     <Reference Include="System.Xml.Linq" />
@@ -44,24 +48,17 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="HTMLGeneratorClasses\HTMLGenerator.cs" />
-    <Compile Include="HTMLGeneratorClasses\Visitors\ContentVisitor.cs" />
-    <Compile Include="HTMLGeneratorClasses\Visitors\ParagraphVisitor.cs" />
-    <Compile Include="HTMLGeneratorClasses\Visitors\SentenceVisitor.cs" />
-    <Compile Include="HTMLGeneratorClasses\Visitors\TextVisitors\BoldTextVisitor.cs" />
-    <Compile Include="HTMLGeneratorClasses\Visitors\TextVisitors\EmphasisTextVisitor.cs" />
-    <Compile Include="HTMLGeneratorClasses\Visitors\TextVisitors\PlainTextVisitor.cs" />
+    <Compile Include="HTMLGeneratorClasses\SentenceBuilder.cs" />
+    <Compile Include="HTMLGeneratorClasses\TextBuilder.cs" />
+    <Compile Include="HTMLGeneratorClasses\WordBuilder.cs" />
     <Compile Include="Md.cs" />
-    <Compile Include="ParserClasses\Nodes\Node.cs" />
-    <Compile Include="ParserClasses\Nodes\ParagraphNode.cs" />
-    <Compile Include="ParserClasses\Nodes\ContentNode.cs" />
+    <Compile Include="ParserClasses\Nodes\SentenceNode.cs" />
+    <Compile Include="ParserClasses\Nodes\TextNode.cs" />
+    <Compile Include="ParserClasses\Nodes\TextType.cs" />
+    <Compile Include="ParserClasses\Nodes\WordNode.cs" />
+    <Compile Include="ParserClasses\Nodes\WordType.cs" />
     <Compile Include="ParserClasses\Parser.cs" />
-    <Compile Include="ParserClasses\Parsers\ContentParser.cs" />
-    <Compile Include="ParserClasses\Parsers\TextParsers\BoldTextParser.cs" />
-    <Compile Include="ParserClasses\Parsers\TextParsers\EmphasisTextParser.cs" />
-    <Compile Include="ParserClasses\Parsers\ParagraphParser.cs" />
-    <Compile Include="ParserClasses\Parsers\SentenceParser.cs" />
-    <Compile Include="ParserClasses\Parsers\TextParsers\PlainTextParser.cs" />
-    <Compile Include="ParserClasses\Parsers\Utils.cs" />
+    <Compile Include="ParserClasses\TokensExtensions.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="TokenizerClasses\Scanners\IScanner.cs" />
     <Compile Include="TokenizerClasses\Scanners\TagScanner.cs" />
@@ -72,6 +69,7 @@
   </ItemGroup>
   <ItemGroup>
     <None Include="App.config" />
+    <None Include="packages.config" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
 </Project>

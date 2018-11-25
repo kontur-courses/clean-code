@@ -10,8 +10,6 @@ namespace Markdown.Tests.TokenizerClassesTests
     {
         private readonly PlainTextScanner scanner = new PlainTextScanner();
 
-        [TestCase("cheap\n", "cheap", TestName = "before newline")]
-        [TestCase("flesh\r", "flesh", TestName = "before carriage return")]
         [TestCase("tap ", "tap", TestName = "before space")]
         [TestCase("mercy\\", "mercy", TestName = "before escape character")]
         [TestCase("develop_", "develop", TestName = "before underscore")]
@@ -31,8 +29,6 @@ namespace Markdown.Tests.TokenizerClassesTests
 
         [TestCase("", TestName = "empty string")]
         [TestCase(null, TestName = "null")]
-        [TestCase("\n", TestName = "newline")]
-        [TestCase("\r", TestName = "carriage return")]
         [TestCase(" ", TestName = "space")]
         [TestCase("\\", TestName = "escape char")]
         [TestCase("_", TestName = "underscore tag")]

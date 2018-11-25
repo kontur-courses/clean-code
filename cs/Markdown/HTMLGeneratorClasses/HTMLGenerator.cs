@@ -1,14 +1,12 @@
-﻿using System;
-using Markdown.HTMLGeneratorClasses.Visitors;
-using Markdown.ParserClasses.Nodes;
+﻿using Markdown.ParserClasses.Nodes;
 
 namespace Markdown.HTMLGeneratorClasses
 {
     public class HTMLGenerator
     {
-        public string Generate(ContentNode abstractSyntaxTree)
+        public string Generate(SentenceNode abstractSyntaxTree)
         {
-            return new ContentVisitor().Visit(abstractSyntaxTree);
+            return SentenceBuilder.Build(abstractSyntaxTree);
         }
     }
 }

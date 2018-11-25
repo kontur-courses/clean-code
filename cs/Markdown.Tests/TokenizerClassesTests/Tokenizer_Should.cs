@@ -171,6 +171,23 @@ namespace Markdown.Tests.TokenizerClassesTests
 
         }
 
+        [TestCase("1_2", "1", "2", TestName = "one-digit numbers")]
+        [TestCase("73_18", "73", "18", TestName = "two-digit numbers")]
+        [TestCase("934658_805670", "934658", "805670", TestName = "six-digit numbers")]
+        public void Tokenize_UnderscoreBetweenNumbersAsTextToken(string text, string firstNumValue, string secondNumValue)
+        {
+            var expected = new List<Token>
+            {
+                new Token(TokenType.Num, firstNumValue),
+                new Token(TokenType.Text, "_"),
+                new Token(TokenType.Num, secondNumValue)
+            };
+
+            tokenizer.Tokenize(text)
+                .Should()
+                .BeEquivalentTo(expected);
+        }
+
         [TestCase("", TestName = "empty text")]
         [TestCase(null, TestName = "null")]
         public void GetNextToken_OnNullOrEmptyText_ShouldReturnEOFToken(string text)
@@ -193,10 +210,6 @@ namespace Markdown.Tests.TokenizerClassesTests
         [TestCase("_", TokenType.Underscore, "_", TestName = "underscore tag")]
         [TestCase("\\", TokenType.EscapeChar, "\\", TestName = "escape character")]
         [TestCase(" ", TokenType.Space, " ", TestName = "space")]
-        [TestCase("\r", TokenType.CarriageReturn, "\r", TestName = "carriage return")]
-        [TestCase("\n", TokenType.Newline, "\n", TestName = "newline")]
-        [TestCase("difficult\n", TokenType.Text, "difficult", TestName = "text before newline")]
-        [TestCase("artificial\r", TokenType.Text, "artificial", TestName = "text before carriage return")]
         [TestCase("passage ", TokenType.Text, "passage", TestName = "text before space")]
         [TestCase("reality\\", TokenType.Text, "reality", TestName = "text before escape character")]
         [TestCase("reinforce_", TokenType.Text, "reinforce", TestName = "text before underscore")]

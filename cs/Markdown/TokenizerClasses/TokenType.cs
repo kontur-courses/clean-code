@@ -8,8 +8,6 @@ namespace Markdown.TokenizerClasses
         DoubleUnderscore,
         EscapeChar,
         Space,
-        CarriageReturn,
-        Newline,
         EOF,
         Null
     }

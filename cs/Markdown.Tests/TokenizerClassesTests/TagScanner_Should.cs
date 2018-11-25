@@ -13,8 +13,6 @@ namespace Markdown.Tests.TokenizerClassesTests
         [TestCase("_", TokenType.Underscore, TestName = "underscore")]
         [TestCase("\\", TokenType.EscapeChar, TestName = "escape character")]
         [TestCase(" ", TokenType.Space, TestName = "space")]
-        [TestCase("\r", TokenType.CarriageReturn, TestName = "carriage return")]
-        [TestCase("\n", TokenType.Newline, TestName = "newline")]
         public void TryScan_ValidTag_SuccessfullyAndReturnAppropriateToken(string tag, TokenType expectedType)
         {
             var expected = new Token(expectedType, tag);

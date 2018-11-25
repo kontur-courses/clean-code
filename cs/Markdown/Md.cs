@@ -2,6 +2,7 @@
 using Markdown.ParserClasses;
 using Markdown.TokenizerClasses;
 using Markdown.HTMLGeneratorClasses;
+using Fclp;
 
 namespace Markdown
 {
@@ -9,26 +10,31 @@ namespace Markdown
     {
         public static void Main(string[] args)
         {
-            var markdownText = "__Foo__ _bar_ text";
+            var markdownText = "";
+
+            var parser = new FluentCommandLineParser();
+            parser.Setup<string>('t', "markdownText")
+                .Callback(arg => markdownText = arg)
+                .Required();
+            parser.Parse(args);
+
             var htmlText = Render(markdownText);
 
             Console.WriteLine(htmlText);
             Console.ReadKey();
         }
 
-        private static string Render(string markdownText)
+        public static string Render(string markdownText)
         {
             var tokenizer = new Tokenizer();
-//            var parser = new Parser();
-//            var generator = new HTMLGenerator();
+            var parser = new Parser();
+            var generator = new HTMLGenerator();
 
-//            var tokens = tokenizer.Tokenize(markdownText);
-//            var abstractSyntaxTree = parser.Parse(tokens);
-//            var htmlText = generator.Generate(abstractSyntaxTree);
-//
-//            return htmlText;
+            var tokens = tokenizer.Tokenize(markdownText);
+            var abstractSyntaxTree = parser.Parse(tokens);
+            var htmlText = generator.Generate(abstractSyntaxTree);
 
-            throw new NotImplementedException();
+            return htmlText;
         }
     }
 }

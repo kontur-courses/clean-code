@@ -8,8 +8,6 @@ namespace Markdown.TokenizerClasses.Scanners
         {
             {"_", new Token(TokenType.Underscore, "_")},
             {"\\", new Token(TokenType.EscapeChar, "\\")},
-            {"\r", new Token(TokenType.CarriageReturn, "\r")},
-            {"\n", new Token(TokenType.Newline, "\n")},
             {" ", new Token(TokenType.Space, " ")},
             {"0", new Token(TokenType.Num, "0")},
             {"1", new Token(TokenType.Num, "1")},
