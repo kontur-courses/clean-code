@@ -10,8 +10,26 @@ namespace Markdown
         {
             var paragraphs = SeparateByParagraphs(tokens, mdText);
             FillParagraphWithValidTokens(paragraphs);
+            WrapParagraphInMarkedList(paragraphs);
 
             return paragraphs;
+        }
+
+        private void WrapParagraphInMarkedList(IEnumerable<Paragraph> paragraphs)
+        {
+            Paragraph lastParagraph = null;
+            var markedListType = new TokenType(TokenTypeEnum.MarkedList, "", "ul", TokenLocationType.BoxesTokens);
+
+            foreach (var paragraph in paragraphs)
+            {
+                if (paragraph.StartingTokenType == TokenTypeEnum.Star && (lastParagraph == null || lastParagraph.StartingTokenType != TokenTypeEnum.Star))
+                    paragraph.ValidTokens.Add(new SingleToken(markedListType, 0, LocationType.Opening));
+                if (paragraph.StartingTokenType != TokenTypeEnum.Star && lastParagraph != null && lastParagraph.StartingTokenType == TokenTypeEnum.Star)
+                    lastParagraph.ValidTokens.Add(new SingleToken(markedListType, paragraph.End - paragraph.Start, LocationType.Closing));
+                lastParagraph = paragraph;
+            }
+            if (lastParagraph != null && lastParagraph.StartingTokenType == TokenTypeEnum.Star)
+                lastParagraph.ValidTokens.Add(new SingleToken(markedListType, lastParagraph.End - lastParagraph.Start, LocationType.Closing));
         }
 
         private IEnumerable<Paragraph> SeparateByParagraphs(IEnumerable<SingleToken> tokens, string mdText)
@@ -32,7 +50,8 @@ namespace Markdown
                         paragraphEnd,
                         mdText.Substring(paragraphStart, paragraphEnd - paragraphStart),
                         inlineTokens,
-                        startingTokens));
+                        startingTokens,
+                        startingTokens.FirstOrDefault()?.TokenType.Name == null ? TokenTypeEnum.Paragraph : startingTokens.FirstOrDefault().TokenType.Name));
 
                     inlineTokens = new List<SingleToken>();
                     startingTokens = new List<SingleToken>();
@@ -51,7 +70,8 @@ namespace Markdown
                     paragraphEnd,
                     mdText.Substring(paragraphStart, paragraphEnd - paragraphStart),
                     inlineTokens,
-                    startingTokens));
+                    startingTokens,
+                    startingTokens.FirstOrDefault()?.TokenType.Name == null ? TokenTypeEnum.Paragraph : startingTokens.FirstOrDefault().TokenType.Name));
             }
 
             return paragraphs;
@@ -59,6 +79,7 @@ namespace Markdown
 
         private void FillParagraphWithValidTokens(IEnumerable<Paragraph> paragraphs)
         {
+            var lastStartingToken = TokenTypeEnum.Paragraph;
             foreach (var paragraph in paragraphs)
             {
                 paragraph.ValidTokens.AddRange(GetValidStartingTokens(paragraph.StartingTokens, paragraph.End, paragraph.Start));
@@ -70,6 +91,7 @@ namespace Markdown
         {
             var validHtmlTags = new List<SingleToken>();
             var firstToken = tokens.FirstOrDefault();
+
             if (firstToken != null)
             {
                 validHtmlTags.Add(firstToken);
@@ -99,7 +121,7 @@ namespace Markdown
                 else if (token.LocationType == LocationType.Closing)
                 {
                     var lastIndex = notClosedTokens
-                        .Where(t => t.TokenPosition !=token.TokenPosition)
+                        .Where(t => t.TokenPosition != token.TokenPosition)
                         .Select(t => t.TokenType)
                         .ToList()
                         .LastIndexOf(token.TokenType);

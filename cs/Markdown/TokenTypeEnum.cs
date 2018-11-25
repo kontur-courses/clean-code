@@ -10,6 +10,7 @@
         QuadrupleLattice,
         Star,
         EndLine,
-        Paragraph
+        Paragraph,
+        MarkedList
     }
 }
