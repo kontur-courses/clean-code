@@ -7,31 +7,41 @@ namespace Markdown
 {
     public class Md2HtmlTranslator
     {
-        public string TranslateMdToHtml(string mdText, IEnumerable<HtmlTag> tokens)
-        {
-            var htmlText = GetHtmlText(mdText, tokens.OrderBy(token => token.Position));
-
-            return htmlText;
-        }
-
-        private string GetHtmlText(string mdText, IEnumerable<HtmlTag> htmlTags)
+        public string TranslateMdToHtml(string mdText, IEnumerable<Paragraph> paragraphs)
         {
             var htmlBuilder = new StringBuilder();
+            foreach (var paragraph in paragraphs)
+            {
+                var lastPosition = 0;
+                var tags = paragraph.ValidTokens.OrderBy(t => t.TokenPosition).ThenBy(t => t.TokenType.Template.Length);
+                foreach (var htmlTag in tags)
+                {
+                    htmlBuilder.Append(paragraph.MdText.Substring(lastPosition, htmlTag.TokenPosition - lastPosition));
+                    htmlBuilder.Append(WrapHtmlTagInBrackets(htmlTag));
 
-            foreach (var htmlTag in htmlTags)
-                htmlBuilder.Append(WrapHtmlTagInBrackets(htmlTag));
+                    var shift = htmlTag.TokenType.TokenLocationType == TokenLocationType.InlineToken ||
+                                htmlTag.TokenType.TokenLocationType == TokenLocationType.StartingToken
+                        ? htmlTag.TokenType.Template.Length
+                        : 0;
+
+                    lastPosition = htmlTag.TokenPosition + shift;
+                }
+            }
 
             return htmlBuilder.ToString();
         }
-
-        private string WrapHtmlTagInBrackets(HtmlTag htmlTag)
+        private string WrapHtmlTagInBrackets(SingleToken htmlTag)
         {
-            if (htmlTag.Type == LocationType.Opening || htmlTag.Type == LocationType.Single)
-                return ($"<{htmlTag.HtmlTemplate}>");
-            if (htmlTag.Type == LocationType.Closing)
-                return ($"</{htmlTag.HtmlTemplate}>");
-
-            throw new InvalidOperationException("Invalid token location type");
+            switch (htmlTag.LocationType)
+            {
+                case LocationType.Opening:
+                case LocationType.Single:
+                    return ($"<{htmlTag.TokenType.HtmlTag}>");
+                case LocationType.Closing:
+                    return ($"</{htmlTag.TokenType.HtmlTag}>");
+                default:
+                    throw new InvalidOperationException("Invalid token location type");
+            }
         }
     }
 }

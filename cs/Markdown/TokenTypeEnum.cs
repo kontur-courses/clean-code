@@ -9,6 +9,7 @@
         TripleLattice,
         QuadrupleLattice,
         Star,
-        EndLine
+        EndLine,
+        Paragraph
     }
 }

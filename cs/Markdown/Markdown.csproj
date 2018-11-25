@@ -42,7 +42,6 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="HtmlTag.cs" />
     <Compile Include="LocationType.cs" />
     <Compile Include="Markdown.cs" />
     <Compile Include="Paragraph.cs" />

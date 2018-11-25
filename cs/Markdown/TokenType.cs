@@ -14,5 +14,10 @@
         public string Template { get; }
         public string HtmlTag { get; }
         public TokenLocationType TokenLocationType { get; }
+
+        public override string ToString()
+        {
+            return Name.ToString();
+        }
     }
 }
