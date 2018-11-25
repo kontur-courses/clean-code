@@ -9,7 +9,7 @@ namespace Markdown
     public class HtmlReplacingsCollector
     {
         private readonly Stack<(HtmlTextWriterTag tag, Range range)> openedTags;
-        private readonly List<HtmlTagPairReplacing> replacings; 
+        private readonly List<HtmlTagPairReplacing> replacings;
         
         public HtmlReplacingsCollector()
         {
@@ -17,8 +17,23 @@ namespace Markdown
             replacings = new List<HtmlTagPairReplacing>();
         }
         
+        public void CollectTagPairs(string renderingString, IEnumerable<ITokenMatcher> matchers)
+        {
+            for (int i = 0; i < renderingString.Length; i++)
+                foreach (var matcher in matchers)
+                    if((matcher.TryClose(i, out var range) &&
+                        TryCloseTag(matcher.Tag,range))||
+                       (matcher.TryOpen(i, out range) &&
+                        TryOpenTag(matcher.Tag,range)))
+                    {
+                        i += range.Length - 1;
+                        break;
+                    }
+        }
+        
         public IEnumerable<HtmlTagPairReplacing> GetReplacings => replacings;
-        public bool TryOpenTag(HtmlTextWriterTag tag, Range insertRange)
+        
+        private bool TryOpenTag(HtmlTextWriterTag tag, Range insertRange)
         {
             if (StrongInUCase(tag))
                 return false;
@@ -29,7 +44,7 @@ namespace Markdown
         private bool StrongInUCase(HtmlTextWriterTag tag) => //TODO initialize this check in Md  
             tag == HtmlTextWriterTag.Strong && openedTags.Select(x => x.tag).Contains(HtmlTextWriterTag.U);
         
-        public bool TryCloseTag(HtmlTextWriterTag tag, Range insertRange)
+        private bool TryCloseTag(HtmlTextWriterTag tag, Range insertRange)
         {
             if (!openedTags.Any() || openedTags.Peek().tag != tag) 
                 return false;

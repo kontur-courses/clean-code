@@ -100,9 +100,12 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="HtmlReplacingsCollector.cs" />
-    <Compile Include="IMdTagMatcher.cs" />
+    <Compile Include="HtmlTagType.cs" />
+    <Compile Include="ITokenMatcher.cs" />
     <Compile Include="Md.cs" />
-    <Compile Include="MdWrappingTagMatcher.cs" />
+    <Compile Include="ReplacingsApplyer.cs" />
+    <Compile Include="TokenOrder.cs" />
+    <Compile Include="WrappingTokenMatcher.cs" />
     <Compile Include="Md_Should.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
