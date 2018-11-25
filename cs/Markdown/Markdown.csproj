@@ -58,7 +58,17 @@
     <Compile Include="Delimiter.cs" />
     <Compile Include="MarkdownParser.cs" />
     <Compile Include="Md.cs" />
+    <Compile Include="TokenTypes\MdBold.cs" />
+    <Compile Include="TokenTypes\MdHeader1.cs" />
+    <Compile Include="TokenTypes\MdHeader2.cs" />
+    <Compile Include="TokenTypes\MdHeader3.cs" />
+    <Compile Include="TokenTypes\MdHeader4.cs" />
+    <Compile Include="TokenTypes\MdHeader5.cs" />
+    <Compile Include="TokenTypes\MdHeader6.cs" />
+    <Compile Include="TokenTypes\MdItalic.cs" />
+    <Compile Include="TokenTypes\MdText.cs" />
     <Compile Include="MdToHTMLConverter.cs" />
+    <Compile Include="TokenTypes\IMdToken.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Specification.cs" />

@@ -1,4 +1,5 @@
 ﻿using System.Text;
+using Markdown.Types;
 
 namespace Markdown
 {
@@ -25,7 +26,7 @@ namespace Markdown
 
             string startString = "";
             string closingString = "";
-            if (token.TokenType == TokenType.Text)
+            if (token.TokenType is MdText)
             {
                 if (token.Delimiter != null)
                 {
@@ -40,8 +41,10 @@ namespace Markdown
 
             else
             {
-                startString = $"<{Specification.TokenTypeToHTML[token.TokenType]}>";
-                closingString = $"</{Specification.TokenTypeToHTML[token.TokenType]}>";
+                startString = $"<{token.TokenType.HtmlTag}>";
+                closingString = $"</{token.TokenType.HtmlTag}>";
+                if (!token.TokenType.IsPair)
+                    closingString += "\r\n";
             }
 
             return startString + result + closingString;

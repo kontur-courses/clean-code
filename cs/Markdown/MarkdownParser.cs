@@ -1,5 +1,6 @@
 ﻿using System.Collections.Generic;
 using System.Linq;
+using Markdown.Types;
 
 namespace Markdown
 {
@@ -7,6 +8,7 @@ namespace Markdown
     {
         private readonly string markdownInput;
         public Token CurrentToken;
+        private readonly Specification specification = new Specification();
 
         public MarkdownParser(string markdownInput)
         {
@@ -18,9 +20,9 @@ namespace Markdown
         {
             var searcher = new StringSearcher();
             var allKeyWords = new HashSet<string>();
-            var mdDelimiters = new HashSet<string>(Specification.MdToTokenTypes.Keys.ToList());
-            allKeyWords.UnionWith(Specification.KeyWords);
-            allKeyWords.UnionWith(Specification.ProhibitionСharacters);
+            var mdDelimiters = specification.MdDelimiters;
+            allKeyWords.UnionWith(specification.KeyWords);
+            allKeyWords.UnionWith(specification.ProhibitionСharacters);
             allKeyWords.UnionWith(mdDelimiters);
             var lexemes = searcher.SplitBySubstrings(allKeyWords, markdownInput);
 
@@ -57,8 +59,8 @@ namespace Markdown
 
         private void AddNewDelimiter(Substring lexeme)
         {
-            var canBeClosing = Specification.CanBeClosing(lexeme, markdownInput);
-            var canBeStarting = Specification.CanBeStarting(lexeme, markdownInput);
+            var canBeClosing = specification.CanBeClosing(lexeme, markdownInput);
+            var canBeStarting = specification.CanBeStarting(lexeme, markdownInput);
             var delimiter = new Delimiter(lexeme.Value, lexeme.Index, canBeClosing, canBeStarting);
             if (delimiter.CanBeClosing)
             {
@@ -86,10 +88,10 @@ namespace Markdown
 
         private int Escape(List<Substring> substrings, int lexemeIndex)
         {
-            var mdDelimiters = new HashSet<string>(Specification.MdToTokenTypes.Keys);
+            var mdDelimiters = new HashSet<string>(specification.MdToTokenTypes.Keys);
             var charactersToEscape = new HashSet<string>();
             charactersToEscape.UnionWith(mdDelimiters);
-            charactersToEscape.UnionWith(Specification.KeyWords);
+            charactersToEscape.UnionWith(specification.KeyWords);
             var result = lexemeIndex;
             if (lexemeIndex + 1 < substrings.Count &&
                 charactersToEscape.Contains(substrings[lexemeIndex + 1].Value))
@@ -108,9 +110,9 @@ namespace Markdown
         private bool SurroundedByDigits(List<Substring> substrings, int lexemeIndex)
         {
             return lexemeIndex + 1 < substrings.Count &&
-                   Specification.ProhibitionСharacters.Contains(substrings[lexemeIndex + 1].Value) ||
+                   specification.ProhibitionСharacters.Contains(substrings[lexemeIndex + 1].Value) ||
                    lexemeIndex - 1 >= 0 &&
-                   Specification.ProhibitionСharacters.Contains(substrings[lexemeIndex - 1].Value);
+                   specification.ProhibitionСharacters.Contains(substrings[lexemeIndex - 1].Value);
         }
 
 
@@ -124,10 +126,10 @@ namespace Markdown
         {
             foreach (var parent in parents)
             {
-                if (Specification.ImpossibleNesting.ContainsKey(parent.TokenType) &&
-                    Specification.ImpossibleNesting[parent.TokenType].Contains(token.TokenType))
+                if (specification.ImpossibleNesting.ContainsKey(parent.TokenType.GetType()) &&
+                    specification.ImpossibleNesting[parent.TokenType.GetType()].Contains(token.TokenType.GetType()))
                 {
-                    token.TokenType = TokenType.Text;
+                    token.TokenType = new MdText();
                 }
             }
 
@@ -146,7 +148,7 @@ namespace Markdown
             var token = CurrentToken;
             if (token.Delimiter is null)
                 return false;
-            while (token != null && token.Delimiter.Value != closingDelimiter.Value)
+            while (token != null && !DelimitersArePair(token.Delimiter, closingDelimiter))
             {
                 if (token.ParentToken?.Delimiter is null)
                 {
@@ -157,9 +159,19 @@ namespace Markdown
             }
 
             token.Closed = true;
-            token.TokenType = Specification.MdToTokenTypes[token.Delimiter.Value];
+            token.TokenType = specification.MdToTokenTypes[token.Delimiter.Value];
             closedToken = token;
             return true;
+        }
+
+        private bool DelimitersArePair(Delimiter startingDelimiter, Delimiter closingDelimiter)
+        {
+            if (specification.MdStartingToClosingDelimiters.ContainsKey(startingDelimiter.Value))
+            {
+                return specification.MdStartingToClosingDelimiters[startingDelimiter.Value] == closingDelimiter.Value;
+            }
+
+            return false;
         }
     }
 }

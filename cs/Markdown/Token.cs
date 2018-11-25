@@ -1,14 +1,8 @@
 ﻿using System.Collections.Generic;
+using Markdown.Types;
 
 namespace Markdown
 {
-    public enum TokenType
-    {
-        Text,
-        Italic,
-        Bold
-    }
-
     public class Token
     {
         //Текст - это токен;
@@ -21,7 +15,7 @@ namespace Markdown
         public Token RootToken { get; private set; }
         public string Text { get; private set; }
         public bool Closed;
-        public TokenType TokenType = TokenType.Text;
+        public IMdToken TokenType = new MdText();
 
 
         public Token()
