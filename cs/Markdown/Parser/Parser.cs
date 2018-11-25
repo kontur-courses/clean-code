@@ -27,7 +27,7 @@ namespace Markdown
             }
 
             this.str = str;
-
+            position = 0;
             return BuildTree(ImmutableStack<TokenNode>.Empty);
         }
 
