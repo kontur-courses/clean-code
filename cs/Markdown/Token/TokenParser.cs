@@ -19,7 +19,7 @@ namespace Markdown.Token
 
                 if (depth.Length > 0 && depth.Length <= 6 && markdown[depth.Length] == ' ')
                 {
-                    result.Add(CreateToken(markdown, depth.Length, markdown.Length, 
+                    result.Add(CreateToken(markdown, depth.Length, markdown.Length,
                         new HeaderHtmlElement(headerHtmlElement.HtmlTag, depth.Length, headerHtmlElement.Indicator)));
                     return result;
                 }
@@ -27,8 +27,6 @@ namespace Markdown.Token
 
             var currentIndex = 0;
 
-
-            
             while (currentIndex < markdown.Length)
             {
                 var openIndex = element.GetOpenIndex(markdown, currentIndex);

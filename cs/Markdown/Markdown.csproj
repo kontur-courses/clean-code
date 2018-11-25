@@ -46,7 +46,8 @@
     <Compile Include="Element\IElement.cs" />
     <Compile Include="Element\HeaderHtmlElement.cs" />
     <Compile Include="Extensions\ElementExtensions.cs" />
-    <Compile Include="ResultFormatter.cs" />
+    <Compile Include="Extensions\StringExtensions.cs" />
+    <Compile Include="ResultProcessor.cs" />
     <Compile Include="Element\HtmlElement.cs" />
     <Compile Include="Md.cs" />
     <Compile Include="Program.cs" />

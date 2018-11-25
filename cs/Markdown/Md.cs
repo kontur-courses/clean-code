@@ -18,12 +18,7 @@ namespace Markdown
 
         public string Render(string text)
         {
-            foreach (var element in elements)
-            {
-                text = ResultFormatter.Form(TokenParser.Parse(text, element));
-            }
-
-            return ResultFormatter.PrepareResult(text);
+            return ResultProcessor.ProcessResult(text, elements);
         }
     }
 }

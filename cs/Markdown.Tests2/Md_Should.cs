@@ -17,15 +17,15 @@ namespace Markdown.Tests
 
         [TestCase("plain text", ExpectedResult = "plain text", TestName = "Plain text as is")]
         [TestCase("", ExpectedResult = "", TestName = "Empty string as is")]
-        
+
 
         [TestCase("_undersored_ text", ExpectedResult = "<em>undersored</em> text", TestName = "Underscored text in italic")]
-        [TestCase("_undersored_ and again _undersored_ text", ExpectedResult = "<em>undersored</em> and again <em>undersored</em> text", 
+        [TestCase("_undersored_ and again _undersored_ text", ExpectedResult = "<em>undersored</em> and again <em>undersored</em> text",
             TestName = "Several occurences of underscored text in italic")]
-        [TestCase(@"escaped \_undersored\_ text", ExpectedResult = @"escaped _undersored_ text", 
+        [TestCase(@"escaped \_undersored\_ text", ExpectedResult = @"escaped _undersored_ text",
             TestName = "Escaped underscored text in plain text")]
 
-        [TestCase("double __undersored__ text", ExpectedResult = "double <strong>undersored</strong> text", 
+        [TestCase("double __undersored__ text", ExpectedResult = "double <strong>undersored</strong> text",
             TestName = "Double underscored text in bold")]
         [TestCase(@"double \_\_undersored\_\_ text", ExpectedResult = @"double __undersored__ text",
             TestName = "Escaped double underscored text in plain text")]
@@ -39,28 +39,28 @@ namespace Markdown.Tests
             TestName = "Double inside single with several single")]
         [TestCase("_single __double__ single_ __again__", ExpectedResult = "<em>single __double__ single</em> <strong>again</strong>",
             TestName = "Double inside single with several double")]
-        [TestCase("_single __double__ single_ _again single_ __again double__", 
+        [TestCase("_single __double__ single_ _again single_ __again double__",
             ExpectedResult = "<em>single __double__ single</em> <em>again single</em> <strong>again double</strong>",
             TestName = "Double inside single with extra tags")]
 
-        [TestCase("__double _single_ double__", ExpectedResult = "<strong>double <em>single</em> double</strong>", 
+        [TestCase("__double _single_ double__", ExpectedResult = "<strong>double <em>single</em> double</strong>",
             TestName = "Single inside double")]
-        [TestCase("__double _single_ double__ _again_", ExpectedResult = "<strong>double <em>single</em> double</strong> <em>again</em>", 
+        [TestCase("__double _single_ double__ _again_", ExpectedResult = "<strong>double <em>single</em> double</strong> <em>again</em>",
             TestName = "Single inside double with several single")]
-        [TestCase("__double _single_ double__ __again__", ExpectedResult = "<strong>double <em>single</em> double</strong> <strong>again</strong>", 
+        [TestCase("__double _single_ double__ __again__", ExpectedResult = "<strong>double <em>single</em> double</strong> <strong>again</strong>",
             TestName = "Single inside double with several double")]
         [TestCase("_single underscore", ExpectedResult = "_single underscore", TestName = "Not matching single underscore")]
         [TestCase("__double underscore", ExpectedResult = "__double underscore", TestName = "Not matching double underscore")]
 
 
-        [TestCase("_ single underscored whitespaced text_", ExpectedResult = "_ single underscored whitespaced text_", 
+        [TestCase("_ single underscored whitespaced text_", ExpectedResult = "_ single underscored whitespaced text_",
             TestName = "Whitespace after starting single underscore indicator as plain text")]
-        [TestCase("_single underscored whitespaced text _", ExpectedResult = "_single underscored whitespaced text _", 
+        [TestCase("_single underscored whitespaced text _", ExpectedResult = "_single underscored whitespaced text _",
             TestName = "Whitespace after finishing single underscore indicator as plain text")]
 
-        [TestCase("__double underscored whitespaced text __", ExpectedResult = "__double underscored whitespaced text __", 
+        [TestCase("__double underscored whitespaced text __", ExpectedResult = "__double underscored whitespaced text __",
             TestName = "Whitespace after finishing double underscore indicator as plain text")]
-        [TestCase("__ double underscored whitespaced text__", ExpectedResult = "__ double underscored whitespaced text__", 
+        [TestCase("__ double underscored whitespaced text__", ExpectedResult = "__ double underscored whitespaced text__",
             TestName = "Whitespace after starting double underscore indicator as plain text")]
 
 
@@ -69,7 +69,7 @@ namespace Markdown.Tests
         [TestCase("1__23__4", ExpectedResult = "1__23__4", TestName = "Double underscore all text inside digits")]
         [TestCase("1_23_4", ExpectedResult = "1_23_4", TestName = "Single underscore all text inside digits")]
 
-        
+
         [TestCase("# sharped text", ExpectedResult = "<h1>sharped text</h1>", TestName = "1 level header")]
         [TestCase("## sharped text", ExpectedResult = "<h2>sharped text</h2>", TestName = "2 level header")]
         [TestCase("### sharped text", ExpectedResult = "<h3>sharped text</h3>", TestName = "3 level header")]
@@ -82,10 +82,9 @@ namespace Markdown.Tests
         [TestCase("sharped # text", ExpectedResult = "sharped # text", TestName = "Text with sharp in the middle as is")]
         [TestCase("####### sharped text", ExpectedResult = "####### sharped text", TestName = "Text with more than 6 sharps as is")]
 
-        [TestCase(@"\# escaped sharped text", ExpectedResult = "# escaped sharped text", 
+        [TestCase(@"\# escaped sharped text", ExpectedResult = "# escaped sharped text",
             TestName = "Escaped 1 level header as plain text")]
         [TestCase(@"\### sharped text", ExpectedResult = "### sharped text", TestName = "Escaped several sharps as plain text")]
-
         public string Render(string markdown)
         {
             return md.Render(markdown);

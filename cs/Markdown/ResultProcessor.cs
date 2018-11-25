@@ -1,13 +1,24 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Text;
 using Markdown.Element;
+using Markdown.Extensions;
+using Markdown.Token;
 
 namespace Markdown
 {
-    public static class ResultFormatter
+    public static class ResultProcessor
     {
-        public static string Form(IEnumerable<Token.Token> tokens)
+        public static string ProcessResult(string text, IEnumerable<IElement> elements)
+        {
+            text = elements.Aggregate(text, (current, element)
+                => Form(TokenParser.Parse(current, element)));
+
+            return PrepareResult(text);
+        }
+
+        private static string Form(IEnumerable<Token.Token> tokens)
         {
             var result = new StringBuilder();
 
@@ -22,7 +33,7 @@ namespace Markdown
             return result.ToString();
         }
 
-        public static string PrepareResult(string str)
+        private static string PrepareResult(string str)
         {
             var emHtmlElement = new HtmlElement("_", "em");
             var strongHtmlElement = new HtmlElement("__", "strong");
@@ -34,7 +45,7 @@ namespace Markdown
             var strongClose = str.AllIndexesOf(strongHtmlElement.ClosingTag);
 
             if (strongOpen.Count <= 0)
-                return str.Replace(@"\", "");
+                return str.RemoveEscapeSymbols();
 
             var s = new StringBuilder(str);
 
@@ -51,22 +62,7 @@ namespace Markdown
                 s.Insert(strongOpen[index], strongHtmlElement.Indicator);
             }
 
-            return s.ToString().Replace(@"\", "");
-        }
-
-        public static List<int> AllIndexesOf(this string str, string value)
-        {
-            if (string.IsNullOrEmpty(value))
-                throw new ArgumentException("the string to find may not be empty", nameof(value));
-
-            var indexes = new List<int>();
-            for (var index = 0; ; index += value.Length)
-            {
-                index = str.IndexOf(value, index, StringComparison.Ordinal);
-                if (index == -1)
-                    return indexes;
-                indexes.Add(index);
-            }
+            return s.ToString().RemoveEscapeSymbols();
         }
     }
 }

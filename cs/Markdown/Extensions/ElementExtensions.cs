@@ -9,7 +9,7 @@ namespace Markdown.Extensions
             while (startIndex < markdown.Length - element.Indicator.Length * 2)
             {
                 if (markdown.Substring(startIndex, element.Indicator.Length) == element.Indicator
-                    && !char.IsWhiteSpace(markdown[startIndex + element.Indicator.Length]) 
+                    && !char.IsWhiteSpace(markdown[startIndex + element.Indicator.Length])
                     && !element.IsInsideTwoDigits(markdown, startIndex)
                     && !element.EqualsNextElement(markdown, startIndex)
                     && !IsEscaped(markdown, startIndex))
@@ -31,8 +31,8 @@ namespace Markdown.Extensions
                 if (markdown.Substring(closeIndex, element.Indicator.Length) == element.Indicator
                     && closeIndex > 0
                     && !char.IsWhiteSpace(markdown[closeIndex - 1])
-                    && !element.IsInsideTwoDigits(markdown, closeIndex) 
-                    && !element.EqualsPreviousElement(markdown, closeIndex) 
+                    && !element.IsInsideTwoDigits(markdown, closeIndex)
+                    && !element.EqualsPreviousElement(markdown, closeIndex)
                     && !IsEscaped(markdown, closeIndex)
                     )
                     return closeIndex;
@@ -90,13 +90,13 @@ namespace Markdown.Extensions
 
         private static bool EqualsNextElement(this IElement element, string markdown, int index)
         {
-            return index + element.Indicator.Length < markdown.Length 
+            return index + element.Indicator.Length < markdown.Length
                    && markdown.Substring(index + 1, element.Indicator.Length) == element.Indicator;
         }
 
         private static bool EqualsPreviousElement(this IElement htmlElement, string markdown, int index)
         {
-            return index - htmlElement.Indicator.Length > -1 
+            return index - htmlElement.Indicator.Length > -1
                    && markdown.Substring(index - htmlElement.Indicator.Length, htmlElement.Indicator.Length) == htmlElement.Indicator
                    && !IsEscaped(markdown, index - htmlElement.Indicator.Length);
         }
