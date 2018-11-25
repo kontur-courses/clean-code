@@ -19,10 +19,11 @@ namespace Markdown
                     htmlBuilder.Append(paragraph.MdText.Substring(lastPosition, htmlTag.TokenPosition - lastPosition));
                     htmlBuilder.Append(WrapHtmlTagInBrackets(htmlTag));
 
-                    var shift = htmlTag.TokenType.TokenLocationType == TokenLocationType.InlineToken ||
-                                htmlTag.TokenType.TokenLocationType == TokenLocationType.StartingToken
+                    var shift = htmlTag.TokenType.TokenLocationType == TokenLocationType.InlineToken
                         ? htmlTag.TokenType.Template.Length
-                        : 0;
+                        : htmlTag.TokenType.TokenLocationType == TokenLocationType.StartingToken && htmlTag.TokenType.Template.Length != 0
+                            ? htmlTag.TokenType.Template.Length + 1
+                            : 0;
 
                     lastPosition = htmlTag.TokenPosition + shift;
                 }
