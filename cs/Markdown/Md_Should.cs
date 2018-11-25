@@ -27,6 +27,8 @@ namespace Markdown
         [TestCase("Hello world__!","Hello world__!")]
         [TestCase("__Hello _markdown_ world!__","<strong>Hello <u>markdown</u> world!</strong>")]
         [TestCase("_Hello __markdown__ world!_","<u>Hello __markdown__ world!</u>")]
+        [TestCase("*Hello world!*","<u>Hello world!</u>")]
+        [TestCase("**Hello world!**","<strong>Hello world!</strong>")]
         //[TestCase("Hello world!","<u>Hello world!</u>")]
         public void RenderIntoHtml(string markdowned, string expectedRendered) =>
             rendererer.Render(markdowned).Should().Be(expectedRendered);

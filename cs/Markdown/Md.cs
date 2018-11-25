@@ -21,6 +21,8 @@ namespace Markdown
             {
                 new WrappingTokenMatcher("__", HtmlTextWriterTag.Strong),
                 new WrappingTokenMatcher("_", HtmlTextWriterTag.U),
+                new WrappingTokenMatcher("**", HtmlTextWriterTag.Strong),
+                new WrappingTokenMatcher("*", HtmlTextWriterTag.U),
             };
 
         
