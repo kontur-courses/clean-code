@@ -6,11 +6,11 @@ using System.Threading.Tasks;
 
 namespace Markdown
 {
-    class HorLineRegister : BaseRegister
+    class HorLineRegister : IReadable
     {
         readonly char[] ableDigits = { '*', '-', '_' };
 
-        public override Token tryGetToken(ref string input, int startPos)
+        public Token tryGetToken(string input, int startPos)
         {
             bool isStartSpaces = true;
             

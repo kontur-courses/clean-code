@@ -2,14 +2,14 @@
 
 namespace Markdown
 {
-    class EmphasisRegister : BaseRegister
+    class EmphasisRegister : IReadable
     {
         protected int suffixLength = 1;
         protected string[] suffixes =  {"*", "_"};
         protected int priority = 0;
         protected string[] tags = {"<em>","</em>"};
 
-        public override Token tryGetToken(ref string input, int startPos)
+        public Token tryGetToken(string input, int startPos)
         {
             if (startPos != 0 && input.Length > 0 && input[startPos - 1] == '\\')
                 return null;

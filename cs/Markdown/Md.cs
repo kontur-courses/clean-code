@@ -27,12 +27,12 @@ namespace Markdown
             return Parse(input, blockReaders);
         }
 
-        private Token TryGetToken(ref string strData, int startPosIndex, List<IReadable> readers)
+        private Token TryGetToken(string strData, int startPosIndex, List<IReadable> readers)
         {
             Token token = null;
             foreach (var reader in readers)
             {
-                var t = reader.tryGetToken(ref strData, startPosIndex);
+                var t = reader.tryGetToken(strData, startPosIndex);
                 if (token == null || t != null && (t.OriginalTextLen > token.OriginalTextLen
                                                    || t.OriginalTextLen == token.OriginalTextLen && t.Priority > token.Priority))
                     token = t;
@@ -46,7 +46,7 @@ namespace Markdown
 
             for (int i = 0; i < input.Length; i++)
             {
-                var token = TryGetToken(ref input, i, readers);
+                var token = TryGetToken(input, i, readers);
                 if (token != null)
                 {
                     result.Append(token.OpenTag);

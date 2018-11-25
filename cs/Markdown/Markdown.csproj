@@ -51,8 +51,7 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="BaseRegister.cs" />
-    <Compile Include="EmRegister.cs" />
+    <Compile Include="EmphasisRegister.cs" />
     <Compile Include="HorLineRegister.cs" />
     <Compile Include="IReadable.cs" />
     <Compile Include="Markdown_Should.cs" />
