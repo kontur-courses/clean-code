@@ -1,4 +1,4 @@
-﻿namespace Markdown.Types
+﻿namespace Markdown.TokenTypes
 {
     public interface IMdToken
     {

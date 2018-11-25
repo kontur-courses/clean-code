@@ -1,6 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
-using Markdown.Types;
+using Markdown.TokenTypes;
 
 namespace Markdown
 {

@@ -1,6 +1,4 @@
-﻿using System;
-using System.Text;
-using FluentAssertions;
+﻿using FluentAssertions;
 using NUnit.Framework;
 
 namespace Markdown.Tests
@@ -129,68 +127,75 @@ namespace Markdown.Tests
         }
 
         [Test]
-        public void RenderConverts_NestingOfSameType()
+        public void Render_Converts_NestingOfSameType()
         {
             md.Render("_a _abc_ a_").Should().Be("<em>a <em>abc</em> a</em>");
         }
 
         [Test]
-        public void RenderConverts_With_SimpleHeaders1()
+        public void Render_Converts_With_SimpleHeaders1()
         {
             md.Render("#text\r\n").Should().Be("<h1>text</h1>\r\n");
         }
 
         [Test]
-        public void RenderConverts_SimpleHeaders2()
+        public void Render_Converts_SimpleHeaders2()
         {
             md.Render("##text\r\n").Should().Be("<h2>text</h2>\r\n");
         }
 
         [Test]
-        public void RenderConverts_SimpleHeaders3()
+        public void Render_Converts_SimpleHeaders3()
         {
             md.Render("###text\r\n").Should().Be("<h3>text</h3>\r\n");
         }
 
         [Test]
-        public void RenderConverts_SimpleHeaders4()
+        public void Render_Converts_SimpleHeaders4()
         {
             md.Render("####text\r\n").Should().Be("<h4>text</h4>\r\n");
         }
 
         [Test]
-        public void RenderConverts_SimpleHeaders5()
+        public void Render_Converts_SimpleHeaders5()
         {
             md.Render("#####text\r\n").Should().Be("<h5>text</h5>\r\n");
         }
 
         [Test]
-        public void RenderConverts_SimpleHeaders6()
+        public void Render_Converts_SimpleHeaders6()
         {
             md.Render("######text\r\n").Should().Be("<h6>text</h6>\r\n");
         }
 
         [Test]
-        public void RenderIgnoreHeaderAfterText()
+        public void Render_Ignores_HeaderAfterText()
         {
             md.Render("text#text\r\n").Should().Be("text#text\r\n");
         }
 
         [Test]
-        public void RenderIgnoreHeaderWhenSingleLine()
+        public void Render_Ignores_HeaderWhenSingleLine()
         {
             md.Render("text#text").Should().Be("text#text");
         }
 
         [Test]
-        public void RenderParseHeaderWhenTwoLines()
+        public void Render_Converts_HeaderWhenTwoLines()
         {
             md.Render("#text\r\ntext").Should().Be("<h1>text</h1>\r\ntext");
         }
         [Test]
-        public void RenderParseTwoHeaders()
+        public void Render_Converts_TwoHeaders()
         {
             md.Render("#text\r\n#text\r\n").Should().Be("<h1>text</h1>\r\n<h1>text</h1>\r\n");
         }
+
+        [Test]
+        public void Render_Ignores_EscapedHeaders()
+        {
+            md.Render("\\#text\r\n").Should().Be("#text\r\n");
+        }
+
     }
 }

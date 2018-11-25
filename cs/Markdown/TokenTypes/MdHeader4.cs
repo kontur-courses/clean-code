@@ -1,4 +1,4 @@
-﻿namespace Markdown.Types
+﻿namespace Markdown.TokenTypes
 {
     class MdHeader4 : IMdToken
     {

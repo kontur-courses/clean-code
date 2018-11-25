@@ -1,5 +1,5 @@
 ﻿using System.Text;
-using Markdown.Types;
+using Markdown.TokenTypes;
 
 namespace Markdown
 {
