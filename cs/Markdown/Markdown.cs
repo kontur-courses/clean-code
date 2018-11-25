@@ -10,11 +10,10 @@ namespace Markdown
             var tokens = new TokenFinder().FindTokens(paragraph);
 
             //var validTokens = tokens;
-            var validHtmlTags = new TokenValidator().ValidInlineTokens(tokens.Where(t =>
-                t.TokenType.TokenLocationType == TokenLocationType.InlineToken));
-            var htmlParagraph = new Md2HtmlTranslator().TranslateMdToHtml(paragraph, validHtmlTags);
-
-            return htmlParagraph;
+            var validHtmlTags = new TokenValidator().SeparateByParagraphs(tokens, paragraph);
+            //var htmlParagraph = new Md2HtmlTranslator().TranslateMdToHtml(paragraph, validHtmlTags);
+            new TokenValidator().FillParagraphWithHtmlTags(validHtmlTags);
+            return "";
         }
     }
 }

@@ -15,7 +15,7 @@ namespace Markdown
             new TokenType(TokenTypeEnum.TripleLattice, "###", "h3", TokenLocationType.StartingToken),
             new TokenType(TokenTypeEnum.QuadrupleLattice, "####", "h4", TokenLocationType.StartingToken),
             new TokenType(TokenTypeEnum.Star, "*", "li", TokenLocationType.StartingToken),
-            new TokenType(TokenTypeEnum.Star, "\n", "", TokenLocationType.EndLineToken)
+            new TokenType(TokenTypeEnum.EndLine, "\n", "", TokenLocationType.EndLineToken)
         };
 
         public IEnumerable<SingleToken> FindTokens(string paragraph)
@@ -23,11 +23,12 @@ namespace Markdown
             var tokens = new List<SingleToken>();
 
             var startingIsPossible = true;
+            var inlineTokenTypes = tokensTypes.Where(t => t.TokenLocationType == TokenLocationType.InlineToken);
 
             for (var index = 0; index < paragraph.Length; index++)
             {
-                var openingToken = tokensTypes.GetOpeningToken(paragraph, index);
-                var closingToken = tokensTypes.GetClosingToken(paragraph, index);
+                var openingToken = inlineTokenTypes.GetOpeningToken(paragraph, index);
+                var closingToken = inlineTokenTypes.GetClosingToken(paragraph, index);
 
                 if (openingToken != null)
                     tokens.Add(new SingleToken(openingToken, index, LocationType.Opening));
@@ -47,7 +48,6 @@ namespace Markdown
                     tokens.Add(endLineToken);
                     startingIsPossible = true;
                 }
-
             }
 
             return tokens;
@@ -81,7 +81,7 @@ namespace Markdown
             var wordBuilder = new StringBuilder();
             word = "";
             var shift = 0;
-            if (currentIndex == 0 || paragraph[currentIndex - 1] == ' ')
+            if (currentIndex == 0 || paragraph[currentIndex - 1] == ' ' || paragraph[currentIndex - 1] == '\n')
                 while (paragraph.Length > currentIndex + shift && paragraph[currentIndex + shift] != ' ')
                 {
                     wordBuilder.Append(paragraph[currentIndex + shift]);

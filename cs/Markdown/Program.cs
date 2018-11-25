@@ -7,7 +7,8 @@ namespace Markdown
         static void Main(string[] args)
         {
             Console.WriteLine(new Markdown().Render("# _s __dsf__ f_ \n" +
-                                                    "* _s # d_"));
+                                                    "* _s # d_\n" +
+                                                    "__asf__"));
         }
     }
 }
