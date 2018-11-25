@@ -82,9 +82,9 @@ namespace Markdown.Tests
         [TestCase("sharped # text", ExpectedResult = "sharped # text", TestName = "Text with sharp in the middle as is")]
         [TestCase("####### sharped text", ExpectedResult = "####### sharped text", TestName = "Text with more than 6 sharps as is")]
 
-
-
-
+        [TestCase(@"\# escaped sharped text", ExpectedResult = "# escaped sharped text", 
+            TestName = "Escaped 1 level header as plain text")]
+        [TestCase(@"\### sharped text", ExpectedResult = "### sharped text", TestName = "Escaped several sharps as plain text")]
 
         public string Render(string markdown)
         {
