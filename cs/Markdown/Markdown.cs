@@ -7,9 +7,11 @@ namespace Markdown
     {
         public string Render(string paragraph)
         {
-            var validTokens = new TokenFinder().FindTokens(paragraph);
+            var tokens = new TokenFinder().FindTokens(paragraph);
 
-            var htmlParagraph = new Md2HtmlTranslator().TranslateMdToHtml(paragraph, validTokens);
+            //var validTokens = tokens;
+            var validHtmlTags = new TokenValidator().ValidInlineTokens(tokens.Where(t=>t.TokenType.TokenLocationType==TokenLocationType.InlineToken))
+            var htmlParagraph = new Md2HtmlTranslator().TranslateMdToHtml(paragraph, validHtmlTags);
 
             return htmlParagraph;
         }
