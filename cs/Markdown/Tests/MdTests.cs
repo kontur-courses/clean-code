@@ -187,5 +187,10 @@ namespace Markdown.Tests
         {
             md.Render("#text\r\ntext").Should().Be("<h1>text</h1>\r\ntext");
         }
+        [Test]
+        public void RenderParseTwoHeaders()
+        {
+            md.Render("#text\r\n#text\r\n").Should().Be("<h1>text</h1>\r\n<h1>text</h1>\r\n");
+        }
     }
 }

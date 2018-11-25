@@ -46,7 +46,7 @@ namespace Markdown
 
         public bool CanBeStarting(Substring substring, string markdownInput)
         {
-            if (substring.Value.StartsWith("#") && substring.Index > 0)
+            if (substring.Value.StartsWith("#") && substring.Index > 0 && markdownInput[substring.Index - 1] != '\n')
                 return false;
             return substring.Index + substring.Length < markdownInput.Length &&
                    markdownInput[substring.Index + substring.Length] != ' ';
