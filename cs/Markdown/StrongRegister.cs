@@ -1,11 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading;
-using System.Threading.Tasks;
-
-namespace Markdown
+﻿namespace Markdown
 {
     class StrongRegister : EmphasisRegister
     {

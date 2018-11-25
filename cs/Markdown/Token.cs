@@ -3,10 +3,9 @@
     public class Token
     {
         public readonly string Value, OpenTag, CloseTag;
-        public readonly bool IsCanParse;
         public readonly int Priority, OriginalTextLen;
 
-        public Token(string value, string openTag, string closeTag, int priority, int originalTextLen, bool isCanParse)
+        public Token(string value, string openTag, string closeTag, int priority, int originalTextLen)
         {
             Value = value;
             OpenTag = openTag;
@@ -14,7 +13,6 @@
 
             Priority = priority;
             OriginalTextLen = originalTextLen;
-            IsCanParse = isCanParse;
         }
     }
 }

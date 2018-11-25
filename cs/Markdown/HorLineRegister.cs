@@ -1,8 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿using System.Linq;
 
 namespace Markdown
 {
@@ -57,7 +53,7 @@ namespace Markdown
             if (digitCount < 3)
                 return null;
 
-            return new Token("", "<hr>", "", 0, i - startPos, false); 
+            return new Token("", "<hr>", "", 0, i - startPos); 
 
         }
 

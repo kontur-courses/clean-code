@@ -14,8 +14,8 @@ namespace Markdown
             if (startPos != 0 && input.Length > 0 && input[startPos - 1] == '\\')
                 return null;
 
-            string digit = input.startWith(suffixes[0], startPos) ? suffixes[0] :
-                (input.startWith(suffixes[1], startPos) && !input.isInsideWord(startPos)) ? suffixes[1] : null;
+            string digit = input.IndexOf(suffixes[0], startPos) == startPos ? suffixes[0] :
+                (input.IndexOf(suffixes[1], startPos) == startPos && !input.isInsideWord(startPos)) ? suffixes[1] : null;
 
             if (digit == null || (startPos + suffixLength >= input.Length))
                 return null;
@@ -28,7 +28,7 @@ namespace Markdown
                     break;
             }
 
-            int endIndex = input.indexOfCloseTag(digit, startPos + suffixLength);
+            int endIndex = input.getIndexOfCloseTag(digit, startPos + suffixLength);
 
             if (endIndex == -1 || endIndex - startPos  == 1)
                 return null;
@@ -42,7 +42,7 @@ namespace Markdown
             }
 
             var strValue = input.Substring(startPos + suffixLength, endIndex - suffixLength - startPos);
-            return new Token(strValue, tags[0], tags[1], priority, endIndex - startPos + suffixLength, true);
+            return new Token(strValue, tags[0], tags[1], priority, endIndex - startPos + suffixLength);
         }
     }
 }

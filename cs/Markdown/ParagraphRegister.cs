@@ -1,6 +1,4 @@
-﻿using System;
-using System.CodeDom.Compiler;
-using System.Text;
+﻿using System.Text;
 
 namespace Markdown
 {
@@ -30,12 +28,12 @@ namespace Markdown
                 if (input[i] == '\n' && input[i + 1] == '\n')
                 {
                     res = trimFirstSpaces(input.Substring(startPos, i - startPos));
-                    return new Token(res, "<p>", "</p>\n", 1, i - startPos + 2, true);
+                    return new Token(res, "<p>", "</p>\n", 1, i - startPos + 2);
                 }
             }
 
             res = trimFirstSpaces(input.Substring(startPos, input.Length - startPos));
-            return new Token(res, "<p>", "</p>", 1, input.Length - startPos + 1, true); 
+            return new Token(res, "<p>", "</p>", 1, input.Length - startPos + 1); 
         }
     }
 }
