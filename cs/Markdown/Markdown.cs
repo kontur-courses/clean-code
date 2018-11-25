@@ -1,17 +1,14 @@
-﻿using System.Collections.Generic;
-using System.Linq;
-
-namespace Markdown
+﻿namespace Markdown
 {
     public class Markdown
     {
-        public string Render(string paragraph)
+        public string Render(string mdText)
         {
-            var validTokens = new TokenFinder().FindTokens(paragraph);
+            var tokens = new TokenFinder().FindTokens(mdText);
 
-            var htmlParagraph = new Md2HtmlTranslator().TranslateMdToHtml(paragraph, validTokens);
+            var validHtmlTags = new TokenValidator().GetParagraphsWithValidTokens(tokens, mdText);
 
-            return htmlParagraph;
+            return new Md2HtmlTranslator().TranslateMdToHtml(mdText, validHtmlTags);
         }
     }
 }

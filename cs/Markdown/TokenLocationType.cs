@@ -1,14 +1,9 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-
-namespace Markdown
+﻿namespace Markdown
 {
     public enum TokenLocationType
     {
         StartingToken,
-        InlineToken
+        InlineToken,
+        EndLineToken
     } 
 }

@@ -44,19 +44,17 @@
   <ItemGroup>
     <Compile Include="LocationType.cs" />
     <Compile Include="Markdown.cs" />
+    <Compile Include="Paragraph.cs" />
     <Compile Include="SingleToken.cs" />
-    <Compile Include="StartingTokenFinder.cs" />
     <Compile Include="TokenFinder.cs" />
     <Compile Include="TokenLocationType.cs" />
-    <Compile Include="InlineTokensValidator.cs" />
     <Compile Include="TokenType.cs" />
     <Compile Include="TokenTypeEnum.cs" />
     <Compile Include="TokenTypeExtensions.cs" />
-    <Compile Include="InlineTokenFinder.cs" />
-    <Compile Include="TokenPosition.cs" />
     <Compile Include="Md2HtmlTranslator.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="TokenValidator.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="App.config" />
