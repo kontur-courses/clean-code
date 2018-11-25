@@ -22,7 +22,7 @@ namespace Markdown
 
         public string Render(string input)
         {
-            return Parse(input, blockReaders);
+            return Parse(input, false);
         }
 
         private Token TryGetToken(string strData, int startPosIndex, List<IReadable> readers)
@@ -38,9 +38,10 @@ namespace Markdown
             return token;
         }
 
-        public string Parse(string input, List<IReadable> readers)
+        public string Parse(string input, bool isInline)
         {
             StringBuilder result = new StringBuilder();
+            var readers = isInline ? inlineReaders : blockReaders;
 
             for (int i = 0; i < input.Length; i++)
             {
@@ -48,7 +49,7 @@ namespace Markdown
                 if (token != null)
                 {
                     result.Append(token.OpenTag);
-                    result.Append(Parse(token.Value, inlineReaders));
+                    result.Append(Parse(token.Value, true));
                     result.Append(token.CloseTag);
 
                     i += token.OriginalTextLen - 1;

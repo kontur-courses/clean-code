@@ -18,7 +18,7 @@ namespace Markdown
             return endIndex;
         }
 
-        public static bool isInsideWord(this string text, int index)
+        public static bool isInsideWord(this string text, int index, int len)
         {
             bool leftSide = false, rightSide = false;
 
@@ -34,7 +34,7 @@ namespace Markdown
                     break;
             }
 
-            for (int i = index + 1; i < text.Length; i++)
+            for (int i = index + 1 + len; i < text.Length; i++)
             {
                 if (Char.IsLetterOrDigit(text[i]))
                 {

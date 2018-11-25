@@ -1,23 +1,25 @@
 ﻿using System;
+using System.Collections.Generic;
+using System.Linq;
 
 namespace Markdown
 {
     class EmphasisRegister : IReadable
     {
         protected int suffixLength = 1;
-        protected string[] suffixes =  {"*", "_"};
+        protected string[] suffixes = {"*", "_"};
         protected int priority = 0;
         protected string[] tags = {"<em>","</em>"};
 
         public Token tryGetToken(string input, int startPos)
         {
-            if (startPos != 0 && input.Length > 0 && input[startPos - 1] == '\\')
+            if (startPos != 0 && input.Length > 0 && input[startPos - 1] == '\\' || (startPos + suffixLength >= input.Length))
                 return null;
 
-            string digit = input.IndexOf(suffixes[0], startPos) == startPos ? suffixes[0] :
-                (input.IndexOf(suffixes[1], startPos) == startPos && !input.isInsideWord(startPos)) ? suffixes[1] : null;
+            var supposedPrefix = input.Substring(startPos, suffixLength);
+            string digit = suffixes.Contains(supposedPrefix) ? supposedPrefix : null;
 
-            if (digit == null || (startPos + suffixLength >= input.Length))
+            if (digit == null ||  digit == suffixes[1] && input.isInsideWord(startPos, suffixLength))
                 return null;
 
             for (int i = startPos + suffixLength; i < input.Length; i++)        // Проверка что нет пробела после префикса TODO вынести в отдельный метод

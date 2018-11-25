@@ -1,10 +1,11 @@
-﻿using System.Linq;
+﻿using System.Collections.Generic;
+using System.Linq;
 
 namespace Markdown
 {
     class HorLineRegister : IReadable
     {
-        readonly char[] ableDigits = { '*', '-', '_' };
+        readonly HashSet<char> ableDigits = new HashSet<char>(new [] { '*', '-', '_' });
 
         public Token tryGetToken(string input, int startPos)
         {
