@@ -36,7 +36,7 @@ namespace Markdown
         private bool TryOpenTag(HtmlTextWriterTag tag, Range insertRange)
         {
             if (StrongInUCase(tag))
-                return false;
+                return true;
             openedTags.Push((tag,insertRange));
             return true;
         }
@@ -46,6 +46,8 @@ namespace Markdown
         
         private bool TryCloseTag(HtmlTextWriterTag tag, Range insertRange)
         {
+            if (StrongInUCase(tag))
+                return true;
             if (!openedTags.Any() || openedTags.Peek().tag != tag) 
                 return false;
             replacings.Add(new HtmlTagPairReplacing(openedTags.Pop().range,insertRange,tag));
