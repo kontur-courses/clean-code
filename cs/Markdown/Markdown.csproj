@@ -52,14 +52,15 @@
   <ItemGroup>
     <Compile Include="Delimiter.cs" />
     <Compile Include="HtmlCreator.cs" />
-    <Compile Include="LexerRule.cs" />
+    <Compile Include="ILexerRule.cs" />
     <Compile Include="ListExtensions.cs" />
     <Compile Include="Md.cs" />
+    <Compile Include="CharExtensions.cs" />
+    <Compile Include="PairedTagRule.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="StringToken.cs" />
     <Compile Include="TextParser.cs" />
     <Compile Include="Token.cs" />
-    <Compile Include="UnderscoreRule.cs" />
     <Compile Include="UnderscoreToken.cs" />
   </ItemGroup>
   <ItemGroup>

@@ -10,7 +10,7 @@ namespace Markdown.Tests
         [SetUp]
         public void SetUp()
         {
-            parser = new TextParser(new[] {new UnderscoreRule()});
+            parser = new TextParser(); //new ILexerRule[] {new PairedDoubleTagRule('_'), new PairedSingleTagRule('_')});
         }
 
         private TextParser parser;

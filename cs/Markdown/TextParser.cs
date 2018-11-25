@@ -9,10 +9,8 @@ namespace Markdown
 
         public TextParser(IEnumerable<ILexerRule> rules = null)
         {
-            this.rules = rules?.ToList() ?? new List<ILexerRule>();
+            this.rules = rules?.ToList() ?? new List<ILexerRule> {new PairedTagRule('_', 1), new PairedTagRule('_', 2)};
         }
-
-        public void AddRule(ILexerRule rule) => rules.Add(rule);
 
         /// <summary>
         ///     Тут будет какой-то конечный автомат по символам строки.
@@ -32,12 +30,22 @@ namespace Markdown
 
         internal List<Delimiter> ValidatePairs(List<Delimiter> delimiters, string text)
         {
-            var stack =  new Stack<Delimiter>();
+            var stacks = new Dictionary<string, Stack<Delimiter>>();
             foreach (var delimiter in delimiters)
-                if (stack.Count > 0 &&
+                stacks[delimiter.Value] = new Stack<Delimiter>();
+
+            foreach (var delimiter in delimiters)
+            {
+                var rule = GetSuitableRule(delimiter);
+                var isValidSecond = rule.IsValidSecond(delimiter, text);
+
+                var stack = stacks[delimiter.Value];
+                if (isValidSecond &&
+                    stack.Count > 0 &&
                     stack.Peek()
                          .Value ==
-                    delimiter.Value)
+                    delimiter.Value &&
+                    rule.IsValidFirst(stack.Peek(), text))
                 {
                     var firstDelimiter = stack.Pop();
                     firstDelimiter.Partner = delimiter;
@@ -48,9 +56,10 @@ namespace Markdown
                 {
                     stack.Push(delimiter);
                 }
+            }
 
-            var rest = stack.ToArray()
-                            .ToHashSet();
+            var rest = stacks.Values.SelectMany(s => s.ToArray())
+                             .ToHashSet();
             delimiters.RemoveAll(d => rest.Contains(d));
 
             return delimiters;
@@ -94,7 +103,6 @@ namespace Markdown
                         currentParent = token;
                         endOfParent = delimiter.Partner;
                         tokens.AddLast(token);
-
                     }
 
                     if (delimiter.Partner.Position < endOfParent.Position)
@@ -104,18 +112,14 @@ namespace Markdown
                             currentParent.InnerTokens = new List<Token>();
                         currentParent.InnerTokens.Add(token);
                     }
-                    
-
-
                 }
 
                 else if (currentParent != null)
                 {
-                    if (delimiter.Position >= endOfParent.Position)
-                    {
-                        currentParent = null;
-                        endOfParent = null;
-                    }
+                    if (delimiter.Position < endOfParent.Position)
+                        continue;
+                    currentParent = null;
+                    endOfParent = null;
                 }
             }
 
@@ -128,14 +132,12 @@ namespace Markdown
                 var end = currentToken.Value.Position;
                 var length = end - start;
                 var value = text.Substring(start, length);
-                if (end != start)
-                {
-                    tokens.AddBefore(currentToken, new StringToken(start, length, value));
-                }
+                if (end != start) tokens.AddBefore(currentToken, new StringToken(start, length, value));
 
                 start = end + currentToken.Value.Length;
                 currentToken = currentToken.Next;
             }
+
             tokens.RemoveLast();
 
             return tokens.ToList();
@@ -144,24 +146,22 @@ namespace Markdown
         internal List<Delimiter> GetDelimiterPositions(string text)
         {
             var delimiters = new List<Delimiter>();
-            foreach (var (symbol, position) in text.Select((symbol, i) => (symbol, i)))
+            for (var position = 0; position < text.Length; position++)
             {
-                var rule = GetSuitableRule(symbol);
+                var rule = GetSuitableRule(position, text);
                 if (rule == null)
                     continue;
-                var delimiter =
-                    rule.ProcessIncomingChar(position, delimiters.LastOrDefault(), out var shouldRemovePrevious);
-                if (shouldRemovePrevious)
-                    delimiters.RemoveAt(delimiters.Count - 1);
+                var delimiter = rule.ProcessIncomingChar(position, text, out var amountToSkip);
+                position += amountToSkip;
                 delimiters.Add(delimiter);
             }
 
             return delimiters;
         }
 
-        internal ILexerRule GetSuitableRule(char symbol)
+        private ILexerRule GetSuitableRule(int position, string text)
         {
-            return rules.FirstOrDefault(rule => rule.Check(symbol));
+            return rules.FirstOrDefault(rule => rule.Check(position, text));
         }
     }
 }

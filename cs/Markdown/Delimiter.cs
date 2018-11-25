@@ -16,5 +16,20 @@ namespace Markdown
         public bool IsLast { get; set; }
 
         public Delimiter Partner { get; set; }
+
+        public override bool Equals(object obj)
+        {
+            if (obj is Delimiter delimiter)
+                return Position == delimiter.Position && Value.Equals(delimiter.Value);
+            return false;
+        }
+
+        public override int GetHashCode()
+        {
+            unchecked
+            {
+                return (Position * 397) ^ Value.GetHashCode();
+            }
+        }
     }
 }

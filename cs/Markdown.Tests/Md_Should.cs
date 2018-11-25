@@ -11,7 +11,7 @@ namespace Markdown.Tests
         [SetUp]
         public void SetUp()
         {
-            parser = new Md(new TextParser(new []{new UnderscoreRule()}),new HtmlCreator());   
+            parser = new Md(new TextParser(/*new ILexerRule[]{new PairedSingleTagRule('_'),new PairedDoubleTagRule('_'),  }*/),new HtmlCreator());   
         }
 
         [TestCase("_hey_ you!", "<em>hey</em> you!", TestName = "text has one paired underscore tag")]

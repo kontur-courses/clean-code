@@ -10,11 +10,19 @@ namespace Markdown.Tests
         [SetUp]
         public void SetUp()
         {
-            parser = new TextParser(new[] {new UnderscoreRule()});
+            parser = new TextParser(); //new ILexerRule[] {new PairedSingleTagRule('_'), new PairedDoubleTagRule('_')});
         }
 
         private TextParser parser;
 
+        [TestCase("_a __ b_")]
+        public void RemoveOneDelimiterBetweenPairedOthers(string text)
+        {
+            var delimiters = GetDelimiters(text);
+            parser.ValidatePairs(delimiters, text)
+                  .Should()
+                  .HaveCount(2);
+        }
         [Category("UnderscoreRule")]
         [TestCase("aa_ bb", TestName = "one underscore")]
         [TestCase("aa__ bb", TestName = "one  double underscore")]
