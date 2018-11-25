@@ -25,8 +25,8 @@ namespace Markdown
                     if (lastIndex < 0)
                         continue;
 
-                    validHtmlTags.Add(new HtmlTag(token.TokenType.HtmlTag, token.TokenPosition));
-                    validHtmlTags.Add(new HtmlTag(notClosedTokens[lastIndex].TokenType.HtmlTag, notClosedTokens[lastIndex].TokenPosition));
+                    validHtmlTags.Add(new HtmlTag(token.TokenType.HtmlTag, token.TokenPosition, LocationType.Closing));
+                    validHtmlTags.Add(new HtmlTag(notClosedTokens[lastIndex].TokenType.HtmlTag, notClosedTokens[lastIndex].TokenPosition, LocationType.Opening));
                     notClosedTokens.RemoveRange(lastIndex, notClosedTokens.Count - lastIndex);
                 }
                 else
