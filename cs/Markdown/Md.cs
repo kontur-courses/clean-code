@@ -17,12 +17,15 @@ namespace Markdown
             this.orderedTags = orderedTagsMatchers;
         
         public Md() =>
-            this.orderedTags = new []
+            this.orderedTags = new ITokenMatcher[]
             {
                 new WrappingTokenMatcher("__", HtmlTextWriterTag.Strong),
                 new WrappingTokenMatcher("_", HtmlTextWriterTag.U),
                 new WrappingTokenMatcher("**", HtmlTextWriterTag.Strong),
                 new WrappingTokenMatcher("*", HtmlTextWriterTag.U),
+                new LineTokenMatcher("###",HtmlTextWriterTag.H3),
+                new LineTokenMatcher("##",HtmlTextWriterTag.H2),
+                new LineTokenMatcher("#",HtmlTextWriterTag.H1),
             };
 
         

@@ -17,6 +17,16 @@ namespace Markdown
             rendererer = new Md();
         }
 
+        [TestCase("#Hello world!\n",
+            @"<h1>
+	Hello world!
+</h1>")]
+        [TestCase("##Hello world!\n",@"<h2>
+	Hello world!
+</h2>")]
+        [TestCase("###Hello world!\n",@"<h3>
+	Hello world!
+</h3>")]
         [TestCase("__Hello__","<strong>Hello</strong>")]
         [TestCase("__Hello world!__","<strong>Hello world!</strong>")]
         [TestCase("_Hello_","<u>Hello</u>")]

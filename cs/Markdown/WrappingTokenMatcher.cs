@@ -22,7 +22,7 @@ using System;
          public bool TryOpen(int matchStartIndex, out Range openTagRange)
          {
              openTagRange = default(Range);
-             if (!MatchOpenMdTag(matchStartIndex)) 
+             if (!MatchOpenToken(matchStartIndex)) 
                  return false;
              openTagRange = new Range(matchStartIndex,wrappingSequence.Length);
              return true;
@@ -31,18 +31,18 @@ using System;
          public bool TryClose(int matchStartIndex, out Range closeTagRange)
          {
              closeTagRange = default(Range);
-             if (!MatchCloseMdTag(matchStartIndex)) 
+             if (!MatchCloseToken(matchStartIndex)) 
                  return false;
              closeTagRange = new Range(matchStartIndex,wrappingSequence.Length);
              return true;
          }
 
-         private bool MatchOpenMdTag(int machStartIndex) =>
+         private bool MatchOpenToken(int machStartIndex) =>
                     TargetString.Length >= wrappingSequence.Length + machStartIndex + 1 &&
                     !char.IsWhiteSpace(TargetString[machStartIndex + wrappingSequence.Length]) &&
                     TargetString.Substring(machStartIndex, wrappingSequence.Length) == wrappingSequence;
 
-         private bool MatchCloseMdTag(int machStartIndex) => machStartIndex > 0 &&
+         private bool MatchCloseToken(int machStartIndex) => machStartIndex > 0 &&
                     TargetString.Length >= wrappingSequence.Length + machStartIndex &&
                     !char.IsWhiteSpace(TargetString[machStartIndex - 1]) && 
                     TargetString.Substring(machStartIndex, wrappingSequence.Length) == wrappingSequence;

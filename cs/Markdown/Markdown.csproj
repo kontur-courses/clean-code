@@ -102,6 +102,7 @@
     <Compile Include="HtmlReplacingsCollector.cs" />
     <Compile Include="HtmlTagType.cs" />
     <Compile Include="ITokenMatcher.cs" />
+    <Compile Include="LineTokenMatcher.cs" />
     <Compile Include="Md.cs" />
     <Compile Include="ReplacingsApplyer.cs" />
     <Compile Include="TokenOrder.cs" />
