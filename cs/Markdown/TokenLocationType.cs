@@ -2,6 +2,7 @@
 {
     public enum TokenLocationType
     {
+        BoxesTokens,
         StartingToken,
         InlineToken,
         EndLineToken

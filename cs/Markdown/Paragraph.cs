@@ -4,13 +4,14 @@ namespace Markdown
 {
     public class Paragraph
     {
-        public Paragraph(int start, int end, string mdText, List<SingleToken> inlineTokens, List<SingleToken> startingTokens)
+        public Paragraph(int start, int end, string mdText, List<SingleToken> inlineTokens, List<SingleToken> startingTokens, TokenTypeEnum startingTokenType)
         {
             InlineTokens = inlineTokens;
             StartingTokens = startingTokens;
             Start = start;
             End = end;
             MdText = mdText;
+            StartingTokenType = startingTokenType;
             ValidTokens = new List<SingleToken>();
         }
 
@@ -18,6 +19,7 @@ namespace Markdown
         public List<SingleToken> InlineTokens { get; }
         public List<SingleToken> StartingTokens { get; }
         public List<SingleToken> ValidTokens { get; }
+        public TokenTypeEnum StartingTokenType { get; }
 
         public int Start { get; }
         public int End { get; }

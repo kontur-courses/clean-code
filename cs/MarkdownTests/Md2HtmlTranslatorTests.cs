@@ -1,4 +1,5 @@
 ﻿using System.Collections.Generic;
+using System.Linq;
 using FluentAssertions;
 using NUnit.Framework;
 using Markdown;
@@ -18,12 +19,14 @@ namespace MarkdownTests
             var tokens = new List<SingleToken>
             {
                 new SingleToken(singleUnderscore, 0, LocationType.Opening),
-                new SingleToken(singleUnderscore, 3, LocationType.Closing)
+                new SingleToken(singleUnderscore, 3, LocationType.Closing),
             };
 
-            var htmlText = translator.TranslateMdToHtml("_ff_", tokens);
+            var paragraphs = new TokenValidator().GetParagraphsWithValidTokens(tokens, "_ff_");
 
-            htmlText.ShouldBeEquivalentTo("<em>ff</em>");
+            var htmlText = translator.TranslateMdToHtml("_ff_", paragraphs);
+
+            htmlText.ShouldBeEquivalentTo("<p><em>ff</em></p>");
         }
 
         [Test]
@@ -38,9 +41,11 @@ namespace MarkdownTests
                 new SingleToken(singleUnderscore, 8, LocationType.Closing)
             };
 
-            var htmlText = translator.TranslateMdToHtml("_f _f_ f_", tokens);
+            var paragraphs = new TokenValidator().GetParagraphsWithValidTokens(tokens, "_f _f_ f_");
 
-            htmlText.ShouldBeEquivalentTo("<em>f <em>f</em> f</em>");
+            var htmlText = translator.TranslateMdToHtml("_f _f_ f_", paragraphs);
+
+            htmlText.ShouldBeEquivalentTo("<p><em>f <em>f</em> f</em></p>");
         }
 
         [Test]
@@ -53,9 +58,11 @@ namespace MarkdownTests
                 new SingleToken(doubleUnderscore, 4, LocationType.Closing)
             };
 
-            var htmlText = translator.TranslateMdToHtml("__ff__", tokens);
+            var paragraphs = new TokenValidator().GetParagraphsWithValidTokens(tokens, "__ff__");
 
-            htmlText.ShouldBeEquivalentTo("<strong>ff</strong>");
+            var htmlText = translator.TranslateMdToHtml("__ff__", paragraphs);
+
+            htmlText.ShouldBeEquivalentTo("<p><strong>ff</strong></p>");
         }
 
         [Test]
@@ -69,10 +76,11 @@ namespace MarkdownTests
                 new SingleToken(singleUnderscore, 7, LocationType.Opening),
                 new SingleToken(singleUnderscore, 9, LocationType.Closing),
             };
+            var paragraphs = new TokenValidator().GetParagraphsWithValidTokens(tokens, "__ff__ _f_");
 
-            var htmlText = translator.TranslateMdToHtml("__ff__ _f_", tokens);
+            var htmlText = translator.TranslateMdToHtml("__ff__ _f_", paragraphs);
 
-            htmlText.ShouldBeEquivalentTo("<strong>ff</strong> <em>f</em>");
+            htmlText.ShouldBeEquivalentTo("<p><strong>ff</strong> <em>f</em></p>");
         }
     }
 }

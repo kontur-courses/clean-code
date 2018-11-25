@@ -13,18 +13,33 @@ namespace Markdown
             foreach (var paragraph in paragraphs)
             {
                 var lastPosition = 0;
-                var tags = paragraph.ValidTokens.OrderBy(t => t.TokenPosition).ThenBy(t => t.TokenType.TokenLocationType);
-                foreach (var htmlTag in tags)
+                var tokens = paragraph.ValidTokens.OrderBy(t => t.TokenPosition).ThenBy(t => t.TokenType.TokenLocationType);
+
+                SingleToken closingBoxToken = null;
+
+                foreach (var token in tokens)
                 {
-                    htmlBuilder.Append(paragraph.MdText.Substring(lastPosition, htmlTag.TokenPosition - lastPosition));
-                    htmlBuilder.Append(WrapHtmlTagInBrackets(htmlTag));
+                    if (token.TokenType.TokenLocationType == TokenLocationType.BoxesTokens && token.TokenPosition != 0)
+                    {
+                        closingBoxToken = token;
+                        continue;
+                    }
 
-                    var shift = htmlTag.TokenType.TokenLocationType == TokenLocationType.InlineToken ||
-                                htmlTag.TokenType.TokenLocationType == TokenLocationType.StartingToken
-                        ? htmlTag.TokenType.Template.Length
-                        : 0;
+                    htmlBuilder.Append(paragraph.MdText.Substring(lastPosition, token.TokenPosition - lastPosition));
+                    htmlBuilder.Append(WrapHtmlTagInBrackets(token));
 
-                    lastPosition = htmlTag.TokenPosition + shift;
+                    var shift = token.TokenType.TokenLocationType == TokenLocationType.InlineToken
+                        ? token.TokenType.Template.Length
+                        : token.TokenType.TokenLocationType == TokenLocationType.StartingToken && token.TokenType.Template.Length != 0
+                            ? token.TokenType.Template.Length + 1
+                            : 0;
+
+                    lastPosition = token.TokenPosition + shift;
+                }
+
+                if (closingBoxToken != null)
+                {
+                    htmlBuilder.Append(WrapHtmlTagInBrackets(closingBoxToken));
                 }
             }
 
