@@ -37,9 +37,11 @@ namespace Markdown
 
                 if (startingIsPossible)
                 {
-                    var startingToken = GetStartingToken(paragraph, index, out startingIsPossible);
+                    var startingToken = GetStartingToken(paragraph, index);
                     if (startingToken != null)
                         tokens.Add(startingToken);
+
+                    startingIsPossible = false;
                 }
 
                 var endLineToken = GetEndLineToken(paragraph, index);
@@ -48,6 +50,7 @@ namespace Markdown
                     tokens.Add(endLineToken);
                     startingIsPossible = true;
                 }
+
             }
 
             return tokens;
@@ -65,14 +68,14 @@ namespace Markdown
             return null;
         }
 
-        private SingleToken GetStartingToken(string paragraph, int index, out bool startingIsPossible)
+        private SingleToken GetStartingToken(string paragraph, int index)
         {
-            startingIsPossible = true;
             if (!TryGetWordFromThisPosition(paragraph, index, out var word)) return null;
 
-            startingIsPossible = TryMatchWordToStartingTokens(word, index, new HashSet<TokenType>(),
+            TryMatchWordToStartingTokens(word, index, new HashSet<TokenType>(),
                 tokensTypes.Where(t => t.TokenLocationType == TokenLocationType.StartingToken),
                 out var startingToken);
+
             return startingToken;
         }
 
