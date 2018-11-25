@@ -1,32 +1,12 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-
-namespace Markdown
+﻿namespace Markdown
 {
-    public class Md
+    public static class Md
     {
-        private StateTransitionTable table;
-
-        private State currentState;
-
-        public Md(StateTransitionTable table)
-        {
-            this.table = table;
-        }
-
-        public string Render(string markdownString)
-        {
-            var resultString = new StringBuilder();
-            foreach (var sym in markdownString)
-            {
-                currentState = table[currentState.Index, sym];
-                currentState.Action.Invoke(sym, resultString);
-            }
-            return resultString.ToString();
-        }
-
+       public static string Render(string source)
+       {
+            var parser = new MarkdownParser(source);          
+            var interpreter = new MarkdownInterpreter(parser.Parse());
+            return interpreter.GetHtmlCode();
+       }
     }
 }
