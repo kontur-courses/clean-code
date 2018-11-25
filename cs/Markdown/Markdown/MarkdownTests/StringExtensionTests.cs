@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Text;
 using FluentAssertions;
 using NUnit.Framework;
 
@@ -23,21 +22,11 @@ namespace Markdown.MarkdownTests
         [TestCase()]
         public void ClearFromSymbolComplexityShouldBeLinear(char toDelete = '/')
         {
-            var str = GetAVeryLongString();
+            var str = new string('a', 100000);
 
             Action act = () => str.ClearFromSymbol(toDelete);
 
             act.ExecutionTime().ShouldNotExceed(30.Milliseconds());
-        }
-
-        private static string GetAVeryLongString()
-        {
-            var builder = new StringBuilder();
-
-            for (var i = 0; i < 100000; i++)
-                builder.Append('a');
-
-            return builder.ToString();
         }
     }
 }

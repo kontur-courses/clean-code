@@ -2,10 +2,9 @@
 {
     class Md
     {
-        public static string Render(string markedParagraph)
+        public static string Render(string markedParagraph, char escapeSymbol = '/')
         {
-            var parser = new Parser();
-            var paragraphParts = parser.Parse(markedParagraph);
+            var paragraphParts = Parser.Parse(markedParagraph, escapeSymbol);
             var concatenator = new Concatenator();
 
             return concatenator.Concatenate(paragraphParts);

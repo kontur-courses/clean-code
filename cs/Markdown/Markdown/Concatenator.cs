@@ -17,7 +17,7 @@ namespace Markdown
             _tmpListIsEmpty = true;
         }
 
-        public string Concatenate(List<StringPart> paragraphParts)
+        public string Concatenate(IEnumerable<StringPart> paragraphParts)
         {
             paragraphParts = ReplaceTag(paragraphParts, TagType.Em);
             paragraphParts = ReplaceTag(paragraphParts, TagType.Strong);
@@ -34,7 +34,7 @@ namespace Markdown
             return builder.ToString();
         }
 
-        private List<StringPart> ReplaceTag(List<StringPart> paragraphParts, TagType typeToReplace)
+        private List<StringPart> ReplaceTag(IEnumerable<StringPart> paragraphParts, TagType typeToReplace)
         {
             ClearTmpList();
             ClearTmpOutput();
@@ -64,7 +64,7 @@ namespace Markdown
                     _tmpList.Add(part);
                 }
                 else
-                    _tmpOutput.Add(new StringPart(part.Value, ActionType.NotAnAction, TagType.String));
+                    _tmpOutput.Add(new StringPart(part.Value));
             }
         }
 
@@ -81,7 +81,7 @@ namespace Markdown
                     _tmpListIsEmpty = true;
                 }
                 else
-                    _tmpList.Add(new StringPart(part.Value, ActionType.NotAnAction, TagType.String));    
+                    _tmpList.Add(new StringPart(part.Value));    
             }
         }
 

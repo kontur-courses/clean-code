@@ -67,6 +67,7 @@
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="ActionType.cs" />
     <Compile Include="StringExtension.cs" />
+    <Compile Include="SubstringParser.cs" />
     <Compile Include="TagType.cs" />
   </ItemGroup>
   <ItemGroup>
