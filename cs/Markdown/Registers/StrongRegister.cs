@@ -9,7 +9,7 @@ namespace Markdown
             suffixLength = 2;
             suffixes = new []{ "**", "__" }; 
             priority = 1;
-            tags = new string[] { "<strong>", "</strong>" };
+            tags = new [] { "<strong>", "</strong>" };
         }
     }
 }

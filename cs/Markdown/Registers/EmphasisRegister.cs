@@ -29,7 +29,7 @@ namespace Markdown
 
         private bool GetSuffixIndex(string input, int startPos, string digit, out int endIndex)
         {
-            endIndex = input.getIndexOfCloseTag(digit, startPos + suffixLength);
+            endIndex = input.GetIndexOfCloseTag(digit, startPos + suffixLength);
 
             if (endIndex == -1 || endIndex - startPos == 1)
                 return false;
@@ -49,7 +49,7 @@ namespace Markdown
             if (startPos != 0 && input.Length > 0 && input[startPos - 1] == '\\')
                 return false;
 
-            if (suffixDigit == null || suffixDigit == suffixes[1] && input.isInsideWord(startPos, suffixLength))
+            if (suffixDigit == null || suffixDigit == suffixes[1] && input.IsInsideWord(startPos, suffixLength))
                 return false;
 
             for (int i = startPos + suffixLength; i < input.Length; i++) 

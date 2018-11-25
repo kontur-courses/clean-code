@@ -30,8 +30,8 @@ namespace Markdown
             {
                 var t = reader.TryGetToken(strData, startPosIndex);
 
-                if (token == null || t != null && (t.shift > token.shift
-                                                   || t.shift == token.shift && t.priority > token.priority))
+                if (token == null || t != null && (t.Shift > token.Shift
+                                                   || t.Shift == token.Shift && t.Priority > token.Priority))
                     token = t;
             }
             return token;
@@ -46,11 +46,11 @@ namespace Markdown
                 var token = TryGetToken(input, i, isInline);
                 if (token != null)
                 {
-                    result.Append(token.openTag);
-                    result.Append(Parse(token.value, true));
-                    result.Append(token.closeTag);
+                    result.Append(token.OpenTag);
+                    result.Append(Parse(token.Value, true));
+                    result.Append(token.CloseTag);
 
-                    i += token.shift - 1;
+                    i += token.Shift - 1;
                 }
                 else
                     result.Append(input[i]);
