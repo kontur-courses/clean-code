@@ -1,10 +1,11 @@
 ﻿using FluentAssertions;
+using Markdown;
 using NUnit.Framework;
 
-namespace Markdown
+namespace MarkdownShould
 {
     [TestFixture]
-    public class Markdown_Should
+    public class MarkdownShould
     {
         private Md parser;
 
@@ -14,9 +15,9 @@ namespace Markdown
             parser = new Md();
         }
 
-        [TestCase("", ExpectedResult="")]
+        [TestCase("", ExpectedResult = "")]
         //[TestCase("\n", ExpectedResult = "")]
-        [TestCase("            some\n       another\n                 text", ExpectedResult= "<p>some\nanother\ntext</p>")]
+        [TestCase("            some\n       another\n                 text", ExpectedResult = "<p>some\nanother\ntext</p>")]
         [TestCase("aaa\nbbb\n\nccc\nddd", ExpectedResult = "<p>aaa\nbbb</p>\n<p>ccc\nddd</p>")]
         [TestCase("some\ndiff\n\nlines", ExpectedResult = "<p>some\ndiff</p>\n<p>lines</p>")]
         public string ShouldBeWithParagraphTag(string input)
