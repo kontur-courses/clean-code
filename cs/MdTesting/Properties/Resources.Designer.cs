@@ -8,7 +8,7 @@
 // </auto-generated>
 //------------------------------------------------------------------------------
 
-namespace Markdown.Properties {
+namespace MdTesting.Properties {
     using System;
     
     
@@ -39,7 +39,7 @@ namespace Markdown.Properties {
         internal static global::System.Resources.ResourceManager ResourceManager {
             get {
                 if (object.ReferenceEquals(resourceMan, null)) {
-                    global::System.Resources.ResourceManager temp = new global::System.Resources.ResourceManager("Markdown.Properties.Resources", typeof(Resources).Assembly);
+                    global::System.Resources.ResourceManager temp = new global::System.Resources.ResourceManager("MdTesting.Properties.Resources", typeof(Resources).Assembly);
                     resourceMan = temp;
                 }
                 return resourceMan;
@@ -62,11 +62,13 @@ namespace Markdown.Properties {
         
         /// <summary>
         ///   Ищет локализованную строку, похожую на _AAA_ __aaaa__, aa_a_aaa _aa_ ___aaaaaaaa___ aaaaaaaaaaaaaa_ _a_a_  __a __a _aa a_ aaaa__ aaa.
+        ///AAA_ __aaaa__, aa_a_aaa _aa_ ___aaaaaaaa___ aaaaaaaaaaaaaa_ _a_a_  __a __a _aa a_ aaaa__ aaa.
+        ///
         ///_AAA_ __aaaa__, aa_a_aaa _aa_ ___aaaaaaaa___ aaaaaaaaaaaaaa_ _a_a_  __a __a _aa a_ aaaa__ aaa.
+        ///AAA_ __aaaa__, aa_a_aaa _aa_ ___aaaaaaaa___ aaaaaaaaaaaaaa_ _a_a_  __a __a _aa a_ aaaa__ aaa.
+        ///
         ///_AAA_ __aaaa__, aa_a_aaa _aa_ ___aaaaaaaa___ aaaaaaaaaaaaaa_ _a_a_  __a __a _aa a_ aaaa__ aaa.
-        ///_AAA_ __aaaa__, aa_a_aaa _aa_ ___aaaaaaaa___ aaaaaaaaaaaaaa_ _a_a_  __a __a _aa a_ aaaa__ aaa.
-        ///_AAA_ __aaaa__, aa_a_aaa _aa_ ___aaaaaaaa___ aaaaaaaaaaaaaa_ _a_a_  __a __a _aa a_ aaaa__ aaa.
-        ///_AAA_ __aaaa__, aa_a_aaa _aa_ __ [остаток строки не уместился]&quot;;.
+        ///AAA_ __aaaa__, aa_a_aaa _aa_ _ [остаток строки не уместился]&quot;;.
         /// </summary>
         internal static string FastTest {
             get {
@@ -76,9 +78,10 @@ namespace Markdown.Properties {
         
         /// <summary>
         ///   Ищет локализованную строку, похожую на &lt;em&gt;AAA&lt;/em&gt; &lt;strong&gt;aaaa&lt;/strong&gt;, aa_a_aaa &lt;em&gt;aa&lt;/em&gt; &lt;strong&gt;&lt;em&gt;aaaaaaaa&lt;/em&gt;&lt;/strong&gt; aaaaaaaaaaaaaa_ &lt;em&gt;a_a&lt;/em&gt;  &lt;strong&gt;a __a &lt;em&gt;aa a&lt;/em&gt; aaaa&lt;/strong&gt; aaa.
+        ///AAA_ &lt;strong&gt;aaaa&lt;/strong&gt;, aa_a_aaa &lt;em&gt;aa&lt;/em&gt; &lt;strong&gt;&lt;em&gt;aaaaaaaa&lt;/em&gt;&lt;/strong&gt; aaaaaaaaaaaaaa_ &lt;em&gt;a_a&lt;/em&gt;  &lt;strong&gt;a __a &lt;em&gt;aa a&lt;/em&gt; aaaa&lt;/strong&gt; aaa.
+        ///
         ///&lt;em&gt;AAA&lt;/em&gt; &lt;strong&gt;aaaa&lt;/strong&gt;, aa_a_aaa &lt;em&gt;aa&lt;/em&gt; &lt;strong&gt;&lt;em&gt;aaaaaaaa&lt;/em&gt;&lt;/strong&gt; aaaaaaaaaaaaaa_ &lt;em&gt;a_a&lt;/em&gt;  &lt;strong&gt;a __a &lt;em&gt;aa a&lt;/em&gt; aaaa&lt;/strong&gt; aaa.
-        ///&lt;em&gt;AAA&lt;/em&gt; &lt;strong&gt;aaaa&lt;/strong&gt;, aa_a_aaa &lt;em&gt;aa&lt;/em&gt; &lt;strong&gt;&lt;em&gt;aaaaaaaa&lt;/em&gt;&lt;/strong&gt; aaaaaaaaaaaaaa_ &lt;em&gt;a_a&lt;/em&gt;  &lt;strong&gt;a __a &lt;em&gt;aa a&lt;/em&gt; aaaa&lt;/strong&gt; aaa.
-        ///&lt;e [остаток строки не уместился]&quot;;.
+        ///AAA_ &lt;st [остаток строки не уместился]&quot;;.
         /// </summary>
         internal static string FastTestResult {
             get {

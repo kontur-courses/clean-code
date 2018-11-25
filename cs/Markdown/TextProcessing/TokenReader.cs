@@ -1,5 +1,5 @@
 ﻿using System;
-using Markdown.Types;
+using Markdown.TokenEssences;
 
 namespace Markdown.TextProcessing
 {
@@ -15,9 +15,9 @@ namespace Markdown.TextProcessing
             Builder = new TextBuilder();
         }
 
-        public Token ReadToken(Func<char, bool> isStopChar, ITokenHandler tokenHandler)
+        public IToken ReadToken( ITokenHandler tokenHandler)
         {
-            var value = ReadWhile(isStopChar, tokenHandler);
+            var value = ReadWhile(ch => ch == tokenHandler.StopChar, tokenHandler);
             if (Position == Content.Length && !tokenHandler.IsStopToken(Content, Position - 1))
             {
                 value = tokenHandler.TokenAssociation + value;
@@ -30,6 +30,7 @@ namespace Markdown.TextProcessing
         private string ReadWhile(Func<char, bool> isStopChar, ITokenHandler tokenHandler)
         {
             var value = "";
+            tokenHandler.IsNestedToken = tokenHandler is StrongTokenHandler;
             while (Position < Content.Length && (!isStopChar(Content[Position]) || !tokenHandler.IsStopToken(Content, Position)))
             {
                 if (Position + 1 < Content.Length && isStopChar(Content[Position + 1]) && Content[Position] == '\\')
@@ -43,10 +44,10 @@ namespace Markdown.TextProcessing
                     Position += tokenHandler.TokenAssociation.Length;
                     continue;
                 }
-                if (isStopChar(Content[Position]) && tokenHandler.IsNestedToken(Content, Position))
+                if (isStopChar(Content[Position]) && tokenHandler.ContainsNestedToken(Content, Position))
                 {
                     Position++;
-                    value += Builder.BuildTokenValue(ReadToken(isStopChar, tokenHandler.GetNextNestedToken(Content, Position)));
+                    value += Builder.BuildTokenValue(ReadToken(tokenHandler.GetNextNestedToken(Content, Position)));
                     continue;
                 }
                 value += Content[Position];

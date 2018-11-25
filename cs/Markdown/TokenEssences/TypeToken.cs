@@ -1,4 +1,4 @@
-﻿namespace Markdown.Types
+﻿namespace Markdown.TokenEssences
 {
     public enum TypeToken
     {

@@ -1,4 +1,4 @@
-﻿using Markdown.Types;
+﻿using Markdown.TokenEssences;
 using System;
 
 namespace Markdown.TextProcessing
@@ -6,12 +6,13 @@ namespace Markdown.TextProcessing
     public class SimpleTokenHandler : ITokenHandler
     {
         public string TokenAssociation { get; set; }
-        public Func<char, bool> IsStopChar { get; set; }
+        public char StopChar { get; set; }
+        public bool IsNestedToken { get; set; }
 
         public SimpleTokenHandler()
         {
             TokenAssociation = "";
-            IsStopChar = stopChar => stopChar == '_';
+            StopChar = '_';
         }
 
         public virtual TypeToken GetNextTypeToken(string content, int position)
@@ -37,7 +38,7 @@ namespace Markdown.TextProcessing
             return false;
         }
 
-        public virtual bool IsNestedToken(string content, int position)
+        public virtual bool ContainsNestedToken(string content, int position)
         {
             return false;
         }

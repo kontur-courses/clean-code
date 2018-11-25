@@ -1,5 +1,5 @@
 ﻿using System.Collections.Generic;
-using Markdown.Types;
+using Markdown.TokenEssences;
 
 namespace Markdown.TextProcessing
 {
@@ -16,9 +16,9 @@ namespace Markdown.TextProcessing
             station = TypeToken.Simple;
         }
 
-        public List<Token> SplitToTokens()
+        public List<IToken> SplitToTokens()
         {
-            var tokens = new List<Token>();
+            var tokens = new List<IToken>();
             var position = 0;
             while (position < Content.Length)
             {
@@ -34,7 +34,7 @@ namespace Markdown.TextProcessing
                         tokenHandler = new StrongTokenHandler();
                         break;
                 }
-                var token = Reader.ReadToken(tokenHandler.IsStopChar, tokenHandler);
+                var token = Reader.ReadToken(tokenHandler);
                 position = Reader.Position;
                 station = tokenHandler.GetNextTypeToken(Content, position - 1);
                 if (station == TypeToken.Strong)

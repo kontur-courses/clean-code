@@ -1,12 +1,12 @@
 ﻿using System.Collections.Generic;
 using System.Text;
-using Markdown.Types;
+using Markdown.TokenEssences;
 
 namespace Markdown.TextProcessing
 {
     public class TextBuilder
     {
-        public string BuildText(List<Token> tokens)
+        public string BuildText(List<IToken> tokens)
         {
             var strBuilder = new StringBuilder();
             foreach (var token in tokens)
@@ -31,7 +31,7 @@ namespace Markdown.TextProcessing
             return strBuilder.ToString();
         }
 
-        public string BuildTokenValue(Token token)
+        public string BuildTokenValue(IToken token)
         {
             if (token.Value.Length == 0) return "";
             if (token.TypeToken == TypeToken.Simple)

@@ -1,9 +1,9 @@
-﻿namespace Markdown.Types
+﻿namespace Markdown.TokenEssences
 {
-    public class Token
+    public class Token:IToken
     {
-        public TypeToken TypeToken { get; set; }
-        public string Value { get; set; }
+        public TypeToken TypeToken { get; }
+        public string Value { get; }
 
         public Token(TypeToken typeToken, string value)
         {

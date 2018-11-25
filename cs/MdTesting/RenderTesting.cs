@@ -1,13 +1,13 @@
-﻿using System;
-using System.Diagnostics;
-using System.Text;
-using Markdown.Properties;
+﻿using System.Collections.Generic;
+using System.Linq;
+using Markdown;
 using NUnit.Framework;
+using BenchmarkDotNet.Running;
 
-namespace Markdown
+namespace MdTesting
 {
     [TestFixture]
-    public class MdTesting
+    public class RenderTesting
     {
         private Md md;
         [SetUp]
@@ -30,6 +30,9 @@ namespace Markdown
         [TestCase(@"For_ each_ I _will _pay", ExpectedResult = @"For_ each_ I _will _pay", TestName = "Wrong underscore is used")]
         [TestCase("For _each\r\nI will_ pay", ExpectedResult = "For <em>each\r\nI will</em> pay", TestName = "Newline character is used")]
         [TestCase("For _each\r\n\r\nI _will_ pay", ExpectedResult = "For _each\r\n\r\nI <em>will</em> pay", TestName = "New paragraph character is used")]
+        [TestCase("\t\t\t_I will_\r\n\r\n    ", ExpectedResult = "\t\t\t<em>I will</em>\r\n\r\n    ", TestName = "Control characters is used")]
+        [TestCase("____I will____", ExpectedResult = "____I will____", TestName = "4 underscores are used")]
+        [TestCase("___I will___", ExpectedResult = "<strong><em>I will</em></strong>", TestName = "3 underscores are used")]
         public string Render_Should_renderingStringToHtmlCode_When(string input)
         {
             return md.Render(input);
@@ -38,8 +41,8 @@ namespace Markdown
         [Test]
         public void Render_Should_HandleLargeTextCorrectly()
         {
-            var content = Resources.FastTest;
-            var expectedResult = Resources.FastTestResult;
+            var content = Properties.Resources.FastTest;
+            var expectedResult = Properties.Resources.FastTestResult;
             var result = md.Render(content);
 
             Assert.AreEqual(expectedResult, result);
@@ -48,39 +51,13 @@ namespace Markdown
         [Test]
         public void Render_Should_BeFast()
         {
-            var content = Resources.FastTest;
-            var time1 = Measure(content, ReadContent);
-            var time2 = Measure(content, md.Render);
+            var summary = BenchmarkRunner.Run<BenchmarkRender>(new BenchmarkConfig());
+            var meanResults = summary.Reports.Select(report => report.ResultStatistics?.Mean ?? 10).ToArray();
+            var result = new List<double>();
+            for (int i = 0; i < meanResults.Length - 1; i++)
+                result.Add(meanResults[i] / meanResults[i + 1]);
 
-            Console.WriteLine(@"Text reading time: {0} ms", time1.Milliseconds);
-            Console.WriteLine(@"Render time: {0} ms", time2.Milliseconds); ;
-            Assert.Less(time2.TotalMilliseconds, 10 * time1.TotalMilliseconds, "Render is too slow!");
-        }
-
-        private TimeSpan Measure(string content, Func<string, string> action)
-        {
-            var timer = Stopwatch.StartNew();
-            action(content);
-            timer.Stop();
-            return timer.Elapsed;
-        }
-
-        private string ReadContent(string content)
-        {
-            char Action(int i) => content[i];
-            var builder = new StringBuilder();
-            var result = "";
-            for (int i = content.Length - 1; i > -1; i--)
-            {
-                if (i % 100 == 0)
-                {
-                    builder.Append(result + Action(i));
-                    result = "";
-                }
-                result += Action(i);
-            }
-
-            return builder.Append(result).ToString();
+            result.ForEach(e => Assert.Less(e, 4));
         }
     }
 }

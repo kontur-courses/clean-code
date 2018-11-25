@@ -1,4 +1,4 @@
-﻿using Markdown.Types;
+﻿using Markdown.TokenEssences;
 namespace Markdown.TextProcessing
 {
     public class EmTokenHandler : SimpleTokenHandler
@@ -6,7 +6,7 @@ namespace Markdown.TextProcessing
         public EmTokenHandler()
         {
             TokenAssociation = "_";
-            IsStopChar = stopChar => stopChar == '_';
+            StopChar = '_';
         }
 
         public override bool IsStartToken(string content, int position)
@@ -15,7 +15,8 @@ namespace Markdown.TextProcessing
                 return true;
 
             return position > 1 && position + 1 < content.Length &&
-                   (char.IsSeparator(content[position - 1]) || content[position - 1] == '_') &&
+                   (char.IsSeparator(content[position - 1])|| char.IsControl(content[position - 1]) ||
+                    content[position - 1] == '_' && IsNestedToken) &&
                    content[position] == '_' && char.IsLetterOrDigit(content[position + 1]);
         }
 
@@ -26,7 +27,8 @@ namespace Markdown.TextProcessing
                 return true;
 
             return position > 0 && position + 1 < content.Length &&
-                   (char.IsSeparator(content[position + 1]) || content[position + 1] == '_' || char.IsPunctuation(content[position + 1])) &&
+                   (char.IsSeparator(content[position + 1]) || char.IsControl(content[position + 1])  ||
+                    (content[position + 1] == '_' && IsNestedToken) || char.IsPunctuation(content[position + 1])) &&
                    content[position] == '_' && char.IsLetterOrDigit(content[position - 1]);
         }
 
@@ -35,7 +37,7 @@ namespace Markdown.TextProcessing
             return TypeToken.Simple;
         }
 
-        public override bool IsNestedToken(string content, int position)
+        public override bool ContainsNestedToken(string content, int position)
         {
             return false;
         }
