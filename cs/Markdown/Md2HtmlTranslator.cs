@@ -13,19 +13,33 @@ namespace Markdown
             foreach (var paragraph in paragraphs)
             {
                 var lastPosition = 0;
-                var tags = paragraph.ValidTokens.OrderBy(t => t.TokenPosition).ThenBy(t => t.TokenType.TokenLocationType);
-                foreach (var htmlTag in tags)
-                {
-                    htmlBuilder.Append(paragraph.MdText.Substring(lastPosition, htmlTag.TokenPosition - lastPosition));
-                    htmlBuilder.Append(WrapHtmlTagInBrackets(htmlTag));
+                var tokens = paragraph.ValidTokens.OrderBy(t => t.TokenPosition).ThenBy(t => t.TokenType.TokenLocationType);
 
-                    var shift = htmlTag.TokenType.TokenLocationType == TokenLocationType.InlineToken
-                        ? htmlTag.TokenType.Template.Length
-                        : htmlTag.TokenType.TokenLocationType == TokenLocationType.StartingToken && htmlTag.TokenType.Template.Length != 0
-                            ? htmlTag.TokenType.Template.Length + 1
+                SingleToken closingBoxToken = null;
+
+                foreach (var token in tokens)
+                {
+                    if (token.TokenType.TokenLocationType == TokenLocationType.BoxesTokens && token.TokenPosition != 0)
+                    {
+                        closingBoxToken = token;
+                        continue;
+                    }
+
+                    htmlBuilder.Append(paragraph.MdText.Substring(lastPosition, token.TokenPosition - lastPosition));
+                    htmlBuilder.Append(WrapHtmlTagInBrackets(token));
+
+                    var shift = token.TokenType.TokenLocationType == TokenLocationType.InlineToken
+                        ? token.TokenType.Template.Length
+                        : token.TokenType.TokenLocationType == TokenLocationType.StartingToken && token.TokenType.Template.Length != 0
+                            ? token.TokenType.Template.Length + 1
                             : 0;
 
-                    lastPosition = htmlTag.TokenPosition + shift;
+                    lastPosition = token.TokenPosition + shift;
+                }
+
+                if (closingBoxToken != null)
+                {
+                    htmlBuilder.Append(WrapHtmlTagInBrackets(closingBoxToken));
                 }
             }
 
