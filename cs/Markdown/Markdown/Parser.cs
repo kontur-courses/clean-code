@@ -32,23 +32,18 @@ namespace Markdown
             if (str.Length == 0)
                 return str;
 
-            var onlyWhitespaces = IsWhitespace(str[startIndex]);
+            var onlyWhitespaces = char.IsWhiteSpace(str[startIndex]);
 
             var result = "";
             for (; startIndex < str.Length; startIndex++)
             {
-                if (IsWhitespace(str[startIndex]) == onlyWhitespaces)
+                if (char.IsWhiteSpace(str[startIndex]) == onlyWhitespaces)
                     result += str[startIndex];
                 else
                     break;
             }
 
             return result;
-        }
-
-        public static bool IsWhitespace(char symbol)
-        {
-            return char.IsWhiteSpace(symbol);
         }
     }
 }

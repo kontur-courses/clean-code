@@ -21,7 +21,7 @@ namespace Markdown
             _result = new List<StringPart>();
             _lastStringPart = null;
 
-            if (subString.Length == 0 || Parser.IsWhitespace(subString[0]) || StrContainsSymbolsAndDigits(subString))
+            if (subString.Length == 0 || char.IsWhiteSpace(subString[0]) || StrContainsSymbolsAndDigits(subString))
                 return new List<StringPart>() { new StringPart(subString) };
 
             subString = AddToResultFirstAndLastItems(subString);
@@ -44,7 +44,7 @@ namespace Markdown
             var containsDigits = false;
 
             foreach (var symbol in str)
-                if (!Parser.IsWhitespace(symbol))
+                if (!char.IsWhiteSpace(symbol))
                 {
                     if (IsDigit(symbol))
                         containsDigits = true;
