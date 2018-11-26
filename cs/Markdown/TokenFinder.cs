@@ -24,10 +24,12 @@ namespace Markdown
 
             var startingIsPossible = true;
 
+            var inlineTokenTypes = new List<TokenType>(tokensTypes
+                .Where(t => t.TokenLocationType == TokenLocationType.InlineToken));
+
             for (var index = 0; index < paragraph.Length; index++)
             {
-                var openingAndClosingTokens = tokensTypes
-                    .Where(t => t.TokenLocationType == TokenLocationType.InlineToken)
+                var openingAndClosingTokens = inlineTokenTypes
                     .GetOpenAndClosingToken(paragraph, index);
 
                 if (openingAndClosingTokens.OpeningToken != null)
