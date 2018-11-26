@@ -2,10 +2,6 @@
 
 namespace Markdown
 {
-    /// <summary>
-    ///     Cейчас данный класс хранит функциональность для "_" и "__" одновременно. Ошибка, да, сейчас уже не успеваю
-    ///     поправить
-    /// </summary>
     public sealed class PairedTagToken : Token
     {
         public PairedTagToken(int position, int length, string value, string fullTag = null)

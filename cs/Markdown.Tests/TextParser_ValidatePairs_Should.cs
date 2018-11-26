@@ -42,10 +42,10 @@ namespace Markdown.Tests
             delimiters[1]
                 .Partner.ShouldBeEquivalentTo(delimiters[0]);
             delimiters[0]
-                .IsFirst.Should()
+                .IsOpening.Should()
                 .BeTrue();
             delimiters[1]
-                .IsLast.Should()
+                .IsClosing.Should()
                 .BeTrue();
         }
     }

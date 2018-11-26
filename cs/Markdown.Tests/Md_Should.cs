@@ -30,25 +30,28 @@ namespace Markdown.Tests
                   .BeEquivalentTo(renderedText);
         }
 
-        [Test]
-        public void FAST()
+        [TestCase(100, 0, 50)]
+        [TestCase(1000, 0, 50)]
+        [TestCase(10000, 0, 200)]
+        [TestCase(100000, 2, 0)]
+        public void BeFast(int amount, int seconds, int ms)
         {
-            var s = new StringBuilder();
-            var s2 = new StringBuilder();
-            for (int i = 0; i < 100000; i++)
+            var textBuilder = new StringBuilder();
+            var renderBuilder = new StringBuilder();
+            for (var i = 0; i < amount; i++)
             {
-                var t = i % 2 == 0 ? "_" : "__";
-                s.Append($" {t}ab{i}cd{t} ");
-                var t2 = i % 2 == 0 ? "em" : "strong";
-                s2.Append($" <{t2}>ab{i}cd</{t2}> ");
+                var tag = i % 2 == 0 ? "_" : "__";
+                textBuilder.Append($" {tag}ab{i}cd{tag} ");
+                var htmlTag = i % 2 == 0 ? "em" : "strong";
+                renderBuilder.Append($" <{htmlTag}>ab{i}cd</{htmlTag}> ");
             }
 
-            var text = s.ToString();
-            var render = s2.ToString();
+            var text = textBuilder.ToString();
+            var render = renderBuilder.ToString();
 
             void Rendering() => parser.Render(text);
 
-            new ExecutionTimeAssertions(Rendering).ShouldNotExceed(new TimeSpan(0,0,0,2));
+            new ExecutionTimeAssertions(Rendering).ShouldNotExceed(new TimeSpan(0,0,seconds,ms));
             parser.Render(text).ShouldBeEquivalentTo(render);
 
         }

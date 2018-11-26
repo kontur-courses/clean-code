@@ -34,8 +34,7 @@ namespace Markdown
                     }
 
                     var tagLength = tagToken.FullTag.Length;
-                    return
-                        $"{opening}{text.Substring(tagLength, text.Length - 2 * tagLength)}{closing}";
+                    return $"{opening}{text.Substring(tagLength, text.Length - 2 * tagLength)}{closing}";
                 }
                 default:
                     return "";

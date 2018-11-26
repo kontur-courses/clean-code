@@ -2,7 +2,7 @@
 
 namespace Markdown
 {
-    internal class PairedTagRule : ILexerRule
+    internal class PairedTagRule : ITextProcessorRule
     {
         private readonly string fullTag;
 
@@ -62,7 +62,7 @@ namespace Markdown
 
         public Token GetToken(Delimiter delimiter, string text)
         {
-            if (delimiter.IsLast)
+            if (delimiter.IsClosing)
                 return null;
             var second = delimiter.Partner;
             var length = second.Position - delimiter.Position + Length;
@@ -70,7 +70,7 @@ namespace Markdown
             return new PairedTagToken(delimiter.Position, length, text.Substring(delimiter.Position, length), fullTag);
         }
 
-        public bool IsValidFirst(Delimiter delimiter, string text)
+        public bool IsValidOpening(Delimiter delimiter, string text)
         {
             var position = delimiter.Position;
             if (position == 0)
@@ -80,7 +80,7 @@ namespace Markdown
             return char.IsWhiteSpace(text[position - 1]) && !char.IsWhiteSpace(text[position + Length]);
         }
 
-        public bool IsValidSecond(Delimiter delimiter, string text)
+        public bool IsValidClosing(Delimiter delimiter, string text)
         {
             var position = delimiter.Position;
             if (position == 0)

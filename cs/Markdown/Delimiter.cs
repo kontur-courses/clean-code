@@ -10,8 +10,8 @@
 
         public int Position { get; }
         public string Value { get; }
-        public bool IsFirst { get; set; }
-        public bool IsLast { get; set; }
+        public bool IsOpening { get; set; }
+        public bool IsClosing { get; set; }
 
         public Delimiter Partner { get; set; }
 

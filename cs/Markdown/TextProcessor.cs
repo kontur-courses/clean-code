@@ -5,24 +5,24 @@ namespace Markdown
 {
     internal class TextProcessor
     {
-        private readonly List<ILexerRule> rules =
-            new List<ILexerRule> {new PairedTagRule('_', 1), new PairedTagRule('_', 2)};
+        private readonly List<ITextProcessorRule> rules;
 
         public readonly string Text;
         internal List<Delimiter> Delimiters;
 
-        internal TextProcessor(string text, List<Delimiter> delimiters = null)
+        internal TextProcessor(string text, List<Delimiter> delimiters = null, List<ITextProcessorRule> rules = null)
         {
             Text = text;
+            this.rules = rules ?? this.rules;
             Delimiters = delimiters ?? new List<Delimiter>();
         }
 
-        internal ILexerRule GetSuitableRule(int position, string text)
+        internal ITextProcessorRule GetSuitableRule(int position, string text)
         {
             return rules.FirstOrDefault(rule => rule.Check(position, text));
         }
 
-        internal ILexerRule GetSuitableRule(Delimiter delimiter)
+        internal ITextProcessorRule GetSuitableRule(Delimiter delimiter)
         {
             return rules.FirstOrDefault(r => r.Check(delimiter));
         }
@@ -71,7 +71,7 @@ namespace Markdown
             foreach (var delimiter in Delimiters)
             {
                 var rule = GetSuitableRule(delimiter);
-                var isValidSecond = rule.IsValidSecond(delimiter, Text);
+                var isValidSecond = rule.IsValidClosing(delimiter, Text);
 
                 var stack = stacks[delimiter.Value];
                 if (isValidSecond &&
@@ -79,12 +79,12 @@ namespace Markdown
                     stack.Peek()
                          .Value ==
                     delimiter.Value &&
-                    rule.IsValidFirst(stack.Peek(), Text))
+                    rule.IsValidOpening(stack.Peek(), Text))
                 {
                     var firstDelimiter = stack.Pop();
                     firstDelimiter.Partner = delimiter;
                     delimiter.Partner = firstDelimiter;
-                    delimiter.IsLast = firstDelimiter.IsFirst = true;
+                    delimiter.IsClosing = firstDelimiter.IsOpening = true;
                 }
                 else
                 {
@@ -138,6 +138,11 @@ namespace Markdown
                 }
             }
 
+            return InsertStringTokens(tokens);
+        }
+
+        private IEnumerable<Token> InsertStringTokens(LinkedList<Token> tokens)
+        {
             var currentToken = tokens.First;
 
             tokens.AddLast(new PairedTagToken(Text.Length, 0, "", ""));

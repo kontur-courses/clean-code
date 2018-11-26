@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 
 namespace Markdown
 {
@@ -14,7 +15,9 @@ namespace Markdown
         public override int Position { get; set; }
         public override int Length { get; set; }
         public override string Value { get; set; }
-        public override List<Token> InnerTokens { get; set; }
+
+        public override List<Token> InnerTokens { get => null; set => throw new NotSupportedException(); }
+
         public override Token ParentToken { get; set; }
     }
 }
