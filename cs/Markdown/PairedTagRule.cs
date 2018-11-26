@@ -35,7 +35,6 @@ namespace Markdown
             if (position < text.Length - 1)
                 return text.Substring(position, Length) == fullTag;
             return false;
-
         }
 
         public bool Check(Delimiter delimiter) => delimiter.Value == fullTag;
@@ -44,18 +43,20 @@ namespace Markdown
         {
             if (delimiter.Position == 0)
                 return delimiter;
-            return text[delimiter.Position - 1] != '\\' ? delimiter : Length == 1 ? null : new Delimiter(fullTag.Substring(1), delimiter.Position + 1);
+            return text[delimiter.Position - 1] == '\\'
+                       ? Length != 1 ? new Delimiter(fullTag.Substring(1), delimiter.Position + 1) : null
+                       : delimiter;
         }
 
         public bool IsValid(Delimiter delimiter, string text)
         {
-            var delimiterPosition = delimiter.Position;
-            var isLast = delimiterPosition == text.Length - Length;
-            var isFirst = delimiterPosition == 0;
+            var position = delimiter.Position;
+            var isLast = position == text.Length - Length;
+            var isFirst = position == 0;
             if (isLast || isFirst)
                 return true;
-            var next = text[delimiterPosition + Length];
-            var previous = text[delimiterPosition - 1];
+            var next = text[position + Length];
+            var previous = text[position - 1];
             return !(next.IsLetterOrDigitOrSpecifiedChar('_') && previous.IsLetterOrDigitOrSpecifiedChar('_'));
         }
 
@@ -66,30 +67,25 @@ namespace Markdown
             var second = delimiter.Partner;
             var length = second.Position - delimiter.Position + Length;
 
-            return new UnderscoreToken(delimiter.Position, length, text.Substring(delimiter.Position, length));
+            return new PairedTagToken(delimiter.Position, length, text.Substring(delimiter.Position, length), fullTag);
         }
 
         public bool IsValidFirst(Delimiter delimiter, string text)
         {
             var position = delimiter.Position;
-            var isLast = position == text.Length - Length;
-            var isFirst = position == 0;
-            if (isFirst)
+            if (position == 0)
                 return !char.IsWhiteSpace(text[position + Length]);
-            if (isLast)
+            if (position + Length == text.Length)
                 return false;
             return char.IsWhiteSpace(text[position - 1]) && !char.IsWhiteSpace(text[position + Length]);
-
         }
 
         public bool IsValidSecond(Delimiter delimiter, string text)
         {
             var position = delimiter.Position;
-            var isLast = position == text.Length - Length;
-            var isFirst = position == 0;
-            if (isFirst)
+            if (position == 0)
                 return false;
-            if (isLast)
+            if (position + Length == text.Length)
                 return !char.IsWhiteSpace(text[position - 1]);
             return !char.IsWhiteSpace(text[position - 1]) && char.IsWhiteSpace(text[position + Length]);
         }

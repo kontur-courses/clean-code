@@ -15,5 +15,4 @@
         bool IsValidFirst(Delimiter delimiter, string text);
         bool IsValidSecond(Delimiter delimiter, string text);
     }
-    
 }

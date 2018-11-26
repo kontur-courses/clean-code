@@ -1,5 +1,4 @@
-﻿using System.Collections.Generic;
-using FluentAssertions;
+﻿using FluentAssertions;
 using NUnit.Framework;
 
 namespace Markdown.Tests
@@ -7,39 +6,26 @@ namespace Markdown.Tests
     [TestFixture]
     public class TextParser_ValidatePairs_Should
     {
-        [SetUp]
-        public void SetUp()
-        {
-            parser = new TextParser(); //new ILexerRule[] {new PairedSingleTagRule('_'), new PairedDoubleTagRule('_')});
-        }
-
-        private TextParser parser;
-
         [TestCase("_a __ b_")]
         public void RemoveOneDelimiterBetweenPairedOthers(string text)
         {
-            var delimiters = GetDelimiters(text);
-            parser.ValidatePairs(delimiters, text)
-                  .Should()
-                  .HaveCount(2);
+            TextParser.For(text)
+                      .GetDelimiterPositions()
+                      .ValidatePairs()
+                      .Delimiters.Should()
+                      .HaveCount(2);
         }
+
         [Category("UnderscoreRule")]
         [TestCase("aa_ bb", TestName = "one underscore")]
         [TestCase("aa__ bb", TestName = "one  double underscore")]
         public void RemoveOneValidDelimiter(string text)
         {
-            var delimiters = GetDelimiters(text);
-            parser.ValidatePairs(delimiters, text)
-                  .Should()
-                  .BeEmpty();
-        }
-
-        private List<Delimiter> GetDelimiters(string text)
-        {
-            var delimiters = parser.GetDelimiterPositions(text);
-            delimiters = parser.RemoveEscapedDelimiters(delimiters, text);
-            delimiters = parser.RemoveNonValidDelimiters(delimiters, text);
-            return delimiters;
+            TextParser.For(text)
+                      .GetDelimiterPositions()
+                      .ValidatePairs()
+                      .Delimiters.Should()
+                      .BeEmpty();
         }
 
         [Category("UnderscoreRule")]
@@ -47,9 +33,10 @@ namespace Markdown.Tests
         [TestCase("__aa__ bb", TestName = "two  double underscore")]
         public void SetPartnerDelimitersForEachPairedOnes(string text)
         {
-            var delimiters = GetDelimiters(text);
-
-            delimiters = parser.ValidatePairs(delimiters, text);
+            var delimiters = TextParser.For(text)
+                                       .GetDelimiterPositions()
+                                       .ValidatePairs()
+                                       .Delimiters;
             delimiters[0]
                 .Partner.ShouldBeEquivalentTo(delimiters[1]);
             delimiters[1]

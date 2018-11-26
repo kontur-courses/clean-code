@@ -12,12 +12,12 @@ namespace Markdown.Tests
         {
             new HtmlCreator().CreateFromTokens(new Token[]
                              {
-                                 new UnderscoreToken(0, 39,
-                                                     "_this is __nested__ sequence of tokens_")
+                                 new PairedTagToken(0, 39,
+                                                     "_this is __nested__ sequence of tokens_","_")
                                  {
                                      InnerTokens = new List<Token>
                                      {
-                                         new UnderscoreToken(9, 10, "__nested__")
+                                         new PairedTagToken(9, 10, "__nested__","__")
                                      }
                                  }
                              })
@@ -30,7 +30,7 @@ namespace Markdown.Tests
         {
             new HtmlCreator().CreateFromTokens(new Token[]
                              {
-                                 new UnderscoreToken(0, 5, "_hey_"),
+                                 new PairedTagToken(0, 5, "_hey_","_"),
                                  new StringToken(6, 5, " you!")
                              })
                              .Should()

@@ -7,58 +7,50 @@ namespace Markdown.Tests
     [TestFixture]
     public class TextParser_RemoveEscapedDelimiters_Should
     {
-        [SetUp]
-        public void SetUp()
-        {
-            parser = new TextParser(); //new ILexerRule[] {new PairedDoubleTagRule('_'), new PairedSingleTagRule('_')});
-        }
-
-        private TextParser parser;
-
         [Category("UnderscoreRule")]
         [Test]
         public void NotChangeDelimiters_WhenNoEscaping()
         {
-            var text = "ab_c_";
-            var delimiters = parser.GetDelimiterPositions(text);
-            parser.RemoveEscapedDelimiters(delimiters, text)
-                  .Should()
-                  .BeEquivalentTo(delimiters);
+            var processor = TextParser.For("ab_c_")
+                                      .GetDelimiterPositions();
+            processor.RemoveEscapedDelimiters()
+                     .Delimiters.Should()
+                     .BeEquivalentTo(processor.Delimiters);
         }
 
         [Category("UnderscoreRule")]
         [Test]
         public void RemoveEscapedDoubleUnderscoreAndPutUnderscore_WhenDoubleIsEscaped()
         {
-            var text = "ab\\__c";
-            var delimiters = parser.GetDelimiterPositions(text);
-            parser.RemoveEscapedDelimiters(delimiters, text)
-                  .Should()
-                  .HaveCount(1)
-                  .And.Subject.First()
-                  .ShouldBeEquivalentTo(new Delimiter("_", 4));
+            TextParser.For("ab\\__c")
+                      .GetDelimiterPositions()
+                      .RemoveEscapedDelimiters()
+                      .Delimiters.Should()
+                      .HaveCount(1)
+                      .And.Subject.First()
+                      .ShouldBeEquivalentTo(new Delimiter("_", 4));
         }
 
         [Category("UnderscoreRule")]
         [Test]
         public void RemoveEscapedUnderscore_WhenOneExists()
         {
-            var text = "ab\\_c";
-            var delimiters = parser.GetDelimiterPositions(text);
-            parser.RemoveEscapedDelimiters(delimiters, text)
-                  .Should()
-                  .BeEmpty();
+            TextParser.For("ab\\_c")
+                      .GetDelimiterPositions()
+                      .RemoveEscapedDelimiters()
+                      .Delimiters.Should()
+                      .BeEmpty();
         }
 
         [Category("UnderscoreRule")]
         [Test]
         public void RemoveTwoEscapedUnderscores_WhenTheyFollowEachOther()
         {
-            var text = "ab\\_\\_c";
-            var delimiters = parser.GetDelimiterPositions(text);
-            parser.RemoveEscapedDelimiters(delimiters, text)
-                  .Should()
-                  .BeEmpty();
+            TextParser.For("ab\\_\\_c")
+                      .GetDelimiterPositions()
+                      .RemoveEscapedDelimiters()
+                      .Delimiters.Should()
+                      .BeEmpty();
         }
     }
 }

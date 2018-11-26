@@ -2,15 +2,14 @@
 
 namespace Markdown
 {
-    class Md
+    internal class Md
     {
-        private readonly TextParser parser;
         private readonly HtmlCreator creator;
 
-        public Md(TextParser parser, HtmlCreator creator)
+        public Md(HtmlCreator creator)
         {
-            this.parser = parser;
             this.creator = creator;
+            
         }
 
         public string Render(string rawText)
@@ -19,14 +18,10 @@ namespace Markdown
             return CreateHtmlFromTokens(tokens);
         }
 
-        private IEnumerable<Token> GetTokensFromText(string text)
-        {
-            return parser.Parse(text);
-        }
+        private static IEnumerable<Token> GetTokensFromText(string text) =>
+            TextParser.For(text)
+                      .Parse();
 
-        private string CreateHtmlFromTokens(IEnumerable<Token> tokens)
-        {
-            return creator.CreateFromTokens(tokens);
-        }
+        private string CreateHtmlFromTokens(IEnumerable<Token> tokens) => creator.CreateFromTokens(tokens);
     }
 }

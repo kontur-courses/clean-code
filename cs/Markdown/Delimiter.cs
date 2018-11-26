@@ -1,6 +1,4 @@
-﻿using System.Runtime.CompilerServices;
-
-namespace Markdown
+﻿namespace Markdown
 {
     internal class Delimiter
     {

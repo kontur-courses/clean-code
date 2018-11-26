@@ -6,14 +6,6 @@ namespace Markdown.Tests
     [TestFixture]
     public class TextParser_RemoveNonValidDelimiters_Should
     {
-        private TextParser parser;
-
-        [SetUp]
-        public void SetUp()
-        {
-            parser = new TextParser(); //new ILexerRule[]{new PairedSingleTagRule('_'), new PairedDoubleTagRule('_'),  });
-        }
-
         [Category("UnderscoreRule")]
         [TestCase("1_2", TestName = "surrounded by digits")]
         [TestCase("a_b", TestName = "surrounded by letters")]
@@ -22,11 +14,12 @@ namespace Markdown.Tests
         [TestCase("a___2", TestName = "surrounded by letters and digits and there are three underscores")]
         public void RemoveUnderscore_When(string text)
         {
-            var delimiters = parser.GetDelimiterPositions(text);
-            delimiters = parser.RemoveEscapedDelimiters(delimiters, text);
-              parser.RemoveNonValidDelimiters(delimiters, text)
-                  .Should()
-                  .BeEmpty();
+            TextParser.For(text)
+                      .GetDelimiterPositions()
+                      .RemoveEscapedDelimiters()
+                      .RemoveNonValidDelimiters()
+                      .Delimiters.Should()
+                      .BeEmpty();
         }
     }
 }

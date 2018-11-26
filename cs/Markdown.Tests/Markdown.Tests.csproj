@@ -50,6 +50,7 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="FluentAssertionsOptionsExtensions.cs" />
     <Compile Include="HtmlCreator_Should.cs" />
     <Compile Include="Md_Should.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
