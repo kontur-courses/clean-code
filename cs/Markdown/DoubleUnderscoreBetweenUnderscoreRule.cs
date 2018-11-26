@@ -13,7 +13,10 @@ namespace Markdown
 
         private List<Token> DeleteDoubleUnderscoreBetweenUnderscore(List<Token> symbolsMap, List<TokenInformation> baseTokens)
         {
+            if (symbolsMap.Count == 0)
+                return new List<Token>();
             var maxPosition = symbolsMap.Max(x => x.Position);
+            
             var deleteToken = new List<Token>();
             for (var i = 0; i < maxPosition; i++)
             {

@@ -35,7 +35,7 @@ namespace Markdown
             var correctTokens = new List<Token>();
             foreach (Token token in symbolsMap)
             {
-               if (pairedSymbols.Contains(token.Position))
+               if (pairedSymbols.Contains(token.Position) || token.TokenType == TokenType.Escaped || token.TokenType == TokenType.Ordinary)
                    correctTokens.Add(token);
             }
            return correctTokens;

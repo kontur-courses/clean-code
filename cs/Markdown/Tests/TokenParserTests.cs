@@ -94,9 +94,12 @@ namespace Markdown.Tests
         }
 
         [Test]
-        public void DoSomething_WhenSomething()
+        public void GetToken_SymbolsBetweenNumbers_EmptyList()
         {
-            
+            var str = "_89 5__95__ `565`8613";
+            var parser = new TokenParser();
+            var list = parser.GetTokens(str, data);
+            list.Should().BeEmpty();
         }
     }
 }

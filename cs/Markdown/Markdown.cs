@@ -18,13 +18,17 @@ namespace Markdown
         {
             var parser = new TokenParser();
             var list = parser.GetTokens(mdText, data);
+            var rules = CreateCompositor();
+            var compositeRule = new CompositeRule(rules);
+
+            var correctTokens = compositeRule.Apply(list, data);
             var htmlText = new StringBuilder();
-            var allPositions = list.Select(x => x.Position).ToArray();
+            var allPositions = correctTokens.Select(x => x.Position).ToArray();
             for (var i = 0; i < mdText.Length; i++)
             {
                 if (allPositions.Contains(i))
                 {
-                    var token = list.Find(x => x.Position == i);
+                    var token = correctTokens.Find(x => x.Position == i);
                     htmlText.Append(GetTag(token));
                     i += token.Data.CountOfSpaces - 1;
                 }
@@ -36,7 +40,12 @@ namespace Markdown
             return htmlText.ToString();
         }
 
-
+        private IRule[] CreateCompositor()
+        {
+            var firstRule = new UnpairedSymbolsRule();
+            var secondRule = new DoubleUnderscoreBetweenUnderscoreRule();
+            return new IRule[] { firstRule, secondRule };
+        }
 
         private string GetTag(Token token)
         {

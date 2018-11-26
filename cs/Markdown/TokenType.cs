@@ -4,7 +4,6 @@
     {
         Start,
         End,
-        Unique,
         Escaped,
         Ordinary
     }
