@@ -7,11 +7,11 @@ namespace Markdown
 {
     public class Md
     {
-        private readonly List<BaseReader> readers;
+        private readonly List<BaseRegister> registers;
 
         public Md()
         {
-            readers = new List<BaseReader>
+            registers = new List<BaseRegister>
             {
                 new ParagraphRegister(),
                 new HorLineRegister(),
@@ -23,12 +23,11 @@ namespace Markdown
         public string Render(string input)
         {
             var resHtmlText = new StringBuilder();
-            var blockTags = GetBlockTags(input); 
 
-            foreach (var tag in blockTags)
+            foreach (var tag in GetBlockTags(input))
             {
                 resHtmlText.Append(tag.OpenTag);
-                resHtmlText.Append(ParseToHtml(tag.Value));
+                resHtmlText.Append(ParseInternalTags(tag.Value));
                 resHtmlText.Append(tag.CloseTag);
             }
 
@@ -41,12 +40,12 @@ namespace Markdown
 
             for (var i = 0; i < input.Length; i++)
             {
-                var token = readers
+                var token = registers
                     .Where(r => r.IsBlockRegister)
                     .Select(r => r.TryGetToken(input, i))
                     .Where(t => t != null)
                     .OrderByDescending(t => t.Shift)
-                    .ThenByDescending(t => t.Priority)
+                        .ThenByDescending(t => t.Priority)
                     .FirstOrDefault();
 
                 if (token != null)
@@ -55,16 +54,17 @@ namespace Markdown
                     i += token.Shift - 1;
                 }
             }
+
             return tags;
         }
 
-        private string ParseToHtml(string input)
+        private string ParseInternalTags(string input)
         {
-            var htmlText = new StringBuilder();
+            var restHtmlText = new StringBuilder();
 
             for (var i = 0; i < input.Length; i++)
             {
-                var token = readers
+                var token = registers
                     .Where(r => !r.IsBlockRegister)
                     .Select(r => r.TryGetToken(input, i))
                     .Where(t => t != null)
@@ -74,19 +74,19 @@ namespace Markdown
 
                 if (token != null)
                 {
-                    htmlText.Append(token.OpenTag);
-                    htmlText.Append(ParseToHtml(token.Value));
-                    htmlText.Append(token.CloseTag);
+                    restHtmlText.Append(token.OpenTag);
+                    restHtmlText.Append(ParseInternalTags(token.Value));
+                    restHtmlText.Append(token.CloseTag);
 
                     i += token.Shift - 1;
                 }
                 else
                 {
-                    htmlText.Append(input[i]);
+                    restHtmlText.Append(input[i]);
                 }
             }
 
-            return htmlText.ToString();
+            return restHtmlText.ToString();
         }
     }
 }

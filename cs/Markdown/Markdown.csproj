@@ -54,7 +54,7 @@
     <Compile Include="Registers\DelimeterRunRegister.cs" />
     <Compile Include="Registers\EmphasisRegister.cs" />
     <Compile Include="Registers\HorLineRegister.cs" />
-    <Compile Include="BaseReader.cs" />
+    <Compile Include="Registers\BaseRegister.cs" />
     <Compile Include="Md.cs" />
     <Compile Include="Registers\ParagraphRegister.cs" />
     <Compile Include="Program.cs" />

@@ -2,9 +2,10 @@
 
 namespace Markdown.Registers
 {
-    internal class HorLineRegister : BaseReader
+    internal class HorLineRegister : BaseRegister
     {
         private readonly HashSet<char> ableDigits = new HashSet<char>(new[] {'*', '-', '_'});
+        protected override int Priority => 1;
 
         public override bool IsBlockRegister => true;
 
@@ -13,7 +14,7 @@ namespace Markdown.Registers
             var isStartSpaces = true;
 
             var currDigit = '\0';
-            int digitCount = 0, i;
+            int i, digitCount = 0;
 
             for (i = startPos; i < input.Length; i++)
             {
@@ -53,7 +54,7 @@ namespace Markdown.Registers
             if (digitCount < 3)
                 return null;
 
-            return new Token("", "<hr />", "", 1, i - startPos);
+            return new Token("", "<hr />", "", Priority, i - startPos);
         }
     }
 }
