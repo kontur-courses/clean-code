@@ -4,6 +4,6 @@ namespace Markdown
 {
     public interface IRule
     {
-        SortedList<int, Token> Apply(SortedList<int, Token> symbolsMap);
+        List<Token> Apply(List<Token> symbolsMap, List<TokenInformation> baseTokens);
     }
 }

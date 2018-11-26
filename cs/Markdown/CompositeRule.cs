@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 
 namespace Markdown
 {
@@ -10,9 +11,11 @@ namespace Markdown
         {
             this.rules = rules;
         }
-        public SortedList<int, Token> Apply(SortedList<int, Token> symbolsMap)
+
+
+        public List<Token> Apply(List<Token> symbolsMap, List<TokenInformation> baseTokens)
         {
-            throw new System.NotImplementedException();
+            throw new NotImplementedException();
         }
     }
 }

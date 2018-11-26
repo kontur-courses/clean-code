@@ -5,6 +5,7 @@
         Start,
         End,
         Unique,
-        Escaped
+        Escaped,
+        Ordinary
     }
 }
