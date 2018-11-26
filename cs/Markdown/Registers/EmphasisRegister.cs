@@ -32,7 +32,7 @@ namespace Markdown
             int nestedTagNum = 0;
             endIndex = input.IndexOf(suffixDigit, startPos + suffixLength);
 
-            while (endIndex != -1 && endIndex - startPos != 1)
+            while (endIndex != -1)
             {
                 if (CheckSuffixCorrect(input, endIndex, suffixDigit))
                 {
@@ -59,11 +59,21 @@ namespace Markdown
             if (suffixDigit == null)
                 return false;
 
-            if (startPos + suffixLength == input.Length || Char.IsWhiteSpace(input[startPos + suffixLength]))
+            var shiftLeft = startPos;
+            while (shiftLeft >= 0 && input.IndexOf(suffixDigit, shiftLeft) == shiftLeft)
+                shiftLeft--;
+            shiftLeft++;
+
+            var shiftRight = startPos;
+            while (shiftLeft < input.Length && input.IndexOf(suffixDigit, shiftRight) == shiftRight)
+                shiftRight++;
+            shiftRight--;
+
+            if (shiftRight + suffixLength == input.Length || Char.IsWhiteSpace(input[shiftRight + suffixLength]))
                 return false;
 
-            if (Char.IsPunctuation(input[startPos + suffixLength])
-                && (startPos != 0 && !Char.IsWhiteSpace(input[startPos - 1]) && !Char.IsPunctuation(input[startPos - 1])))
+            if (Char.IsPunctuation(input[shiftRight + suffixLength])
+                && (shiftLeft != 0 && !Char.IsWhiteSpace(input[shiftLeft - 1]) && !Char.IsPunctuation(input[shiftLeft - 1])))
                 return false;
 
             if (startPos > 0 && input[startPos - 1] == '\\')        
@@ -80,13 +90,23 @@ namespace Markdown
             if (suffixDigit == null)
                 return false;
 
-            if (startPos == 0 || Char.IsWhiteSpace(input[startPos - 1]))
+            var shiftLeft = startPos;
+            while (shiftLeft >= 0 && input.IndexOf(suffixDigit, shiftLeft) == shiftLeft)
+                shiftLeft--;
+            shiftLeft++;
+
+            var shiftRight = startPos;
+            while (shiftLeft < input.Length && input.IndexOf(suffixDigit, shiftRight) == shiftRight)
+                shiftRight++;
+            shiftRight--;
+
+            if (shiftLeft == 0 || Char.IsWhiteSpace(input[shiftLeft - 1]))
                 return false;
 
-            if (Char.IsPunctuation(input[startPos - 1])
-                && (startPos + suffixLength != input.Length 
-                    && !Char.IsWhiteSpace(input[startPos + suffixLength]) 
-                    && !Char.IsPunctuation(input[startPos + suffixLength])))
+            if (Char.IsPunctuation(input[shiftLeft - 1])
+                && (shiftRight + suffixLength != input.Length 
+                    && !Char.IsWhiteSpace(input[shiftRight + suffixLength]) 
+                    && !Char.IsPunctuation(input[shiftRight + suffixLength])))
                 return false;
 
             if (input[startPos - 1] == '\\')        // TODO подумать над проверкой входящих параметров
