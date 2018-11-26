@@ -1,4 +1,6 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
+using System.Linq;
 using System.Text;
 
 namespace Markdown
@@ -18,44 +20,65 @@ namespace Markdown
 
         public string Render(string input)
         {
-            return Parse(input, false);
-        }
+            StringBuilder htmlText = new StringBuilder();
+            List<Token> blockTags = GetBlockTags(input);        // Гуд
 
-        private Token TryGetToken(string strData, int startPosIndex, bool isInline)
-        {
-            Token token = null;
-            var readers = isInline ? inlineReaders : blockReaders;
-
-            foreach (var reader in readers)
+            foreach (var tag in blockTags)
             {
-                var t = reader.TryGetToken(strData, startPosIndex);
-
-                if (token == null || t != null && (t.Shift > token.Shift
-                                                   || t.Shift == token.Shift && t.Priority > token.Priority))
-                    token = t;
+                htmlText.Append(tag.OpenTag);
+                htmlText.Append(ParseToHtml(tag.Value));
+                htmlText.Append(tag.CloseTag);
             }
-            return token;
+            return htmlText.ToString();
         }
 
-        private string Parse(string input, bool isInline)
+        private List<Token> GetBlockTags(string input)
         {
-            StringBuilder result = new StringBuilder();
+            List<Token> tags = new List<Token>();
 
             for (int i = 0; i < input.Length; i++)
             {
-                var token = TryGetToken(input, i, isInline);
+                var token = blockReaders
+                    .Select(r => r.TryGetToken(input, i))
+                    .Where(t => t != null)
+                    .OrderByDescending(t => t.Shift)
+                        .ThenByDescending(t => t.Priority)
+                    .FirstOrDefault();
+
                 if (token != null)
                 {
-                    result.Append(token.OpenTag);
-                    result.Append(Parse(token.Value, true));
-                    result.Append(token.CloseTag);
+                    tags.Add(token);
+                    i += token.Shift - 1;
+                }
+            }
+            return tags;
+        }
+
+        private string ParseToHtml(string input)
+        {
+            StringBuilder htmlText = new StringBuilder();
+
+            for (int i = 0; i < input.Length; i++)
+            {
+                var token = inlineReaders
+                    .Select(r => r.TryGetToken(input, i))
+                    .Where(t => t != null)
+                    .OrderByDescending(t => t.Shift)
+                        .ThenByDescending(t => t.Priority)
+                    .FirstOrDefault();
+
+                if (token != null)
+                {
+                    htmlText.Append(token.OpenTag);
+                    htmlText.Append(ParseToHtml(token.Value));
+                    htmlText.Append(token.CloseTag);
 
                     i += token.Shift - 1;
                 }
                 else
-                    result.Append(input[i]);
+                    htmlText.Append(input[i]);
             }
-            return result.ToString();
+            return htmlText.ToString();
         }
     }
 }
