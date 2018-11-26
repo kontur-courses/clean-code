@@ -5,16 +5,24 @@ namespace Markdown
     public static class StringExtensions
     {
         public static int GetIndexOfCloseTag(this string str, string word, int startPos)       
-        {
-            int endIndex = -1;
-            for (int i = startPos; i <= str.Length - word.Length; i++)
+        {   /*
+            Найти первое вхождение
+                Если не нашел - вернуть -1
+            Идти вправо пока не закончится суффикс
+
+
+            */
+
+
+            int endIndex = str.IndexOf(word, startPos);
+            /*for (int i = startPos; i <= str.Length - word.Length; i++)
             {
                 if (str.IndexOf(word, i) != -1)
                 {
                     if (!(Char.IsWhiteSpace(str[i - 1]) || str[i - 1] == '\\'))
                         endIndex = i;
                 }
-            }
+            }*/
             return endIndex;
         }
 
