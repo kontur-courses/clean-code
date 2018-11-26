@@ -6,7 +6,7 @@ namespace Markdown
 {
     public class TokenValidator
     {
-        public IEnumerable<Paragraph> GetParagraphsWithValidTokens(IEnumerable<SingleToken> tokens, string mdText)
+        public List<Paragraph> GetParagraphsWithValidTokens(IEnumerable<SingleToken> tokens, string mdText)
         {
             var paragraphs = SeparateByParagraphs(tokens, mdText);
             paragraphs = FillParagraphWithValidTokens(paragraphs);
@@ -15,7 +15,7 @@ namespace Markdown
             return paragraphs;
         }
 
-        private IEnumerable<Paragraph> WrapParagraphInMarkedList(IEnumerable<Paragraph> paragraphs)
+        private List<Paragraph> WrapParagraphInMarkedList(IEnumerable<Paragraph> paragraphs)
         {
             var wrappedParagraphs = new List<Paragraph>();
 
@@ -30,6 +30,7 @@ namespace Markdown
                     wrappedParagraph.ValidTokens.Add(new SingleToken(markedListType, 0, LocationType.Opening));
                 if (wrappedParagraph.StartingTokenType != TokenTypeEnum.Star && lastParagraph != null && lastParagraph.StartingTokenType == TokenTypeEnum.Star)
                     lastParagraph.ValidTokens.Add(new SingleToken(markedListType, wrappedParagraph.End - wrappedParagraph.Start, LocationType.Closing));
+
                 lastParagraph = wrappedParagraph;
                 wrappedParagraphs.Add(wrappedParagraph);
             }
@@ -39,7 +40,7 @@ namespace Markdown
             return wrappedParagraphs;
         }
 
-        private IEnumerable<Paragraph> SeparateByParagraphs(IEnumerable<SingleToken> tokens, string mdText)
+        private List<Paragraph> SeparateByParagraphs(IEnumerable<SingleToken> tokens, string mdText)
         {
             var paragraphs = new List<Paragraph>();
 
@@ -84,7 +85,7 @@ namespace Markdown
             return paragraphs;
         }
 
-        private IEnumerable<Paragraph> FillParagraphWithValidTokens(IEnumerable<Paragraph> paragraphs)
+        private List<Paragraph> FillParagraphWithValidTokens(IEnumerable<Paragraph> paragraphs)
         {
             var filledParagraphs = new List<Paragraph>();
 
