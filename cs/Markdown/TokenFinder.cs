@@ -24,8 +24,9 @@ namespace Markdown
 
             var startingIsPossible = true;
 
-            var inlineTokenTypes = new List<TokenType>(tokensTypes
-                .Where(t => t.TokenLocationType == TokenLocationType.InlineToken));
+            var inlineTokenTypes = tokensTypes
+                .Where(t => t.TokenLocationType == TokenLocationType.InlineToken)
+                .ToList();
 
             for (var index = 0; index < paragraph.Length; index++)
             {
