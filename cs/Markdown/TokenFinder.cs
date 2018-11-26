@@ -72,7 +72,7 @@ namespace Markdown
         {
             if (!TryGetWordFromThisPosition(paragraph, index, out var word)) return null;
 
-            TryMatchWordToStartingTokens(word, index, new HashSet<TokenType>(),
+            TryMatchWordToStartingTokens(word, index,
                 tokensTypes.Where(t => t.TokenLocationType == TokenLocationType.StartingToken),
                 out var startingToken);
 
@@ -96,11 +96,11 @@ namespace Markdown
             return word.Length > 0;
         }
 
-        private bool TryMatchWordToStartingTokens(string word, int currentIndex, HashSet<TokenType> usedTokens,
+        private bool TryMatchWordToStartingTokens(string word, int currentIndex,
             IEnumerable<TokenType> startingTokensTypes, out SingleToken token)
         {
             foreach (var startingTokenType in startingTokensTypes)
-                if (!usedTokens.Contains(startingTokenType) && startingTokenType.Template == word)
+                if (startingTokenType.Template == word)
                 {
                     token = new SingleToken(startingTokenType, currentIndex, LocationType.Single);
                     return true;
