@@ -36,6 +36,24 @@ namespace Markdown
         {
             return tokens.FirstOrDefault(token => token.ValidOpeningPosition(text, startIndex));
         }
+        public static (TokenType OpeningToken, TokenType ClosingToken) GetOpenAndClosingToken(this IEnumerable<TokenType> tokens, string text, int startIndex)
+        {
+            TokenType openingToken = null;
+            TokenType closingToken = null;
+
+            foreach (var token in tokens)
+            {
+                if (openingToken == null && ValidOpeningPosition(token, text, startIndex))
+                    openingToken = token;
+                if (closingToken == null && ValidClosingPosition(token, text, startIndex))
+                    closingToken = token;
+
+                if (openingToken != null && closingToken != null)
+                    break;
+            }
+
+            return (openingToken, closingToken);
+        }
 
         private static bool HasWhitespaceAfterToken(this TokenType tokenType, string text, int startIndex)
         {

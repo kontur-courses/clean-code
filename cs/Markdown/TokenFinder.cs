@@ -23,17 +23,17 @@ namespace Markdown
             var tokens = new List<SingleToken>();
 
             var startingIsPossible = true;
-            var inlineTokenTypes = tokensTypes.Where(t => t.TokenLocationType == TokenLocationType.InlineToken);
 
             for (var index = 0; index < paragraph.Length; index++)
             {
-                var openingToken = inlineTokenTypes.GetOpeningToken(paragraph, index);
-                var closingToken = inlineTokenTypes.GetClosingToken(paragraph, index);
+                var openingAndClosingTokens = tokensTypes
+                    .Where(t => t.TokenLocationType == TokenLocationType.InlineToken)
+                    .GetOpenAndClosingToken(paragraph, index);
 
-                if (openingToken != null)
-                    tokens.Add(new SingleToken(openingToken, index, LocationType.Opening));
-                if (closingToken != null)
-                    tokens.Add(new SingleToken(closingToken, index, LocationType.Closing));
+                if (openingAndClosingTokens.OpeningToken != null)
+                    tokens.Add(new SingleToken(openingAndClosingTokens.OpeningToken, index, LocationType.Opening));
+                if (openingAndClosingTokens.ClosingToken != null)
+                    tokens.Add(new SingleToken(openingAndClosingTokens.ClosingToken, index, LocationType.Closing));
 
                 if (startingIsPossible)
                 {

@@ -15,6 +15,17 @@ namespace Markdown
             ValidTokens = new List<SingleToken>();
         }
 
+        public Paragraph(Paragraph paragraph)
+        {
+            InlineTokens = paragraph.InlineTokens;
+            StartingTokens = paragraph.StartingTokens;
+            Start = paragraph.Start;
+            End = paragraph.End;
+            MdText = paragraph.MdText;
+            StartingTokenType = paragraph.StartingTokenType;
+            ValidTokens = paragraph.ValidTokens;
+        }
+
         public string MdText { get; }
         public List<SingleToken> InlineTokens { get; }
         public List<SingleToken> StartingTokens { get; }
