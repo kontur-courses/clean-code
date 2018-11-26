@@ -140,7 +140,7 @@ namespace Markdown
 
             var currentToken = tokens.First;
 
-            tokens.AddLast(new PairedTagToken(Text.Length, 0, "",""));
+            tokens.AddLast(new PairedTagToken(Text.Length, 0, "", ""));
             var start = 0;
             while (currentToken != null)
             {

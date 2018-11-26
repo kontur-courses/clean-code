@@ -25,6 +25,5 @@ namespace Markdown
         public override string Value { get; set; }
         public override List<Token> InnerTokens { get; set; }
         public override Token ParentToken { get; set; }
-
     }
 }

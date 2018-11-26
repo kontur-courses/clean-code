@@ -9,7 +9,6 @@ namespace Markdown
         public Md(HtmlCreator creator)
         {
             this.creator = creator;
-            
         }
 
         public string Render(string rawText)

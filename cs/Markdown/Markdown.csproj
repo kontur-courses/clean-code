@@ -53,7 +53,6 @@
     <Compile Include="Delimiter.cs" />
     <Compile Include="HtmlCreator.cs" />
     <Compile Include="ILexerRule.cs" />
-    <Compile Include="ListExtensions.cs" />
     <Compile Include="Md.cs" />
     <Compile Include="CharExtensions.cs" />
     <Compile Include="PairedTagRule.cs" />

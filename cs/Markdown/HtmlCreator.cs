@@ -17,8 +17,8 @@ namespace Markdown
         {
             switch (token)
             {
-                case StringToken stringToken:
-                    return stringToken.Value;
+                case StringToken _:
+                    return token.Value;
                 case PairedTagToken tagToken:
                 {
                     var (opening, closing) = fullTagToRenderMapping[tagToken.FullTag];
@@ -30,11 +30,12 @@ namespace Markdown
                         var renderedToken = RenderToken(innerToken);
                         var position = innerToken.Position - token.Position;
                         text =
-                            $"{text.Substring(0, position)}{renderedToken}{text.Substring(position+ innerToken.Length)}";
+                            $"{text.Substring(0, position)}{renderedToken}{text.Substring(position + innerToken.Length)}";
                     }
 
+                    var tagLength = tagToken.FullTag.Length;
                     return
-                        $"{opening}{text.Substring(tagToken.FullTag.Length, text.Length - 2 * tagToken.FullTag.Length)}{closing}";
+                        $"{opening}{text.Substring(tagLength, text.Length - 2 * tagLength)}{closing}";
                 }
                 default:
                     return "";

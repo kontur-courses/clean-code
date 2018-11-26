@@ -1,4 +1,7 @@
-﻿using FluentAssertions;
+﻿using System;
+using System.Text;
+using FluentAssertions;
+using FluentAssertions.Specialized;
 using NUnit.Framework;
 
 namespace Markdown.Tests
@@ -25,6 +28,29 @@ namespace Markdown.Tests
             parser.Render(text)
                   .Should()
                   .BeEquivalentTo(renderedText);
+        }
+
+        [Test]
+        public void FAST()
+        {
+            var s = new StringBuilder();
+            var s2 = new StringBuilder();
+            for (int i = 0; i < 100000; i++)
+            {
+                var t = i % 2 == 0 ? "_" : "__";
+                s.Append($" {t}ab{i}cd{t} ");
+                var t2 = i % 2 == 0 ? "em" : "strong";
+                s2.Append($" <{t2}>ab{i}cd</{t2}> ");
+            }
+
+            var text = s.ToString();
+            var render = s2.ToString();
+
+            void Rendering() => parser.Render(text);
+
+            new ExecutionTimeAssertions(Rendering).ShouldNotExceed(new TimeSpan(0,0,0,2));
+            parser.Render(text).ShouldBeEquivalentTo(render);
+
         }
     }
 }
