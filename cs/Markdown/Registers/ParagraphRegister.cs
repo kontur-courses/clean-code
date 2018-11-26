@@ -5,7 +5,7 @@ namespace Markdown
     class ParagraphRegister : IReadable
     {
         string[] tags = { "<p>", "</p>" };
-        int priority = 1;
+        int priority = 0;
 
         public Token TryGetToken(string input, int startPos)
         {

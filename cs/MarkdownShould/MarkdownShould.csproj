@@ -41,7 +41,6 @@
     <Compile Include="Md_Should.cs" />
     <Compile Include="ParagraphRegister_Should.cs" />
     <Compile Include="Program.cs" />
-    <Compile Include="StringExtensions_Should.cs" />
     <Compile Include="StrongRegister_Should.cs" />
   </ItemGroup>
   <ItemGroup>

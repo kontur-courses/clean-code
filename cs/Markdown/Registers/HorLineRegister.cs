@@ -53,7 +53,7 @@ namespace Markdown
             if (digitCount < 3)
                 return null;
 
-            return new Token("", "<hr>", "", 0, i - startPos); 
+            return new Token("", "<hr />", "", 1, i - startPos); 
         }
     }
 }

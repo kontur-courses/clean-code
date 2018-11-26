@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.Linq;
 
 namespace Markdown
@@ -17,66 +16,59 @@ namespace Markdown
                 return null;
 
             var supposedPrefix = input.Substring(startPos, suffixLength);
-            string suffixDigit = suffixes.Contains(supposedPrefix) ? supposedPrefix : null;
+            string suffixDelimiter = suffixes.Contains(supposedPrefix) ? supposedPrefix : null;
 
-            if (CheckPrefixCorrect(input, startPos, suffixDigit) && GetSuffixIndex(input, startPos, suffixDigit, out var endIndex))
+            if (CheckPrefixCorrect(input, startPos, suffixDelimiter) && GetSuffixIndex(input, startPos, suffixDelimiter, out var suffIndex))
             {
-                var strValue = input.Substring(startPos + suffixLength, endIndex - suffixLength - startPos);
-                return new Token(strValue, tags[0], tags[1], priority, endIndex - startPos + suffixLength);
+                var strValue = input.Substring(startPos + suffixLength, suffIndex - suffixLength - startPos);
+                return new Token(strValue, tags[0], tags[1], priority, suffIndex - startPos + suffixLength);
             }
             return null;            
         }
 
-        private bool GetSuffixIndex(string input, int startPos, string suffixDigit, out int endIndex)
+        private bool GetSuffixIndex(string input, int startPos, string suffixDelimiter, out int suffIndex)
         {
-            int nestedTagNum = 0;
-            endIndex = input.IndexOf(suffixDigit, startPos + suffixLength);
+            int nestedTagCount = 0;
+            suffIndex = input.IndexOf(suffixDelimiter, startPos + suffixLength);
 
-            while (endIndex != -1)
+            while (suffIndex != -1)
             {
-
-
-                if (CheckSuffixCorrect(input, endIndex, suffixDigit))
+                if (CheckSuffixCorrect(input, suffIndex, suffixDelimiter))
                 {
-                    if (nestedTagNum > 0)
+                    if (nestedTagCount > 0)
                     {
-                        nestedTagNum--;
-                        endIndex = input.IndexOf(suffixDigit, endIndex + suffixLength);
+                        nestedTagCount--;
+                        suffIndex = input.IndexOf(suffixDelimiter, suffIndex + suffixLength);
                         continue;
                     }
                     return true;
                 }
 
-                if (CheckPrefixCorrect(input, endIndex, suffixDigit))
+                if (CheckPrefixCorrect(input, suffIndex, suffixDelimiter))
                 {
-                    nestedTagNum++;
-                    endIndex = input.IndexOf(suffixDigit, endIndex + suffixLength);
+                    nestedTagCount++;
+                    suffIndex = input.IndexOf(suffixDelimiter, suffIndex + suffixLength);
                     continue;
                 }
-
-                endIndex = input.IndexOf(suffixDigit, endIndex + 1);
+                suffIndex = input.IndexOf(suffixDelimiter, suffIndex + 1);
             } 
-
             return false;
         }
 
-        private bool CheckPrefixCorrect(string input, int startPos, string suffixDigit)
+        private bool CheckPrefixCorrect(string input, int startPos, string suffixDelimiter)
         {
-            if (suffixDigit == null)
+            if (suffixDelimiter == null)
                 return false;
 
             var shiftLeft = startPos;
-            while (shiftLeft >= 0 && input.IndexOf(suffixDigit, shiftLeft) == shiftLeft)
+            while (shiftLeft >= 0 && input.IndexOf(suffixDelimiter, shiftLeft) == shiftLeft)
                 shiftLeft--;
             shiftLeft++;
 
             var shiftRight = startPos;
-            while (shiftLeft < input.Length && input.IndexOf(suffixDigit, shiftRight) == shiftRight)
+            while (shiftLeft < input.Length && input.IndexOf(suffixDelimiter, shiftRight) == shiftRight)
                 shiftRight++;
             shiftRight--;
-
-            //if (suffixLength == 1 && shiftRight - shiftLeft == 1)
-            //    return false;
 
             if (shiftRight + suffixLength == input.Length || Char.IsWhiteSpace(input[shiftRight + suffixLength]))
                 return false;
@@ -88,30 +80,30 @@ namespace Markdown
             if (startPos > 0 && input[startPos - 1] == '\\')        
                 return false;
 
-            if (suffixDigit == suffixes[1] 
+            if (suffixDelimiter == suffixes[1] 
                 && shiftLeft > 0 && Char.IsLetterOrDigit(input[shiftLeft - 1]) 
                 && shiftRight + suffixLength != input.Length && Char.IsLetterOrDigit(input[shiftRight + suffixLength]))
                 return false;
             return true;
         }
 
-        private bool CheckSuffixCorrect(string input, int startPos, string suffixDigit)
+        private bool CheckSuffixCorrect(string input, int startPos, string suffixDelimiter)
         {
-            if (suffixDigit == null)
+            if (suffixDelimiter == null)
                 return false;
 
             var shiftLeft = startPos;
-            while (shiftLeft >= 0 && input.IndexOf(suffixDigit, shiftLeft) == shiftLeft)
+            while (shiftLeft >= 0 && input.IndexOf(suffixDelimiter, shiftLeft) == shiftLeft)
                 shiftLeft--;
             shiftLeft++;
 
             var shiftRight = startPos;
-            while (shiftLeft < input.Length && input.IndexOf(suffixDigit, shiftRight) == shiftRight)
+            while (shiftLeft < input.Length && input.IndexOf(suffixDelimiter, shiftRight) == shiftRight)
                 shiftRight++;
             shiftRight--;
 
 
-            if (suffixLength == 1 && shiftRight - shiftLeft == 1 && shiftLeft == startPos && CheckPrefixCorrect(input, startPos, suffixDigit))
+            if (suffixLength == 1 && shiftRight - shiftLeft == 1 && shiftLeft == startPos && CheckPrefixCorrect(input, startPos, suffixDelimiter))
                 return false;
 
 
@@ -124,12 +116,9 @@ namespace Markdown
                     && !Char.IsPunctuation(input[shiftRight + suffixLength])))
                 return false;
 
-            if (input[startPos - 1] == '\\')        // TODO подумать над проверкой входящих параметров
+            if (input[startPos - 1] == '\\')       
                 return false;
 
-            //if (suffixDigit == suffixes[1] && (CheckSuffixCorrect(input, startPos, suffixDigit) &&
-            //                                   Char.IsPunctuation(input[startPos - 1])))
-            //    return false;
             return true;
         }
     }

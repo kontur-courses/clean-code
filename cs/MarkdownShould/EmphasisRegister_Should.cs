@@ -30,7 +30,7 @@ namespace MarkdownShould
         [TestCase("* a *", ExpectedResult = "<p>* a *</p>")]
         [TestCase("foo_bar_", ExpectedResult = "<p>foo_bar_</p>")]
         [TestCase("_foo*", ExpectedResult = "<p>_foo*</p>")]
-        public string NotBeWithEmphasisTag(string input)
+        public string BeWithoutEmphasisTag(string input)
         {
             return parser.Render(input);
         }
