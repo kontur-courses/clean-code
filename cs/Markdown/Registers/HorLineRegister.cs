@@ -1,28 +1,28 @@
 ﻿using System.Collections.Generic;
 
-namespace Markdown
+namespace Markdown.Registers
 {
-    class HorLineRegister : IReadable
+    internal class HorLineRegister : BaseReader
     {
-        readonly HashSet<char> ableDigits = new HashSet<char>(new [] { '*', '-', '_' });
+        private readonly HashSet<char> ableDigits = new HashSet<char>(new[] {'*', '-', '_'});
 
-        public Token TryGetToken(string input, int startPos)
+        public override bool IsBlockRegister => true;
+
+        public override Token TryGetToken(string input, int startPos)
         {
-            bool isStartSpaces = true;
-            
-            char currDigit = '\0';
+            var isStartSpaces = true;
+
+            var currDigit = '\0';
             int digitCount = 0, i;
 
             for (i = startPos; i < input.Length; i++)
             {
                 if (input[i] == ' ')
                 {
-                    if (isStartSpaces && i == 3)
-                    {
-                        return null;
-                    }
+                    if (isStartSpaces && i == 3) return null;
                     continue;
                 }
+
                 isStartSpaces = false;
 
                 if (currDigit == '\0')
@@ -53,7 +53,7 @@ namespace Markdown
             if (digitCount < 3)
                 return null;
 
-            return new Token("", "<hr />", "", 1, i - startPos); 
+            return new Token("", "<hr />", "", 1, i - startPos);
         }
     }
 }

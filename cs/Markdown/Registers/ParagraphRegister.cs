@@ -1,27 +1,29 @@
 ﻿using System.Linq;
 
-namespace Markdown
+namespace Markdown.Registers
 {
-    class ParagraphRegister : IReadable
+    internal class ParagraphRegister : BaseRegister
     {
-        string[] tags = { "<p>", "</p>" };
-        int priority = 0;
+        private readonly string prefix = "<p>";
+        private readonly string suffix = "</p>";
+        private readonly int priority = 0;
 
-        public Token TryGetToken(string input, int startPos)
+        public override bool IsBlockRegister => true;
+
+        public override Token TryGetToken(string input, int startPos)
         {
             string res;
 
-            for (int i = startPos; i < input.Length - 1; i++)
-            {
+            for (var i = startPos; i < input.Length - 1; i++)
                 if (input[i] == '\n' && input[i + 1] == '\n')
                 {
                     res = input.Substring(startPos, i - startPos)
                         .Split('\n')
                         .Select(str => str.TrimStart(' ', '\r'))
                         .Aggregate((sum, s) => sum + '\n' + s);
-                    return new Token(res, tags[0], tags[1] +'\n', priority, i - startPos + 1);
+                    return new Token(res, prefix, suffix + '\n', priority, i - startPos + 1);
                 }
-            }
+
             res = input.Substring(startPos, input.Length - startPos)
                 .Split('\n')
                 .Select(str => str.TrimStart(' ', '\r'))
@@ -31,7 +33,7 @@ namespace Markdown
             if (res == "")
                 return new Token("", "", "", 1, input.Length - startPos);
 
-            return new Token(res, tags[0], tags[1], priority, input.Length - startPos); 
+            return new Token(res, prefix, suffix, priority, input.Length - startPos);
         }
     }
 }

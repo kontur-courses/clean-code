@@ -1,48 +1,52 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using Markdown.Registers;
 
 namespace Markdown
 {
     public class Md
     {
-        private readonly List<IReadable> blockReaders;
-        private readonly List<IReadable> inlineReaders;
+        private readonly List<BaseReader> readers;
 
         public Md()
         {
-            blockReaders = new List<IReadable> {new ParagraphRegister(),
-                                                new HorLineRegister()};
-            inlineReaders = new List<IReadable> {new StrongRegister(),
-                                                 new EmphasisRegister()};
+            readers = new List<BaseReader>
+            {
+                new ParagraphRegister(),
+                new HorLineRegister(),
+                new StrongRegister(),
+                new EmphasisRegister()
+            };
         }
 
         public string Render(string input)
         {
-            StringBuilder htmlText = new StringBuilder();
-            List<Token> blockTags = GetBlockTags(input);        // Гуд
+            var resHtmlText = new StringBuilder();
+            var blockTags = GetBlockTags(input); 
 
             foreach (var tag in blockTags)
             {
-                htmlText.Append(tag.OpenTag);
-                htmlText.Append(ParseToHtml(tag.Value));
-                htmlText.Append(tag.CloseTag);
+                resHtmlText.Append(tag.OpenTag);
+                resHtmlText.Append(ParseToHtml(tag.Value));
+                resHtmlText.Append(tag.CloseTag);
             }
-            return htmlText.ToString();
+
+            return resHtmlText.ToString();
         }
 
         private List<Token> GetBlockTags(string input)
         {
-            List<Token> tags = new List<Token>();
+            var tags = new List<Token>();
 
-            for (int i = 0; i < input.Length; i++)
+            for (var i = 0; i < input.Length; i++)
             {
-                var token = blockReaders
+                var token = readers
+                    .Where(r => r.IsBlockRegister)
                     .Select(r => r.TryGetToken(input, i))
                     .Where(t => t != null)
                     .OrderByDescending(t => t.Shift)
-                        .ThenByDescending(t => t.Priority)
+                    .ThenByDescending(t => t.Priority)
                     .FirstOrDefault();
 
                 if (token != null)
@@ -56,15 +60,16 @@ namespace Markdown
 
         private string ParseToHtml(string input)
         {
-            StringBuilder htmlText = new StringBuilder();
+            var htmlText = new StringBuilder();
 
-            for (int i = 0; i < input.Length; i++)
+            for (var i = 0; i < input.Length; i++)
             {
-                var token = inlineReaders
+                var token = readers
+                    .Where(r => !r.IsBlockRegister)
                     .Select(r => r.TryGetToken(input, i))
                     .Where(t => t != null)
                     .OrderByDescending(t => t.Shift)
-                        .ThenByDescending(t => t.Priority)
+                    .ThenByDescending(t => t.Priority)
                     .FirstOrDefault();
 
                 if (token != null)
@@ -76,8 +81,11 @@ namespace Markdown
                     i += token.Shift - 1;
                 }
                 else
+                {
                     htmlText.Append(input[i]);
+                }
             }
+
             return htmlText.ToString();
         }
     }

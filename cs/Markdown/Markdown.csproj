@@ -51,9 +51,10 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Registers\DelimeterRunRegister.cs" />
     <Compile Include="Registers\EmphasisRegister.cs" />
     <Compile Include="Registers\HorLineRegister.cs" />
-    <Compile Include="IReadable.cs" />
+    <Compile Include="BaseReader.cs" />
     <Compile Include="Md.cs" />
     <Compile Include="Registers\ParagraphRegister.cs" />
     <Compile Include="Program.cs" />

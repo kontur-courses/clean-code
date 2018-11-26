@@ -1,15 +1,10 @@
-﻿using System.Collections.Generic;
-
-namespace Markdown
+﻿namespace Markdown.Registers
 {
-    class StrongRegister : EmphasisRegister
+    internal class StrongRegister : DelimeterRunRegister
     {
-        public StrongRegister()
-        {
-            suffixLength = 2;
-            suffixes = new []{ "**", "__" }; 
-            priority = 1;
-            tags = new [] { "<strong>", "</strong>" };
-        }
+        protected override int DelimLen => 2;
+        protected override int Priority => 1;
+        protected override string Prefix => "<strong>";
+        protected override string Suffix => "</strong>";
     }
 }
