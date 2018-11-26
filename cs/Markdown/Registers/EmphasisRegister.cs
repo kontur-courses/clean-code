@@ -34,12 +34,17 @@ namespace Markdown
 
             while (endIndex != -1)
             {
+
+
                 if (CheckSuffixCorrect(input, endIndex, suffixDigit))
                 {
                     if (nestedTagNum > 0)
+                    {
                         nestedTagNum--;
-                    else
-                        return true;
+                        endIndex = input.IndexOf(suffixDigit, endIndex + suffixLength);
+                        continue;
+                    }
+                    return true;
                 }
 
                 if (CheckPrefixCorrect(input, endIndex, suffixDigit))
@@ -48,6 +53,7 @@ namespace Markdown
                     endIndex = input.IndexOf(suffixDigit, endIndex + suffixLength);
                     continue;
                 }
+
                 endIndex = input.IndexOf(suffixDigit, endIndex + 1);
             } 
 
@@ -69,6 +75,9 @@ namespace Markdown
                 shiftRight++;
             shiftRight--;
 
+            //if (suffixLength == 1 && shiftRight - shiftLeft == 1)
+            //    return false;
+
             if (shiftRight + suffixLength == input.Length || Char.IsWhiteSpace(input[shiftRight + suffixLength]))
                 return false;
 
@@ -79,9 +88,10 @@ namespace Markdown
             if (startPos > 0 && input[startPos - 1] == '\\')        
                 return false;
 
-            //if (suffixDigit == suffixes[1] && (CheckSuffixCorrect(input, startPos, suffixDigit) &&
-            //                                   Char.IsPunctuation(input[startPos - 1])))
-            //    return false;
+            if (suffixDigit == suffixes[1] 
+                && shiftLeft > 0 && Char.IsLetterOrDigit(input[shiftLeft - 1]) 
+                && shiftRight + suffixLength != input.Length && Char.IsLetterOrDigit(input[shiftRight + suffixLength]))
+                return false;
             return true;
         }
 
@@ -99,6 +109,11 @@ namespace Markdown
             while (shiftLeft < input.Length && input.IndexOf(suffixDigit, shiftRight) == shiftRight)
                 shiftRight++;
             shiftRight--;
+
+
+            if (suffixLength == 1 && shiftRight - shiftLeft == 1 && shiftLeft == startPos && CheckPrefixCorrect(input, startPos, suffixDigit))
+                return false;
+
 
             if (shiftLeft == 0 || Char.IsWhiteSpace(input[shiftLeft - 1]))
                 return false;
