@@ -1,10 +1,12 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Diagnostics;
+using System.Linq;
 using System.Text;
 using FluentAssertions;
 using MathNet.Numerics;
 using NUnit.Framework;
+
 
 namespace Markdown.Tests
 {
@@ -138,12 +140,10 @@ namespace Markdown.Tests
                 stopwatch.Reset();
             }
 
-            var coeffQuadraticEquation = Fit.Polynomial(times.ToArray(), lengths.ToArray(), 2);
-            Console.WriteLine(coeffQuadraticEquation[0]);
-            Console.WriteLine(
-                string.Join(", ", times)
-            );
-            //Assert.That(coeffQuadraticEquation[0] < 1e-2);
+            var coeffQuadraticEquation = Fit.Polynomial(lengths.ToArray(), times.ToArray(), 2);
+  
+            Assert.That(coeffQuadraticEquation[2] < 1e-2);
         }
+
     }
 }
