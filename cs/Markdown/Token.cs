@@ -6,7 +6,6 @@ namespace Markdown
     public class Token
     {
         public int Position { get; }
-        public int Length => value.Length;
         private readonly StringBuilder value = new StringBuilder();
         public string Value => value.ToString();
         public Token Parent { get; private set; }

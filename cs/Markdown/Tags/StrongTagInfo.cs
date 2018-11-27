@@ -13,7 +13,8 @@ namespace Markdown
             && w[1] == '_'
             && !char.IsWhiteSpace(w[2]);
         public Predicate<StringView> EndCondition =>
-            w => w[0] == '_'
+            w => !char.IsWhiteSpace(w[-1])
+            && w[0] == '_'
             && w[1] == '_';
 
         public Action<TagReader> OnTagStart =>
