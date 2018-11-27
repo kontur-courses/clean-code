@@ -17,7 +17,7 @@ namespace Markdown
             this.rootToken = rootToken;
         }
 
-        public bool TryAddNewToken(TagInfo tag, int position)
+        public bool TryAddNewToken(ITagInfo tag, int position)
         {
             var currentToken = rootToken;
             while (currentToken.Child != null)

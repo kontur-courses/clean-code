@@ -11,9 +11,9 @@ namespace Markdown
         public string Value => value.ToString();
         public Token Parent { get; private set; }
         public Token Child { get; private set; }
-        public TagInfo Tag { get; }
+        public ITagInfo Tag { get; }
 
-        public Token(int position, TagInfo tag)
+        public Token(int position, ITagInfo tag)
 		{
             Position = position;
             Tag = tag;

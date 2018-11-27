@@ -6,22 +6,26 @@ using System.Threading.Tasks;
 
 namespace Markdown
 {
-    public class StrongTagInfo : TagInfo
+    public class StrongTagInfo : ITagInfo
     {
-        public override Predicate<StringView> StartCondition =>
+        public Predicate<StringView> StartCondition =>
             w => w[0] == '_'
             && w[1] == '_'
             && !char.IsWhiteSpace(w[2]);
-        public override Predicate<StringView> EndCondition =>
+        public Predicate<StringView> EndCondition =>
             w => w[0] == '_'
             && w[1] == '_';
 
-        public override Action<TagReader> OnTagStart =>
+        public Action<TagReader> OnTagStart =>
             t => t.SkipAndAdd(TagLength);
 
-        public override Action<TagReader> OnTagEnd =>
+        public Action<TagReader> OnTagEnd =>
             t => t.SkipAndAdd(TagLength);
-        public override string HtmlTagText => "strong";
-        public override int TagLength => 2;
+        public string HtmlTagText => "strong";
+        public int TagLength => 2;
+        public Token GetNewToken(int position)
+        {
+            return new Token(position, this);
+        }
     }
 }

@@ -10,12 +10,12 @@ namespace Markdown
     {
         public int Position { get; private set; }
         public string Source { get; }
-        public TagInfo[] Tags { get; }
+        public ITagInfo[] Tags { get; }
         private TokenList TokenList { get; }
         private StringView StringView { get; }
 
 
-        public TagReader(string source, params TagInfo[] tags)
+        public TagReader(string source, params ITagInfo[] tags)
         {
             Source = source;
             Tags = tags;

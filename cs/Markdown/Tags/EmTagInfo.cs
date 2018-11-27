@@ -6,25 +6,29 @@ using System.Threading.Tasks;
 
 namespace Markdown
 {
-    public class EmTagInfo : TagInfo
+    public class EmTagInfo : ITagInfo
     {
-        public override Predicate<StringView> StartCondition =>
+        public Predicate<StringView> StartCondition =>
             w => w[-1] != '_'
                  && w[0] == '_'
                  && w[1] != '_'
                  && !char.IsWhiteSpace(w[1]);
 
-        public override Predicate<StringView> EndCondition =>
+        public Predicate<StringView> EndCondition =>
             w => w[0] == '_'
             && !char.IsWhiteSpace(w[-1])
             && w[1] != '_';
 
-        public override Action<TagReader> OnTagStart =>
+        public Action<TagReader> OnTagStart =>
             t => t.SkipAndAdd(TagLength);
 
-        public override Action<TagReader> OnTagEnd =>
+        public Action<TagReader> OnTagEnd =>
             t => t.SkipAndAdd(TagLength);
-        public override string HtmlTagText => "em";
-        public override int TagLength => 1;
+        public string HtmlTagText => "em";
+        public int TagLength => 1;
+        public Token GetNewToken(int position)
+        {
+            return new Token(position, this);
+        }
     }
 }
