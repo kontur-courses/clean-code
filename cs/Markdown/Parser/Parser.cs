@@ -8,14 +8,14 @@ namespace Markdown
 {
     public class Parser : IParser
     {
-        private readonly TagHandler tagHandler;
+        private readonly TokenHandler tokenHandler;
         private readonly ITagConverter tagConverter;
         private int position;
         private string str;
 
-        public Parser(TagHandler tagHandler, ITagConverter tagConverter)
+        public Parser(TokenHandler tokenHandler, ITagConverter tagConverter)
         {
-            this.tagHandler = tagHandler;
+            this.tokenHandler = tokenHandler;
             this.tagConverter = tagConverter;
         }
 
@@ -28,16 +28,17 @@ namespace Markdown
 
             this.str = str;
             position = 0;
-            return BuildTree(ImmutableStack<TokenNode>.Empty);
+
+            return BuildTree(ImmutableStack<Token>.Empty);
         }
 
-        private Tag BuildTree(ImmutableStack<TokenNode> openedTokens)
+        private Tag BuildTree(ImmutableStack<Token> openedTokens)
         {
             var nestedTags = new List<Tag>();
 
             while (position < str.Length)
             {
-                var currentToken = tagHandler.Handle(str, position, openedTokens);
+                var currentToken = tokenHandler.Handle(str, position, openedTokens);
                 position += currentToken.Value.Length;
 
                 switch (currentToken.PairType)
@@ -50,46 +51,41 @@ namespace Markdown
                         nestedTags.Add(new Tag {Type = currentToken.Type, Value = currentToken.Value});
 
                         break;
-                    case TokenPairType.Close:
+                    case TokenPairType.Close
+                        when openedTokens.IsEmpty:
 
-                        if (openedTokens.IsEmpty)
+                        return tagConverter.Convert(new Tag
                         {
-                            return tagConverter.Convert(new Tag
+                            Type = currentToken.Type,
+                            Tags = nestedTags,
+                            Value = currentToken.Value
+                        });
+                    case TokenPairType.Close
+                        when openedTokens.Peek()
+                            .Type == currentToken.Type:
+
+                        openedTokens.Pop(out var token);
+
+                        return new Tag
+                        {
+                            Type = token.Type,
+                            Tags = nestedTags,
+                            Value = token.Value
+                        };
+                    case TokenPairType.Close:
+                        nestedTags.Add(
+                            tagConverter.Convert(new Tag
                             {
                                 Type = currentToken.Type,
-                                Tags = nestedTags,
                                 Value = currentToken.Value
-                            });
-                        }
-
-                        if (openedTokens.Peek()
-                            .Type == currentToken.Type)
-                        {
-                            openedTokens.Pop(out var token);
-
-                            return new Tag
-                            {
-                                Type = token.Type,
-                                Tags = nestedTags,
-                                Value = token.Value
-                            };
-                        }
-                        else
-                        {
-                            nestedTags.Add(
-                                tagConverter.Convert(new Tag
-                                {
-                                    Type = currentToken.Type,
-                                    Value = currentToken.Value
-                                })
-                            );
-                        }
+                            })
+                        );
 
                         break;
                 }
             }
 
-            return new Tag {Type = "root", Tags = nestedTags};
+            return new Tag {Type = "root", Tags = nestedTags, IsRoot = true};
         }
     }
 }

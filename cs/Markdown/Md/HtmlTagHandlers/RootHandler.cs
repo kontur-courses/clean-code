@@ -3,13 +3,13 @@ using Markdown.Renderers;
 
 namespace Markdown.Md.HtmlTagHandlers
 {
-    public class StrongEmphasisHandler : TagHandler
+    public class RootHandler : TagHandler
     {
         public override string Handle(Tag tag, bool isOpeningTag)
         {
-            if (tag.Type == MdSpecification.StrongEmphasis)
+            if (tag.IsRoot)
             {
-                return isOpeningTag ? "<strong>" : "</strong>";
+                return isOpeningTag ? "<html>" : "</html>";
             }
 
             if (Successor == null)

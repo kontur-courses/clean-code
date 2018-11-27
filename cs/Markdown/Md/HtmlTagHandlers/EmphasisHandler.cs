@@ -3,17 +3,13 @@ using Markdown.Renderers;
 
 namespace Markdown.Md.HtmlTagHandlers
 {
-    public class EmphasisHandler : HtmlTagHandler
+    public class EmphasisHandler : TagHandler
     {
-        private bool isOpening;
-
-        public override string Handle(Tag tag)
+        public override string Handle(Tag tag, bool isOpeningTag)
         {
             if (tag.Type == MdSpecification.Emphasis)
             {
-                isOpening = !isOpening;
-
-                return isOpening ? "<ul>" : "</ul>";
+                return isOpeningTag ? "<ul>" : "</ul>";
             }
 
             if (Successor == null)
@@ -22,7 +18,7 @@ namespace Markdown.Md.HtmlTagHandlers
                     "Can't transfer control to the next chain element because it was null");
             }
 
-            return Successor.Handle(tag);
+            return Successor.Handle(tag, isOpeningTag);
         }
     }
 }

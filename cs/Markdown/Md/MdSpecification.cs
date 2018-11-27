@@ -1,6 +1,10 @@
 ﻿using System.Collections.Generic;
+using Markdown.Md.HtmlTagHandlers;
 using Markdown.Md.TagHandlers;
 using Markdown.Renderers;
+using EmphasisHandler = Markdown.Md.TagHandlers.EmphasisHandler;
+using StrongEmphasisHandler = Markdown.Md.TagHandlers.StrongEmphasisHandler;
+using TextHandler = Markdown.Md.TagHandlers.TextHandler;
 
 namespace Markdown.Md
 {
@@ -22,18 +26,19 @@ namespace Markdown.Md
             return position - 1 >= 0 && str[position - 1] == '\\';
         }
 
-        public static TagHandler GetTagHandlerChain()
+        public static TokenHandler GetTagHandlerChain()
         {
             return new StrongEmphasisHandler()
                 .SetSuccessor(new EmphasisHandler()
                     .SetSuccessor(new TextHandler()));
         }
 
-        public static HtmlTagHandler GetHtmlTagHandlerChain()
+        public static TagHandler GetHtmlTagHandlerChain()
         {
-            return new HtmlTagHandlers.StrongEmphasisHandler()
-                .SetSuccessor(new HtmlTagHandlers.EmphasisHandler()
-                    .SetSuccessor(new HtmlTagHandlers.TextHandler()));
+            return new RootHandler().SetSuccessor(
+                new HtmlTagHandlers.StrongEmphasisHandler()
+                    .SetSuccessor(new HtmlTagHandlers.EmphasisHandler()
+                        .SetSuccessor(new HtmlTagHandlers.TextHandler())));
         }
     }
 }

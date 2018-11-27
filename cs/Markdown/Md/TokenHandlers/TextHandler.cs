@@ -4,9 +4,9 @@ using System.Text;
 
 namespace Markdown.Md.TagHandlers
 {
-    public class TextHandler : TagHandler
+    public class TextHandler : TokenHandler
     {
-        public override TokenNode Handle(string str, int position, ImmutableStack<TokenNode> openingTokenNodes)
+        public override Token Handle(string str, int position, ImmutableStack<Token> openingTokens)
         {
             if (IsText(str, position, out var result))
             {
@@ -15,12 +15,12 @@ namespace Markdown.Md.TagHandlers
                     result += str[position];
                 }
 
-                return new TokenNode(MdSpecification.Text, result);
+                return new Token(MdSpecification.Text, result);
             }
 
-            Successor?.Handle(str, position, openingTokenNodes);
+            Successor?.Handle(str, position, openingTokens);
 
-            return new TokenNode(MdSpecification.Text, "");
+            return new Token(MdSpecification.Text, "");
         }
 
         public static bool IsText(string str, int position, out string result)

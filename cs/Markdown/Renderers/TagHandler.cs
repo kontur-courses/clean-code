@@ -1,7 +1,4 @@
-﻿using System.Collections.Generic;
-using System.Collections.Immutable;
-
-namespace Markdown.Md.TagHandlers
+﻿namespace Markdown.Renderers
 {
     public abstract class TagHandler
     {
@@ -14,6 +11,6 @@ namespace Markdown.Md.TagHandlers
             return this;
         }
 
-        public abstract TokenNode Handle(string str, int position, ImmutableStack<TokenNode> openingTokenNodes);
+        public abstract string Handle(Tag tag, bool isOpeningTag);
     }
 }

@@ -1,22 +1,15 @@
 ﻿using System.Collections.Generic;
-using Markdown.Md;
 
 namespace Markdown
 {
     public class Tag
     {
-        public string Type;
-        public string Value;
-        public ICollection<Tag> Tags;
+        public string Type { get; set; }
 
-        public Tag()
-        {
-        }
+        public string Value { get; set; }
 
-        public Tag(string type, string value)
-        {
-            Type = type;
-            Value = value;
-        }
+        public bool IsRoot { get; set; }
+
+        public ICollection<Tag> Tags { get; set; }
     }
 }

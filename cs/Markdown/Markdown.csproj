@@ -62,28 +62,29 @@
     <Compile Include="CmdInterface\CmdInterface.cs" />
     <Compile Include="IConverter.cs" />
     <Compile Include="Md\HtmlTagHandlers\EmphasisHandler.cs" />
+    <Compile Include="Md\HtmlTagHandlers\RootHandler.cs" />
     <Compile Include="Md\HtmlTagHandlers\StrongEmphasisHandler.cs" />
     <Compile Include="Md\HtmlTagHandlers\TextHandler.cs" />
     <Compile Include="Md\TagToTextTagConverter.cs" />
     <Compile Include="Parser\ITagConverter.cs" />
-    <Compile Include="Parser\ITokenNode.cs" />
-    <Compile Include="Md\TagHandlers\StrongEmphasisHandler.cs" />
-    <Compile Include="Md\TagHandlers\TextHandler.cs" />
+    <Compile Include="Parser\IToken.cs" />
+    <Compile Include="Md\TokenHandlers\StrongEmphasisHandler.cs" />
+    <Compile Include="Md\TokenHandlers\TextHandler.cs" />
     <Compile Include="Parser\ParserTests.cs" />
     <Compile Include="Parser\Tag.cs" />
-    <Compile Include="Renderers\HtmlRenderer.cs" />
+    <Compile Include="Renderers\Renderer.cs" />
     <Compile Include="Parser\IParser.cs" />
     <Compile Include="Renderers\IRenderer.cs" />
     <Compile Include="Parser\Parser.cs" />
     <Compile Include="Md\MdSpecification.cs" />
     <Compile Include="Md\Md.cs" />
-    <Compile Include="Md\TagHandlers\EmphasisHandler.cs" />
-    <Compile Include="Parser\TagHandler.cs" />
-    <Compile Include="Parser\TokenNode.cs" />
+    <Compile Include="Md\TokenHandlers\EmphasisHandler.cs" />
+    <Compile Include="Parser\TokenHandler.cs" />
+    <Compile Include="Parser\Token.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Parser\TokenPairType.cs" />
-    <Compile Include="Renderers\HtmlTagHandler.cs" />
+    <Compile Include="Renderers\TagHandler.cs" />
     <Compile Include="Renderers\MdHtmlRendererTests.cs" />
   </ItemGroup>
   <ItemGroup>
