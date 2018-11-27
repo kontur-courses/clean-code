@@ -56,7 +56,7 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Properties\AssemblyInfo.cs" />
-    <Compile Include="Markdown_Render_Should.cs" />
+    <Compile Include="MarkdownTests.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="App.config" />

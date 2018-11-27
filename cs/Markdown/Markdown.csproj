@@ -53,7 +53,7 @@
     <Compile Include="Token.cs" />
     <Compile Include="TagReader.cs" />
     <Compile Include="TokenList.cs" />
-    <Compile Include="Window.cs" />
+    <Compile Include="StringView.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="App.config" />

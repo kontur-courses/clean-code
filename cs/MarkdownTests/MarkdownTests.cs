@@ -5,7 +5,7 @@ using NUnit.Framework;
 namespace Markdown
 {
     [TestFixture]
-    public class Markdown_Render_Should
+    public class MarkdownTests
     {
         [TestCase("", "", TestName = "empty string")]
         [TestCase("text", "text", TestName = "no tags")]
@@ -20,7 +20,10 @@ namespace Markdown
         [TestCase("_text1 _text2 text3_", "_text1 <em>text2 text3</em>", TestName = "tags preceded by space")]
         [TestCase("__text1 _text2__ text3_", "<strong>text1 text2</strong> text3", TestName = "intersecting tags")]
         [TestCase("___text__", "_<strong>text</strong>", TestName = "clustered underscores")]
-        public void WorkCorrectlyOn(string input, string expectedResult)
+        [TestCase("qw__ er __ty", "")]
+        [TestCase("__q _b __c__ d_ w__", "<strong>q _b __c</strong> d_ w__")]
+        [TestCase(@"\\_a_", @"\<em>a</em>", TestName = "escaped backslash")]
+        public void Render_ShouldWorkCorrectlyOn(string input, string expectedResult)
         {
             var result = Markdown.Render(input);
 
@@ -28,7 +31,7 @@ namespace Markdown
         }
 
         [Test]
-        public void ThrowArgumentNullException()
+        public void Render_ShouldThrowArgumentNullException()
         {
             Action render = () => Markdown.Render(null);
 

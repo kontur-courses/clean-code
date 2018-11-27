@@ -6,12 +6,12 @@ using System.Threading.Tasks;
 
 namespace Markdown
 {
-    public class Window
+    public class StringView
     {
         public string SourceString { get; }
         public int Position { get; set; }
 
-        public Window(string sourceString, int position)
+        public StringView(string sourceString, int position)
         {
             SourceString = sourceString;
             Position = position;

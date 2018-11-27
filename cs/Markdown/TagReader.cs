@@ -12,7 +12,7 @@ namespace Markdown
         public string Source { get; }
         public TagInfo[] Tags { get; }
         private TokenList TokenList { get; }
-        private Window Window { get; }
+        private StringView StringView { get; }
 
 
         public TagReader(string source, params TagInfo[] tags)
@@ -20,19 +20,19 @@ namespace Markdown
             Source = source;
             Tags = tags;
             TokenList = new TokenList(new PTagInfo().GetNewToken(0));
-            Window = new Window(Source, 0);
+            StringView = new StringView(Source, 0);
         }
 
         public string Evaluate()
         {
             while (Position < Source.Length)
             {
-                Window.Position = Position;
+                StringView.Position = Position;
                 if (TrySkipEscapeSymbol()) continue;
                 if (TryCloseTag()) continue;
                 if (TryOpenTag()) continue;
                 
-                AddCharacterToTokens(Window[0]);
+                AddCharacterToTokens(StringView[0]);
 
                 Position++;
             }
@@ -47,7 +47,10 @@ namespace Markdown
             }
         }
 
-        public void Skip(int amount) => Position += amount;
+        public void Skip(int amount)
+        {
+            Position += amount;
+        }
 
         private void AddCharacterToTokens(char c)
         {
@@ -61,7 +64,7 @@ namespace Markdown
         {
             foreach (var tag in Tags)
             {
-                if (!tag.StartCondition(Window)) continue;
+                if (!tag.StartCondition(StringView)) continue;
                 if (!TokenList.TryAddNewToken(tag, Position)) continue;
                 tag.OnTagStart(this);
                 return true;
@@ -74,7 +77,7 @@ namespace Markdown
         {
             foreach (var token in TokenList.Reverse())
             {
-                if (!token.Tag.EndCondition(Window)) continue;
+                if (!token.Tag.EndCondition(StringView)) continue;
                 token.Tag.OnTagEnd(this);
                 token.Close();
                 return true;
@@ -85,7 +88,7 @@ namespace Markdown
 
         private bool TrySkipEscapeSymbol()
         {
-            if (Window[0] != '\\') return false;
+            if (StringView[0] != '\\') return false;
             Skip(1);
             SkipAndAdd(1);
             return true;

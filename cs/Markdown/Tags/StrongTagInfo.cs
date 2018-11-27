@@ -8,10 +8,10 @@ namespace Markdown
 {
     public class StrongTagInfo : TagInfo
     {
-        public override Predicate<Window> StartCondition =>
+        public override Predicate<StringView> StartCondition =>
             w => w[0] == '_'
             && w[1] == '_';
-        public override Predicate<Window> EndCondition =>
+        public override Predicate<StringView> EndCondition =>
             w => w[0] == '_'
             && w[1] == '_';
 
@@ -20,7 +20,7 @@ namespace Markdown
 
         public override Action<TagReader> OnTagEnd =>
             t => t.SkipAndAdd(TagLength);
-        public override string TagText => "strong";
+        public override string HtmlTagText => "strong";
         public override int TagLength => 2;
     }
 }

@@ -7,7 +7,8 @@ namespace Markdown
     {
         public int Position { get; }
         public int Length { get; private set; }
-        public StringBuilder Value { get; } = new StringBuilder();
+        private readonly StringBuilder value = new StringBuilder();
+        public string Value => value.ToString();
         public Token Parent { get; private set; }
         public Token Child { get; private set; }
         public TagInfo Tag { get; }
@@ -34,22 +35,22 @@ namespace Markdown
 
         public void AddCharacter(char c)
         {
-            Value.Append(c);
+            value.Append(c);
             Length++;
         }
 
         public void Close()
         {
             var openingIndex = Position - Parent.Position;
-            var openingTag = $"<{Tag.TagText}>";
-            var closingTag = $"</{Tag.TagText}>";
-            var tagValue = Value
+            var openingTag = $"<{Tag.HtmlTagText}>";
+            var closingTag = $"</{Tag.HtmlTagText}>";
+            var tagValue = value
                 .Remove(0, Tag.TagLength)
-                .Remove(Value.Length - Tag.TagLength, Tag.TagLength);
+                .Remove(value.Length - Tag.TagLength, Tag.TagLength);
             var finalValue = openingTag + tagValue + closingTag;
 
-            Parent.Value.Remove(openingIndex, Length);
-            Parent.Value.Insert(openingIndex, finalValue);
+            Parent.value.Remove(openingIndex, Length);
+            Parent.value.Insert(openingIndex, finalValue);
 
             Parent.Child = null;
         }

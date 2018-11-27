@@ -8,11 +8,11 @@ namespace Markdown
 {
     public class EmTagInfo : TagInfo
     {
-        public override Predicate<Window> StartCondition =>
+        public override Predicate<StringView> StartCondition =>
             w => w[0] == '_'
                  && !char.IsWhiteSpace(w[1]);
 
-        public override Predicate<Window> EndCondition =>
+        public override Predicate<StringView> EndCondition =>
             w => w[0] == '_'
             && !char.IsWhiteSpace(w[-1])
             && w[1] != '_';
@@ -22,7 +22,7 @@ namespace Markdown
 
         public override Action<TagReader> OnTagEnd =>
             t => t.SkipAndAdd(TagLength);
-        public override string TagText => "em";
+        public override string HtmlTagText => "em";
         public override int TagLength => 1;
     }
 }
