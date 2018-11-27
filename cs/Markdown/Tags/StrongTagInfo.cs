@@ -10,7 +10,8 @@ namespace Markdown
     {
         public override Predicate<StringView> StartCondition =>
             w => w[0] == '_'
-            && w[1] == '_';
+            && w[1] == '_'
+            && !char.IsWhiteSpace(w[2]);
         public override Predicate<StringView> EndCondition =>
             w => w[0] == '_'
             && w[1] == '_';

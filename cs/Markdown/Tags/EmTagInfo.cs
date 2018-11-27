@@ -9,7 +9,9 @@ namespace Markdown
     public class EmTagInfo : TagInfo
     {
         public override Predicate<StringView> StartCondition =>
-            w => w[0] == '_'
+            w => w[-1] != '_'
+                 && w[0] == '_'
+                 && w[1] != '_'
                  && !char.IsWhiteSpace(w[1]);
 
         public override Predicate<StringView> EndCondition =>
