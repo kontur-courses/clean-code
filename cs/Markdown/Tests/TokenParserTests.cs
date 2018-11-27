@@ -8,13 +8,36 @@ namespace Markdown.Tests
     [TestFixture]
     public class TokenParserTests
     {
-        private List<TokenInformation> data = new List<TokenInformation>
+        private readonly List<TokenInformation> data = new List<TokenInformation>
         {
             new TokenInformation {Symbol = "_", Tag = "em", IsPaired = true, CountOfSpaces = 1},
             new TokenInformation {Symbol = "__", Tag = "strong", IsPaired = true, CountOfSpaces = 2},
             new TokenInformation {Symbol = "\\", Tag = "\\", IsPaired = false, CountOfSpaces = 1},
             new TokenInformation {Symbol = "`", Tag = "code", IsPaired = true, CountOfSpaces = 1}
         };
+
+        [Test]
+        public void GetToken_SymbolsBetweenNumbers_EmptyList()
+        {
+            var str = "_89 5__95__ `565`8613";
+            var parser = new TokenParser();
+            var list = parser.GetTokens(str, data);
+            list.Should().BeEmpty();
+        }
+
+        [Test]
+        public void GetTokens_Backslash_ListWithEscapedSymbols()
+        {
+            var str = "\\__ jxkvnklnr";
+            var parser = new TokenParser();
+            var list = parser.GetTokens(str, data);
+            var expectedList = new List<Token>
+            {
+                new Token(data.First(x => x.Symbol == "\\"), TokenType.Escaped, 0),
+                new Token(data.First(x => x.Symbol == "__"), TokenType.Ordinary, 1)
+            };
+            list.Should().BeEquivalentTo(expectedList);
+        }
 
         [Test]
         public void GetTokens_DifferentSpecialSymbols_CorrectTokenList()
@@ -71,32 +94,9 @@ namespace Markdown.Tests
         }
 
         [Test]
-        public void GetTokens_Backslash_ListWithEscapedSymbols()
-        {
-            var str = "\\__ jxkvnklnr";
-            var parser = new TokenParser();
-            var list = parser.GetTokens(str, data);
-            var expectedList = new List<Token>
-            {
-                new Token(data.First(x => x.Symbol == "\\"), TokenType.Escaped, 0),
-                new Token(data.First(x => x.Symbol == "__"), TokenType.Ordinary, 1)
-            };
-            list.Should().BeEquivalentTo(expectedList);
-        }
-
-        [Test]
         public void GetTokens_WrongWhiteSpacePosition_EmptyList()
         {
             var str = "__ hello __";
-            var parser = new TokenParser();
-            var list = parser.GetTokens(str, data);
-            list.Should().BeEmpty();
-        }
-
-        [Test]
-        public void GetToken_SymbolsBetweenNumbers_EmptyList()
-        {
-            var str = "_89 5__95__ `565`8613";
             var parser = new TokenParser();
             var list = parser.GetTokens(str, data);
             list.Should().BeEmpty();

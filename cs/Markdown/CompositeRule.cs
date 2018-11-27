@@ -1,5 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Linq;
 
 namespace Markdown
@@ -17,10 +16,7 @@ namespace Markdown
         public List<Token> Apply(List<Token> symbolsMap, List<TokenInformation> baseTokens)
         {
             var correctTokens = symbolsMap.ToList();
-            foreach (var rule in rules)
-            {
-                correctTokens = rule.Apply(correctTokens, baseTokens);
-            }
+            foreach (var rule in rules) correctTokens = rule.Apply(correctTokens, baseTokens);
 
             return correctTokens;
         }

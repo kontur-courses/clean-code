@@ -1,6 +1,5 @@
 ﻿using System.Collections.Generic;
 using System.Linq;
-using System.Runtime.InteropServices;
 
 namespace Markdown
 {
@@ -22,6 +21,7 @@ namespace Markdown
             var endPos = GetAllPosition(symbol, TokenType.End, symbolsMap);
 
             var pairedSymbols = new List<int>();
+
             for (var i = 0; i < endPos.Length; i++)
             {
                 var end = endPos[i];
@@ -31,14 +31,18 @@ namespace Markdown
                 pairedSymbols.Add(end);
                 pairedSymbols.Add(start);
             }
-            
+
             var correctTokens = new List<Token>();
-            foreach (Token token in symbolsMap)
-            {
-               if (pairedSymbols.Contains(token.Position) || token.TokenType == TokenType.Escaped || token.TokenType == TokenType.Ordinary)
-                   correctTokens.Add(token);
-            }
-           return correctTokens;
+            foreach (var token in symbolsMap)
+                if (IsPairedOrOrdinaryOrEscaped(pairedSymbols, token))
+                    correctTokens.Add(token);
+            return correctTokens;
+        }
+
+        private static bool IsPairedOrOrdinaryOrEscaped(List<int> pairedSymbols, Token token)
+        {
+            return pairedSymbols.Contains(token.Position) || token.TokenType == TokenType.Escaped ||
+                   token.TokenType == TokenType.Ordinary;
         }
 
         private int[] GetAllPosition(string symbol, TokenType type, List<Token> symbolsMap)
@@ -50,7 +54,7 @@ namespace Markdown
 
         private int GetStartPositionForEnd(int[] startPos, int indexEnd, int bound, List<int> paired)
         {
-            if (!IsArrayContainFreeValue(startPos, paired, indexEnd))
+            if (!IsArrayContainAvailableStart(startPos, paired, indexEnd))
                 return -1;
             var start = startPos.Last(p => p < bound);
             if (paired.Contains(start))
@@ -58,11 +62,11 @@ namespace Markdown
             return start;
         }
 
-        private bool IsArrayContainFreeValue(int[] array, List<int> paired, int indexEnd)
+        private bool IsArrayContainAvailableStart(int[] startPos, List<int> paired, int indexEnd)
         {
-            for (var i = 0; i < array.Length; i++)
+            for (var i = 0; i < startPos.Length; i++)
             {
-                var value = array[i];
+                var value = startPos[i];
                 if (!paired.Contains(value) && value < indexEnd)
                     return true;
             }

@@ -1,4 +1,6 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
+using System.Linq;
 using System.Text;
 
 namespace Markdown
@@ -17,13 +19,31 @@ namespace Markdown
                     var symbolInfo = GetSymbolInformation(i, mdText, data);
                     if (symbolInfo == null)
                         continue;
+                    if (symbolInfo.EndIsNewLine)
+                    {
+                        allTokens.Add(new Token(symbolInfo, TokenType.Start, i));
+                        for (var j = i + 1; j < mdText.Length; j++)
+                        {
+                            //TODO NewLine
+                            if (mdText[j] == '\n')
+                            {
+                                allTokens.Add(new Token(symbolInfo, TokenType.End, j));
+                                break;
+                            }
+                        }
+
+                        continue;
+                    }
+
                     if (symbolInfo.Symbol == "\\")
                     {
                         var nxtSymbol = GetSymbolInformation(i + 1, mdText, data);
+                        if (nxtSymbol == null)
+                            continue;
                         if (IsInBase(data, nxtSymbol))
                         {
                             allTokens.Add(new Token(symbolInfo, TokenType.Escaped, i));
-                            allTokens.Add(new Token(nxtSymbol, TokenType.Ordinary, i+1));
+                            allTokens.Add(new Token(nxtSymbol, TokenType.Ordinary, i + 1));
                             i += nxtSymbol.CountOfSpaces;
                         }
                         else
@@ -41,8 +61,8 @@ namespace Markdown
                         {
                             i += symbolInfo.CountOfSpaces - 1;
                             continue;
-                            
                         }
+
                         if (!char.IsWhiteSpace(mdText[i + symbolInfo.CountOfSpaces]))
                         {
                             token = new Token(symbolInfo, TokenType.Start, i);
@@ -61,13 +81,14 @@ namespace Markdown
                             i += symbolInfo.CountOfSpaces - 1;
                             continue;
                         }
-                       else if (!char.IsWhiteSpace(mdText[i - 1]))
+
+                        if (!char.IsWhiteSpace(mdText[i - 1]))
                         {
                             token = new Token(symbolInfo, TokenType.End, i);
                             allTokens.Add(token);
                             i += token.Data.CountOfSpaces - 1;
                         }
-                        
+
                         i += symbolInfo.CountOfSpaces - 1;
                         continue;
                     }
@@ -79,15 +100,21 @@ namespace Markdown
                         i += symbolInfo.CountOfSpaces - 1;
                         continue;
                     }
+
                     if (char.IsWhiteSpace(prevSymbol) && !char.IsWhiteSpace(nextSymbol))
+                    {
                         token = new Token(symbolInfo, TokenType.Start, i);
+                    }
                     else if (!char.IsWhiteSpace(prevSymbol) && char.IsWhiteSpace(nextSymbol))
+                    {
                         token = new Token(symbolInfo, TokenType.End, i);
+                    }
                     else
                     {
-                        i+=symbolInfo.CountOfSpaces - 1;
+                        i += symbolInfo.CountOfSpaces - 1;
                         continue;
                     }
+
                     allTokens.Add(token);
                     i += token.Data.CountOfSpaces - 1;
                 }
@@ -99,17 +126,15 @@ namespace Markdown
         private bool IsInBase(List<TokenInformation> data, TokenInformation symbol)
         {
             foreach (var baseData in data)
-            {
                 if (baseData.Symbol == symbol.Symbol)
                     return true;
-            }
 
             return false;
         }
 
         private TokenInformation GetSymbolInformation(int index, string mdText, List<TokenInformation> data)
         {
-            var sbl = GetAllCharInSymbol(index, mdText);
+            var sbl = GetAllCharInSymbol(index, mdText, data);
             foreach (var baseData in data)
                 for (var i = 0; i < sbl.Length; i++)
                 {
@@ -120,14 +145,17 @@ namespace Markdown
 
                     if (i == sbl.Length - 1) return baseData;
                 }
+
             return null;
         }
 
-        private string GetAllCharInSymbol(int index, string mdText)
+        private string GetAllCharInSymbol(int index, string mdText, List<TokenInformation> data)
         {
+            var maxSymbolsLength = data.Max(s => s.CountOfSpaces);
+            var bound = Math.Min(index + maxSymbolsLength, mdText.Length);
             var symbol = mdText[index];
             var str = new StringBuilder(symbol.ToString());
-            for (var i = index + 1; i < mdText.Length; i++)
+            for (var i = index + 1; i < bound; i++)
             {
                 var value = mdText[i];
                 if (value != symbol) return str.ToString();

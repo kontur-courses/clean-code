@@ -6,22 +6,24 @@ namespace Markdown
 {
     public class Markdown
     {
-        public List<TokenInformation> data = new List<TokenInformation>
+        public List<TokenInformation> baseTokens = new List<TokenInformation>
         {
-            new TokenInformation {Symbol = "__", Tag = "strong", IsPaired = true, CountOfSpaces = 2},
-            new TokenInformation {Symbol = "_", Tag = "em", IsPaired = true, CountOfSpaces = 1},
-            new TokenInformation {Symbol = "\\", Tag = "\\", IsPaired = false, CountOfSpaces = 1},
-            new TokenInformation {Symbol = "`", Tag = "code", IsPaired = true, CountOfSpaces = 1}
+            new TokenInformation
+                {Symbol = "__", Tag = "strong", IsPaired = true, CountOfSpaces = 2, EndIsNewLine = false},
+            new TokenInformation {Symbol = "_", Tag = "em", IsPaired = true, CountOfSpaces = 1, EndIsNewLine = false},
+            new TokenInformation {Symbol = "\\", Tag = "\\", IsPaired = false, CountOfSpaces = 1, EndIsNewLine = false},
+            new TokenInformation {Symbol = "`", Tag = "code", IsPaired = true, CountOfSpaces = 1, EndIsNewLine = false},
+            new TokenInformation {Symbol = "#", Tag = "h1", IsPaired = true, CountOfSpaces = 1, EndIsNewLine = true}
         };
 
         public string Render(string mdText)
         {
             var parser = new TokenParser();
-            var list = parser.GetTokens(mdText, data);
+            var tokensMap = parser.GetTokens(mdText, baseTokens);
             var rules = CreateCompositor();
             var compositeRule = new CompositeRule(rules);
 
-            var correctTokens = compositeRule.Apply(list, data);
+            var correctTokens = compositeRule.Apply(tokensMap, baseTokens);
             var htmlText = new StringBuilder();
             var allPositions = correctTokens.Select(x => x.Position).ToArray();
             for (var i = 0; i < mdText.Length; i++)
@@ -37,6 +39,7 @@ namespace Markdown
                     htmlText.Append(mdText[i]);
                 }
             }
+
             return htmlText.ToString();
         }
 
@@ -44,7 +47,7 @@ namespace Markdown
         {
             var firstRule = new UnpairedSymbolsRule();
             var secondRule = new DoubleUnderscoreBetweenUnderscoreRule();
-            return new IRule[] { firstRule, secondRule };
+            return new IRule[] {firstRule, secondRule};
         }
 
         private string GetTag(Token token)

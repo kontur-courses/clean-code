@@ -8,7 +8,7 @@ namespace Markdown.Tests
     [TestFixture]
     public class RulesTests
     {
-        private List<TokenInformation> data = new List<TokenInformation>
+        private readonly List<TokenInformation> data = new List<TokenInformation>
         {
             new TokenInformation {Symbol = "_", Tag = "em", IsPaired = true, CountOfSpaces = 1},
             new TokenInformation {Symbol = "__", Tag = "strong", IsPaired = true, CountOfSpaces = 2},
@@ -32,7 +32,7 @@ namespace Markdown.Tests
                 new Token(dataForUnderscore, TokenType.End, 15),
                 new Token(dataForDouUnderscore, TokenType.End, 12)
             };
-             var rule = new DoubleUnderscoreBetweenUnderscoreRule();
+            var rule = new DoubleUnderscoreBetweenUnderscoreRule();
             var actualTokens = rule.Apply(tokens, data);
 
             var expectedTokens = new List<Token>
@@ -40,7 +40,7 @@ namespace Markdown.Tests
                 new Token(dataForGraveAccent, TokenType.Start, 1),
                 new Token(dataForGraveAccent, TokenType.End, 19),
                 new Token(dataForUnderscore, TokenType.Start, 3),
-                new Token(dataForUnderscore, TokenType.End, 15),
+                new Token(dataForUnderscore, TokenType.End, 15)
             };
             actualTokens.Should().BeEquivalentTo(expectedTokens);
         }
@@ -53,7 +53,6 @@ namespace Markdown.Tests
             var dataForGraveAccent = data.First(x => x.Symbol == "`");
             var tokens = new List<Token>
             {
-
                 new Token(dataForDouUnderscore, TokenType.End, 45),
                 new Token(dataForDouUnderscore, TokenType.Start, 41),
                 new Token(dataForDouUnderscore, TokenType.Start, 55),
@@ -64,7 +63,7 @@ namespace Markdown.Tests
                 new Token(dataForGraveAccent, TokenType.End, 60),
                 new Token(dataForUnderscore, TokenType.Start, 5),
                 new Token(dataForUnderscore, TokenType.Start, 20),
-                new Token(dataForUnderscore, TokenType.End, 28),
+                new Token(dataForUnderscore, TokenType.End, 28)
             };
             var rule = new UnpairedSymbolsRule();
             var actualTokens = rule.Apply(tokens, data);
@@ -107,7 +106,7 @@ namespace Markdown.Tests
                 new Token(underscore, TokenType.End, 11),
                 new Token(underscore, TokenType.Start, 15),
                 new Token(underscore, TokenType.End, 8),
-                new Token(underscore, TokenType.End, 19),
+                new Token(underscore, TokenType.End, 19)
             };
             actualTokens.Should().BeEquivalentTo(expectedTokens);
         }
