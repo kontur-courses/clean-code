@@ -8,7 +8,7 @@ namespace Markdown.Tests
     [TestFixture]
     public class TokenParserTests
     {
-        private readonly List<TokenInformation> data = new List<TokenInformation>
+        private readonly List<TokenInformation> baseTokens = new List<TokenInformation>
         {
             new TokenInformation {Symbol = "_", Tag = "em", IsPaired = true, CountOfSpaces = 1},
             new TokenInformation {Symbol = "__", Tag = "strong", IsPaired = true, CountOfSpaces = 2},
@@ -21,7 +21,7 @@ namespace Markdown.Tests
         {
             var str = "_89 5__95__ `565`8613";
             var parser = new TokenParser();
-            var list = parser.GetTokens(str, data);
+            var list = parser.GetTokens(str, baseTokens);
             list.Should().BeEmpty();
         }
 
@@ -30,11 +30,11 @@ namespace Markdown.Tests
         {
             var str = "\\__ jxkvnklnr";
             var parser = new TokenParser();
-            var list = parser.GetTokens(str, data);
+            var list = parser.GetTokens(str, baseTokens);
             var expectedList = new List<Token>
             {
-                new Token(data.First(x => x.Symbol == "\\"), TokenType.Escaped, 0),
-                new Token(data.First(x => x.Symbol == "__"), TokenType.Ordinary, 1)
+                new Token(baseTokens.First(x => x.Symbol == "\\"), TokenType.Escaped, 0),
+                new Token(baseTokens.First(x => x.Symbol == "__"), TokenType.Ordinary, 1)
             };
             list.Should().BeEquivalentTo(expectedList);
         }
@@ -44,10 +44,10 @@ namespace Markdown.Tests
         {
             var mdText = "__la `topolya` and _puh_ i__";
             var parser = new TokenParser();
-            var actualTokens = parser.GetTokens(mdText, data);
-            var dataForDouUnderscore = data.First(x => x.Symbol == "__");
-            var dataForUnderscore = data.First(x => x.Symbol == "_");
-            var dataForGraveAccent = data.First(x => x.Symbol == "`");
+            var actualTokens = parser.GetTokens(mdText, baseTokens);
+            var dataForDouUnderscore = baseTokens.First(x => x.Symbol == "__");
+            var dataForUnderscore = baseTokens.First(x => x.Symbol == "_");
+            var dataForGraveAccent = baseTokens.First(x => x.Symbol == "`");
             var expectedTokens = new List<Token>
             {
                 new Token(dataForDouUnderscore, TokenType.Start, 0),
@@ -65,8 +65,8 @@ namespace Markdown.Tests
         {
             var mdText = "__la__";
             var parser = new TokenParser();
-            var actualTokens = parser.GetTokens(mdText, data);
-            var doubleUnderscoreData = data.First(x => x.Symbol == "__");
+            var actualTokens = parser.GetTokens(mdText, baseTokens);
+            var doubleUnderscoreData = baseTokens.First(x => x.Symbol == "__");
             var expectedTokens = new List<Token>
             {
                 new Token(doubleUnderscoreData, TokenType.Start, 0),
@@ -80,7 +80,7 @@ namespace Markdown.Tests
         {
             var str = "hello its me";
             var parser = new TokenParser();
-            var list = parser.GetTokens(str, data);
+            var list = parser.GetTokens(str, baseTokens);
             list.Should().BeEmpty();
         }
 
@@ -89,7 +89,7 @@ namespace Markdown.Tests
         {
             var str = " ~ % @ hell!**o i+ts =me)()";
             var parser = new TokenParser();
-            var list = parser.GetTokens(str, data);
+            var list = parser.GetTokens(str, baseTokens);
             list.Should().BeEmpty();
         }
 
@@ -98,7 +98,7 @@ namespace Markdown.Tests
         {
             var str = "__ hello __";
             var parser = new TokenParser();
-            var list = parser.GetTokens(str, data);
+            var list = parser.GetTokens(str, baseTokens);
             list.Should().BeEmpty();
         }
     }

@@ -8,7 +8,7 @@ namespace Markdown.Tests
     [TestFixture]
     public class RulesTests
     {
-        private readonly List<TokenInformation> data = new List<TokenInformation>
+        private readonly List<TokenInformation> baseTokens = new List<TokenInformation>
         {
             new TokenInformation {Symbol = "_", Tag = "em", IsPaired = true, CountOfSpaces = 1},
             new TokenInformation {Symbol = "__", Tag = "strong", IsPaired = true, CountOfSpaces = 2},
@@ -20,9 +20,9 @@ namespace Markdown.Tests
         [Test]
         public void DoubleUnderscoreBetweenUnderscoreRule_CorrectWork()
         {
-            var dataForDouUnderscore = data.First(x => x.Symbol == "__");
-            var dataForUnderscore = data.First(x => x.Symbol == "_");
-            var dataForGraveAccent = data.First(x => x.Symbol == "`");
+            var dataForDouUnderscore = baseTokens.First(x => x.Symbol == "__");
+            var dataForUnderscore = baseTokens.First(x => x.Symbol == "_");
+            var dataForGraveAccent = baseTokens.First(x => x.Symbol == "`");
             var tokens = new List<Token>
             {
                 new Token(dataForDouUnderscore, TokenType.Start, 8),
@@ -33,7 +33,7 @@ namespace Markdown.Tests
                 new Token(dataForDouUnderscore, TokenType.End, 12)
             };
             var rule = new DoubleUnderscoreBetweenUnderscoreRule();
-            var actualTokens = rule.Apply(tokens, data);
+            var actualTokens = rule.Apply(tokens, baseTokens);
 
             var expectedTokens = new List<Token>
             {
@@ -48,9 +48,9 @@ namespace Markdown.Tests
         [Test]
         public void UnpairedSymbolsRule_CorrectList()
         {
-            var dataForDouUnderscore = data.First(x => x.Symbol == "__");
-            var dataForUnderscore = data.First(x => x.Symbol == "_");
-            var dataForGraveAccent = data.First(x => x.Symbol == "`");
+            var dataForDouUnderscore = baseTokens.First(x => x.Symbol == "__");
+            var dataForUnderscore = baseTokens.First(x => x.Symbol == "_");
+            var dataForGraveAccent = baseTokens.First(x => x.Symbol == "`");
             var tokens = new List<Token>
             {
                 new Token(dataForDouUnderscore, TokenType.End, 45),
@@ -66,7 +66,7 @@ namespace Markdown.Tests
                 new Token(dataForUnderscore, TokenType.End, 28)
             };
             var rule = new UnpairedSymbolsRule();
-            var actualTokens = rule.Apply(tokens, data);
+            var actualTokens = rule.Apply(tokens, baseTokens);
 
             var expectedTokens = new List<Token>
             {
@@ -85,7 +85,7 @@ namespace Markdown.Tests
         [Test]
         public void UnpairedSymbolsRule_OneTypeSymbols_CorrectList()
         {
-            var underscore = data.First(x => x.Symbol == "_");
+            var underscore = baseTokens.First(x => x.Symbol == "_");
             var tokens = new List<Token>
             {
                 new Token(underscore, TokenType.Start, 1),
@@ -97,7 +97,7 @@ namespace Markdown.Tests
                 new Token(underscore, TokenType.End, 23)
             };
             var rule = new UnpairedSymbolsRule();
-            var actualTokens = rule.Apply(tokens, data);
+            var actualTokens = rule.Apply(tokens, baseTokens);
 
             var expectedTokens = new List<Token>
             {
