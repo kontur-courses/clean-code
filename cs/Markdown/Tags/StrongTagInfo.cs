@@ -17,11 +17,12 @@ namespace Markdown
             && w[1] == '_';
 
         public Action<TagReader> OnTagStart =>
-            t => t.SkipAndAdd(TagLength);
+            t => t.Skip(TagLength);
 
         public Action<TagReader> OnTagEnd =>
-            t => t.SkipAndAdd(TagLength);
+            t => t.Skip(TagLength);
         public string HtmlTagText => "strong";
+        public string MarkdownTagText => "__";
         public int TagLength => 2;
         public Token GetNewToken(int position)
         {

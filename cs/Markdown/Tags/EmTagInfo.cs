@@ -20,11 +20,12 @@ namespace Markdown
             && w[1] != '_';
 
         public Action<TagReader> OnTagStart =>
-            t => t.SkipAndAdd(TagLength);
+            t => t.Skip(TagLength);
 
         public Action<TagReader> OnTagEnd =>
-            t => t.SkipAndAdd(TagLength);
+            t => t.Skip(TagLength);
         public string HtmlTagText => "em";
+        public string MarkdownTagText => "_";
         public int TagLength => 1;
         public Token GetNewToken(int position)
         {

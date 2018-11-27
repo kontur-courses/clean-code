@@ -36,7 +36,7 @@ namespace Markdown
 
                 Position++;
             }
-            return TokenList.RootValue;
+            return TokenList.GetValue();
         }
 
         public void SkipAndAdd(int amount)
@@ -54,10 +54,7 @@ namespace Markdown
 
         private void AddCharacterToTokens(char c)
         {
-            foreach (var token in TokenList)
-            {
-                token.AddCharacter(c);
-            }
+            TokenList.AddCharacter(c);
         }
 
         private bool TryOpenTag()

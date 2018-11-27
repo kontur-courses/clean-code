@@ -13,6 +13,7 @@ namespace Markdown
         public Action<TagReader> OnTagStart { get; }
         public Action<TagReader> OnTagEnd { get; }
         public string HtmlTagText => "p";
+        public string MarkdownTagText => "";
         public int TagLength => 0;
         public Token GetNewToken(int position)
         {

@@ -1,8 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace Markdown
 {
@@ -13,6 +9,7 @@ namespace Markdown
         Action<TagReader> OnTagStart { get; }
         Action<TagReader> OnTagEnd { get; }
         string HtmlTagText { get; }
+        string MarkdownTagText { get; }
         int TagLength { get; }
         Token GetNewToken(int position);
     }

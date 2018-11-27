@@ -6,7 +6,7 @@ namespace Markdown
     public class Token
     {
         public int Position { get; }
-        public int Length { get; private set; }
+        public int Length => value.Length;
         private readonly StringBuilder value = new StringBuilder();
         public string Value => value.ToString();
         public Token Parent { get; private set; }
@@ -35,24 +35,30 @@ namespace Markdown
 
         public void AddCharacter(char c)
         {
-            value.Append(c);
-            Length++;
+            if (Child == null)
+            {
+                value.Append(c);
+                return;
+            }
+            Child.AddCharacter(c);
         }
 
         public void Close()
         {
-            var openingIndex = Position - Parent.Position;
+            Child?.Abort();
             var openingTag = $"<{Tag.HtmlTagText}>";
             var closingTag = $"</{Tag.HtmlTagText}>";
-            var tagValue = value
-                .Remove(0, Tag.TagLength)
-                .Remove(value.Length - Tag.TagLength, Tag.TagLength);
-            var finalValue = openingTag + tagValue + closingTag;
+            var finalValue = openingTag + value + closingTag;
 
-            Parent.value.Remove(openingIndex, Length);
-            Parent.value.Insert(openingIndex, finalValue);
+            Parent.value.Append(finalValue);
 
             Parent.Child = null;
+        }
+
+        public void Abort()
+        {
+            Child?.Abort();
+            Parent.value.Append(Tag.MarkdownTagText + value);
         }
     }
 }

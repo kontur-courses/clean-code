@@ -1,20 +1,21 @@
-﻿using System;
-using System.Collections;
+﻿using System.Collections;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace Markdown
 {
     public class TokenList : IEnumerable<Token>
     {
         private readonly Token rootToken;
-        public string RootValue => rootToken.Value.ToString();
 
         public TokenList(Token rootToken)
         {
             this.rootToken = rootToken;
+        }
+
+        public string GetValue()
+        {
+            rootToken.Child?.Abort();
+            return rootToken.Value;
         }
 
         public bool TryAddNewToken(ITagInfo tag, int position)
@@ -31,6 +32,11 @@ namespace Markdown
             currentToken.Child.SetParent(currentToken);
 
             return true;
+        }
+
+        public void AddCharacter(char c)
+        {
+            rootToken.AddCharacter(c);
         }
 
         public IEnumerator<Token> GetEnumerator()
