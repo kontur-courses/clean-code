@@ -12,7 +12,7 @@ namespace Markdown.Tests.ParserClassesTests
         private readonly Parser parser = new Parser();
 
         [Test]
-        public void Parse_SingleText_Successfully()
+        public void Parse_SimpleText_Successfully()
         {
             var text = "hard pill to swallow";
             var tokens = tokenizer.Tokenize(text);
