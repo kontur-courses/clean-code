@@ -9,6 +9,8 @@ namespace Markdown
     {
         public List<Token> GetTokens(string mdText, List<TokenInformation> baseTokens)
         {
+            if (baseTokens.Count == 0)
+                return new List<Token>();
             var allTokens = new List<Token>();
             for (var i = 0; i < mdText.Length; i++)
             {
@@ -19,12 +21,15 @@ namespace Markdown
                 var symbolInfo = GetSymbolInformation(i, mdText, baseTokens);
                 if (symbolInfo == null)
                     continue;
-                if (symbolInfo.Symbol == "__")
+
+                var doubleUnderscore = "__";
+                var underscore = "_";
+                if (symbolInfo.Symbol == doubleUnderscore)
                 {
-                    var countOfSymbols = GetAllCharInSymbol(i, mdText, baseTokens, true).Length;
+                    var countOfSymbols = GetAllCharInSymbol(i, mdText, baseTokens, true);
                     if (countOfSymbols == 3)
                     {
-                        var underscoreInfo = baseTokens.Find(s => s.Symbol == "_");
+                        var underscoreInfo = baseTokens.Find(s => s.Symbol == underscore);
                         var posNextSymbol = i + countOfSymbols;
                         if (posNextSymbol < mdText.Length && !char.IsWhiteSpace(mdText[posNextSymbol]))
                         {
@@ -35,15 +40,14 @@ namespace Markdown
                         var indexPrevSymbol = i - 1;
                         if (indexPrevSymbol >= 0 && !char.IsWhiteSpace(mdText[indexPrevSymbol]))
                         {
-                            allTokens.Add(new Token(symbolInfo, TokenType.End, i));
-                            allTokens.Add(new Token(underscoreInfo, TokenType.End, i + 2));
+                            allTokens.Add(new Token(underscoreInfo, TokenType.End, i));
+                            allTokens.Add(new Token(symbolInfo, TokenType.End, i + 1));
                         }
 
                         i += countOfSymbols - 1;
                         continue;
                     }
                 }
-
 
                 if (symbolInfo.EndIsNewLine)
                 {
@@ -56,14 +60,14 @@ namespace Markdown
 
                 if (symbolInfo.Symbol == "\\")
                 {
-                    var nxtSymbol = GetSymbolInformation(i + 1, mdText, baseTokens);
-                    if (nxtSymbol == null)
+                    var nextSymbolInfo = GetSymbolInformation(i + 1, mdText, baseTokens);
+                    if (nextSymbolInfo == null)
                         continue;
-                    if (IsBaseSymbol(baseTokens, nxtSymbol))
+                    if (baseTokens.Any(s => s.Symbol == nextSymbolInfo.Symbol))
                     {
                         allTokens.Add(new Token(symbolInfo, TokenType.Escaped, i));
-                        allTokens.Add(new Token(nxtSymbol, TokenType.Ordinary, i + 1));
-                        i += nxtSymbol.CountOfSpaces;
+                        allTokens.Add(new Token(nextSymbolInfo, TokenType.Ordinary, i + 1));
+                        i += nextSymbolInfo.CountOfSpaces;
                     }
                     else
                     {
@@ -113,8 +117,6 @@ namespace Markdown
         private bool IsToken(int position, char prevSymbol, char nextSymbol, TokenInformation symbolInfo,
             out Token token)
         {
-            //todo
-            token = null;
             if (!char.IsWhiteSpace(nextSymbol))
             {
                 token = new Token(symbolInfo, TokenType.Start, position);
@@ -127,46 +129,26 @@ namespace Markdown
                 return true;
             }
 
+            token = null;
             return false;
         }
 
         private int GetEndPosition(int startPos, string mdText)
         {
-            for (var j = startPos + 1; j < mdText.Length; j++)
-                //TODO NewLine
-                if (mdText[j] == '\n')
-                    return j;
-
-            return mdText.Length - 1;
+            var endPos = mdText.IndexOf("\n", startPos);
+            if (endPos == -1)
+                return mdText.Length - 1;
+            return endPos;
         }
 
-        private bool IsBaseSymbol(List<TokenInformation> data, TokenInformation symbol)
+        private TokenInformation GetSymbolInformation(int index, string mdText, List<TokenInformation> baseTokens)
         {
-            foreach (var baseData in data)
-                if (baseData.Symbol == symbol.Symbol)
-                    return true;
-
-            return false;
+            var symbolLength = GetAllCharInSymbol(index, mdText, baseTokens);
+            var symbol = mdText.Substring(index, symbolLength);
+            return baseTokens.FirstOrDefault(s => s.CountOfSpaces == symbolLength && s.Symbol == symbol);
         }
 
-        private TokenInformation GetSymbolInformation(int index, string mdText, List<TokenInformation> data)
-        {
-            var symbol = GetAllCharInSymbol(index, mdText, data, false);
-            foreach (var baseData in data)
-                for (var i = 0; i < symbol.Length; i++)
-                {
-                    if (baseData.CountOfSpaces != symbol.Length)
-                        break;
-                    if (mdText[index + i] != baseData.Symbol[i])
-                        break;
-
-                    if (i == symbol.Length - 1) return baseData;
-                }
-
-            return null;
-        }
-
-        private string GetAllCharInSymbol(int index, string mdText, List<TokenInformation> data, bool toEndOfText)
+        private int GetAllCharInSymbol(int index, string mdText, List<TokenInformation> data, bool toEndOfText = false)
         {
             var maxSymbolsLength = data.Max(s => s.CountOfSpaces);
             var upperBound = toEndOfText ? mdText.Length : Math.Min(index + maxSymbolsLength, mdText.Length);
@@ -175,12 +157,12 @@ namespace Markdown
             for (var i = index + 1; i < upperBound; i++)
             {
                 var value = mdText[i];
-                if (value != symbol) return str.ToString();
+                if (value != symbol) return str.Length;
 
                 str.Append(value);
             }
 
-            return str.ToString();
+            return str.Length;
         }
     }
 }

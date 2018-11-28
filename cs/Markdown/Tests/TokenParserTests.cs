@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 using FluentAssertions;
 using NUnit.Framework;
@@ -8,13 +9,64 @@ namespace Markdown.Tests
     [TestFixture]
     public class TokenParserTests
     {
+        [SetUp]
+        public void SetUp()
+        {
+            sut = new TokenParser();
+        }
+
+        private TokenParser sut;
+
         private readonly List<TokenInformation> baseTokens = new List<TokenInformation>
         {
-            new TokenInformation {Symbol = "_", Tag = "em", IsPaired = true, CountOfSpaces = 1},
-            new TokenInformation {Symbol = "__", Tag = "strong", IsPaired = true, CountOfSpaces = 2},
-            new TokenInformation {Symbol = "\\", Tag = "\\", IsPaired = false, CountOfSpaces = 1},
-            new TokenInformation {Symbol = "`", Tag = "code", IsPaired = true, CountOfSpaces = 1}
+            new TokenInformation
+                {Symbol = "__", Tag = "strong", IsPaired = true, CountOfSpaces = 2, EndIsNewLine = false},
+            new TokenInformation {Symbol = "_", Tag = "em", IsPaired = true, CountOfSpaces = 1, EndIsNewLine = false},
+            new TokenInformation {Symbol = "\\", Tag = "\\", IsPaired = false, CountOfSpaces = 1, EndIsNewLine = false},
+            new TokenInformation {Symbol = "`", Tag = "code", IsPaired = true, CountOfSpaces = 1, EndIsNewLine = false},
+            new TokenInformation {Symbol = "#", Tag = "h1", IsPaired = true, CountOfSpaces = 1, EndIsNewLine = true}
         };
+
+
+        [Test]
+        public void GetToken_EmptyBaseTokens_NotThrowException()
+        {
+            var mdText = "_hello_ `my friend`";
+            Action act = () => sut.GetTokens(mdText, new List<TokenInformation>());
+            act.Should().NotThrow();
+        }
+
+        [Test]
+        public void GetToken_SharpSymbol_ListWithHeadSymbols()
+        {
+            var str = "# HEAD \n" +
+                      "text";
+            var sharpInformation = baseTokens.First(x => x.Symbol == "#");
+            var parser = new TokenParser();
+            var list = parser.GetTokens(str, baseTokens);
+            var expectedList = new List<Token>
+            {
+                new Token(sharpInformation, TokenType.Start, 0),
+                new Token(sharpInformation, TokenType.End, 7)
+            };
+            list.Should().BeEquivalentTo(expectedList);
+        }
+
+        [Test]
+        public void GetToken_SharpSymbolWithoutEndLine_ListWithHeadSymbols()
+        {
+            var str = "# HEAD " +
+                      "text";
+            var sharpInformation = baseTokens.First(x => x.Symbol == "#");
+            var parser = new TokenParser();
+            var list = parser.GetTokens(str, baseTokens);
+            var expectedList = new List<Token>
+            {
+                new Token(sharpInformation, TokenType.Start, 0),
+                new Token(sharpInformation, TokenType.End, 10)
+            };
+            list.Should().BeEquivalentTo(expectedList);
+        }
 
         [Test]
         public void GetToken_SymbolsBetweenNumbers_EmptyList()
@@ -61,6 +113,7 @@ namespace Markdown.Tests
         }
 
         [Test]
+        [TestCase]
         public void GetTokens_OnePairOfSpecialSymbols_CorrectTokenList()
         {
             var mdText = "__la__";

@@ -6,7 +6,7 @@ namespace Markdown
 {
     public class Markdown
     {
-        public List<TokenInformation> baseTokens = new List<TokenInformation>
+        private readonly List<TokenInformation> baseTokens = new List<TokenInformation>
         {
             new TokenInformation
                 {Symbol = "__", Tag = "strong", IsPaired = true, CountOfSpaces = 2, EndIsNewLine = false},
@@ -20,17 +20,16 @@ namespace Markdown
         {
             var parser = new TokenParser();
             var tokensMap = parser.GetTokens(mdText, baseTokens);
-            var rules = CreateCompositor();
-            var compositeRule = new CompositeRule(rules);
-
-            var correctTokens = compositeRule.Apply(tokensMap, baseTokens);
+            var compositeRule = CreateCompositor();
+            var correctTokens = compositeRule.Apply(tokensMap);
+            var tokenDictionary = correctTokens.ToDictionary(key => key.Position);
             var htmlText = new StringBuilder();
-            var allPositions = correctTokens.Select(x => x.Position).ToArray();
+            var allPositions = new HashSet<int>(correctTokens.Select(x => x.Position));
             for (var i = 0; i < mdText.Length; i++)
             {
                 if (allPositions.Contains(i))
                 {
-                    var token = correctTokens.Find(x => x.Position == i);
+                    var token = tokenDictionary[i];
                     htmlText.Append(GetTag(token));
                     i += token.Data.CountOfSpaces - 1;
                 }
@@ -43,11 +42,11 @@ namespace Markdown
             return htmlText.ToString();
         }
 
-        private IRule[] CreateCompositor()
+        private CompositeRule CreateCompositor()
         {
-            var firstRule = new UnpairedSymbolsRule();
+            var firstRule = new UnpairedSymbolsRule(baseTokens);
             var secondRule = new DoubleUnderscoreBetweenUnderscoreRule();
-            return new IRule[] {firstRule, secondRule};
+            return new CompositeRule(new IRule[] {firstRule, secondRule});
         }
 
         private string GetTag(Token token)

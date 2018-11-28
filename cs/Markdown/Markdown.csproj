@@ -66,7 +66,8 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="Tests\RulesTests.cs" />
+    <Compile Include="Tests\DoubleUnderscoreBetweenUnderscoreRuleTests.cs" />
+    <Compile Include="Tests\UnpairedSymbolsRuleTests.cs" />
     <Compile Include="TokenInformation.cs" />
     <Compile Include="CompositeRule.cs" />
     <Compile Include="DoubleUnderscoreBetweenUnderscoreRule.cs" />

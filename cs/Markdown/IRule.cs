@@ -4,6 +4,6 @@ namespace Markdown
 {
     public interface IRule
     {
-        List<Token> Apply(List<Token> symbolsMap, List<TokenInformation> baseTokens);
+        List<Token> Apply(List<Token> symbolsMap);
     }
 }

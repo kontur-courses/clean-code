@@ -5,13 +5,12 @@ namespace Markdown
 {
     public class DoubleUnderscoreBetweenUnderscoreRule : IRule
     {
-        public List<Token> Apply(List<Token> symbolsMap, List<TokenInformation> baseTokens)
+        public List<Token> Apply(List<Token> symbolsMap)
         {
-          return DeleteDoubleUnderscoreBetweenUnderscore(symbolsMap, baseTokens);
+            return DeleteDoubleUnderscoreBetweenUnderscore(symbolsMap);
         }
 
-        private List<Token> DeleteDoubleUnderscoreBetweenUnderscore(List<Token> symbolsMap,
-            List<TokenInformation> baseTokens)
+        private List<Token> DeleteDoubleUnderscoreBetweenUnderscore(List<Token> symbolsMap)
         {
             if (symbolsMap.Count == 0)
                 return new List<Token>();
@@ -24,28 +23,21 @@ namespace Markdown
                     break;
                 var endUnderscore = GetPosition(startUnderscore.Position, maxPosition, "_", TokenType.End, symbolsMap);
                 i = startUnderscore.Position;
-                var startDoubleUnderscore = GetPosition(startUnderscore.Position, endUnderscore.Position, "__", TokenType.Start,
+                var startDoubleUnderscore = GetPosition(startUnderscore.Position, endUnderscore.Position, "__",
+                    TokenType.Start,
                     symbolsMap);
                 if (startDoubleUnderscore == null)
                     continue;
                 deleteToken.Add(startDoubleUnderscore);
-                var endDoubleUnderscore = GetPosition(startDoubleUnderscore.Position, endUnderscore.Position, "__", TokenType.End, symbolsMap);
+                var endDoubleUnderscore = GetPosition(startDoubleUnderscore.Position, endUnderscore.Position, "__",
+                    TokenType.End, symbolsMap);
                 if (endDoubleUnderscore == null)
                     continue;
                 deleteToken.Add(endDoubleUnderscore);
             }
 
-            var correctTokens = new List<Token>();
-            foreach (var token in symbolsMap)
-            {
-                if (deleteToken.Contains(token))
-                    continue;
-                correctTokens.Add(token);
-            }
-
-            return correctTokens;
+            return symbolsMap.Except(deleteToken).ToList();
         }
-
 
         private Token GetPosition(int startPosition, int endPosition, string symbol, TokenType type,
             List<Token> symbolsMap)

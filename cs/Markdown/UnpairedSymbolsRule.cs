@@ -5,14 +5,31 @@ namespace Markdown
 {
     public class UnpairedSymbolsRule : IRule
     {
-        public List<Token> Apply(List<Token> symbolsMap, List<TokenInformation> baseTokens)
+        private readonly List<TokenInformation> baseTokens;
+
+        public UnpairedSymbolsRule(List<TokenInformation> baseTokens)
         {
+            this.baseTokens = baseTokens;
+        }
+
+        public List<Token> Apply(List<Token> symbolsMap)
+        {
+            var ordinaryAndEscapedSymbols = GetOrdinaryAndEscapedSymbols(symbolsMap);
+            if (!symbolsMap.Any(s => s.Data.IsPaired))
+                return symbolsMap;
             var pairedSymbols = baseTokens.Where(t => t.IsPaired).ToArray();
             var correctTokens = new List<Token>();
             foreach (var pairedSymbol in pairedSymbols)
                 correctTokens.AddRange(DeleteNotPairSymbols(symbolsMap, pairedSymbol.Symbol));
 
+            correctTokens.AddRange(ordinaryAndEscapedSymbols);
             return correctTokens;
+        }
+
+        private List<Token> GetOrdinaryAndEscapedSymbols(List<Token> symbolsMap)
+        {
+            return symbolsMap.Where(s => s.TokenType == TokenType.Escaped || s.TokenType == TokenType.Ordinary)
+                .ToList();
         }
 
         private List<Token> DeleteNotPairSymbols(List<Token> symbolsMap, string symbol)
@@ -22,9 +39,8 @@ namespace Markdown
 
             var pairedSymbols = new List<int>();
 
-            for (var i = 0; i < endPos.Length; i++)
+            foreach (var end in endPos)
             {
-                var end = endPos[i];
                 var start = GetStartPositionForEnd(startPos, end, end, pairedSymbols);
                 if (start == -1)
                     continue;
@@ -34,15 +50,10 @@ namespace Markdown
 
             var correctTokens = new List<Token>();
             foreach (var token in symbolsMap)
-                if (IsPairedOrOrdinaryOrEscaped(pairedSymbols, token))
+                if (pairedSymbols.Contains(token.Position))
                     correctTokens.Add(token);
-            return correctTokens;
-        }
 
-        private static bool IsPairedOrOrdinaryOrEscaped(List<int> pairedSymbols, Token token)
-        {
-            return pairedSymbols.Contains(token.Position) || token.TokenType == TokenType.Escaped ||
-                   token.TokenType == TokenType.Ordinary;
+            return correctTokens;
         }
 
         private int[] GetAllPosition(string symbol, TokenType type, List<Token> symbolsMap)
@@ -64,12 +75,9 @@ namespace Markdown
 
         private bool IsArrayContainAvailableStart(int[] startPos, List<int> paired, int indexEnd)
         {
-            for (var i = 0; i < startPos.Length; i++)
-            {
-                var value = startPos[i];
+            foreach (var value in startPos)
                 if (!paired.Contains(value) && value < indexEnd)
                     return true;
-            }
 
             return false;
         }

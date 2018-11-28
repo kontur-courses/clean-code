@@ -1,12 +1,9 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Diagnostics;
-using System.Linq;
 using System.Text;
 using FluentAssertions;
 using MathNet.Numerics;
 using NUnit.Framework;
-
 
 namespace Markdown.Tests
 {
@@ -21,8 +18,9 @@ namespace Markdown.Tests
 
         private Markdown sut;
 
+
         [TestCase("hello", TestName = "Ordinary Text")]
-        [TestCase("hello! it's() me.. i w*a*s wonder/==", TestName = "Ordinary TextWithout Special Symbols")]
+        [TestCase("hello! it's() me.. i w*a*s wonder/==", TestName = "Ordinary Text Without Special Symbols")]
         [TestCase("", TestName = "EmptyText")]
         public void Render_OrdinaryText_ExactText(string mdText)
         {
@@ -32,7 +30,8 @@ namespace Markdown.Tests
 
         [TestCase("hello _its me_", "hello <em>its me</em>", TestName = "Underscore")]
         [TestCase("hello __its me__", "hello <strong>its me</strong>", TestName = "Double underscore")]
-        [TestCase("hello `its me`", "hello <code>its me</code>", TestName = "Underscore")]
+        [TestCase("hello `its me`", "hello <code>its me</code>", TestName = "Grave accent")]
+        [TestCase("# hello its me \n", "<h1> hello its me </h1>", TestName = "Sharp")]
         public void Render_OnePairedSymbol_CorrectHtmlText(string mdText, string expectedText)
         {
             var htmlText = sut.Render(mdText);
@@ -40,21 +39,13 @@ namespace Markdown.Tests
         }
 
 
-        [TestCase("__ _ hello its me_ __", TestName = "Wrong White Space Position")]
+        [TestCase("__ _ hello its me _ __", TestName = "Wrong White Space Position")]
         [TestCase("_hello its__ me i` was", TestName = "Unpaired Symbols")]
         [TestCase("hello 78_its__820 me_9 i`_0", TestName = "Symbols Between Numbers")]
-        public void Render_(string mdText)
+        public void Render_WrongUseOfSpecialSymbol_ExactText(string mdText)
         {
             var actualHtmlText = sut.Render(mdText);
             actualHtmlText.Should().Be(mdText);
-        }
-
-        [Test]
-        public void DoSomething_WhenSomething()
-        {
-            var mdText = "___hello___";
-            var htmlText = sut.Render(mdText);
-            Console.WriteLine(htmlText);
         }
 
         [Test]
@@ -103,20 +94,25 @@ namespace Markdown.Tests
             htmlText.Should().Be(expectedHtmlText);
         }
 
-
         [Test]
-        public void Render_TextWithSpecialSymbols_CorrectHTMLText()
+        public void Render_BoltItalicText_CorrectHtmlText()
         {
-            var mdText = "__hi _my `friend` how_ you__";
-            var expectedHtmlText = "<strong>hi <em>my <code>friend</code> how</em> you</strong>";
+            var mdText = " ___hello its me___ ";
+            var expectedHtmlText = " <strong><em>hello its me</em></strong> ";
+            var actualHtmlText = sut.Render(mdText);
+            actualHtmlText.Should().Be(expectedHtmlText);
+        }
+        [Test]
+        public void Render_TextWithAllSpecialSymbols_CorrectHtmlText()
+        {
+            var mdText = " # __hi _my `friend` how_ are\\__ you__ ";
+            var expectedHtmlText = " <h1> <strong>hi <em>my <code>friend</code> how</em> are__ you</strong></h1>";
             var actualHtmlText = sut.Render(mdText);
             actualHtmlText.Should().Be(expectedHtmlText);
         }
 
 
-
         [Test]
-        //[Repeat(10)]
         public void Render_WorkFast()
         {
             var mdText =
@@ -141,9 +137,8 @@ namespace Markdown.Tests
             }
 
             var coeffQuadraticEquation = Fit.Polynomial(lengths.ToArray(), times.ToArray(), 2);
-  
+
             Assert.That(coeffQuadraticEquation[2] < 1e-2);
         }
-
     }
 }

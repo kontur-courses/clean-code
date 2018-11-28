@@ -13,10 +13,10 @@ namespace Markdown
         }
 
 
-        public List<Token> Apply(List<Token> symbolsMap, List<TokenInformation> baseTokens)
+        public List<Token> Apply(List<Token> symbolsMap)
         {
             var correctTokens = symbolsMap.ToList();
-            foreach (var rule in rules) correctTokens = rule.Apply(correctTokens, baseTokens);
+            foreach (var rule in rules) correctTokens = rule.Apply(correctTokens);
 
             return correctTokens;
         }
