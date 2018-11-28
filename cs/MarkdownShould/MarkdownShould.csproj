@@ -37,6 +37,7 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="EmphasisRegister_Should.cs" />
+    <Compile Include="HeaderRegister_Should.cs" />
     <Compile Include="HorLineRegister_Should.cs" />
     <Compile Include="Md_Should.cs" />
     <Compile Include="ParagraphRegister_Should.cs" />

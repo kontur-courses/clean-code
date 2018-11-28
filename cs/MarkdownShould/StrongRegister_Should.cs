@@ -1,4 +1,6 @@
-﻿using Markdown;
+﻿using FluentAssertions;
+using Markdown.Registers;
+using Markdown;
 using NUnit.Framework;
 
 namespace MarkdownShould
@@ -6,30 +8,31 @@ namespace MarkdownShould
     [TestFixture]
     public class StrongRegister_Should
     {
-        private Md parser;
+        private StrongRegister register;
 
         [SetUp]
         public void SetUp()
         {
-            parser = new Md();
+            register = new StrongRegister();
         }
 
-        [TestCase("**foo bar**", ExpectedResult = "<p><strong>foo bar</strong></p>")]
-        [TestCase("foo**bar**", ExpectedResult = "<p>foo<strong>bar</strong></p>")]
-        [TestCase("__foo bar__", ExpectedResult = "<p><strong>foo bar</strong></p>")]
-        [TestCase("__foo, __bar__, baz__", ExpectedResult = "<p><strong>foo, <strong>bar</strong>, baz</strong></p>")]
-        [TestCase("__some__", ExpectedResult = "<p><strong>some</strong></p>")]
-        public string BeWithStrongTag(string input)
+        [TestCase("**foo bar**", 0, "foo bar")]
+        [TestCase("foo**bar**", 3, "bar")]
+        [TestCase("__foo bar__", 0, "foo bar")]
+        [TestCase("__foo, __bar__, baz__", 0, "foo, __bar__, baz")]
+        [TestCase("__some__", 0, "some")]
+        public void BeWithStrongTag(string input, int startPos, string val)
         {
-            return parser.Render(input);
+            var res = register.TryGetToken(input, startPos);
+            res.Should().Be(new Token(val, "<strong>", "</strong>", 1, val.Length + 4, true));
         }
 
-        [TestCase("5__6__78", ExpectedResult = "<p>5__6__78</p>")]
-        [TestCase("__ foo bar__", ExpectedResult = "<p>__ foo bar__</p>")]
-        [TestCase("** foo bar**", ExpectedResult = "<p>** foo bar**</p>")]
-        public string BeWithoutStrongTag(string input)
+        [TestCase("5__6__78", 0, ExpectedResult = null)]
+        [TestCase("__ foo bar__", 0, ExpectedResult = null)]
+        [TestCase("** foo bar**", 0, ExpectedResult = null)]
+        public Token BeWithoutStrongTag(string input, int startPos)
         {
-            return parser.Render(input);
+            return register.TryGetToken(input, startPos);
         }
     }
 }

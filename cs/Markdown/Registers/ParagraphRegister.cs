@@ -19,19 +19,19 @@ namespace Markdown.Registers
                 {
                     res = input.Substring(startPos, i - startPos)
                         .Split('\n')
-                        .Select(str => str.TrimStart(' ', '\r'))
+                        .Select(str => str.TrimStart(' '))
                         .Aggregate((sum, s) => sum + '\n' + s);
-                    return new Token(res, prefix, suffix + '\n', Priority, i - startPos + 1, true);
+                    return new Token(res, prefix, suffix, Priority, i - startPos + 2, true);
                 }
 
             res = input.Substring(startPos, input.Length - startPos)
                 .Split('\n')
-                .Select(str => str.TrimStart(' ', '\r'))
+                .Select(str => str.TrimStart(' '))
                 .Aggregate((sum, s) => sum + '\n' + s)
-                .TrimStart(' ', '\r', '\n');
+                .TrimStart(' ', '\n');
 
             if (res == "")
-                return new Token("", "", "", 1, input.Length - startPos, true);
+                return new Token("", "", "", Priority, input.Length - startPos, true);
 
             return new Token(res, prefix, suffix, Priority, input.Length - startPos, true);
         }

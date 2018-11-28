@@ -1,38 +1,40 @@
-﻿using Markdown;
+﻿using Markdown.Registers;
+using Markdown;
 using NUnit.Framework;
+using FluentAssertions;
 
 namespace MarkdownShould
 {
     [TestFixture]
     public class EmphasisRegister_Should
     {
-        private Md parser;
+        private EmphasisRegister register;
 
         [SetUp]
         public void SetUp()
         {
-            parser = new Md();
+            register = new EmphasisRegister();
         }
 
-        [TestCase("", ExpectedResult = "")]
-        [TestCase("*foo bar*", ExpectedResult = "<p><em>foo bar</em></p>")]
-        [TestCase("*(*foo*)*", ExpectedResult = "<p><em>(<em>foo</em>)</em></p>")]
-        [TestCase("_(_foo_)_", ExpectedResult = "<p><em>(<em>foo</em>)</em></p>")]
-        [TestCase("_foo bar_", ExpectedResult = "<p><em>foo bar</em></p>")]
-        [TestCase("5*6*78", ExpectedResult = "<p>5<em>6</em>78</p>")]
-        public string BeWithEmphasisTag(string input)
+        [TestCase("*foo bar*", 0, "foo bar")]
+        [TestCase("*(*foo*)*", 0, "(*foo*)")]
+        [TestCase("_(_foo_)_", 0, "(_foo_)")]
+        [TestCase("_foo bar_", 0, "foo bar")]
+        [TestCase("5*6*78", 1, "6")]
+        public void BeWithEmphasisTag(string input, int startPos, string val)
         {
-            return parser.Render(input);
+            var res = register.TryGetToken(input, startPos);
+            res.Should().Be(new Token(val, "<em>", "</em>", 0, val.Length + 2, true));
         }
 
-        [TestCase("", ExpectedResult = "")]
-        [TestCase("a * foo bar*", ExpectedResult = "<p>a * foo bar*</p>")]
-        [TestCase("* a *", ExpectedResult = "<p>* a *</p>")]
-        [TestCase("foo_bar_", ExpectedResult = "<p>foo_bar_</p>")]
-        [TestCase("_foo*", ExpectedResult = "<p>_foo*</p>")]
-        public string BeWithoutEmphasisTag(string input)
+        [TestCase("", ExpectedResult = null)]
+        [TestCase("a * foo bar*", ExpectedResult = null)]
+        [TestCase("* a *", ExpectedResult = null)]
+        [TestCase("foo_bar_", ExpectedResult = null)]
+        [TestCase("_foo*", ExpectedResult = null)]
+        public Token BeWithoutEmphasisTag(string input)
         {
-            return parser.Render(input);
+            return register.TryGetToken(input, 0);
         }
     }
 }

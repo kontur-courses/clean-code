@@ -1,5 +1,6 @@
 ﻿using FluentAssertions;
 using Markdown;
+using Markdown.Registers;
 using NUnit.Framework;
 
 
@@ -8,12 +9,12 @@ namespace MarkdownShould
     [TestFixture]
     public class HorLineRegister_Should
     {
-        private Markdown.Registers.HorLineRegister register;
+        private HorLineRegister register;
 
         [SetUp]
         public void SetUp()
         {
-            register = new Markdown.Registers.HorLineRegister();
+            register = new HorLineRegister();
         }
 
         [TestCase("***")]

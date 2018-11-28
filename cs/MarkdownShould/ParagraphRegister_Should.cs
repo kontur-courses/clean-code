@@ -1,31 +1,41 @@
-﻿using NUnit.Framework;
+﻿using FluentAssertions;
 using Markdown;
+using NUnit.Framework;
+using Markdown.Registers;
 
 namespace MarkdownShould
 {
     [TestFixture]
     public class ParagraphRegister_Should
     {
-        private Md parser;
+        private ParagraphRegister register;
 
         [SetUp]
         public void SetUp()
         {
-            parser = new Md();
+            register = new ParagraphRegister();
         }
 
-        [TestCase("", ExpectedResult = "")]
-        [TestCase("\n", ExpectedResult = "")]
-        [TestCase("*some **simple** text* sometimes ***i* give** you ***all***", ExpectedResult = "<p><em>some <strong>simple</strong> text</em> sometimes <strong><em>i</em> give</strong> you <em><strong>all</strong></em></p>")]
-        [TestCase("5__6__78", ExpectedResult = "<p>5__6__78</p>")]
-        [TestCase("            some\n       another\n                 text", ExpectedResult = "<p>some\nanother\ntext</p>")]
-        [TestCase("aaa\nbbb\n\nccc\nddd", ExpectedResult = "<p>aaa\nbbb</p>\n<p>ccc\nddd</p>")]
-        [TestCase("some\ndiff\n\nlines", ExpectedResult = "<p>some\ndiff</p>\n<p>lines</p>")]
-        [TestCase("__\nfoo bar__", ExpectedResult = "<p>__\nfoo bar__</p>")]
-        [TestCase("__\"foo\"__", ExpectedResult = "<p><strong>\"foo\"</strong></p>")]
-        public string ShouldBeWithParagraphTag(string input)
+
+        [TestCase("some simple text", 0, "some simple text")]
+        [TestCase("5__6__78", 0, "5__6__78")]
+        [TestCase("            some\n       another\n                 text", 0, "some\nanother\ntext")]
+        [TestCase("aaa\nbbb\n\n", 0, "aaa\nbbb")]
+        [TestCase("some\ndiff\n\n", 0, "some\ndiff")]
+        [TestCase("__\nfoo bar__", 0, "__\nfoo bar__")]
+        [TestCase("__\"foo\"__", 0, "__\"foo\"__")]
+        public void ShouldBeWithParagraphTag(string input, int startPos, string val)
         {
-            return parser.Render(input);
+            var res = register.TryGetToken(input, startPos);
+            res.Should().Be(new Token(val, "<p>", "</p>", 0, input.Length, true));
+        }
+
+        [TestCase("", 0)]
+        [TestCase("\n", 0)]
+        public void ShouldBeEmpty(string input, int startPos)
+        {
+            var res = register.TryGetToken(input, startPos);
+            res.Should().Be(new Token("", "", "", 0, input.Length, true));
         }
     }
 }
