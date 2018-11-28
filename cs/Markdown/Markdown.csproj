@@ -58,7 +58,6 @@
     <Compile Include="Md.cs" />
     <Compile Include="ParserClasses\Nodes\SentenceNode.cs" />
     <Compile Include="ParserClasses\Nodes\TextNode.cs" />
-    <Compile Include="ParserClasses\Nodes\TextType.cs" />
     <Compile Include="ParserClasses\Nodes\WordNode.cs" />
     <Compile Include="ParserClasses\Nodes\WordType.cs" />
     <Compile Include="ParserClasses\Parser.cs" />

@@ -1,26 +1,19 @@
-using System;
 using System.ComponentModel;
 using System.Text;
+using Markdown.ParserClasses;
 using Markdown.ParserClasses.Nodes;
 
 namespace Markdown.HTMLGeneratorClasses
 {
-    public class TextBuilder
+    public static class TextBuilder
     {
         public static string Build(TextNode textNode)
         {
             var text = GetNodeValue(textNode);
-            switch (textNode.Type)
-            {
-                case TextType.Text:
-                    return $"{text}";
-                case TextType.Emphasis:
-                    return $"<em>{text}</em>";
-                case TextType.Bold:
-                    return $"<strong>{text}</strong>";
-                default:
-                    throw new InvalidEnumArgumentException();
-            }
+            if (Parser.TextTypeProcessors.TryGetValue(textNode.Type, out var textProcessor))
+                return textProcessor(text);
+
+            throw new InvalidEnumArgumentException();
         }
 
         private static string GetNodeValue(TextNode textNode)

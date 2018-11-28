@@ -6,8 +6,23 @@ using Markdown.TokenizerClasses;
 
 namespace Markdown.ParserClasses
 {
+    public enum TextType
+    {
+        Text,
+        Emphasis,
+        Bold
+    }
+
     public static class Parser
     {
+        public static readonly Dictionary<TextType, Func<string, string>> TextTypeProcessors =
+            new Dictionary<TextType, Func<string, string>>
+        {
+            {TextType.Text, text => $"{text}"},
+            {TextType.Emphasis, text => $"<em>{text}</em>"},
+            {TextType.Bold, text => $"<strong>{text}</strong>"}
+        };
+
         public static SentenceNode Parse(Deque<Token> tokens)
         {
             var sentence = ParseSentence(tokens);

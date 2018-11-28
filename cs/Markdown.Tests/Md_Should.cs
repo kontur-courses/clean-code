@@ -6,8 +6,6 @@ namespace Markdown.Tests
 {
     public class Md_Should
     {
-        private Md md = new Md();
-
         [TestCase("_text_", "<em>text</em>")]
         [TestCase("_te xt_", "<em>te xt</em>")]
         [TestCase("_te0xt_", "<em>te0xt</em>")]
