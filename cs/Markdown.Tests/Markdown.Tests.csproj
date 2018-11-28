@@ -39,6 +39,10 @@
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
   <ItemGroup>
+    <Reference Include="Deque, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null">
+      <HintPath>..\packages\Deque.1.0.1\lib\Net20\Deque.dll</HintPath>
+      <Private>True</Private>
+    </Reference>
     <Reference Include="FluentAssertions, Version=5.5.0.0, Culture=neutral, PublicKeyToken=33f2691a05b67b6a, processorArchitecture=MSIL">
       <HintPath>..\packages\FluentAssertions.5.5.0\lib\net47\FluentAssertions.dll</HintPath>
     </Reference>

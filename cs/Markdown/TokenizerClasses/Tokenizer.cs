@@ -13,9 +13,9 @@ namespace Markdown.TokenizerClasses
             new PlainTextScanner()
         };
 
-        public List<Token> Tokenize(string text)
+        public Deque<Token> Tokenize(string text)
         {
-            var tokens = new List<Token>();
+            var tokens = new Deque<Token>();
             Token token;
 
             do
@@ -30,12 +30,12 @@ namespace Markdown.TokenizerClasses
                         || CheckEscapedTokens(token, previousToken, out newToken))
                     {
                         token = newToken;
-                        tokens.RemoveLast();
+                        tokens.RemoveBack();
                     }
 
                     if (CheckUnderscoreBetweenNumbers(token, tokens, out newToken))
                     {
-                        tokens.RemoveLast();
+                        tokens.RemoveBack();
                         tokens.Add(newToken);
                     }
                 }
@@ -62,7 +62,7 @@ namespace Markdown.TokenizerClasses
             return Token.EOF;
         }
 
-        private static void RemoveEOFToken(List<Token> tokens) => tokens.RemoveLast();
+        private static void RemoveEOFToken(Deque<Token> tokens) => tokens.RemoveBack();
 
         private bool CheckDoubleUnderscore(Token currentToken, Token previousToken, out Token newToken)
         {
@@ -103,7 +103,7 @@ namespace Markdown.TokenizerClasses
             return false;
         }
 
-        private bool CheckUnderscoreBetweenNumbers(Token currentToken, List<Token> tokens, out Token newToken)
+        private bool CheckUnderscoreBetweenNumbers(Token currentToken, Deque<Token> tokens, out Token newToken)
         {
             if (tokens.Count >= 2)
             {

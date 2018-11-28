@@ -33,6 +33,10 @@
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
   <ItemGroup>
+    <Reference Include="Deque, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null">
+      <HintPath>..\packages\Deque.1.0.1\lib\Net20\Deque.dll</HintPath>
+      <Private>True</Private>
+    </Reference>
     <Reference Include="FluentCommandLineParser, Version=1.5.0.20, Culture=neutral, PublicKeyToken=null">
       <HintPath>..\packages\FluentCommandLineParser.1.5.0.20-commands\lib\net35\FluentCommandLineParser.dll</HintPath>
       <Private>True</Private>

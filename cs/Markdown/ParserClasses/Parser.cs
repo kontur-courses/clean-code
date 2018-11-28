@@ -8,17 +8,16 @@ namespace Markdown.ParserClasses
 {
     public class Parser
     {
-        public SentenceNode Parse(List<Token> tokens)
+        public SentenceNode Parse(Deque<Token> tokens)
         {
             var sentence = ParseSentence(tokens);
 
             return sentence;
         }
 
-        public SentenceNode ParseSentence(List<Token> tokens)
+        public SentenceNode ParseSentence(Deque<Token> tokens)
         {
             var sentence = new SentenceNode();
-
 
             while (tokens.Count > 0)
             {
@@ -49,11 +48,11 @@ namespace Markdown.ParserClasses
             return sentence;
         }
 
-        public TextNode ParseBoldText(List<Token> tokens)
+        public TextNode ParseBoldText(Deque<Token> tokens)
         {
             var doubleUnderscore = tokens.PopFirst();
             if (tokens.Count == 0)
-                return ParseText(new List<Token> {new Token(TokenType.Text, doubleUnderscore.Value)});
+                return ParseText(new Deque<Token> {new Token(TokenType.Text, doubleUnderscore.Value)});
 
             if (tokens.PeekFirst().Type == TokenType.Space)
             {
@@ -109,11 +108,11 @@ namespace Markdown.ParserClasses
             }
         }
 
-        public TextNode ParseEmphasisText(List<Token> tokens)
+        public TextNode ParseEmphasisText(Deque<Token> tokens)
         {
             var underscore = tokens.PopFirst();
             if (tokens.Count == 0)
-                return ParseText(new List<Token> {new Token(TokenType.Text, underscore.Value)});
+                return ParseText(new Deque<Token> {new Token(TokenType.Text, underscore.Value)});
 
             if (tokens.PeekFirst().Type == TokenType.Space)
             {
@@ -159,7 +158,7 @@ namespace Markdown.ParserClasses
             }
         }
 
-        public TextNode ParseText(List<Token> tokens)
+        public TextNode ParseText(Deque<Token> tokens)
         {
             var plainText = new TextNode();
 
@@ -188,14 +187,14 @@ namespace Markdown.ParserClasses
             return plainText;
         }
 
-        public WordNode ParseSimpleWord(List<Token> tokens)
+        public WordNode ParseSimpleWord(Deque<Token> tokens)
         {
             var simpleWord = tokens.PopFirst();
 
             return new WordNode(WordType.SimpleWord, simpleWord.Value);
         }
 
-        public WordNode ParseSpacedWord(List<Token> tokens)
+        public WordNode ParseSpacedWord(Deque<Token> tokens)
         {
             var space = tokens.PopFirst();
 
