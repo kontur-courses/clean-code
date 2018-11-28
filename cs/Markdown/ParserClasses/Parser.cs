@@ -10,12 +10,12 @@ namespace Markdown.ParserClasses
     {
         public SentenceNode Parse(List<Token> tokens)
         {
-            var sentence = SentenceParser(tokens);
+            var sentence = ParseSentence(tokens);
 
             return sentence;
         }
 
-        public SentenceNode SentenceParser(List<Token> tokens)
+        public SentenceNode ParseSentence(List<Token> tokens)
         {
             var sentence = new SentenceNode();
 
@@ -30,15 +30,15 @@ namespace Markdown.ParserClasses
                     case TokenType.Text:
                     case TokenType.Num:
                     case TokenType.Space:
-                        newText = TextParser(tokens);
+                        newText = ParseText(tokens);
                         sentence.Add(newText);
                         break;
                     case TokenType.Underscore:
-                        newText = EmphasisTextParser(tokens);
+                        newText = ParseEmphasisText(tokens);
                         sentence.Add(newText);
                         break;
                     case TokenType.DoubleUnderscore:
-                        newText = BoldTextParser(tokens);
+                        newText = ParseBoldText(tokens);
                         sentence.Add(newText);
                         break;
                     default:
@@ -49,16 +49,16 @@ namespace Markdown.ParserClasses
             return sentence;
         }
 
-        public TextNode BoldTextParser(List<Token> tokens)
+        public TextNode ParseBoldText(List<Token> tokens)
         {
             var doubleUnderscore = tokens.PopFirst();
             if (tokens.Count == 0)
-                return TextParser(new List<Token> {new Token(TokenType.Text, doubleUnderscore.Value)});
+                return ParseText(new List<Token> {new Token(TokenType.Text, doubleUnderscore.Value)});
 
             if (tokens.PeekFirst().Type == TokenType.Space)
             {
                 tokens.Insert(0, new Token(TokenType.Text, doubleUnderscore.Value));
-                return TextParser(tokens);
+                return ParseText(tokens);
             }
 
             var boldText = new TextNode(TextType.Bold);
@@ -85,7 +85,7 @@ namespace Markdown.ParserClasses
 
                         return boldText;
                     case TokenType.Underscore:
-                        var innerEmphasisText = EmphasisTextParser(tokens);
+                        var innerEmphasisText = ParseEmphasisText(tokens);
                         if (innerEmphasisText.Type == TextType.Text)
                         {
                             boldText.AddRange(innerEmphasisText.Words);
@@ -100,7 +100,7 @@ namespace Markdown.ParserClasses
                         boldText.Add(closeEmTag);
                         break;
                     default:
-                        var innerText = TextParser(tokens);
+                        var innerText = ParseText(tokens);
                         var innerWords = innerText.Words;
 
                         boldText.AddRange(innerWords);
@@ -109,16 +109,16 @@ namespace Markdown.ParserClasses
             }
         }
 
-        public TextNode EmphasisTextParser(List<Token> tokens)
+        public TextNode ParseEmphasisText(List<Token> tokens)
         {
             var underscore = tokens.PopFirst();
             if (tokens.Count == 0)
-                return TextParser(new List<Token> {new Token(TokenType.Text, underscore.Value)});
+                return ParseText(new List<Token> {new Token(TokenType.Text, underscore.Value)});
 
             if (tokens.PeekFirst().Type == TokenType.Space)
             {
                 tokens.Insert(0, new Token(TokenType.Text, underscore.Value));
-                return TextParser(tokens);
+                return ParseText(tokens);
             }
 
             var emphasisText = new TextNode(TextType.Emphasis);
@@ -150,7 +150,7 @@ namespace Markdown.ParserClasses
                         emphasisText.Add(doubleUnderscore);
                         break;
                     default:
-                        var innerText = TextParser(tokens);
+                        var innerText = ParseText(tokens);
                         var innerWords = innerText.Words;
 
                         emphasisText.AddRange(innerWords);
@@ -159,7 +159,7 @@ namespace Markdown.ParserClasses
             }
         }
 
-        public TextNode TextParser(List<Token> tokens)
+        public TextNode ParseText(List<Token> tokens)
         {
             var plainText = new TextNode();
 
@@ -181,21 +181,21 @@ namespace Markdown.ParserClasses
                     break;
                 }
 
-                var newWord = currentToken.Type == TokenType.Space ? SpacedWordParser(tokens) : SimpleWordParser(tokens);
+                var newWord = currentToken.Type == TokenType.Space ? ParseSpacedWord(tokens) : ParseSimpleWord(tokens);
                 plainText.Add(newWord);
             }
 
             return plainText;
         }
 
-        public WordNode SimpleWordParser(List<Token> tokens)
+        public WordNode ParseSimpleWord(List<Token> tokens)
         {
             var simpleWord = tokens.PopFirst();
 
             return new WordNode(WordType.SimpleWord, simpleWord.Value);
         }
 
-        public WordNode SpacedWordParser(List<Token> tokens)
+        public WordNode ParseSpacedWord(List<Token> tokens)
         {
             var space = tokens.PopFirst();
 

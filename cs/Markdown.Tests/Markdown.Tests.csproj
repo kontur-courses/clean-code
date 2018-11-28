@@ -52,13 +52,12 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Md_Should.cs" />
-    <Compile Include="MdTests.cs" />
-    <Compile Include="ParserClassesTests\BoldTextParser_Should.cs" />
-    <Compile Include="ParserClassesTests\EmphasisTextParser_Should.cs" />
-    <Compile Include="ParserClassesTests\SentenceParser_Should.cs" />
-    <Compile Include="ParserClassesTests\SimpleWordParser_Should.cs" />
-    <Compile Include="ParserClassesTests\TextParser_Should.cs" />
-    <Compile Include="ParserClassesTests\SpacedWordParser_Should.cs" />
+    <Compile Include="ParserClassesTests\ParseBoldText_Should.cs" />
+    <Compile Include="ParserClassesTests\ParseEmphasisText_Should.cs" />
+    <Compile Include="ParserClassesTests\ParseSentence_Should.cs" />
+    <Compile Include="ParserClassesTests\ParseSimpleWord_Should.cs" />
+    <Compile Include="ParserClassesTests\ParseText_Should.cs" />
+    <Compile Include="ParserClassesTests\ParseSpacedWord_Should.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="TokenizerClassesTests\PlainTextScanner_Should.cs" />
     <Compile Include="TokenizerClassesTests\TagScanner_Should.cs" />

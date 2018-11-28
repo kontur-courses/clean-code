@@ -6,7 +6,7 @@ using NUnit.Framework;
 
 namespace Markdown.Tests.ParserClassesTests
 {
-    public class SimpleWordParser_Should
+    public class ParseSimpleWord_Should
     {
         private readonly Tokenizer tokenizer = new Tokenizer();
         private readonly Parser parser = new Parser();
@@ -26,7 +26,7 @@ namespace Markdown.Tests.ParserClassesTests
             var tokens = tokenizer.Tokenize(text);
             var expected = new WordNode(WordType.SimpleWord, expectedValue);
 
-            parser.SimpleWordParser(tokens)
+            parser.ParseSimpleWord(tokens)
                 .Should()
                 .BeEquivalentTo(expected);
         }
@@ -39,7 +39,7 @@ namespace Markdown.Tests.ParserClassesTests
             var tokens = tokenizer.Tokenize(text);
             var expected = new WordNode(WordType.SimpleWord, expectedValue);
 
-            parser.SimpleWordParser(tokens)
+            parser.ParseSimpleWord(tokens)
                 .Should()
                 .BeEquivalentTo(expected);
         }

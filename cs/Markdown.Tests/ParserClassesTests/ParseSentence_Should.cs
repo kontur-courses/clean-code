@@ -6,7 +6,7 @@ using NUnit.Framework;
 
 namespace Markdown.Tests.ParserClassesTests
 {
-    public class SentenceParser_Should
+    public class ParseSentence_Should
     {
         private readonly Tokenizer tokenizer = new Tokenizer();
         private readonly Parser parser = new Parser();
@@ -24,7 +24,7 @@ namespace Markdown.Tests.ParserClassesTests
             var expected = new SentenceNode();
             expected.Add(textNode);
 
-            parser.SentenceParser(tokens)
+            parser.ParseSentence(tokens)
                 .Should()
                 .BeEquivalentTo(expected);
         }
@@ -43,7 +43,7 @@ namespace Markdown.Tests.ParserClassesTests
             var expected = new SentenceNode();
             expected.Add(textNode);
 
-            parser.SentenceParser(tokens)
+            parser.ParseSentence(tokens)
                 .Should()
                 .BeEquivalentTo(expected);
         }
@@ -63,7 +63,7 @@ namespace Markdown.Tests.ParserClassesTests
             var expected = new SentenceNode();
             expected.Add(textNode);
 
-            parser.SentenceParser(tokens)
+            parser.ParseSentence(tokens)
                 .Should()
                 .BeEquivalentTo(expected);
         }
@@ -83,7 +83,7 @@ namespace Markdown.Tests.ParserClassesTests
             var expected = new SentenceNode();
             expected.Add(textNode);
 
-            parser.SentenceParser(tokens)
+            parser.ParseSentence(tokens)
                 .Should()
                 .BeEquivalentTo(expected);
         }
@@ -109,7 +109,7 @@ namespace Markdown.Tests.ParserClassesTests
             expected.Add(textNode);
             expected.Add(emphasisNode);
 
-            parser.SentenceParser(tokens)
+            parser.ParseSentence(tokens)
                 .Should()
                 .BeEquivalentTo(expected);
         }
@@ -137,7 +137,7 @@ namespace Markdown.Tests.ParserClassesTests
             expected.Add(textNode);
             expected.Add(boldNode);
 
-            parser.SentenceParser(tokens)
+            parser.ParseSentence(tokens)
                 .Should()
                 .BeEquivalentTo(expected);
         }

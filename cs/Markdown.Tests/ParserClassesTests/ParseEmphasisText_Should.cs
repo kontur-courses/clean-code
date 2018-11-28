@@ -6,7 +6,7 @@ using NUnit.Framework;
 
 namespace Markdown.Tests.ParserClassesTests
 {
-    public class EmphasisTextParser_Should
+    public class ParseEmphasisText_Should
     {
         private readonly Tokenizer tokenizer = new Tokenizer();
         private readonly Parser parser = new Parser();
@@ -23,7 +23,7 @@ namespace Markdown.Tests.ParserClassesTests
             expected.Add(new WordNode(WordType.SpacedWord, " chopped"));
             expected.Add(new WordNode(WordType.SpacedWord, " liver?"));
 
-            parser.EmphasisTextParser(tokens)
+            parser.ParseEmphasisText(tokens)
                 .Should()
                 .BeEquivalentTo(expected);
         }
@@ -41,7 +41,7 @@ namespace Markdown.Tests.ParserClassesTests
             expected.Add(new WordNode(WordType.SimpleWord, "__"));
             expected.Add(new WordNode(WordType.SpacedWord, " pie"));
 
-            parser.EmphasisTextParser(tokens)
+            parser.ParseEmphasisText(tokens)
                 .Should()
                 .BeEquivalentTo(expected);
         }
@@ -54,7 +54,7 @@ namespace Markdown.Tests.ParserClassesTests
             var expected = new TextNode();
             expected.Add(new WordNode(WordType.SimpleWord, "_"));
 
-            parser.EmphasisTextParser(tokens)
+            parser.ParseEmphasisText(tokens)
                 .Should()
                 .BeEquivalentTo(expected);
         }
@@ -68,7 +68,7 @@ namespace Markdown.Tests.ParserClassesTests
             expected.Add(new WordNode(WordType.SimpleWord, "_"));
             expected.Add(new WordNode(WordType.SpacedWord, " science"));
 
-            parser.EmphasisTextParser(tokens)
+            parser.ParseEmphasisText(tokens)
                 .Should()
                 .BeEquivalentTo(expected);
         }
@@ -83,7 +83,7 @@ namespace Markdown.Tests.ParserClassesTests
             expected.Add(new WordNode(WordType.SimpleWord, "norm"));
             expected.Add(new WordNode(WordType.Space, " "));
 
-            parser.EmphasisTextParser(tokens)
+            parser.ParseEmphasisText(tokens)
                 .Should()
                 .BeEquivalentTo(expected);
         }
@@ -98,7 +98,7 @@ namespace Markdown.Tests.ParserClassesTests
             expected.Add(new WordNode(WordType.SimpleWord, "treatment"));
             expected.Add(new WordNode(WordType.SimpleWord, "__"));
 
-            parser.EmphasisTextParser(tokens)
+            parser.ParseEmphasisText(tokens)
                 .Should()
                 .BeEquivalentTo(expected);
         }

@@ -6,7 +6,7 @@ using NUnit.Framework;
 
 namespace Markdown.Tests.ParserClassesTests
 {
-    public class SpacedWordParser_Should
+    public class ParseSpacedWord_Should
     {
         private readonly Tokenizer tokenizer = new Tokenizer();
         private readonly Parser parser = new Parser();
@@ -26,7 +26,7 @@ namespace Markdown.Tests.ParserClassesTests
             var tokens = tokenizer.Tokenize(text);
             var expected = new WordNode(WordType.SpacedWord, expectedValue);
 
-            parser.SpacedWordParser(tokens)
+            parser.ParseSpacedWord(tokens)
                 .Should()
                 .BeEquivalentTo(expected);
         }
@@ -39,7 +39,7 @@ namespace Markdown.Tests.ParserClassesTests
             var tokens = tokenizer.Tokenize(text);
             var expected = new WordNode(WordType.SpacedWord, expectedValue);
 
-            parser.SpacedWordParser(tokens)
+            parser.ParseSpacedWord(tokens)
                 .Should()
                 .BeEquivalentTo(expected);
         }
@@ -51,7 +51,7 @@ namespace Markdown.Tests.ParserClassesTests
             var tokens = tokenizer.Tokenize(text);
             var expected = new WordNode(WordType.Space, " ");
 
-            parser.SpacedWordParser(tokens)
+            parser.ParseSpacedWord(tokens)
                 .Should()
                 .BeEquivalentTo(expected);
         }
