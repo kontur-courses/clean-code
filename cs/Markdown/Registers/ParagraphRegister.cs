@@ -21,7 +21,7 @@ namespace Markdown.Registers
                         .Split('\n')
                         .Select(str => str.TrimStart(' ', '\r'))
                         .Aggregate((sum, s) => sum + '\n' + s);
-                    return new Token(res, prefix, suffix + '\n', Priority, i - startPos + 1);
+                    return new Token(res, prefix, suffix + '\n', Priority, i - startPos + 1, true);
                 }
 
             res = input.Substring(startPos, input.Length - startPos)
@@ -31,9 +31,9 @@ namespace Markdown.Registers
                 .TrimStart(' ', '\r', '\n');
 
             if (res == "")
-                return new Token("", "", "", 1, input.Length - startPos);
+                return new Token("", "", "", 1, input.Length - startPos, true);
 
-            return new Token(res, prefix, suffix, Priority, input.Length - startPos);
+            return new Token(res, prefix, suffix, Priority, input.Length - startPos, true);
         }
     }
 }

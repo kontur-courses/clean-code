@@ -1,34 +1,37 @@
-﻿using Markdown;
+﻿using FluentAssertions;
+using Markdown;
 using NUnit.Framework;
+
 
 namespace MarkdownShould
 {
     [TestFixture]
     public class HorLineRegister_Should
     {
-        private Md parser;
+        private Markdown.Registers.HorLineRegister register;
 
         [SetUp]
         public void SetUp()
         {
-            parser = new Md();
+            register = new Markdown.Registers.HorLineRegister();
         }
 
-        [TestCase("***", ExpectedResult = "<hr />")]
-        [TestCase("---", ExpectedResult = "<hr />")]
-        [TestCase("___", ExpectedResult = "<hr />")]
-        [TestCase("   ***", ExpectedResult = "<hr />")]
-        [TestCase("* ***** ***** ********", ExpectedResult = "<hr />")]
-        public string BeWithHRTag(string input)
+        [TestCase("***")]
+        [TestCase("---")]
+        [TestCase("___")]
+        [TestCase("   ***")]
+        [TestCase("* ***** ***** ********")]
+        public void BeWithHRTag(string input)
         {
-            return parser.Render(input);
+            var res = register.TryGetToken(input, 0);
+            res.Should().Be(new Token("", "<hr />", "", 1, input.Length, false));
         }
 
-        [TestCase("+++", ExpectedResult = "<p>+++</p>")]
-        [TestCase("Foo\r\n    ***", ExpectedResult = "<p>Foo\r\n***</p>")]
-        public string BeWithoutHRTag(string input)
+        [TestCase("+++", ExpectedResult = null)]
+        [TestCase("Foo\r\n    ***", ExpectedResult = null)]
+        public Token BeWithoutHRTag(string input)
         {
-            return parser.Render(input);
+            return register.TryGetToken(input, 0);
         }
     }
 }

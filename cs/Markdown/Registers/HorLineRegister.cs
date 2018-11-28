@@ -1,10 +1,14 @@
 ﻿using System.Collections.Generic;
+using System.Reflection;
+using System.Runtime.CompilerServices;
+[assembly: InternalsVisibleTo("MarkdownShould")]
 
 namespace Markdown.Registers
 {
+
     internal class HorLineRegister : BaseRegister
     {
-        private readonly HashSet<char> ableDigits = new HashSet<char>(new[] {'*', '-', '_'});
+        private readonly HashSet<char> aviableDigits = new HashSet<char>(new[] {'*', '-', '_'});
         protected override int Priority => 1;
 
         public override bool IsBlockRegister => true;
@@ -28,7 +32,7 @@ namespace Markdown.Registers
 
                 if (currDigit == '\0')
                 {
-                    if (ableDigits.Contains(input[i]))
+                    if (aviableDigits.Contains(input[i]))
                     {
                         currDigit = input[i];
                         digitCount += 1;
@@ -54,7 +58,7 @@ namespace Markdown.Registers
             if (digitCount < 3)
                 return null;
 
-            return new Token("", "<hr />", "", Priority, i - startPos);
+            return new Token("", "<hr />", "", Priority, i - startPos, false);
         }
     }
 }
