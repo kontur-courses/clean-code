@@ -38,8 +38,7 @@ namespace Markdown
                     .Where(r => r.IsBlockRegister == isBlockRegisters)
                     .Select(r => r.TryGetToken(input, i))
                     .Where(t => t != null)
-                    .OrderByDescending(t => t.Shift)
-                    .ThenByDescending(t => t.Priority)
+                    .OrderByDescending(t => t.Priority)
                     .FirstOrDefault();
 
                 if (token != null)
