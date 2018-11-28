@@ -2,36 +2,28 @@
 using System.Collections.Generic;
 using FluentAssertions;
 using Markdown;
+using Microsoft.VisualStudio.TestTools.UnitTesting;
 using NUnit.Framework;
 
 namespace MdTest
 {
     [TestFixture]
     public class MdUnitTests
-    {
-        private IEnumerable<TestCaseData> GetTestCases()
-        {
-            yield return new TestCaseData("", "").SetName("EmptyString");
-            yield return new TestCaseData("abc", "abc").SetName("SimpleString");
-            yield return new TestCaseData("_a_", "<em>a</em>").SetName("ItalicTestHighlightingString");
-            yield return new TestCaseData("__a__", "<strong>a</strong>").SetName("BoldTestHighlightingString");
-            yield return new TestCaseData(@"\__a\__", "__a__").SetName("CharactersEscaping");
-            yield return new TestCaseData(@"\__a__", "__a__").SetName("SingleCharacterEscaping");
-            yield return new TestCaseData("_italic__bold and italic___", "<strong>italic<em>bold and italic</em></strong>")
-                .SetName("Nesting case: bold text highlighting inside italic");
-            yield return new TestCaseData("__bold_bold and italic___", "<em>italic<strong>bold and italic</strong></em>")
-                .SetName("Nesting case: italic text highlighting inside bold");
-            yield return new TestCaseData("_123_", "_123_").SetName("OnlyDigitsDoNotStandOut");
-            yield return new TestCaseData("_1and3_", "<em>1and3</em>").SetName("DigitsWithOtherCharactersStandOut");
-            yield return new TestCaseData("_ hello_", "_ hello_").SetName("SpaceInStartDoNotStandOut");
-            yield return new TestCaseData("_hello _", "_ hello_").SetName("SpaceInEndDoNotStandOut");
-            yield return new TestCaseData("_hello__", "_hello__").SetName("UnpairedCharactersIsNotTextHighlighting");
-            yield return new TestCaseData("_italic_simple text_italic_", "<em>italic</em>simple text<em>italic</em>")
-                .SetName("NestingOfTheSameHighlightingCharactersIsIgnored");
-            yield return new TestCaseData("_!!!_", "<em>!!!</em>").SetName("PunctuationMarksAreAlsoHighlighted");
-        }
-
-        [TestCase(), TestCaseSource(nameof(GetTestCases))]
+    { 
+        [TestCase("", "", TestName = "EmptyString")]
+        [TestCase("abc", "abc", TestName = "SimpleString")]
+        [TestCase("_a_", "<em>a</em>", TestName = "ItalicTestHighlightingString")]
+        [TestCase("__a__", "<strong>a</strong>", TestName = "BoldTestHighlightingString")]
+        [TestCase(@"\__a\__", "__a__", TestName = "CharactersEscaping")]
+        [TestCase(@"\__a__", "__a__", TestName = "SingleCharacterEscaping")]
+        [TestCase("_italic__bold and italic___", "<em>italic<strong>bold and italic</strong></em>", TestName = "Nesting case: bold text highlighting inside italic")]
+        [TestCase("_123_", "_123_", TestName = "OnlyDigitsDoNotStandOut")]
+        [TestCase("_1and3_", "<em>1and3</em>", TestName = "DigitsWithOtherCharactersStandOut")]
+        [TestCase("_ hello_", "_ hello_", TestName = "SpaceInStartDoNotStandOut")]
+        [TestCase("_hello _", "_hello _", TestName = "SpaceInEndDoNotStandOut")]
+        [TestCase("_hello__", "_hello__", TestName = "UnpairedCharactersIsNotTextHighlighting")]
+        [TestCase("_italic_simple text_italic_", "<em>italic</em>simple text<em>italic</em>", TestName = "NestingOfTheSameHighlightingCharactersIsIgnored")]
+        [TestCase("_!!!_", "<em>!!!</em>", TestName = "PunctuationMarksAreAlsoHighlighted")]
         public void Render_ShouldCorrectConvertToHtml(string inputText, string outputHtmlText)
         {
             Md.Render(inputText).Should().Be(outputHtmlText);
