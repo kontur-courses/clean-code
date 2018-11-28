@@ -17,7 +17,8 @@ namespace Markdown
                 new ParagraphRegister(),
                 new HorLineRegister(),
                 new StrongRegister(),
-                new EmphasisRegister()
+                new EmphasisRegister(),
+                new HeaderRegister()
             };
         }
 

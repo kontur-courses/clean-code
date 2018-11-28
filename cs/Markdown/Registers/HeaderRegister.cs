@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 
 namespace Markdown.Registers
 {
@@ -14,7 +15,7 @@ namespace Markdown.Registers
             for (int i = startIndex; i < input.Length; i++)
             {
                 index = i;
-                if (input[i] != ' ')
+                if (!Char.IsWhiteSpace(input[i]))
                     return true;
                 if (maxCount != -1 && i - startIndex == maxCount)
                     return false;
@@ -25,11 +26,10 @@ namespace Markdown.Registers
 
         public override Token TryGetToken(string input, int startPos)
         {
-            var isStartSpaces = true;
-            int i, prefixDigitCount = 0;
-            int valStartIndex, valEndIndex;
+            var prefixDigitCount = 0;
+            int valueStartIndex, valueEndIndex;
 
-            if (!skipSpaces(input, startPos, 3, out i))
+            if (!skipSpaces(input, startPos, 3, out var i))
                 return null;
 
             while (i < input.Length && input[i] == '#')
@@ -38,21 +38,18 @@ namespace Markdown.Registers
                 i++;
             }
 
-            if (prefixDigitCount == 0 || prefixDigitCount > 6 || i < input.Length && input[i] != ' ')
+            if (prefixDigitCount == 0 || prefixDigitCount > 6 || i < input.Length && !Char.IsWhiteSpace(input[i]))
                 return null;
 
             skipSpaces(input, i, -1, out i);
-
-            valStartIndex = valEndIndex = i;
+            valueStartIndex = valueEndIndex = i;
 
             for (; i < input.Length; i++)
             {
                 if (input[i] == '\n')
-                {
                     break;
-                }
 
-                if (input[i] == '#' && input[i-1] == ' ')
+                if (input[i] == '#' && Char.IsWhiteSpace(input[i - 1]))
                 {
                     while (i < input.Length && input[i] == '#')
                     {
@@ -64,13 +61,14 @@ namespace Markdown.Registers
                 }
 
                 if (input[i] != ' ')
-                    valEndIndex = i;
+                    valueEndIndex = i;
             }
 
-            if (valEndIndex - valStartIndex <= 0)
-                return new Token("", $"<h{prefixDigitCount}>", $"</h{prefixDigitCount}>", Priority, i - startPos, false);
+            var value = valueEndIndex - valueStartIndex > 0
+                ? input.Substring(valueStartIndex, valueEndIndex - valueStartIndex + 1)
+                : "";
 
-            return new Token(input.Substring(valStartIndex, valEndIndex - valStartIndex + 1), $"<h{prefixDigitCount}>", $"</h{prefixDigitCount}>", Priority, i - startPos, false);
+            return new Token(value, $"<h{prefixDigitCount}>", $"</h{prefixDigitCount}>", Priority, i - startPos, false);
         }
     }
 }

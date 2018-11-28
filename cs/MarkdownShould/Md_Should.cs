@@ -20,6 +20,7 @@ namespace MarkdownShould
             // TODO
         }
 
+        [TestCase("  #    some ##\nwhat i want", ExpectedResult = "<h1>some</h1>\n<p>what i want</p>")]
         [TestCase("_some __bike_ is__", ExpectedResult = "<p><em>some <em><em>bike</em> is</em></em></p>")]
         [TestCase("** some \r\n\r\n some**", ExpectedResult = "<p>** some \r\n\r\nsome**</p>")]
         [TestCase("_(__foo__)_", ExpectedResult = "<p><em>(<strong>foo</strong>)</em></p>")]
