@@ -9,7 +9,6 @@ namespace Markdown.Tests.ParserClassesTests
     public class ParseText_Should
     {
         private readonly Tokenizer tokenizer = new Tokenizer();
-        private readonly Parser parser = new Parser();
 
         [TestCase(" ", WordType.Space, " ", TestName = "space")]
         [TestCase("5", WordType.SimpleWord, "5", TestName = "simple num")]
@@ -23,7 +22,7 @@ namespace Markdown.Tests.ParserClassesTests
             var expected = new TextNode();
             expected.Add(new WordNode(type, value));
 
-            parser.ParseText(tokens)
+            Parser.ParseText(tokens)
                 .Should()
                 .BeEquivalentTo(expected);
         }
@@ -38,7 +37,7 @@ namespace Markdown.Tests.ParserClassesTests
             expected.Add(new WordNode(WordType.Space, " "));
             expected.Add(new WordNode(WordType.Space, " "));
 
-            parser.ParseText(tokens)
+            Parser.ParseText(tokens)
                 .Should()
                 .BeEquivalentTo(expected);
         }
@@ -56,7 +55,7 @@ namespace Markdown.Tests.ParserClassesTests
             expected.Add(new WordNode(wordType, word));
             expected.Add(new WordNode(WordType.Space, " "));
 
-            parser.ParseText(tokens)
+            Parser.ParseText(tokens)
                 .Should()
                 .BeEquivalentTo(expected);
         }
@@ -81,7 +80,7 @@ namespace Markdown.Tests.ParserClassesTests
             expected.Add(new WordNode(firstType, firstExpectedValue));
             expected.Add(new WordNode(secondType, secondExpectedValue));
 
-            parser.ParseText(tokens)
+            Parser.ParseText(tokens)
                 .Should()
                 .BeEquivalentTo(expected);
         }

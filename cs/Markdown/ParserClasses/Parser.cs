@@ -6,16 +6,16 @@ using Markdown.TokenizerClasses;
 
 namespace Markdown.ParserClasses
 {
-    public class Parser
+    public static class Parser
     {
-        public SentenceNode Parse(Deque<Token> tokens)
+        public static SentenceNode Parse(Deque<Token> tokens)
         {
             var sentence = ParseSentence(tokens);
 
             return sentence;
         }
 
-        public SentenceNode ParseSentence(Deque<Token> tokens)
+        public static SentenceNode ParseSentence(Deque<Token> tokens)
         {
             var sentence = new SentenceNode();
 
@@ -48,7 +48,7 @@ namespace Markdown.ParserClasses
             return sentence;
         }
 
-        public TextNode ParseBoldText(Deque<Token> tokens)
+        public static TextNode ParseBoldText(Deque<Token> tokens)
         {
             var doubleUnderscore = tokens.PopFirst();
             if (tokens.Count == 0)
@@ -108,7 +108,7 @@ namespace Markdown.ParserClasses
             }
         }
 
-        public TextNode ParseEmphasisText(Deque<Token> tokens)
+        public static TextNode ParseEmphasisText(Deque<Token> tokens)
         {
             var underscore = tokens.PopFirst();
             if (tokens.Count == 0)
@@ -158,7 +158,7 @@ namespace Markdown.ParserClasses
             }
         }
 
-        public TextNode ParseText(Deque<Token> tokens)
+        public static TextNode ParseText(Deque<Token> tokens)
         {
             var plainText = new TextNode();
 
@@ -187,14 +187,14 @@ namespace Markdown.ParserClasses
             return plainText;
         }
 
-        public WordNode ParseSimpleWord(Deque<Token> tokens)
+        public static WordNode ParseSimpleWord(Deque<Token> tokens)
         {
             var simpleWord = tokens.PopFirst();
 
             return new WordNode(WordType.SimpleWord, simpleWord.Value);
         }
 
-        public WordNode ParseSpacedWord(Deque<Token> tokens)
+        public static WordNode ParseSpacedWord(Deque<Token> tokens)
         {
             var space = tokens.PopFirst();
 

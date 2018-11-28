@@ -9,7 +9,6 @@ namespace Markdown.Tests.ParserClassesTests
     public class ParseBoldText_Should
     {
         private readonly Tokenizer tokenizer = new Tokenizer();
-        private readonly Parser parser = new Parser();
 
         [Test]
         public void Parse_TextSurroundedByDoubleUnderscores_Successfully()
@@ -23,7 +22,7 @@ namespace Markdown.Tests.ParserClassesTests
             expected.Add(new WordNode(WordType.SpacedWord, " chopped"));
             expected.Add(new WordNode(WordType.SpacedWord, " liver?"));
 
-            parser.ParseBoldText(tokens)
+            Parser.ParseBoldText(tokens)
                 .Should()
                 .BeEquivalentTo(expected);
         }
@@ -43,7 +42,7 @@ namespace Markdown.Tests.ParserClassesTests
             expected.Add(new WordNode(WordType.SimpleWord, "</em>"));
             expected.Add(new WordNode(WordType.SpacedWord, " shoulder"));
 
-            parser.ParseBoldText(tokens)
+            Parser.ParseBoldText(tokens)
                 .Should()
                 .BeEquivalentTo(expected);
         }
@@ -56,7 +55,7 @@ namespace Markdown.Tests.ParserClassesTests
             var expected = new TextNode();
             expected.Add(new WordNode(WordType.SimpleWord, "__"));
 
-            parser.ParseBoldText(tokens)
+            Parser.ParseBoldText(tokens)
                 .Should()
                 .BeEquivalentTo(expected);
         }
@@ -70,7 +69,7 @@ namespace Markdown.Tests.ParserClassesTests
             expected.Add(new WordNode(WordType.SimpleWord, "__"));
             expected.Add(new WordNode(WordType.SpacedWord, " warn"));
 
-            parser.ParseBoldText(tokens)
+            Parser.ParseBoldText(tokens)
                 .Should()
                 .BeEquivalentTo(expected);
         }
@@ -85,7 +84,7 @@ namespace Markdown.Tests.ParserClassesTests
             expected.Add(new WordNode(WordType.SimpleWord, "insert"));
             expected.Add(new WordNode(WordType.Space, " "));
 
-            parser.ParseBoldText(tokens)
+            Parser.ParseBoldText(tokens)
                 .Should()
                 .BeEquivalentTo(expected);
         }
@@ -100,7 +99,7 @@ namespace Markdown.Tests.ParserClassesTests
             expected.Add(new WordNode(WordType.SimpleWord, "appeal"));
             expected.Add(new WordNode(WordType.SimpleWord, "_"));
 
-            parser.ParseBoldText(tokens)
+            Parser.ParseBoldText(tokens)
                 .Should()
                 .BeEquivalentTo(expected);
         }

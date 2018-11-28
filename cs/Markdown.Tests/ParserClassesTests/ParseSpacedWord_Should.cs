@@ -9,7 +9,6 @@ namespace Markdown.Tests.ParserClassesTests
     public class ParseSpacedWord_Should
     {
         private readonly Tokenizer tokenizer = new Tokenizer();
-        private readonly Parser parser = new Parser();
 
         [TestCase(" 0", " 0", TestName = " 0")]
         [TestCase(" 1", " 1", TestName = " 1")]
@@ -26,7 +25,7 @@ namespace Markdown.Tests.ParserClassesTests
             var tokens = tokenizer.Tokenize(text);
             var expected = new WordNode(WordType.SpacedWord, expectedValue);
 
-            parser.ParseSpacedWord(tokens)
+            Parser.ParseSpacedWord(tokens)
                 .Should()
                 .BeEquivalentTo(expected);
         }
@@ -39,7 +38,7 @@ namespace Markdown.Tests.ParserClassesTests
             var tokens = tokenizer.Tokenize(text);
             var expected = new WordNode(WordType.SpacedWord, expectedValue);
 
-            parser.ParseSpacedWord(tokens)
+            Parser.ParseSpacedWord(tokens)
                 .Should()
                 .BeEquivalentTo(expected);
         }
@@ -51,7 +50,7 @@ namespace Markdown.Tests.ParserClassesTests
             var tokens = tokenizer.Tokenize(text);
             var expected = new WordNode(WordType.Space, " ");
 
-            parser.ParseSpacedWord(tokens)
+            Parser.ParseSpacedWord(tokens)
                 .Should()
                 .BeEquivalentTo(expected);
         }
