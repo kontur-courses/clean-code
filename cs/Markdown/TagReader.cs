@@ -38,9 +38,7 @@ namespace Markdown
         public void SkipAndAdd(int amount)
         {
             for (var startPosition = Position; Position < startPosition + amount; Position++)
-            {
                 AddCharacterToTokens(Source[Position]);
-            }
         }
 
         public void Skip(int amount)

@@ -1,16 +1,11 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace Markdown
 {
     public class EmTagInfo : ITagInfo
     {
         public Predicate<StringView> StartCondition =>
-            w => w[-1] != '_'
-                 && w[0] == '_'
+            w => w[0] == '_'
                  && w[1] != '_'
                  && !char.IsWhiteSpace(w[1]);
 
