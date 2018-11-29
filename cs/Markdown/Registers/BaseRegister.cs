@@ -1,6 +1,6 @@
 ﻿namespace Markdown.Registers
 {
-    abstract class BaseRegister
+    internal abstract class BaseRegister
     {
         protected abstract int Priority { get; }
         public abstract bool IsBlockRegister { get; }

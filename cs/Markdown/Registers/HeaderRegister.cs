@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
 
 namespace Markdown.Registers
 {
@@ -9,7 +8,7 @@ namespace Markdown.Registers
 
         public override bool IsBlockRegister => true;
 
-        private bool skipSpaces(string input, int startIndex, int maxCount, out int index)
+        private bool SkipSpaces(string input, int startIndex, int maxCount, out int index)
         {
             index = startIndex;
             for (int i = startIndex; i < input.Length; i++)
@@ -29,7 +28,7 @@ namespace Markdown.Registers
             var prefixDigitCount = 0;
             int valueStartIndex, valueEndIndex;
 
-            if (!skipSpaces(input, startPos, 3, out var i))
+            if (!SkipSpaces(input, startPos, 3, out var i))
                 return null;
 
             while (i < input.Length && input[i] == '#')
@@ -41,7 +40,7 @@ namespace Markdown.Registers
             if (prefixDigitCount == 0 || prefixDigitCount > 6 || i < input.Length && !Char.IsWhiteSpace(input[i]))
                 return null;
 
-            skipSpaces(input, i, -1, out i);
+            SkipSpaces(input, i, -1, out i);
             valueStartIndex = valueEndIndex = i;
 
             for (; i < input.Length; i++)

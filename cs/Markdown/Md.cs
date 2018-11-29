@@ -1,5 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using Markdown.Registers;
@@ -24,10 +23,10 @@ namespace Markdown
 
         public string Render(string input)
         {
-            return tokensToHtml(parseToTokens(input, isBlockRegisters:true));
+            return TokensToHtml(ParseToTokens(input, isBlockRegisters:true));
         }
 
-        private List<Token> parseToTokens(string input, bool isBlockRegisters)
+        private List<Token> ParseToTokens(string input, bool isBlockRegisters)
         {
             var tokens = new List<Token>();
             var outsideChars = new StringBuilder();
@@ -62,14 +61,14 @@ namespace Markdown
             return tokens;
         }
 
-        private string tokensToHtml(List<Token> tokens)
+        private string TokensToHtml(List<Token> tokens)
         {
             var result = new StringBuilder();
 
             foreach (var token in tokens)
             {
                 var value = token.IsParseInside
-                    ? tokensToHtml(parseToTokens(token.Value, false))
+                    ? TokensToHtml(ParseToTokens(token.Value, false))
                     : token.Value;
 
                 result.Append(token.OpenTag);

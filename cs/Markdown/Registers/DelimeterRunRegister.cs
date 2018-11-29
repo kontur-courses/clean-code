@@ -1,9 +1,8 @@
 ﻿using System.Collections.Generic;
-using System.Runtime.InteropServices;
 
 namespace Markdown.Registers
 {
-    abstract class DelimeterRunRegister : BaseRegister
+    internal abstract class DelimeterRunRegister : BaseRegister
     {
         protected abstract int DelimLen { get; }
         protected abstract string Prefix { get; }
@@ -25,14 +24,11 @@ namespace Markdown.Registers
             var supposedDelimiter = input.Substring(startPos, DelimLen);
             var delimiter = delimeters.Contains(supposedDelimiter) ? supposedDelimiter : null;
 
-            if (CheckPrefixCorrect(input, startPos, delimiter) &&
-                GetSuffixIndex(input, startPos, delimiter, out var suffIndex))
-            {
-                var strValue = input.Substring(startPos + DelimLen, suffIndex - DelimLen - startPos);
-                return new Token(strValue, Prefix, Suffix, Priority, suffIndex - startPos + DelimLen, true);
-            }
-
-            return null;
+            if (!CheckPrefixCorrect(input, startPos, delimiter) ||
+                !GetSuffixIndex(input, startPos, delimiter, out var suffIndex)) return null;
+            
+            var strValue = input.Substring(startPos + DelimLen, suffIndex - DelimLen - startPos);
+            return new Token(strValue, Prefix, Suffix, Priority, suffIndex - startPos + DelimLen, true);
         }
 
         private bool CheckPrefixCorrect(string input, int startPos, string delimiter)
@@ -40,7 +36,7 @@ namespace Markdown.Registers
             if (delimiter == null)
                 return false;
 
-            getBorders(input, startPos, delimiter, out var leftBorder, out var rightBorder);
+            GetBorders(input, startPos, delimiter, out var leftBorder, out var rightBorder);
 
             if (rightBorder + DelimLen == input.Length || char.IsWhiteSpace(input[rightBorder + DelimLen]))
                 return false;
@@ -65,7 +61,7 @@ namespace Markdown.Registers
             if (delimiter == null)
                 return false;
 
-            getBorders(input, startPos, delimiter, out var leftBorder, out var rightBorder);
+            GetBorders(input, startPos, delimiter, out var leftBorder, out var rightBorder);
 
             if (DelimLen == 1 && rightBorder - leftBorder == 1 && leftBorder == startPos &&
                 CheckPrefixCorrect(input, startPos, delimiter))
@@ -116,7 +112,7 @@ namespace Markdown.Registers
             return false;
         }
 
-        private void getBorders(string input, int startPos, string delimiter, out int leftBorder, out int rightBorder)
+        private void GetBorders(string input, int startPos, string delimiter, out int leftBorder, out int rightBorder)
         {
             leftBorder = startPos;
             while (leftBorder >= 0 && input.IndexOf(delimiter, leftBorder) == leftBorder)
