@@ -7,25 +7,28 @@ namespace Markdown
     public class TokenList : IEnumerable<Token>
     {
         private readonly Token rootToken;
+        private Token lastToken;
 
         public TokenList(Token rootToken)
         {
             this.rootToken = rootToken;
+            lastToken = rootToken;
         }
 
         public string GetValue()
         {
-            rootToken.Child?.Abort();
+            lastToken.Abort(rootToken);
             return rootToken.Value;
         }
 
         public bool TryCloseTag(CollectionView<char> collectionView, out ITagInfo tag)
         {
             tag = null;
-            foreach (var token in this.Reverse())
+            foreach (var token in this)
             {
                 if (!token.Tag.EndCondition(collectionView)) continue;
-                token.Close();
+                lastToken.Abort(token);
+                lastToken = token.Parent;
                 tag = token.Tag;
                 return true;
             }
@@ -35,32 +38,27 @@ namespace Markdown
 
         public bool TryOpenTag(ITagInfo tag, int position)
         {
-            var currentToken = rootToken;
-            while (currentToken.Child != null)
-            {
-                if (currentToken.Tag == tag)
-                    return false;
-                currentToken = currentToken.Child;
-            }
-
-            currentToken.SetChild(tag.GetNewToken(position));
-            currentToken.Child.SetParent(currentToken);
+            if (this.Any(token => token.Tag == tag))
+                return false;
+            var newToken = tag.GetNewToken(position);
+            newToken.SetParent(lastToken);
+            lastToken = newToken;
 
             return true;
         }
 
         public void AddCharacter(char c)
         {
-            rootToken.AddCharacter(c);
+            lastToken.AddCharacter(c);
         }
 
         public IEnumerator<Token> GetEnumerator()
         {
-            var currentToken = rootToken;
+            var currentToken = lastToken;
             do
             {
                 yield return currentToken;
-                currentToken = currentToken.Child;
+                currentToken = currentToken.Parent;
             } while (currentToken != null);
         }
 

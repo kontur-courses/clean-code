@@ -17,7 +17,7 @@ namespace Markdown
         [TestCase("text_1_23", "text_1_23", TestName = "tags inside text with numbers")]
         [TestCase("__text1 _text2", "__text1 _text2", TestName = "opening tags with no closing")]
         [TestCase("text1_ text2_", "text1_ text2_", TestName = "tags followed by space")]
-        [TestCase("_text1 _text2 text3_", "_text1 <em>text2 text3</em>", TestName = "tags preceded by space")]
+        [TestCase("_text1 _text2 text3_", "<em>text1 _text2 text3</em>", TestName = "tags preceded by space")]
         [TestCase("__text1 _text2__ text3_", "<strong>text1 _text2</strong> text3_", TestName = "intersecting tags")]
         [TestCase("___text__", "<strong>_text</strong>", TestName = "clustered underscores")]
         [TestCase("qw__ er __ty", "qw__ er __ty", TestName = "strong tag preceded and followed by space")]
