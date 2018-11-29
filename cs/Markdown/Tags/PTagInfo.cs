@@ -4,8 +4,8 @@ namespace Markdown
 {
     public class PTagInfo : ITagInfo
     {
-        public Predicate<StringView> StartCondition => w => false;
-        public Predicate<StringView> EndCondition => w => false;
+        public Predicate<CollectionView<char>> StartCondition => w => false;
+        public Predicate<CollectionView<char>> EndCondition => w => false;
         public Action<TagReader> OnTagStart { get; }
         public Action<TagReader> OnTagEnd { get; }
         public string HtmlTagText => "p";

@@ -43,6 +43,7 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="CollectionViewExtensions.cs" />
     <Compile Include="Tags\EmTagInfo.cs" />
     <Compile Include="Markdown.cs" />
     <Compile Include="Program.cs" />
@@ -53,7 +54,7 @@
     <Compile Include="Token.cs" />
     <Compile Include="TagReader.cs" />
     <Compile Include="TokenList.cs" />
-    <Compile Include="StringView.cs" />
+    <Compile Include="CollectionView.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="App.config" />

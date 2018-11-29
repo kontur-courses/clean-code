@@ -1,7 +1,6 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
-using System.Runtime.InteropServices;
 
 namespace Markdown
 {
@@ -20,17 +19,17 @@ namespace Markdown
             return rootToken.Value;
         }
 
-        public bool TryOpenTag(ITagInfo tag, StringView stringView)
+        public bool TryOpenTag(ITagInfo tag, CollectionView<char> collectionView)
         {
-            return tag.StartCondition(stringView) && TryAddNewToken(tag, stringView.Position);
+            return tag.StartCondition(collectionView) && TryAddNewToken(tag, collectionView.Position);
         }
 
-        public bool TryCloseTag(StringView stringView, out ITagInfo tag)
+        public bool TryCloseTag(CollectionView<char> collectionView, out ITagInfo tag)
         {
             tag = null;
             foreach (var token in this.Reverse())
             {
-                if (!token.Tag.EndCondition(stringView)) continue;
+                if (!token.Tag.EndCondition(collectionView)) continue;
                 token.Close();
                 tag = token.Tag;
                 return true;

@@ -4,8 +4,8 @@ namespace Markdown
 {
     public interface ITagInfo
     {
-        Predicate<StringView> StartCondition { get; }
-        Predicate<StringView> EndCondition { get; }
+        Predicate<CollectionView<char>> StartCondition { get; }
+        Predicate<CollectionView<char>> EndCondition { get; }
         Action<TagReader> OnTagStart { get; }
         Action<TagReader> OnTagEnd { get; }
         string HtmlTagText { get; }

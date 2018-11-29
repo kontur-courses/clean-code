@@ -4,14 +4,16 @@ namespace Markdown
 {
     public class StrongTagInfo : ITagInfo
     {
-        public Predicate<StringView> StartCondition =>
-            w => w[0] == '_'
-            && w[1] == '_'
-            && !char.IsWhiteSpace(w[2]);
-        public Predicate<StringView> EndCondition =>
-            w => !char.IsWhiteSpace(w[-1])
-            && w[0] == '_'
-            && w[1] == '_';
+        public Predicate<CollectionView<char>> StartCondition =>
+            w => !w.IsAlphanumeric(-1)
+                 && w.IsUnderscore(0)
+                 && w.IsUnderscore(1)
+                 && !w.IsWhiteSpace(2);
+        public Predicate<CollectionView<char>> EndCondition =>
+            w => !w.IsWhiteSpace(-1)
+            && w.IsUnderscore(0)
+            && w.IsUnderscore(1)
+            && !w.IsAlphanumeric(2);
 
         public Action<TagReader> OnTagStart =>
             t => t.Skip(TagLength);

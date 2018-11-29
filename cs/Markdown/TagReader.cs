@@ -1,6 +1,4 @@
-﻿using System.Linq;
-
-namespace Markdown
+﻿namespace Markdown
 {
     public class TagReader
     {
@@ -8,27 +6,27 @@ namespace Markdown
         public string Source { get; }
         public ITagInfo[] Tags { get; }
         private TokenList TokenList { get; }
-        private StringView StringView { get; }
+        private CollectionView<char> CollectionView { get; }
 
 
         public TagReader(string source, params ITagInfo[] tags)
         {
             Source = source;
             Tags = tags;
-            TokenList = new TokenList(new PTagInfo().GetNewToken(0));
-            StringView = new StringView(Source, 0);
+            TokenList = new TokenList(new PTagInfo().GetNewToken(Position));
+            CollectionView = new CollectionView<char>(Source, Position);
         }
 
         public string Evaluate()
         {
             while (Position < Source.Length)
             {
-                StringView.Position = Position;
+                CollectionView.Position = Position;
                 if (TrySkipEscapeSymbol()) continue;
                 if (TryCloseTag()) continue;
                 if (TryOpenTag()) continue;
                 
-                TokenList.AddCharacter(StringView[0]);
+                TokenList.AddCharacter(CollectionView.GetValue(0));
 
                 Position++;
             }
@@ -50,7 +48,7 @@ namespace Markdown
         {
             foreach (var tag in Tags)
             {
-                if (!TokenList.TryOpenTag(tag, StringView))
+                if (!TokenList.TryOpenTag(tag, CollectionView))
                     continue;
                 tag.OnTagStart(this);
                 return true;
@@ -61,14 +59,14 @@ namespace Markdown
 
         private bool TryCloseTag()
         {
-            if (!TokenList.TryCloseTag(StringView, out var tag)) return false;
+            if (!TokenList.TryCloseTag(CollectionView, out var tag)) return false;
             tag.OnTagEnd(this);
             return true;
         }
 
         private bool TrySkipEscapeSymbol()
         {
-            if (StringView[0] != '\\') return false;
+            if (!CollectionView.IsEscapeSymbol(0)) return false;
             Skip(1);
             SkipAndAdd(1);
             return true;
