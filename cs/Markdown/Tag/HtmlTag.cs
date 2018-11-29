@@ -1,8 +1,6 @@
-﻿using Markdown.TagRendering;
-
-namespace Markdown.Tag
+﻿namespace Markdown.Tag
 {
-    public class HtmlTagPrototype
+    public class HtmlTag
     {
         public TagNames TagName { get; set; }
         public OpeningAndClosingTagPair<string, string> OpeningAndClosingTagPair { get; set; }

@@ -1,23 +1,17 @@
-﻿using Markdown.TagRendering;
+﻿using System;
+using Markdown.TagRendering;
 
 namespace Markdown.Tag
 {
     public class TagBuilder
     {
-        private const int PositionInMarkdownDefault = 0;
-        private const TagTypes TypeDefault = TagTypes.Opening;
-        private const TagNames NameDefault = TagNames.Em;
-        private const string MarkdownRepresentationDefault = "";
-        private const int MarkdownSymbolLengthDefault = 0;
+        private int positionInMarkdown = 0;
+        private TagTypes type = TagTypes.Opening;
+        private TagNames name = TagNames.Em;
+        private string markdownRepresentation = "";
+        private int markdownSymbolLength = 0;
 
-
-        private int positionInMarkdown = PositionInMarkdownDefault;
-        private TagTypes type = TypeDefault;
-        private TagNames name = NameDefault;
-        private string markdownRepresentation = MarkdownRepresentationDefault;
-        private int markdownSymbolLength = MarkdownSymbolLengthDefault;
-
-        public static TagBuilder ATag()
+        public static TagBuilder Tag()
         {
             return new TagBuilder();
         }
@@ -42,17 +36,21 @@ namespace Markdown.Tag
 
         public TagBuilder WithHtmlRepresentation(string representation)
         {
+            if (string.IsNullOrEmpty(representation))
+                throw new ArgumentException("Representation of a tag can't be null or empty");
             this.markdownRepresentation = representation;
             return this;
         }
 
         public TagBuilder WithMarkdownSymbolLength(int symbolLength)
         {
+            if (symbolLength < 0)
+                throw new ArgumentException("The symbols length can't be negative");
             this.markdownSymbolLength = symbolLength;
             return this;
         }
 
-        public HtmlTagInMarkdown Build() => new HtmlTagInMarkdown(positionInMarkdown, type, name, markdownRepresentation,
+        public MarkdownTag Build() => new MarkdownTag(positionInMarkdown, type, name, markdownRepresentation,
             markdownSymbolLength);
     }
 }

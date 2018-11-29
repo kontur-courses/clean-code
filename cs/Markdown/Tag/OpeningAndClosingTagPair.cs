@@ -1,10 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
-namespace Markdown
+namespace Markdown.Tag
 {
     public sealed class OpeningAndClosingTagPair<TFirst, TSecond>
         : IEquatable<OpeningAndClosingTagPair<TFirst, TSecond>>

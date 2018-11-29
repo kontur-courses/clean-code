@@ -6,15 +6,14 @@ namespace Markdown
 {
     public class Markdown
     {
-        private readonly Stack<HtmlTagInMarkdown> stackedTags;
-        private readonly List<HtmlTagInMarkdown> replacements;
-        private TagGenerator tagGenerator;
-        
+        private readonly Stack<MarkdownTag> stackedTags;
+        private readonly List<MarkdownTag> replacements;
+        private readonly TagGenerator tagGenerator;
         
         public Markdown()
         {
-            stackedTags = new Stack<HtmlTagInMarkdown>();
-	        replacements = new List<HtmlTagInMarkdown>();
+            stackedTags = new Stack<MarkdownTag>();
+	        replacements = new List<MarkdownTag>();
             tagGenerator = new TagGenerator();
         }
         
