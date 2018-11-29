@@ -15,7 +15,8 @@ namespace MarkdownShould
         private string[] textLines = new[]
         {
             "*foo**bar**baz*\n\n", 
-            "_some __bike_ is__\n\n", 
+            "_some __bike_ is__\n\n",
+            "*************",
             "  #    some ##\nwhat i want\n\n",
             "**Gomphocarpus (*Gomphocarpus physocarpus*, syn.\r\n*Asclepias physocarpa*)**\n\n",
             "### head hello\n"
@@ -27,19 +28,20 @@ namespace MarkdownShould
             parser = new Md();
         }
 
-        [TestCase(100, 500)]
-        [TestCase(200, 1000)]
         [TestCase(1000, 5000)]        
-        [TestCase(3000, 15000)]        
+        [TestCase(3000, 15000)]
+        [TestCase(5000, 25000)] 
+        [TestCase(10000, 50000)] 
+        [TestCase(20000, 100000)]  
         public void Render_InLinearTime(int first, int second)
         {
             var firstText = GetText(first);
             var secondText = GetText(second);
 
-            var firstTime = GetRenderTime(firstText);
-            var secondTime = GetRenderTime(secondText);
-            
-            (secondTime / firstTime).Should().BeLessOrEqualTo(5);
+            double firstTime = GetRenderTime(firstText);
+            double secondTime = GetRenderTime(secondText);
+
+            (secondTime / firstTime).Should().BeLessOrEqualTo(6);
         }
 
         [TestCase("  #    some ##\nwhat i want", ExpectedResult = "<h1>some</h1><p>what i want</p>")]
