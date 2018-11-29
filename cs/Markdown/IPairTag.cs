@@ -1,20 +1,13 @@
-﻿using System;
-
-namespace Markdown
+﻿namespace Markdown
 {
     internal interface IPairTag
     {
-        string StartTag
-        {
-            get;
-        }
+        string StartTag { get; }
 
-        string EndTag
-        {
-            get;
-        }
+        string EndTag { get; }
 
+        bool CanContainTag(Tag tag);
 
-        Func<Tag, bool> CanIContainThisTagRule { get; }
+        bool TryEat(string tag);
     }
 }

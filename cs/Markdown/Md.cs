@@ -6,31 +6,28 @@ namespace Markdown
 {
     public class Md
     {
-        private LinkedList<string> tokens = new LinkedList<string>();
+        private List<string> tokens = new List<string>();
+
         private readonly Stack<Tag> openTags = new Stack<Tag>();
+
         public string Render(string inputText)
         {
             if (inputText == "") return "";
             tokens = SplitInputText(inputText);
             var markdown = new StringBuilder();
-            var currentNode = tokens.First;
-            do
+            for (var i = 0; i < tokens.Count; i++)
             {
-                if (!MarkupLanguage.IsKeyWords(currentNode.Value)) continue;
-                if (MarkupLanguage.LanguageRules.Any(r => !r(currentNode))) continue;
+                CreateTokensContext(i, out var previousToken, out var currentToken, out var nextToken);
 
-                if (openTags.Count > 0 && Tag.TryCloseTag(currentNode, openTags.Peek()))
-                {
-                    openTags.Pop();
-                }
-                else if (Tag.TryOpenTag(currentNode, out var tag))
-                {
-                    if (tag is IPairTag &&
-                        openTags.All(t => t is IPairTag pairTag && pairTag.CanIContainThisTagRule(tag)))
-                        openTags.Push(tag);
-                }
+                if (TryFeedTag(currentToken, i) || !MarkupLanguage.IsKeyWords(currentToken) ||
+                    MarkupLanguage.IsSelectionOfCharacters(previousToken, currentToken, nextToken) ||
+                    IsEscapeCharacter(currentToken, ref i)) continue;
 
-            } while ((currentNode = currentNode.Next) != null);
+                if (openTags.Count > 0 && Tag.TryCloseTag(previousToken, currentToken, nextToken, openTags.Peek()))
+                    RenderTag(i);
+                else if (Tag.TryOpenTag(previousToken, currentToken, nextToken, out var tag))
+                    PutInOpenTags(tag, i);
+            }
 
             foreach (var token in tokens)
                 markdown.Append(token);
@@ -38,7 +35,53 @@ namespace Markdown
             return markdown.ToString();
         }
 
-        public LinkedList<string> SplitInputText(string inputText)
+        private void RenderTag(int i)
+        {
+            var closedTag = openTags.Pop();
+            tokens[closedTag.InitialIndex] = ((IPairTag)closedTag).StartTag;
+            tokens[i] = ((IPairTag)closedTag).EndTag;
+        }
+
+        private void PutInOpenTags(Tag tag, int i)
+        {
+            if (tag is IPairTag && openTags.All(t => t is IPairTag pairTag && pairTag.CanContainTag(tag)))
+            {
+                openTags.Push(tag);
+                tag.InitialIndex = i;
+            }
+        }
+
+        private bool TryFeedTag(string currentToken, int i)
+        {
+            if (openTags.Count > 0 && (openTags.Peek() as IPairTag).TryEat(currentToken))
+            {
+                tokens[i] = "";
+                return true;
+            }
+
+            return false;
+        }
+
+        private void CreateTokensContext(int i, out string previousToken, out string currentToken, out string nextToken)
+        {
+            previousToken = i == 0 ? "" : tokens[i - 1];
+            currentToken = tokens[i];
+            nextToken = i + 1 == tokens.Count ? "" : tokens[i + 1];
+        }
+
+        private bool IsEscapeCharacter(string currentToken, ref int i)
+        {
+            if (MarkupLanguage.EscapeCharacter == currentToken)
+            {
+                tokens[i] = "";
+                i += 2;
+                return true;
+            }
+
+            return false;
+        }
+
+        public List<string> SplitInputText(string inputText)
         {
             var textFromTokens = new StringBuilder(inputText);
             var currentToken = new StringBuilder();
@@ -54,13 +97,13 @@ namespace Markdown
                 {
                     if (!inputText.Substring(i).StartsWith(possibleKeyWord)) continue;
                     i += possibleKeyWord.Length - 1;
-                    if (currentToken.Length > 0) tokens.AddLast(currentToken.ToString());
-                    tokens.AddLast(possibleKeyWord);
+                    if (currentToken.Length > 0) tokens.Add(currentToken.ToString());
+                    tokens.Add(possibleKeyWord);
                     currentToken.Clear();
                     break;
                 }
             }
-            if (currentToken.Length > 0) tokens.AddLast(currentToken.ToString());
+            if (currentToken.Length > 0) tokens.Add(currentToken.ToString());
             return tokens;
         }
     }

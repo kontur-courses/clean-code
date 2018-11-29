@@ -1,28 +1,35 @@
-﻿using System;
-
-namespace Markdown
+﻿namespace Markdown
 {
     public class TagA : Tag, IPairTag
     {
-        private string link;
+        private string link = "";
+        private bool canEat = false;
         public TagA()
         {
             End = ")";
             Start = "[";
-            FindRule = (currentNode) => currentNode.Value == Start;
-            CloseRule = (currentNode) =>
-            {
-                if (currentNode?.Value != End) return false;
-                link = currentNode?.Previous?.Value;
-                if (currentNode?.Previous?.Previous?.Previous != null)
-                    currentNode.Previous.Value = currentNode.Previous.Previous.Value =
-                        currentNode.Previous.Previous.Previous.Value = "";
-                return true;
-            };
+            FindRule = (token, previousToken, nextToken) => token == Start;
+            CloseRule = (token, previousToken, nextToken) => token == End;
         }
+
         public override string ToString() => "a";
+
         public string StartTag => $"<a href=\"{link}\">";
+
         public string EndTag { get; } = "</a>";
-        public Func<Tag, bool> CanIContainThisTagRule { get; } = t => true;
+
+        public bool CanContainTag(Tag tag) => true;
+
+
+        public bool TryEat(string token)
+        {
+            if (token == ")")
+                canEat = false;
+            if (canEat && token != "(")
+                link += token;
+            if (token == "]")
+                canEat = true;
+            return canEat;
+        }
     }
 }

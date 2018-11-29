@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Diagnostics;
+using System.Linq;
 using FluentAssertions;
 using NUnit.Framework;
 
@@ -86,13 +87,13 @@ namespace Markdown
             const string pieceOfInputText = "_word_ __word__ word __word _word_ word__ word [This link](http://example.net/)";
             var inputText = "";
 
-            inputText = StringMultiply(100, pieceOfInputText);
+            inputText = string.Join("", Enumerable.Repeat(pieceOfInputText, 100));
             var time1 = MeasureFunctionTime(s => md.Render(s), inputText);
 
-            inputText = StringMultiply(200, pieceOfInputText);
+            inputText = string.Join("", Enumerable.Repeat(pieceOfInputText, 200));
             var time2 = MeasureFunctionTime(s => md.Render(s), inputText);
 
-            inputText = StringMultiply(300, pieceOfInputText);
+            inputText = string.Join("", Enumerable.Repeat(pieceOfInputText, 300));
             var time3 = MeasureFunctionTime(s => md.Render(s), inputText);
             
             time2.Should().BeInRange(time1 * 1, time1 * 4);
@@ -106,14 +107,6 @@ namespace Markdown
             func(inputText);
             stopwatch.Stop();
             return stopwatch.ElapsedMilliseconds;
-        }
-
-        private static string StringMultiply(int count, string input)
-        {
-            var result = "";
-            while (count-- > 0)
-                result += input;
-            return result;
         }
     }
 }

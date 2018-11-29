@@ -1,6 +1,4 @@
-﻿using System;
-
-namespace Markdown
+﻿namespace Markdown
 {
     public class TagEm : Tag, IPairTag
     {
@@ -8,12 +6,18 @@ namespace Markdown
         {
             End = "_";
             Start = End;
-            FindRule = (currentNode) => (currentNode.Value == Start && (!currentNode.Next?.Value.StartsWith(" ") ?? false));
-            CloseRule = (currentNode) => (currentNode.Value == End && (!currentNode.Previous?.Value.EndsWith(" ") ?? false));
+            FindRule = (token, previousToken, nextToken) => (token == Start && !nextToken.StartsWith(" "));
+            CloseRule = (token, previousToken, nextToken) => (token == End && !previousToken.EndsWith(" "));
         }
+
         public override string ToString() => "em";
+
         public string StartTag { get; } = "<em>";
+
         public string EndTag { get; } = "</em>";
-        public Func<Tag, bool> CanIContainThisTagRule { get; } = t => !(t is TagStrong);
+
+        public bool CanContainTag(Tag tag)=>!(tag is TagStrong);        
+
+        public bool TryEat(string tag) => false;
     }
 }
