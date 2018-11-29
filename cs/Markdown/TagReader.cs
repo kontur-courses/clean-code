@@ -66,7 +66,7 @@
 
         private bool TrySkipEscapeSymbol()
         {
-            if (!CollectionView.IsEscapeSymbol(0)) return false;
+            if (CollectionView.Element(0).IsNot('\\')) return false;
             Skip(1);
             SkipAndAdd(1);
             return true;

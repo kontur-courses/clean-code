@@ -5,15 +5,15 @@ namespace Markdown
     public class EmTagInfo : ITagInfo
     {
         public Predicate<CollectionView<char>> StartCondition =>
-            w => !w.IsAlphanumeric(-1)
-                 && w.IsUnderscore(0)
-                 && !w.IsWhiteSpace(1);
+            w => w.Element(-1).IsNot(char.IsLetterOrDigit)
+                 && w.Element(0).Is('_')
+                 && w.Element(1).IsNot(char.IsWhiteSpace);
 
         public Predicate<CollectionView<char>> EndCondition =>
-            w => !w.IsWhiteSpace(-1)
-                 && w.IsUnderscore(0)
-                 && !w.IsUnderscore(1)
-                 && !w.IsAlphanumeric(1);
+            w => w.Element(-1).IsNot(char.IsWhiteSpace)
+                 && w.Element(0).Is('_')
+                 && w.Element(1).IsNot('_')
+                 && w.Element(1).IsNot(char.IsLetterOrDigit);
 
         public Action<TagReader> OnTagStart =>
             t => t.Skip(TagLength);

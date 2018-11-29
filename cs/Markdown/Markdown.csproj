@@ -43,7 +43,7 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="CollectionViewExtensions.cs" />
+    <Compile Include="ElementContext.cs" />
     <Compile Include="Tags\EmTagInfo.cs" />
     <Compile Include="Markdown.cs" />
     <Compile Include="Program.cs" />

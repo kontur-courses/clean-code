@@ -5,15 +5,16 @@ namespace Markdown
     public class StrongTagInfo : ITagInfo
     {
         public Predicate<CollectionView<char>> StartCondition =>
-            w => !w.IsAlphanumeric(-1)
-                 && w.IsUnderscore(0)
-                 && w.IsUnderscore(1)
-                 && !w.IsWhiteSpace(2);
+            w => w.Element(-1).IsNot(char.IsLetterOrDigit)
+                 && w.Element(0).Is('_')
+                 && w.Element(1).Is('_')
+                 && w.Element(2).IsNot(char.IsWhiteSpace);
+
         public Predicate<CollectionView<char>> EndCondition =>
-            w => !w.IsWhiteSpace(-1)
-            && w.IsUnderscore(0)
-            && w.IsUnderscore(1)
-            && !w.IsAlphanumeric(2);
+            w => w.Element(-1).IsNot(char.IsWhiteSpace)
+                 && w.Element(0).Is('_')
+                 && w.Element(1).Is('_')
+                 && w.Element(2).IsNot(char.IsLetterOrDigit);
 
         public Action<TagReader> OnTagStart =>
             t => t.Skip(TagLength);

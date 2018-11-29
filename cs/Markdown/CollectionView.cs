@@ -32,7 +32,10 @@ namespace Markdown
                 throw new IndexOutOfRangeException($"Resulting index {index} = (position {Position} + {i}) was out of range");
             return SourceCollection[i + Position];
         }
-    }
 
-    
+        public ElementContext<T> Element(int i)
+        {
+            return new ElementContext<T>(this, i);
+        }
+    }
 }
