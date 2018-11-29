@@ -32,7 +32,7 @@ namespace MarkdownShould
         public void BeWithHTag(string input, string value, int level)
         {
             var res = register.TryGetToken(input, 0);
-            res.Should().Be(new Token(value, $"<h{level}>", $"</h{level}>", 1, input.Length, false));
+            res.ShouldBeEquivalentTo(new Token(value, $"<h{level}>", $"</h{level}>", 1, input.Length, false));
         }
 
 

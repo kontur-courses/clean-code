@@ -3,6 +3,7 @@ using Markdown;
 using NUnit.Framework;
 using FluentAssertions;
 
+
 namespace MarkdownShould
 {
     [TestFixture]
@@ -24,7 +25,8 @@ namespace MarkdownShould
         public void BeWithEmphasisTag(string input, int startPos, string val)
         {
             var res = register.TryGetToken(input, startPos);
-            res.Should().Be(new Token(val, "<em>", "</em>", 0, val.Length + 2, true));
+            
+            res.ShouldBeEquivalentTo(new Token(val, "<em>", "</em>", 0, val.Length + 2, true));
         }
 
         [TestCase("", ExpectedResult = null)]

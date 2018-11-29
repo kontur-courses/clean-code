@@ -27,7 +27,7 @@ namespace MarkdownShould
         public void ShouldBeWithParagraphTag(string input, int startPos, string val)
         {
             var res = register.TryGetToken(input, startPos);
-            res.Should().Be(new Token(val, "<p>", "</p>", 0, input.Length, true));
+            res.ShouldBeEquivalentTo(new Token(val, "<p>", "</p>", 0, input.Length, true));
         }
 
         [TestCase("", 0)]
@@ -35,7 +35,7 @@ namespace MarkdownShould
         public void ShouldBeEmpty(string input, int startPos)
         {
             var res = register.TryGetToken(input, startPos);
-            res.Should().Be(new Token("", "", "", 0, input.Length, true));
+            res.ShouldBeEquivalentTo(new Token("", "", "", 0, input.Length, true));
         }
     }
 }

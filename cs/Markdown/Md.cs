@@ -7,26 +7,30 @@ namespace Markdown
 {
     public class Md
     {
-        private readonly List<BaseRegister> registers;
+        private readonly List<BaseRegister> blockRegisters, inlineRegisters;
 
         public Md()
         {
-            registers = new List<BaseRegister>
+            blockRegisters = new List<BaseRegister>()
             {
                 new ParagraphRegister(),
                 new HorLineRegister(),
+                new HeaderRegister()
+            };
+            
+            inlineRegisters = new List<BaseRegister>()
+            {
                 new StrongRegister(),
                 new EmphasisRegister(),
-                new HeaderRegister()
             };
         }
 
         public string Render(string input)
         {
-            return TokensToHtml(ParseToTokens(input, isBlockRegisters:true));
+            return TokensToHtml(ParseToTokens(input, blockRegisters));
         }
 
-        private List<Token> ParseToTokens(string input, bool isBlockRegisters)
+        private List<Token> ParseToTokens(string input, List<BaseRegister> registers)
         {
             var tokens = new List<Token>();
             var outsideChars = new StringBuilder();
@@ -34,7 +38,6 @@ namespace Markdown
             for (var i = 0; i < input.Length; i++)
             {
                 var token = registers
-                    .Where(r => r.IsBlockRegister == isBlockRegisters)
                     .Select(r => r.TryGetToken(input, i))
                     .Where(t => t != null)
                     .OrderByDescending(t => t.Priority)
@@ -68,7 +71,7 @@ namespace Markdown
             foreach (var token in tokens)
             {
                 var value = token.IsParseInside
-                    ? TokensToHtml(ParseToTokens(token.Value, false))
+                    ? TokensToHtml(ParseToTokens(token.Value, inlineRegisters))
                     : token.Value;
 
                 result.Append(token.OpenTag);

@@ -11,7 +11,7 @@ namespace Markdown.Registers
 
         public override Token TryGetToken(string input, int startPos)
         {
-            int i = startPos;
+            var i = startPos;
             for (; i < input.Length && Char.IsWhiteSpace(input[i]); i++)
             {
                 if (i - startPos >= 3)

@@ -25,7 +25,7 @@ namespace MarkdownShould
         public void BeWithHRTag(string input)
         {
             var res = register.TryGetToken(input, 0);
-            res.Should().Be(new Token("", "<hr />", "", 1, input.Length, false));
+            res.ShouldBeEquivalentTo(new Token("", "<hr />", "", 1, input.Length, false));
         }
 
         [TestCase("+++", ExpectedResult = null)]

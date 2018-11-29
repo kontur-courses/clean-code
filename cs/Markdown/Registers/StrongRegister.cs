@@ -11,7 +11,7 @@ namespace Markdown.Registers
         
         public StrongRegister()
         {
-            delimeters = new HashSet<string>(new[] {new string('*', DelimLen), new string('_', DelimLen)});
+            Delimeters = new HashSet<string>(new[] {new string('*', DelimLen), new string('_', DelimLen)});
         }
     }
 }

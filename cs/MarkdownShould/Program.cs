@@ -1,4 +1,6 @@
-﻿namespace MarkdownShould
+﻿
+
+namespace MarkdownShould
 {
     public static class Program
     {

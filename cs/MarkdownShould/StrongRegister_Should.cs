@@ -24,7 +24,7 @@ namespace MarkdownShould
         public void BeWithStrongTag(string input, int startPos, string val)
         {
             var res = register.TryGetToken(input, startPos);
-            res.Should().Be(new Token(val, "<strong>", "</strong>", 1, val.Length + 4, true));
+            res.ShouldBeEquivalentTo(new Token(val, "<strong>", "</strong>", 1, val.Length + 4, true));
         }
 
         [TestCase("5__6__78", 0, ExpectedResult = null)]

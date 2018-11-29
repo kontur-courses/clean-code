@@ -9,7 +9,7 @@ namespace Markdown.Registers
         protected abstract string Suffix { get; }
         public override bool IsBlockRegister => false;
 
-        protected HashSet<string> delimeters;
+        protected HashSet<string> Delimeters;
 
         public override Token TryGetToken(string input, int startPos)
         {
@@ -29,7 +29,7 @@ namespace Markdown.Registers
         private string GetDelimeter(string input, int startPos)
         {
             var supposedDelimiter = input.Substring(startPos, DelimLen);
-            return delimeters.Contains(supposedDelimiter) ? supposedDelimiter : null;
+            return Delimeters.Contains(supposedDelimiter) ? supposedDelimiter : null;
         }
 
         private bool CheckPrefixCorrect(string input, int startPos, string delimiter)
@@ -54,49 +54,12 @@ namespace Markdown.Registers
             var leftBorder = GetLeftBorder(input, startPos, delimiter);
             var rightBorder = GetRightBorder(input, startPos, delimiter);
 
-            if (DelimLen == 1 && rightBorder - leftBorder == 1 && leftBorder == startPos &&
-                 IsInsideWord(input, delimiter, leftBorder, rightBorder))
-                return false;
-
             return !IsEscapeSymbol(input, startPos) && 
-                   IsNoSpaceBefore(input, leftBorder) && 
+                   IsNoSpaceBefore(input, leftBorder) &&
+                   !IsEmptyValueTag(input, delimiter, startPos, leftBorder, rightBorder) &&
                    !IsPunctuationBefore(input, leftBorder, rightBorder);
         }
         
-        private bool IsInsideWord(string input, string delimiter, int leftBorder, int rightBorder)
-        {
-            return leftBorder > 0 && char.IsLetterOrDigit(input[leftBorder - 1])
-                   && rightBorder + DelimLen != input.Length && char.IsLetterOrDigit(input[rightBorder + DelimLen]);
-        }
-
-        private bool IsNoSpaceAfter(string input, int rightBorder)
-        {
-            return rightBorder + DelimLen != input.Length && !char.IsWhiteSpace(input[rightBorder + DelimLen]);
-        }
-
-        private bool IsNoSpaceBefore(string input, int leftBorder)
-        {
-            return leftBorder != 0 && !char.IsWhiteSpace(input[leftBorder - 1]);
-        }
-
-        private bool IsPunctuationAfter(string input, int leftBorder, int rightBorder)
-        {
-            return char.IsPunctuation(input[rightBorder + DelimLen]) && leftBorder != 0 &&
-                   !char.IsWhiteSpace(input[leftBorder - 1]) && !char.IsPunctuation(input[leftBorder - 1]);
-        }
-        
-        private bool IsPunctuationBefore(string input, int leftBorder, int rightBorder)
-        {
-            return char.IsPunctuation(input[leftBorder - 1]) && rightBorder + DelimLen != input.Length &&
-                   !char.IsWhiteSpace(input[rightBorder + DelimLen]) &&
-                   !char.IsPunctuation(input[rightBorder + DelimLen]);
-        }
-
-        private bool IsEscapeSymbol(string input, int pos)
-        {
-            return pos > 0 && input[pos - 1] == '\\';
-        }
-
         private bool GetSuffixIndex(string input, int startPos, string delimiter, out int suffIndex)
         {
             var nestedTagCount = 0;
@@ -125,6 +88,47 @@ namespace Markdown.Registers
             }
 
             return false;
+        }
+        
+        private bool IsInsideWord(string input, string delimiter, int leftBorder, int rightBorder)
+        {
+            return leftBorder > 0 && char.IsLetterOrDigit(input[leftBorder - 1])
+                   && rightBorder + DelimLen != input.Length && char.IsLetterOrDigit(input[rightBorder + DelimLen]);
+        }
+
+        private bool IsEmptyValueTag(string input, string delimiter, int startPos, int leftBorder, int rightBorder)
+        {
+            return rightBorder - leftBorder == DelimLen && 
+                   leftBorder == startPos &&
+                   IsInsideWord(input, delimiter, leftBorder, rightBorder);
+        }
+
+        private bool IsNoSpaceAfter(string input, int rightBorder)
+        {
+            return rightBorder + DelimLen != input.Length && !char.IsWhiteSpace(input[rightBorder + DelimLen]);
+        }
+
+        private bool IsNoSpaceBefore(string input, int leftBorder)
+        {
+            return leftBorder != 0 && !char.IsWhiteSpace(input[leftBorder - 1]);
+        }
+
+        private bool IsPunctuationAfter(string input, int leftBorder, int rightBorder)
+        {
+            return char.IsPunctuation(input[rightBorder + DelimLen]) && leftBorder != 0 &&
+                   !char.IsWhiteSpace(input[leftBorder - 1]) && !char.IsPunctuation(input[leftBorder - 1]);
+        }
+        
+        private bool IsPunctuationBefore(string input, int leftBorder, int rightBorder)
+        {
+            return char.IsPunctuation(input[leftBorder - 1]) && rightBorder + DelimLen != input.Length &&
+                   !char.IsWhiteSpace(input[rightBorder + DelimLen]) &&
+                   !char.IsPunctuation(input[rightBorder + DelimLen]);
+        }
+
+        private bool IsEscapeSymbol(string input, int pos)
+        {
+            return pos > 0 && input[pos - 1] == '\\';
         }
         
         private int GetLeftBorder(string input, int startPos, string delimiter)
