@@ -1,14 +1,8 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using FluentAssertions;
-using NUnit.Framework;
-using NUnit.Framework.Constraints;
+﻿using NUnit.Framework;
 
 namespace Markdown
 {
+    [TestFixture]
     class Tests
     {
         [TestCase("__w\nw__", TestName = "Md Render Should Not Transform __ Tag In Different Lines", ExpectedResult = "__w\nw__")]

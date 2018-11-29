@@ -3,20 +3,20 @@
 namespace MarkdownNew
 {
     [TestFixture]
-    class RenderTests
+    class MarkdownRenderer
     {
-        [TestCase("__w\nw__", TestName = "Md Render Should Transform __ Tag In Different Lines", ExpectedResult = "<strong>w\nw</strong>")]
-        [TestCase("_w\nw_", TestName = "Md Render Should Transform _ Tag In Different Lines", ExpectedResult = "<em>w\nw</em>")]
-        [TestCase("__w _w_ w__", TestName = "Md Render Should Transform _ Tag In __ Tag", ExpectedResult = "<strong>w <em>w</em> w</strong>")]
-        [TestCase("__w_", TestName = "Md Render Should Not Transform Tags Without Pair", ExpectedResult = "__w_")]
-        [TestCase("_1_2_", TestName = "Md Render Should Transform _ Tag With Numbers", ExpectedResult = "<em>1_2</em>")]
-        [TestCase("__1__2__", TestName = "Md Render Should Not Transform __ Tag With Numbers", ExpectedResult = "<strong>1__2</strong>")]
-        [TestCase("_w", TestName = "Md Render Should Not Transform _ Tag Without Pair", ExpectedResult = "_w")]
-        [TestCase("__w", TestName = "Md Render Should Not Transform __ Tag Without Pair", ExpectedResult = "__w")]
-        [TestCase("__ w__", TestName = "Md Render Should Not Transform __ Tag With Space After First", ExpectedResult = "__ w__")]
-        [TestCase("_wow_", TestName = "Md Render Should Work With \"_\" Tag", ExpectedResult = "<em>wow</em>")]
-        [TestCase("__w__", TestName = "Md Render Should Work With \"__\" Tag", ExpectedResult = "<strong>w</strong>")]
-        public string test(string mdString)
+        [TestCase("__w\nw__", ExpectedResult = "<strong>w\nw</strong>", TestName = "Transform __ Tag In Different Lines")]
+        [TestCase("_w\nw_", ExpectedResult = "<em>w\nw</em>", TestName = "Transform _ Tag In Different Lines")]
+        [TestCase("__w _w_ w__", ExpectedResult = "<strong>w <em>w</em> w</strong>", TestName = "Transform _ Tag In __ Tag")]
+        [TestCase("__w_", ExpectedResult = "__w_", TestName = "Not Transform Tags Without Pair")]
+        [TestCase("_1_2_", ExpectedResult = "<em>1_2</em>", TestName = "Transform _ Tag With Numbers")]
+        [TestCase("__1__2__", ExpectedResult = "<strong>1__2</strong>", TestName = "Not Transform __ Tag With Numbers")]
+        [TestCase("_w", ExpectedResult = "_w", TestName = "Not Transform _ Tag Without Pair")]
+        [TestCase("__w", ExpectedResult = "__w", TestName = "Not Transform __ Tag Without Pair")]
+        [TestCase("__ w__", ExpectedResult = "__ w__", TestName = "Not Transform __ Tag With Space After First")]
+        [TestCase("_wow_", ExpectedResult = "<em>wow</em>", TestName = "Work With \"_\" Tag")]
+        [TestCase("__w__", ExpectedResult = "<strong>w</strong>", TestName = "Work With \"__\" Tag")]
+        public string Should(string mdString)
         {
             var actual = MarkdownRender.Render(mdString);
             return actual;

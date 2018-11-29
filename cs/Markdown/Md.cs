@@ -70,47 +70,6 @@ namespace Markdown
             }
         }
 
-        private static bool IsValidStartEntry(string line, int entryStart, int entryEnd)
-        {
-            if (line.Length <= entryEnd + 1) return false;
-            if (line[entryEnd + 1] == ' ') return false;
-            if (!IsValidEntry(line, entryStart, entryEnd)) return false;
-            return true;
-        }
-
-        private static bool IsValidEndEntry(string line, int entryStart, int entryEnd)
-        {
-            if (entryStart == 0) return false;
-            if (line[entryStart - 1] == ' ') return false;
-            if (!IsValidEntry(line, entryStart, entryEnd)) return false;
-            return true;
-        }
-
-        private static bool IsDigitNextToTag(string line, int tagStart, int tagEnd)
-        {
-            return tagStart - 1 >= 0 &&
-                    char.IsDigit(line[tagStart - 1]) ||
-                    tagEnd + 1 < line.Length &&
-                    char.IsDigit(line[tagEnd + 1]);
-        }
-
-        private static bool IsSlashBeforeTag(string line, int tagStart)
-        {
-            return tagStart - 1 >= 0 && line[tagStart - 1] == '\\';
-        }
-
-        private static bool IsValidEntry(string line, int tagStart, int tagEnd)
-        {
-
-            if (IsDigitNextToTag(line, tagStart, tagEnd)) return false;
-
-            if (tagStart - 1 >= 0 &&
-                line[tagStart - 1] == '_' ||
-                tagEnd + 1 < line.Length &&
-                line[tagEnd + 1] == '_') return false;
-
-            return !IsSlashBeforeTag(line, tagStart);
-        }
-    }
+        
 
 }

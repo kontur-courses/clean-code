@@ -1,27 +1,35 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
+﻿using System.Collections.Generic;
 using System.Text;
-using System.Threading.Tasks;
 
 namespace MarkdownNew
 {
     class Renderer : IMarkdownRenderer
     {
-        private List<Token> tokens;
-        private Stack<Token> stack;
-        private Dictionary<Tag, Tag> pairs;
+        private readonly Stack<Token> stack;
+        private readonly Dictionary<Tag, Tag> pairs;
+        private readonly StringBuilder renderedString;
+
         public Renderer()
         {
-            tokens = new List<Token>();
             stack = new Stack<Token>();
+            renderedString = new StringBuilder();
             pairs = TagsPairsDictionary.GetTagsPairs();
         }
 
-        public string ConvertFromMarkdownToHtml(string markdown)
+        public string Converter(string markdown)
         {
             MakeTokensFromMarkdown(markdown);
-            return MakeStringFromTokens(markdown);
+            while (stack.Count > 0)
+            {
+                var tmp = stack.Pop();
+                if (stack.Count > 0)
+                    stack.Peek().Content.Append(tmp.Tag.Open + tmp.Content);
+                else
+                {
+                    renderedString.Append(tmp.Tag.Open + tmp.Content);
+                }
+            }
+            return renderedString.ToString();
         }
 
         private void MakeTokensFromMarkdown(string markdown)
@@ -29,67 +37,100 @@ namespace MarkdownNew
             var usedTags = new List<string>();
             for (var index = 0; index < markdown.Length; index++)
             {
+                bool isNotToken = true;
+                if (TrySkipShelding(markdown, index))
+                {
+                    index++;
+                    continue;
+                }
                 foreach(var tag in pairs.Keys)
                 {
                     if (tag.IsValidCloseTagFromPosition(markdown, index))
                     {
-                        if (!usedTags.Contains(tag.open)) continue;
+                        if (!usedTags.Contains(tag.Open)) continue;
+                        isNotToken = false;
+                        index += tag.Open.Length - 1;
                         RemoveTokenFromStack(tag, usedTags, index);
                         continue;
                     }
-                    if (tag.IsValidOpenTagFromPosition(markdown, index))
+                    else
+                        if (tag.IsValidOpenTagFromPosition(markdown, index))
+                        {
+                            if (usedTags.Contains(tag.Open)) continue;
+                            isNotToken = false;
+                            index += tag.Close.Length - 1;
+                            stack.Push(new Token(index, tag));
+                            usedTags.Add(tag.Open);
+
+                        }
+                }
+
+                if (isNotToken)
+                {
+                    if (stack.Count > 0)
+                        stack.Peek().Content.Append(markdown[index]);
+                    else
                     {
-                        if (usedTags.Contains(tag.open)) continue;
-                        stack.Push(new Token(index, tag));
-                        usedTags.Add(tag.open);
+                        renderedString.Append(markdown[index]);
                     }
                 }
             }
 
         }
+
+
+        private bool TrySkipShelding(string markdown, int position)
+        {
+            if (markdown[position] == '\\' && position + 1 < markdown.Length)
+            {
+                if (stack.Count > 0)
+                    stack.Peek().Content.Append(markdown[position + 1]);
+                else
+                    renderedString.Append(markdown[position + 1]);
+                return true;
+            }
+            return false;
+        }
+
+        private void ReplaceTokenContent(Token token, bool isClosed)
+        {
+            var content = new StringBuilder();
+            if (isClosed)
+            {
+                var newTag = pairs[token.Tag];
+                content.Append(newTag.Open + token.Content + newTag.Close);
+            }
+            else
+            {
+                content.Append(token.Tag.Open + token.Content);
+            }
+            if (stack.Count > 0)
+            {
+                stack.Peek().Content.Append(content);
+            }
+            else
+            {
+                renderedString.Append(content);
+            }
+
+            return;
+        } 
 
         private void RemoveTokenFromStack(Tag tag, List<string> usedTags, int index)
         {
-            while (stack.Count > 0 && usedTags.Contains(tag.open))
+            while (stack.Count > 0 && usedTags.Contains(tag.Open))
             {
                 var token = stack.Pop();
-                usedTags.Remove(token.StartTag.open);
-                if (tag.open == token.StartTag.open)
+                usedTags.Remove(token.Tag.Open);
+                if (tag.Open == token.Tag.Open)
                 {
-                    token.SetEndOfToken(index);
-                    tokens.Add(token);
+                    ReplaceTokenContent(token, true);
+                }
+                else
+                {
+                    ReplaceTokenContent(token, false);
                 }
             }
-        }
-
-        private string MakeStringFromTokens(string markdown)
-        {
-            var resultString = new StringBuilder();
-            for (var index = 0; index < markdown.Length; index++)
-            {
-                bool isTag = false;
-                foreach (var token in tokens)
-                {
-                    if (token.Start == index)
-                    {
-                        isTag = true;
-                        index += token.StartTag.open.Length - 1;
-                        var htmlTag = pairs[token.StartTag].open;
-                        resultString.Append(htmlTag);
-                    }
-                    if (token.End == index)
-                    {
-                        isTag = true;
-                        index += token.StartTag.close.Length - 1;
-                        var htmlTag = pairs[token.StartTag].close;
-                        resultString.Append(htmlTag);
-                    }
-                }
-                if (!isTag)
-                    resultString.Append(markdown[index]);
-
-            }
-            return resultString.ToString();
         }
     }
 }
