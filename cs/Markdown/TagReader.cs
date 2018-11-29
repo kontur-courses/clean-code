@@ -4,7 +4,7 @@
     {
         public int Position { get; private set; }
         public string Source { get; }
-        public ITagInfo[] Tags { get; }
+        private ITagInfo[] Tags { get; }
         private TokenList TokenList { get; }
         private CollectionView<char> CollectionView { get; }
 
@@ -14,7 +14,7 @@
             Source = source;
             Tags = tags;
             TokenList = new TokenList(new PTagInfo().GetNewToken(Position));
-            CollectionView = new CollectionView<char>(Source, Position);
+            CollectionView = new CollectionView<char>(Source.ToCharArray(), Position);
         }
 
         public string Evaluate()

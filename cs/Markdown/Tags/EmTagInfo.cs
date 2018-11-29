@@ -7,12 +7,10 @@ namespace Markdown
         public Predicate<CollectionView<char>> StartCondition =>
             w => !w.IsAlphanumeric(-1)
                  && w.IsUnderscore(0)
-                 && !w.IsUnderscore(1)
                  && !w.IsWhiteSpace(1);
 
         public Predicate<CollectionView<char>> EndCondition =>
             w => !w.IsWhiteSpace(-1)
-                 && !w.IsUnderscore(-1)
                  && w.IsUnderscore(0)
                  && !w.IsUnderscore(1)
                  && !w.IsAlphanumeric(1);

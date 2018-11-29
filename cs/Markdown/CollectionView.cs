@@ -9,9 +9,9 @@ namespace Markdown
         public T[] SourceCollection { get; }
         public int Position { get; set; }
 
-        public CollectionView(IEnumerable<T> sourceCollection, int position)
+        public CollectionView(T[] sourceCollection, int position)
         {
-            SourceCollection = sourceCollection.ToArray();
+            SourceCollection = sourceCollection;
             Position = position;
         }
 
