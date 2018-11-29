@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections;
 using System.Diagnostics;
+using System.Text;
 using Markdown.Tokenizing;
 using NUnit.Framework;
 using FluentAssertions;
@@ -377,19 +378,75 @@ namespace MarkdownTests
         #endregion
 
         [Test]
-        public void HaveLinearAlghorithm()
+        public void ExecuteInLinearTimeOnSimpleString()
         {
-            var bigSource =
-                "__hello hello hello hello hello hello hello hello hello hello hello hello hello hello hello hello hello hello hello hello hello hello hello hello hello hello hello hello hello hello hello hello hello hello hello hello hello__ _hello hello hello hello hello hello hello hello hello hello hello hello hello hello hello hello hello hello hello hello hello hello hello hello hello hello hello hello hello hello hello hello hello hello hello hello hello hello hello hello hello hello hello hello hello hello hello hello hello hello hello hello hello hello hello hello hello hello hello hello hello_ __hello hello hello hello hello hello hello hello hello hello hello hello hello hello hello hello hello hello hello hello hello hello hello hello hello hello hello hello hello hello hello hello hello hello hello hello hello hello hello__ _hello_ _hello_ _hello_ _hello_ _hello_ _hello_ _hello_ _hello_ _hello_ _hello_ _hello_ _hello_ _hello_ _hello_ _hello_ _hello_ _hello_ _hello_ _hello_ _hello_ _hello_ _hello_ _hello_ _hello_ _hello_ _hello_ _hello_ _hello_ _hello_ __a _hello_ a__ _hello hello hello hello hello hello hello hello hello hello hello hello hello hello hello hello hello hello hello hello hello hello hello hello hello hello hello hello hello hello hello hello hello hello hello hello hello hello hello hello hello hello hello hello hello hello hello hello hello hello hello hello hello hello hello hello hello hello hello hello hello_ __hello hello hello hello hello hello hello hello hello hello hello hello hello hello hello hello hello hello hello hello hello hello hello hello hello hello hello hello hello hello hello hello hello hello hello hello hello hello hello__ _hello_ _hello hello hello hello hello hello hello hello hello hello hello hello hello hello hello hello hello hello hello hello hello hello hello hello hello hello hello hello hello hello hello hello hello hello hello hello hello hello hello hello hello hello hello hello hello hello hello hello hello hello hello hello hello hello hello hello hello hello hello hello hello_ __hello hello hello hello hello hello hello hello hello hello hello hello hello hello hello hello hello hello hello hello hello hello hello hello hello hello hello hello hello hello hello hello hello hello hello hello hello hello hello__ _hello_ _hello hello hello hello hello hello hello hello hello hello hello hello hello hello hello hello hello hello hello hello hello hello hello hello hello hello hello hello hello hello hello hello hello hello hello hello hello hello hello hello hello hello hello hello hello hello hello hello hello hello hello hello hello hello hello hello hello hello hello hello hello_ __hello hello hello hello hello hello hello hello hello hello hello hello hello hello hello hello hello hello hello hello hello hello hello hello hello hello hello hello hello hello hello hello hello hello hello hello hello hello hello__ _hello_ ";
+            var sourceLength = 1000000;
+            var source = GenerateSimpleMarkdownString(sourceLength);
+            var tripleLengthSource = GenerateSimpleMarkdownString(sourceLength * 3);
 
-            Action action1 = () => MarkdownTokenizer.Tokenize(bigSource);
-            Action action2 = () => MarkdownTokenizer.Tokenize(bigSource + bigSource);
+            Action tokenize = () => MarkdownTokenizer.Tokenize(source);
+            Action tokenizeTriple = () => MarkdownTokenizer.Tokenize(tripleLengthSource);
+
+            MarkdownTokenizer.Tokenize(source);  // warmup
+
             var watch = Stopwatch.StartNew();
-            action1();
+            tokenize();
+            var tokenizeTimeElapsed = watch.ElapsedMilliseconds;
+            watch.Restart();
+            tokenizeTriple();
+            var tokenizeTripleTineElapsed = watch.ElapsedMilliseconds;
             watch.Stop();
 
+            tokenizeTripleTineElapsed.Should().BeLessOrEqualTo(9 * tokenizeTimeElapsed);
+        }
 
-            action2.ExecutionTime().Should().BeLessOrEqualTo(TimeSpan.FromMilliseconds(watch.ElapsedMilliseconds * 2));
+        [Test]
+        public void ExecuteInLinearTimeOnStringWithNestedTags()
+        {
+            var sourceLength = 1000000;
+            var source = GenerateMarkdownStringWithNestedTags(sourceLength);
+            var tripleLengthSource = GenerateMarkdownStringWithNestedTags(sourceLength * 3);
+
+            Action tokenize = () => MarkdownTokenizer.Tokenize(source);
+            Action tokenizeTriple = () => MarkdownTokenizer.Tokenize(tripleLengthSource);
+
+            MarkdownTokenizer.Tokenize(source);  // warmup
+
+            var watch = Stopwatch.StartNew();
+            tokenize();
+            var tokenizeTimeElapsed = watch.ElapsedMilliseconds;
+            watch.Restart();
+            tokenizeTriple();
+            var tokenizeTripleTineElapsed = watch.ElapsedMilliseconds;
+            watch.Stop();
+
+            tokenizeTripleTineElapsed.Should().BeLessOrEqualTo(9 * tokenizeTimeElapsed);
+        }
+
+        private static string GenerateSimpleMarkdownString(int length)
+        {
+            var stringBuilder = new StringBuilder();
+
+            for (var i = 0; i < (length - 4) / 5; i++)
+                stringBuilder.Append("word ");
+            stringBuilder.Remove(stringBuilder.Length - 1, 1);
+
+            return "__" + stringBuilder + "__";
+        }
+
+        private static string GenerateMarkdownStringWithNestedTags(int length)
+        {
+            var prefix = "__c ";
+            var suffix = " c__";
+            var stringBuilder = new StringBuilder();
+
+            for (var i = 0; i < (length - 5) / 8; i++)
+                stringBuilder.Append(prefix);
+            stringBuilder.Append("__c__");
+            for (var i = 0; i < (length - 5) / 8; i++)
+                stringBuilder.Append(suffix);
+
+            return stringBuilder.ToString();
         }
     }
 }

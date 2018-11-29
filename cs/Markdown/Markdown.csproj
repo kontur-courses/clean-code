@@ -45,9 +45,8 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="EntryPoint.cs" />
     <Compile Include="Languages\HtmlLanguage.cs" />
-    <Compile Include="Md.cs" />
+    <Compile Include="EntryPoint.cs" />
     <Compile Include="Translating\Translator.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Languages\Language.cs" />

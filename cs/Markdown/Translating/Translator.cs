@@ -31,9 +31,9 @@ namespace Markdown.Translating
                 return token.Content;
 
             if (token.IsOpening)
-                return language.OpeningTags.First(pair => pair.Key == token.Tag).Value;
+                return language.OpeningTags[token.Tag];
 
-            return language.ClosingTags.First(pair => pair.Key == token.Tag).Value;
+            return language.ClosingTags[token.Tag];
         }
     }
 }

@@ -1,9 +1,20 @@
+﻿using Markdown.Languages;
+using Markdown.Tokenizing;
+using Markdown.Translating;
+
 namespace Markdown
 {
-    class EntryPoint
+    public class EntryPoint
     {
-        static void Main(string[] args)
+        public static string TranslateMarkdownToHtml(string markdownSource)
         {
+            var tokens = MarkdownTokenizer.Tokenize(markdownSource);
+            return new Translator(new HtmlLanguage()).Translate(tokens);
+        }
+
+        public static void Main()
+        {
+
         }
     }
 }
