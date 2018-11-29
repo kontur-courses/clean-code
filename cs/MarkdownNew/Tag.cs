@@ -7,8 +7,8 @@
 
         public Tag(string open, string close)
         {
-            this.Close = close;
-            this.Open = open;
+            Close = close;
+            Open = open;
         }
 
         private bool IsDigitNextToTag(string line, int tagStart, int tagEnd)
