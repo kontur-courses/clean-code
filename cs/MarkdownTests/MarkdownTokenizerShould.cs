@@ -4,7 +4,6 @@ using System.Diagnostics;
 using Markdown.Tokenizing;
 using NUnit.Framework;
 using FluentAssertions;
-using FluentAssertions.Extensions;
 
 namespace MarkdownTests
 {
