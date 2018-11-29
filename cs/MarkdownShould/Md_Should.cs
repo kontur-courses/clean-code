@@ -1,4 +1,8 @@
-﻿using Markdown;
+﻿using System;
+using System.Diagnostics;
+using System.Text;
+using FluentAssertions;
+using Markdown;
 using NUnit.Framework;
 
 namespace MarkdownShould
@@ -8,16 +12,34 @@ namespace MarkdownShould
     {
         private Md parser;
 
+        private string[] textLines = new[]
+        {
+            "*foo**bar**baz*\n\n", 
+            "_some __bike_ is__\n\n", 
+            "  #    some ##\nwhat i want\n\n",
+            "**Gomphocarpus (*Gomphocarpus physocarpus*, syn.\r\n*Asclepias physocarpa*)**\n\n",
+            "### head hello\n"
+        };
+
         [SetUp]
         public void SetUp()
         {
             parser = new Md();
         }
 
-        [TestCase(), Timeout(2000)]
-        public void PotentiallyLongRunningTest()
+        [TestCase(100, 500)]
+        [TestCase(200, 1000)]
+        [TestCase(1000, 5000)]        
+        [TestCase(3000, 15000)]        
+        public void Render_InLinearTime(int first, int second)
         {
-            // TODO
+            var firstText = GetText(first);
+            var secondText = GetText(second);
+
+            var firstTime = GetRenderTime(firstText);
+            var secondTime = GetRenderTime(secondText);
+            
+            (secondTime / firstTime).Should().BeLessOrEqualTo(5);
         }
 
         [TestCase("  #    some ##\nwhat i want", ExpectedResult = "<h1>some</h1><p>what i want</p>")]
@@ -31,6 +53,28 @@ namespace MarkdownShould
         {
             return parser.Render(input);
         }
+
+        private long GetRenderTime(string input)
+        {
+            var watch = new Stopwatch();
+            watch.Start();
+            parser.Render(input);
+            watch.Stop();
+            return watch.ElapsedMilliseconds;
+        }
+
+        private string GetText(int numOfLines)
+        {
+            var result = new StringBuilder();
+
+            for (int i = 0; i < numOfLines; i++)
+            {
+                result.Append(textLines[i%textLines.Length]);
+            }
+
+            return result.ToString();
+        }
+        
     }
 }
 
