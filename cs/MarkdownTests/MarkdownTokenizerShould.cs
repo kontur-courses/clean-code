@@ -29,48 +29,45 @@ namespace MarkdownTests
                 .BeEquivalentTo(expected, options => options.WithStrictOrdering());
         }
 
-        private static IEnumerable WrapInEmphasizeTagTestCases
+        private static IEnumerable WrapInEmphasizeTagTestCases()
         {
-            get
+            yield return new TestCaseData("_people_ hello", new[]
             {
-                yield return new TestCaseData("_people_ hello", new[]
-                {
-                    new Token(Tag.Emphasize, true),
-                    new Token(Tag.Raw, false, "people"),
-                    new Token(Tag.Emphasize, false),
-                    new Token(Tag.Raw, false, " hello"),
-                }).SetName("when tag is at the start");
+                new Token(Tag.Emphasize, true),
+                new Token(Tag.Raw, false, "people"),
+                new Token(Tag.Emphasize, false),
+                new Token(Tag.Raw, false, " hello"),
+            }).SetName("when tag is at the start");
 
-                yield return new TestCaseData("hello _people_", new[]
-                {
-                    new Token(Tag.Raw, false, "hello "),
-                    new Token(Tag.Emphasize, true),
-                    new Token(Tag.Raw, false, "people"),
-                    new Token(Tag.Emphasize, false),
-                }).SetName("when tag is at the end");
+            yield return new TestCaseData("hello _people_", new[]
+            {
+                new Token(Tag.Raw, false, "hello "),
+                new Token(Tag.Emphasize, true),
+                new Token(Tag.Raw, false, "people"),
+                new Token(Tag.Emphasize, false),
+            }).SetName("when tag is at the end");
 
-                yield return new TestCaseData("start _middle_ end!", new[]
-                {
-                    new Token(Tag.Raw, false, "start "),
-                    new Token(Tag.Emphasize, true),
-                    new Token(Tag.Raw, false, "middle"),
-                    new Token(Tag.Emphasize, false),
-                    new Token(Tag.Raw, false, " end!"),
-                }).SetName("when tag is in the middle");
+            yield return new TestCaseData("start _middle_ end!", new[]
+            {
+                new Token(Tag.Raw, false, "start "),
+                new Token(Tag.Emphasize, true),
+                new Token(Tag.Raw, false, "middle"),
+                new Token(Tag.Emphasize, false),
+                new Token(Tag.Raw, false, " end!"),
+            }).SetName("when tag is in the middle");
 
-                yield return new TestCaseData("Word _another_ pretty _word_ !", new[]
-                {
-                    new Token(Tag.Raw, false, "Word "),
-                    new Token(Tag.Emphasize, true),
-                    new Token(Tag.Raw, false, "another"),
-                    new Token(Tag.Emphasize, false),
-                    new Token(Tag.Raw, false, " pretty "),
-                    new Token(Tag.Emphasize, true),
-                    new Token(Tag.Raw, false, "word"),
-                    new Token(Tag.Emphasize, false),
-                    new Token(Tag.Raw, false, " !"),
-                }).SetName("with multiple tags");
-            }
+            yield return new TestCaseData("Word _another_ pretty _word_ !", new[]
+            {
+                new Token(Tag.Raw, false, "Word "),
+                new Token(Tag.Emphasize, true),
+                new Token(Tag.Raw, false, "another"),
+                new Token(Tag.Emphasize, false),
+                new Token(Tag.Raw, false, " pretty "),
+                new Token(Tag.Emphasize, true),
+                new Token(Tag.Raw, false, "word"),
+                new Token(Tag.Emphasize, false),
+                new Token(Tag.Raw, false, " !"),
+            }).SetName("with multiple tags");
         }
 
         [Test, TestCaseSource(nameof(NotWrapInEmphasizeTagTestCases))]
@@ -159,48 +156,45 @@ namespace MarkdownTests
                 .BeEquivalentTo(expected, options => options.WithStrictOrdering());
         }
 
-        private static IEnumerable WrapInStrongTagTestCases
+        private static IEnumerable WrapInStrongTagTestCases()
         {
-            get
+            yield return new TestCaseData("__people__ hello", new[]
             {
-                yield return new TestCaseData("__people__ hello", new[]
-                {
-                    new Token(Tag.Strong, true),
-                    new Token(Tag.Raw, false, "people"),
-                    new Token(Tag.Strong, false),
-                    new Token(Tag.Raw, false, " hello"),
-                }).SetName("when tag is at the start");
+                new Token(Tag.Strong, true),
+                new Token(Tag.Raw, false, "people"),
+                new Token(Tag.Strong, false),
+                new Token(Tag.Raw, false, " hello"),
+            }).SetName("when tag is at the start");
 
-                yield return new TestCaseData("hello __people__", new[]
-                {
-                    new Token(Tag.Raw, false, "hello "),
-                    new Token(Tag.Strong, true),
-                    new Token(Tag.Raw, false, "people"),
-                    new Token(Tag.Strong, false),
-                }).SetName("when tag is at the end");
+            yield return new TestCaseData("hello __people__", new[]
+            {
+                new Token(Tag.Raw, false, "hello "),
+                new Token(Tag.Strong, true),
+                new Token(Tag.Raw, false, "people"),
+                new Token(Tag.Strong, false),
+            }).SetName("when tag is at the end");
 
-                yield return new TestCaseData("start __middle__ end!", new[]
-                {
-                    new Token(Tag.Raw, false, "start "),
-                    new Token(Tag.Strong, true),
-                    new Token(Tag.Raw, false, "middle"),
-                    new Token(Tag.Strong, false),
-                    new Token(Tag.Raw, false, " end!"),
-                }).SetName("when tag is in the middle");
+            yield return new TestCaseData("start __middle__ end!", new[]
+            {
+                new Token(Tag.Raw, false, "start "),
+                new Token(Tag.Strong, true),
+                new Token(Tag.Raw, false, "middle"),
+                new Token(Tag.Strong, false),
+                new Token(Tag.Raw, false, " end!"),
+            }).SetName("when tag is in the middle");
 
-                yield return new TestCaseData("Word __another__ pretty __word__ !", new[]
-                {
-                    new Token(Tag.Raw, false, "Word "),
-                    new Token(Tag.Strong, true),
-                    new Token(Tag.Raw, false, "another"),
-                    new Token(Tag.Strong, false),
-                    new Token(Tag.Raw, false, " pretty "),
-                    new Token(Tag.Strong, true),
-                    new Token(Tag.Raw, false, "word"),
-                    new Token(Tag.Strong, false),
-                    new Token(Tag.Raw, false, " !"),
-                }).SetName("with multiple tags");
-            }
+            yield return new TestCaseData("Word __another__ pretty __word__ !", new[]
+            {
+                new Token(Tag.Raw, false, "Word "),
+                new Token(Tag.Strong, true),
+                new Token(Tag.Raw, false, "another"),
+                new Token(Tag.Strong, false),
+                new Token(Tag.Raw, false, " pretty "),
+                new Token(Tag.Strong, true),
+                new Token(Tag.Raw, false, "word"),
+                new Token(Tag.Strong, false),
+                new Token(Tag.Raw, false, " !"),
+            }).SetName("with multiple tags");
         }
 
         [Test, TestCaseSource(nameof(NotWrapInStrongTagTestCases))]
