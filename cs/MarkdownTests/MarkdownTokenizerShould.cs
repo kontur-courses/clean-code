@@ -3,6 +3,7 @@ using System.Collections;
 using Markdown.Tokenizing;
 using NUnit.Framework;
 using FluentAssertions;
+using FluentAssertions.Extensions;
 
 namespace MarkdownTests
 {
@@ -23,7 +24,8 @@ namespace MarkdownTests
         [Test, TestCaseSource(nameof(WrapInEmphasizeTagTestCases))]
         public void WrapInEmphasizeTag(string source, params Token[] expected)
         {
-            MarkdownTokenizer.Tokenize(source).Should().BeEquivalentTo(expected, options => options.WithStrictOrdering());
+            MarkdownTokenizer.Tokenize(source).Should()
+                .BeEquivalentTo(expected, options => options.WithStrictOrdering());
         }
 
         private static IEnumerable WrapInEmphasizeTagTestCases
@@ -73,7 +75,8 @@ namespace MarkdownTests
         [Test, TestCaseSource(nameof(NotWrapInEmphasizeTagTestCases))]
         public void NotWrapInEmphasizeTag(string source, params Token[] expected)
         {
-            MarkdownTokenizer.Tokenize(source).Should().BeEquivalentTo(expected, options => options.WithStrictOrdering());
+            MarkdownTokenizer.Tokenize(source).Should()
+                .BeEquivalentTo(expected, options => options.WithStrictOrdering());
         }
 
         private static IEnumerable NotWrapInEmphasizeTagTestCases()
@@ -151,7 +154,8 @@ namespace MarkdownTests
         [Test, TestCaseSource(nameof(WrapInStrongTagTestCases))]
         public void WrapInStrongTag(string source, params Token[] expected)
         {
-            MarkdownTokenizer.Tokenize(source).Should().BeEquivalentTo(expected, options => options.WithStrictOrdering());
+            MarkdownTokenizer.Tokenize(source).Should()
+                .BeEquivalentTo(expected, options => options.WithStrictOrdering());
         }
 
         private static IEnumerable WrapInStrongTagTestCases
@@ -201,7 +205,8 @@ namespace MarkdownTests
         [Test, TestCaseSource(nameof(NotWrapInStrongTagTestCases))]
         public void NotWrapInStrongTag(string source, params Token[] expected)
         {
-            MarkdownTokenizer.Tokenize(source).Should().BeEquivalentTo(expected, options => options.WithStrictOrdering());
+            MarkdownTokenizer.Tokenize(source).Should()
+                .BeEquivalentTo(expected, options => options.WithStrictOrdering());
         }
 
         private static IEnumerable NotWrapInStrongTagTestCases()
@@ -225,7 +230,7 @@ namespace MarkdownTests
             yield return new TestCaseData(@"hello people\__", new[]
             {
                 new Token(Tag.Raw, false, @"hello people__"),
-            }).SetName("when second double  underscore is escaped without first double underscore");
+            }).SetName("when second double underscore is escaped without first double underscore");
 
             yield return new TestCaseData(@"hello \__people\__", new[]
             {
@@ -275,6 +280,8 @@ namespace MarkdownTests
 
         #endregion
 
+        #region Tags Combination
+
         [Test]
         public void WrapInEmpasizeTagInsideStrong()
         {
@@ -290,7 +297,8 @@ namespace MarkdownTests
                 new Token(Tag.Strong, false),
             };
 
-            MarkdownTokenizer.Tokenize(source).Should().BeEquivalentTo(expected, options => options.WithStrictOrdering());
+            MarkdownTokenizer.Tokenize(source).Should()
+                .BeEquivalentTo(expected, options => options.WithStrictOrdering());
         }
 
         [Test]
@@ -304,7 +312,78 @@ namespace MarkdownTests
                 new Token(Tag.Emphasize, false),
             };
 
-            MarkdownTokenizer.Tokenize(source).Should().BeEquivalentTo(expected, options => options.WithStrictOrdering());
+            MarkdownTokenizer.Tokenize(source).Should()
+                .BeEquivalentTo(expected, options => options.WithStrictOrdering());
+        }
+
+        [Test, TestCaseSource(nameof(CombinationTestCases))]
+        public void NotWrapUnpairedTagsInsideEachOther(string source, params Token[] expected)
+        {
+            MarkdownTokenizer.Tokenize(source).Should()
+                .BeEquivalentTo(expected, options => options.WithStrictOrdering());
+        }
+
+        private static IEnumerable CombinationTestCases()
+        {
+            yield return new TestCaseData("__strong _strong__ text", new[]
+            {
+                new Token(Tag.Strong, true),
+                new Token(Tag.Raw, false, "strong _strong"),
+                new Token(Tag.Strong, false),
+                new Token(Tag.Raw, false, " text")
+            }).SetName("unpaired starting underscore inside paired double underscores");
+
+            yield return new TestCaseData("__strong_ strong__ text", new[]
+            {
+                new Token(Tag.Strong, true),
+                new Token(Tag.Raw, false, "strong_ strong"),
+                new Token(Tag.Strong, false),
+                new Token(Tag.Raw, false, " text")
+            }).SetName("unpaired ending underscore inside paired double underscores");
+
+            yield return new TestCaseData("__strong _strong__ text_", new[]
+            {
+                new Token(Tag.Raw, false, "__strong "),
+                new Token(Tag.Emphasize, true),
+                new Token(Tag.Raw, false, "strong__ text"),
+                new Token(Tag.Emphasize, false),
+            }).SetName("starting underscore inside paired double underscores");
+
+            yield return new TestCaseData("_em __em_ text", new[]
+            {
+                new Token(Tag.Emphasize, true),
+                new Token(Tag.Raw, false, "em __em"),
+                new Token(Tag.Emphasize, false),
+                new Token(Tag.Raw, false, " text")
+            }).SetName("unpaired starting double underscore inside paired underscores");
+
+            yield return new TestCaseData("_em__ em_ text", new[]
+            {
+                new Token(Tag.Emphasize, true),
+                new Token(Tag.Raw, false, "em__ em"),
+                new Token(Tag.Emphasize, false),
+                new Token(Tag.Raw, false, " text")
+            }).SetName("unpaired ending double underscore inside paired underscores");
+
+            yield return new TestCaseData("_em __em_ text__", new[]
+            {
+                new Token(Tag.Emphasize, true),
+                new Token(Tag.Raw, false, "em __em"),
+                new Token(Tag.Emphasize, false),
+                new Token(Tag.Raw, false, " text__")
+            }).SetName("starting double underscore inside paired underscores");
+        }
+
+        #endregion
+
+        [Test]
+        public void HaveLinearAlghorithm()
+        {
+            var bigSource =
+                "__hello hello hello hello hello hello hello hello hello hello hello hello hello hello hello hello hello hello hello hello hello hello hello hello hello hello hello hello hello hello hello hello hello hello hello hello hello__ _hello hello hello hello hello hello hello hello hello hello hello hello hello hello hello hello hello hello hello hello hello hello hello hello hello hello hello hello hello hello hello hello hello hello hello hello hello hello hello hello hello hello hello hello hello hello hello hello hello hello hello hello hello hello hello hello hello hello hello hello hello_ __hello hello hello hello hello hello hello hello hello hello hello hello hello hello hello hello hello hello hello hello hello hello hello hello hello hello hello hello hello hello hello hello hello hello hello hello hello hello hello__ _hello_ _hello_ _hello_ _hello_ _hello_ _hello_ _hello_ _hello_ _hello_ _hello_ _hello_ _hello_ _hello_ _hello_ _hello_ _hello_ _hello_ _hello_ _hello_ _hello_ _hello_ _hello_ _hello_ _hello_ _hello_ _hello_ _hello_ _hello_ _hello_ __a _hello_ a__ _hello hello hello hello hello hello hello hello hello hello hello hello hello hello hello hello hello hello hello hello hello hello hello hello hello hello hello hello hello hello hello hello hello hello hello hello hello hello hello hello hello hello hello hello hello hello hello hello hello hello hello hello hello hello hello hello hello hello hello hello hello_ __hello hello hello hello hello hello hello hello hello hello hello hello hello hello hello hello hello hello hello hello hello hello hello hello hello hello hello hello hello hello hello hello hello hello hello hello hello hello hello__ _hello_ _hello hello hello hello hello hello hello hello hello hello hello hello hello hello hello hello hello hello hello hello hello hello hello hello hello hello hello hello hello hello hello hello hello hello hello hello hello hello hello hello hello hello hello hello hello hello hello hello hello hello hello hello hello hello hello hello hello hello hello hello hello_ __hello hello hello hello hello hello hello hello hello hello hello hello hello hello hello hello hello hello hello hello hello hello hello hello hello hello hello hello hello hello hello hello hello hello hello hello hello hello hello__ _hello_ _hello hello hello hello hello hello hello hello hello hello hello hello hello hello hello hello hello hello hello hello hello hello hello hello hello hello hello hello hello hello hello hello hello hello hello hello hello hello hello hello hello hello hello hello hello hello hello hello hello hello hello hello hello hello hello hello hello hello hello hello hello_ __hello hello hello hello hello hello hello hello hello hello hello hello hello hello hello hello hello hello hello hello hello hello hello hello hello hello hello hello hello hello hello hello hello hello hello hello hello hello hello__ _hello_";
+            Action action = () => MarkdownTokenizer.Tokenize(bigSource);
+
+            action.ExecutionTime().Should().BeLessOrEqualTo(200.Milliseconds());
         }
     }
 }

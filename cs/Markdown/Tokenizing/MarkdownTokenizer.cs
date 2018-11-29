@@ -43,6 +43,7 @@ namespace Markdown.Tokenizing
             if (rawContent.Length != 0)
                 tokens.Add(CreateRawToken(rawContent));
 
+            tokens = ConvertToRawInsideEmphasizeTags(tokens);
             var unpairedTokens = FilterUnpairedTokens(tokens);
             for (var i = 0; i < tokens.Count; i++)
             {
@@ -69,30 +70,76 @@ namespace Markdown.Tokenizing
             return !string.IsNullOrEmpty(tag);
         }
 
-        private static IEnumerable<Token> FilterUnpairedTokens(IEnumerable<Token> tokens)
+        private static List<Token> ConvertToRawInsideEmphasizeTags(IEnumerable<Token> tokens)
         {
-            var stack = new Stack<Token>();
-            foreach (var token in tokens.Where(t => t.Tag != Tag.Raw))
+            var tokensList = tokens.ToList();
+            var inEmphasizeTag = false;
+            var indexesToConvert = new List<int>();
+
+            for (var i = 0; i < tokensList.Count; i++)
             {
-                if (token.IsOpening || !stack.Any())
+                if (tokensList[i].Tag == Tag.Raw)
+                    continue;
+
+                if (tokensList[i].Tag == Tag.Emphasize && tokensList[i].IsOpening)
                 {
-                    stack.Push(token);
+                    inEmphasizeTag = true;
                     continue;
                 }
-                var previousToken = stack.Peek();
-                if (previousToken.Tag == token.Tag && previousToken.IsOpening)
-                    stack.Pop();
-                else
-                    stack.Push(token);
+
+                if (tokensList[i].Tag == Tag.Emphasize && !tokensList[i].IsOpening)
+                {
+                    inEmphasizeTag = false;
+
+                    foreach (var j in indexesToConvert)
+                    {
+                        tokensList[j] = ConvertTokenToRaw(tokensList[j]);
+                    }
+                    indexesToConvert.Clear();
+
+                    continue;
+                }
+
+                if (inEmphasizeTag)
+                    indexesToConvert.Add(i);
             }
 
-            return stack;
+            return tokensList;
         }
 
-        private static Token ConvertTokenToRaw(Token token)
+        private static IEnumerable<Token> FilterUnpairedTokens(IEnumerable<Token> tokens)
         {
-            var tag = Markdown.OpeningTags.First(pair => pair.Key == token.Tag).Value;
-            return new Token(Tag.Raw, false, tag);
+            var list = new List<Token>();
+            var onlyAdd = false;
+
+            foreach (var token in tokens.Where(t => t.Tag != Tag.Raw))  
+            {
+                if (token.IsOpening || !list.Any() || onlyAdd)
+                {
+                    onlyAdd = false;
+                    list.Add(token);
+                    continue;
+                }
+
+                var previousToken = list.Last();
+                if (previousToken.Tag == token.Tag && previousToken.IsOpening)
+                {
+                    list.RemoveAt(list.Count - 1);
+                    continue;
+                }
+
+                var openingTag = list.LastOrDefault(t => t.Tag == token.Tag && t.IsOpening);
+                if (openingTag != null)
+                {
+                    list.RemoveAt(list.LastIndexOf(openingTag));
+                    onlyAdd = true;
+                    continue;
+                }
+
+                list.Add(token);
+            }
+
+            return list;
         }
 
         private static List<Token> ConcatRawTokens(List<Token> tokens)
@@ -117,6 +164,12 @@ namespace Markdown.Tokenizing
                 result.Add(CreateRawToken(rawContent));
 
             return result;
+        }
+
+        private static Token ConvertTokenToRaw(Token token)
+        {
+            var tag = Markdown.OpeningTags.First(pair => pair.Key == token.Tag).Value;
+            return new Token(Tag.Raw, false, tag);
         }
 
         private static Token CreateRawToken(StringBuilder stringBuilder)
