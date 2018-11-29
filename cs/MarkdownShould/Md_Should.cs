@@ -35,14 +35,31 @@ namespace MarkdownShould
         [TestCase(20000, 100000)]  
         public void Render_InLinearTime(int first, int second)
         {
-            var firstText = GetText(first);
-            var secondText = GetText(second);
+            var firstText = GetText(first, 0);
+            var secondText = GetText(second, 0);
 
             double firstTime = GetRenderTime(firstText);
             double secondTime = GetRenderTime(secondText);
 
             (secondTime / firstTime).Should().BeLessOrEqualTo(6);
         }
+
+        [TestCase(100, 500)]        
+        [TestCase(300, 1500)]
+        [TestCase(500, 2500)] 
+        [TestCase(1000, 5000)] 
+        public void Render_InLinearTime_WithNestedTags(int first, int second)
+        {
+            var firstText = GetText(first, 40);
+            var secondText = GetText(second, 40);
+
+            double firstTime = GetRenderTime(firstText);
+            double secondTime = GetRenderTime(secondText);
+
+            (secondTime / firstTime).Should().BeLessOrEqualTo(6);
+        }
+        
+        
 
         [TestCase("  #    some ##\nwhat i want", ExpectedResult = "<h1>some</h1><p>what i want</p>")]
         [TestCase("_some __bike_ is__", ExpectedResult = "<p><em>some <em><em>bike</em> is</em></em></p>")]
@@ -65,18 +82,26 @@ namespace MarkdownShould
             return watch.ElapsedMilliseconds;
         }
 
-        private string GetText(int numOfLines)
+        private string GetText(int numOfLines, int nestingLevel)
         {
             var result = new StringBuilder();
 
             for (int i = 0; i < numOfLines; i++)
             {
-                result.Append(textLines[i%textLines.Length]);
+                result.Append(GetNestingTag(nestingLevel));
             }
 
             return result.ToString();
         }
         
+        
+        
+        private string GetNestingTag(int maxLevel)
+        {
+            if (maxLevel == 0)
+                return "";
+            return $"_body {maxLevel} m  " + textLines[maxLevel%textLines.Length] + GetNestingTag(maxLevel - 1) + "boi_";
+        }
     }
 }
 
