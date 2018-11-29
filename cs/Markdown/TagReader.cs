@@ -28,7 +28,7 @@ namespace Markdown
                 if (TryCloseTag()) continue;
                 if (TryOpenTag()) continue;
                 
-                AddCharacterToTokens(StringView[0]);
+                TokenList.AddCharacter(StringView[0]);
 
                 Position++;
             }
@@ -38,7 +38,7 @@ namespace Markdown
         public void SkipAndAdd(int amount)
         {
             for (var startPosition = Position; Position < startPosition + amount; Position++)
-                AddCharacterToTokens(Source[Position]);
+               TokenList.AddCharacter(Source[Position]);
         }
 
         public void Skip(int amount)
@@ -46,17 +46,12 @@ namespace Markdown
             Position += amount;
         }
 
-        private void AddCharacterToTokens(char c)
-        {
-            TokenList.AddCharacter(c);
-        }
-
         private bool TryOpenTag()
         {
             foreach (var tag in Tags)
             {
-                if (!tag.StartCondition(StringView)) continue;
-                if (!TokenList.TryAddNewToken(tag, Position)) continue;
+                if (!TokenList.TryOpenTag(tag, StringView))
+                    continue;
                 tag.OnTagStart(this);
                 return true;
             }
@@ -66,15 +61,9 @@ namespace Markdown
 
         private bool TryCloseTag()
         {
-            foreach (var token in TokenList.Reverse())
-            {
-                if (!token.Tag.EndCondition(StringView)) continue;
-                token.Tag.OnTagEnd(this);
-                token.Close();
-                return true;
-            }
-
-            return false;
+            if (!TokenList.TryCloseTag(StringView, out var tag)) return false;
+            tag.OnTagEnd(this);
+            return true;
         }
 
         private bool TrySkipEscapeSymbol()
