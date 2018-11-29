@@ -1,4 +1,6 @@
-﻿namespace Markdown.Registers
+﻿using System.Collections.Generic;
+
+namespace Markdown.Registers
 {
     internal class EmphasisRegister : DelimeterRunRegister
     {
@@ -6,5 +8,10 @@
         protected override int Priority => 0;
         protected override string Prefix => "<em>";
         protected override string Suffix => "</em>";
+
+        public EmphasisRegister()
+        {
+            delimeters = new HashSet<string>(new[] {new string('*', DelimLen), new string('_', DelimLen)});
+        }
     }
 }

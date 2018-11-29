@@ -1,5 +1,6 @@
 ﻿using System;
 
+
 namespace Markdown.Registers
 {
     internal class HeaderRegister : BaseRegister
@@ -8,66 +9,62 @@ namespace Markdown.Registers
 
         public override bool IsBlockRegister => true;
 
-        private bool SkipSpaces(string input, int startIndex, int maxCount, out int index)
-        {
-            index = startIndex;
-            for (int i = startIndex; i < input.Length; i++)
-            {
-                index = i;
-                if (!Char.IsWhiteSpace(input[i]))
-                    return true;
-                if (maxCount != -1 && i - startIndex == maxCount)
-                    return false;
-            }
-
-            return true;
-        }
-
         public override Token TryGetToken(string input, int startPos)
         {
-            var prefixDigitCount = 0;
-            int valueStartIndex, valueEndIndex;
+            int i = startPos;
+            for (; i < input.Length && Char.IsWhiteSpace(input[i]); i++)
+            {
+                if (i - startPos >= 3)
+                    return null;
+            }
 
-            if (!SkipSpaces(input, startPos, 3, out var i))
+            var level = GetLevel(input, ref i);
+            if (level == 0) 
                 return null;
 
+            while (i < input.Length && Char.IsWhiteSpace(input[i]))
+                i++;
+
+            var value = GetValue(input, ref i);
+            return new Token(value, $"<h{level}>", $"</h{level}>", Priority, i - startPos, false);
+        }
+
+        private static int GetLevel(string input, ref int i)
+        {
+            int level = 0;
             while (i < input.Length && input[i] == '#')
             {
-                prefixDigitCount++;
+                level++;
                 i++;
             }
 
-            if (prefixDigitCount == 0 || prefixDigitCount > 6 || i < input.Length && !Char.IsWhiteSpace(input[i]))
-                return null;
+            if (level == 0 || level > 6 || i < input.Length && !Char.IsWhiteSpace(input[i]))
+                return 0;
+            return level;
+        }
 
-            SkipSpaces(input, i, -1, out i);
-            valueStartIndex = valueEndIndex = i;
-
-            for (; i < input.Length; i++)
+        private static string GetValue(string input, ref int i)
+        {
+            int valueStartIndex = i, valueEndIndex = 0;
+            while (i < input.Length && input[i] != '\n')
             {
-                if (input[i] == '\n')
-                    break;
-
                 if (input[i] == '#' && Char.IsWhiteSpace(input[i - 1]))
                 {
                     while (i < input.Length && input[i] == '#')
-                    {
                         i++;
-                    }
 
-                    i--;
                     continue;
                 }
 
                 if (input[i] != ' ')
                     valueEndIndex = i;
+
+                i++;
             }
 
-            var value = valueEndIndex - valueStartIndex > 0
+            return valueEndIndex != 0
                 ? input.Substring(valueStartIndex, valueEndIndex - valueStartIndex + 1)
                 : "";
-
-            return new Token(value, $"<h{prefixDigitCount}>", $"</h{prefixDigitCount}>", Priority, i - startPos, false);
         }
     }
 }

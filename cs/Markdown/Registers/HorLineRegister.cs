@@ -7,7 +7,7 @@ namespace Markdown.Registers
 
     internal class HorLineRegister : BaseRegister
     {
-        private readonly HashSet<char> aviableDigits = new HashSet<char>(new[] {'*', '-', '_'});
+        private readonly HashSet<char> aviableCharacters = new HashSet<char>(new[] {'*', '-', '_'});
         protected override int Priority => 1;
 
         public override bool IsBlockRegister => true;
@@ -31,7 +31,7 @@ namespace Markdown.Registers
 
                 if (currDigit == '\0')
                 {
-                    if (aviableDigits.Contains(input[i]))
+                    if (aviableCharacters.Contains(input[i]))
                     {
                         currDigit = input[i];
                         digitCount += 1;
