@@ -8,8 +8,6 @@ namespace Markdown.Registers
         private readonly string suffix = "</p>";
         protected override int Priority => 0;
 
-        public override bool IsBlockRegister => true;
-
         public override Token TryGetToken(string input, int startPos)
         {
             string res;

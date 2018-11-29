@@ -9,8 +9,6 @@ namespace Markdown.Registers
         private readonly HashSet<char> aviableCharacters = new HashSet<char>(new[] {'*', '-', '_'});
         protected override int Priority => 1;
 
-        public override bool IsBlockRegister => true;
-
         public override Token TryGetToken(string input, int startPos)
         {
             var isStartSpaces = true;

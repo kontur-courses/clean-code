@@ -7,8 +7,6 @@ namespace Markdown.Registers
     {
         protected override int Priority => 1;
 
-        public override bool IsBlockRegister => true;
-
         public override Token TryGetToken(string input, int startPos)
         {
             var i = startPos;
