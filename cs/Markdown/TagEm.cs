@@ -6,8 +6,8 @@
         {
             End = "_";
             Start = End;
-            FindRule = (token, previousToken, nextToken) => (token == Start && !nextToken.StartsWith(" "));
-            CloseRule = (token, previousToken, nextToken) => (token == End && !previousToken.EndsWith(" "));
+            IsAgreedStart = (token, previousToken, nextToken) => (token == Start && !nextToken.StartsWith(" "));
+            IsAgreedEnd = (token, previousToken, nextToken) => (token == End && !previousToken.EndsWith(" "));
         }
 
         public override string ToString() => "em";

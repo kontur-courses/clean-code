@@ -8,8 +8,8 @@
         {
             End = ")";
             Start = "[";
-            FindRule = (token, previousToken, nextToken) => token == Start;
-            CloseRule = (token, previousToken, nextToken) => token == End;
+            IsAgreedStart = (token, previousToken, nextToken) => token == Start;
+            IsAgreedEnd = (token, previousToken, nextToken) => token == End;
         }
 
         public override string ToString() => "a";
