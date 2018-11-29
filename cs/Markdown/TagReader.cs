@@ -48,7 +48,7 @@
         {
             foreach (var tag in Tags)
             {
-                if (!TokenList.TryOpenTag(tag, CollectionView))
+                if (!tag.StartCondition(CollectionView) || !TokenList.TryOpenTag(tag, Position))
                     continue;
                 tag.OnTagStart(this);
                 return true;

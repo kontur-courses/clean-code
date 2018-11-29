@@ -19,11 +19,6 @@ namespace Markdown
             return rootToken.Value;
         }
 
-        public bool TryOpenTag(ITagInfo tag, CollectionView<char> collectionView)
-        {
-            return tag.StartCondition(collectionView) && TryAddNewToken(tag, collectionView.Position);
-        }
-
         public bool TryCloseTag(CollectionView<char> collectionView, out ITagInfo tag)
         {
             tag = null;
@@ -38,7 +33,7 @@ namespace Markdown
             return false;
         }
 
-        private bool TryAddNewToken(ITagInfo tag, int position)
+        public bool TryOpenTag(ITagInfo tag, int position)
         {
             var currentToken = rootToken;
             while (currentToken.Child != null)
