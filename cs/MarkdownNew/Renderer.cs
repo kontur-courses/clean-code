@@ -1,24 +1,26 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Text;
 
 namespace Markdown
 {
-    class Renderer : IConverter
+    class Renderer : IConverter<string, string>
     {
         private readonly Stack<Token> stack;
         private readonly Dictionary<Tag, Tag> pairs;
         private readonly StringBuilder renderedString;
 
-        public Renderer()
+        public Renderer(Dictionary<Tag, Tag> pairs)
         {
             stack = new Stack<Token>();
             renderedString = new StringBuilder();
-            pairs = TagsPairsDictionary.GetTagsPairs();
+            this.pairs = pairs;
         }
 
-        public object Convert(object obj)
+        public string Convert(string markdown)
         {
-            var markdown = obj as string;
+            if (markdown == null)
+                throw new ArgumentException("Markdown string should`t be null");
             MakeTokensFromMarkdown(markdown);
             while (stack.Count > 0)
             {
