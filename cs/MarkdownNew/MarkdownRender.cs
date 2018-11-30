@@ -4,7 +4,7 @@
     {
         public static string Render(string markdown)
         {
-            var renderer = new Renderer();
+            var renderer = new Renderer(TagsPairsDictionary.GetTagsPairs());
             return renderer.Convert(markdown) as string;
         }
     }
