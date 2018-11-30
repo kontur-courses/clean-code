@@ -1,7 +1,7 @@
 ﻿namespace Markdown
 {
-    interface IConverter
+    interface IConverter<T, P>
     {
-        object Convert(object markdown);
+        T Convert(P markdown);
     }
 }
