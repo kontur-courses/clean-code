@@ -116,6 +116,7 @@ namespace Markdown.Tokenizing
             {
                 {Tag.Strong, new Stack<Token>()},
                 {Tag.Emphasize, new Stack<Token>()},
+                {Tag.Pre, new Stack<Token>()}
             };
 
             Tag previousTag = Tag.Raw;

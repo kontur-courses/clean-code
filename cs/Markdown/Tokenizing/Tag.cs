@@ -5,5 +5,6 @@
         Raw,
         Emphasize,
         Strong,
+        Pre
     }
 }

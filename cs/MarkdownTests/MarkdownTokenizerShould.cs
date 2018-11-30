@@ -275,6 +275,133 @@ namespace MarkdownTests
 
         #endregion
 
+        #region Tag.Pre
+
+        [Test, TestCaseSource(nameof(WrapInPreTagTestCases))]
+        public void WrapInPreTag(string source, params Token[] expected)
+        {
+            MarkdownTokenizer.Tokenize(source).Should()
+                .BeEquivalentTo(expected, options => options.WithStrictOrdering());
+        }
+
+        private static IEnumerable WrapInPreTagTestCases()
+        {
+            yield return new TestCaseData("`people` hello", new[]
+            {
+                new Token(Tag.Pre, true),
+                new Token(Tag.Raw, false, "people"),
+                new Token(Tag.Pre, false),
+                new Token(Tag.Raw, false, " hello"),
+            }).SetName("when tag is at the start");
+
+            yield return new TestCaseData("hello `people`", new[]
+            {
+                new Token(Tag.Raw, false, "hello "),
+                new Token(Tag.Pre, true),
+                new Token(Tag.Raw, false, "people"),
+                new Token(Tag.Pre, false),
+            }).SetName("when tag is at the end");
+
+            yield return new TestCaseData("start `middle` end!", new[]
+            {
+                new Token(Tag.Raw, false, "start "),
+                new Token(Tag.Pre, true),
+                new Token(Tag.Raw, false, "middle"),
+                new Token(Tag.Pre, false),
+                new Token(Tag.Raw, false, " end!"),
+            }).SetName("when tag is in the middle");
+
+            yield return new TestCaseData("Word `another` pretty `word` !", new[]
+            {
+                new Token(Tag.Raw, false, "Word "),
+                new Token(Tag.Pre, true),
+                new Token(Tag.Raw, false, "another"),
+                new Token(Tag.Pre, false),
+                new Token(Tag.Raw, false, " pretty "),
+                new Token(Tag.Pre, true),
+                new Token(Tag.Raw, false, "word"),
+                new Token(Tag.Pre, false),
+                new Token(Tag.Raw, false, " !"),
+            }).SetName("with multiple tags");
+        }
+
+        [Test, TestCaseSource(nameof(NotWrapInPreTagTestCases))]
+        public void NotWrapInPreTag(string source, params Token[] expected)
+        {
+            MarkdownTokenizer.Tokenize(source).Should()
+                .BeEquivalentTo(expected, options => options.WithStrictOrdering());
+        }
+
+        private static IEnumerable NotWrapInPreTagTestCases()
+        {
+            yield return new TestCaseData(@"hello \`people`", new[]
+            {
+                new Token(Tag.Raw, false, "hello `people`"),
+            }).SetName("when first ` is escaped");
+
+            yield return new TestCaseData(@"hello \`people", new[]
+            {
+                new Token(Tag.Raw, false, "hello `people"),
+            }).SetName("when first ` is escaped without second underscore");
+
+            yield return new TestCaseData(@"hello `people\`", new[]
+            {
+                new Token(Tag.Raw, false, @"hello `people`"),
+            }).SetName("when second ` is escaped");
+
+            yield return new TestCaseData(@"hello people\`", new[]
+            {
+                new Token(Tag.Raw, false, @"hello people`"),
+            }).SetName("when second ` is escaped without first underscore");
+
+            yield return new TestCaseData(@"hello \`people\`", new[]
+            {
+                new Token(Tag.Raw, false, @"hello `people`"),
+            }).SetName("when both ` are escaped");
+
+            yield return new TestCaseData("start `end", new[]
+            {
+                new Token(Tag.Raw, false, "start `end"),
+            }).SetName("when first ` is unpaired");
+
+            yield return new TestCaseData("start` end", new[]
+            {
+                new Token(Tag.Raw, false, "start` end"),
+            }).SetName("when second ` is unpaired");
+
+            yield return new TestCaseData("text`another`text", new[]
+            {
+                new Token(Tag.Raw, false, "text`another`text"),
+            }).SetName("` inside text");
+
+            yield return new TestCaseData(" `text`text ", new[]
+            {
+                new Token(Tag.Raw, false, " `text`text "),
+            }).SetName("when second ` inside text");
+
+            yield return new TestCaseData("text`text` ", new[]
+            {
+                new Token(Tag.Raw, false, "text`text` "),
+            }).SetName("when first ` inside text");
+
+            yield return new TestCaseData("digits`12`3", new[]
+            {
+                new Token(Tag.Raw, false, "digits`12`3"),
+            }).SetName("` with digits");
+
+            yield return new TestCaseData(" `text2`3text ", new[]
+            {
+                new Token(Tag.Raw, false, " `text2`3text "),
+            }).SetName("when ` underscore near digits");
+
+            yield return new TestCaseData("text1`text` ", new[]
+            {
+                new Token(Tag.Raw, false, "text1`text` "),
+            }).SetName("when first ` near digits");
+        }
+
+        #endregion
+
         #region Tags Combination
 
         [Test]
@@ -389,7 +516,7 @@ namespace MarkdownTests
             var tokenizeTripleTimeElapsed = watch.ElapsedMilliseconds;
             watch.Stop();
 
-            tokenizeTripleTimeElapsed.Should().BeLessOrEqualTo(6 * tokenizeTimeElapsed);
+            tokenizeTripleTimeElapsed.Should().BeLessOrEqualTo(5 * tokenizeTimeElapsed);
         }
 
         private static IEnumerable ExecutionTimeTestCases()
@@ -405,8 +532,8 @@ namespace MarkdownTests
                 GenerateMarkdownStringWithNestedTags(sourceLength * 3)).SetName("OnStringWithNestedTags");
 
             yield return new TestCaseData(
-                GenerateMarkdownStringWithALotOfRawTags(10000),
-                GenerateMarkdownStringWithALotOfRawTags(10000 * 3)).SetName("OnStringWithALotOfRawTags");
+                GenerateMarkdownStringWithALotOfRawTags(sourceLength),
+                GenerateMarkdownStringWithALotOfRawTags(sourceLength * 3)).SetName("OnStringWithALotOfRawTags");
         }
 
         private static string GenerateSimpleMarkdownString(int length)

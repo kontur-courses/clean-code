@@ -8,6 +8,7 @@ namespace Markdown.Languages
         {
             AddTag(Tag.Emphasize, "_", "_");
             AddTag(Tag.Strong, "__", "__");
+            AddTag(Tag.Pre, "`", "`");
         }
     }
 }

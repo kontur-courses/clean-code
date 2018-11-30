@@ -8,6 +8,7 @@ namespace Markdown.Languages
         {
             AddTag(Tag.Emphasize, "<em>", "</em>");
             AddTag(Tag.Strong, "<strong>", "</strong>");
+            AddTag(Tag.Pre, "<pre>", "<pre/>");
         }
     }
 }
