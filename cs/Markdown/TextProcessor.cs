@@ -1,30 +1,21 @@
-﻿using System.Collections.Generic;
-using System.Linq;
-
-namespace Markdown
+﻿namespace Markdown
 {
+    using System.Collections.Generic;
+    using System.Linq;
+
     internal class TextProcessor
     {
-        private readonly List<ITextProcessorRule> rules;
-
         public readonly string Text;
+
         internal List<Delimiter> Delimiters;
+
+        private readonly List<ITextProcessorRule> rules;
 
         internal TextProcessor(string text, List<Delimiter> delimiters = null, List<ITextProcessorRule> rules = null)
         {
             Text = text;
             this.rules = rules ?? this.rules;
             Delimiters = delimiters ?? new List<Delimiter>();
-        }
-
-        internal ITextProcessorRule GetSuitableRule(int position, string text)
-        {
-            return rules.FirstOrDefault(rule => rule.Check(position, text));
-        }
-
-        internal ITextProcessorRule GetSuitableRule(Delimiter delimiter)
-        {
-            return rules.FirstOrDefault(r => r.Check(delimiter));
         }
 
         internal TextProcessor GetDelimiterPositions()
@@ -44,65 +35,20 @@ namespace Markdown
             return this;
         }
 
-        internal TextProcessor RemoveEscapedDelimiters()
+        internal ITextProcessorRule GetSuitableRule(int position, string text)
         {
-            Delimiters = Delimiters.Select(d => GetSuitableRule(d)
-                                               .Escape(d, Text))
-                                   .Where(p => p != null)
-                                   .ToList();
-            return this;
+            return rules.FirstOrDefault(rule => rule.Check(position, text));
         }
 
-        internal TextProcessor RemoveNonValidDelimiters()
+        internal ITextProcessorRule GetSuitableRule(Delimiter delimiter)
         {
-            var text = Text;
-            Delimiters = Delimiters.Where(d => GetSuitableRule(d)
-                                              .IsValid(d, text))
-                                   .ToList();
-            return this;
-        }
-
-        internal TextProcessor ValidatePairs()
-        {
-            var stacks = new Dictionary<string, Stack<Delimiter>>();
-            foreach (var delimiter in Delimiters)
-                stacks[delimiter.Value] = new Stack<Delimiter>();
-
-            foreach (var delimiter in Delimiters)
-            {
-                var rule = GetSuitableRule(delimiter);
-                var isValidSecond = rule.IsValidClosing(delimiter, Text);
-
-                var stack = stacks[delimiter.Value];
-                if (isValidSecond &&
-                    stack.Count > 0 &&
-                    stack.Peek()
-                         .Value ==
-                    delimiter.Value &&
-                    rule.IsValidOpening(stack.Peek(), Text))
-                {
-                    var firstDelimiter = stack.Pop();
-                    firstDelimiter.Partner = delimiter;
-                    delimiter.Partner = firstDelimiter;
-                    delimiter.IsClosing = firstDelimiter.IsOpening = true;
-                }
-                else
-                {
-                    stack.Push(delimiter);
-                }
-            }
-
-            var rest = stacks.Values.SelectMany(s => s.ToArray())
-                             .ToHashSet();
-            Delimiters.RemoveAll(d => rest.Contains(d));
-
-            return this;
+            return rules.FirstOrDefault(r => r.Check(delimiter));
         }
 
         internal IEnumerable<Token> GetTokensFromDelimiters()
         {
             if (!Delimiters.Any())
-                return new List<Token> {new StringToken(0, Text.Length, Text)};
+                return new List<Token> { new StringToken(0, Text.Length, Text) };
 
             var tokens = new LinkedList<Token>();
             Token currentParentToken = null;
@@ -128,7 +74,6 @@ namespace Markdown
                         currentParentToken.InnerTokens = new List<Token>();
                     currentParentToken.InnerTokens.Add(token);
                 }
-
                 else if (currentParentToken != null)
                 {
                     if (delimiter.Position < endOfParent.Position)
@@ -141,11 +86,65 @@ namespace Markdown
             return InsertStringTokens(tokens);
         }
 
+        internal TextProcessor RemoveEscapedDelimiters()
+        {
+            Delimiters = Delimiters.Select(
+                                           d => GetSuitableRule(d)
+                                               .Escape(d, Text))
+                                   .Where(p => p != null)
+                                   .ToList();
+            return this;
+        }
+
+        internal TextProcessor RemoveNonValidDelimiters()
+        {
+            var text = Text;
+            Delimiters = Delimiters.Where(
+                                          d => GetSuitableRule(d)
+                                              .IsValid(d, text))
+                                   .ToList();
+            return this;
+        }
+
+        internal TextProcessor ValidatePairs()
+        {
+            var stacks = new Dictionary<string, Stack<Delimiter>>();
+            foreach (var delimiter in Delimiters)
+                stacks[delimiter.Value] = new Stack<Delimiter>();
+
+            foreach (var delimiter in Delimiters)
+            {
+                var rule = GetSuitableRule(delimiter);
+                var isValidAsClosing = rule.IsValidClosing(delimiter, Text);
+
+                var stack = stacks[delimiter.Value];
+                var isLastEqual = stack.TryPeek(out var d) && d.Value == delimiter.Value;
+                var isValid = isValidAsClosing && isLastEqual && rule.IsValidAsOpening(stack.Peek(), Text);
+                if (isValid)
+                {
+                    var firstDelimiter = stack.Pop();
+                    firstDelimiter.Partner = delimiter;
+                    delimiter.Partner = firstDelimiter;
+                    delimiter.IsClosing = firstDelimiter.IsOpening = true;
+                }
+                else
+                {
+                    stack.Push(delimiter);
+                }
+            }
+
+            var rest = stacks.Values.SelectMany(s => s.ToArray())
+                             .ToHashSet();
+            Delimiters.RemoveAll(d => rest.Contains(d));
+
+            return this;
+        }
+
         private IEnumerable<Token> InsertStringTokens(LinkedList<Token> tokens)
         {
             var currentToken = tokens.First;
 
-            tokens.AddLast(new PairedTagToken(Text.Length, 0, "", ""));
+            tokens.AddLast(new PairedTagToken(Text.Length, 0, string.Empty, string.Empty));
             var start = 0;
             while (currentToken != null)
             {
@@ -159,7 +158,6 @@ namespace Markdown
             }
 
             tokens.RemoveLast();
-
             return tokens.ToList();
         }
     }

@@ -42,11 +42,15 @@
     <Compile Include="CharExtensions.cs" />
     <Compile Include="PairedTagRule.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="StackExtensions.cs" />
     <Compile Include="StringToken.cs" />
     <Compile Include="TextParser.cs" />
     <Compile Include="TextProcessor.cs" />
     <Compile Include="Token.cs" />
     <Compile Include="PairedTagToken.cs" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="ClassDiagram1.cd" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
 </Project>

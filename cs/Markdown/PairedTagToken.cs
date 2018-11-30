@@ -1,7 +1,7 @@
-﻿using System.Collections.Generic;
-
-namespace Markdown
+﻿namespace Markdown
 {
+    using System.Collections.Generic;
+
     public sealed class PairedTagToken : Token
     {
         public PairedTagToken(int position, int length, string value, string fullTag = null)
@@ -16,10 +16,14 @@ namespace Markdown
 
         public string FullTag { get; set; }
 
-        public override int Position { get; set; }
-        public override int Length { get; set; }
-        public override string Value { get; set; }
         public override List<Token> InnerTokens { get; set; }
+
+        public override int Length { get; set; }
+
         public override Token ParentToken { get; set; }
+
+        public override int Position { get; set; }
+
+        public override string Value { get; set; }
     }
 }

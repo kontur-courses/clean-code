@@ -1,7 +1,7 @@
-﻿using System;
-
-namespace Markdown
+﻿namespace Markdown
 {
+    using System;
+
     internal class PairedTagRule : ITextProcessorRule
     {
         private readonly string fullTag;
@@ -16,12 +16,6 @@ namespace Markdown
         public int Length { get; set; }
 
         public char Tag { get; set; }
-
-        public Delimiter ProcessIncomingChar(int position, string text, out int amountOfSymbolsToSkip)
-        {
-            amountOfSymbolsToSkip = Length - 1;
-            return new Delimiter(fullTag, position);
-        }
 
         public bool Check(int position, string text)
         {
@@ -48,18 +42,6 @@ namespace Markdown
                        : delimiter;
         }
 
-        public bool IsValid(Delimiter delimiter, string text)
-        {
-            var position = delimiter.Position;
-            var isLast = position == text.Length - Length;
-            var isFirst = position == 0;
-            if (isLast || isFirst)
-                return true;
-            var next = text[position + Length];
-            var previous = text[position - 1];
-            return !(next.IsLetterOrDigitOrSpecifiedChar('_') && previous.IsLetterOrDigitOrSpecifiedChar('_'));
-        }
-
         public Token GetToken(Delimiter delimiter, string text)
         {
             if (delimiter.IsClosing)
@@ -70,7 +52,19 @@ namespace Markdown
             return new PairedTagToken(delimiter.Position, length, text.Substring(delimiter.Position, length), fullTag);
         }
 
-        public bool IsValidOpening(Delimiter delimiter, string text)
+        public bool IsValid(Delimiter delimiter, string text)
+        {
+            var position = delimiter.Position;
+            var isLast = position == text.Length - Length;
+            var isFirst = position == 0;
+            if (isLast || isFirst)
+                return true;
+            var next = text[position + Length];
+            var previous = text[position - 1];
+            return !(next.IsLetterOrDigitOrSpecifiedChar(Tag) && previous.IsLetterOrDigitOrSpecifiedChar(Tag));
+        }
+
+        public bool IsValidAsOpening(Delimiter delimiter, string text)
         {
             var position = delimiter.Position;
             if (position == 0)
@@ -88,6 +82,12 @@ namespace Markdown
             if (position + Length == text.Length)
                 return !char.IsWhiteSpace(text[position - 1]);
             return !char.IsWhiteSpace(text[position - 1]) && char.IsWhiteSpace(text[position + Length]);
+        }
+
+        public Delimiter ProcessIncomingChar(int position, string text, out int amountOfSymbolsToSkip)
+        {
+            amountOfSymbolsToSkip = Length - 1;
+            return new Delimiter(fullTag, position);
         }
     }
 }

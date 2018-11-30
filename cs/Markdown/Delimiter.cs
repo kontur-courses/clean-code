@@ -8,12 +8,15 @@
             Position = position;
         }
 
-        public int Position { get; }
-        public string Value { get; }
-        public bool IsOpening { get; set; }
         public bool IsClosing { get; set; }
 
+        public bool IsOpening { get; set; }
+
         public Delimiter Partner { get; set; }
+
+        public int Position { get; }
+
+        public string Value { get; }
 
         public override bool Equals(object obj)
         {
