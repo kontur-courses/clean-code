@@ -44,7 +44,8 @@ namespace Markdown.Tokenizing
                 tokens.Add(CreateRawToken(rawContent));
 
             tokens = ConvertToRawInsideEmphasizeTags(tokens);
-            var unpairedTokens = FilterUnpairedTokens(tokens);
+            var unpairedTokens = new HashSet<Token>(FilterUnpairedTokens(tokens));
+
             for (var i = 0; i < tokens.Count; i++)
             {
                 var token = tokens[i];
@@ -54,6 +55,7 @@ namespace Markdown.Tokenizing
                     tokens[i] = rawToken;
                 }
             }
+
             return ConcatRawTokens(tokens);
         }
 
@@ -95,6 +97,7 @@ namespace Markdown.Tokenizing
                     {
                         tokensList[j] = ConvertTokenToRaw(tokensList[j]);
                     }
+
                     indexesToConvert.Clear();
 
                     continue;
@@ -109,37 +112,43 @@ namespace Markdown.Tokenizing
 
         private static IEnumerable<Token> FilterUnpairedTokens(IEnumerable<Token> tokens)
         {
-            var list = new List<Token>();
-            var onlyAdd = false;
-
-            foreach (var token in tokens.Where(t => t.Tag != Tag.Raw))  
+            var tokenStacks = new Dictionary<Tag, Stack<Token>>
             {
-                if (token.IsOpening || !list.Any() || onlyAdd)
+                {Tag.Strong, new Stack<Token>()},
+                {Tag.Emphasize, new Stack<Token>()},
+            };
+
+            Tag previousTag = Tag.Raw;
+
+            foreach (var token in tokens.Where(t => t.Tag != Tag.Raw))
+            {
+                var stack = tokenStacks[token.Tag];
+
+                if (token.IsOpening)
                 {
-                    onlyAdd = false;
-                    list.Add(token);
+                    stack.Push(token);
+                    previousTag = token.Tag;
                     continue;
                 }
 
-                var previousToken = list.Last();
-                if (previousToken.Tag == token.Tag && previousToken.IsOpening)
+                if (previousTag == token.Tag && stack.Peek().IsOpening)
                 {
-                    list.RemoveAt(list.Count - 1);
+                    stack.Pop();
+                    previousTag = Tag.Raw;
                     continue;
                 }
 
-                var openingTag = list.LastOrDefault(t => t.Tag == token.Tag && t.IsOpening);
-                if (openingTag != null)
+                if (stack.Any() && stack.Peek().IsOpening)
                 {
-                    list.RemoveAt(list.LastIndexOf(openingTag));
-                    onlyAdd = true;
+                    stack.Pop();
                     continue;
                 }
 
-                list.Add(token);
+                stack.Push(token);
+                previousTag = token.Tag;
             }
 
-            return list;
+            return tokenStacks.Values.SelectMany(stack => stack);
         }
 
         private static List<Token> ConcatRawTokens(List<Token> tokens)

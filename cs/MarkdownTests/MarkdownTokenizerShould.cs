@@ -386,10 +386,10 @@ namespace MarkdownTests
             var tokenizeTimeElapsed = watch.ElapsedMilliseconds;
             watch.Restart();
             tokenizeTriple();
-            var tokenizeTripleTineElapsed = watch.ElapsedMilliseconds;
+            var tokenizeTripleTimeElapsed = watch.ElapsedMilliseconds;
             watch.Stop();
 
-            tokenizeTripleTineElapsed.Should().BeLessOrEqualTo(5 * tokenizeTimeElapsed);
+            tokenizeTripleTimeElapsed.Should().BeLessOrEqualTo(6 * tokenizeTimeElapsed);
         }
 
         private static IEnumerable ExecutionTimeTestCases()
