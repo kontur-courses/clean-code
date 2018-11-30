@@ -371,17 +371,15 @@ namespace MarkdownTests
 
         #endregion
 
-        [Test]
-        public void ExecuteInLinearTimeOnSimpleString()
-        {
-            var sourceLength = 1000000;
-            var source = GenerateSimpleMarkdownString(sourceLength);
-            var tripleLengthSource = GenerateSimpleMarkdownString(sourceLength * 3);
+        #region Execution Time
 
+        [Test, TestCaseSource(nameof(ExecutionTimeTestCases))]
+        public void ExecuteInLinearTime(string source, string tripleLengthSource)
+        {
             Action tokenize = () => MarkdownTokenizer.Tokenize(source);
             Action tokenizeTriple = () => MarkdownTokenizer.Tokenize(tripleLengthSource);
 
-            MarkdownTokenizer.Tokenize(source);  // warmup
+            MarkdownTokenizer.Tokenize("__test _t_ test__");  // warmup
 
             var watch = Stopwatch.StartNew();
             tokenize();
@@ -391,30 +389,24 @@ namespace MarkdownTests
             var tokenizeTripleTineElapsed = watch.ElapsedMilliseconds;
             watch.Stop();
 
-            tokenizeTripleTineElapsed.Should().BeLessOrEqualTo(9 * tokenizeTimeElapsed);
+            tokenizeTripleTineElapsed.Should().BeLessOrEqualTo(5 * tokenizeTimeElapsed);
         }
 
-        [Test]
-        public void ExecuteInLinearTimeOnStringWithNestedTags()
+        private static IEnumerable ExecutionTimeTestCases()
         {
             var sourceLength = 1000000;
-            var source = GenerateMarkdownStringWithNestedTags(sourceLength);
-            var tripleLengthSource = GenerateMarkdownStringWithNestedTags(sourceLength * 3);
 
-            Action tokenize = () => MarkdownTokenizer.Tokenize(source);
-            Action tokenizeTriple = () => MarkdownTokenizer.Tokenize(tripleLengthSource);
+            yield return new TestCaseData(
+                GenerateSimpleMarkdownString(sourceLength),
+                GenerateSimpleMarkdownString(sourceLength * 3)).SetName("OnSimpleString");
 
-            MarkdownTokenizer.Tokenize(source);  // warmup
+            yield return new TestCaseData(
+                GenerateMarkdownStringWithNestedTags(sourceLength),
+                GenerateMarkdownStringWithNestedTags(sourceLength * 3)).SetName("OnStringWithNestedTags");
 
-            var watch = Stopwatch.StartNew();
-            tokenize();
-            var tokenizeTimeElapsed = watch.ElapsedMilliseconds;
-            watch.Restart();
-            tokenizeTriple();
-            var tokenizeTripleTineElapsed = watch.ElapsedMilliseconds;
-            watch.Stop();
-
-            tokenizeTripleTineElapsed.Should().BeLessOrEqualTo(9 * tokenizeTimeElapsed);
+            yield return new TestCaseData(
+                GenerateMarkdownStringWithALotOfRawTags(10000),
+                GenerateMarkdownStringWithALotOfRawTags(10000 * 3)).SetName("OnStringWithALotOfRawTags");
         }
 
         private static string GenerateSimpleMarkdownString(int length)
@@ -442,5 +434,22 @@ namespace MarkdownTests
 
             return stringBuilder.ToString();
         }
+
+        private static string GenerateMarkdownStringWithALotOfRawTags(int length)
+        {
+            var prefix = "__c ";
+            var suffix = " c_";
+            var stringBuilder = new StringBuilder();
+
+            for (var i = 0; i < (length - 4) / 7; i++)
+                stringBuilder.Append(prefix);
+            stringBuilder.Append("__c_");
+            for (var i = 0; i < (length - 4) / 7; i++)
+                stringBuilder.Append(suffix);
+
+            return stringBuilder.ToString();
+        }
+
+        #endregion
     }
 }

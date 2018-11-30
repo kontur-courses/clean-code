@@ -55,4 +55,4 @@
 
 
 	Важно заметить, что тег <em> имеет преймущество перед тегом <strong>. Изначально будут обработан контент внутри тегов <em>, а затем все остальное
-	Пример: "__strong _strong__ text_" => "__strong <em>strong__ text_<em/>", НО НЕ "<strong>strong _strong</strong> text_"
+	Пример: "__strong _strong__ text_" => "__strong <em>strong__ text<em/>", НО НЕ "<strong>strong _strong</strong> text_"
