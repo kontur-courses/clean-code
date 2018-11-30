@@ -1,9 +1,9 @@
 ﻿using System.Collections.Generic;
 using System.Text;
 
-namespace MarkdownNew
+namespace Markdown
 {
-    class Renderer : IMarkdownRenderer
+    class Renderer : IConverter
     {
         private readonly Stack<Token> stack;
         private readonly Dictionary<Tag, Tag> pairs;
@@ -16,8 +16,9 @@ namespace MarkdownNew
             pairs = TagsPairsDictionary.GetTagsPairs();
         }
 
-        public string Converter(string markdown)
+        public object Convert(object obj)
         {
+            var markdown = obj as string;
             MakeTokensFromMarkdown(markdown);
             while (stack.Count > 0)
             {
@@ -25,9 +26,7 @@ namespace MarkdownNew
                 if (stack.Count > 0)
                     stack.Peek().Content.Append(tmp.Tag.Open + tmp.Content);
                 else
-                {
                     renderedString.Append(tmp.Tag.Open + tmp.Content);
-                }
             }
             return renderedString.ToString();
         }
@@ -37,25 +36,16 @@ namespace MarkdownNew
             var usedTags = new List<string>();
             for (var index = 0; index < markdown.Length; index++)
             {
-                var isNotToken = true;
-                if (TrySkipShelding(markdown, index))
+                if (TryEscape(markdown, index))
                 {
                     index++;
                     continue;
                 }
-                var openTag = TryReadOpenTag(markdown, index, usedTags);
-                var closeTag = TryReadCloseTag(markdown, index, usedTags);
-                if (openTag != null)
+                if (TryReadToken(markdown, index, usedTags, out var currentTag))
                 {
-                    isNotToken = false;
-                    index += openTag.Length - 1;
+                    index += currentTag.Length - 1;
+                    continue;
                 }
-                else if (closeTag != null)
-                {
-                    isNotToken = false;
-                    index += closeTag.Length - 1;
-                }
-                if (!isNotToken) continue;
                 if (stack.Count > 0)
                     stack.Peek().Content.Append(markdown[index]);
                 else
@@ -63,22 +53,34 @@ namespace MarkdownNew
             }
         }
 
-        private string TryReadOpenTag(string markdown, int index, List<string> usedTags)
+        private bool TryReadToken(string markdown, int index, 
+            List<string> usedTags, out string currentTag)
         {
+            return TryReadCloseTag(markdown, index, usedTags, out currentTag) 
+                   || TryReadOpenTag(markdown, index, usedTags, out currentTag);
+        }
+
+        private bool TryReadCloseTag(string markdown, int index, 
+            List<string> usedTags, out string tagString)
+        {
+            tagString = "";
             foreach (var tag in pairs.Keys)
             {
                 if (tag.IsValidCloseTagFromPosition(markdown, index) 
                     && usedTags.Contains(tag.Open))
                 {
                     RemoveTokenFromStack(tag, usedTags);
-                    return tag.Open;
+                    tagString = tag.Open;
+                    return true;
                 }
             }
-            return null;
+            return false;
         }
 
-        private string TryReadCloseTag(string markdown, int index, List<string> usedTags)
+        private bool TryReadOpenTag(string markdown, int index, 
+            List<string> usedTags, out string tagString)
         {
+            tagString = "";
             foreach (var tag in pairs.Keys)
             {
                 if (!tag.IsValidOpenTagFromPosition(markdown, index) 
@@ -86,12 +88,13 @@ namespace MarkdownNew
                 index += tag.Close.Length - 1;
                 stack.Push(new Token(index, tag));
                 usedTags.Add(tag.Open);
-                return tag.Close;
+                tagString = tag.Close;
+                return true;
             }
-            return null;
+            return false;
         }
 
-        private bool TrySkipShelding(string markdown, int position)
+        private bool TryEscape(string markdown, int position)
         {
             if (markdown[position] != '\\' 
                 || position + 1 >= markdown.Length) return false;

@@ -1,7 +1,7 @@
 ﻿using NUnit.Framework;
 
 
-namespace MarkdownNew
+namespace Markdown
 {
     [TestFixture]
     class TagTests

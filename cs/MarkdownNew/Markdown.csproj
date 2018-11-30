@@ -52,7 +52,7 @@
   <ItemGroup>
     <Compile Include="RenderTests.cs" />
     <Compile Include="Tag.cs" />
-    <Compile Include="IMarkdownRenderer.cs" />
+    <Compile Include="IConverter.cs" />
     <Compile Include="ITag.cs" />
     <Compile Include="MarkdownRender.cs" />
     <Compile Include="Program.cs" />
@@ -61,7 +61,6 @@
     <Compile Include="TagsPairsDictionary.cs" />
     <Compile Include="TagTests.cs" />
     <Compile Include="Token.cs" />
-    <Compile Include="TokenComparer.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="App.config" />

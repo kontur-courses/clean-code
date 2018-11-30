@@ -1,4 +1,4 @@
-﻿namespace MarkdownNew
+﻿namespace Markdown
 {
     class Tag : ITag
     {

@@ -1,9 +1,9 @@
 ﻿using NUnit.Framework;
 
-namespace MarkdownNew
+namespace Markdown
 {
     [TestFixture]
-    class MarkdownRenderer
+    class MarkdownRenderTests
     {
         [TestCase("__w\nw__", ExpectedResult = "<strong>w\nw</strong>", TestName = "Transform __ Tag In Different Lines")]
         [TestCase("_w\nw_", ExpectedResult = "<em>w\nw</em>", TestName = "Transform _ Tag In Different Lines")]
@@ -16,7 +16,7 @@ namespace MarkdownNew
         [TestCase("__ w__", ExpectedResult = "__ w__", TestName = "Not Transform __ Tag With Space After First")]
         [TestCase("_wow_", ExpectedResult = "<em>wow</em>", TestName = "Work With \"_\" Tag")]
         [TestCase("__w__", ExpectedResult = "<strong>w</strong>", TestName = "Work With \"__\" Tag")]
-        public string Should(string mdString)
+        public string Render_Should(string mdString)
         {
             var actual = MarkdownRender.Render(mdString);
             return actual;

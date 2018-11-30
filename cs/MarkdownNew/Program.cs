@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace MarkdownNew
+namespace Markdown
 {
     class Program
     {
