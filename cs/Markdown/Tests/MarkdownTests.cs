@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Diagnostics;
 using System.Text;
 using FluentAssertions;
@@ -49,6 +50,23 @@ namespace Markdown.Tests
         }
 
         [Test]
+        public void DoSomething_WhenSomething()
+        {
+            var mdText = "__Wake _up,__ Neo_";
+            var actualHtmlText = sut.Render(mdText);
+            Console.WriteLine(actualHtmlText);
+        }
+
+        [Test]
+        public void Render_BoltItalicText_CorrectHtmlText()
+        {
+            var mdText = " ___hello its me___ ";
+            var expectedHtmlText = " <strong><em>hello its me</em></strong> ";
+            var actualHtmlText = sut.Render(mdText);
+            actualHtmlText.Should().Be(expectedHtmlText);
+        }
+
+        [Test]
         public void Render_DoubleUnderscoreBetweenUnderscore_DoubleUnderscoreOrdinary()
         {
             var mdText = "_hello __its__ me_ i was";
@@ -86,37 +104,58 @@ namespace Markdown.Tests
         [Test]
         public void Render_Sharp_TextWithHead()
         {
-            var mdText = "# HEAD\n" +
+            var mdText = "# HEAD" + Environment.NewLine +
                          "ordinary text";
-            var expectedHtmlText = "<h1> HEAD</h1>" +
+            var expectedHtmlText = "<h1> HEAD</h1>" + Environment.NewLine +
                                    "ordinary text";
             var htmlText = sut.Render(mdText);
             htmlText.Should().Be(expectedHtmlText);
         }
 
         [Test]
-        public void Render_BoltItalicText_CorrectHtmlText()
+        public void Render_SharpInMiddleText_OrdinarySharp()
         {
-            var mdText = " ___hello its me___ ";
-            var expectedHtmlText = " <strong><em>hello its me</em></strong> ";
-            var actualHtmlText = sut.Render(mdText);
-            actualHtmlText.Should().Be(expectedHtmlText);
+            var mdText = "hello # its me";
+            var htmlText = sut.Render(mdText);
+            htmlText.Should().Be(mdText);
         }
+
         [Test]
-        public void Render_TextWithAllSpecialSymbols_CorrectHtmlText()
+        public void Render_SharpInMiddleTextAfterNewLine_TextWithHead()
         {
-            var mdText = " # __hi _my `friend` how_ are\\__ you__ ";
-            var expectedHtmlText = " <h1> <strong>hi <em>my <code>friend</code> how</em> are__ you</strong></h1>";
+            var mdText = "i wanna tell the" + Environment.NewLine +
+                         "# Story of my life" + Environment.NewLine +
+                         "And there is begin...";
+            var expectedHtmlText = "i wanna tell the" + Environment.NewLine +
+                                   "<h1> Story of my life</h1>" + Environment.NewLine +
+                                   "And there is begin...";
             var actualHtmlText = sut.Render(mdText);
             actualHtmlText.Should().Be(expectedHtmlText);
         }
 
+        [Test]
+        public void Render_SymbolsBetweenGraveAccent_AreEscaped()
+        {
+            var mdText = "`hi _my friend how_ are you`";
+            var expectedHtmlText = "<code>hi _my friend how_ are you</code>";
+            var actualHtmlText = sut.Render(mdText);
+            actualHtmlText.Should().Be(expectedHtmlText);
+        }
+
+        [Test]
+        public void Render_TextWithAllSpecialSymbols_CorrectHtmlText()
+        {
+            var mdText = "# __hi _my `friend` how_ are\\__ you__ ";
+            var expectedHtmlText = "<h1> <strong>hi <em>my <code>friend</code> how</em> are__ you</strong></h1>";
+            var actualHtmlText = sut.Render(mdText);
+            actualHtmlText.Should().Be(expectedHtmlText);
+        }
 
         [Test]
         public void Render_WorkFast()
         {
             var mdText =
-                "The 680-bed __Ospedale dell’Angelo__ in Venice-Mestre, a _40-year-long project_ completed by ` Italian architect `Emilio` Ambasz, is billed`` as the ‘world’s first green general hospital’_=-";
+                "The 680-bed __Ospedale dell’Angelo__ in Venice-Mestre, a _40-year-long project_ completed by Italian architect `Emilio` Ambasz, is billed as the ‘world’s first green general hospital’_=-";
             var times = new List<double>();
             var strb = new StringBuilder(mdText);
             var stopwatch = new Stopwatch();
@@ -136,9 +175,11 @@ namespace Markdown.Tests
                 stopwatch.Reset();
             }
 
-            var coeffQuadraticEquation = Fit.Polynomial(lengths.ToArray(), times.ToArray(), 2);
+            var quadraticPolynomialCoefficients = Fit.Polynomial(lengths.ToArray(), times.ToArray(), 2);
 
-            Assert.That(coeffQuadraticEquation[2] < 1e-2);
+
+            var quadraticCoefficient = quadraticPolynomialCoefficients[2];
+            Assert.That(quadraticCoefficient < 1e-2);
         }
     }
 }

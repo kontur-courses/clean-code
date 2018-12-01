@@ -44,8 +44,8 @@ namespace Markdown
                 var start = GetStartPositionForEnd(startPos, end, end, pairedSymbols);
                 if (start == -1)
                     continue;
-                pairedSymbols.Add(end);
                 pairedSymbols.Add(start);
+                pairedSymbols.Add(end);
             }
 
             var correctTokens = new List<Token>();

@@ -12,7 +12,7 @@ namespace Markdown.Tests
         [SetUp]
         public void SetUp()
         {
-            sut = new TokenParser();
+            sut = new TokenParser(baseTokens);
         }
 
         private TokenParser sut;
@@ -20,11 +20,11 @@ namespace Markdown.Tests
         private readonly List<TokenInformation> baseTokens = new List<TokenInformation>
         {
             new TokenInformation
-                {Symbol = "__", Tag = "strong", IsPaired = true, CountOfSpaces = 2, EndIsNewLine = false},
-            new TokenInformation {Symbol = "_", Tag = "em", IsPaired = true, CountOfSpaces = 1, EndIsNewLine = false},
-            new TokenInformation {Symbol = "\\", Tag = "\\", IsPaired = false, CountOfSpaces = 1, EndIsNewLine = false},
-            new TokenInformation {Symbol = "`", Tag = "code", IsPaired = true, CountOfSpaces = 1, EndIsNewLine = false},
-            new TokenInformation {Symbol = "#", Tag = "h1", IsPaired = true, CountOfSpaces = 1, EndIsNewLine = true}
+                {Symbol = "__", Tag = "strong", IsPaired = true, EndIsNewLine = false},
+            new TokenInformation {Symbol = "_", Tag = "em", IsPaired = true, EndIsNewLine = false},
+            new TokenInformation {Symbol = "\\", Tag = "\\", IsPaired = false, EndIsNewLine = false},
+            new TokenInformation {Symbol = "`", Tag = "code", IsPaired = true, EndIsNewLine = false},
+            new TokenInformation {Symbol = "#", Tag = "h1", IsPaired = true, EndIsNewLine = true}
         };
 
 
@@ -32,18 +32,18 @@ namespace Markdown.Tests
         public void GetToken_EmptyBaseTokens_NotThrowException()
         {
             var mdText = "_hello_ `my friend`";
-            Action act = () => sut.GetTokens(mdText, new List<TokenInformation>());
+            Action act = () => sut.GetTokens(mdText);
             act.Should().NotThrow();
         }
 
         [Test]
         public void GetToken_SharpSymbol_ListWithHeadSymbols()
         {
-            var str = "# HEAD \n" +
-                      "text";
+            var mdText = "# HEAD " + Environment.NewLine +
+                         "text";
             var sharpInformation = baseTokens.First(x => x.Symbol == "#");
-            var parser = new TokenParser();
-            var list = parser.GetTokens(str, baseTokens);
+            var parser = new TokenParser(baseTokens);
+            var list = parser.GetTokens(mdText);
             var expectedList = new List<Token>
             {
                 new Token(sharpInformation, TokenType.Start, 0),
@@ -55,11 +55,11 @@ namespace Markdown.Tests
         [Test]
         public void GetToken_SharpSymbolWithoutEndLine_ListWithHeadSymbols()
         {
-            var str = "# HEAD " +
-                      "text";
+            var mdText = "# HEAD " +
+                         "text";
             var sharpInformation = baseTokens.First(x => x.Symbol == "#");
-            var parser = new TokenParser();
-            var list = parser.GetTokens(str, baseTokens);
+            var parser = new TokenParser(baseTokens);
+            var list = parser.GetTokens(mdText);
             var expectedList = new List<Token>
             {
                 new Token(sharpInformation, TokenType.Start, 0),
@@ -71,18 +71,18 @@ namespace Markdown.Tests
         [Test]
         public void GetToken_SymbolsBetweenNumbers_EmptyList()
         {
-            var str = "_89 5__95__ `565`8613";
-            var parser = new TokenParser();
-            var list = parser.GetTokens(str, baseTokens);
+            var mdText = "_89 5__95__ `565`8613";
+            var parser = new TokenParser(baseTokens);
+            var list = parser.GetTokens(mdText);
             list.Should().BeEmpty();
         }
 
         [Test]
         public void GetTokens_Backslash_ListWithEscapedSymbols()
         {
-            var str = "\\__ jxkvnklnr";
-            var parser = new TokenParser();
-            var list = parser.GetTokens(str, baseTokens);
+            var mdText = "\\__ jxkvnklnr";
+            var parser = new TokenParser(baseTokens);
+            var list = parser.GetTokens(mdText);
             var expectedList = new List<Token>
             {
                 new Token(baseTokens.First(x => x.Symbol == "\\"), TokenType.Escaped, 0),
@@ -95,8 +95,8 @@ namespace Markdown.Tests
         public void GetTokens_DifferentSpecialSymbols_CorrectTokenList()
         {
             var mdText = "__la `topolya` and _puh_ i__";
-            var parser = new TokenParser();
-            var actualTokens = parser.GetTokens(mdText, baseTokens);
+            var parser = new TokenParser(baseTokens);
+            var actualTokens = parser.GetTokens(mdText);
             var dataForDouUnderscore = baseTokens.First(x => x.Symbol == "__");
             var dataForUnderscore = baseTokens.First(x => x.Symbol == "_");
             var dataForGraveAccent = baseTokens.First(x => x.Symbol == "`");
@@ -113,12 +113,11 @@ namespace Markdown.Tests
         }
 
         [Test]
-        [TestCase]
         public void GetTokens_OnePairOfSpecialSymbols_CorrectTokenList()
         {
             var mdText = "__la__";
-            var parser = new TokenParser();
-            var actualTokens = parser.GetTokens(mdText, baseTokens);
+            var parser = new TokenParser(baseTokens);
+            var actualTokens = parser.GetTokens(mdText);
             var doubleUnderscoreData = baseTokens.First(x => x.Symbol == "__");
             var expectedTokens = new List<Token>
             {
@@ -131,27 +130,27 @@ namespace Markdown.Tests
         [Test]
         public void GetTokens_OrdinaryText_EmptyTokenList()
         {
-            var str = "hello its me";
-            var parser = new TokenParser();
-            var list = parser.GetTokens(str, baseTokens);
+            var mdText = "hello its me";
+            var parser = new TokenParser(baseTokens);
+            var list = parser.GetTokens(mdText);
             list.Should().BeEmpty();
         }
 
         [Test]
         public void GetTokens_TextWithNoSpecialSymbols_EmptyTokenList()
         {
-            var str = " ~ % @ hell!**o i+ts =me)()";
-            var parser = new TokenParser();
-            var list = parser.GetTokens(str, baseTokens);
+            var mdText = " ~ % @ hell!**o i+ts =me)()";
+            var parser = new TokenParser(baseTokens);
+            var list = parser.GetTokens(mdText);
             list.Should().BeEmpty();
         }
 
         [Test]
         public void GetTokens_WrongWhiteSpacePosition_EmptyList()
         {
-            var str = "__ hello __";
-            var parser = new TokenParser();
-            var list = parser.GetTokens(str, baseTokens);
+            var mdText = "__ hello __";
+            var parser = new TokenParser(baseTokens);
+            var list = parser.GetTokens(mdText);
             list.Should().BeEmpty();
         }
     }

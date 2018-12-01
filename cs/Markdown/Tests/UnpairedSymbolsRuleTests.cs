@@ -19,11 +19,11 @@ namespace Markdown.Tests
         private readonly List<TokenInformation> baseTokens = new List<TokenInformation>
         {
             new TokenInformation
-                {Symbol = "__", Tag = "strong", IsPaired = true, CountOfSpaces = 2, EndIsNewLine = false},
-            new TokenInformation {Symbol = "_", Tag = "em", IsPaired = true, CountOfSpaces = 1, EndIsNewLine = false},
-            new TokenInformation {Symbol = "\\", Tag = "\\", IsPaired = false, CountOfSpaces = 1, EndIsNewLine = false},
-            new TokenInformation {Symbol = "`", Tag = "code", IsPaired = true, CountOfSpaces = 1, EndIsNewLine = false},
-            new TokenInformation {Symbol = "#", Tag = "h1", IsPaired = true, CountOfSpaces = 1, EndIsNewLine = true}
+                {Symbol = "__", Tag = "strong", IsPaired = true, EndIsNewLine = false},
+            new TokenInformation {Symbol = "_", Tag = "em", IsPaired = true, EndIsNewLine = false},
+            new TokenInformation {Symbol = "\\", Tag = "\\", IsPaired = false, EndIsNewLine = false},
+            new TokenInformation {Symbol = "`", Tag = "code", IsPaired = true, EndIsNewLine = false},
+            new TokenInformation {Symbol = "#", Tag = "h1", IsPaired = true, EndIsNewLine = true}
         };
 
         [Test]
