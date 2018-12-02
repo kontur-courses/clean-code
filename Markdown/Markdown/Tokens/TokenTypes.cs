@@ -5,6 +5,10 @@
         SimpleWord,
         BoldDelimiter,
         ItalicDelimiter,
-        EscapingDelimiter
+        EscapingDelimiter,
+        OpeningLinkNameDelimiter,
+        ClosingLinkNameDelimiter,
+        OpeningLinkHrefDelimiter,
+        ClosingLinkHrefDelimiter,
     }
 }

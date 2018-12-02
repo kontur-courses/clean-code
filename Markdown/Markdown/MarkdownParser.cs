@@ -1,7 +1,7 @@
 ﻿using System.Collections.Generic;
 using System.Linq;
 using Markdown.Ecxeptions;
-using Markdown.Elements;
+using Markdown. Elements;
 
 namespace Markdown
 {
@@ -42,6 +42,13 @@ namespace Markdown
                 element.LeftChild = styleElement;
                 CreateNextCompositeElement(styleElement.InnerTokens, styleElement);
                 CreateNextCompositeElement(tokenTuple.OtherTokens, element);              
+            }
+            else if (tokens.TrySeparateLinkPart(out var tokentup))
+            {
+                var styleElement = CreateStyleElement(tokenTuple.SeparetedPart, element);
+                element.LeftChild = styleElement;
+                CreateNextCompositeElement(styleElement.InnerTokens, styleElement);
+                CreateNextCompositeElement(tokenTuple.OtherTokens, element);
             }
             else
             {

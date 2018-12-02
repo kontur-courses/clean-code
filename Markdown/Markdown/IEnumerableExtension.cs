@@ -37,6 +37,20 @@ namespace Markdown.Elements
         }
 
 
+        public static bool TrySeparateLinkPart(this IEnumerable<Token> tokens, out TokenTuple tuple)
+        {
+            IEnumerable<Token> linkName;
+            Token href;
+            var firstToken = tokens.First();
+            if (firstToken.Type == TokenType.OpeningLinkNameDelimiter)
+            {
+                if (TryCollectTokenToNextDelimiter(tokens, out var result))
+                {
+                    linkName = result;
+                }
+            }
+        }
+
         public static bool TrySeparateStylePart(this IEnumerable<Token> tokens, out TokenTuple tuple)
         {
             tuple = new TokenTuple();

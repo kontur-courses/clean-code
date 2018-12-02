@@ -24,6 +24,7 @@ namespace MdTest
         [TestCase("_hello__", "_hello__", TestName = "UnpairedCharactersIsNotTextHighlighting")]
         [TestCase("_italic_simple text_italic_", "<em>italic</em>simple text<em>italic</em>", TestName = "NestingOfTheSameHighlightingCharactersIsIgnored")]
         [TestCase("_!!!_", "<em>!!!</em>", TestName = "PunctuationMarksAreAlsoHighlighted")]
+        [TestCase("[wiki](https://ru.wikipedia.org/wiki/%D0%92%D0%B8%D0%BA%D0%B8)", "<a href=\"https://ru.wikipedia.org/wiki/%D0%92%D0%B8%D0%BA%D0%B8\">wiki</a>", TestName = "LinksSupported")]
         public void Render_ShouldCorrectConvertToHtml(string inputText, string outputHtmlText)
         {
             Md.Render(inputText).Should().Be(outputHtmlText);

@@ -6,19 +6,14 @@ namespace Markdown
 {
     public class MarkdownLexer
     {
-        private Tuple<string, TokenType>[] delimiters = 
-        {
-            Tuple.Create(BoldStyleElement.DoubleKeyword, BoldStyleElement.TokenType),
-            Tuple.Create(ItalicStyleElement.DoubleKeyword, ItalicStyleElement.TokenType),
-            Tuple.Create(@"\", TokenType.EscapingDelimiter)
-        };        
-
+        private readonly (string delimiter, TokenType tokenType)[] delimiters;              
         private int pos;
         private readonly string source;
 
-        public MarkdownLexer(string source)
+        public MarkdownLexer(string source, (string delimiter, TokenType tokenType)[] delimiters)
         {
             this.source = source;
+            this.delimiters = delimiters;
         }
 
         public Token[] Tokenize()
@@ -27,7 +22,7 @@ namespace Markdown
             var word = new StringBuilder();
             while (pos < source.Length)
             {
-                if (TryFindDelimiter(out Tuple<string, TokenType> value))
+                if (TryFindDelimiter(out var value))
                 {
                     if(word.Length != 0)
                         tokens.Add(new Token(word.ToString(), TokenType.SimpleWord));
@@ -45,11 +40,11 @@ namespace Markdown
             return tokens.ToArray();
         }
 
-        private bool TryFindDelimiter(out Tuple<string, TokenType> value)
+        private bool TryFindDelimiter(out (string, TokenType) value)
         {
             foreach (var pair in delimiters)
             {
-                var delimiter = pair.Item1;
+                var delimiter = pair.delimiter;
                 if(delimiter.Length + pos > source.Length)
                     continue;
                 var compSubStr = source.Substring(pos, delimiter.Length);
@@ -60,7 +55,7 @@ namespace Markdown
                     return true;
                 }
             }
-            value = null;
+            value = ("",TokenType.SimpleWord);
             return false;
         }    
     }
