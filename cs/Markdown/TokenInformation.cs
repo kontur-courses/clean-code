@@ -9,6 +9,17 @@ namespace Markdown
         public string Symbol;
         public string Tag;
 
+        public TokenInformation WithTag(string tag)
+        {
+            return new TokenInformation
+            {
+                Tag = tag,
+                Symbol = Symbol,
+                IsPaired = IsPaired,
+                EndIsNewLine = EndIsNewLine
+            };
+        }
+
         public override bool Equals(object obj)
         {
             var information = obj as TokenInformation;

@@ -62,10 +62,15 @@ namespace Markdown
 
         private CompositeRule CreateCompositor()
         {
-            var firstRule = new UnpairedSymbolsRule(baseTokens);
-            var secondRule = new DoubleUnderscoreBetweenUnderscoreRule();
-            var thirdRule = new EscapedSymbolsBetweenGraveAccent();
-            return new CompositeRule(new IRule[] {firstRule, secondRule, thirdRule});
+            return new CompositeRule(
+                new IRule[]
+                {
+                    new UnpairedSymbolsRule(baseTokens),
+                    new DoubleUnderscoreBetweenUnderscoreRule(),
+                    new EscapedSymbolsBetweenGraveAccent(),
+                    new MixedUnderscoreRestrictionRule()
+                }
+            );
         }
 
         private string GetTag(Token token)

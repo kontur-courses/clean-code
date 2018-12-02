@@ -49,16 +49,17 @@ namespace Markdown.Tests
             actualHtmlText.Should().Be(mdText);
         }
 
-        [Test]
-        public void DoSomething_WhenSomething()
+        [TestCase("__Wake _up,__ Neo_")]
+        [TestCase("_Wake __up,_ Neo__")]
+        public void Render_MixedUnderscores_ItalicText(string mdText)
         {
-            var mdText = "__Wake _up,__ Neo_";
+            var expectedHtmlText = "<em>Wake up, Neo</em>";
             var actualHtmlText = sut.Render(mdText);
-            Console.WriteLine(actualHtmlText);
+            actualHtmlText.Should().Be(expectedHtmlText);
         }
 
         [Test]
-        public void Render_BoltItalicText_CorrectHtmlText()
+        public void Render_BoldItalicText_CorrectHtmlText()
         {
             var mdText = " ___hello its me___ ";
             var expectedHtmlText = " <strong><em>hello its me</em></strong> ";

@@ -66,9 +66,11 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="EscapedSymbolsBetweenGraveAccent.cs" />
+    <Compile Include="EscapedSymbolsBetweenGraveAccentRule.cs" />
+    <Compile Include="MixedUnderscoreRestrictionRule.cs" />
     <Compile Include="Tests\DoubleUnderscoreBetweenUnderscoreRuleTests.cs" />
     <Compile Include="Tests\EscapedSymbolsBetweenGraveAccentTests.cs" />
+    <Compile Include="Tests\MixedUnderscoreRestrictionRuleTests.cs" />
     <Compile Include="Tests\UnpairedSymbolsRuleTests.cs" />
     <Compile Include="TokenInformation.cs" />
     <Compile Include="CompositeRule.cs" />

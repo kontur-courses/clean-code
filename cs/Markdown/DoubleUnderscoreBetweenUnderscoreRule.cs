@@ -28,11 +28,11 @@ namespace Markdown
                     symbolsMap);
                 if (startDoubleUnderscore == null)
                     continue;
-                deleteToken.Add(startDoubleUnderscore);
                 var endDoubleUnderscore = GetPosition(startDoubleUnderscore.Position, endUnderscore.Position, "__",
                     TokenType.End, symbolsMap);
                 if (endDoubleUnderscore == null)
                     continue;
+                deleteToken.Add(startDoubleUnderscore);
                 deleteToken.Add(endDoubleUnderscore);
             }
 
