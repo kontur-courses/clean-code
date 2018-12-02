@@ -37,11 +37,6 @@ namespace Markdown.TextProcessing
             return TypeToken.Simple;
         }
 
-        public override bool ContainsNestedToken(string content, int position)
-        {
-            return false;
-        }
-
         public override ITokenHandler GetNextNestedToken(string content, int position)
         {
             return new SimpleTokenHandler();

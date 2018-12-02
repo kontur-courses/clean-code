@@ -8,6 +8,7 @@ namespace Markdown.TextProcessing
         {
             TokenAssociation = "__";
             StopChar = '_';
+            IsNestedToken = true;
         }
 
         public override bool IsStartToken(string content, int position)
@@ -44,8 +45,7 @@ namespace Markdown.TextProcessing
 
         public override bool ContainsNestedToken(string content, int position)
         {
-            var emToken = new EmTokenHandler();
-            emToken.IsNestedToken = true;
+            var emToken = new EmTokenHandler {IsNestedToken = true};
             return emToken.IsStartToken(content, position);
         }
 

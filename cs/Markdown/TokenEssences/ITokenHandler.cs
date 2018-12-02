@@ -7,7 +7,7 @@ namespace Markdown.TokenEssences
     {
         string TokenAssociation { get; }
         char StopChar { get; }
-        bool IsNestedToken { get; set; }
+        bool IsNestedToken { get; }
 
         TypeToken GetNextTypeToken(string content, int position);
         bool IsStopToken(string content, int position);

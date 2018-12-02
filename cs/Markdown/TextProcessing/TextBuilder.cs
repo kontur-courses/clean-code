@@ -1,20 +1,27 @@
 ﻿using System.Collections.Generic;
 using System.Text;
+using Markdown.MarkdownConfigurations;
 using Markdown.TokenEssences;
 
 namespace Markdown.TextProcessing
 {
     public class TextBuilder
     {
+        public IConfig MdConfiguration { get; }
+
+        public TextBuilder(IConfig mdConfiguration)
+        {
+            MdConfiguration = mdConfiguration;
+        }
+
         public string BuildText(List<IToken> tokens)
         {
             var strBuilder = new StringBuilder();
             foreach (var token in tokens)
             {
-                if (token.TypeToken == TypeToken.Simple)
+                    strBuilder.Append(MdConfiguration.TokenExtractor[token.TypeToken].StartToken);
                     strBuilder.Append(token.Value);
-                else
-                    strBuilder.AppendFormat("<{0}>{1}</{0}>", token.TypeToken.ToString().ToLower(), token.Value);
+                    strBuilder.Append(MdConfiguration.TokenExtractor[token.TypeToken].EndOfToken);
             }
             return strBuilder.ToString();
         }
@@ -22,11 +29,11 @@ namespace Markdown.TextProcessing
         public string BuildText(List<string> paragraphs)
         {
             var strBuilder = new StringBuilder();
-            for(int i = 0; i<paragraphs.Count;i++)
+            for (int i = 0; i < paragraphs.Count; i++)
             {
                 strBuilder.Append(paragraphs[i]);
-                if(i!= paragraphs.Count-1)
-                strBuilder.Append("\r\n\r\n");
+                if (i != paragraphs.Count - 1)
+                    strBuilder.Append("\r\n\r\n");
             }
             return strBuilder.ToString();
         }
@@ -34,9 +41,8 @@ namespace Markdown.TextProcessing
         public string BuildTokenValue(IToken token)
         {
             if (token.Value.Length == 0) return "";
-            if (token.TypeToken == TypeToken.Simple)
-                return token.Value;
-            return string.Format(@"<{0}>{1}</{0}>", token.TypeToken.ToString().ToLower(), token.Value);
-        }
+            return MdConfiguration.TokenExtractor[token.TypeToken].StartToken +
+                 token.Value + MdConfiguration.TokenExtractor[token.TypeToken].EndOfToken;
     }
+}
 }

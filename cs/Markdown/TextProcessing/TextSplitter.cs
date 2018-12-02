@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using Markdown.TokenEssences;
 
 namespace Markdown.TextProcessing
@@ -9,10 +10,10 @@ namespace Markdown.TextProcessing
         public TokenReader Reader { get; set; }
         private TypeToken station;
 
-        public TextSplitter(string content)
+        public TextSplitter(string content, TextBuilder builder)
         {
             Content = content;
-            Reader = new TokenReader(content);
+            Reader = new TokenReader(content, builder);
             station = TypeToken.Simple;
         }
 

@@ -9,10 +9,10 @@ namespace Markdown.TextProcessing
         public string Content { get; set; }
         public TextBuilder Builder { get; set; }
 
-        public TokenReader(string content)
+        public TokenReader(string content, TextBuilder builder)
         {
             Content = content;
-            Builder = new TextBuilder();
+            Builder = builder;
         }
 
         public IToken ReadToken( ITokenHandler tokenHandler)
@@ -30,7 +30,6 @@ namespace Markdown.TextProcessing
         private string ReadWhile(Func<char, bool> isStopChar, ITokenHandler tokenHandler)
         {
             var value = "";
-            tokenHandler.IsNestedToken = tokenHandler is StrongTokenHandler;
             while (Position < Content.Length && (!isStopChar(Content[Position]) || !tokenHandler.IsStopToken(Content, Position)))
             {
                 if (Position + 1 < Content.Length && isStopChar(Content[Position + 1]) && Content[Position] == '\\')

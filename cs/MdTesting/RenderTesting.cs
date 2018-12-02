@@ -3,6 +3,7 @@ using System.Linq;
 using Markdown;
 using NUnit.Framework;
 using BenchmarkDotNet.Running;
+using Markdown.MarkdownConfigurations;
 
 namespace MdTesting
 {
@@ -10,10 +11,11 @@ namespace MdTesting
     public class RenderTesting
     {
         private Md md;
+
         [SetUp]
         public void Init()
         {
-            md = new Md();
+            md = new Md(new HtmlConfig());
         }
 
         [TestCase("_For each_", ExpectedResult = "<em>For each</em>", TestName = "Single underscore is used")]

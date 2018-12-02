@@ -1,6 +1,7 @@
 ﻿using BenchmarkDotNet.Attributes;
 using BenchmarkDotNet.Engines;
 using Markdown;
+using Markdown.MarkdownConfigurations;
 
 namespace MdTesting
 {
@@ -14,7 +15,7 @@ namespace MdTesting
         public void Test()
         {
             var content = Properties.Resources.FastTest.Substring(0, LengthContent);
-            var md = new Md();
+            var md = new Md(new HtmlConfig());
             md.Render(content);
         }
     }
