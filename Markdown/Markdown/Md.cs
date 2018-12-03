@@ -11,13 +11,10 @@ namespace Markdown
                 ValueTuple.Create(BoldStyleElement.DoubleKeyword, BoldStyleElement.TokenType),
                 ValueTuple.Create(ItalicStyleElement.DoubleKeyword, ItalicStyleElement.TokenType),
                 ValueTuple.Create(@"\", TokenType.EscapingDelimiter),
-                ValueTuple.Create(@"[", TokenType.OpeningLinkHrefDelimiter),
-                ValueTuple.Create(@"]", TokenType.ClosingLinkNameDelimiter),
-                ValueTuple.Create(@"(", TokenType.OpeningLinkHrefDelimiter),
-                ValueTuple.Create(@")", TokenType.ClosingLinkHrefDelimiter),
             };
             
-            var parser = new MarkdownParser(source);          
+            var lexer = new MarkdownLexer(source, delimeters);
+            var parser = new MarkdownParser(lexer);          
             var interpreter = new MarkdownInterpreter(parser.Parse());
             return interpreter.GetHtmlCode();
        }

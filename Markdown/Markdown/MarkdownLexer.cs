@@ -4,7 +4,7 @@ using System.Text;
 
 namespace Markdown
 {
-    public class MarkdownLexer
+    public class MarkdownLexer : ILexer
     {
         private readonly (string delimiter, TokenType tokenType)[] delimiters;              
         private int pos;

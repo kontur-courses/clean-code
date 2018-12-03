@@ -7,28 +7,31 @@ namespace Markdown.Elements
     {
         public static Token[] GetInnerTokens(this IEnumerable<Token> tokens)
         {
-            return tokens.Skip(1)
-                .Take(tokens.Count() - 2)
+            var enumerable = tokens as Token[] ?? tokens.ToArray();
+            return enumerable.Skip(1)
+                .Take(enumerable.Count() - 2)
                 .ToArray();
         }
 
         public static bool TrySeparateSimplePart(this IEnumerable<Token> tokens, out TokenTuple result)
         {
             result = new TokenTuple();
-            switch (tokens.First().Type)
+            var enumerable
+                = tokens as Token[] ?? tokens.ToArray();
+            switch (enumerable.First().Type)
             {
                 case TokenType.SimpleWord:
-                    result = new TokenTuple(new[] { tokens.First() }, tokens.Skip(1));
+                    result = new TokenTuple(new[] { enumerable.First() }, enumerable.Skip(1));
                     return true;
                 case TokenType.EscapingDelimiter:
-                    if (tokens.Count() < 2)
+                    if (enumerable.Count() < 2)
                     {
-                        result = new TokenTuple(new[] { tokens.First() }, tokens.Skip(1));
+                        result = new TokenTuple(new[] { enumerable.First() }, enumerable.Skip(1));
                         return true;
                     }
                     else
                     {
-                        result = new TokenTuple(tokens.Skip(1).Take(1), tokens.Skip(2));
+                        result = new TokenTuple(enumerable.Skip(1).Take(1), enumerable.Skip(2));
                         return true;
                     }
             }
@@ -37,24 +40,10 @@ namespace Markdown.Elements
         }
 
 
-        public static bool TrySeparateLinkPart(this IEnumerable<Token> tokens, out TokenTuple tuple)
-        {
-            IEnumerable<Token> linkName;
-            Token href;
-            var firstToken = tokens.First();
-            if (firstToken.Type == TokenType.OpeningLinkNameDelimiter)
-            {
-                if (TryCollectTokenToNextDelimiter(tokens, out var result))
-                {
-                    linkName = result;
-                }
-            }
-        }
-
         public static bool TrySeparateStylePart(this IEnumerable<Token> tokens, out TokenTuple tuple)
         {
             tuple = new TokenTuple();
-            if (TryCollectTokenToNextDelimiter(tokens, out IEnumerable<Token> collectedTokens))
+            if (TryCollectTokenToNextDelimiter(tokens, out var collectedTokens))
             {
                 tuple = new TokenTuple(collectedTokens, tokens.Skip(collectedTokens.Count()));
                 return true;
@@ -65,12 +54,13 @@ namespace Markdown.Elements
 
         private static bool TryCollectTokenToNextDelimiter(IEnumerable<Token> tokens, out IEnumerable<Token> result)
         {
-            var del = tokens.First().Type;
-            var colTokens = new List<Token> { tokens.First() };
-            colTokens.AddRange(tokens.Skip(1).TakeWhile(t => t.Type != del));
-            if (colTokens.Count < tokens.Count())
+            var enumerable = tokens as Token[] ?? tokens.ToArray();
+            var del = enumerable.First().Type;
+            var colTokens = new List<Token> { enumerable.First() };
+            colTokens.AddRange(enumerable.Skip(1).TakeWhile(t => t.Type != del));
+            if (colTokens.Count < enumerable.Count())
             {
-                colTokens.Add(tokens.ElementAt(colTokens.Count));
+                colTokens.Add(enumerable.ElementAt(colTokens.Count));
                 result = colTokens;
                 return true;
             }

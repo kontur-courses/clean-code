@@ -61,7 +61,8 @@
     <Reference Include="System.Xml.Linq" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="MarkdownLexerTests.cs" />
+    <Compile Include="MarkdownInterpreterTests.cs" />
+    <Compile Include="MarkdownParserTest.cs" />
     <Compile Include="MdUnitTests.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>

@@ -1,10 +1,12 @@
-﻿using Markdown.Ecxeptions;
+﻿using System.Linq;
+using Markdown.Ecxeptions;
 
 namespace Markdown
 {
     public class MarkdownInterpreter
     {
         private readonly IElement rootNode;
+        private readonly char[] badChars = new[] {'\t', ' ', '\n'};
 
         public MarkdownInterpreter(IElement rootNode)
         {
@@ -43,9 +45,9 @@ namespace Markdown
 
 
 
-        public bool IsCorrectToken(string value)
+        private bool IsCorrectToken(string value)
         {
-            var spaces = value[0] != ' ' && value[value.Length - 1] != ' ';
+            var spaces = !badChars.Contains(value[0]) && !badChars.Contains(value[value.Length - 1]);
             var allIsDigits = true;
             foreach (var sym in value)
             {

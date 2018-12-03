@@ -6,9 +6,6 @@
         BoldDelimiter,
         ItalicDelimiter,
         EscapingDelimiter,
-        OpeningLinkNameDelimiter,
-        ClosingLinkNameDelimiter,
-        OpeningLinkHrefDelimiter,
-        ClosingLinkHrefDelimiter,
+        TestDelimiter
     }
 }

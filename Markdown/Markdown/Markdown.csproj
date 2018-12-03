@@ -45,22 +45,23 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="Ecxeptions\UnknownElementException.cs" />
-    <Compile Include="Ecxeptions\UnknownTokenException.cs" />
-    <Compile Include="Elements\LinkElement.cs" />
-    <Compile Include="Elements\StyleElement\BoldStyleElement.cs" />
-    <Compile Include="Elements\CompositeElement.cs" />
+    <Compile Include="Exceptions\UnknownElementException.cs" />
+    <Compile Include="Exceptions\UnknownTokenException.cs" />
+    <Compile Include="ASTNodes\StyleElement\BoldStyleElement.cs" />
+    <Compile Include="ASTNodes\CompositeElement.cs" />
     <Compile Include="IEnumerableExtension.cs" />
-    <Compile Include="Elements\StyleElement\ItalicStyleElement.cs" />
+    <Compile Include="ASTNodes\StyleElement\ItalicStyleElement.cs" />
+    <Compile Include="ILexer.cs" />
+    <Compile Include="IParser.cs" />
     <Compile Include="MarkdownInterpreter.cs" />
     <Compile Include="MarkdownLexer.cs" />
     <Compile Include="MarkdownParser.cs" />
     <Compile Include="Md.cs" />
-    <Compile Include="Elements\IElement.cs" />
+    <Compile Include="ASTNodes\IElement.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
-    <Compile Include="Elements\SimpleElement.cs" />
-    <Compile Include="Elements\StyleElement\IStyleElement.cs" />
+    <Compile Include="ASTNodes\SimpleElement.cs" />
+    <Compile Include="ASTNodes\StyleElement\IStyleElement.cs" />
     <Compile Include="Tokens\Token.cs" />
     <Compile Include="Tokens\TokenTuple.cs" />
     <Compile Include="Tokens\TokenTypes.cs" />

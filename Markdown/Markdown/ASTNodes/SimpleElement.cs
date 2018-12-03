@@ -4,15 +4,17 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace Markdown.Elements
+namespace Markdown
 {
-    class LinkElement : IElement
+    public class SimpleElement : IElement
     {
         public IElement Child { get; set; }
 
-        public LinkElement(IElement child)
+        public string Value { get;}
+
+        public SimpleElement(Token token)
         {
-            Child = child;
+            Value = token.Value;
         }
     }
 }

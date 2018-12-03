@@ -5,13 +5,13 @@ using Markdown. Elements;
 
 namespace Markdown
 {
-    public class MarkdownParser
+    public class MarkdownParser : IParser
     {
-        private readonly MarkdownLexer lexer;
+        private readonly ILexer lexer;
 
-        public MarkdownParser(string sourсe)
+        public MarkdownParser(ILexer lexer)
         {
-            lexer = new MarkdownLexer(sourсe);
+            this.lexer = lexer;
         }
 
         public IElement Parse()
@@ -38,17 +38,10 @@ namespace Markdown
             }
             else if(tokens.TrySeparateStylePart(out var tokenTuple))
             {
-                var styleElement = CreateStyleElement(tokenTuple.SeparetedPart, element);
+                var styleElement = CreateStyleElement(tokenTuple.SeparetedPart);
                 element.LeftChild = styleElement;
                 CreateNextCompositeElement(styleElement.InnerTokens, styleElement);
                 CreateNextCompositeElement(tokenTuple.OtherTokens, element);              
-            }
-            else if (tokens.TrySeparateLinkPart(out var tokentup))
-            {
-                var styleElement = CreateStyleElement(tokenTuple.SeparetedPart, element);
-                element.LeftChild = styleElement;
-                CreateNextCompositeElement(styleElement.InnerTokens, styleElement);
-                CreateNextCompositeElement(tokenTuple.OtherTokens, element);
             }
             else
             {
@@ -64,7 +57,7 @@ namespace Markdown
             BuildTree(comp);
         }
 
-        private IStyleElement CreateStyleElement(IEnumerable<Token> tokens, IElement parent)
+        private IStyleElement CreateStyleElement(IEnumerable<Token> tokens)
         {
             var innerTokens = tokens.GetInnerTokens();
             var firstToken = tokens.First();
