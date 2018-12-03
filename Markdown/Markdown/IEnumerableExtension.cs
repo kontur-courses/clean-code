@@ -1,7 +1,7 @@
 ﻿using System.Collections.Generic;
 using System.Linq;
 
-namespace Markdown.Elements
+namespace Markdown
 {
     public static class IEnumerableExtension
     {

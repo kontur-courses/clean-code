@@ -1,19 +1,17 @@
-﻿using System.Linq;
-using Markdown.Ecxeptions;
+﻿using Markdown.Ecxeptions;
 
 namespace Markdown
 {
-    public class MarkdownInterpreter
+    public class MarkdownInterpreter : IInterpreter
     {
         private readonly IElement rootNode;
-        private readonly char[] badChars = new[] {'\t', ' ', '\n'};
 
         public MarkdownInterpreter(IElement rootNode)
         {
             this.rootNode = rootNode;
         }
 
-        public string GetHtmlCode()
+        public string Interpret()
         {
             return Execute(rootNode);
         }
@@ -44,10 +42,9 @@ namespace Markdown
         }
 
 
-
         private bool IsCorrectToken(string value)
         {
-            var spaces = !badChars.Contains(value[0]) && !badChars.Contains(value[value.Length - 1]);
+            var spaces = !char.IsWhiteSpace(value[0]) && !char.IsWhiteSpace(value[value.Length - 1]);
             var allIsDigits = true;
             foreach (var sym in value)
             {

@@ -12,16 +12,5 @@ namespace Markdown
             Value = value;
             Type = type;
         }
-
-        public override bool Equals(object obj)
-        {
-            if (obj is Token)
-            {
-                var othToken = obj as Token;
-                return Value == othToken.Value && Type == othToken.Type;
-            }
-
-            return false;
-        }
     }
 }
