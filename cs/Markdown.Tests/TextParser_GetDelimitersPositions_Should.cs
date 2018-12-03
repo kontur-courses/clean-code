@@ -31,6 +31,17 @@ namespace Markdown.Tests
 
         [Category("UnderscoreRule")]
         [Test]
+        public void ReturnFirstAndLastDelimiter_OfDoubleUnderscore()
+        {
+            TextParser.For("__del__")
+                      .GetDelimiterPositions()
+                      .Delimiters.Should()
+                      .HaveCount(2)
+                      .And.Subject.ShouldBeEquivalentTo(new[] {new Delimiter("__", 0), new Delimiter("__", 5)});
+        }
+
+        [Category("UnderscoreRule")]
+        [Test]
         public void ReturnOneDelimiterOfDoubleUnderscoreRule_WhenOneExistsOfThisRule()
         {
             TextParser.For("abcd__efg")
@@ -45,10 +56,7 @@ namespace Markdown.Tests
         {
             TextParser.For("abcd___efg")
                       .GetDelimiterPositions()
-                      .Delimiters.ShouldBeEquivalentTo(new List<Delimiter>
-                      {
-                          new Delimiter("__", 4), new Delimiter("_", 6)
-                      });
+                      .Delimiters.ShouldBeEquivalentTo(new List<Delimiter> {new Delimiter("___", 4)});
         }
 
         [Category("UnderscoreRule")]

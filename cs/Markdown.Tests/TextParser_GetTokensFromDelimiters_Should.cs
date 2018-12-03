@@ -43,10 +43,7 @@ namespace Markdown.Tests
             var outerToken = new PairedTagToken(0, 11, text);
             var innerToken = new PairedTagToken(3, 5, "__b__") {ParentToken = outerToken};
 
-            outerToken.InnerTokens = new List<Token>
-            {
-                innerToken,
-            };
+            outerToken.InnerTokens = new List<Token> {innerToken};
 
             TextParser.For(text)
                       .Parse()

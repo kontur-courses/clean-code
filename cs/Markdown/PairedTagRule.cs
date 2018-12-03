@@ -1,7 +1,7 @@
-﻿namespace Markdown
-{
-    using System;
+﻿using System;
 
+namespace Markdown
+{
     internal class PairedTagRule : ITextProcessorRule
     {
         private readonly string fullTag;
@@ -19,14 +19,9 @@
 
         public bool Check(int position, string text)
         {
-            if (Length == 1)
-            {
-                if (position < text.Length - 1 && text[position + 1] == Tag)
-                    return false;
-                return text[position] == Tag;
-            }
-
-            if (position < text.Length - 1)
+            if (position + Length < text.Length && text[position + Length] == Tag)
+                return false;
+            if (position + Length <= text.Length)
                 return text.Substring(position, Length) == fullTag;
             return false;
         }

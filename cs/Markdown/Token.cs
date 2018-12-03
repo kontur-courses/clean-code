@@ -1,7 +1,7 @@
-﻿namespace Markdown
-{
-    using System.Collections.Generic;
+﻿using System.Collections.Generic;
 
+namespace Markdown
+{
     public abstract class Token
     {
         /// <summary>

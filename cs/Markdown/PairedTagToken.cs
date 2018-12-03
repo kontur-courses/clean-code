@@ -1,7 +1,7 @@
-﻿namespace Markdown
-{
-    using System.Collections.Generic;
+﻿using System.Collections.Generic;
 
+namespace Markdown
+{
     public sealed class PairedTagToken : Token
     {
         public PairedTagToken(int position, int length, string value, string fullTag = null)

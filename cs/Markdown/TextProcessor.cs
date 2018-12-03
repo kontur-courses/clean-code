@@ -1,15 +1,14 @@
-﻿namespace Markdown
-{
-    using System.Collections.Generic;
-    using System.Linq;
+﻿using System.Collections.Generic;
+using System.Linq;
 
+namespace Markdown
+{
     internal class TextProcessor
     {
+        private readonly List<ITextProcessorRule> rules;
         public readonly string Text;
 
         internal List<Delimiter> Delimiters;
-
-        private readonly List<ITextProcessorRule> rules;
 
         internal TextProcessor(string text, List<Delimiter> delimiters = null, List<ITextProcessorRule> rules = null)
         {
@@ -48,7 +47,7 @@
         internal IEnumerable<Token> GetTokensFromDelimiters()
         {
             if (!Delimiters.Any())
-                return new List<Token> { new StringToken(0, Text.Length, Text) };
+                return new List<Token> {new StringToken(0, Text.Length, Text)};
 
             var tokens = new LinkedList<Token>();
             Token currentParentToken = null;
@@ -88,8 +87,7 @@
 
         internal TextProcessor RemoveEscapedDelimiters()
         {
-            Delimiters = Delimiters.Select(
-                                           d => GetSuitableRule(d)
+            Delimiters = Delimiters.Select(d => GetSuitableRule(d)
                                                .Escape(d, Text))
                                    .Where(p => p != null)
                                    .ToList();
@@ -99,8 +97,7 @@
         internal TextProcessor RemoveNonValidDelimiters()
         {
             var text = Text;
-            Delimiters = Delimiters.Where(
-                                          d => GetSuitableRule(d)
+            Delimiters = Delimiters.Where(d => GetSuitableRule(d)
                                               .IsValid(d, text))
                                    .ToList();
             return this;

@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Text;
 using FluentAssertions;
 using FluentAssertions.Specialized;
@@ -6,23 +7,20 @@ using NUnit.Framework;
 
 namespace Markdown.Tests
 {
-    using System.Collections.Generic;
-
     [TestFixture]
     public class Md_Should
     {
         [SetUp]
         public void SetUp()
         {
-            parser = new Md(
-                            new HtmlCreator(
-                                            new Dictionary<string, (string opening, string closing)>
-                                                {
-                                                    ["_"] = ("<em>", "</em>"),
-                                                        ["*"] = ("<em>", "</em>"),
-                                                        ["__"] = ("<strong>", "</strong>"),
-                                                        ["**"] = ("<strong>", "</strong>")
-                                                    }));
+            parser = new Md(new HtmlCreator(new Dictionary<string, (string opening, string closing)>
+            {
+                ["_"] = ("<em>", "</em>"), ["*"] = ("<em>", "</em>"),
+                ["__"] = ("<strong>", "</strong>"),
+                ["**"] = ("<strong>", "</strong>"),
+                ["___"] = ("<em><strong>", "</strong></em>"),
+                ["***"] = ("<em><strong>", "</strong></em>")
+            }));
         }
 
         private Md parser;
@@ -38,8 +36,8 @@ namespace Markdown.Tests
             "text has asterisk tags and nested asterisk tags")]
         [TestCase("*a* *b **cd *b dc**", "<em>a</em> *b <strong>cd *b dc</strong>", TestName =
             "text has non paired asterisk tags")]
-        [TestCase("_a_ *b **cd _b dc**", "<em>a</em> *b <strong>cd _b dc</strong>", TestName =
-            "text has mixed tags")]
+        [TestCase("_a_ *b **cd _b dc**", "<em>a</em> *b <strong>cd _b dc</strong>", TestName = "text has mixed tags")]
+        [TestCase("a ___bc___ d", "a <em><strong>bc</strong></em> d", TestName = "has triple underscore")]
         public void ParseTextCorrectly_When(string text, string renderedText)
         {
             parser.Render(text)
@@ -47,11 +45,11 @@ namespace Markdown.Tests
                   .BeEquivalentTo(renderedText);
         }
 
-        [TestCase("asdwarhyeuit  truehgfoneoghe432534___3*&&&&3254&&&882143",TestName = "random stuff #1")]
-        [TestCase("____________________",TestName = "many underscores")]
-        [TestCase("_*_*_*_*_*_",TestName = "underscores followed by asterisks")]
-        [TestCase("_aa_www_wre____ewe____wewtr_rr",TestName = "random stuff #2")]
-        [TestCase("",TestName = "")]
+        [TestCase("asdwarhyeuit  truehgfoneoghe432534___3*&&&&3254&&&882143", TestName = "random stuff #1")]
+        [TestCase("____________________", TestName = "many underscores")]
+        [TestCase("_*_*_*_*_*_", TestName = "underscores followed by asterisks")]
+        [TestCase("_aa_www_wre____ewe____wewtr_rr", TestName = "random stuff #2")]
+        [TestCase("", TestName = "")]
         public void NotThrow_WhenTrashIsGiven(string text)
         {
             Action parsing = () => parser.Render(text);
@@ -78,11 +76,14 @@ namespace Markdown.Tests
             var text = textBuilder.ToString();
             var render = renderBuilder.ToString();
 
-            void Rendering() => parser.Render(text);
+            void Rendering()
+            {
+                parser.Render(text);
+            }
 
-            new ExecutionTimeAssertions(Rendering).ShouldNotExceed(new TimeSpan(0,0,seconds,ms));
-            parser.Render(text).ShouldBeEquivalentTo(render);
-
+            new ExecutionTimeAssertions(Rendering).ShouldNotExceed(new TimeSpan(0, 0, seconds, ms));
+            parser.Render(text)
+                  .ShouldBeEquivalentTo(render);
         }
     }
 }

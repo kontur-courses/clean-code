@@ -1,7 +1,7 @@
-﻿namespace Markdown
-{
-    using System.Collections.Generic;
+﻿using System.Collections.Generic;
 
+namespace Markdown
+{
     public static class StackExtensions
     {
         public static bool TryPeek<T>(this Stack<T> stack, out T value)
@@ -11,7 +11,6 @@
                 return false;
             value = stack.Peek();
             return true;
-
         }
     }
 }

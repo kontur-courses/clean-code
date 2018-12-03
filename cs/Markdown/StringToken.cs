@@ -1,8 +1,8 @@
-﻿namespace Markdown
-{
-    using System;
-    using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 
+namespace Markdown
+{
     internal sealed class StringToken : Token
     {
         public StringToken(int position, int length, string value)

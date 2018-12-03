@@ -1,17 +1,18 @@
-﻿namespace Markdown
-{
-    using System.Collections.Generic;
+﻿using System.Collections.Generic;
 
+namespace Markdown
+{
     internal class Md
     {
-        private readonly HtmlCreator creator = new HtmlCreator(
-                                                               new Dictionary<string, (string opening, string closing)>
-                                                                   {
-                                                                       ["_"] = ("<em>", "</em>"),
-                                                                       ["*"] = ("<em>", "</em>"),
-                                                                       ["__"] = ("<strong>", "</strong>"),
-                                                                       ["**"] = ("<strong>", "</strong>")
-                                                                   });
+        private readonly HtmlCreator creator = new HtmlCreator(new Dictionary<string, (string opening, string closing)>
+        {
+            ["_"] = ("<em>", "</em>"),
+            ["*"] = ("<em>", "</em>"),
+            ["__"] = ("<strong>", "</strong>"),
+            ["**"] = ("<strong>", "</strong>"),
+            ["___"] = ("<em><strong>", "</strong></em>"),
+            ["***"] = ("<em><strong>", "</strong></em>")
+        });
 
         public Md(HtmlCreator creator = null)
         {
