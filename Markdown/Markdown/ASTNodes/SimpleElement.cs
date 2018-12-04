@@ -1,4 +1,4 @@
-﻿namespace Markdown
+﻿namespace Markdown.ASTNodes
 {
     public class SimpleElement : IElement
     {

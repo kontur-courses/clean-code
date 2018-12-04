@@ -5,6 +5,7 @@ using System.Text;
 using System.Threading.Tasks;
 using FluentAssertions;
 using Markdown;
+using Markdown.ASTNodes;
 using Markdown.Ecxeptions;
 using NUnit.Framework;
 
@@ -23,7 +24,7 @@ namespace MdTest
         {
             var unknownNode = new UnknownNode();
             var inter = new MarkdownInterpreter(unknownNode);
-            Action testingAct = () => inter.GetHtmlCode();
+            Action testingAct = () => inter.Interpret();
             testingAct.Should().Throw<UnknownElementException>();
         }
     }

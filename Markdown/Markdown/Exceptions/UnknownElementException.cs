@@ -1,4 +1,5 @@
 ﻿using System;
+using Markdown.ASTNodes;
 
 namespace Markdown.Ecxeptions
 {

@@ -1,4 +1,5 @@
 ﻿using System;
+using Markdown.ASTNodes.StyleElement;
 
 namespace Markdown
 {
@@ -8,15 +9,15 @@ namespace Markdown
         {
             var delimeters = new (string delimeter, TokenType tokenType)[]
             {
-                ValueTuple.Create(BoldStyleElement.DoubleKeyword, BoldStyleElement.TokenType),
-                ValueTuple.Create(ItalicStyleElement.DoubleKeyword, ItalicStyleElement.TokenType),
-                ValueTuple.Create(@"\", TokenType.EscapingDelimiter),
+                (BoldStyleElement.DoubleKeyword, BoldStyleElement.TokenType),
+                (ItalicStyleElement.DoubleKeyword, ItalicStyleElement.TokenType),
+                (@"\", TokenType.EscapingDelimiter),
             };
             
             var lexer = new MarkdownLexer(source, delimeters);
             var parser = new MarkdownParser(lexer);          
             var interpreter = new MarkdownInterpreter(parser.Parse());
-            return interpreter.GetHtmlCode();
+            return interpreter.Interpret();
        }
     }
 }

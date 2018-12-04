@@ -1,4 +1,6 @@
-﻿namespace Markdown
+﻿using Markdown.ASTNodes;
+
+namespace Markdown
 {
     public interface IParser
     {

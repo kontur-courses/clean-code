@@ -1,4 +1,6 @@
-﻿using Markdown.Ecxeptions;
+﻿using Markdown.ASTNodes;
+using Markdown.ASTNodes.StyleElement;
+using Markdown.Ecxeptions;
 
 namespace Markdown
 {
@@ -55,7 +57,10 @@ namespace Markdown
 
             return spaces && !allIsDigits;
         }
+    }
 
-
+    public interface IInterpreter
+    {
+        string Interpret();
     }
 }

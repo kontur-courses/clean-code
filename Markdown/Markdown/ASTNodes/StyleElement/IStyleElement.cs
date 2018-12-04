@@ -1,6 +1,6 @@
 ﻿using System.Collections.Generic;
 
-namespace Markdown
+namespace Markdown.ASTNodes.StyleElement
 {
     public interface IStyleElement : IElement
     {
