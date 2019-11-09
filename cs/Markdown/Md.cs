@@ -19,9 +19,17 @@ namespace Markdown
         /*
          * С помошью switch определяет специальные символы и при необходимости записывает их в буфер
          * для сопоставления со следующими символами.
-         * Исходя из текшего символа и символов в буфере записывает с stringBilder символы для дальнейшего превращения в конечную строку.
+         * Исходя из текшего символа и символов в буфере создаёт токен соответствующий текущей части текста, который клаётся в массив.
         */
-        public void Handler(char symbol)
+        private Token[] ParseStringToTokens(string text)
+        {
+            throw new NotImplementedException();
+        }
+
+        /*
+        * Проходит по массиву токенов и переводит их в формат html.
+        */
+        private string ParseTokensToHtml(Token[] tokens)
         {
             throw new NotImplementedException();
         }

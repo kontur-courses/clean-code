@@ -10,8 +10,7 @@ namespace Markdown
     {
         static void Main(string[] args)
         {
-            var md = new Md;
-            md.Render()
+
         }
     }
 }
