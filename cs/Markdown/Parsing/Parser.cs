@@ -7,11 +7,6 @@ namespace Markdown.Parsing
     {
         public static Predicate<string> DefaultTrueValidator => _ => true;
 
-        public static IEnumerable<string> Split(params string[] splitString)
-        {
-            throw new NotImplementedException();
-        }
-
         public static IEnumerable<string> FindIter(
             string inputString,
             string patternString,
