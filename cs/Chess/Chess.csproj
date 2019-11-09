@@ -57,6 +57,7 @@
     <Compile Include="Board.cs" />
     <Compile Include="BoardParser.cs" />
     <Compile Include="ChessStatus.cs" />
+    <Compile Include="Move.cs" />
     <Compile Include="Piece.cs" />
     <Compile Include="ChessProblem.cs" />
     <Compile Include="ChessProblem_Test.cs" />

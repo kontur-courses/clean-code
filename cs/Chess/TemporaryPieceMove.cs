@@ -21,8 +21,8 @@ namespace Chess
 
         public void Undo()
         {
-            board.Set(from, board.GetPiece(to));
-            board.Set(to, oldDestinationPiece);
+            board[from] = board[to];
+            board[to] = oldDestinationPiece;
         }
 
         public void Dispose()

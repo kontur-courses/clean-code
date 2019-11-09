@@ -33,13 +33,13 @@ namespace Chess
 
         private static IEnumerable<Location> MovesInOneDirection(Location from, Board board, Location dir, bool infinit)
         {
-            var piece = board.GetPiece(from);
+            var piece = board[from];
             var distance = infinit ? int.MaxValue : 2;
             for (var i = 1; i < distance; i++)
             {
                 var to = new Location(from.X + dir.X*i, from.Y + dir.Y*i);
                 if (!board.Contains(to)) break;
-                var destinationPiece = board.GetPiece(to);
+                var destinationPiece = board[to];
                 if (destinationPiece == null)
                     yield return to;
                 else
