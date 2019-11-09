@@ -1,8 +1,8 @@
 namespace Markdown.Parsing
 {
-    public class TokenStruct
+    public class Token
     {
-        public string Token;
+        public string TokenString;
         public int Start;
         public int Length;
     }

@@ -17,7 +17,7 @@ namespace Markdown.Parsing
             throw new NotImplementedException();
         }
 
-        public static TokenStruct FindToken(
+        public static Token FindToken(
             string inputString,
             string patternStrint,
             int start = 0,

@@ -1,6 +1,6 @@
 namespace Markdown.Parsing
 {
-    public class FormatToken<T> : TokenStruct
+    public class FormatToken<T> : Token
     {
         public T tokenType;
     }
