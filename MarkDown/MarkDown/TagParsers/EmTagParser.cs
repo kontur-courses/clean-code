@@ -1,4 +1,5 @@
-﻿using System.Text;
+﻿using System.Collections.Generic;
+using System.Text;
 
 namespace MarkDown.TagParsers
 {
@@ -7,7 +8,8 @@ namespace MarkDown.TagParsers
         public override string OpeningHtmlTag { get; } = "<em>";
         public override string ClosingHtmlTag { get; } = @"<em\>";
         public override string MdTag { get; } = "_";
-        public override StringBuilder ParseLine(StringBuilder line)
+
+        protected override List<MDToken> ParseLineOnMDTokens(string line)
         {
             throw new System.NotImplementedException();
         }
