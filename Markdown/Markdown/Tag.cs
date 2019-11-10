@@ -9,7 +9,7 @@ namespace Markdown
 {
     public class Tag: ITag
     {
-        private string HTMLtag;
+        private string htmlTag;
         private string tagContent;
 
         public Tag(string htmLtag, string tagContent)

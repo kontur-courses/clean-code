@@ -6,11 +6,11 @@ using System.Threading.Tasks;
 
 namespace Markdown
 {
-    class TagParser
+    class MdTagParse
     {
-        private Dictionary<string, string> HtmlAndMdTagsMatches;
+        private Dictionary<string, string> MdToHtmlMatches;
 
-        public List<Tag> ParseTags()
+        public List<Tag> ParseTags(string mdText)
         {
             throw new NotImplementedException();        
         }
