@@ -3,9 +3,9 @@ using System.Collections.Generic;
 
 namespace Markdown
 {
-    public class Element
+    public class Token
     {
-        public List<Element> NestedElements { get; set; }
+        public List<Token> NestedTokens { get; set; }
         public string HtmlTag { get; set; }
         public string Data { get; set; }
         

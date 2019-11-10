@@ -38,7 +38,7 @@
         <Reference Include="System.Xml" />
     </ItemGroup>
     <ItemGroup>
-        <Compile Include="Element.cs" />
+        <Compile Include="Token.cs" />
         <Compile Include="IMarkdownParser.cs" />
         <Compile Include="MarkdownDocument.cs" />
         <Compile Include="Md.cs" />

@@ -5,7 +5,7 @@ namespace Markdown
 {
     public class MarkdownDocument
     {
-        public List<Element> Elements { get; set; }
+        public List<Token> Tokens { get; set; }
 
         public string ToHtml() => throw new NotImplementedException();
     }
