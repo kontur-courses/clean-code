@@ -37,8 +37,10 @@
     <None Include="Spec.md" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="ITagFormatter.cs" />
     <Compile Include="Md.cs" />
     <Compile Include="Token.cs" />
+    <Compile Include="TokenNode.cs" />
     <Compile Include="TokenReader.cs" />
     <Compile Include="TokenDescription.cs" />
     <Compile Include="TokenType.cs" />

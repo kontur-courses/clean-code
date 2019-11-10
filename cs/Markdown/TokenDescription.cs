@@ -9,19 +9,22 @@ namespace Markdown
     public class TokenDescription
     {
         public readonly TokenType tokenType;
+        public readonly TagType tagType;
         public readonly string marker;
         public readonly int length;
 
-        public TokenDescription(TokenType tokenType, string tokenMarker, int tokenLength)
+        public TokenDescription(TokenType tokenType, TagType tagType, 
+            string tokenMarker, int tokenLength)
         {
             this.tokenType = tokenType;
+            this.tagType = tagType;
             marker = tokenMarker;
             length = tokenLength;
         }
 
         public bool IsToken(string text, int position)
         {
-            if (text.Length - position < marker.Length)
+            if (text.Length - position < length)
                 return false;
             return text.Substring(position, marker.Length) == marker;
         }

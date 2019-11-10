@@ -19,11 +19,13 @@ namespace Markdown
             var tokenDescription = new List<TokenDescription>();
             List<Token> tokens = new TokenReader(rawText, tokenDescription).TokenizeText();
 
-            throw new NotImplementedException();
+            return RenderFromTokens(tokens, tokenDescription, new HtmlTagFormatter());
         }
 
-        public string TokensToRenderedString(IEnumerable<Token> tokens)
+        public string RenderFromTokens(IEnumerable<Token> tokens,
+            IEnumerable<TokenDescription> tokenDescription, ITagFormatter tagFormatter)
         {
+            var resultString = new StringBuilder();
             throw new NotImplementedException();
         }
     }
