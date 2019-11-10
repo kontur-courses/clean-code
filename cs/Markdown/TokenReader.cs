@@ -10,28 +10,49 @@ namespace Markdown
     public class TokenReader
     {
         private readonly string text;
-        private Dictionary<TokenType, TokenDescription> tokenTypeToDescription;
-        private List<TokenDescription> tokenRules;
-        private Token rootToken;
+        private int position = 0;
+        private readonly Dictionary<TokenType, TokenDescription> tokenTypeToDescription;
+        private readonly List<TokenDescription> tokenDescriptions;
 
-        public TokenReader(string text, IEnumerable<TokenDescription> tokenRules)
+        public TokenReader(string text, IEnumerable<TokenDescription> tokenDescriptions)
         {
             this.text = text;
-            this.tokenRules = tokenRules.OrderByDescending(descr => descr.tag.Length).ToList();
-            tokenTypeToDescription = this.tokenRules.ToDictionary(descr => descr.tokenType);
+            position = 0;
+            this.tokenDescriptions = tokenDescriptions
+                .OrderByDescending(descr => descr.marker.Length)
+                .ToList();
+            tokenTypeToDescription = this.tokenDescriptions.ToDictionary(descr => descr.tokenType);
         }
 
-        public Token TokenizeText()
+        public List<Token> TokenizeText()
         {
-            if (rootToken != null)
-                return rootToken;
-            return rootToken = ReadToken(tokenRules, new List<TokenDescription>{ tokenRules.Last()});
-            
+            var tokenList = new List<Token>();
+            var position = 0;
+            while(position < text.Length)
+            {
+                var rawTextToken = ReadRawTextToken();
+                if (rawTextToken != null) {
+                    tokenList.Add(rawTextToken);
+                    position += rawTextToken.length;
+                }
+                if (position == text.Length)
+                    break;
+                var token = ReadToken();
+                tokenList.Add(token);
+                position += token.length;
+            }
+
+            return tokenList;
+        }
+   
+        // читаем, пока не встретилось начало какого-нибудь токена или не закончился текст
+        public Token ReadRawTextToken()
+        {
+            throw new NotImplementedException();
         }
 
-        // пока не совсем понимаю, как должен выглядеть сам метод разбиения на токены
-        private Token ReadToken(
-            List<TokenDescription> openingTokens, List<TokenDescription> closingTokens)
+        // читаем какой-то другой токен, внутри обращаемся к одному из TokenDescription
+        public Token ReadToken()
         {
             throw new NotImplementedException();
         }

@@ -34,6 +34,14 @@
   </PropertyGroup>
   <ItemGroup>
     <None Include="App.config" />
+    <None Include="Spec.md" />
+  </ItemGroup>
+  <ItemGroup>
+    <Compile Include="Md.cs" />
+    <Compile Include="Token.cs" />
+    <Compile Include="TokenReader.cs" />
+    <Compile Include="TokenDescription.cs" />
+    <Compile Include="TokenType.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
 </Project>

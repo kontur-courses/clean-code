@@ -16,11 +16,13 @@ namespace Markdown
              * и удалив специальные символы, если это нужно, в зависимости 
              * от вложенности тега
              */
+            var tokenDescription = new List<TokenDescription>();
+            List<Token> tokens = new TokenReader(rawText, tokenDescription).TokenizeText();
 
             throw new NotImplementedException();
         }
 
-        public string TokensToRenderedString(params Token[] tokens)
+        public string TokensToRenderedString(IEnumerable<Token> tokens)
         {
             throw new NotImplementedException();
         }

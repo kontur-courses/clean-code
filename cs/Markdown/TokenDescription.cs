@@ -9,30 +9,26 @@ namespace Markdown
     public class TokenDescription
     {
         public readonly TokenType tokenType;
-        public readonly string tag;
-        private readonly Func<string, int, bool> isOpening;
-        private readonly Func<string, int, bool> isClosing;
+        public readonly string marker;
+        public readonly int length;
 
-
-        /* isOpening и isClosing принимают на вход строку и позицию в этой строке,
-         * выдают необходимость открытия/закрытия нового токена соответственно */
-        public TokenDescription(TokenType tokenType, string tokenTag, 
-            Func<string, int, bool> isOpening, Func<string, int, bool> isClosing)
+        public TokenDescription(TokenType tokenType, string tokenMarker, int tokenLength)
         {
             this.tokenType = tokenType;
-            tag = tokenTag;
-            this.isOpening = isOpening;
-            this.isClosing = isClosing;
+            marker = tokenMarker;
+            length = tokenLength;
         }
 
-        public bool IsOpening(string text, int position)
+        public bool IsToken(string text, int position)
         {
-            return isOpening(text, position);
+            if (text.Length - position < marker.Length)
+                return false;
+            return text.Substring(position, marker.Length) == marker;
         }
 
-        public bool IsClosing(string text, int position)
+        public Token ReadToken(string text, int position)
         {
-            return isClosing(text, position);
+            return new Token(text, position, tokenType, length);
         }
     }
 }
