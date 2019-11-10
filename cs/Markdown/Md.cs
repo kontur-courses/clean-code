@@ -16,9 +16,9 @@ namespace Markdown
         private bool isDigitInWord;
         private readonly Dictionary<int, Tag> toInsertIntoParagraph;
         private readonly Queue<char> lastNchars;//здесь будет очередь фиксированной длины в которой будут содержаться последние N символов
-        public String Render(String paragraph)
+        public string Render(string paragraph)
         {
-            throw new NotImplementedException();
+            return paragraph;
         }
 
         private void ProcessChar(char letter)
