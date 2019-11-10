@@ -6,7 +6,8 @@ using System.Threading.Tasks;
 
 namespace Markdown.Interfaces
 {
-    class IParser
+    public interface IParser<T>
     {
+        List<T> Parse(string textToParse);
     }
 }

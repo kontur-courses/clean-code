@@ -1,6 +1,6 @@
 ﻿namespace Markdown.Interfaces
 {
-    interface ITag
+    public interface ITag
     {
         string WrapTagIntoHtml();
     }
