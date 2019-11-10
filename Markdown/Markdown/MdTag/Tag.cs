@@ -1,18 +1,13 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using Markdown.Interfaces;
 
-namespace Markdown
+namespace Markdown.MdTag
 {
     public class Tag: ITag
     {
         private string htmlTag;
         private string tagContent;
 
-        public Tag(string htmLtag, string tagContent)
+        public Tag(string htmlTag, string tagContent)
         {
             throw new NotImplementedException();
         }
