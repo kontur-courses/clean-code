@@ -8,7 +8,8 @@ namespace Chess
         public Board ParseBoard(string[] lines)
         {
             if (lines.Length != 8) throw new ArgumentException("Should be exactly 8 lines");
-            if (lines.Any(line => line.Length != 8)) throw new ArgumentException("All lines should have 8 chars length");
+            if (lines.Any(line => line.Length != 8))
+                throw new ArgumentException("All lines should have 8 chars length");
 
             var cells = new Piece[8][];
             for (var y = 0; y < 8; y++)
@@ -19,6 +20,7 @@ namespace Chess
                 for (var x = 0; x < 8; x++)
                     cells[y][x] = ParsePiece(line[x]);
             }
+
             return new Board(cells);
         }
 
@@ -38,7 +40,7 @@ namespace Chess
                 case 'N': return PieceType.Knight;
                 case 'B': return PieceType.Bishop;
                 case 'Q': return PieceType.Queen;
-                case ' ': 
+                case ' ':
                 case '.': return null;
                 default: throw new FormatException("Unknown chess piece " + sign);
             }

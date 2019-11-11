@@ -13,8 +13,10 @@ namespace Chess
             Color = color;
         }
 
-        public IEnumerable<Location> GetMoves(Location location, Board board) => 
-            PieceType.GetMoves(location, board);
+        public IEnumerable<Location> GetMoves(Location location, Board board)
+        {
+            return PieceType.GetMoves(location, board);
+        }
 
         public override string ToString()
         {
@@ -22,10 +24,14 @@ namespace Chess
             return Color == PieceColor.Black ? c.ToLower() : c;
         }
 
-        public static bool Is(Piece piece, PieceColor color) =>
-            piece != null && piece.Color == color;
+        public static bool Is(Piece piece, PieceColor color)
+        {
+            return piece != null && piece.Color == color;
+        }
 
-        public static bool Is(Piece piece, PieceColor color, PieceType pieceType) =>
-            Is(piece, color) && piece.PieceType == pieceType;
+        public static bool Is(Piece piece, PieceColor color, PieceType pieceType)
+        {
+            return Is(piece, color) && piece.PieceType == pieceType;
+        }
     }
 }

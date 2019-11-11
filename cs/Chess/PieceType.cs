@@ -6,8 +6,13 @@ namespace Chess
     public class PieceType
     {
         public static readonly PieceType Rook = new PieceType(true, 'R', new Location(1, 0), new Location(0, 1));
-        public static readonly PieceType King = new PieceType(false, 'K', new Location(1, 1), new Location(1, 0), new Location(0, 1));
-        public static readonly PieceType Queen = new PieceType(true, 'Q', new Location(1, 1), new Location(1, 0), new Location(0, 1));
+
+        public static readonly PieceType King = new PieceType(false, 'K', new Location(1, 1), new Location(1, 0),
+            new Location(0, 1));
+
+        public static readonly PieceType Queen = new PieceType(true, 'Q', new Location(1, 1), new Location(1, 0),
+            new Location(0, 1));
+
         public static readonly PieceType Bishop = new PieceType(true, 'B', new Location(1, 1));
         public static readonly PieceType Knight = new PieceType(false, 'N', new Location(2, 1), new Location(1, 2));
 
@@ -26,10 +31,15 @@ namespace Chess
                 .ToArray();
         }
 
-        public override string ToString() => sign.ToString();
+        public override string ToString()
+        {
+            return sign.ToString();
+        }
 
-        public IEnumerable<Location> GetMoves(Location location, Board board) => 
-            directions.SelectMany(d => MovesInOneDirection(location, board, d, infinit));
+        public IEnumerable<Location> GetMoves(Location location, Board board)
+        {
+            return directions.SelectMany(d => MovesInOneDirection(location, board, d, infinit));
+        }
 
         private static IEnumerable<Location> MovesInOneDirection(Location from, Board board, Location dir, bool infinit)
         {
@@ -37,11 +47,13 @@ namespace Chess
             var distance = infinit ? int.MaxValue : 2;
             for (var i = 1; i < distance; i++)
             {
-                var to = new Location(from.X + dir.X*i, from.Y + dir.Y*i);
+                var to = new Location(from.X + dir.X * i, from.Y + dir.Y * i);
                 if (!board.Contains(to)) break;
                 var destinationPiece = board.GetPiece(to);
                 if (destinationPiece == null)
+                {
                     yield return to;
+                }
                 else
                 {
                     if (destinationPiece.Color != piece.Color)

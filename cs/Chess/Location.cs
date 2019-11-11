@@ -12,9 +12,15 @@ namespace Chess
             Y = y;
         }
 
-        public override string ToString() => $"({X}, {Y})";
+        public override string ToString()
+        {
+            return $"({X}, {Y})";
+        }
 
-        public override int GetHashCode() => unchecked((X * 397) ^ Y);
+        public override int GetHashCode()
+        {
+            return unchecked((X * 397) ^ Y);
+        }
 
         public override bool Equals(object obj)
         {
@@ -22,6 +28,5 @@ namespace Chess
             if (other == null) return false;
             return other.X == X && other.Y == Y;
         }
-
     }
 }

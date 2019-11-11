@@ -12,14 +12,20 @@ namespace Chess
             this.cells = cells;
         }
 
-        public IEnumerable<Location> GetPieces(PieceColor color) => 
-            AllBoard().Where(loc => Piece.Is(GetPiece(loc), color));
+        public IEnumerable<Location> GetPieces(PieceColor color)
+        {
+            return AllBoard().Where(loc => Piece.Is(GetPiece(loc), color));
+        }
 
-        public Piece GetPiece(Location location) => 
-            Contains(location) ? cells[location.Y][location.X] : null;
+        public Piece GetPiece(Location location)
+        {
+            return Contains(location) ? cells[location.Y][location.X] : null;
+        }
 
-        public void Set(Location location, Piece cell) => 
+        public void Set(Location location, Piece cell)
+        {
             cells[location.Y][location.X] = cell;
+        }
 
         public TemporaryPieceMove PerformTemporaryMove(Location from, Location to)
         {
@@ -31,13 +37,15 @@ namespace Chess
 
         private IEnumerable<Location> AllBoard()
         {
-            for (int y = 0; y < cells.Length; y++)
-            for (int x = 0; x < cells[0].Length; x++)
+            for (var y = 0; y < cells.Length; y++)
+            for (var x = 0; x < cells[0].Length; x++)
                 yield return new Location(x, y);
         }
 
-        public bool Contains(Location loc) =>
-            loc.X >= 0 && loc.X < cells[0].Length && 
-            loc.Y >= 0 && loc.Y < cells.Length;
+        public bool Contains(Location loc)
+        {
+            return loc.X >= 0 && loc.X < cells[0].Length &&
+                   loc.Y >= 0 && loc.Y < cells.Length;
+        }
     }
 }

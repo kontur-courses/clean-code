@@ -27,11 +27,12 @@ namespace Samples
                         count++;
                         if (count == width) fullY = y;
                     }
+
                 if (count == width)
                 {
                     for (var yy = fullY; yy < height; yy++)
-                        for (var x = 0; x < width; x++)
-                            isFilled[x, yy] = isFilled[x, yy + 1];
+                    for (var x = 0; x < width; x++)
+                        isFilled[x, yy] = isFilled[x, yy + 1];
                     for (var x = 0; x < width; x++)
                         isFilled[x, height] = false;
                 }
@@ -41,7 +42,6 @@ namespace Samples
         public void ClearFullLines_Refactored(ref int score)
         {
             for (var lineIndex = 1; lineIndex < height + 1; lineIndex++)
-            {
                 if (LineIsFull(lineIndex))
                 {
                     score++;
@@ -49,7 +49,6 @@ namespace Samples
                     lineIndex--;
                     AddEmptyLineOnTop();
                 }
-            }
         }
 
         private void AddEmptyLineOnTop()

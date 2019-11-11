@@ -25,6 +25,7 @@ namespace Samples
                     used.Add(neighbour);
                 }
             }
+
             return source;
         }
 

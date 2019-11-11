@@ -10,7 +10,10 @@ namespace Samples
         private static readonly Queue<Point> queue = new Queue<Point>();
         private static readonly ISet<Point> used = new HashSet<Point>();
 
-        public static void GenerateRandomMaze() { /* maze = ... */ }
+        public static void GenerateRandomMaze()
+        {
+            /* maze = ... */
+        }
 
         public static Point GetNextStepToTarget(Point source, Point target)
         {
@@ -30,12 +33,13 @@ namespace Samples
                     used.Add(neighbour);
                 }
             }
+
             return source;
         }
 
         private static IEnumerable<Point> GetNeighbours(Point from)
         {
-            return new[] { new Size(1, 0), new Size(-1, 0), new Size(0, 1), new Size(0, -1) }
+            return new[] {new Size(1, 0), new Size(-1, 0), new Size(0, 1), new Size(0, -1)}
                 .Select(shift => from + shift)
                 .Where(maze.InsideMaze)
                 .Where(maze.IsFree);

@@ -40,6 +40,7 @@ namespace Chess
                 TestOnFile(filename);
                 testsCount++;
             }
+
             Console.WriteLine("Tests passed: " + testsCount);
         }
 
