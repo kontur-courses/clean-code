@@ -9,7 +9,7 @@ namespace Markdown
     class Md
     {
         /*
-         * Получает на вход текст в формате Markdown, проходит по каждому символу и передаёт его в метод Handler
+         * Получает на вход текст в формате Markdown, создаёт экземпляр парсера и передаёт их методу ConvertTextWithParser
          */
         public string Render(string text)
         {
@@ -17,19 +17,9 @@ namespace Markdown
         }
 
         /*
-         * С помошью switch определяет специальные символы и при необходимости записывает их в буфер
-         * для сопоставления со следующими символами.
-         * Исходя из текшего символа и символов в буфере создаёт токен соответствующий текущей части текста, который клаётся в массив.
+         * С помощью парсера конвертирует текст в нужный формат
         */
-        private Token[] ParseStringToTokens(string text)
-        {
-            throw new NotImplementedException();
-        }
-
-        /*
-        * Проходит по массиву токенов и переводит их в формат html.
-        */
-        private string ParseTokensToHtml(Token[] tokens)
+        private string ConvertTextWithParser(string text, IParser parser)
         {
             throw new NotImplementedException();
         }

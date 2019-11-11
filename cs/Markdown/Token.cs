@@ -8,11 +8,11 @@ namespace Markdown
 {
     class Token
     {
-        public string Content;
-        public readonly int Index;
-        public int Length { get { return Content.Length; } }
+        public int Index { get; } // Начало токена
+        public bool IsTag { get; } // Содержит ли токен тэг
+        public int Length { get; } // Длинна токена
 
-        public Token(int index, string content)
+        public Token(int index, int length, bool isTag)
         {
             throw new NotImplementedException();
         }
