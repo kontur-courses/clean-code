@@ -9,14 +9,14 @@ namespace Markdown
         public readonly string StartTag;
         public readonly string EndTag;
         public readonly TagType TagType;
-        public readonly List<string> IgnoreTags;
+        public readonly List<TagType> IgnoreTags;
 
-        public TagSpecification(string startTag, string endTag, TagType tagType, List<string> ignoreTags = null)
+        public TagSpecification(string startTag, string endTag, TagType tagType, List<TagType> ignoreTags = null)
         {
             StartTag = startTag;
             EndTag = endTag;
             TagType = tagType;
-            IgnoreTags = ignoreTags ?? new List<string>();
+            IgnoreTags = ignoreTags ?? new List<TagType>();
         }
     }
 }
