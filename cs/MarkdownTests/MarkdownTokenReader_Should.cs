@@ -117,5 +117,17 @@ namespace MarkdownTests
                 new List<TokenType>()
                 { TokenType.Text, TokenType.WhiteSpace, TokenType.Text, TokenType.Eof });
         }
+
+        [Test]
+        public void TokenizeTextWithTokenAtStart_Correctly()
+        {
+            var text = "_ab";
+            var tokens = tokenReader.TokenizeText(text);
+            tokens.Select(tkn => tkn.GetTokenString()).Should().BeEquivalentTo(
+                new List<string>() { "_", "ab", "" });
+            tokens.Select(tkn => tkn.TokenType).Should().BeEquivalentTo(
+                new List<TokenType>()
+                { TokenType.Emphasis, TokenType.Text, TokenType.Eof });
+        }
     }
 }
