@@ -1,14 +1,14 @@
 ﻿namespace Markdown
 {
-    internal class Token
+    public class Token
     {
-        public Syntax.AttributeType Type;
+        public AttributeType Type { get; }
 
-        public int Position;
+        public int Position { get; }
 
-        public bool IsEnd;
+        public bool IsEnd { get; }
 
-        public Token(Syntax.AttributeType type, int position, bool isEnd)
+        public Token(AttributeType type, int position, bool isEnd = false)
         {
             Type = type;
             Position = position;

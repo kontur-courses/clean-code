@@ -4,8 +4,15 @@ using System.Text;
 
 namespace Markdown
 {
-    internal class Processor
+    public class Processor
     {
+        private readonly Syntax syntax;
+
+        public Processor(Syntax syntax)
+        {
+            this.syntax = syntax;
+        }
+
         public string Render(string source)
         {
             if (source == null)
@@ -13,47 +20,77 @@ namespace Markdown
 
             var tokens = ParseText(source);
 
+
             return ReplaceAttributesWithTags(tokens, source);
         }
 
-        public IEnumerable<Token> ParseText(string source)
+        private IEnumerable<Token> ParseText(string source)
         {
             var tokens = FindPossibleTokens(source);
-            tokens = RemoveNonPairDelimiters(tokens);
-            tokens = MergeAdjacentDelimiters(tokens);
-
+            tokens = RemoveEscapedTokens(tokens, source);
             return tokens;
         }
 
-        public IEnumerable<Token> FindPossibleTokens(string source)
+
+        private IEnumerable<Token> FindPossibleTokens(string source)
         {
             var possibleTokens = new List<Token>();
 
             for (var i = 0; i < source.Length; i++)
-                if (Syntax.TypeDictionary.ContainsKey(source[i])
-                    && Syntax.IsEscapeCharacter(source, i))
-                    throw new NotImplementedException();
+                if (syntax.TypeDictionary.ContainsKey(source[i]))
+                    possibleTokens.Add(new Token(syntax.TypeDictionary[source[i]], i));
 
             return possibleTokens;
         }
 
-        public IEnumerable<Token> RemoveNonPairDelimiters(IEnumerable<Token> tokens)
+        private IEnumerable<Token> RemoveEscapedTokens(IEnumerable<Token> tokens, string source)
+        {
+            var unescapedTokens = new List<Token>();
+            Token previous = null;
+
+            foreach (var token in tokens)
+            {
+                if (previous != null && previous.Type == AttributeType.Escape && previous.Position == token.Position - 1)
+                    continue;
+                unescapedTokens.Add(token);
+                previous = token;
+            }
+
+            return unescapedTokens;
+        }
+
+
+        private IEnumerable<Token> RemoveNonPairDelimiters(IEnumerable<Token> tokens)
         {
             throw new NotImplementedException();
         }
 
-        public IEnumerable<Token> MergeAdjacentDelimiters(IEnumerable<Token> tokens)
+        private IEnumerable<Token> MergeAdjacentDelimiters(IEnumerable<Token> tokens)
         {
             throw new NotImplementedException();
         }
 
-        public string ReplaceAttributesWithTags(IEnumerable<Token> tokens, string source)
+        private string ReplaceAttributesWithTags(IEnumerable<Token> tokens, string source)
         {
-            var index = 0;
+            var textPosition = 0;
             var sb = new StringBuilder();
 
-            foreach (var token in tokens) throw new NotImplementedException();
+            foreach (var token in tokens)
+            {
+                sb.Append(source.Substring(textPosition, token.Position - textPosition));
 
+                if (token.Type == AttributeType.Escape &&
+                    (token.Position == source.Length - 1 || !Syntax.CharCanBeEscaped(source[token.Position + 1])))
+                    sb.Append('\\');
+                else
+                {
+                    sb.Append($"<{(token.IsEnd ? "/" : "")}{HtmlConverter.TagDictionary[token.Type]}>");
+                }
+
+                textPosition = token.Position + 1;
+            }
+
+            sb.Append(source.Substring(textPosition, source.Length - textPosition));
             return sb.ToString();
         }
     }

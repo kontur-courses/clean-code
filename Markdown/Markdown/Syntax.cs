@@ -1,43 +1,35 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
+using System.Linq;
 
 namespace Markdown
 {
-    internal static class Syntax
+    public class Syntax
     {
-        public enum AttributeType
+        public readonly Dictionary<char, AttributeType> TypeDictionary;
+        public readonly Dictionary<AttributeType, char> CharDictionary;
+
+        private static readonly HashSet<char> specialSymbols = new HashSet<char>() 
+            { '\\', '`', '*', '_', '{', '}', '[', ']', '(', ')', '#', '+', '-', '.', '!','?', '|','$','^','/','>','<', '&'};
+
+        public Syntax(Dictionary<char, AttributeType> typeDictionary)
         {
-            Strong,
-            Emphasis
+            TypeDictionary = typeDictionary;
+            CharDictionary = typeDictionary.ToDictionary(x => x.Value, x => x.Key);
         }
 
-        public static readonly Dictionary<AttributeType, string> HtmlTagDictionary;
-
-        public static readonly Dictionary<char, AttributeType> TypeDictionary;
-
-
-        static Syntax()
+        public static bool CharCanBeEscaped(char ch)
         {
-            TypeDictionary = new Dictionary<char, AttributeType>()
+            return specialSymbols.Contains(ch);
+        }
+
+        public static Syntax InitializeDefaultSyntax()
+        {
+            var typeDictionary = new Dictionary<char, AttributeType>()
             {
-                {'_', AttributeType.Emphasis}
+                {'_', AttributeType.Emphasis},
+                {'\\',AttributeType.Escape}
             };
-
-            HtmlTagDictionary = new Dictionary<AttributeType, string>
-            {
-                {AttributeType.Emphasis, "em"},
-                {AttributeType.Strong, "strong"}
-            };
-        }
-
-        public static bool CheckIfAttributeIsEnding(string source, int position)
-        {
-            throw new NotImplementedException();
-        }
-
-        public static bool IsEscapeCharacter(string source, int charPosition)
-        {
-            throw new NotImplementedException();
+            return new Syntax(typeDictionary);
         }
     }
 }

@@ -56,6 +56,8 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="AttributeType.cs" />
+    <Compile Include="HtmlConverter.cs" />
     <Compile Include="ProcessorTests.cs" />
     <Compile Include="Processor.cs" />
     <Compile Include="Program.cs" />
