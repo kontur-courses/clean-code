@@ -1,4 +1,6 @@
-﻿namespace Markdown
+﻿using System;
+
+namespace Markdown
 {
     internal static class Utils
     {
@@ -18,7 +20,20 @@
 
         public static bool IsInsideWordWithNumbers(this string text, int index)
         {
-            return false;
+            bool hasDigit(int lookFromIndex, int lookToIndex)
+            {
+                var di = Math.Sign(lookToIndex - lookFromIndex);
+                for (int i = lookFromIndex; i != lookToIndex; i += di)
+                {
+                    if (char.IsWhiteSpace(text, i))
+                        break;
+                    if (char.IsDigit(text, i))
+                        return true;
+                }
+                return false;
+            }
+
+            return hasDigit(index, 0) || hasDigit(index, text.Length - 1);
         }
     }
 }

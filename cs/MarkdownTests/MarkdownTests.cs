@@ -47,7 +47,7 @@ namespace MarkdownTests
         [TestCase(Style.Italic, "t00t_", 4, ExpectedResult = false)]
         public bool Style_CanEnd_ReturnsCorrectValue(Style style, string text, int index)
         {
-            return style.CanBegin(ref text, index, new Stack<(Style style, int endIndex)>(), out int _);
+            return style.CanEnd(ref text, index);
         }
 
         [TestCase(Style.Italic, "text _italic_", 5, ExpectedResult = true)]
