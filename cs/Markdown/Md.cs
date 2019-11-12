@@ -13,9 +13,10 @@ namespace Markdown
         }
         public string Render(string paragraph)
         {
-            var markdownTokens = TextToTokensParser.ParseTextToTokens(paragraph);
-            var htmlTokens = MarkdownToHtmlParser.ParseMarkdownToHtmlTokens(markdownTokens, TagsCollection);
+            var markdownTokens = TextToTokensParser.Parse(paragraph);
+            var htmlTokens = MarkdownToHtmlParser.Parse(markdownTokens, TagsCollection);
             var stringBuilder = new StringBuilder(paragraph);
+            //учесть изменение длины строки при замене md токена на html
             foreach (var markdownToken in markdownTokens)
                 stringBuilder.Replace(markdownToken.Line, TagsCollection[markdownToken].Line, markdownToken
                     .Start, markdownToken.Length);
