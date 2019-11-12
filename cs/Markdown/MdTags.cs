@@ -1,6 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Text;
+﻿using System.Collections.Generic;
 
 namespace Markdown
 {
@@ -8,8 +6,8 @@ namespace Markdown
     {
         private static List<TagSpecification> Tags = new List<TagSpecification>
         {
-            new TagSpecification("_", "_", TagType.italics),
-            new TagSpecification("__", "__", TagType.bold)
+            new TagSpecification("__", "__", TagType.bold),
+            new TagSpecification("_", "_", TagType.italics, new List<TagType>(){TagType.bold})
         };
 
         public static List<TagSpecification> GetAllTags()

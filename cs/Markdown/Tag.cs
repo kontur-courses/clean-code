@@ -4,10 +4,17 @@ using System.Text;
 
 namespace Markdown
 {
-    class Tag
+    public class Tag
     {
-        public readonly TagType tagType;
-        public readonly PositionType PositionType;
-        public readonly int positionInText;
+        public readonly TagType TagType;
+        public readonly PositionType positionType;
+        public readonly int PositionInText;
+
+        public Tag(TagType tagType, int positionInText, PositionType positionType)
+        {
+            this.TagType = tagType;
+            this.PositionInText = positionInText;
+            this.positionType = positionType;
+        }
     }
 }

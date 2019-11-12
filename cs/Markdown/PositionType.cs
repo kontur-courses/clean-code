@@ -4,9 +4,10 @@ using System.Text;
 
 namespace Markdown
 {
-    enum PositionType
+    public enum PositionType
     {
         OpeningTag,
-        ClosingTag
+        ClosingTag,
+        any
     }
 }

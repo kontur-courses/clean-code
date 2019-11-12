@@ -9,7 +9,12 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ControlDigit", "ControlDigi
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Samples", "Samples\Samples.csproj", "{9ED89DE1-D257-450E-B66C-3B28D10F331D}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Markdown", "Markdown\Markdown.csproj", "{51F9A4AA-C016-4A9F-B52B-BDEB2C4CB631}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Markdown", "Markdown\Markdown.csproj", "{51F9A4AA-C016-4A9F-B52B-BDEB2C4CB631}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TestSolution", "TestSolution\TestSolution.csproj", "{666DC93B-F6EA-433F-8A8B-3690AD298F00}"
+	ProjectSection(ProjectDependencies) = postProject
+		{51F9A4AA-C016-4A9F-B52B-BDEB2C4CB631} = {51F9A4AA-C016-4A9F-B52B-BDEB2C4CB631}
+	EndProjectSection
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -68,6 +73,18 @@ Global
 		{51F9A4AA-C016-4A9F-B52B-BDEB2C4CB631}.Release|Mixed Platforms.Build.0 = Release|Any CPU
 		{51F9A4AA-C016-4A9F-B52B-BDEB2C4CB631}.Release|x86.ActiveCfg = Release|Any CPU
 		{51F9A4AA-C016-4A9F-B52B-BDEB2C4CB631}.Release|x86.Build.0 = Release|Any CPU
+		{666DC93B-F6EA-433F-8A8B-3690AD298F00}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{666DC93B-F6EA-433F-8A8B-3690AD298F00}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{666DC93B-F6EA-433F-8A8B-3690AD298F00}.Debug|Mixed Platforms.ActiveCfg = Debug|Any CPU
+		{666DC93B-F6EA-433F-8A8B-3690AD298F00}.Debug|Mixed Platforms.Build.0 = Debug|Any CPU
+		{666DC93B-F6EA-433F-8A8B-3690AD298F00}.Debug|x86.ActiveCfg = Debug|Any CPU
+		{666DC93B-F6EA-433F-8A8B-3690AD298F00}.Debug|x86.Build.0 = Debug|Any CPU
+		{666DC93B-F6EA-433F-8A8B-3690AD298F00}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{666DC93B-F6EA-433F-8A8B-3690AD298F00}.Release|Any CPU.Build.0 = Release|Any CPU
+		{666DC93B-F6EA-433F-8A8B-3690AD298F00}.Release|Mixed Platforms.ActiveCfg = Release|Any CPU
+		{666DC93B-F6EA-433F-8A8B-3690AD298F00}.Release|Mixed Platforms.Build.0 = Release|Any CPU
+		{666DC93B-F6EA-433F-8A8B-3690AD298F00}.Release|x86.ActiveCfg = Release|Any CPU
+		{666DC93B-F6EA-433F-8A8B-3690AD298F00}.Release|x86.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
