@@ -1,10 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using FluentAssertions;
-using Markdown.Core;
+﻿using Markdown.Core;
 using NUnit.Framework;
 
 namespace Markdown.Tests
