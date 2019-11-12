@@ -40,11 +40,10 @@
   <ItemGroup>
     <Compile Include="Context.cs" />
     <Compile Include="FeaturesLoader.cs" />
-    <Compile Include="Features\BoldText.cs" />
-    <Compile Include="Features\ItalicText.cs" />
     <Compile Include="Features\Link.cs" />
-    <Compile Include="Features\PlainText.cs" />
+    <Compile Include="HtmlConverter.cs" />
     <Compile Include="IToken.cs" />
+    <Compile Include="KeySequenceType.cs" />
     <Compile Include="Md.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />

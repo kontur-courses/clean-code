@@ -4,8 +4,8 @@ namespace Markdown
 	{
 		string OpeningSequence { get; }
 		string ClosingSequence { get; }
-		bool IsComplex { get; }
-		string GetOpeningTag(TokenInfo tokenInfo, string sourceText);
-		string GetClosingTag(TokenInfo tokenInfo, string sourceText);
+		KeySequenceType RecognizeKeySequence(Context context, string sourceText);
+		string GetHtmlOpeningTag(TokenInfo tokenInfo, string sourceText);
+		string GetHtmlClosingTag(TokenInfo tokenInfo, string sourceText);
 	}
 }

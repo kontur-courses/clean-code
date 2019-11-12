@@ -6,21 +6,25 @@ namespace Markdown.Features
 	{
 		public string OpeningSequence { get; } = "[";
 		public string ClosingSequence { get; } = ")";
-		public bool IsComplex { get; } = true;
-
-		public string GetOpeningTag(TokenInfo tokenInfo, string sourceText)
+		
+		public KeySequenceType RecognizeKeySequence(Context context, string sourceText)
 		{
-			throw new System.NotImplementedException();
+			throw new NotImplementedException();
+		}
+
+		public string GetHtmlOpeningTag(TokenInfo tokenInfo, string sourceText)
+		{
+			throw new NotImplementedException();
+		}
+
+		public string GetHtmlClosingTag(TokenInfo tokenInfo, string sourceText)
+		{
+			throw new NotImplementedException();
 		}
 
 		private static bool ContentIsValid(string content)
 		{
 			throw new NotImplementedException();
-		}
-
-		public string GetClosingTag(TokenInfo tokenInfo, string sourceText)
-		{
-			throw new System.NotImplementedException();
 		}
 	}
 }

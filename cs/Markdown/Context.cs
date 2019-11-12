@@ -3,38 +3,51 @@ using System.Text;
 
 namespace Markdown
 {
-    internal class Context
-    {
-        private TokenContainer _mainToken;
-        private TokenContainer _lastToken;
-        
-        private StringBuilder _currentKeySequence;
-        private bool _readingKeySequence;
-        private string _sourceText;
-        private bool _inComplexToken;
-        private bool _inPlainText;
+	internal class Context
+	{
+		private TokenContainer _mainToken;
+		private TokenContainer _lastToken;
 
-        public Context(string sourceText)
-        {
-        }
+		private StringBuilder _currentKeySequence;
+		private bool _readingKeySequence;
+		private bool _inPlainTextToken;
 
-        public void AddChildToken(TokenInfo newTokenInfo)
-        {
-        }
+		public string SourceText { get; }
+		public bool ReadAsPlainText { get; set; }
+		public int CurrentIndex { get; private set; }
+		public char CurrentChar { get; private set; }
 
-        public bool TryCloseToken(int currentIndex, string closingKeySequence)
-        {
-            throw new NotImplementedException();
-        }
+		public Context(string sourceText)
+		{
+		}
 
-        public void AddAsPlainText(char newChar)
-        {
-        }
-    }
+		public char UpdateState(int currentIndex, char currentChar)
+		{
+			throw new NotImplementedException();
+		}
 
-    internal class TokenContainer
-    {
-        public TokenContainer _parentToken;
-        public TokenInfo TokenInfo;
-    }   
+		private IToken RecognizeKeySequence()
+		{
+			throw new NotImplementedException();
+		}
+
+		public void AddChildToken(TokenInfo newTokenInfo)
+		{
+		}
+
+		public bool TryCloseToken(int currentIndex, string closingKeySequence)
+		{
+			throw new NotImplementedException();
+		}
+
+		public void AddAsPlainText(char newChar)
+		{
+		}
+	}
+
+	internal class TokenContainer
+	{
+		public TokenContainer _parentToken;
+		public TokenInfo TokenInfo;
+	}
 }

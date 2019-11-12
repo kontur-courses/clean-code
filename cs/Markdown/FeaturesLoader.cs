@@ -9,7 +9,7 @@ namespace Markdown
 
 		public static void LoadFeatures()
 		{
-			AddToken(new PlainText());
+			AddToken(new Link());
 		}
 
 		private static void AddToken(IToken token)
