@@ -8,14 +8,14 @@ namespace Markdown.Core
 {
     class Token
     {
-        public int Position { get; }
-        public int Length { get; }
+        public int StartPosition { get; }
         public string Value { get; }
+        public int EndPosition => StartPosition + Length;
+        public int Length => Value.Length;
 
-        public Token(int position, int length, string value)
+        public Token(int startPosition, int length, string value)
         {
-            Position = position;
-            Length = length;
+            StartPosition = startPosition;
             Value = value;
         }
     }
