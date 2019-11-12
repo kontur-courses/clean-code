@@ -48,8 +48,12 @@ namespace Markdown
             {
                 case Style.Italic:
                     return new Style[] { Style.Bold };
-                default:
+                case Style.Bold:
                     return null;
+                case Style.Code:
+                    return null;
+                default:
+                    throw new NotImplementedException($"Valid outer styles of style \"{me.ToString()}\" are not defined.");
             }
         }
 
