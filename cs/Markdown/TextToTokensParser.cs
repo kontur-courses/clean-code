@@ -1,10 +1,15 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Text;
 
 namespace Markdown
 {
-    class TextToTokensParser
+    public static class TextToTokensParser
     {
+        public static List<Token> Parse(string text)
+        {
+            //стэк для отслеживания парных символов _ и __ 
+            var charStack = new Stack<string>();
+            throw new NotImplementedException();
+        }
     }
 }

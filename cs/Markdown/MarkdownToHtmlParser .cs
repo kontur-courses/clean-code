@@ -1,10 +1,14 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Text;
 
 namespace Markdown
 {
-    class MarkdownToHtmlParser
+    public static class MarkdownToHtmlParser
     {
+        public static List<Token> Parse(List<Token> MarkdownTokens,
+            Dictionary<Token, Token> tagsColletion)
+        {
+            throw new NotImplementedException();
+        }
     }
 }

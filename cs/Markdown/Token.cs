@@ -1,10 +1,30 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Text;
-
-namespace Markdown
+﻿namespace Markdown
 {
-    class Token
+    public class Token
     {
+        public string Line { get; }
+        public int Start { get; }
+        public int Length { get; }
+
+        public Token(string line, int start, int length)
+        {
+            Line = line;
+            Start = start;
+            Length = length;
+        }
+
+        public override bool Equals(object obj)
+        {
+            var token = obj as Token;
+            return token.Line == Line && token.Start == Start && token.Length == Length;
+        }
+
+        public override int GetHashCode()
+        {
+            unchecked
+            {
+                return Line.GetHashCode() + Start * 8069 + Length;
+            }
+        }
     }
 }
