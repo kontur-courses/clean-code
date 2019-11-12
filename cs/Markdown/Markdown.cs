@@ -27,6 +27,18 @@ namespace Markdown
             var i = 0;
             while (i < mdText.Length)
             {
+                if (actualStyles.Count > 0)
+                {
+                    var (currentStyle, endIndex) = actualStyles.Peek();
+                    if (i == endIndex)
+                    {
+                        html += currentStyle.CloseHtmlTag();
+                        i += currentStyle.MdTag().Length;
+                        actualStyles.Pop();
+                        continue;
+                    }
+                }
+
                 if (IsBackslashedSymbol(ref mdText, i, out string backslashedSymbol, out int offset))
                 {
                     html += backslashedSymbol;
@@ -34,12 +46,10 @@ namespace Markdown
                     continue;
                 }
 
-                //если i дошел до закрывающего тега - закрываем
-
                 if (CanBeginNewStyle(ref mdText, i, actualStyles, out Style newStyle, out int newStyleEndIndex))
                 {
                     actualStyles.Push((newStyle, newStyleEndIndex));
-                    html += newStyle.HtmlTag().OpenHtmlTag();
+                    html += newStyle.OpenHtmlTag();
                     i += newStyle.MdTag().Length;
                     continue;
                 }

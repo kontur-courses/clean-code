@@ -23,7 +23,7 @@ namespace Markdown
             }
         }
 
-        public static string HtmlTag(this Style me)
+        private static string HtmlStyleName(this Style me)
         {
             switch (me)
             {
@@ -38,9 +38,9 @@ namespace Markdown
             }
         }
 
-        public static string OpenHtmlTag(this string tag) => $"<{tag}>";
+        public static string OpenHtmlTag(this Style me) => $"<{me.HtmlStyleName()}>";
 
-        public static string CloseHtmlTag(this string tag) => $"</{tag}>";
+        public static string CloseHtmlTag(this Style me) => $"</{me.HtmlStyleName()}>";
 
         private static Style[] ValidOuterStyles(this Style me)
         {
@@ -72,10 +72,14 @@ namespace Markdown
                 int i = index + me.MdTag().Length + 1;
                 while (i <= endOfSearchingIndex)
                 {
-                    if (me.CanEnd(ref text, i))
+                    if (me.IsTag(ref text, i) && me.CanEnd(ref text, i))
                     {
-                        endIndex = i;
-                        return true;
+                        var j = i - 1;
+                        if (j < 0 || j >= 0 && text[j] != '\\')
+                        {
+                            endIndex = i;
+                            return true;
+                        }
                     }
                     i++;
                 }
