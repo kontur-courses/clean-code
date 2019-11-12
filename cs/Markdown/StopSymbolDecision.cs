@@ -4,6 +4,6 @@ namespace Markdown
     {
         Continue,
         Stop,
-        NestedToken,
+        NestedToken
     }
 }
