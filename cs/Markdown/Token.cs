@@ -8,20 +8,25 @@ namespace Markdown
 {
     public class Token
     {
-        public TokenType tokenType;
-
-        public readonly int position;
-        public int length;
-        public readonly string text;
+        public readonly TokenType TokenType;
+        public readonly int Position;
+        public readonly int Length;
+        public readonly string Text;
 
         public Token(string text, 
             int position,
-            TokenType tokenType = TokenType.Raw,
+            TokenType tokenType = TokenType.Text,
             int length = 0)
         {
-            this.tokenType = tokenType;
-            this.text = text;
-            this.position = position;
+            TokenType = tokenType;
+            Text = text;
+            Position = position;
+            Length = length;
+        }
+
+        public string GetTokenString()
+        {
+            return Text.Substring(Position, Length);
         }
     }
 }

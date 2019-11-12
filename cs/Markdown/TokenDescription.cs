@@ -8,30 +8,28 @@ namespace Markdown
 {
     public class TokenDescription
     {
-        public readonly TokenType tokenType;
-        public readonly TagType tagType;
-        public readonly string marker;
-        public readonly int length;
+        public readonly TokenType TokenType;
+        public readonly string TokenMarker;
+        private readonly Func<string, int, int> readToken;
 
-        public TokenDescription(TokenType tokenType, TagType tagType, 
-            string tokenMarker, int tokenLength)
+        public TokenDescription(TokenType tokenType, string tokenMarker, 
+            Func<string, int, int> readToken)
         {
-            this.tokenType = tokenType;
-            this.tagType = tagType;
-            marker = tokenMarker;
-            length = tokenLength;
+            TokenType = tokenType;
+            TokenMarker = tokenMarker;
+            this.readToken = readToken;
         }
 
-        public bool IsToken(string text, int position)
+        public bool TryReadToken(string text, int position, out Token token)
         {
-            if (text.Length - position < length)
+            token = null;
+            if (position + TokenMarker.Length > text.Length)
                 return false;
-            return text.Substring(position, marker.Length) == marker;
-        }
-
-        public Token ReadToken(string text, int position)
-        {
-            return new Token(text, position, tokenType, length);
+            var length = readToken(text, position);
+            if (length == 0)
+                return false;
+            token = new Token(text, position, TokenType, length);
+            return true;
         }
     }
 }

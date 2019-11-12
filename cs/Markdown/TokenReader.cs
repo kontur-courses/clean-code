@@ -9,52 +9,50 @@ namespace Markdown
 {
     public class TokenReader
     {
-        private readonly string text;
-        private int position = 0;
-        private readonly Dictionary<TokenType, TokenDescription> tokenTypeToDescription;
         private readonly List<TokenDescription> tokenDescriptions;
 
-        public TokenReader(string text, IEnumerable<TokenDescription> tokenDescriptions)
-        {
-            this.text = text;
-            position = 0;
+        public TokenReader(IEnumerable<TokenDescription> tokenDescriptions)
+        { 
             this.tokenDescriptions = tokenDescriptions
-                .OrderByDescending(descr => descr.marker.Length)
+                .OrderByDescending(descr => descr.TokenMarker.Length)
                 .ToList();
-            tokenTypeToDescription = this.tokenDescriptions.ToDictionary(descr => descr.tokenType);
         }
 
-        public List<Token> TokenizeText()
+        public List<Token> TokenizeText(string text)
         {
+            if (text == null)
+                throw new ArgumentNullException("text");
             var tokenList = new List<Token>();
             var position = 0;
             while(position < text.Length)
             {
-                var rawTextToken = ReadRawTextToken();
-                if (rawTextToken != null) {
-                    tokenList.Add(rawTextToken);
-                    position += rawTextToken.length;
+                Token token = null;
+                var prevPosition = position;
+                while (position < text.Length && !TryReadToken(text, position, out token))
+                    position++;
+                if (prevPosition < position)
+                    tokenList.Add(new Token(text, prevPosition, TokenType.Text, position - prevPosition));
+                if (token != null)
+                {
+                    tokenList.Add(token);
+                    position += token.Length;
                 }
-                if (position == text.Length)
-                    break;
-                var token = ReadToken();
-                tokenList.Add(token);
-                position += token.length;
             }
+
+            tokenList.Add(new Token(text, text.Length, TokenType.Eof));
 
             return tokenList;
         }
-   
-        // читаем, пока не встретилось начало какого-нибудь токена или не закончился текст
-        public Token ReadRawTextToken()
-        {
-            throw new NotImplementedException();
-        }
 
-        // читаем какой-то другой токен, внутри обращаемся к одному из TokenDescription
-        public Token ReadToken()
+        public bool TryReadToken(string text, int position, out Token token)
         {
-            throw new NotImplementedException();
+            token = null;
+            foreach(var tokenDescription in tokenDescriptions)
+            {
+                if (tokenDescription.TryReadToken(text, position, out token))
+                    return true;
+            }
+            return false;
         }
     }
 }

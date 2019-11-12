@@ -8,7 +8,11 @@ namespace Markdown
 {
     public enum TokenType
     {
-        Raw,
+        Text,
+        WhiteSpace,
+        Digits,
+        Eol,
+        Eof,
         Emphasis,
         Strong,
         Escape

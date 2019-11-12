@@ -5,7 +5,7 @@
     <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
     <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
     <ProjectGuid>{66D27467-222F-4A30-8B55-75CE333AC310}</ProjectGuid>
-    <OutputType>Exe</OutputType>
+    <OutputType>Library</OutputType>
     <RootNamespace>Markdown</RootNamespace>
     <AssemblyName>Markdown</AssemblyName>
     <TargetFrameworkVersion>v4.6.1</TargetFrameworkVersion>
@@ -32,13 +32,19 @@
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
+  <PropertyGroup>
+    <StartupObject />
+  </PropertyGroup>
   <ItemGroup>
     <None Include="App.config" />
     <None Include="Spec.md" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="ITagFormatter.cs" />
+    <Compile Include="Formatters\HtmlTagFormatter.cs" />
+    <Compile Include="Formatters\ITagFormatter.cs" />
+    <Compile Include="MarkdownUtilities.cs" />
     <Compile Include="Md.cs" />
+    <Compile Include="TagType.cs" />
     <Compile Include="Token.cs" />
     <Compile Include="TokenNode.cs" />
     <Compile Include="TokenReader.cs" />
