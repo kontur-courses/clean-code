@@ -13,7 +13,7 @@ _Italic line_
 * Doubled underscores can include single underscores but
 single underscores can't include doubled underscores
     * __It _can_ work__
-    * _It __can not__ work_
+    * _It \_\_can not\_\_ work_
 * Text can include escape symbols
     * \_It is not included in \<em> tag\_
 
