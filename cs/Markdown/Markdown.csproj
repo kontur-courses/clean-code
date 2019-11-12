@@ -33,8 +33,8 @@
   </PropertyGroup>
   <ItemGroup>
     <Compile Include="Core\HTMLTags\Em.cs" />
-    <Compile Include="Core\HTMLTags\HTMLTagToken.cs" />
-    <Compile Include="Core\HTMLTags\IHTMLTag.cs" />
+    <Compile Include="Core\HTMLTags\IHTMLTagTokenToken.cs" />
+    <Compile Include="Core\HTMLTags\IHTMLTagToken.cs" />
     <Compile Include="Core\HTMLTags\Strong.cs" />
     <Compile Include="Core\MdNormalizer.cs" />
     <Compile Include="Core\Readers\MdTokenReader.cs" />

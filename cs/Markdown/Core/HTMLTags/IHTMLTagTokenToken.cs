@@ -1,11 +1,11 @@
 namespace Markdown
 {
-    public class HTMLTagToken : MdToken, IHTMLTag
+    public class IHTMLTagTokenToken : MdToken, IHTMLTagToken
     {
         public string TagName { get; }
         public bool IsOpen { get; set; }
 
-        protected HTMLTagToken(
+        protected IHTMLTagTokenToken(
             int position,
             int length,
             string value,

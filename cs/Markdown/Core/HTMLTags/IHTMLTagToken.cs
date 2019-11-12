@@ -1,6 +1,6 @@
 namespace Markdown
 {
-    public interface IHTMLTag
+    public interface IHTMLTagToken
     {
         string TagName { get; }
         bool IsOpen { get; }
