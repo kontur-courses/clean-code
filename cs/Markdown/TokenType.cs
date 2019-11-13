@@ -11,7 +11,6 @@ namespace Markdown
         Text,
         WhiteSpace,
         Digits,
-        Eol,
         Eof,
         Emphasis,
         Strong,

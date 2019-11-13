@@ -19,14 +19,14 @@ namespace Markdown
             int length = 0)
         {
             TokenType = tokenType;
-            Text = text;
             Position = position;
             Length = length;
+            Text = text.Substring(Position, Length);
         }
 
         public string GetTokenString()
         {
-            return Text.Substring(Position, Length);
+            return Text;
         }
     }
 }

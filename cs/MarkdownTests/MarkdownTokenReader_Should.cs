@@ -24,19 +24,26 @@ namespace MarkdownTests
         [TestCase("dcba")]
         public void TokenizeSimpleText_Correctly(string text)
         {
+            var expectedTexts = new List<string>() { text, "" };
+            var expectedTypes = new List<TokenType>() { TokenType.Text, TokenType.Eof };
+            var expectedLengths = new List<int>() { 4, 0 };
+            var expectedPositions = new List<int>() { 0, 4 };
+
             var tokens = tokenReader.TokenizeText(text);
-            tokens.Select(tkn => tkn.GetTokenString()).Should().BeEquivalentTo(
-                new List<string>() { text, "" });
-            tokens.Select(tkn => tkn.TokenType).Should().BeEquivalentTo(
-                new List<TokenType>() { TokenType.Text, TokenType.Eof });
+
+            CheckTokenizationValidity(tokens,
+                expectedTexts, expectedTypes, expectedLengths, expectedPositions);
         }
 
         [Test]
         public void TokenizeEmptyString_Correctly()
         {
-            var tokens = tokenReader.TokenizeText("");
-            tokens.Select(tkn => tkn.TokenType).Should().BeEquivalentTo(
-                new List<TokenType>() { TokenType.Eof });
+            var text = "";
+            var expectedTokenTypes = new List<TokenType>() { TokenType.Eof };
+
+            var tokens = tokenReader.TokenizeText(text);
+
+            tokens.Select(tkn => tkn.TokenType).Should().BeEquivalentTo(expectedTokenTypes);
         }
 
         [Test]
@@ -47,87 +54,113 @@ namespace MarkdownTests
         }
 
         [Test]
-        public void TokenizeTextWithEndOfLine_Correctly()
-        {
-            var text = "ab\ncd";
-            var tokens = tokenReader.TokenizeText(text);
-            tokens.Select(tkn => tkn.GetTokenString()).Should().BeEquivalentTo(
-                new List<string>() { "ab", "\n", "cd", "" });
-            tokens.Select(tkn => tkn.TokenType).Should().BeEquivalentTo(
-                new List<TokenType>()
-                { TokenType.Text, TokenType.Eol, TokenType.Text, TokenType.Eof });
-        }
-
-        [Test]
         public void TokenizeTextWithEscapeSymbol_Correctly()
         {
             var text = @"a\bc";
+            var expectedTexts = new List<string>() { "a", @"\b", "c", "" };
+            var expectedTypes = new List<TokenType>()
+                { TokenType.Text, TokenType.Escape, TokenType.Text, TokenType.Eof };
+            var expectedLengths = new List<int>() { 1, 2, 1, 0 };
+            var expectedPositions = new List<int>() { 0, 1, 3, 4 };
+
             var tokens = tokenReader.TokenizeText(text);
-            tokens.Select(tkn => tkn.GetTokenString()).Should().BeEquivalentTo(
-                new List<string>() { "a", @"\b", "c", "" });
-            tokens.Select(tkn => tkn.TokenType).Should().BeEquivalentTo(
-                new List<TokenType>()
-                { TokenType.Text, TokenType.Escape, TokenType.Text, TokenType.Eof });
+
+            CheckTokenizationValidity(tokens,
+                expectedTexts, expectedTypes, expectedLengths, expectedPositions);
         }
 
         [Test]
         public void TokenizeTextWithEmphasisTag_Correctly()
         {
             var text = @"_a_";
+            var expectedTexts = new List<string>() { "_", "a", "_", "" };
+            var expectedTypes = new List<TokenType>()
+                { TokenType.Emphasis, TokenType.Text, TokenType.Emphasis, TokenType.Eof };
+            var expectedLengths = new List<int>() { 1, 1, 1, 0 };
+            var expectedPositions = new List<int>() { 0, 1, 2, 3 };
+
             var tokens = tokenReader.TokenizeText(text);
-            tokens.Select(tkn => tkn.GetTokenString()).Should().BeEquivalentTo(
-                new List<string>() { "_", "a", "_", "" });
-            tokens.Select(tkn => tkn.TokenType).Should().BeEquivalentTo(
-                new List<TokenType>()
-                { TokenType.Emphasis, TokenType.Text, TokenType.Emphasis, TokenType.Eof });
+
+            CheckTokenizationValidity(tokens,
+                expectedTexts, expectedTypes, expectedLengths, expectedPositions);
         }
 
         [Test]
         public void TokenizeTextWithStrongTag_Correctly()
         {
             var text = @"__a__";
+            var expectedTexts = new List<string>() { "__", "a", "__", "" };
+            var expectedTypes = new List<TokenType>()
+                { TokenType.Strong, TokenType.Text, TokenType.Strong, TokenType.Eof };
+            var expectedLengths = new List<int>() { 2, 1, 2, 0 };
+            var expectedPositions = new List<int>() { 0, 2, 3, 5 };
+
             var tokens = tokenReader.TokenizeText(text);
-            tokens.Select(tkn => tkn.GetTokenString()).Should().BeEquivalentTo(
-                new List<string>() { "__", "a", "__", "" });
-            tokens.Select(tkn => tkn.TokenType).Should().BeEquivalentTo(
-                new List<TokenType>()
-                { TokenType.Strong, TokenType.Text, TokenType.Strong, TokenType.Eof });
+
+            CheckTokenizationValidity(tokens,
+                expectedTexts, expectedTypes, expectedLengths, expectedPositions);
         }
 
         [Test]
         public void TokenizeTextWithDigits_Correctly()
         {
             var text = "ab12";
+            var expectedTexts = new List<string>() { "ab", "12", "" };
+            var expectedTypes = new List<TokenType>()
+                { TokenType.Text, TokenType.Digits, TokenType.Eof };
+            var expectedLengths = new List<int>() { 2, 2, 0 };
+            var expectedPositions = new List<int>() { 0, 2, 4 };
+
             var tokens = tokenReader.TokenizeText(text);
-            tokens.Select(tkn => tkn.GetTokenString()).Should().BeEquivalentTo(
-                new List<string>() { "ab", "12", "" });
-            tokens.Select(tkn => tkn.TokenType).Should().BeEquivalentTo(
-                new List<TokenType>()
-                { TokenType.Text, TokenType.Digits, TokenType.Eof });
+
+            CheckTokenizationValidity(tokens,
+                expectedTexts, expectedTypes, expectedLengths, expectedPositions);
         }
 
         [Test]
         public void TokenizeTextWithSpace_Correctly()
         {
             var text = "ab cd";
+            var expectedTexts = new List<string>() { "ab", " ", "cd", "" };
+            var expectedTypes = new List<TokenType>()
+                { TokenType.Text, TokenType.WhiteSpace, TokenType.Text, TokenType.Eof };
+            var expectedLengths = new List<int>() { 2, 1, 2, 0 };
+            var expectedPositions = new List<int>() { 0, 2, 3, 5 };
+
             var tokens = tokenReader.TokenizeText(text);
-            tokens.Select(tkn => tkn.GetTokenString()).Should().BeEquivalentTo(
-                new List<string>() { "ab", " ", "cd", "" });
-            tokens.Select(tkn => tkn.TokenType).Should().BeEquivalentTo(
-                new List<TokenType>()
-                { TokenType.Text, TokenType.WhiteSpace, TokenType.Text, TokenType.Eof });
+
+            CheckTokenizationValidity(tokens,
+                expectedTexts, expectedTypes, expectedLengths, expectedPositions);
         }
 
         [Test]
         public void TokenizeTextWithTokenAtStart_Correctly()
         {
             var text = "_ab";
+            var expectedTexts = new List<string>() { "_", "ab", "" };
+            var expectedTypes = new List<TokenType>()
+                { TokenType.Emphasis, TokenType.Text, TokenType.Eof };
+            var expectedLengths = new List<int>() { 1, 2, 0 };
+            var expectedPositions = new List<int>() { 0, 1, 3 };
+
             var tokens = tokenReader.TokenizeText(text);
-            tokens.Select(tkn => tkn.GetTokenString()).Should().BeEquivalentTo(
-                new List<string>() { "_", "ab", "" });
-            tokens.Select(tkn => tkn.TokenType).Should().BeEquivalentTo(
-                new List<TokenType>()
-                { TokenType.Emphasis, TokenType.Text, TokenType.Eof });
+
+            CheckTokenizationValidity(tokens, 
+                expectedTexts, expectedTypes, expectedLengths, expectedPositions);
+        }
+
+        public void CheckTokenizationValidity(IEnumerable<Token> tokens,
+            IEnumerable<string> expectedTexts, IEnumerable<TokenType> expectedTypes,
+            IEnumerable<int> expectedLength, IEnumerable<int> expectedPositions)
+        {
+            tokens.Select(tkn => tkn.Text).Should().BeEquivalentTo(expectedTexts,
+                "texts should be equal");
+            tokens.Select(tkn => tkn.TokenType).Should().BeEquivalentTo(expectedTypes,
+                "token types should be equal");
+            tokens.Select(tkn => tkn.Length).Should().BeEquivalentTo(expectedLength, 
+                "lengths should be equal");
+            tokens.Select(tkn => tkn.Position).Should().BeEquivalentTo(expectedPositions,
+                "positions should be equal");
         }
     }
 }

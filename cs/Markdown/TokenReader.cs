@@ -11,11 +11,9 @@ namespace Markdown
     {
         private readonly List<TokenDescription> tokenDescriptions;
 
-        public TokenReader(IEnumerable<TokenDescription> tokenDescriptions)
-        { 
-            this.tokenDescriptions = tokenDescriptions
-                .OrderByDescending(descr => descr.TokenMarker.Length)
-                .ToList();
+        public TokenReader(List<TokenDescription> tokenDescriptions)
+        {
+            this.tokenDescriptions = tokenDescriptions;
         }
 
         public List<Token> TokenizeText(string text)
