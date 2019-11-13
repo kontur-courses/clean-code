@@ -19,7 +19,6 @@ namespace Markdown
 
         public MarkDown(IParser<MdTag.Tag> parser)
         {
-            var a = new Tag("qw", "dwq");
             this.parser = new MdTagParser();
         }
 
