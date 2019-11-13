@@ -2,6 +2,5 @@
 {
     public class Token_Should
     {
-        
     }
 }
