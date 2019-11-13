@@ -67,6 +67,13 @@ namespace MarkdownTests
             return md.Render(mdText);
         }
 
+        [TestCase("_italicBegin _italicNotBegin italicEnd_ italicNotEnd_", ExpectedResult = "<em>italicBegin _italicNotBegin italicEnd</em> italicNotEnd_")]
+        [TestCase("__boldBegin __boldNotBegin boldEnd__ boldNotEnd__", ExpectedResult = "<strong>boldBegin __boldNotBegin boldEnd</strong> boldNotEnd__")]
+        public string Render_ShouldCorrectRender_WhenOneStyleIsIntoSameStyle(string mdText)
+        {
+            return md.Render(mdText);
+        }
+
         [TestCase("__boldBegin _italicBegin boldEnd__ italicEnd_", ExpectedResult = "<strong>boldBegin _italicBegin boldEnd</strong> italicEnd_")]
         public string Render_ShouldCorrectRender_WhenStylesBoundsAreIntersected(string mdText)
         {

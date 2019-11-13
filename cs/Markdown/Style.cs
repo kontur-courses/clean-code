@@ -47,9 +47,9 @@ namespace Markdown
             switch (me)
             {
                 case Style.Italic:
-                    return null;
-                case Style.Bold:
                     return new Style[] { Style.Italic };
+                case Style.Bold:
+                    return new Style[] { Style.Italic, Style.Bold };
                 case Style.Code:
                     return null;
                 default:
