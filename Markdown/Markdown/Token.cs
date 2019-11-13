@@ -6,13 +6,13 @@
 
         public int Position { get; }
 
-        public bool IsEnd { get; }
+        public bool IsСlosing { get; set; }
 
-        public Token(AttributeType type, int position, bool isEnd = false)
+        public Token(AttributeType type, int position, bool isСlosing = false)
         {
             Type = type;
             Position = position;
-            IsEnd = isEnd;
+            IsСlosing = isСlosing;
         }
     }
 }
