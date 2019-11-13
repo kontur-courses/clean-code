@@ -14,7 +14,6 @@ namespace Markdown
         public Syntax(Dictionary<char, AttributeType> typeDictionary)
         {
             TypeDictionary = typeDictionary;
-            CharDictionary = typeDictionary.ToDictionary(x => x.Value, x => x.Key);
         }
 
         public static bool CharCanBeEscaped(char ch)

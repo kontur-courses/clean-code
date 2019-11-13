@@ -4,15 +4,10 @@ namespace Markdown
 {
     public static class HtmlConverter
     {
-        public static readonly Dictionary<AttributeType, string> TagDictionary;
-
-        static HtmlConverter()
+        public static readonly Dictionary<AttributeType, string> TagDictionary = new Dictionary<AttributeType, string>
         {
-            TagDictionary = new Dictionary<AttributeType, string>
-            {
-                {AttributeType.Emphasis, "em"},
-                {AttributeType.Strong, "strong"},
-            };
-        }
+            {AttributeType.Emphasis, "em"},
+            {AttributeType.Strong, "strong"}
+        };
     }
 }

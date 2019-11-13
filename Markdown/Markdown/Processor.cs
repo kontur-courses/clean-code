@@ -20,7 +20,6 @@ namespace Markdown
 
             var tokens = ParseText(source);
 
-
             return ReplaceAttributesWithTags(tokens, source);
         }
 
@@ -79,14 +78,15 @@ namespace Markdown
             {
                 sb.Append(source.Substring(textPosition, token.Position - textPosition));
 
-                if (token.Type == AttributeType.Escape &&
-                    (token.Position == source.Length - 1 || !Syntax.CharCanBeEscaped(source[token.Position + 1])))
-                    sb.Append('\\');
+                if (token.Type == AttributeType.Escape)
+                {
+                    if (token.Position == source.Length - 1 || !Syntax.CharCanBeEscaped(source[token.Position + 1]))
+                        sb.Append('\\');
+                }
                 else
                 {
                     sb.Append($"<{(token.IsEnd ? "/" : "")}{HtmlConverter.TagDictionary[token.Type]}>");
                 }
-
                 textPosition = token.Position + 1;
             }
 

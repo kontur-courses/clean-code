@@ -25,10 +25,10 @@ namespace Markdown
         [TestCase("","", TestName = "Empty string")]
         [TestCase("It Was A Good Day!", "It Was A Good Day!", TestName = "Non-empty string without attributes")]
         [TestCase(@"Hello, \World", @"Hello, \World", TestName = "Escape character with non-special character is shown")]
-        [TestCase(@"How are you\?", "How are you?", TestName = "Escape character with special character is not shown")]
+        [TestCase(@"Hi\! How are you\?", "Hi! How are you?", TestName = "Escape character with special character is not shown")]
         [TestCase(@"My nick is \\prokiller\\", @"My nick is \prokiller\", TestName = "Escape character is escaped")]
         [TestCase(@"\\\Foo\\\\Bar", @"\\Foo\\Bar", TestName = "Many escape characters in a row")]
-        public void Render_ReturnsFormattedString(string input, string expected)
+        public void Render_ReturnsCorrectString_When(string input, string expected)
         {
             processor.Render(input).Should().Be(expected);
         }
