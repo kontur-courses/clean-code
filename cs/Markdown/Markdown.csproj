@@ -37,6 +37,9 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Md.cs" />
+    <Compile Include="TextTokenizer.cs" />
+    <Compile Include="Token.cs" />
+    <Compile Include="TokenType.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
 </Project>
