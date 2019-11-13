@@ -59,5 +59,18 @@ namespace MarkdownTests
         {
             return style.CanBegin(ref text, index, new Stack<(Style style, int endIndex)>(), out int _);
         }
+
+        [TestCase("__bold _bolditalic_ bold__", ExpectedResult = "<strong>bold <em>bolditalic</em> bold</strong>")]
+        [TestCase("_italic __nonbolditalic__ italic_", ExpectedResult = "<em>italic _</em>nonbolditalic<em>_ italic</em>")]
+        public string Render_ShouldCorrectRender_WhenOneStyleIsIntoAnother(string mdText)
+        {
+            return md.Render(mdText);
+        }
+
+        [TestCase("__boldBegin _italicBegin boldEnd__ italicEnd_", ExpectedResult = "<strong>boldBegin _italicBegin boldEnd</strong> italicEnd_")]
+        public string Render_ShouldCorrectRender_WhenStylesBoundsAreIntersected(string mdText)
+        {
+            return md.Render(mdText);
+        }
     }
 }

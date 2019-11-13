@@ -42,26 +42,27 @@ namespace Markdown
 
         public static string CloseHtmlTag(this Style me) => $"</{me.HtmlStyleName()}>";
 
-        private static Style[] ValidOuterStyles(this Style me)
+        private static Style[] DisablingOuterStyles(this Style me)
         {
             switch (me)
             {
                 case Style.Italic:
-                    return new Style[] { Style.Bold };
-                case Style.Bold:
                     return null;
+                case Style.Bold:
+                    return new Style[] { Style.Italic };
                 case Style.Code:
                     return null;
                 default:
-                    throw new NotImplementedException($"Valid outer styles of style \"{me.ToString()}\" are not defined.");
+                    throw new NotImplementedException($"Disabling outer styles of style \"{me.ToString()}\" are not defined.");
             }
         }
 
-        public static bool IsValidInside(this Style me, Style outerStyle) =>
-            me.ValidOuterStyles().Any(vos => vos == outerStyle);
-
-        public static bool IsValidInside(this Style me, IEnumerable<Style> outerStyles) =>
-            outerStyles.All(os => me.IsValidInside(os));
+        public static bool IsValidInsideAll(this Style me, IEnumerable<Style> outerStyles)
+        {
+            var disablingOuterStyles = me.DisablingOuterStyles();
+            return (disablingOuterStyles == null) ? true
+                : outerStyles.All(os => !disablingOuterStyles.Contains(os));
+        }
 
         public static bool IsTag(this Style me, ref string text, int index) =>
             text.TryGetSubstring(index, me.MdTag().Length, out string substr) && substr.Equals(me.MdTag());
@@ -69,7 +70,7 @@ namespace Markdown
         public static bool CanBegin(this Style me, ref string text, int index, Stack<(Style style, int endIndex)> outerStyles, out int endIndex)
         {
             if (me.HasNonSpaceSymbolAfterTag(ref text, index)
-                && me.IsValidInside(outerStyles.Select(kv => kv.style))
+                && me.IsValidInsideAll(outerStyles.Select(kv => kv.style))
                 && !text.IsInsideWordWithNumbers(index))
             {
                 var endOfSearchingIndex = outerStyles.Count > 0 ? outerStyles.Peek().endIndex - me.MdTag().Length : text.Length - 1;
