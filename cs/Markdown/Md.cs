@@ -16,10 +16,15 @@ namespace Markdown
             var markdownTokens = TextToTokensParser.Parse(paragraph);
             var htmlTokens = MarkdownToHtmlParser.Parse(markdownTokens, TagsCollection);
             var stringBuilder = new StringBuilder(paragraph);
+            var delta = 0;
             //учесть изменение длины строки при замене md токена на html
             foreach (var markdownToken in markdownTokens)
+            {
                 stringBuilder.Replace(markdownToken.Line, TagsCollection[markdownToken].Line, markdownToken
-                    .Start, markdownToken.Length);
+                    .Start+delta, markdownToken.Length);
+                delta += TagsCollection[markdownToken].Length - markdownToken.Length;
+            }
+
             return stringBuilder.ToString();
         }
     }
