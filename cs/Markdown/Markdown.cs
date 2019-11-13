@@ -68,7 +68,7 @@ namespace Markdown
                 if (i + 1 < mdText.Length)
                 {
                     var nextSymbol = mdText[i + 1];
-                    foreach (var style in knownStylesOrderedByTagLength.Reverse().Where(s => s.MdTag().Length == 1))
+                    foreach (var style in knownStylesOrderedByTagLength.Where(s => s.MdTag().Length == 1))
                     {
                         if (style.MdTag()[0] == nextSymbol)
                         {
@@ -96,7 +96,7 @@ namespace Markdown
 
         private bool CanBeginNewStyle(ref string mdText, int i, Stack<(Style style, int endIndex)> outerStyles, out Style newStyle, out int newStyleEndIndex)
         {
-            foreach (var knownStyle in knownStylesOrderedByTagLength)
+            foreach (var knownStyle in knownStylesOrderedByTagLength.Reverse())
             {
                 if (knownStyle.IsTag(ref mdText, i) 
                     && knownStyle.CanBegin(ref mdText, i, outerStyles, out int endIndex))
