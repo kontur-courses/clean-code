@@ -1,41 +1,26 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Text;
+﻿using Markdown.Builders;
 using Markdown.Parsers;
 
 namespace Markdown
 {
-    class Md
+    class Md : ITranslator
     {
-        private Configuration configuration;
-        public Md(Configuration configuration)
-        {
-            this.configuration = configuration;
-        }
+        private readonly ILanguageParser languageParser;
+        private readonly ILanguageBuilder languageBuilder;
 
-        public Md() : this(Configuration.GetDefaultMdToHtmlConfiguration())
+        public Md() : this(new MarkdownParser(), new HtmlBuilder())
         {
         }
 
-        public string Render(string markdownString)
+        public Md(ILanguageParser languageParser, ILanguageBuilder languageBuilder)
         {
-            return GetTranslatedString(GetParsedMorphemes(markdownString));
+            this.languageParser = languageParser;
+            this.languageBuilder = languageBuilder;
         }
 
-        public Stack<StringBuilder> GetParsedMorphemes(string markdownString)
+        public string Render(string inputDocument)
         {
-            throw new NotImplementedException();
-        }
-
-        public string GetTranslatedString(Stack<StringBuilder> parsedString)
-        {
-            var result = new StringBuilder();
-            foreach (var morpheme in parsedString)
-            {
-                result.Append(morpheme);
-            }
-
-            return result.ToString();
+            return languageBuilder.BuildDocument(languageParser.GetParsedDocument(inputDocument));
         }
     }
 }

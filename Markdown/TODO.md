@@ -4,14 +4,13 @@
 Write `Markdown` project with `Md` class. Class has to method Render, that takes Markdown-like string and returns html formating String
 
 ### Process
-* Processor initialize by configuration
-* Configuration contains parsers in right order
-* Parser includes mark if it can have inner tags, open and close tags and method of parsing
-* In render method we use two stacks: first - for strings that you need to parse, second
-contains parsed string
-* In the parsing process you receive morphemes in reverse order and so you have second stack, that
-contains parsed morphemes that you do not need parse more
-* in the conclusion string is formed from the second stack and returned from render method
+* Parser parses document to tree with tags
+    * There is Dictionary of tags of source language
+    * Parser find the nearest open tag and try to find close tag
+    * If there is close tag then tag append to the tree and inner tags check if they can be used
+    * Every leaf have TagType NoneTag
+* Builder builds outPut string from the tree
+* We can change Parser and Builder for translator
 
 ### Optional classes/methods in the project (not in the class)
 * Render full `HTML` doc with title
