@@ -90,6 +90,15 @@ namespace Markdown
             processedText.Should().Be(expectedText);
         }
 
+        [TestCase("_ aaa_", "_ aaa_")]
+        [TestCase("aaa_ aaa_", "aaa_ aaa_")]
+        public void OpenUnderscoreWithSpaceAfter_ShouldNotAddTag(string text, string expectedText)
+        {
+            var renderer = new Md();
+            var processedText = renderer.Render(text);
+            processedText.Should().Be(expectedText);
+        }
+
 
         [TestCase("/y", "/y")]
         [TestCase("/", "/")]

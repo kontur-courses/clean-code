@@ -16,6 +16,7 @@ namespace Markdown
         private bool ApostropheFound;
         private bool isDigitInWord;
         private bool potentiallyClosingUnderscore;
+        private bool SlashFound;
         private char LastChar;
         private readonly FixedSizeQueue<char> lastNchars;//здесь будет очередь фиксированной длины в которой будут содержаться последние N символов
         private readonly Dictionary<int, Tag> toInsertIntoParagraph;
@@ -31,6 +32,7 @@ namespace Markdown
             this.ApostropheFound = false;
             this.isDigitInWord = false;
             this.potentiallyClosingUnderscore = false;
+            this.SlashFound = false;
             this.lastNchars = new FixedSizeQueue<char>(3);
             this.toInsertIntoParagraph = new Dictionary<int, Tag>();
         }
@@ -38,6 +40,12 @@ namespace Markdown
         {
             if (letter == default)
                 ProcessEndOfParagraph();
+            if (SlashFound)
+            {
+                ProcessSlashFound(letter);
+                CurrentIndex++;
+                return;
+            }
             if (char.IsDigit(letter))
                 ProcessDigit();
             if (potentiallyClosingUnderscore)
@@ -130,7 +138,16 @@ namespace Markdown
 
         private void ProcessSlash()
         {
-            throw new NotImplementedException();
+            SlashFound = true;
+        }
+
+        private void ProcessSlashFound(char letter)
+        {
+            SlashFound = false;
+            if (letter == '_')
+                toInsertIntoParagraph.Add(CurrentIndex - 1, Tag.Empty);
+            else
+                ProcessChar(letter);
         }
 
 
@@ -149,10 +166,9 @@ namespace Markdown
             if (TwoundercsoreFound && letter=='_')
             {
                 toInsertIntoParagraph.Add(LastTwoUnderScoreIndex - 1, Tag.Strong);
-                toInsertIntoParagraph.Add(CurrentIndex - 2, Tag.Strong_close);
+                toInsertIntoParagraph.Add(CurrentIndex - 1, Tag.Strong_close);
                 TwoundercsoreFound = false;
             }
-            ProcessChar(letter);
         }
 
         private void ProcessEndOfParagraph()

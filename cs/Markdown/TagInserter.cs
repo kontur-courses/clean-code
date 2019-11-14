@@ -39,6 +39,9 @@ namespace Markdown
                         currentIndex += 2;
                         outText.Append("</strong>");
                         break;
+                    case Tag.Empty:
+                        currentIndex += 1;
+                        break;
                 }
             }
             outText.Append(text.Substring(currentIndex));
