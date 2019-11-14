@@ -1,22 +1,21 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿using Markdown.Core.Tags;
 
 namespace Markdown.Core
 {
     class Token
     {
         public int StartPosition { get; }
+        public ITag Tag { get; }
         public string Value { get; }
-        public int EndPosition => StartPosition + Length;
         public int Length => Value.Length;
+        public bool IsOpening { get; }
 
-        public Token(int startPosition, int length, string value)
+        public Token(int startPosition, ITag tag, bool isOpening)
         {
             StartPosition = startPosition;
-            Value = value;
+            Value = isOpening ? tag.Opening : tag.Closing;
+            Tag = tag;
+            IsOpening = isOpening;
         }
     }
 }
