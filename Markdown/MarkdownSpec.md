@@ -52,7 +52,7 @@ If you place two new-line symbols you split text for two paragraphs. One new-lin
     Second paragraph
 
 ## Highlight line and blocks
-* If you want to `highlight part of the non-formatted text` you can use \`this\` or \``this`` 
+* If you want to `highlight part of the non-formatted text` you can use \`this\` or \`\`this\`\` 
 (or more pair \` if you need use this symbol in the line) for one-line highlight 
 * If you want to highlight whole block you should use \```\<newLine>Some text\<newline>\```
 ```
