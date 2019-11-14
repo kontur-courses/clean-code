@@ -33,17 +33,17 @@ namespace Markdown.Core
         
         private bool TryPutTokenIntoRightTagsSequence(Stack<HTMLTagToken> stack, HTMLTagToken token)
         {
-            var previousValueWasOther = stack.Count == 0 || stack.Peek().Value != token.Value;
+            var previousValueIsDifferent = stack.Count == 0 || stack.Peek().Value != token.Value;
             if (token.IsOpen)
             {
-                if (previousValueWasOther)
+                if (previousValueIsDifferent)
                     stack.Push(token);
                 else
                     return false;
             }
             else
             {
-                if (previousValueWasOther)
+                if (previousValueIsDifferent)
                     return false;   
                 stack.Pop();
             }

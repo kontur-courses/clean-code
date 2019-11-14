@@ -23,9 +23,16 @@ namespace Markdown.Tests
             ExpectedResult = "text_")]
         [TestCase("text__", TestName = "Unpaired strong in ending",
             ExpectedResult = "text__")]
-        [TestCase("\\_test\\_", TestName = "Escaped em", ExpectedResult = "_test_")]
-        [TestCase("\\_\\_test\\_\\_", TestName = "Escaped strong", ExpectedResult = "__test__")]
-        [TestCase("test_t_e_x__t", TestName = "Underscore inside word", ExpectedResult = "test_t_e_x__t")]
+        [TestCase("\\_test\\_", TestName = "Escaped em",
+            ExpectedResult = "_test_")]
+        [TestCase("\\_\\_test\\_\\_", TestName = "Escaped strong",
+            ExpectedResult = "__test__")]
+        [TestCase("test_t_e_x__t", TestName = "Underscore inside word", 
+            ExpectedResult = "test_t_e_x__t")]
+        [TestCase("_mark\ndown_", TestName = "Line break inside em",
+            ExpectedResult = "<em>mark\ndown</em>")]
+        [TestCase("__mark\ndown__", TestName = "Line break inside strong",
+            ExpectedResult = "<strong>mark\ndown</strong>")]
         public string RenderShouldReturnCorrectHtmlText(string mdText)
         {
             return markdown.Render(mdText);
