@@ -7,8 +7,8 @@ namespace Markdown.Languages
 {
     public class MarkDown : ILanguage
     {
-        private Stack<TagToken> stackOfTags;
-        private List<TagToken> validTags;
+        private readonly Stack<TagToken> stackOfTags;
+        private readonly List<TagToken> validTags;
         public Dictionary<TagType, Tag> Tags { get; }
 
         public MarkDown()

@@ -13,11 +13,7 @@ namespace Markdown.Tree
         
         public override string ConvertTo(Dictionary<TagType, Tag> tags)
         {
-            if (Value == null)
-            {
-                return "";
-            }
-            return Value;
+            return Value ?? "";
         }
     }
 }
