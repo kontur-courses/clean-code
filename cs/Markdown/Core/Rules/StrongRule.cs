@@ -6,13 +6,13 @@ namespace Markdown.Core.Rules
 {
     class StrongRule : IRule
     {
-        public ITag sourceTag { get; }
-        public ITag resultTag { get; }
+        public ITag SourceTag { get; }
+        public ITag ResultTag { get; }
 
         public StrongRule()
         {
-            sourceTag = new DoubleUnderscore();
-            resultTag = new Strong();
+            SourceTag = new DoubleUnderscore();
+            ResultTag = new Strong();
         }
     }
 }
