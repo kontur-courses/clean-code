@@ -2,6 +2,7 @@
 using  FluentAssertions;
 using System.Collections.Generic;
 using System.Linq;
+using System.Net.Mime;
 
 namespace Markdown
 {
@@ -11,10 +12,11 @@ namespace Markdown
         public class TextToTokensParserTests
         {
             [Test]
-            public void Parser_Should_ParseTokensCorrectly1()
+            [TestCaseSource(typeof(TextParserSource), "TestCases")]
+            public void Parser_Should_ParseTokensCorrectly(TextParserSource.TextParserData data)
             {
-                var text = "ab_aaa_bbb";
-                var expectedResult= new List<string>() {"_aaa_"};
+                var text = data.Text;
+                var expectedResult = data.result;
                 var result = TextToTokensParser.Parse(text);
                 result.Select(t => t.Line)
                       .ToList()
@@ -22,40 +24,27 @@ namespace Markdown
                       .BeEquivalentTo(expectedResult);
             }
 
-            [Test]
-            public void Parser_Should_ParseTokensCorrectly2()
+            public static class TextParserSource
             {
-                var text = "ab_aaa_bb_b_";
-                var expectedResult = new List<string>() { "_aaa_","_b_" };
-                var result = TextToTokensParser.Parse(text);
-                result.Select(t => t.Line)
-                    .ToList()
-                    .Should()
-                    .BeEquivalentTo(expectedResult);
-            }
+                public  class TextParserData
+                {
+                    public string Text { get; }
+                    public  List<string> result { get; }
+                    public TextParserData(string text, params string[] tokenLines)
+                    {
+                        Text = text;
+                        result = tokenLines.ToList();
+                    }
+                }
 
-            [Test]
-            public void Parser_Should_ParseTokensCorrectly3()
-            {
-                var text = "ab__aaa__bb_b_";
-                var expectedResult = new List<string>() { "__aaa__", "_b_" };
-                var result = TextToTokensParser.Parse(text);
-                result.Select(t => t.Line)
-                    .ToList()
-                    .Should()
-                    .BeEquivalentTo(expectedResult);
-            }
-
-            [Test]
-            public void Parser_Should_ParseTokensCorrectly4()
-            {
-                var text = "ab_aaa_bb__b a__ acc";
-                var expectedResult = new List<string>() { "_aaa_", "__b a__" };
-                var result = TextToTokensParser.Parse(text);
-                result.Select(t => t.Line)
-                    .ToList()
-                    .Should()
-                    .BeEquivalentTo(expectedResult);
+                private static readonly TestCaseData[] TestCases =
+                {
+                    new TestCaseData(new TextParserData("ab_aaa_bbb", "_aaa_")).SetName("ab_aaa_bbb"),
+                    new TestCaseData(new TextParserData("ab_aaa_bb__b a__ acc", "_aaa_", "__b a__")).SetName(
+                        "ab_aaa_bb__b a__ acc"),
+                    new TestCaseData(new TextParserData("ab__aaa__bb_b_", "__aaa__", "_b_")).SetName("ab__aaa__bb_b_"),
+                    new TestCaseData(new TextParserData("ab_aaa_bb_b_", "_aaa_", "_b_")).SetName("ab_aaa_bb_b_")
+                };
             }
         }
 
@@ -63,11 +52,11 @@ namespace Markdown
         public class MarkdownToHtmlParserTests
         {
             [Test]
-            public void Parser_Should_ParseTokensToTokensCorrectly1()
+            [TestCaseSource(typeof(MarkdownToHtmlParserSource),"TestCases")]
+            public void Parser_Should_ParseTokensToTokensCorrectly(MarkdownToHtmlParserSource.MarkdownToHtmlParserData data)
             {
-               var text= "ab_aaa_bb__b a__ acc";
-               var expectedResult= new List<string>() { "<em>aaa</em>", "<strong>b a</strong>" };
-                var textTokens = TextToTokensParser.Parse(text);
+                var expectedResult = data.Result;
+                var textTokens = data.TextTokens;
                var dict=new Dictionary<Token,Token>();
                var htmltokens = MarkdownToHtmlParser.Parse(textTokens, dict);
                htmltokens.Select(t => t.Line)
@@ -76,18 +65,29 @@ namespace Markdown
                    .BeEquivalentTo(expectedResult);
             }
 
-            [Test]
-            public void Parser_Should_ParseTokensToTokensCorrectly2()
+            public static class MarkdownToHtmlParserSource
             {
-                var text = "ab__aaa__bb_b_";
-                var expectedResult = new List<string>() { "<strong>aaa</strong>", "<em>b</em>" };
-                var textTokens = TextToTokensParser.Parse(text);
-                var dict = new Dictionary<Token, Token>();
-                var htmltokens = MarkdownToHtmlParser.Parse(textTokens, dict);
-                htmltokens.Select(t => t.Line)
-                    .ToList()
-                    .Should()
-                    .BeEquivalentTo(expectedResult);
+                public class MarkdownToHtmlParserData
+                {
+                    public string Text { get; }
+                    public List<Token> TextTokens { get; }
+                    public List<string> Result { get; }
+                    public MarkdownToHtmlParserData(string text, params string[] tokenLines)
+                    {
+                        Text = text;
+                        TextTokens = TextToTokensParser.Parse(text);
+                        Result = tokenLines.ToList();
+                    }
+                }
+
+                private static readonly TestCaseData[] TestCases =
+                {
+                    new TestCaseData(new MarkdownToHtmlParserData("ab_aaa_bbb", "<em>aaa</em>")).SetName("ab_aaa_bbb"),
+                    new TestCaseData(new MarkdownToHtmlParserData("ab_aaa_bb__b a__ acc", "<em>aaa</em>", "<strong>b a</strong>")).SetName(
+                        "ab_aaa_bb__b a__ acc"),
+                    new TestCaseData(new MarkdownToHtmlParserData("ab__aaa__bb_b_", "<strong>aaa</strong>", "<em>b</em>")).SetName("ab__aaa__bb_b_"),
+                    new TestCaseData(new MarkdownToHtmlParserData("ab_aaa_bb_b_", "<em>aaa</em>", "<em>b</em>")).SetName("ab_aaa_bb_b_")
+                };
             }
         }
 
