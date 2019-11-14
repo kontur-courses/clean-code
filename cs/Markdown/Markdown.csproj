@@ -53,13 +53,13 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Extensions\StringExtensions.cs" />
     <Compile Include="Html\HtmlConverter.cs" />
     <Compile Include="Html\HtmlTag.cs" />
     <Compile Include="MarkdownProcessor.cs" />
     <Compile Include="Tests\MarkdownProcessorTests.cs" />
     <Compile Include="MarkdownSeparatorHandler.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
-    <Compile Include="Extensions\StringExtensions.cs" />
     <Compile Include="Tokens\Token.cs" />
     <Compile Include="Tokens\TwoSeparatorToken.cs" />
     <Compile Include="Tokens\TokenReader.cs" />
@@ -67,6 +67,7 @@
   <ItemGroup>
     <None Include="packages.config" />
   </ItemGroup>
+  <ItemGroup />
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <Target Name="EnsureNuGetPackageBuildImports" BeforeTargets="PrepareForBuild">
     <PropertyGroup>

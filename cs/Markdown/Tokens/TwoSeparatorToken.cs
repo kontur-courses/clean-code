@@ -6,8 +6,6 @@
 
         public string ValueWithSeparators => $"{Separator}{Value}{Separator}";
 
-        public int FirstSeparatorPosition => Position - Separator.Length;
-
         public TwoSeparatorToken(int position, string value, string separator) : base(position, value)
         {
             Separator = separator;

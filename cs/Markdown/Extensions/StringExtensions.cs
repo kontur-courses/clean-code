@@ -1,15 +1,13 @@
-﻿using System.Text;
-
-namespace Markdown.Extensions
+﻿namespace Markdown.Extensions
 {
     public static class StringExtensions
     {
-        public static string ReplaceSubstring(this string mainString, int position, string oldSubstring,
-            string newSubstring)
+        public static char[] GetNeighborsOfSymbol(this string text, int position)
         {
-            var builder = new StringBuilder(mainString);
-            builder.Replace(oldSubstring, newSubstring, position, oldSubstring.Length);
-            return builder.ToString();
+            if (text.Length == 1) return new char[0];
+            if (position > 0 && position < text.Length - 1)
+                return new[] {text[position - 1], text[position + 1]};
+            return position == 0 ? new[] {text[position + 1]} : new[] {text[position - 1]};
         }
     }
 }

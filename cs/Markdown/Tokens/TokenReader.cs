@@ -16,11 +16,13 @@ namespace Markdown.Tokens
         }
 
         public IEnumerable<TwoSeparatorToken> ReadAllTwoSeparatorTokens(Func<string, int, bool> isSeparator,
-            Func<string, int, string> getSeparator)
+            Func<string, int, string> getSeparator, Func<string, int, bool, bool> isSeparatorValid)
         {
             foreach (var separatorPos in Enumerable.Range(0, text.Length).Where(i => isSeparator(text, i)))
             {
                 var currentSeparator = getSeparator(text, separatorPos);
+                if (!isSeparatorValid(text, separatorPos, !SeparatorIsClosing(currentSeparator)))
+                    continue;
                 if (SeparatorIsClosing(currentSeparator))
                 {
                     var lastSeparatorPosition = separatorStack.Pop().Position;
