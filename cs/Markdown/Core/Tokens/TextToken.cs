@@ -1,8 +1,8 @@
-namespace Markdown
+namespace Markdown.Core.Tokens
 {
-    public class TextToken : MdToken
+    public class TextToken : Token
     {
-        public TextToken(int position, int length, string value) : base(position, length, value, MdTokenType.Text)
+        public TextToken(int position, string value) : base(position, value, TokenType.Text)
         {
         }
     }

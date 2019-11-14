@@ -1,17 +1,17 @@
-namespace Markdown
+namespace Markdown.Core.Tokens
 {
-    public class MdToken : IMdToken
+    public class Token : IToken
     {        
         public int Position { get; }
         public int Length { get; }
         public string Value { get; }
-        public MdTokenType TokenType { get; set; }
+        public TokenType TokenType { get; set; }
 
-        protected MdToken(int position, int length, string value, MdTokenType tokenType)
+        protected Token(int position, string value, TokenType tokenType)
         {
             Position = position;
-            Length = length;
             Value = value;
+            Length = value.Length;
             TokenType = tokenType;
         }
     }

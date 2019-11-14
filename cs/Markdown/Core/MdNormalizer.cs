@@ -1,14 +1,53 @@
-using System;
 using System.Collections.Generic;
+using System.Linq;
+using Markdown.Core.HTMLTags;
+using Markdown.Core.Tokens;
 
-namespace Markdown
+namespace Markdown.Core
 {
     public class MdNormalizer
-    {        
-        // Применение правил спецификации: изменение типа токенов и слияние при необходимости
-        public List<IMdToken> NormalizeFields(List<IMdToken> fields)
+    {    
+        public List<IToken> NormalizeTokens(List<IToken> tokens)
         {
-            throw new NotImplementedException();
+            var tagStack = new Stack<HTMLTagToken>();
+            var tagTokens = tokens.Where(token => token.TokenType == TokenType.HTMLTag).Cast<HTMLTagToken>();
+            foreach (var tagToken in tagTokens)
+            {
+                if (!TryPutTokenIntoRightTagsSequence(tagStack, tagToken))
+                {
+                    tagToken.TokenType = TokenType.Text;
+                    ChangeTypeToAllTokensInStack(tagStack);
+                };
+            }
+            ChangeTypeToAllTokensInStack(tagStack);
+            return tokens;
+        }
+
+        private void ChangeTypeToAllTokensInStack(Stack<HTMLTagToken> tagStack)
+        {
+            while (tagStack.Count != 0)
+            {
+                tagStack.Pop().TokenType = TokenType.Text;
+            }
+        }
+        
+        private bool TryPutTokenIntoRightTagsSequence(Stack<HTMLTagToken> stack, HTMLTagToken token)
+        {
+            var previousValueWasOther = stack.Count == 0 || stack.Peek().Value != token.Value;
+            if (token.IsOpen)
+            {
+                if (previousValueWasOther)
+                    stack.Push(token);
+                else
+                    return false;
+            }
+            else
+            {
+                if (previousValueWasOther)
+                    return false;   
+                stack.Pop();
+            }
+            return true;
         }
     }
 }

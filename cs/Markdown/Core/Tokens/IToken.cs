@@ -1,10 +1,10 @@
-namespace Markdown
+namespace Markdown.Core.Tokens
 {
-    public interface IMdToken
+    public interface IToken
     {
         int Position { get; }
         int Length { get; }
         string Value { get; }
-        MdTokenType TokenType { get; set; }
+        TokenType TokenType { get; set; }
     }
 }

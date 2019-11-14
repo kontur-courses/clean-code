@@ -1,4 +1,5 @@
 using System;
+using Markdown.Core;
 
 namespace Markdown
 {
@@ -6,8 +7,6 @@ namespace Markdown
     {
         static void Main(string[] args)
         {
-            var markdownRenderer = new MdRenderer();
-            Console.WriteLine(markdownRenderer.Render("text _em em_ __strong strong__"));
         }
     }
 }

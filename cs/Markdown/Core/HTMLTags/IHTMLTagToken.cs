@@ -1,8 +1,9 @@
-namespace Markdown
+using Markdown.Core.Tokens;
+
+namespace Markdown.Core.HTMLTags
 {
     public interface IHTMLTagToken
     {
-        string TagName { get; }
         bool IsOpen { get; }
     }
 }

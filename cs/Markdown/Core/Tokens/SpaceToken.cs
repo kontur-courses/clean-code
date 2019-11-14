@@ -1,8 +1,8 @@
-namespace Markdown
+namespace Markdown.Core.Tokens
 {
-    public class SpaceToken : MdToken
+    public class SpaceToken : Token
     {
-        public SpaceToken(int position) : base(position, 1, " ", MdTokenType.Space)
+        public SpaceToken(int position, string value) : base(position, value, Tokens.TokenType.SpaceSymbol)
         {
         }
     }

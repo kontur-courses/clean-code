@@ -1,6 +1,6 @@
 namespace Markdown.Tests
 {
-    public class MdReaderTests
+    public class TokenReaderTests
     {
         
     }
