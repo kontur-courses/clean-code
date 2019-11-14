@@ -6,56 +6,19 @@ namespace Markdown
 {
     class Md
     {
-        private int LastUnderScoreIndex;
-        private int LastTwoUnderScoreIndex;
-        private int LastApostropheIndex;
-        private int CurrentIndex;
-        private bool UndercsoreFound;
-        private bool TwoundercsoreFound;
-        private bool ApostropheFound;
-        private bool isDigitInWord;
-        private readonly Dictionary<int, Tag> toInsertIntoParagraph;
-        private readonly Queue<char> lastNchars;//здесь будет очередь фиксированной длины в которой будут содержаться последние N символов
         public string Render(string paragraph)
         {
-            return paragraph;
+            var charProcessor = new CharProcessor();
+            var tagInserter = new TagInserter();
+            var letters = paragraph.ToCharArray();
+            foreach (var letter in letters)
+                charProcessor.ProcessChar(letter);
+            charProcessor.ProcessChar(default);
+            var inserts = charProcessor.GetInserts();
+            var HTMLtext = tagInserter.Insert(paragraph, inserts);
+            // здесь insert в параграф в HTMLmaker
+            return HTMLtext;
         }
-
-        private void ProcessChar(char letter)
-        {
-            throw new NotImplementedException();
-        }
-
-        private void ProcessUnderscore()
-        {
-            throw new NotImplementedException();
-        }
-
-        private void ProcessSpace()
-        {
-            throw new NotImplementedException();
-        }
-
-        private void ProcessDigit()
-        {
-            throw new NotImplementedException();
-        }
-
-        private void ProcessLetter()
-        {
-            throw new NotImplementedException();
-        }
-
-        private void ProcessApostrophe()
-        {
-            throw new NotImplementedException();
-        }
-
-        private void ProcessSlash()
-        {
-            throw new NotImplementedException();
-        }
-
 
     }
 
@@ -64,7 +27,8 @@ namespace Markdown
         Em,
         Em_close,
         Strong,
-        Strong_close
+        Strong_close,
+        Empty
 
     }
 
