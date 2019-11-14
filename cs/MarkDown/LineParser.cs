@@ -2,23 +2,23 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
-using MarkDown.TokenDeclarations;
+using MarkDown.TokenParsers;
 
 namespace MarkDown
 {
     public class LineParser
     {
-        private DeclarationGetter declarations;
-        public LineParser(DeclarationGetter declarationGetter)
+        private ParserGetter Parsers;
+        public LineParser(ParserGetter ParserGetter)
         {
-            declarations = declarationGetter;
+            Parsers = ParserGetter;
         }
 
         public string GetParsedLineFrom(string line) => GetParsedLineFrom(line, new List<TokenType>());
 
         public string GetParsedLineFrom(string line, List<TokenType> shilders)
         {
-            var tokenParsers = declarations.GetTokenDeclarations();
+            var tokenParsers = Parsers.GetTokenParsers();
             var parsedLine = new StringBuilder();
             var indexNextToLastToken = 0;
             for (var i = 0; i < line.Length; i++)

@@ -2,18 +2,18 @@
 using System.Collections.Generic;
 using System.Text;
 using FluentAssertions;
-using MarkDown.TokenDeclarations;
+using MarkDown.TokenParsers;
 using NUnit.Framework;
 
 namespace MarkDown_Tests
 {
-    class TokenDeclaration_Tests
+    class TokenParser_Tests
     {
-        private static EMDeclaration declaration;
+        private static EMParser Parser;
         [SetUp]
         public void SetUp()
         {
-            declaration = new EMDeclaration();
+            Parser = new EMParser();
         }
 
         [Test]
@@ -21,7 +21,7 @@ namespace MarkDown_Tests
         {
             var line = "_a_";
 
-            var result = declaration.GetToken(line, 0).Value;
+            var result = Parser.GetToken(line, 0).Value;
 
             result.Should().Be(@"<em>a</em>");
 
@@ -31,7 +31,7 @@ namespace MarkDown_Tests
         {
             var line = "/_a_";
 
-            var result = declaration.GetToken(line, 0);
+            var result = Parser.GetToken(line, 0);
 
             result.Should().Be(null);
 
@@ -41,7 +41,7 @@ namespace MarkDown_Tests
         {
             var line = "__a_";
 
-            var result = declaration.GetToken(line, 0);
+            var result = Parser.GetToken(line, 0);
 
             result.Should().Be(null);
 

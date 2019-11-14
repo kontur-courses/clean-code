@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.Text;
 using NUnit.Framework;
 using MarkDown;
-using MarkDown.TokenDeclarations;
+using MarkDown.TokenParsers;
 using FluentAssertions;
 
 namespace MarkDown_Tests
@@ -11,14 +11,15 @@ namespace MarkDown_Tests
     class LineParser_Tests
     {
         private static LineParser lineParser;
-        private static DeclarationGetter declarationGetter;
+        private static ParserGetter ParserGetter;
         [SetUp]
         public void SetUp()
         {
-            declarationGetter = new DeclarationGetter();
-            lineParser = new LineParser(declarationGetter);
+            ParserGetter = new ParserGetter();
+            lineParser = new LineParser(ParserGetter);
 
         }
+
         [Test]
         public void Should_NotChangeLineWithoutTags()
         {
