@@ -100,6 +100,7 @@ namespace Markdown
                     else
                         potentiallyClosingUnderscore = true;
                 }
+                return;
             }
             if (!UndercsoreFound && TwoundercsoreFound)
             {
@@ -112,6 +113,11 @@ namespace Markdown
                 {
                     potentiallyClosingUnderscore = true;
                 }
+                return;
+            }
+            if (UndercsoreFound && TwoundercsoreFound)
+            {
+                potentiallyClosingUnderscore = true;
             }
         }
 
@@ -119,6 +125,8 @@ namespace Markdown
         {
             if (isDigitInWord)
                 isDigitInWord = false;
+            if (UndercsoreFound && LastUnderscoreIndex == CurrentIndex - 1)
+                UndercsoreFound = false;
         }
 
         private void ProcessDigit()
@@ -168,6 +176,12 @@ namespace Markdown
                 toInsertIntoParagraph.Add(LastTwoUnderScoreIndex - 1, Tag.Strong);
                 toInsertIntoParagraph.Add(CurrentIndex - 1, Tag.Strong_close);
                 TwoundercsoreFound = false;
+                UndercsoreFound = false;
+            }
+            if (TwoundercsoreFound && letter!='_')
+            {
+                UndercsoreFound = true;
+                LastUnderscoreIndex = CurrentIndex-1;
             }
         }
 

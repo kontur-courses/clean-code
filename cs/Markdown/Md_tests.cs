@@ -9,6 +9,7 @@ namespace Markdown
     [TestFixture]
     class Md_tests
     {
+
         [TestCase("hello")]
         [TestCase("")]
         [TestCase("aaa aaa")]
@@ -121,6 +122,29 @@ namespace Markdown
 
         [TestCase("/_aaa/_", "_aaa_")]
         public void OneSlashWithTwoUnderscoreClosed_TextShouldNotBeInTags(string text, string expectedText)
+        {
+            var renderer = new Md();
+            var processedText = renderer.Render(text);
+            processedText.Should().Be(expectedText);
+        }
+
+        [TestCase("__aaa_bbb_ccc__", "<strong>aaa<em>bbb</em>ccc</strong>")]
+        public void OneUnderscoreInTwoUnderscores_ShouldBeDoubleTagged(string text, string expectedText)
+        {
+            var renderer = new Md();
+            var processedText = renderer.Render(text);
+            processedText.Should().Be(expectedText);
+        }
+
+
+        [TestCase("////////////", "")]
+        [TestCase("__aaa_aaa__aaa_", "")]
+        [TestCase("________", "")]
+        [TestCase("_ _", "")]
+        [TestCase("/_ _test_", "_ <em>test</em>")]
+        [TestCase("/__test_", "_<em>test</em>")]
+        [TestCase("<em>test</em>", "")]
+        public void TemporaryTestsWithoutCategory(string text, string expectedText)
         {
             var renderer = new Md();
             var processedText = renderer.Render(text);
