@@ -41,20 +41,25 @@
     <None Include="packages.config" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="Core\Processors\DoubleUnderscoreProcessor.cs" />
+    <Compile Include="Core\Parser.cs" />
+    <Compile Include="Core\Processor.cs" />
+    <Compile Include="Core\Rules\EmRule.cs" />
+    <Compile Include="Core\Rules\Rule.cs" />
+    <Compile Include="Core\Rules\RuleFactory.cs" />
+    <Compile Include="Core\Rules\StrongRule.cs" />
     <Compile Include="Core\Tags\HtmlTags\Em.cs" />
     <Compile Include="Core\Tags\IHtmlTag.cs" />
     <Compile Include="Core\Tags\IMarkdownTag.cs" />
     <Compile Include="Core\Tags\ITag.cs" />
     <Compile Include="Core\Md.cs" />
-    <Compile Include="Core\Processors\Processor.cs" />
-    <Compile Include="Core\Processors\SingleUnderscoreProcessor.cs" />
     <Compile Include="Core\Tags\MarkdownTags\DoubleUnderscore.cs" />
     <Compile Include="Core\Tags\MarkdownTags\SingleUnderscore.cs" />
     <Compile Include="Core\Tags\HtmlTags\Strong.cs" />
+    <Compile Include="Core\TagValidator.cs" />
     <Compile Include="Core\Token.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="Tests\MdTests.cs" />
+    <Compile Include="Tests\ParserTests.cs" />
   </ItemGroup>
   <ItemGroup>
     <Reference Include="FluentAssertions, Version=5.9.0.0, Culture=neutral, PublicKeyToken=33f2691a05b67b6a, processorArchitecture=MSIL">
@@ -68,8 +73,11 @@
     <Reference Include="System" />
     <Reference Include="System.Configuration" />
     <Reference Include="System.Xaml" />
+    <Reference Include="System.Xml" />
+    <Reference Include="System.Xml.Linq" />
     <Reference Include="WindowsBase" />
   </ItemGroup>
+  <ItemGroup />
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <Target Name="EnsureNuGetPackageBuildImports" BeforeTargets="PrepareForBuild">
     <PropertyGroup>

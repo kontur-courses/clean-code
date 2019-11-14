@@ -1,18 +1,14 @@
-﻿using Markdown.Core.Processors;
+﻿using Markdown.Core.Rules;
 
 namespace Markdown.Core
 {
     static class Md
     {
-        private static readonly BaseParser[] parsers = new BaseParser[]
-        {
-            new SingleUnderscoreProcessor(),
-            new DoubleUnderscoreProcessor()
-        };
-
         public static string Render(string markdown)
         {
-            return null;
+            var rules = RuleFactory.CreateAllRules();
+            var tokens = Parser.Parse(markdown, rules);
+            return Processor.Process(markdown, rules, tokens);
         }
     }
 }

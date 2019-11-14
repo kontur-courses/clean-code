@@ -1,6 +1,7 @@
 ﻿using System;
 using System.IO;
 using System.Text.RegularExpressions;
+using Markdown.Core;
 
 namespace Markdown
 {
@@ -11,9 +12,7 @@ namespace Markdown
             var command = string.Join(" ", args);
             var (inputFilename, outputFilename) = ParseArgs(command);
             var markdown = File.ReadAllText(inputFilename);
-            // TODO: Добавить преобразование markdown в html
-            var result = markdown;
-
+            var result = Md.Render(markdown);
             using (var sw = new StreamWriter(outputFilename))
                 sw.WriteLine(result);
         }
