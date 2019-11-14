@@ -17,19 +17,19 @@ namespace Markdown.Tree
             ChildNode.Add(node);
         }
 
-        public override string ConvertTo(ILanguage language)
+        public override string ConvertTo(Dictionary<TagType, Tag> tags)
         {
             var result = new StringBuilder();
-            result.Append(language.Tags[TypeTag].Start);
+            result.Append(tags[TypeTag].Start);
             foreach (var child in ChildNode)
             {
-                var childText = child.ConvertTo(language);
+                var childText = child.ConvertTo(tags);
                 if (childText != null)
                 {
                     result.Append(childText);
                 }
             }
-            result.Append(language.Tags[TypeTag].End);
+            result.Append(tags[TypeTag].End);
             return result.ToString();
         }
     }

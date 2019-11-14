@@ -12,6 +12,6 @@ namespace Markdown.Tree
             ChildNode = childNode;
         }
 
-        public abstract string ConvertTo(ILanguage language);
+        public abstract string ConvertTo(Dictionary<TagType, Tag> tags);
     }
 }

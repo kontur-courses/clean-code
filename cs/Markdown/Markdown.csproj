@@ -67,6 +67,7 @@
     <Compile Include="Tree\SyntaxTree.cs" />
     <Compile Include="Tree\TagNode.cs" />
     <Compile Include="Tree\TextNode.cs" />
+    <Compile Include="Tree\TreeBuilder.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="App.config" />

@@ -10,13 +10,15 @@ namespace Markdown.Tests
 {
     public class SyntaxNodes_should
     {
+
         [TestCase(typeof(Html))]
         [TestCase(typeof(MarkDown))]
         public void TextNodeShould_ConvertTo_WhenAnyLanguage_ReturnValue(Type type)
         {
             var value = "aba aba";
             var textNode = new TextNode(value);
-            textNode.ConvertTo((ILanguage)type.GetConstructor(new Type[0])?.Invoke(new object[0]))
+            var el = (ILanguage)type.GetConstructor(new Type[0])?.Invoke(new object[0]);
+            textNode.ConvertTo(el.Tags)
                 .Should().Be(value);
         }
         
@@ -29,7 +31,7 @@ namespace Markdown.Tests
             var value = "aba aba";
             var tagNode = new TagNode(tagType,new List<SyntaxNode>(){new TextNode(value)});
             var el = (ILanguage) type.GetConstructor(new Type[0])?.Invoke(new object[0]);
-            var result = tagNode.ConvertTo(el);
+            var result = tagNode.ConvertTo(el.Tags);
             result.Should().StartWith(el.Tags[tagType].Start);
             result.Should().EndWith(el.Tags[tagType].End);
         }
@@ -42,7 +44,7 @@ namespace Markdown.Tests
             var textNode = new TextNode(value);
             var syntaxTree = new SyntaxTree(new List<SyntaxNode>(){textNode,textNode});
             var el = (ILanguage) type.GetConstructor(new Type[0])?.Invoke(new object[0]);
-            var result = syntaxTree.ConvertTo(el);
+            var result = syntaxTree.ConvertTo(el.Tags);
             result.Should().Be(value + value);
         }
         
@@ -57,7 +59,7 @@ namespace Markdown.Tests
             var tagNode = new TagNode(tagType,new List<SyntaxNode>(){textNode});
             var syntaxTree = new SyntaxTree(new List<SyntaxNode>(){tagNode,textNode});
             var el = (ILanguage) type.GetConstructor(new Type[0])?.Invoke(new object[0]);
-            var result = syntaxTree.ConvertTo(el);
+            var result = syntaxTree.ConvertTo(el.Tags);
             result.Should().Be(el.Tags[tagType].Start + value + el.Tags[tagType].End + value);
         }
         
@@ -74,7 +76,7 @@ namespace Markdown.Tests
             var textNode = new TextNode(null);
             var tagNode = new TagNode(tagType,new List<SyntaxNode>(){textNode});
             var el = (ILanguage) type.GetConstructor(new Type[0])?.Invoke(new object[0]);
-            var result = tagNode.ConvertTo(el);
+            var result = tagNode.ConvertTo(el.Tags);
             result.Should().Be(el.Tags[tagType].Start + el.Tags[tagType].End);
         }
     }
