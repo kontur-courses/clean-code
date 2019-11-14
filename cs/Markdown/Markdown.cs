@@ -111,11 +111,5 @@ namespace Markdown
             newStyleEndIndex = default;
             return false;
         }
-
-        private void CopyRawText(string sourceString, ref string destString) =>
-            destString += sourceString;
-
-        private void CopyRawText(string sourceString, int startIndex, int length, ref string destString) =>
-            CopyRawText(sourceString.Substring(startIndex, length), ref destString);
     }
 }

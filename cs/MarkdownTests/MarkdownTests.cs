@@ -1,6 +1,8 @@
-﻿using Markdown;
+﻿using FluentAssertions;
+using Markdown;
 using NUnit.Framework;
 using System.Collections.Generic;
+using System.Diagnostics;
 
 namespace MarkdownTests
 {
@@ -78,6 +80,26 @@ namespace MarkdownTests
         public string Render_ShouldCorrectRender_WhenStylesBoundsAreIntersected(string mdText)
         {
             return md.Render(mdText);
+        }
+
+        [Test]
+        public void Render_Duration_ShouldBeInLinearDependencyOfTextLength()
+        {
+            var testText = @"_Text_ _piece_ _for_ __Markdown__ _class_ _perfomance_ _test_. _Word_with_numbers_123_. \_Backslashed symbols\_. ";
+
+            var factors = new List<double>();
+            long previousDuration = 0;
+            for (int i = 1; i <= 10; i++)
+            {
+                testText += testText; //test text length = 2^i
+                var sw = Stopwatch.StartNew();
+                md.Render(testText);
+                sw.Stop();
+                var factor = i > 1 ? (double)sw.ElapsedTicks / previousDuration : 0;
+                previousDuration = sw.ElapsedTicks;
+                factors.Add(factor);
+            }
+            factors.ForEach(durationFactor => durationFactor.Should().BeLessOrEqualTo(2.5, $"text length has been increased by 2"));
         }
     }
 }
