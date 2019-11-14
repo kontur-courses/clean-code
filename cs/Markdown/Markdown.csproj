@@ -38,9 +38,12 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="Context.cs" />
+    <Compile Include="TokenizerContextState.cs" />
     <Compile Include="FeaturesLoader.cs" />
+    <Compile Include="Features\BoldText.cs" />
+    <Compile Include="Features\ItalicText.cs" />
     <Compile Include="Features\Link.cs" />
+    <Compile Include="Features\PlainText.cs" />
     <Compile Include="HtmlConverter.cs" />
     <Compile Include="IToken.cs" />
     <Compile Include="KeySequenceType.cs" />
@@ -48,9 +51,9 @@
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="TokenInfo.cs" />
+    <Compile Include="Tokenizer.cs" />
   </ItemGroup>
   <ItemGroup>
-    <Content Include="MISC\Alg.md" />
     <Content Include="MISC\misc.md" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />

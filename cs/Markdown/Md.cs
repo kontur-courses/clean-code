@@ -8,15 +8,10 @@ namespace Markdown
 	{
 		public static string Render(string sourceText)
 		{
-			FeaturesLoader.LoadFeatures();
-			var mainTokenInfo = ParseToTokens(sourceText);
+			var availableKeySequences = new FeaturesLoader().AvailableKeySequences;
+			var tokenizer = new Tokenizer(availableKeySequences);
+			var mainTokenInfo = tokenizer.ParseToTokens(sourceText);
 			return HtmlConverter.ConvertToHtml(mainTokenInfo, sourceText);
-		}
-
-		private static TokenInfo ParseToTokens(string sourceText)
-		{
-			var context = new Context(sourceText);
-			throw new NotImplementedException();
 		}
 	}
 }

@@ -21,7 +21,7 @@ namespace Markdown
         {
         }
 
-        public bool TryClose(Context currentContext, int currentIndex, string closingKeySequence)
+        public bool TryClose(TokenizerContextState currentContext, int currentIndex, string closingKeySequence)
         {
             throw new NotImplementedException();
         }

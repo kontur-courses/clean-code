@@ -1,30 +1,26 @@
-using System;
-
 namespace Markdown.Features
 {
 	internal class Link: IToken
 	{
-		public string OpeningSequence { get; } = "[";
-		public string ClosingSequence { get; } = ")";
+		public string OpeningSequence { get; }
+		public string ClosingSequence { get; }
 		
-		public KeySequenceType RecognizeKeySequence(Context context, string sourceText)
+		public KeySequenceType RecognizeKeySequence(TokenizerContextState context)
 		{
-			throw new NotImplementedException();
+			throw new System.NotImplementedException();
 		}
 
 		public string GetHtmlOpeningTag(TokenInfo tokenInfo, string sourceText)
 		{
-			throw new NotImplementedException();
+			var link = ExtractLink(tokenInfo, sourceText);
+			return $"<a href='{link}'>";
 		}
 
-		public string GetHtmlClosingTag(TokenInfo tokenInfo, string sourceText)
+		private static string ExtractLink(TokenInfo tokenInfo, string sourceText)
 		{
-			throw new NotImplementedException();
+			throw new System.NotImplementedException();
 		}
 
-		private static bool ContentIsValid(string content)
-		{
-			throw new NotImplementedException();
-		}
+		public string GetHtmlClosingTag(TokenInfo tokenInfo, string sourceText) => "</a>";
 	}
 }

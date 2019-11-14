@@ -3,19 +3,19 @@ using Markdown.Features;
 
 namespace Markdown
 {
-	internal static class FeaturesLoader
+	internal class FeaturesLoader
 	{
-		public static Dictionary<string, IToken> AvailableKeySequences = new Dictionary<string, IToken>();
+		public Dictionary<string, IToken> AvailableKeySequences = new Dictionary<string, IToken>();
 
-		public static void LoadFeatures()
+		public FeaturesLoader()
 		{
-			AddToken(new Link());
+			AddToken(new PlainText());
 		}
 
-		private static void AddToken(IToken token)
+		private void AddToken(IToken token)
 		{
-			AvailableKeySequences.Add($"{token.OpeningSequence}", token);
-			AvailableKeySequences.Add($"{token.ClosingSequence}", token);
+			AvailableKeySequences.Add(token.OpeningSequence, token);
+			AvailableKeySequences.Add(token.ClosingSequence, token);
 		}
 	}
 }

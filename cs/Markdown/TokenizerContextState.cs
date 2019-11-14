@@ -3,7 +3,7 @@ using System.Text;
 
 namespace Markdown
 {
-	internal class Context
+	internal class TokenizerContextState
 	{
 		private TokenContainer _mainToken;
 		private TokenContainer _lastToken;
@@ -12,16 +12,17 @@ namespace Markdown
 		private bool _readingKeySequence;
 		private bool _inPlainTextToken;
 
+		public bool ShieldedChar { get; set; }
 		public string SourceText { get; }
 		public bool ReadAsPlainText { get; set; }
 		public int CurrentIndex { get; private set; }
 		public char CurrentChar { get; private set; }
 
-		public Context(string sourceText)
+		public TokenizerContextState(string sourceText)
 		{
 		}
 
-		public char UpdateState(int currentIndex, char currentChar)
+		public char Update(int currentIndex, char currentChar)
 		{
 			throw new NotImplementedException();
 		}
