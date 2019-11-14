@@ -6,7 +6,7 @@ namespace Markdown
 {
     public class MarkdownTokenizer
     {
-        public List<Token> SplitTextToTokens(string text)
+        public IEnumerable<Token> SplitTextToTokens(string text)
         {
             var tokens = new List<Token>();
             var tagsCandidates = new List<TagElement>();

@@ -14,7 +14,7 @@ namespace Markdown.Tests
         [TestCase("_a_", "<em>a</em>")]
         [TestCase("__a__", "<strong>a</strong>")]
         [TestCase("__aa__ pfofoln_d_ddd_d__d__dkk___dadw_dwa___", 
-            "<strong>aa</strong> pfofoln<em>d</em>ddd<em>d__d__dkk__</em>dadw<em>dwa__</em>", TestName = "Stress test")]
+            "<strong>aa</strong> pfofoln<em>d</em>ddd<em>d__d__dkk__</em>dadw<em>dwa__</em>", TestName = "Stress test for very peaceful coders")]
         public void Render_InputCorrectString_ReturnHtmlFormatString(string input, string expected)
         {
             var actual = markdown.Render(input);

@@ -8,8 +8,8 @@ namespace Markdown.Tests
     class MarkdownTagsLibrary_Should
     {
         [TestCase("_", 0, TagType.Italics, TestName = "Italic token, one underscore")]
-        [TestCase("__", 0, TagType.Bold, TestName = "Bold token, one underscore")]
-        [TestCase("__", 1, TagType.Italics, TestName = "Bold token, two underscore")]
+        [TestCase("__", 0, TagType.Bold, TestName = "Bold token, two underscore")]
+        [TestCase("__", 1, TagType.Italics, TestName = "Italic token, two underscore")]
         [TestCase("___", 1, TagType.Bold, TestName = "Bold token, three underscore ")]
         
         public void ContainsInTagAssociations_InputSimpleString_ReturnTrueAndExpectedTag(string input, int index, TagType expected)

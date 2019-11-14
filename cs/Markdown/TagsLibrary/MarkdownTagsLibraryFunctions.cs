@@ -9,10 +9,10 @@ namespace Markdown
         public static bool TryToGetUsableTagInAssociations(string text, int startIndex, out TagElement resultTag)
         {
             if(text == null)
-                throw new NullReferenceException();
+                throw new NullReferenceException("text can't be null");
 
             if(startIndex < 0 || startIndex >= text.Length)
-                throw new ArgumentOutOfRangeException();
+                throw new ArgumentOutOfRangeException("startIndex not included in the array bounds");
 
             var parseVariants = new List<(TagElement tag, int priority)>();
             var substrLength = 1;
@@ -46,10 +46,14 @@ namespace Markdown
             if (text == null)
                 throw new NullReferenceException();
 
-            if (startIndex < 0 || startIndex >= text.Length || 
-                endIndex < 0 || endIndex >= text.Length || 
-                endIndex < startIndex)
-                throw new ArgumentOutOfRangeException();
+            if (startIndex < 0 || startIndex >= text.Length)
+                throw new ArgumentOutOfRangeException("startIndex not included in the array bounds");
+
+            if (endIndex < 0 || endIndex >= text.Length)
+                throw new ArgumentOutOfRangeException("endIndex not included in the array bounds");
+
+            if (startIndex > endIndex)
+                throw new ArgumentException("Start index can't be more than end index");
 
             var leftChar = startIndex - 1 > 0 ? text[startIndex - 1] : (char?)null;
             var rightChar = endIndex + 1 < text.Length ? text[endIndex + 1] : (char?)null;
