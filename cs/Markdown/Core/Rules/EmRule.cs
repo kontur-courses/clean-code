@@ -6,13 +6,13 @@ namespace Markdown.Core.Rules
 {
     class EmRule : IRule
     {
-        public ITag sourceTag { get; }
-        public ITag resultTag { get; }
+        public ITag SourceTag { get; }
+        public ITag ResultTag { get; }
 
         public EmRule()
         {
-            sourceTag = new SingleUnderscore();
-            resultTag = new Em();
+            SourceTag = new SingleUnderscore();
+            ResultTag = new Em();
         }
     }
 }

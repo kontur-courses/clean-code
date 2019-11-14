@@ -4,7 +4,7 @@ namespace Markdown.Core.Rules
 {
     interface IRule
     {
-        ITag sourceTag { get; }
-        ITag resultTag { get; }
+        ITag SourceTag { get; }
+        ITag ResultTag { get; }
     }
 }
