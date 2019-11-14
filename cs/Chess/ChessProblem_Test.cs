@@ -6,7 +6,7 @@ namespace Chess
 {
     [TestFixture]
     public class ChessProblem_Test
-    {
+    {               
         [Test]
         public void RepeatedMethodCallDoNotChangeBehaviour()
         {
@@ -21,13 +21,16 @@ namespace Chess
                 "        ",
                 "        ",
             };
-            ChessProblem.LoadFrom(boardLines);
-            ChessProblem.CalculateChessStatus();
-            Assert.AreEqual(ChessStatus.Check, ChessProblem.ChessStatus);
+
+            ChessProblem chessProblem = new ChessProblem();
+            //var board = new BoardParser().ParseBoard(boardLines);
+            chessProblem.LoadFrom(boardLines);
+            chessProblem.CalculateChessStatus(PieceColor.White);
+            Assert.AreEqual(ChessStatus.Check, chessProblem.ChessStatus);
 
             // Now check that internal board modifications during the first call do not change answer
-            ChessProblem.CalculateChessStatus();
-            Assert.AreEqual(ChessStatus.Check, ChessProblem.ChessStatus);
+            chessProblem.CalculateChessStatus(PieceColor.White);
+            Assert.AreEqual(ChessStatus.Check, chessProblem.ChessStatus);
         }
 
         [Test]
@@ -45,11 +48,13 @@ namespace Chess
 
         private static void TestOnFile(string filename)
         {
+            var chessProblem = new ChessProblem();
             var boardLines = File.ReadAllLines(filename);
-            ChessProblem.LoadFrom(boardLines);
+            chessProblem.LoadFrom(boardLines);
+            //var board = new BoardParser().ParseBoard(boardLines);
             var expectedAnswer = File.ReadAllText(Path.ChangeExtension(filename, ".ans")).Trim();
-            ChessProblem.CalculateChessStatus();
-            Assert.AreEqual(expectedAnswer, ChessProblem.ChessStatus.ToString().ToLower(), "Failed test " + filename);
+            chessProblem.CalculateChessStatus(PieceColor.White);
+            Assert.AreEqual(expectedAnswer, chessProblem.ChessStatus.ToString().ToLower(), "Failed test " + filename);
         }
     }
 }

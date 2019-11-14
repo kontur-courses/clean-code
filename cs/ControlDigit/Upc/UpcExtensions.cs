@@ -6,7 +6,9 @@ namespace ControlDigit
     {
         public static int CalculateUpc(this long number)
         {
-            throw new NotImplementedException();
+            var strNumber = number.ToString();
+            return 1;
+            //throw new NotImplementedException();
         }
     }
 }

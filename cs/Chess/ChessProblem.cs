@@ -1,58 +1,84 @@
-﻿namespace Chess
+﻿using System.Linq;
+
+namespace Chess
 {
     public class ChessProblem
     {
-        private static Board board;
-        public static ChessStatus ChessStatus;
+        private Board board;
+        public  ChessStatus ChessStatus;
 
-        public static void LoadFrom(string[] lines)
+        
+        public void LoadFrom(string[] lines)
         {
             board = new BoardParser().ParseBoard(lines);
         }
+        
 
-        // Определяет мат, шах или пат белым.
-        public static void CalculateChessStatus()
+        // Определяет мат, шах или пат разным.
+        public void CalculateChessStatus(PieceColor color)
         {
-            var isCheck = IsCheckForWhite();
-            var hasMoves = false;
-            foreach (var locFrom in board.GetPieces(PieceColor.White))
-            {
-                foreach (var locTo in board.GetPiece(locFrom).GetMoves(locFrom, board))
-                {
-                    var old = board.GetPiece(locTo);
-                    board.Set(locTo, board.GetPiece(locFrom));
-                    board.Set(locFrom, null);
-                    if (!IsCheckForWhite())
-                        hasMoves = true;
-                    board.Set(locFrom, board.GetPiece(locTo));
-                    board.Set(locTo, old);
-                }
-            }
+            //board = newBoard;
+            var isCheck = IsCheckForKing(color);
+            var hasMoves = HasMoves(color);
+            
             if (isCheck)
+            {
                 if (hasMoves)
                     ChessStatus = ChessStatus.Check;
                 else ChessStatus = ChessStatus.Mate;
+            }
             else if (hasMoves) ChessStatus = ChessStatus.Ok;
             else ChessStatus = ChessStatus.Stalemate;
         }
 
+        private bool HasMoves(PieceColor color)
+        {    
+            
+            foreach (var locFrom in board.GetPieces(color))
+            {
+                foreach (var locTo in board.GetPiece(locFrom).GetMoves(locFrom, board))
+                {
+                    var old = board.GetPiece(locTo);
+                    bool result;
+                    //var temp = new TemporaryPieceMove(board, locFrom, locTo, old);
+
+                    using (var tmp = new TemporaryPieceMove(board, locFrom, locTo, old))
+                    {
+                        tmp.
+                        result = !IsCheckForKing(color);
+                    }
+                    if (result)
+                        return true;
+                }
+            }
+            return false;
+            
+        }
+
         // check — это шах
-        private static bool IsCheckForWhite()
+        private bool IsCheckForKing(PieceColor color)
         {
-            var isCheck = false;
-            foreach (var loc in board.GetPieces(PieceColor.Black))
+            var enemyColor = 1 - color;
+
+            return board.GetPieces(enemyColor).Select(loc =>
             {
                 var piece = board.GetPiece(loc);
                 var moves = piece.GetMoves(loc, board);
-                foreach (var destination in moves)
-                {
-                    if (Piece.Is(board.GetPiece(destination),
-                                 PieceColor.White, PieceType.King))
-                        isCheck = true;
-                }
-            }
-            if (isCheck) return true;
-            return false;
+                return moves.Any(dest => Piece.Is(board.GetPiece(dest), color, PieceType.King));
+            }).Any(x => x);
+
+            //foreach (var loc in board.GetPieces(enemyColor))
+            //{
+            //    var piece = board.GetPiece(loc);
+            //    var moves = piece.GetMoves(loc, board);
+            //    foreach (var destination in moves)
+            //    {
+            //        if (Piece.Is(board.GetPiece(destination),
+            //                     color, PieceType.King))
+            //            return true;
+            //    }
+            //}           
+            //return false;
         }
     }
 }
