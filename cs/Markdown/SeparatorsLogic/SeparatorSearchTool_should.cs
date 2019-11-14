@@ -7,7 +7,7 @@ using NUnit.Framework;
 namespace Markdown
 {
     [TestFixture]
-    class SeparatorSearchTool_should
+    class SeparatorSearchTool_Should
     {
         [Test]
         public void GetSeparators_ArgumentNullException_WhenInputStringIsNull()
@@ -17,7 +17,7 @@ namespace Markdown
         }
 
         [Test]
-        public void GetSeparators_RetrunEmptyDictionary_WhenInputSeparatorsTagsCountIsZero()
+        public void GetSeparators_ReturnEmptyDictionary_WhenInputSeparatorsTagsCountIsZero()
         {
             var foundSeparators = SeparatorSearchTool.GetSeparators("_a_", new List<string>());
 

@@ -6,7 +6,7 @@ using System.Linq;
 namespace Markdown
 {
     [TestFixture]
-    class SeparatorCleanTool_should
+    class SeparatorCleanTool_Should
     {
         [Test]
         public void GetCorrectSeparators_Should_RemoveShieldedDelimiters()

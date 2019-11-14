@@ -55,14 +55,14 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Markdown.cs" />
-    <Compile Include="Markdown_should.cs" />
+    <Compile Include="Markdown_Should.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="SeparatorsLogic\Separator.cs" />
     <Compile Include="SeparatorsLogic\SeparatorCleanTool.cs" />
-    <Compile Include="SeparatorsLogic\SeparatorCleanTool_should.cs" />
+    <Compile Include="SeparatorsLogic\SeparatorCleanTool_Should.cs" />
     <Compile Include="SeparatorsLogic\SeparatorSearchTool.cs" />
-    <Compile Include="SeparatorsLogic\SeparatorSearchTool_should.cs" />
+    <Compile Include="SeparatorsLogic\SeparatorSearchTool_Should.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="App.config" />

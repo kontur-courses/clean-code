@@ -6,7 +6,7 @@ namespace Markdown
 { 
     class Markdown
     {
-        static Dictionary<string, string> HTML_ReplacementRules = new Dictionary<string, string>
+        static readonly Dictionary<string, string> HtmlReplacementRules = new Dictionary<string, string>
         {
             ["_"] = "em",
             ["__"] = "strong",
@@ -16,7 +16,7 @@ namespace Markdown
 
         public string Render(string input)
         {
-            var allSeparatorsInInputString = SeparatorSearchTool.GetSeparators(input, HTML_ReplacementRules.Keys.ToList());
+            var allSeparatorsInInputString = SeparatorSearchTool.GetSeparators(input, HtmlReplacementRules.Keys.ToList());
             var onlyCorrectSeparators = SeparatorCleanTool.GetCorrectSeparators(input, allSeparatorsInInputString);
 
             var outputString = input;
@@ -34,21 +34,20 @@ namespace Markdown
 
             var result = new StringBuilder();
 
-            int startedindex = 0;
+            var startedIndex = 0;
             foreach (var separator in separators)
             {
-                for (int i = startedindex; i < separator.Index; i++)
+                for (var i = startedIndex; i < separator.Index; i++)
                     result.Append(input[i]);
 
-                if (separator.Type == SeparatorType.Opening)
-                    result.Append($"<{HTML_ReplacementRules[separator.Tag]}>");
-                else
-                    result.Append($"</{HTML_ReplacementRules[separator.Tag]}>");
+                result.Append(separator.Type == SeparatorType.Opening
+                    ? $"<{HtmlReplacementRules[separator.Tag]}>"
+                    : $"</{HtmlReplacementRules[separator.Tag]}>");
 
-                startedindex = separator.Index + separator.Tag.Length;
+                startedIndex = separator.Index + separator.Tag.Length;
             }
 
-            for (int i = separators.Last().Tag.Length + separators.Last().Index; i < input.Length; i++)
+            for (var i = separators.Last().Tag.Length + separators.Last().Index; i < input.Length; i++)
                 result.Append(input[i]);
 
             return result.ToString();

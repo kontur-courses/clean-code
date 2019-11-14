@@ -4,19 +4,19 @@ using System.Linq;
 
 namespace Markdown
 {
-    static class SeparatorSearchTool
+    internal static class SeparatorSearchTool
     {
-        static HashSet<char> SpecialSymbols;
+        static HashSet<char> _specialSymbols;
 
         public static Dictionary<string, List<Separator>> GetSeparators(string input, List<string> separatorsTags)
         {
             if (input == null) throw new ArgumentNullException();
             if (separatorsTags.Count == 0) return new Dictionary<string, List<Separator>>();
 
-            SpecialSymbols = separatorsTags.SelectMany(x => x).ToHashSet();
+            _specialSymbols = separatorsTags.SelectMany(x => x).ToHashSet();
 
-            Dictionary<string, List<int>> IndicesOfSeparators = GetIndicesOfSeparators(input, separatorsTags);
-            Dictionary<string, List<Separator>> convertedSeparators = ConvertSeparators(input, IndicesOfSeparators);
+            var indicesOfSeparators = GetIndicesOfSeparators(input, separatorsTags);
+            var convertedSeparators = ConvertSeparators(input, indicesOfSeparators);
 
             return convertedSeparators;
         }
@@ -25,15 +25,15 @@ namespace Markdown
         {
             var convertedSeparators = new Dictionary<string, List<Separator>>();
 
-            foreach (string separatorsTags in indexesOfSeparators.Keys)
-                foreach (var index in indexesOfSeparators[separatorsTags])
+            foreach (var separatorTag in indexesOfSeparators.Keys)
+                foreach (var index in indexesOfSeparators[separatorTag])
                 {
-                    Separator sep;
-                    if (TryGetSeparator(input, index, separatorsTags, out sep))
-                        if (!convertedSeparators.ContainsKey(separatorsTags))
-                            convertedSeparators[separatorsTags] = new List<Separator> { sep };
-                        else
-                            convertedSeparators[separatorsTags].Add(sep);
+                    if (!TryGetSeparator(input, index, separatorTag, out Separator separator)) continue;
+
+                    if (!convertedSeparators.ContainsKey(separatorTag))
+                        convertedSeparators[separatorTag] = new List<Separator> { separator };
+                    else
+                        convertedSeparators[separatorTag].Add(separator);
                 }
 
             return convertedSeparators;
@@ -41,23 +41,20 @@ namespace Markdown
 
         static Dictionary<string, List<int>> GetIndicesOfSeparators(string input, List<string> separators)
         {
-            var result = new Dictionary<string, List<int>>();
-
-            foreach(var separator in separators)
-                result.Add(separator, GetSubstringIndices(input, separator));
-
-            return result;
+            return separators.ToDictionary(separator => separator, separator => GetSubstringIndices(input, separator));
         }
 
         static List<int> GetSubstringIndices(string source, string substring)
         {
             var indices = new List<int>();
 
-            int index = source.IndexOf(substring, 0);
+            var index = source
+                .IndexOf(substring, 0, StringComparison.Ordinal);
             while (index > -1)
             {
                 indices.Add(index);
-                index = source.IndexOf(substring, index + substring.Length);
+                index = source
+                    .IndexOf(substring, index + substring.Length, StringComparison.Ordinal);
             }
 
             return indices;
@@ -91,13 +88,13 @@ namespace Markdown
         static bool IsOpeningSeparator(char previousSeparatorSymbol, char nextSeparatorSymbol) =>
             char.IsWhiteSpace(previousSeparatorSymbol)
             && !char.IsWhiteSpace(nextSeparatorSymbol)
-            && !SpecialSymbols.Contains(previousSeparatorSymbol) 
-            && !SpecialSymbols.Contains(nextSeparatorSymbol);
+            && !_specialSymbols.Contains(previousSeparatorSymbol) 
+            && !_specialSymbols.Contains(nextSeparatorSymbol);
 
         static bool IsClosingSeparator(char previousSeparatorSymbol, char nextSeparatorSymbol) =>
             char.IsWhiteSpace(nextSeparatorSymbol)
             && !char.IsWhiteSpace(previousSeparatorSymbol)
-            && !SpecialSymbols.Contains(nextSeparatorSymbol)
-            && !SpecialSymbols.Contains(previousSeparatorSymbol);
+            && !_specialSymbols.Contains(nextSeparatorSymbol)
+            && !_specialSymbols.Contains(previousSeparatorSymbol);
     }
 }

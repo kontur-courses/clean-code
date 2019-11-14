@@ -4,12 +4,12 @@ using NUnit.Framework;
 namespace Markdown
 {
     [TestFixture]
-    class Markdown_should
+    class Markdown_Should
     {
-        static Markdown Markdown;
+        static Markdown _markdown;
 
         [SetUp]
-        public void SetUp() => Markdown = new Markdown();
+        public void SetUp() => _markdown = new Markdown();
 
         //Пока что тесты в таком виде, чуть позже разделю их по категориям :)
 
@@ -33,7 +33,7 @@ namespace Markdown
         [TestCase("___Hello World!___", "___Hello World!___")]
         public void MarkDownRender(string input, string expected)
         {
-            var actual = Markdown.Render(input);
+            var actual = _markdown.Render(input);
 
             actual.Should().Be(expected);
         }

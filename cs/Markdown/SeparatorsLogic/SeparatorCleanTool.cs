@@ -12,30 +12,21 @@ namespace Markdown
                 .OrderBy(x => x.Index)
                 .ToList();
 
-            sortedSeparators = sortedSeparators
+            return sortedSeparators
                 .RemoveShieldedDelimiters(input)
                 .RemoveAllUnclosedSeparators()
-                .RemoveUncorrectNestingsSeparators()
+                .RemoveIncorrectNestingSeparators()
                 .ToList();
-
-            return sortedSeparators;
         }
 
         static IEnumerable<Separator> RemoveShieldedDelimiters(this IEnumerable<Separator> separators, string input)
         {
-            var result = new List<Separator>();
+            return separators
+                .Where(separator => PreviousSeparatorSymbol(separator) != '\\')
+                .ToList();
 
-            foreach (var separator in separators)
-            {
-                var previousSeparatorSymbol = (separator.Index == 0) ?
-                ' ' :
-                input[separator.Index - 1];
-
-                if (previousSeparatorSymbol != '\\')
-                    result.Add(separator);
-            }
-
-            return result;
+            char PreviousSeparatorSymbol(Separator separator) =>
+                (separator.Index != 0) ? input[separator.Index - 1] : ' ';
         }
 
         static IEnumerable<Separator> RemoveAllUnclosedSeparators(this IEnumerable<Separator> separators)
@@ -61,7 +52,7 @@ namespace Markdown
             return result.OrderBy(x => x.Index).ToList();
         }
 
-        static IEnumerable<Separator> RemoveUncorrectNestingsSeparators(this IEnumerable<Separator> separators)
+        static IEnumerable<Separator> RemoveIncorrectNestingSeparators(this IEnumerable<Separator> separators)
         {
             foreach (var separator in separators) yield return separator;
         }
