@@ -13,7 +13,7 @@ namespace Markdown.Languages
 
         public MarkDown() : base()
         {
-            this.Tags = new Dictionary<TagType, Tag>()
+            Tags = new Dictionary<TagType, Tag>()
             {
                 {TagType.Em, new Tag("_", "_", new TagType[] { })},
                 {TagType.Strong, new Tag("__", "__", new TagType[] {TagType.Em})}
@@ -26,24 +26,27 @@ namespace Markdown.Languages
         {
             if (str == null)
                 throw new ArgumentException("The string should not be null");
-
             for (var i = 0; i < str.Length; i++)
             {
                 var tag = CreateTag(str, i);
                 if (tag == null)
                     continue;
-
-                stackOfTags.Push(tag);
+                
+                if (tag.IsOpen && (stackOfTags.Count == 0 || (stackOfTags.Peek().Tagtype != tag.Tagtype && !stackOfTags.Peek().IsOpen)))
+                {
+                    stackOfTags.Push(tag);
+                    
+                }
+                else if(!tag.IsOpen && stackOfTags.Count > 0 && stackOfTags.Peek().Tagtype == tag.Tagtype && stackOfTags.Peek().IsOpen)
+                {
+                    UpdateTags(tag);
+                    
+                }
 
                 if (tag.IsOpen)
-                {
                     i += Tags[tag.Tagtype].Start.Length;
-                }
                 else
-                {
-                    UpdateTags();
-                    i += Tags[tag.Tagtype].Start.Length;
-                }
+                    i += Tags[tag.Tagtype].End.Length;
             }
             
             return validTags.Count == 0 ? new SyntaxTree(new List<SyntaxNode>(){new TextNode(str)}) : ReplaceMdToSyntaxTree(str);
@@ -65,9 +68,8 @@ namespace Markdown.Languages
             return null;
         }
 
-        private void UpdateTags()
+        private void UpdateTags(TagToken closeTag)
         {
-            var closeTag = stackOfTags.Pop();
             while (stackOfTags.Count != 0)
             {
                 if (stackOfTags.Peek().Tagtype == closeTag.Tagtype)
@@ -142,7 +144,7 @@ namespace Markdown.Languages
             return i > 0 && line[i - 1] != ' ' && !char.IsNumber(line, i - 1);
         }
 
-        private static bool IsEmTag(string line, int i) => line[i] == '_' && (i+1>= line.Length || line[i+1] != '_');
+        private static bool IsEmTag(string line, int i) => line[i] == '_' && (i+1 >= line.Length || line[i+1] != '_');
 
         private static bool IsStrongTag(string line, int i)
         {

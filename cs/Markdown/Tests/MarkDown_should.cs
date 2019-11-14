@@ -49,19 +49,35 @@ namespace Markdown.Tests
             var textNode = tagNode.ChildNode.First() as TextNode;
             return textNode.Value;
         }
-        
+
+        [TestCase("_ab_ c_", ExpectedResult = "ab")]
+        [TestCase("_ab _c_", ExpectedResult = "ab _c")]
+        [TestCase("__ab_ c__", ExpectedResult = "ab_ c")]
+        [TestCase("__ab __c__", ExpectedResult = "ab __c")]
+        public string RenderTree_WhenIncorrectTag_TagNodeContainThisText(string str)
+        {
+            var tree = new MarkDown().RenderTree(str);
+            var tagNode = tree.ChildNode.First() as TagNode;
+            var textNode = tagNode.ChildNode.First() as TextNode;
+            return textNode.Value;
+        }
+
         [TestCase("а _abc_ а")]
-        public void RenderTree_WhenOneTagWithText_TagNodeContain3Node(string str)
+        public void RenderTree_WhenOneTagWithText_TagNodeContainTextNodeThenTagNodeThenTextNode(string str)
         {
             var tree = new MarkDown().RenderTree(str);
             tree.ChildNode.Should().HaveCount(3);
+            tree.ChildNode[0].Should().BeOfType<TextNode>();
+            tree.ChildNode[1].Should().BeOfType<TagNode>();
+            tree.ChildNode[2].Should().BeOfType<TextNode>();
         }
         
         [TestCase("_abc_ _abc_")]
-        public void RenderTree_WhenTwoTag_TagNodeContain3Node(string str)
+        public void RenderTree_WhenTwoTag_TagNodeContain2TagNode(string str)
         {
             var tree = new MarkDown().RenderTree(str);
-            tree.ChildNode.Should().HaveCount(3);
+            tree.ChildNode.First().Should().BeOfType<TagNode>();
+            tree.ChildNode.Last().Should().BeOfType<TagNode>();
         }
         
         [TestCase("_abc _")]
