@@ -14,12 +14,12 @@ namespace Markdown
             {
                 var tagForReplace = currentSpecifications.First(t => t.TagType == tag.TagType);
                 var oldTag = tag.positionType == PositionType.OpeningTag ? tagForReplace.StartTag : tagForReplace.EndTag;
-                var newTags = newSpecifications.FirstOrDefault(t => t.TagType == tag.TagType);
-                if (newTags == null)
+                var newTagSpecification = newSpecifications.FirstOrDefault(t => t.TagType == tag.TagType);
+                if (newTagSpecification == null)
                 {
                     throw new ArgumentException($"New specifications does not support tag type {tagForReplace.TagType}");
                 }
-                var newTag = tag.positionType == PositionType.OpeningTag ? newTags.StartTag : newTags.EndTag;
+                var newTag = tag.positionType == PositionType.OpeningTag ? newTagSpecification.StartTag : newTagSpecification.EndTag;
                 sourceStrings.Replace(oldTag, newTag, tag.PositionInText, oldTag.Length);
             }
             return sourceStrings.ToString();
