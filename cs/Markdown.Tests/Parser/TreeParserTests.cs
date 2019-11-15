@@ -1,5 +1,4 @@
-﻿using System.Runtime.InteropServices;
-using FluentAssertions;
+﻿using FluentAssertions;
 using Markdown.Parser;
 using Markdown.Tree;
 using NUnit.Framework;

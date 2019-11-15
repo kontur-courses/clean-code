@@ -10,6 +10,11 @@ namespace Markdown.Parser
             if (data.Length <= i + 1)
                 return false;
 
+            if (i > 0 && IsUnderline(data[i - 1]))
+            {
+                return false;
+            }
+
             return IsUnderline(data[i])
                    && !IsSpace(data[i + 1])
                    && !IsDigit(data[i + 1])

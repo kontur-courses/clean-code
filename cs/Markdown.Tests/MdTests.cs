@@ -20,7 +20,7 @@ namespace Markdown.Tests
             md = new Md();
         }
 
-        public static IEnumerable<TestCaseData> GetMarkdownAndHtmlResult()
+        private static IEnumerable<TestCaseData> GetMarkdownAndHtmlResult()
         {
             yield return new TestCaseData("this is plain text", "this is plain text")
                 .SetName("shouldn't wrap plain text");

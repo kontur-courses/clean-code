@@ -1,8 +1,5 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+using System.IO;
 
 namespace Markdown
 {
@@ -10,6 +7,24 @@ namespace Markdown
 	{
 		static void Main(string[] args)
 		{
-		}
+            if (args.Length != 2)
+            {
+                Console.WriteLine($"Usage: {AppDomain.CurrentDomain.FriendlyName} <markdown> <html-output>");
+                return;
+            }
+
+            try
+            {
+                var text = File.ReadAllText(args[0]);
+                var md = new Md();
+                var html = md.Render(text);
+
+                File.WriteAllText(args[1], html);
+            }
+            catch (FileNotFoundException)
+            {
+                Console.WriteLine("Cant open file");
+            }
+        }
 	}
 }
