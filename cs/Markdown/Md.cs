@@ -16,7 +16,6 @@ namespace Markdown
             charProcessor.ProcessChar(default);
             var inserts = charProcessor.GetInserts();
             var HTMLtext = tagInserter.Insert(paragraph, inserts);
-            // здесь insert в параграф в HTMLmaker
             return HTMLtext;
         }
 

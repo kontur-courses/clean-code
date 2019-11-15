@@ -100,6 +100,14 @@ namespace Markdown
             processedText.Should().Be(expectedText);
         }
 
+        [TestCase("_aaa _", "_aaa _")]
+        public void CloseUnderscoreWithSpaceAfter_ShouldNotAddTag(string text, string expectedText)
+        {
+            var renderer = new Md();
+            var processedText = renderer.Render(text);
+            processedText.Should().Be(expectedText);
+        }
+
 
         [TestCase("/y", "/y")]
         [TestCase("/", "/")]
@@ -136,6 +144,16 @@ namespace Markdown
             processedText.Should().Be(expectedText);
         }
 
+        [TestCase("_aaa_bbb_aaa_", "<em>aaa</em>bbb<em>aaa</em>")]
+        [TestCase("__aaa__bbb__aaa__", "<strong>aaa</strong>bbb<strong>aaa</strong>")]
+        [TestCase("_aaa_ _aaa_", "<em>aaa</em> <em>aaa</em>")]
+        public void MultipleSinglePairUnderscores_ShouldBeInTags(string text, string expectedText)
+        {
+            var renderer = new Md();
+            var processedText = renderer.Render(text);
+            processedText.Should().Be(expectedText);
+        }
+
 
         [TestCase("////////////", "")]
         [TestCase("__aaa_aaa__aaa_", "")]
@@ -150,6 +168,11 @@ namespace Markdown
             var processedText = renderer.Render(text);
             processedText.Should().Be(expectedText);
         }
+        /*здесь собраны тесты которые пока что не относятся ни к какой категории
+         * некоторые тесты на ситуацию когда поведение парсера
+         * в таких случаях пока что не определено правилами
+         * некоторые тесты - граничные случаи которые надо обработать
+         */
 
 
     }
