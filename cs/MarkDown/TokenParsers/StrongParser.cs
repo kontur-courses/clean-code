@@ -4,7 +4,7 @@ using System.Text;
 
 namespace MarkDown.TokenParsers
 {
-    class StrongParser : TokenParser
+   public class StrongParser : TokenParser
     {
         public override List<TokenType> ShieldingTokens => new List<TokenType>();
         public override TokenType Type => TokenType.Strong;

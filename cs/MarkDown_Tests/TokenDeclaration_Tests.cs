@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Text;
 using FluentAssertions;
+using MarkDown;
 using MarkDown.TokenParsers;
 using NUnit.Framework;
 
@@ -9,39 +10,42 @@ namespace MarkDown_Tests
 {
     class TokenParser_Tests
     {
-        private static EMParser Parser;
+        protected static EMParser emParser { get; private set; }
+        protected static StrongParser strongParser { get; private set; }
+
         [SetUp]
         public void SetUp()
         {
-            Parser = new EMParser();
+            emParser = new EMParser();
+            strongParser = new StrongParser();
         }
 
-        [Test]
-        public void CommonToken()
+        [TestCase("_a_", @"<em>a</em>",TokenType.EM)]
+        [TestCase("__a__", @"<strong>a</strong>", TokenType.Strong)]
+        public void GetToken_ReturnParsedToken_CommonToken(string line, string expectedResult, TokenType tokenType)
         {
-            var line = "_a_";
+            var result= tokenType == TokenType.EM? emParser.GetToken(line, 0).Value
+            : strongParser.GetToken(line, 0).Value;
 
-            var result = Parser.GetToken(line, 0).Value;
-
-            result.Should().Be(@"<em>a</em>");
+            result.Should().Be(expectedResult);
 
         }
-        [Test]
-        public void ShildedToken()
+        [TestCase("/__a__", TokenType.EM)]
+        [TestCase("/_a_", TokenType.Strong)]
+        public void GetToken_ReturnNull_ShieldedToken(string line, TokenType tokenType)
         {
-            var line = "/_a_";
-
-            var result = Parser.GetToken(line, 0);
+            var result = tokenType == TokenType.EM ? emParser.GetToken(line, 0)
+                : strongParser.GetToken(line, 0);
 
             result.Should().Be(null);
 
         }
-        [Test]
-        public void NotPairedTokenToken()
+        [TestCase("__a_", TokenType.EM)]
+        [TestCase("_a__", TokenType.Strong)]
+        public void GetToken_ReturnNull_OnNotPairedTokenToken(string line,TokenType tokenType)
         {
-            var line = "__a_";
-
-            var result = Parser.GetToken(line, 0);
+            var result = tokenType == TokenType.EM ? emParser.GetToken(line, 0)
+                : strongParser.GetToken(line, 0);
 
             result.Should().Be(null);
 

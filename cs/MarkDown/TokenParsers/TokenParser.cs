@@ -18,7 +18,7 @@ namespace MarkDown.TokenParsers
         {
             if (startIndex + OpeningTags.from.Length > line.Length ||
                 line.Substring(startIndex, OpeningTags.from.Length) != OpeningTags.from ||
-                TagShilded(line, startIndex, true))
+                TagShielded(line, startIndex, true))
                 return null;
 
             var startText = startIndex + OpeningTags.from.Length;
@@ -26,7 +26,7 @@ namespace MarkDown.TokenParsers
             finalLine.Append(OpeningTags.to);
             for (int i = startText; i < line.Length - ClosingTags.from.Length + 1; i++)
             {
-                if (line.Substring(i, ClosingTags.from.Length) == ClosingTags.from && !TagShilded(line, i, false))
+                if (line.Substring(i, ClosingTags.from.Length) == ClosingTags.from && !TagShielded(line, i, false))
                 {
                     if (startIndex + 1 == i)
                         return null;
@@ -45,28 +45,28 @@ namespace MarkDown.TokenParsers
             return tagOpened
                 ? startIndex + OpeningTags.from.Length < line.Length &&
                   line.Substring(startIndex, OpeningTags.from.Length) == OpeningTags.from &&
-                  !TagShilded(line, startIndex, true)
+                  !TagShielded(line, startIndex, true)
                 : startIndex + OpeningTags.from.Length < line.Length &&
                   line.Substring(startIndex, ClosingTags.from.Length) == ClosingTags.from &&
-                  !TagShilded(line, startIndex, false);
+                  !TagShielded(line, startIndex, false);
         }
-        private bool TagShilded(string line, int startIndex, bool tagOpened)
+        private bool TagShielded(string line, int startIndex, bool tagOpened)
         {
             if (startIndex < 0 || startIndex > line.Length) throw new ArgumentException();
 
             var leftIndex = startIndex - 1;
             var rightIndex = startIndex + (tagOpened ? OpeningTags.from.Length : ClosingTags.from.Length);
 
-            var shildedLeft = leftIndex > 1 && TagShildedFromLeft(line[leftIndex], tagOpened);
-            var shildedRight = line.Length > rightIndex && TagShildedFromRight(line[rightIndex], tagOpened);
-            return shildedLeft || shildedRight;
+            var shieldedLeft = leftIndex > 1 && TagShieldedFromLeft(line[leftIndex], tagOpened);
+            var shieldedRight = line.Length > rightIndex && TagShieldedFromRight(line[rightIndex], tagOpened);
+            return shieldedLeft || shieldedRight;
         }
-        private bool TagShildedFromLeft(char character, bool tagOpened) => character == '/' ||
-                                                                           CharShilder(character);
-        private bool TagShildedFromRight(char character, bool tagOpened) => CharShilder(character) || (tagOpened && char.IsSeparator(character));
+        private bool TagShieldedFromLeft(char character, bool tagOpened) => character == '/' ||
+                                                                           CharShielder(character);
+        private bool TagShieldedFromRight(char character, bool tagOpened) => CharShielder(character) || (tagOpened && char.IsSeparator(character));
 
 
-        private bool CharShilder(char character) =>
+        private bool CharShielder(char character) =>
         char.IsDigit(character) || character == '_';
 
     }
