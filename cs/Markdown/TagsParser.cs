@@ -93,14 +93,9 @@ namespace Markdown
             {
                 var currentTag = characterSequences.Dequeue();
                 var startTag = openingTags.FindLast(t => t.TagType == currentTag.TagType);
-                if (currentTag.positionType == PositionType.OpeningTag)
+                if (startTag == null || currentTag.positionType == PositionType.OpeningTag)
                 {
-                    openingTags.Add(currentTag);
-                    continue;
-                }
-                if (startTag == null)
-                {
-                    if (currentTag.positionType == PositionType.any)
+                    if (currentTag.positionType == PositionType.any || currentTag.positionType == PositionType.OpeningTag)
                     {
                         openingTags.Add(currentTag);
                     }
