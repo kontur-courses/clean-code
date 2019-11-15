@@ -27,21 +27,22 @@ namespace Markdown
                     sourceString.Remove(currentPosition, 1);
                     continue;
                 }
-                var possibleStartTag = GetAllPossibleTag(currentSpecifications, sourceString, currentPosition, 
-                    tag => tag.StartTag.StartsWith(sourceString[currentPosition]), CanBeOpenTag).FirstOrDefault();
-                var possibleEndTag = GetAllPossibleTag(currentSpecifications, sourceString, currentPosition, 
-                    tag => tag.EndTag.StartsWith(sourceString[currentPosition]), CanBeEndTag).FirstOrDefault();
+                var possibleStartTag = GetAllPossibleTag(currentSpecifications, sourceString, currentPosition,
+                    tagSpecification => tagSpecification.StartTag, CanBeOpenTag).FirstOrDefault();
+                var possibleEndTag = GetAllPossibleTag(currentSpecifications, sourceString, currentPosition,
+                    tagSpecification => tagSpecification.EndTag, CanBeEndTag).FirstOrDefault();
                 if (possibleEndTag == null && possibleStartTag == null)
                 {
                     continue;
                 }
-                var tag = GetMostPriorityTagInCurrentPosition(currentSpecifications, possibleStartTag, possibleEndTag, currentPosition);
+                var tag = GetMostPriorityTagInCurrentPosition(currentSpecifications, possibleStartTag, possibleEndTag,
+                    currentPosition);
                 result.Enqueue(tag);
-                if (tag.positionType == PositionType.OpeningTag || tag.positionType == PositionType.any)
-                    currentPosition += currentSpecifications.First(tag1 => tag1.TagType == tag.TagType).StartTag.Length;
-                else
+                if (tag.positionType == PositionType.ClosingTag)
                     currentPosition += currentSpecifications.First(tag1 => tag1.TagType == tag.TagType).EndTag.Length;
 
+                else
+                    currentPosition += currentSpecifications.First(tag1 => tag1.TagType == tag.TagType).StartTag.Length;
             }
             return result;
         }
@@ -58,9 +59,9 @@ namespace Markdown
         }
 
         private static List<TagSpecification> GetAllPossibleTag(List<TagSpecification> currentSpecifications,
-            StringBuilder sourceString, int currentPosition, Func<TagSpecification, bool> inNeedPositionType, Func<string, int, StringBuilder, bool> canBeInNeedPosition)
+            StringBuilder sourceString, int currentPosition, Func<TagSpecification, string> GetNeedPositionTag, Func<string, int, StringBuilder, bool> canBeInNeedPosition)
         {
-            return currentSpecifications.FindAll(tag => inNeedPositionType(tag))
+            return currentSpecifications.FindAll(tag => GetNeedPositionTag(tag).StartsWith(sourceString[currentPosition]))
                 .Where(possibleTag => IsValidTag(sourceString, possibleTag.StartTag, currentPosition, canBeInNeedPosition))
                 .ToList();
         }
@@ -68,7 +69,7 @@ namespace Markdown
         private static bool IsValidTag(StringBuilder sourceString, string possibleTag, int currentPosition, Func<string, int, StringBuilder, bool> validatePosition)
         {
             var lengthPossibleTag = possibleTag.Length;
-            if (lengthPossibleTag + currentPosition > sourceString.Length)
+            if (currentPosition + lengthPossibleTag > sourceString.Length)
             {
                 return false;
             }
@@ -79,10 +80,10 @@ namespace Markdown
         private static bool HaveDigitAround(string symbol, int position, StringBuilder text)
         {
             if (position == text.Length - symbol.Length)
-                return char.IsDigit(text.ToString(text.Length - symbol.Length - 1, 1)[0]);
+                return char.IsDigit(text[position - 1]);
             if (position == 0)
-                return char.IsDigit(text.ToString(symbol.Length, 1)[0]);
-            return char.IsDigit(text.ToString(position - 1, 1)[0]) || char.IsDigit(text.ToString(position + symbol.Length, 1)[0]);
+                return char.IsDigit(text[position + symbol.Length]);
+            return char.IsDigit(text[position - 1]) || char.IsDigit(text[position + symbol.Length]);
         }
 
         private static List<TagsPair> GetTagsPair(Queue<Tag> characterSequences, List<TagSpecification> currentSpecifications)
@@ -95,7 +96,7 @@ namespace Markdown
                 var startTag = openingTags.FindLast(t => t.TagType == currentTag.TagType);
                 if (startTag == null || currentTag.positionType == PositionType.OpeningTag)
                 {
-                    if (currentTag.positionType == PositionType.any || currentTag.positionType == PositionType.OpeningTag)
+                    if (currentTag.positionType != PositionType.ClosingTag)
                     {
                         openingTags.Add(currentTag);
                     }
@@ -139,8 +140,7 @@ namespace Markdown
             {
                 return false;
             }
-            var str = text.ToString(position + symbol.Length, 1);
-            return !string.IsNullOrWhiteSpace(str);
+            return !char.IsWhiteSpace(text[position + symbol.Length]);
         }
 
         private static bool CanBeEndTag(string symbol, int position, StringBuilder text)
@@ -149,8 +149,7 @@ namespace Markdown
             {
                 return false;
             }
-            var str = text.ToString(position - 1, 1);
-            return !string.IsNullOrWhiteSpace(str);
+            return !char.IsWhiteSpace(text[position - 1]);
         }
     }
 }

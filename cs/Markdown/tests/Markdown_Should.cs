@@ -81,30 +81,5 @@ namespace Markdown.tests
         {
             return Md.Render(inputString);
         }
-
-        [TestCase("__a_b_c__")]
-        [TestCase("__a_bcde_f__ ghi")]
-        [TestCase("Hello, __wo_r_ld__!")]
-        [TestCase("__The__ _quick_ \\__brown_ \\_fox_  __jumps _over_ the__ _lazy __lazy__ dog_. ")]
-        public void Should_WorkWithLinearTime(string inputString)
-        {
-            
-            var sb = new StringBuilder(inputString);
-            var testString = sb.ToString();
-            var sw = Stopwatch.StartNew();
-            var timePreviousWork = 0;
-            for(var i=0; i < 500; i++)
-            {
-                sb.Append(inputString);
-                testString = sb.ToString();
-                sw = Stopwatch.StartNew();
-                Md.Render(testString);
-                sw.Stop();
-                var timeWork = (int) sw.ElapsedMilliseconds;
-                (timeWork - timePreviousWork).Should().BeLessThan(inputString.Length + 5);
-                Console.WriteLine(timeWork - timePreviousWork);
-                timePreviousWork = (int) sw.ElapsedMilliseconds;
-            }
-        }
     }
 }
