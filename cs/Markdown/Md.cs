@@ -1,22 +1,21 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
+using System.Linq;
 
 namespace Markdown
 {
     public class Md
     {
-        public Md()
-        {
-        }
-
         public string Render(string rawText)
         {
-            throw new NotImplementedException();
+            var tokenizer = new MarkdownTextTokenizer();
+            var tokens = tokenizer.GetTokens(rawText);
+            return GetHtmlText(tokens);
         }
 
-        public string GetHtmlText(IEnumerable<Token> tokens)
+        private string GetHtmlText(IEnumerable<Token> tokens)
         {
-            throw new NotImplementedException();
+            var text = tokens.Select(TokenConverter.ConvertTokenToHtml);
+            return string.Join("", text);
         }
     }
 }

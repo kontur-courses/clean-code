@@ -6,13 +6,11 @@ namespace Markdown
     {
         public string Content { get; }
         public TokenType Type { get; }
-        public int Index { get; }
 
-        public Token(string content, TokenType type, int index)
+        public Token(string content, TokenType type)
         {
             Content = content;
             Type = type;
-            Index = index;
         }
 
         public string GetHtml()
