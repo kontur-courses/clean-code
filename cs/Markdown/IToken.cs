@@ -4,7 +4,8 @@ namespace Markdown
 	{
 		string OpeningSequence { get; }
 		string ClosingSequence { get; }
-		KeySequenceType RecognizeKeySequence(TokenizerContextState context);
+		bool IsOpeningKeySequence(TokenizerContextState contextState);
+		bool IsClosingKeySequence(TokenizerContextState contextState, TokenInfo tokenInfo);
 		string GetHtmlOpeningTag(TokenInfo tokenInfo, string sourceText);
 		string GetHtmlClosingTag(TokenInfo tokenInfo, string sourceText);
 	}

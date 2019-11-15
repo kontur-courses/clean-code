@@ -7,23 +7,25 @@ namespace Markdown
     internal class TokenInfo
     {
         public int StartIndex { get; }
-        public int EndIndex { get; }
-        public IToken TokenType { get; set; }
-        public List<TokenInfo> InnerTokens { get; }
+        public int EndIndex { get; private set; }
+        public IToken Type { get; set; }
         public bool Closed { get; private set; }
-        public StringBuilder PlainText { get; private set; }
+        public List<TokenInfo> InnerTokens { get; } = new List<TokenInfo>();
+        public StringBuilder PlainText { get; } = new StringBuilder();
 
-        public TokenInfo(int startIndex, IToken possibleTokenType)
+        public TokenInfo(int startIndex, IToken tokenType)
         {
+            StartIndex = startIndex;
+            Type = tokenType;
         }
 
-        public void AddInnerToken(TokenInfo tokenInfo)
+        public bool TryClose(TokenizerContextState contextState)
         {
-        }
-
-        public bool TryClose(TokenizerContextState currentContext, int currentIndex, string closingKeySequence)
-        {
-            throw new NotImplementedException();
+            if (!Type.IsClosingKeySequence(contextState, this))
+                return false;
+            Closed = true;
+            EndIndex = contextState.CurrentIndex;
+            return true;
         }
     }
 }

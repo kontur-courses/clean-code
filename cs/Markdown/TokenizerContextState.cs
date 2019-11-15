@@ -1,5 +1,6 @@
 using System;
 using System.Text;
+using Markdown.Features;
 
 namespace Markdown
 {
@@ -8,47 +9,80 @@ namespace Markdown
 		private TokenContainer _mainToken;
 		private TokenContainer _lastToken;
 
-		private StringBuilder _currentKeySequence;
-		private bool _readingKeySequence;
-		private bool _inPlainTextToken;
-
-		public bool ShieldedChar { get; set; }
+		public TokenInfo MainToken => _mainToken.TokenInfo;
+		public TokenInfo LastToken => _lastToken.TokenInfo;
+		public StringBuilder CurrentKeySequence { get; } = new StringBuilder();
+		public bool ReadingKeySequence { get; set; }
+		public bool Shielded { get; private set; }
 		public string SourceText { get; }
-		public bool ReadAsPlainText { get; set; }
 		public int CurrentIndex { get; private set; }
-		public char CurrentChar { get; private set; }
+		public string CurrentChar { get; private set; }
 
 		public TokenizerContextState(string sourceText)
 		{
+			SourceText = sourceText;
+			var mainToken = new TokenInfo(0, new PlainText());
+			_mainToken = new TokenContainer(mainToken);
+			_lastToken = _mainToken;
 		}
 
-		public char Update(int currentIndex, char currentChar)
+		private class TokenContainer
 		{
-			throw new NotImplementedException();
+			public TokenContainer ParentToken { get; }
+			public TokenInfo TokenInfo { get; }
+
+			public TokenContainer(TokenInfo tokenInfo, TokenContainer parent=null)
+			{
+				TokenInfo = tokenInfo;
+				ParentToken = parent;
+			}
 		}
 
-		private IToken RecognizeKeySequence()
+		public void Update(int currentIndex)
 		{
-			throw new NotImplementedException();
+			CurrentIndex = currentIndex;
+			CurrentChar = SourceText[currentIndex].ToString();
+			Shielded = !Shielded && CurrentChar == "\\";
+			if (Shielded)
+				CurrentKeySequence.Clear();
 		}
 
-		public void AddChildToken(TokenInfo newTokenInfo)
+		public bool TryCloseToken()
 		{
+			var currentToken = _lastToken;
+			while (currentToken != null && currentToken != _mainToken)
+			{
+				if (currentToken.TokenInfo.TryClose(this))
+				{
+					_lastToken = currentToken.ParentToken;
+					return true;
+				}
+				currentToken = currentToken.ParentToken;
+			}
+			return false;
 		}
 
-		public bool TryCloseToken(int currentIndex, string closingKeySequence)
+		public void AddCurrentCharAsPlainText()
 		{
-			throw new NotImplementedException();
+			if (!(LastToken.Type is PlainText))
+			{
+				var newToken = new TokenInfo(CurrentIndex, new PlainText());
+				LastToken.InnerTokens.Add(newToken);
+				_lastToken = new TokenContainer(newToken, _lastToken);
+			}
+			LastToken.PlainText.Append(CurrentChar);
 		}
 
-		public void AddAsPlainText(char newChar)
+		public void AddChildToken(IToken tokenType)
 		{
+//			if (_lastToken != _mainToken && LastToken.Type is PlainText)
+//			{
+//				_lastToken.TokenInfo.TryClose(this);
+//				_lastToken = _lastToken.ParentToken;
+//			}
+			var newToken = new TokenInfo(CurrentIndex, tokenType);
+			LastToken.InnerTokens.Add(newToken);
+			_lastToken = new TokenContainer(newToken, _lastToken);
 		}
-	}
-
-	internal class TokenContainer
-	{
-		public TokenContainer _parentToken;
-		public TokenInfo TokenInfo;
 	}
 }

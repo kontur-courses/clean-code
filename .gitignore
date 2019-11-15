@@ -239,4 +239,5 @@ _Pvt_Extensions
 **/.idea
 **/.vscode
 **/node_modules
-cs/Markdown/MISC/*
+
+misc.md

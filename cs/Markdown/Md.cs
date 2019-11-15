@@ -8,8 +8,8 @@ namespace Markdown
 	{
 		public static string Render(string sourceText)
 		{
-			var availableKeySequences = new FeaturesLoader().AvailableKeySequences;
-			var tokenizer = new Tokenizer(availableKeySequences);
+			var supportedTokens = new FeaturesLoader().SupportedTokens;
+			var tokenizer = new Tokenizer(supportedTokens);
 			var mainTokenInfo = tokenizer.ParseToTokens(sourceText);
 			return HtmlConverter.ConvertToHtml(mainTokenInfo, sourceText);
 		}

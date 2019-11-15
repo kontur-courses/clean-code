@@ -2,12 +2,20 @@ namespace Markdown.Features
 {
 	internal class ItalicText: IToken
 	{
-		public string OpeningSequence { get; }
-		public string ClosingSequence { get; }
-		
-		public KeySequenceType RecognizeKeySequence(TokenizerContextState context)
+		public string OpeningSequence { get; } = "_";
+		public string ClosingSequence { get; } = "_";
+
+		public bool IsOpeningKeySequence(TokenizerContextState contextState)
 		{
-			throw new System.NotImplementedException();
+			var currentIndex = contextState.CurrentIndex;
+			return currentIndex + 1 < contextState.SourceText.Length &&
+			       !char.IsWhiteSpace(contextState.SourceText[currentIndex + 1]);
+		}
+
+		public bool IsClosingKeySequence(TokenizerContextState contextState, TokenInfo tokenInfo)
+		{
+			return contextState.CurrentChar == ClosingSequence &&
+				tokenInfo.InnerTokens.Count > 0;
 		}
 
 		public string GetHtmlOpeningTag(TokenInfo tokenInfo, string sourceText) => "<em>";

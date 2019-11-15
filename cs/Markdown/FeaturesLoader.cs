@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 using Markdown.Features;
 
@@ -5,17 +6,20 @@ namespace Markdown
 {
 	internal class FeaturesLoader
 	{
-		public Dictionary<string, IToken> AvailableKeySequences = new Dictionary<string, IToken>();
+		public List<IToken> SupportedTokens { get; } = new List<IToken>();
 
 		public FeaturesLoader()
 		{
-			AddToken(new PlainText());
+			AddToken(new ItalicText());
 		}
 
-		private void AddToken(IToken token)
+		private void AddToken(IToken newToken)
 		{
-			AvailableKeySequences.Add(token.OpeningSequence, token);
-			AvailableKeySequences.Add(token.ClosingSequence, token);
+			if (string.IsNullOrEmpty(newToken.OpeningSequence) ||
+			    string.IsNullOrEmpty(newToken.ClosingSequence))
+				throw new ArgumentException("Key sequence can't be null or empty");
+			
+			SupportedTokens.Add(newToken);
 		}
 	}
 }

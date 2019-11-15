@@ -4,11 +4,10 @@ namespace Markdown.Features
 	{
 		public string OpeningSequence { get; }
 		public string ClosingSequence { get; }
-		
-		public KeySequenceType RecognizeKeySequence(TokenizerContextState context)
-		{
-			throw new System.NotImplementedException();
-		}
+
+		public bool IsOpeningKeySequence(TokenizerContextState contextState) => true;
+
+		public bool IsClosingKeySequence(TokenizerContextState contextState, TokenInfo tokenInfo) => false;
 
 		public string GetHtmlOpeningTag(TokenInfo tokenInfo, string sourceText) => "";
 
