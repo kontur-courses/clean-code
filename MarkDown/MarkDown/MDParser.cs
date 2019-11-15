@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Text;
 using System.Net;
 using MarkDown.TagParsers;
@@ -41,9 +42,9 @@ namespace MarkDown
             return result;
         }
 
-        private static string CorrectIntersectingTags(string line) //TODO: Rewrite with custom class and remove nested tags
+        private static string CorrectIntersectingTags(string line)
         {
-            var tagStack = new Stack<TagParser>();
+            var tagParserStack = new TraverseStack<TagParser>();
             var builder = new StringBuilder();
             for (var i = 0; i < line.Length; i++)
             {
@@ -51,43 +52,40 @@ namespace MarkDown
                 foreach (var parser in tagParsers) 
                 {
                     if (i + parser.OpeningHtmlTag.Length < line.Length && 
-                        line.Substring(i, parser.OpeningHtmlTag.Length).Equals(parser.OpeningHtmlTag)) //TokenParse?
+                        line.Substring(i, parser.OpeningHtmlTag.Length).Equals(parser.OpeningHtmlTag))
                     {
                         i += parser.OpeningHtmlTag.Length - 1;
-                        builder.Append(parser.OpeningHtmlTag);
-                        tagStack.Push(parser);
-                        written = true;
-                        break;
+                        if (!(parser.Equals(tagParsers[0]) && tagParserStack.Contains(tagParsers[1])))
+                        {
+                            builder.Append(parser.OpeningHtmlTag);
+                            tagParserStack.Push(parser);
+                            written = true;
+                            break;
+                        }
                     }
                     if (i + parser.ClosingHtmlTag.Length < line.Length && 
                         line.Substring(i, parser.ClosingHtmlTag.Length).Equals(parser.ClosingHtmlTag))
                     {
                         i += parser.ClosingHtmlTag.Length - 1;
-                        var reverseTraverseStack = new Stack<TagParser>();
-                        do
+                        if (tagParserStack.Contains(parser))
                         {
-                            reverseTraverseStack.Push(tagStack.Pop());
-                            builder.Append(reverseTraverseStack.Peek().ClosingHtmlTag);
-                            if (tagStack.Peek().Equals(parser))
+                            var traverse = tagParserStack.TraverseToElementAndReturnBack(parser).ToList();
+                            var traverseIndex = 0;
+                            for (; traverseIndex < (int)Math.Ceiling((decimal)(traverse.Count / 2)); traverseIndex++)
                             {
-                                builder.Append(tagStack.Peek().ClosingHtmlTag);
-                                break;
+                                builder.Append(traverse[traverseIndex].ClosingHtmlTag);
                             }
-                        } while (true);
-                        do
-                        {
-                            tagStack.Push(reverseTraverseStack.Pop());
-                            builder.Append(tagStack.Peek().OpeningHtmlTag);
-                        } while (reverseTraverseStack.Count > 0);
-                        written = true;
-                        break;
+                            for (; traverseIndex < traverse.Count; traverseIndex++)
+                                builder.Append(traverse[traverseIndex].OpeningHtmlTag);
+                            break;
+                        }
                     }
                 }
                 if (!written)
                     builder.Append(line[i]);
             }
             return builder.ToString();
-        }
+        } //Decompose, refactor and debug
 
         public static void Main(string[] args)
         {
