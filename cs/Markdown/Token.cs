@@ -8,25 +8,14 @@ namespace Markdown
     {
         public readonly int Position;
         public readonly int Length;
-        public readonly string Value;
         public readonly TagType TagType;
 
-        public Token(int position, string value, TagType tagType)
+        public Token(int position, int length, TagType tagType)
         {
             Position = position;
-            Value = value;
             TagType = tagType;
-            Length = GetTokenLength(value, TagType);
-        }
-
-        public string ConvertToHtml()
-        {
-            throw new NotImplementedException();
+            Length = length;
         }
         
-        private int GetTokenLength(string value, TagType tagType)
-        {
-            throw new NotImplementedException();
-        }
     }
 }
