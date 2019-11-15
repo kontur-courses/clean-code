@@ -8,8 +8,8 @@ namespace Markdown
         {
             var parser = new MdParser(markDownParagraph);
             var tokens = parser.GetTokens();
-            var htmlTokens = tokens.Select(token => token.ConvertToHtml());
-
+            var converter = new MdConverter(tokens, markDownParagraph);
+            var htmlTokens = converter.GetHtmlTokens();
             return string.Join(" ", htmlTokens);
         }
     }
