@@ -80,6 +80,7 @@
     <Compile Include="Tests\TagParsers\EmParserTests.cs" />
     <Compile Include="Tests\TagParsers\StrongParserTests.cs" />
     <Compile Include="Tests\TagParsers\TagParsersTests.cs" />
+    <Compile Include="Tests\Utility\TraverseStackTests.cs" />
     <Compile Include="Utility\MdToken.cs" />
     <Compile Include="Utility\TraverseStack.cs" />
   </ItemGroup>

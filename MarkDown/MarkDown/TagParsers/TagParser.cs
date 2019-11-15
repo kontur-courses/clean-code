@@ -85,5 +85,22 @@ namespace MarkDown.TagParsers
         {
             return token.StartIndex + token.Length + MdTag.Length;
         }
+
+        public override bool Equals(object obj)
+        {
+            return obj is TagParser parser &&
+                   OpeningHtmlTag == parser.OpeningHtmlTag &&
+                   ClosingHtmlTag == parser.ClosingHtmlTag &&
+                   MdTag == parser.MdTag;
+        }
+
+        public override int GetHashCode()
+        {
+            var hashCode = -1610819859;
+            hashCode = hashCode * -1521134295 + EqualityComparer<string>.Default.GetHashCode(OpeningHtmlTag);
+            hashCode = hashCode * -1521134295 + EqualityComparer<string>.Default.GetHashCode(ClosingHtmlTag);
+            hashCode = hashCode * -1521134295 + EqualityComparer<string>.Default.GetHashCode(MdTag);
+            return hashCode;
+        }
     }
 }

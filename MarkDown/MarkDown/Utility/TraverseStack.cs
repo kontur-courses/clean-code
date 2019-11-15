@@ -1,10 +1,10 @@
 ﻿using System;
+using System.Collections;
 using System.Collections.Generic;
-using MarkDown.TagParsers;
 
 namespace MarkDown
 {
-    public class TraverseStack<T>
+    public class TraverseStack<T> :IEnumerable<T>
     {
         private class TraverseStackNode<T>
         {
@@ -19,7 +19,7 @@ namespace MarkDown
         }
 
         private TraverseStackNode<T> first;
-        private Dictionary<T, TraverseStackNode<T>> nodes;
+        private readonly Dictionary<T, TraverseStackNode<T>> nodes;
 
         public TraverseStack()
         {
@@ -49,6 +49,8 @@ namespace MarkDown
             var popResult = first;
             nodes.Remove(popResult.Value);
             first = first.Next;
+            if(first != null)
+                first.Previous = null;
             return popResult.Value;
         }
 
@@ -94,6 +96,21 @@ namespace MarkDown
                 nodeToRemove.Next.Previous = nodeToRemove.Previous;
                 nodes.Remove(value);
             }
+        }
+
+        public IEnumerator<T> GetEnumerator()
+        {
+            var current = first;
+            while (current != null)
+            {
+                yield return current.Value;
+                current = current.Next;
+            }
+        }
+
+        IEnumerator IEnumerable.GetEnumerator()
+        {
+            return GetEnumerator();
         }
     }
 }

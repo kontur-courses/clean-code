@@ -42,7 +42,7 @@ namespace MarkDown
             return result;
         }
 
-        private static string CorrectIntersectingTags(string line)
+        private static string CorrectIntersectingTags(string line) //Probably needs to be simplified, but it will impact on performance
         {
             var tagParserStack = new TraverseStack<TagParser>();
             var builder = new StringBuilder();
@@ -51,41 +51,70 @@ namespace MarkDown
                 var written = false;
                 foreach (var parser in tagParsers) 
                 {
-                    if (i + parser.OpeningHtmlTag.Length < line.Length && 
-                        line.Substring(i, parser.OpeningHtmlTag.Length).Equals(parser.OpeningHtmlTag))
+                    if (EqualsOpeningTag(line, i, parser))
                     {
-                        i += parser.OpeningHtmlTag.Length - 1;
-                        if (!(parser.Equals(tagParsers[0]) && tagParserStack.Contains(tagParsers[1])))
+                        if (IsAllowedToBeNested(parser, tagParserStack))
                         {
                             builder.Append(parser.OpeningHtmlTag);
                             tagParserStack.Push(parser);
-                            written = true;
-                            break;
                         }
+                        else
+                            builder.Append(parser.MdTag);
+                        written = true;
+                        i += parser.OpeningHtmlTag.Length - 1;
+                        break;
                     }
-                    if (i + parser.ClosingHtmlTag.Length < line.Length && 
-                        line.Substring(i, parser.ClosingHtmlTag.Length).Equals(parser.ClosingHtmlTag))
+                    if (EqualsClosingTag(line, i, parser))
                     {
-                        i += parser.ClosingHtmlTag.Length - 1;
                         if (tagParserStack.Contains(parser))
                         {
-                            var traverse = tagParserStack.TraverseToElementAndReturnBack(parser).ToList();
-                            var traverseIndex = 0;
-                            for (; traverseIndex < (int)Math.Ceiling((decimal)(traverse.Count / 2)); traverseIndex++)
-                            {
-                                builder.Append(traverse[traverseIndex].ClosingHtmlTag);
-                            }
-                            for (; traverseIndex < traverse.Count; traverseIndex++)
-                                builder.Append(traverse[traverseIndex].OpeningHtmlTag);
-                            break;
+                            builder.Append(CollectNestedTagsAndCloseTag(parser, tagParserStack));
+                            tagParserStack.Remove(parser);
                         }
+                        else
+                            builder.Append(parser.MdTag);
+                        written = true;
+                        i += parser.ClosingHtmlTag.Length - 1;
+                        break;
                     }
                 }
                 if (!written)
                     builder.Append(line[i]);
             }
             return builder.ToString();
-        } //Decompose, refactor and debug
+        }
+
+        private static bool EqualsOpeningTag(string line, int index, TagParser parser)
+        {
+            return index + parser.OpeningHtmlTag.Length <= line.Length &&
+                   line.Substring(index, parser.OpeningHtmlTag.Length).Equals(parser.OpeningHtmlTag);
+        }
+
+        private static bool EqualsClosingTag(string line, int index, TagParser parser)
+        {
+            return index + parser.ClosingHtmlTag.Length <= line.Length &&
+                   line.Substring(index, parser.ClosingHtmlTag.Length).Equals(parser.ClosingHtmlTag);
+        }
+
+        private static bool IsAllowedToBeNested(TagParser parser, TraverseStack<TagParser> tagParserStack)
+        {
+            return !(parser.Equals(tagParsers[0]) && tagParserStack.Contains(tagParsers[1]));
+        }
+
+        private static string CollectNestedTagsAndCloseTag(TagParser currentParser,
+            TraverseStack<TagParser> tagParserStack)
+        {
+            var builder = new StringBuilder();
+            var traverse = tagParserStack.TraverseToElementAndReturnBack(currentParser).ToList();
+            var traverseIndex = 0;
+            for (; traverseIndex < (int)Math.Ceiling((double)traverse.Count / 2); traverseIndex++)
+            {
+                builder.Append(traverse[traverseIndex].ClosingHtmlTag);
+            }
+            for (; traverseIndex < traverse.Count; traverseIndex++)
+                builder.Append(traverse[traverseIndex].OpeningHtmlTag);
+            return builder.ToString();
+        }
 
         public static void Main(string[] args)
         {

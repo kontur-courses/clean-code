@@ -2,6 +2,6 @@
 {
     public class StrongParserTests
     {
-        //Should I mock and move tests from EmParserTests.cs? Looks like yes
+        //Should I mock instead of copy-paste tests from EmParserTests.cs?
     }
 }
