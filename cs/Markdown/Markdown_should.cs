@@ -6,10 +6,10 @@ namespace Markdown
     [TestFixture]
     class Markdown_Should
     {
-        static Markdown _markdown;
+        static Markdown markdown;
 
         [SetUp]
-        public void SetUp() => _markdown = new Markdown();
+        public void SetUp() => markdown = new Markdown();
 
         //Пока что тесты в таком виде, чуть позже разделю их по категориям :)
 
@@ -29,11 +29,11 @@ namespace Markdown
         [TestCase("__Hello World!", "__Hello World!")]
         [TestCase("Hello World!__", "Hello World!__")]
         [TestCase("этот_ символ_ не считается", "этот_ символ_ не считается")]
-        [TestCase("этот _cимвол _не считаются", "этот _cимвол _не считаются")]
+        [TestCase("этот _cимвол _не считается", "этот _cимвол _не считается")]
         [TestCase("___Hello World!___", "___Hello World!___")]
         public void MarkDownRender(string input, string expected)
         {
-            var actual = _markdown.Render(input);
+            var actual = markdown.Render(input);
 
             actual.Should().Be(expected);
         }

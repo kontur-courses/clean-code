@@ -14,41 +14,41 @@ namespace Markdown
             ["*_*"] = "xax"
         };
 
-        public string Render(string input)
+        public string Render(string inputString)
         {
-            var allSeparatorsInInputString = SeparatorSearchTool.GetSeparators(input, HtmlReplacementRules.Keys.ToList());
-            var onlyCorrectSeparators = SeparatorCleanTool.GetCorrectSeparators(input, allSeparatorsInInputString);
+            var allMarkDownTagsInInputString = TagSearchTool.GetMarkdownTags(inputString, HtmlReplacementRules.Keys.ToList());
+            var onlyCorrectTags = TagCleanTool.GetCorrectMarkdownTags(inputString, allMarkDownTagsInInputString);
 
-            var outputString = input;
+            var outputString = inputString;
             outputString = RemoveShieldSymbols(outputString);
-            outputString = SwitchSeparatorsToHTMLTags(outputString, onlyCorrectSeparators);
+            outputString = ChangeTags(outputString, onlyCorrectTags, HtmlReplacementRules);
 
             return outputString;
         }
 
         string RemoveShieldSymbols(string input) => input.Replace(@"\", "");
 
-        string SwitchSeparatorsToHTMLTags(string input, List<Separator> separators)
+        string ChangeTags(string inputString, List<Tag> tagsForChange, Dictionary<string, string> replacementRules)
         {
-            if (separators.Count == 0) return input;
+            if (tagsForChange.Count == 0) return inputString;
 
             var result = new StringBuilder();
 
             var startedIndex = 0;
-            foreach (var separator in separators)
+            foreach (var tag in tagsForChange)
             {
-                for (var i = startedIndex; i < separator.Index; i++)
-                    result.Append(input[i]);
+                for (var i = startedIndex; i < tag.Index; i++)
+                    result.Append(inputString[i]);
 
-                result.Append(separator.Type == SeparatorType.Opening
-                    ? $"<{HtmlReplacementRules[separator.Tag]}>"
-                    : $"</{HtmlReplacementRules[separator.Tag]}>");
+                result.Append(tag.Type == TagType.Opening
+                    ? $"<{replacementRules[tag.Symbol]}>"
+                    : $"</{replacementRules[tag.Symbol]}>");
 
-                startedIndex = separator.Index + separator.Tag.Length;
+                startedIndex = tag.Index + tag.Symbol.Length;
             }
 
-            for (var i = separators.Last().Tag.Length + separators.Last().Index; i < input.Length; i++)
-                result.Append(input[i]);
+            for (var i = tagsForChange.Last().Symbol.Length + tagsForChange.Last().Index; i < inputString.Length; i++)
+                result.Append(inputString[i]);
 
             return result.ToString();
         }
