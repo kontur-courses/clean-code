@@ -92,9 +92,7 @@ namespace Markdown.tests
             var sb = new StringBuilder(inputString);
             var testString = sb.ToString();
             var sw = Stopwatch.StartNew();
-            Md.Render(testString);
-            sw.Stop();
-            var timePreviousWork = (int)sw.ElapsedMilliseconds;
+            var timePreviousWork = 0;
             for(var i=0; i < 500; i++)
             {
                 sb.Append(inputString);
@@ -104,6 +102,7 @@ namespace Markdown.tests
                 sw.Stop();
                 var timeWork = (int) sw.ElapsedMilliseconds;
                 (timeWork - timePreviousWork).Should().BeLessThan(inputString.Length + 5);
+                Console.WriteLine(timeWork - timePreviousWork);
                 timePreviousWork = (int) sw.ElapsedMilliseconds;
             }
         }

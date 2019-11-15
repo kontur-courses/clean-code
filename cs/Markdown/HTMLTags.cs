@@ -6,7 +6,7 @@ namespace Markdown
 {
     class HTMLTags
     {
-        private static List<TagSpecification> Tags = new List<TagSpecification>
+        private static List<TagSpecification> TagsByPriority = new List<TagSpecification>
         {
             new TagSpecification("<strong>", "</strong>", TagType.bold),
             new TagSpecification("<em>", "</em>", TagType.italics)
@@ -14,7 +14,7 @@ namespace Markdown
 
         public static List<TagSpecification> GetAllSpecifications()
         {
-            return new List<TagSpecification>(Tags);
+            return new List<TagSpecification>(TagsByPriority);
         }
     }
 }
