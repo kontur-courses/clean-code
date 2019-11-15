@@ -8,11 +8,11 @@ namespace Markdown
     {
         private static List<TagSpecification> TagsByPriority = new List<TagSpecification>
         {
-            new TagSpecification("<strong>", "</strong>", TagType.bold),
-            new TagSpecification("<em>", "</em>", TagType.italics)
+            new TagSpecification("<em>", "</em>", TagType.italics),
+            new TagSpecification("<strong>", "</strong>", TagType.bold)
         };
 
-        public static List<TagSpecification> GetAllSpecifications()
+        public static List<TagSpecification> GetAllTags()
         {
             return new List<TagSpecification>(TagsByPriority);
         }

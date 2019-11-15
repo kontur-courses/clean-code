@@ -62,7 +62,7 @@ namespace Markdown
             StringBuilder sourceString, int currentPosition, Func<TagSpecification, string> GetNeedPositionTag, Func<string, int, StringBuilder, bool> canBeInNeedPosition)
         {
             return currentSpecifications.FindAll(tag => GetNeedPositionTag(tag).StartsWith(sourceString[currentPosition]))
-                .Where(possibleTag => IsValidTag(sourceString, possibleTag.StartTag, currentPosition, canBeInNeedPosition))
+                .Where(possibleTag => IsValidTag(sourceString, GetNeedPositionTag(possibleTag), currentPosition, canBeInNeedPosition))
                 .ToList();
         }
 
