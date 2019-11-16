@@ -2,7 +2,7 @@
 {
     public class DefaultTagType : TagType
     {
-        public DefaultTagType() : base("", "", "", "")
+        public DefaultTagType() : base(string.Empty, string.Empty, string.Empty, string.Empty)
         {
         }
     }
