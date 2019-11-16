@@ -1,5 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 
 namespace Markdown
 {
@@ -17,62 +16,84 @@ namespace Markdown
             var tokens = new List<Token>();
             var startPosition = 0;
             var currentPosition = 0;
-            var tokenTagType = GetTagType(text, startPosition);
-
+            var tokenTagType = TagType.GetTagType(text, startPosition);
+            
             while (currentPosition < text.Length)
             {
-                var symbolType = GetTagType(text, currentPosition);
-                if (IsTextToken(tokenTagType, symbolType) ||
-                    IsEmToken(tokenTagType, symbolType, currentPosition, startPosition) ||
-                    IsStrongToken(tokenTagType, symbolType, currentPosition, startPosition))
-                {
-                    currentPosition += symbolType is StrongTagType ? 2 : 1;
-                }
-                else
-                {
-                    tokens.Add(new Token(startPosition, currentPosition - startPosition, new DefaultTagType()));
-                    startPosition = currentPosition;
-                    tokenTagType = symbolType;
-                }
+                var symbolType = TagType.GetTagType(text, currentPosition);
 
-                if (currentPosition == text.Length - 1)
+                if (tokenTagType is DefaultTagType)
                 {
-                    tokens.Add(new Token(startPosition, currentPosition - startPosition, tokenTagType));
-                    currentPosition++;
+                    if (symbolType is EmTagType || symbolType is StrongTagType)
+                    {
+                        tokens.Add(new Token(startPosition, currentPosition - startPosition, tokenTagType));
+                        startPosition = currentPosition;
+                        tokenTagType = symbolType;
+                    }
+                    else
+                    {
+                        currentPosition++;
+                        if (currentPosition == text.Length)
+                            tokens.Add(new Token(startPosition, currentPosition - startPosition, tokenTagType));
+                    }
                 }
-            }
-
-            foreach (var token1 in tokens)
-            {
-                Console.WriteLine(token1.Position);
+                else if (tokenTagType is EmTagType)
+                {
+                    if (symbolType is EmTagType)
+                    {
+                        if (EmTagType.IsClosedTag(text, currentPosition))
+                        {
+                            currentPosition++;
+                            tokens.Add(new Token(startPosition, currentPosition - startPosition, tokenTagType));
+                            startPosition = currentPosition;
+                            tokenTagType = currentPosition < text.Length
+                                ? TagType.GetTagType(text, currentPosition)
+                                : new DefaultTagType();
+                        }
+                        else
+                        {
+                            currentPosition++;
+                            if (currentPosition == text.Length)
+                                tokens.Add(new Token(startPosition, currentPosition - startPosition, tokenTagType));
+                        }
+                    }
+                    else
+                    {
+                        currentPosition += symbolType.HtmlOpeningTag == string.Empty ? 1 : symbolType.HtmlOpeningTag.Length;
+                        if (currentPosition == text.Length)
+                            tokens.Add(new Token(startPosition, currentPosition - startPosition, tokenTagType));
+                    }
+                }
+                else if (tokenTagType is StrongTagType)
+                {
+                    if (symbolType is StrongTagType)
+                    {
+                        if (StrongTagType.IsClosedTag(text, currentPosition))
+                        {
+                            currentPosition += 2;
+                            tokens.Add(new Token(startPosition, currentPosition - startPosition, tokenTagType));
+                            startPosition = currentPosition;
+                            tokenTagType = currentPosition < text.Length
+                                ? TagType.GetTagType(text, currentPosition)
+                                : new DefaultTagType();
+                        }
+                        else
+                        {
+                            currentPosition += 2;
+                            if (currentPosition == text.Length)
+                                tokens.Add(new Token(startPosition, currentPosition - startPosition, tokenTagType));
+                        }
+                    }
+                    else
+                    {
+                        currentPosition++;
+                        if (currentPosition == text.Length)
+                            tokens.Add(new Token(startPosition, currentPosition - startPosition, tokenTagType));
+                    }
+                }
             }
 
             return tokens;
-        }
-
-        private TagType GetTagType(string text, int position)
-        {
-            if (EmTagType.IsOpenedTag(text, position) || EmTagType.IsClosedTag(text, position))
-                return new EmTagType();
-            if (StrongTagType.IsOpenedTag(text, position) || StrongTagType.IsClosedTag(text, position))
-                return new StrongTagType();
-            return new DefaultTagType();
-        }
-
-        private bool IsTextToken(TagType tokenTagType, TagType symbolType)
-        {
-            return tokenTagType is DefaultTagType && symbolType is DefaultTagType;
-        }
-
-        private bool IsEmToken(TagType tokenTagType, TagType symbolType, int currentPosition, int startPosition)
-        {
-            return tokenTagType is EmTagType && (!(symbolType is EmTagType) || currentPosition <= startPosition);
-        }
-
-        private bool IsStrongToken(TagType tokenTagType, TagType symbolType, int currentPosition, int startPosition)
-        {
-            return tokenTagType is StrongTagType &&
-                   (!(symbolType is StrongTagType) || currentPosition <= startPosition);
         }
     }
 }
