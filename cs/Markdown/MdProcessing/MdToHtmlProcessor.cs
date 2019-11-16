@@ -6,22 +6,24 @@ namespace Markdown.MdProcessing
 {
     public class MdToHtmlProcessor : IMdProcessor
     {
-        private readonly Dictionary<string, Func<MdToken, string>> tokenProcessors;
+        private MdToHtmlSymbolTable htmlSymbolTable;
 
         public MdToHtmlProcessor()
         {
-            tokenProcessors = new Dictionary<string, Func<MdToken, string>>();
-            tokenProcessors["#"] = ProcessEmphasis;
+            htmlSymbolTable = new MdToHtmlSymbolTable();
+            htmlSymbolTable.AddSymbol("_", "<em>", "</em>");
+            htmlSymbolTable.AddSymbol("__", "<strong>", "</strong>");
+            htmlSymbolTable.AddSymbol("NONE", "", "");
         }
 
         public string GetProcessedResult(MdToken token)
         {
-            return tokenProcessors[token.SpecialSymbolBeginning](token);
-        }
-
-        private static string ProcessEmphasis(MdToken token)
-        {
-            throw new NotImplementedException();
+            if (token == null) throw new ArgumentNullException(nameof(token));
+            if (token.Content == "") throw new ArgumentException("Token content is empty");
+            
+            var htmlBeginning = htmlSymbolTable.GetHtmlBeginning(token.BeginningSpecialSymbol);
+            var htmlEnding = htmlSymbolTable.GetHtmlEnding(token.EndingSpecialSymbol);
+            return htmlBeginning + token.Content + htmlEnding;
         }
     }
 }
