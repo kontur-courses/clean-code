@@ -14,8 +14,9 @@ namespace Markdown.MdProcessing
             htmlSymbolTable.AddSymbol("_", "<em>", "</em>");
             htmlSymbolTable.AddSymbol("__", "<strong>", "</strong>");
             htmlSymbolTable.AddSymbol("NONE", "", "");
+            htmlSymbolTable.AddSymbol(@"\", "", "");
         }
-
+        
         public string GetProcessedResult(MdToken token)
         {
             if (token == null) throw new ArgumentNullException(nameof(token));

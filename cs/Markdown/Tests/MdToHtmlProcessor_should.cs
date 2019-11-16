@@ -36,6 +36,12 @@ namespace Markdown.Tests
         [TestCase("text", "__", "NONE", "<strong>text", TestName = "when token with bold symbol in beginning")]
         [TestCase("text", "NONE", "__", "text</strong>", TestName = "when token with bold symbol in ending")]
         [TestCase("text", "NONE", "NONE", "text", TestName = "when token with no special symbols ending")]
+        [TestCase("_text_", @"\", @"\", "_text_", TestName = "when token with shielded emphasis")]
+        [TestCase("text_", @"_", @"\", "<em>text_", TestName = "when token with shielded emphasis at the end")]
+        [TestCase("_text", @"\", @"_", "_text</em>", TestName = "when token with shielded emphasis at the beginning")]
+        [TestCase("__text__", @"\", @"\", "__text__", TestName = "when token with shielded bold symbols")]
+        [TestCase("text__", @"__", @"\", "<strong>text__", TestName = "when token with shielded bold symbol at the end")]
+        [TestCase("__text", @"\", @"__", "__text</strong>", TestName = "when token with shielded bold symbol at the beginning")]
         public void GetProcessedResult_Should_ProcessTokenToHtml(string tokenContent,
             string beginningSymbol,
             string endingSymbol,
