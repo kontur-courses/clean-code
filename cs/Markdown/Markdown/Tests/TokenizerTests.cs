@@ -3,7 +3,6 @@ using FluentAssertions;
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
 
 namespace Markdown
 {
@@ -31,6 +30,8 @@ namespace Markdown
         [TestCase("a a a a_ d", ExpectedResult = 10)]
         [TestCase("", ExpectedResult = 0)]
         [TestCase("\\\\", ExpectedResult = 1)]
+        [TestCase("\\*sad*", ExpectedResult = 5)]
+        [TestCase("a \\*a\\* a", ExpectedResult = 7)]
         public int Tokenizer_ShouldReturnCorrectNumberOfElements(string text)
         {
             var tokens = tokenizer.Tokenize(text);
@@ -42,9 +43,18 @@ namespace Markdown
         {
             var text = "\\*a \\_a \\\\";
             var tokens = tokenizer.Tokenize(text);
-            tokens[0].Type.Should().Be(TokenType.Text);
-            tokens[3].Type.Should().Be(TokenType.Text);
-            tokens[6].Type.Should().Be(TokenType.Text);
+            var expected = new []
+            {
+                TokenType.Text,
+                TokenType.Text,
+                TokenType.WhiteSpace,
+                TokenType.Text,
+                TokenType.Text,
+                TokenType.WhiteSpace,
+                TokenType.Text
+            };
+            tokens.Select(token => token.Type)
+                .Should().BeEquivalentTo(expected);
         }
 
         [Test]
@@ -52,8 +62,8 @@ namespace Markdown
         {
             var text = "*a* _a_";
             var tokens = tokenizer.Tokenize(text);
-            var expected = new List<char> { '*', 'a', '*', ' ', '_', 'a', '_' };
-            tokens.Select(token => token.Value).ToList()
+            var expected = new [] { '*', 'a', '*', ' ', '_', 'a', '_' };
+            tokens.Select(token => token.Value)
                 .Should().BeEquivalentTo(expected);
         }
 
@@ -62,11 +72,19 @@ namespace Markdown
         {
             var str = "*a _a_ a*";
             var tokens = tokenizer.Tokenize(str);
-            var mdElem = TokenType.MdElement;
-            var text = TokenType.Text;
-            var ws = TokenType.WhiteSpace;
-            var expected = new List<TokenType> { mdElem, text, ws, mdElem, text, mdElem, ws, text, mdElem };
-            tokens.Select(token => token.Type).ToList()
+            var expected = new []
+            {
+                TokenType.MdElement,
+                TokenType.Text,
+                TokenType.WhiteSpace,
+                TokenType.MdElement,
+                TokenType.Text,
+                TokenType.MdElement,
+                TokenType.WhiteSpace,
+                TokenType.Text,
+                TokenType.MdElement
+            };
+            tokens.Select(token => token.Type)
                 .Should().BeEquivalentTo(expected);
         }
 
@@ -77,19 +95,19 @@ namespace Markdown
             var tokens = tokenizer.Tokenize(text);
             var italics = md.elementSigns['_'];
             var strong = md.elementSigns['*'];
-            var expected = new List<MdElement> { strong, italics, null, italics, strong };
-            tokens.Select(token => token.MdType).ToList()
+            var expected = new [] { strong, italics, null, italics, strong };
+            tokens.Select(token => token.MdType)
                 .Should().BeEquivalentTo(expected);
         }
 
         [Test]
-        public void Tokenize_ShouldEncloseMdElentsCorrectly()
+        public void Tokenize_ShouldEncloseMdElementsCorrectly()
         {
             md.AddElement(new MdElement('^', "<H1>", false));
             var text = "^ *a_*";
             var tokens = tokenizer.Tokenize(text);
-            var expected = new List<bool> { true, false, true, false, false, true };
-            tokens.Select(token => token.IsClosed).ToList()
+            var expected = new [] { true, false, true, false, false, true };
+            tokens.Select(token => token.IsClosed)
                 .Should().BeEquivalentTo(expected);
         }
     }
