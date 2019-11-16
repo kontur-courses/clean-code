@@ -1,25 +1,34 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
+using System.Linq;
 
 namespace Markdown
 {
     public class Syntax
     {
-        public readonly Dictionary<char, AttributeType> TypeDictionary;
-
-        private static readonly HashSet<char> specialSymbols = new HashSet<char>
+        private static readonly HashSet<char> SpecialSymbols = new HashSet<char>
         {
             '\\', '`', '*', '_', '{', '}', '[', ']', '(', ')', '#', '+', '-', '.', '!', '?', '|', '$', '^', '/', '>',
             '<', '&'
         };
 
+        public readonly Dictionary<char, AttributeType> TypeDictionary;
+
+        private readonly Dictionary<AttributeType, char> TextViewDictionary;
+
+        private readonly Dictionary<AttributeType, Func<string, int, bool>> ValidateMethodDictionary;
+
         public Syntax(Dictionary<char, AttributeType> typeDictionary)
         {
             TypeDictionary = typeDictionary;
-        }
+            TextViewDictionary = typeDictionary.ToDictionary(x => x.Value, x => x.Key);
 
-        public static bool CharCanBeEscaped(char ch)
-        {
-            return specialSymbols.Contains(ch);
+            ValidateMethodDictionary =
+                new Dictionary<AttributeType, Func<string, int, bool>>
+                {
+                    {AttributeType.Emphasis, IsValidPairAttribute},
+                    {AttributeType.Escape, IsValidEscapeAttribute}
+                };
         }
 
         public static Syntax InitializeDefaultSyntax()
@@ -32,21 +41,55 @@ namespace Markdown
             return new Syntax(typeDictionary);
         }
 
-        public static bool IsValidEmphasisDelimiter(int charPosition, string source)
+
+        public bool TryGetAttribute(string source, int charPosition, out AttributeType type)
         {
-            return IsOpeningDelimiter(charPosition, source) || IsClosingDelimiter(charPosition, source);
+            type = AttributeType.None;
+            var ch = source[charPosition];
+            if (!TypeDictionary.ContainsKey(ch)) return false;
+
+            var attribute = TypeDictionary[ch];
+            if (!IsValidAttribute(attribute, source, charPosition)) return false;
+
+            type = attribute;
+            return true;
         }
 
-        public static bool IsOpeningDelimiter(int charPosition, string source)
+        private bool IsValidAttribute(AttributeType type, string source, int charPosition)
         {
-            return (charPosition == 0 || char.IsWhiteSpace(source[charPosition - 1]))
+            return ValidateMethodDictionary[type](source, charPosition);
+        }
+
+        private bool IsValidPairAttribute(string source, int charPosition)
+        {
+            return IsOpeningDelimiter(source, charPosition) ^ IsClosingDelimiter(source, charPosition);
+        }
+
+        private bool IsValidEscapeAttribute(string source, int charPosition)
+        {
+            return charPosition < source.Length - 1 && SpecialSymbols.Contains(source[charPosition + 1]);
+        }
+
+        public bool IsOpeningDelimiter(string source, int charPosition)
+        {
+            if (charPosition > 0
+                && TypeDictionary.ContainsKey(source[charPosition - 1])
+                && TypeDictionary[source[charPosition]] == TypeDictionary[source[charPosition - 1]])
+                return IsOpeningDelimiter(source, charPosition - 1);
+
+            return (charPosition == 0 || char.IsWhiteSpace(source[charPosition - 1]) || source[charPosition - 1] == '\\')
                    && charPosition != source.Length - 1 && !char.IsWhiteSpace(source[charPosition + 1]);
         }
 
-        public static bool IsClosingDelimiter(int charPosition, string source)
+        public bool IsClosingDelimiter(string source, int charPosition)
         {
+            if (charPosition < source.Length - 1 
+                && TypeDictionary.ContainsKey(source[charPosition + 1]) 
+                && TypeDictionary[source[charPosition]] == TypeDictionary[source[charPosition + 1]])
+                return IsClosingDelimiter(source, charPosition + 1);
+
             return (charPosition == source.Length - 1 || char.IsWhiteSpace(source[charPosition + 1]))
-                   && charPosition != 0 && !char.IsWhiteSpace(source[charPosition - 1]);
+                    && charPosition != 0 && (!char.IsWhiteSpace(source[charPosition - 1]));
         }
     }
 }

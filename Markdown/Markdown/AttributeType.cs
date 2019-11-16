@@ -4,6 +4,7 @@
     {
         Strong,
         Emphasis,
-        Escape
+        Escape,
+        None
     }
 }

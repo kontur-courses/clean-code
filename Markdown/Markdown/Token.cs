@@ -2,17 +2,15 @@
 {
     public class Token
     {
-        public AttributeType Type { get; }
+        public readonly AttributeType Type;
+        public readonly int Position;
+        public readonly int AttributeLength;
 
-        public int Position { get; }
-
-        public bool IsСlosing { get; set; }
-
-        public Token(AttributeType type, int position, bool isСlosing = false)
+        public Token(AttributeType type, int position, int attributeLength = 1)
         {
             Type = type;
             Position = position;
-            IsСlosing = isСlosing;
+            AttributeLength = attributeLength;
         }
     }
 }

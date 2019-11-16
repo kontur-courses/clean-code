@@ -58,12 +58,15 @@
   <ItemGroup>
     <Compile Include="AttributeType.cs" />
     <Compile Include="HtmlConverter.cs" />
+    <Compile Include="IConverter.cs" />
+    <Compile Include="PairToken.cs" />
     <Compile Include="ProcessorTests.cs" />
     <Compile Include="Processor.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Syntax.cs" />
     <Compile Include="Token.cs" />
+    <Compile Include="Tokenizer.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="App.config" />

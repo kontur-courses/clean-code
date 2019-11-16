@@ -1,13 +1,39 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Text;
 
 namespace Markdown
 {
-    public static class HtmlConverter
+    public class HtmlConverter : IConverter
     {
         public static readonly Dictionary<AttributeType, string> TagDictionary = new Dictionary<AttributeType, string>
         {
             {AttributeType.Emphasis, "em"},
-            {AttributeType.Strong, "strong"}
+            {AttributeType.Strong, "strong"},
+            {AttributeType.Escape, ""}
         };
+
+        public string ReplaceAttributesWithTags(IEnumerable<Token> tokens, string source)
+        {
+            var textPosition = 0;
+            var sb = new StringBuilder();
+
+            foreach (var token in tokens)
+            {
+                sb.Append(source.Substring(textPosition, token.Position - textPosition));
+                sb.Append(GetTag(token));
+                textPosition = token.Position + token.AttributeLength;
+            }
+            sb.Append(source.Substring(textPosition, source.Length - textPosition));
+
+            return sb.ToString();
+        }
+
+        private string GetTag(Token token)
+        {
+            var tagName = TagDictionary[token.Type];
+            return token is PairToken pairToken ? $"<{(pairToken.IsClosing ? "/" : "")}{tagName}>" : tagName;
+        }
     }
 }
