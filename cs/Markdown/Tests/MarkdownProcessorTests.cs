@@ -11,7 +11,7 @@ namespace Markdown.Tests
         [SetUp]
         public void SetUp()
         {
-            processor = new MarkdownProcessor();
+            processor = MarkdownProcessorFactory.Create();
         }
 
 
@@ -34,8 +34,8 @@ namespace Markdown.Tests
         [TestCase("sample_text", TestName = "unpaired underscore in middle", ExpectedResult = "sample_text")]
         public string RenderToHtml_ShouldReturnUnchanged_WhenUnpairedUnderscoresInText(string text) => processor.RenderToHtml(text);
 
-        [TestCase(@"\_this is\_", TestName = "two commented underscores", ExpectedResult = @"\_this is\_")]
-        [TestCase(@"\_this is_", TestName = "only one commented underscore in pair", ExpectedResult = @"\_this is_")]
+        [TestCase(@"\_this is\_", TestName = "two commented underscores", ExpectedResult = "_this is_")]
+        [TestCase(@"\_this is_", TestName = "only one commented underscore in pair", ExpectedResult = "_this is_")]
         public string RenderToHtml_ShouldReturnUnchanged_WhenCommentedUnderscores(string text) => processor.RenderToHtml(text);
 
         [TestCase("_sample_text_", TestName = "three underscores", ExpectedResult = "<em>sample</em>text_")]

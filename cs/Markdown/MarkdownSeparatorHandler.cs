@@ -1,47 +1,44 @@
 ﻿using System.Collections.Generic;
 using System.Linq;
 using Markdown.Extensions;
+using Markdown.Tokens;
 
 namespace Markdown
 {
-    public class MarkdownSeparatorHandler
+    public class MarkdownSeparatorHandler : ISeparatorHandler
     {
-        public static HashSet<string> Separators = new HashSet<string> {"_"};
+        private static readonly HashSet<string> Separators = new HashSet<string> {"_"};
+        private const char EscapeCharacter = '\\';
 
-        public static bool IsSeparator(string text, int position)
+        public bool IsSeparator(string text, int position)
         {
             return Separators.Contains(text[position].ToString());
         }
 
-        public static string GetSeparator(string text, int position)
+        public int GetSeparatorLength(string text, int position)
         {
-            return text[position].ToString();
+            return 1;
         }
 
-        public static bool IsSeparatorValid(string text, int position, bool isFirst)
+        public bool IsSeparatorValid(string text, int position, bool isFirst)
         {
             var anyNonDigitAround = text.GetNeighborsOfSymbol(position).Any(s => !char.IsDigit(s));
-            if (isFirst)
-            {
-                if (position == 0)
-                {
-                    return anyNonDigitAround && !IsBeginSeparatorInvalid(text, position);
-                }
-
-                return text[position - 1] != '\\' && anyNonDigitAround && !IsBeginSeparatorInvalid(text, position);
-            }
-
-            return text[position - 1] != '\\' && anyNonDigitAround && !IsEndSeparatorInvalid(text, position);
+            return anyNonDigitAround && (isFirst
+                ? IsBeginSeparatorValid(text, position)
+                : IsEndSeparatorValid(text, position));
         }
 
-        private static bool IsBeginSeparatorInvalid(string text, int position)
+        private bool IsBeginSeparatorValid(string text, int position)
         {
-            return (position == text.Length - 1 || char.IsWhiteSpace(text[position + 1]));
+            return position == 0
+                ? position != text.Length - 1 && !char.IsWhiteSpace(text[position + 1])
+                : text[position - 1] != EscapeCharacter && position != text.Length - 1 &&
+                  !char.IsWhiteSpace(text[position + 1]);
         }
 
-        private static bool IsEndSeparatorInvalid(string text, int position)
+        private bool IsEndSeparatorValid(string text, int position)
         {
-            return char.IsWhiteSpace(text[position - 1]);
+            return position != 0 && text[position - 1] != EscapeCharacter && !char.IsWhiteSpace(text[position - 1]);
         }
     }
 }

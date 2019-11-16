@@ -2,16 +2,16 @@
 
 namespace Markdown.Html
 {
-    public class HtmlConverter
+    public class HtmlConverter : IHtmlConverter
     {
-        private readonly Dictionary<string, HtmlTag> separatorHtmlTags;
+        private readonly IReadOnlyDictionary<string, PairedHtmlTag> separatorHtmlTags;
 
-        public HtmlConverter(Dictionary<string, HtmlTag> separatorHtmlTags)
+        public HtmlConverter(IReadOnlyDictionary<string, PairedHtmlTag> separatorHtmlTags)
         {
             this.separatorHtmlTags = separatorHtmlTags;
         }
 
-        public string ConvertSeparatedStringToHtmlString(string text, string separator)
+        public string ConvertSeparatedStringToPairedHtmlTag(string text, string separator)
         {
             return separatorHtmlTags[separator].ApplyTo(text);
         }

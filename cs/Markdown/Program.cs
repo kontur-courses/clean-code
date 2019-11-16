@@ -13,13 +13,14 @@ namespace Markdown
             var parseResult = parser.Parse(args);
             if (!parseResult.HasErrors)
             {
-                var processor = new MarkdownProcessor();
-                var html = processor.RenderToHtml(File.ReadAllText(parser.Object.InputFilePath));
+                var processor = MarkdownProcessorFactory.Create();
+                var markdownText = File.ReadAllText(parser.Object.InputFilePath);
+                var html = processor.RenderToHtml(markdownText);
                 File.WriteAllText(parser.Object.OutputFilePath, html);
             }
             else
             {
-                Console.WriteLine("Произошла ошибка разбора аргументов");
+                Console.WriteLine(parseResult.ErrorText);
             }
         }
 

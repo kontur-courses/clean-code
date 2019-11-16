@@ -62,11 +62,15 @@
     <Compile Include="Extensions\StringExtensions.cs" />
     <Compile Include="Html\HtmlConverter.cs" />
     <Compile Include="Html\HtmlTag.cs" />
+    <Compile Include="Html\PairedHtmlTag.cs" />
+    <Compile Include="Html\IHtmlConverter.cs" />
     <Compile Include="MarkdownProcessor.cs" />
+    <Compile Include="MarkdownProcessorFactory.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="Tests\MarkdownProcessorTests.cs" />
     <Compile Include="MarkdownSeparatorHandler.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="Tokens\ISeparatorHandler.cs" />
     <Compile Include="Tokens\Token.cs" />
     <Compile Include="Tokens\TwoSeparatorToken.cs" />
     <Compile Include="Tokens\TokenReader.cs" />

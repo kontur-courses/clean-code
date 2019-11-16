@@ -1,4 +1,5 @@
 ﻿using System.Collections.Generic;
+using System.Linq;
 using Markdown.Html;
 using Markdown.Tokens;
 
@@ -6,39 +7,41 @@ namespace Markdown
 {
     public class MarkdownProcessor
     {
-        private readonly HtmlConverter htmlConverter;
+        private readonly IHtmlConverter htmlConverter;
 
-        public MarkdownProcessor()
+        public MarkdownProcessor(IHtmlConverter htmlConverter)
         {
-            htmlConverter = new HtmlConverter(new Dictionary<string, HtmlTag>
-            {
-                {"_", HtmlTag.Italic },
-                {"__", HtmlTag.Bold }
-            });
+            this.htmlConverter = htmlConverter;
         }
 
         public string RenderToHtml(string markdownText)
         {
             var tokens = GetAllTokens(markdownText);
-            return ReplaceTokensToHtmlInText(markdownText, tokens);
+            var htmlString = ReplaceTokensToHtmlInText(markdownText, tokens);
+            return ReplaceEscapeSymbols(htmlString);
         }
 
-        private IEnumerable<TwoSeparatorToken> GetAllTokens(string text)
+        private IEnumerable<Token> GetAllTokens(string text)
         {
-            return new TokenReader(text).ReadAllTwoSeparatorTokens(MarkdownSeparatorHandler.IsSeparator,
-                MarkdownSeparatorHandler.GetSeparator, MarkdownSeparatorHandler.IsSeparatorValid);
+            return new TokenReader(text).ReadAllTokens(new MarkdownSeparatorHandler());
         }
 
-        private string ReplaceTokensToHtmlInText(string text, IEnumerable<TwoSeparatorToken> tokens)
+        private string ReplaceTokensToHtmlInText(string text, IEnumerable<Token> tokens)
         {
             var htmlText = text;
-            foreach (var token in tokens)
+            foreach (var token in tokens.Where(t => t is TwoSeparatorToken).Cast<TwoSeparatorToken>())
             {
-                var tokenValueInHtml = htmlConverter.ConvertSeparatedStringToHtmlString(token.Value, token.Separator);
-                htmlText = htmlText.Replace(token.ValueWithSeparators, tokenValueInHtml);
+                var tokenValueInHtml =
+                    htmlConverter.ConvertSeparatedStringToPairedHtmlTag(token.TokenValue, token.Separator);
+                htmlText = htmlText.Replace(token.TokenValueWithSeparators, tokenValueInHtml);
             }
 
             return htmlText;
+        }
+
+        private string ReplaceEscapeSymbols(string text)
+        {
+            return text.Replace("\\_", "_");
         }
     }
 }

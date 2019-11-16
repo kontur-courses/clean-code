@@ -4,9 +4,9 @@
     {
         public string Separator { get; }
 
-        public string ValueWithSeparators => $"{Separator}{Value}{Separator}";
+        public string TokenValueWithSeparators => $"{Separator}{TokenValue}{Separator}";
 
-        public TwoSeparatorToken(int position, string value, string separator) : base(position, value)
+        public TwoSeparatorToken(int position, int length, string value, string separator) : base(position, length, value)
         {
             Separator = separator;
         }
@@ -15,8 +15,7 @@
             string separatorValue)
         {
             var startPosition = firstSeparatorPos + separatorValue.Length;
-            return new TwoSeparatorToken(startPosition, text.Substring(startPosition, secondSeparatorPos - startPosition),
-                separatorValue);
+            return new TwoSeparatorToken(startPosition, secondSeparatorPos - startPosition, text, separatorValue);
         }
     }
 }
