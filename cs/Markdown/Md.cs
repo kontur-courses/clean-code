@@ -1,6 +1,4 @@
-﻿using System.Linq;
-
-namespace Markdown
+﻿namespace Markdown
 {
     public class Md
     {
@@ -10,7 +8,7 @@ namespace Markdown
             var tokens = parser.GetTokens();
             var converter = new MdConverter(tokens, markDownParagraph);
             var htmlTokens = converter.GetHtmlTokens();
-            return string.Join(" ", htmlTokens);
+            return string.Join(string.Empty, htmlTokens);
         }
     }
 }
