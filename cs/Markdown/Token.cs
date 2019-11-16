@@ -1,8 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace Markdown
 {
@@ -14,7 +10,9 @@ namespace Markdown
 
         public Token(int index, int length, bool isTag)
         {
-            throw new NotImplementedException();
+            Index = index;
+            IsTag = isTag;
+            Length = length;
         }
     }
 }

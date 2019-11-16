@@ -1,8 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace Markdown
 {
@@ -12,12 +8,14 @@ namespace Markdown
         public bool isMultiple { get; } // состоит тег из одного символа или из нескольких подряд идущих
         public bool isPair { get; } // Парный тег или одиночный
         public bool isHearingCouples { get; } // Если True, то все парные теги до него считаются без пары, кроме его пары
-        public string getHtml { get; } // Соответствуюший ему тэг из html
+        public string getOpenHtml { get; } // Соответствуюший ему открывающий тэг из html
+        public string getCloseHtml { get; } // Соответствуюший ему закрывающий тэг из html
 
-        public Tag(string tagString, string html, bool multiple, bool pair, bool hearingCouples)
+        public Tag(string tagString, bool multiple, bool pair, bool hearingCouples, string openHtml, string closeHtml)
         {
             getTagString = tagString;
-            getHtml = html;
+            getOpenHtml = openHtml;
+            getCloseHtml = closeHtml;
             isMultiple = multiple;
             isPair = pair;
             isHearingCouples = hearingCouples;
