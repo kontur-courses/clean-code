@@ -6,37 +6,6 @@ using System.Threading.Tasks;
 
 namespace Markdown
 {
-    public enum TokenType
-    {
-        Text,
-        MdElement,
-        WhiteSpace
-    }
-
-    public enum MdPosition
-    {
-        None,
-        Opening,
-        Enclosing
-    }
-
-    public class Token
-    {
-        public char Value;
-        public TokenType Type;
-        public MdElement MdType;
-        public MdPosition MdPosition;
-        public bool IsClosed;
-
-        public Token(char value, TokenType type)
-        {
-            Type = type;
-            Value = value;
-            MdPosition = MdPosition.None;
-            IsClosed = false;
-        }
-    }
-
     public class Tokenizer
     {
         private Dictionary<char, MdElement> elementSigns;
