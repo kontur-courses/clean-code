@@ -17,7 +17,7 @@ namespace Markdown.MdTokens
         {
             if (text == null) throw new ArgumentNullException(nameof(text));
             if (text == "") throw new ArgumentException("Text is empty");
-            return text.Split().Select(str => MakeToken(str));
+            return text.Split().Where(str => str != "").Select(str => MakeToken(str));
         }
 
         private MdToken MakeToken(string text)
