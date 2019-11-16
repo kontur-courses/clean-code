@@ -8,14 +8,6 @@ namespace Markdown
 {
     public class MdElement
     {
-        public MdElement(char mdTag, string htmlTag, bool isEnclosed)
-        {
-            IsEnclosed = isEnclosed;
-            MdTag = mdTag;
-            HtmlTag = htmlTag ?? throw new ArgumentNullException(nameof(htmlTag));
-            HtmlTagClose = htmlTag.Substring(0, htmlTag.Length - 1) + "/" + ">";
-        }
-
         public bool IsEnclosed;
 
         public char MdTag;
@@ -23,5 +15,13 @@ namespace Markdown
         public string HtmlTag;
 
         public string HtmlTagClose;
+
+        public MdElement(char mdTag, string htmlTag, bool isEnclosed)
+        {
+            IsEnclosed = isEnclosed;
+            MdTag = mdTag;
+            HtmlTag = htmlTag ?? throw new ArgumentNullException(nameof(htmlTag));
+            HtmlTagClose = htmlTag.Substring(0, htmlTag.Length - 1) + "/" + ">";
+        }
     }
 }
