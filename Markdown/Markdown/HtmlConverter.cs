@@ -7,7 +7,7 @@ namespace Markdown
 {
     public class HtmlConverter : IConverter
     {
-        public static readonly Dictionary<AttributeType, string> TagDictionary = new Dictionary<AttributeType, string>
+        private static readonly Dictionary<AttributeType, string> tagDictionary = new Dictionary<AttributeType, string>
         {
             {AttributeType.Emphasis, "em"},
             {AttributeType.Strong, "strong"},
@@ -32,7 +32,7 @@ namespace Markdown
 
         private string GetTag(Token token)
         {
-            var tagName = TagDictionary[token.Type];
+            var tagName = tagDictionary[token.Type];
             return token is PairToken pairToken ? $"<{(pairToken.IsClosing ? "/" : "")}{tagName}>" : tagName;
         }
     }

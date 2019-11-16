@@ -20,14 +20,14 @@ namespace Markdown
         private static IEnumerable<Token> GetRawTokens(string source, Syntax syntax)
         {
             for (var i = 0; i < source.Length; i++)
-                if (syntax.TryGetAttribute(source, i, out var type))
-                    yield return CreateToken(syntax, source, i);
+                if (syntax.TryGetCharAttribute(source, i, out var type))
+                    yield return CreateToken(syntax, type, source, i);
         }
 
 
-        public static Token CreateToken(Syntax syntax, string source, int charPosition)
+        public static Token CreateToken(Syntax syntax, AttributeType  type, string source, int charPosition)
         {
-            var tokenType = syntax.TypeDictionary[source[charPosition]];
+            var tokenType = type;
 
             if (tokenType == AttributeType.Emphasis)
                 return new PairToken(tokenType, charPosition, syntax.IsClosingDelimiter(source, charPosition));

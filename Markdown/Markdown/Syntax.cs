@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
 
 namespace Markdown
 {
@@ -12,55 +11,53 @@ namespace Markdown
             '<', '&'
         };
 
-        public readonly Dictionary<char, AttributeType> TypeDictionary;
+        private readonly Dictionary<char, AttributeType> typeOfCharDictionary;
 
-        private readonly Dictionary<AttributeType, char> TextViewDictionary;
 
         private readonly Dictionary<AttributeType, Func<string, int, bool>> ValidateMethodDictionary;
 
-        public Syntax(Dictionary<char, AttributeType> typeDictionary)
+        public Syntax(Dictionary<char, AttributeType> typeOfCharDictionary)
         {
-            TypeDictionary = typeDictionary;
-            TextViewDictionary = typeDictionary.ToDictionary(x => x.Value, x => x.Key);
+            this.typeOfCharDictionary = typeOfCharDictionary;
 
             ValidateMethodDictionary =
                 new Dictionary<AttributeType, Func<string, int, bool>>
                 {
-                    {AttributeType.Emphasis, IsValidPairAttribute},
+                    {AttributeType.Emphasis, IsValidPairCharAttribute},
                     {AttributeType.Escape, IsValidEscapeAttribute}
                 };
         }
 
         public static Syntax InitializeDefaultSyntax()
         {
-            var typeDictionary = new Dictionary<char, AttributeType>
+            var charTypes = new Dictionary<char, AttributeType>
             {
                 {'_', AttributeType.Emphasis},
                 {'\\', AttributeType.Escape}
             };
-            return new Syntax(typeDictionary);
+            return new Syntax(charTypes);
         }
 
 
-        public bool TryGetAttribute(string source, int charPosition, out AttributeType type)
+        public bool TryGetCharAttribute(string source, int charPosition, out AttributeType type)
         {
             type = AttributeType.None;
             var ch = source[charPosition];
-            if (!TypeDictionary.ContainsKey(ch)) return false;
+            if (!typeOfCharDictionary.ContainsKey(ch)) return false;
 
-            var attribute = TypeDictionary[ch];
-            if (!IsValidAttribute(attribute, source, charPosition)) return false;
+            var attribute = typeOfCharDictionary[ch];
+            if (!IsValidCharAttribute(attribute, source, charPosition)) return false;
 
             type = attribute;
             return true;
         }
 
-        private bool IsValidAttribute(AttributeType type, string source, int charPosition)
+        private bool IsValidCharAttribute(AttributeType type, string source, int charPosition)
         {
             return ValidateMethodDictionary[type](source, charPosition);
         }
 
-        private bool IsValidPairAttribute(string source, int charPosition)
+        private bool IsValidPairCharAttribute(string source, int charPosition)
         {
             return IsOpeningDelimiter(source, charPosition) ^ IsClosingDelimiter(source, charPosition);
         }
@@ -73,23 +70,24 @@ namespace Markdown
         public bool IsOpeningDelimiter(string source, int charPosition)
         {
             if (charPosition > 0
-                && TypeDictionary.ContainsKey(source[charPosition - 1])
-                && TypeDictionary[source[charPosition]] == TypeDictionary[source[charPosition - 1]])
+                && typeOfCharDictionary.ContainsKey(source[charPosition - 1])
+                && typeOfCharDictionary[source[charPosition]] == typeOfCharDictionary[source[charPosition - 1]])
                 return IsOpeningDelimiter(source, charPosition - 1);
 
-            return (charPosition == 0 || char.IsWhiteSpace(source[charPosition - 1]) || source[charPosition - 1] == '\\')
+            return (charPosition == 0 || char.IsWhiteSpace(source[charPosition - 1]) ||
+                    source[charPosition - 1] == '\\')
                    && charPosition != source.Length - 1 && !char.IsWhiteSpace(source[charPosition + 1]);
         }
 
         public bool IsClosingDelimiter(string source, int charPosition)
         {
-            if (charPosition < source.Length - 1 
-                && TypeDictionary.ContainsKey(source[charPosition + 1]) 
-                && TypeDictionary[source[charPosition]] == TypeDictionary[source[charPosition + 1]])
+            if (charPosition < source.Length - 1
+                && typeOfCharDictionary.ContainsKey(source[charPosition + 1])
+                && typeOfCharDictionary[source[charPosition]] == typeOfCharDictionary[source[charPosition + 1]])
                 return IsClosingDelimiter(source, charPosition + 1);
 
             return (charPosition == source.Length - 1 || char.IsWhiteSpace(source[charPosition + 1]))
-                    && charPosition != 0 && (!char.IsWhiteSpace(source[charPosition - 1]));
+                   && charPosition != 0 && !char.IsWhiteSpace(source[charPosition - 1]);
         }
     }
 }
