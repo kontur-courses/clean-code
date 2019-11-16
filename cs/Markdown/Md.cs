@@ -20,7 +20,7 @@ namespace Markdown
             if(mdProcessor is null) throw new InvalidOperationException("No MdProcessor is set");
             tokenizer = new MdTokenizer();
             var result = tokenizer.MakeTokens(text).Select(token => mdProcessor.GetProcessedResult((MdToken)token));
-            return string.Join("", result);
+            return string.Join(" ", result);
         }
     }
 }
