@@ -62,6 +62,7 @@
     <Compile Include="Tests\TokenizerTests.cs" />
     <Compile Include="Tokenizer\Token.cs" />
     <Compile Include="Tokenizer\Tokenizer.cs" />
+    <Compile Include="Tokenizer\TokenizerHelper.cs" />
     <Compile Include="Tokenizer\TokenType.cs" />
   </ItemGroup>
   <ItemGroup>

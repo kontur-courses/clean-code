@@ -1,8 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace Markdown
 {
@@ -10,33 +7,12 @@ namespace Markdown
     {
         private Dictionary<char, MdElement> elementSigns;
 
-        private bool isScreen = false;
-
-        private TokenType GetTokenType(char symbol)
-        {
-            if (symbol == ' ')
-                return TokenType.WhiteSpace;
-            else if (symbol == '\\' && isScreen)
-            {
-                isScreen = false;
-                return TokenType.Text;
-            }
-            else if (elementSigns.ContainsKey(symbol))
-            {
-                if (isScreen)
-                {
-                    isScreen = false;
-                    return TokenType.Text;
-                }
-                return TokenType.MdElement;
-            }
-            else
-                return TokenType.Text;
-        }
+        private TokenizerHelper helper;
 
         public Tokenizer(Dictionary<char, MdElement> elementSigns)
         {
             this.elementSigns = elementSigns;
+            helper = new TokenizerHelper();
         }
 
         public List<Token> Tokenize(string text)
@@ -54,12 +30,14 @@ namespace Markdown
             var tokens = new List<Token>();
             foreach (var symbol in text)
             {
-                if (symbol == '\\' && !isScreen)
+                if (symbol == '\\' && !helper.isScreen)
                 {
-                    isScreen = true;
+                    helper.ScreenNext();
                     continue;
                 }
-                tokens.Add(new Token(symbol, GetTokenType(symbol)));
+                var tokenType = helper.GetTokenType(symbol, elementSigns);
+                var token = new Token(symbol, tokenType);
+                tokens.Add(token);
             }
             return tokens;
         }
@@ -68,35 +46,19 @@ namespace Markdown
         {
             for (int i = 0; i < tokens.Count; ++i)
             {
-                tokens[i] = InspectToken(tokens[i], MdPosition.Opening, isMdElementOpening(i, tokens));
+                var isOpening = helper.IsMdElementOpening(i, tokens);
+                tokens[i] = helper.InspectToken(tokens[i], MdPosition.Opening, isOpening, elementSigns);
             }
             for (int i = tokens.Count - 1; i > -1; --i)
             {
-                tokens[i] = InspectToken(tokens[i], MdPosition.Enclosing, isMdElementEnclosing(i, tokens));
+                var isEnclosing = helper.IsMdElementEnclosing(i, tokens);
+                tokens[i] = helper.InspectToken(tokens[i], MdPosition.Enclosing, isEnclosing, elementSigns);
             }
             for (int i = 0; i < tokens.Count; ++i)
                 if (tokens[i].Type == TokenType.MdElement && tokens[i].MdPosition == MdPosition.None)
                     tokens[i].Type = TokenType.Text;
             return tokens;
         }
-
-        private Token InspectToken(Token token, MdPosition inspectedPosition, bool isTokenOfInspectedPosition)
-        {
-            if (token.Type == TokenType.MdElement && isTokenOfInspectedPosition)
-            {
-                token.MdType = elementSigns[token.Value];
-                token.MdPosition = inspectedPosition;
-            }
-            return token;
-        }
-
-        private bool isMdElementOpening(int i, List<Token> tokens) =>
-            i == 0 || tokens[i - 1].Type == TokenType.WhiteSpace 
-            || tokens[i - 1].MdPosition == MdPosition.Opening;
-
-        private bool isMdElementEnclosing(int i, List<Token> tokens) =>
-            i == tokens.Count - 1 || tokens[i + 1].Type == TokenType.WhiteSpace
-            || tokens[i + 1].MdPosition == MdPosition.Enclosing;
 
         private List<Token> CheckMdTokensForEnclosing(List<Token> tokens)
         {
@@ -109,18 +71,11 @@ namespace Markdown
                         token.IsClosed = true;
                     else if (token.MdPosition == MdPosition.Opening)
                     {
-                        if (enclosing.ContainsKey(token.Value))
-                            enclosing[token.Value].Push(token);
-                        else
-                        {
-                            enclosing.Add(token.Value, new Stack<Token>());
-                            enclosing[token.Value].Push(token);
-                        }
+                        helper.AddOpeningElementForEnclosing(token, enclosing);
                     }
                     else if (token.MdPosition == MdPosition.Enclosing && enclosing.ContainsKey(token.Value))
                     {
-                        enclosing[token.Value].Pop().IsClosed = true;
-                        token.IsClosed = true;
+                        helper.EncloseToken(token, enclosing);
                     }
                 }
             }
