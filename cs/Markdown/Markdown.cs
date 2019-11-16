@@ -16,8 +16,6 @@ namespace Markdown
         {
             ["_"] = "em",
             ["__"] = "strong",
-            //["**"] = "lul",
-            //["*_*"] = "xax",
         };
 
         public string Render(string inputString)
