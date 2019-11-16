@@ -57,6 +57,12 @@ namespace Markdown.Tests
         }
         
         [Test]
+        public void MakeTokens_Should_ReturnSeveralTokensWithEmphasisToken_When_TextWithSpacesAndEmphasis()
+        {
+            tokenizer.MakeTokens("abc     abc").Count().Should().Be(2);
+        }
+        
+        [Test]
         public void MakeTokens_Should_ReturnSeveralEmptyTokens_When_TextWithSpacesAndNoSpecialSymbols()
         {
             var tokens = tokenizer.MakeTokens("abc abc").ToList();
@@ -66,14 +72,14 @@ namespace Markdown.Tests
         }
         
         [Test]
-        public void MakeTokens_Should_ReturnSeveralTokensWithEmphasisToken_When_TextWithSpacesAndEmphasis()
+        public void MakeTokens_Should_ReturnSeveralEmptyTokens_When_TextWithMultipleSpacesAndNoSpecialSymbols()
         {
-            var tokens = tokenizer.MakeTokens("_abc_ abc").ToList();
+            var tokens = tokenizer.MakeTokens("abc      bc").ToList();
             var firstToken = tokens.First();
-            var expectedToken = new MdToken("abc", "_", "_");
+            var expectedToken = new MdToken("abc", "NONE", "NONE");
             firstToken.Should().BeEquivalentTo(expectedToken);
         }
-        
+
         [Test]
         public void MakeTokens_Should_ReturnSeveralTokensWithEmphasis_When_TextWithSeveralTokensWithEmphasis()
         {
