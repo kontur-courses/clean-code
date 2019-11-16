@@ -6,7 +6,7 @@ namespace Markdown.MdProcessing
 {
     public class MdToHtmlProcessor : IMdProcessor
     {
-        private MdToHtmlSymbolTable htmlSymbolTable;
+        private readonly MdToHtmlSymbolTable htmlSymbolTable;
 
         public MdToHtmlProcessor()
         {
