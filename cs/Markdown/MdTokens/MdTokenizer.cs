@@ -24,6 +24,8 @@ namespace Markdown.MdTokens
         {
             var beginningSymbol = GetBeginningSpecialSymbol(text);
             var endingSymbol = GetEndingSpecialSymbol(text);
+            if (text == beginningSymbol || text == endingSymbol)
+                beginningSymbol = endingSymbol = "NONE";
             var content = GetContent(text, beginningSymbol, endingSymbol);
             return new MdToken(content, beginningSymbol, endingSymbol);
         }

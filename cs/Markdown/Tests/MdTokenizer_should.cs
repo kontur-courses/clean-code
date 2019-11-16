@@ -39,6 +39,7 @@ namespace Markdown.Tests
         [TestCase("text__", "text", "NONE", "__", TestName = "when text with singular bold symbol and the end")]
         [TestCase("__text", "text", "__", "NONE", TestName = "when text with singular bold symbol and the beginning")]
         [TestCase("b_aa__a_c", "b_aa__a_c", "NONE", "NONE", TestName = "when text with incorrect special symbols")]
+        [TestCase("__", "__", "NONE", "NONE", TestName = "when text with only special symbols")]
         public void MakeTokens_Should_ParseToken(string text, 
             string expectedContent, 
             string expectedSpecialSymbolBeginning, 
