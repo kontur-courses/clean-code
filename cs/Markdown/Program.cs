@@ -1,4 +1,6 @@
 ﻿using System;
+using System.IO;
+using System.Text;
 
 namespace Markdown
 {
@@ -6,13 +8,11 @@ namespace Markdown
     {
         static void Main(string[] args)
         {
-            var input = "__А  _ФФ Ф__ Ф_";
+            var input = "Hello my __friend__ \nI am __Markdown__ \n\\_I can change the lines like this\\_ -> _I can change the lines like this_ ";
 
             var md = new Markdown();
             var res = md.Render(input);
 
-            Console.WriteLine(input);
-            Console.WriteLine();
             Console.WriteLine(res);
             Console.ReadKey();
         }

@@ -6,22 +6,30 @@ namespace Markdown
 { 
     class Markdown
     {
+        public static readonly Dictionary<string, int> MarkDownTagsPriority = new Dictionary<string, int>
+        {
+            ["_"] = 1,
+            ["__"] = 2,
+        };
+
         static readonly Dictionary<string, string> HtmlReplacementRules = new Dictionary<string, string>
         {
             ["_"] = "em",
             ["__"] = "strong",
-            ["**"] = "lul",
-            ["*_*"] = "xax"
+            //["**"] = "lul",
+            //["*_*"] = "xax",
         };
 
         public string Render(string inputString)
         {
-            var allMarkDownTagsInInputString = TagSearchTool.GetMarkdownTags(inputString, HtmlReplacementRules.Keys.ToList());
+            var markdownTagSymbols = HtmlReplacementRules.Keys.ToList();
+
+            var allMarkDownTagsInInputString = TagSearchTool.GetMarkdownTags(inputString, markdownTagSymbols);
             var onlyCorrectTags = TagCleanTool.GetCorrectMarkdownTags(inputString, allMarkDownTagsInInputString);
 
             var outputString = inputString;
-            outputString = RemoveShieldSymbols(outputString);
             outputString = ChangeTags(outputString, onlyCorrectTags, HtmlReplacementRules);
+            outputString = RemoveShieldSymbols(outputString);
 
             return outputString;
         }

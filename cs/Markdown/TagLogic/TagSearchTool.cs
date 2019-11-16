@@ -26,15 +26,15 @@ namespace Markdown
             var convertedTags = new Dictionary<string, List<Tag>>();
 
             foreach (var separatorTagSymbol in indexesOfTags.Keys)
-                foreach (var index in indexesOfTags[separatorTagSymbol])
-                {
-                    if (!TryGetTag(inputString, index, separatorTagSymbol, out Tag separator)) continue;
+            foreach (var index in indexesOfTags[separatorTagSymbol])
+            {
+                if (!TryGetTag(inputString, index, separatorTagSymbol, out Tag separator)) continue;
 
-                    if (!convertedTags.ContainsKey(separatorTagSymbol))
-                        convertedTags[separatorTagSymbol] = new List<Tag> { separator };
-                    else
-                        convertedTags[separatorTagSymbol].Add(separator);
-                }
+                if (!convertedTags.ContainsKey(separatorTagSymbol))
+                    convertedTags[separatorTagSymbol] = new List<Tag> {separator};
+                else
+                    convertedTags[separatorTagSymbol].Add(separator);
+            }
 
             return convertedTags;
         }
@@ -72,13 +72,21 @@ namespace Markdown
 
             if (IsOpeningTag(previousTagSymbol, nextTagSymbol))
             {
-                tag = new Tag(tagSymbolToConvert, tagIndex, TagType.Opening);
+                tag = new Tag(
+                    tagSymbolToConvert, 
+                    tagIndex, 
+                    TagType.Opening, 
+                    Markdown.MarkDownTagsPriority[tagSymbolToConvert]);
                 return true;
             }
 
             if (IsClosingTag(previousTagSymbol, nextTagSymbol))
             {
-                tag = new Tag(tagSymbolToConvert, tagIndex, TagType.Closing);
+                tag = new Tag(
+                    tagSymbolToConvert,
+                    tagIndex,
+                    TagType.Closing,
+                    Markdown.MarkDownTagsPriority[tagSymbolToConvert]);
                 return true;
             }
 
