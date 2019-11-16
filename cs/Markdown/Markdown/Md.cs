@@ -25,25 +25,17 @@ namespace Markdown
                 throw new ArgumentNullException(nameof(text));
             var tokens = tokenizer.Tokenize(text);
             var renderedText = new StringBuilder();
-            foreach (var token in tokens)
-            {
-                if (token.Type == TokenType.MdElement)
-                {
-                    if (token.IsClosed)
-                    {
-                        var MdElement = token.MdType;
-                        var tag = token.MdPosition == MdPosition.Opening ?
-                            MdElement.HtmlTag : MdElement.HtmlTagClose;
-                        renderedText.Append(tag);
-                    }
-                    else
-                        renderedText.Append(token.Value);
-                }
-                else
-                    renderedText.Append(token.Value);
-            }
-            return renderedText.ToString();
+            var result = tokens
+                .Select(token => IsTokenMdAndClosed(token) ?
+                    GetHtmlTag(token) : token.Value.ToString());
+            return string.Join("", result);
         }
+
+        private bool IsTokenMdAndClosed(Token token) =>
+            token.Type == TokenType.MdElement && token.IsClosed;
+
+        private string GetHtmlTag(Token token) => token.MdPosition == MdPosition.Opening ?
+                        token.MdType.HtmlTag : token.MdType.HtmlTagClose;
 
         public void AddElement(MdElement element)
         {
