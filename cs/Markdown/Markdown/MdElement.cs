@@ -10,11 +10,9 @@ namespace Markdown
     {
         public MdElement(char mdTag, string htmlTag, bool isEnclosed)
         {
-            if (htmlTag == null)
-                throw new ArgumentNullException(nameof(htmlTag));
             IsEnclosed = isEnclosed;
             MdTag = mdTag;
-            HtmlTag = htmlTag;
+            HtmlTag = htmlTag ?? throw new ArgumentNullException(nameof(htmlTag));
             HtmlTagClose = htmlTag.Substring(0, htmlTag.Length - 1) + "/" + ">";
         }
 
