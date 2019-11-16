@@ -1,6 +1,7 @@
 ﻿﻿using System;
 using System.Collections.Generic;
  using System.Linq;
+ using System.Net.Configuration;
  using Markdown.Tokenizer;
 
 namespace Markdown.MdTokens
@@ -22,10 +23,9 @@ namespace Markdown.MdTokens
 
         private MdToken MakeToken(string text)
         {
+            if(text.Length <= 2) return new MdToken(text, "NONE", "NONE");
             var beginningSymbol = GetBeginningSpecialSymbol(text);
             var endingSymbol = GetEndingSpecialSymbol(text);
-            if (text == beginningSymbol || text == endingSymbol)
-                beginningSymbol = endingSymbol = "NONE";
             var content = GetContent(text, beginningSymbol, endingSymbol);
             return new MdToken(content, beginningSymbol, endingSymbol);
         }
