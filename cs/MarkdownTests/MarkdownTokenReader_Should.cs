@@ -153,14 +153,14 @@ namespace MarkdownTests
             IEnumerable<string> expectedTexts, IEnumerable<TokenType> expectedTypes,
             IEnumerable<int> expectedLength, IEnumerable<int> expectedPositions)
         {
-            tokens.Select(tkn => tkn.Text).Should().BeEquivalentTo(expectedTexts,
-                "texts should be equal");
             tokens.Select(tkn => tkn.TokenType).Should().BeEquivalentTo(expectedTypes,
                 "token types should be equal");
             tokens.Select(tkn => tkn.Length).Should().BeEquivalentTo(expectedLength, 
                 "lengths should be equal");
             tokens.Select(tkn => tkn.Position).Should().BeEquivalentTo(expectedPositions,
                 "positions should be equal");
+            tokens.Select(tkn => tkn.Text).Should().BeEquivalentTo(expectedTexts,
+                "texts should be equal");
         }
     }
 }

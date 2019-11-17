@@ -13,7 +13,8 @@ namespace Markdown
 
         public TokenReader(List<TokenDescription> tokenDescriptions)
         {
-            this.tokenDescriptions = tokenDescriptions;
+
+            this.tokenDescriptions = tokenDescriptions.ToList();
         }
 
         public List<Token> TokenizeText(string text)
@@ -25,16 +26,10 @@ namespace Markdown
             while(position < text.Length)
             {
                 Token token = null;
-                var prevPosition = position;
-                while (position < text.Length && !TryReadToken(text, position, out token))
-                    position++;
-                if (prevPosition < position)
-                    tokenList.Add(new Token(text, prevPosition, TokenType.Text, position - prevPosition));
-                if (token != null)
-                {
-                    tokenList.Add(token);
-                    position += token.Length;
-                }
+                if (!TryReadToken(text, position, out token))
+                    break;
+                tokenList.Add(token);
+                position += token.Length;
             }
 
             tokenList.Add(new Token(text, text.Length, TokenType.Eof));
@@ -45,12 +40,22 @@ namespace Markdown
         public bool TryReadToken(string text, int position, out Token token)
         {
             token = null;
-            foreach(var tokenDescription in tokenDescriptions)
-            {
-                if (tokenDescription.TryReadToken(text, position, out token))
-                    return true;
-            }
-            return false;
+
+            var offset = 0;
+            for(offset = 0;  position + offset < text.Length; offset++)
+                foreach(var tokenDescription in tokenDescriptions)
+                {
+                    if (tokenDescription.TryReadToken(text, position + offset, out token))
+                    {
+                        if (offset != 0)
+                            token = new Token(text, position, TokenType.Text, offset);
+                        return true;
+                    }
+                }
+
+            if (offset != 0)
+                token = new Token(text, position, TokenType.Text, offset);
+            return token != null;
         }
     }
 }
