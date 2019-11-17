@@ -46,9 +46,17 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="HTMLConverter.cs" />
+    <Compile Include="ITextConverter.cs" />
     <Compile Include="Markdown.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
-    <Compile Include="Style.cs" />
+    <Compile Include="Tokens\ItalicStyle.cs" />
+    <Compile Include="Tokens\Backslash.cs" />
+    <Compile Include="Tokens\RawText.cs" />
+    <Compile Include="Tokens\Root.cs" />
+    <Compile Include="Tokens\Space.cs" />
+    <Compile Include="Tokens\Token.cs" />
+    <Compile Include="Tokens\TokenRules.cs" />
     <Compile Include="Utils.cs" />
   </ItemGroup>
   <ItemGroup>

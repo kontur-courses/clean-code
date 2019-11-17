@@ -1,115 +1,63 @@
-﻿using System;
+﻿using Markdown.Tokens;
 using System.Collections.Generic;
-using System.Linq;
 
 namespace Markdown
 {
     public class Md
     {
-        private readonly IEnumerable<Style> knownStylesOrderedByTagLength;
-
-        public Md()
-        {
-            knownStylesOrderedByTagLength = Enumerable
-                .Cast<Style>(Enum.GetValues(typeof(Style)))
-                .OrderBy(s => s.MdTag().Length);
-        }
-
         public string Render(string mdText)
         {
             if (string.IsNullOrWhiteSpace(mdText))
                 return mdText;
 
-            var html = string.Empty;
+            var rootToken = new Root(ref mdText);
+            ParseTokenText(rootToken, ref mdText);
 
-            var actualStyles = new Stack<(Style style, int endIndex)>();
-
-            var i = 0;
-            while (i < mdText.Length)
-            {
-                if (actualStyles.Count > 0)
-                {
-                    var (currentStyle, endIndex) = actualStyles.Peek();
-                    if (i == endIndex)
-                    {
-                        html += currentStyle.CloseHtmlTag();
-                        i += currentStyle.MdTag().Length;
-                        actualStyles.Pop();
-                        continue;
-                    }
-                }
-
-                if (IsBackslashedSymbol(ref mdText, i, out string backslashedSymbol, out int offset))
-                {
-                    html += backslashedSymbol;
-                    i += offset;
-                    continue;
-                }
-
-                if (CanBeginNewStyle(ref mdText, i, actualStyles, out Style newStyle, out int newStyleEndIndex))
-                {
-                    actualStyles.Push((newStyle, newStyleEndIndex));
-                    html += newStyle.OpenHtmlTag();
-                    i += newStyle.MdTag().Length;
-                    continue;
-                }
-
-                html += mdText[i];
-                i++;
-            }
-
-            return html;
+            return TextConverter.HTMLConverter().Convert(rootToken, ref mdText);
         }
 
-        private bool IsBackslashedSymbol(ref string mdText, int i, out string symbol, out int offset)
+        private void ParseTokenText(Token parentToken, ref string document)
         {
-            if (mdText[i] == '\\')
+            var i = parentToken.BeginIndex;
+            while (i < parentToken.EndIndex)
             {
-                if (i + 1 < mdText.Length)
+                if (TokenRules.IsTokenTagInPosition(i, ref document, out List<Token> matchedTokens))
                 {
-                    var nextSymbol = mdText[i + 1];
-                    foreach (var style in knownStylesOrderedByTagLength.Where(s => s.MdTag().Length == 1))
+                    var isTokenAdded = false;
+                    foreach (var matchedToken in matchedTokens)
                     {
-                        if (style.MdTag()[0] == nextSymbol)
+                        if (matchedToken.CanBeBeginned(i, ref document, parentToken))
                         {
-                            symbol = nextSymbol.ToString();
-                            offset = 2;
-                            return true;
+                            parentToken.Children.Add(matchedToken);
+                            ParseTokenText(matchedToken, ref document);
+                            i = matchedToken.EndIndex;
+                            isTokenAdded = true;
+                            break;
                         }
                     }
-                    symbol = mdText.Substring(i, 2);
-                    offset = 2;
-                    return true;
+                    if (!isTokenAdded)
+                    {
+                        var rawText = new RawText
+                        {
+                            BeginIndex = i,
+                            EndIndex = i + matchedTokens[0].MarkdownTag.Length
+                        };
+                        parentToken.Children.Add(rawText);
+                        i = rawText.EndIndex;
+                    }
                 }
                 else
-                {
-                    symbol = "\\";
-                    offset = 1;
-                    return true;
-                }
+                    i++;
             }
 
-            symbol = default;
-            offset = default;
-            return false;
-        }
-
-        private bool CanBeginNewStyle(ref string mdText, int i, Stack<(Style style, int endIndex)> outerStyles, out Style newStyle, out int newStyleEndIndex)
-        {
-            foreach (var knownStyle in knownStylesOrderedByTagLength.Reverse())
+            if (parentToken.Children.Count > 0)
             {
-                if (knownStyle.IsTag(ref mdText, i) 
-                    && knownStyle.CanBegin(ref mdText, i, outerStyles, out int endIndex))
+                i = parentToken.BeginIndex;
+                while (i < parentToken.EndIndex)
                 {
-                    newStyle = knownStyle;
-                    newStyleEndIndex = endIndex;
-                    return true;
+                    //TODO raw between other tokens
                 }
             }
-
-            newStyle = default;
-            newStyleEndIndex = default;
-            return false;
-        }
+        }        
     }
 }
