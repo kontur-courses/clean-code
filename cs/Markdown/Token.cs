@@ -7,34 +7,85 @@ namespace Markdown
 {
     public class Token
     {
-        public Deque<Tuple<int, int>> StringBlocks = new Deque<Tuple<int, int>>();
-        public Deque<Token> Value = new Deque<Token>();
-        public int StartPosition;
-        public int Length;
-        public string Tag;
+        private StringBuilder value = new StringBuilder();
+        private Deque<Token> innerTokens = new Deque<Token>();
+        public readonly string Prefix;
+        private bool isClosed = false;
+        private TokenPrefixCondition condition = TokenPrefixCondition.Tag;
+        private string Tag;
         public int ActualEnd;
-        public int ActualStart;
 
-        public string ConvertToHTMLTag(string tokensString)
+        public Token(string prefix)
         {
-            if (!StringBlocks.Any())
-                return string.IsNullOrWhiteSpace(Tag)
-                    ? tokensString.Substring(StartPosition, Length)
-                    : $"<{Tag}>{tokensString.Substring(StartPosition, Length)}</{Tag}>";
+            Prefix = prefix;
+        }
 
-            var htmlString = new StringBuilder();
-            while (StringBlocks.Any())
+        public void AddChar(char anyChar)
+        {
+            if (innerTokens.IsEmpty)
+                value.Append(anyChar);
+            else
             {
-                var (start, length) = StringBlocks.RemoveFirst();
-                htmlString.Append(tokensString.Substring(start, length));
-                if (!Value.Any()) continue;
-                var innerToken = Value.RemoveFirst();
-                htmlString.Append(innerToken.ConvertToHTMLTag(tokensString));
+                if (innerTokens.Last.isClosed)
+                    innerTokens.AddLast(new Token(""));
+                innerTokens.Last.AddChar(anyChar);
+            }
+        }
+
+        public Token CreateInnerToken(string prefix)
+        {
+            var innerToken = new Token(prefix);
+            innerTokens.AddLast(innerToken);
+
+            return innerToken;
+        }
+
+        public void CloseToken(int endPosition, string tag)
+        {
+            isClosed = true;
+            ActualEnd = endPosition;
+            Tag = tag;
+        }
+
+        public string ConvertToHTMLTag()
+        {
+            if (innerTokens.IsEmpty)
+            {
+                return string.IsNullOrWhiteSpace(Tag)
+                    ? value.ToString()
+                    : $"<{Tag}>{value}</{Tag}>";
             }
 
-            return string.IsNullOrWhiteSpace(Tag)
-                ? htmlString.ToString()
-                : $"<{Tag}>{htmlString}</{Tag}>";
+            var htmlString = new StringBuilder();
+            while (!innerTokens.IsEmpty)
+            {
+                htmlString.Append(innerTokens.RemoveFirst().ConvertToHTMLTag());
+            }
+
+            if (condition == TokenPrefixCondition.Hide)
+                return htmlString.ToString();
+
+            if (!isClosed)
+                return Prefix + htmlString;
+            return condition == TokenPrefixCondition.Tag
+                ? $"<{Tag}>{htmlString}</{Tag}>"
+                : $"{Prefix}{htmlString}{Prefix}";
+        }
+
+        public void ClearTags(HashSet<string> notAllowedTag, string hideTag)
+        {
+            foreach (var token in innerTokens)
+            {
+                if (token.Prefix == hideTag)
+                {
+                    token.condition = TokenPrefixCondition.Hide;
+                    token.ClearTags(notAllowedTag, hideTag);
+                }else if (notAllowedTag.Contains(token.Prefix))
+                {
+                    token.condition = TokenPrefixCondition.Symbols;
+                    token.ClearTags(notAllowedTag, hideTag);
+                }
+            }
         }
     }
 }

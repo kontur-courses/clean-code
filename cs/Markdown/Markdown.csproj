@@ -89,6 +89,7 @@
     </Reference>
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Symbol.cs" />
     <Compile Include="ControlSymbols.cs" />
     <Compile Include="Deque.cs" />
     <Compile Include="Md.cs" />
@@ -96,9 +97,11 @@
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="StopSymbolDecision.cs" />
     <Compile Include="Tests\Test_ControlSymbols.cs" />
+    <Compile Include="Tests\Test_Md.cs" />
     <Compile Include="Tests\Test_Token.cs" />
     <Compile Include="Tests\Test_TokenReader.cs" />
     <Compile Include="Token.cs" />
+    <Compile Include="TokenPrefixCondition.cs" />
     <Compile Include="TokenReader.cs" />
   </ItemGroup>
   <ItemGroup>

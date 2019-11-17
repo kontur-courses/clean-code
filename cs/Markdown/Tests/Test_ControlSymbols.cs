@@ -33,7 +33,7 @@ namespace Markdown.Tests
             
             var actual = ControlSymbols.ControlSymbolDecisionOnChar["__"](input, 4);
 
-            actual.Should().Be(StopSymbolDecision.Continue);
+            actual.Should().Be(StopSymbolDecision.AddChar);
         }
         
         [Test]
@@ -43,7 +43,7 @@ namespace Markdown.Tests
             
             var actual = ControlSymbols.ControlSymbolDecisionOnChar["__"](input, 4);
 
-            actual.Should().Be(StopSymbolDecision.Continue);
+            actual.Should().Be(StopSymbolDecision.AddChar);
         }
         
         [Test]
@@ -57,13 +57,13 @@ namespace Markdown.Tests
         }
         
         [Test]
-        public void MakeDecisionForTwoUnderscores_ShouldContinue_IfTakesWhiteSpaceTwoUnderscoresAndASymbol()
+        public void MakeDecisionForTwoUnderscores_ShouldNesredToken_IfTakesWhiteSpaceTwoUnderscoresAndASymbol()
         {
             var input = "asd __asd";
             
             var actual = ControlSymbols.ControlSymbolDecisionOnChar["__"](input, 4);
 
-            actual.Should().Be(StopSymbolDecision.Continue);
+            actual.Should().Be(StopSymbolDecision.NestedToken);
         }
 
         [Test]
@@ -93,7 +93,7 @@ namespace Markdown.Tests
 
             var actual = ControlSymbols.ControlSymbolDecisionOnChar["_"](input, 2);
 
-            actual.Should().Be(StopSymbolDecision.Continue);
+            actual.Should().Be(StopSymbolDecision.AddChar);
         }
         
         [Test]
@@ -103,7 +103,7 @@ namespace Markdown.Tests
 
             var actual = ControlSymbols.ControlSymbolDecisionOnChar["_"](input, 2);
 
-            actual.Should().Be(StopSymbolDecision.Continue);
+            actual.Should().Be(StopSymbolDecision.NestedToken);
         }
         
         [Test]
@@ -113,7 +113,7 @@ namespace Markdown.Tests
 
             var actual = ControlSymbols.ControlSymbolDecisionOnChar["_"](input, 3);
 
-            actual.Should().Be(StopSymbolDecision.Continue);
+            actual.Should().Be(StopSymbolDecision.AddChar);
         }
         
         [Test]

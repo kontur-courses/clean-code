@@ -8,77 +8,70 @@ namespace Markdown
         public static readonly Dictionary<string, Func<string, int, StopSymbolDecision>> ControlSymbolDecisionOnChar =
             new Dictionary<string, Func<string, int, StopSymbolDecision>>()
             {
-                {"_", MakeDecisionForOneUnderscores},
-                {"__", MakeDecisionForTwoUnderscores}
+                {"_", (input, position) => MakeDecision(input, position, "_")},
+                {"__", (input, position) => MakeDecision(input, position, "__")}
             };
 
-        public static readonly HashSet<string> ControlSymbol = new HashSet<string>() {"_", "__"};
+        private static readonly HashSet<string> ControlSymbol = new HashSet<string>() {"_", "__"};
         private static readonly HashSet<char> previousStopSymbol = new HashSet<char>() {' ', '\\'};
+        private static readonly int maxLengthOfControlSymbol = 2;
 
         public static readonly Dictionary<string, string> ControlSymbolTags = new Dictionary<string, string>()
-            {{"_", "em"}, {"__", "strong"}};
-        public static readonly Dictionary<string, HashSet<string>> TagCloseNextTag = new Dictionary<string, HashSet<string>>
         {
-            {"em", new HashSet<string>{"em", "strong"}},
-            {"strong", new HashSet<string>{"strong"}}
+            {"_", "em"},
+            {"__", "strong"}
         };
-        
+
+        public static readonly Dictionary<string, HashSet<string>> TagCloseNextTag =
+            new Dictionary<string, HashSet<string>>
+            {
+                {"_", new HashSet<string> {"_", "__"}},
+                {"__", new HashSet<string> {"__"}}
+            };
+
+        public static Symbol AnalyzeSymbol(string input, int position)
+        {
+            if (input[position] == '\\' && IsControlSymbol(input, position + 1))
+                return Symbol.Screen;
+            if (position != 0 && input[position - 1] != ' ')
+                return Symbol.AnotherSymbol;
+            return IsControlSymbol(input, position) ? Symbol.ControlSymbol : Symbol.AnotherSymbol;
+        }
+
+        public static bool IsControlSymbol(string input, int position)
+        {
+            return !(ResolveControlSymbol(input, position) is null);
+        }
+
         public static string ResolveControlSymbol(string input, int position)
         {
-            if (input.Substring(position, 2) == "__")
-                return "__";
-            return "_";
+            for (var lengthOfControlSymbols = maxLengthOfControlSymbol;
+                lengthOfControlSymbols > 0;
+                lengthOfControlSymbols--)
+            {
+                if (position + lengthOfControlSymbols <= input.Length &&
+                    ControlSymbol.Contains(input.Substring(position, lengthOfControlSymbols)))
+                    return input.Substring(position, lengthOfControlSymbols);
+            }
+
+            return null;
         }
 
-        private static StopSymbolDecision MakeDecisionForOneUnderscores(string input, int position)
+        private static StopSymbolDecision MakeDecision(string input, int position,
+            string control)
         {
-            if (input[position] != '_')
-                return StopSymbolDecision.Continue;
-            if (isNastedOneUnderscores(input, position))
+            if (input[position] == '\\' && IsControlSymbol(input, position + 1))
+                return StopSymbolDecision.Skip;
+            var controlSymbol = ResolveControlSymbol(input, position);
+            if (controlSymbol is null)
+                return StopSymbolDecision.AddChar;
+            var indexAfter = position + controlSymbol.Length;
+            if ((position == 0 || input[position - 1] == ' ') && indexAfter < input.Length && input[indexAfter] != ' ')
                 return StopSymbolDecision.NestedToken;
-            return isEndOfOneUnderscores(input, position)
-                ? StopSymbolDecision.Stop
-                : StopSymbolDecision.Continue;
-        }
-
-        private static StopSymbolDecision MakeDecisionForTwoUnderscores(string input, int position)
-        {
-            if (input[position] != '_')
-                return StopSymbolDecision.Continue;
-
-            if (isNastedTwoUnderscores(input, position))
-                return StopSymbolDecision.NestedToken;
-            return isEndOfDoubleUnderscores(input, position)
-                ? StopSymbolDecision.Stop
-                : StopSymbolDecision.Continue;
-        }
-
-        private static bool isEndOfDoubleUnderscores(string input, int position)
-        {
-            return (position > 0 && !previousStopSymbol.Contains(input[position - 1])) &&
-                   (position + 1 < input.Length && input[position + 1] == '_') &&
-                   (position + 2 == input.Length || (position + 2 < input.Length && input[position + 2] == ' '));
-        }
-
-        private static bool isNastedTwoUnderscores(string input, int position)
-        {
-            if (position - 1 < 0 || position + 1 >= input.Length || input[position - 1] == '\\' ||
-                input[position - 1] != ' ') return false;
-            return input[position + 1] != ' ' && input[position + 1] != '_';
-        }
-
-        private static bool isNastedOneUnderscores(string input, int position)
-        {
-            if (position - 1 < 0 || position + 2 >= input.Length || input[position - 1] == '\\' ||
-                input[position - 1] != ' ') return false;
-            return input[position + 2] != ' ' && input[position + 1] == '_';
-        }
-        
-        private static bool isEndOfOneUnderscores(string input, int position)
-        {
-            return position > 0 && !previousStopSymbol.Contains(input[position - 1])
-                   && input[position - 1] != '_'
-                   && (position + 1 == input.Length || input[position + 1] == ' ');
+            if (controlSymbol == control && input[position - 1] != ' ' && input[position - 1] != '\\' &&
+                !IsControlSymbol(input, position - 1) && (indexAfter == input.Length || input[indexAfter] == ' '))
+                return StopSymbolDecision.Stop;
+            return StopSymbolDecision.AddChar;
         }
     }
 }

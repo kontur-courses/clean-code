@@ -1,172 +1,80 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using static Markdown.ControlSymbols;
 
 namespace Markdown
 {
     public static class TokenReader
     {
-        public static Token ReadUntil(Deque<Tuple<string, Token>> controlSymbols, string input)
+        public static Token ReadUntil(string input, int startPosition)
         {
-            var currentPosition = controlSymbols.First.Item2.StartPosition;
-            while (currentPosition < input.Length)
+            var prefix = ResolveControlSymbol(input, startPosition);
+            var mainToken = new Token(prefix);
+            mainToken.CreateInnerToken("");
+            var innerTokens = new Deque<Token>();
+            innerTokens.AddLast(mainToken);
+            for (var currentPosition = startPosition + prefix.Length; currentPosition < input.Length; currentPosition++)
             {
-                foreach (var element in controlSymbols)
+                var count = innerTokens.Count;
+                foreach (var token in innerTokens)
                 {
-                    var (controlSymbol, hisToken) = element;
-                    var countOfNasted = 0;
-                    switch (ControlSymbols.ControlSymbolDecisionOnChar[controlSymbol](input, currentPosition))
+                    var controlSymbol = token.Prefix;
+                    switch (ControlSymbolDecisionOnChar[controlSymbol](input, currentPosition))
                     {
                         case StopSymbolDecision.Stop:
-                            CloseToken(controlSymbols, controlSymbol, hisToken, currentPosition);
-                            if (controlSymbols.First.Item1 == controlSymbol)
-                                return hisToken;
-                            controlSymbols.RemoveLast();
-                            continue;
+                            token.CloseToken(currentPosition + controlSymbol.Length, ControlSymbolTags[controlSymbol]);
+                            token.ClearTags(TagCloseNextTag[controlSymbol], controlSymbol);
+                            if (prefix == controlSymbol)
+                                return mainToken;
+                            while (controlSymbol != innerTokens.Last.Prefix)
+                                innerTokens.RemoveLast();
+                            innerTokens.RemoveLast();
+                            currentPosition += controlSymbol.Length - 1;
+                            break;
                         case StopSymbolDecision.NestedToken:
-                            countOfNasted++;
+                            var inPrefix = ResolveControlSymbol(input, currentPosition);
+                            innerTokens.AddLast(innerTokens.Last.CreateInnerToken(inPrefix));
+                            innerTokens.Last.CreateInnerToken("");
+                            currentPosition += inPrefix.Length;
+                            break;
+                        case StopSymbolDecision.AddChar:
+                            count--;
                             break;
                     }
-
-                    if (countOfNasted == controlSymbols.Count)
-                        NastedToken(controlSymbols, input, currentPosition);
                 }
 
-                currentPosition++;
+                if (count == 0)
+                    mainToken.AddChar(input[currentPosition]);
             }
-            
-            return ClearUnClosedToken(controlSymbols.First.Item2, input.Length);
-        }
-        
-        
-        public static Token ReadWhile(Func<string, int, bool> isControlSymbol, string input, int startPosition)
-        {
-            throw new NotImplementedException();
+
+            mainToken.ActualEnd = input.Length;
+            return mainToken;
         }
 
-        public static Token ClearUnClosedToken(Token token, int end)
+
+        public static Token ReadWhile(Func<string, int, Symbol> analyzeSymbol, string input, int startPosition)
         {
-            var correctToken = new Token{StartPosition = token.ActualStart, Length = end - token.ActualStart};
-            if (token.Value.IsEmpty)
+            var position = startPosition;
+            var token = new Token("");
+            var stop = false;
+            for (; position < input.Length && !stop; position++)
             {
-                correctToken.Length = end - correctToken.StartPosition;
-                return correctToken;
-            }
-            
-            var notNullTagTokens = new Queue<Token>();    
-            GetAllNotNullTokens(token, notNullTagTokens);
-            while (notNullTagTokens.Any())
-            {
-                var innerToken = notNullTagTokens.Dequeue();
-                if (correctToken.Value.IsEmpty)
-                    correctToken.StringBlocks.AddLast(Tuple.Create(correctToken.ActualStart,
-                        innerToken.ActualStart - correctToken.ActualStart));
-                else
+                switch (analyzeSymbol(input, position))
                 {
-                    var endOfPreviousInnerToken = correctToken.Value.Last.ActualEnd;
-                    correctToken.StringBlocks.AddLast(Tuple.Create(endOfPreviousInnerToken,
-                        innerToken.ActualStart - endOfPreviousInnerToken));
-                }
-                correctToken.Value.AddLast(innerToken);
-                    
-            }
-            
-            StandardiseToken(correctToken, new HashSet<string>());
-            return correctToken;
-        }
-
-        public static void GetAllNotNullTokens(Token token, Queue<Token> notNullTagTokens)
-        {
-            foreach (var tokens in token.Value)
-            {
-                if(tokens.Tag is null)
-                    GetAllNotNullTokens(tokens, notNullTagTokens);
-                else
-                    notNullTagTokens.Enqueue(tokens);
-            }
-        }
-        private static void NastedToken(Deque<Tuple<string, Token>> controlSymbols, string input, int currentPosition)
-        {
-            var symbol = ControlSymbols.ResolveControlSymbol(input, currentPosition);
-            var newToken = new Token {ActualStart = currentPosition, StartPosition = currentPosition + symbol.Length};
-            var prevToken = controlSymbols.Last.Item2;
-            if (prevToken.Value.IsEmpty)
-                prevToken.StringBlocks.AddLast(Tuple.Create(prevToken.StartPosition,
-                    currentPosition - prevToken.StartPosition));
-            else
-            {
-                var lastInnerToken = prevToken.Value.Last;
-                prevToken.StringBlocks.AddLast(Tuple.Create(lastInnerToken.ActualEnd,
-                    currentPosition - lastInnerToken.ActualEnd - 1));
-            }
-
-            prevToken.Value.AddLast(newToken);
-            controlSymbols.AddLast(Tuple.Create(symbol, newToken));
-        }
-
-        private static void CloseToken(Deque<Tuple<string, Token>> controlSymbols, string controlSymbol, Token hisToken,
-            int currentPosition)
-        {
-            while (controlSymbols.Last.Item1 != controlSymbol)
-            {
-                controlSymbols.RemoveLast();
-            }
-
-            if (!hisToken.Value.IsEmpty && hisToken.Value.Last.Tag == "")
-            {
-                hisToken.Value.RemoveLast();
-                hisToken.StringBlocks.RemoveLast();
-            }
-
-            hisToken.Length = currentPosition - hisToken.StartPosition;
-            hisToken.ActualEnd = currentPosition + controlSymbol.Length - 1;
-            hisToken.Tag = ControlSymbols.ControlSymbolTags[controlSymbol];
-            StandardiseToken(hisToken, ControlSymbols.TagCloseNextTag[ControlSymbols.ControlSymbolTags[controlSymbol]]);
-        }
-
-        public static void StandardiseToken(Token token, HashSet<string> notAllowedTags)
-        {
-            if (token.StringBlocks.IsEmpty && token.Value.IsEmpty)
-                return;
-            
-            var newStringBlock = new Deque<Tuple<int, int>>();
-            var newValue = new Deque<Token>();
-            while (!token.StringBlocks.IsEmpty)
-            {
-                var block = token.StringBlocks.RemoveFirst();
-                if (token.Value.IsEmpty)
-                {
-                    newStringBlock.AddLast(block);
-                    break;
-                }
-                var innerToken = token.Value.RemoveFirst();
-                if (notAllowedTags.Contains(innerToken.Tag))
-                {
-                    if (token.StringBlocks.IsEmpty)
-                        newStringBlock.AddLast(Tuple.Create(block.Item1,
-                            token.Length + token.StartPosition - block.Item1));
-                    else
-                    {
-                        var nextBlock = token.StringBlocks.RemoveFirst();
-                        token.StringBlocks.AddFirst(Tuple.Create(block.Item1,
-                            nextBlock.Item1 - block.Item1 + nextBlock.Item2));
-                    }
-                }
-                else
-                {
-                    newStringBlock.AddLast(block);
-                    newValue.AddFirst(innerToken);
+                    case Symbol.ControlSymbol:
+                        stop = true;
+                        break;
+                    case Symbol.Screen:
+                        continue;
+                    case Symbol.AnotherSymbol:
+                        token.AddChar(input[position]);
+                        continue;
                 }
             }
 
-            var tokenEnd = token.StartPosition + token.Length;
-            if (tokenEnd != newStringBlock.Last.Item2 + newStringBlock.Last.Item1
-                && newValue.Last.ActualEnd < tokenEnd)
-                newStringBlock.AddLast(
-                    Tuple.Create(newValue.Last.ActualEnd + 1, tokenEnd - newValue.Last.ActualEnd - 1));
-
-            token.StringBlocks = newStringBlock;
-            token.Value = newValue;
+            token.CloseToken(position, "");
+            return token;
         }
     }
 }

@@ -11,9 +11,13 @@ namespace Markdown.Tests
         public void ConvertTokenToHTML_ShouldReturnSimpleString_OnSimplestInput()
         {
             var input = "asda";
-            var token = new Token {StartPosition = 0, Length = 4, Tag = ""};
-
-            var actual = token.ConvertToHTMLTag(input);
+            var token = new Token("");
+            foreach (var cha in input)
+            {
+                token.AddChar(cha);
+            }
+            token.CloseToken(4, "");
+            var actual = token.ConvertToHTMLTag();
 
             actual.Should().Be(input);
         }
@@ -22,9 +26,15 @@ namespace Markdown.Tests
         public void ConvertTokenToHTML_ShouldReturnStringInTag_OnInputWithTag()
         {
             var input = "asda";
-            var token = new Token {StartPosition = 0, Length = 4, Tag = "em"};
             var excepted = "<em>asda</em>";
-            var actual = token.ConvertToHTMLTag(input);
+            var token = new Token("_");
+
+            foreach (var cha in input)
+            {
+                token.AddChar(cha);
+            }
+            token.CloseToken(4, "em");
+            var actual = token.ConvertToHTMLTag();
 
             actual.Should().Be(excepted);
         }
@@ -33,13 +43,19 @@ namespace Markdown.Tests
         public void ConvertTokenToHTML_ShouldReturnStringWithDoubleTag_IfTokenInMiddleOfToken()
         {
             var input = "asda";
-            var token = new Token {StartPosition = 0, Length = 4, Tag = "all"};
-            token.StringBlocks.AddLast(new Tuple<int, int>(0, 1));
-            token.Value.AddLast(new Token{StartPosition = 1, Length = 2, Tag = "inside"});
-            token.StringBlocks.AddLast(new Tuple<int, int>(3, 1));
             var excepted = "<all>a<inside>sd</inside>a</all>";
+            var token = new Token("");
             
-            var actual = token.ConvertToHTMLTag(input);
+            token.CreateInnerToken("");
+            token.AddChar('a');
+            var innerToken = token.CreateInnerToken("");
+            token.AddChar('s');
+            token.AddChar('d');
+            innerToken.CloseToken(2, "inside");
+            token.AddChar('a');
+            token.CloseToken(3, "all");
+            
+            var actual = token.ConvertToHTMLTag();
 
             actual.Should().Be(excepted);
         }
@@ -48,12 +64,19 @@ namespace Markdown.Tests
         public void ConvertTokenToHTML_ShouldReturnStringWithDoubleTag_IfTokenInRightCornerOfToken()
         {
             var input = "asda";
-            var token = new Token {StartPosition = 0, Length = 4, Tag = "all"};
-            token.StringBlocks.AddLast(new Tuple<int, int>(0, 2));
-            token.Value.AddLast(new Token{StartPosition = 2, Length = 2, Tag = "inside"});
             var excepted = "<all>as<inside>da</inside></all>";
+            var token = new Token("");
             
-            var actual = token.ConvertToHTMLTag(input);
+            token.CreateInnerToken("");
+            token.AddChar('a');
+            token.AddChar('s');
+            var innerToken = token.CreateInnerToken("");
+            token.AddChar('d');
+            token.AddChar('a');
+            innerToken.CloseToken(3, "inside");
+            token.CloseToken(3, "all");
+
+            var actual = token.ConvertToHTMLTag();
 
             actual.Should().Be(excepted);
         }
@@ -62,13 +85,17 @@ namespace Markdown.Tests
         public void ConvertTokenToHTML_ShouldReturnStringWithDoubleTag_IfTokenInLeftCornerOfToken()
         {
             var input = "asda";
-            var token = new Token {StartPosition = 0, Length = 4, Tag = "all"};
-            token.StringBlocks.AddLast(new Tuple<int, int>(0, 0));
-            token.Value.AddLast(new Token{StartPosition = 0, Length = 2, Tag = "inside"});
-            token.StringBlocks.AddLast(new Tuple<int, int>(2, 2));
             var excepted = "<all><inside>as</inside>da</all>";
+            var token = new Token("");
+            var innerToken = token.CreateInnerToken("");
+            token.AddChar('a');
+            token.AddChar('s');
+            innerToken.CloseToken(1, "inside");
+            token.AddChar('d');
+            token.AddChar('a');
+            token.CloseToken(3, "all");
             
-            var actual = token.ConvertToHTMLTag(input);
+            var actual = token.ConvertToHTMLTag();
 
             actual.Should().Be(excepted);
         }
@@ -77,61 +104,35 @@ namespace Markdown.Tests
         public void ConvertTokenToHTML_ShouldReturnStringWithDoubleTag_IfTokenIsWholeToken()
         {
             var input = "asda";
-            var token = new Token {StartPosition = 0, Length = 4, Tag = "all"};
-            token.StringBlocks.AddLast(new Tuple<int, int>(0, 0));
-            token.Value.AddLast(new Token{StartPosition = 0, Length = 4, Tag = "inside"});
             var excepted = "<all><inside>asda</inside></all>";
+            var token = new Token("");
+            var innerToken = token.CreateInnerToken("");
+            token.AddChar('a');
+            token.AddChar('s');
+            token.AddChar('d');
+            token.AddChar('a');
+            innerToken.CloseToken(3, "inside");
+            token.CloseToken(3, "all");
             
-            var actual = token.ConvertToHTMLTag(input);
+            var actual = token.ConvertToHTMLTag();
 
             actual.Should().Be(excepted);
         }
-        
+
         [Test]
-        public void ConvertTokenToHTML_ShouldReturnStringSquenceTag_IfTokensInToken()
+        public void ConvertToHTML_ShouldReturnStringWithPrefix_IfTokenNotClosed()
         {
             var input = "asda";
-            var token = new Token {StartPosition = 0, Length = 4, Tag = "all"};
-            token.StringBlocks.AddLast(new Tuple<int, int>(0, 0));
-            token.Value.AddLast(new Token{StartPosition = 0, Length = 1, Tag = "1"});
-            token.StringBlocks.AddLast(new Tuple<int, int>(1, 0));
-            token.Value.AddLast(new Token{StartPosition = 1, Length = 1, Tag = "2"});
-            token.StringBlocks.AddLast(new Tuple<int, int>(2, 1));
-            token.Value.AddLast(new Token{StartPosition = 3, Length = 1, Tag = "3"});
-            var excepted = "<all><1>a</1><2>s</2>d<3>a</3></all>";
+            var excepted = "__asda";
+            var token = new Token("__");
             
-            var actual = token.ConvertToHTMLTag(input);
+            token.CreateInnerToken("");
+            foreach (var cha in input)
+            {
+                token.AddChar(cha);
+            }
 
-            actual.Should().Be(excepted);
-        }
-        
-        [Test]
-        public void ConvertTokenToHTML_ShouldReturnRightAnswer_IfTokenVeryDifficulte()
-        {
-            var input = "abcdefg";
-            var token = new Token {StartPosition = 0, Length = 7, Tag = "all"};
-            var firstToken = new Token {StartPosition = 0, Length = 4, Tag = "1"};
-            var innerTokenOfFirst = new Token {StartPosition = 1, Length = 3, Tag = "11"};
-            var secondToken = new Token {StartPosition = 4, Length = 3, Tag = "2"};
-            var firstInnerTokenOfSecondToken = new Token {StartPosition = 4, Length = 1, Tag = "21"};
-            var secondInnerTokenOfSecondToken = new Token {StartPosition = 5, Length = 2, Tag = "22"};
-            
-            firstToken.StringBlocks.AddLast(new Tuple<int, int>(0,1));
-            firstToken.Value.AddLast(innerTokenOfFirst);
-
-            secondToken.StringBlocks.AddLast(new Tuple<int, int>(4, 0));
-            secondToken.Value.AddLast(firstInnerTokenOfSecondToken);
-            secondToken.StringBlocks.AddLast(new Tuple<int, int>(5, 0));
-            secondToken.Value.AddLast(secondInnerTokenOfSecondToken);
-            
-            token.StringBlocks.AddLast(new Tuple<int, int>(0, 0));
-            token.Value.AddLast(firstToken);
-            token.StringBlocks.AddLast(new Tuple<int, int>(4, 0));
-            token.Value.AddLast(secondToken);
-            
-            var excepted = "<all><1>a<11>bcd</11></1><2><21>e</21><22>fg</22></2></all>";
-            
-            var actual = token.ConvertToHTMLTag(input);
+            var actual = token.ConvertToHTMLTag();
 
             actual.Should().Be(excepted);
         }

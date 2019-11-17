@@ -2,8 +2,9 @@ namespace Markdown
 {
     public enum StopSymbolDecision
     {
-        Continue,
+        AddChar,
         Stop,
-        NestedToken
+        NestedToken,
+        Skip
     }
 }
