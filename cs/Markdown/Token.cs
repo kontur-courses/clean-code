@@ -2,17 +2,17 @@
 {
     public class Token
     {
-        public readonly int Length;
-        public readonly int Position;
+        public readonly int End;
+        public readonly int Start;
         public readonly string Value;
-        
+
         /// <param name="value">Проинтерпретированное значение токена</param>
-        /// <param name="position">Позиция начала токена в исходной строке</param>
-        /// <param name="length">Длина токена в исходной строке. Может не совпадать с длиной <paramref name="value" /></param>
-        public Token(string value, int position, int length)
+        /// <param name="start">Позиция начала токена в исходной строке</param>
+        /// <param name="end">Длина токена в исходной строке. Может не совпадать с длиной <paramref name="value" /></param>
+        public Token(string value, int start, int end)
         {
-            Position = position;
-            Length = length;
+            Start = start;
+            End = end;
             Value = value;
         }
 
@@ -25,15 +25,15 @@
 
         protected bool Equals(Token other)
         {
-            return Length == other.Length && Position == other.Position && string.Equals(Value, other.Value);
+            return End == other.End && Start == other.Start && string.Equals(Value, other.Value);
         }
 
         public override int GetHashCode()
         {
             unchecked
             {
-                var hashCode = Length;
-                hashCode = (hashCode * 397) ^ Position;
+                var hashCode = End;
+                hashCode = (hashCode * 397) ^ Start;
                 hashCode = (hashCode * 397) ^ (Value != null ? Value.GetHashCode() : 0);
                 return hashCode;
             }
@@ -41,13 +41,13 @@
 
         public int GetIndexNextToToken()
         {
-            return Position + Length;
+            return Start + End;
         }
 
         public override string ToString()
         {
             var value = $"[{Value}]";
-            return $"{value.PadRight(10)} Position={Position:##0} Length={Length}";
+            return $"{value.PadRight(10)} Position={Start:##0} Length={End}";
         }
     }
 }

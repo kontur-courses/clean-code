@@ -2,9 +2,9 @@
 {
     public class HTMLWrapper
     {
-        public static string WrapWithTag(string tag, Token text)
+        public static string WrapWithTag(string tag, string text)
         {
-            return tag;
+            return "<" + tag + ">" + text + "</" + tag + ">";
         } 
     }
 }
