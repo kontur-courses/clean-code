@@ -6,13 +6,12 @@ namespace Markdown
 {
     public class Deque<T> : IEnumerable<T> 
     {
-        DoublyNode<T> head; 
-        DoublyNode<T> tail; 
-        int count;  
-        
+        private DoublyNode<T> head; 
+        private DoublyNode<T> tail;
+
         public void AddLast(T data)
         {
-            DoublyNode<T> node = new DoublyNode<T>(data);
+           var node = new DoublyNode<T>(data);
  
             if (head == null)
                 head = node;
@@ -22,26 +21,26 @@ namespace Markdown
                 node.Previous = tail;
             }
             tail = node;
-            count++;
+            Count++;
         }
         public void AddFirst(T data)
         {
-            DoublyNode<T> node = new DoublyNode<T>(data);
-            DoublyNode<T> temp = head;
+            var node = new DoublyNode<T>(data);
+            var temp = head;
             node.Next = temp;
             head = node;
-            if (count == 0)
+            if (Count == 0)
                 tail = head;
             else
                 temp.Previous = node;
-            count++;
+            Count++;
         }
         public T RemoveFirst()
         {
-            if (count == 0)
+            if (Count == 0)
                 throw new InvalidOperationException();
-            T output = head.Data;
-            if(count==1)
+            var output = head.Data;
+            if(Count==1)
             {
                 head = tail = null;
             }
@@ -50,15 +49,15 @@ namespace Markdown
                 head = head.Next;
                 head.Previous = null;
             }
-            count--;
+            Count--;
             return output;
         }
         public T RemoveLast()
         {
-            if (count == 0)
+            if (Count == 0)
                 throw new InvalidOperationException();
-            T output = tail.Data;
-            if (count == 1)
+            var output = tail.Data;
+            if (Count == 1)
             {
                 head = tail = null;
             }
@@ -67,7 +66,7 @@ namespace Markdown
                 tail = tail.Previous;
                 tail.Next = null;
             }
-            count--;
+            Count--;
             return output;
         }
         public T First
@@ -89,19 +88,19 @@ namespace Markdown
             }
         }
  
-        public int Count { get { return count; } }
-        public bool IsEmpty { get { return count == 0; } }
- 
+        public int Count { get; private set; }
+        public bool IsEmpty => Count == 0;
+
         public void Clear()
         {
             head = null;
             tail = null;
-            count = 0;
+            Count = 0;
         }
  
         public bool Contains(T data)
         {
-            DoublyNode<T> current = head;
+            var current = head;
             while (current != null)
             {
                 if (current.Data.Equals(data))
@@ -118,7 +117,7 @@ namespace Markdown
  
         IEnumerator<T> IEnumerable<T>.GetEnumerator()
         {
-            DoublyNode<T> current = head;
+            var current = head;
             while (current != null)
             {
                 yield return current.Data;
@@ -133,7 +132,7 @@ namespace Markdown
         {
             Data = data;
         }
-        public T Data { get; set; }
+        public T Data { get; private set; }
         public DoublyNode<T> Previous { get; set; }
         public DoublyNode<T> Next { get; set; }
     }
