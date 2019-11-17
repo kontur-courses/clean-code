@@ -17,7 +17,7 @@ namespace Markdown
 
         public IEnumerable<string> GetHtmlTokens()
         {
-            return tokens.Select(token => ConvertToHtml(token)).ToList();
+            return tokens.Select(ConvertToHtml).ToList();
         }
 
         public string ConvertToHtml(Token token)
@@ -39,11 +39,17 @@ namespace Markdown
         private string GetHtmlEquivalent(Token token)
         {
             var type = token.TagType;
+            var content = GetTokenContent(token);
+            return new StringBuilder(type.HtmlOpeningTag).Append(content).Append(type.HtmlClosingTag).ToString();
+        }
+
+        private string GetTokenContent(Token token)
+        {
+            var type = token.TagType;
             var openingSymbolLength = type.MdOpeningTag.Length;
             var closingSymbolLength = type.MdClosingTag.Length;
-            var content = text.Substring(token.Position + openingSymbolLength,
+            return text.Substring(token.Position + openingSymbolLength,
                 token.Length - closingSymbolLength - openingSymbolLength);
-            return new StringBuilder(type.HtmlOpeningTag).Append(content).Append(type.HtmlClosingTag).ToString();
         }
     }
 }

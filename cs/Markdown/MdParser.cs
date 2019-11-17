@@ -1,99 +1,75 @@
 ﻿using System.Collections.Generic;
+using System.Linq;
 
 namespace Markdown
 {
     public class MdParser
     {
         private readonly string text;
+        private readonly List<Token> tokens;
+        private int parserPosition;
+        private int nestedCount;
 
         public MdParser(string text)
         {
             this.text = text;
+            tokens = new List<Token>();
+            parserPosition = 0;
+            nestedCount = 0;
         }
 
         public IEnumerable<Token> GetTokens()
         {
-            var tokens = new List<Token>();
-            var startPosition = 0;
-            var currentPosition = 0;
-            var tokenTagType = TagType.GetTagType(text, startPosition);
-            
-            while (currentPosition < text.Length)
+            var parserPosition = 0;
+            var tokenTagType = TagType.GetTagType(text, parserPosition);
+            while (parserPosition < text.Length)
             {
-                var symbolType = TagType.GetTagType(text, currentPosition);
-
-                if (tokenTagType is DefaultTagType)
-                {
-                    if (symbolType is EmTagType || symbolType is StrongTagType)
-                    {
-                        tokens.Add(new Token(startPosition, currentPosition - startPosition, tokenTagType));
-                        startPosition = currentPosition;
-                        tokenTagType = symbolType;
-                    }
-                    else
-                    {
-                        currentPosition++;
-                        if (currentPosition == text.Length)
-                            tokens.Add(new Token(startPosition, currentPosition - startPosition, tokenTagType));
-                    }
-                }
-                else if (tokenTagType is EmTagType)
-                {
-                    if (symbolType is EmTagType)
-                    {
-                        if (EmTagType.IsClosedTag(text, currentPosition))
-                        {
-                            currentPosition++;
-                            tokens.Add(new Token(startPosition, currentPosition - startPosition, tokenTagType));
-                            startPosition = currentPosition;
-                            tokenTagType = currentPosition < text.Length
-                                ? TagType.GetTagType(text, currentPosition)
-                                : new DefaultTagType();
-                        }
-                        else
-                        {
-                            currentPosition++;
-                            if (currentPosition == text.Length)
-                                tokens.Add(new Token(startPosition, currentPosition - startPosition, tokenTagType));
-                        }
-                    }
-                    else
-                    {
-                        currentPosition += symbolType.HtmlOpeningTag == string.Empty ? 1 : symbolType.HtmlOpeningTag.Length;
-                        if (currentPosition == text.Length)
-                            tokens.Add(new Token(startPosition, currentPosition - startPosition, tokenTagType));
-                    }
-                }
-                else if (tokenTagType is StrongTagType)
-                {
-                    if (symbolType is StrongTagType)
-                    {
-                        if (StrongTagType.IsClosedTag(text, currentPosition))
-                        {
-                            currentPosition += 2;
-                            tokens.Add(new Token(startPosition, currentPosition - startPosition, tokenTagType));
-                            startPosition = currentPosition;
-                            tokenTagType = currentPosition < text.Length
-                                ? TagType.GetTagType(text, currentPosition)
-                                : new DefaultTagType();
-                        }
-                        else
-                        {
-                            currentPosition += 2;
-                            if (currentPosition == text.Length)
-                                tokens.Add(new Token(startPosition, currentPosition - startPosition, tokenTagType));
-                        }
-                    }
-                    else
-                    {
-                        currentPosition++;
-                        if (currentPosition == text.Length)
-                            tokens.Add(new Token(startPosition, currentPosition - startPosition, tokenTagType));
-                    }
-                }
+                AddToken(parserPosition, tokenTagType);
+                parserPosition += tokens.Last().Length;
+                tokenTagType = parserPosition < text.Length
+                    ? TagType.GetTagType(text, parserPosition)
+                    : new DefaultTagType();
             }
 
             return tokens;
+        }
+
+        private void AddToken(int startPosition, TagType tokenTagType, bool hasNestedToken = false,
+            int nestedCount = 0)
+        {
+            while (IsValidSymbol(tokenTagType, parserPosition))
+            {
+                parserPosition++;
+                if (parserPosition == text.Length)
+                {
+                    tokens.Add(new Token(startPosition, parserPosition - startPosition, tokenTagType, hasNestedToken, nestedCount));
+                    this.nestedCount = 0;
+                    return;
+                }
+            }
+
+            parserPosition += tokenTagType.MdOpeningTag.Length;
+            tokens.Add(new Token(startPosition, parserPosition - startPosition, tokenTagType, hasNestedToken, nestedCount));
+            this.nestedCount = 0;
+        }
+
+        private bool IsValidSymbol(TagType tokenTagType, int position)
+        {
+            if (tokenTagType is EmTagType)
+                return !EmTagType.IsClosedTag(text, position);
+            if (tokenTagType is StrongTagType)
+            {
+                if (TagType.GetTagType(text, position) is EmTagType)
+                {
+                    nestedCount++;
+                    AddToken(parserPosition, new EmTagType(), true, nestedCount);
+                    parserPosition += tokens.Last().Length;
+                }
+
+                return !StrongTagType.IsClosedTag(text, position);
+            }
+
+            return TagType.GetTagType(text, position) is DefaultTagType;
         }
     }
 }

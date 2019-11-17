@@ -14,7 +14,7 @@ namespace MarkdownTests
         {
             EmTagType.IsOpenedTag(text, position).Should().Be(expected);
         }
-        
+
         [TestCase("_asasv_ dvd", 6, true)]
         [TestCase("_asasv dvd", 0, false)]
         [TestCase("__asasv __dvd", 8, false)]
