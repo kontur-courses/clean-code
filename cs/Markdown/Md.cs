@@ -1,4 +1,5 @@
 ﻿using System.Collections.Generic;
+using System.Linq;
 using System.Text;
 
 namespace Markdown
@@ -17,8 +18,7 @@ namespace Markdown
             var htmlTokens = MarkdownToHtmlParser.Parse(markdownTokens, TagsCollection);
             var stringBuilder = new StringBuilder(paragraph);
             var delta = 0;
-            //учесть изменение длины строки при замене md токена на html
-            foreach (var markdownToken in markdownTokens)
+            foreach (var markdownToken in markdownTokens.OrderBy(t=>t.Start))
             {
                 stringBuilder.Replace(markdownToken.Line, TagsCollection[markdownToken].Line, markdownToken
                     .Start+delta, markdownToken.Length);

@@ -5,6 +5,14 @@
         public string Line { get; }
         public int Start { get; }
         public int Length { get; }
+        public string Tag { get; } = null;
+        public Token(string line, int start, int length,string tag)
+        {
+            Line = line;
+            Start = start;
+            Length = length;
+            Tag = tag;
+        }
 
         public Token(string line, int start, int length)
         {
@@ -12,7 +20,6 @@
             Start = start;
             Length = length;
         }
-
         public override bool Equals(object obj)
         {
             var token = obj as Token;
