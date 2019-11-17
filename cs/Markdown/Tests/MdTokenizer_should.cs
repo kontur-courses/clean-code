@@ -32,12 +32,19 @@ namespace Markdown.Tests
         [TestCase("text", "text", "NONE", "NONE", TestName = "when no special symbols found")]
         [TestCase("_text_", "text", "_", "_", TestName = "when text surrounded with emphasis")]
         [TestCase("__text__", "text", "__", "__", TestName = "when text surrounded with bold symbols")]
-        [TestCase(@"\_text\_", @"_text_", @"\", @"\", TestName = "when text surrounded with shielded emphasis")]
-        [TestCase("ipsumdolor_sit_23_", "ipsumdolor_sit_23", "NONE", "_", TestName = "when text with emphasis and numbers")]
-        [TestCase("text_", "text", "NONE", "_", TestName = "when text with singular emphasis and the end")]
-        [TestCase("_text", "text", "_", "NONE", TestName = "when text with singular emphasis and the beginning")]
-        [TestCase("text__", "text", "NONE", "__", TestName = "when text with singular bold symbol and the end")]
-        [TestCase("__text", "text", "__", "NONE", TestName = "when text with singular bold symbol and the beginning")]
+        [TestCase(@"\_text\_", @"_text_", @"NONE", @"NONE", TestName = "when text surrounded with shielded emphasis")]
+        [TestCase(@"\_text_", @"_text_", @"NONE", @"NONE", TestName = "when text with shielded emphasis at the beginning")]
+        [TestCase(@"_text\_", @"_text_", @"NONE", @"NONE", TestName = "when text with shielded emphasis at the end")]
+        [TestCase(@"\__text\__", @"__text__", @"NONE", @"NONE", TestName = "when text surrounded with shielded bold symbols")] 
+        [TestCase(@"\__text__", @"__text__", @"NONE", @"NONE", TestName = "when text with shielded bold symbols at the beginning")]
+        [TestCase(@"__text\__", @"__text__", @"NONE", @"NONE", TestName = "when text with shielded bold symbols at the end")]
+        [TestCase("ipsumdolor_sit_23_", "ipsumdolor_sit_23_", "NONE", "NONE", TestName = "when text with emphasis and numbers")]
+        [TestCase("text_", "text_", "NONE", "NONE", TestName = "when text with singular emphasis at the end")]
+        [TestCase("_text", "_text", "NONE", "NONE", TestName = "when text with singular emphasis at the beginning")]
+        [TestCase("__text_", "__text_", "NONE", "NONE", TestName = "when text with emphasis at the end and bold symbols at the beginning")]
+        [TestCase("_text__", "_text__", "NONE", "NONE", TestName = "when text with bold symbols at the end and emphasis at the beginning")]
+        [TestCase("text__", "text__", "NONE", "NONE", TestName = "when text with singular bold symbol at the end")]
+        [TestCase("__text", "__text", "NONE", "NONE", TestName = "when text with singular bold symbol at the beginning")]
         [TestCase("b_aa__a_c", "b_aa__a_c", "NONE", "NONE", TestName = "when text with incorrect special symbols")]
         [TestCase("__", "__", "NONE", "NONE", TestName = "when text with only special symbols")]
         public void MakeTokens_Should_ParseToken(string text, 
@@ -111,6 +118,28 @@ namespace Markdown.Tests
             secondToken.Should().BeEquivalentTo(expectedSecondToken);
             var expectedLastToken = new MdToken("amet", "NONE", "__");
             lastToken.Should().BeEquivalentTo(expectedLastToken);
+        }
+        
+        [Test]
+        public void MakeTokens_Should_ParseIncorrectEmphasis_When_TextWithNestedTokens()
+        {
+            var tokens = tokenizer.MakeTokens("__Lorem _ipsum dolor sit amet__").ToList();
+            var firstToken = tokens[0];
+            var secondToken = tokens[1];
+            var lastToken = tokens.Last();
+            var expectedFirstToken = new MdToken("Lorem", "__", "NONE");
+            firstToken.Should().BeEquivalentTo(expectedFirstToken);
+            var expectedSecondToken = new MdToken("_ipsum", "NONE", "NONE");
+            secondToken.Should().BeEquivalentTo(expectedSecondToken);
+            var expectedLastToken = new MdToken("amet", "NONE", "__");
+            lastToken.Should().BeEquivalentTo(expectedLastToken);
+        }
+
+        [Test, Timeout(1000)]
+        public void MakeTokens_Should_WorkFastEnough()
+        {
+            for (var i = 0; i < 50000; i++)
+                tokenizer.MakeTokens("__Lorem _ipsum dolor sit amet__").Last();
         }
     }
 
