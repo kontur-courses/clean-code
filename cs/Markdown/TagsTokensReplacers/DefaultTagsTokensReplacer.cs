@@ -2,7 +2,6 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
-using System.Threading.Tasks;
 
 namespace Markdown.TagsTokensReplacers
 {
@@ -16,13 +15,17 @@ namespace Markdown.TagsTokensReplacers
             if (text == null || replacableTags == null || replaceTo == null)
                 throw new ArgumentNullException();
 
-            var result = text;
-            foreach (var tt in replacableTags.OrderByDescending(t => t.Token.StartIndex))
-                result =
-                    result
-                    .Remove(tt.Token.StartIndex, tt.Token.Count)
-                    .Insert(tt.Token.StartIndex, replaceTo(tt.Tag).Value);
-            return result;
+            var builder = new StringBuilder();
+            var startIndex = 0;
+            foreach (var tt in replacableTags.OrderBy(t => t.Token.StartIndex))
+            {
+                var endIndex = tt.Token.StartIndex;
+                builder.Append(text, startIndex, endIndex - startIndex);
+                builder.Append(replaceTo(tt.Tag).Value);
+                startIndex = endIndex + tt.Token.Length;
+            }
+            builder.Append(text, startIndex, text.Length - startIndex);
+            return builder.ToString();
         }
     }
 }

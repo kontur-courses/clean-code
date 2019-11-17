@@ -1,8 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using NUnit.Framework;
 using FluentAssertions;
 using Markdown.TagsTokensReplacers;
@@ -15,22 +12,22 @@ namespace Markdown.Tests.TagsTokensReplacers_Tests.DefaultTagsTokensReplacer_Tes
         [TestCase("123_zx_c")]
         public void ShouldReturnSameText_IfReplacableTagsEnumerableIsEmpty(string text)
         {
-            var result = ReplaceTagTokensInString(text, new TagToken[0], t => t);
+            var result = DefaultTagsTokensReplacer.ReplaceTagTokensInString(text, new TagToken[0], t => null);
 
             result.Should().Be(text);
         }
 
         [Test]
         public void ShouldThrow_WhenTextIsNull() =>
-            ShouldThrowArgumentNullException(() => ReplaceTagTokensInString(null, new TagToken[0], t => t));
+            ShouldThrowArgumentNullException(null, new TagToken[0], t => t);
 
         [Test]
         public void ShouldThrow_WhenReplacableTagsIsNull() =>
-            ShouldThrowArgumentNullException(() => ReplaceTagTokensInString("123", null, t => t));
+            ShouldThrowArgumentNullException("123", null, t => t);
 
         [Test]
         public void ShouldThrow_WhenReplaceToFunctionIsNull() =>
-            ShouldThrowArgumentNullException(() => ReplaceTagTokensInString("asd", new TagToken[0], null));
+            ShouldThrowArgumentNullException("asd", new TagToken[0], null);
 
         [Test]
         public void ShouldCorrectReplaceTags()
@@ -38,51 +35,41 @@ namespace Markdown.Tests.TagsTokensReplacers_Tests.DefaultTagsTokensReplacer_Tes
             var text = "q-z(asd)z-w";
             var tagsTokens = new TagToken[]
             {
-                new TagToken()
-                {
-                    Tag = new Tag() { Id = "0", Value = "(" },
-                    Token = new Token() { StartIndex = 3, Count = 1, Str = text }
-                },
-                new TagToken()
-                {
-                    Tag = new Tag() { Id = "1", Value = ")" },
-                    Token = new Token() { StartIndex = 7, Count = 1, Str = text }
-                },
-                new TagToken()
-                {
-                    Tag = new Tag() { Id = "2", Value = "-"},
-                    Token = new Token() { StartIndex = 1, Count = 1, Str = text }
-                },
-                new TagToken()
-                {
-                    Tag = new Tag() { Id = "3", Value = "-"},
-                    Token = new Token() { StartIndex = 9, Count = 1, Str = text }
-                }
+                CreateTagToken(text, 3, 1, "0", "("),
+                CreateTagToken(text, 7, 1, "1", ")"),
+                CreateTagToken(text, 1, 1, "2", "-"),
+                CreateTagToken(text, 9, 1, "3", "-")
             };
             Tag replaceTo(Tag t)
             {
                 switch (t.Id)
                 {
-                    case "0": return new Tag() { Id = "4", Value = "<strong>" };
-                    case "1": return new Tag() { Id = "5", Value = "</strong>" };
-                    case "2": return new Tag() { Id = "6", Value = "<em>" };
-                    case "3": return new Tag() { Id = "7", Value = "</em>" };
+                    case "0": return new Tag { Id = "4", Value = "<strong>" };
+                    case "1": return new Tag { Id = "5", Value = "</strong>" };
+                    case "2": return new Tag { Id = "6", Value = "<em>" };
+                    case "3": return new Tag { Id = "7", Value = "</em>" };
                     default: throw new NotSupportedException();
                 }
             }
 
-            var result = ReplaceTagTokensInString(text, tagsTokens, replaceTo);
+            var result = DefaultTagsTokensReplacer.ReplaceTagTokensInString(text, tagsTokens, replaceTo);
 
             result.Should().Be("q<em>z<strong>asd</strong>z</em>w");
         }
 
-        private void ShouldThrowArgumentNullException(Action act) =>
+        private void ShouldThrowArgumentNullException(string text, IEnumerable<TagToken> replacableTags, Func<Tag, Tag> replaceTo)
+        {
+            Action act = () => DefaultTagsTokensReplacer.ReplaceTagTokensInString(text, replacableTags, replaceTo);
             act.Should().Throw<ArgumentNullException>();
+        }
 
-        private string ReplaceTagTokensInString(
-            string text,
-            IEnumerable<TagToken> replacableTags,
-            Func<Tag, Tag> replaceTo) =>
-            DefaultTagsTokensReplacer.ReplaceTagTokensInString(text, replacableTags, replaceTo);
+        private TagToken CreateTagToken(
+            string text, int tokenStartIndex, int tokenLength,
+            string tagId, string tagValue)
+        {
+            var token = new Token { StartIndex = tokenStartIndex, Length = tokenLength, Str = text };
+            var tag = new Tag { Id = tagId, Value = tagValue };
+            return new TagToken { Tag = tag, Token = token };
+        }
     }
 }

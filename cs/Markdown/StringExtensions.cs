@@ -6,21 +6,23 @@ namespace Markdown
 {
     static class StringExtensions
     {
-        public static IEnumerable<Token> GetAllSubStrEntries(this string str, string[] substrs)
+        public static IEnumerable<Token> GetTokensWithSubStrsEntries(this string str, string[] substrs)
         {
             if (substrs == null)
                 throw new ArgumentNullException();
-            var result = new List<Token>();
+            IEnumerable<Token> result = new Token[0];
             foreach (var substr in substrs)
-                result.AddRange(
+                result = result.Concat(
                     str
-                    .GetAllSubStrStartIndexes(substr)
-                    .Select(i => new Token() { StartIndex = i, Count = substr.Length, Str = str }));
+                    .GetSubStrStartIndexes(substr)
+                    .Select(i => new Token() { StartIndex = i, Length = substr.Length, Str = str }));
             return result.Distinct();
         }
 
-        private static IEnumerable<int> GetAllSubStrStartIndexes(this string str, string substr)
+        private static IEnumerable<int> GetSubStrStartIndexes(this string str, string substr)
         {
+            if (substr == string.Empty)
+                yield break;
             var index = -1;
             var startIndex = 0;
             while (startIndex < str.Length && (index = str.IndexOf(substr, startIndex)) != -1)

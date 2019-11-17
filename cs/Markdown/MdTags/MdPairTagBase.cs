@@ -1,16 +1,22 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿using Markdown.MdTags.Interfaces;
 
 namespace Markdown.MdTags
 {
-    abstract class MdPairTagBase : MdTagBase
+    class MdPairTagBase : MdTagBase
     {
-        public abstract Tag Open { get; }
-        public abstract Tag Close { get; }
-        public abstract bool IsTokenOpenTag(Token token);
-        public abstract bool IsTokenCloseTag(Token token);
+        private readonly IPairTagAndTokenComparer tagAndTokenComparer;
+
+        public MdPairTagBase(Tag open, Tag close, IPairTagAndTokenComparer tagAndTokenComparer)
+        {
+            Open = open;
+            Close = close;
+            this.tagAndTokenComparer = tagAndTokenComparer;
+        }
+
+        public Tag Open { get; private set; }
+        public Tag Close { get; private set; }
+
+        public bool IsTokenOpenTag(Token token) => tagAndTokenComparer.IsTokenOpenTag(token, Open);
+        public bool IsTokenCloseTag(Token token) => tagAndTokenComparer.IsTokenCloseTag(token, Close);
     }
 }

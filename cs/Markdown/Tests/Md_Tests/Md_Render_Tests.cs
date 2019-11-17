@@ -1,10 +1,7 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using NUnit.Framework;
 using FluentAssertions;
+using System.Diagnostics;
 
 namespace Markdown.Tests.Md_Tests
 {
@@ -29,11 +26,11 @@ namespace Markdown.Tests.Md_Tests
         [TestCase("")]
         [TestCase("123")]
         [TestCase(" asd")]
-        public void ShouldReturnSameString_IfArgumentNotContainsMdTags(string mdParagraph)
+        public void ShouldReturnSameString_IfArgumentNotContainsMdTags(string text)
         {
-            var result = sut.Render(mdParagraph);
+            var result = sut.Render(text);
 
-            result.Should().Be(mdParagraph);
+            result.Should().Be(text);
         }
 
         [TestCase("_asd_", ExpectedResult = "<em>asd</em>")]
@@ -67,32 +64,70 @@ namespace Markdown.Tests.Md_Tests
         [TestCase("__asd __qwe__", ExpectedResult = "<strong>asd __qwe</strong>")]
         public string ShouldIgnoreCloseTag_IfItPreviousSymbolIsSpace(string text) => sut.Render(text);
 
-        [TestCase("_,_zxc_", ExpectedResult = "_<em>zxc</em>")]
-        [TestCase("_asd_,zxc_", ExpectedResult = "<em>asd_zxc</em>")]
-        [TestCase("__asd_,_,zxc__", ExpectedResult = "<strong>asd__zxc</strong>")]
+        [TestCase("\\__zxc_", ExpectedResult = "_<em>zxc</em>")]
+        [TestCase("_asd\\_zxc_", ExpectedResult = "<em>asd_zxc</em>")]
+        [TestCase("__asd\\_\\_zxc__", ExpectedResult = "<strong>asd__zxc</strong>")]
         public string ShouldIgnoreTagWithEscapeSymbol(string text) => sut.Render(text);
         
-        [TestCase("aa,sd", ExpectedResult = "aasd")]
-        [TestCase("aa,,sd", ExpectedResult = "aa,sd")]
+        [TestCase("aa\\sd", ExpectedResult = "aasd")]
+        [TestCase("aa\\\\sd", ExpectedResult = "aa\\sd")]
         public string ShouldEscapeAnySymbol(string text) => sut.Render(text);
 
-        [TestCase("_,,zxc_", ExpectedResult = "<em>,zxc</em>")]
-        [TestCase("__,,zxc__", ExpectedResult = "<strong>,zxc</strong>")]
-        public string ShouldNotIgnoreTag_IfEscapeCharAfterTagIsEscaped(string text) => sut.Render(text);
+        [TestCase("\\\\_zxc_", ExpectedResult = "\\<em>zxc</em>")]
+        [TestCase("\\\\__zxc__", ExpectedResult = "\\<strong>zxc</strong>")]
+        public string ShouldNotIgnoreTag_IfEscapeCharBeforeTagIsEscaped(string text) => sut.Render(text);
 
         [TestCase("__asd_q__w__e_zxc__", ExpectedResult = "<strong>asd<em>q</em><em>w</em><em>e</em>zxc</strong>")]
         [TestCase("__asd_qwe__q_", ExpectedResult = "__asd<em>qwe</em><em>q</em>")]
+        [TestCase("3_asd_1", ExpectedResult = "3<em>asd</em>1")]
+        [TestCase("_12zx23_", ExpectedResult = "<em>12zx23</em>")]
         public string ShouldReturnExpectedResult(string text) => sut.Render(text);
 
         [Test]
         public void ShouldCorrectWorkWithRealText()
         {
-            var text = "_edem_,, _edem_ v sosednee selooo na ___diskoteeekuu!!!___ _200_2_KmPH";
-            var expectedResult = "<em>edem</em>, <em>edem</em> v sosednee selooo na <strong><em>diskoteeekuu!!!</em></strong> <em>200_2</em>KmPH";
+            var text = "_edem_\\__edem_ v sosednee selooo na ___diskoteeekuu!!!___ _200_2_KmPH";
+            var expectedResult = "<em>edem</em>_<em>edem</em> v sosednee selooo na <strong><em>diskoteeekuu!!!</em></strong> <em>200_2</em>KmPH";
 
             var result = sut.Render(text);
 
             result.Should().Be(expectedResult);
+        }
+
+        [TestCase(10, 20)]
+        [TestCase(100, 20)]
+        [TestCase(1000, 5)]
+        public void ShouldBe_LinearPerformanceDependenceByInputText(int inputTextMultiplyCount, int testStartsCount)
+        {
+            var input = "_asd_q__zxc__q\\zxcq\\__zxc_f";
+            for (var i = 0; i < 4; i++)
+                input += input;
+            var inputWithMultiplyCount = "";
+            for (var i = 0; i < inputTextMultiplyCount; i++)
+                inputWithMultiplyCount += input;
+
+            var inputPerformance = GetAverageMeasurePerformance(() => sut.Render(input), testStartsCount);
+            var inputCountXPerformance = GetAverageMeasurePerformance(() => sut.Render(inputWithMultiplyCount), testStartsCount);
+
+            inputCountXPerformance.Should().BeLessThan(2 * inputTextMultiplyCount * inputPerformance);
+        }
+
+        private double GetAverageMeasurePerformance(Action act, int testsCount)
+        {
+            var totalTime = 0.0;
+            for (var i = 0; i < testsCount; i++)
+                totalTime += MeasurePerformance(act).TotalMilliseconds;
+            return totalTime / testsCount;
+        }
+
+        private TimeSpan MeasurePerformance(Action action)
+        {
+            var watch = new Stopwatch();
+            GC.Collect();
+            watch.Start();
+            action();
+            watch.Stop();
+            return watch.Elapsed;
         }
     }
 }

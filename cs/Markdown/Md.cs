@@ -1,11 +1,8 @@
-﻿using Markdown.MdTags;
-using Markdown.MdTagsConverters;
+﻿using Markdown.SpecialSymbols;
+using Markdown.TagsDataBase;
 using Markdown.TagsTokensReplacers;
 using System;
-using System.Collections.Generic;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace Markdown
 {
@@ -16,16 +13,20 @@ namespace Markdown
             if (text == null)
                 throw new ArgumentNullException();
 
-            return MdSpecialCharacters.RemoveAllEscapeCharacterEntries(PairTagsRender(text));
+            return EscapeSymbol.RemoveAllEscapeSymbolEntries(PairTagsRender(text));
         }
 
         private string PairTagsRender(string text)
         {
-            var correctTagsPair = new MdTagsParsers.PairTagsParser().ParsePairTags(text);
+            var correctTagsPair = new MdTagsParsers.PairTagsParser().ParsePairTags(
+                text,
+                EscapeSymbol
+                .FindAllPairsEscapeAndEscapedSymbols(text)
+                .SelectMany(pair => new[] { pair.escapeSymbolIndex, pair.escapedSymbolsIndex }));
             return DefaultTagsTokensReplacer.ReplaceTagTokensInString(
                 text,
                 correctTagsPair.SelectMany(pair => new[] { pair.open, pair.close }),
-                MdTagsToHtmlTagsConverter.GetHtmlTagByMdTag);
+                MdAndHtmlTags.GetHtmlTagByMdTag);
         }
     }
 }

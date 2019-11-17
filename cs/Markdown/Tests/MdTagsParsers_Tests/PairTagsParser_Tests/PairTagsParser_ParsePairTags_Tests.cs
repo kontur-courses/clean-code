@@ -1,8 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using NUnit.Framework;
 using FluentAssertions;
 using Markdown.MdTagsParsers;
@@ -20,45 +16,71 @@ namespace Markdown.Tests.MdTagsParsers_Tests.PairTagsParser_Tests
         }
 
         [Test]
-        public void ShouldThrow_WhenArgumentIsNull()
-        {
-            Action act = () => sut.ParsePairTags(null);
+        public void ShouldThrow_WhenTextArgumentIsNull() =>
+            ShouldThrowArgumentNullException(() => sut.ParsePairTags(null, new[] { 1, 2 }));
 
-            act.Should().Throw<ArgumentNullException>();
+        [Test]
+        public void ShouldThrow_WhenIgnorableIndexesIsNull() =>
+            ShouldThrowArgumentNullException(() => sut.ParsePairTags("asdczcxz", null));
+
+        [TestCase("")]
+        [TestCase("asdqwe")]
+        [TestCase("\\asd")]
+        public void ShouldReturnEmptyEnumeration_WhenTextNotContainsTags(string text)
+        {
+            var result = sut.ParsePairTags(text, new int[0]);
+
+            result.Should().BeEmpty();
         }
 
         [Test]
         public void ShouldReturnCorrectTagPairs()
         {
-            var text = "zxc_asd_qwe__asd__";
+            var text = "__zxc\\__asd_qwe____asd__";
 
-            var result = sut.ParsePairTags(text);
+            var result = sut.ParsePairTags(text, new[] { 5, 6 });
 
             result.Should().BeEquivalentTo(
             (
-            new TagToken()
-            {
-                Tag = new Tag() { Id = "open__", Value = "__" },
-                Token = new Token() { StartIndex = 11, Count = 2, Str = text }
-            },
-            new TagToken()
-            {
-                Tag = new Tag() { Id = "close__", Value = "__" },
-                Token = new Token() { StartIndex = 16, Count = 2, Str = text }
-            }
+                CreateTagToken("open__", "__", 17, 2, text),
+                CreateTagToken("close__", "__", 22, 2, text)
             ),
             (
-            new TagToken()
-            {
-                Tag = new Tag() { Id = "open_", Value = "_" },
-                Token = new Token() { StartIndex = 3, Count = 1, Str = text }
-            },
-            new TagToken()
-            {
-                Tag = new Tag() { Id = "close_", Value = "_" },
-                Token = new Token() { StartIndex = 7, Count = 1, Str = text }
-            }
-            ));
+                CreateTagToken("open_", "_", 7, 1, text),
+                CreateTagToken("close_", "_", 11, 1, text)
+            ),
+            (
+                CreateTagToken("open__", "__", 0, 2, text),
+                CreateTagToken("close__", "__", 15, 2, text)
+            )
+            );
         }
+
+        [Test]
+        public void ShouldIgnoreIgnorableIndexesFromArgument()
+        {
+            var text = "zxc__qwe_s";
+
+            var result = sut.ParsePairTags(text, new[] { 4 });
+
+            result.Should().BeEquivalentTo(
+            (
+                CreateTagToken("open_", "_", 3, 1, text),
+                CreateTagToken("close_", "_", 8, 1, text)
+            )
+            );
+        }
+
+        private TagToken CreateTagToken(
+            string tagId, string tagValue,
+            int tokenStartIndex, int tokenLength, string tokenStr) =>
+            new TagToken
+            {
+                Tag = new Tag { Id = tagId, Value = tagValue },
+                Token = new Token { StartIndex = tokenStartIndex, Length = tokenLength, Str = tokenStr }
+            };
+
+        private void ShouldThrowArgumentNullException(Action act) =>
+            act.Should().Throw<ArgumentNullException>();
     }
 }
