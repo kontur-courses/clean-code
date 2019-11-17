@@ -11,20 +11,21 @@ namespace Markdown
             {"__", "strong"}
         };
 
-        private static readonly Dictionary<string, List<string>> MdAcceptedNestedTags = new Dictionary<string, List<string>>
-        {
-            {"", new List<string>{"_", "__"}},
-            {"_", new List<string>{"_"}},
-            {"__", new List<string>{"_", "__"}}
-        };
-        
+        private static readonly Dictionary<string, List<string>> MdAcceptedNestedTags =
+            new Dictionary<string, List<string>>
+            {
+                {"", new List<string> {"_", "__"}},
+                {"_", new List<string> {"_"}},
+                {"__", new List<string> {"_", "__"}}
+            };
+
         private bool IsCorrectNestedTag(string parentTag, string nestedTag)
         {
-            if(MdAcceptedNestedTags.ContainsKey(parentTag))
+            if (MdAcceptedNestedTags.ContainsKey(parentTag))
                 return MdAcceptedNestedTags[parentTag].Contains(nestedTag);
             return false;
         }
-        
+
         private int GetTagsStartWithWordCount(string word)
         {
             return MdToHtmlTags.Keys.Count(k => k.StartsWith(word));
@@ -60,7 +61,7 @@ namespace Markdown
                 {
                     if (GetTagsStartWithWordCount(tagBuffer + current) != 0)
                         tagBuffer += current;
-                    if (GetTagsStartWithWordCount(tagBuffer) >= 1 
+                    if (GetTagsStartWithWordCount(tagBuffer) >= 1
                         && MdToHtmlTags.Keys.Contains(tagBuffer)
                         && GetTagsStartWithWordCount(tagBuffer + next) == 0)
                     {
@@ -72,18 +73,19 @@ namespace Markdown
                 }
                 else
                 {
-                    if(isEscaped && current == '\\')
+                    if (isEscaped && current == '\\')
                         continue;
                     currentPositions[depth]++;
                     processedToken.AppendData(current.ToString());
                 }
             }
+
             return rootToken;
         }
 
         private static bool CheckIsEscaped(bool isEscaped, char current)
         {
-            if (current =='\\')
+            if (current == '\\')
                 return !isEscaped;
             if (char.IsWhiteSpace(current) || !IsTagPart(current))
                 return false;
@@ -92,10 +94,10 @@ namespace Markdown
 
         private void ResetResources()
         {
-         tokensStack= new Stack<Token>();
-         depth = 0;
-         rootToken = new RootToken();
-         currentPositions = new List<int> {0}; //position skips tags!
+            tokensStack = new Stack<Token>();
+            depth = 0;
+            rootToken = new RootToken();
+            currentPositions = new List<int> {0}; //position skips tags!
         }
 
         private Token GetProcessedToken(Token rootToken)
@@ -107,13 +109,15 @@ namespace Markdown
                 processedToken = processedToken.GetLastNestedToken();
                 d++;
             }
+
             return processedToken;
         }
-        
+
         private void AddTagToStack(Token processedToken, int position, string tagBuffer)
         {
             if (tokensStack.Count == 0 || (tokensStack.Count != 0 && tokensStack.Peek().MdTag != tagBuffer))
-            {   // opening tag here
+            {
+                // opening tag here
                 var tokenToAdd = new Token(position, tagBuffer, MdToHtmlTags[tagBuffer]);
                 tokensStack.Push(tokenToAdd);
                 processedToken.AddNestedToken(tokenToAdd);
@@ -121,8 +125,9 @@ namespace Markdown
                 AddNewPositionIfNeeded();
             }
             else if (tokensStack.Count != 0 && tokensStack.Peek().MdTag == tagBuffer)
-            {   // closing tag here
-                var tokenToClose =tokensStack.Pop();
+            {
+                // closing tag here
+                var tokenToClose = tokensStack.Pop();
                 currentPositions[depth] = 0;
                 depth--;
                 var parentToken = GetProcessedToken(rootToken);
@@ -134,7 +139,7 @@ namespace Markdown
 
         private void AddNewPositionIfNeeded()
         {
-            while (currentPositions.Count-1<depth)
+            while (currentPositions.Count - 1 < depth)
                 currentPositions.Add(0);
         }
     }

@@ -1,11 +1,8 @@
-using System.Collections.Generic;
-using System.Text;
-
 namespace Markdown
 {
     public class MarkdownDocument
     {
-        private RootToken RootToken { get;}
+        private RootToken RootToken { get; }
 
         public MarkdownDocument(RootToken rootToken)
         {
