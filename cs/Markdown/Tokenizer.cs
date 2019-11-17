@@ -30,59 +30,73 @@ namespace Markdown
 		
 		public TokenInfo ParseToTokens(string sourceText)
 		{
-			if (string.IsNullOrEmpty(sourceText))
-				return new TokenInfo(0, new PlainText());
-			
 			var contextState = new TokenizerContextState(sourceText);
 			for (var currentIndex = 0; currentIndex < sourceText.Length; currentIndex++)
 			{
 				contextState.Update(currentIndex);
 				if (!contextState.ReadingKeySequence)
 				{
-					var isKeyChar = CheckIsCharInKeySequence(contextState, out var tokenType);
-					if (isKeyChar && !contextState.Shielded)
+					var isKeyChar = _supportedKeyChars.Contains(contextState.CurrentChar);
+					if (isKeyChar && contextState.Shielded)
 					{
-						contextState.CurrentKeySequence.Append(contextState.CurrentChar);
-						if (tokenType.IsOpeningKeySequence(contextState))
-							contextState.AddChildToken(tokenType);
+						isKeyChar = false;
+						RemoveLastPlainTextChar(contextState);
+						contextState.Shielded = false;
 					}
-					else if (!contextState.Shielded)
-						contextState.AddCurrentCharAsPlainText();
-					else
+					contextState.ReadingKeySequence = isKeyChar;
+					if (!isKeyChar)
 					{
-						var plainTextLength = contextState.LastToken.PlainText.Length;
-						contextState.LastToken.PlainText.Remove(plainTextLength - 1, 1);
+						contextState.AddCurrentKeySequenceAsPlainText();
+						contextState.CurrentKeySequence.Clear();
 					}
 				}
-				if (contextState.ReadingKeySequence)
+				if (!contextState.ReadingKeySequence) continue;
+				if (contextState.LastToken.Type is PlainText) contextState.CloseLastToken();
+				var isKeySequence = CheckIsKeySequence(contextState, out var tokenType);
+				if (isKeySequence)
 				{
 					if (contextState.TryCloseToken())
+					{
+						contextState.ReadingKeySequence = false;
 						continue;
-					contextState.CurrentKeySequence.Append(contextState.CurrentChar);
-					var currentSequence = contextState.CurrentKeySequence.ToString();
-					if (_supportedKeySequences.TryGetValue(currentSequence, out var tokenType))
-					{
-						contextState.LastToken.Type = tokenType;
-						contextState.LastToken.PlainText.Clear();
-						contextState.LastToken.PlainText.Append(contextState.CurrentKeySequence);
 					}
-					else
+					if (tokenType.IsOpeningKeySequence(contextState))
 					{
-						contextState.CurrentKeySequence.Clear();
-						contextState.AddCurrentCharAsPlainText();
+						if (contextState.LastToken.Type is PlainText || contextState.LastToken.InnerTokens.Count > 0)
+							contextState.AddChildToken(tokenType);
+						else
+							contextState.LastToken.Type = tokenType;
+						continue;
 					}
 				}
+				if (currentIndex == sourceText.Length - 1)
+				{
+					if (contextState.LastToken.InnerTokens.Count == 0)
+						contextState.CurrentKeySequence.Remove(0, contextState.LastToken.Type.OpeningSequence.Length);
+					contextState.AddCurrentKeySequenceAsPlainText();
+					continue;
+				}
+				if (_supportedKeyChars.Contains(contextState.CurrentChar))
+					continue;
+				contextState.CurrentKeySequence.Remove(0, contextState.LastToken.Type.OpeningSequence.Length);
+				contextState.AddCurrentKeySequenceAsPlainText();
+				contextState.ReadingKeySequence = false;
 			}
-
 			return contextState.MainToken;
 		}
 
-		private bool CheckIsCharInKeySequence(TokenizerContextState contextState, out IToken tokenType)
+		private static void RemoveLastPlainTextChar(TokenizerContextState contextState)
 		{
-			if (_supportedKeySequences.TryGetValue(contextState.CurrentChar, out tokenType)) return true;
-			if (!_supportedKeyChars.Contains(char.Parse(contextState.CurrentChar))) return false;
+			var lastCharIndex = contextState.LastToken.PlainText.Length - 1;
+			contextState.LastToken.PlainText.Remove(lastCharIndex, 1);
+		}
+
+		private bool CheckIsKeySequence(TokenizerContextState contextState, out IToken tokenType)
+		{
+			if (_supportedKeySequences.TryGetValue(contextState.CurrentKeySequence.ToString(), out tokenType))
+				return true;
 			tokenType = new PlainText();
-			return true;
+			return false;
 		}
 	}
 }

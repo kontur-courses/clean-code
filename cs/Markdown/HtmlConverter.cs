@@ -17,8 +17,11 @@ namespace Markdown
 
 		private static void ConvertToHtml(TokenInfo currentToken, StringBuilder htmlText, string sourceText)
 		{
-			if (!currentToken.Closed)
+			if (!(currentToken.Closed || currentToken.Type is PlainText))
+			{
+				currentToken.PlainText.Append(currentToken.Type.OpeningSequence);
 				currentToken.Type = new PlainText();
+			}
 			if (currentToken.Type is PlainText)
 				htmlText.Append(currentToken.PlainText);
 			if (currentToken.InnerTokens.Count == 0)

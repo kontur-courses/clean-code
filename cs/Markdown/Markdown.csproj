@@ -53,6 +53,7 @@
     <Reference Include="System.Xml.Linq" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Features\BoldText.cs" />
     <Compile Include="Features\ItalicText.cs" />
     <Compile Include="KeySequence.cs" />
     <Compile Include="Md_Tests.cs" />

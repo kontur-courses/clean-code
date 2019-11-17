@@ -21,7 +21,7 @@ namespace Markdown
 
         public bool TryClose(TokenizerContextState contextState)
         {
-            if (!Type.IsClosingKeySequence(contextState, this))
+            if (InnerTokens.Count == 0 || !Type.IsClosingKeySequence(contextState, this))
                 return false;
             Closed = true;
             EndIndex = contextState.CurrentIndex;

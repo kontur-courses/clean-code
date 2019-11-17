@@ -1,10 +1,10 @@
 namespace Markdown.Features
 {
-	internal class ItalicText: IToken
+	internal class BoldText: IToken
 	{
-		public string OpeningSequence { get; } = "_";
-		public string ClosingSequence { get; } = "_";
-
+		public string OpeningSequence { get; } = "__";
+		public string ClosingSequence { get; } = "__";
+		
 		public bool IsOpeningKeySequence(TokenizerContextState contextState)
 		{
 			if (contextState.CurrentIndex + 1 >= contextState.SourceText.Length) return false;
@@ -17,16 +17,17 @@ namespace Markdown.Features
 
 		public bool IsClosingKeySequence(TokenizerContextState contextState, TokenInfo tokenInfo)
 		{
-			if (contextState.CurrentIndex - 1 < 0) return false;
-			var previousChar = contextState.SourceText[contextState.CurrentIndex - 1].ToString();
+			if (contextState.CurrentIndex - 2 < 0) return false;
+			var previousChar = contextState.SourceText[contextState.CurrentIndex - 2].ToString();
 			return !string.IsNullOrWhiteSpace(previousChar) &&
+			       previousChar != "_" && 
 			       !int.TryParse(previousChar, out _) &&
 			       contextState.CurrentKeySequence.ToString() == ClosingSequence &&
 			       tokenInfo.InnerTokens.Count > 0;
 		}
+		
+		public string GetHtmlOpeningTag(TokenInfo tokenInfo, string sourceText) => "<strong>";
 
-		public string GetHtmlOpeningTag(TokenInfo tokenInfo, string sourceText) => "<em>";
-
-		public string GetHtmlClosingTag(TokenInfo tokenInfo, string sourceText) => "</em>";
+		public string GetHtmlClosingTag(TokenInfo tokenInfo, string sourceText) => "</strong>";
 	}
 }

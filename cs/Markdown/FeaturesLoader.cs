@@ -11,6 +11,7 @@ namespace Markdown
 		public FeaturesLoader()
 		{
 			AddToken(new ItalicText());
+			AddToken(new BoldText());
 		}
 
 		private void AddToken(IToken newToken)
