@@ -12,10 +12,10 @@ namespace Markdown.Languages
 
         public MarkDown()
         {
-            Tags = new Dictionary<TagType, Tag>()
+            Tags = new Dictionary<TagType, Tag>
             {
-                {TagType.Em, new Tag("_", "_", new TagType[] { })},
-                {TagType.Strong, new Tag("__", "__", new TagType[] {TagType.Em})}
+                {TagType.Strong, new Tag("__", "__", new TagType[] {TagType.Em})},
+                {TagType.Em, new Tag("_", "_", new TagType[] { })}
             };
             StackOfTags = new Stack<TagToken>();
             ValidTags = new List<TagToken>();
@@ -50,22 +50,19 @@ namespace Markdown.Languages
 
             return ValidTags.Count == 0
                 ? new SyntaxTree(new List<SyntaxNode>() {new TextNode(str)})
-                : TreeBuilder.ReplaceToSyntaxTree(str, ValidTags, Tags);
+                : TreeBuilder.ReplaceToSyntaxTree(str, ValidTags, new Dictionary<TagType, Tag>(Tags));
         }
 
         private TagToken CreateTag(string line, int i)
         {
-            if (IsStrongTag(line, i) && IsCloseTag(line, i))
-                return new TagToken(TagType.Strong, false, i);
+            foreach (var tag in Tags.Keys)
+            {
+                if (IsTag(line, i, Tags[tag].End) && IsCloseTag(line, i))
+                    return new TagToken(tag, false, i);
+                if (IsTag(line, i, Tags[tag].Start) && IsOpenTag(line, i, Tags[tag].Start))
+                    return new TagToken(tag, true, i);
+            }
 
-            if (IsStrongTag(line, i) && IsOpenTag(line, i + 1))
-                return new TagToken(TagType.Strong, true, i);
-
-            if (IsEmTag(line, i) && IsCloseTag(line, i))
-                return new TagToken(TagType.Em, false, i);
-
-            if (IsEmTag(line, i) && IsOpenTag(line, i))
-                return new TagToken(TagType.Em, true, i);
             return null;
         }
 
@@ -85,9 +82,9 @@ namespace Markdown.Languages
             ValidTags.Add(closeTag);
         }
 
-        private static bool IsOpenTag(string line, int i)
+        private static bool IsOpenTag(string line, int i, string tag)
         {
-            return i + 1 < line.Length && line[i + 1] != ' ' && !char.IsNumber(line, i + 1);
+            return i + tag.Length <= line.Length && line[i + tag.Length] != ' ' && !char.IsNumber(line, i + tag.Length);
         }
 
         private static bool IsCloseTag(string line, int i)
@@ -95,13 +92,11 @@ namespace Markdown.Languages
             return i > 0 && line[i - 1] != ' ' && !char.IsNumber(line, i - 1);
         }
 
-        private static bool IsEmTag(string line, int i) =>
-            line[i] == '_' && (i + 1 >= line.Length || line[i + 1] != '_');
-
-        private static bool IsStrongTag(string line, int i)
+        private bool IsTag(string line, int i, string tag)
         {
-            return i < line.Length - 1 && line[i] == '_' && line[i + 1] == '_' &&
-                   (i + 2 >= line.Length || line[i + 2] != '_');
+            return i + tag.Length <= line.Length && tag == line.Substring(i, tag.Length)
+                                                 && (i + tag.Length >= line.Length ||
+                                                     line[i + tag.Length] != tag[tag.Length - 1]);
         }
     }
 }
