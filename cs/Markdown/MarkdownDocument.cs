@@ -1,12 +1,20 @@
-using System;
 using System.Collections.Generic;
+using System.Text;
 
 namespace Markdown
 {
     public class MarkdownDocument
     {
-        public List<Token> Tokens { get; set; }
+        private RootToken RootToken { get;}
 
-        public string ToHtml() => throw new NotImplementedException();
+        public MarkdownDocument(RootToken rootToken)
+        {
+            RootToken = rootToken;
+        }
+
+        public string ToHtml()
+        {
+            return RootToken.ToHtml();
+        }
     }
 }
