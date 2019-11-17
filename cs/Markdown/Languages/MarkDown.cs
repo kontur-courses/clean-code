@@ -6,8 +6,8 @@ namespace Markdown.Languages
 {
     public class MarkDown : ILanguage
     {
-        private readonly Stack<TagToken> stackOfTags;
-        private readonly List<TagToken> validTags;
+        private Stack<TagToken> StackOfTags { get; }
+        private List<TagToken> ValidTags { get; }
         public Dictionary<TagType, Tag> Tags { get; }
 
         public MarkDown()
@@ -17,8 +17,8 @@ namespace Markdown.Languages
                 {TagType.Em, new Tag("_", "_", new TagType[] { })},
                 {TagType.Strong, new Tag("__", "__", new TagType[] {TagType.Em})}
             };
-            stackOfTags = new Stack<TagToken>();
-            validTags = new List<TagToken>();
+            StackOfTags = new Stack<TagToken>();
+            ValidTags = new List<TagToken>();
         }
 
         public SyntaxTree RenderTree(string str)
@@ -31,13 +31,13 @@ namespace Markdown.Languages
                 if (tag == null)
                     continue;
 
-                if (tag.IsOpen && (stackOfTags.Count == 0 ||
-                                   (stackOfTags.Peek().Tagtype != tag.Tagtype && !stackOfTags.Peek().IsOpen)))
+                if (tag.IsOpen && (StackOfTags.Count == 0 ||
+                                   (StackOfTags.Peek().Tagtype != tag.Tagtype && !StackOfTags.Peek().IsOpen)))
                 {
-                    stackOfTags.Push(tag);
+                    StackOfTags.Push(tag);
                 }
-                else if (!tag.IsOpen && stackOfTags.Count > 0 && stackOfTags.Peek().Tagtype == tag.Tagtype &&
-                         stackOfTags.Peek().IsOpen)
+                else if (!tag.IsOpen && StackOfTags.Count > 0 && StackOfTags.Peek().Tagtype == tag.Tagtype &&
+                         StackOfTags.Peek().IsOpen)
                 {
                     UpdateTags(tag);
                 }
@@ -48,9 +48,9 @@ namespace Markdown.Languages
                     i += Tags[tag.Tagtype].End.Length;
             }
 
-            return validTags.Count == 0
+            return ValidTags.Count == 0
                 ? new SyntaxTree(new List<SyntaxNode>() {new TextNode(str)})
-                : TreeBuilder.ReplaceToSyntaxTree(str, validTags, Tags);
+                : TreeBuilder.ReplaceToSyntaxTree(str, ValidTags, Tags);
         }
 
         private TagToken CreateTag(string line, int i)
@@ -71,18 +71,18 @@ namespace Markdown.Languages
 
         private void UpdateTags(TagToken closeTag)
         {
-            while (stackOfTags.Count != 0)
+            while (StackOfTags.Count != 0)
             {
-                if (stackOfTags.Peek().Tagtype == closeTag.Tagtype)
+                if (StackOfTags.Peek().Tagtype == closeTag.Tagtype)
                     break;
-                stackOfTags.Pop();
+                StackOfTags.Pop();
             }
 
-            if (stackOfTags.Count == 0) return;
+            if (StackOfTags.Count == 0) return;
 
-            var openTag = stackOfTags.Pop();
-            validTags.Add(openTag);
-            validTags.Add(closeTag);
+            var openTag = StackOfTags.Pop();
+            ValidTags.Add(openTag);
+            ValidTags.Add(closeTag);
         }
 
         private static bool IsOpenTag(string line, int i)

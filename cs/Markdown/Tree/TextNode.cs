@@ -4,7 +4,7 @@ namespace Markdown.Tree
 {
     public class TextNode : SyntaxNode
     {
-        public readonly string Value;
+        public string Value { get; }
 
         public TextNode(string text) : base(null)
         {

@@ -6,7 +6,7 @@ namespace Markdown.Tree
 {
     public class TagNode : SyntaxNode
     {
-        public readonly TagType TypeTag;
+        public TagType TypeTag { get; }
 
         public TagNode(TagType tagType, List<SyntaxNode> childNode) : base(childNode)
         {

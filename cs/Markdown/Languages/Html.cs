@@ -9,7 +9,7 @@ namespace Markdown.Languages
 
         public Html()
         {
-            this.Tags = new Dictionary<TagType, Tag>()
+            Tags = new Dictionary<TagType, Tag>()
             {
                 {TagType.Em, new Tag("<em>", "</em>", new TagType[] { })},
                 {TagType.Strong, new Tag("<strong>", "</strong>", new TagType[] { })}
