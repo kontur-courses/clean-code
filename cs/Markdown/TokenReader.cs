@@ -1,60 +1,69 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Text;
 
 namespace Markdown
 {
     class TokenReader
     {
-        public readonly string StartLine;
-        public readonly string StopLine;
+        private readonly List<TokenDescription> tokenDescriptions;
 
-        private Func<string, bool> ruleForTokenContent;
-
-        public TokenReader(string startLine, string stopLine)
+        public TokenReader(List<TokenDescription> tokenDescriptions)
         {
-            StartLine = startLine;
-            StopLine = stopLine;
-        }
-
-        public void AddRuleForTokenContent(Func<string, bool> ruleForTokenContent)
-        {
-            this.ruleForTokenContent = ruleForTokenContent;
+            this.tokenDescriptions = tokenDescriptions;
         }
 
         public List<Token> SplitToTokens(string text)
         {
             var tokens = new List<Token>();
-            var lastTokenEndPosition = 0;
-            for (var startLineIndex = text.IndexOf(StartLine, 0); startLineIndex != -1; startLineIndex = text.IndexOf(StartLine, lastTokenEndPosition))
+            var currentPosition = 0;
+            while (currentPosition < text.Length)
             {
-                var token = ReadToken(text, startLineIndex + StartLine.Length);
-                var length = token.Position - lastTokenEndPosition;
-                if (token.IsInterior)
-                    length -= StartLine.Length;
-                if (length > 0)
-                    tokens.Add(new Token(lastTokenEndPosition,
-                        text.Substring(lastTokenEndPosition, length), false));
+                var isTokenAdded = false;
+                foreach (var tokenDescription in tokenDescriptions)
+                {
+                    var token = tokenDescription.ReadToken(text, currentPosition);
+                    if (token.IsEmpty)
+                        continue;
 
-                lastTokenEndPosition = token.Position + token.Length;
-                if (token.IsInterior)
-                    lastTokenEndPosition += StopLine.Length;
-                tokens.Add(token);
+                    currentPosition += token.Length;
+                    tokens.Add(token);
+                    isTokenAdded = true;
+                    break;
+                }
+                if (!isTokenAdded)
+                    throw new Exception("Correct token description not found");
             }
-            if (lastTokenEndPosition < text.Length)
-                tokens.Add(new Token(lastTokenEndPosition, text.Substring(lastTokenEndPosition), false));
+
             return tokens;
         }
 
-        public Token ReadToken(string text, int position)
+        public static Token ReadSubstringToken(string text, int position, string subString, TokenType tokenType)
         {
-            var stopLineIndex = text.IndexOf(StopLine, position);
-            if (stopLineIndex == -1)
-                throw new ArgumentException("Stop line not found");
-            var tokenText = text.Substring(position, stopLineIndex - position);
-            if (ruleForTokenContent(tokenText))
-                return new Token(position, tokenText, true);
-            return new Token(position - StartLine.Length, StartLine + tokenText + StopLine, false);
+            if (position + subString.Length > text.Length)
+                return Token.EmptyToken;
+
+            var length = 0;
+            while (length < subString.Length && text[position + length] == subString[length])
+                length++;
+
+            return length < subString.Length ? Token.EmptyToken : new Token(position, text.Substring(position, length), tokenType);
+        }
+
+        public static Token ReadTokenWithRuleForSymbols(string text, int position, Func<char, bool> rule, TokenType tokenType)
+        {
+            var i = position;
+            while (i < text.Length && rule(text[i]))
+                i++;
+
+            return new Token(position, text.Substring(position, i - position), tokenType);
+        }
+
+        public static Token ReadEscapedSymbol(string text, int position, char escapeSymbol)
+        {
+            if (text[position] != escapeSymbol || position >= text.Length - 1 || char.IsWhiteSpace(text[position + 1]))
+                return Token.EmptyToken;
+
+            return new Token(position, text.Substring(position, 2), TokenType.EscapedSymbol);
         }
     }
 }
