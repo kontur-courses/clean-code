@@ -4,7 +4,7 @@ using Markdown.Languages;
 
 namespace Markdown.Tree
 {
-    static class TreeBuilder
+    public static class TreeBuilder
     {
         public static SyntaxTree ReplaceToSyntaxTree(string line, List<TagToken> validTags,
             Dictionary<TagType, Tag> tags)

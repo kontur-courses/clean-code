@@ -1,6 +1,6 @@
 ﻿namespace Markdown.Languages
 {
-    internal class TagToken
+    public class TagToken
     {
         public readonly TagType Tagtype;
         public readonly bool IsOpen;
