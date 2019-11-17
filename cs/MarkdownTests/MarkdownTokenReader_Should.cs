@@ -24,10 +24,10 @@ namespace MarkdownTests
         [TestCase("dcba")]
         public void TokenizeSimpleText_Correctly(string text)
         {
-            var expectedTexts = new List<string>() { text, "" };
-            var expectedTypes = new List<TokenType>() { TokenType.Text, TokenType.Eof };
-            var expectedLengths = new List<int>() { 4, 0 };
-            var expectedPositions = new List<int>() { 0, 4 };
+            var expectedTexts = new List<string>() { text};
+            var expectedTypes = new List<TokenType>() { TokenType.Text};
+            var expectedLengths = new List<int>() { 4 };
+            var expectedPositions = new List<int>() { 0};
 
             var tokens = tokenReader.TokenizeText(text);
 
@@ -39,7 +39,7 @@ namespace MarkdownTests
         public void TokenizeEmptyString_Correctly()
         {
             var text = "";
-            var expectedTokenTypes = new List<TokenType>() { TokenType.Eof };
+            var expectedTokenTypes = new List<TokenType>() { };
 
             var tokens = tokenReader.TokenizeText(text);
 
@@ -57,11 +57,11 @@ namespace MarkdownTests
         public void TokenizeTextWithEscapeSymbol_Correctly()
         {
             var text = @"a\bc";
-            var expectedTexts = new List<string>() { "a", @"\b", "c", "" };
+            var expectedTexts = new List<string>() { "a", @"\b", "c"};
             var expectedTypes = new List<TokenType>()
-                { TokenType.Text, TokenType.Escape, TokenType.Text, TokenType.Eof };
-            var expectedLengths = new List<int>() { 1, 2, 1, 0 };
-            var expectedPositions = new List<int>() { 0, 1, 3, 4 };
+                { TokenType.Text, TokenType.Escape, TokenType.Text};
+            var expectedLengths = new List<int>() { 1, 2, 1};
+            var expectedPositions = new List<int>() { 0, 1, 3};
 
             var tokens = tokenReader.TokenizeText(text);
 
@@ -73,11 +73,11 @@ namespace MarkdownTests
         public void TokenizeTextWithEmphasisTag_Correctly()
         {
             var text = @"_a_";
-            var expectedTexts = new List<string>() { "_", "a", "_", "" };
+            var expectedTexts = new List<string>() { "_", "a", "_"};
             var expectedTypes = new List<TokenType>()
-                { TokenType.Emphasis, TokenType.Text, TokenType.Emphasis, TokenType.Eof };
-            var expectedLengths = new List<int>() { 1, 1, 1, 0 };
-            var expectedPositions = new List<int>() { 0, 1, 2, 3 };
+                { TokenType.Emphasis, TokenType.Text, TokenType.Emphasis};
+            var expectedLengths = new List<int>() { 1, 1, 1};
+            var expectedPositions = new List<int>() { 0, 1, 2};
 
             var tokens = tokenReader.TokenizeText(text);
 
@@ -89,11 +89,11 @@ namespace MarkdownTests
         public void TokenizeTextWithStrongTag_Correctly()
         {
             var text = @"__a__";
-            var expectedTexts = new List<string>() { "__", "a", "__", "" };
+            var expectedTexts = new List<string>() { "__", "a", "__"};
             var expectedTypes = new List<TokenType>()
-                { TokenType.Strong, TokenType.Text, TokenType.Strong, TokenType.Eof };
-            var expectedLengths = new List<int>() { 2, 1, 2, 0 };
-            var expectedPositions = new List<int>() { 0, 2, 3, 5 };
+                { TokenType.Strong, TokenType.Text, TokenType.Strong};
+            var expectedLengths = new List<int>() { 2, 1, 2};
+            var expectedPositions = new List<int>() { 0, 2, 3};
 
             var tokens = tokenReader.TokenizeText(text);
 
@@ -105,11 +105,11 @@ namespace MarkdownTests
         public void TokenizeTextWithDigits_Correctly()
         {
             var text = "ab12";
-            var expectedTexts = new List<string>() { "ab", "12", "" };
+            var expectedTexts = new List<string>() { "ab", "12"};
             var expectedTypes = new List<TokenType>()
-                { TokenType.Text, TokenType.Digits, TokenType.Eof };
-            var expectedLengths = new List<int>() { 2, 2, 0 };
-            var expectedPositions = new List<int>() { 0, 2, 4 };
+                { TokenType.Text, TokenType.Digits};
+            var expectedLengths = new List<int>() { 2, 2};
+            var expectedPositions = new List<int>() { 0, 2};
 
             var tokens = tokenReader.TokenizeText(text);
 
@@ -121,11 +121,11 @@ namespace MarkdownTests
         public void TokenizeTextWithSpace_Correctly()
         {
             var text = "ab cd";
-            var expectedTexts = new List<string>() { "ab", " ", "cd", "" };
+            var expectedTexts = new List<string>() { "ab", " ", "cd"};
             var expectedTypes = new List<TokenType>()
-                { TokenType.Text, TokenType.WhiteSpace, TokenType.Text, TokenType.Eof };
-            var expectedLengths = new List<int>() { 2, 1, 2, 0 };
-            var expectedPositions = new List<int>() { 0, 2, 3, 5 };
+                { TokenType.Text, TokenType.WhiteSpace, TokenType.Text};
+            var expectedLengths = new List<int>() { 2, 1, 2};
+            var expectedPositions = new List<int>() { 0, 2, 3};
 
             var tokens = tokenReader.TokenizeText(text);
 
@@ -137,11 +137,11 @@ namespace MarkdownTests
         public void TokenizeTextWithTokenAtStart_Correctly()
         {
             var text = "_ab";
-            var expectedTexts = new List<string>() { "_", "ab", "" };
+            var expectedTexts = new List<string>() { "_", "ab"};
             var expectedTypes = new List<TokenType>()
-                { TokenType.Emphasis, TokenType.Text, TokenType.Eof };
-            var expectedLengths = new List<int>() { 1, 2, 0 };
-            var expectedPositions = new List<int>() { 0, 1, 3 };
+                { TokenType.Emphasis, TokenType.Text};
+            var expectedLengths = new List<int>() { 1, 2};
+            var expectedPositions = new List<int>() { 0, 1};
 
             var tokens = tokenReader.TokenizeText(text);
 

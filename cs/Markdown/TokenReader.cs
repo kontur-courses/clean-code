@@ -13,7 +13,6 @@ namespace Markdown
 
         public TokenReader(List<TokenDescription> tokenDescriptions)
         {
-
             this.tokenDescriptions = tokenDescriptions.ToList();
         }
 
@@ -31,8 +30,6 @@ namespace Markdown
                 tokenList.Add(token);
                 position += token.Length;
             }
-
-            tokenList.Add(new Token(text, text.Length, TokenType.Eof));
 
             return tokenList;
         }
