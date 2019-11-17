@@ -1,5 +1,4 @@
 ﻿using System.Collections.Generic;
-using Markdown.Languages;
 
 namespace Markdown.Tree
 {

@@ -1,5 +1,4 @@
-﻿using System.Collections;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 
 namespace Markdown
 {
@@ -7,7 +6,7 @@ namespace Markdown
     {
         public string Start { get; }
         public string End { get; }
-        public IEnumerable<TagType> Children { get;}
+        public IEnumerable<TagType> Children { get; }
 
         public Tag(string start, string end, IEnumerable<TagType> children)
         {

@@ -1,6 +1,6 @@
 ﻿using System.Collections.Generic;
+using System.Linq;
 using System.Text;
-using Markdown.Languages;
 
 namespace Markdown.Tree
 {
@@ -21,13 +21,9 @@ namespace Markdown.Tree
         {
             var result = new StringBuilder();
             result.Append(tags[TypeTag].Start);
-            foreach (var child in ChildNode)
+            foreach (var childText in ChildNode.Select(child => child.ConvertTo(tags)).Where(childText => childText != null))
             {
-                var childText = child.ConvertTo(tags);
-                if (childText != null)
-                {
-                    result.Append(childText);
-                }
+                result.Append(childText);
             }
             result.Append(tags[TypeTag].End);
             return result.ToString();
