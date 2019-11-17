@@ -5,7 +5,7 @@ namespace Markdown.Tree
     public abstract class SyntaxNode
     {
         public readonly List<SyntaxNode> ChildNode;
-        
+
         protected SyntaxNode(List<SyntaxNode> childNode)
         {
             ChildNode = childNode;

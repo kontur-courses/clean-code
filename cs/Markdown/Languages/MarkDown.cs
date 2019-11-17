@@ -31,11 +31,13 @@ namespace Markdown.Languages
                 if (tag == null)
                     continue;
 
-                if (tag.IsOpen && (stackOfTags.Count == 0 || (stackOfTags.Peek().Tagtype != tag.Tagtype && !stackOfTags.Peek().IsOpen)))
+                if (tag.IsOpen && (stackOfTags.Count == 0 ||
+                                   (stackOfTags.Peek().Tagtype != tag.Tagtype && !stackOfTags.Peek().IsOpen)))
                 {
                     stackOfTags.Push(tag);
                 }
-                else if (!tag.IsOpen && stackOfTags.Count > 0 && stackOfTags.Peek().Tagtype == tag.Tagtype && stackOfTags.Peek().IsOpen)
+                else if (!tag.IsOpen && stackOfTags.Count > 0 && stackOfTags.Peek().Tagtype == tag.Tagtype &&
+                         stackOfTags.Peek().IsOpen)
                 {
                     UpdateTags(tag);
                 }
@@ -46,7 +48,9 @@ namespace Markdown.Languages
                     i += Tags[tag.Tagtype].End.Length;
             }
 
-            return validTags.Count == 0 ? new SyntaxTree(new List<SyntaxNode>() { new TextNode(str) }) : TreeBuilder.ReplaceToSyntaxTree(str, validTags, Tags);
+            return validTags.Count == 0
+                ? new SyntaxTree(new List<SyntaxNode>() {new TextNode(str)})
+                : TreeBuilder.ReplaceToSyntaxTree(str, validTags, Tags);
         }
 
         private TagToken CreateTag(string line, int i)
@@ -91,11 +95,13 @@ namespace Markdown.Languages
             return i > 0 && line[i - 1] != ' ' && !char.IsNumber(line, i - 1);
         }
 
-        private static bool IsEmTag(string line, int i) => line[i] == '_' && (i + 1 >= line.Length || line[i + 1] != '_');
+        private static bool IsEmTag(string line, int i) =>
+            line[i] == '_' && (i + 1 >= line.Length || line[i + 1] != '_');
 
         private static bool IsStrongTag(string line, int i)
         {
-            return i < line.Length - 1 && line[i] == '_' && line[i + 1] == '_' && (i + 2 >= line.Length || line[i + 2] != '_');
+            return i < line.Length - 1 && line[i] == '_' && line[i + 1] == '_' &&
+                   (i + 2 >= line.Length || line[i + 2] != '_');
         }
     }
 }

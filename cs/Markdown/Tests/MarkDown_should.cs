@@ -71,7 +71,7 @@ namespace Markdown.Tests
             tree.ChildNode[1].Should().BeOfType<TagNode>();
             tree.ChildNode[2].Should().BeOfType<TextNode>();
         }
-        
+
         [TestCase("_abc_ _abc_")]
         public void RenderTree_WhenTwoTag_TagNodeContain2TagNode(string str)
         {
@@ -79,7 +79,7 @@ namespace Markdown.Tests
             tree.ChildNode.First().Should().BeOfType<TagNode>();
             tree.ChildNode.Last().Should().BeOfType<TagNode>();
         }
-        
+
         [TestCase("_abc _")]
         [TestCase("_ abc_")]
         [TestCase("_abc")]
@@ -97,7 +97,7 @@ namespace Markdown.Tests
             var textNode = tree.ChildNode.First() as TextNode;
             textNode.Value.Should().Be(str);
         }
-        
+
         [TestCase("_2")]
         [TestCase("2_")]
         [TestCase("_2_")]
@@ -111,6 +111,4 @@ namespace Markdown.Tests
             textNode.Value.Should().Be(str);
         }
     }
-    
-    
 }

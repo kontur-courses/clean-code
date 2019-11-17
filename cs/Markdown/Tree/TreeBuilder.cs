@@ -4,9 +4,10 @@ using Markdown.Languages;
 
 namespace Markdown.Tree
 {
-    class TreeBuilder
+    static class TreeBuilder
     {
-        public static SyntaxTree ReplaceToSyntaxTree(string line, List<TagToken> validTags, Dictionary<TagType,Tag> tags)
+        public static SyntaxTree ReplaceToSyntaxTree(string line, List<TagToken> validTags,
+            Dictionary<TagType, Tag> tags)
         {
             var syntaxTree = new SyntaxTree();
             var topBranch = new Stack<TagToken>();
@@ -21,9 +22,11 @@ namespace Markdown.Tree
                     {
                         syntaxTree.Add(new TextNode(line.Substring(i, tag.Position)));
                     }
+
                     i = tag.Position + tags[tag.Tagtype].Start.Length;
                     topBranch.Push(tag);
                 }
+
                 if (!tag.IsOpen && topBranch.Peek().Tagtype == tag.Tagtype)
                 {
                     var node = new TagNode(tag.Tagtype,
