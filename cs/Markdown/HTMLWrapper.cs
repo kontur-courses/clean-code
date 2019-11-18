@@ -4,7 +4,7 @@
     {
         public static string WrapWithTag(string tag, string text)
         {
-            return "<" + tag + ">" + text + "</" + tag + ">";
+            return $"<{tag}>{text}</{tag}>";
         } 
     }
 }

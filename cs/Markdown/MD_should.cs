@@ -53,7 +53,7 @@ namespace Markdown
         [Test]
         public void ReturnCorrectTag_WithSlashedTags()
         {
-            var mdTag = "\\_abc_ \\__abc__";
+            var mdTag = "\\_abc_ \\_\\_abc__";
             var result = mdParser.Render(mdTag);
             Assert.AreEqual(mdTag, result);
             mdTag = "_abc\\_ __abc\\__";
