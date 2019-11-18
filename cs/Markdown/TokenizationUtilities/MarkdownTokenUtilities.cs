@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace Markdown
 {
-    public static class MarkdownUtilities
+    public static class MarkdownTokenUtilities
     {
         public static List<TokenDescription> GetMarkdownTokenDescriptions()
         {

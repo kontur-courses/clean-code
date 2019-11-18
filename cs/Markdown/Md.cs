@@ -10,14 +10,14 @@ namespace Markdown
     {
         public string Render(string rawText)
         {
-            var tokenDescription = MarkdownUtilities.GetMarkdownTokenDescriptions();
+            var tokenDescription = MarkdownTokenUtilities.GetMarkdownTokenDescriptions();
             List<Token> tokens = new TokenReader(tokenDescription).TokenizeText(rawText);
 
-            return RenderFromTokens(tokens, tokenDescription, new HtmlTagFormatter());
+            return RenderFromTokens(tokens, tokenDescription);
         }
 
         public string RenderFromTokens(IEnumerable<Token> tokens,
-            IEnumerable<TokenDescription> tokenDescription, ITagFormatter tagFormatter)
+            IEnumerable<TokenDescription> tokenDescription)
         {
             var resultString = new StringBuilder();
             throw new NotImplementedException();

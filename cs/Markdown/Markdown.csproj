@@ -40,16 +40,17 @@
     <None Include="Spec.md" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="Formatters\HtmlTagFormatter.cs" />
-    <Compile Include="Formatters\ITagFormatter.cs" />
-    <Compile Include="MarkdownUtilities.cs" />
+    <Compile Include="RenderUtilities\ITokenHandler.cs" />
+    <Compile Include="RenderUtilities\MarkdownRenderUtilities.cs" />
+    <Compile Include="RenderUtilities\Renderer.cs" />
+    <Compile Include="TokenizationUtilities\MarkdownTokenUtilities.cs" />
     <Compile Include="Md.cs" />
-    <Compile Include="TagType.cs" />
-    <Compile Include="Token.cs" />
-    <Compile Include="TokenNode.cs" />
-    <Compile Include="TokenReader.cs" />
-    <Compile Include="TokenDescription.cs" />
-    <Compile Include="TokenType.cs" />
+    <Compile Include="RenderUtilities\SimpleHandler.cs" />
+    <Compile Include="RenderUtilities\SimpleTokenHandleDescription.cs" />
+    <Compile Include="TokenizationUtilities\Token.cs" />
+    <Compile Include="TokenizationUtilities\TokenReader.cs" />
+    <Compile Include="TokenizationUtilities\TokenDescription.cs" />
+    <Compile Include="TokenizationUtilities\TokenType.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
 </Project>

@@ -17,7 +17,7 @@ namespace MarkdownTests
         [OneTimeSetUp]
         public void OneTimeSetUp()
         {
-            tokenReader = new TokenReader(MarkdownUtilities.GetMarkdownTokenDescriptions());
+            tokenReader = new TokenReader(MarkdownTokenUtilities.GetMarkdownTokenDescriptions());
         }
 
         [TestCase("abcd")]
