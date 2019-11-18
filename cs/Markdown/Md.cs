@@ -57,35 +57,33 @@ namespace Markdown
                 {
                     if (collectedToken.Length > 0)
                     {
-                        var rawToken = collectedToken.ToString();
-                        //Check whether collected token is allowed token
-                        if (Borders.Contains(rawToken))
-                        {
-                            if (IsWhitespaceOrStringBorderAt(paragraph, i - rawToken.Length) &&
-                                !char.IsWhiteSpace(paragraph[i + 1]))
-                                yield return new MdToken(i + 1 - rawToken.Length, rawToken, MdTokenMark.Left);
-                            else if (IsWhitespaceOrStringBorderAt(paragraph, i + 1) &&
-                                     !char.IsWhiteSpace(paragraph[i - rawToken.Length]))
-                                yield return new MdToken(i + 1 - rawToken.Length, rawToken, MdTokenMark.Right);
-                        }
-
+                        var mdToken = CheckCollectedToken(paragraph, collectedToken, i);
+                        if (mdToken != null) yield return mdToken;
                         collectedToken.Clear();
                     }
 
                     state = character == EscapeChar ? ExtractorState.SkippingTokens : ExtractorState.SkippingLetters;
                 }
 
-                switch (state)
-                {
-                    case ExtractorState.CollectingToken:
-                        collectedToken.Append(character);
-                        break;
-                    case ExtractorState.SkippingLetters:
-                        continue;
-                    default:
-                        throw new ArgumentOutOfRangeException();
-                }
+                if (state == ExtractorState.CollectingToken)
+                    collectedToken.Append(character);
             }
+        }
+
+        private static MdToken CheckCollectedToken(string paragraph, StringBuilder collectedToken, int i)
+        {
+            var rawToken = collectedToken.ToString();
+            //Check whether collected token is allowed token
+            if (!Borders.Contains(rawToken)) return null;
+
+            if (IsWhitespaceOrStringBorderAt(paragraph, i - 1 - rawToken.Length) &&
+                !IsWhitespaceOrStringBorderAt(paragraph, i))
+                return new MdToken(i - rawToken.Length, rawToken, MdTokenMark.Left);
+            if (IsWhitespaceOrStringBorderAt(paragraph, i) &&
+                !IsWhitespaceOrStringBorderAt(paragraph, i - 1 - rawToken.Length))
+                return new MdToken(i - rawToken.Length, rawToken, MdTokenMark.Right);
+
+            return null;
         }
 
         public static MdTagDescriptor GetDescriptorForBorder(string border)
@@ -93,7 +91,7 @@ namespace Markdown
             return TagDescriptors.SingleOrDefault(t => t.Border == border);
         }
 
-        private static bool IsWhitespaceOrStringBorderAt(string paragraph, int position)
+        public static bool IsWhitespaceOrStringBorderAt(string paragraph, int position)
         {
             return position >= paragraph.Length || char.IsWhiteSpace(paragraph[position]);
         }
@@ -102,6 +100,8 @@ namespace Markdown
         {
             var leftTokenList = new List<MdToken>();
             foreach (var token in tokens)
+            {
+                Console.WriteLine(token.Value);
                 if (token.Mark == MdTokenMark.Left)
                     leftTokenList.Add(token);
                 else
@@ -116,6 +116,7 @@ namespace Markdown
                             leftTokenList.RemoveRange(i, leftTokenList.Count - i - 1);
                             break;
                         }
+            }
         }
 
         private static string RenderTags(IEnumerable<MdTag> tags, string paragraph)
@@ -124,21 +125,32 @@ namespace Markdown
             var htmlBuilder = new StringBuilder();
             var shift = 0;
             for (var i = 0; i < paragraph.Length; i++)
-                if (indices.Contains(i + shift))
+                if (indices.Contains(i))
                 {
-                    var tag = tags.First(t => t.LeftBorder.Pos == i + shift ||
-                                              t.RightBorder.Pos == i + shift);
+                    var tag = tagList.First(t => t.LeftBorder.Pos == i ||
+                                                 t.RightBorder.Pos == i);
                     var tagDescriptor = tag.Descriptor;
-                    var replacement = tag.LeftBorder.Pos == i + shift
+                    var replacement = tag.LeftBorder.Pos == i
                         ? tagDescriptor.LeftReplacement
                         : tagDescriptor.RightReplacement;
+
                     htmlBuilder.Append(replacement);
+
                     i += tagDescriptor.Border.Length - 1;
-                    shift += replacement.Length - tagDescriptor.Border.Length;
                 }
                 else
                 {
-                    htmlBuilder.Append(paragraph[i]);
+                    if (paragraph[i] is EscapeChar)
+                    {
+                        if (i + 1 < paragraph.Length)
+                            htmlBuilder.Append(paragraph[i + 1]);
+                        else
+                            htmlBuilder.Append(EscapeChar);
+                    }
+                    else
+                    {
+                        htmlBuilder.Append(paragraph[i]);
+                    }
                 }
 
             return htmlBuilder.ToString();
