@@ -9,52 +9,39 @@
 
     public enum TagClassEnum
     {
-        Opener = 1,
-        Closer = 2,
-        Empty = 0
+        Opener = 0,
+        Closer = 1
     }
     
     public class TagTypeContainer
     {
-        public TagTypeEnum TagType;
-        public TagClassEnum TagClass;
         public int position;
+        public ITag Tag;
         
-        public TagTypeContainer(string tag, int TagClass, int position)
+        public TagTypeContainer(ITag tag, bool TagClass, int position)
         {
-            switch (tag)
+            switch (TagClass)
             {
-                case "__":
-                    this.TagType = TagTypeEnum.TwoUnderScore;
+                case true:
+                    tag.TagClass = TagClassEnum.Closer;
                     break;
-                case "_":
-                    this.TagType = TagTypeEnum.OneUnderscore;
-                    break;
-                case "":
-                    this.TagType = TagTypeEnum.Nothing;
+                case false:
+                    tag.TagClass = TagClassEnum.Opener;
                     break;
             }
-            this.TagClass = (TagClassEnum) TagClass;
             this.position = position;
+            this.Tag = tag;
         }
         
-        public TagTypeContainer(TagTypeEnum tag, TagClassEnum TagClass, int pos)
-        {
-            this.TagType = tag;
-            this.TagClass = TagClass;
-            position = pos;
-        }
-        
-  
-        
+
         public static bool operator ==(TagTypeContainer t1, TagTypeContainer t2)
         {
-            return t1.TagType == t2.TagType && t1.TagClass == t2.TagClass;
+            return t1.Tag.TagType == t2.Tag.TagType && t1.Tag.TagClass == t2.Tag.TagClass;
         }
         
         public static bool operator !=(TagTypeContainer t1, TagTypeContainer t2)
         {
-            return t1.TagType != t2.TagType && t1.TagClass != t2.TagClass;
+            return t1.Tag.TagType != t2.Tag.TagType && t1.Tag.TagClass != t2.Tag.TagClass;
         }
     }
 }

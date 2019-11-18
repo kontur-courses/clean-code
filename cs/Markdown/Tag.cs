@@ -1,15 +1,38 @@
 ﻿namespace Markdown
 {
-    public abstract class Tag
+    public interface ITag
     {
-        public string StringRepr;
-        public int Length;
-        public static bool isOpen = true;
-        
-        public Tag(string str)
+        string StringTag { get; }
+        int Length { get; }
+        TagTypeEnum TagType { get; }
+        TagClassEnum TagClass { get; set; }
+    }
+
+    public class TwoUnderscoreTag : ITag
+    {
+        public string StringTag => "__";
+        public int Length { get; }
+        public TagTypeEnum TagType { get; }
+        public TagClassEnum TagClass { get; set; }
+
+        public TwoUnderscoreTag()
         {
-            this.StringRepr = str;
-            this.Length = str.Length;
+            TagType = TagTypeEnum.TwoUnderScore;
+            this.Length = StringTag.Length;
+        }
+    }
+
+    public class OneUnderscoreTag : ITag
+    {
+        public string StringTag => "_";
+        public int Length { get; }
+        public TagTypeEnum TagType { get; }
+        public TagClassEnum TagClass { get; set; }
+
+        public OneUnderscoreTag()
+        {
+            TagType = TagTypeEnum.TwoUnderScore;
+            this.Length = StringTag.Length;
         }
     }
 }

@@ -1,15 +1,21 @@
-﻿using NUnit.Framework;
+﻿using System.Collections.Generic;
+using NUnit.Framework;
 
 namespace Markdown
 {
     [TestFixture]
     public class MD_should
     {
-        private MD mdParser;
+        private MdProccesor mdParser;
         [SetUp]
         public void SetUp()
         {
-            mdParser = new MD();
+            mdParser = new MdProccesor(new List<ITag>
+            {
+                new TwoUnderscoreTag(),
+                new OneUnderscoreTag()
+                
+            });
         }
         
         [Test]
