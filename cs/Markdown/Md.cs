@@ -120,7 +120,7 @@ namespace Markdown
                             if (!leftTokenList.Select(t => GetDescriptorForBorder(t.Value))
                                 .Any(d => tag.ForbiddenInside(d)))
                                 yield return tag;
-                            leftTokenList.RemoveRange(i, leftTokenList.Count - i - 1);
+                            leftTokenList.RemoveRange(i, leftTokenList.Count - i);
                             break;
                         }
             }
