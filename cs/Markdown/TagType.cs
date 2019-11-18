@@ -14,7 +14,7 @@
             MdOpeningTag = mdOpeningTag;
             MdClosingTag = mdClosingTag;
         }
-        
+
         public static TagType GetTagType(string text, int position)
         {
             if (EmTagType.IsOpenedTag(text, position) || EmTagType.IsClosedTag(text, position))

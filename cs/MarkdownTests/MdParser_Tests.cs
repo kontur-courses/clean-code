@@ -26,7 +26,7 @@ namespace MarkdownTests
         [TestCase("_emStart __strongTagInEmTag__ emFinish_", 0)]
         [TestCase("__strongStart _emInStrong_ strongFinish__", 14, 0)]
         [TestCase("_emStart __strongInEm__ emFinish_", 0)]
-        public void MdParser_GetTokens_RightTokensPositions(string text, params int[] expectedPositions)
+        public void MdParser_GetTokens_ReturnRightTokensPositions(string text, params int[] expectedPositions)
         {
             var tokens = new MdParser(text).GetTokens();
             var positions = tokens.Select(token => token.Position).ToArray();
@@ -40,7 +40,7 @@ namespace MarkdownTests
         [TestCase("_emStart __strongTagInEmTag__ emFinish_", 39)]
         [TestCase("__strongStart _emInStrong_ strongFinish__", 12, 41)]
         [TestCase("_emStart __strongInEm__ emFinish_", 33)]
-        public void MdParser_GetTokens_RightTokensLength(string text, params int[] expectedLengths)
+        public void MdParser_GetTokens_ReturnRightTokensLength(string text, params int[] expectedLengths)
         {
             var tokens = new MdParser(text).GetTokens();
             var positions = tokens.Select(token => token.Length).ToArray();
@@ -54,7 +54,7 @@ namespace MarkdownTests
         [TestCase("_emStart __strongTagInEmTag__ emFinish_", 0)]
         [TestCase("__strongStart _emInStrong_ strongFinish__", 1, 1)]
         [TestCase("_emStart __strongInEm__ emFinish_", 0)]
-        public void MdParser_GetTokens_RightTokensNestedCount(string text, params int[] expectedNestedCount)
+        public void MdParser_GetTokens_ReturnRightTokensNestedCount(string text, params int[] expectedNestedCount)
         {
             var tokens = new MdParser(text).GetTokens();
             var nesting = tokens.Select(token => token.NestedTokenCount).ToArray();

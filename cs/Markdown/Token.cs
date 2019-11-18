@@ -1,8 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Text;
-
-namespace Markdown
+﻿namespace Markdown
 {
     public class Token
     {
@@ -18,6 +14,5 @@ namespace Markdown
             Length = length;
             NestedTokenCount = nestedTokenCount;
         }
-        
     }
 }

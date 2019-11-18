@@ -15,7 +15,7 @@ namespace MarkdownTests
         [TestCase("_emStart __strongTagInEmTag__ emFinish_", 1)]
         [TestCase("__strongStart _emInStrong_ strongFinish__", 2)]
         [TestCase("_emStart __strongInEm__ emFinish_", 1)]
-        public void MdConverter_HasPairTags_RightDefinesPairTags(string text, int expectedPairTokens)
+        public void MdConverter_HasPairTags_ReturnRightDefinesPairTags(string text, int expectedPairTokens)
         {
             var tokens = new MdParser(text).GetTokens();
             var converter = new MdConverter(tokens, text);
@@ -31,7 +31,7 @@ namespace MarkdownTests
         [TestCase("__strongStart _emInStrong_ strongFinish__",
             "<em>emInStrong</em>", "<strong>strongStart _emInStrong_ strongFinish</strong>")]
         [TestCase("_emStart __strongInEm__ emFinish_", "<em>emStart __strongInEm__ emFinish</em>")]
-        public void MdConverter_ConvertToHtml_RightResult(string text, params string[] expectedHtmlEquivalents)
+        public void MdConverter_ConvertToHtml_ReturnRightResult(string text, params string[] expectedHtmlEquivalents)
         {
             var tokens = new MdParser(text).GetTokens();
             var converter = new MdConverter(tokens, text);

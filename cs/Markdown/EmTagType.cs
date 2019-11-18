@@ -8,7 +8,7 @@
 
         public static bool IsOpenedTag(string text, int position)
         {
-            if (text[position] != '_' )
+            if (text[position] != '_')
                 return false;
             if (position == 0)
                 return char.IsLetter(text[position + 1]);
