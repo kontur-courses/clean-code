@@ -8,7 +8,7 @@ namespace Markdown.Core
         {
             var tokens = new TokenReader().ReadTokens(source);
             
-            tokens = new MdNormalizer().NormalizeTokens(tokens);
+            tokens = new MdNormalizer().NormalizeTokens(tokens, "__");
                         
             return new MdToHtmlTranslator().TranslateTokensToHtml(tokens);
         }
