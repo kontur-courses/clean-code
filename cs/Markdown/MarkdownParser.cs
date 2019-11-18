@@ -49,27 +49,19 @@ namespace Markdown
             for (var i = 0; i < markdown.Length; i++)
             {
                 var processedToken = GetProcessedToken(rootToken);
-                /*var previous = i > 0
-                    ? markdown[i - 1]
-                    : ' ';*/
                 var current = markdown[i];
-                var next = i < markdown.Length - 1
-                    ? markdown[i + 1]
-                    : ' ';
                 isEscaped = CheckIsEscaped(isEscaped, current);
                 if (!isEscaped && IsTagPart(current))
                 {
-                    if (GetTagsStartWithWordCount(tagBuffer + current) != 0)
-                        tagBuffer += current;
-                    if (GetTagsStartWithWordCount(tagBuffer) >= 1
-                        && MdToHtmlTags.Keys.Contains(tagBuffer)
-                        && GetTagsStartWithWordCount(tagBuffer + next) == 0)
-                    {
-                        AddTagToStack(processedToken, currentPositions[depth], tagBuffer);
-                        tagBuffer = "";
-                    }
-                    else if (GetTagsStartWithWordCount(tagBuffer + current) != 0)
-                        tagBuffer += current;
+                    //if (GetTagsStartWithWordCount(tagBuffer + current) != 0)
+                    tagBuffer += current;
+                    //if (GetTagsStartWithWordCount(tagBuffer) < 1 || !MdToHtmlTags.Keys.Contains(tagBuffer)) 
+                    //    continue;
+                    if (i != markdown.Length - 1 && GetTagsStartWithWordCount(tagBuffer + markdown[i + 1]) != 0)
+                       continue;
+                        
+                    AddTagToStack(processedToken, currentPositions[depth], tagBuffer);
+                    tagBuffer = "";
                 }
                 else
                 {

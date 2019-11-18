@@ -21,7 +21,7 @@ namespace Markdown.Tests
         }
 
         [Test]
-        public void Parse_ShouldNotParse_WhenStrongInsideEm()
+        public void Parse_ShouldMarkTokenAsInvalid_WhenStrongInsideEm()
         {
             var expectedToken = new RootToken();
             var strongToken = new Token(3, "__", "strong", "bb bb", true);
@@ -33,7 +33,7 @@ namespace Markdown.Tests
 
             actualToken.Should().BeEquivalentTo(expectedToken);
         }
-
+        
         [Test]
         public void Parse_ShouldParseWord_WhenNoTags()
         {
