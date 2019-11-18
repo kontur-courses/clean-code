@@ -13,7 +13,8 @@ namespace Markdown
             var result = new List<Token>();
             var temp = new HashSet<Token>();
             var tokenStarts = GetTokenStarts(markdownTokens);
-            foreach (var markdownToken in markdownTokens.Where(t => tokenStarts[t.Start] >= t.Start + t.Length).ToList())
+            foreach (var markdownToken in markdownTokens.Where(t => tokenStarts[t.Start] >= t.Start + t.Length)
+                .ToList())
             {
                 var htmlToken = GetHtmlToken(markdownToken);
                 result.Add(htmlToken);
@@ -21,22 +22,26 @@ namespace Markdown
                 temp.Add(markdownToken);
             }
 
-            foreach (var token in markdownTokens.Where(t=>!temp.Contains(t)))
+            foreach (var token in markdownTokens.Where(t => !temp.Contains(t)))
             {
-                var htmlString = GetHtmlToken(token).Line;
+                var htmlToken = GetHtmlToken(token);
+                var htmlString = htmlToken.Line;
                 var stringBuilder = new StringBuilder(htmlString);
                 var delta = 0;
                 foreach (var markdownToken in temp)
                 {
-                    stringBuilder.Replace(markdownToken.Line, tagsCollection[markdownToken].Line, markdownToken
-                        .Start + delta - token.Start+6, markdownToken.Length);
+                    if (markdownToken.Start+markdownToken.Length >= htmlToken.Start+htmlToken.Length) continue;
+                    stringBuilder.Replace(markdownToken.Line, tagsCollection[markdownToken].Line,
+                        markdownToken.Start + delta - token.Start + 6, markdownToken.Length);
                     delta += tagsCollection[markdownToken].Length - markdownToken.Length;
                 }
+
                 htmlString = stringBuilder.ToString();
-                var htmlToken = new Token(htmlString, token.Start,htmlString.Length);
+                htmlToken = new Token(htmlString, token.Start, htmlString.Length);
                 result.Add(htmlToken);
                 tagsCollection[token] = htmlToken;
             }
+
             return result;
         }
 
@@ -62,7 +67,15 @@ namespace Markdown
                 case "__":
                     htmlString = $"<strong>{markdownToken.Line.Substring(2, markdownToken.Length - 4)}</strong>";
                     return new Token(htmlString, markdownToken.Start, markdownToken.Length + 13);
+                case "[](":
+                    var firstBorders = (markdownToken.Line.IndexOf('(') + 1, markdownToken.Line.IndexOf(')'));
+                    var secondBorders = (1, markdownToken.Line.IndexOf(']'));
+                    htmlString =
+                        $"<a href='{markdownToken.Line.Substring(firstBorders.Item1, firstBorders.Item2 - firstBorders.Item1)}'>" +
+                        $"{markdownToken.Line.Substring(secondBorders.Item1, secondBorders.Item2 - secondBorders.Item1)}</a>";
+                    return new Token(htmlString, markdownToken.Start, markdownToken.Length + 11);
             }
+
             throw new ArgumentException();
         }
     }

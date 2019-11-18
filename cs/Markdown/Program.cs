@@ -8,10 +8,10 @@ namespace Markdown
         {
             Console.WriteLine(string.Format("файл находится по адресу{0}", "?"));
         }
-        //public static void Main()
-        //{
+        public static void Main()
+        {
 
 
-        //}
+        }
     }
 }
