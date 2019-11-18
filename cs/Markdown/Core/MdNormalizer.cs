@@ -16,14 +16,14 @@ namespace Markdown.Core
                 if (!TryPutTokenIntoRightTagsSequence(tagStack, tagToken))
                 {
                     tagToken.TokenType = TokenType.Text;
-                    ChangeTypeToAllTokensInStack(tagStack);
+                    ChangeTokenTypeToTextToAllTokensInStack(tagStack);
                 };
             }
-            ChangeTypeToAllTokensInStack(tagStack);
+            ChangeTokenTypeToTextToAllTokensInStack(tagStack);
             return tokens;
         }
 
-        private void ChangeTypeToAllTokensInStack(Stack<HTMLTagToken> tagStack)
+        private void ChangeTokenTypeToTextToAllTokensInStack(Stack<HTMLTagToken> tagStack)
         {
             while (tagStack.Count != 0)
             {

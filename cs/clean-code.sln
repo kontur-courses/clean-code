@@ -11,6 +11,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Samples", "Samples\Samples.
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Markdown", "Markdown\Markdown.csproj", "{8CCA32FE-2310-4141-8667-F900A407CDC7}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MarkdownTests", "MarkdownTests\MarkdownTests.csproj", "{770F8396-00CE-4191-9DF0-DA80A349B399}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -68,6 +70,18 @@ Global
 		{8CCA32FE-2310-4141-8667-F900A407CDC7}.Release|Mixed Platforms.Build.0 = Release|Any CPU
 		{8CCA32FE-2310-4141-8667-F900A407CDC7}.Release|x86.ActiveCfg = Release|Any CPU
 		{8CCA32FE-2310-4141-8667-F900A407CDC7}.Release|x86.Build.0 = Release|Any CPU
+		{770F8396-00CE-4191-9DF0-DA80A349B399}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{770F8396-00CE-4191-9DF0-DA80A349B399}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{770F8396-00CE-4191-9DF0-DA80A349B399}.Debug|Mixed Platforms.ActiveCfg = Debug|Any CPU
+		{770F8396-00CE-4191-9DF0-DA80A349B399}.Debug|Mixed Platforms.Build.0 = Debug|Any CPU
+		{770F8396-00CE-4191-9DF0-DA80A349B399}.Debug|x86.ActiveCfg = Debug|Any CPU
+		{770F8396-00CE-4191-9DF0-DA80A349B399}.Debug|x86.Build.0 = Debug|Any CPU
+		{770F8396-00CE-4191-9DF0-DA80A349B399}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{770F8396-00CE-4191-9DF0-DA80A349B399}.Release|Any CPU.Build.0 = Release|Any CPU
+		{770F8396-00CE-4191-9DF0-DA80A349B399}.Release|Mixed Platforms.ActiveCfg = Release|Any CPU
+		{770F8396-00CE-4191-9DF0-DA80A349B399}.Release|Mixed Platforms.Build.0 = Release|Any CPU
+		{770F8396-00CE-4191-9DF0-DA80A349B399}.Release|x86.ActiveCfg = Release|Any CPU
+		{770F8396-00CE-4191-9DF0-DA80A349B399}.Release|x86.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
