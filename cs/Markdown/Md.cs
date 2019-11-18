@@ -68,6 +68,13 @@ namespace Markdown
                 if (state == ExtractorState.CollectingToken)
                     collectedToken.Append(character);
             }
+
+            if (collectedToken.Length > 0)
+            {
+                var mdToken = CheckCollectedToken(paragraph, collectedToken, paragraph.Length);
+                if (mdToken != null) yield return mdToken;
+                collectedToken.Clear();
+            }
         }
 
         private static MdToken CheckCollectedToken(string paragraph, StringBuilder collectedToken, int i)
@@ -93,7 +100,7 @@ namespace Markdown
 
         public static bool IsWhitespaceOrStringBorderAt(string paragraph, int position)
         {
-            return position >= paragraph.Length || char.IsWhiteSpace(paragraph[position]);
+            return position >= paragraph.Length || position < 0 || char.IsWhiteSpace(paragraph[position]);
         }
 
         private static IEnumerable<MdTag> FilterMdTags(IEnumerable<MdToken> tokens)
@@ -121,9 +128,9 @@ namespace Markdown
 
         private static string RenderTags(IEnumerable<MdTag> tags, string paragraph)
         {
-            var indices = GetTokenIndices(tags);
+            var tagList = tags.ToList();
+            var indices = GetTokenIndices(tagList);
             var htmlBuilder = new StringBuilder();
-            var shift = 0;
             for (var i = 0; i < paragraph.Length; i++)
                 if (indices.Contains(i))
                 {
