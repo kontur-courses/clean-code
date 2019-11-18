@@ -1,11 +1,36 @@
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Text;
 
 namespace Markdown
 {
     public static class Md
     {
+        private const char EscapeChar = '\\';
+        private static readonly List<MdTagDescriptor> TagDescriptors = new List<MdTagDescriptor>();
+        private static readonly HashSet<string> Borders = new HashSet<string>();
+        private static readonly HashSet<char> AllowedTagCharacters = new HashSet<char>();
+
+        static Md()
+        {
+            var emphasizeTagDescr = new MdTagDescriptor("_", "<em>", "</em>");
+            var strongTagDescr = new MdTagDescriptor("__", "<strong>", "</strong>");
+            strongTagDescr.SetForbiddenInside(emphasizeTagDescr);
+            TagDescriptors.Add(emphasizeTagDescr);
+            TagDescriptors.Add(strongTagDescr);
+            PrepareBorders();
+        }
+
+        public static void PrepareBorders()
+        {
+            foreach (var descriptor in TagDescriptors)
+            {
+                Borders.Add(descriptor.Border);
+                foreach (var character in descriptor.Border) AllowedTagCharacters.Add(character);
+            }
+        }
+
         public static string Render(string paragraph)
         {
             //TODO LINQ maybe
@@ -60,46 +85,66 @@ namespace Markdown
     /// </summary>
     public class MdToken
     {
-        //TODO Replace by MarkContainer of something like this
-        public List<MdTokenMark> TokenMarks;
-        public int TokenPos;
+        public MdTokenMark Mark;
+        public int Pos;
 
-        public string TokenValue;
+        public string Value;
 
-        public MdToken(int position, string value, List<MdTokenMark> marks)
+        public MdToken(int position, string value, MdTokenMark mark)
         {
-            TokenPos = position;
-            TokenValue = value;
-            TokenMarks = marks;
+            Pos = position;
+            Value = value;
+            Mark = mark;
         }
-
-        //TODO Add utility methods to get whether token can be left or right or singular
-        //MarkContainer getter
     }
 
-    /// <summary>
-    ///     Md tag instance created to enable multiple tag versions to be implemented
-    /// </summary>
-    public abstract class MdTag
+    public class MdTag
     {
-        public abstract void RenderAt(StringBuilder paragraphBuilder);
-    }
-
-    //TODO SingularTag : MdTag
-
-    public class PairedMdTag : MdTag
-    {
+        public MdTagDescriptor Descriptor;
         public MdToken LeftBorder;
         public MdToken RightBorder;
 
-        public override void RenderAt(StringBuilder paragraphBuilder)
+        public MdTag(MdToken leftBorder, MdToken rightBorder, MdTagDescriptor descriptor)
         {
-            //TODO Replace singular tag by it's corresponding html tag,
-            //left border by opening html tag
-            //right border by closing html tag
-            throw new NotImplementedException();
+            LeftBorder = leftBorder;
+            RightBorder = rightBorder;
+            Descriptor = descriptor;
+        }
+
+        public bool ForbiddenInside(MdTagDescriptor parentTagDescriptor)
+        {
+            return Descriptor.ForbiddenInside(parentTagDescriptor);
         }
     }
+
+    public class MdTagDescriptor
+    {
+        public readonly string Border;
+
+        public readonly List<MdTagDescriptor> ForbiddenTagContexts = new List<MdTagDescriptor>();
+
+        public string LeftReplacement;
+        public string RightReplacement;
+
+
+        public MdTagDescriptor(string border, string leftReplacement, string rightReplacement)
+        {
+            Border = border;
+            LeftReplacement = leftReplacement;
+            RightReplacement = rightReplacement;
+        }
+
+        public void SetForbiddenInside(MdTagDescriptor tagDescriptor)
+        {
+            ForbiddenTagContexts.Add(tagDescriptor);
+        }
+
+        public bool ForbiddenInside(MdTagDescriptor parentTagDescriptor)
+        {
+            return ForbiddenTagContexts.Contains(parentTagDescriptor);
+        }
+    }
+
 
     /// <summary>
     ///     Mark used to mark token if it can behave as left or right border of selection
