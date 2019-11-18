@@ -1,11 +1,8 @@
-using System;
-using System.Collections.Generic;
 using FluentAssertions;
+using Markdown;
 using NUnit.Framework;
-using ApprovalTests;
-using ApprovalTests.Reporters;
 
-namespace Markdown.Tests
+namespace Test_Markdown
 {
     [TestFixture]
     public class Test_TokenReader

@@ -1,7 +1,8 @@
-using NUnit.Framework;
 using FluentAssertions;
+using Markdown;
+using NUnit.Framework;
 
-namespace Markdown.Tests
+namespace Test_Markdown
 {
     [TestFixture]
     public class Test_ControlSymbols

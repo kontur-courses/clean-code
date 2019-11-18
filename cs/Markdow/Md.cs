@@ -1,7 +1,5 @@
-using System;
 using System.Collections.Generic;
 using System.Text;
-using static Markdown.ControlSymbols;
 
 namespace Markdown
 {
@@ -15,9 +13,9 @@ namespace Markdown
             var position = 0;
             while (position < input.Length)
             {
-                tokens.Add(IsControlSymbol(input, position)
+                tokens.Add(ControlSymbols.IsControlSymbol(input, position)
                     ? TokenReader.ReadUntil(input, position)
-                    : TokenReader.ReadWhile(AnalyzeSymbol, input, position));
+                    : TokenReader.ReadWhile(ControlSymbols.AnalyzeSymbol, input, position));
                 position = tokens[tokens.Count - 1].ActualEnd;
             }
 
