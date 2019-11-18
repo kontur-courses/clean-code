@@ -38,21 +38,13 @@ namespace Markdown
         {
             token = null;
 
-            var offset = 0;
-            for(offset = 0;  position + offset < text.Length; offset++)
-                foreach(var tokenDescription in tokenDescriptions)
-                {
-                    if (tokenDescription.TryReadToken(text, position + offset, out token))
-                    {
-                        if (offset != 0)
-                            token = new Token(text, position, TokenType.Text, offset);
-                        return true;
-                    }
-                }
+            foreach(var tokenDescription in tokenDescriptions)
+            {
+                if (tokenDescription.TryReadToken(text, position, out token))
+                    return true;
+            }
 
-            if (offset != 0)
-                token = new Token(text, position, TokenType.Text, offset);
-            return token != null;
+            return false;
         }
     }
 }
