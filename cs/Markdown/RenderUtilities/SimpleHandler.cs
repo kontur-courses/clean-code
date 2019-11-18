@@ -22,7 +22,17 @@ namespace Markdown.RenderUtilities
             return handleDescriptions.Select(token => token.TokenType).ToList();
         }
 
+        public void InitHandle()
+        {
+            return;
+        }
+
         public void HandleToken(List<Token> tokens, int tokenIndex)
+        {
+            return;
+        }
+
+        public void EndHandle()
         {
             return;
         }
@@ -33,7 +43,7 @@ namespace Markdown.RenderUtilities
             SimpleTokenHandleDescription handler = null;
             if (!typeToHandler.TryGetValue(tokens[currentTokenIndex].TokenType, out handler))
                 return false;
-            tokenString = handler.PrintToken(tokens, currentTokenIndex);
+            tokenString = handler.PrintToken(tokens[currentTokenIndex]);
             return true;
         }
     }

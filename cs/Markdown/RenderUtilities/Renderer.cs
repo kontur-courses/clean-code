@@ -23,8 +23,15 @@ namespace Markdown.RenderUtilities
 
         public string RenderText(List<Token> tokens)
         {
+            foreach (var handler in handlers)
+                handler.InitHandle();
+            
             for (var i = 0; i < tokens.Count; i++)
                 typeToHandler[tokens[i].TokenType].HandleToken(tokens, i);
+
+            foreach (var handler in handlers)
+                handler.EndHandle();
+
             StringBuilder result = new StringBuilder();
             for (var i = 0; i < tokens.Count; i++)
             {

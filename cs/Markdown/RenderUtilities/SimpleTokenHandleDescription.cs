@@ -17,9 +17,9 @@ namespace Markdown.RenderUtilities
             this.printToken = printToken;
         }
         
-        public string PrintToken(List<Token> tokens, int currentTokenIndex)
+        public string PrintToken(Token token)
         {
-            return printToken(tokens[currentTokenIndex]);
+            return printToken(token);
         }
     }
 }

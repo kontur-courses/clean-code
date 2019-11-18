@@ -10,7 +10,9 @@ namespace Markdown.RenderUtilities
     {
         List<TokenType> GetAcceptedTokenTypes();
 
+        void InitHandle();
         void HandleToken(List<Token> tokens, int tokenIndex);
-        bool TryGetTokenString(List<Token> tokens, int currentTokenIndex, out string tokenString);
+        void EndHandle();
+        bool TryGetTokenString(List<Token> tokens, int tokenIndex, out string tokenString);
     }
 }

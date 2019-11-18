@@ -42,6 +42,9 @@
   <ItemGroup>
     <Compile Include="RenderUtilities\ITokenHandler.cs" />
     <Compile Include="RenderUtilities\MarkdownRenderUtilities.cs" />
+    <Compile Include="RenderUtilities\PairedHandler.cs" />
+    <Compile Include="RenderUtilities\PairedTokenDescription.cs" />
+    <Compile Include="RenderUtilities\PairedTokenHandleDescription.cs" />
     <Compile Include="RenderUtilities\Renderer.cs" />
     <Compile Include="TokenizationUtilities\MarkdownTokenUtilities.cs" />
     <Compile Include="Md.cs" />
