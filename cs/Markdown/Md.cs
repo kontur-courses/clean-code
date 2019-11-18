@@ -204,7 +204,7 @@ namespace Markdown
                 {
                     openingTagList[indexOpeningTag].IsOpen = true;
                     tagWithToken.IsClose = true;
-                    for (var i = 0; i < indexOpeningTag; i++)
+                    for (var i = 0; i < openingTagList.Count - indexOpeningTag + 1; i++)
                     {
                         openingTagList.RemoveAt(openingTagList.Count - 1);
                     }

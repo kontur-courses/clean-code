@@ -17,6 +17,8 @@ namespace Markdown
         [TestCase("_ aaaaa_", ExpectedResult = "_ aaaaa_")]
         [TestCase("_aaaaa _", ExpectedResult = "_aaaaa _")]
         [TestCase(@"\_asdfg_", ExpectedResult = "_asdfg_")]
+        [TestCase("_aaa __ddd_ sss__", ExpectedResult = "<em>aaa __ddd</em> sss__")]
+        [TestCase("__aaa __dd sss__", ExpectedResult = "__aaa <strong>dd sss</strong>")]
         public string Render_SimleCorrectString(string mdText)
         {
             var md = new Md();
