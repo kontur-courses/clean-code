@@ -150,7 +150,10 @@ namespace Markdown
                     if (paragraph[i] is EscapeChar)
                     {
                         if (i + 1 < paragraph.Length)
+                        {
                             htmlBuilder.Append(paragraph[i + 1]);
+                            i++;
+                        }
                         else
                             htmlBuilder.Append(EscapeChar);
                     }
