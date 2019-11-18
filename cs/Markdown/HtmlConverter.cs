@@ -6,7 +6,7 @@ using Markdown.Features;
 
 namespace Markdown
 {
-	internal class HtmlConverter
+	internal static class HtmlConverter
 	{
 		public static string ConvertToHtml(TokenInfo mainToken, string sourceText)
 		{
@@ -20,11 +20,13 @@ namespace Markdown
 			if (!(currentToken.Closed || currentToken.Type is PlainText))
 			{
 				currentToken.PlainText.Append(currentToken.Type.OpeningSequence);
+				if (currentToken.Type is IComplexToken complexToken)
+					complexToken.RepresentAsPlainText(currentToken, sourceText);
 				currentToken.Type = new PlainText();
 			}
 			if (currentToken.Type is PlainText)
 				htmlText.Append(currentToken.PlainText);
-			if (currentToken.InnerTokens.Count == 0)
+			if (currentToken.InnerTokens.Count == 0 && currentToken.Blocks.Count == 0)
 				return;
 			
 			htmlText.Append(currentToken.Type.GetHtmlOpeningTag(currentToken, sourceText));

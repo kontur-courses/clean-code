@@ -24,9 +24,12 @@ namespace Markdown
 		[TestCase("__ __", "__ __", TestName = "Bold token with whitespace content")]
 		[TestCase("_", "_", TestName = "Only open sequence")]
 		[TestCase("__b_", "__b_", TestName = "Wrong closing sequence")]
-		[TestCase("__1_", "__1_", TestName = "Underline after italic opening sequence")]
+		[TestCase("__ i_", "__ i_", TestName = "Underline after italic opening sequence")]
 		[TestCase("__ b__", "__ b__", TestName = "Whitespace after opening sequence")]
 		[TestCase("__b __", "__b __", TestName = "Whitespace before closing sequence")]
+		[TestCase("[t](l)", "<a href='l'>t</a>", TestName = "Link")]
+		[TestCase("[t]c(l)", "[t]c(l)", TestName = "Char between link-text and link-reference")]
+		[TestCase("[_i_](l)", "<a href='l'><em>i</em></a>", TestName = "Link with italic link-text")]
 		public void ReturnCorrectHtmlText(string markdownText, string expectedHtmlText)
 		{
 			var actualHtmlText = Md.Render(markdownText);

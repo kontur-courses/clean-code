@@ -12,6 +12,7 @@ namespace Markdown
 		{
 			AddToken(new ItalicText());
 			AddToken(new BoldText());
+			AddToken(new Link());
 		}
 
 		private void AddToken(IToken newToken)

@@ -4,6 +4,7 @@ namespace Markdown
 	{
 		string OpeningSequence { get; }
 		string ClosingSequence { get; }
+		bool PlainTextContent { get; }
 		bool IsOpeningKeySequence(TokenizerContextState contextState);
 		bool IsClosingKeySequence(TokenizerContextState contextState, TokenInfo tokenInfo);
 		string GetHtmlOpeningTag(TokenInfo tokenInfo, string sourceText);

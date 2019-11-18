@@ -4,6 +4,7 @@ namespace Markdown.Features
 	{
 		public string OpeningSequence { get; } = "";
 		public string ClosingSequence { get; } = "";
+		public bool PlainTextContent { get; }
 
 		public bool IsOpeningKeySequence(TokenizerContextState contextState) => true;
 
