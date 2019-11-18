@@ -8,6 +8,7 @@ namespace Markdown
     class Md
     {
         private readonly List<Tag> Tags;
+        private readonly char[] Digits = new char[] { '1', '2', '3', '4', '5', '6', '7', '8', '9', '0' };
 
         public Md()
         {
@@ -28,7 +29,7 @@ namespace Markdown
 
         //Проверяет есть ли символ в словаре и если есть то действует по предписаниям тэга: продолжает собирать токен или начинает новый
         //Если символа нет в словате считает это токеном с каким-то текстом
-        public List<Token> ParseTextToTokens(string text)
+        private List<Token> ParseTextToTokens(string text)
         {
             var tokens = new List<Token>();
             var index = 0;
@@ -36,7 +37,15 @@ namespace Markdown
             var isContext = false;
             while (index + length <= text.Length)
             {
-                if (isContext)
+                if (text[index + length - 1] == '\\')
+                {
+                    var matchCompletely = Tags.Any(tag => MatchTagAndTokenCompletely(index, length - 1, text, tag));
+                    tokens.Add(new Token(index, length - 1, matchCompletely));
+                    index = index + length;
+                    length = 2;
+                    isContext = true;
+                }
+                else if (isContext)
                 {
                     var partiallyMatch = Tags.Any(tag => PartiallyMatchTagAndToken(index + length - 1, 1, text, tag));
                     if (partiallyMatch)
@@ -144,8 +153,13 @@ namespace Markdown
                 {
                     var tag = FindMatchingTag(token, text);
                     var tagWithToken = new TagWithToken(tag, token);
-                    tagWithTokens.Add(tagWithToken);
-                    HandlerTag(openingTagList, tagWithToken, text);
+                    if (CanBeTag(tagWithToken, text))
+                    {
+                        tagWithTokens.Add(tagWithToken);
+                        HandlerTag(openingTagList, tagWithTokens, tagWithToken, text);
+                    }
+                    else
+                        tagWithTokens.Add(new TagWithToken(null, token));
                 }
                 else
                 {
@@ -155,7 +169,33 @@ namespace Markdown
             return tagWithTokens;
         }
 
-        private void HandlerTag(List<TagWithToken> openingTagList, TagWithToken tagWithToken, string text)
+        private bool CanBeTag(TagWithToken tagWithToken, string text)
+        {
+            switch (tagWithToken.Tag.getTagString) // switch case который определяет может ли токен помеченый как тег быть тегом
+            {
+                case "_":
+                    if (tagWithToken.Token.Index + tagWithToken.Token.Length < text.Length &&
+                        Digits.Contains(text[tagWithToken.Token.Index + tagWithToken.Token.Length]) &&
+                        tagWithToken.Token.Index - 1 >= 0 &&
+                        Digits.Contains(text[tagWithToken.Token.Index - 1]))
+                    {
+                        return false;
+                    }
+                    break;
+                case "__":
+                    if (tagWithToken.Token.Index + tagWithToken.Token.Length < text.Length &&
+                        Digits.Contains(text[tagWithToken.Token.Index + tagWithToken.Token.Length]) &&
+                        tagWithToken.Token.Index - 1 >= 0 &&
+                        Digits.Contains(text[tagWithToken.Token.Index - 1]))
+                    {
+                        return false;
+                    }
+                    break;
+            }
+            return true;
+        }
+
+        private void HandlerTag(List<TagWithToken> openingTagList, List<TagWithToken> tagWithTokens, TagWithToken tagWithToken, string text)
         {
             if (CanTagBeClosing(tagWithToken, text))
             {
@@ -167,6 +207,22 @@ namespace Markdown
                     for (var i = 0; i < indexOpeningTag; i++)
                     {
                         openingTagList.RemoveAt(openingTagList.Count - 1);
+                    }
+
+                    switch (tagWithToken.Tag.getTagString) // switch case который определяет специфическое поведение для закрывающих тегов
+                    {
+                        case "_":
+                            var i = tagWithTokens.Count - 1;
+                            while (tagWithTokens[i] != tagWithTokens[indexOpeningTag])
+                            {
+                                if (tagWithTokens[i].IsTag && tagWithTokens[i].Tag.getTagString == "__")
+                                {
+                                    tagWithTokens[i].IsClose = false;
+                                    tagWithTokens[i].IsOpen = false;
+                                }
+                                i--;
+                            }
+                            break;
                     }
                     return;
                 }

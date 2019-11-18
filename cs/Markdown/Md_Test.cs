@@ -16,30 +16,12 @@ namespace Markdown
         [TestCase("_aaaaa__", ExpectedResult = "_aaaaa__")]
         [TestCase("_ aaaaa_", ExpectedResult = "_ aaaaa_")]
         [TestCase("_aaaaa _", ExpectedResult = "_aaaaa _")]
+        [TestCase(@"\_asdfg_", ExpectedResult = "_asdfg_")]
         public string Render_SimleCorrectString(string mdText)
         {
             var md = new Md();
             var result = md.Render(mdText);
             return result;
-        }
-
-        [Test]
-        public void ParseTextToTokens_MyTest1()
-        {
-            var text = "asdfg__";
-            var md = new Md();
-            var result = md.ParseTextToTokens(text);
-            Assert.AreEqual(2, result.Count);
-            Assert.IsFalse(result[0].IsTag);
-        }
-
-        [Test]
-        public void ParseTextToTokens_MyTest2()
-        {
-            var text = "___asdfg__efhsalg";
-            var md = new Md();
-            var result = md.ParseTextToTokens(text);
-            Assert.AreEqual(3, result.Count);
         }
     }
 }
