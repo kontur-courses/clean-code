@@ -11,7 +11,7 @@ using System.Threading.Tasks;
 namespace MarkdownTests
 {
     [TestFixture]
-    public class SimpleHandler_Should
+    public class Renderer_Should
     {
         private TokenReader tokenReader;
         private Renderer renderer;
@@ -27,11 +27,14 @@ namespace MarkdownTests
         }
 
         [TestCase("abcd")]
-        [TestCase("dcba")]
+        [TestCase("abc12")]
+        [TestCase("a b")]
         public void RenderSimpleText_Properly(string text)
         {
             var tokens = tokenReader.TokenizeText(text);
+
             var resultText = renderer.RenderText(tokens);
+
             resultText.Should().BeEquivalentTo(text);
         }
 
@@ -40,8 +43,18 @@ namespace MarkdownTests
         {
             var text = @"\a\b\c\d\\";
             var tokens = tokenReader.TokenizeText(text);
+
             var resultText = renderer.RenderText(tokens);
+
             resultText.Should().BeEquivalentTo(@"abcd\");
+        }
+
+        [Test]
+        public void RenderEmptyText_Properly()
+        {
+            var resultText = renderer.RenderText(new List<Token>());
+
+            resultText.Should().BeEquivalentTo("");
         }
     }
 }

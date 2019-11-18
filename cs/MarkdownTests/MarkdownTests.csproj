@@ -43,7 +43,7 @@
     <None Include="packages.config" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="SimpleHandler_Should.cs" />
+    <Compile Include="Renderer_Should.cs" />
     <Compile Include="MarkdownTokenReader_Should.cs" />
   </ItemGroup>
   <ItemGroup>
