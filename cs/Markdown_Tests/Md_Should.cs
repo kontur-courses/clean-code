@@ -53,7 +53,7 @@ namespace Markdown_Tests
         [Test]
         public void NotReplaceTwoGroundsByStrongTag_InsideGrounds()
         {
-            Md.Render("_test__a__Text_").Should().Be("<em>test__a__Text</em>");
+            Md.Render("_test __a__ Text_").Should().Be("<em>test __a__ Text</em>");
         }
 
         [Test]
@@ -65,7 +65,7 @@ namespace Markdown_Tests
         [Test]
         public void ReplaceGroundsByEmTag_InsideTwoGrounds()
         {
-            Md.Render("__test_a_Text__").Should().Be("<strong>test<em>a</em>Text</strong>");
+            Md.Render("__test _a_ Text__").Should().Be("<strong>test <em>a</em> Text</strong>");
         }
 
         [Test]
