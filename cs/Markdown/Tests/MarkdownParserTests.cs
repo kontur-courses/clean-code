@@ -33,7 +33,37 @@ namespace Markdown.Tests
 
             actualToken.Should().BeEquivalentTo(expectedToken);
         }
-        
+
+        [Test]
+        public void Parse_ShouldNotParse_WhenSpaceAfterOpenTag()
+        {
+            var expectedToken = new RootToken("__ aa aa__");
+
+            var actualToken = parser.Parse("__ aa aa__");
+
+            actualToken.Should().BeEquivalentTo(expectedToken);
+        }
+
+        [Test]
+        public void Parse_ShouldNotParse_WhenSpaceBeforeCloseTag()
+        {
+            var expectedToken = new RootToken("__aa aa __ ");
+
+            var actualToken = parser.Parse("__aa aa __ ");
+
+            actualToken.Should().BeEquivalentTo(expectedToken);
+        }
+
+        [Test]
+        public void Parse_ShouldNotParse_WhenTagsInsideText()
+        {
+            var expectedToken = new RootToken("aa__bb__cc");
+
+            var actualToken = parser.Parse("aa__bb__cc");
+
+            actualToken.Should().BeEquivalentTo(expectedToken);
+        }
+
         [Test]
         public void Parse_ShouldParseWord_WhenNoTags()
         {

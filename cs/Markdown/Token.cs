@@ -6,25 +6,25 @@ namespace Markdown
 {
     public class Token
     {
-        public List<Token> NestedTokens { get; } = new List<Token>();
-        public string MdTag { get; }
-        public string HtmlTag { get; }
-        public string Data { get; private set; } = "";
-        public int Position { get; }
+        internal List<Token> NestedTokens { get; } = new List<Token>();
+        internal string MdTag { get; }
+        internal string HtmlTagName { get; }
+        internal string Data { get; private set; }
+        internal int Position { get; }
 
         /// <summary>
         /// Token is invalid when its parent doesn't support nesting.
         /// </summary>
-        public bool IsValid { get; set; }
+        internal bool IsValid { get; set; }
 
-        public bool IsClosed { get; set; }
+        internal bool IsClosed { get; set; }
 
-        public Token(int position, string mdTag, string htmlTag, string data = "", bool isClosed = false,
+        public Token(int position, string mdTag, string htmlTagName, string data = "", bool isClosed = false,
             bool isValid = false)
         {
             Position = position;
             MdTag = mdTag;
-            HtmlTag = htmlTag;
+            HtmlTagName = htmlTagName;
             Data = data;
             IsClosed = isClosed;
             IsValid = isValid;
@@ -42,11 +42,17 @@ namespace Markdown
                 : NestedTokens[NestedTokens.Count - 1];
         }
 
+        public void RemoveLastNestedToken()
+        {
+            if (NestedTokens.Count != 0)
+                NestedTokens.RemoveAt(NestedTokens.Count - 1);
+        }
+
         public void AppendData(string data)
         {
             Data += data;
         }
-
+        
         public string ToHtml()
         {
             var stringBuilder = new StringBuilder(Data);
@@ -77,11 +83,11 @@ namespace Markdown
 
         private string GetHtmlTag(bool isClosing)
         {
-            if (HtmlTag == "")
-                return HtmlTag;
+            if (HtmlTagName == "")
+                return HtmlTagName;
             return isClosing
-                ? "</" + HtmlTag + ">"
-                : "<" + HtmlTag + ">";
+                ? "</" + HtmlTagName + ">"
+                : "<" + HtmlTagName + ">";
         }
     }
 }

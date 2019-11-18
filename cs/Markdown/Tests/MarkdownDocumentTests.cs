@@ -32,6 +32,30 @@ namespace Markdown.Tests
 
             markdownDocument.ToHtml().Should().BeEquivalentTo("<em>aa __bb bb__ aa</em>");
         }
+        
+        [Test]
+        public void ToHtml_ShouldNotWrap_WhenSpaceAfterOpenTag()
+        {
+            var markdownDocument = parser.Parse("__ aa aa__");
+
+            markdownDocument.ToHtml().Should().BeEquivalentTo("__ aa aa__");
+        }
+
+        [Test]
+        public void ToHtml_ShouldNotWrap_WhenSpaceBeforeCloseTag()
+        {
+            var markdownDocument = parser.Parse("__aa aa __");
+
+            markdownDocument.ToHtml().Should().BeEquivalentTo("__aa aa __");
+        }
+        
+        [Test]
+        public void ToHtml_ShouldNotWrap_WhenTagsInsideText()
+        {
+            var markdownDocument = parser.Parse("a_a_a");
+
+            markdownDocument.ToHtml().Should().BeEquivalentTo("a_a_a");
+        }
 
         [TestCase("_", "em", TestName = "Em tag")]
         [TestCase("__", "strong", TestName = "Strong tag")]
