@@ -1,4 +1,3 @@
-using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -22,7 +21,7 @@ namespace Markdown
             PrepareBorders();
         }
 
-        public static void PrepareBorders()
+        private static void PrepareBorders()
         {
             foreach (var descriptor in TagDescriptors)
             {
@@ -33,7 +32,6 @@ namespace Markdown
 
         public static string Render(string paragraph)
         {
-            //TODO LINQ maybe
             var tokens = ExtractMdTokensFromText(paragraph);
             var tags = FilterMdTags(tokens);
             return RenderTags(tags, paragraph);
@@ -62,7 +60,9 @@ namespace Markdown
                         collectedToken.Clear();
                     }
 
-                    state = character == EscapeChar ? ExtractorState.SkippingTokens : ExtractorState.SkippingLetters;
+                    state = character == EscapeChar
+                        ? ExtractorState.SkippingTokens
+                        : ExtractorState.SkippingLetters;
                 }
 
                 if (state == ExtractorState.CollectingToken)
@@ -77,53 +77,27 @@ namespace Markdown
             }
         }
 
-        private static MdToken CheckCollectedToken(string paragraph, StringBuilder collectedToken, int i)
-        {
-            var rawToken = collectedToken.ToString();
-            //Check whether collected token is allowed token
-            if (!Borders.Contains(rawToken)) return null;
-
-            if (IsWhitespaceOrStringBorderAt(paragraph, i - 1 - rawToken.Length) &&
-                !IsWhitespaceOrStringBorderAt(paragraph, i))
-                return new MdToken(i - rawToken.Length, rawToken, MdTokenMark.Left);
-            if (IsWhitespaceOrStringBorderAt(paragraph, i) &&
-                !IsWhitespaceOrStringBorderAt(paragraph, i - 1 - rawToken.Length))
-                return new MdToken(i - rawToken.Length, rawToken, MdTokenMark.Right);
-
-            return null;
-        }
-
-        public static MdTagDescriptor GetDescriptorForBorder(string border)
-        {
-            return TagDescriptors.SingleOrDefault(t => t.Border == border);
-        }
-
-        public static bool IsWhitespaceOrStringBorderAt(string paragraph, int position)
-        {
-            return position >= paragraph.Length || position < 0 || char.IsWhiteSpace(paragraph[position]);
-        }
 
         private static IEnumerable<MdTag> FilterMdTags(IEnumerable<MdToken> tokens)
         {
             var leftTokenList = new List<MdToken>();
             foreach (var token in tokens)
-            {
-                Console.WriteLine(token.Value);
                 if (token.Mark == MdTokenMark.Left)
                     leftTokenList.Add(token);
                 else
                     for (var i = leftTokenList.Count - 1; i >= 0; i--)
-                        if (leftTokenList[i].Value == token.Value)
-                        {
-                            var descriptor = GetDescriptorForBorder(token.Value);
-                            var tag = new MdTag(leftTokenList[i], token, descriptor);
-                            if (!leftTokenList.Select(t => GetDescriptorForBorder(t.Value))
-                                .Any(d => tag.ForbiddenInside(d)))
-                                yield return tag;
-                            leftTokenList.RemoveRange(i, leftTokenList.Count - i);
-                            break;
-                        }
-            }
+                    {
+                        if (leftTokenList[i].Value != token.Value) continue;
+
+                        var descriptor = GetDescriptorForBorder(token.Value);
+                        var tag = new MdTag(leftTokenList[i], token, descriptor);
+
+                        if (IsAllowedInsideAny(leftTokenList, tag))
+                            yield return tag;
+
+                        leftTokenList.RemoveRange(i, leftTokenList.Count - i);
+                        break;
+                    }
         }
 
         private static string RenderTags(IEnumerable<MdTag> tags, string paragraph)
@@ -134,28 +108,22 @@ namespace Markdown
             for (var i = 0; i < paragraph.Length; i++)
                 if (indices.Contains(i))
                 {
-                    var tag = tagList.First(t => t.LeftBorder.Pos == i ||
-                                                 t.RightBorder.Pos == i);
-                    var tagDescriptor = tag.Descriptor;
-                    var replacement = tag.LeftBorder.Pos == i
-                        ? tagDescriptor.LeftReplacement
-                        : tagDescriptor.RightReplacement;
+                    var tag = tagList.First(t => t.LeftBorder.Pos == i || t.RightBorder.Pos == i);
+
+                    var replacement = i == tag.LeftBorder.Pos
+                        ? tag.Descriptor.LeftReplacement
+                        : tag.Descriptor.RightReplacement;
 
                     htmlBuilder.Append(replacement);
 
-                    i += tagDescriptor.Border.Length - 1;
+                    i += tag.Descriptor.Border.Length - 1;
                 }
                 else
                 {
-                    if (paragraph[i] is EscapeChar)
+                    if (paragraph[i] is EscapeChar && i + 1 < paragraph.Length)
                     {
-                        if (i + 1 < paragraph.Length)
-                        {
-                            htmlBuilder.Append(paragraph[i + 1]);
-                            i++;
-                        }
-                        else
-                            htmlBuilder.Append(EscapeChar);
+                        htmlBuilder.Append(paragraph[i + 1]);
+                        i++;
                     }
                     else
                     {
@@ -165,6 +133,41 @@ namespace Markdown
 
             return htmlBuilder.ToString();
         }
+
+        private static MdToken CheckCollectedToken(string paragraph, StringBuilder collectedToken, int i)
+        {
+            var rawToken = collectedToken.ToString();
+
+            //Check whether collected token is allowed token
+            if (!Borders.Contains(rawToken)) return null;
+
+            if (IsWhitespaceOrStringBorderAt(paragraph, i - 1 - rawToken.Length) &&
+                !IsWhitespaceOrStringBorderAt(paragraph, i))
+                return new MdToken(i - rawToken.Length, rawToken, MdTokenMark.Left);
+
+            if (IsWhitespaceOrStringBorderAt(paragraph, i) &&
+                !IsWhitespaceOrStringBorderAt(paragraph, i - 1 - rawToken.Length))
+                return new MdToken(i - rawToken.Length, rawToken, MdTokenMark.Right);
+
+            return null;
+        }
+
+        private static MdTagDescriptor GetDescriptorForBorder(string border)
+        {
+            return TagDescriptors.SingleOrDefault(t => t.Border == border);
+        }
+
+        private static bool IsWhitespaceOrStringBorderAt(string paragraph, int position)
+        {
+            return position >= paragraph.Length || position < 0 || char.IsWhiteSpace(paragraph[position]);
+        }
+
+
+        private static bool IsAllowedInsideAny(IEnumerable<MdToken> leftTokenList, MdTag tag)
+        {
+            return !leftTokenList.Select(t => GetDescriptorForBorder(t.Value)).Any(tag.ForbiddenInside);
+        }
+
 
         private static HashSet<int> GetTokenIndices(IEnumerable<MdTag> tags)
         {
@@ -177,10 +180,10 @@ namespace Markdown
     /// </summary>
     public class MdToken
     {
-        public MdTokenMark Mark;
-        public int Pos;
+        public readonly MdTokenMark Mark;
+        public readonly int Pos;
 
-        public string Value;
+        public readonly string Value;
 
         public MdToken(int position, string value, MdTokenMark mark)
         {
@@ -192,9 +195,9 @@ namespace Markdown
 
     public class MdTag
     {
-        public MdTagDescriptor Descriptor;
-        public MdToken LeftBorder;
-        public MdToken RightBorder;
+        public readonly MdTagDescriptor Descriptor;
+        public readonly MdToken LeftBorder;
+        public readonly MdToken RightBorder;
 
         public MdTag(MdToken leftBorder, MdToken rightBorder, MdTagDescriptor descriptor)
         {
@@ -213,10 +216,10 @@ namespace Markdown
     {
         public readonly string Border;
 
-        public readonly List<MdTagDescriptor> ForbiddenTagContexts = new List<MdTagDescriptor>();
+        private readonly List<MdTagDescriptor> forbiddenTagContexts = new List<MdTagDescriptor>();
 
-        public string LeftReplacement;
-        public string RightReplacement;
+        public readonly string LeftReplacement;
+        public readonly string RightReplacement;
 
 
         public MdTagDescriptor(string border, string leftReplacement, string rightReplacement)
@@ -228,19 +231,18 @@ namespace Markdown
 
         public void SetForbiddenInside(MdTagDescriptor tagDescriptor)
         {
-            ForbiddenTagContexts.Add(tagDescriptor);
+            forbiddenTagContexts.Add(tagDescriptor);
         }
 
         public bool ForbiddenInside(MdTagDescriptor parentTagDescriptor)
         {
-            return ForbiddenTagContexts.Contains(parentTagDescriptor);
+            return forbiddenTagContexts.Contains(parentTagDescriptor);
         }
     }
 
 
     /// <summary>
     ///     Mark used to mark token if it can behave as left or right border of selection
-    ///     or if it can only be singular
     /// </summary>
     public enum MdTokenMark
     {
