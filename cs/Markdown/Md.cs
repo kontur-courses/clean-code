@@ -100,16 +100,22 @@ namespace Markdown
 
         private static IEnumerable<MdTag> FilterMdTags(IEnumerable<MdToken> tokens)
         {
-            //TODO For each token:
-            //If it corresponds to left part of paired tag,
-            //put it into stacklist(list used as a stack)
-
-            //If it corresponds to right part of paired tag
-            //search in stacklist in reverse until found it's
-            //left counterpart Then create MdTag and yield it
-
-            //If we found singular token create MdTag and yield it
-            throw new NotImplementedException();
+            var leftTokenList = new List<MdToken>();
+            foreach (var token in tokens)
+                if (token.Mark == MdTokenMark.Left)
+                    leftTokenList.Add(token);
+                else
+                    for (var i = leftTokenList.Count - 1; i >= 0; i--)
+                        if (leftTokenList[i].Value == token.Value)
+                        {
+                            var descriptor = GetDescriptorForBorder(token.Value);
+                            var tag = new MdTag(leftTokenList[i], token, descriptor);
+                            if (!leftTokenList.Select(t => GetDescriptorForBorder(t.Value))
+                                .Any(d => tag.ForbiddenInside(d)))
+                                yield return tag;
+                            leftTokenList.RemoveRange(i, leftTokenList.Count - i - 1);
+                            break;
+                        }
         }
 
         private static string RenderTags(IEnumerable<MdTag> tags, string paragraph)
