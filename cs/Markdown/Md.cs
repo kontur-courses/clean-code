@@ -41,20 +41,61 @@ namespace Markdown
 
         private static IEnumerable<MdToken> ExtractMdTokensFromText(string paragraph)
         {
-            //TODO Go through paragraph and save suspicious chars to currentToken until
-            //we Understand that there is no tokens that start by $currentToken
-            //or Understand that conditions for char sequence to be token not satisfied
-            //Then we clear currentToken
+            var state = ExtractorState.CollectingToken;
+            var collectedToken = new StringBuilder();
+            for (var i = 0; i < paragraph.Length; i++)
+            {
+                var character = paragraph[i];
+                if (state is ExtractorState.SkippingTokens && AllowedTagCharacters.Contains(character))
+                    continue;
 
-            //If found a letter or digit or space Then create MdToken instance with value 
-            //of current token and position = lastTokenCharacterPos - tokenValue.Length+1;
-            //add markings to token basing on whether token can be left or right or singular
-            //multiple options are enabled
+                if (AllowedTagCharacters.Contains(character))
+                {
+                    state = ExtractorState.CollectingToken;
+                }
+                else
+                {
+                    if (collectedToken.Length > 0)
+                    {
+                        var rawToken = collectedToken.ToString();
+                        //Check whether collected token is allowed token
+                        if (Borders.Contains(rawToken))
+                        {
+                            if (IsWhitespaceOrStringBorderAt(paragraph, i - rawToken.Length) &&
+                                !char.IsWhiteSpace(paragraph[i + 1]))
+                                yield return new MdToken(i + 1 - rawToken.Length, rawToken, MdTokenMark.Left);
+                            else if (IsWhitespaceOrStringBorderAt(paragraph, i + 1) &&
+                                     !char.IsWhiteSpace(paragraph[i - rawToken.Length]))
+                                yield return new MdToken(i + 1 - rawToken.Length, rawToken, MdTokenMark.Right);
+                        }
 
-            //reset current token
-            //yield token
+                        collectedToken.Clear();
+                    }
 
-            throw new NotImplementedException();
+                    state = character == EscapeChar ? ExtractorState.SkippingTokens : ExtractorState.SkippingLetters;
+                }
+
+                switch (state)
+                {
+                    case ExtractorState.CollectingToken:
+                        collectedToken.Append(character);
+                        break;
+                    case ExtractorState.SkippingLetters:
+                        continue;
+                    default:
+                        throw new ArgumentOutOfRangeException();
+                }
+            }
+        }
+
+        public static MdTagDescriptor GetDescriptorForBorder(string border)
+        {
+            return TagDescriptors.SingleOrDefault(t => t.Border == border);
+        }
+
+        private static bool IsWhitespaceOrStringBorderAt(string paragraph, int position)
+        {
+            return position >= paragraph.Length || char.IsWhiteSpace(paragraph[position]);
         }
 
         private static IEnumerable<MdTag> FilterMdTags(IEnumerable<MdToken> tokens)
@@ -153,7 +194,13 @@ namespace Markdown
     public enum MdTokenMark
     {
         Left,
-        Right,
-        Singular
+        Right
+    }
+
+    public enum ExtractorState
+    {
+        CollectingToken,
+        SkippingLetters,
+        SkippingTokens
     }
 }
