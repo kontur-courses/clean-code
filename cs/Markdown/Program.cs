@@ -7,7 +7,7 @@ namespace Markdown
         public static void Main()
         {
             var md = new Md();
-            Console.WriteLine(md.Render("dfdf _dfd_"));
+            Console.WriteLine(md.Render("__s _a_ _a_ s__"));
         }
     }
 }

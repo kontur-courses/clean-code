@@ -18,13 +18,14 @@ namespace Markdown
             nestedCount = 0;
         }
 
-        public IEnumerable<Token> GetTokens()
+        public List<Token> GetTokens()
         {
             var parserPosition = 0;
             var tokenTagType = TagType.GetTagType(text, parserPosition);
             while (parserPosition < text.Length)
             {
                 AddToken(parserPosition, tokenTagType);
+                nestedCount = 0;
                 parserPosition += tokens.Last().Length;
                 tokenTagType = parserPosition < text.Length
                     ? TagType.GetTagType(text, parserPosition)
@@ -42,15 +43,13 @@ namespace Markdown
                 parserPosition++;
                 if (parserPosition == text.Length)
                 {
-                    tokens.Add(new Token(startPosition, parserPosition - startPosition, tokenTagType, hasNestedToken, nestedCount));
-                    this.nestedCount = 0;
+                    tokens.Add(new Token(startPosition, parserPosition - startPosition, tokenTagType, hasNestedToken, this.nestedCount));
                     return;
                 }
             }
 
             parserPosition += tokenTagType.MdOpeningTag.Length;
-            tokens.Add(new Token(startPosition, parserPosition - startPosition, tokenTagType, hasNestedToken, nestedCount));
-            this.nestedCount = 0;
+            tokens.Add(new Token(startPosition, parserPosition - startPosition, tokenTagType, hasNestedToken, this.nestedCount));
         }
 
         private bool IsValidSymbol(TagType tokenTagType, int position)
@@ -63,7 +62,6 @@ namespace Markdown
                 {
                     nestedCount++;
                     AddToken(parserPosition, new EmTagType(), true, nestedCount);
-                    parserPosition += tokens.Last().Length;
                 }
 
                 return !StrongTagType.IsClosedTag(text, position);

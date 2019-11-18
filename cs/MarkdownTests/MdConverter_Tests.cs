@@ -28,6 +28,8 @@ namespace MarkdownTests
         [TestCase("text _cutEmTag", "text ", "_cutEmTag")]
         [TestCase("text __strongTag__ _cutEmTag", "text ", "<strong>strongTag</strong>", " ", "_cutEmTag")]
         [TestCase("_emStart __strongTagInEmTag__ emFinish_", "<em>emStart __strongTagInEmTag__ emFinish</em>")]
+        [TestCase("__strongStart _emInStrong_ strongFinish__",
+            "<em>emInStrong</em>", "<strong>strongStart _emInStrong_ strongFinish</strong>")]
         [TestCase("_emStart __strongInEm__ emFinish_", "<em>emStart __strongInEm__ emFinish</em>")]
         public void MdConverter_ConvertToHtml_RightResult(string text, params string[] expectedHtmlEquivalents)
         {
@@ -38,6 +40,7 @@ namespace MarkdownTests
             {
                 Console.WriteLine(htmlEquivalent);
             }
+
             htmlEquivalents.Should().BeEquivalentTo(expectedHtmlEquivalents);
         }
     }

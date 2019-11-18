@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 
@@ -6,10 +7,10 @@ namespace Markdown
 {
     public class MdConverter
     {
-        private readonly IEnumerable<Token> tokens;
+        private readonly List<Token> tokens;
         private readonly string text;
 
-        public MdConverter(IEnumerable<Token> tokens, string text)
+        public MdConverter(List<Token> tokens, string text)
         {
             this.tokens = tokens;
             this.text = text;
@@ -17,7 +18,21 @@ namespace Markdown
 
         public IEnumerable<string> GetHtmlTokens()
         {
-            return tokens.Select(ConvertToHtml).ToList();
+            var htmlParts = tokens.Select(ConvertToHtml).ToList();
+            for (var i = 0; i < tokens.Count; i++)
+            {
+                if (tokens[i].NestedTokenCount > 0 && tokens[i].TagType is StrongTagType)
+                {
+                    for (var j = 0; j < tokens[i].NestedTokenCount; j++)
+                    {
+                        var content = text.Substring(tokens[j].Position, tokens[j].Length);
+                        htmlParts[i] = htmlParts[i].Replace(content, htmlParts[i - tokens[i].NestedTokenCount + j]);
+                        htmlParts[i - tokens[i].NestedTokenCount + j] = string.Empty;
+                    }
+                }
+            }
+
+            return htmlParts.Where(htmlPart => htmlPart != string.Empty);
         }
 
         public string ConvertToHtml(Token token)
