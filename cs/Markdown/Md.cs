@@ -120,10 +120,33 @@ namespace Markdown
 
         private static string RenderTags(IEnumerable<MdTag> tags, string paragraph)
         {
-            //TODO create Builder for paragraph and
-            //Foreach tag in tags:
-            //render tag at paragraph
-            throw new NotImplementedException();
+            var indices = GetTokenIndices(tags);
+            var htmlBuilder = new StringBuilder();
+            var shift = 0;
+            for (var i = 0; i < paragraph.Length; i++)
+                if (indices.Contains(i + shift))
+                {
+                    var tag = tags.First(t => t.LeftBorder.Pos == i + shift ||
+                                              t.RightBorder.Pos == i + shift);
+                    var tagDescriptor = tag.Descriptor;
+                    var replacement = tag.LeftBorder.Pos == i + shift
+                        ? tagDescriptor.LeftReplacement
+                        : tagDescriptor.RightReplacement;
+                    htmlBuilder.Append(replacement);
+                    i += tagDescriptor.Border.Length - 1;
+                    shift += replacement.Length - tagDescriptor.Border.Length;
+                }
+                else
+                {
+                    htmlBuilder.Append(paragraph[i]);
+                }
+
+            return htmlBuilder.ToString();
+        }
+
+        private static HashSet<int> GetTokenIndices(IEnumerable<MdTag> tags)
+        {
+            return tags.SelectMany(t => new[] {t.LeftBorder, t.RightBorder}).Select(t => t.Pos).ToHashSet();
         }
     }
 
