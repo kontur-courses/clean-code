@@ -55,15 +55,23 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="MdTags\BlockquoteTag.cs" />
+    <Compile Include="MdTags\CodeTag.cs" />
+    <Compile Include="MdTags\EmTag.cs" />
+    <Compile Include="MdTags\HeaderTag.cs" />
+    <Compile Include="MdTags\HorizontalTag.cs" />
+    <Compile Include="MdTags\ListTag.cs" />
+    <Compile Include="MdTags\SimpleTag.cs" />
+    <Compile Include="MdTags\StrikeTag.cs" />
+    <Compile Include="MdTags\StrongTag.cs" />
+    <Compile Include="MdTags\Tag.cs" />
     <Compile Include="Parser\IParser.cs" />
-    <Compile Include="MdTag\ITag.cs" />
-    <Compile Include="MarkDown.cs" />
-    <Compile Include="Program.cs" />
-    <Compile Include="Properties\AssemblyInfo.cs" />
-    <Compile Include="MdTag\Tag.cs" />
+    <Compile Include="MarkDown\MdProcessor.cs" />
     <Compile Include="Parser\MdTagParser.cs" />
-    <Compile Include="Tests\MdTag\HtmlConverterShould.cs" />
-    <Compile Include="Tests\Parser\MdTagParserShould.cs" />
+    <Compile Include="MarkDown\MarkDown.cs" />
+    <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="Tests\MdTag\HtmlConverter.cs" />
+    <Compile Include="Tests\Parser\MdTagParser.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="packages.config" />
