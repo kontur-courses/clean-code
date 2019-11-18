@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using Markdown.RenderUtilities;
 
 namespace Markdown
 {
@@ -13,14 +14,7 @@ namespace Markdown
             var tokenDescription = MarkdownTokenUtilities.GetMarkdownTokenDescriptions();
             List<Token> tokens = new TokenReader(tokenDescription).TokenizeText(rawText);
 
-            return RenderFromTokens(tokens, tokenDescription);
-        }
-
-        public string RenderFromTokens(IEnumerable<Token> tokens,
-            IEnumerable<TokenDescription> tokenDescription)
-        {
-            var resultString = new StringBuilder();
-            throw new NotImplementedException();
+            return MarkdownRenderUtilities.GetMarkdownRenderer().RenderText(tokens);
         }
     }
 }
