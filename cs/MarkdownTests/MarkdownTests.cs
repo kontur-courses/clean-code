@@ -1,6 +1,3 @@
-using System.Collections;
-using System.Collections.Generic;
-using System.Linq;
 using Markdown.Core;
 using NUnit.Framework;
 
@@ -18,9 +15,11 @@ namespace MarkdownTests
         [TestCase("test_t_e_x__t", TestName = "Underscore inside word", 
             ExpectedResult = "test_t_e_x__t")]        
         [TestCaseSource(typeof(MarkdownTestsData), 
-            nameof(MarkdownTestsData.SingleTestCases), Category = "Single tag cases")]
+            nameof(MarkdownTestsData.SingleInlineTagTestCases), Category = "Single inline tag cases")]
         [TestCaseSource(typeof(MarkdownTestsData), 
-            nameof(MarkdownTestsData.UnpairedTestCases), Category = "Unpaired tag cases")]
+            nameof(MarkdownTestsData.UnpairedInlineTagTestCases), Category = "Unpaired inline tag cases")]
+        [TestCaseSource(typeof(MarkdownTestsData), 
+            nameof(MarkdownTestsData.HeaderTagTestCases), Category = "Header tag cases")]
         public string RenderShouldReturnCorrectHtmlText(string mdText)
         {
             return markdown.Render(mdText);

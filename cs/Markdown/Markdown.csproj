@@ -34,6 +34,7 @@
   </PropertyGroup>
   <ItemGroup>
     <Compile Include="Core\HTMLTags\HTMLTagToken.cs" />
+    <Compile Include="Core\HTMLTags\HTMLTagType.cs" />
     <Compile Include="Core\HTMLTags\IHTMLTagToken.cs" />
     <Compile Include="Core\MdRenderer.cs" />
     <Compile Include="Core\MdNormalizer.cs" />

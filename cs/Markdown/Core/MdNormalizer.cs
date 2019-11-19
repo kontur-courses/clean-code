@@ -10,8 +10,11 @@ namespace Markdown.Core
         public List<IToken> NormalizeTokens(List<IToken> tokens, string ignoredInside)
         {
             var tagStack = new Stack<HTMLTagToken>();
-            var tagTokens = tokens.Where(token => token.TokenType == TokenType.HTMLTag).Cast<HTMLTagToken>();
-            foreach (var tagToken in tagTokens)
+            var inlineTokens = tokens
+                .Where(token => token.TokenType == TokenType.HTMLTag)
+                .Cast<HTMLTagToken>()
+                .Where(tag => tag.TagType != HTMLTagType.Header);
+            foreach (var tagToken in inlineTokens)
             {
                 if (!TryPutTokenIntoRightTagsSequence(tagStack, tagToken, ignoredInside))
                 {
@@ -41,7 +44,7 @@ namespace Markdown.Core
                 return true;
             }
                 
-            if (token.IsOpen)
+            if (token.TagType == HTMLTagType.Opening)
             {
                 if (previousValueIsDifferent)
                     stack.Push(token);

@@ -1,4 +1,5 @@
 using System.Collections.Generic;
+using System.Linq;
 using System.Text;
 using Markdown.Core.HTMLTags;
 using Markdown.Core.Tokens;
@@ -10,17 +11,44 @@ namespace Markdown.Core
         private readonly Dictionary<string, string> tagDict = new Dictionary<string, string>()
         {
             {"__", "strong"},
-            {"_", "em"}
+            {"_", "em"},
+            {"####", "h4"},
+            {"###", "h3"},
+            {"##", "h2"},
+            {"#", "h1"}
         };
 
         public string TranslateTokensToHtml(IEnumerable<IToken> tokens)
         {
             var result = new StringBuilder();
+            var headerTag = GetHeaderTag(tokens);
+            if (headerTag != null)
+            {
+                result.Append($"<{headerTag}>");
+                tokens = tokens.Skip(1);
+            }
+
             foreach (var token in tokens)
             {
                 result.Append(TranslateOneTokenToHtml(token));
             }
+
+            if (headerTag != null)
+                result.Append($"</{headerTag}>");
             return result.ToString();
+        }
+
+        private string GetHeaderTag(IEnumerable<IToken> tokens)
+        {
+            var firstToken = tokens.First();
+            if (firstToken.TokenType == TokenType.HTMLTag)
+            {
+                var firstTag = firstToken as HTMLTagToken;
+                if (firstTag.TagType == HTMLTagType.Header)
+                    return tagDict[firstTag.Value];
+            }
+
+            return null;
         }
 
         private string TranslateOneTokenToHtml(IToken token)
@@ -29,7 +57,7 @@ namespace Markdown.Core
             {
                 var tag = token as HTMLTagToken;
                 var tagName = tagDict[tag.Value];
-                return tag.IsOpen ? $"<{tagName}>" : $"</{tagName}>";
+                return tag.TagType == HTMLTagType.Opening ? $"<{tagName}>" : $"</{tagName}>";
             }
             return token.Value;
         }
