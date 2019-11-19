@@ -36,22 +36,26 @@ namespace Markdown.Tests.MdTagsParsers_Tests.PairTagsParser_Tests
         [Test]
         public void ShouldReturnCorrectTagPairs()
         {
-            var text = "__zxc\\__asd_qwe____asd__";
+            var text = ">__zxc\\__asd_qwe____asd__";
 
-            var result = sut.ParsePairTags(text, new[] { 5, 6 });
+            var result = sut.ParsePairTags(text, new[] { 6, 7 });
 
             result.Should().BeEquivalentTo(
             (
-                CreateTagToken("open__", "__", 17, 2, text),
-                CreateTagToken("close__", "__", 22, 2, text)
+                CreateTagToken("open__", "__", 18, 2, text),
+                CreateTagToken("close__", "__", 23, 2, text)
             ),
             (
-                CreateTagToken("open_", "_", 7, 1, text),
-                CreateTagToken("close_", "_", 11, 1, text)
+                CreateTagToken("open_", "_", 8, 1, text),
+                CreateTagToken("close_", "_", 12, 1, text)
             ),
             (
-                CreateTagToken("open__", "__", 0, 2, text),
-                CreateTagToken("close__", "__", 15, 2, text)
+                CreateTagToken("open__", "__", 1, 2, text),
+                CreateTagToken("close__", "__", 16, 2, text)
+            ),
+            (
+                CreateTagToken("open>", ">", 0, 1, text),
+                CreateTagToken("close>", "\n", 25, 1, text + "\n")
             )
             );
         }

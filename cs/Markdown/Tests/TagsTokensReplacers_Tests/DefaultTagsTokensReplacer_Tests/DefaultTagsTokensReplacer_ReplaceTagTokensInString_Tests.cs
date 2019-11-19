@@ -38,7 +38,9 @@ namespace Markdown.Tests.TagsTokensReplacers_Tests.DefaultTagsTokensReplacer_Tes
                 CreateTagToken(text, 3, 1, "0", "("),
                 CreateTagToken(text, 7, 1, "1", ")"),
                 CreateTagToken(text, 1, 1, "2", "-"),
-                CreateTagToken(text, 9, 1, "3", "-")
+                CreateTagToken(text, 9, 1, "3", "-"),
+                CreateTagToken(text + "(", 11, 1, "0", "("),
+                CreateTagToken(text + "()", 12, 1, "1", ")")
             };
             Tag replaceTo(Tag t)
             {
@@ -54,7 +56,7 @@ namespace Markdown.Tests.TagsTokensReplacers_Tests.DefaultTagsTokensReplacer_Tes
 
             var result = DefaultTagsTokensReplacer.ReplaceTagTokensInString(text, tagsTokens, replaceTo);
 
-            result.Should().Be("q<em>z<strong>asd</strong>z</em>w");
+            result.Should().Be("q<em>z<strong>asd</strong>z</em>w<strong></strong>");
         }
 
         private void ShouldThrowArgumentNullException(string text, IEnumerable<TagToken> replacableTags, Func<Tag, Tag> replaceTo)

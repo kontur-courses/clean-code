@@ -1,8 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace Markdown
 {
@@ -10,6 +6,9 @@ namespace Markdown
     {
         static void Main(string[] args)
         {
+            var md = new Md();
+            while (true)
+                Console.WriteLine(md.Render(Console.ReadLine()));
         }
     }
 }

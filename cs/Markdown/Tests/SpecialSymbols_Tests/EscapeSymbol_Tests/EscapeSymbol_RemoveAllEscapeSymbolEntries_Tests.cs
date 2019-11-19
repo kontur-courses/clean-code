@@ -17,7 +17,6 @@ namespace Markdown.Tests.SpecialSymbols_Tests.EscapeSymbol_Tests
 
         [TestCase("asd", ExpectedResult = "asd")]
         [TestCase("\\asd", ExpectedResult = "asd")]
-        [TestCase("zxc\\", ExpectedResult = "zxc")]
         [TestCase("\\\\asd", ExpectedResult = "\\asd")]
         [TestCase("\\\\\\_asd", ExpectedResult = "\\_asd")]
         [TestCase("\\\\\\\\\\\\\\z", ExpectedResult = "\\\\\\z")]

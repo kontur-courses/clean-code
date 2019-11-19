@@ -15,6 +15,7 @@ namespace Markdown.MdTags
 
         public Tag Open { get; private set; }
         public Tag Close { get; private set; }
+        public bool CloseTagIfNotFoundClosingTag { get => tagAndTokenComparer.CloseTagIfNotFoundClosingTag; }
 
         public bool IsTokenOpenTag(Token token) => tagAndTokenComparer.IsTokenOpenTag(token, Open);
         public bool IsTokenCloseTag(Token token) => tagAndTokenComparer.IsTokenCloseTag(token, Close);

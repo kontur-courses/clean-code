@@ -10,7 +10,9 @@ namespace Markdown.TagsDataBase
             { "open_", "em" },
             { "close_", "/em" },
             { "open__", "strong" },
-            { "close__", "/strong" }
+            { "close__", "/strong" },
+            { "open>", "blockquote" },
+            { "close>", "/blockquote" }
         };
 
         public static Tag GetHtmlTagByMdTag(Tag mdTag)

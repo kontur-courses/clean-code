@@ -38,7 +38,9 @@ namespace Markdown.Tests.MdTags_Tests.TagAndTokenComparers_Tests.PairTagAndToken
 
         [TestCase("asd3_1zxc", 4, 1, "_")]
         [TestCase("zxc21**12", 5, 2, "**")]
-        public void TokenShouldNotBeCloseTag_IfTokenIsBetweenDigits(
+        [TestCase("z2_a", 2, 1, "_")]
+        [TestCase("q_3x", 1, 1, "_")]
+        public void TokenShouldNotBeCloseTag_IfTokenIsNearWithDigits(
             string text, int tokenStartIndex, int tokenLength,
             string tagValue)
         {
@@ -50,8 +52,6 @@ namespace Markdown.Tests.MdTags_Tests.TagAndTokenComparers_Tests.PairTagAndToken
         [TestCase("_zxc", 0, 1, "_")]
         [TestCase("__qwe__", 2, 3, "qwe")]
         [TestCase("(z) zxc", 2, 1, ")")]
-        [TestCase("z2_a", 2, 1, "_")]
-        [TestCase("q_3x", 1, 1, "_")]
         public void TokenShouldBeCloseTag(
             string text, int tokenStartIndex, int tokenLength,
             string tagValue)

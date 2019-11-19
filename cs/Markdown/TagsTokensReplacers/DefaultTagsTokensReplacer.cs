@@ -24,7 +24,8 @@ namespace Markdown.TagsTokensReplacers
                 builder.Append(replaceTo(tt.Tag).Value);
                 startIndex = endIndex + tt.Token.Length;
             }
-            builder.Append(text, startIndex, text.Length - startIndex);
+            if (startIndex < text.Length)
+                builder.Append(text, startIndex, text.Length - startIndex);
             return builder.ToString();
         }
     }

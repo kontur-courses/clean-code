@@ -11,6 +11,8 @@ namespace Markdown.Tests.TagsDataBase_Tests.MdAndHtmlTags_Tests
         [TestCase("close_")]
         [TestCase("open__")]
         [TestCase("close__")]
+        [TestCase("open>")]
+        [TestCase("close>")]
         public void ReturnedTag_ShouldBe_AmongHtmlTags(string mdTagId)
         {
             var mdTag = TagsDB.GetMdTagById(mdTagId);
@@ -25,6 +27,8 @@ namespace Markdown.Tests.TagsDataBase_Tests.MdAndHtmlTags_Tests
         [TestCase("close_", ExpectedResult = "/em")]
         [TestCase("open__", ExpectedResult = "strong")]
         [TestCase("close__", ExpectedResult = "/strong")]
+        [TestCase("open>", ExpectedResult = "blockquote")]
+        [TestCase("close>", ExpectedResult = "/blockquote")]
         public string ReturnedTagId_ShouldBe_AssociationToMdTagId(string mdTagId)
         {
             var mdTag = TagsDB.GetMdTagById(mdTagId);

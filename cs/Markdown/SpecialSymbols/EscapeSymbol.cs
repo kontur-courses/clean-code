@@ -2,7 +2,6 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
-using System.Threading.Tasks;
 
 namespace Markdown.SpecialSymbols
 {
@@ -16,7 +15,7 @@ namespace Markdown.SpecialSymbols
                 throw new ArgumentNullException();
             var builder = new StringBuilder();
             var startIndex = 0;
-            foreach (var indexToRemove in FindAllEscapeSymbolEntriesToBeRemoved(text))
+            foreach (var (indexToRemove, escapedSymbolsIndex) in FindAllPairsEscapeAndEscapedSymbols(text))
             {
                 var endIndex = indexToRemove;
                 builder.Append(text, startIndex, endIndex - startIndex);
@@ -42,28 +41,6 @@ namespace Markdown.SpecialSymbols
             if (result.Count > 0 && result.Last().escapedSymbolsIndex >= text.Length)
                 throw new FormatException();
             return result.ToArray();
-        }
-
-        private static List<int> FindAllEscapeSymbolEntriesToBeRemoved(string text)
-        {
-            var index = -1;
-            var startIndex = 0;
-            var indexesToRemove = new List<int>();
-            while ((index = text.IndexOf(Escape, startIndex)) != -1)
-            {
-                if (!IsSymbolEscapedByEscapeSymbol(index, text))
-                    indexesToRemove.Add(index);
-                startIndex = index + 1;
-            }
-            return indexesToRemove;
-        }
-
-        private static bool IsSymbolEscapedByEscapeSymbol(int symbolIndex, string str)
-        {
-            var escapeSymbolCount = 0;
-            while (--symbolIndex >= 0 && str[symbolIndex] == Escape)
-                escapeSymbolCount++;
-            return escapeSymbolCount % 2 == 1;
         }
     }
 }

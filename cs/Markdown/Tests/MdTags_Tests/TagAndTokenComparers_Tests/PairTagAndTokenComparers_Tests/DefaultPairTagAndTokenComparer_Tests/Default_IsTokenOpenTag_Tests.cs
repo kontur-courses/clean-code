@@ -38,7 +38,9 @@ namespace Markdown.Tests.MdTags_Tests.TagAndTokenComparers_Tests.PairTagAndToken
 
         [TestCase("asd3_3zxc", 3, 1, "_")]
         [TestCase("qwe33zxc23asd", 5, 3, "zxc")]
-        public void TokenShouldNotBeOpenTag_IfTokenIsBetweenDigits(
+        [TestCase("zx3asdqwe", 3, 3, "asd")]
+        [TestCase("qasd4", 1, 3, "asd")]
+        public void TokenShouldNotBeOpenTag_IfTokenIsNearWithDigit(
             string text, int tokenStartIndex, int tokenLength,
             string tagValue)
         {
@@ -50,8 +52,6 @@ namespace Markdown.Tests.MdTags_Tests.TagAndTokenComparers_Tests.PairTagAndToken
         [TestCase("asd**zxc", 3, 2, "**")]
         [TestCase("asd*", 3, 1, "*")]
         [TestCase("a *qwe", 2, 1, "*")]
-        [TestCase("zx3asdqwe", 3, 3, "asd")]
-        [TestCase("qasd4", 1, 3, "asd")]
         public void TokenShouldBeOpenTag(
             string text, int tokenStartIndex, int tokenLength,
             string tagValue)

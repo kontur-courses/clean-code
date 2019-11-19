@@ -49,8 +49,11 @@ namespace Markdown.Tests.Md_Tests
         public string ShouldNotSupport_DoubleUnderlineInsideSingleUnderline(string text) => sut.Render(text);
 
         [TestCase("_q2_5e_", ExpectedResult = "<em>q2_5e</em>")]
-        [TestCase("__q2_5asd3_4__", ExpectedResult = "<strong>q2_5asd3_4</strong>")]
-        public string ShouldIgnoreTag_IfItInsideDigits(string text) => sut.Render(text);
+        [TestCase("__q2_5asd3_4a__", ExpectedResult = "<strong>q2_5asd3_4a</strong>")]
+        [TestCase("3_asd_2", ExpectedResult = "3_asd_2")]
+        [TestCase("_3asd4_", ExpectedResult = "_3asd4_")]
+        [TestCase("_3asd_5", ExpectedResult = "_3asd_5")]
+        public string ShouldIgnoreTag_IfItIsNearWithDigit(string text) => sut.Render(text);
 
         [TestCase("__qwe_zxc", ExpectedResult = "__qwe_zxc")]
         [TestCase("_qwe__zxc", ExpectedResult = "<em>qwe</em>_zxc")]
@@ -64,6 +67,7 @@ namespace Markdown.Tests.Md_Tests
         [TestCase("__asd __qwe__", ExpectedResult = "<strong>asd __qwe</strong>")]
         public string ShouldIgnoreCloseTag_IfItPreviousSymbolIsSpace(string text) => sut.Render(text);
 
+        [TestCase("\\>_zxc_", ExpectedResult = "><em>zxc</em>")]
         [TestCase("\\__zxc_", ExpectedResult = "_<em>zxc</em>")]
         [TestCase("_asd\\_zxc_", ExpectedResult = "<em>asd_zxc</em>")]
         [TestCase("__asd\\_\\_zxc__", ExpectedResult = "<strong>asd__zxc</strong>")]
@@ -79,15 +83,22 @@ namespace Markdown.Tests.Md_Tests
 
         [TestCase("__asd_q__w__e_zxc__", ExpectedResult = "<strong>asd<em>q</em><em>w</em><em>e</em>zxc</strong>")]
         [TestCase("__asd_qwe__q_", ExpectedResult = "__asd<em>qwe</em><em>q</em>")]
-        [TestCase("3_asd_1", ExpectedResult = "3<em>asd</em>1")]
-        [TestCase("_12zx23_", ExpectedResult = "<em>12zx23</em>")]
         public string ShouldReturnExpectedResult(string text) => sut.Render(text);
+
+        [TestCase(">qwe\n", ExpectedResult = "<blockquote>qwe</blockquote>")]
+        [TestCase(">qwe", ExpectedResult = "<blockquote>qwe</blockquote>")]
+        [TestCase("qw>e\n>asd", ExpectedResult = "qw<blockquote>e</blockquote><blockquote>asd</blockquote>")]
+        [TestCase(">q_w_e", ExpectedResult = "<blockquote>q<em>w</em>e</blockquote>")]
+        [TestCase(">q__w__e", ExpectedResult = "<blockquote>q<strong>w</strong>e</blockquote>")]
+        [TestCase(">asd>qwe>zxc", ExpectedResult = "<blockquote>asd<blockquote>qwe<blockquote>zxc</blockquote></blockquote></blockquote>")]
+        [TestCase(">asd>zxc\n\nqwe", ExpectedResult = "<blockquote>asd<blockquote>zxc</blockquote></blockquote>qwe")]
+        public string ShouldSupportBlockquoteTag(string text) => sut.Render(text);
 
         [Test]
         public void ShouldCorrectWorkWithRealText()
         {
-            var text = "_edem_\\__edem_ v sosednee selooo na ___diskoteeekuu!!!___ _200_2_KmPH";
-            var expectedResult = "<em>edem</em>_<em>edem</em> v sosednee selooo na <strong><em>diskoteeekuu!!!</em></strong> <em>200_2</em>KmPH";
+            var text = "_edem_\\__edem_ v sosednee selooo na ___diskoteeekuu!!!___ _(200_2)_KmPH";
+            var expectedResult = "<em>edem</em>_<em>edem</em> v sosednee selooo na <strong><em>diskoteeekuu!!!</em></strong> <em>(200_2)</em>KmPH";
 
             var result = sut.Render(text);
 
@@ -99,7 +110,7 @@ namespace Markdown.Tests.Md_Tests
         [TestCase(1000, 5)]
         public void ShouldBe_LinearPerformanceDependenceByInputText(int inputTextMultiplyCount, int testStartsCount)
         {
-            var input = "_asd_q__zxc__q\\zxcq\\__zxc_f";
+            var input = ">_asd_q__zxc__q\\zxcq\\__zxc_f\n";
             for (var i = 0; i < 4; i++)
                 input += input;
             var inputWithMultiplyCount = "";

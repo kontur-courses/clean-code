@@ -4,5 +4,6 @@
     {
         bool IsTokenOpenTag(Token token, Tag openTag);
         bool IsTokenCloseTag(Token token, Tag closeTag);
+        bool CloseTagIfNotFoundClosingTag { get; }
     }
 }

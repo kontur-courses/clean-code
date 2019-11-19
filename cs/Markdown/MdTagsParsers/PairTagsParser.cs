@@ -21,7 +21,8 @@ namespace Markdown.MdTagsParsers
             supportedTagsPairs = new MdPairTagBase[]
             {
                 new SingleUnderline(),
-                new DoubleUnderline()
+                new DoubleUnderline(),
+                new SingleBlockquote()
             };
         }
 
@@ -31,8 +32,7 @@ namespace Markdown.MdTagsParsers
                 throw new ArgumentNullException();
             var tagsPairs = new List<(TagToken open, TagToken close)>();
             var openTags = new Stack<MdPairTagToken>();
-            var busyIndexes = new HashSet<int>();
-            AddEnumerableToHashSet(ignorableIndexes, busyIndexes);
+            var busyIndexes = ignorableIndexes.ToHashSet();
             foreach (var group in GetSortedTagsTokensGroups(text))
             {
                 if (ShouldSkipGroup(group, busyIndexes, out var freeTagTokens))
@@ -40,26 +40,60 @@ namespace Markdown.MdTagsParsers
                 var (openTag, closeTag) = CalculateOpenAndCloseTags(openTags, freeTagTokens);
                 if (openTag != default && closeTag != default)
                 {
-                    AddTokenToHashSet(closeTag.Token, busyIndexes);
-                    AddTagsPairToResult(openTag, closeTag, tagsPairs);
+                    busyIndexes.UnionWith(closeTag.Token.GetOccupiedIndexes());
+                    tagsPairs.Add(CreateOpenAndCloseTagsTokens(openTag, closeTag));
                     openTags.Pop();
                 }
                 else
                 {
                     var openTagWithMaxLength = CalculateTagWithMaxTokenLength(freeTagTokens);
-                    if (openTag == default || openTagWithMaxLength.MdPairTag.Open != openTag.MdPairTag.Open)
+                    if (openTag == default || openTagWithMaxLength.MdPairTag.Open.Value != openTag.MdPairTag.Close.Value)
                     {
                         if (openTagWithMaxLength.MdPairTag.IsTokenOpenTag(openTagWithMaxLength.Token))
                         {
-                            AddTokenToHashSet(openTagWithMaxLength.Token, busyIndexes);
+                            busyIndexes.UnionWith(openTagWithMaxLength.Token.GetOccupiedIndexes());
                             openTags.Push(openTagWithMaxLength);
                         }
                     }
                     else
-                        AddTokenToHashSet(openTagWithMaxLength.Token, busyIndexes);
+                        busyIndexes.UnionWith(openTagWithMaxLength.Token.GetOccupiedIndexes());
                 }
             }
+            tagsPairs.AddRange(GetTagsPairsWithNotClosedTags(openTags, text));
             return tagsPairs.ToArray();
+        }
+
+        private IEnumerable<(TagToken open, TagToken close)> GetTagsPairsWithNotClosedTags(
+            Stack<MdPairTagToken> notClosedTags,
+            string text)
+        {
+            while (notClosedTags.Count != 0)
+            {
+                var openTag = notClosedTags.Pop();
+                if (openTag.MdPairTag.CloseTagIfNotFoundClosingTag)
+                {
+                    var indexToInsertCloseTag = text.Length;
+                    text += openTag.MdPairTag.Close.Value;
+                    yield return
+                    (
+                        new TagToken
+                        {
+                            Tag = openTag.MdPairTag.Open,
+                            Token = openTag.Token
+                        },
+                        new TagToken
+                        {
+                            Tag = openTag.MdPairTag.Close,
+                            Token = new Token
+                            {
+                                StartIndex = indexToInsertCloseTag,
+                                Length = openTag.MdPairTag.Close.Value.Length,
+                                Str = text
+                            }
+                        }
+                    );
+                }
+            }
         }
 
         private MdPairTagToken CalculateTagWithMaxTokenLength(IEnumerable<MdPairTagToken> freeTagTokens)
@@ -73,10 +107,9 @@ namespace Markdown.MdTagsParsers
             IEnumerable<MdPairTagToken> freeTagTokens)
         {
             var openTag = openTags.FirstOrDefault();
-            var closeTag = openTag == 
-                default ?
-                default
-                :
+            var closeTag =
+                openTag == default ?
+                default :
                 freeTagTokens.FirstOrDefault(tt => openTag.MdPairTag.IsTokenCloseTag(tt.Token));
             return (openTag, closeTag);
         }
@@ -89,42 +122,13 @@ namespace Markdown.MdTagsParsers
             freeTagTokens = null;
             if (busyIndexes.Contains(group.Key))
                 return true;
-            freeTagTokens = group.Where(tt => !HashSetContainsAnyTokenIndex(tt.Token, busyIndexes));
-            if (freeTagTokens.FirstOrDefault() == default)
-                return true;
-            return false;
+            freeTagTokens = group.Where(tt => !busyIndexes.Overlaps(tt.Token.GetOccupiedIndexes()));
+            return freeTagTokens.FirstOrDefault() == default;
         }
 
-        private void AddTagsPairToResult(
-            MdPairTagToken open,
-            MdPairTagToken close,
-            List<(TagToken open, TagToken close)> tagsPairs)
-        {
-            tagsPairs.Add((
-                open: new TagToken { Tag = open.MdPairTag.Open, Token = open.Token },
-                close: new TagToken { Tag = close.MdPairTag.Close, Token = close.Token }
-                ));
-        }
-
-        private bool HashSetContainsAnyTokenIndex(Token token, HashSet<int> hashSet)
-        {
-            for (var i = token.StartIndex; i < token.StartIndex + token.Length; i++)
-                if (hashSet.Contains(i))
-                    return true;
-            return false;
-        }
-
-        private void AddEnumerableToHashSet(IEnumerable<int> enumerable, HashSet<int> hashSet)
-        {
-            foreach (var i in enumerable)
-                hashSet.Add(i);
-        }
-
-        private void AddTokenToHashSet(Token token, HashSet<int> hashSet)
-        {
-            for (var i = token.StartIndex; i < token.StartIndex + token.Length; i++)
-                hashSet.Add(i);
-        }
+        private (TagToken open, TagToken close) CreateOpenAndCloseTagsTokens(MdPairTagToken open, MdPairTagToken close) =>
+            (open: new TagToken { Tag = open.MdPairTag.Open, Token = open.Token },
+             close: new TagToken { Tag = close.MdPairTag.Close, Token = close.Token });
 
         private IEnumerable<IGrouping<int, MdPairTagToken>> GetSortedTagsTokensGroups(string text)
         {

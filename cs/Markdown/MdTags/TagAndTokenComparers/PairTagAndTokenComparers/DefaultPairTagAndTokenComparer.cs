@@ -8,6 +8,8 @@ namespace Markdown.MdTags.TagAndTokenComparers.PairTagAndTokenComparers
 
         public DefaultPairTagAndTokenComparer() => ignorableSymbol = ' ';
 
+        public bool CloseTagIfNotFoundClosingTag => false;
+
         public bool IsTokenOpenTag(Token token, Tag openTag) =>
             !IgnoreTag(token, openTag, token.StartIndex + token.Length);
 
@@ -16,23 +18,23 @@ namespace Markdown.MdTags.TagAndTokenComparers.PairTagAndTokenComparers
 
         private bool IgnoreTag(Token token, Tag tag, int ignorableSymbolIndex)
         {
-            if (token.Str.Substring(token.StartIndex, token.Length) != tag.Value ||
-                (
-                    ignorableSymbolIndex >= 0 &&
-                    ignorableSymbolIndex < token.Str.Length &&
-                    token.Str[ignorableSymbolIndex] == ignorableSymbol
-                ))
-                return true;
-            return IsTagInsideDigits(token);
+            var containsIgnorableSymbol =
+                ignorableSymbolIndex >= 0 &&
+                ignorableSymbolIndex < token.Str.Length &&
+                token.Str[ignorableSymbolIndex] == ignorableSymbol;
+            return
+                containsIgnorableSymbol ||
+                token.Str.Substring(token.StartIndex, token.Length) != tag.Value ||
+                IsTokenNearWithDigit(token);
         }
 
-        private bool IsTagInsideDigits(Token token)
+        private bool IsTokenNearWithDigit(Token token)
         {
             var leftIndex = token.StartIndex - 1;
             var rightIndex = token.StartIndex + token.Length;
-            if (leftIndex < 0 || rightIndex >= token.Str.Length)
-                return false;
-            return char.IsDigit(token.Str[leftIndex]) && char.IsDigit(token.Str[rightIndex]);
+            return
+                (leftIndex >= 0 && char.IsDigit(token.Str[leftIndex])) ||
+                (rightIndex < token.Str.Length && char.IsDigit(token.Str[rightIndex]));
         }
     }
 }

@@ -9,7 +9,9 @@ namespace Markdown.TagsDataBase
             { "open_", "_" },
             { "close_", "_" },
             { "open__", "__" },
-            { "close__", "__" }
+            { "close__", "__" },
+            { "open>", ">" },
+            { "close>", "\n" }
         };
 
         private static readonly Dictionary<string, string> htmlTags = new Dictionary<string, string>
@@ -17,7 +19,9 @@ namespace Markdown.TagsDataBase
             { "em", "<em>" },
             { "/em", "</em>" },
             { "strong", "<strong>" },
-            { "/strong", "</strong>" }
+            { "/strong", "</strong>" },
+            { "blockquote", "<blockquote>" },
+            { "/blockquote", "</blockquote>" }
         };
 
         public static Tag GetMdTagById(string mdTagId) => GetTagByIdFromTable(mdTagId, mdTags);
