@@ -8,7 +8,6 @@ namespace Markdown
     class Md
     {
         private readonly List<Tag> Tags;
-        private readonly char[] Digits = new char[] { '1', '2', '3', '4', '5', '6', '7', '8', '9', '0' };
 
         public Md()
         {
@@ -101,11 +100,11 @@ namespace Markdown
                 }
                 else if (tagWithToken.IsOpen)
                 {
-                    stringBuilder.Append(tagWithToken.Tag.OpenHtml);
+                    stringBuilder.Append(tagWithToken.Tag.OpenHtmlTag);
                 }
                 else if (tagWithToken.IsClose)
                 {
-                    stringBuilder.Append(tagWithToken.Tag.CloseHtml);
+                    stringBuilder.Append(tagWithToken.Tag.CloseHtmlTag);
                 }
             }
             return stringBuilder.ToString();
@@ -141,23 +140,20 @@ namespace Markdown
         {
             if (tagWithToken.CanTagBeClosing(text))
             {
-                var indexOpeningTag = openingTagList.FindLastIndex(tag => tagWithToken.Tag.TagString == tag.Tag.TagString && tag.CanTagBeOpening(text));
+                var indexOpeningTag = openingTagList.FindLastIndex(tag => tagWithToken.Tag.MarkdownTag == tag.Tag.MarkdownTag && tag.CanTagBeOpening(text));
                 if (indexOpeningTag >= 0)
                 {
                     openingTagList[indexOpeningTag].IsOpen = true;
                     tagWithToken.IsClose = true;
-                    for (var i = 0; i < openingTagList.Count - indexOpeningTag + 1; i++)
-                    {
-                        openingTagList.RemoveAt(openingTagList.Count - 1);
-                    }
+                    openingTagList.RemoveRange(indexOpeningTag, openingTagList.Count - indexOpeningTag);
 
-                    switch (tagWithToken.Tag.TagString) // switch case который определяет специфическое поведение для закрывающих тегов
+                    switch (tagWithToken.Tag.MarkdownTag)
                     {
                         case "_":
                             var i = tagWithTokens.Count - 1;
                             while (tagWithTokens[i] != tagWithTokens[indexOpeningTag])
                             {
-                                if (tagWithTokens[i].IsTag && tagWithTokens[i].Tag.TagString == "__")
+                                if (tagWithTokens[i].IsTag && tagWithTokens[i].Tag.MarkdownTag == "__")
                                 {
                                     tagWithTokens[i].IsClose = false;
                                     tagWithTokens[i].IsOpen = false;
