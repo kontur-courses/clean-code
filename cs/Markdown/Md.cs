@@ -119,7 +119,7 @@ namespace Markdown
             {
                 if (token.IsTag)
                 {
-                    var tag = FindMatchingTag(token, text);
+                    var tag = Tags.Find(t => t.MatchTagAndTokenCompletely(token.Index, token.Length, text));
                     var tagWithToken = new TagWithToken(tag, token);
                     if (tagWithToken.CanBeTag(text))
                     {
@@ -183,14 +183,6 @@ namespace Markdown
                     return i;
             }
             return -1;
-        }
-
-        private Tag FindMatchingTag(Token token, string text)
-        {
-            foreach (var tag in Tags)
-                if (tag.MatchTagAndTokenCompletely(token.Index, token.Length, text))
-                    return tag;
-            return null;
         }
     }
 }
