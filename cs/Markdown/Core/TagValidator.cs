@@ -13,15 +13,19 @@ namespace Markdown.Core
         private static bool IsLastIndexPossibleForTag(string line, int index, ITag tag) =>
             index == line.Length - tag.Closing.Length;
 
+        private static bool SymbolBeforeCurrentIsEscaping(string line, int index) => line[index - 1] == '\\';
+
         public static bool IsPossibleClosingTag(string line, int index, ITag tag)
         {
-            return (IsLastIndexPossibleForTag(line, index, tag) || SymbolAfterTagIsSpace(line, index, tag)) &&
+            return !SymbolBeforeCurrentIsEscaping(line, index) &&
+                   (IsLastIndexPossibleForTag(line, index, tag) || SymbolAfterTagIsSpace(line, index, tag)) &&
                    (IsFirstSymbol(index) || !SymbolBeforeCurrentIsSpace(line, index));
         }
 
         public static bool IsPossibleOpeningTag(string line, int index, ITag tag)
         {
-            return (IsFirstSymbol(index) || SymbolBeforeCurrentIsSpace(line, index)) &&
+            return (IsFirstSymbol(index) ||
+                    !SymbolBeforeCurrentIsEscaping(line, index) && SymbolBeforeCurrentIsSpace(line, index)) &&
                    (IsLastIndexPossibleForTag(line, index, tag) || !SymbolAfterTagIsSpace(line, index, tag));
         }
     }

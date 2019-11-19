@@ -3,6 +3,7 @@ using FluentAssertions;
 using NUnit.Framework;
 using Markdown.Core;
 using Markdown.Core.Rules;
+using NUnit.Framework.Internal;
 
 namespace Markdown.Tests
 {
@@ -20,6 +21,7 @@ namespace Markdown.Tests
         [TestCase("_a _ ", 0, TestName = "WhenThereIsSpaceBeforeClosingTag")]
         [TestCase("1_234_", 0, TestName = "WhenInsideLineWithNumbers")]
         [TestCase(@"\_foo\_", 0, TestName = "WhenShielded")]
+        [TestCase(@"_foo\_", 0, TestName = "foo")]
         public void ParseLine_ShouldFindAllTokens(string line, int expectedCount)
         {
             Parser.Parse(line, rules).Should().HaveCount(expectedCount);
