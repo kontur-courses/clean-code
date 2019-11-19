@@ -39,7 +39,7 @@ namespace Markdown
             {
                 if (text[index + length - 1] == '\\')
                 {
-                    var matchCompletely = Tags.Any(tag => MatchTagAndTokenCompletely(index, length - 1, text, tag));
+                    var matchCompletely = Tags.Any(tag => tag.MatchTagAndTokenCompletely(index, length - 1, text));
                     tokens.Add(new Token(index, length - 1, matchCompletely));
                     index = index + length;
                     length = 2;
@@ -47,7 +47,7 @@ namespace Markdown
                 }
                 else if (isContext)
                 {
-                    var partiallyMatch = Tags.Any(tag => PartiallyMatchTagAndToken(index + length - 1, 1, text, tag));
+                    var partiallyMatch = Tags.Any(tag => tag.PartiallyMatchTagAndToken(index + length - 1, 1, text));
                     if (partiallyMatch)
                     {
                         tokens.Add(new Token(index, length - 1, false));
@@ -62,10 +62,10 @@ namespace Markdown
                 }
                 else
                 {
-                    var partiallyMatch = Tags.Any(tag => PartiallyMatchTagAndToken(index, length, text, tag));
+                    var partiallyMatch = Tags.Any(tag => tag.PartiallyMatchTagAndToken(index, length, text));
                     if (!partiallyMatch)
                     {
-                        var matchCompletely = Tags.Any(tag => MatchTagAndTokenCompletely(index, length - 1, text, tag));
+                        var matchCompletely = Tags.Any(tag => tag.MatchTagAndTokenCompletely(index, length - 1, text));
                         if (matchCompletely)
                         {
                             tokens.Add(new Token(index, length - 1, true));
@@ -83,40 +83,8 @@ namespace Markdown
                     }
                 }
             }
-            tokens.Add(new Token(index, length - 1, Tags.Any(tag => MatchTagAndTokenCompletely(index, length - 1, text, tag))));
+            tokens.Add(new Token(index, length - 1, Tags.Any(tag => tag.MatchTagAndTokenCompletely(index, length - 1, text))));
             return tokens;
-        }
-
-        private bool PartiallyMatchTagAndToken(int index, int length, string text, Tag tag)
-        {
-            if (tag.isMultiple)
-                return PartiallyMatchMultipleTagAndToken(index, length, text, tag);
-            return PartiallyMatchNoMultipleTagAndToken(index, length, text, tag);
-        }
-
-        private bool PartiallyMatchMultipleTagAndToken(int index, int length, string text, Tag tag)
-        {
-            return tag.getTagString[tag.getTagString.Length - 1] == text[index + length - 1];
-        }
-
-        private bool PartiallyMatchNoMultipleTagAndToken(int index, int length, string text, Tag tag)
-        {
-            if (length > tag.getTagString.Length)
-                return false;
-            for (var i = 0; i < length; i++)
-                if (!(tag.getTagString[i] == text[index + i]))
-                    return false;
-            return true;
-        }
-
-        private bool MatchTagAndTokenCompletely(int index, int length, string text, Tag tag)
-        {
-            if (length != tag.getTagString.Length)
-                return false;
-            for (var i = 0; i < length; i++)
-                if (!(tag.getTagString[i] == text[index + i]))
-                    return false;
-            return true;
         }
 
         //Проходит по полученым токенам и переводит их в html по предписаниям из тэга
@@ -262,7 +230,7 @@ namespace Markdown
         private Tag FindMatchingTag(Token token, string text)
         {
             foreach (var tag in Tags)
-                if (MatchTagAndTokenCompletely(token.Index, token.Length, text, tag))
+                if (tag.MatchTagAndTokenCompletely(token.Index, token.Length, text))
                     return tag;
             return null;
         }

@@ -21,9 +21,36 @@ namespace Markdown
             isHearingCouples = hearingCouples;
         }
 
-        public bool isPairedWith(Tag tag) // Если тег парный, то проверяет является ли 2-й тег парой для текущего
+        public bool PartiallyMatchTagAndToken(int index, int length, string text)
         {
-            throw new NotImplementedException();
+            if (isMultiple)
+                return PartiallyMatchMultipleTagAndToken(index, length, text);
+            return PartiallyMatchNoMultipleTagAndToken(index, length, text);
+        }
+
+        public bool PartiallyMatchMultipleTagAndToken(int index, int length, string text)
+        {
+            return getTagString[getTagString.Length - 1] == text[index + length - 1];
+        }
+
+        public bool PartiallyMatchNoMultipleTagAndToken(int index, int length, string text)
+        {
+            if (length > getTagString.Length)
+                return false;
+            for (var i = 0; i < length; i++)
+                if (getTagString[i] != text[index + i])
+                    return false;
+            return true;
+        }
+
+        public bool MatchTagAndTokenCompletely(int index, int length, string text)
+        {
+            if (length != getTagString.Length)
+                return false;
+            for (var i = 0; i < length; i++)
+                if (getTagString[i] != text[index + i])
+                    return false;
+            return true;
         }
     }
 }
