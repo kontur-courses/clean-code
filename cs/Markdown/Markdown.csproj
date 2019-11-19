@@ -48,8 +48,8 @@
     <Compile Include="Core\Rules\RuleFactory.cs" />
     <Compile Include="Core\Rules\StrongRule.cs" />
     <Compile Include="Core\Tags\HtmlTags\Em.cs" />
-    <Compile Include="Core\Tags\IHtmlTag.cs" />
-    <Compile Include="Core\Tags\IMarkdownTag.cs" />
+    <Compile Include="Core\Tags\HtmlTags\IHtmlTag.cs" />
+    <Compile Include="Core\Tags\MarkdownTags\IMarkdownTag.cs" />
     <Compile Include="Core\Tags\ITag.cs" />
     <Compile Include="Core\Md.cs" />
     <Compile Include="Core\Tags\MarkdownTags\DoubleUnderscore.cs" />

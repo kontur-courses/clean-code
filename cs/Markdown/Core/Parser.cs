@@ -18,7 +18,7 @@ namespace Markdown.Core
                     rule.SourceTag.Opening == line.Substring(index, rule.SourceTag.Opening.Length));
                 if (currentRule == null) continue;
 
-                if (TagValidator.IsPossibleOpenningTag(line, index, currentRule.SourceTag))
+                if (TagValidator.IsPossibleOpeningTag(line, index, currentRule.SourceTag))
                 {
                     tokenStack.Push(new TagToken(index, currentRule.SourceTag, true));
                     index += currentRule.SourceTag.Opening.Length - 1;
