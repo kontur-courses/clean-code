@@ -37,7 +37,7 @@ namespace Markdown
         public bool CanBeTag(string text)
         {
             int num;
-            switch (Tag.getTagString) // switch case который определяет может ли токен помеченый как тег быть тегом
+            switch (Tag.TagString)
             {
                 case "_":
                     if (Token.Index + Token.Length < text.Length &&

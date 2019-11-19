@@ -101,11 +101,11 @@ namespace Markdown
                 }
                 else if (tagWithToken.IsOpen)
                 {
-                    stringBuilder.Append(tagWithToken.Tag.getOpenHtml);
+                    stringBuilder.Append(tagWithToken.Tag.OpenHtml);
                 }
                 else if (tagWithToken.IsClose)
                 {
-                    stringBuilder.Append(tagWithToken.Tag.getCloseHtml);
+                    stringBuilder.Append(tagWithToken.Tag.CloseHtml);
                 }
             }
             return stringBuilder.ToString();
@@ -151,13 +151,13 @@ namespace Markdown
                         openingTagList.RemoveAt(openingTagList.Count - 1);
                     }
 
-                    switch (tagWithToken.Tag.getTagString) // switch case который определяет специфическое поведение для закрывающих тегов
+                    switch (tagWithToken.Tag.TagString) // switch case который определяет специфическое поведение для закрывающих тегов
                     {
                         case "_":
                             var i = tagWithTokens.Count - 1;
                             while (tagWithTokens[i] != tagWithTokens[indexOpeningTag])
                             {
-                                if (tagWithTokens[i].IsTag && tagWithTokens[i].Tag.getTagString == "__")
+                                if (tagWithTokens[i].IsTag && tagWithTokens[i].Tag.TagString == "__")
                                 {
                                     tagWithTokens[i].IsClose = false;
                                     tagWithTokens[i].IsOpen = false;
@@ -179,7 +179,7 @@ namespace Markdown
         {
             for (var i = tagList.Count - 1; i >= 0; i--)
             {
-                if (tag.getTagString == tagList[i].Tag.getTagString && tagList[i].CanTagBeOpening(text))
+                if (tag.TagString == tagList[i].Tag.TagString && tagList[i].CanTagBeOpening(text))
                     return i;
             }
             return -1;
