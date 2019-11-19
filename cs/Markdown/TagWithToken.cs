@@ -17,5 +17,21 @@ namespace Markdown
             IsOpen = false;
             IsClose = false;
         }
+
+        public bool CanTagBeClosing(string text)
+        {
+            var index = Token.Index - 1;
+            if (index < 0 || text[index] == ' ')
+                return false;
+            return true;
+        }
+
+        public bool CanTagBeOpening(string text)
+        {
+            var index = Token.Index + Token.Length;
+            if (index >= text.Length || text[index] == ' ')
+                return false;
+            return true;
+        }
     }
 }

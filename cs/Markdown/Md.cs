@@ -165,7 +165,7 @@ namespace Markdown
 
         private void HandlerTag(List<TagWithToken> openingTagList, List<TagWithToken> tagWithTokens, TagWithToken tagWithToken, string text)
         {
-            if (CanTagBeClosing(tagWithToken, text))
+            if (tagWithToken.CanTagBeClosing(text))
             {
                 var indexOpeningTag = FindIndexMatchingOpenTag(openingTagList, tagWithToken.Tag, text);
                 if (indexOpeningTag >= 0)
@@ -195,33 +195,17 @@ namespace Markdown
                     return;
                 }
             }
-            if (CanTagBeOpening(tagWithToken, text))
+            if (tagWithToken.CanTagBeOpening(text))
             {
                 openingTagList.Add(tagWithToken);
             }
-        }
-
-        private bool CanTagBeClosing(TagWithToken tagWithToken, string text)
-        {
-            var index = tagWithToken.Token.Index - 1;
-            if (index < 0 || text[index] == ' ')
-                return false;
-            return true;
-        }
-
-        private bool CanTagBeOpening(TagWithToken tagWithToken, string text)
-        {
-            var index = tagWithToken.Token.Index + tagWithToken.Token.Length;
-            if (index >= text.Length || text[index] == ' ')
-                return false;
-            return true;
         }
 
         private int FindIndexMatchingOpenTag(List<TagWithToken> tagList, Tag tag, string text)
         {
             for (var i = tagList.Count - 1; i >= 0; i--)
             {
-                if (tag.getTagString == tagList[i].Tag.getTagString && CanTagBeOpening(tagList[i], text))
+                if (tag.getTagString == tagList[i].Tag.getTagString && tagList[i].CanTagBeOpening(text))
                     return i;
             }
             return -1;
