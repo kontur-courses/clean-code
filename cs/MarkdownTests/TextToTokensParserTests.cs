@@ -34,7 +34,8 @@ public class TextToTokensParserTests
         }
 
         private static readonly TestCaseData[] TestCases =
-        {
+        {           new TestCaseData(new TextParserData("ab1_1aaa_bbb")).SetName("ab1_1aaa_bbb"),
+                    new TestCaseData(new TextParserData("ab_aaa1_1bbb")).SetName("ab_aaa1_1bbb"),
                     new TestCaseData(new TextParserData("ab_ aaa_bbb")).SetName("ab_ aaa_bbb"),
                     new TestCaseData(new TextParserData("ab_aaa_bbb", "_aaa_")).SetName("ab_aaa_bbb"),
                     new TestCaseData(new TextParserData("ab_aaa_bb__b a__ acc", "_aaa_", "__b a__")).SetName(

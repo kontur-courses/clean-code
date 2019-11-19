@@ -10,6 +10,10 @@ namespace MarkdownTests
         [TestCase("ab__aaa__bb_b_", ExpectedResult = "ab<strong>aaa</strong>bb<em>b</em>")]
         [TestCase("ab_a aa_bb__b__", ExpectedResult = "ab<em>a aa</em>bb<strong>b</strong>")]
         [TestCase("ab_aa__b__a_", ExpectedResult = "ab<em>aa__b__a</em>")]
+        [TestCase("_1_",ExpectedResult = "<em>1</em>")]
+        [TestCase("1_1_ _2_",ExpectedResult = "1_1_ <em>2</em>")]
+        [TestCase("__1__",ExpectedResult = "<strong>1</strong>")]
+        [TestCase("1__1__ __2__",ExpectedResult = "1__1__ <strong>2</strong>")]
         public string Render_ShouldRenderCorrectly1(string text)
         {
             return new Md().Render(text);

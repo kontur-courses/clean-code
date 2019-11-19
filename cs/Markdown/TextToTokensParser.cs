@@ -13,12 +13,7 @@ namespace Markdown
             var tagStack = new Stack<(int Index, string Value)>();
             for (var i = 0; i < text.Length; i++)
             {
-                if (tagStack.Count == 0 && SpecialSymbols.Contains(text[i]) && (i == text.Length - 1 || text[i + 1] != ' '))
-                {
-                    tagStack.Push((i, text[i].ToString()));
-                    continue;
-                }
-                if (tagStack.Count == 0 || !SpecialSymbols.Contains(text[i])) continue;
+                if (!SpecialSymbols.Contains(text[i])) continue;
                 if (text[i].IsLinkTag())
                     WorkWithLinks(text, tagStack, temp, result, i);
                 if (text[i].Is_Tag())
@@ -32,6 +27,12 @@ namespace Markdown
         private static void WorkWith_(string text, Stack<(int Index, string Value)> tagStack, List<Token> temp,
             HashSet<Token> result, int i)
         {
+            if (tagStack.Count == 0)
+            {
+                if ((i != text.Length - 1 && text[i + 1] == ' ') || (i != 0 && char.IsDigit(text[i - 1]))) return;
+                    tagStack.Push((i, text[i].ToString()));
+                return;
+            }
             if (tagStack.Peek().Index == i - 1 && tagStack.Peek().Value == "_")
             {
                 var (index, value) = tagStack.Pop();
@@ -42,7 +43,7 @@ namespace Markdown
             }
             else
             {
-                if (tagStack.Peek().Value == text[i].ToString() && 
+                if (tagStack.Peek().Value == text[i].ToString() &&
                     (i == text.Length - 1 || !SpecialSymbols.Contains(text[i + 1])))
                     tagStack.Pop().TryToAddClose_Tag(result, temp, text, i);
                 else
@@ -55,6 +56,12 @@ namespace Markdown
         {
             if (text[i] == '[')
             {
+                if (tagStack.Count == 0)
+                {
+                    tagStack.Push((i, text[i].ToString()));
+                    return;
+                }
+
                 if (tagStack.Count != 0 && tagStack.Peek().Value == "[")
                     tagStack.Pop();
                 tagStack.Push((i, text[i].ToString()));

@@ -11,6 +11,8 @@ namespace Markdown
             Dictionary<Token, Token> tagsCollection)
         {
             var result = new List<Token>();
+            if (markdownTokens.Count == 0)
+                return result;
             var temp = new HashSet<Token>();
             var tokenStarts = GetTokenStarts(markdownTokens);
             foreach (var markdownToken in markdownTokens.Where(t => tokenStarts[t.Start] >= t.Start + t.Length)
