@@ -95,7 +95,20 @@ namespace MarkdownProcessing
             tagToCheck = GetTagFromStringBuilder();
             if (!possibleTags.ContainsKey(tagToCheck)) return;
             if (ClosingTagIsNotTheSame()) return;
-            AddTokenToParentToken();
+            if (!CurrentPhraseIsNotZero())
+            {
+                var token = AllTokens.Pop();
+                tagToCheck += currentPossibleTag;
+                if (possibleTags.ContainsKey(tagToCheck))
+                    if (AllTokens.Peek().Type == possibleTags[tagToCheck])
+                    {
+                        AddTokenToParentToken();
+                    }
+                    else AllTokens.Push(new ComplicatedToken(possibleTags[tagToCheck]));
+                else AllTokens.Push(token);
+            }
+            else AddTokenToParentToken();
+
             RefreshTagAndPhraseBuffers();
         }
 
@@ -111,9 +124,10 @@ namespace MarkdownProcessing
 
         private void AddSimpleTokenTo(ComplicatedToken token)
         {
-            token?.ChildTokens.Add(new SimpleToken(currentPossiblePhrase
-                .Remove(currentPossiblePhrase.Length - tagToCheck.Length, tagToCheck.Length)
-                .ToString()));
+            if (currentPossiblePhrase.Length > 0)
+                token?.ChildTokens.Add(new SimpleToken(currentPossiblePhrase
+                    //.Remove(currentPossiblePhrase.Length - tagToCheck.Length, tagToCheck.Length)
+                    .ToString()));
         }
 
         private string MakeHtmlFromMarkdown() => new MarkdownConverter(AllTokens.Peek()).ConvertToHtml();

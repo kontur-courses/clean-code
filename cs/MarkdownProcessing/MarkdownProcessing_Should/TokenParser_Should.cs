@@ -55,8 +55,8 @@ namespace MarkdownProcessing.MarkdownProcessing_Should
         [Test]
         public void TokenParser_ParseToken_ShouldParseComplicatedPhrase()
         {
-            var parser = new TokenParser("_Hello world_");
-            parser.ParseInputIntoTokens().Should().Be("<p><em>Hello world</em></p>");
+            var parser = new TokenParser("_1_");
+            parser.ParseInputIntoTokens().Should().Be("<p><em>1</em></p>");
         }
 
         [Test]
@@ -77,17 +77,25 @@ namespace MarkdownProcessing.MarkdownProcessing_Should
         [Test]
         public void TokenParser_ParseToken_ShouldSeeComplicatedTags()
         {
-            var parser = new TokenParser("__Hello world__");
+            var parser = new TokenParser("__a__");
             parser.ParseInputIntoTokens();
             var parent = parser.AllTokens.Peek() as ComplicatedToken;
             parent?.ChildTokens.Count.Should().Be(1);
         }
-        
+
+        [Test]
+        public void TokenParser_ParseToken_ShouldRemainOneTokenAtTheEnd()
+        {
+            var parser = new TokenParser("__a__");
+            parser.ParseInputIntoTokens();
+            parser.AllTokens.Count.Should().Be(1);
+        }
+
         [Test]
         public void TokenParser_ParseToken_ShouldParseCorrectly()
         {
-            var parser = new TokenParser("__Hello world__");
-            parser.ParseInputIntoTokens().Should().Be("<p><strong>Hello world</strong></p>");
+            var parser = new TokenParser("__a__");
+            parser.ParseInputIntoTokens().Should().Be("<p><strong>a</strong></p>");
         }
     }
 }
