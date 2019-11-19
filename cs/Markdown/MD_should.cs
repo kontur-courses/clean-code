@@ -4,7 +4,7 @@ using NUnit.Framework;
 namespace Markdown
 {
     [TestFixture]
-    public class MD_should
+    public class Md_Should
     {
         private MdProccesor mdParser;
         [SetUp]

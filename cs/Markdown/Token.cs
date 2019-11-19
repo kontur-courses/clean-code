@@ -6,9 +6,6 @@
         public readonly int Start;
         public readonly string Value;
 
-        /// <param name="value">Проинтерпретированное значение токена</param>
-        /// <param name="start">Позиция начала токена в исходной строке</param>
-        /// <param name="end">Длина токена в исходной строке. Может не совпадать с длиной <paramref name="value" /></param>
         public Token(string value, int start, int end)
         {
             Start = start;
@@ -37,11 +34,6 @@
                 hashCode = (hashCode * 397) ^ (Value != null ? Value.GetHashCode() : 0);
                 return hashCode;
             }
-        }
-
-        public int GetIndexNextToToken()
-        {
-            return Start + End;
         }
 
         public override string ToString()

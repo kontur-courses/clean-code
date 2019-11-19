@@ -4,20 +4,48 @@
     {
         string StringTag { get; }
         int Length { get; }
-        TagTypeEnum TagType { get; }
-        TagClassEnum TagClass { get; set; }
+        TypeEnum TypeEnum { get; }
+        ClassEnum ClassEnum { get; set; }
     }
 
     public class TwoUnderscoreTag : ITag
     {
         public string StringTag => "__";
         public int Length { get; }
-        public TagTypeEnum TagType { get; }
-        public TagClassEnum TagClass { get; set; }
+        public TypeEnum TypeEnum { get; }
+        public ClassEnum ClassEnum { get; set; }
 
         public TwoUnderscoreTag()
         {
-            TagType = TagTypeEnum.TwoUnderScore;
+            TypeEnum = TypeEnum.TwoUnderScoreMd;
+            this.Length = StringTag.Length;
+        }
+    }
+    
+    public class StrongTag : ITag
+    {
+        public string StringTag => "<strong>";
+        public int Length { get; }
+        public TypeEnum TypeEnum { get; }
+        public ClassEnum ClassEnum { get; set; }
+
+        public StrongTag()
+        {
+            TypeEnum = TypeEnum.StrongHtml;
+            this.Length = StringTag.Length;
+        }
+    }
+    
+    public class EmTag : ITag
+    {
+        public string StringTag => "<em>";
+        public int Length { get; }
+        public TypeEnum TypeEnum { get; }
+        public ClassEnum ClassEnum { get; set; }
+
+        public EmTag()
+        {
+            TypeEnum = TypeEnum.EmHtml;
             this.Length = StringTag.Length;
         }
     }
@@ -26,12 +54,12 @@
     {
         public string StringTag => "_";
         public int Length { get; }
-        public TagTypeEnum TagType { get; }
-        public TagClassEnum TagClass { get; set; }
+        public TypeEnum TypeEnum { get; }
+        public ClassEnum ClassEnum { get; set; }
 
         public OneUnderscoreTag()
         {
-            TagType = TagTypeEnum.OneUnderscore;
+            TypeEnum = TypeEnum.OneUnderscoreMd;
             this.Length = StringTag.Length;
         }
     }

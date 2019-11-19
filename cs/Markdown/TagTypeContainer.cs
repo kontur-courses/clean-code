@@ -1,13 +1,14 @@
 ﻿namespace Markdown
 {
-    public enum TagTypeEnum
+    public enum TypeEnum
     {
-        TwoUnderScore,
-        OneUnderscore,
-        Nothing
+        TwoUnderScoreMd,
+        OneUnderscoreMd,
+        StrongHtml,
+        EmHtml
     }
 
-    public enum TagClassEnum
+    public enum ClassEnum
     {
         Opener = 0,
         Closer = 1
@@ -17,16 +18,19 @@
     {
         public int position;
         public ITag Tag;
+        public TypeEnum TypeEnum => Tag.TypeEnum;
+        public ClassEnum ClassEnum => Tag.ClassEnum;
+        
         
         public TagTypeContainer(ITag tag, bool TagClass, int position)
         {
             switch (TagClass)
             {
                 case true:
-                    tag.TagClass = TagClassEnum.Closer;
+                    tag.ClassEnum = ClassEnum.Closer;
                     break;
                 case false:
-                    tag.TagClass = TagClassEnum.Opener;
+                    tag.ClassEnum = ClassEnum.Opener;
                     break;
             }
             this.position = position;
@@ -36,12 +40,12 @@
 
         public static bool operator ==(TagTypeContainer t1, TagTypeContainer t2)
         {
-            return t1.Tag.TagType == t2.Tag.TagType && t1.Tag.TagClass == t2.Tag.TagClass;
+            return t1.Tag.TypeEnum == t2.Tag.TypeEnum && t1.Tag.ClassEnum == t2.Tag.ClassEnum;
         }
         
         public static bool operator !=(TagTypeContainer t1, TagTypeContainer t2)
         {
-            return t1.Tag.TagType != t2.Tag.TagType && t1.Tag.TagClass != t2.Tag.TagClass;
+            return t1.Tag.TypeEnum != t2.Tag.TypeEnum && t1.Tag.ClassEnum != t2.Tag.ClassEnum;
         }
     }
 }
