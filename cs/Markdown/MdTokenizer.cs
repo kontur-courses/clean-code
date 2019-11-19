@@ -1,34 +1,18 @@
 ﻿using System;
 using System.Collections.Generic;
+using Markdown.Tests;
 
-namespace Markdown.Tests
+namespace Markdown
 {
-    class MdTokenizer
+    public class MdTokenizer
     {
-        private readonly Dictionary<string, TokenType> stringTokenTypesDictionary = new Dictionary<string, TokenType>()
-        {
-            {"_", TokenType.Italic},
-            {"__", TokenType.Bold},
-        };
+        private readonly MdTokenParser parser = new MdTokenParser();
         private readonly MdTokenFixer fixer = new MdTokenFixer();
 
-        // Текст разбивается на токены, учитывая escape-символы
-        public List<Token> Tokenize(string text)
+        public List<Token> Tokenize(string paragraph)
         {
-            var tokens = new List<Token>();
-            var length = text.Length;
-            var position = 0;
-            while (position < length)
-            {
-                var token = GetNextToken(text, position);
-                position += token.Length;
-            }
+            var tokens = parser.Tokenize(paragraph);
             return fixer.FixTokens(tokens);
-        }
-
-        private Token GetNextToken(string text, int position)
-        {
-            throw new NotImplementedException();
         }
     }
 }

@@ -57,14 +57,19 @@
     <Compile Include="HTMLTag.cs" />
     <Compile Include="Md.cs" />
     <Compile Include="MdTokenFixer.cs" />
+    <Compile Include="MdTokenizer.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
-    <Compile Include="MdTokenizer.cs" />
+    <Compile Include="MdTokenParser.cs" />
     <Compile Include="Tests\HTMLRenderer_Should.cs" />
+    <Compile Include="Tests\Md_Should.cs" />
     <Compile Include="Tests\MdTokenFixer_Should.cs" />
-    <Compile Include="Tests\MdTokenizer_Should.cs" />
-    <Compile Include="Token.cs" />
+    <Compile Include="Tests\MdTokenParser_Should.cs" />
+    <Compile Include="Tokens\PairToken.cs" />
+    <Compile Include="Tokens\HeaderToken.cs" />
+    <Compile Include="Tokens\Token.cs" />
     <Compile Include="TokenType.cs" />
+    <Compile Include="TokenTypesTranslator.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="App.config" />
