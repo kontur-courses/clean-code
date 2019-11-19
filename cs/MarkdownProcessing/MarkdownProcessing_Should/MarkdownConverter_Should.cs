@@ -44,6 +44,19 @@ namespace MarkdownProcessing.MarkdownProcessing_Should
             {
                 ChildTokens = new List<Token>
                 {
+                    new SimpleToken("Hello world")
+                }
+            });
+            converter.ConvertToHtml().Should().Be("<p>Hello world</p>");
+        }
+
+        [Test]
+        public void ConvertToken_ShouldConvertComplicatedTokenIntoParent()
+        {
+            var converter = new MarkdownConverter(new ComplicatedToken(TokenType.Parent)
+            {
+                ChildTokens = new List<Token>
+                {
                     new ComplicatedToken(TokenType.Bold)
                     {
                         ChildTokens = new List<Token> {new SimpleToken("Hello world")}

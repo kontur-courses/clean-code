@@ -55,6 +55,7 @@
     <Reference Include="System.Xml.Linq" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="MarkdownProcessing_Should\TokenParser_Should.cs" />
     <Compile Include="TokenParser.cs" />
     <Compile Include="MarkdownConverter.cs" />
     <Compile Include="MarkdownProcessing_Should\MarkdownConverter_Should.cs" />
