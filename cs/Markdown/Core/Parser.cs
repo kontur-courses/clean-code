@@ -6,11 +6,11 @@ namespace Markdown.Core
 {
     static class Parser
     {
-        public static List<Token> Parse(string line, IEnumerable<IRule> rules)
+        public static List<TagToken> Parse(string line, IEnumerable<IRule> rules)
         {
             rules = rules.OrderByDescending(r => r.SourceTag.Opening.Length);
-            var result = new List<Token>();
-            var tokenStack = new Stack<Token>();
+            var result = new List<TagToken>();
+            var tokenStack = new Stack<TagToken>();
             for (var index = 0; index < line.Length; index++)
             {
                 var currentRule = rules.FirstOrDefault(rule =>
@@ -20,7 +20,7 @@ namespace Markdown.Core
 
                 if (TagValidator.IsPossibleOpenningTag(line, index, currentRule.SourceTag))
                 {
-                    tokenStack.Push(new Token(index, currentRule.SourceTag, true));
+                    tokenStack.Push(new TagToken(index, currentRule.SourceTag, true));
                     index += currentRule.SourceTag.Opening.Length - 1;
                 }
                 else if (TagValidator.IsPossibleClosingTag(line, index, currentRule.SourceTag))
@@ -30,7 +30,7 @@ namespace Markdown.Core
                     if (tokenStack.Count == 0) continue;
 
                     result.Add(tokenStack.Pop());
-                    result.Add(new Token(index, currentRule.SourceTag, false));
+                    result.Add(new TagToken(index, currentRule.SourceTag, false));
                     index += currentRule.SourceTag.Opening.Length - 1;
                 }
             }

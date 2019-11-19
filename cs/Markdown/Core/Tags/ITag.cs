@@ -3,6 +3,6 @@
     interface ITag
     {
         string Opening { get; }
-        string Closing { get;}
+        string Closing { get; }
     }
 }

@@ -7,7 +7,7 @@ namespace Markdown.Core
 {
     static class Processor
     {
-        public static string Process(string text, IEnumerable<IRule> rules, IEnumerable<Token> tokens)
+        public static string Process(string text, IEnumerable<IRule> rules, IEnumerable<TagToken> tokens)
         {
             tokens = tokens.OrderBy(token => token.StartPosition);
             var renderedText = new StringBuilder(text);

@@ -55,6 +55,7 @@
     <Compile Include="Core\Tags\MarkdownTags\DoubleUnderscore.cs" />
     <Compile Include="Core\Tags\MarkdownTags\SingleUnderscore.cs" />
     <Compile Include="Core\Tags\HtmlTags\Strong.cs" />
+    <Compile Include="Core\TagToken.cs" />
     <Compile Include="Core\TagValidator.cs" />
     <Compile Include="Core\Token.cs" />
     <Compile Include="Program.cs" />
