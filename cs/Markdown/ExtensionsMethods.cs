@@ -22,7 +22,7 @@ namespace Markdown
             return s == '_';
         }
 
-        public static void TryToAddOpenTag(this (int, string) openTag, Stack<(int, string)> tagStack, int i, string text)
+        public static void TryToAddOpenTag(this (int, string) openTag, Stack<(int, string)> tagStack, int i, string text,List<Token> tempNotDoubleTags, HashSet<Token> result)
         {
             if(i!=0 && char.IsDigit(text[i-1]) && i!=text.Length-1 && char.IsDigit(text[i+1])) return;
             if (i == text.Length-1 || text[i + 1] != ' ')
@@ -30,21 +30,28 @@ namespace Markdown
         }
 
         public static void TryToAddClose__Tag(this (int Index, string Value) closeTag,HashSet<Token> result,List<Token> temp, int i,
-            string text, Stack<(int Index, string Value)> tagStack)
+            string text, Stack<(int Index, string Value)> tagStack, List<Token> tempNotDoubleTags)
         {
             if( i!=0 && i!=text.Length-1 && (text[i-1]==' ' || char.IsDigit(text[i+1]))) return;
-            if (tagStack.Count == 0 || tagStack.Peek().Value != "_" )
+            if (tagStack.Count == 0 || tagStack.Peek().Value != "_")
+            {
                 result.Add(text.GetToken(closeTag.Index, i, closeTag.Value));
+                tempNotDoubleTags.Clear();
+            }
             else
+            {
                 temp.Add(text.GetToken(closeTag.Index, i, closeTag.Value));
+                tempNotDoubleTags.Clear();
+            }
         }
 
         public static void TryToAddClose_Tag(this (int Index, string Value) closeTag, HashSet<Token> result,
-            List<Token> temp,string text,int i)
+            List<Token> temp,string text,int i, List<Token> tempNotDoubleTags)
         {
             if (i != 0 && i!=text.Length-1 && (text[i - 1] == ' '||char.IsDigit(text[i+1]))) return;
             result.Add(text.GetToken(closeTag.Index, i, closeTag.Value));
             temp.Clear();
+            tempNotDoubleTags.Clear();
         }
 
     }

@@ -35,6 +35,19 @@ public class TextToTokensParserTests
 
         private static readonly TestCaseData[] TestCases =
         {           new TestCaseData(new TextParserData("ab1_1aaa_bbb")).SetName("ab1_1aaa_bbb"),
+                    new TestCaseData(new TextParserData("[link] (some)")).SetName("[link] (some)"),
+                    new TestCaseData(new TextParserData("a _b_ a","_b_")).SetName("a _b_ a"),
+                    new TestCaseData(new TextParserData("a_b_a","_b_")).SetName("a_b_a"),
+                    new TestCaseData(new TextParserData("__a_","_a_")).SetName("__a_"), 
+                    new TestCaseData(new TextParserData("_a__","_a_")).SetName("_a__"), 
+                    new TestCaseData(new TextParserData("1__2_","_2_")).SetName("1__2_"),
+                    new TestCaseData(new TextParserData("____","____")).SetName("____"),
+                    new TestCaseData(new TextParserData(@"_\_a\__",@"_\_a\__")).SetName(@"_\_a\__"), 
+                    new TestCaseData(new TextParserData("__")).SetName("__"), 
+                    new TestCaseData(new TextParserData("_a__a_b_","_a__a_")).SetName("_a__a_b_"), 
+                    new TestCaseData(new TextParserData(@"\_a_")).SetName(@"\_a_"),
+                    new TestCaseData(new TextParserData("_a_a__b_","_a_","_b_")).SetName("_a_a__b_"),
+                    new TestCaseData(new TextParserData(@"_a\_")).SetName(@"_a\_"), 
                     new TestCaseData(new TextParserData("ab_aaa1_1bbb")).SetName("ab_aaa1_1bbb"),
                     new TestCaseData(new TextParserData("ab_ aaa_bbb")).SetName("ab_ aaa_bbb"),
                     new TestCaseData(new TextParserData("ab_aaa_bbb", "_aaa_")).SetName("ab_aaa_bbb"),
@@ -45,6 +58,6 @@ public class TextToTokensParserTests
                     new TestCaseData(new TextParserData("ab_aa__b__a_", "_aa__b__a_")).SetName("ab_aa__b__a_"),
                     new TestCaseData(new TextParserData("ab__aa_b_a__", "__aa_b_a__","_b_")).SetName("ab__aa_b_a__"),
                     new TestCaseData(new TextParserData("aaa__a_b_b__[link](somelink)", "__a_b_b__","_b_","[link](somelink)")).SetName("aaa__a_b_b__[link](somelink)")
-                };
+        };
     }
 }

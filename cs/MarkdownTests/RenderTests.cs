@@ -14,6 +14,8 @@ namespace MarkdownTests
         [TestCase("1_1_ _2_",ExpectedResult = "1_1_ <em>2</em>")]
         [TestCase("__1__",ExpectedResult = "<strong>1</strong>")]
         [TestCase("1__1__ __2__",ExpectedResult = "1__1__ <strong>2</strong>")]
+        [TestCase("____",ExpectedResult = "<em>__</em>")]
+        [TestCase("[link] (some)", ExpectedResult = "[link] (some)")]
         public string Render_ShouldRenderCorrectly1(string text)
         {
             return new Md().Render(text);
