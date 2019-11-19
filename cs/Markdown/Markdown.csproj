@@ -71,13 +71,13 @@
     <Compile Include="Program.cs" />
     <Compile Include="SyntaxTrees\ISyntaxTreeBuilder.cs" />
     <Compile Include="SyntaxTrees\ISyntaxTreeConverter.cs" />
-    <Compile Include="SyntaxTrees\MarkdownSyntaxTreeBuilder.cs" />
+    <Compile Include="Core\MarkdownSyntaxTreeBuilder.cs" />
     <Compile Include="SyntaxTrees\SyntaxTreeNode.cs" />
     <Compile Include="SyntaxTrees\SyntaxTreeConverter.cs" />
     <Compile Include="Tests\MarkdownProcessorTests.cs" />
-    <Compile Include="Core\MarkdownSeparatorHandler.cs" />
+    <Compile Include="Core\MarkdownTokenReaderConfiguration.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
-    <Compile Include="Tokens\ISeparatorHandler.cs" />
+    <Compile Include="Tokens\ITokenReaderConfiguration.cs" />
     <Compile Include="Tokens\ITokenReader.cs" />
     <Compile Include="Core\MarkdownRules.cs" />
     <Compile Include="Tokens\Token.cs" />

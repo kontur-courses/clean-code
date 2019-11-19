@@ -16,12 +16,12 @@ namespace Markdown.Core
 
         private bool IsBeginSeparatorValid(string text, int position)
         {
-            return position != text.Length - 1 && !char.IsWhiteSpace(text[position + 1]);
+            return position < text.Length - 1 && !char.IsWhiteSpace(text[position + 1]);
         }
 
         private bool IsEndSeparatorValid(string text, int position)
         {
-            return position != 0 && !char.IsWhiteSpace(text[position - 1]);
+            return position > 0 && !char.IsWhiteSpace(text[position - 1]);
         }
     }
 }

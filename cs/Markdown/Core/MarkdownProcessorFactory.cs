@@ -9,7 +9,7 @@ namespace Markdown.Core
         private static readonly IConverter DefaultConverter =
             new ConverterUsingSyntaxTree(new MarkdownSyntaxTreeBuilder(new MarkdownRules()),
                 new SyntaxTreeConverter(), new MarkdownToHtmlSeparatorConverter());
-        private static readonly ITokenReader DefaultTokenReader = new TokenReader(new MarkdownSeparatorHandler());
+        private static readonly ITokenReader DefaultTokenReader = new TokenReader(new MarkdownTokenReaderConfiguration());
 
         public static MarkdownProcessor Create()
         {

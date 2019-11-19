@@ -2,9 +2,10 @@
 using System.Collections.Generic;
 using System.Linq;
 using Markdown.Rules;
+using Markdown.SyntaxTrees;
 using Markdown.Tokens;
 
-namespace Markdown.SyntaxTrees
+namespace Markdown.Core
 {
     public class MarkdownSyntaxTreeBuilder : ISyntaxTreeBuilder
     {

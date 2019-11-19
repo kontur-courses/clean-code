@@ -1,6 +1,6 @@
 ﻿namespace Markdown.Tokens
 {
-    public interface ISeparatorHandler
+    public interface ITokenReaderConfiguration
     {
         bool IsSeparator(string text, int position);
 

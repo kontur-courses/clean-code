@@ -4,20 +4,20 @@ namespace Markdown.Tokens
 {
     public class TokenReader : ITokenReader
     {
-        private readonly ISeparatorHandler separatorHandler;
+        private readonly ITokenReaderConfiguration tokenReaderConfiguration;
 
-        public TokenReader(ISeparatorHandler separatorHandler)
+        public TokenReader(ITokenReaderConfiguration tokenReaderConfiguration)
         {
-            this.separatorHandler = separatorHandler;
+            this.tokenReaderConfiguration = tokenReaderConfiguration;
         }
 
         public Token ReadWhileSeparator(string text, int startPosition)
         {
             for (var i = startPosition; i < text.Length; i++)
             {
-                if (separatorHandler.IsSeparator(text, i))
+                if (tokenReaderConfiguration.IsSeparator(text, i))
                 {
-                    separatorHandler.GetSeparatorValue(text, i);
+                    tokenReaderConfiguration.GetSeparatorValue(text, i);
                     return new Token(startPosition,
                         text.Substring(startPosition, i - startPosition), false);
                 }
@@ -36,9 +36,9 @@ namespace Markdown.Tokens
                 yield return nextToken;
                 if (currentPosition >= text.Length)
                     break;
-                yield return new Token(currentPosition, separatorHandler.GetSeparatorValue(text, currentPosition),
+                yield return new Token(currentPosition, tokenReaderConfiguration.GetSeparatorValue(text, currentPosition),
                     true);
-                currentPosition += separatorHandler.GetSeparatorLength(text, currentPosition);
+                currentPosition += tokenReaderConfiguration.GetSeparatorLength(text, currentPosition);
             }
         }
     }
