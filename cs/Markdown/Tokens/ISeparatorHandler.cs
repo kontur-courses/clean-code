@@ -6,6 +6,6 @@
 
         int GetSeparatorLength(string text, int position);
 
-        bool IsSeparatorValid(string text, int position, bool isFirst);
+        string GetSeparatorValue(string text, int position);
     }
 }

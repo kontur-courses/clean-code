@@ -5,21 +5,16 @@ namespace Markdown.Tokens
     public class Token
     {
         public int Position { get; }
-        public int Length { get; }
-        public int EndPosition => Position + Length;
+        public string Value { get; }
+        public bool IsSeparator { get; }
 
-        private readonly string value;
-
-        public string TokenValue => value.Substring(Position, Length);
-
-        public Token(int position, int length, string value)
+        public Token(int position, string value, bool isSeparator)
         {
-            if (position < 0 || position + length > value.Length)
-                throw new ArgumentException(
-                    $"substring {position}, {position + length} is not in string with length {value.Length}");
+            if (position < 0)
+                throw new ArgumentException($"position {position} was less than zero");
             Position = position;
-            Length = length;
-            this.value = value;
+            Value = value;
+            IsSeparator = isSeparator;
         }
     }
 }

@@ -1,6 +1,7 @@
 ﻿using System;
 using System.IO;
 using Fclp;
+using Markdown.Core;
 
 namespace Markdown
 {
@@ -15,7 +16,7 @@ namespace Markdown
             {
                 var processor = MarkdownProcessorFactory.Create();
                 var markdownText = File.ReadAllText(parser.Object.InputFilePath);
-                var html = processor.RenderToHtml(markdownText);
+                var html = processor.Render(markdownText);
                 File.WriteAllText(parser.Object.OutputFilePath, html);
             }
             else
