@@ -3,7 +3,7 @@ using System.Linq;
 
 namespace Markdown
 {
-    public class MdParser
+    public class MdParser : Parser 
     {
         private string text;
         private readonly List<Token> tokens;
@@ -13,11 +13,9 @@ namespace Markdown
         public MdParser()
         {
             tokens = new List<Token>();
-            parserPosition = 0;
-            nestedCount = 0;
         }
 
-        public List<Token> GetTokens(string text)
+        public override List<Token> GetTokens(string text)
         {
             this.text = text;
             var parserPosition = 0;

@@ -4,19 +4,19 @@ using System.Text;
 
 namespace Markdown
 {
-    public class MdConverter
+    public class MdConverter : Converter 
     {
-        private readonly List<Token> tokens;
-        private readonly string text;
+        private List<Token> tokens;
+        private string text;
 
-        public MdConverter(List<Token> tokens, string text)
+        public MdConverter()
+        {
+        }
+
+        public override string GetHtml(List<Token> tokens, string text)
         {
             this.tokens = tokens;
             this.text = text;
-        }
-
-        public IEnumerable<string> GetHtmlTokens()
-        {
             var htmlParts = tokens.Select(ConvertToHtml).ToList();
             for (var i = 0; i < tokens.Count; i++)
             {
@@ -31,7 +31,7 @@ namespace Markdown
                 }
             }
 
-            return htmlParts.Where(htmlPart => htmlPart != string.Empty);
+            return string.Join("", htmlParts.Where(htmlPart => htmlPart != string.Empty));
         }
 
         public string ConvertToHtml(Token token)

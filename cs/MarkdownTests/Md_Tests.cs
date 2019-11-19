@@ -16,7 +16,7 @@ namespace MarkdownTests
         public void Md_Render_ReturnRightResult(string text, string expectedResult)
         {
             var md = new Md();
-            md.Render(text).Should().BeEquivalentTo(expectedResult);
+            md.Render(text, new MdParser(), new MdConverter()).Should().BeEquivalentTo(expectedResult);
         }
     }
 }

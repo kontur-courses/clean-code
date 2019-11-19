@@ -1,6 +1,6 @@
 ﻿namespace Markdown
 {
-    public class TagType
+    public abstract class TagType
     {
         public readonly string HtmlOpeningTag;
         public readonly string HtmlClosingTag;
