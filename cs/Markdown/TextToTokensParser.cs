@@ -4,7 +4,7 @@ namespace Markdown
 {
     public static class TextToTokensParser
     {
-        private static readonly HashSet<char> SpecialSymbols = new HashSet<char> {'_', '[', ']', '(', ')'};
+        private static readonly HashSet<char> SpecialSymbols = new HashSet<char> { '_', '[', ']', '(', ')' };
 
         public static HashSet<Token> Parse(string text)
         {
@@ -13,19 +13,17 @@ namespace Markdown
             var tagStack = new Stack<(int Index, string Value)>();
             for (var i = 0; i < text.Length; i++)
             {
-                if (tagStack.Count == 0 && SpecialSymbols.Contains(text[i]))
+                if (tagStack.Count == 0 && SpecialSymbols.Contains(text[i]) && (i == text.Length - 1 || text[i + 1] != ' '))
                 {
                     tagStack.Push((i, text[i].ToString()));
                     continue;
                 }
-
                 if (tagStack.Count == 0 || !SpecialSymbols.Contains(text[i])) continue;
                 if (text[i].IsLinkTag())
                     WorkWithLinks(text, tagStack, temp, result, i);
                 if (text[i].Is_Tag())
                     WorkWith_(text, tagStack, temp, result, i);
             }
-
             foreach (var token in temp)
                 result.Add(token);
             return result;
@@ -34,35 +32,21 @@ namespace Markdown
         private static void WorkWith_(string text, Stack<(int Index, string Value)> tagStack, List<Token> temp,
             HashSet<Token> result, int i)
         {
-            if (tagStack.Peek().Index == i - 1)
+            if (tagStack.Peek().Index == i - 1 && tagStack.Peek().Value == "_")
             {
                 var (index, value) = tagStack.Pop();
                 if (tagStack.Count != 0 && tagStack.Peek().Value == "__")
-                {
-                    (index, value) = tagStack.Pop();
-                    if (tagStack.Count == 0 || tagStack.Peek().Value != "_")
-                        result.Add(text.GetToken(index, i, value));
-                    else
-                        temp.Add(text.GetToken(index, i, value));
-                }
+                    tagStack.Pop().TryToAddClose__Tag(result, temp, i, text, tagStack);
                 else
-                {
-                    tagStack.Push((index, "__"));
-                }
+                    (index, "__").TryToAddOpenTag(tagStack, i, text);
             }
             else
             {
-                if (tagStack.Peek().Value == text[i].ToString() &&
+                if (tagStack.Peek().Value == text[i].ToString() && 
                     (i == text.Length - 1 || !SpecialSymbols.Contains(text[i + 1])))
-                {
-                    var (index, value) = tagStack.Pop();
-                    result.Add(text.GetToken(index, i, value));
-                    temp.Clear();
-                }
+                    tagStack.Pop().TryToAddClose_Tag(result, temp, text, i);
                 else
-                {
-                    tagStack.Push((i, text[i].ToString()));
-                }
+                    (i, text[i].ToString()).TryToAddOpenTag(tagStack, i, text);
             }
         }
 
