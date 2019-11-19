@@ -1,23 +1,25 @@
 ﻿using System.Collections.Generic;
 using FluentAssertions;
+using MarkdownProcessing.Converters;
+using MarkdownProcessing.Tokens;
 using NUnit.Framework;
 
 namespace MarkdownProcessing.MarkdownProcessing_Should
 {
     [TestFixture]
-    public class MarkdownConverter_Should
+    public class TokenToHtmlConverter_Should
     {
         [Test]
         public void ConvertToken_ShouldConvertPlainTextToken()
         {
-            var converter = new MarkdownConverter(new SimpleToken("Hello world"));
+            var converter = new TokenToHtmlConverter(new SimpleToken("Hello world"));
             converter.ConvertToHtml().Should().Be("Hello world");
         }
 
         [Test]
         public void ConvertToken_ShouldConvertSimpleToken()
         {
-            var converter = new MarkdownConverter(new ComplicatedToken(TokenType.Bold)
+            var converter = new TokenToHtmlConverter(new ComplicatedToken(TokenType.Bold)
             {
                 ChildTokens = new List<Token> {new SimpleToken("Hello world")}
             });
@@ -25,22 +27,9 @@ namespace MarkdownProcessing.MarkdownProcessing_Should
         }
 
         [Test]
-        public void ConvertToken_ShouldConvertTokenWithDifferentTags()
-        {
-            var converter = new MarkdownConverter(new ComplicatedToken(TokenType.Header1)
-            {
-                ChildTokens = new List<Token>
-                {
-                    new SimpleToken("Hello world")
-                }
-            });
-            converter.ConvertToHtml().Should().Be("<h1>Hello world</h1>");
-        }
-
-        [Test]
         public void ConvertToken_ShouldConvertSimpleTokenIntoParent()
         {
-            var converter = new MarkdownConverter(new ComplicatedToken(TokenType.Parent)
+            var converter = new TokenToHtmlConverter(new ComplicatedToken(TokenType.Parent)
             {
                 ChildTokens = new List<Token>
                 {
@@ -53,7 +42,7 @@ namespace MarkdownProcessing.MarkdownProcessing_Should
         [Test]
         public void ConvertToken_ShouldConvertComplicatedTokenIntoParent()
         {
-            var converter = new MarkdownConverter(new ComplicatedToken(TokenType.Parent)
+            var converter = new TokenToHtmlConverter(new ComplicatedToken(TokenType.Parent)
             {
                 ChildTokens = new List<Token>
                 {
@@ -69,7 +58,7 @@ namespace MarkdownProcessing.MarkdownProcessing_Should
         [Test]
         public void ConvertToken_ShouldConvertTwoSimpleTokensIntoParent()
         {
-            var converter = new MarkdownConverter(new ComplicatedToken(TokenType.Parent)
+            var converter = new TokenToHtmlConverter(new ComplicatedToken(TokenType.Parent)
             {
                 ChildTokens = new List<Token>
                 {
@@ -87,32 +76,6 @@ namespace MarkdownProcessing.MarkdownProcessing_Should
                 }
             });
             converter.ConvertToHtml().Should().Be("<p><strong><em>Hello</em> world</strong></p>");
-        }
-
-        [Test]
-        public void ConvertToken_ShouldConvertHeaderInnerTokensIntoParent()
-        {
-            var converter = new MarkdownConverter(new ComplicatedToken(TokenType.Parent)
-            {
-                ChildTokens = new List<Token>
-                {
-                    new ComplicatedToken(TokenType.Header1)
-                    {
-                        ChildTokens = new List<Token>
-                        {
-                            new SimpleToken("Hello "),
-                            new ComplicatedToken(TokenType.Bold)
-                            {
-                                ChildTokens = new List<Token>
-                                {
-                                    new SimpleToken("world")
-                                }
-                            }
-                        }
-                    }
-                }
-            });
-            converter.ConvertToHtml().Should().Be("<p><h1>Hello <strong>world</strong></h1></p>");
         }
     }
 }
