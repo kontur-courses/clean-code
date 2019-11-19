@@ -21,76 +21,15 @@ namespace Markdown
         //Получает на вход текст в формате Markdown, создаёт экземпляр парсера и передаёт их методу ConvertTextWithParser
         public string Render(string text)
         {
-            var tokens = ParseTextToTokens(text);
-            var htmlText = ConvertTokensToHtml(tokens, text);
+            var tokens = Parser.ParseTextToTokens(text, Tags);
+            var tagWithTokens = TokensToTagWithTokens(tokens, text);
+            var htmlText = ConvertTokensToHtml(tagWithTokens, text);
             return htmlText;
         }
 
-        //Проверяет есть ли символ в словаре и если есть то действует по предписаниям тэга: продолжает собирать токен или начинает новый
-        //Если символа нет в словате считает это токеном с каким-то текстом
-        private List<Token> ParseTextToTokens(string text)
-        {
-            var tokens = new List<Token>();
-            var index = 0;
-            var length = 1;
-            var isContext = false;
-            while (index + length <= text.Length)
-            {
-                if (text[index + length - 1] == '\\')
-                {
-                    var matchCompletely = Tags.Any(tag => tag.MatchTagAndTokenCompletely(index, length - 1, text));
-                    tokens.Add(new Token(index, length - 1, matchCompletely));
-                    index = index + length;
-                    length = 2;
-                    isContext = true;
-                }
-                else if (isContext)
-                {
-                    var partiallyMatch = Tags.Any(tag => tag.PartiallyMatchTagAndToken(index + length - 1, 1, text));
-                    if (partiallyMatch)
-                    {
-                        tokens.Add(new Token(index, length - 1, false));
-                        index = index + length - 1;
-                        length = 1;
-                        isContext = false;
-                    }
-                    else
-                    {
-                        length++;
-                    }
-                }
-                else
-                {
-                    var partiallyMatch = Tags.Any(tag => tag.PartiallyMatchTagAndToken(index, length, text));
-                    if (!partiallyMatch)
-                    {
-                        var matchCompletely = Tags.Any(tag => tag.MatchTagAndTokenCompletely(index, length - 1, text));
-                        if (matchCompletely)
-                        {
-                            tokens.Add(new Token(index, length - 1, true));
-                            index = index + length - 1;
-                            length = 1;
-                        }
-                        else
-                        {
-                            isContext = true;
-                        }
-                    }
-                    else
-                    {
-                        length++;
-                    }
-                }
-            }
-            tokens.Add(new Token(index, length - 1, Tags.Any(tag => tag.MatchTagAndTokenCompletely(index, length - 1, text))));
-            return tokens;
-        }
-
         //Проходит по полученым токенам и переводит их в html по предписаниям из тэга
-        private string ConvertTokensToHtml(List<Token> tokens, string text)
+        private string ConvertTokensToHtml(List<TagWithToken> tagWithTokens, string text)
         {
-            var tagWithTokens = TokensToTagWithTokens(tokens, text);
-
             var stringBuilder = new StringBuilder();
             foreach (var tagWithToken in tagWithTokens)
             {
