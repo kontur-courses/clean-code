@@ -18,7 +18,9 @@ namespace Markdown
             var isContext = false;
             while (index + length <= text.Length)
             {
-                if (text[index + length - 1] == '\\')
+                if (text[index + length - 1] == '\\' &&
+                    index + length < text.Length &&
+                    PartiallyMatchCharByIndex(index + length, text, tags))
                 {
                     var matchCompletely = tags.Any(tag => tag.MatchTagAndTokenCompletely(index, length - 1, text));
                     tokens.Add(new Token(index, length - 1, matchCompletely));
@@ -28,8 +30,7 @@ namespace Markdown
                 }
                 else if (isContext)
                 {
-                    var partiallyMatch = tags.Any(tag => tag.PartiallyMatchTagAndToken(index + length - 1, 1, text));
-                    if (partiallyMatch)
+                    if (PartiallyMatchCharByIndex(index + length - 1, text, tags))
                     {
                         tokens.Add(new Token(index, length - 1, false));
                         index = index + length - 1;
@@ -64,8 +65,13 @@ namespace Markdown
                     }
                 }
             }
-            tokens.Add(new Token(index, length - 1, tags.Any(tag => tag.MatchTagAndTokenCompletely(index, length - 1, text))));
+            tokens.Add(new Token(index, length - 1, !isContext && tags.Any(tag => tag.MatchTagAndTokenCompletely(index, length - 1, text))));
             return tokens;
+        }
+
+        private static bool PartiallyMatchCharByIndex(int index, string text, List<Tag> tags)
+        {
+            return tags.Any(tag => tag.PartiallyMatchTagAndToken(index, 1, text));
         }
     }
 }

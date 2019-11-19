@@ -27,9 +27,7 @@ namespace Markdown
                         tagWithTokens.Add(new TagWithToken(null, token));
                 }
                 else
-                {
                     tagWithTokens.Add(new TagWithToken(null, token));
-                }
             }
             return tagWithTokens;
         }

@@ -66,7 +66,7 @@ namespace Markdown
         [TestCase(@"_asdfg\_", ExpectedResult = "_asdfg_")]
         [TestCase(@"asdfg\a", ExpectedResult = @"asdfg\a")]
         [TestCase(@"asdfg\", ExpectedResult = @"asdfg\")]
-        [TestCase(@"_asd_\", ExpectedResult =@"_asd_\")]
+        [TestCase(@"_asd_\", ExpectedResult = @"<em>asd</em>\")]
         [TestCase(@"_asd__\_", ExpectedResult = @"_asd___")]
         public string Render_BackSlash(string mdText)
         {
