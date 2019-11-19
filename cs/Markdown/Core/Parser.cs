@@ -4,35 +4,46 @@ using Markdown.Core.Rules;
 
 namespace Markdown.Core
 {
-    static class Parser
+    class Parser
     {
-        public static List<TagToken> Parse(string line, IEnumerable<IRule> rules)
+        private readonly IEnumerable<IRule> rules;
+
+        public Parser(IEnumerable<IRule> rules)
         {
-            rules = rules.OrderByDescending(r => r.SourceTag.Opening.Length);
+            this.rules = rules.OrderByDescending(rule => rule.SourceTag.Opening.Length);
+        }
+
+        private bool IsSuitableRule(IRule rule, string line, int index) =>
+            TagValidator.TagStartsFromPosition(line, index, rule.SourceTag.Opening) ||
+            TagValidator.TagStartsFromPosition(line, index, rule.SourceTag.Closing);
+
+        public List<TagToken> Parse(string line)
+        {
             var result = new List<TagToken>();
-            var tokenStack = new Stack<TagToken>();
+            if (line == null)
+                return result;
+
+            var tagTokenStack = new Stack<TagToken>();
             for (var index = 0; index < line.Length; index++)
             {
-                var currentRule = rules.FirstOrDefault(rule =>
-                    rule.SourceTag.Opening.Length + index <= line.Length &&
-                    rule.SourceTag.Opening == line.Substring(index, rule.SourceTag.Opening.Length));
+                var currentRule = rules.FirstOrDefault(rule => IsSuitableRule(rule, line, index));
                 if (currentRule == null) continue;
 
                 if (TagValidator.IsPossibleOpeningTag(line, index, currentRule.SourceTag))
                 {
-                    tokenStack.Push(new TagToken(index, currentRule.SourceTag, true));
-                    index += currentRule.SourceTag.Opening.Length - 1;
+                    tagTokenStack.Push(new TagToken(index, currentRule.SourceTag, true));
                 }
                 else if (TagValidator.IsPossibleClosingTag(line, index, currentRule.SourceTag))
                 {
-                    while (tokenStack.Count > 0 && tokenStack.Peek().Tag != currentRule.SourceTag)
-                        tokenStack.Pop();
-                    if (tokenStack.Count == 0) continue;
+                    while (tagTokenStack.Count > 0 && tagTokenStack.Peek().Tag != currentRule.SourceTag)
+                        tagTokenStack.Pop();
+                    if (tagTokenStack.Count == 0) continue;
 
-                    result.Add(tokenStack.Pop());
+                    result.Add(tagTokenStack.Pop());
                     result.Add(new TagToken(index, currentRule.SourceTag, false));
-                    index += currentRule.SourceTag.Opening.Length - 1;
                 }
+
+                index += currentRule.SourceTag.Opening.Length - 1;
             }
 
             return result;

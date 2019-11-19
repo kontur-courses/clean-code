@@ -7,7 +7,7 @@ namespace Markdown.Core
         public static string Render(string markdown)
         {
             var rules = RuleFactory.CreateAllRules();
-            var tokens = Parser.Parse(markdown, rules);
+            var tokens = new Parser(rules).Parse(markdown);
             return Processor.Process(markdown, rules, tokens);
         }
     }

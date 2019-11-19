@@ -15,6 +15,9 @@ namespace Markdown.Core
 
         private static bool SymbolBeforeCurrentIsEscaping(string line, int index) => line[index - 1] == '\\';
 
+        public static bool TagStartsFromPosition(string line, int index, string tagValue) =>
+            tagValue.Length + index <= line.Length && tagValue == line.Substring(index, tagValue.Length);
+
         public static bool IsPossibleClosingTag(string line, int index, ITag tag)
         {
             return !SymbolBeforeCurrentIsEscaping(line, index) &&

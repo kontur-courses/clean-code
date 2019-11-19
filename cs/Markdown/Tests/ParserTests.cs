@@ -1,16 +1,20 @@
-﻿using System.Collections.Generic;
-using FluentAssertions;
+﻿using FluentAssertions;
 using NUnit.Framework;
 using Markdown.Core;
 using Markdown.Core.Rules;
-using NUnit.Framework.Internal;
 
 namespace Markdown.Tests
 {
     [TestFixture]
     class ParserTests
     {
-        private IEnumerable<IRule> rules = RuleFactory.CreateAllRules();
+        private Parser parser;
+
+        [SetUp]
+        public void SetUp()
+        {
+            parser = new Parser(RuleFactory.CreateAllRules());
+        }
 
         [TestCase("_foo_ __bar__", 4, TestName = "WhenTwoTagsInSeries")]
         [TestCase("_foo __bar__ foo_", 4, TestName = "WhenOneTagNestedInAnother")]
@@ -24,7 +28,7 @@ namespace Markdown.Tests
         [TestCase(@"_foo\_", 0, TestName = "foo")]
         public void ParseLine_ShouldFindAllTokens(string line, int expectedCount)
         {
-            Parser.Parse(line, rules).Should().HaveCount(expectedCount);
+            parser.Parse(line).Should().HaveCount(expectedCount);
         }
     }
 }
