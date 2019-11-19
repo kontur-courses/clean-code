@@ -38,6 +38,16 @@ namespace MarkDown_Tests
 
             result.Should().Be(@"<em>a</em>");
         }
+
+        [Test]
+        public void Should_FindTagStrong()
+        {
+            var line = "__a__";
+
+            var result = lineParser.GetParsedLineFrom(line);
+
+            result.Should().Be(@"<strong>a</strong>");
+        }
         [Test]
         public void Should_SkipTagsWithoutPair()
         {
@@ -47,6 +57,7 @@ namespace MarkDown_Tests
 
             result.Should().Be(line);
         }
+
         [Test]
         public void Should_FindDifferentTags()
         {
@@ -55,6 +66,17 @@ namespace MarkDown_Tests
             var result = lineParser.GetParsedLineFrom(line);
 
             result.Should().Be(@"<em>a</em> <strong>b</strong>");
+        }
+
+        //нормально не обрабатываются слеши, нормально не парсятся пересекающиеся тэги
+        [Test]
+        public void Should_FindIntersectedTags()
+        {
+            var line = "__a _b_ c__";
+
+            var result = lineParser.GetParsedLineFrom(line);
+
+            result.Should().Be(@"<strong>a <em>b</em> c</strong>");
         }
     }
 }
