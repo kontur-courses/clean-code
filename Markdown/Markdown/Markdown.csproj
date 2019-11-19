@@ -56,24 +56,30 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="Attribute.cs" />
-    <Compile Include="AttributeType.cs" />
-    <Compile Include="HtmlConverter.cs" />
-    <Compile Include="IConverter.cs" />
-    <Compile Include="PairToken.cs" />
-    <Compile Include="ProcessorTests.cs" />
-    <Compile Include="Processor.cs" />
+    <Compile Include="Attribute\Attribute.cs" />
+    <Compile Include="Attribute\AttributeType.cs" />
+    <Compile Include="Converter\HtmlConverter.cs" />
+    <Compile Include="Converter\IConverter.cs" />
+    <Compile Include="Syntax\ISyntax.cs" />
+    <Compile Include="Tokenizer\IToken.cs" />
+    <Compile Include="Tokenizer\ITokenizer.cs" />
+    <Compile Include="Tokenizer\LinkToken.cs" />
+    <Compile Include="Attribute\PairAttribute.cs" />
+    <Compile Include="Tokenizer\PairToken.cs" />
+    <Compile Include="Processor\ProcessorTests.cs" />
+    <Compile Include="Processor\Processor.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
-    <Compile Include="Syntax.cs" />
-    <Compile Include="Token.cs" />
-    <Compile Include="Tokenizer.cs" />
+    <Compile Include="Syntax\Syntax.cs" />
+    <Compile Include="Tokenizer\SingleToken.cs" />
+    <Compile Include="Tokenizer\Tokenizer.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="App.config" />
     <None Include="MarkdownSpec.md" />
     <None Include="packages.config" />
   </ItemGroup>
+  <ItemGroup />
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <Target Name="EnsureNuGetPackageBuildImports" BeforeTargets="PrepareForBuild">
     <PropertyGroup>

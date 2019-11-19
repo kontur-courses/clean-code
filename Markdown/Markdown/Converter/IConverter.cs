@@ -4,6 +4,6 @@ namespace Markdown
 {
     public interface IConverter
     {
-        string ReplaceAttributesWithTags(IEnumerable<Token> tokens, string source);
+        string ReplaceAttributesWithTags(IEnumerable<IToken> tokens, string source);
     }
 }   
