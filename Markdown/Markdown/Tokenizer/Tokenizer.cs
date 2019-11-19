@@ -256,7 +256,6 @@ namespace Markdown
                         }
                     }
                     else
-
                     {
                         result.Add(token);
                     }
@@ -274,16 +273,19 @@ namespace Markdown
                             AttributeType.None,
                             openingToken.Position,
                             openingToken.AttributeLength
-                        ), new SingleToken(
+                        ), 
+                        new SingleToken(
                             AttributeType.None,
                             closingToken.Position,
-                            closingToken.AttributeLength)
+                            closingToken.AttributeLength
+                        )
                     );
                 return true;
             }
             nestedTokenPair = (null, null);
             return false;
         }
+
         private IEnumerable<IToken> AddValidLinkTokens(IEnumerable<IToken> tokens, string source)
         {
             var result = new List<IToken>();
