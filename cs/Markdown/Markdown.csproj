@@ -50,9 +50,12 @@
     <Compile Include="ITextConverter.cs" />
     <Compile Include="Markdown.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
-    <Compile Include="Styles\DefaultStyle.cs" />
+    <Compile Include="Styles\Bold.cs" />
     <Compile Include="Styles\Style.cs" />
     <Compile Include="Styles\Italic.cs" />
+    <Compile Include="Tokens\StyleBeginToken.cs" />
+    <Compile Include="Tokens\StyleEndToken.cs" />
+    <Compile Include="Tokens\StyleToken.cs" />
     <Compile Include="Tokens\Underline.cs" />
     <Compile Include="Tokens\Backslash.cs" />
     <Compile Include="Tokens\Word.cs" />

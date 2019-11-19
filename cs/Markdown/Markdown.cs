@@ -1,6 +1,7 @@
 ﻿using Markdown.Styles;
 using Markdown.Tokens;
 using System.Collections.Generic;
+using System.Linq;
 
 namespace Markdown
 {
@@ -13,9 +14,9 @@ namespace Markdown
 
             var tokens = RecognizeTokens(ref mdText);
 
-            var styles = RecognizeStyles(tokens);
+            ApplyStyles(tokens, new List<Style> { new Italic(), new Bold() });
 
-            return TextConverter.HTMLConverter().Convert(styles);
+            return TextConverter.HTMLConverter().Convert(tokens);
         }
 
         private List<Token> RecognizeTokens(ref string mdText)
@@ -66,11 +67,43 @@ namespace Markdown
             }
         }
 
-        private Style RecognizeStyles(List<Token> tokens)
+        private void ApplyStyles(List<Token> tokens, List<Style> styles)
         {
-            var result = new DefaultStyle();
-            result.ChildTokens.AddRange(tokens);
-            return result;
+            styles.Sort((s1, s2) => s2.BeginingTokens.Length.CompareTo(s1.BeginingTokens.Length));
+
+            var outerStyles = new Stack<Style>();
+            int i = 0;
+            while (i < tokens.Count)
+            {
+                if (tokens[i] is StyleEndToken)
+                {
+                    outerStyles.Pop();
+                }
+                else
+                {
+                    foreach (var knownStyle in styles)
+                    {
+                        if (CanBeApplied(knownStyle, outerStyles))
+                        {
+                            if (knownStyle.Apply(tokens, i))
+                            {
+                                outerStyles.Push(knownStyle);
+                                break;
+                            }
+                        }
+                    }
+                }
+                i++;
+            }
+        }
+
+        private bool CanBeApplied(Style style, Stack<Style> outerStyles)
+        {
+            if (style is Italic && outerStyles.Any(s => s is Italic)) return false;
+            if (style is Bold && outerStyles.Any(s => s is Bold)) return false;
+            if (style is Bold && outerStyles.Any(s => s is Italic)) return false;
+
+            return true;
         }
     }
 }

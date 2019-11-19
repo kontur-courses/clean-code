@@ -1,38 +1,42 @@
 ﻿using Markdown.Styles;
+using Markdown.Tokens;
+using System;
+using System.Collections.Generic;
 
 namespace Markdown
 {
     internal class HTMLConverter : ITextConverter
     {
-        public string Convert(Style styledTokens)
+        public string Convert(List<Token> tokens)
         {
             string result = string.Empty;
-            styledTokens.ChildTokens.ForEach(t => result += t.ToText());
+            foreach (var token in tokens)
+            {
+                if (token is StyleToken styleToken)
+                    result += styleToken.ToHtml();
+                else
+                    result += token.ToText();
+            }
             return result;
-            //    ;
-            //var htmlTag = GetHtmlTag(token);
-            //string result = $"<{htmlTag}>";
-            //if (token.Children.Count > 0)
-            //{
-            //    foreach (var child in token.Children)
-            //        result += Convert(child, ref source);
-            //}
-            //else
-            //    result += source.Substring(token.BeginIndex, token.EndIndex - token.BeginIndex);
-            //result += $"<{htmlTag}/>";
+        }
+    }
 
-            //return result;
+    internal static class StylesExtentions
+    {
+        public static string ToHtml(this StyleToken styleToken)
+        {
+            string tag = HtmlTag(styleToken.StyleType);
+            if (styleToken is StyleEndToken) 
+                return $"<{tag}/>";
+            else 
+                return $"<{tag}>";
         }
 
-        //private string GetHtmlTag(Token token)
-        //{
-        //    switch (token.GetType().Name)
-        //    {
-        //        case nameof(ItalicStyle):
-        //            return "em";
-        //        default:
-        //            return string.Empty;
-        //    }
-        //}
+        private static string HtmlTag(Type styleType)
+        {
+            if (styleType == typeof(Italic)) return "em";
+            if (styleType == typeof(Bold)) return "strong";
+            return nameof(styleType);
+        }
     }
 }
