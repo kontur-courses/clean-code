@@ -1,5 +1,5 @@
 ﻿using System.Collections.Generic;
-using Markdown.Tokens;
+using Markdown.Tokenization;
 
 namespace Markdown.Converters
 {

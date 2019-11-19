@@ -1,8 +1,7 @@
 ﻿using System.Linq;
 using Markdown.Extensions;
-using Markdown.Rules;
 
-namespace Markdown.Core
+namespace Markdown.Rules
 {
     public class MarkdownRules : IRules
     {

@@ -1,4 +1,4 @@
-﻿namespace Markdown.Separators
+﻿namespace Markdown.SeparatorConverters
 {
     public interface ISeparatorConverter
     {

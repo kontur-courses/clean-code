@@ -2,10 +2,10 @@
 using System.Collections.Generic;
 using System.Linq;
 using Markdown.Rules;
-using Markdown.SyntaxTrees;
-using Markdown.Tokens;
+using Markdown.SyntaxAnalysis.SyntaxTree;
+using Markdown.Tokenization;
 
-namespace Markdown.Core
+namespace Markdown.SyntaxAnalysis.SyntaxTreeBuilders
 {
     public class MarkdownSyntaxTreeBuilder : ISyntaxTreeBuilder
     {
@@ -18,9 +18,9 @@ namespace Markdown.Core
             separatorStack = new Stack<SyntaxTreeNode>();
         }
 
-        public SyntaxTree BuildSyntaxTree(IEnumerable<Token> tokens, string text)
+        public SyntaxTree.SyntaxTree BuildSyntaxTree(IEnumerable<Token> tokens, string text)
         {
-            var syntaxTree = new SyntaxTree();
+            var syntaxTree = new SyntaxTree.SyntaxTree();
             tokens.Aggregate<Token, SyntaxTreeNode>(null,
                 (current, token) => ProcessToken(token, syntaxTree, current, text));
 
@@ -29,7 +29,7 @@ namespace Markdown.Core
             return syntaxTree;
         }
 
-        private SyntaxTreeNode ProcessToken(Token token, SyntaxTree syntaxTree, SyntaxTreeNode currentNode,
+        private SyntaxTreeNode ProcessToken(Token token, SyntaxTree.SyntaxTree syntaxTree, SyntaxTreeNode currentNode,
             string text)
         {
             if (syntaxTree.Root == null)
@@ -48,7 +48,7 @@ namespace Markdown.Core
             return currentNode;
         }
 
-        private SyntaxTreeNode ProcessSeparatorToken(Token token, SyntaxTree syntaxTree,
+        private SyntaxTreeNode ProcessSeparatorToken(Token token, SyntaxTree.SyntaxTree syntaxTree,
             SyntaxTreeNode currentNode)
         {
             switch (token.Value)
@@ -70,7 +70,7 @@ namespace Markdown.Core
             return currentNode;
         }
 
-        private SyntaxTreeNode ProcessPairedSeparatorToken(Token token, SyntaxTree syntaxTree,
+        private SyntaxTreeNode ProcessPairedSeparatorToken(Token token, SyntaxTree.SyntaxTree syntaxTree,
             SyntaxTreeNode currentNode)
         {
             if (IsEndSeparator(token))

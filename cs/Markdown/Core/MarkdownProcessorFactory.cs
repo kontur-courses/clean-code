@@ -1,6 +1,9 @@
 ﻿using Markdown.Converters;
-using Markdown.SyntaxTrees;
-using Markdown.Tokens;
+using Markdown.Rules;
+using Markdown.SeparatorConverters;
+using Markdown.SyntaxAnalysis.SyntaxTreeBuilders;
+using Markdown.SyntaxAnalysis.SyntaxTreeConverters;
+using Markdown.Tokenization;
 
 namespace Markdown.Core
 {

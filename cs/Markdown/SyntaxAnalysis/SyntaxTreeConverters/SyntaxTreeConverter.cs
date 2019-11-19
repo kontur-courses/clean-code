@@ -1,11 +1,12 @@
 ﻿using System.Text;
-using Markdown.Separators;
+using Markdown.SeparatorConverters;
+using Markdown.SyntaxAnalysis.SyntaxTree;
 
-namespace Markdown.SyntaxTrees
+namespace Markdown.SyntaxAnalysis.SyntaxTreeConverters
 {
     public class SyntaxTreeConverter : ISyntaxTreeConverter
     {
-        public string Convert(SyntaxTree syntaxTree, ISeparatorConverter separatorConverter)
+        public string Convert(SyntaxTree.SyntaxTree syntaxTree, ISeparatorConverter separatorConverter)
         {
             return RenderTreeNode(syntaxTree.Root, separatorConverter);
         }

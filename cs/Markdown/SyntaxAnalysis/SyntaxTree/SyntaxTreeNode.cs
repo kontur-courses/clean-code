@@ -1,7 +1,7 @@
 ﻿using System.Collections.Generic;
-using Markdown.Tokens;
+using Markdown.Tokenization;
 
-namespace Markdown.SyntaxTrees
+namespace Markdown.SyntaxAnalysis.SyntaxTree
 {
     public class SyntaxTreeNode
     {

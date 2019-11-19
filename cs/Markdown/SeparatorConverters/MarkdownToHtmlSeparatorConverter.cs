@@ -1,7 +1,6 @@
 ﻿using System;
-using Markdown.Separators;
 
-namespace Markdown.Core
+namespace Markdown.SeparatorConverters
 {
     public class MarkdownToHtmlSeparatorConverter : ISeparatorConverter
     {

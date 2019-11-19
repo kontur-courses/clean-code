@@ -1,4 +1,4 @@
-﻿namespace Markdown.Tokens
+﻿namespace Markdown.Tokenization
 {
     public interface ITokenReaderConfiguration
     {

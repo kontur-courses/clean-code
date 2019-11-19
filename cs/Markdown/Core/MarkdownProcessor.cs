@@ -1,5 +1,5 @@
 ﻿using Markdown.Converters;
-using Markdown.Tokens;
+using Markdown.Tokenization;
 
 namespace Markdown.Core
 {

@@ -1,9 +1,8 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using Markdown.Tokens;
 
-namespace Markdown.Core
+namespace Markdown.Tokenization
 {
     public class MarkdownTokenReaderConfiguration : ITokenReaderConfiguration
     {
@@ -32,7 +31,8 @@ namespace Markdown.Core
         private void CheckIfPositionIsCorrect(string text, int position)
         {
             if (position >= text.Length || position < 0)
-                throw new ArgumentException($"position {position} is not in string with length {text.Length}");
+                throw new ArgumentException(
+                    $"{nameof(position)} {position} is not in string with length {text.Length}");
         }
     }
 }

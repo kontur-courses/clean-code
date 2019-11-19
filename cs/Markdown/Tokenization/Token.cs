@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace Markdown.Tokens
+namespace Markdown.Tokenization
 {
     public class Token
     {
@@ -11,7 +11,7 @@ namespace Markdown.Tokens
         public Token(int position, string value, bool isSeparator)
         {
             if (position < 0)
-                throw new ArgumentException($"position {position} was less than zero");
+                throw new ArgumentException($"{nameof(position)} {position} was less than zero");
             Position = position;
             Value = value;
             IsSeparator = isSeparator;

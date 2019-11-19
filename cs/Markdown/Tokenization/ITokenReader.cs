@@ -1,6 +1,6 @@
 ﻿using System.Collections.Generic;
 
-namespace Markdown.Tokens
+namespace Markdown.Tokenization
 {
     public interface ITokenReader
     {

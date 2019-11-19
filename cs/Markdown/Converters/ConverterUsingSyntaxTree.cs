@@ -1,9 +1,10 @@
 ﻿using System.Collections.Generic;
-using Markdown.Converters;
-using Markdown.Separators;
-using Markdown.Tokens;
+using Markdown.SeparatorConverters;
+using Markdown.SyntaxAnalysis.SyntaxTreeBuilders;
+using Markdown.SyntaxAnalysis.SyntaxTreeConverters;
+using Markdown.Tokenization;
 
-namespace Markdown.SyntaxTrees
+namespace Markdown.Converters
 {
     public class ConverterUsingSyntaxTree : IConverter
     {
