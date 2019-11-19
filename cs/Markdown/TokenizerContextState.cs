@@ -182,15 +182,18 @@ namespace Markdown
 			if (tokenType is IComplexTokenBlock childToken ||
 			    tokenType is IComplexToken complexToken &&
 			    complexToken.IsOpeningSequenceForChild(this, out childToken))
-			{
-				var childTokenInfo = new TokenInfo(CurrentIndex, childToken);
-				LastToken.Blocks.Add(childTokenInfo);
-				_tokenStack.Push(childTokenInfo);
-				ReadingAsPlainText = childToken.PlainTextContent;
-				if (ReadingAsPlainText)
-					PlainTextReadingClosingChar = childToken.ClosingSequence[0];
-			}
+				AddComplexTokenBlock(childToken);
 			ReadingKeySequence = false;
+		}
+
+		private void AddComplexTokenBlock(IComplexTokenBlock childToken)
+		{
+			var childTokenInfo = new TokenInfo(CurrentIndex, childToken);
+			LastToken.Blocks.Add(childTokenInfo);
+			_tokenStack.Push(childTokenInfo);
+			ReadingAsPlainText = childToken.PlainTextContent;
+			if (ReadingAsPlainText)
+				PlainTextReadingClosingChar = childToken.ClosingSequence[0];
 		}
 	}
 }
