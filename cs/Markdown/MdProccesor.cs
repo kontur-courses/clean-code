@@ -8,10 +8,6 @@ namespace Markdown
     public class MdProccesor
     {
         private Stack<TagTypeContainer> stackTags = new Stack<TagTypeContainer>();
-
-        private bool isOpenOne;
-        private bool isOpenTwo;
-
         private List<ITag> tags = new List<ITag>();
         private Dictionary<string, bool> isOpen = new Dictionary<string, bool>();
         
@@ -31,15 +27,14 @@ namespace Markdown
             var result = new StringBuilder(mdParagraph);
             while (i < result.Length)
             {
-                if (IsEscapingSymbol(i, result.ToString()))
-                {
-                    i += 2;
-                    continue;
-                }
-
                 ITag tag2;
                 if (CheckIsTagSymbol(i, result.ToString(), out tag2))
                 {
+                    if (IsEscapingSymbol(i, result.ToString()))
+                    {
+                        i += tag2.Length;
+                        continue;
+                    }
                     TagTypeContainer tag;
                     if (IsCorrectSpacedTag(i, result.ToString(), out tag, tag2))
                     {
@@ -90,25 +85,23 @@ namespace Markdown
                                 result.Remove(token.Start, token.End - token.Start + 1)
                                     .Insert(token.Start, wrappedTag);
                                 stackTags.Pop();
-                                isOpenOne = tag.Tag.TagType == TagTypeEnum.OneUnderscore ? !isOpenOne : isOpenOne;
-                                isOpenTwo = tag.Tag.TagType == TagTypeEnum.TwoUnderScore ? !isOpenTwo : isOpenTwo;
+                                isOpen[tag2.StringTag] = !isOpen[tag2.StringTag];
                                 i = tag.Tag.TagType == TagTypeEnum.TwoUnderScore ? i + 2 : i + 1;
                                 continue;
                             }
                         }
 
-                        if (tag.Tag.TagType == TagTypeEnum.TwoUnderScore && isOpenOne)
+                        if (tag.Tag.TagType == TagTypeEnum.TwoUnderScore &&  isOpen["_"])
                         {
                             i += 2;
                             continue;
                         }
 
                         stackTags.Push(tag);
-                        isOpenOne = tag.Tag.TagType == TagTypeEnum.OneUnderscore ? !isOpenOne : isOpenOne;
-                        isOpenTwo = tag.Tag.TagType == TagTypeEnum.TwoUnderScore ? !isOpenTwo : isOpenTwo;
+                        isOpen[tag2.StringTag] = ! (isOpen[tag2.StringTag]);
                         i = tag.Tag.TagType == TagTypeEnum.TwoUnderScore ? i + 2 : i + 1;
                     }
-                    else i += 1;
+                    else i += tag2.Length;
                 }
                 else i += 1;
             }
@@ -152,10 +145,11 @@ namespace Markdown
 
         private bool IsEscapingSymbol(int ind, string inp)
         {
-            if (inp[ind] == '\\')
-            {
-                return true;
-            }
+            if(ind-1 >=0)
+                if (inp[ind-1] == '\\')
+                {
+                    return true;
+                }
 
             return false;
         }
@@ -171,7 +165,6 @@ namespace Markdown
                         if (input[ind - 1] != ' ')
                         {
                             tag = new TagTypeContainer(tag2, isOpen[tag2.StringTag], ind); // b_ closer
-                            isOpen[tag2.StringTag] = !isOpen[tag2.StringTag];
                             return true;
                         }
                     }
@@ -179,7 +172,6 @@ namespace Markdown
                     if (input[ind + tag2.Length] != ' ')
                     {
                         tag = new TagTypeContainer(tag2, isOpen[tag2.StringTag], ind); // opener
-                        isOpen[tag2.StringTag] = !isOpen[tag2.StringTag];
                         return true;
                     }
                 }
@@ -191,13 +183,11 @@ namespace Markdown
                         if (input[ind - 1] != ' ')
                         {
                             tag = new TagTypeContainer(tag2, isOpen[tag2.StringTag], ind); // closer
-                            isOpen[tag2.StringTag] = !isOpen[tag2.StringTag];
                             return true;
                         }
                     }
                     
                     tag = new TagTypeContainer(tag2, isOpen[tag2.StringTag], ind); // opener
-                    isOpen[tag2.StringTag] = !isOpen[tag2.StringTag];
                     return true;
                 }
             }
@@ -205,7 +195,6 @@ namespace Markdown
             if (input[ind + tag2.Length] != ' ')
             {
                 tag = new TagTypeContainer(tag2, isOpen[tag2.StringTag], ind); // opener
-                isOpen[tag2.StringTag] = !isOpen[tag2.StringTag];
                 return true;
             }
 

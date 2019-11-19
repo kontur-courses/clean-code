@@ -31,7 +31,7 @@
 
         public OneUnderscoreTag()
         {
-            TagType = TagTypeEnum.TwoUnderScore;
+            TagType = TagTypeEnum.OneUnderscore;
             this.Length = StringTag.Length;
         }
     }
