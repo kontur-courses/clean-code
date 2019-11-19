@@ -6,8 +6,8 @@ namespace Markdown
     {
         public string Render(string markDownParagraph)
         {
-            var parser = new MdParser(markDownParagraph);
-            var tokens = parser.GetTokens();
+            var parser = new MdParser();
+            var tokens = parser.GetTokens(markDownParagraph);
             var converter = new MdConverter(tokens, markDownParagraph);
             var htmlTokens = converter.GetHtmlTokens();
             return string.Join("", htmlTokens);

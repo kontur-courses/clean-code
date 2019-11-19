@@ -5,21 +5,21 @@ namespace Markdown
 {
     public class MdParser
     {
-        private readonly string text;
+        private string text;
         private readonly List<Token> tokens;
         private int parserPosition;
         private int nestedCount;
 
-        public MdParser(string text)
+        public MdParser()
         {
-            this.text = text;
             tokens = new List<Token>();
             parserPosition = 0;
             nestedCount = 0;
         }
 
-        public List<Token> GetTokens()
+        public List<Token> GetTokens(string text)
         {
+            this.text = text;
             var parserPosition = 0;
             var tokenTagType = TagType.GetTagType(text, parserPosition);
             while (parserPosition < text.Length)

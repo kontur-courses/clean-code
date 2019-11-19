@@ -17,7 +17,7 @@ namespace MarkdownTests
         [TestCase("_emStart __strongInEm__ emFinish_", 1)]
         public void MdConverter_HasPairTags_ReturnRightDefinesPairTags(string text, int expectedPairTokens)
         {
-            var tokens = new MdParser(text).GetTokens();
+            var tokens = new MdParser().GetTokens(text);
             var converter = new MdConverter(tokens, text);
             var pairTagsCount = tokens.Count(token => converter.HasPairTags(token));
             pairTagsCount.Should().Be(pairTagsCount);
@@ -33,7 +33,7 @@ namespace MarkdownTests
         [TestCase("_emStart __strongInEm__ emFinish_", "<em>emStart __strongInEm__ emFinish</em>")]
         public void MdConverter_ConvertToHtml_ReturnRightResult(string text, params string[] expectedHtmlEquivalents)
         {
-            var tokens = new MdParser(text).GetTokens();
+            var tokens = new MdParser().GetTokens(text);
             var converter = new MdConverter(tokens, text);
             var htmlEquivalents = tokens.Select(token => converter.ConvertToHtml(token)).ToArray();
             foreach (var htmlEquivalent in htmlEquivalents)
