@@ -141,7 +141,7 @@ namespace Markdown
         {
             if (tagWithToken.CanTagBeClosing(text))
             {
-                var indexOpeningTag = FindIndexMatchingOpenTag(openingTagList, tagWithToken.Tag, text);
+                var indexOpeningTag = openingTagList.FindLastIndex(tag => tagWithToken.Tag.TagString == tag.Tag.TagString && tag.CanTagBeOpening(text));
                 if (indexOpeningTag >= 0)
                 {
                     openingTagList[indexOpeningTag].IsOpen = true;
@@ -173,16 +173,6 @@ namespace Markdown
             {
                 openingTagList.Add(tagWithToken);
             }
-        }
-
-        private int FindIndexMatchingOpenTag(List<TagWithToken> tagList, Tag tag, string text)
-        {
-            for (var i = tagList.Count - 1; i >= 0; i--)
-            {
-                if (tag.TagString == tagList[i].Tag.TagString && tagList[i].CanTagBeOpening(text))
-                    return i;
-            }
-            return -1;
         }
     }
 }
