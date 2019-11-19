@@ -92,15 +92,14 @@ namespace Markdown
                     listToAdd.Add(openToken);
                     listToAdd.Add(pairToken);
                 }
-                else if (openToken.Type != AttributeType.Emphasis)
+                else
                 {
-                    openingTokens.Push(openToken);
+                    if (openToken.Type != AttributeType.Emphasis)
+                        openingTokens.Push(openToken);
                 }
             }
             else
-            {
                 openingTokens.Push(pairToken);
-            }
         }
 
         private IEnumerable<IToken> MergeAdjacentEmphasisDelimiters(IEnumerable<IToken> tokens)
@@ -173,7 +172,8 @@ namespace Markdown
             return resultTokens.OrderBy(token => token.Position);
         }
 
-        private bool IsClosingTokenPairForNonMergeableToken(Stack<PairToken> nonMergeableOpeningTokens, Stack<PairToken> mergeableOpeningTokens)
+        private bool IsClosingTokenPairForNonMergeableToken(
+            Stack<PairToken> nonMergeableOpeningTokens, Stack<PairToken> mergeableOpeningTokens)
         {
             return nonMergeableOpeningTokens.Count == 0 
                    || mergeableOpeningTokens.Count > 0 
@@ -228,43 +228,42 @@ namespace Markdown
         {
             var nestedTypeTokens = typesToExclude.ToDictionary(type => type, type => new Stack<PairToken>());
             var result = new List<IToken>();
-            {
-                foreach (var token in tokens)
-                    if (token is PairToken pairToken && nestedTypeTokens.ContainsKey(token.Type))
+
+            foreach (var token in tokens)
+                if (token is PairToken pairToken && nestedTypeTokens.ContainsKey(token.Type))
+                {
+                    if (!pairToken.IsClosing)
+                        nestedTypeTokens[pairToken.Type].Push(pairToken);
+                    else
                     {
-                        if (!pairToken.IsClosing)
+                        var openingToken = nestedTypeTokens[token.Type].Pop();
+                        if (TryToCreatePairOfNestedTokens(
+                            nestedTypeTokens,
+                            openingToken,
+                            pairToken,
+                            out var nestedTokenPair))
                         {
-                            nestedTypeTokens[pairToken.Type].Push(pairToken);
+                            result.Add(nestedTokenPair.Item1);
+                            result.Add(nestedTokenPair.Item2);
                         }
                         else
                         {
-                            var openingToken = nestedTypeTokens[token.Type].Pop();
-                            if (TryToCreatePairOfNestedTokens(
-                                nestedTypeTokens, 
-                                openingToken, 
-                                pairToken, 
-                                out var nestedTokenPair))
-                            {
-                                result.Add(nestedTokenPair.Item1);
-                                result.Add(nestedTokenPair.Item2);
-                            }
-                            else
-                            {
-                                result.Add(openingToken);
-                                result.Add(token);
-                            }
+                            result.Add(openingToken);
+                            result.Add(token);
                         }
                     }
-                    else
-                    {
-                        result.Add(token);
-                    }
-            }
+                }
+                else
+                    result.Add(token);
+
             return result.OrderBy(token => token.Position);
         }
 
-        private bool TryToCreatePairOfNestedTokens(Dictionary<AttributeType, Stack<PairToken>> nestedTypeTokens,
-            PairToken openingToken, PairToken closingToken, out (IToken, IToken) nestedTokenPair)
+        private bool TryToCreatePairOfNestedTokens(
+            Dictionary<AttributeType, Stack<PairToken>> nestedTypeTokens,
+            PairToken openingToken, 
+            PairToken closingToken, 
+            out (IToken, IToken) nestedTokenPair)
         {
             if (nestedTypeTokens[closingToken.Type].Count > 0)
             {
@@ -330,9 +329,9 @@ namespace Markdown
                                 {
                                     openingHeaders = new Stack<PairToken>();
                                     closingHeader = null;
-                                    continue;
                                 }
-                                openingDescriptions.Push(pairToken);
+                                else
+                                    openingDescriptions.Push(pairToken);
                             }
                             else
                             {
@@ -355,15 +354,17 @@ namespace Markdown
                     }
                 }
                 else
-                {
                     if (openingDescriptions.Count == 0) result.Add(token);
-                }
-
+                
             return result.OrderBy(token => token.Position);
         }
 
-        private (LinkToken, LinkToken) CreatePairOfLinkTokens(PairToken openingHeader, PairToken closingHeader,
-            PairToken openingDescription, PairToken closingDescription, string textSource)
+        private (LinkToken, LinkToken) CreatePairOfLinkTokens(
+            PairToken openingHeader, 
+            PairToken closingHeader,
+            PairToken openingDescription, 
+            PairToken closingDescription, 
+            string textSource)
         {
             var url = textSource.Substring(
                 openingDescription.Position + 1,
@@ -375,7 +376,8 @@ namespace Markdown
                     url),
                 new LinkToken(closingHeader.Position,
                     closingDescription.Position - closingHeader.Position + 1,
-                    ""));
+                    "")
+                );
         }
     }
 }
