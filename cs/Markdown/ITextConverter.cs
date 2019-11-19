@@ -1,10 +1,10 @@
-﻿using Markdown.Tokens;
+﻿using Markdown.Styles;
 
 namespace Markdown
 {
     internal interface ITextConverter
     {
-        string Convert(Token rootToken, ref string text);
+        string Convert(Style styledTokens);
     }
 
     internal class TextConverter

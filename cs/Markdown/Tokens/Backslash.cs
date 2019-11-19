@@ -1,7 +1,8 @@
 ﻿namespace Markdown.Tokens
 {
-    internal class Backslash : Token
+    internal class Backslash : SpecSymbol
     {
-        public override string MarkdownTag => "\\";
+        public Backslash() : base('\\') { }
+        public override string ToText() => "\\";
     }
 }

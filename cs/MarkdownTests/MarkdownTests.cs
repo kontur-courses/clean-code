@@ -6,7 +6,7 @@ using System.Diagnostics;
 
 namespace MarkdownTests
 {
-    /*[TestFixture]
+    [TestFixture]
     public class MarkdownTests
     {
         private Md md;
@@ -35,32 +35,32 @@ namespace MarkdownTests
             return md.Render(mdText);
         }
 
-        [TestCase(Style.Italic, "text _italic", 5, ExpectedResult = true)]
-        [TestCase(Style.Bold, "text __bold", 5, ExpectedResult = true)]
-        [TestCase(Style.Italic, "text ", 5, ExpectedResult = false)]
-        [TestCase(Style.Italic, "text %", 5, ExpectedResult = false)]
-        public bool Style_IsTag_ReturnsCorrectValue(Style style, string text, int index)
-        {
-            return style.IsTag(ref text, index);
-        }
+        //[TestCase(Style.Italic, "text _italic", 5, ExpectedResult = true)]
+        //[TestCase(Style.Bold, "text __bold", 5, ExpectedResult = true)]
+        //[TestCase(Style.Italic, "text ", 5, ExpectedResult = false)]
+        //[TestCase(Style.Italic, "text %", 5, ExpectedResult = false)]
+        //public bool Style_IsTag_ReturnsCorrectValue(Style style, string text, int index)
+        //{
+        //    return style.IsTag(ref text, index);
+        //}
 
-        [TestCase(Style.Italic, "text_", 4, ExpectedResult = true)]
-        [TestCase(Style.Italic, "text _", 5, ExpectedResult = false)]
-        [TestCase(Style.Italic, "t00t_", 4, ExpectedResult = false)]
-        public bool Style_CanEnd_ReturnsCorrectValue(Style style, string text, int index)
-        {
-            return style.CanEnd(ref text, index);
-        }
+        //[TestCase(Style.Italic, "text_", 4, ExpectedResult = true)]
+        //[TestCase(Style.Italic, "text _", 5, ExpectedResult = false)]
+        //[TestCase(Style.Italic, "t00t_", 4, ExpectedResult = false)]
+        //public bool Style_CanEnd_ReturnsCorrectValue(Style style, string text, int index)
+        //{
+        //    return style.CanEnd(ref text, index);
+        //}
 
-        [TestCase(Style.Italic, "text _italic_", 5, ExpectedResult = true)]
-        [TestCase(Style.Bold, "text __bold__", 5, ExpectedResult = true)]
-        [TestCase(Style.Italic, "text ", 5, ExpectedResult = false)]
-        [TestCase(Style.Italic, "text _", 5, ExpectedResult = false)]
-        [TestCase(Style.Italic, "_t00t_", 0, ExpectedResult = false)]
-        public bool Style_CanBegin_ReturnsCorrectValue(Style style, string text, int index)
-        {
-            return style.CanBegin(ref text, index, new Stack<(Style style, int endIndex)>(), out int _);
-        }
+        //[TestCase(Style.Italic, "text _italic_", 5, ExpectedResult = true)]
+        //[TestCase(Style.Bold, "text __bold__", 5, ExpectedResult = true)]
+        //[TestCase(Style.Italic, "text ", 5, ExpectedResult = false)]
+        //[TestCase(Style.Italic, "text _", 5, ExpectedResult = false)]
+        //[TestCase(Style.Italic, "_t00t_", 0, ExpectedResult = false)]
+        //public bool Style_CanBegin_ReturnsCorrectValue(Style style, string text, int index)
+        //{
+        //    return style.CanBegin(ref text, index, new Stack<(Style style, int endIndex)>(), out int _);
+        //}
 
         [TestCase("__bold _bolditalic_ bold__", ExpectedResult = "<strong>bold <em>bolditalic</em> bold</strong>")]
         [TestCase("_italic __nonbolditalic__ italic_", ExpectedResult = "<em>italic _</em>nonbolditalic<em>_ italic</em>")]
@@ -101,5 +101,5 @@ namespace MarkdownTests
             }
             factors.ForEach(durationFactor => durationFactor.Should().BeLessOrEqualTo(2.5, $"text length has been increased by 2"));
         }
-    }*/
+    }
 }

@@ -1,7 +1,8 @@
 ﻿namespace Markdown.Tokens
 {
-    internal class Space : Token
+    internal class Space : SpecSymbol
     {
-        public override string MarkdownTag => " ";        
+        public Space() : base(' ') { }
+        public override string ToText() => " ";
     }
 }
