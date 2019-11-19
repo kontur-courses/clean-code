@@ -121,7 +121,7 @@ namespace Markdown
                 {
                     var tag = FindMatchingTag(token, text);
                     var tagWithToken = new TagWithToken(tag, token);
-                    if (CanBeTag(tagWithToken, text))
+                    if (tagWithToken.CanBeTag(text))
                     {
                         tagWithTokens.Add(tagWithToken);
                         HandlerTag(openingTagList, tagWithTokens, tagWithToken, text);
@@ -135,32 +135,6 @@ namespace Markdown
                 }
             }
             return tagWithTokens;
-        }
-
-        private bool CanBeTag(TagWithToken tagWithToken, string text)
-        {
-            switch (tagWithToken.Tag.getTagString) // switch case который определяет может ли токен помеченый как тег быть тегом
-            {
-                case "_":
-                    if (tagWithToken.Token.Index + tagWithToken.Token.Length < text.Length &&
-                        Digits.Contains(text[tagWithToken.Token.Index + tagWithToken.Token.Length]) &&
-                        tagWithToken.Token.Index - 1 >= 0 &&
-                        Digits.Contains(text[tagWithToken.Token.Index - 1]))
-                    {
-                        return false;
-                    }
-                    break;
-                case "__":
-                    if (tagWithToken.Token.Index + tagWithToken.Token.Length < text.Length &&
-                        Digits.Contains(text[tagWithToken.Token.Index + tagWithToken.Token.Length]) &&
-                        tagWithToken.Token.Index - 1 >= 0 &&
-                        Digits.Contains(text[tagWithToken.Token.Index - 1]))
-                    {
-                        return false;
-                    }
-                    break;
-            }
-            return true;
         }
 
         private void HandlerTag(List<TagWithToken> openingTagList, List<TagWithToken> tagWithTokens, TagWithToken tagWithToken, string text)

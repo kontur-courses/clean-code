@@ -33,5 +33,32 @@ namespace Markdown
                 return false;
             return true;
         }
+
+        public bool CanBeTag(string text)
+        {
+            int num;
+            switch (Tag.getTagString) // switch case который определяет может ли токен помеченый как тег быть тегом
+            {
+                case "_":
+                    if (Token.Index + Token.Length < text.Length &&
+                        int.TryParse(text[Token.Index + Token.Length].ToString(), out num) &&
+                        Token.Index - 1 >= 0 &&
+                        int.TryParse(text[Token.Index - 1].ToString(), out num))
+                    {
+                        return false;
+                    }
+                    break;
+                case "__":
+                    if (Token.Index + Token.Length < text.Length &&
+                        int.TryParse(text[Token.Index + Token.Length].ToString(), out num) &&
+                        Token.Index - 1 >= 0 &&
+                        int.TryParse(text[Token.Index - 1].ToString(), out num))
+                    {
+                        return false;
+                    }
+                    break;
+            }
+            return true;
+        }
     }
 }
