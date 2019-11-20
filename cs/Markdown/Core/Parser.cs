@@ -10,43 +10,15 @@ namespace Markdown.Core
 
         public Parser(IEnumerable<IRule> rules)
         {
-            this.rules = rules.OrderByDescending(rule => rule.SourceTag.Opening.Length);
+            this.rules = rules;
         }
 
-        private bool IsSuitableRule(IRule rule, string line, int index) =>
-            TagValidator.TagStartsFromPosition(line, index, rule.SourceTag.Opening) ||
-            TagValidator.TagStartsFromPosition(line, index, rule.SourceTag.Closing);
 
-        public List<TagToken> Parse(string line)
+        public List<TagToken> ParseLine(string line)
         {
-            var result = new List<TagToken>();
-            if (line == null)
-                return result;
-
-            var tagTokenStack = new Stack<TagToken>();
-            for (var index = 0; index < line.Length; index++)
-            {
-                var currentRule = rules.FirstOrDefault(rule => IsSuitableRule(rule, line, index));
-                if (currentRule == null) continue;
-
-                if (TagValidator.IsPossibleOpeningTag(line, index, currentRule.SourceTag))
-                {
-                    tagTokenStack.Push(new TagToken(index, currentRule.SourceTag, true));
-                }
-                else if (TagValidator.IsPossibleClosingTag(line, index, currentRule.SourceTag))
-                {
-                    while (tagTokenStack.Count > 0 && tagTokenStack.Peek().Tag != currentRule.SourceTag)
-                        tagTokenStack.Pop();
-                    if (tagTokenStack.Count == 0) continue;
-
-                    result.Add(tagTokenStack.Pop());
-                    result.Add(new TagToken(index, currentRule.SourceTag, false));
-                }
-
-                index += currentRule.SourceTag.Opening.Length - 1;
-            }
-
-            return result;
+            var singleTagTokens = new SingleTagParser(rules).ParseLine(line);
+            var doubleTagTokens = new DoubleTagParser(rules).Parse(line);
+            return singleTagTokens.Concat(doubleTagTokens).ToList();
         }
     }
 }
