@@ -54,15 +54,21 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Extensions\StringExtensions.cs" />
+    <Compile Include="MarkdownTags\CodeTag.cs" />
+    <Compile Include="StringRedactor.cs" />
+    <Compile Include="MarkdownTags\EmphasisTag.cs" />
+    <Compile Include="MarkdownTags\IMarkdownTag.cs" />
     <Compile Include="Markdown.cs" />
-    <Compile Include="Markdown_Should.cs" />
+    <Compile Include="MarkdownTags\StrongTag.cs" />
+    <Compile Include="Tests\MarkdownTests.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="TagLogic\Tag.cs" />
-    <Compile Include="TagLogic\TagCleanTool.cs" />
-    <Compile Include="TagLogic\TagCleanTool_Should.cs" />
-    <Compile Include="TagLogic\TagSearchTool.cs" />
-    <Compile Include="TagLogic\TagSearchTool_Should.cs" />
+    <Compile Include="TagLogic\TagStreamRedactor.cs" />
+    <Compile Include="Tests\TagStreamRedactorTests.cs" />
+    <Compile Include="TagLogic\TagParser.cs" />
+    <Compile Include="Tests\TagParserTests.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="App.config" />
