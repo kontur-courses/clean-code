@@ -93,7 +93,7 @@ namespace Markdown
             return char.IsDigit(text[position - 1]) || char.IsDigit(text[position + symbol.Length]);
         }
 
-        private static List<TagsPair> GetTagsPair(Queue<Tag> characterSequences, IReadOnlyCollection<TagSpecification> currentSpecifications, IReadOnlyCollection<TagType> lineSpecifications)
+        private static List<TagsPair> GetTagsPair(Queue<Tag> characterSequences, IReadOnlyCollection<TagSpecification> currentSpecifications, IReadOnlyCollection<TagType> tagsByLine)
         {
             var previousPairs = new List<TagsPair>();
             var openingTags = new List<Tag>();
@@ -101,7 +101,7 @@ namespace Markdown
             while (characterSequences.Count > 0)
             {
                 var currentTag = characterSequences.Dequeue();
-                if (currentTag.TagType == TagType.EndLine && TryGetLastLineOpenTag(openingTags, lineSpecifications, currentTag, out var newTag))
+                if (currentTag.TagType == TagType.EndLine && TryGetLastLineOpenTag(openingTags, tagsByLine, currentTag, out var newTag))
                     currentTag = newTag;
                 var startTag = openingTags.FindLast(t => t.TagType == currentTag.TagType);
                 if (CurrentTagCannotCreatePair(startTag, currentTag))
