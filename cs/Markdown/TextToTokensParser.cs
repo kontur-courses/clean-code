@@ -2,119 +2,123 @@
 
 namespace Markdown
 {
+    public static class OperationContext
+    {
+        public enum Context
+        {
+            ToOpen,
+            ToClose
+        }
+    }
     public class TextToTokenParserContext
     {
         public string Text { get; }
         public HashSet<Token> Result { get; }
-        public List<Token> Temp { get; }
-        public List<Token> TempNotDoubleTags { get; }
+        public List<Token> TempStrongTokens { get; }
         public Stack<(int Index, string Value)> TagStack { get; }
-        public Stack<(int Index,string Value)> TempTagStack { get; }
-
+        public Stack<(int Index,string Value)> TempStrongTagStack { get; }
+        public List<int> ShieldingList { get; }
         public TextToTokenParserContext(string text)
         {
+            ShieldingList = new List<int>();
             Text = text;
             Result=new HashSet<Token>();
-            Temp=new List<Token>();
-            TempNotDoubleTags= new List<Token>();
+            TempStrongTokens=new List<Token>();
             TagStack= new Stack<(int Index, string Value)>();
-            TempTagStack = new Stack<(int Index, string Value)>();
+            TempStrongTagStack = new Stack<(int Index, string Value)>();
         }
     }
 
     public static class TextToTokensParser
-    {
+    {   private static readonly HashSet<char> ShieldingSymbols = new HashSet<char> {'\\'};
         private static readonly HashSet<char> SpecialSymbols = new HashSet<char> { '_', '[', ']', '(', ')' };
         public static HashSet<Token> Parse(string text)
         {
             var context = new TextToTokenParserContext(text);
             for (var i = 0; i < text.Length; i++)
             {
-                if (!SpecialSymbols.Contains(text[i]) || i!=0 && text[i-1]=='\\') continue;
+                if (ShieldingSymbols.Contains(text[i]))
+                {
+                    WorkWithShielding(context, i);
+                    continue;
+                }
+                if(i!=0 && text[i-1]!='\\')
+                    context.ShieldingList.Clear();
+                if (!SpecialSymbols.Contains(text[i]) || 
+                    i!=0 && text[i-1]=='\\' && context.ShieldingList.Count % 2 == 1) continue;
                 if (text[i].IsLinkTag())
                     WorkWithLinks(context, i);
                 if (text[i].Is_Tag())
                     WorkWith_(context,i);
             }
-            foreach (var token in context.Temp)
-                context.Result.Add(token);
-            foreach (var tempNotDoubleTag in context.TempNotDoubleTags) context.Result.Add(tempNotDoubleTag);
+
+            foreach (var token in context.TempStrongTokens) context.Result.Add(token);
             return context.Result;
+        }
+
+        private static void WorkWithShielding(TextToTokenParserContext context, int i)
+        {
+            context.ShieldingList.Add(i);
         }
 
         private static void WorkWith_(TextToTokenParserContext context, int i)
         {
-            if (context.TagStack.Count == 0)
+            if (context.TagStack.Count == 0 && context.IsCharCorrectToAdd(i,1,OperationContext.Context.ToOpen))
             {
-                if ((i != context.Text.Length - 1 && context.Text[i + 1] == ' ') || (i != 0 && char.IsDigit(context.Text[i - 1]))) return;
-                context.TagStack.Push((i, context.Text[i].ToString()));
+                context.TryToAdd_Tag((i,context.Text[i].ToString()));
                 return;
             }
-            if (context.TagStack.Peek().Index == i - 1 && context.TagStack.Peek().Value == "_")
-            {
-                var (index, value) = context.TagStack.Pop();
-                if (context.TagStack.Count != 0 && context.TagStack.Peek().Value == "__")
-                    context.TagStack.Pop().TryToAddClose__Tag(context,i);
-                else
-                {
-                    if(context.TagStack.Count!=0 && context.TagStack.Peek().Value=="_")
-                        tempNotDoubleTags.Add(text.GetToken(context.TagStack.Peek().Index,i-1,"_"));
-                    (index, "__").TryToAddOpenTag(tagStack, i, text, tempNotDoubleTags,result);
-                }
-            }
-            else
-            {
-                if (context.TagStack.Peek().Value == text[i].ToString() &&
-                    (i == text.Length - 1 || !SpecialSymbols.Contains(text[i + 1])))
-                    context.TagStack.Pop().TryToAddClose_Tag(context,i);
-                else
-                {
-                    if(tagStack.Count!=0 && tagStack.Peek().Value=="__")
-                        tempNotDoubleTags.Add(text.GetToken(tagStack.Peek().Index+1,i,"_"));
-                    (i, text[i].ToString()).TryToAddOpenTag(tagStack, i, text, tempNotDoubleTags,result);
-                }
-            }
-        }
 
-        private static void WorkWithLinks(string text, Stack<(int Index, string Value)> tagStack, List<Token> temp,
-            HashSet<Token> result, int i)
-        {
-            if (text[i] == '[')
+            if (context.TagStack.Count != 0 && context.TagStack.Peek().Index == i - 1)
             {
-                if (tagStack.Count == 0)
+                context.TryToAdd__Tag((context.TagStack.Pop().Index, "__"));
+                return;
+            }
+
+            if(context.TagStack.Count!=0)
+                context.TryToAdd_Tag((i,context.Text[i].ToString()));
+
+        }
+        
+
+        private static void WorkWithLinks(TextToTokenParserContext context, int i)
+        {
+            if (context.Text[i] == '[')
+            {
+                if (context.TagStack.Count == 0)
                 {
-                    tagStack.Push((i, text[i].ToString()));
+                    context.TagStack.Push((i, context.Text[i].ToString()));
                     return;
                 }
 
-                if (tagStack.Count != 0 && tagStack.Peek().Value == "[")
-                    tagStack.Pop();
-                tagStack.Push((i, text[i].ToString()));
+                if (context.TagStack.Count != 0 && context.TagStack.Peek().Value == "[")
+                    context.TagStack.Pop();
+                context.TagStack.Push((i, context.Text[i].ToString()));
                 return;
             }
 
-            if (tagStack.Count == 0) return;
-            if (text[i] == ']')
+            if (context.TagStack.Count == 0) return;
+            if (context.Text[i] == ']')
             {
-                var last = tagStack.Pop();
+                var last = context.TagStack.Pop();
                 if (last.Value == "[")
-                    tagStack.Push((last.Index, "[]"));
+                    context.TagStack.Push((last.Index, "[]"));
                 return;
             }
 
-            if (text[i] == '(')
+            if (context.Text[i] == '(')
             {
-                var last = tagStack.Pop();
-                if (i != 0 && text[i - 1] == ']' && last.Value == "[]")
-                    tagStack.Push((last.Index, "[]("));
+                var last = context.TagStack.Pop();
+                if (i != 0 && context.Text[i - 1] == ']' && last.Value == "[]")
+                    context.TagStack.Push((last.Index, "[]("));
                 return;
             }
 
-            if (text[i] == ')')
+            if (context.Text[i] == ')')
             {
-                var last = tagStack.Pop();
+                var last = context.TagStack.Pop();
                 if (last.Value == "[](")
-                    result.Add(text.GetToken(last.Index, i, last.Value));
+                    context.Result.Add(context.Text.GetToken(last.Index, i, last.Value));
             }
         }
     }
