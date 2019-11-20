@@ -54,15 +54,17 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Languages\Html.cs" />
-    <Compile Include="Languages\Language.cs" />
+    <Compile Include="Languages\ILanguage.cs" />
     <Compile Include="Languages\MarkDown.cs" />
     <Compile Include="Languages\TagToken.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Tag.cs" />
     <Compile Include="TagType.cs" />
+    <Compile Include="Tests\MarkdownSpec.cs" />
     <Compile Include="Tests\MarkDown_should.cs" />
     <Compile Include="Tests\SyntaxNodes_should.cs" />
+    <Compile Include="Tree\INode.cs" />
     <Compile Include="Tree\SyntaxNode.cs" />
     <Compile Include="Tree\SyntaxTree.cs" />
     <Compile Include="Tree\TagNode.cs" />
