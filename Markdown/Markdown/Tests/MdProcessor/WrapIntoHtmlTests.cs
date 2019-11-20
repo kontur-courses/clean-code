@@ -1,12 +1,13 @@
 ﻿using System.Collections.Generic;
 using System.Linq;
+using System.Text;
 using FluentAssertions;
 using Markdown.Parser;
 using NUnit.Framework;
 
-namespace Markdown.Tests.MdTag
+namespace Markdown.Tests.MdProcessor
 {
-    class HtmlConverter
+    internal class WrapIntoHtmlTests
     {
         private MdTagParser mdTagParser;
 
@@ -190,6 +191,35 @@ namespace Markdown.Tests.MdTag
         {
             var wrapped = mdTagParser.Parse("*ab*c*d").Select(tag => tag.WrapTagIntoHtml()).ToList();
             wrapped.Should().BeEquivalentTo(new List<string> { "<li>ab<li>c<li>d</li></li></li>" });
+        }
+
+        [Test]
+        public void Should_NotWork_When_StrongTagInsideEmTag()
+        {
+            var wrapped = mdTagParser.Parse("_a __b__ c_").Select(tag => tag.WrapTagIntoHtml()).ToList();
+            wrapped.Should().BeEquivalentTo(new List<string> { "<em>a __b__ c</em>" });
+        }
+
+
+        [Test]
+        [MaxTime(milliseconds: 1500)]
+        public void Should_WorkFastWithManySameTags()
+        {
+            var longString = new StringBuilder();
+            Enumerable.Repeat("_a ", 100000).ToList().ForEach(element => longString.Append(element));
+            Enumerable.Repeat(" b_", 100000).ToList().ForEach(element => longString.Append(element));
+            mdTagParser.Parse((longString.ToString()));
+        }
+
+
+        [Test]
+        [MaxTime(milliseconds: 1500)]
+        public void Should_WorkFastWithManyDifferentTags()
+        {
+            var longString = new StringBuilder();
+            Enumerable.Repeat("_a __b ~c `d ", 50000).ToList().ForEach(element => longString.Append(element));
+            Enumerable.Repeat(" d` ~c b__ a_", 50000).ToList().ForEach(element => longString.Append(element));
+            mdTagParser.Parse(longString.ToString());
         }
     }
 } 

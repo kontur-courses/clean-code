@@ -1,4 +1,5 @@
 ﻿using System.Collections.Generic;
+using System.Text;
 
 
 namespace Markdown.MdTags
@@ -17,20 +18,19 @@ namespace Markdown.MdTags
         public override (int lenght, string content) GetContent(int index, string text)
         {
             var length = 0;
-            var content = string.Empty;
+            var content = new StringBuilder();
             for (var i = index; i < text.Length; i++)
             {
                 if (text[i].ToString() == ClosedMdTag) break;
-                if (allTags.Contains(text[i].ToString())) break;
                 if (text[i] == '\\' && i != text.Length - 1)
                 {
-                    SlashHandler(ref i, ref length, ref content, text[i + 1]);
+                    SlashHandler(ref i, ref length, content, text[i + 1]);
                     continue;
                 }
-                content += text[i];
+                content.Append(text[i]);
             }
 
-            return (length + content.Length, content);
+            return (length + content.Length, content.ToString());
         }
 
         public override bool CanOpen(Stack<Tag> stack, string content)

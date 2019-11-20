@@ -8,7 +8,7 @@ namespace Markdown.MarkDown
 {
     public class MdProcessor
     {
-        private readonly MdTagParser parser;
+        private readonly IParser<Tag> parser;
 
         public string Render(string rawMarkdown)
         {
@@ -19,13 +19,13 @@ namespace Markdown.MarkDown
 
         public MdProcessor(IParser<Tag> parser)
         {
-            this.parser = new MdTagParser();
+            this.parser = parser;
         }
 
-        private string CombineTagsInOneParagraph(List<Tag> tags) 
+        private static string CombineTagsInOneParagraph(IEnumerable<Tag> tags) 
             => string.Join("", tags.Select(tag => tag.WrapTagIntoHtml()));
 
-        private string CombineAllParagraphs(List<string> paragraphs) 
-            => string.Join("", paragraphs.Select(paragraph => $"<p>{paragraphs}</p>"));
+        private static string CombineAllParagraphs(IEnumerable<string> paragraphs) 
+            => string.Join("", paragraphs.Select(paragraph => $"<p>{paragraph}</p>"));
     }
 }

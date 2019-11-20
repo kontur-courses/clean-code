@@ -6,7 +6,7 @@ using NUnit.Framework;
 namespace Markdown.Tests.Parser
 {
     [TestFixture]
-    class MdTagParser
+    internal class MdTagParserTests
     {
         private Markdown.Parser.MdTagParser mdTagParser;
 

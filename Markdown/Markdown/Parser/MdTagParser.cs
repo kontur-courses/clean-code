@@ -5,7 +5,7 @@ using Markdown.MdTags;
 
 namespace Markdown.Parser
 {
-    class MdTagParser: IParser<Tag>
+    internal class MdTagParser: IParser<Tag>
     {
         private readonly Dictionary<string, Func<Tag>> mdTags = new Dictionary<string, Func<Tag>>()
         {
@@ -31,6 +31,7 @@ namespace Markdown.Parser
 
         public List<Tag> Parse(string textToParse)
         {
+            ResetParser();
             for (var i = 0; i < textToParse.Length; i++)
             {
                 var tagInfo = GetTag(i, textToParse);
@@ -49,6 +50,12 @@ namespace Markdown.Parser
             }
             CloseOpenedTags();
             return tags;
+        }
+
+        private void ResetParser()
+        {
+            tags.Clear();
+            tagsStack.Clear();
         }
 
         private string GetTag(int index, string text)

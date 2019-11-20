@@ -4,7 +4,7 @@ namespace Markdown.MdTags
 {
     internal class StrongTag: Tag
     {
-        private readonly List<string> allowable = new List<string>() { "__", "~", ">" };
+        private readonly List<string> allowable = new List<string> { "__", "~", ">" };
         public override string OpenedMdTag { get; protected set; } = "__";
         public override string ClosedMdTag { get; protected set; } = "__";
         public override string OpenedHtmlTag { get; protected set; } = "<strong>";

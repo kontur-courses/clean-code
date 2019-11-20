@@ -1,12 +1,15 @@
 ﻿using System.Collections.Generic;
 using System.Linq;
+using System.Text;
 
 
 namespace Markdown.MdTags
 {
     internal class BlockquoteTag: Tag
     {
-        private readonly List<string> allowable = new List<string>() { "__", "~", ">" };
+        public override string ClosedMdTag { get; protected set; } = "\n";
+
+        private readonly List<string> allowable = new List<string> { "__", "~", ">" };
         public override string OpenedMdTag { get; protected set; } = ">";
         public override string OpenedHtmlTag { get; protected set; } = "<blockquote>";
         public override string ClosedHtmlTag { get; protected set; } = "</blockquote>";
@@ -14,21 +17,23 @@ namespace Markdown.MdTags
         public override (int lenght, string content) GetContent(int index, string text)
         {
             var length = 0;
-            var content = string.Empty;
+            var content = new StringBuilder();
             for (var i = index; i < text.Length; i++)
             {
-                if (text[i].ToString() == ClosedMdTag) break;
-                if (allTags.Contains(text[i].ToString())) break;
+                if (OtherTagFound(text, i)) break;
                 if (text[i] == '\\' && i != text.Length - 1)
                 {
-                    SlashHandler(ref i, ref length, ref content, text[i + 1]);
+                    SlashHandler(ref i, ref length, content, text[i + 1]);
                     continue;
-                }
-                content += text[i];
+                }   
+                content.Append(text[i]);
             }
 
-            return (length + content.Length, content);
+            return (length + content.Length, content.ToString());
         }
+
+        private bool OtherTagFound(string text, int i)
+            => (text[i].ToString() == ClosedMdTag) || (AllTags.Contains(text[i].ToString()));
 
         public override bool CanClose(string tag) => false;
 

@@ -6,7 +6,7 @@ namespace Markdown.MdTags
 {
     public abstract class Tag
     {
-        public static readonly List<string> allTags = new List<string>()
+        protected static readonly List<string> AllTags = new List<string>()
         {
             "_",
             "__",
@@ -24,13 +24,13 @@ namespace Markdown.MdTags
             "___",
             ">"
         };
-        public virtual string ClosedMdTag { get; protected set; }
+        public virtual string ClosedMdTag { get;  protected set; }
         public virtual string OpenedMdTag { get; protected set; }
         public virtual string ClosedHtmlTag { get; protected set; }
         public virtual string OpenedHtmlTag { get; protected set; }
         public virtual string Content { get; protected set; }
 
-        public List<Tag> NestedTags = new List<Tag>();
+        public readonly List<Tag> NestedTags = new List<Tag>();
 
         public virtual string WrapTagIntoHtml()
         {
@@ -53,9 +53,9 @@ namespace Markdown.MdTags
         public virtual bool CanClose(string tag)
             => ClosedMdTag == tag && !NestedTags.Last().Content.EndsWith(" ");
 
-        protected virtual void SlashHandler(ref int i, ref int length, ref string content, char symbolToAdd)
+        protected virtual void SlashHandler(ref int i, ref int length, StringBuilder content, char symbolToAdd)
         {
-            content += symbolToAdd;
+            content.Append(symbolToAdd);
             i++;
             length++;
         }
@@ -63,19 +63,19 @@ namespace Markdown.MdTags
         public virtual (int lenght, string content) GetContent(int index, string text)
         {
             var length = 0;
-            var content = string.Empty;
+            var content = new StringBuilder();
             for (var i = index; i < text.Length; i++)
             {
-                if (allTags.Contains(text[i].ToString())) break;
+                if (AllTags.Contains(text[i].ToString())) break;
                 if (text[i] == '\\' && i != text.Length - 1)
                 {
-                    SlashHandler(ref i, ref length, ref content, text[i + 1]);
+                    SlashHandler(ref i, ref length, content, text[i + 1]);
                     continue;
                 }
-                content += text[i];
+                content.Append(text[i]);
             }
 
-            return (length + content.Length, content);
+            return (length + content.Length, content.ToString());
         }
     }
 }
