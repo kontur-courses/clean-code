@@ -1,19 +1,26 @@
 ﻿using System;
 using System.IO;
-using System.Text;
 
 namespace Markdown
 {
-    class Program
+    internal static class Program
     {
-        static void Main(string[] args)
+        private static void Main()
         {
-            var input = "Hello my __friend__ \nI am __Markdown__ \n\\_I can change the lines like this\\_ -> _I can change the lines like this_ ";
+            Console.WriteLine("Enter full path to file to convert:");
+            var filePath = Console.ReadLine();
+            var pathToSave = Path.Combine(
+                Path.GetDirectoryName(filePath),
+                Path.GetFileNameWithoutExtension(filePath) + ".html");
 
-            var md = new Markdown();
-            var res = md.Render(input);
+            using (var sr = new StreamReader(filePath))
+            using (var sw = new StreamWriter(pathToSave))
+            {
+                var fileContents = sr.ReadToEnd();
+                sw.Write(Markdown.Render(fileContents));
+            }
 
-            Console.WriteLine(res);
+            Console.WriteLine("Conversion Complete");
             Console.ReadKey();
         }
     }
