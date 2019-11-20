@@ -22,12 +22,14 @@ namespace Markdown
             return s == '_';
         }
 
-        public static void TryToAddOpenTag(this (int, string) openTag, Stack<(int, string)> tagStack, int i, string text,List<Token> tempNotDoubleTags, HashSet<Token> result)
+        public static void TryToAddOpenTag(this (int Index, string Value) openTag, Stack<(int Index, string Value)> tagStack, int i, string text,List<Token> tempNotDoubleTags, HashSet<Token> result)
         {
             if(i!=0 && char.IsDigit(text[i-1]) && i!=text.Length-1 && char.IsDigit(text[i+1])) return;
-            if (i == text.Length-1 || text[i + 1] != ' ')
+            if ((i == text.Length-1 || text[i + 1] != ' ') && openTag.Value!="__"  )
                 tagStack.Push(openTag);
-        }
+            else
+                tempStack
+            }
 
         public static void TryToAddClose__Tag(this (int Index, string Value) closeTag,HashSet<Token> result,List<Token> temp, int i,
             string text, Stack<(int Index, string Value)> tagStack, List<Token> tempNotDoubleTags)
