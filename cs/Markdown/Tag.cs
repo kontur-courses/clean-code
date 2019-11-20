@@ -4,14 +4,14 @@ using System.Text;
 
 namespace Markdown
 {
-    public class Token
+    public class Tag
     {
         public readonly TagType TagType;
         public readonly PositionType PositionType;
         public readonly int PositionInText;
         public readonly string Value;
 
-        public Token(TagType tagType, int positionInText, PositionType positionType, string value)
+        public Tag(TagType tagType, int positionInText, PositionType positionType, string value)
         {
             TagType = tagType;
             PositionInText = positionInText;

@@ -6,8 +6,8 @@ namespace Markdown
 {
     public enum PositionType
     {
-        OpeningToken,
-        ClosingToken,
+        OpeningTag,
+        ClosingTag,
         any
     }
 }

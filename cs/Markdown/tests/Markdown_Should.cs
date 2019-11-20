@@ -42,6 +42,23 @@ namespace Markdown.tests
             return Md.Render(inputText);
         }
 
+        [TestCase("##abc", ExpectedResult = "<h2>abc</h2>")]
+        [TestCase("####abcdef", ExpectedResult = "<h4>abcdef</h4>")]
+        [TestCase("#abcdef#", ExpectedResult = "<h1>abcdef</h1>")]
+        [TestCase("##abcdef##", ExpectedResult = "<h2>abcdef</h2>")]
+        public string LineAfterLattice_Should_BeEqualExcepted(string inputText)
+        {
+            return Md.Render(inputText);
+        }
+
+        [Test]
+        public void LineAfterLaticeBeforeNewLine_Should_Change()
+        {
+            var input = @"##Заголовок
+Текст";
+            Md.Render(input).Should().BeEquivalentTo(@"<h2>Заголовок</h2>Текст");
+        }
+
         [TestCase("__abcdef__ _ghi_", ExpectedResult = "<strong>abcdef</strong> <em>ghi</em>")]
         [TestCase("_Hello_, __world__!", ExpectedResult = "<em>Hello</em>, <strong>world</strong>!")]
         public string AllLineBetweenUnderline_Should_Change(string inputText)
@@ -61,6 +78,7 @@ namespace Markdown.tests
         [TestCase("__a_b_c__", ExpectedResult = "<strong>a<em>b</em>c</strong>")]
         [TestCase("__a_bcde_f__ ghi", ExpectedResult = "<strong>a<em>bcde</em>f</strong> ghi")]
         [TestCase("Hello, __wo_r_ld__!", ExpectedResult = "Hello, <strong>wo<em>r</em>ld</strong>!")]
+        [TestCase("H__ell_o, __wor_ld__!", ExpectedResult = "H<strong>ell<em>o, __wor</em>ld</strong>!")]
         public string SingleUnderline_Should_Change(string inputText)
         {
             return Md.Render(inputText);
@@ -80,6 +98,34 @@ namespace Markdown.tests
         public string UnderlineWithEscapeSymbols_Should_NotChange(string inputString)
         {
             return Md.Render(inputString);
+        }
+
+        [Test]
+        public void Should_WorkWithLinearTime()
+        {
+            var inputString = "__The__ _quick_ \\__brown_ \\_fox_  __jumps _over_ the__ _lazy __lazy__ dog_. ";
+            var sb = new StringBuilder(inputString);
+            for (var i = 0; i < 100; i++)
+            {
+                sb.Append(inputString);
+            }
+            var testString = sb.ToString();
+            var timePreviousWork = 0;
+            var sw = Stopwatch.StartNew();
+            Md.Render(testString);
+            sw.Stop();
+            var nominalTimeWork = (int)sw.ElapsedMilliseconds; 
+            for (var i = 0; i < 500; i++)
+            {
+                sb.Append(inputString);
+                testString = sb.ToString();
+                sw = Stopwatch.StartNew();
+                Md.Render(testString);
+                sw.Stop();
+                var timeWork = (int)sw.ElapsedMilliseconds;
+                (timeWork - timePreviousWork).Should().BeLessThan(nominalTimeWork * 2);
+                timePreviousWork = (int)sw.ElapsedMilliseconds;
+            }
         }
     }
 }

@@ -1,6 +1,7 @@
 ﻿using System.Collections.Generic;
 using System.Net.NetworkInformation;
 using Newtonsoft.Json.Serialization;
+using System;
 
 namespace Markdown
 {
@@ -16,8 +17,7 @@ namespace Markdown
             new TagSpecification("###", "###", TagType.threeHeading, endWithEndLine:true),
             new TagSpecification("##", "##", TagType.secondHeading, endWithEndLine:true),
             new TagSpecification("#", "#", TagType.firstHeading, endWithEndLine:true),
-            new TagSpecification("", "\r", TagType.EndLine),
-            new TagSpecification("", "\n", TagType.EndLine)
+            new TagSpecification("", Environment.NewLine, TagType.EndLine)
         };
 
         public static List<TagSpecification> GetAllTags()
