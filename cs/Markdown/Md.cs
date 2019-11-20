@@ -8,7 +8,7 @@ namespace Markdown
         public string Render(string rawText)
         {
             var tokenDescription = MarkdownTokenUtilities.GetMarkdownTokenDescriptions();
-            List<Token> tokens = new TokenReader(tokenDescription).TokenizeText(rawText);
+            var tokens = new TokenReader(tokenDescription).TokenizeText(rawText);
 
             return MarkdownRenderUtilities.GetMarkdownRenderer().RenderText(tokens);
         }

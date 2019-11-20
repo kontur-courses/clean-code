@@ -39,10 +39,11 @@ namespace Markdown.RenderUtilities
             if (processingDescription.IsClosing(tokens, tokenIndex))
             {
                 var openingToken = openingTokens
-                                   .Where(tkn => tkn.TokenType == token.TokenType).LastOrDefault();
+                                   .LastOrDefault(tkn => tkn.TokenType == token.TokenType);
                 if(openingToken != null)
                 {
-                    openingTokens.Remove(openingToken);
+                    var openingTokenIndex = openingTokens.LastIndexOf(openingToken);
+                    openingTokens.RemoveRange(openingTokenIndex, openingTokens.Count - openingTokenIndex);
                     var newPair = new PairedTokenDescription(openingToken, token);
                     tokenToPairedDescription[openingToken] = newPair;
                     tokenToPairedDescription[token] = newPair;

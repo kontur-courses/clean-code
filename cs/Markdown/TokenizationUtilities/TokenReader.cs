@@ -21,8 +21,7 @@ namespace Markdown
             var position = 0;
             while(position < text.Length)
             {
-                Token token = null;
-                if (!TryReadToken(text, position, out token))
+                if (!TryReadToken(text, position, out var token))
                     break;
                 tokenList.Add(token);
                 position += token.Length;

@@ -29,13 +29,12 @@ namespace Markdown.RenderUtilities
                 .SelectMany(p => p.AcceptedTokenTypes)
                 .ToDictionary(tknType => tknType,
                     tknType => processors
-                               .Where(p => p.AcceptedTokenTypes.Contains(tknType)).FirstOrDefault());
+                               .FirstOrDefault(p => p.AcceptedTokenTypes.Contains(tknType)));
 
-            StringBuilder result = new StringBuilder();
+            var result = new StringBuilder();
             for (var i = 0; i < tokens.Count; i++)
             {
-                string tokenString = null;
-                if (typeToProcessor[tokens[i].TokenType].TryGetRenderedTokenText(tokens, i, out tokenString))
+                if (typeToProcessor[tokens[i].TokenType].TryGetRenderedTokenText(tokens, i, out var tokenString))
                     result.Append(tokenString);
             }
 

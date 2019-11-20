@@ -42,13 +42,12 @@
   <ItemGroup>
     <Compile Include="RenderUtilities\ITokenProcessor.cs" />
     <Compile Include="RenderUtilities\MarkdownRenderUtilities.cs" />
-    <Compile Include="RenderUtilities\PairedHandler.cs" />
+    <Compile Include="RenderUtilities\PairedProcessor.cs" />
     <Compile Include="RenderUtilities\PairedTokenDescription.cs" />
     <Compile Include="RenderUtilities\Renderer.cs" />
     <Compile Include="RenderUtilities\TokenProcessingDescriptions\MarkdownEscapeTokenProcessingDescription.cs" />
     <Compile Include="RenderUtilities\TokenProcessingDescriptions\MarkdownPairedTokenProcessingDescription.cs" />
     <Compile Include="RenderUtilities\TokenProcessingDescriptions\MarkdownSimpleTokenProcessingDescription.cs" />
-    <Compile Include="RenderUtilities\TokenProcessingDescriptions\PairedTokenProcessingDescription.cs" />
     <Compile Include="RenderUtilities\TokenProcessingDescriptions\TokenProcessingDescription.cs" />
     <Compile Include="TokenizationUtilities\MarkdownTokenUtilities.cs" />
     <Compile Include="Md.cs" />

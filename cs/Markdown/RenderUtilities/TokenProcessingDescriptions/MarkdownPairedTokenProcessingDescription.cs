@@ -2,7 +2,7 @@
 
 namespace Markdown.RenderUtilities.TokenProcessingDescriptions
 {
-    public class MarkdownPairedTokenProcessingDescription : PairedTokenProcessingDescription
+    public class MarkdownPairedTokenProcessingDescription : TokenProcessingDescription
     {
         private readonly TokenType tokenType;
         private readonly string tag;
@@ -15,7 +15,7 @@ namespace Markdown.RenderUtilities.TokenProcessingDescriptions
             this.tag = tag;
         }
 
-        public override bool IsOpening(List<Token> tokenList, int i)
+        public bool IsOpening(List<Token> tokenList, int i)
         {
             if (tokenList[i].TokenType != tokenType || i + 1 == tokenList.Count
             || tokenList[i + 1].TokenType == TokenType.WhiteSpace)
@@ -27,7 +27,7 @@ namespace Markdown.RenderUtilities.TokenProcessingDescriptions
             return true;
         }
 
-        public override bool IsClosing(List<Token> tokenList, int i)
+        public bool IsClosing(List<Token> tokenList, int i)
         {
             if (tokenList[i].TokenType != tokenType || i == 0
             || tokenList[i - 1].TokenType == TokenType.WhiteSpace)
@@ -39,7 +39,7 @@ namespace Markdown.RenderUtilities.TokenProcessingDescriptions
             return true;
         }
 
-        public override string GetRenderedTokenText(Token token, bool hasPair, bool isClosed)
+        public string GetRenderedTokenText(Token token, bool hasPair, bool isClosed)
         {
             if (!hasPair)
                 return token.Text;

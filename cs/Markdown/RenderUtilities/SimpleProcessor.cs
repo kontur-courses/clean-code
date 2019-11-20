@@ -27,9 +27,8 @@ namespace Markdown.RenderUtilities
             int tokenIndex, out string tokenString)
         {
             tokenString = null;
-            MarkdownSimpleTokenProcessingDescription processingDescription = null;
             if (!typeToDescription.TryGetValue(
-                tokens[tokenIndex].TokenType, out processingDescription))
+                tokens[tokenIndex].TokenType, out var processingDescription))
                 return false;
             tokenString = processingDescription.GetRenderedTokenText(tokens[tokenIndex]);
             return true;
