@@ -13,65 +13,31 @@ namespace Markdown_Tests
         {
         }
 
+        [TestCase(@"\_testText\_", "_testText_", TestName = "ReplaceEscapedGrounds")]
+        [TestCase("_test _", "_test _", TestName = "NotReplaceGround_IfClosingGroundGoesAfterSpace")]
+        [TestCase("_ test_", "_ test_", TestName = "NotReplaceGround_IfOpeningGroundGoesBeforeSpace")]
+        [TestCase("digit_12_3", "digit_12_3", TestName = "NotReplaceGrounds_InsideTextWithDigitsDelimitedWithGrounds")]
+        [TestCase("__test _Text", "__test _Text", TestName = "NotReplaceNotParedSelectionBorders")]
+        [TestCase("_test __a__ Text_", "<em>test __a__ Text</em>", TestName =
+            "NotReplaceTwoGroundsByStrongTag_InsideGrounds")]
+        [TestCase("_testText_", "<em>testText</em>", TestName = "NotReplaceGround_IfClosingGroundGoesAfterSpace")]
+        [TestCase("__test _a_ Text__", "<strong>test <em>a</em> Text</strong>", TestName =
+            "ReplaceGroundsByEmTag_InsideTwoGrounds")]
+        [TestCase("__testText__", "<strong>testText</strong>", TestName = "ReplaceTwoGroundsByStrongTag")]
+        [TestCase("__test _a__ Text_", "<strong>test _a</strong> Text_", TestName =
+            "ReplaceFirstOpenedTag_WhenCrossedAndSecondIsLeft")]
+        [TestCase("__test_ a__ Text_", "<strong>test_ a</strong> Text_", TestName =
+            "ReplaceFirstOpenedTag_WhenCrossedAndSecondIsRight")]
+        public void Replace(string text, string expected)
+        {
+            Md.Render(text).Should().Be(expected);
+        }
+
         [Test]
         public void NotFall_WhenEmptyStringGiven()
         {
             Func<string> testDelegate = () => Md.Render("");
             testDelegate.Should().NotThrow();
-        }
-
-        [Test]
-        public void NotReplaceEscapedGrounds()
-        {
-            Md.Render(@"\_testText\_").Should().Be(@"_testText_");
-        }
-
-        [Test]
-        public void NotReplaceGround_IfClosingGroundGoesAfterSpace()
-        {
-            Md.Render("_test _").Should().Be("_test _");
-        }
-
-        [Test]
-        public void NotReplaceGround_IfOpeningGroundGoesBeforeSpace()
-        {
-            Md.Render("_ test_").Should().Be("_ test_");
-        }
-
-        [Test]
-        public void NotReplaceGrounds_InsideTextWithDigitsDelimitedWithGrounds()
-        {
-            Md.Render("digit_12_3").Should().Be("digit_12_3");
-        }
-
-        [Test]
-        public void NotReplaceNotParedSelectionBorders()
-        {
-            Md.Render("__test _Text").Should().Be("__test _Text");
-        }
-
-        [Test]
-        public void NotReplaceTwoGroundsByStrongTag_InsideGrounds()
-        {
-            Md.Render("_test __a__ Text_").Should().Be("<em>test __a__ Text</em>");
-        }
-
-        [Test]
-        public void ReplaceGroundByEmTag()
-        {
-            Md.Render("_testText_").Should().Be("<em>testText</em>");
-        }
-
-        [Test]
-        public void ReplaceGroundsByEmTag_InsideTwoGrounds()
-        {
-            Md.Render("__test _a_ Text__").Should().Be("<strong>test <em>a</em> Text</strong>");
-        }
-
-        [Test]
-        public void ReplaceTwoGroundsByStrongTag()
-        {
-            Md.Render("__testText__").Should().Be("<strong>testText</strong>");
         }
     }
 }
