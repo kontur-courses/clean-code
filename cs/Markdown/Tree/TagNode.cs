@@ -13,6 +13,11 @@ namespace Markdown.Tree
             TypeTag = tagType;
         }
 
+        public TagNode(TagType tagType) : base(new List<SyntaxNode>())
+        {
+            TypeTag = tagType;
+        }
+
         public void Add(SyntaxNode node)
         {
             ChildNode.Add(node);

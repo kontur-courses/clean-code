@@ -32,7 +32,7 @@ namespace Markdown.Languages
                     continue;
 
                 if (tag.IsOpen && (StackOfTags.Count == 0 ||
-                                   (StackOfTags.Peek().Tagtype != tag.Tagtype && !StackOfTags.Peek().IsOpen)))
+                                   (StackOfTags.Peek().Tagtype != tag.Tagtype)))
                 {
                     StackOfTags.Push(tag);
                 }
@@ -84,7 +84,7 @@ namespace Markdown.Languages
 
         private static bool IsOpenTag(string line, int i, string tag)
         {
-            return i + tag.Length <= line.Length && line[i + tag.Length] != ' ' && !char.IsNumber(line, i + tag.Length);
+            return i + tag.Length < line.Length && line[i + tag.Length] != ' ' && !char.IsNumber(line, i + tag.Length);
         }
 
         private static bool IsCloseTag(string line, int i)
