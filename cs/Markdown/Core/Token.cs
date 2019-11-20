@@ -1,6 +1,4 @@
-﻿using Markdown.Core.Tags;
-
-namespace Markdown.Core
+﻿namespace Markdown.Core
 {
     class Token
     {
