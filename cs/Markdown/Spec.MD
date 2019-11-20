@@ -26,3 +26,5 @@
 11. Допускается, что тэг `>` может начинаться с любой позиции в тексте, также этот тэг может быть вложенным сам в себя сколько угодно раз, но есть ограничение: тэг `>` действует только до `\n` или до конца текста: <br>
 `asd>qwe` должно замениться на `asd<blockquote>qwe</blockquote>` <br>
 `1>2>3>4>5` должно замениться на `1<blockquote>2<blockquote>3<blockquote>4<blockquote>5</blockquote></blockquote></blockquote></blockquote>` <br>
+12. Внутри тэга `>` должны работать и другие тэги: <br>
+`>___asd___` должно замениться на `<blockquote><strong><em>asd</em></strong></blockquote>` <br>
