@@ -21,7 +21,7 @@ namespace Markdown
             var correctTagsPair = new MdTagsParsers.PairTagsParser().ParsePairTags(
                 text,
                 EscapeSymbol
-                .FindAllPairsEscapeAndEscapedSymbols(text)
+                .FindSortedPairsEscapeAndEscapedSymbols(text)
                 .SelectMany(pair => new[] { pair.escapeSymbolIndex, pair.escapedSymbolsIndex }));
             return DefaultTagsTokensReplacer.ReplaceTagTokensInString(
                 text,

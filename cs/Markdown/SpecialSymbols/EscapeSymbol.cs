@@ -15,7 +15,7 @@ namespace Markdown.SpecialSymbols
                 throw new ArgumentNullException();
             var builder = new StringBuilder();
             var startIndex = 0;
-            foreach (var (indexToRemove, escapedSymbolsIndex) in FindAllPairsEscapeAndEscapedSymbols(text))
+            foreach (var (indexToRemove, escapedSymbolsIndex) in FindSortedPairsEscapeAndEscapedSymbols(text))
             {
                 var endIndex = indexToRemove;
                 builder.Append(text, startIndex, endIndex - startIndex);
@@ -25,7 +25,7 @@ namespace Markdown.SpecialSymbols
             return builder.ToString();
         }
 
-        public static (int escapeSymbolIndex, int escapedSymbolsIndex)[] FindAllPairsEscapeAndEscapedSymbols(string text)
+        public static (int escapeSymbolIndex, int escapedSymbolsIndex)[] FindSortedPairsEscapeAndEscapedSymbols(string text)
         {
             if (text == null)
                 throw new ArgumentNullException();

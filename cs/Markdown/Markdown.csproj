@@ -77,7 +77,7 @@
     <Compile Include="Tests\MdTags_Tests\TagAndTokenComparers_Tests\PairTagAndTokenComparers_Tests\DefaultPairTagAndTokenComparer_Tests\Default_IsTokenCloseTag_Tests.cs" />
     <Compile Include="Tests\MdTags_Tests\TagAndTokenComparers_Tests\PairTagAndTokenComparers_Tests\DefaultPairTagAndTokenComparer_Tests\Default_IsTokenOpenTag_Tests.cs" />
     <Compile Include="Tests\Md_Tests\Md_Render_Tests.cs" />
-    <Compile Include="Tests\SpecialSymbols_Tests\EscapeSymbol_Tests\EscapeSymbol_FindAllPairsEscapeAndEscapedSymbols.cs" />
+    <Compile Include="Tests\SpecialSymbols_Tests\EscapeSymbol_Tests\EscapeSymbol_FindSortedPairsEscapeAndEscapedSymbols.cs" />
     <Compile Include="Tests\SpecialSymbols_Tests\EscapeSymbol_Tests\EscapeSymbol_RemoveAllEscapeSymbolEntries_Tests.cs" />
     <Compile Include="Tests\StringExtensions_Tests\StringExtensions_GetTokensWithSubStrsEntries_Tests.cs" />
     <Compile Include="Tests\TagsDataBase_Tests\MdAndHtmlTags_Tests\MdAndHtmlTags_GetHtmlTagByMdTag_Tests.cs" />
