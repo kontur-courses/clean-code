@@ -4,6 +4,10 @@
     {
         public bool IsFirst;
 
+        public PairToken(TokenType type, string content, int length, bool isFirst) : base(type, content, length)
+        {
+            IsFirst = isFirst;
+        }
         public PairToken(TokenType type, string content, int length) : base(type, content, length)
         {
         }

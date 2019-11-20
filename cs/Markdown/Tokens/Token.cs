@@ -27,9 +27,25 @@
             Length = Content.Length;
         }
 
+        public char GetLastContentChar()
+        {
+            return Content[Content.Length - 1];
+        }
+
+        public char GetFirstContentChar()
+        {
+            return Content[0];
+        }
+
+        public Token GetTextToken()
+        {
+            return new Token(TokenType.Text, Content, Length);
+        }
+
         public override string ToString()
         {
             return Content;
         }
+
     }
 }
