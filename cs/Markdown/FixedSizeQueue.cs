@@ -1,83 +1,44 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Text;
 
 namespace Markdown
 {
-    public class QueueItem<T>
-    {
-        public readonly T Value;
-        public QueueItem<T> Next;
-
-        public QueueItem(T value, QueueItem<T> next)
-        {
-            this.Value = value;
-            this.Next = next;
-        }
-    }
 
     class FixedSizeQueue<T>
     {
-        private readonly int Size;
-        QueueItem<T> head;
-        QueueItem<T> tail;
+        private LinkedList<T> Elements;
+        public int Size { get; }
         int Count;
 
         public FixedSizeQueue(int size)
         {
-            head = null;
-            tail = null;
-            this.Size = size;
+            Elements = new LinkedList<T>();
+            Size = size;
         }
 
-        public bool IsEmpty { get { return head == null; } }
+        public bool IsEmpty { get { return Elements.Count==0; } }
 
         public void Enqueue(T value)
         {
-            if (IsEmpty)
-                tail = head = new QueueItem<T>(value, null);
-            else
-            {
-                var item = new QueueItem<T>(value, null);
-                tail.Next = item;
-                tail = item;
-            }
-            Count++;
-            while (Count > Size)
-                this.Dequeue();
-        }
-
-        public T Dequeue()
-        {
-            if (head == null) throw new InvalidOperationException();
-            var result = head.Value;
-            head = head.Next;
-            if (head == null)
-                tail = null;
-            Count--;
-            return result;
-        }
-
-        public T GetHead()
-        {
-            return head.Value;
+            Elements.AddLast(value);
+            while (Elements.Count > Size)
+                Elements.RemoveFirst();
         }
 
         public T Get(int index)
         {
-            var outIndex = 0;
-            QueueItem<T> outItem = head;
-            while (outIndex < index)
-            {
-                outItem = outItem.Next;
-                outIndex++;
-            }
-            return outItem.Value;
+            if (Elements.Count <= index)
+                return default;
+            return Elements.ElementAt(index);
         }
 
         public T Last()
         {
-            return tail==null ? default : tail.Value;
+            if (Elements.Last == null)
+                return default;
+            return Elements.Last.Value;
         }
     }
 }

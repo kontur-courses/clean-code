@@ -109,9 +109,9 @@ namespace Markdown
         }
 
 
-        [TestCase("/y", "/y")]
-        [TestCase("/", "/")]
-        [TestCase("yyy/yyy", "yyy/yyy")]
+        [TestCase(@"\\y", @"\y")]
+        [TestCase(@"\\", @"\")]
+        [TestCase(@"yyy\\yyy", @"yyy\yyy")]
         public void OneSlashWithoutSpecialSymbols_TextShouldNotChange(string text, string expectedText)
         {
             var renderer = new Md();
@@ -119,8 +119,8 @@ namespace Markdown
             processedText.Should().Be(expectedText);
         }
 
-        [TestCase("/_", "_")]
-        [TestCase("/_aaa", "_aaa")]
+        [TestCase(@"\_", "_")]
+        [TestCase(@"\_aaa", "_aaa")]
         public void OneSlashWithOneUnderscore_SlashShouldNotBeInText(string text, string expectedText)
         {
             var renderer = new Md();
@@ -128,7 +128,7 @@ namespace Markdown
             processedText.Should().Be(expectedText);
         }
 
-        [TestCase("/_aaa/_", "_aaa_")]
+        [TestCase(@"\_aaa\_", "_aaa_")]
         public void OneSlashWithTwoUnderscoreClosed_TextShouldNotBeInTags(string text, string expectedText)
         {
             var renderer = new Md();
@@ -155,19 +155,38 @@ namespace Markdown
         }
 
 
-        [TestCase("////////////", "")]
+        [TestCase("_aaa__bbb_ccc__", "<em>aaa__bbb</em>ccc__")]
+        public void PartialOverlapping_ShouldNotBeInTags(string text, string expectedText)
+        {
+            var renderer = new Md();
+            var processedText = renderer.Render(text);
+            processedText.Should().Be(expectedText);
+        }
+
+        [TestCase("[test](hello)", "<a href=hello>test</a>")]
+        public void LinkTagsTests_ShouldBeInTags(string text, string expectedText)
+        {
+            var renderer = new Md();
+            var processedText = renderer.Render(text);
+            processedText.Should().Be(expectedText);
+        }
+
+
+        [TestCase(@"\\\\\\", @"\\\")]
         [TestCase("__aaa_aaa__aaa_", "")]
-        [TestCase("________", "")]
-        [TestCase("_ _", "")]
-        [TestCase("/_ _test_", "_ <em>test</em>")]
-        [TestCase("/__test_", "_<em>test</em>")]
-        [TestCase("<em>test</em>", "")]
+        [TestCase("________", "________")]
+        [TestCase("_ _", "_ _")]
+        [TestCase(@"\_ _test_", "_ <em>test</em>")]
+        [TestCase(@"\__test_", "_<em>test</em>")]
+        [TestCase("<em>test</em>", "<em>test</em>")]
         public void TemporaryTestsWithoutCategory(string text, string expectedText)
         {
             var renderer = new Md();
             var processedText = renderer.Render(text);
             processedText.Should().Be(expectedText);
         }
+
+
         /*здесь собраны тесты которые пока что не относятся ни к какой категории
          * некоторые тесты на ситуацию когда поведение парсера
          * в таких случаях пока что не определено правилами
