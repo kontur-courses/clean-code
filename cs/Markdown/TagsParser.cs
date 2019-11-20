@@ -13,19 +13,17 @@ namespace Markdown
 
         public static List<TagsPair> GetTagsPair(StringBuilder sourceText, List<TagSpecification> currentSpecifications)
         {
-            var tagsSequences = GetTagsSequences(sourceText, currentSpecifications);
-            var tagsByLine = currentSpecifications.Where(tag =>  tag.EndWithLine).Select(tag => tag.TagType).ToList();
+            var tagsByLine = currentSpecifications.Where(tag => tag.EndWithLine).Select(tag => tag.TagType).ToList();
+            var tagsSequences = GetTagsSequences(sourceText, currentSpecifications, tagsByLine);
             var tagsPair = GetTagsPair(tagsSequences, currentSpecifications, tagsByLine);
             return tagsPair;
         }
 
-        private static Queue<Tag> GetTagsSequences(StringBuilder sourceString, List<TagSpecification> currentSpecifications)
+        private static Queue<Tag> GetTagsSequences(StringBuilder sourceString, List<TagSpecification> currentSpecifications, IReadOnlyCollection<TagType> tagsByLine)
         {
             var result = new Queue<Tag>();
-            var lastWasEndLine = false;
             for (var currentPosition = 0; currentPosition < sourceString.Length; currentPosition++)
             {
-                lastWasEndLine = false;
                 if (EscapeSymbol == sourceString[currentPosition])
                 {
                     sourceString.Remove(currentPosition, 1);
@@ -42,12 +40,12 @@ namespace Markdown
                 var tag = GetMostPriorityTagInCurrentPosition(currentSpecifications, possibleStartTag, possibleEndTag,
                     currentPosition);
                 result.Enqueue(tag);
-                if (tag.TagType == TagType.EndLine)
-                    lastWasEndLine = true;
                 currentPosition += tag.Value.Length - 1;
             }
-            if (!lastWasEndLine)
-                result.Enqueue(new Tag(TagType.EndLine, sourceString.Length, PositionType.ClosingTag, "\r\n"));
+            foreach (var tag in result.Where(tag => tagsByLine.Contains(tag.TagType)).ToList())
+            {
+                result.Enqueue(new Tag(tag.TagType, sourceString.Length, PositionType.ClosingTag, "\r\n"));
+            }
             return result;
         }
 
@@ -97,7 +95,7 @@ namespace Markdown
         {
             var previousPairs = new List<TagsPair>();
             var openingTags = new List<Tag>();
-            var tagsAfterBlockingTags = new List<TagsPair>();
+            var tagsPairAfterBlockingTags = new List<TagsPair>();
             while (characterSequences.Count > 0)
             {
                 var currentTag = characterSequences.Dequeue();
@@ -114,18 +112,18 @@ namespace Markdown
                 openingTags.Remove(startTag);
                 foreach (var invalidOpeningTags in GetAllInvalidOpeningTag(currentPair, openingTags, currentSpecifications))
                     openingTags.Remove(invalidOpeningTags);
-                foreach (var invalidTagsPair in GetAllInvalidTagsPair(currentPair, tagsAfterBlockingTags, currentSpecifications))
+                foreach (var invalidTagsPair in GetAllInvalidTagsPair(currentPair, tagsPairAfterBlockingTags, currentSpecifications))
                 {
-                    tagsAfterBlockingTags.Remove(invalidTagsPair);
+                    tagsPairAfterBlockingTags.Remove(invalidTagsPair);
                     if (invalidTagsPair.StartPosition > currentPair.StartPosition) continue;
                     InsertOpeningTags(openingTags, invalidTagsPair.StartTag);
                 }
                 if (CanRemoveCurrentPairInTheFuture(openingTags, currentSpecifications, currentPair.PairType))
-                    tagsAfterBlockingTags.Add(currentPair);
+                    tagsPairAfterBlockingTags.Add(currentPair);
                 else
                     previousPairs.Add(currentPair);
             }
-            previousPairs.AddRange(tagsAfterBlockingTags);
+            previousPairs.AddRange(tagsPairAfterBlockingTags);
             return previousPairs;
         }
 
