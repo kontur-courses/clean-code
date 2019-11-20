@@ -4,62 +4,46 @@
     {
         string StringTag { get; }
         int Length { get; }
-        TypeEnum TypeEnum { get; }
-        ClassEnum ClassEnum { get; set; }
+        TagTypeEnum TagType { get; }
+        TagClassEnum TagClass { get; set; }
     }
 
-    public class TwoUnderscoreTag : ITag
+    public class MDTag : ITag
     {
-        public string StringTag => "__";
+        public string StringTag { get; }
         public int Length { get; }
-        public TypeEnum TypeEnum { get; }
-        public ClassEnum ClassEnum { get; set; }
+        public TagTypeEnum TagType { get; }
+        public TagClassEnum TagClass { get; set; }
 
-        public TwoUnderscoreTag()
+        public MDTag(string tag, TagTypeEnum tagType)
         {
-            TypeEnum = TypeEnum.TwoUnderScoreMd;
+            StringTag = tag;
+            TagType = tagType;
             this.Length = StringTag.Length;
         }
-    }
-    
-    public class StrongTag : ITag
-    {
-        public string StringTag => "<strong>";
-        public int Length { get; }
-        public TypeEnum TypeEnum { get; }
-        public ClassEnum ClassEnum { get; set; }
 
-        public StrongTag()
+        public static MDTag GetTwoUnderscoreTag()
         {
-            TypeEnum = TypeEnum.StrongHtml;
-            this.Length = StringTag.Length;
+            return new MDTag("__", TagTypeEnum.TwoUnderScoreMd);
         }
-    }
-    
-    public class EmTag : ITag
-    {
-        public string StringTag => "<em>";
-        public int Length { get; }
-        public TypeEnum TypeEnum { get; }
-        public ClassEnum ClassEnum { get; set; }
 
-        public EmTag()
+        public static MDTag GetOneUnderscoreTag()
         {
-            TypeEnum = TypeEnum.EmHtml;
-            this.Length = StringTag.Length;
+            return new MDTag("_", TagTypeEnum.OneUnderscoreMd);
         }
     }
 
-    public class OneUnderscoreTag : ITag
+    public class HTMLTag : ITag
     {
-        public string StringTag => "_";
+        public string StringTag { get; }
         public int Length { get; }
-        public TypeEnum TypeEnum { get; }
-        public ClassEnum ClassEnum { get; set; }
+        public TagTypeEnum TagType { get; }
+        public TagClassEnum TagClass { get; set; }
 
-        public OneUnderscoreTag()
+        public HTMLTag(string tag, TagTypeEnum tagType)
         {
-            TypeEnum = TypeEnum.OneUnderscoreMd;
+            StringTag = tag;
+            TagType = tagType;
             this.Length = StringTag.Length;
         }
     }

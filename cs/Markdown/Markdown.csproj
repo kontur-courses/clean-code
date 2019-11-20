@@ -48,7 +48,7 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="MdToHtmlWrapper.cs" />
+    <Compile Include="Wrapper.cs" />
     <Compile Include="MdProccesor.cs" />
     <Compile Include="MD_should.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />

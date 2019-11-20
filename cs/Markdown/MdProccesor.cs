@@ -7,12 +7,12 @@ namespace Markdown
 {
     public class MdProccesor
     {
-        private Stack<TagTypeContainer> stackTags = new Stack<TagTypeContainer>();
-        private List<ITag> tags = new List<ITag>();
-        private Dictionary<string, bool> isOpen = new Dictionary<string, bool>();
-        private MdToHtmlWrapper htmlWrapper;
+        private readonly Stack<TagTypeContainer> stackTags = new Stack<TagTypeContainer>();
+        private List<ITag> tags;
+        private readonly Dictionary<string, bool> isOpen = new Dictionary<string, bool>();
+        private readonly Wrapper MDToWrapper;
 
-        public MdProccesor(List<ITag> list)
+        public MdProccesor(List<ITag> list, Wrapper wrapper)
         {
             this.tags = list.OrderByDescending(x => x.Length).ToList();
             foreach (var tag in list)
@@ -20,8 +20,8 @@ namespace Markdown
                 isOpen[tag.StringTag] = false;
             }
 
-            var dict = MdToHtmlWrapper.getMdToHtmlDefaultMap();
-            htmlWrapper = new MdToHtmlWrapper(dict);
+            MDToWrapper = wrapper;
+            MDToWrapper.SetDefaultMap();
         }
 
         public String Render(string mdParagraph)
@@ -31,76 +31,60 @@ namespace Markdown
             var result = new StringBuilder(mdParagraph);
             while (i < result.Length)
             {
-                ITag tag2;
-                if (CheckIsTagSymbol(i, result.ToString(), out tag2))
+                ITag tag;
+                if (TryGetTag(i, result.ToString(), out tag))
                 {
-                    if (IsEscapingSymbol(i, result.ToString()))
+                    if (IsEscapedSymbol(i, result.ToString()))
                     {
-                        i += tag2.Length;
+                        i += tag.Length;
                         continue;
                     }
 
-                    TagTypeContainer tag;
-                    if (IsCorrectSpacedTag(i, result.ToString(), out tag, tag2))
+                    TagTypeContainer typeContainer;
+                    if (TryGetCorrectSpacedTagContainer(i, result.ToString(), out typeContainer, tag))
                     {
                         if (i != 0)
                         {
                             int temp;
-                            switch (tag.TypeEnum)
-                            {
-                                case TypeEnum.TwoUnderScoreMd:
-                                    if (i + 2 < result.Length)
-                                        if (int.TryParse(result[i - 1].ToString(), out temp) &&
-                                            int.TryParse(result[i + 2].ToString(), out temp))
-                                        {
-                                            i += 3;
-                                            continue;
-                                        }
-
-                                    break;
-                                case TypeEnum.OneUnderscoreMd:
-                                    if (i + 1 < result.Length)
-                                        if (int.TryParse(result[i - 1].ToString(), out temp) &&
-                                            int.TryParse(result[i + 1].ToString(), out temp))
-                                        {
-                                            i += 2;
-                                            continue;
-                                        }
-
-                                    break;
-                            }
+                            if (i + typeContainer.Length < result.Length)
+                                if (int.TryParse(result[i - 1].ToString(), out temp) &&
+                                    int.TryParse(result[i + typeContainer.Length].ToString(), out temp))
+                                {
+                                    i += typeContainer.Length + 1;
+                                    continue;
+                                }
                         }
 
-                        if (tag.ClassEnum == ClassEnum.Closer)
+                        if (typeContainer.TagClass == TagClassEnum.Closer)
                         {
-                            if (stackTags.Peek().Tag.TypeEnum == tag.TypeEnum)
+                            if (stackTags.Peek().Tag.TagType == typeContainer.TagType)
                             {
-                                var token = MdToHtmlWrapper.GetToken(tag, stackTags.Peek(), result.ToString());
+                                var token = GetToken(typeContainer, stackTags.Peek(), result.ToString());
 
                                 var wrappedTag =
-                                    htmlWrapper.WrapWithTag(
-                                        tag.Tag,
+                                    MDToWrapper.WrapWithTag(
+                                        typeContainer.Tag,
                                         token);
                                 result.Remove(token.Start, token.End - token.Start + 1)
                                     .Insert(token.Start, wrappedTag);
                                 stackTags.Pop();
-                                isOpen[tag2.StringTag] = !isOpen[tag2.StringTag];
-                                i = tag.TypeEnum == TypeEnum.TwoUnderScoreMd ? i + 2 : i + 1;
+                                isOpen[tag.StringTag] = !isOpen[tag.StringTag];
+                                i = typeContainer.TagType == TagTypeEnum.TwoUnderScoreMd ? i + 2 : i + 1;
                                 continue;
                             }
                         }
 
-                        if (tag.TypeEnum == TypeEnum.TwoUnderScoreMd && isOpen["_"])
+                        if (typeContainer.TagType == TagTypeEnum.TwoUnderScoreMd && isOpen["_"])
                         {
                             i += 2;
                             continue;
                         }
 
-                        stackTags.Push(tag);
-                        isOpen[tag2.StringTag] = !(isOpen[tag2.StringTag]);
-                        i = tag.TypeEnum == TypeEnum.TwoUnderScoreMd ? i + 2 : i + 1;
+                        stackTags.Push(typeContainer);
+                        isOpen[tag.StringTag] = !(isOpen[tag.StringTag]);
+                        i = typeContainer.TagType == TagTypeEnum.TwoUnderScoreMd ? i + 2 : i + 1;
                     }
-                    else i += tag2.Length;
+                    else i += tag.Length;
                 }
                 else i += 1;
             }
@@ -108,26 +92,20 @@ namespace Markdown
             return result.ToString();
         }
 
-        private bool CheckIsTagSymbol(int start, string input, out ITag tag2)
+        private bool TryGetTag(int start, string input, out ITag tag2)
         {
             for (var j = 0; j < tags.Count; j++)
             {
                 var tag = tags[j];
                 var k = 0;
-
                 if (tag.Length + start > input.Length)
                     continue;
-
                 for (var i = 0; i < tag.Length; i++)
                 {
                     if (input[start + k] == tag.StringTag[i])
-                    {
                         k += 1;
-                    }
                     else
-                    {
                         break;
-                    }
                 }
 
                 if (k == tag.Length)
@@ -142,63 +120,66 @@ namespace Markdown
         }
 
 
-        private bool IsEscapingSymbol(int ind, string inp)
+        private bool IsEscapedSymbol(int ind, string input)
         {
-            if (ind - 1 >= 0)
-                if (inp[ind - 1] == '\\')
-                {
-                    return true;
-                }
-
-            return false;
+            return ind - 1 >= 0 ? input[ind - 1] == '\\' : false;
         }
 
-        private bool IsCorrectSpacedTag(int ind, string input, out TagTypeContainer tag, ITag tag2)
+        private bool TryGetCorrectSpacedTagContainer(int ind, string input, out TagTypeContainer tagContainer, ITag tag)
         {
             if (ind != 0)
             {
-                if (ind + tag2.Length < input.Length) // "__ "
+                if (ind + tag.Length < input.Length) // "__ "
                 {
-                    if (isOpen[tag2.StringTag])
+                    if (isOpen[tag.StringTag])
                     {
                         if (input[ind - 1] != ' ')
                         {
-                            tag = new TagTypeContainer(tag2, isOpen[tag2.StringTag], ind); // b_ closer
+                            tagContainer = new TagTypeContainer(tag, isOpen[tag.StringTag], ind); // b_ closer
                             return true;
                         }
                     }
 
-                    if (input[ind + tag2.Length] != ' ')
+                    if (input[ind + tag.Length] != ' ')
                     {
-                        tag = new TagTypeContainer(tag2, isOpen[tag2.StringTag], ind); // opener
+                        tagContainer = new TagTypeContainer(tag, isOpen[tag.StringTag], ind); // opener
                         return true;
                     }
                 }
 
-                if (ind + tag2.Length == input.Length) //"__"
+                if (ind + tag.Length == input.Length) //"__"
                 {
-                    if (isOpen[tag2.StringTag])
+                    if (isOpen[tag.StringTag])
                     {
                         if (input[ind - 1] != ' ')
                         {
-                            tag = new TagTypeContainer(tag2, isOpen[tag2.StringTag], ind); // closer
+                            tagContainer = new TagTypeContainer(tag, isOpen[tag.StringTag], ind); // closer
                             return true;
                         }
                     }
 
-                    tag = new TagTypeContainer(tag2, isOpen[tag2.StringTag], ind); // opener
+                    tagContainer = new TagTypeContainer(tag, isOpen[tag.StringTag], ind); // opener
                     return true;
                 }
             }
 
-            if (input[ind + tag2.Length] != ' ')
+            if (input[ind + tag.Length] != ' ')
             {
-                tag = new TagTypeContainer(tag2, isOpen[tag2.StringTag], ind); // opener
+                tagContainer = new TagTypeContainer(tag, isOpen[tag.StringTag], ind); // opener
                 return true;
             }
 
-            tag = null;
+            tagContainer = null;
             return false;
+        }
+
+        public static Token GetToken(TagTypeContainer closerTag, TagTypeContainer openerTag, string result)
+        {
+            var end = closerTag.position + closerTag.Tag.Length - 1;
+            var stringValueStart = openerTag.position + openerTag.Tag.Length;
+            var token = new Token(result.ToString().Substring(stringValueStart, closerTag.position - stringValueStart),
+                openerTag.position, end);
+            return token;
         }
 
         public static void Main()
