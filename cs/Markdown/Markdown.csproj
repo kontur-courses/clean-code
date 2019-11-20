@@ -44,16 +44,20 @@
     <Compile Include="RenderUtilities\MarkdownRenderUtilities.cs" />
     <Compile Include="RenderUtilities\PairedHandler.cs" />
     <Compile Include="RenderUtilities\PairedTokenDescription.cs" />
-    <Compile Include="RenderUtilities\PairedTokenHandleDescription.cs" />
     <Compile Include="RenderUtilities\Renderer.cs" />
+    <Compile Include="RenderUtilities\TokenHandleDescriptions\MarkdownEscapeTokenHandleDescription.cs" />
+    <Compile Include="RenderUtilities\TokenHandleDescriptions\MarkdownPairedTokenHandleDescription.cs" />
+    <Compile Include="RenderUtilities\TokenHandleDescriptions\MarkdownSimpleTokenHandleDescription.cs" />
+    <Compile Include="RenderUtilities\TokenHandleDescriptions\PairedTokenHandleDescription.cs" />
+    <Compile Include="RenderUtilities\TokenHandleDescriptions\TokenHandleDescription.cs" />
     <Compile Include="TokenizationUtilities\MarkdownTokenUtilities.cs" />
     <Compile Include="Md.cs" />
     <Compile Include="RenderUtilities\SimpleHandler.cs" />
-    <Compile Include="RenderUtilities\SimpleTokenHandleDescription.cs" />
     <Compile Include="TokenizationUtilities\Token.cs" />
     <Compile Include="TokenizationUtilities\TokenReader.cs" />
     <Compile Include="TokenizationUtilities\TokenDescription.cs" />
     <Compile Include="TokenizationUtilities\TokenType.cs" />
   </ItemGroup>
+  <ItemGroup />
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
 </Project>

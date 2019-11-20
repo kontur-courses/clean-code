@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Markdown.RenderUtilities.TokenHandleDescriptions;
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
@@ -9,10 +10,10 @@ namespace Markdown.RenderUtilities
 {
     public class PairedHandler : ITokenHandler
     {
-        private readonly List<PairedTokenHandleDescription> handleDescriptions;
-        private readonly Dictionary<TokenType, PairedTokenHandleDescription> typeToHandler;
+        private readonly List<MarkdownPairedTokenHandleDescription> handleDescriptions;
+        private readonly Dictionary<TokenType, MarkdownPairedTokenHandleDescription> typeToHandler;
 
-        public PairedHandler(IEnumerable<PairedTokenHandleDescription> handleDescriptions)
+        public PairedHandler(IEnumerable<MarkdownPairedTokenHandleDescription> handleDescriptions)
         {
             this.handleDescriptions = handleDescriptions.ToList();
             typeToHandler = this.handleDescriptions.ToDictionary(token => token.TokenType);
@@ -67,9 +68,10 @@ namespace Markdown.RenderUtilities
                 return false;
             var handler = typeToHandler[token.TokenType];
             if (!tokenToPairedDescription.ContainsKey(token))
-                tokenString = handler.PrintToken(token, false, false);
+                tokenString = handler.GetRenderedTokenText(token, false, false);
             else
-                tokenString = handler.PrintToken(token, true, tokenToPairedDescription[token].CloseToken == token);
+                tokenString = handler.GetRenderedTokenText(
+                    token, true, tokenToPairedDescription[token].CloseToken == token);
             return true;
         }
     }

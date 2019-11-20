@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Markdown.RenderUtilities.TokenHandleDescriptions;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -8,10 +9,10 @@ namespace Markdown.RenderUtilities
 {
     public class SimpleHandler: ITokenHandler
     {
-        private readonly List<SimpleTokenHandleDescription> handleDescriptions;
-        private readonly Dictionary<TokenType, SimpleTokenHandleDescription> typeToHandler;
+        private readonly List<MarkdownSimpleTokenHandleDescription> handleDescriptions;
+        private readonly Dictionary<TokenType, MarkdownSimpleTokenHandleDescription> typeToHandler;
 
-        public SimpleHandler(IEnumerable<SimpleTokenHandleDescription> handleDescriptions)
+        public SimpleHandler(IEnumerable<MarkdownSimpleTokenHandleDescription> handleDescriptions)
         {
             this.handleDescriptions = handleDescriptions.ToList();
             typeToHandler = this.handleDescriptions.ToDictionary(token => token.TokenType);
@@ -40,10 +41,10 @@ namespace Markdown.RenderUtilities
         public bool TryGetTokenString(List<Token> tokens, int currentTokenIndex, out string tokenString)
         {
             tokenString = null;
-            SimpleTokenHandleDescription handler = null;
+            MarkdownSimpleTokenHandleDescription handler = null;
             if (!typeToHandler.TryGetValue(tokens[currentTokenIndex].TokenType, out handler))
                 return false;
-            tokenString = handler.PrintToken(tokens[currentTokenIndex]);
+            tokenString = handler.GetRenderedTokenText(tokens[currentTokenIndex]);
             return true;
         }
     }
