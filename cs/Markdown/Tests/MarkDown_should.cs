@@ -62,14 +62,16 @@ namespace Markdown.Tests
             return textNode.Value;
         }
 
-        [TestCase("а _abc_ а")]
+        [TestCase("a _abc_ d")]
         public void RenderTree_WhenOneTagWithText_TagNodeContainTextNodeThenTagNodeThenTextNode(string str)
         {
             var tree = new MarkDown().RenderTree(str);
             tree.ChildNode.Should().HaveCount(3);
             tree.ChildNode[0].Should().BeOfType<TextNode>();
+            ((TextNode) tree.ChildNode[0]).Value.Should().Be("a ");
             tree.ChildNode[1].Should().BeOfType<TagNode>();
             tree.ChildNode[2].Should().BeOfType<TextNode>();
+            ((TextNode) tree.ChildNode[2]).Value.Should().Be(" d");
         }
 
         [TestCase("_abc_ _abc_")]
@@ -78,6 +80,19 @@ namespace Markdown.Tests
             var tree = new MarkDown().RenderTree(str);
             tree.ChildNode.First().Should().BeOfType<TagNode>();
             tree.ChildNode.Last().Should().BeOfType<TagNode>();
+        }
+
+        [TestCase("__a _b_ a__")]
+        public void RenderTree_WhenNestedTag_TreeOneTagNodeWithTagNode(string str)
+        {
+            var tree = new MarkDown().RenderTree(str);
+            tree.ChildNode.Should().HaveCount(1);
+            var strongTag = tree.ChildNode.First();
+            strongTag.Should().BeOfType<TagNode>();
+            ((TagNode) strongTag).TypeTag.Should().Be(TagType.Strong);
+            var emTag = strongTag.ChildNode[1];
+            emTag.Should().BeOfType<TagNode>();
+            ((TagNode) emTag).TypeTag.Should().Be(TagType.Em);
         }
 
         [TestCase("_abc _")]

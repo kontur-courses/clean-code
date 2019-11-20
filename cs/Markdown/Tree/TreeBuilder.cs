@@ -1,5 +1,4 @@
 ﻿using System.Collections.Generic;
-using System.Linq;
 using Markdown.Languages;
 
 namespace Markdown.Tree
@@ -9,45 +8,94 @@ namespace Markdown.Tree
         public static SyntaxTree ReplaceToSyntaxTree(string line, List<TagToken> validTags,
             Dictionary<TagType, Tag> tags)
         {
+            validTags.Reverse();
+            var validStack = new Stack<TagToken>(validTags);
             var syntaxTree = new SyntaxTree();
-            var topBranch = new Stack<TagToken>();
-            validTags.Sort((t1, t2) => t1.Position.CompareTo(t2.Position));
+
+            var branch = new Stack<TagZone>();
+
             var i = 0;
-            foreach (var tag in validTags)
+            while (validStack.Count != 0)
             {
-                if (tag.IsOpen && (topBranch.Count == 0 ||
-                                   tags[topBranch.Peek().Tagtype].Children.Contains(tag.Tagtype)))
+                var tag1 = validStack.Pop();
+                var tag2 = validStack.Pop();
+
+                if (tag1.Position > i && tag2.Position > i)
                 {
-                    if (tag.Position - i != 0)
+                    branch.Push(
+                        new TagZone(new TagNode(tag1.Tagtype, new List<SyntaxNode>
+                            {
+                                new TextNode(line.Substring(tag1.Position + 1, tag2.Position - tag1.Position - 1))
+                            }), tag1.Position, tag2.Position + tags[tag2.Tagtype].End.Length));
+
+                    i = tag2.Position;
+                }
+                else
+                {
+                    var node = new TagNode(tag1.Tagtype);
+                    var child = new List<TagZone>();
+                    while (branch.Count != 0)
                     {
-                        syntaxTree.Add(new TextNode(line.Substring(i, tag.Position)));
+                        var el = branch.Pop();
+                        if (el.Start >= tag1.Position && el.End <= tag2.Position)
+                            child.Add(el);
+                        else
+                        {
+                            branch.Push(el);
+                            break;
+                        }
                     }
 
-                    i = tag.Position + tags[tag.Tagtype].Start.Length;
-                    topBranch.Push(tag);
-                }
+                    child.Reverse();
 
-                if (!tag.IsOpen && topBranch.Peek().Tagtype == tag.Tagtype)
-                {
-                    var node = new TagNode(tag.Tagtype,
-                        new List<SyntaxNode>()
-                        {
-                            new TextNode(
-                                line.Substring(i, tag.Position - i))
-                        });
-                    i = tag.Position + tags[tag.Tagtype].End.Length;
-                    topBranch.Pop();
-                    syntaxTree.Add(node);
+                    branch.Push(new TagZone(node, tag1.Position, tag2.Position + tags[tag2.Tagtype].End.Length));
+
+                    var j = 0;
+                    var last = tag1.Position + tags[tag1.Tagtype].Start.Length;
+                    foreach (var el in child)
+                    {
+                        node.Add(new TextNode(line.Substring(last, el.Start - last)));
+                        last = el.End;
+                        node.Add(el.TagNode);
+                        j++;
+                    }
+
+                    node.Add(new TextNode(line.Substring(last, tag2.Position - last)));
+                    i = tag2.Position;
                 }
             }
 
-            if (line.Length - i != 0)
+            var branch3 = new List<TagZone>(branch);
+            if (branch3[branch3.Count - 1].Start != 0)
             {
-                syntaxTree.Add(new TextNode(
-                    line.Substring(i, line.Length - i)));
+                syntaxTree.Add(new TextNode(line.Substring(0, branch3[branch3.Count - 1].Start)));
+            }
+
+            foreach (var zone in branch)
+            {
+                syntaxTree.Add(zone.TagNode);
+            }
+
+            if (line.Length - branch3[0].End != 0)
+            {
+                syntaxTree.Add(new TextNode(line.Substring(branch3[0].End, line.Length - branch3[0].End)));
             }
 
             return syntaxTree;
+        }
+
+        private class TagZone
+        {
+            public int Start { get; }
+            public int End { get; }
+            public TagNode TagNode { get; }
+
+            public TagZone(TagNode tagNode, int start, int end)
+            {
+                TagNode = tagNode;
+                Start = start;
+                End = end;
+            }
         }
     }
 }
