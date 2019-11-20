@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
 using Markdown.Languages;
 
 namespace Markdown.Tree
@@ -30,13 +31,11 @@ namespace Markdown.Tree
                 if (tag == null)
                     continue;
 
-                if (tag.IsOpen && (stackOfTags.Count == 0 ||
-                                   (stackOfTags.Peek().Tagtype != tag.Tagtype)))
+                if (IsCorrectNextOpenTag(tag, stackOfTags, language))
                 {
                     stackOfTags.Push(tag);
                 }
-                else if (!tag.IsOpen && stackOfTags.Count > 0 && stackOfTags.Peek().Tagtype == tag.Tagtype &&
-                         stackOfTags.Peek().IsOpen)
+                else if (IsCorrectNextCloseTag(tag, stackOfTags))
                 {
                     UpdateTags(tag, stackOfTags, validTags);
                 }
@@ -48,6 +47,19 @@ namespace Markdown.Tree
             }
 
             return validTags;
+        }
+
+        private static bool IsCorrectNextOpenTag(TagToken tag, Stack<TagToken> stackOfTags, ILanguage language)
+        {
+            return tag.IsOpen && (stackOfTags.Count == 0 ||
+                                  (stackOfTags.Peek().Tagtype != tag.Tagtype && language
+                                       .Tags[stackOfTags.Peek().Tagtype].Children.Contains(tag.Tagtype)));
+        }
+
+        private static bool IsCorrectNextCloseTag(TagToken tag, Stack<TagToken> stackOfTags)
+        {
+            return !tag.IsOpen && stackOfTags.Count > 0 && stackOfTags.Peek().Tagtype == tag.Tagtype &&
+                   stackOfTags.Peek().IsOpen;
         }
 
         private static TagToken CreateTag(string line, int i, ILanguage language)
@@ -97,67 +109,65 @@ namespace Markdown.Tree
 
                 if (tag1.Position > i && tag2.Position > i)
                 {
-                    branch.Push(
-                        new TagZone(new TagNode(tag1.Tagtype, new List<SyntaxNode>
-                            {
-                                new TextNode(line.Substring(tag1.Position + 1, tag2.Position - tag1.Position - 1))
-                            }), tag1.Position, tag2.Position + tags[tag2.Tagtype].End.Length));
-
-                    i = tag2.Position;
+                    branch.Push(new TagZone(new TagNode(tag1.Tagtype, new List<SyntaxNode>
+                        {
+                            new TextNode(line.Substring(tag1.Position + 1, tag2.Position - tag1.Position - 1))
+                        }), tag1.Position, tag2.Position + tags[tag2.Tagtype].End.Length));
                 }
                 else
                 {
                     var node = new TagNode(tag1.Tagtype);
-                    var child = new List<TagZone>();
-                    while (branch.Count != 0)
-                    {
-                        var el = branch.Pop();
-                        if (el.Start >= tag1.Position && el.End <= tag2.Position)
-                            child.Add(el);
-                        else
-                        {
-                            branch.Push(el);
-                            break;
-                        }
-                    }
+                    var tagZone = new TagZone(node, tag1.Position, tag2.Position + tags[tag2.Tagtype].End.Length);
+                    var child = PutChildrenTagFromStack(branch, tagZone);
+                    branch.Push(tagZone);
 
-                    child.Reverse();
-
-                    branch.Push(new TagZone(node, tag1.Position, tag2.Position + tags[tag2.Tagtype].End.Length));
-
-                    var j = 0;
-                    var last = tag1.Position + tags[tag1.Tagtype].Start.Length;
-                    foreach (var el in child)
-                    {
-                        node.Add(new TextNode(line.Substring(last, el.Start - last)));
-                        last = el.End;
-                        node.Add(el.TagNode);
-                        j++;
-                    }
-
-                    node.Add(new TextNode(line.Substring(last, tag2.Position - last)));
-                    i = tag2.Position;
+                    AddChildrenNodesInNode(node, tag1.Position + tags[tag1.Tagtype].Start.Length, tag2.Position, child,
+                        line);
                 }
+
+                i = tag2.Position;
             }
 
-            var branch3 = new List<TagZone>(branch);
-            if (branch3[branch3.Count - 1].Start != 0)
-            {
-                syntaxTree.Add(new TextNode(line.Substring(0, branch3[branch3.Count - 1].Start)));
-            }
-
-            foreach (var zone in branch)
-            {
-                syntaxTree.Add(zone.TagNode);
-            }
-
-            if (line.Length - branch3[0].End != 0)
-            {
-                syntaxTree.Add(new TextNode(line.Substring(branch3[0].End, line.Length - branch3[0].End)));
-            }
+            AddChildrenNodesInNode(syntaxTree, 0, line.Length, branch.Reverse(), line);
 
             return syntaxTree;
         }
+
+        private static List<TagZone> PutChildrenTagFromStack(Stack<TagZone> stack, TagZone tagZone)
+        {
+            var children = new List<TagZone>();
+            while (stack.Count != 0)
+            {
+                var el = stack.Pop();
+                if (el.Start >= tagZone.Start && el.End <= tagZone.End)
+                    children.Add(el);
+                else
+                {
+                    stack.Push(el);
+                    break;
+                }
+            }
+
+            children.Reverse();
+            return children;
+        }
+
+        private static void AddChildrenNodesInNode(INode node, int start, int end, IEnumerable<TagZone> list,
+            string line)
+        {
+            var last = start;
+            foreach (var el in list)
+            {
+                if (el.Start - last != 0)
+                    node.Add(new TextNode(line.Substring(last, el.Start - last)));
+                last = el.End;
+                node.Add(el.TagNode);
+            }
+
+            if (end - last != 0)
+                node.Add(new TextNode(line.Substring(last, end - last)));
+        }
+
 
         private class TagZone
         {
