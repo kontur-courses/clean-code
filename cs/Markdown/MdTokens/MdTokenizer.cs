@@ -1,35 +1,20 @@
 ﻿﻿using System;
- using System.Collections;
  using System.Collections.Generic;
  using System.Linq;
- using System.Net.Configuration;
  using Markdown.Tokenizer;
 
 namespace Markdown.MdTokens
 {
     public class MdTokenizer : ITokenizer
     {
-        private readonly HashSet<string> specialSymbols;
-        private readonly Dictionary<string, bool> isSymbolPaired;
+        private MdTokenizerConfig config;
         private Stack<MdToken> pairedSymbols;
         private List<MdToken> tokens;
-        public MdTokenizer()
-        {
-            specialSymbols = new HashSet<string> {"_", "#", "__"};
-            isSymbolPaired = new Dictionary<string, bool>
-            {
-                {"_", true}, 
-                {"__", true}, 
-                {"#", false}, 
-                {@"\", false}, 
-                {"NONE", false}
-            };
-            
-        }
         public IEnumerable<IToken> MakeTokens(string text)
         {
             if (text == null) throw new ArgumentNullException(nameof(text));
             if (text == "") throw new ArgumentException("Text is empty");
+            if (config == null) config = MdTokenizerConfig.DefaultConfig();
             tokens = new List<MdToken>();
             pairedSymbols = new Stack<MdToken>();
             foreach (var str in text.Split().Where(str => str != ""))
@@ -53,12 +38,16 @@ namespace Markdown.MdTokens
 
         private void HandlePairedTokens(MdToken token)
         {
+            var beginningAndEndingAreDifferent = token.EndingSpecialSymbol != token.BeginningSpecialSymbol;
             if (token.BeginningSpecialSymbol != "NONE")
-                if (isSymbolPaired[token.BeginningSpecialSymbol] && token.EndingSpecialSymbol != token.BeginningSpecialSymbol)
+            {
+                if (config.IsSymbolPaired(token.BeginningSpecialSymbol) && beginningAndEndingAreDifferent)
                     pairedSymbols.Push(token);
+            }
+                
             
             if (token.EndingSpecialSymbol != "NONE")
-                if (token.EndingSpecialSymbol != token.BeginningSpecialSymbol && isSymbolPaired[token.EndingSpecialSymbol])
+                if (beginningAndEndingAreDifferent && config.IsSymbolPaired(token.EndingSpecialSymbol))
                     UpdatePairedTokens(token);
         }
 
@@ -116,7 +105,7 @@ namespace Markdown.MdTokens
                 if (character == @"\")
                 {
                     var nextCharacter = text[i + 1].ToString();
-                    if (specialSymbols.Contains(nextCharacter))
+                    if (config.HasSpecialSymbol(nextCharacter))
                         shieldingIndexes.Add(i);
                 }
             }
@@ -152,13 +141,9 @@ namespace Markdown.MdTokens
         private string GetContent(string text, string beginningSymbol, string endingSymbol)
         {
             var content = text;
-            if (IsSymbolShielded(beginningSymbol))
-                content = content.Substring(1);
-            else if(beginningSymbol != "NONE")
+            if(beginningSymbol != "NONE")
                 content = content.Substring(beginningSymbol.Length);
-            if (IsSymbolShielded(endingSymbol))
-                content = content.Remove(content.Length - 2, 1);
-            else if(endingSymbol != "NONE")
+            if(endingSymbol != "NONE")
                 content = content.Remove(content.Length - endingSymbol.Length);
             return content;
         }
@@ -179,21 +164,12 @@ namespace Markdown.MdTokens
         private string GetSpecialSymbol(string singular, string doubled)
         {
             var specialSymbol = singular;
-            if (!specialSymbols.Contains(singular))
+            if (!config.HasSpecialSymbol(singular))
                 specialSymbol =  "NONE";
-            if (IsSymbolShielded(doubled))
-                specialSymbol = @"\";
-            else if (specialSymbols.Contains(doubled))
+            if (config.HasSpecialSymbol(doubled))
                 specialSymbol = doubled;
             
             return specialSymbol;
-        }
-
-        private bool IsSymbolShielded(string symbols)
-        {
-            if (symbols.Contains(@"\"))
-                return specialSymbols.Contains(symbols.Replace(@"\", ""));
-            return false;
         }
     }
 }
