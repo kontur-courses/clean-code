@@ -2,6 +2,11 @@
 {
     public abstract class TagType
     {
+        public abstract bool IsOpenedTag(string text, int position);
+        public abstract bool IsClosedTag(string text, int position);
+        public abstract string GetOpenedTag(Tag.Markup markup);
+        public abstract string GetClosedTag(Tag.Markup markup);
+        
         public readonly string HtmlOpeningTag;
         public readonly string HtmlClosingTag;
         public readonly string MdOpeningTag;
@@ -17,10 +22,12 @@
 
         public static TagType GetTagType(string text, int position)
         {
-            if (EmTagType.IsOpenedTag(text, position) || EmTagType.IsClosedTag(text, position))
-                return new EmTagType();
-            if (StrongTagType.IsOpenedTag(text, position) || StrongTagType.IsClosedTag(text, position))
-                return new StrongTagType();
+            var em = new EmTagType();
+            var strong = new StrongTagType();
+            if (em.IsOpenedTag(text, position) || em.IsClosedTag(text, position))
+                return em;
+            if (strong.IsOpenedTag(text, position) || strong.IsClosedTag(text, position))
+                return strong;
             return new DefaultTagType();
         }
     }

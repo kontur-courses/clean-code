@@ -12,7 +12,8 @@ namespace MarkdownTests
         [TestCase("__asasv__ __dvd", 7, false)]
         public void StrongTagType_IsOpenedTag_ReturnRightResult(string text, int position, bool expected)
         {
-            StrongTagType.IsOpenedTag(text, position).Should().Be(expected);
+            var strong = new StrongTagType();
+            strong.IsOpenedTag(text, position).Should().Be(expected);
         }
         
         [TestCase("_asasv dvd", 0, false)]
@@ -22,7 +23,8 @@ namespace MarkdownTests
         [TestCase("__as__ asv__ __dvd", 4, true)]
         public void StrongTagType_IsClosedTag_ReturnRightResult(string text, int position, bool expected)
         {
-            StrongTagType.IsClosedTag(text, position).Should().Be(expected);
+            var strong = new StrongTagType();
+            strong.IsClosedTag(text, position).Should().Be(expected);
         }
     }
 }

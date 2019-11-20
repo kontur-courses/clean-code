@@ -6,7 +6,7 @@
         {
         }
 
-        public static bool IsOpenedTag(string text, int position)
+        public override bool IsOpenedTag(string text, int position)
         {
             if (position + 2 >= text.Length || text[position] != '_' || text[position + 1] != '_')
                 return false;
@@ -15,13 +15,23 @@
             return char.IsLetter(text[position + 2]) && text[position - 1] == ' ';
         }
 
-        public static bool IsClosedTag(string text, int position)
+        public override bool IsClosedTag(string text, int position)
         {
             if (text[position] != '_' || position < 1 || position + 1 >= text.Length || text[position + 1] != '_')
                 return false;
             if (position + 1 == text.Length - 1)
                 return char.IsLetter(text[position - 1]);
             return char.IsLetter(text[position - 1]) && text[position + 2] == ' ';
+        }
+
+        public override string GetOpenedTag(Tag.Markup markup)
+        {
+            return Tag.GetTag(Tag.TagName.StrongOpened, markup);
+        }
+
+        public override string GetClosedTag(Tag.Markup markup)
+        {
+            return Tag.GetTag(Tag.TagName.StrongClosed, markup);
         }
     }
 }

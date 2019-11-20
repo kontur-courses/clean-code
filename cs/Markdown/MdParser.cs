@@ -37,6 +37,11 @@ namespace Markdown
         {
             while (IsValidSymbol(tokenTagType, parserPosition))
             {
+                if (tokenTagType is StrongTagType && TagType.GetTagType(text, parserPosition) is EmTagType)
+                {
+                    nestedCount++;
+                    AddToken(parserPosition, new EmTagType(), true);
+                }
                 parserPosition++;
                 if (parserPosition == text.Length)
                 {
@@ -46,27 +51,16 @@ namespace Markdown
                 }
             }
 
-            parserPosition += tokenTagType.MdOpeningTag.Length;
+            parserPosition += tokenTagType.GetOpenedTag(Tag.Markup.Md).Length;
             tokens.Add(new Token(startPosition, parserPosition - startPosition, tokenTagType, hasNestedToken,
                 nestedCount));
         }
 
         private bool IsValidSymbol(TagType tokenTagType, int position)
         {
-            if (tokenTagType is EmTagType)
-                return !EmTagType.IsClosedTag(text, position);
-            if (tokenTagType is StrongTagType)
-            {
-                if (TagType.GetTagType(text, position) is EmTagType)
-                {
-                    nestedCount++;
-                    AddToken(parserPosition, new EmTagType(), true);
-                }
-
-                return !StrongTagType.IsClosedTag(text, position);
-            }
-
-            return TagType.GetTagType(text, position) is DefaultTagType;
+            return tokenTagType is DefaultTagType
+                ? TagType.GetTagType(text, position) is DefaultTagType
+                : !tokenTagType.IsClosedTag(text, position);
         }
     }
 }
