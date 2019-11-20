@@ -64,6 +64,7 @@
     <Compile Include="Rules\IRules.cs" />
     <Compile Include="SeparatorConverters\ISeparatorConverter.cs" />
     <Compile Include="SeparatorConverters\MarkdownToHtmlSeparatorConverter.cs" />
+    <Compile Include="SyntaxAnalysis\SyntaxTreeBuilders\Tests\MarkdownSyntaxTreeBuilderTests.cs" />
     <Compile Include="SyntaxAnalysis\SyntaxTreeRealization\SyntaxTree.cs" />
     <Compile Include="Converters\ConverterUsingSyntaxTree.cs" />
     <Compile Include="Core\MarkdownProcessor.cs" />

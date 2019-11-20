@@ -15,7 +15,7 @@ namespace Markdown.SyntaxAnalysis.SyntaxTreeConverters
         private StringBuilder RenderTreeNode(SyntaxTreeNode treeNode, ISeparatorConverter separatorConverter,
             StringBuilder builder, string format)
         {
-            var children = treeNode.GetChildren();
+            var children = treeNode.Children;
             if (IsCorrectSeparatorInNode(treeNode))
             {
                 var formats = separatorConverter.GetTokensFormats(treeNode.Token.Value, children.Count - 1);
@@ -38,7 +38,7 @@ namespace Markdown.SyntaxAnalysis.SyntaxTreeConverters
 
         private bool IsCorrectSeparatorInNode(SyntaxTreeNode treeNode)
         {
-            var children = treeNode.GetChildren();
+            var children = treeNode.Children;
             return treeNode.Token.IsSeparator && children.Count > 0 && children.Last().Token.IsSeparator;
         }
     }
