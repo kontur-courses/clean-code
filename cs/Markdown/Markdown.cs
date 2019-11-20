@@ -1,62 +1,35 @@
 ﻿using System.Collections.Generic;
 using System.Linq;
-using System.Text;
 
 namespace Markdown
-{ 
-    class Markdown
+{
+    internal static class Markdown
     {
-        public static readonly Dictionary<string, int> MarkDownTagsPriority = new Dictionary<string, int>
-        {
-            ["_"] = 1,
-            ["__"] = 2,
-        };
+        internal static readonly Dictionary<string, IMarkdownTagInfo> TagsInfo =
+            new Dictionary<string, IMarkdownTagInfo>
+            {
+                ["_"] = new EmphasisTag(),
+                ["__"] = new StrongTag(),
+                ["`"] = new CodeTag(),
+            };
 
-        static readonly Dictionary<string, string> HtmlReplacementRules = new Dictionary<string, string>
+        internal static string Render(string inputString)
         {
-            ["_"] = "em",
-            ["__"] = "strong",
-        };
+            var markdownTagDesignations = TagsInfo.Keys.ToList();
 
-        public string Render(string inputString)
-        {
-            var markdownTagSymbols = HtmlReplacementRules.Keys.ToList();
-
-            var allMarkDownTagsInInputString = TagSearchTool.GetMarkdownTags(inputString, markdownTagSymbols);
-            var onlyCorrectTags = TagCleanTool.GetCorrectMarkdownTags(inputString, allMarkDownTagsInInputString);
+            var correctTags = TagParser.Parse(inputString, markdownTagDesignations)
+                .RemoveEscapedTags(inputString)
+                .OrderBy(tag => tag.Index) //Не придумал как избавиться от сортировки :/
+                .RemoveUnopenedTags()
+                .OrderBy(tag => tag.Index) //Но даже с двумя сортировками программа работает относительно быстро
+                .RemoveIncorrectNestingTags()
+                .ToList();
 
             var outputString = inputString;
-            outputString = ChangeTags(outputString, onlyCorrectTags, HtmlReplacementRules);
-            outputString = RemoveShieldSymbols(outputString);
+            outputString = StringRedactor.SwitchMarkdownTagsToHtml(outputString, correctTags);
+            outputString = StringRedactor.RemoveEscapeSymbols(outputString);
 
             return outputString;
-        }
-
-        string RemoveShieldSymbols(string input) => input.Replace(@"\", "");
-
-        string ChangeTags(string inputString, List<Tag> tagsForChange, Dictionary<string, string> replacementRules)
-        {
-            if (tagsForChange.Count == 0) return inputString;
-
-            var result = new StringBuilder();
-
-            var startedIndex = 0;
-            foreach (var tag in tagsForChange)
-            {
-                for (var i = startedIndex; i < tag.Index; i++)
-                    result.Append(inputString[i]);
-
-                result.Append(tag.Type == TagType.Opening
-                    ? $"<{replacementRules[tag.Symbol]}>"
-                    : $"</{replacementRules[tag.Symbol]}>");
-
-                startedIndex = tag.Index + tag.Symbol.Length;
-            }
-
-            for (var i = tagsForChange.Last().Symbol.Length + tagsForChange.Last().Index; i < inputString.Length; i++)
-                result.Append(inputString[i]);
-
-            return result.ToString();
         }
     }
 }
