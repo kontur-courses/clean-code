@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 
 namespace Markdown
 {
@@ -6,8 +7,8 @@ namespace Markdown
     {
         public static void Main(string[] args)
         {
-            var translator = new Translator('\\',new MarkHtml("__", "<strong>"), new MarkHtml("_", "<em>"));
-            Console.WriteLine(translator.Translate("__a __b__ c__"));
+            var text = Console.ReadLine();
+            Console.WriteLine(Translator.Translate(text));
         }
     }
 }

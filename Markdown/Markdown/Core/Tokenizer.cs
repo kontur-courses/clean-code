@@ -43,24 +43,26 @@ namespace Markdown
                     index++;
                 }
             }
+
             CollapseRemainingTokensAndAdd(result, openedTokens, index, text);
             return TranseformUnableToParentingTokens(result);
         }
 
         #region TagStartChecking
+
         private bool EscapeCharacterCountIsOddBeforeDigit(string text, int index)
         {
             var isOdd = escapeСharacterCounter % 2 == 1;
             if (text[index] == _escapeСharacter)
-                escapeСharacterCounter++;          
-            else escapeСharacterCounter= 0;
+                escapeСharacterCounter++;
+            else escapeСharacterCounter = 0;
             return isOdd;
         }
-        
+
         private MarkTranslatorElement DefineTagAt(string text, int index)
         {
             var tag = _dictionary
-                .Where(item =>IsTagInText(item.From.Opening, text, index))
+                .Where(item => IsTagInText(item.From.Opening, text, index))
                 .OrderByDescending(item => item.From.Opening.Length)
                 .FirstOrDefault();
             if (tag == null || IsBetweenDigits(tag, text, index))
@@ -75,7 +77,7 @@ namespace Markdown
             return !mark.Where((t, i) => text[index + i] != t).Any();
         }
 
-        private static bool IsBetweenDigits(MarkTranslatorElement mark, string text, int index) 
+        private static bool IsBetweenDigits(MarkTranslatorElement mark, string text, int index)
             => IsDigitBefore(text, index) && IsDigitAfter(mark, text, index);
 
         private static bool IsDigitBefore(string text, int index)
@@ -89,11 +91,13 @@ namespace Markdown
             return index + mark.From.Opening.Length < text.Length
                    && char.IsDigit(text[index + mark.From.Opening.Length]);
         }
-        
+
         #endregion
 
         #region TokenReshator
-        private static void ClosePreviousDefaultToken(Stack<Token> stack, ICollection<Token> tokens, int index, string text)
+
+        private static void ClosePreviousDefaultToken(Stack<Token> stack, ICollection<Token> tokens, int index,
+            string text)
         {
             if (stack.Count == 0 || !stack.Peek().MarkToTranslate.Equals(MarkTranslatorElement.EmptyMark)) return;
             var token = stack.Pop();
@@ -101,6 +105,7 @@ namespace Markdown
             token.Value = text.Substring(token.StartIndex, token.EndIndex - token.StartIndex + 1);
             tokens.Add(token);
         }
+
         private bool IsClosing(Stack<Token> openedTokens, MarkTranslatorElement mark, string text, int index)
         {
             var indexBeforeMark = index - 1;
@@ -114,9 +119,12 @@ namespace Markdown
                     return true;
                 previousToken = previousToken.ParentToken;
             }
+
             return false;
         }
-        private static void PlaceToken(Stack<Token> openedTokens, ICollection<Token> tokens, MarkTranslatorElement mark, int index, string text)
+
+        private static void PlaceToken(Stack<Token> openedTokens, ICollection<Token> tokens, MarkTranslatorElement mark,
+            int index, string text)
         {
             var previousToken = openedTokens.Pop();
             while (!previousToken.MarkToTranslate.From.Equals(mark.From))
@@ -129,17 +137,22 @@ namespace Markdown
             else
                 previousToken.ParentToken.ChildTokens.Add(previousToken);
         }
-        private void PushTokenOnOpeningMark(Stack<Token> openedTokens, MarkTranslatorElement mark, string text, int index)
+
+        private void PushTokenOnOpeningMark(Stack<Token> openedTokens, MarkTranslatorElement mark, string text,
+            int index)
         {
             var fatherToken = openedTokens.Count == 0 ? null : openedTokens.Peek();
             var token = new Token(index + mark.From.Opening.Length, mark, fatherToken);
             var indexAfterMark = token.StartIndex + token.MarkToTranslate.From.Opening.Length;
-            if (indexAfterMark >= text.Length || indexAfterMark < text.Length && !char.IsWhiteSpace(text[indexAfterMark]))
+            if (indexAfterMark >= text.Length ||
+                indexAfterMark < text.Length && !char.IsWhiteSpace(text[indexAfterMark]))
                 openedTokens.Push(token);
         }
+
         #endregion
-        
-        private static void CollapseRemainingTokensAndAdd(ICollection<Token> tokens, Stack<Token> openedTokens, int index, string text)
+
+        private static void CollapseRemainingTokensAndAdd(ICollection<Token> tokens, Stack<Token> openedTokens,
+            int index, string text)
         {
             if (openedTokens.Count == 0)
                 return;
@@ -147,6 +160,7 @@ namespace Markdown
             {
                 openedTokens.Pop();
             }
+
             var lastToken = openedTokens.Pop();
             var token = new Token(lastToken.StartIndex - lastToken.MarkToTranslate.From.Opening.Length,
                 MarkTranslatorElement.EmptyMark) {EndIndex = index - 1};
@@ -164,7 +178,6 @@ namespace Markdown
             if (token.MarkToTranslate.CanBeParent) return token;
             token.ChildTokens.Clear();
             return token;
-
         }
     }
 }

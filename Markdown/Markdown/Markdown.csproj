@@ -59,6 +59,7 @@
     <Compile Include="DataStructures\MarkHtml.cs" />
     <Compile Include="DataStructures\MarkTranslatorElement.cs" />
     <Compile Include="DataStructures\MarkupElement.cs" />
+    <Compile Include="DataStructures\TagInserter.cs" />
     <Compile Include="DataStructures\Token.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />

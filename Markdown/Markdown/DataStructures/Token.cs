@@ -11,6 +11,7 @@ namespace Markdown
         public string Value { get; set; }
         public readonly Token ParentToken;
         public List<Token> ChildTokens = new List<Token>();
+
         public Token(int startIndex, MarkTranslatorElement markToTranslate, Token parentToken = null)
         {
             StartIndex = startIndex;

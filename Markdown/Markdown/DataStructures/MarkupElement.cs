@@ -2,17 +2,17 @@
 {
     public class MarkupElement
     {
+        public readonly string Opening;
+        public readonly string Closing;
 
-            public readonly string Opening;
-            public readonly string Closing;
+        public MarkupElement(string opening, string closing)
+        {
+            Opening = opening;
+            Closing = closing;
+        }
 
-            public MarkupElement(string opening, string closing)
-            {
-                Opening = opening;
-                Closing = closing;
-            }
-            
-            public MarkupElement(string mark) : this(mark,mark){}
-
+        public MarkupElement(string mark) : this(mark, mark)
+        {
+        }
     }
 }
