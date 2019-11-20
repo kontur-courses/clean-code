@@ -1,4 +1,8 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
+using System.Diagnostics;
+using System.Text;
+using System.Threading;
 using NUnit.Framework;
 using NUnit.Framework.Internal;
 
@@ -107,5 +111,30 @@ namespace Markdown
             var expected = "<strong>a<em>b</em>c<em>1_2</em>c</strong>";
             Assert.AreEqual(expected, result);
         }
+        
+        [Test]
+        public void WorkLinear()
+        {
+            var mdTag = "__a_b_c__";
+            var times = new List<long>();
+            var res = new StringBuilder();
+            var watch = new Stopwatch();
+            for (var k = 0; k < 200; k++)
+            {
+                res.Append(" "+mdTag);
+                var testedString = res.ToString();
+                watch.Start();
+                mdParser.Render(testedString);
+                watch.Stop();
+                times.Add(watch.ElapsedMilliseconds);
+                watch.Reset();
+            }
+
+            for (var j = 0; j < times.Count - 1; j += 2)
+            {
+                Assert.AreEqual(times[j+1], times[j], 50);
+            }
+        }
+
     }
 }
