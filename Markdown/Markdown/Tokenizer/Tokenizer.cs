@@ -96,6 +96,8 @@ namespace Markdown
                 {
                     if (openToken.Type != AttributeType.Emphasis)
                         openingTokens.Push(openToken);
+                    else 
+                        ProcessTokenOnPairMatching(pairToken, openingTokens, listToAdd);
                 }
             }
             else

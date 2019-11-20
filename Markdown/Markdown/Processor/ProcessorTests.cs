@@ -86,7 +86,7 @@ namespace Markdown
             TestName = "Brackets inside link header don't make a tag")]
         [TestCase("_[Get Lucky_](https://www.wikipedia.org)", "_<a href=\"https://www.wikipedia.org\">Get Lucky_</a>",
             TestName = "Pair tags are not valid when one of them is out of link header")]
-        [TestCase("[Check One](https://vk.com/pavel_durov)_", "<a href=\"https://vk.com/pavel_durov\">Check One</a>_"
+        [TestCase("[Check One](_pavel)_", "<a href=\"_pavel\">Check One</a>_"
             , TestName = "Pair tags are not valid when one of them is out of link description")]
         [TestCase("[dog](_cat_)", "<a href=\"_cat_\">dog</a>",
             TestName = "Tags are not created inside link description")]
