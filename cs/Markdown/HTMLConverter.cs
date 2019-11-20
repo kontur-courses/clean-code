@@ -3,6 +3,7 @@ using Markdown.Tokens;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Text;
 
 namespace Markdown
 {
@@ -10,15 +11,10 @@ namespace Markdown
     {
         public string Convert(List<Token> tokens)
         {
-            string result = string.Empty;
+            var sb = new StringBuilder();
             foreach (var token in tokens)
-            {
-                if (token is StyleToken styleToken)
-                    result += styleToken.ToHtml();
-                else
-                    result += token.ToText();
-            }
-            return result;
+                sb.Append(token is StyleToken styleToken ? styleToken.ToHtml() : token.ToText());
+            return sb.ToString();
         }
 
         public List<string> ConvertToHtmlPage(IEnumerable<string> lines)
