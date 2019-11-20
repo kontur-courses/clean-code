@@ -2,7 +2,5 @@
 {
     interface ITag
     {
-        string Opening { get; }
-        string Closing { get; }
     }
 }
