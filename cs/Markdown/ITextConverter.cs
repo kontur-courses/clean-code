@@ -10,6 +10,6 @@ namespace Markdown
 
     internal class TextConverter
     {
-        public static ITextConverter HTMLConverter() => new HTMLConverter();
+        public static HTMLConverter HTMLConverter() => new HTMLConverter();
     }
 }

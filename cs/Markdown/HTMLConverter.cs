@@ -2,6 +2,7 @@
 using Markdown.Tokens;
 using System;
 using System.Collections.Generic;
+using System.Linq;
 
 namespace Markdown
 {
@@ -19,6 +20,15 @@ namespace Markdown
             }
             return result;
         }
+
+        public List<string> ConvertToHtmlPage(IEnumerable<string> lines)
+        {
+            var html = new List<string>();
+            html.Add(@"<html><head><title>ConvertToHtmlPage</title></head><body>");
+            html.AddRange(lines.Select(l => $"<p>{l}</p>"));
+            html.Add(@"</body></html>");
+            return html;
+        }
     }
 
     internal static class StylesExtentions
@@ -27,7 +37,7 @@ namespace Markdown
         {
             string tag = HtmlTag(styleToken.StyleType);
             if (styleToken is StyleEndToken) 
-                return $"<{tag}/>";
+                return $"</{tag}>";
             else 
                 return $"<{tag}>";
         }

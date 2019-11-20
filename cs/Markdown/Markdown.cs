@@ -1,7 +1,9 @@
 ﻿using Markdown.Styles;
 using Markdown.Tokens;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
+using System.Text;
 
 namespace Markdown
 {
@@ -17,6 +19,12 @@ namespace Markdown
             ApplyStyles(tokens, new List<Style> { new Italic(), new Bold() });
 
             return TextConverter.HTMLConverter().Convert(tokens);
+        }
+
+        public void RenderFile(string source, string dest)
+        {
+            var htmlpage = TextConverter.HTMLConverter().ConvertToHtmlPage(File.ReadAllLines(source).Select(l => Render(l)));
+            File.WriteAllLines(dest, htmlpage);
         }
 
         private List<Token> RecognizeTokens(ref string mdText)
