@@ -6,11 +6,11 @@ using Markdown.Core.Tags;
 
 namespace Markdown.Core
 {
-    class Processor
+    class Render
     {
         private readonly IEnumerable<IRule> rules;
 
-        public Processor(IEnumerable<IRule> rules)
+        public Render(IEnumerable<IRule> rules)
         {
             this.rules = rules;
         }
@@ -49,7 +49,7 @@ namespace Markdown.Core
             }
         }
 
-        public string ProcessLine(string line, IEnumerable<TagToken> tokens)
+        public string RenderLine(string line, IEnumerable<TagToken> tokens)
         {
             var offsetAfterAdding = 0;
             var tuplesSourceLengthAndResultTag =

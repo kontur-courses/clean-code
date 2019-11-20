@@ -17,7 +17,7 @@ namespace Markdown.Core
                 .ToList();
         }
 
-        public List<TagToken> Parse(string line)
+        public List<TagToken> ParseLine(string line)
         {
             return line == null
                 ? new List<TagToken>()
