@@ -1,28 +1,11 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Linq;
 
 namespace Markdown
 {
-    static class TagCleanTool
+    internal static class TagStreamRedactor
     {
-        public static List<Tag> GetCorrectMarkdownTags(string inputString, Dictionary<string, List<Tag>> tagsInInputString)
-        {
-            if (inputString == null) throw  new ArgumentNullException();
-            if (tagsInInputString.Count == 0) return new List<Tag>();
-
-            var sortedTags = tagsInInputString.Values
-                .SelectMany(x => x);
-
-            return sortedTags
-                .RemoveShieldedTags(inputString)
-                .OrderBy(tag => tag.Index)
-                .RemoveUnclosedTags()
-                .RemoveIncorrectNestingTags()
-                .ToList();
-        }
-
-        static IEnumerable<Tag> RemoveShieldedTags(this IEnumerable<Tag> tags, string inputString)
+        public static IEnumerable<Tag> RemoveEscapedTags(this IEnumerable<Tag> tags, string inputString)
         {
             return tags
                 .Where(tag => PreviousTagSymbol(tag) != '\\');
@@ -31,7 +14,7 @@ namespace Markdown
                 (tag.Index != 0) ? inputString[tag.Index - 1] : ' ';
         }
 
-        static IOrderedEnumerable<Tag> RemoveUnclosedTags(this IOrderedEnumerable<Tag> sortedTags)
+        public static IEnumerable<Tag> RemoveUnopenedTags(this IOrderedEnumerable<Tag> sortedTags)
         {
             var result = new List<Tag>();
 
@@ -43,7 +26,7 @@ namespace Markdown
                 if (tag.Type == TagType.Closing && stack.Count != 0)
                 {
                     var stackTopTag = stack.Peek();
-                    if (stackTopTag.Symbol == tag.Symbol)
+                    if (stackTopTag.Designations == tag.Designations)
                     {
                         result.Add(stack.Pop());
                         result.Add(tag);
@@ -51,16 +34,16 @@ namespace Markdown
                 }
             }
 
-            return result.OrderBy(x => x.Index);
+            return result;
         }
 
-        static IEnumerable<Tag> RemoveIncorrectNestingTags(this IOrderedEnumerable<Tag> sortedTags)
+        public static IEnumerable<Tag> RemoveIncorrectNestingTags(this IOrderedEnumerable<Tag> sortedTags)
         {
             var priorityStack = new Stack<int>();
-            priorityStack.Push(Int32.MaxValue);
+            priorityStack.Push(int.MaxValue);
             foreach (var tag in sortedTags)
             {
-                if (tag.Type == TagType.Opening && tag.Priority <= priorityStack.Peek())
+                if (tag.Type == TagType.Opening && tag.Priority < priorityStack.Peek())
                 {
                     priorityStack.Push(tag.Priority);
                     yield return tag;
