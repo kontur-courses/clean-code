@@ -4,7 +4,7 @@ using System.Text;
 
 namespace Markdown.Tree
 {
-    public class TagNode : SyntaxNode
+    public class TagNode : SyntaxNode, INode
     {
         public TagType TypeTag { get; }
 

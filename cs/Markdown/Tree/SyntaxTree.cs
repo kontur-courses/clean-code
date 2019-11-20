@@ -3,7 +3,7 @@ using System.Text;
 
 namespace Markdown.Tree
 {
-    public class SyntaxTree : SyntaxNode
+    public class SyntaxTree : SyntaxNode, INode
     {
         public SyntaxTree(List<SyntaxNode> childNode) : base(childNode)
         {
