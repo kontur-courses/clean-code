@@ -8,16 +8,29 @@ namespace Markdown
 {
     public class HTMLRenderer
     {
-        private Dictionary<TokenType, HTMLTag> tokenTagDictionary = new Dictionary<TokenType, HTMLTag>()
-        {
-            {TokenType.Bold, new HTMLTag("strong") },
-            {TokenType.Italic, new HTMLTag("em") },
-        };
-
         //Превращает оставшиеся корректные токены в HTML-теги
         public string Render(IEnumerable<Token> tokens)
         {
-            throw new NotImplementedException();
+            var result = new StringBuilder();
+            foreach (var token in tokens)
+            {
+                switch (token)
+                {
+                    case PairToken pairToken:
+                        result.Append(pairToken.IsFirst
+                            ? TokenTypesTranslator.GetHtmlTagFromTokenType(pairToken.Type).First
+                            : TokenTypesTranslator.GetHtmlTagFromTokenType(pairToken.Type).Second);
+                        break;
+                    case HeaderToken headerToken:
+                        result.Append(TokenTypesTranslator.GetHtmlTagFromTokenType(headerToken.Type).First);
+                        break;
+                    default:
+                        result.Append(token.Content);
+                        break;
+                }
+            }
+
+            return result.ToString();
         }
     }
 }
