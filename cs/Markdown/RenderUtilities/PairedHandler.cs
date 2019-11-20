@@ -1,4 +1,4 @@
-﻿using Markdown.RenderUtilities.TokenHandleDescriptions;
+﻿using Markdown.RenderUtilities.TokenProcessingDescriptions;
 using System;
 using System.Collections;
 using System.Collections.Generic;
@@ -8,40 +8,42 @@ using System.Threading.Tasks;
 
 namespace Markdown.RenderUtilities
 {
-    public class PairedHandler : ITokenHandler
+    public class PairedProcessor : ITokenProcessor
     {
-        private readonly List<MarkdownPairedTokenHandleDescription> handleDescriptions;
-        private readonly Dictionary<TokenType, MarkdownPairedTokenHandleDescription> typeToHandler;
-
-        public PairedHandler(IEnumerable<MarkdownPairedTokenHandleDescription> handleDescriptions)
-        {
-            this.handleDescriptions = handleDescriptions.ToList();
-            typeToHandler = this.handleDescriptions.ToDictionary(token => token.TokenType);
-        }
-
-        public List<TokenType> GetAcceptedTokenTypes()
-        {
-            return handleDescriptions.Select(token => token.TokenType).ToList();
-        }
+        private readonly List<MarkdownPairedTokenProcessingDescription> processingDescriptions;
+        private readonly Dictionary<TokenType, MarkdownPairedTokenProcessingDescription> typeToDescription;
 
         private List<Token> openingTokens;
         private Dictionary<Token, PairedTokenDescription> tokenToPairedDescription;
 
-        public void InitHandle()
+        public PairedProcessor(IEnumerable<MarkdownPairedTokenProcessingDescription> processingDescriptions)
         {
+            this.processingDescriptions = processingDescriptions.ToList();
+            typeToDescription = this.processingDescriptions.ToDictionary(token => token.TokenType);
+
             openingTokens = new List<Token>();
             tokenToPairedDescription = new Dictionary<Token, PairedTokenDescription>();
         }
 
-        public void HandleToken(List<Token> tokens, int tokenIndex)
+        public List<TokenType> AcceptedTokenTypes => 
+            processingDescriptions.Select(token => token.TokenType).ToList();
+
+        public void ProcessTokens(List<Token> tokens)
+        {
+            for (var i = 0; i < tokens.Count; i++)
+                ProcessToken(tokens, i);
+        }
+
+        private void ProcessToken(List<Token> tokens, int tokenIndex)
         {
             var token = tokens[tokenIndex];
-            if (!GetAcceptedTokenTypes().Contains(token.TokenType))
+            if (!AcceptedTokenTypes.Contains(token.TokenType))
                 return;
-            var handler = typeToHandler[token.TokenType];
-            if (handler.IsClosing(tokens, tokenIndex))
+            var processingDescription = typeToDescription[token.TokenType];
+            if (processingDescription.IsClosing(tokens, tokenIndex))
             {
-                var openingToken = openingTokens.Where(tkn => tkn.TokenType == token.TokenType).LastOrDefault();
+                var openingToken = openingTokens
+                                   .Where(tkn => tkn.TokenType == token.TokenType).LastOrDefault();
                 if(openingToken != null)
                 {
                     openingTokens.Remove(openingToken);
@@ -51,26 +53,21 @@ namespace Markdown.RenderUtilities
                     return;
                 }
             }
-            if (handler.IsOpening(tokens, tokenIndex))
+            if (processingDescription.IsOpening(tokens, tokenIndex))
                 openingTokens.Add(token);
         }
 
-        public void EndHandle()
-        {
-            return;
-        }
-
-        public bool TryGetTokenString(List<Token> tokens, int tokenIndex, out string tokenString)
+        public bool TryGetRenderedTokenText(List<Token> tokens, int tokenIndex, out string tokenString)
         {
             tokenString = null;
             var token = tokens[tokenIndex];
-            if (!GetAcceptedTokenTypes().Contains(token.TokenType))
+            if (!AcceptedTokenTypes.Contains(token.TokenType))
                 return false;
-            var handler = typeToHandler[token.TokenType];
+            var processingDescription = typeToDescription[token.TokenType];
             if (!tokenToPairedDescription.ContainsKey(token))
-                tokenString = handler.GetRenderedTokenText(token, false, false);
+                tokenString = processingDescription.GetRenderedTokenText(token, false, false);
             else
-                tokenString = handler.GetRenderedTokenText(
+                tokenString = processingDescription.GetRenderedTokenText(
                     token, true, tokenToPairedDescription[token].CloseToken == token);
             return true;
         }

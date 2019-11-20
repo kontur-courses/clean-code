@@ -4,15 +4,15 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace Markdown.RenderUtilities.TokenHandleDescriptions
+namespace Markdown.RenderUtilities.TokenProcessingDescriptions
 {
-    public class MarkdownSimpleTokenHandleDescription : TokenHandleDescription
+    public class MarkdownSimpleTokenProcessingDescription : TokenProcessingDescription
     {
         private readonly TokenType tokenType;
 
         public override TokenType TokenType => tokenType;
 
-        public MarkdownSimpleTokenHandleDescription(TokenType tokenType)
+        public MarkdownSimpleTokenProcessingDescription(TokenType tokenType)
         {
             this.tokenType = tokenType;
         }

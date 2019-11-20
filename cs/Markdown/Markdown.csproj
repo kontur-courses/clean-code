@@ -40,19 +40,19 @@
     <None Include="Spec.md" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="RenderUtilities\ITokenHandler.cs" />
+    <Compile Include="RenderUtilities\ITokenProcessor.cs" />
     <Compile Include="RenderUtilities\MarkdownRenderUtilities.cs" />
     <Compile Include="RenderUtilities\PairedHandler.cs" />
     <Compile Include="RenderUtilities\PairedTokenDescription.cs" />
     <Compile Include="RenderUtilities\Renderer.cs" />
-    <Compile Include="RenderUtilities\TokenHandleDescriptions\MarkdownEscapeTokenHandleDescription.cs" />
-    <Compile Include="RenderUtilities\TokenHandleDescriptions\MarkdownPairedTokenHandleDescription.cs" />
-    <Compile Include="RenderUtilities\TokenHandleDescriptions\MarkdownSimpleTokenHandleDescription.cs" />
-    <Compile Include="RenderUtilities\TokenHandleDescriptions\PairedTokenHandleDescription.cs" />
-    <Compile Include="RenderUtilities\TokenHandleDescriptions\TokenHandleDescription.cs" />
+    <Compile Include="RenderUtilities\TokenProcessingDescriptions\MarkdownEscapeTokenProcessingDescription.cs" />
+    <Compile Include="RenderUtilities\TokenProcessingDescriptions\MarkdownPairedTokenProcessingDescription.cs" />
+    <Compile Include="RenderUtilities\TokenProcessingDescriptions\MarkdownSimpleTokenProcessingDescription.cs" />
+    <Compile Include="RenderUtilities\TokenProcessingDescriptions\PairedTokenProcessingDescription.cs" />
+    <Compile Include="RenderUtilities\TokenProcessingDescriptions\TokenProcessingDescription.cs" />
     <Compile Include="TokenizationUtilities\MarkdownTokenUtilities.cs" />
     <Compile Include="Md.cs" />
-    <Compile Include="RenderUtilities\SimpleHandler.cs" />
+    <Compile Include="RenderUtilities\SimpleProcessor.cs" />
     <Compile Include="TokenizationUtilities\Token.cs" />
     <Compile Include="TokenizationUtilities\TokenReader.cs" />
     <Compile Include="TokenizationUtilities\TokenDescription.cs" />

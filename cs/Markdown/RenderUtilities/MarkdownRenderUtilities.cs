@@ -1,4 +1,4 @@
-﻿using Markdown.RenderUtilities.TokenHandleDescriptions;
+﻿using Markdown.RenderUtilities.TokenProcessingDescriptions;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -11,35 +11,40 @@ namespace Markdown.RenderUtilities
     {
         public static Renderer GetMarkdownRenderer()
         {
-            return new Renderer(new List<ITokenHandler>()
-            {
-                 new SimpleHandler(GetSimpleTokenHandleDescriptions()),
-                 new PairedHandler(GetPairedTokenHandleDescriptions())
-            });
+            return new Renderer(GetMarkdownProcessors);
         }
 
-        public static List<MarkdownSimpleTokenHandleDescription> GetSimpleTokenHandleDescriptions()
+        public static List<ITokenProcessor> GetMarkdownProcessors()
         {
-            var handleDescriptions = new List<MarkdownSimpleTokenHandleDescription>()
+            return new List<ITokenProcessor>()
             {
-                new MarkdownSimpleTokenHandleDescription(TokenType.Text),
-                new MarkdownSimpleTokenHandleDescription(TokenType.WhiteSpace),
-                new MarkdownSimpleTokenHandleDescription(TokenType.Digits),
-                new MarkdownEscapeTokenHandleDescription()
+                 new SimpleProcessor(GetSimpleTokenProcessingDescriptions()),
+                 new PairedProcessor(GetPairedTokenProcessingDescriptions())
             };
-
-            return handleDescriptions;
         }
 
-        public static List<MarkdownPairedTokenHandleDescription> GetPairedTokenHandleDescriptions()
+        public static List<MarkdownSimpleTokenProcessingDescription> GetSimpleTokenProcessingDescriptions()
         {
-            var handleDescriptions = new List<MarkdownPairedTokenHandleDescription>()
+            var processingDescriptions = new List<MarkdownSimpleTokenProcessingDescription>()
             {
-                new MarkdownPairedTokenHandleDescription(TokenType.Emphasis, "em"),
-                new MarkdownPairedTokenHandleDescription(TokenType.Strong, "strong")
+                new MarkdownSimpleTokenProcessingDescription(TokenType.Text),
+                new MarkdownSimpleTokenProcessingDescription(TokenType.WhiteSpace),
+                new MarkdownSimpleTokenProcessingDescription(TokenType.Digits),
+                new MarkdownEscapeTokenProcessingDescription()
             };
 
-            return handleDescriptions;
+            return processingDescriptions;
+        }
+
+        public static List<MarkdownPairedTokenProcessingDescription> GetPairedTokenProcessingDescriptions()
+        {
+            var processingDescriptions = new List<MarkdownPairedTokenProcessingDescription>()
+            {
+                new MarkdownPairedTokenProcessingDescription(TokenType.Emphasis, "em"),
+                new MarkdownPairedTokenProcessingDescription(TokenType.Strong, "strong")
+            };
+
+            return processingDescriptions;
         }
     }
 }

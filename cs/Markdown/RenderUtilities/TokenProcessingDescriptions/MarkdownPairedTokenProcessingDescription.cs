@@ -4,16 +4,16 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace Markdown.RenderUtilities.TokenHandleDescriptions
+namespace Markdown.RenderUtilities.TokenProcessingDescriptions
 {
-    public class MarkdownPairedTokenHandleDescription : PairedTokenHandleDescription
+    public class MarkdownPairedTokenProcessingDescription : PairedTokenProcessingDescription
     {
         private readonly TokenType tokenType;
         private readonly string tag;
 
         public override TokenType TokenType => tokenType;
 
-        public MarkdownPairedTokenHandleDescription(TokenType tokenType, string tag)
+        public MarkdownPairedTokenProcessingDescription(TokenType tokenType, string tag)
         {
             this.tokenType = tokenType;
             this.tag = tag;

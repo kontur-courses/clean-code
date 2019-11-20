@@ -4,11 +4,11 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace Markdown.RenderUtilities.TokenHandleDescriptions
+namespace Markdown.RenderUtilities.TokenProcessingDescriptions
 {
-    public class MarkdownEscapeTokenHandleDescription : MarkdownSimpleTokenHandleDescription
+    public class MarkdownEscapeTokenProcessingDescription : MarkdownSimpleTokenProcessingDescription
     {
-        public MarkdownEscapeTokenHandleDescription() : base(TokenType.Escape)
+        public MarkdownEscapeTokenProcessingDescription() : base(TokenType.Escape)
         { }
 
         public override string GetRenderedTokenText(Token token)

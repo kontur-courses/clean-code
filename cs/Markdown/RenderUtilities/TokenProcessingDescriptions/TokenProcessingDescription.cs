@@ -4,9 +4,9 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace Markdown.RenderUtilities.TokenHandleDescriptions
+namespace Markdown.RenderUtilities.TokenProcessingDescriptions
 {
-    public abstract class TokenHandleDescription
+    public abstract class TokenProcessingDescription
     {
         public abstract TokenType TokenType { get; }
     }

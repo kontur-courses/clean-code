@@ -8,35 +8,35 @@ namespace Markdown.RenderUtilities
 {
     public class Renderer
     {
-        private readonly List<ITokenHandler> handlers;
-        private readonly Dictionary<TokenType, ITokenHandler> typeToHandler;
+        private readonly Func<IEnumerable<ITokenProcessor>> getProcessors;
 
-        public Renderer(IEnumerable<ITokenHandler> handlers)
+        public Renderer(Func<IEnumerable<ITokenProcessor>> processorsGetter)
         {
-            this.handlers = handlers.ToList();
-            typeToHandler = handlers
-                .SelectMany(h => h.GetAcceptedTokenTypes())
-                .ToDictionary(tknType => tknType,
-                tknType => handlers
-                           .Where(h => h.GetAcceptedTokenTypes().Contains(tknType)).FirstOrDefault());
+            getProcessors = processorsGetter;
+        }
+
+        private List<ITokenProcessor> InitProcessors(List<Token> tokens)
+        {
+            var processors = getProcessors().ToList();
+            processors.ForEach(processor => processor.ProcessTokens(tokens));
+
+            return processors;
         }
 
         public string RenderText(List<Token> tokens)
         {
-            foreach (var handler in handlers)
-                handler.InitHandle();
-            
-            for (var i = 0; i < tokens.Count; i++)
-                typeToHandler[tokens[i].TokenType].HandleToken(tokens, i);
-
-            foreach (var handler in handlers)
-                handler.EndHandle();
+            var processors = InitProcessors(tokens);
+            var typeToProcessor = processors
+                .SelectMany(p => p.AcceptedTokenTypes)
+                .ToDictionary(tknType => tknType,
+                    tknType => processors
+                               .Where(p => p.AcceptedTokenTypes.Contains(tknType)).FirstOrDefault());
 
             StringBuilder result = new StringBuilder();
             for (var i = 0; i < tokens.Count; i++)
             {
                 string tokenString = null;
-                if (typeToHandler[tokens[i].TokenType].TryGetTokenString(tokens, i, out tokenString))
+                if (typeToProcessor[tokens[i].TokenType].TryGetRenderedTokenText(tokens, i, out tokenString))
                     result.Append(tokenString);
             }
 

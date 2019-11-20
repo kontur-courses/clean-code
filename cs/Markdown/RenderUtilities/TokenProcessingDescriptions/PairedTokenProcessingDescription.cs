@@ -4,9 +4,9 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace Markdown.RenderUtilities.TokenHandleDescriptions
+namespace Markdown.RenderUtilities.TokenProcessingDescriptions
 {
-    public abstract class PairedTokenHandleDescription : TokenHandleDescription
+    public abstract class PairedTokenProcessingDescription : TokenProcessingDescription
     {
         public abstract bool IsOpening(List<Token> tokens, int tokenIndex);
         public abstract bool IsClosing(List<Token> tokens, int tokenIndex);
