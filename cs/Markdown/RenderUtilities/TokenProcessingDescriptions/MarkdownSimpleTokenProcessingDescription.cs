@@ -1,10 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-
-namespace Markdown.RenderUtilities.TokenProcessingDescriptions
+﻿namespace Markdown.RenderUtilities.TokenProcessingDescriptions
 {
     public class MarkdownSimpleTokenProcessingDescription : TokenProcessingDescription
     {
