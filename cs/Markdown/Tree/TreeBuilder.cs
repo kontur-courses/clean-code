@@ -1,12 +1,87 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using Markdown.Languages;
 
 namespace Markdown.Tree
 {
     public static class TreeBuilder
     {
-        public static SyntaxTree ReplaceToSyntaxTree(string line, List<TagToken> validTags,
-            Dictionary<TagType, Tag> tags)
+        public static SyntaxTree RenderTree<T>(string str)
+            where T : ILanguage, new()
+        {
+            var el = new T();
+            if (str == null)
+                throw new ArgumentException("The string should not be null");
+
+            var tags = FindTags(str, el);
+            return tags.Count == 0
+                ? new SyntaxTree(new List<SyntaxNode> {new TextNode(str)})
+                : ReplaceToSyntaxTree(str, tags, el.Tags);
+        }
+
+        private static List<TagToken> FindTags(string str, ILanguage language)
+        {
+            var stackOfTags = new Stack<TagToken>();
+            var validTags = new List<TagToken>();
+
+            for (var i = 0; i < str.Length; i++)
+            {
+                var tag = CreateTag(str, i, language);
+                if (tag == null)
+                    continue;
+
+                if (tag.IsOpen && (stackOfTags.Count == 0 ||
+                                   (stackOfTags.Peek().Tagtype != tag.Tagtype)))
+                {
+                    stackOfTags.Push(tag);
+                }
+                else if (!tag.IsOpen && stackOfTags.Count > 0 && stackOfTags.Peek().Tagtype == tag.Tagtype &&
+                         stackOfTags.Peek().IsOpen)
+                {
+                    UpdateTags(tag, stackOfTags, validTags);
+                }
+
+                if (tag.IsOpen)
+                    i += language.Tags[tag.Tagtype].Start.Length;
+                else
+                    i += language.Tags[tag.Tagtype].End.Length;
+            }
+
+            return validTags;
+        }
+
+        private static TagToken CreateTag(string line, int i, ILanguage language)
+        {
+            foreach (var tag in language.Tags.Keys)
+            {
+                if (language.IsTag(line, i, language.Tags[tag].End) && language.IsCloseTag(line, i))
+                    return new TagToken(tag, false, i);
+                if (language.IsTag(line, i, language.Tags[tag].Start) &&
+                    language.IsOpenTag(line, i, language.Tags[tag].Start))
+                    return new TagToken(tag, true, i);
+            }
+
+            return null;
+        }
+
+        private static void UpdateTags(TagToken closeTag, Stack<TagToken> stackOfTags, List<TagToken> validTags)
+        {
+            while (stackOfTags.Count != 0)
+            {
+                if (stackOfTags.Peek().Tagtype == closeTag.Tagtype)
+                    break;
+                stackOfTags.Pop();
+            }
+
+            if (stackOfTags.Count == 0) return;
+
+            var openTag = stackOfTags.Pop();
+            validTags.Add(openTag);
+            validTags.Add(closeTag);
+        }
+
+        private static SyntaxTree ReplaceToSyntaxTree(string line, List<TagToken> validTags,
+            IReadOnlyDictionary<TagType, Tag> tags)
         {
             validTags.Reverse();
             var validStack = new Stack<TagToken>(validTags);
