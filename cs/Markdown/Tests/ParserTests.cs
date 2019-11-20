@@ -1,4 +1,5 @@
-﻿using FluentAssertions;
+﻿using System.Linq;
+using FluentAssertions;
 using NUnit.Framework;
 using Markdown.Core;
 using Markdown.Core.Rules;
@@ -24,11 +25,28 @@ namespace Markdown.Tests
         [TestCase("_a ", 0, TestName = "WhenThereIsNoClosingTag")]
         [TestCase("_a _ ", 0, TestName = "WhenThereIsSpaceBeforeClosingTag")]
         [TestCase("1_234_", 0, TestName = "WhenInsideLineWithNumbers")]
-        [TestCase(@"\_foo\_", 0, TestName = "WhenShielded")]
-        [TestCase(@"_foo\_", 0, TestName = "foo")]
         public void ParseLine_ShouldFindAllTokens(string line, int expectedCount)
         {
-            parser.Parse(line).Should().HaveCount(expectedCount);
+            parser.ParseLine(line).Should().HaveCount(expectedCount);
+        }
+
+        [TestCase("_foo_", "SingleUnderscore", "SingleUnderscore", TestName = "WhenSingleUnderscore")]
+        [TestCase("__foo__", "DoubleUnderscore", "DoubleUnderscore", TestName = "WhenSingleDoubleUnderscore")]
+        [TestCase("_ad __foo__ s_", "SingleUnderscore", "DoubleUnderscore", "DoubleUnderscore", "SingleUnderscore",
+            TestName = "WhenDoubleEmbeddedInSingle")]
+        [TestCase("__a _b_ c__", "DoubleUnderscore", "SingleUnderscore", "SingleUnderscore", "DoubleUnderscore")]
+        [TestCase("__a_", TestName = "WhenUnpairedTags")]
+        public void ParseLine_ShouldFindCorrectTags(string line, params string[] expectedTags)
+        {
+            parser.ParseLine(line).Select(tagToken => tagToken.Tag.GetType().Name).Should().BeEquivalentTo(expectedTags);
+        }
+
+        [TestCase("_a_", 0, 2, TestName = "WhenSingleUnderscore")]
+        [TestCase("__a__", 0, 3, TestName = "WhenDoubleUnderscore")]
+        [TestCase("_a __f__ s_", 0, 3, 6, 10, TestName = "WhenDoubleEmbeddedInSingle")]
+        public void ParseLine_ShouldFindCorrectPositions(string line, params int[] expectedPositions)
+        {
+            parser.ParseLine(line).Select(tagToken => tagToken.StartPosition).Should().BeEquivalentTo(expectedPositions);
         }
     }
 }
