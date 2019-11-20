@@ -82,17 +82,17 @@ namespace Markdown.Languages
             ValidTags.Add(closeTag);
         }
 
-        private static bool IsOpenTag(string line, int i, string tag)
+        public bool IsOpenTag(string line, int i, string tag)
         {
             return i + tag.Length < line.Length && line[i + tag.Length] != ' ' && !char.IsNumber(line, i + tag.Length);
         }
 
-        private static bool IsCloseTag(string line, int i)
+        public bool IsCloseTag(string line, int i)
         {
             return i > 0 && line[i - 1] != ' ' && !char.IsNumber(line, i - 1);
         }
 
-        private bool IsTag(string line, int i, string tag)
+        public bool IsTag(string line, int i, string tag)
         {
             return i + tag.Length <= line.Length && tag == line.Substring(i, tag.Length)
                                                  && (i + tag.Length >= line.Length ||

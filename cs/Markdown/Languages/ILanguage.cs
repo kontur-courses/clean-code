@@ -7,6 +7,8 @@ namespace Markdown.Languages
     {
         Dictionary<TagType, Tag> Tags { get; }
 
-        SyntaxTree RenderTree(string str);
+        bool IsTag(string line, int i, string tag);
+        bool IsCloseTag(string line, int i);
+        bool IsOpenTag(string line, int i, string tag);
     }
 }
