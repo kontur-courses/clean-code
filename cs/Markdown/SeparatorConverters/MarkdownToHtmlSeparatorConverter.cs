@@ -1,23 +1,31 @@
 ﻿using System;
+using System.Collections.Generic;
+using System.Linq;
 
 namespace Markdown.SeparatorConverters
 {
     public class MarkdownToHtmlSeparatorConverter : ISeparatorConverter
     {
-        public string ConvertSeparator(string separator, string value)
+        public List<string> GetTokensFormats(string separator, int tokensCount)
         {
             switch (separator)
             {
                 case "_":
-                    return ApplyPairedHtmlTagTo(value, "em");
+                    return GetTokenFormatsForUnderscore(tokensCount);
                 default:
                     throw new NotImplementedException();
             }
         }
 
-        private string ApplyPairedHtmlTagTo(string value, string tag)
+        private List<string> GetTokenFormatsForUnderscore(int tokensCount)
         {
-            return $"<{tag}>{value}</{tag}>";
+            if (tokensCount <= 1)
+            {
+                return new List<string> {"<em>{0}</em>"};
+            }
+
+            return Enumerable.Repeat("{0}", tokensCount - 2).Prepend("<em>{0}").Append("{0}</em>").ToList();
+
         }
     }
 }

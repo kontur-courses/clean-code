@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using Markdown.Rules;
-using Markdown.SyntaxAnalysis.SyntaxTree;
+using Markdown.SyntaxAnalysis.SyntaxTreeRealization;
 using Markdown.Tokenization;
 
 namespace Markdown.SyntaxAnalysis.SyntaxTreeBuilders
@@ -18,10 +18,10 @@ namespace Markdown.SyntaxAnalysis.SyntaxTreeBuilders
             separatorStack = new Stack<SyntaxTreeNode>();
         }
 
-        public SyntaxTree.SyntaxTree BuildSyntaxTree(IEnumerable<Token> tokens, string text)
+        public SyntaxTree BuildSyntaxTree(IEnumerable<Token> tokens, string text)
         {
-            var syntaxTree = new SyntaxTree.SyntaxTree();
-            tokens.Aggregate<Token, SyntaxTreeNode>(null,
+            var syntaxTree = new SyntaxTree {Root = new SyntaxTreeNode(new Token(0, string.Empty, false))};
+            tokens.Aggregate(syntaxTree.Root,
                 (current, token) => ProcessToken(token, syntaxTree, current, text));
 
             separatorStack.Clear();
@@ -29,26 +29,25 @@ namespace Markdown.SyntaxAnalysis.SyntaxTreeBuilders
             return syntaxTree;
         }
 
-        private SyntaxTreeNode ProcessToken(Token token, SyntaxTree.SyntaxTree syntaxTree, SyntaxTreeNode currentNode,
+        private SyntaxTreeNode ProcessToken(Token token, SyntaxTree syntaxTree, SyntaxTreeNode currentNode,
             string text)
         {
-            if (syntaxTree.Root == null)
-            {
-                syntaxTree.Root = new SyntaxTreeNode(token);
-                return syntaxTree.Root;
-            }
-
             if (token.IsSeparator &&
                 rules.IsSeparatorValid(text, token.Position, !IsEndSeparator(token)))
             {
                 return ProcessSeparatorToken(token, syntaxTree, currentNode);
             }
 
+            if (token.IsSeparator)
+            {
+                token = new Token(token.Position, token.Value, false);
+            }
+
             currentNode.AddChild(new SyntaxTreeNode(token));
             return currentNode;
         }
 
-        private SyntaxTreeNode ProcessSeparatorToken(Token token, SyntaxTree.SyntaxTree syntaxTree,
+        private SyntaxTreeNode ProcessSeparatorToken(Token token, SyntaxTree syntaxTree,
             SyntaxTreeNode currentNode)
         {
             switch (token.Value)
@@ -70,19 +69,19 @@ namespace Markdown.SyntaxAnalysis.SyntaxTreeBuilders
             return currentNode;
         }
 
-        private SyntaxTreeNode ProcessPairedSeparatorToken(Token token, SyntaxTree.SyntaxTree syntaxTree,
+        private SyntaxTreeNode ProcessPairedSeparatorToken(Token token, SyntaxTree syntaxTree,
             SyntaxTreeNode currentNode)
         {
+            var separatorNode = new SyntaxTreeNode(token);
+            currentNode.AddChild(separatorNode);
+
             if (IsEndSeparator(token))
             {
                 separatorStack.Pop();
-                currentNode.IsClosed = true;
                 return separatorStack.Count == 0 ? syntaxTree.Root : separatorStack.Peek();
             }
 
-            var separatorNode = new SyntaxTreeNode(token);
             separatorStack.Push(separatorNode);
-            currentNode.AddChild(separatorNode);
             return separatorNode;
         }
 

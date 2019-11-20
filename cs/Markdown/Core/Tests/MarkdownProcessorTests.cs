@@ -1,8 +1,7 @@
-﻿using NUnit.Framework;
-using FluentAssertions;
-using Markdown.Core;
+﻿using FluentAssertions;
+using NUnit.Framework;
 
-namespace Markdown.Tests
+namespace Markdown.Core.Tests
 {
     [TestFixture]
     public class MarkdownProcessorTests

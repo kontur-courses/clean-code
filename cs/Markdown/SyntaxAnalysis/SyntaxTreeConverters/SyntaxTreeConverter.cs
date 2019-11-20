@@ -1,39 +1,45 @@
-﻿using System.Text;
+﻿using System.Linq;
+using System.Text;
 using Markdown.SeparatorConverters;
-using Markdown.SyntaxAnalysis.SyntaxTree;
+using Markdown.SyntaxAnalysis.SyntaxTreeRealization;
 
 namespace Markdown.SyntaxAnalysis.SyntaxTreeConverters
 {
     public class SyntaxTreeConverter : ISyntaxTreeConverter
     {
-        public string Convert(SyntaxTree.SyntaxTree syntaxTree, ISeparatorConverter separatorConverter)
+        public string Convert(SyntaxTree syntaxTree, ISeparatorConverter separatorConverter)
         {
-            return RenderTreeNode(syntaxTree.Root, separatorConverter);
+            return RenderTreeNode(syntaxTree.Root, separatorConverter, new StringBuilder(), "{0}").ToString();
         }
 
-        private string RenderTreeNode(SyntaxTreeNode treeNode, ISeparatorConverter separatorConverter)
+        private StringBuilder RenderTreeNode(SyntaxTreeNode treeNode, ISeparatorConverter separatorConverter,
+            StringBuilder builder, string format)
         {
-            var builder = new StringBuilder();
-            if (treeNode.Token.IsSeparator && treeNode.IsClosed)
+            var children = treeNode.GetChildren();
+            if (IsCorrectSeparatorInNode(treeNode))
             {
-                var newBuilder = new StringBuilder();
-                foreach (var treeNodeChild in treeNode.GetChildren())
+                var formats = separatorConverter.GetTokensFormats(treeNode.Token.Value, children.Count - 1);
+                for (var i = 0; i < children.Count - 1; i++)
                 {
-                    newBuilder.Append(RenderTreeNode(treeNodeChild, separatorConverter));
+                    RenderTreeNode(children[i], separatorConverter, builder, formats[i]);
                 }
-
-                builder.Append(separatorConverter.ConvertSeparator(treeNode.Token.Value, newBuilder.ToString()));
             }
             else
             {
-                builder.Append(treeNode.Token.Value);
-                foreach (var treeNodeChild in treeNode.GetChildren())
+                builder.AppendFormat(format, treeNode.Token.Value);
+                foreach (var treeNodeChild in children)
                 {
-                    builder.Append(RenderTreeNode(treeNodeChild, separatorConverter));
+                    RenderTreeNode(treeNodeChild, separatorConverter, builder, "{0}");
                 }
             }
 
-            return builder.ToString();
+            return builder;
+        }
+
+        private bool IsCorrectSeparatorInNode(SyntaxTreeNode treeNode)
+        {
+            var children = treeNode.GetChildren();
+            return treeNode.Token.IsSeparator && children.Count > 0 && children.Last().Token.IsSeparator;
         }
     }
 }

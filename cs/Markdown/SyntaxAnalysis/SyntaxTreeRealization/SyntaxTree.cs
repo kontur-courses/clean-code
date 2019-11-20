@@ -1,4 +1,4 @@
-﻿namespace Markdown.SyntaxAnalysis.SyntaxTree
+﻿namespace Markdown.SyntaxAnalysis.SyntaxTreeRealization
 {
     public class SyntaxTree
     {

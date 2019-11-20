@@ -1,7 +1,9 @@
-﻿namespace Markdown.SeparatorConverters
+﻿using System.Collections.Generic;
+
+namespace Markdown.SeparatorConverters
 {
     public interface ISeparatorConverter
     {
-        string ConvertSeparator(string separator, string value);
+        List<string> GetTokensFormats(string separator, int tokensCount);
     }
 }

@@ -18,8 +18,8 @@ namespace Markdown.Tokenization
                 if (tokenReaderConfiguration.IsSeparator(text, i))
                 {
                     tokenReaderConfiguration.GetSeparatorValue(text, i);
-                    return new Token(startPosition,
-                        text.Substring(startPosition, i - startPosition), false);
+                    var tokenValue = text.Substring(startPosition, i - startPosition);
+                    return new Token(startPosition, tokenValue, false);
                 }
             }
 
@@ -33,7 +33,8 @@ namespace Markdown.Tokenization
             {
                 var nextToken = ReadWhileSeparator(text, currentPosition);
                 currentPosition = nextToken.Position + nextToken.Value.Length;
-                yield return nextToken;
+                if (nextToken.Value.Length > 0)
+                    yield return nextToken;
                 if (currentPosition >= text.Length)
                     break;
                 yield return new Token(currentPosition, tokenReaderConfiguration.GetSeparatorValue(text, currentPosition),

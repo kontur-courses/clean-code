@@ -1,14 +1,12 @@
 ﻿using System.Collections.Generic;
 using Markdown.Tokenization;
 
-namespace Markdown.SyntaxAnalysis.SyntaxTree
+namespace Markdown.SyntaxAnalysis.SyntaxTreeRealization
 {
     public class SyntaxTreeNode
     {
         public Token Token { get; }
         private readonly List<SyntaxTreeNode> children;
-
-        public bool IsClosed { get; set; }
 
         public SyntaxTreeNode(Token token)
         {
@@ -23,7 +21,7 @@ namespace Markdown.SyntaxAnalysis.SyntaxTree
 
         public IReadOnlyList<SyntaxTreeNode> GetChildren()
         {
-            return children;
+            return children.AsReadOnly();
         }
     }
 }
