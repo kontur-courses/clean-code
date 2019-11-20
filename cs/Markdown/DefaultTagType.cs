@@ -2,10 +2,6 @@
 {
     public class DefaultTagType : TagType
     {
-        public DefaultTagType() : base("", "", "", "")
-        {
-        }
-
         public override bool IsOpenedTag(string text, int position)
         {
             return Tag.GetTag(Tag.TagName.DefaultOpened, Tag.Markup.Md) == text[position].ToString();

@@ -2,10 +2,6 @@
 {
     public class EmTagType : TagType
     {
-        public EmTagType() : base("<em>", "</em>", "_", "_")
-        {
-        }
-
         public override bool IsOpenedTag(string text, int position)
         {
             if (text[position] != '_')

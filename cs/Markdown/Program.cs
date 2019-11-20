@@ -7,7 +7,7 @@ namespace Markdown
         public static void Main()
         {
             var md = new Md();
-            Console.WriteLine(md.Render("_test __test__ test_", new MdParser(), new MdConverter()));
+            Console.WriteLine(md.Render("____", new MdParser(), new MdConverter()));
         }
     }
 }

@@ -4,18 +4,12 @@ using System.Text;
 
 namespace Markdown
 {
-    public class MdConverter : Converter 
+    public class MdConverter : Converter
     {
-        private List<Token> tokens;
         private string text;
-
-        public MdConverter()
-        {
-        }
 
         public override string GetHtml(List<Token> tokens, string text)
         {
-            this.tokens = tokens;
             this.text = text;
             var htmlParts = tokens.Select(ConvertToHtml).ToList();
             for (var i = 0; i < tokens.Count; i++)
@@ -44,8 +38,8 @@ namespace Markdown
         public bool HasPairTags(Token token)
         {
             var type = token.TagType;
-            var openingSymbol = type.MdOpeningTag;
-            var closingSymbol = type.MdClosingTag;
+            var openingSymbol = type.GetOpenedTag(Tag.Markup.Md);
+            var closingSymbol = type.GetClosedTag(Tag.Markup.Md);
             var tokenContent = text.Substring(token.Position, token.Length);
             return tokenContent.StartsWith(openingSymbol) && tokenContent.EndsWith(closingSymbol);
         }
@@ -54,14 +48,15 @@ namespace Markdown
         {
             var type = token.TagType;
             var content = GetTokenContent(token);
-            return new StringBuilder(type.HtmlOpeningTag).Append(content).Append(type.HtmlClosingTag).ToString();
+            return new StringBuilder(type.GetOpenedTag(Tag.Markup.Html)).Append(content)
+                .Append(type.GetClosedTag(Tag.Markup.Html)).ToString();
         }
 
         private string GetTokenContent(Token token)
         {
             var type = token.TagType;
-            var openingSymbolLength = type.MdOpeningTag.Length;
-            var closingSymbolLength = type.MdClosingTag.Length;
+            var openingSymbolLength = type.GetOpenedTag(Tag.Markup.Md).Length;
+            var closingSymbolLength = type.GetClosedTag(Tag.Markup.Md).Length;
             return text.Substring(token.Position + openingSymbolLength,
                 token.Length - closingSymbolLength - openingSymbolLength);
         }
