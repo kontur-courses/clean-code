@@ -7,14 +7,16 @@ namespace Markdown
     public class TagsPair
     {
         public readonly TagType PairType;
-        public readonly int StartPosition;
-        public readonly int EndPosition;
+        public int StartPosition => StartToken.PositionInText;
+        public int EndPosition => EndToken.PositionInText;
+        public readonly Token StartToken;
+        public readonly Token EndToken;
 
-        public TagsPair(TagType type, int start, int end)
+        public TagsPair(TagType type, Token startToken, Token endToken)
         {
             PairType = type;
-            StartPosition = start;
-            EndPosition = end;
+            StartToken = startToken;
+            EndToken = endToken;
         }
     }
 }

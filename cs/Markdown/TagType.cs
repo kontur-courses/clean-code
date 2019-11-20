@@ -7,6 +7,13 @@ namespace Markdown
     public enum TagType
     {
         italics,
-        bold
+        bold,
+        firstHeading,
+        secondHeading,
+        threeHeading,
+        fourHeading,
+        fiveHeading,
+        sixHeading,
+        EndLine
     }
 }

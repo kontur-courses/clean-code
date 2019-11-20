@@ -13,13 +13,14 @@ namespace Markdown
         public static List<TagsPair> GetTagsPair(StringBuilder sourceText, List<TagSpecification> currentSpecifications)
         {
             var tagsSequences = GetTagsSequences(sourceText, currentSpecifications);
-            var tagsPair = GetTagsPair(tagsSequences, currentSpecifications);
+            var lineTags = currentSpecifications.Where(tag =>  tag.EndWithLine).Select(tag => tag.TagType).ToList();
+            var tagsPair = GetTagsPair(tagsSequences, currentSpecifications, lineTags);
             return tagsPair;
         }
 
-        private static Queue<Tag> GetTagsSequences(StringBuilder sourceString, List<TagSpecification> currentSpecifications)
+        private static Queue<Token> GetTagsSequences(StringBuilder sourceString, List<TagSpecification> currentSpecifications)
         {
-            var result = new Queue<Tag>();
+            var result = new Queue<Token>();
             for (var currentPosition = 0; currentPosition < sourceString.Length; currentPosition++)
             {
                 if (EscapeSymbol == sourceString[currentPosition])
@@ -28,9 +29,9 @@ namespace Markdown
                     continue;
                 }
                 var possibleStartTag = GetAllPossibleTag(currentSpecifications, sourceString, currentPosition,
-                    tagSpecification => tagSpecification.StartTag, CanBeOpenTag).FirstOrDefault();
+                    tagSpecification => tagSpecification.StartToken, CanBeOpenToken).FirstOrDefault();
                 var possibleEndTag = GetAllPossibleTag(currentSpecifications, sourceString, currentPosition,
-                    tagSpecification => tagSpecification.EndTag, CanBeEndTag).FirstOrDefault();
+                    tagSpecification => tagSpecification.EndToken, CanBeEndToken).FirstOrDefault();
                 if (possibleEndTag == null && possibleStartTag == null)
                 {
                     continue;
@@ -38,35 +39,32 @@ namespace Markdown
                 var tag = GetMostPriorityTagInCurrentPosition(currentSpecifications, possibleStartTag, possibleEndTag,
                     currentPosition);
                 result.Enqueue(tag);
-                if (tag.positionType == PositionType.ClosingTag)
-                    currentPosition += currentSpecifications.First(tag1 => tag1.TagType == tag.TagType).EndTag.Length;
-
-                else
-                    currentPosition += currentSpecifications.First(tag1 => tag1.TagType == tag.TagType).StartTag.Length;
+                currentPosition += tag.Value.Length - 1;
             }
             return result;
         }
 
-        private static Tag GetMostPriorityTagInCurrentPosition(List<TagSpecification> currentSpecifications, TagSpecification possibleStartTag, TagSpecification possibleEndTag, int currentPosition)
+        private static Token GetMostPriorityTagInCurrentPosition(List<TagSpecification> currentSpecifications, TagSpecification possibleStartTag, TagSpecification possibleEndTag, int currentPosition)
         {
             var priorityEnd = possibleEndTag == null ? int.MaxValue : currentSpecifications.FindIndex(0,
                 specification => specification.TagType == possibleEndTag.TagType);
             var priorityStart = possibleStartTag == null ? int.MaxValue : currentSpecifications.FindIndex(0,
                 specification => specification.TagType == possibleStartTag.TagType);
-            var positionType = priorityStart == priorityEnd ? PositionType.any : priorityStart < priorityEnd ? PositionType.OpeningTag : PositionType.ClosingTag;
+            var positionType = priorityStart == priorityEnd ? PositionType.any : priorityStart < priorityEnd ? PositionType.OpeningToken : PositionType.ClosingToken;
             var tagType = priorityStart <= priorityEnd ? possibleStartTag.TagType : possibleEndTag.TagType;
-            return new Tag(tagType, currentPosition, positionType);
+            var valueTag = priorityStart <= priorityEnd ? possibleStartTag.StartToken : possibleEndTag.EndToken;
+            return new Token(tagType, currentPosition, positionType, valueTag);
         }
 
         private static List<TagSpecification> GetAllPossibleTag(List<TagSpecification> currentSpecifications,
-            StringBuilder sourceString, int currentPosition, Func<TagSpecification, string> GetNeedPositionTag, Func<string, int, StringBuilder, bool> canBeInNeedPosition)
+            StringBuilder sourceString, int currentPosition, Func<TagSpecification, string> GetNeedPositionToken, Func<string, int, StringBuilder, bool> canBeInNeedPosition)
         {
-            return currentSpecifications.FindAll(tag => GetNeedPositionTag(tag).StartsWith(sourceString[currentPosition]))
-                .Where(possibleTag => IsValidTag(sourceString, GetNeedPositionTag(possibleTag), currentPosition, canBeInNeedPosition))
+            return currentSpecifications.Where(tag => GetNeedPositionToken(tag).StartsWith(sourceString[currentPosition]))
+                .Where(possibleTag => IsValidToken(sourceString, GetNeedPositionToken(possibleTag), currentPosition, canBeInNeedPosition))
                 .ToList();
         }
 
-        private static bool IsValidTag(StringBuilder sourceString, string possibleTag, int currentPosition, Func<string, int, StringBuilder, bool> validatePosition)
+        private static bool IsValidToken(StringBuilder sourceString, string possibleTag, int currentPosition, Func<string, int, StringBuilder, bool> validatePosition)
         {
             var lengthPossibleTag = possibleTag.Length;
             if (currentPosition + lengthPossibleTag > sourceString.Length)
@@ -86,25 +84,32 @@ namespace Markdown
             return char.IsDigit(text[position - 1]) || char.IsDigit(text[position + symbol.Length]);
         }
 
-        private static List<TagsPair> GetTagsPair(Queue<Tag> characterSequences, List<TagSpecification> currentSpecifications)
+        private static List<TagsPair> GetTagsPair(Queue<Token> characterSequences, IReadOnlyCollection<TagSpecification> currentSpecifications, IReadOnlyCollection<TagType> lineSpecifications)
         {
             var previousPairs = new List<TagsPair>();
-            var openingTags = new List<Tag>();
+            var openingTags = new List<Token>();
             while (characterSequences.Count > 0)
             {
-                var currentTag = characterSequences.Dequeue();
-                var startTag = openingTags.FindLast(t => t.TagType == currentTag.TagType);
-                if (startTag == null || currentTag.positionType == PositionType.OpeningTag)
+                var currentToken = characterSequences.Dequeue();
+                if (currentToken.TagType == TagType.EndLine)
                 {
-                    if (currentTag.positionType != PositionType.ClosingTag)
+                    if (GetLastLineOpenToken(openingTags, lineSpecifications, currentToken, out var newToken))
                     {
-                        openingTags.Add(currentTag);
+                        currentToken = newToken;
+                    }
+                }
+                var startToken = openingTags.FindLast(t => t.TagType == currentToken.TagType);
+                if (startToken == null || currentToken.PositionType == PositionType.OpeningToken)
+                {
+                    if (currentToken.PositionType != PositionType.ClosingToken)
+                    {
+                        openingTags.Add(new Token(currentToken.TagType, currentToken.PositionInText, PositionType.OpeningToken, currentToken.Value));
                     }
                     continue;
                 }
-                var currentPair = new TagsPair(currentTag.TagType, startTag.PositionInText, currentTag.PositionInText);
-                openingTags.Remove(startTag);
-                foreach (var invalidOpeningTags in GetAllInvalidOpeningTag(currentPair, openingTags, currentSpecifications))
+                var currentPair = new TagsPair(currentToken.TagType, startToken, currentToken);
+                openingTags.Remove(startToken);
+                foreach (var invalidOpeningTags in GetAllInvalidOpeningToken(currentPair, openingTags, currentSpecifications))
                 {
                     openingTags.Remove(invalidOpeningTags);
                 }
@@ -112,7 +117,7 @@ namespace Markdown
                 {
                     previousPairs.Remove(invalidTagsPair);
                     if (invalidTagsPair.StartPosition > currentPair.StartPosition) continue;
-                    var tagForAdd = new Tag(invalidTagsPair.PairType, invalidTagsPair.StartPosition, PositionType.OpeningTag);
+                    var tagForAdd = invalidTagsPair.StartToken;
                     var indexForInsert = openingTags.FindIndex(0, t => t.PositionInText > invalidTagsPair.StartPosition);
                     openingTags.Insert(indexForInsert == -1 ? 0 : indexForInsert, tagForAdd);
                 }
@@ -121,10 +126,21 @@ namespace Markdown
             return previousPairs;
         }
 
-        private static IEnumerable<Tag> GetAllInvalidOpeningTag(TagsPair currentPair, IReadOnlyCollection<Tag> previousOpeningTags, IReadOnlyCollection<TagSpecification> currentSpecifications)
+        private static IEnumerable<Token> GetAllInvalidOpeningToken(TagsPair currentPair, IReadOnlyCollection<Token> previousOpeningTags, IReadOnlyCollection<TagSpecification> currentSpecifications)
         {
             var specificationForCurrentPairType = currentSpecifications.First(t => t.TagType == currentPair.PairType);
             return previousOpeningTags.Where(tag => tag.PositionInText > currentPair.StartPosition).Where(tag => specificationForCurrentPairType.IgnoreTags.Contains(tag.TagType)).ToList();
+        }
+
+        private static bool GetLastLineOpenToken(IReadOnlyCollection<Token> openingTags, IReadOnlyCollection<TagType> lineSpecifications, Token currentToken, out Token newToken)
+        {
+            newToken = null;
+            var openingLine = openingTags.LastOrDefault(t => lineSpecifications.Contains(t.TagType));
+            if (openingLine == null)
+                return false;
+            newToken = new Token(openingLine.TagType, currentToken.PositionInText,
+                PositionType.ClosingToken, currentToken.Value);
+            return true;
         }
 
         private static IEnumerable<TagsPair> GetAllInvalidTagsPair(TagsPair currentPair, IReadOnlyCollection<TagsPair> previousPairs,
@@ -134,7 +150,7 @@ namespace Markdown
             return previousPairs.Where(pair => pair.EndPosition > currentPair.StartPosition).Where(tagPair => specificationForCurrentPairType.IgnoreTags.Contains(tagPair.PairType)).ToList();
         }
 
-        private static bool CanBeOpenTag(string symbol, int position, StringBuilder text)
+        private static bool CanBeOpenToken(string symbol, int position, StringBuilder text)
         {
             if (position == text.Length - symbol.Length)
             {
@@ -143,7 +159,7 @@ namespace Markdown
             return !char.IsWhiteSpace(text[position + symbol.Length]);
         }
 
-        private static bool CanBeEndTag(string symbol, int position, StringBuilder text)
+        private static bool CanBeEndToken(string symbol, int position, StringBuilder text)
         {
             if (position == 0)
             {

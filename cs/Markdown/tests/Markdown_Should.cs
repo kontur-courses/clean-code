@@ -75,7 +75,7 @@ namespace Markdown.tests
         }
 
         [TestCase("\\_abc_", ExpectedResult = "_abc_")]
-        [TestCase("abc \\__def__ ghi", ExpectedResult = "abc __def__ ghi")]
+        [TestCase("abc \\_\\_def__ ghi", ExpectedResult = "abc __def__ ghi")]
         [TestCase("Hello, _world\\_!", ExpectedResult = "Hello, _world_!")]
         public string UnderlineWithEscapeSymbols_Should_NotChange(string inputString)
         {
