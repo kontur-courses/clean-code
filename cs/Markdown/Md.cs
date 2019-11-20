@@ -7,20 +7,23 @@ namespace Markdown
 {
     public class Md
     {
-        private IMdProcessor mdProcessor;
-        private MdTokenizer tokenizer;
+        private readonly MdTokenizer tokenizer;
 
-        public void SetMdProcessor(IMdProcessor processor)
+        public Md()
         {
-            mdProcessor = processor;
-        }
-        
-        public string Render(string text)
-        {
-            if(mdProcessor is null) throw new InvalidOperationException("No MdProcessor is set");
             tokenizer = new MdTokenizer();
-            var result = tokenizer.MakeTokens(text).Select(token => mdProcessor.GetProcessedResult((MdToken)token));
+        }
+
+        public string RenderUsingCustomProcessor(string text, IMdProcessor processor)
+        {
+            if(processor is null) throw new ArgumentNullException(nameof(processor));
+            var result = tokenizer.MakeTokens(text).Select(token => processor.GetProcessedResult((MdToken)token));
             return string.Join(" ", result);
+        }
+
+        public string RenderToHtml(string text)
+        {
+            return RenderUsingCustomProcessor(text, new MdToHtmlProcessor());
         }
     }
 }

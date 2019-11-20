@@ -19,7 +19,7 @@ namespace Markdown.Tests
         [Test]
         public void Render_Should_ThrowInvalidOperationException_When_NoMdProcessorWasSet()
         {
-            Following.Code(() => md.Render("text")).Should().Throw<InvalidOperationException>();
+            Following.Code(() => md.RenderUsingCustomProcessor("text", null)).Should().Throw<ArgumentNullException>();
         }
         
         [TestCase("abc", "abc", TestName = "when no md symbols found")]
@@ -40,8 +40,7 @@ namespace Markdown.Tests
             TestName = " when complex text with many test cases")]
         public void Render_Should_RenderMdToHTML(string text, string expectedResult)
         {
-            md.SetMdProcessor(new MdToHtmlProcessor());
-            md.Render(text).Should().Be(expectedResult);
+            md.RenderToHtml(text).Should().Be(expectedResult);
         }
     }
 }
