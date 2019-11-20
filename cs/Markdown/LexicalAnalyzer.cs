@@ -6,11 +6,6 @@ namespace Markdown
 {
     public class LexicalAnalyzer
     {
-        public LexicalAnalyzer()
-        {
-
-        }
-
         public List<(int, LexType)> Analyze(string text)
         {
             var lexemes = new List<(int, LexType)>();
@@ -45,15 +40,13 @@ namespace Markdown
                         break;
                 }
             }
-
-
             return lexemes;
         }
 
         private void ProcessBackslash(InputReader reader, List<(int, LexType)> lexemes)
         {
             lexemes.Add((reader.CurrentPosition, LexType.TextWithBackslash));
-            reader.Next();// мы пропускаем один символ считая его текстом, возможно придется сделать послжнее конструкцию
+            reader.Next();// мы пропускаем один символ считая его текстом
             reader.Next();
         }
 
@@ -96,21 +89,18 @@ namespace Markdown
             {
                 case '[':
                     lexemes.Add((reader.CurrentPosition, LexType.SquareBracketOpen));
-                    reader.Next();
                     break;
                 case ']':
                     lexemes.Add((reader.CurrentPosition, LexType.SquareBracketClose));
-                    reader.Next();
                     break;
                 case '(':
                     lexemes.Add((reader.CurrentPosition, LexType.BracketOpen));
-                    reader.Next();
                     break;
                 case ')':
                     lexemes.Add((reader.CurrentPosition, LexType.BracketClose));
-                    reader.Next();
                     break;
             }
+            reader.Next();
         }
     }
 

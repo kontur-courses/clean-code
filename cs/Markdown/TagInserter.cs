@@ -12,19 +12,18 @@ namespace Markdown
 
         }
 
-        public string Insert(string text, Dictionary<int, Tag> toInsert)
+        public string Insert(string text, List<(int, Tag)> toInsert)
         {
             StringBuilder outText = new StringBuilder();
-            var pairs = toInsert.ToList().OrderBy(a=>a.Key).ToList();//временный костыль, потом перепилю
             int currentTextIndex = 0;
             int currentTagsIndex = 0;
             int linkTagIndex = -1;
-            while(currentTagsIndex<pairs.Count)
+            while(currentTagsIndex<toInsert.Count)
             {
-                var pair = pairs[currentTagsIndex];
-                outText.Append(text.Substring(currentTextIndex, pair.Key - currentTextIndex));
-                currentTextIndex = pair.Key;
-                switch (pair.Value)
+                var pair = toInsert[currentTagsIndex];
+                outText.Append(text.Substring(currentTextIndex, pair.Item1 - currentTextIndex));
+                currentTextIndex = pair.Item1;
+                switch (pair.Item2)
                 {
                     case Tag.Em:
                         currentTextIndex++;
@@ -57,10 +56,11 @@ namespace Markdown
                         break;
                     case Tag.LinkBracket:
                         currentTextIndex++;
-                        while (pairs[currentTagsIndex].Value != Tag.LinkBracketClose)
+                        while (toInsert[currentTagsIndex].Item2 != Tag.LinkBracketClose)
                             currentTagsIndex++;
-                        outText.Insert(linkTagIndex, " href="+ text.Substring(currentTextIndex, pairs[currentTagsIndex].Key - currentTextIndex));
-                        currentTextIndex = pairs[currentTagsIndex].Key;
+                        outText.Insert(linkTagIndex, " href="+ text.Substring(currentTextIndex, toInsert[currentTagsIndex].Item1 - currentTextIndex));
+                        currentTextIndex = toInsert[currentTagsIndex].Item1;
+                        currentTextIndex++;// скипнули закрывающую скобку
                         break;
                     case Tag.LinkBracketClose:
                         currentTextIndex++;

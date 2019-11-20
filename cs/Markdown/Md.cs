@@ -1,7 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
+﻿using System.Linq;
 
 namespace Markdown
 {
@@ -14,20 +11,10 @@ namespace Markdown
             var parser = new TokenParser(tokens, paragraph);
             var tags = parser.Parse();
             var tagInserter = new TagInserter();
-            var HTMLtext = tagInserter.Insert(paragraph, tags.ToDictionary(x=>x.Item1, x=>x.Item2));
+            var HTMLtext = tagInserter.Insert(paragraph, tags);
             return HTMLtext;
         }
 
     }
-
-    //public enum Tag
-    //{
-    //    Em,
-    //    Em_close,
-    //    Strong,
-    //    Strong_close,
-    //    Empty
-
-    //}
 
 }

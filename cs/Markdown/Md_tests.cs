@@ -164,6 +164,9 @@ namespace Markdown
         }
 
         [TestCase("[test](hello)", "<a href=hello>test</a>")]
+        [TestCase("[te_st](hello)", "<a href=hello>te_st</a>")]
+        [TestCase("_aaa[te_st](hello)", "_aaa<a href=hello>te_st</a>")]
+        [TestCase("[test](he_ll_o)", "<a href=he_ll_o>test</a>")]
         public void LinkTagsTests_ShouldBeInTags(string text, string expectedText)
         {
             var renderer = new Md();

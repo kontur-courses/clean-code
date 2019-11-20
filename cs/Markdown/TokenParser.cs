@@ -28,8 +28,8 @@ namespace Markdown
         {
             while (Counter < Tokens.Count)
             {
-                var pair = Tokens[Counter];
-                switch (pair.Item2)
+                var token = Tokens[Counter];
+                switch (token.Item2)
                 {
                     case LexType.Underscore:
                         ProcessUnderscore();
@@ -40,7 +40,7 @@ namespace Markdown
                     case LexType.Text:
                         break;
                     case LexType.TextWithBackslash:
-                        Tags.Add((pair.Item1, Tag.Backslash));
+                        ProcessTextWithBackslash();
                         break;
                     case LexType.SquareBracketOpen:
                         ProcessSquareBracketOpen();
@@ -75,6 +75,11 @@ namespace Markdown
                     if (Char.IsDigit(Text[i]))
                         return false;
             return true;
+        }
+
+        private void ProcessTextWithBackslash()
+        {
+            Tags.Add((Tokens[Counter].Item1, Tag.Backslash));
         }
 
         private void ProcessUnderscore()
@@ -118,7 +123,7 @@ namespace Markdown
                 TagStack.Pop();
             }
             OpenTags.Remove(Tag.A);
-            if (Tokens[Counter + 1].Item2 == LexType.BracketOpen)// проверили что это не просто текст в скобках
+            if (Tokens[Counter + 1].Item2 == LexType.BracketOpen)// проверили что это не просто текст в квадратных скобках
             {
                 Tags.Add(TagStack.Pop());
                 Tags.Add((Tokens[Counter].Item1, Tag.AClose));
@@ -131,7 +136,7 @@ namespace Markdown
 
         private void ProcessBracketOpen()
         {
-            if (Tokens[Counter - 1].Item2 == LexType.SquareBracketClose)
+            if (Tokens[Counter - 1].Item2 == LexType.SquareBracketClose)// проверили что в скобках: ссылка или просто текст
             {
                 OpenTags.Add(Tag.LinkBracket);
                 TagStack.Push((Tokens[Counter].Item1, Tag.LinkBracket));
@@ -177,6 +182,57 @@ namespace Markdown
                     OpenTags.Remove(Tag.Strong);
                     Tags.Add(TagStack.Pop());
                     Tags.Add((Tokens[Counter].Item1, Tag.StrongClose));
+                }
+            }
+        }
+
+        /* simple tag не взаимодействует с другими тегами
+         * не имеет особых условий открытия или закрытия
+         */
+
+        private void ProcessSimpleTag(Tag tag, Tag tagClose)
+        {
+            if (!OpenTags.Contains(tag))
+            {
+                OpenTags.Add(tag);
+                TagStack.Push((Tokens[Counter].Item1, tag));
+            }
+            else
+            {
+                while (TagStack.Peek().Item2 != tag)
+                {
+                    OpenTags.Remove(TagStack.Peek().Item2);
+                    TagStack.Pop();
+                }
+                OpenTags.Remove(tag);
+                Tags.Add(TagStack.Pop());
+                Tags.Add((Tokens[Counter].Item1, tagClose));
+            }
+        }
+
+        private void ProcessTagUnderscoreLikeRules(Tag tag, Tag tagClose)
+        {
+            if (!OpenTags.Contains(tag))
+            {
+                if (Counter == Tokens.Count - 1 || Tokens[Counter + 1].Item2 != LexType.Space)
+                {
+                    OpenTags.Add(tag);
+                    TagStack.Push((Tokens[Counter].Item1, tag));
+                }
+            }
+            else
+            {
+                if (Tokens[Counter - 1].Item2 != LexType.Space)
+                {
+                    while (TagStack.Peek().Item2 != tag)
+                    {
+                        OpenTags.Remove(TagStack.Peek().Item2);
+                        TagStack.Pop();
+                    }
+
+                    OpenTags.Remove(tag);
+                    Tags.Add(TagStack.Pop());
+                    Tags.Add((Tokens[Counter].Item1, tagClose));
                 }
             }
         }
