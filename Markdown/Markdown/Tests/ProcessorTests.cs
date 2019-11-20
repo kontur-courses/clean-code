@@ -131,7 +131,9 @@ namespace Markdown
             TestName = "Link inside header link brackets")]
         [TestCase(@"[Hello](World\!)", "<a href=\"World!\">Hello</a>", 
             TestName = "Special symbol is escaped inside link description")]
-
+        [TestCase("[Google It](http://google.com) text [Google It](http://google.com)",
+            "<a href=\"http://google.com\">Google It</a> text <a href=\"http://google.com\">Google It</a>",
+            TestName = "Two links in texts")]
         public void Render_ReturnsCorrectString_WithLinkAttributes(string input, string expected)
         {
             processor.Render(input).Should().Be(expected);
