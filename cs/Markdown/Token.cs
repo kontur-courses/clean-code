@@ -52,7 +52,7 @@ namespace Markdown
         {
             Data += data;
         }
-        
+
         public string ToHtml()
         {
             var stringBuilder = new StringBuilder(Data);

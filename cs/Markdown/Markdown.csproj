@@ -59,6 +59,7 @@
     <Compile Include="Md.cs" />
     <Compile Include="MarkdownParser.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="TokenInfo.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="packages.config" />

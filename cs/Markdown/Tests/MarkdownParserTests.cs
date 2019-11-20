@@ -7,7 +7,7 @@ namespace Markdown.Tests
     [TestFixture]
     public class MarkdownParserTests
     {
-        private readonly MarkdownParser parser = new MarkdownParser();
+        private readonly MarkdownParser parser = new MarkdownParser(new TokenInfo());
 
         [TestCase("_", TestName = "Em tag escaped")]
         [TestCase("__", TestName = "Strong tag escaped")]

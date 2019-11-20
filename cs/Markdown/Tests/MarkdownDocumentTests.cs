@@ -6,7 +6,7 @@ namespace Markdown.Tests
     [TestFixture]
     public class MarkdownDocumentTests
     {
-        private readonly MarkdownParser parser = new MarkdownParser();
+        private readonly MarkdownParser parser = new MarkdownParser(new TokenInfo());
 
         [Test]
         public void ToHtml_ShouldNotWrap_WhenPlainText()

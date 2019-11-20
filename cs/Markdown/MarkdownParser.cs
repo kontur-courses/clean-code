@@ -1,28 +1,20 @@
 using System.Collections.Generic;
-using System.Linq;
 
 namespace Markdown
 {
     public class MarkdownParser : IMarkdownParser
     {
-        private static readonly Dictionary<string, string> MdToHtmlTags = new Dictionary<string, string>
-        {
-            {"_", "em"},
-            {"__", "strong"}
-        };
-
-        private static readonly Dictionary<string, List<string>> MdAcceptedNestedTags =
-            new Dictionary<string, List<string>>
-            {
-                {"", new List<string> {"_", "__"}},
-                {"_", new List<string> {"_"}},
-                {"__", new List<string> {"_", "__"}}
-            };
+        private TokenInfo tokenInfo;
 
         private List<int> currentPositionsByDepth = new List<int> {0}; // position skips tags length!
         private int depth;
         private RootToken rootToken = new RootToken();
         private Stack<Token> tokensStack = new Stack<Token>();
+
+        public MarkdownParser(TokenInfo tokenInfo)
+        {
+            this.tokenInfo = tokenInfo;
+        }
 
         public RootToken Parse(string markdown)
         {
@@ -34,10 +26,15 @@ namespace Markdown
                 var processedToken = GetProcessedToken(rootToken);
                 var current = markdown[i];
                 isEscaped = CheckIsEscaped(isEscaped, current);
-                if (!isEscaped && IsTagPart(current))
+                if (!isEscaped && tokenInfo.IsTagPart(current))
                 {
+                    if (processedToken.IsClosed && tokenInfo.IsOnlyCloseTagPart(current))
+                        continue;
+
                     tagBuffer += current;
-                    if (i != markdown.Length - 1 && GetTagsStartWithWordCount(tagBuffer + markdown[i + 1]) != 0)
+
+                    if (i != markdown.Length - 1 &&
+                        tokenInfo.GetTagsStartWithWordCount(tagBuffer + markdown[i + 1]) != 0)
                         continue;
 
                     AddTagToStack(processedToken, currentPositionsByDepth[depth], tagBuffer, i, markdown);
@@ -47,34 +44,29 @@ namespace Markdown
                 {
                     if (isEscaped && current == '\\')
                         continue;
-                    currentPositionsByDepth[depth]++;
+
+                    if (FirstSpacesShouldBeIgnored(current, processedToken))
+                        continue;
+
                     processedToken.AppendData(current.ToString());
+                    currentPositionsByDepth[depth]++;
                 }
             }
 
             return rootToken;
         }
 
-        private static bool IsTagPart(char symbol)
+        private bool FirstSpacesShouldBeIgnored(char symbol, Token processedToken)
         {
-            return MdToHtmlTags.Keys.Any(k => k.StartsWith(symbol.ToString()));
+            return symbol == ' ' && currentPositionsByDepth[depth] == 0
+                                 && tokenInfo.IsSpaceAfterOpenTagRequired(processedToken.MdTag);
         }
 
-        private static bool IsCorrectNestedTag(string parentTag, string nestedTag)
-        {
-            return MdAcceptedNestedTags.ContainsKey(parentTag) && MdAcceptedNestedTags[parentTag].Contains(nestedTag);
-        }
-
-        private static int GetTagsStartWithWordCount(string word)
-        {
-            return MdToHtmlTags.Keys.Count(k => k.StartsWith(word));
-        }
-
-        private static bool CheckIsEscaped(bool isEscaped, char current)
+        private bool CheckIsEscaped(bool isEscaped, char current)
         {
             if (current == '\\')
                 return !isEscaped;
-            if (char.IsWhiteSpace(current) || !IsTagPart(current))
+            if (char.IsWhiteSpace(current) || !tokenInfo.IsTagPart(current))
                 return false;
             return isEscaped;
         }
@@ -103,9 +95,10 @@ namespace Markdown
         private void AddTagToStack(Token processedToken, int tokenPosition, string tagBuffer, int markdownPosition,
             string markdown)
         {
-            if (tokensStack.Count == 0 || tokensStack.Count != 0 && tokensStack.Peek().MdTag != tagBuffer)
+            if (tokensStack.Count == 0 ||
+                tokensStack.Count != 0 && tokenInfo.GetCloseTag(tokensStack.Peek().MdTag) != tagBuffer)
                 ProcessOpenTag(processedToken, tokenPosition, tagBuffer, markdownPosition, markdown);
-            else if (tokensStack.Count != 0 && tokensStack.Peek().MdTag == tagBuffer)
+            else if (tokensStack.Count != 0 && tokenInfo.GetCloseTag(tokensStack.Peek().MdTag) == tagBuffer)
                 ProcessCloseTag(tagBuffer, markdownPosition, markdown);
         }
 
@@ -118,13 +111,21 @@ namespace Markdown
             if (IsCorrectCloseTag(tagBuffer, tagEndPosition, markdown))
             {
                 tokenToClose.IsClosed = true;
-                if (IsCorrectNestedTag(parentToken.MdTag, tokenToClose.MdTag))
+                if (tokenInfo.IsCorrectNestedTag(parentToken.MdTag, tokenToClose.MdTag))
                     tokenToClose.IsValid = true;
+
+                if (tokenInfo.IsExtraWrappingRequired(tokenToClose.MdTag))
+                {
+                    currentPositionsByDepth[depth] = 0;
+                    depth--;
+                }
             }
             else
             {
                 parentToken.RemoveLastNestedToken();
-                parentToken.AppendData(tokenToClose.MdTag + tokenToClose.Data + tagBuffer);
+                var dataToAppend = tokenToClose.MdTag + tokenToClose.Data + tagBuffer;
+                currentPositionsByDepth[depth] += dataToAppend.Length;
+                parentToken.AppendData(dataToAppend);
             }
         }
 
@@ -133,7 +134,19 @@ namespace Markdown
         {
             if (IsCorrectOpenTag(tagBuffer, tagEndPosition, markdown))
             {
-                var tokenToAdd = new Token(tokenPosition, tagBuffer, MdToHtmlTags[tagBuffer]);
+                var tokenToAdd = new Token(tokenPosition, tagBuffer, tokenInfo.MdToHtmlTags[tagBuffer]);
+
+                if (tokenInfo.IsExtraWrappingRequired(tagBuffer))
+                {
+                    tokenToAdd = new Token(0, tagBuffer, tokenInfo.MdToHtmlTags[tagBuffer]);
+                    var wrappingTag = tokenInfo.GetExtraWrappingTag(tagBuffer);
+                    var wrappingToken = new Token(tokenPosition, wrappingTag, wrappingTag,
+                        "", true, true);
+                    depth++;
+                    processedToken.AddNestedToken(wrappingToken);
+                    processedToken = wrappingToken;
+                }
+
                 tokensStack.Push(tokenToAdd);
                 processedToken.AddNestedToken(tokenToAdd);
                 depth++;
@@ -141,15 +154,21 @@ namespace Markdown
             }
             else
             {
+                currentPositionsByDepth[depth]++;
                 processedToken.AppendData(tagBuffer);
             }
         }
 
-        private static bool IsCorrectOpenTag(string tagBuffer, int tagEndPosition, string markdown)
+        private bool IsCorrectOpenTag(string tagBuffer, int tagEndPosition, string markdown)
         {
             var previous = GetElementBeforeTag(tagBuffer, tagEndPosition, markdown);
             var next = GetElementAfterTag(tagEndPosition, markdown);
-            return previous == ' ' && next != ' ';
+            var correctPrevious = ' ';
+            if (tokenInfo.IsNewLineBeforeOpenTagRequired(tagBuffer))
+                correctPrevious = '\n';
+            if (tokenInfo.IsSpaceAfterOpenTagRequired(tagBuffer))
+                return previous == correctPrevious && next == ' ';
+            return previous == correctPrevious && next != ' ';
         }
 
         private static bool IsCorrectCloseTag(string tagBuffer, int tagEndPosition, string markdown)
