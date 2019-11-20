@@ -1,4 +1,6 @@
-﻿namespace Markdown
+﻿using System.Collections.Generic;
+
+namespace Markdown
 {
     public class LinkToken : IToken
     {
@@ -8,14 +10,17 @@
 
         public int AttributeLength { get; }
 
-        public string URL { get; }
+        public  List<IToken> UrlTokens { get; }
 
-        public LinkToken(int position, int attributeLength, string url)
+        public string RawUrl { get; }
+
+        public LinkToken(int position, int attributeLength, List<IToken> urlTokens, string rawUrl)
         {
             Type = AttributeType.Link;
             Position = position;
             AttributeLength = attributeLength;
-            URL = url;
+            UrlTokens = urlTokens;
+            RawUrl = rawUrl;
         }
     }
 }

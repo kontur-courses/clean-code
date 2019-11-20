@@ -82,7 +82,8 @@ namespace Markdown
             return validTokens.OrderBy(token => token.Position);
         }
 
-        private void ProcessTokenOnPairMatching(PairToken pairToken, Stack<PairToken> openingTokens, List<IToken> listToAdd)
+        private void ProcessTokenOnPairMatching(PairToken pairToken, Stack<PairToken> openingTokens,
+            List<IToken> listToAdd)
         {
             if (pairToken.IsClosing && openingTokens.Count > 0 && !openingTokens.Peek().IsClosing)
             {
@@ -96,12 +97,14 @@ namespace Markdown
                 {
                     if (openToken.Type != AttributeType.Emphasis)
                         openingTokens.Push(openToken);
-                    else 
+                    else
                         ProcessTokenOnPairMatching(pairToken, openingTokens, listToAdd);
                 }
             }
             else
+            {
                 openingTokens.Push(pairToken);
+            }
         }
 
         private IEnumerable<IToken> MergeAdjacentEmphasisDelimiters(IEnumerable<IToken> tokens)
@@ -137,6 +140,7 @@ namespace Markdown
                             lastOpeningToken = null;
                             continue;
                         }
+
                         if (lastClosingToken == null)
                         {
                             if (IsClosingTokenPairForNonMergeableToken(nonMergeableOpeningTokens, openingTokens))
@@ -177,15 +181,15 @@ namespace Markdown
         private bool IsClosingTokenPairForNonMergeableToken(
             Stack<PairToken> nonMergeableOpeningTokens, Stack<PairToken> mergeableOpeningTokens)
         {
-            return nonMergeableOpeningTokens.Count == 0 
-                   || mergeableOpeningTokens.Count > 0 
+            return nonMergeableOpeningTokens.Count == 0
+                   || mergeableOpeningTokens.Count > 0
                    && nonMergeableOpeningTokens.Peek().Position < mergeableOpeningTokens.Peek().Position;
         }
 
         private bool TryMergeOpeningTokens(
             Stack<PairToken> mergeableOpeningTokens,
-            Stack<PairToken> nonMergeableOpeningTokens, 
-            PairToken openingToken, 
+            Stack<PairToken> nonMergeableOpeningTokens,
+            PairToken openingToken,
             PairToken lastOpeningToken)
         {
             if (lastOpeningToken.Position == openingToken.Position - 1)
@@ -194,14 +198,15 @@ namespace Markdown
                 mergeableOpeningTokens.Push(openingToken);
                 return true;
             }
+
             nonMergeableOpeningTokens.Push(lastOpeningToken);
             return false;
         }
 
         private bool TryMergeClosingTokens(
-            List<IToken> listToAdd, 
-            Stack<PairToken> mergeableOpeningTokens, 
-            PairToken lastClosingToken, 
+            List<IToken> listToAdd,
+            Stack<PairToken> mergeableOpeningTokens,
+            PairToken lastClosingToken,
             PairToken closingToken)
         {
             if (lastClosingToken.Position == closingToken.Position - 1)
@@ -221,6 +226,7 @@ namespace Markdown
                 );
                 return true;
             }
+
             listToAdd.Add(lastClosingToken);
             return false;
         }
@@ -235,7 +241,9 @@ namespace Markdown
                 if (token is PairToken pairToken && nestedTypeTokens.ContainsKey(token.Type))
                 {
                     if (!pairToken.IsClosing)
+                    {
                         nestedTypeTokens[pairToken.Type].Push(pairToken);
+                    }
                     else
                     {
                         var openingToken = nestedTypeTokens[token.Type].Pop();
@@ -256,15 +264,17 @@ namespace Markdown
                     }
                 }
                 else
+                {
                     result.Add(token);
+                }
 
             return result.OrderBy(token => token.Position);
         }
 
         private bool TryToCreatePairOfNestedTokens(
             Dictionary<AttributeType, Stack<PairToken>> nestedTypeTokens,
-            PairToken openingToken, 
-            PairToken closingToken, 
+            PairToken openingToken,
+            PairToken closingToken,
             out (IToken, IToken) nestedTokenPair)
         {
             if (nestedTypeTokens[closingToken.Type].Count > 0)
@@ -274,7 +284,7 @@ namespace Markdown
                             AttributeType.None,
                             openingToken.Position,
                             openingToken.AttributeLength
-                        ), 
+                        ),
                         new SingleToken(
                             AttributeType.None,
                             closingToken.Position,
@@ -289,96 +299,188 @@ namespace Markdown
 
         private IEnumerable<IToken> AddValidLinkTokens(IEnumerable<IToken> tokens, string source)
         {
-            var result = new List<IToken>();
-            var openingHeaders = new Stack<PairToken>();
+            var inLinkTokens = new List<IToken>();
+            PairToken openingHeader = null;
             PairToken closingHeader = null;
-            var openingDescriptions = new Stack<PairToken>();
+            PairToken openingDescription = null;
+            var openingHeaders = new Stack<PairToken>();
+            var result = new List<IToken>();
             foreach (var token in tokens)
-                if (token.Type == AttributeType.LinkHeader || token.Type == AttributeType.LinkDescription)
+                if (token is PairToken pairToken)
                 {
-                    var pairToken = token as PairToken;
-                    if (closingHeader == null)
-                    {
-                        if (pairToken.Type == AttributeType.LinkHeader)
-                        {
-                            if (!pairToken.IsClosing)
-                            {
-                                openingHeaders.Push(pairToken);
-                            }
-                            else
-                            {
-                                if (openingHeaders.Count == 1)
-                                    closingHeader = pairToken;
-                                else
-                                    openingHeaders.Pop();
-                            }
-                        }
-                    }
+                    if (openingHeader == null)
+                        ProcessTokenToMatchOpeningLinkHeader(result, pairToken, ref openingHeader);
+                    else if (closingHeader == null)
+                        ProcessTokenToMatchClosingLinkHeader(
+                            result,
+                            openingHeaders,
+                            pairToken,
+                            ref openingHeader,
+                            ref closingHeader);
+                    else if (openingDescription == null)
+                        ProcessTokenToMatchOpeningLinkDescription(
+                            openingHeaders,
+                            pairToken,
+                            ref openingHeader,
+                            ref closingHeader,
+                            ref openingDescription);
                     else
-                    {
-                        if (pairToken.Type == AttributeType.LinkHeader)
-                        {
-                            openingHeaders.Pop();
-                            closingHeader = null;
-                            if (!pairToken.IsClosing) openingHeaders.Push(pairToken);
-                        }
-
-                        if (pairToken.Type == AttributeType.LinkDescription)
-                        {
-                            if (!pairToken.IsClosing)
-                            {
-                                if (openingDescriptions.Count == 0 && closingHeader.Position != pairToken.Position - 1)
-                                {
-                                    openingHeaders = new Stack<PairToken>();
-                                    closingHeader = null;
-                                }
-                                else
-                                    openingDescriptions.Push(pairToken);
-                            }
-                            else
-                            {
-                                var openingDescription = openingDescriptions.Pop();
-                                if (openingDescriptions.Count == 0)
-                                {
-                                    var (openingLinkToken, closingLinkToken) = CreatePairOfLinkTokens(
-                                        openingHeaders.Pop(),
-                                        closingHeader,
-                                        openingDescription,
-                                        pairToken,
-                                        source
-                                    );
-                                    result.Add(openingLinkToken);
-                                    result.Add(closingLinkToken);
-                                    closingHeader = null;
-                                }
-                            }
-                        }
-                    }
+                        ProcessTokenToMatchClosingLinkDescription(
+                            result,
+                            inLinkTokens,
+                            source,
+                            pairToken,
+                            ref openingHeader,
+                            ref closingHeader,
+                            ref openingDescription);
                 }
                 else
-                    if (openingDescriptions.Count == 0) result.Add(token);
-                
+                {
+                    if (openingDescription != null)
+                        inLinkTokens.Add(token);
+                    else
+                        result.Add(token);
+                }
+
             return result.OrderBy(token => token.Position);
         }
 
-        private (LinkToken, LinkToken) CreatePairOfLinkTokens(
-            PairToken openingHeader, 
-            PairToken closingHeader,
-            PairToken openingDescription, 
-            PairToken closingDescription, 
-            string textSource)
+        private void ProcessTokenToMatchOpeningLinkHeader(
+            List<IToken> listToAdd, PairToken currentToken, ref PairToken openingHeader)
         {
-            var url = textSource.Substring(
-                openingDescription.Position + 1,
-                closingDescription.Position - openingDescription.Position - 1
-            );
+            if (currentToken.Type == AttributeType.LinkHeader && !currentToken.IsClosing)
+            {
+                openingHeader = currentToken;
+            }
+            else
+            {
+                if (currentToken.Type != AttributeType.LinkDescription && currentToken.Type != AttributeType.LinkHeader)
+                    listToAdd.Add(currentToken);
+            }
+        }
+
+        private void ProcessTokenToMatchClosingLinkHeader(
+            List<IToken> listToAdd,
+            Stack<PairToken> openingHeaders,
+            PairToken currentToken,
+            ref PairToken openingHeader,
+            ref PairToken closingHeader)
+        {
+            if (currentToken.Type == AttributeType.LinkHeader)
+            {
+                if (currentToken.IsClosing)
+                {
+                    closingHeader = currentToken;
+                }
+                else
+                {
+                    openingHeaders.Push(openingHeader);
+                    openingHeader = currentToken;
+                }
+            }
+            else
+            {
+                if (currentToken.Type != AttributeType.LinkDescription && currentToken.Type != AttributeType.LinkHeader)
+                    listToAdd.Add(currentToken);
+            }
+        }
+
+        private void ProcessTokenToMatchOpeningLinkDescription(
+            Stack<PairToken> openingHeaders,
+            PairToken currentToken,
+            ref PairToken openingHeader,
+            ref PairToken closingHeader,
+            ref PairToken openingDescription)
+        {
+            if (currentToken.Type == AttributeType.LinkHeader)
+            {
+                if (!currentToken.IsClosing)
+                {
+                    openingHeader = currentToken;
+                    closingHeader = null;
+                }
+                else
+                {
+                    if (openingHeaders.Count <= 0)
+                        return;
+                    openingHeader = openingHeaders.Pop();
+                    closingHeader = currentToken;
+                }
+            }
+            else if (currentToken.Type == AttributeType.LinkDescription)
+            {
+                if (!currentToken.IsClosing)
+                {
+                    if (closingHeader.Position == currentToken.Position - 1)
+                    {
+                        openingDescription = currentToken;
+                    }
+                    else
+                    {
+                        openingHeader = openingHeaders.Count > 0 ? openingHeaders.Pop() : null;
+                        closingHeader = null;
+                    }
+                }
+            }
+            else
+            {
+                openingHeader = openingHeaders.Count > 0 ? openingHeaders.Pop() : null;
+                closingHeader = null;
+            }
+        }
+
+        private void ProcessTokenToMatchClosingLinkDescription(
+            List<IToken> listToAdd,
+            List<IToken> inLinkTokens,
+            string textSource,
+            PairToken currentToken,
+            ref PairToken openingHeader,
+            ref PairToken closingHeader,
+            ref PairToken openingDescription)
+        {
+            if (currentToken.Type == AttributeType.LinkDescription)
+                if (currentToken.IsClosing)
+                {
+                    var linkTokens = CreatePairOfLinkTokens(
+                        inLinkTokens, 
+                        textSource, 
+                        openingHeader, 
+                        closingHeader,
+                        openingDescription,
+                        currentToken
+                        );
+
+                    listToAdd.Add(linkTokens.Item1);
+                    listToAdd.Add(linkTokens.Item2);
+                    openingHeader = null;
+                    closingHeader = null;
+                    openingDescription = null;
+                }
+        }
+
+        private (LinkToken, LinkToken) CreatePairOfLinkTokens(
+            List<IToken> inLinkTokens,
+            string textSource,
+            PairToken openingHeader,
+            PairToken closingHeader,
+            PairToken openingDescription,
+            PairToken closingDescription)
+        {
             return (new LinkToken(
-                    openingHeader.Position,
-                    1, 
-                    url),
-                new LinkToken(closingHeader.Position,
-                    closingDescription.Position - closingHeader.Position + 1,
-                    "")
+                        openingHeader.Position,
+                        1,
+                        inLinkTokens,
+                        textSource
+                            .Substring(
+                                openingDescription.Position + 1,
+                                closingDescription.Position - openingDescription.Position - 1
+                            )
+                    ),
+                    new LinkToken(
+                        closingHeader.Position,
+                        closingDescription.Position - openingDescription.Position + 2,
+                        null,
+                        null)
                 );
         }
     }

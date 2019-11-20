@@ -66,7 +66,7 @@
     <Compile Include="Tokenizer\LinkToken.cs" />
     <Compile Include="Attribute\PairAttribute.cs" />
     <Compile Include="Tokenizer\PairToken.cs" />
-    <Compile Include="Processor\ProcessorTests.cs" />
+    <Compile Include="Tests\ProcessorTests.cs" />
     <Compile Include="Processor\Processor.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />

@@ -10,6 +10,11 @@ namespace Markdown
             '<', '&'
         };
 
+        public static Syntax InLinkSyntax = new Syntax(new Dictionary<char, Attribute>()
+        {
+            {'\\', new Attribute(AttributeType.Escape, IsValidEscapeAttribute)}
+        });
+
         private static readonly HashSet<char> ClosingBrackets = new HashSet<char> {')', ']', '>', '}'};
 
         private static readonly HashSet<char> OpeningBrackets = new HashSet<char> {'(', '[', '<', '{'};

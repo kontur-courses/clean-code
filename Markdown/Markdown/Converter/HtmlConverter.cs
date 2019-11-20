@@ -5,14 +5,18 @@ namespace Markdown
 {
     public class HtmlConverter : IConverter
     {
+
         private static readonly Dictionary<AttributeType, string> tagDictionary = new Dictionary<AttributeType, string>
         {
             {AttributeType.Emphasis, "em"},
             {AttributeType.Strong, "strong"},
             {AttributeType.Escape, ""},
             {AttributeType.None, ""},
-            {AttributeType.Link, "a"}
+            {AttributeType.Link, "a"},
+            {AttributeType.LinkHeader, "head"},
+            {AttributeType.LinkDescription, "desc"}
         };
+
 
         public string ReplaceAttributesWithTags(IEnumerable<IToken> tokens, string source)
         {
@@ -41,8 +45,13 @@ namespace Markdown
 
         private string GenerateTagFromLinkToken(LinkToken linkToken)
         {
-            return string.IsNullOrEmpty(linkToken.URL) ? 
-                $"</{tagDictionary[linkToken.Type]}>" : $"<{tagDictionary[linkToken.Type]} href=\"{linkToken.URL}\">";
+            if (linkToken.RawUrl == null)
+                return $"</{tagDictionary[linkToken.Type]}>";
+
+            var tokenizer = new Tokenizer(Syntax.InLinkSyntax);
+            var url = ReplaceAttributesWithTags(tokenizer.ParseText(linkToken.RawUrl), linkToken.RawUrl);
+
+            return $"<{tagDictionary[linkToken.Type]} href=\"{url}\">";
         }
     }
 }
