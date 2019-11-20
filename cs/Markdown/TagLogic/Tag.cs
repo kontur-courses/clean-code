@@ -1,24 +1,25 @@
 ﻿namespace Markdown
 {
-    enum TagType
+    internal enum TagType
     {
         Opening,
         Closing,
     }
 
-    class Tag
+    internal class Tag
     {
-        public readonly string Symbol;
-        public readonly int Index;
+        public readonly string Designations;
         public readonly TagType Type;
         public readonly int Priority;
+        public readonly int Index;
 
-        public Tag(string symbol, int index, TagType type, int priority)
+
+        public Tag(string designations, int index, TagType type, int priority)
         {
-            Symbol = symbol;
-            Index = index;
+            Designations = designations;
             Type = type;
             Priority = priority;
+            Index = index;
         }
     }
 }
