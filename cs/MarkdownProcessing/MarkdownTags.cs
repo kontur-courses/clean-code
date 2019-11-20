@@ -1,7 +1,7 @@
 ﻿using System.Collections.Generic;
 using MarkdownProcessing.Tokens;
 
-namespace MarkdownProcessing.Tags
+namespace MarkdownProcessing
 {
     public static class MarkdownTags
     {

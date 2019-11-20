@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
-using MarkdownProcessing.Tags;
+using MarkdownProcessing.Markdowns;
 using MarkdownProcessing.Tokens;
 
 namespace MarkdownProcessing.Converters
@@ -10,32 +10,53 @@ namespace MarkdownProcessing.Converters
     public class MarkdownToTokenConverter
     {
         private readonly string input;
-        private string tagToCheck;
-        private StringBuilder currentPossibleTag;
-        private StringBuilder currentPossiblePhrase;
-        public readonly Stack<Token> AllTokens;
+        private readonly IResultMarkdown markdown;
+        private string TagToCheck { get; set; }
+        private StringBuilder CurrentPossibleTag { get; }
+        private StringBuilder CurrentPossiblePhrase { get; }
+        public Stack<Token> AllTokens { get; }
 
-        public MarkdownToTokenConverter(string input)
+        public MarkdownToTokenConverter(string input, IResultMarkdown markdown)
         {
-            this.input = input ?? throw new ArgumentException();
-            currentPossibleTag = new StringBuilder();
-            currentPossiblePhrase = new StringBuilder();
+            this.input = input ?? throw new ArgumentException("Input was null");
+            this.markdown = markdown;
+            CurrentPossibleTag = new StringBuilder();
+            CurrentPossiblePhrase = new StringBuilder();
             AllTokens = new Stack<Token>();
             AllTokens.Push(new ComplicatedToken(TokenType.Parent));
         }
 
         public string ParseInputIntoTokens()
         {
+            var wasScreened = false;
             for (var index = 0; index < input.Length; index++)
             {
                 var symbol = input[index];
+                if (index > 0 && input[index - 1] == '\\')
+                {
+                    if (!wasScreened)
+                    {
+                        CurrentPossiblePhrase.Remove(CurrentPossiblePhrase.Length - 1, 1);
+                        CurrentPossiblePhrase.Append(symbol);
+                        wasScreened = true;
+                        continue;
+                    }
+
+                    if (symbol == '\\' && wasScreened)
+                    {
+                        CurrentPossiblePhrase.Append(symbol);
+                        wasScreened = false;
+                        continue;
+                    }
+                }
+
                 AppendSymbolToCurrentPhrases(symbol);
-                if (IsNotTheTagPart(symbol))
-                    currentPossibleTag = new StringBuilder();
+                if (!MarkdownTags.TagSymbols.Contains(symbol))
+                    CurrentPossibleTag.Clear();
                 CheckForOpeningTag();
                 CheckForClosingTag();
-                if (index != input.Length - 1) continue;
-                if (currentPossiblePhrase.Length == 0) continue;
+                if (index != input.Length - 1 || CurrentPossiblePhrase.Length == 0)
+                    continue;
                 AddSimpleTokenTo(AllTokens.Peek() as ComplicatedToken);
                 RefreshTagAndPhraseBuffers();
             }
@@ -45,63 +66,73 @@ namespace MarkdownProcessing.Converters
 
         private void AppendSymbolToCurrentPhrases(char symbol)
         {
-            currentPossibleTag.Append(symbol);
-            currentPossiblePhrase.Append(symbol);
+            CurrentPossibleTag.Append(symbol);
+            CurrentPossiblePhrase.Append(symbol);
         }
-
-        private bool IsNotTheTagPart(char symbol) =>
-            !MarkdownTags.TagSymbols.Contains(symbol);
 
         private void CheckForOpeningTag()
         {
-            tagToCheck = GetTagFromStringBuilder();
-            if (!MarkdownTags.PossibleTags.ContainsKey(tagToCheck)) return;
+            TagToCheck = GetTagFromStringBuilder();
+            if (!MarkdownTags.PossibleTags.ContainsKey(TagToCheck)) return;
             if (TagIsRepeating()) return;
             if (CurrentPhraseIsNotZero())
                 AddSimpleTokenTo(AllTokens.Peek() as ComplicatedToken);
-            AllTokens.Push(new ComplicatedToken(MarkdownTags.PossibleTags[tagToCheck]));
+            AllTokens.Push(new ComplicatedToken(MarkdownTags.PossibleTags[TagToCheck]));
             RefreshTagAndPhraseBuffers();
         }
 
-        private string GetTagFromStringBuilder() =>
-            currentPossibleTag.Length > 1
-                ? currentPossibleTag.ToString().Substring(0, currentPossibleTag.Length - 1)
-                : currentPossibleTag.ToString();
+        private string GetTagFromStringBuilder()
+        {
+            return CurrentPossibleTag.Length > 1
+                ? CurrentPossibleTag.ToString().Substring(0, CurrentPossibleTag.Length - 1)
+                : CurrentPossibleTag.ToString();
+        }
 
-        private bool TagIsRepeating() => AllTokens.Peek().Type == MarkdownTags.PossibleTags[tagToCheck];
+        private bool TagIsRepeating()
+        {
+            return AllTokens.Peek().Type == MarkdownTags.PossibleTags[TagToCheck];
+        }
 
-        private bool CurrentPhraseIsNotZero() =>
-            currentPossiblePhrase.Remove(currentPossiblePhrase.Length - tagToCheck.Length, tagToCheck.Length)
-                .Length != 0;
+        private bool CurrentPhraseIsNotZero()
+        {
+            return CurrentPossiblePhrase.Remove(CurrentPossiblePhrase.Length - TagToCheck.Length, TagToCheck.Length)
+                       .Length != 0;
+        }
 
         private void RefreshTagAndPhraseBuffers()
         {
-            currentPossibleTag = new StringBuilder();
-            currentPossiblePhrase = new StringBuilder();
+            CurrentPossibleTag.Clear();
+            CurrentPossiblePhrase.Clear();
         }
 
         private void CheckForClosingTag()
         {
             if (AllTokens.Count == 1) return;
-            tagToCheck = GetTagFromStringBuilder();
-            if (!MarkdownTags.PossibleTags.ContainsKey(tagToCheck)) return;
+            TagToCheck = GetTagFromStringBuilder();
+            if (!MarkdownTags.PossibleTags.ContainsKey(TagToCheck)) return;
             if (ClosingTagIsNotTheSame()) return;
             if (!CurrentPhraseIsNotZero())
             {
                 var token = AllTokens.Pop();
-                tagToCheck += currentPossibleTag;
-                if (MarkdownTags.PossibleTags.ContainsKey(tagToCheck))
+                TagToCheck += CurrentPossibleTag;
+                if (MarkdownTags.PossibleTags.ContainsKey(TagToCheck))
                     if (!ClosingTagIsNotTheSame())
                         AddTokenToParentToken();
-                    else AllTokens.Push(new ComplicatedToken(MarkdownTags.PossibleTags[tagToCheck]));
+                    else AllTokens.Push(new ComplicatedToken(MarkdownTags.PossibleTags[TagToCheck]));
                 else AllTokens.Push(token);
             }
-            else AddTokenToParentToken();
+            else
+            {
+                AddTokenToParentToken();
+            }
 
             RefreshTagAndPhraseBuffers();
         }
 
-        private bool ClosingTagIsNotTheSame() => AllTokens.Peek().Type != MarkdownTags.PossibleTags[tagToCheck];
+        private bool ClosingTagIsNotTheSame()
+        {
+            return AllTokens.Peek().Type != MarkdownTags.PossibleTags[TagToCheck];
+        }
 
         private void AddTokenToParentToken()
         {
@@ -113,11 +144,14 @@ namespace MarkdownProcessing.Converters
 
         private void AddSimpleTokenTo(ComplicatedToken token)
         {
-            if (currentPossiblePhrase.Length > 0)
-                token?.ChildTokens.Add(new SimpleToken(currentPossiblePhrase
+            if (CurrentPossiblePhrase.Length > 0)
+                token?.ChildTokens.Add(new SimpleToken(CurrentPossiblePhrase
                     .ToString()));
         }
 
-        private string MakeHtmlFromMarkdown() => new TokenToHtmlConverter(AllTokens.Peek()).ConvertToHtml();
+        private string MakeHtmlFromMarkdown()
+        {
+            return new TokenToNewMarkdownConverter(AllTokens.Peek(), markdown).ConvertToHtml();
+        }
     }
 }

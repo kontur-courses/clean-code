@@ -1,17 +1,19 @@
 ﻿using System.Text;
-using MarkdownProcessing.Tags;
+using MarkdownProcessing.Markdowns;
 using MarkdownProcessing.Tokens;
 
 namespace MarkdownProcessing.Converters
 {
-    public class TokenToHtmlConverter
+    public class TokenToNewMarkdownConverter
     {
         private readonly Token mainToken;
         private readonly StringBuilder output;
+        private readonly IResultMarkdown markdown;
 
-        public TokenToHtmlConverter(Token mainToken)
+        public TokenToNewMarkdownConverter(Token mainToken, IResultMarkdown markdown)
         {
             this.mainToken = mainToken;
+            this.markdown = markdown;
             output = new StringBuilder();
         }
 
@@ -38,17 +40,17 @@ namespace MarkdownProcessing.Converters
 
         private void AddComplicatedTokenToOutput(ComplicatedToken cToken)
         {
-            output.Append(HtmlTags.HtmlOpeningTagsDictionary[cToken.Type]);
+            output.Append(markdown.OpeningTags[cToken.Type]);
             foreach (var specialToken in cToken.ChildTokens)
                 ConvertToken(specialToken);
-            output.Append(HtmlTags.HtmlClosingTagsDictionary[cToken.Type]);
+            output.Append(markdown.ClosingTags[cToken.Type]);
         }
 
         private void AddSimpleTokenToOutput(SimpleToken sToken)
         {
-            output.Append(HtmlTags.HtmlOpeningTagsDictionary[sToken.Type]);
+            output.Append(markdown.OpeningTags[sToken.Type]);
             output.Append(sToken.InnerText);
-            output.Append(HtmlTags.HtmlClosingTagsDictionary[sToken.Type]);
+            output.Append(markdown.ClosingTags[sToken.Type]);
         }
     }
 }

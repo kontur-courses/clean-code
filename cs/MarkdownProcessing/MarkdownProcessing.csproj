@@ -56,13 +56,15 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Converters\MarkdownToTokenConverter.cs" />
-    <Compile Include="Converters\TokenToHtmlConverter.cs" />
+    <Compile Include="Converters\TokenToNewMarkdownConverter.cs" />
     <Compile Include="MarkdownProcessing_Should\MarkdownToTokenConverter_Should.cs" />
+    <Compile Include="Markdowns\XmlMarkdown.cs" />
+    <Compile Include="MarkdownTags.cs" />
     <Compile Include="Md.cs" />
-    <Compile Include="Tags\HtmlTags.cs" />
-    <Compile Include="Tags\MarkdownTags.cs" />
-    <Compile Include="MarkdownProcessing_Should\TokenToHtmlConverter_Should.cs" />
+    <Compile Include="Markdowns\HtmlMarkdown.cs" />
+    <Compile Include="MarkdownProcessing_Should\TokenToNewMarkdownConverter_Should.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="Markdowns\IResultMarkdown.cs" />
     <Compile Include="Tokens\ComplicatedToken.cs" />
     <Compile Include="Tokens\SimpleToken.cs" />
     <Compile Include="Tokens\Token.cs" />

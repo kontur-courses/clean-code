@@ -1,15 +1,14 @@
 ﻿using System;
 using MarkdownProcessing.Converters;
+using MarkdownProcessing.Markdowns;
 
 namespace MarkdownProcessing
 {
     public class Md
     {
-        public static void Main()
+        public string Render(string input, IResultMarkdown markdown)
         {
-            var result = new MarkdownToTokenConverter("___Helloooo_____wooooorld!!!__")
-                .ParseInputIntoTokens();
-            Console.WriteLine(result);
+            return new MarkdownToTokenConverter(input, markdown).ParseInputIntoTokens();
         }
     }
 }
