@@ -1,4 +1,6 @@
-﻿using Markdown.Core.Rules;
+﻿using System.Collections.Generic;
+using System.Text;
+using Markdown.Core.Rules;
 
 namespace Markdown.Core
 {
@@ -7,8 +9,37 @@ namespace Markdown.Core
         public static string Render(string markdown)
         {
             var rules = RuleFactory.CreateAllRules();
-            var tokens = new Parser(rules).Parse(markdown);
-            return Processor.Process(markdown, rules, tokens);
+            var renderedLines = new List<string>();
+            var parser = new Parser(rules);
+            var render = new Render(rules);
+            var escapedText = EscapeSpecialSymbols(markdown);
+            foreach (var line in escapedText.Split('\n'))
+            {
+                var tokens = parser.ParseLine(line);
+                renderedLines.Add(render.RenderLine(line, tokens));
+            }
+
+            return string.Join("\n", renderedLines);
+        }
+
+        private static string EscapeSpecialSymbols(string text)
+        {
+            var result = new StringBuilder(text);
+            for (var i = 0; i < result.Length; i++)
+            {
+                if (result[i] == '>')
+                {
+                    result.Remove(i, 1);
+                    result.Insert(i, "&gt;");
+                }
+                else if (result[i] == '<')
+                {
+                    result.Remove(i, 1);
+                    result.Insert(i, "&lt;");
+                }
+            }
+
+            return result.ToString();
         }
     }
 }
