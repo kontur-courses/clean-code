@@ -62,7 +62,7 @@ namespace Markdown
         {
             var text = "*a* _a_";
             var tokens = tokenizer.Tokenize(text);
-            var expected = new [] { '*', 'a', '*', ' ', '_', 'a', '_' };
+            var expected = new [] { "*", "a", "*", " ", "_", "a", "_" };
             tokens.Select(token => token.Value)
                 .Should().BeEquivalentTo(expected);
         }
@@ -93,8 +93,8 @@ namespace Markdown
         {
             var text = "*_a_*";
             var tokens = tokenizer.Tokenize(text);
-            var italics = md.elementSigns['_'];
-            var strong = md.elementSigns['*'];
+            var italics = md.elementSigns["_"];
+            var strong = md.elementSigns["*"];
             var expected = new [] { strong, italics, null, italics, strong };
             tokens.Select(token => token.MdType)
                 .Should().BeEquivalentTo(expected);
@@ -102,8 +102,8 @@ namespace Markdown
 
         [Test]
         public void Tokenize_ShouldEncloseMdElementsCorrectly()
-        {
-            md.AddElement(new MdElement('^', "<H1>", false));
+        { 
+            md.AddElement(new MdElement("#", "<H1>", false));
             var text = "^ *a_*";
             var tokens = tokenizer.Tokenize(text);
             var expected = new [] { true, false, true, false, false, true };
