@@ -119,6 +119,20 @@ namespace Markdown.Tests
             var expectedLastToken = new MdToken("amet", "NONE", "__");
             lastToken.Should().BeEquivalentTo(expectedLastToken);
         }
+
+        [Test] public void MakeTokens_Should_IgnoreNesting_When_NestedTokenCantBeNested()
+        {
+            var tokens = tokenizer.MakeTokens("_Lorem __ipsum__ dolor sit amet_").ToList();
+            var firstToken = tokens[0];
+            var secondToken = tokens[1];
+            var lastToken = tokens.Last();
+            var expectedFirstToken = new MdToken("Lorem", "_", "NONE");
+            firstToken.Should().BeEquivalentTo(expectedFirstToken);
+            var expectedSecondToken = new MdToken("__ipsum__", "NONE", "NONE");
+            secondToken.Should().BeEquivalentTo(expectedSecondToken);
+            var expectedLastToken = new MdToken("amet", "NONE", "_");
+            lastToken.Should().BeEquivalentTo(expectedLastToken);
+        }
         
         [Test]
         public void MakeTokens_Should_ParseIncorrectEmphasis_When_TextWithNestedTokens()
