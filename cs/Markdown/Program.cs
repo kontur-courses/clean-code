@@ -17,7 +17,7 @@ namespace Markdown
             using (var sw = new StreamWriter(pathToSave))
             {
                 var fileContents = sr.ReadToEnd();
-                sw.Write(Markdown.Render(fileContents));
+                sw.Write(MarkdownTransformerToHtml.Render(fileContents));
             }
 
             Console.WriteLine("Conversion Complete");

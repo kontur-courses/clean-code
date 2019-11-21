@@ -10,7 +10,7 @@ namespace Markdown
         private static TagParser tagParser;
 
         [SetUp]
-        public void SetUp() => tagParser = new TagParser(Markdown.TagsInfo.Keys.ToArray());
+        public void SetUp() => tagParser = new TagParser(MarkdownTransformerToHtml.TagsInfo.Keys.ToArray());
         
         [TestCase("_a")]
         [TestCase("__a")]

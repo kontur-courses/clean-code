@@ -21,8 +21,8 @@ namespace Markdown
                     result.Append(inputString[i]);
 
                 result.Append(tag.Type == TagType.Opening
-                    ? $"<{Markdown.TagsInfo[tag.Designations].HtmlDesignation}>"
-                    : $"</{Markdown.TagsInfo[tag.Designations].HtmlDesignation}>");
+                    ? $"<{MarkdownTransformerToHtml.TagsInfo[tag.Designations].HtmlDesignation}>"
+                    : $"</{MarkdownTransformerToHtml.TagsInfo[tag.Designations].HtmlDesignation}>");
 
                 startedIndex = tag.Index + tag.Designations.Length;
             }

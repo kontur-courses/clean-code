@@ -59,7 +59,7 @@
     <Compile Include="StringRedactor.cs" />
     <Compile Include="MarkdownTags\EmphasisTag.cs" />
     <Compile Include="MarkdownTags\IMarkdownTag.cs" />
-    <Compile Include="Markdown.cs" />
+    <Compile Include="MarkdownTransformerToHtml.cs" />
     <Compile Include="MarkdownTags\StrongTag.cs" />
     <Compile Include="Tests\MarkdownTests.cs" />
     <Compile Include="Program.cs" />

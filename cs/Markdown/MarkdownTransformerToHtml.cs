@@ -3,7 +3,7 @@ using System.Linq;
 
 namespace Markdown
 {
-    internal static class Markdown
+    internal static class MarkdownTransformerToHtml
     {
         internal static readonly Dictionary<string, IMarkdownTagInfo> TagsInfo =
             new Dictionary<string, IMarkdownTagInfo>

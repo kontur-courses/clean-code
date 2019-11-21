@@ -60,7 +60,7 @@ namespace Markdown
                     tagDesignation, 
                     tagIndex, 
                     TagType.Opening,
-                    Markdown.TagsInfo[tagDesignation].Priority);
+                    MarkdownTransformerToHtml.TagsInfo[tagDesignation].Priority);
                 return true;
             }
 
@@ -70,7 +70,7 @@ namespace Markdown
                     tagDesignation,
                     tagIndex,
                     TagType.Closing,
-                    Markdown.TagsInfo[tagDesignation].Priority);
+                    MarkdownTransformerToHtml.TagsInfo[tagDesignation].Priority);
                 return true;
             }
 
