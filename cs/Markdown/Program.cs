@@ -1,6 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Text;
+﻿using Markdown.ConsoleUtils;
 
 namespace Markdown
 {
@@ -8,23 +6,13 @@ namespace Markdown
     {
         static void Main()
         {
-            var cases = new [] {"__a__", "b_"};
-            var testing = new MarkdownTokenizer();
-            
-            var i = 1;
-            foreach (var str in cases)
-            {
-                Console.WriteLine($"Case {i}: ");
-                Console.WriteLine($"Current = \"{str}\", Length = {str.Length}");
-                foreach (var token in testing.SplitTextToTokens(str))
-                {
-                    Console.WriteLine(token);
-                }
-                Console.WriteLine();
-                i++;
-            }
+            var markdown = new Markdown();
+            var inputText = ConsoleAssistant.ReadTextFromFile(".md");
+
+            var converter = ConsoleAssistant.SetupConverter();
+
+            var renderedText = markdown.Render(inputText, converter);
+            ConsoleAssistant.WriteTextToFile(renderedText, converter.FileTypeWithDot);
         }
     }
-
-
 }

@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 
-namespace Markdown
+namespace Markdown.TagsLibrary
 {
     public static partial class MarkdownTagsLibrary
     {
@@ -12,7 +12,7 @@ namespace Markdown
                 throw new NullReferenceException("text can't be null");
 
             if(startIndex < 0 || startIndex >= text.Length)
-                throw new ArgumentOutOfRangeException("startIndex not included in the array bounds");
+                throw new ArgumentOutOfRangeException($"{nameof(startIndex)} not included in the array bounds");
 
             var parseVariants = new List<(TagElement tag, int priority)>();
             var substrLength = 1;
@@ -47,13 +47,13 @@ namespace Markdown
                 throw new NullReferenceException();
 
             if (startIndex < 0 || startIndex >= text.Length)
-                throw new ArgumentOutOfRangeException("startIndex not included in the array bounds");
+                throw new ArgumentOutOfRangeException($"{nameof(startIndex)} not included in the array bounds");
 
             if (endIndex < 0 || endIndex >= text.Length)
-                throw new ArgumentOutOfRangeException("endIndex not included in the array bounds");
+                throw new ArgumentOutOfRangeException($"{nameof(endIndex)} is out of bounds");
 
             if (startIndex > endIndex)
-                throw new ArgumentException("Start index can't be more than end index");
+                throw new ArgumentException($"{nameof(startIndex)} can't be more than {nameof(endIndex)}");
 
             var leftChar = startIndex - 1 > 0 ? text[startIndex - 1] : (char?)null;
             var rightChar = endIndex + 1 < text.Length ? text[endIndex + 1] : (char?)null;

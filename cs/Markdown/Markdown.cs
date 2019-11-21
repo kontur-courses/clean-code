@@ -1,14 +1,17 @@
-﻿namespace Markdown
+﻿using Markdown.TokenConverters;
+using Markdown.Tokens;
+
+namespace Markdown
 {
     public class Markdown
     {
-        public string Render(string markdownText)
+        public string Render(string markdownText, TokenConverter converter)
         {
-            var temp = new MarkdownTokenizer().SplitTextToTokens(markdownText);
+            var tokens = new MarkdownTokenizer().SplitTextToTokens(markdownText);
             
-            var htmlFormattedText = TokenConverter.ConvertToHtml(temp);
+            var formattedText = converter.ConvertTokens(tokens);
             
-            return htmlFormattedText;
+            return formattedText;
         }
     }
 }

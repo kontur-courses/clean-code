@@ -1,19 +1,18 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Linq;
 
-namespace Markdown
+namespace Markdown.TagsLibrary
 {
     public delegate bool SideSymbolsCheck(char? leftSymbol, char? rightSymbol);
 
     static partial class MarkdownTagsLibrary
     {
+        public static readonly int MaximumTagLength;
+
         static MarkdownTagsLibrary()
         {
             MaximumTagLength = TagAssociations.Keys.Max().Length;
         }
-
-        public static readonly int MaximumTagLength;
 
         public static readonly IReadOnlyDictionary<string, (TagType type, int priority)> TagAssociations =
             new Dictionary<string, (TagType type, int priority)>
@@ -50,13 +49,6 @@ namespace Markdown
                         return false;
                     return left != ' ';
                 },
-            };
-
-        public static readonly IReadOnlyDictionary<TagType, (string start, string end)> TagToHtmlTagAssociations =
-            new Dictionary<TagType, (string start, string end)>()
-            {
-                [TagType.Bold] = ("<strong>", "</strong>"),
-                [TagType.Italics] =  ("<em>", "</em>"),
             };
 
         public static readonly IReadOnlyDictionary<TagType, TagType[]> TagTypesToDeleteInRangeOtherTag =

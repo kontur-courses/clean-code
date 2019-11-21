@@ -11,6 +11,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Samples", "Samples\Samples.
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Markdown", "Markdown\Markdown.csproj", "{CA3F3DB2-275A-4C9B-9D62-5026CC7F07BC}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Markdown_Tests", "Markdown_Tests\Markdown_Tests.csproj", "{C772475F-8B49-4D92-A217-F24F0E2A4A56}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -68,6 +70,18 @@ Global
 		{CA3F3DB2-275A-4C9B-9D62-5026CC7F07BC}.Release|Mixed Platforms.Build.0 = Release|Any CPU
 		{CA3F3DB2-275A-4C9B-9D62-5026CC7F07BC}.Release|x86.ActiveCfg = Release|Any CPU
 		{CA3F3DB2-275A-4C9B-9D62-5026CC7F07BC}.Release|x86.Build.0 = Release|Any CPU
+		{C772475F-8B49-4D92-A217-F24F0E2A4A56}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{C772475F-8B49-4D92-A217-F24F0E2A4A56}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{C772475F-8B49-4D92-A217-F24F0E2A4A56}.Debug|Mixed Platforms.ActiveCfg = Debug|Any CPU
+		{C772475F-8B49-4D92-A217-F24F0E2A4A56}.Debug|Mixed Platforms.Build.0 = Debug|Any CPU
+		{C772475F-8B49-4D92-A217-F24F0E2A4A56}.Debug|x86.ActiveCfg = Debug|Any CPU
+		{C772475F-8B49-4D92-A217-F24F0E2A4A56}.Debug|x86.Build.0 = Debug|Any CPU
+		{C772475F-8B49-4D92-A217-F24F0E2A4A56}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{C772475F-8B49-4D92-A217-F24F0E2A4A56}.Release|Any CPU.Build.0 = Release|Any CPU
+		{C772475F-8B49-4D92-A217-F24F0E2A4A56}.Release|Mixed Platforms.ActiveCfg = Release|Any CPU
+		{C772475F-8B49-4D92-A217-F24F0E2A4A56}.Release|Mixed Platforms.Build.0 = Release|Any CPU
+		{C772475F-8B49-4D92-A217-F24F0E2A4A56}.Release|x86.ActiveCfg = Release|Any CPU
+		{C772475F-8B49-4D92-A217-F24F0E2A4A56}.Release|x86.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
