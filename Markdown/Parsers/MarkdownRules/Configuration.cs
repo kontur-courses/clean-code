@@ -22,6 +22,7 @@ namespace Markdown.Parsers.MarkdownRules
             result[TagType.H6] = new HeaderTagType(6);
 
             result[TagType.Paragraph] = new ParagraphTagRule();
+            result[TagType.Raw] = new RawTagRule();
 
             return result;
         }

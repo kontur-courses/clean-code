@@ -51,5 +51,11 @@ namespace Markdown
         {
             md.Render(input).Should().Be(output);
         }
+
+        [TestCase("```\nabc\n```", "<div><pre>abc</pre></div>")]
+        public void Render_OnRawTag(string input, string output)
+        {
+            md.Render(input).Should().Be(output);
+        }
     }
 }

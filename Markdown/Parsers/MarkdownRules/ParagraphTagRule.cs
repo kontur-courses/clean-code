@@ -10,7 +10,7 @@ namespace Markdown.Parsers.MarkdownRules
     {
         public string OpenTag => "";
         public string CloseTag { get; }
-        public TagType TypeTag { get; }
+        public TagType TypeTag => TagType.Paragraph;
         public ParserNode FindFirstElement(string source, int startPosition = 0)
         {
             var openPosition = source.IndexOf("\n\n", startPosition, StringComparison.Ordinal);
