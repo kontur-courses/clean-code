@@ -55,6 +55,8 @@
     <Compile Include="MdTokens\MdToken.cs" />
     <Compile Include="MdTokens\MdTokenizer.cs" />
     <Compile Include="Md.cs" />
+    <Compile Include="MdTokens\MdTokenizerConfig.cs" />
+    <Compile Include="MdTokens\MdTokenSpec.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Tests\MdToHtmlProcessor_should.cs" />
     <Compile Include="Tests\MdTokenizer_should.cs" />
