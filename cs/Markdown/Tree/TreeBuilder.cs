@@ -19,7 +19,7 @@ namespace Markdown.Tree
 
             return tags.Count == 0
                 ? new SyntaxTree(new List<SyntaxNode> {new TextNode(str)})
-                : ReplaceToSyntaxTree(tags, str);
+                : CreateTreeFromZones(tags, str);
         }
 
         private static List<TagZone> FindTags(string str, ILanguage language)
@@ -100,7 +100,7 @@ namespace Markdown.Tree
                 line.Substring(startValTag, endValTag - startValTag));
         }
 
-        private static SyntaxTree ReplaceToSyntaxTree(List<TagZone> validTags, string str)
+        private static SyntaxTree CreateTreeFromZones(List<TagZone> validTags, string str)
         {
             validTags.Reverse();
             var validStack = new Stack<TagZone>(validTags);

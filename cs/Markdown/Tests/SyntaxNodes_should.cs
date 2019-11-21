@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
 using FluentAssertions;
 using Markdown.Languages;
 using Markdown.Tree;
@@ -10,11 +9,12 @@ namespace Markdown.Tests
 {
     public class SyntaxNodes_should
     {
+
         [TestCase(typeof(Html))]
         [TestCase(typeof(MarkDown))]
         public void TextNodeShould_ConvertTo_WhenAnyLanguage_ReturnValue(Type type)
         {
-            var value = "aba aba";
+            const string value = "aba aba";
             var textNode = new TextNode(value);
             var language = (ILanguage) type.GetConstructor(new Type[0])?.Invoke(new object[0]);
             textNode.ConvertTo(language.Tags)
@@ -27,7 +27,7 @@ namespace Markdown.Tests
         [TestCase(typeof(MarkDown), TagType.Strong)]
         public void TagNodeShould_ConvertTo_WhenAnyLanguageAndTextNode_AddInStartAndEndTag(Type type, TagType tagType)
         {
-            var value = "aba aba";
+            const string value = "aba aba";
             var tagNode = new TagNode(tagType, new List<SyntaxNode>() {new TextNode(value)});
             var language = (ILanguage) type.GetConstructor(new Type[0])?.Invoke(new object[0]);
             var result = tagNode.ConvertTo(language.Tags);
@@ -39,7 +39,7 @@ namespace Markdown.Tests
         [TestCase(typeof(MarkDown))]
         public void SyntaxTreeShould_ConvertTo_WhenAnyLanguageAndTwoTextNode_JoinText(Type type)
         {
-            var value = "aba aba";
+            const string value = "aba aba";
             var textNode = new TextNode(value);
             var syntaxTree = new SyntaxTree(new List<SyntaxNode>() {textNode, textNode});
             var language = (ILanguage) type.GetConstructor(new Type[0])?.Invoke(new object[0]);
@@ -53,7 +53,7 @@ namespace Markdown.Tests
         [TestCase(typeof(MarkDown), TagType.Strong)]
         public void SyntaxTreeShould_ConvertTo_WhenAnyLanguageAndTextNodeAndTagNode_JoinText(Type type, TagType tagType)
         {
-            var value = "aba aba";
+            const string value = "aba aba";
             var textNode = new TextNode(value);
             var tagNode = new TagNode(tagType, new List<SyntaxNode>() {textNode});
             var syntaxTree = new SyntaxTree(new List<SyntaxNode>() {tagNode, textNode});
@@ -75,9 +75,14 @@ namespace Markdown.Tests
         {
             var textNode = new TextNode(null);
             var tagNode = new TagNode(tagType, new List<SyntaxNode>() {textNode});
-            var language = (ILanguage) type.GetConstructor(new Type[0])?.Invoke(new object[0]);
+            var language = languageBuilder(type);
             var result = tagNode.ConvertTo(language.Tags);
             result.Should().Be(language.Tags[tagType].Start + language.Tags[tagType].End);
+        }
+
+        private ILanguage languageBuilder(Type type)
+        {
+            return (ILanguage) type.GetConstructor(new Type[0])?.Invoke(new object[0]);
         }
     }
 }
