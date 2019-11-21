@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using Markdown.Languages;
@@ -15,15 +16,16 @@ namespace Markdown.Tree
                 throw new ArgumentException("The string should not be null");
 
             var tags = FindTags(str, el);
+
             return tags.Count == 0
                 ? new SyntaxTree(new List<SyntaxNode> {new TextNode(str)})
-                : ReplaceToSyntaxTree(str, tags, el.Tags);
+                : ReplaceToSyntaxTree(tags, str);
         }
 
-        private static List<TagToken> FindTags(string str, ILanguage language)
+        private static List<TagZone> FindTags(string str, ILanguage language)
         {
             var stackOfTags = new Stack<TagToken>();
-            var validTags = new List<TagToken>();
+            var validTags = new List<TagZone>();
 
             for (var i = 0; i < str.Length; i++)
             {
@@ -37,7 +39,8 @@ namespace Markdown.Tree
                 }
                 else if (IsCorrectNextCloseTag(tag, stackOfTags))
                 {
-                    UpdateTags(tag, stackOfTags, validTags);
+                    var tagZone = TakeTagZone(tag, stackOfTags, str, language);
+                    validTags.Add(tagZone);
                 }
 
                 if (tag.IsOpen)
@@ -76,7 +79,8 @@ namespace Markdown.Tree
             return null;
         }
 
-        private static void UpdateTags(TagToken closeTag, Stack<TagToken> stackOfTags, List<TagToken> validTags)
+        private static TagZone TakeTagZone(TagToken closeTag, Stack<TagToken> stackOfTags, string line,
+            ILanguage language)
         {
             while (stackOfTags.Count != 0)
             {
@@ -85,55 +89,52 @@ namespace Markdown.Tree
                 stackOfTags.Pop();
             }
 
-            if (stackOfTags.Count == 0) return;
-
             var openTag = stackOfTags.Pop();
-            validTags.Add(openTag);
-            validTags.Add(closeTag);
+
+            var startValTag = openTag.Position + language.Tags[openTag.Tagtype].Start.Length;
+            var endValTag = closeTag.Position; 
+            var startTag = openTag.Position;
+            var endTag = closeTag.Position + language.Tags[closeTag.Tagtype].End.Length;
+
+            return new TagZone(new TagNode(openTag.Tagtype), language.Tags[closeTag.Tagtype], startTag, endTag,
+                line.Substring(startValTag, endValTag - startValTag));
         }
 
-        private static SyntaxTree ReplaceToSyntaxTree(string line, List<TagToken> validTags,
-            IReadOnlyDictionary<TagType, Tag> tags)
+        private static SyntaxTree ReplaceToSyntaxTree(List<TagZone> validTags, string str)
         {
             validTags.Reverse();
-            var validStack = new Stack<TagToken>(validTags);
+            var validStack = new Stack<TagZone>(validTags);
             var syntaxTree = new SyntaxTree();
 
-            var branch = new Stack<TagZone>();
+            var branches = new Stack<TagZone>();
 
-            var i = 0;
+            var endLastZone = 0;
             while (validStack.Count != 0)
             {
-                var tag1 = validStack.Pop();
-                var tag2 = validStack.Pop();
+                var tag = validStack.Pop();
 
-                if (tag1.Position > i && tag2.Position > i)
+                if (tag.Start > endLastZone)
                 {
-                    branch.Push(new TagZone(new TagNode(tag1.Tagtype, new List<SyntaxNode>
-                        {
-                            new TextNode(line.Substring(tag1.Position + 1, tag2.Position - tag1.Position - 1))
-                        }), tag1.Position, tag2.Position + tags[tag2.Tagtype].End.Length));
+                    tag.TagNode.Add(new TextNode(tag.Value));
+                    branches.Push(tag);
                 }
                 else
                 {
-                    var node = new TagNode(tag1.Tagtype);
-                    var tagZone = new TagZone(node, tag1.Position, tag2.Position + tags[tag2.Tagtype].End.Length);
-                    var child = PutChildrenTagFromStack(branch, tagZone);
-                    branch.Push(tagZone);
+                    var child = PutChildrenTagFromStack(branches, tag);
+                    branches.Push(tag);
 
-                    AddChildrenNodesInNode(node, tag1.Position + tags[tag1.Tagtype].Start.Length, tag2.Position, child,
-                        line);
+                    AddChildrenNodesInNode(tag, child);
                 }
 
-                i = tag2.Position;
+                endLastZone = tag.End;
             }
 
-            AddChildrenNodesInNode(syntaxTree, 0, line.Length, branch.Reverse(), line);
+            AddChildrenNodesInNode(syntaxTree, 0, str.Length, branches.Reverse(), str);
 
             return syntaxTree;
         }
 
-        private static List<TagZone> PutChildrenTagFromStack(Stack<TagZone> stack, TagZone tagZone)
+        private static IEnumerable<TagZone> PutChildrenTagFromStack(Stack<TagZone> stack, TagZone tagZone)
         {
             var children = new List<TagZone>();
             while (stack.Count != 0)
@@ -152,6 +153,17 @@ namespace Markdown.Tree
             return children;
         }
 
+        private static void AddChildrenNodesInNode(TagZone node, IEnumerable<TagZone> list)
+        {
+            list = ShiftTags(list, -node.Start-node.Tag.Start.Length);
+            AddChildrenNodesInNode(node.TagNode, 0, node.Value.Length, list, node.Value);
+        }
+
+        private static IEnumerable<TagZone> ShiftTags(IEnumerable<TagZone> enumerable, int shift)
+        {
+            return enumerable.Select(elem => new TagZone(elem.TagNode, elem.Tag, elem.Start + shift, elem.End + shift, elem.Value)).ToList();
+        }
+        
         private static void AddChildrenNodesInNode(INode node, int start, int end, IEnumerable<TagZone> list,
             string line)
         {
@@ -174,12 +186,17 @@ namespace Markdown.Tree
             public int Start { get; }
             public int End { get; }
             public TagNode TagNode { get; }
+            public string Value { get; }
 
-            public TagZone(TagNode tagNode, int start, int end)
+            public Tag Tag { get; }
+
+            public TagZone(TagNode tagNode, Tag tag, int start, int end, string value)
             {
                 TagNode = tagNode;
+                Tag = tag;
                 Start = start;
                 End = end;
+                Value = value;
             }
         }
     }
