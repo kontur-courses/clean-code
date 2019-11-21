@@ -1,9 +1,11 @@
 ﻿using FluentAssertions;
 using Markdown;
 using NUnit.Framework;
+using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
+using System.Linq;
 using System.Reflection;
 
 namespace MarkdownTests
@@ -98,21 +100,25 @@ namespace MarkdownTests
         [Test]
         public void Render_Duration_ShouldBeInLinearDependencyOfTextLength()
         {
-            var testText = @"_Text_ _piece_ _for_ __Markdown__ _class_ _perfomance_ _test_. _Word_with_numbers_123_. \_Backslashed symbols\_. ";
-
-            var factors = new List<double>();
-            long previousDuration = 0;
-            for (int i = 1; i <= 8; i++)
+            var template = @"_Text_ _piece_ _for_ __Markdown__ _class_ _perfomance_ _test_. _Word_with_numbers_123_. \_Backslashed symbols\_. ";
+            var rnd = new Random();
+            var testCount = 100;
+            var points = new List<(int x, long y)>();
+            for (int i = 0; i < testCount; i++)
             {
-                testText += testText; //test text length = 2^i
+                var x = rnd.Next(1, 50);
+                var text = string.Concat(Enumerable.Range(0, x).Select(_ => template));
                 var sw = Stopwatch.StartNew();
-                md.Render(testText);
+                md.Render(text);
                 sw.Stop();
-                var factor = i > 1 ? (double)sw.ElapsedTicks / previousDuration : 0;
-                previousDuration = sw.ElapsedTicks;
-                factors.Add(factor);
+                var y = sw.ElapsedTicks;
+                points.Add((x, y));
             }
-            factors.ForEach(durationFactor => durationFactor.Should().BeLessOrEqualTo(3.5, $"text length has been increased by 2"));
+
+            var asmLocation = Assembly.GetAssembly(typeof(MarkdownTests)).Location;
+            var path = Path.GetDirectoryName(asmLocation);
+            var filename = path + @"\..\..\LinearDependencyOfTextLength_TestResult.csv";
+            File.WriteAllLines(filename, points.Select(xy => $"{xy.x.ToString()};{xy.y.ToString()}"));
         }
     }
 }
