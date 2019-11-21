@@ -145,8 +145,22 @@ namespace Markdown
         }
 
 
-        [TestCase("_aaa__bbb__ccc_", "<em>aaa_bbb_ccc</em>")]
+        [TestCase("_aaa__bbb__ccc_", "<em>aaa__bbb__ccc</em>")]
         public void TwoUnderscoresInOneUnderscore_ShouldNotBeDoubleTagged(string text, string expectedText)
+        {
+            var renderer = new Md();
+            var processedText = renderer.Render(text);
+            processedText.Should().Be(expectedText);
+        }
+
+
+        /*
+         * этот тест не проходится потому, что в стеке после анализа остаются
+         * закрытые теги и надо их тоже добавить в выходной список
+         */
+
+        [TestCase("_aaa__bbb__ccc", "_aaa<strong>bbb</strong>ccc")]
+        public void TwoUnderscoresAndSingleOne_ShouldBeInStrong(string text, string expectedText)
         {
             var renderer = new Md();
             var processedText = renderer.Render(text);
@@ -194,7 +208,6 @@ namespace Markdown
 
 
         [TestCase(@"\\\\\\", @"\\\")]
-        [TestCase("__aaa_aaa__aaa_", "")]
         [TestCase("________", "________")]
         [TestCase("_ _", "_ _")]
         [TestCase(@"\_ _test_", "_ <em>test</em>")]

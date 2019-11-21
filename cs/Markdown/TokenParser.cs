@@ -10,25 +10,32 @@ namespace Markdown
     {
         private readonly HashSet<Tag> OpenTags;
         private readonly Stack<(int, Tag)> TagStack;
-        private readonly List<(int, LexType)> Tokens;
+        //private readonly List<(int, LexType)> Tokens;
         private readonly string Text;
-        private int Counter;
+        //private int Counter;
         private List<(int, Tag)> Tags;
+        private Dictionary<Tag, HashSet<Tag>> ProhibitedOuterTags;
+        private readonly TokenReader Reader;
         public TokenParser(List<(int, LexType)> tokens, string text)
         {
             OpenTags = new HashSet<Tag>();
             TagStack = new Stack<(int, Tag)>();
-            Tokens = tokens;
+            //Tokens = tokens;
             Text = text;
-            Counter = 0;
+            //Counter = 0;
             Tags = new List<(int, Tag)>();
+            Reader = new TokenReader(tokens);
+
+            ProhibitedOuterTags = new Dictionary<Tag, HashSet<Tag>>();
+
+            ProhibitedOuterTags.Add(Tag.Strong, new HashSet<Tag> {Tag.Em });
         }
 
         public List<(int, Tag)> Parse()
         {
-            while (Counter < Tokens.Count)
+            while (!Reader.EndReached())
             {
-                var token = Tokens[Counter];
+                var token = Reader.Current();
                 switch (token.Item2)
                 {
                     case LexType.Underscore:
@@ -60,8 +67,11 @@ namespace Markdown
                     default:
                         break;
                 }
-                Counter++;
+                Reader.Next();
             }
+
+            //now we should load closed tags from stack
+            //нужно пройти по стеку и найти парные теги
 
             return Tags;
         }
@@ -69,12 +79,12 @@ namespace Markdown
 
         private bool CheckDigits()
         {
-            if (Counter > 0 && Tokens[Counter-1].Item2==LexType.Text)
-                for (int i= Tokens[Counter - 1].Item1; i< Tokens[Counter].Item1;i++)
+            if (Reader.Previous().Item2==LexType.Text)
+                for (int i= Reader.Previous().Item1; i< Reader.Current().Item1;i++)
                     if (Char.IsDigit(Text[i]))
                         return false;
-            if (Counter < Tokens.Count-1 && Tokens[Counter + 1].Item2 == LexType.Text)
-                for (int i = Tokens[Counter].Item1; i < Tokens[Counter + 1].Item1; i++)
+            if (Reader.PeekNext().Item2 == LexType.Text)
+                for (int i = Reader.Current().Item1; i < Reader.PeekNext().Item1; i++)
                     if (Char.IsDigit(Text[i]))
                         return false;
             return true;
@@ -82,13 +92,13 @@ namespace Markdown
 
         private void ProcessTextWithBackslash()
         {
-            Tags.Add((Tokens[Counter].Item1, Tag.Backslash));
+            Tags.Add((Reader.Current().Item1, Tag.Backslash));
         }
 
         private void ProcessSquareBracketOpen()
         {
             OpenTags.Add(Tag.A);
-            TagStack.Push((Tokens[Counter].Item1, Tag.A));
+            TagStack.Push((Reader.Current().Item1, Tag.A));
         }
 
         private void ProcessSquareBracketClose()
@@ -99,10 +109,10 @@ namespace Markdown
                 TagStack.Pop();
             }
             OpenTags.Remove(Tag.A);
-            if (Tokens[Counter + 1].Item2 == LexType.BracketOpen)// проверили что это не просто текст в квадратных скобках
+            if (Reader.PeekNext().Item2 == LexType.BracketOpen)// проверили что это не просто текст в квадратных скобках
             {
                 Tags.Add(TagStack.Pop());
-                Tags.Add((Tokens[Counter].Item1, Tag.AClose));
+                Tags.Add((Reader.Current().Item1, Tag.AClose));
             }
             else
             {
@@ -112,10 +122,10 @@ namespace Markdown
 
         private void ProcessBracketOpen()
         {
-            if (Tokens[Counter - 1].Item2 == LexType.SquareBracketClose)// проверили что в скобках: ссылка или просто текст
+            if (Reader.Previous().Item2 == LexType.SquareBracketClose)// проверили что в скобках: ссылка или просто текст
             {
                 OpenTags.Add(Tag.LinkBracket);
-                TagStack.Push((Tokens[Counter].Item1, Tag.LinkBracket));
+                TagStack.Push((Reader.Current().Item1, Tag.LinkBracket));
             }
         }
 
@@ -131,7 +141,7 @@ namespace Markdown
 
                 OpenTags.Remove(Tag.LinkBracket);
                 Tags.Add(TagStack.Pop());
-                Tags.Add((Tokens[Counter].Item1, Tag.LinkBracketClose));
+                Tags.Add((Reader.Current().Item1, Tag.LinkBracketClose));
             }
         }
 
@@ -145,7 +155,7 @@ namespace Markdown
             if (!OpenTags.Contains(tag))
             {
                 OpenTags.Add(tag);
-                TagStack.Push((Tokens[Counter].Item1, tag));
+                TagStack.Push((Reader.Current().Item1, tag));
             }
             else
             {
@@ -156,7 +166,7 @@ namespace Markdown
                 }
                 OpenTags.Remove(tag);
                 Tags.Add(TagStack.Pop());
-                Tags.Add((Tokens[Counter].Item1, tagClose));
+                Tags.Add((Reader.Current().Item1, tagClose));
             }
         }
 
@@ -166,25 +176,35 @@ namespace Markdown
                 return;
             if (!OpenTags.Contains(tag))
             {
-                if (Counter == Tokens.Count - 1 || Tokens[Counter + 1].Item2 != LexType.Space)
+                if (Reader.PeekNext().Item2 != LexType.Space)
                 {
                     OpenTags.Add(tag);
-                    TagStack.Push((Tokens[Counter].Item1, tag));
+                    TagStack.Push((Reader.Current().Item1, tag));
                 }
             }
             else
             {
-                if (Tokens[Counter - 1].Item2 != LexType.Space)
+                if (Reader.Previous().Item2 != LexType.Space)
                 {
-                    while (TagStack.Peek().Item2 != tag)
+                    if (ProhibitedOuterTags.ContainsKey(tag) && OpenTags.Select(x => ProhibitedOuterTags[tag].Contains(x)).Contains(true))
                     {
-                        OpenTags.Remove(TagStack.Peek().Item2);
-                        TagStack.Pop();
+                        OpenTags.Remove(tag);
+                        TagStack.Push((Reader.Current().Item1, tag));// здесь надо пушить закрывающий тег
                     }
+                    else
+                    {
+                        while (TagStack.Peek().Item2 != tag)
+                        {
+                            if (TagStack.Peek().Item2==Tag.A)//в ссылке тег не должен закрываться (костыль, надо пофиксить)
+                                return;
+                            OpenTags.Remove(TagStack.Peek().Item2);
+                            TagStack.Pop();
+                        }
 
-                    OpenTags.Remove(tag);
-                    Tags.Add(TagStack.Pop());
-                    Tags.Add((Tokens[Counter].Item1, tagClose));
+                        OpenTags.Remove(tag);
+                        Tags.Add(TagStack.Pop());
+                        Tags.Add((Reader.Current().Item1, tagClose));
+                    }
                 }
             }
         }
