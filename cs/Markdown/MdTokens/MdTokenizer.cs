@@ -38,17 +38,36 @@ namespace Markdown.MdTokens
 
         private void HandlePairedTokens(MdToken token)
         {
-            var beginningAndEndingAreDifferent = token.EndingSpecialSymbol != token.BeginningSpecialSymbol;
-            if (token.BeginningSpecialSymbol != "NONE")
-            {
-                if (config.IsSymbolPaired(token.BeginningSpecialSymbol) && beginningAndEndingAreDifferent)
-                    pairedSymbols.Push(token);
-            }
-                
+            var beginSymbol = token.BeginningSpecialSymbol;
+            var endSymbol = token.EndingSpecialSymbol;
+            var beginningAndEndingAreDifferent = endSymbol != beginSymbol;
+            HandleTokenNesting(token, token.BeginningSpecialSymbol, beginSymbol, true);
+            if (config.IsSymbolPaired(token.BeginningSpecialSymbol) && beginningAndEndingAreDifferent)
+                pairedSymbols.Push(token);
+
+            HandleTokenNesting(token, token.EndingSpecialSymbol, beginSymbol, false);
+            if (beginningAndEndingAreDifferent && config.IsSymbolPaired(token.EndingSpecialSymbol))
+                UpdatePairedTokens(token);
+        }
+
+        private void HandleTokenNesting(MdToken token, string symbolToCheck, string oldBeginSymbol, bool isBeginning)
+        {
+            if (symbolToCheck == "NONE") return;
+            if (!config.CanSymbolBeNested(symbolToCheck)) return;
+            if (pairedSymbols.Count == 0) return;
+
+            var stackTopBegin = pairedSymbols.Peek().BeginningSpecialSymbol;
+            var stackTopEnd = pairedSymbols.Peek().EndingSpecialSymbol;
             
-            if (token.EndingSpecialSymbol != "NONE")
-                if (beginningAndEndingAreDifferent && config.IsSymbolPaired(token.EndingSpecialSymbol))
-                    UpdatePairedTokens(token);
+            var onlyBeginningIsPresent = stackTopBegin != "NONE" && stackTopEnd == "NONE";
+            var isNested = onlyBeginningIsPresent && stackTopBegin != symbolToCheck && oldBeginSymbol != "NONE";
+            var isNestingNotAllowed = config.IsSymbolNestingException(symbolToCheck, stackTopBegin);
+            if (!isNested) return;
+            if (!isNestingNotAllowed) return;
+            if(isBeginning)
+                CorrectPairedTokenBeginning(token);
+            else
+                CorrectPairedTokenEnding(token);
         }
 
         private void UpdatePairedTokens(MdToken token)
@@ -102,12 +121,10 @@ namespace Markdown.MdTokens
             for (var i = 0; i < text.Length - 1; i++)
             {
                 var character = text[i].ToString();
-                if (character == @"\")
-                {
-                    var nextCharacter = text[i + 1].ToString();
-                    if (config.HasSpecialSymbol(nextCharacter))
-                        shieldingIndexes.Add(i);
-                }
+                if (character != config.GetShieldingSymbol()) continue;
+                var nextCharacter = text[i + 1].ToString();
+                if (config.HasSpecialSymbol(nextCharacter))
+                    shieldingIndexes.Add(i);
             }
 
             return shieldingIndexes;
@@ -120,7 +137,6 @@ namespace Markdown.MdTokens
                 var symbolsToReplace = text[index].ToString() + text[index + 1];
                 text = text.Replace(symbolsToReplace, "  ");
             }
-                
             return text;
         }
 
