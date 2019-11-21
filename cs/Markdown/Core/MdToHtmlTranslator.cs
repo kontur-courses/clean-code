@@ -2,22 +2,13 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using Markdown.Core.HTMLTags;
+using Markdown.Core.Infrastructure;
 using Markdown.Core.Tokens;
 
 namespace Markdown.Core
 {
     public class MdToHtmlTranslator
     {
-        private readonly Dictionary<string, string> tagDict = new Dictionary<string, string>()
-        {
-            {"__", "strong"},
-            {"_", "em"},
-            {"####", "h4"},
-            {"###", "h3"},
-            {"##", "h2"},
-            {"#", "h1"}
-        };
-
         public string TranslateTokensToHtml(IEnumerable<IToken> tokens)
         {
             var result = new StringBuilder();
@@ -45,7 +36,7 @@ namespace Markdown.Core
             {
                 var firstTag = firstToken as HTMLTagToken;
                 if (firstTag.TagType == HTMLTagType.Header)
-                    return tagDict[firstTag.Value];
+                    return TagsUtils.GetTagNameByMdTag(firstTag.Value);
             }
 
             return null;
@@ -56,7 +47,7 @@ namespace Markdown.Core
             if (token.TokenType == TokenType.HTMLTag)
             {
                 var tag = token as HTMLTagToken;
-                var tagName = tagDict[tag.Value];
+                var tagName = TagsUtils.GetTagNameByMdTag(tag.Value);
                 return tag.TagType == HTMLTagType.Opening ? $"<{tagName}>" : $"</{tagName}>";
             }
             return token.Value;

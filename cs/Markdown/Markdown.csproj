@@ -36,6 +36,9 @@
     <Compile Include="Core\HTMLTags\HTMLTagToken.cs" />
     <Compile Include="Core\HTMLTags\HTMLTagType.cs" />
     <Compile Include="Core\HTMLTags\IHTMLTagToken.cs" />
+    <Compile Include="Core\Infrastructure\LocationType.cs" />
+    <Compile Include="Core\Infrastructure\TagInfo.cs" />
+    <Compile Include="Core\Infrastructure\TagsUtils.cs" />
     <Compile Include="Core\MdRenderer.cs" />
     <Compile Include="Core\MdNormalizer.cs" />
     <Compile Include="Core\MdToHtmlTranslator.cs" />

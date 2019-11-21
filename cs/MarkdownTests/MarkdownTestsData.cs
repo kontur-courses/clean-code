@@ -1,24 +1,12 @@
 using System.Collections.Generic;
+using Markdown.Core.HTMLTags;
+using Markdown.Core.Infrastructure;
 using NUnit.Framework;
 
 namespace MarkdownTests
 {
     public class MarkdownTestsData
     {
-        private static readonly Dictionary<string, string> InlineTagDict = new Dictionary<string, string>()
-        {
-            {"__", "strong"},
-            {"_", "em"}
-        };
-        
-        private static readonly Dictionary<string, string> HeaderTagDict = new Dictionary<string, string>()
-        {
-            {"####", "h4"},
-            {"###", "h3"},
-            {"##", "h2"},
-            {"#", "h1"}
-        };
-
         public static IEnumerable<TestCaseData> SingleInlineTagTestCases => GetSingleInlineTagTestCases();
         public static IEnumerable<TestCaseData> UnpairedInlineTagTestCases => GetUnpairedInlineTagTestCases();
 
@@ -26,10 +14,10 @@ namespace MarkdownTests
 
         private static IEnumerable<TestCaseData> GetSingleInlineTagTestCases()
         {
-            foreach (var pair in InlineTagDict)
+            foreach (var tagInfo in TagsUtils.InlineTagsInfo)
             {
-                var mdTag = pair.Key;
-                var tagName = pair.Value;
+                var mdTag = tagInfo.MdTag;
+                var tagName = tagInfo.TagName;
                 yield return new TestCaseData($"text {mdTag}test{mdTag}")
                     .SetName($"Simple {tagName}")
                     .Returns($"text <{tagName}>test</{tagName}>");
@@ -47,10 +35,10 @@ namespace MarkdownTests
         
         private static IEnumerable<TestCaseData> GetUnpairedInlineTagTestCases()
         {
-            foreach (var pair in InlineTagDict)
+            foreach (var tagInfo in TagsUtils.InlineTagsInfo)
             {
-                var mdTag = pair.Key;
-                var tagName = pair.Value;
+                var mdTag = tagInfo.MdTag;
+                var tagName = tagInfo.TagName;
                 yield return new TestCaseData($"{mdTag}text")
                     .SetName($"Unpaired {tagName} in beginning")
                     .Returns($"{mdTag}text");
@@ -62,10 +50,10 @@ namespace MarkdownTests
         
         private static IEnumerable<TestCaseData> GetHeaderTagTestCases()
         {
-            foreach (var pair in HeaderTagDict)
+            foreach (var tagInfo in TagsUtils.BeginningTagsInfo)
             {
-                var mdTag = pair.Key;
-                var tagName = pair.Value;
+                var mdTag = tagInfo.MdTag;
+                var tagName = tagInfo.TagName;
                 yield return new TestCaseData($"{mdTag} absc")
                     .SetName($"Simple {tagName}")
                     .Returns($"<{tagName}> absc</{tagName}>");

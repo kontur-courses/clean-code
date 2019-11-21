@@ -2,6 +2,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using Markdown.Core.HTMLTags;
+using Markdown.Core.Infrastructure;
 using Markdown.Core.Tokens;
 
 namespace Markdown.Core.Readers
@@ -9,8 +10,6 @@ namespace Markdown.Core.Readers
     public class TokenReader
     {
         private const char EscapeSymbol = '\\';
-        private static readonly List<string> MdInlineTags = new List<string>() {"__", "_"};
-        private static readonly List<string> MdHeaderTags = new List<string>() {"####", "###", "##", "#"};
         private static readonly HashSet<char> SpaceSymbols = new HashSet<char>() {' ', '\n'};
 
         public List<IToken> ReadTokens(string source)
@@ -75,7 +74,7 @@ namespace Markdown.Core.Readers
 
         private Token ReadHeaderToken(string word, int wordPosition, List<int> escapedPositions)
         {
-            foreach (var headerTag in MdHeaderTags)
+            foreach (var headerTag in TagsUtils.MdBeginningTags)
             {
                 if (IsValidPositionForOpeningTag(word, headerTag, wordPosition, escapedPositions))
                     return new HTMLTagToken(wordPosition, headerTag, HTMLTagType.Header);
@@ -89,7 +88,7 @@ namespace Markdown.Core.Readers
         {
             Token openingToken = null;
             Token closingToken = null;
-            foreach (var inlineTag in MdInlineTags)
+            foreach (var inlineTag in TagsUtils.MdInlineTags)
             {
                 if (openingToken == null
                     && IsValidPositionForOpeningTag(word, inlineTag, wordPosition, escapedPositions))
