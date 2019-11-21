@@ -35,8 +35,8 @@ namespace Markdown.Tests
         [TestCase("__abc__ _dce_", "<strong>abc</strong> <em>dce</em>", TestName = "when words with bold symbols and emphasis")]
         [TestCase("__Lorem _ipsum_ dolor sit amet__", "<strong>Lorem <em>ipsum</em> dolor sit amet</strong>", TestName = "when text with nested emphasis")]
         [TestCase("__Lorem _ipsum dolor sit amet__", "<strong>Lorem _ipsum dolor sit amet</strong>", TestName = "when text with incorrect nested emphasis")]
-        [TestCase("__ Lorem _ipsum dolor sit amet__ _text__ _ s__ _aa_ __bb__", 
-            "__ Lorem _ipsum dolor sit amet__ _text__ _ s__ <em>aa</em> <strong>bb</strong>", 
+        [TestCase("#Header ## AA __ Lorem _ipsum dolor sit amet__ _text__ _ s__ _aa_ __bb__", 
+            "<h1>Header</h1> ## AA __ Lorem _ipsum dolor sit amet__ _text__ _ s__ <em>aa</em> <strong>bb</strong>", 
             TestName = " when complex text with many test cases")]
         public void Render_Should_RenderMdToHTML(string text, string expectedResult)
         {
