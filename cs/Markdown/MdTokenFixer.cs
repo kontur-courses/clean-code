@@ -10,7 +10,6 @@ namespace Markdown
         {
             var correctTokens = FilterIncorrectTokens(tokens);
             var fixedTokens = FilterNonMatchingPairTokens(correctTokens);
-            fixedTokens.Add(new Token(TokenType.Text, "\n"));
             return fixedTokens;
         }
 

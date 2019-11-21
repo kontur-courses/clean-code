@@ -15,10 +15,6 @@ namespace Markdown
             var lastTokenNumber = tokens.Count() - 1;
             foreach (var token in tokens)
             {
-                if (currentHeaderToken != null && tokenNumber == lastTokenNumber)
-                {
-                    result.Append(TokenTypesTranslator.GetHtmlTagFromTokenType(currentHeaderToken.Type).Second);
-                }
                 switch (token)
                 {
                     case PairToken pairToken:
@@ -35,10 +31,19 @@ namespace Markdown
                         break;
                 }
 
+                if (currentHeaderToken != null && tokenNumber == lastTokenNumber)
+                {
+                    result.Append(TokenTypesTranslator.GetHtmlTagFromTokenType(currentHeaderToken.Type).Second);
+                }
+
                 tokenNumber++;
             }
 
-            result.Append("<br><br>");
+            if (currentHeaderToken == null)
+            {
+                result.Append("<br><br>");
+            }
+
             return result.ToString();
         }
     }

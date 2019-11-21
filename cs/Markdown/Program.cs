@@ -16,7 +16,7 @@ namespace Markdown
                 {
                     foreach (var paragraph in paragraphs)
                     { 
-                        writer.Write(md.Render(paragraph));
+                        writer.WriteLine(md.Render(paragraph));
                     }
                 }
             }
