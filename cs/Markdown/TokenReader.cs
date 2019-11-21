@@ -1,14 +1,12 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Diagnostics.Tracing;
-using System.Text;
+﻿using System.Collections.Generic;
+
 
 namespace Markdown
 {
     public class TokenReader
     {
         public int CurrentPosition { get; private set; }
-        private List<(int, LexType)> Tokens;
+        private readonly List<(int, LexType)> Tokens;
         public TokenReader(List<(int, LexType)> tokens)
         {
             Tokens = tokens;

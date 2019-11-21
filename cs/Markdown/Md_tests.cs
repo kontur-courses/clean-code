@@ -1,7 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Text;
-using NUnit.Framework;
+﻿using NUnit.Framework;
 using FluentAssertions;
 
 namespace Markdown
@@ -200,26 +197,30 @@ namespace Markdown
             processedText.Should().Be(expectedText);
         }
 
-
-        [TestCase(@"\\\\\\", @"\\\")]
-        [TestCase("________", "________")]
-        [TestCase("_ _", "_ _")]
-        [TestCase(@"\_ _test_", "_ <em>test</em>")]
-        [TestCase(@"\__test_", "_<em>test</em>")]
         [TestCase("<em>test</em>", "<em>test</em>")]
-        public void Md_TemporaryTestsWithoutCategory(string text, string expectedText)
+        public void Md_TagsInDefaultText_ShouldNotChanges(string text, string expectedText)
         {
             var renderer = new Md();
             var processedText = renderer.Render(text);
             processedText.Should().Be(expectedText);
         }
 
+        [TestCase("________", "________")]
+        [TestCase("___aaa___", "___aaa___")]
+        public void Md_MoreThanTwoUnderscores_ShouldNotChangeText(string text, string expectedText)
+        {
+            var renderer = new Md();
+            var processedText = renderer.Render(text);
+            processedText.Should().Be(expectedText);
+        }
 
-        /*здесь собраны тесты которые пока что не относятся ни к какой категории
-         * некоторые тесты на ситуацию когда поведение парсера
-         * в таких случаях пока что не определено правилами
-         * некоторые тесты - граничные случаи которые надо обработать
-         */
+        [TestCase(@"\\\\\\", @"\\\")]
+        public void Md_backSlashWithBackSlash_ShouldShield(string text, string expectedText)
+        {
+            var renderer = new Md();
+            var processedText = renderer.Render(text);
+            processedText.Should().Be(expectedText);
+        }
 
 
     }

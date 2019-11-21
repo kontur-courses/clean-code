@@ -1,8 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
-using System.Threading;
 
 namespace Markdown
 {
@@ -11,7 +9,7 @@ namespace Markdown
         private readonly HashSet<TagType> OpenTags;
         private readonly Stack<Tag> TagStack;
         private readonly string Text;
-        private List<Tag> Tags;
+        private readonly List<Tag> Tags;
         private readonly TokenReader Reader;
         public TokenParser(List<(int, LexType)> tokens, string text)
         {
@@ -68,8 +66,8 @@ namespace Markdown
 
         private bool CheckDigits()
         {
-            if (Reader.Previous().Item2==LexType.Text)
-                for (int i= Reader.Previous().Item1; i< Reader.CurrentValue();i++)
+            if (Reader.Previous().Item2 == LexType.Text)
+                for (int i = Reader.Previous().Item1; i < Reader.CurrentValue(); i++)
                     if (Char.IsDigit(Text[i]))
                         return false;
             if (Reader.PeekNext().Item2 == LexType.Text)
@@ -178,25 +176,25 @@ namespace Markdown
 
         private void ProcessStack()
         {
-            var newStack = new Stack<Tag>();
+            var reversedStack = new Stack<Tag>();
             var openTags = new HashSet<TagType>();
             while (TagStack.Count != 0)
             {
                 var tag = TagStack.Pop();
                 if (!openTags.Contains(tag.Opposite()))
                 {
-                    newStack.Push(tag);
+                    reversedStack.Push(tag);
                     openTags.Add(tag.CurrentType);
                 }
                 else
                 {
                     Tags.Add(tag);
-                    while (newStack.Peek().CurrentType != tag.Opposite())
+                    while (reversedStack.Peek().CurrentType != tag.Opposite())
                     {
-                        OpenTags.Remove(newStack.Peek().CurrentType);
-                        newStack.Pop();
+                        OpenTags.Remove(reversedStack.Peek().CurrentType);
+                        reversedStack.Pop();
                     }
-                    Tags.Add(newStack.Pop());
+                    Tags.Add(reversedStack.Pop());
                 }
             }
         }

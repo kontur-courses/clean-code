@@ -1,6 +1,4 @@
-﻿using System.Linq;
-
-namespace Markdown
+﻿namespace Markdown
 {
     class Md
     {

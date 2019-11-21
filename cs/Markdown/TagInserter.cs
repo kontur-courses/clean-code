@@ -1,17 +1,10 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Text;
-using System.Linq;
-using FluentAssertions.Common;
 
 namespace Markdown
 {
     class TagInserter
     {
-        public TagInserter()
-        {
-
-        }
 
         public string Insert(string text, List<Tag> toInsert)
         {
@@ -20,7 +13,7 @@ namespace Markdown
             var currentTextIndex = 0;
             var currentTagsIndex = 0;
             var linkTagIndex = -1;
-            while(currentTagsIndex<toInsert.Count)
+            while (currentTagsIndex < toInsert.Count)
             {
                 var pair = toInsert[currentTagsIndex];
                 outText.Append(text.Substring(currentTextIndex, pair.Position - currentTextIndex));
@@ -52,7 +45,7 @@ namespace Markdown
                         outText.Append("</s>");
                         break;
                     case TagType.Backslash:
-                        currentTextIndex ++;
+                        currentTextIndex++;
                         break;
                     case TagType.A:
                         currentTextIndex++;
@@ -68,7 +61,7 @@ namespace Markdown
                         currentTextIndex++;
                         while (toInsert[currentTagsIndex].CurrentType != TagType.LinkBracketClose)
                             currentTagsIndex++;
-                        outText.Insert(linkTagIndex, " href="+ text.Substring(currentTextIndex, toInsert[currentTagsIndex].Position - currentTextIndex));
+                        outText.Insert(linkTagIndex, " href=" + text.Substring(currentTextIndex, toInsert[currentTagsIndex].Position - currentTextIndex));
                         currentTextIndex = toInsert[currentTagsIndex].Position;
                         currentTextIndex++;
                         break;
