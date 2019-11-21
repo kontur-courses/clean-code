@@ -13,66 +13,66 @@ namespace Markdown
 
         }
 
-        public string Insert(string text, List<(int, Tag)> toInsert)
+        public string Insert(string text, List<Tag> toInsert)
         {
-            toInsert.Sort((x, y) => x.Item1.CompareTo(y.Item1));
+            toInsert.Sort((x, y) => x.Position.CompareTo(y.Position));
             StringBuilder outText = new StringBuilder();
-            int currentTextIndex = 0;
-            int currentTagsIndex = 0;
-            int linkTagIndex = -1;
+            var currentTextIndex = 0;
+            var currentTagsIndex = 0;
+            var linkTagIndex = -1;
             while(currentTagsIndex<toInsert.Count)
             {
                 var pair = toInsert[currentTagsIndex];
-                outText.Append(text.Substring(currentTextIndex, pair.Item1 - currentTextIndex));
-                currentTextIndex = pair.Item1;
-                switch (pair.Item2)
+                outText.Append(text.Substring(currentTextIndex, pair.Position - currentTextIndex));
+                currentTextIndex = pair.Position;
+                switch (pair.CurrentType)
                 {
-                    case Tag.Em:
+                    case TagType.Em:
                         currentTextIndex++;
                         outText.Append("<em>");
                         break;
-                    case Tag.EmClose:
+                    case TagType.EmClose:
                         currentTextIndex++;
                         outText.Append("</em>");
                         break;
-                    case Tag.Strong:
+                    case TagType.Strong:
                         currentTextIndex += 2;
                         outText.Append("<strong>");
                         break;
-                    case Tag.StrongClose:
+                    case TagType.StrongClose:
                         currentTextIndex += 2;
                         outText.Append("</strong>");
                         break;
-                    case Tag.S:
+                    case TagType.S:
                         currentTextIndex += 2;
                         outText.Append("<s>");
                         break;
-                    case Tag.SClose:
+                    case TagType.SClose:
                         currentTextIndex += 2;
                         outText.Append("</s>");
                         break;
-                    case Tag.Backslash:
+                    case TagType.Backslash:
                         currentTextIndex ++;
                         break;
-                    case Tag.A:
+                    case TagType.A:
                         currentTextIndex++;
                         outText.Append("<a");
                         linkTagIndex = outText.Length;
                         outText.Append(">");
                         break;
-                    case Tag.AClose:
+                    case TagType.AClose:
                         currentTextIndex++;
                         outText.Append("</a>");
                         break;
-                    case Tag.LinkBracket:
+                    case TagType.LinkBracket:
                         currentTextIndex++;
-                        while (toInsert[currentTagsIndex].Item2 != Tag.LinkBracketClose)
+                        while (toInsert[currentTagsIndex].CurrentType != TagType.LinkBracketClose)
                             currentTagsIndex++;
-                        outText.Insert(linkTagIndex, " href="+ text.Substring(currentTextIndex, toInsert[currentTagsIndex].Item1 - currentTextIndex));
-                        currentTextIndex = toInsert[currentTagsIndex].Item1;
-                        currentTextIndex++;// скипнули закрывающую скобку
+                        outText.Insert(linkTagIndex, " href="+ text.Substring(currentTextIndex, toInsert[currentTagsIndex].Position - currentTextIndex));
+                        currentTextIndex = toInsert[currentTagsIndex].Position;
+                        currentTextIndex++;
                         break;
-                    case Tag.LinkBracketClose:
+                    case TagType.LinkBracketClose:
                         currentTextIndex++;
                         break;
                 }

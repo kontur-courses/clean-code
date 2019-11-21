@@ -8,30 +8,21 @@ namespace Markdown
 {
     public class TokenParser
     {
-        private readonly HashSet<Tag> OpenTags;
-        private readonly Stack<(int, Tag)> TagStack;
-        //private readonly List<(int, LexType)> Tokens;
+        private readonly HashSet<TagType> OpenTags;
+        private readonly Stack<Tag> TagStack;
         private readonly string Text;
-        //private int Counter;
-        private List<(int, Tag)> Tags;
-        private Dictionary<Tag, HashSet<Tag>> ProhibitedOuterTags;
+        private List<Tag> Tags;
         private readonly TokenReader Reader;
         public TokenParser(List<(int, LexType)> tokens, string text)
         {
-            OpenTags = new HashSet<Tag>();
-            TagStack = new Stack<(int, Tag)>();
-            //Tokens = tokens;
+            OpenTags = new HashSet<TagType>();
+            TagStack = new Stack<Tag>();
             Text = text;
-            //Counter = 0;
-            Tags = new List<(int, Tag)>();
+            Tags = new List<Tag>();
             Reader = new TokenReader(tokens);
-
-            ProhibitedOuterTags = new Dictionary<Tag, HashSet<Tag>>();
-
-            ProhibitedOuterTags.Add(Tag.Strong, new HashSet<Tag> {Tag.Em });
         }
 
-        public List<(int, Tag)> Parse()
+        public List<Tag> Parse()
         {
             while (!Reader.EndReached())
             {
@@ -39,13 +30,13 @@ namespace Markdown
                 switch (token.Item2)
                 {
                     case LexType.Underscore:
-                        ProcessTagWithUnderscoreLikeRules(Tag.Em, Tag.EmClose);
+                        ProcessTagWithUnderscoreLikeRules(TagType.Em);
                         break;
                     case LexType.DoubleUnderscore:
-                        ProcessTagWithUnderscoreLikeRules(Tag.Strong, Tag.StrongClose);
+                        ProcessTagWithUnderscoreLikeRules(TagType.Strong);
                         break;
                     case LexType.DoubleTilda:
-                        ProcessTagWithUnderscoreLikeRules(Tag.S, Tag.SClose);
+                        ProcessTagWithUnderscoreLikeRules(TagType.S);
                         break;
                     case LexType.Text:
                         break;
@@ -69,9 +60,7 @@ namespace Markdown
                 }
                 Reader.Next();
             }
-
-            //now we should load closed tags from stack
-            //нужно пройти по стеку и найти парные теги
+            ProcessStack();
 
             return Tags;
         }
@@ -80,11 +69,11 @@ namespace Markdown
         private bool CheckDigits()
         {
             if (Reader.Previous().Item2==LexType.Text)
-                for (int i= Reader.Previous().Item1; i< Reader.Current().Item1;i++)
+                for (int i= Reader.Previous().Item1; i< Reader.CurrentValue();i++)
                     if (Char.IsDigit(Text[i]))
                         return false;
             if (Reader.PeekNext().Item2 == LexType.Text)
-                for (int i = Reader.Current().Item1; i < Reader.PeekNext().Item1; i++)
+                for (int i = Reader.CurrentValue(); i < Reader.PeekNext().Item1; i++)
                     if (Char.IsDigit(Text[i]))
                         return false;
             return true;
@@ -92,31 +81,35 @@ namespace Markdown
 
         private void ProcessTextWithBackslash()
         {
-            Tags.Add((Reader.Current().Item1, Tag.Backslash));
+            Tags.Add(new Tag(TagType.Backslash, Reader.CurrentValue()));
         }
 
         private void ProcessSquareBracketOpen()
         {
-            OpenTags.Add(Tag.A);
-            TagStack.Push((Reader.Current().Item1, Tag.A));
+            OpenTags.Add(TagType.A);
+            TagStack.Push(new Tag(TagType.A, Reader.CurrentValue()));
         }
 
         private void ProcessSquareBracketClose()
         {
-            while (TagStack.Peek().Item2 != Tag.A)
+            if (OpenTags.Contains(TagType.A))
             {
-                OpenTags.Remove(TagStack.Peek().Item2);
-                TagStack.Pop();
-            }
-            OpenTags.Remove(Tag.A);
-            if (Reader.PeekNext().Item2 == LexType.BracketOpen)// проверили что это не просто текст в квадратных скобках
-            {
-                Tags.Add(TagStack.Pop());
-                Tags.Add((Reader.Current().Item1, Tag.AClose));
-            }
-            else
-            {
-                TagStack.Pop();
+                while (TagStack.Peek().CurrentType != TagType.A)
+                {
+                    OpenTags.Remove(TagStack.Peek().CurrentType);
+                    TagStack.Pop();
+                }
+
+                OpenTags.Remove(TagType.A);
+                if (Reader.PeekNext().Item2 == LexType.BracketOpen) // проверили что дальше будет ссылка
+                {
+                    Tags.Add(TagStack.Pop());
+                    Tags.Add(new Tag(TagType.AClose, Reader.CurrentValue()));
+                }
+                else
+                {
+                    TagStack.Pop();
+                }
             }
         }
 
@@ -124,53 +117,27 @@ namespace Markdown
         {
             if (Reader.Previous().Item2 == LexType.SquareBracketClose)// проверили что в скобках: ссылка или просто текст
             {
-                OpenTags.Add(Tag.LinkBracket);
-                TagStack.Push((Reader.Current().Item1, Tag.LinkBracket));
+                OpenTags.Add(TagType.LinkBracket);
+                TagStack.Push(new Tag(TagType.LinkBracket, Reader.CurrentValue()));
             }
         }
 
         private void ProcessBracketClose()
         {
-            if (OpenTags.Contains(Tag.LinkBracket))
+            if (OpenTags.Contains(TagType.LinkBracket))
             {
-                while (TagStack.Peek().Item2 != Tag.LinkBracket)
+                while (TagStack.Peek().CurrentType != TagType.LinkBracket)
                 {
-                    OpenTags.Remove(TagStack.Peek().Item2);
+                    OpenTags.Remove(TagStack.Peek().CurrentType);
                     TagStack.Pop();
                 }
-
-                OpenTags.Remove(Tag.LinkBracket);
+                OpenTags.Remove(TagType.LinkBracket);
                 Tags.Add(TagStack.Pop());
-                Tags.Add((Reader.Current().Item1, Tag.LinkBracketClose));
+                Tags.Add(new Tag(TagType.LinkBracketClose, Reader.CurrentValue()));
             }
         }
 
-
-        /* simple tag не взаимодействует с другими тегами
-         * не имеет особых условий открытия или закрытия
-         */
-
-        private void ProcessSimpleTag(Tag tag, Tag tagClose)
-        {
-            if (!OpenTags.Contains(tag))
-            {
-                OpenTags.Add(tag);
-                TagStack.Push((Reader.Current().Item1, tag));
-            }
-            else
-            {
-                while (TagStack.Peek().Item2 != tag)
-                {
-                    OpenTags.Remove(TagStack.Peek().Item2);
-                    TagStack.Pop();
-                }
-                OpenTags.Remove(tag);
-                Tags.Add(TagStack.Pop());
-                Tags.Add((Reader.Current().Item1, tagClose));
-            }
-        }
-
-        private void ProcessTagWithUnderscoreLikeRules(Tag tag, Tag tagClose)
+        private void ProcessTagWithUnderscoreLikeRules(TagType tag)
         {
             if (!CheckDigits())
                 return;
@@ -179,50 +146,60 @@ namespace Markdown
                 if (Reader.PeekNext().Item2 != LexType.Space)
                 {
                     OpenTags.Add(tag);
-                    TagStack.Push((Reader.Current().Item1, tag));
+                    TagStack.Push(new Tag(tag, Reader.CurrentValue()));
                 }
             }
             else
             {
                 if (Reader.Previous().Item2 != LexType.Space)
                 {
-                    if (ProhibitedOuterTags.ContainsKey(tag) && OpenTags.Select(x => ProhibitedOuterTags[tag].Contains(x)).Contains(true))
+                    if (Tag.ProhibitedOuterTags.ContainsKey(tag) && OpenTags.Select(x => Tag.ProhibitedOuterTags[tag].Contains(x)).Contains(true))
                     {
                         OpenTags.Remove(tag);
-                        TagStack.Push((Reader.Current().Item1, tag));// здесь надо пушить закрывающий тег
+                        TagStack.Push(new Tag(Tag.Opposite(tag), Reader.CurrentValue()));
                     }
                     else
                     {
-                        while (TagStack.Peek().Item2 != tag)
+                        while (TagStack.Peek().CurrentType != tag)
                         {
-                            if (TagStack.Peek().Item2==Tag.A)//в ссылке тег не должен закрываться (костыль, надо пофиксить)
+                            if (TagStack.Peek().CurrentType == TagType.A)//в ссылке тег не должен закрываться
                                 return;
-                            OpenTags.Remove(TagStack.Peek().Item2);
+                            OpenTags.Remove(TagStack.Peek().CurrentType);
                             TagStack.Pop();
                         }
 
                         OpenTags.Remove(tag);
                         Tags.Add(TagStack.Pop());
-                        Tags.Add((Reader.Current().Item1, tagClose));
+                        Tags.Add(new Tag(Tag.Opposite(tag), Reader.CurrentValue()));
                     }
+                }
+            }
+        }
+
+        private void ProcessStack()
+        {
+            var newStack = new Stack<Tag>();
+            var openTags = new HashSet<TagType>();
+            while (TagStack.Count != 0)
+            {
+                var tag = TagStack.Pop();
+                if (!openTags.Contains(tag.Opposite()))
+                {
+                    newStack.Push(tag);
+                    openTags.Add(tag.CurrentType);
+                }
+                else
+                {
+                    Tags.Add(tag);
+                    while (newStack.Peek().CurrentType != tag.Opposite())
+                    {
+                        OpenTags.Remove(newStack.Peek().CurrentType);
+                        newStack.Pop();
+                    }
+                    Tags.Add(newStack.Pop());
                 }
             }
         }
     }
 
-    public enum Tag
-    {
-        Em,
-        EmClose,
-        Strong,
-        StrongClose,
-        Backslash,
-        A,
-        AClose,
-        LinkBracket,
-        LinkBracketClose,
-        S,
-        SClose
-
-    }
 }

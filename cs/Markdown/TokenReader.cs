@@ -25,6 +25,11 @@ namespace Markdown
             return CurrentPosition >= Tokens.Count ? default : Tokens[CurrentPosition];
         }
 
+        public int CurrentValue()
+        {
+            return CurrentPosition >= Tokens.Count ? default : Tokens[CurrentPosition].Item1;
+        }
+
         public (int, LexType) Previous()
         {
             return CurrentPosition == 0 ? default : Tokens[CurrentPosition - 1];
