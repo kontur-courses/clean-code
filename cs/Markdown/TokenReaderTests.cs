@@ -7,7 +7,7 @@ namespace Markdown
 {
     class TokenReaderTests
     {
-        private readonly TokenReader tokenReader = new TokenReader(new Md().MdTokenDescriptions);
+        private readonly TokenReader tokenReader = new TokenReader(Md.MdTokenDescriptions);
 
         [Test]
         public void SplitToTokens_ShouldReturnCorrectTokensList_IfOnlyLetters()
@@ -16,7 +16,7 @@ namespace Markdown
 
             var tokensList = tokenReader.SplitToTokens(text);
 
-            var expected = new List<Token> {new Token(0, "abc", TokenType.Letters)};
+            var expected = new List<Token> {new Token(TokenType.Letters, 0, "abc")};
             tokensList.ShouldBeEquivalentTo(expected);
         }
 
@@ -27,7 +27,7 @@ namespace Markdown
 
             var tokensList = tokenReader.SplitToTokens(text);
 
-            var expected = new List<Token> { new Token(0, "123", TokenType.Number) };
+            var expected = new List<Token> { new Token(TokenType.Number, 0, "123") };
             tokensList.ShouldBeEquivalentTo(expected);
         }
 
@@ -38,7 +38,7 @@ namespace Markdown
 
             var tokensList = tokenReader.SplitToTokens(text);
 
-            var expected = new List<Token> { new Token(0, "   ", TokenType.Whitespaces) };
+            var expected = new List<Token> { new Token(TokenType.Whitespaces, 0, "   ") };
             tokensList.ShouldBeEquivalentTo(expected);
         }
 
@@ -51,39 +51,24 @@ namespace Markdown
 
             var expected = new List<Token>
             {
-                new Token(0, "hello", TokenType.Letters),
-                new Token(5, @"\_", TokenType.EscapedSymbol),
-                new Token(7, "world", TokenType.Letters)
+                new Token(TokenType.Letters, 0, "hello"),
+                new Token(TokenType.EscapedSymbol, 5, @"\_"),
+                new Token(TokenType.Letters, 7, "world")
             };
             tokensList.ShouldBeEquivalentTo(expected);
         }
 
         [Test]
-        public void SplitToTokens_ShouldReturnCorrectTokensList_IfEscapedSymbolsInTextStart()
+        public void SplitToTokens_ShouldReturnCorrectTokensList_IfEscapeSymbolInTextEnd()
         {
-            var text = @"\\hello";
+            var text = @"hello\";
 
             var tokensList = tokenReader.SplitToTokens(text);
 
             var expected = new List<Token>
             {
-                new Token(0, @"\\", TokenType.EscapedSymbol),
-                new Token(2, "hello", TokenType.Letters)
-            };
-            tokensList.ShouldBeEquivalentTo(expected);
-        }
-
-        [Test]
-        public void SplitToTokens_ShouldReturnCorrectTokensList_IfEscapedSymbolsInTextEnd()
-        {
-            var text = @"hello\a";
-
-            var tokensList = tokenReader.SplitToTokens(text);
-
-            var expected = new List<Token>
-            {
-                new Token(0, "hello", TokenType.Letters),
-                new Token(5, @"\a", TokenType.EscapedSymbol)
+                new Token(TokenType.Letters, 0, @"hello"),
+                new Token(TokenType.Symbols, 5, @"\")
             };
             tokensList.ShouldBeEquivalentTo(expected);
         }
@@ -97,9 +82,9 @@ namespace Markdown
 
             var expected = new List<Token>
             {
-                new Token(0, "abc", TokenType.Letters),
-                new Token(3, "   ", TokenType.Whitespaces),
-                new Token(6, "123", TokenType.Number)
+                new Token(TokenType.Letters, 0, "abc"),
+                new Token(TokenType.Whitespaces, 3, "   "),
+                new Token(TokenType.Number, 6, "123")
             };
             tokensList.ShouldBeEquivalentTo(expected);
         }
@@ -113,9 +98,9 @@ namespace Markdown
 
             var expected = new List<Token>
             {
-                new Token(0, "_", TokenType.Underscore),
-                new Token(1, "abc", TokenType.Letters),
-                new Token(4, "_", TokenType.Underscore)
+                new Token(TokenType.Underscore, 0),
+                new Token(TokenType.Letters, 1, "abc"),
+                new Token(TokenType.Underscore, 4)
             };
             tokensList.ShouldBeEquivalentTo(expected);
         }
@@ -129,11 +114,27 @@ namespace Markdown
 
             var expected = new List<Token>
             {
-                new Token(0, "_", TokenType.Underscore),
-                new Token(1, "_", TokenType.Underscore),
-                new Token(2, "abc", TokenType.Letters),
-                new Token(5, "_", TokenType.Underscore),
-                new Token(6, "_", TokenType.Underscore)
+                new Token(TokenType.DoubleUnderscores, 0),
+                new Token(TokenType.Letters, 2, "abc"),
+                new Token(TokenType.DoubleUnderscores, 5),
+            };
+            tokensList.ShouldBeEquivalentTo(expected);
+        }
+
+        [Test]
+        public void SplitToTokens_ShouldReturnCorrectTokensList_IfTextSurroundedByTripleUnderscores()
+        {
+            var text = "___abc___";
+
+            var tokensList = tokenReader.SplitToTokens(text);
+
+            var expected = new List<Token>
+            {
+                new Token(TokenType.DoubleUnderscores, 0),
+                new Token(TokenType.Underscore, 2),
+                new Token(TokenType.Letters, 3, "abc"),
+                new Token(TokenType.DoubleUnderscores, 6),
+                new Token(TokenType.Underscore, 8)
             };
             tokensList.ShouldBeEquivalentTo(expected);
         }

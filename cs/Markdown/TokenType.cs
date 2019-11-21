@@ -6,8 +6,9 @@
         Letters,
         Number,
         Underscore,
+        DoubleUnderscores,
         EscapedSymbol,
-        Undefined,
+        Symbols,
         Empty
     }
 }

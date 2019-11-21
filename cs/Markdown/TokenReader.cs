@@ -21,8 +21,7 @@ namespace Markdown
                 var isTokenAdded = false;
                 foreach (var tokenDescription in tokenDescriptions)
                 {
-                    var token = tokenDescription.ReadToken(text, currentPosition);
-                    if (token.IsEmpty)
+                    if (tokenDescription.TryReadToken(text, currentPosition, out var token))
                         continue;
 
                     currentPosition += token.Length;
@@ -46,7 +45,7 @@ namespace Markdown
             while (length < subString.Length && text[position + length] == subString[length])
                 length++;
 
-            return length < subString.Length ? Token.EmptyToken : new Token(position, text.Substring(position, length), tokenType);
+            return length < subString.Length ? Token.EmptyToken : new Token(tokenType, position, text.Substring(position, length));
         }
 
         public static Token ReadTokenWithRuleForSymbols(string text, int position, Func<char, bool> rule, TokenType tokenType)
@@ -55,15 +54,16 @@ namespace Markdown
             while (i < text.Length && rule(text[i]))
                 i++;
 
-            return new Token(position, text.Substring(position, i - position), tokenType);
+            return new Token(tokenType, position, text.Substring(position, i - position));
         }
 
         public static Token ReadEscapedSymbol(string text, int position, char escapeSymbol)
         {
-            if (text[position] != escapeSymbol || position >= text.Length - 1 || char.IsWhiteSpace(text[position + 1]))
+            if (text[position] != escapeSymbol)
                 return Token.EmptyToken;
-
-            return new Token(position, text.Substring(position, 2), TokenType.EscapedSymbol);
+            if (position == text.Length - 1)
+                return new Token(TokenType.Symbols, position, text[position].ToString());
+            return new Token(TokenType.EscapedSymbol, position, text.Substring(position, 2));
         }
     }
 }

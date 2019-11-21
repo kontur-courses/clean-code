@@ -10,5 +10,11 @@ namespace Markdown
         {
             ReadToken = readToken;
         }
+
+        public bool TryReadToken(string text, int position, out Token token)
+        {
+            token = ReadToken(text, position);
+            return token.IsEmpty;
+        } 
     }
 }

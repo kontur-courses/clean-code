@@ -1,10 +1,24 @@
 ﻿using System;
+using System.Collections.Generic;
+using System.Text;
 
 namespace Markdown
 {
     public class Token
     {
-        public static readonly Token EmptyToken = new Token(0, "", TokenType.Empty);
+        public static readonly Dictionary<TokenType, string> DefaultStringForTokenTypes;
+        public static readonly Token EmptyToken;
+
+        static Token()
+        {
+            DefaultStringForTokenTypes = new Dictionary<TokenType, string>
+            {
+                { TokenType.Empty, ""},
+                { TokenType.Underscore, "_"},
+                { TokenType.DoubleUnderscores, "__"}
+            };
+            EmptyToken = new Token(TokenType.Empty, 0, "");
+        }
 
         public int Position { get; }
         public string Text { get; }
@@ -12,11 +26,32 @@ namespace Markdown
         public bool IsEmpty => Length == 0;
         public TokenType TokenType;
 
-        public Token(int position, string text, TokenType tokenType = TokenType.Undefined)
+        public Token(TokenType tokenType, int position, string text = null)
         {
-            Position = position;
-            Text = text;
             TokenType = tokenType;
+            Position = position;
+            if (text == null)
+            {
+                if (DefaultStringForTokenTypes.ContainsKey(tokenType))
+                    Text = DefaultStringForTokenTypes[tokenType];
+                else
+                    throw new ArgumentException("Default string for token type not found");
+            }
+            else
+                Text = text;
+        }
+
+        public static string ConcatenateTokens(List<Token> tokens)
+        {
+            var builder = new StringBuilder();
+            foreach (var token in tokens)
+            {
+                if (token.TokenType == TokenType.EscapedSymbol)
+                    builder.Append(token.Text[1]);
+                else
+                    builder.Append(token.Text);
+            }
+            return builder.ToString();
         }
     }
 }
