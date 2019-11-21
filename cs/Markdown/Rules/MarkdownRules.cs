@@ -5,20 +5,36 @@ namespace Markdown.Rules
 {
     public class MarkdownRules : IRules
     {
-        public bool IsSeparatorValid(string text, int position, bool isFirst)
+        private const char EscapeSymbol = '\\';
+
+        public bool IsSeparatorValid(string text, int position, bool isFirst, int separatorLength)
         {
-            var anyNonDigitAround = text.GetNeighborsOfSymbol(position).Any(s => !char.IsDigit(s));
+            if (text[position] == EscapeSymbol)
+                return true;
+            var anyNonDigitAround = text.GetNeighborsOfSubstring(position, position + separatorLength - 1)
+                .Any(s => !char.IsDigit(s));
             return anyNonDigitAround && (isFirst
-                       ? IsBeginSeparatorValid(text, position)
-                       : IsEndSeparatorValid(text, position));
+                       ? IsBeginSeparatorValid(text, position, separatorLength)
+                       : IsEndSeparatorValid(text, position, separatorLength));
         }
 
-        private bool IsBeginSeparatorValid(string text, int position)
+        public bool IsSeparatorValid(string text, int position, bool isFirst, int separatorLength,
+            string parentSeparator)
         {
-            return position < text.Length - 1 && !char.IsWhiteSpace(text[position + 1]);
+            if (position < text.Length - 1 && text.Substring(position, 2) == "__" && parentSeparator == "_")
+            {
+                return false;
+            }
+
+            return IsSeparatorValid(text, position, isFirst, separatorLength);
         }
 
-        private bool IsEndSeparatorValid(string text, int position)
+        private bool IsBeginSeparatorValid(string text, int position, int separatorLength)
+        {
+            return position < text.Length - separatorLength && !char.IsWhiteSpace(text[position + separatorLength]);
+        }
+
+        private bool IsEndSeparatorValid(string text, int position, int separatorLength)
         {
             return position > 0 && !char.IsWhiteSpace(text[position - 1]);
         }

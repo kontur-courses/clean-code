@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Linq;
 
 namespace Markdown.Extensions
 {
@@ -13,6 +14,22 @@ namespace Markdown.Extensions
             if (position > 0 && position < text.Length - 1)
                 return new[] {text[position - 1], text[position + 1]};
             return position == 0 ? new[] {text[position + 1]} : new[] {text[position - 1]};
+        }
+
+        public static char[] GetNeighborsOfSubstring(this string text, int startPosition, int endPosition)
+        {
+            if (startPosition == 0)
+            {
+                return new[] {GetNeighborsOfSymbol(text, endPosition).Last()};
+            }
+
+            if (endPosition == text.Length - 1)
+            {
+                return new[] {GetNeighborsOfSymbol(text, startPosition).First()};
+            }
+
+            return new[]
+                {GetNeighborsOfSymbol(text, endPosition).Last(), GetNeighborsOfSymbol(text, startPosition).First()};
         }
     }
 }

@@ -6,7 +6,7 @@ namespace Markdown.Tokenization
 {
     public class MarkdownTokenReaderConfiguration : ITokenReaderConfiguration
     {
-        private static readonly HashSet<string> Separators = new HashSet<string> {"_", "\\_"};
+        private static readonly HashSet<string> Separators = new HashSet<string> {"_", "\\_", "__", "\\__"};
 
         public bool IsSeparator(string text, int position)
         {
@@ -19,7 +19,10 @@ namespace Markdown.Tokenization
         public int GetSeparatorLength(string text, int position)
         {
             CheckIfPositionIsCorrect(text, position);
-            return Separators.OrderBy(s => s.Length).First(s => text.Substring(position, s.Length) == s).Length;
+            return Separators.OrderByDescending(s => s.Length)
+                .Where(s => s.Length <= text.Length - position)
+                .First(s => text.Substring(position, s.Length) == s)
+                .Length;
         }
 
         public string GetSeparatorValue(string text, int position)

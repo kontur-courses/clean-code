@@ -61,6 +61,11 @@
   <ItemGroup>
     <Compile Include="Extensions\StringExtensions.cs" />
     <Compile Include="Converters\IConverter.cs" />
+    <Compile Include="Properties\Resources.Designer.cs">
+      <AutoGen>True</AutoGen>
+      <DesignTime>True</DesignTime>
+      <DependentUpon>Resources.resx</DependentUpon>
+    </Compile>
     <Compile Include="Rules\IRules.cs" />
     <Compile Include="SeparatorConverters\ISeparatorConverter.cs" />
     <Compile Include="SeparatorConverters\MarkdownToHtmlSeparatorConverter.cs" />
@@ -86,9 +91,16 @@
     <Compile Include="Tokenization\TokenReader.cs" />
   </ItemGroup>
   <ItemGroup>
+    <None Include="markdown_test_file_avg.text" />
+    <None Include="markdown_test_file_big.text" />
     <None Include="packages.config" />
   </ItemGroup>
-  <ItemGroup />
+  <ItemGroup>
+    <EmbeddedResource Include="Properties\Resources.resx">
+      <Generator>ResXFileCodeGenerator</Generator>
+      <LastGenOutput>Resources.Designer.cs</LastGenOutput>
+    </EmbeddedResource>
+  </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <Target Name="EnsureNuGetPackageBuildImports" BeforeTargets="PrepareForBuild">
     <PropertyGroup>

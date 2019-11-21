@@ -12,6 +12,8 @@ namespace Markdown.SeparatorConverters
             {
                 case "_":
                     return GetTokenFormatsForUnderscore(tokensCount);
+                case "__":
+                    return GetTokenFormatsForDoubleUnderscore(tokensCount);
                 default:
                     throw new NotImplementedException();
             }
@@ -19,13 +21,27 @@ namespace Markdown.SeparatorConverters
 
         private List<string> GetTokenFormatsForUnderscore(int tokensCount)
         {
-            if (tokensCount <= 1)
+            return GetTokenFormatsForPairedHtmlTag(tokensCount, "em");
+
+        }
+
+        private List<string> GetTokenFormatsForDoubleUnderscore(int tokensCount)
+        {
+            return GetTokenFormatsForPairedHtmlTag(tokensCount, "strong");
+        }
+
+        private List<string> GetTokenFormatsForPairedHtmlTag(int tokensCount, string tagName)
+        {
+            switch (tokensCount)
             {
-                return new List<string> {"<em>{0}</em>"};
+                case 0:
+                    return new List<string>();
+                case 1:
+                    return new List<string> { $"<{tagName}>{{0}}</{tagName}>" };
+                default:
+                    return Enumerable.Repeat("{0}", tokensCount - 2).Prepend($"<{tagName}>{{0}}").Append($"{{0}}</{tagName}>")
+                        .ToList();
             }
-
-            return Enumerable.Repeat("{0}", tokensCount - 2).Prepend("<em>{0}").Append("{0}</em>").ToList();
-
         }
     }
 }
