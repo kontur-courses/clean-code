@@ -1,15 +1,25 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+using System.IO;
 
 namespace Markdown
 {
     public class Program
     {
-        static void Main(string[] args)
+        private static void Main(string[] args)
         {
+            var md = new Md();
+            using (var reader = new StreamReader(Path.Combine("..", "..", "MarkDownSpec.md" )))
+            {
+                var content = reader.ReadToEnd();
+                var paragraphs = content.Split(new []{"\r\n\r\n"}, StringSplitOptions.None);
+                using (var writer = new StreamWriter(Path.Combine("..", "..", "SpecResult.html")))
+                {
+                    foreach (var paragraph in paragraphs)
+                    { 
+                        writer.Write(md.Render(paragraph));
+                    }
+                }
+            }
         }
     }
 }

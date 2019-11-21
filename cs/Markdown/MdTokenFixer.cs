@@ -1,5 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Linq;
 
 namespace Markdown
@@ -11,6 +10,7 @@ namespace Markdown
         {
             var correctTokens = FilterIncorrectTokens(tokens);
             var fixedTokens = FilterNonMatchingPairTokens(correctTokens);
+            fixedTokens.Add(new Token(TokenType.Text, "\n"));
             return fixedTokens;
         }
 
@@ -80,17 +80,20 @@ namespace Markdown
 
         private bool IsFirstPairToken(PairToken token, Token prevToken, Token nextToken)
         {
-            var expr = (prevToken == null ||
-                        prevToken is PairToken pairToken && pairToken.IsFirst ||
-                        char.IsWhiteSpace(prevToken.GetLastContentChar()) &&
-                        nextToken != null && !char.IsWhiteSpace(nextToken.GetFirstContentChar()));
+            var expr = prevToken == null ||
+                       prevToken is PairToken pairToken && pairToken.IsFirst ||
+                       char.IsWhiteSpace(prevToken.GetLastContentChar()) ||
+                       char.IsPunctuation(prevToken.GetLastContentChar()) &&
+                       nextToken != null && !char.IsWhiteSpace(nextToken.GetFirstContentChar());
             return expr;
         }
 
         private bool IsSecondPairToken(PairToken token, Token prevToken, Token nextToken)
         {
-            var expr = (nextToken == null ||
-                        char.IsWhiteSpace(nextToken.GetFirstContentChar())) || nextToken.Type != TokenType.Text ||
+            var expr = nextToken == null ||
+                       char.IsWhiteSpace(nextToken.GetFirstContentChar()) ||
+                       char.IsPunctuation(nextToken.GetFirstContentChar()) ||
+                       nextToken.Type != TokenType.Text ||
                        (prevToken is PairToken pairToken && !pairToken.IsFirst) &&
                        prevToken != null && !char.IsWhiteSpace(prevToken.GetLastContentChar());
             return expr;
