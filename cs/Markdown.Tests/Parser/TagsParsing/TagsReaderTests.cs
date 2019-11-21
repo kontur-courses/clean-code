@@ -11,8 +11,10 @@ namespace Markdown.Tests.Parser.TagsParsing
 {
     public class TagsReaderTests
     {
-        private readonly List<MarkdownTag> tags = new List<MarkdownTag> {new ItalicTag(), new BoldTag()};
-        private readonly CharClassifier classifier = new CharClassifier(tags.SelectMany(t => t.String));
+        private static readonly ItalicTag italic = new ItalicTag();
+        private static readonly BoldTag bold = new BoldTag();
+        private static readonly List<MarkdownTag> tags = new List<MarkdownTag> { italic, bold };
+        private static readonly CharClassifier classifier = new CharClassifier(tags.SelectMany(t => t.String));
 
         private TagsReader GetReader(string markdown)
         {
