@@ -3,7 +3,7 @@ using System.Linq;
 
 namespace Markdown
 {
-    internal static class TagStreamRedactor
+    internal static class TagStreamExtensions
     {
         public static IEnumerable<Tag> RemoveEscapedTags(this IEnumerable<Tag> tags, string inputString)
         {
