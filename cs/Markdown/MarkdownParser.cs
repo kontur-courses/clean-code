@@ -4,8 +4,7 @@ namespace Markdown
 {
     public class MarkdownParser : IMarkdownParser
     {
-        private TokenInfo tokenInfo;
-
+        private readonly TokenInfo tokenInfo;
         private List<int> currentPositionsByDepth = new List<int> {0}; // position skips tags length!
         private int depth;
         private RootToken rootToken = new RootToken();

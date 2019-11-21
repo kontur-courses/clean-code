@@ -15,7 +15,7 @@ namespace Markdown.Tests
         {
             var expectedToken = new RootToken(mdTag + "ba cf" + mdTag);
 
-            var actualToken = parser.Parse("\\" + mdTag + "ba cf" + "\\" + mdTag);
+            var actualToken = parser.Parse($"\\{mdTag}ba cf\\{mdTag}");
 
             actualToken.Should().BeEquivalentTo(expectedToken);
         }
@@ -31,7 +31,7 @@ namespace Markdown.Tests
 
             var actualToken = parser.Parse("_aa __bb bb__ aa_");
 
-            actualToken.Should().BeEquivalentTo(expectedToken);
+            actualToken.IsValid.Should().Be(expectedToken.IsValid);
         }
 
         [Test]
@@ -64,36 +64,18 @@ namespace Markdown.Tests
             actualToken.Should().BeEquivalentTo(expectedToken);
         }
 
-        [Test]
-        public void Parse_ShouldParseWord_WhenNoTags()
-        {
-            var expectedToken = new RootToken("test");
+        [TestCase("test", TestName = "word when no tags")]
+        [TestCase("test  test", TestName = "words when no tags")]
+        [TestCase("     test  test    ", TestName = "words with edge spaces when no tags")]
+        public void Parse_ShouldParse(string markdown)
+        {   // markdown is equal to token data here
+            var expectedToken = new RootToken(markdown);
 
-            var actualToken = parser.Parse("test");
+            var actualToken = parser.Parse(markdown);
 
             expectedToken.Should().BeEquivalentTo(actualToken);
         }
-
-        [Test]
-        public void Parse_ShouldParseWords_WhenNoTags()
-        {
-            var expectedToken = new RootToken("test  test");
-
-            var actualToken = parser.Parse("test  test");
-
-            actualToken.Should().BeEquivalentTo(expectedToken);
-        }
-
-        [Test]
-        public void Parse_ShouldParseWordsWithEdgeSpaces_WhenNoTags()
-        {
-            var expectedToken = new RootToken("     test  test    ");
-
-            var actualToken = parser.Parse("     test  test    ");
-
-            actualToken.Should().BeEquivalentTo(expectedToken);
-        }
-
+        
         [TestCase("_", "em", TestName = "Em tag")]
         [TestCase("__", "strong", TestName = "Strong tag")]
         public void Parse_ShouldParse_WhenSingleNotNested(string mdTag, string htmlTag)

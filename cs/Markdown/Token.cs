@@ -1,11 +1,10 @@
-using System;
 using System.Collections.Generic;
 using System.Text;
 
 namespace Markdown
 {
     public class Token
-    {
+    { 
         internal List<Token> NestedTokens { get; } = new List<Token>();
         internal string MdTag { get; }
         internal string HtmlTagName { get; }
@@ -62,7 +61,7 @@ namespace Markdown
             {
                 var tempToken = NestedTokens[NestedTokens.Count - 1 - i];
                 stringBuilder.Insert(tempToken.Position, tempToken.ToHtml()); //should be pos not 0
-                Console.WriteLine(stringBuilder.ToString());
+                //Console.WriteLine(stringBuilder.ToString());
             }
 
             if (IsValid && IsClosed)
@@ -76,8 +75,7 @@ namespace Markdown
                 if (IsClosed)
                     stringBuilder.Append(MdTag);
             }
-
-
+            
             return stringBuilder.ToString();
         }
 
