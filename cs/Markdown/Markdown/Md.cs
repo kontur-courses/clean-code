@@ -14,7 +14,9 @@ namespace Markdown
         {
             elementSigns = new Dictionary<string, MdElement>();
             AddElement(new MdElement("_", "<em>", true));
-            AddElement(new MdElement("*", "<strong>", true));
+            AddElement(new MdElement("*", "<em>", true));
+            AddElement(new MdElement("__", "<strong>", true));
+            AddElement(new MdElement("**", "<strong>", true));
             tokenizer = new Tokenizer(elementSigns);
         }
 
