@@ -71,27 +71,28 @@ namespace Markdown
 
         private IEnumerable<IToken> RemoveNonPairDelimiters(IEnumerable<IToken> tokens)
         {
-            var stack = new Stack<PairToken>();
-            var validTokens = new List<IToken>();
+            var openingTokens = new Stack<PairToken>();
+            var validTokens = new LinkedList<IToken>();
+
             foreach (var token in tokens)
                 if (token is PairToken pairToken)
-                    ProcessTokenOnPairMatching(pairToken, stack, validTokens);
+                    ProcessTokenOnPairMatching(pairToken, openingTokens, validTokens);
                 else
-                    validTokens.Add(token);
+                    AddPairTokenToLinkedList(validTokens, token);
 
-            return validTokens.OrderBy(token => token.Position);
+            return validTokens;
         }
 
         private void ProcessTokenOnPairMatching(PairToken pairToken, Stack<PairToken> openingTokens,
-            List<IToken> listToAdd)
+            LinkedList<IToken> listToAdd)
         {
             if (pairToken.IsClosing && openingTokens.Count > 0 && !openingTokens.Peek().IsClosing)
             {
                 var openToken = openingTokens.Pop();
                 if (openToken.Type == pairToken.Type)
                 {
-                    listToAdd.Add(openToken);
-                    listToAdd.Add(pairToken);
+                    AddPairTokenToLinkedList(listToAdd, openToken);
+                    AddPairTokenToLinkedList(listToAdd, pairToken);
                 }
                 else
                 {
@@ -109,7 +110,7 @@ namespace Markdown
 
         private IEnumerable<IToken> MergeAdjacentEmphasisDelimiters(IEnumerable<IToken> tokens)
         {
-            var resultTokens = new List<IToken>();
+            var resultTokens = new LinkedList<IToken>();
             var openingTokens = new Stack<PairToken>();
             var nonMergeableOpeningTokens = new Stack<PairToken>();
             PairToken lastOpeningToken = null;
@@ -133,49 +134,65 @@ namespace Markdown
                     }
                     else
                     {
-                        if (lastOpeningToken != null)
-                        {
-                            resultTokens.Add(lastOpeningToken);
-                            resultTokens.Add(pairToken);
-                            lastOpeningToken = null;
-                            continue;
-                        }
-
-                        if (lastClosingToken == null)
-                        {
-                            if (IsClosingTokenPairForNonMergeableToken(nonMergeableOpeningTokens, openingTokens))
-                            {
-                                lastClosingToken = pairToken;
-                            }
-                            else
-                            {
-                                resultTokens.Add(nonMergeableOpeningTokens.Pop());
-                                resultTokens.Add(pairToken);
-                            }
-                        }
-                        else
-                        {
-                            lastClosingToken =
-                                TryMergeClosingTokens(resultTokens, openingTokens, lastClosingToken, pairToken)
-                                    ? null
-                                    : pairToken;
-                        }
+                        ProcessClosingTokenForMerging(
+                            resultTokens, 
+                            nonMergeableOpeningTokens, 
+                            openingTokens,
+                            pairToken, 
+                            ref lastOpeningToken, 
+                            ref lastClosingToken);
                     }
                 }
                 else
                 {
-                    resultTokens.Add(token);
+                    AddPairTokenToLinkedList(resultTokens, token);
                 }
 
             if (lastOpeningToken != null)
-                resultTokens.Add(lastOpeningToken);
+                AddPairTokenToLinkedList(resultTokens, lastOpeningToken);
             if (lastClosingToken != null)
-                resultTokens.Add(lastClosingToken);
+                AddPairTokenToLinkedList(resultTokens, lastClosingToken);
+            foreach (var leftToken in openingTokens)
+                AddPairTokenToLinkedList(resultTokens, leftToken);
 
-            while (openingTokens.Count > 0)
-                resultTokens.Add(openingTokens.Pop());
+            return resultTokens;
+        }
 
-            return resultTokens.OrderBy(token => token.Position);
+        private void ProcessClosingTokenForMerging(
+            LinkedList<IToken> listToAdd, 
+            Stack<PairToken> nonMergeableOpeningTokens,
+            Stack<PairToken> mergeableOpeningTokens,
+            PairToken currentClosingToken,
+            ref PairToken lastOpeningToken, 
+            ref PairToken lastClosingToken)
+        {
+            if (lastOpeningToken != null)
+            {
+                AddPairTokenToLinkedList(listToAdd, lastOpeningToken);
+                AddPairTokenToLinkedList(listToAdd, currentClosingToken);
+
+                lastOpeningToken = null;
+                return;
+            }
+            if (lastClosingToken == null)
+            {
+                if (IsClosingTokenPairForNonMergeableToken(nonMergeableOpeningTokens, mergeableOpeningTokens))
+                {
+                    lastClosingToken = currentClosingToken;
+                }
+                else
+                {
+                    AddPairTokenToLinkedList(listToAdd, nonMergeableOpeningTokens.Pop());
+                    AddPairTokenToLinkedList(listToAdd, currentClosingToken);
+                }
+            }
+            else
+            {
+                lastClosingToken =
+                    TryMergeClosingTokens(listToAdd, mergeableOpeningTokens, lastClosingToken, currentClosingToken)
+                        ? null
+                        : currentClosingToken;
+            }
         }
 
         private bool IsClosingTokenPairForNonMergeableToken(
@@ -204,7 +221,7 @@ namespace Markdown
         }
 
         private bool TryMergeClosingTokens(
-            List<IToken> listToAdd,
+            LinkedList<IToken> listToAdd,
             Stack<PairToken> mergeableOpeningTokens,
             PairToken lastClosingToken,
             PairToken closingToken)
@@ -212,22 +229,15 @@ namespace Markdown
             if (lastClosingToken.Position == closingToken.Position - 1)
             {
                 mergeableOpeningTokens.Pop();
-                listToAdd.Add(
-                    new PairToken(AttributeType.Strong,
-                        mergeableOpeningTokens.Pop().Position,
-                        false,
-                        2)
-                );
-                listToAdd.Add(
-                    new PairToken(AttributeType.Strong,
-                        lastClosingToken.Position,
-                        true,
-                        2)
-                );
+                var opening = new PairToken(AttributeType.Strong, mergeableOpeningTokens.Pop().Position, false, 2);
+                var closing = new PairToken(AttributeType.Strong, lastClosingToken.Position, true, 2);
+
+                AddPairTokenToLinkedList(listToAdd, opening);
+                AddPairTokenToLinkedList(listToAdd, closing);
                 return true;
             }
 
-            listToAdd.Add(lastClosingToken);
+            AddPairTokenToLinkedList(listToAdd, lastClosingToken);
             return false;
         }
 
@@ -235,7 +245,7 @@ namespace Markdown
             IEnumerable<IToken> tokens, params AttributeType[] typesToExclude)
         {
             var nestedTypeTokens = typesToExclude.ToDictionary(type => type, type => new Stack<PairToken>());
-            var result = new List<IToken>();
+            var result = new LinkedList<IToken>();
 
             foreach (var token in tokens)
                 if (token is PairToken pairToken && nestedTypeTokens.ContainsKey(token.Type))
@@ -253,29 +263,29 @@ namespace Markdown
                             pairToken,
                             out var nestedTokenPair))
                         {
-                            result.Add(nestedTokenPair.Item1);
-                            result.Add(nestedTokenPair.Item2);
+                            AddPairTokenToLinkedList(result, nestedTokenPair.OpeningToken);
+                            AddPairTokenToLinkedList(result, nestedTokenPair.ClosingToken);
                         }
                         else
                         {
-                            result.Add(openingToken);
-                            result.Add(token);
+                            AddPairTokenToLinkedList(result, openingToken);
+                            AddPairTokenToLinkedList(result, token);
                         }
                     }
                 }
                 else
                 {
-                    result.Add(token);
+                    AddPairTokenToLinkedList(result, token);
                 }
 
-            return result.OrderBy(token => token.Position);
+            return result;
         }
 
         private bool TryToCreatePairOfNestedTokens(
             Dictionary<AttributeType, Stack<PairToken>> nestedTypeTokens,
             PairToken openingToken,
             PairToken closingToken,
-            out (IToken, IToken) nestedTokenPair)
+            out (IToken OpeningToken, IToken ClosingToken) nestedTokenPair)
         {
             if (nestedTypeTokens[closingToken.Type].Count > 0)
             {
@@ -299,181 +309,162 @@ namespace Markdown
 
         private IEnumerable<IToken> AddValidLinkTokens(IEnumerable<IToken> tokens, string source)
         {
-            PairToken openingHeader = null;
-            PairToken closingHeader = null;
-            PairToken openingDescription = null;
+            var linkComponents = new LinkComponents();
             var openingHeaders = new Stack<PairToken>();
-            var result = new List<IToken>();
+            var result = new LinkedList<IToken>();
+
             foreach (var token in tokens)
                 if (token is PairToken pairToken)
                 {
-                    if (openingHeader == null)
-                        ProcessTokenToMatchOpeningLinkHeader(result, pairToken, ref openingHeader);
-                    else if (closingHeader == null)
-                        ProcessTokenToMatchClosingLinkHeader(
-                            result,
-                            openingHeaders,
-                            pairToken,
-                            ref openingHeader,
-                            ref closingHeader);
-                    else if (openingDescription == null)
-                        ProcessTokenToMatchOpeningLinkDescription(
-                            openingHeaders,
-                            pairToken,
-                            ref openingHeader,
-                            ref closingHeader,
-                            ref openingDescription);
+                    if (linkComponents.OpeningHeader == null)
+                        ProcessTokenToMatchOpeningLinkHeader(result, pairToken, linkComponents);
+                    else if (linkComponents.ClosingHeader == null)
+                        ProcessTokenToMatchClosingLinkHeader(result, openingHeaders, pairToken, linkComponents);
+                    else if (linkComponents.OpeningDescription == null)
+                        ProcessTokenToMatchOpeningLinkDescription(openingHeaders, pairToken, linkComponents);
                     else
-                        ProcessTokenToMatchClosingLinkDescription(
-                            result,
-                            source,
-                            pairToken,
-                            ref openingHeader,
-                            ref closingHeader,
-                            ref openingDescription);
+                        ProcessTokenToMatchClosingLinkDescription(result,source, pairToken, linkComponents);
                 }
                 else
                 {
-                    if (openingDescription == null)
-                        result.Add(token);
+                    if (linkComponents.OpeningDescription == null)
+                        AddPairTokenToLinkedList(result, token);
                 }
 
-            return result.OrderBy(token => token.Position);
+            return result;
         }
 
         private void ProcessTokenToMatchOpeningLinkHeader(
-            List<IToken> listToAdd, PairToken currentToken, ref PairToken openingHeader)
+            LinkedList<IToken> listToAdd, PairToken currentToken, LinkComponents linkComponents)
         {
             if (currentToken.Type == AttributeType.LinkHeader && !currentToken.IsClosing)
             {
-                openingHeader = currentToken;
+                linkComponents.OpeningHeader = currentToken;
             }
             else
             {
                 if (currentToken.Type != AttributeType.LinkDescription && currentToken.Type != AttributeType.LinkHeader)
-                    listToAdd.Add(currentToken);
+                    AddPairTokenToLinkedList(listToAdd, currentToken);
             }
         }
 
         private void ProcessTokenToMatchClosingLinkHeader(
-            List<IToken> listToAdd,
-            Stack<PairToken> openingHeaders,
-            PairToken currentToken,
-            ref PairToken openingHeader,
-            ref PairToken closingHeader)
+            LinkedList<IToken> listToAdd, Stack<PairToken> openingHeaders, PairToken currentToken, LinkComponents linkComponents)
         {
             if (currentToken.Type == AttributeType.LinkHeader)
             {
                 if (currentToken.IsClosing)
                 {
-                    closingHeader = currentToken;
+                    linkComponents.ClosingHeader = currentToken;
                 }
                 else
                 {
-                    openingHeaders.Push(openingHeader);
-                    openingHeader = currentToken;
+                    openingHeaders.Push(linkComponents.OpeningHeader);
+                    linkComponents.OpeningHeader = currentToken;
                 }
             }
             else
             {
                 if (currentToken.Type != AttributeType.LinkDescription && currentToken.Type != AttributeType.LinkHeader)
-                    listToAdd.Add(currentToken);
+                    AddPairTokenToLinkedList(listToAdd, currentToken);
             }
         }
 
         private void ProcessTokenToMatchOpeningLinkDescription(
-            Stack<PairToken> openingHeaders,
-            PairToken currentToken,
-            ref PairToken openingHeader,
-            ref PairToken closingHeader,
-            ref PairToken openingDescription)
+            Stack<PairToken> openingHeaders, PairToken currentToken, LinkComponents linkComponents)
         {
             if (currentToken.Type == AttributeType.LinkHeader)
             {
                 if (!currentToken.IsClosing)
                 {
-                    openingHeader = currentToken;
-                    closingHeader = null;
+                    linkComponents.OpeningHeader = currentToken;
+                    linkComponents.ClosingHeader = null;
                 }
                 else
                 {
                     if (openingHeaders.Count <= 0)
                         return;
-                    openingHeader = openingHeaders.Pop();
-                    closingHeader = currentToken;
+                    linkComponents.OpeningHeader = openingHeaders.Pop();
+                    linkComponents.ClosingHeader = currentToken;
                 }
             }
             else if (currentToken.Type == AttributeType.LinkDescription)
             {
                 if (!currentToken.IsClosing)
                 {
-                    if (closingHeader.Position == currentToken.Position - 1)
+                    if (linkComponents.ClosingHeader.Position == currentToken.Position - 1)
                     {
-                        openingDescription = currentToken;
+                        linkComponents.OpeningDescription = currentToken;
                     }
                     else
                     {
-                        openingHeader = openingHeaders.Count > 0 ? openingHeaders.Pop() : null;
-                        closingHeader = null;
+                        linkComponents.OpeningHeader = openingHeaders.Count > 0 ? openingHeaders.Pop() : null;
+                        linkComponents.ClosingHeader = null;
                     }
                 }
             }
             else
             {
-                openingHeader = openingHeaders.Count > 0 ? openingHeaders.Pop() : null;
-                closingHeader = null;
+                linkComponents.OpeningHeader = openingHeaders.Count > 0 ? openingHeaders.Pop() : null;
+                linkComponents.ClosingHeader = null;
             }
         }
 
         private void ProcessTokenToMatchClosingLinkDescription(
-            List<IToken> listToAdd,
-            string textSource,
-            PairToken currentToken,
-            ref PairToken openingHeader,
-            ref PairToken closingHeader,
-            ref PairToken openingDescription)
+            LinkedList<IToken> listToAdd, string textSource, PairToken currentToken, LinkComponents linkComponents)
         {
             if (currentToken.Type == AttributeType.LinkDescription)
                 if (currentToken.IsClosing)
                 {
-                    var linkTokens = CreatePairOfLinkTokens(
-                        textSource, 
-                        openingHeader, 
-                        closingHeader,
-                        openingDescription,
-                        currentToken
-                        );
-
-                    listToAdd.Add(linkTokens.Item1);
-                    listToAdd.Add(linkTokens.Item2);
-                    openingHeader = null;
-                    closingHeader = null;
-                    openingDescription = null;
+                    linkComponents.ClosingDescription = currentToken;
+                    var linkTokens = CreatePairOfLinkTokens(textSource, linkComponents);
+                    AddPairTokenToLinkedList(listToAdd, linkTokens.OpeningLink);
+                    AddPairTokenToLinkedList(listToAdd, linkTokens.ClosingLink);
+                    linkComponents.OpeningHeader = null;
+                    linkComponents.ClosingHeader = null;
+                    linkComponents.OpeningDescription = null;
+                    linkComponents.ClosingDescription = null;
                 }
         }
 
-        private (LinkToken, LinkToken) CreatePairOfLinkTokens(
-            string textSource,
-            PairToken openingHeader,
-            PairToken closingHeader,
-            PairToken openingDescription,
-            PairToken closingDescription)
+        private (LinkToken OpeningLink, LinkToken ClosingLink) CreatePairOfLinkTokens(
+            string textSource, LinkComponents linkComponents)
         {
+            if (linkComponents.OpeningHeader == null || linkComponents.ClosingHeader == null 
+                || linkComponents.OpeningDescription == null || linkComponents.ClosingDescription == null)
+                throw new NullReferenceException("One of the link components is null");
+
             return (new LinkToken(
-                        openingHeader.Position,
+                        linkComponents.OpeningHeader.Position,
                         1,
                         textSource
                             .Substring(
-                                openingDescription.Position + 1,
-                                closingDescription.Position - openingDescription.Position - 1
+                                linkComponents.OpeningDescription.Position + 1,
+                                linkComponents.ClosingDescription.Position - linkComponents.OpeningDescription.Position - 1
                             )
                     ),
                     new LinkToken(
-                        closingHeader.Position,
-                        closingDescription.Position - openingDescription.Position + 2,
+                        linkComponents.ClosingHeader.Position,
+                        linkComponents.ClosingDescription.Position - linkComponents.OpeningDescription.Position + 2,
                         null
                         )
                 );
+        }
+
+        private void AddPairTokenToLinkedList(LinkedList<IToken> list, IToken token)
+        {
+            if (list.Count == 0 || token.Position > list.Last.Value.Position)
+                list.AddLast(token);
+            else
+                list.AddFirst(token);
+        }
+
+        private class LinkComponents
+        {
+            public PairToken OpeningHeader;
+            public PairToken ClosingHeader;
+            public PairToken OpeningDescription;
+            public PairToken ClosingDescription;
         }
     }
 }
