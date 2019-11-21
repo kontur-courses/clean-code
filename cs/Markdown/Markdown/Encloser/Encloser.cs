@@ -67,7 +67,7 @@ namespace Markdown
                     continue;
                 }
                 var enclosedToken = encloserTokens[i];
-                if (enclosedToken == null || enclosedToken.Type == TokenType.Text || enclosedToken.Type == TokenType.WhiteSpace)
+                if (enclosedToken == null || initialTokens[i].Type != TokenType.MdElement)
                     result.Add(initialTokens[i]);
                 else
                 {

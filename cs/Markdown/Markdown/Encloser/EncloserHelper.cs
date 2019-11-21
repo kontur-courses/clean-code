@@ -37,13 +37,17 @@ namespace Markdown
         private bool IsEnclosingElement(Token[] curElement, Stack<EncloserToken> enclosing) =>
             curElement.All(token => token.MdPosition == MdPosition.Enclosing) && enclosing.Count != 0;
 
-        private void  EncloseOpenElement(int i, string sign, string elementString, bool[] vacant, EncloserToken[] encloserTokens)
+        private void  EncloseOpenElement(int i, string sign, string elementString,
+            bool[] vacant, EncloserToken[] encloserTokens)
         {
             var openElement = new EncloserToken(elementString, TokenType.MdElement,
                         MdPosition.Opening, i - sign.Length + 1, i + 1);
-            openElement.IsClosed = true;
-            encloserTokens[openElement.Start] = openElement;
-            TakeVacantPlaces(openElement.Start, openElement.End, vacant);
+            if (AreCellsVacant(openElement.Start, openElement.End, vacant))
+            {
+                openElement.IsClosed = true;
+                encloserTokens[openElement.Start] = openElement;
+                TakeVacantPlaces(openElement.Start, openElement.End, vacant);
+            }
         }
 
         private void PushElementForEnclosing(int i, string sign, string elementString, Stack<EncloserToken> enclosing) => 
