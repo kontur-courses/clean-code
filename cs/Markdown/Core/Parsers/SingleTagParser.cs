@@ -3,9 +3,9 @@ using System.Linq;
 using Markdown.Core.Rules;
 using Markdown.Core.Tags;
 
-namespace Markdown.Core
+namespace Markdown.Core.Parsers
 {
-    class SingleTagParser
+    class SingleTagParser : IParser
     {
         private readonly List<ISingleTag> tags;
 

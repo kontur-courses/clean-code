@@ -3,9 +3,9 @@ using System.Linq;
 using Markdown.Core.Rules;
 using Markdown.Core.Tags;
 
-namespace Markdown.Core
+namespace Markdown.Core.Parsers
 {
-    class DoubleTagParser
+    class DoubleTagParser : IParser
     {
         private IEnumerable<IDoubleTag> tags;
 
@@ -22,7 +22,7 @@ namespace Markdown.Core
 
         private bool IsSkippedTag(string line, int index) => index != 0 && line[index - 1] == '\\';
 
-        public List<TagToken> Parse(string line)
+        public List<TagToken> ParseLine(string line)
         {
             var result = new List<TagToken>();
             if (line == null)
@@ -30,7 +30,7 @@ namespace Markdown.Core
 
             var tagTokenStack = new Stack<TagToken>();
             var index = 0;
-            while(index < line.Length)
+            while (index < line.Length)
             {
                 var currentTag = tags.FirstOrDefault(tag => IsSuitableTag(tag, line, index));
                 if (currentTag == null)

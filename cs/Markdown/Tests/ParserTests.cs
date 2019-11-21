@@ -2,6 +2,7 @@
 using FluentAssertions;
 using NUnit.Framework;
 using Markdown.Core;
+using Markdown.Core.Parsers;
 using Markdown.Core.Rules;
 
 namespace Markdown.Tests
@@ -9,12 +10,12 @@ namespace Markdown.Tests
     [TestFixture]
     class ParserTests
     {
-        private Parser parser;
+        private MainParser mainParser;
 
         [SetUp]
         public void SetUp()
         {
-            parser = new Parser(RuleFactory.CreateAllRules());
+            mainParser = new MainParser(RuleFactory.CreateAllRules());
         }
 
         [TestCase("_foo_ __bar__", 4, TestName = "WhenTwoTagsInSeries")]
@@ -27,7 +28,7 @@ namespace Markdown.Tests
         [TestCase("1_234_", 0, TestName = "WhenInsideLineWithNumbers")]
         public void ParseLine_ShouldFindAllTokens(string line, int expectedCount)
         {
-            parser.ParseLine(line).Should().HaveCount(expectedCount);
+            mainParser.ParseLine(line).Should().HaveCount(expectedCount);
         }
 
         [TestCase("_foo_", "SingleUnderscore", "SingleUnderscore", TestName = "WhenSingleUnderscore")]
@@ -38,7 +39,8 @@ namespace Markdown.Tests
         [TestCase("__a_", TestName = "WhenUnpairedTags")]
         public void ParseLine_ShouldFindCorrectTags(string line, params string[] expectedTags)
         {
-            parser.ParseLine(line).Select(tagToken => tagToken.Tag.GetType().Name).Should().BeEquivalentTo(expectedTags);
+            mainParser.ParseLine(line).Select(tagToken => tagToken.Tag.GetType().Name).Should()
+                .BeEquivalentTo(expectedTags);
         }
 
         [TestCase("_a_", 0, 2, TestName = "WhenSingleUnderscore")]
@@ -46,7 +48,8 @@ namespace Markdown.Tests
         [TestCase("_a __f__ s_", 0, 3, 6, 10, TestName = "WhenDoubleEmbeddedInSingle")]
         public void ParseLine_ShouldFindCorrectPositions(string line, params int[] expectedPositions)
         {
-            parser.ParseLine(line).Select(tagToken => tagToken.StartPosition).Should().BeEquivalentTo(expectedPositions);
+            mainParser.ParseLine(line).Select(tagToken => tagToken.StartPosition).Should()
+                .BeEquivalentTo(expectedPositions);
         }
     }
 }

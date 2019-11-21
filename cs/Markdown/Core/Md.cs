@@ -1,5 +1,6 @@
 ﻿using System.Collections.Generic;
 using System.Text;
+using Markdown.Core.Parsers;
 using Markdown.Core.Rules;
 
 namespace Markdown.Core
@@ -10,7 +11,7 @@ namespace Markdown.Core
         {
             var rules = RuleFactory.CreateAllRules();
             var renderedLines = new List<string>();
-            var parser = new Parser(rules);
+            var parser = new MainParser(rules);
             var render = new Render(rules);
             var escapedText = EscapeSpecialSymbols(markdown);
             foreach (var line in escapedText.Split('\n'))
