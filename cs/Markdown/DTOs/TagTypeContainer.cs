@@ -1,4 +1,6 @@
-﻿namespace Markdown
+﻿using Markdown.Tags;
+
+namespace Markdown.DTOs
 {
     public enum TagTypeEnum
     {
@@ -16,15 +18,15 @@
 
     public class TagTypeContainer
     {
-        public int position;
-        public ITag Tag;
+        public readonly int position;
+        public readonly ITag Tag;
         public TagTypeEnum TagType => Tag.TagType;
         public TagClassEnum TagClass => Tag.TagClass;
         public int Length => Tag.Length;
 
-        public TagTypeContainer(ITag tag, bool TagClass, int position)
+        public TagTypeContainer(ITag tag, bool tagClass, int position)
         {
-            switch (TagClass)
+            switch (tagClass)
             {
                 case true:
                     tag.TagClass = TagClassEnum.Closer;
