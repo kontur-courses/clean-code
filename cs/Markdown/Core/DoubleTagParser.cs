@@ -29,10 +29,15 @@ namespace Markdown.Core
                 return result;
 
             var tagTokenStack = new Stack<TagToken>();
-            for (var index = 0; index < line.Length; index++)
+            var index = 0;
+            while(index < line.Length)
             {
                 var currentTag = tags.FirstOrDefault(tag => IsSuitableTag(tag, line, index));
-                if (currentTag == null) continue;
+                if (currentTag == null)
+                {
+                    index++;
+                    continue;
+                }
 
                 if (DoubleTagValidator.IsPossibleOpeningTag(line, index, currentTag))
                 {
@@ -48,13 +53,17 @@ namespace Markdown.Core
                             result.Add(deletedTag);
                     }
 
-                    if (tagTokenStack.Count == 0) continue;
+                    if (tagTokenStack.Count == 0)
+                    {
+                        index++;
+                        continue;
+                    }
 
                     result.Add(tagTokenStack.Pop());
                     result.Add(new TagToken(index, currentTag, currentTag.Closing, false, IsSkippedTag(line, index)));
                 }
 
-                index += currentTag.Opening.Length - 1;
+                index += currentTag.Opening.Length;
             }
 
             return result.Concat(tagTokenStack.Where(token => token.IsSkipped)).ToList();
