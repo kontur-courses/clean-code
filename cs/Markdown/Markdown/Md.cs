@@ -7,14 +7,14 @@ namespace Markdown
 {
     public class Md
     {
-        public Dictionary<char, MdElement> elementSigns;
+        public Dictionary<string, MdElement> elementSigns;
         private Tokenizer tokenizer;
 
         public Md()
         {
-            elementSigns = new Dictionary<char, MdElement>();
-            AddElement(new MdElement('_', "<em>", true));
-            AddElement(new MdElement('*', "<strong>", true));
+            elementSigns = new Dictionary<string, MdElement>();
+            AddElement(new MdElement("_", "<em>", true));
+            AddElement(new MdElement("*", "<strong>", true));
             tokenizer = new Tokenizer(elementSigns);
         }
 

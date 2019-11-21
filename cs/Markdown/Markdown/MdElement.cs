@@ -6,13 +6,13 @@ namespace Markdown
     {
         public bool IsEnclosed;
 
-        public char MdTag;
+        public string MdTag;
 
         public string HtmlTag;
 
         public string HtmlTagClose;
 
-        public MdElement(char mdTag, string htmlTag, bool isEnclosed)
+        public MdElement(string mdTag, string htmlTag, bool isEnclosed)
         {
             IsEnclosed = isEnclosed;
             MdTag = mdTag;
