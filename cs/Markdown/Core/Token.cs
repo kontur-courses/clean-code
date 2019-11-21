@@ -1,4 +1,6 @@
-﻿namespace Markdown.Core
+﻿using System;
+
+namespace Markdown.Core
 {
     class Token
     {
@@ -8,6 +10,8 @@
 
         public Token(int startPosition, string value)
         {
+            if (startPosition < 0)
+                throw new ArgumentException("start position must be non-negative");
             StartPosition = startPosition;
             Value = value;
         }
