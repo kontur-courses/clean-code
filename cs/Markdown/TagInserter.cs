@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Text;
 using System.Linq;
+using FluentAssertions.Common;
 
 namespace Markdown
 {
@@ -14,6 +15,7 @@ namespace Markdown
 
         public string Insert(string text, List<(int, Tag)> toInsert)
         {
+            toInsert.Sort((x, y) => x.Item1.CompareTo(y.Item1));
             StringBuilder outText = new StringBuilder();
             int currentTextIndex = 0;
             int currentTagsIndex = 0;
@@ -40,6 +42,14 @@ namespace Markdown
                     case Tag.StrongClose:
                         currentTextIndex += 2;
                         outText.Append("</strong>");
+                        break;
+                    case Tag.S:
+                        currentTextIndex += 2;
+                        outText.Append("<s>");
+                        break;
+                    case Tag.SClose:
+                        currentTextIndex += 2;
+                        outText.Append("</s>");
                         break;
                     case Tag.Backslash:
                         currentTextIndex ++;

@@ -35,6 +35,9 @@ namespace Markdown
                     case '(':
                         ProcessBracket(reader, lexemes, reader.Current());
                         break;
+                    case '~':
+                        ProcessTilda(reader, lexemes);
+                        break;
                     default:
                         ProcessLetter(reader, lexemes);
                         break;
@@ -102,6 +105,25 @@ namespace Markdown
             }
             reader.Next();
         }
+
+        private void ProcessTilda(InputReader reader, List<(int, LexType)> lexemes)
+        {
+            if (reader.PeekNext() != '~')
+                ProcessLetter(reader, lexemes);
+            else
+            {
+                reader.Next();
+                if (reader.PeekNext() != '~')
+                    lexemes.Add((reader.CurrentPosition - 1, LexType.DoubleTilda));
+                else
+                {
+                    lexemes.Add((reader.CurrentPosition - 1, LexType.Text));//обнаружили более двух тильд, считаем это просто текстом
+                    while (reader.PeekNext() == '~')
+                        reader.Next();
+                }
+                reader.Next();
+            }
+        }
     }
 
     public enum LexType
@@ -114,7 +136,8 @@ namespace Markdown
         SquareBracketOpen,
         SquareBracketClose,
         BracketOpen,
-        BracketClose
+        BracketClose,
+        DoubleTilda
 
     }
 }

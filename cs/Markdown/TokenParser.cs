@@ -32,10 +32,13 @@ namespace Markdown
                 switch (token.Item2)
                 {
                     case LexType.Underscore:
-                        ProcessUnderscore();
+                        ProcessTagWithUnderscoreLikeRules(Tag.Em, Tag.EmClose);
                         break;
                     case LexType.DoubleUnderscore:
-                        ProcessTwoUnderscores();
+                        ProcessTagWithUnderscoreLikeRules(Tag.Strong, Tag.StrongClose);
+                        break;
+                    case LexType.DoubleTilda:
+                        ProcessTagWithUnderscoreLikeRules(Tag.S, Tag.SClose);
                         break;
                     case LexType.Text:
                         break;
@@ -80,33 +83,6 @@ namespace Markdown
         private void ProcessTextWithBackslash()
         {
             Tags.Add((Tokens[Counter].Item1, Tag.Backslash));
-        }
-
-        private void ProcessUnderscore()
-        {
-            if (CheckDigits())
-                if (!OpenTags.Contains(Tag.Em))
-                {
-                    if (Counter == Tokens.Count - 1 || Tokens[Counter + 1].Item2 != LexType.Space)
-                    {
-                        OpenTags.Add(Tag.Em);
-                        TagStack.Push((Tokens[Counter].Item1, Tag.Em));
-                    }
-                }
-                else
-                {
-                    if (Tokens[Counter - 1].Item2 != LexType.Space)
-                    {
-                        while (TagStack.Peek().Item2 != Tag.Em)
-                        {
-                            OpenTags.Remove(TagStack.Peek().Item2);
-                            TagStack.Pop();
-                        }
-                        OpenTags.Remove(Tag.Em);
-                        Tags.Add(TagStack.Pop());
-                        Tags.Add((Tokens[Counter].Item1, Tag.EmClose));
-                    }
-                }
         }
 
         private void ProcessSquareBracketOpen()
@@ -159,32 +135,6 @@ namespace Markdown
             }
         }
 
-        private void ProcessTwoUnderscores()
-        {
-            if (!OpenTags.Contains(Tag.Strong))
-            {
-                if (Counter == Tokens.Count - 1 || Tokens[Counter + 1].Item2 != LexType.Space)
-                {
-                    OpenTags.Add(Tag.Strong);
-                    TagStack.Push((Tokens[Counter].Item1, Tag.Strong));
-                }
-            }
-            else
-            {
-                if (Tokens[Counter - 1].Item2 != LexType.Space)
-                {
-                    while (TagStack.Peek().Item2 != Tag.Strong)
-                    {
-                        OpenTags.Remove(TagStack.Peek().Item2);
-                        TagStack.Pop();
-                    }
-
-                    OpenTags.Remove(Tag.Strong);
-                    Tags.Add(TagStack.Pop());
-                    Tags.Add((Tokens[Counter].Item1, Tag.StrongClose));
-                }
-            }
-        }
 
         /* simple tag не взаимодействует с другими тегами
          * не имеет особых условий открытия или закрытия
@@ -210,8 +160,10 @@ namespace Markdown
             }
         }
 
-        private void ProcessTagUnderscoreLikeRules(Tag tag, Tag tagClose)
+        private void ProcessTagWithUnderscoreLikeRules(Tag tag, Tag tagClose)
         {
+            if (!CheckDigits())
+                return;
             if (!OpenTags.Contains(tag))
             {
                 if (Counter == Tokens.Count - 1 || Tokens[Counter + 1].Item2 != LexType.Space)
@@ -248,7 +200,9 @@ namespace Markdown
         A,
         AClose,
         LinkBracket,
-        LinkBracketClose
+        LinkBracketClose,
+        S,
+        SClose
 
     }
 }

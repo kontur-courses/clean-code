@@ -144,6 +144,16 @@ namespace Markdown
             processedText.Should().Be(expectedText);
         }
 
+
+        [TestCase("_aaa__bbb__ccc_", "<em>aaa_bbb_ccc</em>")]
+        public void TwoUnderscoresInOneUnderscore_ShouldNotBeDoubleTagged(string text, string expectedText)
+        {
+            var renderer = new Md();
+            var processedText = renderer.Render(text);
+            processedText.Should().Be(expectedText);
+        }
+
+
         [TestCase("_aaa_bbb_aaa_", "<em>aaa</em>bbb<em>aaa</em>")]
         [TestCase("__aaa__bbb__aaa__", "<strong>aaa</strong>bbb<strong>aaa</strong>")]
         [TestCase("_aaa_ _aaa_", "<em>aaa</em> <em>aaa</em>")]
@@ -168,6 +178,14 @@ namespace Markdown
         [TestCase("_aaa[te_st](hello)", "_aaa<a href=hello>te_st</a>")]
         [TestCase("[test](he_ll_o)", "<a href=he_ll_o>test</a>")]
         public void LinkTagsTests_ShouldBeInTags(string text, string expectedText)
+        {
+            var renderer = new Md();
+            var processedText = renderer.Render(text);
+            processedText.Should().Be(expectedText);
+        }
+
+        [TestCase("~~aaa~~", "<s>aaa</s>")]
+        public void TextInTildas_ShouldBeInTags(string text, string expectedText)
         {
             var renderer = new Md();
             var processedText = renderer.Render(text);
