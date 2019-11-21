@@ -2,13 +2,13 @@
 {
     public class Token
     {
-        public char Value;
+        public string Value;
         public TokenType Type;
         public MdElement MdType;
         public MdPosition MdPosition;
         public bool IsClosed;
 
-        public Token(char value, TokenType type)
+        public Token(string value, TokenType type)
         {
             Type = type;
             Value = value;

@@ -5,11 +5,11 @@ namespace Markdown
 {
     public class Tokenizer
     {
-        private Dictionary<char, MdElement> elementSigns;
+        private Dictionary<string, MdElement> elementSigns;
 
         private TokenizerHelper helper;
 
-        public Tokenizer(Dictionary<char, MdElement> elementSigns)
+        public Tokenizer(Dictionary<string, MdElement> elementSigns)
         {
             this.elementSigns = elementSigns;
             helper = new TokenizerHelper();
@@ -21,7 +21,8 @@ namespace Markdown
                 throw new ArgumentNullException(nameof(text));
             var tokens = GetSimpleTokens(text);
             tokens = InspectMdTokensPosition(tokens);
-            tokens = CheckMdTokensForEnclosing(tokens);
+            var encloser = new Encloser(elementSigns);
+            tokens = encloser.Enclose(tokens);
             return tokens;
         }
 
@@ -35,8 +36,8 @@ namespace Markdown
                     helper.ScreenNext();
                     continue;
                 }
-                var tokenType = helper.GetTokenType(symbol, elementSigns);
-                var token = new Token(symbol, tokenType);
+                var tokenType = helper.GetTokenType(symbol.ToString(), elementSigns);
+                var token = new Token(symbol.ToString(), tokenType);
                 tokens.Add(token);
             }
             return tokens;
@@ -57,28 +58,6 @@ namespace Markdown
             for (int i = 0; i < tokens.Count; ++i)
                 if (tokens[i].Type == TokenType.MdElement && tokens[i].MdPosition == MdPosition.None)
                     tokens[i].Type = TokenType.Text;
-            return tokens;
-        }
-
-        private List<Token> CheckMdTokensForEnclosing(List<Token> tokens)
-        {
-            var enclosing = new Dictionary<char, Stack<Token>>();
-            foreach (var token in tokens)
-            {
-                if (token.Type == TokenType.MdElement)
-                {
-                    if (!token.MdType.IsEnclosed)
-                        token.IsClosed = true;
-                    else if (token.MdPosition == MdPosition.Opening)
-                    {
-                        helper.AddOpeningElementForEnclosing(token, enclosing);
-                    }
-                    else if (token.MdPosition == MdPosition.Enclosing && enclosing.ContainsKey(token.Value))
-                    {
-                        helper.EncloseToken(token, enclosing);
-                    }
-                }
-            }
             return tokens;
         }
     }
