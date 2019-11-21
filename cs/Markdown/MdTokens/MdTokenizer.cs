@@ -1,6 +1,7 @@
 ﻿﻿using System;
  using System.Collections.Generic;
  using System.Linq;
+ using System.Text;
  using Markdown.Tokenizer;
 
 namespace Markdown.MdTokens
@@ -26,14 +27,95 @@ namespace Markdown.MdTokens
             ClearPairedStack();
             return tokens;
         }
-
-        private void ClearPairedStack()
+        
+        private MdToken MakeToken(string text)
         {
-            while (pairedSymbols.Count != 0)
+            var token = new MdToken(text, "NONE", "NONE");
+            if (text.Length <= 2) return token;
+            var shieldingIndexes = FindShieldedSymbols(text);
+            var textWithoutShieldedSymbols = ReplaceShieldingWithSpaces(text, shieldingIndexes);
+            var beginningSymbol = GetBeginningSpecialSymbol(textWithoutShieldedSymbols);
+            var endingSymbol = GetEndingSpecialSymbol(textWithoutShieldedSymbols);
+            var content = GetContent(text, beginningSymbol, endingSymbol);
+            shieldingIndexes = FindShieldedSymbols(content);
+            content = ClearContentShielding(content, shieldingIndexes);
+            token = new MdToken(content, beginningSymbol, endingSymbol);
+            return token;
+        }
+
+        private List<int> FindShieldedSymbols(string text)
+        {
+            var shieldingIndexes = new List<int>();
+            for (var i = 0; i < text.Length - 1; i++)
             {
-                var stackTop = pairedSymbols.Pop();
-                CorrectPairedTokenBeginning(stackTop);
+                var character = text[i].ToString();
+                if (character != config.GetShieldingSymbol()) continue;
+                var nextCharacter = text[i + 1].ToString();
+                if (config.HasSpecialSymbol(nextCharacter))
+                    shieldingIndexes.Add(i);
             }
+
+            return shieldingIndexes;
+        }
+
+        private string ReplaceShieldingWithSpaces(string text, List<int> shieldingIndexes)
+        {
+            foreach (var index in shieldingIndexes)
+            {
+                var symbolsToReplace = text[index].ToString() + text[index + 1];
+                text = text.Replace(symbolsToReplace, "  ");
+            }
+            return text;
+        }
+
+        private string GetBeginningSpecialSymbol(string text)
+        {
+            var builder = new StringBuilder();
+            var specialSymbol = "NONE";
+            foreach (var symbol in text)
+            {
+                builder.Append(symbol);
+                if(!config.HasSpecialSymbol(builder.ToString()))
+                    break;
+                specialSymbol = builder.ToString();
+            }
+            return specialSymbol;
+        }
+        
+        private string GetEndingSpecialSymbol(string text)
+        {
+            var builder = new StringBuilder();
+            var specialSymbol = "NONE";
+            var reversed = text.Reverse();
+            foreach (var symbol in reversed)
+            {
+                builder.Append(symbol);
+                if(!config.HasSpecialSymbol(builder.ToString()))
+                    break;
+                specialSymbol = builder.ToString();
+            }
+            return specialSymbol;
+        }
+        
+        private string GetContent(string text, string beginningSymbol, string endingSymbol)
+        {
+            var content = text;
+            if(beginningSymbol != "NONE")
+                content = content.Substring(beginningSymbol.Length);
+            if(endingSymbol != "NONE")
+                content = content.Remove(content.Length - endingSymbol.Length);
+            return content;
+        }
+
+        private string ClearContentShielding(string text, List<int> shieldingIndexes)
+        {
+            var removedCount = 0;
+            foreach (var index in shieldingIndexes)
+            {
+                text = text.Remove(index - removedCount, 1);
+                removedCount++;
+            }
+            return text;
         }
 
         private void HandlePairedTokens(MdToken token)
@@ -41,9 +123,15 @@ namespace Markdown.MdTokens
             var beginSymbol = token.BeginningSpecialSymbol;
             var endSymbol = token.EndingSpecialSymbol;
             var beginningAndEndingAreDifferent = endSymbol != beginSymbol;
+            var isNotPairedAndNotEmpty = !config.IsSymbolPaired(token.BeginningSpecialSymbol) && beginSymbol != "NONE";
             HandleTokenNesting(token, token.BeginningSpecialSymbol, beginSymbol, true);
             if (config.IsSymbolPaired(token.BeginningSpecialSymbol) && beginningAndEndingAreDifferent)
                 pairedSymbols.Push(token);
+            else if (isNotPairedAndNotEmpty)
+            {
+                token.EndingSpecialSymbol = token.BeginningSpecialSymbol;
+                return;
+            }
 
             HandleTokenNesting(token, token.EndingSpecialSymbol, beginSymbol, false);
             if (beginningAndEndingAreDifferent && config.IsSymbolPaired(token.EndingSpecialSymbol))
@@ -99,93 +187,14 @@ namespace Markdown.MdTokens
             token.Content += token.EndingSpecialSymbol;
             token.EndingSpecialSymbol = "NONE";
         }
-
-        private MdToken MakeToken(string text)
-        {
-            var token = new MdToken(text, "NONE", "NONE");
-            if (text.Length <= 2) return token;
-            var shieldingIndexes = FindShieldedSymbols(text);
-            var textWithoutShieldedSymbols = ReplaceShieldingWithSpaces(text, shieldingIndexes);
-            var beginningSymbol = GetBeginningSpecialSymbol(textWithoutShieldedSymbols);
-            var endingSymbol = GetEndingSpecialSymbol(textWithoutShieldedSymbols);
-            var content = GetContent(text, beginningSymbol, endingSymbol);
-            shieldingIndexes = FindShieldedSymbols(content);
-            content = ClearContentShielding(content, shieldingIndexes);
-            token = new MdToken(content, beginningSymbol, endingSymbol);
-            return token;
-        }
-
-        private List<int> FindShieldedSymbols(string text)
-        {
-            var shieldingIndexes = new List<int>();
-            for (var i = 0; i < text.Length - 1; i++)
-            {
-                var character = text[i].ToString();
-                if (character != config.GetShieldingSymbol()) continue;
-                var nextCharacter = text[i + 1].ToString();
-                if (config.HasSpecialSymbol(nextCharacter))
-                    shieldingIndexes.Add(i);
-            }
-
-            return shieldingIndexes;
-        }
-
-        private string ReplaceShieldingWithSpaces(string text, List<int> shieldingIndexes)
-        {
-            foreach (var index in shieldingIndexes)
-            {
-                var symbolsToReplace = text[index].ToString() + text[index + 1];
-                text = text.Replace(symbolsToReplace, "  ");
-            }
-            return text;
-        }
-
-        private string GetBeginningSpecialSymbol(string text)
-        {
-            var specialSymbolBeginning = text[0].ToString();
-            var specialSymbolBeginningDoubles = "" + text[0] + text[1];
-            return GetSpecialSymbol(specialSymbolBeginning, specialSymbolBeginningDoubles);
-        }
         
-        private string GetEndingSpecialSymbol(string text)
+        private void ClearPairedStack()
         {
-            var specialSymbolEnding = text[text.Length - 1].ToString();
-            var specialSymbolEndingDoubles = "" + text[text.Length - 1] + text[text.Length - 2];
-            return GetSpecialSymbol(specialSymbolEnding, specialSymbolEndingDoubles);
-        }
-        
-        private string GetContent(string text, string beginningSymbol, string endingSymbol)
-        {
-            var content = text;
-            if(beginningSymbol != "NONE")
-                content = content.Substring(beginningSymbol.Length);
-            if(endingSymbol != "NONE")
-                content = content.Remove(content.Length - endingSymbol.Length);
-            return content;
-        }
-
-        private string ClearContentShielding(string text, List<int> shieldingIndexes)
-        {
-            var removedCount = 0;
-            foreach (var index in shieldingIndexes)
+            while (pairedSymbols.Count != 0)
             {
-                text = text.Remove(index - removedCount, 1);
-                removedCount++;
+                var stackTop = pairedSymbols.Pop();
+                CorrectPairedTokenBeginning(stackTop);
             }
-                
-            
-            return text;
-        }
-        
-        private string GetSpecialSymbol(string singular, string doubled)
-        {
-            var specialSymbol = singular;
-            if (!config.HasSpecialSymbol(singular))
-                specialSymbol =  "NONE";
-            if (config.HasSpecialSymbol(doubled))
-                specialSymbol = doubled;
-            
-            return specialSymbol;
         }
     }
 }
