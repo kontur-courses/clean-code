@@ -1,21 +1,23 @@
-﻿using System.Collections.Generic;
-using System.Linq;
+﻿using System.Linq;
 
 namespace Markdown
 {
     public class Md
     {
-        public string Render(string rawText)
+        private readonly MarkdownTextTokenizer tokenizer;
+        private readonly ITokenConverter converter;
+
+        public Md()
         {
-            var tokenizer = new MarkdownTextTokenizer();
-            var tokens = tokenizer.GetTokens(rawText);
-            return GetHtmlText(tokens);
+            tokenizer = new MarkdownTextTokenizer();
+            converter = new HtmlTokenConverter();
         }
 
-        private string GetHtmlText(IEnumerable<Token> tokens)
+        public string Render(string rawText)
         {
-            var text = tokens.Select(TokenConverter.ConvertTokenToHtml);
-            return string.Join("", text);
+            var tokens = tokenizer.GetTokens(rawText).ToList();
+            var renderedText = tokens.Select(t => converter.ConvertToken(t, rawText)).ToList();
+            return string.Join("", renderedText);
         }
     }
 }
