@@ -64,12 +64,12 @@ namespace Markdown
 
         private Token GetCorrectPairToken(PairToken token, Token prevToken, Token nextToken)
         {
-            if (IsFirstPairToken(token, prevToken, nextToken))
+            if (IsFirstPairToken(prevToken, nextToken))
             {
                 return new PairToken(token.Type, token.Content, token.Length, true);
             }
 
-            if (IsSecondPairToken(token, prevToken, nextToken))
+            if (IsSecondPairToken(prevToken, nextToken))
             {
                 return new PairToken(token.Type, token.Content, token.Length, false);
             }
@@ -77,25 +77,25 @@ namespace Markdown
             return new Token(TokenType.Text, token.Content, token.Length);
         }
 
-        private bool IsFirstPairToken(PairToken token, Token prevToken, Token nextToken)
+        private bool IsFirstPairToken(Token prevToken, Token nextToken)
         {
-            var expr = prevToken == null ||
-                       prevToken is PairToken pairToken && pairToken.IsFirst ||
-                       char.IsWhiteSpace(prevToken.GetLastContentChar()) ||
-                       char.IsPunctuation(prevToken.GetLastContentChar()) &&
-                       nextToken != null && !char.IsWhiteSpace(nextToken.GetFirstContentChar());
-            return expr;
+            return prevToken == null ||
+                   prevToken is PairToken pairToken && pairToken.IsFirst ||
+                   char.IsWhiteSpace(prevToken.GetLastContentChar()) ||
+                   char.IsPunctuation(prevToken.GetLastContentChar()) &&
+                   nextToken != null &&
+                   !char.IsWhiteSpace(nextToken.GetFirstContentChar());
         }
 
-        private bool IsSecondPairToken(PairToken token, Token prevToken, Token nextToken)
+        private bool IsSecondPairToken(Token prevToken, Token nextToken)
         {
-            var expr = nextToken == null ||
-                       char.IsWhiteSpace(nextToken.GetFirstContentChar()) ||
-                       char.IsPunctuation(nextToken.GetFirstContentChar()) ||
-                       nextToken.Type != TokenType.Text ||
-                       (prevToken is PairToken pairToken && !pairToken.IsFirst) &&
-                       prevToken != null && !char.IsWhiteSpace(prevToken.GetLastContentChar());
-            return expr;
+            return nextToken == null ||
+                   char.IsWhiteSpace(nextToken.GetFirstContentChar()) ||
+                   char.IsPunctuation(nextToken.GetFirstContentChar()) ||
+                   nextToken.Type != TokenType.Text ||
+                   prevToken is PairToken pairToken &&
+                   !pairToken.IsFirst &&
+                   !char.IsWhiteSpace(prevToken.GetLastContentChar());
         }
 
         private Token GetCorrectHeaderToken(HeaderToken token, Token prevToken)
@@ -127,27 +127,30 @@ namespace Markdown
             var currentTokenIndex = 0;
             foreach (var token in tokens)
             {
-                if (token is PairToken pairToken)
+                if (!(token is PairToken pairToken))
                 {
-                    if (pairToken.IsFirst)
+                    currentTokenIndex++;
+                    continue;
+                }
+
+                if (pairToken.IsFirst)
+                {
+                    indexedTokenStack.Push(new IndexedToken(currentTokenIndex, pairToken));
+                }
+                else if (indexedTokenStack.Count == 0)
+                {
+                    indexToChangedTokensDict[currentTokenIndex] = pairToken.GetTextToken();
+                }
+                else
+                {
+                    var prevFirstToken = indexedTokenStack.Peek();
+                    if (prevFirstToken.Token.Type == pairToken.Type)
                     {
-                        indexedTokenStack.Push(new IndexedToken(currentTokenIndex, pairToken));
-                    }
-                    else if (indexedTokenStack.Count == 0)
-                    {
-                        indexToChangedTokensDict[currentTokenIndex] = pairToken.GetTextToken();
+                        indexedTokenStack.Pop();
                     }
                     else
                     {
-                        var prevFirstToken = indexedTokenStack.Peek();
-                        if (prevFirstToken.Token.Type == pairToken.Type)
-                        {
-                            indexedTokenStack.Pop();
-                        }
-                        else
-                        {
-                            indexToChangedTokensDict[currentTokenIndex] = pairToken.GetTextToken();
-                        }
+                        indexToChangedTokensDict[currentTokenIndex] = pairToken.GetTextToken();
                     }
                 }
 

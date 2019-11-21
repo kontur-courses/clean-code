@@ -19,7 +19,7 @@ namespace Markdown.Tests
 
             private static IEnumerable<TestCaseData> GetTestCaseData()
             {
-                yield return new TestCaseData(new List<Token>()
+                yield return new TestCaseData(new List<Token>
                     {
                         new Token(TokenType.Text, @"abc")
                     },
@@ -28,7 +28,7 @@ namespace Markdown.Tests
                         new Token(TokenType.Text, @"abc")
                     }).SetName("text only");
 
-                yield return new TestCaseData(new List<Token>()
+                yield return new TestCaseData(new List<Token>
                     {
                         new PairToken(TokenType.Bold),
                         new Token(TokenType.Text, @"abc")
@@ -39,7 +39,7 @@ namespace Markdown.Tests
                         new Token(TokenType.Text, @"abc")
                     }).SetName("filter single bold tag");
 
-                yield return new TestCaseData(new List<Token>()
+                yield return new TestCaseData(new List<Token>
                     {
                         new Token(TokenType.Text, @"abc"),
                         new PairToken(TokenType.Bold)
@@ -47,10 +47,10 @@ namespace Markdown.Tests
                     new List<Token>
                     {
                         new Token(TokenType.Text, @"abc"),
-                        new Token(TokenType.Text, "__"),
+                        new Token(TokenType.Text, "__")
                     }).SetName("filter single bold tag in the end");
 
-                yield return new TestCaseData(new List<Token>()
+                yield return new TestCaseData(new List<Token>
                     {
                         new PairToken(TokenType.Italic),
                         new Token(TokenType.Text, @"abc")
@@ -61,7 +61,7 @@ namespace Markdown.Tests
                         new Token(TokenType.Text, @"abc")
                     }).SetName("filter single italic tag");
 
-                yield return new TestCaseData(new List<Token>()
+                yield return new TestCaseData(new List<Token>
                     {
                         new Token(TokenType.Text, @"abc"),
                         new PairToken(TokenType.Italic)
@@ -69,16 +69,16 @@ namespace Markdown.Tests
                     new List<Token>
                     {
                         new Token(TokenType.Text, @"abc"),
-                        new Token(TokenType.Text, "_"),
+                        new Token(TokenType.Text, "_")
                     }).SetName("filter single italic tag in the end");
 
-                yield return new TestCaseData(new List<Token>()
+                yield return new TestCaseData(new List<Token>
                     {
                         new Token(TokenType.Text, @"abc"),
                         new PairToken(TokenType.Italic),
                         new Token(TokenType.Text, @"def"),
                         new PairToken(TokenType.Italic),
-                        new Token(TokenType.Text, @"ghi"),
+                        new Token(TokenType.Text, @"ghi")
                     },
                     new List<Token>
                     {
@@ -86,16 +86,16 @@ namespace Markdown.Tests
                         new Token(TokenType.Text, "_"),
                         new Token(TokenType.Text, @"def"),
                         new Token(TokenType.Text, "_"),
-                        new Token(TokenType.Text, @"ghi"),
+                        new Token(TokenType.Text, @"ghi")
                     }).SetName("filter italic tags in the middle of word");
 
-                yield return new TestCaseData(new List<Token>()
+                yield return new TestCaseData(new List<Token>
                     {
                         new Token(TokenType.Text, @"abc"),
                         new PairToken(TokenType.Bold),
                         new Token(TokenType.Text, @"def"),
                         new PairToken(TokenType.Bold),
-                        new Token(TokenType.Text, @"ghi"),
+                        new Token(TokenType.Text, @"ghi")
                     },
                     new List<Token>
                     {
@@ -103,10 +103,10 @@ namespace Markdown.Tests
                         new Token(TokenType.Text, "__"),
                         new Token(TokenType.Text, @"def"),
                         new Token(TokenType.Text, "__"),
-                        new Token(TokenType.Text, @"ghi"),
+                        new Token(TokenType.Text, @"ghi")
                     }).SetName("filter bold tags in the middle of word");
 
-                yield return new TestCaseData(new List<Token>()
+                yield return new TestCaseData(new List<Token>
                     {
                         new Token(TokenType.Text, @"abc"),
                         new PairToken(TokenType.Italic),
@@ -118,45 +118,45 @@ namespace Markdown.Tests
                         new Token(TokenType.Text, @"abc"),
                         new Token(TokenType.Text, "_"),
                         new Token(TokenType.Text, @"def"),
-                        new Token(TokenType.Text, "_"),
+                        new Token(TokenType.Text, "_")
                     }).SetName("filter italic tags when the first is in the middle of a word");
 
-                yield return new TestCaseData(new List<Token>()
+                yield return new TestCaseData(new List<Token>
                     {
                         new PairToken(TokenType.Italic),
                         new Token(TokenType.Text, @"abc"),
                         new PairToken(TokenType.Italic),
-                        new Token(TokenType.Text, @"def"),
+                        new Token(TokenType.Text, @"def")
                     },
                     new List<Token>
                     {
                         new Token(TokenType.Text, "_"),
                         new Token(TokenType.Text, @"abc"),
                         new Token(TokenType.Text, "_"),
-                        new Token(TokenType.Text, @"def"),
+                        new Token(TokenType.Text, @"def")
                     }).SetName("filter italic tags when the second is in the middle of a word");
 
-                yield return new TestCaseData(new List<Token>()
+                yield return new TestCaseData(new List<Token>
                     {
                         new Token(TokenType.Text, @"abc"),
                         new HeaderToken(TokenType.H3),
-                        new Token(TokenType.Text, @"def"),
+                        new Token(TokenType.Text, @"def")
                     },
                     new List<Token>
                     {
                         new Token(TokenType.Text, @"abc"),
                         new Token(TokenType.Text, "###"),
-                        new Token(TokenType.Text, @"def"),
+                        new Token(TokenType.Text, @"def")
                     }).SetName("filter header tag when it is not in the beginning");
 
-                yield return new TestCaseData(new List<Token>()
+                yield return new TestCaseData(new List<Token>
                     {
                         new PairToken(TokenType.Bold),
                         new PairToken(TokenType.Italic),
                         new Token(TokenType.Text, @"abc "),
                         new Token(TokenType.Text, @"def"),
                         new PairToken(TokenType.Italic),
-                        new PairToken(TokenType.Bold),
+                        new PairToken(TokenType.Bold)
                     },
                     new List<Token>
                     {
@@ -165,7 +165,7 @@ namespace Markdown.Tests
                         new Token(TokenType.Text, @"abc "),
                         new Token(TokenType.Text, @"def"),
                         new PairToken(TokenType.Italic),
-                        new PairToken(TokenType.Bold),
+                        new PairToken(TokenType.Bold)
                     }).SetName("not filter correct tag sequence");
             }
         }

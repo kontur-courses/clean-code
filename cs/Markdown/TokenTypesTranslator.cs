@@ -23,14 +23,14 @@ namespace Markdown
         private static readonly Dictionary<TokenType, HTMLTag> MdTokenTypeToHtmlTag =
             new Dictionary<TokenType, HTMLTag>()
             {
-                {TokenType.Bold, new HTMLTag("strong") },
-                {TokenType.Italic, new HTMLTag("em") },
-                {TokenType.H1, new HTMLTag("h1") },
-                {TokenType.H2, new HTMLTag("h2") },
-                {TokenType.H3, new HTMLTag("h3") },
-                {TokenType.H4, new HTMLTag("h4") },
-                {TokenType.H5, new HTMLTag("h5") },
-                {TokenType.H6, new HTMLTag("h6") },
+                {TokenType.Bold, new HTMLTag("strong")},
+                {TokenType.Italic, new HTMLTag("em")},
+                {TokenType.H1, new HTMLTag("h1")},
+                {TokenType.H2, new HTMLTag("h2")},
+                {TokenType.H3, new HTMLTag("h3")},
+                {TokenType.H4, new HTMLTag("h4")},
+                {TokenType.H5, new HTMLTag("h5")},
+                {TokenType.H6, new HTMLTag("h6")},
             };
 
         public static Token GetTokenFromString(string str)

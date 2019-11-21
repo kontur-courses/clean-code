@@ -1,6 +1,4 @@
-﻿using Markdown.Tests;
-
-namespace Markdown
+﻿namespace Markdown
 {
     public class Md
     {

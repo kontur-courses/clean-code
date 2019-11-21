@@ -38,31 +38,26 @@ namespace Markdown.Tests
             while (position < length)
             {
                 var currentSymbol = paragraph[position];
+                tokenLength++;
+                position++;
                 if (escaped)
                 {
                     currentTokenContent += currentSymbol;
                     escaped = false;
-                    tokenLength++;
-                    position++;
-                    continue;
                 }
-
-                if (currentSymbol == '\\')
+                else if (currentSymbol == '\\')
                 {
                     escaped = true;
-                    tokenLength++;
-                    position++;
-                    continue;
                 }
-
-                currentTokenContent += currentSymbol;
-                tokenLength++;
-                position++;
-
-                var nextSymbol = TryGetNextSymbol(paragraph, position);
-                if (IsPartOfAnyNonTextToken(nextSymbol.ToString()))
+                else
                 {
-                    return new Token(TokenType.Text, currentTokenContent, tokenLength);
+                    currentTokenContent += currentSymbol;
+
+                    var nextSymbol = TryGetNextSymbol(paragraph, position);
+                    if (IsPartOfAnyNonTextToken(nextSymbol.ToString()))
+                    {
+                        return new Token(TokenType.Text, currentTokenContent, tokenLength);
+                    }
                 }
             }
 

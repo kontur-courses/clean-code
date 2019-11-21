@@ -1,5 +1,4 @@
 ﻿using System.Collections.Generic;
-using System.Linq;
 using System.Text;
 
 namespace Markdown
@@ -7,12 +6,12 @@ namespace Markdown
     public class HTMLRenderer
     {
         //Превращает оставшиеся корректные токены в HTML-теги
-        public string Render(IEnumerable<Token> tokens)
+        public string Render(List<Token> tokens)
         {
             var result = new StringBuilder();
             var tokenNumber = 0;
             HeaderToken currentHeaderToken = null;
-            var lastTokenNumber = tokens.Count() - 1;
+            var lastTokenNumber = tokens.Count - 1;
             foreach (var token in tokens)
             {
                 switch (token)

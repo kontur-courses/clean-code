@@ -8,6 +8,7 @@
         {
             IsFirst = isFirst;
         }
+
         public PairToken(TokenType type, string content, int length) : base(type, content, length)
         {
         }

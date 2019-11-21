@@ -23,12 +23,11 @@ namespace Markdown.Tests
         [TestCase("_12_3", "_12_3<br><br>", TestName = "Ignore italic tags inside numbers")]
         [TestCase("__12__3", "__12__3<br><br>", TestName = "Ignore bold tags inside numbers")]
         [TestCase("__different _tags", "__different _tags<br><br>", TestName = "Ignore unpaired tags")]
-        [TestCase("sample_ text_", "sample_ text_<br><br>",TestName = "Ignore if first tag is before whitespace")]
+        [TestCase("sample_ text_", "sample_ text_<br><br>", TestName = "Ignore if first tag is before whitespace")]
         [TestCase("_sample text _", "_sample text _<br><br>", TestName = "Ignore if second tag is after whitespace")]
         public void RenderCorrectly(string paragraph, string expectedHtml)
         {
             var md = new Md();
-            // var result = md.Render(paragraph);
             md.Render(paragraph).Should().Be(expectedHtml);
         }
     }
