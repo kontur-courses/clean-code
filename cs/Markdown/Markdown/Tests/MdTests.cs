@@ -25,12 +25,12 @@ namespace Markdown
         [Test]
         public void AddElement_ShouldAddElementCorrectly()
         {
-            var mdElement = new MdElement("^", "<H1>", true);
+            var mdElement = new MdElement("#", "<H1>", true);
             md.AddElement(mdElement);
-            var expected = new MdElement("^", "<H1>", true);
+            var expected = new MdElement("#", "<H1>", true);
             expected.HtmlTagClose = "<H1/>";
-            md.elementSigns.ContainsKey("^").Should().BeTrue();
-            md.elementSigns["^"].Should().BeEquivalentTo(expected);
+            md.elementSigns.ContainsKey("#").Should().BeTrue();
+            md.elementSigns["#"].Should().BeEquivalentTo(expected);
         }
 
         [Test]
