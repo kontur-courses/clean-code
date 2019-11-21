@@ -52,8 +52,9 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="MdTests.cs" />
-    <Compile Include="Parser\TreeParserTests.cs" />
     <Compile Include="Parser\TagsParsing\TagsReaderTests.cs" />
+    <Compile Include="Parser\TokenizerTests.cs" />
+    <Compile Include="Parser\TreeBuilderTests.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Tree\BoldNodeTests.cs" />
     <Compile Include="Tree\ItalicNodeTests.cs" />
@@ -69,6 +70,7 @@
       <Name>Markdown</Name>
     </ProjectReference>
   </ItemGroup>
+  <ItemGroup />
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <Target Name="EnsureNuGetPackageBuildImports" BeforeTargets="PrepareForBuild">
     <PropertyGroup>

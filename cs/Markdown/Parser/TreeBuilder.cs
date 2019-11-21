@@ -1,47 +1,63 @@
 ﻿using System;
 using System.Collections.Generic;
+using Markdown.Parser.Tags;
+using Markdown.Parser.TagsParsing;
+using Markdown.Tools;
 using Markdown.Tree;
 
 namespace Markdown.Parser
 {
-    public static class TreeBuilder
+    public class TreeBuilder
     {
-        public static RootNode ParseMarkdown(string markdown)
+        private readonly List<MarkdownTag> tags;
+        private readonly CharClassifier classifier;
+
+        public TreeBuilder(List<MarkdownTag> tags, CharClassifier classifier)
         {
-            var events = EventsParser.ParseEvents(markdown);
-            var root = BuildTree(events);
+            this.tags = tags;
+            this.classifier = classifier;
+        }
+        public RootNode ParseMarkdown(string markdown)
+        {
+            var tagsReader = new TagsReader(markdown, tags, classifier);
+            var events = tagsReader.GetEvents();
+
+            var tokenizer = new Tokenizer(markdown, events, classifier);
+            var tokens = tokenizer.GetTokens();
+
+            var root = BuildTree(tokens);
 
             return root;
         }
 
-        private static RootNode BuildTree(IEnumerable<Event> events)
+        private static RootNode BuildTree(IEnumerable<Token> tokens)
         {
             var root = new RootNode();
             Node current = root;
 
-            foreach (var @event in events)
+            foreach (var token in tokens)
             {
-                switch (@event.Type)
+                switch (token.Type)
                 {
-                    case EventType.PlainText:
-                        current.AddNode(new PlainTextNode(@event.Value));
+                    case TokenType.PlainText:
+                        current.AddNode(new PlainTextNode(token.Value));
                         break;
 
-                    case EventType.BoldStart:
+                    case TokenType.BoldStart:
                         var bold = new BoldNode();
                         current.AddNode(bold);
                         current = bold;
                         break;
 
 
-                    case EventType.ItalicStart:
+                    case TokenType.ItalicStart:
                         var italic = new ItalicNode();
                         current.AddNode(italic);
                         current = italic;
                         break;
 
-                    case EventType.ItalicEnd:
-                    case EventType.BoldEnd:
+                    case TokenType.ItalicEnd:
+                    case TokenType.BoldEnd:
                         current = current.Parent;
                         break;
 

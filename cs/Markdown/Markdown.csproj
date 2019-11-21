@@ -52,6 +52,7 @@
     <Compile Include="Tools\CharType.cs" />
     <Compile Include="Parser\Tags\EmptyTag.cs" />
     <Compile Include="Parser\Token.cs" />
+    <Compile Include="Parser\Tokenizer.cs" />
     <Compile Include="Parser\TokenType.cs" />
     <Compile Include="Parser\Tags\ItalicTag.cs" />
     <Compile Include="Parser\Tags\MarkdownTag.cs" />

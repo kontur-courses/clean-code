@@ -1,12 +1,17 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.IO;
+using System.Text;
+using Markdown.Parser;
+using Markdown.Parser.Tags;
+using Markdown.Parser.TagsParsing;
 
 namespace Markdown
 {
-	class Program
-	{
-		static void Main(string[] args)
-		{
+    class Program
+    {
+        static void Main(string[] args)
+        {
             if (args.Length != 2)
             {
                 Console.WriteLine($"Usage: {AppDomain.CurrentDomain.FriendlyName} <markdown> <html-output>");
@@ -26,5 +31,5 @@ namespace Markdown
                 Console.WriteLine("Cant open file");
             }
         }
-	}
+    }
 }

@@ -1,13 +1,29 @@
-﻿using FluentAssertions;
+﻿using System.Collections.Generic;
+using System.Linq;
+using FluentAssertions;
 using Markdown.Parser;
+using Markdown.Parser.Tags;
+using Markdown.Tools;
 using Markdown.Tree;
 using NUnit.Framework;
 
 namespace Markdown.Tests.Parser
 {
     [TestFixture]
-    public class TreeParserTests
+    public class TreeBuilderTests
     {
+        private TreeBuilder treeBuilder;
+
+        [SetUp]
+        public void SetUp()
+        {
+            var tags = new List<MarkdownTag> {new BoldTag(), new ItalicTag()};
+            var classifier = new CharClassifier(tags.SelectMany(t => t.String));
+
+            treeBuilder = new TreeBuilder(tags, classifier);
+        }
+
+
         private static void CheckTree(Node expected, Node actual)
         {
             actual.Should().BeEquivalentTo(expected,
@@ -23,7 +39,7 @@ namespace Markdown.Tests.Parser
             var expected = new RootNode();
             expected.AddNode(new PlainTextNode(markdown));
 
-            var actual = TreeBuilder.ParseMarkdown(markdown);
+            var actual = treeBuilder.ParseMarkdown(markdown);
 
             CheckTree(expected, actual);
         }
@@ -38,7 +54,7 @@ namespace Markdown.Tests.Parser
             expected.AddNode(italic);
             italic.AddNode(new PlainTextNode(text));
 
-            var actual = TreeBuilder.ParseMarkdown(markdown);
+            var actual = treeBuilder.ParseMarkdown(markdown);
 
             CheckTree(expected, actual);
         }
@@ -54,7 +70,7 @@ namespace Markdown.Tests.Parser
             bold.AddNode(new PlainTextNode(text));
 
 
-            var actual = TreeBuilder.ParseMarkdown(markdown);
+            var actual = treeBuilder.ParseMarkdown(markdown);
 
             CheckTree(expected, actual);
         }
@@ -76,7 +92,7 @@ namespace Markdown.Tests.Parser
             italic.AddNode(new PlainTextNode(textPart[4]));
 
 
-            var actual = TreeBuilder.ParseMarkdown(markdown);
+            var actual = treeBuilder.ParseMarkdown(markdown);
 
             CheckTree(expected, actual);
         }
@@ -98,7 +114,7 @@ namespace Markdown.Tests.Parser
             bold.AddNode(new PlainTextNode(textPart[2]));
 
 
-            var actual = TreeBuilder.ParseMarkdown(markdown);
+            var actual = treeBuilder.ParseMarkdown(markdown);
 
             CheckTree(expected, actual);
         }
@@ -114,7 +130,7 @@ namespace Markdown.Tests.Parser
             expected.AddNode(italic);
             italic.AddNode(new PlainTextNode(text));
 
-            var actual = TreeBuilder.ParseMarkdown(markdown);
+            var actual = treeBuilder.ParseMarkdown(markdown);
 
             CheckTree(expected, actual);
         }
@@ -130,7 +146,7 @@ namespace Markdown.Tests.Parser
             expected.AddNode(bold);
             bold.AddNode(new PlainTextNode(text));
 
-            var actual = TreeBuilder.ParseMarkdown(markdown);
+            var actual = treeBuilder.ParseMarkdown(markdown);
 
             CheckTree(expected, actual);
         }
@@ -138,41 +154,71 @@ namespace Markdown.Tests.Parser
         [Test]
         public void BuildTree_SingleAndDoubleUnderlingAlternate_ShouldReturnTreeWithItalicAndBoldNodes()
         {
-            var markdown = "_italic___bold__";
+            var markdown = "_italic_ __bold__";
             var text = markdown.Split('_');
             var expected = new RootNode();
             var italic = new ItalicNode();
             var bold = new BoldNode();
             expected.AddNode(italic);
             expected.AddNode(bold);
+            expected.AddNode(new PlainTextNode(text[2]));
             italic.AddNode(new PlainTextNode(text[1]));
             bold.AddNode(new PlainTextNode(text[4]));
 
-            var actual = TreeBuilder.ParseMarkdown(markdown);
+            var actual = treeBuilder.ParseMarkdown(markdown);
 
             CheckTree(expected, actual);
         }
 
-        [Test]
-        public void BuildTree_UnderlingContainsDigits_ShouldReturnTreeWithOnlyPlainText()
+        [TestCase("_4_2")]
+        [TestCase("__4__2")]
+        public void BuildTree_UnderlingBetweenDigits_ShouldReturnTreeWithOnlyPlainText(string markdown)
         {
-            var markdown = "_12_ __5__";
-            var underling = "_";
-            var plain1 = "12";
-            var space = " ";
-            var plain2 = "5";
             var expected = new RootNode();
-            expected.AddNode(new PlainTextNode(underling));
-            expected.AddNode(new PlainTextNode(plain1));
-            expected.AddNode(new PlainTextNode(underling));
-            expected.AddNode(new PlainTextNode(space));
-            expected.AddNode(new PlainTextNode(underling));
-            expected.AddNode(new PlainTextNode(underling));
-            expected.AddNode(new PlainTextNode(plain2));
-            expected.AddNode(new PlainTextNode(underling));
-            expected.AddNode(new PlainTextNode(underling));
+            expected.AddNode(new PlainTextNode(markdown));
 
-            var actual = TreeBuilder.ParseMarkdown(markdown);
+            var actual = treeBuilder.ParseMarkdown(markdown);
+
+            CheckTree(expected, actual);
+        }
+
+        [TestCase(@"\_text_", "_text_")]
+        [TestCase(@"_text\_", "_text_")]
+        public void BuildTree_MarkdownWithEscapedItalicTag_ShouldReturnTreeWithOnlyPlainText(
+            string markdown, string expectedString)
+        {
+            var expected = new RootNode();
+            expected.AddNode(new PlainTextNode(expectedString));
+
+            var actual = treeBuilder.ParseMarkdown(markdown);
+
+            CheckTree(expected, actual);
+        }
+
+        [TestCase(@"_\_text_", "_text")]
+        [TestCase(@"_text\__", "text_")]
+        public void BuildTree_EscapedBoldTagBecomeItalic_ShouldReturnTreeWithItalic(string markdown,
+            string expectedText)
+        {
+            var expected = new RootNode();
+            var italic = new ItalicNode();
+            expected.AddNode(italic);
+            italic.AddNode(new PlainTextNode(expectedText));
+
+            var actual = treeBuilder.ParseMarkdown(markdown);
+
+            CheckTree(expected, actual);
+        }
+
+        [TestCase(@"\__text_", "__text_")]
+        [TestCase(@"_text_\_", "_text__")]
+        public void BuildTree_EscapedBoldTagNotBecomeItalic_ShouldReturnTreeWithPlainText(
+            string markdown, string expectedString)
+        {
+            var expected = new RootNode();
+            expected.AddNode(new PlainTextNode(expectedString));
+
+            var actual = treeBuilder.ParseMarkdown(markdown);
 
             CheckTree(expected, actual);
         }

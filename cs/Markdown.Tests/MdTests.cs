@@ -1,11 +1,5 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿using System.Collections.Generic;
 using FluentAssertions;
-using Markdown.Parser;
-using Markdown.Tree;
 using NUnit.Framework;
 
 namespace Markdown.Tests
@@ -37,8 +31,8 @@ namespace Markdown.Tests
             yield return new TestCaseData("_this is __plain__ text_", "<em>this is plain text</em>")
                 .SetName("bold are ignored at italic");
 
-            yield return new TestCaseData("__1__ _56_", "__1__ _56_")
-                .SetName("text with digits aren't wrapped in tags");
+            yield return new TestCaseData("__42__56 42_56_", "__42__56 42_56_")
+                .SetName("underlings between digits aren't tags");
 
             yield return new TestCaseData("_this is \n text_", "<em>this is \n text</em>")
                 .SetName("newline must be included at text");
@@ -48,6 +42,24 @@ namespace Markdown.Tests
 
             yield return new TestCaseData("__this is text_", "__this is text_")
                 .SetName("with bold start and italic end shouldn't wrap in tags");
+
+            yield return new TestCaseData("bold__this is text__", "bold__this is text__")
+                .SetName("before bold start should be space");
+
+            yield return new TestCaseData("italic__this is text__", "italic__this is text__")
+                .SetName("before italic start should be space");
+
+            yield return new TestCaseData("__this is text__bold", "__this is text__bold")
+                .SetName("after bold end should be space");
+
+            yield return new TestCaseData("__this is text__italic", "__this is text__italic")
+                .SetName("after italic end should be space");
+
+            yield return new TestCaseData("\\_this is text_", "_this is text_")
+                .SetName("escape start tag");
+
+            yield return new TestCaseData("_this is text\\_", "_this is text_")
+                .SetName("escape end tag");
         }
 
         [TestCaseSource(nameof(GetMarkdownAndHtmlResult))]
