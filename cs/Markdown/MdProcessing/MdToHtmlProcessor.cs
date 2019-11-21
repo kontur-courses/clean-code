@@ -13,6 +13,12 @@ namespace Markdown.MdProcessing
             htmlSymbolTable = new MdToHtmlSymbolTable();
             htmlSymbolTable.AddSymbol("_", "<em>", "</em>");
             htmlSymbolTable.AddSymbol("__", "<strong>", "</strong>");
+            htmlSymbolTable.AddSymbol("#", "<h1>", "</h1>");
+            htmlSymbolTable.AddSymbol("##", "<h2>", "</h2>");
+            htmlSymbolTable.AddSymbol("###", "<h3>", "</h3>");
+            htmlSymbolTable.AddSymbol("####", "<h4>", "</h4>");
+            htmlSymbolTable.AddSymbol("#####", "<h5>", "</h5>");
+            htmlSymbolTable.AddSymbol("######", "<h6>", "</h6>");
             htmlSymbolTable.AddSymbol("NONE", "", "");
         }
         
