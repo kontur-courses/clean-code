@@ -12,7 +12,10 @@ namespace Markdown.Tests
         [Test]
         public void RenderTree_WhenNull_TrowArgumentException()
         {
-            Action action = () => { var tree = TreeBuilder.RenderTree<MarkDown>(null); };
+            Action action = () =>
+            {
+                var tree = TreeBuilder.RenderTree<MarkDown>(null);
+            };
             action.Should().Throw<ArgumentException>();
         }
 
@@ -93,6 +96,17 @@ namespace Markdown.Tests
             var emTag = strongTag.ChildNode[1];
             emTag.Should().BeOfType<TagNode>();
             ((TagNode) emTag).TypeTag.Should().Be(TagType.Em);
+        }
+
+        [TestCase("_a __b__ a_")]
+        public void RenderTree_WhenIncorrectNestedTag_TreeOneTagNode(string str)
+        {
+            var tree = TreeBuilder.RenderTree<MarkDown>(str);
+            tree.ChildNode.Should().HaveCount(1);
+            var strongTag = tree.ChildNode.First();
+            strongTag.Should().BeOfType<TagNode>();
+            ((TagNode) strongTag).TypeTag.Should().Be(TagType.Em);
+            strongTag.ChildNode.Should().AllBeOfType<TextNode>();
         }
 
         [TestCase("_abc _")]
