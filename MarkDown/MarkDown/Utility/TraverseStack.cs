@@ -4,7 +4,7 @@ using System.Collections.Generic;
 
 namespace MarkDown
 {
-    public class TraverseStack<T> :IEnumerable<T>
+    public class TraverseStack<T> : IEnumerable<T>
     {
         private class TraverseStackNode<T>
         {

@@ -71,17 +71,27 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="MdParser.cs" />
+    <Compile Include="Md.cs" />
+    <Compile Include="Utility\StringExtensions.cs" />
+    <Compile Include="Tests\TagTokenizerTests.cs" />
+    <Compile Include="Tests\Utility\MdStringReaderTests.cs" />
+    <Compile Include="Tokens\TokenTypes.cs" />
+    <Compile Include="Tokens\StringToken.cs" />
+    <Compile Include="Tokens\TagToken.cs" />
+    <Compile Include="Utility\IMdReader.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
-    <Compile Include="TagParsers\EmTagParser.cs" />
-    <Compile Include="TagParsers\StrongTagParser.cs" />
-    <Compile Include="TagParsers\TagParser.cs" />
-    <Compile Include="Tests\MdParserTests.cs" />
-    <Compile Include="Tests\TagParsers\EmParserTests.cs" />
-    <Compile Include="Tests\TagParsers\StrongParserTests.cs" />
-    <Compile Include="Tests\TagParsers\TagParsersTests.cs" />
+    <Compile Include="TagParser.cs" />
+    <Compile Include="Tags\EmTag.cs" />
+    <Compile Include="Tags\StrongTag.cs" />
+    <Compile Include="Tags\Tag.cs" />
+    <Compile Include="TagTokenizer.cs" />
+    <Compile Include="Tests\MdTests.cs" />
+    <Compile Include="Tests\TagParsing\EmParserTests.cs" />
+    <Compile Include="Tests\TagParsing\StrongParserTests.cs" />
+    <Compile Include="Tests\TagParsing\TagParsersTests.cs" />
     <Compile Include="Tests\Utility\TraverseStackTests.cs" />
-    <Compile Include="Utility\MdToken.cs" />
+    <Compile Include="Utility\MdStringReader.cs" />
+    <Compile Include="Tokens\MdToken.cs" />
     <Compile Include="Utility\TraverseStack.cs" />
   </ItemGroup>
   <ItemGroup>

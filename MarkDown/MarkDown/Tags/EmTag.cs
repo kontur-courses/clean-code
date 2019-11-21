@@ -8,7 +8,7 @@ using NUnit.Framework.Constraints;
 
 namespace MarkDown.TagParsers
 {
-    public class EmTagParser : TagParser
+    public class EmTag : Tag
     {
         public override string OpeningHtmlTag { get; } = "<em>";
         public override string ClosingHtmlTag { get; } = @"</em>";
