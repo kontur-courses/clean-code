@@ -1,9 +1,8 @@
 using System.Collections.Generic;
-using Markdown.Core.HTMLTags;
 using Markdown.Core.Infrastructure;
 using NUnit.Framework;
 
-namespace MarkdownTests
+namespace MarkdownTests.MdRendererTests
 {
     public class MarkdownTestsData
     {

@@ -1,7 +1,7 @@
 using Markdown.Core;
 using NUnit.Framework;
 
-namespace MarkdownTests
+namespace MarkdownTests.MdRendererTests
 {   
     [TestFixture]
     public class MarkdownTests

@@ -5,18 +5,18 @@ namespace Markdown.Core.Readers
 {
     public static class ReaderUtils
     {
-        public static bool IsValidPositionForOpeningTag(string word, string tag,
+        public static bool IsValidPositionForOpeningTag(string word, string mdTag,
             int wordPosition, List<int> escapedPositions)
         {
-            return word.StartsWith(tag)
-                   && !Enumerable.Range(wordPosition, tag.Length).Any(escapedPositions.Contains);
+            return word.StartsWith(mdTag)
+                   && !Enumerable.Range(wordPosition, mdTag.Length).Any(escapedPositions.Contains);
         }
 
-        public static bool IsValidPositionForClosingTag(string word, string inlineTag,
+        public static bool IsValidPositionForClosingTag(string word, string mdTag,
             int closingTokenPossiblePosition, List<int> escapedPositions)
         {
-            return word.EndsWith(inlineTag)
-                   && !Enumerable.Range(closingTokenPossiblePosition, inlineTag.Length).Any(escapedPositions.Contains);
+            return word.EndsWith(mdTag)
+                   && !Enumerable.Range(closingTokenPossiblePosition, mdTag.Length).Any(escapedPositions.Contains);
         }
     }
 }

@@ -27,7 +27,7 @@ namespace Markdown.Core.Infrastructure
             InlineTagsInfo.Select(tagInfo => tagInfo.MdTag);
         
         public static IEnumerable<string> MdBeginningTags =>
-            InlineTagsInfo.Select(tagInfo => tagInfo.MdTag);
+            BeginningTagsInfo.Select(tagInfo => tagInfo.MdTag);
 
         public static string GetTagNameByMdTag(string mdTag)
         {

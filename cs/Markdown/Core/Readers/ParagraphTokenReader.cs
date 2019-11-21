@@ -11,9 +11,9 @@ namespace Markdown.Core.Readers
         private readonly HeaderReader headerReader = new HeaderReader();
         private readonly WordTokenReader wordTokenReader = new WordTokenReader();
 
-        public List<IToken> ReadTokens(string source)
+        public List<Token> ReadTokens(string source)
         {
-            var tokens = new List<IToken>();
+            var tokens = new List<Token>();
             var escapedPositions = new List<int>();
             var isHeaderPossible = true;
             var wordBuilder = new StringBuilder();
@@ -56,7 +56,8 @@ namespace Markdown.Core.Readers
                         word, wordPosition, escapedPositions);
                     if (openingToken != null)
                         tokens.Add(openingToken);
-                    tokens.Add(textToken);
+                    if (textToken.Value != "")
+                        tokens.Add(textToken);
                     if (closingToken != null)
                         tokens.Add(closingToken);
                     if (!isEnding)

@@ -7,7 +7,7 @@ namespace Markdown.Core
 {
     public class MdNormalizer
     {    
-        public List<IToken> NormalizeTokens(List<IToken> tokens, string ignoredInsideMdTag)
+        public List<Token> NormalizeTokens(List<Token> tokens, string ignoredInsideMdTag)
         {
             var tagStack = new Stack<HTMLTagToken>();
             var inlineTokens = tokens

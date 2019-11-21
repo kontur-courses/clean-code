@@ -37,7 +37,7 @@
     <Compile Include="MdNormalizerTests\MdNormalizerTestsData.cs" />
     <Compile Include="MdRendererTests\MarkdownTests.cs" />
     <Compile Include="MdRendererTests\MarkdownTestsData.cs" />
-    <Compile Include="TokenReaderTests\TokenReaderTests.cs" />
+    <Compile Include="TokenReaderTests\ParagraphTokenReaderTests.cs" />
     <Compile Include="TokenReaderTests\TokenReaderTestsData.cs" />
   </ItemGroup>
   <ItemGroup>
@@ -50,6 +50,8 @@
       <Private>True</Private>
     </Reference>
     <Reference Include="System.Configuration" />
+    <Reference Include="System.Xml" />
+    <Reference Include="System.Xml.Linq" />
   </ItemGroup>
   <ItemGroup>
     <None Include="packages.config" />
