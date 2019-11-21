@@ -103,7 +103,7 @@ namespace Markdown
         public void Tokenize_ShouldEncloseMdElementsCorrectly()
         { 
             md.AddElement(new MdElement("#", "<H1>", false));
-            var text = "^ *a_*";
+            var text = "# *a_*";
             var tokens = tokenizer.Tokenize(text);
             var expected = new [] { true, false, true, false, false, true };
             tokens.Select(token => token.IsClosed)
