@@ -41,10 +41,10 @@
     <Compile Include="Exporter\HtmlExporter.cs" />
     <Compile Include="Exporter\IExportable.cs" />
     <Compile Include="Exporter\IExporter.cs" />
-    <Compile Include="Lexer\CharSequence.cs" />
-    <Compile Include="Lexer\ISequence.cs" />
+    <Compile Include="Lexer\Lexeme.cs" />
+    <Compile Include="Lexer\LexemeDefinitions.cs" />
     <Compile Include="Lexer\Token.cs" />
-    <Compile Include="Lexer\TokenSequence.cs" />
+    <Compile Include="Lexer\Tokenizer.cs" />
     <Compile Include="Lexer\TokenType.cs" />
     <Compile Include="Md.cs" />
     <Compile Include="Parser\Element.cs" />

@@ -4,20 +4,20 @@ using Markdown.Lexer;
 
 namespace Markdown.Parser
 {
-    internal class MarkdownParser
+    internal static class MarkdownParser
     {
-        internal static readonly IDictionary<string, Func<INode, string, Element>> Elements;
+        internal static readonly IDictionary<Lexeme, Func<INode, string, Element>> Elements;
 
         static MarkdownParser()
         {
-            Elements = new Dictionary<string, Func<INode, string, Element>>()
+            Elements = new Dictionary<Lexeme, Func<INode, string, Element>>()
             {
-                ["_"] = (parent, value) => new MarkdownItalicElement(parent, value),
-                ["__"] = (parent, value) => new MarkdownBoldElement(parent, value)
+                [LexemeDefinitions.Italic] = (parent, value) => new MarkdownItalicElement(parent, value),
+                [LexemeDefinitions.Bold] = (parent, value) => new MarkdownBoldElement(parent, value)
             };
         }
 
-        internal static Element Parse(ISequence<Token> input)
+        internal static Element Parse(Tokenizer tokenizer)
         {
             throw new NotImplementedException();
         }
