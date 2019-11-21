@@ -3,6 +3,7 @@ using Markdown.Core.Readers;
 using Markdown.Core.Tokens;
 using NUnit.Framework;
 using FluentAssertions;
+using MarkdownTests.Infrastructure;
 
 namespace MarkdownTests.TokenReaderTests
 {
@@ -14,23 +15,7 @@ namespace MarkdownTests.TokenReaderTests
         [TestCaseSource(typeof(TokenReaderTestsData), nameof(TokenReaderTestsData.ReaderTestCases))]
         public void ReadTokensShouldReturnCorrectTokens(string source, List<Token> expectedTokens)
         {
-            IsSameTokenLists(paragraphTokenReader.ReadTokens(source), expectedTokens).Should().BeTrue();  
-        }
-
-        private bool IsSameTokenLists(List<Token> firstTokens, List<Token> secondTokens)
-        {
-            if (firstTokens.Count != secondTokens.Count)
-                return false;
-
-            for (var i = 0; i < firstTokens.Count; i++)
-            {
-                var first = firstTokens[i];
-                var second = secondTokens[i];
-                if (!first.Equals(second))
-                    return false;
-            }
-
-            return true;
+            TestUtils.IsSameTokenLists(paragraphTokenReader.ReadTokens(source), expectedTokens).Should().BeTrue();  
         }
     }
 }
