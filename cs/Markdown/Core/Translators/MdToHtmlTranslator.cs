@@ -5,14 +5,14 @@ using Markdown.Core.HTMLTags;
 using Markdown.Core.Infrastructure;
 using Markdown.Core.Tokens;
 
-namespace Markdown.Core
+namespace Markdown.Core.Translators
 {
     public class MdToHtmlTranslator
     {
         public string TranslateTokensToHtml(IEnumerable<IToken> tokens)
         {
             var result = new StringBuilder();
-            var headerTag = GetHeaderTag(tokens);
+            var headerTag = new HeaderTranslator().GetHeaderTag(tokens);
             if (headerTag != null)
             {
                 result.Append($"<{headerTag}>");
@@ -27,19 +27,6 @@ namespace Markdown.Core
             if (headerTag != null)
                 result.Append($"</{headerTag}>");
             return result.ToString();
-        }
-
-        private string GetHeaderTag(IEnumerable<IToken> tokens)
-        {
-            var firstToken = tokens.First();
-            if (firstToken.TokenType == TokenType.HTMLTag)
-            {
-                var firstTag = firstToken as HTMLTagToken;
-                if (firstTag.TagType == HTMLTagType.Header)
-                    return TagsUtils.GetTagNameByMdTag(firstTag.Value);
-            }
-
-            return null;
         }
 
         private string TranslateOneTokenToHtml(IToken token)

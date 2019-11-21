@@ -1,4 +1,6 @@
+using Markdown.Core.Infrastructure;
 using Markdown.Core.Readers;
+using Markdown.Core.Translators;
 
 namespace Markdown.Core
 {
@@ -6,9 +8,9 @@ namespace Markdown.Core
     {   
         public string Render(string source)
         {
-            var tokens = new TokenReader().ReadTokens(source);
+            var tokens = new ParagraphTokenReader().ReadTokens(source);
             
-            tokens = new MdNormalizer().NormalizeTokens(tokens, "__");
+            tokens = new MdNormalizer().NormalizeTokens(tokens, TagsUtils.GetMdTagByTagName("strong"));
                         
             return new MdToHtmlTranslator().TranslateTokensToHtml(tokens);
         }

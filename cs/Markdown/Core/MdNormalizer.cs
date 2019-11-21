@@ -7,7 +7,7 @@ namespace Markdown.Core
 {
     public class MdNormalizer
     {    
-        public List<IToken> NormalizeTokens(List<IToken> tokens, string ignoredInside)
+        public List<IToken> NormalizeTokens(List<IToken> tokens, string ignoredInsideMdTag)
         {
             var tagStack = new Stack<HTMLTagToken>();
             var inlineTokens = tokens
@@ -16,7 +16,7 @@ namespace Markdown.Core
                 .Where(tag => tag.TagType != HTMLTagType.Header);
             foreach (var tagToken in inlineTokens)
             {
-                if (!TryPutTokenIntoRightTagsSequence(tagStack, tagToken, ignoredInside))
+                if (!TryPutTokenIntoRightTagsSequence(tagStack, tagToken, ignoredInsideMdTag))
                 {
                     tagToken.TokenType = TokenType.Text;
                     ChangeTokenTypeToTextToAllTokensInStack(tagStack);
@@ -35,10 +35,10 @@ namespace Markdown.Core
         }
         
         private bool TryPutTokenIntoRightTagsSequence(
-            Stack<HTMLTagToken> stack, HTMLTagToken token, string ignoredInside)
+            Stack<HTMLTagToken> stack, HTMLTagToken token, string ignoredInsideMdTag)
         {
             var previousValueIsDifferent = stack.Count == 0 || stack.Peek().Value != token.Value;
-            if (token.Value == ignoredInside && stack.Count != 0 && previousValueIsDifferent)
+            if (token.Value == ignoredInsideMdTag && stack.Count != 0 && previousValueIsDifferent)
             {
                 token.TokenType = TokenType.Text;
                 return true;

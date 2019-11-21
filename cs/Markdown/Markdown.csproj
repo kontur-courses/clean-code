@@ -41,13 +41,17 @@
     <Compile Include="Core\Infrastructure\TagsUtils.cs" />
     <Compile Include="Core\MdRenderer.cs" />
     <Compile Include="Core\MdNormalizer.cs" />
-    <Compile Include="Core\MdToHtmlTranslator.cs" />
-    <Compile Include="Core\Readers\TokenReader.cs" />
+    <Compile Include="Core\Readers\HeaderReader.cs" />
+    <Compile Include="Core\Readers\ParagraphTokenReader.cs" />
+    <Compile Include="Core\Readers\ReaderUtils.cs" />
+    <Compile Include="Core\Readers\WordTokenReader.cs" />
     <Compile Include="Core\Tokens\IToken.cs" />
     <Compile Include="Core\Tokens\Token.cs" />
     <Compile Include="Core\Tokens\TokenType.cs" />
     <Compile Include="Core\Tokens\SpaceToken.cs" />
     <Compile Include="Core\Tokens\TextToken.cs" />
+    <Compile Include="Core\Translators\HeaderTranslator.cs" />
+    <Compile Include="Core\Translators\MdToHtmlTranslator.cs" />
     <Compile Include="Program.cs" />
   </ItemGroup>
   <ItemGroup>
