@@ -61,3 +61,6 @@ If you place two new-line symbols you split text for two paragraphs. One new-lin
 
 ## Highlight with formatting
 >If you want to highlight line with formatting you should use \> before first line of paragraph
+
+## Special symbols and escape-characters
+All symbols like \< and \> that uses in HTML will be translatted to their escape-characters. So you can not put html tags in the source document to use them in the HTML document
