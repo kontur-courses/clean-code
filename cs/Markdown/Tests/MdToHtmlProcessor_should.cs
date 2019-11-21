@@ -42,6 +42,12 @@ namespace Markdown.Tests
         [TestCase("__text__", @"NONE", @"NONE", "__text__", TestName = "when token with shielded bold symbols")]
         [TestCase("text__", @"__", @"NONE", "<strong>text__", TestName = "when token with shielded bold symbol at the end")]
         [TestCase("__text", @"NONE", @"__", "__text</strong>", TestName = "when token with shielded bold symbol at the beginning")]
+        [TestCase("abc", "#", "#", "<h1>abc</h1>", TestName = "when token with header first level")]
+        [TestCase("abc", "##", "##", "<h2>abc</h2>", TestName = "when token with header second level")]
+        [TestCase("abc", "###", "###", "<h3>abc</h3>", TestName = "when token with header third level")]
+        [TestCase("abc", "####", "####", "<h4>abc</h4>", TestName = "when token with header fourth level")]
+        [TestCase("abc", "#####", "#####", "<h5>abc</h5>", TestName = "when token with header fifth level")]
+        [TestCase("abc", "######", "######", "<h6>abc</h6>", TestName = "when token with header sixth level")]
         public void GetProcessedResult_Should_ProcessTokenToHtml(string tokenContent,
             string beginningSymbol,
             string endingSymbol,
