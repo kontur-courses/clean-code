@@ -47,10 +47,19 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Md.cs" />
-    <Compile Include="Parser\Event.cs" />
-    <Compile Include="Parser\EventsParser.cs" />
-    <Compile Include="Parser\EventType.cs" />
-    <Compile Include="Parser\ParseHelper.cs" />
+    <Compile Include="Parser\Tags\BoldTag.cs" />
+    <Compile Include="Tools\CharClassifier.cs" />
+    <Compile Include="Tools\CharType.cs" />
+    <Compile Include="Parser\Tags\EmptyTag.cs" />
+    <Compile Include="Parser\Token.cs" />
+    <Compile Include="Parser\TokenType.cs" />
+    <Compile Include="Parser\Tags\ItalicTag.cs" />
+    <Compile Include="Parser\Tags\MarkdownTag.cs" />
+    <Compile Include="Parser\TagsParsing\TagEvent.cs" />
+    <Compile Include="Parser\TagsParsing\TagEventType.cs" />
+    <Compile Include="Parser\TagsParsing\TagsReaderState.cs" />
+    <Compile Include="Tools\StringExtensions.cs" />
+    <Compile Include="Parser\TagsParsing\TagsReader.cs" />
     <Compile Include="Parser\TreeBuilder.cs" />
     <Compile Include="Tree\BoldNode.cs" />
     <Compile Include="Tree\ItalicNode.cs" />

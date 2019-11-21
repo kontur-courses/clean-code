@@ -1,19 +1,19 @@
 ﻿namespace Markdown.Parser
 {
-    public class Event
+    public class Token
     {
-        public Event(EventType type)
+        public Token(TokenType type)
         {
             Type = type;
         }
 
-        public Event(EventType type, string value)
+        public Token(TokenType type, string value)
         {
             Type = type;
             Value = value;
         }
 
-        public EventType Type { get; }
+        public TokenType Type { get; }
         public string Value { get; }
     }
 }

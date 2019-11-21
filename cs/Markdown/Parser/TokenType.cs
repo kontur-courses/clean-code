@@ -1,6 +1,6 @@
 ﻿namespace Markdown.Parser
 {
-    public enum EventType
+    public enum TokenType
     {
         PlainText = 0,
 
@@ -8,6 +8,8 @@
         BoldEnd,
 
         ItalicStart,
-        ItalicEnd
+        ItalicEnd,
+
+        Empty
     }
 }
