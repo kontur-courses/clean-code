@@ -1,7 +1,7 @@
 ﻿using System.Collections.Generic;
 using FluentAssertions;
-using Markdown.ConverterTokens;
 using Markdown.CoreParser;
+using Markdown.CoreParser.ConverterInTokens;
 using Markdown.Tokens;
 using NUnit.Framework;
 
@@ -19,14 +19,14 @@ namespace Markdown.Tests
             var singleEmphasis = new SingleEmphasis();
             var doubleEmphasis = new DoubleEmphasis();
             doubleEmphasis.RegisterNested(singleEmphasis);
-            parser.register(singleEmphasis);
-            parser.register(doubleEmphasis);
+            parser.Register(singleEmphasis);
+            parser.Register(doubleEmphasis);
         }
         
         [Test, TestCaseSource(nameof(DifferentInputs))]
         public void Tokenize_IsNotEmpty(string str, IToken[] tokens)
         {
-            parser.tokenize(str).Should().Equal(tokens);
+            parser.Tokenize(str).Should().Equal(tokens);
         }
 
         public static IEnumerable<TestCaseData>  DifferentInputs 

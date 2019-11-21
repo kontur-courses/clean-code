@@ -1,15 +1,14 @@
-﻿using Markdown.ConverterInTokens;
-using Markdown.Tokens;
+﻿using Markdown.Tokens;
 
-namespace Markdown.ConverterTokens
+namespace Markdown.CoreParser.ConverterInTokens
 {
     public class DoubleEmphasis : AbstractConverterInToken
     {
-        public DoubleEmphasis() : base("__", "__")
+        public DoubleEmphasis() : base("__", "__", new []{'_'})
         {
         }
 
-        public override IToken GetCurrentToken(string Text, int startIndex, IToken[] nestedTokens)
+        protected override IToken GetCurrentToken(string Text, int startIndex, IToken[] nestedTokens)
         {
             return new DoubleEmphasisToken(Text, startIndex, nestedTokens);
         }

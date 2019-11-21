@@ -1,12 +1,11 @@
-﻿using Markdown.ConverterInTokens;
-using Markdown.ConverterTokens;
+﻿using Markdown.CoreParser.ConverterInTokens;
 using Markdown.Tokens;
 
 namespace Markdown.CoreParser
 {
     public interface IParser
     {
-        void register(IConverterInToken reader);
-        IToken[] tokenize(string str);
+        void Register(IConverterInToken reader);
+        IToken[] Tokenize(string str);
     }
 }

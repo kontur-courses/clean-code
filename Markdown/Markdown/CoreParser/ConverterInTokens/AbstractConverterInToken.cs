@@ -1,65 +1,85 @@
-﻿using Markdown.ConverterTokens;
-using Markdown.CoreParser;
+﻿using System.Linq;
 using Markdown.Tokens;
 
-namespace Markdown.ConverterInTokens
+namespace Markdown.CoreParser.ConverterInTokens
 {
     public abstract class AbstractConverterInToken : IConverterInToken
     {
-        private IParser parser = new CoreParser.Parser();
-        public void RegisterNested(IConverterInToken converterInToken) => parser.register(converterInToken);
-        private string startToken;
-        private string endToken;
+        private readonly IParser parser;
+        private readonly string startToken;
+        private readonly string endToken;
+        private readonly char[] unacceptableCharsAfterEndToken;
 
-        protected AbstractConverterInToken(string startToken, string endToken)
+
+        protected AbstractConverterInToken(string startToken, string endToken) : this(startToken, endToken, new char[0])
         {
-            this.startToken = startToken;
-            this.endToken = endToken;
         }
 
-        public abstract IToken GetCurrentToken(string Text, int startIndex, IToken[] nestedTokens);
-        public IToken MakeConverter(string text, int startIndex)
+        protected AbstractConverterInToken(string startToken, string endToken, char[] unacceptableCharsAfterEndToken)
         {
-            if (text.Length - 1 < startIndex + startToken.Length + 1 ||  !text.Substring(startIndex).StartsWith(startToken))
-                return null;
-            var insideWord = !(startIndex == 0 || text[startIndex - 1].IsSeparatorOrPunctuation());
+            parser = new Parser();
+            this.startToken = startToken;
+            this.endToken = endToken;
+            this.unacceptableCharsAfterEndToken = unacceptableCharsAfterEndToken;
+        }
+        
+        public void RegisterNested(IConverterInToken converterInToken) => parser.Register(converterInToken);
+
+        protected abstract IToken GetCurrentToken(string text, int startIndex, IToken[] nestedTokens);
+
+        public IToken SelectTokenInString(string text, int startIndex)
+        {
             var haveSpace = false;
             var haveDigit = false;
-            if (text[startIndex + startToken.Length] == ' ')
+            if (!InitialCheckForCorrectness(text, startIndex, out var insideWord))
                 return null;
+            
             for (var i = startIndex + startToken.Length; i < text.Length; i++)
             {
                 haveSpace = haveSpace || text[i] == ' ';
                 haveDigit = haveDigit || char.IsDigit(text[i]);
-
+                
                 if ((haveSpace || haveDigit) && insideWord )
                     return null;
-                    
-                if (text[i] == '\\')
+                
+                if (text[i] == '\\' )
                 {
                     i++;
                     continue;
                 }
 
-                if (!text.Substring(i).StartsWith(endToken) || text[i - 1] == ' ') continue;
-                
-                if (( i == text.Length - endToken.Length || text[i + endToken.Length].IsSeparatorOrPunctuation() || insideWord))
+                if (CheckForFinalSubstring(text, ref i, insideWord))
                 {
-                    //знаю, что костыль и надо отнего избавиться, но пока не знаю как
-                    if (text.Substring(i + endToken.Length).StartsWith(endToken))
-                    {
-                        i += endToken.Length * 2;
-                        continue;
-                    }
-                    
-                    if (i - startIndex - endToken.Length == 0) return null;
                     var newText = text.Substring(startIndex + startToken.Length, i - startIndex - endToken.Length);
-                    return GetCurrentToken(newText, startIndex, parser.tokenize(newText));
+                    return GetCurrentToken(newText, startIndex, parser.Tokenize(newText));
                 }
             }
             return null;
         }
         
+        private bool InitialCheckForCorrectness(string text, int startIndex, out bool insideWord)
+        {
+            insideWord = !(startIndex == 0 || text[startIndex - 1].IsSeparatorOrPunctuation());
+
+            return text.Length - startIndex >=  startToken.Length + endToken.Length + 1 &&
+                   text.Substring(startIndex).StartsWith(startToken) &&
+                   text[startIndex + startToken.Length] != ' ';
+        }
+        
+        private bool CheckForFinalSubstring(string text, ref int i, bool insideWord)
+        {
+            return text[i - 1] != ' ' && text.Substring(i).StartsWith(endToken) &&
+                   (i == text.Length - endToken.Length || text[i + endToken.Length].IsSeparatorOrPunctuation() ||
+                    insideWord) && !CheckForSkipCharactersAfterEndOfTheToken(text, ref i);
+        }
+        
+        private bool CheckForSkipCharactersAfterEndOfTheToken(string text, ref int i)
+        {
+            if (i + endToken.Length >= text.Length || !unacceptableCharsAfterEndToken.Contains(text[i + endToken.Length])) return false;
+            i += endToken.Length + 1;
+            while (i < text.Length && endToken.Contains(text[i])) i++;
+            return true;
+        }
     }
     
 

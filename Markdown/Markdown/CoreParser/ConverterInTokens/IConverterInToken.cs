@@ -1,10 +1,10 @@
 ﻿using Markdown.Tokens;
 
-namespace Markdown.ConverterInTokens
+namespace Markdown.CoreParser.ConverterInTokens
 {
     public interface IConverterInToken
     {
         void RegisterNested(IConverterInToken converterInToken);
-        IToken MakeConverter(string text, int startIndex);
+        IToken SelectTokenInString(string text, int startIndex);
     }
 }

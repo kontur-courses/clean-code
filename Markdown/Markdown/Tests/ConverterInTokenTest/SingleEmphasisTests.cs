@@ -1,6 +1,6 @@
 ﻿using System.Collections.Generic;
 using FluentAssertions;
-using Markdown.ConverterTokens;
+using Markdown.CoreParser.ConverterInTokens;
 using Markdown.Tokens;
 using NUnit.Framework;
 
@@ -23,21 +23,21 @@ namespace Markdown.Tests.ConverterInTokenTest
         public void MakeConverter_ReturnNull(string str, int startIndex)
         {
             var singleEmphasis = new SingleEmphasis();
-            singleEmphasis.MakeConverter(str, startIndex).Should().BeNull();
+            singleEmphasis.SelectTokenInString(str, startIndex).Should().BeNull();
         }
         
         [Test, TestCaseSource(nameof(DifferentInputs))]
         public void MakeConverter_ReturnToken(string str, int startIndex, IToken result)
         {
             var singleEmphasis = new SingleEmphasis();
-            singleEmphasis.MakeConverter(str, startIndex).Should().Be(result);
+            singleEmphasis.SelectTokenInString(str, startIndex).Should().Be(result);
         }
         
         public static IEnumerable<TestCaseData>  DifferentInputs 
         {
             get
             {
-                yield return new TestCaseData("q_wer_t", 1, new SingleEmphasisToken("wer", 1, new IToken[0]))
+                yield return new TestCaseData("q_e_t", 1, new SingleEmphasisToken("e", 1, new IToken[0]))
                     .SetName("токен находиться в слове");
                 yield return new TestCaseData("_qwert_", 0, new SingleEmphasisToken("qwert", 0, new IToken[0]))
                     .SetName("слово окруженное двумя землями");

@@ -1,6 +1,6 @@
 ﻿using System.Collections.Generic;
 using FluentAssertions;
-using Markdown.ConverterTokens;
+using Markdown.CoreParser.ConverterInTokens;
 using Markdown.Tokens;
 using NUnit.Framework;
 
@@ -20,17 +20,18 @@ namespace Markdown.Tests.ConverterInTokenTest
         [TestCase("__ qwer__", 0, TestName = "пробельный символ после первой пары подчерков")]
         [TestCase("__qwer __", 0, TestName = "пробельный символ перед окончанием токена")]
         [TestCase("__qwer\\__", 0, TestName = "третий подчерк заэкранирован")]
+        [TestCase("__qwer___", 0, TestName = "три подчерка в конце")]
         public void MakeConverter_ReturnNull(string str, int startIndex)
         {
             var doubleEmphasis = new DoubleEmphasis();
-            doubleEmphasis.MakeConverter(str, startIndex).Should().BeNull();
+            doubleEmphasis.SelectTokenInString(str, startIndex).Should().BeNull();
         }
 
         [Test, TestCaseSource(nameof(DifferentInputs))]
         public void MakeConverter_ReturnToken(string str, int startIndex, IToken result)
         {
             var doubleEmphasis = new DoubleEmphasis();
-            doubleEmphasis.MakeConverter(str, startIndex).Should().Be(result);
+            doubleEmphasis.SelectTokenInString(str, startIndex).Should().Be(result);
         }
 
         public static IEnumerable<TestCaseData> DifferentInputs

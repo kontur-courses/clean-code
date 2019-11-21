@@ -1,8 +1,6 @@
-﻿using System;
-
-namespace Markdown.Tokens
+﻿namespace Markdown.Tokens
 {
-    public class AbstractToken : IToken, IComparable
+    public class AbstractToken : IToken
     {
         protected AbstractToken(string text, int indexTokenStart, IToken[] nestedTokens, int length)
         {
@@ -21,12 +19,14 @@ namespace Markdown.Tokens
             if (obj.GetType() != this.GetType())
                 return false;
             var abstractToken = (AbstractToken) obj;
+            
+            if (NestedTokens.Length != abstractToken.NestedTokens.Length)
+                return false;
+            
             for (var i = 0; i < NestedTokens.Length; i++)
                 if (!NestedTokens[i].Equals(abstractToken.NestedTokens[i]))
-                {
                     return false;
-                }
-
+            
             return IndexTokenStart == abstractToken.IndexTokenStart && Text == abstractToken.Text;
         }
 
@@ -34,11 +34,6 @@ namespace Markdown.Tokens
         {
             return IndexTokenStart.GetHashCode() & Text.GetHashCode() & NestedTokens.GetHashCode();
         }
-
-        public int CompareTo(object obj)
-        {
-            var abstractToken = (AbstractToken) obj;
-            return abstractToken.Text.Length.CompareTo(Text.Length) * - 1;
-        }
+        
     }
 }

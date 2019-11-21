@@ -1,6 +1,5 @@
 ﻿using System.Collections.Generic;
 using FluentAssertions;
-using Markdown.ConverterTokens;
 using Markdown.Tokens;
 using Markdown.Transducer.ConverterTokenToHtml;
 using NUnit.Framework;
