@@ -65,6 +65,12 @@ namespace Markdown.MdTokens
             config.AddSpecialSymbol("_", true, true);
             config.AddSpecialSymbol("__", true, true);
             config.AddSpecialSymbol("NONE", false, true);
+            config.AddSpecialSymbol("#", false, false);
+            config.AddSpecialSymbol("##", false, false);
+            config.AddSpecialSymbol("###", false, false);
+            config.AddSpecialSymbol("####", false, false);
+            config.AddSpecialSymbol("#####", false, false);
+            config.AddSpecialSymbol("######", false, false);
             config.AddNestingExceptionForSymbol("__", "_");
             config.SetShieldingSymbol(@"\");
             return config;
