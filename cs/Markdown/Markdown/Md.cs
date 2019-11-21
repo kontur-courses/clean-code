@@ -13,11 +13,20 @@ namespace Markdown
         public Md()
         {
             elementSigns = new Dictionary<string, MdElement>();
+            AddStandartElements();
+            tokenizer = new Tokenizer(elementSigns);
+        }
+
+        private void AddStandartElements()
+        {
             AddElement(new MdElement("_", "<em>", true));
             AddElement(new MdElement("*", "<em>", true));
             AddElement(new MdElement("__", "<strong>", true));
             AddElement(new MdElement("**", "<strong>", true));
-            tokenizer = new Tokenizer(elementSigns);
+            AddElement(new MdElement("+", "<ins>", true));
+            AddElement(new MdElement("-", "<del>", true));
+            AddElement(new MdElement("'", "<code>", true));
+            AddElement(new MdElement("^", "<p>", true));
         }
 
         public string Render(string text)
@@ -27,10 +36,12 @@ namespace Markdown
             var tokens = tokenizer.Tokenize(text);
             var renderedText = new StringBuilder();
             var result = tokens
-                .Select(token => IsTokenMdAndClosed(token) ?
-                    GetHtmlTag(token) : token.Value.ToString());
+                .Select(token => GetTokenInterpretation(token));
             return string.Join("", result);
         }
+
+        private String GetTokenInterpretation(Token token) => IsTokenMdAndClosed(token) ?
+                    GetHtmlTag(token) : token.Value.ToString();
 
         private bool IsTokenMdAndClosed(Token token) =>
             token.Type == TokenType.MdElement && token.IsClosed;
