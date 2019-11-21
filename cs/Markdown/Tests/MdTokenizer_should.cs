@@ -1,5 +1,7 @@
 ﻿using System;
+using System.Diagnostics;
 using System.Linq;
+using System.Text;
 using FluentAssertions;
 using Markdown.MdTokens;
 using NUnit.Framework;
@@ -149,11 +151,17 @@ namespace Markdown.Tests
             lastToken.Should().BeEquivalentTo(expectedLastToken);
         }
 
-        [Test, Timeout(1000)]
-        public void MakeTokens_Should_WorkFastEnough()
+        [Test]
+        public void MakeTokens_Should_WorkLinearly()
         {
-            for (var i = 0; i < 50000; i++)
-                tokenizer.MakeTokens("__Lorem _ipsum dolor sit amet__").Last();
+            var strBuilder = new StringBuilder();
+            for (var i = 0; i < 160000; i++)
+                strBuilder.Append(" " + Guid.NewGuid().ToString("N"));
+            var builderRes = strBuilder.ToString();
+            var timer = Stopwatch.StartNew();
+            tokenizer.MakeTokens(builderRes).Last();
+            timer.Stop();
+            timer.Elapsed.TotalMilliseconds.Should().BeLessThan(1000);
         }
     }
 
