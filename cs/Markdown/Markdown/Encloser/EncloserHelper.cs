@@ -3,83 +3,89 @@ using System.Linq;
 
 namespace Markdown
 {
-    public class EncloserHelper
+    public static class EncloserHelper
     {
-        private bool AreCellsVacant(int start, int end, bool[] vacant)
+        public static void ShiftTokens(Token[] array)
         {
+            for (int i = 0; i < array.Length - 1; ++i)
+                array[i] = array[i + 1];
+        }
+
+        public static void InspectForEnclosing(int i, string sign, bool[] vacant, Token[] currentElement,
+             Dictionary<string, MdElement> elementSigns, Stack<EncloserToken> enclosing, EncloserToken[] encloserTokens)
+        {
+            var elementString = string.Join("", currentElement.Select(token => token.Value));
+            if (IsMdElement(currentElement, elementString, sign))
+            {
+                var start = i - sign.Length + 1;
+                var end = i + 1;
+                var encloserToken = new EncloserToken(elementString, TokenType.MdElement, start, end);
+                if (!elementSigns[sign].IsEnclosed)
+                    EncloseOpenElement(encloserToken, encloserTokens, vacant);
+                else if (IsOpeningElement(currentElement))
+                    PushTokenForEnclosing(encloserToken, enclosing);
+                else if (IsEnclosingElement(currentElement, enclosing))
+                    EnclosePairOfTokens(encloserToken, vacant, enclosing, encloserTokens);
+            }
+        }
+
+        private static bool IsMdElement(Token[] currentElement, string elementString, string sign) =>
+            currentElement.All(token => token.Type == TokenType.MdElement) && elementString == sign;
+
+        private static bool IsOpeningElement(Token[] currentElement) =>
+            currentElement.All(token => token.MdPosition == MdPosition.Opening);
+
+        private static bool IsEnclosingElement(Token[] currentElement, Stack<EncloserToken> enclosing) =>
+            currentElement.All(token => token.MdPosition == MdPosition.Enclosing) && enclosing.Count != 0;
+
+        private static bool AreVacantPlaces(EncloserToken token, bool[] vacant)
+        {
+            var start = token.Start;
+            var end = token.End;
             var isVacant = true;
             for (int i = start; i < end; ++i)
                 isVacant = isVacant && vacant[i];
             return isVacant;
         }
 
-        private void TakeVacantPlaces(int start, int end, bool[] vacant)
+        private static void TakeVacantPlaces(EncloserToken token, bool[] vacant)
         {
+            var start = token.Start;
+            var end = token.End;
             for (int i = start; i < end; ++i)
                 vacant[i] = false;
         }
 
-        public void ShiftTokens(Token[] array)
+        private static void  EncloseOpenElement(EncloserToken openToken, EncloserToken[] encloserTokens, bool[] vacant)
         {
-            for (int i = 0; i < array.Length - 1; ++i)
-                array[i] = array[i + 1];
-        }
-
-        private bool IsMdElement(Token[] curElement, string elementString, string sign) =>
-            curElement.All(token => token.Type == TokenType.MdElement) && elementString == sign;
-
-        private bool IsOpeningElement(Token[] curElement) =>
-            curElement.All(token => token.MdPosition == MdPosition.Opening);
-
-        private bool IsEnclosingElement(Token[] curElement, Stack<EncloserToken> enclosing) =>
-            curElement.All(token => token.MdPosition == MdPosition.Enclosing) && enclosing.Count != 0;
-
-        private void  EncloseOpenElement(int i, string sign, string elementString,
-            bool[] vacant, EncloserToken[] encloserTokens)
-        {
-            var openElement = new EncloserToken(elementString, TokenType.MdElement,
-                        MdPosition.Opening, i - sign.Length + 1, i + 1);
-            if (AreCellsVacant(openElement.Start, openElement.End, vacant))
+            if (AreVacantPlaces(openToken, vacant))
             {
-                openElement.IsClosed = true;
-                encloserTokens[openElement.Start] = openElement;
-                TakeVacantPlaces(openElement.Start, openElement.End, vacant);
+                openToken.MdPosition = MdPosition.Opening;
+                openToken.IsClosed = true;
+                encloserTokens[openToken.Start] = openToken;
+                TakeVacantPlaces(openToken, vacant);
             }
         }
 
-        private void PushElementForEnclosing(int i, string sign, string elementString, Stack<EncloserToken> enclosing) => 
-            enclosing.Push(new EncloserToken(elementString, TokenType.MdElement,
-                        MdPosition.Opening, i - sign.Length + 1, i + 1));
+        private static void PushTokenForEnclosing(EncloserToken openingToken, Stack<EncloserToken> enclosing)
+        {
+            openingToken.MdPosition = MdPosition.Opening;
+            enclosing.Push(openingToken);
+        }
 
-        private void EnclosePairOfEnclosedElements(int i, string sign, string elementString,
-            Stack<EncloserToken> enclosing, EncloserToken[] encloserTokens, bool[] vacant)
+        private static void EnclosePairOfTokens(EncloserToken enclosingToken, bool[] vacant,
+            Stack<EncloserToken> enclosing, EncloserToken[] encloserTokens)
         {
             var openingElement = enclosing.Pop();
-            if (AreCellsVacant(openingElement.Start, openingElement.End, vacant))
+            if (AreVacantPlaces(enclosingToken, vacant))
             {
-                var enclosingElement = new EncloserToken(elementString, TokenType.MdElement,
-                    MdPosition.Enclosing, i - sign.Length + 1, i + 1);
-                enclosingElement.IsClosed = true;
+                enclosingToken.MdPosition = MdPosition.Enclosing;
+                enclosingToken.IsClosed = true;
                 openingElement.IsClosed = true;
                 encloserTokens[openingElement.Start] = openingElement;
-                encloserTokens[enclosingElement.Start] = enclosingElement;
-                TakeVacantPlaces(openingElement.Start, openingElement.End, vacant);
-                TakeVacantPlaces(enclosingElement.Start, enclosingElement.End, vacant);
-            }
-        }
-
-        public void InspectForEnclosing(int i, string sign, bool[] vacant, Token[] curElement,
-             Dictionary<string, MdElement> elementSigns, Stack<EncloserToken> enclosing, EncloserToken[] encloserTokens)
-        {
-            var elementString = string.Join("", curElement.Select(token => token.Value));
-            if (IsMdElement(curElement, elementString, sign))
-            {
-                if (!elementSigns[sign].IsEnclosed)
-                    EncloseOpenElement(i, sign, elementString, vacant, encloserTokens);
-                else if (IsOpeningElement(curElement))
-                    PushElementForEnclosing(i, sign, elementString, enclosing);
-                else if (IsEnclosingElement(curElement, enclosing))
-                    EnclosePairOfEnclosedElements(i, sign, elementString, enclosing, encloserTokens, vacant);
+                encloserTokens[enclosingToken.Start] = enclosingToken;
+                TakeVacantPlaces(openingElement, vacant);
+                TakeVacantPlaces(enclosingToken, vacant);
             }
         }
     }

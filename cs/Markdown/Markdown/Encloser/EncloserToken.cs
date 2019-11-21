@@ -5,11 +5,10 @@
         public int Start;
         public int End;
 
-        public EncloserToken(string value, TokenType type, MdPosition mdPosition, int start, int end) : base(value, type)
+        public EncloserToken(string value, TokenType type, int start, int end) : base(value, type)
         {
             Start = start;
             End = end;
-            MdPosition = mdPosition;
         }
     }
 }
