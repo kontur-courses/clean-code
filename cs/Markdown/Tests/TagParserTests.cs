@@ -7,13 +7,18 @@ namespace Markdown
     [TestFixture]
     internal class TagParserTests
     {
+        private static TagParser tagParser;
+
+        [SetUp]
+        public void SetUp() => tagParser = new TagParser(Markdown.TagsInfo.Keys.ToArray());
+        
         [TestCase("_a")]
         [TestCase("__a")]
         [TestCase("_a __a")]
         [TestCase("__a _a")]
         public void FindOpeningTags(string input)
         {
-            var foundTags = TagParser.Parse(input, Markdown.TagsInfo.Keys.ToList());
+            var foundTags = tagParser.Parse(input);
 
             foreach (var tag in foundTags)
                 tag.Type.Should().Be(TagType.Opening);
@@ -25,7 +30,7 @@ namespace Markdown
         [TestCase("a__ a_")]
         public void FindClosingTags(string input)
         {
-            var foundTags = TagParser.Parse(input, Markdown.TagsInfo.Keys.ToList());
+            var foundTags = tagParser.Parse(input);
 
             foreach (var tag in foundTags)
                 tag.Type.Should().Be(TagType.Closing);
@@ -38,7 +43,7 @@ namespace Markdown
         [TestCase("_a _a _a _a", 4, TestName = "FourEmphasisTags")]
         public void FindAllTagsInString(string inputString, int countTagsInString)
         {
-            var foundTags = TagParser.Parse(inputString, Markdown.TagsInfo.Keys.ToList());
+            var foundTags = tagParser.Parse(inputString);
 
             foundTags.Should().HaveCount(countTagsInString);
         }
@@ -49,7 +54,7 @@ namespace Markdown
         [TestCase(" __ aa", TestName = "WhitespaceToLeftAndRightTag")]
         public void StringWithoutTags(string inputString)
         {
-            var foundTags = TagParser.Parse(inputString, Markdown.TagsInfo.Keys.ToList());
+            var foundTags = tagParser.Parse(inputString);
 
             foundTags.Should().HaveCount(0);
         }

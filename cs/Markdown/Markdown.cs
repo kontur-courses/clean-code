@@ -15,9 +15,10 @@ namespace Markdown
 
         internal static string Render(string inputString)
         {
-            var markdownTagDesignations = TagsInfo.Keys.ToList();
+            var markdownTagDesignations = TagsInfo.Keys.ToArray();
+            var tagParser = new TagParser(markdownTagDesignations);
 
-            var correctTags = TagParser.Parse(inputString, markdownTagDesignations)
+            var correctTags = tagParser.Parse(inputString)
                 .RemoveEscapedTags(inputString)
                 .OrderBy(tag => tag.Index) //Не придумал как избавиться от сортировки :/
                 .RemoveUnopenedTags()

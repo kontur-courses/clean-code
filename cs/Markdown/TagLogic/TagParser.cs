@@ -4,14 +4,19 @@ using System.Linq;
 
 namespace Markdown
 {
-    internal static class TagParser
+    internal class TagParser
     {
-        private static HashSet<char> specialSymbols;
+        private readonly HashSet<char> specialSymbols;
+        private readonly List<string> tagDesignations;
 
-        public static List<Tag> Parse(string inputString, List<string> tagDesignations)
+        public TagParser(string[] tagDesignations)
         {
             specialSymbols = tagDesignations.SelectMany(x => x).ToHashSet();
+            this.tagDesignations = tagDesignations.ToList();
+        }
 
+        public IEnumerable<Tag> Parse(string inputString)
+        {
             var indicesOfMarkdownTags = tagDesignations
                 .ToDictionary(
                     tagDesignation => tagDesignation,
@@ -22,7 +27,7 @@ namespace Markdown
             return convertedTags;
         }
 
-        private static List<Tag> ConvertToTagClass(string inputString, Dictionary<string, List<int>> indexesOfTags)
+        private IEnumerable<Tag> ConvertToTagClass(string inputString, Dictionary<string, List<int>> indexesOfTags)
         {
             var convertedTags = new List<Tag>();
 
@@ -39,7 +44,7 @@ namespace Markdown
             return input.GetSubstringIndices(tagDesignations);
         }
 
-        private static bool TryGetTag(string inputString, int tagIndex, string tagDesignation, out Tag tag)
+        private bool TryGetTag(string inputString, int tagIndex, string tagDesignation, out Tag tag)
         {
             var previousTagSymbol = (tagIndex != 0) 
                 ? inputString[tagIndex - 1]
@@ -73,13 +78,13 @@ namespace Markdown
             return false;
         }
 
-        private static bool IsOpeningTag(char previousSeparatorSymbol, char nextSeparatorSymbol) =>
+        private bool IsOpeningTag(char previousSeparatorSymbol, char nextSeparatorSymbol) =>
             char.IsWhiteSpace(previousSeparatorSymbol)
             && !char.IsWhiteSpace(nextSeparatorSymbol)
             && !specialSymbols.Contains(previousSeparatorSymbol) 
             && !specialSymbols.Contains(nextSeparatorSymbol);
 
-        private static bool IsClosingTag(char previousSeparatorSymbol, char nextSeparatorSymbol) =>
+        private bool IsClosingTag(char previousSeparatorSymbol, char nextSeparatorSymbol) =>
             char.IsWhiteSpace(nextSeparatorSymbol)
             && !char.IsWhiteSpace(previousSeparatorSymbol)
             && !specialSymbols.Contains(nextSeparatorSymbol)
