@@ -54,6 +54,9 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Encloser\EncloserToken.cs" />
+    <Compile Include="Encloser\EncloserHelper.cs" />
+    <Compile Include="Encloser\Encloser.cs" />
     <Compile Include="Md.cs" />
     <Compile Include="MdElement.cs" />
     <Compile Include="Tokenizer\MdPosition.cs" />
