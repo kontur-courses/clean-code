@@ -13,7 +13,7 @@ namespace Markdown
             this.syntax = syntax;
         }
 
-        public IEnumerable<IToken> ParseText(string source)
+        public TokenText ParseText(string source)
         {
             var tokens = GetRawTokens(source);
             tokens = GetNonEscapedTokens(tokens);
@@ -22,7 +22,7 @@ namespace Markdown
             tokens = RemoveNestedPairTokensOfSameType(tokens, AttributeType.Emphasis, AttributeType.Strong);
             tokens = AddValidLinkTokens(tokens, source);
 
-            return tokens;
+            return new TokenText(source, tokens);
         }
 
         private IEnumerable<IToken> GetRawTokens(string source)
@@ -299,7 +299,6 @@ namespace Markdown
 
         private IEnumerable<IToken> AddValidLinkTokens(IEnumerable<IToken> tokens, string source)
         {
-            var inLinkTokens = new List<IToken>();
             PairToken openingHeader = null;
             PairToken closingHeader = null;
             PairToken openingDescription = null;
@@ -327,7 +326,6 @@ namespace Markdown
                     else
                         ProcessTokenToMatchClosingLinkDescription(
                             result,
-                            inLinkTokens,
                             source,
                             pairToken,
                             ref openingHeader,
@@ -336,9 +334,7 @@ namespace Markdown
                 }
                 else
                 {
-                    if (openingDescription != null)
-                        inLinkTokens.Add(token);
-                    else
+                    if (openingDescription == null)
                         result.Add(token);
                 }
 
@@ -431,7 +427,6 @@ namespace Markdown
 
         private void ProcessTokenToMatchClosingLinkDescription(
             List<IToken> listToAdd,
-            List<IToken> inLinkTokens,
             string textSource,
             PairToken currentToken,
             ref PairToken openingHeader,
@@ -442,7 +437,6 @@ namespace Markdown
                 if (currentToken.IsClosing)
                 {
                     var linkTokens = CreatePairOfLinkTokens(
-                        inLinkTokens, 
                         textSource, 
                         openingHeader, 
                         closingHeader,
@@ -459,7 +453,6 @@ namespace Markdown
         }
 
         private (LinkToken, LinkToken) CreatePairOfLinkTokens(
-            List<IToken> inLinkTokens,
             string textSource,
             PairToken openingHeader,
             PairToken closingHeader,
@@ -469,7 +462,6 @@ namespace Markdown
             return (new LinkToken(
                         openingHeader.Position,
                         1,
-                        inLinkTokens,
                         textSource
                             .Substring(
                                 openingDescription.Position + 1,
@@ -479,8 +471,8 @@ namespace Markdown
                     new LinkToken(
                         closingHeader.Position,
                         closingDescription.Position - openingDescription.Position + 2,
-                        null,
-                        null)
+                        null
+                        )
                 );
         }
     }

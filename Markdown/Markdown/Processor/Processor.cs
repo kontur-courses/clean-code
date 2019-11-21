@@ -19,9 +19,9 @@ namespace Markdown
                 throw new ArgumentException();
 
             var tokenizer = new Tokenizer(syntax);
-            var tokens = tokenizer.ParseText(source);
+            var tokenText = tokenizer.ParseText(source);
 
-            return converter.ReplaceAttributesWithTags(tokens, source);
+            return converter.ReplaceAttributesWithTags(tokenText);
         }
     }
 }

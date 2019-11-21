@@ -73,6 +73,7 @@
     <Compile Include="Syntax\Syntax.cs" />
     <Compile Include="Tokenizer\SingleToken.cs" />
     <Compile Include="Tokenizer\Tokenizer.cs" />
+    <Compile Include="Tokenizer\TokenText.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="App.config" />

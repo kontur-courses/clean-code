@@ -4,6 +4,6 @@ namespace Markdown
 {
     public interface ITokenizer
     {
-        IEnumerable<IToken> ParseText(string source);
+        TokenText ParseText(string sourceText);
     }
 }

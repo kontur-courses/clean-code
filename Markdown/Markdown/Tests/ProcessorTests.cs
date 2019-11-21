@@ -104,7 +104,7 @@ namespace Markdown
 
         [TestCase("[]()", "<a href=\"\"></a>", TestName = "Empty link header and description create empty tag")]
         [TestCase("[Google It](http://google.com)", "<a href=\"http://google.com\">Google It</a>", 
-            TestName = "сircle brackets after round brackets create a link")]
+            TestName = "Circle brackets after round brackets create a link")]
         [TestCase("[_Yandex It_](http://yandex.ru)", "<a href=\"http://yandex.ru\"><em>Yandex It</em></a>", 
             TestName = "Emphasis text inside link header name")]
         [TestCase("[__Bing It__](http://bing.com)", "<a href=\"http://bing.com\"><strong>Bing It</strong></a>", 
@@ -133,7 +133,7 @@ namespace Markdown
             TestName = "Special symbol is escaped inside link description")]
         [TestCase("[Google It](http://google.com) text [Google It](http://google.com)",
             "<a href=\"http://google.com\">Google It</a> text <a href=\"http://google.com\">Google It</a>",
-            TestName = "Two links in texts")]
+            TestName = "Two links in text")]
         public void Render_ReturnsCorrectString_WithLinkAttributes(string input, string expected)
         {
             processor.Render(input).Should().Be(expected);

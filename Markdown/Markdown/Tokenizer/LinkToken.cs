@@ -1,4 +1,5 @@
 ﻿using System.Collections.Generic;
+using System.Dynamic;
 
 namespace Markdown
 {
@@ -10,16 +11,13 @@ namespace Markdown
 
         public int AttributeLength { get; }
 
-        public  List<IToken> UrlTokens { get; }
-
         public string RawUrl { get; }
 
-        public LinkToken(int position, int attributeLength, List<IToken> urlTokens, string rawUrl)
+        public LinkToken(int position, int attributeLength, string rawUrl)
         {
             Type = AttributeType.Link;
             Position = position;
             AttributeLength = attributeLength;
-            UrlTokens = urlTokens;
             RawUrl = rawUrl;
         }
     }

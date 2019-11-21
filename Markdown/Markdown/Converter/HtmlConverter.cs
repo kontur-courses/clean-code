@@ -13,23 +13,21 @@ namespace Markdown
             {AttributeType.Escape, ""},
             {AttributeType.None, ""},
             {AttributeType.Link, "a"},
-            {AttributeType.LinkHeader, "head"},
-            {AttributeType.LinkDescription, "desc"}
         };
 
 
-        public string ReplaceAttributesWithTags(IEnumerable<IToken> tokens, string source)
+        public string ReplaceAttributesWithTags(TokenText tokenText)
         {
             var textPosition = 0;
             var sb = new StringBuilder();
-            foreach (var token in tokens)
+            foreach (var token in tokenText.InTextTokens)
             {
-                sb.Append(source.Substring(textPosition, token.Position - textPosition));
+                sb.Append(tokenText.Source.Substring(textPosition, token.Position - textPosition));
                 sb.Append(GetTag(token));
                 textPosition = token.Position + token.AttributeLength;
             }
 
-            sb.Append(source.Substring(textPosition, source.Length - textPosition));
+            sb.Append(tokenText.Source.Substring(textPosition, tokenText.Source.Length - textPosition));
 
             return sb.ToString();
         }
@@ -49,7 +47,7 @@ namespace Markdown
                 return $"</{tagDictionary[linkToken.Type]}>";
 
             var tokenizer = new Tokenizer(Syntax.InLinkSyntax);
-            var url = ReplaceAttributesWithTags(tokenizer.ParseText(linkToken.RawUrl), linkToken.RawUrl);
+            var url = ReplaceAttributesWithTags(tokenizer.ParseText(linkToken.RawUrl));
 
             return $"<{tagDictionary[linkToken.Type]} href=\"{url}\">";
         }
