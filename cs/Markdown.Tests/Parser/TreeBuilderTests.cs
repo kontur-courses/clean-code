@@ -17,10 +17,7 @@ namespace Markdown.Tests.Parser
         [SetUp]
         public void SetUp()
         {
-            var tags = new List<MarkdownTag> {new BoldTag(), new ItalicTag()};
-            var classifier = new CharClassifier(tags.SelectMany(t => t.String));
-
-            treeBuilder = new TreeBuilder(tags, classifier);
+            treeBuilder = new TreeBuilder();
         }
 
 

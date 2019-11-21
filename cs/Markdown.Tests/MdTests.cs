@@ -69,6 +69,5 @@ namespace Markdown.Tests
 
             actual.Should().BeEquivalentTo(html);
         }
-
     }
 }

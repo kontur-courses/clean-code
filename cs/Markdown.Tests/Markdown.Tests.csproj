@@ -53,9 +53,9 @@
   <ItemGroup>
     <Compile Include="MdTests.cs" />
     <Compile Include="Parser\TagsParsing\TagsReaderTests.cs" />
-    <Compile Include="Parser\TokenizerTests.cs" />
     <Compile Include="Parser\TreeBuilderTests.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="Tools\FilterTests.cs" />
     <Compile Include="Tree\BoldNodeTests.cs" />
     <Compile Include="Tree\ItalicNodeTests.cs" />
     <Compile Include="Tree\PlainTextNodeTests.cs" />

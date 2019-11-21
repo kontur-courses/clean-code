@@ -1,10 +1,10 @@
-﻿namespace Markdown.Parser.Tags
+﻿using Markdown.Tree;
+
+namespace Markdown.Parser.Tags
 {
     public class ItalicTag : MarkdownTag
     {
         public override string String => "_";
-
-        public override TokenType TokenTypeStart => TokenType.ItalicStart;
-        public override TokenType TokenTypeEnd => TokenType.ItalicEnd;
+        public override Node Node => new ItalicNode();
     }
 }

@@ -10,9 +10,7 @@ namespace Markdown
     {
         public string Render(string markdown)
         {
-            var tags = new List<MarkdownTag> {new BoldTag(), new ItalicTag()};
-            var classifier = new CharClassifier(tags.SelectMany(t => t.String));
-            var treeBuilder = new TreeBuilder(tags, classifier);
+            var treeBuilder = new TreeBuilder();
 
             var tree = treeBuilder.ParseMarkdown(markdown);
             var html = tree.GetText();
