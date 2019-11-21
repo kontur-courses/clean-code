@@ -1,15 +1,15 @@
 ﻿namespace Markdown.IntermediateState
 {
-    enum TagType
+    public enum TagType
     {
+        H1 = 1,
+        H2 = 2,
+        H3 = 3,
+        H4 = 4,
+        H5 = 5,
+        H6 = 6,
         Italic,
         Bold,
-        H1,
-        H2,
-        H3,
-        H4,
-        H5,
-        H6,
         Paragraph,
         Image,
         Raw,

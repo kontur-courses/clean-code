@@ -1,9 +1,6 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using NUnit.Framework;
+﻿using NUnit.Framework;
 using FluentAssertions;
+using NUnit.Framework.Internal;
 
 namespace Markdown
 {
@@ -17,19 +14,42 @@ namespace Markdown
             md = new Md();
         }
 
-        [TestCase("abcd", "<p>abcd</p>", TestName = "One simple line")]
-        [TestCase("abcd\nabcd", "<p>abcd\nabcd</p>", TestName = "Two lines but one paragraph")]
-        [TestCase("abcd\n\nabcd", "<p>abcd</p>\n<p>abcd</p>", TestName = "Two paragraphs")]
-        [TestCase("\n\nabcd", "<p>abcd</p>", TestName = "Skip empty paragraphs")]
-        public void TranslateRender_ReturnsCorrectAnswer(string inputLine, string outputLine)
+        [Test]
+        public void Render_OnEmptyString()
         {
-            md.Render(inputLine).Should().Be(outputLine);
+            md.Render("").Should().Be("");
         }
 
         [Test]
-        public void DoSomething_WhenSomething()
+        public void Render_OnNullString()
         {
-            
+            md.Render(null).Should().Be("");
+        }
+
+        [Test]
+        public void Render_OnSimpleString()
+        {
+            md.Render("abcd").Should().Be("<div>abcd</div>");
+        }
+
+        [TestCase("__abcd__", "<div><strong>abcd</strong></div>", TestName = "One tag on whole string")]
+        [TestCase("__ab_c__d_", "<div><strong>ab_c</strong>d_</div>", TestName = "Italic and bold intersect")]
+        [TestCase("___ab___", "<div><strong><em>ab</em></strong></div>", TestName = "Italic in Bold")]
+        [TestCase("a5__ba__", "<div>a5_<em>ba</em>_</div>", TestName = "Number near tag")]
+        [TestCase("___", "<div>___</div>", TestName = "Underline")]
+        public void Render_OnBoldTag(string input, string output)
+        {
+            var actual = md.Render(input);
+            actual.Should().Be(output);
+        }
+
+        [TestCase("# ABCD", "<div><h1>ABCD</h1></div>", TestName = "H1 tag")]
+        [TestCase("## ABCD", "<div><h2>ABCD</h2></div>", TestName = "H2 tag")]
+        [TestCase("# ABCD\nAB", "<div><h1>ABCD</h1>\nAB</div>", TestName = "TextAfterHeader")]
+        [TestCase("# AB __b__\n", "<div><h1>AB __b__</h1>\n</div>", TestName = "Ignore tags in header")]
+        public void Render_OnHeaders(string input, string output)
+        {
+            md.Render(input).Should().Be(output);
         }
     }
 }

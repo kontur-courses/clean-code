@@ -2,25 +2,44 @@
 
 namespace Markdown.IntermediateState
 {
-    class DocumentNode
+    public class DocumentNode
     {
+        public int NestingLevel { get; }
         public TagType TypeTag { get; }
-        public int BeginInDocument { get; }
-        public int EndInDocument { get; }
+        public int BeginInnerPartInSource { get; }
+        public int EndInnerPartInSource { get; }
+        
         public IEnumerable<DocumentNode> InnerElements => innerElements;
+        public IDictionary<string, string> Attributes => attributes;
+        public string SourceDocument { get; }
 
-        private List<DocumentNode> innerElements;
+        private readonly List<DocumentNode> innerElements;
+        private Dictionary<string, string> attributes;
 
-        public DocumentNode(TagType tagType, int beginInDocument, int endInDocument)
+        public DocumentNode(TagType tagType, string sourceDocument, int beginInnerPartInSource, int endInnerPartInSource, int nestingLevel)
         {
             TypeTag = tagType;
-            BeginInDocument = beginInDocument;
-            EndInDocument = endInDocument;
+            BeginInnerPartInSource = beginInnerPartInSource;
+            EndInnerPartInSource = endInnerPartInSource;
+            NestingLevel = nestingLevel;
+            SourceDocument = sourceDocument;
+            innerElements = new List<DocumentNode>();
+            attributes = new Dictionary<string, string>();
         }
 
         public void AddElement(DocumentNode innerNode)
         {
             innerElements.Add(innerNode);
+        }
+
+        public void AddAttribute(string key, string value)
+        {
+            attributes[key] = value;
+        }
+
+        public bool ContainsInnerElements()
+        {
+            return innerElements.Count > 0;
         }
     }
 }

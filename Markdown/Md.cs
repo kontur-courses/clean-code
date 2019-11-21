@@ -20,7 +20,8 @@ namespace Markdown
 
         public string Render(string inputDocument)
         {
-            return languageBuilder.BuildDocument(languageParser.GetParsedDocument(inputDocument));
+            var parsedDocument = languageParser.GetParsedDocument(inputDocument);
+            return languageBuilder.BuildDocument(parsedDocument, node => "");
         }
     }
 }

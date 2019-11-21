@@ -1,9 +1,10 @@
-﻿using Markdown.IntermediateState;
+﻿using System;
+using Markdown.IntermediateState;
 
 namespace Markdown.Builders
 {
     interface ILanguageBuilder
     {
-        string BuildDocument(DocumentNode parsedDocument, UnknownTagAction unknownTagAction = UnknownTagAction.Except);
+        string BuildDocument(DocumentNode parsedDocument, Func<DocumentNode, string> unknownTagAction);
     }
 }

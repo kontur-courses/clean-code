@@ -4,6 +4,6 @@ namespace Markdown.Parsers
 {
     interface ILanguageParser
     {
-        DocumentNode GetParsedDocument(string InputDocument);
+        DocumentNode GetParsedDocument(string inputDocument);
     }
 }
