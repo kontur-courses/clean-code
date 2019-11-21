@@ -12,7 +12,7 @@ namespace Markdown.RenderUtilities
         public List<TokenType> AcceptedTokenTypes => 
             processingDescriptions.Select(token => token.TokenType).ToList();
 
-        public SimpleProcessor(IEnumerable<MarkdownSimpleTokenProcessingDescription> processingDescriptions)
+        public SimpleProcessor(List<MarkdownSimpleTokenProcessingDescription> processingDescriptions)
         {
             this.processingDescriptions = processingDescriptions.ToList();
             typeToDescription = this.processingDescriptions.ToDictionary(token => token.TokenType);

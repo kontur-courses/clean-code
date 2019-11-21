@@ -7,9 +7,9 @@ namespace Markdown.RenderUtilities
 {
     public class Renderer
     {
-        private readonly Func<IEnumerable<ITokenProcessor>> getProcessors;
+        private readonly Func<List<ITokenProcessor>> getProcessors;
 
-        public Renderer(Func<IEnumerable<ITokenProcessor>> processorsGetter)
+        public Renderer(Func<List<ITokenProcessor>> processorsGetter)
         {
             getProcessors = processorsGetter;
         }

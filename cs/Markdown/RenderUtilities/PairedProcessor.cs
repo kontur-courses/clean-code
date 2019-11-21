@@ -12,7 +12,7 @@ namespace Markdown.RenderUtilities
         private List<Token> openingTokens;
         private Dictionary<Token, PairedTokenDescription> tokenToPairedDescription;
 
-        public PairedProcessor(IEnumerable<MarkdownPairedTokenProcessingDescription> processingDescriptions)
+        public PairedProcessor(List<MarkdownPairedTokenProcessingDescription> processingDescriptions)
         {
             this.processingDescriptions = processingDescriptions.ToList();
             typeToDescription = this.processingDescriptions.ToDictionary(token => token.TokenType);
