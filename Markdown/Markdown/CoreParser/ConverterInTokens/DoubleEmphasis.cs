@@ -12,6 +12,5 @@ namespace Markdown.CoreParser.ConverterInTokens
         {
             return new DoubleEmphasisToken(Text, startIndex, nestedTokens);
         }
-        
     }
 }

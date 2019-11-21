@@ -39,6 +39,8 @@ namespace Markdown.Tests.ConverterInTokenTest
             {
                 yield return new TestCaseData("q_e_t", 1, new SingleEmphasisToken("e", 1, new IToken[0]))
                     .SetName("токен находиться в слове");
+                yield return new TestCaseData("вы_делен_ием", 2, new SingleEmphasisToken("делен", 2, new IToken[0]))
+                    .SetName("подчерки находиться внутри слове");
                 yield return new TestCaseData("_qwert_", 0, new SingleEmphasisToken("qwert", 0, new IToken[0]))
                     .SetName("слово окруженное двумя землями");
                 yield return new TestCaseData("_qwert йцук_", 0, new SingleEmphasisToken("qwert йцук", 0, new IToken[0]))
