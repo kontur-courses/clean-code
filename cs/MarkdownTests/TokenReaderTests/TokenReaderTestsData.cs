@@ -20,15 +20,15 @@ namespace MarkdownTests.TokenReaderTests
             {
                 var mdBeginningTag = tagInfo.MdTag;
                 yield return new TestCaseData($"{mdBeginningTag} text",
-                    new List<Token>()
-                    {
-                        new HTMLTagToken(0, mdBeginningTag, HTMLTagType.Header),
-                        new SpaceToken(mdBeginningTag.Length, " "),
-                        new TextToken(mdBeginningTag.Length + 1, "text")
-                    })
+                        new List<Token>()
+                        {
+                            new HTMLTagToken(0, mdBeginningTag, HTMLTagType.Header),
+                            new SpaceToken(mdBeginningTag.Length, " "),
+                            new TextToken(mdBeginningTag.Length + 1, "text")
+                        })
                     .SetName($"Simple {tagInfo.TagName}");
             }
-            
+
             foreach (var tagInfo in TagsUtils.InlineTagsInfo)
             {
                 var mdInlineTag = tagInfo.MdTag;
@@ -61,7 +61,8 @@ namespace MarkdownTests.TokenReaderTests
                 foreach (var otherTagInfo in TagsUtils.InlineTagsInfo.Where(info => info.TagName != tagInfo.TagName))
                 {
                     var otherMdInlineTag = otherTagInfo.MdTag;
-                    yield return new TestCaseData($"{mdInlineTag}t {otherMdInlineTag}t{otherMdInlineTag} t{mdInlineTag}",
+                    yield return new TestCaseData(
+                            $"{mdInlineTag}t {otherMdInlineTag}t{otherMdInlineTag} t{mdInlineTag}",
                             new List<Token>()
                             {
                                 new HTMLTagToken(0, mdInlineTag, HTMLTagType.Opening),
@@ -71,7 +72,7 @@ namespace MarkdownTests.TokenReaderTests
                                 new TextToken(mdInlineTag.Length + 2 + otherMdInlineTag.Length, "t"),
                                 new HTMLTagToken(mdInlineTag.Length + 2 + otherMdInlineTag.Length + 1,
                                     otherMdInlineTag, HTMLTagType.Closing),
-                                new SpaceToken(mdInlineTag.Length + 2 + 2 * otherMdInlineTag.Length + 1, " "),                          
+                                new SpaceToken(mdInlineTag.Length + 2 + 2 * otherMdInlineTag.Length + 1, " "),
                                 new TextToken(mdInlineTag.Length + 2 + 2 * otherMdInlineTag.Length + 2, "t"),
                                 new HTMLTagToken(mdInlineTag.Length + 2 + 2 * otherMdInlineTag.Length + 3,
                                     mdInlineTag, HTMLTagType.Closing)

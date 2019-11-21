@@ -34,9 +34,16 @@ namespace Markdown.Core.Infrastructure
             return TagsInfo.Find(tagInfo => tagInfo.MdTag == mdTag).TagName;
         }
         
+        public static TagInfo GetTagInfoByTagName(string tagName)
+        {
+            return TagsInfo.Find(tagInfo => tagInfo.TagName == tagName);
+        }
+        
         public static string GetMdTagByTagName(string tagName)
         {
-            return TagsInfo.Find(tagInfo => tagInfo.TagName == tagName).MdTag;
+            return GetTagInfoByTagName(tagName).MdTag;
         }
+
+
     }
 }

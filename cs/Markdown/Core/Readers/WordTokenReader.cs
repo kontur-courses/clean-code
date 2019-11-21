@@ -1,5 +1,4 @@
 using System.Collections.Generic;
-using System.Linq;
 using Markdown.Core.HTMLTags;
 using Markdown.Core.Infrastructure;
 using Markdown.Core.Tokens;

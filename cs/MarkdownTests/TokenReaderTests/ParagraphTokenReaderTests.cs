@@ -3,7 +3,6 @@ using Markdown.Core.Readers;
 using Markdown.Core.Tokens;
 using NUnit.Framework;
 using FluentAssertions;
-using MarkdownTests.Infrastructure;
 
 namespace MarkdownTests.TokenReaderTests
 {
@@ -13,9 +12,9 @@ namespace MarkdownTests.TokenReaderTests
         private readonly ParagraphTokenReader paragraphTokenReader = new ParagraphTokenReader();
         
         [TestCaseSource(typeof(TokenReaderTestsData), nameof(TokenReaderTestsData.ReaderTestCases))]
-        public void ReadTokensShouldReturnCorrectTokens(string source, List<Token> expectedTokens)
+        public void ReadTokensShouldReturnCorrectTokens(string source, List<Token> expectedResult)
         {
-            TestUtils.IsSameTokenLists(paragraphTokenReader.ReadTokens(source), expectedTokens).Should().BeTrue();  
+            paragraphTokenReader.ReadTokens(source).Should().Equal(expectedResult); 
         }
     }
 }

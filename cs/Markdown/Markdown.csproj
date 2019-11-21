@@ -40,7 +40,8 @@
     <Compile Include="Core\Infrastructure\TagInfo.cs" />
     <Compile Include="Core\Infrastructure\TagsUtils.cs" />
     <Compile Include="Core\MdRenderer.cs" />
-    <Compile Include="Core\MdNormalizer.cs" />
+    <Compile Include="Core\Normalizer\IgnoreInsideRule.cs" />
+    <Compile Include="Core\Normalizer\MdNormalizer.cs" />
     <Compile Include="Core\Readers\HeaderReader.cs" />
     <Compile Include="Core\Readers\ParagraphTokenReader.cs" />
     <Compile Include="Core\Readers\ReaderUtils.cs" />

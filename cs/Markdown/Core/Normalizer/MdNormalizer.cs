@@ -3,11 +3,17 @@ using System.Linq;
 using Markdown.Core.HTMLTags;
 using Markdown.Core.Tokens;
 
-namespace Markdown.Core
+namespace Markdown.Core.Normalizer
 {
     public class MdNormalizer
-    {    
-        public List<Token> NormalizeTokens(List<Token> tokens, string ignoredInsideMdTag)
+    {
+        public List<Token> NormalizeTokens(List<Token> tokens, List<IgnoreInsideRule> ignoreRules)
+        {
+            var normalizedWithoutIgnoreRulesTokens = DoNormalizeIteration(tokens, new List<IgnoreInsideRule>());
+            return DoNormalizeIteration(normalizedWithoutIgnoreRulesTokens, ignoreRules);
+        }
+
+        private List<Token> DoNormalizeIteration(List<Token> tokens, List<IgnoreInsideRule> ignoreRules)
         {
             var tagStack = new Stack<HTMLTagToken>();
             var inlineTokens = tokens
@@ -16,12 +22,13 @@ namespace Markdown.Core
                 .Where(tag => tag.TagType != HTMLTagType.Header);
             foreach (var tagToken in inlineTokens)
             {
-                if (!TryPutTokenIntoRightTagsSequence(tagStack, tagToken, ignoredInsideMdTag))
+                if (!TryPutTokenIntoRightTagsSequence(tagStack, tagToken, ignoreRules))
                 {
                     tagToken.TokenType = TokenType.Text;
                     ChangeTokenTypeToTextToAllTokensInStack(tagStack);
-                };
+                }
             }
+
             ChangeTokenTypeToTextToAllTokensInStack(tagStack);
             return tokens;
         }
@@ -33,17 +40,20 @@ namespace Markdown.Core
                 tagStack.Pop().TokenType = TokenType.Text;
             }
         }
-        
+
         private bool TryPutTokenIntoRightTagsSequence(
-            Stack<HTMLTagToken> stack, HTMLTagToken token, string ignoredInsideMdTag)
+            Stack<HTMLTagToken> stack, HTMLTagToken token, List<IgnoreInsideRule> ignoreInsideRules)
         {
             var previousValueIsDifferent = stack.Count == 0 || stack.Peek().Value != token.Value;
-            if (token.Value == ignoredInsideMdTag && stack.Count != 0 && previousValueIsDifferent)
+            foreach (var ignoreInsideRule in ignoreInsideRules)
             {
-                token.TokenType = TokenType.Text;
-                return true;
+                if (IsNeedIgnoreInside(stack, token, ignoreInsideRule))
+                {
+                    token.TokenType = TokenType.Text;
+                    return true;
+                }
             }
-                
+
             if (token.TagType == HTMLTagType.Opening)
             {
                 if (previousValueIsDifferent)
@@ -54,10 +64,19 @@ namespace Markdown.Core
             else
             {
                 if (previousValueIsDifferent)
-                    return false;   
+                    return false;
                 stack.Pop();
             }
+
             return true;
+        }
+
+        private static bool IsNeedIgnoreInside(Stack<HTMLTagToken> stack, HTMLTagToken token,
+            IgnoreInsideRule ignoreInsideRule)
+        {
+            return token.Value == ignoreInsideRule.IgnoredInsideTag.MdTag &&
+                   stack.Count != 0 &&
+                   ignoreInsideRule.OuterTags.Any(tagInfo => stack.Peek().Value == tagInfo.MdTag);
         }
     }
 }

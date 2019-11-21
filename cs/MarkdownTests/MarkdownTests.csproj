@@ -33,13 +33,14 @@
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
   <ItemGroup>
-    <Compile Include="Infrastructure\TestUtils.cs" />
     <Compile Include="MdNormalizerTests\MdNormalizerTests.cs" />
     <Compile Include="MdNormalizerTests\MdNormalizerTestsData.cs" />
     <Compile Include="MdRendererTests\MarkdownTests.cs" />
     <Compile Include="MdRendererTests\MarkdownTestsData.cs" />
     <Compile Include="TokenReaderTests\ParagraphTokenReaderTests.cs" />
     <Compile Include="TokenReaderTests\TokenReaderTestsData.cs" />
+    <Compile Include="TranslatorTests\MdToHtmlTranslatorTests.cs" />
+    <Compile Include="TranslatorTests\MdToHtmlTranslatorTestsData.cs" />
   </ItemGroup>
   <ItemGroup>
     <Reference Include="FluentAssertions, Version=5.9.0.0, Culture=neutral, PublicKeyToken=33f2691a05b67b6a">
