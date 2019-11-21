@@ -49,6 +49,12 @@ namespace Markdown.Tests
         [TestCase("__text", "__text", "NONE", "NONE", TestName = "when text with singular bold symbol at the beginning")]
         [TestCase("b_aa__a_c", "b_aa__a_c", "NONE", "NONE", TestName = "when text with incorrect special symbols")]
         [TestCase("__", "__", "NONE", "NONE", TestName = "when text with only special symbols")]
+        [TestCase("#abc", "abc", "#", "#", TestName = "when text with header first level")]
+        [TestCase("##abc", "abc", "##", "##", TestName = "when text with header second level")]
+        [TestCase("###abc", "abc", "###", "###", TestName = "when text with header third level")]
+        [TestCase("####abc", "abc", "####", "####", TestName = "when text with header fourth level")]
+        [TestCase("#####abc", "abc", "#####", "#####", TestName = "when text with header fifth level")]
+        [TestCase("######abc", "abc", "######", "######", TestName = "when text with header sixth level")]
         public void MakeTokens_Should_ParseToken(string text, 
             string expectedContent, 
             string expectedSpecialSymbolBeginning, 
@@ -159,7 +165,7 @@ namespace Markdown.Tests
                 strBuilder.Append(" " + Guid.NewGuid().ToString("N"));
             var builderRes = strBuilder.ToString();
             var timer = Stopwatch.StartNew();
-            tokenizer.MakeTokens(builderRes).Last();
+            var res = tokenizer.MakeTokens(builderRes).Last();
             timer.Stop();
             timer.Elapsed.TotalMilliseconds.Should().BeLessThan(1000);
         }
