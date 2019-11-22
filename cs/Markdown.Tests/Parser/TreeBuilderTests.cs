@@ -50,9 +50,9 @@ namespace Markdown.Tests.Parser
             {
                 yield return new TestCaseData(
                         $"{tag.String}this is plain text{tag.String}",
-                        tag.Node,
+                        tag.CreateNode(),
                         "this is plain text")
-                    .SetName($"text in {tag.Name} tags");
+                    .SetName($"text in {tag.GetType().Name} tags");
             }
         }
 
@@ -78,10 +78,10 @@ namespace Markdown.Tests.Parser
                 foreach (var other in Tags.Where(other => tag != other))
                 {
                     var expectedResult = new RootNode();
-                    var external = tag.Node;
+                    var external = tag.CreateNode();
                     expectedResult.AddNode(external);
                     external.AddNode(new PlainTextNode("this is "));
-                    var otherNode = other.Node;
+                    var otherNode = other.CreateNode();
                     external.AddNode(otherNode);
                     otherNode.AddNode(new PlainTextNode("plain"));
                     external.AddNode(new PlainTextNode(" text"));
@@ -89,7 +89,7 @@ namespace Markdown.Tests.Parser
                     yield return new TestCaseData(
                             $"{tag.String}this is {other.String}plain{other.String} text{tag.String}",
                             expectedResult)
-                        .SetName($"{other.Name} tag nested in {tag.Name} tag");
+                        .SetName($"{other.GetType().Name} tag nested in {tag.GetType().Name} tag");
                 }
             }
         }
@@ -108,27 +108,14 @@ namespace Markdown.Tests.Parser
             foreach (var tag in Tags)
             {
                 var expected = new RootNode();
-                var tagNode = tag.Node;
+                var tagNode = tag.CreateNode();
                 expected.AddNode(tagNode);
-                tagNode.AddNode(new PlainTextNode("this is \nplain text"));
+                tagNode.AddNode(new PlainTextNode("this is \nplain \t text"));
 
                 yield return new TestCaseData(
-                        $"{tag.String}this is \nplain text{tag.String}",
+                        $"{tag.String}this is \nplain \t text{tag.String}",
                         expected)
-                    .SetName($"new line inside {tag.Name} tags");
-            }
-
-            foreach (var tag in Tags)
-            {
-                var expected = new RootNode();
-                var tagNode = tag.Node;
-                expected.AddNode(tagNode);
-                tagNode.AddNode(new PlainTextNode("this is \tplain text"));
-
-                yield return new TestCaseData(
-                        $"{tag.String}this is \tplain text{tag.String}",
-                        expected)
-                    .SetName($"tab inside {tag.Name} tags");
+                    .SetName($"new line and tab inside {tag.GetType().Name} tags");
             }
         }
 
@@ -149,8 +136,8 @@ namespace Markdown.Tests.Parser
                 {
                     var markdown = $"{tag.String}first{tag.String} {other.String}second{other.String}";
                     var expected = new RootNode();
-                    var first = tag.Node;
-                    var second = other.Node;
+                    var first = tag.CreateNode();
+                    var second = other.CreateNode();
                     expected.AddNode(first);
                     expected.AddNode(new PlainTextNode(" "));
                     expected.AddNode(second);
@@ -158,7 +145,7 @@ namespace Markdown.Tests.Parser
                     second.AddNode(new PlainTextNode("second"));
 
                     yield return new TestCaseData(markdown, expected)
-                        .SetName($"{other.Name} tags after {tag.Name} tags");
+                        .SetName($"{other.GetType().Name} tags after {tag.GetType().Name} tags");
                 }
             }
         }
@@ -175,7 +162,7 @@ namespace Markdown.Tests.Parser
         private static IEnumerable<TestCaseData> GenerateTagsBetweenDigits()
         {
             return Tags.Select(tag => new TestCaseData($"{tag.String}4{tag.String}2")
-                .SetName($"{tag.Name} tag between digits"));
+                .SetName($"{tag.GetType().Name} tag between digits"));
         }
 
         [TestCaseSource(nameof(GenerateTagsBetweenDigits))]

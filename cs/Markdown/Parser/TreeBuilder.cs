@@ -61,7 +61,7 @@ namespace Markdown.Parser
 
                 if (current.Type != TagEventType.End)
                 {
-                    var node = current.Tag.Node;
+                    var node = current.Tag.CreateNode();
                     currentNode.AddNode(node);
                     currentNode = node;
                     continue;

@@ -40,7 +40,7 @@ namespace Markdown.Tests.Parser.TagsParsing
         {
             foreach (var tag in tags)
             {
-                var tagName = tag.Name;
+                var tagName = tag.GetType().Name;
                 var tagString = tag.String;
 
                 yield return
@@ -75,7 +75,7 @@ namespace Markdown.Tests.Parser.TagsParsing
                                         new TagEvent(5, TagEventType.Start, tag),
                                         new TagEvent(5 + tagString.Length + 13, TagEventType.End, other)
                                     })
-                                .SetName($"{tagName} start and {other.Name} end");
+                                .SetName($"{tagName} start and {other.GetType().Name} end");
                     }
                 }
 
@@ -128,11 +128,11 @@ namespace Markdown.Tests.Parser.TagsParsing
             {
                 yield return
                     new TestCaseData($"text {tag.String} text")
-                        .SetName($"invalid token of {tag.Name}");
+                        .SetName($"invalid token of {tag.GetType().Name}");
 
                 yield return
                     new TestCaseData($"text{tag.String}text")
-                        .SetName($"invalid start and end tokens of {tag.Name}");
+                        .SetName($"invalid start and end tokens of {tag.GetType().Name}");
             }
         }
 
@@ -151,7 +151,7 @@ namespace Markdown.Tests.Parser.TagsParsing
             foreach (var tag in tags)
             {
                 yield return new TestCaseData($"42{tag.String}42")
-                    .SetName($"{tag.Name} inside digits");
+                    .SetName($"{tag.GetType().Name} inside digits");
             }
         }
 

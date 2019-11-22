@@ -5,7 +5,6 @@ namespace Markdown.Parser.Tags
     public class BoldTag : MarkdownTag
     {
         public override string String => "__";
-        public override Node Node => new BoldNode();
-        public override string Name => "bold";
+        public override Node CreateNode() => new BoldNode();
     }
 }

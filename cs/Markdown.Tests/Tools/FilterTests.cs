@@ -18,11 +18,13 @@ namespace Markdown.Tests.Tools
         {
             foreach (var tag in Tags)
             {
+                var tagName = tag.GetType().Name;
+
                 yield return new TestCaseData(new List<TagEvent> {new TagEvent(0, TagEventType.Start, tag)})
-                    .SetName($"only start {tag.Name} tag");
+                    .SetName($"only start {tagName} tag");
 
                 yield return new TestCaseData(new List<TagEvent> {new TagEvent(7, TagEventType.End, tag)})
-                    .SetName($"only end {tag.Name} tag");
+                    .SetName($"only end {tagName} tag");
 
                 foreach (var other in Tags.Where(other => tag != other))
                 {
@@ -32,7 +34,7 @@ namespace Markdown.Tests.Tools
                                 new TagEvent(5, TagEventType.Start, tag),
                                 new TagEvent(8, TagEventType.End, other)
                             })
-                        .SetName($"{tag.Name} start and {other.Name} end");
+                        .SetName($"{tagName} start and {other.GetType().Name} end");
                 }
 
                 yield return new TestCaseData(
@@ -41,7 +43,7 @@ namespace Markdown.Tests.Tools
                             new TagEvent(7, TagEventType.Start, tag),
                             new TagEvent(8, TagEventType.Start, tag)
                         })
-                    .SetName($"two starts of {tag.Name}");
+                    .SetName($"two starts of {tagName}");
 
                 yield return new TestCaseData(
                         new List<TagEvent>
@@ -49,7 +51,7 @@ namespace Markdown.Tests.Tools
                             new TagEvent(5, TagEventType.End, tag),
                             new TagEvent(8, TagEventType.End, tag)
                         })
-                    .SetName($"two ends of {tag.Name}");
+                    .SetName($"two ends of {tagName}");
             }
 
             yield return new TestCaseData(new List<TagEvent>())
@@ -68,7 +70,7 @@ namespace Markdown.Tests.Tools
         {
             foreach (var tag in Tags)
             {
-                var tagName = tag.Name;
+                var tagName = tag.GetType().Name;
 
                 yield return new TestCaseData(
                         new List<TagEvent>
@@ -90,7 +92,7 @@ namespace Markdown.Tests.Tools
                                 new TagEvent(9, TagEventType.End, tag)
                             }
                         )
-                        .SetName($"correct sequence of nested tags {tag.Name} and {other.Name}");
+                        .SetName($"correct sequence of nested tags {tagName} and {other.GetType().Name}");
                 }
             }
         }
@@ -110,7 +112,6 @@ namespace Markdown.Tests.Tools
             {
                 foreach (var other in Tags.Where(other => other != tag))
                 {
-
                     yield return new TestCaseData(
                             new List<TagEvent>
                             {
@@ -124,7 +125,8 @@ namespace Markdown.Tests.Tools
                                 new TagEvent(9, TagEventType.End, tag)
                             }
                         )
-                        .SetName($"non paired {other.Name} between paired {tag.Name}s should not be as a result");
+                        .SetName(
+                            $"non paired {other.GetType().Name} between paired {tag.GetType().Name}s should not be as a result");
                 }
             }
         }
