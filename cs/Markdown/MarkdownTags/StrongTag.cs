@@ -1,4 +1,4 @@
-﻿namespace Markdown
+﻿namespace Markdown.MarkdownTags
 {
     internal class StrongTag : MarkdownTag
     {

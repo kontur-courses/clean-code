@@ -1,4 +1,6 @@
-﻿namespace Markdown
+﻿using Markdown.MarkdownTags;
+
+namespace Markdown
 {
     internal enum TagTokenType
     {

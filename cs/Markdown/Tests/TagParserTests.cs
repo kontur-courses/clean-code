@@ -1,4 +1,5 @@
 ﻿using FluentAssertions;
+using Markdown.MarkdownTags;
 using NUnit.Framework;
 
 namespace Markdown

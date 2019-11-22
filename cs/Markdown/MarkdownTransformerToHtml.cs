@@ -1,6 +1,7 @@
 ﻿using System.Collections.Generic;
 using System.Linq;
 using System.Net.Http.Headers;
+using Markdown.MarkdownTags;
 
 namespace Markdown
 {
@@ -22,10 +23,10 @@ namespace Markdown
                 .RemoveUnopenedTags()
                 .RemoveIncorrectNestingTags()
                 .ToList();
-
-            var outputString = inputString;
-            outputString = StringRedactor.SwitchMarkdownTagsToHtml(outputString, correctTags);
-            outputString = StringRedactor.RemoveEscapeSymbols(outputString);
+            
+            var outputString = HtmlConverter
+                .ConvertToHtml(inputString, correctTags)
+                .RemoveEscapeSymbols();
 
             return outputString;
         }

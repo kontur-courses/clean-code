@@ -1,6 +1,6 @@
 ﻿using System.Collections.Generic;
 
-namespace Markdown
+namespace Markdown.MarkdownTags
 {
     internal abstract class MarkdownTag
     {
