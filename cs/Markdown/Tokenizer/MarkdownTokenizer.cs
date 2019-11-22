@@ -135,7 +135,7 @@ namespace Markdown.Tokens
             var nextChar = text.TryGetChar(index + 1);
 
             return (currentChar == '\\' && nextChar.HasValue &&
-                    (nextChar == '\\' || MarkdownTagsLibrary.TagAssociations.ContainsKey(nextChar.ToString())));
+                    (nextChar == '\\' || MarkdownTagsLibrary.TryToGetUsableTagInAssociations(text, index + 1, out var _)));
         }
 
         private static void DeleteOtherNestedTokens(List<Token> tokens, Token token)

@@ -3,7 +3,7 @@ using System.Linq;
 
 namespace Markdown.TagsLibrary
 {
-    public delegate bool SideSymbolsCheck(char? leftSymbol, char? rightSymbol);
+    public delegate bool SideSymbolsCheck(string leftSymbols, string rightSymbols);
 
     static partial class MarkdownTagsLibrary
     {
@@ -24,30 +24,30 @@ namespace Markdown.TagsLibrary
         public static readonly IReadOnlyDictionary<TagType, SideSymbolsCheck> StartTagRules =
             new Dictionary<TagType, SideSymbolsCheck>()
             {
-                [TagType.Bold] = (left, right) => !right.HasValue || right != ' ',
+                [TagType.Bold] = (left, right) => string.IsNullOrEmpty(right) || !right.StartsWith(" "),
 
                 [TagType.Italics] = (left, right) =>
                 {
-                    if (!right.HasValue)
+                    if (string.IsNullOrEmpty(right))
                         return true;
-                    if (left.HasValue && char.IsNumber(left.Value) && char.IsNumber(right.Value))
+                    if (!string.IsNullOrEmpty(left) && char.IsNumber(left.Last()) && char.IsNumber(right.First()))
                         return false;
-                    return right != ' ';
+                    return !right.StartsWith(" ");
                 },
             };
 
         public static readonly IReadOnlyDictionary<TagType, SideSymbolsCheck> EndTagRules =
             new Dictionary<TagType, SideSymbolsCheck>()
             {
-                [TagType.Bold] = (left, right) => !left.HasValue || left != ' ',
+                [TagType.Bold] = (left, right) => string.IsNullOrEmpty(left) || !left.EndsWith(" "),
 
                 [TagType.Italics] = (left, right) =>
                 {
-                    if (!left.HasValue)
+                    if (string.IsNullOrEmpty(left))
                         return true;
-                    if (right.HasValue && char.IsNumber(left.Value) && char.IsNumber(right.Value))
+                    if (!string.IsNullOrEmpty(right) && char.IsNumber(right.First()) && char.IsNumber(left.Last()))
                         return false;
-                    return left != ' ';
+                    return !left.EndsWith(" ");
                 },
             };
 

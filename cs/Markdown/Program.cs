@@ -8,6 +8,7 @@ namespace Markdown
         {
             var markdown = new Markdown();
             ConsoleAssistant.ClearConsole();
+
             var inputText = ConsoleAssistant.ReadTextFromFile(".md");
 
             var converter = ConsoleAssistant.SetupConverter();

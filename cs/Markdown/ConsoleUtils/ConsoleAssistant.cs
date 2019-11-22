@@ -32,7 +32,7 @@ namespace Markdown.ConsoleUtils
 
         public static TokenConverter SetupConverter()
         {
-            string key = null;
+            string key;
             var converterTypes = GetAllConverterTypes();
 
             while (true)

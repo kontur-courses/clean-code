@@ -55,13 +55,13 @@ namespace Markdown.TagsLibrary
             if (startIndex > endIndex)
                 throw new ArgumentException($"{nameof(startIndex)} can't be more than {nameof(endIndex)}");
 
-            var leftChar = text.TryGetChar(startIndex - 1);
-            var rightChar = text.TryGetChar(endIndex + 1);
+            var leftChar = text.GetLeftSubstring(startIndex, MaximumTagLength);//text.TryGetChar(startIndex - 1);
+            var rightChar = text.GetRightSubstring(endIndex, MaximumTagLength);//text.TryGetChar(endIndex + 1);
 
             return GetUsabilityDependsOnSideSymbols(leftChar, rightChar, type);
         }
 
-        private static TagUsability GetUsabilityDependsOnSideSymbols(char? leftSymbol, char? rightSymbol, TagType type)
+        private static TagUsability GetUsabilityDependsOnSideSymbols(string leftSymbol, string rightSymbol, TagType type)
         {
             var canBeStart = StartTagRules[type](leftSymbol, rightSymbol);
             var canBeEnd = EndTagRules[type](leftSymbol, rightSymbol);
