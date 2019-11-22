@@ -9,12 +9,19 @@
         internal readonly Lexeme Lexeme;
 
         internal Token(int start, string value, TokenType type, Lexeme lexeme = null)
+            : this(start, value.Length, value, type, lexeme)
+        {
+        }
+
+        internal Token(int start, int length, string value, TokenType type, Lexeme lexeme = null)
         {
             Position = start;
-            Length = value.Length;
+            Length = length;
             Value = value;
             Type = type;
             Lexeme = lexeme;
         }
+
+        public override string ToString() => $"[{Type}] '{Value}'";
     }
 }

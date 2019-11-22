@@ -17,7 +17,7 @@ namespace Markdown.Parser
             };
         }
 
-        internal static Element Parse(Tokenizer tokenizer)
+        internal static Element Parse(IEnumerable<Token> tokens)
         {
             throw new NotImplementedException();
         }

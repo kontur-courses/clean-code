@@ -8,8 +8,8 @@ namespace Markdown
     {
         public string Render(string markdown)
         {
-            var tokenizer = new Tokenizer(markdown);
-            var tree = MarkdownParser.Parse(tokenizer);
+            var tokenizer = new Tokenizer();
+            var tree = MarkdownParser.Parse(tokenizer.GetTokens(markdown));
             return tree.Export(new HtmlExporter());
         }
     }
