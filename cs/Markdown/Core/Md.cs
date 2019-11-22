@@ -16,7 +16,6 @@ namespace Markdown.Core
             var parser = new MainParser(rules);
             var render = new Render(rules);
             var escapedText = EscapeSpecialSymbols(markdown);
-            Console.WriteLine($@"{Environment.NewLine}");
             foreach (var line in Regex.Split(escapedText, Environment.NewLine))
             {
                 var tokens = parser.ParseLine(line);
