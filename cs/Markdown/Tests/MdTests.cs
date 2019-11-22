@@ -1,4 +1,7 @@
-﻿using Markdown.Core;
+﻿using System.Collections.Generic;
+using System.Diagnostics;
+using System.Text;
+using Markdown.Core;
 using NUnit.Framework;
 
 namespace Markdown.Tests
@@ -53,6 +56,28 @@ namespace Markdown.Tests
         public string Render_ReplacedTagsFromSpec(string rawText)
         {
             return Md.Render(rawText);
+        }
+
+        [TestCase("_foo bar_ __bla_bla_bla__")]
+        public void Render_WorkLinear(string rawText)
+        {
+            var millisecondsSpent = new List<long>();
+            var rawTextStingBuilder = new StringBuilder();
+            var watch = new Stopwatch();
+            for (var k = 0; k < 1000; k++)
+            {
+                rawTextStingBuilder.Append(rawText);
+                watch.Start();
+                Md.Render(rawTextStingBuilder.ToString());
+                watch.Stop();
+                millisecondsSpent.Add(watch.ElapsedMilliseconds);
+                watch.Reset();
+            }
+
+            for (var j = 1; j < millisecondsSpent.Count; j += 2)
+            {
+                Assert.AreEqual(millisecondsSpent[j - 1], millisecondsSpent[j], 50);
+            }
         }
     }
 }
