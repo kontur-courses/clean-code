@@ -1,4 +1,5 @@
 ﻿using System.Collections.Generic;
+using Markdown.Languages;
 
 namespace Markdown.Tree
 {
@@ -11,7 +12,7 @@ namespace Markdown.Tree
             Value = text;
         }
 
-        public override string ConvertTo(Dictionary<TagType, Tag> tags)
+        public override string ConvertTo(LanguageTagDict languageTagDict)
         {
             return Value ?? "";
         }

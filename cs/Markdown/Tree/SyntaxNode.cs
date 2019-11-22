@@ -17,6 +17,6 @@ namespace Markdown.Tree
             return ConvertTo(new T().Tags);
         }
 
-        public abstract string ConvertTo(Dictionary<TagType, Tag> tags);
+        public abstract string ConvertTo(LanguageTagDict languageTagDict);
     }
 }

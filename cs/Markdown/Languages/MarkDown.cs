@@ -4,15 +4,15 @@ namespace Markdown.Languages
 {
     public class MarkDown : ILanguage
     {
-        public Dictionary<TagType, Tag> Tags { get; }
+        public LanguageTagDict Tags { get; }
 
         public MarkDown()
         {
-            Tags = new Dictionary<TagType, Tag>
+            Tags = new LanguageTagDict(new Dictionary<TagType, Tag>
             {
                 {TagType.Strong, new Tag("__", "__", new TagType[] {TagType.Em})},
                 {TagType.Em, new Tag("_", "_", new TagType[] { })}
-            };
+            });
         }
 
         public bool IsOpenTag(string line, int i, string tag)

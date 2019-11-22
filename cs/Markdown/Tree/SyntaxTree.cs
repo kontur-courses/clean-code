@@ -1,5 +1,6 @@
 ﻿using System.Collections.Generic;
 using System.Text;
+using Markdown.Languages;
 
 namespace Markdown.Tree
 {
@@ -18,12 +19,12 @@ namespace Markdown.Tree
             ChildNode.Add(node);
         }
 
-        public override string ConvertTo(Dictionary<TagType, Tag> tags)
+        public override string ConvertTo(LanguageTagDict languageTagDict)
         {
             var result = new StringBuilder();
             foreach (var child in ChildNode)
             {
-                result.Append(child.ConvertTo(tags));
+                result.Append(child.ConvertTo(languageTagDict));
             }
 
             return result.ToString();

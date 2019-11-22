@@ -1,6 +1,7 @@
 ﻿using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using Markdown.Languages;
 
 namespace Markdown.Tree
 {
@@ -23,17 +24,17 @@ namespace Markdown.Tree
             ChildNode.Add(node);
         }
 
-        public override string ConvertTo(Dictionary<TagType, Tag> tags)
+        public override string ConvertTo(LanguageTagDict languageTagDict)
         {
             var result = new StringBuilder();
-            result.Append(tags[TypeTag].Start);
-            foreach (var childText in ChildNode.Select(child => child.ConvertTo(tags))
+            result.Append(languageTagDict[TypeTag].Start);
+            foreach (var childText in ChildNode.Select(child => child.ConvertTo(languageTagDict))
                 .Where(childText => childText != null))
             {
                 result.Append(childText);
             }
 
-            result.Append(tags[TypeTag].End);
+            result.Append(languageTagDict[TypeTag].End);
             return result.ToString();
         }
     }

@@ -5,15 +5,15 @@ namespace Markdown.Languages
 {
     public class Html : ILanguage
     {
-        public Dictionary<TagType, Tag> Tags { get; }
+        public LanguageTagDict Tags { get; }
 
         public Html()
         {
-            Tags = new Dictionary<TagType, Tag>()
+            Tags = new LanguageTagDict(new Dictionary<TagType, Tag>()
             {
                 {TagType.Em, new Tag("<em>", "</em>", new TagType[] { })},
                 {TagType.Strong, new Tag("<strong>", "</strong>", new TagType[] { })}
-            };
+            });
         }
 
         public bool IsTag(string line, int i, string tag)
@@ -30,7 +30,6 @@ namespace Markdown.Languages
         {
             throw new System.NotImplementedException();
         }
-
 
         public SyntaxTree RenderTree(string str)
         {

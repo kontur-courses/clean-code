@@ -4,7 +4,7 @@ namespace Markdown.Languages
 {
     public interface ILanguage
     {
-        Dictionary<TagType, Tag> Tags { get; }
+        LanguageTagDict Tags { get; }
 
         bool IsTag(string line, int i, string tag);
         bool IsCloseTag(string line, int i);
