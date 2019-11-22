@@ -6,12 +6,12 @@ namespace Markdown
 	internal class Tokenizer
 	{
 		private readonly Dictionary<string, IToken> _supportedKeySequences;
-		private readonly HashSet<char> _supportedKeyChars;
+		private readonly HashSet<string> _allKeyParts;
 
 		public Tokenizer(IEnumerable<IToken> supportedTokens)
 		{
 			_supportedKeySequences = new Dictionary<string, IToken>();
-			_supportedKeyChars = new HashSet<char>();
+			_allKeyParts = new HashSet<string>();
 			foreach (var token in supportedTokens)
 				RegisterToken(token);
 		}
@@ -32,11 +32,15 @@ namespace Markdown
 
 		private void RegisterKeySequence(string keySequence, IToken token)
 		{
+			var currentSequence = "";
 			foreach (var keyChar in keySequence)
-				_supportedKeyChars.Add(keyChar);
+			{
+				currentSequence += keyChar;
+				_allKeyParts.Add(currentSequence);
+			}
 			_supportedKeySequences[keySequence] = token;
 		}
-		
+
 		public TokenInfo ParseToTokens(string sourceText)
 		{
 			var contextState = new TokenizerContextState(sourceText);
@@ -48,44 +52,34 @@ namespace Markdown
 					continue;
 				if (contextState.LastToken.Type is PlainText) 
 					contextState.CloseLastPlainText();
-				if (HandleKeySequence(contextState))
+				if (HandleKeySequence(contextState, out var tokenType))
 					continue;
+				if ((currentIndex + 1 < sourceText.Length || !isKeyChar) &&
+					(contextState.TokenToOpen != null || contextState.TokenToClose != null) &&
+				    !(tokenType is IComplexToken) && !(tokenType is IComplexTokenBlock))
+					currentIndex--;
 				StopReadingKeySequence(contextState);
-				var currentChar = contextState.CurrentChar.ToString();
-				if (currentIndex >= sourceText.Length - 1 ||
-				    !_supportedKeySequences.TryGetValue(currentChar, out var tokenType) ||
-				    !(tokenType is IComplexTokenBlock tokenBlock) ||
-				    tokenBlock.ClosingSequence != currentChar) continue;
-				contextState.LastToken.PlainText.Clear();
-				currentIndex--;
 			}
 			return contextState.MainToken;
 		}
 
 		private static void StopReadingKeySequence(TokenizerContextState contextState)
 		{
-			var trimLength = 0;
 			if (contextState.TokenToClose != null)
-			{
-				trimLength = contextState.TokenToClose.TokenInfo.Type.ClosingSequence.Length;
 				contextState.CloseTokens();
-			}
 			else if (contextState.TokenToOpen != null)
 			{
 				contextState.OpenToken();
-				trimLength = contextState.TokenToOpen.OpeningSequence.Length;
 				contextState.TokenToOpen = null;
 			}
-			
-			if (contextState.CurrentKeySequence.Length >= trimLength)
-				contextState.CurrentKeySequence.Remove(0, trimLength);
-			contextState.AddCurrentKeySequenceAsPlainText();
+			else			
+				contextState.AddCurrentKeySequenceAsPlainText();
 			contextState.ReadingKeySequence = false;
 		}
 
 		private void UpdateReadingKeySequence(TokenizerContextState contextState, out bool isKeyChar)
 		{
-			isKeyChar = _supportedKeyChars.Contains(contextState.CurrentChar) &&
+			isKeyChar = _allKeyParts.Contains(contextState.CurrentKeySequence.ToString()) &&
 			                !contextState.ReadingAsPlainText;
 			if (contextState.ReadingKeySequence) return;
 			if (isKeyChar && contextState.Shielded)
@@ -100,26 +94,26 @@ namespace Markdown
 			contextState.AddCurrentKeySequenceAsPlainText();
 			contextState.CurrentKeySequence.Clear();
 		}
-		
+
 		private static void RemoveLastPlainTextChar(TokenizerContextState contextState)
 		{
 			var lastCharIndex = contextState.LastToken.PlainText.Length - 1;
 			contextState.LastToken.PlainText.Remove(lastCharIndex, 1);
 		}
 
-		private bool HandleKeySequence(TokenizerContextState contextState)
+		private bool HandleKeySequence(TokenizerContextState contextState, out IToken tokenType)
 		{
 			var isKeySequence = _supportedKeySequences
-				.TryGetValue(contextState.CurrentKeySequence.ToString(), out var tokenType);
+				.TryGetValue(contextState.CurrentKeySequence.ToString(), out tokenType);
 			if (isKeySequence)
 			{
 				contextState.TryCloseToken();
 				contextState.TryOpenToken(tokenType);
 			}
-			
-			if (contextState.CurrentIndex + 1 == contextState.SourceText.Length || 
+
+			if (contextState.CurrentIndex + 1 == contextState.SourceText.Length ||
 			    tokenType is IComplexToken || tokenType is IComplexTokenBlock)
-				StopReadingKeySequence(contextState);
+				isKeySequence = false;
 			return isKeySequence;
 		}
 	}

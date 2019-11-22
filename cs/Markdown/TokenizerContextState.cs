@@ -50,9 +50,9 @@ namespace Markdown
 			CurrentIndex = currentIndex;
 			CurrentChar = SourceText[currentIndex];
 			Shielded = Shielded || CurrentChar == '\\';
-			if (CurrentChar == PlainTextReadingClosingChar && !Shielded) ReadingAsPlainText = false;
+			if (CurrentChar == PlainTextReadingClosingChar && !Shielded) 
+				ReadingAsPlainText = false;
 			CurrentKeySequence.Append(CurrentChar);
-			ReadingKeySequence = _readingKeySequence && !Shielded;
 		}
 
 		public void TryCloseToken()
