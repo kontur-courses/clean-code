@@ -41,15 +41,15 @@ namespace Markdown.SyntaxAnalysis.SyntaxTreeBuilders
             if (IsValidSeparator(token, text))
             {
                 ProcessSeparatorToken(token);
-                return;
             }
-
-            if (token.IsSeparator)
+            else
             {
-                token.IsSeparator = false;
+                if (token.IsSeparator)
+                {
+                    token.IsSeparator = false;
+                }
+                currentNode.AddChild(new SyntaxTreeNode(token));
             }
-
-            currentNode.AddChild(new SyntaxTreeNode(token));
         }
 
         private void ProcessSeparatorToken(Token token)
@@ -89,11 +89,12 @@ namespace Markdown.SyntaxAnalysis.SyntaxTreeBuilders
             {
                 separatorNodesStack.Pop();
                 currentNode = separatorNodesStack.Count == 0 ? currentSyntaxTree.Root : separatorNodesStack.Peek();
-                return;
             }
-
-            separatorNodesStack.Push(separatorNode);
-            currentNode = separatorNode;
+            else
+            {
+                separatorNodesStack.Push(separatorNode);
+                currentNode = separatorNode;
+            }
         }
 
         private bool IsEndSeparator(Token token)
@@ -109,6 +110,7 @@ namespace Markdown.SyntaxAnalysis.SyntaxTreeBuilders
             var isFirst = !IsEndSeparator(token);
             var hasParentSeparator =
                 separatorNodesStack.Count > 0 && separatorNodesStack.Peek().Token.Value != token.Value;
+
             return hasParentSeparator
                 ? rules.IsSeparatorValid(text, token.Position, isFirst, token.Value.Length,
                     separatorNodesStack.Peek().Token.Value)
