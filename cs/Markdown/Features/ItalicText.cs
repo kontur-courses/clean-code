@@ -10,15 +10,17 @@ namespace Markdown.Features
 		{
 			if (contextState.CurrentIndex + 1 >= contextState.SourceText.Length) return false;
 			var nextChar = contextState.SourceText[contextState.CurrentIndex + 1].ToString();
-			return contextState.CurrentKeySequence.ToString() == OpeningSequence &&
+			return contextState.CurrentChar.ToString() == OpeningSequence &&
 			       !string.IsNullOrWhiteSpace(nextChar) && 
-			       nextChar != "_" && 
+			       nextChar != "_" &&
 			       !int.TryParse(nextChar, out _);
 		}
 
 		public bool IsClosingKeySequence(TokenizerContextState contextState, TokenInfo tokenInfo)
 		{
-			if (contextState.CurrentIndex - 1 < 0) return false;
+			if (contextState.CurrentIndex - 1 < 0 ||
+			    contextState.CurrentIndex + 1 < contextState.SourceText.Length &&
+			    contextState.SourceText[contextState.CurrentIndex + 1] == '_') return false;
 			var previousChar = contextState.SourceText[contextState.CurrentIndex - 1].ToString();
 			return !string.IsNullOrWhiteSpace(previousChar) &&
 			       !int.TryParse(previousChar, out _) &&

@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.Text;
+using Markdown.Features;
 
 namespace Markdown
 {
@@ -21,16 +22,17 @@ namespace Markdown
             Type = tokenType;
         }
 
-        public bool TryClose(TokenizerContextState contextState)
+        public bool CanBeClosed(TokenizerContextState contextState)
         {
             if (Type is IComplexTokenBlock block && block.ClosingSequence == block.Parent.ClosingSequence)
                 return false;
-            if (InnerTokens.Count == 0 && !(Type is IComplexToken) || 
-                !Type.IsClosingKeySequence(contextState, this))
-                return false;
+            return (InnerTokens.Count != 0 || Type is IComplexToken) && Type.IsClosingKeySequence(contextState, this);
+        }
+
+        public void Close(int endIndex)
+        {
+            EndIndex = endIndex;
             Closed = true;
-            EndIndex = contextState.CurrentIndex;
-            return true;
         }
     }
 }

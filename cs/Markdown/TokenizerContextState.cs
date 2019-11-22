@@ -6,10 +6,7 @@ namespace Markdown
 {
 	internal class TokenizerContextState
 	{
-		private readonly Dictionary<string, IToken> _supportedKeySequences;
-		private readonly HashSet<char> _supportedKeyChars;
-		private readonly TokenStack _tokenStack;
-		
+		public TokenStack TokenStack { get; }
 		public char PlainTextReadingClosingChar;
 		private bool _readingKeySequence;
 		public bool ReadingKeySequence
@@ -32,67 +29,23 @@ namespace Markdown
 				_readingAsPlainText = value;
 			}
 		}
-		public TokenInfo MainToken => _tokenStack.MainToken.TokenInfo;
-		public TokenInfo LastToken => _tokenStack.LastToken.TokenInfo;
+		public TokenInfo MainToken => TokenStack.MainToken.TokenInfo;
+		public TokenInfo LastToken => TokenStack.LastToken.TokenInfo;
 		public StringBuilder CurrentKeySequence { get; } = new StringBuilder();
 		public bool Shielded { get; set; }
 		public string SourceText { get; }
 		public int CurrentIndex { get; private set; }
 		public char CurrentChar { get; private set; }
+		public TokenStack.TokenContainer TokenToClose { get; set; }
+		public IToken TokenToOpen { get; set; }
 
-		public TokenizerContextState(string sourceText, HashSet<char> supportedKeyChars, 
-									Dictionary<string, IToken> supportedKeySequences)
+		public TokenizerContextState(string sourceText)
 		{
 			SourceText = sourceText;
-			_tokenStack = new TokenStack(new TokenInfo(0, new PlainText()));
-			_supportedKeyChars = supportedKeyChars;
-			_supportedKeySequences = supportedKeySequences;
+			TokenStack = new TokenStack(new TokenInfo(0, new PlainText()));
 		}
 
-		public void Update(int currentIndex)
-		{
-			UpdateCurrentSequence(currentIndex);
-			UpdateReadingKeySequence();
-			if (!ReadingKeySequence) return;
-			if (LastToken.Type is PlainText) CloseLastToken();
-			var isKeySequence = CheckIsKeySequence(out var tokenType);
-			if (isKeySequence)
-			{
-				if (TryCloseToken())
-					return;
-				if (tokenType.IsOpeningKeySequence(this))
-				{
-					OpenToken(tokenType);
-					return;
-				}
-			}
-			if (_supportedKeyChars.Contains(CurrentChar) && currentIndex < SourceText.Length - 1)
-				return;
-			if (LastToken.InnerTokens.Count == 0 && !(LastToken.Type is IComplexToken))
-				CurrentKeySequence.Remove(0, LastToken.Type.OpeningSequence.Length);
-			AddCurrentKeySequenceAsPlainText();
-			ReadingKeySequence = false;
-		}
-
-		private void UpdateReadingKeySequence()
-		{
-			if (ReadingKeySequence) return;
-			var isKeyChar = _supportedKeyChars.Contains(CurrentChar) &&
-			                !ReadingAsPlainText;
-			if (isKeyChar && Shielded)
-			{
-				isKeyChar = false;
-				RemoveLastPlainTextChar();
-				Shielded = false;
-			}
-
-			ReadingKeySequence = isKeyChar;
-			if (isKeyChar) return;
-			AddCurrentKeySequenceAsPlainText();
-			CurrentKeySequence.Clear();
-		}
-
-		private void UpdateCurrentSequence(int currentIndex)
+		public void HandleChar(int currentIndex)
 		{
 			CurrentIndex = currentIndex;
 			CurrentChar = SourceText[currentIndex];
@@ -102,87 +55,83 @@ namespace Markdown
 			ReadingKeySequence = _readingKeySequence && !Shielded;
 		}
 
-		private void RemoveLastPlainTextChar()
+		public void TryCloseToken()
 		{
-			var lastCharIndex = LastToken.PlainText.Length - 1;
-			LastToken.PlainText.Remove(lastCharIndex, 1);
-		}
-
-		private bool CheckIsKeySequence(out IToken tokenType)
-		{
-			if (_supportedKeySequences.TryGetValue(CurrentKeySequence.ToString(), out tokenType))
-				return true;
-			tokenType = new PlainText();
-			return false;
-		}
-
-		private bool TryCloseToken()
-		{
-			var currentToken = _tokenStack.LastToken;
-			while (currentToken != null && currentToken != _tokenStack.MainToken)
+			var currentToken = TokenStack.LastToken;
+			while (currentToken != null && currentToken != TokenStack.MainToken)
 			{
-				if (!(currentToken.TokenInfo.Type is PlainText) && 
-				    currentToken.TokenInfo.TryClose(this))
+				if (!(currentToken.TokenInfo.Type is PlainText) &&
+				    currentToken.TokenInfo.CanBeClosed(this))
 				{
-					RemoveRedundantToken();
-					_tokenStack.Remove(currentToken);
-					ReadingKeySequence = false;
-					ReadingAsPlainText = false;
-					PlainTextReadingClosingChar = new char();
-					return true;
+					TokenToClose = currentToken;
+					return;
 				}
 				currentToken = currentToken.Parent;
 			}
-			return false;
+		}
+
+		public void CloseTokens()
+		{
+			RemoveRedundantToken();
+			var tokenType = TokenToClose.TokenInfo.Type;
+			var indexOffset = tokenType is IComplexToken || tokenType is IComplexTokenBlock ? 0 : 1;
+			TokenToClose.TokenInfo.Close(CurrentIndex - indexOffset);
+			TokenStack.Remove(TokenToClose);
+			ReadingAsPlainText = false;
+			PlainTextReadingClosingChar = new char();
+			TokenToClose = null;
 		}
 
 		private void RemoveRedundantToken()
 		{
 			if (LastToken.InnerTokens.Count != 0 || LastToken.Closed || LastToken.Type is PlainText ||
 			    LastToken.Type is IComplexTokenBlock) return;
-			var extraTokenParent = _tokenStack.LastToken.Parent.TokenInfo;
+			var extraTokenParent = TokenStack.LastToken.Parent.TokenInfo;
 			extraTokenParent.InnerTokens.RemoveAt(extraTokenParent.InnerTokens.Count - 1);
 		}
 
-		private void AddCurrentKeySequenceAsPlainText()
+		public void AddCurrentKeySequenceAsPlainText()
 		{
-			if ((!(LastToken.Type is PlainText) || LastToken == MainToken) && !ReadingAsPlainText)
+			if ((!(LastToken.Type is PlainText) || LastToken == MainToken) && 
+			    !ReadingAsPlainText && CurrentKeySequence.Length > 0)
 				AddChildToken(new PlainText());
 			LastToken.PlainText.Append(CurrentKeySequence);
 		}
 
 		private void AddChildToken(IToken tokenType)
 		{
-			var newToken = new TokenInfo(CurrentIndex, tokenType);
+			var newToken = new TokenInfo(CurrentIndex - CurrentKeySequence.Length, tokenType);
 			LastToken.InnerTokens.Add(newToken);
-			_tokenStack.Push(newToken);
+			TokenStack.Push(newToken);
 		}
 
-		private void CloseLastToken()
+		public void CloseLastPlainText()
 		{
 			if (LastToken == MainToken) return;
-			LastToken.TryClose(this);
-			_tokenStack.Remove(_tokenStack.LastToken);
+			LastToken.Close(CurrentIndex - 1);
+			TokenStack.Remove(TokenStack.LastToken);
 		}
 
-		private void OpenToken(IToken tokenType)
+		public void TryOpenToken(IToken tokenType)
 		{
-			if (!(tokenType is IComplexTokenBlock))
+			if (!tokenType.IsOpeningKeySequence(this)) return;
+			TokenToOpen = tokenType;
+		}
+		
+		public void OpenToken()
+		{
+			if (!(TokenToOpen is IComplexTokenBlock))
 			{
-				if (LastToken.Type is PlainText || LastToken.InnerTokens.Count > 0 || 
-				    LastToken.Type is IComplexTokenBlock)
-					AddChildToken(tokenType);
-				else
-					LastToken.Type = tokenType;
-				ReadingAsPlainText = tokenType.PlainTextContent;
+				AddChildToken(TokenToOpen);
+				ReadingAsPlainText = TokenToOpen.PlainTextContent;
 				if (ReadingAsPlainText)
-					PlainTextReadingClosingChar = tokenType.ClosingSequence[0];
+					PlainTextReadingClosingChar = TokenToOpen.ClosingSequence[0];
 			}
 
-			if (tokenType is IComplexTokenBlock childToken ||
-			    tokenType is IComplexToken complexToken &&
-			    complexToken.IsOpeningSequenceForChild(this, out childToken))
-				AddComplexTokenBlock(childToken);
+			if (!(TokenToOpen is IComplexTokenBlock childToken) &&
+			    (!(TokenToOpen is IComplexToken complexToken) ||
+			     !complexToken.IsOpeningSequenceForChild(this, out childToken))) return;
+			AddComplexTokenBlock(childToken);
 			ReadingKeySequence = false;
 		}
 
@@ -190,7 +139,7 @@ namespace Markdown
 		{
 			var childTokenInfo = new TokenInfo(CurrentIndex, childToken);
 			LastToken.Blocks.Add(childTokenInfo);
-			_tokenStack.Push(childTokenInfo);
+			TokenStack.Push(childTokenInfo);
 			ReadingAsPlainText = childToken.PlainTextContent;
 			if (ReadingAsPlainText)
 				PlainTextReadingClosingChar = childToken.ClosingSequence[0];

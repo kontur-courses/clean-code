@@ -59,7 +59,6 @@
     <Compile Include="Features\TokenStack.cs" />
     <Compile Include="IComplexToken.cs" />
     <Compile Include="IComplexTokenBlock.cs" />
-    <Compile Include="KeySequence.cs" />
     <Compile Include="Md_Tests.cs" />
     <Compile Include="TokenizerContextState.cs" />
     <Compile Include="FeaturesLoader.cs" />

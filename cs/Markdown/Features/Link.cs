@@ -15,7 +15,7 @@ namespace Markdown.Features
 		public bool IsOpeningSequenceForChild(TokenizerContextState contextState, out IComplexTokenBlock token)
 		{
 			token = ChildTokens[0];
-			return contextState.CurrentKeySequence.ToString() == ChildTokens[0].OpeningSequence;
+			return contextState.CurrentChar.ToString() == ChildTokens[0].OpeningSequence;
 		}
 
 		public void RepresentAsPlainText(TokenInfo tokenInfo, string sourceText)
@@ -40,7 +40,7 @@ namespace Markdown.Features
 			       tokenInfo.Blocks[0].EndIndex == tokenInfo.Blocks[1].StartIndex - 1 &&
 			       tokenInfo.Blocks[0].Closed &&
 			       !tokenInfo.Blocks[1].PlainText.ToString().Any(char.IsWhiteSpace) &&
-				contextState.CurrentKeySequence.ToString() == ClosingSequence;
+				contextState.CurrentChar.ToString() == ClosingSequence;
 		}
 
 		public string GetHtmlOpeningTag(TokenInfo tokenInfo, string sourceText)

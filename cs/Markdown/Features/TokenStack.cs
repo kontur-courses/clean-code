@@ -26,5 +26,7 @@ namespace Markdown.Features
 		public void Push(TokenInfo tokenInfo) => LastToken = new TokenContainer(tokenInfo, LastToken);
 
 		public void Remove(TokenContainer currentToken) => LastToken = currentToken.Parent;
+
+		public static readonly TokenContainer DefaultContainer = new TokenContainer(new TokenInfo(-1, new PlainText()));
 	}
 }

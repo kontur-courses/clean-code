@@ -1,3 +1,5 @@
+using System.Collections.Generic;
+using System.Text;
 using FluentAssertions;
 using NUnit.Framework;
 
@@ -19,7 +21,7 @@ namespace Markdown
 		[TestCase("t__12__", "t__12__", TestName = "Bold underlines inside text with digits")]
 		[TestCase("__b", "__b", TestName = "Opened token without closing sequence")]
 		[TestCase("__b_i_b__", "<strong>b<em>i</em>b</strong>", TestName = "Italic inside bold")]
-		[TestCase("_i__b__i_", "<em>i</em><em>b</em><em>i</em>", TestName = "Bold inside italic")]
+		[TestCase("_i__b__i_", "<em>i__b__i</em>", TestName = "Bold inside italic")]
 		[TestCase("____", "____", TestName = "Bold token with empty content")]
 		[TestCase("__ __", "__ __", TestName = "Bold token with whitespace content")]
 		[TestCase("_", "_", TestName = "Only open sequence")]
@@ -30,10 +32,32 @@ namespace Markdown
 		[TestCase("[t](l)", "<a href='l'>t</a>", TestName = "Link")]
 		[TestCase("[t]c(l)", "[t]c(l)", TestName = "Char between link-text and link-reference")]
 		[TestCase("[_i_](l)", "<a href='l'><em>i</em></a>", TestName = "Link with italic link-text")]
+		[TestCase("a__i_bi__a", "a<strong>i_bi</strong>a")]
 		public void ReturnCorrectHtmlText(string markdownText, string expectedHtmlText)
 		{
 			var actualHtmlText = Md.Render(markdownText);
 			actualHtmlText.Should().Be(expectedHtmlText);
+		}
+
+		[Test]
+		[Timeout(1000)]
+		public void PerformanceTest()
+		{
+			var sb = new StringBuilder();
+			foreach (var token in GenerateTokens((int)5e6))
+				sb.Append(token);
+
+			Md.Render(sb.ToString());
+		}
+
+		private static IEnumerable<string> GenerateTokens(int count)
+		{
+			for (var i = 0; i < count / 15; i++)
+			{
+				yield return "a a a";
+				yield return "_ita_";
+				yield return "__b__";
+			}
 		}
 	}
 }
