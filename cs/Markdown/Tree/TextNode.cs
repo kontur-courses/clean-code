@@ -12,7 +12,7 @@ namespace Markdown.Tree
             Value = text;
         }
 
-        public override string ConvertTo(LanguageTagDict languageTagDict)
+        public override string BuildLinesWithTag(LanguageTagDict languageTagDict)
         {
             return Value ?? "";
         }

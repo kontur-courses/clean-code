@@ -14,9 +14,9 @@ namespace Markdown.Tree
 
         public string ConvertTo<T>() where T : ILanguage, new()
         {
-            return ConvertTo(new T().Tags);
+            return BuildLinesWithTag(new T().Tags);
         }
 
-        public abstract string ConvertTo(LanguageTagDict languageTagDict);
+        public abstract string BuildLinesWithTag(LanguageTagDict languageTagDict);
     }
 }

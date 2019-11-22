@@ -24,11 +24,11 @@ namespace Markdown.Tree
             ChildNode.Add(node);
         }
 
-        public override string ConvertTo(LanguageTagDict languageTagDict)
+        public override string BuildLinesWithTag(LanguageTagDict languageTagDict)
         {
             var result = new StringBuilder();
             result.Append(languageTagDict[TypeTag].Start);
-            foreach (var childText in ChildNode.Select(child => child.ConvertTo(languageTagDict))
+            foreach (var childText in ChildNode.Select(child => child.BuildLinesWithTag(languageTagDict))
                 .Where(childText => childText != null))
             {
                 result.Append(childText);

@@ -23,7 +23,7 @@ namespace Markdown.Tests
         {
             var textNode = new TextNode(value);
             var language = LanguageRegistry.BuildLanguage(typeName);
-            textNode.ConvertTo(language.Tags)
+            textNode.BuildLinesWithTag(language.Tags)
                 .Should().Be(value);
         }
 
@@ -36,7 +36,7 @@ namespace Markdown.Tests
         {
             var tagNode = new TagNode(tagType, new List<SyntaxNode>() {new TextNode(value)});
             var language = LanguageRegistry.BuildLanguage(typeName);
-            var result = tagNode.ConvertTo(language.Tags);
+            var result = tagNode.BuildLinesWithTag(language.Tags);
             result.Should().StartWith(language.Tags[tagType].Start);
             result.Should().EndWith(language.Tags[tagType].End);
         }
@@ -48,7 +48,7 @@ namespace Markdown.Tests
             var textNode = new TextNode(value);
             var syntaxTree = new SyntaxTree(new List<SyntaxNode>() {textNode, textNode});
             var language = LanguageRegistry.BuildLanguage(typeName);
-            var result = syntaxTree.ConvertTo(language.Tags);
+            var result = syntaxTree.BuildLinesWithTag(language.Tags);
             result.Should().Be(value + value);
         }
 
@@ -63,7 +63,7 @@ namespace Markdown.Tests
             var tagNode = new TagNode(tagType, new List<SyntaxNode>() {textNode});
             var syntaxTree = new SyntaxTree(new List<SyntaxNode>() {tagNode, textNode});
             var language = LanguageRegistry.BuildLanguage(typeName);
-            var result = syntaxTree.ConvertTo(language.Tags);
+            var result = syntaxTree.BuildLinesWithTag(language.Tags);
             result.Should().Be(language.Tags[tagType].Start + value + language.Tags[tagType].End + value);
         }
 
@@ -81,7 +81,7 @@ namespace Markdown.Tests
             var textNode = new TextNode(null);
             var tagNode = new TagNode(tagType, new List<SyntaxNode>() {textNode});
             var language = LanguageRegistry.BuildLanguage(typeName);
-            var result = tagNode.ConvertTo(language.Tags);
+            var result = tagNode.BuildLinesWithTag(language.Tags);
             result.Should().Be(language.Tags[tagType].Start + language.Tags[tagType].End);
         }
     }

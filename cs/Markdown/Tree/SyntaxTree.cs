@@ -19,12 +19,12 @@ namespace Markdown.Tree
             ChildNode.Add(node);
         }
 
-        public override string ConvertTo(LanguageTagDict languageTagDict)
+        public override string BuildLinesWithTag(LanguageTagDict languageTagDict)
         {
             var result = new StringBuilder();
             foreach (var child in ChildNode)
             {
-                result.Append(child.ConvertTo(languageTagDict));
+                result.Append(child.BuildLinesWithTag(languageTagDict));
             }
 
             return result.ToString();
