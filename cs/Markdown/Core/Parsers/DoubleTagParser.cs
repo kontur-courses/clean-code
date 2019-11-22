@@ -7,13 +7,13 @@ namespace Markdown.Core.Parsers
 {
     class DoubleTagParser : IParser
     {
-        private IEnumerable<IDoubleTag> tags;
+        private readonly List<IDoubleTag> tags;
 
-        public DoubleTagParser(IEnumerable<IRule> rules)
+        public DoubleTagParser(IEnumerable<ITag> tags)
         {
-            tags = rules.Where(rule => (rule.SourceTag as IDoubleTag) != null)
-                .Select(rule => rule.SourceTag as IDoubleTag)
-                .OrderByDescending(tag => tag.Opening.Length);
+            this.tags = tags.OfType<IDoubleTag>()
+                .OrderByDescending(tag => tag.Opening.Length)
+                .ToList();
         }
 
         private bool IsSuitableTag(IDoubleTag tag, string line, int index) =>

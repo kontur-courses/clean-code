@@ -11,16 +11,15 @@ namespace Markdown.Core.Parsers
     {
         private readonly List<ISingleTag> tags;
 
-        public SingleTagParser(IEnumerable<IRule> rules)
+        public SingleTagParser(IEnumerable<ITag> tags)
         {
-            tags = rules.Where(rule => rule.SourceTag is ISingleTag)
-                .Select(rule => rule.SourceTag as ISingleTag)
+            this.tags = tags.OfType<ISingleTag>()
                 .OrderByDescending(tag => tag.Opening.Length)
                 .ToList();
         }
 
         private bool IsSkippedTag(string line, int index) => index != 0 && line[index - 1] == '\\';
-        
+
         private int GetCountSpaceAtBeginningLine(string line)
         {
             var count = 0;
