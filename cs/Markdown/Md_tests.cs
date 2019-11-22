@@ -178,10 +178,10 @@ namespace Markdown
             processedText.Should().Be(expectedText);
         }
 
-        [TestCase("[test](hello)", "<a href=hello>test</a>")]
-        [TestCase("[te_st](hello)", "<a href=hello>te_st</a>")]
-        [TestCase("_aaa[te_st](hello)", "_aaa<a href=hello>te_st</a>")]
-        [TestCase("[test](he_ll_o)", "<a href=he_ll_o>test</a>")]
+        [TestCase("[test](hello)", "<a href=\"hello\">test</a>")]
+        [TestCase("[te_st](hello)", "<a href=\"hello\">te_st</a>")]
+        [TestCase("_aaa[te_st](hello)", "_aaa<a href=\"hello\">te_st</a>")]
+        [TestCase("[test](he_ll_o)", "<a href=\"he_ll_o\">test</a>")]
         public void Md_LinkTagsTests_ShouldBeInTags(string text, string expectedText)
         {
             var renderer = new Md();
@@ -222,6 +222,41 @@ namespace Markdown
             processedText.Should().Be(expectedText);
         }
 
+        [TestCase("[test](hello", "[test](hello")]
+        [TestCase("[test]hello)", "[test]hello)")]
+        [TestCase("[test(hello)", "[test(hello)")]
+        [TestCase("test](hello)", "test](hello)")]
+        [TestCase("[test]   (hello)", "[test]   (hello)")]
+        public void Md_WrongLinks_ShouldNotChanges(string text, string expectedText)
+        {
+            var renderer = new Md();
+            var processedText = renderer.Render(text);
+            processedText.Should().Be(expectedText);
+        }
+
+        [TestCase("[test](he(ll)o)", "<a href=\"he(ll\">test</a>o)")]
+        [TestCase("[test](he(llo)", "<a href=\"he(llo\">test</a>")]
+        [TestCase("[te[st](he(llo)", "[te<a href=\"he(llo\">st</a>")]
+        [TestCase("[test](he_ll_o)", "<a href=\"he_ll_o\">test</a>")]
+        [TestCase("[t_es_t](hello)", "<a href=\"hello\">t<em>es</em>t</a>")]
+        public void Md_BorderCasesWithLinks_ShouldMakeATagWithLink(string text, string expectedText)
+        {
+            var renderer = new Md();
+            var processedText = renderer.Render(text);
+            processedText.Should().Be(expectedText);
+        }
+
+
+        [TestCase("~~a_a_a~~", "<s>a<em>a</em>a</s>")]
+        [TestCase("~~a__a__a~~", "<s>a<strong>a</strong>a</s>")]
+        [TestCase("_a~~a~~a_", "<em>a<s>a</s>a</em>")]
+        [TestCase("[t~~es~~t](hello)", "<a href=\"hello\">t<s>es</s>t</a>")]
+        public void Md_TagS_CheckInnerInOtherTags_ShouldBeTagged(string text, string expectedText)
+        {
+            var renderer = new Md();
+            var processedText = renderer.Render(text);
+            processedText.Should().Be(expectedText);
+        }
 
     }
 }

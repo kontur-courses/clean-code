@@ -6,67 +6,71 @@ namespace Markdown
     class TagInserter
     {
 
-        public string Insert(string text, List<Tag> toInsert)
+        public string Insert(string text, List<Tag> tags)
         {
-            toInsert.Sort((x, y) => x.Position.CompareTo(y.Position));
+            tags.Sort((x, y) => x.Position.CompareTo(y.Position));
             StringBuilder outText = new StringBuilder();
             var currentTextIndex = 0;
             var currentTagsIndex = 0;
             var linkTagIndex = -1;
-            while (currentTagsIndex < toInsert.Count)
+            while (currentTagsIndex < tags.Count)
             {
-                var pair = toInsert[currentTagsIndex];
-                outText.Append(text.Substring(currentTextIndex, pair.Position - currentTextIndex));
-                currentTextIndex = pair.Position;
-                switch (pair.CurrentType)
+                var tag = tags[currentTagsIndex];
+                outText.Append(text.Substring(currentTextIndex, tag.Position - currentTextIndex));
+                currentTextIndex = tag.Position;
+                switch (tag.Type)
                 {
                     case TagType.Em:
-                        currentTextIndex++;
-                        outText.Append("<em>");
+                        currentTextIndex += Tag.TagMarkerTextRepresentation[TagType.Em].Length;
+                        //currentTextIndex++;
+                        outText.Append(Tag.TagTextRepresentation[tag.Type]);
                         break;
                     case TagType.EmClose:
-                        currentTextIndex++;
-                        outText.Append("</em>");
+                        currentTextIndex += Tag.TagMarkerTextRepresentation[TagType.EmClose].Length;
+                        outText.Append(Tag.TagTextRepresentation[tag.Type]);
                         break;
                     case TagType.Strong:
-                        currentTextIndex += 2;
-                        outText.Append("<strong>");
+                        currentTextIndex += Tag.TagMarkerTextRepresentation[TagType.Strong].Length;
+                        outText.Append(Tag.TagTextRepresentation[tag.Type]);
                         break;
                     case TagType.StrongClose:
-                        currentTextIndex += 2;
-                        outText.Append("</strong>");
+                        currentTextIndex += Tag.TagMarkerTextRepresentation[TagType.StrongClose].Length;
+                        outText.Append(Tag.TagTextRepresentation[tag.Type]);
                         break;
                     case TagType.S:
-                        currentTextIndex += 2;
-                        outText.Append("<s>");
+                        currentTextIndex += Tag.TagMarkerTextRepresentation[TagType.S].Length;
+                        outText.Append(Tag.TagTextRepresentation[tag.Type]);
                         break;
                     case TagType.SClose:
-                        currentTextIndex += 2;
-                        outText.Append("</s>");
+                        currentTextIndex += Tag.TagMarkerTextRepresentation[TagType.SClose].Length;
+                        outText.Append(Tag.TagTextRepresentation[tag.Type]);
                         break;
                     case TagType.Backslash:
-                        currentTextIndex++;
+                        currentTextIndex += Tag.TagMarkerTextRepresentation[TagType.Backslash].Length;
                         break;
                     case TagType.A:
-                        currentTextIndex++;
-                        outText.Append("<a");
-                        linkTagIndex = outText.Length;
-                        outText.Append(">");
+                        if (!CheckLinkAvailability(currentTagsIndex, tags))
+                            break;
+                        currentTextIndex += Tag.TagMarkerTextRepresentation[TagType.A].Length;
+                        outText.Append(Tag.TagTextRepresentation[tag.Type]);
+                        linkTagIndex = outText.Length-1;
                         break;
                     case TagType.AClose:
-                        currentTextIndex++;
-                        outText.Append("</a>");
+                        if (!CheckLinkAvailabilityForClosedA(currentTagsIndex, tags))
+                            break;
+                        currentTextIndex += Tag.TagMarkerTextRepresentation[TagType.AClose].Length;
+                        outText.Append(Tag.TagTextRepresentation[tag.Type]);
                         break;
                     case TagType.LinkBracket:
-                        currentTextIndex++;
-                        while (toInsert[currentTagsIndex].CurrentType != TagType.LinkBracketClose)
+                        currentTextIndex += Tag.TagMarkerTextRepresentation[TagType.LinkBracket].Length;
+                        while (tags[currentTagsIndex].Type != TagType.LinkBracketClose)
                             currentTagsIndex++;
-                        outText.Insert(linkTagIndex, " href=" + text.Substring(currentTextIndex, toInsert[currentTagsIndex].Position - currentTextIndex));
-                        currentTextIndex = toInsert[currentTagsIndex].Position;
+                        outText.Insert(linkTagIndex, " href=\"" + text.Substring(currentTextIndex, tags[currentTagsIndex].Position - currentTextIndex) + "\"");
+                        currentTextIndex = tags[currentTagsIndex].Position;
                         currentTextIndex++;
                         break;
                     case TagType.LinkBracketClose:
-                        currentTextIndex++;
+                        currentTextIndex += Tag.TagMarkerTextRepresentation[TagType.LinkBracketClose].Length;
                         break;
                 }
 
@@ -74,6 +78,38 @@ namespace Markdown
             }
             outText.Append(text.Substring(currentTextIndex));
             return outText.ToString();
+        }
+
+        private bool CheckLinkAvailability(int index, List<Tag> tags)
+        {
+            var closeSquareBracketFound = false;
+            for (int i = index; i < tags.Count; i++)
+            {
+                if (!closeSquareBracketFound)
+                    if (tags[i].Type == TagType.AClose)
+                        closeSquareBracketFound = true;
+                if (closeSquareBracketFound)
+                    return CheckLinkAvailabilityForClosedA(i, tags);
+            }
+            return false;
+        }
+
+        private bool CheckLinkAvailabilityForClosedA(int index, List<Tag> tags)
+        {
+            var OpenBracketFound = false;
+            var closeBracketFound = false;
+            for (int i = index; i < tags.Count; i++)
+            {
+                if (!OpenBracketFound)
+                    if (tags[i].Type == TagType.LinkBracket)
+                        OpenBracketFound = true;
+                if (!closeBracketFound)
+                    if (tags[i].Type == TagType.LinkBracketClose)
+                        closeBracketFound = true;
+                if (OpenBracketFound && closeBracketFound)
+                    return true;
+            }
+            return false;
         }
     }
 }
