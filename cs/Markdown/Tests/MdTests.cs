@@ -1,5 +1,6 @@
 ﻿using System.Collections.Generic;
 using System.Diagnostics;
+using System.Linq;
 using System.Text;
 using Markdown.Core;
 using NUnit.Framework;
@@ -31,7 +32,7 @@ namespace Markdown.Tests
             TestName = "WhenStrongEmbeddedInEm")]
         [TestCase("__a _b_ c__", ExpectedResult = "<strong>a <em>b</em> c</strong>",
             TestName = "WhenEmEmbeddedInStrong")]
-        [TestCase("# ab\n_c_", ExpectedResult = "<h1> ab</h1>\n<em>c</em>",
+        [TestCase("# ab\r\n_c_", ExpectedResult = "<h1> ab</h1>\r\n<em>c</em>",
             TestName = "WhenFirstLineHeaderAndEmInSecond")]
         public string Render_ReplacedSeveralTags(string rawText)
         {
@@ -61,23 +62,34 @@ namespace Markdown.Tests
         [TestCase("_foo bar_ __bla_bla_bla__")]
         public void Render_WorkLinear(string rawText)
         {
-            var millisecondsSpent = new List<long>();
-            var rawTextStingBuilder = new StringBuilder();
+            for (var i = 0; i < 10; i++)
+                Md.Render(rawText);
+
+            var averageTimeRawText = GetAverageWorkTime(rawText, 1000);
+
+            var newRawText = rawText;
+            for (var i = 0; i < 10; i++)
+                newRawText += rawText;
+
+            var averageTimeTenRawText = GetAverageWorkTime(newRawText, 1000);
+
+            Assert.LessOrEqual(averageTimeTenRawText, 10 * averageTimeRawText);
+        }
+
+        private double GetAverageWorkTime(string rawText, int count)
+        {
+            var times = new List<long>();
             var watch = new Stopwatch();
-            for (var k = 0; k < 1000; k++)
+            for (var i = 0; i < count; i++)
             {
-                rawTextStingBuilder.Append(rawText);
                 watch.Start();
-                Md.Render(rawTextStingBuilder.ToString());
+                Md.Render(rawText);
                 watch.Stop();
-                millisecondsSpent.Add(watch.ElapsedMilliseconds);
+                times.Add(watch.ElapsedTicks);
                 watch.Reset();
             }
 
-            for (var j = 1; j < millisecondsSpent.Count; j += 2)
-            {
-                Assert.AreEqual(millisecondsSpent[j - 1], millisecondsSpent[j], 50);
-            }
+            return times.Average();
         }
     }
 }
