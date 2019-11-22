@@ -1,5 +1,4 @@
-﻿using System.Collections.Generic;
-using Markdown.Tokens;
+﻿using Markdown.Tokens;
 
 namespace Markdown.Transducer.ConverterTokenToHtml
 {
@@ -9,7 +8,7 @@ namespace Markdown.Transducer.ConverterTokenToHtml
 
         public AbstractConverterTokenToHtml(string startString, string endString)
         {
-            this.StartString = startString;
+            StartString = startString;
             EndString = endString;
         }
 

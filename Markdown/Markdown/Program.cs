@@ -5,7 +5,6 @@ using Markdown.CoreParser;
 using Markdown.CoreParser.ConverterInTokens;
 using Markdown.Tokens;
 using Markdown.Transducer.ConverterTokenToHtml;
-using NUnit.Framework.Interfaces;
 
 namespace Markdown
 {
@@ -53,8 +52,7 @@ namespace Markdown
             
             var path = args[0];
             var str = ReadFile(path);
-            Console.WriteLine(str);
-            
+
             var parser = new Parser();
             var singleEmphasis = new SingleEmphasis();
             var doubleEmphasis = new DoubleEmphasis();
@@ -69,7 +67,7 @@ namespace Markdown
             converterDoubleEmphasis.RegisterNested(new SingleEmphasisToken("", 0, new IToken[0]), converterSingleEmphasis);
             transducer.Registred(new SingleEmphasisToken("", 0, new IToken[0]), converterSingleEmphasis);
             transducer.Registred(new DoubleEmphasisToken("", 0, new IToken[0]), converterDoubleEmphasis);
-
+            
             WriteFile(Path.Combine(Path.GetDirectoryName(path), "output.txt"), transducer.MakeHtmlString(str, parser.Tokenize(str)));
         }
     }

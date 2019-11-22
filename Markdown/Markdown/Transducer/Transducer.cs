@@ -22,8 +22,9 @@ namespace Markdown.Transducer
             var currentPosition = 0;
             foreach (var token in tokens)
             {
-                stringBuilder.Append(str.Substring(currentPosition, token.IndexTokenStart - currentPosition));
-                currentPosition += str.Substring(currentPosition, token.IndexTokenStart - currentPosition).Length;
+                var substring = str.Substring(currentPosition, token.IndexTokenStart - currentPosition);
+                stringBuilder.Append(substring);
+                currentPosition += substring.Length;
                 stringBuilder.Append(convertersTokenToHtml[token.GetType()].MakeConverter(token));
                 currentPosition += token.Length;
             }
