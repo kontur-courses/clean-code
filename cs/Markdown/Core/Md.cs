@@ -1,5 +1,7 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Text;
+using System.Text.RegularExpressions;
 using Markdown.Core.Parsers;
 using Markdown.Core.Rules;
 
@@ -14,14 +16,15 @@ namespace Markdown.Core
             var parser = new MainParser(rules);
             var render = new Render(rules);
             var escapedText = EscapeSpecialSymbols(markdown);
-            foreach (var line in escapedText.Split('\n'))
+            Console.WriteLine($@"{Environment.NewLine}");
+            foreach (var line in Regex.Split(escapedText, Environment.NewLine))
             {
                 var tokens = parser.ParseLine(line);
                 var renderedLine = render.RenderLine(line, tokens);
                 renderedLines.Add(renderedLine);
             }
 
-            return string.Join("\n", renderedLines);
+            return string.Join(Environment.NewLine, renderedLines);
         }
 
         private static string EscapeSpecialSymbols(string text)
