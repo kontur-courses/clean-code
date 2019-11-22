@@ -20,9 +20,7 @@ namespace Markdown
 
             var correctTags = tagParser.Parse(inputString)
                 .RemoveEscapedTags(inputString)
-                .OrderBy(tag => tag.Index) //Не придумал как избавиться от сортировки :/
                 .RemoveUnopenedTags()
-                .OrderBy(tag => tag.Index) //Но даже с двумя сортировками программа работает относительно быстро
                 .RemoveIncorrectNestingTags()
                 .ToList();
 

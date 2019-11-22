@@ -1,5 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Linq;
 
 namespace Markdown
@@ -17,35 +16,22 @@ namespace Markdown
 
         public IEnumerable<Tag> Parse(string inputString)
         {
-            var indicesOfMarkdownTags = tagDesignations
-                .ToDictionary(
-                    tagDesignation => tagDesignation,
-                    tagDesignation => GetTagIndices(inputString, tagDesignation));
-
-            var convertedTags = ConvertToTagClass(inputString, indicesOfMarkdownTags);
-
-            return convertedTags;
-        }
-
-        private IEnumerable<Tag> ConvertToTagClass(string inputString, Dictionary<string, List<int>> indexesOfTags)
-        {
-            var convertedTags = new List<Tag>();
-
-            foreach (var tagDesignation in indexesOfTags.Keys)
-            foreach (var index in indexesOfTags[tagDesignation])
-                if (TryGetTag(inputString, index, tagDesignation, out Tag tag))
-                    convertedTags.Add(tag);
-
-            return convertedTags;
-        }
-
-        private static List<int> GetTagIndices(string input, string tagDesignations)
-        {
-            return input.GetSubstringIndices(tagDesignations);
+            for (var i = 0; i < inputString.Length; i++)
+                foreach (var tagDesignation in tagDesignations)
+                    if (TryGetTag(inputString, i, tagDesignation, out var tag))
+                        yield return tag;
         }
 
         private bool TryGetTag(string inputString, int tagIndex, string tagDesignation, out Tag tag)
         {
+            tag = null;
+
+            if (tagIndex + tagDesignation.Length > inputString.Length)
+                return false;
+            
+            if (inputString.Substring(tagIndex, tagDesignation.Length) != tagDesignation)
+                return false;
+            
             var previousTagSymbol = (tagIndex != 0) 
                 ? inputString[tagIndex - 1]
                 : ' ';
@@ -56,21 +42,15 @@ namespace Markdown
 
             if (IsOpeningTag(previousTagSymbol, nextTagSymbol))
             {
-                tag = new Tag(
-                    tagDesignation, 
-                    tagIndex, 
-                    TagType.Opening,
-                    MarkdownTransformerToHtml.TagsInfo[tagDesignation].Priority);
+                tag = new Tag(tagDesignation, tagIndex, 
+                    TagType.Opening, MarkdownTransformerToHtml.TagsInfo[tagDesignation].Priority);
                 return true;
             }
 
             if (IsClosingTag(previousTagSymbol, nextTagSymbol))
             {
-                tag = new Tag(
-                    tagDesignation,
-                    tagIndex,
-                    TagType.Closing,
-                    MarkdownTransformerToHtml.TagsInfo[tagDesignation].Priority);
+                tag = new Tag(tagDesignation, tagIndex,
+                    TagType.Closing, MarkdownTransformerToHtml.TagsInfo[tagDesignation].Priority);
                 return true;
             }
 

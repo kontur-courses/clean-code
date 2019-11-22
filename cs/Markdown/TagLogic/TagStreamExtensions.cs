@@ -14,7 +14,7 @@ namespace Markdown
                 (tag.Index != 0) ? inputString[tag.Index - 1] : ' ';
         }
 
-        public static IEnumerable<Tag> RemoveUnopenedTags(this IOrderedEnumerable<Tag> sortedTags)
+        public static IEnumerable<Tag> RemoveUnopenedTags(this IEnumerable<Tag> sortedTags)
         {
             var result = new List<Tag>();
 
@@ -34,10 +34,10 @@ namespace Markdown
                 }
             }
 
-            return result;
+            return result.OrderBy(tag => tag.Index);
         }
 
-        public static IEnumerable<Tag> RemoveIncorrectNestingTags(this IOrderedEnumerable<Tag> sortedTags)
+        public static IEnumerable<Tag> RemoveIncorrectNestingTags(this IEnumerable<Tag> sortedTags)
         {
             var priorityStack = new Stack<int>();
             priorityStack.Push(int.MaxValue);
