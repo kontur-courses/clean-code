@@ -14,12 +14,14 @@ namespace Markdown.Tests.Parser.TagsParsing
         private static readonly ItalicTag italic = new ItalicTag();
         private static readonly BoldTag bold = new BoldTag();
         private static readonly List<MarkdownTag> tags = new List<MarkdownTag> { italic, bold };
-        private static readonly CharClassifier classifier = new CharClassifier(tags.SelectMany(t => t.String));
 
-        private TagsReader GetReader(string markdown)
+        private static readonly CharClassifier classifier =
+            new CharClassifier(tags.SelectMany(t => t.String));
+
+        private static TagsReader GetReader(string markdown)
         {
             var reader = new TagsReader(markdown, tags, classifier);
-            
+
             return reader;
         }
 
@@ -34,75 +36,62 @@ namespace Markdown.Tests.Parser.TagsParsing
             actual.Should().BeEmpty();
         }
 
+        private static IEnumerable<TestCaseData> GenerateEventsTestCasesWithValidTagsForEachTag()
+        {
+            foreach (var tag in tags)
+            {
+                var tagName = tag.Name;
+                var tagString = tag.String;
+
+                yield return
+                    new TestCaseData($"this is {tagString}plain text",
+                            new List<TagEvent> {new TagEvent(8, TagEventType.Start, tag)})
+                        .SetName($"only start of {tagName} tag inside markdown");
+
+                yield return
+                    new TestCaseData($"{tagString}this is plain text",
+                            new List<TagEvent> {new TagEvent(0, TagEventType.Start, tag)})
+                        .SetName($"only start of  {tagName} tag at markdown start");
+
+                yield return
+                    new TestCaseData($"this is plain{tagString} text",
+                            new List<TagEvent> {new TagEvent(13, TagEventType.End, tag)})
+                        .SetName($"only end of {tagName} tag inside markdown");
+
+                yield return
+                    new TestCaseData($"this is plain text{tagString}",
+                            new List<TagEvent> {new TagEvent(18, TagEventType.End, tag)})
+                        .SetName($"only end of {tagName} tag at end of markdown");
+
+
+                if (tags.Count > 1)
+                {
+                    foreach (var other in tags.Where(other => tag != other))
+                    {
+                        yield return
+                            new TestCaseData($"this {tagString}is plain text{other.String}",
+                                    new List<TagEvent>
+                                    {
+                                        new TagEvent(5, TagEventType.Start, tag),
+                                        new TagEvent(5 + tagString.Length + 13, TagEventType.End, other)
+                                    })
+                                .SetName($"{tagName} start and {other.Name} end");
+                    }
+                }
+
+                yield return
+                    new TestCaseData($"this {tagString}is plain text{tagString}",
+                            new List<TagEvent>
+                            {
+                                new TagEvent(5, TagEventType.Start, tag),
+                                new TagEvent(5 + tagString.Length + 13, TagEventType.End, tag)
+                            })
+                        .SetName($"{tagName} start and end");
+            }
+        }
+
         private static IEnumerable<TestCaseData> GetEventsTestCasesWithValidTags()
         {
-            yield return
-                new TestCaseData("this is _plain text",
-                        new List<TagEvent> {new TagEvent(8, TagEventType.Start, italic)})
-                    .SetName("only start of italic inside markdown");
-
-            yield return
-                new TestCaseData("_this is plain text",
-                        new List<TagEvent> {new TagEvent(0, TagEventType.Start, italic)})
-                    .SetName("only start of italic at markdown start");
-
-            yield return
-                new TestCaseData("this is plain_ text",
-                        new List<TagEvent> {new TagEvent(13, TagEventType.End, italic)})
-                    .SetName("only end of italic inside markdown");
-
-            yield return
-                new TestCaseData("this is plain text_",
-                        new List<TagEvent> {new TagEvent(18, TagEventType.End, italic)})
-                    .SetName("only end of italic at end of markdown");
-
-            yield return
-                new TestCaseData("this is __plain text",
-                        new List<TagEvent> {new TagEvent(8, TagEventType.Start, bold)})
-                    .SetName("start of bold inside markdown");
-
-            yield return
-                new TestCaseData("__this is plain text",
-                        new List<TagEvent> {new TagEvent(0, TagEventType.Start, bold)})
-                    .SetName("start of bold at start of markdown");
-
-            yield return
-                new TestCaseData("this is plain__ text",
-                        new List<TagEvent> {new TagEvent(13, TagEventType.End, bold)})
-                    .SetName("end of bold inside markdown");
-
-            yield return
-                new TestCaseData("this is plain text__",
-                        new List<TagEvent> {new TagEvent(18, TagEventType.End, bold)})
-                    .SetName("end of bold at end of markdown");
-
-            yield return
-                new TestCaseData("this __is plain text__",
-                        new List<TagEvent>
-                        {
-                            new TagEvent(5, TagEventType.Start, bold),
-                            new TagEvent(20, TagEventType.End, bold)
-                        })
-                    .SetName("bold start and end");
-
-            yield return
-                new TestCaseData("this _is plain text_",
-                        new List<TagEvent>
-                        {
-                            new TagEvent(5, TagEventType.Start, italic),
-                            new TagEvent(19, TagEventType.End, italic)
-                        })
-                    .SetName("italic start and end");
-
-            yield return
-                new TestCaseData("this _is plain text__",
-                        new List<TagEvent>
-                        {
-                            new TagEvent(5, TagEventType.Start, italic),
-                            new TagEvent(19, TagEventType.End, bold)
-                        })
-                    .SetName("mixed start and end");
-
             yield return
                 new TestCaseData("___text___",
                         new List<TagEvent>
@@ -112,7 +101,7 @@ namespace Markdown.Tests.Parser.TagsParsing
                             new TagEvent(7, TagEventType.End, italic),
                             new TagEvent(8, TagEventType.End, bold)
                         })
-                    .SetName("italic start and end");
+                    .SetName("italic wrapped in bold");
 
             yield return new TestCaseData(@"_\_ text",
                     new List<TagEvent>
@@ -122,6 +111,7 @@ namespace Markdown.Tests.Parser.TagsParsing
                 .SetName("escaped underscore valid character to start tag");
         }
 
+        [TestCaseSource(nameof(GenerateEventsTestCasesWithValidTagsForEachTag))]
         [TestCaseSource(nameof(GetEventsTestCasesWithValidTags))]
         public void GetEvents_WithValidTags_ShouldReturnRightEvents(string markdown, List<TagEvent> expected)
         {
@@ -132,27 +122,21 @@ namespace Markdown.Tests.Parser.TagsParsing
             actual.Should().BeEquivalentTo(expected);
         }
 
-        private static IEnumerable<TestCaseData> GetEventsTestCasesWithInvalidTags()
+        private static IEnumerable<TestCaseData> GenerateEventsTestCasesWithInvalidTags()
         {
-            yield return
-                new TestCaseData("text __ text")
-                    .SetName("invalid token of bold");
+            foreach (var tag in tags)
+            {
+                yield return
+                    new TestCaseData($"text {tag.String} text")
+                        .SetName($"invalid token of {tag.Name}");
 
-            yield return
-                new TestCaseData("text _ text")
-                    .SetName("invalid token of italic");
-
-            yield return
-                new TestCaseData("text_text")
-                    .SetName("invalid start token of italic");
-
-            yield return
-                new TestCaseData("text__text")
-                    .SetName("invalid start token of bold");
+                yield return
+                    new TestCaseData($"text{tag.String}text")
+                        .SetName($"invalid start and end tokens of {tag.Name}");
+            }
         }
 
-
-        [TestCaseSource(nameof(GetEventsTestCasesWithInvalidTags))]
+        [TestCaseSource(nameof(GenerateEventsTestCasesWithInvalidTags))]
         public void GetEvents_WithInvalidTags_ShouldReturnEmptyList(string markdown)
         {
             var reader = GetReader(markdown);
@@ -162,8 +146,16 @@ namespace Markdown.Tests.Parser.TagsParsing
             actual.Should().BeEmpty();
         }
 
-        [TestCase("42_1")]
-        [TestCase("42__1")]
+        private static IEnumerable<TestCaseData> GenerateTagsInsideDigits()
+        {
+            foreach (var tag in tags)
+            {
+                yield return new TestCaseData($"42{tag.String}42")
+                    .SetName($"{tag.Name} inside digits");
+            }
+        }
+
+        [TestCaseSource(nameof(GenerateTagsInsideDigits))]
         public void GetEvents_WithTagInsideDigits_ShouldReturnEmptyList(string markdown)
         {
             var reader = GetReader(markdown);

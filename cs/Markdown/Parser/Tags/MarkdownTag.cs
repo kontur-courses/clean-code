@@ -9,5 +9,7 @@ namespace Markdown.Parser.Tags
         public abstract string String { get; }
 
         public abstract Node Node { get; }
+
+        public abstract string Name { get; }
     }
 }

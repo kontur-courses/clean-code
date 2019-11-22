@@ -6,5 +6,6 @@ namespace Markdown.Parser.Tags
     {
         public override string String => "_";
         public override Node Node => new ItalicNode();
+        public override string Name => "italic";
     }
 }

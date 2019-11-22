@@ -1,4 +1,5 @@
 ﻿using System.Collections.Generic;
+using System.Linq;
 using FluentAssertions;
 using Markdown.Parser.Tags;
 using Markdown.Parser.TagsParsing;
@@ -10,48 +11,49 @@ namespace Markdown.Tests.Tools
     [TestFixture]
     public class FilterTests
     {
+        private static readonly List<MarkdownTag> Tags =
+            new List<MarkdownTag> {new ItalicTag(), new BoldTag()};
+
         private static IEnumerable<TestCaseData> GetNoPairEvents()
         {
-            yield return new TestCaseData(new List<TagEvent> {new TagEvent(0, TagEventType.Start, new BoldTag())})
-                .SetName("only start tag");
+            foreach (var tag in Tags)
+            {
+                yield return new TestCaseData(new List<TagEvent> {new TagEvent(0, TagEventType.Start, tag)})
+                    .SetName($"only start {tag.Name} tag");
 
-            yield return new TestCaseData(new List<TagEvent> {new TagEvent(7, TagEventType.End, new BoldTag())})
-                .SetName("only end tag");
+                yield return new TestCaseData(new List<TagEvent> {new TagEvent(7, TagEventType.End, tag)})
+                    .SetName($"only end {tag.Name} tag");
+
+                foreach (var other in Tags.Where(other => tag != other))
+                {
+                    yield return new TestCaseData(
+                            new List<TagEvent>
+                            {
+                                new TagEvent(5, TagEventType.Start, tag),
+                                new TagEvent(8, TagEventType.End, other)
+                            })
+                        .SetName($"{tag.Name} start and {other.Name} end");
+                }
+
+                yield return new TestCaseData(
+                        new List<TagEvent>
+                        {
+                            new TagEvent(7, TagEventType.Start, tag),
+                            new TagEvent(8, TagEventType.Start, tag)
+                        })
+                    .SetName($"two starts of {tag.Name}");
+
+                yield return new TestCaseData(
+                        new List<TagEvent>
+                        {
+                            new TagEvent(5, TagEventType.End, tag),
+                            new TagEvent(8, TagEventType.End, tag)
+                        })
+                    .SetName($"two ends of {tag.Name}");
+            }
 
             yield return new TestCaseData(new List<TagEvent>())
                 .SetName("empty tagEvents");
-
-            yield return new TestCaseData(
-                    new List<TagEvent>
-                    {
-                        new TagEvent(5, TagEventType.Start, new BoldTag()),
-                        new TagEvent(8, TagEventType.End, new ItalicTag())
-                    })
-                .SetName("bold start and italic end");
-
-            yield return new TestCaseData(
-                    new List<TagEvent>
-                    {
-                        new TagEvent(5, TagEventType.Start, new ItalicTag()),
-                        new TagEvent(8, TagEventType.End, new BoldTag())
-                    })
-                .SetName("italic start and bold end");
-
-            yield return new TestCaseData(
-                    new List<TagEvent>
-                    {
-                        new TagEvent(7, TagEventType.Start, new BoldTag()),
-                        new TagEvent(8, TagEventType.Start, new BoldTag())
-                    })
-                .SetName("tags are two starts");
-
-            yield return new TestCaseData(
-                    new List<TagEvent>
-                    {
-                        new TagEvent(5, TagEventType.End, new BoldTag()),
-                        new TagEvent(8, TagEventType.End, new BoldTag())
-                    })
-                .SetName("tags are two ends");
         }
 
         [TestCaseSource(nameof(GetNoPairEvents))]
@@ -64,55 +66,70 @@ namespace Markdown.Tests.Tools
 
         private static IEnumerable<TestCaseData> GetPairEvents()
         {
-            yield return new TestCaseData(
-                    new List<TagEvent>
-                    {
-                        new TagEvent(5, TagEventType.Start, new BoldTag()),
-                        new TagEvent(8, TagEventType.End, new BoldTag())
-                    },
-                    new List<TagEvent>
-                    {
-                        new TagEvent(5, TagEventType.Start, new BoldTag()),
-                        new TagEvent(8, TagEventType.End, new BoldTag())
-                    }
-                )
-                .SetName("bold start and bold end");
+            foreach (var tag in Tags)
+            {
+                var tagName = tag.Name;
 
-            yield return new TestCaseData(
-                    new List<TagEvent>
-                    {
-                        new TagEvent(5, TagEventType.Start, new BoldTag()),
-                        new TagEvent(8, TagEventType.End, new ItalicTag()),
-                        new TagEvent(9, TagEventType.End, new BoldTag())
-                    },
-                    new List<TagEvent>
-                    {
-                        new TagEvent(5, TagEventType.Start, new BoldTag()),
-                        new TagEvent(9, TagEventType.End, new BoldTag())
-                    }
-                )
-                .SetName("non paired italic between paired bolds should not be as a result");
+                yield return new TestCaseData(
+                        new List<TagEvent>
+                        {
+                            new TagEvent(5, TagEventType.Start, tag),
+                            new TagEvent(8, TagEventType.End, tag)
+                        }
+                    )
+                    .SetName($"{tagName} start and {tagName} end");
 
-            yield return new TestCaseData(
-                    new List<TagEvent>
-                    {
-                        new TagEvent(5, TagEventType.Start, new BoldTag()),
-                        new TagEvent(7, TagEventType.Start, new ItalicTag()),
-                        new TagEvent(8, TagEventType.End, new ItalicTag()),
-                        new TagEvent(9, TagEventType.End, new BoldTag())
-                    },
-                    new List<TagEvent>
-                    {
-                        new TagEvent(5, TagEventType.Start, new BoldTag()),
-                        new TagEvent(7, TagEventType.Start, new ItalicTag()),
-                        new TagEvent(8, TagEventType.End, new ItalicTag()),
-                        new TagEvent(9, TagEventType.End, new BoldTag())
-                    }
-                )
-                .SetName("correct sequence of nested tags  bold and italic");
+                foreach (var other in Tags.Where(other => tag != other))
+                {
+                    yield return new TestCaseData(
+                            new List<TagEvent>
+                            {
+                                new TagEvent(5, TagEventType.Start, tag),
+                                new TagEvent(7, TagEventType.Start, other),
+                                new TagEvent(8, TagEventType.End, other),
+                                new TagEvent(9, TagEventType.End, tag)
+                            }
+                        )
+                        .SetName($"correct sequence of nested tags {tag.Name} and {other.Name}");
+                }
+            }
         }
 
         [TestCaseSource(nameof(GetPairEvents))]
+        public void GetPairEvents_FromValidPairEvents_ShouldReturnThisEvents(
+            List<TagEvent> events)
+        {
+            var actual = Filter.PairEvents(events);
+
+            actual.Should().BeEquivalentTo(events);
+        }
+
+        private static IEnumerable<TestCaseData> GenerateNonPairedTagBetweenPairedOtherTags()
+        {
+            foreach (var tag in Tags)
+            {
+                foreach (var other in Tags.Where(other => other != tag))
+                {
+
+                    yield return new TestCaseData(
+                            new List<TagEvent>
+                            {
+                                new TagEvent(5, TagEventType.Start, tag),
+                                new TagEvent(8, TagEventType.End, other),
+                                new TagEvent(9, TagEventType.End, tag)
+                            },
+                            new List<TagEvent>
+                            {
+                                new TagEvent(5, TagEventType.Start, tag),
+                                new TagEvent(9, TagEventType.End, tag)
+                            }
+                        )
+                        .SetName($"non paired {other.Name} between paired {tag.Name}s should not be as a result");
+                }
+            }
+        }
+
+        [TestCaseSource(nameof(GenerateNonPairedTagBetweenPairedOtherTags))]
         public void GetPairEvents_FromValidPairEvents_ShouldReturnRightValue(
             List<TagEvent> events, List<TagEvent> expected)
         {

@@ -3,7 +3,7 @@ using System.Linq;
 using FluentAssertions;
 using Markdown.Parser;
 using Markdown.Parser.Tags;
-using Markdown.Tools;
+using Markdown.Parser.TagsParsing;
 using Markdown.Tree;
 using NUnit.Framework;
 
@@ -12,7 +12,10 @@ namespace Markdown.Tests.Parser
     [TestFixture]
     public class TreeBuilderTests
     {
-        private TreeBuilder treeBuilder;
+        private TreeBuilder treeBuilder = new TreeBuilder();
+
+        private static readonly List<MarkdownTag> Tags =
+            new List<MarkdownTag> {new ItalicTag(), new BoldTag()};
 
         [SetUp]
         public void SetUp()
@@ -41,52 +44,25 @@ namespace Markdown.Tests.Parser
             CheckTree(expected, actual);
         }
 
-        [Test]
-        public void BuildTree_MarkdownWithRightUnderling_ShouldReturnTreeWithItalicNode()
+        private static IEnumerable<TestCaseData> GenerateTextInRightTags()
         {
-            var markdown = "_this is plain text_";
-            var text = markdown.Trim('_');
-            var expected = new RootNode();
-            var italic = new ItalicNode();
-            expected.AddNode(italic);
-            italic.AddNode(new PlainTextNode(text));
-
-            var actual = treeBuilder.ParseMarkdown(markdown);
-
-            CheckTree(expected, actual);
+            foreach (var tag in Tags)
+            {
+                yield return new TestCaseData(
+                        $"{tag.String}this is plain text{tag.String}",
+                        tag.Node,
+                        "this is plain text")
+                    .SetName($"text in {tag.Name} tags");
+            }
         }
 
-        [Test]
-        public void BuildTree_MarkdownWithRightDoubleUnderling_ShouldReturnTreeWithBoldNode()
+        [TestCaseSource(nameof(GenerateTextInRightTags))]
+        public void BuildTree_MarkdownWithRightTags_ShouldReturnTreeWithThisTagsNode(string markdown, Node tagNode,
+            string expectedText)
         {
-            var markdown = "__this is plain text__";
-            var text = markdown.Trim('_');
             var expected = new RootNode();
-            var bold = new BoldNode();
-            expected.AddNode(bold);
-            bold.AddNode(new PlainTextNode(text));
-
-
-            var actual = treeBuilder.ParseMarkdown(markdown);
-
-            CheckTree(expected, actual);
-        }
-
-        [Test]
-        public void BuildTree_MarkdownWithDoubleUnderlingBetweenSingleUnderline_ShouldReturnTreeWithItalicAndBoldNodes()
-        {
-            var markdown = "_this is __plain__ text_";
-            var text = markdown.Trim('_');
-            var expected = new RootNode();
-            var italic = new ItalicNode();
-            var bold = new BoldNode();
-            var textPart = text.Split('_');
-
-            expected.AddNode(italic);
-            italic.AddNode(new PlainTextNode(textPart[0]));
-            italic.AddNode(bold);
-            bold.AddNode(new PlainTextNode(textPart[2]));
-            italic.AddNode(new PlainTextNode(textPart[4]));
+            expected.AddNode(tagNode);
+            tagNode.AddNode(new PlainTextNode(expectedText));
 
 
             var actual = treeBuilder.ParseMarkdown(markdown);
@@ -94,82 +70,116 @@ namespace Markdown.Tests.Parser
             CheckTree(expected, actual);
         }
 
-        [Test]
-        public void BuildTree_MarkdownWithSingleUnderlingBetweenDoubleUnderline_ShouldReturnTreeWithItalicAndBoldNodes()
+
+        private static IEnumerable<TestCaseData> GenerateNestedTags()
         {
-            var markdown = "__this is _plain_ text__";
-            var text = markdown.Trim('_');
-            var expected = new RootNode();
-            var italic = new ItalicNode();
-            var bold = new BoldNode();
-            var textPart = text.Split('_');
+            foreach (var tag in Tags)
+            {
+                foreach (var other in Tags.Where(other => tag != other))
+                {
+                    var expectedResult = new RootNode();
+                    var external = tag.Node;
+                    expectedResult.AddNode(external);
+                    external.AddNode(new PlainTextNode("this is "));
+                    var otherNode = other.Node;
+                    external.AddNode(otherNode);
+                    otherNode.AddNode(new PlainTextNode("plain"));
+                    external.AddNode(new PlainTextNode(" text"));
 
-            expected.AddNode(bold);
-            bold.AddNode(new PlainTextNode(textPart[0]));
-            bold.AddNode(italic);
-            italic.AddNode(new PlainTextNode(textPart[1]));
-            bold.AddNode(new PlainTextNode(textPart[2]));
+                    yield return new TestCaseData(
+                            $"{tag.String}this is {other.String}plain{other.String} text{tag.String}",
+                            expectedResult)
+                        .SetName($"{other.Name} tag nested in {tag.Name} tag");
+                }
+            }
+        }
+
+        [TestCaseSource(nameof(GenerateNestedTags))]
+        public void BuildTree_MarkdownWithNestedTags_ShouldReturnTreeWithNestedNodes(
+            string markdown, RootNode expected)
+        {
+            var actual = treeBuilder.ParseMarkdown(markdown);
+            CheckTree(expected, actual);
+        }
 
 
+        private static IEnumerable<TestCaseData> GenerateTabAndNewLineInsideValidTags()
+        {
+            foreach (var tag in Tags)
+            {
+                var expected = new RootNode();
+                var tagNode = tag.Node;
+                expected.AddNode(tagNode);
+                tagNode.AddNode(new PlainTextNode("this is \nplain text"));
+
+                yield return new TestCaseData(
+                        $"{tag.String}this is \nplain text{tag.String}",
+                        expected)
+                    .SetName($"new line inside {tag.Name} tags");
+            }
+
+            foreach (var tag in Tags)
+            {
+                var expected = new RootNode();
+                var tagNode = tag.Node;
+                expected.AddNode(tagNode);
+                tagNode.AddNode(new PlainTextNode("this is \tplain text"));
+
+                yield return new TestCaseData(
+                        $"{tag.String}this is \tplain text{tag.String}",
+                        expected)
+                    .SetName($"tab inside {tag.Name} tags");
+            }
+        }
+
+        [TestCaseSource(nameof(GenerateTabAndNewLineInsideValidTags))]
+        public void BuildTree_TabAndNewLineBetweenValidTags_ShouldReturnTreeWithThisTagsNode(
+            string markdown, RootNode expected)
+        {
             var actual = treeBuilder.ParseMarkdown(markdown);
 
             CheckTree(expected, actual);
         }
 
-        [TestCase("_this is \nplain text_")]
-        [TestCase("_this is \tplain text_")]
-        public void BuildTree_MarkdownWithTabAndNewLineBetweenSingleUnderling_ShouldReturnTreeWithItalicNode(
-            string markdown)
+        private static IEnumerable<TestCaseData> GenerateCoherentValidTags()
         {
-            var text = markdown.Trim('_');
-            var expected = new RootNode();
-            var italic = new ItalicNode();
-            expected.AddNode(italic);
-            italic.AddNode(new PlainTextNode(text));
+            foreach (var tag in Tags)
+            {
+                foreach (var other in Tags.Where(other => tag != other))
+                {
+                    var markdown = $"{tag.String}first{tag.String} {other.String}second{other.String}";
+                    var expected = new RootNode();
+                    var first = tag.Node;
+                    var second = other.Node;
+                    expected.AddNode(first);
+                    expected.AddNode(new PlainTextNode(" "));
+                    expected.AddNode(second);
+                    first.AddNode(new PlainTextNode("first"));
+                    second.AddNode(new PlainTextNode("second"));
 
+                    yield return new TestCaseData(markdown, expected)
+                        .SetName($"{other.Name} tags after {tag.Name} tags");
+                }
+            }
+        }
+
+        [TestCaseSource(nameof(GenerateCoherentValidTags))]
+        public void BuildTree_CoherentValidTags_ShouldReturnTreeWithRightNodes(
+            string markdown, RootNode expected)
+        {
             var actual = treeBuilder.ParseMarkdown(markdown);
 
             CheckTree(expected, actual);
         }
 
-        [TestCase("__this is \nplain text__")]
-        [TestCase("__this is \tplain text__")]
-        public void BuildTree_MarkdownWithTabAndNewLineBetweenDoubleUnderling_ShouldReturnTreeWithBoldNode(
-            string markdown)
+        private static IEnumerable<TestCaseData> GenerateTagsBetweenDigits()
         {
-            var text = markdown.Trim('_');
-            var expected = new RootNode();
-            var bold = new BoldNode();
-            expected.AddNode(bold);
-            bold.AddNode(new PlainTextNode(text));
-
-            var actual = treeBuilder.ParseMarkdown(markdown);
-
-            CheckTree(expected, actual);
+            return Tags.Select(tag => new TestCaseData($"{tag.String}4{tag.String}2")
+                .SetName($"{tag.Name} tag between digits"));
         }
 
-        [Test]
-        public void BuildTree_SingleAndDoubleUnderlingAlternate_ShouldReturnTreeWithItalicAndBoldNodes()
-        {
-            var markdown = "_italic_ __bold__";
-            var text = markdown.Split('_');
-            var expected = new RootNode();
-            var italic = new ItalicNode();
-            var bold = new BoldNode();
-            expected.AddNode(italic);
-            expected.AddNode(bold);
-            expected.AddNode(new PlainTextNode(text[2]));
-            italic.AddNode(new PlainTextNode(text[1]));
-            bold.AddNode(new PlainTextNode(text[4]));
-
-            var actual = treeBuilder.ParseMarkdown(markdown);
-
-            CheckTree(expected, actual);
-        }
-
-        [TestCase("_4_2")]
-        [TestCase("__4__2")]
-        public void BuildTree_UnderlingBetweenDigits_ShouldReturnTreeWithOnlyPlainText(string markdown)
+        [TestCaseSource(nameof(GenerateTagsBetweenDigits))]
+        public void BuildTree_TagsBetweenDigits_ShouldReturnTreeWithOnlyPlainText(string markdown)
         {
             var expected = new RootNode();
             expected.AddNode(new PlainTextNode(markdown));
