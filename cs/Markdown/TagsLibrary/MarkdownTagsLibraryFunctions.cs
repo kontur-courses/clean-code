@@ -55,8 +55,8 @@ namespace Markdown.TagsLibrary
             if (startIndex > endIndex)
                 throw new ArgumentException($"{nameof(startIndex)} can't be more than {nameof(endIndex)}");
 
-            var leftChar = startIndex - 1 > 0 ? text[startIndex - 1] : (char?)null;
-            var rightChar = endIndex + 1 < text.Length ? text[endIndex + 1] : (char?)null;
+            var leftChar = text.TryGetChar(startIndex - 1);
+            var rightChar = text.TryGetChar(endIndex + 1);
 
             return GetUsabilityDependsOnSideSymbols(leftChar, rightChar, type);
         }

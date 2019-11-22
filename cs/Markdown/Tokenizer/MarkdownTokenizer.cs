@@ -1,5 +1,6 @@
 ﻿using System.Collections.Generic;
 using System.Linq;
+using System.Runtime.InteropServices.ComTypes;
 using Markdown.TagsLibrary;
 
 namespace Markdown.Tokens
@@ -10,37 +11,17 @@ namespace Markdown.Tokens
         {
             var tokens = new List<Token>();
             var tagsCandidates = new List<TagElement>();
-
             var textTokenLength = 0;
 
             for (var i = 0; i < text.Length; i++)
             {
-                if (IsEscapedSymbols(text, i))
-                {
-                    CreateTextTokenFromAccumulatedLength(text, ref textTokenLength, tokens, i);
-
-                    tokens.Add(CreateTextToken(text, i + 1, 1));
-                    i++;
-                    continue;
-                }
-
-                if (MarkdownTagsLibrary.TryToGetUsableTagInAssociations(text, i, out var element))
-                {
-                    CreateTextTokenFromAccumulatedLength(text, ref textTokenLength, tokens, i);
-
-                    TryCreateAndAddTokenToList(text, element, tagsCandidates, tokens);
-
-                    i += element.Length - 1;
-                    continue;;
-                }
-
-                textTokenLength++;
+                TokenizerIteration(text, ref i, ref textTokenLength, tokens, tagsCandidates);
             }
 
             if (tagsCandidates.Count != 0)
             {
                 tokens.AddRange(tagsCandidates
-                    .Select(candidate => CreateTextTokenFromUnusedTag(candidate, text)));
+                    .Select(candidate => CreateTextToken(text, candidate.StartIndex, candidate.Length)));
                 tokens = tokens.OrderBy(x => x.EndIndex).ToList();
             }
 
@@ -51,29 +32,56 @@ namespace Markdown.Tokens
             return tokens;
         }
 
-        private bool IsEscapedSymbols(string text, int index)
+        private void TokenizerIteration(string text, ref int i, ref int textTokenLength,
+                                        List<Token> tokens, List<TagElement> tagsCandidates)
         {
-            var currentChar = text.TryGetChar(index);
-            var nextChar = text.TryGetChar(index + 1);
+            if (IsEscapedSymbols(text, i))
+            {
+                if (textTokenLength != 0)
+                {
+                    tokens.Add(CreateTextToken(text, i - textTokenLength,
+                        textTokenLength));
+                    textTokenLength = 0;
+                }
 
-            return (currentChar == '\\' && nextChar.HasValue &&
-                    (nextChar == '\\' || MarkdownTagsLibrary.TagAssociations.ContainsKey(nextChar.ToString())));
+                tokens.Add(CreateTextToken(text, i + 1, 1));
+                i++;
+                return;
+            }
+
+            if (MarkdownTagsLibrary.TryToGetUsableTagInAssociations(text, i, out var element))
+            {
+                if (textTokenLength != 0)
+                {
+                    tokens.Add(CreateTextToken(text, i - textTokenLength,
+                        textTokenLength));
+                    textTokenLength = 0;
+                }
+
+                TryCreateTokenAndAddToList(text, element, tagsCandidates, tokens);
+
+                i += element.Length - 1;
+                return;
+            }
+
+            textTokenLength++;
         }
 
-        private void TryCreateAndAddTokenToList(string text, TagElement element, List<TagElement> tagsCandidates, List<Token> tokens)
+        private void TryCreateTokenAndAddToList(string text, TagElement element,
+                                                List<TagElement> tagsCandidates, List<Token> tokens)
         {
             if (element.TagUsability == TagUsability.Start)
                 tagsCandidates.Add(element);
             else
             {
-                var token = TryCreateUsableToken(element, tagsCandidates, text);
+                var token = TryCreateUsableToken(text, element, tagsCandidates);
 
                 if (token == null)
                 {
                     if (element.TagUsability == TagUsability.All)
                         tagsCandidates.Add(element);
                     else
-                        tokens.Add(CreateTextTokenFromUnusedTag(element, text));
+                        tokens.Add(CreateTextToken(text, element.StartIndex, element.Length));
                 }
                 else
                 {
@@ -83,16 +91,7 @@ namespace Markdown.Tokens
             }
         }
 
-        private void CreateTextTokenFromAccumulatedLength(string text, ref int textTokenLength, List<Token> tokens, int i)
-        {
-            if (textTokenLength == 0) return;
-
-            tokens.Add(CreateTextToken(text, i - textTokenLength,
-                textTokenLength));
-            textTokenLength = 0;
-        }
-
-        private Token TryCreateUsableToken(TagElement endTag, List<TagElement> startTags, string text)
+        private Token TryCreateUsableToken(string text, TagElement endTag, List<TagElement> startTags)
         {
             if (startTags.Count == 0)
                 return null;
@@ -113,11 +112,6 @@ namespace Markdown.Tokens
             return CreateUsableToken(text, startTag, endTag);
         }
 
-        private Token CreateTextTokenFromUnusedTag(TagElement tag, string text)
-        {
-            return CreateTextToken(text, tag.StartIndex, tag.Length);
-        }
-
         private Token CreateUsableToken(string text, TagElement startTag, TagElement endTag)
         {
             var startSubstrIndex = startTag.EndIndex + 1;
@@ -132,13 +126,22 @@ namespace Markdown.Tokens
         {
             var tokenText = text.Substring(tokenStart, tokenLength);
 
-            return new Token(tokenText, TagType.None,
-                tokenStart, tokenStart + tokenLength - 1);
+            return new Token(tokenText, TagType.None, tokenStart, tokenStart + tokenLength - 1);
+        }
+
+        private static bool IsEscapedSymbols(string text, int index)
+        {
+            var currentChar = text.TryGetChar(index);
+            var nextChar = text.TryGetChar(index + 1);
+
+            return (currentChar == '\\' && nextChar.HasValue &&
+                    (nextChar == '\\' || MarkdownTagsLibrary.TagAssociations.ContainsKey(nextChar.ToString())));
         }
 
         private static void DeleteOtherNestedTokens(List<Token> tokens, Token token)
         {
             var types = MarkdownTagsLibrary.TagTypesToDeleteInRangeOtherTag[token.Type];
+
             for (var i = tokens.Count - 1; i >= 0; i--)
             {
                 if (types.Contains(tokens[i].Type) && tokens[i].EndIndex > token.StartIndex)

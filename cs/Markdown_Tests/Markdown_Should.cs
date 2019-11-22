@@ -24,8 +24,11 @@ namespace Markdown.Tests
         static IEnumerable GetLongCasesFromFiles()
         {
             var path = Path.Combine(TestContext.CurrentContext.TestDirectory, "LargeTexts");
-            foreach (var fileName in Directory.GetFiles(path))
-                yield return File.ReadAllLines(Path.Combine(path, fileName));
+
+            foreach (var directories in Directory.GetDirectories(path))
+                yield return (File.ReadAllLines(Path.Combine(path, directories, "InputText.txt")),
+                    File.ReadAllLines(Path.Combine(path, directories, "ExpectedText.txt")));
+                
         }
 
         [TestCase("_a_", "<em>a</em>", TestName = "Italic")]
@@ -40,16 +43,13 @@ namespace Markdown.Tests
         }
 
         [TestCaseSource(nameof(GetLongCasesFromFiles))]
-        public void Render_InputCorrectLargeStringFromFiles_ReturnHtmlFormatString(string[] input)
+        public void Render_InputCorrectLargeStringFromFiles_ReturnHtmlFormatString((string[] input, string[] expected) texts)
         {
-            var expectedText = string
-                .Concat(input
-                    .Skip(input.Length / 2 + 1));
+            var (input, expected) = texts;
+            var expectedText = string.Concat(expected);
 
-            var actualText = string.Concat(
-                input.Take(input.Length / 2)
-                    .Select(item => markdown.Render(item, conventer)));
-            
+            var actualText = string.Concat(input.Select(x => markdown.Render(x, conventer)));
+
             actualText.Should().Be(expectedText);
         }
 
