@@ -17,7 +17,8 @@ namespace Markdown.Core
             foreach (var line in escapedText.Split('\n'))
             {
                 var tokens = parser.ParseLine(line);
-                renderedLines.Add(render.RenderLine(line, tokens));
+                var renderedLine = render.RenderLine(line, tokens);
+                renderedLines.Add(renderedLine);
             }
 
             return string.Join("\n", renderedLines);

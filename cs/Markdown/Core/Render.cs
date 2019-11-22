@@ -25,10 +25,10 @@ namespace Markdown.Core
                 var resultTag = currentRule.ResultTag;
                 if (token.Tag is ISingleTag && resultTag is IDoubleTag tag)
                 {
-                    yield return (token.Length,
-                        new TagToken(token.StartPosition, tag, tag.Opening, true, token.IsSkipped));
-                    yield return (0,
-                        new TagToken(line.Length, tag, tag.Closing, false, token.IsSkipped));
+                    var openingTagToken = new TagToken(token.StartPosition, tag, tag.Opening, true, token.IsSkipped);
+                    var closingTagToken = new TagToken(line.Length, tag, tag.Closing, false, token.IsSkipped);
+                    yield return (token.Length, openingTagToken);
+                    yield return (0, closingTagToken);
                 }
                 else
                     switch (resultTag)
@@ -36,14 +36,16 @@ namespace Markdown.Core
                         case IDoubleTag doubleTag:
                         {
                             var valueToken = token.IsOpening ? doubleTag.Opening : doubleTag.Closing;
-                            yield return (token.Length, new TagToken(token.StartPosition, doubleTag,
-                                valueToken,
-                                token.IsOpening, token.IsSkipped));
+                            var openingDoubleTagToken = new TagToken(token.StartPosition, doubleTag, valueToken,
+                                token.IsOpening, token.IsSkipped);
+                            yield return (token.Length, openingDoubleTagToken);
                             break;
                         }
                         case ISingleTag singleTag:
-                            yield return (token.Length,
-                                new TagToken(token.StartPosition, singleTag, singleTag.Opening, true, token.IsSkipped));
+                            var openingSingleTagToken = new TagToken(token.StartPosition, singleTag, singleTag.Opening,
+                                true,
+                                token.IsSkipped);
+                            yield return (token.Length, openingSingleTagToken);
                             break;
                     }
             }
@@ -52,9 +54,10 @@ namespace Markdown.Core
         public string RenderLine(string line, IEnumerable<TagToken> tokens)
         {
             var offsetAfterAdding = 0;
-            var tuplesSourceLengthAndResultTag =
-                TranslateTags(line, tokens).OrderBy(pair => pair.Item2.StartPosition).ThenBy(pair => pair.Item2.Length)
-                    .ToList();
+            var tuplesSourceLengthAndResultTag = TranslateTags(line, tokens)
+                .OrderBy(pair => pair.Item2.StartPosition)
+                .ThenBy(pair => pair.Item2.Length)
+                .ToList();
 
             var renderedLine = new StringBuilder(line);
 
@@ -62,13 +65,15 @@ namespace Markdown.Core
             {
                 if (token.IsSkipped)
                 {
-                    renderedLine.Remove(token.StartPosition + offsetAfterAdding - 1, 1);
+                    var indexEscaping = token.StartPosition + offsetAfterAdding - 1;
+                    renderedLine.Remove(indexEscaping, 1);
                     offsetAfterAdding -= 1;
                 }
                 else
                 {
-                    renderedLine.Remove(token.StartPosition + offsetAfterAdding, sourceTagLength);
-                    renderedLine.Insert(token.StartPosition + offsetAfterAdding, token.Value);
+                    var currentPosition = token.StartPosition + offsetAfterAdding;
+                    renderedLine.Remove(currentPosition, sourceTagLength);
+                    renderedLine.Insert(currentPosition, token.Value);
                     offsetAfterAdding += token.Length - sourceTagLength;
                 }
             }

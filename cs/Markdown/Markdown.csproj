@@ -41,8 +41,9 @@
     <None Include="packages.config" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="Core\DoubleTagParser.cs" />
-    <Compile Include="Core\Parser.cs" />
+    <Compile Include="Core\Parsers\DoubleTagParser.cs" />
+    <Compile Include="Core\Parsers\IParser.cs" />
+    <Compile Include="Core\Parsers\MainParser.cs" />
     <Compile Include="Core\Render.cs" />
     <Compile Include="Core\Rules\ApostropheToCode.cs" />
     <Compile Include="Core\Rules\DoubleStarToStrong.cs" />
@@ -53,7 +54,7 @@
     <Compile Include="Core\Rules\RuleFactory.cs" />
     <Compile Include="Core\Rules\StarToEm.cs" />
     <Compile Include="Core\Rules\DoubleUnderscoreToStrong.cs" />
-    <Compile Include="Core\SingleTagParser.cs" />
+    <Compile Include="Core\Parsers\SingleTagParser.cs" />
     <Compile Include="Core\Tags\HtmlTags\Code.cs" />
     <Compile Include="Core\Tags\HtmlTags\Em.cs" />
     <Compile Include="Core\Tags\HtmlTags\H1.cs" />

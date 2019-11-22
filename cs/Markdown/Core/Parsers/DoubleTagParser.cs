@@ -41,8 +41,9 @@ namespace Markdown.Core.Parsers
 
                 if (DoubleTagValidator.IsPossibleOpeningTag(line, index, currentTag))
                 {
-                    tagTokenStack.Push(new TagToken(index, currentTag, currentTag.Opening, true,
-                        IsSkippedTag(line, index)));
+                    var newOpeningTagToken = new TagToken(index, currentTag, currentTag.Opening, true,
+                        IsSkippedTag(line, index));
+                    tagTokenStack.Push(newOpeningTagToken);
                 }
                 else if (DoubleTagValidator.IsPossibleClosingTag(line, index, currentTag))
                 {
@@ -59,8 +60,12 @@ namespace Markdown.Core.Parsers
                         continue;
                     }
 
-                    result.Add(tagTokenStack.Pop());
-                    result.Add(new TagToken(index, currentTag, currentTag.Closing, false, IsSkippedTag(line, index)));
+                    var newOpeningTagToken = tagTokenStack.Pop();
+                    var newClosingTagToken = new TagToken(index, currentTag, currentTag.Closing, false,
+                        IsSkippedTag(line, index));
+
+                    result.Add(newOpeningTagToken);
+                    result.Add(newClosingTagToken);
                 }
 
                 index += currentTag.Opening.Length;
