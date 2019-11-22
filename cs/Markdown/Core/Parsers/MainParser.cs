@@ -9,9 +9,9 @@ namespace Markdown.Core.Parsers
     {
         private readonly IEnumerable<ITag> tags;
 
-        public MainParser(IEnumerable<IRule> rules)
+        public MainParser(IEnumerable<ITag> tags)
         {
-            tags = rules.Select(rule => rule.SourceTag);
+            this.tags = tags;
         }
 
 

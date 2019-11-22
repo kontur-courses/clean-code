@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Text;
 using System.Text.RegularExpressions;
 using Markdown.Core.Parsers;
@@ -12,8 +13,9 @@ namespace Markdown.Core
         public static string Render(string markdown)
         {
             var rules = RuleFactory.CreateAllRules();
+            var sourceTags = rules.Select(rule => rule.SourceTag);
             var renderedLines = new List<string>();
-            var parser = new MainParser(rules);
+            var parser = new MainParser(sourceTags);
             var render = new Render(rules);
             var escapedText = EscapeSpecialSymbols(markdown);
             foreach (var line in Regex.Split(escapedText, Environment.NewLine))
