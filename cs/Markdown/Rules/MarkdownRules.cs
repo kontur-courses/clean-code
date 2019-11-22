@@ -1,4 +1,5 @@
-﻿using System.Linq;
+﻿using System;
+using System.Linq;
 using Markdown.Extensions;
 
 namespace Markdown.Rules
@@ -9,13 +10,17 @@ namespace Markdown.Rules
 
         public bool IsSeparatorValid(string text, int position, bool isFirst, int separatorLength)
         {
+            if (position >= text.Length || position < 0)
+                throw new ArgumentException($"position {position} is not in string with length {text.Length}");
+
             if (text[position] == EscapeSymbol)
                 return true;
+
             var anyNonDigitAround = text.GetNeighborsOfSubstring(position, position + separatorLength - 1)
                 .Any(s => !char.IsDigit(s));
             return anyNonDigitAround && (isFirst
                        ? IsBeginSeparatorValid(text, position, separatorLength)
-                       : IsEndSeparatorValid(text, position, separatorLength));
+                       : IsEndSeparatorValid(text, position));
         }
 
         public bool IsSeparatorValid(string text, int position, bool isFirst, int separatorLength,
@@ -34,7 +39,7 @@ namespace Markdown.Rules
             return position < text.Length - separatorLength && !char.IsWhiteSpace(text[position + separatorLength]);
         }
 
-        private bool IsEndSeparatorValid(string text, int position, int separatorLength)
+        private bool IsEndSeparatorValid(string text, int position)
         {
             return position > 0 && !char.IsWhiteSpace(text[position - 1]);
         }

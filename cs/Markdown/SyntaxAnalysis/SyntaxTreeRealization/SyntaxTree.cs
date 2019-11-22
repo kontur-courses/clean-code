@@ -1,27 +1,12 @@
-﻿using System.Collections.Generic;
-
-namespace Markdown.SyntaxAnalysis.SyntaxTreeRealization
+﻿namespace Markdown.SyntaxAnalysis.SyntaxTreeRealization
 {
     public class SyntaxTree
     {
-        public SyntaxTreeNode Root { get; set; }
+        public SyntaxTreeNode Root { get; }
 
-        public IEnumerable<SyntaxTreeNode> Enumerate()
+        public SyntaxTree(SyntaxTreeNode root)
         {
-            return Enumerate(Root);
-        }
-
-        private IEnumerable<SyntaxTreeNode> Enumerate(SyntaxTreeNode syntaxTreeNode)
-        {
-            yield return syntaxTreeNode;
-
-            foreach (var treeNode in syntaxTreeNode.Children)
-            {
-                foreach (var node in Enumerate(treeNode))
-                {
-                    yield return node;
-                }
-            }
+            Root = root;
         }
     }
 }

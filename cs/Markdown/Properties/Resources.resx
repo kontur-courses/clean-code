@@ -121,10 +121,10 @@
     <value />
   </data>
   <assembly alias="System.Windows.Forms" name="System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089" />
-  <data name="markdown_test_file_avg" type="System.Resources.ResXFileRef, System.Windows.Forms">
-    <value>..\markdown_test_file_avg.text;System.String, mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089;windows-1251</value>
+  <data name="MarkdownTestFileAverage" type="System.Resources.ResXFileRef, System.Windows.Forms">
+    <value>..\Core\Tests\MarkdownTestFileAverage.text;System.String, mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089;windows-1251</value>
   </data>
-  <data name="markdown_test_file_big" type="System.Resources.ResXFileRef, System.Windows.Forms">
-    <value>..\markdown_test_file_big.text;System.String, mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089;windows-1251</value>
+  <data name="MarkdownTestFileBig" type="System.Resources.ResXFileRef, System.Windows.Forms">
+    <value>..\Core\Tests\MarkdownTestFileBig.text;System.String, mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089;windows-1251</value>
   </data>
 </root>

@@ -6,7 +6,7 @@ namespace Markdown.Tokenization
 {
     public class MarkdownTokenReaderConfiguration : ITokenReaderConfiguration
     {
-        private static readonly HashSet<string> Separators = new HashSet<string> {"_", "\\_", "__", "\\__"};
+        private static readonly HashSet<string> Separators = new HashSet<string> {"_", "\\_", "__", "\\__", "\\\\"};
 
         public bool IsSeparator(string text, int position)
         {
@@ -34,8 +34,7 @@ namespace Markdown.Tokenization
         private void CheckIfPositionIsCorrect(string text, int position)
         {
             if (position >= text.Length || position < 0)
-                throw new ArgumentException(
-                    $"{nameof(position)} {position} is not in string with length {text.Length}");
+                throw new ArgumentException($"position {position} is not in string with length {text.Length}");
         }
     }
 }

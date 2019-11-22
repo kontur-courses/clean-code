@@ -37,8 +37,8 @@ namespace Markdown.Tokenization
                     yield return nextToken;
                 if (currentPosition >= text.Length)
                     break;
-                yield return new Token(currentPosition, tokenReaderConfiguration.GetSeparatorValue(text, currentPosition),
-                    true);
+                var separatorValue = tokenReaderConfiguration.GetSeparatorValue(text, currentPosition);
+                yield return new Token(currentPosition, separatorValue, true);
                 currentPosition += tokenReaderConfiguration.GetSeparatorLength(text, currentPosition);
             }
         }

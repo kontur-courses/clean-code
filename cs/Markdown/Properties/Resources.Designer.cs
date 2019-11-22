@@ -61,47 +61,47 @@ namespace Markdown.Properties {
         }
         
         /// <summary>
-        ///   Ищет локализованную строку, похожую на M_rkdown: Synt_x
-        ///================
-        ///
-        ///&lt;ul id=&quot;ProjectSubmenu&quot;&gt;
-        ///    &lt;li&gt;&lt;_ _re__=&quot;/projects/m_rkdown/&quot; title=&quot;M_rkdown Project P_ge&quot;&gt;M_in&lt;/_&gt;&lt;/li&gt;
-        ///    &lt;li&gt;&lt;_ _re__=&quot;/projects/m_rkdown/b_sics&quot; title=&quot;M_rkdown B_sics&quot;&gt;B_sics&lt;/_&gt;&lt;/li&gt;
-        ///    &lt;li&gt;&lt;_ cl_ss=&quot;selected&quot; title=&quot;M_rkdown Synt_x Document_tion&quot;&gt;Synt_x&lt;/_&gt;&lt;/li&gt;
-        ///    &lt;li&gt;&lt;_ _re__=&quot;/projects/m_rkdown/license&quot; title=&quot;Pricing _nd License In__orm_tion&quot;&gt;License&lt;/_&gt;&lt;/li&gt;
-        ///    &lt;li&gt;&lt;_ _re__=&quot;/projects/m_rkdown/dingus&quot; title=&quot;Online M_rkdown Web Form&quot;&gt;Dingus&lt;/_&gt;&lt;/li&gt;
-        ///&lt;/ul [остаток строки не уместился]&quot;;.
-        /// </summary>
-        internal static string markdown_test_file_avg {
-            get {
-                return ResourceManager.GetString("markdown_test_file_avg", resourceCulture);
-            }
-        }
-        
-        /// <summary>
-        ///   Ищет локализованную строку, похожую на M_rkdown: Synt_x
-        ///================
-        ///
-        ///&lt;ul id=&quot;ProjectSubmenu&quot;&gt;
-        ///    &lt;li&gt;&lt;_ _re__=&quot;/projects/m_rkdown/&quot; title=&quot;M_rkdown Project P_ge&quot;&gt;M_in&lt;/_&gt;&lt;/li&gt;
-        ///    &lt;li&gt;&lt;_ _re__=&quot;/projects/m_rkdown/b_sics&quot; title=&quot;M_rkdown B_sics&quot;&gt;B_sics&lt;/_&gt;&lt;/li&gt;
-        ///    &lt;li&gt;&lt;_ cl_ss=&quot;selected&quot; title=&quot;M_rkdown Synt_x Document_tion&quot;&gt;Synt_x&lt;/_&gt;&lt;/li&gt;
-        ///    &lt;li&gt;&lt;_ _re__=&quot;/projects/m_rkdown/license&quot; title=&quot;Pricing _nd License In__orm_tion&quot;&gt;License&lt;/_&gt;&lt;/li&gt;
-        ///    &lt;li&gt;&lt;_ _re__=&quot;/projects/m_rkdown/dingus&quot; title=&quot;Online M_rkdown Web Form&quot;&gt;Dingus&lt;/_&gt;&lt;/li&gt;
-        ///&lt;/ul [остаток строки не уместился]&quot;;.
-        /// </summary>
-        internal static string markdown_test_file_big {
-            get {
-                return ResourceManager.GetString("markdown_test_file_big", resourceCulture);
-            }
-        }
-        
-        /// <summary>
         ///   Ищет локализованную строку, похожую на .
         /// </summary>
         internal static string MarkdownTestData {
             get {
                 return ResourceManager.GetString("MarkdownTestData", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Ищет локализованную строку, похожую на M_rkdown: Synt_x
+        ///================
+        ///
+        ///&lt;ul id=&quot;ProjectSubmenu&quot;&gt;
+        ///    &lt;li&gt;&lt;_ _re__=&quot;/projects/m_rkdown/&quot; title=&quot;M_rkdown Project P_ge&quot;&gt;M_in&lt;/_&gt;&lt;/li&gt;
+        ///    &lt;li&gt;&lt;_ _re__=&quot;/projects/m_rkdown/b_sics&quot; title=&quot;M_rkdown B_sics&quot;&gt;B_sics&lt;/_&gt;&lt;/li&gt;
+        ///    &lt;li&gt;&lt;_ cl_ss=&quot;selected&quot; title=&quot;M_rkdown Synt_x Document_tion&quot;&gt;Synt_x&lt;/_&gt;&lt;/li&gt;
+        ///    &lt;li&gt;&lt;_ _re__=&quot;/projects/m_rkdown/license&quot; title=&quot;Pricing _nd License In__orm_tion&quot;&gt;License&lt;/_&gt;&lt;/li&gt;
+        ///    &lt;li&gt;&lt;_ _re__=&quot;/projects/m_rkdown/dingus&quot; title=&quot;Online M_rkdown Web Form&quot;&gt;Dingus&lt;/_&gt;&lt;/li&gt;
+        ///&lt;/ul [остаток строки не уместился]&quot;;.
+        /// </summary>
+        internal static string MarkdownTestFileAverage {
+            get {
+                return ResourceManager.GetString("MarkdownTestFileAverage", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Ищет локализованную строку, похожую на M_rkdown: Synt_x
+        ///================
+        ///
+        ///&lt;ul id=&quot;ProjectSubmenu&quot;&gt;
+        ///    &lt;li&gt;&lt;_ _re__=&quot;/projects/m_rkdown/&quot; title=&quot;M_rkdown Project P_ge&quot;&gt;M_in&lt;/_&gt;&lt;/li&gt;
+        ///    &lt;li&gt;&lt;_ _re__=&quot;/projects/m_rkdown/b_sics&quot; title=&quot;M_rkdown B_sics&quot;&gt;B_sics&lt;/_&gt;&lt;/li&gt;
+        ///    &lt;li&gt;&lt;_ cl_ss=&quot;selected&quot; title=&quot;M_rkdown Synt_x Document_tion&quot;&gt;Synt_x&lt;/_&gt;&lt;/li&gt;
+        ///    &lt;li&gt;&lt;_ _re__=&quot;/projects/m_rkdown/license&quot; title=&quot;Pricing _nd License In__orm_tion&quot;&gt;License&lt;/_&gt;&lt;/li&gt;
+        ///    &lt;li&gt;&lt;_ _re__=&quot;/projects/m_rkdown/dingus&quot; title=&quot;Online M_rkdown Web Form&quot;&gt;Dingus&lt;/_&gt;&lt;/li&gt;
+        ///&lt;/ul [остаток строки не уместился]&quot;;.
+        /// </summary>
+        internal static string MarkdownTestFileBig {
+            get {
+                return ResourceManager.GetString("MarkdownTestFileBig", resourceCulture);
             }
         }
     }

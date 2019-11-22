@@ -9,14 +9,12 @@ namespace Markdown.Core
 {
     public class MarkdownProcessorFactory
     {
-        private static readonly IConverter DefaultConverter =
-            new ConverterUsingSyntaxTree(new MarkdownSyntaxTreeBuilder(new MarkdownRules()),
-                new SyntaxTreeConverter(), new MarkdownToHtmlSeparatorConverter());
-        private static readonly ITokenReader DefaultTokenReader = new TokenReader(new MarkdownTokenReaderConfiguration());
-
-        public static MarkdownProcessor Create()
+        public static MarkdownProcessor CreateMarkdownToHtmlProcessor()
         {
-            return Create(DefaultConverter, DefaultTokenReader);
+            var converter = new ConverterUsingSyntaxTree(new MarkdownSyntaxTreeBuilder(new MarkdownRules()),
+                new SyntaxTreeConverter(), new MarkdownToHtmlSeparatorConverter());
+            var tokenReader = new TokenReader(new MarkdownTokenReaderConfiguration());
+            return Create(converter, tokenReader);
         }
 
         public static MarkdownProcessor Create(IConverter converter, ITokenReader tokenReader)

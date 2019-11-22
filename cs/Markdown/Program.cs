@@ -14,7 +14,7 @@ namespace Markdown
             var parseResult = parser.Parse(args);
             if (!parseResult.HasErrors)
             {
-                var processor = MarkdownProcessorFactory.Create();
+                var processor = MarkdownProcessorFactory.CreateMarkdownToHtmlProcessor();
                 var markdownText = File.ReadAllText(parser.Object.InputFilePath);
                 var html = processor.Render(markdownText);
                 File.WriteAllText(parser.Object.OutputFilePath, html);

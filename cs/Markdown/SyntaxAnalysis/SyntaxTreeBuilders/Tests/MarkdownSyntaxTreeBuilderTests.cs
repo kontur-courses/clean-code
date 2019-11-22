@@ -1,6 +1,5 @@
 ﻿using System.Collections.Generic;
 using FluentAssertions;
-using Markdown.Rules;
 using Markdown.SyntaxAnalysis.SyntaxTreeRealization;
 using Markdown.Tokenization;
 using NUnit.Framework;
@@ -72,7 +71,7 @@ namespace Markdown.SyntaxAnalysis.SyntaxTreeBuilders.Tests
             var expectedEmptyTree = GetExpectedEmptySyntaxTree();
             AddChildrenToNode(expectedEmptyTree.Root, new Token(0, "_", false),
                 new Token(1, "sample", false));
-            var separatorNode = new SyntaxTreeNode(new Token(7, "_", true));
+            var separatorNode = new SyntaxTreeNode(new Token(7, "_", false));
             AddChildrenToNode(separatorNode, new Token(8, "text", false));
             expectedEmptyTree.Root.AddChild(separatorNode);
 
@@ -89,20 +88,7 @@ namespace Markdown.SyntaxAnalysis.SyntaxTreeBuilders.Tests
 
         private SyntaxTree GetExpectedEmptySyntaxTree()
         {
-            return new SyntaxTree {Root = new SyntaxTreeNode(new Token(0, "", false))};
-        }
-    }
-
-    public class TestRules : IRules
-    {
-        public bool IsSeparatorValid(string text, int position, bool isFirst, int separatorLength)
-        {
-            return position % 2 == 1;
-        }
-
-        public bool IsSeparatorValid(string text, int position, bool isFirst, int separatorLength, string parentSeparator)
-        {
-            return IsSeparatorValid(text, position, isFirst, separatorLength);
+            return new SyntaxTree(new SyntaxTreeNode(new Token(0, "", false)));
         }
     }
 }

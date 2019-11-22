@@ -15,7 +15,7 @@ namespace Markdown.SeparatorConverters
                 case "__":
                     return GetTokenFormatsForDoubleUnderscore(tokensCount);
                 default:
-                    throw new NotImplementedException();
+                    throw new NotImplementedException($"separator not supported {separator}");
             }
         }
 

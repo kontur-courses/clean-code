@@ -12,7 +12,7 @@ namespace Markdown.Core.Tests
         [SetUp]
         public void SetUp()
         {
-            processor = MarkdownProcessorFactory.Create();
+            processor = MarkdownProcessorFactory.CreateMarkdownToHtmlProcessor();
         }
 
 
@@ -41,6 +41,11 @@ namespace Markdown.Core.Tests
         [TestCase(@"\__this is\__", TestName = "two commented double underscores", ExpectedResult = "__this is__")]
         [TestCase(@"\__this is__", TestName = "only one commented double underscore in pair", ExpectedResult = "__this is__")]
         public string Render_ShouldReturnUnchanged_WhenCommentedUnderscores(string text) => processor.Render(text);
+
+        [TestCase(@"\\\a", TestName = "triple backslash before symbol", ExpectedResult = @"\\a")]
+        [TestCase(@"\\a", TestName = "double backslash before symbol", ExpectedResult = "\\a")]
+        [TestCase("\\a", TestName = "single backslash before symbol", ExpectedResult = "\\a")]
+        public string Render_ShouldReturnCorrect_WhenCommented(string text) => processor.Render(text);
 
         [TestCase("_sample_text_", TestName = "three single underscores", ExpectedResult = "<em>sample</em>text_")]
         [TestCase("_sample_text_is_good_", TestName = "five single underscores", ExpectedResult = "<em>sample</em>text<em>is</em>good_")]
@@ -91,44 +96,28 @@ namespace Markdown.Core.Tests
             ExpectedResult = "<strong>im <em>sam</em>ple</strong> <strong>t<em>ex</em>t</strong>")]
         public string Render_ShouldConvertSingleUnderscores_WhenTheyAreInsideDoubleUnderscores(string text) => processor.Render(text);
 
-        [TestCase("__im _sample__ text_", TestName = "first single underscore inside double underscores",
-            ExpectedResult = "<strong>im <em>sample</strong> text</em>")]
-        public string Render_ShouldReturnConverted_WhenPartOfSingleUnderscoresInsideDoubleUnderscores(string text) =>
-            processor.Render(text);
-
         [TestCase("_im__sample__text_", TestName = "all text inside single underscores", ExpectedResult = "<em>im__sample__text</em>")]
         [TestCase("_im__sam__ple_ _t__e__xt_", TestName = "double underscores inside single underscores two times",
             ExpectedResult = "<em>im__sam__ple</em> <em>t__e__xt</em>")]
         public string Render_ShouldIgnoreSingleUnderscores_WhenTheyAreInsideDoubleUnderscores(string text) =>
             processor.Render(text);
 
-        [TestCase("_im __sample_ text__", TestName = "first double underscore inside single underscores",
-            ExpectedResult = "<em>im __sample</em> text__")]
-        public string Render_ShouldIgnoreDoubleUnderscores_WhenPartOfDoubleUnderscoresInsideSingle(string text) =>
-            processor.Render(text);
-
         [TestCase("____", TestName = "four underscores", ExpectedResult = "")]
         [TestCase("________", TestName = "eight underscores", ExpectedResult = "")]
         public string Render_ShouldReturnEmptyString_WhenFourUnderscoresInARow(string text) => processor.Render(text);
 
-        [TestCase("___sample text___", TestName = "triple underscores", ExpectedResult = "<strong><em>sample text</em></strong>")]
-        [TestCase("____sample text____", TestName = "quadruple underscores", ExpectedResult = "sample text")]
-        [TestCase("_____sample text_____", TestName = "five underscores in a row", ExpectedResult = "<em>sample text____</em>")]
-        public string Render_ShouldReturnCorrect_WhenSingleAndDoubleUnderscoresGoInARow(string text) =>
-            processor.Render(text);
-
-        [Test, Timeout(4500), Ignore("performance test")]
+        [Test, Timeout(4500), Explicit]
         public void Render_ShouldRenderFast_OnAverageFile()
         {
             //файл имеет длину 4295934 символов
-            processor.Render(Resources.markdown_test_file_avg);
+            processor.Render(Resources.MarkdownTestFileAverage);
         }
 
-        [Test, Timeout(90000), Ignore("performance test")]
+        [Test, Timeout(90000), Explicit]
         public void Render_ShouldRenderFast_OnBigFile()
         {
             //файл имеет длину 85918680 символов
-            processor.Render(Resources.markdown_test_file_big);
+            processor.Render(Resources.MarkdownTestFileBig);
         }
     }
 }

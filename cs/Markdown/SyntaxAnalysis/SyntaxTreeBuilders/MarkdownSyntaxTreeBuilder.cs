@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
 using Markdown.Rules;
 using Markdown.SyntaxAnalysis.SyntaxTreeRealization;
 using Markdown.Tokenization;
@@ -10,98 +9,118 @@ namespace Markdown.SyntaxAnalysis.SyntaxTreeBuilders
     public class MarkdownSyntaxTreeBuilder : ISyntaxTreeBuilder
     {
         private readonly IRules rules;
-        private readonly List<SyntaxTreeNode> separatorStack;
+        private readonly Stack<SyntaxTreeNode> separatorNodesStack;
+        private SyntaxTreeNode currentNode;
+        private SyntaxTree currentSyntaxTree;
 
         public MarkdownSyntaxTreeBuilder(IRules rules)
         {
             this.rules = rules;
-            separatorStack = new List<SyntaxTreeNode>();
+            separatorNodesStack = new Stack<SyntaxTreeNode>();
         }
 
         public SyntaxTree BuildSyntaxTree(IEnumerable<Token> tokens, string text)
         {
-            var syntaxTree = new SyntaxTree {Root = new SyntaxTreeNode(new Token(0, string.Empty, false))};
-            tokens.Aggregate(syntaxTree.Root,
-                (current, token) => ProcessToken(token, syntaxTree, current, text));
+            var root = new SyntaxTreeNode(new Token(0, string.Empty, false));
+            currentSyntaxTree = new SyntaxTree(root);
+            currentNode = root;
 
-            separatorStack.Clear();
+            foreach (var token in tokens)
+            {
+                ProcessToken(token, text);
+            }
 
-            return syntaxTree;
+            MarkUnclosedSeparators();
+            separatorNodesStack.Clear();
+
+            return currentSyntaxTree;
         }
 
-        private SyntaxTreeNode ProcessToken(Token token, SyntaxTree syntaxTree, SyntaxTreeNode currentNode,
-            string text)
+        private void ProcessToken(Token token, string text)
         {
-            if (token.IsSeparator && IsValidSeparator(token, text))
+            if (IsValidSeparator(token, text))
             {
-                return ProcessSeparatorToken(token, syntaxTree, currentNode);
+                ProcessSeparatorToken(token);
+                return;
             }
 
             if (token.IsSeparator)
             {
-                token = new Token(token.Position, token.Value, false);
+                token.IsSeparator = false;
             }
 
             currentNode.AddChild(new SyntaxTreeNode(token));
-            return currentNode;
         }
 
-        private SyntaxTreeNode ProcessSeparatorToken(Token token, SyntaxTree syntaxTree,
-            SyntaxTreeNode currentNode)
+        private void ProcessSeparatorToken(Token token)
         {
+            if (token.Value.StartsWith("\\"))
+            {
+                ProcessCommentedSeparator(token);
+                return;
+            }
+
             switch (token.Value)
             {
                 case "_":
-                    return ProcessPairedSeparatorToken(token, syntaxTree, currentNode);
-                case "\\_":
-                    return ProcessCommentedSeparator(token, currentNode);
+                    ProcessPairedSeparatorToken(token);
+                    break;
                 case "__":
-                    return ProcessPairedSeparatorToken(token, syntaxTree, currentNode);
-                case "\\__":
-                    return ProcessCommentedSeparator(token, currentNode);
+                    ProcessPairedSeparatorToken(token);
+                    break;
                 default:
-                    throw new NotImplementedException();
+                    throw new NotImplementedException($"separator not supported {token.Value}");
             }
         }
 
-        private SyntaxTreeNode ProcessCommentedSeparator(Token token, SyntaxTreeNode currentNode)
+        private void ProcessCommentedSeparator(Token token)
         {
             var newToken = new Token(token.Position + 1, token.Value.Substring(1), false);
             var tokenNode = new SyntaxTreeNode(newToken);
             currentNode.AddChild(tokenNode);
-            return currentNode;
         }
 
-        private SyntaxTreeNode ProcessPairedSeparatorToken(Token token, SyntaxTree syntaxTree,
-            SyntaxTreeNode currentNode)
+        private void ProcessPairedSeparatorToken(Token token)
         {
             var separatorNode = new SyntaxTreeNode(token);
             currentNode.AddChild(separatorNode);
 
             if (IsEndSeparator(token))
             {
-                var openSeparatorNode = separatorStack.Last(s => s.Token.Value == token.Value);
-                separatorStack.Remove(openSeparatorNode);
-                return separatorStack.Count == 0 ? syntaxTree.Root : separatorStack.Last();
+                separatorNodesStack.Pop();
+                currentNode = separatorNodesStack.Count == 0 ? currentSyntaxTree.Root : separatorNodesStack.Peek();
+                return;
             }
 
-            separatorStack.Add(separatorNode);
-            return separatorNode;
+            separatorNodesStack.Push(separatorNode);
+            currentNode = separatorNode;
         }
 
         private bool IsEndSeparator(Token token)
         {
-            return separatorStack.Count > 0 && separatorStack.Any(s => s.Token.Value == token.Value);
+            return separatorNodesStack.Count > 0 && separatorNodesStack.Peek().Token.Value == token.Value;
         }
 
         private bool IsValidSeparator(Token token, string text)
         {
+            if (!token.IsSeparator)
+                return false;
+
             var isFirst = !IsEndSeparator(token);
-            var hasParentSeparator = separatorStack.Count > 0 && separatorStack.First().Token.Value != token.Value;
-            return token.IsSeparator && hasParentSeparator
+            var hasParentSeparator =
+                separatorNodesStack.Count > 0 && separatorNodesStack.Peek().Token.Value != token.Value;
+            return hasParentSeparator
                 ? rules.IsSeparatorValid(text, token.Position, isFirst, token.Value.Length,
-                    separatorStack.Last().Token.Value)
+                    separatorNodesStack.Peek().Token.Value)
                 : rules.IsSeparatorValid(text, token.Position, isFirst, token.Value.Length);
+        }
+
+        private void MarkUnclosedSeparators()
+        {
+            foreach (var syntaxTreeNode in separatorNodesStack)
+            {
+                syntaxTreeNode.Token.IsSeparator = false;
+            }
         }
     }
 }

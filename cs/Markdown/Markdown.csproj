@@ -70,6 +70,7 @@
     <Compile Include="SeparatorConverters\ISeparatorConverter.cs" />
     <Compile Include="SeparatorConverters\MarkdownToHtmlSeparatorConverter.cs" />
     <Compile Include="SyntaxAnalysis\SyntaxTreeBuilders\Tests\MarkdownSyntaxTreeBuilderTests.cs" />
+    <Compile Include="SyntaxAnalysis\SyntaxTreeBuilders\Tests\TestRules.cs" />
     <Compile Include="SyntaxAnalysis\SyntaxTreeRealization\SyntaxTree.cs" />
     <Compile Include="Converters\ConverterUsingSyntaxTree.cs" />
     <Compile Include="Core\MarkdownProcessor.cs" />
@@ -86,18 +87,20 @@
     <Compile Include="Tokenization\ITokenReaderConfiguration.cs" />
     <Compile Include="Tokenization\ITokenReader.cs" />
     <Compile Include="Rules\MarkdownRules.cs" />
+    <Compile Include="Tokenization\Tests\TestTokenReaderConfiguration.cs" />
     <Compile Include="Tokenization\Tests\TokenReaderTests.cs" />
     <Compile Include="Tokenization\Token.cs" />
     <Compile Include="Tokenization\TokenReader.cs" />
   </ItemGroup>
   <ItemGroup>
-    <None Include="markdown_test_file_avg.text" />
-    <None Include="markdown_test_file_big.text" />
+    <None Include="Core\Tests\MarkdownTestFileAverage.text" />
+    <None Include="Core\Tests\MarkdownTestFileBig.text" />
     <None Include="packages.config" />
   </ItemGroup>
   <ItemGroup>
     <EmbeddedResource Include="Properties\Resources.resx">
       <Generator>ResXFileCodeGenerator</Generator>
+      <SubType>Designer</SubType>
       <LastGenOutput>Resources.Designer.cs</LastGenOutput>
     </EmbeddedResource>
   </ItemGroup>
