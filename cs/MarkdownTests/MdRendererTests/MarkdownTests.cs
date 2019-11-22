@@ -1,4 +1,5 @@
 using Markdown.Core;
+using Markdown.Core.Normalizer;
 using NUnit.Framework;
 
 namespace MarkdownTests.MdRendererTests
@@ -22,7 +23,7 @@ namespace MarkdownTests.MdRendererTests
             nameof(MarkdownTestsData.HeaderTagTestCases), Category = "Header tag cases")]
         public string RenderShouldReturnCorrectHtmlText(string mdText)
         {
-            return markdown.Render(mdText);
+            return markdown.Render(mdText, StandardIgnoreRules.IgnoreInsideRules);
         }
     }
 }

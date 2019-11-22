@@ -8,16 +8,9 @@ namespace Markdown.Core
 {
     public class MdRenderer
     {
-        public string Render(string source)
+        public string Render(string source, List<IgnoreInsideRule> ignoreInsideRules)
         {
             var tokens = new ParagraphTokenReader().ReadTokens(source);
-
-            var ignoreInsideRules = new List<IgnoreInsideRule>()
-            {
-                new IgnoreInsideRule(
-                    new List<TagInfo>() {TagsUtils.GetTagInfoByTagName("em")},
-                    TagsUtils.GetTagInfoByTagName("strong"))
-            };
 
             tokens = new MdNormalizer().NormalizeTokens(tokens, ignoreInsideRules);
 
