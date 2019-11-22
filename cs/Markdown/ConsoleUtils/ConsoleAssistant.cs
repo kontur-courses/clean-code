@@ -26,13 +26,12 @@ namespace Markdown.ConsoleUtils
                 .GetAssembly(typeof(TokenConverter))
                 .GetTypes()
                 .Where(t => t.IsSubclassOf(typeof(TokenConverter)))
-                .ToDictionary(x => x.Name.ToLower());
+                .ToDictionary(x => x.Name.ToLower().Substring(0, x.Name.Length - 9));
         }
 
 
         public static TokenConverter SetupConverter()
         {
-            ClearConsole();
             string key = null;
             var converterTypes = GetAllConverterTypes();
 
@@ -42,15 +41,13 @@ namespace Markdown.ConsoleUtils
                 key = Console.ReadLine();
 
                 if(key != null && 
-                   !string.IsNullOrEmpty(converterTypes.Keys.FirstOrDefault(x => x.StartsWith(key))))
+                   !string.IsNullOrEmpty(converterTypes.Keys.FirstOrDefault(x => x.Equals(key))))
                     break;
                     
-                ClearConsole();
-                Console.WriteLine("***That type doesn't included in types library.***\n");
+                Console.WriteLine("\n***That type doesn't included in types library.***\n");
             }
 
-            ClearConsole();
-            Console.WriteLine("***Type successful applied!***\n");
+            Console.WriteLine("\n***Type successful applied!***\n");
 
             var type = converterTypes.Keys.First(x => x.StartsWith(key));
             return (TokenConverter)Activator.CreateInstance(converterTypes[type]);
@@ -58,7 +55,6 @@ namespace Markdown.ConsoleUtils
 
         public static string ReadTextFromFile(string endFileType)
         {
-            ClearConsole();
             var isPathNotValid = true;
             string readText = null;
 
@@ -66,52 +62,60 @@ namespace Markdown.ConsoleUtils
             {
                 Console.WriteLine("Enter path to file:");
                 var path = Console.ReadLine();
+                if(string.IsNullOrEmpty(path))
+                    continue;
+
                 Console.WriteLine("Enter file name:");
                 var name = Console.ReadLine();
-                
+                if (string.IsNullOrEmpty(name))
+                    continue;
+
                 try
                 {
                     readText = File.ReadAllText(Path.Combine(path, name + endFileType));
                     isPathNotValid = false;
                 }
-                catch (Exception)
+                catch (Exception e)
                 {
-                    ClearConsole();
-                    Console.WriteLine("***Can't read that file!***\n");
+                    Console.WriteLine("\n***Can't read that file!***");
+                    Console.WriteLine($"***Error: {e.Message}***\n");
                 }
             }
 
-            ClearConsole();
-            Console.WriteLine("***File successful read!***\n");
+            Console.WriteLine("\n***File successful read!***\n");
             return readText;
         }
 
         public static void WriteTextToFile(string content, string endFileType)
         {
-            ClearConsole();
             var isPathNotValid = true;
 
             while (isPathNotValid)
             {
+
                 Console.WriteLine("Enter path to new file:");
                 var path = Console.ReadLine();
+                if (string.IsNullOrEmpty(path))
+                    continue;
+
                 Console.WriteLine("Enter new file name:");
                 var name = Console.ReadLine();
+                if (string.IsNullOrEmpty(name))
+                    continue;
 
                 try
                 {
                     File.WriteAllText(Path.Combine(path, name + endFileType), content);
                     isPathNotValid = false;
                 }
-                catch (Exception)
+                catch (Exception e)
                 {
-                    ClearConsole();
-                    Console.WriteLine("***Can't write to that file!***\n");
+                    Console.WriteLine("\n***Can't write to that file!***");
+                    Console.WriteLine($"***Error: {e.Message}***\n");
                 }
             }
 
-            ClearConsole();
-            Console.WriteLine("***File successful applied!***\n");
+            Console.WriteLine("\n***File successful applied!***\n");
         }
     }
 }

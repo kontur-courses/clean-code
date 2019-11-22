@@ -48,6 +48,7 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="ConsoleUtils\ConsoleAssistant.cs" />
+    <Compile Include="StringExtensions.cs" />
     <Compile Include="TokenConverters\HtmlConverter.cs" />
     <Compile Include="TokenConverters\TokenConverter.cs" />
     <Compile Include="Markdown.cs" />
