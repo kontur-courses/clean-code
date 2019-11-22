@@ -1,8 +1,9 @@
 ﻿namespace Markdown
 {
-    internal class StrongTag : IMarkdownTagInfo
+    internal class StrongTag : MarkdownTag
     {
-        public string HtmlDesignation => "strong";
-        public int Priority => 2;
+        public override string TagDesignation => "__";
+        public override string HtmlDesignation => "strong";
+        public override int Priority => 2;
     }
 }

@@ -1,22 +1,21 @@
 ﻿using System.Collections.Generic;
 using System.Linq;
+using System.Net.Http.Headers;
 
 namespace Markdown
 {
     internal static class MarkdownTransformerToHtml
     {
-        internal static readonly Dictionary<string, IMarkdownTagInfo> TagsInfo =
-            new Dictionary<string, IMarkdownTagInfo>
-            {
-                ["_"] = new EmphasisTag(),
-                ["__"] = new StrongTag(),
-                ["`"] = new CodeTag(),
-            };
-
+        private static readonly MarkdownTag[] MarkdownTags = new MarkdownTag[]
+        {
+            new CodeTag(),
+            new EmphasisTag(),
+            new StrongTag(),
+        };
+        
         internal static string Render(string inputString)
         {
-            var markdownTagDesignations = TagsInfo.Keys.ToArray();
-            var tagParser = new TagParser(markdownTagDesignations);
+            var tagParser = new TagParser(MarkdownTags);
 
             var correctTags = tagParser.Parse(inputString)
                 .RemoveEscapedTags(inputString)

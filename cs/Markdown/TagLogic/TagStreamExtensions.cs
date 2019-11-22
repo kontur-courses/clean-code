@@ -5,28 +5,28 @@ namespace Markdown
 {
     internal static class TagStreamExtensions
     {
-        public static IEnumerable<Tag> RemoveEscapedTags(this IEnumerable<Tag> tags, string inputString)
+        public static IEnumerable<TagToken> RemoveEscapedTags(this IEnumerable<TagToken> tags, string inputString)
         {
             return tags
                 .Where(tag => PreviousTagSymbol(tag) != '\\');
 
-            char PreviousTagSymbol(Tag tag) =>
+            char PreviousTagSymbol(TagToken tag) =>
                 (tag.Index != 0) ? inputString[tag.Index - 1] : ' ';
         }
 
-        public static IEnumerable<Tag> RemoveUnopenedTags(this IEnumerable<Tag> sortedTags)
+        public static IEnumerable<TagToken> RemoveUnopenedTags(this IEnumerable<TagToken> sortedTags)
         {
-            var result = new List<Tag>();
+            var result = new List<TagToken>();
 
-            var stack = new Stack<Tag>();
+            var stack = new Stack<TagToken>();
             foreach (var tag in sortedTags)
             {
-                if (tag.Type == TagType.Opening)
+                if (tag.TokenType == TagTokenType.Opening)
                     stack.Push(tag);
-                if (tag.Type == TagType.Closing && stack.Count != 0)
+                if (tag.TokenType == TagTokenType.Closing && stack.Count != 0)
                 {
                     var stackTopTag = stack.Peek();
-                    if (stackTopTag.Designations == tag.Designations)
+                    if (stackTopTag.MarkdownTag.Equals(tag.MarkdownTag))
                     {
                         result.Add(stack.Pop());
                         result.Add(tag);
@@ -37,19 +37,19 @@ namespace Markdown
             return result.OrderBy(tag => tag.Index);
         }
 
-        public static IEnumerable<Tag> RemoveIncorrectNestingTags(this IEnumerable<Tag> sortedTags)
+        public static IEnumerable<TagToken> RemoveIncorrectNestingTags(this IEnumerable<TagToken> sortedTags)
         {
             var priorityStack = new Stack<int>();
             priorityStack.Push(int.MaxValue);
             foreach (var tag in sortedTags)
             {
-                if (tag.Type == TagType.Opening && tag.Priority < priorityStack.Peek())
+                if (tag.TokenType == TagTokenType.Opening && tag.MarkdownTag.Priority < priorityStack.Peek())
                 {
-                    priorityStack.Push(tag.Priority);
+                    priorityStack.Push(tag.MarkdownTag.Priority);
                     yield return tag;
                 }
 
-                if (tag.Type == TagType.Closing && tag.Priority == priorityStack.Peek())
+                if (tag.TokenType == TagTokenType.Closing && tag.MarkdownTag.Priority == priorityStack.Peek())
                 {
                     priorityStack.Pop();
                     yield return tag;

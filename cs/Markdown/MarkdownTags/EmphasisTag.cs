@@ -1,8 +1,9 @@
 ﻿namespace Markdown
 {
-    internal class EmphasisTag : IMarkdownTagInfo
+    internal class EmphasisTag : MarkdownTag
     {
-        public string HtmlDesignation => "em";
-        public int Priority => 1;
+        public override string TagDesignation => "_";
+        public override string HtmlDesignation => "em";
+        public override int Priority => 1;
     }
 }

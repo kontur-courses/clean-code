@@ -1,9 +1,9 @@
 ﻿namespace Markdown
 {
-    class CodeTag : IMarkdownTagInfo
+    internal class CodeTag : MarkdownTag
     {
-        public string HtmlDesignation => "code";
-
-        public int Priority => 2;
+        public override string TagDesignation => "`";
+        public override string HtmlDesignation => "code";
+        public override int Priority => 3;
     }
 }

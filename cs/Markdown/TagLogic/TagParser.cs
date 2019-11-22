@@ -6,68 +6,58 @@ namespace Markdown
     internal class TagParser
     {
         private readonly HashSet<char> specialSymbols;
-        private readonly List<string> tagDesignations;
+        private readonly MarkdownTag[] markdownTags;
 
-        public TagParser(string[] tagDesignations)
+        public TagParser(MarkdownTag[] markdownTags)
         {
-            specialSymbols = tagDesignations.SelectMany(x => x).ToHashSet();
-            this.tagDesignations = tagDesignations.ToList();
+            specialSymbols = markdownTags
+                .Select(tag => tag.TagDesignation)
+                .SelectMany(x => x)
+                .ToHashSet();
+            this.markdownTags = markdownTags;
         }
 
-        public IEnumerable<Tag> Parse(string inputString)
+        public IEnumerable<TagToken> Parse(string inputString)
         {
             for (var i = 0; i < inputString.Length; i++)
-                foreach (var tagDesignation in tagDesignations)
-                    if (TryGetTag(inputString, i, tagDesignation, out var tag))
+                foreach (var markdownTag in markdownTags)
+                    if (TryGetTagToken(inputString, i, markdownTag, out var tag))
                         yield return tag;
         }
 
-        private bool TryGetTag(string inputString, int tagIndex, string tagDesignation, out Tag tag)
+        private bool TryGetTagToken(string inputString, int index, MarkdownTag markdownTag, out TagToken tagToken)
         {
-            tag = null;
+            tagToken = null;
+            var tagDesignation = markdownTag.TagDesignation;
 
-            if (tagIndex + tagDesignation.Length > inputString.Length)
+            if (index + tagDesignation.Length > inputString.Length)
                 return false;
             
-            if (inputString.Substring(tagIndex, tagDesignation.Length) != tagDesignation)
+            if (inputString.Substring(index, tagDesignation.Length) != tagDesignation)
                 return false;
             
-            var previousTagSymbol = (tagIndex != 0) 
-                ? inputString[tagIndex - 1]
+            var previousTagSymbol = (index != 0) 
+                ? inputString[index - 1]
                 : ' ';
 
-            var nextTagSymbol = (tagIndex + tagDesignation.Length < inputString.Length)
-                ? inputString[tagIndex + tagDesignation.Length]
+            var nextTagSymbol = (index + tagDesignation.Length < inputString.Length)
+                ? inputString[index + tagDesignation.Length]
                 : ' ';
 
-            if (IsOpeningTag(previousTagSymbol, nextTagSymbol))
+            if (markdownTag.IsOpeningTag(previousTagSymbol, nextTagSymbol, specialSymbols))
             {
-                tag = new Tag(tagDesignation, tagIndex, 
-                    TagType.Opening, MarkdownTransformerToHtml.TagsInfo[tagDesignation].Priority);
+                tagToken = new TagToken(markdownTag, index, TagTokenType.Opening);
                 return true;
             }
 
-            if (IsClosingTag(previousTagSymbol, nextTagSymbol))
+            if (markdownTag.IsClosingTag(previousTagSymbol, nextTagSymbol, specialSymbols))
             {
-                tag = new Tag(tagDesignation, tagIndex,
-                    TagType.Closing, MarkdownTransformerToHtml.TagsInfo[tagDesignation].Priority);
+                tagToken = new TagToken(markdownTag, index, TagTokenType.Closing);
                 return true;
             }
 
-            tag = null;
+            tagToken = null;
             return false;
         }
-
-        private bool IsOpeningTag(char previousSeparatorSymbol, char nextSeparatorSymbol) =>
-            char.IsWhiteSpace(previousSeparatorSymbol)
-            && !char.IsWhiteSpace(nextSeparatorSymbol)
-            && !specialSymbols.Contains(previousSeparatorSymbol) 
-            && !specialSymbols.Contains(nextSeparatorSymbol);
-
-        private bool IsClosingTag(char previousSeparatorSymbol, char nextSeparatorSymbol) =>
-            char.IsWhiteSpace(nextSeparatorSymbol)
-            && !char.IsWhiteSpace(previousSeparatorSymbol)
-            && !specialSymbols.Contains(nextSeparatorSymbol)
-            && !specialSymbols.Contains(previousSeparatorSymbol);
     }
 }

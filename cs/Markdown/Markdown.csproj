@@ -58,13 +58,13 @@
     <Compile Include="MarkdownTags\CodeTag.cs" />
     <Compile Include="StringRedactor.cs" />
     <Compile Include="MarkdownTags\EmphasisTag.cs" />
-    <Compile Include="MarkdownTags\IMarkdownTag.cs" />
+    <Compile Include="MarkdownTags\MarkdownTag.cs" />
     <Compile Include="MarkdownTransformerToHtml.cs" />
     <Compile Include="MarkdownTags\StrongTag.cs" />
     <Compile Include="Tests\MarkdownTests.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
-    <Compile Include="TagLogic\Tag.cs" />
+    <Compile Include="TagLogic\TagToken.cs" />
     <Compile Include="TagLogic\TagStreamExtensions.cs" />
     <Compile Include="Tests\TagStreamRedactorTests.cs" />
     <Compile Include="TagLogic\TagParser.cs" />

@@ -1,16 +1,20 @@
 ﻿using FluentAssertions;
 using NUnit.Framework;
-using System.Linq;
 
 namespace Markdown
 {
     [TestFixture]
     internal class TagParserTests
     {
-        private static TagParser tagParser;
+        private static TagParser _tagParser;
 
         [SetUp]
-        public void SetUp() => tagParser = new TagParser(MarkdownTransformerToHtml.TagsInfo.Keys.ToArray());
+        public void SetUp() => _tagParser = new TagParser(new MarkdownTag[]
+        {
+            new CodeTag(),
+            new EmphasisTag(),
+            new StrongTag(),
+        });
         
         [TestCase("_a")]
         [TestCase("__a")]
@@ -18,10 +22,10 @@ namespace Markdown
         [TestCase("__a _a")]
         public void FindOpeningTags(string input)
         {
-            var foundTags = tagParser.Parse(input);
+            var foundTags = _tagParser.Parse(input);
 
             foreach (var tag in foundTags)
-                tag.Type.Should().Be(TagType.Opening);
+                tag.TokenType.Should().Be(TagTokenType.Opening);
         }
 
         [TestCase("a_")]
@@ -30,10 +34,10 @@ namespace Markdown
         [TestCase("a__ a_")]
         public void FindClosingTags(string input)
         {
-            var foundTags = tagParser.Parse(input);
+            var foundTags = _tagParser.Parse(input);
 
             foreach (var tag in foundTags)
-                tag.Type.Should().Be(TagType.Closing);
+                tag.TokenType.Should().Be(TagTokenType.Closing);
         }
 
         [TestCase("_a", 1, TestName = "OneEmphasisTag")]
@@ -43,7 +47,7 @@ namespace Markdown
         [TestCase("_a _a _a _a", 4, TestName = "FourEmphasisTags")]
         public void FindAllTagsInString(string inputString, int countTagsInString)
         {
-            var foundTags = tagParser.Parse(inputString);
+            var foundTags = _tagParser.Parse(inputString);
 
             foundTags.Should().HaveCount(countTagsInString);
         }
@@ -54,7 +58,7 @@ namespace Markdown
         [TestCase(" __ aa", TestName = "WhitespaceToLeftAndRightTag")]
         public void StringWithoutTags(string inputString)
         {
-            var foundTags = tagParser.Parse(inputString);
+            var foundTags = _tagParser.Parse(inputString);
 
             foundTags.Should().HaveCount(0);
         }

@@ -8,7 +8,7 @@ namespace Markdown
 {
     internal static class StringRedactor
     {
-        internal static string SwitchMarkdownTagsToHtml(string inputString, List<Tag> tagsForChange)
+        internal static string SwitchMarkdownTagsToHtml(string inputString, List<TagToken> tagsForChange)
         {
             if (tagsForChange.Count == 0) return inputString;
 
@@ -20,14 +20,14 @@ namespace Markdown
                 for (var i = startedIndex; i < tag.Index; i++)
                     result.Append(inputString[i]);
 
-                result.Append(tag.Type == TagType.Opening
-                    ? $"<{MarkdownTransformerToHtml.TagsInfo[tag.Designations].HtmlDesignation}>"
-                    : $"</{MarkdownTransformerToHtml.TagsInfo[tag.Designations].HtmlDesignation}>");
+                result.Append(tag.TokenType == TagTokenType.Opening
+                    ? $"<{tag.MarkdownTag.HtmlDesignation}>"
+                    : $"</{tag.MarkdownTag.HtmlDesignation}>");
 
-                startedIndex = tag.Index + tag.Designations.Length;
+                startedIndex = tag.Index + tag.MarkdownTag.TagDesignation.Length;
             }
 
-            for (var i = tagsForChange.Last().Designations.Length + tagsForChange.Last().Index; i < inputString.Length; i++)
+            for (var i = tagsForChange.Last().MarkdownTag.TagDesignation.Length + tagsForChange.Last().Index; i < inputString.Length; i++)
                 result.Append(inputString[i]);
 
             return result.ToString();
