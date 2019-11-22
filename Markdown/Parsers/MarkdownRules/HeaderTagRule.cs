@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using Markdown.IntermediateState;
 
 namespace Markdown.Parsers.MarkdownRules
@@ -8,7 +9,7 @@ namespace Markdown.Parsers.MarkdownRules
         public string OpenTag { get; }
         public string CloseTag => "";
         public TagType TypeTag { get; }
-        public ParserNode FindFirstElement(string source, int startPosition = 0)
+        public ParserNode FindFirstElement(string source, HashSet<int> ignoredPositions, int startPosition = 0)
         {
             var openPosition = source.IndexOf(OpenTag, startPosition);
             if (openPosition == -1)

@@ -29,9 +29,20 @@ namespace Markdown.Parsers.MarkdownRules
             attributes = new Dictionary<string, string>();
         }
 
-        public DocumentNode GetDocumentNode(string source, int nestingLevel=0)
+        public ParserNode(TagType tagType, int startPosition, int endPosition, int startInnerPosition, int endInnerPosition)
         {
-            var result = new DocumentNode(TypeTag, source, StartInnerPartPosition, EndInnerPartPosition, nestingLevel);
+            childs = new List<ParserNode>();
+            TypeTag = tagType;
+            StartPosition = startPosition;
+            EndPosition = endPosition;
+            StartInnerPartPosition = startInnerPosition;
+            EndInnerPartPosition = endInnerPosition;
+            attributes = new Dictionary<string, string>();
+        }
+
+        public DocumentNode GetDocumentNode(string source, int nestingLevel=0, HashSet<int> escapedPositions=null)
+        {
+            var result = new DocumentNode(TypeTag, source, StartInnerPartPosition, EndInnerPartPosition, nestingLevel, escapedPositions);
             var stack = new Stack<DocumentNode>();
             var tempStack = new Stack<ParserNode>();
             stack.Push(result);

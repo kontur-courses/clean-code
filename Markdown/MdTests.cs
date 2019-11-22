@@ -1,6 +1,5 @@
 ﻿using NUnit.Framework;
 using FluentAssertions;
-using NUnit.Framework.Internal;
 
 namespace Markdown
 {
@@ -37,6 +36,7 @@ namespace Markdown
         [TestCase("___ab___", "<div><strong><em>ab</em></strong></div>", TestName = "Italic in Bold")]
         [TestCase("a5__ba__", "<div>a5_<em>ba</em>_</div>", TestName = "Number near tag")]
         [TestCase("___", "<div>___</div>", TestName = "Underline")]
+        [TestCase("\\__ab__", "<div>_<em>ab</em>_</div>")]
         public void Render_OnBoldTag(string input, string output)
         {
             var actual = md.Render(input);

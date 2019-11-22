@@ -11,7 +11,7 @@ namespace Markdown.Parsers
         string OpenTag { get; }
         string CloseTag { get; }
         TagType TypeTag { get; }
-        ParserNode FindFirstElement(string source, int startPosition=0);
+        ParserNode FindFirstElement(string source, HashSet<int> ignoredPositions, int startPosition=0);
         bool CanUseInCurrent(TagType tagType);
     }
 }

@@ -1,5 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
+using System.Runtime.InteropServices;
 using System.Text;
 using Markdown.IntermediateState;
 
@@ -8,6 +10,7 @@ namespace Markdown.Builders
     class HtmlBuilder : ILanguageBuilder
     {
         private Dictionary<TagType, BuilderRule> tagRules;
+        private IEnumerable<int> escapedPositions;
 
         public HtmlBuilder()
         {
@@ -36,6 +39,9 @@ namespace Markdown.Builders
             {
                 return "";
             }
+
+            escapedPositions = parsedDocument.EscapedPositions;
+
             Stack<DocumentNode> operationsStack = new Stack<DocumentNode>();
             Stack<string> openTags = new Stack<string>();
             Stack<string> resultStack = new Stack<string>();
@@ -55,7 +61,7 @@ namespace Markdown.Builders
                 }
                 resultStack.Push(tagRules[current.TypeTag].CloseTag);
                 var length = current.EndInnerPartInSource - current.BeginInnerPartInSource;
-                resultStack.Push(parsedDocument.SourceDocument.Substring(current.BeginInnerPartInSource, length));
+                resultStack.Push(GetSubstring(parsedDocument.SourceDocument, current.BeginInnerPartInSource, current.EndInnerPartInSource));
                 resultStack.Push(GetOpenTagWithAttributes(current));
                 var nestingLevel = current.NestingLevel;
                 while (operationsStack.Count > 0 && nestingLevel-- > operationsStack.Peek().NestingLevel && openTags.Count > 0)
@@ -86,6 +92,19 @@ namespace Markdown.Builders
             }
 
             return builder.Append(">").ToString();
+        }
+
+        private string GetSubstring(string source, int startPosition, int endPosition)
+        {
+            var result = new StringBuilder();
+            var currentPosition = startPosition;
+            foreach (var position in escapedPositions.Where(e => e >= startPosition && e < endPosition))
+            {
+                result.Append(source.Substring(currentPosition, position - 1 - currentPosition));
+                currentPosition = position;
+            }
+
+            return result.Append(source.Substring(currentPosition, endPosition - currentPosition)).ToString();
         }
     }
 }

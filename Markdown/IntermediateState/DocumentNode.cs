@@ -4,6 +4,7 @@ namespace Markdown.IntermediateState
 {
     public class DocumentNode
     {
+        public IEnumerable<int> EscapedPositions { get; }
         public int NestingLevel { get; }
         public TagType TypeTag { get; }
         public int BeginInnerPartInSource { get; }
@@ -16,7 +17,8 @@ namespace Markdown.IntermediateState
         private readonly List<DocumentNode> innerElements;
         private Dictionary<string, string> attributes;
 
-        public DocumentNode(TagType tagType, string sourceDocument, int beginInnerPartInSource, int endInnerPartInSource, int nestingLevel)
+        public DocumentNode(TagType tagType, string sourceDocument, int beginInnerPartInSource, 
+            int endInnerPartInSource, int nestingLevel, IEnumerable<int> escapedPositions=null)
         {
             TypeTag = tagType;
             BeginInnerPartInSource = beginInnerPartInSource;
@@ -25,6 +27,7 @@ namespace Markdown.IntermediateState
             SourceDocument = sourceDocument;
             innerElements = new List<DocumentNode>();
             attributes = new Dictionary<string, string>();
+            this.EscapedPositions = escapedPositions;
         }
 
         public void AddElement(DocumentNode innerNode)

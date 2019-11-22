@@ -1,12 +1,5 @@
-﻿using System;
-using System.Collections;
-using System.Collections.Generic;
-using System.Diagnostics.SymbolStore;
+﻿using System.Collections.Generic;
 using System.Linq;
-using System.Runtime.InteropServices.ComTypes;
-using System.Threading.Tasks;
-using FluentAssertions.Common;
-using FluentAssertions.Equivalency;
 using Markdown.IntermediateState;
 using Markdown.Parsers.MarkdownRules;
 using Configuration = Markdown.Parsers.MarkdownRules.Configuration;
@@ -25,12 +18,14 @@ namespace Markdown.Parsers
 
         public DocumentNode GetParsedDocument(string inputDocument)
         {
-            if (inputDocument is null)
+
+            if (inputDocument is null || inputDocument == "")
                 return new DocumentNode(TagType.All, null, 0, 0, 0);
+            var ignoredPositions = GetIgnoredPositions(inputDocument);
 
             var root = new ParserNode(TagType.All, 0, inputDocument.Length, parserRules[TagType.All]);
 
-            var nearNodes = GetFirstTags(inputDocument);
+            var nearNodes = GetFirstTags(inputDocument, ignoredPositions);
 
             var tags = new Stack<ParserNode>();
             tags.Push(root);
@@ -57,7 +52,7 @@ namespace Markdown.Parsers
                     if (!parserRules[tags.Peek().TypeTag].CanUseInCurrent(tag.TypeTag))
                     {
                         nearNodes.Remove(tag.StartPosition);
-                        UpdateTag(nearNodes, inputDocument, tags.Peek().EndPosition, tag.TypeTag);
+                        UpdateTag(nearNodes, ignoredPositions, inputDocument, tags.Peek().EndPosition, tag.TypeTag);
                         continue;
                     }
                     if (tag.StartPosition - currentPosition > 0)
@@ -68,16 +63,16 @@ namespace Markdown.Parsers
                     tags.Peek().AddChild(tag);
                     tags.Push(tag);
                     nearNodes.Remove(tag.StartPosition);
-                    UpdateTag(nearNodes, inputDocument, tag.StartInnerPartPosition, tag.TypeTag);
+                    UpdateTag(nearNodes, ignoredPositions, inputDocument, tag.StartInnerPartPosition, tag.TypeTag);
                     continue;
                 }
 
                 nearNodes.Remove(tag.StartPosition);
-                UpdateTag(nearNodes, inputDocument, tag.StartInnerPartPosition, tag.TypeTag);
+                UpdateTag(nearNodes, ignoredPositions, inputDocument, tag.StartInnerPartPosition, tag.TypeTag);
             }
 
 
-            return root.GetDocumentNode(inputDocument);
+            return root.GetDocumentNode(inputDocument, escapedPositions:ignoredPositions);
         }
 
         private static bool TagInTheOther(ParserNode wrapper, ParserNode inner)
@@ -91,20 +86,20 @@ namespace Markdown.Parsers
             return inner.StartPosition < wrapper.EndPosition && inner.EndPosition > wrapper.StartPosition;
         }
 
-        private SortedDictionary<int, ParserNode> GetFirstTags(string source)
+        private SortedDictionary<int, ParserNode> GetFirstTags(string source, HashSet<int> ignoredPositions)
         {
             var result = new SortedDictionary<int, ParserNode>();
             foreach (var tagType in parserRules.Keys)
             {
-                UpdateTag(result, source, 0, tagType);
+                UpdateTag(result, ignoredPositions, source, 0, tagType);
             }
 
             return result;
         }
 
-        private void UpdateTag(SortedDictionary<int, ParserNode> nearNodes, string source, int position, TagType tagType)
+        private void UpdateTag(SortedDictionary<int, ParserNode> nearNodes, HashSet<int> ignoredPositions, string source, int position, TagType tagType)
         {
-            var node = parserRules[tagType].FindFirstElement(source, position);
+            var node = parserRules[tagType].FindFirstElement(source, ignoredPositions, position);
             while (node != null)
             {
                 if (!nearNodes.ContainsKey(node.StartPosition) || nearNodes[node.StartPosition].StartInnerPartPosition -
@@ -113,14 +108,30 @@ namespace Markdown.Parsers
                     if (nearNodes.ContainsKey(node.StartPosition))
                     {
                         var tempTagType = nearNodes[node.StartPosition].TypeTag;
-                        UpdateTag(nearNodes, source, node.StartInnerPartPosition, tempTagType);
+                        UpdateTag(nearNodes, ignoredPositions, source, node.StartInnerPartPosition, tempTagType);
                     }
                     nearNodes[node.StartPosition] = node;
                     break;
                 }
 
-                node = parserRules[tagType].FindFirstElement(source, node.StartInnerPartPosition);
+                node = parserRules[tagType].FindFirstElement(source, ignoredPositions, node.StartInnerPartPosition);
             }
+        }
+
+        private HashSet<int> GetIgnoredPositions(string source)
+        {
+            var result = new HashSet<int>();
+            if (source is null || source == "")
+                return result;
+            int position = source.IndexOf('\\', 0);
+
+            while (position > -1 && position < source.Length)
+            {
+                result.Add(position + 1);
+                position = source.IndexOf('\\', position + 2);
+            }
+
+            return result;
         }
     }
 }

@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using Markdown.IntermediateState;
 
 namespace Markdown.Parsers.MarkdownRules
@@ -8,13 +9,13 @@ namespace Markdown.Parsers.MarkdownRules
         public string OpenTag => "_";
         public string CloseTag => "_";
         public TagType TypeTag => TagType.Italic;
-        public ParserNode FindFirstElement(string source, int startPosition = 0)
+        public ParserNode FindFirstElement(string source, HashSet<int> ignoredPositions, int startPosition = 0)
         {
             int openPosition = startPosition - 1;
             do
             {
                 openPosition = source.IndexOf(OpenTag, openPosition + 1, StringComparison.Ordinal);
-            } while (openPosition != -1 && !IsOpenTag(source, openPosition));
+            } while (openPosition != -1 && (!IsOpenTag(source, openPosition) || ignoredPositions.Contains(openPosition)));
 
             if (openPosition == -1)
                 return null;
@@ -24,7 +25,8 @@ namespace Markdown.Parsers.MarkdownRules
             {
                 closePosition = source.IndexOf(CloseTag, closePosition + 1, StringComparison.Ordinal);
             } while (closePosition != -1 && (!IsCloseTag(source, closePosition) || closePosition - openPosition < 2 ||
-                     BoldTagRule.IsUnderlineString(source, openPosition, closePosition + 1)));
+                                             ignoredPositions.Contains(openPosition) ||
+                                             BoldTagRule.IsUnderlineString(source, openPosition, closePosition + 1)));
 
             return closePosition == -1
                 ? null

@@ -13,6 +13,7 @@
         Paragraph,
         Image,
         Raw,
+        Link,
         NoneTag, // Leaf of a tree, that doesn't contain any tags
                  // For example <p>abc</p> tree will be like: Paragraph -> NoneTag
         All // Needed if in current tag ANY inner tag need be ignored

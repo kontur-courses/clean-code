@@ -1,4 +1,5 @@
-﻿using Markdown.IntermediateState;
+﻿using System.Collections.Generic;
+using Markdown.IntermediateState;
 
 namespace Markdown.Parsers.MarkdownRules
 {
@@ -7,7 +8,7 @@ namespace Markdown.Parsers.MarkdownRules
         public string OpenTag => "";
         public string CloseTag => "";
         public TagType TypeTag => TagType.NoneTag;
-        public ParserNode FindFirstElement(string source, int startPosition = 0)
+        public ParserNode FindFirstElement(string source, HashSet<int> ignoredPositions, int startPosition = 0)
         {
             return null;
         }

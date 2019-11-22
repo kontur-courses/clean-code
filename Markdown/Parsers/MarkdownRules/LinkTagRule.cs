@@ -5,19 +5,21 @@ using Markdown.IntermediateState;
 
 namespace Markdown.Parsers.MarkdownRules
 {
-    class AllTagRule :IParserRule
+    class LinkTagRule : IParserRule
     {
-        public string OpenTag => "";
+        public string OpenTag => "[";
         public string CloseTag => "";
-        public TagType TypeTag => TagType.All;
+        public TagType TypeTag { get; }
+
+
         public ParserNode FindFirstElement(string source, HashSet<int> ignoredPositions, int startPosition = 0)
         {
-            return null;
+            throw null;
         }
 
         public bool CanUseInCurrent(TagType tagType)
         {
-            return true;
+            throw new NotImplementedException();
         }
     }
 }
