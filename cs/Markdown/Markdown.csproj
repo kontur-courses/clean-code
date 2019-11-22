@@ -54,7 +54,6 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="Extensions\StringExtensions.cs" />
     <Compile Include="MarkdownTags\CodeTag.cs" />
     <Compile Include="StringRedactor.cs" />
     <Compile Include="MarkdownTags\EmphasisTag.cs" />
