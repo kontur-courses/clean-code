@@ -1,24 +1,25 @@
 ﻿using System.Collections.Generic;
 using System.Linq;
-using Markdown.Core.Rules;
 using Markdown.Core.Tags;
 
 namespace Markdown.Core.Parsers
 {
     class MainParser : IParser
     {
-        private readonly IEnumerable<ITag> tags;
+        private readonly SingleTagParser singleTagParser;
+        private readonly DoubleTagParser doubleTagParser;
 
         public MainParser(IEnumerable<ITag> tags)
         {
-            this.tags = tags;
+            singleTagParser = new SingleTagParser(tags);
+            doubleTagParser = new DoubleTagParser(tags);
         }
 
 
         public List<TagToken> ParseLine(string line)
         {
-            var singleTagTokens = new SingleTagParser(tags).ParseLine(line);
-            var doubleTagTokens = new DoubleTagParser(tags).ParseLine(line);
+            var singleTagTokens = singleTagParser.ParseLine(line);
+            var doubleTagTokens = doubleTagParser.ParseLine(line);
             return singleTagTokens.Concat(doubleTagTokens).ToList();
         }
     }
