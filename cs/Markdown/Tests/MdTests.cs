@@ -68,12 +68,12 @@ namespace Markdown.Tests
             var averageTimeRawText = GetAverageWorkTime(rawText, 1000);
 
             var newRawText = rawText;
-            for (var i = 0; i < 10; i++)
-                newRawText += rawText;
+            for (var i = 0; i < 1000; i++)
+                newRawText += $" {rawText}";
 
             var averageTimeTenRawText = GetAverageWorkTime(newRawText, 1000);
 
-            Assert.LessOrEqual(averageTimeTenRawText, 10 * averageTimeRawText);
+            Assert.LessOrEqual(averageTimeTenRawText, 1000 * averageTimeRawText);
         }
 
         private double GetAverageWorkTime(string rawText, int count)
