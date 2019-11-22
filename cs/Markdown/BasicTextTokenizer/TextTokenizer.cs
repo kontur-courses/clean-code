@@ -31,10 +31,10 @@ namespace Markdown.BasicTextTokenizer
             {
                 var newTokens = reader.ReadUntilWithEscapeProcessing(isControllingSequence, isEscapeSequence);
                 tokens.AddRange(newTokens);
-                if (isOpeningSequence(reader.Text, reader.Position))
-                    ProcessOpeningSequence(reader, openings, tokens);
-                else if (isClosingSequence(reader.Text, reader.Position))
+                if (isClosingSequence(reader.Text, reader.Position))
                     ProcessClosingSequence(reader, openings, tokens);
+                else if (isOpeningSequence(reader.Text, reader.Position))
+                    ProcessOpeningSequence(reader, openings, tokens);
             }
             return tokens.OrderBy(t => t.Position);
         }
@@ -42,8 +42,8 @@ namespace Markdown.BasicTextTokenizer
         private void ProcessOpeningSequence(TokenReader reader, Dictionary<ITagClassifier, Token> openings,
             List<Token> tokens)
         {
-            var classifier = classifiers.First(c => c.IsOpeningSequence(reader.Text, reader.Position));
-            var sequence = ReadSequenceToken(reader);
+            var classifier = classifiers.OrderBy(c => c.Priority).First(c => c.IsOpeningSequence(reader.Text, reader.Position));
+            var sequence = reader.ReadCount(classifier.Sequence.Length);
 
             if (openings.ContainsKey(classifier))
             {
@@ -60,8 +60,8 @@ namespace Markdown.BasicTextTokenizer
         private void ProcessClosingSequence(TokenReader reader, Dictionary<ITagClassifier, Token> openings,
             List<Token> tokens)
         {
-            var classifier = classifiers.OrderBy(c => c.Priority).First(c => c.IsClosingSequence(reader.Text, reader.Position));
-            var sequence = ReadSequenceToken(reader);
+            var classifier = classifiers.OrderByDescending(c => c.Priority).First(c => c.IsClosingSequence(reader.Text, reader.Position));
+            var sequence = reader.ReadCount(classifier.Sequence.Length);
 
             if (!openings.ContainsKey(classifier))
             {
@@ -75,11 +75,6 @@ namespace Markdown.BasicTextTokenizer
                 opening.PairedToken = closing;
                 tokens.Add(closing);
             }
-        }
-
-        private Token ReadSequenceToken(TokenReader reader)
-        {
-            return reader.ReadWhile(c => c == '_');
         }
     }
 }

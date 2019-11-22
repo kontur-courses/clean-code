@@ -180,5 +180,55 @@ namespace Markdown.BasicTextTokenizer.Tests
 
             result.Should().BeEquivalentTo(expectedResult, options => options.IgnoringCyclicReferences());
         }
+
+        [Test]
+        public void GetTokens_ShouldReturnCorrectTokens_OnOpeningItalicRightAfterOpeningBold()
+        {
+            var text = "___a_ bcd__";
+            var boldOpening = new Token(0, 2, TokenType.Opening, boldTag);
+            var boldClosing = new Token(text.Length - 2, 2, TokenType.Ending, boldTag, boldOpening);
+            boldOpening.PairedToken = boldClosing;
+            var italicOpening = new Token(2, 1, TokenType.Opening, italicTag);
+            var italicClosing = new Token(4, 1, TokenType.Ending, italicTag, italicOpening);
+            italicOpening.PairedToken = italicClosing;
+            var expectedResult = new List<Token>
+            {
+                boldOpening,
+                italicOpening,
+                new Token(3, 1),
+                italicClosing,
+                new Token("___a_".Length, 4),
+                boldClosing
+            };
+
+            var result = tokenizer.GetTokens(text).ToList();
+
+            result.Should().BeEquivalentTo(expectedResult, options => options.IgnoringCyclicReferences());
+        }
+
+        [Test]
+        public void GetToken_ShouldReturnCorrectTokens_OnClosingBoldRightAfterClosingItalic()
+        {
+            var text = "__abc _d___";
+            var boldOpening = new Token(0, 2, TokenType.Opening, boldTag);
+            var boldClosing = new Token(text.Length - 2, 2, TokenType.Ending, boldTag, boldOpening);
+            boldOpening.PairedToken = boldClosing;
+            var italicOpening = new Token("__abc ".Length, 1, TokenType.Opening, italicTag);
+            var italicClosing = new Token(text.Length - 3, 1, TokenType.Ending, italicTag, italicOpening);
+            italicOpening.PairedToken = italicClosing;
+            var expectedResult = new List<Token>
+            {
+                boldOpening,
+                new Token(2, 4),
+                italicOpening,
+                new Token(italicOpening.Position + 1, 1),
+                italicClosing,
+                boldClosing
+            };
+
+            var result = tokenizer.GetTokens(text).ToList();
+
+            result.Should().BeEquivalentTo(expectedResult, options => options.IgnoringCyclicReferences());
+        }
     }
 }

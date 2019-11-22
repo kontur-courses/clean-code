@@ -142,6 +142,7 @@ namespace Markdown.Tests
         [TestCase("Just a text__", TestName = "One ending double underscore in the end")]
         [TestCase("Just a__ text", TestName = "One ending double underscore inside")]
         [TestCase("Not__ a bold__", TestName = "Space after opening double underscore")]
+        [TestCase("Just a text_123_abc", TestName = "Underscores inside text")]
         public void GetTokens_ShouldReturnOnlyRawTokens_OnTextWithoutCorrectUnderscoring(string text)
         {
             var result = tokenizer.GetTokens(text).Select(t => t.Type).Any(t => t != FormattedTokenType.Raw);
@@ -159,6 +160,7 @@ namespace Markdown.Tests
         [TestCase("Just a text__", TestName = "One ending double underscore in the end")]
         [TestCase("Just a__ text", TestName = "One ending double underscore inside")]
         [TestCase("Not__ a bold__", TestName = "Space after opening double underscore")]
+        [TestCase("Just a text_123_abc", TestName = "Underscores inside text")]
         public void GetToken_ShouldReturnTokenWithoutSpaces_OnTextWithoutCorrectUnderscoring(string text)
         {
             var result = tokenizer.GetTokens(text).ToList();
@@ -185,19 +187,6 @@ namespace Markdown.Tests
 
             result.Should().HaveCount(1).And.AllBeEquivalentTo(expectedResult);
         }
-
-        [Test]
-        public void GetTokens_ShouldReturnOneRawToken_OnUnderscoreInsideText()
-        {
-            var text = "Just a text_123_abc";
-            var expectedResult = new FormattedToken(null, FormattedTokenType.Raw, 0, text.Length - 1);
-            
-            var result = tokenizer.GetTokens(text);
-
-            result.Should().HaveCount(1).And.AllBeEquivalentTo(expectedResult);
-        }
-
-
 
         [Test]
         public void GetTokens_ShouldReturnOneBoldToken_OnTextWithDoubleUnderscores()

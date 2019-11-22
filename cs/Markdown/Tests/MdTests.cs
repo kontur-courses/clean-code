@@ -59,6 +59,14 @@ namespace Markdown.Tests
             "Это __не выделение_",
             ExpectedResult = "Это __не выделение_",
             TestName = "Raw text on unpaired symbols ")]
+        [TestCase(
+            "___Одинарное в начале_ двойного__",
+            ExpectedResult = "<strong><em>Одинарное в начале</em> двойного</strong>",
+            TestName = "<em> tag right after <strong> tag")]
+        [TestCase(
+            "__В конце двойного _есть одинарное___",
+            ExpectedResult = "<strong>В конце двойного <em>есть одинарное</em></strong>",
+            TestName = "</em> tag right before </strong> tag")]
         public string Render_ShouldReturnCorrectlyRenderedText(string text)
         {
             return md.Render(text);
