@@ -4,6 +4,9 @@ namespace Markdown.Tree
 {
     public abstract class Node
     {
+        public abstract string StartWrapper { get; }
+        public abstract string EndWrapper { get; }
+
         protected Node()
         {
             Children = new List<Node>();

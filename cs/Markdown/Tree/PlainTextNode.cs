@@ -9,6 +9,9 @@
 
         public string Value { get; }
 
+        public override string StartWrapper => "";
+        public override string EndWrapper => "";
+
         public override string GetText()
         {
             return Value;

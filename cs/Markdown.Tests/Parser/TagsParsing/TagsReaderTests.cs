@@ -13,7 +13,7 @@ namespace Markdown.Tests.Parser.TagsParsing
     {
         private static readonly ItalicTag italic = new ItalicTag();
         private static readonly BoldTag bold = new BoldTag();
-        private static readonly List<MarkdownTag> tags = new List<MarkdownTag> { italic, bold };
+        private static readonly List<MarkdownTag> tags = new List<MarkdownTag> {italic, bold};
 
         private static readonly CharClassifier classifier =
             new CharClassifier(tags.SelectMany(t => t.String));
@@ -64,19 +64,16 @@ namespace Markdown.Tests.Parser.TagsParsing
                         .SetName($"only end of {tagName} tag at end of markdown");
 
 
-                if (tags.Count > 1)
+                foreach (var other in tags.Where(other => tag != other))
                 {
-                    foreach (var other in tags.Where(other => tag != other))
-                    {
-                        yield return
-                            new TestCaseData($"this {tagString}is plain text{other.String}",
-                                    new List<TagEvent>
-                                    {
-                                        new TagEvent(5, TagEventType.Start, tag),
-                                        new TagEvent(5 + tagString.Length + 13, TagEventType.End, other)
-                                    })
-                                .SetName($"{tagName} start and {other.GetType().Name} end");
-                    }
+                    yield return
+                        new TestCaseData($"this {tagString}is plain text{other.String}",
+                                new List<TagEvent>
+                                {
+                                    new TagEvent(5, TagEventType.Start, tag),
+                                    new TagEvent(5 + tagString.Length + 13, TagEventType.End, other)
+                                })
+                            .SetName($"{tagName} start and {other.GetType().Name} end");
                 }
 
                 yield return
