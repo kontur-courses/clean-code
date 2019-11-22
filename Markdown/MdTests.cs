@@ -1,8 +1,9 @@
-﻿using NUnit.Framework;
-using FluentAssertions;
+﻿using FluentAssertions;
+using NUnit.Framework;
 
 namespace Markdown
 {
+    [TestFixture]
     class MdTests
     {
         private Md md;
@@ -36,11 +37,11 @@ namespace Markdown
         [TestCase("___ab___", "<div><strong><em>ab</em></strong></div>", TestName = "Italic in Bold")]
         [TestCase("a5__ba__", "<div>a5_<em>ba</em>_</div>", TestName = "Number near tag")]
         [TestCase("___", "<div>___</div>", TestName = "Underline")]
-        [TestCase("\\__ab__", "<div>_<em>ab</em>_</div>")]
-        public void Render_OnBoldTag(string input, string output)
+        [TestCase("\\__ab__", "<div>_<em>ab</em>_</div>", TestName = "First underline is escaped")]
+        [TestCase("\\_ab_", "<div>_ab_</div>", TestName = "Open Italic Tag is escaped")]
+        public void Render_OnBoldAndItalicTag(string input, string output)
         {
-            var actual = md.Render(input);
-            actual.Should().Be(output);
+            md.Render(input).Should().Be(output);
         }
 
         [TestCase("# ABCD", "<div><h1>ABCD</h1></div>", TestName = "H1 tag")]
@@ -53,6 +54,8 @@ namespace Markdown
         }
 
         [TestCase("```\nabc\n```", "<div><pre>abc</pre></div>")]
+        [TestCase("\\```ab```", "<div>```ab```</div>", TestName = "Escaped begin of the openTag")]
+        [TestCase("```\n```\nab\n```\n```", "<div><pre>```\nab</pre>\n```</div>")]
         public void Render_OnRawTag(string input, string output)
         {
             md.Render(input).Should().Be(output);

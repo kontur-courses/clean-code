@@ -23,12 +23,12 @@ namespace Markdown.Parsers.MarkdownRules
             if (openPosition == -1)
                 return null;
 
-            var closePosition = openPosition + 3;
+            var closePosition = openPosition + OpenTag.Length - 1;
 
             do
             {
                 closePosition = source.IndexOf(CloseTag, closePosition + 1, StringComparison.Ordinal);
-            } while (closePosition != -1 && ignoredPositions.Contains(closePosition));
+            } while (closePosition != -1 && ignoredPositions.Contains(closePosition) && closePosition - openPosition <= OpenTag.Length);
 
             return closePosition == -1 ? null : new ParserNode(TypeTag, openPosition, closePosition + 4, this);
         }

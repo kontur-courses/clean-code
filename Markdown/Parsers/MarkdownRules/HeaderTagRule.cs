@@ -11,7 +11,11 @@ namespace Markdown.Parsers.MarkdownRules
         public TagType TypeTag { get; }
         public ParserNode FindFirstElement(string source, HashSet<int> ignoredPositions, int startPosition = 0)
         {
-            var openPosition = source.IndexOf(OpenTag, startPosition);
+            var openPosition = startPosition - 1;
+            do
+            {
+                openPosition = source.IndexOf(OpenTag, openPosition + 1, StringComparison.Ordinal);
+            } while (openPosition != -1 && openPosition != 0 && source[openPosition - 1] != '\n');
             if (openPosition == -1)
                 return null;
 
