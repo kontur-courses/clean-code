@@ -71,23 +71,24 @@ namespace Markdown.Tokens
                                                 List<TagElement> tagsCandidates, List<Token> tokens)
         {
             if (element.TagUsability == TagUsability.Start)
+            {
                 tagsCandidates.Add(element);
+                return;
+            }
+            
+            var token = TryCreateUsableToken(text, element, tagsCandidates);
+
+            if (token == null)
+            {
+                if (element.TagUsability == TagUsability.All)
+                    tagsCandidates.Add(element);
+                else
+                    tokens.Add(CreateTextToken(text, element.StartIndex, element.Length));
+            }
             else
             {
-                var token = TryCreateUsableToken(text, element, tagsCandidates);
-
-                if (token == null)
-                {
-                    if (element.TagUsability == TagUsability.All)
-                        tagsCandidates.Add(element);
-                    else
-                        tokens.Add(CreateTextToken(text, element.StartIndex, element.Length));
-                }
-                else
-                {
-                    DeleteOtherNestedTokens(tokens, token);
-                    tokens.Add(token);
-                }
+                DeleteOtherNestedTokens(tokens, token);
+                tokens.Add(token);
             }
         }
 
@@ -109,10 +110,10 @@ namespace Markdown.Tokens
                 return null;
 
             startTags.RemoveRange(candidateIndex, startTags.Count - candidateIndex);
-            return CreateUsableToken(text, startTag, endTag);
+            return CreateTokenFromTags(text, startTag, endTag);
         }
 
-        private Token CreateUsableToken(string text, TagElement startTag, TagElement endTag)
+        private static Token CreateTokenFromTags(string text, TagElement startTag, TagElement endTag)
         {
             var startSubstrIndex = startTag.EndIndex + 1;
             var substrLength = endTag.StartIndex - startTag.EndIndex - 1;
@@ -122,7 +123,7 @@ namespace Markdown.Tokens
             return new Token(tagText, endTag.Type, startTag.StartIndex, endTag.EndIndex);
         }
 
-        private Token CreateTextToken(string text, int tokenStart, int tokenLength)
+        private static Token CreateTextToken(string text, int tokenStart, int tokenLength)
         {
             var tokenText = text.Substring(tokenStart, tokenLength);
 
