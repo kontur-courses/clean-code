@@ -19,6 +19,12 @@ namespace Markdown.Core
         {
             foreach (var token in tokens)
             {
+                if (token.IsSkipped)
+                {
+                    yield return (token.Length, token);
+                    continue;
+                }
+
                 var currentRule = rules.FirstOrDefault(r => r.SourceTag == token.Tag);
                 if (currentRule == null)
                     continue;

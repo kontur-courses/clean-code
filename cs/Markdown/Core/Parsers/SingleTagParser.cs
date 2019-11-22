@@ -1,5 +1,7 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Linq;
+using System.Text;
 using Markdown.Core.Rules;
 using Markdown.Core.Tags;
 
@@ -17,13 +19,35 @@ namespace Markdown.Core.Parsers
                 .ToList();
         }
 
+        private bool IsSkippedTag(string line, int index) => index != 0 && line[index - 1] == '\\';
+        
+        private int GetCountSpaceAtBeginningLine(string line)
+        {
+            var count = 0;
+            foreach (var symbol in line)
+            {
+                if (char.IsWhiteSpace(symbol))
+                    count++;
+                else
+                    return count;
+            }
+
+            return count;
+        }
+
         public List<TagToken> ParseLine(string line)
         {
-            return line == null
-                ? new List<TagToken>()
-                : tags.Where(tag => line.StartsWith(tag.Opening))
-                    .Select(tag => new TagToken(0, tag, tag.Opening, true, false))
-                    .ToList();
+            var countSteps = Math.Min(5, GetCountSpaceAtBeginningLine(line) + tags.First().Opening.Length + 1);
+            var positionsTags = tags
+                .Select(tag => (tag, index: line.IndexOf(tag.Opening, StringComparison.Ordinal)))
+                .OrderBy(tuple => tuple.index)
+                .FirstOrDefault(tuple => tuple.index != -1 && tuple.index < countSteps);
+            if (positionsTags.tag == null)
+                return new List<TagToken>();
+            var isSkipped = IsSkippedTag(line, positionsTags.index);
+            var singleTagToken = new TagToken(positionsTags.index, positionsTags.tag, positionsTags.tag.Opening, true,
+                isSkipped);
+            return new List<TagToken> {singleTagToken};
         }
     }
 }

@@ -37,6 +37,7 @@ namespace Markdown.Tests
 
         [TestCase(@"\_a\_", ExpectedResult = "_a_", TestName = "EscapedTagAtStartLine")]
         [TestCase(@"a \__b\__ c", ExpectedResult = "a __b__ c", TestName = "EscapedTagAtMiddleLine")]
+        [TestCase(@"\# blabla", ExpectedResult = "# blabla", TestName = "EscapedHeader")]
         public string Render_DontReplaceEscapedTags(string rawText)
         {
             return Md.Render(rawText);
