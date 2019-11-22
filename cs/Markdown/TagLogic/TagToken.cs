@@ -10,13 +10,13 @@ namespace Markdown
 
     internal class TagToken
     {
-        public readonly MarkdownTag MarkdownTag;
+        public readonly MarkdownTagInfo MarkdownTagInfo;
         public readonly TagTokenType TokenType;
         public readonly int Index;
 
-        public TagToken(MarkdownTag markdownTag, int index, TagTokenType tokenType)
+        public TagToken(MarkdownTagInfo markdownTagInfo, int index, TagTokenType tokenType)
         {
-            MarkdownTag = markdownTag;
+            MarkdownTagInfo = markdownTagInfo;
             TokenType = tokenType;
             Index = index;
         }

@@ -10,11 +10,11 @@ namespace Markdown
         private static TagParser _tagParser;
 
         [SetUp]
-        public void SetUp() => _tagParser = new TagParser(new MarkdownTag[]
+        public void SetUp() => _tagParser = new TagParser(new MarkdownTagInfo[]
         {
-            new CodeTag(),
-            new EmphasisTag(),
-            new StrongTag(),
+            new CodeTagInfo(),
+            new EmphasisTagInfo(),
+            new StrongTagInfo(),
         });
         
         [TestCase("_a")]

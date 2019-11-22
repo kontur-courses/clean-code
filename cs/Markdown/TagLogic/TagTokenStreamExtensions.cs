@@ -3,7 +3,7 @@ using System.Linq;
 
 namespace Markdown
 {
-    internal static class TagStreamExtensions
+    internal static class TagTokenStreamExtensions
     {
         public static IEnumerable<TagToken> RemoveEscapedTags(this IEnumerable<TagToken> tags, string inputString)
         {
@@ -26,7 +26,7 @@ namespace Markdown
                 if (tag.TokenType == TagTokenType.Closing && stack.Count != 0)
                 {
                     var stackTopTag = stack.Peek();
-                    if (stackTopTag.MarkdownTag.Equals(tag.MarkdownTag))
+                    if (stackTopTag.MarkdownTagInfo.Equals(tag.MarkdownTagInfo))
                     {
                         result.Add(stack.Pop());
                         result.Add(tag);
@@ -43,13 +43,13 @@ namespace Markdown
             priorityStack.Push(int.MaxValue);
             foreach (var tag in sortedTags)
             {
-                if (tag.TokenType == TagTokenType.Opening && tag.MarkdownTag.Priority < priorityStack.Peek())
+                if (tag.TokenType == TagTokenType.Opening && tag.MarkdownTagInfo.Priority < priorityStack.Peek())
                 {
-                    priorityStack.Push(tag.MarkdownTag.Priority);
+                    priorityStack.Push(tag.MarkdownTagInfo.Priority);
                     yield return tag;
                 }
 
-                if (tag.TokenType == TagTokenType.Closing && tag.MarkdownTag.Priority == priorityStack.Peek())
+                if (tag.TokenType == TagTokenType.Closing && tag.MarkdownTagInfo.Priority == priorityStack.Peek())
                 {
                     priorityStack.Pop();
                     yield return tag;

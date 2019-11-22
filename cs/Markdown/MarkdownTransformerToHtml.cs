@@ -7,11 +7,11 @@ namespace Markdown
 {
     internal static class MarkdownTransformerToHtml
     {
-        private static readonly MarkdownTag[] MarkdownTags = new MarkdownTag[]
+        private static readonly MarkdownTagInfo[] MarkdownTags = new MarkdownTagInfo[]
         {
-            new CodeTag(),
-            new EmphasisTag(),
-            new StrongTag(),
+            new CodeTagInfo(),
+            new EmphasisTagInfo(),
+            new StrongTagInfo(),
         };
         
         internal static string Render(string inputString)

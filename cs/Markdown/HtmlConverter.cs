@@ -18,9 +18,9 @@ namespace Markdown
                 if (tagIndices.ContainsKey(i))
                 {
                     result.Append(tagIndices[i].TokenType == TagTokenType.Opening
-                        ? $"<{tagIndices[i].MarkdownTag.HtmlDesignation}>"
-                        : $"</{tagIndices[i].MarkdownTag.HtmlDesignation}>");
-                    i += tagIndices[i].MarkdownTag.TagDesignation.Length;
+                        ? $"<{tagIndices[i].MarkdownTagInfo.HtmlTagDesignation}>"
+                        : $"</{tagIndices[i].MarkdownTagInfo.HtmlTagDesignation}>");
+                    i += tagIndices[i].MarkdownTagInfo.MarkdownTagDesignation.Length;
                 }
                 else
                 {
