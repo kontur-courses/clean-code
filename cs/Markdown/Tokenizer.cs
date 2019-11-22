@@ -52,13 +52,12 @@ namespace Markdown
 					continue;
 				StopReadingKeySequence(contextState);
 				var currentChar = contextState.CurrentChar.ToString();
-				if (currentIndex < sourceText.Length - 1 &&
-				    _supportedKeySequences.TryGetValue(currentChar, out var tokenType) &&
-				    tokenType is IComplexTokenBlock tokenBlock && tokenBlock.ClosingSequence == currentChar)
-				{
-					contextState.LastToken.PlainText.Clear();
-					currentIndex--;
-				}
+				if (currentIndex >= sourceText.Length - 1 ||
+				    !_supportedKeySequences.TryGetValue(currentChar, out var tokenType) ||
+				    !(tokenType is IComplexTokenBlock tokenBlock) ||
+				    tokenBlock.ClosingSequence != currentChar) continue;
+				contextState.LastToken.PlainText.Clear();
+				currentIndex--;
 			}
 			return contextState.MainToken;
 		}

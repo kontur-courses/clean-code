@@ -40,7 +40,7 @@ namespace Markdown
 		}
 
 		[Test]
-		[Timeout(1000)]
+		[Timeout(11000)]
 		public void PerformanceTest()
 		{
 			var sb = new StringBuilder();
