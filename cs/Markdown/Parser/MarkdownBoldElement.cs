@@ -4,7 +4,7 @@ namespace Markdown.Parser
 {
     internal class MarkdownBoldElement : MarkdownElement
     {
-        internal MarkdownBoldElement(INode parent, string value) : base(parent, value)
+        internal MarkdownBoldElement(string value) : base(value)
         {
         }
 

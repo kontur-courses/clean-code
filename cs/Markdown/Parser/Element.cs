@@ -7,14 +7,12 @@ namespace Markdown.Parser
 {
     internal class Element : INode
     {
-        public NodeType NodeType { get; } = NodeType.Element;
-        public INode Parent { get; }
         public string Value { get; }
-        private ICollection<INode> ChildNodes { get; }
+        public NodeType Type { get; } = NodeType.Element;
+        public ICollection<INode> ChildNodes { get; }
 
-        internal Element(INode parent, string value)
+        internal Element(string value)
         {
-            Parent = parent;
             Value = value;
             ChildNodes = new List<INode>();
         }

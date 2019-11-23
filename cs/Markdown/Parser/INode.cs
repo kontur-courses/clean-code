@@ -1,11 +1,12 @@
-﻿using Markdown.Exporter;
+﻿using System.Collections.Generic;
+using Markdown.Exporter;
 
 namespace Markdown.Parser
 {
     internal interface INode : IExportable
     {
-        NodeType NodeType { get; }
-        INode Parent { get; }
         string Value { get; }
+        NodeType Type { get; }
+        ICollection<INode> ChildNodes { get; }
     }
 }

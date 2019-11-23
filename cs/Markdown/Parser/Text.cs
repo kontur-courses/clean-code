@@ -1,16 +1,16 @@
-﻿using Markdown.Exporter;
+﻿using System.Collections.Generic;
+using Markdown.Exporter;
 
 namespace Markdown.Parser
 {
     internal class Text : INode
     {
-        public NodeType NodeType { get; } = NodeType.Text;
-        public INode Parent { get; }
         public string Value { get; }
+        public NodeType Type { get; } = NodeType.Text;
+        public ICollection<INode> ChildNodes { get; } = null;
 
-        internal Text(INode parent, string value)
+        internal Text(string value)
         {
-            Parent = parent;
             Value = value;
         }
 

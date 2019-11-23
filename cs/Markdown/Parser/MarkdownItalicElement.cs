@@ -4,7 +4,7 @@ namespace Markdown.Parser
 {
     internal class MarkdownItalicElement : MarkdownElement
     {
-        internal MarkdownItalicElement(INode parent, string value) : base(parent, value)
+        internal MarkdownItalicElement(string value) : base(value)
         {
         }
 
