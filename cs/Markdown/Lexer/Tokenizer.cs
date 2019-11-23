@@ -103,15 +103,10 @@ namespace Markdown.Lexer
             return null;
         }
 
-        private static TokenType GetTagType(Lexeme lexeme, Stack<Token> tags)
+        private static TokenType GetTagType(Lexeme lexeme, IEnumerable<Token> tags)
         {
-            var type = TokenType.OpeningTag;
-            if (tags.Count <= 0)
-                return type;
-            var token = tags.Peek();
-            if (token.Lexeme == lexeme && token.Type == TokenType.OpeningTag)
-                type = TokenType.ClosingTag;
-            return type;
+            var openingTag = tags.FirstOrDefault(tag => tag.Lexeme == lexeme && tag.Type == TokenType.OpeningTag);
+            return openingTag == null ? TokenType.OpeningTag : TokenType.ClosingTag;
         }
 
         private static void UpdateTagStack(Stack<Token> tags, Token tag)
