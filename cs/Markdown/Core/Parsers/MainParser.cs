@@ -11,6 +11,7 @@ namespace Markdown.Core.Parsers
 
         public MainParser(IEnumerable<ITag> tags)
         {
+            tags = tags.ToList();
             singleTagParser = new SingleTagParser(tags);
             doubleTagParser = new DoubleTagParser(tags);
         }

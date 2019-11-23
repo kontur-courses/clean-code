@@ -16,6 +16,19 @@ namespace Markdown.Core.Parsers
                 .ToList();
         }
 
+        public List<TagToken> ParseLine(string line)
+        {
+            var countSteps = Math.Min(5, GetCountSpaceAtBeginningLine(line) + tags.First().Opening.Length + 1);
+            var positionsTags = tags
+                .Select(tag => (tag, index: line.IndexOf(tag.Opening, StringComparison.Ordinal)))
+                .OrderBy(tuple => tuple.index)
+                .FirstOrDefault(tuple => tuple.index != -1 && tuple.index < countSteps);
+            if (positionsTags.tag == null)
+                return new List<TagToken>();
+            var singleTagToken = new TagToken(positionsTags.index, positionsTags.tag, positionsTags.tag.Opening, true);
+            return new List<TagToken> {singleTagToken};
+        }
+
         private int GetCountSpaceAtBeginningLine(string line)
         {
             var count = 0;
@@ -28,19 +41,6 @@ namespace Markdown.Core.Parsers
             }
 
             return count;
-        }
-
-        public List<TagToken> ParseLine(string line)
-        {
-            var countSteps = Math.Min(5, GetCountSpaceAtBeginningLine(line) + tags.First().Opening.Length + 1);
-            var positionsTags = tags
-                .Select(tag => (tag, index: line.IndexOf(tag.Opening, StringComparison.Ordinal)))
-                .OrderBy(tuple => tuple.index)
-                .FirstOrDefault(tuple => tuple.index != -1 && tuple.index < countSteps);
-            if (positionsTags.tag == null)
-                return new List<TagToken>();
-            var singleTagToken = new TagToken(positionsTags.index, positionsTags.tag, positionsTags.tag.Opening, true);
-            return new List<TagToken> {singleTagToken};
         }
     }
 }

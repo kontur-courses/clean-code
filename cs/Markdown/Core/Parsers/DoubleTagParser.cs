@@ -15,10 +15,6 @@ namespace Markdown.Core.Parsers
                 .ToList();
         }
 
-        private bool IsSuitableTag(IDoubleTag tag, string line, int index) =>
-            DoubleTagValidator.TagStartsFromPosition(line, index, tag.Opening) ||
-            DoubleTagValidator.TagStartsFromPosition(line, index, tag.Closing);
-
         public List<TagToken> ParseLine(string line)
         {
             var result = new List<TagToken>();
@@ -64,5 +60,9 @@ namespace Markdown.Core.Parsers
 
             return result;
         }
+
+        private bool IsSuitableTag(IDoubleTag tag, string line, int index) =>
+            DoubleTagValidator.TagStartsFromPosition(line, index, tag.Opening) ||
+            DoubleTagValidator.TagStartsFromPosition(line, index, tag.Closing);
     }
 }

@@ -16,28 +16,44 @@ namespace Markdown.Core
             this.rules = rules;
         }
 
-        private bool IsSkippedTag(string line, int index) => index != 0 && line[index - 1] == BackSlash;
-
-        private IEnumerable<TagToken> TranslateSingleToDouble(string line, TagToken token, IDoubleTag tag)
+        public string RenderLine(string line, IEnumerable<TagToken> tokens)
         {
-            var openingTagToken = new TagToken(token.StartPosition, tag, tag.Opening, true);
-            var closingTagToken = new TagToken(line.Length, tag, tag.Closing, false);
-            yield return openingTagToken;
-            yield return closingTagToken;
-        }
+            var translatingTags = TranslateTags(line, tokens)
+                .OrderBy(pair => pair.Item2.StartPosition)
+                .ThenBy(pair => pair.Item2.Length);
+            var linkedTranslatingTags = new LinkedList<(TagToken source, TagToken result)>(translatingTags);
 
-        private TagToken TranslateToSingleTag(TagToken token, ISingleTag singleTag)
-        {
-            var openingSingleTagToken = new TagToken(token.StartPosition, singleTag, singleTag.Opening, true);
-            return openingSingleTagToken;
-        }
+            var currentIndex = 0;
+            var lastSymbolIsBackslash = false;
+            var renderedLine = new StringBuilder();
+            while (currentIndex < line.Length)
+            {
+                var currentSymbol = line[currentIndex];
+                if (currentSymbol == BackSlash)
+                {
+                    if (lastSymbolIsBackslash)
+                        renderedLine.Append(currentSymbol);
+                    currentIndex++;
+                    lastSymbolIsBackslash = !lastSymbolIsBackslash;
+                }
+                else if (!lastSymbolIsBackslash && FirstTokenStartsFromPosition(linkedTranslatingTags, currentIndex))
+                {
+                    var (source, result) = linkedTranslatingTags.First.Value;
+                    currentIndex += source.Length;
+                    renderedLine.Append(result.Value);
+                    linkedTranslatingTags.RemoveFirst();
+                }
+                else
+                {
+                    currentIndex++;
+                    renderedLine.Append(currentSymbol);
+                    lastSymbolIsBackslash = false;
+                }
+            }
 
-        private TagToken TranslateToDoubleTag(TagToken token, IDoubleTag doubleTag)
-        {
-            var valueToken = token.IsOpening ? doubleTag.Opening : doubleTag.Closing;
-            var openingDoubleTagToken = new TagToken(token.StartPosition, doubleTag, valueToken,
-                token.IsOpening);
-            return openingDoubleTagToken;
+            if (FirstTokenStartsFromPosition(linkedTranslatingTags, currentIndex))
+                renderedLine.Append(linkedTranslatingTags.First.Value.result.Value);
+            return renderedLine.ToString();
         }
 
         private IEnumerable<(TagToken source, TagToken result)> TranslateTags(string line, IEnumerable<TagToken> tokens)
@@ -69,46 +85,34 @@ namespace Markdown.Core
             }
         }
 
-        public string RenderLine(string line, IEnumerable<TagToken> tokens)
+        private bool FirstTokenStartsFromPosition(LinkedList<(TagToken source, TagToken result)> tokens, int position)
         {
-            var translatingTags = TranslateTags(line, tokens)
-                .OrderBy(pair => pair.Item2.StartPosition)
-                .ThenBy(pair => pair.Item2.Length);
-            var linkedTranslatingTags = new LinkedList<(TagToken source, TagToken result)>(translatingTags);
+            return tokens.Count != 0 && position == tokens.First.Value.result.StartPosition;
+        }
 
-            var currentIndex = 0;
-            var lastSymbolIsBackslash = false;
-            var renderedLine = new StringBuilder();
-            while (currentIndex < line.Length)
-            {
-                var currentSymbol = line[currentIndex];
-                if (currentSymbol == BackSlash)
-                {
-                    if (lastSymbolIsBackslash)
-                        renderedLine.Append(currentSymbol);
-                    currentIndex++;
-                    lastSymbolIsBackslash = !lastSymbolIsBackslash;
-                }
-                else if (!lastSymbolIsBackslash && linkedTranslatingTags.Count != 0 &&
-                         currentIndex == linkedTranslatingTags.First.Value.result.StartPosition)
-                {
-                    var currentTranslate = linkedTranslatingTags.First.Value;
-                    currentIndex += currentTranslate.source.Length;
-                    renderedLine.Append(currentTranslate.result.Value);
-                    linkedTranslatingTags.RemoveFirst();
-                }
-                else
-                {
-                    currentIndex++;
-                    renderedLine.Append(currentSymbol);
-                    lastSymbolIsBackslash = false;
-                }
-            }
+        private bool IsSkippedTag(string line, int index) => index != 0 && line[index - 1] == BackSlash;
 
-            var (source, result) = linkedTranslatingTags.FirstOrDefault();
-            if (source != null && result != null && result.StartPosition == currentIndex)
-                renderedLine.Append(result.Value);
-            return renderedLine.ToString();
+
+        private IEnumerable<TagToken> TranslateSingleToDouble(string line, TagToken token, IDoubleTag tag)
+        {
+            var openingTagToken = new TagToken(token.StartPosition, tag, tag.Opening, true);
+            var closingTagToken = new TagToken(line.Length, tag, tag.Closing, false);
+            yield return openingTagToken;
+            yield return closingTagToken;
+        }
+
+        private TagToken TranslateToSingleTag(TagToken token, ISingleTag singleTag)
+        {
+            var openingSingleTagToken = new TagToken(token.StartPosition, singleTag, singleTag.Opening, true);
+            return openingSingleTagToken;
+        }
+
+        private TagToken TranslateToDoubleTag(TagToken token, IDoubleTag doubleTag)
+        {
+            var valueToken = token.IsOpening ? doubleTag.Opening : doubleTag.Closing;
+            var openingDoubleTagToken = new TagToken(token.StartPosition, doubleTag, valueToken,
+                token.IsOpening);
+            return openingDoubleTagToken;
         }
     }
 }
