@@ -21,14 +21,12 @@ namespace Markdown.Core
         public static bool IsPossibleClosingTag(string line, int index, IDoubleTag tag)
         {
             return (IsLastIndexPossibleForTag(line, index, tag) || SymbolAfterTagIsSpace(line, index, tag)) &&
-                   (IsFirstSymbol(index) || SymbolBeforeCurrentIs(line, index, '\\') ||
-                    !SymbolBeforeCurrentIsSpace(line, index));
+                   (IsFirstSymbol(index) || !SymbolBeforeCurrentIsSpace(line, index));
         }
 
         public static bool IsPossibleOpeningTag(string line, int index, IDoubleTag tag)
         {
-            return (IsFirstSymbol(index) || SymbolBeforeCurrentIs(line, index, '\\') ||
-                    SymbolBeforeCurrentIsSpace(line, index)) &&
+            return (IsFirstSymbol(index) || SymbolBeforeCurrentIsSpace(line, index)) &&
                    (IsLastIndexPossibleForTag(line, index, tag) || !SymbolAfterTagIsSpace(line, index, tag));
         }
     }
