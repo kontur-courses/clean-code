@@ -51,9 +51,10 @@ namespace MarkdownProcessor
 
             var position = 0;
 
-            while (position < markdownText.Length)
+            while (position < markdownText.Length) // TODO: refactor
             {
-                if (position == allWraps[currentWrapIndex + 1].OpenMarkerIndex)
+                if (currentWrapIndex + 1 < allWraps.Length &&
+                    position == allWraps[currentWrapIndex + 1].OpenMarkerIndex)
                 {
                     currentWrapIndex++;
                     stringBuilder.Append(allWraps[currentWrapIndex].WrapType.HtmlRepresentationOfOpenMarker);
