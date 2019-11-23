@@ -12,8 +12,11 @@ namespace MarkdownProcessor
 
         public static HashSet<char> WhiteSpaceSymbols => new HashSet<char> { ' ', '\t', '\n' };
 
-        private static HashSet<char> ServiceSymbols =>
-            new HashSet<char> { EscapeCharacter, '_' }; // TODO: rewrite on reflection
+        public static HashSet<ITextWrapType> WrapTypes => new HashSet<ITextWrapType>
+        {
+            new SingleUnderscoreWrapType(),
+            new DoubleUnderscoresWrapType()
+        };
 
         public static string RenderHtml(string markdownText) // TODO: decomposition?
         {
@@ -89,8 +92,10 @@ namespace MarkdownProcessor
             var singleUnderscoreWraps = singleUnderscoreWrapFinder.GetPairsOfMarkers(text).ToArray();
 
             var doubleUnderscoresWrap = new DoubleUnderscoresWrapType();
-            var doubleUnderscoresWrapFinder = new UnderscoresWrapFinder(doubleUnderscoresWrap,
-                                                                        singleUnderscoreWraps);
+            var doubleUnderscoresWrapFinder = singleUnderscoreWraps.Length == 0
+                                                  ? new UnderscoresWrapFinder(doubleUnderscoresWrap)
+                                                  : new UnderscoresWrapFinder(doubleUnderscoresWrap,
+                                                                              singleUnderscoreWraps);
             var doubleUnderscoresWraps = doubleUnderscoresWrapFinder.GetPairsOfMarkers(text).ToArray();
 
             return new[] { singleUnderscoreWraps, doubleUnderscoresWraps };
