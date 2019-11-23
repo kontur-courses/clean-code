@@ -42,7 +42,6 @@ namespace Markdown.Tests
         [TestCase(@"\_a\_", ExpectedResult = "_a_", TestName = "EscapedTagAtStartLine")]
         [TestCase(@"a \__b\__ c", ExpectedResult = "a __b__ c", TestName = "EscapedTagAtMiddleLine")]
         [TestCase(@"\# blabla", ExpectedResult = "# blabla", TestName = "EscapedHeader")]
-
         [TestCase(@"\\", ExpectedResult = @"\", TestName = "WhenEscapeBackslash")]
         public string Render_DontReplaceEscapedTags(string rawText)
         {
@@ -77,7 +76,6 @@ namespace Markdown.Tests
 
             averageTimeOneThousandRawText.Should().BeLessOrEqualTo(1000 * averageTimeRawText);
             averageTimeTwoThousandRawText.Should().BeLessOrEqualTo(2 * averageTimeOneThousandRawText);
-
         }
 
         private string Concate(string source, string other, int count)
