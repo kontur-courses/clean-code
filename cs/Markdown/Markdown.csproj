@@ -67,6 +67,7 @@
     <Compile Include="Parser\MarkdownBoldElement.cs" />
     <Compile Include="Parser\MarkdownElement.cs" />
     <Compile Include="Parser\MarkdownItalicElement.cs" />
+    <Compile Include="Parser\MarkdownParser_Should.cs" />
     <Compile Include="Parser\NodeType.cs" />
     <Compile Include="Parser\MarkdownParser.cs" />
     <Compile Include="Parser\Text.cs" />
