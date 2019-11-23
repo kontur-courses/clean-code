@@ -55,6 +55,7 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Extensions\StringExtensions.cs" />
+    <Compile Include="Extensions\TagTokenStreamExtensions.cs" />
     <Compile Include="MarkdownTags\CodeTagInfo.cs" />
     <Compile Include="MarkdownTags\EmphasisTagInfo.cs" />
     <Compile Include="MarkdownTags\MarkdownTagInfo.cs" />
@@ -64,10 +65,9 @@
     <Compile Include="Tests\MarkdownTests.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
-    <Compile Include="TagLogic\TagToken.cs" />
-    <Compile Include="TagLogic\TagTokenStreamExtensions.cs" />
+    <Compile Include="TagParseLogic\TagToken.cs" />
     <Compile Include="Tests\TagTokenStreamExtensionsTests.cs" />
-    <Compile Include="TagLogic\TagParser.cs" />
+    <Compile Include="TagParseLogic\TagParser.cs" />
     <Compile Include="Tests\TagParserTests.cs" />
   </ItemGroup>
   <ItemGroup>

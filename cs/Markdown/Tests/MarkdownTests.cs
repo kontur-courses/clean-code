@@ -27,7 +27,7 @@ namespace Markdown
         [TestCase(@"\__Hello World!\__", ExpectedResult = "__Hello World!__")]
         [TestCase(@"__Hello World!\__", ExpectedResult = "__Hello World!__")]
         [TestCase(@"\__Hello World!__", ExpectedResult = "__Hello World!__")]
-        public string EscapedTags(string inputString)
+        public string EscapedTagsNotRecognized(string inputString)
         {
             return MarkdownTransformerToHtml.Render(inputString);
         }
@@ -36,7 +36,7 @@ namespace Markdown
         [TestCase(@"\\", ExpectedResult = "")]
         [TestCase(@"help\", ExpectedResult = "help")]
         [TestCase(@"\help", ExpectedResult = "help")]
-        public string OnlyEscapedSymbols(string inputString)
+        public string AllEscapeSymbolsRemovedFromString(string inputString)
         {
             return MarkdownTransformerToHtml.Render(inputString);
         }
@@ -45,7 +45,7 @@ namespace Markdown
         [TestCase("123__456__789", ExpectedResult = "123__456__789")]
         [TestCase("numbers_12_3", ExpectedResult = "numbers_12_3")]
         [TestCase("numbers__12_3", ExpectedResult = "numbers__12_3")]
-        public string TagsBetweenNumbers(string inputString)
+        public string TagsBetweenNumbersNotRecognized(string inputString)
         {
             return MarkdownTransformerToHtml.Render(inputString);
         }
@@ -56,34 +56,39 @@ namespace Markdown
         [TestCase("__Hello World!", ExpectedResult = "__Hello World!")]
         [TestCase("Hello World!__", ExpectedResult = "Hello World!__")]
         [TestCase("_aa _aa__ aa__", ExpectedResult = "_aa _aa__ aa__")]
-        public string UnopenedTags(string inputString)
+        [TestCase(@"_aaa _a _a aaa_", ExpectedResult = @"_aaa _a <em>a aaa</em>")]
+        [TestCase("__aaa a_ a_ aaa__", ExpectedResult = "<strong>aaa a_ a_ aaa</strong>")]
+        public string UnpairedTagsNotRecognized(string inputString)
         {
             return MarkdownTransformerToHtml.Render(inputString);
         }
 
-        [TestCase("__Hello _Hello World!_ World!__", ExpectedResult = "<strong>Hello <em>Hello World!</em> World!</strong>", TestName = "EmphasisInsideStrong")]
-        [TestCase("_Hello __Hello World!__ World!_", ExpectedResult = "<em>Hello __Hello World!__ World!</em>", TestName = "StrongInsideEmphasis")]
+        [TestCase("__Hello _Hello World!_ World!__", ExpectedResult = "<strong>Hello <em>Hello World!</em> World!</strong>", TestName = "EmphasisInsideStrongRecognized")]
+        [TestCase("_Hello __Hello World!__ World!_", ExpectedResult = "<em>Hello __Hello World!__ World!</em>", TestName = "StrongInsideEmphasisNotRecognized")]
+        [TestCase("__aa _aa_ __aa__ aa__", ExpectedResult = "<strong>aa <em>aa</em> __aa</strong> aa__")]
+        [TestCase("__a _a _a_ a__", ExpectedResult = "<strong>a _a <em>a</em> a</strong>")]
+        [TestCase("__a _a _a_ a_ a__", ExpectedResult = "<strong>a <em>a _a</em> a_ a</strong>")]
+        [TestCase("_a __aa _a_ aa__ a_", ExpectedResult = "<em>a __aa _a</em> aa__ a_")]
+        [TestCase(@"\_a __aa _a_ aa__ a\_", ExpectedResult =  "_a <strong>aa <em>a</em> aa</strong> a_")]
         public string NestingTags(string inputString)
         {
             return MarkdownTransformerToHtml.Render(inputString);
         }
 
         [TestCase("_a_ __a__ _a_", ExpectedResult = "<em>a</em> <strong>a</strong> <em>a</em>", TestName = "TwoEmphasisOneStrongTags")]
-        public string MultipleTagsInOneString(string inputString)
+        [TestCase("__a__ __a__ _a_ _a_", ExpectedResult = "<strong>a</strong> <strong>a</strong> <em>a</em> <em>a</em>", TestName = "TwoStrongTwoEmphasisTags")]
+        public string MultipleTagsInOneStringRecognized(string inputString)
         {
             return MarkdownTransformerToHtml.Render(inputString);
         }
 
-        [TestCase("___Hello World!___", ExpectedResult = "___Hello World!___", TestName = "TwoDifferentTagsNear")]
-        [TestCase("_____Hello World!_____", ExpectedResult = "_____Hello World!_____", TestName = "ManyTagsNear")]
-        [TestCase("__aaa a_ a_ aaa__", ExpectedResult = "<strong>aaa a_ a_ aaa</strong>", TestName = "UnopenedTagsInsideOtherTags")]
+        [TestCase(@"__\___", ExpectedResult = @"_____")]
         [TestCase("", ExpectedResult = "", TestName = "EmptyString")]
         [TestCase("_", ExpectedResult = "_", TestName = "SingleEmphasisTag")]
         [TestCase("__", ExpectedResult = "__", TestName = "SingleStrongTag")]
         [TestCase("_111_",ExpectedResult = "<em>111</em>", TestName = "NumbersInsideTag")]
-        [TestCase(@"__\___", ExpectedResult = @"_____")]
-        [TestCase(@"__aaa _a _a aaa__", ExpectedResult = @"__aaa _a _a aaa__", TestName = "OpeningTagsNotEscaped")]
-        [TestCase(@"__aaa \_a \_a aaa__", ExpectedResult = @"<strong>aaa _a _a aaa</strong>", TestName = "OpeningTagsEscaped")]
+        [TestCase("___Hello World!___", ExpectedResult = "___Hello World!___", TestName = "TwoDifferentTagsNear")]
+        [TestCase("_____Hello World!_____", ExpectedResult = "_____Hello World!_____", TestName = "ManyTagsNear")]
         public string ExtremeCases(string input)
         {
             return MarkdownTransformerToHtml.Render(input);

@@ -1,13 +1,10 @@
-﻿using System.Collections.Generic;
-using System.Linq;
-using System.Net.Http.Headers;
-using Markdown.MarkdownTags;
+﻿using Markdown.MarkdownTags;
 
 namespace Markdown
 {
     internal static class MarkdownTransformerToHtml
     {
-        private static readonly MarkdownTagInfo[] MarkdownTags = new MarkdownTagInfo[]
+        private static readonly MarkdownTagInfo[] MarkdownTagsInfo = new MarkdownTagInfo[]
         {
             new CodeTagInfo(),
             new EmphasisTagInfo(),
@@ -16,14 +13,13 @@ namespace Markdown
         
         internal static string Render(string inputString)
         {
-            var tagParser = new TagParser(MarkdownTags);
+            var tagParser = new TagParser(MarkdownTagsInfo);
 
             var correctTags = tagParser.Parse(inputString)
                 .RemoveEscapedTags(inputString)
-                .RemoveUnopenedTags()
-                .RemoveIncorrectNestingTags()
-                .ToList();
-            
+                .RemoveUnpairedTags()
+                .RemoveIncorrectNestingTags();
+
             var outputString = HtmlConverter
                 .ConvertToHtml(inputString, correctTags)
                 .RemoveEscapeSymbols();
