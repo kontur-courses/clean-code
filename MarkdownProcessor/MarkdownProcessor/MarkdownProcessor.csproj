@@ -42,11 +42,12 @@
     <Compile Include="Markdown.cs" />
     <Compile Include="TextWraps\DoubleUnderscoresWrap.cs" />
     <Compile Include="TextWraps\ITextWrap.cs" />
-    <Compile Include="TextWraps\UnderscoreWrap.cs" />
-    <Compile Include="UnderscoresWrapFinder.cs" />
+    <Compile Include="TextWraps\SingleUnderscoreWrap.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
-    <Compile Include="PairMarkersFinder.cs" />
+    <Compile Include="WrapFinders\UnderscoresWrapFinder.cs" />
+    <Compile Include="WrapFinders\WrapBorder.cs" />
+    <Compile Include="WrapFinders\WrapFinder.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 

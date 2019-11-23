@@ -4,5 +4,8 @@
     {
         string OpenWrapMarker { get; }
         string CloseWrapMarker { get; }
+
+        string HtmlRepresentationOfOpenMarker { get; }
+        string HtmlRepresentationOfCloseMarker { get; }
     }
 }

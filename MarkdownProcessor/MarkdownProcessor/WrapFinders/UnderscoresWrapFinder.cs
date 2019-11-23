@@ -1,10 +1,11 @@
 ﻿using MarkdownProcessor.TextWraps;
 
-namespace MarkdownProcessor
+namespace MarkdownProcessor.WrapFinders
 {
-    public class UnderscoresWrapFinder : PairMarkersFinder
+    public class UnderscoresWrapFinder : WrapFinder
     {
         public UnderscoresWrapFinder(ITextWrap textWrap) : base(textWrap) { }
+        public UnderscoresWrapFinder(ITextWrap textWrap, WrapBorder[] wrapBorders) : base(textWrap, wrapBorders) { }
 
         protected override bool IsValidOpenMarker(int markerIndex, string text) =>
             !IsEscapedCharacter && EqualsToOpenMarker(markerIndex, text) &&
