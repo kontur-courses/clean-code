@@ -6,7 +6,10 @@ namespace Markdown.MdTags
     internal class HorizontalTag: Tag
     {
         public override string OpenedMdTag { get; protected set; } = "***";
-        public override string OpenedHtmlTag { get; protected set; } = "<hr>";
+        protected override string OpenedHtmlTag { get;  set; } = "<hr>";
+
+        public HorizontalTag((int lenght, string content) contentInfo) : base(contentInfo)
+        { }
 
         public override bool CanOpen(Stack<Tag> stack, string content) 
             => stack.Count == 0 && content == string.Empty;

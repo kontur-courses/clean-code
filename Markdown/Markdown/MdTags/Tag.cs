@@ -6,7 +6,7 @@ namespace Markdown.MdTags
 {
     public abstract class Tag
     {
-        protected static readonly List<string> AllTags = new List<string>()
+        public static readonly List<string> AllTags = new List<string>()
         {
             "_",
             "__",
@@ -20,19 +20,31 @@ namespace Markdown.MdTags
             "######",
             "*",
             "_",
+            "**",
             "***",
             "___",
-            ">"
+            ">",
+            "\n"
         };
-        public virtual string ClosedMdTag { get;  protected set; }
-        public virtual string OpenedMdTag { get; protected set; }
-        public virtual string ClosedHtmlTag { get; protected set; }
-        public virtual string OpenedHtmlTag { get; protected set; }
+
+        public virtual string ClosedMdTag { get; protected set; } = string.Empty;
+        public virtual string OpenedMdTag { get; protected set; } = string.Empty;
+        protected virtual string ClosedHtmlTag { get; set; }
+        protected virtual string OpenedHtmlTag { get; set; }
         public virtual string Content { get; protected set; }
+
+        public int ContentLength { get; protected set; }
 
         public readonly List<Tag> NestedTags = new List<Tag>();
 
-        public virtual string WrapTagIntoHtml()
+        protected Tag((int lenght, string content) contentInfo)
+        {
+            var (lenght, content) = contentInfo;
+            Content = content;
+            ContentLength = lenght;
+        }
+
+        public string WrapTagIntoHtml()
         {
             var finalString = new StringBuilder();
             finalString.Append(OpenedHtmlTag + Content);
@@ -43,39 +55,18 @@ namespace Markdown.MdTags
 
         public virtual void AutoClose(List<Tag> tags)
         {
-            if (tags.Count == 0) tags.Add(new SimpleTag(OpenedMdTag));
-            else tags.Last().NestedTags.Add(new SimpleTag(OpenedMdTag));
+            var newTag = new SimpleTag((OpenedMdTag.Length + ContentLength, OpenedMdTag + Content));
+            if (tags.Count == 0)
+                tags.Add(newTag);
+            else
+                tags.Last().NestedTags.Add(newTag);
             tags.Last().NestedTags.AddRange(NestedTags);
         }
 
         public virtual bool CanOpen(Stack<Tag> stack, string content) => false;
 
         public virtual bool CanClose(string tag)
-            => ClosedMdTag == tag && !NestedTags.Last().Content.EndsWith(" ");
-
-        protected virtual void SlashHandler(ref int i, ref int length, StringBuilder content, char symbolToAdd)
-        {
-            content.Append(symbolToAdd);
-            i++;
-            length++;
-        }
-
-        public virtual (int lenght, string content) GetContent(int index, string text)
-        {
-            var length = 0;
-            var content = new StringBuilder();
-            for (var i = index; i < text.Length; i++)
-            {
-                if (AllTags.Contains(text[i].ToString())) break;
-                if (text[i] == '\\' && i != text.Length - 1)
-                {
-                    SlashHandler(ref i, ref length, content, text[i + 1]);
-                    continue;
-                }
-                content.Append(text[i]);
-            }
-
-            return (length + content.Length, content.ToString());
-        }
+            => ClosedMdTag == tag && ((NestedTags.Count != 0 && !NestedTags.Last().Content.EndsWith(" ") 
+                                       || NestedTags.Count == 0 && !Content.EndsWith(" ")));
     }
 }

@@ -55,6 +55,7 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Builder\TagBuilder.cs" />
     <Compile Include="MdTags\BlockquoteTag.cs" />
     <Compile Include="MdTags\CodeTag.cs" />
     <Compile Include="MdTags\EmTag.cs" />

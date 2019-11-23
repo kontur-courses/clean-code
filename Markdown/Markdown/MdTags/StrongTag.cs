@@ -7,8 +7,11 @@ namespace Markdown.MdTags
         private readonly List<string> allowable = new List<string> { "__", "~", ">" };
         public override string OpenedMdTag { get; protected set; } = "__";
         public override string ClosedMdTag { get; protected set; } = "__";
-        public override string OpenedHtmlTag { get; protected set; } = "<strong>";
-        public override string ClosedHtmlTag { get; protected set; } = "</strong>";
+        protected override string OpenedHtmlTag { get; set; } = "<strong>";
+        protected override string ClosedHtmlTag { get; set; } = "</strong>";
+
+        public StrongTag((int lenght, string content) contentInfo) : base(contentInfo)
+        { }
 
         public override bool CanOpen(Stack<Tag> stack, string content)
             => !content.StartsWith(" ") && (stack.Count == 0 || allowable.Contains(stack.Peek().OpenedMdTag))
