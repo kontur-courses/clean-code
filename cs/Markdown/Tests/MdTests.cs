@@ -75,7 +75,7 @@ namespace Markdown.Tests
             var averageTimeTwoThousandRawText = GetAverageWorkTime(twoThousandRawText, 100);
 
             averageTimeOneThousandRawText.Should().BeLessOrEqualTo(1000 * averageTimeRawText);
-            averageTimeTwoThousandRawText.Should().BeLessOrEqualTo(2 * averageTimeOneThousandRawText);
+            averageTimeTwoThousandRawText.Should().BeLessOrEqualTo(2.5 * averageTimeOneThousandRawText);
         }
 
         private string Concate(string source, string other, int count)
