@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
 
 namespace Markdown.BasicTextTokenizer
 {
@@ -7,6 +6,7 @@ namespace Markdown.BasicTextTokenizer
     {
         public string Text { get; }
         public int Position { get; private set; }
+        public bool HasData => Position < Text.Length;
 
         public TokenReader(string text)
         {
@@ -20,10 +20,10 @@ namespace Markdown.BasicTextTokenizer
             for (; Position < Text.Length; Position++)
             {
                 if (isStopPosition(Text, Position))
-                    return new Token(startPosition, length);
+                    return Token.CreateTextToken(startPosition, length);
                 length++;
             }
-            return new Token(startPosition, length);
+            return Token.CreateTextToken(startPosition, length);
         }
 
         public Token ReadWhile(Func<char, bool> isAccepted)
@@ -33,10 +33,10 @@ namespace Markdown.BasicTextTokenizer
             for (; Position < Text.Length; Position++)
             {
                 if (!isAccepted(Text[Position]))
-                    return new Token(startPosition, length);
+                    return Token.CreateTextToken(startPosition, length);
                 length++;
             }
-            return new Token(startPosition, length);
+            return Token.CreateTextToken(startPosition, length);
         }
 
         public Token ReadCount(int count)
@@ -50,37 +50,12 @@ namespace Markdown.BasicTextTokenizer
                 if (i >= Text.Length)
                     break;
             }
-            return new Token(startPosition, length);
+            return Token.CreateTextToken(startPosition, length);
         }
 
-        public List<Token> ReadUntilWithEscapeProcessing(
-            Func<string, int, bool> isStopPosition, Func<string, int, bool> isEscapePosition)
+        public void SkipCount(int count)
         {
-            bool IsStopPositionWithEscape(string text, int position) => isEscapePosition(text, position)
-                                                                        || isStopPosition(text, position);
-            var tokens = new List<Token>();
-            var firstTime = true;
-            do
-            {
-                Token escapedToken = null;
-                if (!firstTime)
-                {
-                    Position++;
-                    escapedToken = ReadCount(1);
-                }
-                var token = ReadUntil(IsStopPositionWithEscape);
-                if (escapedToken != null)
-                    token = escapedToken.Add(token);
-                if (token.Length != 0)
-                    tokens.Add(token);
-                firstTime = false;
-            } while (isEscapePosition(Text, Position));
-            return tokens;
-        }
-
-        public bool HasData()
-        {
-            return Position < Text.Length;
+            Position += count;
         }
     }
 }

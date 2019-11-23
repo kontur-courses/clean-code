@@ -16,7 +16,9 @@ namespace Markdown
         public string Render(string rawText)
         {
             var tokens = tokenizer.GetTokens(rawText).ToList();
-            var renderedText = tokens.Select(t => converter.ConvertToken(t, rawText)).ToList();
+            var renderedText = tokens
+                .Select(t => converter.ConvertToken(t, rawText))
+                .ToList();
             return string.Join("", renderedText);
         }
     }

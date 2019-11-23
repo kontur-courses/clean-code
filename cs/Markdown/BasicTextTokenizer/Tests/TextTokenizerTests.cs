@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System.Collections;
+using System.Collections.Generic;
 using System.Linq;
 using FluentAssertions;
 using NUnit.Framework;
@@ -8,18 +9,18 @@ namespace Markdown.BasicTextTokenizer.Tests
     public class TextTokenizerTests
     {
         private TextTokenizer tokenizer;
-        private readonly ItalicTagClassifier italicTag = new ItalicTagClassifier();
-        private readonly BoldTagClassifier boldTag = new BoldTagClassifier();
+        public static readonly ItalicTagClassifier ItalicTag = new ItalicTagClassifier();
+        public static readonly BoldTagClassifier BoldTag = new BoldTagClassifier();
 
         [SetUp]
         public void SetUp()
         {
             const char escapeSymbol = '\\';
-            var escapableSymbols = new[] { '_', '\\' };
-            bool IsEscapeSequence(string s, int i) => i + 1 < s.Length 
-                                                      && s[i] == escapeSymbol 
-                                                      && escapableSymbols.Contains(s[i + 1]);
-            tokenizer = new TextTokenizer(new ITagClassifier[] { italicTag, boldTag },
+            var escapableSymbols = new[] { '_', escapeSymbol };
+            bool IsEscapeSequence(string text, int position) => position + 1 < text.Length
+                                                      && text[position] == escapeSymbol
+                                                      && escapableSymbols.Contains(text[position + 1]);
+            tokenizer = new TextTokenizer(new ITagClassifier[] { ItalicTag, BoldTag },
                 IsEscapeSequence);
         }
 
@@ -27,208 +28,301 @@ namespace Markdown.BasicTextTokenizer.Tests
         public void GetTokens_ShouldReturnOneTextToken_OnInputWithoutSymbols()
         {
             var text = "abcd ef g";
-            var expectedResult = new Token(0, text.Length);
+            var expectedResult = Token.CreateTextToken(0, text.Length);
             var result = tokenizer.GetTokens(text);
             result.Should().HaveCount(1).And.AllBeEquivalentTo(expectedResult);
         }
 
-        [TestCase("_", TestName = "One underscore")]
-        [TestCase("__", TestName = "Double underscore")]
-        public void GetTokens_ShouldReturnThreeTokens_OnFullyUnderscoredInput(string underscore)
+        [TestCaseSource(typeof(SingleUnderscoreCases))]
+        [TestCaseSource(typeof(NestingCases))]
+        [TestCaseSource(typeof(EscapedCases))]
+        public void GetTokens_ShouldReturnCorrectTokens(string text, List<Token> expectedTokens)
         {
-            var text = $"{underscore}abcd{underscore}";
-            var classifier = underscore.Length == 1 ? (ITagClassifier) italicTag : boldTag;
-            var openingToken = new Token(0, underscore.Length, TokenType.Opening, classifier);
-            var closingToken = new Token(text.Length - underscore.Length, underscore.Length, TokenType.Ending, 
-                classifier, openingToken);
+            var result = tokenizer.GetTokens(text);
+
+            result.Should().BeEquivalentTo(expectedTokens, options => options.IgnoringCyclicReferences());
+        }
+    }
+
+    internal class SingleUnderscoreCases : IEnumerable
+    {
+        public IEnumerator GetEnumerator()
+        {
+            yield return GetFullyUnderscoredItalicToken();
+            yield return GetFullyUnderscoredBoldToken();
+            yield return GetInsideUnderscoredItalicToken();
+            yield return GetInsideUnderscoredBoldToken();
+        }
+
+        private static object[] GetFullyUnderscoredItalicToken()
+        {
+            var text = "_abcd_";
+
+            var openingToken = Token.CreateControllingToken(0, 1,
+                TokenType.Opening, TextTokenizerTests.ItalicTag, null);
+            var closingToken = Token.CreateControllingToken(text.Length - 1, 1,
+                TokenType.Ending, TextTokenizerTests.ItalicTag, openingToken);
             openingToken.PairedToken = closingToken;
-            var expectedResult = new List<Token>
+            var expectedTokens = new List<Token>
             {
                 openingToken,
-                new Token(underscore.Length, 4),
+                Token.CreateTextToken(1, 4),
                 closingToken
             };
 
-            var result = tokenizer.GetTokens(text).ToList();
-
-            result.Should().BeEquivalentTo(expectedResult, options => options.IgnoringCyclicReferences());
-            result[0].PairedToken.Should().BeEquivalentTo(result[2]);
-            result[2].PairedToken.Should().BeEquivalentTo(result[0]);
+            return new object[] { text, expectedTokens };
         }
 
-        [TestCase("_", TestName = "One underscore")]
-        [TestCase("__", TestName = "Double underscore")]
-        public void GetTokens_ShouldReturnFiveTokens_OnInputWithInsideUnderscore(string underscore)
+        private static object[] GetFullyUnderscoredBoldToken()
         {
-            var text = $"ef {underscore}abcd{underscore} jk";
-            var classifier = underscore.Length == 1 ? (ITagClassifier)italicTag : boldTag;
-            var openingToken = new Token(3, underscore.Length, TokenType.Opening, classifier);
-            var closingToken = new Token(text.Length - underscore.Length - 3, underscore.Length, TokenType.Ending,
-                classifier, openingToken);
+            var text = "__abcd__";
+
+            var openingToken = Token.CreateControllingToken(0, 2,
+                TokenType.Opening, TextTokenizerTests.BoldTag, null);
+            var closingToken = Token.CreateControllingToken(text.Length - 2, 2,
+                TokenType.Ending, TextTokenizerTests.BoldTag, openingToken);
             openingToken.PairedToken = closingToken;
-            var expectedResult = new List<Token>
+            var expectedTokens = new List<Token>
             {
-                new Token(0, 3),
                 openingToken,
-                new Token(underscore.Length + 3, 4),
-                closingToken,
-                new Token(text.Length - 3, 3)
+                Token.CreateTextToken(2, 4),
+                closingToken
             };
 
-            var result = tokenizer.GetTokens(text).ToList();
-
-            result.Should().BeEquivalentTo(expectedResult, options => options.IgnoringCyclicReferences());
+            return new object[] { text, expectedTokens };
         }
 
-        [Test]
-        public void GetTokens_ShouldReturnCorrectTokens_OnOneNestingUnderscore()
+        private static object[] GetInsideUnderscoredItalicToken()
+        {
+            var text = $"ef _abcd_ jk";
+
+            var openingToken = Token.CreateControllingToken(3, 1,
+                TokenType.Opening, TextTokenizerTests.ItalicTag, null);
+            var closingToken = Token.CreateControllingToken("ef _abcd".Length, 1,
+                TokenType.Ending, TextTokenizerTests.ItalicTag, openingToken);
+            openingToken.PairedToken = closingToken;
+
+            var expectedTokens = new List<Token>
+            {
+                Token.CreateTextToken(0, 3),
+                openingToken,
+                Token.CreateTextToken(4, 4),
+                closingToken,
+                Token.CreateTextToken(text.Length - 3, 3)
+            };
+
+            return new object[] { text, expectedTokens };
+        }
+
+        private static object[] GetInsideUnderscoredBoldToken()
+        {
+            var text = $"ef __abcd__ jk";
+
+            var openingToken = Token.CreateControllingToken(3, 2,
+                TokenType.Opening, TextTokenizerTests.BoldTag, null);
+            var closingToken = Token.CreateControllingToken("ef __abcd".Length, 2,
+                TokenType.Ending, TextTokenizerTests.BoldTag, openingToken);
+            openingToken.PairedToken = closingToken;
+
+            var expectedTokens = new List<Token>
+            {
+                Token.CreateTextToken(0, 3),
+                openingToken,
+                Token.CreateTextToken(5, 4),
+                closingToken,
+                Token.CreateTextToken(text.Length - 3, 3)
+            };
+
+            return new object[] { text, expectedTokens };
+        }
+    }
+
+    internal class NestingCases : IEnumerable
+    {
+        public IEnumerator GetEnumerator()
+        {
+            yield return GetOneNestingUnderscore();
+            yield return GetFewNestingUnderscores();
+            yield return GetOpeningItalicRightAfterOpeningBold();
+            yield return GetClosingBoldRightAfterClosingItalic();
+        }
+
+        private static object[] GetOneNestingUnderscore()
         {
             var text = "a __bc _de_ fg__ p";
-            var boldOpening = new Token(2, 2, TokenType.Opening, boldTag);
-            var boldClosing = new Token("a __bc _de_ fg".Length, 2, TokenType.Ending, boldTag, boldOpening);
+
+            var boldOpening = Token.CreateControllingToken(2, 2, 
+                TokenType.Opening, TextTokenizerTests.BoldTag, null);
+            var boldClosing = Token.CreateControllingToken("a __bc _de_ fg".Length, 2, 
+                TokenType.Ending, TextTokenizerTests.BoldTag, boldOpening);
             boldOpening.PairedToken = boldClosing;
-            var italicOpening = new Token("a __bc ".Length, 1, TokenType.Opening, italicTag);
-            var italicClosing = new Token("a __bc _de".Length, 1, TokenType.Ending, italicTag, italicOpening);
+
+            var italicOpening = Token.CreateControllingToken("a __bc ".Length, 1, 
+                TokenType.Opening, TextTokenizerTests.ItalicTag, null);
+            var italicClosing = Token.CreateControllingToken("a __bc _de".Length, 1, 
+                TokenType.Ending, TextTokenizerTests.ItalicTag, italicOpening);
             italicOpening.PairedToken = italicClosing;
-            var expectedResult = new List<Token>
-            {
-                new Token(0, 2),
-                boldOpening,
-                new Token("a __".Length, 3),
-                italicOpening,
-                new Token("a __bc _".Length, 2),
-                italicClosing,
-                new Token("a __bc _de_".Length, 3),
-                boldClosing,
-                new Token("a __bc _de_ fg__".Length, 2)
-            };
 
-            var result = tokenizer.GetTokens(text).ToList();
+            var expectedTokens = new List<Token>
+                {
+                    Token.CreateTextToken(0, 2),
+                    boldOpening,
+                    Token.CreateTextToken("a __".Length, 3),
+                    italicOpening,
+                    Token.CreateTextToken("a __bc _".Length, 2),
+                    italicClosing,
+                    Token.CreateTextToken("a __bc _de_".Length, 3),
+                    boldClosing,
+                    Token.CreateTextToken("a __bc _de_ fg__".Length, 2)
+                };
 
-            result.Should().BeEquivalentTo(expectedResult, options => options.IgnoringCyclicReferences());
+            return new object[] { text, expectedTokens };
         }
 
-        [Test]
-        public void GetTokens_ShouldReturnCorrectTokens_OnFewNestingUnderscore()
+        private static object[] GetFewNestingUnderscores()
         {
             var text = "__abcd _ef_ ghi _jk_ m__";
-            var boldOpening = new Token(0, 2, TokenType.Opening, boldTag);
-            var boldClosing = new Token(text.Length - 2, 2, TokenType.Ending, boldTag, boldOpening);
+
+            var boldOpening = Token.CreateControllingToken(0, 2, 
+                TokenType.Opening, TextTokenizerTests.BoldTag, null);
+            var boldClosing = Token.CreateControllingToken(text.Length - 2, 2, 
+                TokenType.Ending, TextTokenizerTests.BoldTag, boldOpening);
             boldOpening.PairedToken = boldClosing;
-            var firstItalicOpening = new Token("__abcd ".Length, 1, TokenType.Opening, italicTag);
-            var firstItalicClosing = new Token("__abcd _ef".Length, 1, TokenType.Ending, italicTag, firstItalicOpening);
+
+            var firstItalicOpening = Token.CreateControllingToken("__abcd ".Length, 1, 
+                TokenType.Opening, TextTokenizerTests.ItalicTag, null);
+            var firstItalicClosing = Token.CreateControllingToken("__abcd _ef".Length, 1, 
+                TokenType.Ending, TextTokenizerTests.ItalicTag, firstItalicOpening);
             firstItalicOpening.PairedToken = firstItalicClosing;
-            var secondItalicOpening = new Token("__abcd _ef_ ghi ".Length, 1, TokenType.Opening, italicTag);
-            var secondItalicClosing = new Token("__abcd _ef_ ghi _jk".Length, 1, TokenType.Ending, italicTag, secondItalicOpening);
+
+            var secondItalicOpening = Token.CreateControllingToken("__abcd _ef_ ghi ".Length, 1, 
+                TokenType.Opening, TextTokenizerTests.ItalicTag, null);
+            var secondItalicClosing = Token.CreateControllingToken("__abcd _ef_ ghi _jk".Length, 1, 
+                TokenType.Ending, TextTokenizerTests.ItalicTag, secondItalicOpening);
             secondItalicOpening.PairedToken = secondItalicClosing;
-            
-            var expectedResult = new List<Token>
+
+            var expectedTokens = new List<Token>
             {
                 boldOpening,
-                new Token(2, 5),
+                Token.CreateTextToken(2, 5),
                 firstItalicOpening,
-                new Token("__abcd _".Length, 2),
+                Token.CreateTextToken("__abcd _".Length, 2),
                 firstItalicClosing,
-                new Token("__abcd _ef_".Length, 5),
+                Token.CreateTextToken("__abcd _ef_".Length, 5),
                 secondItalicOpening,
-                new Token("__abcd _ef_ ghi _".Length, 2),
+                Token.CreateTextToken("__abcd _ef_ ghi _".Length, 2),
                 secondItalicClosing,
-                new Token("__abcd _ef_ ghi _jk_".Length, 2),
+                Token.CreateTextToken("__abcd _ef_ ghi _jk_".Length, 2),
                 boldClosing
             };
 
-            var result = tokenizer.GetTokens(text).ToList();
-
-            result.Should().BeEquivalentTo(expectedResult, options => options.IgnoringCyclicReferences());
+            return new object[] { text, expectedTokens };
         }
 
-        [Test]
-        public void GetTokens_ShouldReturnCorrectTokens_OnEscapedItalicText()
-        {
-            var text = @"_a \_ c_";
-            var italicOpening = new Token(0, 1, TokenType.Opening, italicTag);
-            var italicClosing = new Token(text.Length - 1, 1, TokenType.Ending, italicTag, italicOpening);
-            italicOpening.PairedToken = italicClosing;
-            var expectedResult = new List<Token>
-            {
-                italicOpening,
-                new Token(1, 2),
-                new Token(4, 3),
-                italicClosing
-            };
-
-            var result = tokenizer.GetTokens(text).ToList();
-
-            result.Should().BeEquivalentTo(expectedResult, options => options.IgnoringCyclicReferences());
-        }
-
-        [Test]
-        public void GetTokens_ShouldReturnCorrectTokens_OnItalicWithEscapedEscapeSymbol()
-        {
-            var text = @"_\\_";
-            var italicOpening = new Token(0, 1, TokenType.Opening, italicTag);
-            var italicClosing = new Token(text.Length - 1, 1, TokenType.Ending, italicTag, italicOpening);
-            italicOpening.PairedToken = italicClosing;
-            var expectedResult = new List<Token>
-            {
-                italicOpening,
-                new Token(2, 1),
-                italicClosing
-            };
-
-            var result = tokenizer.GetTokens(text).ToList();
-
-            result.Should().BeEquivalentTo(expectedResult, options => options.IgnoringCyclicReferences());
-        }
-
-        [Test]
-        public void GetTokens_ShouldReturnCorrectTokens_OnOpeningItalicRightAfterOpeningBold()
+        private static object[] GetOpeningItalicRightAfterOpeningBold()
         {
             var text = "___a_ bcd__";
-            var boldOpening = new Token(0, 2, TokenType.Opening, boldTag);
-            var boldClosing = new Token(text.Length - 2, 2, TokenType.Ending, boldTag, boldOpening);
+
+            var boldOpening = Token.CreateControllingToken(0, 2, 
+                TokenType.Opening, TextTokenizerTests.BoldTag, null);
+            var boldClosing = Token.CreateControllingToken(text.Length - 2, 2, 
+                TokenType.Ending, TextTokenizerTests.BoldTag, boldOpening);
             boldOpening.PairedToken = boldClosing;
-            var italicOpening = new Token(2, 1, TokenType.Opening, italicTag);
-            var italicClosing = new Token(4, 1, TokenType.Ending, italicTag, italicOpening);
+
+            var italicOpening = Token.CreateControllingToken(2, 1, 
+                TokenType.Opening, TextTokenizerTests.ItalicTag, null);
+            var italicClosing = Token.CreateControllingToken(4, 1, 
+                TokenType.Ending, TextTokenizerTests.ItalicTag, italicOpening);
             italicOpening.PairedToken = italicClosing;
-            var expectedResult = new List<Token>
+
+            var expectedTokens = new List<Token>
             {
                 boldOpening,
                 italicOpening,
-                new Token(3, 1),
+                Token.CreateTextToken(3, 1),
                 italicClosing,
-                new Token("___a_".Length, 4),
+                Token.CreateTextToken("___a_".Length, 4),
                 boldClosing
             };
 
-            var result = tokenizer.GetTokens(text).ToList();
-
-            result.Should().BeEquivalentTo(expectedResult, options => options.IgnoringCyclicReferences());
+            return new object[] { text, expectedTokens };
         }
 
-        [Test]
-        public void GetToken_ShouldReturnCorrectTokens_OnClosingBoldRightAfterClosingItalic()
+        private static object[] GetClosingBoldRightAfterClosingItalic()
         {
             var text = "__abc _d___";
-            var boldOpening = new Token(0, 2, TokenType.Opening, boldTag);
-            var boldClosing = new Token(text.Length - 2, 2, TokenType.Ending, boldTag, boldOpening);
+
+            var boldOpening = Token.CreateControllingToken(0, 2, 
+                TokenType.Opening, TextTokenizerTests.BoldTag, null);
+            var boldClosing = Token.CreateControllingToken(text.Length - 2, 2,
+                TokenType.Ending, TextTokenizerTests.BoldTag, boldOpening);
             boldOpening.PairedToken = boldClosing;
-            var italicOpening = new Token("__abc ".Length, 1, TokenType.Opening, italicTag);
-            var italicClosing = new Token(text.Length - 3, 1, TokenType.Ending, italicTag, italicOpening);
+
+            var italicOpening = Token.CreateControllingToken("__abc ".Length, 1, 
+                TokenType.Opening, TextTokenizerTests.ItalicTag, null);
+            var italicClosing = Token.CreateControllingToken(text.Length - 3, 1, 
+                TokenType.Ending, TextTokenizerTests.ItalicTag, italicOpening);
             italicOpening.PairedToken = italicClosing;
-            var expectedResult = new List<Token>
+
+            var expectedTokens = new List<Token>
             {
                 boldOpening,
-                new Token(2, 4),
+                Token.CreateTextToken(2, 4),
                 italicOpening,
-                new Token(italicOpening.Position + 1, 1),
+                Token.CreateTextToken(italicOpening.Position + 1, 1),
                 italicClosing,
                 boldClosing
             };
 
-            var result = tokenizer.GetTokens(text).ToList();
+            return new object[] { text, expectedTokens };
+        }
+    }
 
-            result.Should().BeEquivalentTo(expectedResult, options => options.IgnoringCyclicReferences());
+    internal class EscapedCases : IEnumerable
+    {
+        public IEnumerator GetEnumerator()
+        {
+            yield return  GetEscapedItalicText();
+            yield return GetItalicTextWithEscapedEscapeSymbol();
+        }
+
+        private object[] GetEscapedItalicText() 
+        {
+            var text = @"_a \_ c_";
+            var italicOpening = Token.CreateControllingToken(0, 1, 
+                TokenType.Opening, TextTokenizerTests.ItalicTag, null);
+            var italicClosing = Token.CreateControllingToken(text.Length - 1, 1, 
+                TokenType.Ending, TextTokenizerTests.ItalicTag, italicOpening);
+            italicOpening.PairedToken = italicClosing;
+
+            var expectedTokens = new List<Token>
+            {
+                italicOpening,
+                Token.CreateTextToken(1, 2),
+                Token.CreateTextToken(4, 3),
+                italicClosing
+            };
+
+            return new object[] { text, expectedTokens };
+        }
+
+        private object[] GetItalicTextWithEscapedEscapeSymbol()
+        {
+            var text = @"_\\_";
+            var italicOpening = Token.CreateControllingToken(0, 1, 
+                TokenType.Opening, TextTokenizerTests.ItalicTag, null);
+            var italicClosing = Token.CreateControllingToken(text.Length - 1, 1, 
+                TokenType.Ending, TextTokenizerTests.ItalicTag, italicOpening);
+            italicOpening.PairedToken = italicClosing;
+
+            var expectedTokens = new List<Token>
+            {
+                italicOpening,
+                Token.CreateTextToken(2, 1),
+                italicClosing
+            };
+
+            return new object[] { text, expectedTokens };
         }
     }
 }

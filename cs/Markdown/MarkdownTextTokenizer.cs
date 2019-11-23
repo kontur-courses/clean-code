@@ -8,15 +8,15 @@ namespace Markdown
     public class MarkdownTextTokenizer
     {
         private readonly TextTokenizer tokenizer;
+        private const char EscapeSymbol = '\\';
+        private readonly char[] escapableSymbols = {'_', EscapeSymbol};
+        private bool IsEscapeSequence(string text, int position) => position + 1 < text.Length
+                                                  && text[position] == EscapeSymbol
+                                                  && escapableSymbols.Contains(text[position + 1]);
 
         public MarkdownTextTokenizer()
         {
             var classifiers = new ITagClassifier[] { new ItalicTagClassifier(), new BoldTagClassifier() };
-            const char escapeSymbol = '\\';
-            var escapableSymbols = new[] { '_', '\\' };
-            bool IsEscapeSequence(string s, int i) => i + 1 < s.Length
-                                                      && s[i] == escapeSymbol
-                                                      && escapableSymbols.Contains(s[i + 1]);
             tokenizer = new TextTokenizer(classifiers, IsEscapeSequence);
         }
 
@@ -32,7 +32,7 @@ namespace Markdown
             {
                 var token = tokens[i];
                 if (token.Type == TokenType.Text || token.Type == TokenType.Opening && token.PairedToken == null)
-                    yield return FormattedToken.GetRawFormattedToken(token);
+                    yield return FormattedToken.GetTextToken(token);
                 else if (token.Type == TokenType.Opening)
                 {
                     var (innerFormattedToken, newPosition) = ConstructFormattedToken(tokens, i);
@@ -42,7 +42,8 @@ namespace Markdown
             }
         }
 
-        private Tuple<FormattedToken, int> ConstructFormattedToken(List<Token> tokens, int openingPosition)
+        private (FormattedToken token, int newPosition) ConstructFormattedToken(
+            List<Token> tokens, int openingPosition)
         {
             var token = tokens[openingPosition];
             var classifier = token.Classifier;
@@ -55,7 +56,7 @@ namespace Markdown
                 if (currentToken == token.PairedToken)
                     break;
                 if (IsRawToken(currentToken) || !IsAllowedFormattedSubToken(currentToken, classifier))
-                    subTokens.Add(FormattedToken.GetRawFormattedToken(currentToken));
+                    subTokens.Add(FormattedToken.GetTextToken(currentToken));
                 else if (currentToken.Type == TokenType.Opening)
                 {
                     var (innerFormattedToken, newPosition) = ConstructFormattedToken(tokens, position);
@@ -67,16 +68,16 @@ namespace Markdown
             var formattedToken = new FormattedToken(
                 subTokens, classifier.Type,
                 subTokens[0].StartIndex, subTokens[subTokens.Count - 1].EndIndex);
-            return Tuple.Create(formattedToken, position);
+            return (formattedToken, position);
         }
 
-        private bool IsRawToken(Token token)
+        private static bool IsRawToken(Token token)
         {
             return token.Type == TokenType.Text ||
                    (token.Type == TokenType.Ending || token.Type == TokenType.Opening) && token.PairedToken == null;
         }
 
-        private bool IsAllowedFormattedSubToken(Token token, ITagClassifier fatherClassifier)
+        private static bool IsAllowedFormattedSubToken(Token token, ITagClassifier fatherClassifier)
         {
             if (token.Classifier == null)
                 return false;

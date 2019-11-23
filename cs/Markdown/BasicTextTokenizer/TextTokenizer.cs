@@ -17,9 +17,14 @@ namespace Markdown.BasicTextTokenizer
         {
             this.classifiers = classifiers;
             this.isEscapeSequence = isEscapeSequence;
-            isOpeningSequence = (s, i) => classifiers.Select(c => c.IsOpeningSequence(s, i)).Any(t => t);
-            isClosingSequence = (s, i) => classifiers.Select(c => c.IsClosingSequence(s, i)).Any(t => t);
-            isControllingSequence = (s, i) => isOpeningSequence(s, i) || isClosingSequence(s, i);
+            isOpeningSequence = (text, position) => classifiers
+                .Select(c => c.IsOpeningSequence(text, position))
+                .Any(t => t);
+            isClosingSequence = (text, position) => classifiers
+                .Select(c => c.IsClosingSequence(text, position))
+                .Any(t => t);
+            isControllingSequence = (text, position) => 
+                isOpeningSequence(text, position) || isClosingSequence(text, position);
         }
 
         public IEnumerable<Token> GetTokens(string rawText)
@@ -27,9 +32,10 @@ namespace Markdown.BasicTextTokenizer
             var openings = new Dictionary<ITagClassifier, Token>();
             var reader = new TokenReader(rawText);
             var tokens = new List<Token>();
-            while (reader.HasData())
+            while (reader.HasData)
             {
-                var newTokens = reader.ReadUntilWithEscapeProcessing(isControllingSequence, isEscapeSequence);
+                var newTokens = reader.ReadUntilWithEscapeProcessing(
+                    isControllingSequence, isEscapeSequence);
                 tokens.AddRange(newTokens);
                 if (isClosingSequence(reader.Text, reader.Position))
                     ProcessClosingSequence(reader, openings, tokens);
@@ -42,39 +48,44 @@ namespace Markdown.BasicTextTokenizer
         private void ProcessOpeningSequence(TokenReader reader, Dictionary<ITagClassifier, Token> openings,
             List<Token> tokens)
         {
-            var classifier = classifiers.OrderBy(c => c.Priority).First(c => c.IsOpeningSequence(reader.Text, reader.Position));
-            var sequence = reader.ReadCount(classifier.Sequence.Length);
+            var classifier = classifiers
+                .OrderBy(c => c.Priority)
+                .First(c => c.IsOpeningSequence(reader.Text, reader.Position));
+
+            var tag = reader.ReadCount(classifier.Tag.Length);
 
             if (openings.ContainsKey(classifier))
             {
-                tokens.Add(sequence);
+                tokens.Add(tag);
+                return;
             }
-            else
-            {
-                var opening = new Token(sequence.Position, sequence.Length, TokenType.Opening, classifier);
-                openings[classifier] = opening;
-                tokens.Add(opening);
-            }
+            var opening = Token.CreateControllingToken(
+                tag.Position, tag.Length, TokenType.Opening, classifier, null);
+            openings[classifier] = opening;
+            tokens.Add(opening);
         }
 
         private void ProcessClosingSequence(TokenReader reader, Dictionary<ITagClassifier, Token> openings,
             List<Token> tokens)
         {
-            var classifier = classifiers.OrderByDescending(c => c.Priority).First(c => c.IsClosingSequence(reader.Text, reader.Position));
-            var sequence = reader.ReadCount(classifier.Sequence.Length);
+            var classifier = classifiers
+                .OrderByDescending(c => c.Priority)
+                .First(c => c.IsClosingSequence(reader.Text, reader.Position));
+
+            var tag = reader.ReadCount(classifier.Tag.Length);
 
             if (!openings.ContainsKey(classifier))
             {
-                tokens.Add(sequence);
+                tokens.Add(tag);
+                return;
             }
-            else
-            {
-                var opening = openings[classifier];
-                openings.Remove(classifier);
-                var closing = new Token(sequence.Position, sequence.Length, TokenType.Ending, classifier, opening);
-                opening.PairedToken = closing;
-                tokens.Add(closing);
-            }
+
+            var opening = openings[classifier];
+            openings.Remove(classifier);
+            var closing = Token.CreateControllingToken(
+                tag.Position, tag.Length, TokenType.Ending, classifier, opening);
+            opening.PairedToken = closing;
+            tokens.Add(closing);
         }
     }
 }

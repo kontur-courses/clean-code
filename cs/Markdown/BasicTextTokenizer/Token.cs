@@ -10,7 +10,12 @@ namespace Markdown.BasicTextTokenizer
         public Token PairedToken { get; set; }
         public ITagClassifier Classifier { get; }
 
-        public Token(int position, int length, TokenType type = TokenType.Text, ITagClassifier classifier = null, Token pairedToken = null)
+        private Token(
+            int position, 
+            int length, 
+            TokenType type = TokenType.Text, 
+            ITagClassifier classifier = null, 
+            Token pairedToken = null)
         {
             Position = position;
             Length = length;
@@ -19,16 +24,31 @@ namespace Markdown.BasicTextTokenizer
             PairedToken = pairedToken;
         }
 
-        public Token Add(Token other)
+        public static Token CreateTextToken(int position, int length)
         {
-            if (!IsSimpleToken(this) || !IsSimpleToken(other))
-                throw new ArgumentException("Unable to sum complex tokens");
+            return new Token(position, length);
+        }
+
+        public static Token CreateControllingToken(
+            int position, 
+            int length, 
+            TokenType type, 
+            ITagClassifier classifier, 
+            Token pairedToken)
+        {
+            return new Token(position, length, type, classifier, pairedToken);
+        }
+
+        public Token Concat(Token other)
+        {
+            if (!IsTextToken(this) || !IsTextToken(other))
+                throw new ArgumentException("Can only concatenate text tokens");
             if (Position + Length != other.Position)
                 throw new ArgumentException("Other token should follow this token");
             return new Token(Position, Length + other.Length);
         }
 
-        private bool IsSimpleToken(Token token)
+        private static bool IsTextToken(Token token)
         {
             return token.Type == TokenType.Text && token.Classifier == null && token.PairedToken == null;
         }

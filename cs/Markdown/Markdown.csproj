@@ -45,11 +45,13 @@
   <ItemGroup>
     <Compile Include="BasicTextTokenizer\ITagClassifier.cs" />
     <Compile Include="BasicTextTokenizer\Tests\TextTokenizerTests.cs" />
+    <Compile Include="BasicTextTokenizer\Tests\TokenReaderExtensionsTests.cs" />
     <Compile Include="BasicTextTokenizer\Tests\TokenReaderTests.cs" />
     <Compile Include="BasicTextTokenizer\TokenReader.cs" />
+    <Compile Include="BasicTextTokenizer\TokenReaderExtensions.cs" />
     <Compile Include="BasicTextTokenizer\TokenType.cs" />
-    <Compile Include="BoldTagClassifier.cs" />
-    <Compile Include="ItalicTagClassifier.cs" />
+    <Compile Include="BasicTextTokenizer\BoldTagClassifier.cs" />
+    <Compile Include="BasicTextTokenizer\ItalicTagClassifier.cs" />
     <Compile Include="ITokenConverter.cs" />
     <Compile Include="MarkdownTextTokenizer.cs" />
     <Compile Include="Md.cs" />

@@ -1,14 +1,13 @@
 ﻿using System;
-using Markdown.BasicTextTokenizer;
 
-namespace Markdown
+namespace Markdown.BasicTextTokenizer
 {
     public class ItalicTagClassifier : ITagClassifier
     {
         public int Priority => 2;
         public FormattedTokenType Type => FormattedTokenType.Italic;
         public Type[] AllowedSubClassifiers => null;
-        public string Sequence => "_";
+        public string Tag => "_";
 
         public bool IsOpeningSequence(string text, int position)
         {

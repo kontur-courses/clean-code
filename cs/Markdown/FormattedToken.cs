@@ -19,7 +19,7 @@ namespace Markdown
             EndIndex = endIndex;
         }
 
-        public static FormattedToken GetRawFormattedToken(Token token)
+        public static FormattedToken GetTextToken(Token token)
         {
             return new FormattedToken(null, FormattedTokenType.Raw,
                 token.Position, token.Length + token.Position - 1);

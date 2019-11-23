@@ -9,6 +9,6 @@ namespace Markdown.BasicTextTokenizer
         int Priority { get; }
         FormattedTokenType Type { get; }
         Type[] AllowedSubClassifiers { get; }
-        string Sequence { get; }
+        string Tag { get; }
     }
 }

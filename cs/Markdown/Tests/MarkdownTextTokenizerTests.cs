@@ -97,7 +97,6 @@ namespace Markdown.Tests
             result.Should().BeEquivalentTo(expectedTokens);
         }
 
-
         [Test]
         public void GetTokens_ShouldReturnRawTokens_OnTextWithEscapedUnderscores()
         {
@@ -201,7 +200,6 @@ namespace Markdown.Tests
 
             result.Should().HaveCount(1).And.AllBeEquivalentTo(expectedResult);
         }
-
 
         [Test]
         public void GetTokens_ShouldReturnThreeTokens_OnTextWithDoubleUnderscoresInside()
