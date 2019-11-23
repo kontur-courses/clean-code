@@ -4,7 +4,7 @@ using Markdown.Core.Tags.MarkdownTags;
 
 namespace Markdown.Core.Rules
 {
-    class GreaterToQ : IRule
+    internal class GreaterToQ : IRule
     {
         public ITag SourceTag { get; }
         public ITag ResultTag { get; }

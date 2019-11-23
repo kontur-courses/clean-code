@@ -2,7 +2,7 @@
 
 namespace Markdown.Core.Rules
 {
-    interface IRule
+    public interface IRule
     {
         ITag SourceTag { get; }
         ITag ResultTag { get; }

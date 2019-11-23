@@ -2,7 +2,7 @@
 
 namespace Markdown.Core.Parsers
 {
-    interface IParser
+    public interface IParser
     {
         List<TagToken> ParseLine(string line);
     }

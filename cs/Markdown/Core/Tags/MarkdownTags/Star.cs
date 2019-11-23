@@ -1,6 +1,6 @@
 ﻿namespace Markdown.Core.Tags.MarkdownTags
 {
-    class Star : IMarkdownTag, IDoubleTag
+    internal class Star : IMarkdownTag, IDoubleTag
     {
         public string Opening => "*";
         public string Closing => "*";

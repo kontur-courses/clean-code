@@ -8,7 +8,7 @@ using Markdown.Core.Rules;
 
 namespace Markdown.Core
 {
-    static class Md
+    public static class Md
     {
         public static string Render(string markdown)
         {

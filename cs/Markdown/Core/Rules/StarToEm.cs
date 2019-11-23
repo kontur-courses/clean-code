@@ -4,7 +4,7 @@ using Markdown.Core.Tags.MarkdownTags;
 
 namespace Markdown.Core.Rules
 {
-    class StarToEm : IRule
+    internal class StarToEm : IRule
     {
         public ITag SourceTag { get; }
         public ITag ResultTag { get; }

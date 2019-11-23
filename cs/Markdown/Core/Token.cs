@@ -2,7 +2,7 @@
 
 namespace Markdown.Core
 {
-    class Token
+    public class Token
     {
         public int StartPosition { get; }
         public string Value { get; }

@@ -4,7 +4,7 @@ using Markdown.Core.Tags.MarkdownTags;
 
 namespace Markdown.Core.Rules
 {
-    class SharpToH1 : IRule
+    internal class SharpToH1 : IRule
     {
         public ITag SourceTag { get; }
         public ITag ResultTag { get; }

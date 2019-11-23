@@ -6,17 +6,17 @@ using Markdown.Core.Tags;
 
 namespace Markdown.Core
 {
-    class Render
+    public class Render
     {
         private readonly IEnumerable<IRule> rules;
-        private const char backSlash = '\\';
+        private const char BackSlash = '\\';
 
         public Render(IEnumerable<IRule> rules)
         {
             this.rules = rules;
         }
 
-        private bool IsSkippedTag(string line, int index) => index != 0 && line[index - 1] == backSlash;
+        private bool IsSkippedTag(string line, int index) => index != 0 && line[index - 1] == BackSlash;
 
         private IEnumerable<TagToken> TranslateSingleToDouble(string line, TagToken token, IDoubleTag tag)
         {
@@ -82,7 +82,7 @@ namespace Markdown.Core
             while (currentIndex < line.Length)
             {
                 var currentSymbol = line[currentIndex];
-                if (currentSymbol == backSlash)
+                if (currentSymbol == BackSlash)
                 {
                     if (lastSymbolIsBackslash)
                         renderedLine.Append(currentSymbol);

@@ -8,7 +8,7 @@ using NUnit.Framework;
 namespace Markdown.Tests
 {
     [TestFixture]
-    class MdTests
+    internal class MdTests
     {
         [TestCase("_a b_", ExpectedResult = "<em>a b</em>", TestName = "When_AtBeginningAndEndText")]
         [TestCase("a _b c_ d", ExpectedResult = "a <em>b c</em> d", TestName = "When_InMiddleText")]

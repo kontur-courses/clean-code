@@ -1,6 +1,6 @@
 ﻿namespace Markdown.Core.Tags
 {
-    interface ISingleTag : ITag
+    public interface ISingleTag : ITag
     {
         string Opening { get; }
     }

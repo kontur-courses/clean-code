@@ -7,7 +7,7 @@ using Markdown.Core.Rules;
 namespace Markdown.Tests
 {
     [TestFixture]
-    class ParserTests
+    internal class ParserTests
     {
         private MainParser mainParser;
 

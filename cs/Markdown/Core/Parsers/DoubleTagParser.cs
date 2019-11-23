@@ -1,11 +1,10 @@
 ﻿using System.Collections.Generic;
 using System.Linq;
-using Markdown.Core.Rules;
 using Markdown.Core.Tags;
 
 namespace Markdown.Core.Parsers
 {
-    class DoubleTagParser : IParser
+    public class DoubleTagParser : IParser
     {
         private readonly List<IDoubleTag> tags;
 

@@ -1,6 +1,6 @@
 ﻿namespace Markdown.Core.Tags
 {
-    interface ITag
+    public interface ITag
     {
     }
 }

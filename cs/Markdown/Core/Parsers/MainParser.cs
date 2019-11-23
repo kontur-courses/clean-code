@@ -4,7 +4,7 @@ using Markdown.Core.Tags;
 
 namespace Markdown.Core.Parsers
 {
-    class MainParser : IParser
+    public class MainParser : IParser
     {
         private readonly SingleTagParser singleTagParser;
         private readonly DoubleTagParser doubleTagParser;

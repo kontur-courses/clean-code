@@ -1,6 +1,6 @@
 ﻿namespace Markdown.Core.Rules
 {
-    class RuleFactory
+    internal class RuleFactory
     {
         public static IRule[] CreateAllRules() => new IRule[]
         {

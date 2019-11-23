@@ -5,7 +5,7 @@ using Markdown.Core.Tags;
 
 namespace Markdown.Core.Parsers
 {
-    class SingleTagParser : IParser
+    public class SingleTagParser : IParser
     {
         private readonly List<ISingleTag> tags;
 

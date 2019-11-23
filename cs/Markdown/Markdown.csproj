@@ -51,7 +51,7 @@
     <Compile Include="Core\Rules\GreaterToQ.cs" />
     <Compile Include="Core\Rules\SingleUnderscoreToEm.cs" />
     <Compile Include="Core\Rules\SharpToH1.cs" />
-    <Compile Include="Core\Rules\Rule.cs" />
+    <Compile Include="Core\Rules\IRule.cs" />
     <Compile Include="Core\Rules\RuleFactory.cs" />
     <Compile Include="Core\Rules\StarToEm.cs" />
     <Compile Include="Core\Rules\DoubleUnderscoreToStrong.cs" />

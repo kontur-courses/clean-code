@@ -1,6 +1,6 @@
 ﻿namespace Markdown.Core.Tags.MarkdownTags
 {
-    class Greater : IMarkdownTag, ISingleTag
+    internal class Greater : IMarkdownTag, ISingleTag
     {
         public string Opening => ">";
     }

@@ -4,7 +4,7 @@ using Markdown.Core.Tags.MarkdownTags;
 
 namespace Markdown.Core.Rules
 {
-    class DoubleStarToStrong : IRule
+    internal class DoubleStarToStrong : IRule
     {
         public ITag SourceTag { get; }
         public ITag ResultTag { get; }
