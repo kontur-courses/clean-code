@@ -20,8 +20,6 @@ namespace Markdown.Core.Parsers
             DoubleTagValidator.TagStartsFromPosition(line, index, tag.Opening) ||
             DoubleTagValidator.TagStartsFromPosition(line, index, tag.Closing);
 
-        private bool IsSkippedTag(string line, int index) => index != 0 && line[index - 1] == '\\';
-
         public List<TagToken> ParseLine(string line)
         {
             var result = new List<TagToken>();
@@ -41,18 +39,13 @@ namespace Markdown.Core.Parsers
 
                 if (DoubleTagValidator.IsPossibleOpeningTag(line, index, currentTag))
                 {
-                    var newOpeningTagToken = new TagToken(index, currentTag, currentTag.Opening, true,
-                        IsSkippedTag(line, index));
+                    var newOpeningTagToken = new TagToken(index, currentTag, currentTag.Opening, true);
                     tagTokenStack.Push(newOpeningTagToken);
                 }
                 else if (DoubleTagValidator.IsPossibleClosingTag(line, index, currentTag))
                 {
                     while (tagTokenStack.Count > 0 && tagTokenStack.Peek().Tag != currentTag)
-                    {
-                        var deletedTag = tagTokenStack.Pop();
-                        if (deletedTag.IsSkipped)
-                            result.Add(deletedTag);
-                    }
+                        tagTokenStack.Pop();
 
                     if (tagTokenStack.Count == 0)
                     {
@@ -61,8 +54,7 @@ namespace Markdown.Core.Parsers
                     }
 
                     var newOpeningTagToken = tagTokenStack.Pop();
-                    var newClosingTagToken = new TagToken(index, currentTag, currentTag.Closing, false,
-                        IsSkippedTag(line, index));
+                    var newClosingTagToken = new TagToken(index, currentTag, currentTag.Closing, false);
 
                     result.Add(newOpeningTagToken);
                     result.Add(newClosingTagToken);
@@ -71,7 +63,7 @@ namespace Markdown.Core.Parsers
                 index += currentTag.Opening.Length;
             }
 
-            return result.Concat(tagTokenStack.Where(token => token.IsSkipped)).ToList();
+            return result;
         }
     }
 }

@@ -1,8 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
-using Markdown.Core.Rules;
 using Markdown.Core.Tags;
 
 namespace Markdown.Core.Parsers
@@ -17,8 +15,6 @@ namespace Markdown.Core.Parsers
                 .OrderByDescending(tag => tag.Opening.Length)
                 .ToList();
         }
-
-        private bool IsSkippedTag(string line, int index) => index != 0 && line[index - 1] == '\\';
 
         private int GetCountSpaceAtBeginningLine(string line)
         {
@@ -43,9 +39,7 @@ namespace Markdown.Core.Parsers
                 .FirstOrDefault(tuple => tuple.index != -1 && tuple.index < countSteps);
             if (positionsTags.tag == null)
                 return new List<TagToken>();
-            var isSkipped = IsSkippedTag(line, positionsTags.index);
-            var singleTagToken = new TagToken(positionsTags.index, positionsTags.tag, positionsTags.tag.Opening, true,
-                isSkipped);
+            var singleTagToken = new TagToken(positionsTags.index, positionsTags.tag, positionsTags.tag.Opening, true);
             return new List<TagToken> {singleTagToken};
         }
     }
