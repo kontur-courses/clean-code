@@ -11,7 +11,7 @@ namespace Markdown
         {
             var prefix = ResolveControlSymbol(input, startPosition);
             var mainToken = new Token(prefix);
-            mainToken.CreateInnerToken("");
+            mainToken.CreateInnerToken();
             var innerTokens = new Deque<Token>();
             innerTokens.AddLast(mainToken);
             for (var currentPosition = startPosition + prefix.Length; currentPosition < input.Length; currentPosition++)
@@ -23,7 +23,7 @@ namespace Markdown
                     switch (ControlSymbolDecisionOnChar[controlSymbol](input, currentPosition))
                     {
                         case StopSymbolDecision.Stop:
-                            token.CloseToken(currentPosition + controlSymbol.Length, ControlSymbolTags[controlSymbol]);
+                            token.CloseToken(currentPosition + controlSymbol.Length);
                             token.ClearTags(TagCloseNextTag[controlSymbol], controlSymbol);
                             if (prefix == controlSymbol)
                                 return mainToken;
@@ -48,7 +48,7 @@ namespace Markdown
                     mainToken.AddChar(input[currentPosition]);
             }
 
-            mainToken.ActualEnd = input.Length;
+            mainToken.CloseToken(input.Length);
             return mainToken;
         }
 
@@ -56,7 +56,7 @@ namespace Markdown
         public static Token ReadWhile(Func<string, int, Symbol> analyzeSymbol, string input, int startPosition)
         {
             var position = startPosition;
-            var token = new Token("");
+            var token = new Token();
             var stop = false;
             for (; position < input.Length && !stop; position++)
             {
@@ -73,7 +73,7 @@ namespace Markdown
                 }
             }
 
-            token.CloseToken(position, "");
+            token.CloseToken(position);
             return token;
         }
     }

@@ -16,12 +16,12 @@ namespace Markdown
                 tokens.Add(ControlSymbols.IsControlSymbol(input, position)
                     ? TokenReader.ReadUntil(input, position)
                     : TokenReader.ReadWhile(ControlSymbols.AnalyzeSymbol, input, position));
-                position = tokens[tokens.Count - 1].ActualEnd;
+                position = tokens[tokens.Count - 1].End;
             }
 
             var stringHTML = new StringBuilder();
             foreach (var token in tokens)
-                stringHTML.Append(token.ConvertToHTMLTag());
+                stringHTML.Append(token);
 
             return stringHTML.ToString();
         }

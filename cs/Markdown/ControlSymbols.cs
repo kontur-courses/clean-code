@@ -16,12 +16,6 @@ namespace Markdown
         private static readonly HashSet<char> previousStopSymbol = new HashSet<char>() {' ', '\\'};
         private static readonly int maxLengthOfControlSymbol = 2;
 
-        public static readonly Dictionary<string, string> ControlSymbolTags = new Dictionary<string, string>()
-        {
-            {"_", "em"},
-            {"__", "strong"}
-        };
-
         public static readonly Dictionary<string, HashSet<string>> TagCloseNextTag =
             new Dictionary<string, HashSet<string>>
             {
@@ -68,7 +62,7 @@ namespace Markdown
             var indexAfter = position + controlSymbol.Length;
             if ((position == 0 || input[position - 1] == ' ') && indexAfter < input.Length && input[indexAfter] != ' ')
                 return StopSymbolDecision.NestedToken;
-            if (controlSymbol == control && input[position - 1] != ' ' && input[position - 1] != '\\' &&
+            if (controlSymbol == control && !previousStopSymbol.Contains(input[position - 1]) &&
                 !IsControlSymbol(input, position - 1) && (indexAfter == input.Length || input[indexAfter] == ' '))
                 return StopSymbolDecision.Stop;
             return StopSymbolDecision.AddChar;
