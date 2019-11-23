@@ -13,6 +13,9 @@ namespace Markdown.Rules
             if (position >= text.Length || position < 0)
                 throw new ArgumentException($"position {position} is not in string with length {text.Length}");
 
+            if (text[position] == Environment.NewLine[0])
+                return true;
+
             switch (text[position])
             {
                 case EscapeSymbol:
@@ -21,8 +24,6 @@ namespace Markdown.Rules
                     return IsUnderscoreSeparatorValid(text, position, isFirst, separatorLength);
                 case '#':
                     return IsHeaderSeparatorValid(text, position);
-                case '\n':
-                    return true;
                 default:
                     throw new NotImplementedException($"separator not supported {text[position]}");
             }
@@ -41,7 +42,7 @@ namespace Markdown.Rules
 
         public bool IsSeparatorPaired(string separator)
         {
-            return separator.StartsWith("_") || separator.StartsWith("#") || separator == "\n";
+            return separator.StartsWith("_") || separator.StartsWith("#") || separator == Environment.NewLine;
         }
 
         public bool IsSeparatorPairedFor(string firstSeparator, string secondSeparator)
@@ -50,7 +51,7 @@ namespace Markdown.Rules
                 throw new ArgumentException($"{firstSeparator} or {secondSeparator} is not paired");
 
             if (firstSeparator.StartsWith("#"))
-                return secondSeparator == "\n";
+                return secondSeparator == Environment.NewLine;
 
             if (firstSeparator.StartsWith("_"))
                 return firstSeparator == secondSeparator;
@@ -64,7 +65,7 @@ namespace Markdown.Rules
 
         private bool IsHeaderSeparatorValid(string text, int position)
         {
-            return position == 0 || text[position - 1] == '\n';
+            return position == 0 || text[position - 1] == Environment.NewLine.Last();
         }
 
         private bool IsUnderscoreSeparatorValid(string text, int position, bool isFirst, int separatorLength)

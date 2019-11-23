@@ -19,7 +19,8 @@ namespace Markdown.Tokenization
                        (text[position + 1] == EscapeSymbol || IsSeparator(text, position + 1));
             }
 
-            return IsHeaderSeparator(text, position) || text[position] == '\n' || text[position] == '_';
+            return IsHeaderBeginSeparator(text, position) || IsHeaderEndSeparator(text, position) ||
+                   text[position] == '_';
         }
 
         public int GetSeparatorLength(string text, int position)
@@ -33,9 +34,11 @@ namespace Markdown.Tokenization
             }
 
             if (text[position] == '#')
-                return GetHeaderSeparatorLength(text, position);
+                return GetHeaderBeginSeparatorLength(text, position);
 
-            return text[position] == '\n' ? 1 : GetUnderscoreSeparatorLength(text, position);
+            return IsHeaderEndSeparator(text, position)
+                ? Environment.NewLine.Length
+                : GetUnderscoreSeparatorLength(text, position);
         }
 
         public string GetSeparatorValue(string text, int position)
@@ -44,7 +47,17 @@ namespace Markdown.Tokenization
             return text.Substring(position, GetSeparatorLength(text, position));
         }
 
-        private bool IsHeaderSeparator(string text, int position)
+        private bool IsHeaderEndSeparator(string text, int position)
+        {
+            if (position == text.Length - 1)
+            {
+                return Environment.NewLine.Length == 1 && text[position] == Environment.NewLine[0];
+            }
+
+            return text.Substring(position, Environment.NewLine.Length) == Environment.NewLine;
+        }
+
+        private bool IsHeaderBeginSeparator(string text, int position)
         {
             return text[position] == '#' && HeaderSeparatorLengthRange
                        .Where(length => position + length < text.Length)
@@ -58,7 +71,7 @@ namespace Markdown.Tokenization
                 throw new ArgumentException($"position {position} is not in string with length {text.Length}");
         }
 
-        private int GetHeaderSeparatorLength(string text, int position)
+        private int GetHeaderBeginSeparatorLength(string text, int position)
         {
             return HeaderSeparatorLengthRange
                 .Where(length => position + length < text.Length)
