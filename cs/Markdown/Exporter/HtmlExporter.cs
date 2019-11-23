@@ -1,4 +1,5 @@
-﻿using Markdown.Parser;
+﻿using System.Text;
+using Markdown.Parser;
 
 namespace Markdown.Exporter
 {
@@ -6,17 +7,26 @@ namespace Markdown.Exporter
     {
         public string TransformText(Text text)
         {
-            throw new System.NotImplementedException();
+            return text.Value;
         }
 
         public string TransformBold(MarkdownBoldElement element)
         {
-            throw new System.NotImplementedException();
+            return TransformBlock(element, "strong");
         }
 
         public string TransformItalic(MarkdownItalicElement element)
         {
-            throw new System.NotImplementedException();
+            return TransformBlock(element, "em");
+        }
+
+        public string TransformBlock(Element element, string htmlTag)
+        {
+            var builder = new StringBuilder($"<{htmlTag}>");
+            foreach (var child in element.ChildNodes)
+                builder.Append(child.Export(this));
+            builder.Append($"</{htmlTag}>");
+            return builder.ToString();
         }
     }
 }
