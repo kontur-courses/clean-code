@@ -2,9 +2,9 @@
 {
     public interface IRules
     {
-        bool IsSeparatorValid(string text, int position, bool isFirst, int separatorLength);
+        bool IsSeparatorValid(string text, int position, bool isFirst, string separator);
 
-        bool IsSeparatorValid(string text, int position, bool isFirst, int separatorLength,
+        bool IsSeparatorValid(string text, int position, bool isFirst, string separator,
             string parentSeparator);
 
         bool IsSeparatorPaired(string separator);

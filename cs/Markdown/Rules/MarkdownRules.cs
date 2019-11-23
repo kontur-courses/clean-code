@@ -6,38 +6,30 @@ namespace Markdown.Rules
 {
     public class MarkdownRules : IRules
     {
-        private const char EscapeSymbol = '\\';
+        private const string EscapeSymbol = "\\";
 
-        public bool IsSeparatorValid(string text, int position, bool isFirst, int separatorLength)
+        public bool IsSeparatorValid(string text, int position, bool isFirst, string separator)
         {
             if (position >= text.Length || position < 0)
                 throw new ArgumentException($"position {position} is not in string with length {text.Length}");
 
-            if (text[position] == Environment.NewLine[0])
+            if (separator == Environment.NewLine || separator.StartsWith(EscapeSymbol))
                 return true;
 
-            switch (text[position])
-            {
-                case EscapeSymbol:
-                    return true;
-                case '_':
-                    return IsUnderscoreSeparatorValid(text, position, isFirst, separatorLength);
-                case '#':
-                    return IsHeaderSeparatorValid(text, position);
-                default:
-                    throw new NotImplementedException($"separator not supported {text[position]}");
-            }
+            if (separator.StartsWith("#"))
+                return IsHeaderSeparatorValid(text, position);
+
+            if (separator.StartsWith("_"))
+                return IsUnderscoreSeparatorValid(text, position, isFirst, separator);
+
+            throw new NotImplementedException($"separator not supported {separator}");
         }
 
-        public bool IsSeparatorValid(string text, int position, bool isFirst, int separatorLength,
-            string parentSeparator)
+        public bool IsSeparatorValid(string text, int position, bool isFirst, string separator, string parentSeparator)
         {
-            if (position < text.Length - 1 && text.Substring(position, 2) == "__" && parentSeparator == "_")
-            {
+            if (separator == "__" && parentSeparator == "_")
                 return false;
-            }
-
-            return IsSeparatorValid(text, position, isFirst, separatorLength);
+            return IsSeparatorValid(text, position, isFirst, separator);
         }
 
         public bool IsSeparatorPaired(string separator)
@@ -68,18 +60,18 @@ namespace Markdown.Rules
             return position == 0 || text[position - 1] == Environment.NewLine.Last();
         }
 
-        private bool IsUnderscoreSeparatorValid(string text, int position, bool isFirst, int separatorLength)
+        private bool IsUnderscoreSeparatorValid(string text, int position, bool isFirst, string separator)
         {
-            var anyNonDigitAround = text.GetNeighborsOfSubstring(position, position + separatorLength - 1)
+            var anyNonDigitAround = text.GetNeighborsOfSubstring(position, position + separator.Length - 1)
                 .Any(s => !char.IsDigit(s));
             return anyNonDigitAround && (isFirst
-                       ? IsUnderscoreBeginSeparatorValid(text, position, separatorLength)
+                       ? IsUnderscoreBeginSeparatorValid(text, position, separator)
                        : IsUnderscoreEndSeparatorValid(text, position));
         }
 
-        private bool IsUnderscoreBeginSeparatorValid(string text, int position, int separatorLength)
+        private bool IsUnderscoreBeginSeparatorValid(string text, int position, string separator)
         {
-            return position < text.Length - separatorLength && !char.IsWhiteSpace(text[position + separatorLength]);
+            return position < text.Length - separator.Length && !char.IsWhiteSpace(text[position + separator.Length]);
         }
 
         private bool IsUnderscoreEndSeparatorValid(string text, int position)

@@ -11,21 +11,6 @@ namespace Markdown.Tokenization
             this.tokenReaderConfiguration = tokenReaderConfiguration;
         }
 
-        private Token ReadWhileSeparator(string text, int startPosition)
-        {
-            for (var i = startPosition; i < text.Length; i++)
-            {
-                if (tokenReaderConfiguration.IsSeparator(text, i))
-                {
-                    tokenReaderConfiguration.GetSeparatorValue(text, i);
-                    var tokenValue = text.Substring(startPosition, i - startPosition);
-                    return new Token(startPosition, tokenValue, false);
-                }
-            }
-
-            return new Token(startPosition, text.Substring(startPosition), false);
-        }
-
         public IEnumerable<Token> ReadAllTokens(string text)
         {
             var currentPosition = 0;
@@ -41,6 +26,21 @@ namespace Markdown.Tokenization
                 yield return new Token(currentPosition, separatorValue, true);
                 currentPosition += tokenReaderConfiguration.GetSeparatorLength(text, currentPosition);
             }
+        }
+
+        private Token ReadWhileSeparator(string text, int startPosition)
+        {
+            for (var i = startPosition; i < text.Length; i++)
+            {
+                if (tokenReaderConfiguration.IsSeparator(text, i))
+                {
+                    tokenReaderConfiguration.GetSeparatorValue(text, i);
+                    var tokenValue = text.Substring(startPosition, i - startPosition);
+                    return new Token(startPosition, tokenValue, false);
+                }
+            }
+
+            return new Token(startPosition, text.Substring(startPosition), false);
         }
     }
 }

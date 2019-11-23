@@ -1,8 +1,6 @@
 ﻿using System;
 using System.Collections;
-using System.Diagnostics;
 using FluentAssertions;
-using Markdown.Properties;
 using NUnit.Framework;
 
 namespace Markdown.Core.Tests
@@ -33,7 +31,7 @@ namespace Markdown.Core.Tests
         [TestCase("_sample text_", TestName = "all text between underscores", ExpectedResult = "<em>sample text</em>")]
         [TestCase("sample _text_ is good", TestName = "underscores in the middle of text", ExpectedResult = "sample <em>text</em> is good")]
         [TestCase("i_love_tea_so_much", TestName = "multiple paired underscores", ExpectedResult = "i<em>love</em>tea<em>so</em>much")]
-        public string Render_ShouldReturnCorrect_WhenPairedUnderscoresInText(string text) => processor.Render(text);
+        public string Render_ShouldRenderToCursive_WhenPairedUnderscoresInText(string text) => processor.Render(text);
 
         [TestCase("_sample text", TestName = "unpaired single underscore in beginning", ExpectedResult = "_sample text")]
         [TestCase("sample_text", TestName = "unpaired single underscore in middle", ExpectedResult = "sample_text")]
@@ -46,10 +44,13 @@ namespace Markdown.Core.Tests
         [TestCase(@"\__this is__", TestName = "only one commented double underscore in pair", ExpectedResult = "__this is__")]
         public string Render_ShouldReturnUnchanged_WhenCommentedUnderscores(string text) => processor.Render(text);
 
+        [TestCase("\\a", TestName = "single backslash before symbol", ExpectedResult = "\\a")]
+        public string Render_ShouldReturnUnchanged_WhenCommentedCommonSymbols(string text) => processor.Render(text);
+
         [TestCase(@"\\\a", TestName = "triple backslash before symbol", ExpectedResult = @"\\a")]
         [TestCase(@"\\a", TestName = "double backslash before symbol", ExpectedResult = "\\a")]
-        [TestCase("\\a", TestName = "single backslash before symbol", ExpectedResult = "\\a")]
-        public string Render_ShouldReturnCorrect_WhenCommentedCommonSymbols(string text) => processor.Render(text);
+        public string Render_ShouldRemoveOneEscapeSymbol_WhenCommentedEscapeSymbols(string text) =>
+            processor.Render(text);
 
         [TestCase("_sample_text_", TestName = "three single underscores", ExpectedResult = "<em>sample</em>text_")]
         [TestCase("_sample_text_is_good_", TestName = "five single underscores", ExpectedResult = "<em>sample</em>text<em>is</em>good_")]
@@ -88,7 +89,7 @@ namespace Markdown.Core.Tests
         [TestCase("sample __text is__ good", TestName = "underscores in th middle of the text", ExpectedResult = "sample <strong>text is</strong> good")]
         [TestCase("__sample__ text __is__ good", TestName = "multiple pairs of underscores",
             ExpectedResult = "<strong>sample</strong> text <strong>is</strong> good")]
-        public string Render_ShouldReturnCorrect_WhenPairedDoubleUnderscoresInText(string text) => processor.Render(text);
+        public string Render_ShouldRenderToBold_WhenPairedDoubleUnderscoresInText(string text) => processor.Render(text);
 
         [TestCase("__sample _text", TestName = "double underscore, then single", ExpectedResult = "__sample _text")]
         [TestCase("_sample __text", TestName = "single underscore, then double", ExpectedResult = "_sample __text")]
@@ -111,7 +112,7 @@ namespace Markdown.Core.Tests
         public string Render_ShouldReturnEmptyString_WhenFourUnderscoresInARow(string text) => processor.Render(text);
 
         [TestCaseSource(nameof(RenderShouldReturnCorrectOnHeadersTestCases))]
-        public string Render_ShouldReturnCorrect_OnHeaders(string text) => processor.Render(text);
+        public string Render_ShouldRenderToHeaders_WhenSharpsInText(string text) => processor.Render(text);
 
         private static IEnumerable RenderShouldReturnCorrectOnHeadersTestCases
         {
@@ -146,7 +147,7 @@ namespace Markdown.Core.Tests
         }
 
         [TestCaseSource(nameof(RenderShouldReturnCorrectWhenUnderscoresInsideHeader))]
-        public string Render_ShouldReturnCorrect_WhenUnderscoresInsideHeader(string text) => processor.Render(text);
+        public string Render_ShouldRenderUnderscores_WhenUnderscoresInsideHeader(string text) => processor.Render(text);
 
         private static IEnumerable RenderShouldReturnCorrectWhenUnderscoresInsideHeader
         {
@@ -160,7 +161,7 @@ namespace Markdown.Core.Tests
         }
 
         [TestCaseSource(nameof(RenderShouldReturnCorrectWhenCommentedHeader))]
-        public string Render_ShouldReturnCorrect_WhenCommentedHeader(string text) => processor.Render(text);
+        public string Render_ShouldReturnUnchanged_WhenCommentedHeader(string text) => processor.Render(text);
 
         private static IEnumerable RenderShouldReturnCorrectWhenCommentedHeader
         {
@@ -171,28 +172,6 @@ namespace Markdown.Core.Tests
                 yield return new TestCaseData($"\\### header{NewLine}").SetName("escaped third header")
                     .Returns($"### header{NewLine}");
             }
-        }
-
-        [Test, Explicit]
-        public void Render_ShouldRenderFast()
-        {
-            var averageFileData = Resources.MarkdownTestFileAverage;
-            var bigFileData = Resources.MarkdownTestFileBig;
-
-            var averageFileProcessingTime = MeasureRunTimeInMilliseconds(() => processor.Render(averageFileData));
-            var bigFileProcessingTime = MeasureRunTimeInMilliseconds(() => processor.Render(bigFileData));
-
-            bigFileProcessingTime.Should()
-                .BeLessOrEqualTo(bigFileData.Length / averageFileData.Length * averageFileProcessingTime);
-        }
-
-        private long MeasureRunTimeInMilliseconds(Action action)
-        {
-            var stopwatch = new Stopwatch();
-            stopwatch.Start();
-            action();
-            stopwatch.Stop();
-            return stopwatch.ElapsedMilliseconds;
         }
     }
 }

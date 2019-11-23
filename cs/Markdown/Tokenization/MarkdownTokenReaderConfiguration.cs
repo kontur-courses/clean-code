@@ -49,9 +49,9 @@ namespace Markdown.Tokenization
 
         private bool IsHeaderEndSeparator(string text, int position)
         {
-            if (position == text.Length - 1)
+            if (position + Environment.NewLine.Length > text.Length)
             {
-                return Environment.NewLine.Length == 1 && text[position] == Environment.NewLine[0];
+                return false;
             }
 
             return text.Substring(position, Environment.NewLine.Length) == Environment.NewLine;
@@ -59,9 +59,8 @@ namespace Markdown.Tokenization
 
         private bool IsHeaderBeginSeparator(string text, int position)
         {
-            return text[position] == '#' && HeaderSeparatorLengthRange
-                       .Where(length => position + length < text.Length)
-                       .Select(length => text.Substring(position, length))
+            return text[position] == '#' &&
+                   GetSubstringsInHeaderLengthSeparatorRange(text, position)
                        .Any(s => s.Distinct().Count() == 2 && s.EndsWith(" "));
         }
 
@@ -73,15 +72,20 @@ namespace Markdown.Tokenization
 
         private int GetHeaderBeginSeparatorLength(string text, int position)
         {
-            return HeaderSeparatorLengthRange
-                .Where(length => position + length < text.Length)
-                .Select(length => text.Substring(position, length))
+            return GetSubstringsInHeaderLengthSeparatorRange(text, position)
                 .First(s => s.Distinct().Count() == 2 && s.EndsWith(" ")).Length;
         }
 
         private int GetUnderscoreSeparatorLength(string text, int position)
         {
             return position == text.Length - 1 || text[position + 1] != '_' ? 1 : 2;
+        }
+
+        private IEnumerable<string> GetSubstringsInHeaderLengthSeparatorRange(string text, int position)
+        {
+            return HeaderSeparatorLengthRange
+                .Where(length => position + length < text.Length)
+                .Select(length => text.Substring(position, length));
         }
     }
 }

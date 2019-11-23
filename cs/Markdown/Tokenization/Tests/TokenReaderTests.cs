@@ -18,7 +18,7 @@ namespace Markdown.Tokenization.Tests
 
 
         [Test]
-        public void ReadAllTokens_ShouldReturnCorrect_WhenSeparatorInMiddle()
+        public void ReadAllTokens_ShouldReturnThreeTokens_WhenOneSeparatorInMiddle()
         {
             var text = "sample text";
 
@@ -33,7 +33,7 @@ namespace Markdown.Tokenization.Tests
         }
 
         [Test]
-        public void ReadAllTokens_ShouldReturnCorrect_WhenSeparatorInBeginning()
+        public void ReadAllTokens_ShouldReturnFourTokens_WhenOneSeparatorInBeginningAndOneInMiddle()
         {
             var text = " sample text";
 
@@ -49,7 +49,7 @@ namespace Markdown.Tokenization.Tests
         }
 
         [Test]
-        public void ReadAllTokens_ShouldReturnCorrect_WhenSeparatorInEnd()
+        public void ReadAllTokens_ShouldReturnFourTokens_WhenOneSeparatorInMiddleAndOneInEnd()
         {
             var text = "sample text ";
 

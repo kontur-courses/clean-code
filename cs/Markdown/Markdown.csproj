@@ -59,6 +59,7 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Core\Tests\MarkdownProcessorPerformanceTests.cs" />
     <Compile Include="Extensions\StringExtensions.cs" />
     <Compile Include="Converters\IConverter.cs" />
     <Compile Include="Properties\Resources.Designer.cs">

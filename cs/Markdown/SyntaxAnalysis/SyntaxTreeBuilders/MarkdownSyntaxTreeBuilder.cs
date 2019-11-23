@@ -44,10 +44,7 @@ namespace Markdown.SyntaxAnalysis.SyntaxTreeBuilders
             }
             else
             {
-                if (token.IsSeparator)
-                {
-                    token.IsSeparator = false;
-                }
+                token.IsSeparator = false;
                 currentNode.AddChild(new SyntaxTreeNode(token));
             }
         }
@@ -113,9 +110,9 @@ namespace Markdown.SyntaxAnalysis.SyntaxTreeBuilders
                 separatorNodesStack.Count > 0 && separatorNodesStack.Peek().Token.Value != token.Value;
 
             return hasParentSeparator
-                ? rules.IsSeparatorValid(text, token.Position, isFirst, token.Value.Length,
+                ? rules.IsSeparatorValid(text, token.Position, isFirst, token.Value,
                     separatorNodesStack.Peek().Token.Value)
-                : rules.IsSeparatorValid(text, token.Position, isFirst, token.Value.Length);
+                : rules.IsSeparatorValid(text, token.Position, isFirst, token.Value);
         }
 
         private void MarkUnclosedSeparators()
