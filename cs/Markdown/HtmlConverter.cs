@@ -6,9 +6,9 @@ namespace Markdown
 {
     internal static class HtmlConverter
     {
-        internal static string ConvertToHtml(string inputString, IEnumerable<TagToken> tagsForChange)
+        internal static string ConvertToHtml(string inputString, IEnumerable<TagToken> tagTokens)
         {
-            var tagIndices = tagsForChange
+            var tagIndices = tagTokens
                 .ToDictionary(tag => tag.Index, tag => tag);
             
             var result = new StringBuilder();
@@ -20,7 +20,7 @@ namespace Markdown
                     result.Append(tagIndices[i].TokenType == TagTokenType.Opening
                         ? $"<{tagIndices[i].MarkdownTagInfo.HtmlTagDesignation}>"
                         : $"</{tagIndices[i].MarkdownTagInfo.HtmlTagDesignation}>");
-                    i += tagIndices[i].MarkdownTagInfo.MarkdownTagDesignation.Length;
+                    i += tagIndices[i].MarkdownTagInfo.MarkdownTagOpenDesignation.Length;
                 }
                 else
                 {
@@ -28,7 +28,7 @@ namespace Markdown
                     i += 1;
                 }
             }
-            
+
             return result.ToString();
         }
     }

@@ -56,6 +56,7 @@
   <ItemGroup>
     <Compile Include="Extensions\StringExtensions.cs" />
     <Compile Include="Extensions\TagTokenStreamExtensions.cs" />
+    <Compile Include="MarkdownTags\BlockquoteTagInfo.cs" />
     <Compile Include="MarkdownTags\CodeTagInfo.cs" />
     <Compile Include="MarkdownTags\EmphasisTagInfo.cs" />
     <Compile Include="MarkdownTags\MarkdownTagInfo.cs" />

@@ -12,7 +12,7 @@ namespace Markdown
         public TagParser(MarkdownTagInfo[] markdownTagsInfo)
         {
             specialSymbols = markdownTagsInfo
-                .Select(tag => tag.MarkdownTagDesignation)
+                .Select(tag => tag.MarkdownTagOpenDesignation)
                 .SelectMany(x => x)
                 .ToHashSet();
             this.markdownTagsInfo = markdownTagsInfo;
@@ -28,9 +28,18 @@ namespace Markdown
 
         private bool TryGetTagToken(string inputString, int index, MarkdownTagInfo markdownTagInfo, out TagToken tagToken)
         {
-            tagToken = null;
-            var markdownTagDesignation = markdownTagInfo.MarkdownTagDesignation;
+            if (TryGetOpenTagToken(inputString, index, markdownTagInfo, out tagToken))
+                return true;
+            if (TryGetCloseTagToken(inputString, index, markdownTagInfo, out tagToken))
+                return true;
+            return false;
+        }
 
+        private bool TryGetOpenTagToken(string inputString, int index, MarkdownTagInfo markdownTagInfo, out TagToken tagToken)
+        {
+            tagToken = null;
+            var markdownTagDesignation = markdownTagInfo.MarkdownTagOpenDesignation;
+            
             if (index + markdownTagDesignation.Length > inputString.Length)
                 return false;
             
@@ -45,19 +54,40 @@ namespace Markdown
                 ? inputString[index + markdownTagDesignation.Length]
                 : ' ';
 
-            if (markdownTagInfo.IsOpeningTag(previousTagSymbol, nextTagSymbol, specialSymbols))
+            if (markdownTagInfo.IsOpeningTag(markdownTagDesignation, previousTagSymbol, nextTagSymbol, specialSymbols))
             {
                 tagToken = new TagToken(markdownTagInfo, index, TagTokenType.Opening);
                 return true;
             }
 
-            if (markdownTagInfo.IsClosingTag(previousTagSymbol, nextTagSymbol, specialSymbols))
+            return false;
+        }
+        
+        private bool TryGetCloseTagToken(string inputString, int index, MarkdownTagInfo markdownTagInfo, out TagToken tagToken)
+        {
+            tagToken = null;
+            var markdownTagDesignation = markdownTagInfo.MarkdownTagCloseDesignation;
+            
+            if (index + markdownTagDesignation.Length > inputString.Length)
+                return false;
+            
+            if (inputString.Substring(index, markdownTagDesignation.Length) != markdownTagDesignation)
+                return false;
+            
+            var previousTagSymbol = (index != 0) 
+                ? inputString[index - 1]
+                : ' ';
+
+            var nextTagSymbol = (index + markdownTagDesignation.Length < inputString.Length)
+                ? inputString[index + markdownTagDesignation.Length]
+                : ' ';
+
+            if (markdownTagInfo.IsClosingTag(markdownTagDesignation, previousTagSymbol, nextTagSymbol, specialSymbols))
             {
                 tagToken = new TagToken(markdownTagInfo, index, TagTokenType.Closing);
                 return true;
             }
 
-            tagToken = null;
             return false;
         }
     }

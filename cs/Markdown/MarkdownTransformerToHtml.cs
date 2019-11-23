@@ -9,19 +9,20 @@ namespace Markdown
             new CodeTagInfo(),
             new EmphasisTagInfo(),
             new StrongTagInfo(),
+            new BlockquoteTagInfo(), 
         };
         
         internal static string Render(string inputString)
         {
             var tagParser = new TagParser(MarkdownTagsInfo);
 
-            var correctTags = tagParser.Parse(inputString)
-                .RemoveEscapedTags(inputString)
-                .RemoveUnpairedTags()
-                .RemoveIncorrectNestingTags();
+            var tagTokens = tagParser.Parse(inputString)
+                .RemoveEscapedTagTokens(inputString)
+                .RemoveUnpairedTagTokens()
+                .RemoveIncorrectNestingTagTokens();
 
             var outputString = HtmlConverter
-                .ConvertToHtml(inputString, correctTags)
+                .ConvertToHtml(inputString, tagTokens)
                 .RemoveEscapeSymbols();
 
             return outputString;

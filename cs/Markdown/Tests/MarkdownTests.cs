@@ -21,12 +21,20 @@ namespace Markdown
             return MarkdownTransformerToHtml.Render(inputString);
         }
 
+        [TestCase("\n>a\n", ExpectedResult = "\n<blockquote>a</blockquote>")]
+        [TestCase("_aa_\n>a\n>a\n", ExpectedResult = "<em>aa</em>\n<blockquote>a</blockquote><blockquote>a</blockquote>")]
+        public string CorrectBlockquoteTags(string inputString)
+        {
+            return MarkdownTransformerToHtml.Render(inputString);
+        }
+
         [TestCase(@"\_Hello World!\_", ExpectedResult = "_Hello World!_")]
         [TestCase(@"_Hello World!\_", ExpectedResult = "_Hello World!_")]
         [TestCase(@"\_Hello World!_", ExpectedResult = "_Hello World!_")]
         [TestCase(@"\__Hello World!\__", ExpectedResult = "__Hello World!__")]
         [TestCase(@"__Hello World!\__", ExpectedResult = "__Hello World!__")]
         [TestCase(@"\__Hello World!__", ExpectedResult = "__Hello World!__")]
+        [TestCase(@"__\___", ExpectedResult = @"_____", TestName = "EscapedTagInsideTagsNotRecognise")]
         public string EscapedTagsNotRecognized(string inputString)
         {
             return MarkdownTransformerToHtml.Render(inputString);
@@ -81,8 +89,7 @@ namespace Markdown
         {
             return MarkdownTransformerToHtml.Render(inputString);
         }
-
-        [TestCase(@"__\___", ExpectedResult = @"_____")]
+        
         [TestCase("", ExpectedResult = "", TestName = "EmptyString")]
         [TestCase("_", ExpectedResult = "_", TestName = "SingleEmphasisTag")]
         [TestCase("__", ExpectedResult = "__", TestName = "SingleStrongTag")]

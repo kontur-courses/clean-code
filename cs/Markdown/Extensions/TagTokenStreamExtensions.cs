@@ -6,16 +6,16 @@ namespace Markdown
 {
     internal static class TagTokenStreamExtensions
     {
-        public static IEnumerable<TagToken> RemoveEscapedTags(this IEnumerable<TagToken> tagTokens, string inputString)
+        public static IEnumerable<TagToken> RemoveEscapedTagTokens(this IEnumerable<TagToken> tagTokens, string inputString)
         {
             return tagTokens
-                .Where(tag => PreviousTagSymbol(tag) != '\\');
+                .Where(tag => PreviousTagTokenSymbol(tag) != '\\');
 
-            char PreviousTagSymbol(TagToken tag) =>
+            char PreviousTagTokenSymbol(TagToken tag) =>
                 (tag.Index != 0) ? inputString[tag.Index - 1] : ' ';
         }
 
-        public static IEnumerable<TagToken> RemoveUnpairedTags(this IEnumerable<TagToken> sortedTagTokens)
+        public static IEnumerable<TagToken> RemoveUnpairedTagTokens(this IEnumerable<TagToken> sortedTagTokens)
         {
             var result = new List<TagToken>();
             var tagTokenStacks = new Dictionary<MarkdownTagInfo, Stack<TagToken>>();
@@ -38,7 +38,7 @@ namespace Markdown
             return result.OrderBy(tag => tag.Index);
         }
 
-        public static IEnumerable<TagToken> RemoveIncorrectNestingTags(this IEnumerable<TagToken> sortedTagTokens)
+        public static IEnumerable<TagToken> RemoveIncorrectNestingTagTokens(this IEnumerable<TagToken> sortedTagTokens)
         {
             var priorityStack = new Stack<int>();
             priorityStack.Push(int.MaxValue);

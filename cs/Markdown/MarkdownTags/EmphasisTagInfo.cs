@@ -2,7 +2,8 @@
 {
     internal class EmphasisTagInfo : MarkdownTagInfo
     {
-        public override string MarkdownTagDesignation => "_";
+        public override string MarkdownTagOpenDesignation => "_";
+        public override string MarkdownTagCloseDesignation => "_";
         public override string HtmlTagDesignation => "em";
         public override int Priority => 1;
     }

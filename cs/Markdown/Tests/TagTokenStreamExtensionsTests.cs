@@ -19,7 +19,7 @@ namespace Markdown
         [TestCaseSource(nameof(EscapedTagsCases))]
         public void RemoveEscapedDelimiters(string inputString, List<TagToken> tags, int expectedCountTags)
         {
-            var correctTags = tags.RemoveEscapedTags(inputString).ToList();
+            var correctTags = tags.RemoveEscapedTagTokens(inputString).ToList();
             
             correctTags.Should().HaveCount(expectedCountTags);
         }
@@ -78,7 +78,7 @@ namespace Markdown
         [TestCaseSource(nameof(UnopenedTagsCases))]
         public void RemoveUnopenedTags(string inputString, List<TagToken> tags, int expectedCountTags)
         {
-            var correctTags = tags.OrderBy(tag => tag.Index).RemoveUnpairedTags().ToList();
+            var correctTags = tags.OrderBy(tag => tag.Index).RemoveUnpairedTagTokens().ToList();
 
             correctTags.Should().HaveCount(expectedCountTags);
         }
@@ -118,7 +118,7 @@ namespace Markdown
         [TestCaseSource(nameof(IncorrectNestingTagsCases))]
         public void RemoveIncorrectNestingTags(string inputString, List<TagToken> tags, int expectedCountTags)
         {
-            var correctTags = tags.OrderBy(tag => tag.Index).RemoveIncorrectNestingTags().ToList();
+            var correctTags = tags.OrderBy(tag => tag.Index).RemoveIncorrectNestingTagTokens().ToList();
 
             correctTags.Should().HaveCount(expectedCountTags);
         }
