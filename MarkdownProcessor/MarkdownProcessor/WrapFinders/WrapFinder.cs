@@ -20,7 +20,6 @@ namespace MarkdownProcessor.WrapFinders
         }
 
         protected ITextWrapType TextWrapType { get; }
-
         protected bool PreviousCharacterIsEscaping { get; private set; }
 
         private readonly IReadOnlyList<TextWrap> forbiddenToIntersectingWraps;
@@ -31,7 +30,7 @@ namespace MarkdownProcessor.WrapFinders
                 ? (TextWrap?)null
                 : forbiddenToIntersectingWraps[currentForbiddenWrapIndex.Value];
 
-        public IEnumerable<TextWrap> GetPairsOfMarkers(string text) // TODO: decomposition?
+        public IEnumerable<TextWrap> GetPairsOfMarkers(string text)
         {
             if (currentForbiddenWrapIndex.HasValue) currentForbiddenWrapIndex = 0;
             var openMarkerPositions = new Stack<int>();
@@ -42,7 +41,7 @@ namespace MarkdownProcessor.WrapFinders
             {
                 if (position + TextWrapType.CloseWrapMarker.Length >= text.Length) break;
 
-                if (!PreviousCharacterIsEscaping && text[position] == Markdown.EscapeCharacter)
+                if (IsCurrentCharacterEscape())
                 {
                     PreviousCharacterIsEscaping = true;
                     position++;
@@ -63,25 +62,37 @@ namespace MarkdownProcessor.WrapFinders
                 position++;
                 PreviousCharacterIsEscaping = false;
                 UpdateCurrentForbiddenWrapIndex(position);
+
+                bool IsCurrentCharacterEscape() => !PreviousCharacterIsEscaping &&
+                                                   text[position] == Markdown.EscapeCharacter;
             }
         }
 
         protected abstract bool IsValidOpenMarker(int markerIndex, string text);
+
+        /*
+         TODO: Вопрос! Специально протаскиваю везде аргументы (int markerIndex, string text), чтобы не делать их
+         такими же, как "protected bool PreviousCharacterIsEscaping { get; private set; }"
+         
+         Не хочется, чтобы у какого-либо метода в данном классе, кроме GetPairsOfMarkers(), была возможность изменять
+         эти свойства.
+         Но приходится часто их копипастить. Чем жертвовать - инкапсуляцией или копипастом?
+         */
         protected abstract bool IsValidCloseMarker(int markerIndex, string text);
 
         protected bool IsTheMostSpecificOpenMarker(int markerIndex, string text) =>
-            TextWrapType.OpenWrapMarker.Length == Markdown.WrapTypes.Where(
-                                                              wrapType => EqualsToOtherString(
-                                                                  markerIndex, text, wrapType.OpenWrapMarker))
-                                                          .Max(wrapType => wrapType.OpenWrapMarker.Length);
+            TextWrapType.OpenWrapMarker.Length ==
+            Markdown.WrapTypes.Where(wrapType => TextSubstringEqualsToOtherString(markerIndex, text,
+                                                                                  wrapType.OpenWrapMarker))
+                    .Max(wrapType => wrapType.OpenWrapMarker.Length);
 
         protected bool IsTheMostSpecificCloseMarker(int markerIndex, string text) =>
-            TextWrapType.CloseWrapMarker.Length == Markdown.WrapTypes.Where(
-                                                               wrapType => EqualsToOtherString(
-                                                                   markerIndex + TextWrapType.CloseWrapMarker.Length -
-                                                                   wrapType.CloseWrapMarker.Length,
-                                                                   text, wrapType.CloseWrapMarker))
-                                                           .Max(wrapType => wrapType.CloseWrapMarker.Length);
+            TextWrapType.CloseWrapMarker.Length ==
+            Markdown.WrapTypes
+                    .Where(wrapType => TextSubstringEqualsToOtherString(
+                               markerIndex + TextWrapType.CloseWrapMarker.Length - wrapType.CloseWrapMarker.Length,
+                               text, wrapType.CloseWrapMarker))
+                    .Max(wrapType => wrapType.CloseWrapMarker.Length);
 
         protected static bool HasWhitespaceBefore(int markerIndex, string text) =>
             markerIndex - 1 >= 0 && Markdown.WhiteSpaceSymbols.Contains(text[markerIndex - 1]);
@@ -91,14 +102,14 @@ namespace MarkdownProcessor.WrapFinders
             Markdown.WhiteSpaceSymbols.Contains(text[markerIndex + markerLength]);
 
         protected bool EqualsToOpenMarker(int markerIndex, string text) =>
-            EqualsToOtherString(markerIndex, text, TextWrapType.OpenWrapMarker);
+            TextSubstringEqualsToOtherString(markerIndex, text, TextWrapType.OpenWrapMarker);
 
         protected bool EqualsToCloseMarker(int markerIndex, string text) =>
-            EqualsToOtherString(markerIndex, text, TextWrapType.CloseWrapMarker);
+            TextSubstringEqualsToOtherString(markerIndex, text, TextWrapType.CloseWrapMarker);
 
-        private static bool EqualsToOtherString(int markerIndex, string text, string otherString) =>
-            markerIndex + otherString.Length < text.Length &&
-            text.Substring(markerIndex, otherString.Length) == otherString;
+        private static bool TextSubstringEqualsToOtherString(int startIndex, string text, string otherString) =>
+            startIndex + otherString.Length < text.Length &&
+            text.Substring(startIndex, otherString.Length) == otherString;
 
         private bool IsCurrentPositionInForbiddenWrap(int currentPosition)
         {

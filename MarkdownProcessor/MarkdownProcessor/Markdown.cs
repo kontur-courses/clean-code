@@ -6,19 +6,19 @@ using MarkdownProcessor.WrapFinders;
 
 namespace MarkdownProcessor
 {
-    public static class Markdown
+    public static class Markdown // TODO: maybe should to make it dynamic
     {
         public const char EscapeCharacter = '\\';
 
         public static HashSet<char> WhiteSpaceSymbols => new HashSet<char> { ' ', '\t', '\n' };
 
-        public static HashSet<ITextWrapType> WrapTypes => new HashSet<ITextWrapType>
+        public static IEnumerable<ITextWrapType> WrapTypes => new HashSet<ITextWrapType>
         {
             new SingleUnderscoreWrapType(),
             new DoubleUnderscoresWrapType()
         };
 
-        public static string RenderHtml(string markdownText) // TODO: decomposition?
+        public static string RenderHtml(string markdownText)
         {
             var markdownWithHtmlTags = ReplaceMarkdownWrapsWithHtmlTags(markdownText);
 
@@ -47,17 +47,14 @@ namespace MarkdownProcessor
         {
             var allWraps = GetTextWraps(markdownText)
                 .Aggregate((wraps, otherWraps) => GetUnionOfWrapSequences(wraps, otherWraps).ToArray());
-
             var currentWrapIndex = -1;
 
             var stringBuilder = new StringBuilder(markdownText.Length);
-
             var position = 0;
 
-            while (position < markdownText.Length) // TODO: refactor
+            while (position < markdownText.Length)
             {
-                if (currentWrapIndex + 1 < allWraps.Length &&
-                    position == allWraps[currentWrapIndex + 1].OpenMarkerIndex)
+                if (CurrentCharacterIsNextOpenMarker())
                 {
                     currentWrapIndex++;
                     stringBuilder.Append(allWraps[currentWrapIndex].WrapType.HtmlRepresentationOfOpenMarker);
@@ -67,7 +64,7 @@ namespace MarkdownProcessor
                     continue;
                 }
 
-                if (currentWrapIndex >= 0 && position == allWraps[currentWrapIndex].CloseMarkerIndex)
+                if (CurrentCharacterIsCloseMarker())
                 {
                     stringBuilder.Append(allWraps[currentWrapIndex].WrapType.HtmlRepresentationOfCloseMarker);
 
@@ -83,9 +80,15 @@ namespace MarkdownProcessor
             }
 
             return stringBuilder.ToString();
+
+            bool CurrentCharacterIsNextOpenMarker() => currentWrapIndex + 1 < allWraps.Length &&
+                                                       position == allWraps[currentWrapIndex + 1].OpenMarkerIndex;
+
+            bool CurrentCharacterIsCloseMarker() => currentWrapIndex >= 0 &&
+                                                    position == allWraps[currentWrapIndex].CloseMarkerIndex;
         }
 
-        private static TextWrap[][] GetTextWraps(string text)
+        private static TextWrap[][] GetTextWraps(string text) // TODO
         {
             var singleUnderscoreWrap = new SingleUnderscoreWrapType();
             var singleUnderscoreWrapFinder = new UnderscoresWrapFinder(singleUnderscoreWrap);
