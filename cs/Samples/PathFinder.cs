@@ -6,28 +6,28 @@ namespace Samples
 {
     public class PathFinder
     {
-        public static IMaze maze;
-        private static readonly Queue<Point> queue = new Queue<Point>();
-        private static readonly ISet<Point> used = new HashSet<Point>();
+        public static IMaze Maze;
+        private static readonly Queue<Point> Queue = new Queue<Point>();
+        private static readonly ISet<Point> Used = new HashSet<Point>();
 
         public static void GenerateRandomMaze() { /* maze = ... */ }
 
         public static Point GetNextStepToTarget(Point source, Point target)
         {
-            queue.Clear();
-            used.Clear();
-            queue.Enqueue(target);
-            used.Add(target);
-            while (queue.Any())
+            Queue.Clear();
+            Used.Clear();
+            Queue.Enqueue(target);
+            Used.Add(target);
+            while (Queue.Any())
             {
-                var p = queue.Dequeue();
+                var p = Queue.Dequeue();
                 foreach (var neighbour in GetNeighbours(p))
                 {
-                    if (used.Contains(neighbour)) continue;
+                    if (Used.Contains(neighbour)) continue;
                     if (neighbour == source)
                         return p;
-                    queue.Enqueue(neighbour);
-                    used.Add(neighbour);
+                    Queue.Enqueue(neighbour);
+                    Used.Add(neighbour);
                 }
             }
             return source;
@@ -37,8 +37,8 @@ namespace Samples
         {
             return new[] { new Size(1, 0), new Size(-1, 0), new Size(0, 1), new Size(0, -1) }
                 .Select(shift => from + shift)
-                .Where(maze.InsideMaze)
-                .Where(maze.IsFree);
+                .Where(Maze.InsideMaze)
+                .Where(Maze.IsFree);
         }
     }
 

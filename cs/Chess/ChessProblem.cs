@@ -2,12 +2,12 @@
 {
     public class ChessProblem
     {
-        private static Board board;
+        private static Board _board;
         public static ChessStatus ChessStatus;
 
         public static void LoadFrom(string[] lines)
         {
-            board = new BoardParser().ParseBoard(lines);
+            _board = new BoardParser().ParseBoard(lines);
         }
 
         // Определяет мат, шах или пат белым.
@@ -15,17 +15,17 @@
         {
             var isCheck = IsCheckForWhite();
             var hasMoves = false;
-            foreach (var locFrom in board.GetPieces(PieceColor.White))
+            foreach (var locFrom in _board.GetPieces(PieceColor.White))
             {
-                foreach (var locTo in board.GetPiece(locFrom).GetMoves(locFrom, board))
+                foreach (var locTo in _board.GetPiece(locFrom).GetMoves(locFrom, _board))
                 {
-                    var old = board.GetPiece(locTo);
-                    board.Set(locTo, board.GetPiece(locFrom));
-                    board.Set(locFrom, null);
+                    var old = _board.GetPiece(locTo);
+                    _board.Set(locTo, _board.GetPiece(locFrom));
+                    _board.Set(locFrom, null);
                     if (!IsCheckForWhite())
                         hasMoves = true;
-                    board.Set(locFrom, board.GetPiece(locTo));
-                    board.Set(locTo, old);
+                    _board.Set(locFrom, _board.GetPiece(locTo));
+                    _board.Set(locTo, old);
                 }
             }
             if (isCheck)
@@ -40,13 +40,13 @@
         private static bool IsCheckForWhite()
         {
             var isCheck = false;
-            foreach (var loc in board.GetPieces(PieceColor.Black))
+            foreach (var loc in _board.GetPieces(PieceColor.Black))
             {
-                var piece = board.GetPiece(loc);
-                var moves = piece.GetMoves(loc, board);
+                var piece = _board.GetPiece(loc);
+                var moves = piece.GetMoves(loc, _board);
                 foreach (var destination in moves)
                 {
-                    if (Piece.Is(board.GetPiece(destination),
+                    if (Piece.Is(_board.GetPiece(destination),
                                  PieceColor.White, PieceType.King))
                         isCheck = true;
                 }
