@@ -42,6 +42,8 @@ namespace Markdown.Tests
         [TestCase(@"\_a\_", ExpectedResult = "_a_", TestName = "EscapedTagAtStartLine")]
         [TestCase(@"a \__b\__ c", ExpectedResult = "a __b__ c", TestName = "EscapedTagAtMiddleLine")]
         [TestCase(@"\# blabla", ExpectedResult = "# blabla", TestName = "EscapedHeader")]
+
+        [TestCase(@"\\", ExpectedResult = @"\", TestName = "WhenEscapeBackslash")]
         public string Render_DontReplaceEscapedTags(string rawText)
         {
             return Md.Render(rawText);
@@ -54,7 +56,6 @@ namespace Markdown.Tests
             TestName = "WhenDoubleStarTag")]
         [TestCase("# Заголовок", ExpectedResult = "<h1> Заголовок</h1>", TestName = "WhenSharpAtStartLine")]
         [TestCase("не # Заголовок", ExpectedResult = "не # Заголовок", TestName = "WhenSharpAtMiddleLine")]
-        [TestCase(@"\\", ExpectedResult = @"\", TestName = "a")]
         public string Render_ReplacedTagsFromSpec(string rawText)
         {
             return Md.Render(rawText);
