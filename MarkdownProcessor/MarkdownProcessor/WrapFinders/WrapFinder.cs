@@ -5,36 +5,36 @@ namespace MarkdownProcessor.WrapFinders
 {
     public abstract class WrapFinder
     {
-        protected WrapFinder(ITextWrap textWrap) => TextWrap = textWrap;
+        protected WrapFinder(ITextWrapType textWrapType) => TextWrapType = textWrapType;
 
-        protected WrapFinder(ITextWrap textWrap, WrapBorder[] forbiddenToIntersectingWraps) : this(textWrap)
+        protected WrapFinder(ITextWrapType textWrapType, TextWrap[] forbiddenToIntersectingWraps) : this(textWrapType)
         {
             this.forbiddenToIntersectingWraps = forbiddenToIntersectingWraps;
             currentForbiddenWrapIndex = 0;
         }
 
-        protected ITextWrap TextWrap { get; }
+        protected ITextWrapType TextWrapType { get; }
 
         protected bool IsEscapedCharacter { get; private set; }
 
-        private readonly WrapBorder[] forbiddenToIntersectingWraps;
+        private readonly TextWrap[] forbiddenToIntersectingWraps;
         private int? currentForbiddenWrapIndex;
 
-        private WrapBorder? CurrentForbiddenWrap =>
+        private TextWrap? CurrentForbiddenWrap =>
             forbiddenToIntersectingWraps is null || currentForbiddenWrapIndex is null
-                ? (WrapBorder?)null
+                ? (TextWrap?)null
                 : forbiddenToIntersectingWraps[currentForbiddenWrapIndex.Value];
 
         private static readonly Stack<int> openMarkerPositions = new Stack<int>();
 
-        public IEnumerable<WrapBorder> GetPairsOfMarkers(string text) // TODO: decomposition?
+        public IEnumerable<TextWrap> GetPairsOfMarkers(string text) // TODO: decomposition?
         {
             var position = 0;
             IsEscapedCharacter = false;
 
             while (position < text.Length)
             {
-                if (position + TextWrap.CloseWrapMarker.Length >= text.Length) break;
+                if (position + TextWrapType.CloseWrapMarker.Length >= text.Length) break;
 
                 if (!IsEscapedCharacter && text[position] == Markdown.EscapeCharacter)
                 {
@@ -54,7 +54,7 @@ namespace MarkdownProcessor.WrapFinders
                 if (IsValidOpenMarker(position, text))
                     openMarkerPositions.Push(position);
                 else if (IsValidCloseMarker(position, text))
-                    yield return new WrapBorder(openMarkerPositions.Pop(), position);
+                    yield return new TextWrap(TextWrapType, openMarkerPositions.Pop(), position);
 
                 position++;
                 UpdateCurrentForbiddenWrapIndex(position);
@@ -72,10 +72,10 @@ namespace MarkdownProcessor.WrapFinders
             Markdown.WhiteSpaceSymbols.Contains(text[markerIndex + markerLength]);
 
         protected bool EqualsToOpenMarker(int markerIndex, string text) =>
-            EqualsToOtherString(markerIndex, text, TextWrap.OpenWrapMarker);
+            EqualsToOtherString(markerIndex, text, TextWrapType.OpenWrapMarker);
 
         protected bool EqualsToCloseMarker(int markerIndex, string text) =>
-            EqualsToOtherString(markerIndex, text, TextWrap.CloseWrapMarker);
+            EqualsToOtherString(markerIndex, text, TextWrapType.CloseWrapMarker);
 
         private static bool EqualsToOtherString(int markerIndex, string text, string otherString) =>
             markerIndex + otherString.Length < text.Length &&

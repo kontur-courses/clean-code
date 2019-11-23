@@ -43,27 +43,49 @@ namespace MarkdownProcessor
 
         private static string ReplaceMarkdownWrapsWithHtmlTags(string markdownText)
         {
-            var wrapBordersByTextWrap = GetTextWraps(markdownText);
+            var allWraps = GetTextWraps(markdownText).Values.Aggregate(
+                (wraps, otherWraps) =>
+                    GetUnionOfWrapSequences(wraps, otherWraps)
+                        .ToArray());
+
 
             throw new NotImplementedException();
         }
 
-        private static Dictionary<ITextWrap, WrapBorder[]> GetTextWraps(string text)
+        private static Dictionary<ITextWrapType, TextWrap[]> GetTextWraps(string text)
         {
-            var singleUnderscoreWrap = new SingleUnderscoreWrap();
+            var singleUnderscoreWrap = new SingleUnderscoreWrapType();
             var singleUnderscoreWrapFinder = new UnderscoresWrapFinder(singleUnderscoreWrap);
             var singleUnderscoreWraps = singleUnderscoreWrapFinder.GetPairsOfMarkers(text).ToArray();
 
-            var doubleUnderscoresWrap = new DoubleUnderscoresWrap();
+            var doubleUnderscoresWrap = new DoubleUnderscoresWrapType();
             var doubleUnderscoresWrapFinder = new UnderscoresWrapFinder(doubleUnderscoresWrap,
                                                                         singleUnderscoreWraps);
             var doubleUnderscoresWraps = doubleUnderscoresWrapFinder.GetPairsOfMarkers(text).ToArray();
 
-            return new Dictionary<ITextWrap, WrapBorder[]>
+            return new Dictionary<ITextWrapType, TextWrap[]>
             {
                 [singleUnderscoreWrap] = singleUnderscoreWraps,
                 [doubleUnderscoresWrap] = doubleUnderscoresWraps
             };
+        }
+
+        private static IEnumerable<TextWrap> GetUnionOfWrapSequences(IReadOnlyList<TextWrap> wraps,
+                                                                     IReadOnlyList<TextWrap> otherWraps)
+        {
+            var wrapsIndex = 0;
+            var otherWrapsIndex = 0;
+
+            while (wrapsIndex < wraps.Count && otherWrapsIndex < otherWraps.Count)
+                if (wraps[wrapsIndex].OpenMarkerIndex < otherWraps[otherWrapsIndex].OpenMarkerIndex)
+                    yield return wraps[wrapsIndex++];
+                else
+                    yield return otherWraps[otherWrapsIndex++];
+
+            while (wrapsIndex < wraps.Count)
+                yield return wraps[wrapsIndex++];
+            while (otherWrapsIndex < otherWraps.Count)
+                yield return otherWraps[otherWrapsIndex++];
         }
     }
 }

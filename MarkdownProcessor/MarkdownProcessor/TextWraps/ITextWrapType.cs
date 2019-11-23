@@ -1,6 +1,6 @@
 ﻿namespace MarkdownProcessor.TextWraps
 {
-    public interface ITextWrap
+    public interface ITextWrapType // TODO: union TextWrap and WrapBorder
     {
         string OpenWrapMarker { get; }
         string CloseWrapMarker { get; }

@@ -1,6 +1,6 @@
 ﻿namespace MarkdownProcessor.TextWraps
 {
-    public struct SingleUnderscoreWrap : ITextWrap
+    public struct SingleUnderscoreWrapType : ITextWrapType
     {
         public string OpenWrapMarker => "_";
         public string CloseWrapMarker => OpenWrapMarker;
