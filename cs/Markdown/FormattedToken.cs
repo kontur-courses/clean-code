@@ -24,5 +24,10 @@ namespace Markdown
             return new FormattedToken(null, FormattedTokenType.Raw,
                 token.Position, token.Length + token.Position - 1);
         }
+
+        public static FormattedToken GetTokenFromSubTokens(List<FormattedToken> tokens, FormattedTokenType type)
+        {
+            return new FormattedToken(tokens, type, tokens[0].StartIndex, tokens[tokens.Count - 1].EndIndex);
+        }
     }
 }

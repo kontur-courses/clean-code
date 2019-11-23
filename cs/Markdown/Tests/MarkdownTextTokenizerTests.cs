@@ -142,7 +142,7 @@ namespace Markdown.Tests
         [TestCase("Just a__ text", TestName = "One ending double underscore inside")]
         [TestCase("Not__ a bold__", TestName = "Space after opening double underscore")]
         [TestCase("Just a text_123_abc", TestName = "Underscores inside text")]
-        public void GetTokens_ShouldReturnOnlyRawTokens_OnTextWithoutCorrectUnderscoring(string text)
+        public void GetTokens_ShouldReturnOnlyRawTokens_OnTextWithoutCorrectTagging(string text)
         {
             var result = tokenizer.GetTokens(text).Select(t => t.Type).Any(t => t != FormattedTokenType.Raw);
 
@@ -160,7 +160,7 @@ namespace Markdown.Tests
         [TestCase("Just a__ text", TestName = "One ending double underscore inside")]
         [TestCase("Not__ a bold__", TestName = "Space after opening double underscore")]
         [TestCase("Just a text_123_abc", TestName = "Underscores inside text")]
-        public void GetToken_ShouldReturnTokenWithoutSpaces_OnTextWithoutCorrectUnderscoring(string text)
+        public void GetToken_ShouldReturnTokenWithoutSpaces_OnTextWithoutCorrectTagging(string text)
         {
             var result = tokenizer.GetTokens(text).ToList();
             result[0].StartIndex.Should().Be(0);
@@ -250,5 +250,46 @@ namespace Markdown.Tests
 
             result.Should().HaveCount(1).And.AllBeEquivalentTo(expectedResult);
         }
+
+        [Test]
+        public void GetTokens_ShouldReturnCorrectTokens_OnOneLink()
+        {
+            var text = "[link text](link)";
+
+            var uriTokenRaw = new FormattedToken(null, FormattedTokenType.Raw,
+                "[link text](".Length, text.Length - 2);
+            var uriToken = new FormattedToken(new List<FormattedToken> { uriTokenRaw }, FormattedTokenType.LinkUri,
+                uriTokenRaw.StartIndex, uriTokenRaw.EndIndex);
+            var textTokenRaw = new FormattedToken(null, FormattedTokenType.Raw,
+                1, "[link tex".Length);
+            var textToken = new FormattedToken(new List<FormattedToken> { textTokenRaw, uriToken }, FormattedTokenType.LinkText,
+                textTokenRaw.StartIndex, textTokenRaw.EndIndex);
+
+            var result = tokenizer.GetTokens(text).ToList();
+
+            result.Should().HaveCount(1).And.AllBeEquivalentTo(textToken);
+        }
+
+        //[Test]
+        //public void GetTokens_ShouldReturnCorrectTokens_OnLinkInsideText()
+        //{
+
+        //}
+
+        ////tests to text about correct taging
+
+        //[Test]
+        //public void GetTokens_ShouldReturnCorrectTokens_OnLinkInsideItalic()
+        //{
+
+
+        //}
+
+        //[Test]
+        //public void GetTokens_ShouldReturnCorrectTokens_OnLinkInsideBold()
+        //{
+
+        //}
+
     }
 }

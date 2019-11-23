@@ -67,6 +67,26 @@ namespace Markdown.Tests
             "__В конце двойного _есть одинарное___",
             ExpectedResult = "<strong>В конце двойного <em>есть одинарное</em></strong>",
             TestName = "</em> tag right before </strong> tag")]
+        [TestCase(
+            "[текст ссылки](ссылка)",
+            ExpectedResult = @"<a href=""ссылка"">текст ссылки</a>",
+            TestName = "All line in <a href> tag")]
+        [TestCase(
+            "Здесь [текст ссылки](ссылка) ссылка",
+            ExpectedResult = @"Здесь <a href=""ссылка"">текст ссылки</a> ссылка",
+            TestName = "<a href> tag inside text")]
+        [TestCase(
+            "Здесь [__текст__ ссылки](ссылка) ссылка",
+            ExpectedResult = @"Здесь <a href=""ссылка"">__текст__ ссылки</a> ссылка",
+            TestName = "No other tags in <a href> tag")]
+        [TestCase(
+            "__Здесь [текст ссылки](ссылка)__ ссылка",
+            ExpectedResult = @"<strong>Здесь <a href=""ссылка"">текст ссылки</a></strong> ссылка",
+            TestName = "<a href> inside strong tag")]
+        [TestCase(
+            "_Здесь [текст ссылки](ссылка)_ ссылка",
+            ExpectedResult = @"<em>Здесь <a href=""ссылка"">текст ссылки</a></em> ссылка",
+            TestName = "<a href> inside italic tag")]
         public string Render_ShouldReturnCorrectlyRenderedText(string text)
         {
             return md.Render(text);

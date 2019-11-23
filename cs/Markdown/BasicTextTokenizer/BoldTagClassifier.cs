@@ -6,8 +6,12 @@ namespace Markdown.BasicTextTokenizer
     {
         public int Priority => 1;
         public FormattedTokenType Type => FormattedTokenType.Bold;
-        public Type[] AllowedSubClassifiers => new[] { typeof(ItalicTagClassifier) };
-        public string Tag => "__";
+        public Type[] AllowedSubClassifiers => new[] { typeof(ItalicTagClassifier), typeof(LinkTextTagClassifier) };
+        public int TagLength => 2;
+        public bool HasSecondPart => false;
+        public bool HasFirstPart => false;
+        public Type SecondPartType => null;
+        private const string Tag = "__";
 
         public bool IsOpeningSequence(string text, int position)
         {

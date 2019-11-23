@@ -4,6 +4,8 @@
     {
         Raw,
         Bold,
-        Italic
+        Italic,
+        LinkText,
+        LinkUri
     }
 }

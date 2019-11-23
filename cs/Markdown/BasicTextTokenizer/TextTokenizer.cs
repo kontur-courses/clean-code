@@ -52,7 +52,7 @@ namespace Markdown.BasicTextTokenizer
                 .OrderBy(c => c.Priority)
                 .First(c => c.IsOpeningSequence(reader.Text, reader.Position));
 
-            var tag = reader.ReadCount(classifier.Tag.Length);
+            var tag = reader.ReadCount(classifier.TagLength);
 
             if (openings.ContainsKey(classifier))
             {
@@ -72,7 +72,7 @@ namespace Markdown.BasicTextTokenizer
                 .OrderByDescending(c => c.Priority)
                 .First(c => c.IsClosingSequence(reader.Text, reader.Position));
 
-            var tag = reader.ReadCount(classifier.Tag.Length);
+            var tag = reader.ReadCount(classifier.TagLength);
 
             if (!openings.ContainsKey(classifier))
             {

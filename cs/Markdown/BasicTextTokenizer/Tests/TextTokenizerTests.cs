@@ -11,16 +11,18 @@ namespace Markdown.BasicTextTokenizer.Tests
         private TextTokenizer tokenizer;
         public static readonly ItalicTagClassifier ItalicTag = new ItalicTagClassifier();
         public static readonly BoldTagClassifier BoldTag = new BoldTagClassifier();
+        public static readonly LinkTextTagClassifier LinkTextTag = new LinkTextTagClassifier();
+        public static readonly LinkUriTagClassifier LinkUriTag = new LinkUriTagClassifier();
 
         [SetUp]
         public void SetUp()
         {
             const char escapeSymbol = '\\';
-            var escapableSymbols = new[] { '_', escapeSymbol };
+            var escapableSymbols = new[] { '_', escapeSymbol, '[', ']', '(', ')' };
             bool IsEscapeSequence(string text, int position) => position + 1 < text.Length
                                                       && text[position] == escapeSymbol
                                                       && escapableSymbols.Contains(text[position + 1]);
-            tokenizer = new TextTokenizer(new ITagClassifier[] { ItalicTag, BoldTag },
+            tokenizer = new TextTokenizer(new ITagClassifier[] { ItalicTag, BoldTag, LinkTextTag, LinkUriTag },
                 IsEscapeSequence);
         }
 
@@ -36,9 +38,10 @@ namespace Markdown.BasicTextTokenizer.Tests
         [TestCaseSource(typeof(SingleUnderscoreCases))]
         [TestCaseSource(typeof(NestingCases))]
         [TestCaseSource(typeof(EscapedCases))]
+        [TestCaseSource(typeof(LinksCases))]
         public void GetTokens_ShouldReturnCorrectTokens(string text, List<Token> expectedTokens)
         {
-            var result = tokenizer.GetTokens(text);
+            var result = tokenizer.GetTokens(text).ToList();
 
             result.Should().BeEquivalentTo(expectedTokens, options => options.IgnoringCyclicReferences());
         }
@@ -323,6 +326,43 @@ namespace Markdown.BasicTextTokenizer.Tests
             };
 
             return new object[] { text, expectedTokens };
+        }
+    }
+
+    internal class LinksCases : IEnumerable
+    {
+        public IEnumerator GetEnumerator()
+        {
+            yield return GetSimpleLink();
+        }
+
+        private static object[] GetSimpleLink()
+        {
+            var text = "[abc](cde)";
+
+            var openingText = Token.CreateControllingToken(0, 1,
+                TokenType.Opening, TextTokenizerTests.LinkTextTag, null);
+            var closingText = Token.CreateControllingToken(4, 1,
+                TokenType.Ending, TextTokenizerTests.LinkTextTag, openingText);
+            openingText.PairedToken = closingText;
+
+            var openingUri = Token.CreateControllingToken(5, 1,
+                TokenType.Opening, TextTokenizerTests.LinkUriTag, null);
+            var closingUri = Token.CreateControllingToken(text.Length - 1, 1,
+                TokenType.Ending, TextTokenizerTests.LinkUriTag, openingUri);
+            openingUri.PairedToken = closingUri;
+
+            var expectedTokens = new List<Token>
+            {
+                openingText,
+                Token.CreateTextToken(1, 3),
+                closingText,
+                openingUri,
+                Token.CreateTextToken(6, 3),
+                closingUri
+            };
+
+            return new object[] {text, expectedTokens};
         }
     }
 }

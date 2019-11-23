@@ -9,6 +9,9 @@ namespace Markdown.BasicTextTokenizer
         int Priority { get; }
         FormattedTokenType Type { get; }
         Type[] AllowedSubClassifiers { get; }
-        string Tag { get; }
+        int TagLength { get; }
+        bool HasSecondPart { get; }
+        bool HasFirstPart { get; }
+        Type SecondPartType { get; }
     }
 }
