@@ -6,7 +6,7 @@ namespace Markdown
 {
     public class Md
     {
-        public string Render(string markdown)
+        public static string Render(string markdown)
         {
             var tokenizer = new Tokenizer();
             var tree = MarkdownParser.Parse(tokenizer.GetTokens(markdown));
