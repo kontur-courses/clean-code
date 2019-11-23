@@ -1,7 +1,6 @@
 ﻿using System.Linq;
 using FluentAssertions;
 using NUnit.Framework;
-using Markdown.Core;
 using Markdown.Core.Parsers;
 using Markdown.Core.Rules;
 
@@ -15,7 +14,9 @@ namespace Markdown.Tests
         [SetUp]
         public void SetUp()
         {
-            mainParser = new MainParser(RuleFactory.CreateAllRules());
+            var rules = RuleFactory.CreateAllRules();
+            var sourceTags = rules.Select(rule => rule.SourceTag);
+            mainParser = new MainParser(sourceTags);
         }
 
         [TestCase("_foo_ __bar__", 4, TestName = "WhenTwoTagsInSeries")]
