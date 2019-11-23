@@ -1,7 +1,7 @@
 ﻿using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
-using System.Text;
+using FluentAssertions;
 using Markdown.Core;
 using NUnit.Framework;
 
@@ -54,6 +54,7 @@ namespace Markdown.Tests
             TestName = "WhenDoubleStarTag")]
         [TestCase("# Заголовок", ExpectedResult = "<h1> Заголовок</h1>", TestName = "WhenSharpAtStartLine")]
         [TestCase("не # Заголовок", ExpectedResult = "не # Заголовок", TestName = "WhenSharpAtMiddleLine")]
+        [TestCase(@"\\", ExpectedResult = @"\", TestName = "a")]
         public string Render_ReplacedTagsFromSpec(string rawText)
         {
             return Md.Render(rawText);
@@ -65,15 +66,24 @@ namespace Markdown.Tests
             for (var i = 0; i < 10; i++)
                 Md.Render(rawText);
 
-            var averageTimeRawText = GetAverageWorkTime(rawText, 1000);
+            var averageTimeRawText = GetAverageWorkTime(rawText, 100);
 
-            var newRawText = rawText;
-            for (var i = 0; i < 1000; i++)
-                newRawText += $" {rawText}";
+            var oneThousandRawText = Concate(rawText, rawText, 1000);
+            var averageTimeOneThousandRawText = GetAverageWorkTime(oneThousandRawText, 100);
 
-            var averageTimeTenRawText = GetAverageWorkTime(newRawText, 1000);
+            var twoThousandRawText = Concate(oneThousandRawText, rawText, 1000);
+            var averageTimeTwoThousandRawText = GetAverageWorkTime(twoThousandRawText, 100);
 
-            Assert.LessOrEqual(averageTimeTenRawText, 1000 * averageTimeRawText);
+            averageTimeOneThousandRawText.Should().BeLessOrEqualTo(1000 * averageTimeRawText);
+            averageTimeTwoThousandRawText.Should().BeLessOrEqualTo(2 * averageTimeOneThousandRawText);
+
+        }
+
+        private string Concate(string source, string other, int count)
+        {
+            for (var i = 0; i < count; i++)
+                source += $" {other}";
+            return source;
         }
 
         private double GetAverageWorkTime(string rawText, int count)
