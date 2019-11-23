@@ -2,10 +2,10 @@ using FluentAssertions;
 using Markdown;
 using NUnit.Framework;
 
-namespace Test_Markdown
+namespace Markdown_Test
 {
     [TestFixture]
-    public class Test_Md
+    public class Md_Test
     {
         [TestCase("Just a string", "Just a string",
             TestName = "InputString_IfStringWithoutAnyControlChar")]

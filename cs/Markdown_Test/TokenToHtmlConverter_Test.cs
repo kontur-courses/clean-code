@@ -2,11 +2,12 @@ using FluentAssertions;
 using Markdown;
 using NUnit.Framework;
 
-namespace Test_Markdown
+namespace Markdown_Test
 {
-    [TestFixture]
-    public class Test_Token
+    public class TokenToHtmlConverter_Test
     {
+        private readonly TokenToHtmlConverter htmlConverter = new TokenToHtmlConverter();
+        
         [Test]
         public void ConvertTokenToHTML_ShouldReturnSimpleString_OnSimplestInput()
         {
@@ -16,8 +17,8 @@ namespace Test_Markdown
             {
                 token.AddChar(cha);
             }
-            token.CloseToken(4, "");
-            var actual = token.ConvertToHTMLTag();
+            token.CloseToken();
+            var actual = htmlConverter.ConvertToHtml(token);
 
             actual.Should().Be(input);
         }
@@ -33,8 +34,8 @@ namespace Test_Markdown
             {
                 token.AddChar(cha);
             }
-            token.CloseToken(4, "em");
-            var actual = token.ConvertToHTMLTag();
+            token.CloseToken();
+            var actual = htmlConverter.ConvertToHtml(token);
 
             actual.Should().Be(excepted);
         }
@@ -43,19 +44,19 @@ namespace Test_Markdown
         public void ConvertTokenToHTML_ShouldReturnStringWithDoubleTag_IfTokenInMiddleOfToken()
         {
             var input = "asda";
-            var excepted = "<all>a<inside>sd</inside>a</all>";
-            var token = new Token("");
+            var excepted = "<em>a<strong>sd</strong>a</em>";
+            var token = new Token("_");
             
             token.CreateInnerToken("");
             token.AddChar('a');
-            var innerToken = token.CreateInnerToken("");
+            var innerToken = token.CreateInnerToken("__");
             token.AddChar('s');
             token.AddChar('d');
-            innerToken.CloseToken(2, "inside");
+            innerToken.CloseToken();
             token.AddChar('a');
-            token.CloseToken(3, "all");
+            token.CloseToken();
             
-            var actual = token.ConvertToHTMLTag();
+            var actual = htmlConverter.ConvertToHtml(token);
 
             actual.Should().Be(excepted);
         }
@@ -64,19 +65,19 @@ namespace Test_Markdown
         public void ConvertTokenToHTML_ShouldReturnStringWithDoubleTag_IfTokenInRightCornerOfToken()
         {
             var input = "asda";
-            var excepted = "<all>as<inside>da</inside></all>";
-            var token = new Token("");
+            var excepted = "<em>as<strong>da</strong></em>";
+            var token = new Token("_");
             
             token.CreateInnerToken("");
             token.AddChar('a');
             token.AddChar('s');
-            var innerToken = token.CreateInnerToken("");
+            var innerToken = token.CreateInnerToken("__");
             token.AddChar('d');
             token.AddChar('a');
-            innerToken.CloseToken(3, "inside");
-            token.CloseToken(3, "all");
+            innerToken.CloseToken();
+            token.CloseToken();
 
-            var actual = token.ConvertToHTMLTag();
+            var actual = htmlConverter.ConvertToHtml(token);
 
             actual.Should().Be(excepted);
         }
@@ -85,17 +86,17 @@ namespace Test_Markdown
         public void ConvertTokenToHTML_ShouldReturnStringWithDoubleTag_IfTokenInLeftCornerOfToken()
         {
             var input = "asda";
-            var excepted = "<all><inside>as</inside>da</all>";
-            var token = new Token("");
-            var innerToken = token.CreateInnerToken("");
+            var excepted = "<em><strong>as</strong>da</em>";
+            var token = new Token("_");
+            var innerToken = token.CreateInnerToken("__");
             token.AddChar('a');
             token.AddChar('s');
-            innerToken.CloseToken(1, "inside");
+            innerToken.CloseToken();
             token.AddChar('d');
             token.AddChar('a');
-            token.CloseToken(3, "all");
+            token.CloseToken();
             
-            var actual = token.ConvertToHTMLTag();
+            var actual = htmlConverter.ConvertToHtml(token);
 
             actual.Should().Be(excepted);
         }
@@ -104,17 +105,17 @@ namespace Test_Markdown
         public void ConvertTokenToHTML_ShouldReturnStringWithDoubleTag_IfTokenIsWholeToken()
         {
             var input = "asda";
-            var excepted = "<all><inside>asda</inside></all>";
-            var token = new Token("");
-            var innerToken = token.CreateInnerToken("");
+            var excepted = "<em><strong>asda</strong></em>";
+            var token = new Token("_");
+            var innerToken = token.CreateInnerToken("__");
             token.AddChar('a');
             token.AddChar('s');
             token.AddChar('d');
             token.AddChar('a');
-            innerToken.CloseToken(3, "inside");
-            token.CloseToken(3, "all");
+            innerToken.CloseToken();
+            token.CloseToken();
             
-            var actual = token.ConvertToHTMLTag();
+            var actual = htmlConverter.ConvertToHtml(token);
 
             actual.Should().Be(excepted);
         }
@@ -132,7 +133,7 @@ namespace Test_Markdown
                 token.AddChar(cha);
             }
 
-            var actual = token.ConvertToHTMLTag();
+            var actual = htmlConverter.ConvertToHtml(token);
 
             actual.Should().Be(excepted);
         }

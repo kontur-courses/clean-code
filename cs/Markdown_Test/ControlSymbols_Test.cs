@@ -2,17 +2,17 @@ using FluentAssertions;
 using Markdown;
 using NUnit.Framework;
 
-namespace Test_Markdown
+namespace Markdown_Test
 {
     [TestFixture]
-    public class Test_ControlSymbols
+    public class ControlSymbols_Test
     {
         [Test]
         public void MakeDecisionForTwoUnderscores_ShouldStop_IfTakesTwoUnderscoresWithWhiteSpace()
         {
             var input = "asd__ ";
             
-            var actual = ControlSymbols.ControlSymbolDecisionOnChar["__"](input, 3);
+            var actual = ControlSymbols.DecisionByControlSymbol["__"](input, 3);
 
             actual.Should().Be(StopSymbolDecision.Stop);
         }
@@ -22,7 +22,7 @@ namespace Test_Markdown
         {
             var input = "asd__";
             
-            var actual = ControlSymbols.ControlSymbolDecisionOnChar["__"](input, 3);
+            var actual = ControlSymbols.DecisionByControlSymbol["__"](input, 3);
 
             actual.Should().Be(StopSymbolDecision.Stop);
         }
@@ -32,7 +32,7 @@ namespace Test_Markdown
         {
             var input = "asd __";
             
-            var actual = ControlSymbols.ControlSymbolDecisionOnChar["__"](input, 4);
+            var actual = ControlSymbols.DecisionByControlSymbol["__"](input, 4);
 
             actual.Should().Be(StopSymbolDecision.AddChar);
         }
@@ -42,7 +42,7 @@ namespace Test_Markdown
         {
             var input = "asd __ ";
             
-            var actual = ControlSymbols.ControlSymbolDecisionOnChar["__"](input, 4);
+            var actual = ControlSymbols.DecisionByControlSymbol["__"](input, 4);
 
             actual.Should().Be(StopSymbolDecision.AddChar);
         }
@@ -52,7 +52,7 @@ namespace Test_Markdown
         {
             var input = "asd _asd";
             
-            var actual = ControlSymbols.ControlSymbolDecisionOnChar["__"](input, 4);
+            var actual = ControlSymbols.DecisionByControlSymbol["__"](input, 4);
 
             actual.Should().Be(StopSymbolDecision.NestedToken);
         }
@@ -62,7 +62,7 @@ namespace Test_Markdown
         {
             var input = "asd __asd";
             
-            var actual = ControlSymbols.ControlSymbolDecisionOnChar["__"](input, 4);
+            var actual = ControlSymbols.DecisionByControlSymbol["__"](input, 4);
 
             actual.Should().Be(StopSymbolDecision.NestedToken);
         }
@@ -72,7 +72,7 @@ namespace Test_Markdown
         {
             var input = "ab_ ";
 
-            var actual = ControlSymbols.ControlSymbolDecisionOnChar["_"](input, 2);
+            var actual = ControlSymbols.DecisionByControlSymbol["_"](input, 2);
 
             actual.Should().Be(StopSymbolDecision.Stop);
         }
@@ -82,7 +82,7 @@ namespace Test_Markdown
         {
             var input = "ab_";
 
-            var actual = ControlSymbols.ControlSymbolDecisionOnChar["_"](input, 2);
+            var actual = ControlSymbols.DecisionByControlSymbol["_"](input, 2);
 
             actual.Should().Be(StopSymbolDecision.Stop);
         }
@@ -92,7 +92,7 @@ namespace Test_Markdown
         {
             var input = "ab_a";
 
-            var actual = ControlSymbols.ControlSymbolDecisionOnChar["_"](input, 2);
+            var actual = ControlSymbols.DecisionByControlSymbol["_"](input, 2);
 
             actual.Should().Be(StopSymbolDecision.AddChar);
         }
@@ -102,7 +102,7 @@ namespace Test_Markdown
         {
             var input = "a _a";
 
-            var actual = ControlSymbols.ControlSymbolDecisionOnChar["_"](input, 2);
+            var actual = ControlSymbols.DecisionByControlSymbol["_"](input, 2);
 
             actual.Should().Be(StopSymbolDecision.NestedToken);
         }
@@ -112,7 +112,7 @@ namespace Test_Markdown
         {
             var input = "ab__ ";
 
-            var actual = ControlSymbols.ControlSymbolDecisionOnChar["_"](input, 3);
+            var actual = ControlSymbols.DecisionByControlSymbol["_"](input, 3);
 
             actual.Should().Be(StopSymbolDecision.AddChar);
         }
@@ -122,7 +122,7 @@ namespace Test_Markdown
         {
             var input = "ab __a";
 
-            var actual = ControlSymbols.ControlSymbolDecisionOnChar["_"](input, 3);
+            var actual = ControlSymbols.DecisionByControlSymbol["_"](input, 3);
 
             actual.Should().Be(StopSymbolDecision.NestedToken);
         }
