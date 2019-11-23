@@ -1,5 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using MarkdownProcessor.TextWraps;
@@ -43,16 +42,46 @@ namespace MarkdownProcessor
 
         private static string ReplaceMarkdownWrapsWithHtmlTags(string markdownText)
         {
-            var allWraps = GetTextWraps(markdownText).Values.Aggregate(
-                (wraps, otherWraps) =>
-                    GetUnionOfWrapSequences(wraps, otherWraps)
-                        .ToArray());
+            var allWraps = GetTextWraps(markdownText)
+                .Aggregate((wraps, otherWraps) => GetUnionOfWrapSequences(wraps, otherWraps).ToArray());
 
+            var currentWrapIndex = -1;
 
-            throw new NotImplementedException();
+            var stringBuilder = new StringBuilder(markdownText.Length);
+
+            var position = 0;
+
+            while (position < markdownText.Length)
+            {
+                if (position == allWraps[currentWrapIndex + 1].OpenMarkerIndex)
+                {
+                    currentWrapIndex++;
+                    stringBuilder.Append(allWraps[currentWrapIndex].WrapType.HtmlRepresentationOfOpenMarker);
+
+                    position += allWraps[currentWrapIndex].WrapType.OpenWrapMarker.Length;
+
+                    continue;
+                }
+
+                if (currentWrapIndex >= 0 && position == allWraps[currentWrapIndex].CloseMarkerIndex)
+                {
+                    stringBuilder.Append(allWraps[currentWrapIndex].WrapType.HtmlRepresentationOfCloseMarker);
+
+                    position += allWraps[currentWrapIndex].WrapType.CloseWrapMarker.Length;
+                    currentWrapIndex--;
+
+                    continue;
+                }
+
+                stringBuilder.Append(markdownText[position]);
+
+                position++;
+            }
+
+            return stringBuilder.ToString();
         }
 
-        private static Dictionary<ITextWrapType, TextWrap[]> GetTextWraps(string text)
+        private static TextWrap[][] GetTextWraps(string text)
         {
             var singleUnderscoreWrap = new SingleUnderscoreWrapType();
             var singleUnderscoreWrapFinder = new UnderscoresWrapFinder(singleUnderscoreWrap);
@@ -63,11 +92,7 @@ namespace MarkdownProcessor
                                                                         singleUnderscoreWraps);
             var doubleUnderscoresWraps = doubleUnderscoresWrapFinder.GetPairsOfMarkers(text).ToArray();
 
-            return new Dictionary<ITextWrapType, TextWrap[]>
-            {
-                [singleUnderscoreWrap] = singleUnderscoreWraps,
-                [doubleUnderscoresWrap] = doubleUnderscoresWraps
-            };
+            return new[] { singleUnderscoreWraps, doubleUnderscoresWraps };
         }
 
         private static IEnumerable<TextWrap> GetUnionOfWrapSequences(IReadOnlyList<TextWrap> wraps,
