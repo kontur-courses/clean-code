@@ -5,9 +5,16 @@ using static Markdown.ControlSymbols;
 
 namespace Markdown
 {
-    public static class TokenReader
+    public  class TokenReader
     {
-        public static Token ReadUntil(string input, int startPosition)
+        public ValueTuple<Token, int> GetToken(string input, int position)
+        {
+            return IsControlSymbol(input, position)
+                ? ReadUntil(input, position)
+                : ReadWhile(input, position);
+        }
+
+        private static ValueTuple<Token, int> ReadUntil(string input, int startPosition)
         {
             var prefix = ResolveControlSymbol(input, startPosition);
             var mainToken = new Token(prefix);
@@ -23,10 +30,10 @@ namespace Markdown
                     switch (ControlSymbolDecisionOnChar[controlSymbol](input, currentPosition))
                     {
                         case StopSymbolDecision.Stop:
-                            token.CloseToken(currentPosition + controlSymbol.Length);
+                            token.CloseToken();
                             token.ClearTags(TagCloseNextTag[controlSymbol], controlSymbol);
                             if (prefix == controlSymbol)
-                                return mainToken;
+                                return ValueTuple.Create(mainToken, currentPosition + controlSymbol.Length);
                             while (controlSymbol != innerTokens.Last.Prefix)
                                 innerTokens.RemoveLast();
                             innerTokens.RemoveLast();
@@ -48,19 +55,18 @@ namespace Markdown
                     mainToken.AddChar(input[currentPosition]);
             }
 
-            mainToken.CloseToken(input.Length);
-            return mainToken;
+            return ValueTuple.Create(mainToken, input.Length);
         }
 
 
-        public static Token ReadWhile(Func<string, int, Symbol> analyzeSymbol, string input, int startPosition)
+        private static ValueTuple<Token, int> ReadWhile(string input, int startPosition)
         {
             var position = startPosition;
             var token = new Token();
             var stop = false;
             for (; position < input.Length && !stop; position++)
             {
-                switch (analyzeSymbol(input, position))
+                switch (AnalyzeSymbol(input, position))
                 {
                     case Symbol.ControlSymbol:
                         stop = true;
@@ -73,8 +79,8 @@ namespace Markdown
                 }
             }
 
-            token.CloseToken(position);
-            return token;
+            token.CloseToken();
+            return ValueTuple.Create(token, position);
         }
     }
 }

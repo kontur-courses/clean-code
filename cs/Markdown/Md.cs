@@ -11,17 +11,18 @@ namespace Markdown
                 return input;
             var tokens = new List<Token>();
             var position = 0;
+            var tokenReader = new TokenReader();
             while (position < input.Length)
             {
-                tokens.Add(ControlSymbols.IsControlSymbol(input, position)
-                    ? TokenReader.ReadUntil(input, position)
-                    : TokenReader.ReadWhile(ControlSymbols.AnalyzeSymbol, input, position));
-                position = tokens[tokens.Count - 1].End;
+                var (token, end) = tokenReader.GetToken(input, position);
+                tokens.Add(token);
+                position = end;
             }
 
+            var htmlConverter = new TokenToHtmlConverter();
             var stringHTML = new StringBuilder();
             foreach (var token in tokens)
-                stringHTML.Append(token);
+                stringHTML.Append(htmlConverter.ConvertToHtml(token));
 
             return stringHTML.ToString();
         }

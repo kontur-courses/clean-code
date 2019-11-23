@@ -12,7 +12,6 @@ namespace Markdown
         public readonly string Prefix;
         public bool IsClosed { get; private set; }
         public TokenPrefixCondition Condition { get; private set; }
-        public int End { get; private set; }
 
         public Token(string prefix)
         {
@@ -47,10 +46,9 @@ namespace Markdown
             return innerToken;
         }
 
-        public void CloseToken(int endPosition)
+        public void CloseToken()
         {
             IsClosed = true;
-            End = endPosition;
         }
 
 
