@@ -57,19 +57,14 @@ namespace Markdown.SyntaxAnalysis.SyntaxTreeBuilders
             if (token.Value.StartsWith("\\"))
             {
                 ProcessCommentedSeparator(token);
-                return;
             }
-
-            switch (token.Value)
+            else if(rules.IsSeparatorPaired(token.Value))
             {
-                case "_":
-                    ProcessPairedSeparatorToken(token);
-                    break;
-                case "__":
-                    ProcessPairedSeparatorToken(token);
-                    break;
-                default:
-                    throw new NotImplementedException($"separator not supported {token.Value}");
+                ProcessPairedSeparatorToken(token);
+            }
+            else
+            {
+                throw new NotImplementedException($"separator not supported {token.Value}");
             }
         }
 
@@ -90,16 +85,22 @@ namespace Markdown.SyntaxAnalysis.SyntaxTreeBuilders
                 separatorNodesStack.Pop();
                 currentNode = separatorNodesStack.Count == 0 ? currentSyntaxTree.Root : separatorNodesStack.Peek();
             }
-            else
+            else if (rules.IsSeparatorOpening(token.Value))
             {
                 separatorNodesStack.Push(separatorNode);
                 currentNode = separatorNode;
+            }
+            else
+            {
+                token.IsSeparator = false;
             }
         }
 
         private bool IsEndSeparator(Token token)
         {
-            return separatorNodesStack.Count > 0 && separatorNodesStack.Peek().Token.Value == token.Value;
+            return separatorNodesStack.Count > 0 &&
+                   rules.IsSeparatorPairedFor(separatorNodesStack.Peek().Token.Value,
+                       token.Value);
         }
 
         private bool IsValidSeparator(Token token, string text)

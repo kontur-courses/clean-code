@@ -20,7 +20,8 @@ namespace Markdown.SyntaxAnalysis.SyntaxTreeConverters
                 var nodesValuesFormats = separatorConverter.GetTokensFormats(treeNode.Token.Value, children.Count - 1);
                 for (var i = 0; i < children.Count - 1; i++)
                 {
-                    RenderTreeNode(children[i], separatorConverter, builder, nodesValuesFormats[i]);
+                    var childNodeValueFormat = string.Format(nodeValueFormat, nodesValuesFormats[i]);
+                    RenderTreeNode(children[i], separatorConverter, builder, childNodeValueFormat);
                 }
             }
             else

@@ -8,6 +8,9 @@ namespace Markdown.SeparatorConverters
     {
         public List<string> GetTokensFormats(string separator, int tokensCount)
         {
+            if (separator.StartsWith("#"))
+                return GetTokenFormatsForHeader(separator, tokensCount);
+
             switch (separator)
             {
                 case "_":
@@ -17,6 +20,11 @@ namespace Markdown.SeparatorConverters
                 default:
                     throw new NotImplementedException($"separator not supported {separator}");
             }
+        }
+
+        private List<string> GetTokenFormatsForHeader(string separator, int tokensCount)
+        {
+            return GetTokenFormatsForPairedHtmlTag(tokensCount, $"h{separator.Length - 1}");
         }
 
         private List<string> GetTokenFormatsForUnderscore(int tokensCount)

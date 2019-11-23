@@ -47,7 +47,7 @@ namespace Markdown.Core.Tests
         [TestCase(@"\\\a", TestName = "triple backslash before symbol", ExpectedResult = @"\\a")]
         [TestCase(@"\\a", TestName = "double backslash before symbol", ExpectedResult = "\\a")]
         [TestCase("\\a", TestName = "single backslash before symbol", ExpectedResult = "\\a")]
-        public string Render_ShouldReturnCorrect_WhenCommented(string text) => processor.Render(text);
+        public string Render_ShouldReturnCorrect_WhenCommentedCommonSymbols(string text) => processor.Render(text);
 
         [TestCase("_sample_text_", TestName = "three single underscores", ExpectedResult = "<em>sample</em>text_")]
         [TestCase("_sample_text_is_good_", TestName = "five single underscores", ExpectedResult = "<em>sample</em>text<em>is</em>good_")]
@@ -107,6 +107,30 @@ namespace Markdown.Core.Tests
         [TestCase("____", TestName = "four underscores", ExpectedResult = "")]
         [TestCase("________", TestName = "eight underscores", ExpectedResult = "")]
         public string Render_ShouldReturnEmptyString_WhenFourUnderscoresInARow(string text) => processor.Render(text);
+
+        [TestCase("# Header\n", TestName = "first header", ExpectedResult = "<h1>Header</h1>")]
+        [TestCase("## Header\n", TestName = "second header", ExpectedResult = "<h2>Header</h2>")]
+        [TestCase("### Header\n", TestName = "third header", ExpectedResult = "<h3>Header</h3>")]
+        [TestCase("#### Header\n", TestName = "fourth header", ExpectedResult = "<h4>Header</h4>")]
+        [TestCase("##### Header\n", TestName = "fifth header", ExpectedResult = "<h5>Header</h5>")]
+        [TestCase("###### Header\n", TestName = "sixth header", ExpectedResult = "<h6>Header</h6>")]
+        [TestCase("sample text\n# Header\n", TestName = "first header after newline",
+            ExpectedResult = "sample text\n<h1>Header</h1>")]
+        public string Render_ShouldReturnCorrect_OnHeaders(string text) => processor.Render(text);
+
+        [TestCase("#sample text\n", TestName = "no space between # and text", ExpectedResult = "#sample text\n")]
+        [TestCase("i# sample text\n", TestName = "# is not first symbol", ExpectedResult = "i# sample text\n")]
+        [TestCase("_# sample text\n_", TestName = "single underscore before #", ExpectedResult = "_# sample text\n_")]
+        public string Render_ShouldReturnUnchanged_OnIncorrectHeaders(string text) => processor.Render(text);
+
+        [TestCase("# _header_\n", TestName = "single underscores in header", ExpectedResult = "<h1><em>header</em></h1>")]
+        [TestCase("# __header__\n", TestName = "double underscores in header",
+            ExpectedResult = "<h1><strong>header</strong></h1>")]
+        public string Render_ShouldReturnCorrect_WhenUnderscoresInsideHeader(string text) => processor.Render(text);
+
+        [TestCase("\\# header\n", TestName = "escaped first header", ExpectedResult = "# header\n")]
+        [TestCase("\\### header\n", TestName = "escaped third header", ExpectedResult = "### header\n")]
+        public string Render_ShouldReturnCorrect_WhenCommentedHeader(string text) => processor.Render(text);
 
         [Test, Explicit]
         public void Render_ShouldRenderFast()

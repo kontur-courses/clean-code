@@ -13,5 +13,20 @@ namespace Markdown.SyntaxAnalysis.SyntaxTreeBuilders.Tests
         {
             return IsSeparatorValid(text, position, isFirst, separatorLength);
         }
+
+        public bool IsSeparatorPaired(string separator)
+        {
+            return true;
+        }
+
+        public bool IsSeparatorPairedFor(string firstSeparator, string secondSeparator)
+        {
+            return true;
+        }
+
+        public bool IsSeparatorOpening(string separator)
+        {
+            return true;
+        }
     }
 }
