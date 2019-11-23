@@ -135,16 +135,14 @@ namespace Markdown.Core.Tests
         [Test, Explicit]
         public void Render_ShouldRenderFast()
         {
-            /*пусть f - функция времени работы программы от длины входа, f - линейна, если f(x + k) - f(x) ~ k
-              тест проверяет, что f(x + k) - f(x) <= 2k */
             var averageFileData = Resources.MarkdownTestFileAverage;
             var bigFileData = Resources.MarkdownTestFileBig;
 
             var averageFileProcessingTime = MeasureRunTimeInMilliseconds(() => processor.Render(averageFileData));
             var bigFileProcessingTime = MeasureRunTimeInMilliseconds(() => processor.Render(bigFileData));
 
-            (bigFileProcessingTime - averageFileProcessingTime).Should()
-                .BeLessThan(2 * bigFileData.Length - averageFileData.Length);
+            (bigFileProcessingTime).Should()
+                .BeLessThan(2 * (bigFileData.Length / averageFileData.Length) * averageFileProcessingTime);
         }
 
         private long MeasureRunTimeInMilliseconds(Action action)
