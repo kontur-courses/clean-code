@@ -1,4 +1,6 @@
-﻿using FluentAssertions;
+﻿using System;
+using System.Diagnostics;
+using FluentAssertions;
 using Markdown.Properties;
 using NUnit.Framework;
 
@@ -106,18 +108,28 @@ namespace Markdown.Core.Tests
         [TestCase("________", TestName = "eight underscores", ExpectedResult = "")]
         public string Render_ShouldReturnEmptyString_WhenFourUnderscoresInARow(string text) => processor.Render(text);
 
-        [Test, Timeout(4500), Explicit]
-        public void Render_ShouldRenderFast_OnAverageFile()
+        [Test, Explicit]
+        public void Render_ShouldRenderFast()
         {
-            //файл имеет длину 4295934 символов
-            processor.Render(Resources.MarkdownTestFileAverage);
+            /*пусть f - функция времени работы программы от длины входа, f - линейна, если f(x + k) - f(x) ~ k
+              тест проверяет, что f(x + k) - f(x) <= 2k */
+            var averageFileData = Resources.MarkdownTestFileAverage;
+            var bigFileData = Resources.MarkdownTestFileBig;
+
+            var averageFileProcessingTime = MeasureRunTimeInMilliseconds(() => processor.Render(averageFileData));
+            var bigFileProcessingTime = MeasureRunTimeInMilliseconds(() => processor.Render(bigFileData));
+
+            (bigFileProcessingTime - averageFileProcessingTime).Should()
+                .BeLessThan(2 * bigFileData.Length - averageFileData.Length);
         }
 
-        [Test, Timeout(90000), Explicit]
-        public void Render_ShouldRenderFast_OnBigFile()
+        private long MeasureRunTimeInMilliseconds(Action action)
         {
-            //файл имеет длину 85918680 символов
-            processor.Render(Resources.MarkdownTestFileBig);
+            var stopwatch = new Stopwatch();
+            stopwatch.Start();
+            action();
+            stopwatch.Stop();
+            return stopwatch.ElapsedMilliseconds;
         }
     }
 }
