@@ -11,7 +11,7 @@ namespace Markdown.Tokenization
             this.tokenReaderConfiguration = tokenReaderConfiguration;
         }
 
-        public Token ReadWhileSeparator(string text, int startPosition)
+        private Token ReadWhileSeparator(string text, int startPosition)
         {
             for (var i = startPosition; i < text.Length; i++)
             {
