@@ -11,9 +11,9 @@ namespace Markdown
         {
             numberOfSyntaxTrees = 1;
             var tree = children[numberOfCurrentTree];
-            var isNeedToAddTags = Md.TagsForTokenTypes.ContainsKey(tree.Type) && 
+            var needToAddTags = Md.TagsForTokenTypes.ContainsKey(tree.Type) && 
                                   RuleForTagsAdding.IsNeedToAddTags(tree, converter.RootTree.Tokens);
-            if (!isNeedToAddTags)
+            if (!needToAddTags)
                 return false;
             builder.Append(Md.TagsForTokenTypes[tree.Type].Item1);
             converter.AddTreeText(tree, builder);

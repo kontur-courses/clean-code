@@ -58,6 +58,9 @@ namespace Markdown
         [TestCase("hello _great _ world", "hello _great _ world",
             TestName = "ShouldNotCreateTag_IfSurroundedTextHaveSpaceInEnd")]
 
+        [TestCase("__hello _great__ world_", "<strong>hello _great</strong> world_",
+            TestName = "ShouldAddCorrectTags_IfNotClosingUnderscore")]
+
         [TestCase("hello 1_2great_ world", "hello 1_2great_ world",
             TestName = "ShouldNotCreateTag_IfOpeningUnderscoreInsideNumber")]
 
@@ -114,18 +117,15 @@ namespace Markdown
             actualHtml.Should().Be(expectedHtml);
         }
 
-        [TestCase("hello _great_ __beautiful__ __interesting__ _wonderful_ _lovely_ world",
-            TestName = "ShouldWorkInLinearTime_IfSeveralSurroundedParts")]
-
-        public void RenderPerformanceTest(string mdText)
+        [Test]
+        public void RenderPerformanceTest([Values(10, 100, 1000, 10000)] int count)
         {
+            var mdText = "hello _great_ __beautiful__ __interesting__ _wonderful_ _lovely_ world";
             var builder = new StringBuilder();
-            var count = 10000;
             for (var i = 0; i < count; i++)
                 builder.Append(mdText);
             var longText = builder.ToString();
 
-            //Вроде слышал надо один раз запускать перед измерениями, чтобы точно было
             md.Render(mdText);
             Stopwatch sw = new Stopwatch();
             sw.Start();
@@ -138,7 +138,7 @@ namespace Markdown
             var longTextMeasure = sw.ElapsedTicks;
 
             var actualResult = longTextMeasure / shortTextMeasure;
-            actualResult.Should().BeLessThan(count);
+            actualResult.Should().BeLessThan(count * 2);
         }
     }
 }
