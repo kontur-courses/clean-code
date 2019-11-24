@@ -1,0 +1,50 @@
+﻿namespace Markdown
+{
+    public static class TextCreatorData
+    {
+        internal static string[] Substrings = new[]
+        {
+            "Hello",
+            "World!",
+            " _Hello World!_ ",
+            " Hello _World!_ ",
+            " _Hello_ _World!_ ",
+            " __Hello World!__ ",
+            " Hello __World!__ ",
+            " __Hello__ __World!__ ",
+            "\n>a\n",
+            " _aa_\n>a\n>a\n",
+            @" \_Hello World!\_ ",
+            @" \__Hello World!\__ ",
+            " 123_456_789 ",
+            " 123__456__789 ",
+            "numbers_12_3 ",
+            "numbers__12_3 ",
+            " __Hello _Hello World!_ World!__ ",
+            " _Hello __Hello World!__ World!_ ",
+            "__aa _aa_ __aa__ aa__ ",
+            "__a _a _a_ a__ ",
+            "__a _a _a_ a_ a__ ",
+            "_a __aa _a_ aa__ a_ ",
+            @"\_a __aa _a_ aa__ a\_ ",
+            "_a_ __a__ _a_ ",
+            "__a__ __a__ _a_ _a_ ",
+            "__aa _a aa__ a_ ",
+            "_ ",
+            "__ ",
+            " _",
+            " __",
+            "_111_ ",
+            "___Hello World!___ ",
+            "_____Hello World!_____ ",
+            "_a",
+            "__a",
+            "_a __a",
+            "__a _a",
+            "a_",
+            "a__",
+            "a_ a__",
+            "a__ a_",
+        };
+    }
+}

@@ -70,6 +70,8 @@
     <Compile Include="Tests\TagTokenStreamExtensionsTests.cs" />
     <Compile Include="TagParseLogic\TagParser.cs" />
     <Compile Include="Tests\TagParserTests.cs" />
+    <Compile Include="TextCreatorLogic\TextCreator.cs" />
+    <Compile Include="TextCreatorLogic\TextCreatorData.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="App.config" />

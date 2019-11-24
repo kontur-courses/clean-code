@@ -1,4 +1,9 @@
-﻿using NUnit.Framework;
+﻿using System;
+using System.Collections.Generic;
+using System.Diagnostics;
+using System.Text;
+using FluentAssertions;
+using NUnit.Framework;
 
 namespace Markdown
 {
@@ -90,6 +95,7 @@ namespace Markdown
             return MarkdownTransformerToHtml.Render(inputString);
         }
         
+        [TestCase("__aa _a aa__ a_", ExpectedResult = "")]
         [TestCase("", ExpectedResult = "", TestName = "EmptyString")]
         [TestCase("_", ExpectedResult = "_", TestName = "SingleEmphasisTag")]
         [TestCase("__", ExpectedResult = "__", TestName = "SingleStrongTag")]
@@ -100,5 +106,41 @@ namespace Markdown
         {
             return MarkdownTransformerToHtml.Render(input);
         }
+
+        [TestCaseSource(nameof(TestLines))]
+        public void AlgorithСomplexityMustBeLinear(string testString)
+        {
+            var firstTimeResult = GetRenderTime(testString);
+            var secondTimeResult = GetRenderTime(testString + testString);
+
+            (secondTimeResult / firstTimeResult).Should().BeLessThan(2.1);
+        }
+
+        private static double GetRenderTime(string inputString)
+        {
+            var timer = new Stopwatch();
+
+            timer.Start();
+            MarkdownTransformerToHtml.Render(inputString);
+            timer.Stop();
+
+            return timer.ElapsedMilliseconds;
+        }
+
+        private static IEnumerable<TestCaseData> TestLines
+        {
+            get
+            { 
+                yield return new TestCaseData(TextCreator.CreateText(1000))
+                    .SetName("1000 Substrings");
+                yield return new TestCaseData(TextCreator.CreateText(10000))
+                    .SetName("10000 Substrings");
+                yield return new TestCaseData(TextCreator.CreateText(100000))
+                    .SetName("100000 Substrings");
+                yield return new TestCaseData(TextCreator.CreateText(1000000))
+                    .SetName("1000000 Substrings");
+            }
+        }
+        
     }
 }
