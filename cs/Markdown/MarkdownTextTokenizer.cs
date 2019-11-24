@@ -2,7 +2,6 @@
 using System.Collections.Generic;
 using System.Linq;
 using Markdown.BasicTextTokenizer;
-using Microsoft.Win32.SafeHandles;
 
 namespace Markdown
 {
@@ -55,7 +54,7 @@ namespace Markdown
             var token = tokens[openingPosition];
             var classifier = token.Classifier;
             if (classifier.HasFirstPart)
-                return (FormattedToken.GetTextToken(token), openingPosition + 1);
+                return (FormattedToken.GetTextToken(token), openingPosition);
             var position = openingPosition;
             var subTokens = new List<FormattedToken>();
             while (true)
@@ -99,7 +98,7 @@ namespace Markdown
                 firstPartSubTokens.Insert(0, FormattedToken.GetTextToken(tokens[firstPartOpeningPosition]));
                 firstPartSubTokens.Add(FormattedToken.GetTextToken(tokens[firstPartClosingPosition]));
                 var formattedToken = FormattedToken.GetTokenFromSubTokens(firstPartSubTokens, FormattedTokenType.Raw);
-                return (formattedToken, secondPartOpeningPosition);
+                return (formattedToken, firstPartClosingPosition);
             }
 
             var secondPartOpeningToken = tokens[secondPartOpeningPosition];
@@ -126,6 +125,7 @@ namespace Markdown
         private bool HasSecondPart(int secondPartPosition, List<Token> tokens, Type secondPartType)
         {
             return secondPartPosition < tokens.Count
+                   && tokens[secondPartPosition].Classifier != null
                    && tokens[secondPartPosition].Classifier.GetType() == secondPartType
                    && tokens[secondPartPosition].PairedToken != null;
         }

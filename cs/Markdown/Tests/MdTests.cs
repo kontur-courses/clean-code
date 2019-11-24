@@ -87,6 +87,11 @@ namespace Markdown.Tests
             "_Здесь [текст ссылки](ссылка)_ ссылка",
             ExpectedResult = @"<em>Здесь <a href=""ссылка"">текст ссылки</a></em> ссылка",
             TestName = "<a href> inside italic tag")]
+        [TestCase(
+            "Здесь [текст ссылки] неправильная (ссылка) ссылка",
+            ExpectedResult = "Здесь [текст ссылки] неправильная (ссылка) ссылка",
+            TestName = "Raw text on incorrect link"
+            )]
         public string Render_ShouldReturnCorrectlyRenderedText(string text)
         {
             return md.Render(text);

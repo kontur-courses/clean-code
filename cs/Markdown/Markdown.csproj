@@ -47,10 +47,8 @@
     <Compile Include="BasicTextTokenizer\LinkTextTagClassifier.cs" />
     <Compile Include="BasicTextTokenizer\LinkUriTagClassifier.cs" />
     <Compile Include="BasicTextTokenizer\Tests\TextTokenizerTests.cs" />
-    <Compile Include="BasicTextTokenizer\Tests\TokenReaderExtensionsTests.cs" />
     <Compile Include="BasicTextTokenizer\Tests\TokenReaderTests.cs" />
     <Compile Include="BasicTextTokenizer\TokenReader.cs" />
-    <Compile Include="BasicTextTokenizer\TokenReaderExtensions.cs" />
     <Compile Include="BasicTextTokenizer\TokenType.cs" />
     <Compile Include="BasicTextTokenizer\BoldTagClassifier.cs" />
     <Compile Include="BasicTextTokenizer\ItalicTagClassifier.cs" />

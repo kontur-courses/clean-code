@@ -7,23 +7,21 @@ namespace Markdown.BasicTextTokenizer
     public class TextTokenizer
     {
         private readonly ITagClassifier[] classifiers;
+        private readonly Func<string, int, bool> isClosingSequence;
+        private readonly Func<string, int, bool> isControllingSequence;
 
         private readonly Func<string, int, bool> isEscapeSequence;
         private readonly Func<string, int, bool> isOpeningSequence;
-        private readonly Func<string, int, bool> isClosingSequence;
-        private readonly Func<string, int, bool> isControllingSequence;
 
         public TextTokenizer(ITagClassifier[] classifiers, Func<string, int, bool> isEscapeSequence)
         {
             this.classifiers = classifiers;
             this.isEscapeSequence = isEscapeSequence;
             isOpeningSequence = (text, position) => classifiers
-                .Select(c => c.IsOpeningSequence(text, position))
-                .Any(t => t);
+                .Any(classifier => classifier.IsOpeningSequence(text, position));
             isClosingSequence = (text, position) => classifiers
-                .Select(c => c.IsClosingSequence(text, position))
-                .Any(t => t);
-            isControllingSequence = (text, position) => 
+                .Any(classifier => classifier.IsClosingSequence(text, position));
+            isControllingSequence = (text, position) =>
                 isOpeningSequence(text, position) || isClosingSequence(text, position);
         }
 
@@ -34,14 +32,14 @@ namespace Markdown.BasicTextTokenizer
             var tokens = new List<Token>();
             while (reader.HasData)
             {
-                var newTokens = reader.ReadUntilWithEscapeProcessing(
-                    isControllingSequence, isEscapeSequence);
+                var newTokens = ReadUntilWithEscapeProcessing(reader);
                 tokens.AddRange(newTokens);
                 if (isClosingSequence(reader.Text, reader.Position))
                     ProcessClosingSequence(reader, openings, tokens);
                 else if (isOpeningSequence(reader.Text, reader.Position))
                     ProcessOpeningSequence(reader, openings, tokens);
             }
+
             return tokens.OrderBy(t => t.Position);
         }
 
@@ -59,6 +57,7 @@ namespace Markdown.BasicTextTokenizer
                 tokens.Add(tag);
                 return;
             }
+
             var opening = Token.CreateControllingToken(
                 tag.Position, tag.Length, TokenType.Opening, classifier, null);
             openings[classifier] = opening;
@@ -86,6 +85,36 @@ namespace Markdown.BasicTextTokenizer
                 tag.Position, tag.Length, TokenType.Ending, classifier, opening);
             opening.PairedToken = closing;
             tokens.Add(closing);
+        }
+
+        private List<Token> ReadUntilWithEscapeProcessing(TokenReader reader)
+        {
+            bool IsStopPositionWithEscape(string text, int position)
+            {
+                return isEscapeSequence(text, position)
+                       || isControllingSequence(text, position);
+            }
+
+            var tokens = new List<Token>();
+            var firstTime = true;
+            do
+            {
+                Token escapedToken = null;
+                if (!firstTime)
+                {
+                    reader.SkipCount(1);
+                    escapedToken = reader.ReadCount(1);
+                }
+
+                var token = reader.ReadUntil(IsStopPositionWithEscape);
+                if (escapedToken != null)
+                    token = escapedToken.Concat(token);
+                if (token.Length != 0)
+                    tokens.Add(token);
+                firstTime = false;
+            } while (isEscapeSequence(reader.Text, reader.Position));
+
+            return tokens;
         }
     }
 }

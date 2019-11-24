@@ -12,7 +12,6 @@ namespace Markdown
             if (formattedToken.Type == FormattedTokenType.LinkText)
                 return ConvertLinkToken(formattedToken, text);
             
-
             var contentSubStrings = formattedToken.Content
                 .Select(t => ConvertToken(t, text));
             var content = string.Join("", contentSubStrings);
