@@ -7,9 +7,11 @@ namespace Markdown
 {
     public class Token
     {
-        public readonly StringBuilder Value = new StringBuilder();
-        public readonly Deque<Token> InnerTokens = new Deque<Token>();
-        public readonly string Prefix;
+        private readonly StringBuilder value = new StringBuilder();
+        public string GetValue => value.ToString();
+        private readonly Deque<Token> innerTokens = new Deque<Token>();
+        public IEnumerable<Token> GetInnerTokens => innerTokens;
+        public string Prefix { get;}
         public bool IsClosed { get; private set; }
         public TokenPrefixCondition Condition { get; private set; }
 
@@ -26,13 +28,13 @@ namespace Markdown
 
         public void AddChar(char anyChar)
         {
-            if (InnerTokens.IsEmpty)
-                Value.Append(anyChar);
+            if (innerTokens.IsEmpty)
+                value.Append(anyChar);
             else
             {
-                if (InnerTokens.Last.IsClosed)
-                    InnerTokens.AddLast(new Token(""));
-                InnerTokens.Last.AddChar(anyChar);
+                if (innerTokens.Last.IsClosed)
+                    innerTokens.AddLast(new Token(""));
+                innerTokens.Last.AddChar(anyChar);
             }
         }
 
@@ -41,7 +43,7 @@ namespace Markdown
         public Token CreateInnerToken(string prefix)
         {
             var innerToken = new Token(prefix);
-            InnerTokens.AddLast(innerToken);
+            innerTokens.AddLast(innerToken);
 
             return innerToken;
         }
@@ -54,7 +56,7 @@ namespace Markdown
 
         public void ClearTags(HashSet<string> notAllowedTag, string hideTag)
         {
-            foreach (var token in InnerTokens)
+            foreach (var token in innerTokens)
             {
                 if (token.Prefix == hideTag)
                 {

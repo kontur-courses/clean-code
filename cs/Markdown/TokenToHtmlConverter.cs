@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Text;
 
 namespace Markdown
@@ -15,26 +16,25 @@ namespace Markdown
 
         public string ConvertToHtml(Token token)
         {
-            var innerTokens = token.InnerTokens;
-            var value = token.Value;
+            var innerTokens = token.GetInnerTokens;
+            var value = token.GetValue;
+            
             string tag;
             if (ControlSymbolHtmlTags.ContainsKey(token.Prefix))
                 tag = ControlSymbolHtmlTags[token.Prefix];
             else
                 throw new ArgumentException($"{token.Prefix} no such key in html base");
             var condition = token.Condition;
-            if (innerTokens.IsEmpty)
+            if (!innerTokens.Any())
             {
                 return string.IsNullOrWhiteSpace(tag)
-                    ? value.ToString()
+                    ? value
                     : $"<{tag}>{value}</{tag}>";
             }
 
             var htmlString = new StringBuilder();
-            while (!innerTokens.IsEmpty)
-            {
-                htmlString.Append(ConvertToHtml(innerTokens.RemoveFirst()));
-            }
+            foreach (var innerToken in innerTokens)
+                htmlString.Append(ConvertToHtml(innerToken));
 
             if (condition == TokenPrefixCondition.Hide)
                 return htmlString.ToString();

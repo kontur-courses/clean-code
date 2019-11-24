@@ -16,34 +16,34 @@ namespace Markdown
 
         private static ValueTuple<Token, int> ReadUntil(string input, int startPosition)
         {
-            var prefix = ResolveControlSymbol(input, startPosition);
+            var prefix = TryGetControlSymbol(input, startPosition);
             var mainToken = new Token(prefix);
             mainToken.CreateInnerToken();
             var innerTokens = new Deque<Token>();
             innerTokens.AddLast(mainToken);
-            for (var currentPosition = startPosition + prefix.Length; currentPosition < input.Length; currentPosition++)
+            for (var i = startPosition + prefix.Length; i < input.Length; i++)
             {
                 var count = innerTokens.Count;
                 foreach (var token in innerTokens)
                 {
                     var controlSymbol = token.Prefix;
-                    switch (ControlSymbolDecisionOnChar[controlSymbol](input, currentPosition))
+                    switch (DecisionByControlSymbol[controlSymbol](input, i))
                     {
                         case StopSymbolDecision.Stop:
                             token.CloseToken();
                             token.ClearTags(TagCloseNextTag[controlSymbol], controlSymbol);
                             if (prefix == controlSymbol)
-                                return ValueTuple.Create(mainToken, currentPosition + controlSymbol.Length);
+                                return ValueTuple.Create(mainToken, i + controlSymbol.Length);
                             while (controlSymbol != innerTokens.Last.Prefix)
                                 innerTokens.RemoveLast();
                             innerTokens.RemoveLast();
-                            currentPosition += controlSymbol.Length - 1;
+                            i += controlSymbol.Length - 1;
                             break;
                         case StopSymbolDecision.NestedToken:
-                            var inPrefix = ResolveControlSymbol(input, currentPosition);
+                            var inPrefix = TryGetControlSymbol(input, i);
                             innerTokens.AddLast(innerTokens.Last.CreateInnerToken(inPrefix));
                             innerTokens.Last.CreateInnerToken("");
-                            currentPosition += inPrefix.Length;
+                            i += inPrefix.Length;
                             break;
                         case StopSymbolDecision.AddChar:
                             count--;
@@ -52,7 +52,7 @@ namespace Markdown
                 }
 
                 if (count == 0)
-                    mainToken.AddChar(input[currentPosition]);
+                    mainToken.AddChar(input[i]);
             }
 
             return ValueTuple.Create(mainToken, input.Length);
@@ -72,10 +72,10 @@ namespace Markdown
                         stop = true;
                         break;
                     case Symbol.Screen:
-                        continue;
+                        break;
                     case Symbol.AnotherSymbol:
                         token.AddChar(input[position]);
-                        continue;
+                        break;
                 }
             }
 
