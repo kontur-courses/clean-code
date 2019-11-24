@@ -9,6 +9,10 @@
         DoubleUnderscores,
         EscapedSymbol,
         Symbols,
+        LeftSquareBracket,
+        RightSquareBracket,
+        LeftParenthesis,
+        RightParenthesis,
         Empty
     }
 }

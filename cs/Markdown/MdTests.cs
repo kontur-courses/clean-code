@@ -1,6 +1,7 @@
-﻿using System;
-using NUnit.Framework;
+﻿using NUnit.Framework;
 using FluentAssertions;
+using System.Diagnostics;
+using System.Text;
 
 namespace Markdown
 {
@@ -81,11 +82,63 @@ namespace Markdown
         [TestCase(@"hello great world\", @"hello great world\",
             TestName = "ShouldNotRemoveSlash_IfSlashInTextEnd")]
 
+        [TestCase("[Link](https://www.google.com/)", "<a href=\"https://www.google.com/\">Link</a>",
+            TestName = "ShouldAddATag_IfSimpleLinkText")]
+
+        [TestCase("_hello_ [Link](https://www.google.com/) __world__", "<em>hello</em> <a href=\"https://www.google.com/\">Link</a> <strong>world</strong>",
+            TestName = "ShouldAddATag_IfLinkAndOtherTexts")]
+
+        [TestCase("[Link](https://www.google.com/) [Link](https://yandex.ru/)",
+            "<a href=\"https://www.google.com/\">Link</a> <a href=\"https://yandex.ru/\">Link</a>",
+            TestName = "ShouldAddATags_IfTwoLinks")]
+
+        [TestCase("[Link](https://www.google.com/)", "<a href=\"https://www.google.com/\">Link</a>",
+            TestName = "ShouldAddCorrectTags_IfNotOnlyLink")]
+
+        [TestCase("[_Link_](https://www.google.com/)", "<a href=\"https://www.google.com/\"><em>Link</em></a>",
+            TestName = "ShouldAddATagWithEmTag_IfLinkTextInsideUnderscores")]
+
+        [TestCase("[__Link__](https://www.google.com/)", "<a href=\"https://www.google.com/\"><strong>Link</strong></a>",
+            TestName = "ShouldAddATagWithStrongTag_IfLinkTextInsideDoubleUnderscores")]
+
+        [TestCase("[__Link__ _Link_](https://www.google.com/)", "<a href=\"https://www.google.com/\"><strong>Link</strong> <em>Link</em></a>",
+            TestName = "ShouldAddATagWithEmAndStrongTags_IfLinkTextIsSeveralSurroundedParts")]
+
+        [TestCase("[__L_in_k__](https://www.google.com/)", "<a href=\"https://www.google.com/\"><strong>L<em>in</em>k</strong></a>",
+            TestName = "ShouldAddATagWithEmInsideStrongTag_IfLinkTextInsideUnderscoresInsideDoubleUnderscores")]
+
         public void Render(string mdText, string expectedHtml)
         {
             var actualHtml = md.Render(mdText);
 
             actualHtml.Should().Be(expectedHtml);
+        }
+
+        [TestCase("hello _great_ __beautiful__ __interesting__ _wonderful_ _lovely_ world",
+            TestName = "ShouldWorkInLinearTime_IfSeveralSurroundedParts")]
+
+        public void RenderPerformanceTest(string mdText)
+        {
+            var builder = new StringBuilder();
+            var count = 10000;
+            for (var i = 0; i < count; i++)
+                builder.Append(mdText);
+            var longText = builder.ToString();
+
+            //Вроде слышал надо один раз запускать перед измерениями, чтобы точно было
+            md.Render(mdText);
+            Stopwatch sw = new Stopwatch();
+            sw.Start();
+            md.Render(mdText);
+            sw.Stop();
+            var shortTextMeasure = sw.ElapsedTicks;
+            sw.Restart();
+            md.Render(longText);
+            sw.Stop();
+            var longTextMeasure = sw.ElapsedTicks;
+
+            var actualResult = longTextMeasure / shortTextMeasure;
+            actualResult.Should().BeLessThan(count);
         }
     }
 }

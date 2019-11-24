@@ -1,8 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿using System.Collections.Generic;
 
 namespace Markdown
 {
@@ -11,7 +7,7 @@ namespace Markdown
         public readonly SyntaxTreeType Type;
         public readonly SyntaxTree Parent;
         public List<SyntaxTree> Children;
-        public bool IsHasChildren => Children != null && Children.Count > 0;
+        public bool IsHasChildren => Children.Count > 0;
         public readonly List<Token> Tokens;
         public readonly string StartLine;
         public readonly string EndLine;
@@ -23,13 +19,14 @@ namespace Markdown
             Parent = parent;
             StartLine = startLine;
             EndLine = endLine;
+            Children = new List<SyntaxTree>();
         }
 
-        public void AddChildTrees(Dictionary<TokenType, SyntaxTreeType> syntaxTreeTypes)
+        public void AddChildTrees(Dictionary<TokenType, SyntaxTreeType> syntaxTreeTypes, Dictionary<TokenType, TokenType> stopTokenTypes)
         {
             var childTrees = new List<SyntaxTree>();
             var tokens = new List<Token>();
-            var isHaveNotOnlyTextTreeType = false;
+            var haveOnlyTextTypeTrees = true;
             for (var i = 0; i < Tokens.Count; i++)
             {
                 var token = Tokens[i];
@@ -40,13 +37,14 @@ namespace Markdown
                 }
                 if (AddTextTree(tokens, childTrees))
                     tokens = new List<Token>();
-                var childTree = GetChildSyntaxTree(syntaxTreeTypes[token.TokenType], i, token.TokenType);
-                isHaveNotOnlyTextTreeType = childTree.Type != SyntaxTreeType.Text || isHaveNotOnlyTextTreeType;
+                var childTree = GetChildSyntaxTree(syntaxTreeTypes[token.TokenType], i, token.TokenType, stopTokenTypes[token.TokenType]);
+                haveOnlyTextTypeTrees = childTree.Type == SyntaxTreeType.Text && haveOnlyTextTypeTrees;
                 childTrees.Add(childTree);
                 i += GetIndexOffset(childTree);
             }
             AddTextTree(tokens, childTrees);
-            Children = isHaveNotOnlyTextTreeType ? childTrees : new List<SyntaxTree>();
+            if (!haveOnlyTextTypeTrees)
+                Children = childTrees;
         }
 
         private bool AddTextTree(List<Token> tokens, List<SyntaxTree> childTrees)
@@ -69,7 +67,7 @@ namespace Markdown
         }
 
         private SyntaxTree GetChildSyntaxTree(
-            SyntaxTreeType treeType, int tokenIndex, TokenType stopTokenType)
+            SyntaxTreeType treeType, int tokenIndex, TokenType startTokenType, TokenType stopTokenType)
         {
             var treeTokens = new List<Token>();
             for (var i = tokenIndex + 1; i < Tokens.Count; i++)
@@ -77,10 +75,10 @@ namespace Markdown
                 var token = Tokens[i];
                 if (token.TokenType == stopTokenType)
                     return new SyntaxTree(treeType, treeTokens, this,
-                        Token.DefaultStringForTokenTypes[stopTokenType], Token.DefaultStringForTokenTypes[stopTokenType]);
+                        Token.DefaultStringForTokenTypes[startTokenType], Token.DefaultStringForTokenTypes[stopTokenType]);
                 treeTokens.Add(token);
             }
-            return new SyntaxTree(SyntaxTreeType.Text, treeTokens, this, Token.DefaultStringForTokenTypes[stopTokenType]);
+            return new SyntaxTree(SyntaxTreeType.Text, treeTokens, this, Token.DefaultStringForTokenTypes[startTokenType]);
         }
     }
 }

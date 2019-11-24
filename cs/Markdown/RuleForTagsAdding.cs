@@ -1,18 +1,16 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿using System.Collections.Generic;
 
 namespace Markdown
 {
     static class RuleForTagsAdding
     {
-        public static bool IsNeedToAddTags(SyntaxTree tree, int tokenIndex)
+        public static bool IsNeedToAddTags(SyntaxTree tree, List<Token> tokens)
         {
-            if (!IsCorrectTagStart(tree.Parent.Tokens, tokenIndex - 1) ||
-                !IsCorrectTagEnd(tree.Parent.Tokens, tokenIndex + tree.Tokens.Count) ||
-                tree.Tokens.Count <= 0)
+            if (tree.Tokens.Count == 0)
+                return false;
+            var tokenIndex = tree.Tokens[0].Index;
+            if (!IsCorrectTagStart(tokens, tokenIndex - 1) ||
+                !IsCorrectTagEnd(tokens, tokenIndex + tree.Tokens.Count))
                 return false;
             return true;
         }

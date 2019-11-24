@@ -15,21 +15,27 @@ namespace Markdown
             {
                 { TokenType.Empty, ""},
                 { TokenType.Underscore, "_"},
-                { TokenType.DoubleUnderscores, "__"}
+                { TokenType.DoubleUnderscores, "__"},
+                { TokenType.LeftSquareBracket, "["},
+                { TokenType.RightSquareBracket, "]"},
+                { TokenType.LeftParenthesis, "("},
+                { TokenType.RightParenthesis, ")"}
             };
-            EmptyToken = new Token(TokenType.Empty, 0, "");
+            EmptyToken = new Token(TokenType.Empty, 0, -1, "");
         }
 
         public int Position { get; }
+        public int Index { get; }
         public string Text { get; }
         public int Length => Text.Length;
         public bool IsEmpty => Length == 0;
         public TokenType TokenType;
 
-        public Token(TokenType tokenType, int position, string text = null)
+        public Token(TokenType tokenType, int position, int index, string text = null)
         {
             TokenType = tokenType;
             Position = position;
+            Index = index;
             if (text == null)
             {
                 if (DefaultStringForTokenTypes.ContainsKey(tokenType))

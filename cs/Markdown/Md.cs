@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Text;
 
 namespace Markdown
 {
@@ -8,26 +7,57 @@ namespace Markdown
     {
         private const char EscapeCharacter = '\\';
 
-        private static readonly Dictionary<SyntaxTreeType, Tuple<string, string>> TagsForTokenTypes = new Dictionary<SyntaxTreeType, Tuple<string, string>>
+        public static readonly Dictionary<SyntaxTreeType, Tuple<string, string>> TagsForTokenTypes = new Dictionary<SyntaxTreeType, Tuple<string, string>>
         {
-            { SyntaxTreeType.TextInUnderscores, Tuple.Create("<em>", "</em>") },
-            { SyntaxTreeType.TextInDoubleUnderscores, Tuple.Create("<strong>", "</strong>") }
+            { SyntaxTreeType.ItalicText, Tuple.Create("<em>", "</em>") },
+            { SyntaxTreeType.BoldText, Tuple.Create("<strong>", "</strong>") }
+        };
+
+        private static readonly List<SyntaxTreesDescription> SyntaxTreesDescriptions = new List<SyntaxTreesDescription>
+        {
+            new SyntaxTreesDescription(HtmlTreeConverter.TryAddSurroundingTags),
+            new SyntaxTreesDescription(HtmlTreeConverter.TryAddLinkTag),
+            new SyntaxTreesDescription(HtmlTreeConverter.AddDefaultText)
         };
 
         private static readonly Dictionary<TokenType, SyntaxTreeType> TreeTypesFromTokenType = new Dictionary<TokenType, SyntaxTreeType>
         {
-            { TokenType.Underscore, SyntaxTreeType.TextInUnderscores },
-            { TokenType.DoubleUnderscores, SyntaxTreeType.TextInDoubleUnderscores }
+            { TokenType.Underscore, SyntaxTreeType.ItalicText },
+            { TokenType.DoubleUnderscores, SyntaxTreeType.BoldText },
+            { TokenType.LeftSquareBracket, SyntaxTreeType.TextInSquareBrackets },
+            { TokenType.LeftParenthesis, SyntaxTreeType.TextInParentheses },
+        };
+
+        private static readonly Dictionary<TokenType, TokenType> StopTokenTypes = new Dictionary<TokenType, TokenType>
+        {
+            { TokenType.Underscore, TokenType.Underscore },
+            { TokenType.DoubleUnderscores, TokenType.DoubleUnderscores },
+            { TokenType.LeftSquareBracket, TokenType.RightSquareBracket },
+            { TokenType.LeftParenthesis, TokenType.RightParenthesis },
         };
 
         public static readonly List<TokenDescription> MdTokenDescriptions = new List<TokenDescription>
         {
-            new TokenDescription((text, position) => TokenReader.ReadEscapedSymbol(text, position, EscapeCharacter)),
-            new TokenDescription((text, position) => TokenReader.ReadSubstringToken(text, position, "__", TokenType.DoubleUnderscores)),
-            new TokenDescription((text, position) => TokenReader.ReadSubstringToken(text, position, "_", TokenType.Underscore)),
-            new TokenDescription((text, position) => TokenReader.ReadTokenWithRuleForSymbols(text, position, char.IsWhiteSpace, TokenType.Whitespaces)),
-            new TokenDescription((text, position) => TokenReader.ReadTokenWithRuleForSymbols(text, position, char.IsLetter, TokenType.Letters)),
-            new TokenDescription((text, position) => TokenReader.ReadTokenWithRuleForSymbols(text, position, char.IsDigit, TokenType.Number)),
+            new TokenDescription((text, position, index) => 
+                TokenReader.ReadEscapedSymbol(text, position, index, EscapeCharacter)),
+            new TokenDescription((text, position, index) => 
+                TokenReader.ReadSubstringToken(text, position, index, "__", TokenType.DoubleUnderscores)),
+            new TokenDescription((text, position, index) => 
+                TokenReader.ReadSubstringToken(text, position, index, "_", TokenType.Underscore)),
+            new TokenDescription((text, position, index) => 
+                TokenReader.ReadSubstringToken(text, position, index, "[", TokenType.LeftSquareBracket)),
+            new TokenDescription((text, position, index) => 
+                TokenReader.ReadSubstringToken(text, position, index, "]", TokenType.RightSquareBracket)),
+            new TokenDescription((text, position, index) => 
+                TokenReader.ReadSubstringToken(text, position, index, "(", TokenType.LeftParenthesis)),
+            new TokenDescription((text, position, index) => 
+                TokenReader.ReadSubstringToken(text, position, index, ")", TokenType.RightParenthesis)),
+            new TokenDescription((text, position, index) => 
+                TokenReader.ReadTokenWithRuleForSymbols(text, position, index, char.IsWhiteSpace, TokenType.Whitespaces)),
+            new TokenDescription((text, position, index) => 
+                TokenReader.ReadTokenWithRuleForSymbols(text, position, index, char.IsLetter, TokenType.Letters)),
+            new TokenDescription((text, position, index) => 
+                TokenReader.ReadTokenWithRuleForSymbols(text, position, index, char.IsDigit, TokenType.Number))
         };
 
         public string Render(string markdownText)
@@ -35,14 +65,19 @@ namespace Markdown
             var reader = new TokenReader(MdTokenDescriptions);
             var tokens = reader.SplitToTokens(markdownText);
             var rootTree = new SyntaxTree(SyntaxTreeType.Text, tokens);
-            rootTree.AddChildTrees(TreeTypesFromTokenType);
-            foreach (var childTree in rootTree.Children)
+            AddChildTrees(rootTree);
+            var converter = new TreeConverter(SyntaxTreesDescriptions, rootTree);
+            return converter.GetTaggedText();
+        }
+
+        public void AddChildTrees(SyntaxTree tree)
+        {
+            tree.AddChildTrees(TreeTypesFromTokenType, StopTokenTypes);
+            foreach (var childTree in tree.Children)
             {
-                if (childTree.Type == SyntaxTreeType.TextInDoubleUnderscores)
-                    childTree.AddChildTrees(TreeTypesFromTokenType);
+                if (childTree.Type == SyntaxTreeType.BoldText || childTree.Type == SyntaxTreeType.TextInSquareBrackets)
+                    AddChildTrees(childTree);
             }
-            var converter = new TreeConverter(TagsForTokenTypes, RuleForTagsAdding.IsNeedToAddTags);
-            return converter.GetTaggedText(rootTree, 0);
         }
     }
 }
