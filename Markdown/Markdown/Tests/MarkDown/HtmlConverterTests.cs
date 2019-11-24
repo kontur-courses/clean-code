@@ -34,9 +34,9 @@ namespace Markdown.Tests.MarkDown
         [Test]
         public void Should_WorkWithMoreThanOneParagraph()
         {
-            mdProcessor.Render("###header__abc__\n\n__some text__")
+            mdProcessor.Render("###header__abc__\r\n\r\n__some text__")
                 .Should()
-                .Be("<p><h3>header__abc__</h3></p><p><strong>some text</strong></p>");
+                .Be("<p><h3>header__abc__</h3></p>\r\n\r\n<p><strong>some text</strong></p>");
         }
     }
 }

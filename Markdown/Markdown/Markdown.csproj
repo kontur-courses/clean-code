@@ -56,6 +56,8 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Builder\TagBuilder.cs" />
+    <Compile Include="Content\ContentFinder.cs" />
+    <Compile Include="Content\IContentFinder.cs" />
     <Compile Include="MdTags\BlockquoteTag.cs" />
     <Compile Include="MdTags\CodeTag.cs" />
     <Compile Include="MdTags\EmTag.cs" />

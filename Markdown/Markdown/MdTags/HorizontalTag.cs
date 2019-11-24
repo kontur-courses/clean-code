@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 
 
 namespace Markdown.MdTags
@@ -8,7 +9,7 @@ namespace Markdown.MdTags
         public override string OpenedMdTag { get; protected set; } = "***";
         protected override string OpenedHtmlTag { get;  set; } = "<hr>";
 
-        public HorizontalTag((int lenght, string content) contentInfo) : base(contentInfo)
+        public HorizontalTag((int lenght, string content) contentInfo = default) : base(contentInfo)
         { }
 
         public override bool CanOpen(Stack<Tag> stack, string content) 

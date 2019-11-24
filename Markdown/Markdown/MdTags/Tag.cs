@@ -23,10 +23,8 @@ namespace Markdown.MdTags
             "**",
             "***",
             "___",
-            ">",
-            "\n"
+            ">"
         };
-
         public virtual string ClosedMdTag { get; protected set; } = string.Empty;
         public virtual string OpenedMdTag { get; protected set; } = string.Empty;
         protected virtual string ClosedHtmlTag { get; set; }

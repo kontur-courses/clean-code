@@ -12,7 +12,7 @@ namespace Markdown.MarkDown
 
         public string Render(string rawMarkdown)
         {
-            var paragraphs = rawMarkdown.Split(new[] { "\n\n" }, StringSplitOptions.None);
+            var paragraphs = rawMarkdown.Split(new[] { "\r\n\r\n" }, StringSplitOptions.None);
             var paragraphsTags = paragraphs.Select(paragraph => CombineTagsInOneParagraph(parser.Parse(paragraph))).ToList();
             return CombineAllParagraphs(paragraphsTags);
         }
@@ -26,6 +26,6 @@ namespace Markdown.MarkDown
             => string.Join("", tags.Select(tag => tag.WrapTagIntoHtml()));
 
         private static string CombineAllParagraphs(IEnumerable<string> paragraphs) 
-            => string.Join("", paragraphs.Select(paragraph => $"<p>{paragraph}</p>"));
+            => string.Join("\r\n\r\n", paragraphs.Select(paragraph => $"<p>{paragraph}</p>"));
     }
 }

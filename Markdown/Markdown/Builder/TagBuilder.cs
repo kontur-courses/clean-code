@@ -22,7 +22,6 @@ namespace Markdown.Builder
             { "####", (text, index) => new HeaderTag(GetContent(text, index),"####") },
             { "#####", (text, index) => new HeaderTag(GetContent(text, index),"#####") },
             { "######", (text, index) => new HeaderTag(GetContent(text, index),"######") },
-            { "\n", (text, index) => new HeaderTag(GetContent(text, index),"\n")},
             { "***", (text, index) => new HorizontalTag(GetContent(text, index)) },
             { "___", (text, index) => new HorizontalTag(GetContent(text, index)) },
             { ">", (text, index) => new BlockquoteTag(GetContent(text, index)) }
