@@ -79,7 +79,7 @@ namespace Markdown
         [TestCase("__Hello _Hello World!_ World!__", ExpectedResult = "<strong>Hello <em>Hello World!</em> World!</strong>", TestName = "EmphasisInsideStrongRecognized")]
         [TestCase("_Hello __Hello World!__ World!_", ExpectedResult = "<em>Hello __Hello World!__ World!</em>", TestName = "StrongInsideEmphasisNotRecognized")]
         [TestCase("__aa _aa_ __aa__ aa__", ExpectedResult = "<strong>aa <em>aa</em> __aa</strong> aa__")]
-        [TestCase("__a _a _a_ a__", ExpectedResult = "<strong>a _a <em>a</em> a</strong>")]
+        [TestCase("__a _a _a_ a__", ExpectedResult = "__a _a <em>a</em> a__")]
         [TestCase("__a _a _a_ a_ a__", ExpectedResult = "<strong>a <em>a _a</em> a_ a</strong>")]
         [TestCase("_a __aa _a_ aa__ a_", ExpectedResult = "<em>a __aa _a</em> aa__ a_")]
         [TestCase(@"\_a __aa _a_ aa__ a\_", ExpectedResult =  "_a <strong>aa <em>a</em> aa</strong> a_")]
@@ -95,10 +95,10 @@ namespace Markdown
             return MarkdownTransformerToHtml.Render(inputString);
         }
         
-        [TestCase("__aa _a aa__ a_", ExpectedResult = "")]
         [TestCase("", ExpectedResult = "", TestName = "EmptyString")]
         [TestCase("_", ExpectedResult = "_", TestName = "SingleEmphasisTag")]
         [TestCase("__", ExpectedResult = "__", TestName = "SingleStrongTag")]
+        [TestCase("__aa _a aa__ a_", ExpectedResult = "__aa <em>a aa__ a</em>")]
         [TestCase("_111_",ExpectedResult = "<em>111</em>", TestName = "NumbersInsideTag")]
         [TestCase("___Hello World!___", ExpectedResult = "___Hello World!___", TestName = "TwoDifferentTagsNear")]
         [TestCase("_____Hello World!_____", ExpectedResult = "_____Hello World!_____", TestName = "ManyTagsNear")]

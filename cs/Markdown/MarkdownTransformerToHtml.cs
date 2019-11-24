@@ -18,7 +18,7 @@ namespace Markdown
 
             var tagTokens = tagParser.Parse(inputString)
                 .RemoveEscapedTagTokens(inputString)
-                .RemoveUnpairedTagTokens()
+                .RemoveIncorrectTagSequences()
                 .RemoveIncorrectNestingTagTokens();
 
             var outputString = HtmlConverter

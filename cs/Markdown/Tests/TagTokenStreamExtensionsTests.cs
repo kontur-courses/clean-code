@@ -78,7 +78,7 @@ namespace Markdown
         [TestCaseSource(nameof(UnopenedTagsCases))]
         public void RemoveUnopenedTags(string inputString, List<TagToken> tags, int expectedCountTags)
         {
-            var correctTags = tags.OrderBy(tag => tag.Index).RemoveUnpairedTagTokens().ToList();
+            var correctTags = tags.OrderBy(tag => tag.Index).RemoveIncorrectTagSequences().ToList();
 
             correctTags.Should().HaveCount(expectedCountTags);
         }

@@ -15,23 +15,23 @@ namespace Markdown
                 (tag.Index != 0) ? inputString[tag.Index - 1] : ' ';
         }
 
-        public static IEnumerable<TagToken> RemoveUnpairedTagTokens(this IEnumerable<TagToken> sortedTagTokens)
+        public static IEnumerable<TagToken> RemoveIncorrectTagSequences(this IEnumerable<TagToken> sortedTagTokens)
         {
             var result = new List<TagToken>();
-            var tagTokenStacks = new Dictionary<MarkdownTagInfo, Stack<TagToken>>();
-
-            foreach (var tagToken in sortedTagTokens)
+            
+            var stack = new Stack<TagToken>();
+            foreach (var tag in sortedTagTokens)
             {
-                if(!tagTokenStacks.ContainsKey(tagToken.MarkdownTagInfo))
-                    tagTokenStacks[tagToken.MarkdownTagInfo] = new Stack<TagToken>();
-                
-                if (tagToken.TokenType == TagTokenType.Opening)
-                    tagTokenStacks[tagToken.MarkdownTagInfo].Push(tagToken);
-                if (tagToken.TokenType == TagTokenType.Closing
-                    && tagTokenStacks[tagToken.MarkdownTagInfo].Count != 0)
+                if (tag.TokenType == TagTokenType.Opening)
+                    stack.Push(tag);
+                if (tag.TokenType == TagTokenType.Closing && stack.Count != 0)
                 {
-                    result.Add(tagTokenStacks[tagToken.MarkdownTagInfo].Pop());
-                    result.Add(tagToken);
+                    var stackTopTag = stack.Peek();
+                    if (stackTopTag.MarkdownTagInfo.Equals(tag.MarkdownTagInfo))
+                    {	
+                        result.Add(stack.Pop());	
+                        result.Add(tag);	
+                    }
                 }
             }
 
