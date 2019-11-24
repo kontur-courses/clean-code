@@ -16,18 +16,7 @@ namespace Markdown
         private List<Token> FilterIncorrectTokens(List<Token> tokens)
         {
             var tokenNumber = 0;
-            var newTokens = tokens.Select(token =>
-            {
-                switch (token)
-                {
-                    case PairToken pairToken:
-                        return new PairToken(pairToken.Type, pairToken.Content, pairToken.Length);
-                    case HeaderToken headerToken:
-                        return new HeaderToken(headerToken.Type, headerToken.Content, headerToken.Length);
-                    default:
-                        return new Token(token.Type, token.Content, token.Length);
-                }
-            }).ToList();
+            var newTokens = tokens.Select(token => token.Clone()).ToList();
             foreach (var token in tokens)
             {
                 var prevToken = TryGetTokenByIndex(newTokens, tokenNumber - 1);
@@ -56,7 +45,7 @@ namespace Markdown
                 case PairToken pairToken:
                     return GetCorrectPairToken(pairToken, prevToken, nextToken);
                 case HeaderToken headerToken:
-                    return GetCorrectHeaderToken(headerToken, prevToken);
+                    return ConvertHeaderToTextIfNotFirst(headerToken, prevToken);
                 default:
                     return tokenToFix;
             }
@@ -80,25 +69,43 @@ namespace Markdown
         private bool IsFirstPairToken(Token prevToken, Token nextToken)
         {
             return prevToken == null ||
-                   prevToken is PairToken pairToken && pairToken.IsFirst ||
-                   char.IsWhiteSpace(prevToken.GetLastContentChar()) ||
-                   char.IsPunctuation(prevToken.GetLastContentChar()) &&
-                   nextToken != null &&
-                   !char.IsWhiteSpace(nextToken.GetFirstContentChar());
+                   PrevSymbolIsCorrectToFirstPair(prevToken) &&
+                   NextSymbolIsNotWhitespace(nextToken);
+        }
+
+        private bool PrevSymbolIsCorrectToFirstPair(Token prevToken)
+        {
+            var prevSymbol = prevToken.GetLastContentChar();
+            return prevToken is PairToken pairToken && pairToken.IsFirst ||
+                   char.IsWhiteSpace(prevSymbol) ||
+                   char.IsPunctuation(prevSymbol);
+        }
+
+        private bool NextSymbolIsNotWhitespace(Token nextToken)
+        {
+            return nextToken != null && !char.IsWhiteSpace(nextToken.GetFirstContentChar());
         }
 
         private bool IsSecondPairToken(Token prevToken, Token nextToken)
         {
-            return nextToken == null ||
-                   char.IsWhiteSpace(nextToken.GetFirstContentChar()) ||
-                   char.IsPunctuation(nextToken.GetFirstContentChar()) ||
-                   nextToken.Type != TokenType.Text ||
-                   prevToken is PairToken pairToken &&
-                   !pairToken.IsFirst &&
-                   !char.IsWhiteSpace(prevToken.GetLastContentChar());
+            return (nextToken == null || NextSymbolIsCorrectToSecondPair(nextToken)) &&
+                   PrevSymbolIsNotWhitespace(prevToken);
         }
 
-        private Token GetCorrectHeaderToken(HeaderToken token, Token prevToken)
+        private bool NextSymbolIsCorrectToSecondPair(Token nextToken)
+        {
+            var nextSymbol = nextToken.GetFirstContentChar();
+            return char.IsWhiteSpace(nextSymbol) ||
+                   char.IsPunctuation(nextSymbol) ||
+                   nextToken.Type != TokenType.Text;
+        }
+
+        private bool PrevSymbolIsNotWhitespace(Token prevToken)
+        {
+            return prevToken != null && !char.IsWhiteSpace(prevToken.GetLastContentChar());
+        }
+
+        private Token ConvertHeaderToTextIfNotFirst(HeaderToken token, Token prevToken)
         {
             if (prevToken == null || prevToken.GetLastContentChar() == '\n')
             {

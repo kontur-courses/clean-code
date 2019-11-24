@@ -13,5 +13,10 @@
         public HeaderToken(TokenType type) : base(type)
         {
         }
+
+        public override Token Clone()
+        {
+            return new HeaderToken(Type, Content, Length);
+        }
     }
 }

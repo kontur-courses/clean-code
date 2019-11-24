@@ -42,6 +42,11 @@
             return new Token(TokenType.Text, Content, Length);
         }
 
+        public virtual Token Clone()
+        {
+            return new Token(Type, Content, Length);
+        }
+
         public override string ToString()
         {
             return Content;

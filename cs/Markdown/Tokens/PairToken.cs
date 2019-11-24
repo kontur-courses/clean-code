@@ -20,5 +20,10 @@
         public PairToken(TokenType type) : base(type)
         {
         }
+
+        public override Token Clone()
+        {
+            return new PairToken(Type, Content, Length);
+        }
     }
 }
