@@ -8,6 +8,7 @@ namespace Markdown
     {
         public static bool IsCharCorrectToAdd(this TextToTokenParserContext context, int i, int length, OperationContext.Context opContext)
         {
+            if (context.HasDigitBefore) return false;
             var (start, end)  = (i, i + length - 1);
             if (start == 0 || start != 0 && !char.IsDigit(context.Text[start - 1]) ||
                 end == context.Text.Length - 1 || end != context.Text.Length - 1 && !char.IsDigit(context.Text[end + 1]))
@@ -45,9 +46,13 @@ namespace Markdown
         {
             if (context.TempStrongTagStack.Count == 0 && context.IsCharCorrectToAdd(tag.Index, 2, OperationContext.Context.ToOpen))
                 context.TempStrongTagStack.Push(tag);
-            else
-                if (context.TempStrongTagStack.Count!=0 && context.IsCharCorrectToAdd(tag.Index, 2, OperationContext.Context.ToClose))  
-                    context.TempStrongTokens.Add(context.Text.GetToken(context.TempStrongTagStack.Pop().Index, tag.Index + 1, tag.Value));
+            else if (context.TempStrongTagStack.Count != 0 &&
+                     context.IsCharCorrectToAdd(tag.Index, 2, OperationContext.Context.ToClose))
+            {
+                context.TempStrongTokens.Add(context.Text.GetToken(context.TempStrongTagStack.Pop().Index,
+                    tag.Index + 1, tag.Value));
+                context.Last = Added.Temp;
+            }
 
         }
 
@@ -57,6 +62,7 @@ namespace Markdown
                  context.IsCharCorrectToAdd(tag.Index, 1, OperationContext.Context.ToClose))
             {
                 context.Result.Add(context.Text.GetToken(context.TagStack.Pop().Index, tag.Index, tag.Value));
+                context.Last = Added.Result;
                 context.TempStrongTokens.Clear();
                 return;
             }

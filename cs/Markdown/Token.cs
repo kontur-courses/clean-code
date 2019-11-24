@@ -39,6 +39,10 @@
             OpenTagLength = openTagLength;
         }
 
+        public Token(string line)
+        {
+            Line = line;
+        }
         public override bool Equals(object obj)
         {
             var token = obj as Token;

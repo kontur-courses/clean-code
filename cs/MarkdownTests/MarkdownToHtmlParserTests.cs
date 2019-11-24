@@ -3,9 +3,11 @@ using Markdown;
 using NUnit.Framework;
 using System.Collections.Generic;
 using System.Linq;
+using System.Runtime.CompilerServices;
 
 namespace MarkdownTests
 {
+    [TestFixture]
     public class MarkdownToHtmlParserTests
     {
         [Test]
@@ -13,9 +15,8 @@ namespace MarkdownTests
         public void Parser_Should_ParseTokensToTokensCorrectly(MarkdownToHtmlParserSource.MarkdownToHtmlParserData data)
         {
             var expectedResult = data.Result;
-            var textTokens = data.TextTokens;
             var dict = new Dictionary<Token, Token>();
-            var htmltokens = MarkdownToHtmlParser.Parse(textTokens, dict);
+            var htmltokens = MarkdownToHtmlParser.Parse(data.MDTokens, dict);
             htmltokens.Select(t => t.Line)
                 .ToList()
                 .Should()
@@ -26,27 +27,32 @@ namespace MarkdownTests
         {
             public class MarkdownToHtmlParserData
             {
-                public string Text { get; }
-                public HashSet<Token> TextTokens { get; }
+                public List<Token> MDTokens { get; }
                 public List<string> Result { get; }
-                public MarkdownToHtmlParserData(string text, params string[] tokenLines)
+                public MarkdownToHtmlParserData(List<Token> mdTokens,params string[] tokenLines)
                 {
-                    Text = text;
-                    TextTokens = TextToTokensParser.Parse(text);
+
+                    MDTokens = mdTokens;
                     Result = tokenLines.ToList();
                 }
             }
 
             private static readonly TestCaseData[] TestCases =
             {
-                    new TestCaseData(new MarkdownToHtmlParserData("ab_aaa_bbb", "<em>aaa</em>")).SetName("ab_aaa_bbb"),
-                    new TestCaseData(new MarkdownToHtmlParserData("ab_aaa_bb__b a__ acc", "<em>aaa</em>", "<strong>b a</strong>")).SetName(
-                        "ab_aaa_bb__b a__ acc"),
-                    new TestCaseData(new MarkdownToHtmlParserData("ab__aaa__bb_b_", "<strong>aaa</strong>", "<em>b</em>")).SetName("ab__aaa__bb_b_"),
-                    new TestCaseData(new MarkdownToHtmlParserData("ab_aaa_bb_b_", "<em>aaa</em>", "<em>b</em>")).SetName("ab_aaa_bb_b_"),
-                    new TestCaseData(new MarkdownToHtmlParserData("aaa__a_b_b__[link](somelink)", "<strong>a<em>b</em>b</strong>",
-                            "<em>b</em>",@"<a href='somelink'>link</a>")).SetName("aaa__a_b_b__[link](somelink)")
-                };
+                    new TestCaseData(new MarkdownToHtmlParserData(new List<Token>() {"_aaa_".GetToken(0,4,"_")}, "<em>aaa</em>")),
+                    new TestCaseData(new MarkdownToHtmlParserData( new List<Token>()
+                    {
+                        "ab_aaa_bb__b a__ acc".GetToken(2,6,"_"),
+                        "ab_aaa_bb__b a__ acc".GetToken(9,15,"__")
+                    }, "<em>aaa</em>", "<strong>b a</strong>")),
+                    new TestCaseData(new MarkdownToHtmlParserData(new List<Token>()
+                    {
+                        "ab__aaa__bb_b_".GetToken(2,8,"__"),
+                        "ab__aaa__bb_b_".GetToken(11,13,"_"),
+
+                    }, "<strong>aaa</strong>", "<em>b</em>")),
+                    new TestCaseData(new MarkdownToHtmlParserData(new List<Token>(){"[link](somelink)".GetToken(0,15,"[](")}, @"<a href='somelink'>link</a>"))
+            };
         }
     }
 }

@@ -7,7 +7,7 @@ namespace Markdown
 {
     public static class MarkdownToHtmlParser
     {
-        public static List<Token> Parse(HashSet<Token> markdownTokens,
+        public static List<Token> Parse(List<Token> markdownTokens,
             Dictionary<Token, Token> tagsCollection)
         {
             var result = new List<Token>();
@@ -47,7 +47,7 @@ namespace Markdown
             return result;
         }
 
-        private static Dictionary<int, int> GetTokenStarts(HashSet<Token> markdownTokens)
+        private static Dictionary<int, int> GetTokenStarts(List<Token> markdownTokens)
         {
             var tokensStarts = markdownTokens.OrderBy(t => t.Start).ToList();
             var result = new Dictionary<int, int>();

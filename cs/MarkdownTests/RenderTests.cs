@@ -22,6 +22,12 @@ namespace MarkdownTests
         [TestCase(@"\__a_\_",ExpectedResult = "_<em>a</em>_")]
         [TestCase(@"\\\\\_a_",ExpectedResult = @"\\_a_")]
         [TestCase("\\_a\\_",ExpectedResult = "_a_")]
+        [TestCase("w0rk_with_digits",ExpectedResult = "w0rk_with_digits")]
+        [TestCase("w0rk _with_digits",ExpectedResult = "w0rk <em>with</em>digits")]
+        [TestCase("work_with_d1g1ts",ExpectedResult = "work_with_d1g1ts")]
+        [TestCase("work_with_ d1g1ts",ExpectedResult = "work<em>with</em> d1g1ts")]
+        [TestCase("work__with__ d1g1ts", ExpectedResult = "work<strong>with</strong> d1g1ts")]
+        [TestCase("work__with__d1g1ts", ExpectedResult = "work__with__d1g1ts")]
         public string Render_ShouldRenderCorrectly1(string text)
         {
             return new Md().Render(text);
