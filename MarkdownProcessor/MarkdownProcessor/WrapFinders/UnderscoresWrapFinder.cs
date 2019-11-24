@@ -1,14 +1,10 @@
-﻿using System.Collections.Generic;
-using MarkdownProcessor.TextWraps;
+﻿using MarkdownProcessor.TextWraps;
 
 namespace MarkdownProcessor.WrapFinders
 {
     public class UnderscoresWrapFinder : WrapFinder
     {
         public UnderscoresWrapFinder(ITextWrapType textWrapType) : base(textWrapType) { }
-
-        public UnderscoresWrapFinder(ITextWrapType textWrapType, IReadOnlyList<TextWrap> wrapBorders) :
-            base(textWrapType, wrapBorders) { }
 
         protected override bool IsValidOpenMarker(int markerIndex, string text) =>
             !PreviousCharacterIsEscaping && EqualsToOpenMarker(markerIndex, text) &&

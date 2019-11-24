@@ -9,30 +9,15 @@ namespace MarkdownProcessor.WrapFinders
     {
         protected WrapFinder(ITextWrapType textWrapType) => TextWrapType = textWrapType;
 
-        protected WrapFinder(ITextWrapType textWrapType, IReadOnlyList<TextWrap> forbiddenToIntersectingWraps) :
-            this(textWrapType)
-        {
-            if (forbiddenToIntersectingWraps.Count == 0)
-                throw new ArgumentException("Passed empty sequence", nameof(forbiddenToIntersectingWraps));
-
-            this.forbiddenToIntersectingWraps = forbiddenToIntersectingWraps;
-            currentForbiddenWrapIndex = 0;
-        }
-
         protected ITextWrapType TextWrapType { get; }
         protected bool PreviousCharacterIsEscaping { get; private set; }
 
-        private readonly IReadOnlyList<TextWrap> forbiddenToIntersectingWraps;
-        private int? currentForbiddenWrapIndex;
-
-        private TextWrap? CurrentForbiddenWrap =>
-            forbiddenToIntersectingWraps is null || !currentForbiddenWrapIndex.HasValue
-                ? (TextWrap?)null
-                : forbiddenToIntersectingWraps[currentForbiddenWrapIndex.Value];
-
-        public IEnumerable<TextWrap> GetPairsOfMarkers(string text)
+        public IEnumerable<TextWrap> GetWraps(string text, IReadOnlyList<TextWrap> forbiddenToIntersectingWraps = null)
         {
-            if (currentForbiddenWrapIndex.HasValue) currentForbiddenWrapIndex = 0;
+            if (!(forbiddenToIntersectingWraps is null) && forbiddenToIntersectingWraps.Count == 0)
+                throw new ArgumentException("Passed empty sequence", nameof(forbiddenToIntersectingWraps));
+            var currentForbiddenWrapIndex = forbiddenToIntersectingWraps is null ? (int?)null : 0;
+
             var openMarkerPositions = new Stack<int>();
             var position = 0;
             PreviousCharacterIsEscaping = false;
@@ -41,14 +26,14 @@ namespace MarkdownProcessor.WrapFinders
             {
                 if (position + TextWrapType.CloseWrapMarker.Length >= text.Length) break;
 
-                if (IsCurrentCharacterEscape())
+                if (CurrentCharacterIsEscape())
                 {
                     PreviousCharacterIsEscaping = true;
                     position++;
                     continue;
                 }
 
-                if (IsCurrentPositionInForbiddenWrap(position))
+                if (IsCurrentPositionInForbiddenWrap(position, forbiddenToIntersectingWraps, currentForbiddenWrapIndex))
                 {
                     position++;
                     continue;
@@ -61,34 +46,28 @@ namespace MarkdownProcessor.WrapFinders
 
                 position++;
                 PreviousCharacterIsEscaping = false;
-                UpdateCurrentForbiddenWrapIndex(position);
 
-                bool IsCurrentCharacterEscape() => !PreviousCharacterIsEscaping &&
+                if (ShouldUpdateCurrentForbiddenWrapIndex(position, forbiddenToIntersectingWraps,
+                                                          currentForbiddenWrapIndex))
+                    currentForbiddenWrapIndex++;
+
+                bool CurrentCharacterIsEscape() => !PreviousCharacterIsEscaping &&
                                                    text[position] == Markdown.EscapeCharacter;
             }
         }
 
         protected abstract bool IsValidOpenMarker(int markerIndex, string text);
-
-        /*
-         TODO: Вопрос! Специально протаскиваю везде аргументы (int markerIndex, string text), чтобы не делать их
-         такими же, как "protected bool PreviousCharacterIsEscaping { get; private set; }"
-         
-         Не хочется, чтобы у какого-либо метода в данном классе, кроме GetPairsOfMarkers(), была возможность изменять
-         эти свойства.
-         Но приходится часто их копипастить. Чем жертвовать - инкапсуляцией или копипастом?
-         */
         protected abstract bool IsValidCloseMarker(int markerIndex, string text);
 
         protected bool IsTheMostSpecificOpenMarker(int markerIndex, string text) =>
             TextWrapType.OpenWrapMarker.Length ==
-            Markdown.WrapTypes.Where(wrapType => TextSubstringEqualsToOtherString(markerIndex, text,
-                                                                                  wrapType.OpenWrapMarker))
+            Markdown.WrapFinderByWrapType.Keys.Where(wrapType => TextSubstringEqualsToOtherString(
+                                                         markerIndex, text, wrapType.OpenWrapMarker))
                     .Max(wrapType => wrapType.OpenWrapMarker.Length);
 
         protected bool IsTheMostSpecificCloseMarker(int markerIndex, string text) =>
             TextWrapType.CloseWrapMarker.Length ==
-            Markdown.WrapTypes
+            Markdown.WrapFinderByWrapType.Keys
                     .Where(wrapType => TextSubstringEqualsToOtherString(
                                markerIndex + TextWrapType.CloseWrapMarker.Length - wrapType.CloseWrapMarker.Length,
                                text, wrapType.CloseWrapMarker))
@@ -111,24 +90,40 @@ namespace MarkdownProcessor.WrapFinders
             startIndex + otherString.Length < text.Length &&
             text.Substring(startIndex, otherString.Length) == otherString;
 
-        private bool IsCurrentPositionInForbiddenWrap(int currentPosition)
-        {
-            if (!CurrentForbiddenWrap.HasValue) return false;
+        private static TextWrap? TryGetCurrentForbiddenWrap(IReadOnlyList<TextWrap> forbiddenToIntersectingWraps,
+                                                            int? currentForbiddenWrapIndex) =>
+            forbiddenToIntersectingWraps is null || !currentForbiddenWrapIndex.HasValue
+                ? (TextWrap?)null
+                : forbiddenToIntersectingWraps[currentForbiddenWrapIndex.Value];
 
-            return currentPosition >= CurrentForbiddenWrap?.OpenMarkerIndex &&
-                   currentPosition <= CurrentForbiddenWrap?.CloseMarkerIndex;
+        private static bool IsCurrentPositionInForbiddenWrap(int currentPosition,
+                                                             IReadOnlyList<TextWrap> forbiddenToIntersectingWraps,
+                                                             int? currentForbiddenWrapIndex)
+        {
+            var currentForbiddenWrap = TryGetCurrentForbiddenWrap(forbiddenToIntersectingWraps,
+                                                                  currentForbiddenWrapIndex);
+            if (currentForbiddenWrap is null)
+                return false;
+
+            return currentPosition >= currentForbiddenWrap.Value.OpenMarkerIndex &&
+                   currentPosition <= currentForbiddenWrap.Value.CloseMarkerIndex;
         }
 
-        private void UpdateCurrentForbiddenWrapIndex(int currentPosition)
+        private static bool ShouldUpdateCurrentForbiddenWrapIndex(int currentPosition,
+                                                                  IReadOnlyList<TextWrap> forbiddenToIntersectingWraps,
+                                                                  int? currentForbiddenWrapIndex)
         {
-            if (!CurrentForbiddenWrap.HasValue) return;
+            var currentForbiddenWrap = TryGetCurrentForbiddenWrap(forbiddenToIntersectingWraps,
+                                                                  currentForbiddenWrapIndex);
+            if (currentForbiddenWrap is null)
+                return false;
 
-            var previousPositionWasCloseMarker = currentPosition - 1 >= 0 &&
-                                                 CurrentForbiddenWrap?.CloseMarkerIndex == currentPosition - 1;
-            var currentWrapIsNotLast = currentForbiddenWrapIndex + 1 < forbiddenToIntersectingWraps.Count;
+            var previousPositionWasForbiddenCloseMarker = currentPosition - 1 >= 0 &&
+                                                          currentForbiddenWrap.Value.CloseMarkerIndex ==
+                                                          currentPosition - 1;
+            var currentForbiddenWrapIsNotLast = currentForbiddenWrapIndex + 1 < forbiddenToIntersectingWraps.Count;
 
-            if (previousPositionWasCloseMarker && currentWrapIsNotLast)
-                currentForbiddenWrapIndex++;
+            return previousPositionWasForbiddenCloseMarker && currentForbiddenWrapIsNotLast;
         }
     }
 }

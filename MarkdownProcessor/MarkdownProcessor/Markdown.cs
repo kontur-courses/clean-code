@@ -6,17 +6,21 @@ using MarkdownProcessor.WrapFinders;
 
 namespace MarkdownProcessor
 {
-    public static class Markdown // TODO: maybe should to make it dynamic
+    public static class Markdown
     {
         public const char EscapeCharacter = '\\';
 
         public static HashSet<char> WhiteSpaceSymbols => new HashSet<char> { ' ', '\t', '\n' };
 
-        public static IEnumerable<ITextWrapType> WrapTypes => new HashSet<ITextWrapType>
-        {
-            new SingleUnderscoreWrapType(),
-            new DoubleUnderscoresWrapType()
-        };
+        private static readonly SingleUnderscoreWrapType singleUnderscoreWrapType = new SingleUnderscoreWrapType();
+        private static readonly DoubleUnderscoresWrapType doubleUnderscoresWrapType = new DoubleUnderscoresWrapType();
+
+        public static IReadOnlyDictionary<ITextWrapType, WrapFinder> WrapFinderByWrapType =>
+            new Dictionary<ITextWrapType, WrapFinder>
+            {
+                [singleUnderscoreWrapType] = new UnderscoresWrapFinder(singleUnderscoreWrapType),
+                [doubleUnderscoresWrapType] = new UnderscoresWrapFinder(doubleUnderscoresWrapType)
+            };
 
         public static string RenderHtml(string markdownText)
         {
@@ -45,8 +49,7 @@ namespace MarkdownProcessor
 
         private static string ReplaceMarkdownWrapsWithHtmlTags(string markdownText)
         {
-            var allWraps = GetTextWraps(markdownText)
-                .Aggregate((wraps, otherWraps) => GetUnionOfWrapSequences(wraps, otherWraps).ToArray());
+            var allWraps = GetAllTextWraps(markdownText);
             var currentWrapIndex = -1;
 
             var stringBuilder = new StringBuilder(markdownText.Length);
@@ -88,20 +91,15 @@ namespace MarkdownProcessor
                                                     position == allWraps[currentWrapIndex].CloseMarkerIndex;
         }
 
-        private static TextWrap[][] GetTextWraps(string text) // TODO
+        private static TextWrap[] GetAllTextWraps(string text)
         {
-            var singleUnderscoreWrap = new SingleUnderscoreWrapType();
-            var singleUnderscoreWrapFinder = new UnderscoresWrapFinder(singleUnderscoreWrap);
-            var singleUnderscoreWraps = singleUnderscoreWrapFinder.GetPairsOfMarkers(text).ToArray();
+            var singleUnderscoreWraps = WrapFinderByWrapType[singleUnderscoreWrapType].GetWraps(text).ToArray();
+            var representAsNullIfEmpty = singleUnderscoreWraps.Length == 0 ? null : singleUnderscoreWraps;
+            var doubleUnderscoresWraps = WrapFinderByWrapType[doubleUnderscoresWrapType]
+                                         .GetWraps(text, representAsNullIfEmpty).ToArray();
 
-            var doubleUnderscoresWrap = new DoubleUnderscoresWrapType();
-            var doubleUnderscoresWrapFinder = singleUnderscoreWraps.Length == 0
-                                                  ? new UnderscoresWrapFinder(doubleUnderscoresWrap)
-                                                  : new UnderscoresWrapFinder(doubleUnderscoresWrap,
-                                                                              singleUnderscoreWraps);
-            var doubleUnderscoresWraps = doubleUnderscoresWrapFinder.GetPairsOfMarkers(text).ToArray();
-
-            return new[] { singleUnderscoreWraps, doubleUnderscoresWraps };
+            return new[] { singleUnderscoreWraps, doubleUnderscoresWraps }
+                .Aggregate((wraps, otherWraps) => GetUnionOfWrapSequences(wraps, otherWraps).ToArray());
         }
 
         private static IEnumerable<TextWrap> GetUnionOfWrapSequences(IReadOnlyList<TextWrap> wraps,
