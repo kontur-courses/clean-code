@@ -1,4 +1,5 @@
-﻿using FluentAssertions;
+﻿using System.Collections.Generic;
+using FluentAssertions;
 using NUnit.Framework;
 
 namespace MarkdownProcessor.Tests
@@ -6,125 +7,100 @@ namespace MarkdownProcessor.Tests
     [TestFixture]
     public class MarkdownTests
     {
-        [Test]
-        public void RenderHtml_OnCorrectSingleUnderscoresWrap_ReplacesUnderscoresWithEmTag()
+        [TestCaseSource(nameof(EscapeCharacterTestCases))]
+        public void RenderHtml_OnDifferentCasesWithEscapeCharacters(string markdownText, string expectedHtml)
         {
-            const string markdownText = "they have _twelve scraps_ of paper... twelve chances to kill!";
-            const string expectedHtml = "they have <em>twelve scraps</em> of paper... twelve chances to kill!";
+            var actualResult = Markdown.RenderHtml(markdownText);
 
-            var actualHtml = Markdown.RenderHtml(markdownText);
-
-            actualHtml.Should().Be(expectedHtml);
+            actualResult.Should().Be(expectedHtml);
         }
 
-        [Test]
-        public void RenderHtml_OnCorrectDoubleUnderscoresWrap_ReplacesUnderscoresWithStrongTag()
+        private static IEnumerable<TestCaseData> EscapeCharacterTestCases
         {
-            const string markdownText = "they have __twelve scraps__ of paper... twelve chances to kill!";
-            const string expectedHtml = "they have <strong>twelve scraps</strong> of paper... twelve chances to kill!";
-
-            var actualHtml = Markdown.RenderHtml(markdownText);
-
-            actualHtml.Should().Be(expectedHtml);
+            // ReSharper disable once UnusedMember.Local
+            get
+            {
+                yield return new TestCaseData(
+                        @"they have \_twelve scraps\_ of paper... twelve chances to kill!",
+                        "they have _twelve scraps_ of paper... twelve chances to kill!")
+                    .SetName("WhenEscapeCharacterBeforeUnderscore_DoesntReplace");
+                yield return new TestCaseData(
+                        @"they have twelve \\scraps of paper... twelve chances to kill!",
+                        @"they have twelve \scraps of paper... twelve chances to kill!")
+                    .SetName("WhenDoubleEscapeCharacters_OneOfThemDisappear");
+                yield return new TestCaseData(
+                        @"they have twelve \\\\\\scraps of paper... twelve chances to kill!",
+                        @"they have twelve \\\scraps of paper... twelve chances to kill!")
+                    .SetName("WhenSeveralEscapeCharacters_HalfOfThemDisappear");
+            }
         }
 
-        [Test]
-        public void RenderHtml_OnSingleUnderscoreWrapInsideOfDoubleUnderscoreWrap_ReplacesUnderscoresForBothWraps()
+        [TestCaseSource(nameof(UnderscoreTestCases))]
+        public void RenderHtml_OnDifferentCasesWithUnderscores(string markdownText, string expectedHtml)
         {
-            const string markdownText = "they have __twelve _scraps of_ paper...__ twelve chance..";
-            const string expectedHtml = "they have <strong>twelve <em>scraps of</em> paper...</strong> twelve chance..";
+            var actualResult = Markdown.RenderHtml(markdownText);
 
-            var actualHtml = Markdown.RenderHtml(markdownText);
-
-            actualHtml.Should().Be(expectedHtml);
+            actualResult.Should().Be(expectedHtml);
         }
 
-        [Test]
-        public void RenderHtml_OnDoubleUnderscoreWrapInsideOfSingleUnderscoreWrap_ReplacesUnderscoresJustForOuterWrap()
+        private static IEnumerable<TestCaseData> UnderscoreTestCases
         {
-            const string markdownText = "they have _twelve __scraps of__ paper..._ twelve chances to kill!";
-            const string expectedHtml = "they have <em>twelve __scraps of__ paper...</em> twelve chances to kill!";
-
-            var actualHtml = Markdown.RenderHtml(markdownText);
-
-            actualHtml.Should().Be(expectedHtml);
+            // ReSharper disable once UnusedMember.Local
+            get
+            {
+                yield return new TestCaseData(
+                        "they have _twelve scraps_ of paper... twelve chances to kill!",
+                        "they have <em>twelve scraps</em> of paper... twelve chances to kill!")
+                    .SetName("WhenCorrectlySingleUnderscoresWrap_ReplacesUnderscoresWithEmTag");
+                yield return new TestCaseData(
+                        "they have __twelve scraps__ of paper... twelve chances to kill!",
+                        "they have <strong>twelve scraps</strong> of paper... twelve chances to kill!")
+                    .SetName("WhenCorrectlyDoubleUnderscoresWrap_ReplacesUnderscoresWithStrongTag");
+                yield return new TestCaseData(
+                        "they have __twelve _scraps of_ paper...__ twelve chance..",
+                        "they have <strong>twelve <em>scraps of</em> paper...</strong> twelve chance..")
+                    .SetName("WhenSingleUnderscoreWrapInsideOfDoubleUnderscoreWrap_ReplacesUnderscoresForBothWraps");
+                yield return new TestCaseData(
+                        "they have _twelve __scraps of__ paper..._ twelve chances to kill!",
+                        "they have <em>twelve __scraps of__ paper...</em> twelve chances to kill!")
+                    .SetName("WhenDoubleUnderscoresWrapInsideOfSingleUnderscoreWrap_ReplacesJustOuterWrap");
+            }
         }
 
-        [Test]
-        public void RenderHtml_OnNotPairWrapMarkers_ReplacesUnderscoresWithEmTag()
+        [TestCaseSource(nameof(UnderscoreTestCasesWithSameInputAndResult))]
+        public string RenderHtml_OnDifferentCasesWithUnderscores_ReturnsInputWithoutChanges(string markdownText) =>
+            Markdown.RenderHtml(markdownText);
+
+        private static IEnumerable<TestCaseData> UnderscoreTestCasesWithSameInputAndResult
         {
-            const string markdownText = "they have __twelve scraps_ of paper... twelve chances to kill!";
-            const string expectedHtml = markdownText;
-
-            var actualHtml = Markdown.RenderHtml(markdownText);
-
-            actualHtml.Should().Be(expectedHtml);
-        }
-
-        [Test]
-        public void RenderHtml_EscapeCharacterBeforeUnderscore_DoesntReplace()
-        {
-            const string markdownText = @"they have \_twelve scraps\_ of paper... twelve chances to kill!";
-            const string expectedHtml = "they have _twelve scraps_ of paper... twelve chances to kill!";
-
-            var actualHtml = Markdown.RenderHtml(markdownText);
-
-            actualHtml.Should().Be(expectedHtml);
-        }
-
-        [Test]
-        public void RenderHtml_DoubleEscapeCharacters_OneOfThemDisappear()
-        {
-            const string markdownText = @"they have twelve \\scraps of paper... twelve chances to kill!";
-            const string expectedHtml = @"they have twelve \scraps of paper... twelve chances to kill!";
-
-            var actualHtml = Markdown.RenderHtml(markdownText);
-
-            actualHtml.Should().Be(expectedHtml);
-        }
-
-        [Test]
-        public void RenderHtml_OnEvenCountOfEscapeCharacters_HalfOfThemDisappear()
-        {
-            const string markdownText = @"they have twelve \\\\\\scraps of paper... twelve chances to kill!";
-            const string expectedHtml = @"they have twelve \\\scraps of paper... twelve chances to kill!";
-
-            var actualHtml = Markdown.RenderHtml(markdownText);
-
-            actualHtml.Should().Be(expectedHtml);
-        }
-
-        [Test]
-        public void RenderHtml_OnUnderscoresWithoutSpacesAround_DoesntReplace()
-        {
-            const string markdownText = @"they have twelve sc_rap_s of paper... twelve chances to kill!";
-            const string expectedHtml = markdownText;
-
-            var actualHtml = Markdown.RenderHtml(markdownText);
-
-            actualHtml.Should().Be(expectedHtml);
-        }
-
-        [Test]
-        public void RenderHtml_OnSpaceAfterOpenWrapUnderscore_DoesntReplace()
-        {
-            const string markdownText = @"they have_ twelve scraps_ of paper... twelve chances to kill!";
-            const string expectedHtml = markdownText;
-
-            var actualHtml = Markdown.RenderHtml(markdownText);
-
-            actualHtml.Should().Be(expectedHtml);
-        }
-
-        [Test]
-        public void RenderHtml_OnSpaceBeforeCloseWrapUnderscore_DoesntReplace()
-        {
-            const string markdownText = @"they have _twelve scraps _of paper... twelve chances to kill!";
-            const string expectedHtml = markdownText;
-
-            var actualHtml = Markdown.RenderHtml(markdownText);
-
-            actualHtml.Should().Be(expectedHtml);
+            // ReSharper disable once UnusedMember.Local
+            get
+            {
+                {
+                    const string markdownText = "they have __twelve scraps_ of paper... twelve chances to kill!";
+                    const string expectedHtml = markdownText;
+                    yield return new TestCaseData(markdownText).Returns(expectedHtml).SetName(
+                        "WhenNotPairWrapMarkers_ReplacesUnderscoresWithEmTag");
+                }
+                {
+                    const string markdownText = @"they have twelve sc_rap_s of paper... twelve chances to kill!";
+                    const string expectedHtml = markdownText;
+                    yield return new TestCaseData(markdownText).Returns(expectedHtml).SetName(
+                        "WhenUnderscoresWithoutSpacesAround_DoesntReplace");
+                }
+                {
+                    const string markdownText = @"they have_ twelve scraps_ of paper... twelve chances to kill!";
+                    const string expectedHtml = markdownText;
+                    yield return new TestCaseData(markdownText).Returns(expectedHtml).SetName(
+                        "WhenSpaceAfterOpenWrapUnderscore_DoesntReplace");
+                }
+                {
+                    const string markdownText = @"they have _twelve scraps _of paper... twelve chances to kill!";
+                    const string expectedHtml = markdownText;
+                    yield return new TestCaseData(markdownText).Returns(expectedHtml).SetName(
+                        "WhenSpaceBeforeCloseWrapUnderscore_DoesntReplace");
+                }
+            }
         }
     }
 }
