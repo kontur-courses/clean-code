@@ -6,24 +6,28 @@ namespace Markdown
 {
     public class Md
     {
-        private Dictionary<Token, Token> TagsCollection { get; set; }
+        private readonly Dictionary<Token, Token> tagsCollection;
 
         public Md()
         {
-            TagsCollection = new Dictionary<Token, Token>();
+            tagsCollection = new Dictionary<Token, Token>();
         }
-        public string Render(string paragraph)
+        public string Render(string paragraph)  
         {
             var markdownTokens = TextToTokensParser.Parse(paragraph);
-            var htmlTokens = MarkdownToHtmlParser.Parse(markdownTokens, TagsCollection);
+            MarkdownToHtmlParser.Parse(markdownTokens, tagsCollection);
             var stringBuilder = new StringBuilder(paragraph);
             var delta = 0;
-            foreach (var markdownToken in markdownTokens.OrderBy(t=>t.Start))
+            foreach (var markdownToken in markdownTokens.OrderBy(t => t.Start))
             {
-                stringBuilder.Replace(markdownToken.Line, TagsCollection[markdownToken].Line, markdownToken
-                    .Start+delta, markdownToken.Length);
-                delta += TagsCollection[markdownToken].Length - markdownToken.Length;
+                stringBuilder.Replace(markdownToken.Line, tagsCollection[markdownToken].Line, markdownToken
+                    .Start + delta, markdownToken.Length);
+                delta += tagsCollection[markdownToken].Length - markdownToken.Length;
             }
+
+            for (int i = 0; i <= stringBuilder.Length - 1; i++)
+                if (stringBuilder[i] == '\\')
+                    stringBuilder.Remove(i, 1);
 
             return stringBuilder.ToString();
         }

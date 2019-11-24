@@ -2,14 +2,6 @@
 
 namespace Markdown
 {
-    public static class OperationContext
-    {
-        public enum Context
-        {
-            ToOpen,
-            ToClose
-        }
-    }
     public class TextToTokenParserContext
     {
         public string Text { get; }
@@ -69,7 +61,7 @@ namespace Markdown
                 return;
             }
 
-            if (context.TagStack.Count != 0 && context.TagStack.Peek().Index == i - 1)
+            if (context.TagStack.Count != 0 && context.TagStack.Peek().Index == i - 1 && context.TagStack.Peek().Value=="_")
             {
                 context.TryToAdd__Tag((context.TagStack.Pop().Index, "__"));
                 return;

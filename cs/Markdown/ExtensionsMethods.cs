@@ -8,15 +8,15 @@ namespace Markdown
     {
         public static bool IsCharCorrectToAdd(this TextToTokenParserContext context, int i, int length, OperationContext.Context opContext)
         {
-            (int Start, int End) index = (i, i + length - 1);
-            if (index.Start == 0 || index.Start != 0 && !char.IsDigit(context.Text[index.Start - 1]) ||
-                index.End == context.Text.Length - 1 || index.End != context.Text.Length - 1 && !char.IsDigit(context.Text[index.End + 1]))
+            var (start, end)  = (i, i + length - 1);
+            if (start == 0 || start != 0 && !char.IsDigit(context.Text[start - 1]) ||
+                end == context.Text.Length - 1 || end != context.Text.Length - 1 && !char.IsDigit(context.Text[end + 1]))
             {
                 if (opContext == OperationContext.Context.ToOpen &&
-                    (index.End == context.Text.Length - 1 || context.Text[index.End + 1] != ' '))
+                    (end == context.Text.Length - 1 || context.Text[end + 1] != ' '))
                     return true;
                 if (opContext == OperationContext.Context.ToClose &&
-                    (index.Start == 0 || context.Text[index.Start - 1] != ' '))
+                    (start == 0 || context.Text[start - 1] != ' '))
                     return true;
             }
             return false;
@@ -51,12 +51,6 @@ namespace Markdown
 
         }
 
-        public static void TryToAddClose__Tag(this (int Index, string Value) closeTag, HashSet<Token> result, List<Token> temp, int i,
-            string text, Stack<(int Index, string Value)> tagStack, List<Token> tempNotDoubleTags)
-        {
-
-        }
-
         public static void TryToAdd_Tag(this TextToTokenParserContext context, (int Index, string Value) tag)
         {
             if ( context.TagStack.Count!=0 && context.TagStack.Peek().Value == tag.Value && 
@@ -67,13 +61,12 @@ namespace Markdown
                 return;
             }
 
-            if ((context.TagStack.Count == 0 || context.TagStack.Peek().Value != tag.Value) &&
-                context.IsCharCorrectToAdd(tag.Index, 1, OperationContext.Context.ToOpen))
-            {
-                context.TagStack.Push(tag);
-                foreach (var token in context.TempStrongTokens)
-                    context.Result.Add(token);
-            }
+            if ((context.TagStack.Count != 0 && context.TagStack.Peek().Value == tag.Value) ||
+                !context.IsCharCorrectToAdd(tag.Index, 1, OperationContext.Context.ToOpen)) return;
+
+            context.TagStack.Push(tag);
+            foreach (var token in context.TempStrongTokens)
+                context.Result.Add(token);
         }
     }
 }

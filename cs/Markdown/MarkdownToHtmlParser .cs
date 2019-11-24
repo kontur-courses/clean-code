@@ -15,8 +15,8 @@ namespace Markdown
                 return result;
             var temp = new HashSet<Token>();
             var tokenStarts = GetTokenStarts(markdownTokens);
-            foreach (var markdownToken in markdownTokens.Where(t => tokenStarts[t.Start] >= t.Start + t.Length)
-                .ToList())
+            var simpleMdTokens = markdownTokens.Where(t => tokenStarts[t.Start] >= t.Start + t.Length).ToList();
+            foreach (var markdownToken in simpleMdTokens)
             {
                 var htmlToken = GetHtmlToken(markdownToken);
                 result.Add(htmlToken);
@@ -34,7 +34,7 @@ namespace Markdown
                 {
                     if (markdownToken.Start+markdownToken.Length >= htmlToken.Start+htmlToken.Length) continue;
                     stringBuilder.Replace(markdownToken.Line, tagsCollection[markdownToken].Line,
-                        markdownToken.Start + delta - token.Start + 6, markdownToken.Length);
+                        markdownToken.Start + delta - token.Start + htmlToken.OpenTagLength, markdownToken.Length);
                     delta += tagsCollection[markdownToken].Length - markdownToken.Length;
                 }
 
@@ -65,17 +65,18 @@ namespace Markdown
             {
                 case "_":
                     htmlString = $"<em>{markdownToken.Line.Substring(1, markdownToken.Length - 2)}</em>";
-                    return new Token(htmlString, markdownToken.Start, markdownToken.Length + 7);
+                    return new Token(htmlString, markdownToken.Start, markdownToken.Length + 7,3);
                 case "__":
                     htmlString = $"<strong>{markdownToken.Line.Substring(2, markdownToken.Length - 4)}</strong>";
-                    return new Token(htmlString, markdownToken.Start, markdownToken.Length + 13);
+                    return new Token(htmlString, markdownToken.Start, markdownToken.Length + 13,6);
                 case "[](":
                     var firstBorders = (markdownToken.Line.IndexOf('(') + 1, markdownToken.Line.IndexOf(')'));
                     var secondBorders = (1, markdownToken.Line.IndexOf(']'));
                     htmlString =
                         $"<a href='{markdownToken.Line.Substring(firstBorders.Item1, firstBorders.Item2 - firstBorders.Item1)}'>" +
                         $"{markdownToken.Line.Substring(secondBorders.Item1, secondBorders.Item2 - secondBorders.Item1)}</a>";
-                    return new Token(htmlString, markdownToken.Start, markdownToken.Length + 11);
+                    return new Token(htmlString, markdownToken.Start, markdownToken.Length + 11,
+                        10+markdownToken.Line.Substring(firstBorders.Item1, firstBorders.Item2-firstBorders.Item1).Length);
             }
 
             throw new ArgumentException();
