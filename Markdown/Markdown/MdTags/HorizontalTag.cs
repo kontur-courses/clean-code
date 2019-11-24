@@ -1,5 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 
 
 namespace Markdown.MdTags
@@ -12,8 +11,11 @@ namespace Markdown.MdTags
         public HorizontalTag((int lenght, string content) contentInfo = default) : base(contentInfo)
         { }
 
+        public override bool CanClose(string tag) => false;
+
         public override bool CanOpen(Stack<Tag> stack, string content) 
-            => stack.Count == 0 && content == string.Empty;
+            => (stack.Count == 0 )
+               && (content == string.Empty || content.StartsWith("\r\n"));
 
         public override void AutoClose(List<Tag> tags)
         {

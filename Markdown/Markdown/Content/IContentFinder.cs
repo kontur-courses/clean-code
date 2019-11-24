@@ -1,22 +1,16 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-
-namespace Markdown.Content
+﻿namespace Markdown.Content
 {
     interface IContentFinder
     {
-        (int lenght, string content) GetBlockquoteContent();
-        (int lenght, string content) GetCodeContent();
-        (int lenght, string content) GetEmContent();
-        (int lenght, string content) GetHeaderContent();
-        (int lenght, string content) GetHorizontalContent();
-        (int lenght, string content) GetListContent();
-        (int lenght, string content) GetSimpleContent();
-        (int lenght, string content) GetStrikeContent();
-        (int lenght, string content) GetStrongContent();
-
+        (int lenght, string content) GetBlockquoteContent(string text, int index);
+        (int lenght, string content) GetCodeContent(string text, int index);
+        (int lenght, string content) GetEmContent(string text, int index);
+        (int lenght, string content) GetHeaderContent(string text, int index);
+        (int lenght, string content) GetListContent(string text, int index);
+        (int lenght, string content) GetSimpleContent(string text, int index);
+        (int lenght, string content) GetStrikeContent(string text, int index);
+        (int lenght, string content) GetHorizontalContent(string text, int index);
+        (int lenght, string content) GetStrongContent(string text, int index);
+        (int lenght, string content) GetDefaultContent(string text, int index);
     }
 }

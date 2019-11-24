@@ -6,7 +6,7 @@ namespace Markdown.MdTags
 {
     public abstract class Tag
     {
-        public static readonly List<string> AllTags = new List<string>()
+        public static readonly List<string> AllTags = new List<string>
         {
             "_",
             "__",
@@ -37,9 +37,9 @@ namespace Markdown.MdTags
 
         protected Tag((int lenght, string content) contentInfo)
         {
-            var (lenght, content) = contentInfo;
+            var (length, content) = contentInfo;
             Content = content;
-            ContentLength = lenght;
+            ContentLength = length;
         }
 
         public string WrapTagIntoHtml()

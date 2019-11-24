@@ -86,15 +86,23 @@ namespace Markdown.Tests.Parser
         [Test]
         public void Should_ScreenAllSymbolInCodeTag()
         {
-            var expectedTag = new CodeTag((@"`\\a\_\b\#\__c__\\`".Length, @"`\\a\_\b\#\__c__\\`"));
+            var expectedTag = new CodeTag((@"\\a\_\b\#\__c__\\".Length, @"\\a\_\b\#\__c__\\"));
             mdTagParser.Parse(@"`\\a\_\b\#\__c__\\`").Should().BeEquivalentTo(new List<Tag> { expectedTag });
         }
 
         [Test]
         public void Should_NotWorkWithDigits()
         {
-            var expectedTag = new SimpleTag(("цифрами_12_3".Length, "цифрами_12_3"));
-            mdTagParser.Parse("цифрами_12_3").Should().BeEquivalentTo(new List<Tag> { expectedTag });
+            var expectedTag1 = new SimpleTag(("цифрами".Length, "цифрами"));
+            var expectedTag2 = new SimpleTag((3, "_12"));
+            var expectedTag3 = new SimpleTag((2, "_3"));
+
+            mdTagParser.Parse("цифрами_12_3").Should().BeEquivalentTo(new List<Tag>
+            {
+                expectedTag1,
+                expectedTag2,
+                expectedTag3
+            });
         }
 
         [Test]
@@ -108,9 +116,9 @@ namespace Markdown.Tests.Parser
         public void Should_CloseHeaderTagAfterMovingInNewLine()
         {
             var expectedTag1 = new HeaderTag((3, "abc"), "#");
-            var expectedTag2 = new SimpleTag((3, "abc"));
+            var expectedTag2 = new SimpleTag((5, "\r\nabc"));
             var expectedTag3 = new StrongTag((1, "a"));
-            mdTagParser.Parse("#abc\nabc__a__").Should().BeEquivalentTo(new List<Tag>
+            mdTagParser.Parse("#abc\r\nabc__a__").Should().BeEquivalentTo(new List<Tag>
             {
                 expectedTag1,
                 expectedTag2,
@@ -121,14 +129,8 @@ namespace Markdown.Tests.Parser
         [Test]
         public void Should_Work_When_NewLineAfterHorizontalTag()
         {
-            var expectedTag1 = new HorizontalTag();
-            var expectedTag2 = new SimpleTag((3, "\r\nabc"));
-            var res = mdTagParser.Parse("***\r\nabc");
-            mdTagParser.Parse("***\r\nabc").Should().BeEquivalentTo(new List<Tag>
-            {
-                expectedTag1,
-                expectedTag2
-            });
+            var expectedTag = new HorizontalTag((5,"\r\nabc"));
+            mdTagParser.Parse("***\r\nabc").Should().BeEquivalentTo(new List<Tag> { expectedTag });
         }
     }
 }

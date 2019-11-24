@@ -12,8 +12,6 @@ namespace Markdown.MdTags
         public CodeTag((int lenght, string content) contentInfo) : base(contentInfo)
         { }
 
-        public override bool CanOpen(Stack<Tag> stack, string content) 
-            => !content.StartsWith(" ") && stack.Count == 0;
-
+        public override bool CanOpen(Stack<Tag> stack, string content) => true;
     }
 }

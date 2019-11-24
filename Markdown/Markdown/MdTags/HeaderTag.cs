@@ -5,7 +5,6 @@ namespace Markdown.MdTags
 {
     internal class HeaderTag: Tag
     {
-        public override string ClosedMdTag { get; protected set; } = "\n";
 
         public HeaderTag((int lenght, string content) contentInfo, string mdTag = "") : base(contentInfo)
         {
@@ -15,8 +14,7 @@ namespace Markdown.MdTags
         }
 
         public override bool CanOpen(Stack<Tag> stack, string content)
-            =>(stack.Count == 0 || stack.Count != 0 && stack.Peek().ClosedMdTag == ClosedMdTag) 
-              && !content.StartsWith(" ") && !int.TryParse(content, out _);
+            => (stack.Count == 0 || stack.Count != 0 && stack.Peek().ClosedMdTag == ClosedMdTag);
 
         public override void AutoClose(List<Tag> tags)
         {

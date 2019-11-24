@@ -140,8 +140,8 @@ namespace Markdown.Tests.MdProcessor
         [Test]
         public void Should_WrapIntoHeaderTag()
         {
-            var wrapped = mdTagParser.Parse("##abc\n").Select(tag => tag.WrapTagIntoHtml()).ToList();
-            wrapped.Should().BeEquivalentTo(new List<string> { "<h2>abc</h2>" });
+            var wrapped = mdTagParser.Parse("##abc\r\n").Select(tag => tag.WrapTagIntoHtml()).ToList();
+            wrapped.Should().BeEquivalentTo(new List<string> { "<h2>abc</h2>", "\r\n" });
         }
 
         [Test]
@@ -172,12 +172,6 @@ namespace Markdown.Tests.MdProcessor
             wrapped.Should().BeEquivalentTo(new List<string> { "<blockquote>abc</blockquote>" });
         }
 
-        [Test]
-        public void Should_WrapIntoNestedBlockQuoteTag()
-        {
-            var wrapped = mdTagParser.Parse(">ab>c").Select(tag => tag.WrapTagIntoHtml()).ToList();
-            wrapped.Should().BeEquivalentTo(new List<string> { "<blockquote>ab<blockquote>c</blockquote></blockquote>" });
-        }
 
         [Test]
         public void Should_WrapIntoListTag()
