@@ -4,11 +4,10 @@
         <TargetFramework>netcoreapp2.2</TargetFramework>
 
         <IsPackable>false</IsPackable>
-
-        <RootNamespace>Test_Markdown</RootNamespace>
     </PropertyGroup>
 
     <ItemGroup>
+        <PackageReference Include="ApprovalTests" Version="4.4.0" />
         <PackageReference Include="FluentAssertions" Version="5.9.0" />
         <PackageReference Include="nunit" Version="3.11.0" />
         <PackageReference Include="NUnit3TestAdapter" Version="3.11.0" />
