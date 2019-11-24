@@ -7,12 +7,13 @@
 //    [TestFixture]
 //    public class TokenReader_Test
 //    {
+//        private readonly TokenReader tokenReader = new TokenReader();
 //        [Test]
 //        public void ReadUntil_ShouldReadUntilStopChar()
 //        {
 //            var input = "_adad_ asd";
 //            
-//            var actual = TokenReader.ReadUntil(input, 0);
+//            var actual = tokenReader.ReadUntil(input, 0);
 //            
 //            actual.ConvertToHTMLTag().Should().Be("<em>adad</em>");
 //        }
