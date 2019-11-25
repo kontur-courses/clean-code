@@ -20,13 +20,15 @@ namespace Markdown.ConsoleUtils
             WriteConsoleHeader();
         }
 
+        private const int ClassNamePostfixLength = 9;
+
         private static Dictionary<string, Type> GetAllConverterTypes()
         {
             return Assembly
                 .GetAssembly(typeof(TokenConverter))
                 .GetTypes()
                 .Where(t => t.IsSubclassOf(typeof(TokenConverter)))
-                .ToDictionary(x => x.Name.ToLower().Substring(0, x.Name.Length - 9));
+                .ToDictionary(x => x.Name.ToLower().Substring(0, x.Name.Length - ClassNamePostfixLength));
         }
 
 
@@ -40,8 +42,7 @@ namespace Markdown.ConsoleUtils
                 Console.WriteLine("Enter final convert type of file:");
                 key = Console.ReadLine();
 
-                if(key != null && 
-                   !string.IsNullOrEmpty(converterTypes.Keys.FirstOrDefault(x => x.Equals(key))))
+                if(key != null && converterTypes.ContainsKey(key))
                     break;
                     
                 Console.WriteLine("\n***That type doesn't included in types library.***\n");
