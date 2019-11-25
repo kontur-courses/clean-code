@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using FluentAssertions;
 using Markdown.MdTags;
 using NUnit.Framework;
@@ -116,9 +117,9 @@ namespace Markdown.Tests.Parser
         public void Should_CloseHeaderTagAfterMovingInNewLine()
         {
             var expectedTag1 = new HeaderTag((3, "abc"), "#");
-            var expectedTag2 = new SimpleTag((5, "\r\nabc"));
+            var expectedTag2 = new SimpleTag((5, $"{Environment.NewLine}abc"));
             var expectedTag3 = new StrongTag((1, "a"));
-            mdTagParser.Parse("#abc\r\nabc__a__").Should().BeEquivalentTo(new List<Tag>
+            mdTagParser.Parse($"#abc{Environment.NewLine}abc__a__").Should().BeEquivalentTo(new List<Tag>
             {
                 expectedTag1,
                 expectedTag2,

@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 using Markdown.Builder;
 using Markdown.MdTags;
@@ -58,7 +59,7 @@ namespace Markdown.Parser
 
         private void RememberTagAsLast(Tag tag)
         {
-            if (tag.Content == string.Empty || tag.Content == "\n" || tag.Content == "\t")
+            if (tag.Content == string.Empty || tag.Content == Environment.NewLine)
                 return;
             if (tagsStack.Count != 0)
                 tagsStack.Peek().NestedTags.Add(tag);

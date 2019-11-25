@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using FluentAssertions;
@@ -140,8 +141,8 @@ namespace Markdown.Tests.MdProcessor
         [Test]
         public void Should_WrapIntoHeaderTag()
         {
-            var wrapped = mdTagParser.Parse("##abc\r\n").Select(tag => tag.WrapTagIntoHtml()).ToList();
-            wrapped.Should().BeEquivalentTo(new List<string> { "<h2>abc</h2>", "\r\n" });
+            var wrapped = mdTagParser.Parse($"##abc{Environment.NewLine}").Select(tag => tag.WrapTagIntoHtml()).ToList();
+            wrapped.Should().BeEquivalentTo(new List<string> { "<h2>abc</h2>" });
         }
 
         [Test]

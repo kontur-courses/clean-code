@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 
 
@@ -7,7 +8,7 @@ namespace Markdown.MdTags
     internal class ListTag: Tag
     {
         private readonly List<string> allowable = new List<string>() { "*", "_", "__", "~" };
-        public override string ClosedMdTag { get; protected set; } = "\n";
+        public override string ClosedMdTag { get; protected set; } = Environment.NewLine + Environment.NewLine;
         public override string OpenedMdTag { get; protected set; } = "*";
         protected override string OpenedHtmlTag { get; set; } = "<li>";
         protected override string ClosedHtmlTag { get; set; } = "</li>";

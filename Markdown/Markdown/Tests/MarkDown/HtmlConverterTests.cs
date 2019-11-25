@@ -1,4 +1,5 @@
-﻿using NUnit.Framework;
+﻿using System;
+using NUnit.Framework;
 using FluentAssertions;
 using Markdown.Parser;
 
@@ -26,17 +27,17 @@ namespace Markdown.Tests.MarkDown
         [Test]
         public void Should_WorkWithMoreThanOneTagInOneParagraph()
         {
-            mdProcessor.Render("__abc ~de~ fg__ _hi\nj_")
+            mdProcessor.Render($"__abc ~de~ fg__ _hi{Environment.NewLine}j_")
                 .Should()
-                .Be("<p><strong>abc <strike>de</strike> fg</strong> <em>hi\nj</em></p>");
+                .Be($"<p><strong>abc <strike>de</strike> fg</strong> <em>hi{Environment.NewLine}j</em></p>");
         }
 
         [Test]
         public void Should_WorkWithMoreThanOneParagraph()
         {
-            mdProcessor.Render("###header__abc__\r\n\r\n__some text__")
+            mdProcessor.Render($"###header__abc__{Environment.NewLine + Environment.NewLine}__some text__")
                 .Should()
-                .Be("<p><h3>header__abc__</h3></p>\r\n\r\n<p><strong>some text</strong></p>");
+                .Be($"<p><h3>header__abc__</h3></p>{Environment.NewLine + Environment.NewLine}<p><strong>some text</strong></p>");
         }
     }
 }

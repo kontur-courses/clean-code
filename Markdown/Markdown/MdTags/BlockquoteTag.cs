@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 
 
@@ -6,7 +7,7 @@ namespace Markdown.MdTags
 {
     internal class BlockquoteTag: Tag
     {
-        public override string ClosedMdTag { get; protected set; } = "\n";
+        public override string ClosedMdTag { get; protected set; } = Environment.NewLine;
 
         private readonly List<string> allowable = new List<string> { "__", "~", ">" };
         public override string OpenedMdTag { get; protected set; } = ">";
