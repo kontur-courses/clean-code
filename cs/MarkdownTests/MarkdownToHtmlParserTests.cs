@@ -16,7 +16,7 @@ namespace MarkdownTests
         {
             var expectedResult = data.Result;
             var dict = new Dictionary<Token, Token>();
-            var htmltokens = MarkdownToHtmlParser.Parse(data.MDTokens, dict);
+            var htmltokens = MarkdownToHtmlParser.Parse(data.MdTokens, dict);
             htmltokens.Select(t => t.Line)
                 .ToList()
                 .Should()
@@ -27,12 +27,12 @@ namespace MarkdownTests
         {
             public class MarkdownToHtmlParserData
             {
-                public List<Token> MDTokens { get; }
+                public List<Token> MdTokens { get; }
                 public List<string> Result { get; }
                 public MarkdownToHtmlParserData(List<Token> mdTokens,params string[] tokenLines)
                 {
 
-                    MDTokens = mdTokens;
+                    MdTokens = mdTokens;
                     Result = tokenLines.ToList();
                 }
             }
