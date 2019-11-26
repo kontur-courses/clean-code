@@ -7,16 +7,6 @@ namespace Markdown
 {
     public static class LinkedListExtensions
     {
-        public static void RemoveMany<T>(this LinkedList<T> linkedList, LinkedListNode<T> node, int n)
-        {
-            var currentNode = node;
-            for (var _ = 0; _ < n && currentNode != null; ++_)
-            {
-                linkedList.Remove(currentNode);
-                currentNode = currentNode.Next;
-            }
-        }
-
         public static void RemoveRange<T>(this LinkedList<T> linkedList, LinkedListNode<T> firstNode,
             LinkedListNode<T> lastNode)
         {
@@ -57,17 +47,6 @@ namespace Markdown
             } while (currentNode != lastNode);
 
             return list;
-        }
-
-        public static LinkedListNode<T> GetNthAfter<T>(this LinkedListNode<T> linkedListNode, int n)
-        {
-            var currentNode = linkedListNode;
-            for (var _ = 0; _ < n && linkedListNode.Next != null; ++_)
-            {
-                linkedListNode = linkedListNode.Next;
-            }
-
-            return currentNode;
         }
     }
 }
