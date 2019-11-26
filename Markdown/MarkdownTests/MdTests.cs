@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Diagnostics;
-using System.Linq;
 using System.Text;
 using FluentAssertions;
 using Markdown;
@@ -10,184 +9,31 @@ namespace MarkdownTests
 {
     public class MdTests
     {
-        [Test]
-        public void ParsePlainString()
+        [TestCase("Hello world!", "<p>Hello world!</p>", TestName = "RenderPlainString")]
+        [TestCase("\\_Hello world\\_!", "<p>_Hello world_!</p>",TestName = "RenderEscapedEmphasis")]
+        [TestCase("\\_\\_Hello world\\_\\_!", "<p>__Hello world__!</p>", TestName = "RenderEscapedStrongEmphasis")]
+        [TestCase("_Hello world_!", "<p><em>Hello world</em>!</p>", TestName = "RenderEmphasis")]
+        [TestCase("__Hello world__!", "<p><strong>Hello world</strong>!</p>", TestName = "RenderStrongEmphasis")]
+        [TestCase("__Hello _world_!__", "<p><strong>Hello <em>world</em>!</strong></p>", TestName = "RenderEmphasisInsideStrongEmphasis")]
+        [TestCase("_Hello __world__!_", "<p><em>Hello __world__!</em></p>", TestName = "RenderStrongEmphasisInsideEmphasis")]
+        [TestCase("_hello123!_", "<p>_hello123!_</p>", TestName = "RenderEmphasisInsideTextWithNumbers")]
+        [TestCase("__unpaired _symbols" ,"<p>__unpaired _symbols</p>", TestName = "RenderUnpairedDelimiters")]
+        [TestCase("not_ emphasis_", "<p>not_ emphasis_</p>", TestName = "RenderBeginningEmphasisBeforeWhitespace")]
+        [TestCase("not__ emphasis__", "<p>not__ emphasis__</p>", TestName = "RenderBeginningStrongEmphasisBeforeWhitespace")]
+        [TestCase("_not _emphasis", "<p>_not _emphasis</p>", TestName = "RenderEndingEmphasisAfterWhitespace")]
+        [TestCase("__not __emphasis", "<p>__not __emphasis</p>", TestName = "RenderEndingStrongEmphasisAfterWhitespace")]
+        [TestCase("[Google](https://google.com)", "<p><a href=\"https://google.com\">Google</a></p>", TestName = "RenderLinks")]
+        [TestCase("[_Google_](https://google.com)", "<p><a href=\"https://google.com\"><em>Google</em></a></p>", TestName = "RenderEmphasisInsideLinks")]
+        [TestCase("[__Google__](https://google.com)", "<p><a href=\"https://google.com\"><strong>Google</strong></a></p>", TestName = "RenderStrongEmphasisInsideLinks")]
+        [TestCase("[Google](https://_google_.com)", "<p><a href=\"https://_google_.com\">Google</a></p>", TestName = "RenderLinksNoEmphasisInsideAddress")]
+        [TestCase("[Google](__https://google.com__)", "<p><a href=\"__https://google.com__\">Google</a></p>", TestName = "RenderLinksNoStrongEmphasisInsideAddress")]
+        [TestCase("_[__Google__](https://google.com)_", "<p><em><a href=\"https://google.com\">__Google__</a></em></p>", TestName = "RenderStrongEmphasisNotInEmphasisWhenNested")]
+        [TestCase("__[_Google_](https://google.com)__", "<p><strong><a href=\"https://google.com\"><em>Google</em></a></strong></p>", TestName = "RenderEmphasisInStrongEmphasisWhenNested")] 
+        public void TestRender(string input, string expected)
         {
-            const string expectedResult = "<p>Hello world!</p>";
+            var result = Md.Render(input);
 
-            var result = Md.Render("Hello world!");
-
-            result.Should().Be(expectedResult);
-        }
-
-        [Test]
-        public void ParseEscapedEmphasis()
-        {
-            const string expectedResult = "<p>_Hello world_!</p>";
-
-            var result = Md.Render("\\_Hello world\\_!");
-
-            result.Should().Be(expectedResult);
-        }
-
-        [Test]
-        public void ParseEscapedStrongEmphasis()
-        {
-            const string expectedResult = "<p>__Hello world__!</p>";
-
-            var result = Md.Render("\\_\\_Hello world\\_\\_!");
-
-            result.Should().Be(expectedResult);
-        }
-
-        [Test]
-        public void ParseEmphasis()
-        {
-            const string expectedResult = "<p><em>Hello world</em>!</p>";
-
-            var result = Md.Render("_Hello world_!");
-
-            result.Should().Be(expectedResult);
-        }
-
-        [Test]
-        public void ParseStrongEmphasis()
-        {
-            const string expectedResult = "<p><strong>Hello world</strong>!</p>";
-
-            var result = Md.Render("__Hello world__!");
-
-            result.Should().Be(expectedResult);
-        }
-
-        [Test]
-        public void ParseEmphasisInsideStrongEmphasis()
-        {
-            const string expectedResult = "<p><strong>Hello <em>world</em>!</strong></p>";
-
-            var result = Md.Render("__Hello _world_!__");
-
-            result.Should().Be(expectedResult);
-        }
-
-        [Test]
-        public void ParseStrongEmphasisInsideEmphasis()
-        {
-            const string expectedResult = "<p><em>Hello __world__!</em></p>";
-
-            var result = Md.Render("_Hello __world__!_");
-
-            result.Should().Be(expectedResult);
-        }
-
-        [Test]
-        public void ParseEmphasisInsideTextWithNumbers()
-        {
-            const string expectedResult = "<p>_hello123!_</p>";
-
-            var result = Md.Render("_hello123!_");
-
-            result.Should().Be(expectedResult);
-        }
-
-        [Test]
-        public void ParseUnpairedDelimiters()
-        {
-            const string expectedResult = "<p>__unpaired _symbols</p>";
-
-            var result = Md.Render("__unpaired _symbols");
-
-            result.Should().Be(expectedResult);
-        }
-
-        [Test]
-        public void ParseBeginningEmphasisBeforeWhitespace()
-        {
-            const string expectedResult = "<p>not_ emphasis_</p>";
-
-            var result = Md.Render("not_ emphasis_");
-
-            result.Should().Be(expectedResult);
-        }
-
-        [Test]
-        public void ParseBeginningStrongEmphasisBeforeWhitespace()
-        {
-            const string expectedResult = "<p>not__ emphasis__</p>";
-
-            var result = Md.Render("not__ emphasis__");
-
-            result.Should().Be(expectedResult);
-        }
-
-        [Test]
-        public void ParseEndingEmphasisAfterWhitespace()
-        {
-            const string expectedResult = "<p>_not _emphasis</p>";
-
-            var result = Md.Render("_not _emphasis");
-
-            result.Should().Be(expectedResult);
-        }
-
-        [Test]
-        public void ParseEndingStrongEmphasisAfterWhitespace()
-        {
-            const string expectedResult = "<p>__not __emphasis</p>";
-
-            var result = Md.Render("__not __emphasis");
-
-            result.Should().Be(expectedResult);
-        }
-
-        [Test]
-        public void ParseLinks()
-        {
-            const string expectedResult = "<p><a href=\"https://google.com\">Google</a></p>";
-
-            var result = Md.Render("[Google](https://google.com)");
-
-            result.Should().Be(expectedResult);
-        }
-
-        [Test]
-        public void ParseEmphasisInsideLinks()
-        {
-            const string expectedResult = "<p><a href=\"https://google.com\"><em>Google</em></a></p>";
-
-            var result = Md.Render("[_Google_](https://google.com)");
-
-            result.Should().Be(expectedResult);
-        }
-
-        [Test]
-        public void ParseStrongEmphasisInsideLinks()
-        {
-            const string expectedResult = "<p><a href=\"https://google.com\"><strong>Google</strong></a></p>";
-
-            var result = Md.Render("[__Google__](https://google.com)");
-
-            result.Should().Be(expectedResult);
-        }
-
-        [Test]
-        public void ParseLinksNoEmphasisInsideAddress()
-        {
-            const string expectedResult = "<p><a href=\"https://_google_.com\">Google</a></p>";
-
-            var result = Md.Render("[Google](https://_google_.com)");
-
-            result.Should().Be(expectedResult);
-        }
-
-        [Test]
-        public void ParseLinksNoStrongEmphasisInsideAddress()
-        {
-            const string expectedResult = "<p><a href=\"__https://google.com__\">Google</a></p>";
-
-            var result = Md.Render("[Google](__https://google.com__)");
-
-            result.Should().Be(expectedResult);
+            result.Should().Be(expected);
         }
 
         [Test]
@@ -202,26 +48,6 @@ namespace MarkdownTests
             
             (ts2 / ts1).Should().BeApproximately(ts3 / ts2, 1,
                 "Time complexity should be linear");
-        }
-
-        [Test]
-        public void StrongEmphasisNotInEmphasisWhenNested()
-        {
-            const string expectedResult = "<p><em><a href=\"https://google.com\">__Google__</a></em></p>";
-
-            var result = Md.Render("_[__Google__](https://google.com)_");
-
-            result.Should().Be(expectedResult);
-        }
-        
-        [Test]
-        public void EmphasisInStrongEmphasisWhenNested()
-        {
-            const string expectedResult = "<p><strong><a href=\"https://google.com\"><em>Google</em></a></strong></p>";
-
-            var result = Md.Render("__[_Google_](https://google.com)__");
-
-            result.Should().Be(expectedResult);
         }
 
         private static TimeSpan RunRepeatedString(string stringToRepeat, int count)
