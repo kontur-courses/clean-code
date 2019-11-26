@@ -12,15 +12,5 @@ namespace Markdown.MarkdownDocument
         {
             Elements = elements;
         }
-
-        public bool Equals(Line other)
-        {
-            if (Elements.Count() != other.Elements.Count())
-                return false;
-            var elements = Elements.ToArray();
-            var otherElements = other.Elements.ToArray();
-
-            return !elements.Where((t, i) => t.Equals(otherElements[i])).Any();
-        }
     }
 }
