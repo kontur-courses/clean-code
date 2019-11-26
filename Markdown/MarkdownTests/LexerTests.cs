@@ -71,12 +71,14 @@ namespace MarkdownTests
                 Lexeme.CreateFromChar('!', true),
                 Lexeme.CreateFromChar(',', true),
                 Lexeme.CreateFromChar('_', true),
-                Lexeme.CreateFromChar('=', true),
+                Lexeme.CreateFromChar('a'),
+                Lexeme.CreateFromChar('b'),
+                Lexeme.CreateFromChar('c'),
                 Lexeme.CreateFromChar('_', true),
                 Lexeme.CreateFromChar('_', true)
             };
 
-            var lexemes = Lexer.ExtractLexemes("\\!\\,\\_\\=\\_\\_").ToArray();
+            var lexemes = Lexer.ExtractLexemes("\\!\\,\\_abc\\_\\_").ToArray();
 
             lexemes.Length.Should().Be(expectedLexemes.Length);
             lexemes.Should().BeEquivalentTo(expectedLexemes);

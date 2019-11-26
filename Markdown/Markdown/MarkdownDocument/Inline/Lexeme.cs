@@ -5,48 +5,19 @@ namespace Markdown.MarkdownDocument.Inline
 {
     public class Lexeme : IInline
     {
-        private static readonly char[] PunctuationCharacters = new char[]
-        {
-            '!', ',', '"', '#', '$', '%', '&', '\'',
-            '(', ')', '*', '+', ',', '-', '.', '/',
-            ':', ';', '<', '=', '>', '?', '@', '[',
-            '\\', ']', '^', '_', '`', '{', '|', '}', '~'
-        };
-
-        private static readonly char[] WhitespaceCharacters = new char[]
-        {
-            '\u0020', // Space
-            '\u0009', // Tab
-            '\u000a', // Newline
-            '\u000b', // Line tabulation
-            '\u000c', // Form feed
-            '\u000d', // Carriage return
-        };
-
-        private static readonly char[] NumericCharacters = new char[]
-        {
-            '0', '1', '2', '3', '4', '5', '6', '7', '8', '9'
-        };
-
-        public static bool IsWhitespace(char s) => WhitespaceCharacters.Any(c => c == s);
-
-        public static bool IsPunctuation(char s) => PunctuationCharacters.Any(c => c == s);
-
-        public static bool IsDigit(char s) => NumericCharacters.Any(c => c == s);
-        
         public static Lexeme CreateFromChar(char c, bool escaped = false)
         {
-            if (IsWhitespace(c))
+            if (char.IsWhiteSpace(c))
             {
                 return new Lexeme(LexemeType.Whitespace, c, escaped);
             }
 
-            if (IsPunctuation(c))
+            if (char.IsPunctuation(c))
             {
                 return new Lexeme(LexemeType.Punctuation, c, escaped);
             }
 
-            if (IsDigit(c))
+            if (char.IsDigit(c))
             {
                 return new Lexeme(LexemeType.Digit, c, escaped);
             }

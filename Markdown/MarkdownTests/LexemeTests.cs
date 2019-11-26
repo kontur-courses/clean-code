@@ -1,84 +1,83 @@
-using FluentAssertions;
+﻿using FluentAssertions;
 using Markdown;
 using Markdown.MarkdownDocument.Inline;
 using NUnit.Framework;
 
 namespace MarkdownTests
 {
-    public class StaticLexemeTests
+    public class LexemeTests
     {
         [Test, TestCaseSource(nameof(WhitespaceCharacters))]
         public void IsWhiteSpace_True_WhitespaceCharacters(char c)
         {
-            Lexeme.IsWhitespace(c).Should().BeTrue();
+            Lexeme.CreateFromChar(c).IsWhitespace().Should().BeTrue();
         }
 
-        [Test, TestCaseSource(nameof(NumericCharacters))]
+        [Test, TestCaseSource(nameof(Digits))]
         public void IsWhiteSpace_False_NumericCharacters(char c)
         {
-            Lexeme.IsWhitespace(c).Should().BeFalse();
+            Lexeme.CreateFromChar(c).IsWhitespace().Should().BeFalse();
         }
         
-        [Test, TestCaseSource(nameof(AlphabeticCharacters))]
+        [Test, TestCaseSource(nameof(Letters))]
         public void IsWhiteSpace_False_AlphabeticCharacters(char c)
         {
-            Lexeme.IsWhitespace(c).Should().BeFalse();
+            Lexeme.CreateFromChar(c).IsWhitespace().Should().BeFalse();
         }
 
         [Test, TestCaseSource(nameof(PunctuationCharacters))]
         public void IsWhiteSpace_False_PunctuationCharacters(char c)
         {
-            Lexeme.IsWhitespace(c).Should().BeFalse();
+            Lexeme.CreateFromChar(c).IsWhitespace().Should().BeFalse();
         }
 
         [Test, TestCaseSource(nameof(WhitespaceCharacters))]
         public void IsPunctuation_False_WhitespaceCharacters(char c)
         {
-            Lexeme.IsPunctuation(c).Should().BeFalse();
+            Lexeme.CreateFromChar(c).IsPunctuation().Should().BeFalse();
         }
 
-        [Test, TestCaseSource(nameof(NumericCharacters))]
+        [Test, TestCaseSource(nameof(Digits))]
         public void IsPunctuation_False_NumericCharacters(char c)
         {
-            Lexeme.IsPunctuation(c).Should().BeFalse();
+            Lexeme.CreateFromChar(c).IsPunctuation().Should().BeFalse();
         }
         
-        [Test, TestCaseSource(nameof(AlphabeticCharacters))]
+        [Test, TestCaseSource(nameof(Letters))]
         public void IsPunctuation_False_AlphabeticCharacters(char c)
         {
-            Lexeme.IsPunctuation(c).Should().BeFalse();
+            Lexeme.CreateFromChar(c).IsPunctuation().Should().BeFalse();
         }
 
         [Test, TestCaseSource(nameof(PunctuationCharacters))]
         public void IsPunctuation_True_PunctuationCharacters(char c)
         {
-            Lexeme.IsPunctuation(c).Should().BeTrue();
+            Lexeme.CreateFromChar(c).IsPunctuation().Should().BeTrue();
         }
         
         [Test, TestCaseSource(nameof(WhitespaceCharacters))]
         public void IsDigit_False_WhitespaceCharacters(char c)
         {
-            Lexeme.IsDigit(c).Should().BeFalse();
+            Lexeme.CreateFromChar(c).IsDigit().Should().BeFalse();
         }
 
-        [Test, TestCaseSource(nameof(NumericCharacters))]
+        [Test, TestCaseSource(nameof(Digits))]
         public void IsDigit_True_NumericCharacters(char c)
         {
-            Lexeme.IsDigit(c).Should().BeTrue();
+            Lexeme.CreateFromChar(c).IsDigit().Should().BeTrue();
         }
         
-        [Test, TestCaseSource(nameof(AlphabeticCharacters))]
+        [Test, TestCaseSource(nameof(Letters))]
         public void IsDigit_False_AlphabeticCharacters(char c)
         {
-            Lexeme.IsDigit(c).Should().BeFalse();
+            Lexeme.CreateFromChar(c).IsDigit().Should().BeFalse();
         }
 
         [Test, TestCaseSource(nameof(PunctuationCharacters))]
         public void IsDigit_False_PunctuationCharacters(char c)
         {
-            Lexeme.IsDigit(c).Should().BeFalse();
+            Lexeme.CreateFromChar(c).IsDigit().Should().BeFalse();
         }
-
 
         private static readonly char[] WhitespaceCharacters = {
             '\u0020', // Space
@@ -90,17 +89,16 @@ namespace MarkdownTests
         };
 
         private static readonly char[] PunctuationCharacters = {
-            '!', ',', '"', '#', '$', '%', '&', '\'',
-            '(', ')', '*', '+', ',', '-', '.', '/',
-            ':', ';', '<', '=', '>', '?', '@', '[',
-            '\\', ']', '^', '_', '`', '{', '|', '}', '~'
+            '!', ',', '"', '#', '%', '&', '\'', '(', 
+            ')', '*', ',', '-', '.', '/', ':', ';', 
+            '?', '@', '[', '\\', ']', '_', '{', '}'
         };
 
-        private static readonly char[] NumericCharacters = {
+        private static readonly char[] Digits = {
             '1', '2', '3', '4', '5', '6', '7', '9', '0',
         };
 
-        private static readonly char[] AlphabeticCharacters = {
+        private static readonly char[] Letters = {
             'a', 'b', 'c', 'd', 'e', 'f', 'g', 'h', 'i',
             'j', 'k', 'l', 'm', 'n', 'o', 'p', 'q', 'r',
             's', 't', 'u', 'v', 'w', 'x', 'y', 'z',
