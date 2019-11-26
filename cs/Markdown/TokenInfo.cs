@@ -12,19 +12,20 @@ namespace Markdown
             {"__", "strong"},
             {"`", "code"},
             {"```", "code"},
-            {"pre", "pre"}, // ``` wrapper
+            {"pre", "pre"},  // ``` wrapper
             {"#", "h1"},
             {">", "blockquote"},
-            {"-", "li"}
+            {"-", "li"},
+            {"ul", "ul"}  // - wrapper
         };
 
-        public static Dictionary<string, string> MdPairTags => new Dictionary<string, string>
+        private static Dictionary<string, string> MdPairTags => new Dictionary<string, string>
         {
             {"_", "_"},
             {"__", "__"},
             {"`", "`"},
             {"```", "```"},
-            {"pre", "pre"}, // ``` wrapper
+            {"pre", "pre"},  // ``` wrapper
             {">", "\n\n"},
             {"#", "\n"},
             {"##", "\n"},
@@ -32,7 +33,8 @@ namespace Markdown
             {"####", "\n"},
             {"#####", "\n"},
             {"######", "\n"},
-            {"-", "\n"}
+            {"-","\n"},
+            {"ul", "ul"}  // - wrapper
         };
 
         // tags that need to be wrapped in some other tag (key is the html wrapping tag)
@@ -43,7 +45,7 @@ namespace Markdown
         };
 
         private List<string> TagsThatRequireSpaceAfterOpenTag => new List<string>
-            {">", "#", "##", "###", "####", "#####", "-"};
+            {"#", "##", "###", "####", "#####", "-"};
 
         private List<string> TagsThatRequireNewLineBeforeOpenTag => new List<string>
             {">", "#", "##", "###", "####", "#####", "-"};
@@ -73,7 +75,7 @@ namespace Markdown
             return IsOpenTagPart(symbol) || IsOnlyCloseTagPart(symbol);
         }
 
-        private bool IsOpenTagPart(char symbol)
+        private static bool IsOpenTagPart(char symbol)
         {
             return MdPairTags.Keys.Any(k => k.StartsWith(symbol.ToString()));
         }
@@ -109,10 +111,11 @@ namespace Markdown
             return TagsThatRequireExtraWrapping.ContainsKey(tag) ? TagsThatRequireExtraWrapping[tag] : "";
         }
 
-        public int GetTagsStartWithWordCount(string word)
+        public bool HasTagsStartingWith(string word)
         {
             //symmetric tags are counted twice
-            return MdPairTags.Keys.Count(k => k.StartsWith(word)) + MdPairTags.Values.Count(k => k.StartsWith(word));
+            return MdPairTags.Keys.Any(k => k.StartsWith(word)) || MdPairTags.Values.Any(k => k.StartsWith(word));
+            //return MdPairTags.Keys.Count(k => k.StartsWith(word)) + MdPairTags.Values.Count(k => k.StartsWith(word)) != 0;
         }
 
         public string GetCloseTag(string openTag)

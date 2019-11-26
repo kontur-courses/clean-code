@@ -23,17 +23,17 @@ namespace Markdown
             for (var i = 0; i < markdown.Length; i++)
             {
                 var processedToken = GetProcessedToken(rootToken);
-                var current = markdown[i];
-                isEscaped = CheckIsEscaped(isEscaped, current);
-                if (!isEscaped && tokenInfo.IsTagPart(current))
+                var processedSymbol = markdown[i];
+                isEscaped = CheckIsEscaped(isEscaped, processedSymbol);
+                if (!isEscaped && tokenInfo.IsTagPart(processedSymbol))
                 {
-                    if (processedToken.IsClosed && tokenInfo.IsOnlyCloseTagPart(current))
+                    if (processedToken.IsClosed && tokenInfo.IsOnlyCloseTagPart(processedSymbol))
                         continue;
 
-                    tagBuffer += current;
+                    tagBuffer += processedSymbol;
 
                     if (i != markdown.Length - 1 &&
-                        tokenInfo.GetTagsStartWithWordCount(tagBuffer + markdown[i + 1]) != 0)
+                        tokenInfo.HasTagsStartingWith(tagBuffer + markdown[i + 1]))
                         continue;
 
                     AddTagToStack(processedToken, currentPositionsByDepth[depth], tagBuffer, i, markdown);
@@ -41,13 +41,13 @@ namespace Markdown
                 }
                 else
                 {
-                    if (isEscaped && current == '\\')
+                    if (isEscaped && processedSymbol == '\\')
                         continue;
 
-                    if (FirstSpacesShouldBeIgnored(current, processedToken))
+                    if (FirstSpacesShouldBeIgnored(processedSymbol, processedToken))
                         continue;
 
-                    processedToken.AppendData(current.ToString());
+                    processedToken.AppendData(processedSymbol.ToString());
                     currentPositionsByDepth[depth]++;
                 }
             }

@@ -1,15 +1,18 @@
 using System.Collections.Generic;
 using System.Text;
+using JetBrains.Annotations;
 
 namespace Markdown
 {
     public class Token
-    { 
-        internal List<Token> NestedTokens { get; } = new List<Token>();
+    {
+        [UsedImplicitly] internal List<Token> NestedTokens { get; } = new List<Token>();
         internal string MdTag { get; }
-        internal string HtmlTagName { get; }
+
+        [UsedImplicitly] internal string HtmlTagName { get; }
         internal string Data { get; private set; }
-        internal int Position { get; }
+
+        [UsedImplicitly] internal int Position { get; }
 
         /// <summary>
         /// Token is invalid when its parent doesn't support nesting.
@@ -75,7 +78,7 @@ namespace Markdown
                 if (IsClosed)
                     stringBuilder.Append(MdTag);
             }
-            
+
             return stringBuilder.ToString();
         }
 
