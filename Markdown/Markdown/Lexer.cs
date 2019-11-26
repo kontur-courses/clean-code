@@ -28,19 +28,17 @@ namespace Markdown
         {
             for (int i = 0; i < lexemes.Count; ++i)
             {
-                if (lexemes[i].IsDigit())
+                if (!lexemes[i].IsDigit()) continue;
+                for (var j = i - 1; j >= 0 && !lexemes[j].IsWhitespace(); --j)
                 {
-                    for (var j = i - 1; j >= 0 && !lexemes[j].IsWhitespace(); --j)
-                    {
-                        if (lexemes[j].Value == "_")
-                            lexemes[j].Escaped = true;
-                    }
+                    if (lexemes[j].Value == "_")
+                        lexemes[j].Escaped = true;
+                }
                     
-                    for (var j = i + 1; j < lexemes.Count && !lexemes[j].IsWhitespace(); ++j)
-                    {
-                        if (lexemes[j].Value == "_")
-                            lexemes[j].Escaped = true;
-                    }
+                for (var j = i + 1; j < lexemes.Count && !lexemes[j].IsWhitespace(); ++j)
+                {
+                    if (lexemes[j].Value == "_")
+                        lexemes[j].Escaped = true;
                 }
             }
 
