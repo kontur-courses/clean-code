@@ -20,10 +20,10 @@ namespace Markdown
             ResetResources();
             var tagBuffer = "";
             var isEscaped = false;
-            for (var i = 0; i < markdown.Length; i++)
+            for (var markdownPosition = 0; markdownPosition < markdown.Length; markdownPosition++)
             {
                 var processedToken = GetProcessedToken(rootToken);
-                var processedSymbol = markdown[i];
+                var processedSymbol = markdown[markdownPosition];
                 isEscaped = CheckIsEscaped(isEscaped, processedSymbol);
                 if (!isEscaped && tokenInfo.IsTagPart(processedSymbol))
                 {
@@ -32,11 +32,11 @@ namespace Markdown
 
                     tagBuffer += processedSymbol;
 
-                    if (i != markdown.Length - 1 &&
-                        tokenInfo.HasTagsStartingWith(tagBuffer + markdown[i + 1]))
+                    if (markdownPosition != markdown.Length - 1 &&
+                        tokenInfo.HasTagsStartingWith(tagBuffer + markdown[markdownPosition + 1]))
                         continue;
 
-                    AddTagToStack(processedToken, currentPositionsByDepth[depth], tagBuffer, i, markdown);
+                    AddTagToStack(processedToken, currentPositionsByDepth[depth], tagBuffer, markdownPosition, markdown);
                     tagBuffer = "";
                 }
                 else
@@ -133,14 +133,26 @@ namespace Markdown
         {
             if (IsCorrectOpenTag(tagBuffer, tagEndPosition, markdown))
             {
-                var tokenToAdd = new Token(tokenPosition, tagBuffer, tokenInfo.MdToHtmlTags[tagBuffer]);
-
+                var tokenToAdd = new TokenBuilder()
+                    .SetPosition(tokenPosition)
+                    .SetMdTag(tagBuffer)
+                    .SetHtmlTagName(tokenInfo.MdToHtmlTags[tagBuffer])
+                    .Build();
                 if (tokenInfo.IsExtraWrappingRequired(tagBuffer))
                 {
-                    tokenToAdd = new Token(0, tagBuffer, tokenInfo.MdToHtmlTags[tagBuffer]);
-                    var wrappingTag = tokenInfo.GetExtraWrappingTag(tagBuffer);
-                    var wrappingToken = new Token(tokenPosition, wrappingTag, wrappingTag,
-                        "", true, true);
+                    tokenToAdd = new TokenBuilder()
+                        .SetPosition(0)
+                        .SetMdTag(tagBuffer)
+                        .SetHtmlTagName(tokenInfo.MdToHtmlTags[tagBuffer])
+                        .Build();
+                    var wrappingTag = tokenInfo.GetExtraWrappingHtmlTagName(tagBuffer);
+                    var wrappingToken = new TokenBuilder()
+                        .SetPosition(tokenPosition)
+                        .SetMdTag(wrappingTag)
+                        .SetHtmlTagName(wrappingTag)
+                        .SetIsClosed(true)
+                        .SetIsValid(true)
+                        .Build();
                     depth++;
                     processedToken.AddNestedToken(wrappingToken);
                     processedToken = wrappingToken;
@@ -163,18 +175,20 @@ namespace Markdown
             var previous = GetElementBeforeTag(tagBuffer, tagEndPosition, markdown);
             var next = GetElementAfterTag(tagEndPosition, markdown);
             var correctPrevious = ' ';
-            if (tokenInfo.IsNewLineBeforeOpenTagRequired(tagBuffer))
+            if (tokenInfo.IsNewLineBeforeOpenTagRequired(tagEndPosition,tagBuffer))
                 correctPrevious = '\n';
             if (tokenInfo.IsSpaceAfterOpenTagRequired(tagBuffer))
                 return previous == correctPrevious && next == ' ';
             return previous == correctPrevious && next != ' ';
         }
 
-        private static bool IsCorrectCloseTag(string tagBuffer, int tagEndPosition, string markdown)
+        private bool IsCorrectCloseTag(string tagBuffer, int tagEndPosition, string markdown)
         {
             var previous = GetElementBeforeTag(tagBuffer, tagEndPosition, markdown);
             var next = GetElementAfterTag(tagEndPosition, markdown);
-            return previous != ' ' && next == ' ';
+            if (tokenInfo.IsSpaceAfterCloseTagRequired(tagBuffer))
+                return previous != ' ' && next == ' ';
+            return previous != ' ';
         }
 
         private void AddNewPositionIfNeeded()

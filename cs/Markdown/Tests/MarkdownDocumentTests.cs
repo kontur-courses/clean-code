@@ -18,6 +18,7 @@ namespace Markdown.Tests
 
         [TestCase("_", TestName = "Em tag escaped")]
         [TestCase("__", TestName = "Strong tag escaped")]
+        [TestCase("`", TestName = "Code tag escaped")]
         public void ToHtml_ShouldNotWrap_WhenEscaped(string mdTag)
         {
             var markdownDocument = parser.Parse($"\\{mdTag}ba cf\\{mdTag}");
@@ -32,7 +33,7 @@ namespace Markdown.Tests
 
             markdownDocument.ToHtml().Should().BeEquivalentTo("<em>aa __bb bb__ aa</em>");
         }
-        
+
         [Test]
         public void ToHtml_ShouldNotWrap_WhenSpaceAfterOpenTag()
         {
@@ -48,7 +49,7 @@ namespace Markdown.Tests
 
             markdownDocument.ToHtml().Should().BeEquivalentTo("__aa aa __");
         }
-        
+
         [Test]
         public void ToHtml_ShouldNotWrap_WhenTagsInsideText()
         {
@@ -59,6 +60,7 @@ namespace Markdown.Tests
 
         [TestCase("_", "em", TestName = "Em tag")]
         [TestCase("__", "strong", TestName = "Strong tag")]
+        [TestCase("`", "code", TestName = "Code tag")]
         public void ToHtml_ShouldWrap_WhenSingleNotNested(string mdTag, string htmlTag)
         {
             var markdownDocument = parser.Parse($"{mdTag}ba cf{mdTag}");
@@ -72,8 +74,10 @@ namespace Markdown.Tests
         {
             var markdownDocument = parser.Parse($"{mdTag}cf{mdTag} {mdTag}ba{mdTag}");
 
-            markdownDocument.ToHtml()
-                .Should().BeEquivalentTo($"<{htmlTag}>cf</{htmlTag}> <{htmlTag}>ba</{htmlTag}>");
+            markdownDocument
+                .ToHtml()
+                .Should()
+                .BeEquivalentTo($"<{htmlTag}>cf</{htmlTag}> <{htmlTag}>ba</{htmlTag}>");
         }
 
         [Test]
@@ -81,8 +85,10 @@ namespace Markdown.Tests
         {
             var markdownDocument = parser.Parse($"_c c_ __b b__");
 
-            markdownDocument.ToHtml()
-                .Should().BeEquivalentTo($"<em>c c</em> <strong>b b</strong>");
+            markdownDocument
+                .ToHtml()
+                .Should()
+                .BeEquivalentTo($"<em>c c</em> <strong>b b</strong>");
         }
 
         [Test]
@@ -91,6 +97,59 @@ namespace Markdown.Tests
             var markdownDocument = parser.Parse("__a _b b_ a__");
 
             markdownDocument.ToHtml().Should().BeEquivalentTo("<strong>a <em>b b</em> a</strong>");
+        }
+
+        [TestCase("#", "h1", TestName = "First level header")]
+        [TestCase("##", "h2", TestName = "Second level header")]
+        [TestCase("###", "h3", TestName = "Third level header")]
+        [TestCase("####", "h4", TestName = "Fourth level header")]
+        [TestCase("#####", "h5", TestName = "Fifth level header")]
+        public void ToHtml_ShouldWrap_WhenHeader(string tag, string htmlTag)
+        {
+            var markdownDocument = parser.Parse($"{tag} header\n");
+
+            markdownDocument.ToHtml().Should().BeEquivalentTo($"<{htmlTag}>header</{htmlTag}>");
+        }
+
+        [TestCase(">", "\n\n", TestName = "Blockquote without new line")]
+        [TestCase("#", "\n\n", TestName = "Header without new line")]
+        [TestCase("-", "\n\n", TestName = "List without new line")]
+        public void ToHtml_ShouldNotWrap_WhenNoNewLine(string openTag, string closeTag)
+        {
+            var markdownDocument = parser.Parse($"should {openTag} not parse{closeTag}");
+
+            markdownDocument.ToHtml().Should().BeEquivalentTo($"should {openTag} not parse");
+        }
+
+        [TestCase(">", "\n\n", TestName = "Blockquote no space after open tag")]
+        [TestCase("#", "\n", TestName = "Header no space after open tag")]
+        [TestCase("-", "\n", TestName = "List no space after open tag")]
+        public void ToHtml_ShouldNotWrap_WhenNoSpaceAfterOpenTag(string openTag, string closeTag)
+        {
+            var markdownDocument = parser.Parse($"{openTag}should not parse{closeTag}");
+
+            markdownDocument.ToHtml().Should().BeEquivalentTo($"{openTag}should not parse");
+        }
+
+        [TestCase(">", "\n\n", "blockquote", TestName = "Blockquote ignores start spaces")]
+        [TestCase("#", "\n", "h1", TestName = "Header ignores start spaces")]
+        public void ToHtml_ShouldIgnoreSpacesAfterOpenTag(string openTag, string closeTag, string htmlTag)
+        {
+            var markdownDocument = parser.Parse($"{openTag}      data{closeTag}");
+
+            markdownDocument.ToHtml().Should().BeEquivalentTo($"<{htmlTag}>data</{htmlTag}>");
+        }
+
+        [TestCase("code", "pre", "m\nn", "```m\nn```", TestName = "Multiline code")]
+        [TestCase("li", "ul", "l l", "- l l\n", TestName = "List")]
+        public void ToHtml_ShouldExtraWrap(string htmlTag, string wrapTag, string data, string markdown)
+        {
+            var markdownDocument = parser.Parse(markdown);
+
+            markdownDocument
+                .ToHtml()
+                .Should()
+                .BeEquivalentTo($"<{wrapTag}><{htmlTag}>{data}</{htmlTag}></{wrapTag}>");
         }
     }
 }

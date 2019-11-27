@@ -6,21 +6,26 @@ namespace Markdown
 {
     public class Token
     {
-        [UsedImplicitly] internal List<Token> NestedTokens { get; } = new List<Token>();
-        internal string MdTag { get; }
+        [UsedImplicitly] internal List<Token> NestedTokens { get; set; } = new List<Token>();
+        internal string MdTag { get; set; }
 
-        [UsedImplicitly] internal string HtmlTagName { get; }
-        internal string Data { get; private set; }
+        [UsedImplicitly] internal string HtmlTagName { get; set; }
+        internal string Data { get; set; } = "";
 
-        [UsedImplicitly] internal int Position { get; }
+        [UsedImplicitly] internal int Position { get; set; }
 
         /// <summary>
         /// Token is invalid when its parent doesn't support nesting.
         /// </summary>
-        internal bool IsValid { get; set; }
+        internal bool IsValid { get; set; } = false;
 
-        internal bool IsClosed { get; set; }
+        internal bool IsClosed { get; set; } = false;
 
+        public Token()
+        {
+            
+        }
+        
         public Token(int position, string mdTag, string htmlTagName, string data = "", bool isClosed = false,
             bool isValid = false)
         {

@@ -14,6 +14,11 @@ namespace Markdown
             {"```", "code"},
             {"pre", "pre"},  // ``` wrapper
             {"#", "h1"},
+            {"##", "h2"},
+            {"###", "h3"},
+            {"####", "h4"},
+            {"#####", "h5"},
+            {"######", "h6"},
             {">", "blockquote"},
             {"-", "li"},
             {"ul", "ul"}  // - wrapper
@@ -37,23 +42,28 @@ namespace Markdown
             {"ul", "ul"}  // - wrapper
         };
 
-        // tags that need to be wrapped in some other tag (key is the html wrapping tag)
+        // tags that need to be wrapped in some other openTag (key is the html wrapping openTag)
         private Dictionary<string, string> TagsThatRequireExtraWrapping => new Dictionary<string, string>
         {
             {"```", "pre"},
             {"-", "ul"},
         };
 
-        private List<string> TagsThatRequireSpaceAfterOpenTag => new List<string>
-            {"#", "##", "###", "####", "#####", "-"};
+        private HashSet<string> WrappingTags => new HashSet<string>{ "pre","ul"};
+        
+        private HashSet<string> TagsThatRequireSpaceAfterOpenTag => new HashSet<string>
+            {"#", "##", "###", "####", "#####", "######", "-",">"};
 
-        private List<string> TagsThatRequireNewLineBeforeOpenTag => new List<string>
-            {">", "#", "##", "###", "####", "#####", "-"};
+        public HashSet<string> TagsThatRequireSpaceAfterCloseTag => new HashSet<string>
+            {"_","__","`","```"};
+        
+        private HashSet<string> TagsThatRequireNewLineBeforeOpenTag => new HashSet<string>
+            {">", "#", "##", "###", "####", "#####", "######" , "-"};
 
         private Dictionary<string, List<string>> MdAcceptedNestedTags =>
             new Dictionary<string, List<string>>
             {
-                {"", new List<string> {"_", "__", "`", "```", ">", "#", "pre", "-", "ul"}},
+                {"", new List<string> {"_", "__", "`", "```", ">", "#", "##", "###", "####", "#####", "######", "pre", "-", "ul"}},
                 {"_", new List<string>()},
                 {"__", new List<string> {"_"}},
                 {"`", new List<string> {"_", "__"}},
@@ -72,9 +82,9 @@ namespace Markdown
 
         public bool IsTagPart(char symbol)
         {
-            return IsOpenTagPart(symbol) || IsOnlyCloseTagPart(symbol);
+            return (IsOpenTagPart(symbol) || IsOnlyCloseTagPart(symbol)) && !IsWrappingTagPart(symbol);
         }
-
+        
         private static bool IsOpenTagPart(char symbol)
         {
             return MdPairTags.Keys.Any(k => k.StartsWith(symbol.ToString()));
@@ -85,20 +95,30 @@ namespace Markdown
             return !IsOpenTagPart(symbol)
                    && MdPairTags.Values.Any(k => k.StartsWith(symbol.ToString()));
         }
+        
+        private bool IsWrappingTagPart(char symbol)
+        {
+            return WrappingTags.Any(s => s.StartsWith(symbol.ToString()));
+        }
 
         public bool IsCorrectNestedTag(string parentTag, string nestedTag)
         {
             return MdAcceptedNestedTags.ContainsKey(parentTag) && MdAcceptedNestedTags[parentTag].Contains(nestedTag);
         }
 
-        public bool IsSpaceAfterOpenTagRequired(string tag)
+        public bool IsSpaceAfterCloseTagRequired(string closeTag)
         {
-            return TagsThatRequireSpaceAfterOpenTag.Contains(tag);
+            return TagsThatRequireSpaceAfterCloseTag.Contains(closeTag);
+        }
+        
+        public bool IsSpaceAfterOpenTagRequired(string openTag)
+        {
+            return TagsThatRequireSpaceAfterOpenTag.Contains(openTag);
         }
 
-        public bool IsNewLineBeforeOpenTagRequired(string tag)
+        public bool IsNewLineBeforeOpenTagRequired(int tagEndPosition,string openTag)
         {
-            return TagsThatRequireNewLineBeforeOpenTag.Contains(tag);
+            return tagEndPosition-openTag.Length+1!=0 &&TagsThatRequireNewLineBeforeOpenTag.Contains(openTag);
         }
 
         public bool IsExtraWrappingRequired(string tag)
@@ -106,7 +126,7 @@ namespace Markdown
             return TagsThatRequireExtraWrapping.ContainsKey(tag);
         }
 
-        public string GetExtraWrappingTag(string tag)
+        public string GetExtraWrappingHtmlTagName(string tag)
         {
             return TagsThatRequireExtraWrapping.ContainsKey(tag) ? TagsThatRequireExtraWrapping[tag] : "";
         }
@@ -122,7 +142,7 @@ namespace Markdown
         {
             if (MdPairTags.Keys.Contains(openTag))
                 return MdPairTags[openTag];
-            throw new Exception($"Open tag {openTag} doesn't exist");
+            throw new Exception($"Open openTag {openTag} doesn't exist");
         }
     }
 }
