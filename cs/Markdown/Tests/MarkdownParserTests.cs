@@ -1,5 +1,3 @@
-using System;
-using System.IO;
 using FluentAssertions;
 using NUnit.Framework;
 
@@ -316,6 +314,5 @@ namespace Markdown.Tests
 
             actualToken.Should().BeEquivalentTo(expectedToken);
         }
-        
     }
 }
