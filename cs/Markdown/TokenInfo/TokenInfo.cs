@@ -24,7 +24,7 @@ namespace Markdown
             {"ul", "ul"}  // - wrapper
         };
 
-        private static Dictionary<string, string> MdPairTags => new Dictionary<string, string>
+        public static Dictionary<string, string> MdPairTags => new Dictionary<string, string>
         {
             {"_", "_"},
             {"__", "__"},
@@ -43,7 +43,7 @@ namespace Markdown
         };
 
         // tags that need to be wrapped in some other openTag (key is the html wrapping openTag)
-        private Dictionary<string, string> TagsThatRequireExtraWrapping => new Dictionary<string, string>
+        public Dictionary<string, string> TagsThatRequireExtraWrapping => new Dictionary<string, string>
         {
             {"```", "pre"},
             {"-", "ul"},
