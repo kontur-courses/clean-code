@@ -43,6 +43,9 @@
     <Compile Include="Main.cs" />
     <Compile Include="Md.cs" />
     <Compile Include="RenderShould.cs" />
+    <Compile Include="ThreePartList.cs" />
+    <Compile Include="Token.cs" />
+    <Compile Include="UnderScoresHandler.cs" />
   </ItemGroup>
   <ItemGroup>
     <Reference Include="FluentAssertions, Version=5.9.0.0, Culture=neutral, PublicKeyToken=33f2691a05b67b6a, processorArchitecture=MSIL">
