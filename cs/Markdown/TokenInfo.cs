@@ -69,7 +69,7 @@ namespace Markdown
                 {"`", new List<string> {"_", "__"}},
                 {"```", new List<string> {"_", "__"}},
                 {"pre", new List<string> {"```"}}, // ``` wrapper
-                {">", new List<string> {"_", "__", ">"}},
+                {">", new List<string> {"_", "__", ">","`"}},
                 {"#", new List<string>()},
                 {"##", new List<string>()},
                 {"###", new List<string>()},
