@@ -6,7 +6,7 @@
     <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
     <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
     <ProjectGuid>{9142E746-C5D1-442D-A035-0BD5523F50E6}</ProjectGuid>
-    <OutputType>Exe</OutputType>
+    <OutputType>Library</OutputType>
     <AppDesignerFolder>Properties</AppDesignerFolder>
     <RootNamespace>Markdown</RootNamespace>
     <AssemblyName>Markdown</AssemblyName>
@@ -53,7 +53,6 @@
     <Reference Include="System.Xml.Linq" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="Program.cs" />
     <Compile Include="RootToken.cs" />
     <Compile Include="RootTokenBuilder.cs" />
     <Compile Include="Tests\MarkdownDocumentTests.cs" />
