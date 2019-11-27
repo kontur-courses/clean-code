@@ -69,7 +69,6 @@ namespace Markdown
             {
                 var tempToken = NestedTokens[NestedTokens.Count - 1 - i];
                 stringBuilder.Insert(tempToken.Position, tempToken.ToHtml()); //should be pos not 0
-                //Console.WriteLine(stringBuilder.ToString());
             }
 
             if (IsValid && IsClosed)

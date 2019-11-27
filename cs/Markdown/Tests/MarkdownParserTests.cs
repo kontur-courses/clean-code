@@ -1,4 +1,5 @@
 using System;
+using System.IO;
 using FluentAssertions;
 using NUnit.Framework;
 
@@ -301,7 +302,7 @@ namespace Markdown.Tests
                 .Build();
             var wrappingToken = new TokenBuilder()
                 .SetPosition(0)
-                .SetMdTag(wrapTag)
+                .SetMdTag("")
                 .SetHtmlTagName(wrapTag)
                 .SetIsClosed(true)
                 .SetIsValid(true)
@@ -315,5 +316,6 @@ namespace Markdown.Tests
 
             actualToken.Should().BeEquivalentTo(expectedToken);
         }
+        
     }
 }

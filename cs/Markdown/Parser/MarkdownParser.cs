@@ -115,6 +115,9 @@ namespace Markdown
 
                 if (tokenInfo.IsExtraWrappingRequired(tokenToClose.MdTag))
                 {
+                    var wrapToken = GetProcessedToken(rootToken);
+                    if (tokenInfo.IsCorrectNestedTag(parentToken.MdTag, tokenToClose.MdTag)) 
+                        wrapToken.IsValid=true;
                     currentPositionsByDepth[depth] = 0;
                     depth--;
                 }
@@ -148,10 +151,9 @@ namespace Markdown
                     var wrappingTag = tokenInfo.GetExtraWrappingHtmlTagName(tagBuffer);
                     var wrappingToken = new TokenBuilder()
                         .SetPosition(tokenPosition)
-                        .SetMdTag(wrappingTag)
+                        .SetMdTag("")
                         .SetHtmlTagName(wrappingTag)
                         .SetIsClosed(true)
-                        .SetIsValid(true)
                         .Build();
                     depth++;
                     processedToken.AddNestedToken(wrappingToken);
