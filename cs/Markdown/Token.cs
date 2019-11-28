@@ -5,35 +5,22 @@ namespace Markdown
 {
     public class Token
     {
-        private TextType outerTokenType;
+        public TextType tokenTextType;
+        public string innerText;
+        public int startTagPosition;
+        public int closeTagPosition;        
+        public Tuple<TextType, int> outerToken;
 
-        private TextType tokenType;
-
-        private Dictionary<int, Token> innerTokensDict;
-
-
-        public Token(string text, TextType outerType)
+        public Token(int _startTagPosition, int _closeTagPosition, string text, TextType type, Tuple<TextType, int> _outerToken)
         {
-            outerTokenType = outerType;            
-            SplitTextToTokens(text);         
-        }
-
-        private void SplitTextToTokens(string text)
-        {
-            //делим на токены, помещаем в innerTokensDict
-            //ключ - позиция в первоначальном тексте
-
-        }
-
-        private string ToAnotherMarkupLanguage()
-        {
-            /*
-            foreach (KeyValuePair<string, string> entry in innerTokensDict)
-            {
-                используем HTMLTranslator.ToHTML() для каждого внутреннего токена, соединяем их вместе.          
-            }
-            */
-            throw new NotImplementedException();
-        }
+            startTagPosition = _startTagPosition;
+            closeTagPosition = _closeTagPosition;
+            tokenTextType = type;
+            var shift = 1;
+            if (tokenTextType == TextType.Strong)
+                shift = 2;
+            innerText = text.Substring(startTagPosition, closeTagPosition - startTagPosition + shift);
+            outerToken = _outerToken;                     
+        }                
     }
 }

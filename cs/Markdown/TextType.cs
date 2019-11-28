@@ -7,9 +7,8 @@ using System.Threading.Tasks;
 namespace Markdown
 {
     public enum TextType
-    {
-        Regular,
-        Bold,
-        Italic
+    {        
+        Strong,
+        Italic,        
     }
 }
