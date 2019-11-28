@@ -1,17 +1,11 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-
-namespace Markdown
+﻿namespace Markdown
 {
     public class Renderer
     {        
         public string Render(string text)
         {
-            var zed = new Tokenizer();            
-            var m = zed.GetTokens(text);            
+            var tokenizer = new Tokenizer();            
+            var m = tokenizer.GetTokens(text);            
             return new RendererToHTML().ToHTML(text, m);            
         }
     }

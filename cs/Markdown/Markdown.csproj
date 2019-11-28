@@ -60,7 +60,7 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="HTMLTranslator.cs" />
+    <Compile Include="RendererToHTML.cs" />
     <Compile Include="Renderer.cs" />
     <Compile Include="Render_should.cs" />
     <Compile Include="Tokenizer_should.cs" />

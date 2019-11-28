@@ -15,7 +15,7 @@ namespace Markdown
         [TestCase("__work__", "<strong>work</strong>", TestName = "AllStringIsStrong")]
         [TestCase("__work__a", "<strong>work</strong>a", TestName = "CharBeforeStrong")]
         [TestCase("a__work__", "a<strong>work</strong>", TestName = "CharAfterStrong")]        
-        public void RenderShouldWorkCorrect_OnTextWithSimpleTokens(string text, string expectedRenderedText)
+        public void RenderShouldWorkCorrect_OnTextWithSimpleToken(string text, string expectedRenderedText)
         {
             var resultText = new Renderer().Render(text);
             resultText.Should().BeEquivalentTo(expectedRenderedText);
@@ -59,7 +59,6 @@ namespace Markdown
         public void RenderShouldWorkCorrect_OnNotPairTags(string text)
         {
             var resultString = new Renderer().Render(text);
-
             resultString.Should().BeEquivalentTo(text);
         }
 
@@ -68,7 +67,6 @@ namespace Markdown
         public void RenderShouldWorkCorrect_OnNotEvenAmountOfTags(string text, string expectedString)
         {
             var resultString = new Renderer().Render(text);
-
             resultString.Should().BeEquivalentTo(expectedString);
         }
 
@@ -79,7 +77,6 @@ namespace Markdown
         public void RenderShouldWorkCorrect_OnTextWithTokenSurroundedByDigits(string text)
         {
             var resultString = new Renderer().Render(text);
-
             resultString.Should().BeEquivalentTo(text);
         }
               
@@ -97,7 +94,6 @@ namespace Markdown
             var resultText = new Renderer();
             var time =
                 MeasureTime((t) => resultText.Render(t), text);
-
             time.Should().BeLessOrEqualTo(count);
         }
 
