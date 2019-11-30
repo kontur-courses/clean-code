@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using Markdown.Wraps;
@@ -7,23 +8,30 @@ namespace MarkdownProcessor
 {
     public static class AstBuilder
     {
-        public static string BuildAst(
-            IEnumerable<Token> tokens, IReadOnlyDictionary<IWrapType, IWrapType> htmlWrapByMarkdownWrap)
+        public static string BuildAst(IEnumerable<Token> tokens, Func<IWrapType, IWrapType> wrapTypeConverter)
         {
             var treeBuilder = new StringBuilder();
 
             foreach (var token in tokens)
-                treeBuilder.Append(BuildSubtree(token, htmlWrapByMarkdownWrap));
+                treeBuilder.Append(BuildSubtree(token, wrapTypeConverter));
 
             return treeBuilder.ToString();
         }
 
-        private static string BuildSubtree(Token rootToken,
-                                           IReadOnlyDictionary<IWrapType, IWrapType> htmlWrapByMarkdownWrap)
+        private static string BuildSubtree(Token rootToken, Func<IWrapType, IWrapType> wrapTypeConverter)
         {
             var subTreeBuilder = new StringBuilder(rootToken.Content.Length);
 
-            subTreeBuilder.Append(htmlWrapByMarkdownWrap[rootToken.WrapType].OpenWrapMarker);
+            subTreeBuilder.Append(wrapTypeConverter(rootToken.WrapType).OpenWrapMarker);
+            subTreeBuilder.Append(ComposeAllChildTokens(rootToken, wrapTypeConverter));
+            subTreeBuilder.Append(wrapTypeConverter(rootToken.WrapType).CloseWrapMarker);
+
+            return subTreeBuilder.ToString();
+        }
+
+        private static string ComposeAllChildTokens(Token rootToken, Func<IWrapType, IWrapType> wrapTypeConverter)
+        {
+            var childTokensBuilder = new StringBuilder(rootToken.Content.Length);
 
             var allChildTokens = GetAllChildTokens(rootToken).Reverse().ToArray();
 
@@ -35,29 +43,27 @@ namespace MarkdownProcessor
                 if (position + rootToken.ContentStartIndex == TryGetCurrentChildToken()?.ContentStartIndex)
                 {
                     RemoveLastCharacters(TryGetCurrentChildToken().WrapType.OpenWrapMarker.Length);
-                    subTreeBuilder.Append(htmlWrapByMarkdownWrap[TryGetCurrentChildToken().WrapType].OpenWrapMarker);
+                    childTokensBuilder.Append(wrapTypeConverter(TryGetCurrentChildToken().WrapType).OpenWrapMarker);
                 }
 
                 if (position == TryGetCurrentChildToken()?.ContentEndIndex)
                 {
                     RemoveLastCharacters(TryGetCurrentChildToken().WrapType.CloseWrapMarker.Length);
-                    subTreeBuilder.Append(htmlWrapByMarkdownWrap[TryGetCurrentChildToken().WrapType].CloseWrapMarker);
+                    childTokensBuilder.Append(wrapTypeConverter(TryGetCurrentChildToken().WrapType).CloseWrapMarker);
                     currentChildTokenIndex++;
                 }
 
-                subTreeBuilder.Append(rootToken.Content[position]);
+                childTokensBuilder.Append(rootToken.Content[position]);
                 position++;
             }
 
-            subTreeBuilder.Append(htmlWrapByMarkdownWrap[rootToken.WrapType].CloseWrapMarker);
-
-            return subTreeBuilder.ToString();
+            return childTokensBuilder.ToString();
 
             Token TryGetCurrentChildToken() => currentChildTokenIndex < allChildTokens.Length
                                                    ? allChildTokens[currentChildTokenIndex]
                                                    : null;
 
-            void RemoveLastCharacters(int count) => subTreeBuilder.Remove(subTreeBuilder.Length - count, count);
+            void RemoveLastCharacters(int count) => childTokensBuilder.Remove(childTokensBuilder.Length - count, count);
         }
 
         private static IEnumerable<Token> GetAllChildTokens(Token rootToken)

@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using Markdown.Wraps;
@@ -8,17 +9,18 @@ namespace MarkdownProcessor
     public class Tokenizer
     {
         private static readonly IWrapType textWrapType = new TextWrapType();
-        private readonly IReadOnlyList<IWrapType> explicitWrapTypes;
+        private readonly IReadOnlyList<IWrapType> tokenWrapTypes;
         private readonly char escapeCharacter;
 
-        public Tokenizer(IEnumerable<IWrapType> wrapTypes, char escapeCharacter)
+        public Tokenizer(IReadOnlyList<IWrapType> tokenWrapTypes, char escapeCharacter)
         {
-            this.escapeCharacter = escapeCharacter;
+            if (tokenWrapTypes.Any(wrapType => string.IsNullOrEmpty(wrapType.OpenWrapMarker) ||
+                                               string.IsNullOrEmpty(wrapType.CloseWrapMarker)))
+                throw new ArgumentException("Wrap type should have explicit markers, to determine it," +
+                                            "but was passed null or empty wrap marker.", nameof(tokenWrapTypes));
 
-            // wrap type should have explicit borders, to determine it.
-            explicitWrapTypes = wrapTypes.Where(wrapType => wrapType.OpenWrapMarker.Length *
-                                                            wrapType.CloseWrapMarker.Length > 0)
-                                         .ToArray();
+            this.escapeCharacter = escapeCharacter;
+            this.tokenWrapTypes = tokenWrapTypes;
         }
 
         // ReSharper disable once ReturnTypeCanBeEnumerable.Global
@@ -80,7 +82,7 @@ namespace MarkdownProcessor
         }
 
         private IWrapType TryGetTheMostSpecificWrapType(int markerIndex, string text) =>
-            explicitWrapTypes
+            tokenWrapTypes
                 .Where(wrapType => TextContainsSubstring(markerIndex, text, wrapType.OpenWrapMarker))
                 .OrderByDescending(wrapType => wrapType.OpenWrapMarker.Length)
                 .FirstOrDefault();

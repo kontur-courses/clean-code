@@ -1,4 +1,5 @@
 ﻿using System.Collections.Generic;
+using System.Linq;
 using Markdown.Wraps;
 
 namespace MarkdownProcessor
@@ -27,14 +28,19 @@ namespace MarkdownProcessor
                 [textWrapType] = true
             };
 
-        public static string RenderHtml(string text)
+        public static string RenderHtml(string markdownText)
         {
-            var tokenizer = new Tokenizer(htmlWrapByMarkdownWrap.Keys, EscapeCharacter);
-            var tokens = tokenizer.Process(text);
+            var tokenWrapTypes = htmlWrapByMarkdownWrap
+                                 .Keys.Where(wrapType => !string.IsNullOrEmpty(wrapType.OpenWrapMarker) &&
+                                                         !string.IsNullOrEmpty(wrapType.CloseWrapMarker))
+                                 .ToArray();
+
+            var tokenizer = new Tokenizer(tokenWrapTypes, EscapeCharacter);
+            var tokens = tokenizer.Process(markdownText);
 
             ExcludeForbiddenChildTokens(tokens);
 
-            return AstBuilder.BuildAst(tokens, htmlWrapByMarkdownWrap);
+            return AstBuilder.BuildAst(tokens, wrapType => htmlWrapByMarkdownWrap[wrapType]);
         }
 
         private static void ExcludeForbiddenChildTokens(IEnumerable<Token> tokens)
