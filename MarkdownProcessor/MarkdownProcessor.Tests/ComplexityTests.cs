@@ -12,11 +12,13 @@ namespace MarkdownProcessor.Tests
         [Repeat(5)]
         public void RenderHtml_OnGrowingInputData_ComplexityGrowsLinearly()
         {
-            var firstText = GenerateMarkdown(100);
-            var secondText = GenerateMarkdown(1000);
-            var thirdText = GenerateMarkdown(10000);
+            const int growCoefficient = 10;
 
-            MeasureRenderingTime(GenerateMarkdown(1000));
+            var firstText = GenerateMarkdown(10 * growCoefficient);
+            var secondText = GenerateMarkdown(10 * growCoefficient * growCoefficient);
+            var thirdText = GenerateMarkdown(10 * growCoefficient * growCoefficient * growCoefficient);
+
+            MeasureRenderingTime(GenerateMarkdown(5000));
 
             var firstTextRenderingTime = MeasureRenderingTime(firstText);
             var secondTextRenderingTime = MeasureRenderingTime(secondText);
@@ -25,11 +27,11 @@ namespace MarkdownProcessor.Tests
             var secondGrow = (double)thirdTextRenderingTime / secondTextRenderingTime;
             var firstGrow = (double)secondTextRenderingTime / firstTextRenderingTime;
 
-            (secondGrow / firstGrow).Should().BeLessThan(10 + 5);
+            (secondGrow / firstGrow).Should().BeLessThan(5);
         }
 
         private static string GenerateMarkdown(int length) =>
-            string.Concat(Enumerable.Repeat("__q__\\_w_", length));
+            string.Join(" ", Enumerable.Repeat("_w_", length));
 
         private static long MeasureRenderingTime(string markdownText)
         {
@@ -39,7 +41,7 @@ namespace MarkdownProcessor.Tests
 
             stopwatch.Stop();
 
-            return stopwatch.ElapsedTicks;
+            return stopwatch.ElapsedMilliseconds;
         }
     }
 }
