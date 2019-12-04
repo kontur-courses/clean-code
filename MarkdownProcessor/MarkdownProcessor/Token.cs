@@ -1,6 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
-using Markdown.Wraps;
+using MarkdownProcessor.Wraps;
 
 namespace MarkdownProcessor
 {
@@ -14,6 +14,12 @@ namespace MarkdownProcessor
             WrapType = wrapType;
             ParentToken = parentToken;
             ChildTokens = new List<Token>();
+        }
+
+        public Token(Token baseToken) : this(baseToken.tokenStartIndex, baseToken.WrapType, baseToken.ParentToken)
+        {
+            Content = baseToken.Content;
+            ChildTokens = baseToken.ChildTokens;
         }
 
         public IWrapType WrapType { get; }

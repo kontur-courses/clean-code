@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
-using Markdown.Wraps;
+using MarkdownProcessor.Wraps;
 
 namespace MarkdownProcessor
 {
@@ -46,8 +46,9 @@ namespace MarkdownProcessor
                 {
                     if (IsValidCloseMarker(position, text, tokenCandidates, wrapType))
                     {
-                        CloseAndStoreFoundToken(position, text, tokenCandidates, foundTokens, wrapType,
-                                                escapeCharacter);
+                        var closedToken = CloseFoundToken(tokenCandidates, wrapType);
+                        StoreClosedToken(closedToken, position, text, foundTokens, escapeCharacter);
+
                         position += wrapType.CloseWrapMarker.Length;
                         continue;
                     }
@@ -106,8 +107,8 @@ namespace MarkdownProcessor
             markerIndex + mark.OpenWrapMarker.Length < text.Length &&
             char.IsDigit(text[markerIndex + mark.OpenWrapMarker.Length]);
 
-        private static void TryToCloseOpenTextToken(int markerIndex, string text,
-                                                    Stack<Token> tokenCandidates, ICollection<Token> foundTokens)
+        private static void TryToCloseOpenTextToken(
+            int markerIndex, string text, Stack<Token> tokenCandidates, ICollection<Token> foundTokens)
         {
             if (!HasOpenTextToken()) return;
 
@@ -120,8 +121,8 @@ namespace MarkdownProcessor
                                        tokenCandidates.Peek().WrapType.Equals(textWrapType);
         }
 
-        private static bool IsValidCloseMarker(int markerIndex, string text,
-                                               Stack<Token> tokenCandidates, IWrapType wrapType)
+        private static bool IsValidCloseMarker(
+            int markerIndex, string text, Stack<Token> tokenCandidates, IWrapType wrapType)
         {
             if (HasWhitespaceBefore(markerIndex, text) || tokenCandidates.Count == 0)
                 return false;
@@ -142,24 +143,28 @@ namespace MarkdownProcessor
                 associatedToken.ContentStartIndex != markerIndex;
         }
 
-        private static void CloseAndStoreFoundToken(int markerIndex, string text, Stack<Token> tokenCandidates,
-                                                    ICollection<Token> foundTokens, IWrapType wrapType,
-                                                    char escapeCharacter)
+        private static Token CloseFoundToken(Stack<Token> tokenCandidates, IWrapType wrapType)
         {
             var previousToken = tokenCandidates.Pop();
             while (!previousToken.WrapType.Equals(wrapType))
                 previousToken = tokenCandidates.Pop();
 
-            var contentLength = markerIndex - previousToken.ContentStartIndex;
+            return previousToken;
+        }
 
-            previousToken.Content = GetSubstringWithoutRedundantEscapeCharacters(
-                previousToken.ContentStartIndex, contentLength,
+        private static void StoreClosedToken(
+            Token closedToken, int markerIndex, string text, ICollection<Token> foundTokens, char escapeCharacter)
+        {
+            var contentLength = markerIndex - closedToken.ContentStartIndex;
+
+            closedToken.Content = GetSubstringWithoutRedundantEscapeCharacters(
+                closedToken.ContentStartIndex, contentLength,
                 text, escapeCharacter);
 
-            if (previousToken.ParentToken == null)
-                foundTokens.Add(previousToken);
+            if (closedToken.ParentToken == null)
+                foundTokens.Add(closedToken);
             else
-                previousToken.ParentToken.ChildTokens.Add(previousToken);
+                closedToken.ParentToken.ChildTokens.Add(closedToken);
         }
 
         private static bool IsValidOpenMarker(int markerIndex, string text, IWrapType wrapType) =>
@@ -198,9 +203,8 @@ namespace MarkdownProcessor
             foundTokens.Add(token);
         }
 
-        private static string GetSubstringWithoutRedundantEscapeCharacters(int startIndex, int substringLength,
-                                                                           string text, char escapeCharacter,
-                                                                           bool firstIsNotEscaping = true)
+        private static string GetSubstringWithoutRedundantEscapeCharacters(
+            int startIndex, int substringLength, string text, char escapeCharacter, bool firstIsNotEscaping = true)
         {
             var defaultValue = firstIsNotEscaping ? text[startIndex].ToString() : string.Empty;
             var escapedStringBuilder = new StringBuilder(defaultValue, text.Length);

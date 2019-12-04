@@ -99,6 +99,9 @@ namespace MarkdownProcessor.Tests
                 yield return new TestCaseData("_qwe__rt___",
                                               "<em>qwe__rt__</em>")
                     .SetName("WhenUnderscoresOrdered");
+                yield return new TestCaseData("q_1w2_e",
+                                              "q<em>1w2</em>e")
+                    .SetName("WhenDigitAfterOpenUnderscoreAndDigitBeforeCloseUnderscore");
             }
         }
 
@@ -114,62 +117,72 @@ namespace MarkdownProcessor.Tests
                 {
                     const string markdownText = "__q w_";
                     const string expectedHtml = markdownText;
-                    yield return new TestCaseData(markdownText).Returns(expectedHtml).SetName(
-                        "WhenNotPairWrapMarkers");
+                    yield return new TestCaseData(markdownText)
+                        .Returns(expectedHtml)
+                        .SetName("WhenNotPairWrapMarkers");
                 }
                 {
                     const string markdownText = @"hello, s1_2a9_5!";
                     const string expectedHtml = markdownText;
-                    yield return new TestCaseData(markdownText).Returns(expectedHtml).SetName(
-                        "WhenUnderscoresWithDigitsAround");
+                    yield return new TestCaseData(markdownText)
+                        .Returns(expectedHtml)
+                        .SetName("WhenUnderscoresWithDigitsAround");
                 }
                 {
                     const string markdownText = @"hello, _2a9_5!";
                     const string expectedHtml = markdownText;
-                    yield return new TestCaseData(markdownText).Returns(expectedHtml).SetName(
-                        "WhenUnderscoresAfterWhiteSpaceWithDigitsAround");
+                    yield return new TestCaseData(markdownText)
+                        .Returns(expectedHtml)
+                        .SetName("WhenUnderscoresAfterWhiteSpaceWithDigitsAround");
                 }
                 {
                     const string markdownText = @"hello, 3__2a9__";
                     const string expectedHtml = markdownText;
-                    yield return new TestCaseData(markdownText).Returns(expectedHtml).SetName(
-                        "WhenUnderscoresBeforeEndLineWithDigitsAround");
+                    yield return new TestCaseData(markdownText)
+                        .Returns(expectedHtml)
+                        .SetName("WhenUnderscoresBeforeEndLineWithDigitsAround");
                 }
                 {
                     const string markdownText = @"q_ w e_";
                     const string expectedHtml = markdownText;
-                    yield return new TestCaseData(markdownText).Returns(expectedHtml).SetName(
-                        "WhenSpaceAfterOpenWrapUnderscore");
+                    yield return new TestCaseData(markdownText)
+                        .Returns(expectedHtml)
+                        .SetName("WhenSpaceAfterOpenWrapUnderscore");
                 }
                 {
                     const string markdownText = @"q _w e _r";
                     const string expectedHtml = markdownText;
-                    yield return new TestCaseData(markdownText).Returns(expectedHtml).SetName(
-                        "WhenSpaceBeforeCloseWrapUnderscore");
+                    yield return new TestCaseData(markdownText)
+                        .Returns(expectedHtml)
+                        .SetName("WhenSpaceBeforeCloseWrapUnderscore");
                 }
                 {
                     const string markdownText = "_q";
                     const string expectedHtml = markdownText;
-                    yield return new TestCaseData(markdownText).Returns(expectedHtml).SetName(
-                        "WhenAloneUnderscoreBefore");
+                    yield return new TestCaseData(markdownText)
+                        .Returns(expectedHtml)
+                        .SetName("WhenAloneUnderscoreBefore");
                 }
                 {
                     const string markdownText = "___q";
                     const string expectedHtml = markdownText;
-                    yield return new TestCaseData(markdownText).Returns(expectedHtml).SetName(
-                        "WhenTripleUnderscoreBefore");
+                    yield return new TestCaseData(markdownText)
+                        .Returns(expectedHtml)
+                        .SetName("WhenTripleUnderscoreBefore");
                 }
                 {
                     const string markdownText = "q_";
                     const string expectedHtml = markdownText;
-                    yield return new TestCaseData(markdownText).Returns(expectedHtml).SetName(
-                        "WhenAloneUnderscoreAfter");
+                    yield return new TestCaseData(markdownText)
+                        .Returns(expectedHtml)
+                        .SetName("WhenAloneUnderscoreAfter");
                 }
                 {
                     const string markdownText = "q___";
                     const string expectedHtml = markdownText;
-                    yield return new TestCaseData(markdownText).Returns(expectedHtml).SetName(
-                        "WhenTripleUnderscoreAfter");
+                    yield return new TestCaseData(markdownText)
+                        .Returns(expectedHtml)
+                        .SetName("WhenTripleUnderscoreAfter");
                 }
             }
         }

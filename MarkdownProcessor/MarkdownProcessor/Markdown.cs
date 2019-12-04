@@ -1,6 +1,6 @@
 ﻿using System.Collections.Generic;
 using System.Linq;
-using Markdown.Wraps;
+using MarkdownProcessor.Wraps;
 
 namespace MarkdownProcessor
 {
@@ -30,24 +30,26 @@ namespace MarkdownProcessor
 
         public static string RenderHtml(string markdownText)
         {
-            var tokenWrapTypes = htmlWrapByMarkdownWrap
-                                 .Keys.Where(wrapType => !string.IsNullOrEmpty(wrapType.OpenWrapMarker) &&
-                                                         !string.IsNullOrEmpty(wrapType.CloseWrapMarker))
-                                 .ToArray();
+            var tokenWrapTypes = htmlWrapByMarkdownWrap.Keys
+                .Where(wrapType => !string.IsNullOrEmpty(wrapType.OpenWrapMarker) &&
+                                   !string.IsNullOrEmpty(wrapType.CloseWrapMarker))
+                .ToArray();
 
             var tokenizer = new Tokenizer(tokenWrapTypes, EscapeCharacter);
             var tokens = tokenizer.Process(markdownText);
 
-            ExcludeForbiddenChildTokens(tokens);
+            var tokenWithoutForbiddenChildTokens = ExcludeForbiddenChildTokens(tokens);
 
-            return AstBuilder.BuildAst(tokens, wrapType => htmlWrapByMarkdownWrap[wrapType]);
+            return TextRenderer.Render(tokenWithoutForbiddenChildTokens, wrapType => htmlWrapByMarkdownWrap[wrapType]);
         }
 
-        private static void ExcludeForbiddenChildTokens(IEnumerable<Token> tokens)
+        private static IEnumerable<Token> ExcludeForbiddenChildTokens(IEnumerable<Token> tokens)
         {
             foreach (var token in tokens)
                 if (!canWrapContainsOtherWrap[token.WrapType])
-                    token.ChildTokens = null;
+                    yield return new Token(token) { ChildTokens = null };
+                else
+                    yield return new Token(token);
         }
     }
 }

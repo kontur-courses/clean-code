@@ -1,4 +1,4 @@
-﻿namespace Markdown.Wraps
+﻿namespace MarkdownProcessor.Wraps
 {
     public class SingleUnderscoreWrapType : WrapType
     {

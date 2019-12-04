@@ -9,7 +9,6 @@ namespace MarkdownProcessor.Tests
     public class ComplexityTests
     {
         [Test]
-        [Repeat(5)]
         public void RenderHtml_OnGrowingInputData_ComplexityGrowsLinearly()
         {
             const int growCoefficient = 10;

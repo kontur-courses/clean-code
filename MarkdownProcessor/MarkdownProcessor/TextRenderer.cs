@@ -2,31 +2,24 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
-using Markdown.Wraps;
+using MarkdownProcessor.Wraps;
 
 namespace MarkdownProcessor
 {
-    public static class AstBuilder
+    public static class TextRenderer
     {
-        public static string BuildAst(IEnumerable<Token> tokens, Func<IWrapType, IWrapType> wrapTypeConverter)
+        public static string Render(IEnumerable<Token> tokens, Func<IWrapType, IWrapType> wrapTypeConverter)
         {
-            var treeBuilder = new StringBuilder();
+            var textBuilder = new StringBuilder();
 
             foreach (var token in tokens)
-                treeBuilder.Append(BuildSubtree(token, wrapTypeConverter));
+            {
+                textBuilder.Append(wrapTypeConverter(token.WrapType).OpenWrapMarker);
+                textBuilder.Append(ComposeAllChildTokens(token, wrapTypeConverter));
+                textBuilder.Append(wrapTypeConverter(token.WrapType).CloseWrapMarker);
+            }
 
-            return treeBuilder.ToString();
-        }
-
-        private static string BuildSubtree(Token rootToken, Func<IWrapType, IWrapType> wrapTypeConverter)
-        {
-            var subTreeBuilder = new StringBuilder(rootToken.Content.Length);
-
-            subTreeBuilder.Append(wrapTypeConverter(rootToken.WrapType).OpenWrapMarker);
-            subTreeBuilder.Append(ComposeAllChildTokens(rootToken, wrapTypeConverter));
-            subTreeBuilder.Append(wrapTypeConverter(rootToken.WrapType).CloseWrapMarker);
-
-            return subTreeBuilder.ToString();
+            return textBuilder.ToString();
         }
 
         private static string ComposeAllChildTokens(Token rootToken, Func<IWrapType, IWrapType> wrapTypeConverter)
