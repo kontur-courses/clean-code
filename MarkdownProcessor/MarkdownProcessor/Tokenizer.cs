@@ -33,7 +33,7 @@ namespace MarkdownProcessor
             var position = 0;
             while (position < text.Length)
             {
-                if (CurrentCharacterIsEscaping())
+                if (CurrentCharacterIsEscaping(previousCharacterIsEscaping, position, text))
                 {
                     previousCharacterIsEscaping = true;
                     position++;
@@ -42,7 +42,7 @@ namespace MarkdownProcessor
 
                 var wrapType = TryGetTheMostSpecificWrapType(position, text);
 
-                if (WrapIsPotentialValid(wrapType))
+                if (WrapIsPotentialValid(wrapType, previousCharacterIsEscaping, position, text))
                 {
                     if (IsValidCloseMarker(position, text, tokenCandidates, wrapType))
                     {
@@ -72,15 +72,18 @@ namespace MarkdownProcessor
             AddRestOfText(text, tokenCandidates, foundTokens, escapeCharacter);
 
             return foundTokens;
-
-            bool CurrentCharacterIsEscaping() => !previousCharacterIsEscaping &&
-                                                 text[position] == escapeCharacter;
-
-            bool WrapIsPotentialValid(IWrapType wrapType) =>
-                !previousCharacterIsEscaping &&
-                !(wrapType is null) &&
-                !WrapIsSurroundedByDigits(position, text, wrapType);
         }
+
+        private static bool WrapIsPotentialValid(IWrapType wrapType,
+                                                 bool previousCharacterIsEscaping,
+                                                 int position,
+                                                 string text) =>
+            !previousCharacterIsEscaping &&
+            !(wrapType is null) &&
+            !WrapIsSurroundedByDigits(position, text, wrapType);
+
+        private bool CurrentCharacterIsEscaping(bool previousCharacterIsEscaping, int position, string text) =>
+            !previousCharacterIsEscaping && text[position] == escapeCharacter;
 
         private IWrapType TryGetTheMostSpecificWrapType(int markerIndex, string text) =>
             tokenWrapTypes
@@ -110,16 +113,16 @@ namespace MarkdownProcessor
         private static void TryToCloseOpenTextToken(
             int markerIndex, string text, Stack<Token> tokenCandidates, ICollection<Token> foundTokens)
         {
-            if (!HasOpenTextToken()) return;
+            if (!HasOpenTextToken(tokenCandidates)) return;
 
             var textToken = tokenCandidates.Pop();
             textToken.Content = text.Substring(textToken.ContentStartIndex, markerIndex - textToken.ContentStartIndex);
 
             foundTokens.Add(textToken);
-
-            bool HasOpenTextToken() => tokenCandidates.Count > 0 &&
-                                       tokenCandidates.Peek().WrapType.Equals(textWrapType);
         }
+
+        private static bool HasOpenTextToken(Stack<Token> tokenCandidates) =>
+            tokenCandidates.Count > 0 && tokenCandidates.Peek().WrapType.Equals(textWrapType);
 
         private static bool IsValidCloseMarker(
             int markerIndex, string text, Stack<Token> tokenCandidates, IWrapType wrapType)
@@ -130,18 +133,20 @@ namespace MarkdownProcessor
             var openedToken = tokenCandidates.Peek();
             while (openedToken != null)
             {
-                if (CloseMarkerHasAssociatedOpenMarker(openedToken))
+                if (CloseMarkerHasAssociatedOpenMarker(openedToken, wrapType, markerIndex))
                     return true;
 
                 openedToken = openedToken.ParentToken;
             }
 
             return false;
-
-            bool CloseMarkerHasAssociatedOpenMarker(Token associatedToken) =>
-                associatedToken.WrapType.Equals(wrapType) &&
-                associatedToken.ContentStartIndex != markerIndex;
         }
+
+        private static bool CloseMarkerHasAssociatedOpenMarker(Token associatedToken,
+                                                               IWrapType wrapType,
+                                                               int markerIndex) =>
+            associatedToken.WrapType.Equals(wrapType) &&
+            associatedToken.ContentStartIndex != markerIndex;
 
         private static Token CloseFoundToken(Stack<Token> tokenCandidates, IWrapType wrapType)
         {
@@ -185,8 +190,8 @@ namespace MarkdownProcessor
         private static bool HasWhitespaceAfter(int markerIndex, string text, int markerLength) =>
             markerIndex + markerLength < text.Length && char.IsWhiteSpace(text[markerIndex + markerLength]);
 
-        private static void AddRestOfText(string text, Stack<Token> tokenCandidates,
-                                          ICollection<Token> foundTokens, char escapeCharacter)
+        private static void AddRestOfText(
+            string text, Stack<Token> tokenCandidates, ICollection<Token> foundTokens, char escapeCharacter)
         {
             if (tokenCandidates.Count == 0) return;
 
@@ -197,8 +202,9 @@ namespace MarkdownProcessor
             var token = new Token(lastToken.ContentStartIndex - lastToken.WrapType.OpenWrapMarker.Length, textWrapType);
 
             var contentLength = text.Length - token.ContentStartIndex;
-            token.Content = GetSubstringWithoutRedundantEscapeCharacters(token.ContentStartIndex, contentLength,
-                                                                         text, escapeCharacter);
+
+            token.Content = GetSubstringWithoutRedundantEscapeCharacters(
+                token.ContentStartIndex, contentLength, text, escapeCharacter);
 
             foundTokens.Add(token);
         }

@@ -33,16 +33,18 @@ namespace MarkdownProcessor
 
             while (position < rootToken.Content.Length)
             {
-                if (position + rootToken.ContentStartIndex == TryGetCurrentChildToken()?.ContentStartIndex)
+                var currentChildToken = TryGetCurrentChildToken(currentChildTokenIndex, allChildTokens);
+
+                if (position + rootToken.ContentStartIndex == currentChildToken?.ContentStartIndex)
                 {
-                    RemoveLastCharacters(TryGetCurrentChildToken().WrapType.OpenWrapMarker.Length);
-                    childTokensBuilder.Append(wrapTypeConverter(TryGetCurrentChildToken().WrapType).OpenWrapMarker);
+                    RemoveLastCharacters(currentChildToken.WrapType.OpenWrapMarker.Length, childTokensBuilder);
+                    childTokensBuilder.Append(wrapTypeConverter(currentChildToken.WrapType).OpenWrapMarker);
                 }
 
-                if (position == TryGetCurrentChildToken()?.ContentEndIndex)
+                if (position == currentChildToken?.ContentEndIndex)
                 {
-                    RemoveLastCharacters(TryGetCurrentChildToken().WrapType.CloseWrapMarker.Length);
-                    childTokensBuilder.Append(wrapTypeConverter(TryGetCurrentChildToken().WrapType).CloseWrapMarker);
+                    RemoveLastCharacters(currentChildToken.WrapType.CloseWrapMarker.Length, childTokensBuilder);
+                    childTokensBuilder.Append(wrapTypeConverter(currentChildToken.WrapType).CloseWrapMarker);
                     currentChildTokenIndex++;
                 }
 
@@ -51,12 +53,6 @@ namespace MarkdownProcessor
             }
 
             return childTokensBuilder.ToString();
-
-            Token TryGetCurrentChildToken() => currentChildTokenIndex < allChildTokens.Length
-                                                   ? allChildTokens[currentChildTokenIndex]
-                                                   : null;
-
-            void RemoveLastCharacters(int count) => childTokensBuilder.Remove(childTokensBuilder.Length - count, count);
         }
 
         private static IEnumerable<Token> GetAllChildTokens(Token rootToken)
@@ -76,5 +72,13 @@ namespace MarkdownProcessor
                     yield return currentToken;
             }
         }
+
+        private static Token TryGetCurrentChildToken(int currentChildTokenIndex, IReadOnlyList<Token> allChildTokens) =>
+            currentChildTokenIndex < allChildTokens.Count
+                ? allChildTokens[currentChildTokenIndex]
+                : null;
+
+        private static void RemoveLastCharacters(int count, StringBuilder stringBuilder) =>
+            stringBuilder.Remove(stringBuilder.Length - count, count);
     }
 }

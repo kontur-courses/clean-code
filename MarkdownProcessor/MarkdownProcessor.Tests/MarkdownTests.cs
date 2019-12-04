@@ -102,6 +102,9 @@ namespace MarkdownProcessor.Tests
                 yield return new TestCaseData("q_1w2_e",
                                               "q<em>1w2</em>e")
                     .SetName("WhenDigitAfterOpenUnderscoreAndDigitBeforeCloseUnderscore");
+                yield return new TestCaseData("di_gi_ts123",
+                                              "di<em>gi</em>ts123")
+                    .SetName("WhenUnderscoresSurroundedByLettersAndDigitsThereAreAtTheEndOfLine");
             }
         }
 
