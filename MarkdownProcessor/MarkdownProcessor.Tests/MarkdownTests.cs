@@ -187,6 +187,13 @@ namespace MarkdownProcessor.Tests
                         .Returns(expectedHtml)
                         .SetName("WhenTripleUnderscoreAfter");
                 }
+                {
+                    const string markdownText = "";
+                    const string expectedHtml = markdownText;
+                    yield return new TestCaseData(markdownText)
+                        .Returns(expectedHtml)
+                        .SetName("WhenTextIsEmptyString");
+                }
             }
         }
     }
