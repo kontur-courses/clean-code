@@ -1,5 +1,3 @@
-using System;
-
 namespace Chess
 {
     public enum ChessStatus
