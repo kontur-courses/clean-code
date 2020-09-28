@@ -1,6 +1,4 @@
-﻿using System;
-
-namespace ControlDigit
+﻿namespace ControlDigit
 {
     public static class Isbn13Extensions
     {
