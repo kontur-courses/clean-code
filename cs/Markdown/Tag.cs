@@ -4,53 +4,34 @@ namespace Markdown
 {
     public class Tag
     {
-        private static readonly Dictionary<TagType, int> LengthOf = new Dictionary<TagType, int>
+        protected static readonly Dictionary<TagType, TagInfo> TagInfos = new Dictionary<TagType, TagInfo>
         {
-            [TagType.Em] = 1,
-            [TagType.H1] = 1,
-            [TagType.Strong] = 2,
-            [TagType.Shield] = 1,
-        };
-
-        private static readonly Dictionary<TagType, string> MdToHtml = new Dictionary<TagType, string>
-        {
-            [TagType.Em] = "<em>",
-            [TagType.H1] = "<h1>",
-            [TagType.Strong] = "<strong>",
-            [TagType.Shield] = "",
+            [TagType.Em] = new TagInfo(1, "<em>", true),
+            [TagType.H1] = new TagInfo(1, "<h1>", false),
+            [TagType.Shield] = new TagInfo(1, "", false),
+            [TagType.Strong] = new TagInfo(2, "<strong>",true),
         };
 
         public readonly TagType Type;
         public readonly int Start;
         public readonly int Length;
-        public bool IsOpening = true;
 
         public Tag(TagType type, int start)
         {
             Type = type;
             Start = start;
-            Length = LengthOf[type];
+            Length = TagInfos[type].Length;
         }
 
-        public string ToHtml()
+        public static Tag CreateTag(TagType type, int start)
         {
-            var html = MdToHtml[Type];
-            return IsOpening ? html : html.Insert(1, "/");
+            if (TagInfos[type].IsPaired) return new PairedTag(type, start);
+            return new SingleTag(type, start);
         }
 
-        private bool IsTagInMiddleOfWord(string text)
+        public virtual string ToHtml()
         {
-            return false;
-        }
-
-        private bool IsTagsInSameWord(Tag second, string text)
-        {
-            return false;
-        }
-
-        public bool IsCorrectTagPair(Tag other, string text)
-        {
-            return true;
+            return TagInfos[Type].Html;
         }
     }
 }
