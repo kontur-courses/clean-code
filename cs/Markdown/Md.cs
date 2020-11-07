@@ -5,6 +5,15 @@ namespace Markdown
 {
     public class Md
     {
+        private readonly Tag headerTag, boldTag, italicTag;
+
+        public Md()
+        {
+            headerTag = new Tag("h1");
+            boldTag = new Tag("strong");
+            italicTag = new Tag("em");
+        }
+
         public string Render(string markdown)
         {
             var lines = markdown.Split('\n');
