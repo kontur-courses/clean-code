@@ -2,19 +2,11 @@ namespace Markdown
 {
     public class PairedTag: Tag
     {
-        public bool IsOpening = true;
-        
-        public PairedTag(TagType type, int start) : base(type, start)
+        public PairedTag(TagType type, int start, bool isOpening = true) : base(type, start, isOpening)
         {
         }
         
-        public override string ToHtml()
-        {
-            var html = TagInfos[Type].Html;
-            return IsOpening ? html : html.Insert(1, "/");
-        }
-        
-        public bool IsCorrectTagPair(PairedTag other, string text)
+        public bool TryMatchTagPair(PairedTag other, string text)
         {
             if ((IsTagInMiddleOfWord(text) || other.IsTagInMiddleOfWord(text))
                 && !IsTagsInSameWord(other, text)) return false;
@@ -22,7 +14,8 @@ namespace Markdown
             if (text.IsSpace(other.Start - 1)) return false;
 
             if (Start + Length == other.Start) return false;
-            
+
+            other.IsOpening = false;
             return true;
         }
         

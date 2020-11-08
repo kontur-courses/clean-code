@@ -1,16 +1,15 @@
-using FluentAssertions;
 using NUnit.Framework;
 
 namespace Markdown
 {
     [TestFixture]
-    public class Md_Should
+    public class MdTests
     {
         [TestCase("ab_cd_e", ExpectedResult = "ab<em>cd</em>e")]
         [TestCase("_ab_cd", ExpectedResult = "<em>ab</em>cd")]
         [TestCase("ab_cd_", ExpectedResult = "ab<em>cd</em>")]
         [TestCase("_ab_cd_e_", ExpectedResult = "<em>ab</em>cd<em>e</em>")]
-        public string ChangePairedItalicsInOneParagraph(string mdText)
+        public string ChangePairedItalics_InOneParagraph(string mdText)
         {
             return Md.Render(mdText);
         }
@@ -19,7 +18,7 @@ namespace Markdown
         [TestCase("_a_b_c", ExpectedResult = "<em>a</em>b_c")]
         [TestCase("a_b_c_", ExpectedResult = "a<em>b</em>c_")]
         [TestCase("_a_b_", ExpectedResult = "<em>a</em>b_")]
-        public string NotChangeNonPairedItalicsInOneParagraph(string mdText)
+        public string NotChangeNonPairedItalics_InOneParagraph(string mdText)
         {
             return Md.Render(mdText);
         }
@@ -28,7 +27,7 @@ namespace Markdown
         [TestCase("__ab__cd", ExpectedResult = "<strong>ab</strong>cd")]
         [TestCase("ab__cd__", ExpectedResult = "ab<strong>cd</strong>")]
         [TestCase("__ab__cd__e__", ExpectedResult = "<strong>ab</strong>cd<strong>e</strong>")]
-        public string ChangePairedStrongInOneParagraph(string mdText)
+        public string ChangePairedStrong_InOneParagraph(string mdText)
         {
             return Md.Render(mdText);
         }
@@ -37,14 +36,21 @@ namespace Markdown
         [TestCase("__a__b__c", ExpectedResult = "<strong>a</strong>b__c")]
         [TestCase("a__b__c__", ExpectedResult = "a<strong>b</strong>c__")]
         [TestCase("__a__b__", ExpectedResult = "<strong>a</strong>b__")]
-        public string NotChangeNonPairedStrongInOneParagraph(string mdText)
+        public string NotChangeNonPairedStrong_InOneParagraph(string mdText)
+        {
+            return Md.Render(mdText);
+        }
+        
+        [TestCase("a__b_c", ExpectedResult = "a__b_c")]
+        [TestCase("a_b__c", ExpectedResult = "a_b__c")]
+        public string NotChangeNonPairedTags_InOneParagraph(string mdText)
         {
             return Md.Render(mdText);
         }
 
         [TestCase("#abc", ExpectedResult = "<h1>abc</h1>")]
         [TestCase("#abc\n#cde", ExpectedResult = "<h1>abc</h1>\n<h1>cde</h1>")]
-        public string ChangeHeaderAtStartOfParagraph(string mdText)
+        public string ChangeHeader_AtStartOfParagraph(string mdText)
         {
             return Md.Render(mdText);
         }
@@ -53,7 +59,7 @@ namespace Markdown
         [TestCase("abc#", ExpectedResult = "abc#")]
         [TestCase("a#bc\ncd#e", ExpectedResult = "a#bc\ncd#e")]
         [TestCase("#ab#c", ExpectedResult = "<h1>ab#c</h1>")]
-        public string NotChangeHeaderInMiddleOfParagraph(string mdText)
+        public string NotChangeHeader_InMiddleOfParagraph(string mdText)
         {
             return Md.Render(mdText);
         }
@@ -121,8 +127,7 @@ namespace Markdown
         }
         
         [TestCase(@"\_abc\_", ExpectedResult = "_abc_")]
-        [TestCase(@"\__abc\__", ExpectedResult = "__abc__")]
-        public string NotChangeStrongAndItalics_WithShield(string mdText)
+        public string NotChangeItalics_WithShield(string mdText)
         {
             return Md.Render(mdText);
         }
@@ -136,6 +141,12 @@ namespace Markdown
         [TestCase(@"\\", ExpectedResult = @"\")]
         [TestCase(@"\\_abc_", ExpectedResult = @"\<em>abc</em>")]
         public string Shield_OtherShielding(string mdText)
+        {
+            return Md.Render(mdText);
+        }
+        
+        [TestCase(@"\__abc_", ExpectedResult = @"_<em>abc</em>")]
+        public string ShieldOnlyFirstChar_InStrongTag(string mdText)
         {
             return Md.Render(mdText);
         }

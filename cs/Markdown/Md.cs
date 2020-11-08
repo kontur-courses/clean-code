@@ -11,14 +11,14 @@ namespace Markdown
             var result = new StringBuilder();
             foreach (var paragraph in md.Split('\n'))
             {
-                var tags = ReadAllTags(paragraph).ShieldTags().ToArray();
-                var singleTags = tags.Where(t => t is SingleTag && (t.Type != TagType.H1 || t.Start == 0));
+                var tags = ReadAllTags(paragraph).ToArray();
+                var singleTags = tags.GetCorrectSingleTags(paragraph);
                 var pairedTags = tags
                     .GetPairedTags(md)
                     .RemoveTagsIntersection()
                     .RemoveStrongInItalics();
                 
-                result.Append(ChangeMdTagsToHtml(paragraph, singleTags.Concat(pairedTags).ToArray()));
+                result.Append(ChangeMdTagsToHtml(paragraph, singleTags.Concat<Tag>(pairedTags).ToArray()));
                 result.Append("\n");
             }
 
@@ -38,44 +38,64 @@ namespace Markdown
         private static TagType? ReadTagType(string md, int start, out int length)
         {
             length = 1;
-            if (md[start] == '#') return TagType.H1;
-            if (md[start] == '\\') return TagType.Shield;
-            if (md[start] != '_') return null;
-            if (md.Length > start + 1 && md[start + 1] == '_') length++;
-            if(md.IsDigit(start - 1) || md.IsDigit(start + length)) return null;
-            return length == 1 ? TagType.Em : TagType.Strong;
-        }
-        
-        private static IEnumerable<Tag> ShieldTags(this IEnumerable<Tag> tags)
-        {
-            var shield = new Tag(TagType.Shield, -2);
-            
-            foreach (var tag in tags)
+            switch (md[start])
             {
-                if (shield.Start + shield.Length == tag.Start) yield return shield;
-                else if (tag.Type == TagType.Shield) shield = tag;
-                else yield return tag;
+                case '#':
+                    return TagType.H1;
+                case '\\':
+                {
+                    length++;
+                    if (md.IsTagStart(start + 1)) return TagType.Shield;
+                    return null;
+                }
+                case '_':
+                {
+                    if (md.Length > start + 1 && md[start + 1] == '_') length++;
+                    if (md.IsDigit(start - 1) || md.IsDigit(start + length)) return null;
+                    return length == 1 ? TagType.Em : TagType.Strong;
+                }
+                default:
+                    return null;
             }
+        }
+
+        private static IEnumerable<SingleTag> GetCorrectSingleTags(this IEnumerable<Tag> tags, string md)
+        {
+            var hasHeader = false;
+            
+            foreach (var tag in tags.OfType<SingleTag>())
+            {
+                if (tag.Type == TagType.H1)
+                {
+                    if (tag.Start != 0) continue;
+                    hasHeader = true;
+                    yield return tag;
+                }
+                else
+                {
+                    yield return tag;
+                }
+            }
+
+            if (hasHeader) yield return new SingleTag(TagType.H1, md.Length, false);
         }
         
         private static IEnumerable<PairedTag> GetPairedTags(this IEnumerable<Tag> tags, string md)
         {
             var waitingPair = new Dictionary<TagType, PairedTag>();
             
-            foreach (var tag in tags.Where(t => t is PairedTag))
+            foreach (var tag in tags.OfType<PairedTag>())
             {
-                var pairedTag = tag as PairedTag;
                 waitingPair.TryGetValue(tag.Type, out var first);
                 if (first == null)
                 {
                     if(!md.IsSpace(tag.Start + tag.Length))
-                        waitingPair[tag.Type] = pairedTag;
+                        waitingPair[tag.Type] = tag;
                 }
-                else if(first.IsCorrectTagPair(pairedTag, md))
+                else if(first.TryMatchTagPair(tag, md))
                 {
                     yield return first;
-                    pairedTag.IsOpening = false;
-                    yield return pairedTag;
+                    yield return tag;
                     waitingPair[tag.Type] = null;
                 }
             }
@@ -112,7 +132,7 @@ namespace Markdown
             }
         }
 
-        private static string ChangeMdTagsToHtml(string md, IReadOnlyList<Tag> tags)
+        private static string ChangeMdTagsToHtml(string md, IEnumerable<Tag> tags)
         {
             var result = new StringBuilder();
             var startIndex = 0;
@@ -124,11 +144,8 @@ namespace Markdown
                 result.Append(tag.ToHtml());
                 startIndex = tag.Start + tag.Length;
             }
-            
-            if(startIndex < md.Length)
-                result.Append(md.Substring(startIndex, md.Length - startIndex));
-            if (tags.Count > 0 && tags[0].Type == TagType.H1)
-                result.Append("</h1>");
+
+            if (startIndex < md.Length) result.Append(md.Substring(startIndex, md.Length - startIndex));
             return result.ToString();
         }
     }
