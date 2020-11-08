@@ -4,24 +4,18 @@ using System.Linq;
 
 namespace Samples
 {
-    public class PathFinder
+    public static class PathFinder
     {
-        public static IMaze maze;
-        private static readonly Queue<Point> queue = new Queue<Point>();
-        private static readonly ISet<Point> used = new HashSet<Point>();
-
-        public static void GenerateRandomMaze() { /* maze = ... */ }
-
-        public static Point GetNextStepToTarget(Point source, Point target)
+        public static Point GetNextStepToTarget(IMaze maze, Point source, Point target)
         {
-            queue.Clear();
-            used.Clear();
+            var queue = new Queue<Point>();
             queue.Enqueue(target);
-            used.Add(target);
+            var used = new HashSet<Point> {target};
+            
             while (queue.Any())
             {
                 var p = queue.Dequeue();
-                foreach (var neighbour in GetNeighbours(p))
+                foreach (var neighbour in GetNeighbours(maze, p))
                 {
                     if (used.Contains(neighbour)) continue;
                     if (neighbour == source)
@@ -33,7 +27,7 @@ namespace Samples
             return source;
         }
 
-        private static IEnumerable<Point> GetNeighbours(Point from)
+        private static IEnumerable<Point> GetNeighbours(IMaze maze, Point from)
         {
             return new[] { new Size(1, 0), new Size(-1, 0), new Size(0, 1), new Size(0, -1) }
                 .Select(shift => from + shift)
