@@ -9,7 +9,7 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ControlDigit", "ControlDigi
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Samples", "Samples\Samples.csproj", "{C3EF41D7-50EF-4CE1-B30A-D1D81C93D7FA}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Markdown", "Markdown\Markdown.csproj", "{83C88713-B3DB-4745-B568-5C7A48F25AA7}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Markdown", "Markdown\Markdown.csproj", "{220BC1C5-A68B-43A5-BA95-062A2B28E469}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -29,9 +29,9 @@ Global
 		{C3EF41D7-50EF-4CE1-B30A-D1D81C93D7FA}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{C3EF41D7-50EF-4CE1-B30A-D1D81C93D7FA}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{C3EF41D7-50EF-4CE1-B30A-D1D81C93D7FA}.Release|Any CPU.Build.0 = Release|Any CPU
-		{83C88713-B3DB-4745-B568-5C7A48F25AA7}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{83C88713-B3DB-4745-B568-5C7A48F25AA7}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{83C88713-B3DB-4745-B568-5C7A48F25AA7}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{83C88713-B3DB-4745-B568-5C7A48F25AA7}.Release|Any CPU.Build.0 = Release|Any CPU
+		{220BC1C5-A68B-43A5-BA95-062A2B28E469}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{220BC1C5-A68B-43A5-BA95-062A2B28E469}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{220BC1C5-A68B-43A5-BA95-062A2B28E469}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{220BC1C5-A68B-43A5-BA95-062A2B28E469}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 EndGlobal
