@@ -1,13 +1,17 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
-# Visual Studio 14
-VisualStudioVersion = 14.0.25420.1
+# Visual Studio Version 16
+VisualStudioVersion = 16.0.30611.23
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Chess", "Chess\Chess.csproj", "{DBFBE40E-EE0C-48F4-8763-EBD11C960081}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Chess", "Chess\Chess.csproj", "{DBFBE40E-EE0C-48F4-8763-EBD11C960081}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ControlDigit", "ControlDigit\ControlDigit.csproj", "{B06A4B35-9D61-4A63-9167-0673F20CA989}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "ControlDigit", "ControlDigit\ControlDigit.csproj", "{B06A4B35-9D61-4A63-9167-0673F20CA989}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Samples", "Samples\Samples.csproj", "{C3EF41D7-50EF-4CE1-B30A-D1D81C93D7FA}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Samples", "Samples\Samples.csproj", "{C3EF41D7-50EF-4CE1-B30A-D1D81C93D7FA}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Markdown", "Markdown\Markdown.csproj", "{EC53BE89-600B-4E37-B8A4-549C8F0C982A}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MarkdownShould", "MarkdownShould\MarkdownShould.csproj", "{CDB24ECE-9181-4577-99DE-2D232EA14B9A}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -27,5 +31,19 @@ Global
 		{C3EF41D7-50EF-4CE1-B30A-D1D81C93D7FA}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{C3EF41D7-50EF-4CE1-B30A-D1D81C93D7FA}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{C3EF41D7-50EF-4CE1-B30A-D1D81C93D7FA}.Release|Any CPU.Build.0 = Release|Any CPU
+		{EC53BE89-600B-4E37-B8A4-549C8F0C982A}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{EC53BE89-600B-4E37-B8A4-549C8F0C982A}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{EC53BE89-600B-4E37-B8A4-549C8F0C982A}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{EC53BE89-600B-4E37-B8A4-549C8F0C982A}.Release|Any CPU.Build.0 = Release|Any CPU
+		{CDB24ECE-9181-4577-99DE-2D232EA14B9A}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{CDB24ECE-9181-4577-99DE-2D232EA14B9A}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{CDB24ECE-9181-4577-99DE-2D232EA14B9A}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{CDB24ECE-9181-4577-99DE-2D232EA14B9A}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {E0AC39CA-69AD-4BC2-93E6-F25A9FFA977C}
 	EndGlobalSection
 EndGlobal
