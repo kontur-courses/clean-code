@@ -6,7 +6,7 @@ namespace Markdown
         {
         }
         
-        public bool TryMatchTagPair(PairedTag other, string text)
+        public virtual bool TryMatchTagPair(PairedTag other, string text)
         {
             if ((IsTagInMiddleOfWord(text) || other.IsTagInMiddleOfWord(text))
                 && !IsTagsInSameWord(other, text)) return false;

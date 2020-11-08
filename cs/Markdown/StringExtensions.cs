@@ -2,6 +2,9 @@ namespace Markdown
 {
     public static class StringExtensions
     {
+        public static bool IsChar(this string source, int index, char symbol) =>
+            source.ContainsIndex(index) && source[index] == symbol;
+        
         public static bool IsDigit(this string source, int index) =>
             source.ContainsIndex(index) && char.IsDigit(source[index]);
         

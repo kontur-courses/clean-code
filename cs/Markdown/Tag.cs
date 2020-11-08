@@ -6,15 +6,16 @@ namespace Markdown
     {
         private static readonly Dictionary<TagType, TagInfo> TagInfos = new Dictionary<TagType, TagInfo>
         {
-            [TagType.Em] = new TagInfo("_", 1, "<em>", true),
-            [TagType.H1] = new TagInfo("#", 1, "<h1>", false),
-            [TagType.Shield] = new TagInfo("\\", 1, "", false),
-            [TagType.Strong] = new TagInfo("__", 2, "<strong>",true),
+            [TagType.Em] = new TagInfo("_", 1, "<em>"),
+            [TagType.H1] = new TagInfo("#", 1, "<h1>"),
+            [TagType.Shield] = new TagInfo("\\", 1, ""),
+            [TagType.Strong] = new TagInfo("__", 2, "<strong>"),
+            [TagType.Reference] = new TagInfo("[", 1, ""),
         };
 
         public readonly TagType Type;
         public readonly int Start;
-        public readonly int Length;
+        public int Length { get; protected set; }
         protected bool IsOpening;
 
         protected Tag(TagType type, int start, bool isOpening = true)
@@ -25,13 +26,7 @@ namespace Markdown
             IsOpening = isOpening;
         }
 
-        public static Tag CreateTag(TagType type, int start)
-        {
-            if (TagInfos[type].IsPaired) return new PairedTag(type, start);
-            return new SingleTag(type, start);
-        }
-
-        public string ToHtml()
+        public virtual string ToHtml()
         {
             var html = TagInfos[Type].Html;
             return IsOpening ? html : html.Insert(1, "/");

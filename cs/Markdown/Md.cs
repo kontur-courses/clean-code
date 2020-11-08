@@ -16,9 +16,11 @@ namespace Markdown
                 var pairedTags = tags
                     .GetPairedTags(md)
                     .RemoveTagsIntersection()
-                    .RemoveStrongInItalics();
+                    .RemoveTagsInPair(TagType.Em, TagType.Strong);
+
+                tags = singleTags.Concat(pairedTags).RemoveTagsInPair(TagType.Reference).ToArray();
                 
-                result.Append(ChangeMdTagsToHtml(paragraph, singleTags.Concat<Tag>(pairedTags).ToArray()));
+                result.Append(ChangeMdTagsToHtml(paragraph, tags));
                 result.Append("\n");
             }
 
@@ -29,31 +31,38 @@ namespace Markdown
         {
             for (var i = 0; i < md.Length; i++)
             {
-                var type = ReadTagType(md, i, out var toSkip);
-                if (type != null) yield return Tag.CreateTag(type.Value, i);
+                var tag = ReadTag(md, i, out var toSkip);
+                if (tag != null) yield return tag;
                 i += toSkip - 1;
             }
         }
         
-        private static TagType? ReadTagType(string md, int start, out int length)
+        private static Tag ReadTag(string md, int start, out int length)
         {
             length = 1;
             switch (md[start])
             {
                 case '#':
-                    return TagType.H1;
+                    return new SingleTag(TagType.H1, start);
                 case '\\':
                 {
                     length++;
-                    if (md.IsTagStart(start + 1)) return TagType.Shield;
-                    return null;
+                    return md.IsTagStart(start + 1) ? new SingleTag(TagType.Shield, start) : null;
                 }
                 case '_':
                 {
-                    if (md.Length > start + 1 && md[start + 1] == '_') length++;
+                    if (md.IsChar(start + 1, '_')) length++;
                     if (md.IsDigit(start - 1) || md.IsDigit(start + length)) return null;
-                    return length == 1 ? TagType.Em : TagType.Strong;
+                    var type = length == 1 ? TagType.Em : TagType.Strong;
+                    return new PairedTag(type, start);
                 }
+                case '[':
+                    return new ReferenceTag(start);
+                case ']':
+                    if (md.IsChar(start + 1, '(')) length++;
+                    return new ReferenceTag(start);
+                case ')':
+                    return new ReferenceTag(start);
                 default:
                     return null;
             }
@@ -118,17 +127,18 @@ namespace Markdown
                 }
             }
         }
-        
-        private static IEnumerable<PairedTag> RemoveStrongInItalics(this IEnumerable<PairedTag> tags)
+
+        private static IEnumerable<Tag> RemoveTagsInPair(this IEnumerable<Tag> tags, TagType pairType,
+            TagType? toDelete = null)
         {
-            var isItalicsOpen = false;
+            var isPairOpen = false;
             
             foreach (var tag in tags.OrderBy(t => t.Start))
             {
-                if (isItalicsOpen && tag.Type == TagType.Strong) continue;
+                if (tag.Type == pairType) isPairOpen = !isPairOpen;
+                else if (isPairOpen && (toDelete == null || tag.Type == toDelete.Value)) continue;
                 
                 yield return tag;
-                if (tag.Type == TagType.Em) isItalicsOpen = !isItalicsOpen;
             }
         }
 

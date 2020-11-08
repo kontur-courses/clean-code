@@ -150,5 +150,30 @@ namespace Markdown
         {
             return Md.Render(mdText);
         }
+
+        [TestCase(@"a[bc](de)f", ExpectedResult = "a<a href=\"de\">bc</a>f")]
+        public string ChangeReference_InOneParagraph(string mdText)
+        {
+            return Md.Render(mdText);
+        }
+        
+        [TestCase(@"a[_bc_](__de__)f", ExpectedResult = "a<a href=\"__de__\">_bc_</a>f")]
+        public string ChangeReference_WithTagsInside(string mdText)
+        {
+            return Md.Render(mdText);
+        }
+        
+        [TestCase(@"_a[bc](de)f_", ExpectedResult = "<em>a<a href=\"de\">bc</a>f</em>")]
+        [TestCase(@"_a[bc](d\_e)f_", ExpectedResult = "<em>a<a href=\"d_e\">bc</a>f</em>")]
+        public string ChangeReference_WithTagsOutside(string mdText)
+        {
+            return Md.Render(mdText);
+        }
+        
+        [TestCase(@"a\[bc](de)f", ExpectedResult = "a[bc](de)f")]
+        public string Shield_ReferenceTag(string mdText)
+        {
+            return Md.Render(mdText);
+        }
     }
 }

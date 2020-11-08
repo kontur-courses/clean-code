@@ -5,6 +5,7 @@ namespace Markdown
         Em,
         Strong,
         H1,
-        Shield
+        Shield,
+        Reference
     }
 }
