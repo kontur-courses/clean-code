@@ -4,4 +4,13 @@
         <TargetFramework>netcoreapp3.1</TargetFramework>
     </PropertyGroup>
 
+    <ItemGroup>
+      <Compile Remove="Infrastructure\Tokens\IStyledToken.cs" />
+      <Compile Remove="Infrastructure\ITaggedText.cs" />
+    </ItemGroup>
+
+    <ItemGroup>
+      <None Remove="example.md" />
+    </ItemGroup>
+
 </Project>

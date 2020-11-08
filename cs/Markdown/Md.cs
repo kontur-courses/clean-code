@@ -1,4 +1,7 @@
 ﻿using System;
+using System.Text;
+using Markdown.Infrastructure.Formatters;
+using Markdown.Infrastructure.Parsers;
 
 namespace Markdown
 {
@@ -6,7 +9,17 @@ namespace Markdown
     {
         public string Render(string markdownText)
         {
-            throw new NotImplementedException();
+            var markdownParser = new MarkdownParser();
+            var rootTag = markdownParser.Parse(markdownText);
+
+            var htmlFormatter = new HtmlFormatter();
+            var htmlSentences = rootTag.Format(htmlFormatter);
+
+            var stringBuilder = new StringBuilder();
+            foreach (var htmlSentence in htmlSentences)
+                stringBuilder.Append(htmlSentence);
+            
+            return stringBuilder.ToString();
         }
     }
 }
