@@ -9,7 +9,7 @@ namespace Markdown
     {
         internal static ITagConverter GetTagConverter(string text, int position)
         {
-            throw new NotImplementedException();
+            return new EmptyTagConverter();
         }
     }
 }

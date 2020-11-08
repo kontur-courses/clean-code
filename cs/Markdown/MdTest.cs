@@ -4,15 +4,13 @@ namespace Markdown
 {
     public class Tests
     {
-        [SetUp]
-        public void Setup()
+        [TestCase("", ExpectedResult = "")]
+        [TestCase(" ", ExpectedResult = " ")]
+        [TestCase("a", ExpectedResult = "a")]
+        [TestCase("some text", ExpectedResult = "some text")]
+        public string Test_TextWithoutTags(string text)
         {
-        }
-
-        [Test]
-        public void Test1()
-        {
-            Assert.Pass();
+            return Md.Render(text);
         }
     }
 }
