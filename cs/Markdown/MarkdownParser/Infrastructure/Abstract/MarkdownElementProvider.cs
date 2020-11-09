@@ -14,7 +14,7 @@ namespace MarkdownParser.Infrastructure.Abstract
 
         public bool TryParse(MarkdownElementContext context, out TElem parsed)
         {
-            if (!CheckPreRequisites(context)) 
+            if (CheckPreRequisites(context)) 
                 return TryParseInternal(context, out parsed);
             parsed = default;
             return false;

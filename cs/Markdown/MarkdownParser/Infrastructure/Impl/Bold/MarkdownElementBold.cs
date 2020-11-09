@@ -7,7 +7,7 @@ namespace MarkdownParser.Infrastructure.Impl.Bold
     {
         public ICollection<MarkdownElement> Content { get; }
 
-        public MarkdownElementBold(int lastTokenIndex, ICollection<MarkdownElement> content) : base(lastTokenIndex)
+        public MarkdownElementBold(ICollection<MarkdownElement> content, Token[] tokens) : base(tokens)
         {
             Content = content;
         }

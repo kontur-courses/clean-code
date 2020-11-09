@@ -12,15 +12,14 @@ namespace MarkdownParser.Infrastructure
     public class MarkdownCollector
     {
         private readonly ICollection<IMarkdownElementProvider> providers = new List<IMarkdownElementProvider>();
-        private IMarkdownElementProvider defaultProvider;
 
         public bool TryCollectUntil(MarkdownElementContext currentContext, Predicate<Token> predicate,
             out int matchedTokenIndex, out ICollection<Token> collectedTokens)
         {
             collectedTokens = new List<Token>();
-            for (var i = currentContext.CurrentTokenIndex + 1; i < currentContext.AllTokens.Length; i++)
+            for (var i = 0; i < currentContext.Tokens.Length; i++)
             {
-                var token = currentContext.AllTokens[i];
+                var token = currentContext.Tokens[i];
                 if (predicate.Invoke(token))
                 {
                     matchedTokenIndex = i;
@@ -34,54 +33,44 @@ namespace MarkdownParser.Infrastructure
             return false;
         }
 
-        public bool TryParseUntil(MarkdownElementContext currentContext, Predicate<Token> predicate,
-            out ICollection<MarkdownElement> parsedElements, out int lastVisitedTokenIndex)
+        public IEnumerable<MarkdownElement> ParseElementsFrom(params Token[] tokens)
         {
-            parsedElements = new List<MarkdownElement>();
-
-            lastVisitedTokenIndex = currentContext.CurrentTokenIndex;
-            for (var i = currentContext.CurrentTokenIndex + 1; i < currentContext.AllTokens.Length; i++)
+            //TODO class Subarray
+            for (var i = 0; i < tokens.Length;)
             {
-                lastVisitedTokenIndex = i;
-                var token = currentContext.CurrentToken;
-                if (predicate.Invoke(token))
-                    return true;
-
-                var createdElement = CreateElementFrom(new MarkdownElementContext(i, currentContext.AllTokens));
-                parsedElements.Add(createdElement);
-                i = createdElement.LastTokenIndex;
+                var token = tokens[i];
+                var currentContext = new MarkdownElementContext(token, tokens.Skip(i + 1));
+                if (token is TokenText || !TryCreateElementFrom(currentContext, out var element))
+                    element = new MarkdownText(token);
+                yield return element;
+                i += element.Tokens.Length;
             }
-
-            return false;
         }
 
         public void RegisterProvider(IMarkdownElementProvider provider) => providers.Add(provider);
-        public void SetDefaultProvider(IMarkdownElementProvider provider) => defaultProvider = provider;
 
-        private MarkdownElement CreateElementFrom(MarkdownElementContext currentContext)
+        private bool TryCreateElementFrom(MarkdownElementContext currentContext, out MarkdownElement elem)
         {
-            var markdownElements = providers.Select(mp => new
-                {
-                    IsSuccessful = mp.TryParse(currentContext, out var elem),
-                    Element = elem
-                })
-                .Where(x => x.IsSuccessful)
-                .Select(x => x.Element)
+            var parsed = providers.Select(p => GetParsedOrNull(p, currentContext))
+                .Where(x => x != null)
                 .ToArray();
+            
+            if(parsed.Length > 1)
+                throw new InvalidOperationException($"Several matches for {currentContext.CurrentToken.GetType()}");
 
-            return markdownElements.Length switch
+            if (parsed.Length == 1)
             {
-                1 => markdownElements[0],
+                elem = parsed[0];
+                return true;
+            }
 
-                0 when defaultProvider != null && defaultProvider.TryParse(currentContext, out var parsed)
-                    => parsed,
-
-                0 => throw new InvalidOperationException("Cannot create markdown from token " +
-                                                         $"{currentContext.CurrentToken.GetType()}"),
-
-                _ => throw new InvalidOperationException("Multiple markdown parser matched for " +
-                                                         $"{currentContext.CurrentToken.GetType()}")
-            };
+            elem = default;
+            return false;
         }
+
+        private MarkdownElement GetParsedOrNull(IMarkdownElementProvider provider, MarkdownElementContext context) =>
+            provider.TryParse(context, out var parsed) 
+                ? parsed 
+                : null;
     }
 }

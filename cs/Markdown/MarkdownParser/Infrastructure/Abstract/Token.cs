@@ -22,4 +22,11 @@
 
         public string RawText { get; }
     }
+
+    public class TokenText : Token
+    {
+        public TokenText(int startPosition, int rawLength, string rawText) : base(startPosition, rawLength, rawText)
+        {
+        }
+    }
 }

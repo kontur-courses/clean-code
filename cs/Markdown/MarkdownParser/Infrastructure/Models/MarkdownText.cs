@@ -4,11 +4,8 @@ namespace MarkdownParser.Infrastructure.Models
 {
     public sealed class MarkdownText : MarkdownElement
     {
-        public string Text { get; }
-
-        public MarkdownText(string text,int lastTokenIndex) : base(lastTokenIndex)
+        public MarkdownText(Token text) : base(new[] {text})
         {
-            Text = text;
         }
     }
 }

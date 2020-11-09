@@ -2,11 +2,11 @@
 {
     public abstract class MarkdownElement
     {
-        protected MarkdownElement(int lastTokenIndex)
+        protected MarkdownElement(Token[] tokens)
         {
-            LastTokenIndex = lastTokenIndex;
+            Tokens = tokens;
         }
 
-        public int LastTokenIndex { get; }
+        public Token[] Tokens { get; }
     }
 }
