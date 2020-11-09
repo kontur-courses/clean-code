@@ -1,4 +1,5 @@
 using System.Collections.Generic;
+using System.Linq;
 
 namespace Markdown
 {
@@ -12,6 +13,8 @@ namespace Markdown
             [TagType.Strong] = new TagInfo("__", 2, "<strong>"),
             [TagType.Reference] = new TagInfo("[", 1, ""),
         };
+
+        public static readonly HashSet<char> MdFirstChars = TagInfos.Values.Select(info => info.Md[0]).ToHashSet();
 
         public readonly TagType Type;
         public readonly int Start;

@@ -21,13 +21,13 @@ namespace Markdown
             {
                 for (var j = 0; j < 20000; j++)
                 {
-                    mdBuilder.Append("#_abc_d __ab cd ef__\n_abc __de__ gf_\n__ab _cd__ ge_\n");
+                    mdBuilder.Append("#_abc_d __ab cd ef__\r\n_abc __de__ gf_\r\n__ab _cd__ ge_\r\n");
                     expectedBuilder.Append(
-                        "<h1><em>abc</em>d <strong>ab cd ef</strong></h1>\n<em>abc __de__ gf</em>\n__ab _cd__ ge_\n");
+                        "<h1><em>abc</em>d <strong>ab cd ef</strong></h1>\r\n<em>abc __de__ gf</em>\r\n__ab _cd__ ge_\r\n");
                 }
 
                 var md = mdBuilder.ToString();
-                var expected = expectedBuilder.ToString();
+                var expected = expectedBuilder + "\r";
                 var stopwatch = Stopwatch.StartNew();
                 var actual = Md.Render(md);
                 var time = stopwatch.Elapsed;

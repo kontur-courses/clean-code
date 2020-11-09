@@ -9,19 +9,18 @@ namespace Markdown
         public static string Render(string md)
         {
             var result = new StringBuilder();
-            foreach (var paragraph in md.Split('\n'))
+            foreach (var paragraph in md.Split("\r\n"))
             {
                 var tags = ReadAllTags(paragraph).ToArray();
                 var singleTags = tags.GetCorrectSingleTags(paragraph);
                 var pairedTags = tags
-                    .GetPairedTags(md)
+                    .GetPairedTags(paragraph)
                     .RemoveTagsIntersection()
-                    .RemoveTagsInPair(TagType.Em, TagType.Strong);
+                    .RemoveTagsInsidePair(TagType.Em, TagType.Strong);
 
-                tags = singleTags.Concat(pairedTags).RemoveTagsInPair(TagType.Reference).ToArray();
+                tags = singleTags.Concat(pairedTags).RemoveTagsInsidePair(TagType.Reference).ToArray();
                 
-                result.Append(ChangeMdTagsToHtml(paragraph, tags));
-                result.Append("\n");
+                result.AppendLine(ChangeMdTagsToHtml(paragraph, tags));
             }
 
             return result.Remove(result.Length - 1, 1).ToString();
@@ -128,7 +127,8 @@ namespace Markdown
             }
         }
 
-        private static IEnumerable<Tag> RemoveTagsInPair(this IEnumerable<Tag> tags, TagType pairType,
+        private static IEnumerable<Tag> RemoveTagsInsidePair(this IEnumerable<Tag> tags,
+            TagType pairType,
             TagType? toDelete = null)
         {
             var isPairOpen = false;

@@ -15,7 +15,7 @@ namespace Markdown
             source.ContainsIndex(index) && char.IsWhiteSpace(source[index]);
         
         public static bool IsTagStart(this string source, int index) =>
-            source.ContainsIndex(index) && TagInfo.MdFirstChars.Contains(source[index]);
+            source.ContainsIndex(index) && Tag.MdFirstChars.Contains(source[index]);
 
         private static bool ContainsIndex(this string source, int index) => index >= 0 && index < source.Length;
     }
