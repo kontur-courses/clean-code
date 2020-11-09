@@ -15,7 +15,8 @@ namespace Markdown
 
         private static void CheckParameters(Tags tags)
         {
-
+            //проверяем входные данные на возможные ошибки
         }
+
     }
 }

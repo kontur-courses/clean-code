@@ -8,11 +8,12 @@ namespace Markdown
 {
     static class Markdown
     {
-        public static void MakeMarkDown()
+        public static void Main()
         {
             var text = "";
-            var tagsFounder = new TagsFounder(text);
-            HTMLMaker.SaveToHTML(tagsFounder.Tags);
+            var tagsFounder = new TagsFounder();
+            var tags = tagsFounder.FindTags(text);
+            HTMLMaker.SaveToHTML(tags);
         }
     }
 }

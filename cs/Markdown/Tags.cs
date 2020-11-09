@@ -8,15 +8,34 @@ namespace Markdown
 {
     public class Tags
     {
-        public List<int> EMIndexes;
-        public List<int> StrongIndexes;
-        public List<int> SharpIndexes;
+        public struct TextElement
+        {
+            public int position;
+            public string text;
+        }
+
+        public List<TextElement> splittedText { get; }
 
         public Tags()
         {
-            EMIndexes = new List<int>();
-            StrongIndexes = new List<int>();
-            SharpIndexes = new List<int>();
+            splittedText = new List<TextElement>();
+        }
+
+        public void AddSharpTag(string text)
+        {
+            //преобразовавывает переданный текст в правильный HTML код и добавляет его в лист
+        }
+
+        public void AddStrongTag(string text)
+        {
+            //преобразовавывает переданный текст в правильный HTML код и добавляет его в лист
+        }
+
+        public void AddEMTag(string text)
+        {
+            //преобразовавывает переданный текст в правильный HTML код и добавляет его в лист
         }
     }
+
+
 }

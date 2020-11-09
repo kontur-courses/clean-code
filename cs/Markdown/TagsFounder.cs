@@ -8,17 +8,14 @@ namespace Markdown
 {
     public class TagsFounder
     {
-        public Tags Tags { get; }
-
-        public TagsFounder(string text)
+        public Tags FindTags(string text)
         {
-            Tags = new Tags();
-            FindTags(text);
-        }
+            var tags = new Tags();
+            for (var i = 0; i < text.Length; i++)
+            {
 
-        private void FindTags(string text)
-        {
-
+            }
+            return tags;
         }
     }
 }
