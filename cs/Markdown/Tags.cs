@@ -10,15 +10,15 @@ namespace Markdown
     {
         public struct TextElement
         {
-            public int position;
-            public string text;
+            public int Position;
+            public string Text;
         }
 
-        public List<TextElement> splittedText { get; }
+        public List<TextElement> SplittedText { get; }
 
         public Tags()
         {
-            splittedText = new List<TextElement>();
+            SplittedText = new List<TextElement>();
         }
 
         public void AddSharpTag(string text)

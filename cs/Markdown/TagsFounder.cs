@@ -10,11 +10,8 @@ namespace Markdown
     {
         public Tags FindTags(string text)
         {
+            //Ищет текст, который нужно добавить в теги и помещает его в объект Tags
             var tags = new Tags();
-            for (var i = 0; i < text.Length; i++)
-            {
-
-            }
             return tags;
         }
     }
