@@ -1,3 +1,6 @@
+using System.Collections.Generic;
+using System.IO;
+using System.Linq;
 using Markdown;
 using NUnit.Framework;
 
@@ -12,14 +15,25 @@ namespace MarkdownTests
             Markdown = new Md();
         }
 
-        [Test]
-        public void MarkdownToHtmlConversion_NoStyle()
+        [TestCaseSource(nameof(RenderData))]
+        public void Markdown_Render(string text, string expected)
         {
-            const string text = "test";
-            
             var actual = Markdown.Render(text);
             
             Assert.That(actual, Is.EqualTo(text));
+        }
+
+        private static IEnumerable<TestCaseData> RenderData()
+        {
+            (string testName, string text, string expected)[] testData = new[]
+            {
+                ("No style", "single", "single"),
+                ("Angled", "_text_", "<em>text</em>"),
+                ("Bold", "__text__", "<strong>text</strong>"),
+            };
+            
+            return testData.Select(test
+                => new TestCaseData(test.text, test.expected) {TestName = test.testName});
         }
     }
 }
