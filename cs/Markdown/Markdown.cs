@@ -11,9 +11,14 @@ namespace Markdown
         public static void Main()
         {
             var text = "";
-            var tagsFounder = new TagsFounder();
-            var tags = tagsFounder.FindTags(text);
-            HTMLMaker.SaveToHTML(tags);
+
+            var tagsFounder = new TextSplitter();
+            var splittedText = tagsFounder.GetSplittedText(text);
+
+            var htmlFormatter = new HTMLFormatter();
+            var stringedHtml = htmlFormatter.GetStringedHTML(splittedText);
+
+            HTMLSaver.SaveToHTML(stringedHtml);
         }
     }
 }
