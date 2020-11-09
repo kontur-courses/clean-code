@@ -10,7 +10,15 @@ namespace Markdown.TagConverters
         public override TagMd Md => TagMd._;
         public override StringOfset Convert(string text, int position)
         {
-            throw new NotImplementedException();
+            var result = new StringBuilder();
+            result.Append(OpenTag());
+            int pos;
+            for(pos = position + 1; text[pos].ToString() != StringMd; pos++)
+            {
+                result.Append(text[pos].ToString());
+            }
+            result.Append(CloseTag());
+            return new StringOfset(result.ToString(), pos - position + 1);
         }
     }
 }
