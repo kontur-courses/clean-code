@@ -10,35 +10,49 @@ namespace Markdown
         {
             if (text == null)
                 throw new NullReferenceException("input must be null");
+            var tags = new Stack<MarkdownTag>();
+            var renderedText = new StringBuilder();
 
-            var markdownSymbols = new Stack<Tag>();
-            var resultText = new StringBuilder();
-
-            foreach (var symbol in text)
+            for (var i = 0; i < text.Length; ++i)
             {
-                resultText.Append(symbol);
-                FilterMarkdownSymbols(symbol, markdownSymbols);
+                renderedText.Append(text[i]);
+                var symbol = text[i].ToString();
 
-                var currentSymbol = symbol.ToString();
-                if (!Tag.IsTag(currentSymbol))
+                if (!MarkdownTag.IsTag(symbol))
                     continue;
-                if (CanReplaceSymbolsOnTags(currentSymbol, markdownSymbols))
-                    resultText = resultText.ReplaceSymbolsOnTags(markdownSymbols.Pop());
-                else markdownSymbols.Push(new Tag(currentSymbol, resultText.Length - 1));
+                var tag = new MarkdownTag(symbol, renderedText.Length - 1,
+                    tags.Count == 0 || tags.Peek().Value != symbol);
+                if (!tag.IsValidTag(text, i))
+                    continue;
+
+                tags.Push(tag);
+                if (CanReplaceMarkdownTagsOnHtmlTags(text, renderedText.ToString(), tags))
+                    renderedText = renderedText.ReplaceMarkdownTagsOnHtmlTags(tags.Pop());
             }
-
-            return resultText.ToString();
+            return renderedText.ToString();
         }
 
-        private static void FilterMarkdownSymbols(char symbol, Stack<Tag> symbols)
+        private static bool CanReplaceMarkdownTagsOnHtmlTags(string text, string renderedText, Stack<MarkdownTag> tags)
         {
-            if (symbols.Count > 0 && (symbol == ' ' || char.IsDigit(symbol)))
-                symbols.Pop();
+            if (tags.Count < 2)
+                return false;
+
+            var lastTag = tags.Pop();
+            if (lastTag.Value == tags.Peek().Value)
+                return CheckOnSpaceBetweenUnderlines(text, renderedText, lastTag, tags.Peek());
+
+            tags.Push(lastTag);
+            return true;
         }
 
-        private static bool CanReplaceSymbolsOnTags(string symbol, Stack<Tag> symbols)
+        private static bool CheckOnSpaceBetweenUnderlines(string text, string renderedText, MarkdownTag lastTag,
+            MarkdownTag preLastTag)
         {
-            return symbols.Count > 0 && symbols.Peek().Value == symbol;
+            if (lastTag.Value != "_")
+                return true;
+            return !(renderedText.Substring(preLastTag.Index + 1, lastTag.Index - preLastTag.Index).Contains(" ")
+                     && (preLastTag.Index - 1 >= 0 && text[preLastTag.Index] != ' '
+                         || lastTag.Index + 1 < text.Length && text[lastTag.Index + 1] != ' '));
         }
     }
 }
