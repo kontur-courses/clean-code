@@ -1,14 +1,23 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+using Markdown.Models.Rules;
 
 namespace Markdown.Models
 {
     internal class MdToHtmlConverter
     {
-        public string ConvertToHtml(IEnumerable<IToken> tokens)
+        private readonly IEnumerable<IRule> rules;
+
+        public MdToHtmlConverter(IEnumerable<IRule> rules)
+        {
+            this.rules = rules;
+        }
+        public string ConvertMany(IEnumerable<TaggedToken> tokens)
+        {
+            throw new NotImplementedException();
+        }
+
+        private string ConvertToken(TaggedToken token)
         {
             throw new NotImplementedException();
         }
