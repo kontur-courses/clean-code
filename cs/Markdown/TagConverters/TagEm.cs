@@ -13,12 +13,12 @@ namespace Markdown.TagConverters
             var result = new StringBuilder();
             result.Append(OpenTag());
             int pos;
-            for(pos = position + 1; text[pos].ToString() != StringMd; pos++)
+            for(pos = position + LengthMd; text.Substring(pos, LengthMd) != StringMd; pos++)
             {
                 result.Append(text[pos].ToString());
             }
             result.Append(CloseTag());
-            return new StringOfset(result.ToString(), pos - position + 1);
+            return new StringOfset(result.ToString(), pos - position + LengthMd);
         }
     }
 }

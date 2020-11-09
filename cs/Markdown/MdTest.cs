@@ -20,5 +20,13 @@ namespace Markdown
         {
             return Md.Render(text);
         }
+
+        [TestCase("__some text__", ExpectedResult = @"<strong>some text<\strong>")]
+        [TestCase("a __some text__ 89", ExpectedResult = @"a <strong>some text<\strong> 89")]
+        [TestCase("__some text__ a __some text 2__", ExpectedResult = @"<strong>some text<\strong> a <strong>some text 2<\strong>")]
+        public string Test_TextWithTagStrong(string text)
+        {
+            return Md.Render(text);
+        }
     }
 }

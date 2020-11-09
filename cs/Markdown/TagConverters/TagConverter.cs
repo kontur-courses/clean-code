@@ -9,6 +9,7 @@ namespace Markdown.TagConverters
         public abstract TagHtml Html { get; }
         public abstract TagMd Md { get; }
         public string StringMd => Md.ToString();
+        public int LengthMd => StringMd.Length;
 
         public string StringHtml => Html.ToString();
         public string OpenTag() => string.Format("<{0}>", StringHtml);
