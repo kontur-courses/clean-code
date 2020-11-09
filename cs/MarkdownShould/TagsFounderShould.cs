@@ -2,17 +2,11 @@ using NUnit.Framework;
 
 namespace MarkdownShould
 {
-    public class Tests
+    public class TagsFounderShould
     {
         [SetUp]
         public void Setup()
         {
-        }
-
-        [Test]
-        public void Test1()
-        {
-            Assert.Pass();
         }
     }
 }
