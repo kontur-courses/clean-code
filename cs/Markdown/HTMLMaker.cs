@@ -1,6 +1,6 @@
 ﻿namespace Markdown
 {
-    public class HtmlMaker
+    public static class HtmlMaker
     {
         public static string GetHtmlText(TextInfo textInfo)
         {

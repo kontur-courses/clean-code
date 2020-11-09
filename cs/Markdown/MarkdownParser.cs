@@ -5,11 +5,13 @@ namespace Markdown
     public class MarkdownParser : IParser
     {
         private TextInfo textInfo;
-        private Stack<TagType> states;
+        private Stack<Tag> tagHierarchy;
 
         public MarkdownParser()
         {
             textInfo = new TextInfo();
+            tagHierarchy = new Stack<Tag>();
+            tagHierarchy.Push(Tag.NoFormatting);
         }
 
         public TextInfo ParseText(string text)
@@ -17,27 +19,22 @@ namespace Markdown
             throw new System.NotImplementedException();
         }
 
-        private void StateText(char symbol)
+        private void ParseBoldTag(char symbol)
         {
             throw new System.NotImplementedException();
         }
 
-        private void StateStrong(char symbol)
+        private void ParseItalicTag(char symbol)
         {
             throw new System.NotImplementedException();
         }
 
-        private void StateEm(char symbol)
+        private void ParseHeadingTag(char symbol)
         {
             throw new System.NotImplementedException();
         }
 
-        private void StateHeading(char symbol)
-        {
-            throw new System.NotImplementedException();
-        }
-        
-        private void StateInTag(char symbol)
+        private void ParseTextInTag(char symbol)
         {
             throw new System.NotImplementedException();
         }

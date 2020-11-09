@@ -4,10 +4,12 @@ namespace Markdown
 {
     public class TextInfo
     {
-        private List<TextInfo> content;
-        private readonly TagType tagType;
+        public List<TextInfo> content;
+        public string text;
+        public string tail;
+        private readonly Tag tag;
 
-        public TextInfo(TagType tagType = TagType.Default)
+        public TextInfo(Tag tag = Tag.NoFormatting)
         {
             throw new System.NotImplementedException();
         }
