@@ -24,13 +24,23 @@ namespace Markdown.Tests
         public void GetTextTokens_ReturnEmptyList_EmptyText()
         {
             var textParser = new TextParser();
-            var expectedLength = 0;
 
             var textTokens = textParser.GetTextTokens("");
-            var actualLength = textTokens.Count;
 
-            actualLength.Should().Be(expectedLength);
+            textTokens.Should().BeEmpty();
 
+        }
+
+        [Test]
+        public void GetTextTokens_ReturnListWithEmphasizedToken_TextWithTwoSurroundedUnderlinings()
+        {
+            var textParser = new TextParser();
+            var expectedList = new List<TextToken> {new TextToken(1, 2, TokenType.Emphasized , "ab")};
+            var text = "_ab_";
+
+            var actualList = textParser.GetTextTokens(text);
+
+            actualList.Should().BeEquivalentTo(expectedList);
         }
     }
 }

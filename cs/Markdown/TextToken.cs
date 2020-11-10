@@ -11,12 +11,14 @@ namespace Markdown
         public int StartPosition { get; }
         public int Length { get; }
         public TokenType Type { get; }
+        public string Text;
 
-        public TextToken(int startPosition, int length, TokenType type)
+        public TextToken(int startPosition, int length, TokenType type, string text)
         {
             StartPosition = startPosition;
             Length = length;
             Type = type;
+            Text = text;
         }
     }
 }

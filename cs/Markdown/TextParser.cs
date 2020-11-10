@@ -12,8 +12,29 @@ namespace Markdown
         {
             if(text == null)
                 throw new ArgumentException("string was null");
-            //разделяет переданный текст на элементы
+
             var splittedText = new List<TextToken>();
+
+            for (var index = 0; index < text.Length; index++)
+            {
+                if (text[index] == '_')
+                {
+                    index++;
+                    var textElement = new StringBuilder();
+                    for (var currentIndex = index; currentIndex < text.Length; currentIndex++)
+                    {
+                        if (text[currentIndex] == '_')
+                        {
+                            var textToken = new TextToken(index, currentIndex - index,TokenType.Emphasized,textElement.ToString());
+                            splittedText.Add(textToken);
+                            index = currentIndex;
+                        }
+
+                        textElement.Append(text[currentIndex]);
+                    }
+                }
+            }
+
             return splittedText;
         }
     }
