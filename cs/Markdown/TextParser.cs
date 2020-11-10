@@ -17,21 +17,28 @@ namespace Markdown
 
             for (var index = 0; index < text.Length; index++)
             {
-                if (text[index] == '_')
+                switch (text[index])
                 {
-                    index++;
-                    var indexOfClosingElement = FindIndexOfClosingElement('_', index, text);
-                    var lengthOfCurrentElement = indexOfClosingElement - index;
-                    splittedText.Add(new TextToken(index,lengthOfCurrentElement,TokenType.Emphasized,text.Substring(index,lengthOfCurrentElement)));
-                    index = ++indexOfClosingElement;
-                    
+                    case '_':
+                        index++;
+                        var indexOfClosingElement = FindIndexOfClosingElement('_', index, text);
+                        var lengthOfCurrentElement = indexOfClosingElement - index;
+                        splittedText.Add(new TextToken(index, lengthOfCurrentElement, TokenType.Emphasized, text.Substring(index, lengthOfCurrentElement)));
+                        index = ++indexOfClosingElement;
+                        break;
+                    default:
+                        var indexOfEndText = FindIndexOfEndText(index,text);
+                        var lengthOfCurrentText = indexOfEndText - index;
+                        splittedText.Add(new TextToken(index, lengthOfCurrentText, TokenType.Text, text.Substring(index,lengthOfCurrentText)));
+                        index = indexOfEndText;
+                        break;
+
                 }
             }
-
             return splittedText;
         }
 
-        public int FindIndexOfClosingElement(char elementToFind,int startIndex, string text)
+        private static int FindIndexOfClosingElement(char elementToFind,int startIndex, string text)
         {
             for (var index = startIndex; index < text.Length; index++)
             {
@@ -39,6 +46,18 @@ namespace Markdown
                     return index;
             }
             throw new ArgumentException("No closing underlining");
+        }
+
+        private static int FindIndexOfEndText(int startIndex, string text)
+        {
+            var specialSymbols = new char[]{'_', '#'};
+            for (var index = startIndex; index < text.Length; index++)
+            {
+                if (specialSymbols.Contains(text[index]))
+                    return index;
+            }
+
+            return text.Length;
         }
     }
 }

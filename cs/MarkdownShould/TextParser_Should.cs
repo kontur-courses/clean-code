@@ -68,5 +68,20 @@ namespace Markdown.Tests
 
             actualList.Should().BeEquivalentTo(expectedList);
         }
+
+        [Test]
+        public void GetTextTokens_ReturnListWithTextToken_TextWithoutAnySpecialSymbols()
+        {
+            var textParser = new TextParser();
+            var text = "ab";
+            var expectedList = new List<TextToken>()
+            {
+                new TextToken(0,2, TokenType.Text,"ab")
+            };
+
+            var actualList = textParser.GetTextTokens(text);
+
+            actualList.Should().BeEquivalentTo(expectedList);
+        }
     }
 }
