@@ -32,7 +32,7 @@ namespace Markdown.Tests
         }
 
         [Test]
-        public void GetTextTokens_ReturnListWithEmphasizedToken_NormalUnderlining()
+        public void GetTextTokens_ReturnListWithEmphasizedToken_OneUnderliningElement()
         {
             var textParser = new TextParser();
             var expectedList = new List<TextToken> {new TextToken(1, 2, TokenType.Emphasized , "ab")};
@@ -51,6 +51,22 @@ namespace Markdown.Tests
             Action act = () => textParser.GetTextTokens("_ab");
 
             act.Should().Throw<ArgumentException>().WithMessage("No closing underlining");
+        }
+
+        [Test]
+        public void GetTextTokens_ReturnListWithTwoEmphasizedToken_TwoUnderliningElements()
+        {
+            var textParser = new TextParser();
+            var expectedList = new List<TextToken>
+            {
+                new TextToken(1, 2, TokenType.Emphasized, "ab"),
+                new TextToken(6, 2, TokenType.Emphasized, "ba")
+            };
+            var text = "_ab_ _ba_";
+
+            var actualList = textParser.GetTextTokens(text);
+
+            actualList.Should().BeEquivalentTo(expectedList);
         }
     }
 }

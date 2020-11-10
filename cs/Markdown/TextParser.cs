@@ -20,24 +20,25 @@ namespace Markdown
                 if (text[index] == '_')
                 {
                     index++;
-                    var textElement = new StringBuilder();
-                    for (var currentIndex = index; currentIndex < text.Length; currentIndex++)
-                    {
-                        if (text[currentIndex] == '_')
-                        {
-                            var textToken = new TextToken(index, currentIndex - index,TokenType.Emphasized,textElement.ToString());
-                            splittedText.Add(textToken);
-                            index = currentIndex;
-                            break;
-                        }
-                        if(currentIndex + 1 == text.Length)
-                            throw new ArgumentException("No closing underlining");
-                        textElement.Append(text[currentIndex]);
-                    }
+                    var indexOfClosingElement = FindIndexOfClosingElement('_', index, text);
+                    var lengthOfCurrentElement = indexOfClosingElement - index;
+                    splittedText.Add(new TextToken(index,lengthOfCurrentElement,TokenType.Emphasized,text.Substring(index,lengthOfCurrentElement)));
+                    index = ++indexOfClosingElement;
+                    
                 }
             }
 
             return splittedText;
+        }
+
+        public int FindIndexOfClosingElement(char elementToFind,int startIndex, string text)
+        {
+            for (var index = startIndex; index < text.Length; index++)
+            {
+                if (text[index] == elementToFind)
+                    return index;
+            }
+            throw new ArgumentException("No closing underlining");
         }
     }
 }
