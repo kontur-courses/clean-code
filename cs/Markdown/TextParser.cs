@@ -10,6 +10,8 @@ namespace Markdown
     {
         public List<TextToken> GetTextTokens(string text)
         {
+            if(text == null)
+                throw new ArgumentException("string was null");
             //разделяет переданный текст на элементы
             var splittedText = new List<TextToken>();
             return splittedText;
