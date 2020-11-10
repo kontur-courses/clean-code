@@ -28,8 +28,10 @@ namespace Markdown
                             var textToken = new TextToken(index, currentIndex - index,TokenType.Emphasized,textElement.ToString());
                             splittedText.Add(textToken);
                             index = currentIndex;
+                            break;
                         }
-
+                        if(currentIndex + 1 == text.Length)
+                            throw new ArgumentException("No closing underlining");
                         textElement.Append(text[currentIndex]);
                     }
                 }

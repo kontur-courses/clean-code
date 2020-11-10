@@ -42,5 +42,16 @@ namespace Markdown.Tests
 
             actualList.Should().BeEquivalentTo(expectedList);
         }
+
+        [Test]
+
+        public void GetTextTokens_ThrowArgumentException_TextWithNoClosingUnderlining()
+        {
+            var textParser = new TextParser();
+
+            Action act = () => textParser.GetTextTokens("_ab");
+
+            act.Should().Throw<ArgumentException>().WithMessage("No closing underlining");
+        }
     }
 }
