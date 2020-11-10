@@ -6,12 +6,12 @@ using System.Threading.Tasks;
 
 namespace Markdown
 {
-    public class TextSplitter
+    public class TextHandler
     {
-        public List<TextElement> GetSplittedText(string text)
+        public List<TextToken> GetTextTokens(string text)
         {
             //разделяет переданный текст на элементы
-            var splittedText = new List<TextElement>();
+            var splittedText = new List<TextToken>();
             return splittedText;
         }
     }

@@ -6,13 +6,13 @@ using System.Threading.Tasks;
 
 namespace Markdown
 {
-    public struct TextElement //возможно стоит назвать HTMLElement
+    public struct TextToken 
     {
-        public int StartPosition;
-        public int Length;
-        public TextElementType Type;
+        public int StartPosition { get; }
+        public int Length { get; }
+        public TokenType Type { get; }
 
-        public TextElement(int startPosition, int length, TextElementType type)
+        public TextToken(int startPosition, int length, TokenType type)
         {
             StartPosition = startPosition;
             Length = length;

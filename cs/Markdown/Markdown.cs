@@ -12,13 +12,12 @@ namespace Markdown
         {
             var text = "";
 
-            var tagsFounder = new TextSplitter();
-            var splittedText = tagsFounder.GetSplittedText(text);
+            var tagsFounder = new TextHandler();
+            var textTokens = tagsFounder.GetTextTokens(text);
 
-            var htmlFormatter = new HTMLFormatter();
-            var stringedHtml = htmlFormatter.GetStringedHTML(splittedText);
+            var htmlConverter = new HTMLConverter();
+            var htmlString = htmlConverter.GetHTMLString(textTokens);
 
-            HTMLSaver.SaveToHTML(stringedHtml);
         }
     }
 }

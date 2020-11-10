@@ -6,11 +6,11 @@ using System.Threading.Tasks;
 
 namespace Markdown
 {
-    public enum TextElementType
+    public enum TokenType
     {
         Emphasized,
         Strong,
-        Headline,
-        Simple
+        Heading,
+        Text
     }
 }

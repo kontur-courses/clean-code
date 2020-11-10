@@ -36,12 +36,11 @@
     <None Include="App.config" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="HTMLFormatter.cs" />
-    <Compile Include="HTMLSaver.cs" />
+    <Compile Include="HTMLConverter.cs" />
     <Compile Include="Markdown.cs" />
-    <Compile Include="TextElement.cs" />
-    <Compile Include="TextElementType.cs" />
-    <Compile Include="TextSplitter.cs" />
+    <Compile Include="TextToken.cs" />
+    <Compile Include="TokenType.cs" />
+    <Compile Include="TextHandler.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
 </Project>

@@ -6,13 +6,14 @@ using System.Threading.Tasks;
 
 namespace Markdown
 {
-    class HTMLFormatter
+    class HTMLConverter
     {
-        public List<string> GetStringedHTML(List<TextElement> splittedText)
+        public string GetHTMLString(List<TextToken> splittedText)
         {
             //превращает разделенный текст в построчный html файл
-            var stringedHtml = new List<string>();
-            return stringedHtml;
+            var stringedHtml = new StringBuilder();
+
+            return stringedHtml.ToString();
         }
     }
 }
