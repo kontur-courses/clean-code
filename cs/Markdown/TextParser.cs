@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace Markdown
 {
-    public class TextHandler
+    public class TextParser
     {
         public List<TextToken> GetTextTokens(string text)
         {

@@ -12,7 +12,7 @@ namespace Markdown
         {
             var text = "";
 
-            var tagsFounder = new TextHandler();
+            var tagsFounder = new TextParser();
             var textTokens = tagsFounder.GetTextTokens(text);
 
             var htmlConverter = new HTMLConverter();
