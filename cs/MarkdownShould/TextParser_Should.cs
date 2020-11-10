@@ -54,7 +54,7 @@ namespace Markdown.Tests
         }
 
         [Test]
-        public void GetTextTokens_ReturnListWithTwoEmphasizedToken_TwoUnderliningElements()
+        public void GetTextTokens_ReturnListWithThreeEmphasizedToken_TwoUnderliningElements()
         {
             var textParser = new TextParser();
             var expectedList = new List<TextToken>
@@ -78,6 +78,24 @@ namespace Markdown.Tests
             var expectedList = new List<TextToken>()
             {
                 new TextToken(0,2, TokenType.Text,"ab")
+            };
+
+            var actualList = textParser.GetTextTokens(text);
+
+            actualList.Should().BeEquivalentTo(expectedList);
+        }
+
+        [Test]
+        public void GetTextTokens_ReturnListWithCorrectTokens_TextWithTwoUnderliningElementsAndTwoElementsWithoutAnySpecialSymbols()
+        {
+            var textParser = new TextParser();
+            var text = "aaa_bb_aaa_aa_";
+            var expectedList = new List<TextToken>()
+            {
+                new TextToken(0, 3, TokenType.Text, "aaa"),
+                new TextToken(4, 2, TokenType.Emphasized, "bb"),
+                new TextToken(7, 3, TokenType.Text, "aaa"),
+                new TextToken(11, 2, TokenType.Emphasized, "aa")
             };
 
             var actualList = textParser.GetTextTokens(text);
