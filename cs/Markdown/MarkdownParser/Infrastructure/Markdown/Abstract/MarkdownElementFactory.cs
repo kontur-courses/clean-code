@@ -5,16 +5,9 @@ namespace MarkdownParser.Infrastructure.Markdown.Abstract
     public abstract class MarkdownElementFactory<TElem> : IMarkdownElementFactory
         where TElem : MarkdownElement
     {
-        protected readonly MarkdownCollector MarkdownCollector;
-
-        protected MarkdownElementFactory(MarkdownCollector markdownCollector)
-        {
-            MarkdownCollector = markdownCollector;
-        }
-
         public bool TryCreate(MarkdownElementContext context, out TElem parsed)
         {
-            if (CheckPreRequisites(context)) 
+            if (CheckPreRequisites(context))
                 return TryCreateFromValidContext(context, out parsed);
             parsed = default;
             return false;

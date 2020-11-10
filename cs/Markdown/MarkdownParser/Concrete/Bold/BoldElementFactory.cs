@@ -1,17 +1,18 @@
 ﻿using System.Linq;
-using MarkdownParser.Infrastructure;
 using MarkdownParser.Infrastructure.Markdown;
 using MarkdownParser.Infrastructure.Markdown.Abstract;
 using MarkdownParser.Infrastructure.Markdown.Models;
 
 namespace MarkdownParser.Concrete.Bold
 {
-    public class BoldElementFactory : MarkdownElementFactory<MarkdownElementBold>
+    public sealed class BoldElementFactory : MarkdownElementFactory<MarkdownElementBold>, IMarkdownCollectorDependent
     {
+        private MarkdownCollector markdownCollector;
+
         protected override bool TryCreateFromValidContext(MarkdownElementContext context,
             out MarkdownElementBold parsed)
         {
-            if (!MarkdownCollector.TryCollectUntil(context, token => token.GetType() == typeof(BoldToken),
+            if (!markdownCollector.TryCollectUntil(context, token => token.GetType() == typeof(BoldToken),
                 out var matchedTokenIndex,
                 out var innerTokens))
             {
@@ -20,7 +21,7 @@ namespace MarkdownParser.Concrete.Bold
             }
 
             var tokens = innerTokens.ToArray();
-            var innerElements = MarkdownCollector.CreateElementsFrom(tokens);
+            var innerElements = markdownCollector.CreateElementsFrom(tokens);
 
             var matchedToken = context.Tokens[matchedTokenIndex];
             var elementTokens = tokens.Prepend(context.CurrentToken).Append(matchedToken).ToArray();
@@ -31,8 +32,7 @@ namespace MarkdownParser.Concrete.Bold
         protected override bool CheckPreRequisites(MarkdownElementContext context) =>
             context.CurrentToken.GetType() == typeof(BoldToken);
 
-        public BoldElementFactory(MarkdownCollector markdownCollector) : base(markdownCollector)
-        {
-        }
+        public void SetCollector(MarkdownCollector collector) =>
+            markdownCollector = collector;
     }
 }

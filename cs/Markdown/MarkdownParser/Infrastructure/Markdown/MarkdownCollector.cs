@@ -2,7 +2,6 @@
 using System.Collections.Generic;
 using System.Linq;
 using MarkdownParser.Concrete.Default;
-using MarkdownParser.Helpers;
 using MarkdownParser.Infrastructure.Markdown.Abstract;
 using MarkdownParser.Infrastructure.Markdown.Models;
 using MarkdownParser.Infrastructure.Tokenization.Abstract;
@@ -14,7 +13,14 @@ namespace MarkdownParser.Infrastructure.Markdown
     /// </summary>
     public class MarkdownCollector
     {
-        private readonly ICollection<IMarkdownElementFactory> providers = new List<IMarkdownElementFactory>();
+        private readonly ICollection<IMarkdownElementFactory> providers;
+
+        public MarkdownCollector(IEnumerable<IMarkdownElementFactory> providers)
+        {
+            this.providers = providers.ToArray();
+            foreach (var dependentProvider in this.providers.OfType<IMarkdownCollectorDependent>())
+                dependentProvider.SetCollector(this);
+        }
 
         public bool TryCollectUntil(MarkdownElementContext currentContext, Predicate<Token> predicate,
             out int matchedTokenIndex, out ICollection<Token> collectedTokens)
@@ -50,15 +56,13 @@ namespace MarkdownParser.Infrastructure.Markdown
             }
         }
 
-        public void RegisterProvider(IMarkdownElementFactory factory) => providers.Add(factory);
-
         private bool TryCreateElementFrom(MarkdownElementContext currentContext, out MarkdownElement elem)
         {
             var parsed = providers.Select(p => GetParsedOrNull(p, currentContext))
                 .Where(x => x != null)
                 .ToArray();
-            
-            if(parsed.Length > 1)
+
+            if (parsed.Length > 1)
                 throw new InvalidOperationException($"Several matches for {currentContext.CurrentToken.GetType()}");
 
             if (parsed.Length == 1)
@@ -72,8 +76,8 @@ namespace MarkdownParser.Infrastructure.Markdown
         }
 
         private MarkdownElement GetParsedOrNull(IMarkdownElementFactory factory, MarkdownElementContext context) =>
-            factory.TryCreate(context, out var parsed) 
-                ? parsed 
+            factory.TryCreate(context, out var parsed)
+                ? parsed
                 : null;
     }
 }

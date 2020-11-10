@@ -1,20 +1,23 @@
 ﻿using System.Linq;
-using MarkdownParser.Infrastructure;
 using MarkdownParser.Infrastructure.Markdown;
 using MarkdownParser.Infrastructure.Markdown.Abstract;
 using MarkdownParser.Infrastructure.Markdown.Models;
 
 namespace MarkdownParser.Concrete.Italic
 {
-    public class ItalicElementFactory : MarkdownElementFactory<MarkdownElementItalic>
+    public sealed class ItalicElementFactory : MarkdownElementFactory<MarkdownElementItalic>,
+        IMarkdownCollectorDependent
     {
-        protected override bool TryCreateFromValidContext(MarkdownElementContext context, out MarkdownElementItalic parsed)
+        private MarkdownCollector markdownCollector;
+
+        protected override bool TryCreateFromValidContext(MarkdownElementContext context,
+            out MarkdownElementItalic parsed)
         {
-            if (MarkdownCollector.TryCollectUntil(context, token => token is ItalicToken,
+            if (markdownCollector.TryCollectUntil(context, token => token is ItalicToken,
                 out var matchedTokenIndex,
                 out var collected))
             {
-                parsed = new MarkdownElementItalic((ItalicToken) context.CurrentToken, 
+                parsed = new MarkdownElementItalic((ItalicToken) context.CurrentToken,
                     collected.ToArray(),
                     (ItalicToken) context.Tokens[matchedTokenIndex]);
                 return true;
@@ -27,8 +30,7 @@ namespace MarkdownParser.Concrete.Italic
         protected override bool CheckPreRequisites(MarkdownElementContext context) =>
             context.CurrentToken is ItalicToken;
 
-        public ItalicElementFactory(MarkdownCollector markdownCollector) : base(markdownCollector)
-        {
-        }
+        public void SetCollector(MarkdownCollector collector) =>
+            markdownCollector = collector;
     }
 }

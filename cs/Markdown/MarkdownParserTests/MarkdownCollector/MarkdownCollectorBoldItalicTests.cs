@@ -15,9 +15,11 @@ namespace MarkdownParserTests.MarkdownCollector
         [SetUp]
         public void Setup()
         {
-            collector = new MarkdownParser.Infrastructure.Markdown.MarkdownCollector();
-            collector.RegisterProvider(new BoldElementFactory(collector));
-            collector.RegisterProvider(new ItalicElementFactory(collector));
+            collector = new MarkdownParser.Infrastructure.Markdown.MarkdownCollector(new IMarkdownElementFactory[]
+            {
+                new BoldElementFactory(),
+                new ItalicElementFactory()
+            });
         }
 
         [Test]
