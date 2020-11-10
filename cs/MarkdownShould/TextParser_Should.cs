@@ -60,6 +60,7 @@ namespace Markdown.Tests
             var expectedList = new List<TextToken>
             {
                 new TextToken(1, 2, TokenType.Emphasized, "ab"),
+                new TextToken(4,1,TokenType.Text, " "),
                 new TextToken(6, 2, TokenType.Emphasized, "ba")
             };
             var text = "_ab_ _ba_";

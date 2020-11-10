@@ -17,23 +17,28 @@ namespace Markdown
 
             for (var index = 0; index < text.Length; index++)
             {
+                var startTokenIndex = index;
+                int endTokenIndex, tokenLength;
+                TokenType typeOfToken;
                 switch (text[index])
                 {
                     case '_':
-                        index++;
-                        var indexOfClosingElement = FindIndexOfClosingElement('_', index, text);
-                        var lengthOfCurrentElement = indexOfClosingElement - index;
-                        splittedText.Add(new TextToken(index, lengthOfCurrentElement, TokenType.Emphasized, text.Substring(index, lengthOfCurrentElement)));
-                        index = ++indexOfClosingElement;
-                        break;
-                    default:
-                        var indexOfEndText = FindIndexOfEndText(index,text);
-                        var lengthOfCurrentText = indexOfEndText - index;
-                        splittedText.Add(new TextToken(index, lengthOfCurrentText, TokenType.Text, text.Substring(index,lengthOfCurrentText)));
-                        index = indexOfEndText;
+                        startTokenIndex++;
+                        endTokenIndex = FindIndexOfClosingElement('_', startTokenIndex, text);
+                        typeOfToken = TokenType.Emphasized;
+                        tokenLength = endTokenIndex - startTokenIndex;
                         break;
 
+                    default:
+                        endTokenIndex = FindIndexOfEndText(index,text);
+                        tokenLength = endTokenIndex - startTokenIndex;
+                        endTokenIndex--;
+                        typeOfToken = TokenType.Text;
+                        break;
                 }
+
+                splittedText.Add(new TextToken(startTokenIndex, tokenLength, typeOfToken, text.Substring(startTokenIndex, tokenLength)));
+                index = endTokenIndex;
             }
             return splittedText;
         }
