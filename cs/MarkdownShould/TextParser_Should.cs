@@ -32,7 +32,7 @@ namespace Markdown.Tests
         }
 
         [Test]
-        public void GetTextTokens_ReturnListWithEmphasizedToken_TextWithTwoSurroundedUnderlinings()
+        public void GetTextTokens_ReturnListWithEmphasizedToken_NormalUnderlining()
         {
             var textParser = new TextParser();
             var expectedList = new List<TextToken> {new TextToken(1, 2, TokenType.Emphasized , "ab")};
@@ -44,8 +44,7 @@ namespace Markdown.Tests
         }
 
         [Test]
-
-        public void GetTextTokens_ThrowArgumentException_TextWithNoClosingUnderlining()
+        public void GetTextTokens_ThrowArgumentException_NoClosingUnderlining()
         {
             var textParser = new TextParser();
 
