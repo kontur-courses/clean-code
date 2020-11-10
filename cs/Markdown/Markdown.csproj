@@ -40,7 +40,7 @@
     <Compile Include="Markdown.cs" />
     <Compile Include="TextToken.cs" />
     <Compile Include="TokenType.cs" />
-    <Compile Include="TextHandler.cs" />
+    <Compile Include="TextParser.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
 </Project>

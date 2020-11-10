@@ -11,7 +11,7 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Samples", "Samples\Samples.
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Markdown", "Markdown\Markdown.csproj", "{EC53BE89-600B-4E37-B8A4-549C8F0C982A}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "MarkdownTests", "MarkdownShould\MarkdownTests.csproj", "{CDB24ECE-9181-4577-99DE-2D232EA14B9A}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Markdown.Tests", "MarkdownShould\Markdown.Tests.csproj", "{CDB24ECE-9181-4577-99DE-2D232EA14B9A}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
