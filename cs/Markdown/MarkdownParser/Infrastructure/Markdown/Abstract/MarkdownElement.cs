@@ -1,4 +1,6 @@
-﻿namespace MarkdownParser.Infrastructure.Abstract
+﻿using MarkdownParser.Infrastructure.Tokenization.Abstract;
+
+namespace MarkdownParser.Infrastructure.Markdown.Abstract
 {
     public abstract class MarkdownElement
     {

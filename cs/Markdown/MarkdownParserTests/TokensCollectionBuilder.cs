@@ -1,28 +1,32 @@
 ﻿using System.Collections.Generic;
 using System.Linq;
-using MarkdownParser.Infrastructure.Abstract;
+using MarkdownParser.Concrete.Bold;
+using MarkdownParser.Concrete.Default;
+using MarkdownParser.Concrete.Italic;
+using MarkdownParser.Infrastructure.Tokenization;
+using MarkdownParser.Infrastructure.Tokenization.Abstract;
 
 namespace MarkdownParserTests
 {
-    public class TokensBuilder
+    public class TokensCollectionBuilder
     {
         private readonly List<Token> tokens = new List<Token>();
 
-        public TokensBuilder Bold()
+        public TokensCollectionBuilder Bold()
         {
-            tokens.Add(Tokens.Bold(GetNextTokenPosition()));
+            tokens.Add(new BoldToken(GetNextTokenPosition(), 2, "__"));
             return this;
         }
 
-        public TokensBuilder Italic()
+        public TokensCollectionBuilder Italic()
         {
-            tokens.Add(Tokens.Italic(GetNextTokenPosition()));
+            tokens.Add(new ItalicToken(GetNextTokenPosition(), 1, "_"));
             return this;
         }
 
-        public TokensBuilder Text(string text)
+        public TokensCollectionBuilder Text(string text)
         {
-            tokens.Add(Tokens.Text(GetNextTokenPosition(), text));
+            tokens.Add(new TextToken(GetNextTokenPosition(), text.Length, text));
             return this;
         }
 
@@ -51,6 +55,6 @@ namespace MarkdownParserTests
             return lastToken.StartPosition + lastToken.RawLength - 1;
         }
 
-        public static implicit operator Token[](TokensBuilder builder) => builder.ToArray();
+        public static implicit operator Token[](TokensCollectionBuilder collectionBuilder) => collectionBuilder.ToArray();
     }
 }

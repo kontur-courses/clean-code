@@ -1,8 +1,9 @@
 ﻿using System.Collections.Generic;
 using System.Linq;
-using MarkdownParser.Infrastructure.Abstract;
+using MarkdownParser.Infrastructure.Markdown.Abstract;
+using MarkdownParser.Infrastructure.Tokenization.Abstract;
 
-namespace MarkdownParser.Infrastructure.Impl.Italic
+namespace MarkdownParser.Concrete.Italic
 {
     public class MarkdownElementItalic : MarkdownElement
     {

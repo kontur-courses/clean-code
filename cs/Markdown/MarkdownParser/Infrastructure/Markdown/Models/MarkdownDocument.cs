@@ -1,8 +1,8 @@
 ﻿using System.Collections.Generic;
 using System.Linq;
-using MarkdownParser.Infrastructure.Abstract;
+using MarkdownParser.Infrastructure.Markdown.Abstract;
 
-namespace MarkdownParser.Infrastructure.Models
+namespace MarkdownParser.Infrastructure.Markdown.Models
 {
     public class MarkdownDocument
     {

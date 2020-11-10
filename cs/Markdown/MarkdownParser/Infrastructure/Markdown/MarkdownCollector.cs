@@ -1,17 +1,20 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using MarkdownParser.Infrastructure.Abstract;
-using MarkdownParser.Infrastructure.Models;
+using MarkdownParser.Concrete.Default;
+using MarkdownParser.Helpers;
+using MarkdownParser.Infrastructure.Markdown.Abstract;
+using MarkdownParser.Infrastructure.Markdown.Models;
+using MarkdownParser.Infrastructure.Tokenization.Abstract;
 
-namespace MarkdownParser.Infrastructure
+namespace MarkdownParser.Infrastructure.Markdown
 {
     /// <summary>
     /// Воркер, который собирает всякие штуки по токенам
     /// </summary>
     public class MarkdownCollector
     {
-        private readonly ICollection<IMarkdownElementProvider> providers = new List<IMarkdownElementProvider>();
+        private readonly ICollection<IMarkdownElementFactory> providers = new List<IMarkdownElementFactory>();
 
         public bool TryCollectUntil(MarkdownElementContext currentContext, Predicate<Token> predicate,
             out int matchedTokenIndex, out ICollection<Token> collectedTokens)
@@ -33,21 +36,21 @@ namespace MarkdownParser.Infrastructure
             return false;
         }
 
-        public IEnumerable<MarkdownElement> ParseElementsFrom(params Token[] tokens)
+        public IEnumerable<MarkdownElement> CreateElementsFrom(params Token[] tokens)
         {
-            //TODO class Subarray
+            //TODO class Subarray to avoid create new Token[] instance
             for (var i = 0; i < tokens.Length;)
             {
                 var token = tokens[i];
                 var currentContext = new MarkdownElementContext(token, tokens.Skip(i + 1));
-                if (token is TokenText || !TryCreateElementFrom(currentContext, out var element))
+                if (token is TextToken || !TryCreateElementFrom(currentContext, out var element))
                     element = new MarkdownText(token);
                 yield return element;
                 i += element.Tokens.Length;
             }
         }
 
-        public void RegisterProvider(IMarkdownElementProvider provider) => providers.Add(provider);
+        public void RegisterProvider(IMarkdownElementFactory factory) => providers.Add(factory);
 
         private bool TryCreateElementFrom(MarkdownElementContext currentContext, out MarkdownElement elem)
         {
@@ -68,8 +71,8 @@ namespace MarkdownParser.Infrastructure
             return false;
         }
 
-        private MarkdownElement GetParsedOrNull(IMarkdownElementProvider provider, MarkdownElementContext context) =>
-            provider.TryParse(context, out var parsed) 
+        private MarkdownElement GetParsedOrNull(IMarkdownElementFactory factory, MarkdownElementContext context) =>
+            factory.TryCreate(context, out var parsed) 
                 ? parsed 
                 : null;
     }

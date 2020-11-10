@@ -1,7 +1,8 @@
 ﻿using System.Collections.Generic;
-using MarkdownParser.Infrastructure.Abstract;
+using MarkdownParser.Infrastructure.Markdown.Abstract;
+using MarkdownParser.Infrastructure.Tokenization.Abstract;
 
-namespace MarkdownParser.Infrastructure.Impl.Bold
+namespace MarkdownParser.Concrete.Bold
 {
     public class MarkdownElementBold : MarkdownElement
     {

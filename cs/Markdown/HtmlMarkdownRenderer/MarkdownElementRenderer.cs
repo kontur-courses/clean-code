@@ -1,5 +1,5 @@
 ﻿using System;
-using MarkdownParser.Infrastructure.Abstract;
+using MarkdownParser.Infrastructure.Markdown.Abstract;
 
 namespace HtmlMarkdownRenderer
 {

@@ -1,56 +1,26 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
+﻿using System.Linq;
 using MarkdownParser.Infrastructure;
-using MarkdownParser.Infrastructure.Abstract;
-using MarkdownParser.Infrastructure.Models;
+using MarkdownParser.Infrastructure.Markdown;
+using MarkdownParser.Infrastructure.Markdown.Models;
+using MarkdownParser.Infrastructure.Tokenization;
 
 namespace MarkdownParser
 {
     public class MarkdownDocumentParser
     {
         private readonly MarkdownCollector collector;
-        private readonly TokenParser tokenParser;
+        private readonly Tokenizer tokenizer;
 
-        public MarkdownDocumentParser(TokenParser tokenParser, MarkdownCollector markdownCollector)
+        public MarkdownDocumentParser(Tokenizer tokenizer, MarkdownCollector markdownCollector)
         {
-            this.tokenParser = tokenParser;
+            this.tokenizer = tokenizer;
             collector = markdownCollector;
         }
 
         public MarkdownDocument Parse(string rawMarkdown)
         {
-            var tokens = tokenParser.Tokenize(rawMarkdown).ToArray();
-            return new MarkdownDocument(collector.ParseElementsFrom(tokens));
+            var tokens = tokenizer.Tokenize(rawMarkdown).ToArray();
+            return new MarkdownDocument(collector.CreateElementsFrom(tokens));
         }
-    }
-
-    public class TokenParser
-    {
-        private readonly ICollection<ITokenCreator> tokenCreators;
-
-        public TokenParser(ICollection<ITokenCreator> tokenCreators)
-        {
-            this.tokenCreators = tokenCreators;
-        }
-
-        public ICollection<Token> Tokenize(string rawInput)
-        {
-            throw new NotImplementedException(); //TODO implement
-        }
-    }
-
-    public interface ITokenCreator
-    {
-        string TokenSymbol { get; }
-        Token TokenFrom(string text);
-    }
-
-    public abstract class TokenCreator<TToken> : ITokenCreator where TToken : Token
-    {
-        public abstract string TokenSymbol { get; }
-        public abstract TToken TokenFrom(string text);
-
-        Token ITokenCreator.TokenFrom(string text) => TokenFrom(text);
     }
 }

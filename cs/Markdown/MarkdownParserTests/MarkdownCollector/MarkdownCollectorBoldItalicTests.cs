@@ -1,24 +1,23 @@
 using System.Collections.Generic;
 using FluentAssertions;
-using MarkdownParser.Infrastructure;
-using MarkdownParser.Infrastructure.Abstract;
-using MarkdownParser.Infrastructure.Impl.Bold;
-using MarkdownParser.Infrastructure.Impl.Italic;
-using MarkdownParser.Infrastructure.Models;
+using MarkdownParser.Concrete.Bold;
+using MarkdownParser.Concrete.Default;
+using MarkdownParser.Concrete.Italic;
+using MarkdownParser.Infrastructure.Markdown.Abstract;
 using NUnit.Framework;
 
-namespace MarkdownParserTests
+namespace MarkdownParserTests.MarkdownCollector
 {
     public class BoldAndItalicProvidersTests
     {
-        private MarkdownCollector collector;
+        private MarkdownParser.Infrastructure.Markdown.MarkdownCollector collector;
 
         [SetUp]
         public void Setup()
         {
-            collector = new MarkdownCollector();
-            collector.RegisterProvider(new BoldElementProvider(collector));
-            collector.RegisterProvider(new ItalicElementProvider(collector));
+            collector = new MarkdownParser.Infrastructure.Markdown.MarkdownCollector();
+            collector.RegisterProvider(new BoldElementFactory(collector));
+            collector.RegisterProvider(new ItalicElementFactory(collector));
         }
 
         [Test]
@@ -26,7 +25,7 @@ namespace MarkdownParserTests
         {
             var tokens = TokensBuilder().Italic().Text("abc").Italic();
 
-            collector.ParseElementsFrom(tokens)
+            collector.CreateElementsFrom(tokens)
                 .Should()
                 .ContainSingle()
                 .Which
@@ -40,7 +39,7 @@ namespace MarkdownParserTests
         public void ItalicWithBoldInside_TreatBoldAsText()
         {
             var tokens = TokensBuilder().Italic().Bold().Text("abc").Bold().Italic();
-            collector.ParseElementsFrom(tokens)
+            collector.CreateElementsFrom(tokens)
                 .Should()
                 .ContainSingle()
                 .Which
@@ -54,7 +53,7 @@ namespace MarkdownParserTests
         public void ItalicNotClosed_TreatAsText()
         {
             var tokens = TokensBuilder().Italic().Text("abc");
-            collector.ParseElementsFrom(tokens)
+            collector.CreateElementsFrom(tokens)
                 .Should()
                 .BeEquivalentTo(
                     new MarkdownText(tokens[0]),
@@ -66,7 +65,7 @@ namespace MarkdownParserTests
         {
             var tokens = TokensBuilder().Bold().Text("abc").Bold();
 
-            collector.ParseElementsFrom(tokens)
+            collector.CreateElementsFrom(tokens)
                 .Should()
                 .ContainSingle()
                 .Which
@@ -82,7 +81,7 @@ namespace MarkdownParserTests
         {
             var tokens = TokensBuilder().Bold().Italic().Text("abc").Italic().Bold();
 
-            collector.ParseElementsFrom(tokens)
+            collector.CreateElementsFrom(tokens)
                 .Should()
                 .ContainSingle()
                 .Which
@@ -102,7 +101,7 @@ namespace MarkdownParserTests
         public void BoldWithNotClosedItalicInside_TreatItalicAsText()
         {
             var tokens = TokensBuilder().Bold().Italic().Text("abc").Bold();
-            collector.ParseElementsFrom(tokens)
+            collector.CreateElementsFrom(tokens)
                 .Should()
                 .ContainSingle()
                 .Which
@@ -124,7 +123,7 @@ namespace MarkdownParserTests
         {
             var tokens = TokensBuilder().Bold().Text("abc");
 
-            collector.ParseElementsFrom(tokens)
+            collector.CreateElementsFrom(tokens)
                 .Should()
                 .HaveCount(2)
                 .And
@@ -133,6 +132,6 @@ namespace MarkdownParserTests
                     new MarkdownText(tokens[1]));
         }
 
-        private static TokensBuilder TokensBuilder() => new TokensBuilder();
+        private static TokensCollectionBuilder TokensBuilder() => new TokensCollectionBuilder();
     }
 }
