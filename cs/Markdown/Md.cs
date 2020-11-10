@@ -23,7 +23,7 @@ namespace Markdown
                 result.AppendLine(ChangeMdTagsToHtml(paragraph, tags));
             }
 
-            return result.Remove(result.Length - 1, 1).ToString();
+            return result.Remove(result.Length - 2, 2).ToString();
         }
         
         private static IEnumerable<Tag> ReadAllTags(string md)

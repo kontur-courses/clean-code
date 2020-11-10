@@ -1,9 +1,11 @@
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
+using System.IO;
 using System.Text;
 using FluentAssertions;
 using NUnit.Framework;
+using NUnit.Framework.Interfaces;
 
 namespace Markdown
 {
@@ -11,38 +13,59 @@ namespace Markdown
     public class Md_Performance
     {
         [Test]
-        [Timeout(10000)]
+        [Timeout(20000)]
         public void Should_WorkLinear()
         {
-            var mdBuilder = new StringBuilder();
-            var expectedBuilder = new StringBuilder();
-            var timesOfWork = new List<double>();
-            for(var i = 0; i < 5; i++)
+            var timesOfWork = new List<long>();
+            for (var count = 1000; count <= 10000; count+=1000)
             {
-                for (var j = 0; j < 20000; j++)
-                {
-                    mdBuilder.Append("#_abc_d __ab cd ef__\r\n_abc __de__ gf_\r\n__ab _cd__ ge_\r\n");
-                    expectedBuilder.Append(
-                        "<h1><em>abc</em>d <strong>ab cd ef</strong></h1>\r\n<em>abc __de__ gf</em>\r\n__ab _cd__ ge_\r\n");
-                }
-
-                var md = mdBuilder.ToString();
-                var expected = expectedBuilder + "\r";
-                var stopwatch = Stopwatch.StartNew();
-                var actual = Md.Render(md);
-                var time = stopwatch.Elapsed;
-                Console.WriteLine($"{(i + 1) * 60000} lines {time}");
-                timesOfWork.Add(time.Ticks);
-
-                actual.Should().Be(expected);
+                var timeOfWork = ParseMarkdownSpec(count);
+                Console.WriteLine($"{count} {timeOfWork}");
+                timesOfWork.Add(timeOfWork.Ticks);
             }
 
             for (var i = 1; i < timesOfWork.Count; i++)
             {
-                var timeIncrease = timesOfWork[i] / timesOfWork[i - 1];
+                var timeIncrease = (double)timesOfWork[i] / timesOfWork[i - 1];
                 var lengthIncrease = (i + 1.0) / i;
-                timeIncrease.Should().BeLessOrEqualTo(lengthIncrease + 0.1);
+                timeIncrease.Should().BeLessOrEqualTo(lengthIncrease * 1.2);
             }
+        }
+        
+        public static TimeSpan ParseMarkdownSpec(int count = 1)
+        {
+            var markdownDirectory = Directory.GetParent(Directory.GetCurrentDirectory()).Parent?.Parent;
+            var rootDirectory = markdownDirectory?.Parent?.Parent;
+            if (rootDirectory == null) return new TimeSpan();
+            
+            using var mdReader = new StreamReader($"{rootDirectory.FullName}\\MarkdownSpec.md");
+            var md = DuplicateLine(mdReader.ReadToEnd(), count);
+            
+            using var htmlReader = new StreamReader($"{markdownDirectory.FullName}\\MarkdownSpecExpected.html");
+            var expectedHtml = DuplicateLine(htmlReader.ReadToEnd(), count);
+            
+            var stopwatch = Stopwatch.StartNew();
+            var actualHtml = Md.Render(md);
+            var result = stopwatch.Elapsed;
+            
+            actualHtml.Should().Be(expectedHtml);
+
+            if (count != 1 || TestContext.CurrentContext.Result.Outcome.Status != TestStatus.Failed) return result;
+            using var writer = new StreamWriter($"{rootDirectory.FullName}\\MarkdownSpecSample.html");
+            writer.Write(actualHtml);
+
+            return result;
+        }
+
+        private static string DuplicateLine(string source, int count)
+        {
+            if (count <= 0) throw new ArgumentException();
+            
+            var builder = new StringBuilder();
+            for (var i = 0; i < count; i++) 
+                builder.AppendLine(source);
+            
+            return builder.ToString();
         }
     }
 }
