@@ -44,13 +44,15 @@ namespace Markdown.Tests
         }
 
         [Test]
-        public void GetTextTokens_ThrowArgumentException_NoClosingUnderlining()
+        public void GetTextTokens_ReturnListWithTextToken_NoClosingUnderlining()
         {
             var textParser = new TextParser();
+            var expectedList = new List<TextToken>();
+            expectedList.Add(new TextToken(0, 3, TokenType.Text, "_ab"));
 
-            Action act = () => textParser.GetTextTokens("_ab");
+            var actualList =  textParser.GetTextTokens("_ab");
 
-            act.Should().Throw<ArgumentException>().WithMessage("No closing underlining");
+            actualList.Should().BeEquivalentTo(expectedList);
         }
 
         [Test]
