@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Globalization;
 using System.Linq;
 using System.Text;
+using MarkdownParser.Concrete.Default;
 using MarkdownParser.Infrastructure.Tokenization.Abstract;
 using MarkdownParser.Infrastructure.Tokenization.Models;
 
@@ -29,8 +30,10 @@ namespace MarkdownParser.Infrastructure.Tokenization
 
                 if (TryCreateTokenFrom(context, out var token))
                 {
+                    if(textTokenBuilder.Length != 0)
+                        tokens.Add(CreateDefault(i - textTokenBuilder.Length, textTokenBuilder.ToString()));
                     tokens.Add(token);
-                    i += token.RawLength - 1; // эти символы мы уже "прошли" внутри TryCreate, пропускаем
+                    i += token.RawText.Length - 1; // эти символы мы уже "прошли" внутри TryCreate, пропускаем
                 }
                 else textTokenBuilder.Append(rawInput[i]);
             }
@@ -47,8 +50,12 @@ namespace MarkdownParser.Infrastructure.Tokenization
                 return false;
             }
 
+
             throw new NotImplementedException(); //TODO implement
         }
+
+        private static Token CreateDefault(int startPosition, string rawText) =>
+            new TextToken(startPosition, rawText);
 
         private static TokenPosition GetPosition(string rawInput, int currentIndex)
         {

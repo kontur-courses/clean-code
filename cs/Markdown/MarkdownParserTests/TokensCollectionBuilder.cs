@@ -14,19 +14,19 @@ namespace MarkdownParserTests
 
         public TokensCollectionBuilder Bold()
         {
-            tokens.Add(new BoldToken(GetNextTokenPosition(), 2, "__"));
+            tokens.Add(new BoldToken(GetNextTokenPosition(), "__"));
             return this;
         }
 
         public TokensCollectionBuilder Italic()
         {
-            tokens.Add(new ItalicToken(GetNextTokenPosition(), 1, "_"));
+            tokens.Add(new ItalicToken(GetNextTokenPosition(), "_"));
             return this;
         }
 
         public TokensCollectionBuilder Text(string text)
         {
-            tokens.Add(new TextToken(GetNextTokenPosition(), text.Length, text));
+            tokens.Add(new TextToken(GetNextTokenPosition(), text));
             return this;
         }
 
@@ -52,7 +52,7 @@ namespace MarkdownParserTests
             if (tokens.Count == 0)
                 return 0;
             var lastToken = tokens.Last();
-            return lastToken.StartPosition + lastToken.RawLength - 1;
+            return lastToken.StartPosition + lastToken.RawText.Length - 1;
         }
 
         public static implicit operator Token[](TokensCollectionBuilder collectionBuilder) => collectionBuilder.ToArray();

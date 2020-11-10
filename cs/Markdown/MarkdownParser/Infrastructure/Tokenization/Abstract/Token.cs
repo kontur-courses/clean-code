@@ -6,19 +6,13 @@
     /// </summary>
     public abstract class Token
     {
-        public Token(int startPosition, int rawLength, string rawText)
+        public Token(int startPosition, string rawText)
         {
             StartPosition = startPosition;
-            RawLength = rawLength;
             RawText = rawText;
         }
 
         public int StartPosition { get; }
-
-        /// <summary>
-        /// Сколько символов занимает в исходном тексте
-        /// </summary>
-        public int RawLength { get; }
 
         public string RawText { get; }
     }
