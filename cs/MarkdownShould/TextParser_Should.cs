@@ -19,5 +19,18 @@ namespace Markdown.Tests
             act.Should().Throw<ArgumentException>().WithMessage("string was null");
 
         }
+
+        [Test]
+        public void GetTextTokens_ReturnEmptyList_EmptyText()
+        {
+            var textParser = new TextParser();
+            var expectedLength = 0;
+
+            var textTokens = textParser.GetTextTokens("");
+            var actualLength = textTokens.Count;
+
+            actualLength.Should().Be(expectedLength);
+
+        }
     }
 }
