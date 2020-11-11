@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Text;
 
 namespace Markdown
 {
@@ -8,43 +9,55 @@ namespace Markdown
         public static readonly Dictionary<string, Tuple<string, string>> MatchingMarkdownTagsToHtmlTags =
             new Dictionary<string, Tuple<string, string>>
             {
-                ["_"] = Tuple.Create("<em>", "</em>"),
-                ["__"] = Tuple.Create("<strong>", "</strong>")
+                [Styles.Italic] = Tuple.Create("<em>", "</em>"),
+                [Styles.Bold] = Tuple.Create("<strong>", "</strong>")
             };
 
-        public MarkdownTag(string value, int index, bool isOpened)
+        public MarkdownTag(string value, int startPosition, bool isOpened)
         {
             Value = value;
-            Index = index;
+            StartPosition = startPosition;
+            EndPosition = startPosition + value.Length - 1;
             IsOpened = isOpened;
         }
 
         public string Value { get; }
-        public int Index { get; }
+        public int StartPosition { get; }
+        public int EndPosition { get; }
         public bool IsOpened { get; }
+        public int Length => EndPosition - StartPosition + 1;
 
         public static bool IsTag(string symbol)
         {
             return MatchingMarkdownTagsToHtmlTags.ContainsKey(symbol);
         }
 
-        public bool IsValidTag(string text, int index)
+        public bool IsValidTag(StringBuilder text)
         {
-            if (Value != "_")
-                return true;
-            if (IsSpacesAlongUnderline(text, index))
-                return false;
-            if (index + 1 < text.Length && index - 1 >= 0 && char.IsDigit(text[index - 1])
-                && char.IsDigit(text[index + 1]))
-                return false;
-            return true;
+            if (Value == Styles.Bold || Value == Styles.Italic)
+                return !IsSpacesAlongBoldOrItalic(text) && !IsDigitsAlongBoldOrItalic(text);
+            return false;
         }
 
-        private bool IsSpacesAlongUnderline(string text, int index)
+
+        public bool IsBold(StringBuilder text)
+        {
+            if (EndPosition + 1 >= text.Length || text[EndPosition + 1].ToString() != Styles.Italic)
+                return false;
+            return text[EndPosition] == text[EndPosition + 1];
+        }
+
+        private bool IsSpacesAlongBoldOrItalic(StringBuilder text)
         {
             if (IsOpened)
-                return index + 1 < text.Length && text[index + 1] == ' ';
-            return text[index - 1] == ' ';
+                return EndPosition + 1 < text.Length && char.IsWhiteSpace(text[EndPosition + 1]);
+            return char.IsWhiteSpace(text[StartPosition - 1]);
+        }
+
+        private bool IsDigitsAlongBoldOrItalic(StringBuilder text)
+        {
+            return StartPosition - 1 >= 0 && char.IsDigit(text[StartPosition - 1]) && EndPosition + 1 < text.Length
+                   && char.IsDigit(text[EndPosition + 1]);
         }
     }
 }

@@ -11,48 +11,83 @@ namespace Markdown
             if (text == null)
                 throw new NullReferenceException("input must be null");
             var tags = new Stack<MarkdownTag>();
-            var renderedText = new StringBuilder();
+            var lastTagOfEachStyles = new Dictionary<string, MarkdownTag>();
+            var resultText = new StringBuilder(text);
 
-            for (var i = 0; i < text.Length; ++i)
+            for (var i = 0; i < resultText.Length; ++i)
             {
-                renderedText.Append(text[i]);
-                var symbol = text[i].ToString();
-
-                if (!MarkdownTag.IsTag(symbol))
+                if (!MarkdownTag.IsTag(resultText[i].ToString()))
                     continue;
-                var tag = new MarkdownTag(symbol, renderedText.Length - 1,
-                    tags.Count == 0 || tags.Peek().Value != symbol);
-                if (!tag.IsValidTag(text, i))
+
+                var tag = GetTag(resultText[i].ToString(), i, lastTagOfEachStyles);
+                if (tag.IsBold(resultText))
+                {
+                    tag = GetTag(new string(resultText[i], 2), i, lastTagOfEachStyles);
+                    i++;
+                }
+
+                if (!tag.IsValidTag(resultText))
                     continue;
 
                 tags.Push(tag);
-                if (CanReplaceMarkdownTagsOnHtmlTags(text, renderedText.ToString(), tags))
-                    renderedText = renderedText.ReplaceMarkdownTagsOnHtmlTags(tags.Pop());
+                lastTagOfEachStyles[tag.Value] = tag;
+
+                var oldLength = resultText.Length;
+                if (CanReplaceMarkdownTagsOnHtmlTags(resultText.ToString(), tags))
+                    resultText = resultText.ReplaceMarkdownTagsOnHtmlTags(tags.Pop(), tags.Pop());
+                i += resultText.Length - oldLength;
             }
-            return renderedText.ToString();
+
+            return resultText.ToString();
         }
 
-        private static bool CanReplaceMarkdownTagsOnHtmlTags(string text, string renderedText, Stack<MarkdownTag> tags)
+        private static MarkdownTag GetTag(string value, int index, Dictionary<string, MarkdownTag> lastTags)
+        {
+            return new MarkdownTag(value, index, !lastTags.ContainsKey(value) || !lastTags[value].IsOpened);
+        }
+
+        private static bool CanReplaceMarkdownTagsOnHtmlTags(string resultText, Stack<MarkdownTag> tags)
         {
             if (tags.Count < 2)
                 return false;
 
             var lastTag = tags.Pop();
-            if (lastTag.Value == tags.Peek().Value)
-                return CheckOnSpaceBetweenUnderlines(text, renderedText, lastTag, tags.Peek());
+            var preLastTag = tags.Pop();
+            var correctSequence = IsBoldAndItalicInCorrectSequence(lastTag, tags);
 
+            tags.Push(preLastTag);
             tags.Push(lastTag);
-            return true;
+            return lastTag.Value == preLastTag.Value
+                   && preLastTag.IsOpened && !lastTag.IsOpened
+                   && !IsEmptyBetweenTags(preLastTag, lastTag) && correctSequence
+                   && IsValidStringBetweenBoldOrItalic(resultText, preLastTag, lastTag);
         }
 
-        private static bool CheckOnSpaceBetweenUnderlines(string text, string renderedText, MarkdownTag lastTag,
-            MarkdownTag preLastTag)
+        private static bool IsValidStringBetweenBoldOrItalic(string resultText,
+            MarkdownTag preLastTag, MarkdownTag lastTag)
         {
-            if (lastTag.Value != "_")
+            if (lastTag.Value != Styles.Italic && lastTag.Value != Styles.Bold)
                 return true;
-            return !(renderedText.Substring(preLastTag.Index + 1, lastTag.Index - preLastTag.Index).Contains(" ")
-                     && (preLastTag.Index - 1 >= 0 && text[preLastTag.Index] != ' '
-                         || lastTag.Index + 1 < text.Length && text[lastTag.Index + 1] != ' '));
+
+            var isSpaceBetweenTags = resultText
+                .Substring(preLastTag.EndPosition + 1, lastTag.StartPosition - preLastTag.EndPosition - 1)
+                .Contains(" ");
+            var isSpaceBeforeOpenedTag =
+                preLastTag.StartPosition - 1 < 0 || char.IsWhiteSpace(resultText[preLastTag.StartPosition - 1]);
+            var isSpaceAfterClosedTag =
+                lastTag.EndPosition + 1 >= resultText.Length || char.IsWhiteSpace(resultText[lastTag.EndPosition + 1]);
+
+            return !isSpaceBetweenTags || isSpaceBeforeOpenedTag && isSpaceAfterClosedTag;
+        }
+
+        private static bool IsBoldAndItalicInCorrectSequence(MarkdownTag lastTag, Stack<MarkdownTag> tags)
+        {
+            return lastTag.Value != Styles.Bold || tags.Count == 0 || tags.Peek().Value != Styles.Italic;
+        }
+
+        private static bool IsEmptyBetweenTags(MarkdownTag preLastTag, MarkdownTag lastTag)
+        {
+            return lastTag.StartPosition - preLastTag.EndPosition == 1;
         }
     }
 }
