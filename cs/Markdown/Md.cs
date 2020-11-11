@@ -29,21 +29,24 @@ namespace Markdown
                     i--;
                     continue;
                 }
+
                 if (!tag.IsValidTag(resultText))
                     continue;
-
                 tags.Push(tag);
+
                 lastTagOfEachStyles[tag.Value] = tag;
                 resultText = TryReplaceMarkdownTagsOnHtmlTags(resultText, tags, ref i);
             }
 
-            return resultText.ToString();
+            return lastTagOfEachStyles.ContainsKey(Styles.Heading)
+                ? resultText.ReplaceMarkdownTagsOnHtmlTags(lastTagOfEachStyles[Styles.Heading]).ToString()
+                : resultText.ToString();
         }
 
         private static StringBuilder TryHandleSlash(Stack<MarkdownTag> tags, StringBuilder text, ref int index)
         {
             tags.Push(new MarkdownTag(text[index].ToString(), index, true));
-            if (!CanShieldSlash(tags)) 
+            if (!CanShieldSlash(tags))
                 return text;
             index--;
             return text.ShieldSlash(tags.Pop(), tags.Pop());
@@ -67,7 +70,8 @@ namespace Markdown
                 tags.Pop();
         }
 
-        private static MarkdownTag GetCorrectTag(StringBuilder text, ref int index, Dictionary<string, MarkdownTag> lastTags)
+        private static MarkdownTag GetCorrectTag(StringBuilder text, ref int index,
+            Dictionary<string, MarkdownTag> lastTags)
         {
             var value = text[index].ToString();
             var tag = new MarkdownTag(value, index, !lastTags.ContainsKey(value) || !lastTags[value].IsOpened);

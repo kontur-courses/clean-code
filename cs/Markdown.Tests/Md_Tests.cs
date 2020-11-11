@@ -79,10 +79,9 @@ namespace Markdown.Tests
         [TestCase("Внутри _одинарного выделения __двойное__ не_ работает",
             ExpectedResult = "Внутри _одинарного выделения __двойное__ не_ работает",
             TestName = "WhenBoldBetweenItalic")]
-        [TestCase("__Непарные_ символы", 
+        [TestCase("__Непарные_ символы",
             ExpectedResult = "__Непарные_ символы",
             TestName = "WhenNotPairedBoldAndItalic")]
-
         [TestCase(@"\abc\", ExpectedResult = @"\abc\", TestName = "WhenNotShieldedSlash")]
         [TestCase(@"\\\\abc", ExpectedResult = @"\\abc", TestName = "WhenSlashShielded")]
         [TestCase(@"\_abc_", ExpectedResult = @"_abc_", TestName = "WhenItalicShielded")]
@@ -93,6 +92,19 @@ namespace Markdown.Tests
         [TestCase(@"\\\\_\\abc\\_", ExpectedResult = @"\\<em>\abc\</em>", TestName = "WhenManyShieldedSlashes")]
         [TestCase(@"\\_\abc\_", ExpectedResult = @"\_\abc_", TestName = "WhenClosedItalicShielded")]
         [TestCase(@"\\__\abc\__", ExpectedResult = @"\__\abc__", TestName = "WhenClosedBoldShielded")]
+        [TestCase(@"# abc", ExpectedResult = @"<h1>abc</h1>", TestName = "WhenHeadingWithoutAnyTags")]
+        [TestCase(@"#abc", ExpectedResult = @"#abc", TestName = "WhenNoSpaceAfterHeading")]
+        [TestCase(@"\# abc", ExpectedResult = @"# abc", TestName = "WhenShieldedHeading")]
+        [TestCase("# Заголовок __с _разными_ символами__",
+            ExpectedResult = "<h1>Заголовок <strong>с <em>разными</em> символами</strong></h1>",
+            TestName = "WhenHeadingAndAllAnyTags")]
+        [TestCase(@"# \\\\__\\ab_abc_c\\__",
+            ExpectedResult = @"<h1>\\<strong>\ab<em>abc</em>c\</strong></h1>",
+            TestName = "WhenHeadingAndAllAnyTagsAndSlashes")]
+        [TestCase("# abc# abc# add #aaa",
+            ExpectedResult = "<h1>abc# abc# add #aaa</h1>",
+            TestName = "WhenMoreThanOneHeading")]
+        [TestCase("a# abc", ExpectedResult = "a# abc", TestName = "WhenHeadingNotAtBegin")]
         public string Render_CorrectResult(string input)
         {
             return Md.Render(input);

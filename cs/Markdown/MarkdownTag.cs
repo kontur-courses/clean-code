@@ -10,7 +10,8 @@ namespace Markdown
             new Dictionary<string, Tuple<string, string>>
             {
                 [Styles.Italic] = Tuple.Create("<em>", "</em>"),
-                [Styles.Bold] = Tuple.Create("<strong>", "</strong>")
+                [Styles.Bold] = Tuple.Create("<strong>", "</strong>"),
+                [Styles.Heading] = Tuple.Create("<h1>", "</h1>")
             };
 
         public MarkdownTag(string value, int startPosition, bool isOpened)
@@ -34,9 +35,11 @@ namespace Markdown
 
         public bool IsValidTag(StringBuilder text)
         {
+            if (Value == Styles.Heading)
+                return StartPosition == 0 && IsSpacesAlongTag(text);
             if (Value == Styles.Bold || Value == Styles.Italic)
-                return !IsSpacesAlongBoldOrItalic(text) && !IsDigitsAlongBoldOrItalic(text);
-            return false;
+                return !IsSpacesAlongTag(text) && !IsDigitsAlongTag(text);
+            return true;
         }
 
         public bool IsShieldedTag(Stack<MarkdownTag> tags)
@@ -51,14 +54,14 @@ namespace Markdown
             return text[EndPosition] == text[EndPosition + 1];
         }
 
-        private bool IsSpacesAlongBoldOrItalic(StringBuilder text)
+        private bool IsSpacesAlongTag(StringBuilder text)
         {
             if (IsOpened)
                 return EndPosition + 1 < text.Length && char.IsWhiteSpace(text[EndPosition + 1]);
             return char.IsWhiteSpace(text[StartPosition - 1]);
         }
 
-        private bool IsDigitsAlongBoldOrItalic(StringBuilder text)
+        private bool IsDigitsAlongTag(StringBuilder text)
         {
             return StartPosition - 1 >= 0 && char.IsDigit(text[StartPosition - 1]) && EndPosition + 1 < text.Length
                    && char.IsDigit(text[EndPosition + 1]);

@@ -14,6 +14,15 @@ namespace Markdown
                     openedTag.StartPosition, openedTag.Length);
         }
 
+        public static StringBuilder ReplaceMarkdownTagsOnHtmlTags(this StringBuilder result, MarkdownTag openedTag)
+        {
+            return result
+                .Append(MarkdownTag.MatchingMarkdownTagsToHtmlTags[openedTag.Value].Item2)
+                .Remove(openedTag.StartPosition + 1, 1)
+                .Replace(openedTag.Value, MarkdownTag.MatchingMarkdownTagsToHtmlTags[openedTag.Value].Item1,
+                    openedTag.StartPosition, openedTag.Length);
+        }
+
         public static StringBuilder ShieldSlash(this StringBuilder resultText, MarkdownTag closedSlash,
             MarkdownTag openedSlash)
         {
