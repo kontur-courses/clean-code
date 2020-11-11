@@ -90,7 +90,40 @@ namespace MarkdownParser.Infrastructure.Tokenization
             return true;
         }
 
-        private static Token CreateDefaultToken(int startPosition, string rawValue) =>
+        private static TextToken CreateDefaultToken(int startPosition, string rawValue) =>
             new TextToken(startPosition, rawValue);
+
+        public static ICollection<Token> MergeTextTokens(IEnumerable<Token> tokens)
+        {
+            var result = new List<Token>();
+            var previousText = new List<TextToken>();
+            foreach (var token in tokens)
+            {
+                if (token is TextToken textToken)
+                {
+                    previousText.Add(textToken);
+                    continue;
+                }
+
+                if (previousText.Count != 0)
+                {
+                    result.Add(CreateMergedToken());
+                    previousText.Clear();
+                }
+
+                result.Add(token);
+            }
+            
+            if(previousText.Count != 0)
+                result.Add(CreateMergedToken());
+
+            return result;
+
+            TextToken CreateMergedToken()
+            {
+                var text = string.Join(string.Empty, previousText.Select(x => x.RawValue));
+                return CreateDefaultToken(previousText.First().StartPosition, text);
+            }
+        }
     }
 }

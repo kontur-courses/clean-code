@@ -15,5 +15,7 @@
         public int StartPosition { get; }
 
         public string RawValue { get; }
+
+        public override string ToString() => $"{GetType().Name}[{StartPosition}]: {RawValue}";
     }
 }

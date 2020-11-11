@@ -53,6 +53,12 @@ namespace MarkdownParserTests.Tokenization
             TestTokenize(tokens);
         }
 
+        [TestCaseSource(nameof(BoldItalicInteractionCases))]
+        public void BoldItalicInteractionTests(TokensCollectionBuilder tokens)
+        {
+            TestTokenize(tokens);
+        }
+
         private static IEnumerable<TestCaseData> ItalicCases => new[]
         {
             TestCase("Should create Before word", t => t.Italic().Text("abc")),
@@ -74,13 +80,43 @@ namespace MarkdownParserTests.Tokenization
             TestCase("Should not create After digit", t => t.AsText(tt => tt.Text("123").Bold())),
             TestCase("Should not create when inside whitespaces", t => t.AsText(tt => tt.Text(" ").Bold().Text(" "))),
             TestCase("Bold inside another bold", t => t.Bold().AsText(tt => tt.Bold().Text("123").Bold()).Bold()),
+            TestCase("Empty should be text", t => t.AsText(tt => tt.Bold().Bold())),
+        };
+
+        private static IEnumerable<TestCaseData> BoldItalicInteractionCases => new[]
+        {
+            TestCase("When Italic inside Bold wrap both", t => t
+                .Bold()
+                .Text("bold ")
+                .Italic().Text("italic").Italic()
+                .Text(" bold")
+                .Bold()),
+            TestCase("When Bold inside Italic treat ignore Bold", t => t
+                .Italic()
+                .Text("italic ")
+                .AsText(tt => tt.Bold().Text("bold").Bold())
+                .Text(" italic")
+                .Italic()),
+            TestCase("Ignore unpaired Bold and Italic", t => t
+                .AsText(tt => tt
+                    .Italic().Text("italic ")
+                    .Bold().Text("bold"))),
+            TestCase("Ignore crossing Bold and Italic", t => t
+                .AsText(tt => tt
+                    .Bold().Text("abc ")
+                    .Italic().Text("def ")
+                    .Bold().Text("ghi ")
+                    .Italic().Text("jkl ")))
         };
 
         private void TestTokenize(TokensCollectionBuilder tokens)
         {
+            TestContext.Out.WriteLine($"Parsing {tokens}");
             tokenizer.Tokenize(tokens.ToString())
                 .Should()
                 .BeEquivalentTo(tokens);
+            foreach (var token in tokens.ToArray())
+                TestContext.Out.WriteLine(token);
         }
 
         private static TestCaseData TestCase(string name, Action<TokensCollectionBuilder> tokenBuilder)
