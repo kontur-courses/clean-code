@@ -34,36 +34,55 @@ namespace Markdown
 
         private static IEnumerable<Element> FindBoldElements(string text)
         {
+            return FindBoldOrItalicElements(text, Md.BoldStyle);
+        }
+
+        private static IEnumerable<Element> FindItalicElements(string text)
+        {
+            return FindBoldOrItalicElements(text, Md.ItalicStyle);
+        }
+
+        private static IEnumerable<Element> FindBoldOrItalicElements(string text, Style style)
+        {
             var pointer = 0;
-            var startTag = Md.BoldStyle.StartTag;
-            var endTag = Md.BoldStyle.EndTag;
+            var startTag = style.StartTag;
+            var endTag = style.EndTag;
             var startTagPosition = text.IndexOf(startTag, pointer);
             pointer = startTagPosition + startTag.Length;
             var endTagPosition = text.IndexOf(endTag, pointer);
             pointer = endTagPosition + endTag.Length;
+
             while (true)
             {
                 if (startTagPosition == -1 || endTagPosition == -1)
                     break;
-                if (IsEmptyStringInside(Md.BoldStyle, startTagPosition, endTagPosition))
+
+                if (IsEmptyStringInside(style, startTagPosition, endTagPosition))
                 {
+                    startTagPosition = text.IndexOf(startTag, pointer);
+                    pointer = startTagPosition + startTag.Length;
+                    endTagPosition = text.IndexOf(endTag, pointer);
                     pointer = endTagPosition + endTag.Length;
                     continue;
                 }
-                if (!IsBoldStartTag(text, startTagPosition))
+
+                if (!IsBoldOrItalicStartTag(text, startTagPosition, style))
                 {
                     startTagPosition = endTagPosition;
                     endTagPosition = text.IndexOf(endTag, pointer);
                     pointer = endTagPosition + endTag.Length;
                     continue;
                 }
-                if (!IsBoldEndTag(text, endTagPosition))
+
+                if (!IsBoldOrItalicEndTag(text, endTagPosition, style))
                 {
                     endTagPosition = text.IndexOf(endTag, pointer);
                     pointer = endTagPosition + endTag.Length;
                     continue;
                 }
-                yield return Element.Create(Md.BoldStyle, startTagPosition, endTagPosition);
+
+                yield return Element.Create(style, startTagPosition, endTagPosition);
+
                 startTagPosition = text.IndexOf(startTag, pointer);
                 pointer = startTagPosition + startTag.Length;
                 endTagPosition = text.IndexOf(endTag, pointer);
@@ -71,40 +90,18 @@ namespace Markdown
             }
         }
 
-        private static IEnumerable<Element> FindItalicElements(string text)
-        {
-            var pointer = 0;
-            int startTagPosition;
-            var startTag = Md.ItalicStyle.StartTag;
-            var endTag = Md.ItalicStyle.EndTag;
-            while ((startTagPosition = text.IndexOf(Md.ItalicStyle.StartTag, pointer)) != -1)
-            {
-                pointer = startTagPosition + startTag.Length;
-                var endTagPosition = text.IndexOf(endTag, pointer);
-                if (endTagPosition == -1)
-                    break;
-                if (IsEmptyStringInside(Md.ItalicStyle, startTagPosition, endTagPosition))
-                {
-                    pointer = endTagPosition + endTag.Length;
-                    continue;
-                }
-                yield return Element.Create(Md.ItalicStyle, startTagPosition, endTagPosition);
-                pointer = endTagPosition + endTag.Length;
-            }
-        }
-
-        private static bool IsBoldStartTag(string text, int startTagPosition)
+        private static bool IsBoldOrItalicStartTag(string text, int startTagPosition, Style style)
         {
             var word = text.GetWordContainingCurrentSymbol(startTagPosition);
-            if (word.IsInside(Md.BoldStyle.StartTag, startTagPosition) && word.ContainsDigit())
+            if (word.IsInside(style.StartTag, startTagPosition) && word.ContainsDigit())
                 return false;
             return true;
         }
 
-        private static bool IsBoldEndTag(string text, int endTagPosition)
+        private static bool IsBoldOrItalicEndTag(string text, int endTagPosition, Style style)
         {
             var word = text.GetWordContainingCurrentSymbol(endTagPosition);
-            if (word.IsInside(Md.BoldStyle.StartTag, endTagPosition) && word.ContainsDigit())
+            if (word.IsInside(style.StartTag, endTagPosition) && word.ContainsDigit())
                 return false;
             return true;
         }

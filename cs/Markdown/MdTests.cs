@@ -69,7 +69,25 @@ namespace Markdown
         [TestCase("b__old1__", "b__old1__")]
         [TestCase("b__ol__d1", "b__ol__d1")]
         [TestCase("__bol__d1", "__bol__d1")]
+        [TestCase("__bol__d1__", "<strong>bol__d1</strong>")]
         public void Md_ShouldNotRenderBoldStyle_InsideWordWithDigits(string mdtext, string expectedHtmlText)
+        {
+            Md.Render(mdtext).Should().BeEquivalentTo(expectedHtmlText);
+        }
+
+        [TestCase("i_talic_", "i<em>talic</em>")]
+        [TestCase("i_tali_c", "i<em>tali</em>c")]
+        [TestCase("_itali_c", "<em>itali</em>c")]
+        public void Md_ShouldRenderItalicStyle_InsideWordWithoutDigits(string mdtext, string expectedHtmlText)
+        {
+            Md.Render(mdtext).Should().BeEquivalentTo(expectedHtmlText);
+        }
+
+        [TestCase("i_talic1_", "i_talic1_")]
+        [TestCase("i_tali_c1", "i_tali_c1")]
+        [TestCase("_itali_c1", "_itali_c1")]
+        [TestCase("_itali_c1_", "<em>itali_c1</em>")]
+        public void Md_ShouldNotRenderItalicStyle_InsideWordWithDigits(string mdtext, string expectedHtmlText)
         {
             Md.Render(mdtext).Should().BeEquivalentTo(expectedHtmlText);
         }

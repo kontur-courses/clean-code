@@ -4,7 +4,7 @@ using System.Text;
 
 namespace Markdown
 {
-    class Element
+    public class Element
     {
         public Style ElementStyle;
         public readonly int ElementStart;
