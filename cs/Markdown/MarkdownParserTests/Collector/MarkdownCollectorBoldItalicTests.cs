@@ -1,4 +1,5 @@
 using System.Collections.Generic;
+using System.Linq;
 using FluentAssertions;
 using MarkdownParser.Concrete.Bold;
 using MarkdownParser.Concrete.Default;
@@ -133,6 +134,86 @@ namespace MarkdownParserTests.Collector
                 .BeEquivalentTo(
                     new MarkdownText(tokens[0]),
                     new MarkdownText(tokens[1]));
+        }
+
+        [Test]
+        public void BoldIntersectsWithItalic_TreatBothAsText()
+        {
+            var tokens = TokensBuilder()
+                .Bold().Text("abc ")
+                .Italic().Text("def")
+                .Bold().Text(" ghi")
+                .Italic().Text(" jkl");
+
+            collector.CreateElementsFrom(tokens)
+                .Should()
+                .BeEquivalentTo(tokens.ToArray().Select(t => new MarkdownText(t)));
+        }
+
+        [Test]
+        public void BoldInDifferentWords_TreatAsText()
+        {
+            var tokens = TokensBuilder()
+                .Text("a").Bold().Text("b c").Bold().Text("d");
+
+            collector.CreateElementsFrom(tokens)
+                .Should()
+                .BeEquivalentTo(tokens.ToArray().Select(t => new MarkdownText(t)));
+        }
+
+        [Test]
+        public void OpeningBoldBeforeWhitespace_Ignored()
+        {
+            var tokens = TokensBuilder()
+                .Text("a").Bold().Text(" bc").Bold();
+
+            collector.CreateElementsFrom(tokens)
+                .Should()
+                .BeEquivalentTo(tokens.ToArray().Select(t => new MarkdownText(t)));
+        }
+
+        [Test]
+        public void ClosingBoldAfterWhitespace_Ignored()
+        {
+            var tokens = TokensBuilder()
+                .Text("a").Bold().Text("bc ").Bold();
+
+            collector.CreateElementsFrom(tokens)
+                .Should()
+                .BeEquivalentTo(tokens.ToArray().Select(t => new MarkdownText(t)));
+        }
+
+        [Test]
+        public void ItalicInDifferentWords_TreatAsText()
+        {
+            var tokens = TokensBuilder()
+                .Text("a").Italic().Text("b c").Italic().Text("d");
+
+            collector.CreateElementsFrom(tokens)
+                .Should()
+                .BeEquivalentTo(tokens.ToArray().Select(t => new MarkdownText(t)));
+        }
+
+        [Test]
+        public void OpeningItalicBeforeWhitespace_Ignored()
+        {
+            var tokens = TokensBuilder()
+                .Text("a").Italic().Text(" bc").Italic();
+
+            collector.CreateElementsFrom(tokens)
+                .Should()
+                .BeEquivalentTo(tokens.ToArray().Select(t => new MarkdownText(t)));
+        }
+
+        [Test]
+        public void ClosingItalicAfterWhitespace_Ignored()
+        {
+            var tokens = TokensBuilder()
+                .Text("a").Italic().Text("bc ").Italic();
+
+            collector.CreateElementsFrom(tokens)
+                .Should()
+                .BeEquivalentTo(tokens.ToArray().Select(t => new MarkdownText(t)));
         }
 
         private static TokensCollectionBuilder TokensBuilder() => new TokensCollectionBuilder();
