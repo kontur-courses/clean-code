@@ -13,12 +13,12 @@ namespace Markdown
             [new TagEm().StringMd] = new TagEm(),
             [new TagStrong().StringMd] = new TagStrong()
         };
-        internal static ITagConverter GetTagConverter(string text, int position)
+        internal static ConverterInfo GetTagConverter(string text, int position)
         {
             var tagMd = GetTagMd(text, position);
             if(tagMd == null)
-                return new EmptyTagConverter();
-            return tagConverters[tagMd];
+                return new ConverterInfo(new EmptyTagConverter(), text, position);
+            return new ConverterInfo(tagConverters[tagMd], text, position);
         }
 
         private static string GetTagMd(string text, int position)

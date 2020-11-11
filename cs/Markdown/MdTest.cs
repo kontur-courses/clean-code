@@ -28,5 +28,11 @@ namespace Markdown
         {
             return Md.Render(text);
         }
+
+        [TestCase("__some text__ a _some text_", ExpectedResult = @"<strong>some text<\strong> a <em>some text<\em>")]
+        public string Test_TextWithSimpleCombineTagsStrongAndEm(string text)
+        {
+            return Md.Render(text);
+        }
     }
 }
