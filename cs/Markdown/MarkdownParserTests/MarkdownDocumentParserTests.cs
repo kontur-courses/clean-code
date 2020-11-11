@@ -97,7 +97,8 @@ namespace MarkdownParserTests
                 .ContainSingle()
                 .Which
                 .Should()
-                .BeEquivalentTo(new MarkdownText(new BoldToken(0, "__")),
+                .BeEquivalentTo(
+                    new MarkdownText(new BoldToken(0, "__")),
                     because: "__ это тег жирного текста, это нормальное поведение");
         }
     }

@@ -36,6 +36,9 @@ namespace MarkdownParser.Infrastructure.Tokenization
         public static bool HasFlags(this TokenPosition source, params TokenPosition[] flags) =>
             flags.All(f => source.HasFlag(f));
 
+        public static TokenPosition GetPosition(this TokenizationContext context, string tokenSymbol) =>
+            GetPosition(context.Source, context.CurrentStartIndex, tokenSymbol.Length);
+
         public static TokenPosition GetPosition(string rawInput, int currentIndex, int symbolLength)
         {
             var nextIndex = currentIndex + symbolLength;
@@ -50,7 +53,7 @@ namespace MarkdownParser.Infrastructure.Tokenization
             return GetPosition(previous, next);
         }
 
-        private static TokenPosition GetPosition(char? previous, char? next)
+        public static TokenPosition GetPosition(char? previous, char? next)
         {
             TokenPosition position = default;
             position |= next.HasValue
@@ -63,7 +66,7 @@ namespace MarkdownParser.Infrastructure.Tokenization
             return position;
         }
 
-        private static TokenPosition GetNextCharFlags(char next)
+        public static TokenPosition GetNextCharFlags(char next)
         {
             TokenPosition result = default;
             if (char.IsWhiteSpace(next))
@@ -80,7 +83,7 @@ namespace MarkdownParser.Infrastructure.Tokenization
             return result;
         }
 
-        private static TokenPosition GetPreviousCharFlags(char previous)
+        public static TokenPosition GetPreviousCharFlags(char previous)
         {
             TokenPosition result = default;
             if (char.IsWhiteSpace(previous))

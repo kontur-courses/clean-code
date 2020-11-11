@@ -4,7 +4,8 @@ namespace MarkdownParser.Concrete.Bold
 {
     public class BoldToken : Token
     {
-        public BoldToken(int startPosition, string rawValue) : base(startPosition, rawValue)
+        public BoldToken(int startPosition, string rawValue) : base(startPosition,
+            rawValue)
         {
         }
     }

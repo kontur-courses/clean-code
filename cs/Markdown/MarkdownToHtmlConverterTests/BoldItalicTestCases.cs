@@ -20,9 +20,8 @@ namespace MarkdownToHtmlConverterTests
             ("Ignore {0} inside of different words", "firs{2}t sec{2}ond", "firs{2}t sec{2}ond"),
             ("Process {0} in start of word", "{2}s{2}tart", "<{1}>s</{1}>tart"),
             ("Process {0} at end of word", "en{2}d{2}", "en<{1}>d</{1}>"),
-            ("Ignore opening {0} before Space char", " ignore{2} before{2} whitespace",
-                " ignore{2} before{2} whitespace"),
-            ("Ignore closing {0} after Space char", " ignore {2}after {2}whitespace", " ignore {2}after {2}whitespace"),
+            ("Ignore open {0} before Space char", "ignore{2} before{2} whitespace", "ignore{2} before{2} whitespace"),
+            ("Ignore closing {0} after Space char", "ignore {2}after {2}whitespace", "ignore {2}after {2}whitespace"),
             ("Ignore empty {0}", "{2}{2}", "{2}{2}"),
         };
 

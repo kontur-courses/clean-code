@@ -6,7 +6,7 @@
     /// </summary>
     public abstract class Token
     {
-        public Token(int startPosition, string rawValue)
+        protected Token(int startPosition, string rawValue)
         {
             StartPosition = startPosition;
             RawValue = rawValue;

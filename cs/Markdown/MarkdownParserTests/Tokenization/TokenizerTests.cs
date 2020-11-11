@@ -55,7 +55,8 @@ namespace MarkdownParserTests.Tokenization
                 .ContainSingle()
                 .Which
                 .Should()
-                .BeEquivalentTo(new BoldToken(0, "__"), "Потому что это символ жирного текста, это нормально");
+                .BeEquivalentTo(new BoldToken(0, "__"),
+                    "Потому что это символ жирного текста, это нормально");
         }
 
         [TestCaseSource(nameof(BoldCases))]

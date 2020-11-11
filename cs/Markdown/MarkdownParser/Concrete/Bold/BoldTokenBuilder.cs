@@ -10,13 +10,14 @@ namespace MarkdownParser.Concrete.Bold
 
         public override BoldToken Create(TokenizationContext context)
         {
-            return new BoldToken(context.CurrentStartIndex,
+            return new BoldToken(
+                context.CurrentStartIndex,
                 context.Source.Substring(context.CurrentStartIndex, TokenSymbol.Length));
         }
 
         public override bool CanCreate(TokenizationContext context)
         {
-            var position = TokenHelpers.GetPosition(context.Source, context.CurrentStartIndex, TokenSymbol.Length);
+            var position = context.GetPosition(TokenSymbol);
             return !position.InsideDigit() &&
                    !position.OnDigitBorder() &&
                    !position.WhitespaceFramed();

@@ -8,13 +8,16 @@ namespace MarkdownParser.Concrete.Italic
     {
         public override string TokenSymbol { get; } = "_";
 
-        public override ItalicToken Create(TokenizationContext context) =>
-            new ItalicToken(context.CurrentStartIndex,
+        public override ItalicToken Create(TokenizationContext context)
+        {
+            return new ItalicToken(
+                context.CurrentStartIndex,
                 context.Source.Substring(context.CurrentStartIndex, TokenSymbol.Length));
+        }
 
         public override bool CanCreate(TokenizationContext context)
         {
-            var position = TokenHelpers.GetPosition(context.Source, context.CurrentStartIndex, TokenSymbol.Length);
+            var position = context.GetPosition(TokenSymbol);
             return !position.InsideDigit() &&
                    !position.OnDigitBorder() &&
                    !position.WhitespaceFramed();
