@@ -43,5 +43,18 @@ namespace Markdown
         {
             return Md.Render(text);
         }
+
+        [TestCase(@"__twise _once_ twise__", ExpectedResult = @"<strong>twise <em>once<\em> twise<\strong>")]
+        [TestCase(@"___some text___", ExpectedResult = @"<strong><em>some text<\em><\strong>")]
+        public string Test_TextTagEmInStrong(string text)
+        {
+            return Md.Render(text);
+        }
+
+        [TestCase(@"_once __twise__ once_", ExpectedResult = @"<em>once <\em><em>twise<\em><em> once<\em>")]
+        public string Test_TextTagStrongInEm(string text)
+        {
+            return Md.Render(text);
+        }
     }
 }

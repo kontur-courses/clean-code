@@ -10,14 +10,27 @@ namespace Markdown.TagConverters
 
         public override TagMd Md => TagMd.__;
 
+        private static readonly HashSet<string> tags = new HashSet<string>() { "_" };
+
         public override StringOfset Convert(string text, int position)
         {
             var result = new StringBuilder();
             result.Append(OpenTag());
             int pos;
-            for (pos = position + LengthMd; text.Substring(pos, LengthMd) != StringMd; pos++)
+            int ofset;
+            string tag;
+            for (pos = position + LengthMd; text.Substring(pos, LengthMd) != StringMd; pos += ofset)
             {
+                tag = TagsAssociation.GetTagMd(text, pos, tags);
+                if (tag != null)
+                {
+                    var stringOfset = TagsAssociation.tagConverters[tag].Convert(text, pos);
+                    result.Append(stringOfset.text);
+                    ofset = stringOfset.ofset;
+                    continue;
+                }
                 result.Append(text[pos].ToString());
+                ofset = 1;
             }
             result.Append(CloseTag());
             return new StringOfset(result.ToString(), pos - position + LengthMd);
