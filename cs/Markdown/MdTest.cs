@@ -34,5 +34,14 @@ namespace Markdown
         {
             return Md.Render(text);
         }
+
+        [TestCase(@"\_some text\_", ExpectedResult = @"_some text_")]
+        [TestCase(@"\__some text_\_", ExpectedResult = @"_<em>some text<\em>_")]
+        [TestCase(@"\te\xt", ExpectedResult = @"\te\xt")]
+        [TestCase(@"\\_some text_", ExpectedResult = @"\<em>some text<\em>")]
+        public string Test_TextWithShield(string text)
+        {
+            return Md.Render(text);
+        }
     }
 }

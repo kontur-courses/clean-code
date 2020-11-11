@@ -8,10 +8,11 @@ namespace Markdown
 {
     internal static class TagsAssociation
     {
-        private static readonly Dictionary<string, ITagConverter> tagConverters = new Dictionary<string, ITagConverter>()
+        internal static readonly Dictionary<string, ITagConverter> tagConverters = new Dictionary<string, ITagConverter>()
         {
             [new TagEm().StringMd] = new TagEm(),
-            [new TagStrong().StringMd] = new TagStrong()
+            [new TagStrong().StringMd] = new TagStrong(),
+            [@"\"] = new TagShield()
         };
         internal static ConverterInfo GetTagConverter(string text, int position)
         {
