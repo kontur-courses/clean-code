@@ -91,5 +91,35 @@ namespace Markdown
         {
             Md.Render(mdtext).Should().BeEquivalentTo(expectedHtmlText);
         }
+
+        [Test]
+        public void Md_ShouldRenderItalicStyle_WithMoreThanOneWordsInContent()
+        {
+            Md.Render("_italic italic_").Should().BeEquivalentTo("<em>italic italic</em>");
+        }
+
+        [Test]
+        public void Md_ShouldRenderBoldStyle_WithMoreThanOneWordsInContent()
+        {
+            Md.Render("__bold bold__").Should().BeEquivalentTo("<strong>bold bold</strong>");
+        }
+
+        [Test]
+        public void Md_ShouldNotRenderItalicStyle_WithStartAndEndInsideDifferentWords()
+        {
+            Md.Render("i_talic itali_c").Should().BeEquivalentTo("i_talic itali_c");
+        }
+
+        [Test]
+        public void Md_ShouldNotRenderBoldStyle_WithStartAndEndInsideDifferentWords()
+        {
+            Md.Render("b_old bol_d").Should().BeEquivalentTo("b_old bol_d");
+        }
+
+        //[Test]
+        //public void Md_ShoudNotRenderBoldStyle_InItalictyle()
+        //{
+        //    Md.Render("_ita__bold__ld_").Should().BeEquivalentTo("<em>ita__bold__ld</em>");
+        //}
     }
 }

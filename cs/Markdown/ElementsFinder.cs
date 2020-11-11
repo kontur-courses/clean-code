@@ -81,6 +81,14 @@ namespace Markdown
                     continue;
                 }
 
+                if (!IsBoldOrItalicTagPair(text, startTagPosition, endTagPosition, style))
+                {
+                    startTagPosition = endTagPosition;
+                    endTagPosition = text.IndexOf(endTag, pointer);
+                    pointer = endTagPosition + endTag.Length;
+                    continue;
+                }
+
                 yield return Element.Create(style, startTagPosition, endTagPosition);
 
                 startTagPosition = text.IndexOf(startTag, pointer);
@@ -103,6 +111,19 @@ namespace Markdown
             var word = text.GetWordContainingCurrentSymbol(endTagPosition);
             if (word.IsInside(style.StartTag, endTagPosition) && word.ContainsDigit())
                 return false;
+            return true;
+        }
+
+        private static bool IsBoldOrItalicTagPair(string text, int startTagPosition, int endTagPosition, Style style)
+        {
+            var startWord = text.GetWordContainingCurrentSymbol(startTagPosition);
+            var endWord = text.GetWordContainingCurrentSymbol(endTagPosition);
+            if (!startWord.Equals(endWord))
+            {
+                if (startWord.IsInside(style.StartTag, startTagPosition)
+                    || endWord.IsInside(style.EndTag, endTagPosition))
+                    return false;
+            }
             return true;
         }
 
