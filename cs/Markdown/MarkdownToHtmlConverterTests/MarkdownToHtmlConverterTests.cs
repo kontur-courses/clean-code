@@ -2,8 +2,8 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using FluentAssertions;
-using HtmlMarkdownRenderer;
 using NUnit.Framework;
+using Rendering;
 
 namespace MarkdownToHtmlConverterTests
 {
@@ -17,19 +17,46 @@ namespace MarkdownToHtmlConverterTests
         [SetUp]
         public void Setup()
         {
-            converter = new HtmlMarkdownConverter();
+            converter = Md.Html;
         }
 
         [TestCaseSource(nameof(FilesTestCases))]
-        [TestCaseSource(typeof(GeneralTestCases), nameof(GeneralTestCases.PrimitiveCases))]
-        [TestCaseSource(typeof(BoldItalicTestCases), nameof(BoldItalicTestCases.BoldTests))]
-        [TestCaseSource(typeof(BoldItalicTestCases), nameof(BoldItalicTestCases.ItalicTests))]
-        [TestCaseSource(typeof(BoldItalicTestCases), nameof(BoldItalicTestCases.BoldItalicInteractionTests))]
-        public void ConverterShould(string md, string expectedHtml)
+        public void FileBasedTests(string md, string expectedHtml)
         {
-            converter.ConvertToHtml(md)
+            TestConverter(md, expectedHtml);
+        }
+
+        [TestCaseSource(typeof(GeneralTestCases), nameof(GeneralTestCases.PrimitiveCases))]
+        public void BasicTests(string md, string expectedHtml)
+        {
+            TestConverter(md, expectedHtml);
+        }
+
+        [TestCaseSource(typeof(BoldItalicTestCases), nameof(BoldItalicTestCases.BoldTests))]
+        public void BoldTests(string md, string expectedHtml)
+        {
+            TestConverter(md, expectedHtml);
+        }
+
+        [TestCaseSource(typeof(BoldItalicTestCases), nameof(BoldItalicTestCases.ItalicTests))]
+        public void ItalicTests(string md, string expectedHtml)
+        {
+            TestConverter(md, expectedHtml);
+        }
+
+        [TestCaseSource(typeof(BoldItalicTestCases), nameof(BoldItalicTestCases.BoldItalicInteractionTests))]
+        public void BoldItalicInteractionTests(string md, string expectedHtml)
+        {
+            TestConverter(md, expectedHtml);
+        }
+
+        private void TestConverter(string md, string expectedHtml)
+        {
+            TestContext.Progress.WriteLine(md);
+            converter.Convert(md)
                 .Should()
                 .Be(expectedHtml);
+            TestContext.Progress.WriteLine(expectedHtml);
         }
 
         private static IEnumerable<TestCaseData> FilesTestCases => ReadTestingFilesFrom(testCasesFolder)

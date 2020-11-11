@@ -13,7 +13,7 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Markdown", "Markdown", "{11
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MarkdownParser", "Markdown\MarkdownParser\MarkdownParser.csproj", "{BD308053-2AF3-4687-A971-B93BCCEC50E9}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "HtmlMarkdownRenderer", "Markdown\HtmlMarkdownRenderer\HtmlMarkdownRenderer.csproj", "{DA8E8A6C-FB67-4903-A92A-0DC57546483D}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Rendering", "Markdown\Rendering\Rendering.csproj", "{DA8E8A6C-FB67-4903-A92A-0DC57546483D}"
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Tests", "Tests", "{4F0F7AFE-B0AD-4582-A52E-7984A31A6DBD}"
 EndProject
