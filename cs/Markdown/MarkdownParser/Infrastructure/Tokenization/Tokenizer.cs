@@ -1,6 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Globalization;
+﻿using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using MarkdownParser.Concrete.Default;
@@ -18,40 +16,56 @@ namespace MarkdownParser.Infrastructure.Tokenization
             this.tokenBuilders = tokenBuilders.ToArray();
         }
 
-        public ICollection<Token> Tokenize(string rawInput)
+        public IEnumerable<Token> Tokenize(string rawInput)
         {
-            var tokens = new List<Token>();
             var textTokenBuilder = new StringBuilder();
-
             for (var i = 0; i < rawInput.Length; i++)
             {
-                var position = GetPosition(rawInput, i);
-                var context = new TokenizationContext(rawInput, i, position);
-
+                var context = new TokenizationContext(rawInput, i, GetPosition(rawInput, i));
                 if (TryCreateTokenFrom(context, out var token))
                 {
-                    if(textTokenBuilder.Length != 0)
-                        tokens.Add(CreateDefault(i - textTokenBuilder.Length, textTokenBuilder.ToString()));
-                    tokens.Add(token);
+                    if (textTokenBuilder.Length != 0)
+                    {
+                        yield return CreateDefault(i - textTokenBuilder.Length, textTokenBuilder.ToString());
+                        textTokenBuilder.Clear();
+                    }
+
+                    yield return token;
                     i += token.RawText.Length - 1; // эти символы мы уже "прошли" внутри TryCreate, пропускаем
                 }
                 else textTokenBuilder.Append(rawInput[i]);
             }
 
-            return tokens;
+            if (textTokenBuilder.Length != 0)
+                yield return CreateDefault(rawInput.Length - textTokenBuilder.Length, textTokenBuilder.ToString());
         }
 
         private bool TryCreateTokenFrom(TokenizationContext context, out Token created)
         {
-            var validBuilders = tokenBuilders.Where(tb => tb.CanCreateOnPosition(context.TokenPosition)).ToArray();
-            if (validBuilders.Length == 0)
+            var validBuilders = tokenBuilders.Where(tb => tb.CanCreateOnPosition(context.TokenPosition)).ToList();
+            if (validBuilders.Count == 0)
             {
                 created = default;
                 return false;
             }
 
+            var textBuilder = new StringBuilder();
+            for (var i = context.CurrentStartIndex; i < context.Source.Length; i++)
+            {
+                var currentText = textBuilder.Append(context.Source[i]).ToString();
+                validBuilders.RemoveAll(b => !b.TokenSymbol.StartsWith(currentText)); // TODO optimize & refactor
+                if (validBuilders.Count == 1)
+                {
+                    created = validBuilders[0].Create(context);
+                    return true;
+                }
 
-            throw new NotImplementedException(); //TODO implement
+                if (validBuilders.Count == 0)
+                    break;
+            }
+
+            created = default;
+            return false;
         }
 
         private static Token CreateDefault(int startPosition, string rawText) =>
@@ -59,46 +73,16 @@ namespace MarkdownParser.Infrastructure.Tokenization
 
         private static TokenPosition GetPosition(string rawInput, int currentIndex)
         {
-            TokenPosition position = default;
-            if (currentIndex + 1 < rawInput.Length)
-                position |= GetNextCharFlags(rawInput[currentIndex + 1]);
-            if (currentIndex > 0)
-                position |= GetPreviousCharFlags(rawInput[currentIndex - 1]);
-            return position;
-        }
+            var nextIndex = currentIndex + 1;
+            var next = nextIndex == rawInput.Length
+                ? (char?) null
+                : rawInput[nextIndex];
 
-        private static TokenPosition GetNextCharFlags(char next)
-        {
-            TokenPosition result = default;
-            if (char.IsWhiteSpace(next))
-                result |= TokenPosition.BeforeWhitespace;
-            if (char.IsDigit(next))
-                result |= TokenPosition.BeforeDigit;
-            if (char.IsLetter(next))
-                result |= TokenPosition.BeforeWord;
+            var previous = currentIndex == 0
+                ? (char?) null
+                : rawInput[currentIndex - 1];
 
-            var nextCategory = char.GetUnicodeCategory(next);
-            if (nextCategory == UnicodeCategory.LineSeparator || nextCategory == UnicodeCategory.ParagraphSeparator)
-                result |= TokenPosition.ParagraphEnd;
-
-            return result;
-        }
-
-        private static TokenPosition GetPreviousCharFlags(char previous)
-        {
-            TokenPosition result = default;
-            if (char.IsWhiteSpace(previous))
-                result |= TokenPosition.AfterWhitespace;
-            if (char.IsDigit(previous))
-                result |= TokenPosition.AfterDigit;
-            if (char.IsLetter(previous))
-                result |= TokenPosition.AfterWord;
-
-            var nextCategory = char.GetUnicodeCategory(previous);
-            if (nextCategory == UnicodeCategory.LineSeparator || nextCategory == UnicodeCategory.ParagraphSeparator)
-                result |= TokenPosition.ParagraphStart;
-
-            return result;
+            return TokenHelpers.GetPosition(previous, next);
         }
     }
 }
