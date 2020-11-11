@@ -1,15 +1,11 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Text;
-
-namespace Markdown
+﻿namespace Markdown
 {
-    public class Tag
+    public class HtmlTag
     {
         public readonly string Opening;
         public readonly string Ending;
 
-        public Tag(string name)
+        public HtmlTag(string name)
         {
             Opening = $"<{name}>";
             Ending = $"</{name}>";
