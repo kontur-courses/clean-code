@@ -7,23 +7,19 @@ namespace Markdown
 {
     public class TokenReader
     {
-        private readonly Dictionary<char, ITokenParser> tokenParsers;
-
-        public TokenReader()
-        {
-            tokenParsers = new Dictionary<char, ITokenParser>();
-            InitParsers();
-        }
-
-        private void InitParsers()
-        {
-            tokenParsers['_'] = new ItalicParser();
-            // .....
-        }
+        private static HashSet<string> formattingCharacters = new HashSet<string> { "_", "__", "#" };
 
         public IEnumerable<Token> ReadTokens(string text)
         {
-            throw new NotImplementedException();
+            var pareserOperator = new ParserOperator();
+            foreach (var part in text.SplitKeppSeparators(new[] { '_', '#' }))
+                pareserOperator.AddTokenPart(part);
+            return pareserOperator.GetTokens();
+        }
+
+        public static bool IsFormattingString(string c)
+        {
+            return formattingCharacters.Contains(c);
         }
     }
 }

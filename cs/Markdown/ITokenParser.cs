@@ -6,6 +6,6 @@ namespace Markdown
 {
     public interface ITokenParser
     {
-        public Token ParseToken(string text, int position);
+        public Token ParseToken(IEnumerable<string> text, int position);
     }
 }

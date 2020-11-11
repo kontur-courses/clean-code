@@ -6,9 +6,15 @@ namespace Markdown.Parsers
 {
     public class ItalicParser : ITokenParser
     {
-        public Token ParseToken(string text, int position)
+        public Token ParseToken(IEnumerable<string> text, int position)
         {
-            throw new NotImplementedException();
+            var tokenValue = new StringBuilder();
+            foreach (var part in text)
+            {
+                tokenValue.Append(part);
+            }
+            var token = new Token(position, tokenValue.ToString(), TokenType.Italic);
+            return token;
         }
     }
 }

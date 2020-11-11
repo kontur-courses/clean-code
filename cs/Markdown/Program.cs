@@ -6,7 +6,11 @@ namespace Markdown
     {
         static void Main(string[] args)
         {
-            Console.WriteLine("Hello World!");
+            var c = "#abcd".SplitKeppSeparators(new[] { '#' });
+            foreach (var item in "__asd__sdf_a_____".SplitKeppSeparators(new[] { '_'}))
+            {
+                Console.WriteLine(item);
+            }
         }
     }
 }
