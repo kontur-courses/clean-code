@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using MarkdownParser.Concrete.Default;
@@ -21,68 +22,75 @@ namespace MarkdownParser.Infrastructure.Tokenization
             var textTokenBuilder = new StringBuilder();
             for (var i = 0; i < rawInput.Length; i++)
             {
-                var context = new TokenizationContext(rawInput, i, GetPosition(rawInput, i));
-                if (TryCreateTokenFrom(context, out var token))
+                var context = new TokenizationContext(rawInput, i);
+                if (TryCreateTokenFrom(tokenBuilders, context, out var token))
                 {
                     if (textTokenBuilder.Length != 0)
                     {
-                        yield return CreateDefault(i - textTokenBuilder.Length, textTokenBuilder.ToString());
+                        yield return CreateDefaultToken(i - textTokenBuilder.Length, textTokenBuilder.ToString());
                         textTokenBuilder.Clear();
                     }
 
                     yield return token;
-                    i += token.RawText.Length - 1; // эти символы мы уже "прошли" внутри TryCreate, пропускаем
+                    i += token.RawValue.Length - 1; // эти символы мы уже "прошли" внутри TryCreate, пропускаем
                 }
                 else textTokenBuilder.Append(rawInput[i]);
             }
 
             if (textTokenBuilder.Length != 0)
-                yield return CreateDefault(rawInput.Length - textTokenBuilder.Length, textTokenBuilder.ToString());
+                yield return CreateDefaultToken(rawInput.Length - textTokenBuilder.Length, textTokenBuilder.ToString());
         }
 
-        private bool TryCreateTokenFrom(TokenizationContext context, out Token created)
+        // TODO rewrite this method to make it more readable
+        private static bool TryCreateTokenFrom(ICollection<ITokenBuilder> tokenBuilders, TokenizationContext context,
+            out Token token)
         {
-            var validBuilders = tokenBuilders.Where(tb => tb.CanCreateOnPosition(context.TokenPosition)).ToList();
-            if (validBuilders.Count == 0)
+            // take text from source until text end, or limit iterations count with max TokenSymbol length
+            var upperBound = Math.Min(
+                context.CurrentStartIndex + tokenBuilders.Max(tb => tb.TokenSymbol.Length),
+                context.Source.Length);
+            var toRemove = new List<ITokenBuilder>();
+            tokenBuilders = tokenBuilders.ToList();
+
+            ITokenBuilder currentTokenBuilder = null;
+            var text = new StringBuilder();
+            for (var i = context.CurrentStartIndex; i < upperBound; i++)
             {
-                created = default;
+                text.Append(context.Source[i]);
+                foreach (var builder in tokenBuilders)
+                {
+                    if (builder.TokenSymbol.StartsWith(text.ToString()))
+                    {
+                        if (builder.TokenSymbol.Length != text.Length) continue;
+                        if (currentTokenBuilder?.TokenSymbol.Length == builder.TokenSymbol.Length)
+                            throw new InvalidOperationException($"Multiple matching builders found for {text}");
+                        currentTokenBuilder = builder;
+                        toRemove.Add(builder);
+                    }
+                    else
+                        toRemove.Add(builder);
+                }
+
+                foreach (var builder in toRemove)
+                    tokenBuilders.Remove(builder);
+                toRemove.Clear();
+            }
+
+            if (currentTokenBuilder == null)
+            {
+                token = default;
                 return false;
             }
 
-            var textBuilder = new StringBuilder();
-            for (var i = context.CurrentStartIndex; i < context.Source.Length; i++)
-            {
-                var currentText = textBuilder.Append(context.Source[i]).ToString();
-                validBuilders.RemoveAll(b => !b.TokenSymbol.StartsWith(currentText)); // TODO optimize & refactor
-                if (validBuilders.Count == 1)
-                {
-                    created = validBuilders[0].Create(context);
-                    return true;
-                }
-
-                if (validBuilders.Count == 0)
-                    break;
-            }
-
-            created = default;
-            return false;
+            if (currentTokenBuilder.CanCreate(context))
+                token = currentTokenBuilder.Create(context);
+            else
+                token = CreateDefaultToken(context.CurrentStartIndex,
+                    text.ToString().Substring(0, currentTokenBuilder.TokenSymbol.Length));
+            return true;
         }
 
-        private static Token CreateDefault(int startPosition, string rawText) =>
-            new TextToken(startPosition, rawText);
-
-        private static TokenPosition GetPosition(string rawInput, int currentIndex)
-        {
-            var nextIndex = currentIndex + 1;
-            var next = nextIndex == rawInput.Length
-                ? (char?) null
-                : rawInput[nextIndex];
-
-            var previous = currentIndex == 0
-                ? (char?) null
-                : rawInput[currentIndex - 1];
-
-            return TokenHelpers.GetPosition(previous, next);
-        }
+        private static Token CreateDefaultToken(int startPosition, string rawValue) =>
+            new TextToken(startPosition, rawValue);
     }
 }

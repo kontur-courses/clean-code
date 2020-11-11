@@ -6,14 +6,14 @@
     /// </summary>
     public abstract class Token
     {
-        public Token(int startPosition, string rawText)
+        public Token(int startPosition, string rawValue)
         {
             StartPosition = startPosition;
-            RawText = rawText;
+            RawValue = rawValue;
         }
 
         public int StartPosition { get; }
 
-        public string RawText { get; }
+        public string RawValue { get; }
     }
 }

@@ -11,7 +11,7 @@ namespace MarkdownParser.Infrastructure.Tokenization
 
         public static bool InsideDigit(this TokenPosition source) =>
             source.HasFlags(TokenPosition.AfterDigit, TokenPosition.BeforeDigit);
-        
+
         public static bool AtDigitBegin(this TokenPosition source) =>
             source.HasFlags(TokenPosition.BeforeDigit);
 
@@ -36,7 +36,21 @@ namespace MarkdownParser.Infrastructure.Tokenization
         public static bool HasFlags(this TokenPosition source, params TokenPosition[] flags) =>
             flags.All(f => source.HasFlag(f));
 
-        public static TokenPosition GetPosition(char? previous, char? next)
+        public static TokenPosition GetPosition(string rawInput, int currentIndex, int symbolLength)
+        {
+            var nextIndex = currentIndex + symbolLength;
+            var next = nextIndex >= rawInput.Length
+                ? (char?) null
+                : rawInput[nextIndex];
+
+            var previous = currentIndex == 0
+                ? (char?) null
+                : rawInput[currentIndex - 1];
+
+            return GetPosition(previous, next);
+        }
+
+        private static TokenPosition GetPosition(char? previous, char? next)
         {
             TokenPosition position = default;
             position |= next.HasValue

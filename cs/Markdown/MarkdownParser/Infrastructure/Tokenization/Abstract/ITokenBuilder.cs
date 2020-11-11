@@ -6,6 +6,6 @@ namespace MarkdownParser.Infrastructure.Tokenization.Abstract
     {
         string TokenSymbol { get; }
         Token Create(TokenizationContext context);
-        bool CanCreateOnPosition(TokenPosition position);
+        bool CanCreate(TokenizationContext context);
     }
 }

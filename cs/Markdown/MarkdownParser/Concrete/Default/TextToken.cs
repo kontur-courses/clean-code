@@ -4,7 +4,7 @@ namespace MarkdownParser.Concrete.Default
 {
     public class TextToken : Token
     {
-        public TextToken(int startPosition, string rawText) : base(startPosition, rawText)
+        public TextToken(int startPosition, string rawValue) : base(startPosition, rawValue)
         {
         }
     }

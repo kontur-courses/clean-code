@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using FluentAssertions;
+using MarkdownParser.Concrete.Bold;
 using MarkdownParser.Concrete.Italic;
 using MarkdownParser.Infrastructure.Tokenization;
 using MarkdownParser.Infrastructure.Tokenization.Abstract;
@@ -12,13 +13,15 @@ namespace MarkdownParserTests.Tokenization
     public class Tokenizer_TokenizeShould
     {
         private Tokenizer tokenizer;
-        private TestingTokenBuilder tokenBuilder;
 
         [SetUp]
         public void SetUp()
         {
-            tokenBuilder = new TestingTokenBuilder {TokenSymbol = "impossible_symbol_here"};
-            tokenizer = new Tokenizer(new ITokenBuilder[] {new ItalicTokenBuilder()});
+            tokenizer = new Tokenizer(new ITokenBuilder[]
+            {
+                new ItalicTokenBuilder(),
+                new BoldTokenBuilder(),
+            });
         }
 
         [Test]
@@ -41,9 +44,13 @@ namespace MarkdownParserTests.Tokenization
         [TestCaseSource(nameof(ItalicCases))]
         public void ItalicTests(TokensCollectionBuilder tokens)
         {
-            tokenizer.Tokenize(tokens.ToString())
-                .Should()
-                .BeEquivalentTo(tokens);
+            TestTokenize(tokens);
+        }
+
+        [TestCaseSource(nameof(BoldCases))]
+        public void BoldTests(TokensCollectionBuilder tokens)
+        {
+            TestTokenize(tokens);
         }
 
         private static IEnumerable<TestCaseData> ItalicCases => new[]
@@ -51,11 +58,30 @@ namespace MarkdownParserTests.Tokenization
             TestCase("Should create Before word", t => t.Italic().Text("abc")),
             TestCase("Should create After word", t => t.Text("abc").Italic()),
             TestCase("Should create Inside word", t => t.Text("abc").Italic().Text("def")),
-            TestCase("Should not create Inside digit", t => t.Text(tt => tt.Text("123").Italic().Text("456"))),
-            TestCase("Should not create Before digit", t => t.Text(tt => tt.Italic().Text("123"))),
-            TestCase("Should not create After digit", t => t.Text(tt => tt.Text("123").Italic())),
-            TestCase("Should not create when inside whitespaces", t => t.Text(tt => tt.Text(" ").Italic().Text(" "))),
+            TestCase("Should not create Inside digit", t => t.AsText(tt => tt.Text("123").Italic().Text("456"))),
+            TestCase("Should not create Before digit", t => t.AsText(tt => tt.Italic().Text("123"))),
+            TestCase("Should not create After digit", t => t.AsText(tt => tt.Text("123").Italic())),
+            TestCase("Should not create when inside whitespaces", t => t.AsText(tt => tt.Text(" ").Italic().Text(" "))),
         };
+
+        private static IEnumerable<TestCaseData> BoldCases => new[]
+        {
+            TestCase("Should create Before word", t => t.Bold().Text("abc")),
+            TestCase("Should create After word", t => t.Text("abc").Bold()),
+            TestCase("Should create Inside word", t => t.Text("abc").Bold().Text("def")),
+            TestCase("Should not create Inside digit", t => t.AsText(tt => tt.Text("123").Bold().Text("456"))),
+            TestCase("Should not create Before digit", t => t.AsText(tt => tt.Bold().Text("123"))),
+            TestCase("Should not create After digit", t => t.AsText(tt => tt.Text("123").Bold())),
+            TestCase("Should not create when inside whitespaces", t => t.AsText(tt => tt.Text(" ").Bold().Text(" "))),
+            TestCase("Bold inside another bold", t => t.Bold().AsText(tt => tt.Bold().Text("123").Bold()).Bold()),
+        };
+
+        private void TestTokenize(TokensCollectionBuilder tokens)
+        {
+            tokenizer.Tokenize(tokens.ToString())
+                .Should()
+                .BeEquivalentTo(tokens);
+        }
 
         private static TestCaseData TestCase(string name, Action<TokensCollectionBuilder> tokenBuilder)
         {

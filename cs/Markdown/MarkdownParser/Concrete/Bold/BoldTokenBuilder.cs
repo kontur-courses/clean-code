@@ -1,4 +1,5 @@
-﻿using MarkdownParser.Infrastructure.Tokenization.Abstract;
+﻿using MarkdownParser.Infrastructure.Tokenization;
+using MarkdownParser.Infrastructure.Tokenization.Abstract;
 using MarkdownParser.Infrastructure.Tokenization.Models;
 
 namespace MarkdownParser.Concrete.Bold
@@ -9,12 +10,16 @@ namespace MarkdownParser.Concrete.Bold
 
         public override BoldToken Create(TokenizationContext context)
         {
-            throw new System.NotImplementedException();
+            return new BoldToken(context.CurrentStartIndex,
+                context.Source.Substring(context.CurrentStartIndex, TokenSymbol.Length));
         }
 
-        public override bool CanCreateOnPosition(TokenPosition position)
+        public override bool CanCreate(TokenizationContext context)
         {
-            throw new System.NotImplementedException();
+            var position = TokenHelpers.GetPosition(context.Source, context.CurrentStartIndex, TokenSymbol.Length);
+            return !position.InsideDigit() &&
+                   !position.OnDigitBorder() &&
+                   !position.WhitespaceFramed();
         }
     }
 }

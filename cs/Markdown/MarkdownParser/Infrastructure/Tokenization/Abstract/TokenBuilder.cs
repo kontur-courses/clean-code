@@ -9,6 +9,6 @@ namespace MarkdownParser.Infrastructure.Tokenization.Abstract
         public abstract TToken Create(TokenizationContext context);
         Token ITokenBuilder.Create(TokenizationContext context) => Create(context);
 
-        public abstract bool CanCreateOnPosition(TokenPosition position);
+        public abstract bool CanCreate(TokenizationContext context);
     }
 }

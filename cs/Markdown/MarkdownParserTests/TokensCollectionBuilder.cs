@@ -30,13 +30,13 @@ namespace MarkdownParserTests
             return this;
         }
 
-        public TokensCollectionBuilder Text(Action<TokensCollectionBuilder> content)
+        public TokensCollectionBuilder AsText(Action<TokensCollectionBuilder> content)
         {
             var tempBuilder = new TokensCollectionBuilder();
             content.Invoke(tempBuilder);
-            var text = string.Join(string.Empty, tempBuilder.tokens.Select(x => x.RawText));
-            var textToken = new TextToken(tempBuilder[0].StartPosition, text);
-            tokens.Add(textToken);
+            var currentPos = GetNextTokenPosition();
+            var textTokens = tempBuilder.tokens.Select(t => new TextToken(t.StartPosition + currentPos, t.RawValue));
+            tokens.AddRange(textTokens);
             return this;
         }
 
@@ -57,14 +57,14 @@ namespace MarkdownParserTests
         public Token this[int index] => At(index);
         public Token[] this[int startIndex, int count] => Range(startIndex, count);
 
-        public override string ToString() => string.Join(string.Empty, tokens.Select(t => t.RawText));
+        public override string ToString() => string.Join(string.Empty, tokens.Select(t => t.RawValue));
 
         private int GetNextTokenPosition()
         {
             if (tokens.Count == 0)
                 return 0;
             var lastToken = tokens.Last();
-            return lastToken.StartPosition + lastToken.RawText.Length;
+            return lastToken.StartPosition + lastToken.RawValue.Length;
         }
 
         public static implicit operator Token[](TokensCollectionBuilder collectionBuilder) =>
