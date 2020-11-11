@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 
 namespace Markdown
 {
@@ -6,7 +7,7 @@ namespace Markdown
     {
         public string Render(string text)
         {
-          throw  new NotImplementedException();
+            throw new NotImplementedException();
         }
     }
 
@@ -14,14 +15,70 @@ namespace Markdown
     {
         public static Token ReadItalicToken(string line, int startIndex)
         {
-            throw  new NotImplementedException();
+            if (!IsItalicTokenStarting(line, startIndex))
+            {
+                return Token.Empty();
+            }
+            for (var i = startIndex + 1; i < line.Length; i++)
+            {
+                if (line[i] == '_' && line[i - 1] != ' ')
+                {
+                    var lengthWithoutBorders = i - startIndex - 1;
+                    return new Token(lengthWithoutBorders + 2, startIndex, TokenType.Italic,
+                        line.Substring(startIndex + 1, lengthWithoutBorders));
+                }
+            }
+            return Token.Empty();
+        }
+
+        private static bool IsItalicTokenStarting(string line, int startIndex)
+        {
+            return line[startIndex] == '_'
+                   && startIndex != line.Length - 1
+                   && line[startIndex + 1] != '_'
+                   && !Char.IsDigit(line[startIndex + 1])
+                   && line[startIndex + 1] != ' ';
         }
         
         public static Token ReadBoldToken(string line, int startIndex)
         {
-            throw  new NotImplementedException();
+            if (!IsBoldTokenStart(line, startIndex))
+            {
+                return Token.Empty();
+            }
+
+            var inserted = new List<Token>();
+
+            for (var i = startIndex + 2; i < line.Length - 1; i++)
+            {
+                if (line[i] == '_')
+                {
+                    if (line[i + 1] == '_' && line[i - 1] != ' ')
+                    {
+                        return new Token(startIndex, i + 1, line, TokenType.Bold, inserted);
+                    }
+                    else
+                    {
+                        var token = ReadItalicToken(line, i);
+                        if (token.Length > 0)
+                        {
+                            inserted.Add(token);
+                            i += token.Length;
+                        }
+                    }
+                }
+            }
+            return Token.Empty();
         }
-        
+
+        private static bool IsBoldTokenStart(string line, int startIndex)
+        {
+            return line[startIndex] == '_'
+                   && startIndex <= line.Length - 4
+                   && line[startIndex + 1] == '_'
+                   && line[startIndex + 2] != ' ';
+        }
+
         public static Token ReadHeaderToken(string line, int startIndex)
         {
             throw  new NotImplementedException();
