@@ -14,7 +14,7 @@ namespace MarkdownParser.Concrete.Bold
         {
             if (!markdownCollector.TryCollectUntil(context, token => token.GetType() == typeof(BoldToken),
                 out var matchedTokenIndex,
-                out var innerTokens))
+                out var innerTokens) || innerTokens.Count == 0)
             {
                 parsed = default;
                 return false;

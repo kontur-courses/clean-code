@@ -47,6 +47,17 @@ namespace MarkdownParserTests.Tokenization
             TestTokenize(tokens);
         }
 
+        [Test]
+        public void EmptyItalic_ShouldBeTreatAsSingleBold()
+        {
+            tokenizer.Tokenize("__")
+                .Should()
+                .ContainSingle()
+                .Which
+                .Should()
+                .BeEquivalentTo(new BoldToken(0, "__"), "Потому что это символ жирного текста, это нормально");
+        }
+
         [TestCaseSource(nameof(BoldCases))]
         public void BoldTests(TokensCollectionBuilder tokens)
         {
