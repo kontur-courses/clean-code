@@ -104,5 +104,20 @@ namespace Markdown.Tests
 
             actualList.Should().BeEquivalentTo(expectedList);
         }
+
+        [Test]
+        public void GetTextTokens_ReturnListWithStrongToken_TextWithOneDoubleUnderliningElement()
+        {
+            var textParser = new TextParser();
+            var text = "__aa__";
+            var expectedList = new List<TextToken>()
+            {
+                new TextToken(2, 2, TokenType.Strong, "aa"),
+            };
+
+            var actualList = textParser.GetTextTokens(text);
+
+            actualList.Should().BeEquivalentTo(expectedList);
+        }
     }
 }

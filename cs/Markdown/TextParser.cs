@@ -23,10 +23,23 @@ namespace Markdown
             for (var index = 0; index < text.Length; index++)
             {
                 sb.Append(text[index]);
-                var letterType = GetTokenType(text[index]);
-                if (letterType != TokenType.Text)
+                var letterType = GetTokenType(index, text);
+                if (letterType == TokenType.Strong)
                 {
-                    if (sb.Length != 1 && GetTokenType(sb[0]) == GetTokenType(sb[sb.Length - 1]))
+                    sb.Append(text[index + 1]);
+                    index++;
+                    if (sb.Length > 2 && GetTokenType(0,sb.ToString()) == GetTokenType(sb.Length - 2, sb.ToString()))
+                    {
+                        sb.Remove(0, 2);
+                        sb.Remove(sb.Length - 2, 2);
+                        var tokenToAdd = new TextToken(index - sb.Length - 1, sb.Length, letterType, sb.ToString());
+                        splittedText.Add(tokenToAdd);
+                        sb.Clear();
+                    }
+                }
+                else if (letterType == TokenType.Emphasized)
+                {
+                    if (sb.Length > 1 && GetTokenType(0, sb.ToString()) == GetTokenType(sb.Length - 1, sb.ToString()))
                     {
                         sb.Remove(0, 1);
                         sb.Remove(sb.Length - 1, 1);
@@ -37,7 +50,7 @@ namespace Markdown
                 }
                 else
                 {
-                    if (index + 1 == text.Length || (GetTokenType(text[index + 1]) != TokenType.Text && GetTokenType(sb[0]) == TokenType.Text))
+                    if (index + 1 == text.Length || (GetTokenType(index + 1,text) != TokenType.Text && GetTokenType(0,sb.ToString()) == TokenType.Text))
                     {
                         var tokenToAdd = new TextToken(index - sb.Length + 1, sb.Length, TokenType.Text, sb.ToString());
                         splittedText.Add(tokenToAdd);
@@ -49,12 +62,17 @@ namespace Markdown
             return splittedText;
         }
 
-        public TokenType GetTokenType(char element)
+        public TokenType GetTokenType(int index, string text)
         {
-            if (element == '_')
+            if (index + 1 < text.Length && text[index] == '_' && text[index + 1] == '_')
+                return TokenType.Strong;
+            if (text[index] == '_')
                 return TokenType.Emphasized;
+            if (text[index] == '#')
+                return TokenType.Heading;
             return TokenType.Text;
         }
+
 
         private TextToken FindOpenedToken(TokenType type, List<TextToken> openedTokens)
         {
