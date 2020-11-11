@@ -24,56 +24,49 @@ namespace Markdown
             while ((startTagPosition = text.IndexOf(startTag, pointer)) != -1)
             {
                 pointer = startTagPosition + startTag.Length;
-                if (IsStartOfParagraph(text, startTagPosition))
+                if (text.IsStartOfParagraph(startTagPosition))
                 {
-                    pointer = GetEndOfParagraphPosition(text, pointer);
-                    yield return GetElement(Md.HeadingStyle, startTagPosition, pointer);
+                    pointer = text.GetEndOfParagraphPosition(pointer);
+                    yield return Element.Create(Md.HeadingStyle, startTagPosition, pointer);
                 }
             }
-        }
-
-        private static Element GetElement(Style style, int startTagPosition, int endTagPosition)
-        {
-            return new Element(
-                style,
-                startTagPosition,
-                endTagPosition + style.EndTag.Length - startTagPosition,
-                startTagPosition + style.StartTag.Length,
-                endTagPosition - startTagPosition - style.StartTag.Length);
-        }
-
-        private static bool IsStartOfParagraph(string text, int pointer)
-        {
-            return pointer == 0 || text[pointer - 1] == '\n';
-        }
-
-        private static bool IsEndOfParagraph(string text, int pointer)
-        {
-            return pointer == text.Length || text[pointer] == '\n';
-        }
-
-        private static int GetEndOfParagraphPosition(string text, int pointer)
-        {
-            while (!IsEndOfParagraph(text, pointer))
-            {
-                pointer++;
-            }
-            return pointer;
         }
 
         private static IEnumerable<Element> FindBoldElements(string text)
         {
             var pointer = 0;
-            int startTagPosition;
             var startTag = Md.BoldStyle.StartTag;
             var endTag = Md.BoldStyle.EndTag;
-            while ((startTagPosition = text.IndexOf(startTag, pointer)) != -1)
+            var startTagPosition = text.IndexOf(startTag, pointer);
+            pointer = startTagPosition + startTag.Length;
+            var endTagPosition = text.IndexOf(endTag, pointer);
+            pointer = endTagPosition + endTag.Length;
+            while (true)
             {
-                pointer = startTagPosition + startTag.Length;
-                var endTagPosition = text.IndexOf(endTag, pointer);
-                if (endTagPosition == -1)
+                if (startTagPosition == -1 || endTagPosition == -1)
                     break;
-                yield return GetElement(Md.BoldStyle, startTagPosition, endTagPosition);
+                if (IsEmptyStringInside(Md.BoldStyle, startTagPosition, endTagPosition))
+                {
+                    pointer = endTagPosition + endTag.Length;
+                    continue;
+                }
+                if (!IsBoldStartTag(text, startTagPosition))
+                {
+                    startTagPosition = endTagPosition;
+                    endTagPosition = text.IndexOf(endTag, pointer);
+                    pointer = endTagPosition + endTag.Length;
+                    continue;
+                }
+                if (!IsBoldEndTag(text, endTagPosition))
+                {
+                    endTagPosition = text.IndexOf(endTag, pointer);
+                    pointer = endTagPosition + endTag.Length;
+                    continue;
+                }
+                yield return Element.Create(Md.BoldStyle, startTagPosition, endTagPosition);
+                startTagPosition = text.IndexOf(startTag, pointer);
+                pointer = startTagPosition + startTag.Length;
+                endTagPosition = text.IndexOf(endTag, pointer);
                 pointer = endTagPosition + endTag.Length;
             }
         }
@@ -90,14 +83,30 @@ namespace Markdown
                 var endTagPosition = text.IndexOf(endTag, pointer);
                 if (endTagPosition == -1)
                     break;
-                if (endTagPosition - startTagPosition == 1)
+                if (IsEmptyStringInside(Md.ItalicStyle, startTagPosition, endTagPosition))
                 {
                     pointer = endTagPosition + endTag.Length;
                     continue;
                 }
-                yield return GetElement(Md.ItalicStyle, startTagPosition, endTagPosition);
+                yield return Element.Create(Md.ItalicStyle, startTagPosition, endTagPosition);
                 pointer = endTagPosition + endTag.Length;
             }
+        }
+
+        private static bool IsBoldStartTag(string text, int startTagPosition)
+        {
+            var word = text.GetWordContainingCurrentSymbol(startTagPosition);
+            if (word.IsInside(Md.BoldStyle.StartTag, startTagPosition) && word.ContainsDigit())
+                return false;
+            return true;
+        }
+
+        private static bool IsBoldEndTag(string text, int endTagPosition)
+        {
+            var word = text.GetWordContainingCurrentSymbol(endTagPosition);
+            if (word.IsInside(Md.BoldStyle.StartTag, endTagPosition) && word.ContainsDigit())
+                return false;
+            return true;
         }
 
         private static void DeleteBoldInItalic(List<Element> bold, List<Element> italic)
@@ -116,6 +125,11 @@ namespace Markdown
         private static void DeleteBoldAndItalicIntersection(IEnumerable<Element> bold, IEnumerable<Element> italic)
         {
             return;
+        }
+
+        private static bool IsEmptyStringInside(Style style, int startTagPosition, int endTagPosition)
+        {
+            return endTagPosition - startTagPosition - style.StartTag.Length == 0;
         }
     }
 }

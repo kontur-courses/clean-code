@@ -20,5 +20,15 @@ namespace Markdown
             ContentStart = contentStart;
             ContentLength = contentLength;
         }
+
+        public static Element Create(Style style, int startTagPosition, int endTagPosition)
+        {
+            return new Element(
+                style,
+                startTagPosition,
+                endTagPosition + style.EndTag.Length - startTagPosition,
+                startTagPosition + style.StartTag.Length,
+                endTagPosition - startTagPosition - style.StartTag.Length);
+        }
     }
 }

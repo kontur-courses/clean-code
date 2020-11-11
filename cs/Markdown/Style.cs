@@ -5,7 +5,7 @@ using System.Collections.Immutable;
 
 namespace Markdown
 {
-    class Style
+    public class Style
     {
         public readonly StyleType Type;
         public readonly string StartTag;
@@ -19,7 +19,7 @@ namespace Markdown
         }
     }
 
-    enum StyleType
+    public enum StyleType
     {
         Heading,
         Italic,

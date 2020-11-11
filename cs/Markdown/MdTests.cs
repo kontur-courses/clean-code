@@ -58,10 +58,20 @@ namespace Markdown
             Md.Render("#__bo_italic_ld__").Should().BeEquivalentTo("<h1><strong>bo<em>italic</em>ld</strong></h1>");
         }
 
-        [Test]
-        public void Md_ShouldNotRenderBoldStyle_InItalicStyle()
+        [TestCase("b__old__", "b<strong>old</strong>")]
+        [TestCase("b__ol__d", "b<strong>ol</strong>d")]
+        [TestCase("__bol__d", "<strong>bol</strong>d")]
+        public void Md_ShouldRenderBoldStyle_InsideWordWithoutDigits(string mdtext, string expectedHtmlText)
         {
-            Md.Render("_ita__bold__lic_").Should().BeEquivalentTo("<em>ita__bold__lic</em>");
+            Md.Render(mdtext).Should().BeEquivalentTo(expectedHtmlText);
+        }
+
+        [TestCase("b__old1__", "b__old1__")]
+        [TestCase("b__ol__d1", "b__ol__d1")]
+        [TestCase("__bol__d1", "__bol__d1")]
+        public void Md_ShouldNotRenderBoldStyle_InsideWordWithDigits(string mdtext, string expectedHtmlText)
+        {
+            Md.Render(mdtext).Should().BeEquivalentTo(expectedHtmlText);
         }
     }
 }
