@@ -56,5 +56,11 @@ namespace Markdown
         {
             return Md.Render(text);
         }
+
+        [TestCase(@"text_123_45", ExpectedResult = @"text_123_45")]
+        public string Test_TextWithDigits(string text)
+        {
+            return Md.Render(text);
+        }
     }
 }

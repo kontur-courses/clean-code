@@ -10,6 +10,8 @@ namespace Markdown.TagConverters
         public override TagMd Md => TagMd._;
         public override StringOfset Convert(string text, int position)
         {
+            if (TextWithDigits(text, position))
+                return new StringOfset(text[position].ToString(), 1);
             var result = new StringBuilder();
             result.Append(OpenTag());
             int pos;
@@ -20,5 +22,9 @@ namespace Markdown.TagConverters
             result.Append(CloseTag());
             return new StringOfset(result.ToString(), pos - position + LengthMd);
         }
+
+        private bool TextWithDigits(string text, int position) =>
+            (position > 1 && char.IsDigit(text[position - 1])) ||
+            (position < text.Length - 1 && char.IsDigit(text[position + 1]));
     }
 }
