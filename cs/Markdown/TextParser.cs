@@ -20,6 +20,20 @@ namespace Markdown
             var currentText = new StringBuilder();
             for (var index = 0; index < text.Length; index++)
             {
+                if (text[index] == '\\')
+                {
+                    currentText.Append(text[index + 1]);
+                    index += 1;
+                    if (!AddToTextToken(currentText, splittedText))
+                    {
+                        var textToAdd = new TextToken(index - currentText.Length, currentText.Length, TokenType.Text,
+                            currentText.ToString());
+                        splittedText.Add(textToAdd);
+                    }
+
+                    currentText.Clear();
+                    continue;
+                }
                 currentText.Append(text[index]);
                 var letterType = GetTokenType(index, text);
                 switch (letterType)
@@ -49,14 +63,14 @@ namespace Markdown
             return splittedText;
         }
 
-        private void WorkWithStrongText(StringBuilder sb,List<TextToken> splittedText, int index, TokenType letterType)
+        private void WorkWithStrongText(StringBuilder currentText,List<TextToken> splittedText, int index, TokenType letterType)
         {
-            if (sb.Length <= 2 || GetTokenType(0, sb.ToString()) != GetTokenType(sb.Length - 2, sb.ToString())) return;
-            sb.Remove(0, 2);
-            sb.Remove(sb.Length - 2, 2);
-            var tokenToAdd = new TextToken(index - sb.Length - 1, sb.Length, letterType, sb.ToString());
+            if (currentText.Length <= 2 || GetTokenType(0, currentText.ToString()) != GetTokenType(currentText.Length - 2, currentText.ToString())) return;
+            currentText.Remove(0, 2);
+            currentText.Remove(currentText.Length - 2, 2);
+            var tokenToAdd = new TextToken(index - currentText.Length - 1, currentText.Length, letterType, currentText.ToString());
             splittedText.Add(tokenToAdd);
-            sb.Clear();
+            currentText.Clear();
         }
 
         private void WorkWithEmphasizedText(StringBuilder currentText, List<TextToken> splittedText, int index, TokenType letterType)
@@ -74,9 +88,26 @@ namespace Markdown
         {
             if (index + 1 != text.Length && (GetTokenType(index + 1, text) == TokenType.Text ||
                                              GetTokenType(0, currentText.ToString()) != TokenType.Text)) return;
-            var tokenToAdd = new TextToken(index - currentText.Length + 1, currentText.Length, TokenType.Text, currentText.ToString());
-            splittedText.Add(tokenToAdd);
+            if (!AddToTextToken(currentText, splittedText))
+            {
+                var tokenToAdd = new TextToken(index - currentText.Length + 1, currentText.Length, TokenType.Text,
+                    currentText.ToString());
+                splittedText.Add(tokenToAdd);
+            }
             currentText.Clear();
+        }
+
+        private bool AddToTextToken(StringBuilder currentText, List<TextToken> splittedText)
+        {
+            var lastAddedElement = splittedText.LastOrDefault();
+            if (lastAddedElement != null && lastAddedElement.Type == TokenType.Text)
+            {
+                lastAddedElement.Text += currentText.ToString();
+                lastAddedElement.Length += currentText.Length;
+                return true;
+            }
+
+            return false;
         }
 
         private static TokenType GetTokenType(int index, string text)

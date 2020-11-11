@@ -6,12 +6,12 @@ using System.Threading.Tasks;
 
 namespace Markdown
 {
-    public struct TextToken 
+    public class TextToken 
     {
-        public int StartPosition { get; }
-        public int Length { get; }
-        public TokenType Type { get; }
-        public string Text;
+        public int StartPosition { get; set; }
+        public int Length { get; set; }
+        public TokenType Type { get; set; }
+        public string Text { get; set; }
 
         public TextToken(int startPosition, int length, TokenType type, string text)
         {

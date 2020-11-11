@@ -138,7 +138,7 @@ namespace Markdown.Tests
         }
 
         [Test]
-        public void GetTextTokens_ReturnListWithCorrectTones_TextWithStrongEmphasizedAndNotClosedElements()
+        public void GetTextTokens_ReturnListWithCorrectTokens_TextWithStrongEmphasizedAndNotClosedElements()
         {
             var textParser = new TextParser();
             var text = "__aa__ _bb_ac_";
@@ -148,6 +148,21 @@ namespace Markdown.Tests
                 new TextToken(6,1,TokenType.Text, " "),
                 new TextToken(8, 2, TokenType.Emphasized, "bb"),
                 new TextToken(11,2,TokenType.Text,"ac")
+            };
+
+            var actualList = textParser.GetTextTokens(text);
+
+            actualList.Should().BeEquivalentTo(expectedList);
+        }
+
+        [Test]
+        public void GetTextTokens_ReturnListWithCorrectTokens_TextWithShieldSymbol()
+        {
+            var textParser = new TextParser();
+            var text = "\\_ab\\_";
+            var expectedList = new List<TextToken>()
+            {
+                new TextToken(0,4,TokenType.Text,"_ab_")
             };
 
             var actualList = textParser.GetTextTokens(text);
