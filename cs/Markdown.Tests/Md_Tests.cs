@@ -82,6 +82,17 @@ namespace Markdown.Tests
         [TestCase("__Непарные_ символы", 
             ExpectedResult = "__Непарные_ символы",
             TestName = "WhenNotPairedBoldAndItalic")]
+
+        [TestCase(@"\abc\", ExpectedResult = @"\abc\", TestName = "WhenNotShieldedSlash")]
+        [TestCase(@"\\\\abc", ExpectedResult = @"\\abc", TestName = "WhenSlashShielded")]
+        [TestCase(@"\_abc_", ExpectedResult = @"_abc_", TestName = "WhenItalicShielded")]
+        [TestCase(@"\__abc__", ExpectedResult = @"__abc__", TestName = "WhenBoldShielded")]
+        [TestCase(@"\\_abc_", ExpectedResult = @"\<em>abc</em>", TestName = "WhenSlashShieldedBeforeItalic")]
+        [TestCase(@"\\__abc__", ExpectedResult = @"\<strong>abc</strong>", TestName = "WhenSlashShieldedBeforeBold")]
+        [TestCase(@"\\\__abc__", ExpectedResult = @"\__abc__", TestName = "WhenOddCountOfSlashesBeforeBold")]
+        [TestCase(@"\\\\_\\abc\\_", ExpectedResult = @"\\<em>\abc\</em>", TestName = "WhenManyShieldedSlashes")]
+        [TestCase(@"\\_\abc\_", ExpectedResult = @"\_\abc_", TestName = "WhenClosedItalicShielded")]
+        [TestCase(@"\\__\abc\__", ExpectedResult = @"\__\abc__", TestName = "WhenClosedBoldShielded")]
         public string Render_CorrectResult(string input)
         {
             return Md.Render(input);

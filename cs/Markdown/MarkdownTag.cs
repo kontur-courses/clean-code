@@ -39,6 +39,10 @@ namespace Markdown
             return false;
         }
 
+        public bool IsShieldedTag(Stack<MarkdownTag> tags)
+        {
+            return tags.Count > 0 && tags.Peek().Value == @"\";
+        }
 
         public bool IsBold(StringBuilder text)
         {
