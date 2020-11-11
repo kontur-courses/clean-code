@@ -1,9 +1,8 @@
 ﻿using MarkdownParser;
-using Rendering.Html;
 
-namespace Rendering
+namespace Rendering.Html
 {
-    public class HtmlMarkdownConverter
+    public class HtmlMarkdownConverter : IMarkdownConverter
     {
         private readonly MarkdownDocumentParser parser;
         private readonly HtmlRenderer renderer;

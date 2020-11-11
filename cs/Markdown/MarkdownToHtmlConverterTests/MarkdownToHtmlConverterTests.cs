@@ -9,7 +9,7 @@ namespace MarkdownToHtmlConverterTests
 {
     public class MarkdownToHtmlConverterTests
     {
-        private HtmlMarkdownConverter converter;
+        private IMarkdownConverter converter;
 
         private static readonly DirectoryInfo testCasesFolder =
             new DirectoryInfo(Path.Combine(TestContext.CurrentContext.WorkDirectory, "TestCases"));
@@ -17,7 +17,7 @@ namespace MarkdownToHtmlConverterTests
         [SetUp]
         public void Setup()
         {
-            converter = Md.Html;
+            converter = Md.ToHtml;
         }
 
         [TestCaseSource(nameof(FilesTestCases))]

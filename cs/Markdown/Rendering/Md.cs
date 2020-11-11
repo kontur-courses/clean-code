@@ -1,4 +1,5 @@
-﻿using MarkdownParser;
+﻿using System;
+using MarkdownParser;
 using MarkdownParser.Concrete.Bold;
 using MarkdownParser.Concrete.Italic;
 using MarkdownParser.Infrastructure.Markdown;
@@ -14,13 +15,16 @@ namespace Rendering
     public static class Md
     {
         // PLace for your beautiful shiny DI container here :)
-        public static HtmlMarkdownConverter Html => new HtmlMarkdownConverter(
-            new MarkdownDocumentParser(
-                new Tokenizer(new ITokenBuilder[]
-                    {new BoldTokenBuilder(), new ItalicTokenBuilder()}),
-                new MarkdownCollector(new IMarkdownElementFactory[]
-                    {new BoldElementFactory(), new ItalicElementFactory()})),
-            new HtmlRenderer(new IMarkdownElementRenderer[]
-                {new BoldElementRenderer(), new ItalicElementRenderer()}));
+        private static readonly Lazy<HtmlMarkdownConverter> htmlConverter = new Lazy<HtmlMarkdownConverter>(() =>
+            new HtmlMarkdownConverter(
+                new MarkdownDocumentParser(
+                    new Tokenizer(new ITokenBuilder[]
+                        {new BoldTokenBuilder(), new ItalicTokenBuilder()}),
+                    new MarkdownCollector(new IMarkdownElementFactory[]
+                        {new BoldElementFactory(), new ItalicElementFactory()})),
+                new HtmlRenderer(new IMarkdownElementRenderer[]
+                    {new BoldElementRenderer(), new ItalicElementRenderer()})));
+
+        public static IMarkdownConverter ToHtml => htmlConverter.Value;
     }
 }
