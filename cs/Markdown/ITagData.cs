@@ -2,8 +2,8 @@
 {
     public interface ITagData
     {
-        public string MarkdownTag { get; }
-        public string OpenHtmlTag { get; }
-        public string CloseHtmlTag { get; }
+        public FormattingState State { get; }
+        public TagBorder IncomingBorder { get; }
+        public TagBorder OutgoingBorder { get; }
     }
 }

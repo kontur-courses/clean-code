@@ -1,18 +1,22 @@
-﻿namespace Markdown
+﻿using System.Collections.Generic;
+using System.Linq;
+
+namespace Markdown
 {
     public class TagData : ITagData
     {
-        public string MarkdownTag { get; }
+        public FormattingState State { get; }
+        public TagBorder IncomingBorder { get; }
+        public TagBorder OutgoingBorder { get; }
+        public readonly HashSet<FormattingState> NotAllowedNestedStates;
 
-        public string OpenHtmlTag => $"\\<{htmlTag}>";
-        public string CloseHtmlTag => $"\\</{htmlTag}>";
-
-        private readonly string htmlTag;
-
-        public TagData(string markdownTag, string htmlTag)
+        public TagData(FormattingState state, TagBorder incomingBorder, TagBorder outgoingBorder,
+            params FormattingState[] notAllowedNestedStates)
         {
-            MarkdownTag = markdownTag;
-            this.htmlTag = htmlTag;
+            State = state;
+            IncomingBorder = incomingBorder;
+            OutgoingBorder = outgoingBorder;
+            NotAllowedNestedStates = notAllowedNestedStates.ToHashSet();
         }
     }
 }
