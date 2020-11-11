@@ -2,19 +2,23 @@
 {
     public class Tag
     {
-        public readonly string TegName;
+        public readonly string TagName;
         public readonly int Position;
+        public readonly bool IsPairTag;
+        public int TagLenght => TagName.Length;
 
-        public Tag(string tegName, int position)
+        public Tag(string tagName, int position, bool isPairTag = true)
         {
-            TegName = tegName;
+            TagName = tagName;
             Position = position;
+            IsPairTag = isPairTag;
         }
 
 
-        public string BuildHtmlTag(bool isClosingTeg)
+        public string BuildHtmlTag(bool isOpenTeg)
         {
-            throw new System.NotImplementedException();
+            var closMark = isOpenTeg ? "" : "/";
+            return TagName != "\\" ? $"<{closMark}{TagConvertor.ConvertMdToHtml(TagName)}>" : "";
         }
     }
 }
