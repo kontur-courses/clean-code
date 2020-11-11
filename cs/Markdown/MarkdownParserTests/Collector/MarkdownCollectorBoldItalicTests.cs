@@ -3,19 +3,20 @@ using FluentAssertions;
 using MarkdownParser.Concrete.Bold;
 using MarkdownParser.Concrete.Default;
 using MarkdownParser.Concrete.Italic;
+using MarkdownParser.Infrastructure.Markdown;
 using MarkdownParser.Infrastructure.Markdown.Abstract;
 using NUnit.Framework;
 
-namespace MarkdownParserTests.MarkdownCollector
+namespace MarkdownParserTests.Collector
 {
     public class BoldAndItalicProvidersTests
     {
-        private MarkdownParser.Infrastructure.Markdown.MarkdownCollector collector;
+        private MarkdownCollector collector;
 
         [SetUp]
         public void Setup()
         {
-            collector = new MarkdownParser.Infrastructure.Markdown.MarkdownCollector(new IMarkdownElementFactory[]
+            collector = new MarkdownCollector(new IMarkdownElementFactory[]
             {
                 new BoldElementFactory(),
                 new ItalicElementFactory()
