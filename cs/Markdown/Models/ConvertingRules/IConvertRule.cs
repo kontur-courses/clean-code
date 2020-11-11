@@ -1,8 +1,8 @@
 ﻿using Markdown.Models.Tags;
 
-namespace Markdown.Models.Rules
+namespace Markdown.Models.ConvertingRules
 {
-    internal interface IRule
+    internal interface IConvertRule
     {
         Tag From { get; }
         Tag To { get; }

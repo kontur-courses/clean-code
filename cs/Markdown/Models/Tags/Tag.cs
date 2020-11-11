@@ -1,8 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Text;
-
-namespace Markdown.Models.Tags
+﻿namespace Markdown.Models.Tags
 {
     internal abstract class Tag
     {

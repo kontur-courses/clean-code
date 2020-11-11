@@ -1,27 +1,26 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using Markdown.Models.Rules;
+﻿using Markdown.Models.Converters;
+using Markdown.Models.Syntax;
+
 
 namespace Markdown.Models.Renders
 {
     internal class Md
     {
-        private readonly IEnumerable<IRule> rules;
+        private readonly ISyntax syntax;
+        private readonly IConverter converter;
 
-        public Md(IEnumerable<IRule> rules)
+        public Md(ISyntax syntax, IConverter converter)
         {
-            this.rules = rules;
+            this.syntax = syntax;
+            this.converter = converter;
         }
 
         public string Render(string text)
         {
-            var tokens = new TokenReader(rules.Select(rule => rule.From))
+            var tokens = new TokenReader(syntax)
                 .ReadTokens(text);
 
-            return new MdToHtmlConverter(rules)
-                .ConvertMany(tokens);
+            return converter.ConvertMany(tokens);
         }
     }
 }

@@ -1,17 +1,18 @@
 ﻿using System;
 using System.Collections.Generic;
-using Markdown.Models.Rules;
+using Markdown.Models.ConvertingRules;
 
-namespace Markdown.Models
+namespace Markdown.Models.Converters
 {
-    internal class MdToHtmlConverter
+    internal class MdToHtmlConverter : IConverter
     {
-        private readonly IEnumerable<IRule> rules;
+        private readonly IEnumerable<IConvertRule> convertRules;
 
-        public MdToHtmlConverter(IEnumerable<IRule> rules)
+        public MdToHtmlConverter(IEnumerable<IConvertRule> convertRules)
         {
-            this.rules = rules;
+            this.convertRules = convertRules;
         }
+
         public string ConvertMany(IEnumerable<TaggedToken> tokens)
         {
             throw new NotImplementedException();
