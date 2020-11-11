@@ -13,26 +13,27 @@ namespace Markdown
     public class Md_Performance
     {
         [Test]
-        [Timeout(20000)]
+        [Timeout(25000)]
         public void Should_WorkLinear()
         {
-            var timesOfWork = new List<long>();
+            var timesOfWork = new List<double>();
             for (var count = 1000; count <= 10000; count+=1000)
             {
-                var timeOfWork = ParseMarkdownSpec(count);
+                var timeOfWork = Should_CorrectParse_MarkdownSpec(count);
                 Console.WriteLine($"{count} {timeOfWork}");
                 timesOfWork.Add(timeOfWork.Ticks);
             }
 
+            var expectedTime = timesOfWork[0] * 2;
             for (var i = 1; i < timesOfWork.Count; i++)
             {
-                var timeIncrease = (double)timesOfWork[i] / timesOfWork[i - 1];
-                var lengthIncrease = (i + 1.0) / i;
-                timeIncrease.Should().BeLessOrEqualTo(lengthIncrease * 1.2);
+                timesOfWork[i].Should().BeLessOrEqualTo(expectedTime * 1.5);
+
+                expectedTime = Math.Max(timesOfWork[i], expectedTime) * (i + 1.0) / i;
             }
         }
         
-        public static TimeSpan ParseMarkdownSpec(int count = 1)
+        public static TimeSpan Should_CorrectParse_MarkdownSpec(int count = 1)
         {
             var markdownDirectory = Directory.GetParent(Directory.GetCurrentDirectory()).Parent?.Parent;
             var rootDirectory = markdownDirectory?.Parent?.Parent;

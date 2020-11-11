@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 
@@ -9,7 +10,7 @@ namespace Markdown
         public static string Render(string md)
         {
             var result = new StringBuilder();
-            foreach (var paragraph in md.Split("\r\n"))
+            foreach (var paragraph in md.Split(Environment.NewLine))
             {
                 var tags = ReadAllTags(paragraph).ToArray();
                 var singleTags = tags.GetCorrectSingleTags(paragraph);
@@ -23,7 +24,7 @@ namespace Markdown
                 result.AppendLine(ChangeMdTagsToHtml(paragraph, tags));
             }
 
-            return result.Remove(result.Length - 2, 2).ToString();
+            return result.Remove(result.Length - Environment.NewLine.Length, Environment.NewLine.Length).ToString();
         }
         
         private static IEnumerable<Tag> ReadAllTags(string md)

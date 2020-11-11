@@ -179,7 +179,7 @@ namespace Markdown
         [Test]
         public void ParseAllCorrectTags_WithLongText()
         {
-            Md_Performance.ParseMarkdownSpec();
+            Md_Performance.Should_CorrectParse_MarkdownSpec();
         }
     }
 }
