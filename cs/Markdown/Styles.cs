@@ -1,15 +1,9 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-
-namespace Markdown
+﻿namespace Markdown
 {
     public enum Styles
     {
-        Italic,
-        Bold,
-        Title
+        Italic = 0,
+        Bold = 1,
+        Title = 2
     }
 }
