@@ -119,5 +119,40 @@ namespace Markdown.Tests
 
             actualList.Should().BeEquivalentTo(expectedList);
         }
+
+        [Test]
+        public void GetTextTokens_ReturnListWithStrongToken_TextWithTWoDoubleUnderliningElement()
+        {
+            var textParser = new TextParser();
+            var text = "__aa__ __bb__";
+            var expectedList = new List<TextToken>()
+            {
+                new TextToken(2, 2, TokenType.Strong, "aa"),
+                new TextToken(6,1,TokenType.Text, " "),
+                new TextToken(9, 2, TokenType.Strong, "bb")
+            };
+
+            var actualList = textParser.GetTextTokens(text);
+
+            actualList.Should().BeEquivalentTo(expectedList);
+        }
+
+        [Test]
+        public void GetTextTokens_ReturnListWithCorrectTones_TextWithStrongEmphasizedAndNotClosedElements()
+        {
+            var textParser = new TextParser();
+            var text = "__aa__ _bb_ac_";
+            var expectedList = new List<TextToken>()
+            {
+                new TextToken(2, 2, TokenType.Strong, "aa"),
+                new TextToken(6,1,TokenType.Text, " "),
+                new TextToken(8, 2, TokenType.Emphasized, "bb"),
+                new TextToken(11,2,TokenType.Text,"ac")
+            };
+
+            var actualList = textParser.GetTextTokens(text);
+
+            actualList.Should().BeEquivalentTo(expectedList);
+        }
     }
 }
