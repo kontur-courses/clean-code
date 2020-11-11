@@ -103,6 +103,8 @@ namespace Markdown
             var word = text.GetWordContainingCurrentSymbol(startTagPosition);
             if (word.IsInside(style.StartTag, startTagPosition) && word.ContainsDigit())
                 return false;
+            if (Char.IsWhiteSpace(text[startTagPosition + style.StartTag.Length]))
+                return false;
             return true;
         }
 
@@ -110,6 +112,8 @@ namespace Markdown
         {
             var word = text.GetWordContainingCurrentSymbol(endTagPosition);
             if (word.IsInside(style.StartTag, endTagPosition) && word.ContainsDigit())
+                return false;
+            if (Char.IsWhiteSpace(text[endTagPosition - 1]))
                 return false;
             return true;
         }

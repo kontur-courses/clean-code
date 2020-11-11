@@ -116,6 +116,34 @@ namespace Markdown
             Md.Render("b_old bol_d").Should().BeEquivalentTo("b_old bol_d");
         }
 
+        [Test]
+        public void Md_ShouldNotRenderBoldStyle_WithEmptyContent()
+        {
+            Md.Render("____").Should().BeEquivalentTo("____");
+        }
+
+        [Test]
+        public void Md_ShouldNotRenderItalicStyle_WithEmptyContent()
+        {
+            Md.Render("__").Should().BeEquivalentTo("__");
+        }
+
+        [TestCase("_ italic_", "_ italic_")]
+        [TestCase("_\titalic_", "_\titalic_")]
+        [TestCase("_\nitalic_", "_\ntitalic_")]
+        public void Md_ShouldNotRenderItalicStyle_WithWhiteSpaceAfterStartTag(string mdText, string expectedHTMLText)
+        {
+            Md.Render(mdText).Should().BeEquivalentTo(expectedHTMLText);
+        }
+
+        [TestCase("_ bold_", "_ bold_")]
+        [TestCase("_\tbold_", "_\tbold_")]
+        [TestCase("_\nbold_", "_\nbold_")]
+        public void Md_ShouldNotRenderBoldStyle_WithWhiteSpaceAfterStartTag(string mdText, string expectedHTMLText)
+        {
+            Md.Render(mdText).Should().BeEquivalentTo(expectedHTMLText);
+        }
+
         //[Test]
         //public void Md_ShoudNotRenderBoldStyle_InItalictyle()
         //{
