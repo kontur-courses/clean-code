@@ -6,7 +6,7 @@ namespace Markdown
 {
     class Element
     {
-        public readonly Style ElementStyle;
+        public Style ElementStyle;
         public readonly int ElementStart;
         public readonly int ElementLength;
         public readonly int ContentStart;
