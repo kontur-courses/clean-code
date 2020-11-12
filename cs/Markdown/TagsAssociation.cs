@@ -2,6 +2,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Runtime.CompilerServices;
 using System.Text;
 using System.Threading;
 
@@ -17,7 +18,7 @@ namespace Markdown
             [@"\"] = new TagShield()
         };
 
-        private static readonly HashSet<string> tags = tagConverters.Keys.ToHashSet();
+        internal static readonly HashSet<string> tags = tagConverters.Keys.ToHashSet();
         internal static ConverterInfo GetTagConverter(string text, int position)
         {
             var tagMd = GetTagMd(text, position, tags);

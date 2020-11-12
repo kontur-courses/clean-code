@@ -21,23 +21,23 @@ namespace Markdown.TagConverters
             int pos;
             for(pos = position + LengthMd; CanItterate(); pos++)
             {
-                result.Append(text[pos].ToString());
+                result.Append(text[pos]);
             }
             var ofset = pos - position + LengthMd;
             if (pos >= text.Length - LengthMd && !(pos <= text.Length - LengthMd && text.Substring(pos, LengthMd) == StringMd))
                 return new StringOfset(GetResultWhetTextEnd(result), ofset - LengthMd);
-            if (IsSpecialCpmbine())
+            if (IsSpecialCombine())
                 return new StringOfset(OpenTag() + result.ToString() + CloseTag(), ofset);
             if (ResultIsMoreThenOneWord(result))
                 return new StringOfset(GetResultWithWhiteSpace(result, text, position, pos), ofset);
             return new StringOfset(FormTags(result), ofset);
 
-            bool IsSpecialCpmbine() =>
+            bool IsSpecialCombine() =>
                 (position >= 2 && text.Substring(position - 2, 3) == "___") &&
                 (pos <= text.Length - 3 && text.Substring(pos, 3) == "___");
 
             bool CanItterate() => 
-                pos < text.Length - LengthMd && 
+                pos < text.Length - LengthMd &&
                 (text.Substring(pos, LengthMd) != StringMd || !TagCanClose(text, pos));
         }
     }

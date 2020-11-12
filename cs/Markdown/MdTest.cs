@@ -1,4 +1,5 @@
 using NUnit.Framework;
+using System;
 
 namespace Markdown
 {
@@ -123,6 +124,13 @@ namespace Markdown
         [TestCase(@"some text __", ExpectedResult = @"some text __")]
         [TestCase(@"some ____ text", ExpectedResult = @"some ____ text")]
         public string Test_TagEmptyInside(string text)
+        {
+            return Md.Render(text);
+        }
+
+        [TestCase(@"intersection __twice _and__ once_ tag", ExpectedResult = @"intersection __twice _and__ once_ tag")]
+        [TestCase(@"intersection _once __and_ twice__ tag", ExpectedResult = @"intersection _once __and_ twice__ tag")]
+        public string Test_TextWithInterectionTags(string text)
         {
             return Md.Render(text);
         }

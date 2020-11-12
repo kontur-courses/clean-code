@@ -29,7 +29,8 @@ namespace Markdown.TagConverters
                 tag = TagsAssociation.GetTagMd(text, pos, tags);
                 if (tag != null)
                 {
-                    var stringOfset = TagsAssociation.tagConverters[tag].Convert(text, pos);
+                    var converter = TagsAssociation.tagConverters[tag];
+                    var stringOfset = converter.Convert(text, pos);
                     result.Append(stringOfset.text);
                     ofsetIndex = stringOfset.ofset;
                     continue;
