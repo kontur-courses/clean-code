@@ -14,13 +14,17 @@ namespace Markdown.TagConverters
 
         public override StringOfset Convert(string text, int position)
         {
+            if (!TagCanOpen(text, position))
+                return new StringOfset(StringMd, LengthMd);
+            if (IsEmptyInsideTag(text, position))
+                return GetTagEmptyInside();
             if (TextWithDigits(text, position))
                 return new StringOfset(text[position].ToString(), 1);
             var result = new StringBuilder();
             int pos;
             int ofsetIndex;
             string tag;
-            for (pos = position + LengthMd; pos < text.Length - LengthMd && text.Substring(pos, LengthMd) != StringMd; pos += ofsetIndex)
+            for (pos = position + LengthMd; CanItterate(); pos += ofsetIndex)
             {
                 tag = TagsAssociation.GetTagMd(text, pos, tags);
                 if (tag != null)
@@ -39,6 +43,10 @@ namespace Markdown.TagConverters
             if (ResultIsMoreThenOneWord(result))
                 return new StringOfset(GetResultWithWhiteSpace(result, text, position, pos), ofset);
             return new StringOfset(FormTags(result), ofset);
+
+            bool CanItterate() =>
+                pos < text.Length - LengthMd &&
+                (text.Substring(pos, LengthMd) != StringMd || !TagCanClose(text, pos));
         }
     }
 }

@@ -50,5 +50,15 @@ namespace Markdown.TagConverters
             result.Append(CloseTag());
             return OpenTag() + result.ToString();
         }
+
+        public bool TagCanOpen(string text, int pos) => 
+            pos < text.Length - LengthMd && !char.IsWhiteSpace(text[pos + LengthMd]);
+
+        public bool IsEmptyInsideTag(string text, int pos) => 
+            pos <= text.Length - 2 * LengthMd && text.Substring(pos, 2 * LengthMd) == StringMd + StringMd;
+
+        public StringOfset GetTagEmptyInside() => new StringOfset(StringMd + StringMd, 2 * LengthMd);
+
+        public bool TagCanClose(string text, int pos) => pos > 1 && !char.IsWhiteSpace(text[pos - 1]);
     }
 }

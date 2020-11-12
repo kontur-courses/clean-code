@@ -51,7 +51,7 @@ namespace Markdown
             return Md.Render(text);
         }
 
-        [TestCase(@"_once __twise__ once_", ExpectedResult = @"<em>once <\em><em>twise<\em><em> once<\em>")]
+        [TestCase(@"_once__twise__once_", ExpectedResult = @"<em>once<\em><em>twise<\em><em>once<\em>")]
         public string Test_TextTagStrongInEm(string text)
         {
             return Md.Render(text);
@@ -100,6 +100,29 @@ namespace Markdown
         [TestCase(@"not __pair tag", ExpectedResult = @"not __pair tag")]
         [TestCase(@"not pair _tag", ExpectedResult = @"not pair _tag")]
         public string Test_NotPairTags(string text)
+        {
+            return Md.Render(text);
+        }
+
+        [TestCase(@"its_ tag_ not tag", ExpectedResult = @"its_ tag_ not tag")]
+        [TestCase(@"its__ tag__ not tag", ExpectedResult = @"its__ tag__ not tag")]
+        [TestCase(@"its_ tag__ not tag", ExpectedResult = @"its_ tag__ not tag")]
+        [TestCase(@"its__ tag_ not tag", ExpectedResult = @"its__ tag_ not tag")]
+        public string Test_TagStartAfterWhiteSpace(string text)
+        {
+            return Md.Render(text);
+        }
+
+        [TestCase(@"its _tags _not the_ end", ExpectedResult = @"its <em>tags _not the<\em> end")]
+        [TestCase(@"its __tags __not the__ end", ExpectedResult = @"its <strong>tags __not the<\strong> end")]
+        public string Test_TagFinishBeforeWhiteSpace(string text)
+        {
+            return Md.Render(text);
+        }
+
+        [TestCase(@"some text __", ExpectedResult = @"some text __")]
+        [TestCase(@"some ____ text", ExpectedResult = @"some ____ text")]
+        public string Test_TagEmptyInside(string text)
         {
             return Md.Render(text);
         }

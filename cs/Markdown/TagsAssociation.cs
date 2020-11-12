@@ -43,6 +43,8 @@ namespace Markdown
 
         private static string GetTagMd(string text, int position, int countSymbols, IEnumerable<string> tags) 
         {
+            if (position >= text.Length - countSymbols)
+                return null;
             var substring = text.Substring(position, countSymbols);
             if (tags.Contains(substring))
                 return substring;
