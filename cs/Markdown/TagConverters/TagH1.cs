@@ -14,7 +14,19 @@ namespace Markdown.TagConverters
 
         public override StringOfset Convert(string text, int position)
         {
-            throw new NotImplementedException();
+            if (position > 0)
+                return new StringOfset(StringMd, LengthMd);
+            var result = new StringBuilder();
+            result.Append(OpenTag());
+            StringOfset stringOfset;
+            for (var i = 1; i < text.Length; i += stringOfset.ofset)
+            {
+                stringOfset = TagsAssociation.GetTagConverter(text, i).Convert();
+                result.Append(stringOfset.text);
+            }
+            //Хотелось бы тут использовать Md.Render, но почему-то вижак мне этого не позволяет((
+            result.Append(CloseTag());
+            return new StringOfset(result.ToString(), text.Length);
         }
     }
 }

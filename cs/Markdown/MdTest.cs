@@ -134,5 +134,11 @@ namespace Markdown
         {
             return Md.Render(text);
         }
+
+        [TestCase(@"#Text __with _different_ simbols__", ExpectedResult = @"<h1>Text <strong>with <em>different<\em> simbols<\strong><\h1>")]
+        public string Test_TextWithH1(string text)
+        {
+            return Md.Render(text);
+        }
     }
 }
