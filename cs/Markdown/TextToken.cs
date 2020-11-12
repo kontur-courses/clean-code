@@ -1,16 +1,12 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿using System.Collections.Generic;
 
 namespace Markdown
 {
-    public class TextToken 
+    public class TextToken
     {
-        public int StartPosition { get; set; }
+        public int StartPosition { get; }
         public int Length { get; set; }
-        public TokenType Type { get; set; }
+        public TokenType Type { get; }
         public string Text { get; set; }
         public List<TextToken> SubTokens { get; set; }
 
@@ -21,7 +17,7 @@ namespace Markdown
             Type = type;
             Text = text;
         }
-        
+
         public TextToken(int startPosition, int length, TokenType type, string text, List<TextToken> subTokens)
         {
             StartPosition = startPosition;
@@ -29,11 +25,6 @@ namespace Markdown
             Type = type;
             Text = text;
             SubTokens = subTokens;
-        }
-
-        public TextToken GetLastSubToken()
-        {
-            return SubTokens == null ? null : SubTokens.LastOrDefault();
         }
     }
 }
