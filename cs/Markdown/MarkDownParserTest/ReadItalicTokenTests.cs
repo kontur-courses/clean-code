@@ -59,7 +59,7 @@ namespace Markdown
         public void ReadItalicToken_ReturnTokenWithCorrectValue()
         {
             var token = MarkdownParser.ReadItalicToken("_asdf_", 0);
-            token.Value.Should().Be("asdf");
+            token.Value.Should().Be("<em>asdf</em>");
         }
     }
     

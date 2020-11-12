@@ -8,7 +8,18 @@ namespace Markdown
     {
         public string Render(string[] text)
         {
-            throw new NotImplementedException();
+            var stringAccumulator = new StringBuilder();
+            foreach (var line in text)
+            {
+                var token = MarkdownParser.ReadHeaderToken(line);
+                if (token.Length > 0)
+                {
+                    stringAccumulator.Append(token.Value);
+                    continue;
+                }
+                stringAccumulator.Append(line);
+            }
+            return stringAccumulator.ToString();
         }
     }
 
@@ -25,8 +36,7 @@ namespace Markdown
                 if (line[i] == '_' && line[i - 1] != ' ')
                 {
                     var lengthWithoutBorders = i - startIndex - 1;
-                    return new Token(lengthWithoutBorders + 2, startIndex, TokenType.Italic,
-                        line.Substring(startIndex + 1, lengthWithoutBorders));
+                    return new Token(lengthWithoutBorders + 2, startIndex, TokenType.Italic, line);
                 }
             }
             return Token.Empty();
@@ -48,23 +58,11 @@ namespace Markdown
                 return Token.Empty();
             }
 
-            var inserted = new List<Token>();
-
             for (var i = startIndex + 2; i < line.Length - 1; i++)
             {
                 if (IsBoldTokenEnd(line, i + 1))
                 {
-                    return Token.CreateBoldToken(startIndex, i + 1, line, inserted);
-                }
-
-                if (line[i] == '_')
-                {
-                    var token = ReadItalicToken(line, i);
-                    if (token.Length > 0)
-                    {
-                        inserted.Add(token);
-                        i += token.Length;
-                    }
+                    return new Token(i + 2 - startIndex, startIndex, TokenType.Bold, line);
                 }
             }
 
@@ -77,17 +75,8 @@ namespace Markdown
             {
                 return Token.Empty();
             }
-            var token = new Token(line.Length, 0, TokenType.Header, line.Substring(1));
-            for (var i = 1; i < line.Length; i++)
-            {
-                var insertedToken = ReadBoldToken(line, i);
-                insertedToken = (insertedToken.Length > 0) ? insertedToken :ReadItalicToken(line, i);
-                if (insertedToken.Length > 0)
-                {
-                    token.AddInsertedToken(insertedToken);
-                    i += insertedToken.Length;
-                }
-            }
+            var token = new Token(line.Length, 0, TokenType.Header, line);
+            
             return token;
         }
 

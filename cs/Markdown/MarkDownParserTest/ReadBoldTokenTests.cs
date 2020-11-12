@@ -52,26 +52,7 @@ namespace Markdown
         public void ReadBoldToken_ShouldReturnToken_WithCorrectValue()
         {
             var token = MarkdownParser.ReadBoldToken("__asdf__", 0);
-            token.Value.Should().Be("asdf");
-        }
-
-        [Test]
-        public void ReadBoldToken_ShouldReturnToken_WithInsertedItalicToken()
-        {
-            var token = MarkdownParser.ReadBoldToken("__asdf _one_ asdf__", 0);
-            token.InsertedTokens[0].Should()
-                .BeEquivalentTo(new Token(5, 7, TokenType.Italic, "one"));
-        }
-
-        [Test]
-        public void ReadBoldToken_ShouldReturnToken_WithManyInsertedItalicTokens()
-        {
-            var token = MarkdownParser.ReadBoldToken("__asdf _one_ _two_ asdf__", 0);
-            token.InsertedTokens.Count.Should().Be(2);
-            token.InsertedTokens[0].Should()
-                .BeEquivalentTo(new Token(5, 7, TokenType.Italic, "one"));
-            token.InsertedTokens[1].Should()
-                .BeEquivalentTo(new Token(5, 13, TokenType.Italic, "two"));
+            token.Value.Should().Be("<strong>asdf</strong>");
         }
 
     }
