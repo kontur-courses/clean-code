@@ -130,7 +130,7 @@ namespace Markdown
 
         [TestCase("_ italic_", "_ italic_")]
         [TestCase("_\titalic_", "_\titalic_")]
-        [TestCase("_\nitalic_", "_\ntitalic_")]
+        [TestCase("_\nitalic_", "_\nitalic_")]
         public void Md_ShouldNotRenderItalicStyle_WithWhiteSpaceAfterStartTag(string mdText, string expectedHTMLText)
         {
             Md.Render(mdText).Should().BeEquivalentTo(expectedHTMLText);
@@ -144,10 +144,22 @@ namespace Markdown
             Md.Render(mdText).Should().BeEquivalentTo(expectedHTMLText);
         }
 
-        //[Test]
-        //public void Md_ShoudNotRenderBoldStyle_InItalictyle()
-        //{
-        //    Md.Render("_ita__bold__ld_").Should().BeEquivalentTo("<em>ita__bold__ld</em>");
-        //}
+        [Test]
+        public void Md_ShoudNotRenderBoldStyle_InItalictyle()
+        {
+            Md.Render("_ita__bold__ld_").Should().BeEquivalentTo("<em>ita__bold__ld</em>");
+        }
+
+        [Test]
+        public void Md_ShouldNotRenderStyle_WithUnpairedTags()
+        {
+            Md.Render("__unpaired_").Should().BeEquivalentTo("__unpaired_");
+        }
+
+        [Test]
+        public void Md_ShouldNotRenderBoldAndItalicStyle_WithIntersection()
+        {
+            Md.Render("__inter_sect__ion_").Should().BeEquivalentTo("__inter_sect__ion_");
+        }
     }
 }

@@ -30,5 +30,15 @@ namespace Markdown
                 startTagPosition + style.StartTag.Length,
                 endTagPosition - startTagPosition - style.StartTag.Length);
         }
+
+        public bool IntersectsWith(Element otherElement)
+        {
+            return (ElementStart > otherElement.ElementStart
+                && ElementStart <  otherElement.ElementStart + otherElement.ElementLength
+                && ElementStart + ElementLength > otherElement.ElementStart + otherElement.ElementLength)
+                || (ElementStart < otherElement.ElementStart
+                && ElementStart + ElementLength > otherElement.ElementStart
+                && ElementStart + ElementLength < otherElement.ElementStart + otherElement.ElementLength);
+        }
     }
 }
