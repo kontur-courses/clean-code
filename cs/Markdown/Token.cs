@@ -20,14 +20,17 @@ namespace Markdown
             InsertedTokens = new List<Token>();
         }
 
-        public Token(int startIndex, int endIndex, string line, TokenType type, List<Token> inserted)
+        public static Token CreateBoldToken(int startIndex, int endIndex, string line, List<Token> inserted)
         {
             var lengthWithoutBorders = endIndex - startIndex - 3;
-            this.Length = lengthWithoutBorders + 4;
-            this.StartIndex = startIndex;
-            this.Type = type;
-            this.Value = line.Substring(startIndex + 2, lengthWithoutBorders);
-            this.InsertedTokens = inserted;
+            var value  = line.Substring(startIndex + 2, lengthWithoutBorders);
+            var token = new Token(lengthWithoutBorders + 4, startIndex, TokenType.Bold, value);
+            foreach (var insertedToken in inserted)
+            {
+                token.AddInsertedToken(insertedToken);
+            }
+
+            return token;
         }
 
         public void AddInsertedToken(Token inserted)

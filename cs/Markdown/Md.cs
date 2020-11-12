@@ -1,11 +1,12 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Text;
 
 namespace Markdown
 {
     public class Md
     {
-        public string Render(string text)
+        public string Render(string[] text)
         {
             throw new NotImplementedException();
         }
@@ -51,24 +52,43 @@ namespace Markdown
 
             for (var i = startIndex + 2; i < line.Length - 1; i++)
             {
+                if (IsBoldTokenEnd(line, i + 1))
+                {
+                    return Token.CreateBoldToken(startIndex, i + 1, line, inserted);
+                }
+
                 if (line[i] == '_')
                 {
-                    if (line[i + 1] == '_' && line[i - 1] != ' ')
+                    var token = ReadItalicToken(line, i);
+                    if (token.Length > 0)
                     {
-                        return new Token(startIndex, i + 1, line, TokenType.Bold, inserted);
-                    }
-                    else
-                    {
-                        var token = ReadItalicToken(line, i);
-                        if (token.Length > 0)
-                        {
-                            inserted.Add(token);
-                            i += token.Length;
-                        }
+                        inserted.Add(token);
+                        i += token.Length;
                     }
                 }
             }
+
             return Token.Empty();
+        }
+
+        public static Token ReadHeaderToken(string line)
+        {
+            if (line[0] != '#')
+            {
+                return Token.Empty();
+            }
+            var token = new Token(line.Length, 0, TokenType.Header, line.Substring(1));
+            for (var i = 1; i < line.Length; i++)
+            {
+                var insertedToken = ReadBoldToken(line, i);
+                insertedToken = (insertedToken.Length > 0) ? insertedToken :ReadItalicToken(line, i);
+                if (insertedToken.Length > 0)
+                {
+                    token.AddInsertedToken(insertedToken);
+                    i += insertedToken.Length;
+                }
+            }
+            return token;
         }
 
         private static bool IsBoldTokenStart(string line, int startIndex)
@@ -79,14 +99,21 @@ namespace Markdown
                    && line[startIndex + 2] != ' ';
         }
 
-        public static Token ReadHeaderToken(string line, int startIndex)
+        private static bool IsBoldTokenEnd(string line, int endIndex)
         {
-            throw  new NotImplementedException();
+            return line[endIndex - 1] == '_' && line[endIndex] == '_' && line[endIndex - 2] != ' ';
         }
 
         public static int SkipNotStyleWords(string line, int startIndex)
         {
-            throw  new NotImplementedException();
+            for (var i = startIndex; i < line.Length; i++)
+            {
+                if (line[i] == '_')
+                {
+                    return i - startIndex;
+                }
+            }
+            return line.Length - startIndex;
         }
     } 
 }
