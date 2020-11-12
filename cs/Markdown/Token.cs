@@ -1,4 +1,5 @@
-﻿using System;
+﻿using System.Collections.Generic;
+using System.Linq;
 
 namespace Markdown
 {
@@ -10,22 +11,87 @@ namespace Markdown
 
         public Token(int startIndex, int length, TagInfo tagInfo)
         {
-            throw new NotImplementedException();
+            StartIndex = startIndex;
+            Length = length;
+            TagInfo = tagInfo;
         }
 
-        public static Token[] ParseStringToTokens(string sourceText)
+        public static Token[] ParseStringToMdTokens(string sourceText, params TagInfo[] tagInfos)
         {
-            throw new NotImplementedException();
+            var tokens = new List<Token>();
+            var tagsList = FindTagsIndexes(sourceText, tagInfos);
+            var tagsStack = new Stack<(TagInfo tagInfo, int startIndex)>();
+            foreach (var tagAndIndex in tagsList.OrderBy(tagAndIndex => tagAndIndex.startIndex))
+            {
+                if (tagsStack.Count == 0)
+                {
+                    tagsStack.Push(tagAndIndex);
+                    continue;
+                }
+
+                var tagInfo = tagAndIndex.tagInfo;
+                var tagInMd = tagInfo.TagInMd;
+                var peekTag = tagsStack.Peek().tagInfo.TagInMd;
+                if (tagInMd == "__" && peekTag == "_")
+                    continue;
+                if (tagInMd == peekTag)
+                {
+                    var length = tagAndIndex.startIndex + tagInMd.Length - tagsStack.Peek().startIndex;
+                    tokens.Add(new Token(tagsStack.Peek().startIndex,
+                        length,
+                        tagInfo));
+                    tagsStack.Pop();
+                    continue;
+                }
+
+                tagsStack.Push((tagInfo, tagAndIndex.startIndex));
+            }
+
+            return tokens.ToArray();
         }
 
-        public string ApplyTokensToString(string sourceText, Token[] tokens)
+        private static List<(TagInfo tagInfo, int startIndex)> FindTagsIndexes(string sourceText, TagInfo[] tagInfos)
         {
-            throw new NotImplementedException();
+            var tagsList = new List<(TagInfo tagInfo, int startIndex)>();
+            var groupedTagInfos = tagInfos
+                .GroupBy(tag => tag.OpenTag.Length);
+            foreach (var group in groupedTagInfos)
+            {
+                var tagLength = group.First().TagInMd.Length;
+                var index = 0;
+                while (index < sourceText.Length - tagLength + 1)
+                {
+                    var substring = sourceText.Substring(index, tagLength);
+                    foreach (var tagInfo in group)
+                    {
+                        if (tagInfo.TagInMd != substring || tagsList.Any(tagAndIndex =>
+                            index >= tagAndIndex.startIndex &&
+                            index <= tagAndIndex.startIndex + tagAndIndex.tagInfo?.TagInMd.Length))
+                            continue;
+                        tagsList.Add((tagInfo, index));
+                    }
+
+                    index++;
+                }
+            }
+
+            return tagsList;
         }
 
-        private void IncreaseTokensLength(Token[] tokens, Token lastAppliedToken)
+        public static string ApplyTokensToString(string sourceText, Token[] tokens)
         {
-            throw new NotImplementedException();
+            var influence = 0;
+            foreach (var token in tokens.OrderByDescending(token => token.StartIndex))
+            {
+                var tagInMd = token.TagInfo.TagInMd.Length;
+                sourceText = sourceText.Replace(token.TagInfo.OpenTag, token.StartIndex + influence, tagInMd);
+                influence += token.TagInfo.OpenTag.Length - tagInMd;
+                sourceText = sourceText.Replace(token.TagInfo.CloseTag, token.StartIndex + token.Length + influence - 1,
+                    tagInMd);
+                influence += token.TagInfo.CloseTag.Length - tagInMd;
+            }
+
+            return sourceText;
         }
     }
 }
