@@ -1,37 +1,34 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Text;
-
-namespace Markdown
+﻿namespace Markdown
 {
     public class MdEmphasisStyleFinder : MdStyleFinder
     {
         public MdEmphasisStyleFinder(Style mdStyle, string text) : base(mdStyle, text)
         {
-
         }
 
         protected override int GetNextEndTagPosition()
         {
             int endTagPosition;
-            while ((endTagPosition = Text.IndexOf(MdStyle.EndTag, pointer)) != -1)
+            while ((endTagPosition = Text.IndexOf(MdStyle.EndTag, Pointer)) != -1)
             {
                 if (IsEndTag(endTagPosition))
                     return endTagPosition;
-                pointer = endTagPosition + MdStyle.EndTag.Length;
+                Pointer = endTagPosition + MdStyle.EndTag.Length;
             }
+
             return endTagPosition;
         }
 
         protected override int GetNextStartTagPosition()
         {
             int startTagPosition;
-            while ((startTagPosition = Text.IndexOf(MdStyle.StartTag, pointer)) != -1)
+            while ((startTagPosition = Text.IndexOf(MdStyle.StartTag, Pointer)) != -1)
             {
                 if (IsStartTag(startTagPosition))
                     return startTagPosition;
-                pointer = startTagPosition + MdStyle.StartTag.Length;
+                Pointer = startTagPosition + MdStyle.StartTag.Length;
             }
+
             return startTagPosition;
         }
 
@@ -39,38 +36,25 @@ namespace Markdown
         {
             var startWord = Text.GetWordContainingCurrentSymbol(startTagPosition);
             var endWord = Text.GetWordContainingCurrentSymbol(endTagPosition);
-            if (!startWord.Equals(endWord))
-            {
-                if (startWord.IsInside(MdStyle.StartTag, startTagPosition)
-                    || endWord.IsInside(MdStyle.EndTag, endTagPosition))
-                    return false;
-            }
-            if (IsEmptyStringInside(startTagPosition, endTagPosition))
-            {
-                return false;
-            }
-            return true;
+            return !(!startWord.Equals(endWord) 
+                     && (startWord.IsInside(MdStyle.StartTag, startTagPosition) 
+                         || endWord.IsInside(MdStyle.EndTag, endTagPosition))) 
+                   && !IsEmptyStringInside(startTagPosition, endTagPosition);
         }
 
         public virtual bool IsStartTag(int startTagPosition)
         {
             var word = Text.GetWordContainingCurrentSymbol(startTagPosition);
-            if (word.IsInside(MdStyle.StartTag, startTagPosition) && word.ContainsDigit())
-                return false;
-            if (startTagPosition + MdStyle.StartTag.Length < Text.Length
-                && Char.IsWhiteSpace(Text[startTagPosition + MdStyle.StartTag.Length]))
-                return false;
-            return true;
+            return !(word.IsInside(MdStyle.StartTag, startTagPosition) && word.ContainsDigit())
+                   && !(startTagPosition + MdStyle.StartTag.Length < Text.Length
+                        && char.IsWhiteSpace(Text[startTagPosition + MdStyle.StartTag.Length]));
         }
 
         public virtual bool IsEndTag(int endTagPosition)
         {
             var word = Text.GetWordContainingCurrentSymbol(endTagPosition);
-            if (word.IsInside(MdStyle.StartTag, endTagPosition) && word.ContainsDigit())
-                return false;
-            if (endTagPosition == 0 || Char.IsWhiteSpace(Text[endTagPosition - 1]))
-                return false;
-            return true;
+            return !(word.IsInside(MdStyle.StartTag, endTagPosition) && word.ContainsDigit())
+                   && !(endTagPosition == 0 || char.IsWhiteSpace(Text[endTagPosition - 1]));
         }
     }
 }

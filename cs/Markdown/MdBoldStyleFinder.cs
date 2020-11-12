@@ -1,8 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Text;
-
-namespace Markdown
+﻿namespace Markdown
 {
     public class MdBoldStyleFinder : MdEmphasisStyleFinder
     {

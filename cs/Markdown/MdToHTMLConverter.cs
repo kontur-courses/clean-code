@@ -1,19 +1,12 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Text;
 using System.Linq;
+using System.Text;
 
 namespace Markdown
 {
-    class MdToHTMLConverter
+    internal class MdToHTMLConverter
     {
-        private static readonly Dictionary<Style, Style> convertationTable = new Dictionary<Style, Style>
-        {
-            [Md.HeadingStyle] = HTML.HeadingStyle,
-            [Md.BoldStyle] = HTML.BoldStyle,
-            [Md.ItalicStyle] = HTML.ItalicStyle
-        };
-
         public static string Convert(string mdText)
         {
             var mdElements = ElementsFinder.FindElements(mdText);
@@ -24,14 +17,12 @@ namespace Markdown
         private static IEnumerable<Element> ConvertElements(IEnumerable<Element> elements)
         {
             foreach (var element in elements)
-            {
                 yield return new Element(
                     HTML.htmlStyles[element.ElementStyle.Type],
                     element.ElementStart,
                     element.ElementLength,
                     element.ContentStart,
                     element.ContentLength);
-            }
         }
 
         private static void DeleteBackSlashBeforeMdTags(string text)
@@ -52,7 +43,9 @@ namespace Markdown
                     ptr = elementStartingInPtr[0].ContentStart;
                     continue;
                 }
-                var elementEndingInPtr = elements.Where(e => e.ContentStart + e.ContentLength == ptr).OrderBy(e => e.ElementStart).ToList();
+
+                var elementEndingInPtr = elements.Where(e => e.ContentStart + e.ContentLength == ptr)
+                    .OrderBy(e => e.ElementStart).ToList();
                 if (elementEndingInPtr.Count != 0)
                 {
                     elements.Remove(elementEndingInPtr[0]);
@@ -60,11 +53,13 @@ namespace Markdown
                     ptr = elementEndingInPtr[0].ElementStart + elementEndingInPtr[0].ElementLength;
                     continue;
                 }
+
                 if (ptr >= mdText.Length)
                     break;
                 htmlText.Append(mdText[ptr]);
                 ptr++;
             }
+
             return htmlText.ToString();
         }
     }

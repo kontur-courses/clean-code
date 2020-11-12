@@ -1,32 +1,19 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Text;
-
-namespace Markdown
+﻿namespace Markdown
 {
     public static class StringExtensions
     {
         public static Word GetWordContainingCurrentSymbol(this string text, int currentSymbolPointer)
         {
             var start = currentSymbolPointer;
-            while (start != 0 && !Char.IsWhiteSpace(text[start - 1]))
-            {
-                start--;
-            }
+            while (start != 0 && !char.IsWhiteSpace(text[start - 1])) start--;
             var length = 0;
-            while (start + length < text.Length && !Char.IsWhiteSpace(text[start + length]))
-            {
-                length++;
-            }
+            while (start + length < text.Length && !char.IsWhiteSpace(text[start + length])) length++;
             return new Word(text, start, length);
         }
 
         public static int GetEndOfParagraphPosition(this string text, int pointer)
         {
-            while (!IsEndOfParagraph(text, pointer))
-            {
-                pointer++;
-            }
+            while (!IsEndOfParagraph(text, pointer)) pointer++;
             return pointer;
         }
 

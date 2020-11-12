@@ -1,18 +1,14 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Text;
-
-namespace Markdown
+﻿namespace Markdown
 {
     public class Element
     {
-        public Style ElementStyle;
-        public readonly int ElementStart;
-        public readonly int ElementLength;
-        public readonly int ContentStart;
         public readonly int ContentLength;
+        public readonly int ContentStart;
+        public readonly int ElementLength;
+        public readonly int ElementStart;
+        public Style ElementStyle;
 
-        public Element(Style style, int elementStart, int elementLength, int contentStart, int contentLength) 
+        public Element(Style style, int elementStart, int elementLength, int contentStart, int contentLength)
         {
             ElementStyle = style;
             ElementStart = elementStart;
@@ -33,12 +29,12 @@ namespace Markdown
 
         public bool IntersectsWith(Element otherElement)
         {
-            return (ElementStart > otherElement.ElementStart
-                && ElementStart <  otherElement.ElementStart + otherElement.ElementLength
-                && ElementStart + ElementLength > otherElement.ElementStart + otherElement.ElementLength)
-                || (ElementStart < otherElement.ElementStart
-                && ElementStart + ElementLength > otherElement.ElementStart
-                && ElementStart + ElementLength < otherElement.ElementStart + otherElement.ElementLength);
+            return ElementStart > otherElement.ElementStart
+                   && ElementStart < otherElement.ElementStart + otherElement.ElementLength
+                   && ElementStart + ElementLength > otherElement.ElementStart + otherElement.ElementLength
+                   || ElementStart < otherElement.ElementStart
+                   && ElementStart + ElementLength > otherElement.ElementStart
+                   && ElementStart + ElementLength < otherElement.ElementStart + otherElement.ElementLength;
         }
     }
 }

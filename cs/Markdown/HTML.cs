@@ -1,10 +1,8 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Text;
+﻿using System.Collections.Generic;
 
 namespace Markdown
 {
-    class HTML
+    internal class HTML
     {
         public static readonly Style HeadingStyle = new Style(StyleType.Heading, "<h1>", "</h1>");
         public static readonly Style BoldStyle = new Style(StyleType.Bold, "<strong>", "</strong>");

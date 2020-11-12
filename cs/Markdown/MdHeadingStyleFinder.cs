@@ -1,8 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Text;
-
-namespace Markdown
+﻿namespace Markdown
 {
     public class MdHeadingStyleFinder : MdStyleFinder
     {
@@ -12,18 +8,19 @@ namespace Markdown
 
         protected override int GetNextEndTagPosition()
         {
-            return Text.GetEndOfParagraphPosition(pointer);
+            return Text.GetEndOfParagraphPosition(Pointer);
         }
 
         protected override int GetNextStartTagPosition()
         {
             int startTagPosition;
-            while ((startTagPosition = Text.IndexOf(MdStyle.StartTag, pointer)) != -1)
+            while ((startTagPosition = Text.IndexOf(MdStyle.StartTag, Pointer)) != -1)
             {
                 if (IsStartTag(startTagPosition))
                     return startTagPosition;
-                pointer = startTagPosition + MdStyle.StartTag.Length;
+                Pointer = startTagPosition + MdStyle.StartTag.Length;
             }
+
             return startTagPosition;
         }
 
@@ -36,6 +33,5 @@ namespace Markdown
         {
             return Text.IsStartOfParagraph(startTagPosition);
         }
-
     }
 }

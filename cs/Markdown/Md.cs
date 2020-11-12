@@ -1,10 +1,8 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Text;
+﻿using System.Collections.Generic;
 
 namespace Markdown
 {
-    class Md
+    internal class Md
     {
         public static readonly Style HeadingStyle = new Style(StyleType.Heading, "#", "");
         public static readonly Style BoldStyle = new Style(StyleType.Bold, "__", "__");
@@ -21,6 +19,5 @@ namespace Markdown
         {
             return MdToHTMLConverter.Convert(md);
         }
-
     }
 }

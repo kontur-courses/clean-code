@@ -1,9 +1,5 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Text;
+﻿using FluentAssertions;
 using NUnit.Framework;
-using FluentAssertions;
-using System.Linq;
 
 namespace Markdown
 {
@@ -18,8 +14,8 @@ namespace Markdown
         [Test]
         public void Md_ShoudRenderHeadingStyle_InTextWithMoreThanOneParagraph()
         {
-            Md.Render("#heading1\nnotheading\n#heading2").Should().
-                BeEquivalentTo("<h1>heading1</h1>\nnotheading\n<h1>heading2</h1>");
+            Md.Render("#heading1\nnotheading\n#heading2").Should()
+                .BeEquivalentTo("<h1>heading1</h1>\nnotheading\n<h1>heading2</h1>");
         }
 
         [Test]
@@ -145,7 +141,7 @@ namespace Markdown
         }
 
         [Test]
-        public void Md_ShoudNotRenderBoldStyle_InItalictyle()
+        public void Md_ShouldNotRenderBoldStyle_InItalicStyle()
         {
             Md.Render("_ita__bold__ld_").Should().BeEquivalentTo("<em>ita__bold__ld</em>");
         }

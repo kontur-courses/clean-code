@@ -1,13 +1,10 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Linq;
-using System.Text;
 
 namespace Markdown
 {
-    static class ElementsFinder
+    internal static class ElementsFinder
     {
-
         public static IEnumerable<Element> FindElements(string text)
         {
             var headingFinder = new MdHeadingStyleFinder(Md.HeadingStyle, text);
@@ -24,31 +21,23 @@ namespace Markdown
         private static void DeleteBoldInItalic(List<Element> bold, List<Element> italic)
         {
             foreach (var italicElement in italic)
-            {
-                foreach (var boldElement in bold.ToList())
-                {
-                    if (boldElement.ElementStart > italicElement.ElementStart
-                        && boldElement.ElementStart + boldElement.ElementLength < italicElement.ElementStart + italicElement.ElementLength)
-                        bold.Remove(boldElement);
-                }
-            }
+            foreach (var boldElement in bold.ToList())
+                if (boldElement.ElementStart > italicElement.ElementStart
+                    && boldElement.ElementStart + boldElement.ElementLength <
+                    italicElement.ElementStart + italicElement.ElementLength)
+                    bold.Remove(boldElement);
         }
 
         private static void DeleteBoldAndItalicIntersection(List<Element> bold, List<Element> italic)
         {
             foreach (var boldElement in bold.ToList())
-            {
-                foreach (var italicElement in italic.ToList())
+            foreach (var italicElement in italic.ToList())
+                if (boldElement.IntersectsWith(italicElement))
                 {
-                    if (boldElement.IntersectsWith(italicElement))
-                    {
-                        italic.Remove(italicElement);
-                        bold.Remove(boldElement);
-                        break;
-                    }
-
+                    italic.Remove(italicElement);
+                    bold.Remove(boldElement);
+                    break;
                 }
-            }
         }
     }
 }

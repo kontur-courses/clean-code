@@ -1,9 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Text;
-using System.Linq;
-
-namespace Markdown
+﻿namespace Markdown
 {
     public class MdItalicStyleFinder : MdEmphasisStyleFinder
     {
@@ -24,13 +19,12 @@ namespace Markdown
             return base.IsEndTag(endTagPosition) && !ContainedInSomeBoldTag(endTagPosition);
         }
 
-        private bool ContainedInSomeBoldTag (int italicTagPosition)
+        private bool ContainedInSomeBoldTag(int italicTagPosition)
         {
             if (italicTagPosition == 0)
                 return Text.IndexOf(boldStyle.StartTag, italicTagPosition) == italicTagPosition;
             var boldTagPosition = Text.IndexOf(boldStyle.StartTag, italicTagPosition - 1);
             return boldTagPosition == italicTagPosition - 1 || boldTagPosition == italicTagPosition;
-
         }
     }
 }
