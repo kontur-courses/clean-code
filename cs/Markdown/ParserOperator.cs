@@ -32,6 +32,8 @@ namespace Markdown
                 TokenEnd(part);
             else if (isTokenOpen)
                 partialTokenValue.Add(part);
+            else
+                AddSimpleToken(part);
         }
 
         private void InitParsers()
@@ -57,15 +59,21 @@ namespace Markdown
             {
                 tokens.Add(currentParser(partialTokenValue, Position));
                 isTokenOpen = false;
+                partialTokenValue.Clear();
                 stack.Pop();
             }
             else
                 partialTokenValue.Add(part);
         }
 
+        private void AddSimpleToken(string text)
+        {
+            tokens.Add(new Token(Position, text, TokenType.Simple));
+        }
+
         public List<Token> GetTokens()
         {
-            if (stack.Count > 0)
+            if (!IsClose())
                 tokens.Add(currentParser(partialTokenValue, Position));
             return tokens;
         }

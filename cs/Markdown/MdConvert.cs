@@ -12,14 +12,37 @@ namespace Markdown
         static MdConvert()
         {
             tokenPrefix = new Dictionary<TokenType, string> { { TokenType.Bold,  "<strong>" },
-                                                                { TokenType.Italic, "<em>"} };
-            tokenSuffix = new Dictionary<TokenType, string> { { TokenType.Bold, "</stron>" },
-                                                                { TokenType.Italic, "</em>" } };
+                                                                { TokenType.Italic, "<em>"},
+                                                                { TokenType.Header, "<h1>"} ,
+                                                                { TokenType.Simple, ""} };
+            tokenSuffix = new Dictionary<TokenType, string> { { TokenType.Bold, "</strong>" },
+                                                                { TokenType.Italic, "</em>" },
+                                                                { TokenType.Header, "</h1>"} ,
+                                                                { TokenType.Simple, ""} };
+
         }
 
         public static string ToHtml(IEnumerable<Token> tokens)
         {
-            throw new NotImplementedException();
+            var converted = new StringBuilder();
+            foreach (var token in tokens)
+                converted.Append(TokenToHtml(token));
+            return converted.ToString();
+        }
+
+        public static string TokenToHtml(Token token)
+        {
+            var prefix = tokenPrefix[token.Type];
+            var offset = prefix.Length;
+            var convertedToken = new StringBuilder(prefix);
+            convertedToken.Append(token.Value);
+            foreach (var nestedToken in token.NestedTokens)
+            {
+                convertedToken.Insert(nestedToken.Position + offset, TokenToHtml(nestedToken));
+            }
+            var suffix = tokenSuffix[token.Type];
+            convertedToken.Append(suffix);
+            return convertedToken.ToString();
         }
     }
 }

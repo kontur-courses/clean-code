@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Text;
 
 namespace Markdown
 {
@@ -7,7 +8,8 @@ namespace Markdown
         static void Main(string[] args)
         {
             var c = "#abcd".SplitKeppSeparators(new[] { '#' });
-            foreach (var item in "__asd__sdf_a_____".SplitKeppSeparators(new[] { '_'}))
+            var a = new StringBuilder("abc");
+            foreach (var item in "__ab__cd__ef__".SplitKeppSeparators(new[] { '_'}))
             {
                 Console.WriteLine(item);
             }

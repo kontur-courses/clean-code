@@ -27,7 +27,7 @@ namespace Markdown
                 }
                 else if (sep.Contains(elem))
                 {
-                    if (previous == elem && unionSameSeparators && countSeparatorInUnion > 0)
+                    if (previous == elem && unionSameSeparators && countSeparatorInUnion >= 0)
                     {
                         splitStr.RemoveAt(splitStr.Count - 1);
                         splitStr.Add(string.Concat(new[] { previous, elem }));
@@ -43,7 +43,7 @@ namespace Markdown
                     part.Append(elem);
                 previous = elem;
             }
-            if (splitStr.Count == 0|| part.Length !=0)
+            if (splitStr.Count == 0 || part.Length != 0)
                 splitStr.Add(part.ToString());
             return splitStr.ToArray();
         }
