@@ -14,26 +14,31 @@ namespace Markdown.TagConverters
 
         public override StringOfset Convert(string text, int position)
         {
+            if (TextWithDigits(text, position))
+                return new StringOfset(text[position].ToString(), 1);
             var result = new StringBuilder();
-            result.Append(OpenTag());
             int pos;
-            int ofset;
+            int ofsetIndex;
             string tag;
-            for (pos = position + LengthMd; text.Substring(pos, LengthMd) != StringMd; pos += ofset)
+            for (pos = position + LengthMd; text.Substring(pos, LengthMd) != StringMd && pos < text.Length; pos += ofsetIndex)
             {
                 tag = TagsAssociation.GetTagMd(text, pos, tags);
                 if (tag != null)
                 {
                     var stringOfset = TagsAssociation.tagConverters[tag].Convert(text, pos);
                     result.Append(stringOfset.text);
-                    ofset = stringOfset.ofset;
+                    ofsetIndex = stringOfset.ofset;
                     continue;
                 }
                 result.Append(text[pos].ToString());
-                ofset = 1;
+                ofsetIndex = 1;
             }
-            result.Append(CloseTag());
-            return new StringOfset(result.ToString(), pos - position + LengthMd);
+            var ofset = pos - position + LengthMd;
+            if (pos == text.Length)
+                return new StringOfset(GetResultWhetTetEnd(result), ofset);
+            if (ResultIsMoreThenOneWord(result))
+                return new StringOfset(GetResultWithWhiteSpace(result, text, position, pos), ofset);
+            return new StringOfset(FormTags(result), ofset);
         }
     }
 }

@@ -15,40 +15,18 @@ namespace Markdown.TagConverters
                 return new StringOfset(text[position].ToString(), 1);
             var result = new StringBuilder();
             int pos;
-            for(pos = position + LengthMd; text.Substring(pos, LengthMd) != StringMd; pos++)
+            for(pos = position + LengthMd; text.Substring(pos, LengthMd) != StringMd && pos < text.Length; pos++)
             {
                 result.Append(text[pos].ToString());
             }
             var ofset = pos - position + LengthMd;
+            if (pos == text.Length)
+                return new StringOfset(GetResultWhetTetEnd(result), ofset);
             if (IsSpecialCpmbine())
                 return new StringOfset(OpenTag() + result.ToString() + CloseTag(), ofset);
-            if (ResultIsMoreThenOneWord())
-                return new StringOfset(GetResultWithWhiteSpace(), ofset);
-            result.Append(CloseTag());
-            return new StringOfset(OpenTag() + result.ToString(), ofset);
-
-            bool ResultIsMoreThenOneWord() 
-            {
-                int i;
-                for (i = 0; i < result.Length; i++)
-                    if (!char.IsWhiteSpace(result[i]))
-                        break;
-                for (; i < result.Length; i++)
-                    if (char.IsWhiteSpace(result[i]))
-                        break;
-                for (; i < result.Length; i++)
-                    if (!char.IsWhiteSpace(result[i]))
-                        break;
-                return i != result.Length;
-            }
-
-            string GetResultWithWhiteSpace()
-            {
-                if (PositionInCenterWord(text, position) || PositionInCenterWord(text, pos))
-                    return StringMd + result.ToString() + StringMd;
-                result.Append(CloseTag());
-                return OpenTag() + result.ToString();
-            }
+            if (ResultIsMoreThenOneWord(result))
+                return new StringOfset(GetResultWithWhiteSpace(result, text, position, pos), ofset);
+            return new StringOfset(FormTags(result), ofset);
 
             bool IsSpecialCpmbine() =>
                 (position >= 2 && text.Substring(position - 2, 3) == "___") &&
