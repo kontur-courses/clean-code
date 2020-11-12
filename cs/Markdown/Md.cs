@@ -17,7 +17,22 @@ namespace Markdown
                     stringAccumulator.Append(token.Value);
                     continue;
                 }
-                stringAccumulator.Append(line);
+                for (var i = 0; i < line.Length; i++)
+                {
+                    var insertedToken = MarkdownParser.ReadBoldToken(line, i);
+                    insertedToken = (insertedToken.Length > 0) ? insertedToken :MarkdownParser.ReadItalicToken(line, i);
+                    if (insertedToken.Length > 0)
+                    {
+                        stringAccumulator.Append(insertedToken.Value);
+                        i += insertedToken.Length;
+                    }
+                    else
+                    {
+                        var count = MarkdownParser.SkipNotStyleWords(line, i);
+                        stringAccumulator.Append(line.Substring(i, count));
+                        i += count;
+                    }
+                }
             }
             return stringAccumulator.ToString();
         }
