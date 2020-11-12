@@ -9,6 +9,7 @@ namespace Markdown
 {
     public class TextParser
     {
+        private TextToken lastOpenedToken;
         public List<TextToken> GetTextTokens(string text)
         {
             if (text == null)
@@ -20,18 +21,10 @@ namespace Markdown
             var currentText = new StringBuilder();
             for (var index = 0; index < text.Length; index++)
             {
-                if (text[index] == '\\')
+                if (text[index] == '\\')//TODO: исправить на общий случай
                 {
                     currentText.Append(text[index + 1]);
                     index += 1;
-                    if (!AddToTextToken(currentText, splittedText))
-                    {
-                        var textToAdd = new TextToken(index - currentText.Length, currentText.Length, TokenType.Text,
-                            currentText.ToString());
-                        splittedText.Add(textToAdd);
-                    }
-
-                    currentText.Clear();
                     continue;
                 }
                 currentText.Append(text[index]);
@@ -55,10 +48,16 @@ namespace Markdown
                     default:
                     {
                         WorkWithText(currentText, splittedText, text, index, letterType);
+
                         break;
                     }
                 }
 
+            }
+
+            if (currentText.Length != 0)
+            {
+                WorkWithText(currentText, splittedText, text, text.Length - 1, TokenType.Text);
             }
             return splittedText;
         }
@@ -69,6 +68,9 @@ namespace Markdown
             currentText.Remove(0, 2);
             currentText.Remove(currentText.Length - 2, 2);
             var tokenToAdd = new TextToken(index - currentText.Length - 1, currentText.Length, letterType, currentText.ToString());
+            var subTokens = new TextParser().GetTextTokens(tokenToAdd.Text);
+            tokenToAdd.SubTokens = subTokens;
+            lastOpenedToken = subTokens.Last();
             splittedText.Add(tokenToAdd);
             currentText.Clear();
         }
@@ -80,6 +82,9 @@ namespace Markdown
             currentText.Remove(0, 1);
             currentText.Remove(currentText.Length - 1, 1);
             var tokenToAdd = new TextToken(index - currentText.Length, currentText.Length, letterType, currentText.ToString());
+            var subTokens = new TextParser().GetTextTokens(tokenToAdd.Text);
+            tokenToAdd.SubTokens = subTokens;
+            lastOpenedToken = subTokens.Last();
             splittedText.Add(tokenToAdd);
             currentText.Clear();
         }
@@ -93,6 +98,7 @@ namespace Markdown
                 var tokenToAdd = new TextToken(index - currentText.Length + 1, currentText.Length, TokenType.Text,
                     currentText.ToString());
                 splittedText.Add(tokenToAdd);
+                lastOpenedToken = tokenToAdd;
             }
             currentText.Clear();
         }

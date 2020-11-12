@@ -10,7 +10,7 @@ namespace Markdown
     {
         public static void Main()
         {
-            var text = "";
+            var text = "__aa\\_a__";
 
             var tagsFounder = new TextParser();
             var textTokens = tagsFounder.GetTextTokens(text);
