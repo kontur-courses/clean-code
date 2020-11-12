@@ -7,9 +7,12 @@ namespace Markdown
         public string Render(string markdown)
         {
             var parser = new TextParser();
-            var parsedText = parser.ParseText(markdown);
+            var tokens = new TokensGenerator(parser).GetTokens(markdown);
 
-            return parsedText;
+            var htmlConverter = new HtmlConverter();
+            var htmlText = new HtmlGenerator(htmlConverter).CovertTokensToHtml(tokens);
+
+            return htmlText;
         }
     }
 }
