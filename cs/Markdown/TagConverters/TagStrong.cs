@@ -20,7 +20,7 @@ namespace Markdown.TagConverters
             int pos;
             int ofsetIndex;
             string tag;
-            for (pos = position + LengthMd; text.Substring(pos, LengthMd) != StringMd && pos < text.Length; pos += ofsetIndex)
+            for (pos = position + LengthMd; pos < text.Length - LengthMd && text.Substring(pos, LengthMd) != StringMd; pos += ofsetIndex)
             {
                 tag = TagsAssociation.GetTagMd(text, pos, tags);
                 if (tag != null)
@@ -34,8 +34,8 @@ namespace Markdown.TagConverters
                 ofsetIndex = 1;
             }
             var ofset = pos - position + LengthMd;
-            if (pos == text.Length)
-                return new StringOfset(GetResultWhetTetEnd(result), ofset);
+            if (pos >= text.Length - LengthMd && !(pos <= text.Length - LengthMd && text.Substring(pos, LengthMd) == StringMd))
+                return new StringOfset(GetResultWhetTextEnd(result), ofset - LengthMd);
             if (ResultIsMoreThenOneWord(result))
                 return new StringOfset(GetResultWithWhiteSpace(result, text, position, pos), ofset);
             return new StringOfset(FormTags(result), ofset);

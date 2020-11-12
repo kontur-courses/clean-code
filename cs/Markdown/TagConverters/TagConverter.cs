@@ -26,7 +26,7 @@ namespace Markdown.TagConverters
             (position > 1 && char.IsDigit(text[position - 1])) ||
             (position < text.Length - LengthMd && char.IsDigit(text[position + LengthMd]));
 
-        public string GetResultWhetTetEnd(StringBuilder result) => StringMd + result.ToString();
+        public string GetResultWhetTextEnd(StringBuilder result) => StringMd + result.ToString();
 
         public bool ResultIsMoreThenOneWord(StringBuilder result)
         {

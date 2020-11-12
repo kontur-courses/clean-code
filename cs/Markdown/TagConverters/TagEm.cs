@@ -15,13 +15,13 @@ namespace Markdown.TagConverters
                 return new StringOfset(text[position].ToString(), 1);
             var result = new StringBuilder();
             int pos;
-            for(pos = position + LengthMd; text.Substring(pos, LengthMd) != StringMd && pos < text.Length; pos++)
+            for(pos = position + LengthMd; pos < text.Length - LengthMd && text.Substring(pos, LengthMd) != StringMd; pos++)
             {
                 result.Append(text[pos].ToString());
             }
             var ofset = pos - position + LengthMd;
-            if (pos == text.Length)
-                return new StringOfset(GetResultWhetTetEnd(result), ofset);
+            if (pos >= text.Length - LengthMd && !(pos <= text.Length - LengthMd && text.Substring(pos, LengthMd) == StringMd))
+                return new StringOfset(GetResultWhetTextEnd(result), ofset - LengthMd);
             if (IsSpecialCpmbine())
                 return new StringOfset(OpenTag() + result.ToString() + CloseTag(), ofset);
             if (ResultIsMoreThenOneWord(result))

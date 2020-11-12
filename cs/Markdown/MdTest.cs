@@ -95,5 +95,13 @@ namespace Markdown
         {
             return Md.Render(text);
         }
+
+        [TestCase(@"__not pair _tag", ExpectedResult = @"__not pair _tag")]
+        [TestCase(@"not __pair tag", ExpectedResult = @"not __pair tag")]
+        [TestCase(@"not pair _tag", ExpectedResult = @"not pair _tag")]
+        public string Test_NotPairTags(string text)
+        {
+            return Md.Render(text);
+        }
     }
 }
