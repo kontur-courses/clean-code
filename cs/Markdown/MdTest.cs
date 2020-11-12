@@ -36,9 +36,9 @@ namespace Markdown
         }
 
         [TestCase(@"\_some text\_", ExpectedResult = @"_some text_")]
-        [TestCase(@"\__some text_\_", ExpectedResult = @"_<em>some text<\em>_")]
+        [TestCase(@"\_ _some text_ \_", ExpectedResult = @"_ <em>some text<\em> _")]
         [TestCase(@"\te\xt", ExpectedResult = @"\te\xt")]
-        [TestCase(@"\\_some text_", ExpectedResult = @"\<em>some text<\em>")]
+        [TestCase(@"\\ _some text_", ExpectedResult = @"\ <em>some text<\em>")]
         public string Test_TextWithShield(string text)
         {
             return Md.Render(text);
@@ -59,6 +59,22 @@ namespace Markdown
 
         [TestCase(@"text_123_45", ExpectedResult = @"text_123_45")]
         public string Test_TextWithDigits(string text)
+        {
+            return Md.Render(text);
+        }
+
+        [TestCase(@"_te_xt", ExpectedResult = @"<em>te<\em>xt")]
+        [TestCase(@"t_ex_t", ExpectedResult = @"t<em>ex<\em>t")]
+        [TestCase(@"te_xt_", ExpectedResult = @"te<em>xt<\em>")]
+        public string Test_TagsEmInWord(string text)
+        {
+            return Md.Render(text);
+        }
+
+        [TestCase(@"_some te_xt", ExpectedResult = @"_some te_xt")]
+        [TestCase(@"so_me text_", ExpectedResult = @"so_me text_")]
+        [TestCase(@"so_me te_xt", ExpectedResult = @"so_me te_xt")]
+        public string Test_TagsEmInSomeWords(string text)
         {
             return Md.Render(text);
         }

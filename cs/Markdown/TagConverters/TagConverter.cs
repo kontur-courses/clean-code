@@ -15,5 +15,13 @@ namespace Markdown.TagConverters
         public string OpenTag() => string.Format("<{0}>", StringHtml);
         public string CloseTag() => string.Format(@"<\{0}>", StringHtml);
         public abstract StringOfset Convert(string text, int position);
+
+        public bool PositionInCenterWord(string text, int position) =>
+                (position > 1 && !char.IsWhiteSpace(text[position - 1])) &&
+                (position < text.Length - LengthMd && !char.IsWhiteSpace(text[position + LengthMd]));
+
+        public bool TextWithDigits(string text, int position) =>
+            (position > 1 && char.IsDigit(text[position - 1])) ||
+            (position < text.Length - LengthMd && char.IsDigit(text[position + LengthMd]));
     }
 }
