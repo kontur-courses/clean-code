@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
 
 namespace Markdown
 {
@@ -7,9 +6,9 @@ namespace Markdown
     {
         public readonly int Length;
         public readonly int StartIndex;
-        public readonly TagOption TagOption;
+        public readonly TagInfo TagInfo;
 
-        public Token(int startIndex, int length, TagOption tagOption)
+        public Token(int startIndex, int length, TagInfo tagInfo)
         {
             throw new NotImplementedException();
         }
@@ -20,21 +19,6 @@ namespace Markdown
         }
 
         public string ApplyTokensToString(string sourceText, Token[] tokens)
-        {
-            throw new NotImplementedException();
-        }
-
-        private string AddItalicTagToString(string sourceText, Token token)
-        {
-            throw new NotImplementedException();
-        }
-
-        private string AddBoldTagToString(string sourceText, Token token)
-        {
-            throw new NotImplementedException();
-        }
-
-        private string AddHeaderTagToString(string sourceText, Token token)
         {
             throw new NotImplementedException();
         }
