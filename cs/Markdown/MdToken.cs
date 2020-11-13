@@ -7,6 +7,7 @@ namespace Markdown
     {
         public int StartPosition;
         public int Length;
+        public MdToken ParentToken;
 
         public abstract string Parse(MdTokenReader reader);
     }
