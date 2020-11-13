@@ -1,34 +1,36 @@
-﻿using System;
-
-namespace Markdown
+﻿namespace Markdown
 {
-    public class Tag
+    public abstract class Tag
     {
-        public bool CanBeClose;
-        public bool CanBeOpen;
-        public bool InWord;
-        public TagStatus Status;
-        public Word Word;
+        private readonly string htmlTag;
 
-        public Tag(TagType type, int position, Word word, bool canBeOpen, bool canBeClose)
+        protected bool IsOpening;
+
+        protected Tag(string mdTag, string htmlTag, int position, bool isOpening)
         {
+            MdTag = mdTag;
+            this.htmlTag = htmlTag;
             Position = position;
-            Word = word;
-            CanBeOpen = canBeOpen;
-            CanBeClose = canBeClose;
-            Type = type;
+            IsOpening = isOpening;
         }
 
-        public TagType Type { get; }
+        public string MdTag { get; }
         public int Position { get; }
+
+
+        public abstract bool TryParse(int position, string text, out Tag tag);
 
         public string GetHtmlTag()
         {
-            if (Status == TagStatus.Open)
-                return Type.GetOpenHtmlTag();
-            if (Status == TagStatus.Close)
-                return Type.GetCloseHtmlTag();
-            throw new ArgumentException();
+            return IsOpening ? htmlTag : htmlTag.Insert(1, "/");
+        }
+
+        public abstract int GetMdTagLengthToSkip();
+
+        protected bool IsTag(int position, string text)
+        {
+            return position + MdTag.Length <= text.Length
+                   && text.Substring(position, MdTag.Length) == MdTag;
         }
     }
 }
