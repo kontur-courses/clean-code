@@ -45,9 +45,10 @@ namespace Markdown
             var pairedWordTags = PairWordTags(tags.Where(x => x.GetType().BaseType == typeof(WordTag))
                 .Select(x => (WordTag) x), text);
             var tagsWithoutIntersecting = RemoveIntersectingPairTags(pairedWordTags);
+            var tagsWithoutNestingBold = RemoveBoldTagsInItalicTags(tagsWithoutIntersecting);
             var escapeTags = tags.Where(x => x is EscapeTag);
             var headerTags = tags.Where(x => x is HeaderTag);
-            return tagsWithoutIntersecting.Concat(escapeTags).Concat(headerTags);
+            return tagsWithoutNestingBold.Concat(escapeTags).Concat(headerTags);
         }
         
         private IEnumerable<Tag> RemoveIntersectingPairTags(IEnumerable<Tag> tags)
@@ -63,6 +64,26 @@ namespace Markdown
                 else
                 {
                     result.Add(openTags.Pop());
+                    result.Add(tag);
+                }
+            }
+
+            return result;
+        }
+
+        private IEnumerable<Tag> RemoveBoldTagsInItalicTags(IEnumerable<Tag> tags)
+        {
+            var result = new List<Tag>();
+            var inPair = false;
+            foreach (var tag in tags.OrderBy(x=>x.Position))
+            {
+                if (tag is ItalicTag)
+                {
+                    inPair = !inPair;
+                    result.Add(tag);
+                }
+                else if (!inPair)
+                {
                     result.Add(tag);
                 }
             }

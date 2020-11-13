@@ -79,5 +79,11 @@ namespace Markdown
         {
             md.Render("__as_d __a_sd").Should().Be("__as_d __a_sd");
         }
+        
+        [Test]
+        public void NotRenderBoldTag_WhenNestingInItalicTag()
+        {
+            md.Render("_a__s__d_").Should().Be("<em>a__s__d</em>");
+        }
     }
 }
