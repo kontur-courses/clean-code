@@ -44,7 +44,7 @@ namespace MarkdownTests
         [TestCase("te\n\rxt\n\r", new[] {"te", "xt", ""},
             TestName = "SplitOnParagraphs_ParagraphCharsLastInLine_LastStringEmpty")]
         [TestCase("", new[] {""}, TestName = "SplitOnParagraphs_EmptyString_OneEmptyString")]
-        [TestCase("\n\r",new[]{"",""},TestName = "SplitOnParagraphs_OnlyOneParagraphCharsPair_TwoEmptyString")]
+        [TestCase("\n\r", new[] {"", ""}, TestName = "SplitOnParagraphs_OnlyOneParagraphCharsPair_TwoEmptyString")]
         public void SplitOnParagraphsChecker(string input, IEnumerable<string> expected)
         {
             TextWorker.SplitOnParagraphs(input).Should().Equal(expected);
