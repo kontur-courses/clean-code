@@ -25,6 +25,7 @@ namespace Markdown.Infrastructure.Parsers
             var tagsEnumerator = validTags.GetEnumerator();
             while (tagsEnumerator.MoveNext())
             {
+                processedPosition = AddPreviousUnprocessedBlock(tagsEnumerator, processedPosition, text, subBlocks);
                 var (subBlock, processed) = BuildBlock(tagsEnumerator, processedPosition, text);
                 subBlocks.Add(subBlock);
                 processedPosition = processed;
@@ -45,8 +46,6 @@ namespace Markdown.Infrastructure.Parsers
             var rootTag = tagsEnumerator.Current;
             var subBlocks = new List<IBlock>();
             var rootBlock = new StyledBlock(rootTag.Style, subBlocks);
-            
-            processedPosition = AddPreviousUnprocessedBlock(tagsEnumerator, processedPosition, text, subBlocks);
 
             while (tagsEnumerator.MoveNext())
             {
@@ -71,7 +70,7 @@ namespace Markdown.Infrastructure.Parsers
             List<IBlock> subBlocks)
         {
             var currentTag = tagsEnumerator.Current;
-            if (currentTag.Offset <= processedPosition) 
+            if (currentTag.Offset < processedPosition) 
                 return processedPosition;
             
             subBlocks.Add(GetBlockFromText(text, processedPosition, currentTag.Offset));
