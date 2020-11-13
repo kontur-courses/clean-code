@@ -4,7 +4,7 @@
     {
         Simple,
         Header,
-        Em,
+        Italic,
         Strong
     }
 }

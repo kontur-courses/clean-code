@@ -1,9 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using NUnit.Framework;
+﻿using NUnit.Framework;
 
 namespace Markdown
 {
@@ -34,10 +29,17 @@ namespace Markdown
         [TestCase("_Hello world_", "<em>Hello world<\\em>")]
         [TestCase("_Italic_ NotItalic", "<em>Italic<\\em> NotItalic")]
         [TestCase("_Italic_ NotItalic _Italic_", "<em>Italic<\\em> NotItalic <em>Italic<\\em>")]
+        public void Render_SupportsItalic_OnDifferentWords(string input, string expected)
+        {
+            var result = md.Render(input);
+
+            Assert.AreEqual(expected, result);
+        }
+
         [TestCase("nn_III_nn", "nn<em>III<\\em>nn")]
         [TestCase("nn_III_", "nn<em>III<\\em>")]
         [TestCase("_III_nn", "<em>III<\\em>nn")]
-        public void Test_Italics(string input, string expected)
+        public void Render_SupportsItalic_InsideOneWord(string input, string expected)
         {
             var result = md.Render(input);
 
@@ -49,14 +51,56 @@ namespace Markdown
         [TestCase("__Hello world__", "<strong>Hello world<\\strong>")]
         [TestCase("__Strong__ NotStrong", "<strong>Strong<\\strong> NotStrong")]
         [TestCase("__Strong__ NotStrong __Strong__", "<strong>Strong<\\strong> NotStrong <strong>Strong<\\strong>")]
-        [TestCase("nn__SSS__nn", "nn<strong>SSS<\\strong>nn")]
-        [TestCase("nn__SSS__", "nn<strong>SSS<\\strong>")]
-        [TestCase("__SSS__nn", "<strong>SSS<\\strong>nn")]
-        public void Test_Strong(string input, string expected)
+        public void Render_SupportsStrong_OnDifferentWords(string input, string expected)
         {
             var result = md.Render(input);
 
             Assert.AreEqual(expected, result);
+        }
+
+        [TestCase("nn__SSS__nn", "nn<strong>SSS<\\strong>nn")]
+        [TestCase("nn__SSS__", "nn<strong>SSS<\\strong>")]
+        [TestCase("__SSS__nn", "<strong>SSS<\\strong>nn")]
+        public void Render_SupportsStrong_InsideOneWord(string input, string expected)
+        {
+            var result = md.Render(input);
+
+            Assert.AreEqual(expected, result);
+        }
+
+        [TestCase("hel__lo wo__rld")]
+        [TestCase("hel_lo wo_rld")]
+        public void Render_ReturnsInputValue_OnTagsInsideTwoDifferentWords(string input)
+        {
+            var result = md.Render(input);
+
+            Assert.AreEqual(input, result);
+        }
+
+        [TestCase("__Strong _Intersection__ Italic_")]
+        public void Render_ReturnsInputValue_OnIntersectionTags(string input)
+        {
+            var result = md.Render(input);
+
+            Assert.AreEqual(input, result);
+        }
+
+        [TestCase("hel__12__lo")]
+        [TestCase("hel_12_lo")]
+        public void Render_ReturnsInputValue_OnNumberInTagInsideWord(string input)
+        {
+            var result = md.Render(input);
+
+            Assert.AreEqual(input, result);
+        }
+
+        [TestCase("__")]
+        [TestCase("____")]
+        public void Render_ReturnsInputValue_OnEmptyTags(string input)
+        {
+            var result = md.Render(input);
+
+            Assert.AreEqual(input, result);
         }
 
         [TestCase("__hello")]
@@ -65,21 +109,28 @@ namespace Markdown
         [TestCase("hello_")]
         [TestCase("hel__lo")]
         [TestCase("hel_lo")]
-        [TestCase("hel__12__lo")]
-        [TestCase("hel_12_lo")]
-        [TestCase("__Strong _Intersection__ Italic_")]
-        [TestCase("__")]
-        [TestCase("____")]
-        [TestCase("hel__lo wo__rld")]
-        [TestCase("hel_lo wo_rld")]
+        public void Render_ReturnsInputValue_OnSingleTags(string input)
+        {
+            var result = md.Render(input);
+
+            Assert.AreEqual(input, result);
+        }
+
         [TestCase("__hello \n world__")]
         [TestCase("_hello \n world_")]
         [TestCase("__hello_ \n __world_")]
+        public void Render_ReturnsInputValue_OnSingleTags_SupportingNewLine(string input)
+        {
+            var result = md.Render(input);
+
+            Assert.AreEqual(input, result);
+        }
+
         [TestCase("__hello __")]
         [TestCase("__ hello__")]
         [TestCase("_hello _")]
         [TestCase("_ hello_")]
-        public void Render_ReturnsInputValue_OnIncorrectUsingTags(string input)
+        public void Render_ReturnsInputValue_OnWhiteSpacesAroundTags(string input)
         {
             var result = md.Render(input);
 

@@ -10,55 +10,14 @@ namespace Markdown
     {
         public string Render(string input)
         {
-            //SplitToTokens(string line)
-            //ConvertTokensToString(List<Token> tokens)
-            throw new NotImplementedException();
-        }
-
-        private List<Token> SplitToTokens(string line)
-        {
-            //SkipWhiteSpaces(string line, int startPos)
-            //ReadToken(string line, int startPos)
-            throw new NotImplementedException();
-        }
-
-        private int SkipWhiteSpaces(string line, int startPos)
-        {
-            //ReadToken(string line, int startPos)
-            throw new NotImplementedException();
-        }
-
-        private Token ReadToken(string line, int startPos)
-        {
-            //ReadSimpleToken(string line, int startPos)
-            //ReadStrongToken(string line, int startPos)
-            //ReadEmToken(string line, int startPos)
-            //ReadHeaderToken(string line, int startPos)
-            throw new NotImplementedException();
-        }
-
-        private Token ReadSimpleToken(string line, int startPos)
-        {
-            throw new NotImplementedException();
-        }
-
-        private Token ReadStrongToken(string line, int startPos)
-        {
-            throw new NotImplementedException();
-        }
-
-        private Token ReadEmToken(string line, int startPos)
-        {
-            throw new NotImplementedException();
-        }
-
-        private Token ReadHeaderToken(string line, int startPos)
-        {
-            throw new NotImplementedException();
-        }
-
-        private string ConvertTokensToString(List<Token> tokens)
-        {
+            // Сначала создаем основной Token, с данными параметрами:
+            // StartPosition = 0
+            // Length = input.Length
+            // SubTokens = null;
+            // TokenType = TokenType.Simple
+            // Таким образом мы с самого начала представляем весь наш текст в виде одного большого токена обычного типа 
+            // Затем для этого токена вызываем TokenReader.Read
+            // Затем получаем финальную строку, передав этот токен в TokenWriter.Write
             throw new NotImplementedException();
         }
     }
