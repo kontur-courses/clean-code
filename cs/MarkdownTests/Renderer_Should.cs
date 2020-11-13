@@ -13,29 +13,31 @@ namespace MarkdownTests
         public void Render_ThrowException(string originalText)
         {
             var act = new Action(() => Renderer.Render(originalText));
-            
+
             act.Should().Throw<ArgumentException>();
         }
-        
+
         [TestCase("_aabb_", "<em>aabb</em>", TestName = "When simple italic tag")]
         [TestCase("a_b_", "a<em>b</em>", TestName = "When italic tag in word")]
         [TestCase("_d__a__f_", "<em>d__a__f</em>", TestName = "When bold inside italic selection")]
+        [TestCase(@"\\_aabb_", @"\<em>aabb</em>", TestName = "When escaping slash")]
         public void Render_Italic(string originalText, string expectedText)
         {
             var act = Renderer.Render(originalText);
-            
+
             act.Should().Be(expectedText);
         }
-        
+
         [TestCase("__aabb__", "<strong>aabb</strong>", TestName = "When simple bold")]
         [TestCase("a__b__", "a<strong>b</strong>", TestName = "When bold in word")]
+        [TestCase(@"\\__aabb__", @"\<strong>aabb</strong>", TestName = "When escaping slash")]
         public void Render_Bold(string originalText, string expectedText)
         {
             var act = Renderer.Render(originalText);
-            
+
             act.Should().Be(expectedText);
         }
-        
+
         [TestCase("____", TestName = "When empty inside bold")]
         [TestCase("__", TestName = "When empty inside italic")]
         [TestCase("__ aabb__", TestName = "When white space at the beginning of bold")]
@@ -57,44 +59,66 @@ namespace MarkdownTests
         [TestCase("__12345__", TestName = "When only digits inside bold")]
         [TestCase("car#", TestName = "When header at the end")]
         [TestCase(" #car", TestName = "When header not at the beginning")]
+        [TestCase(@"\dsd\", TestName = "When nothing escape")]
         public void Render_SimpleText(string originalText)
         {
             var act = Renderer.Render(originalText);
-            
+
             act.Should().Be(originalText);
         }
-        
+
         [TestCase("__ab__ _c_", "<strong>ab</strong> <em>c</em>", TestName = "When not intersection")]
         [TestCase("__d_a_f__", "<strong>d<em>a</em>f</strong>", TestName = "When italic inside bold selection")]
         public void Render_ItalicAndBold(string originalText, string expectedText)
         {
             var act = Renderer.Render(originalText);
-            
+
             act.Should().Be(expectedText);
         }
-        
+
         [TestCase("#car", "<h1>car</h1>")]
         public void Render_Title_WhenSimpleHeaderSelection(string originalText, string expectedText)
         {
             var act = Renderer.Render(originalText);
-            
+
             act.Should().Be(expectedText);
         }
-        
+
         [TestCase("#car \n#bmw \n#mercedes", "<h1>car </h1>\n<h1>bmw </h1>\n<h1>mercedes</h1>")]
         public void Render_Titles_WhenManyHeaders(string originalText, string expectedText)
         {
             var act = Renderer.Render(originalText);
-            
+
             act.Should().Be(expectedText);
         }
-        
+
         [TestCase("#_a_ __b__ __c_d_c__ aa", "<h1><em>a</em> <strong>b</strong> <strong>c<em>d</em>c</strong> aa</h1>")]
         public void Render_TagsCombination_WhenManyDifferentSelections(string originalText, string expectedText)
         {
             var act = Renderer.Render(originalText);
-            
+
             act.Should().Be(expectedText);
+        }
+
+        [TestCase(@"\_dsd_", "_dsd_", TestName = "When escaping italic at the beginning")]
+        [TestCase(@"\__dsd__", "__dsd__", TestName = "When escaping bold at the beginning")]
+        [TestCase(@"_dsd\_", @"_dsd_", TestName = "When escaping italic at the end")]
+        [TestCase(@"__dsd\__", @"__dsd__", TestName = "When escaping bold at the end")]
+        [TestCase(@"\\\\dsd\\\\", @"\\dsd\\", TestName = "When many escaping")]
+        public void Render_TextWithOutEscapingSymbols(string originalText, string expectedText)
+        {
+            var act = Renderer.Render(originalText);
+
+            act.Should().Be(expectedText);
+        }
+
+        [TestCase(
+            @"# __Honor__ ___generosity___ \\_persistence_\\ _1creativity1_ \n __ emotionality__ _excitement\_ \n#__1_culture__1_111_",
+            @"<h1> <strong>Honor</strong> <strong><em>generosity</em></strong> \<em>persistence</em>\ " +
+            "<em>1creativity1</em> </h1>\n __ emotionality__ _excitement_ \n<h1>__1_culture__1_111_</h1>")]
+        public void Renderer_ManySelection_WhenDifferentSelectionEscapingAndSpaces(string originalText,
+            string expectedText)
+        {
         }
     }
 }

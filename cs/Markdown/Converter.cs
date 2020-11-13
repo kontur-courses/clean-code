@@ -1,5 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 
@@ -8,6 +7,7 @@ namespace Markdown
     public static class Converter
     {
         private static StringBuilder _htmlText = new StringBuilder();
+
         public static string ConvertToHtml(string[] markdownParagraphs, List<IOrderedEnumerable<Tag>> allTags)
         {
             for (var position = 0; position < markdownParagraphs.Length; position++)
