@@ -14,16 +14,21 @@ namespace Markdown
         }
 
         private MdToken nextToken;//Нужен, что-бы повторно не читать токен после SkipToNextToken
-        public virtual bool TryReadToken(out MdToken result, bool notRawText = false)
+        public bool TryReadToken(out MdToken result, bool notRawText = false)
         {
             result = nextToken;
             nextToken = null;
             
             return result != null
-                   || MdHeaderToken.TryRead(this, out result)
-                   || MdBoldToken.TryRead(this, out result)
-                   || MdItalicToken.TryRead(this, out result)
+                   || TryReadSpecializedTokens(out result)
                    || !notRawText && MdRawTextToken.TryRead(this, out result);
+        }
+
+        protected virtual bool TryReadSpecializedTokens(out MdToken result)
+        {
+            return MdHeaderToken.TryRead(this, out result)
+                   || MdBoldToken.TryRead(this, out result)
+                   || MdItalicToken.TryRead(this, out result);
         }
 
         public int SkipToNextToken(bool notRawText = true)
