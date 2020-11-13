@@ -36,7 +36,7 @@ namespace Markdown
                     }
                     else if (openTag.InWord(text) && !openTag.InOneWordWith(wordTag, text)
                     || !openTag.InOneParagraphWith(wordTag, text))
-                        openTags[tagType] = null;
+                        openTags[tagType] = wordTag;
                 }
             }
 
