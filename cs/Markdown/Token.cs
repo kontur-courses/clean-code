@@ -40,22 +40,7 @@ namespace Markdown
         private string CountHeaderValue(string line)
         {
             var stringBuilder = new StringBuilder("<h1>");
-            for (var i = 1; i < line.Length; i++)
-            {
-                var insertedToken = MarkdownParser.ReadBoldToken(line, i);
-                insertedToken = (insertedToken.Length > 0) ? insertedToken :MarkdownParser.ReadItalicToken(line, i);
-                if (insertedToken.Length > 0)
-                {
-                    stringBuilder.Append(insertedToken.Value);
-                    i += insertedToken.Length;
-                }
-                else
-                {
-                    var count = MarkdownParser.SkipNotStyleWords(line, i);
-                    stringBuilder.Append(line.Substring(i, count));
-                    i += count;
-                }
-            }
+            stringBuilder.Append(MarkdownParser.GetHtmlValue(line.Substring(1)));
 
             stringBuilder.Append("</h1>");
 
@@ -94,13 +79,14 @@ namespace Markdown
 
         public static Token Empty()
         {
-            return new Token(0, 0, TokenType.Bold, "");
+            return new Token(0, 0, TokenType.Empty, "");
         }
     }
-    
+
     public enum TokenType{
         Italic,
         Bold,
-        Header
+        Header,
+        Empty
     }
 }

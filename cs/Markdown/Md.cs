@@ -15,23 +15,10 @@ namespace Markdown
                 if (token.Length > 0)
                 {
                     stringAccumulator.Append(token.Value);
-                    continue;
                 }
-                for (var i = 0; i < line.Length; i++)
+                else
                 {
-                    var insertedToken = MarkdownParser.ReadBoldToken(line, i);
-                    insertedToken = (insertedToken.Length > 0) ? insertedToken :MarkdownParser.ReadItalicToken(line, i);
-                    if (insertedToken.Length > 0)
-                    {
-                        stringAccumulator.Append(insertedToken.Value);
-                        i += insertedToken.Length;
-                    }
-                    else
-                    {
-                        var count = MarkdownParser.SkipNotStyleWords(line, i);
-                        stringAccumulator.Append(line.Substring(i, count));
-                        i += count;
-                    }
+                    stringAccumulator.Append(MarkdownParser.GetHtmlValue(line));
                 }
             }
             return stringAccumulator.ToString();
@@ -40,6 +27,28 @@ namespace Markdown
 
     internal static class MarkdownParser
     {
+        public static string GetHtmlValue(string line)
+        {
+            var stringAccumulator = new StringBuilder();
+            for (var i = 0; i < line.Length; i++)
+            {
+                var insertedToken = ReadBoldToken(line, i);
+                insertedToken = (insertedToken.Length > 0) ? insertedToken :MarkdownParser.ReadItalicToken(line, i);
+                if (insertedToken.Length > 0)
+                {
+                    stringAccumulator.Append(insertedToken.Value);
+                    i += insertedToken.Length;
+                }
+                else
+                {
+                    var count = MarkdownParser.SkipNotStyleWords(line, i);
+                    stringAccumulator.Append(line.Substring(i, count));
+                    i += count;
+                }
+            }
+
+            return stringAccumulator.ToString();
+        }
         public static Token ReadItalicToken(string line, int startIndex)
         {
             if (!IsItalicTokenStarting(line, startIndex))
