@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
 
 namespace Markdown.Core
 {
@@ -7,7 +8,7 @@ namespace Markdown.Core
     {
         public static string ConvertToHtmlString(this IEnumerable<IToken> tokens)
         {
-            throw new NotImplementedException();
+            return string.Join("", tokens.Select(t => t.ToHtmlString()));
         }
     }
 }
