@@ -1,10 +1,10 @@
 using System;
 using System.Collections.Generic;
-using Markdown.Infrastructure.Tags;
+using Markdown.Infrastructure.Blocks;
 
 namespace Markdown.Infrastructure.Formatters
 {
-    public class HtmlFormatter : TagFormatter
+    public class HtmlFormatter : BlockFormatter
     {
         public HtmlFormatter()
         {
@@ -12,13 +12,16 @@ namespace Markdown.Infrastructure.Formatters
             {
                 {Style.None, Wrap("", "")},
                 {Style.Bold, Wrap("<strong>", "</strong>")},
-                {Style.Angled, Wrap("<em>", "</em>")}
+                {Style.Angled, Wrap("<em>", "</em>")},
+                {Style.Header, Wrap("<h1>", "</h1>")},
             };
         }
         
         public override IEnumerable<string> Format(Style style, IEnumerable<string> words)
         {
-            throw new NotImplementedException();
+            return Wrappers.TryGetValue(style, out var wrap) 
+                ? wrap(words) 
+                : words;
         }
     }
 }

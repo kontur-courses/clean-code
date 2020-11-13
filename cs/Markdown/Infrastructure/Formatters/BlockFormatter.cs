@@ -1,10 +1,10 @@
 using System;
 using System.Collections.Generic;
-using Markdown.Infrastructure.Tags;
+using Markdown.Infrastructure.Blocks;
 
 namespace Markdown.Infrastructure.Formatters
 {
-    public abstract class TagFormatter
+    public abstract class BlockFormatter
     {
         protected Dictionary<Style, Func<IEnumerable<string>, IEnumerable<string>>> Wrappers;
         public abstract IEnumerable<string> Format(Style style, IEnumerable<string> words);

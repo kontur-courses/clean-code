@@ -1,18 +1,18 @@
 using System.Collections.Generic;
 using Markdown.Infrastructure.Formatters;
 
-namespace Markdown.Infrastructure.Tags
+namespace Markdown.Infrastructure.Blocks
 {
-    public class PlainTag : ITag
+    public class PlainBlock : IBlock
     {
         private readonly string word;
 
-        public PlainTag(string word)
+        public PlainBlock(string word)
         {
             this.word = word;
         }
 
-        public IEnumerable<string> Format(TagFormatter _)
+        public IEnumerable<string> Format(BlockFormatter _)
         {
             yield return word;
         }
