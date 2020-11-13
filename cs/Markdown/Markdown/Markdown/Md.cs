@@ -4,7 +4,7 @@ using System.Net.NetworkInformation;
 
 namespace Markdown
 {
-    public class Md
+    public class Md : IMarkDown
     {
         private Parser parser; 
         private MarkdownProcessor markdownProcessor;

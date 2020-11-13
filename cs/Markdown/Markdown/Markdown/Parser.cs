@@ -3,7 +3,7 @@ using System.Collections.Generic;
 
 namespace Markdown
 {
-    public class Parser
+    public class Parser : IParser
     {
         private List<(string FirstSymbol,string LastSymbol)> markSymbols;
 

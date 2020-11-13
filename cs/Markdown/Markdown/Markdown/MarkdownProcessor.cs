@@ -3,7 +3,7 @@ using System.Collections.Generic;
 
 namespace Markdown
 {
-    public class MarkdownProcessor
+    public class MarkdownProcessor : IMarkdownProcessor
     {
         public List<Mark> Marks { get; }
         public MarkdownProcessor()
