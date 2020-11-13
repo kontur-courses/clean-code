@@ -25,14 +25,14 @@ namespace Markdown
             unorderedListTagCollector = new LikeHeaderTagCollector<UnorderedListTag>(textWorker);
         }
 
-        public static string Render(string lineInMarkdown)
+        public static string Render(string textInMarkdown)
         {
-            var htmlLineBuilder = new StringBuilder();
-            var paragraphs = lineInMarkdown.Split(paragraphDelimiter);
+            var htmlTextBuilder = new StringBuilder();
+            var paragraphs = textInMarkdown.Split(paragraphDelimiter);
 
-            htmlLineBuilder.AppendJoin(paragraphDelimiter, paragraphs.Select(RenderParagraph));
+            htmlTextBuilder.AppendJoin(paragraphDelimiter, paragraphs.Select(RenderParagraph));
 
-            return textWorker.DeleteEscapeCharFromLine(htmlLineBuilder.ToString());
+            return textWorker.DeleteEscapeCharFromLine(htmlTextBuilder.ToString());
         }
 
         private static string RenderParagraph(string paragraph)
