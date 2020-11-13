@@ -6,7 +6,9 @@ namespace Markdown
     {
         public static string Render(string textInMarkdown)
         {
-            throw new NotImplementedException();
+            if (string.IsNullOrEmpty(textInMarkdown))
+                throw new ArgumentException("String is null or empty");
+            return "";
         }
     }
 }
