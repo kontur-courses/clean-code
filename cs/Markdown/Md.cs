@@ -60,25 +60,27 @@ namespace Markdown
 
         private static string MdToHtml(string line, List<Tag> tags)
         {
-            var orderedIndexes = tags
-                .SelectMany(tag => new[] {tag.StartOfOpeningTag, tag.StartOfClosingTag})
-                .OrderBy(index => index);
-            
             var renderLine = new StringBuilder();
-            var lastIndex = 0;
-            foreach (var index in orderedIndexes)
+            for (int i = 0; i < line.Length; i++)
             {
-                var tag = tags.First(tag =>
-                    tag.StartOfOpeningTag == index || tag.StartOfClosingTag == index);
-                
-                renderLine.Append(line.Substring(lastIndex, index - lastIndex));
-                renderLine.Append(index == tag.StartOfOpeningTag ? tag.OpeningHtmlTag : tag.ClosingHtmlTag);
-                
-                lastIndex = index + tag.MdTag.Length;
+                var tagToReplace = tags.Find(tagToFind => 
+                    tagToFind.StartOfOpeningTag == i || tagToFind.StartOfClosingTag == i);
+
+                if (tagToReplace != null)
+                {
+                    renderLine.Append(i == tagToReplace.StartOfOpeningTag ?
+                        tagToReplace.OpeningHtmlTag :
+                        tagToReplace.ClosingHtmlTag);
+                    i += tagToReplace.MdTag.Length - 1;
+                    continue;
+                }
+
+                renderLine.Append(line[i]);
             }
 
-            if (lastIndex < line.Length)
-                renderLine.Append(line.Substring(lastIndex, line.Length - lastIndex));
+            var headerLikeTag = tags.Find(tag => tag is HeaderTag || tag is UnorderedListTag);
+            if (headerLikeTag != null)
+                renderLine.Append(headerLikeTag.ClosingHtmlTag);
 
             return renderLine.ToString();
         }
