@@ -12,8 +12,7 @@ namespace Markdown
         public override bool TryParse(int position, string text, out Tag tag)
         {
             if (IsTag(position, text) && TagParser.SupportedTags
-                .Select(x => x.MdTag[0])
-                .Any(x => text[position + 1] == x))
+                .Any(x => x.ParseForEscapeTag(position, text)))
             {
                 tag = new EscapeTag(position);
                 return true;

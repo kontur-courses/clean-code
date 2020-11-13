@@ -20,6 +20,11 @@
 
         public abstract bool TryParse(int position, string text, out Tag tag);
 
+        public virtual bool ParseForEscapeTag(int position, string text)
+        {
+            return IsTag(position + 1, text);
+        }
+
         public string GetHtmlTag()
         {
             return IsOpening ? htmlTag : htmlTag.Insert(1, "/");
