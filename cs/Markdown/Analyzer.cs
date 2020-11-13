@@ -28,6 +28,13 @@ namespace Markdown
             var i = 0;
             while (i < paragraph.Length)
             {
+                if (IsHeaderSelection(paragraph, i))
+                {
+                    yield return new StartTag(TextSelectionType.Header, 0, 1);
+                    yield return new EndTag(TextSelectionType.Header, paragraph.Length, 1);
+                    i++;
+                    continue;
+                }
                 var currentMarkdownSymbol = GetMarkdownSymbol(paragraph, i);
                 if (string.IsNullOrEmpty(currentMarkdownSymbol))
                 {
@@ -142,6 +149,13 @@ namespace Markdown
         private bool IsEmptyInsideSelection(int position, string currentMarkdownSymbol)
         {
             return position - currentMarkdownSymbol.Length == _startTags.Peek().Position;
+        }
+        
+        private static bool IsHeaderSelection(string paragraph, int position)
+        {
+            var possibleHeader = paragraph[position].ToString();
+            return position == 0 && paragraph.Length > 1 && Comparison.IsMarkdownSymbol(possibleHeader) &&
+                   Comparison.GetTextSelectionType(possibleHeader) == TextSelectionType.Header;
         }
     }
 }

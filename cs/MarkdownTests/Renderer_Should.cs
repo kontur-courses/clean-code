@@ -55,6 +55,8 @@ namespace MarkdownTests
         [TestCase("aa__aaa c__c", TestName = "When bold in different words")]
         [TestCase("_1_", TestName = "When only digits inside italic")]
         [TestCase("__12345__", TestName = "When only digits inside bold")]
+        [TestCase("car#", TestName = "When header at the end")]
+        [TestCase(" #car", TestName = "When header not at the beginning")]
         public void Render_SimpleText(string originalText)
         {
             var act = Renderer.Render(originalText);
@@ -65,6 +67,30 @@ namespace MarkdownTests
         [TestCase("__ab__ _c_", "<strong>ab</strong> <em>c</em>", TestName = "When not intersection")]
         [TestCase("__d_a_f__", "<strong>d<em>a</em>f</strong>", TestName = "When italic inside bold selection")]
         public void Render_ItalicAndBold(string originalText, string expectedText)
+        {
+            var act = Renderer.Render(originalText);
+            
+            act.Should().Be(expectedText);
+        }
+        
+        [TestCase("#car", "<h1>car</h1>")]
+        public void Render_Title_WhenSimpleHeaderSelection(string originalText, string expectedText)
+        {
+            var act = Renderer.Render(originalText);
+            
+            act.Should().Be(expectedText);
+        }
+        
+        [TestCase("#car \n#bmw \n#mercedes", "<h1>car </h1>\n<h1>bmw </h1>\n<h1>mercedes</h1>")]
+        public void Render_Titles_WhenManyHeaders(string originalText, string expectedText)
+        {
+            var act = Renderer.Render(originalText);
+            
+            act.Should().Be(expectedText);
+        }
+        
+        [TestCase("#_a_ __b__ __c_d_c__ aa", "<h1><em>a</em> <strong>b</strong> <strong>c<em>d</em>c</strong> aa</h1>")]
+        public void Render_TagsCombination_WhenManyDifferentSelections(string originalText, string expectedText)
         {
             var act = Renderer.Render(originalText);
             
