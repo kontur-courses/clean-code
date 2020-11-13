@@ -4,13 +4,11 @@ namespace Markdown
 {
     public class Md
     {
-        public Md()
-        {
-        }
-
+   
         public string Render(string text)
         {
-            throw new NotImplementedException();
+            var tokens = TokenReader.ReadTokens(text);
+            return Converter.ToHTML(tokens);
         }
     }
 }
