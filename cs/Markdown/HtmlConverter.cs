@@ -1,5 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 
@@ -7,7 +6,7 @@ namespace Markdown
 {
     public class HtmlConverter : IConverter
     {
-        public string CovertTokensToHtml(List<Token> tokens)
+        public string ConvertTokensToHtml(List<Token> tokens)
         {
             var sortedTokens = tokens.OrderBy(x => x.Position);
             var result = new StringBuilder();

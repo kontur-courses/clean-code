@@ -95,7 +95,7 @@ namespace Markdown
                     var value = text.Substring(startIndex, i - startIndex);
                     tokens.Add(new Token(startIndex, value, TokenType.PlainText));
 
-                    i = token.Position + token.Lenght();
+                    i = token.Position + token.Length;
                     startIndex = i;
                     tokens.Add(token);
                 }
@@ -130,7 +130,7 @@ namespace Markdown
                 if (!IsEmphasizedEndTag(text, i))
                     continue;
 
-                if (intersectedToken != null && intersectedToken.Lenght() > i)
+                if (intersectedToken != null && intersectedToken.Length > i)
                     break;
 
                 value = text.Substring(index, i - index + 1);
@@ -160,7 +160,7 @@ namespace Markdown
                 if (!IsStrongEndTag(text, i))
                     continue;
 
-                if (intersectedToken != null && intersectedToken.Lenght() > i)
+                if (intersectedToken != null && intersectedToken.Length > i)
                     break;
 
                 value = text.Substring(index, i - index + 2);

@@ -4,6 +4,6 @@ namespace Markdown
 {
     public interface IConverter
     {
-        string CovertTokensToHtml(List<Token> tokens);
+        string ConvertTokensToHtml(List<Token> tokens);
     }
 }

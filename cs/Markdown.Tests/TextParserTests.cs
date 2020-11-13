@@ -8,12 +8,12 @@ namespace MarkdownTests
 {
     public class TextParserTests
     {
-        private TextParser Sut { get; set; }
+        private TextParser Parser { get; set; }
 
         [SetUp]
         public void SetUp()
         {
-            Sut = new TextParser();
+            Parser = new TextParser();
         }
 
         static object[] TestCases =
