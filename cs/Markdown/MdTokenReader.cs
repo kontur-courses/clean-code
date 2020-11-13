@@ -13,37 +13,40 @@ namespace Markdown
             Text = text;
         }
 
+        private MdToken nextToken;//Нужен, что-бы повторно не читать токен после SkipToNextToken
+        public virtual bool TryReadToken(out MdToken result, bool notRawText = false)
+        {
+            result = nextToken;
+            nextToken = null;
+            
+            return result != null
+                   || MdHeaderToken.TryRead(this, out result)
+                   || MdBoldToken.TryRead(this, out result)
+                   || MdItalicToken.TryRead(this, out result)
+                   || !notRawText && MdRawTextToken.TryRead(this, out result);
+        }
+
+        public int SkipToNextToken(bool notRawText = true)
+        {
+            throw new NotImplementedException();
+        }
+
         public string ReadAndParseAll()
         {
             throw new NotImplementedException();
         }
 
-        public MdToken ReadToken()
+        public string ReadNextWord(bool inCurrentParagraph = true)
         {
             throw new NotImplementedException();
         }
 
-        public string ParseToken(MdToken token)
+        public string GetNextChars(int count)
         {
             throw new NotImplementedException();
         }
 
-        private int SkipUntilNextToken(MdTokenTypes currentTokenType = MdTokenTypes.RawText)
-        {
-            throw new NotImplementedException();
-        }
-
-        private string ReadNextWord(bool inCurrentParagraph = true)
-        {
-            throw new NotImplementedException();
-        }
-
-        private string GetNextChars(int count)
-        {
-            throw new NotImplementedException();
-        }
-
-        private int SkipSpaces(bool inCurrentParagraph = true)
+        public int SkipSpaces(bool inCurrentParagraph = true)
         {
             var position = GetNextNonSpaceCharPosition(inCurrentParagraph);
             var spacesCount = position - CurrentPosition;
@@ -51,7 +54,7 @@ namespace Markdown
             return spacesCount;
         }
 
-        private int GetNextNonSpaceCharPosition(bool inCurrentParagraph = true)
+        public int GetNextNonSpaceCharPosition(bool inCurrentParagraph = true)
         {
             throw new NotImplementedException();
         }
