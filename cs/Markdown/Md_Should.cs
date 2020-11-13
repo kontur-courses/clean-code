@@ -75,6 +75,12 @@ namespace Markdown
         }
         
         [Test]
+        public void NotRenderItalicTag_WhenTagsInDifferentParagraphs()
+        {
+            md.Render("_asd\r\nasd_").Should().Be("_asd\r\nasd_");
+        }
+        
+        [Test]
         public void NotRenderTags_WhenTagsIntersecting()
         {
             md.Render("__as_d __a_sd").Should().Be("__as_d __a_sd");

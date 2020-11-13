@@ -1,4 +1,5 @@
-﻿using System.Linq;
+﻿using System;
+using System.Linq;
 
 namespace Markdown
 {
@@ -10,7 +11,7 @@ namespace Markdown
         {
         }
 
-        private bool InWord(string text)
+        public bool InWord(string text)
         {
             return Position != 0
                    && Position + MdTag.Length != text.Length
@@ -32,12 +33,12 @@ namespace Markdown
 
         public bool TryPairCloseTag(WordTag closeTag, string text)
         {
-            if (!closeTag.CanBeClose(text))
+            if (!closeTag.CanBeClose(text) || !InOneParagraphWith(closeTag, text))
                 return false;
             var anyTagInWord = InWord(text) || closeTag.InWord(text);
             if (anyTagInWord)
             {
-                if (text.Substring(Position, closeTag.Position - Position).Any(char.IsWhiteSpace))
+                if (!InOneWordWith(closeTag, text))
                     return false;
                 closeTag.IsOpening = false;
                 return true;
@@ -45,6 +46,16 @@ namespace Markdown
 
             closeTag.IsOpening = false;
             return true;
+        }
+
+        public bool InOneWordWith(WordTag otherTag, string text)
+        {
+            return !text.Substring(Position, otherTag.Position - Position).Any(char.IsWhiteSpace);
+        }
+        
+        public bool InOneParagraphWith(WordTag otherTag, string text)
+        {
+            return !text.Substring(Position, otherTag.Position - Position).Contains(Environment.NewLine);
         }
     }
 }
