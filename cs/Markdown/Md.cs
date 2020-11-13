@@ -50,7 +50,7 @@ namespace Markdown
             var tagsWithoutIntersecting = RemoveIntersectingPairTags(pairedWordTags);
             var tagsWithoutNestingBold = RemoveBoldTagsInItalicTags(tagsWithoutIntersecting);
             var italicTags = tagsWithoutNestingBold.Where(x => x is ItalicTag);
-            var boldTags = RemoveEmptyBoldTags(tagsWithoutNestingBold);
+            var boldTags = RemoveEmptyBoldTags(tagsWithoutNestingBold.Where(x => x is BoldTag));
             var escapeTags = tags.Where(x => x is EscapeTag);
             var headerTags = tags.Where(x => x is HeaderTag);
             return italicTags.Concat(boldTags).Concat(escapeTags).Concat(headerTags);
