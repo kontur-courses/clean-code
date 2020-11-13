@@ -91,5 +91,11 @@ namespace Markdown
         {
             md.Render("_a__s__d_").Should().Be("<em>a__s__d</em>");
         }
+        
+        [Test]
+        public void NotRenderBoldTag_WhenStringBetweenTagsIsEmpty()
+        {
+            md.Render("____").Should().Be("____");
+        }
     }
 }

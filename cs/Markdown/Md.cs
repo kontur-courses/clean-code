@@ -49,9 +49,11 @@ namespace Markdown
                 .Select(x => (WordTag) x), text);
             var tagsWithoutIntersecting = RemoveIntersectingPairTags(pairedWordTags);
             var tagsWithoutNestingBold = RemoveBoldTagsInItalicTags(tagsWithoutIntersecting);
+            var italicTags = tagsWithoutNestingBold.Where(x => x is ItalicTag);
+            var boldTags = RemoveEmptyBoldTags(tagsWithoutNestingBold);
             var escapeTags = tags.Where(x => x is EscapeTag);
             var headerTags = tags.Where(x => x is HeaderTag);
-            return tagsWithoutNestingBold.Concat(escapeTags).Concat(headerTags);
+            return italicTags.Concat(boldTags).Concat(escapeTags).Concat(headerTags);
         }
         
         private IEnumerable<Tag> RemoveIntersectingPairTags(IEnumerable<Tag> tags)
@@ -88,6 +90,31 @@ namespace Markdown
                 else if (!inPair)
                 {
                     result.Add(tag);
+                }
+            }
+
+            return result;
+        }
+        
+        private IEnumerable<Tag> RemoveEmptyBoldTags(IEnumerable<Tag> tags)
+        {
+            var result = new List<Tag>();
+            Tag openTag = null;
+            foreach (var boldTag in tags.OrderBy(x=>x.Position))
+            {
+                if (openTag == null)
+                {
+                    openTag = boldTag;
+                }
+                else
+                {
+                    if (boldTag.Position - openTag.Position != openTag.MdTag.Length)
+                    {
+                        result.Add(openTag);
+                        result.Add(boldTag);
+                    }
+
+                    openTag = null;
                 }
             }
 
