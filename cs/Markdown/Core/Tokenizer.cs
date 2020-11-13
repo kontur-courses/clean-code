@@ -1,60 +1,69 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 using Markdown.TokenModels;
 
 namespace Markdown.Core
 {
-    public static class StringExtension
+    public static class Tokenizer
     {
-        public static readonly char[] SpecialChars = {'_', '#'};
-        
-        public static IEnumerable<IToken> ParseIntoTokens(this string mdText)
+        private static readonly Dictionary<string, string> Tags = new Dictionary<string, string>
+        {
+            {"__", "__"},
+            {"_", "_"},
+            {"#", "\n"}
+        };
+
+        public static IEnumerable<IToken> ParseIntoTokens(string mdText)
         {
             var tokens = new List<IToken>();
-            var currentField = "";
-            for (var i = 0; i < mdText.Length; i++)
+            var stringTokenValue = "";
+            for (var index = 0; index < mdText.Length;)
             {
-                if (SpecialChars.Contains(mdText[i]) && currentField != "")
+                if (!Tags.ContainsKey(mdText[index].ToString()))
                 {
-                    tokens.Add(new StringToken(currentField));
-                    currentField = "";
+                    stringTokenValue += mdText[index++];
+                    continue;
                 }
+
+                if (stringTokenValue != "")
+                {
+                    tokens.Add(new StringToken(stringTokenValue));
+                    stringTokenValue = "";
+                }
+
+                var closingTag = Tags[mdText[index] + (mdText[index + 1] is '_' ? "_" : "")];
+                var startIndex = index + closingTag.Length;
                 
-                switch (mdText[i])
-                {
-                    case '_' when mdText[i + 1] == '_':
-                    {
-                        i += 2;
-                        var startIndex = i;
-                        while (mdText[i].ToString() + mdText[i + 1] != "__") i++;
-                        
-                        var mdString = mdText.Substring(startIndex, i++ - startIndex);
-                        var boldToken = BoldToken.Create(mdString);
-                        
-                        tokens.Add(boldToken);
-                        break;
-                    }
-                    case '_':
-                    {
-                        i += 1;
-                        var startIndex = i;
-                        while (mdText[i] != '_') i++;
-                        
-                        var mdString = mdText.Substring(startIndex, i - startIndex);
-                        var italicToken = ItalicToken.Create(mdString);
-                        
-                        tokens.Add(italicToken);
-                        break;
-                    }
-                    default:
-                        currentField += mdText[i];
-                        break;
-                }
+                if (closingTag == "\n" && !mdText.Contains("\n"))
+                    mdText += "\n";
+                
+                var tokenValue = GetTokenValue(startIndex, closingTag, mdText);
+                var newToken = GetToken(closingTag, tokenValue);
+                
+                tokens.Add(newToken);
+                index += closingTag.Length + tokenValue.Length + closingTag.Length;
             }
-            
-            if (currentField != "") tokens.Add(new StringToken(currentField));
+
+            if (stringTokenValue != "") 
+                tokens.Add(new StringToken(stringTokenValue));
 
             return tokens;
+        }
+
+        private static IToken GetToken(string tagType, string tokenValue) => tagType switch
+        {
+            "\n" => HeaderToken.Create(tokenValue),
+            "_" => ItalicToken.Create(tokenValue),
+            "__" => BoldToken.Create(tokenValue),
+            _ => throw new ArgumentException()
+        };
+
+
+        private static string GetTokenValue(int startIndex, string closedTag, string mdText)
+        {
+            var length = mdText.Substring(startIndex).IndexOf(closedTag, StringComparison.Ordinal);
+            return mdText.Substring(startIndex, length);
         }
     }
 }
