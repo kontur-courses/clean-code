@@ -2,7 +2,7 @@
 
 namespace Markdown
 {
-    public class MdItalicToken : MdToken
+    public class MdItalicToken : MdTokenWithSubTokens
     {
         public override string Parse(MdTokenReader reader) => $"<em>{ParseSubtokens(reader)}</em>";
         
