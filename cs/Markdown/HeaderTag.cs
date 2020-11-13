@@ -11,10 +11,10 @@ namespace Markdown
 
         public override bool TryParse(int position, string text, out Tag tag)
         {
-            if (IsTag(position, text) && position == 0
+            if (IsTag(position, text) && (position == 0
                 || position - Environment.NewLine.Length >= 0
                 && text.Substring(position - Environment.NewLine.Length, Environment.NewLine.Length) ==
-                Environment.NewLine)
+                Environment.NewLine))
             {
                 tag = new HeaderTag(position, "# ", true);
                 return true;
