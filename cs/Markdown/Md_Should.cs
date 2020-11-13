@@ -41,13 +41,13 @@ namespace Markdown
         [Test]
         public void NotRenderItalicTag_WhenEscaped()
         {
-            md.Render("/_asd/_").Should().Be("_asd_");
+            md.Render(@"\_asd\_").Should().Be("_asd_");
         }
 
         [Test]
         public void RenderItalicTag_WhenEscapeSymbolEscaped()
         {
-            md.Render("//_asd//_").Should().Be("/<em>asd/</em>");
+            md.Render(@"\\_asd\\_").Should().Be(@"\<em>asd\</em>");
         }
 
         [Test]

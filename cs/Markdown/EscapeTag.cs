@@ -5,7 +5,7 @@ namespace Markdown
     public class EscapeTag : Tag
     {
         private EscapeTag(int position)
-            : base("/", "", position, true)
+            : base(@"\", "", position, true)
         {
         }
 
