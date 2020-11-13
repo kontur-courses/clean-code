@@ -6,7 +6,7 @@ namespace Markdown
     {
         public string GetHtmlMarkup(string text)
         {
-            throw new NotImplementedException();
+            return text;
         }
     }
 }
