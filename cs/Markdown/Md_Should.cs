@@ -73,5 +73,11 @@ namespace Markdown
         {
             md.Render("as_d a_sd").Should().Be("as_d a_sd");
         }
+        
+        [Test]
+        public void NotRenderTags_WhenTagsIntersecting()
+        {
+            md.Render("__as_d __a_sd").Should().Be("__as_d __a_sd");
+        }
     }
 }

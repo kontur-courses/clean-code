@@ -44,9 +44,30 @@ namespace Markdown
         {
             var pairedWordTags = PairWordTags(tags.Where(x => x.GetType().BaseType == typeof(WordTag))
                 .Select(x => (WordTag) x), text);
+            var tagsWithoutIntersecting = RemoveIntersectingPairTags(pairedWordTags);
             var escapeTags = tags.Where(x => x is EscapeTag);
             var headerTags = tags.Where(x => x is HeaderTag);
-            return pairedWordTags.Concat(escapeTags).Concat(headerTags);
+            return tagsWithoutIntersecting.Concat(escapeTags).Concat(headerTags);
+        }
+        
+        private IEnumerable<Tag> RemoveIntersectingPairTags(IEnumerable<Tag> tags)
+        {
+            var openTags = new Stack<Tag>();
+            var result = new List<Tag>();
+            foreach (var tag in tags.OrderBy(x=>x.Position))
+            {
+                if (!openTags.TryPeek(out var openTag) || openTag.GetType()!= tag.GetType())
+                {
+                    openTags.Push(tag);
+                }
+                else
+                {
+                    result.Add(openTags.Pop());
+                    result.Add(tag);
+                }
+            }
+
+            return result;
         }
     }
 }
