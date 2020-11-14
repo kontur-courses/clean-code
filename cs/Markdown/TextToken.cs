@@ -26,5 +26,14 @@ namespace Markdown
             Text = text;
             SubTokens = subTokens;
         }
+
+        public TextToken AddSameToken(TextToken tokenToAdd)
+        {
+            if (Type != tokenToAdd.Type) return null;
+            Length += tokenToAdd.Length;
+            Text += tokenToAdd.Text;
+            return this;
+
+        }
     }
 }
