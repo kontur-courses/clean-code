@@ -75,9 +75,7 @@ namespace Markdown
                     shieldNext = true;
                 else
                     shieldNext = false;
-                if (i + 1 < text.Length && shieldNext && markdown.IsShieldSymbol(text[i + 1]))
-                    i = i;
-                else
+                if (i + 1 >= text.Length || !shieldNext || !markdown.IsShieldSymbol(text[i + 1]))
                     builder.Append(text[i]);
             }
 
