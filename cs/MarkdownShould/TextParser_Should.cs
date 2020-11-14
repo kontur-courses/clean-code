@@ -222,5 +222,20 @@ namespace Markdown.Tests
 
             actualList.Should().BeEquivalentTo(expectedList);   
         }
+
+        [Test]
+        public void GetTextTokens_ReturnListWithCorrectTokens_TextWithSpaceBetweenWords()
+        {
+            var textParser = new TextParser(TokenGetters);
+            var text = "_aa bb_";
+            var expectedList = new List<TextToken>()
+            {
+                new TextToken(0, 7, TokenType.Text, "_aa bb_",null)
+            };
+
+            var actualList = textParser.GetTextTokens(text);
+
+            actualList.Should().BeEquivalentTo(expectedList);   
+        }
     }
 }
