@@ -1,6 +1,8 @@
-﻿using Markdown.Models.Converters;
+﻿using System.Runtime.CompilerServices;
+using Markdown.Models.Converters;
 using Markdown.Models.Syntax;
 
+[assembly: InternalsVisibleTo("MarkdownTests")]
 
 namespace Markdown.Models.Renders
 {

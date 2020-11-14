@@ -13,7 +13,7 @@ namespace Markdown.Models.Converters
             this.convertRules = convertRules;
         }
 
-        public string ConvertMany(IEnumerable<TaggedToken> tokens)
+        public string Convert(IEnumerable<TaggedToken> tokens)
         {
             throw new NotImplementedException();
         }

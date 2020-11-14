@@ -4,6 +4,6 @@ namespace Markdown.Models.Converters
 {
     internal interface IConverter
     {
-        public string ConvertMany(IEnumerable<TaggedToken> tokens);
+        public string Convert(IEnumerable<TaggedToken> tokens);
     }
 }

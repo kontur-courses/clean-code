@@ -1,8 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Text;
-
-namespace Markdown.Models.Tags.HtmlTags
+﻿namespace Markdown.Models.Tags.HtmlTags
 {
     internal class Strong : Tag
     {

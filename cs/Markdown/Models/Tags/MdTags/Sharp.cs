@@ -1,8 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Text;
-
-namespace Markdown.Models.Tags.MdTags
+﻿namespace Markdown.Models.Tags.MdTags
 {
     internal class Sharp : Tag
     {

@@ -1,8 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Text;
-
-namespace Markdown.Models.Syntax
+﻿namespace Markdown.Models.Syntax
 {
     internal interface ISyntax
     {
