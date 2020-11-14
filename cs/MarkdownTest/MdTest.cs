@@ -101,5 +101,13 @@ namespace MarkdownTest
             var output = "__когда _два тега__ пересекаются_";
             md.Render(input).Should().Be(output);
         }
+
+        [Test]
+        public void RenderShouldParseCorrect_WhenClosingUnderscoreContainsMoreThanTwoUnderscores()
+        {
+            var input = "__Input string___ ф_";
+            var output = "<strong>Input string</strong>_ ф_";
+            md.Render(input).Should().Be(output);
+        }
     }
 }

@@ -121,21 +121,12 @@ namespace Markdown
             }
 
             var length = TextEnded ? index - PreviousIndex + 1 : index - PreviousIndex;
-            length -= UnderscoreCounter == 1 ? 1 : 2;
+            length -= UnderscoreCounter;
             TextInfo.AddText(Markdown.Substring(PreviousIndex, length));
             TextInfo = NestedTextInfos.Pop();
             State = States.Pop();
-            PreviousIndex = index;
-
-            if (UnderscoreCounter > 2)
-            {
-                UnderscoreCounter -= 2;
-                OpenUnderscoreTag(index);
-            }
-            else
-            {
-                UnderscoreCounter = 0;
-            }
+            PreviousIndex = UnderscoreCounter < 3 ? index : index - UnderscoreCounter + 2;
+            UnderscoreCounter = 0;
         }
 
         protected void ParseInsideWord(int index)
