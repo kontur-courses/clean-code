@@ -18,11 +18,43 @@ namespace Markdown
     {
         public static Tag[] ReadAllItalicTokens(string line)
         {
-            throw new NotImplementedException();
+            var result = new List<Tag>();
+            for (var index = 0; index < line.Length; index++)
+            {
+                if (IsItalicTokenStarting(line, index))
+                {
+                    var endOfToken = GetEndOfItalicToken(line, index);
+                    if (endOfToken == -1)
+                    {
+                        return result.ToArray();
+                    }
+                    result.Add(new Tag("<em>", index));
+                    result.Add(new Tag("</em>", endOfToken));
+                    index = endOfToken;
+                }
+            }
+
+            return result.ToArray();
         }
         public static Tag[] ReadAllBoldTokens(string line)
         {
             throw new NotImplementedException();
+        }
+
+        private static int GetEndOfItalicToken(string line, int index)
+        {
+            index++;
+            while (index < line.Length)
+            {
+                if (IsItalicTokenEnded(line, index))
+                {
+                    return index;
+                }
+
+                index += SkipNotStyleWords(line, index);
+            }
+
+            return -1;
         }
 
         private static bool IsItalicTokenEnded(string line, int index)
