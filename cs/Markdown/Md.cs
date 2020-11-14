@@ -19,7 +19,8 @@ namespace Markdown
 
         private string RenderOneString(string line)
         {
-            var dict = MarkdownParser.ReadAllTags(line);
+            var dict = 
+                MarkdownParser.FilterTags(MarkdownParser.ReadAllTags(line), line.Length);
             var result = new StringBuilder();
             var i = 0;
 
@@ -47,6 +48,32 @@ namespace Markdown
 
     internal static class MarkdownParser
     {
+        public static Dictionary<int, Tag> FilterTags(Dictionary<int, Tag> notFilteredDict, int length)
+        {
+            var ignoreStrong = false;
+            for (var i = 0; i < length + 1; i++)
+            {
+                if (notFilteredDict.ContainsKey(i))
+                {
+                    switch (notFilteredDict[i].Value)
+                    {
+                        case "<em>":
+                            ignoreStrong = true;
+                            break;
+                        case "</em>":
+                            ignoreStrong = false;
+                            break;
+                        case "<strong>": case "</strong>":
+                            if (ignoreStrong)
+                            {
+                                notFilteredDict.Remove(i);
+                            }
+                            break;
+                    }
+                }
+            }
+            return notFilteredDict;
+        }
         public static Dictionary<int, Tag> ReadAllTags(string line)
         {
             var allTags = new List<Tag>();
@@ -130,7 +157,9 @@ namespace Markdown
 
         private static bool IsItalicTokenEnd(string line, int index)
         {
-            return line[index] == '_' && line[index - 1] != ' ';
+            return line[index] == '_' && line[index - 1] != ' '
+                                      && (index == line.Length - 1 || line[index + 1] != '_')
+                                      && line[index - 1] != '_';
         }
 
         private static bool IsItalicTokenStart(string line, int startIndex)

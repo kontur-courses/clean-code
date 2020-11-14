@@ -44,5 +44,11 @@ namespace Markdown
             Md.Render(new[] {"__one_two_three__"}).Should()
                 .Be("<strong>one<em>two</em>three</strong>");
         }
+
+        [Test]
+        public void Render_CorrectWork_OnBoldInItalic()
+        {
+            Md.Render(new[] {"_one__two__three_"}).Should().Be("<em>one__two__three</em>");
+        }
     }
 }
