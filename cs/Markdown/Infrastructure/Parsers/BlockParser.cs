@@ -6,13 +6,13 @@ namespace Markdown.Infrastructure.Parsers
 {
     public abstract class BlockParser
     {
-        protected abstract IEnumerable<TagInfo> GetValidTags(IEnumerable<TagInfo> tagPositions);
+        protected abstract IEnumerable<TagInfo> GetValidTags(IEnumerable<TagInfo> tagInfos, string text);
         protected abstract IEnumerable<TagInfo> ParseTags(string text);
         
         public IBlock Parse(string text)
         {
             var tagInfos = ParseTags(text);
-            var validTags = GetValidTags(tagInfos);
+            var validTags = GetValidTags(tagInfos, text);
             return ParseByTags(text, validTags);
         }
 
@@ -52,7 +52,7 @@ namespace Markdown.Infrastructure.Parsers
                 processedPosition = AddPreviousUnprocessedBlock(tagsEnumerator, processedPosition, text, subBlocks);
                 var currentTag = tagsEnumerator.Current;
 
-                if (currentTag.Closes(rootTag))
+                if (currentTag.Closes(rootTag, text))
                     return (rootBlock, processedPosition);
 
                 var (subBlock, processed) = BuildBlock(tagsEnumerator, processedPosition, text);
@@ -60,7 +60,7 @@ namespace Markdown.Infrastructure.Parsers
                 processedPosition = processed;
             }
             
-            throw new FormatException($"Closing tag missing for {rootTag}");
+            throw new FormatException($"Closing tag missing for {rootTag.Offset} {rootTag.Length} {rootTag.Style}");
         }
 
         private static int AddPreviousUnprocessedBlock(

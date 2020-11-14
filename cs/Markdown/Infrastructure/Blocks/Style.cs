@@ -7,6 +7,6 @@ namespace Markdown.Infrastructure.Blocks
         Angled = 2,
         Escape = 3, 
         Header = 4,
-        Enter = 5,
+        NewLine = 5,
     }
 }

@@ -40,7 +40,7 @@ namespace MarkdownTests
                     "<strong>двойного выделения <em>одинарное</em> тоже</strong>"),
                 ("Bold inside angled, angled style only", 
                     "_одинарного __двойное__ не_", 
-                    "</em>одинарного __двойное__ не</em>"),
+                    "<em>одинарного __двойное__ не</em>"),
                 
                 ("Underscored numbers are underscores", "цифрами_12_3", "цифрами_12_3"),
                 ("Underscore start middle", "_нач_але", "<em>нач</em>але"),
@@ -52,10 +52,14 @@ namespace MarkdownTests
                 ("Unclosed style in paragraph double", "__Непарные", "__Непарные"),
                 ("Unclosed style in paragraph single", "_Непарные", "_Непарные"),
                 
-                ("Not a style start when whitespace after style symbol", "эти_ подчерки_ не считаются выделением", "эти_ подчерки_ не считаются выделением"),
-                ("Not a style end when whitespace before style symbol", "эти _подчерки _не считаются_ окончанием выделения", "эти _подчерки _не считаются_ окончанием выделения"),
+                ("Not a style start when whitespace after style symbol", 
+                    "эти_ подчерки_ не считаются выделением", 
+                    "эти_ подчерки_ не считаются выделением"),
+                ("Not a style end when whitespace before style symbol", 
+                    "эти _подчерки _не считаются_ окончанием выделения", 
+                    "эти _подчерки <em>не считаются</em> окончанием выделения"),
                 
-                ("Only one style when styles intersect", "__пересечения _двойных__ и одинарных_", "<strong>пересечения _двойных</strong> и одинарных_"),
+                ("No style when styles intersect", "__пересечения _двойных__ и одинарных_", "__пересечения _двойных__ и одинарных_"),
                 
                 ("Empty text with style does not change", "____", "____"),
                 
@@ -63,7 +67,6 @@ namespace MarkdownTests
                 
                 ("Two underscores", "_с_ _символами_", "<em>с</em> <em>символами</em>"),
                 ("Three underscores", "_a_ _b_  _c_", "<em>a</em> <em>b</em>  <em>c</em>"),
-                ("Whitespace start underscores", " _a_", " <em>a</em>"),
             };
             
             return testData.Select(test
