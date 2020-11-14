@@ -256,5 +256,20 @@ namespace Markdown.Tests
 
             actualList.Should().BeEquivalentTo(expectedList);   
         }
+
+        [Test]
+        public void GetTextToknes_ReturnListWithCorrectTokens_TextWithNumbersBetweenUnderlinings()
+        {
+            var textParser = new TextParser(TokenGetters);
+            var text = "ab1_2_3";
+            var expectedList = new List<TextToken>()
+            {
+                new TextToken(0, 7, TokenType.Text, "ab1_2_3",null),
+            };
+
+            var actualList = textParser.GetTextTokens(text);
+
+            actualList.Should().BeEquivalentTo(expectedList);   
+        }
     }
 }

@@ -19,7 +19,7 @@ namespace Markdown
             if ((currentText[0] != '_' || index + 1 < text.Length && currentText[tokenLength - 1] != '_') ||
                 index + 1 < text.Length && text[index + 1] == '_')
                 return null;
-            if (currentText.ToString().Contains(' '))
+            if (currentText.ToString().Any(symbol => symbol == ' ' || char.IsDigit(symbol)))
                 return null;
             
             currentText.Remove(0, 1);
