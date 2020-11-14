@@ -5,14 +5,14 @@ namespace Markdown
     public class Token
     {
         public int Start { get; set; }
-        public int End { get; set; }
-        public int Length => End - Start + 1;
+
+        public int Length { get; set; }
         public List<MarkupType> MarkupTypes { get; }
 
-        public Token(int start, int end)
+        public Token(int start, int length)
         {
             Start = start;
-            End = end;
+            Length = length;
             MarkupTypes = new List<MarkupType>();
         }
     }
