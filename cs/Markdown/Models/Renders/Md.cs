@@ -1,8 +1,5 @@
-﻿using System.Runtime.CompilerServices;
-using Markdown.Models.Converters;
+﻿using Markdown.Models.Converters;
 using Markdown.Models.Syntax;
-
-[assembly: InternalsVisibleTo("MarkdownTests")]
 
 namespace Markdown.Models.Renders
 {
@@ -22,7 +19,7 @@ namespace Markdown.Models.Renders
             var tokens = new TokenReader(syntax)
                 .ReadTokens(text);
 
-            return converter.ConvertMany(tokens);
+            return converter.Convert(tokens);
         }
     }
 }
