@@ -19,7 +19,6 @@ namespace Markdown
                 TokenType.Strong, currentText.ToString());
             tokenToAdd.SubTokens = new TextParser(tokenGetters).GetTextTokens(tokenToAdd.Text);
             return tokenToAdd;
-
         }
     }
 }

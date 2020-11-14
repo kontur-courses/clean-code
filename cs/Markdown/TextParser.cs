@@ -7,9 +7,6 @@ using System.Threading.Tasks;
 
 namespace Markdown
 {
-    /*Не особо нравится текущая реализация, но это чистовой вариант, пока что мысли перенести часть кода в класс
-     * TextToken, чтобы код в этом классе не был таким большим и читался легче */
-
     public class TextParser
     {
         private readonly List<TextToken> tokens = new List<TextToken>();
@@ -37,28 +34,28 @@ namespace Markdown
                     index += 1;
                     continue;
                 }
-                currentText.Append(text[index]);
-                TryToGetToken(index, text);
 
+                currentText.Append(text[index]);
+                var currentToken = TryToGetToken(index, text);
+                if (currentToken == null) continue;
+                tokens.Add(currentToken);
+                currentText.Clear();
             }
 
             if (currentText.Length != 0)
             {
-                tokens.Add(new TextToken(text.Length - currentText.Length, currentText.Length, TokenType.Text,currentText.ToString()));
+                tokens.Add(new TextToken(text.Length - currentText.Length, currentText.Length, TokenType.Text,
+                    currentText.ToString()));
             }
+
             return tokens;
         }
 
-        private void TryToGetToken(int index, string text) //TODO выделить часть с добавлением в главный метод, чтобы соответствовало названию
+        private TextToken TryToGetToken(int index, string text)
         {
-            foreach (var tokenGetter in tokenGetters)
-            {
-                var currentToken = tokenGetter.TryGetToken(currentText, tokenGetters, index, text);
-                if (currentToken == null) continue;
-                tokens.Add(currentToken);
-                currentText.Clear();
-                return;
-            }
+            return tokenGetters.Select(tokenGetter => tokenGetter
+                    .TryGetToken(currentText, tokenGetters, index, text))
+                .FirstOrDefault(currentToken => currentToken != null);
         }
     }
 }

@@ -13,7 +13,6 @@ namespace Markdown.Tests
         [SetUp]
         public void SetUp()
         {
-
             TokenGetters = new ITokenGetter[]
             {
                 new StrongTokenGetter(),
@@ -21,6 +20,7 @@ namespace Markdown.Tests
                 new TextTokenGetter()
             };
         }
+
         //В будущем частично заменю Test на TestCase
         //TODO НЕ ЗАБЫТЬ: ОДИН ТЕСТ - ОДИН КОММИТ!
         [Test]

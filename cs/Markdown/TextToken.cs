@@ -33,7 +33,6 @@ namespace Markdown
             Length += tokenToAdd.Length;
             Text += tokenToAdd.Text;
             return this;
-
         }
     }
 }
