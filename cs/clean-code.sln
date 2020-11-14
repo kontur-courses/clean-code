@@ -1,13 +1,17 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
-# Visual Studio 14
-VisualStudioVersion = 14.0.25420.1
+# Visual Studio Version 16
+VisualStudioVersion = 16.0.30413.136
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Chess", "Chess\Chess.csproj", "{DBFBE40E-EE0C-48F4-8763-EBD11C960081}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Chess", "Chess\Chess.csproj", "{DBFBE40E-EE0C-48F4-8763-EBD11C960081}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ControlDigit", "ControlDigit\ControlDigit.csproj", "{B06A4B35-9D61-4A63-9167-0673F20CA989}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "ControlDigit", "ControlDigit\ControlDigit.csproj", "{B06A4B35-9D61-4A63-9167-0673F20CA989}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Samples", "Samples\Samples.csproj", "{C3EF41D7-50EF-4CE1-B30A-D1D81C93D7FA}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Samples", "Samples\Samples.csproj", "{C3EF41D7-50EF-4CE1-B30A-D1D81C93D7FA}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TextFormattersTests", "TextFormattersTests\TextFormattersTests.csproj", "{C7AE17A2-63F0-47D7-A0DE-B9174A42A6C1}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Markdown", "Markdown\Markdown.csproj", "{1D28054E-2543-48F7-A699-2C1B4D117E9F}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -27,5 +31,19 @@ Global
 		{C3EF41D7-50EF-4CE1-B30A-D1D81C93D7FA}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{C3EF41D7-50EF-4CE1-B30A-D1D81C93D7FA}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{C3EF41D7-50EF-4CE1-B30A-D1D81C93D7FA}.Release|Any CPU.Build.0 = Release|Any CPU
+		{C7AE17A2-63F0-47D7-A0DE-B9174A42A6C1}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{C7AE17A2-63F0-47D7-A0DE-B9174A42A6C1}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{C7AE17A2-63F0-47D7-A0DE-B9174A42A6C1}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{C7AE17A2-63F0-47D7-A0DE-B9174A42A6C1}.Release|Any CPU.Build.0 = Release|Any CPU
+		{1D28054E-2543-48F7-A699-2C1B4D117E9F}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{1D28054E-2543-48F7-A699-2C1B4D117E9F}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{1D28054E-2543-48F7-A699-2C1B4D117E9F}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{1D28054E-2543-48F7-A699-2C1B4D117E9F}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {3B0B8C1D-DB3E-46E4-8A1D-9DCE3A47506C}
 	EndGlobalSection
 EndGlobal
