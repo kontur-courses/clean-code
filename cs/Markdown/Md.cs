@@ -1,8 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Drawing.Drawing2D;
-using System.Linq;
-using System.Text;
 
 namespace Markdown
 {
@@ -16,7 +13,23 @@ namespace Markdown
 
     internal static class MarkdownParser
     {
-        public static Tag[] ReadAllTokens(string line, Func<string, int, bool> isTokenStart,
+        public static Tag[] ReadHeaderToken(string line)
+        {
+            if (line[0] == '#')
+            {
+                return new [] {new Tag("<h1>", 0), new Tag("</h1>", line.Length - 1)};
+            }
+            return new Tag[0];
+        }
+        public static Tag[] ReadAllItalicTokens(string line)
+        {
+            return ReadAllTokens(line, IsItalicTokenStart, GetEndOfItalicToken, "<em>", "</em>");
+        }
+        public static Tag[] ReadAllBoldTokens(string line)
+        {
+            return ReadAllTokens(line, IsBoldTokenStart, GetEndOfBoldToken, "<strong>", "</strong>");
+        }
+        private static Tag[] ReadAllTokens(string line, Func<string, int, bool> isTokenStart,
             Func<string, int, int> getTokenEnd, string startValue, string endValue)
         {
             
@@ -37,14 +50,6 @@ namespace Markdown
             }
 
             return result.ToArray();
-        }
-        public static Tag[] ReadAllItalicTokens(string line)
-        {
-            return ReadAllTokens(line, IsItalicTokenStart, GetEndOfItalicToken, "<em>", "</em>");
-        }
-        public static Tag[] ReadAllBoldTokens(string line)
-        {
-            return ReadAllTokens(line, IsBoldTokenStart, GetEndOfBoldToken, "<strong>", "</strong>");
         }
 
         private static int GetEndOfToken(string line, int index, Func<string, int, bool> isTokenEnd)
@@ -98,18 +103,6 @@ namespace Markdown
         {
             return line[endIndex - 1] == '_' && line[endIndex] == '_' && 
                    (endIndex < 2 || line[endIndex - 2] != ' ');
-        }
-
-        private static int SkipNotStyleWords(string line, int startIndex)
-        {
-            for (var i = startIndex; i < line.Length; i++)
-            {
-                if (line[i] == '_')
-                {
-                    return i - startIndex;
-                }
-            }
-            return line.Length - startIndex;
         }
     }
 }
