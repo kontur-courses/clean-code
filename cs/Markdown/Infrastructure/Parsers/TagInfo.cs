@@ -5,24 +5,6 @@ namespace Markdown.Infrastructure.Parsers
 {
     public class TagInfo
     {
-        protected bool Equals(TagInfo other)
-        {
-            return Offset == other.Offset && Length == other.Length && Style == other.Style;
-        }
-
-        public override bool Equals(object obj)
-        {
-            if (ReferenceEquals(null, obj)) return false;
-            if (ReferenceEquals(this, obj)) return true;
-            if (obj.GetType() != this.GetType()) return false;
-            return Equals((TagInfo) obj);
-        }
-
-        public override int GetHashCode()
-        {
-            return HashCode.Combine(Offset, Length, (int) Style);
-        }
-
         public readonly int Offset;
         public readonly int Length;
         public readonly Style Style;
@@ -56,15 +38,12 @@ namespace Markdown.Infrastructure.Parsers
 
         public bool IsDifferentWords(TagInfo toClose, string text = "")
         {
-            return 
-                CanClose
+            return CanClose
                    && CanOpen
                    && toClose.CanClose
                    && toClose.CanOpen
-                   &&
-                   MarkdownParser.WhiteSpaceCharBetweenTags(ref text, toClose, this);
+                   && MarkdownParser.WhiteSpaceCharBetweenTags(ref text, toClose, this);
         }
-
 
         private bool IsSameType(TagInfo toClose)
         {

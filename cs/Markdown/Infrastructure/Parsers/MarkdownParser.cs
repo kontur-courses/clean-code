@@ -7,7 +7,6 @@ namespace Markdown.Infrastructure.Parsers
 {
     public class MarkdownParser : BlockParser
     {
-        // [gfg](https://asdasd)
         /// <summary>
         /// Validate interaction of tags according to rules
         /// </summary>
@@ -15,13 +14,9 @@ namespace Markdown.Infrastructure.Parsers
         {
             tagInfos = FilterEscaped(tagInfos);
             tagInfos = FilterIntersections(tagInfos, text).OrderBy(tagInfo => tagInfo.Offset);
-            
             tagInfos = FilterDoubleInSingle(tagInfos);
-            
-            
             tagInfos = FilterEmptyTags(tagInfos, text);
-
-
+            
             return tagInfos;
         }
 
@@ -173,10 +168,6 @@ namespace Markdown.Infrastructure.Parsers
         {
             for (var offset = start.Offset + start.Length; offset < end.Offset; offset++)
             {
-                // Console.WriteLine(offset);
-                //
-                // Console.WriteLine(c);
-                // Console.WriteLine(text);
                 if (CharIs(c, ref text, offset))
                     return true;
             }
