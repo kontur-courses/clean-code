@@ -2,6 +2,6 @@
 {
     public interface IParser
     {
-        public TextInfo ParseText(string text);
+        public TextInfo Parse(string text);
     }
 }

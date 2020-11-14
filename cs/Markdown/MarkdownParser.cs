@@ -1,42 +1,82 @@
-﻿using System.Collections.Generic;
-
-namespace Markdown
+﻿namespace Markdown
 {
-    public class MarkdownParser : IParser
+    public class MarkdownParser : UnderscoreParser, IParser
     {
-        private TextInfo textInfo;
-        private Stack<Tag> tagHierarchy;
-
-        public MarkdownParser()
+        public TextInfo Parse(string markdown)
         {
-            textInfo = new TextInfo();
-            tagHierarchy = new Stack<Tag>();
-            tagHierarchy.Push(Tag.NoFormatting);
+            Markdown = markdown;
+            State = ParseSymbol;
+
+            for (var i = 0; i < markdown.Length; i++)
+            {
+                if (markdown[i] == '\\')
+                    BackslashCounter++;
+
+                State(i);
+            }
+
+            TextEnded = true;
+            CloseTags();
+
+            return TextInfo;
         }
 
-        public TextInfo ParseText(string text)
+        private void ParseSymbol(int index)
         {
-            throw new System.NotImplementedException();
+            if (TextEnded)
+            {
+                if (PreviousIndex != Markdown.Length)
+                {
+                    TextInfo.AddText(Markdown.Substring(PreviousIndex));
+                    PreviousIndex = Markdown.Length;
+                }
+            }
+            else if (ShouldEscaped(Markdown[index]))
+            {
+                BackslashCounter = 0;
+                WordStartIndex = index - 1;
+                SetNewState(ParseInsideWord);
+            }
+            else if (!SymbolIsKey(Markdown[index]) && !char.IsWhiteSpace(Markdown[index]))
+            {
+                WordStartIndex = index;
+                SetNewState(ParseInsideWord);
+            }
+            else
+            {
+                switch (Markdown[index])
+                {
+                    case '_':
+                        UnderscoreCounter = 1;
+                        SetNewState(ParseOpeningUnderscore);
+                        break;
+                    case '#' when index == 0:
+                        SetNewState(ParseHashSymbol);
+                        break;
+                }
+            }
         }
 
-        private void ParseBoldTag(char symbol)
+        private void ParseHashSymbol(int index)
         {
-            throw new System.NotImplementedException();
+            if (Markdown[index] == ' ')
+            {
+                SetNewTextInfo(new TextInfo(Tag.Heading));
+                PreviousIndex = index + 1;
+            }
+
+            State = States.Pop();
         }
 
-        private void ParseItalicTag(char symbol)
+        private void CloseTags()
         {
-            throw new System.NotImplementedException();
-        }
-
-        private void ParseHeadingTag(char symbol)
-        {
-            throw new System.NotImplementedException();
-        }
-
-        private void ParseTextInTag(char symbol)
-        {
-            throw new System.NotImplementedException();
+            State(Markdown.Length - 1);
+            while (NestedTextInfos.Count != 0)
+            {
+                if (TextInfo.Tag == Tag.Bold || TextInfo.Tag == Tag.Italic)
+                    TextInfo.ToNoFormatting();
+                TextInfo = NestedTextInfos.Pop();
+            }
         }
     }
 }
