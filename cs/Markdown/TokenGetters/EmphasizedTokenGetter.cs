@@ -1,5 +1,6 @@
 ﻿using System.Collections.Generic;
 using System.Text;
+using System.Linq;
 
 namespace Markdown
 {
@@ -10,6 +11,8 @@ namespace Markdown
         {
             var tokenLength = currentText.Length;
             if (currentText.Length < 3)
+                return null;
+            if (currentText.ToString().Count(x => x == '_') == currentText.Length)
                 return null;
             if (index + 1 >= text.Length && currentText[tokenLength - 1] != '_')
                 return null;
