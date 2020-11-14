@@ -36,10 +36,17 @@ namespace Markdown
                 }
 
                 currentText.Append(text[index]);
+                
                 var currentToken = TryToGetToken(index, text);
                 if (currentToken == null) continue;
-                tokens.Add(currentToken);
+                
                 currentText.Clear();
+                
+                var updatedToken = UpdateLastTextToken(currentToken);
+                if (updatedToken != null) continue;
+                
+                tokens.Add(currentToken);
+                
             }
 
             if (currentText.Length != 0)
@@ -56,6 +63,11 @@ namespace Markdown
             return tokenGetters.Select(tokenGetter => tokenGetter
                     .TryGetToken(currentText, tokenGetters, index, text))
                 .FirstOrDefault(currentToken => currentToken != null);
+        }
+
+        private TextToken UpdateLastTextToken(TextToken tokenToAdd)
+        {
+            return tokens.LastOrDefault() != null ? tokens.Last().AddSameToken(tokenToAdd) : null;
         }
     }
 }

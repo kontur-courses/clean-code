@@ -227,10 +227,29 @@ namespace Markdown.Tests
         public void GetTextTokens_ReturnListWithCorrectTokens_TextWithSpaceBetweenWords()
         {
             var textParser = new TextParser(TokenGetters);
-            var text = "_aa bb_";
+            var text = "a_a b_b";
             var expectedList = new List<TextToken>()
             {
-                new TextToken(0, 7, TokenType.Text, "_aa bb_",null)
+                new TextToken(0, 7, TokenType.Text, "a_a b_b",null)
+            };
+
+            var actualList = textParser.GetTextTokens(text);
+
+            actualList.Should().BeEquivalentTo(expectedList);   
+        }
+
+        [Test]
+        public void GetTextTokens_ReturnListWithCorrectTokens_TextWithUnderliningsInsideWords()
+        {
+            var textParser = new TextParser(TokenGetters);
+            var text = "a_bc_de";
+            var expectedList = new List<TextToken>()
+            {
+                new TextToken(0, 1, TokenType.Text, "a",null),
+                new TextToken(2,2,TokenType.Emphasized,"bc", 
+                    new List<TextToken>{new TextToken(0,2,TokenType.Text,"bc")}),
+                new TextToken(5,2, TokenType.Text, "de", null)
+                
             };
 
             var actualList = textParser.GetTextTokens(text);
