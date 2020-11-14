@@ -17,8 +17,8 @@ namespace Markdown
         {
             var result = MarkdownParser.ReadAllBoldTokens("__asdf__");
             result.Length.Should().Be(2);
-            result[0].Should().BeEquivalentTo(new Tag("<strong>", 1));
-            result[1].Should().BeEquivalentTo(new Tag("</strong>", 7));
+            result[0].Should().BeEquivalentTo(new Tag("<strong>", 0, 2));
+            result[1].Should().BeEquivalentTo(new Tag("</strong>", 6, 2));
         }
     }
 }

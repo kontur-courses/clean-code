@@ -31,5 +31,18 @@ namespace Markdown
         {
             Md.Render(new[] {"_asdf_"}).Should().Be("<em>asdf</em>");
         }
+
+        [Test]
+        public void Render_CorrectWork_WithBoldToken()
+        {
+            Md.Render(new[] {"__asdf__"}).Should().Be("<strong>asdf</strong>");
+        }
+
+        [Test]
+        public void Render_CorrectWork_OnItalicTokenInBold()
+        {
+            Md.Render(new[] {"__one_two_three__"}).Should()
+                .Be("<strong>one<em>two</em>three</strong>");
+        }
     }
 }
