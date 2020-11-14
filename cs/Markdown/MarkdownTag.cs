@@ -6,19 +6,19 @@ namespace Markdown
 {
     public class MarkdownTag
     {
-        public static readonly Dictionary<string, Tuple<string, string>> MatchingMarkdownTagsToHtmlTags =
-            new Dictionary<string, Tuple<string, string>>
+        public static readonly Dictionary<string, (string, string)> MatchingMarkdownTagsToHtmlTags =
+            new Dictionary<string, (string, string)>
             {
-                [Styles.Italic] = Tuple.Create("<em>", "</em>"),
-                [Styles.Bold] = Tuple.Create("<strong>", "</strong>"),
-                [Styles.Heading] = Tuple.Create("<h1>", "</h1>")
+                [TokenType.Italic] = ("<em>", "</em>"),
+                [TokenType.Bold] = ("<strong>", "</strong>"),
+                [TokenType.Heading] = ("<h1>", "</h1>")
             };
 
-        public MarkdownTag(string value, int startPosition, bool isOpened)
+        public MarkdownTag(Token token, bool isOpened)
         {
-            Value = value;
-            StartPosition = startPosition;
-            EndPosition = startPosition + value.Length - 1;
+            Value = token.Text;
+            StartPosition = token.Position;
+            EndPosition = StartPosition + Value.Length - 1;
             IsOpened = isOpened;
         }
 
@@ -28,30 +28,13 @@ namespace Markdown
         public bool IsOpened { get; }
         public int Length => EndPosition - StartPosition + 1;
 
-        public static bool IsTag(string symbol)
-        {
-            return MatchingMarkdownTagsToHtmlTags.ContainsKey(symbol);
-        }
-
         public bool IsValidTag(StringBuilder text)
         {
-            if (Value == Styles.Heading)
+            if (Value == TokenType.Heading)
                 return StartPosition == 0 && IsSpacesAlongTag(text);
-            if (Value == Styles.Bold || Value == Styles.Italic)
+            if (Value == TokenType.Bold || Value == TokenType.Italic)
                 return !IsSpacesAlongTag(text) && !IsDigitsAlongTag(text);
             return true;
-        }
-
-        public bool IsShieldedTag(Stack<MarkdownTag> tags)
-        {
-            return tags.Count > 0 && tags.Peek().Value == @"\";
-        }
-
-        public bool IsBold(StringBuilder text)
-        {
-            if (EndPosition + 1 >= text.Length || text[EndPosition + 1].ToString() != Styles.Italic)
-                return false;
-            return text[EndPosition] == text[EndPosition + 1];
         }
 
         private bool IsSpacesAlongTag(StringBuilder text)

@@ -31,6 +31,7 @@ namespace Markdown.Tests
         [TestCase("_words1_2 1_2word _ word_",
             ExpectedResult = "<em>words1_2 1_2word _ word</em>",
             TestName = "WhenNotValidItalicBetweenValidItalic")]
+
         [TestCase("__", ExpectedResult = "__", TestName = "WhenNotPairedBold")]
         [TestCase("____", ExpectedResult = "____", TestName = "WhenBoldWithoutString")]
         [TestCase("__ __", ExpectedResult = "__ __", TestName = "WhenSpaceBetweenBold")]
@@ -82,6 +83,7 @@ namespace Markdown.Tests
         [TestCase("__Непарные_ символы",
             ExpectedResult = "__Непарные_ символы",
             TestName = "WhenNotPairedBoldAndItalic")]
+
         [TestCase(@"\abc\", ExpectedResult = @"\abc\", TestName = "WhenNotShieldedSlash")]
         [TestCase(@"\\\\abc", ExpectedResult = @"\\abc", TestName = "WhenSlashShielded")]
         [TestCase(@"\_abc_", ExpectedResult = @"_abc_", TestName = "WhenItalicShielded")]
@@ -92,9 +94,11 @@ namespace Markdown.Tests
         [TestCase(@"\\\\_\\abc\\_", ExpectedResult = @"\\<em>\abc\</em>", TestName = "WhenManyShieldedSlashes")]
         [TestCase(@"\\_\abc\_", ExpectedResult = @"\_\abc_", TestName = "WhenClosedItalicShielded")]
         [TestCase(@"\\__\abc\__", ExpectedResult = @"\__\abc__", TestName = "WhenClosedBoldShielded")]
+
         [TestCase(@"# abc", ExpectedResult = @"<h1>abc</h1>", TestName = "WhenHeadingWithoutAnyTags")]
         [TestCase(@"#abc", ExpectedResult = @"#abc", TestName = "WhenNoSpaceAfterHeading")]
         [TestCase(@"\# abc", ExpectedResult = @"# abc", TestName = "WhenShieldedHeading")]
+
         [TestCase("# Заголовок __с _разными_ символами__",
             ExpectedResult = "<h1>Заголовок <strong>с <em>разными</em> символами</strong></h1>",
             TestName = "WhenHeadingAndAllAnyTags")]

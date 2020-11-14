@@ -22,12 +22,5 @@ namespace Markdown
                 .Replace(openedTag.Value, MarkdownTag.MatchingMarkdownTagsToHtmlTags[openedTag.Value].Item1,
                     openedTag.StartPosition, openedTag.Length);
         }
-
-        public static StringBuilder ShieldSlash(this StringBuilder resultText, MarkdownTag closedSlash,
-            MarkdownTag openedSlash)
-        {
-            return resultText.Replace(openedSlash.Value + closedSlash.Value, openedSlash.Value,
-                openedSlash.StartPosition, openedSlash.Length + closedSlash.Length);
-        }
     }
 }
