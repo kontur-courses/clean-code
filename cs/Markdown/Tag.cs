@@ -27,7 +27,9 @@ namespace Markdown
                 builder.Append(Markdown.FormatToken(ref next));
             }
 
-            return FormatTag(start, next, builder.ToString());
+            if (start.Type == TokenType.Tag)
+                return FormatTag(start, next, builder.ToString());
+            return $"{start.Value}{builder}{next.Value}";
         }
 
 

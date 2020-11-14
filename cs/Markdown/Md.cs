@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Diagnostics;
 using System.Text;
 using Markdown.Tags;
 
@@ -8,8 +7,9 @@ namespace Markdown
 {
     public class Md
     {
-        private readonly Dictionary<string, Tag> handlers = new Dictionary<string, Tag>();
         private readonly HashSet<string> currentTags = new HashSet<string>();
+        private readonly Dictionary<string, Tag> handlers = new Dictionary<string, Tag>();
+        private readonly CharTree indentifiers = new CharTree();
 
         public Md()
         {
@@ -25,6 +25,7 @@ namespace Markdown
 
         private void AddHandler(Tag tag)
         {
+            indentifiers.Add(tag.Identifier);
             handlers.Add(tag.Identifier, tag);
         }
 
@@ -32,7 +33,7 @@ namespace Markdown
         {
             if (text == null)
                 throw new ArgumentException("Text should not be null");
-            var tokenizer = new Tokenizer(text);
+            var tokenizer = new Tokenizer(this, text);
             return Format(tokenizer.First);
         }
 
@@ -58,12 +59,26 @@ namespace Markdown
                 currentTags.Remove(tagToken);
             }
             else
+            {
                 result = token;
+            }
+
             token = token?.Next;
             return result;
         }
 
-        internal bool IAmIn(string identifier)
+        internal bool ContainsTag(string identifier, out int depth)
+        {
+            depth = indentifiers.SearchDepth(identifier, out var children);
+            return depth == identifier.Length && handlers.ContainsKey(identifier);
+        }
+
+        internal bool IsStartOfTag(char value)
+        {
+            return indentifiers.SearchDepth(value.ToString(), out _) == 1;
+        }
+
+        internal bool AmIn(string identifier)
         {
             return currentTags.Contains(identifier);
         }
@@ -71,6 +86,11 @@ namespace Markdown
         internal bool ContainsHandler(string identifier)
         {
             return handlers.ContainsKey(identifier);
+        }
+
+        public bool IsShieldSymbol(char value)
+        {
+            return value == '\\' || IsStartOfTag(value);
         }
     }
 }

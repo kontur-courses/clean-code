@@ -5,6 +5,7 @@
         Space,
         Word,
         SymbolSet,
-        BreakLine
+        BreakLine,
+        Tag
     }
 }
