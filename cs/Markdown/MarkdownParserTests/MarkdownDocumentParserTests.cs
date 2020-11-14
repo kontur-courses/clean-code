@@ -10,6 +10,7 @@ using MarkdownParser.Infrastructure.Tokenization;
 using MarkdownParser.Infrastructure.Tokenization.Abstract;
 using MarkdownParser.Infrastructure.Markdown;
 using MarkdownParser.Infrastructure.Markdown.Abstract;
+using MarkdownParser.Infrastructure.Tokenization.Models;
 using NUnit.Framework;
 
 namespace MarkdownParserTests
@@ -38,7 +39,7 @@ namespace MarkdownParserTests
         public void BoldText_BoldElementWithContentInside()
         {
             var tokens = new TokensCollectionBuilder().Bold().Text("abc def").Bold();
-            parser.Parse(tokens.ToString()).Elements
+            parser.Parse(tokens.ToString()).AllElements
                 .Should()
                 .BeEquivalentTo(new MarkdownElementBold(tokens: tokens, content:
                     new List<MarkdownElement> {new MarkdownText(tokens[1])}));
@@ -48,7 +49,7 @@ namespace MarkdownParserTests
         public void ItalicText_ItalicWithTokensInside()
         {
             var tokens = new TokensCollectionBuilder().Italic().Text("abc def").Italic();
-            parser.Parse(tokens.ToString()).Elements
+            parser.Parse(tokens.ToString()).AllElements
                 .Should()
                 .BeEquivalentTo(new MarkdownElementItalic(tokens));
         }
@@ -58,7 +59,7 @@ namespace MarkdownParserTests
         {
             var tokens = new TokensCollectionBuilder().Bold().Text("a ").Italic().Text("b").Italic().Text(" c").Bold();
             TestContext.Progress.WriteLine(tokens.ToString());
-            parser.Parse(tokens.ToString()).Elements
+            parser.Parse(tokens.ToString()).AllElements
                 .Should()
                 .BeEquivalentTo(new MarkdownElementBold(tokens: tokens, content:
                     new List<MarkdownElement>
@@ -74,7 +75,7 @@ namespace MarkdownParserTests
         {
             var tokens = new TokensCollectionBuilder().Italic().Text("a ").Bold().Text("b").Bold().Text(" c").Italic();
             TestContext.Progress.WriteLine(tokens.ToString());
-            parser.Parse(tokens.ToString()).Elements
+            parser.Parse(tokens.ToString()).AllElements
                 .Should()
                 .BeEquivalentTo(new MarkdownElementItalic(tokens));
         }
@@ -83,7 +84,7 @@ namespace MarkdownParserTests
         public void EmptyBold_AsText()
         {
             var tokens = new TokensCollectionBuilder().Bold().Bold();
-            parser.Parse(tokens.ToString()).Elements
+            parser.Parse(tokens.ToString()).AllElements
                 .Should()
                 .BeEquivalentTo(new MarkdownText(tokens[0]), new MarkdownText(tokens[1]));
         }
@@ -92,13 +93,14 @@ namespace MarkdownParserTests
         public void EmptyItalic_AsText()
         {
             var tokens = new TokensCollectionBuilder().Italic().Italic();
-            parser.Parse(tokens.ToString()).Elements
+            parser.Parse(tokens.ToString()).AllElements
                 .Should()
                 .ContainSingle()
                 .Which
                 .Should()
                 .BeEquivalentTo(
-                    new MarkdownText(new BoldToken(0, "__")),
+                    new MarkdownText(new BoldToken(0, "__", 
+                        TokenPosition.BeforeWhitespace | TokenPosition.ParagraphStart)),
                     because: "__ это тег жирного текста, это нормальное поведение");
         }
     }

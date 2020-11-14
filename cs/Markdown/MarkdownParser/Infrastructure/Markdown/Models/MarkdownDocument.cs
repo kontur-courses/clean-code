@@ -6,17 +6,18 @@ namespace MarkdownParser.Infrastructure.Markdown.Models
 {
     public class MarkdownDocument
     {
-        private readonly List<MarkdownElement> elements;
+        private readonly List<MarkdownDocumentLine> lines;
 
-        public MarkdownDocument(IEnumerable<MarkdownElement> elements)
+        public MarkdownDocument(IEnumerable<MarkdownDocumentLine> elements)
         {
-            this.elements = elements.ToList();
+            this.lines = elements.ToList();
         }
 
-        public IReadOnlyCollection<MarkdownElement> Elements => elements.AsReadOnly();
+        public IReadOnlyCollection<MarkdownDocumentLine> Lines => lines.AsReadOnly();
 
-        public void Add(MarkdownElement element) => elements.Add(element);
+        public void Add(MarkdownDocumentLine line) => lines.Add(line);
 
-        public static MarkdownDocument Empty => new MarkdownDocument(new List<MarkdownElement>());
+        public static MarkdownDocument Empty => new MarkdownDocument(new List<MarkdownDocumentLine>());
+        public IEnumerable<MarkdownElement> AllElements => lines.SelectMany(l => l.Elements);
     }
 }

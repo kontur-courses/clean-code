@@ -1,8 +1,13 @@
-﻿using System.Linq;
-using MarkdownParser.Infrastructure;
+﻿using System;
+using System.Collections.Generic;
+using System.Linq;
+using MarkdownParser.Concrete.Default;
+using MarkdownParser.Helpers;
 using MarkdownParser.Infrastructure.Markdown;
+using MarkdownParser.Infrastructure.Markdown.Abstract;
 using MarkdownParser.Infrastructure.Markdown.Models;
 using MarkdownParser.Infrastructure.Tokenization;
+using MarkdownParser.Infrastructure.Tokenization.Abstract;
 
 namespace MarkdownParser
 {
@@ -18,9 +23,17 @@ namespace MarkdownParser
         }
 
         public MarkdownDocument Parse(string rawMarkdown)
-        {
-            var tokens = tokenizer.Tokenize(rawMarkdown).ToArray();
-            return new MarkdownDocument(collector.CreateElementsFrom(tokens));
+        { 
+            var paragraphData = tokenizer.Tokenize(rawMarkdown).ToArray();
+            var document = MarkdownDocument.Empty;
+            foreach (var paragraph in paragraphData)
+            {
+                var elements = collector.CreateElementsFrom(paragraph.Tokens);
+                var line = new MarkdownDocumentLine(elements);
+                document.Add(line);
+            }
+
+            return document;
         }
     }
 }

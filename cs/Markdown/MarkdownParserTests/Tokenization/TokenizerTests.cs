@@ -55,8 +55,7 @@ namespace MarkdownParserTests.Tokenization
                 .ContainSingle()
                 .Which
                 .Should()
-                .BeEquivalentTo(new BoldToken(0, "__"),
-                    "Потому что это символ жирного текста, это нормально");
+                .BeEquivalentTo(new BoldToken(0, "__", 0), conf => conf.Excluding(t => t.Position));
         }
 
         [TestCaseSource(nameof(BoldCases))]
@@ -126,7 +125,8 @@ namespace MarkdownParserTests.Tokenization
             TestContext.Out.WriteLine($"Parsing {tokens}");
             tokenizer.Tokenize(tokens.ToString())
                 .Should()
-                .BeEquivalentTo(tokens);
+                .BeEquivalentTo(tokens.ToArray(), conf => 
+                    conf.Excluding(mi => mi.SelectedMemberInfo.Name == nameof(BoldToken.Position)));
             foreach (var token in tokens.ToArray())
                 TestContext.Out.WriteLine(token);
         }

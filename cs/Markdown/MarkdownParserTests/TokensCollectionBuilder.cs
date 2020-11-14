@@ -14,13 +14,13 @@ namespace MarkdownParserTests
 
         public TokensCollectionBuilder Bold()
         {
-            tokens.Add(new BoldToken(GetNextTokenPosition(), "__"));
+            tokens.Add(new BoldToken(GetNextTokenPosition(), "__", 0));
             return this;
         }
 
         public TokensCollectionBuilder Italic()
         {
-            tokens.Add(new ItalicToken(GetNextTokenPosition(), "_"));
+            tokens.Add(new ItalicToken(GetNextTokenPosition(), "_", 0));
             return this;
         }
 

@@ -8,11 +8,11 @@ namespace MarkdownParser.Infrastructure.Markdown.Models
     {
         public MarkdownElementContext(Token currentToken, IEnumerable<Token> allTokens)
         {
-            Tokens = allTokens.ToArray();
+            NextTokens = allTokens.ToArray();
             CurrentToken = currentToken;
         }
 
-        public Token[] Tokens { get; }
+        public Token[] NextTokens { get; }
         public Token CurrentToken { get; }
     }
 }

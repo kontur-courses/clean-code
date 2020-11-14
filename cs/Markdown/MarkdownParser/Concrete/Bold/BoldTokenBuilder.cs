@@ -12,7 +12,8 @@ namespace MarkdownParser.Concrete.Bold
         {
             return new BoldToken(
                 context.CurrentStartIndex,
-                context.Source.Substring(context.CurrentStartIndex, TokenSymbol.Length));
+                context.Source.Substring(context.CurrentStartIndex, TokenSymbol.Length), 
+                context.GetPosition(TokenSymbol));
         }
 
         public override bool CanCreate(TokenizationContext context)

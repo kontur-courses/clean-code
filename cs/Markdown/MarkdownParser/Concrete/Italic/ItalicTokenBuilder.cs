@@ -12,7 +12,8 @@ namespace MarkdownParser.Concrete.Italic
         {
             return new ItalicToken(
                 context.CurrentStartIndex,
-                context.Source.Substring(context.CurrentStartIndex, TokenSymbol.Length));
+                context.Source.Substring(context.CurrentStartIndex, TokenSymbol.Length),
+                context.GetPosition(TokenSymbol));
         }
 
         public override bool CanCreate(TokenizationContext context)

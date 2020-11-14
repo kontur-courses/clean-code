@@ -1,6 +1,7 @@
 ﻿using System;
 using MarkdownParser;
 using MarkdownParser.Concrete.Bold;
+using MarkdownParser.Concrete.Header;
 using MarkdownParser.Concrete.Italic;
 using MarkdownParser.Infrastructure.Markdown;
 using MarkdownParser.Infrastructure.Markdown.Abstract;
@@ -19,11 +20,11 @@ namespace Rendering
             new HtmlMarkdownConverter(
                 new MarkdownDocumentParser(
                     new Tokenizer(new ITokenBuilder[]
-                        {new BoldTokenBuilder(), new ItalicTokenBuilder()}),
+                        {new BoldTokenBuilder(), new ItalicTokenBuilder(), new HeaderTokenBuilder()}),
                     new MarkdownCollector(new IMarkdownElementFactory[]
-                        {new BoldElementFactory(), new ItalicElementFactory()})),
+                        {new BoldElementFactory(), new ItalicElementFactory(), new HeaderElementFactory()})),
                 new HtmlRenderer(new IMarkdownElementRenderer[]
-                    {new BoldElementRenderer(), new ItalicElementRenderer()})));
+                    {new BoldElementRenderer(), new ItalicElementRenderer(), new HeaderElementRenderer()})));
 
         public static IMarkdownConverter ToHtml => htmlConverter.Value;
     }

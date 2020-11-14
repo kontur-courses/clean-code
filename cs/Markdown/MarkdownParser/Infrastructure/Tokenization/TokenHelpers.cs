@@ -22,7 +22,7 @@ namespace MarkdownParser.Infrastructure.Tokenization
             source.AtDigitBegin() || source.AtDigitEnd();
 
         public static bool WhitespaceFramed(this TokenPosition source) =>
-            source.HasFlags(TokenPosition.AfterWhitespace, TokenPosition.BeforeWhitespace);
+            source.AfterWhitespace() && source.BeforeWhitespace();
 
         public static bool AtWordBegin(this TokenPosition source) =>
             source.HasFlags(TokenPosition.BeforeWord, TokenPosition.AfterWhitespace);
@@ -32,6 +32,15 @@ namespace MarkdownParser.Infrastructure.Tokenization
 
         public static bool OnWordBorder(this TokenPosition source) =>
             source.AtWordBegin() || source.AtWordEnd();
+
+        public static bool AfterWhitespace(this TokenPosition source) =>
+            source.HasFlag(TokenPosition.AfterWhitespace);
+
+        public static bool BeforeWhitespace(this TokenPosition source) =>
+            source.HasFlag(TokenPosition.BeforeWhitespace);
+
+        public static bool OnParagraphStart(this TokenPosition source) =>
+            source.HasFlag(TokenPosition.ParagraphStart);
 
         public static bool HasFlags(this TokenPosition source, params TokenPosition[] flags) =>
             flags.All(f => source.HasFlag(f));
@@ -76,8 +85,8 @@ namespace MarkdownParser.Infrastructure.Tokenization
             if (char.IsLetter(next))
                 result |= TokenPosition.BeforeWord;
 
-            var nextCategory = char.GetUnicodeCategory(next);
-            if (nextCategory == UnicodeCategory.LineSeparator || nextCategory == UnicodeCategory.ParagraphSeparator)
+            var category = char.GetUnicodeCategory(next);
+            if (category == UnicodeCategory.LineSeparator || category == UnicodeCategory.ParagraphSeparator)
                 result |= TokenPosition.ParagraphEnd;
 
             return result;
@@ -93,8 +102,8 @@ namespace MarkdownParser.Infrastructure.Tokenization
             if (char.IsLetter(previous))
                 result |= TokenPosition.AfterWord;
 
-            var nextCategory = char.GetUnicodeCategory(previous);
-            if (nextCategory == UnicodeCategory.LineSeparator || nextCategory == UnicodeCategory.ParagraphSeparator)
+            var category = char.GetUnicodeCategory(previous);
+            if (category == UnicodeCategory.LineSeparator || category == UnicodeCategory.ParagraphSeparator)
                 result |= TokenPosition.ParagraphStart;
 
             return result;

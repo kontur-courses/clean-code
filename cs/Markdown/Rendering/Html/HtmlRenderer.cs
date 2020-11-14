@@ -34,17 +34,20 @@ namespace Rendering.Html
             return renderer.RenderElement(element);
         }
 
-        public string Render(MarkdownDocument document)
+        public string Render(MarkdownDocumentLine line)
         {
-            var docBuilder = new StringBuilder();
-            foreach (var element in document.Elements)
+            var lineBuilder = new StringBuilder();
+            foreach (var element in line.Elements)
             {
                 var rendered = Render(element);
-                docBuilder.Append(rendered);
+                lineBuilder.Append(rendered);
             }
 
-            return docBuilder.ToString();
+            return lineBuilder.ToString();
         }
+
+        public string Render(MarkdownDocument document) =>
+            string.Join(Environment.NewLine, document.Lines.Select(Render));
 
         public string RenderText(MarkdownText textElem) =>
             string.Join(string.Empty, textElem.Tokens.Select(t => t.RawValue));

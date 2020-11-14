@@ -6,6 +6,7 @@ using MarkdownParser.Concrete.Default;
 using MarkdownParser.Concrete.Italic;
 using MarkdownParser.Infrastructure.Markdown;
 using MarkdownParser.Infrastructure.Markdown.Abstract;
+using MarkdownParser.Infrastructure.Tokenization.Models;
 using NUnit.Framework;
 
 namespace MarkdownParserTests.Collector

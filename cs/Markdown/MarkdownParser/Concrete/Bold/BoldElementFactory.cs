@@ -1,38 +1,40 @@
 ﻿using System.Linq;
+using MarkdownParser.Concrete.Italic;
 using MarkdownParser.Infrastructure.Markdown;
 using MarkdownParser.Infrastructure.Markdown.Abstract;
 using MarkdownParser.Infrastructure.Markdown.Models;
+using MarkdownParser.Infrastructure.Tokenization;
 
 namespace MarkdownParser.Concrete.Bold
 {
     public sealed class BoldElementFactory : MarkdownElementFactory<MarkdownElementBold>, IMarkdownCollectorDependent
     {
-        private MarkdownCollector markdownCollector;
+        private MarkdownCollector collector;
 
         protected override bool TryCreateFromValidContext(MarkdownElementContext context,
             out MarkdownElementBold parsed)
         {
-            if (!markdownCollector.TryCollectUntil(context, token => token.GetType() == typeof(BoldToken),
-                out var matchedTokenIndex,
-                out var innerTokens) || innerTokens.Count == 0)
+            var opening = (BoldToken) context.CurrentToken;
+            // TODO holy shit...
+            if (collector.TryCollectUntil<BoldToken>(context, BoldToken.CanBeClosing, out var closing, out var inner) &&
+                inner.Count != 0 &&
+                (!opening.Position.InsideWord() && !closing.Position.OnWordBorder() ||
+                 inner.All(t => !t.RawValue.Contains(" "))))
             {
-                parsed = default;
-                return false;
+                var innerElements = collector.CreateElementsFrom(inner.ToArray());
+                var allElemTokens = inner.Prepend(context.CurrentToken).Append(closing).ToArray();
+                parsed = new MarkdownElementBold(innerElements.ToArray(), allElemTokens);
+                return true;
             }
 
-            var tokens = innerTokens.ToArray();
-            var innerElements = markdownCollector.CreateElementsFrom(tokens);
-
-            var matchedToken = context.Tokens[matchedTokenIndex];
-            var elementTokens = tokens.Prepend(context.CurrentToken).Append(matchedToken).ToArray();
-            parsed = new MarkdownElementBold(innerElements.ToArray(), elementTokens);
-            return true;
+            parsed = default;
+            return false;
         }
 
         protected override bool CheckPreRequisites(MarkdownElementContext context) =>
-            context.CurrentToken.GetType() == typeof(BoldToken);
+            context.CurrentToken is BoldToken bold && BoldToken.CanBeOpening(bold);
 
         public void SetCollector(MarkdownCollector collector) =>
-            markdownCollector = collector;
+            this.collector = collector;
     }
 }

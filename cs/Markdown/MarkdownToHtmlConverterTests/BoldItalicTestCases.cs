@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 using NUnit.Framework;
 
@@ -18,11 +19,29 @@ namespace MarkdownToHtmlConverterTests
             ("Ignore {0} inside digits", "12{2}3{2}4", "12{2}3{2}4"),
             ("Process {0} inside word", "i{2}nsi{2}de", "i<{1}>nsi</{1}>de"),
             ("Ignore {0} inside of different words", "firs{2}t sec{2}ond", "firs{2}t sec{2}ond"),
+            ("Process {0} at borders of different words", "{2}first second{2}", "<{1}>first second</{1}>"),
             ("Process {0} in start of word", "{2}s{2}tart", "<{1}>s</{1}>tart"),
             ("Process {0} at end of word", "en{2}d{2}", "en<{1}>d</{1}>"),
             ("Ignore open {0} before Space char", "ignore{2} before{2} whitespace", "ignore{2} before{2} whitespace"),
             ("Ignore closing {0} after Space char", "ignore {2}after {2}whitespace", "ignore {2}after {2}whitespace"),
             ("Ignore empty {0}", "{2}{2}", "{2}{2}"),
+            ("Opening {0} can be screened", @"\{2}abc{2}", "{2}abc{2}"),
+            ("Closing {0} can be screened", @"{2}abc\{2}", "{2}abc{2}"),
+            ("Screening char in middle of {0} content doesn't affect", @"{2}ab\c{2}", @"<{1}>ab\c</{1}>"),
+            ("Ignore {0} in different lines", "{2}a\r\nc{2}", "{2}a\r\nc{2}"),
+        };
+
+        public static IEnumerable<TestCaseData> ScreeningTests => new[]
+        {
+            CreateTestCase("Two screening chars at row doesnt screen following",
+                @"\\__abc__",
+                @"\<strong>abc</strong>"),
+            CreateTestCase("Screening before word char should be printed",
+                @"\abc",
+                @"\abc"),
+            CreateTestCase("Screening before digit should be printed",
+                @"\123",
+                @"\123")
         };
 
         public static IEnumerable<TestCaseData> BoldItalicInteractionTests => new[]
@@ -36,9 +55,24 @@ namespace MarkdownToHtmlConverterTests
             CreateTestCase("Ignore unpaired Bold and Italic",
                 "_italic __bold",
                 "_italic __bold"),
-            CreateTestCase("Ignore crossing Bold and Italic",
-                "__crossing _should __be _ignored",
-                "__crossing _should __be _ignored"),
+            CreateTestCase("Ignore crossing Bold and Italic (bold first)",
+                "__crossing _should be__ ignored_",
+                "__crossing _should be__ ignored_"),
+            CreateTestCase("Ignore crossing Bold and Italic (italic first)",
+                "_crossing __should be_ ignored__",
+                "_crossing __should be_ ignored__"),
+            CreateTestCase("Single closing italic inside bold printed as text",
+                "__abc d_ efg__",
+                "<strong>abc d_ efg</strong>"),
+            CreateTestCase("Single closing bold inside italic printed as text",
+                "_abc d__ efg_",
+                "<em>abc d__ efg</em>"),
+            CreateTestCase("Single opening italic inside bold printed as text",
+                "__abc _d efg__",
+                "<strong>abc _d efg</strong>"),
+            CreateTestCase("Single opening bold inside italic printed as text",
+                "_abc __d efg_",
+                "<em>abc __d efg</em>"),
         };
 
         private static TestCaseData CreateTestCase((string, string, string) raw, string subject, string tag,

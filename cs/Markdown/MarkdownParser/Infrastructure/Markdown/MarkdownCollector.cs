@@ -22,23 +22,22 @@ namespace MarkdownParser.Infrastructure.Markdown
                 dependentProvider.SetCollector(this);
         }
 
-        public bool TryCollectUntil(MarkdownElementContext currentContext, Predicate<Token> predicate,
-            out int matchedTokenIndex, out ICollection<Token> collectedTokens)
+        public bool TryCollectUntil<TToken>(MarkdownElementContext currentContext, Predicate<TToken> predicate,
+            out TToken matchedToken, out ICollection<Token> collectedTokens) where TToken : Token
         {
             collectedTokens = new List<Token>();
-            for (var i = 0; i < currentContext.Tokens.Length; i++)
+            foreach (var token in currentContext.NextTokens)
             {
-                var token = currentContext.Tokens[i];
-                if (predicate.Invoke(token))
+                if (token is TToken t && predicate.Invoke(t))
                 {
-                    matchedTokenIndex = i;
+                    matchedToken = t;
                     return true;
                 }
 
                 collectedTokens.Add(token);
             }
 
-            matchedTokenIndex = -1;
+            matchedToken = default;
             return false;
         }
 
