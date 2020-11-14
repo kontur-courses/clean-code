@@ -35,8 +35,10 @@ namespace Markdown
                         openTags[tagType] = null;
                     }
                     else if (openTag.InWord(text) && !openTag.InOneWordWith(wordTag, text)
-                    || !openTag.InOneParagraphWith(wordTag, text))
+                             || !openTag.InOneParagraphWith(wordTag, text))
+                    {
                         openTags[tagType] = wordTag;
+                    }
                 }
             }
 
@@ -55,14 +57,13 @@ namespace Markdown
             var headerTags = tags.Where(x => x is HeaderTag);
             return italicTags.Concat(boldTags).Concat(escapeTags).Concat(headerTags);
         }
-        
+
         private IEnumerable<Tag> RemoveIntersectingPairTags(IEnumerable<Tag> tags)
         {
             var openTags = new Stack<Tag>();
             var result = new List<Tag>();
-            foreach (var tag in tags.OrderBy(x=>x.Position))
-            {
-                if (!openTags.TryPeek(out var openTag) || openTag.GetType()!= tag.GetType())
+            foreach (var tag in tags.OrderBy(x => x.Position))
+                if (!openTags.TryPeek(out var openTag) || openTag.GetType() != tag.GetType())
                 {
                     openTags.Push(tag);
                 }
@@ -71,7 +72,6 @@ namespace Markdown
                     result.Add(openTags.Pop());
                     result.Add(tag);
                 }
-            }
 
             return result;
         }
@@ -80,8 +80,7 @@ namespace Markdown
         {
             var result = new List<Tag>();
             var inPair = false;
-            foreach (var tag in tags.OrderBy(x=>x.Position))
-            {
+            foreach (var tag in tags.OrderBy(x => x.Position))
                 if (tag is ItalicTag)
                 {
                     inPair = !inPair;
@@ -91,17 +90,15 @@ namespace Markdown
                 {
                     result.Add(tag);
                 }
-            }
 
             return result;
         }
-        
+
         private IEnumerable<Tag> RemoveEmptyBoldTags(IEnumerable<Tag> tags)
         {
             var result = new List<Tag>();
             Tag openTag = null;
-            foreach (var boldTag in tags.OrderBy(x=>x.Position))
-            {
+            foreach (var boldTag in tags.OrderBy(x => x.Position))
                 if (openTag == null)
                 {
                     openTag = boldTag;
@@ -116,7 +113,6 @@ namespace Markdown
 
                     openTag = null;
                 }
-            }
 
             return result;
         }

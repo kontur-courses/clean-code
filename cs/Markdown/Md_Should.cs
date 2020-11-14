@@ -33,7 +33,7 @@ namespace Markdown
         {
             return md.Render(input);
         }
-        
+
 
         [TestCase("_as_d", ExpectedResult = "<em>as</em>d", TestName = "in word beginning")]
         [TestCase("_asd a_sd asd_", ExpectedResult = "<em>asd a_sd asd</em>",
@@ -67,7 +67,7 @@ namespace Markdown
         {
             return md.Render(input);
         }
-        
+
         [TestCase("__as__d", ExpectedResult = "<strong>as</strong>d", TestName = "in word beginning")]
         [TestCase("a__sd__", ExpectedResult = "a<strong>sd</strong>", TestName = "in word ending")]
         [TestCase("asd__asd__asd", ExpectedResult = "asd<strong>asd</strong>asd", TestName = "in word middle")]
@@ -105,7 +105,7 @@ namespace Markdown
         {
             return md.Render(input);
         }
-        
+
         [TestCase(@"\ asd", ExpectedResult = @"\ asd", TestName = "when escape symbol before space")]
         [TestCase(@"\asd", ExpectedResult = @"\asd", TestName = "when escape symbol before letter")]
         [TestCase(@"asd \# asd", ExpectedResult = @"asd \# asd",
@@ -115,10 +115,10 @@ namespace Markdown
         {
             return md.Render(input);
         }
-        
+
         [TestCase(@"\# asd", ExpectedResult = @"# asd", TestName = "when escape symbol before header tag")]
         [TestCase(@"as\_d_", ExpectedResult = @"as_d_", TestName = "when escape symbol before italic tag")]
-        [TestCase(@"as\__d__", ExpectedResult = @"as__d__",TestName = "when escape symbol before bold tag")]
+        [TestCase(@"as\__d__", ExpectedResult = @"as__d__", TestName = "when escape symbol before bold tag")]
         [TestCase(@"as\\d", ExpectedResult = @"as\d", TestName = "when escape symbol before escape symbol")]
         [TestCase(@"as\\\\d", ExpectedResult = @"as\\d",
             TestName = "when escape symbol before escape symbol 2 times in a row")]

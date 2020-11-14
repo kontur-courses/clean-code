@@ -52,7 +52,7 @@ namespace Markdown
         {
             return !text.Substring(Position, otherTag.Position - Position).Any(char.IsWhiteSpace);
         }
-        
+
         public bool InOneParagraphWith(WordTag otherTag, string text)
         {
             return !text.Substring(Position, otherTag.Position - Position).Contains(Environment.NewLine);
