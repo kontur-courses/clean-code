@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Collections.Immutable;
+using System.Linq;
 
 namespace Markdown
 {
@@ -11,23 +12,54 @@ namespace Markdown
             {TagType.Italic, "em"},
             {TagType.Bold, "strong"},
             {TagType.Header, "h1"},
+            {TagType.Shield, ""},
+            {TagType.NonTag, ""}
         }.ToImmutableDictionary();
 
         private static readonly ImmutableDictionary<TagType, int> SignLength = new Dictionary<TagType, int>
         {
             {TagType.Italic, 1},
             {TagType.Bold, 2},
-            {TagType.Header, 2}
+            {TagType.Header, 2},
+            {TagType.Shield, 1},
+            {TagType.NonTag, 0}
         }.ToImmutableDictionary();
 
-        public static string GetHtmlValue(TagType t) => throw new NotImplementedException();
+        private static string GetWord(string line, int position)
+        {
+            var wordEndIndex = line.IndexOf(' ', position);
+            var wordStartIndex = line.LastIndexOf(' ', position);
+            if (wordEndIndex == -1)
+                wordEndIndex = line.Length - 1;
+            if (wordStartIndex == -1)
+                wordStartIndex = 0;
+            return line.Substring(wordStartIndex, wordEndIndex - wordStartIndex);
+        }
 
-        public static int GetSignLength(TagType t) => throw new NotImplementedException();
+        public static string GetHtmlValue(TagType t) => HtmlValue[t];
 
-        public static bool IsTagInsideDigits(string text, TagToken token) => throw new NotImplementedException();
+        public static int GetSignLength(TagType t) => SignLength[t];
 
-        public static bool IsTagInSameWord(string text, TagToken token) => throw new NotImplementedException();
+        public static bool IsTagInsideWordWithDigits(string line, TagToken token) =>
+            IsCoverPartOfWord(line, token) && GetWord(line, token.StartPosition).Any(char.IsDigit);
 
-        public static bool IsCorrectIntersection(string text, TagToken firstTag, TagToken secondTag) => throw new NotImplementedException();
+        public static bool IsTagInSameWord(string line, TagToken token) =>
+            !line.Substring(token.StartPosition, token.ValueLength).Contains(" ");
+        
+        public static bool IsCoverPartOfWord(string line, TagToken token) =>
+            token.StartPosition >= 1 && char.IsLetterOrDigit(line[token.StartPosition - 1])
+            || token.EndPosition + token.TagSignLength < line.Length &&
+            char.IsLetterOrDigit(line[token.EndPosition + token.TagSignLength]);
+        
+        public static bool IsCorrectIntersection(TagToken firstTag, TagToken secondTag)
+        {
+            if (firstTag.IsIntersectedWith(secondTag) && firstTag.Type != secondTag.Type)
+                return false;
+
+            return true;
+        }
+
+        public static bool IsCorrectNesting(TagToken external, TagToken nested) => 
+            !(nested.Type is TagType.Bold && nested.IsInsideOf(external) && external.Type is TagType.Italic);
     }
 }

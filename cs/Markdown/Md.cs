@@ -1,47 +1,183 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Collections.Immutable;
+﻿using System.Collections.Generic;
+using System.Linq;
 using System.Text;
 
 namespace Markdown
 {
     public class Md
     {
-        private static readonly ImmutableHashSet<char> TagChars = new HashSet<char> { '_', '#'}.ToImmutableHashSet();
-
         public string Render(string markdown)
         {
-            throw new NotImplementedException();
+            var htmlCode = new StringBuilder();
+
+            foreach (var line in markdown.Split('\n'))
+            {
+                var tagTokens = ReadTagsFromLine(line);
+                RemoveIncorrectTokens(line, tagTokens);
+                htmlCode.Append(RenderLine(line, tagTokens.OrderBy(token => token.StartPosition)));
+            }
+
+            return htmlCode.ToString();
         }
 
-        private string RenderLine(string line, List<TagToken> tokens)
+        private string RenderLine(string line, IEnumerable<TagToken> tokens)
         {
-            throw new NotImplementedException();
+            var rendered = new StringBuilder(line);
+            var replacements = GetReplacementInfos(tokens);
+            var shift = 0;
+
+            foreach (var replacement in replacements)
+            {
+                if (replacement.Type is TagType.Shield)
+                {
+                    rendered.Remove(replacement.Position + shift, 1);
+                    shift--;
+                    continue;
+                }
+
+                var htmlValue = TagAnalyzer.GetHtmlValue(replacement.Type);
+
+                if (replacement.Position + shift < rendered.Length)
+                {
+                    rendered.Remove(replacement.Position + shift, TagAnalyzer.GetSignLength(replacement.Type));
+                    rendered.Insert(replacement.Position + shift, $"<{(replacement.IsCloser ? "/" : "")}{htmlValue}>");
+                }
+                else
+                    rendered.Append($"<{(replacement.IsCloser ? "/" : "")}{htmlValue}>");
+                shift += htmlValue.Length - TagAnalyzer.GetSignLength(replacement.Type) + (replacement.IsCloser ? 3 : 2);
+            }
+
+            return rendered.ToString();
         }
 
-        private List<TagToken> ReadPairedTagsFromLine(string line)
+        private IEnumerable<TagReplacementInfo> GetReplacementInfos(IEnumerable<TagToken> tokens)
         {
-            throw new NotImplementedException();
+            var replacements = new List<TagReplacementInfo>();
+            foreach (var token in tokens)
+            {
+                replacements.Add(new TagReplacementInfo(token.StartPosition, token.Type, false, token.IsPaired));
+                if(token.Type != TagType.Shield)
+                    replacements.Add(new TagReplacementInfo(token.EndPosition, token.Type, true, token.IsPaired));
+            }
+
+            return replacements.OrderBy(x => x.Position);
         }
 
-        private List<TagToken> ReadSingleTagsFromLine(string line)
+        private List<TagToken> ReadTagsFromLine(string line)
         {
-            throw new NotImplementedException();
+            var openedTags = new Stack<(int startPosition, TagType type)>();
+            var tokens = new List<TagToken>();
+
+            for (var i = 0; i < line.Length; i++)
+            {
+                var type = GetTagType(line, i);
+                if (type == TagType.NonTag)
+                    continue;
+
+                switch (line[i])
+                {
+                    case '\\':
+                    {
+                        var followingTag = GetTagType(line, i + 1);
+                        if (followingTag is TagType.NonTag)
+                            continue;
+                        tokens.Add(new TagToken(i, i, TagType.Shield));
+                        var shift = TagAnalyzer.GetSignLength(followingTag);
+                        i += shift;
+                        break;
+                    }
+                    case '_':
+                    {
+                        if (TryGetTagTokenForPairedTag(line, i, type, openedTags, out var token))
+                            tokens.Add(token);
+                        break;
+                    }
+                    case '#':
+                    {
+                        if(TryGetTagTokenForSingleTag(line, i, type, out var token))
+                            tokens.Add(token);
+                        break;
+                    }
+                }
+
+                i += TagAnalyzer.GetSignLength(type) - 1;
+            }
+
+            return tokens;
+        }
+
+        private bool TryGetTagTokenForPairedTag(string line, int tagIndex, TagType type, Stack<(int startPosition, TagType type)> openedTags, out TagToken token)
+        {
+            token = null;
+            var signLength = TagAnalyzer.GetSignLength(type);
+
+            if (openedTags.Any() && openedTags.Peek().type == type)
+            {
+                if (tagIndex >= 1 && char.IsWhiteSpace(line[tagIndex - 1]))
+                    return false;
+
+                var opener = openedTags.Pop();
+                token = new TagToken(opener.startPosition, tagIndex, type, true);
+                return true;
+            }
+
+            if (tagIndex + signLength < line.Length && !char.IsWhiteSpace(line[tagIndex + signLength]))
+                openedTags.Push((tagIndex, type));
+
+            return false;
+        }
+
+        private bool TryGetTagTokenForSingleTag(string line, int tagStartIndex, TagType type, out TagToken token)
+        {
+            token = null;
+            if (tagStartIndex != 0)
+                return false;
+
+            token = new TagToken(tagStartIndex, line.Length, type);
+            return true;
         }
 
         private TagType GetTagType(string line, int index)
         {
-            throw new NotImplementedException();
+            switch (line[index])
+            {
+                case '\\': return GetTagType(line, index + 1) != TagType.NonTag ? TagType.Shield : TagType.NonTag;
+                case '#': return index + 1 < line.Length && line[index + 1] == ' ' ? TagType.Header : TagType.NonTag;
+                case '_': return index + 1 < line.Length && line[index + 1] == '_' ? TagType.Bold : TagType.Italic;
+                default: return TagType.NonTag;
+            }
+        }
+
+        private void RemoveIncorrectTokens(string line, List<TagToken> tokens)
+        {
+            tokens.RemoveAll(x => 
+                x.ValueLength == 0 && x.Type != TagType.Shield
+                || TagAnalyzer.IsCoverPartOfWord(line, x) && !TagAnalyzer.IsTagInSameWord(line, x)
+                || TagAnalyzer.IsTagInsideWordWithDigits(line, x));
+            RemoveIncorrectIntersections(tokens);
+            RemoveIncorrectNestings(tokens);
         }
 
         private void RemoveIncorrectIntersections(List<TagToken> tags)
         {
-            throw new NotImplementedException();
+            var toRemove = new List<TagToken>();
+
+            foreach (var tag in tags)
+            {
+                var wrongIntersections = tags.Where(x => x != tag && !TagAnalyzer.IsCorrectIntersection(tag, x) && !tag.IsInsideOf(x)).ToList();
+                toRemove.AddRange(wrongIntersections);
+                if (wrongIntersections.Any())
+                    toRemove.Add(tag);
+            }
+
+            tags.RemoveAll(x => toRemove.Contains(x));
         }
 
-        private bool IsPossibleToSetTag(string markdown, string tag, TagToken tagToken)
+        private void RemoveIncorrectNestings(List<TagToken> tokens)
         {
-            throw new NotImplementedException();
+            var toRemove = tokens.Where(token => tokens.Any(x => !TagAnalyzer.IsCorrectNesting(x, token))).ToList();
+
+            tokens.RemoveAll(x => toRemove.Contains(x));
         }
     }
 }
