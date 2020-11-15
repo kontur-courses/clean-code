@@ -6,10 +6,10 @@ namespace Markdown
 {
     public class Md
     {
-        public string Render(string[] text)
+        public string Render(string text)
         {
             var stringAccumulator = new StringBuilder();
-            foreach (var line in text)
+            foreach (var line in text.Split('\n'))
             {
                 stringAccumulator.Append(DeShield(RenderOneString(line)));
             }
