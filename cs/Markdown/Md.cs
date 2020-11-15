@@ -8,7 +8,8 @@ namespace Markdown
         public static string Render(string text)
         {
             var rendered = new StringBuilder();
-            for (var i = 0; i < text.Length; i++)
+            var i = 0;
+            while (i < text.Length) 
             {
                 var screened = false;
                 if (text[i] == '\\')
@@ -20,6 +21,7 @@ namespace Markdown
                         i++;
                     }
 
+                    rendered.Append(new string('\\', count - count % 2));
                     screened = count % 2 != 0;
                 }
                 if (TagBuilder.ExpectedToBeMark(text[i]))
@@ -30,6 +32,8 @@ namespace Markdown
                 }
                 else
                     rendered.Append(text[i]);
+
+                i++;
             }
 
             return rendered.ToString();
