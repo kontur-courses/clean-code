@@ -22,7 +22,7 @@ namespace Markdown
             var resultLine = new StringBuilder();
             for (var i = 0; i < line.Length; i++)
             {
-                if (line[i] != '\\')
+                if (line[i] != '\\' || i == line.Length - 1 || (line[i + 1] != '_' && line[i + 1] != '#'))
                 {
                     resultLine.Append(line[i]);
                 }

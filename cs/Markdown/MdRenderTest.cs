@@ -75,5 +75,12 @@ namespace Markdown
         {
             md.Render(new[] {@"\#asdf"}).Should().Be("#asdf");
         }
+
+        [Test]
+        public void Render_ShouldIgnoreSimpleSlash()
+        {
+            md.Render(new[] {@"asdf\asdf"}).Should().Be(@"asdf\asdf");
+
+        }
     }
 }
