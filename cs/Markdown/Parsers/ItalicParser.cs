@@ -1,20 +1,32 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Text;
 
 namespace Markdown.Parsers
 {
-    public class ItalicParser : ITokenParser
+    public class ItalicParser : TokenParser
     {
-        public Token ParseToken(IEnumerable<string> text, int position)
+        public ItalicParser()
+        {
+            nestedTokenValidator = new HashSet<string> { "_", "\\" }.Contains;
+            corruptedOffset = 1;
+        }
+
+        public override Token ParseToken(IEnumerable<string> text, int position)
         {
             var tokenValue = new StringBuilder();
-            foreach (var part in text)
+            if (TokenCorruptedMode)
             {
-                tokenValue.Append(part);
+                tokenValue.Append("_");
+                return ParseToken(text, position, tokenValue, TokenType.Simple);
             }
-            var token = new Token(position, tokenValue.ToString(), TokenType.Italic);
-            return token;
+            return ParseToken(text, position, tokenValue, TokenType.Italic);
+        }
+
+        protected override void RecoverTokenValue(StringBuilder value, ParserOperator parserOperator)
+        {
+            parserOperator.Position += corruptedOffset;
+            value.Insert(0, "_");
+            value.Append("_");
         }
     }
 }

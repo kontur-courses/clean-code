@@ -1,6 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Text;
+﻿using System.Collections.Generic;
 
 namespace Markdown
 {
@@ -9,16 +7,15 @@ namespace Markdown
         private List<Token> nestedTokens;
 
         public int Position { get; set; }
-        public int Lenght { get; private set; }
-        public string Value { get; private set; }
-        public TokenType Type { get; private set; }
+        public readonly string value;
+        public readonly TokenType type;
         public IReadOnlyList<Token> NestedTokens => nestedTokens;
 
         public Token(int position, string value, TokenType type)
         {
             Position = position;
-            Value = value;
-            Type = type;
+            this.value = value;
+            this.type = type;
             nestedTokens = new List<Token>();
         }
 

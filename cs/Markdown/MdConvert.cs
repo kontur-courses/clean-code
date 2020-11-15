@@ -1,5 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Text;
 
 namespace Markdown
@@ -32,17 +31,23 @@ namespace Markdown
 
         public static string TokenToHtml(Token token)
         {
-            var prefix = tokenPrefix[token.Type];
+            var prefix = tokenPrefix[token.type];
             var offset = prefix.Length;
             var convertedToken = new StringBuilder(prefix);
-            convertedToken.Append(token.Value);
+            convertedToken.Append(token.value);
             foreach (var nestedToken in token.NestedTokens)
             {
                 convertedToken.Insert(nestedToken.Position + offset, TokenToHtml(nestedToken));
+                offset += GetTotalTokenLength(nestedToken);
             }
-            var suffix = tokenSuffix[token.Type];
+            var suffix = tokenSuffix[token.type];
             convertedToken.Append(suffix);
             return convertedToken.ToString();
+        }
+
+        private static int GetTotalTokenLength(Token token)
+        {
+            return token.value.Length + tokenPrefix[token.type].Length + tokenSuffix[token.type].Length;
         }
     }
 }

@@ -1,7 +1,5 @@
 ﻿using Markdown.Parsers;
-using System;
 using System.Collections.Generic;
-using System.Text;
 
 namespace Markdown
 {
@@ -10,16 +8,18 @@ namespace Markdown
         public int Position { get; set; }
         private readonly Stack<string> stack;
         private List<string> partialTokenValue;
-        private readonly Dictionary<string, ITokenParser> parsers;
+        private readonly Dictionary<string, TokenParser> parsers;
         private bool isTokenOpen;
-        private Func<IEnumerable<string>, int, Token> currentParser;
+        private bool isShielding;
+        private TokenParser currentParser;
         private List<Token> tokens;
+        private string previousPart;
 
         public ParserOperator()
         {
             stack = new Stack<string>();
             partialTokenValue = new List<string>();
-            parsers = new Dictionary<string, ITokenParser>();
+            parsers = new Dictionary<string, TokenParser>();
             tokens = new List<Token>();
             InitParsers();
         }
@@ -30,10 +30,15 @@ namespace Markdown
                 TokenOpen(part);
             else if (parsers.ContainsKey(part) && isTokenOpen)
                 TokenEnd(part);
+            else if (isShielding)
+                TokenEnd("\\" + part);
+            else if (part == "\\\\" && !isTokenOpen)
+                AddSimpleToken("\\");
             else if (isTokenOpen)
                 partialTokenValue.Add(part);
             else
                 AddSimpleToken(part);
+            previousPart = part;
         }
 
         private void InitParsers()
@@ -44,24 +49,30 @@ namespace Markdown
             parsers["_"] = italic;
             parsers["__"] = bold;
             parsers["#"] = header;
+            parsers["\\"] = header;
         }
 
         private void TokenOpen(string part)
         {
             isTokenOpen = true;
-            currentParser = parsers[part].ParseToken;
-            stack.Push(part);
+            if (part == "\\")
+                isShielding = true;
+            else
+                stack.Push(part);
+            currentParser = parsers[part];
+            currentParser.PartBeforeTokenStart = previousPart;
         }
 
         private void TokenEnd(string part)
         {
-            if (stack.Peek() == part)
+            if (isShielding)
             {
-                tokens.Add(currentParser(partialTokenValue, Position));
+                AddSimpleToken(part);
+                isShielding = false;
                 isTokenOpen = false;
-                partialTokenValue.Clear();
-                stack.Pop();
             }
+            else if (stack.Peek() == part)
+                StartParse();
             else
                 partialTokenValue.Add(part);
         }
@@ -74,12 +85,22 @@ namespace Markdown
         public List<Token> GetTokens()
         {
             if (!IsClose())
-                tokens.Add(currentParser(partialTokenValue, Position));
+                StartParse(false);
             return tokens;
         }
 
+        private void StartParse(bool needClose = true)
+        {
+            if (needClose)
+                stack.Pop();
+            currentParser.TokenCorruptedMode = !IsClose();
+            isTokenOpen = false;
+            tokens.Add(currentParser.ParseToken(partialTokenValue, Position));
+            partialTokenValue.Clear();
+        }
+
         public bool IsClose() => stack.Count == 0;
-        public bool IsCorrectStart(string text) => !text.StartsWith(" ");
-        public bool IsCorrectEnd(string text) => !text.EndsWith(" ");
+        public static bool IsCorrectStart(string text) => !text.StartsWith(" ");
+        public static bool IsCorrectEnd(string text) => !text.EndsWith(" ");
     }
 }

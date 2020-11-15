@@ -1,20 +1,33 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Text;
 
 namespace Markdown.Parsers
 {
-    public class HeaderParser : ITokenParser
+    public class HeaderParser : TokenParser
     {
-        public Token ParseToken(IEnumerable<string> text, int position)
+        public HeaderParser()
+        {
+            nestedTokenValidator = TokenReader.IsFormattingString;
+            corruptedOffset = 1;
+        }
+
+        public override Token ParseToken(IEnumerable<string> text, int position)
         {
             var tokenValue = new StringBuilder();
-            var parserOperator = new ParserOperator();
+            if (PartBeforeTokenStart != null && PartBeforeTokenStart != "\\\\")
+            {
+                tokenValue.Append("#");
+                return ParseToken(text, position, tokenValue, TokenType.Simple);
+            }
+            return ParseToken(text, position, tokenValue, TokenType.Header);
+        }
+
+        protected override void CollectToken(IEnumerable<string> text, StringBuilder tokenValue, ParserOperator parserOperator)
+        {
             var isIntoToken = false;
             var offset = 0;
             foreach (var part in text)
-            {
-                if (TokenReader.IsFormattingString(part))
+                if (nestedTokenValidator(part))
                 {
                     if (!isIntoToken)
                         parserOperator.Position = offset;
@@ -26,13 +39,13 @@ namespace Markdown.Parsers
                     tokenValue.Append(part);
                     offset += part.Length;
                 }
-                else if (isIntoToken)
+                else
                     parserOperator.AddTokenPart(part);
-            }
-            var nestedTokens = parserOperator.GetTokens();
-            var token = new Token(position, tokenValue.ToString(), TokenType.Header);
-            token.SetNestedTokens(nestedTokens);
-            return token;
+        }
+
+        protected override void RecoverTokenValue(StringBuilder value, ParserOperator parserOperator)
+        {
+            return;
         }
     }
 }

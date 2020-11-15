@@ -1,18 +1,15 @@
-﻿using Markdown.Parsers;
-using System;
-using System.Collections.Generic;
-using System.Text;
+﻿using System.Collections.Generic;
 
 namespace Markdown
 {
     public class TokenReader
     {
-        private static HashSet<string> formattingCharacters = new HashSet<string> { "_", "__", "#" };
+        private static HashSet<string> formattingCharacters = new HashSet<string> { "_", "__", "#", "\\" };
 
         public IEnumerable<Token> ReadTokens(string text)
         {
             var pareserOperator = new ParserOperator();
-            foreach (var part in text.SplitKeppSeparators(new[] { '_', '#' }))
+            foreach (var part in text.SplitKeepSeparators(new[] { '_', '#', '\\' }))
                 pareserOperator.AddTokenPart(part);
             return pareserOperator.GetTokens();
         }
