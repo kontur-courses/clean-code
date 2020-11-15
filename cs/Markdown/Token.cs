@@ -4,10 +4,10 @@ namespace Markdown
 {
     public class Token
     {
-        public int Position { get; set; }
-        public string Value { get; set; }
+        public int Position { get; }
+        public string Value { get; }
         public int Length => Value.Length;
-        public TokenType Type { get; set; }
+        public TokenType Type { get; }
         public List<Token> ChildTokens { get; set; }
 
         public Token(int position, string value, TokenType type)
@@ -17,13 +17,13 @@ namespace Markdown
             Type = type;
         }
 
-        public string ValueWithoutTags()
+        public string GetValueWithoutTags()
         {
             return Type switch
             {
-                TokenType.Heading => Value.Substring(1),
-                TokenType.Emphasized => Value.Substring(1, Value.Length - 2),
-                TokenType.Strong => Value.Substring(2, Value.Length - 4),
+                TokenType.Heading => Value[1..],
+                TokenType.Emphasized => Value[1..^1],
+                TokenType.Strong => Value[2..^2],
                 _ => Value
             };
         }
