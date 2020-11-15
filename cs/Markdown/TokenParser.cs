@@ -10,6 +10,7 @@ namespace Markdown
         {
             var tokens = new List<Token>();
             var tagsList = FindTagsIndexes(sourceText, tagInfos);
+            tagsList = FilterTags(tagsList, sourceText);
             var tagsStack = new Stack<TagInfoWithIndex>();
             foreach (var tagInfoWithIndex in tagsList.OrderBy(tagAndIndex => tagAndIndex.StartIndex))
             {
@@ -40,9 +41,28 @@ namespace Markdown
             return tokens.ToArray();
         }
 
+        private static List<TagInfoWithIndex> FilterTags(List<TagInfoWithIndex> tagsList, string sourceText)
+        {
+            var filteredList = new List<TagInfoWithIndex>();
+            foreach (var tagInfoWithIndex in tagsList
+                .OrderByDescending(tagInfoWithIndex => tagInfoWithIndex.TagInfo.TagInMd.Length)
+                .ThenBy(tagInfoWithIndex => tagInfoWithIndex.StartIndex))
+            {
+                if (IsScreened(sourceText, tagInfoWithIndex.StartIndex) || filteredList.Any(filteredTagAndIndex =>
+                    tagInfoWithIndex.StartIndex >= filteredTagAndIndex.StartIndex &&
+                    tagInfoWithIndex.StartIndex <= filteredTagAndIndex.StartIndex +
+                    filteredTagAndIndex.TagInfo?.TagInMd.Length - 1))
+                    continue;
+
+                filteredList.Add(tagInfoWithIndex);
+            }
+
+            return filteredList;
+        }
+
         private static List<TagInfoWithIndex> FindTagsIndexes(string sourceText, TagInfo[] tagInfos)
         {
-            var tagsList = new List<TagInfoWithIndex>();
+            var tagsWithIndexList = new List<TagInfoWithIndex>();
             var sortedTagInfos = tagInfos
                 .OrderByDescending(tag => tag.TagForConverting.Length);
             foreach (var tagInfo in sortedTagInfos)
@@ -52,15 +72,43 @@ namespace Markdown
                 do
                 {
                     var substring = sourceText.Substring(index, tagLength);
-                    if (tagInfo.TagInMd != substring || tagsList.Any(tagAndIndex =>
-                        index >= tagAndIndex.StartIndex &&
-                        index <= tagAndIndex.StartIndex + tagAndIndex.TagInfo?.TagInMd.Length))
+                    if (tagInfo.TagInMd != substring)
                         continue;
-                    tagsList.Add(new TagInfoWithIndex(tagInfo, index));
+                    tagsWithIndexList.Add(new TagInfoWithIndex(tagInfo, index));
                 } while (++index < sourceText.Length - tagLength + 1);
             }
 
-            return tagsList;
+            return tagsWithIndexList;
+        }
+
+        private static bool IsScreened(string sourceText, int tagStartIndex)
+        {
+            if (tagStartIndex == 0)
+                return false;
+            var count = 0;
+            var index = tagStartIndex;
+            while (index > 0 && sourceText[--index] == '\\')
+                count++;
+            return count % 2 == 1;
+        }
+
+        public static string ScreenSymbols(string sourceText, params TagInfo[] tagInfos)
+        {
+            if (sourceText.Length == 0)
+                return sourceText;
+            var resultStr = new StringBuilder();
+            var index = 0;
+            do
+            {
+                if (index + 1 < sourceText.Length && sourceText[index] == '\\' &&
+                    (tagInfos.Any(tagInfo => sourceText[index + 1] == tagInfo.TagInMd[0]) ||
+                     sourceText[index + 1] == '\\'))
+                    index++;
+
+                resultStr.Append(sourceText[index]);
+            } while (++index < sourceText.Length);
+
+            return resultStr.ToString();
         }
     }
 }

@@ -8,7 +8,8 @@
             var boldTagInfo = new TagInfo("__", "strong", false);
             var headerTagInfo = new TagInfo("#", "h1", true);
             var tokens = TokenParser.ParseStringToMdTokens(text, italicTagInfo, boldTagInfo, headerTagInfo);
-            return TokenApplier.ApplyTokensToString(text, tokens);
+            var textWithAlliedTokens = TokenApplier.ApplyTokensToString(text, tokens);
+            return TokenParser.ScreenSymbols(textWithAlliedTokens, italicTagInfo, boldTagInfo, headerTagInfo);
         }
     }
 }

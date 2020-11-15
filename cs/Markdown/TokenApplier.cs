@@ -18,6 +18,7 @@ namespace Markdown
                     1);
                 influence += token.TagInfo.TagForConverting.Length + 3 - tagInMdLength;
             }
+            
 
             return resultText.ToString();
         }
