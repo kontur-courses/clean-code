@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace Markdown
+namespace Markdown.Tags.ItalicTag
 {
     public class ItalicTag : Tag
     {

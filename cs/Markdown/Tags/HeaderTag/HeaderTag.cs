@@ -1,4 +1,4 @@
-﻿namespace Markdown
+﻿namespace Markdown.Tags.HeaderTag
 {
     public class HeaderTag : Tag
     {

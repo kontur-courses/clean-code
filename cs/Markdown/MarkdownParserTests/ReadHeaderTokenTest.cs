@@ -1,8 +1,8 @@
-﻿using System.Security.Authentication.ExtendedProtection;
-using FluentAssertions;
+﻿using FluentAssertions;
+using Markdown.Tags;
 using NUnit.Framework;
 
-namespace Markdown
+namespace Markdown.MarkdownParserTests
 {
     public class ReadHeaderToken
     {

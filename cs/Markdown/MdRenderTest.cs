@@ -1,9 +1,7 @@
-﻿using FluentAssertions;
-using NUnit.Framework;
+﻿using NUnit.Framework;
 
 namespace Markdown
 {
-    [TestFixture]
     public class MdRenderTest
     {
         private Md md = new Md();

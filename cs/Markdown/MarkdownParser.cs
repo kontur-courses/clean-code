@@ -1,5 +1,9 @@
 ﻿using System;
 using System.Collections.Generic;
+using Markdown.Tags;
+using Markdown.Tags.BoldTag;
+using Markdown.Tags.HeaderTag;
+using Markdown.Tags.ItalicTag;
 
 namespace Markdown
 {
