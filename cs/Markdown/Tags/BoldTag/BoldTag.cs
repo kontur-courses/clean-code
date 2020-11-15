@@ -22,16 +22,4 @@
         }
     }
     
-    public class OpenBoldTag : BoldTag
-    {
-        public OpenBoldTag( int index) : base("<strong>", index)
-        {
-        }
-    }
-    public class CloseBoldTag : BoldTag
-    {
-        public CloseBoldTag(int index) : base("</strong>", index)
-        {
-        }
-    }
 }
