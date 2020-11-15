@@ -11,10 +11,24 @@ namespace Markdown
             var stringAccumulator = new StringBuilder();
             foreach (var line in text)
             {
-                stringAccumulator.Append(RenderOneString(line));
+                stringAccumulator.Append(DeShield(RenderOneString(line)));
             }
 
             return stringAccumulator.ToString();
+        }
+
+        private string DeShield(string line)
+        {
+            var resultLine = new StringBuilder();
+            for (var i = 0; i < line.Length; i++)
+            {
+                if (line[i] != '\\')
+                {
+                    resultLine.Append(line[i]);
+                }
+            }
+
+            return resultLine.ToString();
         }
 
         private string RenderOneString(string line)
@@ -158,7 +172,8 @@ namespace Markdown
         private static bool IsItalicTokenEnd(string line, int index)
         {
             return line[index] == '_' && line[index - 1] != ' '
-                                      && (index == line.Length - 1 || line[index + 1] != '_')
+                                      && line[index - 1] != '\\'
+                                      && (index == line.Length - 1 || line[index + 1] != '_' || line[index - 1] == '\\')
                                       && line[index - 1] != '_';
         }
 
@@ -166,17 +181,18 @@ namespace Markdown
         {
             return line[startIndex] == '_'
                    && startIndex != line.Length - 1
-                   && line[startIndex + 1] != '_'
+                   && (line[startIndex + 1] != '_' || startIndex > 0 && line[startIndex - 1] == '\\')
                    && !Char.IsDigit(line[startIndex + 1])
                    && line[startIndex + 1] != ' '
-                   && (startIndex == 0 || line[startIndex - 1] != '_') ;
+                   && (startIndex == 0 || line[startIndex - 1] != '_' && line[startIndex - 1] != '\\') ;
         }
         private static bool IsBoldTokenStart(string line, int startIndex)
         {
             return line[startIndex] == '_'
                    && startIndex <= line.Length - 2
                    && line[startIndex + 1] == '_'
-                   && line[startIndex + 2] != ' ';
+                   && (startIndex == line.Length - 2 || line[startIndex + 2] != ' ')
+                   && (startIndex == 0 || line[startIndex - 1] != '\\');
         }
 
         private static bool IsBoldTokenEnd(string line, int endIndex)
