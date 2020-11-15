@@ -1,5 +1,6 @@
 ﻿using System.Collections.Generic;
 using System.Linq;
+using System.Text;
 
 namespace Markdown
 {
@@ -9,59 +10,54 @@ namespace Markdown
         {
             var tokens = new List<Token>();
             var tagsList = FindTagsIndexes(sourceText, tagInfos);
-            var tagsStack = new Stack<(TagInfo tagInfo, int startIndex)>();
-            foreach (var tagAndIndex in tagsList.OrderBy(tagAndIndex => tagAndIndex.startIndex))
+            var tagsStack = new Stack<TagInfoWithIndex>();
+            foreach (var tagInfoWithIndex in tagsList.OrderBy(tagAndIndex => tagAndIndex.StartIndex))
             {
                 if (tagsStack.Count == 0)
                 {
-                    tagsStack.Push(tagAndIndex);
+                    tagsStack.Push(tagInfoWithIndex);
                     continue;
                 }
 
-                var tagInfo = tagAndIndex.tagInfo;
+                var tagInfo = tagInfoWithIndex.TagInfo;
                 var tagInMd = tagInfo.TagInMd;
-                var peekTag = tagsStack.Peek().tagInfo.TagInMd;
+                var peekTag = tagsStack.Peek().TagInfo.TagInMd;
                 if (tagInMd == "__" && peekTag == "_")
                     continue;
                 if (tagInMd == peekTag)
                 {
-                    var length = tagAndIndex.startIndex + tagInMd.Length - tagsStack.Peek().startIndex;
-                    tokens.Add(new Token(tagsStack.Peek().startIndex,
+                    var length = tagInfoWithIndex.StartIndex + tagInMd.Length - tagsStack.Peek().StartIndex;
+                    tokens.Add(new Token(tagsStack.Peek().StartIndex,
                         length,
                         tagInfo));
                     tagsStack.Pop();
                     continue;
                 }
 
-                tagsStack.Push((tagInfo, tagAndIndex.startIndex));
+                tagsStack.Push(new TagInfoWithIndex(tagInfo, tagInfoWithIndex.StartIndex));
             }
 
             return tokens.ToArray();
         }
 
-        private static List<(TagInfo tagInfo, int startIndex)> FindTagsIndexes(string sourceText, TagInfo[] tagInfos)
+        private static List<TagInfoWithIndex> FindTagsIndexes(string sourceText, TagInfo[] tagInfos)
         {
-            var tagsList = new List<(TagInfo tagInfo, int startIndex)>();
-            var groupedTagInfos = tagInfos
-                .GroupBy(tag => tag.TagForConverting.Length);
-            foreach (var group in groupedTagInfos)
+            var tagsList = new List<TagInfoWithIndex>();
+            var sortedTagInfos = tagInfos
+                .OrderByDescending(tag => tag.TagForConverting.Length);
+            foreach (var tagInfo in sortedTagInfos)
             {
-                var tagLength = group.First().TagInMd.Length;
+                var tagLength = tagInfo.TagInMd.Length;
                 var index = 0;
-                while (index < sourceText.Length - tagLength + 1)
+                do
                 {
                     var substring = sourceText.Substring(index, tagLength);
-                    foreach (var tagInfo in group)
-                    {
-                        if (tagInfo.TagInMd != substring || tagsList.Any(tagAndIndex =>
-                            index >= tagAndIndex.startIndex &&
-                            index <= tagAndIndex.startIndex + tagAndIndex.tagInfo?.TagInMd.Length))
-                            continue;
-                        tagsList.Add((tagInfo, index));
-                    }
-
-                    index++;
-                }
+                    if (tagInfo.TagInMd != substring || tagsList.Any(tagAndIndex =>
+                        index >= tagAndIndex.StartIndex &&
+                        index <= tagAndIndex.StartIndex + tagAndIndex.TagInfo?.TagInMd.Length))
+                        continue;
+                    tagsList.Add(new TagInfoWithIndex(tagInfo, index));
+                } while (++index < sourceText.Length - tagLength + 1);
             }
 
             return tagsList;
