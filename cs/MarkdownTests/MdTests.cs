@@ -1,25 +1,27 @@
 using System;
 using System.Collections.Generic;
-using System.IO;
+using System.Diagnostics;
 using System.Linq;
-using Markdown;
+using System.Numerics;
 using NUnit.Framework;
 
 namespace MarkdownTests
 {
     public class MarkdownTests
     {
-        public Markdown.Markdown Markdown;
+        private Markdown.Markdown markdown;
+        private static Random random;
         [SetUp]
         public void Setup()
         {
-            Markdown = new Markdown.Markdown();
+            markdown = new Markdown.Markdown();
+            random = new Random();
         }
 
         [TestCaseSource(nameof(RenderData))]
         public void Markdown_Render(string text, string expected)
         {
-            var actual = Markdown.Render(text);
+            var actual = markdown.Render(text);
             
             Assert.That(actual, Is.EqualTo(expected), $"On text:  \"{text}\"");
         }
@@ -71,6 +73,48 @@ namespace MarkdownTests
             
             return testData.Select(test
                 => new TestCaseData(test.text, test.expected) {TestName = test.testName});
+        }
+
+        [Test]
+        public void Render_IsLinearComplexity()
+        {
+            const int blockSize = 1000;
+            const int count = 100;
+            var textData = new List<string>();
+            for (var i = 1; i <= count; i++)
+                textData.Add(RandomString(blockSize * i));
+            var times = new List<(int, long)>();
+            var stopwatch = new Stopwatch();
+
+            foreach (var text in textData)
+            {
+                stopwatch.Start();
+                var _ = markdown.Render(text);
+                stopwatch.Stop();
+                Console.WriteLine("Elapsed={0}",stopwatch.ElapsedMilliseconds);
+                times.Add((text.Length, stopwatch.ElapsedMilliseconds));
+            }
+            var timeVectors = times.Select(pair => new Vector2(pair.Item1, pair.Item2)).ToList();
+            var angles = new List<double>();
+            foreach (var vector1 in timeVectors)
+            {
+                foreach (var vector2 in timeVectors.Where(vector => vector != vector1))
+                {
+                    var deviation = vector1 - vector2;
+                    angles.Add(Math.Tan(Math.Abs(deviation.Y) / Math.Abs(deviation.X)));
+                }
+            }
+            
+            var averageAngle = angles.Average();
+            foreach (var angle in angles) 
+                Assert.That(angle, Is.EqualTo(averageAngle).Within(10e-2));
+        }
+        
+        public static string RandomString(int length)
+        {
+            const string chars = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789";
+            return new string(Enumerable.Repeat(chars, length)
+                .Select(s => s[random.Next(s.Length)]).ToArray());
         }
     }
 }
