@@ -129,8 +129,10 @@ namespace Markdown.Infrastructure.Parsers
                     return ParseHeader(ref text, offset);
                 case '!':
                     return ParsePicture(ref text, offset);
+                case '[':
+                    return ParseLink(ref text, offset);
                 case ')':
-                    return ParsePictureEnd(ref text, offset);
+                    return ParseMediaEnd(ref text, offset);
                 default:
                     return TryParseNewLine(ref text, offset, out var tagInfo) 
                         ? tagInfo 
@@ -138,33 +140,51 @@ namespace Markdown.Infrastructure.Parsers
             }
         }
 
-        private TagInfo ParsePictureEnd(ref string text, in int offset)
+        private TagInfo ParseMediaEnd(ref string text, int offset)
         {
-            return new TagInfo(offset, 1, Style.Picture, true, false);
+            return new TagInfo(offset, 1, Style.Media, true, false);
         }
 
-        private TagInfo ParsePicture(ref string text, in int offset)
+        private TagInfo ParseLink(ref string text, in int offset)
         {
-            var descriptionLength = 0;
-            var processed = 1;
-            if (CharIs('[', ref text, offset + processed))
-            {
-                processed++;
-                for (var i = 0; i < maxPictureDescriptionLength; i++)
-                {
-                    if (CharIs(']', ref text, offset + i + processed))
-                        descriptionLength = i;
-                }
-            }
+            Tag CreateTag(string link) => new LinkTag(link);
+            return ParseMedia(ref text, offset, CreateTag, 0);
+        }
+        
+        private TagInfo ParsePicture(ref string text, int offset)
+        {
+            Tag CreateTag(string description) => new PictureTag(description);
+            return ParseMedia(ref text, offset, CreateTag, 1);
+        }
 
-            var description = text.Substring(offset + processed, descriptionLength);
-            processed += descriptionLength;
-            processed++;
+        private delegate Tag CreateTag(string payload);
+        
+        private TagInfo ParseMedia(ref string text, int offset, CreateTag createTag, int processed)
+        {
+            var payload = ParsePayload(ref text, offset, processed);
+            if (payload is null)
+                return null;
+            processed += payload.Length + 2;
 
             if (CharIs('(', ref text, offset + processed))
             {
                 processed++;
-                return new TagInfo(offset, processed, new PictureTag(description), false);
+                return new TagInfo(offset, processed, createTag(payload), false);
+            }
+
+            return null;
+        }
+
+        private string ParsePayload(ref string text, int offset, int processed)
+        {
+            if (CharIs('[', ref text, offset + processed))
+            {
+                processed++;
+                for (var payloadLength = 0; payloadLength < maxPictureDescriptionLength; payloadLength++)
+                {
+                    if (CharIs(']', ref text, offset + payloadLength + processed))
+                        return text.Substring(offset + processed, payloadLength);
+                }
             }
 
             return null;

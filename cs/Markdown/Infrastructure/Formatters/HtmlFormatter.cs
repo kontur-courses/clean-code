@@ -20,16 +20,21 @@ namespace Markdown.Infrastructure.Formatters
 
         private Func<IEnumerable<string>, IEnumerable<string>> GetPictureWrapper(string description) 
             => Wrap("<img src=\"", $"\" alt=\"{description}\">");
+        
+        private Func<IEnumerable<string>, IEnumerable<string>> GetLinkWrapper(string link) 
+            => Wrap("<a href=\"", $"\">{link}</a>");
 
         public override IEnumerable<string> Format(Tag tag, IEnumerable<string> words)
         {
             if (GeneralWrappers.TryGetValue(tag.Style, out var wrap))
                 return wrap(words);
 
-            if (tag is PictureTag pictureTag)
-                return GetPictureWrapper(pictureTag.Description)(words);
-
-            return words;
+            return tag switch
+            {
+                PictureTag pictureTag => GetPictureWrapper(pictureTag.Description)(words),
+                LinkTag linkTag => GetLinkWrapper(linkTag.Link)(words),
+                _ => words
+            };
         }
     }
 }

@@ -71,6 +71,7 @@ namespace MarkdownTests
                 ("Three underscores", "_a_ _b_  _c_", "<em>a</em> <em>b</em>  <em>c</em>"),
                 
                 ("Picture", "![описание](https://picture1)", "<img src=\"https://picture1\" alt=\"описание\">"),
+                ("Link", "[имя](https://link)", "<a href=\"https://link\">имя</a>"),
             };
             
             return testData.Select(test

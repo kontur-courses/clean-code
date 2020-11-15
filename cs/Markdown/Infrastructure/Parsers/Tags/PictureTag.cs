@@ -2,9 +2,9 @@ namespace Markdown.Infrastructure.Parsers.Tags
 {
     public class PictureTag : Tag
     {
-        public string Description;
+        public readonly string Description;
 
-        public PictureTag(string description) : base(Blocks.Style.Picture)
+        public PictureTag(string description) : base(Blocks.Style.Media)
         {
             Description = description;
         }
