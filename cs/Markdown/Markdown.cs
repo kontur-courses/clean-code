@@ -7,7 +7,7 @@ namespace Markdown
         public string Render(string markdown)
         {
             var tokens = new TextParser().GetTokens(markdown);
-            var htmlText = new HtmlConverter().ConvertTokensToHtml(tokens);
+            var htmlText = new HtmlConverter().ConvertTokens(tokens);
 
             return htmlText;
         }

@@ -17,7 +17,7 @@ namespace MarkdownTests
             var htmlConverter = new HtmlConverter();
             var tokens = new List<Token> {new Token(0, text, type)};
 
-            htmlConverter.ConvertTokensToHtml(tokens).Should().Be(expectedResult);
+            htmlConverter.ConvertTokens(tokens).Should().Be(expectedResult);
         }
     }
 }

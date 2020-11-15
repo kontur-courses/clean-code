@@ -6,31 +6,31 @@ namespace Markdown
 {
     public class HtmlConverter : IConverter
     {
-        public string ConvertTokensToHtml(List<Token> tokens)
+        public string ConvertTokens(List<Token> tokens)
         {
             var sortedTokens = tokens.OrderBy(x => x.Position);
             var result = new StringBuilder();
+            var mapper = GetTokenTypeToStringMapper();
 
             foreach (var token in sortedTokens)
             {
-                switch (token.Type)
-                {
-                    case TokenType.Heading:
-                        result.Append($"<h1>{token.ValueWithoutTags()}</h1>");
-                        break;
-                    case TokenType.Strong:
-                        result.Append($"<strong>{token.ValueWithoutTags()}</strong>");
-                        break;
-                    case TokenType.Emphasized:
-                        result.Append($"<em>{token.ValueWithoutTags()}</em>");
-                        break;
-                    case TokenType.PlainText:
-                        result.Append(token.ValueWithoutTags());
-                        break;
-                }
+                var tokenValue = token.GetValueWithoutTags();
+                var tokenType = mapper[token.Type];
+
+                result.Append(tokenType != "" ? $"<{tokenType}>{tokenValue}</{tokenType}>" : tokenValue);
             }
 
             return result.ToString();
+        }
+
+        private static Dictionary<TokenType, string> GetTokenTypeToStringMapper()
+        {
+            return new Dictionary<TokenType, string>() {
+                {TokenType.Emphasized, "em"},
+                {TokenType.Heading, "h1"},
+                {TokenType.Strong, "strong"},
+                {TokenType.PlainText, ""}
+            };
         }
     }
 }
