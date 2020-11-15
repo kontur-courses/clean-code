@@ -278,16 +278,16 @@ namespace Markdown.Infrastructure.Parsers
 
         private bool TryParseNewLine(ref string text, int offset, out TagInfo tagInfo)
         {
-            var newLine = Environment.NewLine;
-            var substring = text.Substring(offset, newLine.Length);
-            if (substring == newLine)
-            {
-                tagInfo = new TagInfo(offset, 2, Style.NewLine);
-                return true;
-            }
-
             tagInfo = null;
-            return false;
+            var newLine = Environment.NewLine;
+            if (!IsInBounds(ref text, offset + newLine.Length))
+                return false;
+            var substring = text.Substring(offset, newLine.Length);
+            if (substring != newLine)
+                return false;
+
+            tagInfo = new TagInfo(offset, 2, Style.NewLine);
+            return true;
         }
 
         private delegate Tag CreateTag(string payload);
