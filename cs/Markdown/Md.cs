@@ -1,20 +1,27 @@
 ﻿using System;
 using System.Collections.Generic;
+using Markdown.Tag;
+using Markdown.Parser;
+using Markdown.Builder;
 
 namespace Markdown
 {
     public class Md
     {
-        private MarkupParser markupParser;
-        private MarkupBuilder htmlBuilder;
+        private MarkupParser markdownParser;
+        private MarkupBuilder htmlMarkupBuilder;
+
+        public Md()
+        {
+            var tags = CreateMdToHtmlTags();
+            markdownParser = new MarkupParser(tags);
+            htmlMarkupBuilder = new MarkupBuilder(tags);
+        }
         
         public string Render(string rawText)
         {
-            var tags = CreateMdToHtmlTags();
-            markupParser = new MarkupParser(tags);
-            htmlBuilder = new MarkupBuilder(tags);
-            // Сперва разберем с помощью парсера, потом соберем с помощью сборщика
-            throw new NotImplementedException();
+            var textTokens = markdownParser.Parse(rawText);
+            return htmlMarkupBuilder.Build(textTokens);
         }
 
         private TagData[] CreateMdToHtmlTags()

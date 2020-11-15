@@ -1,8 +1,8 @@
 ﻿using System.Collections.Generic;
 
-namespace Markdown
+namespace Markdown.Builder
 {
-    public interface IBuilder
+    public interface IMarkupBuilder
     {
         public string Build(List<TextToken> textTokens);
     }

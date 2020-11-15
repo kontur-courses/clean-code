@@ -1,8 +1,8 @@
 ﻿using System.Collections.Generic;
 
-namespace Markdown
+namespace Markdown.Parser
 {
-    public interface IParser
+    public interface IMarkupParser
     {
         public List<TextToken> Parse(string text);
     }

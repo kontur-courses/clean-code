@@ -1,14 +1,16 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 
-namespace Markdown
+namespace Markdown.Tag
 {
     public class TagData : ITagData
     {
         public FormattingState State { get; }
         public TagBorder IncomingBorder { get; }
         public TagBorder OutgoingBorder { get; }
-        public readonly HashSet<FormattingState> NotAllowedNestedStates;
+        
+        private readonly HashSet<FormattingState> notAllowedNestedStates;
 
         public TagData(FormattingState state, TagBorder incomingBorder, TagBorder outgoingBorder,
             params FormattingState[] notAllowedNestedStates)
@@ -16,7 +18,17 @@ namespace Markdown
             State = state;
             IncomingBorder = incomingBorder;
             OutgoingBorder = outgoingBorder;
-            NotAllowedNestedStates = notAllowedNestedStates.ToHashSet();
+            this.notAllowedNestedStates = notAllowedNestedStates.ToHashSet();
+        }
+
+        public virtual bool IsValid(string data, int startPos, int endPos)
+        {
+            return true;
+        }
+
+        public bool CanNested(FormattingState stateToNesting)
+        {
+            return !notAllowedNestedStates.Contains(stateToNesting);
         }
     }
 }
