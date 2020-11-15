@@ -16,7 +16,10 @@ namespace Markdown
                 return null;
             if (currentText[0] != '_' || currentText[1] != '_' || currentText[tokenLength - 2] != '_' ||
                 currentText[tokenLength - 1] != '_') return null;
-            if (currentText.ToString().Any(symbol => symbol == ' ' || char.IsDigit(symbol)))
+            if (currentText.ToString().Any(char.IsDigit))
+                return null;
+            var countUnderlining = currentText.ToString().Count(x => x == '_');
+            if (countUnderlining == 5)
                 return null;
             currentText.Remove(0, 2);
             currentText.Remove(currentText.Length - 2, 2);

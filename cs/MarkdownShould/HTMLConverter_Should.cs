@@ -28,10 +28,10 @@ namespace Markdown.Tests
                 new TextToken(0,2,TokenType.Text, "aa"),
                 new TextToken(2,4,TokenType.Text,"cccc")
             };
-            var htmlConverter = new HTMLConverter();
+            var htmlConverter = new HTMLConverter(tokenConverters);
             var expectedString = "aacccc";
             
-            var actualString = htmlConverter.GetHTMLString(textTokens, tokenConverters);
+            var actualString = htmlConverter.GetHTMLString(textTokens);
 
             actualString.Should().BeEquivalentTo(expectedString);
         }
@@ -54,10 +54,10 @@ namespace Markdown.Tests
                         new TextToken(0, 4, TokenType.Text, "dddd")
                     }),
             };
-            var htmlConverter = new HTMLConverter();
+            var htmlConverter = new HTMLConverter(tokenConverters);
             var expectedString = "aa<em>cccc</em>bb<em>dddd</em>";
             
-            var actualString = htmlConverter.GetHTMLString(textTokens, tokenConverters);
+            var actualString = htmlConverter.GetHTMLString(textTokens);
 
             actualString.Should().BeEquivalentTo(expectedString);
         }
@@ -78,10 +78,10 @@ namespace Markdown.Tests
                 }),
                 
             };
-            var htmlConverter = new HTMLConverter();
+            var htmlConverter = new HTMLConverter(tokenConverters);
             var expectedString = "<strong>cccc<em>ab</em>bbbb</strong>";
             
-            var actualString = htmlConverter.GetHTMLString(textTokens, tokenConverters);
+            var actualString = htmlConverter.GetHTMLString(textTokens);
 
             actualString.Should().BeEquivalentTo(expectedString);
         }

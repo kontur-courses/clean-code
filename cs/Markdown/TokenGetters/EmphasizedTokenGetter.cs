@@ -16,12 +16,17 @@ namespace Markdown
                 return null;
             if (index + 1 >= text.Length && currentText[tokenLength - 1] != '_')
                 return null;
-            if ((currentText[0] != '_' || index + 1 < text.Length && currentText[tokenLength - 1] != '_') ||
+            if ((currentText[0] != '_' ||  currentText[tokenLength - 1] != '_') ||
                 index + 1 < text.Length && text[index + 1] == '_')
                 return null;
-            if (currentText.ToString().Any(symbol => symbol == ' ' || char.IsDigit(symbol)))
+            if (currentText[1] == '_')
                 return null;
-            
+            if (currentText.ToString().Any(char.IsDigit))
+                return null;
+            if (currentText[1] == ' ' || currentText[currentText.Length - 2] == ' ')
+                return null;
+            if (index + 1 != text.Length && text[index + 1] != '_')
+                return null;
             currentText.Remove(0, 1);
             currentText.Remove(currentText.Length - 1, 1);
             var tokenToAdd = new TextToken(index - currentText.Length, currentText.Length,

@@ -106,14 +106,14 @@ namespace Markdown.Tests
             GetTextTokens_ReturnListWithCorrectTokens_TextWithTwoUnderliningElementsAndTwoElementsWithoutAnySpecialSymbols()
         {
             var textParser = new TextParser(TokenGetters);
-            var text = "aaa_bb_aaa_aa_";
+            var text = "aaa _bb_ aaa _aa_";
             var expectedList = new List<TextToken>()
             {
-                new TextToken(0, 3, TokenType.Text, "aaa"),
-                new TextToken(4, 2, TokenType.Emphasized, "bb",
+                new TextToken(0, 4, TokenType.Text, "aaa "),
+                new TextToken(5, 2, TokenType.Emphasized, "bb",
                     new List<TextToken> {new TextToken(0, 2, TokenType.Text, "bb")}),
-                new TextToken(7, 3, TokenType.Text, "aaa"),
-                new TextToken(11, 2, TokenType.Emphasized, "aa",
+                new TextToken(8, 5, TokenType.Text, " aaa "),
+                new TextToken(14, 2, TokenType.Emphasized, "aa",
                     new List<TextToken> {new TextToken(0, 2, TokenType.Text, "aa")})
             };
 
@@ -161,7 +161,7 @@ namespace Markdown.Tests
         public void GetTextTokens_ReturnListWithCorrectTokens_TextWithStrongEmphasizedAndNotClosedElements()
         {
             var textParser = new TextParser(TokenGetters);
-            var text = "__aa__ _bb_ac_";
+            var text = "__aa__ _bb_ ac_";
             var expectedList = new List<TextToken>()
             {
                 new TextToken(2, 2, TokenType.Strong, "aa",
@@ -169,7 +169,7 @@ namespace Markdown.Tests
                 new TextToken(6, 1, TokenType.Text, " "),
                 new TextToken(8, 2, TokenType.Emphasized, "bb",
                     new List<TextToken> {new TextToken(0, 2, TokenType.Text, "bb")}),
-                new TextToken(11, 3, TokenType.Text, "ac_")
+                new TextToken(11, 4, TokenType.Text, " ac_")
             };
 
             var actualList = textParser.GetTextTokens(text);

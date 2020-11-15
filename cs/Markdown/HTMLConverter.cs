@@ -9,7 +9,13 @@ namespace Markdown
 {
     public class HTMLConverter
     {
-        public string GetHTMLString(IReadOnlyCollection<TextToken> textTokens, IReadOnlyCollection<ITokenConverter> tokenConverters)
+        private IReadOnlyCollection<ITokenConverter> tokenConverters;
+
+        public HTMLConverter(IReadOnlyCollection<ITokenConverter> tokenConverters)
+        {
+            this.tokenConverters = tokenConverters;
+        }
+        public string GetHTMLString(IReadOnlyCollection<TextToken> textTokens)
         {
             var stringedHtml = new StringBuilder();
             foreach (var token in textTokens)
