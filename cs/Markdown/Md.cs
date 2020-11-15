@@ -69,15 +69,15 @@ namespace Markdown
             {
                 if (notFilteredDict.ContainsKey(i))
                 {
-                    switch (notFilteredDict[i].Value)
+                    switch (notFilteredDict[i])
                     {
-                        case "<em>":
+                        case OpenItalicTag tag:
                             ignoreStrong = true;
                             break;
-                        case "</em>":
+                        case CloseItalicTag tag:
                             ignoreStrong = false;
                             break;
-                        case "<strong>": case "</strong>":
+                        case BoldTag tag:
                             if (ignoreStrong)
                             {
                                 notFilteredDict.Remove(i);
@@ -91,8 +91,8 @@ namespace Markdown
         public static Dictionary<int, Tag> ReadAllTags(string line)
         {
             var allTags = new List<Tag>();
-            allTags.AddRange(MarkdownParser.ReadHeaderToken(line));
-            allTags.AddRange(MarkdownParser.ReadAllItalicTokens(line));
+            allTags.AddRange(ReadHeaderToken(line));
+            allTags.AddRange(ReadAllItalicTokens(line));
             allTags.AddRange(ReadAllBoldTokens(line));
             var dict = new Dictionary<int, Tag>();
             foreach (var tag in allTags)
@@ -106,36 +106,44 @@ namespace Markdown
         {
             if (line[0] == '#')
             {
-                return new [] {new Tag("<h1>", 0, 1), new Tag("</h1>", line.Length, 0)};
+                return new Tag[] {new OpenHeaderTag(0), new CloseHeaderTag(line.Length) };
             }
             return new Tag[0];
         }
         public static Tag[] ReadAllItalicTokens(string line)
         {
-            return ReadAllTokensByRules(line, IsItalicTokenStart, GetEndOfItalicToken,
-                "<em>", "</em>", 1);
-        }
-        public static Tag[] ReadAllBoldTokens(string line)
-        {
-            return ReadAllTokensByRules(line, IsBoldTokenStart, GetEndOfBoldToken,
-                "<strong>", "</strong>", 2);
-        }
-        private static Tag[] ReadAllTokensByRules(string line, Func<string, int, bool> isTokenStart,
-            Func<string, int, int> getTokenEnd, string startValue, string endValue, int length)
-        {
-            
             var result = new List<Tag>();
             for (var index = 0; index < line.Length; index++)
             {
-                if (isTokenStart(line, index))
+                if (ItalicTag.IsTokenStart(line, index))
                 {
-                    var endOfToken = getTokenEnd(line, index);
+                    var endOfToken = GetEndOfItalicToken(line, index);
                     if (endOfToken == -1)
                     {
                         return result.ToArray();
                     }
-                    result.Add(new Tag(startValue, index, length));
-                    result.Add(new Tag(endValue, endOfToken, length));
+                    result.Add(new OpenItalicTag(index));
+                    result.Add(new CloseItalicTag(endOfToken));
+                    index = endOfToken;
+                }
+            }
+
+            return result.ToArray();
+        }
+        public static Tag[] ReadAllBoldTokens(string line)
+        {
+            var result = new List<Tag>();
+            for (var index = 0; index < line.Length; index++)
+            {
+                if (BoldTag.IsTokenStart(line, index))
+                {
+                    var endOfToken = GetEndOfBoldToken(line, index);
+                    if (endOfToken == -1)
+                    {
+                        return result.ToArray();
+                    }
+                    result.Add(new OpenBoldTag(index));
+                    result.Add(new CloseBoldTag(endOfToken));
                     index = endOfToken;
                 }
             }
@@ -161,44 +169,12 @@ namespace Markdown
 
         private static int GetEndOfBoldToken(string line, int index)
         {
-            return GetEndOfToken(line, index, IsBoldTokenEnd, 2);
+            return GetEndOfToken(line, index, BoldTag.IsTokenEnd, 2);
         }
 
         private static int GetEndOfItalicToken(string line, int index)
         {
-            return GetEndOfToken(line, index, IsItalicTokenEnd, 2);
-        }
-
-        private static bool IsItalicTokenEnd(string line, int index)
-        {
-            return line[index] == '_' && line[index - 1] != ' '
-                                      && line[index - 1] != '\\'
-                                      && (index == line.Length - 1 || line[index + 1] != '_' || line[index - 1] == '\\')
-                                      && line[index - 1] != '_';
-        }
-
-        private static bool IsItalicTokenStart(string line, int startIndex)
-        {
-            return line[startIndex] == '_'
-                   && startIndex != line.Length - 1
-                   && (line[startIndex + 1] != '_' || startIndex > 0 && line[startIndex - 1] == '\\')
-                   && !Char.IsDigit(line[startIndex + 1])
-                   && line[startIndex + 1] != ' '
-                   && (startIndex == 0 || line[startIndex - 1] != '_' && line[startIndex - 1] != '\\') ;
-        }
-        private static bool IsBoldTokenStart(string line, int startIndex)
-        {
-            return line[startIndex] == '_'
-                   && startIndex <= line.Length - 2
-                   && line[startIndex + 1] == '_'
-                   && (startIndex == line.Length - 2 || line[startIndex + 2] != ' ')
-                   && (startIndex == 0 || line[startIndex - 1] != '\\');
-        }
-
-        private static bool IsBoldTokenEnd(string line, int endIndex)
-        {
-            return line[endIndex] == '_' && line[endIndex + 1] == '_' && 
-                   (endIndex < 1 || line[endIndex - 1] != ' ');
+            return GetEndOfToken(line, index, ItalicTag.IsTokenEnd, 2);
         }
     }
 }
