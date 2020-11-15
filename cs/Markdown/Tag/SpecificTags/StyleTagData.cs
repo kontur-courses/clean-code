@@ -11,13 +11,5 @@ namespace Markdown.Tag.SpecificTags
             params FormattingState[] notAllowedNestedStates) 
             : base(state, incomingBorder, outgoingBorder, notAllowedNestedStates)
         { }
-        
-        public override bool IsValid(string data, int startPos, int endPos)
-        {
-            throw new NotImplementedException();
-            var isOpenValid = startPos == 0 || data[startPos - 1] == '\n';
-            var isCloseValid = startPos == 0 || data[startPos - 1] == '\n';
-            return isOpenValid && isCloseValid;
-        }
     }
 }

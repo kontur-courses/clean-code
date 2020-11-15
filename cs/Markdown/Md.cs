@@ -1,8 +1,7 @@
-﻿using System;
-using System.Collections.Generic;
-using Markdown.Tag;
+﻿using Markdown.Tag;
 using Markdown.Parser;
 using Markdown.Builder;
+using Markdown.Tag.SpecificTags;
 
 namespace Markdown
 {
@@ -24,9 +23,23 @@ namespace Markdown
             return htmlMarkupBuilder.Build(textTokens);
         }
 
-        private TagData[] CreateMdToHtmlTags()
+        private ITagData[] CreateMdToHtmlTags()
         {
-            throw new NotImplementedException();
+            var italicTagData = new StyleTagData(FormattingState.Strong,
+                new TagBorder("_", "_"), 
+                new TagBorder(@"\<em>",@"\</em>"),
+                FormattingState.Header);
+            
+            var strongTagData = new StyleTagData(FormattingState.Strong,
+                new TagBorder("__", "__"), 
+                new TagBorder(@"\<strong>",@"\</strong>"),
+                FormattingState.Italic, FormattingState.Header);
+
+            /*var headerTagData = new HeaderTagData(FormattingState.Header,
+                new TagBorder("# ", ""), 
+                new TagBorder(@"\<h1>","\\</h1>"));*/
+            
+            return new ITagData[]{italicTagData, strongTagData, /*headerTagData*/};
         }
     }
 }
