@@ -5,9 +5,9 @@ namespace Markdown.Infrastructure.Blocks
         None = 0,
         Bold = 1,
         Angled = 2,
-        Escape = 3, 
+        Escape = 3,
         Header = 4,
         NewLine = 5,
-        Media = 6,
+        Media = 6
     }
 }

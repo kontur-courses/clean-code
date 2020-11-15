@@ -14,15 +14,19 @@ namespace Markdown.Infrastructure.Formatters
                 {Style.None, Wrap("", "")},
                 {Style.Bold, Wrap("<strong>", "</strong>")},
                 {Style.Angled, Wrap("<em>", "</em>")},
-                {Style.Header, Wrap("<h1>", "</h1>")},
+                {Style.Header, Wrap("<h1>", "</h1>")}
             };
         }
 
-        private Func<IEnumerable<string>, IEnumerable<string>> GetPictureWrapper(string description) 
-            => Wrap("<img src=\"", $"\" alt=\"{description}\">");
-        
-        private Func<IEnumerable<string>, IEnumerable<string>> GetLinkWrapper(string link) 
-            => Wrap("<a href=\"", $"\">{link}</a>");
+        private Func<IEnumerable<string>, IEnumerable<string>> GetPictureWrapper(string description)
+        {
+            return Wrap("<img src=\"", $"\" alt=\"{description}\">");
+        }
+
+        private Func<IEnumerable<string>, IEnumerable<string>> GetLinkWrapper(string link)
+        {
+            return Wrap("<a href=\"", $"\">{link}</a>");
+        }
 
         public override IEnumerable<string> Format(Tag tag, IEnumerable<string> words)
         {

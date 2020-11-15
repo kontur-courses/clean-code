@@ -7,8 +7,8 @@ namespace Markdown.Infrastructure.Blocks
 {
     public class StyledBlock : IBlock
     {
-        private readonly Tag tag;
         private readonly IEnumerable<IBlock> blocks;
+        private readonly Tag tag;
 
         public StyledBlock(Tag tag, IEnumerable<IBlock> blocks)
         {

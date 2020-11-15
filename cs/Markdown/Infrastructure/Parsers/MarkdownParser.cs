@@ -11,7 +11,7 @@ namespace Markdown.Infrastructure.Parsers
         private readonly int maxPictureDescriptionLength = 20;
 
         /// <summary>
-        /// Validate interaction of tags according to rules
+        ///     Validate interaction of tags according to rules
         /// </summary>
         protected override IEnumerable<TagInfo> GetValidTags(IEnumerable<TagInfo> tagInfos, string text)
         {
@@ -19,7 +19,7 @@ namespace Markdown.Infrastructure.Parsers
             tagInfos = FilterIntersections(tagInfos, text).OrderBy(tagInfo => tagInfo.Offset);
             tagInfos = FilterDoubleInSingle(tagInfos);
             tagInfos = FilterEmptyTags(tagInfos, text);
-            
+
             return tagInfos;
         }
 
@@ -44,13 +44,11 @@ namespace Markdown.Infrastructure.Parsers
 
             var enumerable = tagInfos.ToList();
             foreach (var (previous, current) in enumerable.Zip(enumerable.Skip(1)))
-            {
                 if (current.Closes(previous, text) && current.Follows(previous))
                 {
                     toSkip.Add(previous);
                     toSkip.Add(current);
                 }
-            }
 
             return enumerable.Where(info => !toSkip.Contains(info));
         }
@@ -65,7 +63,7 @@ namespace Markdown.Infrastructure.Parsers
                 {
                     enumerator.MoveNext();
                     if (enumerator.Current.Follows(tagInfo))
-                        yield return tagInfo;    
+                        yield return tagInfo;
                 }
                 else
                 {
@@ -78,7 +76,6 @@ namespace Markdown.Infrastructure.Parsers
         {
             var unclosed = new Stack<TagInfo>();
             foreach (var tagToCheck in tagInfos)
-            {
                 if (unclosed.TryPeek(out var tagToClose) && tagToCheck.Closes(tagToClose, text))
                 {
                     yield return unclosed.Pop();
@@ -88,11 +85,10 @@ namespace Markdown.Infrastructure.Parsers
                 {
                     unclosed.Push(tagToCheck);
                 }
-            }
         }
 
         /// <summary>
-        /// Parse tags according to documented rules
+        ///     Parse tags according to documented rules
         /// </summary>
         protected override IEnumerable<TagInfo> ParseTags(string text)
         {
@@ -106,9 +102,10 @@ namespace Markdown.Infrastructure.Parsers
                     shift = tagInfo.Length;
                     yield return tagInfo;
                 }
+
                 processed += Math.Max(shift, 1);
             }
-            
+
             yield return GetEmptyEnterTag(text.Length);
         }
 
@@ -134,8 +131,8 @@ namespace Markdown.Infrastructure.Parsers
                 case ')':
                     return ParseMediaEnd(ref text, offset);
                 default:
-                    return TryParseNewLine(ref text, offset, out var tagInfo) 
-                        ? tagInfo 
+                    return TryParseNewLine(ref text, offset, out var tagInfo)
+                        ? tagInfo
                         : null;
             }
         }
@@ -147,18 +144,16 @@ namespace Markdown.Infrastructure.Parsers
 
         private TagInfo ParseLink(ref string text, in int offset)
         {
-            Tag CreateTag(string link) => new LinkTag(link);
+            Tag CreateTag(string link) { return new LinkTag(link); }
             return ParseMedia(ref text, offset, CreateTag, 0);
         }
-        
+
         private TagInfo ParsePicture(ref string text, int offset)
         {
-            Tag CreateTag(string description) => new PictureTag(description);
+            Tag CreateTag(string description) { return new PictureTag(description); }
             return ParseMedia(ref text, offset, CreateTag, 1);
         }
 
-        private delegate Tag CreateTag(string payload);
-        
         private TagInfo ParseMedia(ref string text, int offset, CreateTag createTag, int processed)
         {
             var payload = ParsePayload(ref text, offset, processed);
@@ -181,10 +176,8 @@ namespace Markdown.Infrastructure.Parsers
             {
                 processed++;
                 for (var payloadLength = 0; payloadLength < maxPictureDescriptionLength; payloadLength++)
-                {
                     if (CharIs(']', ref text, offset + payloadLength + processed))
                         return text.Substring(offset + processed, payloadLength);
-                }
             }
 
             return null;
@@ -194,21 +187,19 @@ namespace Markdown.Infrastructure.Parsers
         {
             return IsInBounds(ref text, offset) && text[offset] == possibleChar;
         }
-        
+
         private static bool CharIsNumber(ref string text, int offset)
         {
             for (var i = 0; i < 10; i++)
-            {
                 if (CharIs(i.ToString()[0], ref text, offset))
                     return true;
-            }
 
             return false;
         }
 
         public static bool CharIsTextChar(ref string text, int offset)
         {
-            return !CharIsWhiteSpace(ref text, offset) 
+            return !CharIsWhiteSpace(ref text, offset)
                    && !CharIsNumber(ref text, offset);
         }
 
@@ -222,14 +213,12 @@ namespace Markdown.Infrastructure.Parsers
         {
             return offset >= 0 && offset < text.Length;
         }
-        
+
         public static bool CharBetweenTags(char c, ref string text, TagInfo start, TagInfo end)
         {
             for (var offset = start.Offset + start.Length; offset < end.Offset; offset++)
-            {
                 if (CharIs(c, ref text, offset))
                     return true;
-            }
 
             return false;
         }
@@ -238,12 +227,6 @@ namespace Markdown.Infrastructure.Parsers
         {
             return CharBetweenTags(' ', ref text, start, end)
                    || CharBetweenTags('\t', ref text, start, end);
-        }
-
-        private bool CharIsWhiteSpace(ref string text, in int offset)
-        {
-            return CharIs(' ', ref text, offset)
-                || CharIs('\t', ref text, offset);
         }
 
         private TagInfo ParseUnderscore(ref string text, int offset)
@@ -259,7 +242,7 @@ namespace Markdown.Infrastructure.Parsers
                 return new TagInfo(offset, 2, Style.Bold, true, false);
 
             if (CharIs(' ', ref text, offset - 1) || offset == 0)
-                return new TagInfo(offset, 2, Style.Bold, false, true);
+                return new TagInfo(offset, 2, Style.Bold, false);
 
             return new TagInfo(offset, 2, Style.Bold);
         }
@@ -274,9 +257,9 @@ namespace Markdown.Infrastructure.Parsers
                 return new TagInfo(offset, 1, Style.Angled, true, false);
 
             if (CharIs(' ', ref text, offset - 1) || offset == 0)
-                return new TagInfo(offset, 1, Style.Angled, false, true);
+                return new TagInfo(offset, 1, Style.Angled, false);
 
-            return new TagInfo(offset, 1, Style.Angled, true, true);
+            return new TagInfo(offset, 1, Style.Angled);
         }
 
         private TagInfo ParseEscapeSymbol(ref string text, int offset)
@@ -285,7 +268,7 @@ namespace Markdown.Infrastructure.Parsers
                 ? null
                 : new TagInfo(offset, 1, Style.Escape);
         }
-        
+
         private TagInfo ParseHeader(ref string text, int offset)
         {
             return CharIs(' ', ref text, offset + 1)
@@ -302,8 +285,11 @@ namespace Markdown.Infrastructure.Parsers
                 tagInfo = new TagInfo(offset, 2, Style.NewLine);
                 return true;
             }
+
             tagInfo = null;
             return false;
         }
+
+        private delegate Tag CreateTag(string payload);
     }
 }

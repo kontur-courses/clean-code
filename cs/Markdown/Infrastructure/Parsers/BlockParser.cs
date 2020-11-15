@@ -8,7 +8,7 @@ namespace Markdown.Infrastructure.Parsers
     {
         protected abstract IEnumerable<TagInfo> GetValidTags(IEnumerable<TagInfo> tagInfos, string text);
         protected abstract IEnumerable<TagInfo> ParseTags(string text);
-        
+
         public IBlock Parse(string text)
         {
             var tagInfos = ParseTags(text);
@@ -59,20 +59,20 @@ namespace Markdown.Infrastructure.Parsers
                 subBlocks.Add(subBlock);
                 processedPosition = processed;
             }
-            
+
             throw new FormatException($"Closing tag missing for {rootTag.Offset} {rootTag.Length} {rootTag.Tag.Style}");
         }
 
         private static int AddPreviousUnprocessedBlock(
-            IEnumerator<TagInfo> tagsEnumerator, 
-            int processedPosition, 
+            IEnumerator<TagInfo> tagsEnumerator,
+            int processedPosition,
             string text,
             List<IBlock> subBlocks)
         {
             var currentTag = tagsEnumerator.Current;
-            if (currentTag.Offset < processedPosition) 
+            if (currentTag.Offset < processedPosition)
                 return processedPosition;
-            
+
             subBlocks.Add(GetBlockFromText(text, processedPosition, currentTag.Offset));
             return currentTag.Offset + currentTag.Length;
         }

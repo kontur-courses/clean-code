@@ -17,7 +17,7 @@ namespace Markdown
             var stringBuilder = new StringBuilder();
             foreach (var htmlSentence in htmlSentences)
                 stringBuilder.Append(htmlSentence);
-            
+
             return stringBuilder.ToString();
         }
     }

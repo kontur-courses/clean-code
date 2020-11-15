@@ -1,4 +1,3 @@
-using System;
 using Markdown.Infrastructure.Blocks;
 using Markdown.Infrastructure.Parsers.Tags;
 
@@ -6,11 +5,11 @@ namespace Markdown.Infrastructure.Parsers
 {
     public class TagInfo
     {
-        public readonly int Offset;
-        public readonly int Length;
-        public readonly Tag Tag;
         private readonly bool CanClose;
         private readonly bool CanOpen;
+        public readonly int Length;
+        public readonly int Offset;
+        public readonly Tag Tag;
 
         public TagInfo(int offset, int length, Tag tag, bool canClose = true, bool canOpen = true)
         {
@@ -20,12 +19,13 @@ namespace Markdown.Infrastructure.Parsers
             CanClose = canClose;
             CanOpen = canOpen;
         }
-        
-        public TagInfo(int offset, int length, Style style, bool canClose = true, bool canOpen = true) 
+
+        public TagInfo(int offset, int length, Style style, bool canClose = true, bool canOpen = true)
             : this(offset, length, new Tag(style), canClose, canOpen)
-        { }
-        
-                
+        {
+        }
+
+
         public bool Closes(TagInfo toClose, string text)
         {
             return ClosesSameType(toClose, text)
@@ -34,9 +34,9 @@ namespace Markdown.Infrastructure.Parsers
 
         private bool ClosesSameType(TagInfo toClose, string text = "")
         {
-            return CanClose 
-                   && toClose.CanOpen 
-                   && IsSameType(toClose) 
+            return CanClose
+                   && toClose.CanOpen
+                   && IsSameType(toClose)
                    && !IsDifferentWords(toClose, text)
                 ;
         }

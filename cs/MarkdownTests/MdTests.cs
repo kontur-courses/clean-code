@@ -112,8 +112,8 @@ namespace MarkdownTests
             foreach (var angle in angles) 
                 Assert.That(angle, Is.EqualTo(averageAngle).Within(10e-2));
         }
-        
-        public static string RandomString(int length)
+
+        private static string RandomString(int length)
         {
             const string chars = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789";
             return new string(Enumerable.Repeat(chars, length)
