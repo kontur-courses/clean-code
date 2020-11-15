@@ -9,7 +9,7 @@ namespace Markdown
     {
         public static void Main()
         {
-            var text = "";
+            var text = "_aa_bc";
 
             var tokenGetters = new List<ITokenGetter>()
             {
@@ -23,7 +23,8 @@ namespace Markdown
             var textTokens = textParser.GetTextTokens(text);
 
             var htmlConverter = new HTMLConverter();
-            var htmlString = htmlConverter.GetHTMLString(textTokens);
+           // var htmlString = htmlConverter.GetHTMLString(textTokens);
+            //var a = htmlString;
         }
     }
 }
