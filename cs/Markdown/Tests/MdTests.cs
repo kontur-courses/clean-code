@@ -1,6 +1,5 @@
 ﻿using Microsoft.VisualStudio.TestPlatform.ObjectModel;
 using NUnit.Framework;
-using System.Linq;
 
 
 namespace Markdown.Tests

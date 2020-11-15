@@ -60,6 +60,5 @@ namespace Markdown
             if (text.Length == 0) return false;
             return !text.Any(c => char.IsLetter(c) || char.IsPunctuation(c));
         }
-
     }
 }
