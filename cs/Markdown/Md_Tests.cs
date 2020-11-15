@@ -17,7 +17,7 @@ namespace Markdown
         [TestCase("")]
         [TestCase("   ")]
         [TestCase("hello world!")]
-        public void Test1(string input)
+        public void Render_ReturnsInputValue_OnNoTags(string input)
         {
             var result = md.Render(input);
 
@@ -29,7 +29,7 @@ namespace Markdown
         [TestCase("_Hello world_", "<em>Hello world<\\em>")]
         [TestCase("_Italic_ NotItalic", "<em>Italic<\\em> NotItalic")]
         [TestCase("_Italic_ NotItalic _Italic_", "<em>Italic<\\em> NotItalic <em>Italic<\\em>")]
-        public void Render_SupportsItalic_OnDifferentWords(string input, string expected)
+        public void Render_SupportsItalicTag_OnDifferentWords(string input, string expected)
         {
             var result = md.Render(input);
 
@@ -39,7 +39,7 @@ namespace Markdown
         [TestCase("nn_III_nn", "nn<em>III<\\em>nn")]
         [TestCase("nn_III_", "nn<em>III<\\em>")]
         [TestCase("_III_nn", "<em>III<\\em>nn")]
-        public void Render_SupportsItalic_InsideOneWord(string input, string expected)
+        public void Render_SupportsItalicTag_InsideOneWord(string input, string expected)
         {
             var result = md.Render(input);
 
@@ -51,7 +51,7 @@ namespace Markdown
         [TestCase("__Hello world__", "<strong>Hello world<\\strong>")]
         [TestCase("__Strong__ NotStrong", "<strong>Strong<\\strong> NotStrong")]
         [TestCase("__Strong__ NotStrong __Strong__", "<strong>Strong<\\strong> NotStrong <strong>Strong<\\strong>")]
-        public void Render_SupportsStrong_OnDifferentWords(string input, string expected)
+        public void Render_SupportsStrongTag_OnDifferentWords(string input, string expected)
         {
             var result = md.Render(input);
 
@@ -61,7 +61,7 @@ namespace Markdown
         [TestCase("nn__SSS__nn", "nn<strong>SSS<\\strong>nn")]
         [TestCase("nn__SSS__", "nn<strong>SSS<\\strong>")]
         [TestCase("__SSS__nn", "<strong>SSS<\\strong>nn")]
-        public void Render_SupportsStrong_InsideOneWord(string input, string expected)
+        public void Render_SupportsStrongTag_InsideOneWord(string input, string expected)
         {
             var result = md.Render(input);
 
@@ -143,7 +143,7 @@ namespace Markdown
         [TestCase("__Hello _my world___", "<strong>Hello <em>my world<\\em><\\strong>")]
         [TestCase("___Hello my world___", "<strong><em>Hello my world<\\em><\\strong>")]
         [TestCase("___Hello my__ world_", "___Hello my__ world_")]
-        public void Test2(string input, string expected)
+        public void Render_SupportsNestedTags(string input, string expected)
         {
             var result = md.Render(input);
 
@@ -157,7 +157,7 @@ namespace Markdown
         [TestCase("#Hello\n world", "<h1>Hello<\\h1> world")]
         [TestCase("_#Hello_", "_#Hello_")]
         [TestCase("__#Hello__", "__#Hello__")]
-        public void Test3(string input, string expected)
+        public void Render_SupportsHeaderTag(string input, string expected)
         {
             var result = md.Render(input);
 
