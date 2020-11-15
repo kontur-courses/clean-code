@@ -16,7 +16,7 @@
 
     public class CloseHeaderTag : HeaderTag
     {
-        public CloseHeaderTag(int index) : base("</h1>", index, 0)
+        public CloseHeaderTag(int index) : base("</h1>", index, 1)
         {
         }
     }
