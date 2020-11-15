@@ -1,13 +1,14 @@
 using System;
 using System.Collections.Generic;
 using Markdown.Infrastructure.Blocks;
+using Markdown.Infrastructure.Parsers.Tags;
 
 namespace Markdown.Infrastructure.Formatters
 {
     public abstract class BlockFormatter
     {
-        protected Dictionary<Style, Func<IEnumerable<string>, IEnumerable<string>>> Wrappers;
-        public abstract IEnumerable<string> Format(Style style, IEnumerable<string> words);
+        protected Dictionary<Style, Func<IEnumerable<string>, IEnumerable<string>>> GeneralWrappers;
+        public abstract IEnumerable<string> Format(Tag tag, IEnumerable<string> words);
 
         protected static Func<IEnumerable<string>, IEnumerable<string>> Wrap(string open, string close)
         {

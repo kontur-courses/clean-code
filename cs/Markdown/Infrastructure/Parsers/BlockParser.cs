@@ -45,7 +45,7 @@ namespace Markdown.Infrastructure.Parsers
         {
             var rootTag = tagsEnumerator.Current;
             var subBlocks = new List<IBlock>();
-            var rootBlock = new StyledBlock(rootTag.Style, subBlocks);
+            var rootBlock = new StyledBlock(rootTag.Tag, subBlocks);
 
             while (tagsEnumerator.MoveNext())
             {
@@ -60,7 +60,7 @@ namespace Markdown.Infrastructure.Parsers
                 processedPosition = processed;
             }
             
-            throw new FormatException($"Closing tag missing for {rootTag.Offset} {rootTag.Length} {rootTag.Style}");
+            throw new FormatException($"Closing tag missing for {rootTag.Offset} {rootTag.Length} {rootTag.Tag.Style}");
         }
 
         private static int AddPreviousUnprocessedBlock(

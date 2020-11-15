@@ -2,11 +2,14 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using Markdown.Infrastructure.Blocks;
+using Markdown.Infrastructure.Parsers.Tags;
 
 namespace Markdown.Infrastructure.Parsers
 {
     public class MarkdownParser : BlockParser
     {
+        private readonly int maxPictureDescriptionLength = 20;
+
         /// <summary>
         /// Validate interaction of tags according to rules
         /// </summary>
@@ -25,10 +28,10 @@ namespace Markdown.Infrastructure.Parsers
             var isUnderscoreOpen = false;
             foreach (var tagInfo in tagInfos)
             {
-                if (tagInfo.Style == Style.Angled)
+                if (tagInfo.Tag.Style == Style.Angled)
                     isUnderscoreOpen = !isUnderscoreOpen;
 
-                if (tagInfo.Style == Style.Bold && isUnderscoreOpen)
+                if (tagInfo.Tag.Style == Style.Bold && isUnderscoreOpen)
                     continue;
 
                 yield return tagInfo;
@@ -58,7 +61,7 @@ namespace Markdown.Infrastructure.Parsers
             while (enumerator.MoveNext())
             {
                 var tagInfo = enumerator.Current;
-                if (tagInfo.Style == Style.Escape)
+                if (tagInfo.Tag.Style == Style.Escape)
                 {
                     enumerator.MoveNext();
                     if (enumerator.Current.Follows(tagInfo))
@@ -124,11 +127,47 @@ namespace Markdown.Infrastructure.Parsers
                     return ParseEscapeSymbol(ref text, offset);
                 case '#':
                     return ParseHeader(ref text, offset);
+                case '!':
+                    return ParsePicture(ref text, offset);
+                case ')':
+                    return ParsePictureEnd(ref text, offset);
                 default:
                     return TryParseNewLine(ref text, offset, out var tagInfo) 
                         ? tagInfo 
                         : null;
             }
+        }
+
+        private TagInfo ParsePictureEnd(ref string text, in int offset)
+        {
+            return new TagInfo(offset, 1, Style.Picture, true, false);
+        }
+
+        private TagInfo ParsePicture(ref string text, in int offset)
+        {
+            var descriptionLength = 0;
+            var processed = 1;
+            if (CharIs('[', ref text, offset + processed))
+            {
+                processed++;
+                for (var i = 0; i < maxPictureDescriptionLength; i++)
+                {
+                    if (CharIs(']', ref text, offset + i + processed))
+                        descriptionLength = i;
+                }
+            }
+
+            var description = text.Substring(offset + processed, descriptionLength);
+            processed += descriptionLength;
+            processed++;
+
+            if (CharIs('(', ref text, offset + processed))
+            {
+                processed++;
+                return new TagInfo(offset, processed, new PictureTag(description), false);
+            }
+
+            return null;
         }
 
         public static bool CharIs(char possibleChar, ref string text, int offset)

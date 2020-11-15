@@ -1,23 +1,24 @@
 using System.Collections.Generic;
 using System.Linq;
 using Markdown.Infrastructure.Formatters;
+using Markdown.Infrastructure.Parsers.Tags;
 
 namespace Markdown.Infrastructure.Blocks
 {
     public class StyledBlock : IBlock
     {
-        private readonly Style style;
+        private readonly Tag tag;
         private readonly IEnumerable<IBlock> blocks;
 
-        public StyledBlock(Style style, IEnumerable<IBlock> blocks)
+        public StyledBlock(Tag tag, IEnumerable<IBlock> blocks)
         {
-            this.style = style;
+            this.tag = tag;
             this.blocks = blocks;
         }
 
         public IEnumerable<string> Format(BlockFormatter blockFormatter)
         {
-            return blockFormatter.Format(style, blocks.SelectMany(token => token.Format(blockFormatter)));
+            return blockFormatter.Format(tag, blocks.SelectMany(token => token.Format(blockFormatter)));
         }
     }
 }

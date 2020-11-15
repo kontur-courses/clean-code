@@ -1,5 +1,6 @@
 using System;
 using Markdown.Infrastructure.Blocks;
+using Markdown.Infrastructure.Parsers.Tags;
 
 namespace Markdown.Infrastructure.Parsers
 {
@@ -7,18 +8,22 @@ namespace Markdown.Infrastructure.Parsers
     {
         public readonly int Offset;
         public readonly int Length;
-        public readonly Style Style;
+        public readonly Tag Tag;
         private readonly bool CanClose;
         private readonly bool CanOpen;
 
-        public TagInfo(int offset, int length, Style style, bool canClose = true, bool canOpen = true)
+        public TagInfo(int offset, int length, Tag tag, bool canClose = true, bool canOpen = true)
         {
             Offset = offset;
             Length = length;
-            Style = style;
+            Tag = tag;
             CanClose = canClose;
             CanOpen = canOpen;
         }
+        
+        public TagInfo(int offset, int length, Style style, bool canClose = true, bool canOpen = true) 
+            : this(offset, length, new Tag(style), canClose, canOpen)
+        { }
         
                 
         public bool Closes(TagInfo toClose, string text)
@@ -47,12 +52,12 @@ namespace Markdown.Infrastructure.Parsers
 
         private bool IsSameType(TagInfo toClose)
         {
-            return Style == toClose.Style;
+            return Tag.Style == toClose.Tag.Style;
         }
 
         private bool ClosesByNewLine(TagInfo toClose)
         {
-            return Style.Header == toClose.Style && Style == Style.NewLine;
+            return Style.Header == toClose.Tag.Style && Tag.Style == Style.NewLine;
         }
 
         public bool Follows(TagInfo previous)

@@ -8,5 +8,6 @@ namespace Markdown.Infrastructure.Blocks
         Escape = 3, 
         Header = 4,
         NewLine = 5,
+        Picture = 6,
     }
 }

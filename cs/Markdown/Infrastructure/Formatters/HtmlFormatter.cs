@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using Markdown.Infrastructure.Blocks;
+using Markdown.Infrastructure.Parsers.Tags;
 
 namespace Markdown.Infrastructure.Formatters
 {
@@ -8,7 +9,7 @@ namespace Markdown.Infrastructure.Formatters
     {
         public HtmlFormatter()
         {
-            Wrappers = new Dictionary<Style, Func<IEnumerable<string>, IEnumerable<string>>>
+            GeneralWrappers = new Dictionary<Style, Func<IEnumerable<string>, IEnumerable<string>>>
             {
                 {Style.None, Wrap("", "")},
                 {Style.Bold, Wrap("<strong>", "</strong>")},
@@ -16,12 +17,19 @@ namespace Markdown.Infrastructure.Formatters
                 {Style.Header, Wrap("<h1>", "</h1>")},
             };
         }
-        
-        public override IEnumerable<string> Format(Style style, IEnumerable<string> words)
+
+        private Func<IEnumerable<string>, IEnumerable<string>> GetPictureWrapper(string description) 
+            => Wrap("<img src=\"", $"\" alt=\"{description}\">");
+
+        public override IEnumerable<string> Format(Tag tag, IEnumerable<string> words)
         {
-            return Wrappers.TryGetValue(style, out var wrap) 
-                ? wrap(words) 
-                : words;
+            if (GeneralWrappers.TryGetValue(tag.Style, out var wrap))
+                return wrap(words);
+
+            if (tag is PictureTag pictureTag)
+                return GetPictureWrapper(pictureTag.Description)(words);
+
+            return words;
         }
     }
 }

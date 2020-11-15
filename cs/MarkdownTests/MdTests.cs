@@ -69,6 +69,8 @@ namespace MarkdownTests
                 
                 ("Two underscores", "_с_ _символами_", "<em>с</em> <em>символами</em>"),
                 ("Three underscores", "_a_ _b_  _c_", "<em>a</em> <em>b</em>  <em>c</em>"),
+                
+                ("Picture", "![описание](https://picture1)", "<img src=\"https://picture1\" alt=\"описание\">"),
             };
             
             return testData.Select(test
