@@ -3,14 +3,14 @@
     public class TagInfo
     {
         public string TagInMd { get; }
-        public string OpenTag { get; }
-        public string CloseTag { get; }
+        public string TagForConverting { get; }
+        public bool IsSingle { get; }
 
-        public TagInfo(string tagInMd, string openTag, string closeTag)
+        public TagInfo(string tagInMd, string tagForConverting, bool isSingle)
         {
             TagInMd = tagInMd;
-            OpenTag = openTag;
-            CloseTag = closeTag;
+            TagForConverting = tagForConverting;
+            IsSingle = isSingle;
         }
     }
 }
