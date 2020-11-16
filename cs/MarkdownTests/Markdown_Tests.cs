@@ -32,5 +32,29 @@ namespace MarkDownTests
             var htmlText = converter.ConvertToHtml(markDownText);
             htmlText.Should().Be("<h1>abcdefgh</h1>\n");
         }
+
+        [Test]
+        public void MarkdownConverter_ShouldEscapeTags()
+        {
+            var markDownText = @"abc \_ def \_";
+            var htmlText = converter.ConvertToHtml(markDownText);
+            htmlText.Should().Be(@"abc _ def _");
+        }
+
+        [Test]
+        public void MarkdownConverter_ShouldEscapeBackslash()
+        {
+            var markDownText = @"abc \\ def \\";
+            var htmlText = converter.ConvertToHtml(markDownText);
+            htmlText.Should().Be(@"abc \ def \");
+        }
+
+        [Test]
+        public void MarkdownConverter_BackslashDisappearsOnlyWithEscaping()
+        {
+            var markDownText = @"abc \ def \";
+            var htmlText = converter.ConvertToHtml(markDownText);
+            htmlText.Should().Be(@"abc \ def \");
+        }
     }
 }
