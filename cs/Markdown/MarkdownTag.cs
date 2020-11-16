@@ -14,10 +14,10 @@ namespace Markdown
                 [TokenType.Heading] = ("<h1>", "</h1>")
             };
 
-        public MarkdownTag(Token token, bool isOpened)
+        public MarkdownTag(string value, int position, bool isOpened)
         {
-            Value = token.Text;
-            StartPosition = token.Position;
+            Value = value;
+            StartPosition = position;
             EndPosition = StartPosition + Value.Length - 1;
             IsOpened = isOpened;
         }

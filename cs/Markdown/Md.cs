@@ -13,26 +13,26 @@ namespace Markdown
             var tags = new Stack<MarkdownTag>();
             var lastTagOfEachType = new Dictionary<string, MarkdownTag>();
             var resultText = new StringBuilder(text);
+            var shift = 0;
 
-            for (var i = 0; i < resultText.Length; ++i)
+            foreach (var token in Lexer.Analyze(text))
             {
-                if (!Lexer.IsToken(resultText[i].ToString()))
-                    continue;
-                var token = Lexer.Analyze(resultText, i);
                 if (token.Text.StartsWith(TokenType.Slash))
                 {
-                    resultText = resultText.Remove(token.Position, token.Text.Length > 1 ? 1 : 0);
+                    resultText = resultText.Remove(token.Position + shift, 1);
+                    shift--;
                     continue;
                 }
-                i += token.Text.Length - 1;
 
-                var tag = new MarkdownTag(token, 
+                var tag = new MarkdownTag(token.Text, token.Position + shift,
                     !lastTagOfEachType.ContainsKey(token.Text) || !lastTagOfEachType[token.Text].IsOpened);
                 if (!tag.IsValidTag(resultText))
                     continue;
+
                 tags.Push(tag);
                 lastTagOfEachType[tag.Value] = tag;
-                resultText = HandlePairedTags(resultText, tags, ref i);
+                if (tags.Count >= 2)
+                    resultText = HandlePairedTags(resultText, tags, lastTagOfEachType, ref shift);
             }
             return TryHandleHeading(lastTagOfEachType, resultText);
         }
@@ -46,30 +46,33 @@ namespace Markdown
         }
 
         private static StringBuilder HandlePairedTags(StringBuilder text, Stack<MarkdownTag> tags,
-            ref int index)
+            Dictionary<string, MarkdownTag> lastTagOfEachType, ref int index)
         {
-            var oldLength = text.Length;
-            if (CanReplacePairedTags(text.ToString(), tags))
-                text = text.ReplaceMarkdownTagsOnHtmlTags(tags.Pop(), tags.Pop());
-            index += text.Length - oldLength;
-            return text;
-        }
-
-        private static bool CanReplacePairedTags(string text, Stack<MarkdownTag> tags)
-        {
-            if (tags.Count < 2)
-                return false;
-
             var lastTag = tags.Pop();
             var preLastTag = tags.Pop();
-            var correctSequenceBoldAndItalic = IsBoldAndItalicInCorrectSequence(lastTag, tags);
 
-            tags.Push(preLastTag);
-            tags.Push(lastTag);
-            return lastTag.Value == preLastTag.Value
-                   && preLastTag.IsOpened && !lastTag.IsOpened
+            if (lastTag.Value != preLastTag.Value)
+            {
+                tags.Push(preLastTag);
+                tags.Push(lastTag);
+                return text;
+            }
+
+            if (!CanReplacePairedTags(text.ToString(), lastTag, preLastTag))
+                return text;
+            text = text.ReplaceMarkdownTagsOnHtmlTags(lastTag, preLastTag, ref index);
+
+            return !IsBoldAndItalicInCorrectSequence(lastTagOfEachType, lastTag, preLastTag)
+                ? text.ReplaceHtmlTagsOnMarkdownTags(lastTagOfEachType[TokenType.Bold],
+                    preLastTag.EndPosition + 1, lastTag.StartPosition - 1, ref index)
+                : text;
+        }
+
+        private static bool CanReplacePairedTags(string text, MarkdownTag lastTag, MarkdownTag preLastTag)
+        {
+            return preLastTag.IsOpened
+                   && !lastTag.IsOpened
                    && !IsEmptyBetweenTags(preLastTag, lastTag)
-                   && correctSequenceBoldAndItalic
                    && IsValidStringBetweenBoldOrItalic(text, preLastTag, lastTag);
         }
 
@@ -89,10 +92,16 @@ namespace Markdown
             return !isSpaceBetweenTags || isSpaceBeforeOpenedTag && isSpaceAfterClosedTag;
         }
 
-        private static bool IsBoldAndItalicInCorrectSequence(MarkdownTag lastTag, Stack<MarkdownTag> tags)
-            => lastTag.Value != TokenType.Bold || tags.Count == 0 || tags.Peek().Value != TokenType.Italic;
-        
-        private static bool IsEmptyBetweenTags(MarkdownTag preLastTag, MarkdownTag lastTag)
+        private static bool IsBoldAndItalicInCorrectSequence(Dictionary<string, MarkdownTag> lastTagOfEachType,
+            MarkdownTag lastTag, MarkdownTag preLastTag)
+        {
+            if (!lastTagOfEachType.ContainsKey(TokenType.Bold) || lastTag.Value != TokenType.Italic)
+                return true;
+            return !(lastTagOfEachType[TokenType.Bold].StartPosition > preLastTag.EndPosition
+                     && lastTagOfEachType[TokenType.Bold].EndPosition < lastTag.StartPosition);
+        }
+
+        private static bool IsEmptyBetweenTags(MarkdownTag preLastTag, MarkdownTag lastTag) 
             => lastTag.StartPosition - preLastTag.EndPosition == 1;
     }
 }

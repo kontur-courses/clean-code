@@ -1,6 +1,5 @@
 ﻿using System.Collections.Generic;
 using System.Linq;
-using System.Text;
 
 namespace Markdown
 {
@@ -15,17 +14,28 @@ namespace Markdown
                 TokenType.Slash
             };
 
-        public static bool IsToken(string symbol) => Tokens.Contains(symbol);
-
-        public static Token Analyze(StringBuilder text, int position)
+        public static IEnumerable<Token> Analyze(string text)
         {
-            var slash = text[position].ToString() == TokenType.Slash ? TokenType.Slash : string.Empty;
-            foreach (var token in Tokens.Where(token => IsTokenContainsInText(slash + token, text, position)))
-                return new Token(slash + token, position);
-            return new Token(text[position].ToString(), position);
+            for (var i = 0; i < text.Length; ++i)
+            {
+                if (!IsToken(text[i].ToString()))
+                    continue;
+
+                var slash = text[i].ToString() == TokenType.Slash ? TokenType.Slash : string.Empty;
+                var correctTokens = Tokens
+                    .Select(token => slash + token)
+                    .Where(token => IsTokenContainsInText(token, text, i)).ToArray();
+                if (!correctTokens.Any())
+                    continue;
+
+                yield return new Token(correctTokens.First(), i);
+                i += correctTokens.First().Length - 1;
+            }
         }
 
-        private static bool IsTokenContainsInText(string value, StringBuilder text, int position)
+        private static bool IsToken(string symbol) => Tokens.Contains(symbol);
+
+        private static bool IsTokenContainsInText(string value, string text, int position)
             => !value.Where((letter, i) => i + position >= text.Length || text[i + position] != letter).Any();
     }
 }

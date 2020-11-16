@@ -78,7 +78,7 @@ namespace Markdown.Tests
             ExpectedResult = "__пересечения _двойных__ и одинарных_",
             TestName = "WhenItalicAndBoldIntersected")]
         [TestCase("Внутри _одинарного выделения __двойное__ не_ работает",
-            ExpectedResult = "Внутри _одинарного выделения __двойное__ не_ работает",
+            ExpectedResult = "Внутри <em>одинарного выделения __двойное__ не</em> работает",
             TestName = "WhenBoldBetweenItalic")]
         [TestCase("__Непарные_ символы",
             ExpectedResult = "__Непарные_ символы",
@@ -109,6 +109,9 @@ namespace Markdown.Tests
             ExpectedResult = "<h1>abc# abc# add #aaa</h1>",
             TestName = "WhenMoreThanOneHeading")]
         [TestCase("a# abc", ExpectedResult = "a# abc", TestName = "WhenHeadingNotAtBegin")]
+        [TestCase("_hello __world__", ExpectedResult = "_hello <strong>world</strong>", TestName = "WhenNotPairedItalicBeforePairedBold")]
+        [TestCase("__hello _world_", ExpectedResult = "__hello <em>world</em>", TestName = "WhenNotPairedBoldBeforePairedItalic")]
+
         public string Render_CorrectResult(string input)
         {
             return Md.Render(input);
