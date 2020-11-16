@@ -3,22 +3,34 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
 using System.Numerics;
-using System.Text;
-using AutoFixture;
+using Markdown;
+using Markdown.Infrastructure.Formatters;
+using Markdown.Infrastructure.Parsers;
+using Markdown.Infrastructure.Parsers.Markdown;
+using Ninject;
 using NUnit.Framework;
 
 namespace MarkdownTests
 {
     public class MarkdownTests
     {
-        private Markdown.Markdown markdown;
-        private Fixture fixture;
+        private IRenderer renderer;
+        private static Random random;
 
         [SetUp]
         public void Setup()
         {
-            fixture = new Fixture();
-            markdown = new Markdown.Markdown();
+            var container = new StandardKernel();
+            container.Bind<ITextHelper>().To<TextHelper>().InSingletonScope();
+            container.Bind<IBlockBuilder>().To<BlockBuilder>();
+            container.Bind<ITagValidator>().To<TagValidator>();
+            container.Bind<IWrapper>().To<Wrapper>();
+            container.Bind<IBlockParser>().To<MarkdownParser>();
+            container.Bind<IBlockFormatter>().To<HtmlFormatter>();
+            container.Bind<IRenderer>().To<Markdown.Markdown>();
+            
+            renderer = container.Get<IRenderer>();
+            random = new Random();
         }
 
         [Test]
@@ -62,7 +74,7 @@ namespace MarkdownTests
         [TestCase("[имя](https://link)", ExpectedResult = "<a href=\"https://link\">имя</a>", TestName = "Link")]
         public string Markdown_Render(string text)
         {
-            return markdown.Render(text);
+            return renderer.Render(text);
         }
 
         [Test]
@@ -79,7 +91,7 @@ namespace MarkdownTests
             foreach (var text in textData)
             {
                 stopwatch.Start();
-                var _ = markdown.Render(text);
+                var _ = renderer.Render(text);
                 stopwatch.Stop();
                 Console.WriteLine("Elapsed={0}", stopwatch.ElapsedMilliseconds);
                 times.Add((text.Length, stopwatch.ElapsedMilliseconds));
@@ -101,17 +113,11 @@ namespace MarkdownTests
                 Assert.That(angle, Is.EqualTo(averageAngle).Within(10e-2));
         }
 
-        private string RandomString(int length)
+        private static string RandomString(int length)
         {
-            var sb = new StringBuilder();
-            var i = 0;
-            while (i < length)
-            {
-                var text = fixture.Create<string>();
-                sb.Append(text);
-                i += text.Length;
-            }
-            return sb.ToString().Substring(0, length);
+            const string chars = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789";
+            return new string(Enumerable.Repeat(chars, length)
+                .Select(s => s[random.Next(s.Length)]).ToArray());
         }
     }
 }

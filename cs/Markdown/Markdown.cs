@@ -1,28 +1,27 @@
 ﻿using System.Text;
 using Markdown.Infrastructure.Formatters;
 using Markdown.Infrastructure.Parsers;
-using Markdown.Infrastructure.Parsers.Markdown;
-using Ninject;
 
 namespace Markdown
 {
-    public class Markdown
+    public class Markdown : IRenderer
     {
+        private readonly ITextHelper textHelper;
+        private readonly IBlockParser blockParser;
+        private readonly IBlockFormatter blockFormatter;
+
+        public Markdown(ITextHelper textHelper, IBlockParser blockParser, IBlockFormatter blockFormatter)
+        {
+            this.textHelper = textHelper;
+            this.blockParser = blockParser;
+            this.blockFormatter = blockFormatter;
+        }
         public string Render(string markdownText)
         {
-            var container = new StandardKernel();
-            container.Bind<string>().ToConstant(markdownText);
-            container.Bind<IBlockBuilder>().To<BlockBuilder>();
-            container.Bind<ITagValidator>().To<TagValidator>();
-            container.Bind<ITagParser>().To<MarkdownParser>();
-            container.Bind<IWrapper>().To<Wrapper>();
-            
-            var parser = container.Get<MarkdownParser>();
-            var block = parser.Parse();
+            textHelper.Initialise(markdownText);
 
-            var htmlFormatter = container.Get<HtmlFormatter>();
-            var htmlSentences = block.Format(htmlFormatter);
-
+            var block = blockParser.Parse();
+            var htmlSentences = block.Format(blockFormatter);
             var stringBuilder = new StringBuilder();
             foreach (var htmlSentence in htmlSentences)
                 stringBuilder.Append(htmlSentence);
