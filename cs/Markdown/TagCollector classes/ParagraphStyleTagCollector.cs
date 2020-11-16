@@ -2,10 +2,10 @@
 
 namespace Markdown
 {
-    public class LikeHeaderTagCollector<TTag> : TagCollector<TTag>
+    public class ParagraphStyleTagCollector<TTag> : TagCollector<TTag>
         where TTag : Tag, new()
     {
-        public LikeHeaderTagCollector(TextWorker textWorker)
+        public ParagraphStyleTagCollector(TextWorker textWorker)
             : base(textWorker)
         {
         }

@@ -7,32 +7,31 @@ namespace Markdown
 {
     public static class Md
     {
-        private static readonly string paragraphDelimiter = Environment.NewLine;
-        private static readonly TextWorker textWorker;
-        private static readonly TextStyleTagCollector<ItalicTag> italicTagCollector;
-        private static readonly TextStyleTagCollector<BoldTag> boldTagCollector;
-        private static readonly LikeHeaderTagCollector<HeaderTag> LikeHeaderTagCollector;
-        private static readonly LikeHeaderTagCollector<UnorderedListTag> unorderedListTagCollector;
+        private static readonly string ParagraphDelimiter = Environment.NewLine;
+        private static readonly TextWorker MdTextWorker;
+        private static readonly TagCollector<ItalicTag> ItalicTagCollector;
+        private static readonly TagCollector<BoldTag> BoldTagCollector;
+        private static readonly TagCollector<HeaderTag> ParagraphStyleTagCollector;
+        private static readonly TagCollector<UnorderedListTag> UnorderedListTagCollector;
 
         static Md()
         {
-            var beginingOfMdTags = new[] {'_', '#', '*'};
-            textWorker = new TextWorker(beginingOfMdTags);
+            MdTextWorker = TagCollectorFactory.MdTextWorker;
 
-            italicTagCollector = new TextStyleTagCollector<ItalicTag>(textWorker);
-            boldTagCollector = new TextStyleTagCollector<BoldTag>(textWorker);
-            LikeHeaderTagCollector = new LikeHeaderTagCollector<HeaderTag>(textWorker);
-            unorderedListTagCollector = new LikeHeaderTagCollector<UnorderedListTag>(textWorker);
+            ItalicTagCollector = TagCollectorFactory.CreateCollectorFor<ItalicTag>();
+            BoldTagCollector = TagCollectorFactory.CreateCollectorFor<BoldTag>();
+            ParagraphStyleTagCollector = TagCollectorFactory.CreateCollectorFor<HeaderTag>();
+            UnorderedListTagCollector = TagCollectorFactory.CreateCollectorFor<UnorderedListTag>();
         }
 
         public static string Render(string textInMarkdown)
         {
             var htmlTextBuilder = new StringBuilder();
-            var paragraphs = textInMarkdown.Split(paragraphDelimiter);
+            var paragraphs = textInMarkdown.Split(ParagraphDelimiter);
 
-            htmlTextBuilder.AppendJoin(paragraphDelimiter, paragraphs.Select(RenderParagraph));
+            htmlTextBuilder.AppendJoin(ParagraphDelimiter, paragraphs.Select(RenderParagraph));
 
-            return textWorker.DeleteEscapeCharFromLine(htmlTextBuilder.ToString());
+            return MdTextWorker.DeleteEscapeCharFromLine(htmlTextBuilder.ToString());
         }
 
         private static string RenderParagraph(string paragraph)
@@ -49,11 +48,11 @@ namespace Markdown
         {
             var tags = new List<Tag>();
 
-            tags.AddRange(boldTagCollector.CollectTags(line));
-            tags.AddRange(italicTagCollector.CollectTags(
+            tags.AddRange(BoldTagCollector.CollectTags(line));
+            tags.AddRange(ItalicTagCollector.CollectTags(
                 ReplaceTagsWithPlaceholder(line, tags)));
-            tags.AddRange(LikeHeaderTagCollector.CollectTags(line));
-            tags.AddRange(unorderedListTagCollector.CollectTags(line));
+            tags.AddRange(ParagraphStyleTagCollector.CollectTags(line));
+            tags.AddRange(UnorderedListTagCollector.CollectTags(line));
 
             return PrepareTags(tags);
         }
@@ -72,10 +71,9 @@ namespace Markdown
                         tagToReplace.OpeningHtmlTag :
                         tagToReplace.ClosingHtmlTag);
                     i += tagToReplace.MdTag.Length - 1;
-                    continue;
                 }
-
-                renderLine.Append(line[i]);
+                else
+                    renderLine.Append(line[i]);
             }
 
             var headerLikeTag = tags.Find(tag => tag is HeaderTag || tag is UnorderedListTag);
@@ -110,7 +108,7 @@ namespace Markdown
             string line, IEnumerable<Tag> tags, char placeholderChar = '/')
         {
             var indexes = tags.SelectMany(tag => tag.OccupiedIndexes).ToArray();
-            return textWorker.ReplaceCharsAt(line, placeholderChar, indexes);
+            return MdTextWorker.ReplaceCharsAt(line, placeholderChar, indexes);
         }
     }
 }

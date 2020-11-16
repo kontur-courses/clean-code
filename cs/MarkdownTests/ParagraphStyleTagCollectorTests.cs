@@ -5,15 +5,15 @@ using NUnit.Framework;
 namespace MarkdownTests
 {
     [TestFixture]
-    public class LikeHeaderTagCollectorTests
+    public class ParagraphStyleTagCollectorTests
     {
-        private LikeHeaderTagCollector<HeaderTag> likeHeaderTagCollector;
+        private ParagraphStyleTagCollector<HeaderTag> paragraphStyleTagCollector;
 
         [SetUp]
         public void SetUp()
         {
             var textWorker = new TextWorker(new[] {'_', '#'});
-            likeHeaderTagCollector = new LikeHeaderTagCollector<HeaderTag>(textWorker);
+            paragraphStyleTagCollector = new ParagraphStyleTagCollector<HeaderTag>(textWorker);
         }
 
         [Test]
@@ -21,7 +21,7 @@ namespace MarkdownTests
         {
             var line = "# abc";
 
-            likeHeaderTagCollector.CollectTags(line).Should()
+            paragraphStyleTagCollector.CollectTags(line).Should()
                 .BeEquivalentTo(new HeaderTag(0, 5));
         }
 
@@ -30,7 +30,7 @@ namespace MarkdownTests
         {
             var line = "ab # cd";
 
-            likeHeaderTagCollector.CollectTags(line).Should().BeEmpty();
+            paragraphStyleTagCollector.CollectTags(line).Should().BeEmpty();
         }
 
         [Test]
@@ -38,7 +38,7 @@ namespace MarkdownTests
         {
             var line = @"\# abc";
 
-            likeHeaderTagCollector.CollectTags(line).Should().BeEmpty();
+            paragraphStyleTagCollector.CollectTags(line).Should().BeEmpty();
         }
     }
 }

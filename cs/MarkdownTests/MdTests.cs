@@ -57,7 +57,7 @@ namespace MarkdownTests
         }
 
         [Test]
-        public void Render_LikeHeaderTagCanBeEscaped()
+        public void Render_ParagraphStyleTagCanBeEscaped()
         {
             TestRender(
                 @"\# ab cd.",
