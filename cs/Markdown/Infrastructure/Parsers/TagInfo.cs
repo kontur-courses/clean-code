@@ -27,17 +27,17 @@ namespace Markdown.Infrastructure.Parsers
         }
 
 
-        public bool Closes(TagInfo toClose, TextHelper textHelper) =>
+        public bool Closes(TagInfo toClose, ITextHelper textHelper) =>
             ClosesSameType(toClose, textHelper)
             || ClosesByNewLine(toClose);
 
-        private bool ClosesSameType(TagInfo toClose, TextHelper textHelper) =>
+        private bool ClosesSameType(TagInfo toClose, ITextHelper textHelper) =>
             canClose
             && toClose.canOpen
             && IsSameType(toClose)
             && !IsDifferentWords(toClose, textHelper);
 
-        private bool IsDifferentWords(TagInfo toClose, TextHelper textHelper) =>
+        private bool IsDifferentWords(TagInfo toClose, ITextHelper textHelper) =>
             canClose
             && canOpen
             && toClose.canClose

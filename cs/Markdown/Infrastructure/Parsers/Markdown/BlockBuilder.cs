@@ -6,9 +6,9 @@ namespace Markdown.Infrastructure.Parsers.Markdown
 {
     public class BlockBuilder : IBlockBuilder
     {
-        private readonly TextHelper textHelper;
+        private readonly ITextHelper textHelper;
 
-        public BlockBuilder(TextHelper textHelper)
+        public BlockBuilder(ITextHelper textHelper)
         {
             this.textHelper = textHelper;
         }
@@ -28,14 +28,14 @@ namespace Markdown.Infrastructure.Parsers.Markdown
                 processedPosition = processed;
             }
 
-            subBlocks.Add(GetBlockFromText(processedPosition, textHelper.Text.Length));
+            subBlocks.Add(GetBlockFromText(processedPosition, textHelper.GetTextLength()));
 
             return rootBlock;
         }
 
         private PlainBlock GetBlockFromText(int start, int end)
         {
-            return new PlainBlock(textHelper.Text.Substring(start, end - start));
+            return new PlainBlock(textHelper.Substring(start, end - start));
         }
 
         private (IBlock, int) BuildBlock(IEnumerator<TagInfo> tagsEnumerator, int processedPosition)

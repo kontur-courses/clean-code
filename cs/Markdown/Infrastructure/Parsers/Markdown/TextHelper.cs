@@ -1,10 +1,10 @@
 namespace Markdown.Infrastructure.Parsers.Markdown
 {
-    public class TextHelper
+    public class TextHelper : ITextHelper
     {
-        public readonly string Text;
+        private string Text { get; set; }
 
-        public TextHelper(string text)
+        public void Initialise(string text)
         {
             Text = text;
         }
@@ -32,7 +32,7 @@ namespace Markdown.Infrastructure.Parsers.Markdown
         public bool IsInBounds(int offset) => 
             offset >= 0 && offset < Text.Length;
 
-        private bool CharBetweenTags(char c, TagInfo start, TagInfo end)
+        public bool CharBetweenTags(char c, TagInfo start, TagInfo end)
         {
             for (var offset = start.Offset + start.Length; offset < end.Offset; offset++)
                 if (CharIs(c, offset))
@@ -44,5 +44,11 @@ namespace Markdown.Infrastructure.Parsers.Markdown
         public bool WhiteSpaceCharBetweenTags(TagInfo start, TagInfo end) =>
             CharBetweenTags(' ', start, end)
             || CharBetweenTags('\t', start, end);
+
+        public int GetTextLength() => Text.Length;
+
+        public string Substring(int start, int length) => Text.Substring(start, length);
+
+        public char GetCharacter(int offset) => Text[offset];
     }
 }

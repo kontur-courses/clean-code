@@ -5,16 +5,16 @@ using Markdown.Infrastructure.Parsers.Tags;
 
 namespace Markdown.Infrastructure.Parsers.Markdown
 {
-    public class MarkdownParser : ITagParser
+    public class MarkdownParser : IBlockParser
     {
         private readonly int maxPictureDescriptionLength = 20;
         private readonly ITagValidator tagValidator;
         private readonly IBlockBuilder blockBuilder;
-        private readonly TextHelper textHelper;
+        private readonly ITextHelper textHelper;
 
         private delegate Tag CreateTag(string payload);
 
-        public MarkdownParser(ITagValidator tagValidator, IBlockBuilder blockBuilder, TextHelper textHelper)
+        public MarkdownParser(ITagValidator tagValidator, IBlockBuilder blockBuilder, ITextHelper textHelper)
         {
             this.tagValidator = tagValidator;
             this.blockBuilder = blockBuilder;
@@ -34,7 +34,7 @@ namespace Markdown.Infrastructure.Parsers.Markdown
         public IEnumerable<TagInfo> GetTags()
         {
             var processed = 0;
-            while (processed < textHelper.Text.Length)
+            while (processed < textHelper.GetTextLength())
             {
                 var tagInfo = ParseTag(processed);
                 var shift = 0;
@@ -47,7 +47,7 @@ namespace Markdown.Infrastructure.Parsers.Markdown
                 processed += Math.Max(shift, 1);
             }
 
-            yield return GetEmptyEnterTag(textHelper.Text.Length);
+            yield return GetEmptyEnterTag(textHelper.GetTextLength());
         }
 
         private TagInfo GetEmptyEnterTag(int offset)
@@ -57,7 +57,7 @@ namespace Markdown.Infrastructure.Parsers.Markdown
 
         private TagInfo ParseTag(int offset)
         {
-            switch (textHelper.Text[offset])
+            switch (textHelper.GetCharacter(offset))
             {
                 case '_':
                     return ParseUnderscore(offset);
@@ -118,7 +118,7 @@ namespace Markdown.Infrastructure.Parsers.Markdown
                 processed++;
                 for (var payloadLength = 0; payloadLength < maxPictureDescriptionLength; payloadLength++)
                     if (textHelper.CharIs(']', offset + payloadLength + processed))
-                        return textHelper.Text.Substring(offset + processed, payloadLength);
+                        return textHelper.Substring(offset + processed, payloadLength);
             }
 
             return null;
@@ -133,7 +133,7 @@ namespace Markdown.Infrastructure.Parsers.Markdown
 
         private TagInfo ParseDoubleUnderscore(int offset)
         {
-            if (textHelper.CharIs(' ', offset + 1) || offset == textHelper.Text.Length - 1)
+            if (textHelper.CharIs(' ', offset + 1) || offset == textHelper.GetTextLength() - 1)
                 return new TagInfo(offset, 2, Style.Bold, true, false);
 
             if (textHelper.CharIs(' ', offset - 1) || offset == 0)
@@ -148,7 +148,7 @@ namespace Markdown.Infrastructure.Parsers.Markdown
                 && !textHelper.CharIsWhiteSpace(offset - 1))
                 return null;
 
-            if (textHelper.CharIs(' ', offset + 1) || offset == textHelper.Text.Length - 1)
+            if (textHelper.CharIs(' ', offset + 1) || offset == textHelper.GetTextLength() - 1)
                 return new TagInfo(offset, 1, Style.Angled, true, false);
 
             if (textHelper.CharIs(' ', offset - 1) || offset == 0)
@@ -177,7 +177,7 @@ namespace Markdown.Infrastructure.Parsers.Markdown
             var newLine = Environment.NewLine;
             if (!textHelper.IsInBounds(offset + newLine.Length))
                 return false;
-            var substring = textHelper.Text.Substring(offset, newLine.Length);
+            var substring = textHelper.Substring(offset, newLine.Length);
             if (substring != newLine)
                 return false;
 

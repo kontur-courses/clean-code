@@ -6,9 +6,9 @@ namespace Markdown.Infrastructure.Parsers.Markdown
 {
     public class TagValidator : ITagValidator
     {
-        private readonly TextHelper textHelper;
+        private readonly ITextHelper textHelper;
 
-        public TagValidator(TextHelper textHelper)
+        public TagValidator(ITextHelper textHelper)
         {
             this.textHelper = textHelper;
         }
