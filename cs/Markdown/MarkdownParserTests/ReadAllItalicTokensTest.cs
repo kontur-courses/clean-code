@@ -2,7 +2,7 @@
 using Markdown.Tags;
 using NUnit.Framework;
 
-namespace Markdown
+namespace Markdown.MarkdownParserTests
 {
     public class ReadAllItalicTokensTest
     {

@@ -19,6 +19,10 @@ namespace Markdown
         [TestCase(@"one_two\_", ExpectedResult = "one_two_", TestName = "ShieldCloseItalicToken")]
         [TestCase(@"\#asdf", ExpectedResult = "#asdf", TestName = "ShieldHeaderToken")]
         [TestCase(@"asdf\asdf", ExpectedResult = @"asdf\asdf", TestName = "IgnoreSimpleSlash")]
+        [TestCase(@"\__asdf_", ExpectedResult = @"_<em>asdf</em>", TestName = "ShieldOpenBoldTokenWithItalic")]
+        [TestCase(@"_asdf\__", ExpectedResult = "<em>asdf_</em>", TestName = "ShieldCloseBoldTokenWithItalic")]
+        [TestCase(@"\__asdf__", ExpectedResult = @"__asdf__", TestName = "ShieldOpenBoldTokenWithBold")]
+        [TestCase(@"__asdf\__", ExpectedResult = "__asdf__", TestName = "ShieldCloseBoldTokenWithBold")]
         public string Render(string text)
         {
             return md.Render(text);
