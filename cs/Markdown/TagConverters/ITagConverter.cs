@@ -6,6 +6,6 @@ namespace Markdown.TagConverters
 {
     internal interface ITagConverter
     {
-        public abstract StringOfset Convert(string text, int position);
+        public StringBuilder Convert(StringBuilder tagsText, StringBuilder text, int start, int finish);
     }
 }

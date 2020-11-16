@@ -1,10 +1,10 @@
 ﻿
 namespace Markdown
 {
-    public enum TagMd
+    internal static class TagMd
     {
-        _,
-        __,
-        sharp
-    }
+        internal const string _ = "_";
+        internal const string __ = "__";
+        internal const string sharp = "#";
+    } 
 }

@@ -1,10 +1,10 @@
 ﻿
 namespace Markdown
 {
-    public enum TagHtml
+    internal class TagHtml
     {
-        em,
-        strong,
-        h1
+        internal const string em = "em";
+        internal const string strong = "strong";
+        internal const string h1 = "h1";
     }
 }

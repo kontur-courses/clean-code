@@ -4,29 +4,17 @@ using System.Text;
 
 namespace Markdown.TagConverters
 {
-    internal class TagH1 : TagConverter
+    internal class TagH1 : TagConverterBase
     {
-        public override TagHtml Html => TagHtml.h1;
+        public override bool IsSingleTag => true;
+        public override string Html => TagHtml.h1;
 
-        public override TagMd Md => TagMd.sharp;
+        public override string Md => TagMd.sharp;
 
-        public new string StringMd => "#";
+        public override HashSet<string> TagInside => TagsAssociation.tags;
+        public override bool IsTag(string text, int pos) => pos == 0;
 
-        public override StringOfset Convert(string text, int position)
-        {
-            if (position > 0)
-                return new StringOfset(StringMd, LengthMd);
-            var result = new StringBuilder();
-            result.Append(OpenTag());
-            StringOfset stringOfset;
-            for (var i = 1; i < text.Length; i += stringOfset.ofset)
-            {
-                stringOfset = TagsAssociation.GetTagConverter(text, i).Convert();
-                result.Append(stringOfset.text);
-            }
-            //Хотелось бы тут использовать Md.Render, но почему-то вижак мне этого не позволяет((
-            result.Append(CloseTag());
-            return new StringOfset(result.ToString(), text.Length);
-        }
+        public override bool CanClose(StringBuilder text, int pos) => pos == 0;
+        public override bool CanOpen(StringBuilder text, int pos) => CanCloseBase(text, pos);
     }
 }
