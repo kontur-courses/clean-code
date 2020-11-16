@@ -190,5 +190,21 @@ namespace MarkdownTests
 
             result.Should().BeEquivalentTo(expectedTokens);
         }
+
+        private static object[] ImageTestCases =
+        {
+            new TestCaseData(@"![]()", new List<Token>()
+            {
+                new Token(0, @"![]()", TokenType.Image),
+            }).SetName("Only empty image tag"),
+        };
+
+        [TestCaseSource("ImageTestCases")]
+        public void GetTokens_ReturnImageTag_When(string text, List<Token> expectedTokens)
+        {
+            var result = new TextParser().GetTokens(text);
+
+            result.Should().BeEquivalentTo(expectedTokens);
+        }
     }
 }

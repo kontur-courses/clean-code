@@ -50,7 +50,27 @@
         {
             return !parser.IsStrongStartTag(text, index)
                    && !parser.IsEmphasizedStartTag(text, index)
-                   && text[index] != '#';
+                   && text[index] != '#'
+                   && !parser.IsImageStaringAltTextTag(text, index);
+        }
+
+        public static bool IsImageStaringAltTextTag(this TextParser parser, string text, int index)
+        {
+            return text[index] == '!'
+                   && index + 1 < text.Length
+                   && text[index + 1] == '[';
+        }
+
+        public static bool IsImageEndingAltTextTag(this TextParser parser, string text, int index)
+        {
+            return text[index] == ']'
+                   && index + 1 < text.Length
+                   && text[index + 1] == '(';
+        }
+
+        public static bool IsImageEndingUrlTag(this TextParser parser, string text, int index)
+        {
+            return text[index] == ')';
         }
     }
 }
