@@ -36,7 +36,7 @@ namespace Markdown
             throw new NotImplementedException();
         }
 
-        public string ReadAndParseAll()
+        public IEnumerable<MdToken> ReadAll()
         {
             throw new NotImplementedException();
         }
