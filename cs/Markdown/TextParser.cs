@@ -16,7 +16,7 @@ namespace Markdown
             return tokens;
         }
 
-        private List<Token> FindTokens(string text)
+        private IEnumerable<Token> FindTokens(string text)
         {
             EscapingBackslashes = FindEscapingBackslashes(text);
             var tokens = new List<Token>();
