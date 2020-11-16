@@ -6,7 +6,8 @@ namespace Markdown
     {
         static void Main(string[] args)
         {
-            Console.WriteLine("Hello World!");
+            Console.WriteLine(Md.Render("_text_"));
+            Console.WriteLine(Md.Render("#text\n _text_"));
         }
     }
 }
