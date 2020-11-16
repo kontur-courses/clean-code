@@ -7,11 +7,8 @@ namespace Markdown
     public class EmphasizedTokenGetter : ITokenGetter
     {
         public TextToken TryGetToken(StringBuilder currentText, IReadOnlyCollection<ITokenGetter> tokenGetters,
-            int index, string text)
+            int index)
         {
-            if (!CanCreateToken(currentText, text, index))
-                return null;
-
             currentText.Remove(0, 1);
             currentText.Remove(currentText.Length - 1, 1);
             var tokenToAdd = new TextToken(index - currentText.Length, currentText.Length,
@@ -21,7 +18,7 @@ namespace Markdown
             return tokenToAdd;
         }
 
-        private static bool CanCreateToken(StringBuilder currentText, string text, int index)
+        public bool CanCreateToken(StringBuilder currentText, string text, int index)
         {
             return !IsTextContainsOnlyUnderlinings(currentText)
                    && IsTextStartAndEndWithOneUnderlining(currentText, text, index)

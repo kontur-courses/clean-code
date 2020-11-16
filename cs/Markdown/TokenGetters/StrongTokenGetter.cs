@@ -7,17 +7,8 @@ namespace Markdown
     public class StrongTokenGetter : ITokenGetter
     {
         public TextToken TryGetToken(StringBuilder currentText, IReadOnlyCollection<ITokenGetter> tokenGetters,
-            int index, string text)
+            int index)
         {
-            var tokenLength = currentText.Length;
-            if (currentText.ToString().Count(x => x == '_') == currentText.Length)
-                return null;
-            if (currentText[0] != '_' || currentText[1] != '_' || currentText[tokenLength - 2] != '_' ||
-                currentText[tokenLength - 1] != '_') return null;
-            if (currentText.ToString().Any(char.IsDigit))
-                return null;
-            if (FindCrossingUnderlinings(currentText))
-                return null;
             currentText.Remove(0, 2);
             currentText.Remove(currentText.Length - 2, 2);
             var tokenToAdd = new TextToken(index - currentText.Length - 1, currentText.Length,
@@ -26,7 +17,20 @@ namespace Markdown
             return tokenToAdd;
         }
 
-        private bool FindCrossingUnderlinings(StringBuilder currentText)
+        public bool CanCreateToken(StringBuilder currentText, string text, int index)
+        {
+            if (currentText.ToString().Count(x => x == '_') == currentText.Length)
+                return false;
+            if (currentText[0] != '_' || currentText[1] != '_' || currentText[currentText.Length - 2] != '_' ||
+                currentText[currentText.Length - 1] != '_') return false;
+            if (currentText.ToString().Any(char.IsDigit))
+                return false;
+            if (FindCrossingUnderlinings(currentText))
+                return false;
+            return true;
+        }
+
+        private static bool FindCrossingUnderlinings(StringBuilder currentText)
         {
             var foundDoubleUnderlining = false;
             var foundUnderlining = false;

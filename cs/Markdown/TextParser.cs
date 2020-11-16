@@ -29,17 +29,16 @@ namespace Markdown
             for (var index = 0; index < text.Length; index++)
             {
                 currentText.Append(text[index]);
-                
+
                 var currentToken = TryToGetToken(index, text);
                 if (currentToken == null) continue;
-                
+
                 currentText.Clear();
-                
+
                 var updatedToken = UpdateLastTextToken(currentToken);
                 if (updatedToken != null) continue;
-                
+
                 tokens.Add(currentToken);
-                
             }
 
             if (currentText.Length != 0)
@@ -53,9 +52,10 @@ namespace Markdown
 
         private TextToken TryToGetToken(int index, string text)
         {
-            return tokenGetters.Select(tokenGetter => tokenGetter
-                    .TryGetToken(currentText, tokenGetters, index, text))
-                .FirstOrDefault(currentToken => currentToken != null);
+            return tokenGetters
+                .Where(x => x.CanCreateToken(currentText, text, index))
+                .Select(x => x.TryGetToken(currentText, tokenGetters, index))
+                .FirstOrDefault();
         }
 
         private TextToken UpdateLastTextToken(TextToken tokenToAdd)
