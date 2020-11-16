@@ -1,6 +1,8 @@
 ﻿using System.Text;
 using Markdown.Infrastructure.Formatters;
+using Markdown.Infrastructure.Parsers;
 using Markdown.Infrastructure.Parsers.Markdown;
+using Ninject;
 
 namespace Markdown
 {
@@ -8,13 +10,16 @@ namespace Markdown
     {
         public string Render(string markdownText)
         {
-            var textHelper = new TextHelper(markdownText);
-            var tagValidator = new TagValidator(textHelper);
-            var blockBuilder = new BlockBuilder(textHelper);
-            var markdownParser = new MarkdownParser(tagValidator, blockBuilder, textHelper);
-            var block = markdownParser.Parse();
+            var container = new StandardKernel();
+            container.Bind<string>().ToConstant(markdownText);
+            container.Bind<IBlockBuilder>().To<BlockBuilder>();
+            container.Bind<ITagValidator>().To<TagValidator>();
+            container.Bind<ITagParser>().To<MarkdownParser>();
+            
+            var parser = container.Get<MarkdownParser>();
+            var block = parser.Parse();
 
-            var htmlFormatter = new HtmlFormatter();
+            var htmlFormatter = container.Get<HtmlFormatter>();
             var htmlSentences = block.Format(htmlFormatter);
 
             var stringBuilder = new StringBuilder();

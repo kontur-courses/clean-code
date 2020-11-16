@@ -12,6 +12,7 @@ namespace Markdown.Infrastructure.Parsers.Markdown
         {
             this.textHelper = textHelper;
         }
+        
         /// <summary>
         ///     Validate interaction of tags according to rules
         /// </summary>
@@ -24,8 +25,7 @@ namespace Markdown.Infrastructure.Parsers.Markdown
 
             return tagInfos;
         }
-        
-        
+
         private IEnumerable<TagInfo> FilterDoubleInSingle(IEnumerable<TagInfo> tagInfos)
         {
             var isUnderscoreOpen = false;
