@@ -5,7 +5,7 @@ using NUnit.Framework;
 
 namespace Markdown.MarkdownParserTests
 {
-    public class ReadHeaderToken
+    public class ReadHeaderTag
     {
         [Test]
         public void ReadHeaderToken_ShouldReturnEmptyArray_OnSimpleString()

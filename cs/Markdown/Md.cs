@@ -1,4 +1,5 @@
 ﻿using System.Collections.Generic;
+using System.Linq;
 using System.Text;
 using Markdown.Tags;
 
@@ -8,18 +9,9 @@ namespace Markdown
     {
         public string Render(string text)
         {
-            var stringAccumulator = new StringBuilder();
-            var paragraphes = text.Split('\n');
-            for (var i = 0; i < paragraphes.Length; i++)
-            {
-                stringAccumulator.Append(DeShield(RenderOneString(paragraphes[i])));
-                if (i != paragraphes.Length - 1)
-                {
-                    stringAccumulator.Append("\n");
-                }
-            }
-            
-            return stringAccumulator.ToString();
+            return string.Join("\n", text.Split('\n')
+                .Select(RenderOneString)
+                .Select(DeShield));
         }
 
         private string DeShield(string paragraphs)
@@ -46,7 +38,9 @@ namespace Markdown
                 if (tags.ContainsKey(i))
                 {
                     result.Append(tags[i].Value);
-                    i += tags[i].Length;
+                    var length = tags[i].Length;
+                    tags.Remove(i);
+                    i += length;
                 }
                 else
                 {

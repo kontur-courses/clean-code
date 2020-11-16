@@ -77,14 +77,20 @@ namespace Markdown
 
         private static bool IsIntersection(Tag[] window)
         {
-            return window[0] is OpenBoldTag && window[1] is OpenItalicTag 
-                                            && window[2] is CloseBoldTag && window[3] is CloseItalicTag;
+            return (window[0] is OpenBoldTag 
+                   && window[1] is OpenItalicTag
+                   && window[2] is CloseBoldTag
+                   && window[3] is CloseItalicTag)
+                   || (window[0] is OpenItalicTag
+                       && window[1] is OpenBoldTag
+                       && window[2] is CloseItalicTag
+                       && window[3] is CloseBoldTag);
         }
         
         private static void FilterBoldTagsInItalic(Dictionary<int, Tag> tags, int length)
         {
             var ignoreStrong = false;
-            for (var i = 0; i < length + 1; i++)
+            for (var i = 0; i <= length; i++)
             {
                 if (tags.TryGetValue(i, out var tag))
                 {

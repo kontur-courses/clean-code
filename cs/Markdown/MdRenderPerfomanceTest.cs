@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Diagnostics;
 using System.Linq;
+using FluentAssertions;
 using NUnit.Framework;
 
 namespace Markdown
@@ -8,22 +9,29 @@ namespace Markdown
     public class MdRenderPerfomanceTest
     {
         [Test]
-        public void UpcPerformance()
+        public void RenderPerformance()
         {
             var pattern = "_asdf_ __asdf__ \n #asdf \n one";
             var md = new Md();
-            var smallString = string.Concat(Enumerable.Repeat(pattern, 10000));
-            var bigString = string.Concat(Enumerable.Repeat(pattern, 1000000));
+            var repeatsLittleString = 10000;
+            var repeatsBigString = 1000000;
+            var smallString = string.Concat(Enumerable.Repeat(pattern, repeatsLittleString));
+            var bigString = string.Concat(Enumerable.Repeat(pattern, repeatsBigString));
             var sw = Stopwatch.StartNew();
             
             md.Render(smallString);
 
-            Console.WriteLine("for x " + sw.Elapsed);
+            var renderSmallStringTime = sw.Elapsed;
+            Console.WriteLine(renderSmallStringTime);
             sw.Restart();
             
             md.Render(bigString);
             
-            Console.WriteLine("for 100 x " + sw.Elapsed);
+            var renderBigString = sw.Elapsed;
+            Console.WriteLine(renderBigString);
+            Console.WriteLine(repeatsBigString / repeatsLittleString);
+            var coefficient = renderBigString.Ticks / renderSmallStringTime.Ticks;
+            coefficient.Should().BeLessOrEqualTo(repeatsBigString / repeatsLittleString);
         }
     }
 }

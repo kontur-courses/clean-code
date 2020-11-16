@@ -2,37 +2,37 @@
 {
     public class ItalicTag : Tag
     {
-        public new static int Length = 1;
-        public ItalicTag(string value, int index) : base(value, index, Length)
+        public const int TagLength = 1;
+        public ItalicTag(string value, int index) : base(value, index, TagLength)
         {
         }
         
-        public static bool IsTagEnd(string line, int index)
+        public static bool IsTagEnd(string paragraph, int index)
         {
-            return (line[index] == '_'
-                   && (index == line.Length - 1 || line[index + 1] != '_')
-                   && line[index - 1] != ' '
-                   && line[index - 1] != '_'
-                   && line[index - 1] != '\\')
-                   || (line[index] == '_' 
+            return (paragraph[index] == '_'
+                   && (index == paragraph.Length - 1 || paragraph[index + 1] != '_')
+                   && paragraph[index - 1] != ' '
+                   && paragraph[index - 1] != '_'
+                   && paragraph[index - 1] != '\\')
+                   || (paragraph[index] == '_' 
                        && index >= 2 
-                       && line[index - 1] == '_' 
-                       && line[index - 2] == '\\');
+                       && paragraph[index - 1] == '_' 
+                       && paragraph[index - 2] == '\\');
         }
 
-        public static bool IsTagStart(string line, int startIndex)
+        public static bool IsTagStart(string paragraph, int startIndex)
         {
-            return (line[startIndex] == '_'
-                    && startIndex < line.Length - 1
-                    && !char.IsDigit(line[startIndex + 1])
-                    && line[startIndex + 1] != ' '
-                    && (startIndex == 0 || line[startIndex - 1] != '_' 
-                        && line[startIndex - 1] != '\\')
-                    && line[startIndex + 1] != '_')
-                   || (line[startIndex] == '_' 
+            return (paragraph[startIndex] == '_'
+                    && startIndex < paragraph.Length - 1
+                    && !char.IsDigit(paragraph[startIndex + 1])
+                    && paragraph[startIndex + 1] != ' '
+                    && (startIndex == 0 || paragraph[startIndex - 1] != '_' 
+                        && paragraph[startIndex - 1] != '\\')
+                    && paragraph[startIndex + 1] != '_')
+                   || (paragraph[startIndex] == '_' 
                        && startIndex >= 2 
-                       && line[startIndex - 1] == '_' 
-                       && line[startIndex - 2] == '\\');
+                       && paragraph[startIndex - 1] == '_' 
+                       && paragraph[startIndex - 2] == '\\');
         }
     }
 }

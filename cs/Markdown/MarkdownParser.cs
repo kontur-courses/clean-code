@@ -5,22 +5,47 @@ using Markdown.Tags;
 using Markdown.Tags.BoldTag;
 using Markdown.Tags.HeaderTag;
 using Markdown.Tags.ItalicTag;
+using Markdown.Tags.UnorderedListTag;
 
 namespace Markdown
 {
     public static class MarkdownParser
     {
+        public static bool IsUnOrderedListStart = false;
         public static Tag[] ParseAllTags(string paragraph)
         {
-            var allTags = ParseHeaderTag(paragraph)
-                .Concat(ParseAllItalicTags(paragraph)).Concat(ParseAllBoldTags(paragraph));
-
-            return allTags.ToArray();
+            return ParseHeaderTag(paragraph)
+                .Concat(ParseAllItalicTags(paragraph))
+                .Concat(ParseAllBoldTags(paragraph))
+                .Concat(ParseUnOrderedListTag(paragraph))
+                .ToArray();
         }
-        
+
+        public static Tag[] ParseUnOrderedListTag(string paragraph)
+        {
+            if (paragraph[0] == '*' && paragraph[1] == ' ')
+            {
+                if (IsUnOrderedListStart)
+                {
+                    return new Tag[0];
+                }
+                IsUnOrderedListStart = true;
+                return new Tag[]{new OpenUnOrderedListTag(0) };
+            }
+            if (IsUnOrderedListStart)
+            {
+                IsUnOrderedListStart = false;
+                return new Tag[]{new CloseUnOrderedListTag(0) };
+            }
+
+            return new Tag[0];
+        }
+
         public static Tag[] ParseHeaderTag(string paragraph)
         {
-            return paragraph[0] == '#' ? new Tag[] {new OpenHeaderTag(0), new CloseHeaderTag(paragraph.Length)} : new Tag[0];
+            return paragraph[0] == '#' 
+                ? new Tag[] {new OpenHeaderTag(0), new CloseHeaderTag(paragraph.Length)} 
+                : new Tag[0];
         }
         
         public static Tag[] ParseAllItalicTags(string paragraph)
@@ -87,12 +112,12 @@ namespace Markdown
 
         private static int GetEndOfBoldTag(string paragraph, int index)
         {
-            return GetEndOfTag(paragraph, index, BoldTag.IsTagEnd, BoldTag.Length);
+            return GetEndOfTag(paragraph, index, BoldTag.IsTagEnd, BoldTag.TagLength);
         }
 
         private static int GetEndOfItalicTag(string paragraph, int index)
         {
-            return GetEndOfTag(paragraph, index, ItalicTag.IsTagEnd, ItalicTag.Length);
+            return GetEndOfTag(paragraph, index, ItalicTag.IsTagEnd, ItalicTag.TagLength);
         }
     }
 }

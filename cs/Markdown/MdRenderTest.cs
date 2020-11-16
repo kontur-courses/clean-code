@@ -33,6 +33,7 @@ namespace Markdown
         [TestCase("One__e t__wo", ExpectedResult = "One__e t__wo", TestName = "BoldTagsInDifferentWords")]
         [TestCase("123_456_789", ExpectedResult = "123_456_789", TestName = "ItalicTagsInDigits")]
         [TestCase("123__456__789", ExpectedResult = "123__456__789", TestName = "BoldTagsInDigits")]
+        [TestCase("* asdf\nasdf", ExpectedResult = "<ul>\n* asdf\n</ul>\nasdf", TestName = "Temp")]
         
         public string Render(string text)
         {
