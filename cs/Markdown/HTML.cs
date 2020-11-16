@@ -8,7 +8,7 @@ namespace Markdown
         public static readonly Style BoldStyle = new Style(StyleType.Bold, "<strong>", "</strong>");
         public static readonly Style ItalicStyle = new Style(StyleType.Italic, "<em>", "</em>");
 
-        public static readonly Dictionary<StyleType, Style> htmlStyles = new Dictionary<StyleType, Style>
+        public static readonly Dictionary<StyleType, Style> HTMLStyles = new Dictionary<StyleType, Style>()
         {
             [StyleType.Heading] = HeadingStyle,
             [StyleType.Bold] = BoldStyle,

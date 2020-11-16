@@ -1,4 +1,6 @@
-﻿namespace Markdown
+﻿using System;
+
+namespace Markdown
 {
     public static class StringExtensions
     {
@@ -19,12 +21,17 @@
 
         public static bool IsStartOfParagraph(this string text, int pointer)
         {
-            return pointer == 0 || text[pointer - 1] == '\n';
+            return pointer == 0
+                   || text.Substring(pointer - 1, 1) == Environment.NewLine
+                   || pointer > 1 && text.Substring(pointer - 2, 2) == Environment.NewLine;
         }
 
         public static bool IsEndOfParagraph(this string text, int pointer)
         {
-            return pointer == text.Length || text[pointer] == '\n';
+            return pointer == text.Length
+                   || text.Substring(pointer, 1) == Environment.NewLine
+                   || pointer < text.Length - 1
+                   && text.Substring(pointer, 2) == Environment.NewLine;
         }
     }
 }

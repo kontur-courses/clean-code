@@ -1,21 +1,22 @@
 ﻿using FluentAssertions;
+using Markdown;
 using NUnit.Framework;
 
-namespace Markdown
+namespace MarkdownTests
 {
     internal class MdTests
     {
         [Test]
-        public void Md_ShoudRenderHeadingStyle_InTextWithOneParagraph()
+        public void Md_ShouldRenderHeadingStyle_InTextWithOneParagraph()
         {
             Md.Render("#heading").Should().BeEquivalentTo("<h1>heading</h1>");
         }
 
         [Test]
-        public void Md_ShoudRenderHeadingStyle_InTextWithMoreThanOneParagraph()
+        public void Md_ShouldRenderHeadingStyle_InTextWithMoreThanOneParagraph()
         {
-            Md.Render("#heading1\nnotheading\n#heading2").Should()
-                .BeEquivalentTo("<h1>heading1</h1>\nnotheading\n<h1>heading2</h1>");
+            Md.Render("#heading1\r\nnotheading\r\n#heading2").Should()
+                .BeEquivalentTo("<h1>heading1</h1>\r\nnotheading\r\n<h1>heading2</h1>");
         }
 
         [Test]
@@ -31,13 +32,13 @@ namespace Markdown
         }
 
         [Test]
-        public void Md_ShoudRenderItalicStyle_InHeadingStyle()
+        public void Md_ShouldRenderItalicStyle_InHeadingStyle()
         {
             Md.Render("#_italic_").Should().BeEquivalentTo("<h1><em>italic</em></h1>");
         }
 
         [Test]
-        public void Md_ShoudRenderBoldStyle_InHeadingStyle()
+        public void Md_ShouldRenderBoldStyle_InHeadingStyle()
         {
             Md.Render("#__bold__").Should().BeEquivalentTo("<h1><strong>bold</strong></h1>");
         }
@@ -66,6 +67,9 @@ namespace Markdown
         [TestCase("b__ol__d1", "b__ol__d1")]
         [TestCase("__bol__d1", "__bol__d1")]
         [TestCase("__bol__d1__", "<strong>bol__d1</strong>")]
+        [TestCase("te1xt __w1th__ nu1mbers", "te1xt <strong>w1th</strong> nu1mbers")]
+        [TestCase("__te1xt with nu1mbers__", "<strong>te1xt with nu1mbers</strong>")]
+        [TestCase("__12__ 3", "<strong>12</strong> 3")]
         public void Md_ShouldNotRenderBoldStyle_InsideWordWithDigits(string mdtext, string expectedHtmlText)
         {
             Md.Render(mdtext).Should().BeEquivalentTo(expectedHtmlText);
@@ -83,6 +87,9 @@ namespace Markdown
         [TestCase("i_tali_c1", "i_tali_c1")]
         [TestCase("_itali_c1", "_itali_c1")]
         [TestCase("_itali_c1_", "<em>itali_c1</em>")]
+        [TestCase("te1xt _w1th_ nu1mbers", "te1xt <em>w1th</em> nu1mbers")]
+        [TestCase("_te1xt with nu1mbers_", "<em>te1xt with nu1mbers</em>")]
+        [TestCase("_12_ 3", "<em>12</em> 3")]
         public void Md_ShouldNotRenderItalicStyle_InsideWordWithDigits(string mdtext, string expectedHtmlText)
         {
             Md.Render(mdtext).Should().BeEquivalentTo(expectedHtmlText);
@@ -156,6 +163,47 @@ namespace Markdown
         public void Md_ShouldNotRenderBoldAndItalicStyle_WithIntersection()
         {
             Md.Render("__inter_sect__ion_").Should().BeEquivalentTo("__inter_sect__ion_");
+        }
+
+        [TestCase("____bold____", "<strong><strong>bold</strong></strong>")]
+        [TestCase("______bold______", "<strong><strong><strong>bold</strong></strong></strong>")]
+        [TestCase("____bo ld____", "<strong><strong>bo ld</strong></strong>")]
+        [TestCase("______bo ld______", "<strong><strong><strong>bo ld</strong></strong></strong>")]
+        public void Md_ShouldRenderOnlyBoldStyle_WhenUnderscoreCountIsEven(string mdText, string expectedHTMLText)
+        {
+            Md.Render(mdText).Should().BeEquivalentTo(expectedHTMLText);
+        }
+
+        [TestCase("___bold___", "___bold___")]
+        [TestCase("___bo ld___", "___bo ld___")]
+        [TestCase("_____bold_____", "_____bold_____")]
+        [TestCase("_____bo ld_____", "_____bo ld_____")]
+        public void Md_ShouldNotRenderBoldAndItalicStyle_WhenUnderscoreCountIsOdd(string mdText,
+            string expectedHTMLText)
+        {
+            Md.Render(mdText).Should().BeEquivalentTo(expectedHTMLText);
+        }
+
+        [TestCase("\\_word_", "_word_")]
+        [TestCase("_word\\_", "_word_")]
+        [TestCase("\\_word\\_", "_word_")]
+        [TestCase("\\__word__", "__word__")]
+        [TestCase("__word\\__", "__word__")]
+        [TestCase("\\__word\\__", "_<em>word_</em>")]
+        [TestCase("\\#word", "#word")]
+        [TestCase("\\___word__", "_<strong>word</strong>")]
+        [TestCase("wo\\_rd_", "wo_rd_")]
+        public void MdRender_ShouldIgnoreEscapedChars(string mdText, string expectedHTMLText)
+        {
+            Md.Render(mdText).Should().BeEquivalentTo(expectedHTMLText);
+        }
+
+        [TestCase("\\\\_word_", "\\<em>word</em>")]
+        [TestCase("\\\\\\_word_", "\\_word_")]
+        [TestCase("\\\\word", "\\\\word")]
+        public void MdRender_ShouldDeleteEscapingChars(string mdText, string expectedHTMLText)
+        {
+            Md.Render(mdText).Should().BeEquivalentTo(expectedHTMLText);
         }
     }
 }

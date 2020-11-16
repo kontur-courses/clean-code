@@ -2,7 +2,7 @@
 {
     public class MdBoldStyleFinder : MdEmphasisStyleFinder
     {
-        public MdBoldStyleFinder(Style mdStyle, string text) : base(mdStyle, text)
+        public MdBoldStyleFinder(Style mdStyle, TextInfo textInfo) : base(mdStyle, textInfo)
         {
         }
     }
