@@ -9,16 +9,19 @@ namespace Markdown
         {
             var resultText = new StringBuilder(sourceText);
             var influence = 0;
-            foreach (var token in tokens.OrderByDescending(token => token.StartIndex))
+            foreach (var token in tokens.OrderBy(token => token.StartIndex))
             {
                 var tagInMdLength = token.TagInfo.TagInMd.Length;
-                resultText = resultText.Replace(token.TagInfo.TagInMd, $"<{token.TagInfo.TagForConverting}>", token.StartIndex + influence, 1);
+                resultText = resultText.Replace(token.TagInfo.TagInMd, $"<{token.TagInfo.TagForConverting}>",
+                    token.StartIndex + influence, tagInMdLength);
                 influence += token.TagInfo.TagForConverting.Length + 2 - tagInMdLength;
-                resultText = resultText.Replace(token.TagInfo.TagInMd, $"</{token.TagInfo.TagForConverting}>", token.StartIndex + token.Length + influence - 1,
-                    1);
-                influence += token.TagInfo.TagForConverting.Length + 3 - tagInMdLength;
+                resultText = token.TagInfo.IsSingle
+                    ? resultText.Insert(token.EndTagIndex + influence, $"</{token.TagInfo.TagForConverting}>")
+                    : resultText.Replace(token.TagInfo.TagInMd, $"</{token.TagInfo.TagForConverting}>",
+                        token.EndTagIndex + influence,
+                        tagInMdLength);
             }
-            
+
 
             return resultText.ToString();
         }

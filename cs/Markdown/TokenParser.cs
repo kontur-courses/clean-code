@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 
@@ -8,56 +9,79 @@ namespace Markdown
     {
         public static Token[] ParseStringToMdTokens(string sourceText, params TagInfo[] tagInfos)
         {
-            var tokens = new List<Token>();
             var tagsList = FindTagsIndexes(sourceText, tagInfos);
-            tagsList = FilterTags(tagsList, sourceText);
-            var tagsStack = new Stack<TagInfoWithIndex>();
-            foreach (var tagInfoWithIndex in tagsList.OrderBy(tagAndIndex => tagAndIndex.StartIndex))
-            {
-                if (tagsStack.Count == 0)
-                {
-                    tagsStack.Push(tagInfoWithIndex);
-                    continue;
-                }
-
-                var tagInfo = tagInfoWithIndex.TagInfo;
-                var tagInMd = tagInfo.TagInMd;
-                var peekTag = tagsStack.Peek().TagInfo.TagInMd;
-                if (tagInMd == "__" && peekTag == "_")
-                    continue;
-                if (tagInMd == peekTag)
-                {
-                    var length = tagInfoWithIndex.StartIndex + tagInMd.Length - tagsStack.Peek().StartIndex;
-                    tokens.Add(new Token(tagsStack.Peek().StartIndex,
-                        length,
-                        tagInfo));
-                    tagsStack.Pop();
-                    continue;
-                }
-
-                tagsStack.Push(new TagInfoWithIndex(tagInfo, tagInfoWithIndex.StartIndex));
-            }
+            tagsList = TokenFilter.FilterTags(tagsList, sourceText);
+            var tokens = FindTokens(sourceText, tagsList);
+            TokenFilter.FilterIntersections(tokens);
+            TokenFilter.FilterEmptyTokens(tokens);
 
             return tokens.ToArray();
         }
 
-        private static List<TagInfoWithIndex> FilterTags(List<TagInfoWithIndex> tagsList, string sourceText)
+        public static List<Token> FindTokens(string sourceText, List<TagInfoWithIndex> tagsList)
         {
-            var filteredList = new List<TagInfoWithIndex>();
-            foreach (var tagInfoWithIndex in tagsList
-                .OrderByDescending(tagInfoWithIndex => tagInfoWithIndex.TagInfo.TagInMd.Length)
-                .ThenBy(tagInfoWithIndex => tagInfoWithIndex.StartIndex))
+            var tagsStack = new Stack<TagInfoWithIndex>();
+            var tokens = new List<Token>();
+            FillTagsStack(sourceText, tagsList, tokens, tagsStack);
+
+            return tokens;
+        }
+
+        private static void FillTagsStack(string sourceText, List<TagInfoWithIndex> tagsList, List<Token> tokens,
+            Stack<TagInfoWithIndex> tagsStack)
+        {
+            foreach (var currentTagAndIndex in tagsList.OrderBy(tagAndIndex => tagAndIndex.StartIndex))
             {
-                if (IsScreened(sourceText, tagInfoWithIndex.StartIndex) || filteredList.Any(filteredTagAndIndex =>
-                    tagInfoWithIndex.StartIndex >= filteredTagAndIndex.StartIndex &&
-                    tagInfoWithIndex.StartIndex <= filteredTagAndIndex.StartIndex +
-                    filteredTagAndIndex.TagInfo?.TagInMd.Length - 1))
+                var currentTagInfo = currentTagAndIndex.TagInfo;
+
+                if (currentTagInfo.IsSingle)
+                {
+                    AddTokenWithSingleTag(sourceText, currentTagInfo, currentTagAndIndex, tokens);
                     continue;
+                }
 
-                filteredList.Add(tagInfoWithIndex);
+                if (tagsStack.Count == 0)
+                {
+                    if (TokenFilter.CanBeOpenTag(sourceText, currentTagAndIndex))
+                        tagsStack.Push(currentTagAndIndex);
+                    continue;
+                }
+
+                var currentTagInMd = currentTagInfo.TagInMd;
+                var peekTagInMd = tagsStack.Peek().TagInfo.TagInMd;
+                if (currentTagInMd == peekTagInMd)
+                {
+                    if (TokenFilter.CanBeCloseTag(sourceText, currentTagAndIndex))
+                        continue;
+                    AddTokenWithDoubleTag(currentTagAndIndex, currentTagInMd, tagsStack, tokens, currentTagInfo);
+                    continue;
+                }
+
+                if (TokenFilter.CanBeOpenTag(sourceText, currentTagAndIndex))
+                    tagsStack.Push(new TagInfoWithIndex(currentTagInfo, currentTagAndIndex.StartIndex));
             }
+        }
 
-            return filteredList;
+        private static void AddTokenWithDoubleTag(TagInfoWithIndex currentTagAndIndex, string currentTagInMd,
+            Stack<TagInfoWithIndex> tagsStack,
+            List<Token> tokens, TagInfo currentTagInfo)
+        {
+            var length = currentTagAndIndex.StartIndex + currentTagInMd.Length - tagsStack.Peek().StartIndex;
+            tokens.Add(new Token(tagsStack.Peek().StartIndex,
+                length,
+                currentTagInfo));
+            tagsStack.Pop();
+        }
+
+        private static void AddTokenWithSingleTag(string sourceText, TagInfo currentTagInfo,
+            TagInfoWithIndex currentTagAndIndex, List<Token> tokens)
+        {
+            var tagEndIndex = sourceText.IndexOf(currentTagInfo.TagEndSym, currentTagAndIndex.StartIndex,
+                StringComparison.Ordinal);
+            var length = tagEndIndex != -1
+                ? tagEndIndex - currentTagAndIndex.StartIndex
+                : sourceText.Length - currentTagAndIndex.StartIndex;
+            tokens.Add(new Token(currentTagAndIndex.StartIndex, length, currentTagAndIndex.TagInfo));
         }
 
         private static List<TagInfoWithIndex> FindTagsIndexes(string sourceText, TagInfo[] tagInfos)
@@ -79,17 +103,6 @@ namespace Markdown
             }
 
             return tagsWithIndexList;
-        }
-
-        private static bool IsScreened(string sourceText, int tagStartIndex)
-        {
-            if (tagStartIndex == 0)
-                return false;
-            var count = 0;
-            var index = tagStartIndex;
-            while (index > 0 && sourceText[--index] == '\\')
-                count++;
-            return count % 2 == 1;
         }
 
         public static string ScreenSymbols(string sourceText, params TagInfo[] tagInfos)
