@@ -31,7 +31,7 @@ namespace Markdown
         private string CollectOneString(Dictionary<int, Tag> tags, string paragraph)
         {
             var result = new StringBuilder();
-            var i = 0;
+            var i = -1;
 
             while (i <= paragraph.Length)
             {
@@ -44,7 +44,7 @@ namespace Markdown
                 }
                 else
                 {
-                    if (i < paragraph.Length)
+                    if (i >= 0 && i < paragraph.Length)
                     {
                         result.Append(paragraph[i]);
                     }

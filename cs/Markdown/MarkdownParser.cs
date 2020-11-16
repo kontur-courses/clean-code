@@ -5,6 +5,7 @@ using Markdown.Tags;
 using Markdown.Tags.BoldTag;
 using Markdown.Tags.HeaderTag;
 using Markdown.Tags.ItalicTag;
+using Markdown.Tags.ListIemTag;
 using Markdown.Tags.UnorderedListTag;
 
 namespace Markdown
@@ -27,18 +28,25 @@ namespace Markdown
             {
                 if (IsUnOrderedListStart)
                 {
-                    return new Tag[0];
+                    return GetListItemTags(paragraph);
                 }
                 IsUnOrderedListStart = true;
-                return new Tag[]{new OpenUnOrderedListTag(0) };
+                return new Tag[]{new OpenUnOrderedListTag(-1) }
+                    .Concat(GetListItemTags(paragraph))
+                    .ToArray();
             }
             if (IsUnOrderedListStart)
             {
                 IsUnOrderedListStart = false;
-                return new Tag[]{new CloseUnOrderedListTag(0) };
+                return new Tag[]{new CloseUnOrderedListTag(-1) };
             }
 
             return new Tag[0];
+        }
+
+        public static Tag[] GetListItemTags(string paragraph)
+        {
+            return new Tag[] {new OpenListItemTag(0), new CloseListItemTag(paragraph.Length)};
         }
 
         public static Tag[] ParseHeaderTag(string paragraph)
