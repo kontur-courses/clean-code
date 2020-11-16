@@ -4,6 +4,6 @@ namespace Markdown.Parser
 {
     public interface IMarkupParser
     {
-        public List<TextToken> Parse(string text);
+        public TextData Parse(string text);
     }
 }

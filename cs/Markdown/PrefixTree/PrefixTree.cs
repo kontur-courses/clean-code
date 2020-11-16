@@ -9,7 +9,7 @@ namespace Markdown
 
         public PrefixTree(List<string> words)
         {
-            words = words.OrderByDescending(word => word.Length).ToList();
+            words = words.OrderBy(word => word.Length).ToList();
             foreach (var word in words)
             {
                 var currentNode = Root;

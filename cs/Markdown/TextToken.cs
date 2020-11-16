@@ -1,18 +1,27 @@
 ﻿using System.Collections.Generic;
+using Markdown.Tag;
 
 namespace Markdown
 {
     public class TextToken
     {
-        public FormattingState TokenState { get; set; }
-        public string Value { get; }
-        
-        private List<TextToken> subTokens = new List<TextToken>();
+        public ITagData Tag { get; }
+        public int Start { get; }
+        public int End { get; set; }
+        public List<TextToken> SubTokens { get; private set;}
 
-        public TextToken(string value)
+        public bool IsValid => Start < End;
+
+        public TextToken(ITagData tokenTag, int startPosition)
         {
-            TokenState = FormattingState.NoFormatting;
-            Value = value;
+            Tag = tokenTag;
+            Start = startPosition;
+            SubTokens = new List<TextToken>();
+        }
+
+        public void AddNestedTokens(params TextToken[] nestedToken)
+        {
+            SubTokens.AddRange(nestedToken);
         }
     }
 }

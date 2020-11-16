@@ -4,6 +4,6 @@ namespace Markdown.Builder
 {
     public interface IMarkupBuilder
     {
-        public string Build(List<TextToken> textTokens);
+        public string Build(TextData textData);
     }
 }

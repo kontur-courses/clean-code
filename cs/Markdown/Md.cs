@@ -19,25 +19,26 @@ namespace Markdown
         
         public string Render(string rawText)
         {
-            var textTokens = markdownParser.Parse(rawText);
-            return htmlMarkupBuilder.Build(textTokens);
+            var parseTextData = markdownParser.Parse(rawText);
+            return htmlMarkupBuilder.Build(parseTextData);
         }
 
         private ITagData[] CreateMdToHtmlTags()
         {
-            var italicTagData = new StyleTagData(FormattingState.Strong,
+            var italicTagData = new StyleTagData(
                 new TagBorder("_", "_"), 
-                new TagBorder(@"\<em>",@"\</em>"),
-                FormattingState.Header);
+                new TagBorder(@"\<em>",@"\</em>")
+                );
             
-            var strongTagData = new StyleTagData(FormattingState.Strong,
+            var strongTagData = new StyleTagData(
                 new TagBorder("__", "__"), 
-                new TagBorder(@"\<strong>",@"\</strong>"),
-                FormattingState.Italic, FormattingState.Header);
+                new TagBorder(@"\<strong>",@"\</strong>")
+                );
 
-            /*var headerTagData = new HeaderTagData(FormattingState.Header,
+            /*var headerTagData = new HeaderTagData(
                 new TagBorder("# ", ""), 
-                new TagBorder(@"\<h1>","\\</h1>"));*/
+                new TagBorder(@"\<h1>","\\</h1>")
+                );*/
             
             return new ITagData[]{italicTagData, strongTagData, /*headerTagData*/};
         }

@@ -7,20 +7,16 @@ namespace Markdown.Parser
 {
     public class MarkupParser : IMarkupParser
     {
-        private readonly Dictionary<FormattingState, ITagData> stateToTag;
-        private readonly Dictionary<string, ITagData> openKeyToTag;
+        private readonly Dictionary<string, ITagData> openBorderToTag;
         private readonly PrefixTree openTagTree;
         private readonly PrefixTree closeTagTree;
-
-        private Stack<FormattingState> currentStates = new Stack<FormattingState>();
-        private TextToken currentToken;
+        
+        private TextData fullTextData;
+        private List<TextToken> currentTokens;
         
         public MarkupParser(params ITagData[] tags)
         {
-            stateToTag = tags.ToDictionary(tag => tag.State,
-                tag => tag);
-
-            openKeyToTag = tags.ToDictionary(tag => tag.IncomingBorder.Open,
+            openBorderToTag = tags.ToDictionary(tag => tag.IncomingBorder.Open,
                 tag => tag);
 
             openTagTree = new PrefixTree(tags
@@ -29,30 +25,84 @@ namespace Markdown.Parser
                 .Select(tag => tag.IncomingBorder.Close).ToList());
         }
 
-        public List<TextToken> Parse(string text)
+        public TextData Parse(string text)
         {
-            currentStates.Clear();
-            currentStates.Push(FormattingState.NoFormatting);
+            fullTextData = new TextData(text);
+            currentTokens = new List<TextToken>();
+            
             for (var i = 0; i < text.Length; i++)
             {
-                TryToCloseTag(text, i);
+                // TODO: Добавить проверку на перевод строки и экранирование
+                var offset = TryToCloseTokenAndGetOffset(text, i);
+                if (offset > 0)
+                {
+                    i += offset - 1;
+                    continue;
+                }
+
+                offset = TryToOpenTokenAndGetOffset(text, i);
+                if (offset > 0)
+                    i += offset - 1;
             }
-            throw new NotImplementedException();
+
+            return fullTextData;
+        }
+        
+        private int TryToOpenTokenAndGetOffset(string text, int position)
+        {
+            var openBorder = GetBestMatchFromTree(openTagTree, text, position);
+            if (openBorder == null)
+                return 0;
+            OpenToken(openBorder, position);
+            return openBorder.Length;
         }
 
-        private bool TryToCloseTag(string text, int pos)
+        private void OpenToken(string openBorder, int position)
         {
-            var closeBorder = GetBestMatchFromTree(closeTagTree, text, pos);
-            if (closeBorder.Length > 0 && currentStates.Peek() != FormattingState.NoFormatting)
+            var newToken = new TextToken(openBorderToTag[openBorder], position);
+            currentTokens.Add(newToken);
+        }
+
+        private int TryToCloseTokenAndGetOffset(string text, int position)
+        {
+            var closeBorder = GetBestMatchFromTree(closeTagTree, text, position);
+            if (closeBorder == null)
+                return 0;
+            for (var i = 0; i < currentTokens.Count; i++)
             {
-                var currTag = stateToTag[currentStates.Peek()];
-                if (currTag.IncomingBorder.Close == closeBorder)
+                if (closeBorder == currentTokens[i].Tag.IncomingBorder.Close)
                 {
-                    currentToken.TokenState = currentStates.Pop();
+                    CloseToken(i, position);
+                    return closeBorder.Length;
                 }
             }
+            return 0;
+        }
 
-            return false;
+        private void CloseToken(int tokenNumber, int position)
+        {
+            CancelSubsequentTokens(tokenNumber);
+            
+            var token = currentTokens[tokenNumber];
+            token.End = position;
+            if (tokenNumber > 0)
+            {
+                currentTokens[tokenNumber - 1].AddNestedTokens(token);
+            }
+            else
+            {
+                fullTextData.AddTokens(token);
+            }
+            currentTokens.RemoveAt(tokenNumber);
+        }
+
+        private void CancelSubsequentTokens(int lastTokenNumber)
+        {
+            for (var i = currentTokens.Count - 1; i < lastTokenNumber; i--)
+            {
+                currentTokens[lastTokenNumber].AddNestedTokens(currentTokens[i].SubTokens.ToArray());
+                currentTokens.RemoveAt(i);
+            }
         }
 
         private static string GetBestMatchFromTree(PrefixTree tree, string text, int pos)
@@ -65,6 +115,8 @@ namespace Markdown.Parser
                 if (currentTreeNode.IsFinishNode)
                     bestMatch = currentTreeNode.Value;
                 pos++;
+                if (pos == text.Length)
+                    break;
             }
 
             return bestMatch;

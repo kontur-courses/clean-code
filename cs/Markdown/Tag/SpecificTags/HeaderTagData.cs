@@ -2,12 +2,9 @@
 {
     public class HeaderTagData : TagData
     {
-        // очень не нравится этот конструктор
-        // TODO: сделать менее громоздким
-        public HeaderTagData(FormattingState state,
-            TagBorder incomingBorder, TagBorder outgoingBorder,
-            params FormattingState[] notAllowedNestedStates)
-            : base(state, incomingBorder, outgoingBorder, notAllowedNestedStates)
+        public HeaderTagData(TagBorder incomingBorder, TagBorder outgoingBorder,
+            params ITagData[] notAllowedNestedTags)
+            : base(incomingBorder, outgoingBorder, notAllowedNestedTags)
         { }
 
         public override bool IsValid(string data, int startPos, int endPos)
