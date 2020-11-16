@@ -15,20 +15,31 @@ namespace Markdown
             {
                 if (parser.IsEmphasizedStartTag(text, i))
                 {
-                    intersectedToken = TryReadToken(parser, text, i);
+                    var reader = new EmphasizedTokenReader();
+                    intersectedToken = reader.TryReadToken(parser, text, i);
+
+                    if (intersectedToken != null)
+                    {
+                        i = intersectedToken.EndPosition;
+                    }
+                }
+
+                if (text[i] == '\n' || i + 1 == text.Length && !parser.IsStrongStartTag(text, i))
+                {
+                    value = text[index..i];
+                    break;
                 }
 
                 if (!parser.IsStrongEndTag(text, i))
                     continue;
 
-                if (intersectedToken != null && intersectedToken.Length > i)
-                    break;
+                if (intersectedToken != null && intersectedToken.EndPosition > i)
+                    return new Token(index, text[index..intersectedToken.EndPosition], TokenType.PlainText);
 
-                value = text.Substring(index, i - index + 2);
-                break;
+                return new Token(index, text.Substring(index, i - index + 2), TokenType.Strong);
             }
 
-            return value != "" ? new Token(index, value, TokenType.Strong) : null;
+            return new Token(index, value, TokenType.PlainText);
         }
     }
 }

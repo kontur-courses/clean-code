@@ -146,6 +146,16 @@ namespace MarkdownTests
             {
                 new Token(0, "____", TokenType.PlainText),
             }).SetName("Empty strong tag"),
+
+            new TestCaseData("_E __s e_ S__", new List<Token>()
+            {
+                new Token(0, "_E __s e_ S__", TokenType.PlainText),
+            }).SetName("Emphasized tag intersect strong tag"),
+
+            new TestCaseData("__S _e s__ E_", new List<Token>()
+            {
+                new Token(0, "__S _e s__ E_", TokenType.PlainText),
+            }).SetName("Strong tag intersect emphasized tag"),
         };
 
         [TestCaseSource("PlainTextTestCases")]

@@ -24,9 +24,9 @@ namespace Markdown
             var readers = new List<ITokenReader>()
             {
                 new HeadingTokenReader(),
+                new PlainTextTokenReader(),
                 new StrongTokenReader(),
                 new EmphasizedTokenReader(),
-                new PlainTextTokenReader()
             };
 
             for (var i = 0; i < text.Length; ++i)
