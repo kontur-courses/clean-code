@@ -9,7 +9,9 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "ControlDigit", "ControlDigi
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Samples", "Samples\Samples.csproj", "{C3EF41D7-50EF-4CE1-B30A-D1D81C93D7FA}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Markdown", "Markdown\Markdown.csproj", "{09076DF7-1825-40D8-8285-7BC895F7F63A}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Markdown", "Markdown\Markdown.csproj", "{09076DF7-1825-40D8-8285-7BC895F7F63A}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Md_Tests", "Md_Tests\Md_Tests.csproj", "{C2E96CC9-2ACF-42D4-963C-290B3C20D76A}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -33,6 +35,10 @@ Global
 		{09076DF7-1825-40D8-8285-7BC895F7F63A}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{09076DF7-1825-40D8-8285-7BC895F7F63A}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{09076DF7-1825-40D8-8285-7BC895F7F63A}.Release|Any CPU.Build.0 = Release|Any CPU
+		{C2E96CC9-2ACF-42D4-963C-290B3C20D76A}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{C2E96CC9-2ACF-42D4-963C-290B3C20D76A}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{C2E96CC9-2ACF-42D4-963C-290B3C20D76A}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{C2E96CC9-2ACF-42D4-963C-290B3C20D76A}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

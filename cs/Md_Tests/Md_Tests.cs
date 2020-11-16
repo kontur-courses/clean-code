@@ -1,6 +1,7 @@
-﻿using NUnit.Framework;
+using NUnit.Framework;
+using Markdown;
 
-namespace Markdown
+namespace Md_Tests
 {
     [TestFixture]
     public class Md_Tests
