@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 using Markdown.Tags;
 
@@ -6,36 +7,44 @@ namespace Markdown
 {
     public class Md
     {
-        private static readonly List<char> beginsOfTags = new List<char> {'_', '#'};
-
         public static string Render(string text)
         {
             var paragraphs = TextWorker.SplitOnParagraphs(text);
-            var res = paragraphs.Select(paragraph =>
-                ReplaceMarkDownOnTags(text, GetCorrectTags(ParseAllMarkdownTokens(paragraph), text))).ToList();
-            return string.Join("\n\r", res);
+            var formattedParagraphs = paragraphs.Select(paragraph =>
+                FormatParagraph(text, paragraph)).ToList();
+            return string.Join(Environment.NewLine, formattedParagraphs);
         }
 
-        public static List<TagToken> ParseAllMarkdownTokens(string paragraph)
+        private static string FormatParagraph(string text, string paragraph)
+        {
+            return ReplaceMarkDownOnTags(text, GetCorrectTags(ParseAllMarkdownTokens(paragraph), text));
+        }
+
+        private static List<TagToken> ParseAllMarkdownTokens(string paragraph)
         {
             var tagTokens = new List<TagToken>();
             for (var i = 0; i < paragraph.Length; i++)
-                if (beginsOfTags.Contains(paragraph[i]) && (i < 1 || Enumerable.Range(0, i).Reverse()
-                    .TakeWhile(x => paragraph[x] == '\\').Count() % 2 == 0))
-                {
+                if (NotShieldedTag(paragraph, i))
                     if (i + 1 < paragraph.Length && paragraph[i + 1] == paragraph[i])
                     {
                         tagTokens.Add(new TagToken(i, new string(paragraph[i], 2)));
                         i++;
                     }
                     else
+                    {
                         tagTokens.Add(new TagToken(i, paragraph[i].ToString()));
-                }
+                    }
 
             return tagTokens;
         }
 
-        public static List<Tag> GetCorrectTags(ICollection<TagToken> tokens, string text)
+        private static bool NotShieldedTag(string paragraph, int i)
+        {
+            return Tag.MdTagValues.Any(x => x.StartsWith(paragraph[i])) && (i < 1 || Enumerable.Range(0, i).Reverse()
+                .TakeWhile(x => paragraph[x] == '\\').Count() % 2 == 0);
+        }
+
+        private static List<Tag> GetCorrectTags(ICollection<TagToken> tokens, string text)
         {
             var tags = new List<Tag>();
             if (tokens == null || tokens.Count == 0)
@@ -52,9 +61,9 @@ namespace Markdown
             foreach (var tag in iterator)
                 switch (tag)
                 {
-                    case OpeningTag _ when tag.position + 1 < text.Length && text[tag.position + 1] == ' ':
-                    case ClosingTag _ when tag.position - 1 > 0 && text[tag.position - 1] == ' ':
-                    case OpeningTag _ when EmptyContent(tag):
+                    case OpeningTag when tag.position + 1 < text.Length && text[tag.position + 1] == ' ':
+                    case ClosingTag when tag.position - 1 > 0 && text[tag.position - 1] == ' ':
+                    case OpeningTag when EmptyContent(tag):
                         RemovePairTag(tags, tag);
                         break;
                     default:
@@ -94,12 +103,17 @@ namespace Markdown
             return correctTokens;
         }
 
-        private static bool TagsInWord(string text, Tag tag) =>
-            tag is OpeningTag && tag.position > 0 && text[tag.position - 1] != ' ' ||
-            tag is ClosingTag && text.Length > tag.position + tag.mdTag.Length &&
-            text[tag.position + tag.mdTag.Length] != ' ';
+        private static bool TagsInWord(string text, Tag tag)
+        {
+            return tag is OpeningTag && tag.position > 0 && text[tag.position - 1] != ' ' ||
+                   tag is ClosingTag && text.Length > tag.position + tag.mdTag.Length &&
+                   text[tag.position + tag.mdTag.Length] != ' ';
+        }
 
-        private static bool EmptyContent(Tag tag) => tag.PairTag.position - tag.position - tag.mdTag.Length == 0;
+        private static bool EmptyContent(Tag tag)
+        {
+            return tag.PairTag.position - tag.position - tag.mdTag.Length == 0;
+        }
 
         private static void RemovePairTag(List<Tag> correctTokens, Tag tag)
         {

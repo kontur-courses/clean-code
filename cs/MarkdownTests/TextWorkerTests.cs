@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 using FluentAssertions;
 using Markdown;
@@ -7,6 +8,8 @@ namespace MarkdownTests
 {
     public class TextWorkerTests
     {
+        private static string newLine = Environment.NewLine;
+        
         [TestCase("some text", "some text", new char[0],
             TestName = "RemoveShieldsBeforeKeyChars_SimpleText_EqualSimpleText")]
         [TestCase("", "", new char[0])]
@@ -39,12 +42,12 @@ namespace MarkdownTests
 
 
         [TestCase("text", new[] {"text"}, TestName = "SplitOnParagraphs_StringWithoutParagraphs_InputString")]
-        [TestCase("te\n\rxt", new[] {"te", "xt"},
+        [TestCase("te\r\nxt", new[] {"te", "xt"},
             TestName = "SplitOnParagraphs_StringWithOneParagraph_TwoStringInRightOrder")]
-        [TestCase("te\n\rxt\n\r", new[] {"te", "xt", ""},
+        [TestCase("te\r\nxt\r\n", new[] {"te", "xt", ""},
             TestName = "SplitOnParagraphs_ParagraphCharsLastInLine_LastStringEmpty")]
         [TestCase("", new[] {""}, TestName = "SplitOnParagraphs_EmptyString_OneEmptyString")]
-        [TestCase("\n\r", new[] {"", ""}, TestName = "SplitOnParagraphs_OnlyOneParagraphCharsPair_TwoEmptyString")]
+        [TestCase("\r\n", new[] {"", ""}, TestName = "SplitOnParagraphs_OnlyOneParagraphCharsPair_TwoEmptyString")]
         public void SplitOnParagraphsChecker(string input, IEnumerable<string> expected)
         {
             TextWorker.SplitOnParagraphs(input).Should().Equal(expected);

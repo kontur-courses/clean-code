@@ -4,14 +4,14 @@ namespace Markdown.Tags
 {
     public class OpeningTag : Tag
     {
-        public ClosingTag ClosingTag;
-
         private readonly Dictionary<string, string> mdToHtml = new Dictionary<string, string>
         {
             {"_", "<em>"},
             {"__", "<strong>"},
             {"#", "<h1>"}
         };
+
+        public ClosingTag ClosingTag;
 
         private string parametrs;
 
