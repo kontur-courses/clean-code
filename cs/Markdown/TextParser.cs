@@ -45,7 +45,7 @@ namespace Markdown
             return tokens;
         }
 
-        private static List<int> FindEscapingBackslashes(string text)
+        public List<int> FindEscapingBackslashes(string text)
         {
             var positions = new List<int>();
 
@@ -55,7 +55,10 @@ namespace Markdown
                 {
                     i++;
                 }
-                else if (text[i] == '\\' && i + 1 < text.Length && text[i + 1] != '\\')
+                else if (text[i] == '\\'
+                         && i + 1 < text.Length
+                         && text[i + 1] != '\\'
+                         && !char.IsLetter(text[i + 1]))
                 {
                     positions.Add(i);
                 }

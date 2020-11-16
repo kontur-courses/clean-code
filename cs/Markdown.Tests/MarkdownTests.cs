@@ -13,6 +13,8 @@ namespace MarkdownTests
         [TestCase("# h _e_", "<h1> h <em>e</em></h1>", TestName = "Emphasized in heading")]
         [TestCase("Oleg Mongol", "Oleg Mongol", TestName = "Plain text")]
         [TestCase("_e __s__ e_", "<em>e __s__ e</em>", TestName = "Strong in emphasized")]
+        [TestCase(@"te\xt", @"te\xt", TestName = "Backslash is not escaped")]
+        [TestCase(@"\_e\_", @"_e_", TestName = "Backslash is escaped")]
         public void Render_ReturnExpectedResult_When(string text, string expectedResult)
         {
             var markdown = new Markdown.Markdown();
