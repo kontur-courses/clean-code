@@ -3,7 +3,6 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
 using System.Numerics;
-using AutoFixture;
 using NUnit.Framework;
 
 namespace MarkdownTests
@@ -12,12 +11,10 @@ namespace MarkdownTests
     {
         private Markdown.Markdown markdown;
         private static Random random;
-        private Fixture fixture;
 
         [SetUp]
         public void Setup()
         {
-            fixture = new Fixture();
             markdown = new Markdown.Markdown();
             random = new Random();
         }
