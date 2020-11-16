@@ -10,16 +10,13 @@ namespace Markdown
             int index, string text)
         {
             var tokenLength = currentText.Length;
-            if (currentText.Length < 5)
-                return null;
             if (currentText.ToString().Count(x => x == '_') == currentText.Length)
                 return null;
             if (currentText[0] != '_' || currentText[1] != '_' || currentText[tokenLength - 2] != '_' ||
                 currentText[tokenLength - 1] != '_') return null;
             if (currentText.ToString().Any(char.IsDigit))
                 return null;
-            var countUnderlining = currentText.ToString().Count(x => x == '_');
-            if (countUnderlining == 5)
+            if (FindCrossingUnderlinings(currentText))
                 return null;
             currentText.Remove(0, 2);
             currentText.Remove(currentText.Length - 2, 2);
@@ -27,6 +24,28 @@ namespace Markdown
                 TokenType.Strong, currentText.ToString());
             tokenToAdd.SubTokens = new TextParser(tokenGetters).GetTextTokens(tokenToAdd.Text);
             return tokenToAdd;
+        }
+
+        private bool FindCrossingUnderlinings(StringBuilder currentText)
+        {
+            var foundDoubleUnderlining = false;
+            var foundUnderlining = false;
+            for (var i = 0; i < currentText.Length; i++)
+            {
+                if (currentText[i] == '_' && i + 1 < currentText.Length && currentText[i + 1] == '_')
+                {
+                    if (foundUnderlining)
+                        return true;
+                    foundDoubleUnderlining = !foundDoubleUnderlining;
+                    i++;
+                    continue;
+                }
+
+                if (currentText[i] == '_' && i - 1 > -1 && currentText[i - 1] != '\\')
+                    foundUnderlining = !foundUnderlining;
+            }
+
+            return false;
         }
     }
 }

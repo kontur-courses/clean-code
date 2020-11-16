@@ -159,7 +159,7 @@ namespace Markdown.Tests
             var text = "Иначе эти _подчерки _не считаются_ окончанием выделения и остаются просто символами подчерка.";
             var textParser = new TextParser(tokenGetters);
             var htmlConverter = new HTMLConverter(tokenConverters);
-            var expectedLine = "Иначе эти _подчерки _не считаются_ окончанием выделения и остаются просто символами подчерка.";
+            var expectedLine = "Иначе эти <em>подчерки _не считаются</em> окончанием выделения и остаются просто символами подчерка.";
 
             var textTokens = textParser.GetTextTokens(text);
             var actualLine = htmlConverter.GetHTMLString(textTokens);
@@ -188,6 +188,20 @@ namespace Markdown.Tests
             var textParser = new TextParser(tokenGetters);
             var htmlConverter = new HTMLConverter(tokenConverters);
             var expectedLine = "Если внутри подчерков пустая строка ____, то они остаются символами подчерка.";
+
+            var textTokens = textParser.GetTextTokens(text);
+            var actualLine = htmlConverter.GetHTMLString(textTokens);
+
+            actualLine.Should().BeEquivalentTo(expectedLine);
+        }
+        
+        [Test]
+        public void Main_ReturnCorrectHtmlString_ShieldedSymbols()
+        {
+            var text = "\\_Вот это\\_, не должно выделиться тегом \\<em>.";
+            var textParser = new TextParser(tokenGetters);
+            var htmlConverter = new HTMLConverter(tokenConverters);
+            var expectedLine = "_Вот это_, не должно выделиться тегом \\<em>.";
 
             var textTokens = textParser.GetTextTokens(text);
             var actualLine = htmlConverter.GetHTMLString(textTokens);

@@ -9,6 +9,7 @@ namespace Markdown.Tests
     class TextParser_Should
     {
         private IReadOnlyCollection<ITokenGetter> TokenGetters { get; set; }
+        private TextParser textParser { get; set; }
 
         [SetUp]
         public void SetUp()
@@ -19,6 +20,7 @@ namespace Markdown.Tests
                 new EmphasizedTokenGetter(),
                 new TextTokenGetter()
             };
+            textParser = new TextParser(TokenGetters);
         }
 
         //В будущем частично заменю Test на TestCase
@@ -26,7 +28,6 @@ namespace Markdown.Tests
         [Test]
         public void GetTextTokens_ThrowArgumentException_NullText()
         {
-            var textParser = new TextParser(TokenGetters);
             Action act = () => textParser.GetTextTokens(null);
 
             act.Should().Throw<NullReferenceException>().WithMessage("string was null");
@@ -35,7 +36,6 @@ namespace Markdown.Tests
         [Test]
         public void GetTextTokens_ReturnEmptyList_EmptyText()
         {
-            var textParser = new TextParser(TokenGetters);
 
             var textTokens = textParser.GetTextTokens("");
 
@@ -45,7 +45,6 @@ namespace Markdown.Tests
         [Test]
         public void GetTextTokens_ReturnListWithEmphasizedToken_OneUnderliningElement()
         {
-            var textParser = new TextParser(TokenGetters);
             var subTokens = new List<TextToken> {new TextToken(0, 2, TokenType.Text, "ab")};
             var expectedList = new List<TextToken> {new TextToken(1, 2, TokenType.Emphasized, "ab", subTokens)};
             var text = "_ab_";
@@ -58,7 +57,6 @@ namespace Markdown.Tests
         [Test]
         public void GetTextTokens_ReturnListWithTextToken_NoClosingUnderlining()
         {
-            var textParser = new TextParser(TokenGetters);
             var text = "_ab";
             var expectedList = new List<TextToken> {new TextToken(0, 3, TokenType.Text, "_ab")};
 
@@ -70,7 +68,6 @@ namespace Markdown.Tests
         [Test]
         public void GetTextTokens_ReturnListWithThreeEmphasizedToken_TwoUnderliningElements()
         {
-            var textParser = new TextParser(TokenGetters);
             var expectedList = new List<TextToken>
             {
                 new TextToken(1, 2, TokenType.Emphasized, "ab",
@@ -89,7 +86,6 @@ namespace Markdown.Tests
         [Test]
         public void GetTextTokens_ReturnListWithTextToken_TextWithoutAnySpecialSymbols()
         {
-            var textParser = new TextParser(TokenGetters);
             var text = "ab";
             var expectedList = new List<TextToken>()
             {
@@ -105,7 +101,6 @@ namespace Markdown.Tests
         public void
             GetTextTokens_ReturnListWithCorrectTokens_TextWithTwoUnderliningElementsAndTwoElementsWithoutAnySpecialSymbols()
         {
-            var textParser = new TextParser(TokenGetters);
             var text = "aaa _bb_ aaa _aa_";
             var expectedList = new List<TextToken>()
             {
@@ -125,7 +120,6 @@ namespace Markdown.Tests
         [Test]
         public void GetTextTokens_ReturnListWithStrongToken_TextWithOneDoubleUnderliningElement()
         {
-            var textParser = new TextParser(TokenGetters);
             var text = "__aa__";
             var expectedList = new List<TextToken>()
             {
@@ -141,7 +135,6 @@ namespace Markdown.Tests
         [Test]
         public void GetTextTokens_ReturnListWithStrongToken_TextWithTWoDoubleUnderliningElement()
         {
-            var textParser = new TextParser(TokenGetters);
             var text = "__aa__ __bb__";
             var expectedList = new List<TextToken>()
             {
@@ -160,7 +153,6 @@ namespace Markdown.Tests
         [Test]
         public void GetTextTokens_ReturnListWithCorrectTokens_TextWithStrongEmphasizedAndNotClosedElements()
         {
-            var textParser = new TextParser(TokenGetters);
             var text = "__aa__ _bb_ ac_";
             var expectedList = new List<TextToken>()
             {
@@ -180,7 +172,6 @@ namespace Markdown.Tests
         [Test]
         public void GetTextTokens_ReturnListWithCorrectTokens_TextWithShieldSymbol()
         {
-            var textParser = new TextParser(TokenGetters);
             var text = "\\_ab\\_";
             var expectedList = new List<TextToken>()
             {
@@ -195,12 +186,11 @@ namespace Markdown.Tests
         [Test]
         public void GetTextTokens_ReturnListWithCorrectTokens_TextWithShieldInsideStrongTag()
         {
-            var textParser = new TextParser(TokenGetters);
             var text = "__\\_ab__";
             var expectedList = new List<TextToken>()
             {
-                new TextToken(3, 3, TokenType.Strong, "_ab",
-                    new List<TextToken> {new TextToken(0, 3, TokenType.Text, "_ab")})
+                new TextToken(2, 4, TokenType.Strong, "\\_ab",
+                    new List<TextToken> {new TextToken(1, 3, TokenType.Text, "_ab")})
             };
 
             var actualList = textParser.GetTextTokens(text);
@@ -211,7 +201,6 @@ namespace Markdown.Tests
         [Test]
         public void GetTextTokens_ReturnListWithCorrectTokens_NoTextBetweenUnderlinings()
         {
-            var textParser = new TextParser(TokenGetters);
             var text = "____";
             var expectedList = new List<TextToken>()
             {
@@ -226,7 +215,6 @@ namespace Markdown.Tests
         [Test]
         public void GetTextTokens_ReturnListWithCorrectTokens_TextWithSpaceBetweenWords()
         {
-            var textParser = new TextParser(TokenGetters);
             var text = "a_a b_b";
             var expectedList = new List<TextToken>()
             {
@@ -241,7 +229,6 @@ namespace Markdown.Tests
         [Test]
         public void GetTextTokens_ReturnListWithCorrectTokens_TextWithUnderliningsInsideWords()
         {
-            var textParser = new TextParser(TokenGetters);
             var text = "a_bc_de";
             var expectedList = new List<TextToken>()
             {
@@ -260,7 +247,6 @@ namespace Markdown.Tests
         [Test]
         public void GetTextToknes_ReturnListWithCorrectTokens_TextWithNumbersBetweenUnderlinings()
         {
-            var textParser = new TextParser(TokenGetters);
             var text = "ab1_2_3";
             var expectedList = new List<TextToken>()
             {

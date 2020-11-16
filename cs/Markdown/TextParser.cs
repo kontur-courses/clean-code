@@ -28,13 +28,6 @@ namespace Markdown
 
             for (var index = 0; index < text.Length; index++)
             {
-                if (text[index] == '\\') //TODO: пофиксить баги
-                {
-                    currentText.Append(text[index + 1]);
-                    index += 1;
-                    continue;
-                }
-
                 currentText.Append(text[index]);
                 
                 var currentToken = TryToGetToken(index, text);
