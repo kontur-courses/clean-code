@@ -1,4 +1,5 @@
 using Markdown.Infrastructure.Blocks;
+using Markdown.Infrastructure.Parsers.Markdown;
 using Markdown.Infrastructure.Parsers.Tags;
 
 namespace Markdown.Infrastructure.Parsers
@@ -26,22 +27,22 @@ namespace Markdown.Infrastructure.Parsers
         }
 
 
-        public bool Closes(TagInfo toClose, string text) =>
-            ClosesSameType(toClose, text)
+        public bool Closes(TagInfo toClose, TextHelper textHelper) =>
+            ClosesSameType(toClose, textHelper)
             || ClosesByNewLine(toClose);
 
-        private bool ClosesSameType(TagInfo toClose, string text = "") =>
+        private bool ClosesSameType(TagInfo toClose, TextHelper textHelper) =>
             canClose
             && toClose.canOpen
             && IsSameType(toClose)
-            && !IsDifferentWords(toClose, text);
+            && !IsDifferentWords(toClose, textHelper);
 
-        private bool IsDifferentWords(TagInfo toClose, string text = "") =>
+        private bool IsDifferentWords(TagInfo toClose, TextHelper textHelper) =>
             canClose
             && canOpen
             && toClose.canClose
             && toClose.canOpen
-            && MarkdownParser.WhiteSpaceCharBetweenTags(ref text, toClose, this);
+            && textHelper.WhiteSpaceCharBetweenTags(toClose, this);
 
         private bool IsSameType(TagInfo toClose) => 
             Tag.Style == toClose.Tag.Style;

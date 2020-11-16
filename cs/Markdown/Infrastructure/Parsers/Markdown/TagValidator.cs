@@ -2,15 +2,15 @@ using System.Collections.Generic;
 using System.Linq;
 using Markdown.Infrastructure.Blocks;
 
-namespace Markdown.Infrastructure.Parsers
+namespace Markdown.Infrastructure.Parsers.Markdown
 {
     public class TagValidator : ITagValidator
     {
-        private readonly string text;
+        private readonly TextHelper textHelper;
 
-        public TagValidator(string text)
+        public TagValidator(TextHelper textHelper)
         {
-            this.text = text;
+            this.textHelper = textHelper;
         }
         /// <summary>
         ///     Validate interaction of tags according to rules
@@ -18,9 +18,9 @@ namespace Markdown.Infrastructure.Parsers
         public IEnumerable<TagInfo> GetValidTags(IEnumerable<TagInfo> tagInfos)
         {
             tagInfos = FilterEscaped(tagInfos);
-            tagInfos = FilterIntersections(tagInfos, text).OrderBy(tagInfo => tagInfo.Offset);
+            tagInfos = FilterIntersections(tagInfos).OrderBy(tagInfo => tagInfo.Offset);
             tagInfos = FilterDoubleInSingle(tagInfos);
-            tagInfos = FilterEmptyTags(tagInfos, text);
+            tagInfos = FilterEmptyTags(tagInfos);
 
             return tagInfos;
         }
@@ -41,13 +41,13 @@ namespace Markdown.Infrastructure.Parsers
             }
         }
 
-        private IEnumerable<TagInfo> FilterEmptyTags(IEnumerable<TagInfo> tagInfos, string text)
+        private IEnumerable<TagInfo> FilterEmptyTags(IEnumerable<TagInfo> tagInfos)
         {
             var toSkip = new List<TagInfo>();
 
             var enumerable = tagInfos.ToList();
             foreach (var (previous, current) in enumerable.Zip(enumerable.Skip(1)))
-                if (current.Closes(previous, text) && current.Follows(previous))
+                if (current.Closes(previous, textHelper) && current.Follows(previous))
                 {
                     toSkip.Add(previous);
                     toSkip.Add(current);
@@ -75,11 +75,11 @@ namespace Markdown.Infrastructure.Parsers
             }
         }
 
-        private IEnumerable<TagInfo> FilterIntersections(IEnumerable<TagInfo> tagInfos, string text)
+        private IEnumerable<TagInfo> FilterIntersections(IEnumerable<TagInfo> tagInfos)
         {
             var unclosed = new Stack<TagInfo>();
             foreach (var tagToCheck in tagInfos)
-                if (unclosed.TryPeek(out var tagToClose) && tagToCheck.Closes(tagToClose, text))
+                if (unclosed.TryPeek(out var tagToClose) && tagToCheck.Closes(tagToClose, textHelper))
                 {
                     yield return unclosed.Pop();
                     yield return tagToCheck;

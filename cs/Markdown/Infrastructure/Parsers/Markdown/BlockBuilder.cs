@@ -2,14 +2,15 @@ using System;
 using System.Collections.Generic;
 using Markdown.Infrastructure.Blocks;
 
-namespace Markdown.Infrastructure.Parsers
+namespace Markdown.Infrastructure.Parsers.Markdown
 {
     public class BlockBuilder : IBlockBuilder
     {
-        private readonly string text;
-        public BlockBuilder(string text)
+        private readonly TextHelper textHelper;
+
+        public BlockBuilder(TextHelper textHelper)
         {
-            this.text = text;
+            this.textHelper = textHelper;
         }
         
         public IBlock Build(IEnumerable<TagInfo> validTags)
@@ -21,23 +22,23 @@ namespace Markdown.Infrastructure.Parsers
             var tagsEnumerator = validTags.GetEnumerator();
             while (tagsEnumerator.MoveNext())
             {
-                processedPosition = AddPreviousUnprocessedBlock(tagsEnumerator, processedPosition, text, subBlocks);
-                var (subBlock, processed) = BuildBlock(tagsEnumerator, processedPosition, text);
+                processedPosition = AddPreviousUnprocessedBlock(tagsEnumerator, processedPosition, subBlocks);
+                var (subBlock, processed) = BuildBlock(tagsEnumerator, processedPosition);
                 subBlocks.Add(subBlock);
                 processedPosition = processed;
             }
 
-            subBlocks.Add(GetBlockFromText(text, processedPosition, text.Length));
+            subBlocks.Add(GetBlockFromText(processedPosition, textHelper.Text.Length));
 
             return rootBlock;
         }
 
-        private static PlainBlock GetBlockFromText(string text, int start, int end)
+        private PlainBlock GetBlockFromText(int start, int end)
         {
-            return new PlainBlock(text.Substring(start, end - start));
+            return new PlainBlock(textHelper.Text.Substring(start, end - start));
         }
 
-        private (IBlock, int) BuildBlock(IEnumerator<TagInfo> tagsEnumerator, int processedPosition, string text)
+        private (IBlock, int) BuildBlock(IEnumerator<TagInfo> tagsEnumerator, int processedPosition)
         {
             var rootTag = tagsEnumerator.Current;
             var subBlocks = new List<IBlock>();
@@ -45,13 +46,13 @@ namespace Markdown.Infrastructure.Parsers
 
             while (tagsEnumerator.MoveNext())
             {
-                processedPosition = AddPreviousUnprocessedBlock(tagsEnumerator, processedPosition, text, subBlocks);
+                processedPosition = AddPreviousUnprocessedBlock(tagsEnumerator, processedPosition, subBlocks);
                 var currentTag = tagsEnumerator.Current;
 
-                if (currentTag.Closes(rootTag, text))
+                if (currentTag.Closes(rootTag, textHelper))
                     return (rootBlock, processedPosition);
 
-                var (subBlock, processed) = BuildBlock(tagsEnumerator, processedPosition, text);
+                var (subBlock, processed) = BuildBlock(tagsEnumerator, processedPosition);
                 subBlocks.Add(subBlock);
                 processedPosition = processed;
             }
@@ -59,17 +60,16 @@ namespace Markdown.Infrastructure.Parsers
             throw new FormatException($"Closing tag missing for {rootTag.Offset} {rootTag.Length} {rootTag.Tag.Style}");
         }
 
-        private static int AddPreviousUnprocessedBlock(
+        private int AddPreviousUnprocessedBlock(
             IEnumerator<TagInfo> tagsEnumerator,
             int processedPosition,
-            string text,
             List<IBlock> subBlocks)
         {
             var currentTag = tagsEnumerator.Current;
             if (currentTag.Offset < processedPosition)
                 return processedPosition;
 
-            subBlocks.Add(GetBlockFromText(text, processedPosition, currentTag.Offset));
+            subBlocks.Add(GetBlockFromText(processedPosition, currentTag.Offset));
             return currentTag.Offset + currentTag.Length;
         }
         
