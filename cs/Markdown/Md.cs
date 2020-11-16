@@ -19,7 +19,7 @@ namespace Markdown
 
         private static IEnumerable<string> GetParagraphs(string text)
         {
-            var startIndex = text.Length - 1;
+            var startIndex = 0;
             var index = text.IndexOf("\n\n", StringComparison.Ordinal);
             while (index != -1)
             {
