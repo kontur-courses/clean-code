@@ -2,16 +2,12 @@
 {
     class TagReplacement
     {
-        public readonly int Index;
-        public readonly int OldTagLength;
-        public readonly string OldTag;
+        public readonly TagSubstring OldTagSubstring;
         public readonly string NewTag;
 
-        public TagReplacement(int index, string oldTag, string newTag)
+        public TagReplacement(string newTag, TagSubstring oldTagSubstring)
         {
-            Index = index;
-            OldTag = oldTag;
-            OldTagLength = OldTag.Length;
+            OldTagSubstring = oldTagSubstring;
             NewTag = newTag;
         }
     }
