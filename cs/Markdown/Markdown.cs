@@ -8,7 +8,9 @@ namespace Markdown
     {
         public string Render(string markdownText)
         {
-            var markdownParser = new MarkdownParser();
+            var tagValidator = new TagValidator(markdownText);
+            var blockBuilder = new BlockBuilder(markdownText);
+            var markdownParser = new MarkdownParser(tagValidator, blockBuilder);
             var block = markdownParser.Parse(markdownText);
 
             var htmlFormatter = new HtmlFormatter();

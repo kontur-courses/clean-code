@@ -4,19 +4,15 @@ using Markdown.Infrastructure.Blocks;
 
 namespace Markdown.Infrastructure.Parsers
 {
-    public abstract class BlockParser
+    public class BlockBuilder : IBlockBuilder
     {
-        protected abstract IEnumerable<TagInfo> GetValidTags(IEnumerable<TagInfo> tagInfos, string text);
-        protected abstract IEnumerable<TagInfo> ParseTags(string text);
-
-        public IBlock Parse(string text)
+        private readonly string text;
+        public BlockBuilder(string text)
         {
-            var tagInfos = ParseTags(text);
-            var validTags = GetValidTags(tagInfos, text);
-            return ParseByTags(text, validTags);
+            this.text = text;
         }
-
-        private IBlock ParseByTags(string text, IEnumerable<TagInfo> validTags)
+        
+        public IBlock Build(IEnumerable<TagInfo> validTags)
         {
             var processedPosition = 0;
             var subBlocks = new List<IBlock>();
@@ -76,5 +72,6 @@ namespace Markdown.Infrastructure.Parsers
             subBlocks.Add(GetBlockFromText(text, processedPosition, currentTag.Offset));
             return currentTag.Offset + currentTag.Length;
         }
+        
     }
 }
