@@ -2,9 +2,9 @@
 {
     public class Tag
     {
-        public readonly string Value;
-        public readonly int Index;
-        public readonly int Length;
+        public string Value { get; }
+        public int Index { get; }
+        public int Length { get; }
 
         public Tag(string value, int index, int length)
         {

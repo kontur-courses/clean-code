@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
 using Markdown.Tags;
 using Markdown.Tags.BoldTag;
 using Markdown.Tags.HeaderTag;
@@ -9,109 +10,71 @@ namespace Markdown
 {
     public static class MarkdownParser
     {
-        public static Dictionary<int, Tag> FilterTags(Tag[] tags, int length)
+        public static Tag[] ParseAllTags(string paragraph)
         {
-            var notFilteredDict = GetTagsDictionary(tags);
-            var ignoreStrong = false;
-            for (var i = 0; i < length + 1; i++)
-            {
-                if (notFilteredDict.ContainsKey(i))
-                {
-                    switch (notFilteredDict[i])
-                    {
-                        case OpenItalicTag _:
-                            ignoreStrong = true;
-                            break;
-                        case CloseItalicTag _:
-                            ignoreStrong = false;
-                            break;
-                        case BoldTag _:
-                            if (ignoreStrong)
-                            {
-                                notFilteredDict.Remove(i);
-                            }
-                            break;
-                    }
-                }
-            }
-            return notFilteredDict;
-        }
-        public static Tag[] ReadAllTags(string line)
-        {
-            var allTags = new List<Tag>();
-            allTags.AddRange(ReadHeaderToken(line));
-            allTags.AddRange(ReadAllItalicTokens(line));
-            allTags.AddRange(ReadAllBoldTokens(line));
+            var allTags = ParseHeaderTag(paragraph)
+                .Concat(ParseAllItalicTags(paragraph)).Concat(ParseAllBoldTags(paragraph));
 
             return allTags.ToArray();
         }
-        public static Tag[] ReadHeaderToken(string line)
+        
+        public static Tag[] ParseHeaderTag(string paragraph)
         {
-            if (line[0] == '#')
-            {
-                return new Tag[] {new OpenHeaderTag(0), new CloseHeaderTag(line.Length) };
-            }
-            return new Tag[0];
+            return paragraph[0] == '#' ? new Tag[] {new OpenHeaderTag(0), new CloseHeaderTag(paragraph.Length)} : new Tag[0];
         }
-        public static Tag[] ReadAllItalicTokens(string line)
+        
+        public static Tag[] ParseAllItalicTags(string paragraph)
         {
             var result = new List<Tag>();
-            for (var index = 0; index < line.Length; index++)
+            for (var index = 0; index < paragraph.Length; index++)
             {
-                if (ItalicTag.IsTokenStart(line, index))
+                if (ItalicTag.IsTagStart(paragraph, index))
                 {
-                    var endOfToken = GetEndOfItalicToken(line, index);
-                    if (endOfToken == -1)
+                    var endOfTag = GetEndOfItalicTag(paragraph, index);
+                    if (endOfTag == -1)
                     {
                         return result.ToArray();
                     }
                     result.Add(new OpenItalicTag(index));
-                    result.Add(new CloseItalicTag(endOfToken));
-                    index = endOfToken;
+                    result.Add(new CloseItalicTag(endOfTag));
+                    index = endOfTag;
                 }
             }
 
             return result.ToArray();
         }
-        public static Tag[] ReadAllBoldTokens(string line)
+        
+        public static Tag[] ParseAllBoldTags(string paragraph)
         {
             var result = new List<Tag>();
-            for (var index = 0; index < line.Length; index++)
+            for (var index = 0; index < paragraph.Length; index++)
             {
-                if (BoldTag.IsTokenStart(line, index))
+                if (BoldTag.IsTagStart(paragraph, index))
                 {
-                    var endOfToken = GetEndOfBoldToken(line, index);
-                    if (endOfToken == -1)
+                    var endOfTag = GetEndOfBoldTag(paragraph, index);
+                    if (endOfTag == -1)
                     {
                         return result.ToArray();
                     }
                     result.Add(new OpenBoldTag(index));
-                    result.Add(new CloseBoldTag(endOfToken));
-                    index = endOfToken;
+                    result.Add(new CloseBoldTag(endOfTag));
+                    index = endOfTag;
                 }
             }
 
             return result.ToArray();
         }
 
-        private static Dictionary<int, Tag> GetTagsDictionary(Tag[] tags)
-        {
-            var result = new Dictionary<int, Tag>();
-            foreach (var tag in tags)
-            {
-                result[tag.Index] = tag;
-            }
-
-            return result;
-            
-        }
-
-        private static int GetEndOfToken(string line, int index, Func<string, int, bool> isTokenEnd, int length)
+        private static int GetEndOfTag(string paragraph, int index, Func<string, int, bool> isTagEnd, int length)
         {
             index += length;
-            while (index < line.Length)
+            while (index < paragraph.Length)
             {
-                if (isTokenEnd(line, index))
+                if (paragraph[index] == ' ')
+                {
+                    return -1;
+                }
+                if (isTagEnd(paragraph, index))
                 {
                     return index;
                 }
@@ -122,14 +85,14 @@ namespace Markdown
             return -1;
         }
 
-        private static int GetEndOfBoldToken(string line, int index)
+        private static int GetEndOfBoldTag(string paragraph, int index)
         {
-            return GetEndOfToken(line, index, BoldTag.IsTokenEnd, 2);
+            return GetEndOfTag(paragraph, index, BoldTag.IsTagEnd, BoldTag.Length);
         }
 
-        private static int GetEndOfItalicToken(string line, int index)
+        private static int GetEndOfItalicTag(string paragraph, int index)
         {
-            return GetEndOfToken(line, index, ItalicTag.IsTokenEnd, 2);
+            return GetEndOfTag(paragraph, index, ItalicTag.IsTagEnd, ItalicTag.Length);
         }
     }
 }

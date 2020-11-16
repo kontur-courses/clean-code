@@ -9,34 +9,39 @@ namespace Markdown
         public string Render(string text)
         {
             var stringAccumulator = new StringBuilder();
-            foreach (var line in text.Split('\n'))
+            var paragraphes = text.Split('\n');
+            for (var i = 0; i < paragraphes.Length; i++)
             {
-                stringAccumulator.Append(DeShield(RenderOneString(line)));
+                stringAccumulator.Append(DeShield(RenderOneString(paragraphes[i])));
+                if (i != paragraphes.Length - 1)
+                {
+                    stringAccumulator.Append("\n");
+                }
             }
-
+            
             return stringAccumulator.ToString();
         }
 
-        private string DeShield(string line)
+        private string DeShield(string paragraphs)
         {
-            var resultLine = new StringBuilder();
-            for (var i = 0; i < line.Length; i++)
+            var resultParagraph = new StringBuilder();
+            for (var i = 0; i < paragraphs.Length; i++)
             {
-                if (line[i] != '\\' || i == line.Length - 1 || (line[i + 1] != '_' && line[i + 1] != '#'))
+                if (paragraphs[i] != '\\' || i == paragraphs.Length - 1 || (paragraphs[i + 1] != '_' && paragraphs[i + 1] != '#'))
                 {
-                    resultLine.Append(line[i]);
+                    resultParagraph.Append(paragraphs[i]);
                 }
             }
 
-            return resultLine.ToString();
+            return resultParagraph.ToString();
         }
 
-        private string CollectOneString(Dictionary<int, Tag> tags, string line)
+        private string CollectOneString(Dictionary<int, Tag> tags, string paragraph)
         {
             var result = new StringBuilder();
             var i = 0;
 
-            while (i <= line.Length)
+            while (i <= paragraph.Length)
             {
                 if (tags.ContainsKey(i))
                 {
@@ -45,9 +50,9 @@ namespace Markdown
                 }
                 else
                 {
-                    if (i < line.Length)
+                    if (i < paragraph.Length)
                     {
-                        result.Append(line[i]);
+                        result.Append(paragraph[i]);
                     }
                     i++;
                 }
@@ -55,11 +60,11 @@ namespace Markdown
             return result.ToString();
         }
 
-        private string RenderOneString(string line)
+        private string RenderOneString(string paragraph)
         {
-            var dict = 
-                MarkdownParser.FilterTags(MarkdownParser.ReadAllTags(line), line.Length);
-            return CollectOneString(dict, line);
+            var allTags = MarkdownParser.ParseAllTags(paragraph);
+            var filteredTagsDictionary = MarkdownFilter.FilterTags(allTags, paragraph.Length);
+            return CollectOneString(filteredTagsDictionary, paragraph);
         }
     }
 }
