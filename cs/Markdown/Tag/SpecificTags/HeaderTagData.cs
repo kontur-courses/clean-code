@@ -4,7 +4,8 @@
     {
         public HeaderTagData(TagBorder incomingBorder, TagBorder outgoingBorder,
             params ITagData[] notAllowedNestedTags)
-            : base(incomingBorder, outgoingBorder, notAllowedNestedTags)
+            : base(incomingBorder, outgoingBorder, 
+                EndOfLineAction.Complete, notAllowedNestedTags)
         { }
 
         public override bool IsValid(string data, int startPos, int endPos)

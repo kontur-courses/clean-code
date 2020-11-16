@@ -32,7 +32,10 @@ namespace Markdown.Parser
             
             for (var i = 0; i < text.Length; i++)
             {
-                // TODO: Добавить проверку на перевод строки и экранирование
+                if (text[i] == '\n')
+                    AtLineEnd(i + 1);
+                if (text[i] == '\\')
+                    throw new NotImplementedException();
                 var offset = TryToCloseTokenAndGetOffset(text, i);
                 if (offset > 0)
                 {
@@ -44,13 +47,36 @@ namespace Markdown.Parser
                 if (offset > 0)
                     i += offset - 1;
             }
+            
+            AtLineEnd(text.Length);
 
             return fullTextData;
+        }
+
+        private void AtLineEnd(int position)
+        {
+            for (var i = currentTokens.Count - 1; i >= 0; i--)
+            {
+                var atLineEndTokenAction = currentTokens[i].Tag.AtLineEndAction;
+                if (atLineEndTokenAction == EndOfLineAction.Continue)
+                    break;
+                
+                switch (atLineEndTokenAction)
+                {
+                    case EndOfLineAction.Cancel:
+                        currentTokens.RemoveAt(i);
+                        break;
+                    
+                    case EndOfLineAction.Complete:
+                        CloseToken(i, position);
+                        break;
+                }
+            }
         }
         
         private int TryToOpenTokenAndGetOffset(string text, int position)
         {
-            var openBorder = GetBestMatchFromTree(openTagTree, text, position);
+            var openBorder = GetMatchesFromTree(openTagTree, text, position).LastOrDefault();
             if (openBorder == null)
                 return 0;
             OpenToken(openBorder, position);
@@ -65,12 +91,13 @@ namespace Markdown.Parser
 
         private int TryToCloseTokenAndGetOffset(string text, int position)
         {
-            var closeBorder = GetBestMatchFromTree(closeTagTree, text, position);
-            if (closeBorder == null)
+            var closeBorders = GetMatchesFromTree(closeTagTree, text, position);
+            if (closeBorders.Count == 0)
                 return 0;
-            for (var i = 0; i < currentTokens.Count; i++)
+            for (var i = currentTokens.Count - 1; i >= 0; i--)
             {
-                if (closeBorder == currentTokens[i].Tag.IncomingBorder.Close)
+                var closeBorder = currentTokens[i].Tag.IncomingBorder.Close;
+                if (closeBorders.Contains(closeBorder))
                 {
                     CloseToken(i, position);
                     return closeBorder.Length;
@@ -98,28 +125,29 @@ namespace Markdown.Parser
 
         private void CancelSubsequentTokens(int lastTokenNumber)
         {
-            for (var i = currentTokens.Count - 1; i < lastTokenNumber; i--)
+            for (var i = currentTokens.Count - 1; i > lastTokenNumber; i--)
             {
-                currentTokens[lastTokenNumber].AddNestedTokens(currentTokens[i].SubTokens.ToArray());
+                currentTokens[lastTokenNumber]
+                    .AddNestedTokens(currentTokens[i].SubTokens.ToArray());
                 currentTokens.RemoveAt(i);
             }
         }
 
-        private static string GetBestMatchFromTree(PrefixTree tree, string text, int pos)
+        private static List<string> GetMatchesFromTree(PrefixTree tree, string text, int pos)
         {
-            string bestMatch = null;
+            var matches = new List<string>();
             var currentTreeNode = tree.Root;
             while (currentTreeNode.Connections.ContainsKey(text[pos]))
             {
                 currentTreeNode = currentTreeNode.Connections[text[pos]];
                 if (currentTreeNode.IsFinishNode)
-                    bestMatch = currentTreeNode.Value;
+                    matches.Add(currentTreeNode.Value);
                 pos++;
                 if (pos == text.Length)
                     break;
             }
 
-            return bestMatch;
+            return matches;
         }
     }
 }

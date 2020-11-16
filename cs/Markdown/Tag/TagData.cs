@@ -8,12 +8,15 @@ namespace Markdown.Tag
     {
         public TagBorder IncomingBorder { get; }
         public TagBorder OutgoingBorder { get; }
-        
+        public EndOfLineAction AtLineEndAction { get; }
+
         private readonly HashSet<ITagData> notAllowedNestedTags;
 
         public TagData(TagBorder incomingBorder, TagBorder outgoingBorder,
+            EndOfLineAction endOfLineAction,
             params ITagData[] notAllowedNestedTags)
         {
+            AtLineEndAction = endOfLineAction;
             IncomingBorder = incomingBorder;
             OutgoingBorder = outgoingBorder;
             this.notAllowedNestedTags = notAllowedNestedTags.ToHashSet();

@@ -8,7 +8,7 @@ namespace Markdown.Tag.SpecificTags
         // TODO: сделать менее громоздким
         public StyleTagData(TagBorder incomingBorder, TagBorder outgoingBorder, 
             params ITagData[] notAllowedNestedTags) 
-            : base(incomingBorder, outgoingBorder, notAllowedNestedTags)
+            : base(incomingBorder, outgoingBorder, EndOfLineAction.Cancel, notAllowedNestedTags)
         { }
     }
 }

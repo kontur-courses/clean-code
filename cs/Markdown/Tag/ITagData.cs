@@ -4,6 +4,7 @@
     {
         public TagBorder IncomingBorder { get; }
         public TagBorder OutgoingBorder { get; }
+        public EndOfLineAction AtLineEndAction { get; }
 
         public bool IsValid(string data, int startPos, int endPos);
         public bool CanNested(ITagData stateToNesting);

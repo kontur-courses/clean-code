@@ -35,12 +35,12 @@ namespace Markdown
                 new TagBorder(@"\<strong>",@"\</strong>")
                 );
 
-            /*var headerTagData = new HeaderTagData(
+            var headerTagData = new HeaderTagData(
                 new TagBorder("# ", ""), 
                 new TagBorder(@"\<h1>","\\</h1>")
-                );*/
+                );
             
-            return new ITagData[]{italicTagData, strongTagData, /*headerTagData*/};
+            return new ITagData[]{italicTagData, strongTagData, headerTagData};
         }
     }
 }
