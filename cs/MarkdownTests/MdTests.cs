@@ -3,6 +3,8 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
 using System.Numerics;
+using System.Text;
+using AutoFixture;
 using NUnit.Framework;
 
 namespace MarkdownTests
@@ -10,13 +12,13 @@ namespace MarkdownTests
     public class MarkdownTests
     {
         private Markdown.Markdown markdown;
-        private static Random random;
+        private Fixture fixture;
 
         [SetUp]
         public void Setup()
         {
+            fixture = new Fixture();
             markdown = new Markdown.Markdown();
-            random = new Random();
         }
 
         [Test]
@@ -99,11 +101,17 @@ namespace MarkdownTests
                 Assert.That(angle, Is.EqualTo(averageAngle).Within(10e-2));
         }
 
-        private static string RandomString(int length)
+        private string RandomString(int length)
         {
-            const string chars = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789";
-            return new string(Enumerable.Repeat(chars, length)
-                .Select(s => s[random.Next(s.Length)]).ToArray());
+            var sb = new StringBuilder();
+            var i = 0;
+            while (i < length)
+            {
+                var text = fixture.Create<string>();
+                sb.Append(text);
+                i += text.Length;
+            }
+            return sb.ToString().Substring(0, length);
         }
     }
 }
