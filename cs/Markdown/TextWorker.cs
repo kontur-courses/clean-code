@@ -10,7 +10,7 @@ namespace Markdown
             return text.Split(Environment.NewLine);
         }
 
-        public static string RemoveShieldsBeforeKeyChars(string text, IEnumerable<char> keyChars, char shield = '/')
+        public static string RemoveShieldsBeforeKeyChars(string text, IEnumerable<char> keyChars, char shield = '\\')
         {
             var shielded = new HashSet<char>(keyChars) {shield};
             for (var i = 0; i < text.Length - 1; i++)

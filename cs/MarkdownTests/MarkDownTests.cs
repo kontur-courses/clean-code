@@ -1,4 +1,6 @@
-﻿using FluentAssertions;
+﻿using System.Diagnostics;
+using System.Linq;
+using FluentAssertions;
 using Markdown;
 using NUnit.Framework;
 
@@ -51,9 +53,13 @@ namespace MarkdownTests
         [Test]
         public void Render_ItalicInDifferentPartsOfWord_ChangedOnHtml()
         {
-            Md.Render("_a_bc").Should().Be("<em>a</em>bc");
-            Md.Render("a_b_c").Should().Be("a<em>b</em>c");
-            Md.Render("ab_c_").Should().Be("ab<em>c</em>");
+            Assert.Multiple(() =>
+                {
+                    Md.Render("_a_bc").Should().Be("<em>a</em>bc");
+                    Md.Render("a_b_c").Should().Be("a<em>b</em>c");
+                    Md.Render("ab_c_").Should().Be("ab<em>c</em>");
+                }
+            );
         }
 
         [Test]
@@ -78,6 +84,37 @@ namespace MarkdownTests
         public void Render_TagsInHeader_SameString()
         {
             Md.Render("# __a _abc_ e__").Should().Be("<h1><strong>a <em>abc</em> e</strong></h1>");
+        }
+
+        [Test]
+        public void Render_ShieldedTag_SameString()
+        {
+            Md.Render("\\_abc_").Should().Be("_abc_");
+        }
+
+        [Test]
+        public void Render_ShieldedShieldBeforeTag_ChangedOnHtml()
+        {
+            Md.Render("\\\\_abc_").Should().Be("\\<em>abc</em>");
+        }
+
+        [Test]
+        [Description("Performance test")]
+        public void Render()
+        {
+            var singleString = "__something _word_ more words__ _wordWithNumb_er312 __s__ ____ \\__\\_d_";
+            var timer = new Stopwatch();
+            timer.Start();
+            Md.Render(singleString);
+            timer.Stop();
+            var singleTime = timer.ElapsedMilliseconds;
+            var thousandString = string.Join(" ", Enumerable.Range(0, 2000).Select(x => singleString));
+            timer.Reset();
+            timer.Start();
+            Md.Render(thousandString);
+            timer.Stop();
+            var thousandTime = timer.ElapsedMilliseconds;
+            (thousandTime - singleTime * 2000).Should().BeLessThan(1000);
         }
     }
 }

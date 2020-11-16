@@ -9,7 +9,7 @@ namespace MarkdownTests
     public class TextWorkerTests
     {
         private static string newLine = Environment.NewLine;
-        
+
         [TestCase("some text", "some text", new char[0],
             TestName = "RemoveShieldsBeforeKeyChars_SimpleText_EqualSimpleText")]
         [TestCase("", "", new char[0])]

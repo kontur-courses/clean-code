@@ -17,7 +17,8 @@ namespace Markdown
 
         private static string FormatParagraph(string text, string paragraph)
         {
-            return ReplaceMarkDownOnTags(text, GetCorrectTags(ParseAllMarkdownTokens(paragraph), text));
+            return TextWorker.RemoveShieldsBeforeKeyChars(
+                ReplaceMarkDownOnTags(text, GetCorrectTags(ParseAllMarkdownTokens(paragraph), text)), new[] {'#', '_'});
         }
 
         private static List<TagToken> ParseAllMarkdownTokens(string paragraph)
