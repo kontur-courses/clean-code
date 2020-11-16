@@ -1,5 +1,4 @@
 using Markdown.Infrastructure.Blocks;
-using Markdown.Infrastructure.Parsers.Markdown;
 using Markdown.Infrastructure.Parsers.Tags;
 
 namespace Markdown.Infrastructure.Parsers

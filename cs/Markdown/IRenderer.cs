@@ -1,4 +1,3 @@
-using Markdown.Infrastructure.Parsers;
 
 namespace Markdown
 {
