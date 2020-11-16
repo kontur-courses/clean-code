@@ -2,7 +2,7 @@
 using Markdown.Models.Tags.HtmlTags;
 using Markdown.Models.Tags.MdTags;
 
-namespace Markdown.Models.ConvertingRules
+namespace Markdown.Models.ConvertOptions.ConvertRules
 {
     internal class PlusToUnorderedListElement : IConvertRule
     {
@@ -12,7 +12,7 @@ namespace Markdown.Models.ConvertingRules
         public PlusToUnorderedListElement()
         {
             From = new Plus();
-            To = new UnorderedListElement();
+            To = new ListElement();
         }
     }
 }

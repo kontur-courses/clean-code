@@ -1,6 +1,6 @@
 ﻿using Markdown.Models.Tags;
 
-namespace Markdown.Models.ConvertingRules
+namespace Markdown.Models.ConvertOptions.ConvertRules
 {
     internal interface IConvertRule
     {

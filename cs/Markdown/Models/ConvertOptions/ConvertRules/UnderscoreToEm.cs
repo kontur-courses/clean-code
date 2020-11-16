@@ -2,17 +2,17 @@
 using Markdown.Models.Tags.HtmlTags;
 using Markdown.Models.Tags.MdTags;
 
-namespace Markdown.Models.ConvertingRules
+namespace Markdown.Models.ConvertOptions.ConvertRules
 {
-    internal class SharpToH1 : IConvertRule
+    internal class UnderscoreToEm : IConvertRule
     {
         public Tag From { get; }
         public Tag To { get; }
 
-        public SharpToH1()
+        public UnderscoreToEm()
         {
-            From = new Sharp();
-            To = new H1();
+            From = new Underscore();
+            To = new Em();
         }
     }
 }

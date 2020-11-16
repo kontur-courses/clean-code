@@ -1,10 +1,11 @@
 ﻿using System.Collections.Generic;
+using Markdown.Models.ConvertOptions.ConvertRules;
 
-namespace Markdown.Models.ConvertingRules
+namespace Markdown.Models.ConvertOptions
 {
     internal static class ConvertingRulesFactory
     {
-        public static IEnumerable<IConvertRule> GetAllRules()
+        public static List<IConvertRule> GetAllRules()
         {
             return new List<IConvertRule>()
             {

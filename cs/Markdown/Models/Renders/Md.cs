@@ -1,4 +1,6 @@
-﻿using Markdown.Models.Converters;
+﻿using System;
+using System.Text;
+using Markdown.Models.Converters;
 using Markdown.Models.Syntax;
 
 namespace Markdown.Models.Renders
@@ -16,10 +18,22 @@ namespace Markdown.Models.Renders
 
         public string Render(string text)
         {
-            var tokens = new TokenReader(syntax)
-                .ReadTokens(text);
+            if (text == null)
+                throw new ArgumentNullException(nameof(text));
 
-            return converter.Convert(tokens);
+            var convertedText = new StringBuilder();
+            var reader = new TokenReader(syntax);
+
+            var isFirst = true;
+            foreach (var paragraph in text.Split("\n"))
+            {
+                var paragraphTokens = reader.ReadTokens(paragraph);
+                var convertedParagraph = converter.Convert(paragraphTokens, !isFirst);
+                convertedText.Append(convertedParagraph);
+                isFirst = false;
+            }
+
+            return convertedText.ToString();
         }
     }
 }

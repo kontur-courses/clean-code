@@ -2,7 +2,7 @@
 using Markdown.Models.Tags.HtmlTags;
 using Markdown.Models.Tags.MdTags;
 
-namespace Markdown.Models.ConvertingRules
+namespace Markdown.Models.ConvertOptions.ConvertRules
 {
     internal class DoubleUnderscoreToStrong : IConvertRule
     {

@@ -1,26 +1,41 @@
-﻿using System;
-using System.Collections.Generic;
-using Markdown.Models.ConvertingRules;
+﻿using System.Collections.Generic;
+using System.Linq;
+using System.Text;
+using Markdown.Models.ConvertOptions;
 
 namespace Markdown.Models.Converters
 {
     internal class MdToHtmlConverter : IConverter
     {
-        private readonly IEnumerable<IConvertRule> convertRules;
+        private readonly ConvertingOptions options;
 
-        public MdToHtmlConverter(IEnumerable<IConvertRule> convertRules)
+        public MdToHtmlConverter(ConvertingOptions options)
         {
-            this.convertRules = convertRules;
+            this.options = options;
         }
 
-        public string Convert(IEnumerable<TaggedToken> tokens)
+        public string Convert(IEnumerable<ITaggedToken> tokens, bool withNewLine = true)
         {
-            throw new NotImplementedException();
+            var result = new StringBuilder();
+
+            foreach (var taggedToken in tokens)
+                result.Append(ConvertToken(taggedToken));
+
+            var newLineTag = options.NewLine;
+
+            return withNewLine ? $"{newLineTag.Opening}{result}{newLineTag.Closing}" :
+                result.ToString();
         }
 
-        private string ConvertToken(TaggedToken token)
+        private string ConvertToken(ITaggedToken token)
         {
-            throw new NotImplementedException();
+            var convertRule = options.ConvertRules.FirstOrDefault(rule => token.Tag.Equals(rule.From));
+            var convertTag = convertRule != null ? convertRule.To : token.Tag;
+
+            var tokenWithInnersValue = token.InnerTokens.Count == 0 ?
+                token.Value : string.Join("", token.InnerTokens.Select(ConvertToken));
+
+            return $"{convertTag.Opening}{tokenWithInnersValue}{convertTag.Closing}";
         }
     }
 }
