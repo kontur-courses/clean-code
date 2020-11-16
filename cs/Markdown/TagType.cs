@@ -4,7 +4,7 @@
     {
         Italics,
         Bold,
-        Heading, 
+        Heading,
         None
     }
 }
