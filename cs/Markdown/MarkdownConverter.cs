@@ -24,17 +24,18 @@ namespace Markdown
             return ReplaceTags(markdown, replacements);
         }
 
-        private TagReplacement[] FindReplacements(string markdown)
+        private Replacement[] FindReplacements(string markdown)
         {
-            var activeTags = new Dictionary<Tag, TagSubstring>();
-            var replacements = new List<TagReplacement>();
+            var activeTags = new Dictionary<Tag, Substring>();
+            var replacements = new List<Replacement>();
             var i = 0;
             while (i < markdown.Length)
+            {
                 if (TryGetTag(markdown, i, out var substring, activeTags.Keys.ToHashSet()))
                 {
                     if (substring.Role == TagRole.Opening)
                         activeTags.Add(substring.Tag, substring);
-                    replacements.Add(new TagReplacement(
+                    replacements.Add(new Replacement(
                         markdownToHtmlDictionary[substring.Tag].GetTagValue(substring.Role),
                         substring));
                     i += substring.Length;
@@ -45,33 +46,33 @@ namespace Markdown
                 {
                     var replacement = markdown[i + 1] == '\\' ? "\\" : s.Value;
                     replacements.Add(
-                        new TagReplacement(
+                        new Replacement(
                             replacement,
-                            new TagSubstring('\\' + replacement, i, replacement.Length + 1, null, TagRole.Opening)));
+                            new Substring(i, '\\' + replacement)));
                     i += replacement.Length + 1;
                 }
                 else i++;
-
+            }
             return replacements.ToArray();
         }
 
-        private string ReplaceTags(string markdown, TagReplacement[] replacements)
+        private string ReplaceTags(string markdown, Replacement[] replacements)
         {
             if (replacements.Length == 0)
                 return markdown;
             var resultBuilder = new StringBuilder();
-            if (replacements[0].OldTagSubstring.Index > 0)
-                resultBuilder.Append(markdown.Substring(0, replacements[0].OldTagSubstring.Index));
-            resultBuilder.Append(replacements[0].NewTag);
+            var firstTagIndex = replacements[0].OldValueSubstring.Index;
+            if (firstTagIndex > 0)
+                resultBuilder.Append(markdown.Substring(0, replacements[0].OldValueSubstring.Index));
+            resultBuilder.Append(replacements[0].NewValue);
             for (var i = 1; i < replacements.Length; i++)
             {
-                var startIndex = replacements[i - 1].OldTagSubstring.Index + replacements[i - 1].OldTagSubstring.Length;
-                var length = replacements[i].OldTagSubstring.Index - startIndex;
-                resultBuilder.Append(markdown.Substring(startIndex, length));
-                resultBuilder.Append(replacements[i].NewTag);
+                var deltaStartIndex = replacements[i - 1].OldValueSubstring.EndIndex;
+                var deltaLength = replacements[i].OldValueSubstring.Index - deltaStartIndex;
+                resultBuilder.Append(markdown.Substring(deltaStartIndex, deltaLength));
+                resultBuilder.Append(replacements[i].NewValue);
             }
-
-            var lastTagEndIndex = replacements[^1].OldTagSubstring.Index + replacements[^1].OldTagSubstring.Length;
+            var lastTagEndIndex = replacements[^1].OldValueSubstring.EndIndex;
             if (lastTagEndIndex < markdown.Length)
                 resultBuilder.Append(markdown.Substring(lastTagEndIndex, markdown.Length - lastTagEndIndex));
             return resultBuilder.ToString();
@@ -84,8 +85,8 @@ namespace Markdown
                 .Where(tag => ContainsSubstring(markdown, index, tag.Opening)
                               || ContainsSubstring(markdown, index, tag.Ending))
                 .Select(tag => ContainsSubstring(markdown, index, tag.Opening) && !activeTags.Contains(tag)
-                    ? new TagSubstring(tag.Opening, index, tag.Opening.Length, tag, TagRole.Opening)
-                    : new TagSubstring(tag.Ending, index, tag.Ending.Length, tag, TagRole.Ending))
+                    ? new TagSubstring(index, tag.Opening, tag, TagRole.Opening)
+                    : new TagSubstring(index, tag.Ending, tag, TagRole.Ending))
                 .FirstOrDefault();
             return substring != null;
         }
