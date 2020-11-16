@@ -148,7 +148,7 @@ namespace Md_Tests
         {
             var result = md.Render(input);
 
-            Assert.AreEqual(input, result);
+            Assert.AreEqual(expected, result);
         }
 
         [TestCase("#Hello", "<h1>Hello<\\h1>")]
@@ -162,7 +162,7 @@ namespace Md_Tests
         {
             var result = md.Render(input);
 
-            Assert.AreEqual(input, result);
+            Assert.AreEqual(expected, result);
         }
     }
 }
