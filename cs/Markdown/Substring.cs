@@ -16,7 +16,7 @@ namespace Markdown
             Value = value;
             Index = index;
             Length = value.Length;
-            EndIndex = Index + Length;
+            EndIndex = Index + Length - 1;
         }
     }
 }
