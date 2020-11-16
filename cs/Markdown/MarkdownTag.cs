@@ -1,5 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Text;
 
 namespace Markdown
@@ -27,6 +26,9 @@ namespace Markdown
         public int EndPosition { get; }
         public bool IsOpened { get; }
         public int Length => EndPosition - StartPosition + 1;
+
+        public static string CreateHtmlLink(Token token)
+            => $"<a href=\"{token.Words[4]}\">{token.Words[1]}</a>";
 
         public bool IsValidTag(StringBuilder text)
         {

@@ -23,6 +23,11 @@ namespace Markdown
                     shift--;
                     continue;
                 }
+                if (token.Text.StartsWith(TokenType.SquareBracket))
+                {
+                    resultText = resultText.HandleLink(token, ref shift);
+                    continue;
+                }
 
                 var tag = new MarkdownTag(token.Text, token.Position + shift,
                     !lastTagOfEachType.ContainsKey(token.Text) || !lastTagOfEachType[token.Text].IsOpened);

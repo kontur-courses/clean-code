@@ -36,5 +36,14 @@ namespace Markdown
             index -= oldLength - result.Length;
             return result;
         }
+
+        public static StringBuilder HandleLink(this StringBuilder result, Token token, ref int shift)
+        {
+            var oldLength = result.Length;
+            result = result
+                .Replace(token.Text, MarkdownTag.CreateHtmlLink(token), token.Position + shift, token.Text.Length);
+            shift += result.Length - oldLength;
+            return result;
+        }
     }
 }

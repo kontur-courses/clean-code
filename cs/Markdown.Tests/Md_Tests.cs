@@ -112,6 +112,24 @@ namespace Markdown.Tests
         [TestCase("_hello __world__", ExpectedResult = "_hello <strong>world</strong>", TestName = "WhenNotPairedItalicBeforePairedBold")]
         [TestCase("__hello _world_", ExpectedResult = "__hello <em>world</em>", TestName = "WhenNotPairedBoldBeforePairedItalic")]
 
+        [TestCase("[isLink](https://vk.com/feed)", ExpectedResult = @"<a href=""https://vk.com/feed"">isLink</a>", TestName = "WhenOnlyLink")]
+        [TestCase("[is Link](https://vk.com/feed)", ExpectedResult = @"<a href=""https://vk.com/feed"">is Link</a>", TestName = "WhenLinkWithSpaceInName")]
+        [TestCase("[isLink] (https://vk.com/feed)", ExpectedResult = "[isLink] (https://vk.com/feed)", TestName = "WhenOnlyNotValidLink")]
+        [TestCase("[isLink](https://vk .com/feed)", ExpectedResult = "[isLink](https://vk .com/feed)", TestName = "WhenLinkWithSpace")]
+        [TestCase("# __abc__ _[isLink](https://vk.com/feed)_",
+            ExpectedResult = @"<h1><strong>abc</strong> <em><a href=""https://vk.com/feed"">isLink</a></em></h1>", TestName = "WhenLinkWithOtherTags")]
+        [TestCase("[_isLi_12](#https://vk.com/__feed__)",
+            ExpectedResult = @"<a href=""#https://vk.com/__feed__"">_isLi_12</a>", TestName = "WhenOtherTagsInsideLink")]
+        [TestCase("[is]Li12](https://[vk.com/feed)",
+            ExpectedResult = "[is]Li12](https://[vk.com/feed)", TestName = "WhenAnyBracketsInsideLink")]
+        [TestCase(@"\[isLink](https://vk.com/feed)",
+            ExpectedResult = @"[isLink](https://vk.com/feed)", TestName = "WhenSquareBracketShieldedInLink")]
+        [TestCase(@"[isLink\](https://vk.com/feed)",
+            ExpectedResult = @"[isLink](https://vk.com/feed)", TestName = "WhenBackSquareBracketShieldedInLink")]
+        [TestCase(@"[isLink]\(https://vk.com/feed)",
+            ExpectedResult = @"[isLink](https://vk.com/feed)", TestName = "WhenRoundBracketShieldedInLink")]
+        [TestCase(@"[isLink](https://vk.com/feed\)",
+            ExpectedResult = @"[isLink](https://vk.com/feed)", TestName = "WhenBackRoundBracketShieldedInLink")]
         public string Render_CorrectResult(string input)
         {
             return Md.Render(input);
