@@ -21,7 +21,7 @@ namespace Markdown
                 break;
             }
 
-            return value.ToString() != "" ? new Token(index, value.ToString(), TokenType.PlainText) : null;
+            return new Token(index, value.ToString(), TokenType.PlainText);
         }
     }
 }

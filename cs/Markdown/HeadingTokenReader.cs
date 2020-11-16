@@ -1,5 +1,6 @@
 ﻿#nullable enable
 using System;
+using System.Text;
 
 namespace Markdown
 {
@@ -7,11 +8,19 @@ namespace Markdown
     {
         public Token? TryReadToken(TextParser parser, string text, int index)
         {
-            if (text[index] != '#' || index != 0)
+            if (text[index] != '#')
                 return null;
 
-            var value = text.Substring(index, text.Length);
-            return new Token(index, value, TokenType.Heading);
+            var value = new StringBuilder();
+            for (var i = index; i < text.Length; ++i)
+            {
+                if (text[i] == '\n')
+                    break;
+
+                value.Append(text[i]);
+            }
+
+            return new Token(index, value.ToString(), TokenType.Heading);
         }
     }
 }

@@ -99,6 +99,15 @@ namespace MarkdownTests
             {
                 new Token(0, "# one", TokenType.Heading)
             }).SetName("One heading"),
+
+            new TestCaseData("# one\n# two\n# three", new List<Token>()
+            {
+                new Token(0, "# one", TokenType.Heading),
+                new Token(5, "\n", TokenType.PlainText),
+                new Token(6, "# two", TokenType.Heading),
+                new Token(11, "\n", TokenType.PlainText),
+                new Token(12, "# three", TokenType.Heading)
+            }).SetName("More than one heading"),
         };
 
         [TestCaseSource("HeadingTestCases")]

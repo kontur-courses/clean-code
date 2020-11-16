@@ -42,7 +42,7 @@ namespace Markdown
                 }
             }
 
-            return tokens.Where(x => x.Value != "").ToList();
+            return tokens;
         }
 
         private static List<int> FindEscapingBackslashes(string text)
