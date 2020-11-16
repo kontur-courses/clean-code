@@ -15,6 +15,7 @@ namespace Markdown
             container.Bind<IBlockBuilder>().To<BlockBuilder>();
             container.Bind<ITagValidator>().To<TagValidator>();
             container.Bind<ITagParser>().To<MarkdownParser>();
+            container.Bind<IWrapper>().To<Wrapper>();
             
             var parser = container.Get<MarkdownParser>();
             var block = parser.Parse();

@@ -12,7 +12,7 @@ namespace Markdown.Infrastructure.Blocks
             this.word = word;
         }
 
-        public IEnumerable<string> Format(BlockFormatter _)
+        public IEnumerable<string> Format(IBlockFormatter _)
         {
             yield return word;
         }

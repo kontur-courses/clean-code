@@ -13,7 +13,7 @@ namespace Markdown.Infrastructure.Blocks
             this.blocks = blocks;
         }
 
-        public IEnumerable<string> Format(BlockFormatter blockFormatter)
+        public IEnumerable<string> Format(IBlockFormatter blockFormatter)
         {
             return blocks.SelectMany(token => token.Format(blockFormatter));
         }

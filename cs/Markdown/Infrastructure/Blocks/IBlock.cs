@@ -5,6 +5,6 @@ namespace Markdown.Infrastructure.Blocks
 {
     public interface IBlock
     {
-        public IEnumerable<string> Format(BlockFormatter blockFormatter);
+        public IEnumerable<string> Format(IBlockFormatter blockFormatter);
     }
 }

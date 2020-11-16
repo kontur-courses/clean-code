@@ -5,32 +5,36 @@ using Markdown.Infrastructure.Parsers.Tags;
 
 namespace Markdown.Infrastructure.Formatters
 {
-    public class HtmlFormatter : BlockFormatter
+    public class HtmlFormatter : IBlockFormatter
     {
-        public HtmlFormatter()
+        private readonly IWrapper wrapper;
+        private readonly Dictionary<Style, Func<IEnumerable<string>, IEnumerable<string>>> generalWrappers;
+
+        public HtmlFormatter(IWrapper wrapper)
         {
-            GeneralWrappers = new Dictionary<Style, Func<IEnumerable<string>, IEnumerable<string>>>
+            this.wrapper = wrapper;
+            generalWrappers = new Dictionary<Style, Func<IEnumerable<string>, IEnumerable<string>>>
             {
-                {Style.None, Wrap("", "")},
-                {Style.Bold, Wrap("<strong>", "</strong>")},
-                {Style.Angled, Wrap("<em>", "</em>")},
-                {Style.Header, Wrap("<h1>", "</h1>")}
+                {Style.None, wrapper.Wrap("", "")},
+                {Style.Bold, wrapper.Wrap("<strong>", "</strong>")},
+                {Style.Angled, wrapper.Wrap("<em>", "</em>")},
+                {Style.Header, wrapper.Wrap("<h1>", "</h1>")}
             };
         }
 
         private Func<IEnumerable<string>, IEnumerable<string>> GetPictureWrapper(string description)
         {
-            return Wrap("<img src=\"", $"\" alt=\"{description}\">");
+            return wrapper.Wrap("<img src=\"", $"\" alt=\"{description}\">");
         }
 
         private Func<IEnumerable<string>, IEnumerable<string>> GetLinkWrapper(string link)
         {
-            return Wrap("<a href=\"", $"\">{link}</a>");
+            return wrapper.Wrap("<a href=\"", $"\">{link}</a>");
         }
 
-        public override IEnumerable<string> Format(Tag tag, IEnumerable<string> words)
+        public IEnumerable<string> Format(Tag tag, IEnumerable<string> words)
         {
-            if (GeneralWrappers.TryGetValue(tag.Style, out var wrap))
+            if (generalWrappers.TryGetValue(tag.Style, out var wrap))
                 return wrap(words);
 
             return tag switch
