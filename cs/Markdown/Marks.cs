@@ -1,4 +1,5 @@
 ﻿using System.Collections.Generic;
+using System.Linq;
 using System.Text;
 
 namespace Markdown
@@ -79,11 +80,6 @@ namespace Markdown
                 case "</h1>":
                     return TagType.Heading;
 
-                case "a":
-                case "<a>":
-                case "</a>":
-                    return TagType.Link;
-
                 default:
                     return TagType.Incorrect;
             }
@@ -114,8 +110,7 @@ namespace Markdown
 
         public static bool ExpectedToBeMark(int index, string text)
         {
-            var marksFirstLetters = new HashSet<char> {'_', '#'};
-
+            var marksFirstLetters = marks.Select(mark => mark[0]).ToHashSet();
 
             return index + 1 < text.Length && marksFirstLetters.Contains(text[index]) &&
                    !char.IsWhiteSpace(text[index + 1]) ||

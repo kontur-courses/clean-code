@@ -5,7 +5,6 @@
         Italic,
         Bold,
         Heading,
-        Link,
         Incorrect
     }
 }
