@@ -16,6 +16,40 @@ namespace Markdown
             return pairedTags.Concat(notPairedTags);
         }
 
+        public static IEnumerable<Tag> ConfigureUnorderedLists(this List<Tag> tags)
+        {
+            Tag lastListItem = null;
+            foreach (var tag in tags)
+                if (tag.Type == TagType.ListItem)
+                {
+                    if (tag.IsOpening)
+                    {
+                        if (lastListItem == null)
+                        {
+                            yield return new Tag(tag.Position, TagType.UnorderedList, true, 0, false, false);
+                        }
+                        else if (tag.LineNumber - lastListItem.LineNumber != 1)
+                        {
+                            yield return new Tag(lastListItem.Position, TagType.UnorderedList, false, 0, false, false);
+                            yield return new Tag(tag.Position, TagType.UnorderedList, true, 0, false, false);
+                        }
+                    }
+                    else
+                    {
+                        lastListItem = tag;
+                    }
+
+                    yield return tag;
+                }
+                else
+                {
+                    yield return tag;
+                }
+
+            if (lastListItem != null)
+                yield return new Tag(lastListItem.Position, TagType.UnorderedList, false, 0, false, false);
+        }
+
         private static IEnumerable<Tag> PairTags(this IEnumerable<Tag> tags, string text)
         {
             var openTags = new Dictionary<TagType, Tag>();
