@@ -121,8 +121,8 @@ namespace Markdown
         
 
         private static bool Shield(string text, int position) =>
-            text[position] == shieldSimbol &&
-            position < text.Length - 1 && 
+            position < text.Length - 1 &&
+            text[position] == shieldSimbol && 
             (TagsAssociation.GetTagConverter(text[position + 1].ToString()) != null || text[position + 1] == shieldSimbol);
     }
 }
