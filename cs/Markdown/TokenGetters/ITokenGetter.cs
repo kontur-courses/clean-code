@@ -5,7 +5,7 @@ namespace Markdown
 {
     public interface ITokenGetter
     {
-        TextToken TryGetToken(StringBuilder currentText, IReadOnlyCollection<ITokenGetter> tokenGetters, int index,
+        TextToken GetToken(StringBuilder currentText, IReadOnlyCollection<ITokenGetter> tokenGetters, int index,
             string text);
 
         bool CanCreateToken(StringBuilder currentText, string text, int index);

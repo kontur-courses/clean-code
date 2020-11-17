@@ -4,18 +4,16 @@ namespace Markdown.TokenConverters
 {
     public class TextTokenConverter : ITokenConverter
     {
-        private TokenType Type { get; }
-        private string TagText { get; }
+        public TokenType TokenType { get; }
 
         public TextTokenConverter()
         {
-            Type = TokenType.Text;
-            TagText = "em";
+            TokenType = TokenType.Text;
         }
 
-        public string ConvertTokenToString(TextToken token, IReadOnlyCollection<ITokenConverter> tokenConverters)
+        public string ToString(TextToken token, Dictionary<TokenType,ITokenConverter> tokenConverters)
         {
-            return token.Type != Type ? null : token.Text;
+            return token.Text;
         }
     }
 }

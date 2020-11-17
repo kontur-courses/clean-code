@@ -1,9 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Collections.Immutable;
 using System.Linq;
 using System.Text;
-using System.Threading.Tasks;
 
 namespace Markdown
 {
@@ -21,7 +19,7 @@ namespace Markdown
         public List<TextToken> GetTextTokens(string text)
         {
             if (text == null)
-                throw new NullReferenceException("text was null");
+                throw new NullReferenceException(nameof(text) + " was null");
 
             if (text.Length == 0)
                 return tokens;
@@ -32,13 +30,11 @@ namespace Markdown
 
                 var currentToken = TryGetToken(index, text);
                 if (currentToken == null) continue;
-
-                if (currentToken.Type == TokenType.Header)
-                {
-                    tokens.Add(currentToken);
-                    return tokens;
-                }
-
+                if (currentToken.Type != TokenType.Text)
+                    currentToken.SubTokens = new TextParser(tokenGetters)
+                        .GetTextTokens(currentText.ToString());
+                if (index < currentToken.StartPosition + currentToken.Length - 1)
+                    index = currentToken.StartPosition + currentToken.Length - 1;
                 currentText.Clear();
 
                 var updatedToken = UpdateLastTextToken(currentToken);
@@ -47,10 +43,6 @@ namespace Markdown
                 tokens.Add(currentToken);
             }
 
-            if (currentText.Length != 0)
-                tokens.Add(new TextToken(text.Length - currentText.Length, currentText.Length, TokenType.Text,
-                    currentText.ToString()));
-
             return tokens;
         }
 
@@ -58,7 +50,7 @@ namespace Markdown
         {
             return tokenGetters
                 .Where(x => x.CanCreateToken(currentText, text, index))
-                .Select(x => x.TryGetToken(currentText, tokenGetters, index, text))
+                .Select(x => x.GetToken(currentText, tokenGetters, index, text))
                 .FirstOrDefault();
         }
 

@@ -5,13 +5,15 @@ namespace Markdown
 {
     public class HeaderTokenGetter : ITokenGetter
     {
-        public TextToken TryGetToken(StringBuilder currentText, IReadOnlyCollection<ITokenGetter> tokenGetters,
+        public TextToken GetToken(StringBuilder currentText, IReadOnlyCollection<ITokenGetter> tokenGetters,
             int index, string text)
         {
-            text = text.Remove(0, 1);
             var tokenToAdd = new TextToken(0, text.Length,
                 TokenType.Header, text);
-            tokenToAdd.SubTokens = new TextParser(tokenGetters).GetTextTokens(tokenToAdd.Text);
+
+            currentText.Clear();
+            currentText.Append(text.Remove(0, 1));
+
             return tokenToAdd;
         }
 

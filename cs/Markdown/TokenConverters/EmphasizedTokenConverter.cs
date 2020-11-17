@@ -5,33 +5,21 @@ namespace Markdown.TokenConverters
 {
     public class EmphasizedTokenConverter : ITokenConverter
     {
-        private TokenType Type { get; }
+        public TokenType TokenType { get; }
         private string TagText { get; }
 
         public EmphasizedTokenConverter()
         {
-            Type = TokenType.Emphasized;
+            TokenType = TokenType.Emphasized;
             TagText = "em";
         }
 
-        public string ConvertTokenToString(TextToken token, IReadOnlyCollection<ITokenConverter> tokenConverters)
+        public string ToString(TextToken token, Dictionary<TokenType, ITokenConverter> tokenConverters)
         {
-            if (token.Type != Type)
-                return null;
-
+            
             var htmlText = new StringBuilder();
             htmlText.Append("<em>");
-            foreach (var subToken in token.SubTokens)
-            {
-                foreach (var tokenConverter in tokenConverters)
-                {
-                    var subTokenString = tokenConverter.ConvertTokenToString(subToken, tokenConverters);
-                    if (subTokenString != null)
-                    {
-                        htmlText.Append(subTokenString);
-                    }
-                }
-            }
+            htmlText.Append(new HTMLConverter(tokenConverters).GetHtml(token.SubTokens));
 
             htmlText.Append("</em>");
             return htmlText.ToString();

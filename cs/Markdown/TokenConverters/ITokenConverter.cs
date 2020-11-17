@@ -4,6 +4,7 @@ namespace Markdown.TokenConverters
 {
     public interface ITokenConverter
     {
-        string ConvertTokenToString(TextToken token, IReadOnlyCollection<ITokenConverter> tokenConverters);
+        TokenType TokenType { get; }
+        string ToString(TextToken token, Dictionary<TokenType,ITokenConverter> tokenConverters);
     }
 }

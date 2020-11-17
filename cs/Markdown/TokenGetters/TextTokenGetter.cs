@@ -5,7 +5,7 @@ namespace Markdown
 {
     public class TextTokenGetter : ITokenGetter
     {
-        public TextToken TryGetToken(StringBuilder currentText, IReadOnlyCollection<ITokenGetter> tokenGetters,
+        public TextToken GetToken(StringBuilder currentText, IReadOnlyCollection<ITokenGetter> tokenGetters,
             int index, string text)
         {
             currentText = RemoveShieldSymbols(currentText);
@@ -21,6 +21,7 @@ namespace Markdown
 
         private static bool IsNextSymbolStartOfAnotherToken(StringBuilder currentText, string text, int index)
         {
+            if (index + 1 == text.Length) return true;
             if (index + 1 < text.Length && (currentText[0] == '_' || text[index + 1] != '_')) return false;
             if (index + 2 == text.Length && currentText[0] != '_' && text[index + 1] == '_') return false;
             if (index + 1 < text.Length && currentText[currentText.Length - 1] == '\\' &&

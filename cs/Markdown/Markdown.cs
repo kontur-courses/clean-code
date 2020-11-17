@@ -4,32 +4,33 @@ using Markdown.TokenConverters;
 
 namespace Markdown
 {
-    static class Markdown
+    public class Markdown
     {
-        public static void Main()
-        {
-            var text = "Текст, _окруженный с двух сторон_ одинарными символами подчерка";
-            var tokenGetters = new List<ITokenGetter>()
-            {
-                new StrongTokenGetter(),
-                new EmphasizedTokenGetter(),
-                new TextTokenGetter()
-            };
+        private IReadOnlyCollection<ITokenConverter> tokenConverters;
+        private IReadOnlyCollection<ITokenGetter> tokenGetters;
 
-            var tokenConverters = new List<ITokenConverter>
+        public Markdown()
+        {
+            tokenConverters = new List<ITokenConverter>
             {
+                new HeaderTokenConverter(),
                 new StrongTokenConverter(),
                 new EmphasizedTokenConverter(),
                 new TextTokenConverter()
             };
-
-            var textParser = new TextParser(tokenGetters);
-
-            var textTokens = textParser.GetTextTokens(text);
-
-            var htmlConverter = new HTMLConverter(tokenConverters);
-            var htmlString = htmlConverter.GetHtmlString(textTokens);
-            Console.WriteLine(htmlString);
+            tokenGetters = new ITokenGetter[]
+            {
+                new HeaderTokenGetter(),
+                new StrongTokenGetter(),
+                new EmphasizedTokenGetter(),
+                new TextTokenGetter()
+            };
+        }
+        
+        public string Render(string text)
+        {
+            var tokens = new TextParser(tokenGetters).GetTextTokens(text);//TODO заменить классы на статические 
+            return new HTMLConverter(tokenConverters).GetHtml(tokens);
         }
     }
 }
