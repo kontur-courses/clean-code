@@ -6,18 +6,17 @@ namespace Markdown
 {
     public class EmphasizedTokenGetter : ITokenGetter
     {
-        public TextToken GetToken(StringBuilder currentText, IReadOnlyCollection<ITokenGetter> tokenGetters,
-            int index, string text)
+        public TextToken GetToken(string text, int index, int startPosition)
         {
-            var tokenToAdd = new TextToken(index - currentText.Length + 1, currentText.Length,
+            var currentText = text.Substring(startPosition + 1, index - startPosition - 1);
+            var tokenToAdd = new TextToken(startPosition, currentText.Length + 2,
                 TokenType.Emphasized, currentText.ToString());
-            currentText.Remove(0, 1);
-            currentText.Remove(currentText.Length - 1, 1);
             return tokenToAdd;
         }
 
-        public bool CanCreateToken(StringBuilder currentText, string text, int index)
+        public bool CanCreateToken(string text, int index, int startPosition)
         {
+            var currentText = text.Substring(startPosition, index - startPosition + 1);
             return !IsTextContainsOnlyUnderlinings(currentText)
                    && IsTextStartAndEndWithOneUnderlining(currentText, text, index)
                    && !IsTextContainsNumbers(currentText)
@@ -26,7 +25,7 @@ namespace Markdown
                    && !IsUnderliningStartFromPartOfWordAndContainsSpace(currentText, index, text);
         }
 
-        private static bool IsStrongInsideEm(StringBuilder currentText)
+        private static bool IsStrongInsideEm(string currentText)
         {
             for (var i = 0; i < currentText.Length; i++)
             {
@@ -37,28 +36,28 @@ namespace Markdown
             return false;
         }
 
-        private static bool IsTextContainsOnlyUnderlinings(StringBuilder currentText)
+        private static bool IsTextContainsOnlyUnderlinings(string currentText)
         {
             return currentText.ToString().All(x => x == '_');
         }
 
-        private static bool IsTextStartAndEndWithOneUnderlining(StringBuilder currentText, string text, int index)
+        private static bool IsTextStartAndEndWithOneUnderlining(string currentText, string text, int index)
         {
             return currentText[0] == '_' && currentText[1] != '_' && currentText[currentText.Length - 1] == '_'
                    && (index + 1 >= text.Length || text[index + 1] != '_');
         }
 
-        private static bool IsTextContainsNumbers(StringBuilder currentText)
+        private static bool IsTextContainsNumbers(string currentText)
         {
             return currentText.ToString().Any(char.IsDigit);
         }
 
-        private static bool IsSpaceAfterStartOrSpaceBeforeEnd(StringBuilder currentText)
+        private static bool IsSpaceAfterStartOrSpaceBeforeEnd(string currentText)
         {
             return currentText[1] == ' ' || currentText[currentText.Length - 2] == ' ';
         }
 
-        private static bool IsUnderliningStartFromPartOfWordAndContainsSpace(StringBuilder currentText, int index,
+        private static bool IsUnderliningStartFromPartOfWordAndContainsSpace(string currentText, int index,
             string text)
         {
             return index - currentText.Length >= 0 && text[index - currentText.Length] != ' ' &&

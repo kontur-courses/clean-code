@@ -7,8 +7,6 @@ namespace Markdown
 {
     public class TextParser
     {
-        private readonly List<TextToken> tokens = new List<TextToken>();
-        private readonly StringBuilder currentText = new StringBuilder();
         private readonly IReadOnlyCollection<ITokenGetter> tokenGetters;
 
         public TextParser(IReadOnlyCollection<ITokenGetter> tokenGetters)
@@ -18,43 +16,47 @@ namespace Markdown
 
         public List<TextToken> GetTextTokens(string text)
         {
+            var tokens = new List<TextToken>();
             if (text == null)
                 throw new NullReferenceException(nameof(text) + " was null");
 
             if (text.Length == 0)
                 return tokens;
 
-            for (var index = 0; index < text.Length; index++)
+            var startPosition = 0;
+
+            for (var index = 0; index < text.Length && startPosition < text.Length; index++)
             {
-                currentText.Append(text[index]);
-
-                var currentToken = TryGetToken(index, text);
+                var currentToken = TryGetToken(text, index, startPosition);
+                
                 if (currentToken == null) continue;
+                
                 if (currentToken.Type != TokenType.Text)
-                    currentToken.SubTokens = new TextParser(tokenGetters)
-                        .GetTextTokens(currentText.ToString());
-                if (index < currentToken.StartPosition + currentToken.Length - 1)
-                    index = currentToken.StartPosition + currentToken.Length - 1;
-                currentText.Clear();
-
-                var updatedToken = UpdateLastTextToken(currentToken);
-                if (updatedToken != null) continue;
-
+                    currentToken.SubTokens = GetTextTokens(currentToken.Text);
+                
+                startPosition += currentToken.Length;
+                
+                var updatedToken = UpdateLastTextToken(currentToken, tokens);
+                    if (updatedToken != null) continue;
+                    
                 tokens.Add(currentToken);
             }
 
             return tokens;
         }
 
-        private TextToken TryGetToken(int index, string text)
+        private TextToken TryGetToken(string text, int index, int startPosition)
         {
-            return tokenGetters
-                .Where(x => x.CanCreateToken(currentText, text, index))
-                .Select(x => x.GetToken(currentText, tokenGetters, index, text))
-                .FirstOrDefault();
+            foreach (var tokenGetter in tokenGetters)
+            {
+                if (tokenGetter.CanCreateToken(text, index, startPosition))
+                    return tokenGetter.GetToken(text, index, startPosition);
+            }
+
+            return null;
         }
 
-        private TextToken UpdateLastTextToken(TextToken tokenToAdd)
+        private TextToken UpdateLastTextToken(TextToken tokenToAdd, List<TextToken> tokens)
         {
             return tokens.LastOrDefault() != null ? tokens.Last().AddSameToken(tokenToAdd) : null;
         }

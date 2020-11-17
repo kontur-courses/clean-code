@@ -5,21 +5,19 @@ namespace Markdown
 {
     public class HeaderTokenGetter : ITokenGetter
     {
-        public TextToken GetToken(StringBuilder currentText, IReadOnlyCollection<ITokenGetter> tokenGetters,
-            int index, string text)
+        public TextToken GetToken(string text, int index, int startPosition)
         {
-            var tokenToAdd = new TextToken(0, text.Length,
-                TokenType.Header, text);
-
-            currentText.Clear();
-            currentText.Append(text.Remove(0, 1));
+            var currentText = text.Substring(1);
+            var tokenToAdd = new TextToken(startPosition, text.Length,
+                TokenType.Header, currentText);
 
             return tokenToAdd;
         }
 
-        public bool CanCreateToken(StringBuilder currentText, string text, int index)
+        public bool CanCreateToken(string text, int index, int startPosition)
         {
-            return currentText.Length == 1 && currentText[0] == '#';
+            return index == startPosition && text[startPosition] == '#' 
+                                          && index + 1 != text.Length && text[index +1] != '\\';
         }
     }
 }

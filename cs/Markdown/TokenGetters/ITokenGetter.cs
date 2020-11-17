@@ -5,9 +5,8 @@ namespace Markdown
 {
     public interface ITokenGetter
     {
-        TextToken GetToken(StringBuilder currentText, IReadOnlyCollection<ITokenGetter> tokenGetters, int index,
-            string text);
+        TextToken GetToken(string text, int index, int startPosition);
 
-        bool CanCreateToken(StringBuilder currentText, string text, int index);
+        bool CanCreateToken(string text, int index, int startPosition);
     }
 }

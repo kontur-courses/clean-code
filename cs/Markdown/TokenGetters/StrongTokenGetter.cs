@@ -6,19 +6,18 @@ namespace Markdown
 {
     public class StrongTokenGetter : ITokenGetter
     {
-        public TextToken GetToken(StringBuilder currentText, IReadOnlyCollection<ITokenGetter> tokenGetters,
-            int index, string text)
+        public TextToken GetToken(string text, int index, int startPosition)
         {
-            var tokenToAdd = new TextToken(index - currentText.Length + 1, currentText.Length,
-                TokenType.Strong, currentText.ToString());
-            currentText.Remove(0, 2);
-            currentText.Remove(currentText.Length - 2, 2);
+            var currentText = text.Substring(startPosition + 2, index - startPosition - 3);
+            var tokenToAdd = new TextToken(startPosition, currentText.Length + 4,
+                TokenType.Strong, currentText);
             return tokenToAdd;
         }
 
-        public bool CanCreateToken(StringBuilder currentText, string text, int index)
+        public bool CanCreateToken(string text, int index, int startPosition)
         {
-            if (currentText.ToString().Count(x => x == '_') == currentText.Length)
+            var currentText = text.Substring(startPosition, index - startPosition + 1);
+            if (currentText.Count(x => x == '_') == currentText.Length)
                 return false;
             if (currentText[0] != '_' || currentText[1] != '_' || currentText[currentText.Length - 2] != '_' ||
                 currentText[currentText.Length - 1] != '_') return false;
@@ -29,7 +28,7 @@ namespace Markdown
             return true;
         }
 
-        private static bool FindCrossingUnderlinings(StringBuilder currentText)
+        private static bool FindCrossingUnderlinings(string currentText)
         {
             var foundDoubleUnderlining = false;
             var foundUnderlining = false;
