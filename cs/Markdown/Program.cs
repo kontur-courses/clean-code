@@ -1,14 +1,15 @@
 ﻿using System;
-using Markdown.Core;
+using System.IO;
 
 namespace Markdown
 {
     public static class Program
     {
-        private static void Main(string[] args)
+        private static void Main(string inputFile = "MarkdownSpec.md", string outputFile = "MarkdownSpec.html")
         {
-            Console.WriteLine(MarkdownEngine.Render("# __title__\n__text__"));
-            //Console.WriteLine(MarkdownEngine.Render("__some _meaningful_ text__ __text _without_ _so_me mean__"));
+            var source = File.ReadAllText(inputFile);
+            var result = MarkdownEngine.Render(source);
+            File.WriteAllText(outputFile, result);
         }
     }
 }
