@@ -6,18 +6,18 @@ namespace Markdown.TagConverters
 {
     class LiITagConverter : TagConverterBase
     {
-        public override bool IsSingleTag => false;
+        protected internal override bool IsSingleTag => false;
 
-        public override HashSet<string> TagInside => throw new NotImplementedException();
+        protected override HashSet<string> TagInside => throw new NotImplementedException();
 
-        public override string Html => TagHtml.li;
+        protected override string Html => TagHtml.li;
 
-        public override string Md => MarkdownElement.empty;
+        protected override string Md => MarkdownElement.empty;
 
-        public override bool CanClose(StringBuilder text, int pos) => false;
+        protected override bool CanClose(StringBuilder text, int pos) => false;
 
-        public override bool CanOpen(StringBuilder text, int pos) => false;
+        protected override bool CanOpen(StringBuilder text, int pos) => false;
 
-        public override bool IsTag(string text, int pos) => false;
+        protected internal override bool IsTag(string text, int pos) => false;
     }
 }

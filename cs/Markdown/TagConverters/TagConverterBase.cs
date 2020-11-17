@@ -5,18 +5,18 @@ namespace Markdown.TagConverters
 {
     internal abstract class TagConverterBase : ITagConverter
     {
-        public abstract bool IsSingleTag { get; }
-        public abstract HashSet<string> TagInside { get; }
+        protected internal abstract bool IsSingleTag { get; }
+        protected abstract HashSet<string> TagInside { get; }
 
-        public abstract bool IsTag(string text, int pos);
+        protected internal abstract bool IsTag(string text, int pos);
 
-        public abstract bool CanOpen(StringBuilder text, int pos);
-        public abstract bool CanClose(StringBuilder text, int pos);
+        protected abstract bool CanOpen(StringBuilder text, int pos);
+        protected abstract bool CanClose(StringBuilder text, int pos);
 
         internal bool CanProcessTag(string tag) => TagInside.Contains(tag);
 
-        public abstract string Html { get; }
-        public abstract string Md { get; }
+        protected abstract string Html { get; }
+        protected abstract string Md { get; }
         public string StringMd => Md.ToString();
         public int LengthMd => StringMd.Length;
 

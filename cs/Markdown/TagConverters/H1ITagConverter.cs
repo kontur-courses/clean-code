@@ -6,17 +6,17 @@ namespace Markdown.TagConverters
 {
     internal class H1ITagConverter : TagConverterBase
     {
-        public override bool IsSingleTag => true;
-        public override string Html => TagHtml.h1;
+        protected internal override bool IsSingleTag => true;
+        protected override string Html => TagHtml.h1;
 
-        public override string Md => MarkdownElement.sharp;
+        protected override string Md => MarkdownElement.sharp;
 
-        public override HashSet<string> TagInside => TagsAssociation.tags
+        protected override HashSet<string> TagInside => TagsAssociation.tags
             .Where(t => t != new UlITagConverter().StringMd)
             .ToHashSet();
-        public override bool IsTag(string text, int pos) => pos == 0;
+        protected internal override bool IsTag(string text, int pos) => pos == 0;
 
-        public override bool CanClose(StringBuilder text, int pos) => pos == 0;
-        public override bool CanOpen(StringBuilder text, int pos) => CanCloseBase(text, pos);
+        protected override bool CanClose(StringBuilder text, int pos) => pos == 0;
+        protected override bool CanOpen(StringBuilder text, int pos) => CanCloseBase(text, pos);
     }
 }

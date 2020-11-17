@@ -6,14 +6,14 @@ namespace Markdown.TagConverters
 {
     internal class StrongITagConverter : TagConverterBase
     {
-        public override string Html => TagHtml.strong;
+        protected override string Html => TagHtml.strong;
 
-        public override string Md => MarkdownElement.__;
-        public override bool IsSingleTag => false;
+        protected override string Md => MarkdownElement.__;
+        protected internal override bool IsSingleTag => false;
 
-        public override bool IsTag(string text, int pos) => IsTagBase(text, pos);
-        public override bool CanClose(StringBuilder text, int pos) => CanCloseBase(text, pos);
-        public override bool CanOpen(StringBuilder text, int pos) => CanOpenBase(text, pos);
-        public override HashSet<string> TagInside => new HashSet<string>() { new EmITagConverter().StringMd };
+        protected internal override bool IsTag(string text, int pos) => IsTagBase(text, pos);
+        protected override bool CanClose(StringBuilder text, int pos) => CanCloseBase(text, pos);
+        protected override bool CanOpen(StringBuilder text, int pos) => CanOpenBase(text, pos);
+        protected override HashSet<string> TagInside => new HashSet<string>() { new EmITagConverter().StringMd };
     }
 }

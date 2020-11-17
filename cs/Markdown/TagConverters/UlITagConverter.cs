@@ -5,19 +5,19 @@ namespace Markdown.TagConverters
 {
     class UlITagConverter : TagConverterBase
     {
-        public override bool IsSingleTag => false;
+        protected internal override bool IsSingleTag => false;
 
-        public override HashSet<string> TagInside => new HashSet<string>();
+        protected override HashSet<string> TagInside => new HashSet<string>();
 
-        public override string Html => TagHtml.ul;
+        protected override string Html => TagHtml.ul;
 
-        public override string Md => MarkdownElement.list;
+        protected override string Md => MarkdownElement.list;
 
-        public override bool CanClose(StringBuilder text, int pos) => CanCloseBase(text, pos);
+        protected override bool CanClose(StringBuilder text, int pos) => CanCloseBase(text, pos);
 
-        public override bool CanOpen(StringBuilder text, int pos) => CanOpenBase(text, pos);
+        protected override bool CanOpen(StringBuilder text, int pos) => CanOpenBase(text, pos);
 
-        public override bool IsTag(string text, int pos) => true;
+        protected internal override bool IsTag(string text, int pos) => true;
 
         public StringBuilder Convert(StringBuilder text)
         {
