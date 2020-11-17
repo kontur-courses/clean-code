@@ -16,7 +16,7 @@ namespace Markdown
 
         public IEnumerable<MdToken> EnumerateParrents()
         {
-            for (var currentParrent = ParentToken;currentParrent != null; currentParrent = currentParrent.ParentToken)
+            for (var currentParrent = ParentToken; currentParrent != null; currentParrent = currentParrent.ParentToken)
                 yield return currentParrent;
         }
     }

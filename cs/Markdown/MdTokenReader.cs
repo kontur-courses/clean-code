@@ -4,7 +4,9 @@ namespace Markdown
 {
     public class MdTokenReader : TokenReader
     {
-        public MdTokenReader(string text) : base(text) { }
+        public MdTokenReader(string text) : base(text)
+        {
+        }
 
         protected override bool TryReadSpecifiedTokens(out MdToken result)
         {
@@ -23,12 +25,11 @@ namespace Markdown
             return IsLineBegining()
                    && TryRead("# ")
                    && TryReadSubtokensUntil(token, IsLineEnd)
-
                    || state.Undo();
         }
-        
+
         protected virtual bool TryRead(MdBoldToken token, out MdToken result) => throw new NotImplementedException();
-        
+
         protected virtual bool TryRead(MdItalicToken token, out MdToken result) => throw new NotImplementedException();
     }
 }

@@ -4,7 +4,9 @@ namespace Markdown
 {
     public abstract class MdTokenWithSubTokens : MdToken
     {
-        protected MdTokenWithSubTokens(int startPosition, int length = 0) : base(startPosition, length) { }
+        protected MdTokenWithSubTokens(int startPosition, int length = 0) : base(startPosition, length)
+        {
+        }
 
         public List<MdToken> SubTokens = new List<MdToken>();
 

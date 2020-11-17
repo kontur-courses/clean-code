@@ -12,7 +12,7 @@ namespace Markdown
         {
             Text = text;
         }
-        
+
         public bool TryReadToken(out MdToken result, bool notRawText = false)
         {
             return TryReadSpecifiedTokens(out result)
@@ -26,6 +26,7 @@ namespace Markdown
 
         protected virtual bool TryRead(MdRawTextToken token, out MdToken result, Func<bool> stopWhen)
             => throw new NotImplementedException();
+
         public IEnumerable<MdToken> ReadAll() => throw new NotImplementedException();
 
 
@@ -48,20 +49,20 @@ namespace Markdown
 
         protected bool IsLineBegining() => CurrentPosition == 0 || Text[CurrentPosition - 1] == '\n';
 
-        protected bool IsLineEnd() => CurrentPosition == Text.Length -1 || Text[CurrentPosition + 1] == '\n';
+        protected bool IsLineEnd() => CurrentPosition == Text.Length - 1 || Text[CurrentPosition + 1] == '\n';
 
         public string GetNextChars(int count)
         {
             if (count > Text.Length - CurrentPosition) count = Text.Length - CurrentPosition;
             return Text.Substring(CurrentPosition, count);
         }
-        
+
         protected virtual TokenReaderState GetCurrentState() => new TokenReaderState(this);
 
         protected class TokenReaderState
         {
             public readonly TokenReader Reader;
-            
+
             private int position;
 
             public TokenReaderState(TokenReader reader)
@@ -73,7 +74,7 @@ namespace Markdown
             public bool Undo()
             {
                 UndoAction();
-                return false;//всегда false что-бы было легко использовать в выражениях с TryRead
+                return false; //всегда false что-бы было легко использовать в выражениях с TryRead
             }
 
             protected virtual void UndoAction() => Reader.CurrentPosition = position;
