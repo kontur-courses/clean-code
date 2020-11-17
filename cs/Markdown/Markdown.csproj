@@ -62,6 +62,7 @@
         <Compile Include="Tag.cs" />
         <Compile Include="TagBuilder.cs" />
         <Compile Include="Marks.cs" />
+        <Compile Include="TagType.cs" />
     </ItemGroup>
     <ItemGroup>
       <None Include="packages.config" />
