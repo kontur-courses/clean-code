@@ -35,10 +35,10 @@ namespace Markdown
         {
             var startPosition = position;
             var tags = new List<Tag>();
-            var hasHeaderInLine = false;
+            var isHeader = false;
             if (SupportedTags[TagType.Header].TryParse(position, text, out var tag))
             {
-                hasHeaderInLine = true;
+                isHeader = true;
                 position += SupportedTags[TagType.Header].GetSymbolsCountToSkipForParsing();
                 tags.Add(tag);
             }
@@ -52,7 +52,7 @@ namespace Markdown
                 position += symbolsReadCount;
             }
 
-            if (hasHeaderInLine)
+            if (isHeader)
                 tags.Add(new Tag(position, TagType.Header, false, 0, false, false));
             symbolsReadCount = position + NewLine.Length - startPosition;
             return tags.GetCorrectTags(text);
