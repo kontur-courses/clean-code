@@ -2,7 +2,7 @@
 {
     public class UnorderedListTagHelper : TagHelper
     {
-        private UnorderedListTagHelper() 
+        private UnorderedListTagHelper()
             : base("", "<ul>")
         {
         }

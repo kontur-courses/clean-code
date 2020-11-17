@@ -33,7 +33,8 @@ namespace Markdown
             return tags.ConfigureUnorderedLists();
         }
 
-        private static IEnumerable<Tag> ReadTagsFromLine(int position, string text, int lineNumber, out int symbolsReadCount)
+        private static IEnumerable<Tag> ReadTagsFromLine(int position, string text, int lineNumber,
+            out int symbolsReadCount)
         {
             var startPosition = position;
             var tags = new List<Tag>();
@@ -45,6 +46,7 @@ namespace Markdown
                 position += SupportedTags[TagType.Header].GetSymbolsCountToSkipForParsing();
                 tags.Add(tag);
             }
+
             if (SupportedTags[TagType.ListItem].TryParse(position, text, out tag, false, lineNumber))
             {
                 isListItem = true;
@@ -62,9 +64,7 @@ namespace Markdown
             }
 
             if (IsNeedToAddCloseTag(isHeader, isListItem, position, out tag))
-            {
                 tags.Add(tag);
-            }
             symbolsReadCount = position + NewLine.Length - startPosition;
             return tags.GetCorrectTags(text);
         }
@@ -76,6 +76,7 @@ namespace Markdown
                 closeTag = HeaderTagHelper.GetCloseTag(position);
                 return true;
             }
+
             if (isLineListItem)
             {
                 closeTag = ListItemTagHelper.GetCloseTag(position);

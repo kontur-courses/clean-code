@@ -65,7 +65,7 @@ namespace Markdown
         {
             return Md.Render(input);
         }
-        
+
         [TestCase("__asd__ ", ExpectedResult = "<strong>asd</strong> ", TestName = "when space in string ending")]
         [TestCase("__asd__    ", ExpectedResult = "<strong>asd</strong>    ",
             TestName = "when not single space in string ending")]
@@ -111,7 +111,8 @@ namespace Markdown
 
         [TestCase(@"\ asd", ExpectedResult = @"\ asd", TestName = "when escape symbol before space")]
         [TestCase(@"\asd", ExpectedResult = @"\asd", TestName = "when escape symbol before letter")]
-        [TestCase(@"a5s\_d", ExpectedResult = @"a5s\_d", TestName = "when escape symbol before tag in word with digits")]
+        [TestCase(@"a5s\_d", ExpectedResult = @"a5s\_d",
+            TestName = "when escape symbol before tag in word with digits")]
         [TestCase(@"asd \# asd", ExpectedResult = @"asd \# asd",
             TestName = "when escape symbol before header tag which not in line beginning")]
         [TestCase(@"asd\", ExpectedResult = @"asd\", TestName = "when escape symbol in end of string")]
@@ -138,7 +139,7 @@ namespace Markdown
         {
             return Md.Render(input);
         }
-        
+
         [TestCase("* asd", ExpectedResult = "<ul><li>asd</li></ul>", TestName = "when has only one list item")]
         [TestCase("* asd\r\n* asd", ExpectedResult = "<ul><li>asd</li>\r\n<li>asd</li></ul>",
             TestName = "when more than one list item")]
@@ -148,7 +149,7 @@ namespace Markdown
         {
             return Md.Render(input);
         }
-        
+
         [TestCase(" * asd", ExpectedResult = " * asd", TestName = "when tag not in line beginning")]
         [TestCase("*asd", ExpectedResult = "*asd", TestName = "when # has no space after")]
         public string NotRenderUnorderedList(string input)

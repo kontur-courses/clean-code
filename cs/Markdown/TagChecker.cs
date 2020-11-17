@@ -31,7 +31,7 @@ namespace Markdown
                         else if (tag.LineNumber - lastListItem.LineNumber != 1)
                         {
                             yield return UnorderedListTagHelper.GetTag(lastListItem.Position, false);
-                            yield return UnorderedListTagHelper.GetTag(tag.Position, true);                        
+                            yield return UnorderedListTagHelper.GetTag(tag.Position, true);
                         }
                     }
                     else
