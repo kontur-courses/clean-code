@@ -14,14 +14,14 @@ namespace Markdown
                 .Select(DeShield));
         }
 
-        private string DeShield(string paragraphs)
+        private string DeShield(string paragraph)
         {
             var resultParagraph = new StringBuilder();
-            for (var i = 0; i < paragraphs.Length; i++)
+            for (var i = 0; i < paragraph.Length; i++)
             {
-                if (paragraphs[i] != '\\' || i == paragraphs.Length - 1 || (paragraphs[i + 1] != '_' && paragraphs[i + 1] != '#'))
+                if (paragraph[i] != '\\' || i == paragraph.Length - 1 || (paragraph[i + 1] != '_' && paragraph[i + 1] != '#'))
                 {
-                    resultParagraph.Append(paragraphs[i]);
+                    resultParagraph.Append(paragraph[i]);
                 }
             }
 

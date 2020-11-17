@@ -1,24 +1,23 @@
 ﻿using FluentAssertions;
 using Markdown.Parsers;
-using Markdown.Tags;
 using Markdown.Tags.HeaderTag;
 using NUnit.Framework;
 
-namespace Markdown.MarkdownParserTests
+namespace MarkdownTests.MarkdownParserTests
 {
-    public class ReadHeaderTag
+    public class ParseHeaderTag
     {
         [Test]
-        public void ReadHeaderToken_ShouldReturnEmptyArray_OnSimpleString()
+        public void ParseHeaderToken_ShouldReturnEmptyArray_OnSimpleString()
         {
             HeaderParser.ParseTags("asdf").Should().BeEmpty();
         }
 
         [Test]
-        public void ReadHeaderToken_ShouldReturnCorrectArray_OnHeaderSting()
+        public void ParseHeaderToken_ShouldReturnCorrectArray_OnHeaderSting()
         {
             var result = HeaderParser.ParseTags("#asdf");
-            result.Length.Should().Be(2);
+            result.Should().HaveCount(2);
             result[0].Should().BeEquivalentTo(new OpenHeaderTag(0));
             result[1].Should().BeEquivalentTo(new CloseHeaderTag(5));
         }

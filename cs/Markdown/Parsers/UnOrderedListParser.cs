@@ -7,24 +7,24 @@ namespace Markdown.Parsers
 {
     public static class UnOrderedListParser
     {
-        private static bool IsUnOrderedListStart;
+        private static bool isUnOrderedListStart;
         
         public static Tag[] ParseTags(string paragraph)
         {
             if (paragraph[0] == '*' && paragraph[1] == ' ')
             {
-                if (IsUnOrderedListStart)
+                if (isUnOrderedListStart)
                 {
                     return GetListItemTags(paragraph);
                 }
-                IsUnOrderedListStart = true;
+                isUnOrderedListStart = true;
                 return new Tag[]{new OpenUnOrderedListTag() }
                     .Concat(GetListItemTags(paragraph))
                     .ToArray();
             }
-            if (IsUnOrderedListStart)
+            if (isUnOrderedListStart)
             {
-                IsUnOrderedListStart = false;
+                isUnOrderedListStart = false;
                 return new Tag[]{new CloseUnOrderedListTag() };
             }
 

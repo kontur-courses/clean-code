@@ -1,6 +1,7 @@
-﻿using NUnit.Framework;
+﻿using Markdown;
+using NUnit.Framework;
 
-namespace Markdown
+namespace MarkdownTests
 {
     public class MdRenderTest
     {
@@ -12,9 +13,6 @@ namespace Markdown
         [TestCase("__asdf__", ExpectedResult = "<strong>asdf</strong>", TestName = "BoldTag")]
         [TestCase("__one_two_three__", ExpectedResult = "<strong>one<em>two</em>three</strong>", TestName = "ItalicTagInBold")]
         [TestCase("_one__two__three_", ExpectedResult = "<em>one__two__three</em>", TestName = "BoldInItalic")]
-        [TestCase("#_one_ __two_three_four__",
-            ExpectedResult = "<h1><em>one</em> <strong>two<em>three</em>four</strong></h1>",
-            TestName = "HeaderBoldAndItalicTags")]
         [TestCase(@"one\_two_", ExpectedResult = "one_two_", TestName = "ShieldOpenItalicTag")]
         [TestCase(@"one_two\_", ExpectedResult = "one_two_", TestName = "ShieldCloseItalicTag")]
         [TestCase(@"\#asdf", ExpectedResult = "#asdf", TestName = "ShieldHeaderTag")]
@@ -34,6 +32,9 @@ namespace Markdown
         [TestCase("123_456_789", ExpectedResult = "123_456_789", TestName = "ItalicTagsInDigits")]
         [TestCase("123__456__789", ExpectedResult = "123__456__789", TestName = "BoldTagsInDigits")]
         [TestCase("* asdf\nasdf", ExpectedResult = "<ul>\n<li>asdf</li>\n</ul>\nasdf", TestName = "UnorderedList")]
+        [TestCase("#_one_ __two_three_four__",
+            ExpectedResult = "<h1><em>one</em> <strong>two<em>three</em>four</strong></h1>",
+            TestName = "HeaderBoldAndItalicTags")]
         
         public string Render(string text)
         {

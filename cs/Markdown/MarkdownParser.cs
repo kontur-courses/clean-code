@@ -16,9 +16,9 @@ namespace Markdown
                 .ToArray();
         }
 
-        public static int GetEndOfTag(string paragraph, int index, Func<string, int, bool> isTagEnd, int length)
+        public static int GetEndOfTag(string paragraph, int index, Func<string, int, bool> isTagEnd, int tagLength)
         {
-            index += length;
+            index += tagLength;
             while (index < paragraph.Length)
             {
                 if (paragraph[index] == ' ')

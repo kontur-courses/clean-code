@@ -8,28 +8,28 @@ namespace Markdown
 {
     public static class MarkdownFilter
     {
-        public static Dictionary<int, Tag> FilterTags(Tag[] tags, int length)
+        public static Dictionary<int, Tag> FilterTags(Tag[] tags, int paragraphLength)
         {
             var tagDictionary = tags.ToDictionary(tag => tag.Index);
-            FilterIntersection(tagDictionary, length);
-            FilterBoldTagsInItalic(tagDictionary, length);
+            FilterIntersection(tagDictionary, paragraphLength);
+            FilterBoldTagsInItalic(tagDictionary, paragraphLength);
             return tagDictionary;
         }
 
-        private static void FilterIntersection(Dictionary<int, Tag> tags, int length)
+        private static void FilterIntersection(Dictionary<int, Tag> tags, int paragraphLength)
         {
             if (tags.Count < 4)
             {
                 return;
             }
 
-            var tagsWindow = CollectTagsWindow(tags, 0, length);
+            var tagsWindow = CollectTagsWindow(tags, 0, paragraphLength);
 
-            for(var j = tagsWindow.Peek().Index; j < length; j++)
+            for(var j = tagsWindow.Peek().Index; j < paragraphLength; j++)
             {
                 if (TryRemoveIntersection(tags, tagsWindow))
                 {
-                    tagsWindow = CollectTagsWindow(tags, tagsWindow.Peek().Index, length);
+                    tagsWindow = CollectTagsWindow(tags, tagsWindow.Peek().Index, paragraphLength);
                     if (tagsWindow.Count < 4)
                     {
                         return;
@@ -44,27 +44,27 @@ namespace Markdown
             }
         }
 
-        private static Queue<Tag> CollectTagsWindow(Dictionary<int, Tag> tags, int index, int length)
+        private static Queue<Tag> CollectTagsWindow(Dictionary<int, Tag> tags, int index, int paragraphLength)
         {
-            var list = new Queue<Tag>();
-            while (index < length && list.Count < 4)
+            var currentTags = new Queue<Tag>();
+            while (index < paragraphLength && currentTags.Count < 4)
             {
                 if (tags.TryGetValue(index, out var tag))
                 {
-                    list.Enqueue(tag);
+                    currentTags.Enqueue(tag);
                 }
 
                 index++;
             }
 
-            return list;
+            return currentTags;
         }
 
-        private static bool TryRemoveIntersection(Dictionary<int, Tag> tags, Queue<Tag> list)
+        private static bool TryRemoveIntersection(Dictionary<int, Tag> tags, Queue<Tag> currentTags)
         {
-            if (IsIntersection(list.ToArray()))
+            if (IsIntersection(currentTags.ToArray()))
             {
-                foreach (var tag in list)
+                foreach (var tag in currentTags)
                 {
                     tags.Remove(tag.Index);
                 }
@@ -87,10 +87,10 @@ namespace Markdown
                        && window[3] is CloseBoldTag);
         }
         
-        private static void FilterBoldTagsInItalic(Dictionary<int, Tag> tags, int length)
+        private static void FilterBoldTagsInItalic(Dictionary<int, Tag> tags, int paragraphLength)
         {
             var ignoreStrong = false;
-            for (var i = 0; i <= length; i++)
+            for (var i = 0; i <= paragraphLength; i++)
             {
                 if (tags.TryGetValue(i, out var tag))
                 {

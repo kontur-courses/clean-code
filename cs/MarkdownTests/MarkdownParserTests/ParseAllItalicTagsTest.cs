@@ -3,30 +3,30 @@ using Markdown.Parsers;
 using Markdown.Tags.ItalicTag;
 using NUnit.Framework;
 
-namespace Markdown.MarkdownParserTests
+namespace MarkdownTests.MarkdownParserTests
 {
-    public class ReadAllItalicTagsTest
+    public class ParseAllItalicTagsTest
     {
         [Test]
-        public void ReadAllItalicTags_ShouldReturnEmptyArray_OnSimpleString()
+        public void ParseAllItalicTags_ShouldReturnEmptyArray_OnSimpleString()
         {
             ItalicParser.ParseTags("asdf").Should().BeEmpty();
         }
 
         [Test]
-        public void ReadAllItalicTags_ShouldReturnArrayWithTwoCorrectTags_OnStringWithOneTag()
+        public void ParseAllItalicTags_ShouldReturnArrayWithTwoCorrectTags_OnStringWithOneTag()
         {
             var result = ItalicParser.ParseTags("abc _asdf_ abc");
-            result.Length.Should().Be(2);
+            result.Should().HaveCount(2);
             result[0].Should().BeEquivalentTo(new OpenItalicTag(4));
             result[1].Should().BeEquivalentTo(new CloseItalicTag(9));
         }
 
         [Test]
-        public void ReadAllItalicTags_ShouldReturnCorrectAnswer_OnStringWithManyTags()
+        public void ParseAllItalicTags_ShouldReturnCorrectAnswer_OnStringWithManyTags()
         {
             var result = ItalicParser.ParseTags("_asdf_ _asf_ _asdf_");
-            result.Length.Should().Be(6);
+            result.Should().HaveCount(6);
             result[0].Should().BeEquivalentTo(new OpenItalicTag(0));
             result[1].Should().BeEquivalentTo(new CloseItalicTag(5));
             result[2].Should().BeEquivalentTo(new OpenItalicTag(7));

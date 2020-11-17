@@ -1,10 +1,10 @@
-﻿using System;
-using System.Diagnostics;
+﻿using System.Diagnostics;
 using System.Linq;
 using FluentAssertions;
+using Markdown;
 using NUnit.Framework;
 
-namespace Markdown
+namespace MarkdownTests
 {
     public class MdRenderPerfomanceTest
     {
