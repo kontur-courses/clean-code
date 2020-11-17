@@ -1,5 +1,4 @@
-﻿
-using Markdown.TagConverters;
+﻿using Markdown.TagConverters;
 using System.Collections.Generic;
 using System.Text;
 using System.Linq;
