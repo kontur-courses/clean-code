@@ -138,5 +138,22 @@ namespace Markdown
         {
             return Md.Render(input);
         }
+        
+        [TestCase("* asd", ExpectedResult = "<ul><li>asd</li></ul>", TestName = "when has only one list item")]
+        [TestCase("* asd\r\n* asd", ExpectedResult = "<ul><li>asd</li>\r\n<li>asd</li></ul>",
+            TestName = "when more than one list item")]
+        [TestCase("* asd\r\nasd\r\n* asd", ExpectedResult = "<ul><li>asd</li></ul>\r\nasd\r\n<ul><li>asd</li></ul>",
+            TestName = "when several unordered lists")]
+        public string RenderUnorderedList(string input)
+        {
+            return Md.Render(input);
+        }
+        
+        [TestCase(" * asd", ExpectedResult = " * asd", TestName = "when tag not in line beginning")]
+        [TestCase("*asd", ExpectedResult = "*asd", TestName = "when # has no space after")]
+        public string NotRenderUnorderedList(string input)
+        {
+            return Md.Render(input);
+        }
     }
 }
