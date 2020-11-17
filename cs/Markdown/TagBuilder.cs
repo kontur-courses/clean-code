@@ -1,142 +1,85 @@
-﻿using System.Collections.Generic;
-using System.Linq;
+﻿using System.Linq;
 using System.Text;
 
 namespace Markdown
 {
     public static class TagBuilder
     {
-        public static readonly Dictionary<string, string> markPairs = new Dictionary<string, string>
+        public static Tag BuildTag(string text, int startIndex)
         {
-            {"_", "_"},
-            {"__", "__"},
-            {"#", "\n"}
-        };
+            var mark = Marks.GetMarkFromText(startIndex, text);
+            if (!Marks.IsMark(mark))
+                return Tag.EmptyOn(startIndex);
 
-        public static Tag BuildTag(string text, int startIndex, bool isScreened)
-        {
-            var mark = GetMark(text, startIndex);
-            var tagName = GetHtmlTagByMark(mark);
-            var closePosition = FindClosePosition(text, startIndex, mark);
-            var content = GetContent(startIndex, closePosition, text);
-            if (isScreened)
-                content = RemoveScreeningSymbols(content);
+            var endPos = FindClosePosition(text, startIndex, mark);
+            var tagName = Marks.GetHtmlTagByMark(mark);
 
-            var tag = new Tag(tagName, isScreened)
-            {
-                OpenPosition = startIndex,
-                ClosePosition = FindClosePosition(text, startIndex, mark),
-                Content = content,
-            };
-            tag.Closed = IsTagClosed(tag, text);
 
-            return tag;
-        }
-
-        private static int FindClosePosition(string text, int startIndex, string openedMark)
-        {
-            var i = startIndex + 1;
-            var pairMark = markPairs[openedMark];
-            var mark = "";
-            while (i < text.Length && mark != pairMark)
-            {
-                mark = text.Substring(i, openedMark.Length);
-                i++;
-            }
-
-            if (openedMark == "#" && i == text.Length)
-                i++;
-
-            return i - 1 + mark.Length - 1;
-        }
-
-        public static bool ExpectedToBeMark(char c)
-        {
-            var marksFirstLetters = new HashSet<char> {'_', '#'};
-            return marksFirstLetters.Contains(c);
+            return IsTagCorrect(startIndex, endPos, text)
+                ? Tag.Correct(tagName, startIndex, endPos)
+                : Tag.Incorrect(tagName, startIndex, endPos);
         }
 
         private static string GetContent(int startIndex, int endIndex, string text)
         {
             var contentBuilder = new StringBuilder();
-            var mark = GetMark(text, startIndex);
+            var mark = Marks.GetMarkFromText(startIndex, text);
             for (var i = startIndex + mark.Length; i <= endIndex - mark.Length; i++)
                 contentBuilder.Append(text[i]);
 
             return contentBuilder.ToString();
         }
 
-        private static string RemoveScreeningSymbols(string text)
+        private static int FindClosePosition(string text, int startIndex, string openedMark)
         {
-            var i = text.Length - 1;
-            var slashCount = 0;
-            while (text[text.Length-1] == text[i])
+            var i = startIndex + 1;
+            var pairMark = Marks.GetMarkPair(openedMark);
+            var mark = Marks.GetMarkFromText(i, text);
+            while (i < text.Length - openedMark.Length + 1)
             {
-                slashCount++;
-                i--;
-            }
-            return text.Remove(text.Length - 1, 1);
-        }
+                mark = Marks.GetMarkFromText(i, text);
+                if (mark == pairMark && !char.IsWhiteSpace(text[i - 1]))
+                    break;
 
-        private static string GetMark(string text, int start)
-        {
-            var i = start;
-            var markBuilder = new StringBuilder();
-            while (text[i] == text[start])
-            {
-                markBuilder.Append(text[i]);
-                i++;
+                i += mark.Length;
             }
 
-            return markBuilder.ToString();
+            return i + mark.Length - 1;
         }
 
-        private static bool IsTagClosed(Tag tag, string text)
+        private static bool IsTagCorrect(int startIndex, int endIndex, string text)
         {
-            var mark = GetMarkByHtmlTag(tag.TagName);
+            var mark = Marks.GetMarkFromText(startIndex, text);
+            var tagContent = GetContent(startIndex, endIndex, text);
 
-            if (mark == "#")
-                return true;
-
-            return text.Substring(tag.OpenPosition, mark.Length) ==
-                   text.Substring(tag.ClosePosition - mark.Length + 1, mark.Length)
-                   && !tag.Content.Any(char.IsDigit);
+            return mark == "#"
+                   || endIndex < text.Length
+                   && AreMarksEqualed(startIndex, endIndex, text)
+                   && !tagContent.Any(char.IsDigit)
+                   && !string.IsNullOrEmpty(tagContent)
+                   && !AreMarksInsideDifferentWords(startIndex, endIndex, text);
         }
 
-        public static string GetMarkByHtmlTag(string htmlTag)
+        private static bool AreMarksEqualed(int openedMarkIndex, int closingMarkIndex, string text)
         {
-            var marks = new Dictionary<string, string>
-            {
-                {"em", "_"},
-                {"strong", "__"},
-                {"h1", "#"}
-            };
-
-            return marks[htmlTag];
+            var mark = Marks.GetMarkFromText(openedMarkIndex, text);
+            
+            return text.Substring(openedMarkIndex, mark.Length) ==
+                   text.Substring(closingMarkIndex - mark.Length + 1, mark.Length);
         }
 
-        public static string GetHtmlTagByMark(string mark)
+        private static bool AreMarkInsideWord(int position, string text)
         {
-            var tags = new Dictionary<string, string>
-            {
-                {"_", "em"},
-                {"__", "strong"},
-                {"#", "h1"}
-            };
-
-            return tags[mark];
+            return position + 1 < text.Length && position - 1 >= 0 && !char.IsWhiteSpace(text[position - 1]) &&
+                   !char.IsWhiteSpace(text[position + 1]);
         }
 
-        public static string GetMarkPair(string mark)
+        private static bool AreMarksInsideDifferentWords(int openedMarkIndex, int closingMarkIndex, string text)
         {
-            var pairs = new Dictionary<string, string>
-            {
-                {"_", "_"},
-                {"__", "__"},
-                {"#", "\n"}
-            };
-
-            return pairs[mark];
+            var spaces = new[] {' ', '\t', '\n'};
+            var content = text.Substring(openedMarkIndex, closingMarkIndex - openedMarkIndex);
+            return AreMarkInsideWord(openedMarkIndex, text) && AreMarkInsideWord(closingMarkIndex, text) &&
+                   content.Intersect(spaces).Any();
         }
     }
 }

@@ -1,31 +1,46 @@
-﻿using System.Linq;
-
-namespace Markdown
+﻿namespace Markdown
 {
     public class Tag
     {
-        public bool Closed;
-        private readonly bool Screened;
+        public bool isCorrect;
 
-        public Tag(string tagName, bool isScreened)
+        private Tag(string tagName)
         {
             TagName = tagName;
-            Screened = isScreened;
-            Mark = TagBuilder.GetMarkByHtmlTag(tagName);
         }
 
         public string TagName { get; }
-        private string Mark { get; }
+        public string Mark => Marks.GetMarkByHtmlTag(TagName);
         public int OpenPosition { get; set; }
-        public int ClosePosition { get; set; }
-        public string Content { get; set; }
+        public int ClosePosition { get; private set; }
 
-        public override string ToString()
+        public static Tag Correct(string tagName, int start, int end)
         {
-            if (!Closed || Screened)
-                return $"{Mark}{Content}{Mark}";
+            return new Tag(tagName)
+            {
+                OpenPosition = start,
+                ClosePosition = end,
+                isCorrect = true
+            };
+        }
 
-            return $"<{TagName}>{Content}</{TagName}>";
+        public static Tag Incorrect(string tagName, int start, int end)
+        {
+            return new Tag(tagName)
+            {
+                OpenPosition = start,
+                ClosePosition = end,
+                isCorrect = false
+            };
+        }
+
+        public static Tag EmptyOn(int position)
+        {
+            return new Tag("")
+            {
+                OpenPosition = position,
+                ClosePosition = position
+            };
         }
     }
 }
