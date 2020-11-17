@@ -1,41 +1,35 @@
 ﻿namespace Markdown
 {
-    public abstract class Tag
+    public class Tag
     {
-        private readonly string htmlTag;
-
-        protected bool IsOpening;
-
-        protected Tag(string mdTag, string htmlTag, int position, bool isOpening)
+        public Tag(int position, TagType type, bool isOpening, int mdTagLength, bool inWord, bool isPaired)
         {
-            MdTag = mdTag;
-            this.htmlTag = htmlTag;
             Position = position;
+            Type = type;
             IsOpening = isOpening;
+            MdTagLength = mdTagLength;
+            InWord = inWord;
+            IsPaired = isPaired;
         }
 
-        public string MdTag { get; }
+
         public int Position { get; }
+        public TagType Type { get; }
+        public bool IsOpening { get; private set; }
+        public int MdTagLength { get; }
 
+        public bool InWord { get; private set; }
 
-        public abstract bool TryParse(int position, string text, out Tag tag);
+        public bool IsPaired { get; }
 
-        public virtual bool ParseForEscapeTag(int position, string text)
+        public void ConvertToClose()
         {
-            return IsTag(position + 1, text);
+            IsOpening = false;
         }
 
-        public string GetHtmlTag()
+        public void UnpinFromWord()
         {
-            return IsOpening ? htmlTag : htmlTag.Insert(1, "/");
-        }
-
-        public abstract int GetMdTagLengthToSkip();
-
-        protected bool IsTag(int position, string text)
-        {
-            return position + MdTag.Length <= text.Length
-                   && text.Substring(position, MdTag.Length) == MdTag;
+            InWord = false;
         }
     }
 }
