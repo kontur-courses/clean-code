@@ -20,26 +20,35 @@ namespace Markdown
         public static IEnumerable<Tag> GetTags(string text)
         {
             var position = 0;
+            var lineNumber = 0;
             var tags = new List<Tag>();
             while (position < text.Length)
             {
-                var tagsFromLine = ReadTagsFromLine(position, text, out var symbolsReadCount);
+                var tagsFromLine = ReadTagsFromLine(position, text, lineNumber, out var symbolsReadCount);
                 position += symbolsReadCount;
                 tags.AddRange(tagsFromLine);
+                lineNumber++;
             }
 
-            return tags;
+            return tags.ConfigureUnorderedLists();
         }
 
-        private static IEnumerable<Tag> ReadTagsFromLine(int position, string text, out int symbolsReadCount)
+        private static IEnumerable<Tag> ReadTagsFromLine(int position, string text, int lineNumber, out int symbolsReadCount)
         {
             var startPosition = position;
             var tags = new List<Tag>();
             var isHeader = false;
+            var isListItem = false;
             if (SupportedTags[TagType.Header].TryParse(position, text, out var tag))
             {
                 isHeader = true;
                 position += SupportedTags[TagType.Header].GetSymbolsCountToSkipForParsing();
+                tags.Add(tag);
+            }
+            if (SupportedTags[TagType.ListItem].TryParse(position, text, out tag, false, lineNumber))
+            {
+                isListItem = true;
+                position += SupportedTags[TagType.ListItem].GetSymbolsCountToSkipForParsing();
                 tags.Add(tag);
             }
 
@@ -52,10 +61,29 @@ namespace Markdown
                 position += symbolsReadCount;
             }
 
-            if (isHeader)
-                tags.Add(new Tag(position, TagType.Header, false, 0, false, false));
+            if (IsNeedToAddCloseTag(isHeader, isListItem, position, out tag))
+            {
+                tags.Add(tag);
+            }
             symbolsReadCount = position + NewLine.Length - startPosition;
             return tags.GetCorrectTags(text);
+        }
+
+        private static bool IsNeedToAddCloseTag(bool isLineHeader, bool isLineListItem, int position, out Tag closeTag)
+        {
+            if (isLineHeader)
+            {
+                closeTag = new Tag(position, TagType.Header, false, 0, false, false);
+                return true;
+            }
+            if (isLineListItem)
+            {
+                closeTag = new Tag(position, TagType.ListItem, false, 0, false, false);
+                return true;
+            }
+
+            closeTag = null;
+            return false;
         }
 
         private static bool IsNotNewLine(int position, string text)
