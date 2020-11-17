@@ -58,6 +58,7 @@
     <ItemGroup>
         <Compile Include="Md.cs" />
         <Compile Include="Properties\AssemblyInfo.cs" />
+        <Compile Include="RenderOperation.cs" />
         <Compile Include="Tag.cs" />
         <Compile Include="TagBuilder.cs" />
         <Compile Include="Marks.cs" />
