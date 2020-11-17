@@ -6,32 +6,24 @@ namespace Markdown
     [TestFixture]
     public class Md_Should
     {
-        [OneTimeSetUp]
-        public void SetUp()
-        {
-            md = new Md();
-        }
-
-        private Md md;
-
         [Test]
         public void RenderOriginalText_WhenHasNoTags()
         {
-            md.Render("asd").Should().Be("asd");
+            Md.Render("asd").Should().Be("asd");
         }
 
         [TestCase("# asd", ExpectedResult = "<h1>asd</h1>", TestName = "when tag in first line")]
         [TestCase("asd\r\n# asd", ExpectedResult = "asd\r\n<h1>asd</h1>", TestName = @"when tag after '\r\n'")]
         public string RenderHeaderTag(string input)
         {
-            return md.Render(input);
+            return Md.Render(input);
         }
 
         [TestCase(" # asd", ExpectedResult = " # asd", TestName = "when tag not in line beginning")]
         [TestCase("#asd", ExpectedResult = "#asd", TestName = "when # has no space after")]
         public string NotRenderHeaderTag(string input)
         {
-            return md.Render(input);
+            return Md.Render(input);
         }
 
 
@@ -52,7 +44,7 @@ namespace Markdown
             TestName = "when nesting in bold tag")]
         public string RenderItalicTag(string input)
         {
-            return md.Render(input);
+            return Md.Render(input);
         }
 
         [TestCase("a1sd_s_as2d", ExpectedResult = "a1sd_s_as2d", TestName = "when word with digits")]
@@ -65,7 +57,7 @@ namespace Markdown
         [TestCase("_asd _", ExpectedResult = "_asd _", TestName = "when second tag can't be close")]
         public string NotRenderItalicTag(string input)
         {
-            return md.Render(input);
+            return Md.Render(input);
         }
 
         [TestCase("__as__d", ExpectedResult = "<strong>as</strong>d", TestName = "in word beginning")]
@@ -83,7 +75,7 @@ namespace Markdown
             TestName = "when tag in first word has no pair")]
         public string RenderBoldTag(string input)
         {
-            return md.Render(input);
+            return Md.Render(input);
         }
 
         [TestCase("a1sd__s__as2d", ExpectedResult = "a1sd__s__as2d", TestName = "when word with digits")]
@@ -96,14 +88,14 @@ namespace Markdown
         [TestCase("__asd __", ExpectedResult = "__asd __", TestName = "when second tag can't be close")]
         public string NotRenderBoldTag(string input)
         {
-            return md.Render(input);
+            return Md.Render(input);
         }
 
         [TestCase("__as_d __a_sd", ExpectedResult = "__as_d __a_sd", TestName = "when first tag is bold")]
         [TestCase("_as__d _a__sd", ExpectedResult = "_as__d _a__sd", TestName = "when first tag is italic")]
         public string NotRenderTags_WhenTagsIntersecting(string input)
         {
-            return md.Render(input);
+            return Md.Render(input);
         }
 
         [TestCase(@"\ asd", ExpectedResult = @"\ asd", TestName = "when escape symbol before space")]
@@ -113,7 +105,7 @@ namespace Markdown
         [TestCase(@"asd\", ExpectedResult = @"asd\", TestName = "when escape symbol in end of string")]
         public string RenderEscapeSymbol(string input)
         {
-            return md.Render(input);
+            return Md.Render(input);
         }
 
         [TestCase(@"\# asd", ExpectedResult = @"# asd", TestName = "when escape symbol before header tag")]
@@ -124,7 +116,7 @@ namespace Markdown
             TestName = "when escape symbol before escape symbol 2 times in a row")]
         public string NotRenderEscapeSymbol(string input)
         {
-            return md.Render(input);
+            return Md.Render(input);
         }
     }
 }
