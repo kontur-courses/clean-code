@@ -5,6 +5,7 @@
         H1,
         Em,
         Strong,
-        Shield
+        Shield,
+        Link
     }
 }

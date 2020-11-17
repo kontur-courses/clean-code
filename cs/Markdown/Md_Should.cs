@@ -1,5 +1,4 @@
 using System;
-using System.Collections.Generic;
 using System.Diagnostics;
 using System.Text;
 using FluentAssertions;
@@ -28,6 +27,9 @@ namespace Markdown
         [TestCase(@"\a \\_a_", @"\a \<em>a</em>")]
         [TestCase("#_a \n\n a_\n\na", "<h1>_a </h1>\n\n a_\n\na")]
         [TestCase("_a \n\n\n a_\n\na", "_a \n\n\n a_\n\na")]
+        [TestCase("[l](https://www.google.com \"F\")", "<a href=\"https://www.google.com\" title=\"F\">l</a>")]
+        [TestCase("[l](https://www.google.com)", "<a href=\"https://www.google.com\">l</a>")]
+        [TestCase("\\[l](https://www.google.com)", "[l](https://www.google.com)")]
         public void Render_Should(string input, string exeptedOutput)
         {
             Md.Render(input).Should().Be(exeptedOutput);

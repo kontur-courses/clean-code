@@ -79,7 +79,7 @@ namespace Markdown
         }
 
         private static IEnumerable<Tag> GetNotPairTags(List<Tag> tags) =>
-            tags.Where(tag => tag.Name == TagInfo.H1 || tag.Name == TagInfo.Shield);
+            tags.Where(tag => tag.Name == TagInfo.H1 || tag.Name == TagInfo.Shield || tag.Name == TagInfo.Link);
 
         private static IEnumerable<PairTags> GetPairTags(List<Tag> tags, List<TagInfo> pairTags)
         {
@@ -158,6 +158,13 @@ namespace Markdown
                         return new Tag(TagInfo.Em, position, 1);
                 case '\\':
                     return new Tag(TagInfo.Shield, position, 1);
+                case '[':
+                    var linkTextEnd = text.IndexOf(']', position);
+                    var linkStart = text.IndexOf('(', linkTextEnd);
+                    var linkEnd = text.IndexOf(')', linkStart);
+                    if (linkTextEnd != -1 && linkStart != -1 && linkEnd != -1 && linkTextEnd + 1 == linkStart)
+                        return new Tag(TagInfo.Link, position, linkEnd - position + 1);
+                    break;
             }
 
             return null;
