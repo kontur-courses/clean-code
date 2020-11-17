@@ -12,7 +12,7 @@ namespace Markdown
 
         public static string GetMarkByHtmlTag(string htmlTag)
         {
-            var marks = new Dictionary<string, string>
+            var marksByTag = new Dictionary<string, string>
             {
                 {"em", "_"},
                 {"strong", "__"},
@@ -27,19 +27,19 @@ namespace Markdown
                 {"</h1>", "#"}
             };
 
-            return marks[htmlTag];
+            return marksByTag[htmlTag];
         }
 
         public static string GetHtmlTagByMark(string mark)
         {
-            var tags = new Dictionary<string, string>
+            var tagsByMark = new Dictionary<string, string>
             {
                 {"_", "em"},
                 {"__", "strong"},
                 {"#", "h1"}
             };
 
-            return tags[mark];
+            return tagsByMark[mark];
         }
 
         public static string GetMarkPair(string mark)
@@ -52,6 +52,41 @@ namespace Markdown
             };
 
             return pairs[mark];
+        }
+
+        public static bool IsClosedHtmlTag(string tag)
+        {
+            var closedHtmlTags = new HashSet<string> {"</em>", "</strong>", "</h1>", "</a>"};
+            return closedHtmlTags.Contains(tag);
+        }
+
+        public static TagType GetTagType(string tagName)
+        {
+            switch (tagName)
+            {
+                case "em":
+                case "<em>":
+                case "</em>":
+                    return TagType.Italic;
+
+                case "strong":
+                case "<strong>":
+                case "</strong>":
+                    return TagType.Bold;
+
+                case "h1":
+                case "<h1>":
+                case "</h1>":
+                    return TagType.Heading;
+
+                case "a":
+                case "<a>":
+                case "</a>":
+                    return TagType.Link;
+
+                default:
+                    return TagType.Incorrect;
+            }
         }
 
         public static bool IsMark(string mark)

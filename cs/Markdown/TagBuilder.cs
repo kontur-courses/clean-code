@@ -44,7 +44,7 @@ namespace Markdown
                 i += mark.Length;
             }
 
-            return i + mark.Length - 1;
+            return i == text.Length ? i : i + mark.Length - 1;
         }
 
         private static bool IsTagCorrect(int startIndex, int endIndex, string text)
@@ -63,7 +63,7 @@ namespace Markdown
         private static bool AreMarksEqualed(int openedMarkIndex, int closingMarkIndex, string text)
         {
             var mark = Marks.GetMarkFromText(openedMarkIndex, text);
-            
+
             return text.Substring(openedMarkIndex, mark.Length) ==
                    text.Substring(closingMarkIndex - mark.Length + 1, mark.Length);
         }

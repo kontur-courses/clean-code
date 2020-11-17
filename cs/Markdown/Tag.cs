@@ -2,13 +2,14 @@
 {
     public class Tag
     {
-        public bool isCorrect;
-
         private Tag(string tagName)
         {
             TagName = tagName;
+            TagType = Marks.GetTagType(tagName);
         }
 
+        public bool isCorrect { get; private set; }
+        public TagType TagType { get; }
         public string TagName { get; }
         public string Mark => Marks.GetMarkByHtmlTag(TagName);
         public int OpenPosition { get; set; }

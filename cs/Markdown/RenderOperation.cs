@@ -6,7 +6,7 @@ namespace Markdown
     public class RenderOperation
     {
         private readonly Dictionary<int, string> buffer = new Dictionary<int, string>();
-        private readonly HashSet<string> openedTags = new HashSet<string>();
+        private readonly HashSet<TagType> openedTags = new HashSet<TagType>();
 
         private readonly string text;
         private int currentIndex;
@@ -49,7 +49,7 @@ namespace Markdown
                             case TagStatus.Correct:
                                 buffer[tag.OpenPosition] = $"<{tag.TagName}>";
                                 buffer[tag.ClosePosition - tag.Mark.Length + 1] = $"</{tag.TagName}>";
-                                openedTags.Add(tag.TagName);
+                                openedTags.Add(tag.TagType);
                                 break;
 
                             case TagStatus.Incorrect:
@@ -89,7 +89,7 @@ namespace Markdown
         {
             if (isScreened)
                 return TagStatus.Screened;
-            if (tag.isCorrect && tag.TagName == "strong" && openedTags.Contains("em"))
+            if (tag.isCorrect && tag.TagType == TagType.Bold && openedTags.Contains(TagType.Italic))
                 return TagStatus.Incorrect;
 
             return tag.isCorrect ? TagStatus.Correct : TagStatus.Incorrect;
@@ -100,6 +100,9 @@ namespace Markdown
             var value = buffer[position];
             builderToAppend.Append(value);
             buffer.Remove(position);
+
+            if (Marks.IsClosedHtmlTag(value))
+                openedTags.Remove(Marks.GetTagType(value));
 
             currentIndex += Marks.IsHtmlTag(value) ? Marks.GetMarkByHtmlTag(value).Length : value.Length;
         }
