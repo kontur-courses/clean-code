@@ -64,11 +64,12 @@ namespace Markdown.Parser
                 switch (atLineEndTokenAction)
                 {
                     case EndOfLineAction.Cancel:
-                        currentTokens.RemoveAt(i);
+                        CancelSubsequentTokens(i - 1);
                         break;
                     
                     case EndOfLineAction.Complete:
-                        CloseToken(i, position);
+                        if (IsValidToClose(i, position))
+                            CloseToken(i, position);
                         break;
                 }
             }
@@ -79,13 +80,35 @@ namespace Markdown.Parser
             var openBorder = GetMatchesFromTree(openTagTree, text, position).LastOrDefault();
             if (openBorder == null)
                 return 0;
-            OpenToken(openBorder, position);
+            
+            var tag = openBorderToTag[openBorder];
+            
+            if (!IsTagAllowed(tag))
+                return 0;
+            
+            OpenToken(tag, position);
             return openBorder.Length;
+
         }
 
-        private void OpenToken(string openBorder, int position)
+        private bool IsValidToOpen(ITagData tag, int startPosition)
         {
-            var newToken = new TextToken(openBorderToTag[openBorder], position);
+            return IsTagAllowed(tag) && tag.IsValidAtOpen(fullTextData.Value, startPosition);
+        }
+
+        private bool IsTagAllowed(ITagData tag)
+        {
+            foreach (var token in currentTokens)
+            {
+                if (tag == token.Tag || !token.Tag.CanNested(tag))
+                    return false;
+            }
+            return true;
+        }
+
+        private void OpenToken(ITagData tag, int position)
+        {
+            var newToken = new TextToken(tag, position);
             currentTokens.Add(newToken);
         }
 
@@ -99,19 +122,28 @@ namespace Markdown.Parser
                 var closeBorder = currentTokens[i].Tag.IncomingBorder.Close;
                 if (closeBorders.Contains(closeBorder))
                 {
-                    CloseToken(i, position);
-                    return closeBorder.Length;
+                    if (IsValidToClose(i, position))
+                    {
+                        CloseToken(i, position);
+                        return closeBorder.Length;
+                    }
                 }
             }
             return 0;
         }
 
-        private void CloseToken(int tokenNumber, int position)
+        private bool IsValidToClose(int tokenNumber, int endPosition)
+        {
+            return currentTokens[tokenNumber].Tag.IsValidAtClose(fullTextData.Value,
+                currentTokens[tokenNumber].Start, endPosition);
+        }
+
+        private void CloseToken(int tokenNumber, int endPosition)
         {
             CancelSubsequentTokens(tokenNumber);
             
             var token = currentTokens[tokenNumber];
-            token.End = position;
+            token.End = endPosition;
             if (tokenNumber > 0)
             {
                 currentTokens[tokenNumber - 1].AddNestedTokens(token);
@@ -125,6 +157,12 @@ namespace Markdown.Parser
 
         private void CancelSubsequentTokens(int lastTokenNumber)
         {
+            if (lastTokenNumber < 0)
+                for (var i = currentTokens.Count - 1; i >= 0; i--)
+                {
+                    fullTextData.AddTokens(currentTokens[i].SubTokens.ToArray());
+                    currentTokens.RemoveAt(i);
+                }
             for (var i = currentTokens.Count - 1; i > lastTokenNumber; i--)
             {
                 currentTokens[lastTokenNumber]

@@ -22,14 +22,19 @@ namespace Markdown.Tag
             this.notAllowedNestedTags = notAllowedNestedTags.ToHashSet();
         }
 
-        public virtual bool IsValid(string data, int startPos, int endPos)
+        public virtual bool IsValidAtClose(string data, int startPos, int endPos)
+        {
+            return true;
+        }
+        
+        public virtual bool IsValidAtOpen(string data, int startPos)
         {
             return true;
         }
 
-        public bool CanNested(ITagData stateToNesting)
+        public bool CanNested(ITagData tagToNesting)
         {
-            return !notAllowedNestedTags.Contains(stateToNesting);
+            return !notAllowedNestedTags.Contains(tagToNesting);
         }
     }
 }

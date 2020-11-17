@@ -8,7 +8,7 @@
                 EndOfLineAction.Complete, notAllowedNestedTags)
         { }
 
-        public override bool IsValid(string data, int startPos, int endPos)
+        public override bool IsValidAtOpen(string data, int startPos)
         {
             return startPos == 0 || data[startPos - 1] == '\n';
         }
