@@ -70,7 +70,7 @@ namespace Markdown
             {
                 var intersectedToken = tokens
                     .Where(x => x != token)
-                    .FirstOrDefault(x => x.IsTouch(token));
+                    .FirstOrDefault(x => x.IsCollided(token));
 
                 if (intersectedToken != null)
                 {

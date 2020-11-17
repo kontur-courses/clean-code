@@ -32,7 +32,7 @@
                    || EndPosition < token.Position);
         }
 
-        public bool IsTouch(Token token)
+        public bool IsCollided(Token token)
         {
             return (Position < token.Position && EndPosition < token.EndPosition && EndPosition > token.Position)
                 || (Position < token.EndPosition && EndPosition > token.EndPosition && Position > token.Position);
