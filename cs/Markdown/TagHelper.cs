@@ -37,13 +37,5 @@ namespace Markdown
             return position + MdTag.Length <= text.Length
                    && text.Substring(position, MdTag.Length) == MdTag;
         }
-        
-        protected static bool IsAfterNewLine(int position, string text)
-        {
-            return position == 0
-                   || position - Environment.NewLine.Length >= 0
-                   && text.Substring(position - Environment.NewLine.Length, Environment.NewLine.Length) ==
-                   Environment.NewLine;
-        }
     }
 }
