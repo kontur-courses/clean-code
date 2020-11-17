@@ -9,11 +9,8 @@ namespace Markdown
     {
         public static Token[] ParseStringToMdTokens(string sourceText, params TagInfo[] tagInfos)
         {
-            var tagsList = FindTagsIndexes(sourceText, tagInfos);
-            tagsList = TokenFilter.FilterTags(tagsList, sourceText);
+            var tagsList = TagLexer.FindTagsIndexes(sourceText, tagInfos);
             var tokens = FindTokens(sourceText, tagsList);
-            TokenFilter.FilterIntersections(tokens);
-            TokenFilter.FilterEmptyTokens(tokens);
 
             return tokens.ToArray();
         }
@@ -23,6 +20,7 @@ namespace Markdown
             var tagsStack = new Stack<TagInfoWithIndex>();
             var tokens = new List<Token>();
             FillTagsStack(sourceText, tagsList, tokens, tagsStack);
+            TokenLexer.FilterTokens(tokens);
 
             return tokens;
         }
@@ -42,7 +40,7 @@ namespace Markdown
 
                 if (tagsStack.Count == 0)
                 {
-                    if (TokenFilter.CanBeOpenTag(sourceText, currentTagAndIndex))
+                    if (TagLexer.CanBeOpenTag(sourceText, currentTagAndIndex))
                         tagsStack.Push(currentTagAndIndex);
                     continue;
                 }
@@ -51,13 +49,13 @@ namespace Markdown
                 var peekTagInMd = tagsStack.Peek().TagInfo.TagInMd;
                 if (currentTagInMd == peekTagInMd)
                 {
-                    if (TokenFilter.CanBeCloseTag(sourceText, currentTagAndIndex))
+                    if (TagLexer.CanBeCloseTag(sourceText, currentTagAndIndex))
                         continue;
                     AddTokenWithDoubleTag(currentTagAndIndex, currentTagInMd, tagsStack, tokens, currentTagInfo);
                     continue;
                 }
 
-                if (TokenFilter.CanBeOpenTag(sourceText, currentTagAndIndex))
+                if (TagLexer.CanBeOpenTag(sourceText, currentTagAndIndex))
                     tagsStack.Push(new TagInfoWithIndex(currentTagInfo, currentTagAndIndex.StartIndex));
             }
         }
@@ -82,27 +80,6 @@ namespace Markdown
                 ? tagEndIndex - currentTagAndIndex.StartIndex
                 : sourceText.Length - currentTagAndIndex.StartIndex;
             tokens.Add(new Token(currentTagAndIndex.StartIndex, length, currentTagAndIndex.TagInfo));
-        }
-
-        private static List<TagInfoWithIndex> FindTagsIndexes(string sourceText, TagInfo[] tagInfos)
-        {
-            var tagsWithIndexList = new List<TagInfoWithIndex>();
-            var sortedTagInfos = tagInfos
-                .OrderByDescending(tag => tag.TagForConverting.Length);
-            foreach (var tagInfo in sortedTagInfos)
-            {
-                var tagLength = tagInfo.TagInMd.Length;
-                var index = 0;
-                do
-                {
-                    var substring = sourceText.Substring(index, tagLength);
-                    if (tagInfo.TagInMd != substring)
-                        continue;
-                    tagsWithIndexList.Add(new TagInfoWithIndex(tagInfo, index));
-                } while (++index < sourceText.Length - tagLength + 1);
-            }
-
-            return tagsWithIndexList;
         }
 
         public static string ScreenSymbols(string sourceText, params TagInfo[] tagInfos)
