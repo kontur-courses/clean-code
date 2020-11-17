@@ -12,7 +12,8 @@ namespace Markdown
             {
                 [new TagEm().StringMd] = new TagEm(),
                 [new TagStrong().StringMd] = new TagStrong(),
-                [new TagH1().StringMd] = new TagH1()
+                [new TagH1().StringMd] = new TagH1(),
+                [new TagUl().StringMd] = new TagUl()
             };
 
         internal static readonly HashSet<string> tags = tagConverters.Keys.ToHashSet();

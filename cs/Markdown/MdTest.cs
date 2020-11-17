@@ -139,5 +139,17 @@ namespace Markdown
         {
             return Md.Render(text);
         }
+
+        [TestCase(@"blalba |mark1;mark2;mark3| bla", ExpectedResult = @"blalba <ul><li>mark1<\li><li>mark2<\li><li>mark3<\li><\ul> bla")]
+        [TestCase(@"blalba |mark1 _once_;mark2 __twise__| bla", ExpectedResult = @"blalba <ul><li>mark1 <em>once<\em><\li><li>mark2 <strong>twise<\strong><\li><\ul> bla")]
+        [TestCase(@"blalba |_once __twise__ once_;__twise _once_ twise__| bla", ExpectedResult = @"blalba <ul><li><em>once __twise__ once<\em><\li><li><strong>twise <em>once<\em> twise<\strong><\li><\ul> bla")]
+        [TestCase(@"#Text |mark|", ExpectedResult = @"<h1>Text |mark|<\h1>")]
+        [TestCase(@"#Text |_once_;__twise__|", ExpectedResult = @"<h1>Text |<em>once<\em>;<strong>twise<\strong>|<\h1>")]
+        [TestCase(@"bla |mark1|mark2|mark3", ExpectedResult = @"bla <ul><li>mark1<\li><\ul>mark2|mark3")]
+        [TestCase(@"bla \|mark1;|mark2\;mark3;mark4| bla", ExpectedResult = @"bla |mark1;<ul><li>mark2;mark3<\li><li>mark4<\li><\ul> bla")]
+        public string Test_TextWithUl(string text)
+        {
+            return Md.Render(text);
+        }
     }
 }

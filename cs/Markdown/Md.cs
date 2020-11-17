@@ -9,11 +9,28 @@ namespace Markdown
 {
     public static class Md
     {
+        internal const char shieldSimbol = '\\';
+
+        public static string Render(string text)
+        {
+            var texts = text.Split('\n');
+            var result = new StringBuilder();
+            for (var i = 0; i < texts.Length; i++)
+            {
+                var t = texts[i];
+                result.Append(RenderParagraph(t));
+                if (i != texts.Length - 1)
+                    result.Append('\n');
+            }
+            return result.ToString();
+        }
+
+        internal static StringBuilder Render(StringBuilder text) => new StringBuilder(Render(text.ToString()));
         private static string RenderParagraph(string paragraph)
         {
             var tagsAndText = ProcessText(paragraph);
-            var currectTags = tagsAndText.Item1.GetCorrectTags();
-            var text = tagsAndText.Item2.ToString();
+            var currectTags = tagsAndText.tagInfos.GetCorrectTags();
+            var text = tagsAndText.result.ToString();
             if (!currectTags.Any())
                 return text;
             var tags = new Stack<TagInfo>();
@@ -61,21 +78,7 @@ namespace Markdown
             return tagsText.Pop().ToString();
         }
 
-        public static string Render(string text)
-        {
-            var texts = text.Split('\n');
-            var result = new StringBuilder();
-            for(var i = 0; i < texts.Length; i++)
-            {
-                var t = texts[i];
-                result.Append(RenderParagraph(t));
-                if (i != texts.Length - 1)
-                    result.Append('\n');
-            }
-            return result.ToString();
-        }
-
-        private static (IEnumerable<TagInfo>, StringBuilder) ProcessText(string text)
+        private static (IEnumerable<TagInfo> tagInfos, StringBuilder result) ProcessText(string text)
         {
             var result = new StringBuilder();
             var tagStack = new List<TagInfo>();
@@ -118,8 +121,8 @@ namespace Markdown
         
 
         private static bool Shield(string text, int position) =>
-            text[position] == '\\' &&
+            text[position] == shieldSimbol &&
             position < text.Length - 1 && 
-            (TagsAssociation.GetTagConverter(text[position + 1].ToString()) != null || text[position + 1] == '\\');
+            (TagsAssociation.GetTagConverter(text[position + 1].ToString()) != null || text[position + 1] == shieldSimbol);
     }
 }

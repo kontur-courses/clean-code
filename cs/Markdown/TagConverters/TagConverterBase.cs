@@ -43,7 +43,11 @@ namespace Markdown.TagConverters
                 t.Append(StringMd);
                 return FormTags(t);
             }
-            if (ResultIsMoreThenOneWord(text))
+            if(StringMd == new TagUl().StringMd)
+            {
+                return (this as TagUl).Convert(tagsText);
+            }
+            if (ResultIsMoreThenOneWord(tagsText))
                 return GetResultWithWhiteSpace(tagsText, text, start, finish);
             return FormTags(tagsText);
         }
