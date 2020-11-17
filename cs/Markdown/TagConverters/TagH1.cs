@@ -9,7 +9,7 @@ namespace Markdown.TagConverters
         public override bool IsSingleTag => true;
         public override string Html => TagHtml.h1;
 
-        public override string Md => TagMd.sharp;
+        public override string Md => MarkdownElement.sharp;
 
         public override HashSet<string> TagInside => TagsAssociation.tags
             .Where(t => t != new TagUl().StringMd)

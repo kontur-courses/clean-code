@@ -6,7 +6,7 @@ namespace Markdown.TagConverters
     internal class TagEm : TagConverterBase
     {
         public override string Html => TagHtml.em;
-        public override string Md => TagMd._;
+        public override string Md => MarkdownElement._;
 
         public override bool CanClose(StringBuilder text, int pos) => CanCloseBase(text, pos);
         public override bool CanOpen(StringBuilder text, int pos) => CanOpenBase(text, pos);

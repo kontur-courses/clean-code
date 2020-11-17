@@ -11,7 +11,7 @@ namespace Markdown.TagConverters
 
         public override string Html => TagHtml.ul;
 
-        public override string Md => TagMd.list;
+        public override string Md => MarkdownElement.list;
 
         public override bool CanClose(StringBuilder text, int pos) => CanCloseBase(text, pos);
 

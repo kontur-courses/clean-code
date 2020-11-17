@@ -8,7 +8,7 @@ namespace Markdown.TagConverters
     {
         public override string Html => TagHtml.strong;
 
-        public override string Md => TagMd.__;
+        public override string Md => MarkdownElement.__;
         public override bool IsSingleTag => false;
 
         public override bool IsTag(string text, int pos) => IsTagBase(text, pos);

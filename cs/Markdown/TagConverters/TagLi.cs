@@ -12,7 +12,7 @@ namespace Markdown.TagConverters
 
         public override string Html => TagHtml.li;
 
-        public override string Md => TagMd.empty;
+        public override string Md => MarkdownElement.empty;
 
         public override bool CanClose(StringBuilder text, int pos) => false;
 

@@ -1,7 +1,7 @@
 ﻿
 namespace Markdown
 {
-    internal static class TagMd
+    internal static class MarkdownElement
     {
         internal const string _ = "_";
         internal const string __ = "__";
