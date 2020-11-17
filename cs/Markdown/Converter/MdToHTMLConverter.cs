@@ -6,18 +6,27 @@ namespace Markdown
 {
     internal class MdToHTMLConverter : IConverter
     {
-        private readonly Dictionary<int, Queue<(string, int)>> tagsForInserting;
+        private readonly Dictionary<int, Stack<(string startTag, int nextPointer)>> endTagsForInserting;
+        private readonly Dictionary<int, Queue<(string startTag, int nextPointer)>> startTagsForInserting;
+        private IComparer<Token> comparer;
 
         internal MdToHTMLConverter()
         {
-            tagsForInserting = new Dictionary<int, Queue<(string, int)>>();
+            startTagsForInserting = new Dictionary<int, Queue<(string startTag, int nextPointer)>>();
+            endTagsForInserting = new Dictionary<int, Stack<(string startTag, int nextPointer)>>();
         }
 
-        public string Convert(string mdText, IEnumerable<Token> mdTokens, TextInfo escapingInfo)
+        public string Convert(string mdText, IEnumerable<Token> mdTokens, TextInfo textInfo)
         {
             var htmlTokens = ConvertTokens(mdTokens);
             SetTagsForInserting(htmlTokens);
-            return TokensToHTMLText(mdText, escapingInfo);
+            return TokensToHTMLText(mdText, textInfo);
+        }
+
+        public MdToHTMLConverter UsingComparer(IComparer<Token> comparer)
+        {
+            this.comparer = comparer;
+            return this;
         }
 
         private static IEnumerable<Token> ConvertTokens(IEnumerable<Token> tokens)
@@ -33,14 +42,18 @@ namespace Markdown
 
         private void SetTagsForInserting(IEnumerable<Token> tokens)
         {
-            foreach (var token in tokens.OrderBy(token => token.TokenStart))
+            tokens = comparer == null
+                ? tokens.OrderBy(token => token.TokenStart)
+                : tokens.OrderBy(token => token, comparer);
+            foreach (var token in tokens)
             {
-                if (!tagsForInserting.ContainsKey(token.TokenStart))
-                    tagsForInserting[token.TokenStart] = new Queue<(string, int)>();
-                tagsForInserting[token.TokenStart].Enqueue((token.TokenStyle.StartTag, token.ContentStart));
-                if (!tagsForInserting.ContainsKey(token.ContentStart + token.ContentLength))
-                    tagsForInserting[token.ContentStart + token.ContentLength] = new Queue<(string, int)>();
-                tagsForInserting[token.ContentStart + token.ContentLength].Enqueue((token.TokenStyle.EndTag,
+                if (!startTagsForInserting.ContainsKey(token.TokenStart))
+                    startTagsForInserting[token.TokenStart] = new Queue<(string startTag, int nextPointer)>();
+                startTagsForInserting[token.TokenStart].Enqueue((token.TokenStyle.StartTag, token.ContentStart));
+                if (!endTagsForInserting.ContainsKey(token.ContentStart + token.ContentLength))
+                    endTagsForInserting[token.ContentStart + token.ContentLength] =
+                        new Stack<(string startTag, int nextPointer)>();
+                endTagsForInserting[token.ContentStart + token.ContentLength].Push((token.TokenStyle.EndTag,
                     token.TokenStart + token.TokenLength));
             }
         }
@@ -51,17 +64,27 @@ namespace Markdown
             var ptr = 0;
             while (true)
             {
-                if (tagsForInserting.ContainsKey(ptr))
+                if (endTagsForInserting.ContainsKey(ptr))
                 {
-                    var (tag, nextPtr) = tagsForInserting[ptr].Dequeue();
-                    if (tagsForInserting[ptr].Count == 0)
-                        tagsForInserting.Remove(ptr);
+                    var (tag, nextPtr) = endTagsForInserting[ptr].Pop();
+                    if (endTagsForInserting[ptr].Count == 0)
+                        endTagsForInserting.Remove(ptr);
                     htmlText.Append(tag);
                     ptr = nextPtr;
                     continue;
                 }
 
-                if (ptr >= mdText.Length && tagsForInserting.Count == 0)
+                if (startTagsForInserting.ContainsKey(ptr))
+                {
+                    var (tag, nextPtr) = startTagsForInserting[ptr].Dequeue();
+                    if (startTagsForInserting[ptr].Count == 0)
+                        startTagsForInserting.Remove(ptr);
+                    htmlText.Append(tag);
+                    ptr = nextPtr;
+                    continue;
+                }
+
+                if (ptr >= mdText.Length)
                     break;
                 if (!escapingInfo.EscapeCharPositions.Contains(ptr))
                     htmlText.Append(mdText[ptr]);

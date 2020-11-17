@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Linq;
 
 namespace Markdown
 {
@@ -32,6 +33,29 @@ namespace Markdown
                    || text.Substring(pointer, 1) == Environment.NewLine
                    || pointer < text.Length - 1
                    && text.Substring(pointer, 2) == Environment.NewLine;
+        }
+
+        public static int GetNextParagraphStart(this string text, int currentPosition)
+        {
+            for (var i = currentPosition; i < text.Length; i++)
+                if (IsStartOfParagraph(text, i))
+                    return i;
+
+            return -1;
+        }
+
+        public static int GetCurrentParagraphStart(this string text, int currentPosition)
+        {
+            for (var i = currentPosition; i >= 0; i--)
+                if (IsStartOfParagraph(text, i))
+                    return i;
+
+            return 0;
+        }
+
+        public static bool ContainsOnlyWhiteSpace(this string text)
+        {
+            return text.All(ch => char.IsWhiteSpace(ch));
         }
     }
 }

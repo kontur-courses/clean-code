@@ -19,7 +19,7 @@
                 return false;
             if (!(obj is Style))
                 return false;
-            var other = (Style)obj;
+            var other = (Style) obj;
             return StartTag == other.StartTag && EndTag == other.EndTag && Type == other.Type;
         }
 
@@ -33,6 +33,8 @@
     {
         Heading,
         Italic,
-        Bold
+        Bold,
+        UnorderedList,
+        UnorderedListElement
     }
 }

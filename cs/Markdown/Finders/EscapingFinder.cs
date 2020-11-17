@@ -6,8 +6,8 @@ namespace Markdown
     public class EscapingFinder : IEscapingFinder
     {
         public const char EscapeChar = '\\';
-        private readonly HashSet<int> escapedMarkupCharsPositions;
         private readonly HashSet<int> escapeCharPositions;
+        private readonly HashSet<int> escapedMarkupCharsPositions;
 
         private readonly HashSet<char> markupChars;
         public readonly string Text;

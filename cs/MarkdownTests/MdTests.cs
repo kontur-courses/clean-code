@@ -193,6 +193,7 @@ namespace MarkdownTests
         [TestCase("\\#word", "#word")]
         [TestCase("\\___word__", "_<strong>word</strong>")]
         [TestCase("wo\\_rd_", "wo_rd_")]
+        [TestCase("\\+ul", "+ul")]
         public void MdRender_ShouldIgnoreEscapedChars(string mdText, string expectedHTMLText)
         {
             Md.Render(mdText).Should().BeEquivalentTo(expectedHTMLText);
@@ -201,9 +202,47 @@ namespace MarkdownTests
         [TestCase("\\\\_word_", "\\<em>word</em>")]
         [TestCase("\\\\\\_word_", "\\_word_")]
         [TestCase("\\\\word", "\\\\word")]
+        [TestCase("\\\\+ul", "\\+ul")]
         public void MdRender_ShouldDeleteEscapingChars(string mdText, string expectedHTMLText)
         {
             Md.Render(mdText).Should().BeEquivalentTo(expectedHTMLText);
+        }
+
+        [Test]
+        public void Md_ShouldRenderUnorderedList_WithOneElement()
+        {
+            Md.Render("+ ul").Should().BeEquivalentTo("<ul><li>ul</li></ul>");
+        }
+
+        [Test]
+        public void Md_ShouldRenderUnorderedList_WithEmptyElement()
+        {
+            Md.Render("+ ").Should().BeEquivalentTo("<ul><li></li></ul>");
+        }
+
+        [Test]
+        public void Md_ShouldRenderUnorderedList_WithMoreThanOneElement()
+        {
+            Md.Render("+ ul\r\n+ ul").Should().BeEquivalentTo("<ul><li>ul</li>\r\n<li>ul</li></ul>");
+        }
+
+        [Test]
+        public void Md_ShouldRenderUnorderedList_WithNesting()
+        {
+            Md.Render("+ ul\r\n  + ul\r\n    + ul").Should().BeEquivalentTo(
+                "<ul><li>ul<ul>\r\n<li>ul<ul>\r\n<li>ul</li></ul></li></ul></li></ul>");
+        }
+
+        [Test]
+        public void Md_ShouldRenderItalicStyle_InUnorderedList()
+        {
+            Md.Render("+ _ul_").Should().BeEquivalentTo("<ul><li><em>ul</em></li></ul>");
+        }
+
+        [Test]
+        public void Md_ShouldRenderBoldStyle_InUnorderedList()
+        {
+            Md.Render("+ __ul__").Should().BeEquivalentTo("<ul><li><strong>ul</strong></li></ul>");
         }
     }
 }
