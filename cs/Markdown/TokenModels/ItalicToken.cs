@@ -47,7 +47,7 @@ namespace Markdown.TokenModels
         {
             var hasDigitAroundTags = IsDigitAroundTag(mdString, startIndex) || IsDigitAroundTag(mdString, endIndex);
             var hasSpaceCharBeforeClosingTag = mdString.HasWhiteSpaceAt(endIndex - 1);
-            return hasDigitAroundTags || hasSpaceCharBeforeClosingTag;
+            return endIndex - startIndex <= 2 || hasDigitAroundTags || hasSpaceCharBeforeClosingTag;
         }
 
         private static bool IsDigitAroundTag(string mdString, int position) =>
