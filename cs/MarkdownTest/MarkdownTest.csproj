@@ -15,4 +15,8 @@
       <ProjectReference Include="..\Markdown\Markdown.csproj" />
     </ItemGroup>
 
+    <ItemGroup>
+      <Content Include="MarkdownSpec.html" />
+    </ItemGroup>
+
 </Project>

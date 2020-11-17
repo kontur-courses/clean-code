@@ -4,24 +4,35 @@ namespace Markdown
 {
     public abstract class UnderscoreParser : Parser
     {
+        public const char UnderscoreSymbol = '_';
+        public const string DoubleUnderscore = "__";
+        private List<TagInfo> tagsInsideWord;
+        private bool wordContainsDigits;
         protected int UnderscoreCounter;
-        private bool previousIsSpace;
-        private int underscoresCountInWord;
+        protected bool PreviousIsSpace;
+        private bool hasWhiteSpace;
+
+        protected UnderscoreParser()
+        {
+            tagsInsideWord = new List<TagInfo>();
+            PreviousIsSpace = true;
+        }
 
         protected void ParseOpeningUnderscore(int index)
         {
             if (TextEnded)
             {
                 if (PreviousIndex < Markdown.Length)
-                    TextInfo.AddText(Markdown.Substring(PreviousIndex));
+                    TagInfo.AddText(Markdown.Substring(PreviousIndex));
                 PreviousIndex = Markdown.Length;
                 State = States.Pop();
             }
-            else if (Markdown[index] == '_')
+            else if (Markdown[index] == UnderscoreSymbol && !ShouldEscaped(Markdown[index]))
                 UnderscoreCounter++;
             else if (char.IsWhiteSpace(Markdown[index]))
             {
                 UnderscoreCounter = 0;
+                BackslashCounter = 0;
                 State = States.Pop();
             }
             else
@@ -34,43 +45,69 @@ namespace Markdown
         {
             if (TextEnded)
             {
-                if (!previousIsSpace && (UnderscoreCounter == 2 || UnderscoreCounter == 1))
+                if (!PreviousIsSpace && UnderscoreCounter != 0)
+                {
                     CloseUnderscoreTag(Markdown.Length - 1);
+                    if (wordContainsDigits)
+                    {
+                        foreach (var tag in tagsInsideWord)
+                            tag.ResetFormatting(true);
+                    }
+                }
                 else
                 {
-                    TextInfo.AddText(Markdown.Substring(PreviousIndex));
-                    TextInfo.ToNoFormatting();
+                    TagInfo.AddText(Markdown.Substring(PreviousIndex));
+                    TagInfo.ResetFormatting();
+                    TagInfo = NestedTextInfos.Pop();
                     State = States.Pop();
+                    PreviousIndex = Markdown.Length;
                 }
-                PreviousIndex = Markdown.Length;
             }
-            else if (Markdown[index] == '_')
+            else if (Markdown[index] == UnderscoreSymbol && !ShouldEscaped(Markdown[index]))
             {
                 UnderscoreCounter++;
             }
             else
             {
+                if (char.IsDigit(Markdown[index]))
+                    wordContainsDigits = true;
+
                 if (UnderscoreCounter != 0)
                 {
-                    if (char.IsWhiteSpace(Markdown[index]))
+                    if (!PreviousIsSpace)
                     {
                         CloseUnderscoreTag(index);
                     }
-                    else
+                    else if (PreviousIsSpace)
                     {
                         SetNewState(OpenUnderscoreTag);
                         State(index);
                     }
                 }
-                
-                if (!char.IsWhiteSpace(Markdown[index]))
+
+                if (char.IsWhiteSpace(Markdown[index]))
                 {
-                    previousIsSpace = false;
-                    WordStartIndex = index;
-                    SetNewState(ParseInsideWord);
+                    hasWhiteSpace = true;
+                    UnderscoreCounter = 0;
+
+                    if (TagInfo.InsideWord)
+                    {
+                        TagInfo.ResetFormatting();
+                        State = States.Pop();
+                    }
+
+                    tagsInsideWord = new List<TagInfo>();
                 }
 
-                previousIsSpace = char.IsWhiteSpace(Markdown[index]);
+
+                if (wordContainsDigits)
+                {
+                    foreach (var tag in tagsInsideWord)
+                        tag.ResetFormatting(true);
+                }
+
+                PreviousIsSpace = char.IsWhiteSpace(Markdown[index]) ||
+                                  Markdown[index] == '\\' && BackslashCounter % 2 == 0;
             }
         }
 
@@ -78,113 +115,78 @@ namespace Markdown
         {
             var tag = UnderscoreCounter == 1 ? Tag.Italic : Tag.Bold;
             UnderscoreCounter = UnderscoreCounter == 1 ? 1 : 2;
-
             var length = index - UnderscoreCounter - PreviousIndex;
             if (length > 0)
-                TextInfo.AddText(Markdown.Substring(PreviousIndex, length));
+                TagInfo.AddText(Markdown.Substring(PreviousIndex, length));
 
             PreviousIndex = index;
             UnderscoreCounter = 0;
+            hasWhiteSpace = false;
 
+            SetNewTextInfo(new TagInfo(tag));
+            TagInfo.InsideWord = !PreviousIsSpace;
             State = ParseUnderscoreContent;
-            SetNewTextInfo(new TextInfo(tag));
             State(index);
         }
 
         private void CloseUnderscoreTag(int index)
         {
-            if (!HasOpeningTag())
+            var tag = UnderscoreCounter == 1 ? Tag.Italic : Tag.Bold;
+            if (!HasOpeningTag(tag, Markdown[index]))
             {
                 if (TextEnded)
-                    TextInfo.AddText(Markdown.Substring(PreviousIndex));
-                UnderscoreCounter = 0;
-                return;
+                    TagInfo.AddText(Markdown.Substring(PreviousIndex));
+                if (char.IsWhiteSpace(Markdown[index]))
+                    UnderscoreCounter = 0;
+                else
+                {
+                    SetNewState(OpenUnderscoreTag);
+                    State(index);
+                }
             }
-            
-            if (TagsAreIntersects())
+            else if (TagsIntersect(tag))
             {
                 var (currentTag, conflictedTag) =
                     UnderscoreCounter == 1 ? (Tag.Italic, Tag.Bold) : (Tag.Bold, Tag.Italic);
-                ChangeAllConflictedTagsToNoFormatting(currentTag, conflictedTag);
+                ResetFormattingForConflictingTags(currentTag, conflictedTag);
                 if (TextEnded)
-                    TextInfo.AddText(Markdown.Substring(PreviousIndex));
-                return;
-            }
-
-            if (TextInfo.Tag == Tag.Bold && NestedTextInfos.Peek().Tag == Tag.Italic)
-            {
-                TextInfo.ToNoFormatting();
-                TextInfo = NestedTextInfos.Pop();
-                State = States.Pop();
-                UnderscoreCounter = 0;
-                return;
-            }
-
-            var length = TextEnded ? index - PreviousIndex + 1 : index - PreviousIndex;
-            length -= UnderscoreCounter;
-            TextInfo.AddText(Markdown.Substring(PreviousIndex, length));
-            TextInfo = NestedTextInfos.Pop();
-            State = States.Pop();
-            PreviousIndex = UnderscoreCounter < 3 ? index : index - UnderscoreCounter + 2;
-            UnderscoreCounter = 0;
-        }
-
-        protected void ParseInsideWord(int index)
-        {
-            if (TextEnded || char.IsWhiteSpace(Markdown[index]))
-            {
-                if (underscoresCountInWord != 0)
                 {
-                    underscoresCountInWord = 0;
-                    var length = TextEnded ? index - WordStartIndex + 1 : index - WordStartIndex;
-                    var word = Markdown.Substring(WordStartIndex, length);
-                    var previousStringLength = WordStartIndex - PreviousIndex;
-                    if (previousStringLength > 0)
-                        TextInfo.AddText(Markdown.Substring(PreviousIndex, previousStringLength));
-
-                    UnderscoreCounter = CountUnderscoresAtTheWordEnd(word);
-                    word = word.Substring(0, word.Length - UnderscoreCounter);
-                    PreviousIndex = TextEnded ? index - UnderscoreCounter + 1 : index - UnderscoreCounter;
-                    TextInfo.AddContent(WordParser.Parse(word));
+                    TagInfo.AddText(Markdown.Substring(PreviousIndex));
+                    PreviousIndex = Markdown.Length;
                 }
-
-                State = States.Pop();
-                State(index);
             }
             else
             {
-                if (ShouldEscaped(Markdown[index]))
-                    BackslashCounter = 0;
-                else if (Markdown[index] == '_')
-                    underscoresCountInWord++;
+                if (TagInfo.Tag == Tag.Italic || TextEnded && tag == Tag.Italic)
+                {
+                    while (TagInfo.Tag != Tag.Italic)
+                        TagInfo = NestedTextInfos.Pop();
+                    foreach (var bold in TagInfo.FindAndGetBoldContent())
+                        bold.ResetFormatting(true);
+                }
+
+                CloseFirstMatching(index);
             }
-            
         }
 
-        private bool TagsAreIntersects()
-        {
-            return UnderscoreCounter == 1 && TextInfo.Tag != Tag.Italic ||
-                   UnderscoreCounter != 1 && TextInfo.Tag != Tag.Bold;
-        }
-        
-        private bool HasOpeningTag()
+        private bool HasOpeningTag(Tag tag, char currentSymbol)
         {
             var result = false;
-            var tag = UnderscoreCounter == 1 ? Tag.Italic : Tag.Bold;
-            if (TextInfo.Tag == tag)
+            if (TagInfo.Tag == tag && IsValidTag(TagInfo, currentSymbol))
                 return true;
-            
-            var temporaryStack = new Stack<TextInfo>();
+
+            var temporaryStack = new Stack<TagInfo>();
             while (NestedTextInfos.Count != 0)
             {
-                var textInfo = NestedTextInfos.Pop();
-                if (textInfo.Tag == tag)
+                var tagInfo = NestedTextInfos.Pop();
+                if (tagInfo.Tag == tag && IsValidTag(tagInfo, currentSymbol))
                 {
-                    NestedTextInfos.Push(textInfo);
+                    NestedTextInfos.Push(tagInfo);
                     result = true;
                     break;
                 }
-                temporaryStack.Push(textInfo);
+
+                temporaryStack.Push(tagInfo);
             }
 
             while (temporaryStack.Count != 0)
@@ -193,48 +195,77 @@ namespace Markdown
             return result;
         }
 
-        private void ChangeAllConflictedTagsToNoFormatting(Tag currentTag, Tag conflictedTag)
+        private bool IsValidTag(TagInfo tagInfo, char currentSymbol)
         {
-            TextInfo.ToNoFormatting();
-            State = States.Pop();
-
-            var temporaryStack = new Stack<TextInfo>();
-            TextInfo textInfo;
-            do
-            {
-                textInfo = NestedTextInfos.Pop();
-                if (textInfo.Tag != conflictedTag && textInfo.Tag != currentTag)
-                    break;
-
-                textInfo.ToNoFormatting();
-                State = States.Pop();
-                temporaryStack.Push(textInfo);
-
-                if (currentTag == textInfo.Tag)
-                   break;
-            } while (currentTag != textInfo.Tag);
-
-            TextInfo = textInfo;
+            return !tagInfo.InsideWord && (char.IsWhiteSpace(currentSymbol) || TextEnded) || !hasWhiteSpace;
         }
 
-        private int CountUnderscoresAtTheWordEnd(string word)
+        private void CloseFirstMatching(int index)
         {
-            var count = 0;
-            for (var i = word.Length - 1; i > 0; i--)
+            var tag = UnderscoreCounter == 1 ? Tag.Italic : Tag.Bold;
+            var tagInfo = TagInfo;
+            var temporaryStack = new Stack<TagInfo>();
+            do
             {
-                if (word[i] == '\\')
-                    BackslashCounter++;
-                else if (word[i] == '_')
-                    count++;
-                else
+                if (tagInfo.Tag == tag)
                 {
-                    if (count != 0 && ShouldEscaped('_'))
-                        count--;
-                    return count;
+                    var length = TextEnded
+                        ? index - PreviousIndex - UnderscoreCounter + 1
+                        : index - PreviousIndex - UnderscoreCounter;
+                    tagInfo.AddText(Markdown.Substring(PreviousIndex, length));
+                    tagInfo.InsideWord = !PreviousIsSpace;
+                    tagInfo.IsClosed = true;
+
+                    State = States.Pop();
+                    PreviousIndex = UnderscoreCounter < 3 ? index : index - UnderscoreCounter + 2;
+                    UnderscoreCounter = 0;
+
+                    if (TextEnded) PreviousIndex++;
+                    if (!PreviousIsSpace || TextEnded) tagsInsideWord.Add(TagInfo);
+                    break;
                 }
+
+                temporaryStack.Push(tagInfo);
+                tagInfo = NestedTextInfos.Pop();
+            } while (NestedTextInfos.Count != 0);
+
+            if (temporaryStack.Count > 0)
+            {
+                while (temporaryStack.Count > 0)
+                    NestedTextInfos.Push(temporaryStack.Pop());
             }
 
-            return count;
+            TagInfo = NestedTextInfos.Pop();
+        }
+
+        private bool TagsIntersect(Tag tag)
+        {
+            return tag == Tag.Italic && TagInfo.Tag == Tag.Bold ||
+                   tag == Tag.Bold && TagInfo.Tag == Tag.Italic;
+        }
+
+        private void ResetFormattingForConflictingTags(Tag currentTag, Tag conflictedTag)
+        {
+            TagInfo.ResetFormatting();
+            State = States.Pop();
+
+            var temporaryStack = new Stack<TagInfo>();
+            TagInfo tagInfo;
+            do
+            {
+                tagInfo = NestedTextInfos.Pop();
+                if (tagInfo.Tag != conflictedTag && tagInfo.Tag != currentTag)
+                    break;
+
+                tagInfo.ResetFormatting();
+                temporaryStack.Push(tagInfo);
+                State = States.Pop();
+
+                if (currentTag == tagInfo.Tag)
+                    break;
+            } while (currentTag != tagInfo.Tag);
+
+            TagInfo = tagInfo;
         }
     }
 }

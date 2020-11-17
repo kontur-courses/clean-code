@@ -5,15 +5,14 @@ namespace Markdown
     public abstract class Parser
     {
         protected readonly Stack<MachineState> States;
-        protected readonly Stack<TextInfo> NestedTextInfos;
+        protected readonly Stack<TagInfo> NestedTextInfos;
         protected MachineState State;
-        protected TextInfo TextInfo;
+        protected TagInfo TagInfo;
 
         protected string Markdown;
         protected bool TextEnded;
         protected int BackslashCounter;
         protected int PreviousIndex;
-        protected int WordStartIndex;
 
         private readonly HashSet<char> keySymbols = new HashSet<char> {'_', '#'};
 
@@ -21,8 +20,8 @@ namespace Markdown
 
         protected Parser()
         {
-            TextInfo = new TextInfo();
-            NestedTextInfos = new Stack<TextInfo>();
+            TagInfo = new TagInfo();
+            NestedTextInfos = new Stack<TagInfo>();
             States = new Stack<MachineState>();
         }
 
@@ -31,16 +30,11 @@ namespace Markdown
             return keySymbols.Contains(symbol) && BackslashCounter % 2 != 0;
         }
 
-        protected bool SymbolIsKey(char symbol)
+        protected void SetNewTextInfo(TagInfo newTagInfo)
         {
-            return keySymbols.Contains(symbol);
-        }
-
-        protected void SetNewTextInfo(TextInfo newTextInfo)
-        {
-            TextInfo.AddContent(newTextInfo);
-            NestedTextInfos.Push(TextInfo);
-            TextInfo = newTextInfo;
+            TagInfo.AddContent(newTagInfo);
+            NestedTextInfos.Push(TagInfo);
+            TagInfo = newTagInfo;
         }
 
         protected void SetNewState(MachineState newState)

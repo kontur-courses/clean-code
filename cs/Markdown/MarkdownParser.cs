@@ -2,7 +2,9 @@
 {
     public class MarkdownParser : UnderscoreParser, IParser
     {
-        public TextInfo Parse(string markdown)
+        public const char HashSymbol = '#';
+
+        public TagInfo Parse(string markdown)
         {
             Markdown = markdown;
             State = ParseSymbol;
@@ -11,14 +13,15 @@
             {
                 if (markdown[i] == '\\')
                     BackslashCounter++;
-
                 State(i);
+                if (ShouldEscaped(markdown[i]))
+                    BackslashCounter = 0;
             }
 
             TextEnded = true;
             CloseTags();
 
-            return TextInfo;
+            return TagInfo;
         }
 
         private void ParseSymbol(int index)
@@ -27,31 +30,28 @@
             {
                 if (PreviousIndex != Markdown.Length)
                 {
-                    TextInfo.AddText(Markdown.Substring(PreviousIndex));
+                    TagInfo.AddText(Markdown.Substring(PreviousIndex));
                     PreviousIndex = Markdown.Length;
                 }
+
+                if (NestedTextInfos.Count != 0)
+                    TagInfo = NestedTextInfos.Pop();
             }
             else if (ShouldEscaped(Markdown[index]))
-            {
                 BackslashCounter = 0;
-                WordStartIndex = index - 1;
-                SetNewState(ParseInsideWord);
-            }
-            else if (!SymbolIsKey(Markdown[index]) && !char.IsWhiteSpace(Markdown[index]))
-            {
-                WordStartIndex = index;
-                SetNewState(ParseInsideWord);
-            }
             else
             {
                 switch (Markdown[index])
                 {
-                    case '_':
+                    case UnderscoreSymbol:
                         UnderscoreCounter = 1;
                         SetNewState(ParseOpeningUnderscore);
                         break;
-                    case '#' when index == 0:
+                    case HashSymbol when index == 0:
                         SetNewState(ParseHashSymbol);
+                        break;
+                    default:
+                        PreviousIsSpace = char.IsWhiteSpace(Markdown[index]) || Markdown[index] == '\\' && BackslashCounter % 2 == 0;
                         break;
                 }
             }
@@ -61,7 +61,7 @@
         {
             if (Markdown[index] == ' ')
             {
-                SetNewTextInfo(new TextInfo(Tag.Heading));
+                SetNewTextInfo(new TagInfo(Tag.Heading));
                 PreviousIndex = index + 1;
             }
 
@@ -70,13 +70,8 @@
 
         private void CloseTags()
         {
-            State(Markdown.Length - 1);
-            while (NestedTextInfos.Count != 0)
-            {
-                if (TextInfo.Tag == Tag.Bold || TextInfo.Tag == Tag.Italic)
-                    TextInfo.ToNoFormatting();
-                TextInfo = NestedTextInfos.Pop();
-            }
+            do State(Markdown.Length - 1);
+            while (NestedTextInfos.Count != 0 || PreviousIndex < Markdown.Length);
         }
     }
 }

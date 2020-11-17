@@ -1,24 +1,26 @@
-﻿using System.Text;
+﻿using System;
+using System.Text;
 
 namespace Markdown
 {
     public class Md
     {
-        public string Render(string rawMarkdown)
+        public static string Render(string rawMarkdown)
         {
             if (string.IsNullOrEmpty(rawMarkdown))
                 return "";
 
-            var paragraphs = rawMarkdown.Split('\n');
             var result = new StringBuilder();
-            foreach (var paragraph in paragraphs)
+            foreach (var paragraph in rawMarkdown.Split(Environment.NewLine))
             {
                 var parser = new MarkdownParser();
                 var parsedText = parser.Parse(paragraph);
                 result.Append(HtmlMaker.FromTextInfo(parsedText));
+                result.Append(Environment.NewLine);
             }
-            
-            return string.Join('\n', result);
+
+            result.Remove(result.Length - Environment.NewLine.Length, Environment.NewLine.Length);
+            return result.ToString();
         }
     }
 }

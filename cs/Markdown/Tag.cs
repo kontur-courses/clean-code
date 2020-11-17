@@ -2,9 +2,9 @@
 {
     public enum Tag
     {
+        NoFormatting,
         Heading,
         Bold,
-        Italic,
-        NoFormatting
+        Italic
     }
 }
