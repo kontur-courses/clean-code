@@ -25,6 +25,9 @@ namespace Markdown.Builder
             
             foreach (var token in parsedTextData.Tokens)
                 AnalyzeToken(token);
+            foreach (var posToRemove in parsedTextData.ToRemove.Keys)
+                positionsToChanges[posToRemove] = parsedTextData.ToRemove[posToRemove];
+            
 
             foreach (var posToChange in positionsToChanges.Reverse())
             {

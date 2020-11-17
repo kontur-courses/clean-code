@@ -32,9 +32,26 @@ namespace Markdown_Tests
             markdownToHtml.Render(markdownText).Should().Be(htmlText);
         }
 
+        [TestCase("__", "__")]
+        [TestCase("____", "____")]
+        public void MdRender_ShouldRenderCorrectly_WhenTagDontContainFilling(string markdownText, string htmlText)
+        {
+            markdownToHtml.Render(markdownText).Should().Be(htmlText);
+        }
+
         [TestCase("_text text_", @"\<em>text text\</em>")]
         [TestCase("__text text__", @"\<strong>text text\</strong>")]
         public void MdRender_ShouldRenderCorrectly_WhenTagContainsManyWords(string markdownText, string htmlText)
+        {
+            markdownToHtml.Render(markdownText).Should().Be(htmlText);
+        }
+        
+        [TestCase("__text text_", "__text text_")]
+        [TestCase("_text text__", "_text text__")]
+        [TestCase("__text _text__ text_", "__text _text__ text_")]
+        [TestCase("_text __text__ text", @"_text \<strong>text\</strong> text")]
+        [TestCase("_text __text__ text_", @"\<em>text __text__ text\</em>")]
+        public void MdRender_ShouldRenderCorrectly_WhenUnpairedTagBorder(string markdownText, string htmlText)
         {
             markdownToHtml.Render(markdownText).Should().Be(htmlText);
         }
@@ -54,20 +71,42 @@ namespace Markdown_Tests
             markdownToHtml.Render(markdownText).Should().Be(htmlText);
         }
         
-        [TestCase("_begin __middle__ end_", @"\<em>begin \<strong>middle\</strong> end\</em>")]
-        [TestCase("# _begin __middle__ end_", @"\<h1>\<em>begin \<strong>middle\</strong> end\</em>\</h1>")]
-        [TestCase("begin ___middle___ end", @"begin \<strong>\<em>middle\</em>\</strong> end")]
-        [TestCase("# begin ___middle___ end", @"\<h1>begin \<strong>\<em>middle\</em>\</strong> end\</h1>")]
+        [TestCase("__begin _middle_ end__", @"\<strong>begin \<em>middle\</em> end\</strong>")]
+        [TestCase("_begin __middle__ end_", @"\<em>begin __middle__ end\</em>")]
+        [TestCase("# __begin _middle_ end__", @"\<h1>\<strong>begin \<em>middle\</em> end\</strong>\</h1>")]
         public void MdRender_ShouldRenderCorrectly_WhenTagNested(string markdownText, string htmlText)
         {
             markdownToHtml.Render(markdownText).Should().Be(htmlText);
         }
         
-        [TestCase("begin middle _end", "begin middle _end")]
-        [TestCase("begin __middle _end", "begin __middle _end")]
-        [TestCase("begin middle _end\n", "begin middle _end\n")]
-        [TestCase("begin __middle _end\n", "begin __middle _end\n")]
-        public void MdRender_ShouldRenderCorrectly_WhenTagCancelInEndOfLine(string markdownText, string htmlText)
+        [TestCase("_1begin_ end", "_1begin_ end")]
+        [TestCase("_begin2_ end", "_begin2_ end")]
+        [TestCase("_begin_3 end", "_begin_3 end")]
+        [TestCase("begin _4end_", "begin _4end_")]
+        [TestCase("begin _end5_", "begin _end5_")]
+        [TestCase("begin 6_end_", "begin 6_end_")]
+        [TestCase("begin 7_8end9_1", "begin 7_8end9_1")]
+        [TestCase("version3_18alpha_2", "version3_18alpha_2")]
+        public void MdRender_ShouldRenderCorrectly_WhenStyleTagTouchDigit(string markdownText, string htmlText)
+        {
+            markdownToHtml.Render(markdownText).Should().Be(htmlText);
+        }
+        
+        [TestCase("be_gin_", @"be\<em>gin\</em>")]
+        [TestCase("b_egi_n", @"b\<em>egi\</em>n")]
+        [TestCase("_be_gin", @"\<em>be\</em>gin")]
+        [TestCase("be_gin en_d", @"be_gin en_d")]
+        public void MdRender_ShouldRenderCorrectly_WhenStyleTagCoverWordPart(string markdownText, string htmlText)
+        {
+            markdownToHtml.Render(markdownText).Should().Be(htmlText);
+        }
+        
+        [TestCase(@"text \ text", @"text \ text")]
+        [TestCase(@"te\xt", @"te\xt")]
+        [TestCase(@"te\\\\xt", @"te\\xt")]
+        [TestCase(@"t\_e_x_t", @"t_e\<em>x\</em>t")]
+        [TestCase(@"t\\_e_x_t", @"t\\<em>e\</em>x_t")]
+        public void MdRender_ShouldRenderCorrectly_WhenTextContainsEscapedSymbols(string markdownText, string htmlText)
         {
             markdownToHtml.Render(markdownText).Should().Be(htmlText);
         }

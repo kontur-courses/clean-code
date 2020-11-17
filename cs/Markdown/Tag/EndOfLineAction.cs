@@ -3,7 +3,8 @@
     public enum EndOfLineAction
     {
         Cancel,
-        Continue,
+        ContinueAndCancelAtEOF,
+        ContinueAndCompleteAtEOF,
         Complete
     }
 }

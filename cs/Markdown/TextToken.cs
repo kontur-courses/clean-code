@@ -10,8 +10,6 @@ namespace Markdown
         public int End { get; set; }
         public List<TextToken> SubTokens { get; private set;}
 
-        public bool IsValid => Start < End;
-
         public TextToken(ITagData tokenTag, int startPosition)
         {
             Tag = tokenTag;

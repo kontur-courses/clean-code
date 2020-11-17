@@ -22,6 +22,11 @@ namespace Markdown.Tag
             this.notAllowedNestedTags = notAllowedNestedTags.ToHashSet();
         }
 
+        public bool RequiredMiddle()
+        {
+            return IncomingBorder.Middle != null;
+        }
+
         public virtual bool IsValidAtClose(string data, int startPos, int endPos)
         {
             return true;

@@ -13,6 +13,7 @@ namespace Markdown.Parser
         
         private TextData fullTextData;
         private List<TextToken> currentTokens;
+        private bool previousIsEscapeSymbol;
         
         public MarkupParser(params ITagData[] tags)
         {
@@ -29,13 +30,26 @@ namespace Markdown.Parser
         {
             fullTextData = new TextData(text);
             currentTokens = new List<TextToken>();
+            previousIsEscapeSymbol = false;
             
             for (var i = 0; i < text.Length; i++)
             {
                 if (text[i] == '\n')
                     AtLineEnd(i + 1);
+
                 if (text[i] == '\\')
-                    throw new NotImplementedException();
+                {
+                    if (previousIsEscapeSymbol)
+                    {
+                        previousIsEscapeSymbol = false;
+                        fullTextData.AddDataToRemove("\\", i - 1);
+                        continue;
+                    }
+                    previousIsEscapeSymbol = true;
+                    continue;
+                }
+                
+                // Самый некрасивый участок кода. Но лучше я не смог придумать
                 var offset = TryToCloseTokenAndGetOffset(text, i);
                 if (offset > 0)
                 {
@@ -46,19 +60,24 @@ namespace Markdown.Parser
                 offset = TryToOpenTokenAndGetOffset(text, i);
                 if (offset > 0)
                     i += offset - 1;
+                
+                if (previousIsEscapeSymbol)
+                    previousIsEscapeSymbol = false;
             }
             
-            AtLineEnd(text.Length);
+            AtLineEnd(text.Length, true);
 
             return fullTextData;
         }
 
-        private void AtLineEnd(int position)
+        private void AtLineEnd(int position, bool isTextEnd=false)
         {
             for (var i = currentTokens.Count - 1; i >= 0; i--)
             {
                 var atLineEndTokenAction = currentTokens[i].Tag.AtLineEndAction;
-                if (atLineEndTokenAction == EndOfLineAction.Continue)
+                if (!isTextEnd && 
+                    (atLineEndTokenAction == EndOfLineAction.ContinueAndCompleteAtEOF
+                     ||atLineEndTokenAction == EndOfLineAction.ContinueAndCancelAtEOF))
                     break;
                 
                 switch (atLineEndTokenAction)
@@ -67,7 +86,16 @@ namespace Markdown.Parser
                         CancelSubsequentTokens(i - 1);
                         break;
                     
+                    case EndOfLineAction.ContinueAndCancelAtEOF:
+                        CancelSubsequentTokens(i - 1);
+                        break;
+                    
                     case EndOfLineAction.Complete:
+                        if (IsValidToClose(i, position))
+                            CloseToken(i, position);
+                        break;
+                    
+                    case EndOfLineAction.ContinueAndCompleteAtEOF:
                         if (IsValidToClose(i, position))
                             CloseToken(i, position);
                         break;
@@ -83,9 +111,14 @@ namespace Markdown.Parser
             
             var tag = openBorderToTag[openBorder];
             
-            if (!IsTagAllowed(tag))
+            if (!IsValidToOpen(tag, position))
                 return 0;
-            
+            if (previousIsEscapeSymbol)
+            {
+                previousIsEscapeSymbol = false;
+                fullTextData.AddDataToRemove("\\", position - 1);
+                return 0;
+            }
             OpenToken(tag, position);
             return openBorder.Length;
 
@@ -114,16 +147,22 @@ namespace Markdown.Parser
 
         private int TryToCloseTokenAndGetOffset(string text, int position)
         {
-            var closeBorders = GetMatchesFromTree(closeTagTree, text, position);
-            if (closeBorders.Count == 0)
+            var closeBorder = GetMatchesFromTree(closeTagTree, text, position).LastOrDefault();
+            if (closeBorder == null)
                 return 0;
+            
             for (var i = currentTokens.Count - 1; i >= 0; i--)
             {
-                var closeBorder = currentTokens[i].Tag.IncomingBorder.Close;
-                if (closeBorders.Contains(closeBorder))
+                if (closeBorder == currentTokens[i].Tag.IncomingBorder.Close)
                 {
                     if (IsValidToClose(i, position))
                     {
+                        if (previousIsEscapeSymbol)
+                        {
+                            previousIsEscapeSymbol = false;
+                            fullTextData.AddDataToRemove("\\", position - 1);
+                            return 0;
+                        }
                         CloseToken(i, position);
                         return closeBorder.Length;
                     }
