@@ -7,11 +7,11 @@
         {
         }
 
-        public override bool TryParse(int position, string text, out Tag tag, bool inWord = false)
+        public override bool TryParse(int position, string text, out Tag tag, bool inWord = false, int lineNumber = 0)
         {
             if (IsTag(position, text) && IsAfterNewLine(position, text))
             {
-                tag = new Tag(position, TagType.Header, true, MdTag.Length, inWord, false);
+                tag = new Tag(position, TagType.ListItem, true, MdTag.Length, inWord, false, lineNumber);
                 return true;
             }
 

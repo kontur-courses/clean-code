@@ -9,7 +9,7 @@ namespace Markdown
         {
         }
 
-        public override bool TryParse(int position, string text, out Tag tag, bool inWord = false)
+        public override bool TryParse(int position, string text, out Tag tag, bool inWord = false, int lineNumber = 0)
         {
             if (IsTag(position, text) && TagParser.SupportedTags.Values
                 .Any(x => x.ParseForEscapeTag(position, text)))
