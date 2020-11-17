@@ -3,7 +3,7 @@ using System.Text;
 
 namespace Markdown.TagConverters
 {
-    internal class TagEm : TagConverterBase
+    internal class EmITagConverter : TagConverterBase
     {
         public override string Html => TagHtml.em;
         public override string Md => MarkdownElement._;

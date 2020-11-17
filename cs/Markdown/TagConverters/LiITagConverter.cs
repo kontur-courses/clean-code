@@ -4,7 +4,7 @@ using System.Text;
 
 namespace Markdown.TagConverters
 {
-    class TagLi : TagConverterBase
+    class LiITagConverter : TagConverterBase
     {
         public override bool IsSingleTag => false;
 

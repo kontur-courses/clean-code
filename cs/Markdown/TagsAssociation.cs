@@ -10,10 +10,10 @@ namespace Markdown
         private static readonly Dictionary<string, TagConverterBase> tagConverters = 
             new Dictionary<string, TagConverterBase>()
             {
-                [new TagEm().StringMd] = new TagEm(),
-                [new TagStrong().StringMd] = new TagStrong(),
-                [new TagH1().StringMd] = new TagH1(),
-                [new TagUl().StringMd] = new TagUl()
+                [new EmITagConverter().StringMd] = new EmITagConverter(),
+                [new StrongITagConverter().StringMd] = new StrongITagConverter(),
+                [new H1ITagConverter().StringMd] = new H1ITagConverter(),
+                [new UlITagConverter().StringMd] = new UlITagConverter()
             };
 
         internal static readonly HashSet<string> tags = tagConverters.Keys.ToHashSet();

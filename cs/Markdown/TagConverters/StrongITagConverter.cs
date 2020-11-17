@@ -4,7 +4,7 @@ using System.Text;
 
 namespace Markdown.TagConverters
 {
-    internal class TagStrong : TagConverterBase
+    internal class StrongITagConverter : TagConverterBase
     {
         public override string Html => TagHtml.strong;
 
@@ -14,6 +14,6 @@ namespace Markdown.TagConverters
         public override bool IsTag(string text, int pos) => IsTagBase(text, pos);
         public override bool CanClose(StringBuilder text, int pos) => CanCloseBase(text, pos);
         public override bool CanOpen(StringBuilder text, int pos) => CanOpenBase(text, pos);
-        public override HashSet<string> TagInside => new HashSet<string>() { new TagEm().StringMd };
+        public override HashSet<string> TagInside => new HashSet<string>() { new EmITagConverter().StringMd };
     }
 }

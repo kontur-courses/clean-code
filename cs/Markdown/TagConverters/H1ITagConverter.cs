@@ -4,7 +4,7 @@ using System.Linq;
 
 namespace Markdown.TagConverters
 {
-    internal class TagH1 : TagConverterBase
+    internal class H1ITagConverter : TagConverterBase
     {
         public override bool IsSingleTag => true;
         public override string Html => TagHtml.h1;
@@ -12,7 +12,7 @@ namespace Markdown.TagConverters
         public override string Md => MarkdownElement.sharp;
 
         public override HashSet<string> TagInside => TagsAssociation.tags
-            .Where(t => t != new TagUl().StringMd)
+            .Where(t => t != new UlITagConverter().StringMd)
             .ToHashSet();
         public override bool IsTag(string text, int pos) => pos == 0;
 

@@ -3,7 +3,7 @@ using System.Text;
 
 namespace Markdown.TagConverters
 {
-    class TagUl : TagConverterBase
+    class UlITagConverter : TagConverterBase
     {
         public override bool IsSingleTag => false;
 
@@ -25,7 +25,7 @@ namespace Markdown.TagConverters
             result.Append(StringMd);
             foreach(var tagText in Split(text, ';'))
             {
-                result.Append(new TagLi().FormTags(Markdown.Md.Render(tagText)));
+                result.Append(new LiITagConverter().FormTags(Markdown.Md.Render(tagText)));
             }
             result.Append(StringMd);
             return FormTags(result);
