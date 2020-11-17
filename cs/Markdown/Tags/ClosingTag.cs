@@ -20,11 +20,5 @@ namespace Markdown.Tags
             this.position = position;
             htmlTag = mdToHtml[mdTag];
         }
-
-        public OpeningTag OpeningTag
-        {
-            get => (OpeningTag) PairTag;
-            set => PairTag = value;
-        }
     }
 }

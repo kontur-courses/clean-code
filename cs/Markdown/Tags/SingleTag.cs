@@ -5,6 +5,7 @@
         public SingleTag(string mdTag, int position)
         {
             this.mdTag = mdTag;
+
             this.position = position;
         }
     }

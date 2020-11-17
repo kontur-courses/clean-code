@@ -100,7 +100,7 @@ namespace MarkdownTests
 
         [Test]
         [Description("Performance test")]
-        public void Render()
+        public void Render_PerformanceTest()
         {
             var singleString = "__something _word_ more words__ _wordWithNumb_er312 __s__ ____ \\__\\_d_";
             var timer = new Stopwatch();
