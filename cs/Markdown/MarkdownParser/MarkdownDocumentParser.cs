@@ -1,10 +1,5 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using MarkdownParser.Concrete.Default;
-using MarkdownParser.Helpers;
+﻿using System.Linq;
 using MarkdownParser.Infrastructure.Markdown;
-using MarkdownParser.Infrastructure.Markdown.Abstract;
 using MarkdownParser.Infrastructure.Markdown.Models;
 using MarkdownParser.Infrastructure.Tokenization;
 using MarkdownParser.Infrastructure.Tokenization.Abstract;
@@ -28,7 +23,8 @@ namespace MarkdownParser
             var document = MarkdownDocument.Empty;
             foreach (var paragraph in paragraphData)
             {
-                var elements = collector.CreateElementsFrom(paragraph.Tokens);
+                var tokens = PairedTokenWorker.FixCrossingTokens(paragraph.Tokens).ToArray();
+                var elements = collector.CreateElementsFrom(tokens);
                 var line = new MarkdownDocumentLine(elements);
                 document.Add(line);
             }

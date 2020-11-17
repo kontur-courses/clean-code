@@ -4,7 +4,7 @@ using MarkdownParser.Infrastructure.Tokenization.Models;
 
 namespace MarkdownParser.Concrete.Italic
 {
-    public class ItalicToken : Token
+    public class ItalicToken : PairedToken
     {
         public TokenPosition Position { get; }
 
@@ -16,5 +16,7 @@ namespace MarkdownParser.Concrete.Italic
 
         public static bool CanBeOpening(ItalicToken token) => !token.Position.BeforeWhitespace(); 
         public static bool CanBeClosing(ItalicToken token) => !token.Position.AfterWhitespace();
+
+        public override TokenType Type { get; } = TokenType.Any;
     }
 }

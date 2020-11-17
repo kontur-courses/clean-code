@@ -4,7 +4,7 @@ using MarkdownParser.Infrastructure.Tokenization.Models;
 
 namespace MarkdownParser.Concrete.Bold
 {
-    public class BoldToken : Token
+    public class BoldToken : PairedToken
     {
         public TokenPosition Position { get; }
 
@@ -16,5 +16,7 @@ namespace MarkdownParser.Concrete.Bold
 
         public static bool CanBeOpening(BoldToken token) => !token.Position.BeforeWhitespace();
         public static bool CanBeClosing(BoldToken token) => !token.Position.AfterWhitespace();
+        
+        public override TokenType Type { get; } = TokenType.Any;
     }
 }
