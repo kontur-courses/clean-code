@@ -13,7 +13,10 @@ namespace Markdown
         }
 
         [TestCase("# asd", ExpectedResult = "<h1>asd</h1>", TestName = "when tag in first line")]
+        [TestCase("# asd ", ExpectedResult = "<h1>asd </h1>", TestName = "when space in string ending")]
         [TestCase("asd\r\n# asd", ExpectedResult = "asd\r\n<h1>asd</h1>", TestName = @"when tag after '\r\n'")]
+        [TestCase("# asd    ", ExpectedResult = "<h1>asd    </h1>",
+            TestName = "when not single space in string ending")]
         public string RenderHeaderTag(string input)
         {
             return Md.Render(input);
@@ -26,7 +29,9 @@ namespace Markdown
             return Md.Render(input);
         }
 
-
+        [TestCase("_asd_ ", ExpectedResult = "<em>asd</em> ", TestName = "when space in string ending")]
+        [TestCase("_asd_    ", ExpectedResult = "<em>asd</em>    ",
+            TestName = "when not single space in string ending")]
         [TestCase("_as_d", ExpectedResult = "<em>as</em>d", TestName = "in word beginning")]
         [TestCase("_asd a_sd asd_", ExpectedResult = "<em>asd a_sd asd</em>",
             TestName = "when first tag can't pair with second tag, but can with third tag")]
@@ -34,6 +39,7 @@ namespace Markdown
         [TestCase("asd_asd_asd", ExpectedResult = "asd<em>asd</em>asd", TestName = "in word middle")]
         [TestCase("_asd_", ExpectedResult = "<em>asd</em>", TestName = "1 time")]
         [TestCase("_asd_ a1s", ExpectedResult = "<em>asd</em> a1s", TestName = "when other word with digits")]
+        [TestCase("_as1d_", ExpectedResult = "<em>as1d</em>", TestName = "when tags on edges of word with digits")]
         [TestCase("_asd_ _asd_", ExpectedResult = "<em>asd</em> <em>asd</em>", TestName = "2 times")]
         [TestCase("_asd__asd_", ExpectedResult = "<em>asd__asd</em>", TestName = "when nested non-pair bold tag")]
         [TestCase("_asd\r\n_asd_", ExpectedResult = "_asd\r\n<em>asd</em>",
@@ -59,11 +65,16 @@ namespace Markdown
         {
             return Md.Render(input);
         }
-
+        
+        [TestCase("__asd__ ", ExpectedResult = "<strong>asd</strong> ", TestName = "when space in string ending")]
+        [TestCase("__asd__    ", ExpectedResult = "<strong>asd</strong>    ",
+            TestName = "when not single space in string ending")]
         [TestCase("__as__d", ExpectedResult = "<strong>as</strong>d", TestName = "in word beginning")]
         [TestCase("a__sd__", ExpectedResult = "a<strong>sd</strong>", TestName = "in word ending")]
         [TestCase("asd__asd__asd", ExpectedResult = "asd<strong>asd</strong>asd", TestName = "in word middle")]
         [TestCase("__asd__", ExpectedResult = "<strong>asd</strong>", TestName = "1 time")]
+        [TestCase("__as1d__", ExpectedResult = "<strong>as1d</strong>",
+            TestName = "when tags on edges of word with digits")]
         [TestCase("__asd__ a1s", ExpectedResult = "<strong>asd</strong> a1s", TestName = "when other word with digits")]
         [TestCase("__asd__ __asd__", ExpectedResult = "<strong>asd</strong> <strong>asd</strong>",
             TestName = "2 times with space between pair")]
@@ -100,6 +111,7 @@ namespace Markdown
 
         [TestCase(@"\ asd", ExpectedResult = @"\ asd", TestName = "when escape symbol before space")]
         [TestCase(@"\asd", ExpectedResult = @"\asd", TestName = "when escape symbol before letter")]
+        [TestCase(@"a5s\_d", ExpectedResult = @"a5s\_d", TestName = "when escape symbol before tag in word with digits")]
         [TestCase(@"asd \# asd", ExpectedResult = @"asd \# asd",
             TestName = "when escape symbol before header tag which not in line beginning")]
         [TestCase(@"asd\", ExpectedResult = @"asd\", TestName = "when escape symbol in end of string")]
@@ -111,6 +123,14 @@ namespace Markdown
         [TestCase(@"\# asd", ExpectedResult = @"# asd", TestName = "when escape symbol before header tag")]
         [TestCase(@"as\_d_", ExpectedResult = @"as_d_", TestName = "when escape symbol before italic tag")]
         [TestCase(@"as\__d__", ExpectedResult = @"as__d__", TestName = "when escape symbol before bold tag")]
+        [TestCase(@"\_a5sd", ExpectedResult = @"_a5sd",
+            TestName = "when escape symbol before tag in beginning of word with digits")]
+        [TestCase(@"_\_a5sd_", ExpectedResult = @"<em>_a5sd</em>",
+            TestName = "when escape symbol before tag in beginning of word with digits, but after tag")]
+        [TestCase(@"_a5sd\__", ExpectedResult = @"<em>a5sd_</em>",
+            TestName = "when escape symbol before tag in ending of word with digits, but before tag")]
+        [TestCase(@"a5sd\_", ExpectedResult = @"a5sd_",
+            TestName = "when escape symbol before italic tag in ending of word with digits")]
         [TestCase(@"as\\d", ExpectedResult = @"as\d", TestName = "when escape symbol before escape symbol")]
         [TestCase(@"as\\\\d", ExpectedResult = @"as\\d",
             TestName = "when escape symbol before escape symbol 2 times in a row")]
