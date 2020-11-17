@@ -73,12 +73,12 @@ namespace Markdown
         {
             if (isLineHeader)
             {
-                closeTag = new Tag(position, TagType.Header, false, 0, false, false);
+                closeTag = HeaderTagHelper.GetCloseTag(position);
                 return true;
             }
             if (isLineListItem)
             {
-                closeTag = new Tag(position, TagType.ListItem, false, 0, false, false);
+                closeTag = ListItemTagHelper.GetCloseTag(position);
                 return true;
             }
 
