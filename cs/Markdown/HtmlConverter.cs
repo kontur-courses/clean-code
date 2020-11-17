@@ -11,7 +11,8 @@ namespace Markdown
             {TokenType.Emphasized, new EmphasizedTagToken()},
             {TokenType.Heading, new HeadingTagToken()},
             {TokenType.Strong, new StrongTagToken()},
-            {TokenType.PlainText, new PlainTextTagToken()}
+            {TokenType.PlainText, new PlainTextTagToken()},
+            {TokenType.Image, new ImageTagToken()}
         };
 
         public void AddMapping(TokenType type, ITagToken tagToken)
@@ -27,7 +28,6 @@ namespace Markdown
             foreach (var token in tokens)
             {
                 var tagToken = mapper[token.Type];
-
 
                 if (stack.Count != 0 && token.IsInsideToken(stack.Last()))
                 {

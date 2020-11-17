@@ -13,6 +13,7 @@ namespace Markdown
             new HeadingTokenReader(),
             new StrongTokenReader(),
             new EmphasizedTokenReader(),
+            new ImageTokenReader(),
             new PlainTextTokenReader()
         };
 
