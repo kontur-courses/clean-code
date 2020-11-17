@@ -10,7 +10,8 @@ namespace Markdown
             {Tag.NoFormatting, ""},
             {Tag.Bold, "<strong>"},
             {Tag.Italic, "<em>"},
-            {Tag.Heading, "<h1>"}
+            {Tag.Heading, "<h1>"},
+            {Tag.Link, "<a>"}
         };
 
         private static readonly Dictionary<Tag, string> ClosingTag = new Dictionary<Tag, string>
@@ -18,7 +19,8 @@ namespace Markdown
             {Tag.NoFormatting, ""},
             {Tag.Bold, "</strong>"},
             {Tag.Italic, "</em>"},
-            {Tag.Heading, "</h1>"}
+            {Tag.Heading, "</h1>"},
+            {Tag.Link, "</a>"}
         };
 
         private readonly TagInfo tagInfo;
@@ -30,6 +32,17 @@ namespace Markdown
 
         public string GetTextForOpeningTag()
         {
+            if (tagInfo.Attributes.Count != 0)
+            {
+                var opening = new StringBuilder();
+                var tag = OpeningTag[tagInfo.Tag];
+                opening.Append(tag.Substring(0, tag.Length - 1));
+                foreach (var attribute in tagInfo.Attributes)
+                    opening.Append($" {attribute.Type.ToString().ToLower()}=\"{attribute.Text}\"");
+                opening.Append(">");
+                return opening.ToString();
+            }
+
             return OpeningTag[tagInfo.Tag];
         }
 

@@ -5,6 +5,7 @@
         NoFormatting,
         Heading,
         Bold,
-        Italic
+        Italic,
+        Link
     }
 }

@@ -2,7 +2,7 @@
 
 namespace Markdown
 {
-    public abstract class UnderscoreParser : Parser
+    public abstract class UnderscoreParser : LinkParser
     {
         public const char UnderscoreSymbol = '_';
         public const string DoubleUnderscore = "__";
@@ -16,6 +16,7 @@ namespace Markdown
         {
             tagsInsideWord = new List<TagInfo>();
             PreviousIsSpace = true;
+            keySymbols.Add(UnderscoreSymbol);
         }
 
         protected void ParseOpeningUnderscore(int index)
@@ -58,7 +59,7 @@ namespace Markdown
                 {
                     TagInfo.AddText(Markdown.Substring(PreviousIndex));
                     TagInfo.ResetFormatting();
-                    TagInfo = NestedTextInfos.Pop();
+                    TagInfo = NestedTagInfos.Pop();
                     State = States.Pop();
                     PreviousIndex = Markdown.Length;
                 }
@@ -69,6 +70,13 @@ namespace Markdown
             }
             else
             {
+                if (Markdown[index] == '[' && !ShouldEscaped(Markdown[index]))
+                {
+                    PreviousIsSpace = false;
+                    SetLinkTag(index);
+                    return;
+                }
+
                 if (char.IsDigit(Markdown[index]))
                     wordContainsDigits = true;
 
@@ -123,7 +131,7 @@ namespace Markdown
             UnderscoreCounter = 0;
             hasWhiteSpace = false;
 
-            SetNewTextInfo(new TagInfo(tag));
+            SetNewTagInfo(new TagInfo(tag));
             TagInfo.InsideWord = !PreviousIsSpace;
             State = ParseUnderscoreContent;
             State(index);
@@ -160,7 +168,7 @@ namespace Markdown
                 if (TagInfo.Tag == Tag.Italic || TextEnded && tag == Tag.Italic)
                 {
                     while (TagInfo.Tag != Tag.Italic)
-                        TagInfo = NestedTextInfos.Pop();
+                        TagInfo = NestedTagInfos.Pop();
                     foreach (var bold in TagInfo.FindAndGetBoldContent())
                         bold.ResetFormatting(true);
                 }
@@ -176,12 +184,12 @@ namespace Markdown
                 return true;
 
             var temporaryStack = new Stack<TagInfo>();
-            while (NestedTextInfos.Count != 0)
+            while (NestedTagInfos.Count != 0)
             {
-                var tagInfo = NestedTextInfos.Pop();
+                var tagInfo = NestedTagInfos.Pop();
                 if (tagInfo.Tag == tag && IsValidTag(tagInfo, currentSymbol))
                 {
-                    NestedTextInfos.Push(tagInfo);
+                    NestedTagInfos.Push(tagInfo);
                     result = true;
                     break;
                 }
@@ -190,7 +198,7 @@ namespace Markdown
             }
 
             while (temporaryStack.Count != 0)
-                NestedTextInfos.Push(temporaryStack.Pop());
+                NestedTagInfos.Push(temporaryStack.Pop());
 
             return result;
         }
@@ -226,16 +234,16 @@ namespace Markdown
                 }
 
                 temporaryStack.Push(tagInfo);
-                tagInfo = NestedTextInfos.Pop();
-            } while (NestedTextInfos.Count != 0);
+                tagInfo = NestedTagInfos.Pop();
+            } while (NestedTagInfos.Count != 0);
 
             if (temporaryStack.Count > 0)
             {
                 while (temporaryStack.Count > 0)
-                    NestedTextInfos.Push(temporaryStack.Pop());
+                    NestedTagInfos.Push(temporaryStack.Pop());
             }
 
-            TagInfo = NestedTextInfos.Pop();
+            TagInfo = NestedTagInfos.Pop();
         }
 
         private bool TagsIntersect(Tag tag)
@@ -253,7 +261,7 @@ namespace Markdown
             TagInfo tagInfo;
             do
             {
-                tagInfo = NestedTextInfos.Pop();
+                tagInfo = NestedTagInfos.Pop();
                 if (tagInfo.Tag != conflictedTag && tagInfo.Tag != currentTag)
                     break;
 

@@ -26,7 +26,7 @@ namespace MarkdownTest
                     stopwatch = Stopwatch.StartNew();
                     Md.Render(mdText);
                     var currentTime = stopwatch.Elapsed;
-                    currentTime.Should().BeLessThan(firstStartTime * 2);
+                    currentTime.Should().BeLessThan(firstStartTime * 10);
                 }
             }
         }

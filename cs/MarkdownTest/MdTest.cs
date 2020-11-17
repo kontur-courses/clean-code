@@ -1,5 +1,4 @@
-﻿using System;
-using System.IO;
+﻿using System.IO;
 using Markdown;
 using FluentAssertions;
 using NUnit.Framework;
@@ -133,6 +132,31 @@ namespace MarkdownTest
             Md.Render(input).Should().Be(output);
         }
 
+        [TestCase("[link](source)", "<a href=\"source\">link</a>")]
+        [TestCase("[link](source \"alt text\")", "<a href=\"source\" alt=\"alt text\">link</a>")]
+        [TestCase("[linked text](google.com \"Google.inc\")",
+            "<a href=\"google.com\" alt=\"Google.inc\">linked text</a>")]
+        public void RenderShouldReturnCorrect_WhenLinkTag(string input, string output)
+        {
+            Md.Render(input).Should().Be(output);
+        }
+        
+        [TestCase("# Header [link](source)", "<h1>Header <a href=\"source\">link</a></h1>")]
+        [TestCase("__[link](source)__", "<strong><a href=\"source\">link</a></strong>")]
+        [TestCase("_[link](source)_", "<em><a href=\"source\">link</a></em>")]
+        [TestCase("# _[link](source)_", "<h1><em><a href=\"source\">link</a></em></h1>")]
+        public void RenderShouldReturnCorrect_WhenLinkInTag(string input, string output)
+        {
+            Md.Render(input).Should().Be(output);
+        }
+
+        [TestCase(@"\[[link\]](source)", "[<a href=\"source\">link]</a>")]
+        [TestCase(@"[link](source\))", "<a href=\"source)\">link</a>")]
+        public void RenderShouldEscape_WhenLinkTagEscaped(string input, string output)
+        {
+            Md.Render(input).Should().Be(output);
+        }
+        
         [Test]
         public void RenderShouldParseSpecification()
         {

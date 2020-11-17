@@ -4,6 +4,11 @@
     {
         public const char HashSymbol = '#';
 
+        public MarkdownParser()
+        {
+            keySymbols.Add(HashSymbol);
+        }
+
         public TagInfo Parse(string markdown)
         {
             Markdown = markdown;
@@ -34,8 +39,8 @@
                     PreviousIndex = Markdown.Length;
                 }
 
-                if (NestedTextInfos.Count != 0)
-                    TagInfo = NestedTextInfos.Pop();
+                if (NestedTagInfos.Count != 0)
+                    TagInfo = NestedTagInfos.Pop();
             }
             else if (ShouldEscaped(Markdown[index]))
                 BackslashCounter = 0;
@@ -50,6 +55,9 @@
                     case HashSymbol when index == 0:
                         SetNewState(ParseHashSymbol);
                         break;
+                    case LinkOpenSymbol when !ShouldEscaped(Markdown[index]):
+                        SetLinkTag(index);
+                        break;
                     default:
                         PreviousIsSpace = char.IsWhiteSpace(Markdown[index]) || Markdown[index] == '\\' && BackslashCounter % 2 == 0;
                         break;
@@ -61,7 +69,7 @@
         {
             if (Markdown[index] == ' ')
             {
-                SetNewTextInfo(new TagInfo(Tag.Heading));
+                SetNewTagInfo(new TagInfo(Tag.Heading));
                 PreviousIndex = index + 1;
             }
 
@@ -70,8 +78,16 @@
 
         private void CloseTags()
         {
-            do State(Markdown.Length - 1);
-            while (NestedTextInfos.Count != 0 || PreviousIndex < Markdown.Length);
+            do
+            {
+                if (TagInfo.Tag == Tag.Link)
+                {
+                    TagInfo.ResetFormatting();
+                    PreviousIndex = Markdown.Length;
+                    State = States.Pop();
+                }
+                State(Markdown.Length - 1);
+            } while (NestedTagInfos.Count != 0 || PreviousIndex < Markdown.Length);
         }
     }
 }
