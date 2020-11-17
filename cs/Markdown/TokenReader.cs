@@ -13,10 +13,15 @@ namespace Markdown
             Text = text;
         }
 
+        private MdToken nextToken;
         public bool TryReadToken(out MdToken result, bool notRawText = false)
         {
-            return TryReadSpecifiedTokens(out result)
-                   || !notRawText && TryRead(new MdRawTextToken(CurrentPosition), out result);
+            result = nextToken;
+            nextToken = null;
+            return result != null
+                   || TryReadSpecifiedTokens(out result)
+                   || !notRawText && TryRead(new MdRawTextToken(CurrentPosition), out result,
+                       () => TryReadSpecifiedTokens(out nextToken));
         }
 
         protected abstract bool TryReadSpecifiedTokens(out MdToken result);
