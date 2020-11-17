@@ -6,6 +6,7 @@
         Bold,
         Italic,
         Header,
-        UnorderedList
+        UnorderedList,
+        ListItem
     }
 }

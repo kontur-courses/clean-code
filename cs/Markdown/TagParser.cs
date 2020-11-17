@@ -13,7 +13,8 @@ namespace Markdown
             [TagType.Header] = HeaderTagHelper.CreateInstance(),
             [TagType.Bold] = BoldTagHelper.CreateInstance(),
             [TagType.Escape] = EscapeTagHelper.CreateInstance(),
-            [TagType.UnorderedList] = UnorderedListTagHelper.CreateInstance()
+            [TagType.UnorderedList] = UnorderedListTagHelper.CreateInstance(),
+            [TagType.ListItem] = ListItemTagHelper.CreateInstance()
         };
 
         public static IEnumerable<Tag> GetTags(string text)
