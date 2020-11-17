@@ -2,7 +2,7 @@ using NUnit.Framework;
 
 namespace Markdown
 {
-    public class Tests
+    public class MdTest
     {
         [TestCase("", ExpectedResult = "")]
         [TestCase(" ", ExpectedResult = " ")]
