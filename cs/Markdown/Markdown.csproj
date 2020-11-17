@@ -41,10 +41,12 @@
     <Compile Include="Markdown.cs" />
     <Compile Include="TextToken.cs" />
     <Compile Include="TokenConverters\EmphasizedTokenConverter.cs" />
+    <Compile Include="TokenConverters\HeaderTokenConverter.cs" />
     <Compile Include="TokenConverters\ITokenConverter.cs" />
     <Compile Include="TokenConverters\StrongTokenConverter.cs" />
     <Compile Include="TokenConverters\TextTokenConverter.cs" />
     <Compile Include="TokenGetters\EmphasizedTokenGetter.cs" />
+    <Compile Include="TokenGetters\HeaderTokenGetter.cs" />
     <Compile Include="TokenGetters\ITokenGetter.cs" />
     <Compile Include="TokenGetters\StrongTokenGetter.cs" />
     <Compile Include="TokenGetters\TextTokenGetter.cs" />

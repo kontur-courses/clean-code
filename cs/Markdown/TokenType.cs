@@ -10,7 +10,7 @@ namespace Markdown
     {
         Emphasized,
         Strong,
-        Heading,
+        Header,
         Text
     }
 }

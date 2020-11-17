@@ -28,7 +28,7 @@ namespace Markdown
             var textTokens = textParser.GetTextTokens(text);
 
             var htmlConverter = new HTMLConverter(tokenConverters);
-            var htmlString = htmlConverter.GetHTMLString(textTokens);
+            var htmlString = htmlConverter.GetHtmlString(textTokens);
             Console.WriteLine(htmlString);
         }
     }

@@ -6,7 +6,7 @@ namespace Markdown
     public class TextTokenGetter : ITokenGetter
     {
         public TextToken TryGetToken(StringBuilder currentText, IReadOnlyCollection<ITokenGetter> tokenGetters,
-            int index)
+            int index, string text)
         {
             currentText = RemoveShieldSymbols(currentText);
             var tokenToAdd = new TextToken(index - currentText.Length + 1, currentText.Length, TokenType.Text,

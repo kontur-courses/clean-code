@@ -21,7 +21,7 @@ namespace Markdown
         public List<TextToken> GetTextTokens(string text)
         {
             if (text == null)
-                throw new NullReferenceException("string was null");
+                throw new NullReferenceException("text was null");
 
             if (text.Length == 0)
                 return tokens;
@@ -30,9 +30,15 @@ namespace Markdown
             {
                 currentText.Append(text[index]);
 
-                var currentToken = TryToGetToken(index, text);
+                var currentToken = TryGetToken(index, text);
                 if (currentToken == null) continue;
 
+                if (currentToken.Type == TokenType.Header)
+                {
+                    tokens.Add(currentToken);
+                    return tokens;
+                }
+                
                 currentText.Clear();
 
                 var updatedToken = UpdateLastTextToken(currentToken);
@@ -42,19 +48,17 @@ namespace Markdown
             }
 
             if (currentText.Length != 0)
-            {
                 tokens.Add(new TextToken(text.Length - currentText.Length, currentText.Length, TokenType.Text,
                     currentText.ToString()));
-            }
 
             return tokens;
         }
 
-        private TextToken TryToGetToken(int index, string text)
+        private TextToken TryGetToken(int index, string text)
         {
             return tokenGetters
                 .Where(x => x.CanCreateToken(currentText, text, index))
-                .Select(x => x.TryGetToken(currentText, tokenGetters, index))
+                .Select(x => x.TryGetToken(currentText, tokenGetters, index, text))
                 .FirstOrDefault();
         }
 

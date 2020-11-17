@@ -16,6 +16,7 @@ namespace Markdown.Tests
         {
             TokenGetters = new ITokenGetter[]
             {
+                new HeaderTokenGetter(), 
                 new StrongTokenGetter(),
                 new EmphasizedTokenGetter(),
                 new TextTokenGetter()
@@ -30,7 +31,7 @@ namespace Markdown.Tests
         {
             Action act = () => textParser.GetTextTokens(null);
 
-            act.Should().Throw<NullReferenceException>().WithMessage("string was null");
+            act.Should().Throw<NullReferenceException>().WithMessage("text was null");
         }
 
         [Test]
@@ -245,12 +246,30 @@ namespace Markdown.Tests
         }
 
         [Test]
-        public void GetTextToknes_ReturnListWithCorrectTokens_TextWithNumbersBetweenUnderlinings()
+        public void GetTextTokens_ReturnListWithCorrectTokens_TextWithNumbersBetweenUnderlinings()
         {
             var text = "ab1_2_3";
             var expectedList = new List<TextToken>()
             {
                 new TextToken(0, 7, TokenType.Text, "ab1_2_3",null),
+            };
+
+            var actualList = textParser.GetTextTokens(text);
+
+            actualList.Should().BeEquivalentTo(expectedList);   
+        }
+        
+        [Test]
+        public void GetTextTokens_ReturnListWithCorrectTokens_TextWithHeader()
+        {
+            var text = "#ab";
+            var expectedList = new List<TextToken>()
+            {
+                new TextToken(0, 2, TokenType.Header, "ab",
+                    new List<TextToken>
+                    {
+                        new TextToken(0,2,TokenType.Text,"ab")
+                    })
             };
 
             var actualList = textParser.GetTextTokens(text);

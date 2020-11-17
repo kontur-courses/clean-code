@@ -31,7 +31,7 @@ namespace Markdown.Tests
             var htmlConverter = new HTMLConverter(tokenConverters);
             var expectedString = "aacccc";
             
-            var actualString = htmlConverter.GetHTMLString(textTokens);
+            var actualString = htmlConverter.GetHtmlString(textTokens);
 
             actualString.Should().BeEquivalentTo(expectedString);
         }
@@ -57,7 +57,7 @@ namespace Markdown.Tests
             var htmlConverter = new HTMLConverter(tokenConverters);
             var expectedString = "aa<em>cccc</em>bb<em>dddd</em>";
             
-            var actualString = htmlConverter.GetHTMLString(textTokens);
+            var actualString = htmlConverter.GetHtmlString(textTokens);
 
             actualString.Should().BeEquivalentTo(expectedString);
         }
@@ -81,7 +81,7 @@ namespace Markdown.Tests
             var htmlConverter = new HTMLConverter(tokenConverters);
             var expectedString = "<strong>cccc<em>ab</em>bbbb</strong>";
             
-            var actualString = htmlConverter.GetHTMLString(textTokens);
+            var actualString = htmlConverter.GetHtmlString(textTokens);
 
             actualString.Should().BeEquivalentTo(expectedString);
         }

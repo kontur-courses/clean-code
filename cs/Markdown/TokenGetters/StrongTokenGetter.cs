@@ -7,7 +7,7 @@ namespace Markdown
     public class StrongTokenGetter : ITokenGetter
     {
         public TextToken TryGetToken(StringBuilder currentText, IReadOnlyCollection<ITokenGetter> tokenGetters,
-            int index)
+            int index, string text)
         {
             currentText.Remove(0, 2);
             currentText.Remove(currentText.Length - 2, 2);

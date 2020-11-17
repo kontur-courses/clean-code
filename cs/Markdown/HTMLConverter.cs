@@ -15,7 +15,7 @@ namespace Markdown
         {
             this.tokenConverters = tokenConverters;
         }
-        public string GetHTMLString(IReadOnlyCollection<TextToken> textTokens)
+        public string GetHtmlString(IReadOnlyCollection<TextToken> textTokens)
         {
             var stringedHtml = new StringBuilder();
             foreach (var token in textTokens)

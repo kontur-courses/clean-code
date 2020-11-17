@@ -7,7 +7,7 @@ namespace Markdown
     public class EmphasizedTokenGetter : ITokenGetter
     {
         public TextToken TryGetToken(StringBuilder currentText, IReadOnlyCollection<ITokenGetter> tokenGetters,
-            int index)
+            int index, string text)
         {
             currentText.Remove(0, 1);
             currentText.Remove(currentText.Length - 1, 1);
