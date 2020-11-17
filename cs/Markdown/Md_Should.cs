@@ -1,3 +1,7 @@
+using System;
+using System.Collections.Generic;
+using System.Diagnostics;
+using System.Text;
 using FluentAssertions;
 using NUnit.Framework;
 
@@ -27,6 +31,47 @@ namespace Markdown
         public void Render_Should(string input, string exeptedOutput)
         {
             Md.Render(input).Should().Be(exeptedOutput);
+        }
+
+        [TestCase(" __sf__ ", 100, 6)]
+        [TestCase(" __sf__ ", 100, 2)]
+        [TestCase(" sf ", 100, 8)]
+        [TestCase(" _s_ \n\n __s__  ", 100, 8)]
+        public void RenderTime_Should(string text, int repetitionsCount, int factor)
+        {
+            var firstInputBuilder = new StringBuilder();
+            for (var i = 0; i < repetitionsCount; i++)
+                firstInputBuilder.Append(text);
+
+            var secondInputBuilder = new StringBuilder();
+            for (var i = 0; i < repetitionsCount * factor; i++)
+                secondInputBuilder.Append(text);
+
+            var firstInput = firstInputBuilder.ToString();
+            var secondInput = secondInputBuilder.ToString();
+
+            Md.Render("");
+
+            var firstTime = new TimeSpan();
+            var secondTime = new TimeSpan();
+
+            for (var j = 0; j < 1000; j++)
+            {
+                var firstTimer = new Stopwatch();
+                firstTimer.Start();
+                Md.Render(firstInput);
+                firstTimer.Stop();
+
+                firstTime += firstTimer.Elapsed;
+
+                var secondTimer = new Stopwatch();
+                secondTimer.Start();
+                Md.Render(secondInput);
+                secondTimer.Stop();
+                secondTime += secondTimer.Elapsed;
+            }
+
+            secondTime.Should().BeLessThan(firstTime * factor);
         }
     }
 }
