@@ -15,19 +15,19 @@ namespace Markdown
 
         private MdToken nextToken;
 
-        public bool TryReadToken(out MdToken result, bool notRawText = false)
+        public bool TryReadToken(out MdToken result, MdToken parent = null, bool notRawText = false)
         {
             result = nextToken;
             nextToken = null;
             return result != null
                    || TryReadSpecifiedTokens(out result)
-                   || !notRawText && TryRead(new MdRawTextToken(CurrentPosition), out result,
+                   || !notRawText && TryRead(new MdRawTextToken(CurrentPosition, parent:parent), out result,
                        () => TryReadSpecifiedTokens(out nextToken));
         }
 
         public IEnumerable<MdToken> ReadAll() => throw new NotImplementedException();
 
-        protected abstract bool TryReadSpecifiedTokens(out MdToken result);
+        protected abstract bool TryReadSpecifiedTokens(out MdToken result, MdToken parent = null);
 
         protected bool TryRead(MdRawTextToken token, out MdToken result)
             => TryRead(token, out result, () => false);

@@ -8,11 +8,11 @@ namespace Markdown
         {
         }
 
-        protected override bool TryReadSpecifiedTokens(out MdToken result)
+        protected override bool TryReadSpecifiedTokens(out MdToken result, MdToken parent = null)
         {
-            return TryRead(new MdHeaderToken(CurrentPosition), out result)
-                   || TryRead(new MdBoldToken(CurrentPosition), out result)
-                   || TryRead(new MdItalicToken(CurrentPosition), out result);
+            return TryRead(new MdHeaderToken(CurrentPosition, parent:parent), out result)
+                   || TryRead(new MdBoldToken(CurrentPosition, parent:parent), out result)
+                   || TryRead(new MdItalicToken(CurrentPosition, parent:parent), out result);
         }
 
         protected override bool TryRead(MdRawTextToken token, out MdToken result, Func<bool> stopWhen) =>

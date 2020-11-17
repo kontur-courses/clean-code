@@ -4,7 +4,7 @@ namespace Markdown
 {
     public abstract class MdTokenWithSubTokens : MdToken
     {
-        protected MdTokenWithSubTokens(int startPosition, int length = 0) : base(startPosition, length)
+        protected MdTokenWithSubTokens(int startPosition, int length = 0, MdToken parent = null) : base(startPosition, length, parent)
         {
         }
 
@@ -13,7 +13,7 @@ namespace Markdown
         public void AddSubtoken(MdToken subToken)
         {
             SubTokens.Add(subToken);
-            subToken.ParentToken = this;
+            subToken.Parent = this;
             Length += subToken.Length;
         }
 

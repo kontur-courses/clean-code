@@ -6,18 +6,19 @@ namespace Markdown
     {
         public int StartPosition;
         public int Length;
-        public MdToken ParentToken;
+        public MdToken Parent;
 
-        public MdToken(int startPosition, int length = 0)
+        public MdToken(int startPosition, int length = 0, MdToken parent = null)
         {
             StartPosition = startPosition;
             Length = length;
+            Parent = parent;
         }
 
-        public IEnumerable<MdToken> EnumerateParrents()
+        public IEnumerable<MdToken> EnumerateParents()
         {
-            for (var currentParrent = ParentToken; currentParrent != null; currentParrent = currentParrent.ParentToken)
-                yield return currentParrent;
+            for (var currentParent = Parent; currentParent != null; currentParent = currentParent.Parent)
+                yield return currentParent;
         }
     }
 }
