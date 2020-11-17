@@ -1,7 +1,5 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Linq;
-using System.Text;
 
 namespace Markdown
 {
@@ -32,17 +30,6 @@ namespace Markdown
             {
                 if (!IsToken(text[i].ToString()))
                     continue;
-                if (text[i].ToString() == TokenType.SquareBracket)
-                {
-                    var partsOfLink = GetPartsOfLink(text, i);
-                    if (partsOfLink != null)
-                    {
-                        var token = new Token(partsOfLink.ToArray(), i);
-                        yield return token;
-                        i += token.Text.Length - 1;
-                    }
-                    continue;
-                }
                     
                 var slash = text[i].ToString() == TokenType.Slash ? TokenType.Slash : string.Empty;
                 var correctTokens = Tokens
@@ -52,45 +39,9 @@ namespace Markdown
                 if (!correctTokens.Any())
                     continue;
 
-                yield return new Token(correctTokens.Take(1).ToArray(), i);
+                yield return new Token(correctTokens.First(), i);
                 i += correctTokens.First().Length - 1;
             }
-        }
-
-        private static List<string> GetPartsOfLink(string text, int i)
-        {
-            var resultList = new List<string>();
-            var tokenValue = new StringBuilder();
-            var position = 0;
-            var j = i;
-            for (; j < text.Length; ++j)
-            {
-                var symbol = text[j].ToString();
-                if (PartsOfLink.Where(x => x != PartsOfLink[position]).Contains(symbol))
-                    return null;
-                if (symbol != PartsOfLink[position])
-                {
-                    tokenValue.Append(symbol);
-                    continue;
-                }
-                if (j - 1 >= 0 && text[j - 1].ToString() == TokenType.Slash)
-                    return null;
-                if (tokenValue.Length > 0)
-                    resultList.Add(tokenValue.ToString());
-                resultList.Add(symbol);
-
-                tokenValue.Clear();
-                if (++position == PartsOfLink.Count)
-                    break;
-            }
-            return IsCorrectLink(resultList, text.Substring(i + 1, j - i)) ? resultList : null;
-        }
-
-        private static bool IsCorrectLink(List<string> resultList, string linkText)
-        {
-            var roundBracketPosition = linkText.IndexOf(TokenType.RoundBracket, StringComparison.Ordinal);
-            return linkText[roundBracketPosition - 1].ToString() == TokenType.BackSquareBracket
-                   && !resultList[4].Contains(" ");
         }
 
         private static bool IsToken(string symbol) => Tokens.Contains(symbol);

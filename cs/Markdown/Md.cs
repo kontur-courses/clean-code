@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Text;
 
 namespace Markdown
@@ -14,9 +15,12 @@ namespace Markdown
             var lastTagOfEachType = new Dictionary<string, MarkdownTag>();
             var resultText = new StringBuilder(text);
             var shift = 0;
+            var ignoreIndex = -1;
 
             foreach (var token in Lexer.Analyze(text))
             {
+                if (token.Position <= ignoreIndex)
+                    continue;
                 if (token.Text.StartsWith(TokenType.Slash))
                 {
                     resultText = resultText.Remove(token.Position + shift, 1);
@@ -25,7 +29,12 @@ namespace Markdown
                 }
                 if (token.Text.StartsWith(TokenType.SquareBracket))
                 {
-                    resultText = resultText.HandleLink(token, ref shift);
+                    var link = GetPartsOfLink(text, token.Position);
+                    if (link == null)
+                        continue;
+                    var resultToken = new Token(string.Join("", link), token.Position);
+                    resultText = resultText.HandleLink(resultToken, link[4], link[1], ref shift);
+                    ignoreIndex = resultToken.Position + resultToken.Text.Length - 1;
                     continue;
                 }
 
@@ -40,6 +49,42 @@ namespace Markdown
                     resultText = HandlePairedTags(resultText, tags, lastTagOfEachType, ref shift);
             }
             return TryHandleHeading(lastTagOfEachType, resultText);
+        }
+
+        private static List<string> GetPartsOfLink(string text, int start)
+        {
+            var resultList = new List<string>();
+            var tokenValue = new StringBuilder();
+            var position = 0;
+            var j = start;
+            for (; j < text.Length; ++j)
+            {
+                var symbol = text[j].ToString();
+                if (Lexer.PartsOfLink.Where(x => x != Lexer.PartsOfLink[position]).Contains(symbol))
+                    return null;
+                if (symbol != Lexer.PartsOfLink[position])
+                {
+                    tokenValue.Append(symbol);
+                    continue;
+                }
+                if (j - 1 >= 0 && text[j - 1].ToString() == TokenType.Slash)
+                    return null;
+                if (tokenValue.Length > 0)
+                    resultList.Add(tokenValue.ToString());
+                resultList.Add(symbol);
+
+                tokenValue.Clear();
+                if (++position == Lexer.PartsOfLink.Count)
+                    break;
+            }
+            return IsCorrectLink(resultList, text.Substring(start + 1, j - start)) ? resultList : null;
+        }
+
+        private static bool IsCorrectLink(List<string> resultList, string linkText)
+        {
+            var roundBracketPosition = linkText.IndexOf(TokenType.RoundBracket, StringComparison.Ordinal);
+            return linkText[roundBracketPosition - 1].ToString() == TokenType.BackSquareBracket
+                   && !resultList[4].Contains(" ");
         }
 
         private static string TryHandleHeading(Dictionary<string, MarkdownTag> lastTagOfEachType,

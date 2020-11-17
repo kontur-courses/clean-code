@@ -27,8 +27,8 @@ namespace Markdown
         public bool IsOpened { get; }
         public int Length => EndPosition - StartPosition + 1;
 
-        public static string CreateHtmlLink(Token token)
-            => $"<a href=\"{token.Words[4]}\">{token.Words[1]}</a>";
+        public static string CreateHtmlLink(string link, string title)
+            => $"<a href=\"{link}\">{title}</a>";
 
         public bool IsValidTag(StringBuilder text)
         {
