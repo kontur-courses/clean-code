@@ -11,8 +11,6 @@ namespace Markdown.Tags
             {"#", "<h1>"}
         };
 
-        private string parametrs;
-
 
         public OpeningTag(string mdTag, int position, ClosingTag closingTag = null)
         {
