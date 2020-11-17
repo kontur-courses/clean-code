@@ -2,14 +2,14 @@
 {
     public class Tag
     {
-        public Tag(int position, TagType type, bool isOpening, int mdTagLength, bool inWord, bool isPaired)
+        public Tag(int position, TagType type, bool isOpening, int mdTagLength, bool inWord, bool isMdPaired)
         {
             Position = position;
             Type = type;
             IsOpening = isOpening;
             MdTagLength = mdTagLength;
             InWord = inWord;
-            IsPaired = isPaired;
+            IsMdPaired = isMdPaired;
         }
 
 
@@ -20,7 +20,7 @@
 
         public bool InWord { get; private set; }
 
-        public bool IsPaired { get; }
+        public bool IsMdPaired { get; }
 
         public void ConvertToClose()
         {

@@ -51,7 +51,7 @@ namespace Markdown
             }
 
             if (hasHeaderInLine)
-                tags.Add(new Tag(position, TagType.Header, false, 0, false, true));
+                tags.Add(new Tag(position, TagType.Header, false, 0, false, false));
             symbolsReadCount = position + NewLine.Length - startPosition;
             return tags.GetCorrectTags(text);
         }

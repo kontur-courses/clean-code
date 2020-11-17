@@ -8,12 +8,12 @@ namespace Markdown
         public static IEnumerable<Tag> GetCorrectTags(this List<Tag> tags, string text)
         {
             var pairedTags = tags
-                .Where(x => x.IsPaired)
+                .Where(x => x.IsMdPaired)
                 .PairTags(text)
                 .RemoveIntersectingPairTags()
                 .RemoveBoldTagsInItalicTags();
-            var singleTags = tags.Where(x => !x.IsPaired);
-            return pairedTags.Concat(singleTags);
+            var notPairedTags = tags.Where(x => !x.IsMdPaired);
+            return pairedTags.Concat(notPairedTags);
         }
 
         private static IEnumerable<Tag> PairTags(this IEnumerable<Tag> tags, string text)
@@ -29,7 +29,7 @@ namespace Markdown
                 }
                 else
                 {
-                    if (openTag.TryPairCloseTag(tag, text) || openTag.Type == TagType.Header)
+                    if (openTag.TryPairCloseTag(tag, text))
                     {
                         yield return openTag;
                         yield return tag;

@@ -13,7 +13,7 @@ namespace Markdown
         {
             if (IsTag(position, text) && IsAfterNewLine(position, text))
             {
-                tag = new Tag(position, TagType.Header, true, MdTag.Length, inWord, true);
+                tag = new Tag(position, TagType.Header, true, MdTag.Length, inWord, false);
                 return true;
             }
 
