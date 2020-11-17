@@ -1,4 +1,7 @@
 ﻿using System;
+using System.Collections.Generic;
+using System.Diagnostics;
+using System.Linq;
 using NUnit.Framework;
 
 namespace Markdown.Tests
@@ -139,6 +142,29 @@ namespace Markdown.Tests
         public void Render_ThrowException_WhenNullInput()
         {
             Assert.Throws<NullReferenceException>(() => Md.Render(null));
+        }
+
+        [Test]
+        public void Render_ShouldLinearComplexity()
+        {
+            const int delta = 2;
+            const string initialText = @"# __abc__ _[Link](https://vk.com/)_";
+
+            var ticks = new List<double>();
+            var timer = new Stopwatch();
+            for (var i = 1; i <= 4096; i *= delta)
+            {
+                var currentText = string.Concat(Enumerable.Repeat(initialText, i));
+
+                timer.Start();
+                Md.Render(currentText);
+                timer.Stop();
+                ticks.Add(timer.ElapsedTicks);
+                timer.Reset();
+            }
+
+            for (var i = 0; i < ticks.Count - 1; ++i)
+                Assert.LessOrEqual(ticks[i + 1] / ticks[i], delta + delta);
         }
     }
 }
