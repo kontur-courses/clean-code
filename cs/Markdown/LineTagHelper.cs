@@ -7,16 +7,16 @@ namespace Markdown
         protected LineTagHelper(string mdTag, string htmlTag, TagType tagType)
             : base(mdTag, htmlTag)
         {
-            TagType = tagType;
+            this.tagType = tagType;
         }
 
-        private TagType TagType { get; }
+        private readonly TagType tagType;
 
         public override bool TryParse(int position, string text, out Tag tag, bool inWord = false, int lineNumber = 0)
         {
             if (IsTag(position, text) && IsAfterNewLine(position, text))
             {
-                tag = new Tag(position, TagType, true, MdTag.Length, inWord, false, lineNumber);
+                tag = new Tag(position, tagType, true, MdTag.Length, inWord, false, lineNumber);
                 return true;
             }
 
