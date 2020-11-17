@@ -13,8 +13,8 @@ namespace Markdown
             foreach (var tag in tags.OrderBy(x => x.Position))
             {
                 html.Append(text.Substring(position, tag.Position - position));
-                html.Append(tag.GetHtmlTag());
-                position = tag.Position + tag.MdTag.Length;
+                html.Append(TagParser.SupportedTags[tag.Type].GetHtmlTag(tag.IsOpening));
+                position = tag.Position + tag.MdTagLength;
             }
 
             html.Append(text.Substring(position, text.Length - position));
