@@ -2,18 +2,18 @@
 
 namespace Markdown
 {
-    public class HeaderTag : Tag
+    public class HeaderTagHelper : TagHelper
     {
-        private HeaderTag(int position, string mdTag, bool isOpening)
-            : base(mdTag, "<h1>", position, isOpening)
+        private HeaderTagHelper()
+            : base("# ", "<h1>")
         {
         }
 
-        public override bool TryParse(int position, string text, out Tag tag)
+        public override bool TryParse(int position, string text, out Tag tag, bool inWord = false)
         {
             if (IsTag(position, text) && IsAfterNewLine(position, text))
             {
-                tag = new HeaderTag(position, "# ", true);
+                tag = new Tag(position, TagType.Header, true, MdTag.Length, inWord, true);
                 return true;
             }
 
@@ -26,20 +26,9 @@ namespace Markdown
             return IsTag(position + 1, text) && IsAfterNewLine(position, text);
         }
 
-        public static HeaderTag GetCloseTag(int position)
+        public static TagHelper CreateInstance()
         {
-            return new HeaderTag(position, "", false);
-        }
-
-
-        public override int GetMdTagLengthToSkip()
-        {
-            return IsOpening ? MdTag.Length : 0;
-        }
-
-        public static Tag CreateInstance()
-        {
-            return new HeaderTag(0, "# ", true);
+            return new HeaderTagHelper();
         }
 
         private bool IsAfterNewLine(int position, string text)
