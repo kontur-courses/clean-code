@@ -217,5 +217,13 @@ namespace MarkDownTests
 
             Md.Render(text).Should().Be("<em>abc __abc__ abc</em>");
         }
+
+        [Test]
+        public void Render_TagsInsideH1Tag_TagsWorksInsideH1Tag()
+        {
+            var text = "#abc _def_ __xyz__";
+
+            Md.Render(text).Should().Be("<h1>abc <em>def</em> <strong>xyz</strong></h1>");
+        }
     }
 }
