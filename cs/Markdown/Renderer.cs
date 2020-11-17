@@ -8,7 +8,7 @@ namespace Markdown
         {
             if (string.IsNullOrEmpty(textInMarkdown))
                 throw new ArgumentException("String is null or empty");
-            var paragraphs = textInMarkdown.Split('\n');
+            var paragraphs = textInMarkdown.Split("\r\n");
             var analyzer = new Analyzer();
             var tagsForAllParagraphs = analyzer.GetTagsForAllParagraphs(paragraphs);
             if (tagsForAllParagraphs.Count == 0)

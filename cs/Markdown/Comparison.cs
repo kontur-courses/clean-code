@@ -11,7 +11,8 @@ namespace Markdown
                 {"_", TextSelectionType.Italic},
                 {"__", TextSelectionType.Bold},
                 {"#", TextSelectionType.Header},
-                {@"\", TextSelectionType.Slash}
+                {@"\", TextSelectionType.Slash},
+                {"-", TextSelectionType.Marker}
             };
 
         private static readonly Dictionary<TextSelectionType, string[]> _selectionTypesAndHtmlMarks =
@@ -20,7 +21,9 @@ namespace Markdown
                 {TextSelectionType.Header, new[] {"<h1>", "</h1>"}},
                 {TextSelectionType.Italic, new[] {"<em>", "</em>"}},
                 {TextSelectionType.Bold, new[] {"<strong>", "</strong>"}},
-                {TextSelectionType.Slash, new[] {""}}
+                {TextSelectionType.Slash, new[] {""}},
+                {TextSelectionType.MarkContainer, new[] {"<ul>\r\n", "\r\n</ul>"}},
+                {TextSelectionType.Marker, new[] {" <li>", "</li>"}},
             };
 
         private static readonly Dictionary<TextSelectionType, HashSet<TextSelectionType>>
@@ -38,6 +41,10 @@ namespace Markdown
                     {
                         TextSelectionType.Italic,
                         new HashSet<TextSelectionType>()
+                    },
+                    {
+                        TextSelectionType.Marker,
+                        new HashSet<TextSelectionType> {TextSelectionType.Italic, TextSelectionType.Bold}
                     }
                 };
 
