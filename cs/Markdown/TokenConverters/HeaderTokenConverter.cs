@@ -13,7 +13,7 @@ namespace Markdown.TokenConverters
             Type = TokenType.Header;
             TagText = "h1";
         }
-        
+
         public string ConvertTokenToString(TextToken token, IReadOnlyCollection<ITokenConverter> tokenConverters)
         {
             if (token.Type != Type)
@@ -36,5 +36,5 @@ namespace Markdown.TokenConverters
             htmlText.Append("</" + TagText + ">");
             return htmlText.ToString();
         }
-        }
+    }
 }

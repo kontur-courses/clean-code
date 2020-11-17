@@ -15,14 +15,14 @@ namespace Markdown
                 new EmphasizedTokenGetter(),
                 new TextTokenGetter()
             };
-            
+
             var tokenConverters = new List<ITokenConverter>
             {
                 new StrongTokenConverter(),
                 new EmphasizedTokenConverter(),
                 new TextTokenConverter()
             };
-            
+
             var textParser = new TextParser(tokenGetters);
 
             var textTokens = textParser.GetTextTokens(text);

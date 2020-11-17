@@ -38,7 +38,7 @@ namespace Markdown
                     tokens.Add(currentToken);
                     return tokens;
                 }
-                
+
                 currentText.Clear();
 
                 var updatedToken = UpdateLastTextToken(currentToken);

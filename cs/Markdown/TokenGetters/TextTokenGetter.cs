@@ -27,7 +27,7 @@ namespace Markdown
                 text[index + 1] == '_') return false;
             return true;
         }
-        
+
         private static StringBuilder RemoveShieldSymbols(StringBuilder currentText)
         {
             var textWithoutShieldSymbols = new StringBuilder();

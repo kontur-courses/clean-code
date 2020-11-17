@@ -22,7 +22,7 @@ namespace Markdown.Tests
             };
             tokenGetters = new ITokenGetter[]
             {
-                new HeaderTokenGetter(), 
+                new HeaderTokenGetter(),
                 new StrongTokenGetter(),
                 new EmphasizedTokenGetter(),
                 new TextTokenGetter()
@@ -42,21 +42,22 @@ namespace Markdown.Tests
 
             actualLine.Should().BeEquivalentTo(expectedLine);
         }
-        
+
         [Test]
         public void Main_ReturnCorrectHtmlString_TextWithStrong()
         {
             var text = "__Выделенный двумя символами текст__ должен становиться полужирным с помощью тега ";
             var textParser = new TextParser(tokenGetters);
             var htmlConverter = new HTMLConverter(tokenConverters);
-            var expectedLine = "<strong>Выделенный двумя символами текст</strong> должен становиться полужирным с помощью тега ";
+            var expectedLine =
+                "<strong>Выделенный двумя символами текст</strong> должен становиться полужирным с помощью тега ";
 
             var textTokens = textParser.GetTextTokens(text);
             var actualLine = htmlConverter.GetHtmlString(textTokens);
 
             actualLine.Should().BeEquivalentTo(expectedLine);
         }
-        
+
         [Test]
         public void Main_ReturnCorrectHtmlString_TextWithEmInsideStrong()
         {
@@ -70,7 +71,7 @@ namespace Markdown.Tests
 
             actualLine.Should().BeEquivalentTo(expectedLine);
         }
-        
+
         [Test]
         public void Main_ReturnCorrectHtmlString_StrongInsideEm()
         {
@@ -84,35 +85,38 @@ namespace Markdown.Tests
 
             actualLine.Should().BeEquivalentTo(expectedLine);
         }
-        
+
         [Test]
         public void Main_ReturnCorrectHtmlString_UnderliningNumbers()
         {
-            var text = "Подчерки внутри текста c цифрами_12_3 не считаются выделением и должны оставаться символами подчерка.";
+            var text =
+                "Подчерки внутри текста c цифрами_12_3 не считаются выделением и должны оставаться символами подчерка.";
             var textParser = new TextParser(tokenGetters);
             var htmlConverter = new HTMLConverter(tokenConverters);
-            var expectedLine = "Подчерки внутри текста c цифрами_12_3 не считаются выделением и должны оставаться символами подчерка.";
+            var expectedLine =
+                "Подчерки внутри текста c цифрами_12_3 не считаются выделением и должны оставаться символами подчерка.";
 
             var textTokens = textParser.GetTextTokens(text);
             var actualLine = htmlConverter.GetHtmlString(textTokens);
 
             actualLine.Should().BeEquivalentTo(expectedLine);
         }
-        
+
         [Test]
         public void Main_ReturnCorrectHtmlString_EmPartsOfWords()
         {
             var text = "Однако выделять часть слова они могут: и в _нач_але, и в сер_еди_не, и в кон_це._";
             var textParser = new TextParser(tokenGetters);
             var htmlConverter = new HTMLConverter(tokenConverters);
-            var expectedLine = "Однако выделять часть слова они могут: и в <em>нач</em>але, и в сер<em>еди</em>не, и в кон<em>це.</em>";
+            var expectedLine =
+                "Однако выделять часть слова они могут: и в <em>нач</em>але, и в сер<em>еди</em>не, и в кон<em>це.</em>";
 
             var textTokens = textParser.GetTextTokens(text);
             var actualLine = htmlConverter.GetHtmlString(textTokens);
 
             actualLine.Should().BeEquivalentTo(expectedLine);
         }
-        
+
         [Test]
         public void Main_ReturnCorrectHtmlString_UnderliningDifferentWords()
         {
@@ -126,7 +130,7 @@ namespace Markdown.Tests
 
             actualLine.Should().BeEquivalentTo(expectedLine);
         }
-        
+
         [Test]
         public void Main_ReturnCorrectHtmlString_UnpairedSymbols()
         {
@@ -140,7 +144,7 @@ namespace Markdown.Tests
 
             actualLine.Should().BeEquivalentTo(expectedLine);
         }
-        
+
         [Test]
         public void Main_ReturnCorrectHtmlString_NoSpaceBeforeStartingUnderlining()
         {
@@ -154,35 +158,38 @@ namespace Markdown.Tests
 
             actualLine.Should().BeEquivalentTo(expectedLine);
         }
-        
+
         [Test]
         public void Main_ReturnCorrectHtmlString_NoSpaceAfterEndingUnderlining()
         {
             var text = "Иначе эти _подчерки _не считаются_ окончанием выделения и остаются просто символами подчерка.";
             var textParser = new TextParser(tokenGetters);
             var htmlConverter = new HTMLConverter(tokenConverters);
-            var expectedLine = "Иначе эти <em>подчерки _не считаются</em> окончанием выделения и остаются просто символами подчерка.";
+            var expectedLine =
+                "Иначе эти <em>подчерки _не считаются</em> окончанием выделения и остаются просто символами подчерка.";
 
             var textTokens = textParser.GetTextTokens(text);
             var actualLine = htmlConverter.GetHtmlString(textTokens);
 
             actualLine.Should().BeEquivalentTo(expectedLine);
         }
-        
+
         [Test]
         public void Main_ReturnCorrectHtmlString_CrossingUnderlinings()
         {
-            var text = "В случае __пересечения _двойных__ и одинарных_ подчерков ни один из них не считается выделением.";
+            var text =
+                "В случае __пересечения _двойных__ и одинарных_ подчерков ни один из них не считается выделением.";
             var textParser = new TextParser(tokenGetters);
             var htmlConverter = new HTMLConverter(tokenConverters);
-            var expectedLine = "В случае __пересечения _двойных__ и одинарных_ подчерков ни один из них не считается выделением.";
+            var expectedLine =
+                "В случае __пересечения _двойных__ и одинарных_ подчерков ни один из них не считается выделением.";
 
             var textTokens = textParser.GetTextTokens(text);
             var actualLine = htmlConverter.GetHtmlString(textTokens);
 
             actualLine.Should().BeEquivalentTo(expectedLine);
         }
-        
+
         [Test]
         public void Main_ReturnCorrectHtmlString_NoSymbolsBetweenUnderlinings()
         {
@@ -196,7 +203,7 @@ namespace Markdown.Tests
 
             actualLine.Should().BeEquivalentTo(expectedLine);
         }
-        
+
         [Test]
         public void Main_ReturnCorrectHtmlString_ShieldedSymbols()
         {
@@ -210,7 +217,7 @@ namespace Markdown.Tests
 
             actualLine.Should().BeEquivalentTo(expectedLine);
         }
-        
+
         [Test]
         public void Main_ReturnCorrectHtmlString_Header()
         {
@@ -224,6 +231,5 @@ namespace Markdown.Tests
 
             actualLine.Should().BeEquivalentTo(expectedLine);
         }
-        
     }
 }

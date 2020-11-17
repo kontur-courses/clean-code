@@ -16,7 +16,7 @@ namespace Markdown.Tests
         {
             TokenGetters = new ITokenGetter[]
             {
-                new HeaderTokenGetter(), 
+                new HeaderTokenGetter(),
                 new StrongTokenGetter(),
                 new EmphasizedTokenGetter(),
                 new TextTokenGetter()
@@ -37,7 +37,6 @@ namespace Markdown.Tests
         [Test]
         public void GetTextTokens_ReturnEmptyList_EmptyText()
         {
-
             var textTokens = textParser.GetTextTokens("");
 
             textTokens.Should().BeEmpty();
@@ -198,19 +197,19 @@ namespace Markdown.Tests
 
             actualList.Should().BeEquivalentTo(expectedList);
         }
-        
+
         [Test]
         public void GetTextTokens_ReturnListWithCorrectTokens_NoTextBetweenUnderlinings()
         {
             var text = "____";
             var expectedList = new List<TextToken>()
             {
-                new TextToken(0, 4, TokenType.Text, "____",null)
+                new TextToken(0, 4, TokenType.Text, "____", null)
             };
 
             var actualList = textParser.GetTextTokens(text);
 
-            actualList.Should().BeEquivalentTo(expectedList);   
+            actualList.Should().BeEquivalentTo(expectedList);
         }
 
         [Test]
@@ -219,12 +218,12 @@ namespace Markdown.Tests
             var text = "a_a b_b";
             var expectedList = new List<TextToken>()
             {
-                new TextToken(0, 7, TokenType.Text, "a_a b_b",null)
+                new TextToken(0, 7, TokenType.Text, "a_a b_b", null)
             };
 
             var actualList = textParser.GetTextTokens(text);
 
-            actualList.Should().BeEquivalentTo(expectedList);   
+            actualList.Should().BeEquivalentTo(expectedList);
         }
 
         [Test]
@@ -233,16 +232,15 @@ namespace Markdown.Tests
             var text = "a_bc_de";
             var expectedList = new List<TextToken>()
             {
-                new TextToken(0, 1, TokenType.Text, "a",null),
-                new TextToken(2,2,TokenType.Emphasized,"bc", 
-                    new List<TextToken>{new TextToken(0,2,TokenType.Text,"bc")}),
-                new TextToken(5,2, TokenType.Text, "de", null)
-                
+                new TextToken(0, 1, TokenType.Text, "a", null),
+                new TextToken(2, 2, TokenType.Emphasized, "bc",
+                    new List<TextToken> {new TextToken(0, 2, TokenType.Text, "bc")}),
+                new TextToken(5, 2, TokenType.Text, "de", null)
             };
 
             var actualList = textParser.GetTextTokens(text);
 
-            actualList.Should().BeEquivalentTo(expectedList);   
+            actualList.Should().BeEquivalentTo(expectedList);
         }
 
         [Test]
@@ -251,14 +249,14 @@ namespace Markdown.Tests
             var text = "ab1_2_3";
             var expectedList = new List<TextToken>()
             {
-                new TextToken(0, 7, TokenType.Text, "ab1_2_3",null),
+                new TextToken(0, 7, TokenType.Text, "ab1_2_3", null),
             };
 
             var actualList = textParser.GetTextTokens(text);
 
-            actualList.Should().BeEquivalentTo(expectedList);   
+            actualList.Should().BeEquivalentTo(expectedList);
         }
-        
+
         [Test]
         public void GetTextTokens_ReturnListWithCorrectTokens_TextWithHeader()
         {
@@ -268,13 +266,13 @@ namespace Markdown.Tests
                 new TextToken(0, 2, TokenType.Header, "ab",
                     new List<TextToken>
                     {
-                        new TextToken(0,2,TokenType.Text,"ab")
+                        new TextToken(0, 2, TokenType.Text, "ab")
                     })
             };
 
             var actualList = textParser.GetTextTokens(text);
 
-            actualList.Should().BeEquivalentTo(expectedList);   
+            actualList.Should().BeEquivalentTo(expectedList);
         }
     }
 }

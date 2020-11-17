@@ -15,6 +15,7 @@ namespace Markdown
         {
             this.tokenConverters = tokenConverters;
         }
+
         public string GetHtmlString(IReadOnlyCollection<TextToken> textTokens)
         {
             var stringedHtml = new StringBuilder();
@@ -23,10 +24,11 @@ namespace Markdown
                 foreach (var tokenConverter in tokenConverters)
                 {
                     var currentText = tokenConverter.ConvertTokenToString(token, tokenConverters);
-                    if(currentText == null) continue;
+                    if (currentText == null) continue;
                     stringedHtml.Append(currentText);
                 }
             }
+
             return stringedHtml.ToString();
         }
     }
