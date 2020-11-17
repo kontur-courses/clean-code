@@ -2,7 +2,7 @@
 {
     public class OpenUnOrderedListTag : UnorderedListTag
     {
-        public OpenUnOrderedListTag(int index) : base("<ul>\n", index)
+        public OpenUnOrderedListTag() : base("<ul>\n")
         {
         }
     }

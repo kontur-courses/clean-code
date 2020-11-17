@@ -1,5 +1,5 @@
 ﻿using FluentAssertions;
-using Markdown.Tags;
+using Markdown.Parsers;
 using Markdown.Tags.ItalicTag;
 using NUnit.Framework;
 
@@ -10,13 +10,13 @@ namespace Markdown.MarkdownParserTests
         [Test]
         public void ReadAllItalicTags_ShouldReturnEmptyArray_OnSimpleString()
         {
-            MarkdownParser.ParseAllItalicTags("asdf").Should().BeEmpty();
+            ItalicParser.ParseTags("asdf").Should().BeEmpty();
         }
 
         [Test]
         public void ReadAllItalicTags_ShouldReturnArrayWithTwoCorrectTags_OnStringWithOneTag()
         {
-            var result = MarkdownParser.ParseAllItalicTags("abc _asdf_ abc");
+            var result = ItalicParser.ParseTags("abc _asdf_ abc");
             result.Length.Should().Be(2);
             result[0].Should().BeEquivalentTo(new OpenItalicTag(4));
             result[1].Should().BeEquivalentTo(new CloseItalicTag(9));
@@ -25,7 +25,7 @@ namespace Markdown.MarkdownParserTests
         [Test]
         public void ReadAllItalicTags_ShouldReturnCorrectAnswer_OnStringWithManyTags()
         {
-            var result = MarkdownParser.ParseAllItalicTags("_asdf_ _asf_ _asdf_");
+            var result = ItalicParser.ParseTags("_asdf_ _asf_ _asdf_");
             result.Length.Should().Be(6);
             result[0].Should().BeEquivalentTo(new OpenItalicTag(0));
             result[1].Should().BeEquivalentTo(new CloseItalicTag(5));

@@ -2,7 +2,7 @@
 {
     public class UnorderedListTag : Tag
     {
-        public UnorderedListTag(string value, int index) : base(value, index, 0)
+        public UnorderedListTag(string value) : base(value, -1, 0)
         {
         }
     }
