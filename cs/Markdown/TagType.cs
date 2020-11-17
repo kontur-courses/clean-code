@@ -5,6 +5,7 @@
         Escape,
         Bold,
         Italic,
-        Header
+        Header,
+        UnorderedList
     }
 }

@@ -12,7 +12,8 @@ namespace Markdown
             [TagType.Italic] = ItalicTagHelper.CreateInstance(),
             [TagType.Header] = HeaderTagHelper.CreateInstance(),
             [TagType.Bold] = BoldTagHelper.CreateInstance(),
-            [TagType.Escape] = EscapeTagHelper.CreateInstance()
+            [TagType.Escape] = EscapeTagHelper.CreateInstance(),
+            [TagType.UnorderedList] = UnorderedListTagHelper.CreateInstance()
         };
 
         public static IEnumerable<Tag> GetTags(string text)
