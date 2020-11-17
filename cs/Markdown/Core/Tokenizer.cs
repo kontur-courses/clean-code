@@ -1,69 +1,93 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Linq;
+using System.Text;
 using Markdown.TokenModels;
 
 namespace Markdown.Core
 {
     public static class Tokenizer
     {
-        private static readonly Dictionary<string, string> Tags = new Dictionary<string, string>
-        {
-            {"__", "__"},
-            {"_", "_"},
-            {"#", "\n"}
-        };
+        private static readonly char[] OpenTagChars = {'_', '['};
+        private const char EscapeChar = '\\';
 
         public static IEnumerable<IToken> ParseIntoTokens(string mdText)
         {
-            var tokens = new List<IToken>();
-            var stringTokenValue = "";
-            for (var index = 0; index < mdText.Length;)
+            if (mdText.StartsWith("# "))
             {
-                if (!Tags.ContainsKey(mdText[index].ToString()))
+                yield return HeaderToken.Create(mdText);
+                yield break;
+            }
+
+            foreach (var token in GetAllTokens(mdText))
+                yield return token;
+        }
+
+        private static IEnumerable<IToken> GetAllTokens(string mdText)
+        {
+            var isEscapedTag = false;
+            var collector = new StringBuilder();
+            for (var i = 0; i < mdText.Length; i++)
+            {
+                if (!isEscapedTag && CanBeEscaping(mdText, i))
                 {
-                    stringTokenValue += mdText[index++];
+                    isEscapedTag = true;
                     continue;
                 }
 
-                if (stringTokenValue != "")
+                if (isEscapedTag || IsNotTag(mdText, i))
                 {
-                    tokens.Add(new StringToken(stringTokenValue));
-                    stringTokenValue = "";
+                    collector.Append(mdText[i]);
+                    isEscapedTag = false;
+                    continue;
                 }
 
-                var closingTag = Tags[mdText[index] + (mdText[index + 1] is '_' ? "_" : "")];
-                var startIndex = index + closingTag.Length;
-                
-                if (closingTag == "\n" && !mdText.Contains("\n"))
-                    mdText += "\n";
-                
-                var tokenValue = GetTokenValue(startIndex, closingTag, mdText);
-                var newToken = GetToken(closingTag, tokenValue);
-                
-                tokens.Add(newToken);
-                index += closingTag.Length + tokenValue.Length + closingTag.Length;
+                if (TryGetToken(mdText, i, out var newToken))
+                {
+                    if (collector.Length != 0)
+                    {
+                        yield return StringToken.Create(collector.ToString());
+                        collector.Clear();
+                    }
+
+                    yield return newToken;
+                    i += newToken.MdTokenLength - 1;
+                }
+                else
+                {
+                    collector.Append(mdText[i]);
+                }
             }
 
-            if (stringTokenValue != "") 
-                tokens.Add(new StringToken(stringTokenValue));
-
-            return tokens;
+            if (collector.Length != 0)
+                yield return StringToken.Create(collector.ToString());
         }
 
-        private static IToken GetToken(string tagType, string tokenValue) => tagType switch
+        private static bool TryGetToken(string mdText, in int index, out IToken token)
         {
-            "\n" => HeaderToken.Create(tokenValue),
-            "_" => ItalicToken.Create(tokenValue),
-            "__" => BoldToken.Create(tokenValue),
-            _ => throw new ArgumentException()
-        };
+            token = mdText[index] switch
+            {
+                '_' when mdText.HasUnderscoreAt(index + 1) => BoldToken.Create(mdText, index),
+                '_' => ItalicToken.Create(mdText, index),
+                '[' => LinkToken.Create(mdText, index),
+                _ => default
+            };
+            return token is not null;
+        }
 
-
-        private static string GetTokenValue(int startIndex, string closedTag, string mdText)
+        private static bool CanBeEscaping(string mdText, int i)
         {
-            var length = mdText.Substring(startIndex).IndexOf(closedTag, StringComparison.Ordinal);
-            return mdText.Substring(startIndex, length);
+            var canNextCharBeEscaped = mdText.IsCharInsideString(i + 1) &&
+                                       (OpenTagChars.Contains(mdText[i + 1]) || mdText[i + 1] is EscapeChar);
+            return mdText[i] is EscapeChar && canNextCharBeEscaped;
+        }
+
+        private static bool IsNotTag(string mdText, int i)
+        {
+            var isAfterItalicTokenNonSpaceChar = mdText.IsCharInsideString(i + 1) && !mdText.HasWhiteSpaceAt(i + 1);
+            var isAfterBoldTagNonSpaceChar = mdText.IsCharInsideString(i + 2) && !mdText.HasWhiteSpaceAt(i + 2);
+            return !(OpenTagChars.Contains(mdText[i])
+                     && !mdText.HasUnderscoreAt(i - 1) && isAfterItalicTokenNonSpaceChar
+                     && isAfterBoldTagNonSpaceChar);
         }
     }
 }
