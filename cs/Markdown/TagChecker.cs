@@ -26,12 +26,12 @@ namespace Markdown
                     {
                         if (lastListItem == null)
                         {
-                            yield return new Tag(tag.Position, TagType.UnorderedList, true, 0, false, false);
+                            yield return UnorderedListTagHelper.GetTag(tag.Position, true);
                         }
                         else if (tag.LineNumber - lastListItem.LineNumber != 1)
                         {
-                            yield return new Tag(lastListItem.Position, TagType.UnorderedList, false, 0, false, false);
-                            yield return new Tag(tag.Position, TagType.UnorderedList, true, 0, false, false);
+                            yield return UnorderedListTagHelper.GetTag(lastListItem.Position, false);
+                            yield return UnorderedListTagHelper.GetTag(tag.Position, true);                        
                         }
                     }
                     else
@@ -47,7 +47,7 @@ namespace Markdown
                 }
 
             if (lastListItem != null)
-                yield return new Tag(lastListItem.Position, TagType.UnorderedList, false, 0, false, false);
+                yield return UnorderedListTagHelper.GetTag(lastListItem.Position, false);
         }
 
         private static IEnumerable<Tag> PairTags(this IEnumerable<Tag> tags, string text)
