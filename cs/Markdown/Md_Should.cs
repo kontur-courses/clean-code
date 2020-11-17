@@ -100,12 +100,12 @@ namespace Markdown
             var mdString = "_Tag_ __Bold Tag__ /_not tag_ ";
             var sb = new StringBuilder(mdString);
 
-            md.Render("_warm up_");
+            md.Render(mdString);
 
             sw.Start();
             md.Render(mdString);
             sw.Stop();
-            var previousTime = sw.ElapsedTicks;
+            var firstTime = sw.ElapsedTicks;
 
             for (var i = 1; i < 500; i++)
             {
@@ -116,8 +116,7 @@ namespace Markdown
                 sw.Stop();
                 var currentTime = sw.ElapsedTicks;
                 currentTime
-                    .Should().BeLessThan((long)(previousTime * Math.Log(previousTime)));
-                previousTime = currentTime;
+                    .Should().BeLessThan((long)(firstTime * (i + 1) * 2));
             }
         }
     }
