@@ -7,12 +7,12 @@ namespace Markdown
     {
         public static Tag BuildTag(string text, int startIndex)
         {
-            var mark = Marks.GetMarkFromText(startIndex, text);
-            if (!Marks.IsMark(mark))
+            var mark = MarkdownTags.GetMarkFromText(startIndex, text);
+            if (!MarkdownTags.IsMark(mark))
                 return Tag.EmptyOn(startIndex);
 
             var endPos = FindClosePosition(text, startIndex, mark);
-            var tagName = Marks.GetHtmlTagByMark(mark);
+            var tagName = MarkdownTags.GetHtmlTagByMark(mark);
 
 
             return IsTagCorrect(startIndex, endPos, text)
@@ -23,7 +23,7 @@ namespace Markdown
         private static string GetContent(int startIndex, int endIndex, string text)
         {
             var contentBuilder = new StringBuilder();
-            var mark = Marks.GetMarkFromText(startIndex, text);
+            var mark = MarkdownTags.GetMarkFromText(startIndex, text);
             for (var i = startIndex + mark.Length; i <= endIndex - mark.Length; i++)
                 contentBuilder.Append(text[i]);
 
@@ -33,11 +33,11 @@ namespace Markdown
         private static int FindClosePosition(string text, int startIndex, string openedMark)
         {
             var i = startIndex + 1;
-            var pairMark = Marks.GetMarkPair(openedMark);
-            var mark = Marks.GetMarkFromText(i, text);
+            var pairMark = MarkdownTags.GetMarkPair(openedMark);
+            var mark = MarkdownTags.GetMarkFromText(i, text);
             while (i < text.Length - openedMark.Length + 1)
             {
-                mark = Marks.GetMarkFromText(i, text);
+                mark = MarkdownTags.GetMarkFromText(i, text);
                 if (mark == pairMark && !char.IsWhiteSpace(text[i - 1]))
                     break;
 
@@ -49,7 +49,7 @@ namespace Markdown
 
         private static bool IsTagCorrect(int startIndex, int endIndex, string text)
         {
-            var mark = Marks.GetMarkFromText(startIndex, text);
+            var mark = MarkdownTags.GetMarkFromText(startIndex, text);
             var tagContent = GetContent(startIndex, endIndex, text);
 
             return mark == "#"
@@ -62,7 +62,7 @@ namespace Markdown
 
         private static bool AreMarksEqualed(int openedMarkIndex, int closingMarkIndex, string text)
         {
-            var mark = Marks.GetMarkFromText(openedMarkIndex, text);
+            var mark = MarkdownTags.GetMarkFromText(openedMarkIndex, text);
 
             return text.Substring(openedMarkIndex, mark.Length) ==
                    text.Substring(closingMarkIndex - mark.Length + 1, mark.Length);

@@ -5,13 +5,13 @@
         private Tag(string tagName)
         {
             TagName = tagName;
-            TagType = Marks.GetTagType(tagName);
+            TagType = HtmlTags.GetTagType(tagName);
         }
 
         public bool isCorrect { get; private set; }
         public TagType TagType { get; }
         public string TagName { get; }
-        public string Mark => Marks.GetMarkByHtmlTag(TagName);
+        public string Mark => HtmlTags.GetMarkByHtmlTag(TagName);
         public int OpenPosition { get; set; }
         public int ClosePosition { get; private set; }
 

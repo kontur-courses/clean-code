@@ -52,7 +52,7 @@ namespace MarkDownTests
         {
             var text = $"{mark}abc{mark} abc";
             
-            var tagName = Marks.GetHtmlTagByMark(mark);
+            var tagName = MarkdownTags.GetHtmlTagByMark(mark);
             
             Md.Render(text).Should().Be($"<{tagName}>abc</{tagName}> abc");
         }
@@ -63,7 +63,7 @@ namespace MarkDownTests
         {
             var text = $"abc {mark}abc{mark}";
             
-            var tagName = Marks.GetHtmlTagByMark(mark);
+            var tagName = MarkdownTags.GetHtmlTagByMark(mark);
             
             Md.Render(text).Should().Be($"abc <{tagName}>abc</{tagName}>");
         }
@@ -74,7 +74,7 @@ namespace MarkDownTests
         {
             var text = $"{mark}abc{mark}abc";
             
-            var tagName = Marks.GetHtmlTagByMark(mark);
+            var tagName = MarkdownTags.GetHtmlTagByMark(mark);
             
             Md.Render(text).Should().Be($"<{tagName}>abc</{tagName}>abc");
         }
@@ -84,7 +84,7 @@ namespace MarkDownTests
         public void Render_TextAndTag_TextBeforeTagWithoutSpace(string mark)
         {
             var text = $"abc{mark}abc{mark}";
-            var tagName = Marks.GetHtmlTagByMark(mark);
+            var tagName = MarkdownTags.GetHtmlTagByMark(mark);
             
             Md.Render(text).Should().Be($"abc<{tagName}>abc</{tagName}>");
         }
@@ -137,7 +137,7 @@ namespace MarkDownTests
         public void Render_TagInsideWord_MdTagAtBeginningOfWord(string mark)
         {
             var text = $"{mark}ab{mark}c";
-            var tagName = Marks.GetHtmlTagByMark(mark);
+            var tagName = MarkdownTags.GetHtmlTagByMark(mark);
 
             Md.Render(text).Should().Be($"<{tagName}>ab</{tagName}>c");
         }
@@ -147,7 +147,7 @@ namespace MarkDownTests
         public void Render_TagInsideWord_MdTagAtMiddleOfWord(string mark)
         {
             var text = $"a{mark}b{mark}c";
-            var tagName = Marks.GetHtmlTagByMark(mark);
+            var tagName = MarkdownTags.GetHtmlTagByMark(mark);
 
             Md.Render(text).Should().Be($"a<{tagName}>b</{tagName}>c");
         }
@@ -157,7 +157,7 @@ namespace MarkDownTests
         public void Render_TagInsideWord_MdTagAtEndOfWord(string mark)
         {
             var text = $"ab{mark}c{mark}";
-            var tagName = Marks.GetHtmlTagByMark(mark);
+            var tagName = MarkdownTags.GetHtmlTagByMark(mark);
 
             Md.Render(text).Should().Be($"ab<{tagName}>c</{tagName}>");
         }

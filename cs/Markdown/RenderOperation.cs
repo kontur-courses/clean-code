@@ -53,7 +53,7 @@ namespace Markdown
                                 break;
 
                             case TagStatus.Incorrect:
-                                var mark = Marks.GetMarkFromText(currentIndex, text);
+                                var mark = MarkdownTags.GetMarkFromText(currentIndex, text);
                                 resultBuilder.Append(mark);
                                 currentIndex += mark.Length;
                                 break;
@@ -75,11 +75,11 @@ namespace Markdown
             if (buffer.ContainsKey(currentIndex))
                 return RenderStatus.AppendClosingTag;
 
-            if (Marks.ExpectedToBeMark(currentIndex, text))
+            if (MarkdownTags.ExpectedToBeMark(currentIndex, text))
                 return RenderStatus.CheckMarkSymbol;
 
             if (currentIndex < text.Length && text[currentIndex] == '\\'
-                                           && Marks.ExpectedToBeMark(currentIndex + 1, text))
+                                           && MarkdownTags.ExpectedToBeMark(currentIndex + 1, text))
                 return RenderStatus.CheckScreening;
 
             return RenderStatus.PlainText;
@@ -101,10 +101,10 @@ namespace Markdown
             builderToAppend.Append(value);
             buffer.Remove(position);
 
-            if (Marks.IsClosedHtmlTag(value))
-                openedTags.Remove(Marks.GetTagType(value));
+            if (HtmlTags.IsClosedHtmlTag(value))
+                openedTags.Remove(HtmlTags.GetTagType(value));
 
-            currentIndex += Marks.IsHtmlTag(value) ? Marks.GetMarkByHtmlTag(value).Length : value.Length;
+            currentIndex += HtmlTags.IsHtmlTag(value) ? HtmlTags.GetMarkByHtmlTag(value).Length : value.Length;
         }
 
         private int GetSlashesCount()
