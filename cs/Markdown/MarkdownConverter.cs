@@ -27,70 +27,105 @@ namespace Markdown
             return ReplaceTags(markdown, replacements);
         }
 
-        private Replacement[] FindReplacements(string markdown)
+        private List<Replacement> FindReplacements(string markdown)
         {
             var activeTags = new Dictionary<Tag, TagSubstring>();
             var replacements = new List<Replacement>();
-            var i = 0;
+            var index = 0;
             var hasSpace = false;
             var hasDigit = false;
-            while (i < markdown.Length)
+            while (index < markdown.Length)
             {
-                if (TryGetTag(markdown, i, out var substring, activeTags.Keys.ToHashSet()))
+                if (TryGetTag(markdown, index, activeTags.Keys.ToHashSet(), out var tagSubstring))
                 {
-                    if (substring.Role == TagRole.Opening)
-                    {
-                        if (substring.Tag == markdownHeader
-                            || substring.EndIndex == markdown.Length - 1
-                            || markdown[substring.EndIndex + 1] != ' ')
-                            activeTags.Add(substring.Tag, substring);
-                    }
-                    else if (substring.Tag == markdownHeader
-                             || ValidateDefaultTag(markdown, activeTags[substring.Tag], substring, hasDigit, hasSpace))
-                    {
-                        if (substring.Tag != markdownBold || !activeTags.ContainsKey(markdownItalic))
-                        {
-                            AddReplacement(replacements, activeTags[substring.Tag]);
-                            AddReplacement(replacements, substring);
-                        }
-                        activeTags.Remove(substring.Tag);
-                    }
-                    i += substring.Length;
+                    HandleNewTag(markdown, tagSubstring, activeTags, hasDigit, hasSpace, replacements);
+                    index += tagSubstring.Length;
                     hasDigit = false;
                     hasSpace = false;
                 }
-                else if (markdown[i] == '\\'
-                         && (TryGetTag(markdown, i + 1, out substring, activeTags.Keys.ToHashSet()) ||
-                             i + 1 < markdown.Length && markdown[i + 1] == '\\'))
+                else if (markdown[index] == '\\'
+                         && (TryGetTag(markdown, index + 1, activeTags.Keys.ToHashSet(), out tagSubstring) ||
+                             index + 1 < markdown.Length && markdown[index + 1] == '\\'))
                 {
-                    var replacement = markdown[i + 1] == '\\' ? "\\" : substring.Value;
+                    var replacement = markdown[index + 1] == '\\' ? "\\" : tagSubstring.Value;
                     replacements.Add(
                         new Replacement(
                             replacement,
-                            new Substring(i, '\\' + replacement)));
-                    i += replacement.Length + 1;
+                            new Substring(index, '\\' + replacement)));
+                    index += replacement.Length + 1;
+                }
+                else if (markdown[index] == '\n' && activeTags.ContainsKey(markdownItalic) &&
+                         activeTags.ContainsKey(markdownBold))
+                {
+                    activeTags.Remove(markdownItalic);
+                    activeTags.Remove(markdownBold);
                 }
                 else
                 {
-                    if (markdown[i] == ' ')
+                    if (markdown[index] == ' ')
                         hasSpace = true;
-                    else if (char.IsDigit(markdown[i]))
-                    hasDigit = true;
-                    i++;
+                    else if (char.IsDigit(markdown[index]))
+                        hasDigit = true;
+                    index++;
                 }
             }
-            return replacements.ToArray();
+            return replacements;
         }
 
-        private static bool ValidateDefaultTag(string markdown, TagSubstring firstTag, TagSubstring lastTag, bool hasDigit, bool hasSpace)
+        private void HandleNewTag(string markdown, TagSubstring tagSubstring, Dictionary<Tag, TagSubstring> activeTags, bool hasDigit,
+            bool hasSpace, List<Replacement> replacements)
         {
-            return markdown[lastTag.Index - 1] != ' '
-                   && markdown[firstTag.EndIndex + 1] != ' '
-                   && (lastTag.EndIndex + 1 < markdown.Length 
-                       && markdown[lastTag.EndIndex + 1] == ' '
-                       && firstTag.Index - 1 < markdown.Length 
-                       && markdown[firstTag.Index - 1] == ' '
-                       || !hasDigit && !hasSpace);
+            if (tagSubstring.Role == TagRole.Opening)
+            {
+                if (tagSubstring.Tag == markdownHeader
+                    || tagSubstring.EndIndex + 1 == markdown.Length
+                    || markdown[tagSubstring.EndIndex + 1] != ' ')
+                    activeTags.Add(tagSubstring.Tag, tagSubstring);
+            }
+            else if (tagSubstring.Tag == markdownHeader
+                     || ValidateDefaultTag(markdown, activeTags[tagSubstring.Tag], tagSubstring, hasDigit, hasSpace))
+            {
+                if (CheckIfBoldTagInsideItalic(tagSubstring, activeTags))
+                {
+                    AddReplacement(replacements, activeTags[tagSubstring.Tag]);
+                    AddReplacement(replacements, tagSubstring);
+                }
+
+                activeTags.Remove(tagSubstring.Tag);
+            }
+        }
+
+        private bool CheckIfBoldTagInsideItalic(TagSubstring tagSubstring, Dictionary<Tag, TagSubstring> activeTags)
+        {
+            return tagSubstring.Tag != markdownBold || !activeTags.ContainsKey(markdownItalic);
+        }
+
+        private string ReplaceTags(string markdown, List<Replacement> replacements)
+        {
+            if (replacements.Count == 0)
+                return markdown;
+            replacements = replacements
+                .OrderBy(replacement => replacement.OldValueSubstring.Index)
+                .ToList();
+
+            var resultBuilder = new StringBuilder();
+            var firstTagIndex = replacements[0].OldValueSubstring.Index;
+            if (firstTagIndex > 0)
+                resultBuilder.Append(markdown.Substring(0, replacements[0].OldValueSubstring.Index));
+            resultBuilder.Append(replacements[0].NewValue);
+
+            for (var i = 1; i < replacements.Count; i++)
+            {
+                var deltaStartIndex = replacements[i - 1].OldValueSubstring.EndIndex + 1;
+                var deltaLength = replacements[i].OldValueSubstring.Index - deltaStartIndex;
+                resultBuilder.Append(markdown.Substring(deltaStartIndex, deltaLength));
+                resultBuilder.Append(replacements[i].NewValue);
+            }
+
+            var lastTagEndIndex = replacements[^1].OldValueSubstring.EndIndex + 1;
+            if (lastTagEndIndex < markdown.Length)
+                resultBuilder.Append(markdown.Substring(lastTagEndIndex, markdown.Length - lastTagEndIndex));
+            return resultBuilder.ToString();
         }
 
         private void AddReplacement(List<Replacement> replacements, TagSubstring substring)
@@ -100,46 +135,30 @@ namespace Markdown
                 substring));
         }
 
-        private string ReplaceTags(string markdown, Replacement[] replacements)
+        private static bool ValidateDefaultTag(string markdown, TagSubstring firstTag, TagSubstring lastTag, bool hasDigit, bool hasSpace)
         {
-            if (replacements.Length == 0)
-                return markdown;
-            replacements = replacements
-                .OrderBy(replacement => replacement.OldValueSubstring.Index)
-                .ToArray();
-            var resultBuilder = new StringBuilder();
-            var firstTagIndex = replacements[0].OldValueSubstring.Index;
-            if (firstTagIndex > 0)
-                resultBuilder.Append(markdown.Substring(0, replacements[0].OldValueSubstring.Index));
-            resultBuilder.Append(replacements[0].NewValue);
-            for (var i = 1; i < replacements.Length; i++)
-            {
-                var deltaStartIndex = replacements[i - 1].OldValueSubstring.EndIndex + 1;
-                var deltaLength = replacements[i].OldValueSubstring.Index - deltaStartIndex;
-                resultBuilder.Append(markdown.Substring(deltaStartIndex, deltaLength));
-                resultBuilder.Append(replacements[i].NewValue);
-            }
-            var lastTagEndIndex = replacements[^1].OldValueSubstring.EndIndex + 1;
-            if (lastTagEndIndex < markdown.Length)
-                resultBuilder.Append(markdown.Substring(lastTagEndIndex, markdown.Length - lastTagEndIndex));
-            return resultBuilder.ToString();
+            return markdown[lastTag.Index - 1] != ' '
+                   && markdown[firstTag.EndIndex + 1] != ' '
+                   && ((lastTag.EndIndex + 1 == markdown.Length || markdown[lastTag.EndIndex + 1] == ' ')
+                       && (firstTag.Index - 1 < 0 || markdown[firstTag.Index - 1] == ' ')
+                       || !hasDigit && !hasSpace);
         }
 
-        private bool TryGetTag(string markdown, int index, out TagSubstring substring, HashSet<Tag> activeTags)
+        private bool TryGetTag(string markdown, int index, HashSet<Tag> activeTags, out TagSubstring tagSubstring)
         {
-            substring = markdownToHtmlDictionary
+            tagSubstring = markdownToHtmlDictionary
                 .Select(tag => tag.Key)
-                .Where(tag => ContainsSubstring(markdown, index, tag.Opening)
-                              || (ContainsSubstring(markdown, index, tag.Ending)
-                                && activeTags.Contains(tag)))
-                .Select(tag => ContainsSubstring(markdown, index, tag.Opening) && !activeTags.Contains(tag)
-                    ? new TagSubstring(index, tag.Opening, tag, TagRole.Opening)
-                    : new TagSubstring(index, tag.Ending, tag, TagRole.Ending))
+                .Where(tag => TextContainsSubstring(markdown, index, tag.Opening)
+                              || TextContainsSubstring(markdown, index, tag.Ending)
+                                && activeTags.Contains(tag))
+                .Select(tag => TextContainsSubstring(markdown, index, tag.Opening) && !activeTags.Contains(tag) ?
+                    new TagSubstring(index, tag.Opening, tag, TagRole.Opening) :
+                    new TagSubstring(index, tag.Ending, tag, TagRole.Ending))
                 .FirstOrDefault();
-            return substring != null;
+            return tagSubstring != null;
         }
 
-        private bool ContainsSubstring(string text, int index, string substring)
+        private bool TextContainsSubstring(string text, int index, string substring)
         {
             return text.Length >= index + substring.Length
                    && text.Substring(index, substring.Length) == substring;
