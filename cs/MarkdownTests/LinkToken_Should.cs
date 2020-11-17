@@ -10,11 +10,8 @@ namespace MarkdownTests
         [TestCase("[Text](https://url.com/)", 0, "<a href=\"https://url.com/\">Text</a>")]
         [TestCase("Author - [Text](https://url.com/)", 9, "<a href=\"https://url.com/\">Text</a>")]
         [TestCase("About - [Text](https://url.com/) - article", 8, "<a href=\"https://url.com/\">Text</a>")]
-        public void Create_CorrectArguments_ReturnsCorrectLinkToken(string rawToken, int position, string expected)
-        {
-            var actual = LinkToken.Create(rawToken, position).ToHtmlString();
-            actual.Should().Be(expected);
-        }
+        public void Create_CorrectArguments_ReturnsCorrectLinkToken(string rawToken, int position, string expected) =>
+            LinkToken.Create(rawToken, position).ToHtmlString().Should().Be(expected);
 
         [TestCase("[]")]
         [TestCase("[]()")]
@@ -26,11 +23,8 @@ namespace MarkdownTests
         [TestCase("[Text](url")]
         [TestCase("[Text]x(url")]
         [TestCase("[Text]](url)")]
-        public void Create_IncorrectInputs_ReturnsNullToken(string rawToken)
-        {
-            var actual = LinkToken.Create(rawToken, 0);
-            actual.Should().BeNull();
-        }
+        public void Create_IncorrectInputs_ReturnsNullToken(string rawToken) =>
+            LinkToken.Create(rawToken, 0).Should().BeNull();
 
         [TestCase("[Text](url)", 0, 11)]
         [TestCase("[Text](longerUrl)", 0, 17)]
