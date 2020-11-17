@@ -4,7 +4,7 @@ using System.Text;
 
 namespace Markdown
 {
-    public class MarkdownToHtmlConverter
+    public static class MarkdownToHtmlConverter
     {
         public static string Convert(string text, IEnumerable<Tag> tags)
         {
