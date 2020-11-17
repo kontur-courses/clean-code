@@ -1,3 +1,6 @@
+using System.Collections.Generic;
+using System.Diagnostics;
+using FluentAssertions;
 using Markdown;
 using NUnit.Framework;
 
@@ -56,6 +59,25 @@ namespace MarkdownTests
         public string Render_ExcludeTags(string input)
         {
             return md.Render(input);
+        }
+        
+        [Test]
+        public void IsAlgorithmFast()
+        {
+            GetElapsedTimeInTicks("# __t_es_t__");
+            var firstStr = "_abc_";
+            var secondStr = "__a_b_cd__";
+            var firstStrTime = GetElapsedTimeInTicks(firstStr);
+            var secondStrTime = GetElapsedTimeInTicks(secondStr);
+            var timeLinearDiff = secondStrTime / firstStrTime - (double)secondStr.Length / firstStr.Length;
+            Assert.IsTrue(timeLinearDiff < 1);
+        }
+
+        private double GetElapsedTimeInTicks(string firstStr)
+        {
+            var sw = Stopwatch.StartNew();
+            md.Render(firstStr);
+            return sw.Elapsed.Ticks;
         }
     }
 }
