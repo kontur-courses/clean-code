@@ -2,13 +2,15 @@
 {
     public class TagInfoWithIndex
     {
-        public TagInfo TagInfo { get; }
+        public ITagInfo TagInfo { get; }
         public int StartIndex { get; }
+        public string TagSubstring { get; }
 
-        public TagInfoWithIndex(TagInfo tagInfo, int startIndex)
+        public TagInfoWithIndex(ITagInfo tagInfo, int startIndex, string tagSubstring = default)
         {
             TagInfo = tagInfo;
             StartIndex = startIndex;
+            TagSubstring = tagSubstring;
         }
     }
 }

@@ -1,6 +1,4 @@
-using System.Collections.Generic;
 using System.Diagnostics;
-using FluentAssertions;
 using Markdown;
 using NUnit.Framework;
 
@@ -19,6 +17,14 @@ namespace MarkdownTests
         [TestCase("# abc", ExpectedResult = "<h1>abc</h1>", TestName = "When_Only_One_Tag")]
         [TestCase("# abc\ndef", ExpectedResult = "<h1>abc</h1>\ndef", TestName = "When_With_Line_Break")]
         public string Render_ConvertHeaderTag(string input)
+        {
+            return md.Render(input);
+        }
+
+        [TestCase("[google](www.google.ru)",
+            ExpectedResult = "<a href=\"www.google.ru\">google</a>",
+            TestName = "When_Only_One_Tag")]
+        public string Render_ConvertLinkTag(string input)
         {
             return md.Render(input);
         }
@@ -45,6 +51,8 @@ namespace MarkdownTests
 
         [TestCase("__a_b__c_", ExpectedResult = "__a_b__c_", TestName = "When_Italic_And_Bold_Tags")]
         [TestCase("__a# b__c", ExpectedResult = "__a# b__c", TestName = "When_Header_And_Bold_Tags")]
+        [TestCase("xy_z[abc](vk.c_om)def", ExpectedResult = "xy_z<a href=\"vk.c_om\">abc</a>def",
+            TestName = "When_Italic_Intersect_Link")]
         public string Render_ExcludeTagIntersections(string input)
         {
             return md.Render(input);
@@ -60,7 +68,7 @@ namespace MarkdownTests
         {
             return md.Render(input);
         }
-        
+
         [Test]
         public void IsAlgorithmFast()
         {
@@ -69,7 +77,7 @@ namespace MarkdownTests
             var secondStr = "__a_b_cd__";
             var firstStrTime = GetElapsedTimeInTicks(firstStr);
             var secondStrTime = GetElapsedTimeInTicks(secondStr);
-            var timeLinearDiff = secondStrTime / firstStrTime - (double)secondStr.Length / firstStr.Length;
+            var timeLinearDiff = secondStrTime / firstStrTime - (double) secondStr.Length / firstStr.Length;
             Assert.IsTrue(timeLinearDiff < 1);
         }
 

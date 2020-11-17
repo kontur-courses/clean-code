@@ -5,38 +5,41 @@ namespace Markdown
 {
     public static class TokenLexer
     {
-        public static void FilterTokens(List<Token> tokens)
+        public static void FilterTokens(List<IToken> tokens)
         {
             var nonTokens = tokens.Where(token =>
-                    AreDoubleUnderlineInSingle(tokens, token) || AreIntersect(tokens, token) || AreEmpty(token))
+                    IsDoubleUnderlineInSingle(tokens, token) ||
+                    !(token is AttributeToken) && IsIntersected(tokens, token) || IsEmpty(token))
                 .ToHashSet();
             tokens.RemoveAll(token => nonTokens.Contains(token));
         }
 
-        private static bool AreDoubleUnderlineInSingle(List<Token> tokens, Token token)
+        private static bool IsDoubleUnderlineInSingle(List<IToken> tokens, IToken token)
         {
             return tokens.Any(x =>
-                token != x && AreNested(token, x) && x.StartIndex < token.StartIndex && x.TagInfo.TagInMd == "_" &&
-                token.TagInfo.TagInMd == "__");
+                token != x && AreNested(token, x) && x.StartIndex < token.StartIndex && x.TagInfo.OpenTagInMd == "_" &&
+                token.TagInfo.OpenTagInMd == "__");
         }
 
-        private static bool AreIntersect(List<Token> tokens, Token token)
+        private static bool IsIntersected(List<IToken> tokens, IToken emphasizingToken)
         {
             return tokens.Any(x =>
-                token != x && !AreNested(token, x) && token.StartIndex < x.StartIndex + x.Length &&
-                x.StartIndex < token.StartIndex + token.Length);
+                emphasizingToken != x && !AreNested(emphasizingToken, x) &&
+                emphasizingToken.StartIndex < x.StartIndex + x.Length &&
+                x.StartIndex < emphasizingToken.StartIndex + emphasizingToken.Length);
         }
 
-        private static bool AreEmpty(Token token)
+        private static bool IsEmpty(IToken emphasizingToken)
         {
-            return token.Length == token.TagInfo.TagInMd.Length * 2;
+            return emphasizingToken.Length == emphasizingToken.TagInfo.OpenTagInMd.Length * 2;
         }
 
-        private static bool AreNested(Token firstToken, Token secondToken)
+        private static bool AreNested(IToken firstEmphasizingToken, IToken secondEmphasizingToken)
         {
-            return firstToken.StartIndex > secondToken.StartIndex && firstToken.EndTagIndex < secondToken.EndTagIndex
-                   || secondToken.StartIndex > firstToken.StartIndex &&
-                   secondToken.EndTagIndex < firstToken.EndTagIndex;
+            return firstEmphasizingToken.StartIndex > secondEmphasizingToken.StartIndex &&
+                   firstEmphasizingToken.EndTagIndex < secondEmphasizingToken.EndTagIndex
+                   || secondEmphasizingToken.StartIndex > firstEmphasizingToken.StartIndex &&
+                   secondEmphasizingToken.EndTagIndex < firstEmphasizingToken.EndTagIndex;
         }
     }
 }

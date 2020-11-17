@@ -6,21 +6,21 @@ namespace Markdown
 {
     public static class TagLexer
     {
-        public static List<TagInfoWithIndex> FindTagsIndexes(string sourceText, TagInfo[] tagInfos)
+        public static List<TagInfoWithIndex> FindTagsIndexes(string sourceText, ITagInfo[] tagInfos)
         {
             var tagsWithIndexList = new List<TagInfoWithIndex>();
-            var sortedTagInfos = tagInfos
-                .OrderByDescending(tag => tag.TagForConverting.Length);
-            foreach (var tagInfo in sortedTagInfos)
+            foreach (var tagInfo in tagInfos)
             {
-                var tagLength = tagInfo.TagInMd.Length;
+                var tagLength = tagInfo.OpenTagInMd.Length;
                 var index = 0;
                 do
                 {
                     var substring = sourceText.Substring(index, tagLength);
-                    if (tagInfo.TagInMd != substring)
-                        continue;
-                    tagsWithIndexList.Add(new TagInfoWithIndex(tagInfo, index));
+                    if (tagInfo.OpenTagInMd == substring)
+                        tagsWithIndexList.Add(new TagInfoWithIndex(tagInfo, index, substring));
+                    else if (tagInfo is LinkTagInfo linkTagInfo &&
+                             linkTagInfo.TagSymbols.Contains(sourceText[index]))
+                        tagsWithIndexList.Add(new TagInfoWithIndex(tagInfo, index, sourceText[index].ToString()));
                 } while (++index < sourceText.Length - tagLength + 1);
             }
 
@@ -31,26 +31,31 @@ namespace Markdown
         {
             var filteredList = new List<TagInfoWithIndex>();
             foreach (var tagInfoWithIndex in tagsList
-                .OrderByDescending(tagInfoWithIndex => tagInfoWithIndex.TagInfo.TagInMd.Length)
+                .OrderByDescending(tagInfoWithIndex => tagInfoWithIndex.TagInfo.OpenTagInMd.Length)
                 .ThenBy(tagInfoWithIndex => tagInfoWithIndex.StartIndex))
             {
                 if (IsScreened(sourceText, tagInfoWithIndex.StartIndex) || filteredList.Any(filteredTagAndIndex =>
                     tagInfoWithIndex.StartIndex >= filteredTagAndIndex.StartIndex &&
                     tagInfoWithIndex.StartIndex <= filteredTagAndIndex.StartIndex +
-                    filteredTagAndIndex.TagInfo?.TagInMd.Length - 1))
+                    filteredTagAndIndex.TagInfo?.OpenTagInMd.Length - 1))
                     continue;
 
                 filteredList.Add(tagInfoWithIndex);
             }
 
+            FilterUnderlineTagsInsideWords(sourceText, filteredList);
+
+            return filteredList;
+        }
+
+        private static void FilterUnderlineTagsInsideWords(string sourceText, List<TagInfoWithIndex> filteredList)
+        {
             var underlineTagsInsideWords = FindUnderlineTagsInsideWords(sourceText, filteredList);
             var nonTags = GetTagsInsideWordsWithDigitHashset(sourceText, underlineTagsInsideWords);
             underlineTagsInsideWords.RemoveAll(tag => nonTags.Contains(tag));
             filteredList.RemoveAll(tag => nonTags.Contains(tag));
             nonTags = GetSeparatedTagsInsideWords(sourceText, filteredList, underlineTagsInsideWords);
             filteredList.RemoveAll(x => nonTags.Contains(x));
-
-            return filteredList;
         }
 
         private static HashSet<TagInfoWithIndex> GetSeparatedTagsInsideWords(string sourceText,
@@ -103,7 +108,7 @@ namespace Markdown
                     continue;
                 }
 
-                index = tagAndIndex.StartIndex + tagAndIndex.TagInfo.TagInMd.Length - 1;
+                index = tagAndIndex.StartIndex + tagAndIndex.TagInfo.OpenTagInMd.Length - 1;
                 isNonTag = IsNonTag(sourceText, index, 1, i => i < sourceText.Length);
                 if (isNonTag)
                     nonTags.Add(tagAndIndex);
@@ -117,7 +122,8 @@ namespace Markdown
         {
             var underlineTagPairs = new Dictionary<TagInfoWithIndex, TagInfoWithIndex>();
             var tagStack = new Stack<TagInfoWithIndex>();
-            foreach (var tagAndIndex in filteredList.Where(x => x.TagInfo.TagInMd == "_" || x.TagInfo.TagInMd == "__"))
+            foreach (var tagAndIndex in filteredList.Where(x =>
+                x.TagInfo.OpenTagInMd == "_" || x.TagInfo.OpenTagInMd == "__"))
             {
                 if (tagStack.Count == 0)
                 {
@@ -125,7 +131,7 @@ namespace Markdown
                     continue;
                 }
 
-                if (tagAndIndex.TagInfo.TagInMd == tagStack.Peek().TagInfo.TagInMd)
+                if (tagAndIndex.TagInfo.OpenTagInMd == tagStack.Peek().TagInfo.OpenTagInMd)
                 {
                     underlineTagPairs.Add(tagStack.Pop(), tagAndIndex);
                     continue;
@@ -139,10 +145,9 @@ namespace Markdown
 
         public static bool CanBeOpenTag(string sourceText, TagInfoWithIndex tagInfoWithIndex)
         {
-            return tagInfoWithIndex.TagInfo.TagInMd != "_" && tagInfoWithIndex.TagInfo.TagInMd != "__"
-                   || tagInfoWithIndex.StartIndex + tagInfoWithIndex.TagInfo.TagInMd.Length != sourceText.Length &&
+            return tagInfoWithIndex.StartIndex + tagInfoWithIndex.TagInfo.OpenTagInMd.Length != sourceText.Length &&
                    !char.IsWhiteSpace(
-                       sourceText[tagInfoWithIndex.StartIndex + tagInfoWithIndex.TagInfo.TagInMd.Length]);
+                       sourceText[tagInfoWithIndex.StartIndex + tagInfoWithIndex.TagInfo.OpenTagInMd.Length]);
         }
 
         public static bool CanBeCloseTag(string sourceText, TagInfoWithIndex tagInfoWithIndex)
@@ -154,11 +159,11 @@ namespace Markdown
             List<TagInfoWithIndex> filteredList)
         {
             var tagsInWords = filteredList.Where(tagAndIndex =>
-                (tagAndIndex.TagInfo.TagInMd == "_" || tagAndIndex.TagInfo.TagInMd == "__") &&
+                (tagAndIndex.TagInfo.OpenTagInMd == "_" || tagAndIndex.TagInfo.OpenTagInMd == "__") &&
                 tagAndIndex.StartIndex != 0
-                && tagAndIndex.StartIndex + tagAndIndex.TagInfo.TagInMd.Length != sourceText.Length
+                && tagAndIndex.StartIndex + tagAndIndex.TagInfo.OpenTagInMd.Length != sourceText.Length
                 && !char.IsWhiteSpace(sourceText[tagAndIndex.StartIndex - 1]) &&
-                !char.IsWhiteSpace(sourceText[tagAndIndex.StartIndex + tagAndIndex.TagInfo.TagInMd.Length]));
+                !char.IsWhiteSpace(sourceText[tagAndIndex.StartIndex + tagAndIndex.TagInfo.OpenTagInMd.Length]));
             return tagsInWords.ToList();
         }
 

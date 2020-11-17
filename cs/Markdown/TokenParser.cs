@@ -7,7 +7,7 @@ namespace Markdown
 {
     public static class TokenParser
     {
-        public static Token[] ParseStringToMdTokens(string sourceText, params TagInfo[] tagInfos)
+        public static IToken[] ParseStringToMdTokens(string sourceText, params ITagInfo[] tagInfos)
         {
             var tagsList = TagLexer.FindTagsIndexes(sourceText, tagInfos);
             var tokens = FindTokens(sourceText, tagsList);
@@ -15,74 +15,110 @@ namespace Markdown
             return tokens.ToArray();
         }
 
-        public static List<Token> FindTokens(string sourceText, List<TagInfoWithIndex> tagsList)
+        private static List<IToken> FindTokens(string sourceText, List<TagInfoWithIndex> tagsList)
         {
-            var tagsStack = new Stack<TagInfoWithIndex>();
-            var tokens = new List<Token>();
-            FillTagsStack(sourceText, tagsList, tokens, tagsStack);
+            var tokens = GetTokensList(sourceText, tagsList);
             TokenLexer.FilterTokens(tokens);
 
             return tokens;
         }
 
-        private static void FillTagsStack(string sourceText, List<TagInfoWithIndex> tagsList, List<Token> tokens,
-            Stack<TagInfoWithIndex> tagsStack)
+        private static List<IToken> GetTokensList(string sourceText, List<TagInfoWithIndex> tagsList)
         {
-            foreach (var currentTagAndIndex in tagsList.OrderBy(tagAndIndex => tagAndIndex.StartIndex))
+            var tokens = new List<IToken>();
+            AddAttributeTokens(sourceText, tagsList, tokens);
+            AddEmphasizingTokens(sourceText, tagsList, tokens);
+            AddTokensWithSingleTags(sourceText, tagsList, tokens);
+
+            return tokens;
+        }
+
+        private static void AddEmphasizingTokens(string sourceText, List<TagInfoWithIndex> tagsList,
+            List<IToken> tokens)
+        {
+            var tagsStack = new Stack<TagInfoWithIndex>();
+            foreach (var currentTagAndIndex in tagsList.Where(tagAndIndex =>
+                tagAndIndex.TagInfo is EmphasizingTagInfo && !tokens.Any(token =>
+                    token.TagInfo is IAttributeTagInfo && tagAndIndex.StartIndex > token.StartIndex &&
+                    tagAndIndex.StartIndex < token.StartIndex + token.Length - 1)))
             {
                 var currentTagInfo = currentTagAndIndex.TagInfo;
 
-                if (currentTagInfo.IsSingle)
-                {
-                    AddTokenWithSingleTag(sourceText, currentTagInfo, currentTagAndIndex, tokens);
-                    continue;
-                }
-
-                if (tagsStack.Count == 0)
+                if (tagsStack.Count == 0 || currentTagInfo.OpenTagInMd != tagsStack.Peek().TagInfo.OpenTagInMd)
                 {
                     if (TagLexer.CanBeOpenTag(sourceText, currentTagAndIndex))
                         tagsStack.Push(currentTagAndIndex);
                     continue;
                 }
 
-                var currentTagInMd = currentTagInfo.TagInMd;
-                var peekTagInMd = tagsStack.Peek().TagInfo.TagInMd;
-                if (currentTagInMd == peekTagInMd)
-                {
-                    if (TagLexer.CanBeCloseTag(sourceText, currentTagAndIndex))
-                        continue;
-                    AddTokenWithDoubleTag(currentTagAndIndex, currentTagInMd, tagsStack, tokens, currentTagInfo);
+                if (TagLexer.CanBeCloseTag(sourceText, currentTagAndIndex))
                     continue;
-                }
 
-                if (TagLexer.CanBeOpenTag(sourceText, currentTagAndIndex))
-                    tagsStack.Push(new TagInfoWithIndex(currentTagInfo, currentTagAndIndex.StartIndex));
+                var length = currentTagAndIndex.StartIndex + currentTagInfo.OpenTagInMd.Length -
+                             tagsStack.Peek().StartIndex;
+                tokens.Add(new EmphasizingToken(tagsStack.Peek().StartIndex,
+                    length,
+                    currentTagInfo));
+                tagsStack.Pop();
             }
         }
 
-        private static void AddTokenWithDoubleTag(TagInfoWithIndex currentTagAndIndex, string currentTagInMd,
-            Stack<TagInfoWithIndex> tagsStack,
-            List<Token> tokens, TagInfo currentTagInfo)
+        private static void AddTokensWithSingleTags(string sourceText, List<TagInfoWithIndex> tagsList,
+            List<IToken> tokens)
         {
-            var length = currentTagAndIndex.StartIndex + currentTagInMd.Length - tagsStack.Peek().StartIndex;
-            tokens.Add(new Token(tagsStack.Peek().StartIndex,
-                length,
-                currentTagInfo));
-            tagsStack.Pop();
+            foreach (var currentTagAndIndex in tagsList.Where(tagAndIndex => tagAndIndex.TagInfo is SingleTagInfo))
+            {
+                var singleTagInfo = currentTagAndIndex.TagInfo as SingleTagInfo;
+                var tagEndIndex = singleTagInfo?.TagEndSym != default
+                    ? sourceText.IndexOf(singleTagInfo.TagEndSym, currentTagAndIndex.StartIndex,
+                        StringComparison.Ordinal)
+                    : -1;
+                var length = tagEndIndex != -1
+                    ? tagEndIndex - currentTagAndIndex.StartIndex
+                    : sourceText.Length - currentTagAndIndex.StartIndex;
+                tokens.Add(new TokenWithSingleTag(currentTagAndIndex.StartIndex, length, currentTagAndIndex.TagInfo));
+            }
         }
 
-        private static void AddTokenWithSingleTag(string sourceText, TagInfo currentTagInfo,
-            TagInfoWithIndex currentTagAndIndex, List<Token> tokens)
+        private static void AddAttributeTokens(string sourceText, List<TagInfoWithIndex> tagsList, List<IToken> tokens)
         {
-            var tagEndIndex = sourceText.IndexOf(currentTagInfo.TagEndSym, currentTagAndIndex.StartIndex,
-                StringComparison.Ordinal);
-            var length = tagEndIndex != -1
-                ? tagEndIndex - currentTagAndIndex.StartIndex
-                : sourceText.Length - currentTagAndIndex.StartIndex;
-            tokens.Add(new Token(currentTagAndIndex.StartIndex, length, currentTagAndIndex.TagInfo));
+            var tagsStack = new Stack<TagInfoWithIndex>();
+            foreach (var currentTagAndIndex in tagsList.Where(tagAndIndex => tagAndIndex.TagInfo is IAttributeTagInfo))
+                if (currentTagAndIndex.TagSubstring == currentTagAndIndex.TagInfo.OpenTagInMd && tagsStack.Count == 0
+                    || tagsStack.Count != 0 && (currentTagAndIndex.TagSubstring == "]" &&
+                                                tagsStack.Peek().TagSubstring == currentTagAndIndex.TagInfo.OpenTagInMd
+                                                || currentTagAndIndex.TagSubstring == "(" &&
+                                                tagsStack.Peek().TagSubstring == "]" &&
+                                                currentTagAndIndex.StartIndex == tagsStack.Peek().StartIndex + 1))
+                {
+                    tagsStack.Push(currentTagAndIndex);
+                }
+                else
+                {
+                    if (tagsStack.Count == 0 || tagsStack.Peek().TagSubstring != "(") continue;
+                    var attributeToken = CreateAttributeToken(sourceText, currentTagAndIndex, tagsStack);
+                    tokens.Add(attributeToken);
+                }
         }
 
-        public static string ScreenSymbols(string sourceText, params TagInfo[] tagInfos)
+        private static AttributeToken CreateAttributeToken(string sourceText, TagInfoWithIndex currentTagAndIndex,
+            Stack<TagInfoWithIndex> tagsStack)
+        {
+            var attributeEndIndex = currentTagAndIndex.StartIndex - 1;
+            var attributeStartIndex = tagsStack.Pop().StartIndex + 1;
+            var titleEndIndex = tagsStack.Pop().StartIndex - 1;
+            var titleStart = tagsStack.Pop();
+            var titleStartIndex = titleStart.StartIndex + titleStart.TagSubstring.Length;
+            var length = attributeEndIndex - titleStart.StartIndex + 1;
+            var title = sourceText.Substring(titleStartIndex, titleEndIndex - titleStartIndex + 1);
+            var attribute = sourceText.Substring(attributeStartIndex,
+                attributeEndIndex - attributeStartIndex + 1);
+            var attributeToken = new AttributeToken(titleStart.StartIndex, length, titleStart.TagInfo,
+                title, attribute);
+            return attributeToken;
+        }
+
+        public static string ScreenSymbols(string sourceText, params ITagInfo[] tagInfos)
         {
             if (sourceText.Length == 0)
                 return sourceText;
@@ -91,7 +127,7 @@ namespace Markdown
             do
             {
                 if (index + 1 < sourceText.Length && sourceText[index] == '\\' &&
-                    (tagInfos.Any(tagInfo => sourceText[index + 1] == tagInfo.TagInMd[0]) ||
+                    (tagInfos.Any(tagInfo => sourceText[index + 1] == tagInfo.OpenTagInMd[0]) ||
                      sourceText[index + 1] == '\\'))
                     index++;
 
