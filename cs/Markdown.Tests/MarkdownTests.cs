@@ -1,4 +1,5 @@
 ﻿using FluentAssertions;
+using Markdown;
 using NUnit.Framework;
 
 namespace MarkdownTests
@@ -18,7 +19,9 @@ namespace MarkdownTests
         public void Render_ReturnExpectedResult_When(string text, string expectedResult)
         {
             var markdown = new Markdown.Markdown();
-            var htmlText = markdown.Render(text);
+            var parser = new TextParser();
+            var converter = new HtmlConverter();
+            var htmlText = markdown.Render(text, parser, converter);
 
             htmlText.Should().Be(expectedResult);
         }

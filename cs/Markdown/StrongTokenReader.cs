@@ -1,45 +1,43 @@
-﻿#nullable enable
-namespace Markdown
+﻿namespace Markdown
 {
     public class StrongTokenReader : ITokenReader
     {
-        public Token? TryReadToken(TextParser parser, string text, int index)
+        public Token? TryReadToken(string text, int index)
         {
-            if (!parser.IsStrongStartTag(text, index))
+            if (!IsStrongStartTag(text, index))
                 return null;
 
             var value = "";
-            Token? intersectedToken = null;
-
             for (var i = index + 2; i < text.Length; i++)
             {
-                if (parser.IsEmphasizedStartTag(text, i))
-                {
-                    var reader = new EmphasizedTokenReader();
-                    intersectedToken = reader.TryReadToken(parser, text, i);
-
-                    if (intersectedToken != null)
-                    {
-                        i = intersectedToken.EndPosition;
-                    }
-                }
-
-                if (text[i] == '\n' || i + 1 == text.Length && !parser.IsStrongStartTag(text, i))
-                {
-                    value = text[index..i];
-                    break;
-                }
-
-                if (!parser.IsStrongEndTag(text, i))
+                if (!IsStrongEndTag(text, i))
                     continue;
 
-                if (intersectedToken != null && intersectedToken.EndPosition > i)
-                    return new Token(index, text[index..intersectedToken.EndPosition], TokenType.PlainText);
-
-                return new Token(index, text.Substring(index, i - index + 2), TokenType.Strong);
+                value = text[index..(i + 2)];
+                break;
             }
 
-            return new Token(index, value, TokenType.PlainText);
+            return value != "" ? new Token(index, value, TokenType.Strong) : null;
+        }
+
+        private static bool IsStrongStartTag(string text, int index)
+        {
+            return index >= 0
+                   && text[index] == '_'
+                   && index + 2 < text.Length
+                   && text[index + 1] == '_'
+                   && !text[index + 2].IsDigitOrWhiteSpace()
+                   && text[index + 2] != '_'
+                   && !new TextParser().IsAfterBackslash(text, index);
+        }
+
+        private static bool IsStrongEndTag(string text, int index)
+        {
+            return text[index] == '_'
+                   && !text[index - 1].IsDigitOrWhiteSpace()
+                   && text[index - 1] != '_'
+                   && (index + 1 == text.Length || text[index + 1] == '_')
+                   && !new TextParser().IsAfterBackslash(text, index);
         }
     }
 }

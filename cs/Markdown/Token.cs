@@ -1,14 +1,12 @@
-﻿using System.Collections.Generic;
-
-namespace Markdown
+﻿namespace Markdown
 {
     public class Token
     {
         public int Position { get; }
         public string Value { get; set; }
-        public int Length => Value.Length;
+        private int Length => Value.Length;
         public int EndPosition => Position + Length - 1;
-        public TokenType Type { get; private set; }
+        public TokenType Type { get; }
 
         public Token(int position, string value, TokenType type)
         {
@@ -28,20 +26,22 @@ namespace Markdown
             };
         }
 
-        public IEnumerable<Token> GetChildTokens(string text)
+        public bool IsIntersecting(Token token)
         {
-            var parser = new TextParser();
-            var tokens = parser.GetTokens(text);
+            return !(Position > token.EndPosition
+                   || EndPosition < token.Position);
+        }
 
-            foreach (var token in tokens)
-            {
-                if (Type == TokenType.Emphasized && token.Type == TokenType.Strong)
-                {
-                    token.Type = TokenType.PlainText;
-                }
+        public bool IsTouch(Token token)
+        {
+            return (Position < token.Position && EndPosition < token.EndPosition && EndPosition > token.Position)
+                || (Position < token.EndPosition && EndPosition > token.EndPosition && Position > token.Position);
+        }
 
-                yield return token;
-            }
+        public bool IsInsideToken(Token token)
+        {
+            return Position >= token.Position
+                   && EndPosition <= token.EndPosition;
         }
     }
 }

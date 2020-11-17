@@ -1,45 +1,43 @@
-﻿#nullable enable
-namespace Markdown
+﻿namespace Markdown
 {
     public class EmphasizedTokenReader : ITokenReader
     {
-        public Token? TryReadToken(TextParser parser, string text, int index)
+        public Token? TryReadToken(string text, int index)
         {
-            if (!parser.IsEmphasizedStartTag(text, index))
+            if (!IsEmphasizedStartTag(text, index))
                 return null;
 
             var value = "";
-            Token? intersectedToken = null;
-
             for (var i = index + 1; i < text.Length; i++)
             {
-                if (parser.IsStrongStartTag(text, i))
-                {
-                    var reader = new StrongTokenReader();
-                    intersectedToken = reader.TryReadToken(parser, text, i);
-
-                    if (intersectedToken != null)
-                    {
-                        i = intersectedToken.EndPosition;
-                    }
-                }
-
-                if ((text[i] == '\n' || i + 1 == text.Length) && !parser.IsEmphasizedEndTag(text, i))
-                {
-                    value = text[index..i];
-                    break;
-                }
-
-                if (!parser.IsEmphasizedEndTag(text, i))
+                if (!IsEmphasizedEndTag(text, i))
                     continue;
 
-                if (intersectedToken != null && intersectedToken.EndPosition > i)
-                    return new Token(index, text[index..intersectedToken.EndPosition], TokenType.PlainText);
-
-                return new Token(index, text.Substring(index, i - index + 1), TokenType.Emphasized);
+                value = text[index..(i + 1)];
+                break;
             }
 
-            return new Token(index, value, TokenType.PlainText);
+            return value != "" ? new Token(index, value, TokenType.Emphasized) : null;
+        }
+
+        private static bool IsEmphasizedStartTag(string text, int index)
+        {
+            return text[index] == '_'
+                   && index + 1 < text.Length
+                   && text[index + 1] != '_'
+                   && !text[index + 1].IsDigitOrWhiteSpace()
+                   && (index - 1 < 0 || text[index - 1] != '_')
+                   && !new TextParser().IsAfterBackslash(text, index);
+        }
+
+        private static bool IsEmphasizedEndTag(string text, int index)
+        {
+            return text[index] == '_'
+                   && index - 1 >= 0
+                   && !text[index - 1].IsDigitOrWhiteSpace()
+                   && text[index - 1] != '_'
+                   && (index + 1 == text.Length || text[index + 1] != '_')
+                   && !new TextParser().IsAfterBackslash(text, index);
         }
     }
 }

@@ -6,31 +6,43 @@ namespace Markdown
 {
     public class HtmlConverter : IConverter
     {
+        private readonly Dictionary<TokenType, ITagToken> mapper = new Dictionary<TokenType, ITagToken>
+        {
+            {TokenType.Emphasized, new EmphasizedTagToken()},
+            {TokenType.Heading, new HeadingTagToken()},
+            {TokenType.Strong, new StrongTagToken()},
+            {TokenType.PlainText, new PlainTextTagToken()}
+        };
+
+        public void AddMapping(TokenType type, ITagToken tagToken)
+        {
+            mapper.Add(type, tagToken);
+        }
+
         public string ConvertTokens(List<Token> tokens)
         {
-            var sortedTokens = tokens.OrderBy(x => x.Position);
+            var stack = new Stack<Token>();
             var result = new StringBuilder();
-            var mapper = GetTokenTypeToStringMapper();
 
-            foreach (var token in sortedTokens)
+            foreach (var token in tokens)
             {
-                var tokenValue = token.GetValueWithoutTags();
-                var tokenType = mapper[token.Type];
+                var tagToken = mapper[token.Type];
 
-                result.Append(tokenType != "" ? $"<{tokenType}>{tokenValue}</{tokenType}>" : tokenValue);
+
+                if (stack.Count != 0 && token.IsInsideToken(stack.Last()))
+                {
+                    if (stack.Last().Type == TokenType.Emphasized && token.Type == TokenType.Strong)
+                        continue;
+
+                    result.Replace(token.Value, tagToken.Convert(token));
+                    continue;
+                }
+
+                result.Append(tagToken.Convert(token));
+                stack.Push(token);
             }
 
             return result.ToString();
-        }
-
-        private static Dictionary<TokenType, string> GetTokenTypeToStringMapper()
-        {
-            return new Dictionary<TokenType, string>() {
-                {TokenType.Emphasized, "em"},
-                {TokenType.Heading, "h1"},
-                {TokenType.Strong, "strong"},
-                {TokenType.PlainText, ""}
-            };
         }
     }
 }

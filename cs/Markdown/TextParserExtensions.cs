@@ -1,76 +1,31 @@
-﻿namespace Markdown
+﻿using System.Collections.Generic;
+
+namespace Markdown
 {
     public static class TextParserExtensions
     {
-        private static bool IsAfterBackslash(this TextParser parser, int index)
+        public static bool IsAfterBackslash(this TextParser parser, string text, int index)
         {
-            return index != 0 && parser.EscapingBackslashes.Contains(index - 1);
+            var escapingBackslashes = parser.FindEscapingBackslashes(text);
+
+            return index != 0 && escapingBackslashes.Contains(index - 1);
         }
 
-        public static bool IsEmphasizedStartTag(this TextParser parser, string text, int index)
+        public static List<int> FindEscapingBackslashes(this TextParser parser, string text)
         {
-            return text[index] == '_'
-                   && index + 1 < text.Length
-                   && text[index + 1] != '_'
-                   && !text[index + 1].IsDigitOrWhiteSpace()
-                   && !parser.IsAfterBackslash(index)
-                   && !IsStrongStartTag(parser, text, index - 1);
+            var positions = new List<int>();
+
+            for (var i = 0; i < text.Length; ++i)
+                if (IsEscapingBackslash(text, i) && !positions.Contains(i - 1))
+                    positions.Add(i);
+
+            return positions;
         }
 
-        public static bool IsEmphasizedEndTag(this TextParser parser, string text, int index)
+        private static bool IsEscapingBackslash(string text, int index)
         {
-            return text[index] == '_'
-                   && !text[index - 1].IsDigitOrWhiteSpace()
-                   && text[index - 1] != '_'
-                   && (index + 1 == text.Length || text[index + 1] != '_')
-                   && !parser.IsAfterBackslash(index);
-        }
-
-        public static bool IsStrongStartTag(this TextParser parser, string text, int index)
-        {
-            return index >= 0
-                   && text[index] == '_'
-                   && index + 2 < text.Length
-                   && text[index + 1] == '_'
-                   && !text[index + 2].IsDigitOrWhiteSpace()
-                   && text[index + 2] != '_'
-                   && !parser.IsAfterBackslash(index);
-        }
-
-        public static bool IsStrongEndTag(this TextParser parser, string text, int index)
-        {
-            return text[index] == '_'
-                   && !text[index - 1].IsDigitOrWhiteSpace()
-                   && text[index - 1] != '_'
-                   && index + 1 < text.Length && text[index + 1] == '_'
-                   && !parser.IsAfterBackslash(index);
-        }
-
-        public static bool IsPlainText(this TextParser parser, string text, int index)
-        {
-            return !parser.IsStrongStartTag(text, index)
-                   && !parser.IsEmphasizedStartTag(text, index)
-                   && text[index] != '#'
-                   && !parser.IsImageStaringAltTextTag(text, index);
-        }
-
-        public static bool IsImageStaringAltTextTag(this TextParser parser, string text, int index)
-        {
-            return text[index] == '!'
-                   && index + 1 < text.Length
-                   && text[index + 1] == '[';
-        }
-
-        public static bool IsImageEndingAltTextTag(this TextParser parser, string text, int index)
-        {
-            return text[index] == ']'
-                   && index + 1 < text.Length
-                   && text[index + 1] == '(';
-        }
-
-        public static bool IsImageEndingUrlTag(this TextParser parser, string text, int index)
-        {
-            return text[index] == ')';
+            return text[index] == '\\'
+                   && !char.IsLetter(text[index + 1]);
         }
     }
 }
