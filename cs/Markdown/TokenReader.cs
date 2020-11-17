@@ -14,6 +14,7 @@ namespace Markdown
         }
 
         private MdToken nextToken;
+
         public bool TryReadToken(out MdToken result, bool notRawText = false)
         {
             result = nextToken;
@@ -24,6 +25,8 @@ namespace Markdown
                        () => TryReadSpecifiedTokens(out nextToken));
         }
 
+        public IEnumerable<MdToken> ReadAll() => throw new NotImplementedException();
+
         protected abstract bool TryReadSpecifiedTokens(out MdToken result);
 
         protected bool TryRead(MdRawTextToken token, out MdToken result)
@@ -31,8 +34,6 @@ namespace Markdown
 
         protected virtual bool TryRead(MdRawTextToken token, out MdToken result, Func<bool> stopWhen)
             => throw new NotImplementedException();
-
-        public IEnumerable<MdToken> ReadAll() => throw new NotImplementedException();
 
 
         protected bool TryReadSubtokensUntil(MdTokenWithSubTokens output, Func<bool> stopWhen)
@@ -48,15 +49,15 @@ namespace Markdown
             return true;
         }
 
-        protected bool IsWordBegin() => IsLineBegining() || Text[CurrentPosition - 1] == ' ';
+        protected bool IsWordBegin() => IsLineBegin() || Text[CurrentPosition - 1] == ' ';
 
         protected bool IsWordEnd() => IsLineEnd() || Text[CurrentPosition + 1] == ' ';
 
-        protected bool IsLineBegining() => CurrentPosition == 0 || Text[CurrentPosition - 1] == '\n';
+        protected bool IsLineBegin() => CurrentPosition == 0 || Text[CurrentPosition - 1] == '\n';
 
         protected bool IsLineEnd() => CurrentPosition == Text.Length - 1 || Text[CurrentPosition + 1] == '\n';
 
-        public string GetNextChars(int count)
+        protected string GetNextChars(int count)
         {
             if (count > Text.Length - CurrentPosition) count = Text.Length - CurrentPosition;
             return Text.Substring(CurrentPosition, count);

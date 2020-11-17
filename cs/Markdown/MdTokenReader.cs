@@ -22,7 +22,7 @@ namespace Markdown
         {
             result = token;
             var state = GetCurrentState();
-            return IsLineBegining()
+            return IsLineBegin()
                    && TryRead("# ")
                    && TryReadSubtokensUntil(token, IsLineEnd)
                    || state.Undo();
