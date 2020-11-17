@@ -2,8 +2,9 @@
 using System.Collections.Generic;
 using System.Linq;
 using MarkdownParser.Concrete.Default;
+using MarkdownParser.Infrastructure.Tokenization.Abstract;
 
-namespace MarkdownParser.Infrastructure.Tokenization.Abstract
+namespace MarkdownParser.Infrastructure.Tokenization
 {
     public static class PairedTokenWorker
     {

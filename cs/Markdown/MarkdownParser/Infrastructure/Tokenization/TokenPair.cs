@@ -1,9 +1,10 @@
 ﻿using System.Linq;
 using System.Text;
+using MarkdownParser.Infrastructure.Tokenization.Abstract;
 
-namespace MarkdownParser.Infrastructure.Tokenization.Abstract
+namespace MarkdownParser.Infrastructure.Tokenization
 {
-    public class TokenPair : Token
+    public sealed class TokenPair : Token
     {
         public PairedToken Opening { get; }
         public Token[] Inner { get; }

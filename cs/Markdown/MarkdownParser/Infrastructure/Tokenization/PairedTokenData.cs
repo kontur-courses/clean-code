@@ -1,4 +1,6 @@
-﻿namespace MarkdownParser.Infrastructure.Tokenization.Abstract
+﻿using MarkdownParser.Infrastructure.Tokenization.Abstract;
+
+namespace MarkdownParser.Infrastructure.Tokenization
 {
     public sealed class PairedTokenData
     {
