@@ -12,12 +12,12 @@ namespace Markdown
         {
             markdownBold = new Tag("__", "__");
             markdownItalic = new Tag("_", "_");
-            markdownHeader = new Tag("# ", "\n");
+            markdownHeader = new Tag("# ", "\r\n");
             markdownToHtmlDictionary = new Dictionary<Tag, Tag>
             {
                 {markdownBold, new Tag("<strong>", "</strong>")},
                 {markdownItalic, new Tag("<em>", "</em>")},
-                {markdownHeader, new Tag("<h1>", "</h1>\n")}
+                {markdownHeader, new Tag("<h1>", "</h1>\r\n")}
             };
         }
 
@@ -36,7 +36,7 @@ namespace Markdown
             var hasDigit = false;
             while (index < markdown.Length)
             {
-                if (TryGetTag(markdown, index, activeTags.Keys.ToHashSet(), out var tagSubstring))
+                if (TryGetTag(markdown, index, activeTags, out var tagSubstring))
                 {
                     HandleNewTag(markdown, tagSubstring, activeTags, hasDigit, hasSpace, replacements);
                     index += tagSubstring.Length;
@@ -44,7 +44,7 @@ namespace Markdown
                     hasSpace = false;
                 }
                 else if (markdown[index] == '\\'
-                         && (TryGetTag(markdown, index + 1, activeTags.Keys.ToHashSet(), out tagSubstring) ||
+                         && (TryGetTag(markdown, index + 1, activeTags, out tagSubstring) ||
                              index + 1 < markdown.Length && markdown[index + 1] == '\\'))
                 {
                     var replacement = markdown[index + 1] == '\\' ? "\\" : tagSubstring.Value;
@@ -77,7 +77,7 @@ namespace Markdown
         {
             if (tagSubstring.Role == TagRole.Opening)
             {
-                if (tagSubstring.Tag == markdownHeader
+                if (tagSubstring.Tag == markdownHeader && (tagSubstring.Index == 0 || markdown[tagSubstring.Index - 1] == '\n')
                     || tagSubstring.EndIndex + 1 == markdown.Length
                     || markdown[tagSubstring.EndIndex + 1] != ' ')
                     activeTags.Add(tagSubstring.Tag, tagSubstring);
@@ -144,14 +144,14 @@ namespace Markdown
                        || !hasDigit && !hasSpace);
         }
 
-        private bool TryGetTag(string markdown, int index, HashSet<Tag> activeTags, out TagSubstring tagSubstring)
+        private bool TryGetTag(string markdown, int index, Dictionary<Tag, TagSubstring> activeTags, out TagSubstring tagSubstring)
         {
             tagSubstring = markdownToHtmlDictionary
                 .Select(tag => tag.Key)
                 .Where(tag => TextContainsSubstring(markdown, index, tag.Opening)
                               || TextContainsSubstring(markdown, index, tag.Ending)
-                                && activeTags.Contains(tag))
-                .Select(tag => TextContainsSubstring(markdown, index, tag.Opening) && !activeTags.Contains(tag) ?
+                                && activeTags.ContainsKey(tag))
+                .Select(tag => TextContainsSubstring(markdown, index, tag.Opening) && !activeTags.ContainsKey(tag) ?
                     new TagSubstring(index, tag.Opening, tag, TagRole.Opening) :
                     new TagSubstring(index, tag.Ending, tag, TagRole.Ending))
                 .FirstOrDefault();
@@ -160,8 +160,14 @@ namespace Markdown
 
         private bool TextContainsSubstring(string text, int index, string substring)
         {
-            return text.Length >= index + substring.Length
-                   && text.Substring(index, substring.Length) == substring;
+            if (text.Length < index + substring.Length)
+                return false;
+            for (var i = 0; i < substring.Length; i++)
+            {
+                if (text[index + i] != substring[i])
+                    return false;
+            }
+            return true;
         }
     }
 }
