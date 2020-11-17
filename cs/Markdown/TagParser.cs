@@ -3,94 +3,125 @@ using System.Collections.Generic;
 
 namespace Markdown
 {
-    public class TagParser
+    public static class TagParser
     {
-        private static readonly string newLine = Environment.NewLine;
+        private static readonly string NewLine = Environment.NewLine;
 
-        public static readonly List<Tag> SupportedTags = new List<Tag>
+        public static readonly Dictionary<TagType, TagHelper> SupportedTags = new Dictionary<TagType, TagHelper>
         {
-            ItalicTag.CreateInstance(), HeaderTag.CreateInstance(),
-            BoldTag.CreateInstance(), EscapeTag.CreateInstance()
+            [TagType.Italic] = ItalicTagHelper.CreateInstance(),
+            [TagType.Header] = HeaderTagHelper.CreateInstance(),
+            [TagType.Bold] = BoldTagHelper.CreateInstance(),
+            [TagType.Escape] = EscapeTagHelper.CreateInstance()
         };
 
-        private readonly List<Tag> tags;
-        private readonly string text;
-        private bool hasHeaderInLine;
-        private int position;
-
-        public TagParser(string text)
+        public static IEnumerable<Tag> GetTags(string text)
         {
-            this.text = text;
-            tags = new List<Tag>();
-        }
-
-        public List<Tag> GetTags()
-        {
+            var position = 0;
+            var tags = new List<Tag>();
             while (position < text.Length)
             {
-                ReadLine();
-                hasHeaderInLine = false;
+                var tagsFromLine = ReadTagsFromLine(position, text, out var symbolsReadCount);
+                position += symbolsReadCount;
+                tags.AddRange(tagsFromLine);
             }
 
             return tags;
         }
 
-        private void ReadLine()
+        private static IEnumerable<Tag> ReadTagsFromLine(int position, string text, out int symbolsReadCount)
         {
-            while (position < text.Length && text.Substring(position, newLine.Length) != newLine)
+            var startPosition = position;
+            var tags = new List<Tag>();
+            var hasHeaderInLine = false;
+            if (SupportedTags[TagType.Header].TryParse(position, text, out var tag))
             {
-                SkipSpaces();
-                ReadWord();
+                hasHeaderInLine = true;
+                position += SupportedTags[TagType.Header].GetSymbolsCountToSkipForParsing();
+                tags.Add(tag);
+            }
+
+            while (position < text.Length && IsNotNewLine(position, text))
+            {
+                position += SkipSpaces(position, text);
+                tags.AddRange(ReadTags(position, text, out symbolsReadCount));
+                position += symbolsReadCount;
+                tags.AddRange(ReadTagsFromWord(position, text, out symbolsReadCount));
+                position += symbolsReadCount;
             }
 
             if (hasHeaderInLine)
-                tags.Add(HeaderTag.GetCloseTag(position));
-            position += Environment.NewLine.Length;
+                tags.Add(new Tag(position, TagType.Header, false, 0, false, true));
+            symbolsReadCount = position + NewLine.Length - startPosition;
+            return tags.GetCorrectTags(text);
         }
 
-        private void SkipSpaces()
+        private static bool IsNotNewLine(int position, string text)
         {
-            while (position < text.Length &&
-                   char.IsWhiteSpace(text[position])) position++;
+            return position + NewLine.Length >= text.Length || text.Substring(position, NewLine.Length) != NewLine;
         }
 
-        private void ReadWord()
+        private static int SkipSpaces(int position, string text)
         {
-            var hasDigits = false;
-            var tagsInWord = new List<Tag>();
+            var spacesCount = 0;
+            while (position + spacesCount < text.Length && char.IsWhiteSpace(text[position + spacesCount]))
+                spacesCount++;
+            return spacesCount;
+        }
+
+        private static List<Tag> ReadTagsFromWord(int position, string text, out int symbolsReadCount)
+        {
+            var startPosition = position;
+            var hasNoDigits = true;
+            var allTags = new List<Tag>();
+            var tagsInWordEnd = new List<Tag>();
 
             while (position < text.Length && !char.IsWhiteSpace(text[position]))
             {
                 if (char.IsDigit(text[position]))
-                    hasDigits = true;
-                if (!hasDigits && TryReadTag(out var tag))
+                    hasNoDigits = false;
+                var readTags = ReadTags(position, text, out symbolsReadCount, true);
+                if (readTags.Count > 0)
                 {
-                    position += tag.GetMdTagLengthToSkip();
-                    tagsInWord.Add(tag);
-                    if (tag is HeaderTag)
-                    {
-                        hasHeaderInLine = true;
-                        break;
-                    }
+                    position += symbolsReadCount;
+                    allTags.AddRange(readTags);
+                    tagsInWordEnd = readTags;
                 }
                 else
                 {
                     position++;
+                    tagsInWordEnd.Clear();
                 }
             }
 
-            if (!hasDigits)
-                tags.AddRange(tagsInWord);
+            symbolsReadCount = position - startPosition;
+            foreach (var tag in tagsInWordEnd) tag.UnpinFromWord();
+
+            return hasNoDigits ? allTags : tagsInWordEnd;
         }
 
-        private bool TryReadTag(out Tag tag)
+        private static bool TryReadTag(int position, string text, out Tag tag, bool inWord = false)
         {
-            foreach (var supportedTag in SupportedTags)
-                if (supportedTag.TryParse(position, text, out tag))
+            foreach (var tagHelper in SupportedTags.Values)
+                if (tagHelper.TryParse(position, text, out tag, inWord))
                     return true;
 
             tag = null;
             return false;
+        }
+
+        private static List<Tag> ReadTags(int position, string text, out int symbolsReadCount, bool inWord = false)
+        {
+            var startPosition = position;
+            var tags = new List<Tag>();
+            while (TryReadTag(position, text, out var tag, inWord))
+            {
+                tags.Add(tag);
+                position += SupportedTags[tag.Type].GetSymbolsCountToSkipForParsing();
+            }
+
+            symbolsReadCount = position - startPosition;
+            return tags;
         }
     }
 }
