@@ -35,7 +35,7 @@
             {
                 if (PreviousIndex != Markdown.Length)
                 {
-                    TagInfo.AddText(Markdown.Substring(PreviousIndex));
+                    TagInfo.AddContent(new TagInfo(text:Markdown.Substring(PreviousIndex)));
                     PreviousIndex = Markdown.Length;
                 }
 

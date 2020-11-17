@@ -24,7 +24,7 @@ namespace Markdown
             if (TextEnded)
             {
                 if (PreviousIndex < Markdown.Length)
-                    TagInfo.AddText(Markdown.Substring(PreviousIndex));
+                    TagInfo.AddContent(new TagInfo(text:Markdown.Substring(PreviousIndex)));
                 PreviousIndex = Markdown.Length;
                 State = States.Pop();
             }
@@ -57,7 +57,7 @@ namespace Markdown
                 }
                 else
                 {
-                    TagInfo.AddText(Markdown.Substring(PreviousIndex));
+                    TagInfo.AddContent(new TagInfo(text:Markdown.Substring(PreviousIndex)));
                     TagInfo.ResetFormatting();
                     TagInfo = NestedTagInfos.Pop();
                     State = States.Pop();
@@ -70,7 +70,7 @@ namespace Markdown
             }
             else
             {
-                if (Markdown[index] == '[' && !ShouldEscaped(Markdown[index]))
+                if (Markdown[index] == LinkOpenSymbol && !ShouldEscaped(Markdown[index]))
                 {
                     PreviousIsSpace = false;
                     SetLinkTag(index);
@@ -125,7 +125,7 @@ namespace Markdown
             UnderscoreCounter = UnderscoreCounter == 1 ? 1 : 2;
             var length = index - UnderscoreCounter - PreviousIndex;
             if (length > 0)
-                TagInfo.AddText(Markdown.Substring(PreviousIndex, length));
+                TagInfo.AddContent(new TagInfo(text:Markdown.Substring(PreviousIndex, length)));
 
             PreviousIndex = index;
             UnderscoreCounter = 0;
@@ -143,7 +143,7 @@ namespace Markdown
             if (!HasOpeningTag(tag, Markdown[index]))
             {
                 if (TextEnded)
-                    TagInfo.AddText(Markdown.Substring(PreviousIndex));
+                    TagInfo.AddContent(new TagInfo(text:Markdown.Substring(PreviousIndex)));
                 if (char.IsWhiteSpace(Markdown[index]))
                     UnderscoreCounter = 0;
                 else
@@ -159,7 +159,7 @@ namespace Markdown
                 ResetFormattingForConflictingTags(currentTag, conflictedTag);
                 if (TextEnded)
                 {
-                    TagInfo.AddText(Markdown.Substring(PreviousIndex));
+                    TagInfo.AddContent(new TagInfo(text:Markdown.Substring(PreviousIndex)));
                     PreviousIndex = Markdown.Length;
                 }
             }
@@ -220,7 +220,7 @@ namespace Markdown
                     var length = TextEnded
                         ? index - PreviousIndex - UnderscoreCounter + 1
                         : index - PreviousIndex - UnderscoreCounter;
-                    tagInfo.AddText(Markdown.Substring(PreviousIndex, length));
+                    tagInfo.AddContent(new TagInfo(text:Markdown.Substring(PreviousIndex, length)));
                     tagInfo.InsideWord = !PreviousIsSpace;
                     tagInfo.IsClosed = true;
 

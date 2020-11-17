@@ -158,13 +158,20 @@ namespace MarkdownTest
         }
         
         [Test]
+        public void RenderShouldReturnCorrect_WhenAllTagIncluded()
+        {
+            var input = "# Заголовок __с _разными_ [link](source) символами__";
+            var output = "<h1>Заголовок <strong>с <em>разными</em> <a href=\"source\">link</a> символами</strong></h1>";
+            Md.Render(input).Should().BeEquivalentTo(output);
+        }
+        
+        [Test]
         public void RenderShouldParseSpecification()
         {
             var testDirectory = Directory.GetParent(Directory.GetCurrentDirectory()).Parent?.Parent;
-            var specDir = testDirectory?.Parent?.Parent;
-            if (testDirectory != null && specDir != null)
+            if (testDirectory != null)
             {
-                var mdText = new StreamReader($"{specDir.FullName}\\MarkdownSpec.md").ReadToEnd();
+                var mdText = new StreamReader($"{testDirectory.FullName}\\MarkdownSpec.md").ReadToEnd();
                 var htmlText = new StreamReader($"{testDirectory.FullName}\\MarkdownSpec.html").ReadToEnd();
                 Md.Render(mdText).Should().Be(htmlText);
             }

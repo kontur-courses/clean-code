@@ -20,16 +20,10 @@ namespace Markdown
             Attributes = new List<TagAttribute>();
         }
 
-        public void AddText(string text)
-        {
-            if (Content.Count != 0 || Text != null)
-                Content.Add(new TagInfo(text: text));
-            else
-                Text = Escape(text);
-        }
-
         public void AddContent(TagInfo tagInfo)
         {
+            if (tagInfo.Tag == Tag.NoFormatting && tagInfo.Text == "")
+                return;
             Content.Add(tagInfo);
         }
 

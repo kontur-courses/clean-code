@@ -6,7 +6,7 @@ using NUnit.Framework;
 
 namespace MarkdownTest
 {
-    [TestFixture, Timeout(1000)]
+    [TestFixture, Timeout(10000)]
     public class PerformanceTest_Should
     {
         [Test]
@@ -21,12 +21,16 @@ namespace MarkdownTest
                 Md.Render(mdText);
                 var firstStartTime = stopwatch.Elapsed;
 
-                for (var i = 0; i < 1000; i++)
+                var miltiplier = 1;
+                var text = "";
+                for (var i = 0; i < 200; i++)
                 {
+                    text += mdText;
                     stopwatch = Stopwatch.StartNew();
-                    Md.Render(mdText);
+                    Md.Render(text);
                     var currentTime = stopwatch.Elapsed;
-                    currentTime.Should().BeLessThan(firstStartTime * 10);
+                    currentTime.Should().BeLessThan(miltiplier * firstStartTime * 10);
+                    miltiplier++;
                 }
             }
         }

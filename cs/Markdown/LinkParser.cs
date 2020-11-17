@@ -18,7 +18,7 @@
         protected void SetLinkTag(int index)
         {
             if (index - PreviousIndex > 0)
-                TagInfo.AddText(Markdown.Substring(PreviousIndex, index - PreviousIndex));
+                TagInfo.AddContent(new TagInfo(text:Markdown.Substring(PreviousIndex, index - PreviousIndex)));
             PreviousIndex = index + 1;
             SetNewTagInfo(new TagInfo(Tag.Link));
             SetNewState(ParseLinkText);
@@ -28,12 +28,12 @@
         {
             if (Markdown[index] == LinkCloseSymbol && !ShouldEscaped(Markdown[index]))
             {
-                TagInfo.AddText(Markdown.Substring(PreviousIndex, index - PreviousIndex));
+                TagInfo.AddContent(new TagInfo(text:Markdown.Substring(PreviousIndex, index - PreviousIndex)));
                 State = ParseHref;
             }
             else if (Markdown[index] == LinkOpenSymbol && !ShouldEscaped(Markdown[index]))
             {
-                TagInfo.AddText(Markdown.Substring(PreviousIndex, index - PreviousIndex));
+                TagInfo.AddContent(new TagInfo(text:Markdown.Substring(PreviousIndex, index - PreviousIndex)));
                 TagInfo.ResetFormatting();
                 TagInfo = NestedTagInfos.Pop();
                 PreviousIndex = index + 1;
