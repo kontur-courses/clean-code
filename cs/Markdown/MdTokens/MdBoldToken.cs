@@ -1,12 +1,7 @@
-﻿using System;
-
-namespace Markdown
+﻿namespace Markdown
 {
     public class MdBoldToken : MdTokenWithSubTokens
     {
-        public static bool TryRead(MdTokenReader reader, out MdToken result)
-        {
-            throw new NotImplementedException();
-        }
+        public MdBoldToken(int startPosition, int length = 0) : base(startPosition, length) { }
     }
 }
