@@ -1,6 +1,4 @@
-﻿using System;
-
-namespace Markdown
+﻿namespace Markdown
 {
     public class HeaderTagHelper : TagHelper
     {
@@ -29,14 +27,6 @@ namespace Markdown
         public static TagHelper CreateInstance()
         {
             return new HeaderTagHelper();
-        }
-
-        private bool IsAfterNewLine(int position, string text)
-        {
-            return position == 0
-                   || position - Environment.NewLine.Length >= 0
-                   && text.Substring(position - Environment.NewLine.Length, Environment.NewLine.Length) ==
-                   Environment.NewLine;
         }
     }
 }
