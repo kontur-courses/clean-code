@@ -8,59 +8,66 @@ namespace Markdown
         {
             if (!CanCreateToken(text, index, startPosition))
                 return null;
-            
-            var currentText = text.Substring(startPosition + 1, index - startPosition - 1);
-            
-            return new TextToken(startPosition, currentText.Length + 2,
-                TokenType.Emphasized, currentText);
+
+            var tokenText = text[(startPosition + 1)..index];
+
+            return new TextToken(tokenText.Length + 2,
+                TokenType.Emphasized, tokenText, false);
         }
 
         private static bool CanCreateToken(string text, int index, int startPosition)
         {
-            var textToken = text.Substring(startPosition, index - startPosition + 1);
-            return !IsTextContainsOnlyUnderlinings(textToken)
-                   && IsTextStartAndEndWithOneUnderlining(textToken, text, index)
-                   && !IsTextContainsNumbers(textToken)
-                   && !IsSpaceAfterStartOrSpaceBeforeEnd(textToken)
-                   && !IsStrongInsideEm(textToken)
-                   && !IsUnderliningStartFromPartOfWordAndContainsSpace(textToken, index, text);
+            var tokenText = text[startPosition..(index + 1)];
+            return !IsTextContainsOnlyUnderlinings(tokenText)
+                   && IsTextStartAndEndWithOneUnderlining(tokenText, text, index)
+                   && !IsTextContainsNumbers(tokenText)
+                   && !IsSpaceAfterStartOrSpaceBeforeEnd(tokenText)
+                   && !IsStrongInsideEm(tokenText)
+                   && !(IsUnderliningStartFromPartOfWord(tokenText, index, text)
+                   &&  IsTextContainsSpace(tokenText));
+
         }
 
-        private static bool IsStrongInsideEm(string textToken)
+        private static bool IsStrongInsideEm(string tokenText)
         {
-            for (var i = 0; i < textToken.Length; i++)
-                if (textToken[i] == '_' && i + 1 < textToken.Length && textToken[i + 1] == '_')
+            for (var i = 0; i < tokenText.Length; i++)
+                if (tokenText[i] == '_' && i + 1 < tokenText.Length && tokenText[i + 1] == '_')
                     return true;
 
             return false;
         }
 
-        private static bool IsTextContainsOnlyUnderlinings(string textToken)
+        private static bool IsTextContainsOnlyUnderlinings(string tokenText)
         {
-            return textToken.All(x => x == '_');
+            return tokenText.All(x => x == '_');
         }
 
-        private static bool IsTextStartAndEndWithOneUnderlining(string textToken, string text, int index)
+        private static bool IsTextStartAndEndWithOneUnderlining(string tokenText, string text, int index)
         {
-            return textToken[0] == '_' && textToken[1] != '_' && textToken[textToken.Length - 1] == '_'
+            return tokenText[0] == '_' && tokenText[1] != '_' && tokenText[tokenText.Length - 1] == '_'
                    && (index + 1 >= text.Length || text[index + 1] != '_');
         }
 
-        private static bool IsTextContainsNumbers(string textToken)
+        private static bool IsTextContainsNumbers(string tokenText)
         {
-            return textToken.Any(char.IsDigit);
+            return tokenText.Any(char.IsDigit);
         }
 
-        private static bool IsSpaceAfterStartOrSpaceBeforeEnd(string textToken)
+        private static bool IsSpaceAfterStartOrSpaceBeforeEnd(string tokenText)
         {
-            return textToken[1] == ' ' || textToken[textToken.Length - 2] == ' ';
+            return tokenText[1] == ' ' || tokenText[tokenText.Length - 2] == ' ';
         }
 
-        private static bool IsUnderliningStartFromPartOfWordAndContainsSpace(string textToken, int index,
+        private static bool IsUnderliningStartFromPartOfWord(string tokenText, int index,
             string text)
         {
-            return index - textToken.Length >= 0 && text[index - textToken.Length] != ' ' &&
-                   textToken.Contains(' ');
+            return index - tokenText.Length >= 0 && text[index - tokenText.Length] != ' ';
+
+        }
+
+        private static bool IsTextContainsSpace(string tokenText)
+        {
+            return tokenText.Contains(' ');
         }
     }
 }

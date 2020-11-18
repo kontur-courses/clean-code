@@ -7,10 +7,10 @@
             if (!CanCreateToken(text, index, startPosition))
                 return null;
 
-            var tokentText = text.Substring(1);
+            var tokenText = text[1..];
 
-            return new TextToken(startPosition, text.Length,
-                TokenType.Header, tokentText);
+            return new TextToken(text.Length,
+                TokenType.Header, tokenText, false);
         }
 
         private static bool CanCreateToken(string text, int index, int startPosition)

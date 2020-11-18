@@ -12,7 +12,7 @@ namespace Markdown
             tokenConverters = tokensText;
         }
 
-        public string GetHtml(IReadOnlyCollection<TextToken> textTokens)
+        public string ConvertTokens(IReadOnlyCollection<TextToken> textTokens)
         {
             var html = new StringBuilder();
             foreach (var token in textTokens)
@@ -30,7 +30,7 @@ namespace Markdown
                 return token.Text;
             var htmlText = new StringBuilder();
             htmlText.Append($"<{tokenConverters[token.Type]}>");
-            htmlText.Append(new HTMLConverter(tokenConverters).GetHtml(token.SubTokens));
+            htmlText.Append(ConvertTokens(token.SubTokens));
 
             htmlText.Append($"</{tokenConverters[token.Type]}>");
             return htmlText.ToString();

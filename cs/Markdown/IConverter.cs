@@ -4,6 +4,6 @@ namespace Markdown
 {
     public interface IConverter
     {
-        string GetHtml(IReadOnlyCollection<TextToken> textTokens);
+        string ConvertTokens(IReadOnlyCollection<TextToken> textTokens);
     }
 }

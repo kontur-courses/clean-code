@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 using System.Linq;
 
@@ -9,6 +10,7 @@ namespace Chess
 
         public Board(Piece[][] cells)
         {
+            Range a = 1..2;
             this.cells = cells;
         }
 

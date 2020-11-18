@@ -9,26 +9,28 @@ namespace Markdown
             if (!CanCreateToken(text, index, startPosition))
                 return null;
             
-            var tokenText = text.Substring(startPosition + 2, index - startPosition - 3);
+            var tokenText = text[(startPosition + 2)..(index -1)];
             
-            return new TextToken(startPosition, tokenText.Length + 4,
-                TokenType.Strong, tokenText);
+            return new TextToken(tokenText.Length + 4,
+                TokenType.Strong, tokenText,false);
         }
 
         private static bool CanCreateToken(string text, int index, int startPosition)
         {
-            var tokenText = text.Substring(startPosition, index - startPosition + 1);
-            if (tokenText.All(x => x == '_'))
-                return false;
-            if (tokenText[0] != '_' || tokenText[1] != '_' || tokenText[tokenText.Length - 2] != '_' ||
-                tokenText[tokenText.Length - 1] != '_') return false;
-            if (tokenText.Any(char.IsDigit))
-                return false;
-            if (FindCrossingUnderlinings(tokenText))
-                return false;
-            return true;
+            var tokenText = text[startPosition..(index + 1)];
+            return tokenText.Any(x => x != '_') 
+                   && IsTextStartAndEndWithTwoUnderlinings(tokenText) 
+                   && !tokenText.Any(char.IsDigit) 
+                   && !FindCrossingUnderlinings(tokenText);
         }
 
+        private static bool IsTextStartAndEndWithTwoUnderlinings(string tokenText)
+        {
+            if (tokenText[0] != '_' || tokenText[1] != '_' || tokenText[tokenText.Length - 2] != '_' ||
+                tokenText[tokenText.Length - 1] != '_') return false;
+            return true;
+        }
+        
         private static bool FindCrossingUnderlinings(string currentText)
         {
             var foundDoubleUnderlining = false;

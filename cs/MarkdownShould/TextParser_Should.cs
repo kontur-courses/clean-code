@@ -27,7 +27,7 @@ namespace Markdown.Tests
         {
             Action act = () => textParser.GetTextTokens(null);
 
-            act.Should().Throw<NullReferenceException>();
+            act.Should().Throw<ArgumentNullException>();
         }
 
         [Test]
@@ -41,8 +41,8 @@ namespace Markdown.Tests
         [Test]
         public void GetTextTokens_ReturnListWithEmphasizedToken_OneUnderliningElement()
         {
-            var subTokens = new List<TextToken> {new TextToken(0, 2, TokenType.Text, "ab")};
-            var expectedList = new List<TextToken> {new TextToken(0, 4, TokenType.Emphasized, "ab", subTokens)};
+            var subTokens = new List<TextToken> {new TextToken(2, TokenType.Text, "ab", true)};
+            var expectedList = new List<TextToken> {new TextToken(4, TokenType.Emphasized, "ab", subTokens)};
             var text = "_ab_";
 
             var actualList = textParser.GetTextTokens(text);
@@ -54,7 +54,7 @@ namespace Markdown.Tests
         public void GetTextTokens_ReturnListWithTextToken_NoClosingUnderlining()
         {
             var text = "_ab";
-            var expectedList = new List<TextToken> {new TextToken(0, 3, TokenType.Text, "_ab")};
+            var expectedList = new List<TextToken> {new TextToken(3, TokenType.Text, "_ab", true)};
 
             var actualList = textParser.GetTextTokens(text);
 
@@ -66,11 +66,11 @@ namespace Markdown.Tests
         {
             var expectedList = new List<TextToken>
             {
-                new TextToken(0, 4, TokenType.Emphasized, "ab",
-                    new List<TextToken> {new TextToken(0, 2, TokenType.Text, "ab")}),
-                new TextToken(4, 1, TokenType.Text, " "),
-                new TextToken(5, 4, TokenType.Emphasized, "ba",
-                    new List<TextToken> {new TextToken(0, 2, TokenType.Text, "ba")})
+                new TextToken(4, TokenType.Emphasized, "ab",
+                    new List<TextToken> {new TextToken(2, TokenType.Text, "ab", true)}),
+                new TextToken(1, TokenType.Text, " ", true),
+                new TextToken(4, TokenType.Emphasized, "ba",
+                    new List<TextToken> {new TextToken(2, TokenType.Text, "ba", true)})
             };
             var text = "_ab_ _ba_";
 
@@ -85,7 +85,7 @@ namespace Markdown.Tests
             var text = "ab";
             var expectedList = new List<TextToken>
             {
-                new TextToken(0, 2, TokenType.Text, "ab")
+                new TextToken(2, TokenType.Text, "ab", true)
             };
 
             var actualList = textParser.GetTextTokens(text);
@@ -100,12 +100,12 @@ namespace Markdown.Tests
             var text = "aaa _bb_ aaa _aa_";
             var expectedList = new List<TextToken>
             {
-                new TextToken(0, 4, TokenType.Text, "aaa "),
-                new TextToken(4, 4, TokenType.Emphasized, "bb",
-                    new List<TextToken> {new TextToken(0, 2, TokenType.Text, "bb")}),
-                new TextToken(8, 5, TokenType.Text, " aaa "),
-                new TextToken(13, 4, TokenType.Emphasized, "aa",
-                    new List<TextToken> {new TextToken(0, 2, TokenType.Text, "aa")})
+                new TextToken(4, TokenType.Text, "aaa ", true),
+                new TextToken(4, TokenType.Emphasized, "bb",
+                    new List<TextToken> {new TextToken(2, TokenType.Text, "bb", true)}),
+                new TextToken(5, TokenType.Text, " aaa ", true),
+                new TextToken(4, TokenType.Emphasized, "aa",
+                    new List<TextToken> {new TextToken(2, TokenType.Text, "aa", true)})
             };
 
             var actualList = textParser.GetTextTokens(text);
@@ -119,8 +119,8 @@ namespace Markdown.Tests
             var text = "__aa__";
             var expectedList = new List<TextToken>
             {
-                new TextToken(0, 6, TokenType.Strong, "aa",
-                    new List<TextToken> {new TextToken(0, 2, TokenType.Text, "aa")})
+                new TextToken(6, TokenType.Strong, "aa",
+                    new List<TextToken> {new TextToken(2, TokenType.Text, "aa", true)})
             };
 
             var actualList = textParser.GetTextTokens(text);
@@ -134,11 +134,11 @@ namespace Markdown.Tests
             var text = "__aa__ __bb__";
             var expectedList = new List<TextToken>
             {
-                new TextToken(0, 6, TokenType.Strong, "aa",
-                    new List<TextToken> {new TextToken(0, 2, TokenType.Text, "aa")}),
-                new TextToken(6, 1, TokenType.Text, " "),
-                new TextToken(7, 6, TokenType.Strong, "bb",
-                    new List<TextToken> {new TextToken(0, 2, TokenType.Text, "bb")})
+                new TextToken(6, TokenType.Strong, "aa",
+                    new List<TextToken> {new TextToken(2, TokenType.Text, "aa", true)}),
+                new TextToken(1, TokenType.Text, " ", true),
+                new TextToken(6, TokenType.Strong, "bb",
+                    new List<TextToken> {new TextToken(2, TokenType.Text, "bb", true)})
             };
 
             var actualList = textParser.GetTextTokens(text);
@@ -152,12 +152,12 @@ namespace Markdown.Tests
             var text = "__aa__ _bb_ ac_";
             var expectedList = new List<TextToken>
             {
-                new TextToken(0, 6, TokenType.Strong, "aa",
-                    new List<TextToken> {new TextToken(0, 2, TokenType.Text, "aa")}),
-                new TextToken(6, 1, TokenType.Text, " "),
-                new TextToken(7, 4, TokenType.Emphasized, "bb",
-                    new List<TextToken> {new TextToken(0, 2, TokenType.Text, "bb")}),
-                new TextToken(11, 4, TokenType.Text, " ac_")
+                new TextToken(6, TokenType.Strong, "aa",
+                    new List<TextToken> {new TextToken(2, TokenType.Text, "aa", true)}),
+                new TextToken(1, TokenType.Text, " ", true),
+                new TextToken(4, TokenType.Emphasized, "bb",
+                    new List<TextToken> {new TextToken(2, TokenType.Text, "bb", true)}),
+                new TextToken(4, TokenType.Text, " ac_", true)
             };
 
             var actualList = textParser.GetTextTokens(text);
@@ -171,7 +171,7 @@ namespace Markdown.Tests
             var text = "\\_ab\\_";
             var expectedList = new List<TextToken>
             {
-                new TextToken(0, 4, TokenType.Text, "_ab_")
+                new TextToken(6, TokenType.Text, "_ab_", true)
             };
 
             var actualList = textParser.GetTextTokens(text);
@@ -185,8 +185,8 @@ namespace Markdown.Tests
             var text = "__\\_ab__";
             var expectedList = new List<TextToken>
             {
-                new TextToken(0, 8, TokenType.Strong, "\\_ab",
-                    new List<TextToken> {new TextToken(0, 3, TokenType.Text, "_ab")})
+                new TextToken(8, TokenType.Strong, "\\_ab",
+                    new List<TextToken> {new TextToken(4, TokenType.Text, "_ab", true)})
             };
 
             var actualList = textParser.GetTextTokens(text);
@@ -200,7 +200,7 @@ namespace Markdown.Tests
             var text = "____";
             var expectedList = new List<TextToken>
             {
-                new TextToken(0, 4, TokenType.Text, "____", null)
+                new TextToken(4, TokenType.Text, "____", true)
             };
 
             var actualList = textParser.GetTextTokens(text);
@@ -214,7 +214,8 @@ namespace Markdown.Tests
             var text = "a_a b_b";
             var expectedList = new List<TextToken>
             {
-                new TextToken(0, 7, TokenType.Text, "a_a b_b", null)
+                new TextToken(1, TokenType.Text, "a", true),
+                new TextToken(6, TokenType.Text, "_a b_b", true)
             };
 
             var actualList = textParser.GetTextTokens(text);
@@ -228,10 +229,10 @@ namespace Markdown.Tests
             var text = "a_bc_de";
             var expectedList = new List<TextToken>
             {
-                new TextToken(0, 1, TokenType.Text, "a", null),
-                new TextToken(1, 4, TokenType.Emphasized, "bc",
-                    new List<TextToken> {new TextToken(0, 2, TokenType.Text, "bc")}),
-                new TextToken(5, 2, TokenType.Text, "de", null)
+                new TextToken(1, TokenType.Text, "a", true),
+                new TextToken(4, TokenType.Emphasized, "bc",
+                    new List<TextToken> {new TextToken(2, TokenType.Text, "bc", true)}),
+                new TextToken(2, TokenType.Text, "de", true)
             };
 
             var actualList = textParser.GetTextTokens(text);
@@ -245,7 +246,7 @@ namespace Markdown.Tests
             var text = "ab1_2_3";
             var expectedList = new List<TextToken>
             {
-                new TextToken(0, 7, TokenType.Text, "ab1_2_3", null)
+                new TextToken(7, TokenType.Text, "ab1_2_3", true)
             };
 
             var actualList = textParser.GetTextTokens(text);
@@ -259,10 +260,10 @@ namespace Markdown.Tests
             var text = "#ab";
             var expectedList = new List<TextToken>
             {
-                new TextToken(0, 3, TokenType.Header, "ab",
+                new TextToken(3, TokenType.Header, "ab",
                     new List<TextToken>
                     {
-                        new TextToken(0, 2, TokenType.Text, "ab")
+                        new TextToken(2, TokenType.Text, "ab", true)
                     })
             };
 

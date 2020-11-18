@@ -17,28 +17,26 @@ namespace Markdown
         {
             var tokens = new List<TextToken>();
             if (text == null)
-                throw new NullReferenceException(nameof(text) + " was null");
+                throw new ArgumentNullException(nameof(text) + " was null");
 
             if (text.Length == 0)
                 return tokens;
-
-            var startPosition = 0;
-
-            for (var index = 0; index < text.Length && startPosition < text.Length; index++)
+            
+            for (var start = 0; start < text.Length - 1; start++)
             {
-                var currentToken = TryGetToken(text, index, startPosition);
+                for (var end = start; end < text.Length; end++)
+                {
+                    var currentToken = TryGetToken(text, end, start);
 
-                if (currentToken == null) continue;
+                    if (currentToken == null) continue;
 
-                if (currentToken.Type != TokenType.Text)
-                    currentToken.SubTokens = GetTextTokens(currentToken.Text);
+                    if (!currentToken.IsTerminal)
+                        currentToken.SubTokens = GetTextTokens(currentToken.Text);
 
-                startPosition += currentToken.Length;
-
-                var updatedToken = UpdateLastTextToken(currentToken, tokens);
-                if (updatedToken != null) continue;
-
-                tokens.Add(currentToken);
+                    tokens.Add(currentToken);
+                    start += currentToken.Length - 1;
+                    break;
+                }
             }
 
             return tokens;

@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using FluentAssertions;
 using NUnit.Framework;
 
@@ -18,7 +19,6 @@ namespace Markdown.Tests
                 {TokenType.Header, "h1"},
                 {TokenType.Strong, "strong"}
             };
-
             htmlConverter = new HTMLConverter(tokensText);
         }
 
@@ -27,12 +27,12 @@ namespace Markdown.Tests
         {
             var textTokens = new List<TextToken>
             {
-                new TextToken(0, 2, TokenType.Text, "aa"),
-                new TextToken(2, 4, TokenType.Text, "cccc")
+                new TextToken(2, TokenType.Text, "aa", true),
+                new TextToken(4, TokenType.Text, "cccc", true)
             };
             var expectedString = "aacccc";
 
-            var actualString = htmlConverter.GetHtml(textTokens);
+            var actualString = htmlConverter.ConvertTokens(textTokens);
 
             actualString.Should().BeEquivalentTo(expectedString);
         }
@@ -42,22 +42,22 @@ namespace Markdown.Tests
         {
             var textTokens = new List<TextToken>
             {
-                new TextToken(0, 2, TokenType.Text, "aa"),
-                new TextToken(2, 4, TokenType.Emphasized, "cccc",
+                new TextToken(2, TokenType.Text, "aa", true),
+                new TextToken(4, TokenType.Emphasized, "cccc",
                     new List<TextToken>
                     {
-                        new TextToken(0, 4, TokenType.Text, "cccc")
+                        new TextToken(4, TokenType.Text, "cccc", true)
                     }),
-                new TextToken(6, 2, TokenType.Text, "bb"),
-                new TextToken(9, 4, TokenType.Emphasized, "dddd",
+                new TextToken(2, TokenType.Text, "bb", true),
+                new TextToken(4, TokenType.Emphasized, "dddd",
                     new List<TextToken>
                     {
-                        new TextToken(0, 4, TokenType.Text, "dddd")
+                        new TextToken(4, TokenType.Text, "dddd", true)
                     })
             };
             var expectedString = "aa<em>cccc</em>bb<em>dddd</em>";
 
-            var actualString = htmlConverter.GetHtml(textTokens);
+            var actualString = htmlConverter.ConvertTokens(textTokens);
 
             actualString.Should().BeEquivalentTo(expectedString);
         }
@@ -67,19 +67,19 @@ namespace Markdown.Tests
         {
             var textTokens = new List<TextToken>
             {
-                new TextToken(0, 2, TokenType.Strong, "aa", new List<TextToken>
+                new TextToken(2, TokenType.Strong, "aa", new List<TextToken>
                 {
-                    new TextToken(0, 4, TokenType.Text, "cccc"),
-                    new TextToken(4, 2, TokenType.Emphasized, "ab", new List<TextToken>
+                    new TextToken(4, TokenType.Text, "cccc", true),
+                    new TextToken(2, TokenType.Emphasized, "ab", new List<TextToken>
                     {
-                        new TextToken(0, 2, TokenType.Text, "ab")
+                        new TextToken(2, TokenType.Text, "ab", true)
                     }),
-                    new TextToken(6, 4, TokenType.Text, "bbbb")
+                    new TextToken(4, TokenType.Text, "bbbb", true)
                 })
             };
             var expectedString = "<strong>cccc<em>ab</em>bbbb</strong>";
 
-            var actualString = htmlConverter.GetHtml(textTokens);
+            var actualString = htmlConverter.ConvertTokens(textTokens);
 
             actualString.Should().BeEquivalentTo(expectedString);
         }
@@ -89,19 +89,19 @@ namespace Markdown.Tests
         {
             var textTokens = new List<TextToken>
             {
-                new TextToken(0, 2, TokenType.Header, "aa", new List<TextToken>
+                new TextToken(2, TokenType.Header, "aa", new List<TextToken>
                 {
-                    new TextToken(0, 4, TokenType.Text, "cccc"),
-                    new TextToken(4, 2, TokenType.Emphasized, "ab", new List<TextToken>
+                    new TextToken(4, TokenType.Text, "cccc", true),
+                    new TextToken(2, TokenType.Emphasized, "ab", new List<TextToken>
                     {
-                        new TextToken(0, 2, TokenType.Text, "ab")
+                        new TextToken(2, TokenType.Text, "ab", true)
                     }),
-                    new TextToken(6, 4, TokenType.Text, "bbbb")
+                    new TextToken(4, TokenType.Text, "bbbb", true)
                 })
             };
             var expectedString = "<h1>cccc<em>ab</em>bbbb</h1>";
 
-            var actualString = htmlConverter.GetHtml(textTokens);
+            var actualString = htmlConverter.ConvertTokens(textTokens);
 
             actualString.Should().BeEquivalentTo(expectedString);
         }

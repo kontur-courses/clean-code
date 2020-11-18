@@ -28,7 +28,7 @@ namespace Markdown
         public string Render(string text)
         {
             var tokens = new TextParser(tokenGetters).GetTextTokens(text);
-            return new HTMLConverter(tokensText).GetHtml(tokens);
+            return new HTMLConverter(tokensText).ConvertTokens(tokens);
         }
     }
 }

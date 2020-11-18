@@ -1,4 +1,5 @@
-﻿using System.Text;
+﻿using System;
+using System.Text;
 
 namespace Markdown
 {
@@ -9,20 +10,20 @@ namespace Markdown
             if (!CanCreateToken(text, index, startPosition))
                 return null;
 
-            var tokenText = text.Substring(startPosition, index - startPosition + 1);
-            /*Range myrange = 1..4;
-            var tokenText = text[index..index - startPosition + 1];*/
+            var tokenText = text[startPosition..(index + 1)];
+
             var tokenTextWithoutShields = RemoveShieldSymbols(tokenText);
 
-            return new TextToken(startPosition, tokenTextWithoutShields.Length, TokenType.Text,
-                tokenTextWithoutShields);
+            return new TextToken(tokenText.Length, TokenType.Text,
+                tokenTextWithoutShields, true);
         }
 
         private static bool CanCreateToken(string text, int index, int startPosition)
         {
-            var tokenText = text.Substring(startPosition, index - startPosition + 1);
-            return IsSpecialSymbolShielded(text, tokenText, index) && IsSubTokenContainsDigits(text, index) &&
-                   IsNextSymbolStartOfAnotherToken(tokenText, text, index);
+            var tokenText = text[startPosition..(index + 1)];
+            return IsSpecialSymbolShielded(text, tokenText, index)
+                   && IsSubTokenContainsDigits(text, index)
+                   && IsNextSymbolStartOfAnotherToken(tokenText, text, index);
         }
 
         private static bool IsNextSymbolStartOfAnotherToken(string tokenText, string text, int index)
