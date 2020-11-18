@@ -61,6 +61,8 @@
         <Compile Include="Md.cs" />
         <Compile Include="MdHtmlTokenRenderer.cs" />
         <Compile Include="MdTokenReader.cs" />
+        <Compile Include="Tests\MdTokenReader_Should.cs" />
+        <Compile Include="Tests\Md_Should.cs" />
         <Compile Include="Tokens\Token.cs" />
         <Compile Include="TokenReader.cs" />
         <Compile Include="TokenRenderer.cs" />
