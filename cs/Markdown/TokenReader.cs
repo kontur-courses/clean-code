@@ -5,8 +5,11 @@ namespace Markdown
 {
     public abstract class TokenReader
     {
-        protected readonly string Text;
-        protected int CurrentPosition = 0;
+        public readonly string Text;
+        public int CurrentPosition = 0;
+
+        private readonly Dictionary<Type, Func<TokenReader, MdToken, MdToken>> Tokens =
+            new Dictionary<Type, Func<TokenReader, MdToken, MdToken>>();
 
         public TokenReader(string text)
         {
@@ -19,53 +22,67 @@ namespace Markdown
         {
             result = nextToken;
             nextToken = null;
-            return result != null
-                   || TryReadSpecifiedTokens(out result)
-                   || !notRawText && TryRead(new MdRawTextToken(CurrentPosition, parent:parent), out result,
-                       () => TryReadSpecifiedTokens(out nextToken));
+            foreach (var readTokenFunc in Tokens.Values)
+            {
+                result ??= readTokenFunc(this, parent);
+                if (result != null) return true;
+            }
+
+            return notRawText || TryReadRawTextUntil(out result, () => TryReadToken(out nextToken, parent, true));
         }
+
+        public void AddToken<TToken>(Func<TokenReader, MdToken, TToken> readTokenFunc) where TToken : MdToken
+            => Tokens[typeof(TToken)] = readTokenFunc;
+
+        public void RemoveToken<TToken>() where TToken : MdToken
+            => Tokens.Remove(typeof(TToken));
+
+        public bool TryRead<TToken>(out MdToken result, MdToken parent) where TToken : MdToken
+        {
+            result = null;
+            if (!Tokens.TryGetValue(typeof(TToken), out var readFunc)) return false;
+            return (result = readFunc(this, parent)) != null;
+        }
+
+        public bool TryReadRawTextUntil(out MdToken result, Func<bool> stopWhen)
+            => TryReadRawTextUntil(out result, stopWhen, () => false);
+
+        public bool TryReadRawTextUntil(out MdToken result, Func<bool> stopWhen, Func<bool> failWhen)
+            => throw new NotImplementedException();
 
         public IEnumerable<MdToken> ReadAll() => throw new NotImplementedException();
 
-        protected abstract bool TryReadSpecifiedTokens(out MdToken result, MdToken parent = null);
 
-        protected bool TryRead(MdRawTextToken token, out MdToken result)
-            => TryRead(token, out result, () => false);
-
-        protected virtual bool TryRead(MdRawTextToken token, out MdToken result, Func<bool> stopWhen)
-            => throw new NotImplementedException();
-
-
-        protected bool TryReadSubtokensUntil(MdTokenWithSubTokens output, Func<bool> stopWhen)
+        public bool TryReadSubtokensUntil(MdTokenWithSubTokens output, Func<bool> stopWhen)
             => TryReadSubtokensUntil(output, stopWhen, () => false);
 
-        protected bool TryReadSubtokensUntil(MdTokenWithSubTokens output, Func<bool> stopWhen, Func<bool> failWhen)
+        public bool TryReadSubtokensUntil(MdTokenWithSubTokens output, Func<bool> stopWhen, Func<bool> failWhen)
             => throw new NotImplementedException();
 
-        protected bool TryRead(string text)
+        public bool TryRead(string text)
         {
             if (GetNextChars(text.Length) != text) return false;
             CurrentPosition += text.Length;
             return true;
         }
 
-        protected bool IsWordBegin() => IsLineBegin() || Text[CurrentPosition - 1] == ' ';
+        public bool IsWordBegin() => IsLineBegin() || Text[CurrentPosition - 1] == ' ';
 
-        protected bool IsWordEnd() => IsLineEnd() || Text[CurrentPosition + 1] == ' ';
+        public bool IsWordEnd() => IsLineEnd() || Text[CurrentPosition + 1] == ' ';
 
-        protected bool IsLineBegin() => CurrentPosition == 0 || Text[CurrentPosition - 1] == '\n';
+        public bool IsLineBegin() => CurrentPosition == 0 || Text[CurrentPosition - 1] == '\n';
 
-        protected bool IsLineEnd() => CurrentPosition == Text.Length - 1 || Text[CurrentPosition + 1] == '\n';
+        public bool IsLineEnd() => CurrentPosition == Text.Length - 1 || Text[CurrentPosition + 1] == '\n';
 
-        protected string GetNextChars(int count)
+        public string GetNextChars(int count)
         {
             if (count > Text.Length - CurrentPosition) count = Text.Length - CurrentPosition;
             return Text.Substring(CurrentPosition, count);
         }
 
-        protected virtual TokenReaderState GetCurrentState() => new TokenReaderState(this);
+        public virtual TokenReaderState GetCurrentState() => new TokenReaderState(this);
 
-        protected class TokenReaderState
+        public class TokenReaderState
         {
             public readonly TokenReader Reader;
 
@@ -83,7 +100,10 @@ namespace Markdown
                 return false; //всегда false что-бы было легко использовать в выражениях с TryRead
             }
 
-            protected virtual void UndoAction() => Reader.CurrentPosition = position;
+            protected virtual void UndoAction()
+            {
+                Reader.CurrentPosition = position;
+            }
         }
     }
 }
