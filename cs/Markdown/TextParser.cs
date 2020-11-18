@@ -29,8 +29,10 @@ namespace Markdown
 
                 if (currentToken == null) continue;
 
-                if (!currentToken.IsTerminal)
-                    currentToken.SubTokens = GetTextTokens(currentToken.Text);
+                if (currentToken is ITagToken tokenWithTags)
+                {
+                    tokenWithTags.SubTokens = GetTextTokens(tokenWithTags.TextWithoutTags);
+                }
 
                 tokens.Add(currentToken);
                 start += currentToken.Length - 1;

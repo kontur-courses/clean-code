@@ -5,11 +5,12 @@ namespace Markdown
     public class EmphasizedTextToken : TextToken, ITagToken
     {
         public EmphasizedTextToken(string text, List<IToken> subTokens = null) 
-            : base(text.Length + 2, TokenType.Emphasized, text, false, subTokens)
+            : base(text.Length, TokenType.Emphasized, text, false, subTokens)
         {
-            TextWithTags = $"_{text}_";
+            TextWithoutTags = text[1..(text.Length - 1)];
+            var a = TextWithoutTags;
         }
 
-        public string TextWithTags { get; }
+        public string TextWithoutTags { get; }
     }
 }

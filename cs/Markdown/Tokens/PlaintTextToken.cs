@@ -8,6 +8,7 @@ namespace Markdown
         public PlaintTextToken(string text) : base(text.Length, TokenType.Text, null, true, null)
         {
             Text = RemoveShieldSymbols(text);
+            var a = Text;
         }
         
         private static string RemoveShieldSymbols(string tokenText)

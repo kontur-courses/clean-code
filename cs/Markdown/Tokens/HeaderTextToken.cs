@@ -5,11 +5,12 @@ namespace Markdown
     public class HeaderTextToken : TextToken, ITagToken
     {
         public HeaderTextToken(string text, List<IToken> subTokens = null) 
-            : base(text.Length + 1, TokenType.Header, text, false, subTokens)
+            : base(text.Length, TokenType.Header, text, false, subTokens)
         {
-            TextWithTags = $"#{text}";
+            TextWithoutTags = text[1..];
+            var a = TextWithoutTags;
         }
 
-        public string TextWithTags { get; }
+        public string TextWithoutTags { get; }
     }
 }

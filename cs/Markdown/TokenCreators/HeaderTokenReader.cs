@@ -6,11 +6,9 @@
         {
             if (!CanCreateToken(text, index, startPosition))
                 return null;
+            
 
-            var tokenText = text[1..];
-
-            return new TextToken(text.Length,
-                TokenType.Header, tokenText, false, null);
+            return new HeaderTextToken(text);
         }
 
         private static bool CanCreateToken(string text, int index, int startPosition)

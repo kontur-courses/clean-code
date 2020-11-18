@@ -37,13 +37,13 @@ namespace Markdown.Tests
             var textTokens = new List<TextToken>
             {
                 new PlaintTextToken("aa"),
-                new EmphasizedTextToken("cccc",
+                new EmphasizedTextToken("_cccc_",
                     new List<IToken>
                     {
                         new PlaintTextToken("cccc")
                     }),
                 new PlaintTextToken("bb"),
-                new EmphasizedTextToken("dddd",
+                new EmphasizedTextToken("_dddd_",
                     new List<IToken>
                     {
                         new PlaintTextToken("dddd")
@@ -61,10 +61,10 @@ namespace Markdown.Tests
         {
             var textTokens = new List<TextToken>
             {
-                new StrongTextToken("aa", new List<IToken>
+                new StrongTextToken("__aa__", new List<IToken>
                 {
                     new PlaintTextToken("cccc"),
-                    new EmphasizedTextToken("ab", new List<IToken>
+                    new EmphasizedTextToken("_ab_", new List<IToken>
                     {
                         new PlaintTextToken("ab")
                     }),
@@ -83,10 +83,10 @@ namespace Markdown.Tests
         {
             var textTokens = new List<IToken>
             {
-                new HeaderTextToken("aa", new List<IToken>
+                new HeaderTextToken("#aa", new List<IToken>
                 {
                     new PlaintTextToken("cccc"),
-                    new EmphasizedTextToken("ab", new List<IToken>
+                    new EmphasizedTextToken("_ab_", new List<IToken>
                     {
                         new PlaintTextToken("ab")
                     }),

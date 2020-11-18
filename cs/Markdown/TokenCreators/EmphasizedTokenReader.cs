@@ -9,7 +9,7 @@ namespace Markdown
             if (!CanCreateToken(text, index, startPosition))
                 return null;
 
-            var tokenText = text[(startPosition + 1)..index];
+            var tokenText = text[(startPosition)..(index + 1)];
 
             return new EmphasizedTextToken(tokenText);
         }

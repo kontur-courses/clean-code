@@ -9,10 +9,9 @@ namespace Markdown
             if (!CanCreateToken(text, index, startPosition))
                 return null;
 
-            var tokenText = text[(startPosition + 2)..(index - 1)];
+            var tokenText = text[(startPosition)..(index + 1)];
 
-            return new TextToken(tokenText.Length + 4,
-                TokenType.Strong, tokenText, false, null);
+            return new StrongTextToken(tokenText);
         }
 
         private static bool CanCreateToken(string text, int index, int startPosition)

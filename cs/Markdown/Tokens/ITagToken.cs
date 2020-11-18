@@ -2,6 +2,6 @@
 {
     public interface ITagToken : IToken
     {
-        public string TextWithTags { get; }
+        public string TextWithoutTags { get; }
     }
 }
