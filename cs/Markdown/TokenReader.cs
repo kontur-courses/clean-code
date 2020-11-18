@@ -185,9 +185,13 @@ namespace Markdown
                      && (!startWithNewWord || reader.IsWordBegin())
 
                      && reader.TryRead(startWith)
+                     && !reader.IsWordEnd()
+                     
                      && reader.TryReadSubtokensUntil(token,
                          () => reader.TryGet(endWith, endWithNewLine),
                          () => !allowSpaces && reader.IsWordEnd())
+                     
+                     && !reader.IsWordBegin()
                      && reader.TryRead(endWith)
 
                      && (!endWithNewWord || reader.IsWordEnd())
