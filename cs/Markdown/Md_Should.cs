@@ -23,12 +23,16 @@ namespace Markdown
         }
 
         [TestCase(" # asd", ExpectedResult = " # asd", TestName = "when tag not in line beginning")]
+        [TestCase(@"\# asd", ExpectedResult = @"# asd", TestName = "when tag escaped")]
         [TestCase("#asd", ExpectedResult = "#asd", TestName = "when # has no space after")]
         public string NotRenderHeaderTag(string input)
         {
             return Md.Render(input);
         }
-
+        
+        [TestCase("# _asd_", ExpectedResult = "<h1><em>asd</em></h1>", TestName = "when paragraph is header")]
+        [TestCase("* _asd_", ExpectedResult = "<ul><li><em>asd</em></li></ul>",
+            TestName = "when paragraph is list item")]
         [TestCase("_asd_ ", ExpectedResult = "<em>asd</em> ", TestName = "when space in string ending")]
         [TestCase("_asd_    ", ExpectedResult = "<em>asd</em>    ",
             TestName = "when not single space in string ending")]
@@ -48,6 +52,14 @@ namespace Markdown
             TestName = "when tag in first word has no pair")]
         [TestCase("__a_asd_d__", ExpectedResult = "<strong>a<em>asd</em>d</strong>",
             TestName = "when nesting in bold tag")]
+        [TestCase(@"___asd_\___", ExpectedResult = "<strong><em>asd</em>_</strong>",
+            TestName = "when nesting in bold tag and close tag in ending of word but before escape tag and bold tag")]
+        [TestCase(@"_1asd_\_", ExpectedResult = @"<em>1asd</em>_",
+            TestName = "when close tag in ending of word but before escape tag")]
+        [TestCase(@"\__1asd_", ExpectedResult = @"_<em>1asd</em>",
+            TestName = "when open tag in beginning of word but after escape tag")]
+        [TestCase(@"\_\__asd_\_\_", ExpectedResult = @"__<em>asd</em>__",
+            TestName = "when tags on edges in word but nested in escape tags")]
         public string RenderItalicTag(string input)
         {
             return Md.Render(input);
@@ -61,11 +73,19 @@ namespace Markdown
         [TestCase("_asd\r\nasd_", ExpectedResult = "_asd\r\nasd_", TestName = "when tags in different paragraphs")]
         [TestCase("_ asd_", ExpectedResult = "_ asd_", TestName = "when first tag can't be open")]
         [TestCase("_asd _", ExpectedResult = "_asd _", TestName = "when second tag can't be close")]
+        [TestCase(@"_1asd_\a", ExpectedResult = @"_1asd_\a",
+            TestName = "when possible close tag in ending of word but before escape tag which is not escaping tag")]
+        [TestCase(@"\a_1asd_", ExpectedResult = @"\a_1asd_",
+            TestName = "when possible open tag in beginning of word but after escape tag which is not escaping tag")]
         public string NotRenderItalicTag(string input)
         {
             return Md.Render(input);
         }
 
+        [TestCase("# __asd__", ExpectedResult = "<h1><strong>asd</strong></h1>",
+            TestName = "when paragraph is header")]
+        [TestCase("* __asd__", ExpectedResult = "<ul><li><strong>asd</strong></li></ul>",
+            TestName = "when paragraph is list item")]
         [TestCase("__asd__ ", ExpectedResult = "<strong>asd</strong> ", TestName = "when space in string ending")]
         [TestCase("__asd__    ", ExpectedResult = "<strong>asd</strong>    ",
             TestName = "when not single space in string ending")]
@@ -84,6 +104,12 @@ namespace Markdown
             TestName = "when tag in first paragraph has no pair")]
         [TestCase("as__d __asd__", ExpectedResult = "as__d <strong>asd</strong>",
             TestName = "when tag in first word has no pair")]
+        [TestCase(@"__1asd__\_", ExpectedResult = @"<strong>1asd</strong>_",
+            TestName = "when close tag in ending of word but before escape tag")]
+        [TestCase(@"\___1asd__", ExpectedResult = @"_<strong>1asd</strong>",
+            TestName = "when open tag in beginning of word but after escape tag")]
+        [TestCase(@"\_\___asd__\_\_", ExpectedResult = @"__<strong>asd</strong>__",
+            TestName = "when tags on edges in word but nested in escape tags")]
         public string RenderBoldTag(string input)
         {
             return Md.Render(input);
@@ -97,6 +123,10 @@ namespace Markdown
         [TestCase("_a__asd__d_", ExpectedResult = "<em>a__asd__d</em>", TestName = "when nesting in italic tag")]
         [TestCase("__ asd__", ExpectedResult = "__ asd__", TestName = "when first tag can't be open")]
         [TestCase("__asd __", ExpectedResult = "__asd __", TestName = "when second tag can't be close")]
+        [TestCase(@"__1asd__\a", ExpectedResult = @"__1asd__\a",
+            TestName = "when possible close tag in ending of word but before escape tag which is not escaping tag")]
+        [TestCase(@"\a__1asd__", ExpectedResult = @"\a__1asd__",
+            TestName = "when possible open tag in beginning of word but after escape tag which is not escaping tag")]
         public string NotRenderBoldTag(string input)
         {
             return Md.Render(input);
@@ -122,6 +152,7 @@ namespace Markdown
         }
 
         [TestCase(@"\# asd", ExpectedResult = @"# asd", TestName = "when escape symbol before header tag")]
+        [TestCase(@"\* asd", ExpectedResult = @"* asd", TestName = "when escape symbol before list item tag")]
         [TestCase(@"as\_d_", ExpectedResult = @"as_d_", TestName = "when escape symbol before italic tag")]
         [TestCase(@"as\__d__", ExpectedResult = @"as__d__", TestName = "when escape symbol before bold tag")]
         [TestCase(@"\_a5sd", ExpectedResult = @"_a5sd",
@@ -142,16 +173,19 @@ namespace Markdown
 
         [TestCase("* asd", ExpectedResult = "<ul><li>asd</li></ul>", TestName = "when has only one list item")]
         [TestCase("* asd\r\n* asd", ExpectedResult = "<ul><li>asd</li>\r\n<li>asd</li></ul>",
-            TestName = "when more than one list item")]
+            TestName = "when has more than one list item")]
         [TestCase("* asd\r\nasd\r\n* asd", ExpectedResult = "<ul><li>asd</li></ul>\r\nasd\r\n<ul><li>asd</li></ul>",
             TestName = "when several unordered lists")]
+        [TestCase("* asd\r\n\\* asd\r\n* asd", ExpectedResult = "<ul><li>asd</li></ul>\r\n* asd\r\n<ul><li>asd</li></ul>",
+            TestName = "when 3 list item tags in a row, but tag in middle escaped")]
         public string RenderUnorderedList(string input)
         {
             return Md.Render(input);
         }
 
         [TestCase(" * asd", ExpectedResult = " * asd", TestName = "when tag not in line beginning")]
-        [TestCase("*asd", ExpectedResult = "*asd", TestName = "when # has no space after")]
+        [TestCase("*asd", ExpectedResult = "*asd", TestName = "when * has no space after")]
+        [TestCase(@"\* asd", ExpectedResult = @"* asd", TestName = "when tag escaped")]
         public string NotRenderUnorderedList(string input)
         {
             return Md.Render(input);
