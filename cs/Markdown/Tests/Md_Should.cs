@@ -28,6 +28,15 @@ namespace Markdown
         [TestCase("Некоторый текст __выделение__ ещё текст",
             ExpectedResult = "Некоторый текст <strong>выделение</strong> ещё текст",
             TestName = "RenderBold_InMiddleOfLine")]
+        [TestCase("__сло__во",
+            ExpectedResult = "<strong>сло</strong>во",
+            TestName = "RenderBold_InBeginOfWord")]
+        [TestCase("сл__о__во",
+            ExpectedResult = "сл<strong>о</strong>во",
+            TestName = "RenderBold_InMiddleOfWord")]
+        [TestCase("сло__во__",
+            ExpectedResult = "сло<strong>во</strong>",
+            TestName = "RenderBold_InEndOfWord")]
         public static string RenderBold(string markdown) => Md.Render(markdown);
         
         [TestCase("__",
@@ -42,6 +51,15 @@ namespace Markdown
         [TestCase("Некоторый текст _курсив_ ещё текст",
             ExpectedResult = "Некоторый текст <em>курсив</em> ещё текст",
             TestName = "RenderItalic_InMiddleOfLine")]
+        [TestCase("_сло_во",
+            ExpectedResult = "<em>сло</em>во",
+            TestName = "RenderItalic_InBeginOfWord")]
+        [TestCase("сл_о_во",
+            ExpectedResult = "сл<em>о</em>во",
+            TestName = "RenderItalic_InMiddleOfWord")]
+        [TestCase("сло_во_",
+            ExpectedResult = "сло<em>во</em>",
+            TestName = "RenderItalic_InEndOfWord")]
         public static string RenderItalic(string markdown) => Md.Render(markdown);
     }
 }
