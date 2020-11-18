@@ -149,12 +149,20 @@ namespace Markdown
             return Text.Substring(CurrentPosition, count);
         }
 
-        public void AddBasicToken<TToken>(string startWith, string endWith) where TToken : TokenWithSubTokens, new()
-            => AddToken((reader, parent) => ReadBasicToken<TToken>(reader, parent, startWith, endWith));
+        public void AddBasicToken<TToken>(string startWith, string endWith, bool withOrWithoutSpaces = true) where TToken : TokenWithSubTokens, new()
+        {
+            if (!withOrWithoutSpaces)
+                AddToken((reader, parent) => ReadBasicToken<TToken>(reader, parent, startWith, endWith));
+            else
+                AddToken((reader, parent)
+                    => ReadBasicToken<TToken>(reader, parent, " " + startWith, endWith + " ")
+                       ?? ReadBasicToken<TToken>(reader, parent, startWith, endWith, false));
+        }
 
         public static TToken ReadBasicToken<TToken>(
             TokenReader reader, Token parent,
-            string startWith, string endWith)
+            string startWith, string endWith,
+            bool allowSpaces = true)
             where TToken : TokenWithSubTokens, new()
         {
             var startWithNewLine = startWith.StartsWith("\n");
@@ -178,7 +186,8 @@ namespace Markdown
 
                      && reader.TryRead(startWith)
                      && reader.TryReadSubtokensUntil(token,
-                         () => reader.TryGet(endWith, endWithNewLine))
+                         () => reader.TryGet(endWith, endWithNewLine),
+                         () => !allowSpaces && reader.IsWordEnd())
                      && reader.TryRead(endWith)
 
                      && (!endWithNewWord || reader.IsWordEnd())

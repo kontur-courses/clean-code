@@ -6,9 +6,9 @@ namespace Markdown
     {
         public MdTokenReader(string text) : base(text)
         {
-            AddBasicToken<MdHeaderToken>("\n# ", "\n");
-            AddBasicToken<MdBoldToken>(" __", "__ ");
-            AddBasicToken<MdItalicToken>(" _", "_ ");
+            AddBasicToken<MdHeaderToken>("\n# ", "\n", false);
+            AddBasicToken<MdBoldToken>("__", "__");
+            AddBasicToken<MdItalicToken>("_", "_");
         }
     }
 }
