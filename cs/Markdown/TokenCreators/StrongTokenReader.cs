@@ -12,7 +12,7 @@ namespace Markdown
             var tokenText = text[(startPosition + 2)..(index - 1)];
 
             return new TextToken(tokenText.Length + 4,
-                TokenType.Strong, tokenText, false);
+                TokenType.Strong, tokenText, false, null);
         }
 
         private static bool CanCreateToken(string text, int index, int startPosition)

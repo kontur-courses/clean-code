@@ -13,9 +13,9 @@ namespace Markdown
             this.tokenGetters = tokenGetters;
         }
 
-        public List<TextToken> GetTextTokens(string text)
+        public List<IToken> GetTextTokens(string text)
         {
-            var tokens = new List<TextToken>();
+            var tokens = new List<IToken>();
             if (text == null)
                 throw new ArgumentNullException(nameof(text) + " was null");
 
@@ -40,7 +40,7 @@ namespace Markdown
             return tokens;
         }
 
-        private TextToken TryGetToken(string text, int index, int startPosition)
+        private IToken TryGetToken(string text, int index, int startPosition)
         {
             return tokenGetters
                 .Select(tokenGetter => tokenGetter.TyrGetToken(text, index, startPosition))

@@ -5,20 +5,19 @@ namespace Markdown
 {
     public class HTMLConverter : IConverter
     {
-        private readonly Dictionary<TokenType, ITagTokenConverter> tokenConverters;
+        private readonly ITokenConverterFactory tokenConverters;
 
-        public HTMLConverter(Dictionary<TokenType, ITagTokenConverter> tokenConverters)
+        public HTMLConverter(ITokenConverterFactory tokenConverters)
         {
             this.tokenConverters = tokenConverters;
         }
 
-        public string ConvertTokens(IReadOnlyCollection<TextToken> textTokens)
+        public string ConvertTokens(IReadOnlyCollection<IToken> textTokens)
         {
             var html = new StringBuilder();
-            var converterGetter = new TokenConverterFactory();
             foreach (var token in textTokens)
             {
-                var tokenConverter = converterGetter.GetTokenConverter(token.Type);
+                var tokenConverter = tokenConverters.GetTokenConverter(token.Type);
                 html.Append(tokenConverter.ConvertToken(token));
             }
 

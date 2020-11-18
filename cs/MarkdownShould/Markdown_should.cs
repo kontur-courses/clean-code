@@ -1,4 +1,5 @@
-﻿using FluentAssertions;
+﻿using System.Linq;
+using FluentAssertions;
 using NUnit.Framework;
 
 namespace Markdown.Tests
@@ -10,7 +11,15 @@ namespace Markdown.Tests
         [SetUp]
         public void SetUp()
         {
-            markdown = new Markdown();
+            var tokenGetters = new ITokenReader[]
+            {
+                new HeaderTokenReader(),
+                new StrongTokenReader(),
+                new EmphasizedTokenReader(),
+                new TextTokenReader()
+            };
+            var tokenConverters = new TokenConverterFactory();
+            markdown = new Markdown(tokenConverters, tokenGetters);
         }
 
         [Test]

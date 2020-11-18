@@ -11,8 +11,7 @@ namespace Markdown
 
             var tokenText = text[(startPosition + 1)..index];
 
-            return new TextToken(tokenText.Length + 2,
-                TokenType.Emphasized, tokenText, false);
+            return new EmphasizedTextToken(tokenText);
         }
 
         private static bool CanCreateToken(string text, int index, int startPosition)

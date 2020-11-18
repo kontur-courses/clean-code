@@ -1,6 +1,4 @@
-﻿using System.Text;
-
-namespace Markdown
+﻿namespace Markdown
 {
     public class HeaderTokenConverter : TagTokenConverter
     {
@@ -9,6 +7,5 @@ namespace Markdown
             OpenTag = "<h1>";
             CloseTag = "</h1>";
         }
-        
     }
 }

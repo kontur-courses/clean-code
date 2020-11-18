@@ -1,6 +1,4 @@
-﻿using System.Text;
-
-namespace Markdown
+﻿namespace Markdown
 {
     public class StrongTokenConverter : TagTokenConverter
     {

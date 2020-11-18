@@ -5,10 +5,10 @@ namespace Markdown
     public class TagTokenConverter : ITagTokenConverter
 
     {
-        protected string OpenTag;
         protected string CloseTag;
+        protected string OpenTag;
 
-        public string ConvertToken(TextToken textToken)
+        public string ConvertToken(IToken textToken)
         {
             if (textToken.SubTokens == null)
                 return textToken.Text;

@@ -10,11 +10,8 @@ namespace Markdown
                 return null;
 
             var tokenText = text[startPosition..(index + 1)];
-
-            var tokenTextWithoutShields = RemoveShieldSymbols(tokenText);
-
-            return new TextToken(tokenText.Length, TokenType.Text,
-                tokenTextWithoutShields, true);
+            
+            return new PlaintTextToken(tokenText);
         }
 
         private static bool CanCreateToken(string text, int index, int startPosition)
@@ -42,25 +39,8 @@ namespace Markdown
         {
             return index + 1 >= text.Length || tokenText[tokenText.Length - 1] != '\\' || text[index + 1] != '_';
         }
+        
 
-        private static string RemoveShieldSymbols(string tokenText)
-        {
-            var textWithoutShieldSymbols = new StringBuilder();
-            for (var i = 0; i < tokenText.Length; i++)
-            {
-                if (IsCurrentSymbolShieldAndNextSymbolIsSpecial(tokenText, i))
-                    i++;
-
-                textWithoutShieldSymbols.Append(tokenText[i]);
-            }
-
-            return textWithoutShieldSymbols.ToString();
-        }
-
-        private static bool IsCurrentSymbolShieldAndNextSymbolIsSpecial(string tokenText, int i)
-        {
-            return tokenText[i] == '\\' && i + 1 < tokenText.Length &&
-                   (tokenText[i + 1] == '\\' || tokenText[i + 1] == '_');
-        }
+        
     }
 }

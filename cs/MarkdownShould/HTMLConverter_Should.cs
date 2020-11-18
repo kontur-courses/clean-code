@@ -7,28 +7,22 @@ namespace Markdown.Tests
     public class HTMLConverter_Should
     {
         private HTMLConverter htmlConverter;
-        private Dictionary<TokenType, ITagTokenConverter> tokensText;
 
         [SetUp]
         public void SetUp()
         {
-            tokensText = new Dictionary<TokenType, ITagTokenConverter>
-            {
-                {TokenType.Text, new TextTokenConverter()},
-                {TokenType.Emphasized, new EmphasizeTokenConverter()},
-                {TokenType.Header, new HeaderTokenConverter()},
-                {TokenType.Strong, new StrongTokenConverter()}
-            };
-            htmlConverter = new HTMLConverter(tokensText);
+            
+            var tokenConverters = new TokenConverterFactory();
+            htmlConverter = new HTMLConverter(tokenConverters);
         }
 
         [Test]
         public void GetHTMLString_CorrectStringLine_OnlyTextTokens()
         {
-            var textTokens = new List<TextToken>
+            var textTokens = new List<IToken>
             {
-                new TextToken(2, TokenType.Text, "aa", true),
-                new TextToken(4, TokenType.Text, "cccc", true)
+                new PlaintTextToken("aa"),
+                new PlaintTextToken("cccc")
             };
             var expectedString = "aacccc";
 
@@ -42,17 +36,17 @@ namespace Markdown.Tests
         {
             var textTokens = new List<TextToken>
             {
-                new TextToken(2, TokenType.Text, "aa", true),
-                new TextToken(4, TokenType.Emphasized, "cccc",
-                    new List<TextToken>
+                new PlaintTextToken("aa"),
+                new EmphasizedTextToken("cccc",
+                    new List<IToken>
                     {
-                        new TextToken(4, TokenType.Text, "cccc", true)
+                        new PlaintTextToken("cccc")
                     }),
-                new TextToken(2, TokenType.Text, "bb", true),
-                new TextToken(4, TokenType.Emphasized, "dddd",
-                    new List<TextToken>
+                new PlaintTextToken("bb"),
+                new EmphasizedTextToken("dddd",
+                    new List<IToken>
                     {
-                        new TextToken(4, TokenType.Text, "dddd", true)
+                        new PlaintTextToken("dddd")
                     })
             };
             var expectedString = "aa<em>cccc</em>bb<em>dddd</em>";
@@ -67,14 +61,14 @@ namespace Markdown.Tests
         {
             var textTokens = new List<TextToken>
             {
-                new TextToken(2, TokenType.Strong, "aa", new List<TextToken>
+                new StrongTextToken("aa", new List<IToken>
                 {
-                    new TextToken(4, TokenType.Text, "cccc", true),
-                    new TextToken(2, TokenType.Emphasized, "ab", new List<TextToken>
+                    new PlaintTextToken("cccc"),
+                    new EmphasizedTextToken("ab", new List<IToken>
                     {
-                        new TextToken(2, TokenType.Text, "ab", true)
+                        new PlaintTextToken("ab")
                     }),
-                    new TextToken(4, TokenType.Text, "bbbb", true)
+                    new PlaintTextToken("bbbb")
                 })
             };
             var expectedString = "<strong>cccc<em>ab</em>bbbb</strong>";
@@ -87,16 +81,16 @@ namespace Markdown.Tests
         [Test]
         public void GetHTMLString_CorrectStringLine_HeaderToken()
         {
-            var textTokens = new List<TextToken>
+            var textTokens = new List<IToken>
             {
-                new TextToken(2, TokenType.Header, "aa", new List<TextToken>
+                new HeaderTextToken("aa", new List<IToken>
                 {
-                    new TextToken(4, TokenType.Text, "cccc", true),
-                    new TextToken(2, TokenType.Emphasized, "ab", new List<TextToken>
+                    new PlaintTextToken("cccc"),
+                    new EmphasizedTextToken("ab", new List<IToken>
                     {
-                        new TextToken(2, TokenType.Text, "ab", true)
+                        new PlaintTextToken("ab")
                     }),
-                    new TextToken(4, TokenType.Text, "bbbb", true)
+                    new PlaintTextToken("bbbb")
                 })
             };
             var expectedString = "<h1>cccc<em>ab</em>bbbb</h1>";

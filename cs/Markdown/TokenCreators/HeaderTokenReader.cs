@@ -10,7 +10,7 @@
             var tokenText = text[1..];
 
             return new TextToken(text.Length,
-                TokenType.Header, tokenText, false);
+                TokenType.Header, tokenText, false, null);
         }
 
         private static bool CanCreateToken(string text, int index, int startPosition)

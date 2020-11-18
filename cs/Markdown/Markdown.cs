@@ -4,31 +4,19 @@ namespace Markdown
 {
     public class Markdown
     {
+        private readonly ITokenConverterFactory tokenConverters;
         private readonly IReadOnlyCollection<ITokenReader> tokenGetters;
-        private readonly Dictionary<TokenType, ITagTokenConverter> tokensText;
 
-        public Markdown()
+        public Markdown(ITokenConverterFactory tokenConverters, IReadOnlyCollection<ITokenReader> tokenGetters)
         {
-            tokensText = new Dictionary<TokenType, ITagTokenConverter>
-            {
-                {TokenType.Text, new TextTokenConverter()},
-                {TokenType.Emphasized, new EmphasizeTokenConverter()},
-                {TokenType.Header, new HeaderTokenConverter()},
-                {TokenType.Strong, new StrongTokenConverter()}
-            };
-            tokenGetters = new ITokenReader[]
-            {
-                new HeaderTokenReader(),
-                new StrongTokenReader(),
-                new EmphasizedTokenReader(),
-                new TextTokenReader()
-            };
+            this.tokenConverters = tokenConverters;
+            this.tokenGetters = tokenGetters;
         }
 
         public string Render(string text)
         {
             var tokens = new TextParser(tokenGetters).GetTextTokens(text);
-            return new HTMLConverter(tokensText).ConvertTokens(tokens);
+            return new HTMLConverter(tokenConverters).ConvertTokens(tokens);
         }
     }
 }

@@ -2,6 +2,6 @@
 {
     public interface ITagTokenConverter
     {
-        string ConvertToken(TextToken token);
+        string ConvertToken(IToken token);
     }
 }
