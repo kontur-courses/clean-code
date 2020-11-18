@@ -4,6 +4,7 @@
     {
         public MdHtmlTokenRenderer(string text) : base(text)
         {
+            AddToken<EscapedStringToken>((r, t) => t.GetEscapedString(r.Text));
             AddToken<MdDigitToken>((r, t) => text.Substring(t.StartPosition, t.Length));
             AddToken<MdHeaderToken>((r, t) => $"<h1>{r.RenderSubtokens(t)}</h1>");
             AddToken<MdBoldToken>((r, t) => $"<strong>{r.RenderSubtokens(t)}</strong>");

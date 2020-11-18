@@ -11,10 +11,19 @@ namespace Markdown
 
         private readonly Dictionary<Type, Func<TokenReader, Token, Token>> Tokens =
             new Dictionary<Type, Func<TokenReader, Token, Token>>();
+        
+        private HashSet<char> allowedEscapedChars = new HashSet<char> {'\\', '_'};
 
         public TokenReader(string text)
         {
             Text = text;
+            AddToken((r, t) =>
+            {
+                if (!r.TryGet("\\") || r.CurrentPosition + 1 >= r.Text.Length) return null;
+                if (!allowedEscapedChars.Contains(r.GetNextChars(2)[1])) return null;
+                CurrentPosition += 2;
+                return new EscapedStringToken(r.CurrentPosition - 2);
+            });
         }
 
         private Token nextToken;
