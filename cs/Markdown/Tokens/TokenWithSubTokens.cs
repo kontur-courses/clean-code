@@ -28,6 +28,8 @@ namespace Markdown
 
         public IEnumerable<Token> EnumerateSubtokens() => subTokens;
 
+        public int GetSubtokenCount() => subTokens.Count;
+
         public void SetSubtokenCount(int count)
         {
             while (subTokens.Count > count) RemoveLastSubtoken();
