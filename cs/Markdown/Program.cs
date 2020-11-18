@@ -7,13 +7,9 @@ namespace Markdown
     {
         static void Main(string[] args)
         {
-            var c = "#abcd".SplitKeepSeparators(new[] { '#' });
-            var a = new StringBuilder("abc");
-            foreach (var item in "\\\\#abcd".SplitKeepSeparators(new[] { '_', '#', '\\' }))
-            {
-
-                Console.WriteLine(char.IsPunctuation('#'));
-            }
+            var md =  new Md();
+            var f = md.Render("#hello world");
+            Console.WriteLine(f);
         }
     }
 }

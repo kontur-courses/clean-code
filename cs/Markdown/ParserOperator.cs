@@ -1,4 +1,5 @@
 ﻿using Markdown.Parsers;
+using System;
 using System.Collections.Generic;
 
 namespace Markdown
@@ -14,6 +15,7 @@ namespace Markdown
         private TokenParser currentParser;
         private List<Token> tokens;
         private string previousPart;
+        private string nextPart;
 
         public ParserOperator()
         {
@@ -24,8 +26,10 @@ namespace Markdown
             InitParsers();
         }
 
-        public void AddTokenPart(string part)
+        public void AddTokenPart(Tuple<string, string> bigram)
         {
+            var part = bigram.Item1;
+            nextPart = bigram.Item2;
             if (parsers.ContainsKey(part) && !isTokenOpen)
                 TokenOpen(part);
             else if (parsers.ContainsKey(part) && isTokenOpen)
@@ -71,7 +75,7 @@ namespace Markdown
                 isShielding = false;
                 isTokenOpen = false;
             }
-            else if (stack.Peek() == part)
+            else if (stack.Peek() == part && part != "#")
                 StartParse();
             else
                 partialTokenValue.Add(part);
@@ -93,8 +97,9 @@ namespace Markdown
         {
             if (needClose)
                 stack.Pop();
-            currentParser.TokenCorruptedMode = !IsClose();
+            currentParser.IsTokenCorrupted = !IsClose();
             isTokenOpen = false;
+            currentParser.PartAfterTokenEnd = nextPart;
             tokens.Add(currentParser.ParseToken(partialTokenValue, Position));
             partialTokenValue.Clear();
         }

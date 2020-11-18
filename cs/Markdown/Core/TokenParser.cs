@@ -2,58 +2,52 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using Markdown.Extentions;
 
 namespace Markdown
 {
     public class TokenParser
     {
-        public bool TokenCorruptedMode { get; set; }
+        public bool IsTokenCorrupted { get; set; }
         public string PartBeforeTokenStart { get; set; }
+        public string PartAfterTokenEnd { get; set; }
 
         protected Func<string, bool> nestedTokenValidator;
         protected int corruptedOffset;
 
-        public virtual Token ParseToken(IEnumerable<string> text, int position)
+        public virtual Token ParseToken(List<string> text, int position)
         {
             return new Token(0, "", TokenType.Simple);
         }
 
-        protected Token ParseToken(IEnumerable<string> text, int position,
+        protected Token ParseToken(List<string> text, int position,
             StringBuilder tokenValue, TokenType type)
         {
             var parserOperator = new ParserOperator();
-            if (text.Count() == 0)
+            if (text.Count == 0)
                 return CreateEmptyToken(tokenValue, position, parserOperator);
             CollectToken(text, tokenValue, parserOperator);
-
-            if (!parserOperator.IsClose() && !TokenCorruptedMode || !CheckCorrectToken(text))
-            {
-                RecoverTokenValue(tokenValue, parserOperator);
-                type = TokenType.Simple;
-            }
-
-            var nestedTokens = parserOperator.GetTokens();
             var value = tokenValue.ToString();
-
-            if (value.IsDigit() || IsTokenInPartWord(text.First(), value))
+            if (CheckCorrectTokenValue(tokenValue, parserOperator, text.FirstOrDefault(), text.LastOrDefault()))
             {
                 RecoverTokenValue(tokenValue, parserOperator);
                 type = TokenType.Simple;
                 value = tokenValue.ToString();
             }
-
+            var nestedTokens = parserOperator.GetTokens();
             var token = new Token(position, value, type);
             token.SetNestedTokens(nestedTokens);
             return token;
         }
 
-        protected virtual void CollectToken(IEnumerable<string> text,
+        protected virtual void CollectToken(List<string> text,
             StringBuilder tokenValue, ParserOperator parserOperator)
         {
             var isIntoToken = false;
-            var offset = TokenCorruptedMode ? corruptedOffset : 0;
-            foreach (var part in text)
+            var offset = IsTokenCorrupted ? corruptedOffset : 0;
+            foreach (var bigram in text.GetBigrams())
             {
+                var part = bigram.Item1;
                 if (nestedTokenValidator(part))
                 {
                     if (part == "\\")
@@ -61,7 +55,7 @@ namespace Markdown
                     if (isIntoToken)
                     {
                         parserOperator.Position = offset;
-                        parserOperator.AddTokenPart(part);
+                        parserOperator.AddTokenPart(bigram);
                     }
                     isIntoToken = !isIntoToken;
                 }
@@ -71,7 +65,7 @@ namespace Markdown
                     offset += part.Length;
                 }
                 if (isIntoToken)
-                    parserOperator.AddTokenPart(part);
+                    parserOperator.AddTokenPart(bigram);
             }
             parserOperator.Position = offset;
         }
@@ -83,17 +77,17 @@ namespace Markdown
             value.Append("__");
         }
 
-        private bool CheckCorrectToken(IEnumerable<string> text)
+        private bool CheckCorrectDeclaration(string start, string end)
         {
-            if (text.Count() == 0) return true;
-            return ParserOperator.IsCorrectEnd(text.LastOrDefault()) &&
-                ParserOperator.IsCorrectStart(text.FirstOrDefault());
+            if (start == null && end == null) return true;
+            return ParserOperator.IsCorrectEnd(end) &&
+                ParserOperator.IsCorrectStart(start);
         }
 
         private bool IsTokenInPartWord(string start, string value)
         {
             return PartBeforeTokenStart != null &&
-                CheckCorrectToken(new[] { PartBeforeTokenStart, start }) &&
+                CheckCorrectDeclaration(start, PartBeforeTokenStart) &&
                 value.Contains(" ");
         }
 
@@ -101,6 +95,21 @@ namespace Markdown
         {
             RecoverTokenValue(tokenValue, parserOperator);
             return new Token(position, tokenValue.ToString(), TokenType.Simple);
+        }
+
+        private bool CheckCorrectTokenValue(StringBuilder value, ParserOperator parserOperator,
+            string tokenStart, string tokenEnd)
+        {
+            var tokenValue = value.ToString();
+            var isInsideDigitText = tokenValue.IsDigit() && (PartAfterTokenEnd?.IsDigit() ?? false);
+            var isInsideInDifferentPartWords = IsTokenInPartWord(tokenStart, tokenValue);
+            var isHaveCorrectStartAndEnd = !CheckCorrectDeclaration(tokenStart, tokenEnd);
+            var isHaveUnpairedChars = !parserOperator.IsClose() && !IsTokenCorrupted;
+
+            return isHaveCorrectStartAndEnd 
+                || isHaveUnpairedChars 
+                || isInsideDigitText 
+                || isInsideInDifferentPartWords;
         }
     }
 }

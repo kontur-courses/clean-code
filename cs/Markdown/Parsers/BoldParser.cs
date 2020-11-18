@@ -11,10 +11,10 @@ namespace Markdown.Parsers
             corruptedOffset = 2;
         }
 
-        public override Token ParseToken(IEnumerable<string> text, int position)
+        public override Token ParseToken(List<string> text, int position)
         {
             var tokenValue = new StringBuilder();
-            if (TokenCorruptedMode)
+            if (IsTokenCorrupted)
             {
                 tokenValue.Append("__");
                 return ParseToken(text, position, tokenValue, TokenType.Simple);

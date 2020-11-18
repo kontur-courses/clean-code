@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using Markdown.Extentions;
+using System.Collections.Generic;
 
 namespace Markdown
 {
@@ -9,8 +10,9 @@ namespace Markdown
         public IEnumerable<Token> ReadTokens(string text)
         {
             var pareserOperator = new ParserOperator();
-            foreach (var part in text.SplitKeepSeparators(new[] { '_', '#', '\\' }))
-                pareserOperator.AddTokenPart(part);
+            var splittedText = text.SplitKeepSeparators(new[] { '_', '#', '\\' });
+            foreach (var bigram in splittedText.GetBigrams())
+                pareserOperator.AddTokenPart(bigram);
             return pareserOperator.GetTokens();
         }
 

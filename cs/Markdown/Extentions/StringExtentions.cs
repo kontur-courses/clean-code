@@ -6,10 +6,10 @@ namespace Markdown
 {
     public static class StringExtentions
     {
-        public static string[] SplitKeepSeparators(this string s, char[] separators,
+        public static List<string> SplitKeepSeparators(this string s, char[] separators,
             bool unionSameSeparators = true, int maxSizeUnion = 2)
         {
-            var splitStr = new List<string>();
+            var splittedString = new List<string>();
             var sep = new HashSet<char>(separators);
             var part = new StringBuilder();
             char previous = default;
@@ -18,23 +18,23 @@ namespace Markdown
             {
                 if (sep.Contains(elem) && part.Length != 0)
                 {
-                    splitStr.Add(part.ToString());
-                    splitStr.Add(elem.ToString());
-                    countSeparatorInUnion += 1;
+                    splittedString.Add(part.ToString());
+                    splittedString.Add(elem.ToString());
+                    countSeparatorInUnion++;
                     part.Clear();
                 }
                 else if (sep.Contains(elem))
                 {
-                    countSeparatorInUnion += 1;
+                    countSeparatorInUnion++;
                     if (previous == elem && unionSameSeparators && countSeparatorInUnion == maxSizeUnion)
                     {
-                        UnionSameString(maxSizeUnion - 1, splitStr, previous, elem);
+                        UnionSameString(maxSizeUnion - 1, splittedString, previous, elem);
                         countSeparatorInUnion = 0;
                     }
                     else
-                        splitStr.Add(elem.ToString());
+                        splittedString.Add(elem.ToString());
                     if (countSeparatorInUnion == maxSizeUnion)
-                        countSeparatorInUnion -= 1;
+                        countSeparatorInUnion--;
                 }
                 else
                 {
@@ -43,9 +43,9 @@ namespace Markdown
                 }
                 previous = elem;
             }
-            if (splitStr.Count == 0 || part.Length != 0)
-                splitStr.Add(part.ToString());
-            return splitStr.ToArray();
+            if (splittedString.Count == 0 || part.Length != 0)
+                splittedString.Add(part.ToString());
+            return splittedString;
         }
 
         public static void UnionSameString(int sizeUnion, List<string> slpitedString, params char[] elemensToUnion)

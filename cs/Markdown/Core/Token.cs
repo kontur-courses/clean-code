@@ -6,7 +6,7 @@ namespace Markdown
     {
         private List<Token> nestedTokens;
 
-        public int Position { get; set; }
+        public int Position { get; }
         public readonly string value;
         public readonly TokenType type;
         public IReadOnlyList<Token> NestedTokens => nestedTokens;
