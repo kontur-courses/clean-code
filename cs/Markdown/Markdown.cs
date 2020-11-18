@@ -5,16 +5,16 @@ namespace Markdown
     public class Markdown
     {
         private readonly IReadOnlyCollection<ITokenReader> tokenGetters;
-        private readonly Dictionary<TokenType, string> tokensText;
+        private readonly Dictionary<TokenType, ITagTokenConverter> tokensText;
 
         public Markdown()
         {
-            tokensText = new Dictionary<TokenType, string>
+            tokensText = new Dictionary<TokenType, ITagTokenConverter>
             {
-                {TokenType.Text, ""},
-                {TokenType.Emphasized, "em"},
-                {TokenType.Header, "h1"},
-                {TokenType.Strong, "strong"}
+                {TokenType.Text, new TextTokenConverter()},
+                {TokenType.Emphasized, new EmphasizeTokenConverter()},
+                {TokenType.Header, new HeaderTokenConverter()},
+                {TokenType.Strong, new StrongTokenConverter()}
             };
             tokenGetters = new ITokenReader[]
             {

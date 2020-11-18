@@ -20,9 +20,9 @@ namespace Markdown
             SubTokens = subTokens;
         }
 
-        public int Length { get; }
+        public int Length { get; set; }
         public TokenType Type { get; }
-        public string Text { get; }
+        public string Text { get; set; }
         public List<TextToken> SubTokens { get; set; }
 
         public bool IsTerminal { get; }

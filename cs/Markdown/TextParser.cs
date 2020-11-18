@@ -43,8 +43,7 @@ namespace Markdown
         private TextToken TryGetToken(string text, int index, int startPosition)
         {
             return tokenGetters
-                .Select(tokenGetter => tokenGetter
-                    .GetToken(text, index, startPosition))
+                .Select(tokenGetter => tokenGetter.TyrGetToken(text, index, startPosition))
                 .FirstOrDefault(token => token != null);
         }
     }

@@ -4,7 +4,7 @@ namespace Markdown
 {
     public class TextTokenReader : ITokenReader
     {
-        public TextToken GetToken(string text, int index, int startPosition)
+        public TextToken TyrGetToken(string text, int index, int startPosition)
         {
             if (!CanCreateToken(text, index, startPosition))
                 return null;
@@ -28,7 +28,8 @@ namespace Markdown
         private static bool IsNextSymbolStartOfAnotherToken(string tokenText, string text, int index)
         {
             return (index + 1 >= text.Length || tokenText[0] != '_' && text[index + 1] == '_') &&
-                   (index + 2 != text.Length || tokenText[0] == '_' || text[index + 1] != '_');
+                   (index + 2 != text.Length || tokenText[0] == '_' || text[index + 1] != '_')
+                   && (index + 1 >= text.Length || tokenText[0] != '[' && text[index + 1] != ']');
         }
 
         private static bool IsSubTokenContainsDigits(string text, int index)

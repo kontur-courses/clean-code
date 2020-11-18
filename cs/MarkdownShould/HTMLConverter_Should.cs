@@ -7,16 +7,17 @@ namespace Markdown.Tests
     public class HTMLConverter_Should
     {
         private HTMLConverter htmlConverter;
+        private Dictionary<TokenType, ITagTokenConverter> tokensText;
 
         [SetUp]
         public void SetUp()
         {
-            var tokensText = new Dictionary<TokenType, string>
+            tokensText = new Dictionary<TokenType, ITagTokenConverter>
             {
-                {TokenType.Text, ""},
-                {TokenType.Emphasized, "em"},
-                {TokenType.Header, "h1"},
-                {TokenType.Strong, "strong"}
+                {TokenType.Text, new TextTokenConverter()},
+                {TokenType.Emphasized, new EmphasizeTokenConverter()},
+                {TokenType.Header, new HeaderTokenConverter()},
+                {TokenType.Strong, new StrongTokenConverter()}
             };
             htmlConverter = new HTMLConverter(tokensText);
         }
