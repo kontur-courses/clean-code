@@ -1,14 +1,14 @@
 ﻿namespace Markdown
 {
-    public class TagToHtmlReplacementInfo
+    public class TagToHtmlReplacement
     {
-        public int Position;
-        public TagType Type;
-        public bool IsCloser;
+        public readonly int Position;
+        public readonly TagType Type;
+        public readonly bool IsCloser;
         public int TagSignLength => TagAnalyzer.GetSignLength(Type);
-        public string NewValue;
+        public readonly string NewValue;
 
-        public TagToHtmlReplacementInfo(int position, TagType type, bool isCloser)
+        public TagToHtmlReplacement(int position, TagType type, bool isCloser)
         {
             Position = position;
             Type = type;

@@ -2,11 +2,11 @@
 {
     public class TagToken
     {
-        public int StartPosition;
-        public int ValueLength;
-        public TagType Type;
+        public readonly int StartPosition;
+        public readonly int ValueLength;
+        public readonly TagType Type;
         public int TagSignLength => TagAnalyzer.GetSignLength(Type);
-        public int EndPosition;
+        public readonly int EndPosition;
 
         public TagToken(int startPosition, int endPosition, TagType type)
         {
