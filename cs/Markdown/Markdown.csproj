@@ -64,7 +64,7 @@
         <Compile Include="MdTokenReader.cs" />
         <Compile Include="MdTokenWithSubTokens.cs" />
         <Compile Include="TokenReader.cs" />
-        <Compile Include="MdTokenRenderer.cs" />
+        <Compile Include="TokenRenderer.cs" />
         <Compile Include="MdTokens\MdBoldToken.cs" />
         <Compile Include="MdTokens\MdHeaderToken.cs" />
         <Compile Include="MdTokens\MdItalicToken.cs" />

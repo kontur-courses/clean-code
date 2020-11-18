@@ -1,18 +1,12 @@
-﻿using System;
-
-namespace Markdown
+﻿namespace Markdown
 {
-    public class MdTokenHtmlRenderer : MdTokenRenderer
+    public class MdTokenHtmlRenderer : TokenRenderer
     {
-        public MdTokenHtmlRenderer(string text) : base(text) {}
-
-        public override string Render(MdToken token)
+        public MdTokenHtmlRenderer(string text) : base(text)
         {
-            if (token is MdRawTextToken raw) return Text.Substring(raw.StartPosition, raw.Length);
-            if (token is MdHeaderToken header) return $"<h1>{RenderSubtokens(header)}</h1>";
-            if (token is MdBoldToken bold) return $"<strong>{RenderSubtokens(bold)}</strong>";
-            if (token is MdItalicToken italic) return $"<em>{RenderSubtokens(italic)}</em>";
-            return null;
+            AddToken<MdHeaderToken>((r, t) => $"<h1>{r.RenderSubtokens(t)}</h1>");
+            AddToken<MdBoldToken>((r, t) => $"<strong>{r.RenderSubtokens(t)}</strong>");
+            AddToken<MdItalicToken>((r, t) => $"<em>{r.RenderSubtokens(t)}</em>");
         }
     }
 }
