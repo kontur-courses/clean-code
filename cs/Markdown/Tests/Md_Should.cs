@@ -73,9 +73,11 @@ namespace Markdown
         public static void RenderItalic(string markdown, string expected)
             => Md.Render(markdown).Should().Be(expected);
 
-        [TestCase("__пересечение_", "__пересечение_",
-            TestName = "NotRenderIntersections")]
-        [TestCase("_пересечение__", "_пересечение__",
+        [TestCase("__безподходящейпары_", "__безподходящейпары_",
+            TestName = "NotRenderItalic_WithBoldPair")]
+        [TestCase("_безподходящейпары__", "_безподходящейпары__",
+            TestName = "NotRenderItalic_WithBoldPair")]
+        [TestCase("_пересечение __разных_ выделений__", "_пересечение __разных_ выделений__",
             TestName = "NotRenderIntersections")]
         public static void NotRenderIntersections(string markdown, string expected)
             => Md.Render(markdown).Should().Be(expected);
