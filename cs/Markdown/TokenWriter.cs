@@ -4,16 +4,28 @@ using System.Text;
 
 namespace Markdown
 {
-    static class TokenWriter
+    class TokenWriter
     {
-        public static string Write(Token token, string line)
+        private StringBuilder stringBuilder;
+        private int indexOffset;
+
+        public TokenWriter(string line)
         {
-            return null;
-            // Обходим дерево токенов слева направо, попутно изменяя line
-            // Делаем поправку на индексы с учетом того, что мы удлиняем строку, заменяя свои теги на html теги
-            // Возвращаем измененную строку
+            stringBuilder = new StringBuilder(line);
         }
 
-        // Почти уверен, что здесь тоже будут вспомогательные методы
+        public void Write(Token token)
+        {
+            token.ReplaceOpeningTag(stringBuilder, ref indexOffset);
+
+            foreach (var subToken in token.SubTokens)
+            {
+                Write(subToken);
+            }
+
+            token.ReplaceClosingTag(stringBuilder, ref indexOffset);
+        }
+
+        public string GetString() => stringBuilder.ToString();
     }
 }

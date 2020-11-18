@@ -1,24 +1,21 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-
-namespace Markdown
+﻿namespace Markdown
 {
-    class Md
+    public class Md
     {
-        public string Render(string input)
+        public string Render(string inputLine)
         {
-            // Сначала создаем основной Token, с данными параметрами:
-            // StartPosition = 0
-            // Length = input.Length
-            // SubTokens = null;
-            // TokenType = TokenType.Simple
-            // Таким образом мы с самого начала представляем весь наш текст в виде одного большого токена обычного типа 
-            // Затем для этого токена вызываем TokenReader.Read
-            // Затем получаем финальную строку, передав этот токен в TokenWriter.Write
-            throw new NotImplementedException();
+            var mainToken = CreateMainToken(inputLine);
+            var tokenReader = new TokenReader(inputLine);
+            var lineWithoutEscapedChars = tokenReader.Read(mainToken);
+            var tokenWriter = new TokenWriter(lineWithoutEscapedChars);
+            tokenWriter.Write(mainToken);
+            var resultLine = tokenWriter.GetString();
+            return resultLine;
+        }
+
+        private Token CreateMainToken(string line)
+        {
+            return new Token(0, line.Length);
         }
     }
 }
