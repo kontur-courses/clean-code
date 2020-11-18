@@ -27,6 +27,8 @@ namespace Markdown_Tests
         [TestCase("_text_", @"\<em>text\</em>")]
         [TestCase("__text__", @"\<strong>text\</strong>")]
         [TestCase("# text", @"\<h1>text\</h1>")]
+        [TestCase("# text\n", "\\<h1>text\\</h1>\n")]
+        [TestCase("# text\r\n", "\\<h1>text\\</h1>\r\n")]
         [TestCase("# text\n# text", "\\<h1>text\\</h1>\n\\<h1>text\\</h1>")]
         [TestCase("## text", @"\<h2>text\</h2>")]
         public void MdRender_ShouldRenderCorrectly_WhenTagContainsOnlySingleWord(string markdownText, string htmlText)
@@ -40,6 +42,12 @@ namespace Markdown_Tests
                   + "+ listElement3", 
             "\\<ul>\n\\<li>listElement1\\</li>\n"
             + "\\<li>listElement2\\</li>\n"
+            + "\\<li>listElement3\\</li>\n\\</ul>")]
+        [TestCase("+ listElement1\r\n"
+                  + "+ listElement2\r\n"
+                  + "+ listElement3", 
+            "\\<ul>\n\\<li>listElement1\\</li>\r\n"
+            + "\\<li>listElement2\\</li>\r\n"
             + "\\<li>listElement3\\</li>\n\\</ul>")]
         [TestCase("+ listElement\n"
                   + "notListElement\n"

@@ -64,13 +64,13 @@ namespace Markdown
             
             var firstHeaderTagData = new HeaderTagData(
                 new TagBorder("# ", ""), 
-                new TagBorder(@"\<h1>","\\</h1>")
+                new TagBorder(@"\<h1>",@"\</h1>")
             );
             
             // Добавил заголовок 2 уровня для демонстрации
             var secondHeaderTagData = new HeaderTagData(
                 new TagBorder("## ", ""), 
-                new TagBorder(@"\<h2>","\\</h2>")
+                new TagBorder(@"\<h2>",@"\</h2>")
             );
             
             var bulletedListTagData = new TagData(

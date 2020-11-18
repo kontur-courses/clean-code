@@ -35,7 +35,7 @@ namespace Markdown.Parser
             
             for (var i = 0; i < text.Length; i++)
             {
-                if (text[i] == '\n')
+                if (text[i] == '\r' || text[i] == '\n')
                     AtLineEnd(i);
 
                 if (text[i] == '\\')
@@ -227,7 +227,7 @@ namespace Markdown.Parser
                 {
                     if (parentToken != null 
                         && (parentToken.Tag != token.Tag.ParentTag
-                        || parentToken.End + 1 < token.Start - token.Tag.IncomingBorder.Close.Length))
+                        || parentToken.End + 2 < token.Start - token.Tag.IncomingBorder.Close.Length))
                     {
                         tokensToAdd.Add(parentToken);
                         parentToken = null;
