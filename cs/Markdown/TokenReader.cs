@@ -8,17 +8,17 @@ namespace Markdown
         public readonly string Text;
         public int CurrentPosition = 0;
 
-        private readonly Dictionary<Type, Func<TokenReader, MdToken, MdToken>> Tokens =
-            new Dictionary<Type, Func<TokenReader, MdToken, MdToken>>();
+        private readonly Dictionary<Type, Func<TokenReader, Token, Token>> Tokens =
+            new Dictionary<Type, Func<TokenReader, Token, Token>>();
 
         public TokenReader(string text)
         {
             Text = text;
         }
 
-        private MdToken nextToken;
+        private Token nextToken;
 
-        public bool TryReadToken(out MdToken result, MdToken parent = null, bool notRawText = false)
+        public bool TryReadToken(out Token result, Token parent = null, bool notRawText = false)
         {
             result = nextToken;
             nextToken = null;
@@ -31,32 +31,32 @@ namespace Markdown
             return notRawText || TryReadRawTextUntil(out result, () => TryReadToken(out nextToken, parent, true));
         }
 
-        public void AddToken<TToken>(Func<TokenReader, MdToken, TToken> readTokenFunc) where TToken : MdToken
+        public void AddToken<TToken>(Func<TokenReader, Token, TToken> readTokenFunc) where TToken : Token
             => Tokens[typeof(TToken)] = readTokenFunc;
 
-        public void RemoveToken<TToken>() where TToken : MdToken
+        public void RemoveToken<TToken>() where TToken : Token
             => Tokens.Remove(typeof(TToken));
 
-        public bool TryRead<TToken>(out MdToken result, MdToken parent) where TToken : MdToken
+        public bool TryRead<TToken>(out Token result, Token parent) where TToken : Token
         {
             result = null;
             if (!Tokens.TryGetValue(typeof(TToken), out var readFunc)) return false;
             return (result = readFunc(this, parent)) != null;
         }
 
-        public bool TryReadRawTextUntil(out MdToken result, Func<bool> stopWhen)
+        public bool TryReadRawTextUntil(out Token result, Func<bool> stopWhen)
             => TryReadRawTextUntil(out result, stopWhen, () => false);
 
-        public bool TryReadRawTextUntil(out MdToken result, Func<bool> stopWhen, Func<bool> failWhen)
+        public bool TryReadRawTextUntil(out Token result, Func<bool> stopWhen, Func<bool> failWhen)
             => throw new NotImplementedException();
 
-        public IEnumerable<MdToken> ReadAll() => throw new NotImplementedException();
+        public IEnumerable<Token> ReadAll() => throw new NotImplementedException();
 
 
-        public bool TryReadSubtokensUntil(MdTokenWithSubTokens output, Func<bool> stopWhen)
+        public bool TryReadSubtokensUntil(TokenWithSubTokens output, Func<bool> stopWhen)
             => TryReadSubtokensUntil(output, stopWhen, () => false);
 
-        public bool TryReadSubtokensUntil(MdTokenWithSubTokens output, Func<bool> stopWhen, Func<bool> failWhen)
+        public bool TryReadSubtokensUntil(TokenWithSubTokens output, Func<bool> stopWhen, Func<bool> failWhen)
             => throw new NotImplementedException();
 
         public bool TryRead(string text)

@@ -8,8 +8,8 @@ namespace Markdown
     {
         public readonly string Text;
 
-        private readonly Dictionary<Type, Func<TokenRenderer, MdToken, string>> tokens =
-            new Dictionary<Type, Func<TokenRenderer, MdToken, string>>();
+        private readonly Dictionary<Type, Func<TokenRenderer, Token, string>> tokens =
+            new Dictionary<Type, Func<TokenRenderer, Token, string>>();
 
         protected TokenRenderer(string text)
         {
@@ -17,16 +17,16 @@ namespace Markdown
             AddToken<MdRawTextToken>((r, t) => r.Text.Substring(t.StartPosition, t.Length));
         }
 
-        public void AddToken<TToken>(Func<TokenRenderer, TToken, string> renderFunc) where TToken : MdToken
+        public void AddToken<TToken>(Func<TokenRenderer, TToken, string> renderFunc) where TToken : Token
             => tokens[typeof(TToken)] = (r, t) => renderFunc(r, t as TToken);
 
         public void RemoveToken<TToken>() => tokens.Remove(typeof(TToken));
 
-        public string Render(MdToken token) => tokens[token.GetType()](this, token);
+        public string Render(Token token) => tokens[token.GetType()](this, token);
 
-        public string RenderAll(IEnumerable<MdToken> tokens) => string.Concat(tokens.Select(Render));
+        public string RenderAll(IEnumerable<Token> tokens) => string.Concat(tokens.Select(Render));
 
-        public string RenderSubtokens(MdTokenWithSubTokens token)
+        public string RenderSubtokens(TokenWithSubTokens token)
             => string.Concat(token.EnumerateSubtokens().Select(Render));
     }
 }

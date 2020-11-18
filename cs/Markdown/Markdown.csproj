@@ -59,10 +59,10 @@
     </ItemGroup>
     <ItemGroup>
         <Compile Include="Md.cs" />
-        <Compile Include="MdToken.cs" />
+        <Compile Include="Token.cs" />
         <Compile Include="MdHtmlTokenRenderer.cs" />
         <Compile Include="MdTokenReader.cs" />
-        <Compile Include="MdTokenWithSubTokens.cs" />
+        <Compile Include="TokenWithSubTokens.cs" />
         <Compile Include="TokenReader.cs" />
         <Compile Include="TokenRenderer.cs" />
         <Compile Include="MdTokens\MdBoldToken.cs" />

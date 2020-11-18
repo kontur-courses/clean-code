@@ -14,12 +14,12 @@ namespace Markdown
                 => ReadHighlightToken<MdItalicToken>(reader, parent, "_", "_"));
         }
         
-        public TToken ReadFullLineToken<TToken>(TokenReader reader, MdToken parent, string startWith, string endWith)
+        public TToken ReadFullLineToken<TToken>(TokenReader reader, Token parent, string startWith, string endWith)
         {
             throw new NotImplementedException();
         }
 
-        public TToken ReadHighlightToken<TToken>(TokenReader reader, MdToken parent, string startWith, string endWith)
+        public TToken ReadHighlightToken<TToken>(TokenReader reader, Token parent, string startWith, string endWith)
         {
             throw new NotImplementedException();
         }

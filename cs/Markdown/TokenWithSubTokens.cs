@@ -2,16 +2,16 @@
 
 namespace Markdown
 {
-    public abstract class MdTokenWithSubTokens : MdToken
+    public abstract class TokenWithSubTokens : Token
     {
-        protected MdTokenWithSubTokens(int startPosition, int length = 0, MdToken parent = null)
+        protected TokenWithSubTokens(int startPosition, int length = 0, Token parent = null)
             : base(startPosition, length, parent)
         {
         }
 
-        private readonly List<MdToken> subTokens = new List<MdToken>();
+        private readonly List<Token> subTokens = new List<Token>();
 
-        public void AddSubtoken(MdToken subToken)
+        public void AddSubtoken(Token subToken)
         {
             subTokens.Add(subToken);
             subToken.Parent = this;
@@ -26,7 +26,7 @@ namespace Markdown
 
         public void RemoveLastSubtoken() => RemoveSubtokenAt(subTokens.Count - 1);
 
-        public IEnumerable<MdToken> EnumerateSubtokens() => subTokens;
+        public IEnumerable<Token> EnumerateSubtokens() => subTokens;
 
         public void SetSubtokenCount(int count)
         {
