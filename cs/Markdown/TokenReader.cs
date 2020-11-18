@@ -74,6 +74,7 @@ namespace Markdown
                     output.SetSubtokenCount(initialCount);
                     return false;
                 }
+
                 output.AddSubtoken(subtoken);
             }
 
@@ -88,7 +89,7 @@ namespace Markdown
             CurrentPosition += count >= 0 ? count : 0;
             return count >= 0;
         }
-        
+
         public int CountCharsUntil(Func<bool> stopWhen) => CountCharsUntil(stopWhen, () => false);
 
         public int CountCharsUntil(Func<bool> stopWhen, Func<bool> failWhen)
@@ -121,6 +122,47 @@ namespace Markdown
         {
             if (count > Text.Length - CurrentPosition) count = Text.Length - CurrentPosition;
             return Text.Substring(CurrentPosition, count);
+        }
+
+        public void AddBasicToken<TToken>(string startWith, string endWith) where TToken : TokenWithSubTokens, new()
+            => AddToken((reader, parent) => ReadBasicToken<TToken>(reader, parent, startWith, endWith));
+
+        public static TToken ReadBasicToken<TToken>(
+            TokenReader reader, Token parent,
+            string startWith, string endWith)
+            where TToken : TokenWithSubTokens, new()
+        {
+            var startWithNewLine = startWith.StartsWith("\n");
+            var endWithNewLine = endWith.EndsWith("\n");
+            
+            var startWithNewWord = startWith.StartsWith(" ");
+            var endWithNewWord = endWith.EndsWith(" ");
+            
+            if (startWithNewLine || startWithNewWord) startWith = startWith.Substring(1);
+            if (endWithNewLine || endWithNewWord) endWith = endWith.Substring(0, endWith.Length - 1);
+            
+            var token = new TToken();
+            token.StartPosition = reader.CurrentPosition;
+            token.Length += startWith.Length;
+
+            var state = reader.GetCurrentState();
+
+            var ok = (!startWithNewLine || reader.IsLineBegin())
+                     && (!startWithNewWord || reader.IsWordBegin())
+
+                     && reader.TryRead(startWith)
+                     && reader.TryReadSubtokensUntil(token,
+                         () => reader.TryRead(endWith))
+
+                     && (!endWithNewWord || reader.IsWordEnd())
+                     && (!endWithNewLine || reader.IsLineEnd())
+
+                     || state.Undo();
+
+            if (!ok) return null;
+            
+            token.Length += endWith.Length;
+            return token;
         }
 
         public virtual TokenReaderState GetCurrentState() => new TokenReaderState(this);
