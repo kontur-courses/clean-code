@@ -28,6 +28,9 @@ namespace Markdown
         [TestCase("__выделение  __",
             ExpectedResult = "__выделение  __",
             TestName = "NotRenderBold_WhenEndWithSpaceChar")]
+        [TestCase("__выделение",
+            ExpectedResult = "__выделение",
+            TestName = "NotRenderBold_WithoutPair")]
         [TestCase("__выделение__",
             ExpectedResult = "<strong>выделение</strong>",
             TestName = "RenderBold_WithOneWord")]
@@ -60,6 +63,9 @@ namespace Markdown
         [TestCase("__курсив  __",
             ExpectedResult = "__курсив  __",
             TestName = "NotRenderItalic_WhenEndWithSpaceChar")]
+        [TestCase("_выделение",
+            ExpectedResult = "_выделение",
+            TestName = "NotRenderItalic_WithoutPair")]
         [TestCase("_курсив_",
             ExpectedResult = "<em>курсив</em>",
             TestName = "RenderItalic_WithOneWord")]
@@ -79,5 +85,13 @@ namespace Markdown
             ExpectedResult = "сло<em>во</em>",
             TestName = "RenderItalic_InEndOfWord")]
         public static string RenderItalic(string markdown) => Md.Render(markdown);
+        
+        [TestCase("__пересечение_",
+            ExpectedResult = "__пересечение_",
+            TestName = "NotRenderIntersections")]
+        [TestCase("_пересечение__",
+            ExpectedResult = "_пересечение__",
+            TestName = "NotRenderIntersections")]
+        public static string NotRenderIntersections(string markdown) => Md.Render(markdown);
     }
 }
