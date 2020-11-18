@@ -102,5 +102,17 @@ namespace Markdown
             expected ??= markdown;
             Md.Render(markdown).Should().Be(expected);
         }
+        
+        [TestCase(@"\_abcd\_", "_abcd_", TestName = "Render_EscapedChars")]
+        [TestCase(@"\_\_abcd\_\_", "__abcd__", TestName = "Render_EscapedChars")]
+        [TestCase(@"\__abcd_\_", "_<em>abcd</em>_", TestName = "Render_EscapedChars")]
+        [TestCase(@"_\_abcd\__", "<em>_abcd_</em>", TestName = "Render_EscapedChars")]
+        [TestCase(@"\ab\  c\d", @"\ab\  c\d", TestName = "NotRender_NotEscapedChars")]
+        [TestCase(@"\\_abcd\\_", @"\<em>abcd\</em>", TestName = "Render_EscapedBackslash")]
+        public static void Render_EscapedChars(string markdown, string expected = null)
+        {
+            expected ??= markdown;
+            Md.Render(markdown).Should().Be(expected);
+        }
     }
 }
