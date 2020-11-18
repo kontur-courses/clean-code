@@ -50,7 +50,10 @@ namespace Markdown
         public bool TryReadRawTextUntil(out Token result, Func<bool> stopWhen, Func<bool> failWhen)
             => throw new NotImplementedException();
 
-        public IEnumerable<Token> ReadAll() => throw new NotImplementedException();
+        public IEnumerable<Token> ReadAll()
+        {
+            while (TryReadToken(out var token)) yield return token;
+        }
 
 
         public bool TryReadSubtokensUntil(TokenWithSubTokens output, Func<bool> stopWhen)
