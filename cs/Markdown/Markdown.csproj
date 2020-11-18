@@ -59,10 +59,9 @@
     </ItemGroup>
     <ItemGroup>
         <Compile Include="Md.cs" />
-        <Compile Include="Token.cs" />
         <Compile Include="MdHtmlTokenRenderer.cs" />
         <Compile Include="MdTokenReader.cs" />
-        <Compile Include="TokenWithSubTokens.cs" />
+        <Compile Include="Tokens\Token.cs" />
         <Compile Include="TokenReader.cs" />
         <Compile Include="TokenRenderer.cs" />
         <Compile Include="MdTokens\MdBoldToken.cs" />
@@ -70,6 +69,7 @@
         <Compile Include="MdTokens\MdItalicToken.cs" />
         <Compile Include="MdTokens\MdRawTextToken.cs" />
         <Compile Include="Properties\AssemblyInfo.cs" />
+        <Compile Include="Tokens\TokenWithSubTokens.cs" />
     </ItemGroup>
     <ItemGroup>
       <None Include="packages.config" />
