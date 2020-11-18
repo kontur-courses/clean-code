@@ -46,7 +46,7 @@ namespace Markdown
                     ProcessTagWhenDeepZero(tag);
                     continue;
                 }
-                if(tag.tagConverter.StringMd == peek.tagConverter.StringMd)
+                if(tag.tagConverter.TagName == peek.tagConverter.TagName)
                 {
                     CloseTagAndAppendResultTextInUpperText(tag);
                     continue;
@@ -63,7 +63,7 @@ namespace Markdown
                 {
                     peek = tags.Peek();
                     var t = tagsText.Pop();
-                    lastTagPosition = Math.Max(lastCloseTagPos, peek.pos);
+                    lastTagPosition = Math.Max(lastCloseTagPos, peek.Pos);
                     t.Append(text[lastTagPosition..text.Length]);
                     tagsText.Peek().Append(peek.Convert(t, singleTag));
                     lastCloseTagPos = text.Length;
@@ -72,8 +72,8 @@ namespace Markdown
 
             void OpenNewTag(TagInfo tag)
             {
-                lastTagPosition = Math.Max(lastCloseTagPos, peek.pos);
-                tagsText.Peek().Append(text[lastTagPosition..tag.pos]);
+                lastTagPosition = Math.Max(lastCloseTagPos, peek.Pos);
+                tagsText.Peek().Append(text[lastTagPosition..tag.Pos]);
                 tagsText.Push(new StringBuilder());
                 tags.Push(tag);
             }
@@ -82,17 +82,17 @@ namespace Markdown
             {
                 tags.Pop();
                 var t = tagsText.Pop();
-                lastTagPosition = Math.Max(lastCloseTagPos, peek.pos);
-                t.Append(text[lastTagPosition..(tag.pos + tag.tagConverter.LengthMd)]);
+                lastTagPosition = Math.Max(lastCloseTagPos, peek.Pos);
+                t.Append(text[lastTagPosition..(tag.Pos + tag.tagConverter.TagName.Length)]);
                 tagsText.Peek().Append(peek.Convert(t, tag));
-                lastCloseTagPos = tag.pos + tag.tagConverter.LengthMd;
+                lastCloseTagPos = tag.Pos + tag.tagConverter.TagName.Length;
             }
 
             void ProcessTagWhenDeepZero(TagInfo tag)
             {
                 tags.Push(tag);
                 var upperString = tagsText.Peek();
-                upperString.Append(text[lastCloseTagPos..tag.pos]);
+                upperString.Append(text[lastCloseTagPos..tag.Pos]);
                 tagsText.Push(new StringBuilder());
             }
         }
@@ -103,7 +103,7 @@ namespace Markdown
             var tagStack = new List<TagInfo>();
             int ofset;
             string md;
-            TagConverterBase tag;
+            ITagConverter tag;
             var pos = 0;
             for (var i = 0; i < text.Length; i += ofset)
             {

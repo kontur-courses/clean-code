@@ -32,22 +32,22 @@ namespace Markdown
                     correctOpenTag.Push(tag);
                     continue;
                 }
-                if (peekTag.tagConverter.StringMd == tag.tagConverter.StringMd)
+                if (peekTag.tagConverter.TagName == tag.tagConverter.TagName)
                 {
                     result.Pop();
-                    if (NotCorrectInsidePosition.Contains(peekTag.pos))
-                        NotCorrectInsidePosition.Add(tag.pos);
+                    if (NotCorrectInsidePosition.Contains(peekTag.Pos))
+                        NotCorrectInsidePosition.Add(tag.Pos);
                     else
                         correctOpenTag.Pop();
                     continue;
                 }
-                if (peekOpenTag != null && !peekOpenTag.tagConverter.CanProcessTag(tag.tagConverter.StringMd))
-                    NotCorrectInsidePosition.Add(tag.pos);
+                if (peekOpenTag != null && !peekOpenTag.tagConverter.CanProcessTag(tag.tagConverter.TagName))
+                    NotCorrectInsidePosition.Add(tag.Pos);
                 else
                     correctOpenTag.Push(tag);
                 result.Push(tag);
             }
-            return pairTags.Where(t => t.tagConverter.IsSingleTag || !NotCorrectInsidePosition.Contains(t.pos));
+            return pairTags.Where(t => t.tagConverter.IsSingleTag || !NotCorrectInsidePosition.Contains(t.Pos));
         }
 
         private static IEnumerable<TagInfo> GetTagsWithoutEmptyInside(this IEnumerable<TagInfo> pairTags)
@@ -63,19 +63,19 @@ namespace Markdown
                     result.Push(tag);
                     continue;
                 }
-                if (tag.tagConverter.StringMd == peek.tagConverter.StringMd)
+                if (tag.tagConverter.TagName == peek.tagConverter.TagName)
                 {
                     result.Pop();
-                    if (tag.pos == peek.pos + peek.tagConverter.LengthMd)
+                    if (tag.Pos == peek.Pos + peek.tagConverter.TagName.Length)
                     {
-                        positionsEmptyTag.Add(tag.pos);
-                        positionsEmptyTag.Add(peek.pos);
+                        positionsEmptyTag.Add(tag.Pos);
+                        positionsEmptyTag.Add(peek.Pos);
                     }
                 }
                 else
                     result.Push(tag);
             }
-            return pairTags.Where(t => t.tagConverter.IsSingleTag || !positionsEmptyTag.Contains(t.pos));
+            return pairTags.Where(t => t.tagConverter.IsSingleTag || !positionsEmptyTag.Contains(t.Pos));
         }
         private static IEnumerable<TagInfo> GetCorrectPairTags(this IEnumerable<TagInfo> pairTags)
         {
@@ -85,25 +85,25 @@ namespace Markdown
             var OpenTag = TagsAssociation.tags.ToDictionary(t => t, t => false);
             foreach (var tag in pairTags)
             {
-                if (OpenTag[tag.tagConverter.StringMd])
+                if (OpenTag[tag.tagConverter.TagName])
                 {
-                    OpenTag[tag.tagConverter.StringMd] = false;
-                    if (result.Peek().tagConverter.StringMd == tag.tagConverter.StringMd)
+                    OpenTag[tag.tagConverter.TagName] = false;
+                    if (result.Peek().tagConverter.TagName == tag.tagConverter.TagName)
                         result.Pop();
                     else
                         result.Push(tag);
                 }
                 else 
                 {
-                    OpenTag[tag.tagConverter.StringMd] = true;
+                    OpenTag[tag.tagConverter.TagName] = true;
                     result.Push(tag);
                 }
             }
             var TagsPositionNotCorrectTag = 
                 result
                 .Where(t => !t.tagConverter.IsSingleTag)
-                .Select(t => t.pos);
-            return pairTags.Where(t => !TagsPositionNotCorrectTag.Contains(t.pos));
+                .Select(t => t.Pos);
+            return pairTags.Where(t => !TagsPositionNotCorrectTag.Contains(t.Pos));
         }
 
         private static IEnumerable<TagInfo> GetPairTags(this IEnumerable<TagInfo> tags)
@@ -120,25 +120,25 @@ namespace Markdown
             foreach (var tag in tagPair)
             {
                 if (tag.tagConverter.IsSingleTag || 
-                    !tagOpen[tag.tagConverter.StringMd] || 
-                    tag.pos != tagPos[tag.tagConverter.StringMd])
+                    !tagOpen[tag.tagConverter.TagName] || 
+                    tag.Pos != tagPos[tag.tagConverter.TagName])
                     result.Add(tag);
             }
             return result;
 
             void PushTagCorrect(TagInfo tag)
             {
-                if (tagOpen[tag.tagConverter.StringMd] && tag.CanClose)
+                if (tagOpen[tag.tagConverter.TagName] && tag.CanClose)
                 {
                     tagPair.Add(tag);
-                    tagOpen[tag.tagConverter.StringMd] = false;
+                    tagOpen[tag.tagConverter.TagName] = false;
                     return;
                 }
-                if (!tagOpen[tag.tagConverter.StringMd] && tag.CanOpen)
+                if (!tagOpen[tag.tagConverter.TagName] && tag.CanOpen)
                 {
-                    tagPos[tag.tagConverter.StringMd] = tag.pos;
+                    tagPos[tag.tagConverter.TagName] = tag.Pos;
                     tagPair.Add(tag);
-                    tagOpen[tag.tagConverter.StringMd] = true;
+                    tagOpen[tag.tagConverter.TagName] = true;
                 }
             }
         }

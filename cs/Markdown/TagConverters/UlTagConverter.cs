@@ -3,38 +3,32 @@ using System.Text;
 
 namespace Markdown.TagConverters
 {
-    class UlITagConverter : TagConverterBase
+    class UlTagConverter : TagConverterBase
     {
-        protected internal override bool IsSingleTag => false;
-
         protected override HashSet<string> TagInside => new HashSet<string>();
 
-        protected override string Html => TagHtml.ul;
+        public override string TagHtml => Markdown.TagHtml.ul;
 
-        protected override string Md => MarkdownElement.list;
+        public override string TagName => MarkdownElement.list;
 
-        protected override bool CanClose(StringBuilder text, int pos) => CanCloseBase(text, pos);
+        public override bool IsTag(string text, int pos) => true;
 
-        protected override bool CanOpen(StringBuilder text, int pos) => CanOpenBase(text, pos);
-
-        protected internal override bool IsTag(string text, int pos) => true;
-
-        public StringBuilder Convert(StringBuilder text)
+        public override StringBuilder Convert(StringBuilder tagsText, StringBuilder text, int start, int finish)
         {
             var result = new StringBuilder();
-            result.Append(StringMd);
-            foreach(var tagText in Split(text, ';'))
+            result.Append(TagName);
+            foreach(var t in Split(tagsText, ';'))
             {
-                result.Append(new LiITagConverter().FormTags(Markdown.Md.Render(tagText)));
+                result.Append(new LiTagConverter().FormTags(Markdown.Md.Render(t)));
             }
-            result.Append(StringMd);
+            result.Append(TagName);
             return FormTags(result);
         }
 
         private IEnumerable<StringBuilder> Split(StringBuilder text, char simbol)
         {
             var curentText = new StringBuilder();
-            for(var i = LengthMd; i < text.Length - LengthMd; i++)
+            for(var i = TagName.Length; i < text.Length - TagName.Length; i++)
             {
                 if(text[i] == Markdown.Md.shieldSimbol && i < text.Length - 1 && text[i + 1] == simbol) 
                 {

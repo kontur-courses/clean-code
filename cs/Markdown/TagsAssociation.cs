@@ -7,19 +7,19 @@ namespace Markdown
 {
     internal static class TagsAssociation
     {
-        private static readonly Dictionary<string, TagConverterBase> tagConverters = 
-            new Dictionary<string, TagConverterBase>()
+        private static readonly Dictionary<string, ITagConverter> tagConverters = 
+            new Dictionary<string, ITagConverter>()
             {
-                [new EmITagConverter().StringMd] = new EmITagConverter(),
-                [new StrongITagConverter().StringMd] = new StrongITagConverter(),
-                [new H1ITagConverter().StringMd] = new H1ITagConverter(),
-                [new UlITagConverter().StringMd] = new UlITagConverter()
+                [new EmTagConverter().TagName] = new EmTagConverter(),
+                [new StrongTagConverter().TagName] = new StrongTagConverter(),
+                [new H1TagConverter().TagName] = new H1TagConverter(),
+                [new UlTagConverter().TagName] = new UlTagConverter()
             };
 
         internal static readonly HashSet<string> tags = tagConverters.Keys.ToHashSet();
 
-        private static readonly int maxLengthTag = tags.Select(t => t.Length).Max();
-        internal static TagConverterBase GetTagConverter(string tagMd)
+        private static readonly int maxLengthTag = tags.Any() ? tags.Select(t => t.Length).Max() : 0;
+        internal static ITagConverter GetTagConverter(string tagMd)
         {
             if(!tagConverters.ContainsKey(tagMd))
                 return null;

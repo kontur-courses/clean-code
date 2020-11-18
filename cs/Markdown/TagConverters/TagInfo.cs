@@ -4,19 +4,19 @@ namespace Markdown.TagConverters
 {
     internal class TagInfo
     {
-        internal readonly TagConverterBase tagConverter;
-        internal bool CanOpen => tagConverter.CanOpenBase(text, pos);
-        internal bool CanClose => tagConverter.CanCloseBase(text, pos);
+        internal readonly ITagConverter tagConverter;
+        internal bool CanOpen => tagConverter.CanOpen(text, Pos);
+        internal bool CanClose => tagConverter.CanClose(text, Pos);
         private readonly StringBuilder text;
-        internal int pos { get; }
+        internal int Pos { get; }
         internal StringBuilder Convert(StringBuilder tagText, TagInfo pairTag) =>
-            tagConverter.Convert(tagText, text, pos, pairTag.pos);
+            tagConverter.Convert(tagText, text, Pos, pairTag.Pos);
 
-        internal TagInfo(TagConverterBase tagConverter, StringBuilder text, int pos)
+        internal TagInfo(ITagConverter tagConverter, StringBuilder text, int pos)
         {
             this.tagConverter = tagConverter;
             this.text = text;
-            this.pos = pos;
+            Pos = pos;
         }
     }
 }
