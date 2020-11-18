@@ -182,13 +182,15 @@ namespace Markdown
                      && reader.TryRead(endWith)
 
                      && (!endWithNewWord || reader.IsWordEnd())
-                     && (!endWithNewLine || reader.IsLineEnd())
+                     && (!endWithNewLine || reader.IsLineEnd());
 
-                     || state.Undo();
-
-            if (!ok) return null;
-            
             token.Length += endWith.Length;
+            if (!ok || token.Length == startWith.Length + endWith.Length)
+            {
+                state.Undo();
+                return null;
+            }
+
             return token;
         }
 
