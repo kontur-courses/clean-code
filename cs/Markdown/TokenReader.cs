@@ -18,17 +18,31 @@ namespace Markdown
 
         private Token nextToken;
 
-        public bool TryReadToken(out Token result, Token parent = null, bool notRawText = false)
+        public bool TryReadToken(out Token result, Token parent = null, bool notRawText = false, Func<bool> stopWhen = null)
         {
             result = nextToken;
             nextToken = null;
+            if (result != null)
+            {
+                CurrentPosition += result.Length;
+                return true;
+            }
+            
             foreach (var readTokenFunc in Tokens.Values)
             {
-                result ??= readTokenFunc(this, parent);
+                result = readTokenFunc(this, parent);
                 if (result != null) return true;
             }
 
-            return notRawText || TryReadRawTextUntil(out result, () => TryReadToken(out nextToken, parent, true));
+            if (notRawText || CurrentPosition == Text.Length) return false;
+            return TryReadRawTextUntil(out result, () =>
+            {
+                if (stopWhen != null && stopWhen()) return true;
+                var state = GetCurrentState();
+                var ok = TryReadToken(out nextToken, parent, true);
+                state.Undo();
+                return ok;
+            });
         }
 
         public void AddToken<TToken>(Func<TokenReader, Token, TToken> readTokenFunc) where TToken : Token
@@ -49,10 +63,18 @@ namespace Markdown
 
         public bool TryReadRawTextUntil(out Token result, Func<bool> stopWhen, Func<bool> failWhen)
         {
-            var position = CurrentPosition;
-            var length = CountCharsUntil(stopWhen, failWhen);
-            result = new MdRawTextToken(position, length >= 0 ? length : 0);
-            return length >= 0;
+            var state = GetCurrentState();
+            var initialPosition = CurrentPosition;
+            for (; CurrentPosition < Text.Length && !stopWhen(); CurrentPosition++)
+            {
+                if (!failWhen()) continue;
+                state.Undo();
+                result = null;
+                return false;
+            }
+            
+            result = new MdRawTextToken(initialPosition, CurrentPosition - initialPosition);
+            return true;
         }
 
         public IEnumerable<Token> ReadAll()
@@ -69,7 +91,7 @@ namespace Markdown
             var initialCount = output.GetSubtokenCount();
             while (!stopWhen())
             {
-                if (failWhen() || !TryReadToken(out var subtoken))
+                if (failWhen() || !TryReadToken(out var subtoken, stopWhen: stopWhen))
                 {
                     output.SetSubtokenCount(initialCount);
                     return false;
@@ -103,20 +125,21 @@ namespace Markdown
             return position - initialPosition;
         }
 
-        public bool TryRead(string text)
+        public bool TryRead(string text, bool endWithNewLine = false)
         {
             if (GetNextChars(text.Length) != text) return false;
+            if (endWithNewLine && !IsLineEnd()) return false;
             CurrentPosition += text.Length;
             return true;
         }
 
         public bool IsWordBegin() => IsLineBegin() || Text[CurrentPosition - 1] == ' ';
 
-        public bool IsWordEnd() => IsLineEnd() || Text[CurrentPosition + 1] == ' ';
+        public bool IsWordEnd() => IsLineEnd() || Text[CurrentPosition] == ' ';
 
         public bool IsLineBegin() => CurrentPosition == 0 || Text[CurrentPosition - 1] == '\n';
 
-        public bool IsLineEnd() => CurrentPosition == Text.Length - 1 || Text[CurrentPosition + 1] == '\n';
+        public bool IsLineEnd() => CurrentPosition == Text.Length || Text[CurrentPosition] == '\n';
 
         public string GetNextChars(int count)
         {
@@ -153,7 +176,7 @@ namespace Markdown
 
                      && reader.TryRead(startWith)
                      && reader.TryReadSubtokensUntil(token,
-                         () => reader.TryRead(endWith))
+                         () => reader.TryRead(endWith, endWithNewLine))
 
                      && (!endWithNewWord || reader.IsWordEnd())
                      && (!endWithNewLine || reader.IsLineEnd())
