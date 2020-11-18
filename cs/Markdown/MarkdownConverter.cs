@@ -8,10 +8,12 @@ namespace Markdown
     {
         private readonly Dictionary<Tag, Tag> markdownToHtmlDictionary;
         private readonly Tag markdownBold, markdownItalic, markdownHeader;
+        private readonly ITagValidator validator;
+
         public MarkdownConverter()
         {
-            markdownBold = new Tag("__", "__");
             markdownItalic = new Tag("_", "_");
+            markdownBold = new Tag("__", "__", new HashSet<Tag> { markdownItalic });
             markdownHeader = new Tag("# ", "\r\n");
             markdownToHtmlDictionary = new Dictionary<Tag, Tag>
             {
@@ -19,6 +21,7 @@ namespace Markdown
                 {markdownItalic, new Tag("<em>", "</em>")},
                 {markdownHeader, new Tag("<h1>", "</h1>\r\n")}
             };
+            validator = new MarkdownValidator(markdownHeader, markdownBold, markdownItalic);
         }
 
         public string ConvertToHtml(string markdown)
@@ -43,25 +46,12 @@ namespace Markdown
                     hasDigit = false;
                     hasSpace = false;
                 }
-                else if (markdown[index] == '\\'
-                         && (TryGetTag(markdown, index + 1, activeTags, out tagSubstring) ||
-                             index + 1 < markdown.Length && markdown[index + 1] == '\\'))
-                {
-                    var replacement = markdown[index + 1] == '\\' ? "\\" : tagSubstring.Value;
-                    replacements.Add(
-                        new Replacement(
-                            replacement,
-                            new Substring(index, '\\' + replacement)));
-                    index += replacement.Length + 1;
-                }
-                else if (markdown[index] == '\n' && activeTags.ContainsKey(markdownItalic) &&
-                         activeTags.ContainsKey(markdownBold))
-                {
-                    activeTags.Remove(markdownItalic);
-                    activeTags.Remove(markdownBold);
-                }
+                else if (HasShieldingAtIndex(markdown, index, activeTags, ref tagSubstring))
+                    AddShieldedReplacement(markdown, ref index, tagSubstring, replacements);
                 else
                 {
+                    if (markdown[index] == '\n')
+                        validator.HandleNewLine(activeTags);
                     if (markdown[index] == ' ')
                         hasSpace = true;
                     else if (char.IsDigit(markdown[index]))
@@ -72,20 +62,35 @@ namespace Markdown
             return replacements;
         }
 
+        private bool HasShieldingAtIndex(string markdown, int index, Dictionary<Tag, TagSubstring> activeTags, ref TagSubstring tagSubstring)
+        {
+            return markdown[index] == '\\'
+                   && (TryGetTag(markdown, index + 1, activeTags, out tagSubstring) ||
+                       index + 1 < markdown.Length && markdown[index + 1] == '\\');
+        }
+
+        private static void AddShieldedReplacement(string markdown, ref int index, TagSubstring tagSubstring, List<Replacement> replacements)
+        {
+            var replacement = markdown[index + 1] == '\\' ? "\\" : tagSubstring.Value;
+            replacements.Add(
+                new Replacement(
+                    replacement,
+                    new Substring(index, '\\' + replacement)));
+            index += replacement.Length + 1;
+        }
+
         private void HandleNewTag(string markdown, TagSubstring tagSubstring, Dictionary<Tag, TagSubstring> activeTags, bool hasDigit,
             bool hasSpace, List<Replacement> replacements)
         {
             if (tagSubstring.Role == TagRole.Opening)
             {
-                if (tagSubstring.Tag == markdownHeader && (tagSubstring.Index == 0 || markdown[tagSubstring.Index - 1] == '\n')
-                    || tagSubstring.EndIndex + 1 == markdown.Length
-                    || markdown[tagSubstring.EndIndex + 1] != ' ')
+                if (validator.ValidateOpeningTag(markdown, tagSubstring))
                     activeTags.Add(tagSubstring.Tag, tagSubstring);
             }
-            else if (tagSubstring.Tag == markdownHeader
-                     || ValidateDefaultTag(markdown, activeTags[tagSubstring.Tag], tagSubstring, hasDigit, hasSpace))
+            else if (validator
+                         .ValidateEndingTag(markdown, activeTags[tagSubstring.Tag], tagSubstring, hasDigit, hasSpace))
             {
-                if (CheckIfBoldTagInsideItalic(tagSubstring, activeTags))
+                if (tagSubstring.Tag.CheckForContext(activeTags))
                 {
                     AddReplacement(replacements, activeTags[tagSubstring.Tag]);
                     AddReplacement(replacements, tagSubstring);
@@ -93,11 +98,6 @@ namespace Markdown
 
                 activeTags.Remove(tagSubstring.Tag);
             }
-        }
-
-        private bool CheckIfBoldTagInsideItalic(TagSubstring tagSubstring, Dictionary<Tag, TagSubstring> activeTags)
-        {
-            return tagSubstring.Tag != markdownBold || !activeTags.ContainsKey(markdownItalic);
         }
 
         private string ReplaceTags(string markdown, List<Replacement> replacements)
@@ -133,15 +133,6 @@ namespace Markdown
             replacements.Add(new Replacement(
                 markdownToHtmlDictionary[substring.Tag].GetTagValue(substring.Role),
                 substring));
-        }
-
-        private static bool ValidateDefaultTag(string markdown, TagSubstring firstTag, TagSubstring lastTag, bool hasDigit, bool hasSpace)
-        {
-            return markdown[lastTag.Index - 1] != ' '
-                   && markdown[firstTag.EndIndex + 1] != ' '
-                   && ((lastTag.EndIndex + 1 == markdown.Length || markdown[lastTag.EndIndex + 1] == ' ')
-                       && (firstTag.Index - 1 < 0 || markdown[firstTag.Index - 1] == ' ')
-                       || !hasDigit && !hasSpace);
         }
 
         private bool TryGetTag(string markdown, int index, Dictionary<Tag, TagSubstring> activeTags, out TagSubstring tagSubstring)
