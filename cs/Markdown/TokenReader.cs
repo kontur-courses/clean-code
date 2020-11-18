@@ -48,7 +48,12 @@ namespace Markdown
             => TryReadRawTextUntil(out result, stopWhen, () => false);
 
         public bool TryReadRawTextUntil(out Token result, Func<bool> stopWhen, Func<bool> failWhen)
-            => throw new NotImplementedException();
+        {
+            var position = CurrentPosition;
+            var length = CountCharsUntil(stopWhen, failWhen);
+            result = new MdRawTextToken(position, length >= 0 ? length : 0);
+            return length >= 0;
+        }
 
         public IEnumerable<Token> ReadAll()
         {
@@ -61,6 +66,28 @@ namespace Markdown
 
         public bool TryReadSubtokensUntil(TokenWithSubTokens output, Func<bool> stopWhen, Func<bool> failWhen)
             => throw new NotImplementedException();
+
+        public bool SkipUntil(Func<bool> stopWhen) => SkipUntil(stopWhen, () => false);
+
+        public bool SkipUntil(Func<bool> stopWhen, Func<bool> failWhen)
+        {
+            var count = CountCharsUntil(stopWhen, failWhen);
+            CurrentPosition += count >= 0 ? count : 0;
+            return count >= 0;
+        }
+        
+        public int CountCharsUntil(Func<bool> stopWhen) => CountCharsUntil(stopWhen, () => false);
+
+        public int CountCharsUntil(Func<bool> stopWhen, Func<bool> failWhen)
+        {
+            var position = CurrentPosition;
+            var initialPosition = position;
+            for (; position < Text.Length && !stopWhen(); position++)
+                if (failWhen())
+                    return -1;
+
+            return position - initialPosition;
+        }
 
         public bool TryRead(string text)
         {
