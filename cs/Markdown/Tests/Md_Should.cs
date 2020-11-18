@@ -23,5 +23,13 @@ namespace Markdown
             ExpectedResult = "Некоторый текст <strong>выделение</strong> ещё текст",
             TestName = "RenderBold_InMiddleOfLine")]
         public static string RenderBold(string markdown) => Md.Render(markdown);
+        
+        [TestCase("_Курсив_",
+            ExpectedResult = "<em>Курсив</em>",
+            TestName = "RenderItalic")]
+        [TestCase("Некоторый текст _курсив_ ещё текст",
+            ExpectedResult = "Некоторый текст <em>курсив</em> ещё текст",
+            TestName = "RenderItalic_InMiddleOfLine")]
+        public static string RenderItalic(string markdown) => Md.Render(markdown);
     }
 }
