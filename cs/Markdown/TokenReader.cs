@@ -11,7 +11,7 @@ namespace Markdown
 
         private readonly Dictionary<Type, Func<TokenReader, Token, Token>> Tokens =
             new Dictionary<Type, Func<TokenReader, Token, Token>>();
-        
+
         private HashSet<char> allowedEscapedChars = new HashSet<char> {'\\', '_'};
 
         public TokenReader(string text)
@@ -38,7 +38,7 @@ namespace Markdown
                 CurrentPosition += result.Length;
                 return true;
             }
-            
+
             foreach (var readTokenFunc in Tokens.Values)
             {
                 result = readTokenFunc(this, parent);
@@ -83,7 +83,7 @@ namespace Markdown
                 result = null;
                 return false;
             }
-            
+
             result = new MdRawTextToken(initialPosition, CurrentPosition - initialPosition);
             return true;
         }
@@ -97,7 +97,8 @@ namespace Markdown
         public bool TryReadSubtokensUntil(TokenWithSubTokens output, Func<bool> stopWhen)
             => TryReadSubtokensUntil(output, stopWhen, () => false);
 
-        public bool TryReadSubtokensUntil(TokenWithSubTokens output, string endWith, bool allowSpaces = true, bool endWithNewLine = false)
+        public bool TryReadSubtokensUntil(TokenWithSubTokens output, string endWith, bool allowSpaces = true,
+            bool endWithNewLine = false)
         {
             var wasSpaces = false;
             return TryReadSubtokensUntil(output,
@@ -188,7 +189,7 @@ namespace Markdown
             if (parent != null && parent.IsInsideAnyTokenOfType(typeof(TToken))) return null;
             var shouldStartWithNewLine = startWith.StartsWith("\n");
             var shouldEndWithNewLine = endWith.EndsWith("\n");
-            
+
             if (shouldStartWithNewLine) startWith = startWith.Substring(1);
             if (shouldEndWithNewLine) endWith = endWith.Substring(0, endWith.Length - 1);
 
@@ -205,7 +206,7 @@ namespace Markdown
 
             token.Length += endWith.Length;
             if (ok && token.Length != startWith.Length + endWith.Length) return token;
-            
+
             state.Undo();
             return null;
         }

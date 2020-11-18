@@ -18,7 +18,7 @@ namespace Markdown
             TestName = "RenderHeader_WithItalic")]
         public static void RenderHeader(string markdown, string expected)
             => Md.Render(markdown).Should().Be(expected);
-        
+
         [TestCase("____", "____",
             TestName = "NotRenderBold_WithoutWords")]
         [TestCase("__    __", "__    __",
@@ -45,7 +45,7 @@ namespace Markdown
             TestName = "NotRenderBold_InsideItalic")]
         public static void RenderBold(string markdown, string expected)
             => Md.Render(markdown).Should().Be(expected);
-        
+
         [TestCase("__", "__",
             TestName = "NotRenderItalic_WithoutWords")]
         [TestCase("__    __", "__    __",
@@ -81,7 +81,7 @@ namespace Markdown
             TestName = "NotRenderIntersections")]
         public static void NotRenderIntersections(string markdown, string expected)
             => Md.Render(markdown).Should().Be(expected);
-        
+
         [TestCase("_123_", TestName = "NotRenderItalic_InDigits")]
         [TestCase("_12_3", TestName = "NotRenderItalic_InBeginOfWord_InDigits")]
         [TestCase("1_23_", TestName = "NotRenderItalic_InEndOfWord_InDigits")]
@@ -89,7 +89,6 @@ namespace Markdown
         [TestCase("a_123_b", TestName = "NotRenderItalic_InMiddleOfWord_InWordsWithDigits")]
         [TestCase("__a a_123_b b__", "<strong>a a_123_b b</strong>",
             TestName = "RenderBold_AroundWordsWithDigits_WithItalic")]
-        
         [TestCase("__123__", TestName = "NotRenderBold_InDigits")]
         [TestCase("__12__3", TestName = "NotRenderBold_InBeginOfWord_InDigits")]
         [TestCase("1__23__", TestName = "NotRenderBold_InEndOfWord_InDigits")]
@@ -102,7 +101,7 @@ namespace Markdown
             expected ??= markdown;
             Md.Render(markdown).Should().Be(expected);
         }
-        
+
         [TestCase(@"\_abcd\_", "_abcd_", TestName = "Render_EscapedChars")]
         [TestCase(@"\_\_abcd\_\_", "__abcd__", TestName = "Render_EscapedChars")]
         [TestCase(@"\__abcd_\_", "_<em>abcd</em>_", TestName = "Render_EscapedChars")]
