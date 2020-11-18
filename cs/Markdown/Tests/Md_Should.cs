@@ -19,6 +19,15 @@ namespace Markdown
         [TestCase("____",
             ExpectedResult = "____",
             TestName = "NotRenderBold_WithoutWords")]
+        [TestCase("__    __",
+            ExpectedResult = "__    __",
+            TestName = "NotRenderBold_WithJustSpaces")]
+        [TestCase("__  выделение__",
+            ExpectedResult = "__  выделение__",
+            TestName = "NotRenderBold_WhenBeginWithSpaceChar")]
+        [TestCase("__выделение  __",
+            ExpectedResult = "__выделение  __",
+            TestName = "NotRenderBold_WhenEndWithSpaceChar")]
         [TestCase("__выделение__",
             ExpectedResult = "<strong>выделение</strong>",
             TestName = "RenderBold_WithOneWord")]
@@ -42,6 +51,15 @@ namespace Markdown
         [TestCase("__",
             ExpectedResult = "__",
             TestName = "NotRenderItalic_WithoutWords")]
+        [TestCase("__    __",
+            ExpectedResult = "__    __",
+            TestName = "NotRenderItalic_WithJustSpaces")]
+        [TestCase("__  курсив__",
+            ExpectedResult = "__  курсив__",
+            TestName = "NotRenderItalic_WhenBeginWithSpaceChar")]
+        [TestCase("__курсив  __",
+            ExpectedResult = "__курсив  __",
+            TestName = "NotRenderItalic_WhenEndWithSpaceChar")]
         [TestCase("_курсив_",
             ExpectedResult = "<em>курсив</em>",
             TestName = "RenderItalic_WithOneWord")]
