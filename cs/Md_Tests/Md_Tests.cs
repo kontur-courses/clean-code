@@ -155,10 +155,32 @@ namespace Md_Tests
         [TestCase("# _Hello_", "<h1><em>Hello</em></h1>\n")]
         [TestCase("# __Hello__", "<h1><strong>Hello</strong></h1>\n")]
         [TestCase("# __Hello _my_ world__", "<h1><strong>Hello <em>my</em> world</strong></h1>\n")]
+        [TestCase("# m__Hello__m", "<h1>m<strong>Hello</strong>m</h1>\n")]
         [TestCase("# Hello\n world", "<h1>Hello</h1>\n world")]
         [TestCase("_# Hello_", "_# Hello_")]
         [TestCase("__# Hello__", "__# Hello__")]
         public void Render_SupportsHeaderTag(string input, string expected)
+        {
+            var result = md.Render(input);
+
+            Assert.AreEqual(expected, result);
+        }
+
+        [TestCase("\\_Hello_", "_Hello_")]
+        [TestCase("Hel\\lo", "Hel\\lo")]
+        [TestCase("_Hel\\lo_", "<em>Hel\\lo</em>")]
+        public void Render_SupportsEscaping(string input, string expected)
+        {
+            var result = md.Render(input);
+
+            Assert.AreEqual(expected, result);
+        }
+
+        [TestCase("__Hello m_y world__", "<strong>Hello m_y world</strong>")]
+        [TestCase("__a_a_a_a__a_", "__a<em>a</em>a_a__a_")]
+        [TestCase("_a__a_a__a_", "<em>a__a</em>a__a_")]
+        [TestCase("__a_a__a_a__", "__a_a__a_a__")]
+        public void Render_ReturnsCorrectResult_OnComplexCases(string input, string expected)
         {
             var result = md.Render(input);
 
