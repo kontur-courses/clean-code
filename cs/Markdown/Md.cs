@@ -3,6 +3,6 @@
     public static class Md
     {
         public static string Render(string markdown) =>
-            new MdTokenHtmlRenderer(markdown).RenderAll(new MdTokenReader(markdown).ReadAll());
+            new MdHtmlTokenRenderer(markdown).RenderAll(new MdTokenReader(markdown).ReadAll());
     }
 }

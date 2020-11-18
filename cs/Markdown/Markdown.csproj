@@ -60,7 +60,7 @@
     <ItemGroup>
         <Compile Include="Md.cs" />
         <Compile Include="MdToken.cs" />
-        <Compile Include="MdTokenHtmlRenderer.cs" />
+        <Compile Include="MdHtmlTokenRenderer.cs" />
         <Compile Include="MdTokenReader.cs" />
         <Compile Include="MdTokenWithSubTokens.cs" />
         <Compile Include="TokenReader.cs" />
