@@ -1,6 +1,6 @@
 ﻿using System.Collections.Generic;
-using NUnit.Framework;
 using FluentAssertions;
+using NUnit.Framework;
 
 namespace Markdown.Tests
 {
@@ -13,12 +13,12 @@ namespace Markdown.Tests
         {
             var tokensText = new Dictionary<TokenType, string>
             {
-                {TokenType.Text,""}, 
+                {TokenType.Text, ""},
                 {TokenType.Emphasized, "em"},
-                {TokenType.Header, "h1"}, 
+                {TokenType.Header, "h1"},
                 {TokenType.Strong, "strong"}
             };
-            
+
             htmlConverter = new HTMLConverter(tokensText);
         }
 
@@ -53,7 +53,7 @@ namespace Markdown.Tests
                     new List<TextToken>
                     {
                         new TextToken(0, 4, TokenType.Text, "dddd")
-                    }),
+                    })
             };
             var expectedString = "aa<em>cccc</em>bb<em>dddd</em>";
 
@@ -74,8 +74,8 @@ namespace Markdown.Tests
                     {
                         new TextToken(0, 2, TokenType.Text, "ab")
                     }),
-                    new TextToken(6, 4, TokenType.Text, "bbbb"),
-                }),
+                    new TextToken(6, 4, TokenType.Text, "bbbb")
+                })
             };
             var expectedString = "<strong>cccc<em>ab</em>bbbb</strong>";
 
@@ -96,8 +96,8 @@ namespace Markdown.Tests
                     {
                         new TextToken(0, 2, TokenType.Text, "ab")
                     }),
-                    new TextToken(6, 4, TokenType.Text, "bbbb"),
-                }),
+                    new TextToken(6, 4, TokenType.Text, "bbbb")
+                })
             };
             var expectedString = "<h1>cccc<em>ab</em>bbbb</h1>";
 

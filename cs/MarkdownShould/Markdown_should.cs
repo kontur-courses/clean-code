@@ -1,5 +1,4 @@
-﻿using System.Collections.Generic;
-using FluentAssertions;
+﻿using FluentAssertions;
 using NUnit.Framework;
 
 namespace Markdown.Tests
@@ -7,7 +6,7 @@ namespace Markdown.Tests
     public class Markdown_should
     {
         private Markdown markdown;
-        
+
         [SetUp]
         public void SetUp()
         {
