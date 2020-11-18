@@ -80,15 +80,21 @@ namespace Markdown
         public static void NotRenderIntersections(string markdown, string expected)
             => Md.Render(markdown).Should().Be(expected);
         
-        [TestCase("_123_", TestName = "NotRenderItalic_InWordsWithDigits")]
-        [TestCase("_12_3", TestName = "NotRenderItalic_InWordsWithDigits")]
-        [TestCase("1_23_", TestName = "NotRenderItalic_InWordsWithDigits")]
-        [TestCase("1_23_4", TestName = "NotRenderItalic_InWordsWithDigits")]
+        [TestCase("_123_", TestName = "NotRenderItalic_InDigits")]
+        [TestCase("_12_3", TestName = "NotRenderItalic_InBeginOfWord_InDigits")]
+        [TestCase("1_23_", TestName = "NotRenderItalic_InEndOfWord_InDigits")]
+        [TestCase("1_23_4", TestName = "NotRenderItalic_InMiddleOfWord_InDigits")]
+        [TestCase("a_123_b", TestName = "NotRenderItalic_InMiddleOfWord_InWordsWithDigits")]
+        [TestCase("__a a_123_b b__", "<strong>a a_123_b b</strong>",
+            TestName = "RenderBold_AroundWordsWithDigits_WithItalic")]
         
-        [TestCase("__123__", TestName = "NotRenderBold_InWordsWithDigits")]
-        [TestCase("__12__3", TestName = "NotRenderBold_InWordsWithDigits")]
-        [TestCase("1__23__", TestName = "NotRenderBold_InWordsWithDigits")]
-        [TestCase("1__23__4", TestName = "NotRenderBold_InWordsWithDigits")]
+        [TestCase("__123__", TestName = "NotRenderBold_InDigits")]
+        [TestCase("__12__3", TestName = "NotRenderBold_InBeginOfWord_InDigits")]
+        [TestCase("1__23__", TestName = "NotRenderBold_InEndOfWord_InDigits")]
+        [TestCase("1__23__4", TestName = "NotRenderBold_InMiddleOfWord_InDigits")]
+        [TestCase("a__123__b", TestName = "NotRenderBold_InMiddleOfWord_InWordsWithDigits")]
+        [TestCase("_a a__123__b b_", "<em>a a__123__b b</em>",
+            TestName = "RenderItalic_AroundWordsWithDigits_WithBold")]
         public static void NotRender_WordsWithDigits(string markdown, string expected = null)
         {
             expected ??= markdown;
