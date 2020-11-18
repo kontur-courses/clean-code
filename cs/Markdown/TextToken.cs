@@ -4,12 +4,6 @@ namespace Markdown
 {
     public class TextToken
     {
-        public int StartPosition { get; }
-        public int Length { get; set; }
-        public TokenType Type { get; }
-        public string Text { get; set; }
-        public List<TextToken> SubTokens { get; set; }
-
         public TextToken(int startPosition, int length, TokenType type, string text)
         {
             StartPosition = startPosition;
@@ -26,6 +20,12 @@ namespace Markdown
             Text = text;
             SubTokens = subTokens;
         }
+
+        public int StartPosition { get; }
+        public int Length { get; set; }
+        public TokenType Type { get; }
+        public string Text { get; set; }
+        public List<TextToken> SubTokens { get; set; }
 
         public TextToken AddSameToken(TextToken tokenToAdd)
         {

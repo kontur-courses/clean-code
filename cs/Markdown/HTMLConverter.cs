@@ -1,28 +1,15 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
+﻿using System.Collections.Generic;
 using System.Text;
-using System.Threading.Tasks;
-using Markdown.TokenConverters;
 
 namespace Markdown
 {
-    public class HTMLConverter
+    public class HTMLConverter : IConverter
     {
-        private readonly Dictionary<TokenType, ITokenConverter> tokenConverters;
+        private readonly Dictionary<TokenType, string> tokenConverters;
 
-        public HTMLConverter(IReadOnlyCollection<ITokenConverter> tokenConverters)
+        public HTMLConverter(Dictionary<TokenType, string> tokensText)
         {
-            this.tokenConverters = new Dictionary<TokenType, ITokenConverter>();
-            foreach (var tokenConverter in tokenConverters)
-            {
-                this.tokenConverters[tokenConverter.TokenType] = tokenConverter;
-            }
-        }
-
-        public HTMLConverter(Dictionary<TokenType, ITokenConverter> tokenConverters)
-        {
-            this.tokenConverters = tokenConverters;
+            tokenConverters = tokensText;
         }
 
         public string GetHtml(IReadOnlyCollection<TextToken> textTokens)
@@ -30,12 +17,23 @@ namespace Markdown
             var html = new StringBuilder();
             foreach (var token in textTokens)
             {
-                var currentText = tokenConverters[token.Type].ToString(token, tokenConverters);
-                if (currentText == null) continue;
+                var currentText = ToString(token);
                 html.Append(currentText);
             }
 
             return html.ToString();
+        }
+
+        private string ToString(TextToken token)
+        {
+            if (token.Type == TokenType.Text)
+                return token.Text;
+            var htmlText = new StringBuilder();
+            htmlText.Append($"<{tokenConverters[token.Type]}>");
+            htmlText.Append(new HTMLConverter(tokenConverters).GetHtml(token.SubTokens));
+
+            htmlText.Append($"</{tokenConverters[token.Type]}>");
+            return htmlText.ToString();
         }
     }
 }

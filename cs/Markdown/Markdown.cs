@@ -1,22 +1,20 @@
-﻿using System;
-using System.Collections.Generic;
-using Markdown.TokenConverters;
+﻿using System.Collections.Generic;
 
 namespace Markdown
 {
     public class Markdown
     {
-        private IReadOnlyCollection<ITokenConverter> tokenConverters;
-        private IReadOnlyCollection<ITokenGetter> tokenGetters;
+        private readonly IReadOnlyCollection<ITokenGetter> tokenGetters;
+        private readonly Dictionary<TokenType, string> tokensText;
 
         public Markdown()
         {
-            tokenConverters = new List<ITokenConverter>
+            tokensText = new Dictionary<TokenType, string>
             {
-                new HeaderTokenConverter(),
-                new StrongTokenConverter(),
-                new EmphasizedTokenConverter(),
-                new TextTokenConverter()
+                {TokenType.Text, ""},
+                {TokenType.Emphasized, "em"},
+                {TokenType.Header, "h1"},
+                {TokenType.Strong, "strong"}
             };
             tokenGetters = new ITokenGetter[]
             {
@@ -26,11 +24,11 @@ namespace Markdown
                 new TextTokenGetter()
             };
         }
-        
+
         public string Render(string text)
         {
-            var tokens = new TextParser(tokenGetters).GetTextTokens(text);//TODO заменить классы на статические 
-            return new HTMLConverter(tokenConverters).GetHtml(tokens);
+            var tokens = new TextParser(tokenGetters).GetTextTokens(text);
+            return new HTMLConverter(tokensText).GetHtml(tokens);
         }
     }
 }

@@ -1,6 +1,4 @@
-﻿using System.Collections.Generic;
-using System.Linq;
-using System.Text;
+﻿using System.Linq;
 
 namespace Markdown
 {
@@ -8,22 +6,22 @@ namespace Markdown
     {
         public TextToken GetToken(string text, int index, int startPosition)
         {
-            var currentText = text.Substring(startPosition + 2, index - startPosition - 3);
-            var tokenToAdd = new TextToken(startPosition, currentText.Length + 4,
-                TokenType.Strong, currentText);
+            var tokenText = text.Substring(startPosition + 2, index - startPosition - 3);
+            var tokenToAdd = new TextToken(startPosition, tokenText.Length + 4,
+                TokenType.Strong, tokenText);
             return tokenToAdd;
         }
 
         public bool CanCreateToken(string text, int index, int startPosition)
         {
-            var currentText = text.Substring(startPosition, index - startPosition + 1);
-            if (currentText.Count(x => x == '_') == currentText.Length)
+            var tokenText = text.Substring(startPosition, index - startPosition + 1);
+            if (tokenText.Count(x => x == '_') == tokenText.Length)
                 return false;
-            if (currentText[0] != '_' || currentText[1] != '_' || currentText[currentText.Length - 2] != '_' ||
-                currentText[currentText.Length - 1] != '_') return false;
-            if (currentText.ToString().Any(char.IsDigit))
+            if (tokenText[0] != '_' || tokenText[1] != '_' || tokenText[tokenText.Length - 2] != '_' ||
+                tokenText[tokenText.Length - 1] != '_') return false;
+            if (tokenText.Any(char.IsDigit))
                 return false;
-            if (FindCrossingUnderlinings(currentText))
+            if (FindCrossingUnderlinings(tokenText))
                 return false;
             return true;
         }

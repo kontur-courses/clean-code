@@ -1,6 +1,4 @@
-﻿using System.Collections.Generic;
-using System.Text;
-using System.Linq;
+﻿using System.Linq;
 
 namespace Markdown
 {
@@ -10,7 +8,7 @@ namespace Markdown
         {
             var currentText = text.Substring(startPosition + 1, index - startPosition - 1);
             var tokenToAdd = new TextToken(startPosition, currentText.Length + 2,
-                TokenType.Emphasized, currentText.ToString());
+                TokenType.Emphasized, currentText);
             return tokenToAdd;
         }
 
@@ -28,17 +26,15 @@ namespace Markdown
         private static bool IsStrongInsideEm(string currentText)
         {
             for (var i = 0; i < currentText.Length; i++)
-            {
                 if (currentText[i] == '_' && i + 1 < currentText.Length && currentText[i + 1] == '_')
                     return true;
-            }
 
             return false;
         }
 
         private static bool IsTextContainsOnlyUnderlinings(string currentText)
         {
-            return currentText.ToString().All(x => x == '_');
+            return currentText.All(x => x == '_');
         }
 
         private static bool IsTextStartAndEndWithOneUnderlining(string currentText, string text, int index)
@@ -49,7 +45,7 @@ namespace Markdown
 
         private static bool IsTextContainsNumbers(string currentText)
         {
-            return currentText.ToString().Any(char.IsDigit);
+            return currentText.Any(char.IsDigit);
         }
 
         private static bool IsSpaceAfterStartOrSpaceBeforeEnd(string currentText)
@@ -61,7 +57,7 @@ namespace Markdown
             string text)
         {
             return index - currentText.Length >= 0 && text[index - currentText.Length] != ' ' &&
-                   currentText.ToString().Contains(' ');
+                   currentText.Contains(' ');
         }
     }
 }

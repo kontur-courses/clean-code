@@ -1,7 +1,6 @@
 ﻿using System.Collections.Generic;
 using NUnit.Framework;
 using FluentAssertions;
-using Markdown.TokenConverters;
 
 namespace Markdown.Tests
 {
@@ -12,15 +11,15 @@ namespace Markdown.Tests
         [SetUp]
         public void SetUp()
         {
-            var tokenConverters = new List<ITokenConverter>
+            var tokensText = new Dictionary<TokenType, string>
             {
-                new HeaderTokenConverter(),
-                new StrongTokenConverter(),
-                new EmphasizedTokenConverter(),
-                new TextTokenConverter()
+                {TokenType.Text,""}, 
+                {TokenType.Emphasized, "em"},
+                {TokenType.Header, "h1"}, 
+                {TokenType.Strong, "strong"}
             };
             
-            htmlConverter = new HTMLConverter(tokenConverters);
+            htmlConverter = new HTMLConverter(tokensText);
         }
 
         [Test]
