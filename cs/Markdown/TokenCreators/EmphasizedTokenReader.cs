@@ -24,8 +24,7 @@ namespace Markdown
                    && !IsSpaceAfterStartOrSpaceBeforeEnd(tokenText)
                    && !IsStrongInsideEm(tokenText)
                    && !(IsUnderliningStartFromPartOfWord(tokenText, index, text)
-                   &&  IsTextContainsSpace(tokenText));
-
+                        && IsTextContainsSpace(tokenText));
         }
 
         private static bool IsStrongInsideEm(string tokenText)
@@ -62,7 +61,6 @@ namespace Markdown
             string text)
         {
             return index - tokenText.Length >= 0 && text[index - tokenText.Length] != ' ';
-
         }
 
         private static bool IsTextContainsSpace(string tokenText)

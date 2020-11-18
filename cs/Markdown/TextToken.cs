@@ -18,22 +18,13 @@ namespace Markdown
             Type = type;
             Text = text;
             SubTokens = subTokens;
-            
         }
 
-        public int Length { get; set; }
+        public int Length { get; }
         public TokenType Type { get; }
-        public string Text { get; set; }
+        public string Text { get; }
         public List<TextToken> SubTokens { get; set; }
 
         public bool IsTerminal { get; }
-
-        public TextToken AddSameToken(TextToken tokenToAdd)
-        {
-            if (Type != tokenToAdd.Type) return null;
-            Length += tokenToAdd.Length;
-            Text += tokenToAdd.Text;
-            return this;
-        }
     }
 }

@@ -4,6 +4,6 @@ namespace Markdown
 {
     public interface IParser
     {
-        List<TextToken> GetTextTokens(string text);
+        public List<TextToken> GetTextTokens(string text);
     }
 }

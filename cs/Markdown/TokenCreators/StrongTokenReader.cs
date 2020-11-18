@@ -8,19 +8,19 @@ namespace Markdown
         {
             if (!CanCreateToken(text, index, startPosition))
                 return null;
-            
-            var tokenText = text[(startPosition + 2)..(index -1)];
-            
+
+            var tokenText = text[(startPosition + 2)..(index - 1)];
+
             return new TextToken(tokenText.Length + 4,
-                TokenType.Strong, tokenText,false);
+                TokenType.Strong, tokenText, false);
         }
 
         private static bool CanCreateToken(string text, int index, int startPosition)
         {
             var tokenText = text[startPosition..(index + 1)];
-            return tokenText.Any(x => x != '_') 
-                   && IsTextStartAndEndWithTwoUnderlinings(tokenText) 
-                   && !tokenText.Any(char.IsDigit) 
+            return tokenText.Any(x => x != '_')
+                   && IsTextStartAndEndWithTwoUnderlinings(tokenText)
+                   && !tokenText.Any(char.IsDigit)
                    && !FindCrossingUnderlinings(tokenText);
         }
 
@@ -30,7 +30,7 @@ namespace Markdown
                 tokenText[tokenText.Length - 1] != '_') return false;
             return true;
         }
-        
+
         private static bool FindCrossingUnderlinings(string currentText)
         {
             var foundDoubleUnderlining = false;

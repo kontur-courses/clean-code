@@ -21,22 +21,20 @@ namespace Markdown
 
             if (text.Length == 0)
                 return tokens;
-            
+
             for (var start = 0; start < text.Length - 1; start++)
+            for (var end = start; end < text.Length; end++)
             {
-                for (var end = start; end < text.Length; end++)
-                {
-                    var currentToken = TryGetToken(text, end, start);
+                var currentToken = TryGetToken(text, end, start);
 
-                    if (currentToken == null) continue;
+                if (currentToken == null) continue;
 
-                    if (!currentToken.IsTerminal)
-                        currentToken.SubTokens = GetTextTokens(currentToken.Text);
+                if (!currentToken.IsTerminal)
+                    currentToken.SubTokens = GetTextTokens(currentToken.Text);
 
-                    tokens.Add(currentToken);
-                    start += currentToken.Length - 1;
-                    break;
-                }
+                tokens.Add(currentToken);
+                start += currentToken.Length - 1;
+                break;
             }
 
             return tokens;
@@ -48,11 +46,6 @@ namespace Markdown
                 .Select(tokenGetter => tokenGetter
                     .GetToken(text, index, startPosition))
                 .FirstOrDefault(token => token != null);
-        }
-
-        private TextToken UpdateLastTextToken(TextToken tokenToAdd, List<TextToken> tokens)
-        {
-            return tokens.LastOrDefault() != null ? tokens.Last().AddSameToken(tokenToAdd) : null;
         }
     }
 }
