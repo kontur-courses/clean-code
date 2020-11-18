@@ -146,16 +146,18 @@ namespace Markdown
 
         private bool TryGetTag(string markdown, int index, Dictionary<Tag, TagSubstring> activeTags, out TagSubstring tagSubstring)
         {
-            tagSubstring = markdownToHtmlDictionary
-                .Select(tag => tag.Key)
-                .Where(tag => TextContainsSubstring(markdown, index, tag.Opening)
-                              || TextContainsSubstring(markdown, index, tag.Ending)
-                                && activeTags.ContainsKey(tag))
-                .Select(tag => TextContainsSubstring(markdown, index, tag.Opening) && !activeTags.ContainsKey(tag) ?
-                    new TagSubstring(index, tag.Opening, tag, TagRole.Opening) :
-                    new TagSubstring(index, tag.Ending, tag, TagRole.Ending))
-                .FirstOrDefault();
-            return tagSubstring != null;
+            tagSubstring = null;
+            bool ContainsSubstring(string substring) => TextContainsSubstring(markdown, index, substring);
+            var tag = markdownToHtmlDictionary.Keys
+                .FirstOrDefault(tag => ContainsSubstring(tag.Opening)
+                                       || ContainsSubstring(tag.Ending)
+                                       && activeTags.ContainsKey(tag));
+            if (tag == null)
+                return false;
+            tagSubstring = ContainsSubstring(tag.Opening) && !activeTags.ContainsKey(tag)
+                ? TagSubstring.FromOpening(index, tag)
+                : TagSubstring.FromEnding(index, tag);
+            return true;
         }
 
         private bool TextContainsSubstring(string text, int index, string substring)

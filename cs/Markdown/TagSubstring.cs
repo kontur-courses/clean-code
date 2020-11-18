@@ -16,7 +16,10 @@ namespace Markdown
             Role = role;
         }
 
-        public TagSubstring(Substring substring, TagRole role, Tag tag) : this(substring.Index, substring.Value, tag, role)
-        {}
+        public static TagSubstring FromOpening(int index, Tag tag) =>
+            new TagSubstring(index, tag.Opening, tag, TagRole.Opening);
+
+        public static TagSubstring FromEnding(int index, Tag tag) =>
+            new TagSubstring(index, tag.Ending, tag, TagRole.Ending);
     }
 }
