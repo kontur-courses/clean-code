@@ -18,7 +18,8 @@ namespace Markdown
 
         private Token nextToken;
 
-        public bool TryReadToken(out Token result, Token parent = null, bool notRawText = false, Func<bool> stopWhen = null)
+        public bool TryReadToken(out Token result, Token parent = null, bool notRawText = false,
+            Func<bool> stopWhen = null, Func<bool> failWhen = null)
         {
             result = nextToken;
             nextToken = null;
@@ -42,7 +43,7 @@ namespace Markdown
                 var ok = TryReadToken(out nextToken, parent, true);
                 state.Undo();
                 return ok;
-            });
+            }, failWhen ?? (() => false));
         }
 
         public void AddToken<TToken>(Func<TokenReader, Token, TToken> readTokenFunc) where TToken : Token
@@ -91,7 +92,7 @@ namespace Markdown
             var initialCount = output.GetSubtokenCount();
             while (!stopWhen())
             {
-                if (failWhen() || !TryReadToken(out var subtoken, stopWhen: stopWhen))
+                if (failWhen() || !TryReadToken(out var subtoken, stopWhen: stopWhen, failWhen: failWhen))
                 {
                     output.SetSubtokenCount(initialCount);
                     return false;
@@ -149,53 +150,41 @@ namespace Markdown
             return Text.Substring(CurrentPosition, count);
         }
 
-        public void AddBasicToken<TToken>(string startWith, string endWith, bool withOrWithoutSpaces = true) where TToken : TokenWithSubTokens, new()
-        {
-            if (!withOrWithoutSpaces)
-                AddToken((reader, parent) => ReadBasicToken<TToken>(reader, parent, startWith, endWith));
-            else
-                AddToken((reader, parent)
-                    => ReadBasicToken<TToken>(reader, parent, " " + startWith, endWith + " ")
-                       ?? ReadBasicToken<TToken>(reader, parent, startWith, endWith, false));
-        }
+        public void AddBasicToken<TToken>(string startWith, string endWith) where TToken : TokenWithSubTokens, new()
+            => AddToken((reader, parent) => ReadBasicToken<TToken>(reader, parent, startWith, endWith));
 
         public static TToken ReadBasicToken<TToken>(
             TokenReader reader, Token parent,
-            string startWith, string endWith,
-            bool allowSpaces = true)
+            string startWith, string endWith)
             where TToken : TokenWithSubTokens, new()
         {
-            var startWithNewLine = startWith.StartsWith("\n");
-            var endWithNewLine = endWith.EndsWith("\n");
+            var shouldStartWithNewLine = startWith.StartsWith("\n");
+            var shouldEndWithNewLine = endWith.EndsWith("\n");
+
+            var startWithNewWord = reader.IsAfterSpace();
             
-            var startWithNewWord = startWith.StartsWith(" ");
-            var endWithNewWord = endWith.EndsWith(" ");
-            
-            if (startWithNewLine || startWithNewWord) startWith = startWith.Substring(1);
-            if (endWithNewLine || endWithNewWord) endWith = endWith.Substring(0, endWith.Length - 1);
-            
-            var token = new TToken();
-            token.StartPosition = reader.CurrentPosition;
-            token.Length += startWith.Length;
-            token.Parent = parent;
+            if (shouldStartWithNewLine) startWith = startWith.Substring(1);
+            if (shouldEndWithNewLine) endWith = endWith.Substring(0, endWith.Length - 1);
+
+            var token = new TToken {StartPosition = reader.CurrentPosition, Length = startWith.Length, Parent = parent};
 
             var state = reader.GetCurrentState();
+            var wasSpaces = false;
 
-            var ok = (!startWithNewLine || reader.IsLineBegin())
-                     && (!startWithNewWord || reader.IsAfterSpace())
+            var ok = (!shouldStartWithNewLine || reader.IsLineBegin())
 
                      && reader.TryRead(startWith)
                      && !reader.IsAtSpace()
                      
                      && reader.TryReadSubtokensUntil(token,
-                         () => reader.TryGet(endWith, endWithNewLine),
-                         () => !allowSpaces && reader.IsAtSpace())
+                         () => !reader.IsAfterSpace() && reader.TryGet(endWith, shouldEndWithNewLine),
+                         () => !startWithNewWord && (wasSpaces = reader.IsAtSpace()))
                      
                      && !reader.IsAfterSpace()
                      && reader.TryRead(endWith)
 
-                     && (!endWithNewWord || reader.IsAtSpace())
-                     && (!endWithNewLine || reader.IsLineEnd());
+                     && (!wasSpaces || reader.IsAtSpace())
+                     && (!shouldEndWithNewLine || reader.IsLineEnd());
 
             token.Length += endWith.Length;
             if (!ok || token.Length == startWith.Length + endWith.Length)
