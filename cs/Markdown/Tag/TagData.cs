@@ -10,16 +10,19 @@ namespace Markdown.Tag
         public TagBorder OutgoingBorder { get; }
         public EndOfLineAction AtLineEndAction { get; }
         public virtual bool IsBreaksWhenNestedNotComplete => false;
+        public virtual ITagData ParentTag { get; }
 
         private readonly HashSet<ITagData> notAllowedNestedTags;
 
         public TagData(TagBorder incomingBorder, TagBorder outgoingBorder,
             EndOfLineAction endOfLineAction,
+            ITagData requiredParentTag=null,
             params ITagData[] notAllowedNestedTags)
         {
             AtLineEndAction = endOfLineAction;
             IncomingBorder = incomingBorder;
             OutgoingBorder = outgoingBorder;
+            ParentTag = requiredParentTag;
             this.notAllowedNestedTags = notAllowedNestedTags.ToHashSet();
         }
 

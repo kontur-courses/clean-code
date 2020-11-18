@@ -3,9 +3,11 @@
     public class HeaderTagData : TagData
     {
         public HeaderTagData(TagBorder incomingBorder, TagBorder outgoingBorder,
+            ITagData parenTagData = null,
             params ITagData[] notAllowedNestedTags)
             : base(incomingBorder, outgoingBorder, 
-                EndOfLineAction.Complete, notAllowedNestedTags)
+                EndOfLineAction.Complete, parenTagData,
+                notAllowedNestedTags:notAllowedNestedTags)
         { }
 
         public override bool IsValidAtOpen(string data, int startPos)

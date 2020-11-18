@@ -12,7 +12,7 @@ namespace Markdown.Tag.SpecificTags
             Func<string, int, int, bool> additionalValidationCheck = null,
             params ITagData[] notAllowedNestedTags)
             : base(incomingBorder, outgoingBorder, EndOfLineAction.Cancel, 
-                notAllowedNestedTags)
+                notAllowedNestedTags:notAllowedNestedTags)
         {
             this.additionalValidationCheck = additionalValidationCheck;
         }

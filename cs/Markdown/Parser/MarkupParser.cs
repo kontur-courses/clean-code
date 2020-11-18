@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Linq.Expressions;
 using Markdown.Tag;
 
 namespace Markdown.Parser
@@ -35,7 +36,7 @@ namespace Markdown.Parser
             for (var i = 0; i < text.Length; i++)
             {
                 if (text[i] == '\n')
-                    AtLineEnd(i + 1);
+                    AtLineEnd(i);
 
                 if (text[i] == '\\')
                 {
@@ -67,49 +68,8 @@ namespace Markdown.Parser
             
             AtLineEnd(text.Length, true);
 
-            CancelNotAllowedNestedTokens();
+            FinalTagsAnalyse();
             return fullTextData;
-        }
-
-        private void CancelNotAllowedNestedTokens()
-        {
-            var previousTokens = new HashSet<TextToken>();
-            foreach (var baseToken in fullTextData.Tokens)
-            {
-                CancelNotAllowedNestedTokens(previousTokens, baseToken);
-            }
-        }
-
-        private void CancelNotAllowedNestedTokens(HashSet<TextToken> previousTokens, TextToken currentToken)
-        {
-            previousTokens.Add(currentToken);
-            var nestedTokensToMove = new List<TextToken>();
-            var nestedTokensToRemove = new HashSet<TextToken>();
-            foreach (var nestedToken in currentToken.SubTokens)
-            {
-                CancelNotAllowedNestedTokens(previousTokens, nestedToken);
-                if (!IsTokenCanNestedInTokens(previousTokens, nestedToken))
-                {
-                    nestedTokensToMove.AddRange(nestedToken.SubTokens);
-                    nestedTokensToRemove.Add(nestedToken);
-                }
-            }
-
-            currentToken.AddNestedTokens(nestedTokensToMove.ToArray());
-            currentToken.RemoveNestedTokens(nestedTokensToRemove.ToArray());
-            
-            previousTokens.Remove(currentToken);
-        }
-
-        private bool IsTokenCanNestedInTokens(HashSet<TextToken> tokens, TextToken tokenToNeste)
-        {
-            foreach (var token in tokens)
-            {
-                if (!token.Tag.CanNested(tokenToNeste.Tag))
-                    return false;
-            }
-
-            return true;
         }
 
         private void AtLineEnd(int position, bool isTextEnd=false)
@@ -119,7 +79,7 @@ namespace Markdown.Parser
                 var atLineEndTokenAction = currentTokens[i].Tag.AtLineEndAction;
                 if (!isTextEnd && 
                     (atLineEndTokenAction == EndOfLineAction.ContinueAndCompleteAtEOF
-                     ||atLineEndTokenAction == EndOfLineAction.ContinueAndCancelAtEOF))
+                     || atLineEndTokenAction == EndOfLineAction.ContinueAndCancelAtEOF))
                     break;
                 
                 switch (atLineEndTokenAction)
@@ -188,19 +148,17 @@ namespace Markdown.Parser
                 foreach (var closeBorder in closeBorders)
                 {
                     var currentTag = currentTokens[i].Tag;
-                    if (closeBorder == currentTag.IncomingBorder.Close)
+                    if (closeBorder == currentTag.IncomingBorder.Close
+                        && IsValidToClose(i, position))
                     {
-                        if (IsValidToClose(i, position))
+                        if (previousIsEscapeSymbol)
                         {
-                            if (previousIsEscapeSymbol)
-                            {
-                                previousIsEscapeSymbol = false;
-                                fullTextData.AddDataToRemove("\\", position - 1);
-                                return 0;
-                            }
-                            CloseToken(i, position);
-                            return closeBorder.Length;
+                            previousIsEscapeSymbol = false;
+                            fullTextData.AddDataToRemove("\\", position - 1);
+                            return 0;
                         }
+                        CloseToken(i, position);
+                        return closeBorder.Length;
                     }
                 }
             }
@@ -250,6 +208,101 @@ namespace Markdown.Parser
                     .AddNestedTokens(currentTokens[i].SubTokens.ToArray());
                 currentTokens.RemoveAt(i);
             }
+        }
+        
+        private void FinalTagsAnalyse()
+        {
+            CollectInParentTag();
+            CancelNotAllowedNestedTokens();
+        }
+
+        private void CollectInParentTag()
+        {
+            TextToken parentToken = null;
+            var tokensToAdd = new List<TextToken>();
+            var tokensToRemove = new List<TextToken>();
+            foreach (var token in fullTextData.Tokens)
+            {
+                if (token.Tag.ParentTag != null)
+                {
+                    if (parentToken != null 
+                        && (parentToken.Tag != token.Tag.ParentTag
+                        || parentToken.End + 1 < token.Start - token.Tag.IncomingBorder.Close.Length))
+                    {
+                        tokensToAdd.Add(parentToken);
+                        parentToken = null;
+                    }
+                    if (parentToken == null)
+                        parentToken = new TextToken(token.Tag.ParentTag, token.Start);
+                    parentToken.AddNestedTokens(token);
+                    parentToken.End = token.End;
+                    tokensToRemove.Add(token);
+                }
+                else
+                {
+                    if (parentToken != null)
+                    {
+                        tokensToAdd.Add(CopyToken(parentToken));
+                        parentToken = null;
+                    }
+                }
+            }
+            if (parentToken != null)
+                tokensToAdd.Add(parentToken);
+            foreach (var token in tokensToAdd)
+                fullTextData.Tokens.Add(token);
+
+            foreach (var token in tokensToRemove)
+                fullTextData.Tokens.Remove(token);
+        }
+
+        private void CancelNotAllowedNestedTokens()
+        {
+            var previousTokens = new HashSet<TextToken>();
+            foreach (var baseToken in fullTextData.Tokens)
+            {
+                CancelNotAllowedNestedTokens(previousTokens, baseToken);
+            }
+        }
+
+        private void CancelNotAllowedNestedTokens(HashSet<TextToken> previousTokens, TextToken currentToken)
+        {
+            previousTokens.Add(currentToken);
+            var nestedTokensToMove = new List<TextToken>();
+            var nestedTokensToRemove = new HashSet<TextToken>();
+            foreach (var nestedToken in currentToken.SubTokens)
+            {
+                CancelNotAllowedNestedTokens(previousTokens, nestedToken);
+                if (!IsTokenCanNestedInTokens(previousTokens, nestedToken))
+                {
+                    nestedTokensToMove.AddRange(nestedToken.SubTokens);
+                    nestedTokensToRemove.Add(nestedToken);
+                }
+            }
+
+            currentToken.AddNestedTokens(nestedTokensToMove.ToArray());
+            currentToken.RemoveNestedTokens(nestedTokensToRemove.ToArray());
+            
+            previousTokens.Remove(currentToken);
+        }
+        
+        private bool IsTokenCanNestedInTokens(HashSet<TextToken> tokens, TextToken tokenToNeste)
+        {
+            foreach (var token in tokens)
+            {
+                if (!token.Tag.CanNested(tokenToNeste.Tag))
+                    return false;
+            }
+
+            return true;
+        }
+        
+        private static TextToken CopyToken(TextToken token)
+        {
+            var result = new TextToken(token.Tag, token.Start);
+            result.End = token.End;
+            result.AddNestedTokens(token.SubTokens.ToArray());
+            return result;
         }
 
         private static List<string> GetMatchesFromTree(PrefixTree tree, string text, int pos)

@@ -45,18 +45,15 @@ namespace Markdown
                 {
                     if (data[endPos - 1] == '_')
                         return false;
-                    if (data.Length > endPos + 1 && data[endPos + 1] == '_')
+                    
+                    var underscoreCount = 0;
+                    while (data.Length > endPos + underscoreCount + 1)
                     {
-                        if (data.Length > endPos + 2 && data[endPos + 2] == '_')
-                        {
-                            if (data.Length > endPos + 3 && data[endPos + 3] == '_')
-                                return false;
-                            return true;
-                        }
-                            
-                        return false;
+                        if (data[endPos + underscoreCount + 1] != '_')
+                            break;
+                        underscoreCount += 1;
                     }
-                    return true;
+                    return underscoreCount == 0 || underscoreCount == 2;
                 };
             
             var italicTagData = new StyleTagData(
@@ -65,7 +62,6 @@ namespace Markdown
                 additionalValidationCheck:additionalCheckForItalic,
                 notAllowedNestedTags:strongTagData);
             
-
             var firstHeaderTagData = new HeaderTagData(
                 new TagBorder("# ", ""), 
                 new TagBorder(@"\<h1>","\\</h1>")
@@ -77,8 +73,19 @@ namespace Markdown
                 new TagBorder(@"\<h2>","\\</h2>")
             );
             
+            var bulletedListTagData = new TagData(
+                new TagBorder("", ""),
+                new TagBorder("\\<ul>\n","\n\\</ul>"), 
+                EndOfLineAction.ContinueAndCompleteAtEOF);
+            
+            var bulletedLineTagData = new HeaderTagData(
+                new TagBorder("+ ", ""), 
+                new TagBorder(@"\<li>",@"\</li>"),
+                parenTagData:bulletedListTagData
+            );
+            
             return new ITagData[]{italicTagData, strongTagData, 
-                firstHeaderTagData, secondHeaderTagData};
+                firstHeaderTagData, secondHeaderTagData, bulletedLineTagData};
         }
     }
 }

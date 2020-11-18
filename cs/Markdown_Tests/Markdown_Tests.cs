@@ -27,8 +27,27 @@ namespace Markdown_Tests
         [TestCase("_text_", @"\<em>text\</em>")]
         [TestCase("__text__", @"\<strong>text\</strong>")]
         [TestCase("# text", @"\<h1>text\</h1>")]
+        [TestCase("# text\n# text", "\\<h1>text\\</h1>\n\\<h1>text\\</h1>")]
         [TestCase("## text", @"\<h2>text\</h2>")]
         public void MdRender_ShouldRenderCorrectly_WhenTagContainsOnlySingleWord(string markdownText, string htmlText)
+        {
+            markdownToHtml.Render(markdownText).Should().Be(htmlText);
+        }
+        
+        [TestCase("+ text", "\\<ul>\n\\<li>text\\</li>\n\\</ul>")]
+        [TestCase("+ listElement1\n"
+                  + "+ listElement2\n"
+                  + "+ listElement3", 
+            "\\<ul>\n\\<li>listElement1\\</li>\n"
+            + "\\<li>listElement2\\</li>\n"
+            + "\\<li>listElement3\\</li>\n\\</ul>")]
+        [TestCase("+ listElement\n"
+                  + "notListElement\n"
+                  + "+ otherListElement", 
+            "\\<ul>\n\\<li>listElement\\</li>\n\\</ul>\n"
+            + "notListElement\n"
+            + "\\<ul>\n\\<li>otherListElement\\</li>\n\\</ul>")]
+        public void MdRender_ShouldRenderCorrectly_WhenBulletedListTag(string markdownText, string htmlText)
         {
             markdownToHtml.Render(markdownText).Should().Be(htmlText);
         }

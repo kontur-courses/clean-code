@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Linq.Expressions;
 
-namespace Markdown.Builder
+namespace Markdown
 {
     public class ReplacingData
     {
