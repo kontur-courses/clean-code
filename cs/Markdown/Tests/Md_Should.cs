@@ -16,17 +16,29 @@ namespace Markdown
             TestName = "RenderHeader_WhenBeginsWithNewLine")]
         public static string RenderHeader(string markdown) => Md.Render(markdown);
         
-        [TestCase("__Выделение__",
-            ExpectedResult = "<strong>Выделение</strong>",
-            TestName = "RenderBold")]
+        [TestCase("____",
+            ExpectedResult = "____",
+            TestName = "NotRenderBold_WithoutWords")]
+        [TestCase("__выделение__",
+            ExpectedResult = "<strong>выделение</strong>",
+            TestName = "RenderBold_WithOneWord")]
+        [TestCase("__выделение из нескольких слов__",
+            ExpectedResult = "<strong>выделение из нескольких слов</strong>",
+            TestName = "RenderBold_WithSeveralWords")]
         [TestCase("Некоторый текст __выделение__ ещё текст",
             ExpectedResult = "Некоторый текст <strong>выделение</strong> ещё текст",
             TestName = "RenderBold_InMiddleOfLine")]
         public static string RenderBold(string markdown) => Md.Render(markdown);
         
-        [TestCase("_Курсив_",
-            ExpectedResult = "<em>Курсив</em>",
-            TestName = "RenderItalic")]
+        [TestCase("__",
+            ExpectedResult = "__",
+            TestName = "NotRenderItalic_WithoutWords")]
+        [TestCase("_курсив_",
+            ExpectedResult = "<em>курсив</em>",
+            TestName = "RenderItalic_WithOneWord")]
+        [TestCase("_курсив из нескольких слов_",
+            ExpectedResult = "<em>курсив из нескольких слов</em>",
+            TestName = "RenderItalic_WithSeveralWords")]
         [TestCase("Некоторый текст _курсив_ ещё текст",
             ExpectedResult = "Некоторый текст <em>курсив</em> ещё текст",
             TestName = "RenderItalic_InMiddleOfLine")]
