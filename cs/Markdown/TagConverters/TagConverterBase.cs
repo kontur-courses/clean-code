@@ -11,8 +11,8 @@ namespace Markdown.TagConverters
         public abstract string TagHtml { get; }
         public abstract string TagName { get; }
 
-        public string OpenTag() => string.Format("<{0}>", TagHtml);
-        public string CloseTag() => string.Format(@"<\{0}>", TagHtml);
+        public string OpenTag() => $@"<{TagHtml}>";
+        public string CloseTag() => $@"<\{TagHtml}>";
 
         public virtual bool IsTag(string text, int pos) => !TextWithDigits(text, pos);
 

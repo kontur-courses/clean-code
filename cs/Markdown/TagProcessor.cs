@@ -7,26 +7,22 @@ namespace Markdown
 {
     internal static class TagProcessor
     {
-        internal static IEnumerable<TagInfo> GetCorrectTags(this IEnumerable<TagInfo> tags) =>
+        internal static List<TagInfo> GetCorrectTags(this List<TagInfo> tags) =>
             tags
             .GetPairTags()
             .GetCorrectPairTags()
             .GetCorrectInside()
             .GetTagsWithoutEmptyInside();
-        private static IEnumerable<TagInfo> GetCorrectInside(this IEnumerable<TagInfo> pairTags)
+        private static List<TagInfo> GetCorrectInside(this List<TagInfo> pairTags)
         {
             var result = new Stack<TagInfo>();
             if (!pairTags.Any())
-                return result;
+                return new List<TagInfo>();
             var NotCorrectInsidePosition = new HashSet<int>();
-            TagInfo peekTag;
-            TagInfo peekOpenTag;
             var correctOpenTag = new Stack<TagInfo>();
             foreach (var tag in pairTags)
             {
-                peekTag = result.Any() ? result.Peek() : null;
-                peekOpenTag = correctOpenTag.Any() ? correctOpenTag.Peek() : null;
-                if (peekTag == null)
+                if (!result.TryPeek(out var peekTag))
                 {
                     result.Push(tag);
                     correctOpenTag.Push(tag);
@@ -41,24 +37,25 @@ namespace Markdown
                         correctOpenTag.Pop();
                     continue;
                 }
-                if (peekOpenTag != null && !peekOpenTag.tagConverter.CanProcessTag(tag.tagConverter.TagName))
+                if (correctOpenTag.TryPeek(out var peekOpenTag) && 
+                    !peekOpenTag.tagConverter.CanProcessTag(tag.tagConverter.TagName))
                     NotCorrectInsidePosition.Add(tag.Pos);
                 else
                     correctOpenTag.Push(tag);
                 result.Push(tag);
             }
-            return pairTags.Where(t => t.tagConverter.IsSingleTag || !NotCorrectInsidePosition.Contains(t.Pos));
+            return pairTags
+                .Where(t => t.tagConverter.IsSingleTag || !NotCorrectInsidePosition.Contains(t.Pos))
+                .ToList();
         }
 
-        private static IEnumerable<TagInfo> GetTagsWithoutEmptyInside(this IEnumerable<TagInfo> pairTags)
+        private static List<TagInfo> GetTagsWithoutEmptyInside(this List<TagInfo> pairTags)
         {
             var result = new Stack<TagInfo>();
             var positionsEmptyTag = new HashSet<int>();
-            TagInfo peek;
             foreach(var tag in pairTags)
             {
-                peek = result.Any() ? result.Peek() : null;
-                if(peek == null)
+                if(!result.TryPeek(out var peek))
                 {
                     result.Push(tag);
                     continue;
@@ -75,13 +72,15 @@ namespace Markdown
                 else
                     result.Push(tag);
             }
-            return pairTags.Where(t => t.tagConverter.IsSingleTag || !positionsEmptyTag.Contains(t.Pos));
+            return pairTags
+                .Where(t => t.tagConverter.IsSingleTag || !positionsEmptyTag.Contains(t.Pos))
+                .ToList();
         }
-        private static IEnumerable<TagInfo> GetCorrectPairTags(this IEnumerable<TagInfo> pairTags)
+        private static List<TagInfo> GetCorrectPairTags(this List<TagInfo> pairTags)
         {
             var result = new Stack<TagInfo>();
             if (!pairTags.Any())
-                return result;
+                return new List<TagInfo>();
             var OpenTag = TagsAssociation.tags.ToDictionary(t => t, t => false);
             foreach (var tag in pairTags)
             {
@@ -103,10 +102,12 @@ namespace Markdown
                 result
                 .Where(t => !t.tagConverter.IsSingleTag)
                 .Select(t => t.Pos);
-            return pairTags.Where(t => !TagsPositionNotCorrectTag.Contains(t.Pos));
+            return pairTags
+                .Where(t => !TagsPositionNotCorrectTag.Contains(t.Pos))
+                .ToList();
         }
 
-        private static IEnumerable<TagInfo> GetPairTags(this IEnumerable<TagInfo> tags)
+        private static List<TagInfo> GetPairTags(this List<TagInfo> tags)
         {
             var stackTag = new Stack<TagInfo>();
             var tagPair = new List<TagInfo>();

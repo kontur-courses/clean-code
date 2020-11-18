@@ -1,5 +1,4 @@
-﻿
-namespace Markdown
+﻿namespace Markdown.Constants
 {
     internal class TagHtml
     {

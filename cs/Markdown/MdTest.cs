@@ -146,6 +146,8 @@ namespace Markdown
         [TestCase(@"# Text |_once_;__twise__|", ExpectedResult = @"<h1>Text |<em>once<\em>;<strong>twise<\strong>|<\h1>")]
         [TestCase(@"bla |mark1|mark2|mark3", ExpectedResult = @"bla <ul><li>mark1<\li><\ul>mark2|mark3")]
         [TestCase(@"bla \|mark1;|mark2\;mark3;mark4| bla", ExpectedResult = @"bla |mark1;<ul><li>mark2;mark3<\li><li>mark4<\li><\ul> bla")]
+        [TestCase(@"bla |ma_rk;ma_tk;ma__rk;ma__rk|", ExpectedResult = @"bla <ul><li>ma_rk<\li><li>ma_tk<\li><li>ma__rk<\li><li>ma__rk<\li><\ul>")]
+        [TestCase(@"_some | text_| ", ExpectedResult = @"_some | text_| ")]
         public string Test_TextWithUl(string text)
         {
             return Md.Render(text);

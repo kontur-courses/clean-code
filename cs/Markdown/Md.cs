@@ -1,4 +1,5 @@
 ﻿using Markdown.TagConverters;
+using Markdown.Constants;
 using System.Collections.Generic;
 using System.Text;
 using System.Linq;
@@ -8,18 +9,16 @@ namespace Markdown
 {
     public static class Md
     {
-        internal const char shieldSimbol = '\\';
-
         public static string Render(string text)
         {
-            var texts = text.Split('\n');
+            var texts = text.Split(TextConstants.paragraphSplit);
             var result = new StringBuilder();
             for (var i = 0; i < texts.Length; i++)
             {
                 var t = texts[i];
                 result.Append(RenderParagraph(t));
                 if (i != texts.Length - 1)
-                    result.Append('\n');
+                    result.Append(TextConstants.paragraphSplit);
             }
             return result.ToString();
         }
@@ -28,9 +27,9 @@ namespace Markdown
         private static string RenderParagraph(string paragraph)
         {
             var (tagInfos, result) = ProcessText(paragraph);
-            var currectTags = tagInfos.GetCorrectTags();
+            var correctTags = tagInfos.GetCorrectTags();
             var text = result.ToString();
-            if (!currectTags.Any())
+            if (!correctTags.Any())
                 return text;
             var tags = new Stack<TagInfo>();
             var tagsText = new Stack<StringBuilder>();
@@ -38,10 +37,9 @@ namespace Markdown
             var lastCloseTagPos = 0;
             int lastTagPosition;
             TagInfo peek;
-            foreach(var tag in currectTags)
+            foreach(var tag in correctTags)
             {
-                peek = tags.Any() ? tags.Peek() : null;
-                if(peek == null)
+                if(!tags.TryPeek(out peek))
                 {
                     ProcessTagWhenDeepZero(tag);
                     continue;
@@ -97,19 +95,19 @@ namespace Markdown
             }
         }
 
-        private static (IEnumerable<TagInfo> tagInfos, StringBuilder result) ProcessText(string text)
+        private static (List<TagInfo> tagInfos, StringBuilder result) ProcessText(string text)
         {
             var result = new StringBuilder();
             var tagStack = new List<TagInfo>();
-            int ofset;
+            int offset;
             string md;
             ITagConverter tag;
             var pos = 0;
-            for (var i = 0; i < text.Length; i += ofset)
+            for (var i = 0; i < text.Length; i += offset)
             {
                 if (Shield(text, i))
                 {
-                    ofset = 2;
+                    offset = 2;
                     result.Append(text[i + 1]);
                     pos++;
                     continue;
@@ -123,25 +121,20 @@ namespace Markdown
                         tagStack.Add(new TagInfo(tag, result, pos));
                     }
                     result.Append(md);
-                    ofset = md.Length;
+                    offset = md.Length;
                     pos += md.Length;
                     continue;
                 }
                 result.Append(text[i]);
-                ofset = 1;
+                offset = 1;
                 pos++;
             }
-            //я чиитал в C# есть такая вещь:
-            //return new() { stack = tagStack, t = result };
-            //анонимный класс, или как-то 
             return (tagStack, result);
         }
 
-        
-
         private static bool Shield(string text, int position) =>
             position < text.Length - 1 &&
-            text[position] == shieldSimbol && 
-            (TagsAssociation.GetTagConverter(text[position + 1].ToString()) != null || text[position + 1] == shieldSimbol);
+            text[position] == TextConstants.shield && 
+            (TagsAssociation.GetTagConverter(text[position + 1].ToString()) != null || text[position + 1] == TextConstants.shield);
     }
 }

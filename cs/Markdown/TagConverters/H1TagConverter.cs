@@ -1,13 +1,14 @@
 ﻿using System.Collections.Generic;
 using System.Text;
 using System.Linq;
+using Markdown.Constants;
 
 namespace Markdown.TagConverters
 {
     internal class H1TagConverter : TagConverterBase
     {
         public override bool IsSingleTag => true;
-        public override string TagHtml => Markdown.TagHtml.h1;
+        public override string TagHtml => Constants.TagHtml.h1;
 
         public override string TagName => MarkdownElement.sharp;
 

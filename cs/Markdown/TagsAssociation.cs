@@ -7,26 +7,25 @@ namespace Markdown
 {
     internal static class TagsAssociation
     {
-        private static readonly Dictionary<string, ITagConverter> tagConverters = 
-            new Dictionary<string, ITagConverter>()
-            {
-                [new EmTagConverter().TagName] = new EmTagConverter(),
-                [new StrongTagConverter().TagName] = new StrongTagConverter(),
-                [new H1TagConverter().TagName] = new H1TagConverter(),
-                [new UlTagConverter().TagName] = new UlTagConverter()
-            };
+        private static readonly ITagConverter[] tagConverters = new ITagConverter[]
+        {
+            new EmTagConverter(),
+            new StrongTagConverter(),
+            new H1TagConverter(),
+            new UlTagConverter()
+        };
 
-        internal static readonly HashSet<string> tags = tagConverters.Keys.ToHashSet();
+        internal static readonly HashSet<string> tags = 
+            tagConverters
+            .Select(t => t.TagName)
+            .ToHashSet();
 
         private static readonly int maxLengthTag = tags.Any() ? tags.Select(t => t.Length).Max() : 0;
-        internal static ITagConverter GetTagConverter(string tagMd)
-        {
-            if(!tagConverters.ContainsKey(tagMd))
-                return null;
-            return tagConverters[tagMd];
-        }
+        internal static ITagConverter GetTagConverter(string tagMd) => 
+            tagConverters
+            .FirstOrDefault(t => t.TagName == tagMd);
 
-        internal static string GetTagMd(string text, int position, IEnumerable<string> tags)
+        internal static string GetTagMd(string text, int position, HashSet<string> tags)
         {
             string currentKey = null; 
             for(var count = Math.Max(maxLengthTag, text.Length - position); currentKey == null && count > 0; count--)
@@ -34,7 +33,7 @@ namespace Markdown
             return currentKey;
         }
 
-        private static string GetTagMd(string text, int position, int countSymbols, IEnumerable<string> tags) 
+        private static string GetTagMd(string text, int position, int countSymbols, HashSet<string> tags) 
         {
             if (position > text.Length - countSymbols)
                 return null;
