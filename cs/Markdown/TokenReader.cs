@@ -144,6 +144,7 @@ namespace Markdown
             var token = new TToken();
             token.StartPosition = reader.CurrentPosition;
             token.Length += startWith.Length;
+            token.Parent = parent;
 
             var state = reader.GetCurrentState();
 
