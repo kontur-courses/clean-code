@@ -127,11 +127,13 @@ namespace Markdown
 
         public bool TryRead(string text, bool endWithNewLine = false)
         {
-            if (GetNextChars(text.Length) != text) return false;
-            if (endWithNewLine && !IsLineEnd()) return false;
+            if (!TryGet(text, endWithNewLine)) return false;
             CurrentPosition += text.Length;
             return true;
         }
+
+        public bool TryGet(string text, bool endWithNewLine = false)
+            => GetNextChars(text.Length) == text && (!endWithNewLine || IsLineEnd());
 
         public bool IsWordBegin() => IsLineBegin() || Text[CurrentPosition - 1] == ' ';
 
@@ -176,7 +178,8 @@ namespace Markdown
 
                      && reader.TryRead(startWith)
                      && reader.TryReadSubtokensUntil(token,
-                         () => reader.TryRead(endWith, endWithNewLine))
+                         () => reader.TryGet(endWith, endWithNewLine))
+                     && reader.TryRead(endWith)
 
                      && (!endWithNewWord || reader.IsWordEnd())
                      && (!endWithNewLine || reader.IsLineEnd())
