@@ -8,7 +8,7 @@ namespace Markdown
         public int Length;
         public MdToken Parent;
 
-        public MdToken(int startPosition, int length = 0, MdToken parent = null)
+        public MdToken(int startPosition = 0, int length = 0, MdToken parent = null)
         {
             StartPosition = startPosition;
             Length = length;
