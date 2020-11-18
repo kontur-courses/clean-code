@@ -79,5 +79,20 @@ namespace Markdown
             TestName = "NotRenderIntersections")]
         public static void NotRenderIntersections(string markdown, string expected)
             => Md.Render(markdown).Should().Be(expected);
+        
+        [TestCase("_123_", TestName = "NotRenderItalic_InWordsWithDigits")]
+        [TestCase("_12_3", TestName = "NotRenderItalic_InWordsWithDigits")]
+        [TestCase("1_23_", TestName = "NotRenderItalic_InWordsWithDigits")]
+        [TestCase("1_23_4", TestName = "NotRenderItalic_InWordsWithDigits")]
+        
+        [TestCase("__123__", TestName = "NotRenderBold_InWordsWithDigits")]
+        [TestCase("__12__3", TestName = "NotRenderBold_InWordsWithDigits")]
+        [TestCase("1__23__", TestName = "NotRenderBold_InWordsWithDigits")]
+        [TestCase("1__23__4", TestName = "NotRenderBold_InWordsWithDigits")]
+        public static void NotRender_WordsWithDigits(string markdown, string expected = null)
+        {
+            expected ??= markdown;
+            Md.Render(markdown).Should().Be(expected);
+        }
     }
 }
