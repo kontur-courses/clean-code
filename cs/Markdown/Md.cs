@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 
@@ -23,7 +24,7 @@ namespace Markdown
         private string RenderLine(string line, IEnumerable<TagToken> tokens)
         {
             var rendered = new StringBuilder(line);
-            var replacements = GetReplacementInfos(tokens);
+            var replacements = GetTagToHtmlReplacementInfos(tokens);
             var shift = 0;
 
             foreach (var replacement in replacements)
@@ -35,29 +36,31 @@ namespace Markdown
                     continue;
                 }
 
-                var htmlValue = TagAnalyzer.GetHtmlValue(replacement.Type);
-
                 if (replacement.Position + shift < rendered.Length)
                 {
-                    rendered.Remove(replacement.Position + shift, TagAnalyzer.GetSignLength(replacement.Type));
-                    rendered.Insert(replacement.Position + shift, $"<{(replacement.IsCloser ? "/" : "")}{htmlValue}>");
+                    rendered.Remove(replacement.Position + shift, replacement.TagSignLength);
+                    rendered.Insert(replacement.Position + shift, replacement.NewValue);
                 }
                 else
-                    rendered.Append($"<{(replacement.IsCloser ? "/" : "")}{htmlValue}>");
-                shift += htmlValue.Length - TagAnalyzer.GetSignLength(replacement.Type) + (replacement.IsCloser ? 3 : 2);
+                    rendered.Append(replacement.NewValue);
+
+                shift += replacement.NewValue.Length - replacement.TagSignLength;
             }
 
             return rendered.ToString();
         }
 
-        private IEnumerable<TagReplacementInfo> GetReplacementInfos(IEnumerable<TagToken> tokens)
+        private IEnumerable<TagToHtmlReplacementInfo> GetTagToHtmlReplacementInfos(IEnumerable<TagToken> tokens)
         {
-            var replacements = new List<TagReplacementInfo>();
+            var replacements = new List<TagToHtmlReplacementInfo>();
             foreach (var token in tokens)
             {
-                replacements.Add(new TagReplacementInfo(token.StartPosition, token.Type, false, token.IsPaired));
+                if (token.Type is TagType.NonTag)
+                    throw new Exception("NonTag cannot be replaced");
+
+                replacements.Add(new TagToHtmlReplacementInfo(token.StartPosition, token.Type, false));
                 if(token.Type != TagType.Shield)
-                    replacements.Add(new TagReplacementInfo(token.EndPosition, token.Type, true, token.IsPaired));
+                    replacements.Add(new TagToHtmlReplacementInfo(token.EndPosition, token.Type, true));
             }
 
             return replacements.OrderBy(x => x.Position);
@@ -74,9 +77,9 @@ namespace Markdown
                 if (type == TagType.NonTag)
                     continue;
 
-                switch (line[i])
+                switch (type)
                 {
-                    case '\\':
+                    case TagType.Shield:
                     {
                         var followingTag = GetTagType(line, i + 1);
                         if (followingTag is TagType.NonTag)
@@ -86,13 +89,13 @@ namespace Markdown
                         i += shift;
                         break;
                     }
-                    case '_':
+                    case TagType.Bold: case TagType.Italic:
                     {
                         if (TryGetTagTokenForPairedTag(line, i, type, openedTags, out var token))
                             tokens.Add(token);
                         break;
                     }
-                    case '#':
+                    case TagType.Header:
                     {
                         if(TryGetTagTokenForSingleTag(line, i, type, out var token))
                             tokens.Add(token);
@@ -117,14 +120,19 @@ namespace Markdown
                     return false;
 
                 var opener = openedTags.Pop();
-                token = new TagToken(opener.startPosition, tagIndex, type, true);
+                token = new TagToken(opener.startPosition, tagIndex, type);
                 return true;
             }
 
-            if (tagIndex + signLength < line.Length && !char.IsWhiteSpace(line[tagIndex + signLength]))
+            if (IsPossibleToOpenTag(tagIndex, signLength, line))
                 openedTags.Push((tagIndex, type));
 
             return false;
+        }
+
+        private bool IsPossibleToOpenTag(int tagIndex, int signLength, string line)
+        {
+            return tagIndex + signLength < line.Length && !char.IsWhiteSpace(line[tagIndex + signLength]);
         }
 
         private bool TryGetTagTokenForSingleTag(string line, int tagStartIndex, TagType type, out TagToken token)
@@ -141,7 +149,10 @@ namespace Markdown
         {
             switch (line[index])
             {
-                case '\\': return GetTagType(line, index + 1) != TagType.NonTag ? TagType.Shield : TagType.NonTag;
+                case '\\':
+                    return index + 1 < line.Length && GetTagType(line, index + 1) != TagType.NonTag
+                        ? TagType.Shield
+                        : TagType.NonTag;
                 case '#': return index + 1 < line.Length && line[index + 1] == ' ' ? TagType.Header : TagType.NonTag;
                 case '_': return index + 1 < line.Length && line[index + 1] == '_' ? TagType.Bold : TagType.Italic;
                 default: return TagType.NonTag;

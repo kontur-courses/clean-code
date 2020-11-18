@@ -1,5 +1,4 @@
-﻿using System;
-using System.Diagnostics;
+﻿using System.Diagnostics;
 using System.Text;
 using FluentAssertions;
 using NUnit.Framework;
@@ -37,11 +36,12 @@ namespace Markdown
                 .Should().Be("<h1>Header</h1>");
         }
 
-        [Test]
-        public void SupportShielding()
+        [TestCase("\\# Cat\\s \\\\__are__ \\_cute_", "# Cat\\s \\<strong>are</strong> _cute_")]
+        [TestCase(@"\\\\", @"\\\\")] //Так как последний экран ничего не экранирует, то он считается как обычный символ, аналогично остальные
+        public void SupportShielding(string input, string expected)
         {
-            md.Render("\\# Cat\\s \\\\__are__ \\_cute_")
-                .Should().Be("# Cat\\s \\<strong>are</strong> _cute_");
+            md.Render(input)
+                .Should().Be(expected);
         }
 
         [Test]
@@ -94,7 +94,7 @@ namespace Markdown
         }
 
         [Test]
-        public void BeLinearEfficient()
+        public void BeCloseToLinearEfficiency()
         {
             var sw = new Stopwatch();
             var mdString = "_Tag_ __Bold Tag__ /_not tag_ ";
@@ -116,7 +116,7 @@ namespace Markdown
                 sw.Stop();
                 var currentTime = sw.ElapsedTicks;
                 currentTime
-                    .Should().BeLessThan((long)(firstTime * (i + 1) * 2));
+                    .Should().BeLessThan(firstTime * (i + 1) * 2);
             }
         }
     }

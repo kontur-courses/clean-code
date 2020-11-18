@@ -1,5 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Collections.Immutable;
 using System.Linq;
 
@@ -51,13 +50,9 @@ namespace Markdown
             || token.EndPosition + token.TagSignLength < line.Length &&
             char.IsLetterOrDigit(line[token.EndPosition + token.TagSignLength]);
         
-        public static bool IsCorrectIntersection(TagToken firstTag, TagToken secondTag)
-        {
-            if (firstTag.IsIntersectedWith(secondTag) && firstTag.Type != secondTag.Type)
-                return false;
-
-            return true;
-        }
+        public static bool IsCorrectIntersection(TagToken firstTag, TagToken secondTag) =>
+            !firstTag.IsIntersectedWith(secondTag) || firstTag.Type == secondTag.Type;
+        
 
         public static bool IsCorrectNesting(TagToken external, TagToken nested) => 
             !(nested.Type is TagType.Bold && nested.IsInsideOf(external) && external.Type is TagType.Italic);
