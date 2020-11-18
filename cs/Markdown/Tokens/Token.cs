@@ -1,4 +1,6 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
+using System.Linq;
 
 namespace Markdown
 {
@@ -14,6 +16,13 @@ namespace Markdown
             Length = length;
             Parent = parent;
         }
+
+        public bool IsInsideAnyTokenOfType(params Type[] tokenType)
+            => tokenType.Any(
+                EnumerateParents()
+                    .Prepend(this)
+                    .Select(p => p.GetType())
+                    .Contains);
 
         public IEnumerable<Token> EnumerateParents()
         {

@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
 
 namespace Markdown
 {
@@ -92,7 +93,7 @@ namespace Markdown
             var initialCount = output.GetSubtokenCount();
             while (!stopWhen())
             {
-                if (failWhen() || !TryReadToken(out var subtoken, stopWhen: stopWhen, failWhen: failWhen))
+                if (failWhen() || !TryReadToken(out var subtoken, output, stopWhen: stopWhen, failWhen: failWhen))
                 {
                     output.SetSubtokenCount(initialCount);
                     return false;
@@ -136,13 +137,15 @@ namespace Markdown
         public bool TryGet(string text, bool endWithNewLine = false)
             => GetNextChars(text.Length) == text && (!endWithNewLine || IsLineEnd());
 
-        public bool IsAfterSpace() => IsLineBegin() || Text[CurrentPosition - 1] == ' ';
+        public bool IsAfterSpace(int offset = 0) => IsLineBegin(offset) || Text[CurrentPosition - 1 + offset] == ' ';
 
-        public bool IsAtSpace() => IsLineEnd() || Text[CurrentPosition] == ' ';
+        public bool IsAtSpace(int offset = 0) => IsLineEnd(offset) || Text[CurrentPosition + offset] == ' ';
 
-        public bool IsLineBegin() => CurrentPosition == 0 || Text[CurrentPosition - 1] == '\n';
+        public bool IsLineBegin(int offset = 0)
+            => CurrentPosition + offset <= 0 || Text[CurrentPosition - 1 + offset] == '\n';
 
-        public bool IsLineEnd() => CurrentPosition == Text.Length || Text[CurrentPosition] == '\n';
+        public bool IsLineEnd(int offset = 0)
+            => CurrentPosition + offset >= Text.Length || Text[CurrentPosition + offset] == '\n';
 
         public string GetNextChars(int count)
         {
@@ -150,14 +153,20 @@ namespace Markdown
             return Text.Substring(CurrentPosition, count);
         }
 
-        public void AddBasicToken<TToken>(string startWith, string endWith) where TToken : TokenWithSubTokens, new()
-            => AddToken((reader, parent) => ReadBasicToken<TToken>(reader, parent, startWith, endWith));
+        public void AddBasicToken<TToken>(string startWith, string endWith, params Type[] disallowedParrentTokens)
+            where TToken : TokenWithSubTokens, new()
+        {
+            AddToken((reader, parent) => (parent != null && parent.IsInsideAnyTokenOfType(disallowedParrentTokens))
+                ? null
+                : ReadBasicToken<TToken>(reader, parent, startWith, endWith));
+        }
 
         public static TToken ReadBasicToken<TToken>(
             TokenReader reader, Token parent,
             string startWith, string endWith)
             where TToken : TokenWithSubTokens, new()
         {
+            if (parent != null && parent.IsInsideAnyTokenOfType(typeof(TToken))) return null;
             var shouldStartWithNewLine = startWith.StartsWith("\n");
             var shouldEndWithNewLine = endWith.EndsWith("\n");
 
@@ -175,11 +184,13 @@ namespace Markdown
 
                      && reader.TryRead(startWith)
                      && !reader.IsAtSpace()
-                     
+
                      && reader.TryReadSubtokensUntil(token,
-                         () => !reader.IsAfterSpace() && reader.TryGet(endWith, shouldEndWithNewLine),
-                         () => !startWithNewWord && (wasSpaces = reader.IsAtSpace()))
-                     
+                         () => !reader.IsAfterSpace()
+                               && (!wasSpaces || reader.IsAtSpace(endWith.Length))
+                               && reader.TryGet(endWith, shouldEndWithNewLine),
+                         () => (wasSpaces |= reader.IsAtSpace()) && !startWithNewWord)
+
                      && !reader.IsAfterSpace()
                      && reader.TryRead(endWith)
 
