@@ -44,6 +44,9 @@ namespace MarkdownParser.Infrastructure.Tokenization.Workers
 
         public static bool HasFlags(this TokenPosition source, params TokenPosition[] flags) =>
             flags.All(f => source.HasFlag(f));
+        
+        public static bool HasAnyFlag(this TokenPosition source, params TokenPosition[] flags) =>
+            flags.Any(f => source.HasFlag(f));
 
         public static TokenPosition GetPosition(this TokenizationContext context, string tokenSymbol) =>
             GetPosition(context.Source, context.CurrentStartIndex, tokenSymbol.Length);

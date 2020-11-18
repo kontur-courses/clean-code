@@ -50,6 +50,12 @@ namespace MarkdownToHtmlConverterTests
             TestConverter(md, expectedHtml);
         }
 
+        [TestCaseSource(typeof(LinksTestCases), nameof(LinksTestCases.LinkTests))]
+        public void LinksTests(string md, string expectedHtml)
+        {
+            TestConverter(md, expectedHtml);
+        }
+
         private void TestConverter(string md, string expectedHtml)
         {
             TestContext.Progress.WriteLine(md);
