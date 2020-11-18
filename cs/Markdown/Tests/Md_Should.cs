@@ -1,97 +1,83 @@
-﻿using NUnit.Framework;
+﻿using FluentAssertions;
+using NUnit.Framework;
 
 namespace Markdown
 {
     [TestFixture]
     public static class Md_Should
     {
-        [TestCase("# Заголовок",
-            ExpectedResult = "<h1>Заголовок</h1>",
+        [TestCase("# Заголовок", "<h1>Заголовок</h1>",
             TestName = "RenderHeader")]
-        [TestCase("# Заголовок\n",
-            ExpectedResult = "<h1>Заголовок</h1>\n",
+        [TestCase("# Заголовок\n", "<h1>Заголовок</h1>\n",
             TestName = "RenderHeader_WhenEndsWithNewLine")]
-        [TestCase("\n# Заголовок",
-            ExpectedResult = "\n<h1>Заголовок</h1>",
+        [TestCase("\n# Заголовок", "\n<h1>Заголовок</h1>",
             TestName = "RenderHeader_WhenBeginsWithNewLine")]
-        public static string RenderHeader(string markdown) => Md.Render(markdown);
+        [TestCase("# __Заголовок__", "<h1><strong>Заголовок</strong></h1>",
+            TestName = "RenderHeader_WithBold")]
+        [TestCase("# _Заголовок_", "<h1><em>Заголовок</em></h1>",
+            TestName = "RenderHeader_WithItalic")]
+        public static void RenderHeader(string markdown, string expected)
+            => Md.Render(markdown).Should().Be(expected);
         
-        [TestCase("____",
-            ExpectedResult = "____",
+        [TestCase("____", "____",
             TestName = "NotRenderBold_WithoutWords")]
-        [TestCase("__    __",
-            ExpectedResult = "__    __",
+        [TestCase("__    __", "__    __",
             TestName = "NotRenderBold_WithJustSpaces")]
-        [TestCase("__  выделение__",
-            ExpectedResult = "__  выделение__",
+        [TestCase("__  выделение__", "__  выделение__",
             TestName = "NotRenderBold_WhenBeginWithSpaceChar")]
-        [TestCase("__выделение  __",
-            ExpectedResult = "__выделение  __",
+        [TestCase("__выделение  __", "__выделение  __",
             TestName = "NotRenderBold_WhenEndWithSpaceChar")]
-        [TestCase("__выделение",
-            ExpectedResult = "__выделение",
+        [TestCase("__выделение", "__выделение",
             TestName = "NotRenderBold_WithoutPair")]
-        [TestCase("__выделение__",
-            ExpectedResult = "<strong>выделение</strong>",
+        [TestCase("__выделение__", "<strong>выделение</strong>",
             TestName = "RenderBold_WithOneWord")]
-        [TestCase("__выделение из нескольких слов__",
-            ExpectedResult = "<strong>выделение из нескольких слов</strong>",
+        [TestCase("__выделение из нескольких слов__", "<strong>выделение из нескольких слов</strong>",
             TestName = "RenderBold_WithSeveralWords")]
-        [TestCase("Некоторый текст __выделение__ ещё текст",
-            ExpectedResult = "Некоторый текст <strong>выделение</strong> ещё текст",
+        [TestCase("Некоторый текст __выделение__ ещё текст", "Некоторый текст <strong>выделение</strong> ещё текст",
             TestName = "RenderBold_InMiddleOfLine")]
-        [TestCase("__сло__во",
-            ExpectedResult = "<strong>сло</strong>во",
+        [TestCase("__сло__во", "<strong>сло</strong>во",
             TestName = "RenderBold_InBeginOfWord")]
-        [TestCase("сл__о__во",
-            ExpectedResult = "сл<strong>о</strong>во",
+        [TestCase("сл__о__во", "сл<strong>о</strong>во",
             TestName = "RenderBold_InMiddleOfWord")]
-        [TestCase("сло__во__",
-            ExpectedResult = "сло<strong>во</strong>",
+        [TestCase("сло__во__", "сло<strong>во</strong>",
             TestName = "RenderBold_InEndOfWord")]
-        public static string RenderBold(string markdown) => Md.Render(markdown);
+        [TestCase("_курсив __выделение___", "<em>курсив __выделение__</em>",
+            TestName = "NotRenderBold_InsideItalic")]
+        public static void RenderBold(string markdown, string expected)
+            => Md.Render(markdown).Should().Be(expected);
         
-        [TestCase("__",
-            ExpectedResult = "__",
+        [TestCase("__", "__",
             TestName = "NotRenderItalic_WithoutWords")]
-        [TestCase("__    __",
-            ExpectedResult = "__    __",
+        [TestCase("__    __", "__    __",
             TestName = "NotRenderItalic_WithJustSpaces")]
-        [TestCase("__  курсив__",
-            ExpectedResult = "__  курсив__",
+        [TestCase("__  курсив__", "__  курсив__",
             TestName = "NotRenderItalic_WhenBeginWithSpaceChar")]
-        [TestCase("__курсив  __",
-            ExpectedResult = "__курсив  __",
+        [TestCase("__курсив  __", "__курсив  __",
             TestName = "NotRenderItalic_WhenEndWithSpaceChar")]
-        [TestCase("_выделение",
-            ExpectedResult = "_выделение",
+        [TestCase("_выделение", "_выделение",
             TestName = "NotRenderItalic_WithoutPair")]
-        [TestCase("_курсив_",
-            ExpectedResult = "<em>курсив</em>",
+        [TestCase("_курсив_", "<em>курсив</em>",
             TestName = "RenderItalic_WithOneWord")]
-        [TestCase("_курсив из нескольких слов_",
-            ExpectedResult = "<em>курсив из нескольких слов</em>",
+        [TestCase("_курсив из нескольких слов_", "<em>курсив из нескольких слов</em>",
             TestName = "RenderItalic_WithSeveralWords")]
-        [TestCase("Некоторый текст _курсив_ ещё текст",
-            ExpectedResult = "Некоторый текст <em>курсив</em> ещё текст",
+        [TestCase("Некоторый текст _курсив_ ещё текст", "Некоторый текст <em>курсив</em> ещё текст",
             TestName = "RenderItalic_InMiddleOfLine")]
-        [TestCase("_сло_во",
-            ExpectedResult = "<em>сло</em>во",
+        [TestCase("_сло_во", "<em>сло</em>во",
             TestName = "RenderItalic_InBeginOfWord")]
-        [TestCase("сл_о_во",
-            ExpectedResult = "сл<em>о</em>во",
+        [TestCase("сл_о_во", "сл<em>о</em>во",
             TestName = "RenderItalic_InMiddleOfWord")]
-        [TestCase("сло_во_",
-            ExpectedResult = "сло<em>во</em>",
+        [TestCase("сло_во_", "сло<em>во</em>",
             TestName = "RenderItalic_InEndOfWord")]
-        public static string RenderItalic(string markdown) => Md.Render(markdown);
-        
-        [TestCase("__пересечение_",
-            ExpectedResult = "__пересечение_",
+        [TestCase("__выделение _курсив___", "<strong>выделение <em>курсив</em></strong>",
+            TestName = "RenderItalic_InsideBold")]
+        public static void RenderItalic(string markdown, string expected)
+            => Md.Render(markdown).Should().Be(expected);
+
+        [TestCase("__пересечение_", "__пересечение_",
             TestName = "NotRenderIntersections")]
-        [TestCase("_пересечение__",
-            ExpectedResult = "_пересечение__",
+        [TestCase("_пересечение__", "_пересечение__",
             TestName = "NotRenderIntersections")]
-        public static string NotRenderIntersections(string markdown) => Md.Render(markdown);
+        public static void NotRenderIntersections(string markdown, string expected)
+            => Md.Render(markdown).Should().Be(expected);
     }
 }
