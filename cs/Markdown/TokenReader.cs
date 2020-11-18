@@ -65,7 +65,20 @@ namespace Markdown
             => TryReadSubtokensUntil(output, stopWhen, () => false);
 
         public bool TryReadSubtokensUntil(TokenWithSubTokens output, Func<bool> stopWhen, Func<bool> failWhen)
-            => throw new NotImplementedException();
+        {
+            var initialCount = output.GetSubtokenCount();
+            while (!stopWhen())
+            {
+                if (failWhen() || !TryReadToken(out var subtoken))
+                {
+                    output.SetSubtokenCount(initialCount);
+                    return false;
+                }
+                output.AddSubtoken(subtoken);
+            }
+
+            return true;
+        }
 
         public bool SkipUntil(Func<bool> stopWhen) => SkipUntil(stopWhen, () => false);
 
