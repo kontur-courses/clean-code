@@ -4,25 +4,25 @@ namespace Markdown
 {
     public class EmphasizedTokenReader : ITokenReader
     {
-        public TextToken TyrGetToken(string text, int index, int startPosition)
+        public TextToken TyrGetToken(string text, int end, int start)
         {
-            if (!CanCreateToken(text, index, startPosition))
+            if (!CanCreateToken(text, end, start))
                 return null;
 
-            var tokenText = text[(startPosition)..(index + 1)];
+            var tokenText = text[start..(end + 1)];
 
             return new EmphasizedTextToken(tokenText);
         }
 
-        private static bool CanCreateToken(string text, int index, int startPosition)
+        private static bool CanCreateToken(string text, int end, int start)
         {
-            var tokenText = text[startPosition..(index + 1)];
+            var tokenText = text[start..(end + 1)];
             return !IsTextContainsOnlyUnderlinings(tokenText)
-                   && IsTextStartAndEndWithOneUnderlining(tokenText, text, index)
+                   && IsTextStartAndEndWithOneUnderlining(tokenText, text, end)
                    && !IsTextContainsNumbers(tokenText)
                    && !IsSpaceAfterStartOrSpaceBeforeEnd(tokenText)
                    && !IsStrongInsideEm(tokenText)
-                   && !(IsUnderliningStartFromPartOfWord(tokenText, index, text)
+                   && !(IsUnderliningStartFromPartOfWord(tokenText, end, text)
                         && IsTextContainsSpace(tokenText));
         }
 
@@ -40,10 +40,10 @@ namespace Markdown
             return tokenText.All(x => x == '_');
         }
 
-        private static bool IsTextStartAndEndWithOneUnderlining(string tokenText, string text, int index)
+        private static bool IsTextStartAndEndWithOneUnderlining(string tokenText, string text, int end)
         {
             return tokenText[0] == '_' && tokenText[1] != '_' && tokenText[tokenText.Length - 1] == '_'
-                   && (index + 1 >= text.Length || text[index + 1] != '_');
+                   && (end + 1 >= text.Length || text[end + 1] != '_');
         }
 
         private static bool IsTextContainsNumbers(string tokenText)
@@ -56,10 +56,10 @@ namespace Markdown
             return tokenText[1] == ' ' || tokenText[tokenText.Length - 2] == ' ';
         }
 
-        private static bool IsUnderliningStartFromPartOfWord(string tokenText, int index,
+        private static bool IsUnderliningStartFromPartOfWord(string tokenText, int end,
             string text)
         {
-            return index - tokenText.Length >= 0 && text[index - tokenText.Length] != ' ';
+            return end - tokenText.Length >= 0 && text[end - tokenText.Length] != ' ';
         }
 
         private static bool IsTextContainsSpace(string tokenText)

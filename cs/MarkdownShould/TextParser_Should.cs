@@ -151,7 +151,7 @@ namespace Markdown.Tests
             var expectedList = new List<IToken>
             {
                 new StrongTextToken("__aa__", new List<IToken> {new PlaintTextToken("aa")}),
-                new PlaintTextToken( " "),
+                new PlaintTextToken(" "),
                 new EmphasizedTextToken("_bb_", new List<IToken> {new PlaintTextToken("bb")}),
                 new PlaintTextToken(" ac_")
             };
@@ -254,7 +254,7 @@ namespace Markdown.Tests
             var text = "#ab";
             var expectedList = new List<IToken>
             {
-                new HeaderTextToken( "#ab", new List<IToken> {new PlaintTextToken("ab")})
+                new HeaderTextToken("#ab", new List<IToken> {new PlaintTextToken("ab")})
             };
 
             var actualList = textParser.GetTextTokens(text);

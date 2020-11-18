@@ -1,5 +1,4 @@
-﻿using System.Collections.Generic;
-using System.Text;
+﻿using System.Text;
 
 namespace Markdown
 {
@@ -10,7 +9,7 @@ namespace Markdown
             Text = RemoveShieldSymbols(text);
             var a = Text;
         }
-        
+
         private static string RemoveShieldSymbols(string tokenText)
         {
             var textWithoutShieldSymbols = new StringBuilder();
@@ -24,7 +23,7 @@ namespace Markdown
 
             return textWithoutShieldSymbols.ToString();
         }
-        
+
         private static bool IsCurrentSymbolShieldAndNextSymbolIsSpecial(string tokenText, int i)
         {
             return tokenText[i] == '\\' && i + 1 < tokenText.Length &&

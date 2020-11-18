@@ -2,6 +2,6 @@
 {
     public interface ITokenReader
     {
-        TextToken TyrGetToken(string text, int index, int startPosition);
+        TextToken TyrGetToken(string text, int end, int start);
     }
 }

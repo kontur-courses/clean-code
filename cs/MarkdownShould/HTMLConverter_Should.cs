@@ -11,7 +11,6 @@ namespace Markdown.Tests
         [SetUp]
         public void SetUp()
         {
-            
             var tokenConverters = new TokenConverterFactory();
             htmlConverter = new HTMLConverter(tokenConverters);
         }

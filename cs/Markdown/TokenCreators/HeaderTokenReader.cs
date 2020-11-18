@@ -2,11 +2,11 @@
 {
     public class HeaderTokenReader : ITokenReader
     {
-        public TextToken TyrGetToken(string text, int index, int startPosition)
+        public TextToken TyrGetToken(string text, int end, int start)
         {
-            if (!CanCreateToken(text, index, startPosition))
+            if (!CanCreateToken(text, end, start))
                 return null;
-            
+
 
             return new HeaderTextToken(text);
         }

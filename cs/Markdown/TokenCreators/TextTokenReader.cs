@@ -1,16 +1,14 @@
-﻿using System.Text;
-
-namespace Markdown
+﻿namespace Markdown
 {
     public class TextTokenReader : ITokenReader
     {
-        public TextToken TyrGetToken(string text, int index, int startPosition)
+        public TextToken TyrGetToken(string text, int end, int start)
         {
-            if (!CanCreateToken(text, index, startPosition))
+            if (!CanCreateToken(text, end, start))
                 return null;
 
-            var tokenText = text[startPosition..(index + 1)];
-            
+            var tokenText = text[start..(end + 1)];
+
             return new PlaintTextToken(tokenText);
         }
 
@@ -39,8 +37,5 @@ namespace Markdown
         {
             return index + 1 >= text.Length || tokenText[tokenText.Length - 1] != '\\' || text[index + 1] != '_';
         }
-        
-
-        
     }
 }

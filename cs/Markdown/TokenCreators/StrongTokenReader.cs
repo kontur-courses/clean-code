@@ -4,12 +4,12 @@ namespace Markdown
 {
     public class StrongTokenReader : ITokenReader
     {
-        public TextToken TyrGetToken(string text, int index, int startPosition)
+        public TextToken TyrGetToken(string text, int end, int start)
         {
-            if (!CanCreateToken(text, index, startPosition))
+            if (!CanCreateToken(text, end, start))
                 return null;
 
-            var tokenText = text[(startPosition)..(index + 1)];
+            var tokenText = text[start..(end + 1)];
 
             return new StrongTextToken(tokenText);
         }

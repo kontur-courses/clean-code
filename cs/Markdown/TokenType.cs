@@ -2,8 +2,8 @@
 {
     public enum TokenType
     {
-        Emphasized, 
-        Strong, 
+        Emphasized,
+        Strong,
         Header,
         Text
     }
