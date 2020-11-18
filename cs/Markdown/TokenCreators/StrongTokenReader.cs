@@ -2,20 +2,23 @@
 
 namespace Markdown
 {
-    public class StrongTokenGetter : ITokenGetter
+    public class StrongTokenReader : ITokenReader
     {
         public TextToken GetToken(string text, int index, int startPosition)
         {
+            if (!CanCreateToken(text, index, startPosition))
+                return null;
+            
             var tokenText = text.Substring(startPosition + 2, index - startPosition - 3);
-            var tokenToAdd = new TextToken(startPosition, tokenText.Length + 4,
+            
+            return new TextToken(startPosition, tokenText.Length + 4,
                 TokenType.Strong, tokenText);
-            return tokenToAdd;
         }
 
-        public bool CanCreateToken(string text, int index, int startPosition)
+        private static bool CanCreateToken(string text, int index, int startPosition)
         {
             var tokenText = text.Substring(startPosition, index - startPosition + 1);
-            if (tokenText.Count(x => x == '_') == tokenText.Length)
+            if (tokenText.All(x => x == '_'))
                 return false;
             if (tokenText[0] != '_' || tokenText[1] != '_' || tokenText[tokenText.Length - 2] != '_' ||
                 tokenText[tokenText.Length - 1] != '_') return false;

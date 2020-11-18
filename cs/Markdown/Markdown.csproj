@@ -44,11 +44,11 @@
     <Compile Include="IParser.cs" />
     <Compile Include="Markdown.cs" />
     <Compile Include="TextToken.cs" />
-    <Compile Include="TokenCreators\EmphasizedTokenCreator.cs" />
-    <Compile Include="TokenCreators\HeaderTokenCreator.cs" />
-    <Compile Include="TokenCreators\ITokenCreator.cs" />
-    <Compile Include="TokenCreators\StrongTokenCreator.cs" />
-    <Compile Include="TokenCreators\TextTokenCreator.cs" />
+    <Compile Include="TokenCreators\EmphasizedTokenReader.cs" />
+    <Compile Include="TokenCreators\HeaderTokenReader.cs" />
+    <Compile Include="TokenCreators\ITokenReader.cs" />
+    <Compile Include="TokenCreators\StrongTokenReader.cs" />
+    <Compile Include="TokenCreators\TextTokenReader.cs" />
     <Compile Include="TokenType.cs" />
     <Compile Include="TextParser.cs" />
   </ItemGroup>

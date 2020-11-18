@@ -1,17 +1,19 @@
 ﻿namespace Markdown
 {
-    public class HeaderTokenGetter : ITokenGetter
+    public class HeaderTokenReader : ITokenReader
     {
         public TextToken GetToken(string text, int index, int startPosition)
         {
-            var tokentText = text.Substring(1);
-            var tokenToAdd = new TextToken(startPosition, text.Length,
-                TokenType.Header, tokentText);
+            if (!CanCreateToken(text, index, startPosition))
+                return null;
 
-            return tokenToAdd;
+            var tokentText = text.Substring(1);
+
+            return new TextToken(startPosition, text.Length,
+                TokenType.Header, tokentText);
         }
 
-        public bool CanCreateToken(string text, int index, int startPosition)
+        private static bool CanCreateToken(string text, int index, int startPosition)
         {
             return index == startPosition && text[startPosition] == '#'
                                           && index + 1 != text.Length && text[index + 1] != '\\';

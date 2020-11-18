@@ -4,7 +4,7 @@ namespace Markdown
 {
     public class Markdown
     {
-        private readonly IReadOnlyCollection<ITokenGetter> tokenGetters;
+        private readonly IReadOnlyCollection<ITokenReader> tokenGetters;
         private readonly Dictionary<TokenType, string> tokensText;
 
         public Markdown()
@@ -16,12 +16,12 @@ namespace Markdown
                 {TokenType.Header, "h1"},
                 {TokenType.Strong, "strong"}
             };
-            tokenGetters = new ITokenGetter[]
+            tokenGetters = new ITokenReader[]
             {
-                new HeaderTokenGetter(),
-                new StrongTokenGetter(),
-                new EmphasizedTokenGetter(),
-                new TextTokenGetter()
+                new HeaderTokenReader(),
+                new StrongTokenReader(),
+                new EmphasizedTokenReader(),
+                new TextTokenReader()
             };
         }
 

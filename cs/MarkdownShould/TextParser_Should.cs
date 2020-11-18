@@ -12,12 +12,12 @@ namespace Markdown.Tests
         [SetUp]
         public void SetUp()
         {
-            var tokenGetters = new ITokenGetter[]
+            var tokenGetters = new ITokenReader[]
             {
-                new HeaderTokenGetter(),
-                new StrongTokenGetter(),
-                new EmphasizedTokenGetter(),
-                new TextTokenGetter()
+                new HeaderTokenReader(),
+                new StrongTokenReader(),
+                new EmphasizedTokenReader(),
+                new TextTokenReader()
             };
             textParser = new TextParser(tokenGetters);
         }

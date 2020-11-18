@@ -6,9 +6,9 @@ namespace Markdown
 {
     public class TextParser : IParser
     {
-        private readonly IReadOnlyCollection<ITokenGetter> tokenGetters;
+        private readonly IReadOnlyCollection<ITokenReader> tokenGetters;
 
-        public TextParser(IReadOnlyCollection<ITokenGetter> tokenGetters)
+        public TextParser(IReadOnlyCollection<ITokenReader> tokenGetters)
         {
             this.tokenGetters = tokenGetters;
         }
@@ -46,11 +46,10 @@ namespace Markdown
 
         private TextToken TryGetToken(string text, int index, int startPosition)
         {
-            foreach (var tokenGetter in tokenGetters)
-                if (tokenGetter.CanCreateToken(text, index, startPosition))
-                    return tokenGetter.GetToken(text, index, startPosition);
-
-            return null;
+            return tokenGetters
+                .Select(tokenGetter => tokenGetter
+                    .GetToken(text, index, startPosition))
+                .FirstOrDefault(token => token != null);
         }
 
         private TextToken UpdateLastTextToken(TextToken tokenToAdd, List<TextToken> tokens)

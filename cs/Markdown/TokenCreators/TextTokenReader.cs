@@ -2,18 +2,23 @@
 
 namespace Markdown
 {
-    public class TextTokenGetter : ITokenGetter
+    public class TextTokenReader : ITokenReader
     {
         public TextToken GetToken(string text, int index, int startPosition)
         {
+            if (!CanCreateToken(text, index, startPosition))
+                return null;
+
             var tokenText = text.Substring(startPosition, index - startPosition + 1);
+            /*Range myrange = 1..4;
+            var tokenText = text[index..index - startPosition + 1];*/
             var tokenTextWithoutShields = RemoveShieldSymbols(tokenText);
-            var tokenToAdd = new TextToken(startPosition, tokenTextWithoutShields.Length, TokenType.Text,
+
+            return new TextToken(startPosition, tokenTextWithoutShields.Length, TokenType.Text,
                 tokenTextWithoutShields);
-            return tokenToAdd;
         }
 
-        public bool CanCreateToken(string text, int index, int startPosition)
+        private static bool CanCreateToken(string text, int index, int startPosition)
         {
             var tokenText = text.Substring(startPosition, index - startPosition + 1);
             return IsSpecialSymbolShielded(text, tokenText, index) && IsSubTokenContainsDigits(text, index) &&
