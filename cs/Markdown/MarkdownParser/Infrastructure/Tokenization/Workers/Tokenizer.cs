@@ -4,8 +4,9 @@ using System.Linq;
 using MarkdownParser.Concrete.Default;
 using MarkdownParser.Helpers;
 using MarkdownParser.Infrastructure.Tokenization.Abstract;
+using MarkdownParser.Infrastructure.Tokenization.Models;
 
-namespace MarkdownParser.Infrastructure.Tokenization
+namespace MarkdownParser.Infrastructure.Tokenization.Workers
 {
     public class Tokenizer
     {

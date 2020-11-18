@@ -1,6 +1,7 @@
 ﻿using System.Collections.Generic;
 using MarkdownParser.Infrastructure.Markdown.Abstract;
 using MarkdownParser.Infrastructure.Tokenization.Abstract;
+using MarkdownParser.Infrastructure.Tokenization.Models;
 
 namespace MarkdownParser.Concrete.Bold
 {
@@ -8,7 +9,8 @@ namespace MarkdownParser.Concrete.Bold
     {
         public ICollection<MarkdownElement> Content { get; }
 
-        public MarkdownElementBold(ICollection<MarkdownElement> content, Token[] tokens) : base(tokens)
+        public MarkdownElementBold(BoldToken opening, MarkdownElement[] content, Token[] tokens, BoldToken closing)
+            : base(new Token[] {new TokenPair(opening, tokens, closing)})
         {
             Content = content;
         }

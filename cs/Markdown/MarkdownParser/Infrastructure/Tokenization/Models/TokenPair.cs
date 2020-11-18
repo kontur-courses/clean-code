@@ -2,7 +2,7 @@
 using System.Text;
 using MarkdownParser.Infrastructure.Tokenization.Abstract;
 
-namespace MarkdownParser.Infrastructure.Tokenization
+namespace MarkdownParser.Infrastructure.Tokenization.Models
 {
     public sealed class TokenPair : Token
     {

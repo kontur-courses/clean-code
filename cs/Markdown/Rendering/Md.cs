@@ -5,8 +5,8 @@ using MarkdownParser.Concrete.Header;
 using MarkdownParser.Concrete.Italic;
 using MarkdownParser.Infrastructure.Markdown;
 using MarkdownParser.Infrastructure.Markdown.Abstract;
-using MarkdownParser.Infrastructure.Tokenization;
 using MarkdownParser.Infrastructure.Tokenization.Abstract;
+using MarkdownParser.Infrastructure.Tokenization.Workers;
 using Rendering.Html;
 using Rendering.Html.Abstract;
 using Rendering.Html.Impl;
@@ -21,7 +21,7 @@ namespace Rendering
                 new MarkdownDocumentParser(
                     new Tokenizer(new ITokenBuilder[]
                         {new BoldTokenBuilder(), new ItalicTokenBuilder(), new HeaderTokenBuilder()}),
-                    new MarkdownCollector(new IMarkdownElementFactory[]
+                    new MarkdownCollector(new IMdElementFactory[]
                         {new BoldElementFactory(), new ItalicElementFactory(), new HeaderElementFactory()})),
                 new HtmlRenderer(new IMarkdownElementRenderer[]
                     {new BoldElementRenderer(), new ItalicElementRenderer(), new HeaderElementRenderer()})));

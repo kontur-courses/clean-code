@@ -2,6 +2,7 @@
 using System.Linq;
 using MarkdownParser.Infrastructure.Markdown.Abstract;
 using MarkdownParser.Infrastructure.Tokenization.Abstract;
+using MarkdownParser.Infrastructure.Tokenization.Models;
 
 namespace MarkdownParser.Concrete.Italic
 {
@@ -12,8 +13,8 @@ namespace MarkdownParser.Concrete.Italic
             Content = tokens.Skip(1).SkipLast(1).ToArray();
         }
 
-        public MarkdownElementItalic(Token startToken, ICollection<Token> content, Token endToken)
-            : base(content.Prepend(startToken).Append(endToken).ToArray())
+        public MarkdownElementItalic(PairedToken startToken, ICollection<Token> content, PairedToken endToken)
+            : base(new Token[] {new TokenPair(startToken, content.ToArray(), endToken)})
         {
             Content = content;
         }

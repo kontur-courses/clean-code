@@ -2,7 +2,7 @@
 using System.Linq;
 using MarkdownParser.Infrastructure.Tokenization.Models;
 
-namespace MarkdownParser.Infrastructure.Tokenization
+namespace MarkdownParser.Infrastructure.Tokenization.Workers
 {
     public static class TokenHelpers
     {

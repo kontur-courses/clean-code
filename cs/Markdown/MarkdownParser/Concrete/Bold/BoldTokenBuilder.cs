@@ -1,6 +1,6 @@
-﻿using MarkdownParser.Infrastructure.Tokenization;
-using MarkdownParser.Infrastructure.Tokenization.Abstract;
+﻿using MarkdownParser.Infrastructure.Tokenization.Abstract;
 using MarkdownParser.Infrastructure.Tokenization.Models;
+using MarkdownParser.Infrastructure.Tokenization.Workers;
 
 namespace MarkdownParser.Concrete.Bold
 {

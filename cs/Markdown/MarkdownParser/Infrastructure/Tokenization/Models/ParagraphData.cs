@@ -1,8 +1,9 @@
 ﻿using System.Collections.Generic;
 using System.Linq;
 using MarkdownParser.Infrastructure.Tokenization.Abstract;
+using MarkdownParser.Infrastructure.Tokenization.Workers;
 
-namespace MarkdownParser.Infrastructure.Tokenization
+namespace MarkdownParser.Infrastructure.Tokenization.Models
 {
     public readonly struct ParagraphData
     {

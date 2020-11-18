@@ -1,6 +1,3 @@
-using System.Collections.Generic;
-using System.IO;
-using System.Linq;
 using FluentAssertions;
 using NUnit.Framework;
 using Rendering;
@@ -10,9 +7,6 @@ namespace MarkdownToHtmlConverterTests
     public class MarkdownToHtmlConverterTests
     {
         private IMarkdownConverter converter;
-
-        private static readonly DirectoryInfo testCasesFolder =
-            new DirectoryInfo(Path.Combine(TestContext.CurrentContext.WorkDirectory, "TestCases"));
 
         [SetUp]
         public void Setup()

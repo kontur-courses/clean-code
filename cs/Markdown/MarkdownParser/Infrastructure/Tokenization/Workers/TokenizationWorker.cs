@@ -4,15 +4,15 @@ using System.Text;
 using MarkdownParser.Infrastructure.Tokenization.Abstract;
 using MarkdownParser.Infrastructure.Tokenization.Models;
 
-namespace MarkdownParser.Infrastructure.Tokenization
+namespace MarkdownParser.Infrastructure.Tokenization.Workers
 {
     public class TokenizationWorker
     {
         private readonly string paragraphText;
         private readonly ITokenBuilder[] builders;
         private readonly StringBuilder textTokenBuilder = new StringBuilder();
-        private bool isScreened = false;
-        private int currentIndex = 0;
+        private bool isScreened;
+        private int currentIndex;
         private char CurrentChar => paragraphText[currentIndex];
 
         public List<Token> ParsedTokens;

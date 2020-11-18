@@ -1,8 +1,9 @@
 ﻿using System.Collections.Generic;
 using System.Linq;
 using MarkdownParser.Infrastructure.Tokenization.Abstract;
+using MarkdownParser.Infrastructure.Tokenization.Models;
 
-namespace MarkdownParser.Infrastructure.Tokenization
+namespace MarkdownParser.Infrastructure.Tokenization.Workers
 {
     public class TokenPairsResolver
     {
@@ -25,15 +26,20 @@ namespace MarkdownParser.Infrastructure.Tokenization
 
         public ICollection<Token> ResolvePairs()
         {
-            if (result == null)
+            if (result != null)
+                return result;
+            result = new List<Token>();
+
+            foreach (var token in source)
             {
-                result = new List<Token>();
-                foreach (var token in source)
+                if (token is PairedToken paired)
                 {
-                    if (token is PairedToken paired && pairedTokens.TryGetValue(paired.StartPosition, out var pairInfo))
+                    if (pairedTokens.TryGetValue(paired.StartPosition, out var pairInfo))
                         ProcessPairedToken(paired, pairInfo);
-                    else AppendToken(token);
+                    else
+                        AppendToken(TokenCreator.CreateDefault(token.StartPosition, token.RawValue));
                 }
+                else AppendToken(token);
             }
 
             return result;

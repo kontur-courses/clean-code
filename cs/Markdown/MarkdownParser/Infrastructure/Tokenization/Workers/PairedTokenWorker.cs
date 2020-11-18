@@ -3,18 +3,20 @@ using System.Collections.Generic;
 using System.Linq;
 using MarkdownParser.Concrete.Default;
 using MarkdownParser.Infrastructure.Tokenization.Abstract;
+using MarkdownParser.Infrastructure.Tokenization.Models;
 
-namespace MarkdownParser.Infrastructure.Tokenization
+namespace MarkdownParser.Infrastructure.Tokenization.Workers
 {
     public static class PairedTokenWorker
     {
-        public static IEnumerable<Token> FixCrossingTokens(Token[] unpaired)
+        public static IEnumerable<Token> FixCrossingTokens(this IEnumerable<Token> unpaired)
         {
+            unpaired = unpaired.ToArray();
             var pairedTokensMap = GetPairedTokens(unpaired);
             return FixCrossingTokens(unpaired, pairedTokensMap);
         }
 
-        private static IEnumerable<Token> FixCrossingTokens(Token[] unpaired,
+        private static IEnumerable<Token> FixCrossingTokens(IEnumerable<Token> unpaired,
             (PairedTokenData Opening, PairedTokenData Closing)[] pairedTokens)
         {
             var crossing = EnumerateCrossingTokens(pairedTokens).ToHashSet();
@@ -46,7 +48,7 @@ namespace MarkdownParser.Infrastructure.Tokenization
                         y.Opening.Token
                     }));
 
-        public static (PairedTokenData Opening, PairedTokenData Closing)[] GetPairedTokens(Token[] unpaired)
+        public static (PairedTokenData Opening, PairedTokenData Closing)[] GetPairedTokens(IEnumerable<Token> unpaired)
         {
             var pairedTokens = unpaired.Select((t, i) => new PairedTokenData(i, t as PairedToken))
                 .Where(x => x.Token != null); //Такой порядок операций чтобы не потерять индексы

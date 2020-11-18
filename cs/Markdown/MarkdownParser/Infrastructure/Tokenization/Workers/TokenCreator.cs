@@ -6,7 +6,7 @@ using MarkdownParser.Helpers;
 using MarkdownParser.Infrastructure.Tokenization.Abstract;
 using MarkdownParser.Infrastructure.Tokenization.Models;
 
-namespace MarkdownParser.Infrastructure.Tokenization
+namespace MarkdownParser.Infrastructure.Tokenization.Workers
 {
     public static class TokenCreator
     {
@@ -38,5 +38,7 @@ namespace MarkdownParser.Infrastructure.Tokenization
 
         public static TextToken CreateDefault(int startPosition, string rawValue) =>
             new TextToken(startPosition, rawValue);
+
+        public static TextToken CreateDefault(Token proto) => CreateDefault(proto.StartPosition, proto.RawValue);
     }
 }

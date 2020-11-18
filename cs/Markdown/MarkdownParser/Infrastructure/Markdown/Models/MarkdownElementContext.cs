@@ -1,18 +1,23 @@
-﻿using System.Collections.Generic;
-using System.Linq;
-using MarkdownParser.Infrastructure.Tokenization.Abstract;
+﻿using MarkdownParser.Infrastructure.Tokenization.Abstract;
 
 namespace MarkdownParser.Infrastructure.Markdown.Models
 {
-    public class MarkdownElementContext
+    public interface IMarkdownElementContext
     {
-        public MarkdownElementContext(Token currentToken, IEnumerable<Token> allTokens)
+        Token[] NextTokens { get; }
+        Token CurrentToken { get; }
+    }
+
+    public class MarkdownElementContext<TToken> : IMarkdownElementContext where TToken : Token
+    {
+        public MarkdownElementContext(TToken currentToken, Token[] nextTokens)
         {
-            NextTokens = allTokens.ToArray();
             CurrentToken = currentToken;
+            NextTokens = nextTokens;
         }
 
         public Token[] NextTokens { get; }
-        public Token CurrentToken { get; }
+        public TToken CurrentToken { get; }
+        Token IMarkdownElementContext.CurrentToken => CurrentToken;
     }
 }
