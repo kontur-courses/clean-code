@@ -46,7 +46,7 @@ namespace MarkdownParser.Infrastructure.Tokenization
                         y.Opening.Token
                     }));
 
-        private static (PairedTokenData Opening, PairedTokenData Closing)[] GetPairedTokens(Token[] unpaired)
+        public static (PairedTokenData Opening, PairedTokenData Closing)[] GetPairedTokens(Token[] unpaired)
         {
             var pairedTokens = unpaired.Select((t, i) => new PairedTokenData(i, t as PairedToken))
                 .Where(x => x.Token != null); //Такой порядок операций чтобы не потерять индексы

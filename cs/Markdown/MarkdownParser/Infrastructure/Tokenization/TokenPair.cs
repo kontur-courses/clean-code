@@ -21,9 +21,9 @@ namespace MarkdownParser.Infrastructure.Tokenization
         private static string GetRawValue(PairedToken opening, Token[] inner, PairedToken closing)
         {
             var sb = new StringBuilder();
-            sb.Append(opening);
+            sb.Append(opening.RawValue);
             sb.AppendJoin(string.Empty, inner.Select(x => x.RawValue));
-            sb.Append(closing);
+            sb.Append(closing.RawValue);
             return sb.ToString();
         }
     }
