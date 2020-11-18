@@ -135,9 +135,9 @@ namespace Markdown
         public bool TryGet(string text, bool endWithNewLine = false)
             => GetNextChars(text.Length) == text && (!endWithNewLine || IsLineEnd());
 
-        public bool IsWordBegin() => IsLineBegin() || Text[CurrentPosition - 1] == ' ';
+        public bool IsAfterSpace() => IsLineBegin() || Text[CurrentPosition - 1] == ' ';
 
-        public bool IsWordEnd() => IsLineEnd() || Text[CurrentPosition] == ' ';
+        public bool IsAtSpace() => IsLineEnd() || Text[CurrentPosition] == ' ';
 
         public bool IsLineBegin() => CurrentPosition == 0 || Text[CurrentPosition - 1] == '\n';
 
@@ -182,19 +182,19 @@ namespace Markdown
             var state = reader.GetCurrentState();
 
             var ok = (!startWithNewLine || reader.IsLineBegin())
-                     && (!startWithNewWord || reader.IsWordBegin())
+                     && (!startWithNewWord || reader.IsAfterSpace())
 
                      && reader.TryRead(startWith)
-                     && !reader.IsWordEnd()
+                     && !reader.IsAtSpace()
                      
                      && reader.TryReadSubtokensUntil(token,
                          () => reader.TryGet(endWith, endWithNewLine),
-                         () => !allowSpaces && reader.IsWordEnd())
+                         () => !allowSpaces && reader.IsAtSpace())
                      
-                     && !reader.IsWordBegin()
+                     && !reader.IsAfterSpace()
                      && reader.TryRead(endWith)
 
-                     && (!endWithNewWord || reader.IsWordEnd())
+                     && (!endWithNewWord || reader.IsAtSpace())
                      && (!endWithNewLine || reader.IsLineEnd());
 
             token.Length += endWith.Length;
