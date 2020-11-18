@@ -88,6 +88,14 @@ namespace Markdown
         public bool TryReadSubtokensUntil(TokenWithSubTokens output, Func<bool> stopWhen)
             => TryReadSubtokensUntil(output, stopWhen, () => false);
 
+        public bool TryReadSubtokensUntil(TokenWithSubTokens output, string endWith, bool allowSpaces = true, bool endWithNewLine = false)
+        {
+            var wasSpaces = false;
+            return TryReadSubtokensUntil(output,
+                () => !IsAfterSpace() && TryGet(endWith, wasSpaces, endWithNewLine),
+                () => (wasSpaces |= IsAtSpace()) && !allowSpaces);
+        }
+
         public bool TryReadSubtokensUntil(TokenWithSubTokens output, Func<bool> stopWhen, Func<bool> failWhen)
         {
             var initialCount = output.GetSubtokenCount();
@@ -127,15 +135,17 @@ namespace Markdown
             return position - initialPosition;
         }
 
-        public bool TryRead(string text, bool endWithNewLine = false)
+        public bool TryRead(string text, bool endWithSpace = false, bool endWithNewLine = false)
         {
-            if (!TryGet(text, endWithNewLine)) return false;
+            if (!TryGet(text, endWithSpace, endWithNewLine)) return false;
             CurrentPosition += text.Length;
             return true;
         }
 
-        public bool TryGet(string text, bool endWithNewLine = false)
-            => GetNextChars(text.Length) == text && (!endWithNewLine || IsLineEnd());
+        public bool TryGet(string text, bool endWithSpace = false, bool endWithNewLine = false)
+            => GetNextChars(text.Length) == text
+               && (!endWithSpace || IsAtSpace(text.Length))
+               && (!endWithNewLine || IsLineEnd());
 
         public bool IsAfterSpace(int offset = 0) => IsLineBegin(offset) || Text[CurrentPosition - 1 + offset] == ' ';
 
@@ -169,42 +179,26 @@ namespace Markdown
             if (parent != null && parent.IsInsideAnyTokenOfType(typeof(TToken))) return null;
             var shouldStartWithNewLine = startWith.StartsWith("\n");
             var shouldEndWithNewLine = endWith.EndsWith("\n");
-
-            var startWithNewWord = reader.IsAfterSpace();
             
             if (shouldStartWithNewLine) startWith = startWith.Substring(1);
             if (shouldEndWithNewLine) endWith = endWith.Substring(0, endWith.Length - 1);
 
+            var allowSpaces = reader.IsAfterSpace();
+
             var token = new TToken {StartPosition = reader.CurrentPosition, Length = startWith.Length, Parent = parent};
 
             var state = reader.GetCurrentState();
-            var wasSpaces = false;
 
             var ok = (!shouldStartWithNewLine || reader.IsLineBegin())
-
-                     && reader.TryRead(startWith)
-                     && !reader.IsAtSpace()
-
-                     && reader.TryReadSubtokensUntil(token,
-                         () => !reader.IsAfterSpace()
-                               && (!wasSpaces || reader.IsAtSpace(endWith.Length))
-                               && reader.TryGet(endWith, shouldEndWithNewLine),
-                         () => (wasSpaces |= reader.IsAtSpace()) && !startWithNewWord)
-
-                     && !reader.IsAfterSpace()
-                     && reader.TryRead(endWith)
-
-                     && (!wasSpaces || reader.IsAtSpace())
-                     && (!shouldEndWithNewLine || reader.IsLineEnd());
+                     && reader.TryRead(startWith) && !reader.IsAtSpace()
+                     && reader.TryReadSubtokensUntil(token, endWith, allowSpaces, shouldStartWithNewLine)
+                     && !reader.IsAfterSpace() && reader.TryRead(endWith);
 
             token.Length += endWith.Length;
-            if (!ok || token.Length == startWith.Length + endWith.Length)
-            {
-                state.Undo();
-                return null;
-            }
-
-            return token;
+            if (ok && token.Length != startWith.Length + endWith.Length) return token;
+            
+            state.Undo();
+            return null;
         }
 
         public virtual TokenReaderState GetCurrentState() => new TokenReaderState(this);
