@@ -8,18 +8,26 @@ namespace Markdown
         public ITagData Tag { get; }
         public int Start { get; }
         public int End { get; set; }
-        public List<TextToken> SubTokens { get; private set;}
+        public HashSet<TextToken> SubTokens { get; private set;}
 
         public TextToken(ITagData tokenTag, int startPosition)
         {
             Tag = tokenTag;
             Start = startPosition;
-            SubTokens = new List<TextToken>();
+            SubTokens = new HashSet<TextToken>();
         }
 
-        public void AddNestedTokens(params TextToken[] nestedToken)
+        public void AddNestedTokens(params TextToken[] tokensToNested)
         {
-            SubTokens.AddRange(nestedToken);
+            SubTokens.UnionWith(tokensToNested);
+        }
+        
+        public void RemoveNestedTokens(params TextToken[] tokensToRemove)
+        {
+            foreach (var tokenToRemove in tokensToRemove)
+            {
+                SubTokens.Remove(tokenToRemove);
+            }
         }
     }
 }

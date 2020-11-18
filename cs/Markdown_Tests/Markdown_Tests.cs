@@ -1,4 +1,5 @@
-﻿using FluentAssertions;
+﻿using System.Linq;
+using FluentAssertions;
 using Markdown;
 using NUnit.Framework;
 
@@ -48,6 +49,8 @@ namespace Markdown_Tests
         
         [TestCase("__text text_", "__text text_")]
         [TestCase("_text text__", "_text text__")]
+        [TestCase("_text text_____", "_text text_____")]
+        [TestCase("__text text_____", "__text text_____")]
         [TestCase("__text _text__ text_", "__text _text__ text_")]
         [TestCase("_text __text__ text", @"_text \<strong>text\</strong> text")]
         [TestCase("_text __text__ text_", @"\<em>text __text__ text\</em>")]
@@ -72,6 +75,8 @@ namespace Markdown_Tests
         }
         
         [TestCase("__begin _middle_ end__", @"\<strong>begin \<em>middle\</em> end\</strong>")]
+        [TestCase("___begin middle_ end__", @"\<strong>\<em>begin middle\</em> end\</strong>")]
+        [TestCase("__begin _middle end___", @"\<strong>begin \<em>middle end\</em>\</strong>")]
         [TestCase("_begin __middle__ end_", @"\<em>begin __middle__ end\</em>")]
         [TestCase("# __begin _middle_ end__", @"\<h1>\<strong>begin \<em>middle\</em> end\</strong>\</h1>")]
         public void MdRender_ShouldRenderCorrectly_WhenTagNested(string markdownText, string htmlText)

@@ -1,4 +1,5 @@
-﻿using Markdown.Tag;
+﻿using System;
+using Markdown.Tag;
 using Markdown.Parser;
 using Markdown.Builder;
 using Markdown.Tag.SpecificTags;
@@ -25,21 +26,52 @@ namespace Markdown
 
         private ITagData[] CreateMdToHtmlTags()
         {
+            Func<string, int, int, bool> additionalCheckForBold
+                = delegate(string data, int startPos, int endPos)
+                {
+                    if (data.Length > endPos + 2 && data[endPos + 2] == '_')
+                        return false;
+                    return true;
+                };
+
+            var strongTagData = new StyleTagData(
+                new TagBorder("__", "__"),
+                new TagBorder(@"\<strong>", @"\</strong>"),
+                additionalValidationCheck:additionalCheckForBold
+            );
+            
+            Func<string, int, int, bool> additionalCheckForItalic
+                = delegate(string data, int startPos, int endPos)
+                {
+                    if (data[endPos - 1] == '_')
+                        return false;
+                    if (data.Length > endPos + 1 && data[endPos + 1] == '_')
+                    {
+                        if (data.Length > endPos + 2 && data[endPos + 2] == '_')
+                        {
+                            if (data.Length > endPos + 3 && data[endPos + 3] == '_')
+                                return false;
+                            return true;
+                        }
+                            
+                        return false;
+                    }
+                    return true;
+                };
+            
             var italicTagData = new StyleTagData(
                 new TagBorder("_", "_"), 
-                new TagBorder(@"\<em>",@"\</em>")
-                );
+                new TagBorder(@"\<em>",@"\</em>"),
+                additionalValidationCheck:additionalCheckForItalic,
+                notAllowedNestedTags:strongTagData);
             
-            var strongTagData = new StyleTagData(
-                new TagBorder("__", "__"), 
-                new TagBorder(@"\<strong>",@"\</strong>")
-                );
 
             var firstHeaderTagData = new HeaderTagData(
                 new TagBorder("# ", ""), 
                 new TagBorder(@"\<h1>","\\</h1>")
             );
             
+            // Добавил заголовок 2 уровня для демонстрации
             var secondHeaderTagData = new HeaderTagData(
                 new TagBorder("## ", ""), 
                 new TagBorder(@"\<h2>","\\</h2>")

@@ -9,6 +9,7 @@ namespace Markdown.Tag
         public TagBorder IncomingBorder { get; }
         public TagBorder OutgoingBorder { get; }
         public EndOfLineAction AtLineEndAction { get; }
+        public virtual bool IsBreaksWhenNestedNotComplete => false;
 
         private readonly HashSet<ITagData> notAllowedNestedTags;
 
@@ -20,11 +21,6 @@ namespace Markdown.Tag
             IncomingBorder = incomingBorder;
             OutgoingBorder = outgoingBorder;
             this.notAllowedNestedTags = notAllowedNestedTags.ToHashSet();
-        }
-
-        public bool RequiredMiddle()
-        {
-            return IncomingBorder.Middle != null;
         }
 
         public virtual bool IsValidAtClose(string data, int startPos, int endPos)

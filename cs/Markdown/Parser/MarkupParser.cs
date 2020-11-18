@@ -67,7 +67,49 @@ namespace Markdown.Parser
             
             AtLineEnd(text.Length, true);
 
+            CancelNotAllowedNestedTokens();
             return fullTextData;
+        }
+
+        private void CancelNotAllowedNestedTokens()
+        {
+            var previousTokens = new HashSet<TextToken>();
+            foreach (var baseToken in fullTextData.Tokens)
+            {
+                CancelNotAllowedNestedTokens(previousTokens, baseToken);
+            }
+        }
+
+        private void CancelNotAllowedNestedTokens(HashSet<TextToken> previousTokens, TextToken currentToken)
+        {
+            previousTokens.Add(currentToken);
+            var nestedTokensToMove = new List<TextToken>();
+            var nestedTokensToRemove = new HashSet<TextToken>();
+            foreach (var nestedToken in currentToken.SubTokens)
+            {
+                CancelNotAllowedNestedTokens(previousTokens, nestedToken);
+                if (!IsTokenCanNestedInTokens(previousTokens, nestedToken))
+                {
+                    nestedTokensToMove.AddRange(nestedToken.SubTokens);
+                    nestedTokensToRemove.Add(nestedToken);
+                }
+            }
+
+            currentToken.AddNestedTokens(nestedTokensToMove.ToArray());
+            currentToken.RemoveNestedTokens(nestedTokensToRemove.ToArray());
+            
+            previousTokens.Remove(currentToken);
+        }
+
+        private bool IsTokenCanNestedInTokens(HashSet<TextToken> tokens, TextToken tokenToNeste)
+        {
+            foreach (var token in tokens)
+            {
+                if (!token.Tag.CanNested(tokenToNeste.Tag))
+                    return false;
+            }
+
+            return true;
         }
 
         private void AtLineEnd(int position, bool isTextEnd=false)
@@ -112,7 +154,7 @@ namespace Markdown.Parser
             var tag = openBorderToTag[openBorder];
             
             if (!IsValidToOpen(tag, position))
-                return 0;
+                return openBorder.Length;
             if (previousIsEscapeSymbol)
             {
                 previousIsEscapeSymbol = false;
@@ -121,22 +163,11 @@ namespace Markdown.Parser
             }
             OpenToken(tag, position);
             return openBorder.Length;
-
         }
 
         private bool IsValidToOpen(ITagData tag, int startPosition)
         {
-            return IsTagAllowed(tag) && tag.IsValidAtOpen(fullTextData.Value, startPosition);
-        }
-
-        private bool IsTagAllowed(ITagData tag)
-        {
-            foreach (var token in currentTokens)
-            {
-                if (tag == token.Tag || !token.Tag.CanNested(tag))
-                    return false;
-            }
-            return true;
+            return tag.IsValidAtOpen(fullTextData.Value, startPosition);
         }
 
         private void OpenToken(ITagData tag, int position)
@@ -147,24 +178,29 @@ namespace Markdown.Parser
 
         private int TryToCloseTokenAndGetOffset(string text, int position)
         {
-            var closeBorder = GetMatchesFromTree(closeTagTree, text, position).LastOrDefault();
-            if (closeBorder == null)
+            var closeBorders = GetMatchesFromTree(closeTagTree, text, position);
+            closeBorders.Reverse();
+            if (closeBorders.Count == 0)
                 return 0;
             
             for (var i = currentTokens.Count - 1; i >= 0; i--)
             {
-                if (closeBorder == currentTokens[i].Tag.IncomingBorder.Close)
+                foreach (var closeBorder in closeBorders)
                 {
-                    if (IsValidToClose(i, position))
+                    var currentTag = currentTokens[i].Tag;
+                    if (closeBorder == currentTag.IncomingBorder.Close)
                     {
-                        if (previousIsEscapeSymbol)
+                        if (IsValidToClose(i, position))
                         {
-                            previousIsEscapeSymbol = false;
-                            fullTextData.AddDataToRemove("\\", position - 1);
-                            return 0;
+                            if (previousIsEscapeSymbol)
+                            {
+                                previousIsEscapeSymbol = false;
+                                fullTextData.AddDataToRemove("\\", position - 1);
+                                return 0;
+                            }
+                            CloseToken(i, position);
+                            return closeBorder.Length;
                         }
-                        CloseToken(i, position);
-                        return closeBorder.Length;
                     }
                 }
             }
@@ -179,6 +215,12 @@ namespace Markdown.Parser
 
         private void CloseToken(int tokenNumber, int endPosition)
         {
+            if (currentTokens[tokenNumber].Tag.IsBreaksWhenNestedNotComplete
+                && tokenNumber < currentTokens.Count - 1)
+            {
+                CancelSubsequentTokens(tokenNumber - 1);
+                return;
+            }
             CancelSubsequentTokens(tokenNumber);
             
             var token = currentTokens[tokenNumber];
