@@ -55,6 +55,9 @@ Sed at magna maximus nunc dictum tristique ac sed velit. Cras at felis mauris. A
 asd", @"asdbsd
 <h1>asd</h1>
 asd")]
+        [TestCase("![](./Images/Image1.jpg)", "<img src=\"./Images/Image1.jpg\">")]
+        [TestCase("![](./Images/Image2.jpg)__sometext__",
+            "<img src=\"./Images/Image2.jpg\"><strong>sometext</strong>")]
         public void ConverterTests(string markDownText, string expectedResult)
         {
             var htmlText = converter.ConvertToHtml(markDownText);

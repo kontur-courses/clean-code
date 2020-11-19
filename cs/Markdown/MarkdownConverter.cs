@@ -16,10 +16,12 @@ namespace Markdown
                 {new Tag("__", "__", new HashSet<Tag> { new Tag("_", "_")}), 
                     new Tag("<strong>", "</strong>")},
                 {new Tag("_", "_"), new Tag("<em>", "</em>")},
-                { new Tag("# ", "\r\n"), new Tag("<h1>", "</h1>\r\n")}
+                { new Tag("# ", "\r\n"), new Tag("<h1>", "</h1>\r\n")},
+                { new Tag("![](", ")"), new Tag("<img src=\"", "\">")},
             };
             validator = new MarkdownValidator(
-                markdownToHtmlDictionary.Keys.ToHashSet(), new HashSet<Tag>{ new Tag("# ", "\r\n") });
+                markdownToHtmlDictionary.Keys.ToHashSet(), 
+                new HashSet<Tag>{ new Tag("# ", "\r\n"), new Tag("![](", ")" )});
         }
 
         public string ConvertToHtml(string markdown)
