@@ -15,7 +15,6 @@ namespace Markdown
             Opening = openeing;
             Ending = ending;
             InvalidContext = invalidContext ?? new HashSet<Tag>();
-            InvalidContext.Add(this);
         }
 
         public bool CheckForContext(Dictionary<Tag, TagSubstring> activeTags)
