@@ -12,7 +12,7 @@ namespace Markdown
 
             for (var i = 0; i < line.Length; i++)
             {
-                var type = GetTagType(line, i);
+                var type = GetTagType(line, i, openedTags);
                 if (type == TagType.NonTag)
                     continue;
 
@@ -20,7 +20,7 @@ namespace Markdown
                 {
                     case TagType.Shield:
                     {
-                        var followingTag = GetTagType(line, i + 1);
+                        var followingTag = GetTagType(line, i + 1, openedTags);
                         if (followingTag is TagType.NonTag)
                             continue;
                         tokens.Add(new SingleTagToken(i, line.Length, TagType.Shield));
@@ -41,12 +41,67 @@ namespace Markdown
                             tokens.Add(token);
                         break;
                     }
+                    case TagType.Link:
+                    {
+                        if(TryGetTokenForLink(line, i, out var token))
+                            tokens.Add(token);
+                        var shift = token.TagSignLength;
+                        i += shift;
+                        break;
+                    }
                 }
 
                 i += TagAnalyzer.GetSignLength(type) - 1;
             }
 
             return tokens;
+        }
+
+        private static bool TryGetTokenForLink(string line, int startIndex, out LinkTagToken token)
+        {
+            token = null;
+            if (!TryGetLinkText(line, startIndex, out var linkText, out var linkTextCloserIndex))
+                return false;
+
+            var urlOpener = linkTextCloserIndex + 1;
+            if (!TryGetLinkUrl(line, urlOpener, out var linkUrl, out var urlCloserIndex))
+                return false;
+
+            token = new LinkTagToken(startIndex, urlCloserIndex, TagType.Link, linkText, linkUrl);
+            return true;
+        }
+
+        private static bool TryGetLinkText(string line, int startIndex, out string text, out int textCloserIndex)
+        {
+            text = string.Empty;
+            textCloserIndex = startIndex;
+            var linkTextCloserIndex = line.IndexOf(']', startIndex);
+            if (linkTextCloserIndex == -1)
+                return false;
+
+            var linkTextLength = linkTextCloserIndex - startIndex;
+            text = line.Substring(startIndex + 1, linkTextLength - 1);
+            textCloserIndex = linkTextCloserIndex;
+            return true;
+        }
+
+        private static bool TryGetLinkUrl(string line, int urlStartIndex, out string url, out int urlCloserIndex)
+        {
+            url = string.Empty;
+            urlCloserIndex = urlStartIndex;
+            if (line[urlStartIndex] != '(')
+                return false;
+
+            var urlCloser = line.IndexOf(')', urlStartIndex);
+            if (urlCloser == -1)
+                return false;
+
+            url = line.Substring(urlStartIndex + 1, urlCloser - urlStartIndex - 1);
+            if (url.Contains(' '))
+                return false;
+            urlCloserIndex = urlCloser;
+
+            return true;
         }
 
         private static bool TryGetTagTokenForPairedTag(string line, int tagIndex, TagType type, Stack<(int startPosition, TagType type)> openedTags, out PairedTagToken token)
@@ -85,16 +140,24 @@ namespace Markdown
             return true;
         }
 
-        private static TagType GetTagType(string line, int index)
+        private static TagType GetTagType(string line, int index, Stack<(int startPosition, TagType type)> openedTags)
         {
             switch (line[index])
             {
                 case '\\':
-                    return index + 1 < line.Length && GetTagType(line, index + 1) != TagType.NonTag
+                    return index + 1 < line.Length && GetTagType(line, index + 1, openedTags) != TagType.NonTag
                         ? TagType.Shield
                         : TagType.NonTag;
                 case '#': return index + 1 < line.Length && line[index + 1] == ' ' ? TagType.Header : TagType.NonTag;
-                case '_': return index + 1 < line.Length && line[index + 1] == '_' ? TagType.Bold : TagType.Italic;
+                case '_':
+                {
+                    if (openedTags.Any() && openedTags.Peek().type is TagType.Italic
+                                         && index + 2 < line.Length
+                                         && line[index + 1] == '_' && line[index + 2] == '_')
+                        return TagType.Italic;
+                    return index + 1 < line.Length && line[index + 1] == '_' ? TagType.Bold : TagType.Italic;
+                }
+                case '[': return TagType.Link;
                 default: return TagType.NonTag;
             }
         }
@@ -120,7 +183,7 @@ namespace Markdown
         }
 
         private static bool HasCorrectValueLength(TagToken token)
-            => token.ValueLength > 0 || token.Type == TagType.Shield;
+            => token.ValueLength > 0 || token.Type == TagType.Shield || token is LinkTagToken;
 
         private static bool HasIncorrectIntersection(List<PairedTagToken> pairedTokens, PairedTagToken token) =>
             pairedTokens.Where(x => x != token)

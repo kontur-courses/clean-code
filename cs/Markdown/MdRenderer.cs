@@ -22,24 +22,30 @@ namespace Markdown
 
         private static string RenderLine(string line, IEnumerable<TagToken> tokens)
         {
-            var rendered = new StringBuilder(line);
-            var replacements = GetTagToHtmlReplacements(tokens).OrderBy(x => x.Position);
-            var shift = 0;
+            var rendered = new StringBuilder();
+            var replacements =
+                new Queue<TagToHtmlReplacement>(GetTagToHtmlReplacements(tokens).OrderBy(x => x.Position));
+            var index = 0;
 
-            foreach (var replacement in replacements)
+            if (replacements.Count == 0)
+                return line;
+
+            while (replacements.Count > 0)
             {
-                if (replacement.Position + shift < rendered.Length)
+                var processingReplacement = replacements.Dequeue();
+                if (index < processingReplacement.Position)
                 {
-                    rendered.Remove(replacement.Position + shift, replacement.TagSignLength);
-                    rendered.Insert(replacement.Position + shift, replacement.NewValue);
-                    shift += replacement.NewValue.Length - replacement.TagSignLength;
+                    var s = line.Substring(index, processingReplacement.Position - index);
+                    rendered.Append(s);
+                    index += s.Length;
                 }
-                else
-                {
-                    rendered.Append(replacement.NewValue);
-                    shift += replacement.NewValue.Length;
-                }
+
+                rendered.Append(processingReplacement.NewValue);
+                index += processingReplacement.ReplacedValueLength;
             }
+
+            if (index < line.Length)
+                rendered.Append(line.Substring(index, line.Length - index));
 
             return rendered.ToString();
         }
@@ -51,8 +57,8 @@ namespace Markdown
                 if (token.Type is TagType.NonTag)
                     throw new Exception("NonTag cannot be replaced");
 
-                yield return new TagToHtmlReplacement(token.StartPosition, token.Type, false);
-                yield return new TagToHtmlReplacement(token.EndPosition, token.Type, true);
+                yield return new TagToHtmlReplacement(token, false);
+                yield return new TagToHtmlReplacement(token, true);
             }
         }
     }

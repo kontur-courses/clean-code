@@ -12,6 +12,7 @@ namespace Markdown
             {TagType.Bold, "strong"},
             {TagType.Header, "h1"},
             {TagType.Shield, ""},
+            {TagType.Link, "a"},
             {TagType.NonTag, ""}
         }.ToImmutableDictionary();
 
@@ -21,6 +22,7 @@ namespace Markdown
             {TagType.Bold, 2},
             {TagType.Header, 2},
             {TagType.Shield, 1},
+            {TagType.Link, 1},
             {TagType.NonTag, 0}
         }.ToImmutableDictionary();
 
@@ -35,7 +37,7 @@ namespace Markdown
             return line.Substring(wordStartIndex, wordEndIndex - wordStartIndex);
         }
 
-        public static string GetHtmlValue(TagType t) => HtmlValue[t];
+        public static string GetDefaultHtmlValue(TagType t) => HtmlValue[t];
 
         public static int GetSignLength(TagType t) => SignLength[t];
 
@@ -55,6 +57,7 @@ namespace Markdown
         
 
         public static bool IsCorrectNesting(TagToken external, TagToken nested) => 
-            !(nested.Type is TagType.Bold && nested.IsInsideOf(external) && external.Type is TagType.Italic);
+            !(nested.Type is TagType.Bold && nested.IsInsideOf(external) && external.Type is TagType.Italic)
+        || nested.Type is TagType.Link;
     }
 }

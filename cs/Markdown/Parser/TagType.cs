@@ -6,6 +6,7 @@
         Bold,
         Italic,
         Header,
+        Link,
         Shield
     }
 }

@@ -1,6 +1,4 @@
-﻿using System.Collections.Generic;
-using System.Diagnostics;
-using System.Linq;
+﻿using System.Diagnostics;
 using System.Text;
 using FluentAssertions;
 using NUnit.Framework;
@@ -116,6 +114,27 @@ namespace Markdown
         [TestCase("__123__", "<strong>123</strong>")]
         [TestCase("__123qwe__", "<strong>123qwe</strong>")]
         public void Should_IgnoreTags_WhichIntersectedWordWithNumber(string input, string expected)
+        {
+            MdRenderer.Render(input)
+                .Should().Be(expected);
+        }
+
+        [TestCase("___word___", "<strong><em>word</em></strong>")]
+        [TestCase("__Here is a _word_ and _another_ :3__", "<strong>Here is a <em>word</em> and <em>another</em> :3</strong>")]
+        [TestCase("# ___word___", "<h1><strong><em>word</em></strong></h1>")]
+        [TestCase("# ___[Link](https://google.com)___", "<h1><strong><em><a href=https://google.com>Link</a></em></strong></h1>")]
+        public void Should_SupportCorrectIntersections(string input, string expected)
+        {
+            MdRenderer.Render(input)
+                .Should().Be(expected);
+        }
+
+        [TestCase("[Link](https://google.com/)", "<a href=https://google.com/>Link</a>")]
+        [TestCase("[Link](https://go_og_le.com/)", "<a href=https://go_og_le.com/>Link</a>")]
+        [TestCase("[Link](https://go__og__le.com/)", "<a href=https://go__og__le.com/>Link</a>")]
+        [TestCase("\\[Link](https://w_oo_f.com)", "[Link](https://w<em>oo</em>f.com)")]
+        [TestCase("___Here is a [Link](https://google.com)___", "<strong><em>Here is a <a href=https://google.com>Link</a></em></strong>")]
+        public void Should_SupportLinks(string input, string expected)
         {
             MdRenderer.Render(input)
                 .Should().Be(expected);

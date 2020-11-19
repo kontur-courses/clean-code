@@ -5,18 +5,17 @@
         public readonly int Position;
         public readonly TagType Type;
         public readonly bool IsCloser;
+        public readonly int ReplacedValueLength;
         public int TagSignLength => TagAnalyzer.GetSignLength(Type);
         public readonly string NewValue;
 
-        public TagToHtmlReplacement(int position, TagType type, bool isCloser)
+        public TagToHtmlReplacement(TagToken token, bool isCloser)
         {
-            Position = position;
-            Type = type;
+            Position = isCloser ? token.EndPosition : token.StartPosition;
+            Type = token.Type;
             IsCloser = isCloser;
-            if (type is TagType.Shield)
-                NewValue = "";
-            else
-                NewValue = $"<{(isCloser ? "/" : "")}{TagAnalyzer.GetHtmlValue(Type)}>";
+            NewValue = token.GetHtmlValue(isCloser);
+            ReplacedValueLength = token.TagSignLength;
         }
     }
 }
