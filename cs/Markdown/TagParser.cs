@@ -1,5 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Collections.ObjectModel;
+using System.Linq;
 
 namespace Markdown
 {
@@ -30,7 +32,9 @@ namespace Markdown
                 lineNumber++;
             }
 
-            return tags.ConfigureUnorderedLists();
+            var listItemTags = tags.Where(x => x.Type == TagType.ListItem).ToList();
+            var notListItemTags = tags.Where(x => x.Type != TagType.ListItem);
+            return listItemTags.ConfigureUnorderedLists().Concat(notListItemTags);
         }
 
         private static IEnumerable<Tag> ReadTagsFromLine(

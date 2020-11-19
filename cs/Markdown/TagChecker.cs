@@ -19,35 +19,29 @@ namespace Markdown
         public static IEnumerable<Tag> ConfigureUnorderedLists(this List<Tag> tags)
         {
             Tag lastListItem = null;
-            foreach (var tag in tags)
+            var openTags = tags.Where(x => x.IsOpening);
+            var closeTags = tags.Where(x => !x.IsOpening);
+            var tagPairs = openTags.Zip(closeTags, (x, y) => new
             {
-                if (tag.Type == TagType.ListItem)
+                OpenTag = x,
+                CloseTag = y
+            });
+            foreach (var tagPair in tagPairs)
+            {
+                if (lastListItem == null)
                 {
-                    if (tag.IsOpening)
-                    {
-                        if (lastListItem == null)
-                        {
-                            yield return UnorderedListTagHelper.GetTag(tag.Position, true);
-                        }
-                        else if (tag.LineNumber - lastListItem.LineNumber != 1)
-                        {
-                            yield return UnorderedListTagHelper.GetTag(lastListItem.Position, false);
-                            yield return UnorderedListTagHelper.GetTag(tag.Position, true);
-                        }
-                    }
-                    else
-                    {
-                        lastListItem = tag;
-                    }
+                    yield return UnorderedListTagHelper.GetTag(tagPair.OpenTag.Position, true);
+                }
+                else if (tagPair.OpenTag.LineNumber - lastListItem.LineNumber != 1)
+                {
+                    yield return UnorderedListTagHelper.GetTag(lastListItem.Position, false);
+                    yield return UnorderedListTagHelper.GetTag(tagPair.OpenTag.Position, true);
+                }
 
-                    yield return tag;
-                }
-                else
-                {
-                    yield return tag;
-                }
+                lastListItem = tagPair.CloseTag;
+                yield return tagPair.OpenTag;
+                yield return tagPair.CloseTag;
             }
-
             if (lastListItem != null)
                 yield return UnorderedListTagHelper.GetTag(lastListItem.Position, false);
         }
