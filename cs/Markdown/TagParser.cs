@@ -9,7 +9,7 @@ namespace Markdown
     {
         private static readonly string NewLine = Environment.NewLine;
 
-        public static readonly Dictionary<TagType, TagHelper> SupportedTags = new Dictionary<TagType, TagHelper>
+        private static readonly Dictionary<TagType, TagHelper> supportedTags = new Dictionary<TagType, TagHelper>
         {
             [TagType.Italic] = new ItalicTagHelper(),
             [TagType.Header] = new HeaderTagHelper(),
@@ -18,6 +18,9 @@ namespace Markdown
             [TagType.UnorderedList] = new UnorderedListTagHelper(),
             [TagType.ListItem] = new ListItemTagHelper()
         };
+
+        public static readonly IReadOnlyDictionary<TagType, TagHelper> SupportedTags =
+            new ReadOnlyDictionary<TagType, TagHelper>(supportedTags);
 
         public static IEnumerable<Tag> GetTags(string text)
         {
