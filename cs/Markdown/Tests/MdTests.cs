@@ -16,26 +16,26 @@ namespace Markdown.Tests
         }
 
         [TestCase("__abcd__", ExpectedResult = "<strong>abcd</strong>",
-            TestName = "Should_Parse_Bold_Token")]
+            TestName = "Should_Parse_Bold_Formatting_In_Text")]
         [TestCase("_abcdef_", ExpectedResult = "<em>abcdef</em>",
-            TestName = "Should_Parse_Italic_Token")]
+            TestName = "Should_Parse_Italic_Formatting_In_Text")]
         [TestCase("#abcdef", ExpectedResult = "<h1>abcdef</h1>",
-            TestName = "Should_Parse_Header_Token")]
+            TestName = "Should_Parse_Header_Formatting_In_Text")]
         public string MdRenderOnSimpleTokens(string line)
         {
             return mdRender.Render(line);
         }
 
         [TestCase("_ab_cd_ef_", ExpectedResult = "<em>ab</em>cd<em>ef</em>",
-            TestName = "Should_Parse_Some_Italic_Tokens_In_Text")]
+            TestName = "Should_Parse_Some_Italic_Formatting_In_Text")]
         [TestCase("__ab__cd__ef__", ExpectedResult = "<strong>ab</strong>cd<strong>ef</strong>",
-            TestName = "Should_Parse_Some_Bold_Tokens_In_Text")]
+            TestName = "Should_Parse_Some_Bold_Formatting_In_Text")]
         [TestCase("_ab_c__d_e_f__", ExpectedResult = "<em>ab</em>c<strong>d<em>e</em>f</strong>",
-            TestName = "Should_Stop_Parse_Token_If_Token_Finish")]
+            TestName = "Should_Stop_Parse_Formatting_Text_If_Text_Finish")]
         [TestCase("__ab_cd_ef__", ExpectedResult = "<strong>ab<em>cd</em>ef</strong>",
-            TestName = "Should_Parse_Italic_Token_In_Bold")]
+            TestName = "Should_Parse_Italic_Text_Inside_Bold")]
         [TestCase("_ab__c__de_", ExpectedResult = "<em>ab__c__de</em>",
-            TestName = "Should_Not_Parse_Neseted_Bold_Token_In_Italic")]
+            TestName = "Should_Not_Parse_Neseted_Bold_Text_In_Italic")]
         [TestCase("#__ab_cd_ef__", ExpectedResult = "<h1><strong>ab<em>cd</em>ef</strong></h1>",
             TestName = "Should_Parse_Some_Nested_Tokens")]
         public string MdRenderOnNestedTokens(string line)
@@ -75,7 +75,7 @@ namespace Markdown.Tests
         [TestCase("__abcd __", ExpectedResult = "__abcd __",
             TestName = "Should_Not_Parse_Bold_Text_If_End_With_Non_Whitespace_Char")]
         [TestCase("__123__", ExpectedResult = "<strong>123</strong>",
-            TestName = "Should_Pars_Bold_Token_With_Digit_Value")]
+            TestName = "Should_Pars_Bold_Text_With_Digit_Value")]
         [TestCase("_12_3", ExpectedResult = "_12_3",
             TestName = "Formatting_Bold_Char_Inside_Digit_Text_Should_Not_Parse")]
         [TestCase("____", ExpectedResult = "____",
