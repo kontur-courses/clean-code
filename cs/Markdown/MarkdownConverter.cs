@@ -13,10 +13,12 @@ namespace Markdown
         {
             markdownToHtmlDictionary = new Dictionary<Tag, Tag>
             {
-                {new Tag("__", "__", new HashSet<Tag> { new Tag("_", "_")}), 
+                {new Tag("__", "__", new HashSet<Tag> { new Tag("_", "_"), new Tag("![](", ")")}), 
                     new Tag("<strong>", "</strong>")},
-                {new Tag("_", "_"), new Tag("<em>", "</em>")},
-                { new Tag("# ", "\r\n"), new Tag("<h1>", "</h1>\r\n")},
+                {new Tag("_", "_", new HashSet<Tag>{new Tag("![](", ")")}),
+                    new Tag("<em>", "</em>")},
+                { new Tag("# ", "\r\n", 
+                    new HashSet<Tag>{new Tag("![](", ")")}), new Tag("<h1>", "</h1>\r\n")},
                 { new Tag("![](", ")"), new Tag("<img src=\"", "\">")},
             };
             validator = new MarkdownValidator(
