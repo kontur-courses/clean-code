@@ -2,11 +2,11 @@
 
 namespace Markdown.TokenReaders
 {
-    public class PlainTokenReader : ITokenReader
+    public class PlainTextTokenReader : ITokenReader
     {
         public TextToken TyrGetToken(string text, int start, int end)
         {
-            return !CanCreateToken(text, end, start) ? null : new PlaintTextToken(text[start..(end + 1)]);
+            return !CanCreateToken(text, end, start) ? null : new PlainTextToken(text[start..(end + 1)]);
         }
 
         private static bool CanCreateToken(string text, int index, int startPosition)

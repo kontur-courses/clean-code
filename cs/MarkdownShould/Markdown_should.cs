@@ -17,7 +17,7 @@ namespace Markdown.Tests
                 new HeaderTokenReader(),
                 new StrongTokenReader(),
                 new EmphasizedTokenReader(),
-                new PlainTokenReader()
+                new PlainTextTokenReader()
             };
             var textParser = new TextParser(tokenReaders);
 

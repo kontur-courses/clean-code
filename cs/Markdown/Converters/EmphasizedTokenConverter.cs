@@ -1,6 +1,6 @@
 ﻿namespace Markdown.Converters
 {
-    public class EmphasizedTokenConverter : TagTokenConverter
+    public class EmphasizedTokenConverter : TokenConverter
     {
         public EmphasizedTokenConverter(IConverter converter) : base(converter, "em")
         {

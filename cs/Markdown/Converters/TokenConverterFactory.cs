@@ -5,14 +5,14 @@ namespace Markdown.Converters
 {
     public class TokenConverterFactory : ITokenConverterFactory
     {
-        private readonly Dictionary<TokenType, ITagTokenConverter> tokenConverters;
+        private readonly Dictionary<TokenType, ITokenConverter> tokenConverters;
 
         public TokenConverterFactory()
         {
-            tokenConverters = new Dictionary<TokenType, ITagTokenConverter>();
+            tokenConverters = new Dictionary<TokenType, ITokenConverter>();
         }
 
-        public ITagTokenConverter GetTokenConverter(TokenType tokenType, IConverter converter)
+        public ITokenConverter GetTokenConverter(TokenType tokenType, IConverter converter)
         {
             if (tokenConverters.TryGetValue(tokenType, out var tokenConverter))
                 return tokenConverter;
@@ -22,7 +22,7 @@ namespace Markdown.Converters
                 TokenType.Emphasized => new EmphasizedTokenConverter(converter),
                 TokenType.Strong => new StrongTokenConverter(converter),
                 TokenType.Header => new HeaderTokenConverter(converter),
-                TokenType.Text => new PlainTokenConverter(),
+                TokenType.Text => new PlainTextTokenConverter(),
                 _ => throw new ArgumentOutOfRangeException($"Unknown token type {tokenType}")
             };
 

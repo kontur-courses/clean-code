@@ -2,7 +2,7 @@
 
 namespace Markdown.Converters
 {
-    public class PlainTokenConverter : ITagTokenConverter
+    public class PlainTextTokenConverter : ITokenConverter
     {
         public string ConvertToken(IToken token)
         {

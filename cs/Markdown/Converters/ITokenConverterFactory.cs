@@ -2,6 +2,6 @@
 {
     public interface ITokenConverterFactory
     {
-        ITagTokenConverter GetTokenConverter(TokenType tokenType, IConverter converter);
+        ITokenConverter GetTokenConverter(TokenType tokenType, IConverter converter);
     }
 }

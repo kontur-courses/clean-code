@@ -22,8 +22,8 @@ namespace Markdown.Tests
         {
             var textTokens = new List<IToken>
             {
-                new PlaintTextToken("aa"),
-                new PlaintTextToken("cccc")
+                new PlainTextToken("aa"),
+                new PlainTextToken("cccc")
             };
             var expectedString = "aacccc";
 
@@ -37,10 +37,10 @@ namespace Markdown.Tests
         {
             var textTokens = new List<TextToken>
             {
-                new PlaintTextToken("aa"),
-                new EmphasizedTextToken("_cccc_") {SubTokens = new List<IToken> {new PlaintTextToken("cccc")}},
-                new PlaintTextToken("bb"),
-                new EmphasizedTextToken("_dddd_") {SubTokens = new List<IToken> {new PlaintTextToken("dddd")}}
+                new PlainTextToken("aa"),
+                new EmphasizedTextToken("_cccc_") {SubTokens = new List<IToken> {new PlainTextToken("cccc")}},
+                new PlainTextToken("bb"),
+                new EmphasizedTextToken("_dddd_") {SubTokens = new List<IToken> {new PlainTextToken("dddd")}}
             };
             var expectedString = "aa<em>cccc</em>bb<em>dddd</em>";
 
@@ -58,9 +58,9 @@ namespace Markdown.Tests
                 {
                     SubTokens = new List<IToken>
                     {
-                        new PlaintTextToken("cccc"),
-                        new EmphasizedTextToken("_ab_") {SubTokens = new List<IToken> {new PlaintTextToken("ab")}},
-                        new PlaintTextToken("bbbb")
+                        new PlainTextToken("cccc"),
+                        new EmphasizedTextToken("_ab_") {SubTokens = new List<IToken> {new PlainTextToken("ab")}},
+                        new PlainTextToken("bbbb")
                     }
                 }
             };
@@ -80,15 +80,15 @@ namespace Markdown.Tests
                 {
                     SubTokens = new List<IToken>
                     {
-                        new PlaintTextToken("cccc"),
+                        new PlainTextToken("cccc"),
                         new EmphasizedTextToken("_ab_")
                         {
                             SubTokens = new List<IToken>
                             {
-                                new PlaintTextToken("ab")
+                                new PlainTextToken("ab")
                             }
                         },
-                        new PlaintTextToken("bbbb")
+                        new PlainTextToken("bbbb")
                     }
                 }
             };

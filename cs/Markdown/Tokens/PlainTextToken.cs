@@ -2,9 +2,9 @@
 
 namespace Markdown.Tokens
 {
-    public class PlaintTextToken : TextToken
+    public class PlainTextToken : TextToken
     {
-        public PlaintTextToken(string text) : base(TokenType.Text, text)
+        public PlainTextToken(string text) : base(TokenType.Text, text)
         {
             Text = RemoveShieldSymbols(text);
         }

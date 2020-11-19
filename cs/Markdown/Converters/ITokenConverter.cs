@@ -2,7 +2,7 @@
 
 namespace Markdown.Converters
 {
-    public interface ITagTokenConverter
+    public interface ITokenConverter
     {
         string ConvertToken(IToken token);
     }
