@@ -7,16 +7,16 @@ namespace MarkdownParser.Infrastructure.Tokenization.Workers
     public static class TokenHelpers
     {
         public static bool InsideWord(this TokenPosition source) =>
-            source.HasFlags(TokenPosition.BeforeWord, TokenPosition.AfterWord);
+            source.HasAllFlags(TokenPosition.BeforeWord, TokenPosition.AfterWord);
 
         public static bool InsideDigit(this TokenPosition source) =>
-            source.HasFlags(TokenPosition.AfterDigit, TokenPosition.BeforeDigit);
+            source.HasAllFlags(TokenPosition.AfterDigit, TokenPosition.BeforeDigit);
 
         public static bool AtDigitBegin(this TokenPosition source) =>
-            source.HasFlags(TokenPosition.BeforeDigit);
+            source.HasAllFlags(TokenPosition.BeforeDigit);
 
         public static bool AtDigitEnd(this TokenPosition source) =>
-            source.HasFlags(TokenPosition.AfterDigit);
+            source.HasAllFlags(TokenPosition.AfterDigit);
 
         public static bool OnDigitBorder(this TokenPosition source) =>
             source.AtDigitBegin() || source.AtDigitEnd();
@@ -25,10 +25,10 @@ namespace MarkdownParser.Infrastructure.Tokenization.Workers
             source.AfterWhitespace() && source.BeforeWhitespace();
 
         public static bool AtWordBegin(this TokenPosition source) =>
-            source.HasFlags(TokenPosition.BeforeWord, TokenPosition.AfterWhitespace);
+            source.HasAllFlags(TokenPosition.BeforeWord, TokenPosition.AfterWhitespace);
 
         public static bool AtWordEnd(this TokenPosition source) =>
-            source.HasFlags(TokenPosition.AfterWord, TokenPosition.BeforeWhitespace);
+            source.HasAllFlags(TokenPosition.AfterWord, TokenPosition.BeforeWhitespace);
 
         public static bool OnWordBorder(this TokenPosition source) =>
             source.AtWordBegin() || source.AtWordEnd();
@@ -42,7 +42,7 @@ namespace MarkdownParser.Infrastructure.Tokenization.Workers
         public static bool OnParagraphStart(this TokenPosition source) =>
             source.HasFlag(TokenPosition.ParagraphStart);
 
-        public static bool HasFlags(this TokenPosition source, params TokenPosition[] flags) =>
+        public static bool HasAllFlags(this TokenPosition source, params TokenPosition[] flags) =>
             flags.All(f => source.HasFlag(f));
         
         public static bool HasAnyFlag(this TokenPosition source, params TokenPosition[] flags) =>
