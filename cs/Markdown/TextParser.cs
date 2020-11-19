@@ -1,16 +1,18 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using Markdown.TokenReaders;
+using Markdown.Tokens;
 
 namespace Markdown
 {
     public class TextParser : IParser
     {
-        private readonly IReadOnlyCollection<ITokenReader> tokenGetters;
+        private readonly IReadOnlyCollection<ITokenReader> tokenReaders;
 
-        public TextParser(IReadOnlyCollection<ITokenReader> tokenGetters)
+        public TextParser(IReadOnlyCollection<ITokenReader> tokenReaders)
         {
-            this.tokenGetters = tokenGetters;
+            this.tokenReaders = tokenReaders;
         }
 
         public List<IToken> GetTextTokens(string text)
@@ -25,7 +27,7 @@ namespace Markdown
             for (var start = 0; start < text.Length - 1; start++)
             for (var end = start; end < text.Length; end++)
             {
-                var currentToken = TryGetToken(text, end, start);
+                var currentToken = TryGetToken(text, start, end);
 
                 if (currentToken == null) continue;
 
@@ -40,10 +42,10 @@ namespace Markdown
             return tokens;
         }
 
-        private IToken TryGetToken(string text, int index, int startPosition)
+        private IToken TryGetToken(string text, int start, int end)
         {
-            return tokenGetters
-                .Select(tokenGetter => tokenGetter.TyrGetToken(text, index, startPosition))
+            return tokenReaders
+                .Select(tokenGetter => tokenGetter.TyrGetToken(text, start, end))
                 .FirstOrDefault(token => token != null);
         }
     }

@@ -1,15 +1,12 @@
-﻿namespace Markdown
+﻿using Markdown.Tokens;
+
+namespace Markdown.TokenReaders
 {
-    public class TextTokenReader : ITokenReader
+    public class PlainTokenReader : ITokenReader
     {
-        public TextToken TyrGetToken(string text, int end, int start)
+        public TextToken TyrGetToken(string text, int start, int end)
         {
-            if (!CanCreateToken(text, end, start))
-                return null;
-
-            var tokenText = text[start..(end + 1)];
-
-            return new PlaintTextToken(tokenText);
+            return !CanCreateToken(text, end, start) ? null : new PlaintTextToken(text[start..(end + 1)]);
         }
 
         private static bool CanCreateToken(string text, int index, int startPosition)

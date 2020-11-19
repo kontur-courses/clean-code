@@ -1,13 +1,12 @@
 ﻿using System.Text;
 
-namespace Markdown
+namespace Markdown.Tokens
 {
     public class PlaintTextToken : TextToken
     {
-        public PlaintTextToken(string text) : base(text.Length, TokenType.Text, null, true, null)
+        public PlaintTextToken(string text) : base(TokenType.Text, text)
         {
             Text = RemoveShieldSymbols(text);
-            var a = Text;
         }
 
         private static string RemoveShieldSymbols(string tokenText)

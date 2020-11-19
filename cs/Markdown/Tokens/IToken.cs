@@ -1,6 +1,6 @@
 ﻿using System.Collections.Generic;
 
-namespace Markdown
+namespace Markdown.Tokens
 {
     public interface IToken
     {
@@ -8,7 +8,5 @@ namespace Markdown
         public TokenType Type { get; }
         public string Text { get; }
         public List<IToken> SubTokens { get; set; }
-
-        public bool IsTerminal { get; }
     }
 }

@@ -1,20 +1,16 @@
 ﻿using System.Linq;
+using Markdown.Tokens;
 
-namespace Markdown
+namespace Markdown.TokenReaders
 {
     public class EmphasizedTokenReader : ITokenReader
     {
-        public TextToken TyrGetToken(string text, int end, int start)
+        public TextToken TyrGetToken(string text, int start, int end)
         {
-            if (!CanCreateToken(text, end, start))
-                return null;
-
-            var tokenText = text[start..(end + 1)];
-
-            return new EmphasizedTextToken(tokenText);
+            return !CanCreateToken(text, start, end) ? null : new EmphasizedTextToken(text[start..(end + 1)]);
         }
 
-        private static bool CanCreateToken(string text, int end, int start)
+        private static bool CanCreateToken(string text, int start, int end)
         {
             var tokenText = text[start..(end + 1)];
             return !IsTextContainsOnlyUnderlinings(tokenText)
@@ -22,7 +18,7 @@ namespace Markdown
                    && !IsTextContainsNumbers(tokenText)
                    && !IsSpaceAfterStartOrSpaceBeforeEnd(tokenText)
                    && !IsStrongInsideEm(tokenText)
-                   && !(IsUnderliningStartFromPartOfWord(tokenText, end, text)
+                   && !(IsUnderliningStartFromPartOfWord(tokenText, text, end)
                         && IsTextContainsSpace(tokenText));
         }
 
@@ -56,8 +52,7 @@ namespace Markdown
             return tokenText[1] == ' ' || tokenText[tokenText.Length - 2] == ' ';
         }
 
-        private static bool IsUnderliningStartFromPartOfWord(string tokenText, int end,
-            string text)
+        private static bool IsUnderliningStartFromPartOfWord(string tokenText, string text, int end)
         {
             return end - tokenText.Length >= 0 && text[end - tokenText.Length] != ' ';
         }

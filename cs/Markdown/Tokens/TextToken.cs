@@ -1,16 +1,14 @@
 ﻿using System.Collections.Generic;
 
-namespace Markdown
+namespace Markdown.Tokens
 {
     public class TextToken : IToken
     {
-        public TextToken(int length, TokenType type, string text, bool isTerminal, List<IToken> subTokens)
+        protected TextToken(TokenType type, string text)
         {
-            Length = length;
+            Length = text.Length;
             Type = type;
             Text = text;
-            IsTerminal = isTerminal;
-            SubTokens = subTokens;
         }
 
 
@@ -18,6 +16,5 @@ namespace Markdown
         public TokenType Type { get; }
         public string Text { get; protected set; }
         public List<IToken> SubTokens { get; set; }
-        public bool IsTerminal { get; }
     }
 }

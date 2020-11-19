@@ -1,6 +1,8 @@
 ﻿using System;
 using System.Collections.Generic;
 using FluentAssertions;
+using Markdown.TokenReaders;
+using Markdown.Tokens;
 using NUnit.Framework;
 
 namespace Markdown.Tests
@@ -12,14 +14,14 @@ namespace Markdown.Tests
         [SetUp]
         public void SetUp()
         {
-            var tokenGetters = new ITokenReader[]
+            var tokenReaders = new ITokenReader[]
             {
                 new HeaderTokenReader(),
                 new StrongTokenReader(),
                 new EmphasizedTokenReader(),
-                new TextTokenReader()
+                new PlainTokenReader()
             };
-            textParser = new TextParser(tokenGetters);
+            textParser = new TextParser(tokenReaders);
         }
 
         [Test]
@@ -41,8 +43,10 @@ namespace Markdown.Tests
         [Test]
         public void GetTextTokens_ReturnListWithEmphasizedToken_OneUnderliningElement()
         {
-            var subTokens = new List<IToken> {new PlaintTextToken("ab")};
-            var expectedList = new List<IToken> {new EmphasizedTextToken("_ab_", subTokens)};
+            var expectedList = new List<IToken>
+            {
+                new EmphasizedTextToken("_ab_") {SubTokens = new List<IToken> {new PlaintTextToken("ab")}}
+            };
             var text = "_ab_";
 
             var actualList = textParser.GetTextTokens(text);
@@ -64,13 +68,11 @@ namespace Markdown.Tests
         [Test]
         public void GetTextTokens_ReturnListWithThreeEmphasizedToken_TwoUnderliningElements()
         {
-            var expectedList = new List<TextToken>
+            var expectedList = new List<IToken>
             {
-                new EmphasizedTextToken("_ab_",
-                    new List<IToken> {new PlaintTextToken("ab")}),
+                new EmphasizedTextToken("_ab_") {SubTokens = new List<IToken> {new PlaintTextToken("ab")}},
                 new PlaintTextToken(" "),
-                new EmphasizedTextToken("_ba_",
-                    new List<IToken> {new PlaintTextToken("ba")})
+                new EmphasizedTextToken("_ba_") {SubTokens = new List<IToken> {new PlaintTextToken("ba")}}
             };
             var text = "_ab_ _ba_";
 
@@ -101,11 +103,9 @@ namespace Markdown.Tests
             var expectedList = new List<TextToken>
             {
                 new PlaintTextToken("aaa "),
-                new EmphasizedTextToken("_bb_",
-                    new List<IToken> {new PlaintTextToken("bb")}),
+                new EmphasizedTextToken("_bb_") {SubTokens = new List<IToken> {new PlaintTextToken("bb")}},
                 new PlaintTextToken(" aaa "),
-                new EmphasizedTextToken("_aa_",
-                    new List<IToken> {new PlaintTextToken("aa")})
+                new EmphasizedTextToken("_aa_") {SubTokens = new List<IToken> {new PlaintTextToken("aa")}}
             };
 
             var actualList = textParser.GetTextTokens(text);
@@ -119,8 +119,7 @@ namespace Markdown.Tests
             var text = "__aa__";
             var expectedList = new List<IToken>
             {
-                new StrongTextToken("__aa__",
-                    new List<IToken> {new PlaintTextToken("aa")})
+                new StrongTextToken("__aa__") {SubTokens = new List<IToken> {new PlaintTextToken("aa")}}
             };
 
             var actualList = textParser.GetTextTokens(text);
@@ -134,9 +133,9 @@ namespace Markdown.Tests
             var text = "__aa__ __bb__";
             var expectedList = new List<IToken>
             {
-                new StrongTextToken("__aa__", new List<IToken> {new PlaintTextToken("aa")}),
+                new StrongTextToken("__aa__") {SubTokens = new List<IToken> {new PlaintTextToken("aa")}},
                 new PlaintTextToken(" "),
-                new StrongTextToken("__bb__", new List<IToken> {new PlaintTextToken("bb")})
+                new StrongTextToken("__bb__") {SubTokens = new List<IToken> {new PlaintTextToken("bb")}}
             };
 
             var actualList = textParser.GetTextTokens(text);
@@ -150,9 +149,9 @@ namespace Markdown.Tests
             var text = "__aa__ _bb_ ac_";
             var expectedList = new List<IToken>
             {
-                new StrongTextToken("__aa__", new List<IToken> {new PlaintTextToken("aa")}),
+                new StrongTextToken("__aa__") {SubTokens = new List<IToken> {new PlaintTextToken("aa")}},
                 new PlaintTextToken(" "),
-                new EmphasizedTextToken("_bb_", new List<IToken> {new PlaintTextToken("bb")}),
+                new EmphasizedTextToken("_bb_") {SubTokens = new List<IToken> {new PlaintTextToken("bb")}},
                 new PlaintTextToken(" ac_")
             };
 
@@ -181,7 +180,7 @@ namespace Markdown.Tests
             var text = "__\\_ab__";
             var expectedList = new List<IToken>
             {
-                new StrongTextToken("__\\_ab__", new List<IToken> {new PlaintTextToken("\\_ab")})
+                new StrongTextToken("__\\_ab__") {SubTokens = new List<IToken> {new PlaintTextToken("\\_ab")}}
             };
 
             var actualList = textParser.GetTextTokens(text);
@@ -225,7 +224,7 @@ namespace Markdown.Tests
             var expectedList = new List<IToken>
             {
                 new PlaintTextToken("a"),
-                new EmphasizedTextToken("_bc_", new List<IToken> {new PlaintTextToken("bc")}),
+                new EmphasizedTextToken("_bc_") {SubTokens = new List<IToken> {new PlaintTextToken("bc")}},
                 new PlaintTextToken("de")
             };
 
@@ -254,7 +253,7 @@ namespace Markdown.Tests
             var text = "#ab";
             var expectedList = new List<IToken>
             {
-                new HeaderTextToken("#ab", new List<IToken> {new PlaintTextToken("ab")})
+                new HeaderTextToken("#ab") {SubTokens = new List<IToken> {new PlaintTextToken("ab")}}
             };
 
             var actualList = textParser.GetTextTokens(text);

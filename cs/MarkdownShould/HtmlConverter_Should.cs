@@ -1,18 +1,20 @@
 ﻿using System.Collections.Generic;
 using FluentAssertions;
+using Markdown.Converters;
+using Markdown.Tokens;
 using NUnit.Framework;
 
 namespace Markdown.Tests
 {
-    public class HTMLConverter_Should
+    public class HtmlConverter_Should
     {
-        private HTMLConverter htmlConverter;
+        private HtmlConverter htmlConverter;
 
         [SetUp]
         public void SetUp()
         {
             var tokenConverters = new TokenConverterFactory();
-            htmlConverter = new HTMLConverter(tokenConverters);
+            htmlConverter = new HtmlConverter(tokenConverters);
         }
 
         [Test]
@@ -36,17 +38,9 @@ namespace Markdown.Tests
             var textTokens = new List<TextToken>
             {
                 new PlaintTextToken("aa"),
-                new EmphasizedTextToken("_cccc_",
-                    new List<IToken>
-                    {
-                        new PlaintTextToken("cccc")
-                    }),
+                new EmphasizedTextToken("_cccc_") {SubTokens = new List<IToken> {new PlaintTextToken("cccc")}},
                 new PlaintTextToken("bb"),
-                new EmphasizedTextToken("_dddd_",
-                    new List<IToken>
-                    {
-                        new PlaintTextToken("dddd")
-                    })
+                new EmphasizedTextToken("_dddd_") {SubTokens = new List<IToken> {new PlaintTextToken("dddd")}}
             };
             var expectedString = "aa<em>cccc</em>bb<em>dddd</em>";
 
@@ -60,15 +54,15 @@ namespace Markdown.Tests
         {
             var textTokens = new List<TextToken>
             {
-                new StrongTextToken("__aa__", new List<IToken>
+                new StrongTextToken("__aa__")
                 {
-                    new PlaintTextToken("cccc"),
-                    new EmphasizedTextToken("_ab_", new List<IToken>
+                    SubTokens = new List<IToken>
                     {
-                        new PlaintTextToken("ab")
-                    }),
-                    new PlaintTextToken("bbbb")
-                })
+                        new PlaintTextToken("cccc"),
+                        new EmphasizedTextToken("_ab_") {SubTokens = new List<IToken> {new PlaintTextToken("ab")}},
+                        new PlaintTextToken("bbbb")
+                    }
+                }
             };
             var expectedString = "<strong>cccc<em>ab</em>bbbb</strong>";
 
@@ -82,15 +76,21 @@ namespace Markdown.Tests
         {
             var textTokens = new List<IToken>
             {
-                new HeaderTextToken("#aa", new List<IToken>
+                new HeaderTextToken("#aa")
                 {
-                    new PlaintTextToken("cccc"),
-                    new EmphasizedTextToken("_ab_", new List<IToken>
+                    SubTokens = new List<IToken>
                     {
-                        new PlaintTextToken("ab")
-                    }),
-                    new PlaintTextToken("bbbb")
-                })
+                        new PlaintTextToken("cccc"),
+                        new EmphasizedTextToken("_ab_")
+                        {
+                            SubTokens = new List<IToken>
+                            {
+                                new PlaintTextToken("ab")
+                            }
+                        },
+                        new PlaintTextToken("bbbb")
+                    }
+                }
             };
             var expectedString = "<h1>cccc<em>ab</em>bbbb</h1>";
 

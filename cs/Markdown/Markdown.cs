@@ -1,22 +1,20 @@
-﻿using System.Collections.Generic;
-
-namespace Markdown
+﻿namespace Markdown
 {
     public class Markdown
     {
-        private readonly ITokenConverterFactory tokenConverters;
-        private readonly IReadOnlyCollection<ITokenReader> tokenGetters;
+        private readonly IParser textParser;
+        private readonly IConverter tokenConverter;
 
-        public Markdown(ITokenConverterFactory tokenConverters, IReadOnlyCollection<ITokenReader> tokenGetters)
+        public Markdown(IConverter tokenConverter, IParser textParser)
         {
-            this.tokenConverters = tokenConverters;
-            this.tokenGetters = tokenGetters;
+            this.tokenConverter = tokenConverter;
+            this.textParser = textParser;
         }
 
         public string Render(string text)
         {
-            var tokens = new TextParser(tokenGetters).GetTextTokens(text);
-            return new HTMLConverter(tokenConverters).ConvertTokens(tokens);
+            var tokens = textParser.GetTextTokens(text);
+            return tokenConverter.ConvertTokens(tokens);
         }
     }
 }

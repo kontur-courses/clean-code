@@ -1,14 +1,11 @@
-﻿using System.Collections.Generic;
-
-namespace Markdown
+﻿namespace Markdown.Tokens
 {
     public class HeaderTextToken : TextToken, ITagToken
     {
-        public HeaderTextToken(string text, List<IToken> subTokens = null)
-            : base(text.Length, TokenType.Header, text, false, subTokens)
+        public HeaderTextToken(string text)
+            : base(TokenType.Header, text)
         {
             TextWithoutTags = text[1..];
-            var a = TextWithoutTags;
         }
 
         public string TextWithoutTags { get; }

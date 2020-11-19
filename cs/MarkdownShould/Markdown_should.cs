@@ -1,24 +1,30 @@
 ﻿using FluentAssertions;
+using Markdown.Converters;
+using Markdown.TokenReaders;
 using NUnit.Framework;
 
 namespace Markdown.Tests
 {
-    public class Markdown_should
+    public class Markdown_Should
     {
         private Markdown markdown;
 
         [SetUp]
         public void SetUp()
         {
-            var tokenGetters = new ITokenReader[]
+            var tokenReaders = new ITokenReader[]
             {
                 new HeaderTokenReader(),
                 new StrongTokenReader(),
                 new EmphasizedTokenReader(),
-                new TextTokenReader()
+                new PlainTokenReader()
             };
+            var textParser = new TextParser(tokenReaders);
+
             var tokenConverters = new TokenConverterFactory();
-            markdown = new Markdown(tokenConverters, tokenGetters);
+            var htmlConverter = new HtmlConverter(tokenConverters);
+
+            markdown = new Markdown(htmlConverter, textParser);
         }
 
         [Test]

@@ -1,17 +1,13 @@
 ﻿using System.Linq;
+using Markdown.Tokens;
 
-namespace Markdown
+namespace Markdown.TokenReaders
 {
     public class StrongTokenReader : ITokenReader
     {
-        public TextToken TyrGetToken(string text, int end, int start)
+        public TextToken TyrGetToken(string text, int start, int end)
         {
-            if (!CanCreateToken(text, end, start))
-                return null;
-
-            var tokenText = text[start..(end + 1)];
-
-            return new StrongTextToken(tokenText);
+            return !CanCreateToken(text, end, start) ? null : new StrongTextToken(text[start..(end + 1)]);
         }
 
         private static bool CanCreateToken(string text, int index, int startPosition)
@@ -25,9 +21,9 @@ namespace Markdown
 
         private static bool IsTextStartAndEndWithTwoUnderlinings(string tokenText)
         {
-            if (tokenText[0] != '_' || tokenText[1] != '_' || tokenText[tokenText.Length - 2] != '_' ||
-                tokenText[tokenText.Length - 1] != '_') return false;
-            return true;
+            return tokenText[0] == '_' && tokenText[1] == '_'
+                                       && tokenText[tokenText.Length - 2] == '_'
+                                       && tokenText[tokenText.Length - 1] == '_';
         }
 
         private static bool FindCrossingUnderlinings(string currentText)

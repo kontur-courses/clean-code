@@ -1,11 +1,9 @@
-﻿using System.Collections.Generic;
-
-namespace Markdown
+﻿namespace Markdown.Tokens
 {
     public class EmphasizedTextToken : TextToken, ITagToken
     {
-        public EmphasizedTextToken(string text, List<IToken> subTokens = null)
-            : base(text.Length, TokenType.Emphasized, text, false, subTokens)
+        public EmphasizedTextToken(string text)
+            : base(TokenType.Emphasized, text)
         {
             TextWithoutTags = text[1..(text.Length - 1)];
             var a = TextWithoutTags;
