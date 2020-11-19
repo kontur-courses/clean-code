@@ -4,14 +4,12 @@ namespace Markdown.Tags
 {
     public abstract class Tag
     {
-        private readonly bool dropClosingTag;
         protected readonly Md Markdown;
 
-        protected Tag(Md md, string identifier, bool dropClosingTag = false)
+        protected Tag(Md md, string identifier)
         {
             Markdown = md;
             Identifier = identifier;
-            this.dropClosingTag = dropClosingTag;
         }
 
         public string Identifier { get; }
@@ -20,18 +18,26 @@ namespace Markdown.Tags
         {
             var builder = new StringBuilder();
             next = start.Next;
+            var end = FindEnd(start);
             while (next != null)
             {
-                if (!dropClosingTag && next.Value == Identifier || next.Type == TokenType.BreakLine)
+                if (next == end)
                     break;
                 builder.Append(Markdown.FormatToken(ref next));
             }
 
             if (start.Type == TokenType.Tag)
-                return FormatTag(start, next, builder.ToString());
+                return FormatTag(start, end, builder.ToString());
             return $"{start.Value}{builder}{next.Value}";
         }
 
+        protected virtual Token FindEnd(Token start)
+        {
+            var current = start.Next;
+            while (current != null && current.Value != Identifier)
+                current = current.Next;
+            return current;
+        }
 
         protected virtual string FormatTag(Token start, Token end, string contains)
         {

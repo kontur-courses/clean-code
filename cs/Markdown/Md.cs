@@ -15,6 +15,7 @@ namespace Markdown
         {
             AddHandler(new OneUnderscore(this));
             AddHandler(new DoubleUnderscore(this));
+            AddHandler(new ListTag(this, "*"));
             for (var i = 1; i <= 6; i++)
                 AddHandler(new Title(this, i));
         }

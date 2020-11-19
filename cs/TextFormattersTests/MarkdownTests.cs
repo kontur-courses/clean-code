@@ -37,6 +37,7 @@ namespace TextFormattersTests
         [TestCase(@"\_hello\_", "_hello_")]
         [TestCase(@"hel\lo", @"hel\lo")]
         [TestCase(@"\\_hello_", @"\<em>hello</em>")]
+        [TestCase("* hello\n* world", "<ul><li>hello</li>\n<li>world</li></ul>")]
         public void SpecificationTests(string md, string html)
         {
             var actual = markdown.Render(md);
