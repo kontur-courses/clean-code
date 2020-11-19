@@ -12,15 +12,15 @@ namespace MarkdownParser.Infrastructure.Tokenization.Workers
     {
         private readonly ITokenBuilder[] tokenBuilders;
 
-        public Tokenizer(IEnumerable<ITokenBuilder> tokenBuilders)
+        public Tokenizer(ITokenBuilder[] tokenBuilders)
         {
-            this.tokenBuilders = tokenBuilders.ToArray();
+            this.tokenBuilders = tokenBuilders;
         }
 
         public ParagraphData[] Tokenize(string rawInput) => rawInput
             .Split(Environment.NewLine)
             .WhereNot(string.IsNullOrEmpty)
-            .Select(p => TokenizationWorker.CreateForParagraph(p, tokenBuilders))
+            .Select(p => new TokenizationWorker(p, tokenBuilders))
             .Select(ParagraphData.FromWorker)
             .ToArray();
 

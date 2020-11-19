@@ -17,7 +17,7 @@ namespace MarkdownParser.Infrastructure.Tokenization.Workers
 
         public List<Token> ParsedTokens;
 
-        private TokenizationWorker(string paragraphText, ITokenBuilder[] builders)
+        public TokenizationWorker(string paragraphText, ITokenBuilder[] builders)
         {
             this.paragraphText = paragraphText;
             this.builders = builders;
@@ -92,8 +92,5 @@ namespace MarkdownParser.Infrastructure.Tokenization.Workers
                 textTokenBuilder.Clear();
             }
         }
-
-        public static TokenizationWorker CreateForParagraph(string paragraph, IEnumerable<ITokenBuilder> builders) =>
-            new TokenizationWorker(paragraph, builders.ToArray());
     }
 }
