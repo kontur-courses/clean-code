@@ -44,12 +44,13 @@ namespace Markdown.Models.Syntax
             tagInfo = null;
             for (var i = position; i < text.Length; i++)
             {
-                if (!allTags.Contains(possibleTag + text[i]))
+                if (!allTags.Any(tag => tag.StartsWith(possibleTag + text[i])))
                     break;
 
                 possibleTag += text[i];
 
-                if (previousIsEscaped)
+                if (previousIsEscaped &&
+                    allTags.Contains(possibleTag + text[i]))
                     break;
             }
 
@@ -61,7 +62,7 @@ namespace Markdown.Models.Syntax
                     possibleTag.Length, previousIsEscaped);
             }
 
-            return possibleTag.Length != 0;
+            return tagInfo != null;
         }
 
         private bool PreviousSymbolIsEscaped(int position, string text)
@@ -84,7 +85,11 @@ namespace Markdown.Models.Syntax
         {
             var length = tag.TagLength;
             if (tag.Position == 0)
-                return !char.IsWhiteSpace(text[length]);
+            {
+                var isNextIsSpace = char.IsWhiteSpace(text[length]);
+                return IsStartParagraphTag(tag.Tag) ? isNextIsSpace : !isNextIsSpace;
+            }
+
             if (tag.Position + length == text.Length)
                 return false;
             return !IsInWordWithDigits(tag, text) &&

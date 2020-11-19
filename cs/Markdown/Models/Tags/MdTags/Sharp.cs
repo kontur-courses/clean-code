@@ -2,7 +2,7 @@
 {
     internal class Sharp : Tag
     {
-        public override string Opening => "#";
+        public override string Opening => "# ";
         public override string Closing => "\n";
     }
 }

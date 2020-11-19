@@ -35,14 +35,14 @@ namespace MarkdownTests
             Assert.Throws<ArgumentNullException>(() => render.Render(markdownText));
         }
 
-        [TestCase("#header", "<h1>header</h1>", TestName = "HeaderInText")]
+        [TestCase("# header", "<h1>header</h1>", TestName = "HeaderInText")]
         [TestCase("a _em text_ a", "a <em>em text</em> a", TestName = "OneTokenInText")]
         [TestCase("__em _in_ str__", "<strong>em <em>in</em> str</strong>", TestName = "PossibleNesting")]
-        [TestCase("#header __str__", "<h1>header <strong>str</strong></h1>", TestName = "NestingInHeader")]
+        [TestCase("# header __str__", "<h1>header <strong>str</strong></h1>", TestName = "NestingInHeader")]
         [TestCase("_beg_inning", "<em>beg</em>inning", TestName = "InWordBeginning")]
         [TestCase("mi_ddl_e", "mi<em>ddl</em>e", TestName = "InMiddleOfWord")]
         [TestCase("e_nd_", "e<em>nd</em>", TestName = "InWordEnding")]
-        [TestCase("+list element", "<li>list element</li>")]
+        [TestCase("+ list element", "<li>list element</li>")]
         public void Render_ShouldRenderTags(string markdownText, string expected)
         {
             render.Render(markdownText).Should().Be(expected);

@@ -203,7 +203,7 @@ namespace Markdown.Models
 
         private bool DistanceBetweenTagsIsNotZero(TagInfo opening, TagInfo closing)
         {
-            return closing.Position - opening.Position - opening.TagLength - 1 > 0;
+            return closing.Position - opening.Position - opening.TagLength > 0;
         }
 
         private void AddPairTagsToList(TagInfo first,
