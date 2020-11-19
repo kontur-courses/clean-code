@@ -43,21 +43,28 @@ namespace MarkdownParser.Infrastructure.Tokenization.Workers
             {
                 ProcessScreeningChar();
                 currentIndex++;
+                return;
             }
-            else if (TokenCreator.TryCreateFrom(builders, new TokenizationContext(paragraphText, currentIndex),
+
+            if (TokenCreator.TryCreateFrom(builders, new TokenizationContext(paragraphText, currentIndex),
                 out var token))
             {
-                ProcessParsedToken(token);
-                currentIndex += token.RawValue.Length; // эти символы мы уже "прошли" внутри TryCreate, пропускаем
+                if (!isScreened)
+                {
+                    AppendCurrentTextToResult();
+                    ParsedTokens.Add(token);
+                    currentIndex += token.RawValue.Length; // эти символы мы уже "прошли" внутри TryCreate, пропускаем
+                    return;
+                }
+
+                isScreened = false;
             }
-            else
-            {
-                AppendToTextNextSymbol();
-                currentIndex++;
-            }
+
+            AppendToTextCurrentSymbol();
+            currentIndex++;
         }
 
-        private void AppendToTextNextSymbol()
+        private void AppendToTextCurrentSymbol()
         {
             if (isScreened) AppendScreeningCharAsText();
             textTokenBuilder.Append(CurrentChar);
@@ -75,20 +82,6 @@ namespace MarkdownParser.Infrastructure.Tokenization.Workers
             isScreened = false;
         }
 
-        private void ProcessParsedToken(Token token)
-        {
-            if (isScreened)
-            {
-                textTokenBuilder.Append(token.RawValue);
-                isScreened = false;
-            }
-            else
-            {
-                AppendCurrentTextToResult();
-                ParsedTokens.Add(token);
-            }
-        }
-
         private void AppendCurrentTextToResult()
         {
             if (textTokenBuilder.Length != 0)
@@ -100,7 +93,6 @@ namespace MarkdownParser.Infrastructure.Tokenization.Workers
                 textTokenBuilder.Clear();
             }
         }
-
 
         public static TokenizationWorker CreateForParagraph(string paragraph, IEnumerable<ITokenBuilder> builders) =>
             new TokenizationWorker(paragraph, builders.ToArray());
