@@ -5,7 +5,7 @@ namespace Markdown
 {
     public static class TagTokensParser
     {
-        public static List<TagToken> ReadTagsFromLine(string line)
+        public static List<TagToken> ReadAllTagTokensFromLine(string line)
         {
             var openedTags = new Stack<(int startPosition, TagType type)>();
             var tokens = new List<TagToken>();
@@ -23,7 +23,7 @@ namespace Markdown
                         var followingTag = GetTagType(line, i + 1);
                         if (followingTag is TagType.NonTag)
                             continue;
-                        tokens.Add(new TagToken(i, line.Length, TagType.Shield));
+                        tokens.Add(new SingleTagToken(i, line.Length, TagType.Shield));
                         var shift = TagAnalyzer.GetSignLength(followingTag);
                         i += shift;
                         break;
@@ -49,7 +49,7 @@ namespace Markdown
             return tokens;
         }
 
-        private static bool TryGetTagTokenForPairedTag(string line, int tagIndex, TagType type, Stack<(int startPosition, TagType type)> openedTags, out TagToken token)
+        private static bool TryGetTagTokenForPairedTag(string line, int tagIndex, TagType type, Stack<(int startPosition, TagType type)> openedTags, out PairedTagToken token)
         {
             token = null;
             var signLength = TagAnalyzer.GetSignLength(type);
@@ -60,7 +60,7 @@ namespace Markdown
                     return false;
 
                 var opener = openedTags.Pop();
-                token = new TagToken(opener.startPosition, tagIndex, type);
+                token = new PairedTagToken(opener.startPosition, tagIndex, type);
                 return true;
             }
 
@@ -75,13 +75,13 @@ namespace Markdown
             return tagIndex + signLength < line.Length && !char.IsWhiteSpace(line[tagIndex + signLength]);
         }
 
-        private static bool TryGetTagTokenForSingleTag(string line, int tagStartIndex, TagType type, out TagToken token)
+        private static bool TryGetTagTokenForSingleTag(string line, int tagStartIndex, TagType type, out SingleTagToken token)
         {
             token = null;
             if (tagStartIndex != 0)
                 return false;
 
-            token = new TagToken(tagStartIndex, line.Length, type);
+            token = new SingleTagToken(tagStartIndex, line.Length, type);
             return true;
         }
 
@@ -99,36 +99,34 @@ namespace Markdown
             }
         }
 
-        public static void RemoveIncorrectTokens(string line, List<TagToken> tokens)
+        public static IEnumerable<TagToken> GetCorrectTagTokens(string line)
         {
-            tokens.RemoveAll(x =>
-                x.ValueLength == 0 && x.Type != TagType.Shield
-                || TagAnalyzer.IsCoverPartOfWord(line, x) && !TagAnalyzer.IsTagInSameWord(line, x)
-                || TagAnalyzer.IsTagInsideWordWithDigits(line, x));
-            RemoveIncorrectIntersections(tokens);
-            RemoveIncorrectNestings(tokens);
-        }
+            var tokens = ReadAllTagTokensFromLine(line);
+            foreach (var token in tokens.OfType<SingleTagToken>())
+                yield return token;
 
-        private static void RemoveIncorrectIntersections(List<TagToken> tags)
-        {
-            var toRemove = new List<TagToken>();
-
-            foreach (var tag in tags)
+            var pairedTokens = tokens.OfType<PairedTagToken>().ToList();
+            foreach (var token in pairedTokens)
             {
-                var wrongIntersections = tags.Where(x => x != tag && !TagAnalyzer.IsCorrectIntersection(tag, x) && !tag.IsInsideOf(x)).ToList();
-                toRemove.AddRange(wrongIntersections);
-                if (wrongIntersections.Any())
-                    toRemove.Add(tag);
+                if(!HasCorrectValueLength(token) 
+                   || TagAnalyzer.IsCoverPartOfWord(line, token) && !TagAnalyzer.IsTagInSameWord(line, token)
+                   || TagAnalyzer.IsTagInsideWordWithDigits(line, token)
+                   || HasIncorrectIntersection(pairedTokens, token)
+                   || HasIncorrectNesting(pairedTokens, token))
+                    continue;
+
+                yield return token;
             }
-
-            tags.RemoveAll(x => toRemove.Contains(x));
         }
 
-        private static void RemoveIncorrectNestings(List<TagToken> tokens)
-        {
-            var toRemove = tokens.Where(token => tokens.Any(x => !TagAnalyzer.IsCorrectNesting(x, token))).ToList();
+        private static bool HasCorrectValueLength(TagToken token)
+            => token.ValueLength > 0 || token.Type == TagType.Shield;
 
-            tokens.RemoveAll(x => toRemove.Contains(x));
-        }
+        private static bool HasIncorrectIntersection(List<PairedTagToken> pairedTokens, PairedTagToken token) =>
+            pairedTokens.Where(x => x != token)
+                .Any(x => !TagAnalyzer.IsCorrectIntersection(token, x) && !token.IsInsideOf(x));
+
+        private static bool HasIncorrectNesting(List<PairedTagToken> pairedTokens, PairedTagToken token) =>
+            pairedTokens.Where(x => x != token).Any(x => !TagAnalyzer.IsCorrectNesting(x, token));
     }
 }

@@ -13,7 +13,10 @@
             Position = position;
             Type = type;
             IsCloser = isCloser;
-            NewValue = $"<{(isCloser ? "/" : "")}{TagAnalyzer.GetHtmlValue(Type)}>";
+            if (type is TagType.Shield)
+                NewValue = "";
+            else
+                NewValue = $"<{(isCloser ? "/" : "")}{TagAnalyzer.GetHtmlValue(Type)}>";
         }
     }
 }
