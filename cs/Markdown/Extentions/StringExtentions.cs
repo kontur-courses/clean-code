@@ -1,58 +1,52 @@
-﻿using System.Collections.Generic;
+﻿using Markdown.Extentions;
+using System.Collections.Generic;
 using System.Linq;
 using System.Text;
-
 namespace Markdown
 {
     public static class StringExtentions
     {
-        public static List<string> SplitKeepSeparators(this string s, char[] separators,
-            bool unionSameSeparators = true, int maxSizeUnion = 2)
+        public static List<string> SplitKeepSeparators(this string str, char[] separators)
         {
+            var separatorsSet = new HashSet<char>(separators);
             var splittedString = new List<string>();
-            var sep = new HashSet<char>(separators);
             var part = new StringBuilder();
-            char previous = default;
-            var countSeparatorInUnion = 0;
-            foreach (var elem in s)
-            {
-                if (sep.Contains(elem) && part.Length != 0)
+            foreach (var chr in str)
+                if (separatorsSet.Contains(chr))
                 {
-                    splittedString.Add(part.ToString());
-                    splittedString.Add(elem.ToString());
-                    countSeparatorInUnion++;
+                    if (part.Length != 0)
+                        splittedString.Add(part.ToString());
+                    splittedString.Add(chr.ToString());
                     part.Clear();
                 }
-                else if (sep.Contains(elem))
-                {
-                    countSeparatorInUnion++;
-                    if (previous == elem && unionSameSeparators && countSeparatorInUnion == maxSizeUnion)
-                    {
-                        UnionSameString(maxSizeUnion - 1, splittedString, previous, elem);
-                        countSeparatorInUnion = 0;
-                    }
-                    else
-                        splittedString.Add(elem.ToString());
-                    if (countSeparatorInUnion == maxSizeUnion)
-                        countSeparatorInUnion--;
-                }
                 else
-                {
-                    part.Append(elem);
-                    countSeparatorInUnion = 0;
-                }
-                previous = elem;
-            }
-            if (splittedString.Count == 0 || part.Length != 0)
+                    part.Append(chr);
+            if (part.Length != 0)
                 splittedString.Add(part.ToString());
             return splittedString;
         }
 
-        public static void UnionSameString(int sizeUnion, List<string> slpitedString, params char[] elemensToUnion)
+        public static List<string> UnionSameStringByTwo(this List<string> splittedString)
         {
-            for (int i = 0; i < sizeUnion; i++)
-                slpitedString.RemoveAt(slpitedString.Count - 1);
-            slpitedString.Add(string.Concat(elemensToUnion));
+            var combinedString = new List<string>();
+            var skip = false;
+            string previous = default;
+            string current = default;
+            foreach (var bigram in splittedString.GetBigrams())
+            {
+                previous = bigram.Item1;
+                current = bigram.Item2;
+                if (previous == current && !skip)
+                {
+                    combinedString.Add(string.Concat(previous, current));
+                    skip = true;
+                }
+                else if (!skip)
+                    combinedString.Add(previous);
+                else
+                    skip = false;
+            }
+            return combinedString;
         }
 
         public static bool IsDigit(this string text)

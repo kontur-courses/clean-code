@@ -107,7 +107,7 @@ namespace Markdown.Tests
         [TestCase("abcav#", ExpectedResult = "abcav#",
             TestName = "Header_Text_Should_Not_Parse_If_No_Value")]
         [TestCase("#_#aa", ExpectedResult = "<h1>_#aa</h1>",
-            TestName = "Nested_Formatting_Header_Char_In_Text_Should_Not_Parse")]
+            TestName = "Nested_Formatting_Header_Char_Inside_Text_Should_Not_Parse")]
         public string MdRenderOnCorruptedHeaderText(string line)
         {
             return mdRender.Render(line);

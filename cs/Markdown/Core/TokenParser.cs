@@ -1,8 +1,8 @@
-﻿using System;
+﻿using Markdown.Extentions;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
-using Markdown.Extentions;
 
 namespace Markdown
 {
@@ -14,10 +14,18 @@ namespace Markdown
 
         protected Func<string, bool> nestedTokenValidator;
         protected int corruptedOffset;
+        protected string formattingString;
+        protected TokenType type;
 
         public virtual Token ParseToken(List<string> text, int position)
         {
-            return new Token(0, "", TokenType.Simple);
+            var tokenValue = new StringBuilder();
+            if (IsTokenCorrupted)
+            {
+                tokenValue.Append(formattingString);
+                return ParseToken(text, position, tokenValue, TokenType.Simple);
+            }
+            return ParseToken(text, position, tokenValue, type);
         }
 
         protected Token ParseToken(List<string> text, int position,
@@ -73,8 +81,8 @@ namespace Markdown
         protected virtual void RecoverTokenValue(StringBuilder value, ParserOperator parserOperator)
         {
             parserOperator.Position += corruptedOffset;
-            value.Insert(0, "__");
-            value.Append("__");
+            value.Insert(0, formattingString);
+            value.Append(formattingString);
         }
 
         private bool CheckCorrectDeclaration(string start, string end)
@@ -106,9 +114,9 @@ namespace Markdown
             var isHaveCorrectStartAndEnd = !CheckCorrectDeclaration(tokenStart, tokenEnd);
             var isHaveUnpairedChars = !parserOperator.IsClose() && !IsTokenCorrupted;
 
-            return isHaveCorrectStartAndEnd 
-                || isHaveUnpairedChars 
-                || isInsideDigitText 
+            return isHaveCorrectStartAndEnd
+                || isHaveUnpairedChars
+                || isInsideDigitText
                 || isInsideInDifferentPartWords;
         }
     }

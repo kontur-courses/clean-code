@@ -1,6 +1,5 @@
 ﻿using Markdown.Extentions;
 using System.Collections.Generic;
-
 namespace Markdown
 {
     public class TokenReader
@@ -10,7 +9,7 @@ namespace Markdown
         public IEnumerable<Token> ReadTokens(string text)
         {
             var pareserOperator = new ParserOperator();
-            var splittedText = text.SplitKeepSeparators(new[] { '_', '#', '\\' });
+            var splittedText = text.SplitKeepSeparators(new[] { '_', '#', '\\' }).UnionSameStringByTwo();
             foreach (var bigram in splittedText.GetBigrams())
                 pareserOperator.AddTokenPart(bigram);
             return pareserOperator.GetTokens();
