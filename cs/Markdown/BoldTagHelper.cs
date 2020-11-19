@@ -2,7 +2,7 @@
 {
     public class BoldTagHelper : TagHelper
     {
-        private BoldTagHelper()
+        public BoldTagHelper()
             : base("__", "<strong>")
         {
         }
@@ -18,11 +18,6 @@
 
             tag = null;
             return false;
-        }
-
-        public static TagHelper CreateInstance()
-        {
-            return new BoldTagHelper();
         }
     }
 }

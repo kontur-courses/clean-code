@@ -2,7 +2,7 @@
 {
     public class UnorderedListTagHelper : TagHelper
     {
-        private UnorderedListTagHelper()
+        public UnorderedListTagHelper()
             : base("", "<ul>")
         {
         }
@@ -21,11 +21,6 @@
         public static Tag GetTag(int position, bool isOpening)
         {
             return new Tag(position, TagType.UnorderedList, isOpening, 0, false, false);
-        }
-
-        public static TagHelper CreateInstance()
-        {
-            return new UnorderedListTagHelper();
         }
     }
 }

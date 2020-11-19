@@ -2,7 +2,7 @@
 {
     public class ItalicTagHelper : TagHelper
     {
-        private ItalicTagHelper()
+        public ItalicTagHelper()
             : base("_", "<em>")
         {
         }
@@ -17,11 +17,6 @@
 
             tag = null;
             return false;
-        }
-
-        public static TagHelper CreateInstance()
-        {
-            return new ItalicTagHelper();
         }
     }
 }

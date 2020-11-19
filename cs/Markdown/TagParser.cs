@@ -9,12 +9,12 @@ namespace Markdown
 
         public static readonly Dictionary<TagType, TagHelper> SupportedTags = new Dictionary<TagType, TagHelper>
         {
-            [TagType.Italic] = ItalicTagHelper.CreateInstance(),
-            [TagType.Header] = HeaderTagHelper.CreateInstance(),
-            [TagType.Bold] = BoldTagHelper.CreateInstance(),
-            [TagType.Escape] = EscapeTagHelper.CreateInstance(),
-            [TagType.UnorderedList] = UnorderedListTagHelper.CreateInstance(),
-            [TagType.ListItem] = ListItemTagHelper.CreateInstance()
+            [TagType.Italic] = new ItalicTagHelper(),
+            [TagType.Header] = new HeaderTagHelper(),
+            [TagType.Bold] = new BoldTagHelper(),
+            [TagType.Escape] = new EscapeTagHelper(),
+            [TagType.UnorderedList] = new UnorderedListTagHelper(),
+            [TagType.ListItem] = new ListItemTagHelper()
         };
 
         public static IEnumerable<Tag> GetTags(string text)

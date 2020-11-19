@@ -4,7 +4,7 @@ namespace Markdown
 {
     public class EscapeTagHelper : TagHelper
     {
-        private EscapeTagHelper()
+        public EscapeTagHelper()
             : base(@"\", "")
         {
         }
@@ -20,11 +20,6 @@ namespace Markdown
 
             tag = null;
             return false;
-        }
-
-        public static TagHelper CreateInstance()
-        {
-            return new EscapeTagHelper();
         }
 
         public override int GetSymbolsCountToSkipForParsing()
