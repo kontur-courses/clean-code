@@ -177,9 +177,7 @@ namespace Markdown
                 case '#': return index + 1 < line.Length && line[index + 1] == ' ' ? TagType.Header : TagType.NonTag;
                 case '_':
                 {
-                    if (openedTags.Any() && openedTags.Peek().type is TagType.Italic
-                                         && index + 2 < line.Length
-                                         && line[index + 1] == '_' && line[index + 2] == '_')
+                    if (openedTags.Any() && HasOpenedItalicTag(line, index, openedTags))
                         return TagType.Italic;
                     return index + 1 < line.Length && line[index + 1] == '_' ? TagType.Bold : TagType.Italic;
                 }
@@ -188,14 +186,19 @@ namespace Markdown
             }
         }
 
+        private static bool HasOpenedItalicTag(string line, int index, Stack<(int startPosition, TagType type)> openedTags) =>
+            openedTags.Peek().type is TagType.Italic
+            && index + 2 < line.Length
+            && line[index + 1] == '_' && line[index + 2] == '_';
+
         private static bool HasCorrectValueLength(TagToken token)
             => token.ValueLength > 0 || token.Type == TagType.Shield || token is LinkTagToken;
 
-        private static bool HasIncorrectIntersection(List<PairedTagToken> pairedTokens, PairedTagToken token) =>
+        private static bool HasIncorrectIntersection(IEnumerable<PairedTagToken> pairedTokens, PairedTagToken token) =>
             pairedTokens.Where(x => x != token)
                 .Any(x => !TagAnalyzer.IsCorrectIntersection(token, x) && !token.IsInsideOf(x));
 
-        private static bool HasIncorrectNesting(List<PairedTagToken> pairedTokens, PairedTagToken token) =>
+        private static bool HasIncorrectNesting(IEnumerable<PairedTagToken> pairedTokens, PairedTagToken token) =>
             pairedTokens.Where(x => x != token).Any(x => !TagAnalyzer.IsCorrectNesting(x, token));
     }
 }

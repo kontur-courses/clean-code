@@ -23,25 +23,20 @@ namespace Markdown
         private static string RenderLine(string line, IEnumerable<TagToken> tokens)
         {
             var rendered = new StringBuilder();
-            var replacements =
-                new Queue<TagToHtmlReplacement>(GetTagToHtmlReplacements(tokens).OrderBy(x => x.Position));
+            var replacements = GetTagToHtmlReplacements(tokens).OrderBy(x => x.Position);
             var index = 0;
 
-            if (replacements.Count == 0)
-                return line;
-
-            while (replacements.Count > 0)
+            foreach (var replacement in replacements)
             {
-                var processingReplacement = replacements.Dequeue();
-                if (index < processingReplacement.Position)
+                if (index < replacement.Position)
                 {
-                    var s = line.Substring(index, processingReplacement.Position - index);
+                    var s = line.Substring(index, replacement.Position - index);
                     rendered.Append(s);
                     index += s.Length;
                 }
 
-                rendered.Append(processingReplacement.NewValue);
-                index += processingReplacement.ReplacedValueLength;
+                rendered.Append(replacement.NewValue);
+                index += replacement.ReplacedValueLength;
             }
 
             if (index < line.Length)
