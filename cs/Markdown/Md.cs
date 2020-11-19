@@ -9,24 +9,14 @@ namespace Markdown
     {
         private readonly HashSet<string> currentTags = new HashSet<string>();
         private readonly Dictionary<string, Tag> handlers = new Dictionary<string, Tag>();
-        private readonly CharTree indentifiers = new CharTree();
+        private readonly CharTree identifiers = new CharTree();
 
         public Md()
         {
             AddHandler(new OneUnderscore(this));
             AddHandler(new DoubleUnderscore(this));
-            AddHandler(new Title(this, 1));
-            AddHandler(new Title(this, 2));
-            AddHandler(new Title(this, 3));
-            AddHandler(new Title(this, 4));
-            AddHandler(new Title(this, 5));
-            AddHandler(new Title(this, 6));
-        }
-
-        private void AddHandler(Tag tag)
-        {
-            indentifiers.Add(tag.Identifier);
-            handlers.Add(tag.Identifier, tag);
+            for (var i = 1; i <= 6; i++)
+                AddHandler(new Title(this, i));
         }
 
         public string Render(string text)
@@ -35,6 +25,11 @@ namespace Markdown
                 throw new ArgumentException("Text should not be null");
             var tokenizer = new Tokenizer(this, text);
             return Format(tokenizer.First);
+        }
+
+        public bool IsShieldSymbol(char value)
+        {
+            return value == '\\' || IsStartOfTag(value);
         }
 
         internal string Format(Token token)
@@ -69,16 +64,16 @@ namespace Markdown
 
         internal bool ContainsTag(string identifier, out int depth)
         {
-            depth = indentifiers.SearchDepth(identifier, out var children);
+            depth = identifiers.SearchDepth(identifier, out _);
             return depth == identifier.Length && handlers.ContainsKey(identifier);
         }
 
         internal bool IsStartOfTag(char value)
         {
-            return indentifiers.SearchDepth(value.ToString(), out _) == 1;
+            return identifiers.SearchDepth(value.ToString(), out _) == 1;
         }
 
-        internal bool AmIn(string identifier)
+        internal bool IsIn(string identifier)
         {
             return currentTags.Contains(identifier);
         }
@@ -88,9 +83,10 @@ namespace Markdown
             return handlers.ContainsKey(identifier);
         }
 
-        public bool IsShieldSymbol(char value)
+        private void AddHandler(Tag tag)
         {
-            return value == '\\' || IsStartOfTag(value);
+            identifiers.Add(tag.Identifier);
+            handlers.Add(tag.Identifier, tag);
         }
     }
 }

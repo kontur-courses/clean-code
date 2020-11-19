@@ -12,7 +12,7 @@ namespace Markdown.Tags
 
         protected override string FormatTag(Token start, Token end, string contains)
         {
-            if (Markdown.AmIn("_"))
+            if (Markdown.IsIn("_"))
                 return $"{start.Value}{contains}{end.Value}";
             return end == null ? $"{start.Value}{contains}" : $"<strong>{contains}</strong>";
         }

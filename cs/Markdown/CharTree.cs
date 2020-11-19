@@ -2,10 +2,9 @@
 
 namespace Markdown
 {
-    // Тут вообще ужас пока что
     public class CharTree
     {
-        private readonly CharTreeNode root = new CharTreeNode('\0');
+        private readonly CharTreeNode root = new CharTreeNode();
 
         public void Add(string value)
         {
@@ -32,12 +31,6 @@ namespace Markdown
         private class CharTreeNode
         {
             private readonly Dictionary<char, CharTreeNode> nodes = new Dictionary<char, CharTreeNode>();
-            private char root;
-
-            public CharTreeNode(char root)
-            {
-                this.root = root;
-            }
 
             public int CountChildren => nodes.Count;
 
@@ -46,7 +39,7 @@ namespace Markdown
             public CharTreeNode Add(char value)
             {
                 if (!nodes.ContainsKey(value))
-                    nodes[value] = new CharTreeNode(value);
+                    nodes[value] = new CharTreeNode();
                 return nodes[value];
             }
         }

@@ -1,6 +1,6 @@
 ﻿using System.Text;
 
-namespace Markdown
+namespace Markdown.Tags
 {
     public abstract class Tag
     {
@@ -14,7 +14,7 @@ namespace Markdown
             this.dropClosingTag = dropClosingTag;
         }
 
-        public virtual string Identifier { get; }
+        public string Identifier { get; }
 
         public string Format(Token start, out Token next)
         {
