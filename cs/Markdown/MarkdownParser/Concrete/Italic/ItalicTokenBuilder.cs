@@ -1,5 +1,4 @@
 ﻿using MarkdownParser.Infrastructure.Tokenization.Abstract;
-using MarkdownParser.Infrastructure.Tokenization.Models;
 using MarkdownParser.Infrastructure.Tokenization.Workers;
 
 namespace MarkdownParser.Concrete.Italic
@@ -8,17 +7,17 @@ namespace MarkdownParser.Concrete.Italic
     {
         public override string TokenSymbol { get; } = "_";
 
-        public override ItalicToken Create(TokenizationContext context)
+        public override ItalicToken Create(string raw, int startIndex)
         {
             return new ItalicToken(
-                context.CurrentStartIndex,
-                context.Source.Substring(context.CurrentStartIndex, TokenSymbol.Length),
-                context.GetPosition(TokenSymbol));
+                startIndex,
+                raw.Substring(startIndex, TokenSymbol.Length),
+                TokenHelpers.GetPosition(raw, startIndex, TokenSymbol));
         }
 
-        public override bool CanCreate(TokenizationContext context)
+        public override bool CanCreate(string raw, int startIndex)
         {
-            var position = context.GetPosition(TokenSymbol);
+            var position = TokenHelpers.GetPosition(raw, startIndex, TokenSymbol);
             return !position.InsideDigit() &&
                    !position.OnDigitBorder() &&
                    !position.WhitespaceFramed();

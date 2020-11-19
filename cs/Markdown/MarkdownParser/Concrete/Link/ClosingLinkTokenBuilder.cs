@@ -8,12 +8,12 @@ namespace MarkdownParser.Concrete.Link
     {
         public override string TokenSymbol { get; } = ">";
 
-        public override LinkToken Create(TokenizationContext context) =>
-            new LinkToken(context.CurrentStartIndex, TokenSymbol, false);
+        public override LinkToken Create(string raw, int startIndex) =>
+            new LinkToken(startIndex, TokenSymbol, false);
 
-        public override bool CanCreate(TokenizationContext context)
+        public override bool CanCreate(string raw, int startIndex)
         {
-            var position = context.GetPosition(TokenSymbol);
+            var position = TokenHelpers.GetPosition(raw, startIndex, TokenSymbol);
             return !position.AfterWhitespace() &&
                    position.HasAnyFlag(TokenPosition.BeforeWhitespace, TokenPosition.ParagraphEnd);
         }

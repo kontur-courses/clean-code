@@ -1,5 +1,4 @@
 ﻿using MarkdownParser.Infrastructure.Tokenization.Abstract;
-using MarkdownParser.Infrastructure.Tokenization.Models;
 using MarkdownParser.Infrastructure.Tokenization.Workers;
 
 namespace MarkdownParser.Concrete.Bold
@@ -8,17 +7,14 @@ namespace MarkdownParser.Concrete.Bold
     {
         public override string TokenSymbol { get; } = "__";
 
-        public override BoldToken Create(TokenizationContext context)
+        public override BoldToken Create(string raw, int startIndex)
         {
-            return new BoldToken(
-                context.CurrentStartIndex,
-                context.Source.Substring(context.CurrentStartIndex, TokenSymbol.Length), 
-                context.GetPosition(TokenSymbol));
+            return new BoldToken(startIndex, raw.Substring(startIndex, TokenSymbol.Length), TokenHelpers.GetPosition(raw, startIndex, TokenSymbol));
         }
 
-        public override bool CanCreate(TokenizationContext context)
+        public override bool CanCreate(string raw, int startIndex)
         {
-            var position = context.GetPosition(TokenSymbol);
+            var position = TokenHelpers.GetPosition(raw, startIndex, TokenSymbol);
             return !position.InsideDigit() &&
                    !position.OnDigitBorder() &&
                    !position.WhitespaceFramed();

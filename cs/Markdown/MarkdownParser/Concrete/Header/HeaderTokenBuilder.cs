@@ -1,5 +1,4 @@
 ﻿using MarkdownParser.Infrastructure.Tokenization.Abstract;
-using MarkdownParser.Infrastructure.Tokenization.Models;
 using MarkdownParser.Infrastructure.Tokenization.Workers;
 
 namespace MarkdownParser.Concrete.Header
@@ -8,15 +7,13 @@ namespace MarkdownParser.Concrete.Header
     {
         public override string TokenSymbol { get; } = "#";
 
-        public override HeaderToken Create(TokenizationContext context)
+        public override HeaderToken Create(string raw, int startIndex)
         {
-            return new HeaderToken(
-                context.CurrentStartIndex,
-                context.Source.Substring(context.CurrentStartIndex, TokenSymbol.Length),
-                context.GetPosition(TokenSymbol));
+            return new HeaderToken(startIndex, raw.Substring(startIndex, TokenSymbol.Length),
+                TokenHelpers.GetPosition(raw, startIndex, TokenSymbol));
         }
 
-        public override bool CanCreate(TokenizationContext context) =>
-            context.GetPosition(TokenSymbol).OnParagraphStart();
+        public override bool CanCreate(string raw, int startIndex) =>
+            TokenHelpers.GetPosition(raw, startIndex, TokenSymbol).OnParagraphStart();
     }
 }

@@ -15,7 +15,7 @@ namespace MarkdownParser.Concrete.Bold
 
         protected override MarkdownElementBold Create(BoldToken opening, Token[] innerTokens, BoldToken closing)
         {
-            var innerElements = collector.CreateElementsFrom(innerTokens.ToArray()).ToArray(); 
+            var innerElements = collector.CreateElementsFrom(innerTokens).ToArray();
             return new MarkdownElementBold(opening, innerElements, innerTokens, closing);
         }
 

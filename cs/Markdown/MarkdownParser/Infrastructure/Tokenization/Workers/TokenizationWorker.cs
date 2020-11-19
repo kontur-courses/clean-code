@@ -1,8 +1,8 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using MarkdownParser.Infrastructure.Tokenization.Abstract;
-using MarkdownParser.Infrastructure.Tokenization.Models;
 
 namespace MarkdownParser.Infrastructure.Tokenization.Workers
 {
@@ -46,8 +46,7 @@ namespace MarkdownParser.Infrastructure.Tokenization.Workers
                 return;
             }
 
-            if (TokenCreator.TryCreateFrom(builders, new TokenizationContext(paragraphText, currentIndex),
-                out var token))
+            if (TokenCreator.TryCreateFrom(builders, paragraphText, currentIndex, out var token))
             {
                 if (!isScreened)
                 {
