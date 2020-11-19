@@ -9,12 +9,12 @@ namespace MarkdownParser.Infrastructure.Tokenization.Workers
 {
     public static class TokenCreator
     {
-        public static bool TryCreateFrom(ICollection<ITokenBuilder> tokenBuilders, string raw, int startIndex, 
+        public static bool TryCreateFrom(ICollection<ITokenBuilder> tokenBuilders, string raw, int startIndex,
             out Token token)
         {
-            var symbolsCount = GetSymbolsCount(tokenBuilders, raw, startIndex);
-            var str = raw.Substring(startIndex, symbolsCount);
-            var builder = tokenBuilders.Where(t => str.StartsWith(t.TokenSymbol)).WithMax(x => x.TokenSymbol.Length);
+            var builder = tokenBuilders
+                .Where(t => raw.IndexOf(t.TokenSymbol, startIndex, StringComparison.Ordinal) == startIndex)
+                .WithMax(x => x.TokenSymbol.Length);
 
             if (builder == null)
             {
@@ -28,16 +28,7 @@ namespace MarkdownParser.Infrastructure.Tokenization.Workers
             return true;
         }
 
-        private static int GetSymbolsCount(ICollection<ITokenBuilder> tokenBuilders, string raw, int startIndex)
-        {
-            return Math.Min(
-                tokenBuilders.Max(tb => tb.TokenSymbol.Length),
-                raw.Length - startIndex);
-        }
-
         public static TextToken CreateDefault(int startPosition, string rawValue) =>
             new TextToken(startPosition, rawValue);
-
-        public static TextToken CreateDefault(Token proto) => CreateDefault(proto.StartPosition, proto.RawValue);
     }
 }
