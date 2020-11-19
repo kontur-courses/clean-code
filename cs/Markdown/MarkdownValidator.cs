@@ -1,30 +1,31 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Text;
+using System.Linq;
 
 namespace Markdown
 {
     class MarkdownValidator : ITagValidator
     {
-        private readonly Tag markdownHeader, markdownBold, markdownItalic;
+        private readonly HashSet<Tag> tagsUnderValidation,  tagsOutOfValidation;
 
-        public MarkdownValidator(Tag markdownHeader, Tag markdownBold, Tag markdownItalic)
+        public MarkdownValidator(HashSet<Tag> markdownTags, HashSet<Tag> tagsOutOfValidation)
         {
-            this.markdownItalic = markdownItalic;
-            this.markdownBold = markdownBold;
-            this.markdownHeader = markdownHeader;
+            if (!tagsOutOfValidation.IsProperSubsetOf(markdownTags))
+                throw new ArgumentException();
+            this.tagsOutOfValidation = tagsOutOfValidation;
+            tagsUnderValidation = markdownTags.Except(tagsOutOfValidation).ToHashSet();
         }
 
         public bool ValidateOpeningTag(string markdown, TagSubstring tagSubstring)
         {
-            return tagSubstring.Tag == markdownHeader && (tagSubstring.Index == 0 || markdown[tagSubstring.Index - 1] == '\n')
+            return tagsOutOfValidation.Contains(tagSubstring.Tag) && (tagSubstring.Index == 0 || markdown[tagSubstring.Index - 1] == '\n')
                    || tagSubstring.EndIndex + 1 == markdown.Length
                    || markdown[tagSubstring.EndIndex + 1] != ' ';
         }
 
         public bool ValidateEndingTag(string markdown, TagSubstring firstTag, TagSubstring lastTag, bool hasDigit, bool hasSpace)
         {
-            return lastTag.Tag == markdownHeader
+            return tagsOutOfValidation.Contains(lastTag.Tag)
                    || markdown[lastTag.Index - 1] != ' '
                    && markdown[firstTag.EndIndex + 1] != ' '
                    && ((lastTag.EndIndex + 1 == markdown.Length || markdown[lastTag.EndIndex + 1] == ' ')
@@ -34,11 +35,12 @@ namespace Markdown
 
         public void HandleNewLine(Dictionary<Tag, TagSubstring> activeTags)
         {
-            if (activeTags.ContainsKey(markdownItalic) &&
-                activeTags.ContainsKey(markdownBold))
+            if (tagsUnderValidation.All(activeTags.ContainsKey))
             {
-                activeTags.Remove(markdownItalic);
-                activeTags.Remove(markdownBold);
+                foreach (var tag in tagsUnderValidation)
+                {
+                    activeTags.Remove(tag);
+                }
             }
         }
     }

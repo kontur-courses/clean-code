@@ -30,5 +30,18 @@ namespace Markdown
                 return Ending;
             throw new ArgumentException();
         }
+
+        public override bool Equals(object obj)
+        {
+            if (!(obj is Tag))
+                return false;
+            var newTag = (Tag) obj;
+            return newTag.Opening == Opening && newTag.Ending == Ending;
+        }
+
+        public override int GetHashCode()
+        {
+            return Opening.GetHashCode() * 733 + Ending.GetHashCode();
+        }
     }
 }

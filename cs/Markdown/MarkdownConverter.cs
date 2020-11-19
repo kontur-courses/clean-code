@@ -7,21 +7,19 @@ namespace Markdown
     public class MarkdownConverter
     {
         private readonly Dictionary<Tag, Tag> markdownToHtmlDictionary;
-        private readonly Tag markdownBold, markdownItalic, markdownHeader;
         private readonly ITagValidator validator;
 
         public MarkdownConverter()
         {
-            markdownItalic = new Tag("_", "_");
-            markdownBold = new Tag("__", "__", new HashSet<Tag> { markdownItalic });
-            markdownHeader = new Tag("# ", "\r\n");
             markdownToHtmlDictionary = new Dictionary<Tag, Tag>
             {
-                {markdownBold, new Tag("<strong>", "</strong>")},
-                {markdownItalic, new Tag("<em>", "</em>")},
-                {markdownHeader, new Tag("<h1>", "</h1>\r\n")}
+                {new Tag("__", "__", new HashSet<Tag> { new Tag("_", "_")}), 
+                    new Tag("<strong>", "</strong>")},
+                {new Tag("_", "_"), new Tag("<em>", "</em>")},
+                { new Tag("# ", "\r\n"), new Tag("<h1>", "</h1>\r\n")}
             };
-            validator = new MarkdownValidator(markdownHeader, markdownBold, markdownItalic);
+            validator = new MarkdownValidator(
+                markdownToHtmlDictionary.Keys.ToHashSet(), new HashSet<Tag>{ new Tag("# ", "\r\n") });
         }
 
         public string ConvertToHtml(string markdown)
@@ -138,16 +136,16 @@ namespace Markdown
         private bool TryGetTag(string markdown, int index, Dictionary<Tag, TagSubstring> activeTags, out TagSubstring tagSubstring)
         {
             tagSubstring = null;
-            bool ContainsSubstring(string substring) => TextContainsSubstring(markdown, index, substring);
-            var tag = markdownToHtmlDictionary.Keys
-                .FirstOrDefault(tag => ContainsSubstring(tag.Opening)
-                                       || ContainsSubstring(tag.Ending)
+            bool MarkdownContainsSubstring(string substring) => TextContainsSubstring(markdown, index, substring);
+            var newTag = markdownToHtmlDictionary.Keys
+                .FirstOrDefault(tag => MarkdownContainsSubstring(tag.Opening)
+                                       || MarkdownContainsSubstring(tag.Ending)
                                        && activeTags.ContainsKey(tag));
-            if (tag == null)
+            if (newTag == null)
                 return false;
-            tagSubstring = ContainsSubstring(tag.Opening) && !activeTags.ContainsKey(tag)
-                ? TagSubstring.FromOpening(index, tag)
-                : TagSubstring.FromEnding(index, tag);
+            tagSubstring = MarkdownContainsSubstring(newTag.Opening) && !activeTags.ContainsKey(newTag)
+                ? TagSubstring.FromOpening(index, newTag)
+                : TagSubstring.FromEnding(index, newTag);
             return true;
         }
 
