@@ -33,7 +33,10 @@ namespace Markdown
             return tags.ConfigureUnorderedLists();
         }
 
-        private static IEnumerable<Tag> ReadTagsFromLine(int position, string text, int lineNumber,
+        private static IEnumerable<Tag> ReadTagsFromLine(
+            int position,
+            string text,
+            int lineNumber,
             out int symbolsReadCount)
         {
             var startPosition = position;
@@ -103,14 +106,14 @@ namespace Markdown
         private static List<Tag> ReadTagsFromWord(int position, string text, out int symbolsReadCount)
         {
             var startPosition = position;
-            var hasNoDigits = true;
+            var hasDigits = false;
             var allTags = new List<Tag>();
             var tagsInWordEnd = new List<Tag>();
 
             while (position < text.Length && !char.IsWhiteSpace(text[position]))
             {
                 if (char.IsDigit(text[position]))
-                    hasNoDigits = false;
+                    hasDigits = true;
                 var readTags = ReadTags(position, text, out symbolsReadCount, true);
                 if (readTags.Count > 0)
                 {
@@ -128,7 +131,7 @@ namespace Markdown
             symbolsReadCount = position - startPosition;
             foreach (var tag in tagsInWordEnd) tag.UnpinFromWord();
 
-            return hasNoDigits ? allTags : tagsInWordEnd;
+            return hasDigits ? tagsInWordEnd : allTags;
         }
 
         private static bool TryReadTag(int position, string text, out Tag tag, bool inWord = false)

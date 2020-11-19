@@ -19,11 +19,8 @@
         public TagType Type { get; }
         public bool IsOpening { get; private set; }
         public int MdTagLength { get; }
-
         public bool InWord { get; private set; }
-
         public bool IsMdPaired { get; }
-
         public int LineNumber { get; }
 
         public void ConvertToClose()

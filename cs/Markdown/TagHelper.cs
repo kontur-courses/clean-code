@@ -11,8 +11,6 @@
         }
 
         protected string MdTag { get; }
-
-
         public abstract bool TryParse(int position, string text, out Tag tag, bool inWord = false, int lineNumber = 0);
 
         public virtual bool ParseForEscapeTag(int position, string text)

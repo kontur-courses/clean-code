@@ -20,6 +20,7 @@ namespace Markdown
         {
             Tag lastListItem = null;
             foreach (var tag in tags)
+            {
                 if (tag.Type == TagType.ListItem)
                 {
                     if (tag.IsOpening)
@@ -45,6 +46,7 @@ namespace Markdown
                 {
                     yield return tag;
                 }
+            }
 
             if (lastListItem != null)
                 yield return UnorderedListTagHelper.GetTag(lastListItem.Position, false);
