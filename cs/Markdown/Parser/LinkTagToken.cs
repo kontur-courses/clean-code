@@ -13,9 +13,14 @@
 
         public override int TagSignLength => EndPosition - StartPosition;
 
+        public override int GetReplacedValueLength(bool isCloser)
+        {
+            return isCloser ? 1 : TagSignLength;
+        }
+
         public override string GetHtmlValue(bool isCloser)
         {
-            return isCloser ? base.GetHtmlValue(isCloser) : $"<a href={LinkUrl}>{LinkText}";
+            return isCloser ? "" : $"<a href={LinkUrl}>{LinkText}</a>";
         }
     }
 }

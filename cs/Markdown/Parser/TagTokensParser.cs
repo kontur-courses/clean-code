@@ -5,25 +5,24 @@ namespace Markdown
 {
     public static class TagTokensParser
     {
-        public static List<TagToken> ReadAllTagTokensFromLine(string line)
+        public static IEnumerable<TagToken> ReadAllTagTokensFromLine(string line)
         {
             var openedTags = new Stack<(int startPosition, TagType type)>();
-            var tokens = new List<TagToken>();
 
             for (var i = 0; i < line.Length; i++)
             {
                 var type = GetTagType(line, i, openedTags);
-                if (type == TagType.NonTag)
-                    continue;
 
                 switch (type)
                 {
+                    case TagType.NonTag:
+                        continue;
                     case TagType.Shield:
                     {
                         var followingTag = GetTagType(line, i + 1, openedTags);
                         if (followingTag is TagType.NonTag)
                             continue;
-                        tokens.Add(new SingleTagToken(i, line.Length, TagType.Shield));
+                        yield return new SingleTagToken(i, line.Length, TagType.Shield);
                         var shift = TagAnalyzer.GetSignLength(followingTag);
                         i += shift;
                         break;
@@ -32,29 +31,50 @@ namespace Markdown
                     case TagType.Italic:
                     {
                         if (TryGetTagTokenForPairedTag(line, i, type, openedTags, out var token))
-                            tokens.Add(token);
+                            yield return token;
                         break;
                     }
                     case TagType.Header:
                     {
                         if (TryGetTagTokenForSingleTag(line, i, type, out var token))
-                            tokens.Add(token);
+                            yield return token;
                         break;
                     }
                     case TagType.Link:
                     {
-                        if(TryGetTokenForLink(line, i, out var token))
-                            tokens.Add(token);
-                        var shift = token.TagSignLength;
-                        i += shift;
+                        if (TryGetTokenForLink(line, i, out var token))
+                        {
+                            yield return token;
+                            var shift = token.TagSignLength;
+                            i += shift;
+                        }
+
                         break;
                     }
                 }
 
                 i += TagAnalyzer.GetSignLength(type) - 1;
             }
+        }
 
-            return tokens;
+        public static IEnumerable<TagToken> GetCorrectTagTokens(string line)
+        {
+            var tokens = ReadAllTagTokensFromLine(line);
+            foreach (var token in tokens.OfType<SingleTagToken>())
+                yield return token;
+
+            var pairedTokens = tokens.OfType<PairedTagToken>().ToList();
+            foreach (var token in pairedTokens)
+            {
+                if (!HasCorrectValueLength(token)
+                    || TagAnalyzer.IsCoverPartOfWord(line, token) && !TagAnalyzer.IsTagInSameWord(line, token)
+                    || TagAnalyzer.IsTagInsideWordWithDigits(line, token)
+                    || HasIncorrectIntersection(pairedTokens, token)
+                    || HasIncorrectNesting(pairedTokens, token))
+                    continue;
+
+                yield return token;
+            }
         }
 
         private static bool TryGetTokenForLink(string line, int startIndex, out LinkTagToken token)
@@ -122,8 +142,14 @@ namespace Markdown
             if (IsPossibleToOpenTag(tagIndex, signLength, line))
                 openedTags.Push((tagIndex, type));
 
+            if (IsCloser(line, tagIndex, type) && openedTags.Any())
+                openedTags.Pop();
+
             return false;
         }
+
+        private static bool IsCloser(string line, int tagIndex, TagType type) =>
+            tagIndex + TagAnalyzer.GetSignLength(type) < line.Length && char.IsWhiteSpace(line[tagIndex + TagAnalyzer.GetSignLength(type)]);
 
         private static bool IsPossibleToOpenTag(int tagIndex, int signLength, string line)
         {
@@ -159,26 +185,6 @@ namespace Markdown
                 }
                 case '[': return TagType.Link;
                 default: return TagType.NonTag;
-            }
-        }
-
-        public static IEnumerable<TagToken> GetCorrectTagTokens(string line)
-        {
-            var tokens = ReadAllTagTokensFromLine(line);
-            foreach (var token in tokens.OfType<SingleTagToken>())
-                yield return token;
-
-            var pairedTokens = tokens.OfType<PairedTagToken>().ToList();
-            foreach (var token in pairedTokens)
-            {
-                if(!HasCorrectValueLength(token) 
-                   || TagAnalyzer.IsCoverPartOfWord(line, token) && !TagAnalyzer.IsTagInSameWord(line, token)
-                   || TagAnalyzer.IsTagInsideWordWithDigits(line, token)
-                   || HasIncorrectIntersection(pairedTokens, token)
-                   || HasIncorrectNesting(pairedTokens, token))
-                    continue;
-
-                yield return token;
             }
         }
 

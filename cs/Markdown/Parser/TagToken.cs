@@ -16,6 +16,9 @@
             ValueLength = (type is TagType.Shield) ? 0 : endPosition - startPosition - TagSignLength;
         }
 
+        public virtual int GetReplacedValueLength(bool isCloser) =>
+            TagSignLength;
+
         public virtual string GetHtmlValue(bool isCloser)
         {
             var defaultHtmlValue = TagAnalyzer.GetDefaultHtmlValue(Type);
