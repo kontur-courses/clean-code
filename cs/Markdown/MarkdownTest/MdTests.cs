@@ -44,8 +44,16 @@ other text");
         public void SingleBoldTag_ShouldWork()
         {
             var text = @"some text __bold text__ not bold text";
-            
+
             md.GetHtmlMarkup(text).Should().Be(@"some text <strong>bold text</strong> not bold text");
+        }
+
+        [Test]
+        public void Tags_ShouldBeInCorrectOrder()
+        {
+            var text = @"abc # _dsa_";
+
+            md.GetHtmlMarkup(text).Should().Be(@"abc <h1><em>dsa</em></h1>");
         }
     }
 }
