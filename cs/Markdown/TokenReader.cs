@@ -58,7 +58,7 @@ namespace Markdown
             CurrentPosition += type.Start.Length;
 
             var result = ReadToken(token, allowSpaces);
-            state = states.Peek() == state ? states.Pop() : states.Peek();
+            if (states.Peek() == state) states.Pop();
 
             result ??= new RawTextToken(position, CurrentPosition - position);
 
