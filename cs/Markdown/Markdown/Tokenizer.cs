@@ -1,58 +1,109 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Linq;
 
 namespace Markdown
 {
     public class Tokenizer
     {
-        private string[] tags = {"_", "__", "#",};
+        private string[] tags;
+        private string text;
+        public int CurrentPosition { get; private set; }
+        private Stack<Token> tagStack;
 
-        public string[] GetWords(string text)
+        public Tokenizer(string text, string[] tags)
         {
-            return text.Split(' ');
+            this.text = text;
+            this.tags = tags;
+            tagStack = new Stack<Token>();
         }
 
-        public int ReadUntil(string text, string stopString)
+        public Token ReadTag()
         {
-            var index = text.IndexOf(stopString);
+            var lastTag = tagStack.FirstOrDefault();
+            var possibleTags = tags
+                .Where(tag => text.Substring(CurrentPosition, tag.Length) == tag)
+                .Where(tag => IsAfterWhiteSpace() && !IsInsideNumber())
+                .ToList();
 
-            return index == -1 ? text.Length : index;
+            if (!possibleTags.Any())
+                return null;
+            var longestTag = possibleTags
+                .Aggregate("",
+                    (cur, max) => cur.Length > max.Length ? cur : max);
+            CurrentPosition += longestTag.Length;
+            var tagToken = new Token(CurrentPosition, longestTag.Length);
+            tagToken.Parent = tagStack.Peek();
+            tagStack.Push(tagToken);
+
+            return tagToken;
         }
 
-        public int ReadUntil(string text, char[] symbols)
+        private string FindFirstPossibleTag()
         {
-            var firstIndex = symbols
-                .Select(symbol => text.IndexOf(symbol))
-                .Where(symbolIndex => symbolIndex != -1)
-                .Prepend(text.Length)
-                .Min();
-            return firstIndex;
+            return tags
+                .Where(_ => !Escaped())
+                .Where(possibleTag => CurrentPosition + possibleTag.Length < text.Length)
+                .Where(possibleTag => text.Substring(CurrentPosition, possibleTag.Length) == possibleTag)
+                .FirstOrDefault(possibleTag => IsAfterWhiteSpace() && !IsInsideNumber());
         }
 
-        public Token ReadToken(string text)
+        public Token ReadText()
         {
-            if (text == "")
-                return new Token(0, 0);
-
-            var words = GetWords(text);
-            var markup = new Stack<MarkupType>();
-            if (IsFlatWord(words[0]))
-                return new Token(0, 1);
-            markup.Push(GetTag(words[0]));
-            var token = new Token(0, 0);
-            while (markup.Any())
+            var startingPosition = CurrentPosition;
+            while (true)
             {
+                if (CurrentPosition == text.Length)
+                    break;
+                var tag = FindFirstPossibleTag();
+                if (tag != null)
+                    break;
+                CurrentPosition++;
             }
 
-            throw new NotImplementedException();
-            return token;
+            return new Token(startingPosition, CurrentPosition - startingPosition);
         }
 
-        private bool IsFlatWord(string word)
+        private bool Escaped()
         {
-            throw new NotImplementedException();
-            return tags.All(tag => !word.StartsWith(tag));
+            if (CurrentPosition == 0)
+                return false;
+            var i = CurrentPosition - 1;
+            var slashesCount = 0;
+            while (text[i] == '\\')
+            {
+                slashesCount++;
+                i -= 1;
+            }
+
+            return slashesCount % 2 != 0;
+        }
+
+        private bool IsInsideNumber()
+        {
+            if (CurrentPosition == 0)
+                return false;
+            return char.IsDigit(text[CurrentPosition - 1]);
+        }
+
+        private bool IsAfterWhiteSpace()
+        {
+            if (CurrentPosition == 0)
+                return false;
+            return text[CurrentPosition - 1] == ' ';
+        }
+
+        public IEnumerable<Token> GetTokens()
+        {
+            if (text == "")
+                yield return new Token(0, 0);
+            while (CurrentPosition < text.Length)
+            {
+                var tagToken = ReadTag();
+                var textToken = ReadText();
+                if (tagToken != null)
+                    yield return tagToken;
+                yield return textToken;
+            }
         }
     }
 }
