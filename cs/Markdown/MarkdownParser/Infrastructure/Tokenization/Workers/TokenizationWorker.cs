@@ -1,6 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
+﻿using System.Collections.Generic;
 using System.Text;
 using MarkdownParser.Infrastructure.Tokenization.Abstract;
 
@@ -9,8 +7,8 @@ namespace MarkdownParser.Infrastructure.Tokenization.Workers
     public class TokenizationWorker
     {
         private readonly string paragraphText;
-        private readonly ITokenBuilder[] builders;
         private readonly StringBuilder textTokenBuilder = new StringBuilder();
+        private readonly TokenCreator tokenCreator;
         private bool isScreened;
         private int currentIndex;
         private char CurrentChar => paragraphText[currentIndex];
@@ -20,7 +18,7 @@ namespace MarkdownParser.Infrastructure.Tokenization.Workers
         public TokenizationWorker(string paragraphText, ITokenBuilder[] builders)
         {
             this.paragraphText = paragraphText;
-            this.builders = builders;
+            tokenCreator = new TokenCreator(builders, paragraphText);
         }
 
         public IList<Token> ParseTokens()
@@ -46,7 +44,7 @@ namespace MarkdownParser.Infrastructure.Tokenization.Workers
                 return;
             }
 
-            if (TokenCreator.TryCreateFrom(builders, paragraphText, currentIndex, out var token))
+            if (tokenCreator.TryCreateOnPosition(currentIndex, out var token))
             {
                 if (!isScreened)
                 {

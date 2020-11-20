@@ -9,12 +9,12 @@ namespace MarkdownParser.Concrete.Bold
 
         public override BoldToken Create(string raw, int startIndex)
         {
-            return new BoldToken(startIndex, raw.Substring(startIndex, TokenSymbol.Length), TokenHelpers.GetPosition(raw, startIndex, TokenSymbol));
+            return new BoldToken(startIndex, raw.Substring(startIndex, TokenSymbol.Length), TokenPositionHelpers.GetPosition(raw, startIndex, TokenSymbol));
         }
 
         public override bool CanCreate(string raw, int startIndex)
         {
-            var position = TokenHelpers.GetPosition(raw, startIndex, TokenSymbol);
+            var position = TokenPositionHelpers.GetPosition(raw, startIndex, TokenSymbol);
             return !position.InsideDigit() &&
                    !position.OnDigitBorder() &&
                    !position.WhitespaceFramed();

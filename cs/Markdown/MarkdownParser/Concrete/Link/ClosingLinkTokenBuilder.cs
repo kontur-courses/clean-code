@@ -13,7 +13,7 @@ namespace MarkdownParser.Concrete.Link
 
         public override bool CanCreate(string raw, int startIndex)
         {
-            var position = TokenHelpers.GetPosition(raw, startIndex, TokenSymbol);
+            var position = TokenPositionHelpers.GetPosition(raw, startIndex, TokenSymbol);
             return !position.AfterWhitespace() &&
                    position.HasAnyFlag(TokenPosition.BeforeWhitespace, TokenPosition.ParagraphEnd);
         }

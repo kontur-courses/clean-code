@@ -10,10 +10,10 @@ namespace MarkdownParser.Concrete.Header
         public override HeaderToken Create(string raw, int startIndex)
         {
             return new HeaderToken(startIndex, raw.Substring(startIndex, TokenSymbol.Length),
-                TokenHelpers.GetPosition(raw, startIndex, TokenSymbol));
+                TokenPositionHelpers.GetPosition(raw, startIndex, TokenSymbol));
         }
 
         public override bool CanCreate(string raw, int startIndex) =>
-            TokenHelpers.GetPosition(raw, startIndex, TokenSymbol).OnParagraphStart();
+            TokenPositionHelpers.GetPosition(raw, startIndex, TokenSymbol).OnParagraphStart();
     }
 }

@@ -12,12 +12,12 @@ namespace MarkdownParser.Concrete.Italic
             return new ItalicToken(
                 startIndex,
                 raw.Substring(startIndex, TokenSymbol.Length),
-                TokenHelpers.GetPosition(raw, startIndex, TokenSymbol));
+                TokenPositionHelpers.GetPosition(raw, startIndex, TokenSymbol));
         }
 
         public override bool CanCreate(string raw, int startIndex)
         {
-            var position = TokenHelpers.GetPosition(raw, startIndex, TokenSymbol);
+            var position = TokenPositionHelpers.GetPosition(raw, startIndex, TokenSymbol);
             return !position.InsideDigit() &&
                    !position.OnDigitBorder() &&
                    !position.WhitespaceFramed();

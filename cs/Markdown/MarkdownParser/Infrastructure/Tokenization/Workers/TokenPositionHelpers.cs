@@ -4,7 +4,7 @@ using MarkdownParser.Infrastructure.Tokenization.Models;
 
 namespace MarkdownParser.Infrastructure.Tokenization.Workers
 {
-    public static class TokenHelpers
+    public static class TokenPositionHelpers
     {
         public static bool InsideWord(this TokenPosition source) =>
             source.HasAllFlags(TokenPosition.BeforeWord, TokenPosition.AfterWord);
