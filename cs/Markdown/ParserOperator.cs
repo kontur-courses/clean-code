@@ -1,6 +1,7 @@
 ﻿using Markdown.Parsers;
 using System;
 using System.Collections.Generic;
+using System.Linq;
 
 namespace Markdown
 {
@@ -36,7 +37,7 @@ namespace Markdown
                 TokenEnd(part);
             else if (isShielding)
                 TokenEnd("\\" + part);
-            else if (part == "\\\\" && !isTokenOpen)
+            else if (part == "\\\\")
                 AddSimpleToken("\\");
             else if (isTokenOpen)
                 partialTokenValue.Add(part);
@@ -61,6 +62,11 @@ namespace Markdown
             isTokenOpen = true;
             if (part == "\\")
                 isShielding = true;
+            else if (part == "#" && (Position != 0 || previousPart != null))
+            {
+                AddSimpleToken(part);
+                isTokenOpen = false;
+            }
             else
                 stack.Push(part);
             currentParser = parsers[part];
@@ -75,7 +81,7 @@ namespace Markdown
                 isShielding = false;
                 isTokenOpen = false;
             }
-            else if (stack.Peek() == part && part != "#")
+            else if (stack.Peek() == part && part != "#" && previousPart != "\\")
                 StartParse();
             else
                 partialTokenValue.Add(part);
@@ -95,7 +101,7 @@ namespace Markdown
 
         private void StartParse(bool needClose = true)
         {
-            if (needClose)
+            if (needClose && OperateShielding(stack.Peek()))
                 stack.Pop();
             currentParser.IsTokenCorrupted = !IsClose();
             isTokenOpen = false;
@@ -104,8 +110,25 @@ namespace Markdown
             partialTokenValue.Clear();
         }
 
+        public bool TokenContainsFormattingStrings(string[] formattingStrings)
+        {
+            if (formattingStrings.Length == 0)
+                return false;
+            var strings = new HashSet<string>(formattingStrings);
+            return stack.Any(s => strings.Contains(s));
+        }
         public bool IsClose() => stack.Count == 0;
         public static bool IsCorrectStart(string text) => !text.StartsWith(" ");
         public static bool IsCorrectEnd(string text) => !text.EndsWith(" ");
+
+        public bool OperateShielding(string part)
+        {
+            if (previousPart == "\\")
+            {
+                partialTokenValue.Add(part);
+                return false;
+            }
+            return true;
+        }
     }
 }

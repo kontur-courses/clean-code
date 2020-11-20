@@ -32,7 +32,7 @@ namespace Markdown
             StringBuilder tokenValue, TokenType type)
         {
             var parserOperator = new ParserOperator();
-            if (text.Count == 0)
+            if (text.Count == 0 && !IsTokenCorrupted)
                 return CreateEmptyToken(tokenValue, position, parserOperator);
             CollectToken(text, tokenValue, parserOperator);
             var value = tokenValue.ToString();
@@ -108,11 +108,14 @@ namespace Markdown
         private bool CheckCorrectTokenValue(StringBuilder value, ParserOperator parserOperator,
             string tokenStart, string tokenEnd)
         {
+            if (IsTokenCorrupted) return false;
             var tokenValue = value.ToString();
             var isInsideDigitText = tokenValue.IsDigit() && (PartAfterTokenEnd?.IsDigit() ?? false);
             var isInsideInDifferentPartWords = IsTokenInPartWord(tokenStart, tokenValue);
             var isHaveCorrectStartAndEnd = !CheckCorrectDeclaration(tokenStart, tokenEnd);
-            var isHaveUnpairedChars = !parserOperator.IsClose() && !IsTokenCorrupted;
+            var isHaveUnpairedChars = !parserOperator.IsClose()
+                && !IsTokenCorrupted
+                && (parserOperator.TokenContainsFormattingStrings(new[] { "__", "_" }) || tokenValue.Contains("_"));
 
             return isHaveCorrectStartAndEnd
                 || isHaveUnpairedChars

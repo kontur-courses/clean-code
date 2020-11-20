@@ -8,14 +8,16 @@ namespace Markdown.Parsers
     {
         public HeaderParser()
         {
-            nestedTokenValidator = TokenReader.IsFormattingString;
+            nestedTokenValidator = new HashSet<string>() { "__", "_", "\\" }.Contains;
             corruptedOffset = 1;
+            formattingString = "#";
+            type = TokenType.Header;
         }
 
         public override Token ParseToken(List<string> text, int position)
         {
             var tokenValue = new StringBuilder();
-            if (PartBeforeTokenStart != null && PartBeforeTokenStart != "\\\\")
+            if (PartBeforeTokenStart != null && PartBeforeTokenStart != "\\\\" || position != 0)
             {
                 tokenValue.Append("#");
                 return ParseToken(text, position, tokenValue, TokenType.Simple);
@@ -49,7 +51,8 @@ namespace Markdown.Parsers
 
         protected override void RecoverTokenValue(StringBuilder value, ParserOperator parserOperator)
         {
-            return;
+            parserOperator.Position += corruptedOffset;
+            value.Insert(0, formattingString);
         }
     }
 }

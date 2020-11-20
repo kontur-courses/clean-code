@@ -44,13 +44,11 @@ namespace Markdown.Tests
         }
 
         [TestCase(@"\__abcd\__", ExpectedResult = "__abcd__",
-            TestName = "Should_Not_Parse_Shielding_Bold_Token")]
+            TestName = "Should_Not_Parse_Shielding_Bold_Formatting_Char")]
         [TestCase(@"\_abcd\_", ExpectedResult = "_abcd_",
-            TestName = "Should_Not_Parse_Shielding_Italic_Token")]
+            TestName = "Should_Not_Parse_Shielding_Italic_Formatting_Char")]
         [TestCase(@"\#abcd", ExpectedResult = "#abcd",
-            TestName = "Should_Not_Parse_Shielding_Header_Token")]
-        [TestCase(@"\\#abcd", ExpectedResult = @"\<h1>abcd</h1>",
-            TestName = "Should_Not_Process_Shielded_Shielding_Characters")]
+            TestName = "Should_Not_Parse_Shielding_Header_Formatting_Char")]
         [TestCase(@"\\\#abcd", ExpectedResult = @"\#abcd",
             TestName = "Sheilding_Characters_Сan_Shield_Themselves")]
         [TestCase(@"ab\cd", ExpectedResult = @"ab\cd",
@@ -71,9 +69,9 @@ namespace Markdown.Tests
         [TestCase("__ab_cd", ExpectedResult = "__ab_cd",
             TestName = "Should_Not_Parse_Unpaired_Italic_Formatting_Char_In_Bold")]
         [TestCase("__ abcd__", ExpectedResult = "__ abcd__",
-            TestName = "Should_Not_Parse_Bold_Text_If_Start_With_Non_Whitespace_Char")]
+            TestName = "Should_Not_Parse_Bold_Text_If_It_Start_With_Non_Whitespace_Char")]
         [TestCase("__abcd __", ExpectedResult = "__abcd __",
-            TestName = "Should_Not_Parse_Bold_Text_If_End_With_Non_Whitespace_Char")]
+            TestName = "Should_Not_Parse_Bold_Text_If_It_End_With_Non_Whitespace_Char")]
         [TestCase("__123__", ExpectedResult = "<strong>123</strong>",
             TestName = "Should_Pars_Bold_Text_With_Digit_Value")]
         [TestCase("_12_3", ExpectedResult = "_12_3",
@@ -82,6 +80,8 @@ namespace Markdown.Tests
             TestName = "Should_Not_Parse_Bold_Text_If_Empty_String_Inside")]
         [TestCase("ab__cb ef__g", ExpectedResult = "ab__cb ef__g",
             TestName = "Should_Not_Parse_Bold_Text_Inside_Different_Parts_Words")]
+        [TestCase("__#__aa", ExpectedResult = "<strong>#</strong>aa",
+            TestName = "Nested_Formatting_Header_Char_Inside_Bold_Text_Should_Not_Parse")]
         public string MdRenderOnCorruptedBoldText(string line)
         {
             return mdRender.Render(line);
@@ -90,13 +90,15 @@ namespace Markdown.Tests
         [TestCase("_abc", ExpectedResult = "_abc",
             TestName = "Should_Not_Parse_Unpaired_Italic_Formatting_Char")]
         [TestCase("_ abcd_", ExpectedResult = "_ abcd_",
-            TestName = "Should_Not_Parse_Italic_Text_If_Start_With_Non_Whitespace_Char")]
+            TestName = "Should_Not_Parse_Italic_Text_If_It_Start_With_Non_Whitespace_Char")]
         [TestCase("_abcd _", ExpectedResult = "_abcd _",
-            TestName = "Should_Not_Parse_Italic_Text_If_End_With_Non_Whitespace_Char")]
+            TestName = "Should_Not_Parse_Italic_Text_If_It_End_With_Non_Whitespace_Char")]
         [TestCase("_12_3", ExpectedResult = "_12_3",
             TestName = "Formatting_Italic_Char_Inside_Digit_Text_Should_Not_Parse")]
         [TestCase("ab_cb ef_g", ExpectedResult = "ab_cb ef_g",
             TestName = "Should_Not_Parse_Italic_Text_Inside_Different_Parts_Words")]
+        [TestCase("_#_aa", ExpectedResult = "<em>#</em>aa",
+            TestName = "Nested_Formatting_Header_Char_Inside_Italic_Text_Should_Not_Parse")]
         public string MdRenderOnCorruptedItalicText(string line)
         {
             return mdRender.Render(line);
@@ -108,7 +110,23 @@ namespace Markdown.Tests
             TestName = "Header_Text_Should_Not_Parse_If_No_Value")]
         [TestCase("#_#aa", ExpectedResult = "<h1>_#aa</h1>",
             TestName = "Nested_Formatting_Header_Char_Inside_Text_Should_Not_Parse")]
+        [TestCase("#__#aa", ExpectedResult = "<h1>__#aa</h1>",
+            TestName = "Nested_Formatting_Header_Char_Inside_Text_Should_Not_Parse")]
+        [TestCase("__#v_faf__abc", ExpectedResult = "__#v_faf__abc",
+            TestName = "Nested_Corrupted_Header_Char_Inside_Text_Should_Not_Affect_Parsing")]
         public string MdRenderOnCorruptedHeaderText(string line)
+        {
+            return mdRender.Render(line);
+        }
+
+        [TestCase("#_", ExpectedResult = "<h1>_</h1>")]
+        [TestCase("#__", ExpectedResult = "<h1>__</h1>")]
+        [TestCase("##", ExpectedResult = "<h1>#</h1>")]
+        [TestCase("_#", ExpectedResult = "_#")]
+        [TestCase("__#", ExpectedResult = "__#")]
+        [TestCase("_#__", ExpectedResult = "_#__")]
+        [TestCase("_#___", ExpectedResult = "<em>#__</em>")]
+        public string MdRenderOnSpecialCase(string line)
         {
             return mdRender.Render(line);
         }
