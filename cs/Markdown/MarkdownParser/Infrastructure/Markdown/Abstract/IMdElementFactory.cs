@@ -1,6 +1,4 @@
-﻿using System;
-using MarkdownParser.Infrastructure.Markdown.Models;
-using MarkdownParser.Infrastructure.Tokenization.Abstract;
+﻿using MarkdownParser.Infrastructure.Markdown.Models;
 
 namespace MarkdownParser.Infrastructure.Markdown.Abstract
 {

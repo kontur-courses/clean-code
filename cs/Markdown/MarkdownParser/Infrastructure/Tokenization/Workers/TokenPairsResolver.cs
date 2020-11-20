@@ -18,7 +18,7 @@ namespace MarkdownParser.Infrastructure.Tokenization.Workers
             pairedTokens = PairedTokenWorker.GetPairedTokens(this.source)
                 .SelectMany(x => new[]
                 {
-                    new TokenPairInfo(x.Opening.Token, true, x.Closing.Token),
+                    new TokenPairInfo(x.Opening!.Token, true, x.Closing!.Token),
                     new TokenPairInfo(x.Closing.Token, false, x.Opening.Token),
                 })
                 .ToDictionary(x => x.Token.StartPosition);
