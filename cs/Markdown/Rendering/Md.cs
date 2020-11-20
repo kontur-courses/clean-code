@@ -4,6 +4,7 @@ using MarkdownParser.Concrete.Bold;
 using MarkdownParser.Concrete.Header;
 using MarkdownParser.Concrete.Italic;
 using MarkdownParser.Concrete.Link;
+using MarkdownParser.Concrete.Special;
 using MarkdownParser.Infrastructure.Markdown;
 using MarkdownParser.Infrastructure.Markdown.Abstract;
 using MarkdownParser.Infrastructure.Tokenization.Abstract;
@@ -25,22 +26,24 @@ namespace Rendering
                         new BoldTokenBuilder(),
                         new ItalicTokenBuilder(),
                         new HeaderTokenBuilder(),
-                        new ClosingLinkTokenBuilder(), 
-                        new OpeningLinkTokenBuilder(), 
+                        new SpecialTokenBuilder(SpecialTokenType.OpeningRoundBracket),
+                        new SpecialTokenBuilder(SpecialTokenType.ClosingRoundBracket),
+                        new SpecialTokenBuilder(SpecialTokenType.OpeningSquareBracket),
+                        new SpecialTokenBuilder(SpecialTokenType.ClosingSquareBracket),
                     }),
                     new MarkdownCollector(new IMdElementFactory[]
                     {
                         new BoldElementFactory(),
                         new ItalicElementFactory(),
                         new HeaderElementFactory(),
-                        new LinkElementFactory(), 
+                        new LinkElementFactory(),
                     })),
                 new HtmlRenderer(new IMarkdownElementRenderer[]
                 {
                     new BoldElementRenderer(),
                     new ItalicElementRenderer(),
                     new HeaderElementRenderer(),
-                    new LinkElementRenderer(), 
+                    new LinkElementRenderer(),
                 })));
 
         public static IMarkdownConverter ToHtml => htmlConverter.Value;

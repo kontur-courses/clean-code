@@ -1,4 +1,4 @@
-﻿using System;
+﻿using MarkdownParser.Infrastructure.Markdown.Models;
 using MarkdownParser.Infrastructure.Tokenization.Abstract;
 
 namespace MarkdownParser.Infrastructure.Markdown.Abstract
@@ -7,12 +7,13 @@ namespace MarkdownParser.Infrastructure.Markdown.Abstract
         where TToken : Token
         where TElem : MarkdownElement
     {
-        public virtual Type TokenType { get; } = typeof(TToken);
-
         public virtual bool CanCreate(TToken token) => true;
         public abstract TElem Create(TToken token, Token[] nextTokens);
 
-        bool IMdElementFactory.CanCreate(Token token) => token is TToken t && CanCreate(t);
-        MarkdownElement IMdElementFactory.Create(Token token, Token[] nextTokens) => Create((TToken) token, nextTokens);
+        public bool CanCreate(MarkdownElementContext context) =>
+            context.CurrentToken is TToken t && CanCreate(t);
+
+        public MarkdownElement Create(MarkdownElementContext context) =>
+            Create((TToken) context.CurrentToken, context.NextTokens);
     }
 }

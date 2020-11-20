@@ -1,5 +1,4 @@
-﻿using System;
-using MarkdownParser.Infrastructure.Tokenization.Abstract;
+﻿using MarkdownParser.Infrastructure.Tokenization.Abstract;
 using MarkdownParser.Infrastructure.Tokenization.Models;
 
 namespace MarkdownParser.Infrastructure.Markdown.Abstract
@@ -10,9 +9,6 @@ namespace MarkdownParser.Infrastructure.Markdown.Abstract
         where TClosing : PairedToken
         where TElem : MarkdownElement
     {
-        public sealed override Type TokenType { get; } = typeof(TOpening);
-        public Type ClosingType { get; } = typeof(TClosing);
-
         public sealed override bool CanCreate(TokenPair token) =>
             base.CanCreate(token) &&
             token.Opening is TOpening opening &&

@@ -37,8 +37,8 @@ namespace MarkdownParser.Infrastructure.Tokenization.Workers
             pairedTokens.SelectMany((x, i) =>
                 pairedTokens.Skip(i + 1)
                     .Where(y =>
-                        y.Opening.Index > x.Opening.Index &&
-                        y.Closing.Index > x.Closing.Index &&
+                        y.Opening!.Index > x.Opening.Index &&
+                        y.Closing!.Index > x.Closing.Index &&
                         y.Opening.Index < x.Closing.Index)
                     .SelectMany(y => new[]
                     {

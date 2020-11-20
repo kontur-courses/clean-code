@@ -7,10 +7,7 @@ namespace Rendering.Html.Impl
     {
         public override string TagText { get; } = "a";
 
-        public override string RenderElement(MdElementLink element)
-        {
-            var url = element.Tokens[0].RawValue;
-            return $"<{TagText} href=\"{url}\">{url}</{TagText}>";
-        }
+        public override string RenderElement(MdElementLink element) =>
+            $"<{TagText} href=\"{element.Link.RawValue}\">{element.Text.RawValue}</{TagText}>";
     }
 }

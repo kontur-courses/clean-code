@@ -1,4 +1,5 @@
 ﻿using System;
+using MarkdownParser.Infrastructure.Markdown.Models;
 using MarkdownParser.Infrastructure.Tokenization.Abstract;
 
 namespace MarkdownParser.Infrastructure.Markdown.Abstract
@@ -9,8 +10,7 @@ namespace MarkdownParser.Infrastructure.Markdown.Abstract
     /// </summary>
     public interface IMdElementFactory
     {
-        Type TokenType { get; }
-        bool CanCreate(Token token);
-        MarkdownElement Create(Token token, Token[] nextTokens);
+        bool CanCreate(MarkdownElementContext context);
+        MarkdownElement Create(MarkdownElementContext context);
     }
 }
