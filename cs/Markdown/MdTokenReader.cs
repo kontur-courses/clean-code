@@ -17,7 +17,7 @@ namespace Markdown
 
             TokenTypes.Add(bold);
             TokenTypes.Add(italic);
-            
+
             TokenTypes.Add(new CustomTokenType(ReadLink));
         }
 
