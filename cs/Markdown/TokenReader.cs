@@ -9,8 +9,6 @@ namespace Markdown
         public readonly string Text;
         public int CurrentPosition = 0;
 
-        private HashSet<char> allowedEscapedChars = new HashSet<char> {'\\', '_'};
-
         public TokenReader(string text)
         {
             Text = text;
