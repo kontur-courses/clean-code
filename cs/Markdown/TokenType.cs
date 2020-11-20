@@ -3,18 +3,20 @@ using System.Collections.Generic;
 
 namespace Markdown
 {
-    public abstract class TokenType { }
+    public abstract class TokenType
+    {
+    }
 
     public abstract class BasicTokenType : TokenType
     {
         public readonly string Start;
         public readonly string End;
-        
+
         public readonly bool StartWithNewLine = false;
         public readonly bool EndWithNewLine = false;
 
         public List<TokenType> DisallowedTokenTypes = new List<TokenType>();
-        
+
         public BasicTokenType(string start, string end)
         {
             StartWithNewLine = start.StartsWith("\n");

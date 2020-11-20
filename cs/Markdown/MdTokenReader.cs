@@ -9,12 +9,12 @@ namespace Markdown
         {
             TokenTypes.Add(new CustomTokenType(ReadEscapeChar));
             TokenTypes.Add(new CustomTokenType(ReadDigitToken));
-            
+
             TokenTypes.Add(new BasicTokenType<MdHeaderToken>("\n# ", "\n"));
-            
+
             var italic = new BasicTokenType<MdItalicToken>("_", "_");
             var bold = new BasicTokenType<MdBoldToken>("__", "__") {DisallowedTokenTypes = {italic}};
-            
+
             TokenTypes.Add(bold);
             TokenTypes.Add(italic);
         }

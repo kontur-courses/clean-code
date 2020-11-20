@@ -38,8 +38,8 @@ namespace Markdown
             var state = new ReaderState(type, CurrentPosition);
             states.Push(state);
             var token = type.ReadFunc(this);
-            
-            if(states.Peek() == state) states.Pop();
+
+            if (states.Peek() == state) states.Pop();
             if (token == null) CurrentPosition = state.Position;
             return token;
         }
@@ -48,20 +48,20 @@ namespace Markdown
         {
             if (type.StartWithNewLine && !IsAtNewLine(-1)) return null;
             if (!TryGet(type.Start)) return null;
-            
+
             var token = type.CreateInstance(CurrentPosition, type.Start.Length);
             if (IsAtSpace(type.Start.Length)) return null;
 
             var state = new ReaderState(type, CurrentPosition, token);
             states.Push(state);
             var allowSpaces = IsAtSpace(-1);
-            
+
             var position = CurrentPosition;
             CurrentPosition += type.Start.Length;
-            
+
             var result = ReadToken(token, allowSpaces);
             state = states.Peek() == state ? states.Pop() : states.Peek();
-            
+
             result ??= new RawTextToken(position, CurrentPosition - position);
 
             return result;
@@ -70,10 +70,10 @@ namespace Markdown
         private Token ReadToken(BasicToken token, bool allowSpaces)
         {
             var type = (BasicTokenType) states.Peek().TokenType;
-            
+
             while (!(!IsAtSpace(-1) && TryGet(type.End, type.EndWithNewLine)))
             {
-                if (CurrentPosition >= Text.Length)  return null;
+                if (CurrentPosition >= Text.Length) return null;
                 if (!allowSpaces && IsAtSpace()) return null;
 
                 var failState = GetClosingState();
@@ -81,15 +81,15 @@ namespace Markdown
                 {
                     while (states.Peek() != failState) states.Pop();
                     CurrentPosition += ((BasicTokenType) failState.TokenType).End.Length;
-                    
+
                     return null;
                 }
 
-                var subtoken =  ReadToken();
+                var subtoken = ReadToken();
                 if (subtoken == null) return null;
                 token.AddSubtoken(subtoken);
             }
-            
+
             var failType = TokenTypes.FirstOrDefault(t => t is BasicTokenType b
                                                           && TryGet(b.End, b.EndWithNewLine));
             if (failType != null && states.All(s => s.TokenType != failType))
