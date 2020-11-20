@@ -25,7 +25,7 @@ namespace Markdown.Tests
         }
 
         [Test]
-        public void ThrowArgumentException_NullText()
+        public void ThrowArgumentNullException_NullText()
         {
             Action act = () => textParser.GetTextTokens(null);
 

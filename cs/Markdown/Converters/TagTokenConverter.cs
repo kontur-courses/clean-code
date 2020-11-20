@@ -3,13 +3,13 @@ using Markdown.Tokens;
 
 namespace Markdown.Converters
 {
-    public class TokenConverter : ITokenConverter
+    public class TagTokenConverter : ITokenConverter
     {
+        private readonly string openTag;
         private readonly string closeTag;
         private readonly IConverter converter;
-        private readonly string openTag;
 
-        protected TokenConverter(IConverter converter, string tokenText)
+        protected TagTokenConverter(IConverter converter, string tokenText)
         {
             this.converter = converter;
             openTag = $"<{tokenText}>";

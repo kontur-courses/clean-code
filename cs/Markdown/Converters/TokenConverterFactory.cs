@@ -19,9 +19,9 @@ namespace Markdown.Converters
 
             tokenConverter = tokenType switch
             {
-                TokenType.Emphasized => new EmphasizedTokenConverter(converter),
-                TokenType.Strong => new StrongTokenConverter(converter),
-                TokenType.Header => new HeaderTokenConverter(converter),
+                TokenType.Emphasized => new EmphasizedTagTokenConverter(converter),
+                TokenType.Strong => new StrongTagTokenConverter(converter),
+                TokenType.Header => new HeaderTagTokenConverter(converter),
                 TokenType.Text => new PlainTextTokenConverter(),
                 _ => throw new ArgumentOutOfRangeException($"Unknown token type {tokenType}")
             };
