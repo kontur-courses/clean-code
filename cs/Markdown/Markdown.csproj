@@ -62,6 +62,7 @@
         <Compile Include="MdHtmlTokenRenderer.cs" />
         <Compile Include="MdTokenReader.cs" />
         <Compile Include="MdTokens\MdDigitToken.cs" />
+        <Compile Include="MdTokens\MdLinkToken.cs" />
         <Compile Include="Tests\Md_Should.cs" />
         <Compile Include="Tokens\BasicToken.cs" />
         <Compile Include="Tokens\EscapedCharToken.cs" />
