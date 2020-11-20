@@ -25,7 +25,7 @@ namespace Markdown.Tests
         }
 
         [Test]
-        public void GetTextTokens_ThrowArgumentException_NullText()
+        public void ThrowArgumentException_NullText()
         {
             Action act = () => textParser.GetTextTokens(null);
 
@@ -33,7 +33,7 @@ namespace Markdown.Tests
         }
 
         [Test]
-        public void GetTextTokens_ReturnEmptyList_EmptyText()
+        public void ReturnEmptyList_EmptyText()
         {
             var textTokens = textParser.GetTextTokens("");
 
@@ -41,7 +41,7 @@ namespace Markdown.Tests
         }
 
         [Test]
-        public void GetTextTokens_ReturnListWithEmphasizedToken_OneUnderliningElement()
+        public void ReturnListWithEmphasizedTextToken_OneUnderliningElement()
         {
             var expectedList = new List<IToken>
             {
@@ -55,7 +55,7 @@ namespace Markdown.Tests
         }
 
         [Test]
-        public void GetTextTokens_ReturnListWithTextToken_NoClosingUnderlining()
+        public void ReturnListWithPlainTextToken_NoClosingUnderlining()
         {
             var text = "_ab";
             var expectedList = new List<IToken> {new PlainTextToken("_ab")};
@@ -66,7 +66,7 @@ namespace Markdown.Tests
         }
 
         [Test]
-        public void GetTextTokens_ReturnListWithThreeEmphasizedToken_TwoUnderliningElements()
+        public void ReturnListWithTwoEmphasizedTextTokensAndPlainTexTokens_TwoUnderliningElements()
         {
             var expectedList = new List<IToken>
             {
@@ -82,7 +82,7 @@ namespace Markdown.Tests
         }
 
         [Test]
-        public void GetTextTokens_ReturnListWithTextToken_TextWithoutAnySpecialSymbols()
+        public void ReturnListWithPlainTextToken_TextWithoutAnySpecialSymbols()
         {
             var text = "ab";
             var expectedList = new List<IToken>
@@ -97,7 +97,7 @@ namespace Markdown.Tests
 
         [Test]
         public void
-            GetTextTokens_ReturnListWithCorrectTokens_TextWithTwoUnderliningElementsAndTwoElementsWithoutAnySpecialSymbols()
+            ReturnListWithTwoEmphasizedTextTokensAndTwoPlainTextTokens_TextWithTwoUnderliningElementsAndTwoElementsWithoutAnySpecialSymbols()
         {
             var text = "aaa _bb_ aaa _aa_";
             var expectedList = new List<TextToken>
@@ -114,7 +114,7 @@ namespace Markdown.Tests
         }
 
         [Test]
-        public void GetTextTokens_ReturnListWithStrongToken_TextWithOneDoubleUnderliningElement()
+        public void ReturnListWithStrongTextToken_TextWithOneDoubleUnderliningElement()
         {
             var text = "__aa__";
             var expectedList = new List<IToken>
@@ -128,7 +128,7 @@ namespace Markdown.Tests
         }
 
         [Test]
-        public void GetTextTokens_ReturnListWithStrongToken_TextWithTwoDoubleUnderliningElement()
+        public void ReturnListWithTwoStrongTextTokensAndPlainTextToken_TextWithTwoDoubleUnderliningElement()
         {
             var text = "__aa__ __bb__";
             var expectedList = new List<IToken>
@@ -144,7 +144,8 @@ namespace Markdown.Tests
         }
 
         [Test]
-        public void GetTextTokens_ReturnListWithCorrectTokens_TextWithStrongEmphasizedAndNotClosedElements()
+        public void
+            ReturnListWithStrongTextTokenAndEmphasizedTokenAndTwoPlainTextTokens_TwoDoubleUnderliningElementsAndNotClosedElement()
         {
             var text = "__aa__ _bb_ ac_";
             var expectedList = new List<IToken>
@@ -161,7 +162,7 @@ namespace Markdown.Tests
         }
 
         [Test]
-        public void GetTextTokens_ReturnListWithCorrectTokens_TextWithShieldSymbol()
+        public void ReturnListWithPLainTextToken_TextWithShieldSymbol()
         {
             var text = "\\_ab\\_";
             var expectedList = new List<TextToken>
@@ -175,7 +176,7 @@ namespace Markdown.Tests
         }
 
         [Test]
-        public void GetTextTokens_ReturnListWithCorrectTokens_TextWithShieldInsideStrongTag()
+        public void ReturnListWithStrongTextToken_TextWithShieldInsideDoubleUnderliningElement()
         {
             var text = "__\\_ab__";
             var expectedList = new List<IToken>
@@ -189,7 +190,7 @@ namespace Markdown.Tests
         }
 
         [Test]
-        public void GetTextTokens_ReturnListWithCorrectTokens_NoTextBetweenUnderlinings()
+        public void ReturnListWithPlaintTextToken_NoTextBetweenUnderlinings()
         {
             var text = "____";
             var expectedList = new List<IToken>
@@ -203,7 +204,7 @@ namespace Markdown.Tests
         }
 
         [Test]
-        public void GetTextTokens_ReturnListWithCorrectTokens_TextWithSpaceBetweenWords()
+        public void ReturnListWithTwoPlainTextTokens_TextWithSpaceBetweenWords()
         {
             var text = "a_a b_b";
             var expectedList = new List<IToken>
@@ -218,7 +219,7 @@ namespace Markdown.Tests
         }
 
         [Test]
-        public void GetTextTokens_ReturnListWithCorrectTokens_TextWithUnderliningsInsideWords()
+        public void ReturnListWithTwoPlainTextTokensAndEmphasizedTextToken_TextWithUnderliningsInsideWords()
         {
             var text = "a_bc_de";
             var expectedList = new List<IToken>
@@ -234,7 +235,7 @@ namespace Markdown.Tests
         }
 
         [Test]
-        public void GetTextTokens_ReturnListWithCorrectTokens_TextWithNumbersBetweenUnderlinings()
+        public void ReturnListWithPlainTextToken_TextWithNumbersBetweenUnderlinings()
         {
             var text = "ab1_2_3";
             var expectedList = new List<IToken>
@@ -248,7 +249,7 @@ namespace Markdown.Tests
         }
 
         [Test]
-        public void GetTextTokens_ReturnListWithCorrectTokens_TextWithHeader()
+        public void ReturnListWithHeaderTextToken_TextWithSharpSymbol()
         {
             var text = "#ab";
             var expectedList = new List<IToken>

@@ -18,7 +18,7 @@ namespace Markdown.Tests
         }
 
         [Test]
-        public void GetHTMLString_CorrectStringLine_OnlyTextTokens()
+        public void CorrectStringLine_OnlyPlainTextTokens()
         {
             var textTokens = new List<IToken>
             {
@@ -33,7 +33,7 @@ namespace Markdown.Tests
         }
 
         [Test]
-        public void GetHTMLString_CorrectStringLine_TextTokensAndEmTokens()
+        public void CorrectStringLine_PlainTextTokensAndEmphasizedTextTokens()
         {
             var textTokens = new List<TextToken>
             {
@@ -50,7 +50,7 @@ namespace Markdown.Tests
         }
 
         [Test]
-        public void GetHTMLString_CorrectStringLine_EmTokenInsideStrong()
+        public void CorrectStringLine_EmphasizedTextTokenInsideStrongTextToken()
         {
             var textTokens = new List<TextToken>
             {
@@ -72,7 +72,7 @@ namespace Markdown.Tests
         }
 
         [Test]
-        public void GetHTMLString_CorrectStringLine_HeaderToken()
+        public void CorrectStringLine_HeaderTextToken()
         {
             var textTokens = new List<IToken>
             {
