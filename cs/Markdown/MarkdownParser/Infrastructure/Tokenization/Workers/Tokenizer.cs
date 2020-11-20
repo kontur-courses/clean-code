@@ -17,12 +17,15 @@ namespace MarkdownParser.Infrastructure.Tokenization.Workers
             this.tokenBuilders = tokenBuilders;
         }
 
-        public ParagraphData[] Tokenize(string rawInput) => rawInput
+        public IEnumerable<ParagraphData> Tokenize(string rawInput) => rawInput
             .Split(Environment.NewLine)
             .WhereNot(string.IsNullOrEmpty)
-            .Select(p => new TokenizationWorker(p, tokenBuilders))
-            .Select(ParagraphData.FromWorker)
-            .ToArray();
+            .Select(p => new TokenizationWorker(p, tokenBuilders)
+                .ParseTokens()
+                .FixCrossingTokens())
+            .Select(TokenPairsResolver.ResolvePairs)
+            .Select(TokenPairsResolver.ReplaceEmptyPairedWithDefault)
+            .Select(ParagraphData.FromTokens);
 
         public static ICollection<Token> MergeTextTokens(IEnumerable<Token> tokens)
         {

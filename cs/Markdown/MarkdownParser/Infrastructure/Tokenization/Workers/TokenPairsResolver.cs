@@ -63,7 +63,13 @@ namespace MarkdownParser.Infrastructure.Tokenization.Workers
             else result.Add(token);
         }
 
-        public static Token[] ResolvePairs(Token[] tokens) => new TokenPairsResolver(tokens).ResolvePairs().ToArray();
+        public static IEnumerable<Token> ResolvePairs(IEnumerable<Token> tokens) => new TokenPairsResolver(tokens.ToArray())
+            .ResolvePairs();
+
+        public static IEnumerable<Token> ReplaceEmptyPairedWithDefault(IEnumerable<Token> tokens) =>
+            tokens.Select(t => t is TokenPair p && p.Inner.Length == 0
+                ? TokenCreator.CreateDefault(p.Opening.StartPosition, p.Opening.RawValue + p.Closing.RawValue)
+                : t);
 
         private class TokenPairBuilder
         {
