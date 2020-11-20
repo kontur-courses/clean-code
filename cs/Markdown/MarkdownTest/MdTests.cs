@@ -28,7 +28,7 @@ namespace MarkdownTest
             var text =
                 @"# Header
 other text";
-            md.GetHtmlMarkup(text).Should().Be(@"<h1> Header</h1>
+            md.GetHtmlMarkup(text).Should().Be(@"\<h1> Header\</h1>
 other text");
         }
 
@@ -37,7 +37,7 @@ other text");
         {
             var text = @"some text _italic text_ not italic text";
 
-            md.GetHtmlMarkup(text).Should().Be(@"some text <em>italic text</em> not italic text");
+            md.GetHtmlMarkup(text).Should().Be(@"some text \<em>italic text\</em> not italic text");
         }
 
         [Test]
@@ -45,7 +45,7 @@ other text");
         {
             var text = @"some text __bold text__ not bold text";
 
-            md.GetHtmlMarkup(text).Should().Be(@"some text <strong>bold text</strong> not bold text");
+            md.GetHtmlMarkup(text).Should().Be(@"some text \<strong>bold text\</strong> not bold text");
         }
 
         [Test]
@@ -53,7 +53,7 @@ other text");
         {
             var text = @"abc # _dsa_";
 
-            md.GetHtmlMarkup(text).Should().Be(@"abc <h1><em>dsa</em></h1>");
+            md.GetHtmlMarkup(text).Should().Be(@"abc \<h1>\<em>dsa\</em>\</h1>");
         }
     }
 }
