@@ -113,5 +113,23 @@ namespace Markdown
             expected ??= markdown;
             Md.Render(markdown).Should().Be(expected);
         }
+        
+        [TestCase(
+            @"[google!](https://google.com)", 
+            @"<a href=""https://google.com"">google!</a>",
+            TestName = "Render_Links")]
+        [TestCase(
+            @"[__google__!](https://google.com)", 
+            @"<a href=""https://google.com""><strong>google</strong>!</a>",
+            TestName = "Render_BoldLinks")]
+        [TestCase(
+            @"[_google_!](https://google.com)", 
+            @"<a href=""https://google.com""><em>google</em>!</a>",
+            TestName = "Render_BoldLinks")]
+        public static void Render_Links(string markdown, string expected = null)
+        {
+            expected ??= markdown;
+            Md.Render(markdown).Should().Be(expected);
+        }
     }
 }
