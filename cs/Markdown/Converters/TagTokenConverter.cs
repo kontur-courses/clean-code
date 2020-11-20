@@ -5,6 +5,7 @@ namespace Markdown.Converters
 {
     public class TagTokenConverter : ITokenConverter
     {
+        
         private readonly string openTag;
         private readonly string closeTag;
         private readonly IConverter converter;
