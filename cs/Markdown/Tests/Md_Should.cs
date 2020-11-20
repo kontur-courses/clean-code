@@ -125,7 +125,11 @@ namespace Markdown
         [TestCase(
             @"[_google_!](https://google.com)",
             @"<a href=""https://google.com""><em>google</em>!</a>",
-            TestName = "Render_BoldLinks")]
+            TestName = "Render_ItalicLinks")]
+        [TestCase(
+            @"[ссылка с _курсивом_ и __выделением__](ссылка)",
+            @"<a href=""ссылка"">ссылка с <em>курсивом</em> и <strong>выделением</strong></a>",
+            TestName = "Render_BoldAndItalicLinks_WithSpaces")]
         public static void Render_Links(string markdown, string expected = null)
         {
             expected ??= markdown;
