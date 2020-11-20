@@ -9,6 +9,8 @@
             AddToken<MdHeaderToken>((r, t) => $"<h1>{r.RenderSubtokens(t)}</h1>");
             AddToken<MdBoldToken>((r, t) => $"<strong>{r.RenderSubtokens(t)}</strong>");
             AddToken<MdItalicToken>((r, t) => $"<em>{r.RenderSubtokens(t)}</em>");
+            AddToken<MdLinkToken>((r, t) =>
+                $"<a href=\"{r.RenderSubtokens(t.UrlToken)}\">{r.RenderSubtokens(t.TextToken)}</a>");
         }
     }
 }

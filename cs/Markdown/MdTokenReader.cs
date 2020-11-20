@@ -17,6 +17,8 @@ namespace Markdown
 
             TokenTypes.Add(bold);
             TokenTypes.Add(italic);
+            
+            TokenTypes.Add(new CustomTokenType(ReadLink));
         }
 
         public static EscapedStringToken ReadEscapeChar(TokenReader reader)
@@ -46,6 +48,43 @@ namespace Markdown
             }
 
             return hasDigits ? token : null;
+        }
+
+        public static MdLinkToken ReadLink(TokenReader reader)
+        {
+            var token = new MdLinkToken(reader.CurrentPosition);
+            var linkTextType = new BasicTokenType<MdLinkToken.MdLinkTextToken>("[", "]");
+            var linkUrlType = new BasicTokenType<MdLinkToken.MdLinkUrlToken>("(", ")");
+            token.TextToken = reader.ReadTokenType(linkTextType);
+            token.UrlToken = reader.ReadTokenType(linkUrlType);
+            if (token.TextToken == null || token.UrlToken == null) return null;
+            token.Length = token.TextToken.Length + token.UrlToken.Length;
+            return token;
+        }
+    }
+    
+    
+    public class MdLinkToken : Token
+    {
+        public MdLinkTextToken TextToken;
+        public MdLinkUrlToken UrlToken;
+
+        public MdLinkToken(int position, int length = 0, Token parent = null) : base(position, length, parent)
+        {
+        }
+        
+        public class MdLinkTextToken : BasicToken
+        {
+            public MdLinkTextToken() : base(0, 0, null)
+            {
+            }
+        }
+        
+        public class MdLinkUrlToken : BasicToken
+        {
+            public MdLinkUrlToken() : base(0, 0, null)
+            {
+            }
         }
     }
 }
