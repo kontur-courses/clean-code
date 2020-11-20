@@ -67,6 +67,9 @@ namespace Markdown
             return result;
         }
 
+        public TToken ReadTokenType<TToken>(BasicTokenType<TToken> type) where TToken : BasicToken, new()
+            => (TToken) ReadTokenType((BasicTokenType) type);
+
         private Token ReadToken(BasicToken token, bool allowSpaces)
         {
             var type = (BasicTokenType) states.Peek().TokenType;
@@ -121,9 +124,11 @@ namespace Markdown
 
         public bool HasToken(bool notRawText)
         {
-            var position = CurrentPosition;
+            var state = new ReaderState(null, CurrentPosition, null);
+            states.Push(state);
             var ok = ReadToken(notRawText) != null;
-            CurrentPosition = position;
+            states.Pop();
+            CurrentPosition = state.Position;
             return ok;
         }
 
