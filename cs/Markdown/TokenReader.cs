@@ -14,8 +14,8 @@ namespace Markdown
             Text = text;
         }
 
-        public List<TokenType> TokenTypes = new List<TokenType>();
-        private Stack<ReaderState> states = new Stack<ReaderState>();
+        public readonly List<TokenType> TokenTypes = new List<TokenType>();
+        private readonly Stack<ReaderState> states = new Stack<ReaderState>();
 
         public Token ReadToken(bool notRawText = false)
         {
@@ -169,7 +169,7 @@ namespace Markdown
 
         private class ReaderState
         {
-            public TokenType TokenType;
+            public readonly TokenType TokenType;
             public Token Token;
             public readonly int Position;
 
