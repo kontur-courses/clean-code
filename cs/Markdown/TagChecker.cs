@@ -77,6 +77,7 @@ namespace Markdown
         {
             var openTags = new Stack<Tag>();
             foreach (var tag in tags.OrderBy(x => x.Position))
+            {
                 if (!openTags.TryPeek(out var openTag) || openTag.Type != tag.Type)
                 {
                     openTags.Push(tag);
@@ -86,12 +87,14 @@ namespace Markdown
                     yield return openTags.Pop();
                     yield return tag;
                 }
+            }
         }
 
         private static IEnumerable<Tag> RemoveBoldTagsInItalicTags(this IEnumerable<Tag> tags)
         {
             var betweenItalicTags = false;
             foreach (var tag in tags.OrderBy(x => x.Position))
+            {
                 if (tag.Type == TagType.Italic)
                 {
                     betweenItalicTags = !betweenItalicTags;
@@ -101,6 +104,7 @@ namespace Markdown
                 {
                     yield return tag;
                 }
+            }
         }
     }
 }
