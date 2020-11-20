@@ -1,6 +1,6 @@
 ﻿namespace Markdown
 {
-    public class MdBoldToken : TokenWithSubTokens
+    public class MdBoldToken : BasicToken
     {
         public MdBoldToken() : this(0, 0, null)
         {

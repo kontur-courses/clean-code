@@ -14,7 +14,7 @@ namespace Markdown
         protected TokenRenderer(string text)
         {
             Text = text;
-            AddToken<MdRawTextToken>((r, t) => r.Text.Substring(t.StartPosition, t.Length));
+            AddToken<RawTextToken>((r, t) => r.Text.Substring(t.StartPosition, t.Length));
         }
 
         public void AddToken<TToken>(Func<TokenRenderer, TToken, string> renderFunc) where TToken : Token

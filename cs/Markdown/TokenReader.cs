@@ -9,163 +9,154 @@ namespace Markdown
         public readonly string Text;
         public int CurrentPosition = 0;
 
-        private readonly Dictionary<Type, Func<TokenReader, Token, Token>> Tokens =
-            new Dictionary<Type, Func<TokenReader, Token, Token>>();
-
         private HashSet<char> allowedEscapedChars = new HashSet<char> {'\\', '_'};
 
         public TokenReader(string text)
         {
             Text = text;
-            AddToken((r, t) =>
-            {
-                if (!r.TryGet("\\") || r.CurrentPosition + 1 >= r.Text.Length) return null;
-                if (!allowedEscapedChars.Contains(r.GetNextChars(2)[1])) return null;
-                CurrentPosition += 2;
-                return new EscapedStringToken(r.CurrentPosition - 2);
-            });
         }
 
-        private Token nextToken;
+        public List<TokenType> TokenTypes = new List<TokenType>();
+        private Stack<ReaderState> states = new Stack<ReaderState>();
 
-        public bool TryReadToken(out Token result, Token parent = null, bool notRawText = false,
-            Func<bool> stopWhen = null, Func<bool> failWhen = null)
+        public Token ReadToken(bool notRawText = false)
         {
-            result = nextToken;
-            nextToken = null;
-            if (result != null)
+            foreach (var tokenType in TokenTypes)
             {
-                CurrentPosition += result.Length;
-                return true;
+                Token token;
+                if (tokenType is BasicTokenType basicTokenType) token = ReadTokenType(basicTokenType);
+                else if (tokenType is CustomTokenType customTokenType) token = ReadTokenType(customTokenType);
+                else token = null;
+                if (token != null) return token;
             }
 
-            foreach (var readTokenFunc in Tokens.Values)
-            {
-                result = readTokenFunc(this, parent);
-                if (result != null) return true;
-            }
-
-            if (notRawText || CurrentPosition == Text.Length) return false;
-            return TryReadRawTextUntil(out result, () =>
-            {
-                if (stopWhen != null && stopWhen()) return true;
-                var state = GetCurrentState();
-                var ok = TryReadToken(out nextToken, parent, true);
-                state.Undo();
-                return ok;
-            }, failWhen ?? (() => false));
+            return notRawText ? null : ReadRawTextUntil(() => HasToken(true) || GetClosingState(0) != null);
         }
 
-        public void AddToken<TToken>(Func<TokenReader, Token, TToken> readTokenFunc) where TToken : Token
-            => Tokens[typeof(TToken)] = readTokenFunc;
-
-        public void RemoveToken<TToken>() where TToken : Token
-            => Tokens.Remove(typeof(TToken));
-
-        public bool TryRead<TToken>(out Token result, Token parent) where TToken : Token
+        public Token ReadTokenType(CustomTokenType type)
         {
-            result = null;
-            if (!Tokens.TryGetValue(typeof(TToken), out var readFunc)) return false;
-            return (result = readFunc(this, parent)) != null;
+            var state = new ReaderState(type, CurrentPosition);
+            states.Push(state);
+            var token = type.ReadFunc(this);
+            
+            if(states.Peek() == state) states.Pop();
+            if (token == null) CurrentPosition = state.Position;
+            return token;
         }
 
-        public bool TryReadRawTextUntil(out Token result, Func<bool> stopWhen)
-            => TryReadRawTextUntil(out result, stopWhen, () => false);
-
-        public bool TryReadRawTextUntil(out Token result, Func<bool> stopWhen, Func<bool> failWhen)
+        public Token ReadTokenType(BasicTokenType type)
         {
-            var state = GetCurrentState();
-            var initialPosition = CurrentPosition;
-            for (; CurrentPosition < Text.Length && !stopWhen(); CurrentPosition++)
+            if (type.StartWithNewLine && !IsAtNewLine(-1)) return null;
+            if (!TryGet(type.Start)) return null;
+            
+            var token = type.CreateInstance(CurrentPosition, type.Start.Length);
+            if (IsAtSpace(type.Start.Length)) return null;
+
+            var state = new ReaderState(type, CurrentPosition, token);
+            states.Push(state);
+            var allowSpaces = IsAtSpace(-1);
+            
+            var position = CurrentPosition;
+            CurrentPosition += type.Start.Length;
+            
+            var result = ReadToken(token, allowSpaces);
+            state = states.Peek() == state ? states.Pop() : states.Peek();
+            
+            result ??= new RawTextToken(position, CurrentPosition - position);
+
+            return result;
+        }
+
+        private Token ReadToken(BasicToken token, bool allowSpaces)
+        {
+            var type = (BasicTokenType) states.Peek().TokenType;
+            
+            while (!(!IsAtSpace(-1) && TryGet(type.End, type.EndWithNewLine)))
             {
-                if (!failWhen()) continue;
-                state.Undo();
-                result = null;
-                return false;
+                if (CurrentPosition >= Text.Length)  return null;
+                if (!allowSpaces && IsAtSpace()) return null;
+
+                var failState = GetClosingState();
+                if (failState != null)
+                {
+                    while (states.Peek() != failState) states.Pop();
+                    CurrentPosition += ((BasicTokenType) failState.TokenType).End.Length;
+                    
+                    return null;
+                }
+
+                var subtoken =  ReadToken();
+                if (subtoken == null) return null;
+                token.AddSubtoken(subtoken);
+            }
+            
+            var failType = TokenTypes.FirstOrDefault(t => t is BasicTokenType b
+                                                          && TryGet(b.End, b.EndWithNewLine));
+            if (failType != null && states.All(s => s.TokenType != failType))
+            {
+                CurrentPosition += ((BasicTokenType) failType).End.Length;
+                return null;
             }
 
-            result = new MdRawTextToken(initialPosition, CurrentPosition - initialPosition);
-            return true;
+            CurrentPosition += type.End.Length;
+            token.Length += type.End.Length;
+            if (states.Skip(1).Select(s => s.TokenType).Any(type.DisallowedTokenTypes.Contains)) return null;
+            if (token.Length == type.Start.Length + type.End.Length) return null;
+
+            return token;
+        }
+
+        public RawTextToken ReadRawTextUntil(Func<bool> stopWhen)
+        {
+            if (CurrentPosition >= Text.Length) return null;
+            var result = new RawTextToken(CurrentPosition);
+            while (!stopWhen() && CurrentPosition < Text.Length)
+            {
+                result.Length++;
+                CurrentPosition++;
+            }
+
+            return result;
+        }
+
+        public bool HasToken(bool notRawText)
+        {
+            var position = CurrentPosition;
+            var ok = ReadToken(notRawText) != null;
+            CurrentPosition = position;
+            return ok;
+        }
+
+        private ReaderState GetClosingState(int skipStages = 1)
+        {
+            var state = states.Skip(skipStages)
+                .TakeWhile(s => s.TokenType is BasicTokenType)
+                .FirstOrDefault(s => s.TokenType is BasicTokenType t && TryGet(t.End, t.EndWithNewLine));
+            var type = (BasicTokenType) state?.TokenType;
+            var shouldEndWithNewLine = type?.EndWithNewLine ?? false;
+            var endWithNewLine = shouldEndWithNewLine && IsAtNewLine(type.End.Length);
+            if (IsAtSpace() && !endWithNewLine) state = null;
+            return state;
         }
 
         public IEnumerable<Token> ReadAll()
         {
-            while (TryReadToken(out var token)) yield return token;
+            for (var token = ReadToken(); token != null; token = ReadToken()) yield return token;
         }
 
-
-        public bool TryReadSubtokensUntil(TokenWithSubTokens output, Func<bool> stopWhen)
-            => TryReadSubtokensUntil(output, stopWhen, () => false);
-
-        public bool TryReadSubtokensUntil(TokenWithSubTokens output, string endWith, bool allowSpaces = true,
-            bool endWithNewLine = false)
-        {
-            var wasSpaces = false;
-            return TryReadSubtokensUntil(output,
-                () => !IsAfterSpace() && TryGet(endWith, wasSpaces, endWithNewLine),
-                () => (wasSpaces |= IsAtSpace()) && !allowSpaces);
-        }
-
-        public bool TryReadSubtokensUntil(TokenWithSubTokens output, Func<bool> stopWhen, Func<bool> failWhen)
-        {
-            var initialCount = output.GetSubtokenCount();
-            while (!stopWhen())
-            {
-                if (failWhen() || !TryReadToken(out var subtoken, output, stopWhen: stopWhen, failWhen: failWhen))
-                {
-                    output.SetSubtokenCount(initialCount);
-                    return false;
-                }
-
-                output.AddSubtoken(subtoken);
-            }
-
-            return true;
-        }
-
-        public bool SkipUntil(Func<bool> stopWhen) => SkipUntil(stopWhen, () => false);
-
-        public bool SkipUntil(Func<bool> stopWhen, Func<bool> failWhen)
-        {
-            var count = CountCharsUntil(stopWhen, failWhen);
-            CurrentPosition += count >= 0 ? count : 0;
-            return count >= 0;
-        }
-
-        public int CountCharsUntil(Func<bool> stopWhen) => CountCharsUntil(stopWhen, () => false);
-
-        public int CountCharsUntil(Func<bool> stopWhen, Func<bool> failWhen)
-        {
-            var position = CurrentPosition;
-            var initialPosition = position;
-            for (; position < Text.Length && !stopWhen(); position++)
-                if (failWhen())
-                    return -1;
-
-            return position - initialPosition;
-        }
-
-        public bool TryRead(string text, bool endWithSpace = false, bool endWithNewLine = false)
-        {
-            if (!TryGet(text, endWithSpace, endWithNewLine)) return false;
-            CurrentPosition += text.Length;
-            return true;
-        }
-
-        public bool TryGet(string text, bool endWithSpace = false, bool endWithNewLine = false)
+        public bool TryGet(string text, bool endWithNewLine = false, bool endWithSpace = false)
             => GetNextChars(text.Length) == text
                && (!endWithSpace || IsAtSpace(text.Length))
-               && (!endWithNewLine || IsLineEnd());
+               && (!endWithNewLine || IsAtNewLine());
 
-        public bool IsAfterSpace(int offset = 0) => IsLineBegin(offset) || Text[CurrentPosition - 1 + offset] == ' ';
+        public bool IsAtSpace(int offset = 0) => IsAtNewLine(offset) || Text[CurrentPosition + offset] == ' ';
 
-        public bool IsAtSpace(int offset = 0) => IsLineEnd(offset) || Text[CurrentPosition + offset] == ' ';
-
-        public bool IsLineBegin(int offset = 0)
-            => CurrentPosition + offset <= 0 || Text[CurrentPosition - 1 + offset] == '\n';
-
-        public bool IsLineEnd(int offset = 0)
-            => CurrentPosition + offset >= Text.Length || Text[CurrentPosition + offset] == '\n';
+        public bool IsAtNewLine(int offset = 0)
+        {
+            if (CurrentPosition + offset < -1 || CurrentPosition + offset > Text.Length) return false;
+            if (CurrentPosition + offset == -1 || CurrentPosition + offset == Text.Length) return true;
+            return Text[CurrentPosition + offset] == '\n';
+        }
 
         public string GetNextChars(int count)
         {
@@ -173,67 +164,17 @@ namespace Markdown
             return Text.Substring(CurrentPosition, count);
         }
 
-        public void AddBasicToken<TToken>(string startWith, string endWith, params Type[] disallowedParrentTokens)
-            where TToken : TokenWithSubTokens, new()
+        private class ReaderState
         {
-            AddToken((reader, parent) => (parent != null && parent.IsInsideAnyTokenOfType(disallowedParrentTokens))
-                ? null
-                : ReadBasicToken<TToken>(reader, parent, startWith, endWith));
-        }
+            public TokenType TokenType;
+            public Token Token;
+            public readonly int Position;
 
-        public static TToken ReadBasicToken<TToken>(
-            TokenReader reader, Token parent,
-            string startWith, string endWith)
-            where TToken : TokenWithSubTokens, new()
-        {
-            if (parent != null && parent.IsInsideAnyTokenOfType(typeof(TToken))) return null;
-            var shouldStartWithNewLine = startWith.StartsWith("\n");
-            var shouldEndWithNewLine = endWith.EndsWith("\n");
-
-            if (shouldStartWithNewLine) startWith = startWith.Substring(1);
-            if (shouldEndWithNewLine) endWith = endWith.Substring(0, endWith.Length - 1);
-
-            var allowSpaces = reader.IsAfterSpace();
-
-            var token = new TToken {StartPosition = reader.CurrentPosition, Length = startWith.Length, Parent = parent};
-
-            var state = reader.GetCurrentState();
-
-            var ok = (!shouldStartWithNewLine || reader.IsLineBegin())
-                     && reader.TryRead(startWith) && !reader.IsAtSpace()
-                     && reader.TryReadSubtokensUntil(token, endWith, allowSpaces, shouldStartWithNewLine)
-                     && !reader.IsAfterSpace() && reader.TryRead(endWith);
-
-            token.Length += endWith.Length;
-            if (ok && token.Length != startWith.Length + endWith.Length) return token;
-
-            state.Undo();
-            return null;
-        }
-
-        public virtual TokenReaderState GetCurrentState() => new TokenReaderState(this);
-
-        public class TokenReaderState
-        {
-            public readonly TokenReader Reader;
-
-            private int position;
-
-            public TokenReaderState(TokenReader reader)
+            public ReaderState(TokenType tokenType, int startIndex, Token token = null)
             {
-                Reader = reader;
-                position = reader.CurrentPosition;
-            }
-
-            public bool Undo()
-            {
-                UndoAction();
-                return false; //всегда false что-бы было легко использовать в выражениях с TryRead
-            }
-
-            protected virtual void UndoAction()
-            {
-                Reader.CurrentPosition = position;
+                TokenType = tokenType;
+                Position = startIndex;
+                Token = token;
             }
         }
     }

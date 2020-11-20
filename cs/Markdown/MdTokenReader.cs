@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Linq;
 
 namespace Markdown
 {
@@ -6,26 +7,45 @@ namespace Markdown
     {
         public MdTokenReader(string text) : base(text)
         {
-            AddToken(ReadDigitToken);
-
-            AddBasicToken<MdHeaderToken>("\n# ", "\n");
-            AddBasicToken<MdBoldToken>("__", "__", typeof(MdItalicToken));
-            AddBasicToken<MdItalicToken>("_", "_");
+            TokenTypes.Add(new CustomTokenType(ReadEscapeChar));
+            TokenTypes.Add(new CustomTokenType(ReadDigitToken));
+            
+            TokenTypes.Add(new BasicTokenType<MdHeaderToken>("\n# ", "\n"));
+            
+            var italic = new BasicTokenType<MdItalicToken>("_", "_");
+            var bold = new BasicTokenType<MdBoldToken>("__", "__") {DisallowedTokenTypes = {italic}};
+            
+            TokenTypes.Add(bold);
+            TokenTypes.Add(italic);
         }
 
-        public static MdDigitToken ReadDigitToken(TokenReader reader, Token parent)
+        public static EscapedStringToken ReadEscapeChar(TokenReader reader)
         {
-            if (!reader.IsAfterSpace()) return null;
+            var token = new EscapedStringToken(reader.CurrentPosition, 2);
+            if (!reader.TryGet("\\")) return null;
+            reader.CurrentPosition++;
+            if (!reader.TryGet("\\") && !reader.TokenTypes
+                .Any(t => t is BasicTokenType b &&
+                          (reader.TryGet(b.Start)
+                           || reader.TryGet(b.End, b.EndWithNewLine)))) return null;
+            reader.CurrentPosition++;
+            return token;
+        }
+
+        public static MdDigitToken ReadDigitToken(TokenReader reader)
+        {
+            if (reader.IsAtSpace()) return null;
+            var token = new MdDigitToken(reader.CurrentPosition);
+
             var hasDigits = false;
-            var position = reader.CurrentPosition;
-            var offset = 0;
+            while (!reader.IsAtSpace())
+            {
+                hasDigits |= char.IsDigit(reader.Text[reader.CurrentPosition]);
+                reader.CurrentPosition++;
+                token.Length++;
+            }
 
-            for (; !reader.IsAtSpace(offset); offset++)
-                hasDigits |= char.IsDigit(reader.Text[position + offset]);
-
-            if (!hasDigits) return null;
-            reader.CurrentPosition += offset;
-            return new MdDigitToken {StartPosition = position, Length = offset};
+            return hasDigits ? token : null;
         }
     }
 }
