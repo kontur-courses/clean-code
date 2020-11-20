@@ -21,7 +21,7 @@ namespace Markdown
             TokenTypes.Add(new CustomTokenType(ReadLink));
         }
 
-        public static EscapedStringToken ReadEscapeChar(TokenReader reader)
+        private static EscapedStringToken ReadEscapeChar(TokenReader reader)
         {
             var token = new EscapedStringToken(reader.CurrentPosition, 2);
             if (!reader.TryGet("\\")) return null;
@@ -34,7 +34,7 @@ namespace Markdown
             return token;
         }
 
-        public static MdDigitToken ReadDigitToken(TokenReader reader)
+        private static MdDigitToken ReadDigitToken(TokenReader reader)
         {
             if (reader.IsAtSpace()) return null;
             var token = new MdDigitToken(reader.CurrentPosition);
@@ -50,7 +50,7 @@ namespace Markdown
             return hasDigits ? token : null;
         }
 
-        public static MdLinkToken ReadLink(TokenReader reader)
+        private static MdLinkToken ReadLink(TokenReader reader)
         {
             var token = new MdLinkToken(reader.CurrentPosition);
             var linkTextType = new BasicTokenType<MdLinkToken.MdLinkTextToken>("[", "]");
