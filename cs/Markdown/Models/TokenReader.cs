@@ -99,9 +99,14 @@ namespace Markdown.Models
             {
                 tags.Add(new TagInfo(tagInfo.Tag, tagInfo.Position - tagsShiftsAmount, tagInfo.TagLength));
                 textWithoutEscapeSymbols.Append(tagInfo.Tag.Opening);
+                buffer.Clear();
+                isLastEscaped = false;
             }
             else
+            {
                 buffer.Append(tagInfo.Tag.Opening);
+                isLastEscaped = false;
+            }
         }
 
         private List<PairedTag> CreateTagPairs(
@@ -111,7 +116,7 @@ namespace Markdown.Models
                 return new List<PairedTag>();
 
             var result = new List<PairedTag>();
-            if (syntax.IsStartParagraphTag(tags[0].Tag))
+            if (syntax.IsStartParagraphTag(tags[0].Tag) && syntax.IsValidAsOpening(tags[0], text))
             {
                 AddPairTagsToList(tags[0], tags[^1], result);
                 tags = tags.Take(tags.Count - 1).Skip(1).ToList();
@@ -246,8 +251,14 @@ namespace Markdown.Models
                 }
                 lastTag = currentTag;
             }
-            tokens.Add(CreateTextToken(lastTag, new PairedTag(new Tag(), text.Length), text));
-            return tokens;
+            return tokens
+                .Append(CreateTextToken(lastTag, new PairedTag(new Tag(), text.Length), text))
+                .Where(token => !IsEmptyTextToken(token)).ToList();
+        }
+
+        private bool IsEmptyTextToken(ITaggedToken token)
+        {
+            return token.GetType() == typeof(TextToken) && string.IsNullOrEmpty(token.Value);
         }
 
         private void OpenNewToken(PairedTag currentTag, PairedTag lastTag, List<ITaggedToken> tokens,

@@ -85,10 +85,10 @@ namespace Markdown.Models.Syntax
         {
             var length = tag.TagLength;
             if (tag.Position == 0)
-            {
-                var isNextIsSpace = char.IsWhiteSpace(text[length]);
-                return IsStartParagraphTag(tag.Tag) ? isNextIsSpace : !isNextIsSpace;
-            }
+                return !char.IsWhiteSpace(text[length]);
+
+            if (IsStartParagraphTag(tag.Tag))
+                return false;
 
             if (tag.Position + length == text.Length)
                 return false;
