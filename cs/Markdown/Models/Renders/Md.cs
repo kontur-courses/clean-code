@@ -1,18 +1,17 @@
 ﻿using System;
-using System.Text;
+using System.Linq;
 using Markdown.Models.Converters;
-using Markdown.Models.Syntax;
 
 namespace Markdown.Models.Renders
 {
     internal class Md
     {
-        private readonly ISyntax syntax;
+        private readonly TokenReader reader;
         private readonly IConverter converter;
 
-        public Md(ISyntax syntax, IConverter converter)
+        public Md(TokenReader reader, IConverter converter)
         {
-            this.syntax = syntax;
+            this.reader = reader;
             this.converter = converter;
         }
 
@@ -21,19 +20,13 @@ namespace Markdown.Models.Renders
             if (text == null)
                 throw new ArgumentNullException(nameof(text));
 
-            var convertedText = new StringBuilder();
-            var reader = new TokenReader(syntax);
+            var textTokensByParagraphs = text
+                .Split(converter.NewLineRule.From.Opening)
+                .Select(paragraph => reader.ReadTokens(paragraph))
+                .Where(tokens => tokens.Count > 0)
+                .ToList();
 
-            var isFirst = true;
-            foreach (var paragraph in text.Split("\n"))
-            {
-                var paragraphTokens = reader.ReadTokens(paragraph);
-                var convertedParagraph = converter.Convert(paragraphTokens, !isFirst);
-                convertedText.Append(convertedParagraph);
-                isFirst = false;
-            }
-
-            return convertedText.ToString();
+            return converter.Convert(textTokensByParagraphs);
         }
     }
 }

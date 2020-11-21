@@ -1,7 +1,6 @@
 ﻿using System.Collections.Generic;
 using Markdown.Models.ConvertOptions.ConvertRules;
 using Markdown.Models.ConvertOptions.UnionRules;
-using Markdown.Models.Tags;
 
 namespace Markdown.Models.ConvertOptions
 {
@@ -9,14 +8,14 @@ namespace Markdown.Models.ConvertOptions
     {
         public IEnumerable<IConvertRule> ConvertRules { get; }
         public IEnumerable<IUnionRule> UnionRules { get; }
-        public Tag NewLine { get; }
+        public IConvertRule NewLineRule { get; }
 
-        public ConvertingOptions(IEnumerable<IConvertRule> convertingRules,
-            IEnumerable<IUnionRule> unionRules, Tag newLineTag)
+        public ConvertingOptions(IEnumerable<ConvertRules.IConvertRule> convertingRules,
+            IEnumerable<IUnionRule> unionRules, IConvertRule newLineRule)
         {
             ConvertRules = convertingRules;
             UnionRules = unionRules;
-            NewLine = newLineTag;
+            NewLineRule = newLineRule;
         }
     }
 }
