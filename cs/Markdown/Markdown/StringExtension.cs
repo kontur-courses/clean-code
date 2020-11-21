@@ -4,7 +4,7 @@
     {
         public static string Substring(this string s, Token token)
         {
-            return s.Substring(token.Start, token.Length);
+            return token == null ? "" : s.Substring(token.Start, token.Length);
         }
     }
 }

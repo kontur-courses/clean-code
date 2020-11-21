@@ -1,75 +1,111 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
+using System.Drawing.Printing;
 using System.Linq;
 
 namespace Markdown
 {
     public class Tokenizer
     {
-        private string[] tags;
-        private string text;
-        public int CurrentPosition { get; private set; }
+        private readonly string text;
+        public int PositionInText { get; private set; }
         private Stack<Token> tagStack;
+        private readonly MarkupProcessor markupProcessor;
 
-        public Tokenizer(string text, string[] tags)
+        public Tokenizer(string text, MarkupProcessor markupProcessor)
         {
             this.text = text;
-            this.tags = tags;
             tagStack = new Stack<Token>();
+            this.markupProcessor = markupProcessor;
         }
 
-        public Token ReadTag()
+
+        public static bool IsClosing(string paragraph, string tag, int tagPosition, Token lastTag)
+        {
+            return !Escaped(paragraph, tagPosition) &&
+                   !IsAfterWhiteSpaceOrStringStart(paragraph, tagPosition)
+                   && !IsInsideNumber(paragraph, tagPosition)
+                   && paragraph.Substring(lastTag) == tag;
+        }
+
+        public static bool IsOpening(string paragraph, string tag, int tagPosition, Token lastTag)
+        {
+            return !Escaped(paragraph, tagPosition) &&
+                   IsAfterWhiteSpaceOrStringStart(paragraph, tagPosition)
+                   && !IsInsideNumber(paragraph, tagPosition);
+        }
+
+        public Token ReadTag(string paragraph, int positionInParagraph)
+        {
+            TryReadTag(paragraph, positionInParagraph, out var token);
+            if (token == null)
+                return null;
+            if (IsClosing(paragraph, text.Substring(token), positionInParagraph, tagStack.FirstOrDefault()))
+                tagStack.Pop();
+            else
+                tagStack.Push(token);
+
+            return token;
+        }
+
+        public bool TryReadTag(string paragraph, int positionInParagraph, out Token result)
         {
             var lastTag = tagStack.FirstOrDefault();
-            var possibleTags = tags
-                .Where(tag => text.Substring(CurrentPosition, tag.Length) == tag)
-                .Where(tag => IsAfterWhiteSpace() && !IsInsideNumber())
+            result = null;
+            var possibleTags = markupProcessor.AllTags
+                .Where(tag =>
+                    IsClosing(paragraph, tag, positionInParagraph, lastTag) ||
+                    IsOpening(paragraph, tag, positionInParagraph, lastTag))
+                .Where(tag => positionInParagraph + tag.Length <= paragraph.Length)
+                .Where(tag => paragraph.Substring(positionInParagraph, tag.Length) == tag)
                 .ToList();
 
             if (!possibleTags.Any())
-                return null;
+                return false;
+
             var longestTag = possibleTags
-                .Aggregate("",
-                    (cur, max) => cur.Length > max.Length ? cur : max);
-            CurrentPosition += longestTag.Length;
-            var tagToken = new Token(CurrentPosition, longestTag.Length);
-            tagToken.Parent = tagStack.Peek();
-            tagStack.Push(tagToken);
+                .Aggregate("", (cur, max) => cur.Length > max.Length ? cur : max);
 
-            return tagToken;
+            var tagToken = new Token(PositionInText + positionInParagraph, longestTag.Length);
+            if (!CheckTagsOverlap(tagToken, lastTag))
+                tagToken.IsMarkup = true;
+            if (tagToken.IsMarkup)
+                result = tagToken;
+
+            return tagToken.IsMarkup;
         }
 
-        private string FindFirstPossibleTag()
+        public bool CheckTagsOverlap(Token firstTag, Token secondTag)
         {
-            return tags
-                .Where(_ => !Escaped())
-                .Where(possibleTag => CurrentPosition + possibleTag.Length < text.Length)
-                .Where(possibleTag => text.Substring(CurrentPosition, possibleTag.Length) == possibleTag)
-                .FirstOrDefault(possibleTag => IsAfterWhiteSpace() && !IsInsideNumber());
+            if (secondTag == null)
+                return false;
+            var currentTagText = text.Substring(firstTag);
+            var lastTagText = text.Substring(secondTag);
+            return lastTagText != currentTagText && currentTagText.Contains(lastTagText);
         }
 
-        public Token ReadText()
+        public Token ReadTextUntilTag(string paragraph, int positionInParagraph)
         {
-            var startingPosition = CurrentPosition;
+            var startingPosition = positionInParagraph;
             while (true)
             {
-                if (CurrentPosition == text.Length)
+                if (positionInParagraph == paragraph.Length)
                     break;
-                var tag = FindFirstPossibleTag();
-                if (tag != null)
+                if (TryReadTag(paragraph, positionInParagraph, out _))
                     break;
-                CurrentPosition++;
+                positionInParagraph++;
             }
 
-            return new Token(startingPosition, CurrentPosition - startingPosition);
+            return new Token(PositionInText + startingPosition, positionInParagraph - startingPosition);
         }
 
-        private bool Escaped()
+        private static bool Escaped(string paragraph, int position)
         {
-            if (CurrentPosition == 0)
+            if (position == 0)
                 return false;
-            var i = CurrentPosition - 1;
+            var i = position - 1;
             var slashesCount = 0;
-            while (text[i] == '\\')
+            while (paragraph[i] == '\\')
             {
                 slashesCount++;
                 i -= 1;
@@ -78,32 +114,92 @@ namespace Markdown
             return slashesCount % 2 != 0;
         }
 
-        private bool IsInsideNumber()
+        public static bool IsInsideNumber(string paragraph, int tagPosition)
         {
-            if (CurrentPosition == 0)
+            if (tagPosition == 0 || tagPosition == paragraph.Length - 1)
                 return false;
-            return char.IsDigit(text[CurrentPosition - 1]);
+            return char.IsDigit(paragraph[tagPosition - 1]) && char.IsDigit(paragraph[tagPosition + 1]);
         }
 
-        private bool IsAfterWhiteSpace()
+        private static bool IsAfterWhiteSpaceOrStringStart(string paragraph, int tagPosition)
         {
-            if (CurrentPosition == 0)
-                return false;
-            return text[CurrentPosition - 1] == ' ';
+            if (tagPosition == 0)
+                return true;
+            return paragraph[tagPosition - 1] == ' ';
+        }
+
+        public IEnumerable<string> GetParagraphs()
+        {
+            return text.Split(Environment.NewLine.ToCharArray(), StringSplitOptions.RemoveEmptyEntries);
+        }
+
+        public IEnumerable<Token> TokenizeParagraph(string paragraph)
+        {
+            var positionInParagraph = 0;
+            var tokens = new List<Token>();
+            tagStack = new Stack<Token>();
+            while (positionInParagraph < paragraph.Length)
+            {
+                var tagToken = ReadTag(paragraph, positionInParagraph);
+                if (tagToken != null)
+                {
+                    tokens.Add(tagToken);
+                    positionInParagraph += tagToken.Length;
+                }
+
+                var textToken = ReadTextUntilTag(paragraph, positionInParagraph);
+                tokens.Add(textToken);
+                positionInParagraph += textToken.Length;
+            }
+
+            TryAddNewlineAfterParagraph(tokens);
+
+            PositionInText += paragraph.Length + Environment.NewLine.Length;
+            while (tagStack.Any())
+            {
+                var tag = tagStack.Pop();
+                if (!markupProcessor.SingleTags.Contains(paragraph.Substring(tag)))
+                    tag.IsMarkup = false;
+            }
+
+            return tokens;
+        }
+
+        public void TryAddNewlineAfterParagraph(List<Token> tokens)
+        {
+            if (tokens[tokens.Count - 1].End + Environment.NewLine.Length < text.Length)
+                tokens[tokens.Count - 1].Length += Environment.NewLine.Length;
+        }
+
+        public void RemoveEmptyMarkupTokens(List<Token> tokens)
+        {
+            tokens = tokens.Where(token => token.Length != 0).ToList();
+
+            var prevToken = tokens[0];
+            foreach (var curToken in tokens.Skip(1))
+            {
+                if (curToken.IsMarkup
+                    && prevToken.IsMarkup
+                    && text.Substring(curToken) == text.Substring(prevToken))
+                {
+                    curToken.IsMarkup = false;
+                    prevToken.IsMarkup = false;
+                }
+
+                prevToken = curToken;
+            }
         }
 
         public IEnumerable<Token> GetTokens()
         {
-            if (text == "")
-                yield return new Token(0, 0);
-            while (CurrentPosition < text.Length)
+            var tokens = new List<Token>();
+            foreach (var paragraph in GetParagraphs())
             {
-                var tagToken = ReadTag();
-                var textToken = ReadText();
-                if (tagToken != null)
-                    yield return tagToken;
-                yield return textToken;
+                tokens.AddRange(TokenizeParagraph(paragraph));
             }
+
+            RemoveEmptyMarkupTokens(tokens);
+            return tokens;
         }
     }
 }

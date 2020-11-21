@@ -5,22 +5,46 @@ namespace Markdown
 {
     public class MarkupProcessor
     {
-        public Dictionary<MarkupType, string> markupToTag;
+        public readonly Dictionary<MarkupType, string> MarkupToHtmlTag;
+        public readonly Dictionary<MarkupType, string> MarkupToMdTag;
+        public readonly HashSet<string> SingleTags;
+        public readonly HashSet<string> AllTags;
 
-        public MarkupProcessor(Dictionary<MarkupType, string> markupToTag)
+        public MarkupProcessor(
+            Dictionary<MarkupType, string> markupToHtmlTag,
+            Dictionary<MarkupType, string> markupToMdTag,
+            HashSet<string> singleTags
+        )
         {
-            this.markupToTag = markupToTag;
+            MarkupToHtmlTag = markupToHtmlTag;
+            MarkupToMdTag = markupToMdTag;
+            SingleTags = singleTags;
+            AllTags = new HashSet<string>();
+            foreach (var mdTag in markupToMdTag.Values)
+            {
+                AllTags.Add(mdTag);
+            }
         }
 
-        public MarkupType GetMarkupType(string tag)
+        public bool IsSingleTag(MarkupType markupType)
         {
-            foreach (var markupTagPair in markupToTag)
+            return IsSingleTag(MarkupToMdTag[markupType]);
+        }
+
+        public bool IsSingleTag(string tag)
+        {
+            return SingleTags.Contains(tag);
+        }
+
+        public MarkupType GetMarkupType(string mdTag)
+        {
+            foreach (var markupTagPair in MarkupToMdTag)
             {
-                if (markupTagPair.Value == tag)
+                if (markupTagPair.Value == mdTag)
                     return markupTagPair.Key;
             }
 
-            throw new ArgumentException($"Tag {tag} not found");
+            throw new ArgumentException($"Tag {mdTag} not found");
         }
 
         public MarkupType GetMarkupType(string text, Token token)
@@ -30,7 +54,7 @@ namespace Markdown
 
         public string GetOpeningTag(MarkupType markupType)
         {
-            return $@"\<{markupToTag[markupType]}>";
+            return $@"\<{MarkupToHtmlTag[markupType]}>";
         }
 
         public string GetOpeningTag(string text, Token token)
@@ -40,7 +64,7 @@ namespace Markdown
 
         public string GetClosingTag(MarkupType markupType)
         {
-            return $@"\</{markupToTag[markupType]}>";
+            return $@"\</{MarkupToHtmlTag[markupType]}>";
         }
 
         public string GetClosingTag(string text, Token token)

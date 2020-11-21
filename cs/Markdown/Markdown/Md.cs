@@ -7,35 +7,38 @@ namespace Markdown
 {
     public class Md
     {
-        private string[] tags = {"__", "_", "# "};
+        private HashSet<string> tags = new HashSet<string> {"__", "_", "# "};
 
-        private Dictionary<MarkupType, string> markupToTag = new Dictionary<MarkupType, string>
+        private Dictionary<MarkupType, string> markupToHtmlTag = new Dictionary<MarkupType, string>
         {
             {MarkupType.Bold, "strong"},
             {MarkupType.Italic, "em"},
-            {MarkupType.Default, ""},
             {MarkupType.Header, "h1"}
         };
 
-        private MarkupProcessor markupProcessor;
-
-        public Md(Dictionary<MarkupType, string> markupToTag)
+        private Dictionary<MarkupType, string> markupToMdTag = new Dictionary<MarkupType, string>
         {
-            markupProcessor = new MarkupProcessor(markupToTag);
-        }
+            {MarkupType.Bold, "__"},
+            {MarkupType.Italic, "_"},
+            {MarkupType.Header, "# "}
+        };
+
+        private HashSet<string> singleTags = new HashSet<string> {"# "};
+
+        private MarkupProcessor markupProcessor;
 
         public Md()
         {
+            markupProcessor = new MarkupProcessor(markupToHtmlTag, markupToMdTag, singleTags);
         }
 
-        //Вынести эти методы из Md
         public string MarkdownToHtml(string text)
         {
             var htmlText = new StringBuilder();
-            var tokenizer = new Tokenizer(text, tags);
+            var tokenizer = new Tokenizer(text, markupProcessor);
             var currentMarkup = new Stack<MarkupType>();
-
-            foreach (var token in tokenizer.GetTokens())
+            var tokens = tokenizer.GetTokens();
+            foreach (var token in tokens)
             {
                 if (token.IsMarkup)
                 {
@@ -52,7 +55,33 @@ namespace Markdown
                     }
                 }
                 else
-                    htmlText.Append(text.Substring(token));
+                {
+                    var tokenText = text.Substring(token);
+                    if (tokenText.EndsWith(Environment.NewLine))
+                    {
+                        htmlText.Append(tokenText.Substring(0,
+                            tokenText.Length - Environment.NewLine.Length));
+                        while (currentMarkup.Any())
+                        {
+                            var lastMarkup = currentMarkup.Peek();
+                            if (!markupProcessor.IsSingleTag(lastMarkup))
+                                break;
+                            htmlText.Append(markupProcessor.GetClosingTag(lastMarkup));
+                            currentMarkup.Pop();
+                        }
+
+                        htmlText.Append(Environment.NewLine);
+                    }
+                    else
+                    {
+                        htmlText.Append(tokenText);
+                    }
+                }
+            }
+
+            while (currentMarkup.Any())
+            {
+                htmlText.Append(markupProcessor.GetClosingTag(currentMarkup.Pop()));
             }
 
             return htmlText.ToString();

@@ -6,6 +6,11 @@
 
         public int Length { get; set; }
 
+        public int End
+        {
+            get => Start + Length-1;
+        }
+
         public bool IsMarkup { get; set; }
 
         public Token Parent { get; set; }
