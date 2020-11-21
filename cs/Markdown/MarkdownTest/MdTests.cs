@@ -28,7 +28,7 @@ namespace MarkdownTest
             var text =
                 @"# Header
 other text";
-            md.MarkdownToHtml(text).Should().Be(@"\<h1> Header\</h1>
+            md.MarkdownToHtml(text).Should().Be(@"\<h1>Header\</h1>
 other text");
         }
 
@@ -121,9 +121,9 @@ other text");
             md.MarkdownToHtml(input).Should().Be(input);
         }
 
-        [TestCase(@"abc \\_aaa_ aa", @"abc \\<em>aaa\</em> aa")]
-        [TestCase(@"abc \_aaa_ aa", @"abc _aaa_ aa")]
-        [TestCase(@"abc _aaa\_ aa", @"abc _aaa_ aa")]
+        [TestCase(@"abc \\_aaa_ aa", @"abc \\_aaa_ aa")]
+        [TestCase(@"abc \_aaa_ aa", @"abc \_aaa_ aa")]
+        [TestCase(@"abc _aaa\_ aa", @"abc _aaa\_ aa")]
         public void TagsEscaping_ShouldWork(string input, string expected)
         {
             md.MarkdownToHtml(input).Should().Be(expected);
