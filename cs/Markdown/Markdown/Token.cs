@@ -8,7 +8,7 @@
 
         public int End
         {
-            get => Start + Length-1;
+            get => Start + Length - 1;
         }
 
         public bool IsMarkup { get; set; }
