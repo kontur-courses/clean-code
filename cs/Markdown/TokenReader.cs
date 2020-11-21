@@ -4,7 +4,7 @@ using System.Linq;
 
 namespace Markdown
 {
-    public abstract class TokenReader
+    public class TokenReader
     {
         public readonly string Text;
         public int CurrentPosition = 0;
