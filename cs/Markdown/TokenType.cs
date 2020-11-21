@@ -17,7 +17,7 @@ namespace Markdown
 
         public readonly List<TokenType> DisallowedTokenTypes = new List<TokenType>();
 
-        public BasicTokenType(string start, string end)
+        protected BasicTokenType(string start, string end)
         {
             StartWithNewLine = start.StartsWith("\n");
             EndWithNewLine = end.EndsWith("\n");
