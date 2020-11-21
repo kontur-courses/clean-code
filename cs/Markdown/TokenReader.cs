@@ -31,6 +31,9 @@ namespace Markdown
             return notRawText ? null : ReadRawTextUntil(() => HasToken(true) || GetClosingState(0) != null);
         }
 
+        public TToken ReadTokenType<TToken>(BasicTokenType<TToken> type) where TToken : BasicToken, new()
+            => (TToken) ReadTokenType((BasicTokenType) type);
+
         public Token ReadTokenType(CustomTokenType type)
         {
             var state = new ReaderState(type, CurrentPosition);
@@ -42,7 +45,7 @@ namespace Markdown
             return token;
         }
 
-        public Token ReadTokenType(BasicTokenType type)
+        private Token ReadTokenType(BasicTokenType type)
         {
             if (type.StartWithNewLine && !IsAtNewLine(-1)) return null;
             if (!TryGet(type.Start)) return null;
@@ -65,9 +68,6 @@ namespace Markdown
             return result;
         }
 
-        public TToken ReadTokenType<TToken>(BasicTokenType<TToken> type) where TToken : BasicToken, new()
-            => (TToken) ReadTokenType((BasicTokenType) type);
-        
         public BasicTokenType<TToken> AddBasicTokenType<TToken>(string start, string end) where TToken: BasicToken, new()
         {
             var type = new BasicTokenType<TToken>(start, end);
