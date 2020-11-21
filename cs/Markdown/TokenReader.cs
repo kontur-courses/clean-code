@@ -34,7 +34,7 @@ namespace Markdown
         public TToken ReadTokenType<TToken>(BasicTokenType<TToken> type) where TToken : BasicToken, new()
             => (TToken) ReadTokenType((BasicTokenType) type);
 
-        public Token ReadTokenType(CustomTokenType type)
+        private Token ReadTokenType(CustomTokenType type)
         {
             var state = new ReaderState(type, CurrentPosition);
             states.Push(state);
