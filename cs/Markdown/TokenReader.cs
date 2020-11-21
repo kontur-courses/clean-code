@@ -68,14 +68,15 @@ namespace Markdown
             return result;
         }
 
-        public BasicTokenType<TToken> AddBasicTokenType<TToken>(string start, string end) where TToken: BasicToken, new()
+        public BasicTokenType<TToken> AddBasicTokenType<TToken>(string start, string end)
+            where TToken : BasicToken, new()
         {
             var type = new BasicTokenType<TToken>(start, end);
             tokenTypes.Add(type);
             return type;
         }
 
-        public CustomTokenType AddCustomTokenType<TToken>(Func<TokenReader, TToken> readFunc) where TToken: Token
+        public CustomTokenType AddCustomTokenType<TToken>(Func<TokenReader, TToken> readFunc) where TToken : Token
         {
             var type = new CustomTokenType(readFunc);
             tokenTypes.Add(type);

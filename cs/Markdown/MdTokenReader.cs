@@ -10,7 +10,7 @@ namespace Markdown
             AddCustomTokenType(ReadDigitToken);
 
             AddBasicTokenType<MdHeaderToken>("\n#", "\n");
-            
+
             var bold = AddBasicTokenType<MdBoldToken>("__", "__");
             var italic = AddBasicTokenType<MdItalicToken>("_", "_");
             bold.DisallowedTokenTypes.Add(italic);
