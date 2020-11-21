@@ -5,4 +5,8 @@
     <TargetFramework>netcoreapp3.1</TargetFramework>
   </PropertyGroup>
 
+  <ItemGroup>
+    <Compile Remove="Models\ConvertOptions\ConvertingRulesFactory.cs" />
+  </ItemGroup>
+
 </Project>
