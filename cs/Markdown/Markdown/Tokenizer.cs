@@ -37,7 +37,7 @@ namespace Markdown
 
         public Token ReadTag(string paragraph, int positionInParagraph)
         {
-            TryReadTag(paragraph, positionInParagraph, out var token);
+            TryReadTag(paragraph, positionInParagraph, out var token, out _);
             if (token == null)
                 return null;
             if (IsClosing(paragraph, text.Substring(token), positionInParagraph, tagStack.FirstOrDefault()))
@@ -48,23 +48,26 @@ namespace Markdown
             return token;
         }
 
-        public bool TryReadTag(string paragraph, int positionInParagraph, out Token result)
+        public bool TryReadTag(string paragraph, int positionInParagraph, out Token result, out int longestTagLen)
         {
             var lastTag = tagStack.FirstOrDefault();
             result = null;
+            longestTagLen = 0;
             var possibleTags = markupProcessor.AllTags
-                .Where(tag =>
-                    IsClosing(paragraph, tag, positionInParagraph, lastTag) ||
-                    IsOpening(paragraph, tag, positionInParagraph, lastTag))
                 .Where(tag => positionInParagraph + tag.Length <= paragraph.Length)
-                .Where(tag => paragraph.Substring(positionInParagraph, tag.Length) == tag)
-                .ToList();
+                .Where(tag => paragraph.Substring(positionInParagraph, tag.Length) == tag);
 
             if (!possibleTags.Any())
                 return false;
-
             var longestTag = possibleTags
                 .Aggregate("", (cur, max) => cur.Length > max.Length ? cur : max);
+            longestTagLen = longestTag.Length;
+            if (!IsClosing(paragraph, longestTag, positionInParagraph, lastTag) &&
+                !IsOpening(paragraph, longestTag, positionInParagraph, lastTag))
+            {
+                return false;
+            }
+
 
             var tagToken = new Token(PositionInText + positionInParagraph, longestTag.Length);
             if (!CheckTagsOverlap(tagToken, lastTag))
@@ -89,14 +92,18 @@ namespace Markdown
             var startingPosition = positionInParagraph;
             while (true)
             {
-                if (positionInParagraph == paragraph.Length)
+                if (positionInParagraph >= paragraph.Length)
                     break;
-                if (TryReadTag(paragraph, positionInParagraph, out _))
+                if (TryReadTag(paragraph, positionInParagraph, out _, out var longestTagLen))
+                {
                     break;
-                positionInParagraph++;
+                }
+
+                positionInParagraph = Math.Min(paragraph.Length, positionInParagraph + longestTagLen + 1);
             }
 
-            return new Token(PositionInText + startingPosition, positionInParagraph - startingPosition);
+            var token = new Token(PositionInText + startingPosition, positionInParagraph - startingPosition);
+            return token;
         }
 
         private static bool Escaped(string paragraph, int position)
