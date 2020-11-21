@@ -26,6 +26,7 @@ namespace Markdown
         private readonly HashSet<string> singleTags = new HashSet<string> {"# "};
 
         private readonly MarkupProcessor markupProcessor;
+        private Tokenizer tokenizer;
 
         public Md()
         {
@@ -76,10 +77,42 @@ namespace Markdown
             return sb;
         }
 
+        private string UnescapeToken(string text, Token token)
+        {
+            if (token.Length == 0)
+                return "";
+            var sb = new StringBuilder();
+            if (text[token.Start] != '\\')
+                sb.Append(text[token.Start]);
+            var i = token.Start + 1;
+            while (i < token.End + 1)
+            {
+                if (text[i - 1] == '\\')
+                {
+                    if (tags.Contains(text[i].ToString()) || text[i] == '\\')
+                    {
+                        if (sb.Length > 0)
+                            sb.Length--;
+                        sb.Append(text[i]);
+                        if (text[i] == '\\')
+                            i++;
+                    }
+                    else
+                        sb.Append(text[i]);
+                }
+                else
+                    sb.Append(text[i]);
+
+                i++;
+            }
+
+            return sb.ToString();
+        }
+
         private StringBuilder AddRawText(string text, Stack<MarkupType> markup, Token token)
         {
             var sb = new StringBuilder();
-            var tokenText = text.Substring(token);
+            var tokenText = UnescapeToken(text, token);
             if (tokenText.EndsWith(Environment.NewLine))
             {
                 sb.Append(tokenText.Substring(0,
@@ -96,7 +129,7 @@ namespace Markdown
         public string MarkdownToHtml(string text)
         {
             var htmlText = new StringBuilder();
-            var tokenizer = new Tokenizer(text, markupProcessor);
+            tokenizer = new Tokenizer(text, markupProcessor);
             var currentMarkup = new Stack<MarkupType>();
             var tokens = tokenizer.GetTokens();
             foreach (var token in tokens)

@@ -22,17 +22,15 @@ namespace Markdown
 
         public static bool IsClosing(string paragraph, string tag, int tagPosition, Token lastTag)
         {
-            return !Escaped(paragraph, tagPosition) &&
-                   !IsAfterWhiteSpaceOrStringStart(paragraph, tagPosition)
-                   && !IsInsideNumber(paragraph, tagPosition)
+            return !IsAfterWhiteSpace(paragraph, tagPosition)
+                   && !IsInsideNumber(paragraph, tagPosition, tag.Length)
                    && paragraph.Substring(lastTag) == tag;
         }
 
         public static bool IsOpening(string paragraph, string tag, int tagPosition, Token lastTag)
         {
-            return !Escaped(paragraph, tagPosition) &&
-                   IsAfterWhiteSpaceOrStringStart(paragraph, tagPosition)
-                   && !IsInsideNumber(paragraph, tagPosition);
+            return !IsBeforeWhiteSpace(paragraph, tagPosition, tag.Length)
+                   && !IsInsideNumber(paragraph, tagPosition, tag.Length);
         }
 
         public Token ReadTag(string paragraph, int positionInParagraph)
@@ -53,6 +51,8 @@ namespace Markdown
             var lastTag = tagStack.FirstOrDefault();
             result = null;
             longestTagLen = 0;
+            if (Escaped(paragraph, positionInParagraph))
+                return false;
             var possibleTags = markupProcessor.AllTags
                 .Where(tag => positionInParagraph + tag.Length <= paragraph.Length)
                 .Where(tag => paragraph.Substring(positionInParagraph, tag.Length) == tag);
@@ -68,6 +68,12 @@ namespace Markdown
                 return false;
             }
 
+            if (lastTag != null
+                && IsInsideWord(paragraph, positionInParagraph, longestTagLen)
+                && IsInsideWord(paragraph, lastTag.Start - PositionInText, lastTag.Length))
+            {
+                return false;
+            }
 
             var tagToken = new Token(PositionInText + positionInParagraph, longestTag.Length);
             if (!CheckTagsOverlap(tagToken, lastTag))
@@ -87,7 +93,7 @@ namespace Markdown
             return lastTagText != currentTagText && currentTagText.Contains(lastTagText);
         }
 
-        public Token ReadTextUntilTag(string paragraph, int positionInParagraph)
+        public Token ReadTextUntilTagOrWhiteSpace(string paragraph, int positionInParagraph)
         {
             var startingPosition = positionInParagraph;
             while (true)
@@ -95,7 +101,10 @@ namespace Markdown
                 if (positionInParagraph >= paragraph.Length)
                     break;
                 if (TryReadTag(paragraph, positionInParagraph, out _, out var longestTagLen))
+                    break;
+                if (paragraph[positionInParagraph] == ' ')
                 {
+                    positionInParagraph++;
                     break;
                 }
 
@@ -121,18 +130,33 @@ namespace Markdown
             return slashesCount % 2 != 0;
         }
 
-        public static bool IsInsideNumber(string paragraph, int tagPosition)
+        public static bool IsInsideNumber(string paragraph, int tagPosition, int tagLen)
         {
-            if (tagPosition == 0 || tagPosition == paragraph.Length - 1)
+            if (tagPosition == 0 || tagPosition + tagLen >= paragraph.Length)
                 return false;
-            return char.IsDigit(paragraph[tagPosition - 1]) && char.IsDigit(paragraph[tagPosition + 1]);
+            return char.IsDigit(paragraph[tagPosition - 1]) && char.IsDigit(paragraph[tagPosition + tagLen]);
         }
 
-        private static bool IsAfterWhiteSpaceOrStringStart(string paragraph, int tagPosition)
+        private static bool IsAfterWhiteSpace(string paragraph, int tagPosition)
         {
             if (tagPosition == 0)
                 return true;
             return paragraph[tagPosition - 1] == ' ';
+        }
+
+        private static bool IsBeforeWhiteSpace(string paragraph, int tagPosition, int tagLen)
+        {
+            if (tagPosition + tagLen >= paragraph.Length)
+                return true;
+            return paragraph[tagPosition + tagLen] == ' ';
+        }
+
+        private static bool IsInsideWord(string paragraph, int tagPosition, int tagLen)
+        {
+            var isLetterOnTheLeft = tagPosition == 0 || char.IsLetter(paragraph[tagPosition - 1]);
+            var isLetterOnTheRight = tagPosition + tagLen < paragraph.Length
+                                     && char.IsLetter(paragraph[tagPosition + tagLen]);
+            return isLetterOnTheLeft && isLetterOnTheRight;
         }
 
         public IEnumerable<string> GetParagraphs()
@@ -154,7 +178,7 @@ namespace Markdown
                     positionInParagraph += tagToken.Length;
                 }
 
-                var textToken = ReadTextUntilTag(paragraph, positionInParagraph);
+                var textToken = ReadTextUntilTagOrWhiteSpace(paragraph, positionInParagraph);
                 tokens.Add(textToken);
                 positionInParagraph += textToken.Length;
             }
