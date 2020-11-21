@@ -2,6 +2,6 @@
 {
     public interface ITokenReader
     {
-        Token? TryReadToken(string text, int index);
+        bool TryReadToken(string text, string context, int index, out Token? token);
     }
 }

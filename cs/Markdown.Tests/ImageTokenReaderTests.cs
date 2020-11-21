@@ -1,4 +1,5 @@
-﻿using FluentAssertions;
+﻿using System.Collections.Generic;
+using FluentAssertions;
 using Markdown;
 using NUnit.Framework;
 
@@ -6,16 +7,45 @@ namespace MarkdownTests
 {
     public class ImageTokenReaderTests
     {
-        [TestCase("![]()", 0, "![]()", TokenType.Image, TestName = "Empty image")]
-        [TestCase("![alt text](url)", 0, "![alt text](url)", TokenType.Image, TestName = "Image with attributes")]
-        public void TryReadToken_ReturnExpectedResult_When(
-            string text, int position, string expectedValue, TokenType expectedType)
-        {
-            var reader = new ImageTokenReader();
-            var result = reader.TryReadToken(text, position);
+        private ImageTokenReader Reader { get; set; }
 
-            result!.Value.Should().Be(expectedValue);
-            result.Type.Should().Be(expectedType);
+        [SetUp]
+        public void SetUp()
+        {
+            Reader = new ImageTokenReader();
+        }
+
+        private static IEnumerable<TestCaseData> TestCases
+        {
+            get
+            {
+                yield return new TestCaseData("![]()", 0,
+                    new Token(0, "![]()", 4, TokenType.Image)
+                        { ChildTokens =
+                        {
+                            new Token(0, "", 0, TokenType.PlainText),
+                            new Token(1, "", 1, TokenType.PlainText)
+                        }}
+                ).SetName("Empty image");
+
+                yield return new TestCaseData("![alt text](url)", 0,
+                    new Token(0, "![alt text](url)", 15, TokenType.Image)
+                    { ChildTokens =
+                    {
+                        new Token(0, "alt text", 0, TokenType.PlainText),
+                        new Token(1, "url", 1, TokenType.PlainText)
+                    }}
+                ).SetName("Image with attributes");
+            }
+        }
+
+        [TestCaseSource(nameof(TestCases))]
+        public void TryReadToken_ReturnExpectedResult_When(
+            string text, int position, Token expectedToken)
+        {
+            Reader.TryReadToken(text, text, position, out var token);
+
+            token.Should().BeEquivalentTo(expectedToken);
         }
     }
 }

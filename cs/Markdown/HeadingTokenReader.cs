@@ -4,10 +4,12 @@ namespace Markdown
 {
     public class HeadingTokenReader : ITokenReader
     {
-        public Token? TryReadToken(string text, int index)
+        public bool TryReadToken(string text, string context, int index, out Token? token)
         {
+            token = null;
+
             if (text[index] != '#')
-                return null;
+                return false;
 
             var value = new string(text
                 .Skip(index)
@@ -15,7 +17,8 @@ namespace Markdown
                 .ToArray()
             );
 
-            return new Token(index, value, TokenType.Heading);
+            token = new Token(index, value[1..], index + value.Length - 1, TokenType.Heading);
+            return true;
         }
     }
 }

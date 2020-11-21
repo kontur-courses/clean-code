@@ -1,4 +1,5 @@
-﻿using FluentAssertions;
+﻿using System.Collections.Generic;
+using FluentAssertions;
 using Markdown;
 using NUnit.Framework;
 
@@ -6,16 +7,35 @@ namespace MarkdownTests
 {
     public class HeadingTokenReaderTests
     {
-        [TestCase("# one", 0, "# one", TokenType.Heading, TestName = "One heading")]
-        [TestCase("# one\n# two\n# three", 6, "# two", TokenType.Heading, TestName = "Heading in text")]
-        public void TryReadToken_ReturnExpectedResult_When(
-            string text, int position, string expectedValue, TokenType expectedType)
-        {
-            var reader = new HeadingTokenReader();
-            var result = reader.TryReadToken(text, position);
+        private HeadingTokenReader Reader { get; set; }
 
-            result!.Value.Should().Be(expectedValue);
-            result.Type.Should().Be(expectedType);
+        [SetUp]
+        public void SetUp()
+        {
+            Reader = new HeadingTokenReader();
+        }
+
+        private static IEnumerable<TestCaseData> TestCases
+        {
+            get
+            {
+                yield return new TestCaseData("# one", 0,
+                    new Token(0, " one", 4, TokenType.Heading)
+                ).SetName("One heading");
+
+                yield return new TestCaseData("# one\n# two\n# three", 6,
+                    new Token(6, " two", 10, TokenType.Heading)
+                ).SetName("Heading in text");
+            }
+        }
+
+        [TestCaseSource(nameof(TestCases))]
+        public void TryReadToken_ReturnExpectedResult_When(
+            string text, int position, Token expectedToken)
+        {
+            Reader.TryReadToken(text, text, position, out var token);
+
+            token.Should().BeEquivalentTo(expectedToken);
         }
     }
 }

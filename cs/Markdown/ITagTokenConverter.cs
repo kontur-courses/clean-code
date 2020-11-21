@@ -1,6 +1,6 @@
 ﻿namespace Markdown
 {
-    public interface ITagToken
+    public interface ITagTokenConverter
     {
         string Convert(Token token);
     }

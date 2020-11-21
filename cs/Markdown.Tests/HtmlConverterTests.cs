@@ -7,6 +7,16 @@ namespace MarkdownTests
 {
     public class HtmlConverterTests
     {
+        private ITextParser Parser { get; set; }
+        private IConverter Sut { get; set; }
+
+        [SetUp]
+        public void SetUp()
+        {
+            Parser = new TextParser();
+            Sut = new HtmlConverter();
+        }
+
         [TestCase("__text__", TokenType.Strong, "<strong>text</strong>", TestName = "Strong tag")]
         [TestCase("_text_", TokenType.Emphasized, "<em>text</em>", TestName = "Emphasized tag")]
         [TestCase("# text", TokenType.Heading, "<h1> text</h1>", TestName = "Heading tag")]
@@ -16,10 +26,9 @@ namespace MarkdownTests
         public void ConvertTokensToHtml_ReturnExpectedResult_When(
             string text, TokenType type, string expectedResult)
         {
-            var htmlConverter = new HtmlConverter();
-            var tokens = new List<Token> {new Token(0, text, type)};
+            var tokens = Parser.GetTokens(text, text);
 
-            htmlConverter.ConvertTokens(tokens).Should().Be(expectedResult);
+            Sut.ConvertTokens(tokens).Should().Be(expectedResult);
         }
     }
 }

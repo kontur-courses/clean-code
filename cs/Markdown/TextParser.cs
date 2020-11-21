@@ -1,5 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 
@@ -7,7 +6,6 @@ namespace Markdown
 {
     public class TextParser : ITextParser
     {
-        private List<int> EscapingBackslashes { get; set; }
         private readonly List<ITokenReader> readers = new List<ITokenReader>()
         {
             new HeadingTokenReader(),
@@ -22,84 +20,63 @@ namespace Markdown
             readers.AddRange(tokenReaders);
         }
 
-        public List<Token> GetTokens(string text)
+        public List<Token> GetTokens(string text, string context)
         {
             var tokens = new List<Token>();
-            EscapingBackslashes = this.FindEscapingBackslashes(text);
 
             for (var i = 0; i < text.Length; ++i)
             {
-                var token = readers
-                    .Select(reader => reader.TryReadToken(text, i))
-                    .FirstOrDefault(newToken => newToken != null);
-
-                if (token == null)
-                    throw new ArgumentNullException();
-
-                if (!IsNotDuplicatedToken(tokens, token))
+                foreach (var reader in readers)
                 {
+                    if (!reader.TryReadToken(text, context, i, out var token))
+                        continue;
+
+                    if (token!.Value != text)
+                    {
+                        var newContext = text[token.Position..(token.EndPosition + 1)];
+                        var childTokens = GetTokens(token!.Value, newContext);
+                        token!.ChildTokens.AddRange(childTokens);
+                    }
+
+                    token.Value = RemoveBackslashes(token.Value);
                     tokens.Add(token);
+                    i = token.EndPosition;
+                    break;
                 }
             }
 
-            tokens = ReplaceIntersectedTokens(tokens, text);
+            return tokens;
+        }
 
-            foreach (var token in tokens)
+        private string RemoveBackslashes(string text)
+        {
+            var newValue = new StringBuilder();
+            var escapingBackslashes = FindBackslashes(text);
+
+            for (var i = 0; i < text.Length; i++)
             {
-                token.Value = RemoveEscapingBackslashes(token);
+                if (!escapingBackslashes.Contains(i))
+                    newValue.Append(text[i]);
             }
 
-            return tokens.OrderBy(x => x.Position)
-                .Where(x => x.Value != "")
-                .ToList();
+            return newValue.ToString();
         }
 
-        private static bool IsNotDuplicatedToken(List<Token> tokens, Token token)
+        private List<int> FindBackslashes(string text)
         {
-            return tokens
-                .Where(x => x != token)
-                .Any(x => token.IsIntersecting(x)
-                              && token.Type != TokenType.Emphasized
-                              && token.Type != TokenType.Strong);
+            var positions = new List<int>();
+
+            for (var i = 0; i < text.Length; ++i)
+                if (IsEscapingBackslash(text, i) && !positions.Contains(i - 1))
+                    positions.Add(i);
+
+            return positions;
         }
 
-        private static List<Token> ReplaceIntersectedTokens(List<Token> tokens, string text)
+        private static bool IsEscapingBackslash(string text, int index)
         {
-            var checkedTokens = new List<Token>();
-
-            foreach (var token in tokens)
-            {
-                var intersectedToken = tokens
-                    .Where(x => x != token)
-                    .FirstOrDefault(x => x.IsCollided(token));
-
-                if (intersectedToken != null)
-                {
-                    var position = Math.Min(intersectedToken.Position, token.Position);
-                    var endPosition = Math.Max(intersectedToken.EndPosition, token.EndPosition);
-                    var value = text[position..(endPosition + 1)];
-
-                    if (checkedTokens.All(x => x.Value != value))
-                        checkedTokens.Add(new Token(position, value, TokenType.PlainText));
-
-                    continue;
-                }
-
-                checkedTokens.Add(token);
-            }
-
-            return checkedTokens;
-        }
-
-        private string RemoveEscapingBackslashes(Token token)
-        {
-            var result = new StringBuilder();
-
-            for (var i = 0; i < token.Value.Length; ++i)
-                if (!EscapingBackslashes.Contains(token.Position + i))
-                    result.Append(token.Value[i]);
-
-            return result.ToString();
+            return text[index] == '\\'
+                   && (index + 1 == text.Length || !char.IsLetterOrDigit(text[index + 1]));
         }
     }
 }

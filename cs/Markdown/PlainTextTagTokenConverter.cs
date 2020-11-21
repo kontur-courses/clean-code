@@ -1,10 +1,10 @@
 ﻿namespace Markdown
 {
-    public class PlainTextTagToken : ITagToken
+    public class PlainTextTagTokenConverter : ITagTokenConverter
     {
         public string Convert(Token token)
         {
-            return token.GetValueWithoutTags();
+            return token.Value;
         }
     }
 }
