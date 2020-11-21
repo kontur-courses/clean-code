@@ -186,14 +186,12 @@ namespace Markdown
         private class ReaderState
         {
             public readonly TokenType TokenType;
-            public Token Token;
             public readonly int Position;
 
             public ReaderState(TokenType tokenType, int startIndex, Token token = null)
             {
                 TokenType = tokenType;
                 Position = startIndex;
-                Token = token;
             }
         }
     }
