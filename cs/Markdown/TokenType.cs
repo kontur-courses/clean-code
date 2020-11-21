@@ -15,7 +15,7 @@ namespace Markdown
         public readonly bool StartWithNewLine = false;
         public readonly bool EndWithNewLine = false;
 
-        public List<TokenType> DisallowedTokenTypes = new List<TokenType>();
+        public readonly List<TokenType> DisallowedTokenTypes = new List<TokenType>();
 
         public BasicTokenType(string start, string end)
         {
@@ -44,7 +44,7 @@ namespace Markdown
 
     public class CustomTokenType : TokenType
     {
-        public Func<TokenReader, Token> ReadFunc;
+        public readonly Func<TokenReader, Token> ReadFunc;
 
         public CustomTokenType(Func<TokenReader, Token> readFunc)
         {
