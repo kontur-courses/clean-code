@@ -99,7 +99,7 @@ other text");
         }
 
         [Test]
-        public void StartingTag_ShouldBePrecededByWhiteSpace()
+        public void OpeningTag_ShouldNotBeFollowedByWhiteSpace()
         {
             var text = @"text_ das_";
 
@@ -107,7 +107,7 @@ other text");
         }
 
         [Test]
-        public void EndingTag_ShouldBeFollowedByWhiteSpace()
+        public void ClosingTag_ShouldNotBePrecededByWhiteSpace()
         {
             var text = @"text _dsa _dasd";
 
@@ -121,9 +121,9 @@ other text");
             md.MarkdownToHtml(input).Should().Be(input);
         }
 
-        [TestCase(@"abc \\_aaa_ aa", @"abc \\_aaa_ aa")]
-        [TestCase(@"abc \_aaa_ aa", @"abc \_aaa_ aa")]
-        [TestCase(@"abc _aaa\_ aa", @"abc _aaa\_ aa")]
+        [TestCase(@"abc \\_aaa_ aa", @"abc \\<em>aaa\</em> aa")]
+        [TestCase(@"abc \_aaa_ aa", @"abc _aaa_ aa")]
+        [TestCase(@"abc _aaa\_ aa", @"abc _aaa_ aa")]
         public void TagsEscaping_ShouldWork(string input, string expected)
         {
             md.MarkdownToHtml(input).Should().Be(expected);
