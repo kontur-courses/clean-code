@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 
@@ -14,12 +15,12 @@ namespace Markdown
             Text = text;
         }
 
-        public readonly List<TokenType> TokenTypes = new List<TokenType>();
+        private readonly List<TokenType> tokenTypes = new List<TokenType>();
         private readonly Stack<ReaderState> states = new Stack<ReaderState>();
 
         public Token ReadToken(bool notRawText = false)
         {
-            foreach (var tokenType in TokenTypes)
+            foreach (var tokenType in tokenTypes)
             {
                 Token token;
                 if (tokenType is BasicTokenType basicTokenType) token = ReadTokenType(basicTokenType);
@@ -67,6 +68,22 @@ namespace Markdown
 
         public TToken ReadTokenType<TToken>(BasicTokenType<TToken> type) where TToken : BasicToken, new()
             => (TToken) ReadTokenType((BasicTokenType) type);
+        
+        public BasicTokenType<TToken> AddBasicTokenType<TToken>(string start, string end) where TToken: BasicToken, new()
+        {
+            var type = new BasicTokenType<TToken>(start, end);
+            tokenTypes.Add(type);
+            return type;
+        }
+
+        public CustomTokenType AddCustomTokenType<TToken>(Func<TokenReader, TToken> readFunc) where TToken: Token
+        {
+            var type = new CustomTokenType(readFunc);
+            tokenTypes.Add(type);
+            return type;
+        }
+
+        public IEnumerable<TokenType> GetTokenTypes() => tokenTypes;
 
         private Token ReadToken(BasicToken token, bool allowSpaces)
         {
@@ -91,7 +108,7 @@ namespace Markdown
                 token.AddSubtoken(subtoken);
             }
 
-            var failType = TokenTypes.FirstOrDefault(t => t is BasicTokenType b
+            var failType = tokenTypes.FirstOrDefault(t => t is BasicTokenType b
                                                           && TryGet(b.End, b.EndWithNewLine));
             if (failType != null && states.All(s => s.TokenType != failType))
             {

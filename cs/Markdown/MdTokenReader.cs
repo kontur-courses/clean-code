@@ -7,18 +7,16 @@ namespace Markdown
     {
         public MdTokenReader(string text) : base(text)
         {
-            TokenTypes.Add(new CustomTokenType(ReadEscapeChar));
-            TokenTypes.Add(new CustomTokenType(ReadDigitToken));
+            AddCustomTokenType(ReadEscapeChar);
+            AddCustomTokenType(ReadDigitToken);
 
-            TokenTypes.Add(new BasicTokenType<MdHeaderToken>("\n# ", "\n"));
+            AddBasicTokenType<MdHeaderToken>("\n#", "\n");
+            
+            var bold = AddBasicTokenType<MdBoldToken>("__", "__");
+            var italic = AddBasicTokenType<MdItalicToken>("_", "_");
+            bold.DisallowedTokenTypes.Add(italic);
 
-            var italic = new BasicTokenType<MdItalicToken>("_", "_");
-            var bold = new BasicTokenType<MdBoldToken>("__", "__") {DisallowedTokenTypes = {italic}};
-
-            TokenTypes.Add(bold);
-            TokenTypes.Add(italic);
-
-            TokenTypes.Add(new CustomTokenType(ReadLink));
+            AddCustomTokenType(ReadLink);
         }
 
         private static EscapedStringToken ReadEscapeChar(TokenReader reader)
@@ -26,7 +24,7 @@ namespace Markdown
             var token = new EscapedStringToken(reader.CurrentPosition, 2);
             if (!reader.TryGet("\\")) return null;
             reader.CurrentPosition++;
-            if (!reader.TryGet("\\") && !reader.TokenTypes
+            if (!reader.TryGet("\\") && !reader.GetTokenTypes()
                 .Any(t => t is BasicTokenType b &&
                           (reader.TryGet(b.Start)
                            || reader.TryGet(b.End, b.EndWithNewLine)))) return null;
