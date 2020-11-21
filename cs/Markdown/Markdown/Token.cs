@@ -6,14 +6,9 @@
 
         public int Length { get; set; }
 
-        public int End
-        {
-            get => Start + Length - 1;
-        }
+        public int End => Start + Length - 1;
 
         public bool IsMarkup { get; set; }
-
-        public Token Parent { get; set; }
 
         public Token(int start, int length, bool isMarkup = false)
         {
