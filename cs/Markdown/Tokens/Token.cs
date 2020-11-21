@@ -1,8 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-
-namespace Markdown
+﻿namespace Markdown
 {
     public abstract class Token
     {
@@ -15,19 +11,6 @@ namespace Markdown
             StartPosition = startPosition;
             Length = length;
             Parent = parent;
-        }
-
-        public bool IsInsideAnyTokenOfType(params Type[] tokenType)
-            => tokenType.Any(
-                EnumerateParents()
-                    .Prepend(this)
-                    .Select(p => p.GetType())
-                    .Contains);
-
-        public IEnumerable<Token> EnumerateParents()
-        {
-            for (var currentParent = Parent; currentParent != null; currentParent = currentParent.Parent)
-                yield return currentParent;
         }
     }
 }
