@@ -1,4 +1,5 @@
-﻿using Markdown.Extentions;
+﻿using Markdown.Core;
+using Markdown.Extentions;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -17,7 +18,7 @@ namespace Markdown
         protected string formattingString;
         protected TokenType type;
 
-        public virtual Token ParseToken(List<string> text, int position)
+        public virtual Token ParseToken(List<Part> text, int position)
         {
             var tokenValue = new StringBuilder();
             if (IsTokenCorrupted)
@@ -28,7 +29,7 @@ namespace Markdown
             return ParseToken(text, position, tokenValue, type);
         }
 
-        protected Token ParseToken(List<string> text, int position,
+        protected Token ParseToken(List<Part> text, int position,
             StringBuilder tokenValue, TokenType type)
         {
             var parserOperator = new ParserOperator();
@@ -36,7 +37,10 @@ namespace Markdown
                 return CreateEmptyToken(tokenValue, position, parserOperator);
             CollectToken(text, tokenValue, parserOperator);
             var value = tokenValue.ToString();
-            if (CheckCorrectTokenValue(tokenValue, parserOperator, text.FirstOrDefault(), text.LastOrDefault()))
+            if (text.Count != 0 && CheckCorrectTokenValue(tokenValue,
+                parserOperator,
+                text.FirstOrDefault().Value,
+                text.LastOrDefault().Value))
             {
                 RecoverTokenValue(tokenValue, parserOperator);
                 type = TokenType.Simple;
@@ -48,7 +52,7 @@ namespace Markdown
             return token;
         }
 
-        protected virtual void CollectToken(List<string> text,
+        protected virtual void CollectToken(List<Part> text,
             StringBuilder tokenValue, ParserOperator parserOperator)
         {
             var isIntoToken = false;
@@ -56,10 +60,13 @@ namespace Markdown
             foreach (var bigram in text.GetBigrams())
             {
                 var part = bigram.Item1;
-                if (nestedTokenValidator(part))
+                if (part.Escaped)
                 {
-                    if (part == "\\")
-                        parserOperator.Position = offset;
+                    tokenValue.Append(part.Value);
+                    offset += part.Value.Length;
+                }
+                else if (nestedTokenValidator(part.Value))
+                {
                     if (isIntoToken)
                     {
                         parserOperator.Position = offset;
@@ -69,8 +76,8 @@ namespace Markdown
                 }
                 else if (!isIntoToken)
                 {
-                    tokenValue.Append(part);
-                    offset += part.Length;
+                    tokenValue.Append(part.Value);
+                    offset += part.Value.Length;
                 }
                 if (isIntoToken)
                     parserOperator.AddTokenPart(bigram);

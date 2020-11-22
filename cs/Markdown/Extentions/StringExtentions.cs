@@ -29,7 +29,7 @@ namespace Markdown
         public static List<string> UnionSameStringByTwo(this List<string> splittedString, params string[] without)
         {
             var combinedString = new List<string>();
-            var withoutString = new HashSet<string>(without);
+            var withoutTheseStrings = new HashSet<string>(without);
             var skip = false;
             string previous = default;
             string current = default;
@@ -37,7 +37,7 @@ namespace Markdown
             {
                 previous = bigram.Item1;
                 current = bigram.Item2;
-                if (withoutString.Contains(previous))
+                if (withoutTheseStrings.Contains(previous))
                     combinedString.Add(previous);
                 else if (previous == current && !skip)
                 {

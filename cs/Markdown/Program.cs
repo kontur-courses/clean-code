@@ -7,8 +7,12 @@ namespace Markdown
         static void Main(string[] args)
         {
             var md = new Md();
-            var f = md.Render("__hello _world_!__");
-            Console.WriteLine(f);
+            while (true)
+            {
+                var str = Console.ReadLine();
+                var a = md.Render(str);
+                Console.WriteLine(a);
+            }
         }
     }
 }

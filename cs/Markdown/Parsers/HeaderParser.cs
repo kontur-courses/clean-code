@@ -1,4 +1,5 @@
-﻿using Markdown.Extentions;
+﻿using Markdown.Core;
+using Markdown.Extentions;
 using System.Collections.Generic;
 using System.Text;
 
@@ -14,7 +15,7 @@ namespace Markdown.Parsers
             type = TokenType.Header;
         }
 
-        public override Token ParseToken(List<string> text, int position)
+        public override Token ParseToken(List<Part> text, int position)
         {
             var tokenValue = new StringBuilder();
             if (PartBeforeTokenStart != null && PartBeforeTokenStart != "\\\\" || position != 0)
@@ -25,14 +26,19 @@ namespace Markdown.Parsers
             return ParseToken(text, position, tokenValue, TokenType.Header);
         }
 
-        protected override void CollectToken(List<string> text, StringBuilder tokenValue, ParserOperator parserOperator)
+        protected override void CollectToken(List<Part> text, StringBuilder tokenValue, ParserOperator parserOperator)
         {
             var isIntoToken = false;
             var offset = 0;
             foreach (var bigram in text.GetBigrams())
             {
                 var part = bigram.Item1;
-                if (nestedTokenValidator(part))
+                if (part.Escaped)
+                {
+                    tokenValue.Append(part.Value);
+                    offset += part.Value.Length;
+                }
+                else if (nestedTokenValidator(part.Value))
                 {
                     if (!isIntoToken)
                         parserOperator.Position = offset;
@@ -41,8 +47,8 @@ namespace Markdown.Parsers
                 }
                 else if (!isIntoToken)
                 {
-                    tokenValue.Append(part);
-                    offset += part.Length;
+                    tokenValue.Append(part.Value);
+                    offset += part.Value.Length;
                 }
                 else
                     parserOperator.AddTokenPart(bigram);
