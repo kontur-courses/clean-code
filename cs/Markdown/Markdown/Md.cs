@@ -33,6 +33,23 @@ namespace Markdown
             markupProcessor = new MarkupProcessor(markupToHtmlTag, markupToMdTag, singleTags);
         }
 
+        public string MarkdownToHtml(string text)
+        {
+            var htmlText = new StringBuilder();
+            tokenizer = new Tokenizer(text, markupProcessor);
+            var currentMarkup = new Stack<MarkupType>();
+            var tokens = tokenizer.GetTokens();
+            foreach (var token in tokens)
+            {
+                htmlText.Append(token.IsMarkup
+                    ? AddMarkup(text, currentMarkup, token)
+                    : AddRawText(text, currentMarkup, token));
+            }
+
+            htmlText.Append(CloseAllTags(currentMarkup));
+            return htmlText.ToString();
+        }
+
         private StringBuilder CloseSingleTags(Stack<MarkupType> markup)
         {
             var sb = new StringBuilder();
@@ -125,23 +142,6 @@ namespace Markdown
                 sb.Append(tokenText);
 
             return sb;
-        }
-
-        public string MarkdownToHtml(string text)
-        {
-            var htmlText = new StringBuilder();
-            tokenizer = new Tokenizer(text, markupProcessor);
-            var currentMarkup = new Stack<MarkupType>();
-            var tokens = tokenizer.GetTokens();
-            foreach (var token in tokens)
-            {
-                htmlText.Append(token.IsMarkup
-                    ? AddMarkup(text, currentMarkup, token)
-                    : AddRawText(text, currentMarkup, token));
-            }
-
-            htmlText.Append(CloseAllTags(currentMarkup));
-            return htmlText.ToString();
         }
     }
 }
