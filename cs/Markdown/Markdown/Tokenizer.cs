@@ -10,12 +10,14 @@ namespace Markdown
         public int PositionInText { get; private set; }
         private Stack<Token> tagStack;
         private readonly MarkupProcessor markupProcessor;
+        private char EscapeSymbol { get; }
 
-        public Tokenizer(string text, MarkupProcessor markupProcessor)
+        public Tokenizer(string text, MarkupProcessor markupProcessor, char escapeSymbol = '\\')
         {
             this.text = text;
             tagStack = new Stack<Token>();
             this.markupProcessor = markupProcessor;
+            EscapeSymbol = escapeSymbol;
         }
 
 
@@ -114,13 +116,13 @@ namespace Markdown
             return token;
         }
 
-        private static bool Escaped(string paragraph, int position)
+        private bool Escaped(string paragraph, int position)
         {
             if (position == 0)
                 return false;
             var i = position - 1;
             var slashesCount = 0;
-            while (paragraph[i] == '\\')
+            while (paragraph[i] == EscapeSymbol)
             {
                 slashesCount++;
                 i -= 1;

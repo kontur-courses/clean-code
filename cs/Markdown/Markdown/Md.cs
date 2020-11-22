@@ -8,6 +8,7 @@ namespace Markdown
     public class Md
     {
         private HashSet<string> tags = new HashSet<string> {"__", "_", "# "};
+        public static char EscapeSymbol { get; } = '\\';
 
         private readonly Dictionary<MarkupType, string> markupToHtmlTag = new Dictionary<MarkupType, string>
         {
@@ -100,19 +101,19 @@ namespace Markdown
             if (token.Length == 0)
                 return "";
             var sb = new StringBuilder();
-            if (text[token.Start] != '\\')
+            if (text[token.Start] != EscapeSymbol)
                 sb.Append(text[token.Start]);
             var i = token.Start + 1;
             while (i < token.End + 1)
             {
-                if (text[i - 1] == '\\')
+                if (text[i - 1] == EscapeSymbol)
                 {
-                    if (tags.Contains(text[i].ToString()) || text[i] == '\\')
+                    if (tags.Contains(text[i].ToString()) || text[i] == EscapeSymbol)
                     {
                         if (sb.Length > 0)
                             sb.Length--;
                         sb.Append(text[i]);
-                        if (text[i] == '\\')
+                        if (text[i] == EscapeSymbol)
                             i++;
                     }
                     else
