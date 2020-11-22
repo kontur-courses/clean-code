@@ -36,8 +36,7 @@ namespace Markdown
 
         public Token ReadTag(string paragraph, int positionInParagraph)
         {
-            TryReadTag(paragraph, positionInParagraph, out var token, out _);
-            if (token == null)
+            if (!TryReadTag(paragraph, positionInParagraph, out var token, out _))
                 return null;
             if (IsClosing(paragraph, text.GetTokenText(token), positionInParagraph, tagStack.FirstOrDefault()))
                 tagStack.Pop();
