@@ -26,7 +26,7 @@ namespace Markdown
                    && paragraph.Substring(lastTag) == tag;
         }
 
-        public static bool IsOpening(string paragraph, string tag, int tagPosition, Token lastTag)
+        public static bool IsOpening(string paragraph, string tag, int tagPosition)
         {
             return !IsBeforeWhiteSpace(paragraph, tagPosition, tag.Length)
                    && !IsInsideNumber(paragraph, tagPosition, tag.Length);
@@ -62,7 +62,7 @@ namespace Markdown
                 .Aggregate("", (cur, max) => cur.Length > max.Length ? cur : max);
             longestTagLen = longestTag.Length;
             if (!IsClosing(paragraph, longestTag, positionInParagraph, lastTag) &&
-                !IsOpening(paragraph, longestTag, positionInParagraph, lastTag))
+                !IsOpening(paragraph, longestTag, positionInParagraph))
             {
                 return false;
             }
