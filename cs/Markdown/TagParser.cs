@@ -7,7 +7,6 @@ namespace Markdown
 {
     public static class TagParser
     {
-        private static readonly string NewLine = Environment.NewLine;
 
         private static readonly Dictionary<TagType, TagHelper> supportedTags = new Dictionary<TagType, TagHelper>
         {
@@ -22,84 +21,29 @@ namespace Markdown
         public static readonly IReadOnlyDictionary<TagType, TagHelper> SupportedTags =
             new ReadOnlyDictionary<TagType, TagHelper>(supportedTags);
 
-        public static IEnumerable<Tag> GetTags(string text)
+        public static List<Tag> GetTagsFromParagraph(string paragraph)
         {
             var position = 0;
-            var lineNumber = 0;
             var tags = new List<Tag>();
-            while (position < text.Length)
+            while (position < paragraph.Length)
             {
-                var tagsFromLine = ReadTagsFromLine(position, text, lineNumber, out var symbolsReadCount);
-                position += symbolsReadCount;
-                tags.AddRange(tagsFromLine);
-                lineNumber++;
-            }
-
-            var listItemTags = tags.Where(x => x.Type == TagType.ListItem).ToList();
-            var notListItemTags = tags.Where(x => x.Type != TagType.ListItem);
-            return listItemTags.ConfigureUnorderedLists().Concat(notListItemTags);
-        }
-
-        private static IEnumerable<Tag> ReadTagsFromLine(
-            int position,
-            string text,
-            int lineNumber,
-            out int symbolsReadCount)
-        {
-            var startPosition = position;
-            var tags = new List<Tag>();
-            var isHeader = false;
-            var isListItem = false;
-            if (SupportedTags[TagType.Header].TryParse(position, text, out var tag))
-            {
-                isHeader = true;
-                position += SupportedTags[TagType.Header].GetSymbolsCountToSkipForParsing();
-                tags.Add(tag);
-            }
-
-            if (SupportedTags[TagType.ListItem].TryParse(position, text, out tag, false, lineNumber))
-            {
-                isListItem = true;
-                position += SupportedTags[TagType.ListItem].GetSymbolsCountToSkipForParsing();
-                tags.Add(tag);
-            }
-
-            while (position < text.Length && IsNotNewLine(position, text))
-            {
-                position += SkipSpaces(position, text);
-                tags.AddRange(ReadTags(position, text, out symbolsReadCount));
-                position += symbolsReadCount;
-                tags.AddRange(ReadTagsFromWord(position, text, out symbolsReadCount));
+                position += SkipSpaces(position, paragraph);
+                tags.AddRange(ReadTagsFromWord(position, paragraph, out var symbolsReadCount));
                 position += symbolsReadCount;
             }
 
-            if (IsNeedToAddCloseTag(isHeader, isListItem, position, out tag))
-                tags.Add(tag);
-            symbolsReadCount = position + NewLine.Length - startPosition;
-            return tags.GetCorrectTags(text);
+            AddCloseLineTag(tags, position);
+            return tags.GetCorrectTags(paragraph);
         }
 
-        private static bool IsNeedToAddCloseTag(bool isLineHeader, bool isLineListItem, int position, out Tag closeTag)
+        private static void AddCloseLineTag(List<Tag> tags, int position)
         {
-            if (isLineHeader)
-            {
-                closeTag = HeaderTagHelper.GetCloseTag(position);
-                return true;
-            }
-
-            if (isLineListItem)
-            {
-                closeTag = ListItemTagHelper.GetCloseTag(position);
-                return true;
-            }
-
-            closeTag = null;
-            return false;
-        }
-
-        private static bool IsNotNewLine(int position, string text)
-        {
-            return position + NewLine.Length >= text.Length || text.Substring(position, NewLine.Length) != NewLine;
+            if (tags.Count == 0)
+                return;
+            if (tags[0].Type == TagType.Header)
+                tags.Add(HeaderTagHelper.GetCloseTag(position));
+            else if (tags[0].Type == TagType.ListItem)
+                tags.Add(ListItemTagHelper.GetCloseTag(position));
         }
 
         private static int SkipSpaces(int position, string text)
@@ -114,9 +58,10 @@ namespace Markdown
         {
             var startPosition = position;
             var hasDigits = false;
-            var allTags = new List<Tag>();
+            var tagsInWord = new List<Tag>();
             var tagsInWordEnd = new List<Tag>();
-
+            var tagsInWordBegin = ReadTags(position, text, out symbolsReadCount);
+            position += symbolsReadCount;
             while (position < text.Length && !char.IsWhiteSpace(text[position]))
             {
                 if (char.IsDigit(text[position]))
@@ -125,7 +70,7 @@ namespace Markdown
                 if (readTags.Count > 0)
                 {
                     position += symbolsReadCount;
-                    allTags.AddRange(readTags);
+                    tagsInWord.AddRange(readTags);
                     tagsInWordEnd = readTags;
                 }
                 else
@@ -136,9 +81,12 @@ namespace Markdown
             }
 
             symbolsReadCount = position - startPosition;
-            foreach (var tag in tagsInWordEnd) tag.UnpinFromWord();
+            foreach (var tag in tagsInWordEnd)
+                tag.UnpinFromWord();
 
-            return hasDigits ? tagsInWordEnd : allTags;
+            return hasDigits
+                ? tagsInWordBegin.Concat(tagsInWordEnd).ToList()
+                : tagsInWordBegin.Concat(tagsInWord).ToList();
         }
 
         private static bool TryReadTag(int position, string text, out Tag tag, bool inWord = false)
