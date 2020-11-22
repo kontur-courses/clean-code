@@ -10,7 +10,7 @@ namespace Markdown
         {
             var position = 0;
             var html = new StringBuilder();
-            foreach (var tag in tags.OrderBy(x => x.Position))
+            foreach (var tag in tags)
             {
                 html.Append(text.Substring(position, tag.Position - position));
                 html.Append(TagParser.SupportedTags[tag.Type].GetHtmlTag(tag.IsOpening));

@@ -5,7 +5,7 @@ namespace Markdown
 {
     public static class TagChecker
     {
-        public static IEnumerable<Tag> GetCorrectTags(this List<Tag> tags, string text)
+        public static List<Tag> GetCorrectTags(this List<Tag> tags, string text)
         {
             var pairedTags = tags
                 .Where(x => x.IsMdPaired)
@@ -13,7 +13,7 @@ namespace Markdown
                 .RemoveIntersectingPairTags()
                 .RemoveBoldTagsInItalicTags();
             var notPairedTags = tags.Where(x => !x.IsMdPaired);
-            return pairedTags.Concat(notPairedTags);
+            return pairedTags.Concat(notPairedTags).OrderBy(x=>x.Position).ToList();
         }
 
         public static IEnumerable<Tag> ConfigureUnorderedLists(this List<Tag> tags)
