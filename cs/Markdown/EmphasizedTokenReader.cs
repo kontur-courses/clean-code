@@ -5,44 +5,42 @@ namespace Markdown
 {
     public class EmphasizedTokenReader : ITokenReader
     {
-        public bool TryReadToken(string text, string context, int index, out Token? token)
+        public bool TryReadToken(string text, string context, int index, out IToken? token)
         {
             var stack = new Stack<int>();
             var oneWordInTag = true;
             var value = new StringBuilder();
-
-            value.Append(text[index]);
             token = null;
 
             if (!IsEmphasizedStartTag(text, index))
                 return false;
 
+            value.Append(text[index]);
             for (var i = index + 1; i < text.Length; i++)
             {
+                if (IsEndOfLine(text, i))
+                    return false;
+
                 if (char.IsWhiteSpace(text[i]))
                     oneWordInTag = false;
 
                 if (IsStrongEndTag(text, i) && IsIntersectedBehind(text, index, i))
-                        return false;
+                    return false;
 
                 if (IsStrongStartTag(text, i) && IsIntersectedAhead(text, i))
+                    return false;
+
+                if (text[i] == '\\' && i + 1 != text.Length)
+                {
+                    if (IsEmphasizedEndTag(text, i + 1) && stack.Count == 0)
                         return false;
 
-                if (text[i] == '\\'  && i + 1 != text.Length)
-                {
-                    if (text[i + 1] == '\\' || IsEmphasizedStartTag(text, i + 1))
+                    if (text[i + 1] == '\\'
+                        || IsEmphasizedStartTag(text, i + 1)
+                        || IsEmphasizedEndTag(text, i + 1))
                     {
                         value.Append(text[i..(i + 2)]);
                         i++;
-                        continue;
-                    }
-
-                    if (IsEmphasizedEndTag(text, i + 1))
-                    {
-                        if (stack.Count == 0)
-                            return false;
-
-                        value.Append(text[i..(i + 1)]);
                         continue;
                     }
                 }
@@ -53,7 +51,7 @@ namespace Markdown
                         return false;
 
                     value.Append(text[i]);
-                    token = new Token(index, value.ToString()[1..^1], i,TokenType.Emphasized);
+                    token = new EmphasizedToken(index, value.ToString()[1..^1], i);
                     return true;
                 }
 
@@ -104,7 +102,12 @@ namespace Markdown
 
         private static bool IsEndOfWord(string text, int index)
         {
-            return (index + 1 == text.Length || char.IsWhiteSpace(text[index + 1]));
+            return index + 1 == text.Length || char.IsWhiteSpace(text[index + 1]);
+        }
+
+        private static bool IsEndOfLine(string text, int index)
+        {
+            return text[index] == '\n' || text[index] == '\r';
         }
 
         private static bool IsEmphasizedStartTag(string text, int index)

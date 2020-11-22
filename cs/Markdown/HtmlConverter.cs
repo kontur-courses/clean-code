@@ -5,38 +5,43 @@ namespace Markdown
 {
     public class HtmlConverter : IConverter
     {
-        private readonly Dictionary<TokenType, ITagTokenConverter> mapper = new Dictionary<TokenType, ITagTokenConverter>
-        {
-            {TokenType.Emphasized, new EmphasizedTagTokenConverter()},
-            {TokenType.Heading, new HeadingTagTokenConverter()},
-            {TokenType.Strong, new StrongTagTokenConverter()},
-            {TokenType.PlainText, new PlainTextTagTokenConverter()},
-            {TokenType.Image, new ImageTagTokenConverter()}
-        };
+        private readonly Dictionary<TokenType, ITokenConverter> mapping;
 
-        public void AddMapping(TokenType type, ITagTokenConverter tagTokenConverter)
+        public HtmlConverter(Dictionary<TokenType, ITokenConverter> mapping)
         {
-            mapper.Add(type, tagTokenConverter);
+            this.mapping = mapping;
         }
 
-        public string ConvertTokens(List<Token> tokens)
+        public string ConvertTokens(IEnumerable<IToken> tokens)
         {
             var result = new StringBuilder();
 
             foreach (var token in tokens)
             {
-                var tagToken = mapper[token.Type];
+                var converter = mapping[token.Type];
 
-                if (token.ChildTokens.Count != 0)
+                if (token.CanHaveChildTokens && token.ChildTokens.Count != 0)
                 {
-                    var newValue= ConvertTokens(token.ChildTokens);
-                    token.Value = newValue;
+                    var newValue = ConvertTokens(token.ChildTokens);
+                    var newToken = CreateNewToken(token, newValue);
+
+                    result.Append(converter.Convert(newToken));
+                    continue;
                 }
 
-                result.Append(tagToken.Convert(token));
+                result.Append(converter.Convert(token));
             }
 
             return result.ToString();
+        }
+
+        private static IToken CreateNewToken(IToken token, string value)
+        {
+            var arguments = new[] {typeof(int), typeof(string), typeof(int)};
+            var constructor = token.GetType().GetConstructor(arguments);
+            var parameters = new object[] {token.Position, value, token.EndPosition};
+
+            return (IToken) constructor!.Invoke(parameters);
         }
     }
 }

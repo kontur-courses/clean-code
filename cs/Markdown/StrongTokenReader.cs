@@ -5,48 +5,45 @@ namespace Markdown
 {
     public class StrongTokenReader : ITokenReader
     {
-        public bool TryReadToken(string text, string context, int index, out Token? token)
+        public bool TryReadToken(string text, string context, int index, out IToken? token)
         {
             var stack = new Stack<int>();
             var oneWordInTag = true;
+            var value = new StringBuilder();
             token = null;
 
-            if (IsEmphasizedStartTag(context, 0)
-                && IsEmphasizedEndTag(context, context.Length - 1))
+            if (IsEmphasizedStartTag(context, 0) && IsEmphasizedEndTag(context, context.Length - 1))
                 return false;
 
             if (!IsStrongStartTag(text, index))
                 return false;
 
-            var value = new StringBuilder();
             value.Append(text[index..(index + 2)]);
-
             for (var i = index + 2; i < text.Length; i++)
             {
+                if (IsEndOfLine(text, i))
+                    return false;
+
                 if (char.IsWhiteSpace(text[i]))
                     oneWordInTag = false;
 
                 if (IsEmphasizedEndTag(text, i) && IsIntersectedBehind(text, index, i))
-                        return false;
+                    return false;
 
                 if (IsEmphasizedStartTag(text, i) && IsIntersectedAhead(text, i))
-                        return false;
+                    return false;
 
                 if (text[i] == '\\' && i + 1 != text.Length)
                 {
-                    if (text[i + 1] == '\\' || IsStrongStartTag(text, i + 1))
+                    if (IsStrongEndTag(text, i + 1) && stack.Count == 0)
+                        return false;
+
+                    if (text[i + 1] == '\\'
+                        || IsStrongStartTag(text, i + 1)
+                        || IsStrongEndTag(text, i + 1))
                     {
                         value.Append(text[i..(i + 2)]);
                         i++;
-                        continue;
-                    }
-
-                    if (IsStrongEndTag(text, i + 1))
-                    {
-                        if (stack.Count == 0)
-                            return false;
-
-                        value.Append(text[i..(i + 2)]);
                         continue;
                     }
                 }
@@ -57,7 +54,7 @@ namespace Markdown
                         return false;
 
                     value.Append(text[i..(i + 2)]);
-                    token = new Token(index, value.ToString()[2..^2], i + 1, TokenType.Strong);
+                    token = new StrongToken(index, value.ToString()[2..^2], i + 1);
                     return true;
                 }
 
@@ -108,7 +105,12 @@ namespace Markdown
 
         private static bool IsEndOfWord(string text, int index)
         {
-            return (index + 1 == text.Length || char.IsWhiteSpace(text[index + 1]));
+            return index + 1 == text.Length || char.IsWhiteSpace(text[index + 1]);
+        }
+
+        private static bool IsEndOfLine(string text, int index)
+        {
+            return text[index] == '\n' || text[index] == '\r';
         }
 
         private static bool IsStrongStartTag(string text, int index)

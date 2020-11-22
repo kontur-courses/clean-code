@@ -1,8 +1,8 @@
 ﻿namespace Markdown
 {
-    public class StrongTagTokenConverter : ITagTokenConverter
+    public class StrongTokenConverter : ITokenConverter
     {
-        public string Convert(Token token)
+        public string Convert(IToken token)
         {
             return $"<strong>{token.Value}</strong>";
         }

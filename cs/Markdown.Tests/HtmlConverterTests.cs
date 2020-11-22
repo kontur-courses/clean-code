@@ -7,28 +7,82 @@ namespace MarkdownTests
 {
     public class HtmlConverterTests
     {
-        private ITextParser Parser { get; set; }
-        private IConverter Sut { get; set; }
+        private readonly Dictionary<TokenType, ITokenConverter> map = new Dictionary<TokenType, ITokenConverter>
+        {
+            {TokenType.Emphasized, new EmphasizedTokenConverter()},
+            {TokenType.Heading, new HeadingTokenConverter()},
+            {TokenType.Strong, new StrongTokenConverter()},
+            {TokenType.PlainText, new PlainTextTokenConverter()},
+            {TokenType.Image, new ImageTokenConverter()}
+        };
+
+        private IConverter Converter { get; set; }
 
         [SetUp]
         public void SetUp()
         {
-            Parser = new TextParser();
-            Sut = new HtmlConverter();
+            Converter = new HtmlConverter(map);
         }
 
-        [TestCase("__text__", TokenType.Strong, "<strong>text</strong>", TestName = "Strong tag")]
-        [TestCase("_text_", TokenType.Emphasized, "<em>text</em>", TestName = "Emphasized tag")]
-        [TestCase("# text", TokenType.Heading, "<h1> text</h1>", TestName = "Heading tag")]
-        [TestCase("text", TokenType.PlainText, "text", TestName = "PlainText")]
-        [TestCase("![alt text](url)", TokenType.Image, @"<img src=""url"" alt=""alt text"">", TestName = "Image")]
-        [TestCase("![]()", TokenType.Image, @"<img src="""" alt="""">", TestName = "Empty image")]
-        public void ConvertTokensToHtml_ReturnExpectedResult_When(
-            string text, TokenType type, string expectedResult)
+        [TestCaseSource(nameof(TestCases))]
+        public void ConvertTokensToHtml_ReturnExpectedResult_When(IToken token, string expectedResult)
         {
-            var tokens = Parser.GetTokens(text, text);
+            Converter.ConvertTokens(new List<IToken> {token}).Should().Be(expectedResult);
+        }
 
-            Sut.ConvertTokens(tokens).Should().Be(expectedResult);
+        private static IEnumerable<TestCaseData> TestCases()
+        {
+            yield return new TestCaseData(new StrongToken(0, "text", 7), "<strong>text</strong>").SetName(
+                "Strong tag");
+            yield return new TestCaseData(new EmphasizedToken(0, "text", 5), "<em>text</em>").SetName(
+                "Emphasized tag");
+            yield return new TestCaseData(new HeadingToken(0, "text", 5), "<h1>text</h1>").SetName("Heading tag");
+            yield return new TestCaseData(new PlaintTextToken(0, "text", 3), "text").SetName("PlainText");
+            yield return new TestCaseData(new ImageToken(0, "![text](url)", 15)
+            {
+                ChildTokens =
+                {
+                    new PlaintTextToken(2, "text", 3),
+                    new PlaintTextToken(7, "url", 8)
+                }
+            }, @"<img src=""url"" alt=""text"">").SetName("Image");
+
+            yield return new TestCaseData(
+                new StrongToken(0, "__s _e_ s__", 0)
+                {
+                    ChildTokens =
+                    {
+                        new PlaintTextToken(2, "s ", 3),
+                        new EmphasizedToken(4, "e", 6),
+                        new PlaintTextToken(7, " s", 8)
+                    }
+                }, "<strong>s <em>e</em> s</strong>").SetName("Emphasized in strong");
+
+            yield return new TestCaseData(
+                new HeadingToken(0, "# h __s _e _E_ e_ s__", 0)
+                {
+                    ChildTokens =
+                    {
+                        new PlaintTextToken(0, "h ", 20),
+                        new StrongToken(4, "s _e _E_ e_ s", 20)
+                        {
+                            ChildTokens =
+                            {
+                                new PlaintTextToken(2, "s ", 3),
+                                new EmphasizedToken(4, "e _E_ e", 6)
+                                {
+                                    ChildTokens =
+                                    {
+                                        new PlaintTextToken(2, "e ", 3),
+                                        new EmphasizedToken(4, "E", 6),
+                                        new PlaintTextToken(7, " e", 8)
+                                    }
+                                },
+                                new PlaintTextToken(7, " s", 8)
+                            }
+                        }
+                    }
+                }, "<h1>h <strong>s <em>e <em>E</em> e</em> s</strong></h1>").SetName("Deep nesting");
         }
     }
 }

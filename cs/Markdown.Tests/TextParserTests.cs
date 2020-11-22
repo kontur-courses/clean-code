@@ -8,12 +8,21 @@ namespace MarkdownTests
 {
     public class TextParserTests
     {
+        private readonly List<ITokenReader> readers = new List<ITokenReader>
+        {
+            new HeadingTokenReader(),
+            new StrongTokenReader(),
+            new EmphasizedTokenReader(),
+            new ImageTokenReader(),
+            new PlainTextTokenReader()
+        };
+
         private TextParser Parser { get; set; }
 
         [SetUp]
         public void SetUp()
         {
-            Parser = new TextParser();
+            Parser = new TextParser(readers);
         }
 
         [TestCase("_e __s__ e_", 1, TestName = "Strong tag in emphasized")]
@@ -26,9 +35,10 @@ namespace MarkdownTests
         [TestCase("__s s _e_ s__", 1, TestName = "Emphasized tag in strong")]
         [TestCase("__let__ __me__ __in__", 5, TestName = "More than one token")]
         [TestCase("_in tag_ text", 2, TestName = "Plain text at the end")]
+        [TestCase("![]()", 1, TestName = "Image")]
         public void GetTokens_ReturnExpectedTokenCount_When(string text, int expectedTokensCount)
         {
-            var result = Parser.GetTokens(text, text);
+            var result = Parser.GetTokens(text);
 
             result.Count().Should().Be(expectedTokensCount);
         }

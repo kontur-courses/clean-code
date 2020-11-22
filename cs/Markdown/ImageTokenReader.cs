@@ -1,43 +1,61 @@
-﻿namespace Markdown
+﻿using System.Text;
+
+namespace Markdown
 {
     public class ImageTokenReader : ITokenReader
     {
-        public bool TryReadToken(string text, string context, int index, out Token? token)
+        public bool TryReadToken(string text, string context, int index, out IToken? token)
         {
-            var altText = "";
-            var url = "";
+            var foundAltText = false;
+            var value = new StringBuilder();
+            IToken? altText = null;
             token = null;
 
             if (!IsImageTagStart(text, index))
                 return false;
 
-            var value = "";
-            for (var i = index + 1; i < text.Length; i++)
+            for (var i = index; i < text.Length; i++)
             {
-                if (IsAltTexEnd(text, i) && text[i - 1] != '[')
-                    altText = text[2..i];
+                if (IsEndOfLine(text, i))
+                    return false;
 
-                if (IsImageTagEnd(text, i) && text[i - 1] != '(')
-                    url = text[(altText.Length + 4)..^1];
+                if (text[i] == '\\' && i + 1 != text.Length)
+                    if (text[i + 1] == '\\' || IsAltTexEnd(text, i + 1) || IsImageTagEnd(text, i + 1))
+                    {
+                        value.Append(text[i + 1]);
+                        i++;
+                        continue;
+                    }
 
-                if (text[i] == ']')
-                    if (!IsAltTexEnd(text, i))
-                        return false;
+                if (IsAltTexEnd(text, i))
+                {
+                    altText = new PlaintTextToken(index + 1, text[(index + 2)..i], i);
+                    foundAltText = true;
+                }
 
-                if (!IsImageTagEnd(text, i))
-                    continue;
+                if (text[i] == ']' && !IsAltTexEnd(text, i))
+                    return false;
 
-                value = text[index..(i + 1)];
-                break;
+                if (IsImageTagEnd(text, i) && foundAltText)
+                {
+                    value.Append(text[i]);
+                    IToken? url = new PlaintTextToken(altText!.EndPosition + 1, text[(altText.EndPosition + 2)..i], i);
+                    token = new ImageToken(index, value.ToString(), index + value.Length - 1);
+                    token.ChildTokens.Add(altText!);
+                    token.ChildTokens.Add(url!);
+
+                    return true;
+                }
+
+                value.Append(text[i]);
             }
 
-            if (value == "")
-                return false;
+            return false;
+        }
 
-            token = new Token(index, value, index + value.Length - 1, TokenType.Image);
-            token.ChildTokens.Add(new Token(0, altText, 0, TokenType.PlainText));
-            token.ChildTokens.Add(new Token(1, url, 1, TokenType.PlainText));
-            return true;
+        private static bool IsEndOfLine(string text, int index)
+        {
+            return text[index] == '\n' || text[index] == '\r';
         }
 
         private static bool IsImageTagStart(string text, int index)
@@ -53,8 +71,7 @@
 
         private static bool IsAltTexEnd(string text, int index)
         {
-            return text[index] == ']'
-                   && (index + 1 == text.Length || text[index + 1] == '(');
+            return text[index] == ']' && (index + 1 == text.Length || text[index + 1] == '(');
         }
     }
 }

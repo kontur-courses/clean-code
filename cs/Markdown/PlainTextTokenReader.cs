@@ -2,9 +2,9 @@
 
 namespace Markdown
 {
-    public class PlainTextTokenReader: ITokenReader
+    public class PlainTextTokenReader : ITokenReader
     {
-        public bool TryReadToken(string text, string context, int index, out Token? token)
+        public bool TryReadToken(string text, string context, int index, out IToken? token)
         {
             token = null;
             var value = new StringBuilder();
@@ -12,32 +12,30 @@ namespace Markdown
             for (var i = index; i < text.Length; ++i)
             {
                 if (text[i] == '\\' && i + 1 != text.Length)
-                {
                     if (text[i + 1] == '\\' || IsPlainTextEnd(text, i + 1))
                     {
-                        value.Append(text[i..(i + 2)]);
+                        value.Append(text[i + 1]);
                         i++;
 
                         if (i + 1 == text.Length)
                         {
-                            token = new Token(index, value.ToString(), i, TokenType.PlainText);
+                            token = new PlaintTextToken(index, value.ToString(), i);
                             return true;
                         }
 
                         continue;
                     }
-                }
 
                 if (i + 1 == text.Length)
                 {
                     value.Append(text[i]);
-                    token = new Token(index, value.ToString(), i, TokenType.PlainText);
+                    token = new PlaintTextToken(index, value.ToString(), i);
                     return true;
                 }
 
                 if (IsPlainTextEnd(text, i) && value.Length != 0)
                 {
-                    token = new Token(index, value.ToString(), i - 1, TokenType.PlainText);
+                    token = new PlaintTextToken(index, value.ToString(), i - 1);
                     return true;
                 }
 
@@ -49,7 +47,7 @@ namespace Markdown
 
         private static bool IsPlainTextEnd(string text, int index)
         {
-            return text[index] == '#' || text[index] == '_';
+            return text[index] == '#' || text[index] == '_' || text[index] == '!';
         }
     }
 }

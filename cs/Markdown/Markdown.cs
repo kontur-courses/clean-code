@@ -1,23 +1,21 @@
-﻿using System.Linq;
-
-namespace Markdown
+﻿namespace Markdown
 {
     public class Markdown
     {
-        private ITextParser Parser { get; }
-        private IConverter Converter { get; }
+        private readonly IConverter converter;
+        private readonly ITextParser parser;
 
         public Markdown(ITextParser parser, IConverter converter)
         {
-            Parser = parser;
-            Converter = converter;
+            this.parser = parser;
+            this.converter = converter;
         }
 
         public string Render(string markdown)
         {
-            var tokens = Parser.GetTokens(markdown, markdown).ToList();
+            var tokens = parser.GetTokens(markdown);
 
-            return Converter.ConvertTokens(tokens);
+            return converter.ConvertTokens(tokens);
         }
     }
 }
