@@ -119,7 +119,7 @@ namespace Markdown
 
         private bool Escaped(string paragraph, int position)
         {
-            if (position == 0)
+            if (position <= 0)
                 return false;
             var i = position - 1;
             var slashesCount = 0;
@@ -135,14 +135,14 @@ namespace Markdown
         public static bool IsInsideNumber(string paragraph, int tagPosition, int tagLength)
         {
             var positionAfterTag = tagPosition + tagLength;
-            if (tagPosition == 0 || positionAfterTag >= paragraph.Length)
+            if (tagPosition <= 0 || positionAfterTag >= paragraph.Length)
                 return false;
             return char.IsDigit(paragraph[tagPosition - 1]) && char.IsDigit(paragraph[positionAfterTag]);
         }
 
         private static bool IsAfterWhiteSpace(string paragraph, int tagPosition)
         {
-            if (tagPosition == 0)
+            if (tagPosition <= 0)
                 return true;
             return paragraph[tagPosition - 1] == ' ';
         }
