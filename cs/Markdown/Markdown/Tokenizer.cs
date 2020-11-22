@@ -164,7 +164,7 @@ namespace Markdown
             return isLetterOnTheLeft && isLetterOnTheRight;
         }
 
-        public IEnumerable<string> GetParagraphs()
+        public string[] GetParagraphs()
         {
             return text.Split(Environment.NewLine.ToCharArray(), StringSplitOptions.RemoveEmptyEntries);
         }
