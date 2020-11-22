@@ -8,232 +8,125 @@ namespace Markdown
 {
     class TokenReader
     {
-        private readonly Stack<Token> openedTokens = new Stack<Token>();
-        private Token currentToken;
-        private readonly Dictionary<char, Action> symbolHandler;
-        private readonly StringBuilder line;
-        private bool containsOnlyDigits = true;
-        private int position;
+        public Stack<IToken> OpenedTokens { get; }
+        private readonly SymbolHandler symbolHandler;
+        private readonly Dictionary<TokenType, Type> tokenTypes;
+        public StringBuilder Line { get; }
+        public int Position { get; private set; }
 
 
         public TokenReader(string inputLine)
         {
-            line = new StringBuilder(inputLine);
-            symbolHandler = new Dictionary<char, Action>();
-            symbolHandler['_'] = HandleUnderline;
-            symbolHandler['#'] = HandleHashSign;
-            symbolHandler['\n'] = HandleEndOfLine;
+            OpenedTokens = new Stack<IToken>();
+            Line = new StringBuilder(inputLine);
+            symbolHandler = new SymbolHandler(this);
+            tokenTypes = new Dictionary<TokenType, Type>();
+            tokenTypes[TokenType.Strong] = typeof(StrongToken);
+            tokenTypes[TokenType.Italic] = typeof(ItalicToken);
+            tokenTypes[TokenType.Header] = typeof(HeaderToken);
+            tokenTypes[TokenType.Reference] = typeof(ReferenceToken);
         }
 
         public string Read(Token token)
         {
-            position = 0;
-            currentToken = token;
-            while (position < line.Length)
+            Position = 0;
+            OpenedTokens.Push(token);
+            while (Position < Line.Length)
             {
                 HandleSymbol();
             }
-            HandleEndOfLine();
-            return line.ToString();
+            symbolHandler.HandleEndOfLine();
+            return Line.ToString();
         }
 
         public void HandleSymbol()
         {
             CheckEscapeChar();
-            if (symbolHandler.ContainsKey(line[position]))
-                symbolHandler[line[position]]();
-            else if (!char.IsDigit(line[position]))
-                containsOnlyDigits = false;
+            if (symbolHandler.CanHandle(Line[Position]))
+                symbolHandler.Handle(Line[Position]);
+            else if (OpenedTokens.Peek().ContainsOnlyDigits && !char.IsDigit(Line[Position]))
+                foreach (var token in OpenedTokens)
+                    token.ContainsOnlyDigits = false;
             CheckTokenContainsTwoPartsOfDifferentWords();
-            position++;
+            Position++;
         }
 
-        // Методы, отвечающие за обработку спец. символов
-
-        private void HandleUnderline()
+        public void HandleTag(IToken token)
         {
-            if (position != line.Length - 1 && line[position + 1] == '_')
+            if (OpenedTokens.Any() && !CheckSpaceBeforeTag() && !CheckIntersectionOfTokens())
             {
-                if (HandleTripleUnderline())
+                if (TryCloseFirstAvailableToken(token))
                     return;
-                HandleStrongTag();
             }
-            else
-                HandleItalicTag();
+            if(!CheckSpaceAfterTag(token.OpeningTag.Length))
+            {
+                OpenToken(token);
+            }
+            Position += token.OpeningTag.Length - 1;
         }
 
-        private void HandleHashSign()
+        private bool TryCloseFirstAvailableToken(IToken token)
         {
-            if (position != line.Length - 1 && line[position + 1] == ' ')
+            var openedToken = OpenedTokens.Peek();
+            while (openedToken.Type != TokenType.Simple)
             {
-                var openedToken = new HeaderToken(position, 0, currentToken);
-                OpenToken(openedToken);
-            }
-        }
-
-        private void HandleEndOfLine()
-        {
-            position = position >= line.Length ? line.Length - 1 : position;
-            while (openedTokens.Any())
-            {
-                if (openedTokens.Peek().Type == TokenType.Header)
+                if (openedToken.Type == token.Type)
                 {
-                    CloseToken(position);
-                    openedTokens.Clear();
-                }
-                else
-                    openedTokens.Pop();
-            }
-        }
-
-        // Методы, отвечающие за обработку тегов
-
-        private void HandleItalicTag()
-        {
-            if (openedTokens.Any() && openedTokens.Peek().Type == TokenType.Italic && !CheckSpaceBeforeTag())
-            {
-                TryCloseItalicToken();
-            }
-            else if (position == line.Length - 1 || line[position + 1] != ' ')
-            {
-                OpenItalicToken();
-            }
-        }
-
-        private void HandleStrongTag()
-        {
-            if (openedTokens.Any() && !CheckSpaceBeforeTag() 
-                                   && (openedTokens.Peek().Type == TokenType.Italic || openedTokens.Peek().Type == TokenType.Strong))
-            {
-                TryCloseStrongToken();
-            }
-            else if(!CheckSpaceAfterTag(new StrongToken().OpeningTag.Length))
-            {
-                OpenStrongToken();
-            }
-            position++;
-        }
-
-        private bool HandleTripleUnderline()
-        {
-            if (openedTokens.Any() && openedTokens.Peek().Type == TokenType.Italic
-                                   && position < line.Length - 2 && line[position + 2] == '_')
-            {
-                if (CheckSpaceBeforeTag())
+                    openedToken.CloseToken(OpenedTokens, Position);
+                    Position += token.ClosingTag.Length - 1;
                     return true;
-                CloseToken(position);
-                return true;
+                }
+                openedToken = openedToken.Parent;
             }
+
             return false;
         }
 
-        // Методы, отвечающие за открытие и закрытие отдельных токенов
-
-        private void TryCloseStrongToken()
+        private void OpenToken(IToken token)
         {
-            if (openedTokens.Peek().Type == TokenType.Italic && openedTokens.Peek().Parent.Type == TokenType.Strong)
-                ClosePreviousOpenedToken();
-            else if (openedTokens.Peek().Type == TokenType.Strong && currentToken.Parent.Type != TokenType.Italic
-                                                                  && !containsOnlyDigits)
-                CloseToken(position);
-        }
-
-        private void OpenStrongToken()
-        {
-            var openedToken = new StrongToken(position, 0, currentToken);
-            containsOnlyDigits = true;
-            OpenToken(openedToken);
-        }
-
-        private void TryCloseItalicToken()
-        {
-            if (!CheckIntersectionOfTokens() && !containsOnlyDigits)
-                CloseToken(position);
-        }
-
-        private void OpenItalicToken()
-        {
-            containsOnlyDigits = true;
-            var openedToken = new ItalicToken(position, 0, currentToken);
-            OpenToken(openedToken);
-        }
-
-        // Методы, для работы с токенами
-
-        private void OpenToken(Token token)
-        {
-            openedTokens.Push(token);
-            token.Parent = currentToken;
-            currentToken = token;
-        }
-
-        private void CloseToken(int startOfClosingTagPosition)
-        {
-            currentToken = currentToken.Parent;
-            var closedToken = openedTokens.Pop();
-            closedToken.IsClosed = true;
-            closedToken.Length = startOfClosingTagPosition - closedToken.StartPosition + closedToken.ClosingTag.Length;
-            if (closedToken.Length != closedToken.ClosingTag.Length + closedToken.OpeningTag.Length)
-                currentToken.SubTokens.Add(closedToken);
-        }
-
-        private void RemoveToken(Token token)
-        {
-            var parent = token.Parent;
-            foreach (var closedSubToken in token.SubTokens.Where(token => token.IsClosed))
-            {
-                parent.SubTokens.Add(closedSubToken);
-                closedSubToken.Parent = parent;
-            }
-            parent.SubTokens.Remove(token);
-        }
-
-        private void ClosePreviousOpenedToken()
-        {
-            var italicToken = openedTokens.Pop();
-            CloseToken(position);
-            openedTokens.Push(italicToken);
+            if (token.NestingLevel > OpenedTokens.Peek().NestingLevel)
+                IToken.Open((Token)token, OpenedTokens);
         }
 
         // Вспомогательные методы
 
-        private bool CheckSpaceAfterTag(int tagLength)
+        public bool CheckSpaceAfterTag(int tagLength)
         {
-            return position != line.Length - tagLength && line[position + tagLength] == ' ';
+            return Position != Line.Length - tagLength && Line[Position + tagLength] == ' ';
         }
 
-        private bool CheckSpaceBeforeTag()
+        public bool CheckSpaceBeforeTag()
         {
-            return line[position - 1] == ' ';
+            return Position != 0 && Line[Position - 1] == ' ';
         }
 
         private void CheckEscapeChar()
         {
-            if (line[position] == '\\' && position != line.Length - 1
-                                       && (symbolHandler.ContainsKey(line[position + 1]) || line[position + 1] == '\\'))
+            if (Line[Position] == '\\' && Position != Line.Length - 1
+                                       && (symbolHandler.CanHandle(Line[Position + 1]) || Line[Position + 1] == '\\'))
             {
-                line.Remove(position, 1);
-                position++;
+                Line.Remove(Position, 1);
+                OpenedTokens.Peek().Length--;
+                Position++;
             }
         }
 
         private void CheckTokenContainsTwoPartsOfDifferentWords()
         {
-            if (line[position] == ' '
-                && openedTokens.Any()
-                && (openedTokens.Peek().Type == TokenType.Italic || openedTokens.Peek().Type == TokenType.Strong)
-                && openedTokens.Peek().StartPosition != 0
-                && line[openedTokens.Peek().StartPosition - 1] != ' '
-                && !symbolHandler.ContainsKey(line[openedTokens.Peek().StartPosition - 1]))
-                currentToken = openedTokens.Pop().Parent;
+            if (Line[Position] == ' '
+                && OpenedTokens.Any()
+                && OpenedTokens.Peek().StartPosition != 0
+                && Line[OpenedTokens.Peek().StartPosition - 1] != ' '
+                && !symbolHandler.CanHandle(Line[OpenedTokens.Peek().StartPosition - 1]))
+                OpenedTokens.Pop();
         }
 
         private bool CheckIntersectionOfTokens()
         {
-            if (openedTokens.Peek().Parent.IsClosed)
+            if (OpenedTokens.Peek().Type != TokenType.Simple && OpenedTokens.Peek().Parent.IsClosed)
             {
-                RemoveToken(openedTokens.Peek().Parent);
-                openedTokens.Pop();
+                IToken.Remove(OpenedTokens.Peek().Parent);
+                OpenedTokens.Pop();
                 return true;
             }
 

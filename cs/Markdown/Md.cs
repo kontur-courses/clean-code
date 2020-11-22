@@ -15,7 +15,7 @@
 
         private Token CreateMainToken(string line)
         {
-            return new Token(0, line.Length);
+            return new SimpleToken(0, line.Length);
         }
     }
 }

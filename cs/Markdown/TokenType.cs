@@ -5,6 +5,7 @@
         Simple,
         Header,
         Italic,
-        Strong
+        Strong,
+        Reference
     }
 }
