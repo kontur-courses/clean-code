@@ -7,7 +7,7 @@ namespace Markdown
         internal static string GetTokenText(this string s, Token token)
         {
             if (s == null)
-                throw new ArgumentException("string is null");
+                throw new ArgumentNullException("string is null");
             return token == null ? "" : s.Substring(token.Start, token.Length);
         }
     }
