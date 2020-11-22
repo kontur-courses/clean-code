@@ -49,7 +49,6 @@ namespace Markdown
 
         public bool TryReadTag(string paragraph, int positionInParagraph, out Token result, out int longestTagLen)
         {
-            var lastTag = tagStack.FirstOrDefault();
             result = null;
             longestTagLen = 0;
             if (Escaped(paragraph, positionInParagraph))
@@ -63,6 +62,7 @@ namespace Markdown
             var longestTag = possibleTags
                 .Aggregate("", (cur, max) => cur.Length > max.Length ? cur : max);
             longestTagLen = longestTag.Length;
+            var lastTag = tagStack.FirstOrDefault();
             if (!IsClosing(paragraph, longestTag, positionInParagraph, lastTag) &&
                 !IsOpening(paragraph, longestTag, positionInParagraph))
             {
