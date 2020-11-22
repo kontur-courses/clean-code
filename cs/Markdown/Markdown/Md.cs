@@ -13,14 +13,14 @@ namespace Markdown
         {
             {MarkupType.Bold, "strong"},
             {MarkupType.Italic, "em"},
-            {MarkupType.Header, "h1"}
+            {MarkupType.Header, "h1"},
         };
 
         private readonly Dictionary<MarkupType, string> markupToMdTag = new Dictionary<MarkupType, string>
         {
             {MarkupType.Bold, "__"},
             {MarkupType.Italic, "_"},
-            {MarkupType.Header, "# "}
+            {MarkupType.Header, "# "},
         };
 
         private readonly HashSet<string> singleTags = new HashSet<string> {"# "};
@@ -51,9 +51,10 @@ namespace Markdown
         private StringBuilder CloseAllTags(Stack<MarkupType> markup)
         {
             var sb = new StringBuilder();
-            while (markup.Any())
+
+            while (markup.TryPop(out var tag))
             {
-                sb.Append(markupProcessor.GetClosingTag(markup.Pop()));
+                sb.Append(markupProcessor.GetClosingTag(tag));
             }
 
             return sb;
