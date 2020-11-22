@@ -30,11 +30,11 @@ namespace Markdown
                 position += symbolsReadCount;
             }
 
-            AddCloseLineTag(tags, position);
+            AddCloseParagraphTag(tags, position);
             return tags.GetCorrectTags(paragraph);
         }
 
-        private static void AddCloseLineTag(List<Tag> tags, int position)
+        private static void AddCloseParagraphTag(List<Tag> tags, int position)
         {
             if (tags.Count == 0)
                 return;
