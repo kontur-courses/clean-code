@@ -60,7 +60,8 @@ namespace Markdown
             if (!possibleTags.Any())
                 return false;
             var longestTag = possibleTags
-                .Aggregate("", (cur, max) => cur.Length > max.Length ? cur : max);
+                .OrderByDescending(tag => tag.Length)
+                .First();
             longestTagLen = longestTag.Length;
             var lastTag = tagStack.FirstOrDefault();
             if (!IsClosing(paragraph, longestTag, positionInParagraph, lastTag) &&
