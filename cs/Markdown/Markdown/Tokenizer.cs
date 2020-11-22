@@ -88,7 +88,7 @@ namespace Markdown
 
         public bool CheckTagsOverlap(Token firstTag, Token secondTag)
         {
-            if (secondTag == null)
+            if (firstTag == null || secondTag == null)
                 return false;
             var currentTagText = text.GetTokenText(firstTag);
             var lastTagText = text.GetTokenText(secondTag);
