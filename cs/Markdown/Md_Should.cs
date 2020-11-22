@@ -31,7 +31,7 @@ namespace Markdown
         }
         
         [TestCase("# _asd_", ExpectedResult = "<h1><em>asd</em></h1>", TestName = "when paragraph is header")]
-        [TestCase("* _asd_", ExpectedResult = "<ul><li><em>asd</em></li></ul>",
+        [TestCase("* _asd_", ExpectedResult = "<ul>\r\n<li><em>asd</em></li>\r\n</ul>",
             TestName = "when paragraph is list item")]
         [TestCase("_asd_ ", ExpectedResult = "<em>asd</em> ", TestName = "when space in string ending")]
         [TestCase("_asd_    ", ExpectedResult = "<em>asd</em>    ",
@@ -84,7 +84,7 @@ namespace Markdown
 
         [TestCase("# __asd__", ExpectedResult = "<h1><strong>asd</strong></h1>",
             TestName = "when paragraph is header")]
-        [TestCase("* __asd__", ExpectedResult = "<ul><li><strong>asd</strong></li></ul>",
+        [TestCase("* __asd__", ExpectedResult = "<ul>\r\n<li><strong>asd</strong></li>\r\n</ul>",
             TestName = "when paragraph is list item")]
         [TestCase("__asd__ ", ExpectedResult = "<strong>asd</strong> ", TestName = "when space in string ending")]
         [TestCase("__asd__    ", ExpectedResult = "<strong>asd</strong>    ",
@@ -171,12 +171,14 @@ namespace Markdown
             return Md.Render(input);
         }
 
-        [TestCase("* asd", ExpectedResult = "<ul><li>asd</li></ul>", TestName = "when has only one list item")]
-        [TestCase("* asd\r\n* asd", ExpectedResult = "<ul><li>asd</li>\r\n<li>asd</li></ul>",
+        [TestCase("* asd", ExpectedResult = "<ul>\r\n<li>asd</li>\r\n</ul>", TestName = "when has only one list item")]
+        [TestCase("* asd\r\n* asd", ExpectedResult = "<ul>\r\n<li>asd</li>\r\n<li>asd</li>\r\n</ul>",
             TestName = "when has more than one list item")]
-        [TestCase("* asd\r\nasd\r\n* asd", ExpectedResult = "<ul><li>asd</li></ul>\r\nasd\r\n<ul><li>asd</li></ul>",
+        [TestCase("* asd\r\nasd\r\n* asd",
+            ExpectedResult = "<ul>\r\n<li>asd</li>\r\n</ul>\r\nasd\r\n<ul>\r\n<li>asd</li>\r\n</ul>",
             TestName = "when several unordered lists")]
-        [TestCase("* asd\r\n\\* asd\r\n* asd", ExpectedResult = "<ul><li>asd</li></ul>\r\n* asd\r\n<ul><li>asd</li></ul>",
+        [TestCase("* asd\r\n\\* asd\r\n* asd",
+            ExpectedResult = "<ul>\r\n<li>asd</li>\r\n</ul>\r\n* asd\r\n<ul>\r\n<li>asd</li>\r\n</ul>",
             TestName = "when 3 list item tags in a row, but tag in middle escaped")]
         public string RenderUnorderedList(string input)
         {
