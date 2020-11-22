@@ -60,8 +60,7 @@ namespace Markdown
 
         private static bool IsImageTagStart(string text, int index)
         {
-            return text[index] == '!'
-                   && (index + 1 == text.Length || text[index + 1] == '[');
+            return text[index] == '!' && (index + 1 == text.Length || text[index + 1] == '[');
         }
 
         private static bool IsImageTagEnd(string text, int index)

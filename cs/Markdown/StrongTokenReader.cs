@@ -38,9 +38,7 @@ namespace Markdown
                     if (IsStrongEndTag(text, i + 1) && stack.Count == 0)
                         return false;
 
-                    if (text[i + 1] == '\\'
-                        || IsStrongStartTag(text, i + 1)
-                        || IsStrongEndTag(text, i + 1))
+                    if (text[i + 1] == '\\' || IsStrongStartTag(text, i + 1) || IsStrongEndTag(text, i + 1))
                     {
                         value.Append(text[i..(i + 2)]);
                         i++;

@@ -35,9 +35,7 @@ namespace Markdown
                     if (IsEmphasizedEndTag(text, i + 1) && stack.Count == 0)
                         return false;
 
-                    if (text[i + 1] == '\\'
-                        || IsEmphasizedStartTag(text, i + 1)
-                        || IsEmphasizedEndTag(text, i + 1))
+                    if (text[i + 1] == '\\' || IsEmphasizedStartTag(text, i + 1) || IsEmphasizedEndTag(text, i + 1))
                     {
                         value.Append(text[i..(i + 2)]);
                         i++;
