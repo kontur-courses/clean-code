@@ -38,10 +38,10 @@ namespace Markdown
 
         public MarkupType GetMarkupType(string mdTag)
         {
-            foreach (var markupTagPair in MarkupToMdTag)
+            foreach (var (markupType, tag) in MarkupToMdTag)
             {
-                if (markupTagPair.Value == mdTag)
-                    return markupTagPair.Key;
+                if (tag == mdTag)
+                    return markupType;
             }
 
             throw new ArgumentException($"Tag {mdTag} not found");
