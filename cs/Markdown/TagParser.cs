@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Linq;
 
@@ -52,7 +53,7 @@ namespace Markdown
             return spacesCount;
         }
 
-        private static List<Tag> ReadTagsFromWord(int position, string text, out int symbolsReadCount)
+        private static IEnumerable<Tag> ReadTagsFromWord(int position, string text, out int symbolsReadCount)
         {
             var startPosition = position;
             var hasDigits = false;
@@ -65,35 +66,23 @@ namespace Markdown
                 if (char.IsDigit(text[position]))
                     hasDigits = true;
                 var readTags = ReadTags(position, text, out symbolsReadCount, true);
-                if (readTags.Count > 0)
-                {
-                    position += symbolsReadCount;
-                    tagsInWord.AddRange(readTags);
-                    tagsInWordEnd = readTags;
-                }
-                else
-                {
-                    position++;
-                    tagsInWordEnd.Clear();
-                }
+                tagsInWord.AddRange(readTags);
+                tagsInWordEnd = readTags;
+                position += Math.Max(1, symbolsReadCount);
             }
 
             symbolsReadCount = position - startPosition;
             foreach (var tag in tagsInWordEnd)
                 tag.UnpinFromWord();
 
-            return hasDigits
-                ? tagsInWordBegin.Concat(tagsInWordEnd).ToList()
-                : tagsInWordBegin.Concat(tagsInWord).ToList();
+            return hasDigits ? tagsInWordBegin.Concat(tagsInWordEnd) : tagsInWordBegin.Concat(tagsInWord);
         }
 
         private static bool TryReadTag(int position, string text, out Tag tag, bool inWord = false)
         {
             foreach (var tagHelper in SupportedTags.Values)
-            {
                 if (tagHelper.TryParse(position, text, out tag, inWord))
                     return true;
-            }
 
             tag = null;
             return false;
