@@ -7,7 +7,7 @@
         {
         }
 
-        public override bool TryParse(int position, string text, out Tag tag, bool inWord = false, int lineNumber = 0)
+        public override bool TryParse(int position, string text, out Tag tag, bool inWord = false)
         {
             if (IsTag(position, text) && (position + 1 == text.Length || text[position + 1] != '_'))
             {

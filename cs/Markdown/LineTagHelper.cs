@@ -12,11 +12,11 @@ namespace Markdown
 
         private readonly TagType tagType;
 
-        public override bool TryParse(int position, string text, out Tag tag, bool inWord = false, int lineNumber = 0)
+        public override bool TryParse(int position, string text, out Tag tag, bool inWord = false)
         {
             if (IsTag(position, text) && IsAfterNewLine(position, text))
             {
-                tag = new Tag(position, tagType, true, MdTag.Length, inWord, false, lineNumber);
+                tag = new Tag(position, tagType, true, MdTag.Length, inWord, false);
                 return true;
             }
 
