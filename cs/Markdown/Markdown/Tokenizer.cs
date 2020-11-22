@@ -126,17 +126,17 @@ namespace Markdown
             while (paragraph[i] == EscapeSymbol)
             {
                 slashesCount++;
-                i -= 1;
+                i--;
             }
 
             return slashesCount % 2 != 0;
         }
 
-        public static bool IsInsideNumber(string paragraph, int tagPosition, int tagLen)
+        public static bool IsInsideNumber(string paragraph, int tagPosition, int tagLength)
         {
-            if (tagPosition == 0 || tagPosition + tagLen >= paragraph.Length)
+            if (tagPosition == 0 || tagPosition + tagLength >= paragraph.Length)
                 return false;
-            return char.IsDigit(paragraph[tagPosition - 1]) && char.IsDigit(paragraph[tagPosition + tagLen]);
+            return char.IsDigit(paragraph[tagPosition - 1]) && char.IsDigit(paragraph[tagPosition + tagLength]);
         }
 
         private static bool IsAfterWhiteSpace(string paragraph, int tagPosition)
@@ -146,18 +146,18 @@ namespace Markdown
             return paragraph[tagPosition - 1] == ' ';
         }
 
-        private static bool IsBeforeWhiteSpace(string paragraph, int tagPosition, int tagLen)
+        private static bool IsBeforeWhiteSpace(string paragraph, int tagPosition, int tagLength)
         {
-            if (tagPosition + tagLen >= paragraph.Length)
+            if (tagPosition + tagLength >= paragraph.Length)
                 return true;
-            return paragraph[tagPosition + tagLen] == ' ';
+            return paragraph[tagPosition + tagLength] == ' ';
         }
 
-        private static bool IsInsideWord(string paragraph, int tagPosition, int tagLen)
+        private static bool IsInsideWord(string paragraph, int tagPosition, int tagLength)
         {
             var isLetterOnTheLeft = tagPosition == 0 || char.IsLetter(paragraph[tagPosition - 1]);
-            var isLetterOnTheRight = tagPosition + tagLen < paragraph.Length
-                                     && char.IsLetter(paragraph[tagPosition + tagLen]);
+            var isLetterOnTheRight = tagPosition + tagLength < paragraph.Length
+                                     && char.IsLetter(paragraph[tagPosition + tagLength]);
             return isLetterOnTheLeft && isLetterOnTheRight;
         }
 
