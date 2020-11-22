@@ -23,7 +23,7 @@ namespace Markdown
         {
             return !IsAfterWhiteSpace(paragraph, tagPosition)
                    && !IsInsideNumber(paragraph, tagPosition, tag.Length)
-                   && paragraph.Substring(lastTag) == tag;
+                   && paragraph.GetTokenText(lastTag) == tag;
         }
 
         public static bool IsOpening(string paragraph, string tag, int tagPosition)
@@ -37,7 +37,7 @@ namespace Markdown
             TryReadTag(paragraph, positionInParagraph, out var token, out _);
             if (token == null)
                 return null;
-            if (IsClosing(paragraph, text.Substring(token), positionInParagraph, tagStack.FirstOrDefault()))
+            if (IsClosing(paragraph, text.GetTokenText(token), positionInParagraph, tagStack.FirstOrDefault()))
                 tagStack.Pop();
             else
                 tagStack.Push(token);
@@ -87,8 +87,8 @@ namespace Markdown
         {
             if (secondTag == null)
                 return false;
-            var currentTagText = text.Substring(firstTag);
-            var lastTagText = text.Substring(secondTag);
+            var currentTagText = text.GetTokenText(firstTag);
+            var lastTagText = text.GetTokenText(secondTag);
             return lastTagText != currentTagText && currentTagText.Contains(lastTagText);
         }
 
@@ -188,7 +188,7 @@ namespace Markdown
             while (tagStack.Any())
             {
                 var tag = tagStack.Pop();
-                if (!markupProcessor.SingleTags.Contains(paragraph.Substring(tag)))
+                if (!markupProcessor.SingleTags.Contains(paragraph.GetTokenText(tag)))
                     tag.IsMarkup = false;
             }
 
@@ -210,7 +210,7 @@ namespace Markdown
             {
                 if (curToken.IsMarkup
                     && prevToken.IsMarkup
-                    && text.Substring(curToken) == text.Substring(prevToken))
+                    && text.GetTokenText(curToken) == text.GetTokenText(prevToken))
                 {
                     curToken.IsMarkup = false;
                     prevToken.IsMarkup = false;

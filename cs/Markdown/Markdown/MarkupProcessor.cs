@@ -59,7 +59,7 @@ namespace Markdown
 
         public string GetOpeningTag(string text, Token token)
         {
-            return GetOpeningTag(GetMarkupType(text.Substring(token)));
+            return GetOpeningTag(GetMarkupType(text.GetTokenText(token)));
         }
 
         public string GetClosingTag(MarkupType markupType)
@@ -69,7 +69,7 @@ namespace Markdown
 
         public string GetClosingTag(string text, Token token)
         {
-            return GetClosingTag(GetMarkupType(text.Substring(token)));
+            return GetClosingTag(GetMarkupType(text.GetTokenText(token)));
         }
     }
 }
