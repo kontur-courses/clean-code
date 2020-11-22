@@ -1,31 +1,42 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Text;
 
 namespace Markdown
 {
     class TokenWriter
     {
-        private StringBuilder stringBuilder;
-        private int indexOffset;
+        private readonly string inputLine;
+        private readonly StringBuilder newLine;
 
-        public TokenWriter(string line)
+        public TokenWriter(string inputLine)
         {
-            stringBuilder = new StringBuilder(line);
+            this.inputLine = inputLine;
+            newLine = new StringBuilder();
         }
 
-        public void Write(Token token)
+        public void Write(IToken token)
         {
-            token.ReplaceOpeningTag(stringBuilder, ref indexOffset);
+            token.OpenTag(newLine, inputLine);
 
-            foreach (var subToken in token.SubTokens)
+
+            for (var i = 0; i < token.SubTokens.Count; i++)
             {
-                Write(subToken);
+                Write(token.SubTokens[i]);
+                FillStringBetweenSubTokens(token, i);
             }
 
-            token.ReplaceClosingTag(stringBuilder, ref indexOffset);
+            token.CloseTag(newLine, inputLine);
         }
 
-        public string GetString() => stringBuilder.ToString();
+        private void FillStringBetweenSubTokens(IToken token, int i)
+        {
+            if (i != token.SubTokens.Count - 1)
+                newLine.Append(inputLine.Substring(token.SubTokens[i].EndPosition,
+                    token.SubTokens[i + 1].StartPosition - token.SubTokens[i].EndPosition));
+        }
+
+        public string GetString() => newLine.ToString();
     }
 }
