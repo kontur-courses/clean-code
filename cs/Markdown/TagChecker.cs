@@ -16,34 +16,12 @@ namespace Markdown
             return pairedTags.Concat(notPairedTags).OrderBy(x=>x.Position).ToList();
         }
 
-        public static IEnumerable<Tag> ConfigureUnorderedLists(this List<Tag> tags)
+        public static bool IsNeedToAddUnorderedListTag(this List<Tag> tags, bool inUnorderedList)
         {
-            Tag lastListItem = null;
-            var openTags = tags.Where(x => x.IsOpening);
-            var closeTags = tags.Where(x => !x.IsOpening);
-            var tagPairs = openTags.Zip(closeTags, (x, y) => new
-            {
-                OpenTag = x,
-                CloseTag = y
-            });
-            foreach (var tagPair in tagPairs)
-            {
-                if (lastListItem == null)
-                {
-                    yield return UnorderedListTagHelper.GetTag(tagPair.OpenTag.Position, true);
-                }
-                else if (tagPair.OpenTag.LineNumber - lastListItem.LineNumber != 1)
-                {
-                    yield return UnorderedListTagHelper.GetTag(lastListItem.Position, false);
-                    yield return UnorderedListTagHelper.GetTag(tagPair.OpenTag.Position, true);
-                }
-
-                lastListItem = tagPair.CloseTag;
-                yield return tagPair.OpenTag;
-                yield return tagPair.CloseTag;
-            }
-            if (lastListItem != null)
-                yield return UnorderedListTagHelper.GetTag(lastListItem.Position, false);
+            var tagsIsEmpty = tags.Count == 0;
+            if (!inUnorderedList) 
+                return !tagsIsEmpty && tags[0].Type == TagType.ListItem;
+            return !tagsIsEmpty && tags[0].Type != TagType.ListItem || tagsIsEmpty;
         }
 
         private static IEnumerable<Tag> PairTags(this IEnumerable<Tag> tags, string text)
