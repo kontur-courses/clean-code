@@ -1,6 +1,4 @@
 ﻿using System.Collections.Generic;
-using Markdown.Converter;
-using Markdown.Markup;
 using Markdown.Tags;
 
 namespace Markdown
@@ -12,18 +10,21 @@ namespace Markdown
             {
                 {"_", new Tag("_", "em", "_")},
                 {"__", new Tag("__", "strong", "__")},
-                {"#", new Tag("#", "h1", "\n")}
+                {"# ", new Tag("# ", "h1", "\n")}
             };
+
+        private static readonly HashSet<char> ShieldedSigns = new HashSet<char>
+        {
+            '_', '#', '\\'
+        };
 
         public static string Render(string markupText)
         {
             if (markupText.Length == 0)
                 return markupText;
-            
-            var markupParser = new MarkupParser(SupportedTags);
-            var markupParts = markupParser.ParseMarkup(markupText);
 
-            return MarkupConverter.ConvertToHtmlString(markupParts);
+            var mp = new MarkupParser.MarkupParser(SupportedTags, ShieldedSigns);
+            return mp.ParseMarkup(markupText);
         }
     }
 }

@@ -1,6 +1,4 @@
-﻿using System;
-
-namespace Markdown.TokenSystem
+﻿namespace Markdown.TokenSystem
 {
     public class Token
     {
@@ -13,14 +11,6 @@ namespace Markdown.TokenSystem
             Position = position;
             Length = length;
             Value = value;
-        }
-
-        public static Token operator +(Token token1, Token token2)
-        {
-            return new Token(
-                Math.Min(token1.Position, token2.Position), 
-                token1.Length + token2.Length, 
-                token1.Value + token2.Value);
         }
     }
 }

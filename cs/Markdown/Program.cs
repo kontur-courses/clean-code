@@ -6,8 +6,7 @@ namespace Markdown
     {
         static void Main(string[] args)
         {
-            Console.WriteLine(Md.Render("_text_"));
-            Console.WriteLine(Md.Render("#text\n _text_"));
+            Console.WriteLine(Md.Render("# Заголовок __с _разными_ символами__\n"));
         }
     }
 }

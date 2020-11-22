@@ -1,22 +1,16 @@
 ﻿using System.Collections.Generic;
 using System.Text;
+using Markdown.Tags;
 
 namespace Markdown.Converter
 {
     public static class MarkupConverter
     {
-        public static string ConvertToHtmlString(IEnumerable<Markup.Markup> markupParts)
+        public static string ConvertTagToHtmlString(Tag tag, string value)
         {
-            var stringBuilder = new StringBuilder();
-            
-            foreach (var markup in markupParts)
-            {
-                stringBuilder.Append(markup.Tag != null
-                    ? $"<{markup.Tag.HtmlValue}>{markup.Value}</{markup.Tag.HtmlValue}>"
-                    : markup.Value);
-            }
-
-            return stringBuilder.ToString();
+            return tag != null 
+                ? $"<{tag.HtmlValue}>{value}</{tag.HtmlValue}>"
+                : value;
         }
     }
 }

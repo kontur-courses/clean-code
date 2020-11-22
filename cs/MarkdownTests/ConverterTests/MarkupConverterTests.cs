@@ -1,7 +1,6 @@
 ﻿using System.Collections.Generic;
 using FluentAssertions;
 using Markdown.Converter;
-using Markdown.Markup;
 using Markdown.Tags;
 using NUnit.Framework;
 
@@ -14,24 +13,19 @@ namespace MarkdownTests.ConverterTests
             {
                 {"_", new Tag("_", "em", "_")},
                 {"__", new Tag("__", "strong", "__")},
-                {"#", new Tag("#", "h1", "\n")}
+                {"# ", new Tag("# ", "h1", "\n")}
             };
         
-        [Test]
-        public void ConvertToHtmlString_ReturnHtmlString()
+        [TestCase(null, "Обычный текст", "Обычный текст")]
+        [TestCase("_", "Курсивный текст", "<em>Курсивный текст</em>")]
+        [TestCase("__", "Полужирный текст", "<strong>Полужирный текст</strong>")]
+        [TestCase("# ", "Заголовок", "<h1>Заголовок</h1>")]
+        public void ConvertToHtmlString_ReturnPlainText_WhenTagIsNull(string tag, string text, string expectedMarkup)
         {
-            var expected =
-                "Обычный текст<em>курсивный текст</em><strong>полужирный текст</strong><h1>заголовок</h1>";
-            
-            var converted = MarkupConverter.ConvertToHtmlString(new[]
-            {
-                new Markup("Обычный текст", null),
-                new Markup("курсивный текст", supportedTags["_"]),
-                new Markup("полужирный текст", supportedTags["__"]),
-                new Markup("заголовок", supportedTags["#"])
-            });
+            var markup = MarkupConverter
+                .ConvertTagToHtmlString(tag != null ? supportedTags[tag] : null, text);
 
-            converted.Should().Be(expected);
+            markup.Should().Be(expectedMarkup);
         }
     }
 }
