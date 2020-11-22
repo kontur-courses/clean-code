@@ -134,9 +134,10 @@ namespace Markdown
 
         public static bool IsInsideNumber(string paragraph, int tagPosition, int tagLength)
         {
-            if (tagPosition == 0 || tagPosition + tagLength >= paragraph.Length)
+            var positionAfterTag = tagPosition + tagLength;
+            if (tagPosition == 0 || positionAfterTag >= paragraph.Length)
                 return false;
-            return char.IsDigit(paragraph[tagPosition - 1]) && char.IsDigit(paragraph[tagPosition + tagLength]);
+            return char.IsDigit(paragraph[tagPosition - 1]) && char.IsDigit(paragraph[positionAfterTag]);
         }
 
         private static bool IsAfterWhiteSpace(string paragraph, int tagPosition)
@@ -148,16 +149,18 @@ namespace Markdown
 
         private static bool IsBeforeWhiteSpace(string paragraph, int tagPosition, int tagLength)
         {
-            if (tagPosition + tagLength >= paragraph.Length)
+            var positionAfterTag = tagPosition + tagLength;
+            if (positionAfterTag >= paragraph.Length)
                 return true;
-            return paragraph[tagPosition + tagLength] == ' ';
+            return paragraph[positionAfterTag] == ' ';
         }
 
         private static bool IsInsideWord(string paragraph, int tagPosition, int tagLength)
         {
             var isLetterOnTheLeft = tagPosition == 0 || char.IsLetter(paragraph[tagPosition - 1]);
-            var isLetterOnTheRight = tagPosition + tagLength < paragraph.Length
-                                     && char.IsLetter(paragraph[tagPosition + tagLength]);
+            var positionAfterTag = tagPosition + tagLength;
+            var isLetterOnTheRight = positionAfterTag < paragraph.Length
+                                     && char.IsLetter(paragraph[positionAfterTag]);
             return isLetterOnTheLeft && isLetterOnTheRight;
         }
 
