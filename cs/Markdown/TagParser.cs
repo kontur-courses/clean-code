@@ -1,5 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Linq;
 
@@ -7,7 +6,6 @@ namespace Markdown
 {
     public static class TagParser
     {
-
         private static readonly Dictionary<TagType, TagHelper> supportedTags = new Dictionary<TagType, TagHelper>
         {
             [TagType.Italic] = new ItalicTagHelper(),

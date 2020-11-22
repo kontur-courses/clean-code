@@ -13,13 +13,13 @@ namespace Markdown
                 .RemoveIntersectingPairTags()
                 .RemoveBoldTagsInItalicTags();
             var notPairedTags = tags.Where(x => !x.IsMdPaired);
-            return pairedTags.Concat(notPairedTags).OrderBy(x=>x.Position).ToList();
+            return pairedTags.Concat(notPairedTags).OrderBy(x => x.Position).ToList();
         }
 
         public static bool IsNeedToAddUnorderedListTag(this List<Tag> tags, bool inUnorderedList)
         {
             var tagsIsEmpty = tags.Count == 0;
-            if (!inUnorderedList) 
+            if (!inUnorderedList)
                 return !tagsIsEmpty && tags[0].Type == TagType.ListItem;
             return !tagsIsEmpty && tags[0].Type != TagType.ListItem || tagsIsEmpty;
         }

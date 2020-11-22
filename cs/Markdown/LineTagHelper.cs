@@ -4,13 +4,13 @@ namespace Markdown
 {
     public abstract class LineTagHelper : TagHelper
     {
+        private readonly TagType tagType;
+
         protected LineTagHelper(string mdTag, string htmlTag, TagType tagType)
             : base(mdTag, htmlTag)
         {
             this.tagType = tagType;
         }
-
-        private readonly TagType tagType;
 
         public override bool TryParse(int position, string text, out Tag tag, bool inWord = false)
         {

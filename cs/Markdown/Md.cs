@@ -29,6 +29,7 @@ namespace Markdown
                     string.Empty, new List<Tag> {UnorderedListTagHelper.GetTag(0, false)});
                 renderedParagraphs.Add(renderedUnorderedListTag);
             }
+
             return string.Join(Environment.NewLine, renderedParagraphs);
         }
 

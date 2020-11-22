@@ -29,7 +29,7 @@ namespace Markdown
         {
             return Md.Render(input);
         }
-        
+
         [TestCase("# _asd_", ExpectedResult = "<h1><em>asd</em></h1>", TestName = "when paragraph is header")]
         [TestCase("* _asd_", ExpectedResult = "<ul>\r\n<li><em>asd</em></li>\r\n</ul>",
             TestName = "when paragraph is list item")]
