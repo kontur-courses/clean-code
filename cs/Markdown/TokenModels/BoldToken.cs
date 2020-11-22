@@ -26,7 +26,7 @@ namespace Markdown.TokenModels
         {
             endIndex = startIndex;
             var hasIntersectionWithItalicTag = false;
-
+            //f__oo ba__r
             while (mdString.IsCharInsideString(endIndex + 1) && !AreDoubleUnderscore(mdString, endIndex))
             {
                 endIndex++;
@@ -38,7 +38,8 @@ namespace Markdown.TokenModels
         }
 
         private static bool DoesntPassValidation(string mdString, int startIndex, int endIndex) =>
-            endIndex - startIndex <= 2 || mdString.HasWhiteSpaceAt(endIndex - 1);
+            endIndex - startIndex <= 2 || mdString.HasWhiteSpaceAt(endIndex - 1) ||
+            mdString.HasSelectionPartWordInDifferentWords(startIndex, endIndex);
 
         private static bool AreDoubleUnderscore(string mdString, int endIndex) =>
             mdString.HasUnderscoreAt(endIndex) && mdString.HasUnderscoreAt(endIndex + 1);

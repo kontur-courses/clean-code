@@ -34,6 +34,10 @@ namespace MarkdownTests
         public void GetMdTokenLength_SomeItalicTokens_ReturnsCorrectInt(string rawToken, int startIndex, int expected) =>
             ItalicToken.Create(rawToken, startIndex).MdTokenLength.Should().Be(expected);
 
+        [Test]
+        public void Create_HasSelectionOfPartWordInDifferentWords_ReturnsNull() =>
+            ItalicToken.Create("f_oo b_ar", 1).Should().BeNull();
+
         private static string GetNewItalicTokenAsHtml(string input, int startIndex) =>
             ItalicToken.Create(input, startIndex).ToHtmlString();
     }

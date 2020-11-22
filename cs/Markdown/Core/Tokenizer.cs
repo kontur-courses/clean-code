@@ -18,11 +18,11 @@ namespace Markdown.Core
                 yield break;
             }
 
-            foreach (var token in GetAllTokens(mdText))
+            foreach (var token in GetAllAnotherTokens(mdText))
                 yield return token;
         }
 
-        private static IEnumerable<IToken> GetAllTokens(string mdText)
+        private static IEnumerable<IToken> GetAllAnotherTokens(string mdText)
         {
             var isEscapedTag = false;
             var collector = new StringBuilder();
@@ -81,13 +81,8 @@ namespace Markdown.Core
             return mdText[i] is EscapeChar && canNextCharBeEscaped;
         }
 
-        private static bool IsNotTag(string mdText, int i)
-        {
-            var isAfterItalicTokenNonSpaceChar = mdText.IsCharInsideString(i + 1) && !mdText.HasWhiteSpaceAt(i + 1);
-            var isAfterBoldTagNonSpaceChar = mdText.IsCharInsideString(i + 2) && !mdText.HasWhiteSpaceAt(i + 2);
-            return !(OpenTagChars.Contains(mdText[i])
-                     && !mdText.HasUnderscoreAt(i - 1) && isAfterItalicTokenNonSpaceChar
-                     && isAfterBoldTagNonSpaceChar);
-        }
+        private static bool IsNotTag(string mdText, int i) =>
+            !(OpenTagChars.Contains(mdText[i]) && !mdText.HasUnderscoreAt(i - 1) && mdText.HasNonWhiteSpaceAt(i + 1) &&
+              mdText.HasNonWhiteSpaceAt(i + 2));
     }
 }

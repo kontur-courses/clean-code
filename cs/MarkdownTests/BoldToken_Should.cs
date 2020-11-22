@@ -29,7 +29,11 @@ namespace MarkdownTests
         [TestCase("some __wrapped__ text", 5, 11)]
         public void GetLength_SomeItalicTokens_ReturnsCorrectInt(string rawToken, int startIndex, int expected) =>
             BoldToken.Create(rawToken, startIndex).MdTokenLength.Should().Be(expected);
-        
+
+        [Test]
+        public void Create_HasTagsInDifferentWords_ReturnsNull() =>
+            BoldToken.Create("h__as whit__espace", 1).Should().BeNull();
+
         private static string GetNewBoldTokenAsHtml(string input, int startIndex) =>
             BoldToken.Create(input, startIndex).ToHtmlString();
     }
