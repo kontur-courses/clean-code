@@ -1,6 +1,5 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
-using System.Linq;
 using System.Text;
 
 namespace Markdown
@@ -40,53 +39,54 @@ namespace Markdown
             return GetEnumerator();
         }
 
-        // Тут просто неформатированный выброс мыслей, всё очень страшно
         private void ParseToToken()
         {
             tokens.Clear();
             if (string.IsNullOrEmpty(text))
                 return;
-            var currentType = GetTokenType(text.First());
+            var currentType = GetTokenOnIndex(0);
             var builder = new StringBuilder();
             var tokenIndex = 0;
             var shieldNext = false;
+
+            bool Clear(int next, TokenType type)
+            {
+                builder.Clear();
+                tokenIndex = next;
+                currentType = type;
+                return tokenIndex < text.Length;
+            }
+
             for (var i = 0; i < text.Length; ++i)
             {
                 if (!shieldNext && markdown.IsStartOfTag(text[i]))
                 {
                     AddToken(currentType, builder.ToString(), tokenIndex);
                     var tagToken = ReadTagToken(i);
-                    builder.Clear();
-                    tokenIndex = i = tagToken.StartIndex + tagToken.Length;
-                    if (i >= text.Length)
+                    if (!Clear(i += tagToken.Length, GetTokenOnIndex(i)))
                         break;
-                    currentType = GetTokenType(text[i]);
                 }
-                var type = GetTokenType(text[i]);
+                var type = GetTokenOnIndex(i);
                 if (currentType != type)
                 {
                     AddToken(currentType, builder.ToString(), tokenIndex);
-                    builder.Clear();
-                    tokenIndex = i;
-                    currentType = type;
+                    Clear(i, type);
                 }
 
-                if (!shieldNext && text[i] == '\\')
-                    shieldNext = true;
-                else
-                    shieldNext = false;
-                if (i + 1 >= text.Length || !shieldNext || !markdown.IsShieldSymbol(text[i + 1]))
+                shieldNext = !shieldNext && text[i] == '\\';
+
+                if (!shieldNext || i + 1 >= text.Length || !markdown.IsShieldSymbol(text[i + 1]))
                     builder.Append(text[i]);
             }
-
-            AddToken(currentType, builder.ToString(), tokenIndex);
+            if (builder.Length > 0)
+                AddToken(currentType, builder.ToString(), tokenIndex);
         }
 
         private Token ReadTagToken(int index)
         {
             var builder = new StringBuilder();
             var i = index;
-            string currentValid = null;
+            string currentValid;
             do
             {
                 builder.Append(text[i]);
@@ -94,6 +94,11 @@ namespace Markdown
                 ++i;
             } while (i < text.Length && markdown.ContainsTag(builder.ToString() + text[i], out _));
             return AddToken(TokenType.Tag, currentValid, index);
+        }
+
+        private Token ReadToken(int index)
+        {
+            return null;
         }
 
         private Token AddToken(TokenType type, string value, int index)
@@ -104,15 +109,20 @@ namespace Markdown
             return token;
         }
 
-        private TokenType GetTokenType(char value)
+        private TokenType GetTokenOnIndex(int index)
         {
+            if (index >= text.Length)
+                return TokenType.Undefined;
+            var value = text[index];
             if (value == '\n')
                 return TokenType.BreakLine;
             if (char.IsWhiteSpace(value))
                 return TokenType.Space;
-            return char.IsLetterOrDigit(value)
-                ? TokenType.Word
-                : TokenType.SymbolSet;
+            if (char.IsNumber(value))
+                return TokenType.Number;
+            if (char.IsLetter(value))
+                return TokenType.Word;
+            return TokenType.SymbolSet;
         }
     }
 }

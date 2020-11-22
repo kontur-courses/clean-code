@@ -35,13 +35,18 @@ namespace TextFormattersTests
         [TestCase("#NotTitle", "#NotTitle")]
         [TestCase("__hello _world_ !__", "<strong>hello <em>world</em> !</strong>")]
         [TestCase(@"\_hello\_", "_hello_")]
+        [TestCase("hel_lo worl_d", "hel_lo worl_d")]
+        [TestCase("hel_1_o", "hel_1_o")]
         [TestCase(@"hel\lo", @"hel\lo")]
         [TestCase(@"\\_hello_", @"\<em>hello</em>")]
-        [TestCase("* hello\n* world", "<ul><li>hello</li>\n<li>world</li></ul>")]
+        [TestCase("__hello_ __world_", "__hello_ __world_")]
+        [TestCase("* hello\n* world* 1\n* 2", "<ul><li>hello</li>\n<li>world</li>\n<li>1</li>\n<li>2</li></ul>")]
+        [TestCase("* he_ll_o\n* world", "<ul><li>he<em>ll</em>o</li>\n<li>world</li></ul>")]
+        [TestCase("* hello\n* world\n", "<ul><li>hello</li>\n<li>world</li></ul>\n")]
         public void SpecificationTests(string md, string html)
         {
             var actual = markdown.Render(md);
-            actual.Should().Be(html);
+            Assert.AreEqual(html, actual);
         }
     }
 }
