@@ -1,27 +1,23 @@
-﻿using System.Linq;
+﻿using System.Collections.Generic;
+using System.Linq;
 using System.Text;
 
 namespace Markdown
 {
     public static class Markdown
     {
-        private static readonly string[] Markdowns = {"#", "_", "__"};
+        private static readonly ISet<string> Markdowns = new SortedSet<string>(new[] {"#", "_", "__"});
 
         public static string Render(string markdownText)
         {
-            var paragraphs = markdownText.Split('\n');
-            var htmlText = new StringBuilder();
-            foreach (var paragraph in paragraphs)
+            var htmlText = markdownText;
+            var allTags = MarkdownTextAnalyzer.GetAllTags(markdownText).OrderByDescending(tag => tag.Position);
+            foreach (var tag in allTags)
             {
-                var tokens = MarkdownTextAnalyzer.GetTokens(paragraph);
-                var htmlParagraph = paragraph;
-                tokens = tokens.OrderBy(token => token.StartPosition);
-                foreach (var token in tokens)
-                    htmlParagraph = HtmlCreator.AddHtmlTagToText(htmlParagraph, token);
-                htmlText.Append(htmlParagraph);
+                htmlText = HtmlCreator.AddHtmlTagToText(htmlText, tag);
             }
 
-            return GetHtmlTextWithoutEscapingSymbols(htmlText.ToString());
+            return GetHtmlTextWithoutEscapingSymbols(htmlText);
         }
 
         private static string GetHtmlTextWithoutEscapingSymbols(string htmlText)

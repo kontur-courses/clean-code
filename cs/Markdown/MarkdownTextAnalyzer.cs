@@ -5,87 +5,93 @@ namespace Markdown
 {
     public static class MarkdownTextAnalyzer
     {
-        public static readonly Dictionary<string, Styles> MarkdownStyles = new Dictionary<string, Styles>
+        public static readonly Dictionary<string, string> MarkdownWithTagsNames = new Dictionary<string, string>
         {
-            {"_", Styles.Italic}, {"__", Styles.Bold}, {"#", Styles.Title}
+            {"_", "em"}, {"__", "strong"}, {"#", "h1"}
         };
 
-        public static IEnumerable<Token> GetTokens(string text)
+        public static List<Tag> GetAllTags(string markdownText)
         {
-            var result = new List<Token>();
-            if (IsItTitle(text))
-                result.Add(new Token(text.Substring(1), Styles.Title, "#", 1, text.Length));
-            result.AddRange(GetBoldAndItalicTokens(text));
-
+            var result = new List<Tag>();
+            result.AddRange(GetTitleTags(markdownText));
+            result.AddRange(GetTagsForPairSeparators(markdownText));
             return result;
         }
 
-        private static IEnumerable<Token> GetBoldAndItalicTokens(string text)
+        private static IEnumerable<Tag> GetTitleTags(string markdownText)
         {
-            var separatorsWithPositions = new Stack<Separator>();
-            var result = new List<Token>();
-            for (var i = 0; i < text.Length; i++)
-                if (text[i] == '_')
+            var isItTitle = false;
+            var titleStart = 0;
+            var tagName = MarkdownWithTagsNames["#"];
+            for (var i = 0; i < markdownText.Length; i++)
+            {
+                if (markdownText[i] == '#')
                 {
-                    var currentSeparator = i < text.Length - 1 && text[i + 1] == '_'
-                        ? new Separator("__", i)
-                        : new Separator("_", i);
-                    var separatorLength = currentSeparator.Value.Length;
-                    if (separatorsWithPositions.Any() && separatorsWithPositions.Peek().Value == currentSeparator.Value)
+                    isItTitle = true;
+                    titleStart = i;
+                }
+
+                if ((markdownText[i] == '\n' || i == markdownText.Length - 1) && isItTitle)
+                {
+                    yield return new Tag($"<{tagName}>", markdownText, titleStart, "#");
+                    yield return new Tag($"</{tagName}>", markdownText, i + 1);
+                    isItTitle = false;
+                }
+            }
+        }
+
+        private static IEnumerable<Tag> GetTagsForPairSeparators(string markdownText)
+        {
+            var separators = new Stack<ISeparator>();
+            for (var i = 0; i < markdownText.Length; i++)
+            {
+                var currentSeparator = GetCurrentSeparator(markdownText, i);
+                if (currentSeparator != null)
+                {
+                    if (IsItClosingSeparator(currentSeparator, separators))
                     {
-                        var lastSeparatorWithPosition = separatorsWithPositions.Pop();
-                        var value = text.Substring(
-                            lastSeparatorWithPosition.PositionInText + separatorLength,
-                            i - lastSeparatorWithPosition.PositionInText - separatorLength);
-                        var token = new Token(value, MarkdownStyles[currentSeparator.Value], currentSeparator.Value,
-                            lastSeparatorWithPosition.PositionInText, i);
-                        var boldIsInsideItalic = separatorsWithPositions.Any() && token.Separator == "__" &&
-                                                 separatorsWithPositions.Peek().Value == "_";
-                        if (IsItalicOrBoldTokenCorrect(token, lastSeparatorWithPosition, currentSeparator, text) &&
-                            !boldIsInsideItalic)
-                            result.Add(token);
+                        var openingSeparator = separators.Pop();
+                        var tagName = MarkdownWithTagsNames[currentSeparator.Value];
+                        if (openingSeparator.IsItCorrectOpeningSeparator() &&
+                            currentSeparator.IsItCorrectClosingSeparator() &&
+                            currentSeparator.IsSeparatorsInteractionCorrect(openingSeparator, separators))
+                        {
+                            yield return new Tag($"<{tagName}>", markdownText, openingSeparator.Position,
+                                openingSeparator.Value);
+                            yield return new Tag($"</{tagName}>", markdownText, currentSeparator.Position,
+                                currentSeparator.Value);
+                        }
                     }
                     else
                     {
-                        separatorsWithPositions.Push(currentSeparator);
+                        separators.Push(currentSeparator);
                     }
 
-                    i += separatorLength - 1;
+                    i += currentSeparator.Value.Length;
                 }
-                else if (text[i] == '\\')
+                else if (markdownText[i] == '\\')
                 {
                     i++;
                 }
-
-            return result;
+                else if (markdownText[i] == '\n')
+                {
+                    separators = new Stack<ISeparator>();
+                }
+            }
         }
 
-        private static bool IsSeparatorInsideWord(Separator separator, string text)
+        private static bool IsItClosingSeparator(ISeparator separator, Stack<ISeparator> separators)
         {
-            return separator.PositionInText > 0 && char.IsLetter(text[separator.PositionInText - 1]) &&
-                   separator.PositionInText + separator.Value.Length < text.Length &&
-                   char.IsLetter(text[separator.PositionInText + separator.Value.Length]);
+            return separators.Any() && separators.Peek().Value == separator.Value;
         }
 
-        private static bool IsItalicOrBoldTokenCorrect(Token token, Separator startSeparator, Separator endSeparator, string text)
+        private static ISeparator GetCurrentSeparator(string text, int position)
         {
-            if (token.Value == "")
-                return false;
-            if ((IsSeparatorInsideWord(startSeparator, text) || IsSeparatorInsideWord(endSeparator, text)) &&
-                token.Value.Contains(' '))
-                return false;
-            if (token.Value[0] == ' ' || token.Value.Last() == ' ')
-                return false;
-            var allSymbolsInTokenValueAreDigits = true;
-            foreach (var symbol in token.Value)
-                if (!char.IsDigit(symbol))
-                    allSymbolsInTokenValueAreDigits = false;
-            return !allSymbolsInTokenValueAreDigits;
-        }
-
-        private static bool IsItTitle(string paragraph)
-        {
-            return paragraph[0] == '#' && paragraph.Length > 1;
+            if (text[position] == '_')
+                return position + 1 < text.Length && text[position + 1] == '_'
+                    ? new BoldSeparator(position, text)
+                    : new ItalicSeparator(position, text);
+            return null;
         }
     }
 }

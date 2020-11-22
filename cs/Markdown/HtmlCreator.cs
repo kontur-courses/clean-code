@@ -1,28 +1,18 @@
-﻿using System.Collections.Generic;
-using System.Text;
+﻿using System.Text;
 
 namespace Markdown
 {
     public static class HtmlCreator
     {
-        public static readonly Dictionary<Styles, string> StylesWithHtmlTags = new Dictionary<Styles, string>
-        {
-            {Styles.Italic, "em"}, {Styles.Bold, "strong"}, {Styles.Title, "h1"}
-        };
-
-        public static string AddHtmlTagToText(string text, Token token)
+        public static string AddHtmlTagToText(string text, Tag tag)
         {
             var textStringBuilder = new StringBuilder(text);
-            var tag = StylesWithHtmlTags[token.Style];
-            if (token.EndPosition != null)
-            {
-                if (token.EndPosition < text.Length)
-                    textStringBuilder.Replace($"{token.Separator}{token.Value}{token.Separator}",
-                        $"<{tag}>{token.Value}</{tag}>");
-                else
-                    textStringBuilder.Replace($"{token.Separator}{token.Value}",
-                        $"<{tag}>{token.Value}</{tag}>");
-            }
+            if (tag.Markdown != null) textStringBuilder.Remove(tag.Position, tag.Markdown.Length);
+
+            if (tag.Position > text.Length)
+                textStringBuilder.Append(tag.Value);
+            else
+                textStringBuilder.Insert(tag.Position, tag.Value);
 
             return textStringBuilder.ToString();
         }
