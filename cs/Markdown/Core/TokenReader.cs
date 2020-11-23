@@ -8,11 +8,11 @@ namespace Markdown
 
         public IEnumerable<Token> ReadTokens(string text)
         {
-            var pareserOperator = new ParserOperator();
+            var parserOperator = new ParserOperator();
             var splittedText = text.SplitKeepSeparators(new[] { '_', '#', '\\' }).UnionSameStringByTwo("#");
             foreach (var bigram in splittedText.GetBigrams())
-                pareserOperator.AddTokenPart(bigram);
-            return pareserOperator.GetTokens();
+                parserOperator.AddTokenPart(bigram);
+            return parserOperator.GetTokens();
         }
 
         public static bool IsFormattingString(string c)

@@ -7,6 +7,7 @@ namespace Markdown.Parsers
 {
     public class HeaderParser : TokenParser
     {
+        private int offset;
         public HeaderParser()
         {
             nestedTokenValidator = new HashSet<string>() { "__", "_", "\\" }.Contains;
@@ -15,25 +16,25 @@ namespace Markdown.Parsers
             type = TokenType.Header;
         }
 
-        public override Token ParseToken(List<Part> text, int position)
+        public override Token ParseToken(List<TokenPart> text, int position)
         {
             var tokenValue = new StringBuilder();
             if (PartBeforeTokenStart != null && PartBeforeTokenStart != "\\\\" || position != 0)
             {
                 tokenValue.Append("#");
+                offset = 1;
                 return ParseToken(text, position, tokenValue, TokenType.Simple);
             }
             return ParseToken(text, position, tokenValue, TokenType.Header);
         }
 
-        protected override void CollectToken(List<Part> text, StringBuilder tokenValue, ParserOperator parserOperator)
+        protected override void CollectToken(List<TokenPart> text, StringBuilder tokenValue, ParserOperator parserOperator)
         {
             var isIntoToken = false;
-            var offset = 0;
             foreach (var bigram in text.GetBigrams())
             {
-                var part = bigram.Item1;
-                if (part.Escaped)
+                var part = bigram.Previous;
+                if (part.NoNeedToParse)
                 {
                     tokenValue.Append(part.Value);
                     offset += part.Value.Length;

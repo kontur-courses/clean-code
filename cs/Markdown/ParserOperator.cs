@@ -18,7 +18,7 @@ namespace Markdown
         private string nextPart;
 
         private bool skip;
-        private List<Part> partialValue = new List<Part>();
+        private List<TokenPart> partialValue = new List<TokenPart>();
 
         public ParserOperator()
         {
@@ -28,29 +28,26 @@ namespace Markdown
             InitParsers();
         }
 
-        public void AddTokenPart(Tuple<string, string> bigram)
+        public void AddTokenPart((string Previous, string Current) bigram)
         {
             if (skip)
             {
                 skip = false;
                 return;
             }
-            if (bigram.Item1 == "\\")
+            if (bigram.Item1 == @"\")
                 OperateEscaped(bigram);
-            else if (bigram.Item1 == "\\\\")
-                if (!isTokenOpen)
-                    AddSimpleToken(new Part("\\", true));
-                else
-                    partialValue.Add(new Part("\\", true));
+            else if (bigram.Previous == @"\\")
+                AddEscapedPart(new TokenPart(@"\", true));
             else
-                AddTokenPart(Tuple.Create(new Part(bigram.Item1), new Part(bigram.Item2)));
-            previousPart = bigram.Item1;
+                AddTokenPart((new TokenPart(bigram.Previous), new TokenPart(bigram.Current)));
+            previousPart = bigram.Previous;
         }
 
-        public void AddTokenPart(Tuple<Part, Part> bigram)
+        public void AddTokenPart((TokenPart Previous, TokenPart Current) bigram)
         {
-            var part = bigram.Item1;
-            nextPart = bigram.Item2 != null ? bigram.Item2.Value : null;
+            var part = bigram.Previous;
+            nextPart = bigram.Current?.Value;
             if (parsers.ContainsKey(part.Value) && !isTokenOpen)
                 TokenOpen(part);
             else if (parsers.ContainsKey(part.Value) && isTokenOpen)
@@ -71,7 +68,7 @@ namespace Markdown
             parsers["#"] = header;
         }
 
-        private void TokenOpen(Part part)
+        private void TokenOpen(TokenPart part)
         {
             isTokenOpen = true;
             stack.Push(part.Value);
@@ -79,7 +76,7 @@ namespace Markdown
             currentParser.PartBeforeTokenStart = previousPart;
         }
 
-        private void TokenEnd(Part part)
+        private void TokenEnd(TokenPart part)
         {
             if (stack.Peek() == part.Value && part.Value != "#")
                 StartParse();
@@ -87,7 +84,7 @@ namespace Markdown
                 partialValue.Add(part);
         }
 
-        private void AddSimpleToken(Part text)
+        private void AddSimpleToken(TokenPart text)
         {
             tokens.Add(new Token(Position, text.Value, TokenType.Simple));
         }
@@ -123,15 +120,20 @@ namespace Markdown
         public static bool IsCorrectStart(string text) => !text.StartsWith(" ");
         public static bool IsCorrectEnd(string text) => !text.EndsWith(" ");
 
-        public void OperateEscaped(Tuple<string, string> bigram)
+        public void OperateEscaped((string Previous, string Current) bigram)
         {
-            if (!TokenReader.IsFormattingString(bigram.Item2))
-                partialValue.Add(new Part(bigram.Item1 + bigram.Item2, true));
-            else if (isTokenOpen)
-                partialValue.Add(new Part(bigram.Item2, true));
+            if (!parsers.ContainsKey(bigram.Current))
+                AddEscapedPart(new TokenPart(bigram.Previous + bigram.Current, true));
             else
-                AddSimpleToken(new Part(bigram.Item2, true));
+                AddEscapedPart(new TokenPart(bigram.Current, true));
             skip = true;
+        }
+        private void AddEscapedPart(TokenPart part)
+        {
+            if (isTokenOpen)
+                partialValue.Add(part);
+            else
+                AddSimpleToken(part);
         }
 
         private void AddAllParts()

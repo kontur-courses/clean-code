@@ -18,7 +18,7 @@ namespace Markdown
         protected string formattingString;
         protected TokenType type;
 
-        public virtual Token ParseToken(List<Part> text, int position)
+        public virtual Token ParseToken(List<TokenPart> text, int position)
         {
             var tokenValue = new StringBuilder();
             if (IsTokenCorrupted)
@@ -29,7 +29,7 @@ namespace Markdown
             return ParseToken(text, position, tokenValue, type);
         }
 
-        protected Token ParseToken(List<Part> text, int position,
+        protected Token ParseToken(List<TokenPart> text, int position,
             StringBuilder tokenValue, TokenType type)
         {
             var parserOperator = new ParserOperator();
@@ -52,15 +52,15 @@ namespace Markdown
             return token;
         }
 
-        protected virtual void CollectToken(List<Part> text,
+        protected virtual void CollectToken(List<TokenPart> text,
             StringBuilder tokenValue, ParserOperator parserOperator)
         {
             var isIntoToken = false;
             var offset = IsTokenCorrupted ? corruptedOffset : 0;
             foreach (var bigram in text.GetBigrams())
             {
-                var part = bigram.Item1;
-                if (part.Escaped)
+                var part = bigram.Previous;
+                if (part.NoNeedToParse)
                 {
                     tokenValue.Append(part.Value);
                     offset += part.Value.Length;
@@ -92,7 +92,7 @@ namespace Markdown
             value.Append(formattingString);
         }
 
-        private bool CheckCorrectDeclaration(string start, string end)
+        private static bool CheckCorrectDeclaration(string start, string end)
         {
             if (start == null && end == null) return true;
             return ParserOperator.IsCorrectEnd(end) &&

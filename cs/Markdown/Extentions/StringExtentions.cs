@@ -9,21 +9,21 @@ namespace Markdown
         public static List<string> SplitKeepSeparators(this string str, char[] separators)
         {
             var separatorsSet = new HashSet<char>(separators);
-            var splittedString = new List<string>();
+            var splitString = new List<string>();
             var part = new StringBuilder();
             foreach (var chr in str)
                 if (separatorsSet.Contains(chr))
                 {
                     if (part.Length != 0)
-                        splittedString.Add(part.ToString());
-                    splittedString.Add(chr.ToString());
+                        splitString.Add(part.ToString());
+                    splitString.Add(chr.ToString());
                     part.Clear();
                 }
                 else
                     part.Append(chr);
             if (part.Length != 0)
-                splittedString.Add(part.ToString());
-            return splittedString;
+                splitString.Add(part.ToString());
+            return splitString;
         }
 
         public static List<string> UnionSameStringByTwo(this List<string> splittedString, params string[] without)
