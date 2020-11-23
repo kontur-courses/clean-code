@@ -1,6 +1,5 @@
 ﻿using Markdown.Core;
 using Markdown.Parsers;
-using System;
 using System.Collections.Generic;
 using System.Linq;
 
@@ -35,7 +34,7 @@ namespace Markdown
                 skip = false;
                 return;
             }
-            if (bigram.Item1 == @"\")
+            if (bigram.Previous == @"\")
                 OperateEscaped(bigram);
             else if (bigram.Previous == @"\\")
                 AddEscapedPart(new TokenPart(@"\", true));
@@ -128,6 +127,7 @@ namespace Markdown
                 AddEscapedPart(new TokenPart(bigram.Current, true));
             skip = true;
         }
+
         private void AddEscapedPart(TokenPart part)
         {
             if (isTokenOpen)
