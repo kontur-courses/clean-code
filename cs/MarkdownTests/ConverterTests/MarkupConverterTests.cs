@@ -20,7 +20,7 @@ namespace MarkdownTests.ConverterTests
         [TestCase("_", "Курсивный текст", "<em>Курсивный текст</em>")]
         [TestCase("__", "Полужирный текст", "<strong>Полужирный текст</strong>")]
         [TestCase("# ", "Заголовок", "<h1>Заголовок</h1>")]
-        public void ConvertToHtmlString_ReturnPlainText_WhenTagIsNull(string tag, string text, string expectedMarkup)
+        public void ConvertToHtmlString_ReturnHtmlMarkup(string tag, string text, string expectedMarkup)
         {
             var markup = MarkupConverter
                 .ConvertTagToHtmlString(tag != null ? supportedTags[tag] : null, text);
