@@ -12,10 +12,7 @@ namespace Markdown
         {
             var htmlText = markdownText;
             var allTags = MarkdownTextAnalyzer.GetAllTags(markdownText).OrderByDescending(tag => tag.Position);
-            foreach (var tag in allTags)
-            {
-                htmlText = HtmlCreator.AddHtmlTagToText(htmlText, tag);
-            }
+            foreach (var tag in allTags) htmlText = HtmlCreator.AddHtmlTagToText(htmlText, tag);
 
             return GetHtmlTextWithoutEscapingSymbols(htmlText);
         }

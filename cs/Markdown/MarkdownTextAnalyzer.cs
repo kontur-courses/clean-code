@@ -25,7 +25,7 @@ namespace Markdown
             var tagName = MarkdownWithTagsNames["#"];
             for (var i = 0; i < markdownText.Length; i++)
             {
-                if (markdownText[i] == '#')
+                if (markdownText[i] == '#' && (i == 0 || markdownText[i - 1] == '\n'))
                 {
                     isItTitle = true;
                     titleStart = i;
@@ -33,8 +33,8 @@ namespace Markdown
 
                 if ((markdownText[i] == '\n' || i == markdownText.Length - 1) && isItTitle)
                 {
-                    yield return new Tag($"<{tagName}>", markdownText, titleStart, "#");
-                    yield return new Tag($"</{tagName}>", markdownText, i + 1);
+                    yield return new Tag($"<{tagName}>", titleStart, "#");
+                    yield return new Tag($"</{tagName}>", i + 1);
                     isItTitle = false;
                 }
             }
@@ -52,14 +52,20 @@ namespace Markdown
                     {
                         var openingSeparator = separators.Pop();
                         var tagName = MarkdownWithTagsNames[currentSeparator.Value];
+                        var interactionIsCorrect =
+                            currentSeparator.IsSeparatorsInteractionCorrect(openingSeparator, separators);
                         if (openingSeparator.IsItCorrectOpeningSeparator() &&
                             currentSeparator.IsItCorrectClosingSeparator() &&
-                            currentSeparator.IsSeparatorsInteractionCorrect(openingSeparator, separators))
+                            interactionIsCorrect)
                         {
-                            yield return new Tag($"<{tagName}>", markdownText, openingSeparator.Position,
+                            yield return new Tag($"<{tagName}>", openingSeparator.Position,
                                 openingSeparator.Value);
-                            yield return new Tag($"</{tagName}>", markdownText, currentSeparator.Position,
+                            yield return new Tag($"</{tagName}>", currentSeparator.Position,
                                 currentSeparator.Value);
+                        }
+                        else if (interactionIsCorrect)
+                        {
+                            separators.Push(openingSeparator);
                         }
                     }
                     else

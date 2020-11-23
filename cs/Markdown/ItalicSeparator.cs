@@ -19,12 +19,12 @@ namespace Markdown
         {
             var nextPosition = Position + Value.Length;
             return nextPosition < Text.Length &&
-                   Text[nextPosition] != ' ' && !IsSeparatorInsideNumber();
+                   Text[nextPosition] != ' ' && !IsSeparatorInsideTextWithDigits();
         }
 
         public bool IsItCorrectClosingSeparator()
         {
-            return Text[Position - 1] != ' ' && !IsSeparatorInsideNumber();
+            return Text[Position - 1] != ' ' && !IsSeparatorInsideTextWithDigits();
             ;
         }
 
@@ -33,12 +33,15 @@ namespace Markdown
             return !AreSeparatorsInsideDifferentWords((ItalicSeparator) openingSeparator);
         }
 
-        private bool IsSeparatorInsideNumber()
+        private bool IsSeparatorInsideTextWithDigits()
         {
             var previousPosition = Position - 1;
             var nextPosition = Position + Value.Length;
-            return previousPosition > 0 && char.IsDigit(Text[previousPosition]) && nextPosition < Text.Length &&
-                   char.IsDigit(Text[nextPosition]);
+            return previousPosition > 0 &&
+                   (char.IsDigit(Text[previousPosition]) || char.IsLetter(Text[previousPosition])) &&
+                   nextPosition < Text.Length &&
+                   (char.IsDigit(Text[nextPosition]) || char.IsLetter(Text[nextPosition])) &&
+                   (char.IsDigit(Text[nextPosition]) || char.IsDigit(Text[previousPosition]));
         }
 
         private bool IsSeparatorInsideWord()

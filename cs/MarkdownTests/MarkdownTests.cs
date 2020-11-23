@@ -12,7 +12,7 @@ namespace MarkdownTests
         [TestCase("__a _b_ c__", ExpectedResult = "<strong>a <em>b</em> c</strong>",
             TestName = "WhenItalicIsInsideBold")]
         [TestCase("_a __b__ c_", ExpectedResult = "<em>a __b__ c</em>", TestName = "WhenBoldIsInsideItalic")]
-        [TestCase("_12_3", ExpectedResult = "_12_3", TestName = "WhenMarkdownIsInsideDigits")]
+        [TestCase("_e_1_", ExpectedResult = "<em>e_1</em>", TestName = "WhenMarkdownIsInsideTextWithDigits")]
         [TestCase("_a_b a_b_c a_b_", ExpectedResult = "<em>a</em>b a<em>b</em>c a<em>b</em>",
             TestName = "WhenMarkdownsAreInsideWord")]
         [TestCase("a_b a_b", ExpectedResult = "a_b a_b", TestName = "WhenMarkdownsAreInsideDifferentWord")]
@@ -24,7 +24,8 @@ namespace MarkdownTests
         [TestCase("# a", ExpectedResult = "<h1> a</h1>", TestName = "WhenTitle")]
         [TestCase("# a __b _c_ d__", ExpectedResult = "<h1> a <strong>b <em>c</em> d</strong></h1>",
             TestName = "WhenTitleWithAnotherMarkdowns")]
-        public string Render_WhenTitleMarkdown(string markdownText)
+        [TestCase("a # a", ExpectedResult = "a # a", TestName = "WhenTitleMarkdownNotAtStartOfParagraph")]
+        public string Render(string markdownText)
         {
             return Markdown.Markdown.Render(markdownText);
         }
