@@ -8,7 +8,10 @@ namespace Markdown
     {
         private readonly LinkedList<Token> tokens = new LinkedList<Token>();
         private readonly Md markdown;
+        private readonly Dictionary<TokenType, Token> currentByType = new Dictionary<TokenType, Token>();
+        private readonly List<Token> currentLineTokens = new List<Token>();
         private string text;
+        private int line;
 
         public Tokenizer(Md markdown, string text)
         {
@@ -96,16 +99,46 @@ namespace Markdown
             return AddToken(TokenType.Tag, currentValid, index);
         }
 
-        private Token ReadToken(int index)
+        private void SetNextLine(Token token)
         {
-            return null;
+            if (currentLineTokens.Count == 0)
+            {
+                currentLineTokens.Add(token);
+                return;
+            }
+            var containsLine = currentLineTokens[0].Line;
+            if (token.Line == containsLine)
+            {
+                currentLineTokens.Add(token);
+                return;
+            }
+            foreach (var previousToken in currentLineTokens)
+                previousToken.SetNextLine(token);
+            currentLineTokens.Clear();
+        }
+
+        private void SetNextSomeType(Token token)
+        {
+            if (!currentByType.ContainsKey(token.Type))
+            {
+                currentByType.Add(token.Type, token);
+                return;
+            }
+
+            var previous = currentByType[token.Type];
+            previous.SetSomeNext(token);
+            currentByType[token.Type] = token;
         }
 
         private Token AddToken(TokenType type, string value, int index)
         {
-            var token = new Token(type, value, index);
+            var token = new Token(type, value, index, tokens.Last?.Value, line);
             tokens.Last?.Value.SetNext(token);
             tokens.AddLast(token);
+            SetNextSomeType(token);
+            SetNextLine(token);
+            if (token.Type == TokenType.BreakLine)
+                ++line;
             return token;
         }
 

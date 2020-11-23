@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using FluentAssertions;
 using Markdown;
 using NUnit.Framework;
 
@@ -23,6 +24,19 @@ namespace TextFormattersTests
             var tokens = tokenizer.ToArray();
             Assert.AreEqual(expected.Length, tokens.Length);
             Assert.AreEqual(expected, tokens.Select(x => x.Type));
+        }
+
+        [Test]
+        public void Tokenizer_StringWithBreakLines_ShouldBeSetCorrectLineForToken()
+        {
+            var input = "hello 123\nworld\nand who?\n";
+            var expectedLines = new[] {0, 0, 0, 0, 1, 1, 2, 2, 2, 2, 2};
+            var tokenizer = new Tokenizer(new Md(), input);
+
+            var tokens = tokenizer.ToArray();
+            var lines = tokens.Select(token => token.Line);
+
+            Assert.AreEqual(expectedLines, lines);
         }
     }
 }

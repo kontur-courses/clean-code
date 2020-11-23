@@ -4,9 +4,10 @@ namespace Markdown
 {
     public class Token
     {
-        public Token(TokenType type, string value, int startIndex /*, Token previous*/)
+        public Token(TokenType type, string value, int startIndex, Token previous, int line)
         {
-            //Previous = previous;
+            Previous = previous;
+            Line = line;
             Type = type;
             Value = value;
             StartIndex = startIndex;
@@ -15,14 +16,35 @@ namespace Markdown
         public TokenType Type { get; }
         public string Value { get; }
         public int StartIndex { get; }
+        public int Line { get; }
         public int Length => Value.Length;
         public Token Next { get; private set; }
+        public Token NextSomeType { get; private set; }
+        public Token NextLine { get; private set; }
+        public Token Previous { get; }
 
         internal void SetNext(Token next)
         {
-            if (Next != null)
-                throw new Exception("Next token is already set.");
+            CheckAlreadySet(Next);
             Next = next;
+        }
+
+        internal void SetSomeNext(Token token)
+        {
+            CheckAlreadySet(NextSomeType);
+            NextSomeType = token;
+        }
+
+        internal void SetNextLine(Token token)
+        {
+            CheckAlreadySet(NextLine);
+            NextLine = token;
+        }
+
+        private static void CheckAlreadySet(Token value)
+        {
+            if (value != null)
+                throw new Exception($"Current token is already set.");
         }
 
         public static implicit operator string(Token token)
