@@ -4,7 +4,7 @@ using System.Text;
 
 namespace Markdown.Tags
 {
-    public class Title : Tag
+    public class Title : SimpleTag
     {
         public int TitleLevel => Identifier.Length;
 

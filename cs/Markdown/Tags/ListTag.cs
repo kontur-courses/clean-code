@@ -4,7 +4,7 @@ using System.Text;
 
 namespace Markdown.Tags
 {
-    public class ListTag : Tag
+    public class ListTag : MultilineTag
     {
         public ListTag(Md md, string identifier) : base(md, identifier)
         {
@@ -12,56 +12,29 @@ namespace Markdown.Tags
 
         protected override string FormatTag(Token start, Token end, string contains)
         {
-            var current = start;
-            var builder = new StringBuilder();
-            builder.Append("<ul>");
-            while (current != null)
-            {
-                if (current.Type != TokenType.Tag && current.Value != Identifier)
-                    break;
-                current = current.Next;
-                builder.Append(current.Value.Substring(1));
-                current = current.Next;
-                builder.Append("<li>");
-                while (current != null && current.Type != TokenType.BreakLine)
-                {
-                    builder.Append(current.Value);
-                    current = current.Next;
-                }
-
-                builder.Append("</li>");
-                if (current == null)
-                    break;
-                builder.Append(current.Value);
-                current = current.Next;
-            }
-
-            builder.Append("</ul>");
-            return builder.ToString();
+            if (!IsStartLine(start))
+                return contains;
+            var endString = end == null ? string.Empty : end.Value;
+            return $"<li>{contains.Substring(Identifier.Length)}</li>{endString}";
         }
 
         protected override Token FindEnd(Token start)
         {
-            var current = start;
+            var current = start.NextLine;
             var foundedEnd = start;
-            //if (current.Previus.Type != TokenType.BreakLine)
-            //    return start;
             while (current != null)
             {
-                if (current.Type == TokenType.Tag && current.Value == Identifier)
-                {
-                    while (current != null && current.Type != TokenType.BreakLine)
-                    {
-                        foundedEnd = current;
-                        current = current.Next;
-                    }
-
-                    current = current?.Next;
-                    continue;
-                }
-                break;
+                if (!EqualsIdentifier(current) || current.Type == TokenType.Space)
+                    break;
+                foundedEnd = current;
+                current = current.NextLine;
             }
-            return foundedEnd;
+            return FindNext(foundedEnd, TokenType.BreakLine);
+        }
+
+        protected override string PrepareResultLines(List<string> lines)
+        {
+            return $"<ul>{base.PrepareResultLines(lines)}</ul>";
         }
     }
 }

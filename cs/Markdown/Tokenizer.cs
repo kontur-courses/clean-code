@@ -64,7 +64,8 @@ namespace Markdown
             {
                 if (!shieldNext && markdown.IsStartOfTag(text[i]))
                 {
-                    AddToken(currentType, builder.ToString(), tokenIndex);
+                    if (builder.Length > 0)
+                        AddToken(currentType, builder.ToString(), tokenIndex);
                     var tagToken = ReadTagToken(i);
                     if (!Clear(i += tagToken.Length, GetTokenOnIndex(i)))
                         break;
@@ -115,6 +116,7 @@ namespace Markdown
             foreach (var previousToken in currentLineTokens)
                 previousToken.SetNextLine(token);
             currentLineTokens.Clear();
+            currentLineTokens.Add(token);
         }
 
         private void SetNextSomeType(Token token)

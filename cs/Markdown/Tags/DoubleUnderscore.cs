@@ -4,7 +4,7 @@ using System.Text;
 
 namespace Markdown.Tags
 {
-    public class DoubleUnderscore : Tag
+    public class DoubleUnderscore : SimpleTag
     {
         public DoubleUnderscore(Md md) : base(md, "__")
         {

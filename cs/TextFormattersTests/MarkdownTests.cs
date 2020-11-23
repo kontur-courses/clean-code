@@ -40,9 +40,11 @@ namespace TextFormattersTests
         [TestCase(@"hel\lo", @"hel\lo")]
         [TestCase(@"\\_hello_", @"\<em>hello</em>")]
         [TestCase("__hello_ __world_", "__hello_ __world_")]
-        [TestCase("* hello\n* world* 1\n* 2", "<ul><li>hello</li>\n<li>world</li>\n<li>1</li>\n<li>2</li></ul>")]
-        [TestCase("* he_ll_o\n* world", "<ul><li>he<em>ll</em>o</li>\n<li>world</li></ul>")]
-        [TestCase("* hello\n* world\n", "<ul><li>hello</li>\n<li>world</li></ul>\n")]
+        [TestCase("*hello\n*world* 1\n*2", "<ul><li>hello</li>\n<li>world* 1</li>\n<li>2</li></ul>")]
+        [TestCase("*he_ll_o\n*world", "<ul><li>he<em>ll</em>o</li>\n<li>world</li></ul>")]
+        [TestCase("*hello\n*world\n", "<ul><li>hello</li>\n<li>world</li>\n</ul>")]
+        [TestCase("**Why?", "<ul><li>*Why?</li></ul>")]
+        [TestCase("*First\n---\n*Second", "<ul><li>First</li>\n</ul>---\n<ul><li>Second</li></ul>")]
         public void SpecificationTests(string md, string html)
         {
             var actual = markdown.Render(md);

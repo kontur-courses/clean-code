@@ -47,7 +47,7 @@ namespace Markdown
         internal string FormatToken(ref Token token)
         {
             string result;
-            if (ContainsHandler(token))
+            if (token.Type == TokenType.Tag && ContainsHandler(token))
             {
                 var tagToken = token;
                 currentTags.Add(tagToken);

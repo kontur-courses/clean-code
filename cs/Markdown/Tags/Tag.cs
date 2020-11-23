@@ -14,21 +14,10 @@ namespace Markdown.Tags
 
         public string Identifier { get; }
 
-        public string Format(Token start, out Token next)
+        public virtual string Format(Token start, out Token next)
         {
-            var builder = new StringBuilder();
-            next = start.Next;
-            var end = FindEnd(start);
-            while (next != null)
-            {
-                if (next == end)
-                    break;
-                builder.Append(Markdown.FormatToken(ref next));
-            }
-
-            if (start.Type == TokenType.Tag)
-                return FormatTag(start, end, builder.ToString());
-            return $"{start.Value}{builder}{next.Value}";
+            next = start?.Next;
+            return start?.Value;
         }
 
         protected virtual Token FindEnd(Token start)
@@ -42,6 +31,29 @@ namespace Markdown.Tags
         protected virtual string FormatTag(Token start, Token end, string contains)
         {
             return contains;
+        }
+
+        protected bool IsInType(Token token, TokenType type)
+        {
+            return token.Previous?.Type == type
+                   && token.Next?.Type == type;
+        }
+
+        protected Token FindNext(Token token, TokenType target)
+        {
+            while (token != null && token.Type != target)
+                token = token.Next;
+            return token;
+        }
+
+        protected bool EqualsIdentifier(Token token)
+        {
+            return token.Type == TokenType.Tag && token.Value == Identifier;
+        }
+
+        protected bool IsStartLine(Token token)
+        {
+            return token.Previous == null || token.Line != token.Previous.Line;
         }
     }
 }
