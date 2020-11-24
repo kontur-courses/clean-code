@@ -4,6 +4,6 @@ namespace Markdown
 {
     public interface ITextParser
     {
-        IEnumerable<IToken> GetTokens(string text);
+        IEnumerable<Token> GetTokens(string text);
     }
 }

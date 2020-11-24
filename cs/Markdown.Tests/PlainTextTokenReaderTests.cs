@@ -7,18 +7,18 @@ namespace MarkdownTests
 {
     public class PlainTextTokenReaderTests
     {
-        private PlainTextTokenReader Reader { get; set; }
+        private PlainTextTokenReader reader;
 
         [SetUp]
         public void SetUp()
         {
-            Reader = new PlainTextTokenReader();
+            reader = new PlainTextTokenReader();
         }
 
         [TestCaseSource(nameof(TestCases))]
-        public void TryReadToken_ReturnExpectedResult_When(string text, int position, IToken expectedToken)
+        public void TryReadToken_ReturnExpectedResult_When(string text, int position, Token expectedToken)
         {
-            Reader.TryReadToken(text, text, position, out var token);
+            reader.TryReadToken(text, text, position, out var token);
 
             token.Should().BeEquivalentTo(expectedToken);
         }

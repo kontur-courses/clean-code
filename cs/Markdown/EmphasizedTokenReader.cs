@@ -5,7 +5,7 @@ namespace Markdown
 {
     public class EmphasizedTokenReader : ITokenReader
     {
-        public bool TryReadToken(string text, string context, int index, out IToken? token)
+        public bool TryReadToken(string text, string context, int index, out Token? token)
         {
             var stack = new Stack<int>();
             var oneWordInTag = true;

@@ -25,16 +25,16 @@ namespace MarkdownTests
             new PlainTextTokenReader()
         };
 
-        private ITextParser Parser { get; set; }
-        private IConverter Converter { get; set; }
-        private Markdown.Markdown Sut { get; set; }
+        private ITextParser parser;
+        private IConverter converter;
+        private Markdown.Markdown markdown;
 
         [SetUp]
         public void SetUp()
         {
-            Parser = new TextParser(readers);
-            Converter = new HtmlConverter(map);
-            Sut = new Markdown.Markdown(Parser, Converter);
+            parser = new TextParser(readers);
+            converter = new HtmlConverter(map);
+            markdown = new Markdown.Markdown(parser, converter);
         }
 
         [TestCase("_e_", "<em>e</em>", TestName = "One tag")]
@@ -72,7 +72,7 @@ namespace MarkdownTests
         [TestCase(@"en_d._", @"en<em>d.</em>", TestName = "In word end")]
         public void Render_ReturnExpectedResult_When(string text, string expectedResult)
         {
-            var htmlText = Sut.Render(text);
+            var htmlText = markdown.Render(text);
 
             htmlText.Should().Be(expectedResult);
         }

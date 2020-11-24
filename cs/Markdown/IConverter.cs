@@ -4,6 +4,6 @@ namespace Markdown
 {
     public interface IConverter
     {
-        string ConvertTokens(IEnumerable<IToken> tokens);
+        string ConvertTokens(IEnumerable<Token> tokens);
     }
 }

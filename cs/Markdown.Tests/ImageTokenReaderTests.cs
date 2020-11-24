@@ -7,18 +7,18 @@ namespace MarkdownTests
 {
     public class ImageTokenReaderTests
     {
-        private ImageTokenReader Reader { get; set; }
+        private ImageTokenReader reader;
 
         [SetUp]
         public void SetUp()
         {
-            Reader = new ImageTokenReader();
+            reader = new ImageTokenReader();
         }
 
         [TestCaseSource(nameof(TestCases))]
-        public void TryReadToken_ReturnExpectedResult_When(string text, int position, IToken expectedToken)
+        public void TryReadToken_ReturnExpectedResult_When(string text, int position, Token expectedToken)
         {
-            Reader.TryReadToken(text, text, position, out var token);
+            reader.TryReadToken(text, text, position, out var token);
 
             token.Should().BeEquivalentTo(expectedToken);
         }
@@ -26,7 +26,7 @@ namespace MarkdownTests
         [TestCaseSource(nameof(WrongTestCases))]
         public void TryReadToken_ShouldBeFalse_When(string text, int position)
         {
-            Reader.TryReadToken(text, text, position, out var token).Should().BeFalse();
+            reader.TryReadToken(text, text, position, out var token).Should().BeFalse();
         }
 
         private static IEnumerable<TestCaseData> TestCases()

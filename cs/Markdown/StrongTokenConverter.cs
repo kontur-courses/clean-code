@@ -2,7 +2,7 @@
 {
     public class StrongTokenConverter : ITokenConverter
     {
-        public string Convert(IToken token)
+        public string Convert(Token token)
         {
             return $"<strong>{token.Value}</strong>";
         }

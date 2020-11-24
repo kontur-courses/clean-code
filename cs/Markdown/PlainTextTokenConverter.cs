@@ -2,7 +2,7 @@
 {
     public class PlainTextTokenConverter : ITokenConverter
     {
-        public string Convert(IToken token)
+        public string Convert(Token token)
         {
             return token.Value;
         }

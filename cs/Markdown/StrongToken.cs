@@ -2,23 +2,11 @@
 
 namespace Markdown
 {
-    public class StrongToken : IToken
+    public class StrongToken : Token
     {
         public StrongToken(int position, string value, int endPosition)
+            : base(position, value, endPosition, TokenType.Strong, true)
         {
-            Position = position;
-            Value = value;
-            EndPosition = endPosition;
-            Type = TokenType.Strong;
-            ChildTokens = new List<IToken>();
-            CanHaveChildTokens = true;
         }
-
-        public int Position { get; }
-        public string Value { get; }
-        public int EndPosition { get; }
-        public TokenType Type { get; }
-        public List<IToken> ChildTokens { get; }
-        public bool CanHaveChildTokens { get; }
     }
 }

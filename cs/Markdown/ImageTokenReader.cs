@@ -4,11 +4,11 @@ namespace Markdown
 {
     public class ImageTokenReader : ITokenReader
     {
-        public bool TryReadToken(string text, string context, int index, out IToken? token)
+        public bool TryReadToken(string text, string context, int index, out Token? token)
         {
             var foundAltText = false;
             var value = new StringBuilder();
-            IToken? altText = null;
+            Token? altText = null;
             token = null;
 
             if (!IsImageTagStart(text, index))
@@ -39,7 +39,7 @@ namespace Markdown
                 if (IsImageTagEnd(text, i) && foundAltText)
                 {
                     value.Append(text[i]);
-                    IToken? url = new PlaintTextToken(altText!.EndPosition + 1, text[(altText.EndPosition + 2)..i], i);
+                    Token? url = new PlaintTextToken(altText!.EndPosition + 1, text[(altText.EndPosition + 2)..i], i);
                     token = new ImageToken(index, value.ToString(), index + value.Length - 1);
                     token.ChildTokens.Add(altText!);
                     token.ChildTokens.Add(url!);

@@ -17,12 +17,12 @@ namespace MarkdownTests
             new PlainTextTokenReader()
         };
 
-        private TextParser Parser { get; set; }
+        private TextParser parser;
 
         [SetUp]
         public void SetUp()
         {
-            Parser = new TextParser(readers);
+            parser = new TextParser(readers);
         }
 
         [TestCase("_e __s__ e_", 1, TestName = "Strong tag in emphasized")]
@@ -38,7 +38,7 @@ namespace MarkdownTests
         [TestCase("![]()", 1, TestName = "Image")]
         public void GetTokens_ReturnExpectedTokenCount_When(string text, int expectedTokensCount)
         {
-            var result = Parser.GetTokens(text);
+            var result = parser.GetTokens(text);
 
             result.Count().Should().Be(expectedTokensCount);
         }

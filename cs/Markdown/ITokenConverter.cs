@@ -2,6 +2,6 @@
 {
     public interface ITokenConverter
     {
-        string Convert(IToken token);
+        string Convert(Token token);
     }
 }

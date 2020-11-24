@@ -16,18 +16,18 @@ namespace MarkdownTests
             {TokenType.Image, new ImageTokenConverter()}
         };
 
-        private IConverter Converter { get; set; }
+        private IConverter converter;
 
         [SetUp]
         public void SetUp()
         {
-            Converter = new HtmlConverter(map);
+            converter = new HtmlConverter(map);
         }
 
         [TestCaseSource(nameof(TestCases))]
-        public void ConvertTokensToHtml_ReturnExpectedResult_When(IToken token, string expectedResult)
+        public void ConvertTokensToHtml_ReturnExpectedResult_When(Token token, string expectedResult)
         {
-            Converter.ConvertTokens(new List<IToken> {token}).Should().Be(expectedResult);
+            converter.ConvertTokens(new List<Token> {token}).Should().Be(expectedResult);
         }
 
         private static IEnumerable<TestCaseData> TestCases()

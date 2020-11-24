@@ -11,14 +11,14 @@ namespace Markdown
             this.readers = readers;
         }
 
-        public IEnumerable<IToken> GetTokens(string text)
+        public IEnumerable<Token> GetTokens(string text)
         {
             return GetTokens(text, text);
         }
 
-        private IEnumerable<IToken> GetTokens(string text, string context)
+        private IEnumerable<Token> GetTokens(string text, string context)
         {
-            var tokens = new List<IToken>();
+            var tokens = new List<Token>();
 
             for (var i = 0; i < text.Length; ++i)
                 foreach (var reader in readers)
@@ -29,9 +29,9 @@ namespace Markdown
                     if (token!.CanHaveChildTokens)
                     {
                         var newContext = context[token.Position..(token.EndPosition + 1)];
-                        var childTokens = GetTokens(token!.Value, newContext);
+                        var childTokens = GetTokens(token.Value, newContext);
 
-                        token!.ChildTokens.AddRange(childTokens);
+                        token.ChildTokens.AddRange(childTokens);
                     }
 
                     tokens.Add(token);

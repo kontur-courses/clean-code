@@ -4,7 +4,7 @@ namespace Markdown
 {
     public class HeadingTokenReader : ITokenReader
     {
-        public bool TryReadToken(string text, string context, int index, out IToken? token)
+        public bool TryReadToken(string text, string context, int index, out Token? token)
         {
             token = null;
 

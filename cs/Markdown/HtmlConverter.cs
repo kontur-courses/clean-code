@@ -12,7 +12,7 @@ namespace Markdown
             this.mapping = mapping;
         }
 
-        public string ConvertTokens(IEnumerable<IToken> tokens)
+        public string ConvertTokens(IEnumerable<Token> tokens)
         {
             var result = new StringBuilder();
 
@@ -35,13 +35,13 @@ namespace Markdown
             return result.ToString();
         }
 
-        private static IToken CreateNewToken(IToken token, string value)
+        private static Token CreateNewToken(Token token, string value)
         {
             var arguments = new[] {typeof(int), typeof(string), typeof(int)};
             var constructor = token.GetType().GetConstructor(arguments);
             var parameters = new object[] {token.Position, value, token.EndPosition};
 
-            return (IToken) constructor!.Invoke(parameters);
+            return (Token) constructor!.Invoke(parameters);
         }
     }
 }
