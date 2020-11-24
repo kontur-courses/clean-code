@@ -2,9 +2,11 @@
 {
     public class StrongTokenConverter : ITokenConverter
     {
-        public string Convert(Token token)
+        public string Convert(Token token, IConverter converter)
         {
-            return $"<strong>{token.Value}</strong>";
+            return token.ChildTokens.Count != 0
+                ? $"<strong>{converter.ConvertTokens(token.ChildTokens)}</strong>"
+                : $"<strong>{token.Value}</strong>";
         }
     }
 }

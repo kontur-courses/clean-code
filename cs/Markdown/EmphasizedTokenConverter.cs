@@ -2,9 +2,11 @@
 {
     public class EmphasizedTokenConverter : ITokenConverter
     {
-        public string Convert(Token token)
+        public string Convert(Token token, IConverter converter)
         {
-            return $"<em>{token.Value}</em>";
+            return token.ChildTokens.Count != 0
+                ? $"<em>{converter.ConvertTokens(token.ChildTokens)}</em>"
+                : $"<em>{token.Value}</em>";
         }
     }
 }

@@ -25,9 +25,10 @@ namespace MarkdownTests
             new PlainTextTokenReader()
         };
 
-        private ITextParser parser;
         private IConverter converter;
         private Markdown.Markdown markdown;
+
+        private ITextParser parser;
 
         [SetUp]
         public void SetUp()
