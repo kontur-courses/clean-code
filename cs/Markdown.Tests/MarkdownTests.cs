@@ -1,21 +1,14 @@
 ﻿using System.Collections.Generic;
 using FluentAssertions;
 using Markdown;
+using Markdown.Converters;
+using Markdown.Readers;
 using NUnit.Framework;
 
 namespace MarkdownTests
 {
     public class MarkdownTests
     {
-        private readonly Dictionary<TokenType, ITokenConverter> map = new Dictionary<TokenType, ITokenConverter>
-        {
-            {TokenType.Emphasized, new EmphasizedTokenConverter()},
-            {TokenType.Heading, new HeadingTokenConverter()},
-            {TokenType.Strong, new StrongTokenConverter()},
-            {TokenType.PlainText, new PlainTextTokenConverter()},
-            {TokenType.Image, new ImageTokenConverter()}
-        };
-
         private readonly List<ITokenReader> readers = new List<ITokenReader>
         {
             new HeadingTokenReader(),
@@ -34,7 +27,7 @@ namespace MarkdownTests
         public void SetUp()
         {
             parser = new TextParser(readers);
-            converter = new HtmlConverter(map);
+            converter = new HtmlConverter(new TokenConverterFactory());
             markdown = new Markdown.Markdown(parser, converter);
         }
 

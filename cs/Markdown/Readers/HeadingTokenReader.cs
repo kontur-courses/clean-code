@@ -1,6 +1,7 @@
 ﻿using System.Linq;
+using Markdown.Tokens;
 
-namespace Markdown
+namespace Markdown.Readers
 {
     public class HeadingTokenReader : ITokenReader
     {

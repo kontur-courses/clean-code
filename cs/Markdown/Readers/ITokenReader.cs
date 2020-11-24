@@ -1,4 +1,6 @@
-﻿namespace Markdown
+﻿using Markdown.Tokens;
+
+namespace Markdown.Readers
 {
     public interface ITokenReader
     {

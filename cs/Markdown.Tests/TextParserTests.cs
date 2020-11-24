@@ -2,6 +2,7 @@
 using System.Linq;
 using FluentAssertions;
 using Markdown;
+using Markdown.Readers;
 using NUnit.Framework;
 
 namespace MarkdownTests

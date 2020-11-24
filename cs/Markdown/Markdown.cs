@@ -1,4 +1,6 @@
-﻿namespace Markdown
+﻿using Markdown.Converters;
+
+namespace Markdown
 {
     public class Markdown
     {

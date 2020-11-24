@@ -1,6 +1,7 @@
 ﻿using System.Collections.Generic;
 using FluentAssertions;
-using Markdown;
+using Markdown.Readers;
+using Markdown.Tokens;
 using NUnit.Framework;
 
 namespace MarkdownTests

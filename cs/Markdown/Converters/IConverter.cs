@@ -1,6 +1,7 @@
 ﻿using System.Collections.Generic;
+using Markdown.Tokens;
 
-namespace Markdown
+namespace Markdown.Converters
 {
     public interface IConverter
     {

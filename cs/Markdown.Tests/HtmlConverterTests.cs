@@ -1,27 +1,19 @@
 ﻿using System.Collections.Generic;
 using FluentAssertions;
-using Markdown;
+using Markdown.Converters;
+using Markdown.Tokens;
 using NUnit.Framework;
 
 namespace MarkdownTests
 {
     public class HtmlConverterTests
     {
-        private readonly Dictionary<TokenType, ITokenConverter> map = new Dictionary<TokenType, ITokenConverter>
-        {
-            {TokenType.Emphasized, new EmphasizedTokenConverter()},
-            {TokenType.Heading, new HeadingTokenConverter()},
-            {TokenType.Strong, new StrongTokenConverter()},
-            {TokenType.PlainText, new PlainTextTokenConverter()},
-            {TokenType.Image, new ImageTokenConverter()}
-        };
-
         private IConverter converter;
 
         [SetUp]
         public void SetUp()
         {
-            converter = new HtmlConverter(map);
+            converter = new HtmlConverter(new TokenConverterFactory());
         }
 
         [TestCaseSource(nameof(TestCases))]

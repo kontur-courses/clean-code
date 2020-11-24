@@ -1,7 +1,8 @@
 ﻿using System.Collections.Generic;
 using System.Text;
+using Markdown.Tokens;
 
-namespace Markdown
+namespace Markdown.Readers
 {
     public class StrongTokenReader : ITokenReader
     {

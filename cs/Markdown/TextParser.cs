@@ -1,4 +1,6 @@
 ﻿using System.Collections.Generic;
+using Markdown.Readers;
+using Markdown.Tokens;
 
 namespace Markdown
 {
