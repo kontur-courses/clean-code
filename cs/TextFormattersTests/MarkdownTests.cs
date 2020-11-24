@@ -22,6 +22,7 @@ namespace TextFormattersTests
 
         [TestCase("", "")]
         [TestCase("_", "_")]
+        [TestCase("____", "____")]
         [TestCase("_hello_", "<em>hello</em>")]
         [TestCase("_hello", "_hello")]
         [TestCase("__hello__", "<strong>hello</strong>")]
@@ -40,6 +41,7 @@ namespace TextFormattersTests
         [TestCase(@"hel\lo", @"hel\lo")]
         [TestCase(@"\\_hello_", @"\<em>hello</em>")]
         [TestCase("__hello_ __world_", "__hello_ __world_")]
+        [TestCase("_hello__ _world__", "_hello__ _world__")]
         [TestCase("*hello\n*world* 1\n*2", "<ul><li>hello</li>\n<li>world* 1</li>\n<li>2</li></ul>")]
         [TestCase("*he_ll_o\n*world", "<ul><li>he<em>ll</em>o</li>\n<li>world</li></ul>")]
         [TestCase("*hello\n*world\n", "<ul><li>hello</li>\n<li>world</li>\n</ul>")]

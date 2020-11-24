@@ -11,33 +11,33 @@ namespace Markdown.Tags
         {
         }
 
-        public override string Format(Token start, out Token next)
+        public override string Format(Token start, out Token current)
         {
             var lines = new List<string>();
             var lineContent = new StringBuilder();
             var end = FindEnd(start);
-            next = start;
+            current = start;
 
-            while (next != null && next != end)
+            while (current != null && current != end)
             {
-                if (next.Type == TokenType.BreakLine)
+                if (current.Type == TokenType.BreakLine)
                 {
-                    lines.Add(FormatTag(start, next, lineContent.ToString()));
+                    lines.Add(FormatTag(start, current, lineContent.ToString()));
                     lineContent.Clear();
-                    next = start = next.Next;
+                    current = start = current.Next;
                     continue;
                 }
 
-                if (!EqualsIdentifier(next))
-                    lineContent.Append(Markdown.FormatToken(ref next));
+                if (!EqualsIdentifier(current))
+                    lineContent.Append(Markdown.FormatToken(ref current));
                 else
                 {
-                    lineContent.Append(next.Value);
-                    next = next.Next;
+                    lineContent.Append(current.Value);
+                    current = current.Next;
                 }
             }
             if (lineContent.Length > 0)
-                lines.Add(FormatTag(start, next, lineContent.ToString()));
+                lines.Add(FormatTag(start, current, lineContent.ToString()));
 
             return PrepareResultLines(lines);
         }

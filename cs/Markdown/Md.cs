@@ -20,6 +20,8 @@ namespace Markdown
                 AddHandler(new Title(this, i));
         }
 
+        internal Tag this[string identifier] => handlers[identifier];
+
         public string Render(string text)
         {
             if (text == null)
@@ -47,7 +49,7 @@ namespace Markdown
         internal string FormatToken(ref Token token)
         {
             string result;
-            if (token.Type == TokenType.Tag && ContainsHandler(token))
+            if (token.Type == TokenType.Tag && !token.IgnoreAsTag)
             {
                 var tagToken = token;
                 currentTags.Add(tagToken);

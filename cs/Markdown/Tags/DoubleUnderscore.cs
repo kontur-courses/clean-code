@@ -1,8 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Text;
-
-namespace Markdown.Tags
+﻿namespace Markdown.Tags
 {
     public class DoubleUnderscore : SimpleTag
     {
@@ -12,8 +8,13 @@ namespace Markdown.Tags
 
         protected override string FormatTag(Token start, Token end, string contains)
         {
+            var simpleFormat = base.FormatTag(start, end, contains);
+            if (simpleFormat != null)
+                return simpleFormat;
+
             if (Markdown.IsIn("_"))
-                return $"{start.Value}{contains}{end.Value}";
+                return WithoutFormat(start, end, contains);
+
             return end == null ? $"{start.Value}{contains}" : $"<strong>{contains}</strong>";
         }
     }

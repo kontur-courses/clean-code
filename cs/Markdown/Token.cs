@@ -22,6 +22,23 @@ namespace Markdown
         public Token NextSomeType { get; private set; }
         public Token NextLine { get; private set; }
         public Token Previous { get; }
+        public bool IgnoreAsTag { get; private set; }
+
+        public static implicit operator string(Token token)
+        {
+            return token.Value;
+        }
+
+        public override string ToString()
+        {
+            return $"{Type} {StartIndex} {Value}";
+        }
+
+        public Token TagIgnore()
+        {
+            IgnoreAsTag = true;
+            return this;
+        }
 
         internal void SetNext(Token next)
         {
@@ -44,17 +61,7 @@ namespace Markdown
         private static void CheckAlreadySet(Token value)
         {
             if (value != null)
-                throw new Exception($"Current token is already set.");
-        }
-
-        public static implicit operator string(Token token)
-        {
-            return token.Value;
-        }
-
-        public override string ToString()
-        {
-            return $"{Type} {StartIndex} {Value}";
+                throw new Exception("Current token is already set.");
         }
     }
 }

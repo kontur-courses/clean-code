@@ -8,7 +8,10 @@
 
         protected override string FormatTag(Token start, Token end, string contains)
         {
-            var inWordTag = IsInType(start, TokenType.Word);
+            var simpleFormat = base.FormatTag(start, end, contains);
+            if (simpleFormat != null)
+                return simpleFormat;
+
             return end == null ? $"{start.Value}{contains}" : $"<em>{contains}</em>";
         }
     }

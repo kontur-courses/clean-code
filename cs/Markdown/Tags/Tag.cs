@@ -1,4 +1,4 @@
-﻿using System.Text;
+﻿using System.Collections.Generic;
 
 namespace Markdown.Tags
 {
@@ -14,18 +14,31 @@ namespace Markdown.Tags
 
         public string Identifier { get; }
 
-        public virtual string Format(Token start, out Token next)
+        public virtual string Format(Token start, out Token current)
         {
-            next = start?.Next;
+            current = start?.Next;
             return start?.Value;
         }
 
         protected virtual Token FindEnd(Token start)
         {
+            var identifiers = new Stack<Token>();
             var current = start.Next;
             while (current != null && current.Value != Identifier)
+            {
+                if (current.Type == TokenType.Tag)
+                {
+                    if (identifiers.Count > 0 && identifiers.Peek().Value == current.Value)
+                        identifiers.Pop();
+                    else
+                        identifiers.Push(current);
+                }
                 current = current.Next;
-            return current;
+            }
+
+            if (identifiers.Count > 0)
+                start.TagIgnore();
+            return current?.TagIgnore();
         }
 
         protected virtual string FormatTag(Token start, Token end, string contains)
@@ -48,12 +61,22 @@ namespace Markdown.Tags
 
         protected bool EqualsIdentifier(Token token)
         {
-            return token.Type == TokenType.Tag && token.Value == Identifier;
+            return EqualsIdentifier(token, Identifier);
+        }
+
+        protected bool EqualsIdentifier(Token token, string identifier)
+        {
+            return token.Type == TokenType.Tag && token.Value == identifier;
         }
 
         protected bool IsStartLine(Token token)
         {
             return token.Previous == null || token.Line != token.Previous.Line;
+        }
+
+        protected string WithoutFormat(Token start, Token end, string contains)
+        {
+            return $"{start.Value}{contains}{end?.Value}";
         }
     }
 }
