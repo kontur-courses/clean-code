@@ -1,6 +1,4 @@
-﻿using System.Collections.Generic;
-using System.Text;
-using Markdown.Tags;
+﻿using Markdown.Tags;
 
 namespace Markdown.Converter
 {

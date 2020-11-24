@@ -53,7 +53,7 @@ namespace Markdown.TokenSystem
         {
             if (position < 0 || position >= Text.Length)
                 throw new ArgumentException(
-                    "Position must be non negative number and be more than lenght of text");
+                    "Position must be non negative number and be more than length of text");
             
             Position = position;
             return this;

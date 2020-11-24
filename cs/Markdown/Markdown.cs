@@ -3,7 +3,7 @@ using Markdown.Tags;
 
 namespace Markdown
 {
-    public class Md
+    public class Markdown
     {
         private static readonly Dictionary<string, Tag> SupportedTags =
             new Dictionary<string, Tag>
@@ -20,7 +20,7 @@ namespace Markdown
 
         public static string Render(string markupText)
         {
-            if (markupText.Length == 0)
+            if (string.IsNullOrEmpty(markupText) || markupText.Length < 2)
                 return markupText;
 
             var mp = new MarkupParser.MarkupParser(SupportedTags, ShieldedSigns);

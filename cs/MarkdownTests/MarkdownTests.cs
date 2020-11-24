@@ -1,19 +1,22 @@
-﻿using Markdown;
+﻿using System.Text;
+using Markdown;
 using NUnit.Framework;
 using FluentAssertions;
 
 namespace MarkdownTests
 {
     [TestFixture]
-    public class MdTests
+    public class MarkdownTests
     {
         [TestCase("_text_", "<em>text</em>")]
         [TestCase("__text__", "<strong>text</strong>")]
         [TestCase("#text\n", "#text\n")]
         [TestCase("# text\n", "<h1>text</h1>")]
         [TestCase("#", "#")]
+        [TestCase(null, null)]
         [TestCase("_", "_")]
         [TestCase("__", "__")]
+        [TestCase("___", "___")]
         [TestCase("____", "____")]
         [TestCase("__text", "__text")]
         [TestCase("_text _", "_text _")]
@@ -21,7 +24,7 @@ namespace MarkdownTests
         [TestCase("__ text__", "__ text__")]
         public void MdRender_ReturnParsedMarkup_WhenSimpleTags(string markupText, string expectedMarkup)
         {
-            var md = Md.Render(markupText);
+            var md = Markdown.Markdown.Render(markupText);
 
             md.Should().Be(expectedMarkup);
         }
@@ -34,7 +37,7 @@ namespace MarkdownTests
         [TestCase("_text___text__#text", "<em>text</em><strong>text</strong>#text")]
         public void MdRender_ReturnParsedMarkup_WhenSequenceTags(string markupText, string expectedMarkdown)
         {
-            var md = Md.Render(markupText);
+            var md = Markdown.Markdown.Render(markupText);
 
             md.Should().Be(expectedMarkdown);
         }
@@ -58,7 +61,7 @@ namespace MarkdownTests
             @"Здесь сим\волы экранирования\ \должны остаться.\")]
         public void MdRender_ReturnParsedMarkup_WhenTextContainShieldSymbols(string markupText, string expectedMarkdown)
         {
-            var md = Md.Render(markupText);
+            var md = Markdown.Markdown.Render(markupText);
 
             md.Should().Be(expectedMarkdown);
         }
@@ -69,9 +72,20 @@ namespace MarkdownTests
         [TestCase("__some # beautiful text__", "<strong>some # beautiful text</strong>")]
         public void MdRender_ReturnParsedMarkup_WhenInteractedTags(string markupText, string expectedMarkdown)
         {
-            var md = Md.Render(markupText);
+            var md = Markdown.Markdown.Render(markupText);
 
             md.Should().Be(expectedMarkdown);
+        }
+        
+        [Test]
+        [Timeout(7000)]
+        public void PerformanceTest()
+        {
+            var sb = new StringBuilder();
+            for (int i = 0; i < 1000000; i++) 
+                sb.Append("# _text_ __text__\n");
+            
+            Markdown.Markdown.Render(sb.ToString());
         }
     }
 }

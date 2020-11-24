@@ -18,8 +18,6 @@ namespace Markdown.MarkupParser
 
         public string ParseMarkup(string text)
         {
-            if (text == null || text.Length < 2)
-                return text;
             var tokenReader = new TokenReader(text);
             var markup = new StringBuilder();
             TryParseMarkup(tokenReader, markup, new StringBuilder(), new Stack<Tag>());
@@ -153,7 +151,7 @@ namespace Markdown.MarkupParser
             else tagResult.Append(nextTagResult);
         }
 
-        private bool CheckIntersectUnderscoreTags(Tag tag, TokenReader tokenReader)
+        private static bool CheckIntersectUnderscoreTags(Tag tag, TokenReader tokenReader)
         {
             if (tag.TagType == TagType.Italic)
                 return tokenReader.Position + 1 < tokenReader.Text.Length
@@ -161,7 +159,7 @@ namespace Markdown.MarkupParser
             return tokenReader.Position + 2 < tokenReader.Text.Length;
         }
 
-        private bool CheckTagEndValidity(Tag tag, TokenReader tokenReader)
+        private static bool CheckTagEndValidity(Tag tag, TokenReader tokenReader)
         {
             var text = tokenReader.Text;
             var position = tokenReader.Position;
@@ -189,7 +187,7 @@ namespace Markdown.MarkupParser
             return tagToParse;
         }
         
-        private bool CheckTagStartValidity(Tag tag, TokenReader tokenReader)
+        private static bool CheckTagStartValidity(Tag tag, TokenReader tokenReader)
         {
             if (tag.TagType != TagType.Header
                 && tokenReader.Position + tag.Value.Length < tokenReader.Text.Length
