@@ -1,32 +1,32 @@
-﻿using System.Collections.Generic;
-using System.Linq;
-using Markdown.Core;
+﻿using Markdown.Core;
 
 namespace Markdown.TokenModels
 {
     public class BoldToken : IToken
     {
-        private IEnumerable<IToken> Children { get; }
-        public int MdTokenLength => Children.Sum(t => t.MdTokenLength) + 4;
-        public string ToHtmlString() => $"<strong>{Children.ConvertToHtmlString()}</strong>";
+        private StringToken Children { get; }
+        public int MdTokenLength { get; }
+        public string ToHtmlString() => $"<strong>{Children.ToHtmlString()}</strong>";
 
-        private BoldToken(IEnumerable<IToken> children) => Children = children;
+        private BoldToken(StringToken children, int rawTokenLength)
+        {
+            Children = children;
+            MdTokenLength = "__".Length + rawTokenLength + "__".Length;
+        }
 
         public static BoldToken Create(string mdString, int startIndex)
         {
-            if (!mdString.HasUnderscoreAt(startIndex) || !TryGetEndOfToken(mdString, startIndex + 2, out var endIndex)
-                                                      || DoesntPassValidation(mdString, startIndex, endIndex))
-                return default;
-
+            var endIndex = GetTokenEndIndex(mdString, startIndex);
             var rawToken = mdString.Substring(startIndex + 2, endIndex - startIndex - 2);
-            return new BoldToken(Tokenizer.ParseIntoTokens(rawToken));
+            var rawStringToken = HtmlConverter.ConvertToHtmlString(rawToken);
+            return new BoldToken(StringToken.Create(rawStringToken), rawToken.Length);
         }
 
-        private static bool TryGetEndOfToken(string mdString, int startIndex, out int endIndex)
+        private static int GetTokenEndIndex(string mdString, int startIndex)
         {
-            endIndex = startIndex;
+            var endIndex = startIndex + 2;
             var hasIntersectionWithItalicTag = false;
-            //f__oo ba__r
+
             while (mdString.IsCharInsideString(endIndex + 1) && !AreDoubleUnderscore(mdString, endIndex))
             {
                 endIndex++;
@@ -34,12 +34,10 @@ namespace Markdown.TokenModels
                     hasIntersectionWithItalicTag = !hasIntersectionWithItalicTag;
             }
 
-            return !hasIntersectionWithItalicTag && mdString.HasUnderscoreAt(endIndex + 1);
+            TokenThrowHelper.AssertThatExtractedBoldTokenCorrect(mdString, startIndex, endIndex,
+                hasIntersectionWithItalicTag);
+            return endIndex;
         }
-
-        private static bool DoesntPassValidation(string mdString, int startIndex, int endIndex) =>
-            endIndex - startIndex <= 2 || mdString.HasWhiteSpaceAt(endIndex - 1) ||
-            mdString.HasSelectionPartWordInDifferentWords(startIndex, endIndex);
 
         private static bool AreDoubleUnderscore(string mdString, int endIndex) =>
             mdString.HasUnderscoreAt(endIndex) && mdString.HasUnderscoreAt(endIndex + 1);

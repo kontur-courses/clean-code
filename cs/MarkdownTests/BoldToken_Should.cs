@@ -1,4 +1,5 @@
-﻿using FluentAssertions;
+﻿using System;
+using FluentAssertions;
 using Markdown.TokenModels;
 using NUnit.Framework;
 
@@ -21,8 +22,11 @@ namespace MarkdownTests
         [TestCase("some__")]
         [TestCase("__some __")]
         [TestCase("____")]
-        public void Create_SomeIncorrectInputs_ReturnsNull(string rawToken) =>
-            BoldToken.Create(rawToken, 0).Should().BeNull();
+        public void Create_SomeIncorrectInputs_ReturnsNull(string rawToken)
+        {
+            Action callCreate = () => BoldToken.Create(rawToken, 0);
+            callCreate.Should().Throw<ArgumentException>();
+        }
 
         [TestCase("__some__", 0, 8)]
         [TestCase("foo __bar__", 4, 7)]
@@ -31,8 +35,11 @@ namespace MarkdownTests
             BoldToken.Create(rawToken, startIndex).MdTokenLength.Should().Be(expected);
 
         [Test]
-        public void Create_HasTagsInDifferentWords_ReturnsNull() =>
-            BoldToken.Create("h__as whit__espace", 1).Should().BeNull();
+        public void Create_HasTagsInDifferentWords_ReturnsNull()
+        {
+            Action callCreate = () => BoldToken.Create("h__as whit__espace", 1);
+            callCreate.Should().Throw<ArgumentException>();
+        }
 
         private static string GetNewBoldTokenAsHtml(string input, int startIndex) =>
             BoldToken.Create(input, startIndex).ToHtmlString();

@@ -1,19 +1,17 @@
-﻿using System.Collections.Generic;
-using System.Linq;
-using Markdown.Core;
+﻿using Markdown.Core;
 
 namespace Markdown.TokenModels
 {
     public class HeaderToken : IToken
     {
-        private IEnumerable<IToken> Children { get; }
+        private StringToken Children { get; }
 
-        private HeaderToken(IEnumerable<IToken> children) => Children = children;
+        private HeaderToken(StringToken children) => Children = children;
 
-        public int MdTokenLength => Children.Sum(t => t.MdTokenLength);
-        public string ToHtmlString() => $"<h1>{Children.ConvertToHtmlString()}</h1>";
+        public int MdTokenLength => "# ".Length + Children.MdTokenLength;
+        public string ToHtmlString() => $"<h1>{Children.ToHtmlString()}</h1>";
 
         public static HeaderToken Create(string mdString) =>
-            new HeaderToken(Tokenizer.ParseIntoTokens(mdString.Substring(2)));
+            new HeaderToken(StringToken.Create(HtmlConverter.ConvertToHtmlString(mdString.Substring(2))));
     }
 }

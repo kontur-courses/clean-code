@@ -10,9 +10,10 @@ namespace Markdown
         {
             var htmlBuilder = new StringBuilder();
             var mdStrings = mdText.Split(Environment.NewLine);
+            
             foreach (var paragraph in mdStrings)
-                htmlBuilder.Append(Tokenizer.ParseIntoTokens(paragraph).ConvertToHtmlString())
-                    .Append(Environment.NewLine);
+                htmlBuilder.AppendLine(HtmlConverter.ConvertToHtmlString(paragraph));
+            
             return htmlBuilder.ToString();
         }
     }

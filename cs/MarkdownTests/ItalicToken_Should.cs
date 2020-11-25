@@ -1,4 +1,5 @@
-﻿using FluentAssertions;
+﻿using System;
+using FluentAssertions;
 using Markdown.TokenModels;
 using NUnit.Framework;
 
@@ -25,8 +26,11 @@ namespace MarkdownTests
         [TestCase("some_")]
         [TestCase("_some _")]
         [TestCase("__")]
-        public void Create_SomeIncorrectInputs_ReturnsNull(string rawToken) =>
-            ItalicToken.Create(rawToken, 0).Should().BeNull();
+        public void Create_SomeIncorrectInputs_ReturnsNull(string rawToken)
+        {
+            Action callCreate = () => ItalicToken.Create(rawToken, 0);
+            callCreate.Should().Throw<ArgumentException>();
+        }
 
         [TestCase("_some_", 0, 6)]
         [TestCase("foo _bar_", 4, 5)]
@@ -35,8 +39,11 @@ namespace MarkdownTests
             ItalicToken.Create(rawToken, startIndex).MdTokenLength.Should().Be(expected);
 
         [Test]
-        public void Create_HasSelectionOfPartWordInDifferentWords_ReturnsNull() =>
-            ItalicToken.Create("f_oo b_ar", 1).Should().BeNull();
+        public void Create_HasSelectionOfPartWordInDifferentWords_ReturnsNull()
+        {
+            Action createToken = () => ItalicToken.Create("f_oo b_ar", 1);
+            createToken.Should().Throw<ArgumentException>();
+        }
 
         private static string GetNewItalicTokenAsHtml(string input, int startIndex) =>
             ItalicToken.Create(input, startIndex).ToHtmlString();

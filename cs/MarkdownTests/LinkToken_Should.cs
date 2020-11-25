@@ -1,4 +1,5 @@
-﻿using FluentAssertions;
+﻿using System;
+using FluentAssertions;
 using Markdown.TokenModels;
 using NUnit.Framework;
 
@@ -23,8 +24,11 @@ namespace MarkdownTests
         [TestCase("[Text](url")]
         [TestCase("[Text]x(url")]
         [TestCase("[Text]](url)")]
-        public void Create_IncorrectInputs_ReturnsNullToken(string rawToken) =>
-            LinkToken.Create(rawToken, 0).Should().BeNull();
+        public void Create_IncorrectInputs_ReturnsNullToken(string rawToken)
+        {
+            Action callCreate = () => LinkToken.Create(rawToken, 0);
+            callCreate.Should().Throw<ArgumentException>();
+        }
 
         [TestCase("[Text](url)", 0, 11)]
         [TestCase("[Text](longerUrl)", 0, 17)]

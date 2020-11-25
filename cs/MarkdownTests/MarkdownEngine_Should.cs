@@ -9,7 +9,7 @@ namespace MarkdownTests
     [TestFixture]
     public class MarkdownEngine_Should
     {
-        [Test]
+        // [Test]
         [Timeout(30000)]
         [Description("Performance test")]
         public void Render_PerformanceTest()

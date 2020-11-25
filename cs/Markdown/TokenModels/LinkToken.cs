@@ -4,7 +4,9 @@ namespace Markdown.TokenModels
 {
     public class LinkToken : IToken
     {
-        public int MdTokenLength => 1 + Link.MdTokenLength + 1 + 1 + Description.MdTokenLength + 1;
+        public int MdTokenLength => "[".Length + Link.MdTokenLength + "]".Length +
+                                    "(".Length + Description.MdTokenLength + ")".Length;
+
         private StringToken Link { get; }
         private StringToken Description { get; }
 
@@ -19,18 +21,14 @@ namespace Markdown.TokenModels
         public static LinkToken Create(string mdString, int startIndex)
         {
             var descriptionEndIndex = mdString.IndexOf(']', startIndex + 1);
-            if (descriptionEndIndex - startIndex <= 1 || IsNotParenthesis(mdString, descriptionEndIndex + 1))
-                return default;
+            TokenThrowHelper.AssertDescriptionIsCorrect(mdString, startIndex, descriptionEndIndex);
+
             var linkEndIndex = mdString.IndexOf(')', descriptionEndIndex + 1);
-            if (linkEndIndex - (descriptionEndIndex + 1) <= 1 || mdString[linkEndIndex] != ')')
-                return default;
+            TokenThrowHelper.AssertLinkIsCorrect(mdString, linkEndIndex, descriptionEndIndex);
 
             var description = mdString.Substring(startIndex + 1, descriptionEndIndex - startIndex - 1);
             var link = mdString.Substring(descriptionEndIndex + 2, linkEndIndex - descriptionEndIndex - 2);
             return new LinkToken(description, link);
         }
-
-        private static bool IsNotParenthesis(string mdString, int index) =>
-            mdString.IsCharInsideString(index) && mdString[index] != '(';
     }
 }
