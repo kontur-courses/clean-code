@@ -95,8 +95,10 @@ namespace Markdown.Core
 
         private static bool IsDigitAroundItalicTag(StringAnalyzer analyzer, int position)
         {
-            var hasDigitBefore = analyzer.IsCharInsideValue(position - 1) && char.IsDigit(analyzer.AnalyzedString[position - 1]);
-            var hasDigitAfter = analyzer.IsCharInsideValue(position + 1) && char.IsDigit(analyzer.AnalyzedString[position + 1]);
+            var hasDigitBefore = analyzer.IsCharInsideValue(position - 1) &&
+                                 char.IsDigit(analyzer.AnalyzedString[position - 1]);
+            var hasDigitAfter = analyzer.IsCharInsideValue(position + 1) &&
+                                char.IsDigit(analyzer.AnalyzedString[position + 1]);
             return hasDigitBefore || hasDigitAfter;
         }
     }

@@ -6,7 +6,6 @@ namespace Markdown.TokenModels
     public class BoldToken : IToken
     {
         public static string MdTag => "__";
-        string IToken.MdTag => MdTag;
 
         public int MdTokenLength { get; }
         public string ToHtmlString() => $"<strong>{Children.ToHtmlString()}</strong>";

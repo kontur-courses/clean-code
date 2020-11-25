@@ -5,7 +5,6 @@ namespace Markdown.TokenModels
     public class HeaderToken : IToken
     {
         public static string MdTag => "# ";
-        string IToken.MdTag => MdTag;
         private StringToken Children { get; }
 
         public int MdTokenLength => MdTag.Length + Children.MdTokenLength;

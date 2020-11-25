@@ -8,6 +8,7 @@ namespace Markdown.Core
     public static class HtmlConverter
     {
         private static Dictionary<string, Func<string, int, IToken>> TokensCreators { get; }
+        private const char EscapeChar = '\\';
 
         static HtmlConverter()
         {
@@ -19,13 +20,8 @@ namespace Markdown.Core
             };
         }
 
-        private const char EscapeChar = '\\';
-
         public static string ConvertToHtmlString(string mdText)
         {
-            if (string.IsNullOrEmpty(mdText))
-                return string.Empty;
-
             if (mdText.StartsWith("# "))
                 return HeaderToken.Create(mdText).ToHtmlString();
 

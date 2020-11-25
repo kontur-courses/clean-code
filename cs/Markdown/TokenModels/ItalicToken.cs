@@ -5,7 +5,6 @@ namespace Markdown.TokenModels
     public class ItalicToken : IToken
     {
         public static string MdTag => "_";
-        string IToken.MdTag => MdTag;
 
         public int MdTokenLength { get; }
         private StringToken Children { get; }

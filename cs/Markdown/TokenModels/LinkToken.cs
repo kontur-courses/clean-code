@@ -5,8 +5,6 @@ namespace Markdown.TokenModels
     public class LinkToken : IToken
     {
         public static string MdTag => "[";
-        string IToken.MdTag => MdTag;
-
         public int MdTokenLength => "[".Length + Link.MdTokenLength + "]".Length +
                                     "(".Length + Description.MdTokenLength + ")".Length;
 
