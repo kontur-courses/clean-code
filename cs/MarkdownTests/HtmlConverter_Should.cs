@@ -95,7 +95,8 @@ namespace MarkdownTests
                 .Be("<strong>by <a href=\"url.com\">this</a> article</strong>");
 
         [Test]
-        public void ConvertToHtml() => GetResultAsHtml("_foo _bar_").Should().Be("_foo <em>bar</em>");
+        public void ConvertToHtml_SpaceBeforeClosingTag_ReturnsStringToken() =>
+            GetResultAsHtml("_foo _bar").Should().Be("_foo _bar");
 
         private static string GetResultAsHtml(string mdTag) =>
             HtmlConverter.ConvertToHtmlString(mdTag);

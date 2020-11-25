@@ -1,4 +1,5 @@
-﻿using System.Diagnostics;
+﻿using System;
+using System.Diagnostics;
 using System.Linq;
 using FluentAssertions;
 using Markdown;
@@ -9,18 +10,24 @@ namespace MarkdownTests
     [TestFixture]
     public class MarkdownEngine_Should
     {
-        // [Test]
-        [Timeout(30000)]
+        [Test]
         [Description("Performance test")]
         public void Render_PerformanceTest()
         {
-            var hundredThousandRepetitionTest = RepeatTestString(100000);
-            var hundredThousandTestTime = GetRenderingTimeFor(hundredThousandRepetitionTest);
+            var hundredThousandRepetitionTest = RepeatTestString(50000);
+            var fiftyThousandTestTime = (double) GetRenderingTimeFor(hundredThousandRepetitionTest);
 
-            var millionRepetitionTest = RepeatTestString(1000000);
-            var millionTestTime = GetRenderingTimeFor(millionRepetitionTest);
+            var millionRepetitionTest = RepeatTestString(500000);
+            var fiveHundredTestTime = (double) GetRenderingTimeFor(millionRepetitionTest);
+            Console.WriteLine($"Time of working for fifty thousand test strings: {fiftyThousandTestTime}");
+            Console.WriteLine($"Time of working for five hundred test strings: {fiveHundredTestTime}");
+            
 
-            millionTestTime.Should().BeLessOrEqualTo(hundredThousandTestTime * 10);
+            var expected = 10 * fiftyThousandTestTime;
+            var precision = (long) Math.Round(0.15 * expected);
+            Console.WriteLine($"10x time of working for fifty thousand test strings: {expected}");
+            Console.WriteLine($"Precision: {precision}");
+            fiveHundredTestTime.Should().BeApproximately(expected, precision);
         }
 
         private static string RepeatTestString(int repetitionCount)
