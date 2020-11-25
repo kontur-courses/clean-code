@@ -1,0 +1,59 @@
+﻿using System;
+using System.Text;
+using Markdown.Conversion.Parsers;
+
+namespace Markdown.Parsers
+{
+    public class ItalicParser : IMarkParser
+    {
+        private Mark mark;
+        private ParseHelper helper;
+        private TokenMd resultToken;
+
+        public TokenMd GetToken(string text, int index, out int finalIndex)
+        {
+            var isEnd = false;
+            helper = new ParseHelper();
+            mark = new ItalicMark();
+            var builder = new StringBuilder();
+            finalIndex = index;
+
+            builder = helper.AppendMarkSymbols(builder, text, finalIndex, out finalIndex, mark.DefiningSymbol);
+
+            while (finalIndex < text.Length && !helper.IsSymbols(finalIndex, text, Environment.NewLine)&& !isEnd)
+            {
+                if (text[finalIndex] == '_')
+                {
+                    if(finalIndex + 1 >= text.Length 
+                       && text[finalIndex - 1] != '_')
+                        isEnd = true;
+                    if (finalIndex + 1 < text.Length 
+                        && text[finalIndex + 1] != '_'
+                        && !char.IsWhiteSpace(text[finalIndex - 1])
+                        && text[finalIndex - 1] != '_')
+                        isEnd = true;
+                }
+                builder = helper.AppendSymbol(builder, text, finalIndex, out finalIndex);
+            }
+            
+            return GetResultToken(builder.ToString(), isEnd);
+        }
+
+
+        private TokenMd GetResultToken(string tokenText, bool isEnd)
+        {
+            if (isEnd)
+            {
+                resultToken = new TokenMd(tokenText, mark);
+
+                if (resultToken.TokenWithoutMark.Length == 0)
+                    return new TokenMd("__", null);
+
+                return resultToken;
+            }
+            resultToken =  new TokenMd(tokenText, null);
+            return resultToken;
+        }
+    
+    }
+}
