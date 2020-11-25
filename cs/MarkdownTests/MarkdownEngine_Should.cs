@@ -1,15 +1,25 @@
 ﻿using System;
 using System.Diagnostics;
+using System.IO;
 using System.Linq;
 using FluentAssertions;
 using Markdown;
 using NUnit.Framework;
+using ApprovalTests;
+using ApprovalTests.Namers;
+using ApprovalTests.Reporters;
 
 namespace MarkdownTests
 {
     [TestFixture]
+    [UseReporter(typeof(DiffReporter), typeof(FileLauncherReporter))]
+    [UseApprovalSubdirectory("ApprovalHtmlPage")]
     public class MarkdownEngine_Should
     {
+        [Test]
+        public void Render_MarkdownSpecFile_ReturnCorrectHtml() =>
+            Approvals.Verify(MarkdownEngine.Render(File.ReadAllText("MarkdownSpec.md")));
+
         [Test]
         [Description("Performance test")]
         public void Render_PerformanceTest()
@@ -21,7 +31,7 @@ namespace MarkdownTests
             var fiveHundredTestTime = (double) GetRenderingTimeFor(millionRepetitionTest);
             Console.WriteLine($"Time of working for fifty thousand test strings: {fiftyThousandTestTime}");
             Console.WriteLine($"Time of working for five hundred test strings: {fiveHundredTestTime}");
-            
+
 
             var expected = 10 * fiftyThousandTestTime;
             var precision = (long) Math.Round(0.15 * expected);

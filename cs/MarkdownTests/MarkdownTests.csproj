@@ -7,6 +7,7 @@
     </PropertyGroup>
 
     <ItemGroup>
+        <PackageReference Include="ApprovalTests" Version="5.4.4" />
         <PackageReference Include="FluentAssertions" Version="6.0.0-alpha0001" />
         <PackageReference Include="NUnit" Version="3.12.0" />
         <PackageReference Include="NUnit3TestAdapter" Version="3.16.1" />
@@ -15,6 +16,12 @@
 
     <ItemGroup>
       <ProjectReference Include="..\Markdown\Markdown.csproj" />
+    </ItemGroup>
+
+    <ItemGroup>
+      <Content Include="MarkdownSpec.md">
+        <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+      </Content>
     </ItemGroup>
 
 </Project>
