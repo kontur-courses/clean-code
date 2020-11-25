@@ -8,17 +8,20 @@ namespace Markdown
         public readonly Dictionary<MarkupType, string> MarkupToHtmlTag;
         public readonly Dictionary<MarkupType, string> MarkupToMdTag;
         public readonly HashSet<string> SingleTags;
+        public readonly HashSet<string> StartingTags;
         public readonly HashSet<string> AllTags;
 
         public MarkupProcessor(
             Dictionary<MarkupType, string> markupToHtmlTag,
             Dictionary<MarkupType, string> markupToMdTag,
-            HashSet<string> singleTags
+            HashSet<string> singleTags,
+            HashSet<string> startingTags
         )
         {
             MarkupToHtmlTag = markupToHtmlTag;
             MarkupToMdTag = markupToMdTag;
             SingleTags = singleTags;
+            StartingTags = singleTags;
             AllTags = new HashSet<string>();
             foreach (var mdTag in markupToMdTag.Values)
             {

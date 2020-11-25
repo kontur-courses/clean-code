@@ -26,12 +26,14 @@ namespace Markdown
 
         private readonly HashSet<string> singleTags = new HashSet<string> {"# "};
 
+        private readonly HashSet<string> startingTags = new HashSet<string> {"# "};
+
         private readonly MarkupProcessor markupProcessor;
         private Tokenizer tokenizer;
 
         public Md()
         {
-            markupProcessor = new MarkupProcessor(markupToHtmlTag, markupToMdTag, singleTags);
+            markupProcessor = new MarkupProcessor(markupToHtmlTag, markupToMdTag, singleTags, startingTags);
         }
 
         public string MarkdownToHtml(string text)
