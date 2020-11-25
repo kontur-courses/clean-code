@@ -3,9 +3,9 @@
 namespace Markdown
 {
     /// <summary>
-    /// класс содержит символ индетифицирующий тэг, все символы тэга и функцию для преобразования тэга
+    /// класс содержит символ идентифицирующий тэг, все символы тэга и метод для преобразования тэга
     /// </summary>
-    public class Mark
+    public abstract class Mark
     {
         /// <summary>
         /// строка определяющая начало символа 
@@ -19,18 +19,17 @@ namespace Markdown
         /// <summary>
         /// функция для правильного преобразования тэга 
         /// </summary>
-        public Func<string, string> TransformMark { get; }
+       // public Func<string, string> TransformMark { get; }
 
-        public Mark(string definingSymbol, string[] allSymbols, Func<string, string> transformMark)
+        public Mark(string definingSymbol, string[] allSymbols)
         {
             DefiningSymbol = definingSymbol;
             AllSymbols = allSymbols;
-            TransformMark = transformMark;
         }
-        
-        public Mark(string definingSymbol)
+
+        public virtual string TransformMark(string text)
         {
-            DefiningSymbol = definingSymbol;
+            throw new NotImplementedException();
         }
     }
 }
