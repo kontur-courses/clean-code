@@ -28,19 +28,20 @@ namespace Markdown.Conversion.Parsers
             isFirst = true;
             symbolsCount = 0;
             currentSymbol = "[";
+            var isLink = true;
 
             while (finalIndex<text.Length)
             {
-                 if (isFirst && text[finalIndex] != '[')
-                     return ReturnFirstSymbolToken(index, out finalIndex);
+                if (isFirst && text[finalIndex] != '[')
+                    isLink = false;
                  
                  var resToken = HandleSquareBrackets(text, index, finalIndex, out finalIndex);
                  if(resToken != null)
-                     return ReturnFirstSymbolToken(index, out finalIndex);
+                     isLink = false;
                 
                  resToken = HandleOpenRoundBrackets(text, index, finalIndex, out finalIndex);
                  if(resToken != null)
-                     return ReturnFirstSymbolToken(index, out finalIndex);
+                     isLink = false;
 
                  if (text[finalIndex] == ')' && currentSymbol == "(")
                  {
@@ -51,17 +52,21 @@ namespace Markdown.Conversion.Parsers
                      mark.Link = link;
                     
                      if(string.IsNullOrEmpty(linkText) && string.IsNullOrEmpty(link))
-                         return ReturnFirstSymbolToken(index, out finalIndex);
-                    
-                     if(symbolsCount == mark.AllSymbols.Length)
-                         return new TokenMd(linkText, mark);
-                     return ReturnFirstSymbolToken(index, out finalIndex);
+                         isLink = false;
+
+                     if (symbolsCount == mark.AllSymbols.Length)
+                     {
+                         if(isLink)
+                            return new TokenMd(linkText, mark);
+                         var tokenText = text.Substring(index, finalIndex - index);
+                         return new TokenMd(tokenText, null);
+                     }
                  }
 
-                 return ReturnFirstSymbolToken(index, out finalIndex);
+                 var resultText = text.Substring(index, finalIndex - index);
+                 return new TokenMd(resultText, null);
             }
-
-            return ReturnFirstSymbolToken(index, out finalIndex);
+            return new TokenMd(text.Substring(index, finalIndex - index), null);
         }
 
         private TokenMd ReturnFirstSymbolToken(int index, out int finalIndex)
