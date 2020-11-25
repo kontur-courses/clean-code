@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
 
 namespace Markdown
 {
@@ -21,17 +22,24 @@ namespace Markdown
             MarkupToHtmlTag = markupToHtmlTag;
             MarkupToMdTag = markupToMdTag;
             SingleTags = singleTags;
-            StartingTags = singleTags;
+            StartingTags = startingTags;
             AllTags = new HashSet<string>();
             foreach (var mdTag in markupToMdTag.Values)
             {
                 AllTags.Add(mdTag);
             }
+
+            CheckCorrectnessOfTags();
         }
 
         public bool IsSingleTag(MarkupType markupType)
         {
             return IsSingleTag(MarkupToMdTag[markupType]);
+        }
+
+        public bool IsStartingTag(string tag)
+        {
+            return StartingTags.Contains(tag);
         }
 
         public bool IsSingleTag(string tag)
@@ -41,6 +49,14 @@ namespace Markdown
 
         public MarkupType GetMarkupType(string mdTag)
         {
+            switch (mdTag)
+            {
+                case null:
+                    throw new ArgumentNullException($"{nameof(mdTag)} is null");
+                case "":
+                    throw new ArgumentNullException($"{nameof(mdTag)} is empty string");
+            }
+
             foreach (var (markupType, tag) in MarkupToMdTag)
             {
                 if (tag == mdTag)
@@ -73,6 +89,16 @@ namespace Markdown
         public string GetClosingTag(string text, Token token)
         {
             return GetClosingTag(GetMarkupType(text.GetTokenText(token)));
+        }
+
+        private void CheckCorrectnessOfTags()
+        {
+            if (!SingleTags.IsSubsetOf(AllTags) || !StartingTags.IsSubsetOf(AllTags))
+                throw new Exception("AllTags does not contain all tags");
+            if (MarkupToHtmlTag.Count != MarkupToMdTag.Count)
+                throw new Exception($"{nameof(MarkupToHtmlTag)} should have the same size as {nameof(MarkupToMdTag)}");
+            if (!MarkupToHtmlTag.Keys.SequenceEqual(MarkupToMdTag.Keys))
+                throw new Exception($"{nameof(MarkupToHtmlTag)} should have the same keys as {nameof(MarkupToMdTag)}");
         }
     }
 }

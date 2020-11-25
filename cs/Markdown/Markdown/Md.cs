@@ -10,25 +10,25 @@ namespace Markdown
         private HashSet<string> tags = new HashSet<string> {"__", "_", "# "};
         public static char EscapeSymbol { get; } = '\\';
 
-        private readonly Dictionary<MarkupType, string> markupToHtmlTag = new Dictionary<MarkupType, string>
+        public readonly Dictionary<MarkupType, string> markupToHtmlTag = new Dictionary<MarkupType, string>
         {
             {MarkupType.Bold, "strong"},
             {MarkupType.Italic, "em"},
             {MarkupType.Header, "h1"},
         };
 
-        private readonly Dictionary<MarkupType, string> markupToMdTag = new Dictionary<MarkupType, string>
+        public readonly Dictionary<MarkupType, string> markupToMdTag = new Dictionary<MarkupType, string>
         {
             {MarkupType.Bold, "__"},
             {MarkupType.Italic, "_"},
             {MarkupType.Header, "# "},
         };
 
-        private readonly HashSet<string> singleTags = new HashSet<string> {"# "};
+        public readonly HashSet<string> singleTags = new HashSet<string> {"# "};
 
-        private readonly HashSet<string> startingTags = new HashSet<string> {"# "};
+        public readonly HashSet<string> startingTags = new HashSet<string> {"# "};
 
-        private readonly MarkupProcessor markupProcessor;
+        public readonly MarkupProcessor markupProcessor;
         private Tokenizer tokenizer;
 
         public Md()

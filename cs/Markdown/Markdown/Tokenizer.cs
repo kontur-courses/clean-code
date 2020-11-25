@@ -38,7 +38,7 @@ namespace Markdown
         {
             if (!TryReadTag(paragraph, positionInParagraph, out var token, out _))
                 return null;
-            if (IsClosing(paragraph, text.GetTokenText(token), positionInParagraph, tagStack.FirstOrDefault()))
+            if (IsClosing(text, text.GetTokenText(token), positionInParagraph, tagStack.FirstOrDefault()))
                 tagStack.Pop();
             else
                 tagStack.Push(token);
@@ -54,7 +54,9 @@ namespace Markdown
                 return false;
             var possibleTags = markupProcessor.AllTags
                 .Where(tag => positionInParagraph + tag.Length <= paragraph.Length)
-                .Where(tag => paragraph.Substring(positionInParagraph, tag.Length) == tag);
+                .Where(tag => paragraph.Substring(positionInParagraph, tag.Length) == tag)
+                .Where(tag => positionInParagraph == 0 && markupProcessor.IsStartingTag(tag) ||
+                              positionInParagraph != 0 && !markupProcessor.IsSingleTag(tag));
 
             if (!possibleTags.Any())
                 return false;
@@ -63,8 +65,8 @@ namespace Markdown
                 .First();
             longestTagLen = longestTag.Length;
             var lastTag = tagStack.FirstOrDefault();
-            if (!IsClosing(paragraph, longestTag, positionInParagraph, lastTag) &&
-                !IsOpening(paragraph, longestTag, positionInParagraph))
+            if (!IsClosing(text, longestTag, positionInParagraph, lastTag) &&
+                !IsOpening(text, longestTag, positionInParagraph))
             {
                 return false;
             }
@@ -193,7 +195,7 @@ namespace Markdown
             while (tagStack.Any())
             {
                 var tag = tagStack.Pop();
-                if (!markupProcessor.SingleTags.Contains(paragraph.GetTokenText(tag)))
+                if (!markupProcessor.IsSingleTag(text.GetTokenText(tag)))
                     tag.IsMarkup = false;
             }
 
