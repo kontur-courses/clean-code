@@ -60,12 +60,7 @@ namespace Markdown
             foreach (var bigram in text.GetBigrams())
             {
                 var part = bigram.Previous;
-                if (part.NoNeedToParse)
-                {
-                    tokenValue.Append(part.Value);
-                    offset += part.Value.Length;
-                }
-                else if (nestedTokenValidator(part.Value))
+                if (nestedTokenValidator(part.Value) && !part.Escaped)
                 {
                     if (isIntoToken)
                     {

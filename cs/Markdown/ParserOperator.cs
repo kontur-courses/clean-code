@@ -27,27 +27,13 @@ namespace Markdown
             InitParsers();
         }
 
-        public void AddTokenPart((string Previous, string Current) bigram)
-        {
-            if (skip)
-            {
-                skip = false;
-                return;
-            }
-            if (bigram.Previous == @"\")
-                OperateEscaped(bigram);
-            else if (bigram.Previous == @"\\")
-                AddEscapedPart(new TokenPart(@"\", true));
-            else
-                AddTokenPart((new TokenPart(bigram.Previous), new TokenPart(bigram.Current)));
-            previousPart = bigram.Previous;
-        }
-
         public void AddTokenPart((TokenPart Previous, TokenPart Current) bigram)
         {
             var part = bigram.Previous;
             nextPart = bigram.Current?.Value;
-            if (parsers.ContainsKey(part.Value) && !isTokenOpen)
+            if (part.Escaped)
+                AddEscapedPart(part);
+            else if (parsers.ContainsKey(part.Value) && !isTokenOpen)
                 TokenOpen(part);
             else if (parsers.ContainsKey(part.Value) && isTokenOpen)
                 TokenEnd(part);
@@ -55,6 +41,7 @@ namespace Markdown
                 partialValue.Add(part);
             else
                 AddSimpleToken(part);
+            previousPart = part.Value;
         }
 
         private void InitParsers()
@@ -118,15 +105,6 @@ namespace Markdown
         public bool IsClose() => stack.Count == 0;
         public static bool IsCorrectStart(string text) => !text.StartsWith(" ");
         public static bool IsCorrectEnd(string text) => !text.EndsWith(" ");
-
-        public void OperateEscaped((string Previous, string Current) bigram)
-        {
-            if (!parsers.ContainsKey(bigram.Current))
-                AddEscapedPart(new TokenPart(bigram.Previous + bigram.Current, true));
-            else
-                AddEscapedPart(new TokenPart(bigram.Current, true));
-            skip = true;
-        }
 
         private void AddEscapedPart(TokenPart part)
         {

@@ -1,4 +1,5 @@
-﻿using Markdown.Extentions;
+﻿using Markdown.Core;
+using Markdown.Extentions;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -50,6 +51,35 @@ namespace Markdown
                     skip = false;
             }
             return combinedString;
+        }
+
+        public static List<TokenPart> OperateEscaped(this List<string> value, HashSet<string> formattingString)
+        {
+            var parts = new List<TokenPart>();
+            var skip = false;
+            foreach (var (Previous, Current) in value.GetBigrams())
+            {
+                if (skip)
+                {
+                    skip = false;
+                    continue;
+                }
+                if (Previous == @"\" && formattingString.Contains(Current))
+                {
+                    parts.Add(new TokenPart(Current, true));
+                    skip = true;
+                }
+                else if (Previous == @"\\")
+                    parts.Add(new TokenPart(@"\", true));
+                else if (Previous == @"\" && !formattingString.Contains(Current))
+                {
+                    parts.Add(new TokenPart(Previous + Current));
+                    skip = true;
+                }
+                else
+                    parts.Add(new TokenPart(Previous));
+            }
+            return parts;
         }
 
         public static bool IsDigit(this string text)

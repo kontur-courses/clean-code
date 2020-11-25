@@ -133,6 +133,8 @@ namespace Markdown.Tests
         [TestCase(@"\a__", ExpectedResult = @"\a__")]
         [TestCase(@"\_\_\_\_\_# _a_", ExpectedResult = @"_____# <em>a</em>")]
         [TestCase(@"as#_a s", ExpectedResult = @"as#_a s")]
+        [TestCase(@"#_\ a_", ExpectedResult = @"<h1><em>\ a</em></h1>")]
+        [TestCase(@"#_\\ a_", ExpectedResult = @"<h1><em>\ a</em></h1>")]
         public string MdRenderOnSpecialCase(string line)
         {
             return mdRender.Render(line);
