@@ -2,7 +2,7 @@
 
 namespace Markdown
 {
-    public interface IParser
+    public interface IMarkdownParser
     {
         public List<TokenMd> GetTokens(string text);
     }
