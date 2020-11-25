@@ -4,28 +4,24 @@ using System.Net.NetworkInformation;
 
 namespace Markdown
 {
-    public class Md : IMarkDown
+    public class Md : IMarkdown
     {
-        private Parser parser; 
-        private MarkdownProcessor markdownProcessor;
+        private Converter converter;
 
-        public Md()
+        public Md(Converter converter)
         {
-            markdownProcessor = new MarkdownProcessor();
-            parser = new Parser(markdownProcessor.Marks);
+            this.converter = converter;
         }
+        public Md(){}
         public string Render(string text)
         {
-            var tokens = parser.GetTokens(text);
-            var formattedToken = markdownProcessor.FormatTokens(tokens);
-            return GetHTML(formattedToken);
-            throw new NotImplementedException();
-        }
-
-        private string GetHTML(List<TokenMd> formattedTokens)
-        {
-            // склеевает текст назад
-            throw new NotImplementedException();
+            if(text == null)
+                throw new ArgumentException();
+            
+            converter = new Converter(text);
+            var tokens = converter.GetTokens();
+            var formattedTokens = converter.FormatToken(tokens);
+            return converter.GetHTML(formattedTokens);
         }
     }
 }
