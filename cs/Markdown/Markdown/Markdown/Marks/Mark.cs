@@ -1,35 +1,41 @@
 ﻿using System;
+using System.Linq;
 
 namespace Markdown
 {
-    /// <summary>
-    /// класс содержит символ идентифицирующий тэг, все символы тэга и метод для преобразования тэга
-    /// </summary>
     public abstract class Mark
     {
-        /// <summary>
-        /// строка определяющая начало символа 
-        /// </summary>
-        public string DefiningSymbol { get; }
-        /// <summary>
-        /// все символы по порядку их использования требуемые для преобразования тэга
-        /// </summary>
-        public string[] AllSymbols { get; }
-
-        /// <summary>
-        /// функция для правильного преобразования тэга 
-        /// </summary>
-       // public Func<string, string> TransformMark { get; }
-
-        public Mark(string definingSymbol, string[] allSymbols)
+        public string DefiningSymbol { get; protected set; }
+        public string[] AllSymbols { get; protected set; }
+        
+        public (string startFormattedMark, string endFormattedMark) FormattedMarkSymbols { get; protected set; }
+        
+        protected bool Equals(Mark other)
         {
-            DefiningSymbol = definingSymbol;
-            AllSymbols = allSymbols;
+            return DefiningSymbol == other.DefiningSymbol;
         }
 
-        public virtual string TransformMark(string text)
+        public override bool Equals(object obj)
         {
-            throw new NotImplementedException();
+            if (ReferenceEquals(null, obj)) return false;
+            if (ReferenceEquals(this, obj)) return true;
+            if (obj.GetType() != this.GetType()) return false;
+            return Equals((Mark) obj);
+        }
+
+        public override int GetHashCode()
+        {
+            return (DefiningSymbol != null ? DefiningSymbol.GetHashCode() : 0);
+        }
+
+        public static bool operator ==(Mark left, Mark right)
+        {
+            return Equals(left, right);
+        }
+
+        public static bool operator !=(Mark left, Mark right)
+        {
+            return !Equals(left, right);
         }
     }
 }
