@@ -1,17 +1,21 @@
-﻿using Markdown.Core;
+﻿using System.Linq;
+using Markdown.Core;
 
 namespace Markdown.TokenModels
 {
     public class BoldToken : IToken
     {
-        private StringToken Children { get; }
+        public static string MdTag => "__";
+        string IToken.MdTag => MdTag;
+
         public int MdTokenLength { get; }
         public string ToHtmlString() => $"<strong>{Children.ToHtmlString()}</strong>";
+        private StringToken Children { get; }
 
         private BoldToken(StringToken children, int rawTokenLength)
         {
             Children = children;
-            MdTokenLength = "__".Length + rawTokenLength + "__".Length;
+            MdTokenLength = MdTag.Length + rawTokenLength + MdTag.Length;
         }
 
         public static BoldToken Create(string mdString, int startIndex)
@@ -24,22 +28,23 @@ namespace Markdown.TokenModels
 
         private static int GetTokenEndIndex(string mdString, int startIndex)
         {
+            var analyzer = new StringAnalyzer(mdString);
             var endIndex = startIndex + 2;
             var hasIntersectionWithItalicTag = false;
 
-            while (mdString.IsCharInsideString(endIndex + 1) && !AreDoubleUnderscore(mdString, endIndex))
+            while (analyzer.IsCharInsideValue(endIndex + 1) && !AreDoubleUnderscore(analyzer, endIndex))
             {
                 endIndex++;
-                if (mdString.HasUnderscoreAt(endIndex) && !mdString.HasUnderscoreAt(endIndex + 1))
+                if (analyzer.HasValueUnderscoreAt(endIndex) && !analyzer.HasValueUnderscoreAt(endIndex + 1))
                     hasIntersectionWithItalicTag = !hasIntersectionWithItalicTag;
             }
 
-            TokenThrowHelper.AssertThatExtractedBoldTokenCorrect(mdString, startIndex, endIndex,
+            TokenThrowHelper.AssertThatExtractedBoldTokenCorrect(analyzer, startIndex, endIndex,
                 hasIntersectionWithItalicTag);
             return endIndex;
         }
 
-        private static bool AreDoubleUnderscore(string mdString, int endIndex) =>
-            mdString.HasUnderscoreAt(endIndex) && mdString.HasUnderscoreAt(endIndex + 1);
+        private static bool AreDoubleUnderscore(StringAnalyzer analyzer, int endIndex) =>
+            analyzer.HasValueUnderscoreAt(endIndex) && analyzer.HasValueUnderscoreAt(endIndex + 1);
     }
 }

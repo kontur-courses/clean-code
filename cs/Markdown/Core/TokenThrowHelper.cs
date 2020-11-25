@@ -6,7 +6,7 @@ namespace Markdown.Core
     public static class TokenThrowHelper
     {
         public static void AssertThatExtractedItalicTokenCorrect(
-            string mdString,
+            StringAnalyzer analyzer,
             int startIndex,
             int endIndex,
             bool hasUnderscoreWithBoldTag
@@ -15,10 +15,10 @@ namespace Markdown.Core
             if (endIndex - startIndex <= 1)
                 throw new ArgumentException($"{nameof(ItalicToken)} should has length more than 0!");
 
-            if (!mdString.HasUnderscoreAt(startIndex) || !mdString.HasUnderscoreAt(endIndex))
+            if (!analyzer.HasValueUnderscoreAt(startIndex) || !analyzer.HasValueUnderscoreAt(endIndex))
                 throw new ArgumentException($"{nameof(ItalicToken)} should starts and ends with underscore!");
 
-            if (mdString.HasWhiteSpaceAt(endIndex - 1))
+            if (analyzer.HasValueWhiteSpaceAt(endIndex - 1))
                 throw new ArgumentException($"{nameof(ItalicToken)} shouldn't has white space before close tag!");
 
             if (hasUnderscoreWithBoldTag)
@@ -26,17 +26,17 @@ namespace Markdown.Core
                     $"{nameof(ItalicToken)} should ends with underscore and shouldn't has between open and close tags unpaired double underscore"
                 );
 
-            if (IsDigitAroundItalicTag(mdString, startIndex) || IsDigitAroundItalicTag(mdString, endIndex))
+            if (IsDigitAroundItalicTag(analyzer, startIndex) || IsDigitAroundItalicTag(analyzer, endIndex))
                 throw new ArgumentException($"{nameof(ItalicToken)} shouldn't has digits around open and close tags!");
 
-            if (mdString.HasSelectionPartWordInDifferentWords(startIndex, endIndex))
+            if (analyzer.HasValueSelectionPartWordInDifferentWords(startIndex, endIndex))
                 throw new ArgumentException(
                     $"{nameof(ItalicToken)} must highlight either part of a single word, or the entire word!"
                 );
         }
 
         public static void AssertThatExtractedBoldTokenCorrect(
-            string mdString,
+            StringAnalyzer analyzer,
             int startIndex,
             int endIndex,
             bool hasUnderscoreWithItalicTag
@@ -45,18 +45,21 @@ namespace Markdown.Core
             if (endIndex - startIndex <= 2)
                 throw new ArgumentException($"{nameof(BoldToken)} should has length more than 0!");
 
-            if (!mdString.HasUnderscoreAt(startIndex + 1) || !mdString.HasUnderscoreAt(endIndex + 1))
-                throw new ArgumentException($"{nameof(BoldToken)} should starts and ends with double underscore!");
+            if (!analyzer.HasValueUnderscoreAt(startIndex + 1) || !analyzer.HasValueUnderscoreAt(endIndex + 1))
+                throw new ArgumentException(
+                    $"{nameof(BoldToken)} should starts and ends with double underscore!");
 
-            if (mdString.HasWhiteSpaceAt(endIndex - 1))
+            if (analyzer.HasValueWhiteSpaceAt(endIndex - 1))
                 throw new ArgumentException($"{nameof(BoldToken)} shouldn't has white space before close tag!");
 
             if (hasUnderscoreWithItalicTag)
-                throw new ArgumentException(
-                    $"{nameof(BoldToken)} should ends with double underscore and shouldn't has between open and close tags unpaired single underscore"
-                );
+            {
+                var message =
+                    $"{nameof(BoldToken)} should ends with double underscore and shouldn't has between open and close tags unpaired single underscore";
+                throw new ArgumentException(message);
+            }
 
-            if (mdString.HasSelectionPartWordInDifferentWords(startIndex, endIndex))
+            if (analyzer.HasValueSelectionPartWordInDifferentWords(startIndex, endIndex))
                 throw new ArgumentException(
                     $"{nameof(BoldToken)} must highlight either part of a single word, or the entire word!"
                 );
@@ -64,16 +67,17 @@ namespace Markdown.Core
 
         public static void AssertDescriptionIsCorrect(string mdString, int startIndex, int descriptionEndIndex)
         {
+            var analyzer = new StringAnalyzer(mdString);
             if (mdString[startIndex] != '[')
                 throw new ArgumentException($"{nameof(LinkToken)} should starts with open square bracket!");
 
-            if (!mdString.IsCharInsideString(descriptionEndIndex) || mdString[descriptionEndIndex] != ']')
+            if (!analyzer.IsCharInsideValue(descriptionEndIndex) || mdString[descriptionEndIndex] != ']')
                 throw new ArgumentException($"{nameof(LinkToken)} should ends with end square bracket!");
 
             if (descriptionEndIndex - startIndex <= 1)
                 throw new ArgumentException($"Description in {nameof(LinkToken)} should has length more than 0!");
 
-            if (mdString.IsCharInsideString(descriptionEndIndex + 1) && mdString[descriptionEndIndex + 1] != '(')
+            if (analyzer.IsCharInsideValue(descriptionEndIndex + 1) && mdString[descriptionEndIndex + 1] != '(')
                 throw new ArgumentException(
                     $"{nameof(LinkToken)} should has opening parenthesis after closing square bracket!"
                 );
@@ -81,14 +85,19 @@ namespace Markdown.Core
 
         public static void AssertLinkIsCorrect(string mdString, int linkEndIndex, int descriptionEndIndex)
         {
-            if (!mdString.IsCharInsideString(linkEndIndex) || mdString[linkEndIndex] != ')')
+            var analyzer = new StringAnalyzer(mdString);
+            if (!analyzer.IsCharInsideValue(linkEndIndex) || mdString[linkEndIndex] != ')')
                 throw new ArgumentException($"{nameof(LinkToken)} should ends with end parenthesis!");
 
             if (linkEndIndex - (descriptionEndIndex + 1) <= 1)
                 throw new ArgumentException($"Link in {nameof(LinkToken)} should has length more than 0!");
         }
 
-        private static bool IsDigitAroundItalicTag(string mdString, int position) =>
-            mdString.HasDigitAt(position - 1) || mdString.HasDigitAt(position + 1);
+        private static bool IsDigitAroundItalicTag(StringAnalyzer analyzer, int position)
+        {
+            var hasDigitBefore = analyzer.IsCharInsideValue(position - 1) && char.IsDigit(analyzer.AnalyzedString[position - 1]);
+            var hasDigitAfter = analyzer.IsCharInsideValue(position + 1) && char.IsDigit(analyzer.AnalyzedString[position + 1]);
+            return hasDigitBefore || hasDigitAfter;
+        }
     }
 }

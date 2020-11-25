@@ -1,5 +1,5 @@
 ﻿using System;
-using System.Linq;
+using System.Collections.Generic;
 using System.Text;
 using Markdown.TokenModels;
 
@@ -7,7 +7,18 @@ namespace Markdown.Core
 {
     public static class HtmlConverter
     {
-        private static readonly char[] OpenTagChars = {'_', '['};
+        private static Dictionary<string, Func<string, int, IToken>> TokensCreators { get; }
+
+        static HtmlConverter()
+        {
+            TokensCreators = new Dictionary<string, Func<string, int, IToken>>
+            {
+                [ItalicToken.MdTag] = ItalicToken.Create,
+                [BoldToken.MdTag] = BoldToken.Create,
+                [LinkToken.MdTag] = LinkToken.Create
+            };
+        }
+
         private const char EscapeChar = '\\';
 
         public static string ConvertToHtmlString(string mdText)
@@ -39,11 +50,12 @@ namespace Markdown.Core
 
         private static string GetStringUpToNextTag(string mdText, in int startIndex, out int jumpToOpenTag)
         {
+            var analyzer = new StringAnalyzer(mdText);
             var collector = new StringBuilder();
             var currentIndex = startIndex;
-            while (currentIndex < mdText.Length && !IsTokenStartTag(mdText, currentIndex))
+            while (currentIndex < mdText.Length && !IsTokenStartTag(analyzer, currentIndex))
             {
-                if (IsEscaped(mdText, currentIndex))
+                if (IsEscaped(analyzer, currentIndex))
                     currentIndex++;
 
                 collector.Append(mdText[currentIndex]);
@@ -54,39 +66,49 @@ namespace Markdown.Core
             return collector.ToString();
         }
 
-        private static IToken GetNextToken(string mdText, int i)
+        private static IToken GetNextToken(string mdText, in int index)
         {
             try
             {
-                return CreateToken(mdText, i);
+                var possibleDoubleTag = GetOpenTag(mdText, index);
+                return TokensCreators[possibleDoubleTag](mdText, index);
             }
             catch (ArgumentException)
             {
-                return StringToken.Create(mdText[i].ToString());
+                return StringToken.Create(mdText[index].ToString());
             }
         }
 
-        private static IToken CreateToken(string mdText, in int index)
+        private static string GetOpenTag(string mdText, int currentIndex)
         {
-            return mdText[index] switch
-            {
-                '_' when mdText.HasUnderscoreAt(index + 1) => BoldToken.Create(mdText, index),
-                '_' => ItalicToken.Create(mdText, index),
-                '[' => LinkToken.Create(mdText, index),
-                _ => throw new ArgumentException($"{mdText[index]} wasn't open tag char!")
-            };
+            var openTag = mdText[currentIndex].ToString();
+            var singleTag = openTag;
+
+            if (currentIndex + 1 >= 0 && currentIndex + 1 <= mdText.Length)
+                openTag += mdText[currentIndex + 1];
+            var possibleDoubleTag = openTag;
+
+            return TokensCreators.ContainsKey(possibleDoubleTag) ? possibleDoubleTag : singleTag;
         }
 
-        private static bool IsEscaped(string mdText, int i)
+        private static bool IsEscaped(StringAnalyzer analyzer, int i)
         {
-            var canNextCharBeEscaped = mdText.IsCharInsideString(i + 1)
-                                       && (OpenTagChars.Contains(mdText[i + 1]) || mdText[i + 1] is EscapeChar);
-            return mdText[i] is EscapeChar && canNextCharBeEscaped;
+            var canNextCharBeEscaped = analyzer.IsCharInsideValue(i + 1)
+                                       && (TokensCreators.ContainsKey(analyzer.AnalyzedString[i + 1].ToString()) ||
+                                           analyzer.AnalyzedString[i + 1] is EscapeChar);
+            return analyzer.AnalyzedString[i] is EscapeChar && canNextCharBeEscaped;
         }
 
-        private static bool IsTokenStartTag(string mdText, int i) =>
-            OpenTagChars.Contains(mdText[i])
-            && !mdText.HasUnderscoreAt(i - 1) && mdText.HasNonWhiteSpaceAt(i + 1)
-            && mdText.HasNonWhiteSpaceAt(i + 2);
+        private static bool IsTokenStartTag(StringAnalyzer analyzer, int i) =>
+            TokensCreators.ContainsKey(analyzer.AnalyzedString[i].ToString())
+            && IsNonWhiteSpaceCharAfterItalicTag(analyzer, i)
+            && IsNonWhiteSpaceCharAfterBoldTag(analyzer, i);
+
+        private static bool IsNonWhiteSpaceCharAfterBoldTag(StringAnalyzer analyzer, int i) =>
+            analyzer.IsCharInsideValue(i + 2) && !analyzer.HasValueWhiteSpaceAt(i + 2);
+
+        private static bool IsNonWhiteSpaceCharAfterItalicTag(StringAnalyzer analyzer, int i) =>
+            !analyzer.HasValueUnderscoreAt(i - 1) && analyzer.IsCharInsideValue(i + 1) &&
+            !analyzer.HasValueWhiteSpaceAt(i + 1);
     }
 }
