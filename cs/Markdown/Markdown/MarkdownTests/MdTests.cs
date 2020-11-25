@@ -16,6 +16,7 @@ namespace MarkdownTests
         {
             md = new Md();
         }
+        [TestCase("[text [otherText](otherLink)](link)", "[text [otherText](otherLink)](link)", TestName = "Link text contains other link tags")]
         [TestCase("[text](link)", "<a href=\"link\">text</a>", TestName = "Text without other tags")]
         [TestCase("[_text_](link)", "<a href=\"link\">\\<em>text\\</em></a>", TestName = "Text with italic tag")]
         [TestCase("[__text__](link)", "<a href=\"link\">\\<strong>text\\</strong></a>", TestName = "Text with strong tag")]
