@@ -1,7 +1,7 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using static Markdown.NewLineHandler;
 
 namespace Markdown
 {
@@ -130,16 +130,17 @@ namespace Markdown
             return sb.ToString();
         }
 
+
         private StringBuilder AddRawText(string text, Stack<MarkupType> markup, Token token)
         {
             var sb = new StringBuilder();
             var tokenText = UnescapeToken(text, token);
-            if (tokenText.EndsWith(Environment.NewLine))
+            if (TryGetNewLineSymbolAtTheEnd(tokenText, out var newLineSymbol))
             {
                 sb.Append(tokenText.Substring(0,
-                    tokenText.Length - Environment.NewLine.Length));
+                    tokenText.Length - newLineSymbol.Length));
                 sb.Append(CloseSingleTags(markup));
-                sb.Append(Environment.NewLine);
+                sb.Append(newLineSymbol);
             }
             else
                 sb.Append(tokenText);

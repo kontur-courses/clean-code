@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using static Markdown.NewLineHandler;
 
 namespace Markdown
 {
@@ -167,7 +168,7 @@ namespace Markdown
 
         public string[] GetParagraphs()
         {
-            return text.Split(Environment.NewLine.ToCharArray(), StringSplitOptions.RemoveEmptyEntries);
+            return text.Split(new[] {"\n", "\r\n"}, StringSplitOptions.RemoveEmptyEntries);
         }
 
         public IEnumerable<Token> TokenizeParagraph(string paragraph)
@@ -190,8 +191,9 @@ namespace Markdown
             }
 
             TryAddNewlineAfterParagraph(tokens);
-
-            PositionInText += paragraph.Length + Environment.NewLine.Length;
+            PositionInText += paragraph.Length;
+            if (TryGetNewLineSymbolAtPosition(text, out var newLineSymbol, PositionInText))
+                PositionInText += newLineSymbol.Length;
             while (tagStack.Any())
             {
                 var tag = tagStack.Pop();
@@ -204,8 +206,11 @@ namespace Markdown
 
         public void TryAddNewlineAfterParagraph(List<Token> tokens)
         {
-            if (tokens[tokens.Count - 1].End + Environment.NewLine.Length < text.Length)
-                tokens[tokens.Count - 1].Length += Environment.NewLine.Length;
+            if (tokens.Count == 0)
+                return;
+            var lastToken = tokens[tokens.Count - 1];
+            if (TryGetNewLineSymbolAtPosition(text, out var newLineSymbol, lastToken.End + 1))
+                lastToken.Length += newLineSymbol.Length;
         }
 
         public void RemoveEmptyMarkupTokens(List<Token> tokens)
