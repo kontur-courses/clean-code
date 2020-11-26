@@ -35,17 +35,6 @@ namespace Markdown
             return value == '\\' || IsStartOfTag(value);
         }
 
-        internal string Format(Token token)
-        {
-            if (token == null)
-                return string.Empty;
-            var next = token;
-            var result = new StringBuilder();
-            while (next != null)
-                result.Append(FormatToken(ref next));
-            return result.ToString();
-        }
-
         internal string FormatToken(ref Token token)
         {
             string result;
@@ -81,9 +70,15 @@ namespace Markdown
             return currentTags.Contains(identifier);
         }
 
-        internal bool ContainsHandler(string identifier)
+        private string Format(Token token)
         {
-            return handlers.ContainsKey(identifier);
+            if (token == null)
+                return string.Empty;
+            var next = token;
+            var result = new StringBuilder();
+            while (next != null)
+                result.Append(FormatToken(ref next));
+            return result.ToString();
         }
 
         private void AddHandler(Tag tag)

@@ -33,6 +33,7 @@ namespace Markdown.Tags
                     else
                         identifiers.Push(current);
                 }
+
                 current = current.Next;
             }
 
@@ -52,10 +53,10 @@ namespace Markdown.Tags
                    && token.Next?.Type == type;
         }
 
-        protected Token FindNext(Token token, TokenType target)
+        protected virtual Token FindNext(Token token, TokenType target)
         {
             while (token != null && token.Type != target)
-                token = token.Next;
+                token = token.NextSomeType;
             return token;
         }
 

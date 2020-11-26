@@ -1,6 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Text;
+﻿using System.Collections.Generic;
 
 namespace Markdown.Tags
 {
@@ -29,6 +27,7 @@ namespace Markdown.Tags
                 foundedEnd = current;
                 current = current.NextLine;
             }
+
             return FindNext(foundedEnd, TokenType.BreakLine);
         }
 

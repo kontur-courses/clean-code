@@ -6,28 +6,18 @@ namespace Markdown
 {
     public class Tokenizer : IEnumerable<Token>
     {
-        private readonly LinkedList<Token> tokens = new LinkedList<Token>();
-        private readonly Md markdown;
         private readonly Dictionary<TokenType, Token> currentByType = new Dictionary<TokenType, Token>();
         private readonly List<Token> currentLineTokens = new List<Token>();
-        private string text;
+        private readonly Md markdown;
+        private readonly LinkedList<Token> tokens = new LinkedList<Token>();
         private int line;
+        private readonly string text;
 
         public Tokenizer(Md markdown, string text)
         {
             this.text = text;
             this.markdown = markdown;
             ParseToToken();
-        }
-
-        public string Text
-        {
-            get => text;
-            set
-            {
-                text = value;
-                ParseToToken();
-            }
         }
 
         public Token First => tokens.First?.Value;
@@ -70,6 +60,7 @@ namespace Markdown
                     if (!Clear(i += tagToken.Length, GetTokenOnIndex(i)))
                         break;
                 }
+
                 var type = GetTokenOnIndex(i);
                 if (currentType != type)
                 {
@@ -82,6 +73,7 @@ namespace Markdown
                 if (!shieldNext || i + 1 >= text.Length || !markdown.IsShieldSymbol(text[i + 1]))
                     builder.Append(text[i]);
             }
+
             if (builder.Length > 0)
                 AddToken(currentType, builder.ToString(), tokenIndex);
         }
@@ -97,6 +89,7 @@ namespace Markdown
                 currentValid = builder.ToString();
                 ++i;
             } while (i < text.Length && markdown.ContainsTag(builder.ToString() + text[i], out _));
+
             return AddToken(TokenType.Tag, currentValid, index);
         }
 
@@ -107,12 +100,14 @@ namespace Markdown
                 currentLineTokens.Add(token);
                 return;
             }
+
             var containsLine = currentLineTokens[0].Line;
             if (token.Line == containsLine)
             {
                 currentLineTokens.Add(token);
                 return;
             }
+
             foreach (var previousToken in currentLineTokens)
                 previousToken.SetNextLine(token);
             currentLineTokens.Clear();
