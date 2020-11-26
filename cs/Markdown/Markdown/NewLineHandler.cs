@@ -24,7 +24,15 @@ namespace Markdown
         internal static bool TryGetNewLineSymbolAtPosition(string text, out string newLineSymbol, int position)
         {
             var maxNewLineSymbolLength = Math.Min(2, text.Length - position);
-            return TryGetNewLineSymbolAtTheEnd(text.Substring(position, maxNewLineSymbolLength), out newLineSymbol);
+            newLineSymbol = null;
+            while (maxNewLineSymbolLength > 0)
+            {
+                if (TryGetNewLineSymbolAtTheEnd(text.Substring(position, maxNewLineSymbolLength), out newLineSymbol))
+                    return true;
+                maxNewLineSymbolLength--;
+            }
+
+            return false;
         }
     }
 }
