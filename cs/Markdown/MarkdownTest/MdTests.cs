@@ -155,7 +155,7 @@ gfafsa";
             md.MarkdownToHtml(text).Should().Be(text);
         }
 
-        [TestCase("100000Words.txt"), Timeout(10000)]
+        [TestCase(@"../../../100000Words.txt"), Timeout(10000)]
         public void Big_PerformanceTest(string dataFileName)
         {
             var text = File.ReadAllText(dataFileName);
@@ -163,7 +163,7 @@ gfafsa";
             md.MarkdownToHtml(text);
         }
 
-        [TestCase("10000Words.txt"), Timeout(1000)]
+        [TestCase(@"../../../10000Words.txt"), Timeout(1000)]
         public void Medium_PerformanceTest(string dataFileName)
         {
             var text = File.ReadAllText(dataFileName);
@@ -171,7 +171,7 @@ gfafsa";
             md.MarkdownToHtml(text);
         }
 
-        [TestCase("1000Words.txt"), Timeout(100)]
+        [TestCase(@"../../../1000Words.txt"), Timeout(100)]
         public void Small_PerformanceTest(string dataFileName)
         {
             var text = File.ReadAllText(dataFileName);
