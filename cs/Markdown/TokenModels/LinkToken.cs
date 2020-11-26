@@ -1,10 +1,12 @@
-﻿using Markdown.Core;
+﻿using System;
+using Markdown.Core;
 
 namespace Markdown.TokenModels
 {
     public class LinkToken : IToken
     {
         public static string MdTag => "[";
+
         public int MdTokenLength => "[".Length + Link.MdTokenLength + "]".Length +
                                     "(".Length + Description.MdTokenLength + ")".Length;
 
@@ -21,20 +23,49 @@ namespace Markdown.TokenModels
 
         public static LinkToken Create(string mdString, int startIndex)
         {
+            var analyzer = new StringAnalyzer(mdString);
             var descriptionStart = startIndex + "[".Length;
-            var descriptionEndIndex = mdString.IndexOf(']', descriptionStart);
-            TokenThrowHelper.AssertDescriptionIsCorrect(mdString, startIndex, descriptionEndIndex);
+            var descriptionEnd = mdString.IndexOf(']', descriptionStart);
 
-            var linkStart = descriptionEndIndex + 1 + "(".Length;
-            var linkEndIndex = mdString.IndexOf(')', linkStart);
-            TokenThrowHelper.AssertLinkIsCorrect(mdString, linkEndIndex, descriptionEndIndex);
+            ThrowArgumentExceptionIfIncorrectDescription(analyzer, startIndex, descriptionEnd);
 
-            var descriptionLength = descriptionEndIndex - descriptionStart;
+            var linkStart = descriptionEnd + 1 + "(".Length;
+            var linkEnd = mdString.IndexOf(')', linkStart);
+
+            ThrowArgumentExceptionIfIncorrectLink(analyzer, linkStart, linkEnd);
+
+            var descriptionLength = descriptionEnd - descriptionStart;
             var description = mdString.Substring(descriptionStart, descriptionLength);
-            
-            var linkLength = linkEndIndex - linkStart;
+
+            var linkLength = linkEnd - linkStart;
             var link = mdString.Substring(linkStart, linkLength);
             return new LinkToken(description, link);
+        }
+
+        private static void ThrowArgumentExceptionIfIncorrectDescription(StringAnalyzer analyzer, int startIndex, int endIndex)
+        {
+            if (analyzer.AnalyzedString[startIndex] != '[')
+                throw new ArgumentException($"{nameof(LinkToken)} should starts with open square bracket!");
+
+            if (!analyzer.IsCharInsideValue(endIndex) || analyzer.AnalyzedString[endIndex] != ']')
+                throw new ArgumentException($"{nameof(LinkToken)} should ends with end square bracket!");
+
+            if (endIndex - startIndex <= 1)
+                throw new ArgumentException($"Description in {nameof(LinkToken)} should has length more than 0!");
+
+            if (analyzer.IsCharInsideValue(endIndex + 1) && analyzer.AnalyzedString[endIndex + 1] != '(')
+                throw new ArgumentException(
+                    $"{nameof(LinkToken)} should has opening parenthesis after closing square bracket!"
+                );
+        }
+
+        private static void ThrowArgumentExceptionIfIncorrectLink(StringAnalyzer analyzer, int linkStart, int linkEnd)
+        {
+            if (!analyzer.IsCharInsideValue(linkEnd) || analyzer.AnalyzedString[linkEnd] != ')')
+                throw new ArgumentException($"{nameof(LinkToken)} should ends with end parenthesis!");
+
+            if (linkEnd - linkStart <= 1)
+                throw new ArgumentException($"Link in {nameof(LinkToken)} should has length more than 0!");
         }
     }
 }

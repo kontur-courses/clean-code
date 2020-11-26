@@ -68,7 +68,9 @@ namespace Markdown.Core
             try
             {
                 var openTag = GetOpenTag(mdText, index);
-                return TokensCreators[openTag](mdText, index);
+                if (!TokensCreators.TryGetValue(openTag, out var tokenCreator))
+                    throw new KeyNotFoundException($"Creator for {openTag} not found in {nameof(TokensCreators)}!");
+                return tokenCreator(mdText, index);
             }
             catch (ArgumentException)
             {

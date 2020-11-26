@@ -1,4 +1,5 @@
-﻿using Markdown.Core;
+﻿using System;
+using Markdown.Core;
 
 namespace Markdown.TokenModels
 {
@@ -37,9 +38,40 @@ namespace Markdown.TokenModels
                     hasIntersectionWithItalicTag = !hasIntersectionWithItalicTag;
             }
 
-            TokenThrowHelper.AssertThatExtractedBoldTokenCorrect(analyzer, startIndex, endIndex,
-                hasIntersectionWithItalicTag);
+            ThrowArgumentExceptionIsIncorrectBoldToken(analyzer, startIndex, endIndex, hasIntersectionWithItalicTag);
+            
             return endIndex;
+        }
+
+
+        private static void ThrowArgumentExceptionIsIncorrectBoldToken(
+            StringAnalyzer analyzer,
+            int startIndex,
+            int endIndex,
+            bool hasUnderscoreWithItalicTag
+        )
+        {
+            if (endIndex - startIndex <= 2)
+                throw new ArgumentException($"{nameof(BoldToken)} should has length more than 0!");
+
+            if (!analyzer.HasValueUnderscoreAt(startIndex + 1) || !analyzer.HasValueUnderscoreAt(endIndex + 1))
+                throw new ArgumentException(
+                    $"{nameof(BoldToken)} should starts and ends with double underscore!");
+
+            if (analyzer.HasValueWhiteSpaceAt(endIndex - 1))
+                throw new ArgumentException($"{nameof(BoldToken)} shouldn't has white space before close tag!");
+
+            if (hasUnderscoreWithItalicTag)
+            {
+                var message =
+                    $"{nameof(BoldToken)} should ends with double underscore and shouldn't has between open and close tags unpaired single underscore";
+                throw new ArgumentException(message);
+            }
+
+            if (analyzer.HasValueSelectionPartWordInDifferentWords(startIndex, endIndex))
+                throw new ArgumentException(
+                    $"{nameof(BoldToken)} must highlight either part of a single word, or the entire word!"
+                );
         }
 
         private static bool AreDoubleUnderscore(StringAnalyzer analyzer, int endIndex) =>

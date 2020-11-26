@@ -1,4 +1,5 @@
-﻿using Markdown.Core;
+﻿using System;
+using Markdown.Core;
 
 namespace Markdown.TokenModels
 {
@@ -15,6 +16,9 @@ namespace Markdown.TokenModels
 
         public static HeaderToken Create(string mdString, int startIndex)
         {
+            if (!mdString.StartsWith(MdTag))
+                throw new ArgumentException($"{nameof(HeaderToken)} should starts with \"{MdTag}\"");
+
             var childrenSource = HtmlConverter.ConvertToHtmlString(mdString.Substring(startIndex + MdTag.Length));
             return new HeaderToken(StringToken.Create(childrenSource));
         }
