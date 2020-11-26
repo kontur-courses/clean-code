@@ -4,7 +4,6 @@ namespace Markdown.TokenModels
 {
     public class StringToken : IToken
     {
-        public string MdTag => "";
         public int MdTokenLength => Value.Length;
         private string Value { get; }
 

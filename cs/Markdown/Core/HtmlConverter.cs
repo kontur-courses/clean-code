@@ -14,6 +14,7 @@ namespace Markdown.Core
         {
             TokensCreators = new Dictionary<string, Func<string, int, IToken>>
             {
+                [HeaderToken.MdTag] = HeaderToken.Create,
                 [ItalicToken.MdTag] = ItalicToken.Create,
                 [BoldToken.MdTag] = BoldToken.Create,
                 [LinkToken.MdTag] = LinkToken.Create
@@ -22,8 +23,8 @@ namespace Markdown.Core
 
         public static string ConvertToHtmlString(string mdText)
         {
-            if (mdText.StartsWith("# "))
-                return HeaderToken.Create(mdText).ToHtmlString();
+            if (mdText.StartsWith(HeaderToken.MdTag))
+                return TokensCreators[HeaderToken.MdTag](mdText, 0).ToHtmlString();
 
             var collector = new StringBuilder();
             var pointer = 0;
@@ -66,8 +67,8 @@ namespace Markdown.Core
         {
             try
             {
-                var possibleDoubleTag = GetOpenTag(mdText, index);
-                return TokensCreators[possibleDoubleTag](mdText, index);
+                var openTag = GetOpenTag(mdText, index);
+                return TokensCreators[openTag](mdText, index);
             }
             catch (ArgumentException)
             {
@@ -75,13 +76,13 @@ namespace Markdown.Core
             }
         }
 
-        private static string GetOpenTag(string mdText, int currentIndex)
+        private static string GetOpenTag(string mdText, int index)
         {
-            var openTag = mdText[currentIndex].ToString();
+            var openTag = mdText[index].ToString();
             var singleTag = openTag;
 
-            if (currentIndex + 1 >= 0 && currentIndex + 1 <= mdText.Length)
-                openTag += mdText[currentIndex + 1];
+            if (index + 1 >= 0 && index + 1 <= mdText.Length)
+                openTag += mdText[index + 1];
             var possibleDoubleTag = openTag;
 
             return TokensCreators.ContainsKey(possibleDoubleTag) ? possibleDoubleTag : singleTag;
@@ -101,10 +102,11 @@ namespace Markdown.Core
             && IsNonWhiteSpaceCharAfterBoldTag(analyzer, i);
 
         private static bool IsNonWhiteSpaceCharAfterBoldTag(StringAnalyzer analyzer, int i) =>
-            analyzer.IsCharInsideValue(i + 2) && !analyzer.HasValueWhiteSpaceAt(i + 2);
+            analyzer.IsCharInsideValue(i + BoldToken.MdTag.Length) &&
+            !analyzer.HasValueWhiteSpaceAt(i + BoldToken.MdTag.Length);
 
         private static bool IsNonWhiteSpaceCharAfterItalicTag(StringAnalyzer analyzer, int i) =>
-            !analyzer.HasValueUnderscoreAt(i - 1) && analyzer.IsCharInsideValue(i + 1) &&
-            !analyzer.HasValueWhiteSpaceAt(i + 1);
+            !analyzer.HasValueUnderscoreAt(i - 1) && analyzer.IsCharInsideValue(i + ItalicToken.MdTag.Length) &&
+            !analyzer.HasValueWhiteSpaceAt(i + ItalicToken.MdTag.Length);
     }
 }

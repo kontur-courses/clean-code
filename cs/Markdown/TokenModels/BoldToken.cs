@@ -1,5 +1,4 @@
-﻿using System.Linq;
-using Markdown.Core;
+﻿using Markdown.Core;
 
 namespace Markdown.TokenModels
 {
@@ -20,7 +19,7 @@ namespace Markdown.TokenModels
         public static BoldToken Create(string mdString, int startIndex)
         {
             var endIndex = GetTokenEndIndex(mdString, startIndex);
-            var rawToken = mdString.Substring(startIndex + 2, endIndex - startIndex - 2);
+            var rawToken = mdString.Substring(startIndex + MdTag.Length, endIndex - startIndex - MdTag.Length);
             var rawStringToken = HtmlConverter.ConvertToHtmlString(rawToken);
             return new BoldToken(StringToken.Create(rawStringToken), rawToken.Length);
         }
@@ -28,7 +27,7 @@ namespace Markdown.TokenModels
         private static int GetTokenEndIndex(string mdString, int startIndex)
         {
             var analyzer = new StringAnalyzer(mdString);
-            var endIndex = startIndex + 2;
+            var endIndex = startIndex + MdTag.Length;
             var hasIntersectionWithItalicTag = false;
 
             while (analyzer.IsCharInsideValue(endIndex + 1) && !AreDoubleUnderscore(analyzer, endIndex))

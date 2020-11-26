@@ -10,9 +10,13 @@ namespace Markdown.TokenModels
         public int MdTokenLength => MdTag.Length + Children.MdTokenLength;
 
         private HeaderToken(StringToken children) => Children = children;
-        
+
         public string ToHtmlString() => $"<h1>{Children.ToHtmlString()}</h1>";
-        public static HeaderToken Create(string mdString) =>
-            new HeaderToken(StringToken.Create(HtmlConverter.ConvertToHtmlString(mdString.Substring(2))));
+
+        public static HeaderToken Create(string mdString, int startIndex)
+        {
+            var childrenSource = HtmlConverter.ConvertToHtmlString(mdString.Substring(startIndex + MdTag.Length));
+            return new HeaderToken(StringToken.Create(childrenSource));
+        }
     }
 }

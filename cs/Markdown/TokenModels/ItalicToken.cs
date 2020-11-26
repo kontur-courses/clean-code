@@ -22,7 +22,7 @@ namespace Markdown.TokenModels
             var endIndex = GetEndOfToken(mdString, startIndex);
 
             var rawToken = mdString
-                .Substring(startIndex + 1, endIndex - startIndex - 1)
+                .Substring(startIndex + MdTag.Length, endIndex - startIndex - MdTag.Length)
                 .Replace("__", @"\_\_");
             var rawStringToken = HtmlConverter.ConvertToHtmlString(rawToken);
             return new ItalicToken(StringToken.Create(rawStringToken), rawStringToken.Length);
@@ -31,12 +31,12 @@ namespace Markdown.TokenModels
         private static int GetEndOfToken(string mdString, int startIndex)
         {
             var analyzer = new StringAnalyzer(mdString);
-            var endIndex = startIndex + 2;
+            var endIndex = startIndex + MdTag.Length;
             var hasIntersectionWithBoldTag = false;
 
             while (analyzer.IsCharInsideValue(endIndex) && !analyzer.HasValueUnderscoreAt(endIndex))
             {
-                ++endIndex;
+                endIndex++;
                 if (analyzer.HasValueUnderscoreAt(endIndex) && analyzer.HasValueUnderscoreAt(endIndex + 1))
                 {
                     endIndex += 2;

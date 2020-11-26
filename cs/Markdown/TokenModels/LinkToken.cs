@@ -21,14 +21,19 @@ namespace Markdown.TokenModels
 
         public static LinkToken Create(string mdString, int startIndex)
         {
-            var descriptionEndIndex = mdString.IndexOf(']', startIndex + 1);
+            var descriptionStart = startIndex + "[".Length;
+            var descriptionEndIndex = mdString.IndexOf(']', descriptionStart);
             TokenThrowHelper.AssertDescriptionIsCorrect(mdString, startIndex, descriptionEndIndex);
 
-            var linkEndIndex = mdString.IndexOf(')', descriptionEndIndex + 1);
+            var linkStart = descriptionEndIndex + 1 + "(".Length;
+            var linkEndIndex = mdString.IndexOf(')', linkStart);
             TokenThrowHelper.AssertLinkIsCorrect(mdString, linkEndIndex, descriptionEndIndex);
 
-            var description = mdString.Substring(startIndex + 1, descriptionEndIndex - startIndex - 1);
-            var link = mdString.Substring(descriptionEndIndex + 2, linkEndIndex - descriptionEndIndex - 2);
+            var descriptionLength = descriptionEndIndex - descriptionStart;
+            var description = mdString.Substring(descriptionStart, descriptionLength);
+            
+            var linkLength = linkEndIndex - linkStart;
+            var link = mdString.Substring(linkStart, linkLength);
             return new LinkToken(description, link);
         }
     }
