@@ -1,4 +1,7 @@
-﻿using Markdown;
+﻿using System;
+using System.Diagnostics;
+using System.Text;
+using Markdown;
 using NUnit.Framework;
 
 namespace TextFormattersTests
@@ -50,6 +53,37 @@ namespace TextFormattersTests
         {
             var actual = markdown.Render(md);
             Assert.AreEqual(html, actual);
+        }
+
+        [Test]
+        public void AlgorithmComplexityShouldBeLinear()
+        {
+            var input = "# Title\n__This text may be _placed_ on__:\n*GitHub\n*Telegram\n*Discord\n*And more\n\n";
+            markdown.Render(input);
+
+            input = Repeat(input, 100000);
+            var time100k = Time(() => markdown.Render(input));
+            input = Repeat(input, 2);
+            var time200k = Time(() => markdown.Render(input));
+
+            var relation = time200k.TotalSeconds / time100k.TotalSeconds;
+            Assert.AreEqual(2, relation, 0.5);
+        }
+
+        private string Repeat(string text, int count)
+        {
+            var builder = new StringBuilder();
+            for (var i = 0; i < count; i++)
+                builder.Append(text);
+            return builder.ToString();
+        }
+
+        private TimeSpan Time(Action action)
+        {
+            var stopwatch = Stopwatch.StartNew();
+            action();
+            stopwatch.Stop();
+            return stopwatch.Elapsed;
         }
     }
 }
