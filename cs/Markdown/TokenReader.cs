@@ -1,26 +1,61 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
+using System.Security.Cryptography.X509Certificates;
 using System.Text;
+using Markdown.TokenInfo;
 
 namespace Markdown
 {
-    public static class TokenReader
+    public class TokenReader
     {
-        public static IEnumerable<Token> ReadTokens(string text)
+        private readonly Dictionary<TagType, ITokenInfo> _tokenInfos = new Dictionary<TagType, ITokenInfo>
         {
-            throw new NotImplementedException();
-            /*
-             * Итак. Постараюсь свести свои мысли в одно сообщение.
-             * 1. Думаю, здесь будет уместна идея со стаком по типу задач со скобками.
-             * Но! Нам надо запоминать похоже не только какой символ был, но и позицию(для создания в последующем токена).
-             * Идея сделать какой-то еще один класс, где будет хранится тип тэга и где он встретился. С ссылками(
-             * которые я хотел бы добавить в будущем) еще надо подумать как сделать.
-             * 2. Как говорилось выше, предлагаю сначала находить все токены, а потом уже обрабатывать их, т.е применять правила по сути
-             * (по сложности вроде должно получится O(n+m^2), где m - кол-во токенов, а n - кол-во символов в тексте).
-             * 3. Если мы будем обрабатывать токены, то нам по сути не понадобиться лист, в котором есть вложенные токены.
-             * 4. Насчёт применившегося экранирования - можно попробовать так: конец токена перед ним, начало токена после него
-             * 
-            */
+            {TagType.Bold, new BoldTokenInfo()},
+            {TagType.Heading, new HeadingTokenInfo()},
+            {TagType.Italics, new ItalicsTokenInfo()},
+            {TagType.Text, new TextTokenInfo()},
+            {TagType.EntireText, new EntireTextTokenInfo()}
+        };
+
+
+        public TokenReader()
+        {
+            _tokenInfos = _tokenInfos.OrderByDescending(x => x.Value.NestedTypes.Length).ToDictionary(x => x.Key, x => x.Value);
+        }
+
+        public IEnumerable<Token> ReadTokens(string text)
+        {
+            var tokens = new List<Token>();
+            var root = new Token(TagType.EntireText, 0, text.Length - 1);
+            var queue = new Queue<Token>();
+            queue.Enqueue(root);
+            while (queue.Any())
+            {
+                var currentToken = queue.Dequeue();
+                tokens.Add(currentToken);
+                var tokenInfoCurrentToken = _tokenInfos[currentToken.TagType];
+
+                if (tokenInfoCurrentToken.NestedTypes.Length <= 0) continue;
+
+                var startIndex = tokenInfoCurrentToken.GetValueStartIndex(currentToken.Start);
+                var finishIndex = tokenInfoCurrentToken.GetValueFinishIndex(currentToken.Finish);
+                while (startIndex < finishIndex)
+                {
+                    foreach (var tokenInfo in _tokenInfos.Where(x => x.Key != TagType.EntireText).ToDictionary(x => x.Key, x => x.Value).Values)
+                    {
+                        if (tokenInfo.TryReadToken(startIndex, finishIndex, text, out var token))
+                        {
+                            queue.Enqueue(token);
+                            currentToken.NestedTokens.Add(token);
+                            startIndex = token.Finish;
+                            break;
+                        }
+                    }
+                }
+            }
+
+            return tokens.ToArray();
         }
     }
 }

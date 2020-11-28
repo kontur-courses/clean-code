@@ -5,6 +5,7 @@
         Italics,
         Bold,
         Heading,
-        None
+        Text, 
+        EntireText
     }
 }

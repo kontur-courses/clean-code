@@ -8,14 +8,14 @@ namespace Markdown
     {
         public TagType TagType { get; }
         public int Start { get; }
-        public int End { get; }
+        public int Finish { get; }
         public List<Token> NestedTokens { get; }
 
-        public Token(TagType type, int start, int end)
+        public Token(TagType type, int start, int finish)
         {
             TagType = type;
             Start = start;
-            End = end;
+            Finish = finish;
             NestedTokens = new List<Token>();
         }
     }

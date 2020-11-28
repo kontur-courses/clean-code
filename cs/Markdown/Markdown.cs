@@ -1,15 +1,15 @@
-﻿namespace Markdown
+﻿using System;
+
+namespace Markdown
 {
-    public class Md
+    public class Markdown
     {
    
         public string Render(string text)
         {
-            // var tokens = TokenReader.ReadTokens(text);
-            // var correctTokens = tokens.GetCorrectTokens();
-            // return Converter.ToHtml(text, tokens)
-            var tokens = TokenReader.ReadTokens(text);
-            return Converter.ToHtml(text, tokens);
+            var tokens = new TokenReader().ReadTokens(text);
+            var htmlText = Converter.TokensToHtml(text, tokens);
+            return htmlText;
         }
     }
 }
