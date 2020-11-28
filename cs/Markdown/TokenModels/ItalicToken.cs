@@ -5,20 +5,11 @@ namespace Markdown.TokenModels
 {
     public class ItalicToken : IToken
     {
-        public static string MdTag => "_";
-
+        public const string MdTag = "_";
         public int MdTokenLength { get; }
         private StringToken Children { get; }
 
-        private ItalicToken(StringToken children, int rawTokenLength)
-        {
-            Children = children;
-            MdTokenLength = MdTag.Length + rawTokenLength + MdTag.Length;
-        }
-
-        public string ToHtmlString() => $"<em>{Children.ToHtmlString()}</em>";
-
-        public static ItalicToken Create(string mdString, int startIndex)
+        public ItalicToken(string mdString, int startIndex)
         {
             var analyzer = new StringAnalyzer(mdString);
             var endIndex = GetEndOfToken(analyzer, startIndex, out var hasIntersectionWithBoldTag);
@@ -29,8 +20,25 @@ namespace Markdown.TokenModels
                 .Substring(startIndex + MdTag.Length, endIndex - startIndex - MdTag.Length)
                 .Replace("__", @"\_\_");
             var rawStringToken = HtmlConverter.ConvertToHtmlString(rawToken);
-            return new ItalicToken(StringToken.Create(rawStringToken), rawStringToken.Length);
+
+            Children = new StringToken(rawStringToken);
+            MdTokenLength = MdTag.Length + rawStringToken.Length + MdTag.Length;
         }
+
+        public string ToHtmlString() => $"<em>{Children.ToHtmlString()}</em>";
+
+        public static bool IsOpeningMarkdownTag(string mdString, int index)
+        {
+            if (mdString[index].ToString() is not MdTag)
+                return false;
+
+            var analyzer = new StringAnalyzer(mdString);
+            var isRejectedBoldTag =
+                analyzer.HasValueUnderscoreAt(index - 1) || analyzer.HasValueUnderscoreAt(index + 1);
+            var hasWhiteSpaceAfterTag = analyzer.HasValueWhiteSpaceAt(index + MdTag.Length);
+            return !isRejectedBoldTag && analyzer.IsCharInsideValue(index + MdTag.Length) && !hasWhiteSpaceAfterTag;
+        }
+
 
         private static void ThrowArgumentExceptionIfTokenIncorrect(
             StringAnalyzer analyzer,

@@ -28,7 +28,7 @@ namespace MarkdownTests
         [TestCase("__")]
         public void Create_SomeIncorrectInputs_ReturnsNull(string rawToken)
         {
-            Action callCreate = () => ItalicToken.Create(rawToken, 0);
+            Action callCreate = () => _ = new ItalicToken(rawToken, 0);
             callCreate.Should().Throw<ArgumentException>();
         }
 
@@ -36,16 +36,16 @@ namespace MarkdownTests
         [TestCase("foo _bar_", 4, 5)]
         [TestCase("some _wrapped_ text", 5, 9)]
         public void GetMdTokenLength_SomeItalicTokens_ReturnsCorrectInt(string rawToken, int startIndex, int expected) =>
-            ItalicToken.Create(rawToken, startIndex).MdTokenLength.Should().Be(expected);
+            new ItalicToken(rawToken, startIndex).MdTokenLength.Should().Be(expected);
 
         [Test]
         public void Create_HasSelectionOfPartWordInDifferentWords_ReturnsNull()
         {
-            Action createToken = () => ItalicToken.Create("f_oo b_ar", 1);
+            Action createToken = () => _ = new ItalicToken("f_oo b_ar", 1);
             createToken.Should().Throw<ArgumentException>();
         }
 
         private static string GetNewItalicTokenAsHtml(string input, int startIndex) =>
-            ItalicToken.Create(input, startIndex).ToHtmlString();
+            new ItalicToken(input, startIndex).ToHtmlString();
     }
 }

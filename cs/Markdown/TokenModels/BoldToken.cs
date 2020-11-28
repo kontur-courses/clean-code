@@ -5,31 +5,31 @@ namespace Markdown.TokenModels
 {
     public class BoldToken : IToken
     {
-        public static string MdTag => "__";
-
+        public const string MdTag = "__";
         public int MdTokenLength { get; }
-        public string ToHtmlString() => $"<strong>{Children.ToHtmlString()}</strong>";
         private StringToken Children { get; }
 
-        private BoldToken(StringToken children, int rawTokenLength)
-        {
-            Children = children;
-            MdTokenLength = MdTag.Length + rawTokenLength + MdTag.Length;
-        }
-
-        public static BoldToken Create(string mdString, int startIndex)
-        {
-            var endIndex = GetTokenEndIndex(mdString, startIndex);
-            var rawToken = mdString.Substring(startIndex + MdTag.Length, endIndex - startIndex - MdTag.Length);
-            var rawStringToken = HtmlConverter.ConvertToHtmlString(rawToken);
-            return new BoldToken(StringToken.Create(rawStringToken), rawToken.Length);
-        }
-
-        private static int GetTokenEndIndex(string mdString, int startIndex)
+        public BoldToken(string mdString, int startIndex)
         {
             var analyzer = new StringAnalyzer(mdString);
+            var endIndex = GetTokenEndIndex(analyzer, startIndex, out var hasIntersectionWithItalicTag);
+
+            ThrowArgumentExceptionIsIncorrectBoldToken(analyzer, startIndex, endIndex, hasIntersectionWithItalicTag);
+
+            var rawToken = mdString.Substring(startIndex + MdTag.Length, endIndex - startIndex - MdTag.Length);
+            var rawStringToken = HtmlConverter.ConvertToHtmlString(rawToken);
+
+            Children = new StringToken(rawStringToken);
+            MdTokenLength = MdTag.Length + rawToken.Length + MdTag.Length;
+        }
+
+        private static int GetTokenEndIndex(
+            StringAnalyzer analyzer, 
+            int startIndex,
+            out bool hasIntersectionWithItalicTag)
+        {
             var endIndex = startIndex + MdTag.Length;
-            var hasIntersectionWithItalicTag = false;
+            hasIntersectionWithItalicTag = false;
 
             while (analyzer.IsCharInsideValue(endIndex + 1) && !AreDoubleUnderscore(analyzer, endIndex))
             {
@@ -38,11 +38,20 @@ namespace Markdown.TokenModels
                     hasIntersectionWithItalicTag = !hasIntersectionWithItalicTag;
             }
 
-            ThrowArgumentExceptionIsIncorrectBoldToken(analyzer, startIndex, endIndex, hasIntersectionWithItalicTag);
-            
             return endIndex;
         }
-
+        
+        public string ToHtmlString() => $"<strong>{Children.ToHtmlString()}</strong>";
+        
+        public static bool IsOpeningMarkdownTag(string mdString, in int index)
+        {
+            var analyzer = new StringAnalyzer(mdString);
+            if (!AreDoubleUnderscore(analyzer, index))
+                return false;
+            
+            var hasWhiteSpaceAfterOpenTag = analyzer.HasValueWhiteSpaceAt(index + MdTag.Length);
+            return analyzer.IsCharInsideValue(index + MdTag.Length) && !hasWhiteSpaceAfterOpenTag;
+        }
 
         private static void ThrowArgumentExceptionIsIncorrectBoldToken(
             StringAnalyzer analyzer,

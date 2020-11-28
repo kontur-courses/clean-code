@@ -24,7 +24,7 @@ namespace MarkdownTests
         [TestCase("____")]
         public void Create_SomeIncorrectInputs_ReturnsNull(string rawToken)
         {
-            Action callCreate = () => BoldToken.Create(rawToken, 0);
+            Action callCreate = () => _ = new BoldToken(rawToken, 0);
             callCreate.Should().Throw<ArgumentException>();
         }
 
@@ -32,16 +32,16 @@ namespace MarkdownTests
         [TestCase("foo __bar__", 4, 7)]
         [TestCase("some __wrapped__ text", 5, 11)]
         public void GetLength_SomeItalicTokens_ReturnsCorrectInt(string rawToken, int startIndex, int expected) =>
-            BoldToken.Create(rawToken, startIndex).MdTokenLength.Should().Be(expected);
+            new BoldToken(rawToken, startIndex).MdTokenLength.Should().Be(expected);
 
         [Test]
         public void Create_HasTagsInDifferentWords_ReturnsNull()
         {
-            Action callCreate = () => BoldToken.Create("h__as whit__espace", 1);
+            Action callCreate = () => _ = new BoldToken("h__as whit__espace", 1);
             callCreate.Should().Throw<ArgumentException>();
         }
 
         private static string GetNewBoldTokenAsHtml(string input, int startIndex) =>
-            BoldToken.Create(input, startIndex).ToHtmlString();
+            new BoldToken(input, startIndex).ToHtmlString();
     }
 }

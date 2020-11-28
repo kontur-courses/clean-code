@@ -5,7 +5,7 @@ namespace Markdown.TokenModels
 {
     public class LinkToken : IToken
     {
-        public static string MdTag => "[";
+        public const string MdTag = "[";
 
         public int MdTokenLength => "[".Length + Link.MdTokenLength + "]".Length +
                                     "(".Length + Description.MdTokenLength + ")".Length;
@@ -13,15 +13,7 @@ namespace Markdown.TokenModels
         private StringToken Link { get; }
         private StringToken Description { get; }
 
-        private LinkToken(string description, string link)
-        {
-            Description = StringToken.Create(description);
-            Link = StringToken.Create(link);
-        }
-
-        public string ToHtmlString() => $"<a href=\"{Link.ToHtmlString()}\">{Description.ToHtmlString()}</a>";
-
-        public static LinkToken Create(string mdString, int startIndex)
+        public LinkToken(string mdString, int startIndex)
         {
             var analyzer = new StringAnalyzer(mdString);
             var descriptionStart = startIndex + "[".Length;
@@ -39,8 +31,14 @@ namespace Markdown.TokenModels
 
             var linkLength = linkEnd - linkStart;
             var link = mdString.Substring(linkStart, linkLength);
-            return new LinkToken(description, link);
+            
+            Description = new StringToken(description);
+            Link = new StringToken(link);
         }
+
+        public static bool IsOpeningMarkdownTag(string mdString, in int index) => mdString[index].ToString() is MdTag;
+
+        public string ToHtmlString() => $"<a href=\"{Link.ToHtmlString()}\">{Description.ToHtmlString()}</a>";
 
         private static void ThrowArgumentExceptionIfIncorrectDescription(StringAnalyzer analyzer, int startIndex, int endIndex)
         {
