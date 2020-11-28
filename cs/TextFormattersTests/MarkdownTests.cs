@@ -60,14 +60,22 @@ namespace TextFormattersTests
         {
             var input = "# Title\n__This text may be _placed_ on__:\n*GitHub\n*Telegram\n*Discord\n*And more\n\n";
             markdown.Render(input);
+            var delta = 4;
+            var firstTimes = 100;
+            var repetitionsSecond = 10;
+            var repetitionsThird = 100;
 
-            input = Repeat(input, 100000);
-            var time100k = Time(() => markdown.Render(input));
-            input = Repeat(input, 2);
-            var time200k = Time(() => markdown.Render(input));
+            input = Repeat(input, firstTimes);
+            var first = Time(() => markdown.Render(input));
+            input = Repeat(input, repetitionsSecond);
+            var second = Time(() => markdown.Render(input));
+            input = Repeat(input, repetitionsThird);
+            var third = Time(() => markdown.Render(input));
 
-            var relation = time200k.TotalSeconds / time100k.TotalSeconds;
-            Assert.AreEqual(2, relation, 0.5);
+            var relationSecond = second.TotalSeconds / first.TotalSeconds;
+            var relationThird = third.TotalSeconds / second.TotalSeconds;
+            Assert.AreEqual(repetitionsSecond, relationSecond, repetitionsSecond / delta);
+            Assert.AreEqual(repetitionsThird, relationThird, repetitionsThird / delta);
         }
 
         private string Repeat(string text, int count)
