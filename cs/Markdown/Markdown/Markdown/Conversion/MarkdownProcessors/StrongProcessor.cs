@@ -8,16 +8,16 @@
             var endMark = token.Mark.FormattedMarkSymbols.endFormattedMark;
 
             var formattedTokenText = "";
-            if (token.External?.Mark == null)
+
+            if(!(token.External?.Mark is ItalicMark))
                 formattedTokenText = startMark + token.FormattedText + endMark;
-            
-            if(token.External?.Mark != null && token.External.Mark.GetType()!=typeof(ItalicMark))
-                formattedTokenText = startMark + token.FormattedText + endMark;
-            
-            var resultToken = new TokenMd(formattedTokenText, token.Mark);
-            resultToken.FormattedText = formattedTokenText;
-            resultToken.InnerTokens = token.InnerTokens;
-            
+
+            var resultToken = new TokenMd(formattedTokenText, token.Mark)
+            {
+                FormattedText = formattedTokenText, 
+                InnerTokens = token.InnerTokens
+            };
+
             return resultToken;
         }
     }

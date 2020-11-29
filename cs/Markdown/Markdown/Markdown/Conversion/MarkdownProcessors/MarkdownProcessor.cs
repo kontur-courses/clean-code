@@ -1,4 +1,5 @@
 ﻿using System.Collections.Generic;
+using System.Linq;
 using System.Text;
 using Markdown.Conversion.MarkdownProcessors;
 using Markdown.MarkdownProcessors;
@@ -18,48 +19,33 @@ namespace Markdown
                 {new ItalicMark(), new ItalicProcessor()},
                 {new LinkMark(), new LinkProcessor()}
             };
-            if (marksInfo != null)
-                foreach (var markInfo in marksInfo)
-                    marks.Add(markInfo.Key, markInfo.Value);
+            if (marksInfo == null) 
+                return;
+            
+            foreach (var (key, value) in marksInfo)
+                marks.Add(key, value);
         }
 
         public List<TokenMd> FormatTokens(List<TokenMd> tokens)
         {
-            var formattedTokens = new List<TokenMd>();
-
-            for (var i = 0; i < tokens.Count; i++)
-                formattedTokens.Add(FormatToken(tokens[i]));
-
-            return formattedTokens;
-        }
-
-        private List<TokenMd> GetNewInnerTokens(List<TokenMd> innerTokens)
-        {
-            var resultInnerToken = innerTokens;
-            for (var i = 0; i < innerTokens.Count; i++)
-                resultInnerToken[i] = FormatToken(resultInnerToken[i]);
-
-            return resultInnerToken;
+            return tokens.Select(FormatToken).ToList();
         }
 
         private TokenMd FormatToken(TokenMd token)
         {
             var resultToken = token;
             if (resultToken.InnerTokens != null && resultToken.InnerTokens.Count > 0)
-                resultToken.InnerTokens = GetNewInnerTokens(resultToken.InnerTokens);
-
-
+                resultToken.InnerTokens = FormatTokens(resultToken.InnerTokens);
+            
             if (resultToken.InnerTokens != null && resultToken.InnerTokens.Count > 0)
             {
                 resultToken.FormattedText = JoinInnerTokensInToken(resultToken.InnerTokens);
                 resultToken.InnerTokens = null;
             }
             else
-            {
                 resultToken.FormattedText = resultToken.TokenWithoutMark;
-            }
 
-            if (resultToken.Mark != null)
+            if (!(resultToken.Mark is EmptyMark))
                 resultToken = marks[resultToken.Mark].FormatToken(resultToken);
 
             return resultToken;
@@ -68,11 +54,12 @@ namespace Markdown
         private string JoinInnerTokensInToken(List<TokenMd> innerTokens)
         {
             var builder = new StringBuilder();
-            for (var i = 0; i < innerTokens.Count; i++)
-                if (innerTokens[i].InnerTokens != null && innerTokens[i].InnerTokens.Count > 0)
-                    builder.Append(JoinInnerTokensInToken(innerTokens[i].InnerTokens));
-                else
-                    builder.Append(innerTokens[i].FormattedText);
+
+            foreach (var innerToken in innerTokens)
+                builder.Append(
+                    innerToken.InnerTokens != null && innerToken.InnerTokens.Count > 0
+                    ? JoinInnerTokensInToken(innerToken.InnerTokens)
+                    : innerToken.FormattedText);
 
             return builder.ToString();
         }

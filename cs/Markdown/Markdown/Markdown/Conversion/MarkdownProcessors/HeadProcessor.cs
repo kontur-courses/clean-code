@@ -11,10 +11,12 @@ namespace Markdown.Conversion.MarkdownProcessors
             var endMark = token.Mark.FormattedMarkSymbols.endFormattedMark;
 
             var formattedTokenText = startMark + token.FormattedText + endMark;
-            
-            var resultToken = new TokenMd(formattedTokenText, token.Mark);
-            resultToken.FormattedText = formattedTokenText;
-            resultToken.InnerTokens = token.InnerTokens;
+
+            var resultToken = new TokenMd(formattedTokenText, token.Mark)
+            {
+                FormattedText = formattedTokenText, 
+                InnerTokens = token.InnerTokens,
+            };
             return resultToken;
         }
     }
