@@ -8,8 +8,6 @@ namespace Markdown.Conversion.Parsers
     {
         private LinkMark mark;
         private ParseHelper helper;
-        private TokenMd resultToken;
-        private Queue symbols;
         private string linkText;
         private string link;
         private bool isFirst; 
@@ -35,68 +33,66 @@ namespace Markdown.Conversion.Parsers
                 if (isFirst && text[finalIndex] != '[')
                     isLink = false;
                  
-                 var resToken = HandleSquareBrackets(text, index, finalIndex, out finalIndex);
-                 if(resToken != null)
-                     isLink = false;
+                var resToken = HandleSquareBrackets(text, index, finalIndex, out finalIndex);
+                if(resToken != null)
+                    isLink = false;
                 
-                 resToken = HandleOpenRoundBrackets(text, index, finalIndex, out finalIndex);
-                 if(resToken != null)
-                     isLink = false;
+                resToken = HandleOpenRoundBrackets(text, index, finalIndex, out finalIndex);
+                if(resToken != null)
+                    isLink = false;
 
-                 if (text[finalIndex] == ')' && currentSymbol == "(")
-                 {
-                     link = builder.ToString();
-                     finalIndex+= 2;
-                     symbolsCount++;
-                     mark.LinkText = linkText;
-                     mark.Link = link;
+                if (text[finalIndex] == ')' && currentSymbol == "(")
+                {
+                    link = builder.ToString();
+                    finalIndex+= 2;
+                    symbolsCount++;
+                    mark.LinkText = linkText;
+                    mark.Link = link;
                     
-                     if(string.IsNullOrEmpty(linkText) && string.IsNullOrEmpty(link))
-                         isLink = false;
+                    if(string.IsNullOrEmpty(linkText) && string.IsNullOrEmpty(link))
+                        isLink = false;
 
-                     if (symbolsCount == mark.AllSymbols.Length)
-                     {
-                         if(isLink)
+                    if (symbolsCount == mark.AllSymbols.Length)
+                    {
+                        if(isLink)
                             return new TokenMd(linkText, mark);
-                         var tokenText = text.Substring(index, finalIndex - index);
-                         return new TokenMd(tokenText, null);
-                     }
-                 }
+                        var tokenText = text.Substring(index, finalIndex - index);
+                        return new TokenMd(tokenText, new EmptyMark());
+                    }
+                }
 
-                 var resultText = text.Substring(index, finalIndex - index);
-                 return new TokenMd(resultText, null);
+                var resultText = text.Substring(index, finalIndex - index);
+                return new TokenMd(resultText, new EmptyMark());
             }
-            return new TokenMd(text.Substring(index, finalIndex - index), null);
+            return new TokenMd(text.Substring(index, finalIndex - index), new EmptyMark());
         }
 
         private TokenMd ReturnFirstSymbolToken(int index, out int finalIndex)
         {
             finalIndex = index + 1;
-            return new TokenMd("[", null);
+            return new TokenMd("[", new EmptyMark());
         }
 
         private TokenMd HandleSquareBrackets(string text, int index, int finalIndex, out int newFinalIndex)
         {
             while (finalIndex < text.Length)
             {
-                if (text[finalIndex] == '[')
+                switch (text[finalIndex])
                 {
-                    symbolsCount++;
-                    isFirst = false;
-                    finalIndex++;
-                    continue;
+                    case '[':
+                        symbolsCount++;
+                        isFirst = false;
+                        finalIndex++;
+                        continue;
+                    case ']' when currentSymbol == "[":
+                        linkText = builder.ToString();
+                        builder = new StringBuilder();
+                        currentSymbol = "]";
+                        finalIndex++;
+                        symbolsCount++;
+                        continue;
                 }
-                
-                if (text[finalIndex] == ']' && currentSymbol == "[")
-                {
-                    linkText = builder.ToString();
-                    builder = new StringBuilder();
-                    currentSymbol = "]";
-                    finalIndex++;
-                    symbolsCount++;
-                    continue;
-                }
-                
+
                 if (currentSymbol == "[")
                 {
                     builder = helper.AppendSymbol(builder, text, finalIndex, out finalIndex);

@@ -8,15 +8,16 @@ namespace Markdown.Conversion.Parsers
         public bool IsSymbols(int index, string text, string symbols)
         {
             var count = 0;
-            if(index + symbols.Length <= text.Length)
-                for (var i = 0; i < symbols.Length; i++)
-                {
-                    if (text[index +i] == symbols[i])
-                        count++;
+            if (index + symbols.Length > text.Length) 
+                return false;
+            for (var i = 0; i < symbols.Length; i++)
+            {
+                if (text[index +i] == symbols[i])
+                    count++;
 
-                    if (count == symbols.Length)
-                        return true;
-                }
+                if (count == symbols.Length)
+                    return true;
+            }
 
             return false;
         }
@@ -33,9 +34,9 @@ namespace Markdown.Conversion.Parsers
         
         public StringBuilder AppendMarkSymbols(StringBuilder builder, string text, int index, out int finalIndex,string markSymbol)
         {
-            var resultBuilder = builder;
+            var resultBuilder = builder ?? throw new ArgumentNullException(nameof(builder));
             finalIndex = index;
-            for (int i = 0; i < markSymbol.Length; i++)
+            for (var i = 0; i < markSymbol.Length; i++)
             {
                 resultBuilder.Append(text[index]);
                 finalIndex++;

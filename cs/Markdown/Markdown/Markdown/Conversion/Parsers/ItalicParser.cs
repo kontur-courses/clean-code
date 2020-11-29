@@ -46,12 +46,11 @@ namespace Markdown.Parsers
             {
                 resultToken = new TokenMd(tokenText, mark);
 
-                if (resultToken.TokenWithoutMark.Length == 0)
-                    return new TokenMd("__", null);
-
-                return resultToken;
+                return resultToken.TokenWithoutMark.Length == 0 
+                    ? new TokenMd("__", new EmptyMark()) 
+                    : resultToken;
             }
-            resultToken =  new TokenMd(tokenText, null);
+            resultToken =  new TokenMd(tokenText, new EmptyMark());
             return resultToken;
         }
     
