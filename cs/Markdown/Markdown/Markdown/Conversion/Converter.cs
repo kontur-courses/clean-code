@@ -13,7 +13,7 @@ namespace Markdown
         public Converter(string text)
         {
             this.text = text;
-            mdPraser = new MarkdownParser(text);
+            mdPraser = new MarkdownParser();
             mdProcessor = new MarkdownProcessor();
         }
 
@@ -32,9 +32,9 @@ namespace Markdown
             
             var builder = new StringBuilder();
 
-            for (int i = 0; i < tokens.Count; i++)
+            foreach (var token in tokens)
             {
-                var formattedToken = tokens[i].FormattedText;
+                var formattedToken = token.FormattedText;
                 builder.Append(formattedToken);
             }
 
