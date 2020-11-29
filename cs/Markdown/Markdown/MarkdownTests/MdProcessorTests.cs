@@ -20,7 +20,6 @@ namespace MarkdownTests
         [Test]
         public void FormatToken_ReturnStrongFormattedToken_WhenTokenContainsOneStrongTag()
         {
-            var MP = new StrongProcessor();
             var mark = new StrongMark();
             var expectedToken = new TokenMd("\\<strong>12345\\</strong>", mark);
             var tags = new Dictionary<Mark, IMarkProcessor>();
