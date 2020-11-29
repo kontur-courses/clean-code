@@ -6,7 +6,7 @@ namespace Markdown
     public class TokenMd
     {
         public string Token { get; set; }
-        public string TokenWithoutMark { get; set; }
+        public string TokenWithoutMark { get; }
 
         public Mark Mark { get; set; }
 
@@ -24,7 +24,7 @@ namespace Markdown
             this.Mark = mark;
             Token = token;
             
-            if (mark != null)
+            if (!(mark is EmptyMark))
                 foreach (var symbol in mark.AllSymbols)
                 {
                     TokenWithoutMark = token
