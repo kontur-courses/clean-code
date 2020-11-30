@@ -53,12 +53,9 @@ namespace Markdown
 
             if (Token != null)
                 hash = Token.GetHashCode();
-            
-            if (InnerTokens != null)
-            {
-                foreach (var innerToken in InnerTokens)
-                    hash += innerToken.GetHashCode();
-            }
+
+            if (InnerTokens == null) return hash;
+            hash += InnerTokens.Sum(innerToken => innerToken.GetHashCode());
 
             return hash;
         }

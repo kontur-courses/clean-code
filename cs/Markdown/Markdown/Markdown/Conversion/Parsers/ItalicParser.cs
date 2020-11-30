@@ -22,17 +22,14 @@ namespace Markdown.Parsers
 
             while (finalIndex < text.Length && !helper.IsSymbols(finalIndex, text, Environment.NewLine)&& !isEnd)
             {
-                if (text[finalIndex] == '_')
-                {
-                    if(finalIndex + 1 >= text.Length 
-                       && text[finalIndex - 1] != '_')
-                        isEnd = true;
-                    if (finalIndex + 1 < text.Length 
-                        && text[finalIndex + 1] != '_'
-                        && !char.IsWhiteSpace(text[finalIndex - 1])
-                        && text[finalIndex - 1] != '_')
-                        isEnd = true;
-                }
+                if (text[finalIndex] == '_' 
+                    && text[finalIndex - 1] != '_' 
+                    && (finalIndex + 1 >= text.Length
+                    || finalIndex + 1 < text.Length
+                    && text[finalIndex + 1] != '_'
+                    && !char.IsWhiteSpace(text[finalIndex - 1])))
+                    isEnd = true;
+                
                 builder = helper.AppendSymbol(builder, text, finalIndex, out finalIndex);
             }
             
@@ -42,16 +39,17 @@ namespace Markdown.Parsers
 
         private TokenMd GetResultToken(string tokenText, bool isEnd)
         {
-            if (isEnd)
+            if (!isEnd)
             {
-                resultToken = new TokenMd(tokenText, mark);
-
-                return resultToken.TokenWithoutMark.Length == 0 
-                    ? new TokenMd("__", new EmptyMark()) 
-                    : resultToken;
+                resultToken = new TokenMd(tokenText, new EmptyMark());
+                return resultToken;
             }
-            resultToken =  new TokenMd(tokenText, new EmptyMark());
-            return resultToken;
+
+            resultToken = new TokenMd(tokenText, mark);
+
+            return resultToken.TokenWithoutMark.Length == 0 
+                ? new TokenMd("__", new EmptyMark()) 
+                : resultToken;
         }
     
     }
