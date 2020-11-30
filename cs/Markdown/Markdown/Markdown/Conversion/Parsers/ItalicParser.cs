@@ -22,14 +22,13 @@ namespace Markdown.Parsers
 
             while (finalIndex < text.Length && !helper.IsSymbols(finalIndex, text, Environment.NewLine)&& !isEnd)
             {
-                if (text[finalIndex] == '_' 
-                    && text[finalIndex - 1] != '_' 
-                    && (finalIndex + 1 >= text.Length
-                    || finalIndex + 1 < text.Length
-                    && text[finalIndex + 1] != '_'
-                    && !char.IsWhiteSpace(text[finalIndex - 1])))
-                    isEnd = true;
-                
+                isEnd = text[finalIndex] == '_'
+                        && text[finalIndex - 1] != '_'
+                        && (finalIndex + 1 >= text.Length 
+                            || finalIndex + 1 < text.Length
+                            && text[finalIndex + 1] != '_'
+                            && !char.IsWhiteSpace(text[finalIndex - 1]));
+
                 builder = helper.AppendSymbol(builder, text, finalIndex, out finalIndex);
             }
             
