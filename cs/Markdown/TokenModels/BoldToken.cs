@@ -5,12 +5,15 @@ namespace Markdown.TokenModels
 {
     public class BoldToken : IToken
     {
-        public const string MdTag = "__";
+        public static readonly string MdTag = TagsConfigReader.GetMdTagForTokenName(nameof(BoldToken));
         public int MdTokenLength { get; }
         private StringToken Children { get; }
 
         public BoldToken(string mdString, int startIndex)
         {
+            if (!IsOpeningMarkdownTag(mdString, startIndex))
+                throw new ArgumentException();
+
             var analyzer = new StringAnalyzer(mdString);
             var endIndex = GetTokenEndIndex(analyzer, startIndex, out var hasIntersectionWithItalicTag);
 
@@ -23,8 +26,8 @@ namespace Markdown.TokenModels
             MdTokenLength = MdTag.Length + rawToken.Length + MdTag.Length;
         }
 
-        private static int GetTokenEndIndex(
-            StringAnalyzer analyzer, 
+        private int GetTokenEndIndex(
+            StringAnalyzer analyzer,
             int startIndex,
             out bool hasIntersectionWithItalicTag)
         {
@@ -40,15 +43,15 @@ namespace Markdown.TokenModels
 
             return endIndex;
         }
-        
+
         public string ToHtmlString() => $"<strong>{Children.ToHtmlString()}</strong>";
-        
-        public static bool IsOpeningMarkdownTag(string mdString, in int index)
+
+        private bool IsOpeningMarkdownTag(string mdString, in int index)
         {
             var analyzer = new StringAnalyzer(mdString);
             if (!AreDoubleUnderscore(analyzer, index))
                 return false;
-            
+
             var hasWhiteSpaceAfterOpenTag = analyzer.HasValueWhiteSpaceAt(index + MdTag.Length);
             return analyzer.IsCharInsideValue(index + MdTag.Length) && !hasWhiteSpaceAfterOpenTag;
         }
@@ -63,7 +66,7 @@ namespace Markdown.TokenModels
             if (endIndex - startIndex <= 2)
                 throw new ArgumentException($"{nameof(BoldToken)} should has length more than 0!");
 
-            if (!analyzer.HasValueUnderscoreAt(startIndex + 1) || !analyzer.HasValueUnderscoreAt(endIndex + 1))
+            if (!AreDoubleUnderscore(analyzer, startIndex) || !AreDoubleUnderscore(analyzer, endIndex))
                 throw new ArgumentException(
                     $"{nameof(BoldToken)} should starts and ends with double underscore!");
 

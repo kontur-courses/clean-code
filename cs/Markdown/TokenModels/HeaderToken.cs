@@ -5,14 +5,13 @@ namespace Markdown.TokenModels
 {
     public class HeaderToken : IToken
     {
-        public const string MdTag = "# ";
+        public static readonly string MdTag = TagsConfigReader.GetMdTagForTokenName(nameof(HeaderToken));
         private StringToken Children { get; }
 
         public int MdTokenLength => MdTag.Length + Children.MdTokenLength;
 
         public HeaderToken(string mdString, int startIndex)
         {
-            
             if (!mdString.StartsWith(MdTag))
                 throw new ArgumentException($"{nameof(HeaderToken)} should starts with \"{MdTag}\"");
 

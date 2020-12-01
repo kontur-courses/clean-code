@@ -11,9 +11,15 @@
       <Content Include="MarkdownSpec.md">
         <CopyToOutputDirectory>Always</CopyToOutputDirectory>
       </Content>
+      <None Remove="Core\SupportedTagCharacters.json" />
+      <None Remove="TagsConfig.json" />
+      <Content Include="TagsConfig.json">
+        <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+      </Content>
     </ItemGroup>
 
     <ItemGroup>
+      <PackageReference Include="Newtonsoft.Json" Version="9.0.1" />
       <PackageReference Include="System.CommandLine.DragonFruit" Version="0.3.0-alpha.20371.2" />
     </ItemGroup>
 

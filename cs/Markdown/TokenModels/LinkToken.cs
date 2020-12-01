@@ -5,7 +5,7 @@ namespace Markdown.TokenModels
 {
     public class LinkToken : IToken
     {
-        public const string MdTag = "[";
+        public static readonly string MdTag = TagsConfigReader.GetMdTagForTokenName(nameof(LinkToken));
 
         public int MdTokenLength => "[".Length + Link.MdTokenLength + "]".Length +
                                     "(".Length + Description.MdTokenLength + ")".Length;
@@ -15,6 +15,9 @@ namespace Markdown.TokenModels
 
         public LinkToken(string mdString, int startIndex)
         {
+            if (mdString[startIndex].ToString() != MdTag)
+                throw new ArgumentException();
+
             var analyzer = new StringAnalyzer(mdString);
             var descriptionStart = startIndex + "[".Length;
             var descriptionEnd = mdString.IndexOf(']', descriptionStart);
@@ -31,16 +34,15 @@ namespace Markdown.TokenModels
 
             var linkLength = linkEnd - linkStart;
             var link = mdString.Substring(linkStart, linkLength);
-            
+
             Description = new StringToken(description);
             Link = new StringToken(link);
         }
 
-        public static bool IsOpeningMarkdownTag(string mdString, in int index) => mdString[index].ToString() is MdTag;
-
         public string ToHtmlString() => $"<a href=\"{Link.ToHtmlString()}\">{Description.ToHtmlString()}</a>";
 
-        private static void ThrowArgumentExceptionIfIncorrectDescription(StringAnalyzer analyzer, int startIndex, int endIndex)
+        private static void ThrowArgumentExceptionIfIncorrectDescription(StringAnalyzer analyzer, int startIndex,
+            int endIndex)
         {
             if (analyzer.AnalyzedString[startIndex] != '[')
                 throw new ArgumentException($"{nameof(LinkToken)} should starts with open square bracket!");

@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Linq;
 using System.Text;
 using Markdown.TokenModels;
 
@@ -7,7 +6,6 @@ namespace Markdown.Core
 {
     public static class HtmlConverter
     {
-        private static readonly string[] TagChars = {BoldToken.MdTag, ItalicToken.MdTag, LinkToken.MdTag};
         private const char EscapeChar = '\\';
 
         public static string ConvertToHtmlString(string mdText)
@@ -39,7 +37,7 @@ namespace Markdown.Core
             var analyzer = new StringAnalyzer(mdText);
             var collector = new StringBuilder();
             var currentIndex = startIndex;
-            while (currentIndex < mdText.Length && !IsTokenStartTag(mdText, currentIndex))
+            while (currentIndex < mdText.Length && !TagsConfigReader.IsMarkdownTag(mdText[currentIndex].ToString()))
             {
                 if (IsEscaped(analyzer, currentIndex))
                     currentIndex++;
@@ -70,24 +68,20 @@ namespace Markdown.Core
             var openTag = mdText[index].ToString();
             var singleTag = openTag;
 
-            if (index + 1 >= 0 && index + 1 <= mdText.Length)
+            if (index + 1 >= 0 && index + 1 < mdText.Length)
                 openTag += mdText[index + 1];
             var possibleDoubleTag = openTag;
 
-            return TagChars.Contains(possibleDoubleTag) ? possibleDoubleTag : singleTag;
+            return TagsConfigReader.IsMarkdownTag(possibleDoubleTag) ? possibleDoubleTag : singleTag;
         }
 
         private static bool IsEscaped(StringAnalyzer analyzer, in int index)
         {
             var mdString = analyzer.AnalyzedString;
             var canNextCharBeEscaped = analyzer.IsCharInsideValue(index + 1) &&
-                                       (TagChars.Contains(mdString[index + 1].ToString()) ||
+                                       (TagsConfigReader.IsMarkdownTag(mdString[index + 1].ToString()) ||
                                         mdString[index + 1] is EscapeChar);
             return mdString[index] is EscapeChar && canNextCharBeEscaped;
         }
-
-        private static bool IsTokenStartTag(string mdString, in int index) =>
-            BoldToken.IsOpeningMarkdownTag(mdString, index) || ItalicToken.IsOpeningMarkdownTag(mdString, index)
-                                                            || LinkToken.IsOpeningMarkdownTag(mdString, index);
     }
 }

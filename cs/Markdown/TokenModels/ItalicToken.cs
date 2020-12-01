@@ -5,12 +5,15 @@ namespace Markdown.TokenModels
 {
     public class ItalicToken : IToken
     {
-        public const string MdTag = "_";
+        public static readonly string MdTag = TagsConfigReader.GetMdTagForTokenName(nameof(ItalicToken));
         public int MdTokenLength { get; }
         private StringToken Children { get; }
 
         public ItalicToken(string mdString, int startIndex)
         {
+            if (!IsOpeningMarkdownTag(mdString, startIndex))
+                throw new ArgumentException();
+
             var analyzer = new StringAnalyzer(mdString);
             var endIndex = GetEndOfToken(analyzer, startIndex, out var hasIntersectionWithBoldTag);
 
@@ -27,9 +30,9 @@ namespace Markdown.TokenModels
 
         public string ToHtmlString() => $"<em>{Children.ToHtmlString()}</em>";
 
-        public static bool IsOpeningMarkdownTag(string mdString, int index)
+        private static bool IsOpeningMarkdownTag(string mdString, int index)
         {
-            if (mdString[index].ToString() is not MdTag)
+            if (mdString[index].ToString() != MdTag)
                 return false;
 
             var analyzer = new StringAnalyzer(mdString);
