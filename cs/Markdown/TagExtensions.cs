@@ -16,14 +16,14 @@ namespace Markdown
             return positionBeforeTag > 0 && !char.IsWhiteSpace(text[positionBeforeTag]);
         }
 
-        public static bool TryPairCloseTag(this Tag tag, Tag closeTag, string text)
+        public static bool TryPairCloseTag(this Tag tag, Tag possibleCloseTag, string text)
         {
-            if (!closeTag.CanBeClose(text) || IsEmptyStringBetween(tag, closeTag))
+            if (!possibleCloseTag.CanBeClose(text) || IsEmptyStringBetween(tag, possibleCloseTag))
                 return false;
-            if (tag.InWord || closeTag.InWord)
-                if (tag.NotInOneWordWith(closeTag, text))
+            if (tag.InWord || possibleCloseTag.InWord)
+                if (tag.NotInOneWordWith(possibleCloseTag, text))
                     return false;
-            closeTag.ConvertToClose();
+            possibleCloseTag.ConvertToClose();
             return true;
         }
 
