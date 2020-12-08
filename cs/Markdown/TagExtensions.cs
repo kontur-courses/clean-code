@@ -1,5 +1,4 @@
-﻿using System;
-using System.Linq;
+﻿using System.Linq;
 
 namespace Markdown
 {
@@ -35,8 +34,6 @@ namespace Markdown
 
         private static bool IsEmptyStringBetween(Tag openTag, Tag closeTag)
         {
-            if (openTag.Type != closeTag.Type)
-                throw new ArgumentException("Tag types must be equals");
             return closeTag.Position - openTag.Position == closeTag.MdTagLength;
         }
     }
