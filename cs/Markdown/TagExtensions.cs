@@ -1,4 +1,4 @@
-﻿using System.Linq;
+﻿using System;
 
 namespace Markdown
 {
@@ -29,7 +29,7 @@ namespace Markdown
 
         public static bool NotInOneWordWith(this Tag tag, Tag otherTag, string text)
         {
-            return text.Substring(tag.Position, otherTag.Position - tag.Position).Any(char.IsWhiteSpace);
+            return text.AsSpan(tag.Position, otherTag.Position - tag.Position).Any(char.IsWhiteSpace);
         }
 
         private static bool IsEmptyStringBetween(Tag openTag, Tag closeTag)
