@@ -29,8 +29,7 @@ namespace Markdown
             var openTags = new Dictionary<TagType, Tag>();
             foreach (var tag in tags)
             {
-                openTags.TryGetValue(tag.Type, out var openTag);
-                if (openTag == null)
+                if (!openTags.TryGetValue(tag.Type, out var openTag))
                 {
                     if (tag.CanBeOpen(text))
                         openTags[tag.Type] = tag;
@@ -41,7 +40,7 @@ namespace Markdown
                     {
                         yield return openTag;
                         yield return tag;
-                        openTags[tag.Type] = null;
+                        openTags.Remove(tag.Type);
                     }
                     else if (openTag.InWord && openTag.NotInOneWordWith(tag, text))
                     {
