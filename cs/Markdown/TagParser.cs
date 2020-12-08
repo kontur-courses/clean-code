@@ -81,8 +81,13 @@ namespace Markdown
         private static bool TryReadTag(int position, string text, out Tag tag, bool inWord = false)
         {
             foreach (var tagHelper in SupportedTags.Values)
-                if (tagHelper.TryParse(position, text, out tag, inWord))
+            {
+                if (tagHelper.TryParse(position, text, out var parsedTag, inWord))
+                {
+                    tag = parsedTag;
                     return true;
+                }
+            }
 
             tag = null;
             return false;
