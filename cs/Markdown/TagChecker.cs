@@ -36,10 +36,10 @@ namespace Markdown
                 }
                 else
                 {
-                    if (openTag.TryPairCloseTag(tag, text))
+                    if (openTag.TryGetCloseTag(tag, text, out var closeTag))
                     {
                         yield return openTag;
-                        yield return tag;
+                        yield return closeTag;
                         openTags.Remove(tag.Type);
                     }
                     else if (openTag.InWord && openTag.NotInOneWordWith(tag, text))

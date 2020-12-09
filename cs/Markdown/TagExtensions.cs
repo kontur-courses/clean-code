@@ -16,14 +16,22 @@ namespace Markdown
             return positionBeforeTag > 0 && !char.IsWhiteSpace(text[positionBeforeTag]);
         }
 
-        public static bool TryPairCloseTag(this Tag tag, Tag possibleCloseTag, string text)
+        public static bool TryGetCloseTag(this Tag tag, Tag possibleCloseTag, string text, out Tag closeTag)
         {
             if (!possibleCloseTag.CanBeClose(text) || IsEmptyStringBetween(tag, possibleCloseTag))
+            {
+                closeTag = null;
                 return false;
+            }
+
             if (tag.InWord || possibleCloseTag.InWord)
                 if (tag.NotInOneWordWith(possibleCloseTag, text))
+                {
+                    closeTag = null;
                     return false;
-            possibleCloseTag.ConvertToClose();
+                }
+
+            closeTag = Tag.GetCloseTag(possibleCloseTag);
             return true;
         }
 

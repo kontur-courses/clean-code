@@ -70,12 +70,20 @@ namespace Markdown
                 tagsInWordEnd = readTags;
                 position += Math.Max(1, symbolsReadCount);
             }
-
+            
+            UnpinTagsFromWord(tagsInWord,tagsInWordEnd);
             symbolsReadCount = position - startPosition;
-            foreach (var tag in tagsInWordEnd)
-                tag.UnpinFromWord();
-
             return hasDigits ? tagsInWordBegin.Concat(tagsInWordEnd) : tagsInWordBegin.Concat(tagsInWord);
+        }
+
+        private static void UnpinTagsFromWord(List<Tag> tagsInWord, List<Tag> tagsInWordEnd)
+        {
+            var startIndex = tagsInWord.Count - tagsInWordEnd.Count;
+            for (var i = startIndex; i < tagsInWord.Count; i++)
+            {
+                tagsInWord[i] = Tag.GetNotInWordTag(tagsInWord[i]);
+                tagsInWordEnd[i - startIndex] = Tag.GetNotInWordTag(tagsInWord[i]);
+            }
         }
 
         private static bool TryReadTag(int position, string text, out Tag tag, bool inWord = false)

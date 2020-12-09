@@ -15,19 +15,19 @@
 
         public int Position { get; }
         public TagType Type { get; }
-        public bool IsOpening { get; private set; }
+        public bool IsOpening { get; }
         public int MdTagLength { get; }
-        public bool InWord { get; private set; }
+        public bool InWord { get; }
         public bool IsMdPaired { get; }
 
-        public void ConvertToClose()
+        public static Tag GetCloseTag(Tag tag)
         {
-            IsOpening = false;
+            return new Tag(tag.Position, tag.Type, false, tag.MdTagLength, tag.InWord, tag.IsMdPaired);
         }
 
-        public void UnpinFromWord()
+        public static Tag GetNotInWordTag(Tag tag)
         {
-            InWord = false;
+            return new Tag(tag.Position, tag.Type, tag.IsOpening, tag.MdTagLength, false, tag.IsMdPaired);
         }
     }
 }
