@@ -6,6 +6,5 @@
         Header,
         Italic,
         Strong,
-        Reference
     }
 }
