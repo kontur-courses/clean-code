@@ -1,21 +1,20 @@
-﻿namespace Markdown
+﻿using System.Text;
+
+namespace Markdown
 {
     public class Md
     {
         public string Render(string inputLine)
         {
             var mainToken = CreateMainToken(inputLine);
-            var tokenReader = new TokenReader(inputLine);
-            var lineWithoutEscapedChars = tokenReader.Read(mainToken);
-            var tokenWriter = new TokenWriter(lineWithoutEscapedChars);
-            tokenWriter.Write(mainToken);
-            var resultLine = tokenWriter.GetString();
-            return resultLine;
+            var inputLineBuilder = new StringBuilder(inputLine);
+            new TokenParser().Parse(mainToken, inputLineBuilder);
+            return new TokenWriter(inputLineBuilder.ToString()).Write(mainToken);
         }
 
         private Token CreateMainToken(string line)
         {
-            return new SimpleToken(0, line.Length);
+            return new Token(0, line.Length, null, TokenType.Simple);
         }
     }
 }
