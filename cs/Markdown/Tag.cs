@@ -22,7 +22,7 @@ namespace Markdown
         public string HtmlTag { get; }
         public TokenType TokenType { get; }
 
-        public static Tag GetTagByTokenType(TokenType tokenType, bool isOpening = false)
+        public static Tag GetTagByTokenType(TokenType tokenType, bool isOpening)
         {
             return AllTags.FirstOrDefault(tag => tag.TokenType == tokenType && tag.IsOpening == isOpening);
         }
@@ -35,7 +35,7 @@ namespace Markdown
             IsOpening = isOpening;
         }
 
-        public void ReplaceMdTagToHtmlTag(StringBuilder newLine, IToken token)
+        public void ReplaceMdTagToHtmlTag(StringBuilder newLine, Token token)
         {
             if (token.Type != TokenType.Simple)
                 newLine.Append(HtmlTag);
