@@ -22,12 +22,11 @@ namespace Markdown
             openedTokens.Push(token);
             for (var i = 0; i < line.Length; i++)
             {
-                if (i == openedTokens.Peek().EndPosition - openedTokens.Peek().ClosingTag.MdTag.Length)
+                if (IsEndOfParentToken(i))
                 {
-                    i += openedTokens.Peek().ClosingTag.MdTag.Length;
+                    MoveIndexerThroughTag(ref i, openedTokens.Peek().ClosingTag);
                     openedTokens.Pop();
-                    if (i == line.Length)
-                        break;
+                    continue;
                 }
                 if (TryPassEscapeChar(i))
                     i++;
@@ -36,9 +35,14 @@ namespace Markdown
                 {
                     if (!CheckSpacesNextToTag(tag, i) && !CheckConflicts(tag))
                         TryCloseTag(i, tag);
-                    i += tag.MdTag.Length - 1;
+                    MoveIndexerThroughTag(ref i, tag);
                 }
             }
+        }
+
+        private void MoveIndexerThroughTag(ref int indexer, Tag tag)
+        {
+            indexer += tag.MdTag.Length - 1;
         }
 
         private bool TryReadTag(int position, bool isOpening, out Tag foundTag)
@@ -90,12 +94,17 @@ namespace Markdown
                         CloseToken(i);
                         return true;
                     }
-                    i+= closingTag.MdTag.Length - 1;
+                    MoveIndexerThroughTag(ref i, closingTag);
                 }
-                if (containsOnlyDigits && !char.IsDigit(line[i]))
+                else if (containsOnlyDigits && !char.IsDigit(line[i]))
                     containsOnlyDigits = false;
             }
 
+            return TryCloseHeaderTag(startPosition, openingTag);
+        }
+
+        private bool TryCloseHeaderTag(int startPosition, Tag openingTag)
+        {
             if (openingTag.TokenType == TokenType.Header)
             {
                 OpenToken(openingTag, startPosition);
