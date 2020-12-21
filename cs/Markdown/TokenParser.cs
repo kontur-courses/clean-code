@@ -28,10 +28,13 @@ namespace Markdown
                     openedTokens.Pop();
                     continue;
                 }
-                if (TryPassEscapeChar(i))
+                if (TryEscapeTag(i, out var escapedTag))
+                {
                     i++;
-                Tag tag;
-                if (TryReadTag(i, true, out tag))
+                    MoveIndexerThroughTag(ref i, escapedTag);
+                    continue;
+                }
+                if (TryReadTag(i, true, out var tag))
                 {
                     if (!CheckSpacesNextToTag(tag, i) && !CheckConflicts(tag))
                         TryCloseTag(i, tag);
@@ -50,8 +53,7 @@ namespace Markdown
             foreach (var tag in Tag.AllTags.Where(t => t.IsOpening == isOpening && t.TokenType != TokenType.Simple))
             {
                 if ((tag.MdTag.Length == 1 && line[position] == tag.MdTag[0])
-                    || (position != line.Length - 1 && line[position] == tag.MdTag[0] 
-                                                    && line[position + 1] == tag.MdTag[1]))
+                    || (position != line.Length - 1 && line[position] == tag.MdTag[0] && line[position + 1] == tag.MdTag[1]))
                 {
                     foundTag = tag;
                     return true;
@@ -81,12 +83,15 @@ namespace Markdown
             var containsOnlyDigits = true;
             for (var i = startPosition + openingTag.MdTag.Length; i < line.Length; i++)
             {
-                if (TryPassEscapeChar(i))
+                if (TryEscapeTag(i, out var escapedTag))
+                {
                     i++;
+                    MoveIndexerThroughTag(ref i, escapedTag);
+                    continue;
+                }
                 if (IsNewLine(i, openingTag) || IsEndOfParentToken(i) || IsSpaceAfterPartOfWord(i, startPosition, openingTag))
                     return false;
-                Tag closingTag;
-                if (TryReadTag(i, false, out closingTag))
+                if (TryReadTag(i, false, out var closingTag))
                 {
                     if (IsValidTag(i, startPosition, openingTag, closingTag, containsOnlyDigits))
                     {
@@ -163,18 +168,15 @@ namespace Markdown
             return position != 0 && line[position - 1] == ' ';
         }
 
-        private bool TryPassEscapeChar(int position)
+        private bool TryEscapeTag(int position, out Tag escapedTag)
         {
-            if (line[position] == '\\' && position != line.Length - 1)
+            escapedTag = null;
+            if (line[position] == '\\' && position != line.Length - 1 
+               && (TryReadTag(position + 1, true, out escapedTag) || TryReadTag(position + 1, false, out escapedTag) 
+               || line[position + 1] == '\\'))
             {
-                var temporaryPosition = position + 1;
-                if (TryReadTag(temporaryPosition, true, out _) || TryReadTag(temporaryPosition, false, out _)
-                                                               || line[position + 1] == '\\')
-                {
-                    line.Remove(position, 1);
-                    openedTokens.Peek().Length--;
-                    return true;
-                }
+                openedTokens.Peek().EscapedCharsPos.Add(position);
+                return true;
             }
 
             return false;

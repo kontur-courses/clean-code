@@ -1,6 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
+﻿using System.Linq;
 using System.Text;
 
 namespace Markdown
@@ -16,13 +14,13 @@ namespace Markdown
             newLine = new StringBuilder();
         }
 
-        public string Write(IToken token)
+        public string Write(Token token)
         {
             WriteToken(token);
             return newLine.ToString();
         }
 
-        public void WriteToken(IToken token)
+        public void WriteToken(Token token)
         {
             token.OpeningTag.ReplaceMdTagToHtmlTag(newLine, token);
             FillStringBeforeSubTokens(token);
@@ -37,41 +35,44 @@ namespace Markdown
             token.ClosingTag.ReplaceMdTagToHtmlTag(newLine, token);
         }
 
-        private void FillStringBeforeSubTokens(IToken token)
+        private void FillStringBeforeSubTokens(Token token)
         {
-            if (token.SubTokens.Any())
-                newLine.Append(inputLine.Substring(token.StartPosition + token.OpeningTag.MdTag.Length,
-                    token.SubTokens[0].StartPosition - token.OpeningTag.MdTag.Length - token.StartPosition));
-            // Здесь сложная обработка, потому что заголовок может заканчиваться как на \n, так и на конце всей строки
-            else if (token.Type == TokenType.Header && token.EndPosition == inputLine.Length)
-                newLine.Append(inputLine.Substring(token.StartPosition + token.OpeningTag.MdTag.Length,
-                    token.Length - token.OpeningTag.MdTag.Length - token.ClosingTag.MdTag.Length + 1));
-            else
-                newLine.Append(inputLine.Substring(token.StartPosition + token.OpeningTag.MdTag.Length,
-                    token.Length - token.OpeningTag.MdTag.Length - token.ClosingTag.MdTag.Length));
+            var endPosition = token.SubTokens.Any() 
+                ? token.SubTokens[0].StartPosition
+                : (token.Type == TokenType.Header && token.EndPosition == inputLine.Length)
+                    ? token.EndPosition
+                    : token.EndPosition - token.ClosingTag.MdTag.Length;
+            var startPosition = token.StartPosition + token.OpeningTag.MdTag.Length;
+            AppendLineExceptEscapedChars(startPosition, endPosition, token);
         }
 
-        private void FillStringBetweenSubTokens(IToken token, int i)
+        private void FillStringBetweenSubTokens(Token token, int i)
         {
             if (i != token.SubTokens.Count - 1)
-                newLine.Append(inputLine.Substring(token.SubTokens[i].EndPosition,
-                    token.SubTokens[i + 1].StartPosition - token.SubTokens[i].EndPosition));
+            {
+                var startPosition = token.SubTokens[i].EndPosition;
+                var endPosition = token.SubTokens[i + 1].StartPosition;
+                AppendLineExceptEscapedChars(startPosition, endPosition, token);
+            }
         }
 
-        private void FillStringAfterSubTokens(IToken token)
+        private void FillStringAfterSubTokens(Token token)
         {
             if (token.SubTokens.Any())
             {
-                var endOfLastSubToken = token.SubTokens.Last().EndPosition;
-                if (endOfLastSubToken != inputLine.Length)
-                    // То же самое, два типа окончания заголовка, один из которых нужно обрабатывать отдельно
-                    if (token.Type == TokenType.Header && inputLine[token.EndPosition - 1] != '\n')
-                        newLine.Append(inputLine.Substring(endOfLastSubToken,
-                            token.EndPosition - endOfLastSubToken));
-                    else
-                        newLine.Append(inputLine.Substring(endOfLastSubToken,
-                            token.EndPosition - token.ClosingTag.MdTag.Length - endOfLastSubToken));
+                var startPosition = token.SubTokens.Last().EndPosition;
+                var endPosition = (token.Type == TokenType.Header && inputLine[token.EndPosition - 1] != '\n')
+                    ? token.EndPosition
+                    : token.EndPosition - token.ClosingTag.MdTag.Length;
+                AppendLineExceptEscapedChars(startPosition, endPosition, token);
             }
+        }
+
+        private void AppendLineExceptEscapedChars(int startPosition, int endPosition, Token token)
+        {
+            for (var i = startPosition; i < endPosition; i++)
+                if (!token.EscapedCharsPos.Contains(i))
+                    newLine.Append(inputLine[i]);
         }
     }
 }

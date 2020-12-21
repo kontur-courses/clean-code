@@ -1,23 +1,19 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.ComponentModel;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace Markdown
 {
     public class Token
     {
-        public int StartPosition { get; set; }
+        public int StartPosition { get; }
         public int EndPosition => StartPosition + Length;
-        public int Length { get; set; }
-        public TokenType Type { get; set; }
-        public List<Token> SubTokens { get; set; }
-        public Token Parent { get; set; }
-        public Tag OpeningTag { get; set; }
-        public Tag ClosingTag { get; set; }
-        public bool ContainsOnlyDigits { get; set; }
+        public int Length { get; private set; }
+        public TokenType Type { get; }
+        public List<Token> SubTokens { get; }
+        public HashSet<int> EscapedCharsPos { get; }
+        public Token Parent { get; private set; }
+        public Tag OpeningTag { get; }
+        public Tag ClosingTag { get; }
 
         public Token(int startPos, int length, Token parent, TokenType type)
         {
@@ -28,6 +24,7 @@ namespace Markdown
             Length = length;
             SubTokens = new List<Token>();
             Parent = parent;
+            EscapedCharsPos = new HashSet<int>();
         }
 
         public void Open(Stack<Token> openedTokens)
