@@ -171,6 +171,8 @@ namespace Md_Tests
         [TestCase("\\_Hello_", "_Hello_")]
         [TestCase("Hel\\lo", "Hel\\lo")]
         [TestCase("_Hel\\lo_", "<em>Hel\\lo</em>")]
+        [TestCase(@"__asd \_a_ ads__", "<strong>asd _a_ ads</strong>")]
+        [TestCase(@"__asd _a\_ ads__", "<strong>asd _a_ ads</strong>")]
         public void Render_SupportsEscaping(string input, string expected)
         {
             var result = md.Render(input);
