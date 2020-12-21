@@ -6,17 +6,24 @@ namespace Markdown
 {
     public class Tag
     {
-        public static List<Tag> AllTags = new List<Tag>
+        public static List<Tag> AllTags
         {
-            new Tag("__", "<strong>", true, TokenType.Strong),
-            new Tag("__", "</strong>", false, TokenType.Strong),
-            new Tag("# ", "<h1>", true, TokenType.Header),
-            new Tag("\n", "</h1>", false, TokenType.Header),
-            new Tag("_", "<em>", true, TokenType.Italic),
-            new Tag("_", "</em>", false, TokenType.Italic),
-            new Tag("", "", true, TokenType.Simple),
-            new Tag("", "", false, TokenType.Simple)
-        };
+            get
+            {
+                return new List<Tag>
+                {
+                    new Tag("__", "<strong>", true, TokenType.Strong),
+                    new Tag("__", "</strong>", false, TokenType.Strong),
+                    new Tag("# ", "<h1>", true, TokenType.Header),
+                    new Tag("\n", "</h1>", false, TokenType.Header),
+                    new Tag("_", "<em>", true, TokenType.Italic),
+                    new Tag("_", "</em>", false, TokenType.Italic),
+                    new Tag("", "", true, TokenType.Simple),
+                    new Tag("", "", false, TokenType.Simple)
+                };
+            }
+        }
+
         public bool IsOpening { get; }
         public string MdTag { get; }
         public string HtmlTag { get; }

@@ -1,5 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 
@@ -8,17 +7,17 @@ namespace Markdown
     class TokenParser
     {
         private Stack<Token> openedTokens;
-        private StringBuilder line;
+        private string line;
 
 
-        public TokenParser()
+        public TokenParser(string inputLine)
         {
             openedTokens = new Stack<Token>();
+            line = inputLine;
         }
 
-        public void Parse(Token token, StringBuilder inputLine)
+        public void Parse(Token token)
         {
-            line = inputLine;
             openedTokens.Push(token);
             for (var i = 0; i < line.Length; i++)
             {
@@ -36,7 +35,7 @@ namespace Markdown
                 }
                 if (TryReadTag(i, true, out var tag))
                 {
-                    if (!CheckSpacesNextToTag(tag, i) && !CheckConflicts(tag))
+                    if (!CheckSpacesNextToTag(tag, i) && !TagConflictsWithParentToken(tag, openedTokens.Peek()))
                         TryCloseTag(i, tag);
                     MoveIndexerThroughTag(ref i, tag);
                 }
@@ -52,8 +51,7 @@ namespace Markdown
         {
             foreach (var tag in Tag.AllTags.Where(t => t.IsOpening == isOpening && t.TokenType != TokenType.Simple))
             {
-                if ((tag.MdTag.Length == 1 && line[position] == tag.MdTag[0])
-                    || (position != line.Length - 1 && line[position] == tag.MdTag[0] && line[position + 1] == tag.MdTag[1]))
+                if (IsTagOnPosition(tag, position))
                 {
                     foundTag = tag;
                     return true;
@@ -61,6 +59,13 @@ namespace Markdown
             }
             foundTag = null;
             return false;
+        }
+
+        private bool IsTagOnPosition(Tag tag, int position)
+        {
+            return (tag.MdTag.Length == 1 && line[position] == tag.MdTag[0])
+                   || (position != line.Length - 1 && line[position] == tag.MdTag[0] 
+                   && line[position + 1] == tag.MdTag[1]);
         }
 
         private bool CheckSpacesNextToTag(Tag tag, int position)
@@ -72,10 +77,10 @@ namespace Markdown
             return false;
         }
 
-        private bool CheckConflicts(Tag tag)
+        private bool TagConflictsWithParentToken(Tag tag, Token parentToken)
         {
-            return (tag.TokenType == TokenType.Strong && openedTokens.Peek().Type == TokenType.Italic)
-                || (tag.TokenType == TokenType.Header && openedTokens.Peek().Type != TokenType.Simple);
+            return (tag.TokenType == TokenType.Strong && parentToken.Type == TokenType.Italic)
+                || (tag.TokenType == TokenType.Header && parentToken.Type != TokenType.Simple);
         }
 
         private bool TryCloseTag(int startPosition, Tag openingTag)
