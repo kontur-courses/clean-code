@@ -1,57 +1,81 @@
-﻿namespace Chess
+﻿using System.Diagnostics;
+using System.Linq;
+
+namespace Chess
 {
     public class ChessProblem
     {
         private static Board board;
         public static ChessStatus ChessStatus;
 
+        public static void SetBoard(Board board)
+        {
+            ChessProblem.board = board;
+        }
+
         public static void LoadFrom(string[] lines)
         {
-            board = new BoardParser().ParseBoard(lines);
+            SetBoard(new BoardParser().ParseBoard(lines));
         }
 
-        // Определяет мат, шах или пат белым.
-        public static void CalculateChessStatus()
+        public static void CalculateChessStatus(PieceColor color)
         {
-            var isCheck = IsCheckForWhite();
-            var hasMoves = false;
-            foreach (var locFrom in board.GetPieces(PieceColor.White))
+            UpdateChessStatus(IsCheckFor(color), HasMoves(color));
+        }
+
+        private static bool HasMoves(PieceColor color)
+        {
+            return board.GetPieces(color).Any(locationFrom => CanAvoidCheck(color, locationFrom));
+        }
+
+        private static void UpdateChessStatus(bool isCheck, bool hasMoves)
+        {
+            if (isCheck)
             {
-                foreach (var locTo in board.GetPiece(locFrom).GetMoves(locFrom, board))
+                ChessStatus = hasMoves ? ChessStatus.Check : ChessStatus.Mate;
+            }
+            else if (hasMoves)
+            {
+                ChessStatus = ChessStatus.Ok;
+            }
+            else
+            {
+                ChessStatus = ChessStatus.Stalemate;
+            }
+        }
+
+
+        private static bool CanAvoidCheck(PieceColor color, Location locationFrom)
+        {
+            foreach (var locationTo in board.GetPiece(locationFrom).GetMoves(locationFrom, board))
+            {
+                using (board.PerformTemporaryMove(locationFrom, locationTo))
                 {
-                    var old = board.GetPiece(locTo);
-                    board.Set(locTo, board.GetPiece(locFrom));
-                    board.Set(locFrom, null);
-                    if (!IsCheckForWhite())
-                        hasMoves = true;
-                    board.Set(locFrom, board.GetPiece(locTo));
-                    board.Set(locTo, old);
+                    if (!IsCheckFor(color))
+                    {
+                        return true;
+                    }
                 }
             }
-            if (isCheck)
-                if (hasMoves)
-                    ChessStatus = ChessStatus.Check;
-                else ChessStatus = ChessStatus.Mate;
-            else if (hasMoves) ChessStatus = ChessStatus.Ok;
-            else ChessStatus = ChessStatus.Stalemate;
+
+            return false;
         }
 
+
         // check — это шах
-        private static bool IsCheckForWhite()
+        private static bool IsCheckFor(PieceColor color)
         {
-            var isCheck = false;
-            foreach (var loc in board.GetPieces(PieceColor.Black))
+            var piecesFor = color == PieceColor.Black ? PieceColor.White : PieceColor.Black;
+            foreach (var loc in board.GetPieces(piecesFor))
             {
                 var piece = board.GetPiece(loc);
                 var moves = piece.GetMoves(loc, board);
-                foreach (var destination in moves)
-                {
-                    if (Piece.Is(board.GetPiece(destination),
-                                 PieceColor.White, PieceType.King))
-                        isCheck = true;
-                }
+                if (moves
+                    .Any(destination
+                        => Piece.Is(board.GetPiece(destination), color, PieceType.King)))
+                    return true;
             }
-            if (isCheck) return true;
+
             return false;
         }
     }
