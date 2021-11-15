@@ -1,4 +1,7 @@
-﻿namespace Chess
+﻿using System.Collections.Generic;
+using System.Linq;
+
+namespace Chess
 {
     public class ChessProblem
     {
@@ -7,52 +10,68 @@
 
         public static void LoadFrom(string[] lines)
         {
-            board = new BoardParser().ParseBoard(lines);
+            board = BoardParser.Parse(lines);
         }
 
-        // Определяет мат, шах или пат белым.
-        public static void CalculateChessStatus()
+        public static void SetNewChessStatus(PieceColor color)
         {
-            var isCheck = IsCheckForWhite();
+            var isCheck = IsCheckFor(color);
+            var hasMoves = board
+                .GetPieces(color)
+                .Any(locFrom => HasMoves(locFrom, color));
+
+            ChessStatus = GetStatus(isCheck, hasMoves);
+        }
+
+        private static bool HasMoves(Location locFrom, PieceColor color)
+        {
+            return GetMovesByLocation(locFrom)
+                .Any(locTo => IsMoveValid(locFrom, locTo, color));
+        }
+
+        private static bool IsMoveValid(Location locFrom, Location locTo, PieceColor color)
+        {
             var hasMoves = false;
-            foreach (var locFrom in board.GetPieces(PieceColor.White))
-            {
-                foreach (var locTo in board.GetPiece(locFrom).GetMoves(locFrom, board))
-                {
-                    var old = board.GetPiece(locTo);
-                    board.Set(locTo, board.GetPiece(locFrom));
-                    board.Set(locFrom, null);
-                    if (!IsCheckForWhite())
-                        hasMoves = true;
-                    board.Set(locFrom, board.GetPiece(locTo));
-                    board.Set(locTo, old);
-                }
-            }
+            var old = board.GetPiece(locTo);
+            ShiftPiece(locTo, locFrom, null);
+            if (!IsCheckFor(color))
+                hasMoves = true;
+            ShiftPiece(locFrom, locTo, old);
+            return hasMoves;
+        }
+
+        private static void ShiftPiece(Location locTo, Location locFrom, Piece replacement)
+        {
+            board.Set(locTo, board.GetPiece(locFrom));
+            board.Set(locFrom, replacement);
+        }
+
+        private static ChessStatus GetStatus(bool isCheck, bool hasMoves)
+        {
             if (isCheck)
-                if (hasMoves)
-                    ChessStatus = ChessStatus.Check;
-                else ChessStatus = ChessStatus.Mate;
-            else if (hasMoves) ChessStatus = ChessStatus.Ok;
-            else ChessStatus = ChessStatus.Stalemate;
+                return hasMoves ? ChessStatus.Check : ChessStatus.Mate;
+            return hasMoves ? ChessStatus.Ok : ChessStatus.Stalemate;
         }
 
         // check — это шах
-        private static bool IsCheckForWhite()
+        private static bool IsCheckFor(PieceColor color)
         {
-            var isCheck = false;
-            foreach (var loc in board.GetPieces(PieceColor.Black))
-            {
-                var piece = board.GetPiece(loc);
-                var moves = piece.GetMoves(loc, board);
-                foreach (var destination in moves)
-                {
-                    if (Piece.Is(board.GetPiece(destination),
-                                 PieceColor.White, PieceType.King))
-                        isCheck = true;
-                }
-            }
-            if (isCheck) return true;
-            return false;
+            var otherColor = color == PieceColor.White ? PieceColor.Black : PieceColor.White;
+
+            return board
+                .GetPieces(otherColor)
+                .SelectMany(GetMovesByLocation)
+                .Any(loc => IsKing(loc, color));
+        }
+
+        private static IEnumerable<Location> GetMovesByLocation(Location loc)
+        {
+            return board.GetPiece(loc).GetMoves(loc, board);
+        }
+
+        private static bool IsKing(Location destination, PieceColor color)
+        {
+            return Piece.Is(board.GetPiece(destination), color, PieceType.King);
         }
     }
 }

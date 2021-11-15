@@ -5,6 +5,11 @@ namespace Chess
 {
     public class BoardParser
     {
+        public static Board Parse(string[] lines)
+        {
+            return new BoardParser().ParseBoard(lines);
+        }
+
         public Board ParseBoard(string[] lines)
         {
             if (lines.Length != 8) throw new ArgumentException("Should be exactly 8 lines");
