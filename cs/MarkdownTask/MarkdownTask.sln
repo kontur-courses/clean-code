@@ -1,0 +1,31 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio Version 16
+VisualStudioVersion = 16.0.31729.503
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MarkdownTask", "MarkdownTask\MarkdownTask.csproj", "{8FB2D00D-A1D2-4A7D-93C5-A12377BC18DE}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MarkdownTaskTests", "MarkdownTaskTests\MarkdownTaskTests.csproj", "{65704D7C-20D3-4188-87F3-C796B26DD071}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{8FB2D00D-A1D2-4A7D-93C5-A12377BC18DE}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{8FB2D00D-A1D2-4A7D-93C5-A12377BC18DE}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{8FB2D00D-A1D2-4A7D-93C5-A12377BC18DE}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{8FB2D00D-A1D2-4A7D-93C5-A12377BC18DE}.Release|Any CPU.Build.0 = Release|Any CPU
+		{65704D7C-20D3-4188-87F3-C796B26DD071}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{65704D7C-20D3-4188-87F3-C796B26DD071}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{65704D7C-20D3-4188-87F3-C796B26DD071}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{65704D7C-20D3-4188-87F3-C796B26DD071}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {D3023140-5A57-4216-8569-EC244A90F1FD}
+	EndGlobalSection
+EndGlobal
