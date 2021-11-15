@@ -1,23 +1,29 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace Markdown
 {
-    internal class Token
+    internal abstract class Token
     {
         public readonly int OpenIndex;
-        public readonly int CloseIndex;
-        public readonly TokenType TokenType;
-        public readonly string Content;
-        public bool IsOpened => CloseIndex == 0;
 
-        public Token(int openIndex, TokenType tokenType)
+        public int Length { get; private set; } = -1;
+
+        public bool IsOpened => Length == -1;
+
+        protected Token(int openIndex)
         {
             OpenIndex = openIndex;
-            TokenType = tokenType;
+        }
+
+        public void SetLength(int closeIndex)
+        {
+            if (closeIndex <= OpenIndex)
+                throw new ArgumentException();
+
+            if (Length != -1)
+                throw new InvalidOperationException();
+
+            Length = closeIndex - OpenIndex;
         }
     }
 }

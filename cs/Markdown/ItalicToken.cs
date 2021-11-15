@@ -6,10 +6,8 @@ using System.Threading.Tasks;
 
 namespace Markdown
 {
-    enum TokenType
+    internal class ItalicToken : Token
     {
-        Italic,
-        Bold, 
-        Header,
+        public ItalicToken(int openIndex) : base(openIndex) { }
     }
 }

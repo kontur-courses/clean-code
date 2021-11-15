@@ -10,7 +10,7 @@ namespace Markdown
             throw new NotImplementedException();
         }
 
-        public static string ConvertToHtml(IEnumerable<Token> tokens)
+        public static string ApplyTokensToText(string text, IEnumerable<Token> tokens)
         {
             throw new NotImplementedException();
         }
