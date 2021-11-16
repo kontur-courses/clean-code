@@ -75,12 +75,12 @@ namespace Markdown
             token?.Handle(this);
         }
 
-        private bool IsCorrectOpenPosition(int openIndex, string text)
+        private static bool IsCorrectOpenPosition(int openIndex, string text)
         {
             return openIndex != text.Length - 1 && text[openIndex - 1] != ' ';
         }
 
-        private bool IsCorrectClosePosition(int closeIndex, string text)
+        private static bool IsCorrectClosePosition(int closeIndex, string text)
         {
             return closeIndex != 0 && text[closeIndex - 1] != ' ';
         }

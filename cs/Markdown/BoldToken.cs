@@ -12,11 +12,7 @@ namespace Markdown
             if (!parser.Tokens.ContainsKey(GetType()))
                 parser.Tokens.Add(GetType(), this);
 
-            var newLineIndex = parser.TextToParse.IndexOf('\n');
-            var newBoldIndex = parser.TextToParse.IndexOf("__");
-            var newItalicIndex = parser.TextToParse.IndexOf('_');
-
-            throw new System.NotImplementedException();
+            throw new NotImplementedException();
         }
     }
 }

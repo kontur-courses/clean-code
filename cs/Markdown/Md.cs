@@ -15,7 +15,7 @@ namespace Markdown
         {
             var parser = new MdParser();
             var tokens = parser.ParseTokens(text);
-            var result = Renderer.Render(tokens);
+            var result = Renderer.Render(tokens, text);
 
             return result;
         }
