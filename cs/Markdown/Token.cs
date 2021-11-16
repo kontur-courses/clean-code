@@ -2,28 +2,24 @@
 
 namespace Markdown
 {
-    internal abstract class Token
+    public abstract class Token
     {
-        public readonly int OpenIndex;
+        public int OpenIndex { get; }
 
-        public int Length { get; private set; } = -1;
+        public int CloseIndex { get; protected set; }
 
-        public bool IsOpened => Length == -1;
+        public bool IsOpened => CloseIndex == 0;
+
+        public static string Separator;
 
         protected Token(int openIndex)
         {
+            if (OpenIndex < 0)
+                throw new ArgumentException();
+
             OpenIndex = openIndex;
         }
 
-        public void SetLength(int closeIndex)
-        {
-            if (closeIndex <= OpenIndex)
-                throw new ArgumentException();
-
-            if (Length != -1)
-                throw new InvalidOperationException();
-
-            Length = closeIndex - OpenIndex;
-        }
+        internal abstract void Handle(MdParser parser);
     }
 }

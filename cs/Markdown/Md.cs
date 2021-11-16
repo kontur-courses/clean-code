@@ -4,10 +4,18 @@ namespace Markdown
 {
     public class Md
     {
+        public IRenderer Renderer { get; }
+
+        public Md(IRenderer renderer)
+        {
+            Renderer = renderer;
+        }
+
         public string Render(string text)
         {
-            var tokens = MdParser.ParseTokens(text);
-            var result = MdParser.ApplyTokensToText(text, tokens);
+            var parser = new MdParser();
+            var tokens = parser.ParseTokens(text);
+            var result = Renderer.Render(tokens);
 
             return result;
         }

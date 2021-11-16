@@ -1,13 +1,14 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-
-namespace Markdown
+﻿namespace Markdown
 {
-    internal class ItalicToken : Token
+    internal class ItalicToken : StyleToken
     {
         public ItalicToken(int openIndex) : base(openIndex) { }
+
+        public new static string Separator => "_";
+
+        internal override void Handle(MdParser parser)
+        {
+            throw new System.NotImplementedException();
+        }
     }
 }
