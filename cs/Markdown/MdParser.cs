@@ -49,7 +49,7 @@ namespace Markdown
                     if (Separators.ContainsKey(possibleTag.ToString()))
                     {
                         var type = Separators[possibleTag.ToString()];
-                        HandleToken(type, CurrentIndex - possibleTag.Length + 1);
+                        ProcessToken(type, CurrentIndex - possibleTag.Length + 1);
                     }
 
                     possibleTag.Clear();
@@ -59,20 +59,16 @@ namespace Markdown
             return Result;
         }
 
-        private void HandleToken(Type type, int index)
+        private void ProcessToken(Type type, int index)
         {
             Token token = null;
 
             if (!Tokens.ContainsKey(type) && IsCorrectOpenPosition(index, TextToParse))
-            {
                 token = (Token)Activator.CreateInstance(type, index);
-            }
-            else if (Tokens[type].IsOpened && IsCorrectClosePosition(index, TextToParse))
-            {
+            else if (Tokens[type].IsOpened && IsCorrectClosePosition(index, TextToParse)) 
                 token = Tokens[type];
-            }
 
-            token?.Handle(this);
+            token?.Accept(this);
         }
 
         private static bool IsCorrectOpenPosition(int openIndex, string text)
@@ -83,6 +79,30 @@ namespace Markdown
         private static bool IsCorrectClosePosition(int closeIndex, string text)
         {
             return closeIndex != 0 && text[closeIndex - 1] != ' ';
+        }
+
+        internal void Handle(HeaderToken token)
+        {
+            if (token.OpenIndex != 0 && TextToParse[token.OpenIndex - 1] != '\n')
+                return;
+
+            var closeIndex = TextToParse.IndexOf('\n');
+
+            if (closeIndex == -1)
+                closeIndex = TextToParse.Length - 1;
+
+            token.CloseIndex = closeIndex;
+            Result.Add(token);
+        }
+
+        internal void Handle(ItalicToken token)
+        {
+            throw new NotImplementedException();
+        }
+
+        internal void Handle(BoldToken token)
+        {
+            throw new NotImplementedException();
         }
     }
 }

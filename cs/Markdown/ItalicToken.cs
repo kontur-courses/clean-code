@@ -6,9 +6,9 @@
 
         public new static string Separator => "_";
 
-        internal override void Handle(MdParser parser)
+        internal override void Accept(MdParser parser)
         {
-            throw new System.NotImplementedException();
+            parser.Handle(this);
         }
     }
 }

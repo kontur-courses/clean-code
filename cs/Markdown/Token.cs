@@ -6,7 +6,7 @@ namespace Markdown
     {
         public int OpenIndex { get; }
 
-        public int CloseIndex { get; protected set; }
+        public int CloseIndex { get; set; }
 
         public bool IsOpened => CloseIndex == 0;
 
@@ -20,6 +20,6 @@ namespace Markdown
             OpenIndex = openIndex;
         }
 
-        internal abstract void Handle(MdParser parser);
+        internal abstract void Accept(MdParser parser);
     }
 }

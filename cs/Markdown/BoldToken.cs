@@ -7,12 +7,9 @@ namespace Markdown
         public BoldToken(int openIndex) : base(openIndex) { }
         public new static string Separator => "__";
 
-        internal override void Handle(MdParser parser)
+        internal override void Accept(MdParser parser)
         {
-            if (!parser.Tokens.ContainsKey(GetType()))
-                parser.Tokens.Add(GetType(), this);
-
-            throw new NotImplementedException();
+            parser.Handle(this);
         }
     }
 }
