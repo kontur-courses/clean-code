@@ -5,6 +5,6 @@ namespace Markdown.Lexer
 {
     public interface ILexer
     {
-        IEnumerable<Token> Lex();
+        IEnumerable<Token> Lex(string text);
     }
 }

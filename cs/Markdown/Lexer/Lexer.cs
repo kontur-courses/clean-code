@@ -6,14 +6,7 @@ namespace Markdown.Lexer
 {
     public class Lexer : ILexer
     {
-        private readonly string text;
-
-        public Lexer(string text)
-        {
-            this.text = text;
-        }
-        
-        public IEnumerable<Token> Lex()
+        public IEnumerable<Token> Lex(string text)
         {
             throw new NotImplementedException();
         }

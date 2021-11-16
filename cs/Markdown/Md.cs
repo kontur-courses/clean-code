@@ -1,5 +1,4 @@
-﻿using System;
-using Markdown.Parser;
+﻿using Markdown.Parser;
 using Markdown.TokenFormatter;
 
 namespace Markdown
@@ -17,7 +16,9 @@ namespace Markdown
         
         public string Render(string text)
         {
-            throw new NotImplementedException();
+            var tokens = parser.Parse(text);
+
+            return tokenFormatter.Format(tokens);
         }
     }
 }
