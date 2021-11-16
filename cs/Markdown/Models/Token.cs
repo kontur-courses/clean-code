@@ -1,6 +1,6 @@
 ﻿namespace Markdown.Models
 {
-    public interface IToken
+    public class Token : IToken
     {
         public TagType TagType { get; init; }
         public ITokenPattern Pattern { get; init; }

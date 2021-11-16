@@ -13,6 +13,6 @@ namespace Markdown
             this.text = text;
         }
 
-        public string RenderMatches(IEnumerable<TokenQueryMatch> matches) => throw new NotImplementedException();
+        public string RenderMatches(IEnumerable<TokenMatch> matches) => throw new NotImplementedException();
     }
 }

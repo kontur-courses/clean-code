@@ -1,4 +1,4 @@
-﻿using Markdown.Tokens;
+﻿using Markdown.Models;
 
 namespace Markdown
 {
@@ -6,7 +6,7 @@ namespace Markdown
     {
         public string Render(string mdText)
         {
-            var tokens = new TokenReader(mdText, new ItalicToken()).FindAll();
+            var tokens = new TokenReader(mdText, MarkdownTokensFactory.GetTokens()).FindAll();
             return new MarkdownRenderer(mdText).RenderMatches(tokens);
         }
     }
