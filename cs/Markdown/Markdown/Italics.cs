@@ -1,16 +1,26 @@
-﻿using System;
-
-namespace Markdown
+﻿namespace Markdown
 {
     public class Italics : ISelectionSymbol
     {
-        public bool IsClosed { get => throw new NotImplementedException(); set => throw new NotImplementedException(); }
+        public bool IsClosed { get; set; }
 
 
         public string SimpleChar => "_";
 
         public bool IsStartTag { get; set; }
 
-        public string HtmlTagAnalog { get => (IsStartTag) ? "<em>" : "</em>"; }
+        public bool IsPossibleStartElement { get; set; }
+
+        public bool IsPossibleEndElement { get; set; }
+
+        public string HtmlTagAnalog
+        {
+            get
+            {
+                if (IsClosed)
+                    return (IsStartTag) ? "<em>" : "</em>";
+                return SimpleChar;
+            }
+        }
     }
 }

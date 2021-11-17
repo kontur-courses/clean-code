@@ -13,5 +13,11 @@
 
         bool IsStartTag
         { get; set; }
+
+        bool IsPossibleStartElement 
+        { get; set; }
+
+        bool IsPossibleEndElement 
+        { get; set; }
     }
 }

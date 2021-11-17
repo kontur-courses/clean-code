@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.Text;
 
 namespace Markdown
@@ -15,13 +14,14 @@ namespace Markdown
                 string analyzedParagraph = AnalyzeParagraph(paragraph);
                 result.Append(analyzedParagraph);
             }
-
-            //return result.ToString();
-            throw new NotImplementedException();
+            Console.WriteLine();
+            return result.ToString();
+            //throw new NotImplementedException();
         }
 
         private string AnalyzeParagraph(string paragraph)
         {
+            var resultParagraph = new StringBuilder();
             var lines = paragraph.Split(new char['\n'], StringSplitOptions.RemoveEmptyEntries);
             if (lines[0][0] == '#')
             {
@@ -30,11 +30,13 @@ namespace Markdown
 
             foreach (var line in lines)
             {
-                var analyzedLine = HtmlAnalyzer.AnalyzeLine(line);
-                // ...
+                var analyzer = new HtmlAnalyzer();
+                var analyzedLine = analyzer.AnalyzeLine(line);
+                resultParagraph.Append(analyzedLine);
             }
 
-            throw new NotImplementedException();
+            return resultParagraph.ToString();
+            //throw new NotImplementedException();
         }
     }
 }

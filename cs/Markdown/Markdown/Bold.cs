@@ -1,12 +1,21 @@
-﻿using System;
-
-namespace Markdown
+﻿namespace Markdown
 {
     public class Bold : ISelectionSymbol
     {
-        public bool IsClosed { get => throw new NotImplementedException(); set => throw new NotImplementedException(); }
+        public bool IsClosed { get; set; }
 
-        public string HtmlTagAnalog { get => (IsStartTag) ? "<strong>" : "</strong>"; }
+        public string HtmlTagAnalog
+        {
+            get
+            {
+                if (IsClosed)
+                    return (IsStartTag) ? "<strong>" : "</strong>";
+                return SimpleChar;
+            }
+        }
+        public bool IsPossibleStartElement { get; set; }
+
+        public bool IsPossibleEndElement { get; set; }
 
         public bool IsStartTag { get; set; }
 
