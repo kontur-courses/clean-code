@@ -1,10 +1,10 @@
-﻿namespace Markdown
+﻿using Markdown.Parser;
+
+namespace Markdown.Tokens
 {
     internal class ItalicToken : StyleToken
     {
         public ItalicToken(int openIndex) : base(openIndex) { }
-
-        public new static string Separator => "_";
 
         internal override void Accept(MdParser parser)
         {

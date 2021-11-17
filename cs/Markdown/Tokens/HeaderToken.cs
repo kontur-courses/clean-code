@@ -1,11 +1,11 @@
-﻿namespace Markdown
+﻿using Markdown.Parser;
+
+namespace Markdown.Tokens
 {
-    internal class HeaderToken : Token
+    internal class HeaderToken : NonPairedToken
 
     {
         public HeaderToken(int openIndex) : base(openIndex) { }
-
-        public new static string Separator => "#";
 
         internal override void Accept(MdParser parser)
         {
