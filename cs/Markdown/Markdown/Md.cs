@@ -36,10 +36,5 @@ namespace Markdown
 
             throw new NotImplementedException();
         }
-
-        private IEnumerable<string> AnalyzeLine(string line)
-        {
-            throw new NotImplementedException();
-        }
     }
 }
