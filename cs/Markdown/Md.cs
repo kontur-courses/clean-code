@@ -1,4 +1,6 @@
-﻿namespace Markdown;
+﻿using System.Text;
+
+namespace Markdown;
 public class Md
 {
     private readonly TokenWrapper tokenWrapper;
@@ -10,13 +12,49 @@ public class Md
         tokenWrapper = new TokenWrapper(settings);
     }
 
-    public string Render()
+    public Md(string text)
     {
-        throw new NotImplementedException();
+        this.text = text;
+        var settings = new WrapperSettingsProvider();
+        settings.TryAddSetting(new("", "$(text)", "<p>$(text)</p>"));
+
+        tokenWrapper = new TokenWrapper(settings);
     }
 
-    private static IEnumerable<Token> ParseText(string text)
+
+    public string Render()
     {
-        throw new NotImplementedException();
+        var builder = new StringBuilder();
+        foreach (var token in ParseLines())
+        {
+            var wrapped=tokenWrapper.WrapToken(token);
+            builder.Append(wrapped.Render());
+        }
+        return builder.ToString();
+    }
+
+    private IEnumerable<Token> ParseLines()
+    {
+        foreach (var line in text.Split('\n'))
+        {
+            yield return new(line);
+        }
+    }
+
+    private IEnumerable<Token> ParseLine(string line)
+    {
+        var tokenStack=new Stack<Token>();
+        var tokenSeparators = tokenWrapper.Settings.Select(x => x.Key).ToArray();
+        for (var i = 0; i < line.Length; i++)
+        {
+            foreach (var separator in tokenSeparators)
+            {
+                if (i+separator.Length<line.Length)
+                {
+
+                }
+            }
+        }
+        return null;
     }
 }

@@ -9,8 +9,10 @@ internal class TokenWrapper
         Settings = settings;
     }
 
-    public string WrapToken(Token token)
+    public WrappedToken WrapToken(Token token)
     {
-        throw new NotImplementedException();
+        var setting = Settings.FirstOrDefault(x => token.Text.StartsWith(x.Key!)).Value;
+
+        return new(token, setting);
     }
 }
