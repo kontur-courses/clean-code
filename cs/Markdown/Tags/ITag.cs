@@ -2,7 +2,8 @@
 {
     public interface ITag
     {
-        TagType Type { get; }
-        string Value { get; }
+        public string Opening { get; set; }
+        public string Closing { get; set; }
+        public TagType Type { get; set; }
     }
 }

@@ -1,4 +1,5 @@
 ﻿using Markdown.TagStore;
+using Markdown.Tokens;
 
 namespace Markdown
 {
@@ -15,7 +16,7 @@ namespace Markdown
     {
         public string Render(string text)
         {
-            var converter = new Converter(new MdTagStore(), new HtmlTagStore(), new Tokenizer(new TokenDetector(new MdTagStore())));
+            var converter = new Converter(new MdTagStore(), new HtmlTagStore());
             var converted = converter.Convert(text);
             return converted;
         }

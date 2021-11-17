@@ -1,23 +1,27 @@
-﻿using System;
-using System.Linq;
-using Markdown.Tags;
+﻿using Markdown.Tags;
 
 namespace Markdown.TagStore
 {
     public class MdTagStore : TagStore
     {
-        private static ITag[] tags = 
+        private static ITag[] tags =
         {
-            new Tag("_", TagType.Emphasized)
+            new Tag(TagType.Emphasized, "_", "_"),
         };
 
         public MdTagStore()
         {
             foreach (var tag in tags)
             {
-                base.Register(tag);
+                Register(tag);
             }
         }
-        
+
+        public override TagRole GetTagRole(string tag, char? before, char? after)
+        {
+            if (before != ' ' && before != null)
+                return after is ' ' or null ? TagRole.Closing : TagRole.NotTag;
+            return after != ' ' ? TagRole.Opening : TagRole.NotTag;
+        }
     }
 }

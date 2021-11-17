@@ -6,8 +6,7 @@ namespace Markdown.TagStore
     {
         private static ITag[] tags =
         {
-            new Tag("<em>", TagType.Emphasized),
-            new Tag("</em>", TagType.Emphasized)
+            new Tag(TagType.Emphasized, "<em>", "</em>"),
         };
 
         public HtmlTagStore()
@@ -17,5 +16,7 @@ namespace Markdown.TagStore
                 Register(tag);
             }
         }
+        
+        
     }
 }

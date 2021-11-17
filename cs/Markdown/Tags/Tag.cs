@@ -2,13 +2,15 @@
 {
     public class Tag : ITag
     {
-        public string Value { get; set; }
-        public TagType Type  { get; set; }
+        public string Opening { get; set; }
+        public string Closing { get; set; }
+        public TagType Type { get; set; }
 
-        public Tag(string value, TagType type)
+        public Tag(TagType type, string opening, string closing)
         {
-            Value = value;
+            Opening = opening;
             Type = type;
+            Closing = closing;
         }
     }
 }
