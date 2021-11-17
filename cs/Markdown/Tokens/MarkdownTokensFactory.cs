@@ -1,7 +1,7 @@
 ﻿using System.Collections.Generic;
-using Markdown.Tokens;
+using Markdown.Models;
 
-namespace Markdown.Models
+namespace Markdown.Tokens
 {
     public static class MarkdownTokensFactory
     {
@@ -9,7 +9,7 @@ namespace Markdown.Models
         {
             return new Token()
             {
-                Pattern = new ItalicPattern(),
+                Pattern = new PairedTokenPattern("_"),
                 TagConverter = new TagConverter()
                 {
                     OpenTag = "<em>",

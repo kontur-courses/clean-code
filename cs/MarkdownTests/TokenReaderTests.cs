@@ -4,6 +4,7 @@ using System.Linq;
 using FluentAssertions;
 using Markdown;
 using Markdown.Models;
+using Markdown.Tokens;
 using NUnit.Framework;
 
 namespace MarkdownTests

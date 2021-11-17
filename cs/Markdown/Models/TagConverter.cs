@@ -1,6 +1,4 @@
-﻿using Markdown.Models;
-
-namespace Markdown.Tokens
+﻿namespace Markdown.Models
 {
     public class TagConverter : ITagConverter
     {
