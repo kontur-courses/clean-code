@@ -16,10 +16,9 @@
 
         public override bool Equals(object obj)
         {
-            var other = obj as Location;
-            if (other == null) return false;
-            return other.X == X && other.Y == Y;
+            return obj is Location other 
+                   && other.X == X 
+                   && other.Y == Y;
         }
-
     }
 }
