@@ -11,8 +11,18 @@ namespace MarkdownTests
 {
     public class TokenReaderTests
     {
+        private IToken italic;
+        private IToken bold;
+
+        [SetUp]
+        public void SetUp()
+        {
+            italic = MarkdownTokensFactory.Italic();
+            bold = MarkdownTokensFactory.Bold();
+        }
+
         [Test]
-        public void FindAll_ReturnEmptyCollection_IfTokensNotGiven()
+        public void FindAll_ReturnEmptyCollection_TokensNotGiven()
         {
             new TokenReader("_text_", Enumerable.Empty<IToken>())
                 .FindAll()
@@ -20,7 +30,7 @@ namespace MarkdownTests
         }
 
         [Test]
-        public void FindAll_ReturnEmptyCollection_IfTextHaveNoTokens()
+        public void FindAll_ReturnEmptyCollection_TextHaveNoTokens()
         {
             new TokenReader("qwerty", MarkdownTokensFactory.GetTokens())
                 .FindAll()
@@ -35,6 +45,14 @@ namespace MarkdownTests
                 new TokenReader(text, Enumerable.Empty<IToken>()));
         }
 
+        [Test]
+        public void FindAll_ThrowsException_WhenTokenStartIntersect()
+        {
+            var reader = new TokenReader("_a_", new[] {italic, italic});
+            Assert.Throws<ArgumentException>(() =>
+                reader.FindAll());
+        }
+
         [TestCaseSource(nameof(FindAllReturnSingleMatchCases))]
         public void FindAll_ReturnSingleMatch_IfTextHas(TokenMatch expectedMatch, string text)
         {
@@ -45,31 +63,112 @@ namespace MarkdownTests
 
         public static IEnumerable<TestCaseData> FindAllReturnSingleMatchCases()
         {
-            var token = MarkdownTokensFactory.Italic();
+            var italic = MarkdownTokensFactory.Italic();
 
-            yield return new TestCaseData(new TokenMatch {Start = 0, Length = 3, Token = token}, "_a_")
+            yield return new TestCaseData(new TokenMatch {Start = 0, Length = 5, Token = italic}, "_abc_")
                 {TestName = "Single token"};
 
-            yield return new TestCaseData(new TokenMatch {Start = 3, Length = 3, Token = token}, "qwe_a_ewq")
-                {TestName = "Single token in context"};
-
-            yield return new TestCaseData(new TokenMatch {Start = 1, Length = 5, Token = token}, "q_abc_q")
-                {TestName = "Token with many symbols inside"};
+            yield return new TestCaseData(new TokenMatch {Start = 3, Length = 5, Token = italic}, "qwe_abc_ewq")
+                {TestName = "Single token inside word"};
         }
 
         [Test]
-        public void FindAll_ReturnsAllMatches_IfTextHasOneTypeTokens()
+        public void FindAll_ReturnsAllMatches_TextHasOneTypeTokens()
         {
-            var token = MarkdownTokensFactory.Italic();
             var matches = new[]
             {
-                new TokenMatch {Start = 1, Length = 5, Token = token},
-                new TokenMatch {Start = 7, Length = 5, Token = token}
+                new TokenMatch {Start = 0, Length = 5, Token = italic},
+                new TokenMatch {Start = 6, Length = 5, Token = italic}
             };
 
-            var actual = new TokenReader("U_one_U_two_U", new[] {token}).FindAll();
+            var actual = new TokenReader("_one_ _two_", new[] {italic}).FindAll();
 
             actual.Should().BeEquivalentTo(matches);
+        }
+
+        [Test]
+        public void FindAll_ReturnsAllMatches_WithTwoTokenTypes()
+        {
+            var matches = new[]
+            {
+                new TokenMatch {Start = 0, Length = 5, Token = italic},
+                new TokenMatch {Start = 6, Length = 7, Token = bold}
+            };
+
+            var actual = new TokenReader("_one_ __two__", new[] {italic, bold}).FindAll();
+
+            actual.Should().BeEquivalentTo(matches);
+        }
+
+        [Test]
+        public void FindAll_ReturnsAllMatches_ThatNotIntersects()
+        {
+            var matches = new[]
+            {
+                new TokenMatch {Start = 0, Length = 5, Token = italic},
+                new TokenMatch {Start = 18, Length = 7, Token = bold}
+            };
+
+            var actual = new TokenReader("_one_ __W _W__ W_ __two__", new[] {italic, bold}).FindAll();
+
+            actual.Should().BeEquivalentTo(matches);
+        }
+
+        [Test]
+        public void FindAll_ReturnsEmptyCollection_TextContainsOnlyUnderlines()
+        {
+            Enumerable.Range(1, 10).ToList().ForEach(i =>
+            {
+                new TokenReader(new string('_', i), new[] {italic, bold})
+                    .FindAll()
+                    .Should().BeEmpty($"underlines count = {i}");
+            });
+        }
+
+        [Test]
+        public void FindAll_ReturnNestedMatches_WhenTheyAllowed()
+        {
+            var matches = new[]
+            {
+                new TokenMatch {Start = 0, Length = 9, Token = bold},
+                new TokenMatch {Start = 3, Length = 3, Token = italic}
+            };
+
+            var actual = new TokenReader("__q_w_q__", new[] {bold, italic}).FindAll();
+
+            actual.Should().BeEquivalentTo(matches);
+        }
+
+        [Test]
+        public void FindAll_IgnoreMatches_WithForbiddenNesting()
+        {
+            var matches = new[]
+            {
+                new TokenMatch {Start = 0, Length = 9, Token = italic},
+            };
+
+            var actual = new TokenReader("_q__w__q_", new[] {bold, italic}).FindAll();
+
+            actual.Should().BeEquivalentTo(matches);
+        }
+
+        [TestCaseSource(nameof(FindAllReturnsReturnsEmptyCollectionCases))]
+        public void FindAll_ReturnsEmptyCollection(string text, IEnumerable<IToken> tokens)
+        {
+            new TokenReader(text, tokens)
+                .FindAll()
+                .Should().BeEmpty();
+        }
+
+        public static IEnumerable<TestCaseData> FindAllReturnsReturnsEmptyCollectionCases()
+        {
+            var italic = MarkdownTokensFactory.Italic();
+            var bold = MarkdownTokensFactory.Bold();
+            yield return new TestCaseData("one_ two_", new[] {italic}) {TestName = "Whitespace after tags"};
+            yield return new TestCaseData("_one__ _two__", new[] {italic, bold}) {TestName = "Tags intersects"};
+            yield return new TestCaseData("__one_ qwe", new[] {italic, bold}) {TestName = "Unpaired tags"};
+            yield return new TestCaseData("o_ne tw_o", new[] {italic}) {TestName = "In different words"};
+            yield return new TestCaseData("qwe_12_3", new[] {italic}) {TestName = "Tags inside digits"};
         }
     }
 }

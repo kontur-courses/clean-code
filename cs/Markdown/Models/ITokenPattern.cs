@@ -2,7 +2,9 @@
 {
     public interface ITokenPattern
     {
-        public bool IsStart(Context context);
-        public bool IsEnd(Context context);
+        public int TagLength { get; }
+        public bool LastCloseSucceed { get; }
+        public bool TrySetStart(Context context);
+        public bool CanContinue(Context context);
     }
 }

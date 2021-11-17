@@ -12,7 +12,7 @@ namespace Markdown
 
         private readonly List<TokenMatch> matches = new();
         private readonly List<IToken> tokensToOpen = new();
-        private readonly List<TokenMatch> matchesToClose = new();
+        private readonly Stack<TokenMatch> matchesToClose = new();
 
         public TokenReader(string text, IEnumerable<IToken> tokens)
         {
@@ -28,15 +28,7 @@ namespace Markdown
             var context = InitializeContext();
 
             for (var i = 0; i < text.Length; i++)
-            {
-                context.Index = i;
-
-                var startingTokens = GetStartingTokens(context).ToList();
-                if (startingTokens.Count != 0)
-                    OpenMatches(context, startingTokens);
-                else
-                    CloseMatches(context);
-            }
+                ProceedSymbol(context, i);
 
             return matches;
         }
@@ -50,33 +42,98 @@ namespace Markdown
             return new Context(text);
         }
 
-        private IEnumerable<IToken> GetStartingTokens(Context context)
+        private void ProceedSymbol(Context context, int i)
         {
-            return tokensToOpen.Where(token => token.Pattern.IsStart(context));
+            context.Index = i;
+            context.ParentTag = GetParentTag();
+
+            if (TryGetStartingToken(context, out var startingToken))
+                OpenMatch(context, startingToken);
+            else if (TryGetClosingMatch(context, out var closingMatch))
+                CloseMatch(context, closingMatch);
         }
 
-        private void OpenMatches(Context context, IEnumerable<IToken> startingTokens)
+        private TagType GetParentTag()
         {
-            foreach (var token in startingTokens)
+            if (matchesToClose.Count < 2)
+                return TagType.Body;
+
+            var top = matchesToClose.Pop();
+            var parent = matchesToClose.Peek();
+            matchesToClose.Push(top);
+            return parent.Token.TagType;
+        }
+
+        private bool TryGetStartingToken(Context context, out IToken startingToken)
+        {
+            var startingTokens = tokensToOpen
+                .Where(token => token.Pattern.TrySetStart(context))
+                .ToList();
+
+            switch (startingTokens.Count)
             {
-                tokensToOpen.Remove(token);
-                matchesToClose.Add(new TokenMatch {Start = context.Index, Token = token});
+                case > 1:
+                    throw new ArgumentException("Tokens pattern start intersects.");
+                case 0:
+                    startingToken = null;
+                    return false;
+                default:
+                    startingToken = startingTokens[0];
+                    return true;
             }
         }
 
-        private void CloseMatches(Context context)
+        private void OpenMatch(Context context, IToken startingToken)
         {
-            matchesToClose
-                .Where(match => match.Token.Pattern.IsEnd(context))
-                .ToList()
-                .ForEach(match =>
-                {
-                    match.Length = context.Index - match.Start + 1;
-                    matches.Add(match);
+            tokensToOpen.Remove(startingToken);
+            matchesToClose.Push(new TokenMatch {Start = context.Index, Token = startingToken});
+        }
 
-                    matchesToClose.Remove(match);
-                    tokensToOpen.Add(match.Token);
-                });
+        private bool TryGetClosingMatch(Context context, out TokenMatch closingMatch)
+        {
+            var closingMatches = matchesToClose
+                .Where(match => !match.Token.Pattern.CanContinue(context))
+                .ToList();
+
+            switch (closingMatches.Count)
+            {
+                case > 1:
+                    throw new ArgumentException("Tokens pattern end intersects.");
+                case 0:
+                    closingMatch = null;
+                    return false;
+                default:
+                    closingMatch = closingMatches[0];
+                    return true;
+            }
+        }
+
+        private void CloseMatch(Context context, TokenMatch closingMatch)
+        {
+            var lastOpened = matchesToClose.Peek();
+            if (lastOpened.Token.TagType == closingMatch.Token.TagType && closingMatch.Token.Pattern.LastCloseSucceed)
+                AddMatch(context);
+            else
+                BreakOpenedMatches(closingMatch);
+        }
+
+        private void AddMatch(Context context)
+        {
+            var lastOpened = matchesToClose.Pop();
+            lastOpened.Length = context.Index - lastOpened.Start + lastOpened.Token.Pattern.TagLength;
+            matches.Add(lastOpened);
+            tokensToOpen.Add(lastOpened.Token);
+        }
+
+        private void BreakOpenedMatches(TokenMatch closingMatch)
+        {
+            while (true)
+            {
+                var lastOpened = matchesToClose.Pop();
+                tokensToOpen.Add(lastOpened.Token);
+                if (lastOpened.Token.TagType == closingMatch.Token.TagType || matchesToClose.Count == 0)
+                    break;
+            }
         }
     }
 }

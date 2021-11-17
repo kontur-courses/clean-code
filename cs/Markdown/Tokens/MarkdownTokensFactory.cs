@@ -7,7 +7,7 @@ namespace Markdown.Tokens
     {
         public static IToken Italic()
         {
-            return new Token()
+            return new Token
             {
                 Pattern = new PairedTokenPattern("_"),
                 TagConverter = new TagConverter()
@@ -21,9 +21,26 @@ namespace Markdown.Tokens
             };
         }
 
+        public static IToken Bold()
+        {
+            return new Token
+            {
+                Pattern = new PairedTokenPattern("__") {ForbiddenParents = new List<TagType> {TagType.Italic}},
+                TagConverter = new TagConverter()
+                {
+                    OpenTag = "<strong>",
+                    CloseTag = "</strong>",
+                    GetTrimFromEndCount = 2,
+                    GetTrimFromStartCount = 2
+                },
+                TagType = TagType.Bold
+            };
+        }
+
         public static IEnumerable<IToken> GetTokens()
         {
             yield return Italic();
+            yield return Bold();
         }
     }
 }

@@ -12,72 +12,130 @@ namespace MarkdownTests
     {
         private static readonly List<string> tagsToTest = new() {"_", "__"};
 
-        [TestCaseSource(nameof(IsStartShouldBeTrueWithOneSymbolTagCases))]
-        public void IsStart_ShouldBeTrue_WithOneSymbolTag(Context context, string tag) =>
+        [TestCaseSource(nameof(TrySetStartTrueWithCases))]
+        public void TrySetStart_True(Context context, string tag) =>
             new PairedTokenPattern(tag)
-                .IsStart(context)
+                .TrySetStart(context)
                 .Should().BeTrue();
 
-        public static IEnumerable<TestCaseData> IsStartShouldBeTrueWithOneSymbolTagCases() =>
-            GenerateCases(GenerateIsStartShouldBeTrueCases);
+        public static IEnumerable<TestCaseData> TrySetStartTrueWithCases() =>
+            GenerateCases(GenerateTrySetStartTrueCases);
 
-
-        [TestCaseSource(nameof(IsStartShouldBeFalseWithOneSymbolTagCases))]
-        public void IsStart_ShouldBeFalse_WithOneSymbolTag(Context context, string tag) =>
+        [TestCaseSource(nameof(TrySetStartFalseCases))]
+        public void TrySetStart_False(Context context, string tag) =>
             new PairedTokenPattern(tag)
-                .IsStart(context)
+                .TrySetStart(context)
                 .Should().BeFalse();
 
-        public static IEnumerable<TestCaseData> IsStartShouldBeFalseWithOneSymbolTagCases =>
-            GenerateCases(GenerateIsStartShouldBeFalseCases);
+        public static IEnumerable<TestCaseData> TrySetStartFalseCases =>
+            GenerateCases(GenerateTrySetStartFalseCases);
 
-        [TestCaseSource(nameof(GenerateIsEndShouldBeTrueWithOneSymbolTagCases))]
-        public void IsEnd_ShouldBeTrue_WithOneSymbolTag(Context context, string tag) =>
+        [TestCaseSource(nameof(CanContinueFalseCases))]
+        public void CanContinue_False(Context context, string tag) =>
             new PairedTokenPattern(tag)
-                .IsEnd(context)
+                .CanContinue(context)
+                .Should().BeFalse();
+
+        public static IEnumerable<TestCaseData> CanContinueFalseCases =>
+            GenerateCases(GenerateCanContinueFalseCases);
+
+        [TestCaseSource(nameof(tagsToTest))]
+        public void CanContinue_False_TagInDifferentWord(string tag)
+        {
+            var context = new Context($"o{tag}ne to{tag}w");
+            var pattern = new PairedTokenPattern(tag);
+
+            context.Index = 1;
+            pattern.TrySetStart(context);
+            context.Index += tag.Length + 2;
+
+            pattern.CanContinue(context)
+                .Should().BeFalse();
+        }
+
+        [TestCaseSource(nameof(tagsToTest))]
+        public void LastCloseSucceed_True_AfterTagClose(string tag)
+        {
+            var pattern = new PairedTokenPattern(tag);
+            var context = new Context($"{tag}a{tag}");
+
+            pattern.TrySetStart(context);
+            context.Index = tag.Length + 1;
+            pattern.CanContinue(context);
+
+            pattern.LastCloseSucceed.Should().BeTrue();
+        }
+
+        [TestCaseSource(nameof(tagsToTest))]
+        public void LastCloseSucceed_False_TagInDifferentWords(string tag)
+        {
+            var context = new Context($"o{tag}ne to{tag}w");
+            var pattern = new PairedTokenPattern(tag);
+
+            context.Index = 1;
+            pattern.TrySetStart(context);
+            context.Index += tag.Length + 2;
+            pattern.CanContinue(context);
+
+            pattern.LastCloseSucceed.Should().BeFalse();
+        }
+
+        [TestCaseSource(nameof(tagsToTest))]
+        public void LastCloseSucceed_False_ForbiddenParent(string tag)
+        {
+            var context = new Context($"{tag}a{tag}");
+            var pattern = new PairedTokenPattern(tag) {ForbiddenParents = new List<TagType> {TagType.Bold}};
+
+            pattern.TrySetStart(context);
+            context.Index += tag.Length;
+            context.ParentTag = TagType.Bold;
+            pattern.CanContinue(context);
+
+            pattern.LastCloseSucceed.Should().BeFalse();
+        }
+
+        [TestCaseSource(nameof(CanContinueTrueCases))]
+        public void CanContinue_True(Context context, string tag) =>
+            new PairedTokenPattern(tag)
+                .CanContinue(context)
                 .Should().BeTrue();
 
-        public static IEnumerable<TestCaseData> GenerateIsEndShouldBeTrueWithOneSymbolTagCases =>
-            GenerateCases(GenerateIsEndShouldBeTrueCases);
+        public static IEnumerable<TestCaseData> CanContinueTrueCases =>
+            GenerateCases(GenerateCanContinueTrueCases);
 
-        [TestCaseSource(nameof(IsEndShouldBeFalseCasesWithOneSymbolTag))]
-        public void IsEnd_ShouldBeFalse_WithOneSymbolTag(Context context, string tag) =>
-            new PairedTokenPattern(tag)
-                .IsEnd(context)
-                .Should().BeFalse();
-
-        public static IEnumerable<TestCaseData> IsEndShouldBeFalseCasesWithOneSymbolTag =>
-            GenerateCases(GenerateIsEndShouldBeFalseCases);
-
-        private static IEnumerable<TestCaseData> GenerateIsStartShouldBeTrueCases(string tag)
+        private static IEnumerable<TestCaseData> GenerateTrySetStartTrueCases(string tag)
         {
             yield return new TestCaseData(new Context($"{tag}a"), tag) {TestName = "Before letter"};
+            yield return new TestCaseData(new Context($" {tag}a", 1), tag) {TestName = "Before letter after space"};
             yield return new TestCaseData(new Context($"a{tag}b", 1), tag) {TestName = "In the middle of a word"};
         }
 
-        private static IEnumerable<TestCaseData> GenerateIsStartShouldBeFalseCases(string tag)
+        private static IEnumerable<TestCaseData> GenerateTrySetStartFalseCases(string tag)
         {
-            yield return new TestCaseData(new Context("U"), tag) {TestName = "When symbol is wrong"};
-            yield return new TestCaseData(new Context(tag), tag) {TestName = "When symbol is alone"};
-            yield return new TestCaseData(new Context($"{tag}1"), tag) {TestName = "When next symbol is digit"};
-            yield return new TestCaseData(new Context($"{tag} "), tag) {TestName = "When next symbol is space"};
-            yield return new TestCaseData(new Context($"{tag}_"), tag) {TestName = "When next symbol underline"};
+            yield return new TestCaseData(new Context("U"), tag) {TestName = "Symbol is wrong"};
+            yield return new TestCaseData(new Context(tag), tag) {TestName = "Tag is alone"};
+            yield return new TestCaseData(new Context($"a{tag}1", 1), tag) {TestName = "Next symbol is digit"};
+            yield return new TestCaseData(new Context($"a{tag} ", 1), tag) {TestName = "Next symbol is space"};
+            yield return new TestCaseData(new Context($"a{tag}_", 1), tag) {TestName = "Next symbol is underline"};
+            yield return new TestCaseData(new Context($"_{tag}a", 1), tag) {TestName = "Previous symbol is underline"};
+            yield return new TestCaseData(new Context($"1{tag}a", 1), tag) {TestName = "Previous symbol is digit"};
         }
 
-        private static IEnumerable<TestCaseData> GenerateIsEndShouldBeTrueCases(string tag)
+        private static IEnumerable<TestCaseData> GenerateCanContinueFalseCases(string tag)
         {
-            yield return new TestCaseData(new Context($"a{tag}", 1), tag) {TestName = "After letter"};
+            yield return new TestCaseData(new Context($"a{tag} ", 1), tag) {TestName = "After letter"};
             yield return new TestCaseData(new Context($"a{tag}b", 1), tag) {TestName = "In the middle of word"};
+            yield return new TestCaseData(new Context($"a{tag}", 1), tag) {TestName = "At the end of a string"};
         }
 
-        private static IEnumerable<TestCaseData> GenerateIsEndShouldBeFalseCases(string tag)
+        private static IEnumerable<TestCaseData> GenerateCanContinueTrueCases(string tag)
         {
-            yield return new TestCaseData(new Context("U"), tag) {TestName = "When symbol is wrong"};
-            yield return new TestCaseData(new Context(tag), tag) {TestName = "When symbol is alone"};
-            yield return new TestCaseData(new Context($"1{tag}", 1), tag) {TestName = "When previous symbol is digit"};
-            yield return new TestCaseData(new Context($" {tag}", 1), tag) {TestName = "When previous symbol is space"};
-            yield return new TestCaseData(new Context($"_{tag}", 1), tag)
-                {TestName = "When previous symbol is underline"};
+            yield return new TestCaseData(new Context("U"), tag) {TestName = "Symbol is wrong"};
+            yield return new TestCaseData(new Context(tag), tag) {TestName = "Tag is alone"};
+            yield return new TestCaseData(new Context($"1{tag}", 1), tag) {TestName = "Previous symbol is digit"};
+            yield return new TestCaseData(new Context($" {tag}", 1), tag) {TestName = "Previous symbol is space"};
+            yield return new TestCaseData(new Context($"_{tag}", 1), tag) {TestName = "Previous symbol is underline"};
+            yield return new TestCaseData(new Context($"a{tag}_", 1), tag) {TestName = "Next symbol is underline"};
         }
 
         private static IEnumerable<TestCaseData> GenerateCases(Func<string, IEnumerable<TestCaseData>> caseGenerator)

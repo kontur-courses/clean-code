@@ -2,8 +2,9 @@
 {
     public enum TagType
     {
+        Body,
         Italic,
         Bold,
-        Header
+        Header,
     }
 }
