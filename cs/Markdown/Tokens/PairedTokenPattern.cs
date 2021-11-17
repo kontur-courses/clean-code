@@ -7,7 +7,7 @@ namespace Markdown.Tokens
     {
         public int TagLength => tag.Length;
         public bool LastCloseSucceed { get; private set; }
-        public List<TagType> ForbiddenParents { get; init; } = new List<TagType>();
+        public IEnumerable<TagType> ForbiddenChildren { get; init; } = new List<TagType>();
 
         private readonly string tag;
         private bool isStartInWord;
@@ -26,7 +26,7 @@ namespace Markdown.Tokens
             return canStart;
         }
 
-        public bool CanContinue(Context context)
+        public bool TryContinue(Context context)
         {
             if (char.IsWhiteSpace(context.Text[context.Index]) && isStartInWord)
             {
@@ -34,13 +34,18 @@ namespace Markdown.Tokens
                 return false;
             }
 
-            if (!IsEnd(context))
-                return true;
 
-            LastCloseSucceed = !ForbiddenParents.Contains(context.ParentTag);
-            return false;
+            if (IsEnd(context))
+            {
+                LastCloseSucceed = true;
+                return false;
+            }
+
+            ;
+
+            return true;
         }
-        
+
         private bool IsCanStart(Context context) =>
             IsStartsWithTag(context)
             && IsLetterAfterTag(context)

@@ -2,6 +2,7 @@
 using System.Linq;
 using System.Text;
 using Markdown.Models;
+using Markdown.Tokens;
 
 namespace Markdown
 {
@@ -16,7 +17,13 @@ namespace Markdown
             this.text = text;
         }
 
-        public string RenderMatches(IEnumerable<TokenMatch> matches)
+        public string Render()
+        {
+            var matches = new TokenReader(text, MarkdownTokensFactory.GetTokens()).FindAll();
+            return RenderMatches(matches);
+        }
+
+        internal string RenderMatches(IEnumerable<TokenMatch> matches)
         {
             MarkPositions(matches);
             return ConvertText();

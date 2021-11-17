@@ -9,7 +9,7 @@ namespace Markdown.Tokens
         {
             return new Token
             {
-                Pattern = new PairedTokenPattern("_"),
+                Pattern = new PairedTokenPattern("_") {ForbiddenChildren = new List<TagType> {TagType.Bold}},
                 TagConverter = new TagConverter()
                 {
                     OpenTag = "<em>",
@@ -25,7 +25,7 @@ namespace Markdown.Tokens
         {
             return new Token
             {
-                Pattern = new PairedTokenPattern("__") {ForbiddenParents = new List<TagType> {TagType.Italic}},
+                Pattern = new PairedTokenPattern("__"),
                 TagConverter = new TagConverter()
                 {
                     OpenTag = "<strong>",

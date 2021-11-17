@@ -10,9 +10,10 @@ namespace Markdown
         private readonly string text;
         private readonly IEnumerable<IToken> tokens;
 
-        private readonly List<TokenMatch> matches = new();
+        private readonly HashSet<TokenMatch> matches = new();
         private readonly List<IToken> tokensToOpen = new();
         private readonly Stack<TokenMatch> matchesToClose = new();
+        private readonly Dictionary<TokenMatch, List<TokenMatch>> matchChildren = new();
 
         public TokenReader(string text, IEnumerable<IToken> tokens)
         {
@@ -45,7 +46,6 @@ namespace Markdown
         private void ProceedSymbol(Context context, int i)
         {
             context.Index = i;
-            context.ParentTag = GetParentTag();
 
             if (TryGetStartingToken(context, out var startingToken))
                 OpenMatch(context, startingToken);
@@ -53,16 +53,6 @@ namespace Markdown
                 CloseMatch(context, closingMatch);
         }
 
-        private TagType GetParentTag()
-        {
-            if (matchesToClose.Count < 2)
-                return TagType.Body;
-
-            var top = matchesToClose.Pop();
-            var parent = matchesToClose.Peek();
-            matchesToClose.Push(top);
-            return parent.Token.TagType;
-        }
 
         private bool TryGetStartingToken(Context context, out IToken startingToken)
         {
@@ -87,12 +77,13 @@ namespace Markdown
         {
             tokensToOpen.Remove(startingToken);
             matchesToClose.Push(new TokenMatch {Start = context.Index, Token = startingToken});
+            matchChildren[matchesToClose.Peek()] = new List<TokenMatch>();
         }
 
         private bool TryGetClosingMatch(Context context, out TokenMatch closingMatch)
         {
             var closingMatches = matchesToClose
-                .Where(match => !match.Token.Pattern.CanContinue(context))
+                .Where(match => !match.Token.Pattern.TryContinue(context))
                 .ToList();
 
             switch (closingMatches.Count)
@@ -119,10 +110,17 @@ namespace Markdown
 
         private void AddMatch(Context context)
         {
-            var lastOpened = matchesToClose.Pop();
-            lastOpened.Length = context.Index - lastOpened.Start + lastOpened.Token.Pattern.TagLength;
-            matches.Add(lastOpened);
-            tokensToOpen.Add(lastOpened.Token);
+            var matchToClose = matchesToClose.Pop();
+            matchToClose.Length = context.Index - matchToClose.Start + matchToClose.Token.Pattern.TagLength;
+            matches.Add(matchToClose);
+            tokensToOpen.Add(matchToClose.Token);
+
+            if (matchesToClose.TryPeek(out var parent))
+                matchChildren[parent].Add(matchToClose);
+
+            foreach (var child in matchChildren[matchToClose].Where(child =>
+                matchToClose.Token.Pattern.ForbiddenChildren.Contains(child.Token.TagType)))
+                matches.Remove(child);
         }
 
         private void BreakOpenedMatches(TokenMatch closingMatch)

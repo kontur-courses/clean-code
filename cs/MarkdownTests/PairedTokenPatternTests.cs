@@ -30,17 +30,17 @@ namespace MarkdownTests
         public static IEnumerable<TestCaseData> TrySetStartFalseCases =>
             GenerateCases(GenerateTrySetStartFalseCases);
 
-        [TestCaseSource(nameof(CanContinueFalseCases))]
-        public void CanContinue_False(Context context, string tag) =>
+        [TestCaseSource(nameof(TryContinueFalseCases))]
+        public void TryContinue_False(Context context, string tag) =>
             new PairedTokenPattern(tag)
-                .CanContinue(context)
+                .TryContinue(context)
                 .Should().BeFalse();
 
-        public static IEnumerable<TestCaseData> CanContinueFalseCases =>
-            GenerateCases(GenerateCanContinueFalseCases);
+        public static IEnumerable<TestCaseData> TryContinueFalseCases =>
+            GenerateCases(GenerateTryContinueFalseCases);
 
         [TestCaseSource(nameof(tagsToTest))]
-        public void CanContinue_False_TagInDifferentWord(string tag)
+        public void TryContinue_False_TagInDifferentWord(string tag)
         {
             var context = new Context($"o{tag}ne to{tag}w");
             var pattern = new PairedTokenPattern(tag);
@@ -49,7 +49,7 @@ namespace MarkdownTests
             pattern.TrySetStart(context);
             context.Index += tag.Length + 2;
 
-            pattern.CanContinue(context)
+            pattern.TryContinue(context)
                 .Should().BeFalse();
         }
 
@@ -61,7 +61,7 @@ namespace MarkdownTests
 
             pattern.TrySetStart(context);
             context.Index = tag.Length + 1;
-            pattern.CanContinue(context);
+            pattern.TryContinue(context);
 
             pattern.LastCloseSucceed.Should().BeTrue();
         }
@@ -75,33 +75,19 @@ namespace MarkdownTests
             context.Index = 1;
             pattern.TrySetStart(context);
             context.Index += tag.Length + 2;
-            pattern.CanContinue(context);
+            pattern.TryContinue(context);
 
             pattern.LastCloseSucceed.Should().BeFalse();
         }
 
-        [TestCaseSource(nameof(tagsToTest))]
-        public void LastCloseSucceed_False_ForbiddenParent(string tag)
-        {
-            var context = new Context($"{tag}a{tag}");
-            var pattern = new PairedTokenPattern(tag) {ForbiddenParents = new List<TagType> {TagType.Bold}};
-
-            pattern.TrySetStart(context);
-            context.Index += tag.Length;
-            context.ParentTag = TagType.Bold;
-            pattern.CanContinue(context);
-
-            pattern.LastCloseSucceed.Should().BeFalse();
-        }
-
-        [TestCaseSource(nameof(CanContinueTrueCases))]
-        public void CanContinue_True(Context context, string tag) =>
+        [TestCaseSource(nameof(TryContinueTrueCases))]
+        public void TryContinue_True(Context context, string tag) =>
             new PairedTokenPattern(tag)
-                .CanContinue(context)
+                .TryContinue(context)
                 .Should().BeTrue();
 
-        public static IEnumerable<TestCaseData> CanContinueTrueCases =>
-            GenerateCases(GenerateCanContinueTrueCases);
+        public static IEnumerable<TestCaseData> TryContinueTrueCases =>
+            GenerateCases(GenerateTryContinueTrueCases);
 
         private static IEnumerable<TestCaseData> GenerateTrySetStartTrueCases(string tag)
         {
@@ -121,14 +107,14 @@ namespace MarkdownTests
             yield return new TestCaseData(new Context($"1{tag}a", 1), tag) {TestName = "Previous symbol is digit"};
         }
 
-        private static IEnumerable<TestCaseData> GenerateCanContinueFalseCases(string tag)
+        private static IEnumerable<TestCaseData> GenerateTryContinueFalseCases(string tag)
         {
             yield return new TestCaseData(new Context($"a{tag} ", 1), tag) {TestName = "After letter"};
             yield return new TestCaseData(new Context($"a{tag}b", 1), tag) {TestName = "In the middle of word"};
             yield return new TestCaseData(new Context($"a{tag}", 1), tag) {TestName = "At the end of a string"};
         }
 
-        private static IEnumerable<TestCaseData> GenerateCanContinueTrueCases(string tag)
+        private static IEnumerable<TestCaseData> GenerateTryContinueTrueCases(string tag)
         {
             yield return new TestCaseData(new Context("U"), tag) {TestName = "Symbol is wrong"};
             yield return new TestCaseData(new Context(tag), tag) {TestName = "Tag is alone"};
