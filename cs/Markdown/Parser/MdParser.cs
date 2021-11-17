@@ -109,7 +109,7 @@ namespace Markdown.Parser
             var closeIndex = TextToParse.IndexOf('\n');
 
             if (closeIndex == -1)
-                closeIndex = TextToParse.Length - 1;
+                closeIndex = TextToParse.Length;
 
             token.Close(closeIndex);
             Result.Add(token);
@@ -117,8 +117,7 @@ namespace Markdown.Parser
 
         internal void Handle(ItalicToken token)
         {
-            var isTokenCorrect =
-                !(token.IsInsideTextWithDigits(TextToParse) || token.IsInsideDifferentWords(TextToParse));
+            var isTokenCorrect = token.IsTokenPlacedCorrectly(TextToParse);
 
             if (isTokenCorrect && Tokens.TryGetValue(typeof(BoldToken), out var boldToken))
             {
@@ -134,8 +133,7 @@ namespace Markdown.Parser
 
         internal void Handle(BoldToken token)
         {
-            var isTokenCorrect =
-                !(token.IsInsideTextWithDigits(TextToParse) || token.IsInsideDifferentWords(TextToParse));
+            var isTokenCorrect = token.IsTokenPlacedCorrectly(TextToParse);
 
             if (isTokenCorrect && Tokens.TryGetValue(typeof(ItalicToken), out var italicToken))
             {

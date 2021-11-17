@@ -1,19 +1,17 @@
-﻿using System.Linq;
+﻿using System.Globalization;
+using System.Linq;
 using Markdown.Tokens;
 
 namespace Markdown.Parser
 {
     internal static class StyleTokenExtensions
     {
-        internal static bool IsInsideWord(this StyleToken token, string text)
+        internal static bool IsTokenPlacedCorrectly(this StyleToken token, string text)
         {
-            var tokenContent = text.Substring(token.OpenIndex + token.Separator.Length,
-                token.CloseIndex - token.OpenIndex - 1);
-
-            return tokenContent.All(char.IsLetter);
+            return !(token.IsInsideTextWithDigits(text) || token.IsInsideDifferentWords(text));
         }
 
-        internal static bool IsInsideDifferentWords(this StyleToken token, string text)
+        private static bool IsInsideDifferentWords(this StyleToken token, string text)
         {
             var openInsideWord = IsSeparatorInsideWord(token.OpenIndex, token.Separator.Length, text);
             var closeInsideWord = IsSeparatorInsideWord(token.CloseIndex, token.Separator.Length, text);
@@ -24,7 +22,7 @@ namespace Markdown.Parser
             return openInsideWord || closeInsideWord && tokenContent.Any(x => x == ' ');
         }
 
-        internal static bool IsInsideTextWithDigits(this StyleToken token, string text)
+        private static bool IsInsideTextWithDigits(this StyleToken token, string text)
         {
             var openInsideWord = IsSeparatorInsideTextWithDigits(token.OpenIndex, token.Separator.Length, text);
             var closeInsideWord = IsSeparatorInsideTextWithDigits(token.CloseIndex, token.Separator.Length, text);

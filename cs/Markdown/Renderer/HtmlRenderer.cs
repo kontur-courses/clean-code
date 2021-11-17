@@ -9,10 +9,10 @@ namespace Markdown.Renderer
     {
         public static readonly Dictionary<Type, HtmlTag> HtmlTags = new()
         {
-            {typeof(BoldToken), new HtmlTag("<strong>", "\\<strong>")},
-            {typeof(ItalicToken), new HtmlTag("<em>", "\\<em>")},
-            {typeof(HeaderToken), new HtmlTag("<h1>", "\\<h1>")},
-            {typeof(ScreeningToken), new HtmlTag(string.Empty, string.Empty)},
+            { typeof(BoldToken), new HtmlTag("<strong>", "\\<strong>") },
+            { typeof(ItalicToken), new HtmlTag("<em>", "\\<em>") },
+            { typeof(HeaderToken), new HtmlTag("<h1>", "\\<h1>") },
+            { typeof(ScreeningToken), new HtmlTag(string.Empty, string.Empty) }
         };
 
         public string Render(IEnumerable<Token> tokens, string text)
@@ -24,16 +24,18 @@ namespace Markdown.Renderer
             {
                 if (text[i] == '\n')
                     continue;
+
                 if (textReplacements.TryGetValue(i, out var replacement))
                 {
                     result.Append(replacement.Tag);
                     i += replacement.Shift - 1;
                 }
                 else
-                {
                     result.Append(text[i]);
-                }
             }
+
+            if (textReplacements.TryGetValue(text.Length, out var endTag))
+                result.Append(endTag.Tag);
 
             return result.ToString();
         }
@@ -46,11 +48,10 @@ namespace Markdown.Renderer
             {
                 var htmlTag = HtmlTags[token.GetType()];
                 result[token.OpenIndex] = new TextReplacement(htmlTag.OpenTag, token.Separator.Length);
-                result[token.CloseIndex] =  new TextReplacement(htmlTag.CloseTag, token.Separator.Length);
+                result[token.CloseIndex] = new TextReplacement(htmlTag.CloseTag, token.Separator.Length);
             }
 
             return result;
         }
-
     }
 }
