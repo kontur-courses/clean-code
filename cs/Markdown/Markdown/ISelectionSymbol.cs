@@ -7,5 +7,11 @@
 
         string HtmlTagAnalog
         { get; }
+
+        string SimpleChar
+        { get; }
+
+        bool IsStartTag
+        { get; set; }
     }
 }
