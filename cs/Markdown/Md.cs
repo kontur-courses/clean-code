@@ -15,7 +15,7 @@ namespace Markdown
     {
         public string Render(string text)
         {
-            var converter = new Converter(new MdTagStore(), new HtmlTagStore());
+            var converter = new Converter(new MdTagStore(), new HtmlTagStore(), new Tokenizer(new TokenDetector(new MdTagStore())));
             var converted = converter.Convert(text);
             return converted;
         }

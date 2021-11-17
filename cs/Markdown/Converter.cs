@@ -3,13 +3,13 @@ using Markdown.TagStore;
 
 namespace Markdown
 {
-    public class Converter
+    public class Converter : IConverter
     {
-        private Tokenizer tokenizer;
-        
-        public Converter(ITagStore from, ITagStore to)
+        private ITokenizer tokenizer;
+
+        public Converter(ITagStore from, ITagStore to, ITokenizer tokenizer)
         {
-            tokenizer = new Tokenizer(new TokenDetector(from));
+            this.tokenizer = tokenizer;
         }
 
         public string Convert(string text)

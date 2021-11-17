@@ -3,7 +3,7 @@ using Markdown.TagStore;
 
 namespace Markdown
 {
-    public class Tokenizer
+    public class Tokenizer : ITokenizer
     {
         private ITokenDetector detector;
 
