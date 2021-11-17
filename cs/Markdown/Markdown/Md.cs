@@ -6,8 +6,6 @@ namespace Markdown
 {
     public class Md
     {
-        private Stack<int> numbers = new Stack<int>();
-
         public string Render(string markdownText)
         {
             var result = new StringBuilder();
