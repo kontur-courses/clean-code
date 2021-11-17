@@ -1,19 +1,16 @@
-﻿namespace MarkDown
+﻿using System.Collections.Generic;
+
+namespace MarkDown
 {
     public class Token
     {
-        bool isItalic;
-        bool isBold;
-        CharType charType;
-        string symbol;
-        public void MakeItalic()
+        int start { get; }
+        int length { get; }
+        public readonly List<Token> nestedTokens = new List<Token>();
+        public Token(int start, int length)
         {
-            isItalic = true;
-        }
-
-        public void MakeBold()
-        {
-            isBold = true;
+            this.start = start;
+            this.length = length;
         }
     }
 }

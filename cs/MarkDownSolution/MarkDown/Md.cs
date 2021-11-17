@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Linq;
 
 namespace MarkDown
 {
@@ -6,8 +7,9 @@ namespace MarkDown
     {
         public string Render(string input)
         {
-            var rawTokenString = Tokenizer.GetRawTokenArrayFromString(input);
-            var tokenString = Tokenizer.GetTokenArrayWithTypes(rawTokenString);
+            var paragraps = TextPreparer.PrepareText(input);
+            var preparedParagraphs = paragraps.Select(x => TextPreparer.PrepareParagraph(x));
+            var tokenString = Tokenizer.GetTokenArrayFromStrings(preparedParagraphs);
             return HtmlTagger.GetHtmlTaggedStringFromTokenString(tokenString);
         }
     }
