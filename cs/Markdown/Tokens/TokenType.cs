@@ -3,7 +3,7 @@
     public enum TokenType
     {
         Text,
-        Whitespace,
+        NewLine,
         Italics,
         Bold,
         Escape,

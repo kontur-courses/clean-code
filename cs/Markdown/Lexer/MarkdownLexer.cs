@@ -4,7 +4,7 @@ using Markdown.Tokens;
 
 namespace Markdown.Lexer
 {
-    public class Lexer : ILexer
+    public class MarkdownLexer : ILexer
     {
         public IEnumerable<Token> Lex(string text)
         {
