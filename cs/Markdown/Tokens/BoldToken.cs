@@ -6,9 +6,11 @@ namespace Markdown.Tokens
     {
         public BoldToken(int openIndex) : base(openIndex) { }
 
+        internal BoldToken(int openIndex, int closeIndex) : base(openIndex, closeIndex) { }
+
         internal override void Accept(MdParser parser)
         {
-            parser.Handle(this);
+            parser.Visit(this);
         }
     }
 }

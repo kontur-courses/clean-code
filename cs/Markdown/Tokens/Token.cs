@@ -30,6 +30,12 @@ namespace Markdown.Tokens
             OpenIndex = openIndex;
         }
 
+        protected Token(int openIndex, int closeIndex)
+        {
+            OpenIndex = openIndex;
+            CloseIndex = closeIndex;
+        }
+
         internal abstract void Accept(MdParser parser);
 
         public void Close(int index)

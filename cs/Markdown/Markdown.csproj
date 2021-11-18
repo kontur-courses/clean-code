@@ -2,6 +2,13 @@
 
   <PropertyGroup>
     <TargetFramework>net5.0</TargetFramework>
+	  <GenerateAssemblyInfo>true</GenerateAssemblyInfo>
   </PropertyGroup>
+
+	<ItemGroup>
+		<AssemblyAttribute Include="System.Runtime.CompilerServices.InternalsVisibleToAttribute">
+			<_Parameter1>MarkdownTests</_Parameter1>
+		</AssemblyAttribute>
+	</ItemGroup>
 
 </Project>

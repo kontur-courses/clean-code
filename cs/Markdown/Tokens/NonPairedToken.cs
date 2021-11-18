@@ -7,8 +7,9 @@ using Markdown.Parser;
 
 namespace Markdown.Tokens
 {
-    internal abstract class NonPairedToken : Token
+    public abstract class NonPairedToken : Token
     {
         protected NonPairedToken(int openIndex) : base(openIndex) { }
+        protected NonPairedToken(int openIndex, int closeIndex) : base(openIndex, closeIndex) { }
     }
 }

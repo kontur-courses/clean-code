@@ -1,11 +1,11 @@
 ﻿namespace Markdown.Renderer
 {
-    internal class TextReplacement
+    internal class TagInsertion
     {
         public readonly int Shift;
         public readonly string Tag;
 
-        public TextReplacement(string tag, int shift)
+        public TagInsertion(string tag, int shift)
         {
             Tag = tag;
             Shift = shift;

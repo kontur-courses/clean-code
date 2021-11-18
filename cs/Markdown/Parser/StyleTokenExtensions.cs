@@ -1,5 +1,4 @@
-﻿using System.Globalization;
-using System.Linq;
+﻿using System.Linq;
 using Markdown.Tokens;
 
 namespace Markdown.Parser
@@ -8,7 +7,14 @@ namespace Markdown.Parser
     {
         internal static bool IsTokenPlacedCorrectly(this StyleToken token, string text)
         {
-            return !(token.IsInsideTextWithDigits(text) || token.IsInsideDifferentWords(text));
+            return !(token.IsInsideTextWithDigits(text) || token.IsInsideDifferentWords(text) || token.IsTokenEmpty(text));
+        }
+
+        private static bool IsTokenEmpty(this StyleToken token, string text)
+        {
+            var tokenContent = token.GetTokenContent(text);
+
+            return tokenContent.Length == 0;
         }
 
         private static bool IsInsideDifferentWords(this StyleToken token, string text)
@@ -16,8 +22,7 @@ namespace Markdown.Parser
             var openInsideWord = IsSeparatorInsideWord(token.OpenIndex, token.Separator.Length, text);
             var closeInsideWord = IsSeparatorInsideWord(token.CloseIndex, token.Separator.Length, text);
 
-            var tokenContent = text
-                .Substring(token.OpenIndex + token.Separator.Length, token.CloseIndex - token.OpenIndex - 1);
+            var tokenContent = token.GetTokenContent(text);
 
             return openInsideWord || closeInsideWord && tokenContent.Any(x => x == ' ');
         }
@@ -27,8 +32,7 @@ namespace Markdown.Parser
             var openInsideWord = IsSeparatorInsideTextWithDigits(token.OpenIndex, token.Separator.Length, text);
             var closeInsideWord = IsSeparatorInsideTextWithDigits(token.CloseIndex, token.Separator.Length, text);
 
-            var tokenContent = text
-                .Substring(token.OpenIndex + token.Separator.Length, token.CloseIndex - token.OpenIndex - 1);
+            var tokenContent = token.GetTokenContent(text);
 
             return openInsideWord || closeInsideWord && tokenContent.Any(x => x == ' ');
         }
@@ -51,6 +55,14 @@ namespace Markdown.Parser
                                 char.IsLetterOrDigit(text[index + separatorLength]);
 
             return isLeftLetter && isRightLetter;
+        }
+
+        private static string GetTokenContent(this StyleToken token, string text)
+        {
+            var contentStartIndex = token.OpenIndex + token.Separator.Length;
+            var contentLength = token.CloseIndex - contentStartIndex;
+
+            return text.Substring(contentStartIndex, contentLength);
         }
     }
 }

@@ -17,21 +17,23 @@ namespace Markdown.Renderer
 
         public string Render(IEnumerable<Token> tokens, string text)
         {
-            var textReplacements = GetTextReplacements(tokens);
+            var textReplacements = GetTagInsertions(tokens);
             var result = new StringBuilder();
+            var index = 0;
 
-            for (var i = 0; i < text.Length; i++)
+            while (index < text.Length)
             {
-                if (text[i] == '\n')
-                    continue;
-
-                if (textReplacements.TryGetValue(i, out var replacement))
+                if (textReplacements.TryGetValue(index, out var replacement))
                 {
                     result.Append(replacement.Tag);
-                    i += replacement.Shift - 1;
+                    index += replacement.Shift;
+                    continue;
                 }
-                else
-                    result.Append(text[i]);
+
+                if (text[index] != '\n')
+                    result.Append(text[index]);
+
+                index++;
             }
 
             if (textReplacements.TryGetValue(text.Length, out var endTag))
@@ -40,15 +42,15 @@ namespace Markdown.Renderer
             return result.ToString();
         }
 
-        private static Dictionary<int, TextReplacement> GetTextReplacements(IEnumerable<Token> tokens)
+        private static Dictionary<int, TagInsertion> GetTagInsertions(IEnumerable<Token> tokens)
         {
-            var result = new Dictionary<int, TextReplacement>();
+            var result = new Dictionary<int, TagInsertion>();
 
             foreach (var token in tokens)
             {
                 var htmlTag = HtmlTags[token.GetType()];
-                result[token.OpenIndex] = new TextReplacement(htmlTag.OpenTag, token.Separator.Length);
-                result[token.CloseIndex] = new TextReplacement(htmlTag.CloseTag, token.Separator.Length);
+                result[token.OpenIndex] = new TagInsertion(htmlTag.OpenTag, token.Separator.Length);
+                result[token.CloseIndex] = new TagInsertion(htmlTag.CloseTag, token.Separator.Length);
             }
 
             return result;

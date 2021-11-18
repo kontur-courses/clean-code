@@ -5,7 +5,7 @@ using Markdown.Tokens;
 
 namespace Markdown.Parser
 {
-    internal class MdParser
+    public class MdParser
     {
         public static readonly Dictionary<string, Type> TokenTypes = new()
         {
@@ -93,7 +93,9 @@ namespace Markdown.Parser
 
         private static bool IsCorrectOpenPosition(int openIndex, string text, int length)
         {
-            return openIndex != text.Length - 1 && text[openIndex + length] != ' ';
+            var indexNextToSeparator = openIndex + length;
+
+            return openIndex != text.Length - 1 && indexNextToSeparator < text.Length && text[indexNextToSeparator] != ' ';
         }
 
         private static bool IsCorrectClosePosition(int closeIndex, string text)
@@ -101,7 +103,7 @@ namespace Markdown.Parser
             return closeIndex != 0 && text[closeIndex - 1] != ' ';
         }
 
-        internal void Handle(HeaderToken token)
+        internal void Visit(HeaderToken token)
         {
             if (token.OpenIndex != 0 && TextToParse[token.OpenIndex - 1] != '\n')
                 return;
@@ -115,7 +117,7 @@ namespace Markdown.Parser
             Result.Add(token);
         }
 
-        internal void Handle(ItalicToken token)
+        internal void Visit(ItalicToken token)
         {
             var isTokenCorrect = token.IsTokenPlacedCorrectly(TextToParse);
 
@@ -131,7 +133,7 @@ namespace Markdown.Parser
                 Result.Add(token);
         }
 
-        internal void Handle(BoldToken token)
+        internal void Visit(BoldToken token)
         {
             var isTokenCorrect = token.IsTokenPlacedCorrectly(TextToParse);
 
@@ -150,7 +152,7 @@ namespace Markdown.Parser
                 Result.Add(token);
         }
 
-        public void Handle(ScreeningToken token)
+        internal void Visit(ScreeningToken token)
         {
             Tokens.Add(token.GetType(), token);
         }
