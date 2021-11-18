@@ -6,7 +6,6 @@ public class TagSetting
 
     public string MdTag { get; private set; }
 
-
     private readonly string htmlPattern;
 
     private readonly List<VariableDescriptor> variables = new();
@@ -27,11 +26,14 @@ public class TagSetting
             var startIndex = text.IndexOf(descriptor.Start, position);
             if (startIndex == -1)
                 throw new ArgumentException("Invalid string format", nameof(text));
+            startIndex += descriptor.Start.Length;
+
             var endIndex = descriptor.End != string.Empty
                 ? text.IndexOf(descriptor.End, startIndex + 1)
                 : text.Length;
             if (endIndex == -1)
                 throw new ArgumentException("Invalid string format", nameof(text));
+
             result = result.Replace($"$({descriptor.Name})", text[startIndex..endIndex]);
             position = endIndex;
         }
@@ -54,26 +56,26 @@ public class TagSetting
                 continue;
             }
 
-            var variable=CreateVariableDescriptor(mdPattern, out i, variableStart, variableEnd);
+            var variable = CreateVariableDescriptor(mdPattern, variableStart, variableEnd, out i);
             variables.Add(variable);
         }
     }
 
-    private static VariableDescriptor CreateVariableDescriptor(string mdPattern, out int i, int variableStart, int variableEnd)
+    private static VariableDescriptor CreateVariableDescriptor(string mdPattern, int variableStart, int variableEnd, out int nextPosition)
     {
         var vairableStartTag = mdPattern[..variableStart];
         var variableName = mdPattern[(variableStart + 2)..variableEnd];
-        var nextVariable = mdPattern.IndexOf("$(", (variableEnd + 1));
+        var nextVariable = mdPattern.IndexOf("$(", variableEnd + 1);
         string variableEndTag;
         if (nextVariable == -1)
         {
             variableEndTag = mdPattern[(variableEnd + 1)..];
-            i = mdPattern.Length;
+            nextPosition = mdPattern.Length;
         }
         else
         {
             variableEndTag = mdPattern[variableEnd..(nextVariable - 1)];
-            i = nextVariable;
+            nextPosition = nextVariable;
         }
 
         return new(variableName, vairableStartTag, variableEndTag);

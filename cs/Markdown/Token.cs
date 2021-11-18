@@ -2,11 +2,22 @@
 
 internal class Token
 {
-    public readonly string Text;
+    public readonly string Value;
+    public readonly int SourceStart;
+    protected readonly TagSetting? setting;
 
-
-    public Token(string text)
+    public Token(string token, int sourceStart, TagSetting? setting)
     {
-        Text = text;
+        Value = token;
+        SourceStart = sourceStart;
+        this.setting = setting;
+    }
+
+    public virtual string Render()
+    {
+        if (setting != null)
+            return setting.Render(Value);
+
+        return Value;
     }
 }
