@@ -86,12 +86,13 @@ namespace MarkdownTests
         public string Render_IgnoreTags(string text) => new MarkdownRenderer(text).Render();
 
         [TestCaseSource(nameof(TagsInteractionBetweenThemselvesCases))]
-        public string Render_TagsInteractionBetweenThemselves(string text) => new MarkdownRenderer(text).Render();
+        public string Render_TagsInteraction(string text) => new MarkdownRenderer(text).Render();
 
         private static IEnumerable<TestCaseData> SingleTagCases()
         {
             yield return new TestCaseData("__bold__") {ExpectedResult = "<strong>bold</strong>", TestName = "Bold"};
             yield return new TestCaseData("_italic_") {ExpectedResult = "<em>italic</em>", TestName = "Italic"};
+            yield return new TestCaseData("# header") {ExpectedResult = "<h1>header</h1>", TestName = "Header"};
         }
 
         private static IEnumerable<TestCaseData> InWordPartCases()
@@ -99,6 +100,9 @@ namespace MarkdownTests
             yield return new TestCaseData("_a_b") {ExpectedResult = "<em>a</em>b", TestName = "In word start"};
             yield return new TestCaseData("a_bc_d") {ExpectedResult = "a<em>bc</em>d", TestName = "In word middle"};
             yield return new TestCaseData("a_bc_") {ExpectedResult = "a<em>bc</em>", TestName = "In word end"};
+
+            yield return new TestCaseData("q_W_p _ab ba_")
+                {ExpectedResult = "q<em>W</em>p <em>ab ba</em>", TestName = "Highlights phrase after tag in word"};
         }
 
         private static IEnumerable<TestCaseData> IgnoreTagsCases()
@@ -124,6 +128,12 @@ namespace MarkdownTests
 
             yield return new TestCaseData("_i __b__ i")
                 {ExpectedResult = "_i <strong>b</strong> i", TestName = "Nesting ignore unclosed tags"};
+
+            yield return new TestCaseData("# h __b _i_ b__")
+            {
+                ExpectedResult = "<h1>h <strong>b <em>i</em> b</strong></h1>",
+                TestName = "Header can contain italic and bold"
+            };
         }
     }
 }

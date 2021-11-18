@@ -4,7 +4,8 @@ namespace Markdown.Models
 {
     public interface ITokenPattern
     {
-        public int TagLength { get; }
+        public int StartTagLength { get; }
+        public int EndTagLength { get; }
         public bool LastCloseSucceed { get; }
         public IEnumerable<TagType> ForbiddenChildren { get; }
         public bool TrySetStart(Context context);

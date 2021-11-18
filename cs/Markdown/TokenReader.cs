@@ -28,7 +28,7 @@ namespace Markdown
         {
             var context = InitializeContext();
 
-            for (var i = 0; i < text.Length; i++)
+            for (var i = 0; i <= text.Length; i++)
                 ProceedSymbol(context, i);
 
             return matches;
@@ -111,7 +111,7 @@ namespace Markdown
         private void AddMatch(Context context)
         {
             var matchToClose = matchesToClose.Pop();
-            matchToClose.Length = context.Index - matchToClose.Start + matchToClose.Token.Pattern.TagLength;
+            matchToClose.Length = context.Index - matchToClose.Start + matchToClose.Token.Pattern.EndTagLength;
             matches.Add(matchToClose);
             tokensToOpen.Add(matchToClose.Token);
 

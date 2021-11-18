@@ -1,6 +1,6 @@
 ﻿namespace Markdown.Models
 {
-    public interface ITagConverter
+    public class HtmlTagConverter : ITagConverter
     {
         public string HtmlOpenTag { get; init; }
         public string HtmlCloseTag { get; init; }

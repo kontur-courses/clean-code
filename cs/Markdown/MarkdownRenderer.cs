@@ -32,7 +32,7 @@ namespace Markdown
         private string ConvertText()
         {
             var builder = new StringBuilder();
-            for (var i = 0; i < text.Length; i++)
+            for (var i = 0; i <= text.Length; i++)
             {
                 if (TryAppendStartTag(builder, ref i))
                     continue;
@@ -40,7 +40,8 @@ namespace Markdown
                 if (TryAppendEndTag(builder, ref i))
                     continue;
 
-                builder.Append(text[i]);
+                if (i != text.Length)
+                    builder.Append(text[i]);
             }
 
             return builder.ToString();
@@ -51,8 +52,8 @@ namespace Markdown
             if (!matchEndAtPosition.TryGetValue(i, out var matchAtEnd))
                 return false;
 
-            builder.Append(matchAtEnd.Token.TagConverter.CloseTag);
-            i += matchAtEnd.Token.Pattern.TagLength - 1;
+            builder.Append(matchAtEnd.Token.TagConverter.HtmlCloseTag);
+            i += matchAtEnd.Token.TagConverter.TrimFromEndCount - 1;
             return true;
         }
 
@@ -61,8 +62,8 @@ namespace Markdown
             if (!matchStartAtPosition.TryGetValue(i, out var matchAtStart))
                 return false;
 
-            builder.Append(matchAtStart.Token.TagConverter.OpenTag);
-            i += matchAtStart.Token.Pattern.TagLength - 1;
+            builder.Append(matchAtStart.Token.TagConverter.HtmlOpenTag);
+            i += matchAtStart.Token.TagConverter.TrimFromStartCount - 1;
             return true;
         }
 
@@ -71,7 +72,7 @@ namespace Markdown
             var matchesList = matches.ToList();
             matchStartAtPosition = matchesList.ToDictionary(match => match.Start, match => match);
             matchEndAtPosition = matchesList.ToDictionary(
-                match => match.Start + match.Length - match.Token.Pattern.TagLength,
+                match => match.Start + match.Length - match.Token.Pattern.EndTagLength,
                 match => match);
         }
     }

@@ -5,7 +5,8 @@ namespace Markdown.Tokens
 {
     public class PairedTokenPattern : ITokenPattern
     {
-        public int TagLength => tag.Length;
+        public int StartTagLength => tag.Length;
+        public int EndTagLength => tag.Length;
         public bool LastCloseSucceed { get; private set; }
         public IEnumerable<TagType> ForbiddenChildren { get; init; } = new List<TagType>();
 
@@ -28,20 +29,17 @@ namespace Markdown.Tokens
 
         public bool TryContinue(Context context)
         {
-            if (char.IsWhiteSpace(context.Text[context.Index]) && isStartInWord)
+            if (context.Index == context.Text.Length || char.IsWhiteSpace(context.Text[context.Index]) && isStartInWord)
             {
                 LastCloseSucceed = false;
                 return false;
             }
 
-
-            if (IsEnd(context))
+            if (IsPatternEnd(context))
             {
                 LastCloseSucceed = true;
                 return false;
             }
-
-            ;
 
             return true;
         }
@@ -51,10 +49,10 @@ namespace Markdown.Tokens
             && IsLetterAfterTag(context)
             && (IsStringBeginning(context) || IsLetterBeforeTag(context) || IsWhiteSpaceBeforeTag(context));
 
-        private bool IsEnd(Context context) =>
+        private bool IsPatternEnd(Context context) =>
             IsStartsWithTag(context)
             && IsLetterBeforeTag(context)
-            && (IsStringEnd(context) || IsLetterAfterTag(context) || IsWhiteSpaceAfterTag(context));
+            && (IsStringEnding(context) || IsLetterAfterTag(context) || IsWhiteSpaceAfterTag(context));
 
         private bool IsStartsWithTag(Context context) => context.Text[context.Index..].StartsWith(tag);
 
@@ -66,8 +64,8 @@ namespace Markdown.Tokens
             context.Text.Length > context.Index + tag.Length
             && char.IsWhiteSpace(context.Text[context.Index + tag.Length]);
 
-        private bool IsStringEnd(Context context) =>
-            context.Index + tag.Length == context.Text.Length;
+        private bool IsStringEnding(Context context) =>
+            context.Index + tag.Length >= context.Text.Length;
 
         private static bool IsStringBeginning(Context context) =>
             context.Index == 0;
