@@ -14,7 +14,5 @@
         public TokenType TokenType { get; }
         public int StartIndex { get; }
         public int FinishIndex { get; }
-
-        public abstract string GetHtml();
     }
 }
