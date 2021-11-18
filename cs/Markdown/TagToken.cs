@@ -2,7 +2,7 @@
 {
     public class TagToken
     {
-        public TagType TagType { get; }
+        public TagType TagType { get; private set; }
 
         public TagToken(TagType operatorType)
         {
