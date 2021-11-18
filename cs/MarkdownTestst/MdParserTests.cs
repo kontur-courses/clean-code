@@ -6,7 +6,7 @@ using NUnit.Framework;
 
 namespace MarkdownTests
 {
-    public class Tests
+    public class MdParserTests
     {
         private MdParser sut;
 
