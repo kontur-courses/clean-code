@@ -36,5 +36,11 @@ namespace Markdown.TagStore
         {
             return TagRole.NotTag;
         }
+
+        protected bool IsTag(string value)
+        {
+            return stringToTag.ContainsKey(value);
+        }
+        
     }
 }

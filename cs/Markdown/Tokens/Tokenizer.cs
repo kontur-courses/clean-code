@@ -21,31 +21,28 @@ namespace Markdown.Tokens
         {
             var tokens = new Stack<Token>();
 
-            foreach (var (tagValue, index) in text.FindAll(tags))
+            foreach (var (tagValue, index) in text.FindAll(tags).OrderBy(tuple => tuple.Item2))
             {
                 char? charBefore = index > 0 ? text[index - 1] : null;
                 char? charAfter = index < text.Length ? text[index + tagValue.Length] : null;
                 var tagType = store.GetTagType(tagValue);
                 var tagRole = store.GetTagRole(tagValue, charBefore, charAfter);
 
-                var token =  new Token(tagType, index, tagValue.Length, tagRole);
+                var token = new Token(tagType, index, tagValue.Length, tagRole);
                 switch (tagRole)
                 {
                     case TagRole.Opening:
                         tokens.Push(token);
                         break;
                     case TagRole.Closing:
-                        if (tokens.Count == 0) break;
-                        else if (tokens.Peek().Type == tagType)
+                        if (tokens.Count != 0 && tokens.Peek().Type == tagType)
                         {
                             yield return tokens.Pop();
                             yield return token;
                         }
-                        
 
                         break;
                 }
-
             }
         }
     }

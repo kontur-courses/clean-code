@@ -1,4 +1,5 @@
 ﻿using System.Linq;
+using FakeItEasy;
 using FluentAssertions;
 using Markdown.Tags;
 using Markdown.TagStore;
@@ -11,10 +12,17 @@ namespace Markdown.Tests
     public class TokenizerTests
     {
         [Test]
-        public void ReturnTagToken_WhenStringHasTag()
+        public void Tokenize_IfStringHasTag_ShouldReturnTagToken()
         {
             const string text = "_Lorem ipsum dolor_ sit amet";
-            var sut = new Tokenizer(new MdTagStore());
+            var tagRoles = new[] { TagRole.Opening, TagRole.Closing };
+            var tagStore = A.Fake<ITagStore>();
+            A.CallTo(() => tagStore.GetTagType("_")).Returns(TagType.Emphasized);
+            A.CallTo(() => tagStore.GetTagRole(A<string>.Ignored, A<char>.Ignored, A<char>.Ignored))
+                .ReturnsNextFromSequence(tagRoles);
+            A.CallTo(() => tagStore.GetTagsValues()).Returns(new []{"_"});
+            
+            var sut = new Tokenizer(tagStore);
 
             var tagTokens = sut.Tokenize(text).ToArray();
 

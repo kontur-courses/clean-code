@@ -16,11 +16,23 @@ namespace Markdown.Tests
         {
             var from = new MdTagStore();
             var to = new HtmlTagStore();
-            var converter = new Converter(from, to);
+            var sut = new Converter(from, to);
 
-            var converted = converter.Convert(text);
+            var converted = sut.Convert(text);
             Console.WriteLine(converted);
             converted.Should().Be(convertedText);
+        }
+
+        [Test]
+        public void Convert_ShouldReplaceHtmlTagToMd()
+        {
+            var from = new HtmlTagStore();
+            var to = new MdTagStore();
+            var sut = new Converter(from, to);
+
+            var converted = sut.Convert("Lorem <em>ipsum dolor</em> sit_ amet");
+
+            converted.Should().Be("Lorem _ipsum dolor_ sit_ amet");
         }
     }
 }

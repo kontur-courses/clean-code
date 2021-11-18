@@ -2,6 +2,7 @@
 {
     public enum TagType
     {
-        Emphasized, Header
+        Emphasized,
+        Header
     }
 }

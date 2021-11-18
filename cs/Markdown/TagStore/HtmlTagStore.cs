@@ -1,22 +1,29 @@
-﻿using Markdown.Tags;
+﻿using System.Collections.Generic;
+using Markdown.Tags;
 
 namespace Markdown.TagStore
 {
     public class HtmlTagStore : TagStore
     {
-        private static ITag[] tags =
+        private static readonly List<ITag> Tags = new()
         {
             new Tag(TagType.Emphasized, "<em>", "</em>"),
         };
 
         public HtmlTagStore()
         {
-            foreach (var tag in tags)
-            {
-                Register(tag);
-            }
+            Tags.ForEach(Register);
         }
-        
-        
+
+        public override TagRole GetTagRole(string tag, char? before, char? after)
+        {
+            if (!IsTag(tag)) return TagRole.NotTag;
+            return tag switch
+            {
+                "<em>" => TagRole.Opening,
+                "</em>" => TagRole.Closing,
+                _ => TagRole.NotTag
+            };
+        }
     }
 }
