@@ -13,7 +13,7 @@ namespace Markdown.Parser
         {
             this.lexer = lexer;
         }
-        
+
         public IEnumerable<Token> Parse(string text)
         {
             throw new NotImplementedException();

@@ -20,17 +20,10 @@ namespace Markdown.Tests
         [Test]
         public void Lex_Should_ThrowException_WhenTextIsNull()
         {
-            Assert.Throws<ArgumentNullException>(() => sut.Lex(null));
+            Assert.Throws<ArgumentNullException>(() => sut.Lex(null).ToArray());
         }
 
-        [Test]
-        public void Lex_Should_ReturnEmptyCollection_WhenTextIsEmpty()
-        {
-            var tokens = sut.Lex("");
-
-            tokens.Should().BeEquivalentTo(Enumerable.Empty<Token>());
-        }
-
+        [TestCase("")]
         [TestCase("text")]
         [TestCase("text with spaces")]
         public void Lex_Should_Return_TextToken_WhenTextWithoutFormatting(string text)

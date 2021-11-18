@@ -18,16 +18,36 @@ namespace Markdown.Tests
         {
             foreach (var testToken in testTokens)
             {
-                yield return GenerateCountSymbols(testToken.Value, testToken.TokenType, 3);
+                if(testToken.TokenType != TokenType.Italics)
+                    yield return GenerateCountSymbols(testToken.Value, testToken.TokenType, 3);
                 yield return SurroundAllTextWith(testToken.Value, testToken.TokenType);
                 yield return SurroundPartOfTextWith(testToken.Value, testToken.TokenType);
             }
+
+            foreach (var data in GenerateCombinedTestData())
+                yield return data;
+        }
+        
+        private IEnumerable<TestCaseData> GenerateCombinedTestData()
+        {
+            yield return new TestCaseData("___", new Token[]
+            {
+                new(TokenType.Bold, "__"),
+                new(TokenType.Italics, "_")
+            }).SetName("Combined Bold and Italics 1");
+            
+            yield return new TestCaseData("___as___", new Token[]
+            {
+                new(TokenType.Bold, "__"), new(TokenType.Italics, "_"),
+                new(TokenType.Text, "as"), new(TokenType.Bold, "__"),
+                new(TokenType.Italics, "_")
+            }).SetName("Combined Bold and Italics 2");
         }
 
         private TestCaseData GenerateCountSymbols(string symbol, TokenType tokenType, int count)
         {
             var symbols = Enumerable.Range(0, count).Aggregate(string.Empty, (s, _) => s + symbol);
-            return new TestCaseData(symbols, Enumerable.Repeat(new Token(tokenType, symbol), count))
+            return new TestCaseData(symbols, Enumerable.Repeat(new Token(tokenType, symbol), count).ToArray())
                 .SetName($"{tokenType.ToString()} repeated several times");
         }
 
@@ -46,7 +66,7 @@ namespace Markdown.Tests
             const string firstPart = "abc";
             const string middlePart = "de";
             const string lastPart = "xyz";
-            var testString = firstPart + symbol + firstPart + symbol + lastPart;
+            var testString = firstPart + symbol + middlePart + symbol + lastPart;
             return new TestCaseData(testString, new Token[]
             {
                 new(TokenType.Text, firstPart), new(tokenType, symbol), 

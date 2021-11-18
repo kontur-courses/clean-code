@@ -13,7 +13,7 @@ namespace Markdown
             this.parser = parser;
             this.tokenFormatter = tokenFormatter;
         }
-        
+
         public string Render(string text)
         {
             var tokens = parser.Parse(text);
