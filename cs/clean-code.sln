@@ -9,7 +9,9 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "ControlDigit", "ControlDigi
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Samples", "Samples\Samples.csproj", "{C3EF41D7-50EF-4CE1-B30A-D1D81C93D7FA}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Markdown", "Markdown\Markdown.csproj", "{07644DFF-045F-4DCE-9968-A0A6002CF5CD}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Markdown", "Markdown\Markdown.csproj", "{07644DFF-045F-4DCE-9968-A0A6002CF5CD}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MarkdownUnitTests", "MarkdownUnitTests\MarkdownUnitTests.csproj", "{DB4CE979-F7DD-454D-9CF9-83C738AA191F}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -33,6 +35,10 @@ Global
 		{07644DFF-045F-4DCE-9968-A0A6002CF5CD}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{07644DFF-045F-4DCE-9968-A0A6002CF5CD}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{07644DFF-045F-4DCE-9968-A0A6002CF5CD}.Release|Any CPU.Build.0 = Release|Any CPU
+		{DB4CE979-F7DD-454D-9CF9-83C738AA191F}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{DB4CE979-F7DD-454D-9CF9-83C738AA191F}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{DB4CE979-F7DD-454D-9CF9-83C738AA191F}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{DB4CE979-F7DD-454D-9CF9-83C738AA191F}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
