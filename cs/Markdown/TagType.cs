@@ -10,5 +10,6 @@ namespace Markdown
         CloseBold,
         OpenHeader,
         CloseHeader,
+        Text
     }
 }
