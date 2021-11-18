@@ -1,6 +1,9 @@
 using FluentAssertions;
 using Markdown;
 using NUnit.Framework;
+using System;
+using System.Diagnostics;
+using System.Linq;
 
 namespace MarkdownTests;
 public class MarkdownShould
@@ -102,5 +105,60 @@ public class MarkdownShould
         var result = md.Render();
 
         result.Should().BeEquivalentTo(expectedResult);
+    }
+
+    [TestCase(100, 100)]
+    [TestCase(1000, 100)]
+    [TestCase(100, 1000)]
+    [Timeout(2000)]
+    public void WorkLinearlyToItsInput(int actionCount, int textScale)
+    {
+        var text = "__abc _def_ hkl__ mn";
+        WarmUp(text);
+        Action action = () => RunMd(text);
+        var scaledText = string.Join('\n', Enumerable.Repeat(text, textScale));
+        Action scaledAction = () => RunMd(scaledText);
+        var timer = new Stopwatch();
+
+        GC.Collect();
+        timer.Start();
+        for (var i = 0; i < actionCount; i++)
+        {
+            action();
+        }
+
+        timer.Stop();
+        var averageTime = timer.Elapsed / actionCount;
+
+        timer.Reset();
+        GC.Collect();
+
+        timer.Start();
+        for (var i = 0; i < actionCount; i++)
+        {
+            scaledAction();
+        }
+
+        timer.Stop();
+        var averageTimeScaled = timer.Elapsed / actionCount;
+
+        averageTimeScaled.Should().BeLessThan(averageTime * textScale * textScale);
+        TestContext.WriteLine($"Time on input with {text.Length} length: {averageTime}");
+        TestContext.WriteLine($"Time on input with {scaledText.Length} length: {averageTimeScaled}");
+    }
+
+    private static void WarmUp(string text)
+    {
+        for (var i = 0; i < 100; i++)
+        {
+            var a = RunMd(text);
+        }
+    }
+
+    private static string RunMd(string input)
+    {
+        var md = new Md(input);
+
+        return md.Render();
     }
 }
