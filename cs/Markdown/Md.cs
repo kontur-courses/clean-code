@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Linq;
 
 namespace Markdown
 {
@@ -7,10 +8,8 @@ namespace Markdown
     {
         public string Render(string mdText)
         {
-            //Parse(md)
-            //Tokens => ToHtml()
-            //Concat
-            //return
+            //new HtmlConverter().Convert(new Parser().Parse(mdText).ToList());
+            
             throw new NotImplementedException();
         }
     }

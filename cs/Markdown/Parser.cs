@@ -5,7 +5,7 @@ namespace Markdown
 {
     public class Parser
     {
-        public List<Token> Parse(string mdText)
+        public IEnumerable<Token> Parse(string mdText)
         {
             throw new NotImplementedException();
         }

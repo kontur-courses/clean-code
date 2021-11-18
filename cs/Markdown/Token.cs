@@ -13,19 +13,6 @@ namespace Markdown
             Value = value;
             InnerTokens = innerTokens;
         }
-
-        // простой текст, не обернутый в теги (токен по умолчанию)
-        // для сложных токенов - переопределение с  использованием InnerTokens 
-        public virtual string ToHtml()
-        {
-            return EscapeSymbols(Value);
-        }
-
-        //Экранирование, вызов в ToHtml() чтобы экранировать Value
-        protected string EscapeSymbols(string text)
-        {
-            throw new NotImplementedException();
-        }
     }
     
     public class Header : Token
@@ -33,11 +20,6 @@ namespace Markdown
         public Header(string value, List<Token> innerTokens = null) :
             base(value, innerTokens)
         {
-        }
-
-        public override string ToHtml()
-        {
-            throw new NotImplementedException();
         }
     }
 
@@ -47,11 +29,6 @@ namespace Markdown
             base(value, innerTokens)
         {
         }
-
-        public override string ToHtml()
-        {
-            throw new NotImplementedException();
-        }
     }
 
     public class StrongText : Token
@@ -60,11 +37,6 @@ namespace Markdown
             base(value, innerTokens)
         {
         }
-
-        public override string ToHtml()
-        {
-            throw new NotImplementedException();
-        }
     }
 
     public class ItalicText : Token
@@ -72,11 +44,6 @@ namespace Markdown
         public ItalicText(string value, List<Token> innerTokens = null) :
             base(value, innerTokens)
         {
-        }
-
-        public override string ToHtml()
-        {
-            throw new NotImplementedException();
         }
     }
 }
