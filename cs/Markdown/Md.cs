@@ -1,4 +1,5 @@
 ﻿using System;
+using Markdown.Token;
 
 namespace Markdown
 {
@@ -6,7 +7,9 @@ namespace Markdown
     {
         public string Render(string markdown)
         {
-            throw new NotImplementedException();
+            var converter = new TokenConverter();
+            var tokens = converter.Convert(markdown);
+            return converter.Convert(tokens);
         }
     }
 }

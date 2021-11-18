@@ -41,6 +41,13 @@
         <Compile Include="Md.cs" />
         <Compile Include="Program.cs" />
         <Compile Include="Properties\AssemblyInfo.cs" />
+        <Compile Include="Tags\BoldTag.cs" />
+        <Compile Include="Tags\HeadingTag.cs" />
+        <Compile Include="Tags\ITag.cs" />
+        <Compile Include="Tags\ItalicTag.cs" />
+        <Compile Include="Token\IToken.cs" />
+        <Compile Include="Token\ITokenConverter.cs" />
+        <Compile Include="Token\TokenConverter.cs" />
     </ItemGroup>
     <ItemGroup>
       <PackageReference Include="FluentAssertions" Version="6.2.0" />
