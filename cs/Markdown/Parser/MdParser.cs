@@ -66,28 +66,24 @@ namespace Markdown.Parser
             return result;
         }
 
-        private void ProcessToken(Type type, int index, int length)
+        private void ProcessToken(Type type, int openIndex, int length)
         {
             if (ExecuteScreening()) return;
 
             if (type.IsSubclassOf(typeof(NonPairedToken)))
+                ((Token)Activator.CreateInstance(type, openIndex))?.Accept(this);
+            else if (tokens.TryGetValue(type, out var token))
             {
-                ((Token)Activator.CreateInstance(type, index))?.Accept(this);
-                return;
-            }
-
-            if (tokens.TryGetValue(type, out var token))
-            {
-                if (!IsCorrectClosePosition(index, textToParse)) return;
-
-                token.Close(index);
-                token.Accept(this);
+                if (IsCorrectClosePosition(openIndex, textToParse))
+                {
+                    token.Close(openIndex);
+                    token.Accept(this);
+                }
             }
             else
             {
-                if (!IsCorrectOpenPosition(index, textToParse, length)) return;
-
-                tokens[type] = (Token)Activator.CreateInstance(type, index);
+                if (IsCorrectOpenPosition(openIndex, textToParse, length))
+                    tokens[type] = (Token)Activator.CreateInstance(type, openIndex);
             }
         }
 
@@ -107,31 +103,29 @@ namespace Markdown.Parser
 
         internal void Visit(BoldToken token)
         {
-            token.ValidatePlacedCorrectly(textToParse);
-
-            CheckTokenInteractions(token);
-
-            tokens.Remove(token.GetType());
-
-            if (token.IsCorrect)
-                result.Add(token);
+            VisitStyleToken(token, ValidateBoldTokenInteractions);
         }
 
         internal void Visit(ItalicToken token)
         {
-            token.ValidatePlacedCorrectly(textToParse);
-
-            CheckTokenInteractions(token);
-
-            tokens.Remove(token.GetType());
-
-            if (token.IsCorrect)
-                result.Add(token);
+            VisitStyleToken(token, ValidateStyleTokenInteractions);
         }
 
         internal void Visit(ScreeningToken token)
         {
             tokens.Add(token.GetType(), token);
+        }
+
+        internal void VisitStyleToken(StyleToken token, Action<StyleToken> interactionsValidator)
+        {
+            token.ValidatePlacedCorrectly(textToParse);
+
+            interactionsValidator.Invoke(token);
+
+            tokens.Remove(token.GetType());
+
+            if (token.IsCorrect)
+                result.Add(token);
         }
 
         private bool ExecuteScreening()
@@ -144,41 +138,23 @@ namespace Markdown.Parser
             return true;
         }
 
-        private void CheckTokenInteractions(StyleToken token)
+        private void ValidateStyleTokenInteractions(StyleToken token)
         {
             foreach (var otherToken in tokens.Values)
             {
-                if (!otherToken.GetType().IsSubclassOf(typeof(StyleToken)) || otherToken == token)
+                if (otherToken is not StyleToken styleToken || otherToken == token)
                     continue;
 
-                var styleToken  = otherToken as StyleToken;
+                if (!token.IsIntersectWith(styleToken)) continue;
 
-                if (token.IsIntersectWith(styleToken))
-                {
-                    styleToken.IsCorrect = false;
-                    token.IsCorrect = false;
-                }
-            }
-        }
-
-        /*
-        private void CheckTokenInteractions(ItalicToken token)
-        {
-            if (!token.IsCorrect || !tokens.ContainsKey(typeof(BoldToken))) return;
-
-            var boldToken = tokens[typeof(BoldToken)] as BoldToken;
-
-            if (token.IsIntersectWith(boldToken))
-            {
-                boldToken.IsCorrect = false;
+                styleToken.IsCorrect = false;
                 token.IsCorrect = false;
             }
         }
-        */
 
-        private void CheckTokenInteractions(BoldToken token)
+        private void ValidateBoldTokenInteractions(StyleToken token)
         {
-            CheckTokenInteractions(token as StyleToken);
+            ValidateStyleTokenInteractions(token);
 
             if (!token.IsCorrect || !tokens.ContainsKey(typeof(ItalicToken))) return;
 

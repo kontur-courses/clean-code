@@ -42,6 +42,18 @@ namespace MarkdownTests
                     .SetName("ReturnScreeningTokens_WhenThereIsScreenedItalicToken");
                 yield return new TestCaseData("\\\\a", new List<Token>() { new ScreeningToken(0, 0)})
                     .SetName("ReturnScreeningToken_WhenThereIsScreenedScreeningToken");
+                yield return new TestCaseData("# __a__ _a_ __a_a_a__ \\_a\\_ _a__a__a_ __a_a__a_ _a__a_a__ \n", new List<Token>()
+                    {
+                        new HeaderToken(0, 58),
+                        new BoldToken(2, 5),
+                        new ItalicToken(8, 10),
+                        new BoldToken(12, 19),
+                        new ItalicToken(15, 17),
+                        new ScreeningToken(22, 22),
+                        new ScreeningToken(25, 25),
+                        new ItalicToken(28, 36)
+                    })
+                    .SetName("ReturnAllTokens_WhenThereIsManyInteractingTokens");
             }
         }
     }
