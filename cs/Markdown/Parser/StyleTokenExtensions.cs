@@ -37,9 +37,7 @@ namespace Markdown.Parser
             var openInsideWord = IsSeparatorInsideTextWithDigits(token.OpenIndex, token.Separator.Length, text);
             var closeInsideWord = IsSeparatorInsideTextWithDigits(token.CloseIndex, token.Separator.Length, text);
 
-            var tokenContent = token.GetTokenContent(text);
-
-            return (openInsideWord || closeInsideWord) && tokenContent.Any(x => x == ' ');
+            return openInsideWord || closeInsideWord;
         }
 
         private static bool IsSeparatorInsideWord(int index, int separatorLength, string text)

@@ -92,7 +92,7 @@ namespace Markdown.Parser
             if (token.OpenIndex != 0 && textToParse[token.OpenIndex - 1] != '\n')
                 return;
 
-            var closeIndex = textToParse.IndexOf('\n');
+            var closeIndex = textToParse.IndexOf('\n', token.OpenIndex);
 
             if (closeIndex == -1)
                 closeIndex = textToParse.Length;
