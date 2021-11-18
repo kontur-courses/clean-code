@@ -5,9 +5,14 @@ namespace Markdown.Parser
 {
     internal static class StyleTokenExtensions
     {
-        internal static bool IsTokenPlacedCorrectly(this StyleToken token, string text)
+        internal static void ValidatePlacedCorrectly(this StyleToken token, string text)
         {
-            return !(token.IsInsideTextWithDigits(text) || token.IsInsideDifferentWords(text) || token.IsTokenEmpty(text));
+            token.IsCorrect = !(token.IsInsideTextWithDigits(text) || token.IsInsideDifferentWords(text) || token.IsTokenEmpty(text));
+        }
+
+        internal static bool IsIntersectWith(this StyleToken thisToken, StyleToken otherToken)
+        {
+            return thisToken.OpenIndex < otherToken.OpenIndex && otherToken.OpenIndex < thisToken.CloseIndex;
         }
 
         private static bool IsTokenEmpty(this StyleToken token, string text)
@@ -24,7 +29,7 @@ namespace Markdown.Parser
 
             var tokenContent = token.GetTokenContent(text);
 
-            return openInsideWord || closeInsideWord && tokenContent.Any(x => x == ' ');
+            return (openInsideWord || closeInsideWord) && tokenContent.Any(x => x == ' ');
         }
 
         private static bool IsInsideTextWithDigits(this StyleToken token, string text)
@@ -34,7 +39,7 @@ namespace Markdown.Parser
 
             var tokenContent = token.GetTokenContent(text);
 
-            return openInsideWord || closeInsideWord && tokenContent.Any(x => x == ' ');
+            return (openInsideWord || closeInsideWord) && tokenContent.Any(x => x == ' ');
         }
 
         private static bool IsSeparatorInsideWord(int index, int separatorLength, string text)
@@ -49,10 +54,10 @@ namespace Markdown.Parser
 
         private static bool IsSeparatorInsideTextWithDigits(int index, int separatorLength, string text)
         {
-            var isLeftLetter = index > 0 && char.IsLetterOrDigit(text[index - 1]);
+            var isLeftLetter = index > 0 && char.IsDigit(text[index - 1]);
 
             var isRightLetter = index + separatorLength < text.Length - 1 &&
-                                char.IsLetterOrDigit(text[index + separatorLength]);
+                                char.IsDigit(text[index + separatorLength]);
 
             return isLeftLetter && isRightLetter;
         }

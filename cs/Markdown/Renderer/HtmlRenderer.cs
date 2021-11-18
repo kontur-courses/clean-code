@@ -17,13 +17,13 @@ namespace Markdown.Renderer
 
         public string Render(IEnumerable<Token> tokens, string text)
         {
-            var textReplacements = GetTagInsertions(tokens);
+            var tagInsertions = GetTagInsertions(tokens);
             var result = new StringBuilder();
             var index = 0;
 
             while (index < text.Length)
             {
-                if (textReplacements.TryGetValue(index, out var replacement))
+                if (tagInsertions.TryGetValue(index, out var replacement))
                 {
                     result.Append(replacement.Tag);
                     index += replacement.Shift;
@@ -36,7 +36,7 @@ namespace Markdown.Renderer
                 index++;
             }
 
-            if (textReplacements.TryGetValue(text.Length, out var endTag))
+            if (tagInsertions.TryGetValue(text.Length, out var endTag))
                 result.Append(endTag.Tag);
 
             return result.ToString();

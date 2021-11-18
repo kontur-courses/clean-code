@@ -24,16 +24,22 @@ namespace Markdown.Tokens
 
         protected Token(int openIndex)
         {
-            if (OpenIndex < 0)
-                throw new ArgumentException("The open index must be greater than zero");
+            ValidateOpenIndex(openIndex);
 
             OpenIndex = openIndex;
         }
 
         protected Token(int openIndex, int closeIndex)
         {
+            ValidateOpenIndex(openIndex);
             OpenIndex = openIndex;
-            CloseIndex = closeIndex;
+            Close(closeIndex);
+        }
+
+        private static void ValidateOpenIndex(int openIndex)
+        {
+            if (openIndex < 0)
+                throw new ArgumentException("The open index must be greater than zero");
         }
 
         internal abstract void Accept(MdParser parser);
