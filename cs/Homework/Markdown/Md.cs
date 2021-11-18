@@ -2,11 +2,13 @@
 {
     public class Md
     {
+        private static readonly TokenParser parser = new();
+        private static readonly HtmlRenderer renderer = new();
+
         public static string Render(string text)
         {
-            return text
-                .ParseIntoTokens()
-                .RenderToHtml();
+            var tokens = parser.Parse(text);
+            return renderer.Render(tokens);
         }
     }
 }
