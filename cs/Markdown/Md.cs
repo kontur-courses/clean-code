@@ -1,11 +1,13 @@
-﻿namespace Markdown
+﻿using Markdown.Interfaces;
+
+namespace Markdown
 {
     public class Md
     {
-        public string Render(string text)
+        public string Render(string text, IConvectorMarkup convecter)
         {
             Tokenizer tokenizer = new Tokenizer();
-            return  new HtmlConvector().Convert(tokenizer.Parse(text));
+            return convecter.Convert(tokenizer.Parse(text));
         }
     }
 }
