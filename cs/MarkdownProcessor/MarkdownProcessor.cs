@@ -8,13 +8,13 @@ namespace MarkdownProcessor
     public class MarkdownProcessor
     {
         private Dictionary<string, Tuple<string>> tags;
-        private List<Stack<string>> currentExtractors = new List<Stack<string>>();
+        private Dictionary<string, Stack<string>> currentExtractors = new Dictionary<string, Stack<string>>();
         private Tokenizer tokenizer;
 
         public MarkdownProcessor(Dictionary<string, Tuple<string>> tags)
         {
             this.tags = tags;
-            tokenizer = new Tokenizer(tags.Keys.ToHashSet());
+            tokenizer = new Tokenizer();
         }
 
         public string Render(string input)
@@ -23,13 +23,14 @@ namespace MarkdownProcessor
             
             foreach (var token in tokenizer.GetTokens(input))
             {
-                if (token.Type is TokenType.Tag)
+                if (token.Type is TokenType.Text)
                 {
-                    builder.Append(GetTag(token.Value));
+                    builder.Append(GetString(token.Value));
+                    
                 }
                 else
                 {
-                    builder.Append(GetString(token.Value));
+                    builder.Append(GetTag(token.Value));
                 }
             }
 
