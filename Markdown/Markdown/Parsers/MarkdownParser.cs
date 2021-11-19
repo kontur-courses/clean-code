@@ -8,10 +8,10 @@ namespace Markdown.Parsers
     public class MarkdownParser : IParser<MarkdownMarking>
     {
         private readonly ITokenFactory<MarkdownToken> tokenFactory;
-        private readonly IMarkingFactory<MarkdownMarking> markingFactory;
+        private readonly IMarkingFactory<MarkdownToken, MarkdownMarking> markingFactory;
 
         public MarkdownParser(ITokenFactory<MarkdownToken> tokenFactory,
-            IMarkingFactory<MarkdownMarking> markingFactory)
+            IMarkingFactory<MarkdownToken, MarkdownMarking> markingFactory)
         {
             this.tokenFactory = tokenFactory;
             this.markingFactory = markingFactory;
