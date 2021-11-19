@@ -8,7 +8,7 @@ internal class TokenBuilder
     public int End { get; private set; }
     public string? MdTag { get; private set; }
 
-    private readonly List<TokenBuilder> Tokens = new();
+    private readonly List<TokenBuilder> tokens = new();
 
     public TokenBuilder(Tokenizer tokenWrapper, string source)
     {
