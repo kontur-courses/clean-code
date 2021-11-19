@@ -8,21 +8,37 @@ namespace Markdown
     public class Md
     {
         private readonly ITokenParser parser;
+        private readonly ITokenTranslator translator;
 
         public Md()
         {
-            var token = Token.GetPairToken("_");
-
+            var underscoreToken = Token.GetSymmetricToken("_");
+            var doubleUnderscoreToken = Token.GetSymmetricToken("__");
+            var sharpToken = Token.GetSingleToken("#");
+            
+            translator = TokenTranslatorConfigurator
+                .CreateTokenTranslator()
+                .SetReference()
+                    .From(underscoreToken)
+                    .To(Token.GetPairToken("<em>", Token.GetSingleToken("</em>")))
+                .SetReference()
+                    .From(doubleUnderscoreToken)
+                    .To(Token.GetPairToken("<strong>", Token.GetSingleToken("</strong>")))
+                .SetReference()
+                    .From(sharpToken)
+                    .To(Token.GetPairToken("<h1>", Token.GetSingleToken("</h1>")))
+                .Configure();
+            
             parser = TokenParserConfigurator
                 .CreateTokenParser()
                 .SetShieldingSymbol('\\')
-                .AddToken(Token.GetSymmetricToken("_")).That
-                    .CanBeNestedIn(Token.GetSymmetricToken("__")).And
+                .AddToken(underscoreToken).That
+                    .CanBeNestedIn(doubleUnderscoreToken).And
                     .CantIntersect()
-                .AddToken(Token.GetSymmetricToken("__")).That
-                    .CantBeNestedIn(Token.GetSymmetricToken("_")).And
+                .AddToken(doubleUnderscoreToken).That
+                    .CantBeNestedIn(underscoreToken).And
                     .CantIntersect()
-                .AddToken(Token.GetSingleToken("#")).That
+                .AddToken(sharpToken).That
                     .CanIntersectWithAnyTokens().And
                     .CanBeNestedInAnyTokens()
                 .Configure();
@@ -45,34 +61,10 @@ namespace Markdown
                     .ForEachPairs(parser.ValidatePairSets)
                     .Aggregate((f, s) => f.Union(s));
 
-                parsedText.Append(parser.ReplaceTokens(tokenSegments, null));
+                parsedText.Append(parser.ReplaceTokens(tokenSegments, translator));
             }
     
             return parsedText.ToString();
-        }
-    }
-
-    internal static class DictionaryExc
-    {
-        internal static Dictionary<int, TokenInfo> Validate(this Dictionary<int, TokenInfo> source)
-        {
-            return source
-                .Where(x => x.Value.Valid)
-                .ToDictionary(x => x.Key, x => x.Value);
-        }
-
-        internal static IEnumerable<Dictionary<TKey, TValue>> GroupToDictionariesBy<TKey, TValue, TGroup>(
-            this Dictionary<TKey, TValue> source, 
-            Func<KeyValuePair<TKey, TValue>, TGroup> groupFunc)
-        {
-            throw new NotImplementedException();
-        }
-
-        internal static IEnumerable<TSource> ForEachPairs<TSource>(
-            this IEnumerable<TSource> sources,
-            Func<(TSource, TSource), (TSource, TSource)> action)
-        {
-            throw new NotImplementedException();
         }
     }
 }

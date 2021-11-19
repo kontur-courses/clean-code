@@ -12,6 +12,7 @@ namespace Markdown
         
         private Token(){}
 
+        // Все геттеры не создают новые токены, а берут их из базы токенов, которая создается перед парсингом
         public static Token GetSingleToken(string token)
         {
             throw new NotImplementedException();
