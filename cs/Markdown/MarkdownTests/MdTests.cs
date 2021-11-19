@@ -1,10 +1,5 @@
 ﻿using Markdown;
 using NUnit.Framework;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using FluentAssertions;
 
 namespace MarkdownTests
@@ -52,6 +47,30 @@ namespace MarkdownTests
         {
             var input = @"_alpha\_ beta";
             var expectedResult = @"_alpha_ beta";
+            var markdown = new Md();
+            markdown.Render(input).Should().Be(expectedResult);
+            markdown.Render(input).Length.Should().Be(expectedResult.Length);
+        }
+    }
+
+    [TestFixture]
+    public class MdHeaderTests
+    {
+        [Test]
+        public void HeaderTest()
+        {
+            var input = @"# Simple Header.";
+            var expectedResult = @"<h1>Simple Header.</h1>";
+            var markdown = new Md();
+            markdown.Render(input).Should().Be(expectedResult);
+            markdown.Render(input).Length.Should().Be(expectedResult.Length);
+        }
+
+        [Test]
+        public void HeaderAndUndelinesTest()
+        {
+            var input = @"# Заголовок __с _разными_ символами__";
+            var expectedResult = @"<h1>Заголовок <strong>с <em>разными</em> символами</strong></h1>";
             var markdown = new Md();
             markdown.Render(input).Should().Be(expectedResult);
             markdown.Render(input).Length.Should().Be(expectedResult.Length);
@@ -125,8 +144,6 @@ namespace MarkdownTests
         [TestCase("На _улице__ бы_ла ясная__ погода")]
         public void IntersectingUnderlinesShouldProcessedCorrectly(string input)
         {
-            //var input = "На __улице_ бы__ла ясная_ погода";
-            //var expected = "На __улице_ бы__ла ясная_ погода";
             var markdown = new Md();
             markdown.Render(input).Should().Be(input);
             markdown.Render(input).Length.Should().Be(input.Length);

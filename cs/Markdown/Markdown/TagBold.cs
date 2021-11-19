@@ -1,7 +1,9 @@
 ﻿namespace Markdown
 {
-    public class Bold : ISelectionSymbol
+    public class TagBold : ITag
+
     {
+        public bool IsAtTheBeginning { get; set; }
         public bool IsClosed { get; set; }
 
         public string HtmlTagAnalog
@@ -10,15 +12,14 @@
             {
                 if (IsClosed)
                     return (IsStartTag) ? "<strong>" : "</strong>";
-                return SimpleChar;
+                return "__";
             }
         }
-        public bool IsPossibleStartElement { get; set; }
-
-        public bool IsPossibleEndElement { get; set; }
 
         public bool IsStartTag { get; set; }
 
-        public string SimpleChar => "__";
+        public string Content => HtmlTagAnalog;
+
+        public bool IsPrevent { get; set; }
     }
 }

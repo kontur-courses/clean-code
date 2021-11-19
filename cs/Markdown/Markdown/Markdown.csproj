@@ -41,18 +41,14 @@
     <None Include="packages.config" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="NewVariant\ITag.cs" />
-    <Compile Include="NewVariant\IToken.cs" />
-    <Compile Include="NewVariant\TagSpace.cs" />
-    <Compile Include="NewVariant\TagBold.cs" />
-    <Compile Include="NewVariant\HtmlTokenAnalyzer.cs" />
-    <Compile Include="NewVariant\TagItalic.cs" />
-    <Compile Include="NewVariant\TagWord.cs" />
-    <Compile Include="OldVariant\Bold.cs" />
-    <Compile Include="OldVariant\HtmlAnalyzer.cs" />
-    <Compile Include="OldVariant\ISelectionSymbol.cs" />
-    <Compile Include="OldVariant\Italics.cs" />
+    <Compile Include="HtmlTokenAnalyzer.cs" />
+    <Compile Include="ITag.cs" />
+    <Compile Include="IToken.cs" />
     <Compile Include="Md.cs" />
+    <Compile Include="TagBold.cs" />
+    <Compile Include="TagItalic.cs" />
+    <Compile Include="TagSpace.cs" />
+    <Compile Include="TagWord.cs" />
   </ItemGroup>
   <ItemGroup>
     <Reference Include="System" />

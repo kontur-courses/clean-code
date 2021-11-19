@@ -16,34 +16,30 @@ namespace Markdown
             }
             Console.WriteLine();
             return result.ToString();
-            //throw new NotImplementedException();
         }
 
         private string AnalyzeParagraph(string paragraph)
         {
             var resultParagraph = new StringBuilder();
             var lines = paragraph.Split(new char['\n'], StringSplitOptions.RemoveEmptyEntries);
+            var isHeader = false;
             if (lines[0][0] == '#')
             {
+                isHeader = true;
+                lines[0] = lines[0].Substring(2);
                 // ...
             }
 
             foreach (var line in lines)
             {
-                /*
-                var analyzer = new HtmlAnalyzer();
-                var analyzedLine = analyzer.AnalyzeLine(line);
-                */
-
                 var analyzer = new HtmlTokenAnalyzer();
                 var analyzedLine = analyzer.AnalyzeLine(line);
-
-
                 resultParagraph.Append(analyzedLine);
             }
 
+            if (isHeader)
+                return "<h1>" + resultParagraph + "</h1>";
             return resultParagraph.ToString();
-            //throw new NotImplementedException();
         }
     }
 }
