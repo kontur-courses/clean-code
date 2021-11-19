@@ -20,8 +20,8 @@ namespace Markdown.Tokens
         public IEnumerable<Token> Tokenize(string text)
         {
             var tokens = new Stack<Token>();
-
-            foreach (var (tagValue, index) in text.FindAll(tags).OrderBy(tuple => tuple.Item2))
+            var allTagsInText = text.FindAll(tags).OrderBy(tuple => tuple.Item2);
+            foreach (var (tagValue, index) in allTagsInText)
             {
                 char? charBefore = index > 0 ? text[index - 1] : null;
                 char? charAfter = index < text.Length ? text[index + tagValue.Length] : null;
