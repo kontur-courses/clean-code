@@ -33,7 +33,4 @@ public class Md
 
         return builder.ToString();
     }
-
-
-
 }

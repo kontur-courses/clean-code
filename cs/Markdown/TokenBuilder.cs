@@ -36,12 +36,12 @@ internal class TokenBuilder
 
     public void AddToken(TokenBuilder token)
     {
-        Tokens.Add(token);
+        tokens.Add(token);
     }
 
     internal Token Build()
     {
-        if (Tokens.Count == 0)
+        if (tokens.Count == 0)
             return TokenWrapper.WrapToken(Source[Start..End], Start, MdTag);
         return BuildCompound();
     }
@@ -50,7 +50,7 @@ internal class TokenBuilder
     {
         var setting = TokenWrapper.GetSetting(MdTag);
         var compound = new CompoundToken(Source[Start..End], Start, setting);
-        foreach (var token in Tokens)
+        foreach (var token in tokens)
         {
             compound.AddToken(token.Build());
         }

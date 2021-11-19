@@ -11,7 +11,7 @@ internal class Tokenizer
 
     public IEnumerable<Token> ParseLines(string text)
     {
-        var tokenSeparators = GetSeparators();
+        var tokenSeparators = GetTokenSeparators();
         foreach (var line in text.Split('\n'))
         {
             var lineTag = "";
@@ -23,7 +23,6 @@ internal class Tokenizer
             yield return root.Build();
         }
     }
-
 
     public Token WrapToken(string token, int start, string? mdTag)
     {
