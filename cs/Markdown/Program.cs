@@ -1,9 +1,12 @@
-﻿namespace Markdown
+﻿using System;
+
+namespace Markdown1
 {
-    internal class Program
+    class Program
     {
-        public static void Main(string[] args)
+        static void Main(string[] args)
         {
+            Console.WriteLine("Hello World!");
         }
     }
 }

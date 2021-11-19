@@ -4,8 +4,9 @@ namespace Markdown
 {
     public interface ITag
     {
-        string Opening { get; }
-        string Closing { get; }
-        int Priority { get; }
+        string OpeningMarkup { get; }
+        string ClosingMarkup { get; }
+        string OpeningTag { get; }
+        string ClosingTag { get; }
     }
 }

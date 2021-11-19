@@ -2,8 +2,9 @@
 {
     public class HeadingTag : ITag
     {
-        public string Opening => "\\<h1>";
-        public string Closing => "\\</h1>";
-        public int Priority => 3;
+        public string OpeningTag => "\\<h1>";
+        public string ClosingTag => "\\</h1>";
+        public string OpeningMarkup => "#";
+        public string ClosingMarkup => "\n";
     }
 }

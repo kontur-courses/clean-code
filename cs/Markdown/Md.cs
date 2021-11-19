@@ -7,9 +7,7 @@ namespace Markdown
     {
         public string Render(string markdown)
         {
-            var converter = new TokenConverter();
-            var tokens = converter.Convert(markdown);
-            return converter.Convert(tokens);
+            throw new NotImplementedException();
         }
     }
 }
