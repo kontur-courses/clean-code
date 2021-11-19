@@ -1,10 +1,21 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 
 namespace Markdown
 {
     public interface ITokenParser
     {
-        string ReplaceTokens(IEnumerable<Token> tokens, ITokenTranslator translator);
+        void ParseParagraph(string paragraph);
+
+        // Метод для валидации двух множеств отрезков токенов на пересечение и вложенность
+        // Убрать в метод расширения
+        public (IEnumerable<ITokenSegment>, IEnumerable<ITokenSegment>) ValidatePairSets((IEnumerable<ITokenSegment>, IEnumerable<ITokenSegment>) pair);
+        
+        bool IsIntersectProhibitedOf(Token firstToken, Token secondToken);
+        
+        bool IsNestingProhibitedOf(Token outsideToken, Token insideToken);
+        
+        string ReplaceTokens(IEnumerable<ITokenSegment> tokens, ITokenTranslator translator);
         
         void SetShieldingSymbol(char symbol);
         
@@ -12,8 +23,8 @@ namespace Markdown
 
         void AddNestingRules(Token outsideToken, Token insideToken, bool canNested);
 
-        IEnumerable<ITokenSegment> GetTokensSegments(Dictionary<int, Token> tokens);
+        IEnumerable<ITokenSegment> GetTokensSegments(Dictionary<int, TokenInfo> tokens);
 
-        Dictionary<int, Token> GetSymmetricTokens();
+        Dictionary<int, TokenInfo> FindAllTokens();
     }
 }

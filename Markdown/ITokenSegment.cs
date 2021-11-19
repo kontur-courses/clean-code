@@ -2,6 +2,7 @@
 {
     public interface ITokenSegment
     {
-        public abstract bool IsIntersectWith(ITokenSegment other);
+        Token GetBaseToken();
+        bool IsIntersectWith(ITokenSegment other);
     }
 }
