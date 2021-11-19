@@ -11,21 +11,20 @@ namespace Markdown
             var paragraphs = markdownText.Split(new char['\r'], StringSplitOptions.RemoveEmptyEntries);
             for (int i=0; i< paragraphs.Length; i++)
             {
-                string analyzedParagraph = AnalyzeParagraph(paragraphs[i]);
+                var analyzedParagraph = AnalyzeParagraph(paragraphs[i]);
                 result.Append(analyzedParagraph);
                 if (i != paragraphs.Length - 1)
                     result.Append('\r');
             }
-            Console.WriteLine();
             return result.ToString();
         }
 
-        private string AnalyzeParagraph(string paragraph)
+        private static string AnalyzeParagraph(string paragraph)
         {
             var resultParagraph = new StringBuilder();
             var lines = paragraph.Split(new char['\n'], StringSplitOptions.RemoveEmptyEntries);
             var isHeader = false;
-            if (lines[0][0] == '#')
+            if (IsThisLineHasHeader(lines[0]))
             {
                 isHeader = true;
                 lines[0] = lines[0].Substring(2);
@@ -43,6 +42,11 @@ namespace Markdown
             if (isHeader)
                 return "<h1>" + resultParagraph + "</h1>";
             return resultParagraph.ToString();
+        }
+
+        private static bool IsThisLineHasHeader(string line)
+        {
+            return (line[0] == '#');
         }
     }
 }

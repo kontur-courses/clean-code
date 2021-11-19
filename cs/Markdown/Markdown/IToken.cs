@@ -4,7 +4,7 @@
     {
         string Content
         { get;}
-        bool IsNotToPairToken //лучше идей для названия не пришло
+        bool IsNotToPairToken //лучше идей для названия не пришло :(
         { get;}
     }
 }

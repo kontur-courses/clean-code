@@ -83,11 +83,10 @@ namespace Markdown
 
         private void AddWordToken(StringBuilder word)
         {
-            if (word.Length != 0)
-            {
-                var wordToken = new TagWord(word.ToString());
-                _tokens.AddLast(wordToken);
-            }
+            if (word.Length == 0)
+                return;
+            var wordToken = new TagWord(word.ToString());
+            _tokens.AddLast(wordToken);
         }
 
         private string MakeHtml()
