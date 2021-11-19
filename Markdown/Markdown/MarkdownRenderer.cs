@@ -9,11 +9,11 @@ namespace Markdown
     public class MarkdownRenderer : IMarkdownRenderer
     {
         private readonly IConverter<IMarking<MarkdownToken>, IMarking<HtmlToken>> converter;
-        private readonly IParser<MarkdownMarking> parser;
+        private readonly IParser<IMarking<MarkdownToken>> parser;
 
         public MarkdownRenderer(
             IConverter<IMarking<MarkdownToken>, IMarking<HtmlToken>> converter,
-            IParser<MarkdownMarking> parser)
+            IParser<IMarking<MarkdownToken>> parser)
         {
             this.converter = converter;
             this.parser = parser;

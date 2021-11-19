@@ -5,19 +5,19 @@ using Markdown.Tokens;
 
 namespace Markdown.Parsers
 {
-    public class MarkdownParser : IParser<MarkdownMarking>
+    public class MarkdownParser : IParser<IMarking<MarkdownToken>>
     {
         private readonly ITokenFactory<MarkdownToken> tokenFactory;
-        private readonly IMarkingFactory<MarkdownToken, MarkdownMarking> markingFactory;
+        private readonly IMarkingFactory<MarkdownToken, IMarking<MarkdownToken>> markingFactory;
 
         public MarkdownParser(ITokenFactory<MarkdownToken> tokenFactory,
-            IMarkingFactory<MarkdownToken, MarkdownMarking> markingFactory)
+            IMarkingFactory<MarkdownToken, IMarking<MarkdownToken>> markingFactory)
         {
             this.tokenFactory = tokenFactory;
             this.markingFactory = markingFactory;
         }
 
-        public MarkdownMarking Parse(string markdown)
+        public IMarking<MarkdownToken> Parse(string markdown)
         {
             var lines = markdown
                 .Split('\n')
