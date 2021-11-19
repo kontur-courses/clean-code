@@ -23,16 +23,16 @@ namespace Markdown
 
         public IEnumerable<Token> Lex()
         {
-            if (text == string.Empty) yield return new Token(TokenType.Text, string.Empty);
+            if (text == string.Empty) yield return Token.Text(string.Empty);
             while (currentIndex < text.Length)
             {
                 var symbol = text[currentIndex];
                 yield return symbol switch
                 {
                     '_' => LexUnderscore(),
-                    '\\' => new Token(TokenType.Escape, "\\"),
-                    '#' => new Token(TokenType.Header1, "#"),
-                    '\n' => new Token(TokenType.NewLine, "\n"),
+                    '\\' => Token.Escape,
+                    '#' => Token.Header1,
+                    '\n' => Token.NewLine,
                     _ => LexText()
                 };
                 currentIndex++;
@@ -44,10 +44,10 @@ namespace Markdown
             if (currentIndex + 1 < text.Length && text[currentIndex + 1] == '_')
             {
                 currentIndex++;
-                return new Token(TokenType.Bold, "__");
+                return Token.Bold;
             }
 
-            return new Token(TokenType.Cursive, "_");
+            return Token.Cursive;
         }
 
         private Token LexText()
@@ -56,7 +56,7 @@ namespace Markdown
             var end = text.IndexOfAny(SpecialCharacters, start);
             if (end == -1) end = text.Length;
             currentIndex = end - 1;
-            return new Token(TokenType.Text, text.Substring(start, end - start));
+            return Token.Text(text.Substring(start, end - start));
         }
     }
 }

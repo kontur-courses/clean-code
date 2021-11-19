@@ -32,7 +32,7 @@ namespace Markdown.Tests
         {
             var tokens = sut.Lex(text).ToArray();
 
-            tokens.Should().Contain(new Token(TokenType.Text, text)).And.HaveCount(1);
+            tokens.Should().Contain(Token.Text(text)).And.HaveCount(1);
         }
 
         [TestCaseSource(typeof(LexerTests), nameof(GetCursiveFormattingTestCases))]
@@ -48,29 +48,29 @@ namespace Markdown.Tests
         }
 
         public static IEnumerable<TestCaseData> GetCursiveFormattingTestCases() =>
-            GetFormattingTestCases("_", new Token(TokenType.Cursive, "_"));
+            GetFormattingTestCases(Token.Cursive.Value, Token.Cursive);
 
         public static IEnumerable<TestCaseData> GetBoldFormattingTestCases() =>
-            GetFormattingTestCases("__", new Token(TokenType.Bold, "__"));
+            GetFormattingTestCases(Token.Bold.Value, Token.Bold);
 
         public static IEnumerable<TestCaseData> GetEscapeFormattingTestCases() =>
-            GetFormattingTestCases("\\", new Token(TokenType.Escape, "\\"));
+            GetFormattingTestCases(Token.Escape.Value, Token.Escape);
 
         public static IEnumerable<TestCaseData> GetHeaderFormattingTestCases() =>
-            GetFormattingTestCases("#", new Token(TokenType.Header1, "#"));
+            GetFormattingTestCases(Token.Header1.Value, Token.Header1);
 
         public static IEnumerable<TestCaseData> GetNewLineFormattingTestCases() =>
-            GetFormattingTestCases("\n", new Token(TokenType.NewLine, "\n"));
+            GetFormattingTestCases(Token.NewLine.Value, Token.NewLine);
 
         [Test]
         public void Lex_ShouldReturnTokens_WhenOnlySpecialSymbols()
         {
             var expected = new[]
             {
-                new Token(TokenType.Bold, "__"),
-                new Token(TokenType.Cursive, "_"),
-                new Token(TokenType.Escape, "\\"),
-                new Token(TokenType.Header1, "#")
+                Token.Bold,
+                Token.Cursive,
+                Token.Escape,
+                Token.Header1
             };
             var tokens = sut.Lex(string.Join("", expected.Select(t => t.Value)));
 
@@ -105,24 +105,24 @@ namespace Markdown.Tests
             var first = sut.Lex("A");
             var second = sut.Lex("B");
 
-            first.Should().Contain(new Token(TokenType.Text, "A"));
-            second.Should().Contain(new Token(TokenType.Text, "B"));
+            first.Should().Contain(Token.Text("A"));
+            second.Should().Contain(Token.Text("B"));
         }
         
         [Test]
-        public void Lex_ShouldNotClearPreviousTokens_WhenCalledTwice_AndAnternately()
+        public void Lex_ShouldNotClearPreviousTokens_WhenCalledTwice_AndAlternately()
         {
             using var first = sut.Lex("A_").GetEnumerator();
             using var second = sut.Lex("B_").GetEnumerator();
 
             first.MoveNext();
-            first.Current.Should().Be(new Token(TokenType.Text, "A"));
+            first.Current.Should().Be(Token.Text("A"));
             second.MoveNext();
-            second.Current.Should().Be(new Token(TokenType.Text, "B"));
+            second.Current.Should().Be(Token.Text("B"));
             first.MoveNext();
-            first.Current.Should().Be(new Token(TokenType.Cursive, "_"));
+            first.Current.Should().Be(Token.Cursive);
             second.MoveNext();
-            second.Current.Should().Be(new Token(TokenType.Cursive, "_"));
+            second.Current.Should().Be(Token.Cursive);
         }
         
         private static IEnumerable<TestCaseData> GetFormattingTestCases(string character, Token token)
@@ -134,20 +134,20 @@ namespace Markdown.Tests
 
             yield return new TestCaseData($"start{character}", new[]
             {
-                new Token(TokenType.Text, "start"),
+                Token.Text("start"),
                 token
             }).SetName($"{character} after text start");
 
             yield return new TestCaseData($"{character}end", new[]
             {
                 token,
-                new Token(TokenType.Text, "end")
+                Token.Text("end")
             }).SetName($"{character} before text end");
 
             yield return new TestCaseData($"{character}text{character}", new[]
             {
                 token,
-                new Token(TokenType.Text, "text"),
+                Token.Text("text"),
                 token
             }).SetName($"{character} surrounds all text");
         }
