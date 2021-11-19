@@ -108,7 +108,23 @@ namespace Markdown.Tests
             first.Should().Contain(new Token(TokenType.Text, "A"));
             second.Should().Contain(new Token(TokenType.Text, "B"));
         }
+        
+        [Test]
+        public void Lex_ShouldNotClearPreviousTokens_WhenCalledTwice_AndAnternately()
+        {
+            using var first = sut.Lex("A_").GetEnumerator();
+            using var second = sut.Lex("B_").GetEnumerator();
 
+            first.MoveNext();
+            first.Current.Should().Be(new Token(TokenType.Text, "A"));
+            second.MoveNext();
+            second.Current.Should().Be(new Token(TokenType.Text, "B"));
+            first.MoveNext();
+            first.Current.Should().Be(new Token(TokenType.Cursive, "_"));
+            second.MoveNext();
+            second.Current.Should().Be(new Token(TokenType.Cursive, "_"));
+        }
+        
         private static IEnumerable<TestCaseData> GetFormattingTestCases(string character, Token token)
         {
             yield return new TestCaseData(character, new[]
