@@ -108,7 +108,7 @@ namespace Markdown.Tests
             yield return new TestCaseData(character, new[]
             {
                 token
-            }).SetName($"Single {character}");
+            }).SetName($"{character} only");
 
             yield return new TestCaseData($"start{character}", new[]
             {
