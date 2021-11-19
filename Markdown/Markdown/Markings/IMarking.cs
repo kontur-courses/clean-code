@@ -3,9 +3,9 @@ using Markdown.Tokens;
 
 namespace Markdown.Markings
 {
-    public interface IHtmlMarking
+    public interface IMarking<out TToken> where TToken : IToken
     {
-        public IEnumerable<IHtmlToken> Tokens { get; }
+        public IEnumerable<IEnumerable<TToken>> TokensLines { get; }
 
         public string ToString();
     }
