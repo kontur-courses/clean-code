@@ -6,23 +6,25 @@ namespace Markdown
 {
     public class MarkdownTree
     {
-        private readonly List<MarkdownTree> _children;
+        public readonly List<MarkdownTree> Children;
         public Tag NodeTag { get; }
+        public string Content { get; }
 
-        public MarkdownTree(Tag nodeTag)
+        public MarkdownTree(Tag nodeTag, string content)
         {
             NodeTag = nodeTag;
-            _children = new List<MarkdownTree>();
+            Content = content;
+            Children = new List<MarkdownTree>();
         }
 
-        public List<MarkdownTree> GetChildren()
+        public IReadOnlyList<MarkdownTree> GetChildren()
         {
-            return _children.ToList();
+            return Children;
         }
 
         public void AddChild(MarkdownTree child)
         {
-            _children.Add(child);
+            Children.Add(child);
         }
     }
 }
