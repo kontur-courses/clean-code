@@ -5,10 +5,10 @@
         public TagSide Side { get; }
         public TagKind Kind { get; }
 
-        public Tag(TagSide side, TagKind kind)
+        public Tag(TagKind kind, TagSide side)
         {
-            Side = side;
             Kind = kind;
+            Side = side;
         }
 
     }

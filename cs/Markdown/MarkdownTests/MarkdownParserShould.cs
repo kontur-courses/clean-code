@@ -10,7 +10,7 @@ namespace Markdown.MarkdownTests
         public void ReturnEmptyRootWhenInputStringIsEmpty()
         {
             var inputString = "";
-            var emptyRoot = new MarkdownTree(new Tag(TagSide.None, TagKind.Root));
+            var emptyRoot = new MarkdownTree(new Tag(TagKind.Root, TagSide.None));
 
             var parserResult = MarkdownParser.Parse(inputString);
 
