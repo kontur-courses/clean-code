@@ -1,5 +1,4 @@
-﻿using System;
-using Markdown.Converters;
+﻿using Markdown.Converters;
 using Markdown.Markings;
 using Markdown.Parsers;
 using Markdown.Tokens;
