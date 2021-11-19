@@ -10,7 +10,8 @@ namespace Markdown
     {
         public string Render(string rawInput)
         {
-            throw new NotImplementedException();
+            var parsedInput = MarkdownParser.Parse(rawInput);
+            return "";
         }
     }
 }

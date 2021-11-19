@@ -22,6 +22,12 @@ namespace Markdown
             return Children;
         }
 
+        public void AddChildren(IEnumerable<MarkdownTree> childrenToAdd)
+        {
+            foreach (var child in childrenToAdd)
+                Children.Add(child);
+        }
+
         public void AddChild(MarkdownTree child)
         {
             Children.Add(child);

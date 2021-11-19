@@ -6,31 +6,47 @@ namespace Markdown.MarkdownTests
     [TestFixture]
     public class MarkdownParserShould
     {
+        private MarkdownTree _emptyRoot;
+
+        [SetUp]
+        public void CreateNewEmptyRoot()
+        {
+            _emptyRoot = new MarkdownTree(new Tag(TagKind.Root, TagSide.None), "");
+        }
+
         [Test]
         public void ReturnEmptyRoot_WhenInputStringIsEmpty()
         {
             var inputString = "";
-            var emptyRoot = new MarkdownTree(new Tag(TagKind.Root, TagSide.None), "");
-            var emptyChild = new MarkdownTree(new Tag(TagKind.PlainText, TagSide.None), "");
-            emptyRoot.AddChild(emptyChild);
 
             var parserResult = MarkdownParser.Parse(inputString);
 
-            parserResult.Should().BeEquivalentTo(emptyRoot);
+            parserResult.Should().BeEquivalentTo(_emptyRoot);
         }
 
         [Test]
-        public void ReturnOneChildTree_WhenInputStringIsPlainText()
+        public void ReturnOneChildedTree_WhenInputIsPlainText()
         {
             var inputString = "Step, step up, step, step up";
-            var oneChildTree = new MarkdownTree(new Tag(TagKind.Root, TagSide.None), "");
             var child = new MarkdownTree(new Tag(TagKind.PlainText, TagSide.None),
                 "Step, step up, step, step up");
-            oneChildTree.AddChild(child);
+            _emptyRoot.AddChild(child);
 
             var parserResult = MarkdownParser.Parse(inputString);
 
-            parserResult.Should().BeEquivalentTo(oneChildTree);
+            parserResult.Should().BeEquivalentTo(_emptyRoot);
+        }
+
+        [Test]
+        public void ParseSimpleTextWithHeadersCorrect()
+        {
+            var inputString = "Hi all!\n#What's up?\n";
+            _emptyRoot.AddChild(new MarkdownTree(new Tag(TagKind.PlainText, TagSide.None), "Hi all!\n"));
+            _emptyRoot.AddChild(new MarkdownTree(new Tag(TagKind.Header, TagSide.Opening), "What's up?\n"));
+
+            var parserResult = MarkdownParser.Parse(inputString);
+
+            parserResult.Should().BeEquivalentTo(_emptyRoot);
         }
     }
 }

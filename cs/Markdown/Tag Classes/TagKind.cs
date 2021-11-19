@@ -6,6 +6,6 @@
         PlainText,
         SingleUnderline,
         DoubleUnderline,
-        Hashtag
+        Header
     }
 }
