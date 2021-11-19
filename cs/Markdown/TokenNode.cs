@@ -5,7 +5,7 @@
         public readonly Token Token;
         public readonly Token? Parent;
 
-        public TokenNode(Token token, Token? parent)
+        public TokenNode(Token token, Token? parent = null)
         {
             Token = token;
             Parent = parent;
