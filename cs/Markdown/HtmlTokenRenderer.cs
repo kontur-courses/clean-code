@@ -6,6 +6,6 @@ namespace Markdown
 {
     public class HtmlTokenRenderer : ITokenRenderer
     {
-        public string Render(IEnumerable<Token> tokens) => throw new NotImplementedException();
+        public string Render(IEnumerable<TokenNode> tokens) => throw new NotImplementedException();
     }
 }

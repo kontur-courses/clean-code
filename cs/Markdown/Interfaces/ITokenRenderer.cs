@@ -4,6 +4,6 @@ namespace Markdown.Interfaces
 {
     public interface ITokenRenderer
     {
-        string Render(IEnumerable<Token> tokens);
+        string Render(IEnumerable<TokenNode> tokens);
     }
 }
