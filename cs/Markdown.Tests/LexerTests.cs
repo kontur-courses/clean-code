@@ -21,11 +21,7 @@ namespace Markdown.Tests
         [Test]
         public void Lex_ShouldThrowException_WhenTextIsNull()
         {
-            string text = null;
-
-            var tokens = sut.Lex(text);
-
-            Assert.Throws<ArgumentNullException>(() => tokens.ToArray());
+            Assert.Throws<ArgumentNullException>(() =>  sut.Lex(null));
         }
 
         [TestCase("", TestName = "Empty string")]
@@ -34,7 +30,7 @@ namespace Markdown.Tests
         [TestCase("Text with spaces", TestName = "Several words")]
         public void Lex_ShouldReturnTextToken_WhenTextWithoutFormatting(string text)
         {
-            var tokens = sut.Lex(text);
+            var tokens = sut.Lex(text).ToArray();
 
             tokens.Should().Contain(new Token(TokenType.Text, text)).And.HaveCount(1);
         }
@@ -101,6 +97,16 @@ namespace Markdown.Tests
             sw.Stop();
 
             sw.ElapsedMilliseconds.Should().BeLessOrEqualTo(maxMilliseconds);
+        }
+
+        [Test]
+        public void Lex_ShouldNotClearPreviousTokens_WhenCalledTwice()
+        {
+            var first = sut.Lex("A");
+            var second = sut.Lex("B");
+
+            first.Should().Contain(new Token(TokenType.Text, "A"));
+            second.Should().Contain(new Token(TokenType.Text, "B"));
         }
 
         private static IEnumerable<TestCaseData> GetFormattingTestCases(string character, Token token)
