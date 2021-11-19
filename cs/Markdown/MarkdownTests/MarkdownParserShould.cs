@@ -1,7 +1,7 @@
 ﻿using FluentAssertions;
 using NUnit.Framework;
 
-namespace Markdown.MarkdownTests
+namespace Markdown
 {
     [TestFixture]
     public class MarkdownParserShould
@@ -37,16 +37,16 @@ namespace Markdown.MarkdownTests
             parserResult.Should().BeEquivalentTo(_emptyRoot);
         }
 
-        [Test]
-        public void ParseSimpleTextWithHeadersCorrect()
-        {
-            var inputString = "Hi all!\n#What's up?\n";
-            _emptyRoot.AddChild(new MarkdownTree(new Tag(TagKind.PlainText, TagSide.None), "Hi all!\n"));
-            _emptyRoot.AddChild(new MarkdownTree(new Tag(TagKind.Header, TagSide.Opening), "What's up?\n"));
+        //[Test]
+        //public void ParseSimpleTextWithHeadersCorrect()
+        //{
+        //    var inputString = "Hi all!\n#What's up?\n";
+        //    _emptyRoot.AddChild(new MarkdownTree(new Tag(TagKind.PlainText, TagSide.None), "Hi all!\n"));
+        //    _emptyRoot.AddChild(new MarkdownTree(new Tag(TagKind.Header, TagSide.Opening), "What's up?\n"));
 
-            var parserResult = MarkdownParser.Parse(inputString);
+        //    var parserResult = MarkdownParser.Parse(inputString);
 
-            parserResult.Should().BeEquivalentTo(_emptyRoot);
-        }
+        //    parserResult.Should().BeEquivalentTo(_emptyRoot);
+        //}
     }
 }

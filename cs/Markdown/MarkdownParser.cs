@@ -25,9 +25,9 @@ namespace Markdown
             while (_inputPosition < _parsingString.Length)
             {
                 var plainText = ParseText();
-                var taggedText = ParseHeader();
+                //var taggedText = ParseHeader();
                 if (plainText.Content != "") children.Add(plainText);
-                if (taggedText.Content != "") children.Add(taggedText);
+                //if (taggedText.Content != "") children.Add(taggedText);
             }
 
             return children;
@@ -47,20 +47,20 @@ namespace Markdown
             return new MarkdownTree(new Tag(TagKind.PlainText, TagSide.None), content.ToString());
         }
 
-        private static MarkdownTree ParseHeader()
-        {
-            MovePosForward();
-            var content = "";
-            if (_inputPosition < _parsingString.Length - 1)
-            {
-                var contentEnd = _parsingString.IndexOf('\n');
-                var headerContentLength = contentEnd - _inputPosition + 1;
-                content = _parsingString.Substring(_inputPosition, headerContentLength);
-                _inputPosition += headerContentLength - 1;
-            }
+        //private static MarkdownTree ParseHeader()
+        //{
+        //    MovePosForward();
+        //    var content = "";
+        //    if (_inputPosition < _parsingString.Length)
+        //    {
+        //        var contentEnd = _parsingString.IndexOf('\n');
+        //        var headerContentLength = contentEnd - _inputPosition + 1;
+        //        content = _parsingString.Substring(_inputPosition, headerContentLength);
+        //        _inputPosition += headerContentLength - 1;
+        //    }
 
-            return new MarkdownTree(new Tag(TagKind.Header, TagSide.Opening), content);
-        }
+        //    return new MarkdownTree(new Tag(TagKind.Header, TagSide.Opening), content);
+        //}
 
         private static bool IsTextParsingPossible()
         {
