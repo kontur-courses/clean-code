@@ -2,7 +2,7 @@
 
 namespace Markdown
 {
-    public class Md : IMd
+    public class MarkdownRenderer : IMarkdownRenderer
     {
         public string Render(string markdown)
         {

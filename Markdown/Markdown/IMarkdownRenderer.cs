@@ -1,6 +1,6 @@
 ﻿namespace Markdown
 {
-    public interface IMd
+    public interface IMarkdownRenderer
     {
         public string Render(string markdown);
     }

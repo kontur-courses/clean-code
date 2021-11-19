@@ -7,8 +7,6 @@ namespace Markdown.Markings
     {
         public IEnumerable<IHtmlToken> Tokens { get; }
 
-        public IMarkdownMarking ToMarkdownMarking();
-
         public string ToString();
     }
 }
