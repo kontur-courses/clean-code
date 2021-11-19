@@ -1,7 +1,9 @@
 ﻿namespace Markdown
 {
-    public enum MarkKind
+    public enum TagKind
     {
+        Root,
+        PlainText,
         SingleUnderline,
         DoubleUnderline,
         Hashtag

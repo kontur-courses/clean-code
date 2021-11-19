@@ -1,6 +1,6 @@
 ﻿namespace Markdown
 {
-    public enum MarkSide
+    public enum TagSide
     {
         None,
         Opening,
