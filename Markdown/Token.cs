@@ -22,7 +22,7 @@ namespace Markdown
             throw new NotImplementedException();
         }
         
-        public static Token GetPairToken(string token, Token endToken)
+        public static Token GetPairToken(string token, Token endToken = null)
         {
             throw new NotImplementedException();
         }

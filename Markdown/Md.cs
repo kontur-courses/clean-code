@@ -9,6 +9,25 @@ namespace Markdown
     {
         private readonly ITokenParser parser;
 
+        public Md()
+        {
+            var token = Token.GetPairToken("_");
+
+            parser = TokenParserConfigurator
+                .CreateTokenParser()
+                .SetShieldingSymbol('\\')
+                .AddToken(Token.GetSymmetricToken("_")).That
+                    .CanBeNestedIn(Token.GetSymmetricToken("__")).And
+                    .CantIntersect()
+                .AddToken(Token.GetSymmetricToken("__")).That
+                    .CantBeNestedIn(Token.GetSymmetricToken("_")).And
+                    .CantIntersect()
+                .AddToken(Token.GetSingleToken("#")).That
+                    .CanIntersectWithAnyTokens().And
+                    .CanBeNestedInAnyTokens()
+                .Configure();
+        }
+
         public string Render(string input)
         {
             var paragraphs = input.Split('\n');
@@ -21,14 +40,14 @@ namespace Markdown
                 var tokenSegments = parser
                     .FindAllTokens()
                     .Validate()
-                    .GroupBy(x => x.Value.Token.ToString())
+                    .GroupToDictionariesBy(x => x.Value.Token.ToString())
                     .Select(g => parser.GetTokensSegments(g))
                     .ForEachPairs(parser.ValidatePairSets)
                     .Aggregate((f, s) => f.Union(s));
 
                 parsedText.Append(parser.ReplaceTokens(tokenSegments, null));
             }
-
+    
             return parsedText.ToString();
         }
     }
@@ -42,7 +61,7 @@ namespace Markdown
                 .ToDictionary(x => x.Key, x => x.Value);
         }
 
-        internal static IEnumerable<Dictionary<TKey, TValue>> GroupBy<TKey, TValue, TGroup>(
+        internal static IEnumerable<Dictionary<TKey, TValue>> GroupToDictionariesBy<TKey, TValue, TGroup>(
             this Dictionary<TKey, TValue> source, 
             Func<KeyValuePair<TKey, TValue>, TGroup> groupFunc)
         {
