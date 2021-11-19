@@ -3,9 +3,9 @@
     public class Tag
     {
         public TagSide Side { get; }
-        public MarkKind Kind { get; }
+        public TagKind Kind { get; }
 
-        public Tag(TagSide side, MarkKind kind)
+        public Tag(TagSide side, TagKind kind)
         {
             Side = side;
             Kind = kind;
