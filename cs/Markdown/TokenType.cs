@@ -4,8 +4,9 @@
     {
         Text,
         Cursive,
-        Strong,
+        Bold,
         Escape,
-        Header1
+        Header1,
+        NewLine
     }
 }
