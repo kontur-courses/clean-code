@@ -30,8 +30,15 @@ namespace Markdown
 
             foreach (var line in lines)
             {
+                /*
                 var analyzer = new HtmlAnalyzer();
                 var analyzedLine = analyzer.AnalyzeLine(line);
+                */
+
+                var analyzer = new HtmlTokenAnalyzer();
+                var analyzedLine = analyzer.AnalyzeLine(line);
+
+
                 resultParagraph.Append(analyzedLine);
             }
 

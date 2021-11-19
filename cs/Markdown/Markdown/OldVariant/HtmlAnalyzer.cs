@@ -12,14 +12,11 @@ namespace Markdown
 
         public string AnalyzeLine(string line)
         {
-            //throw new Exception(line);
             var currentBuilder = new StringBuilder();
-            Console.WriteLine(line);
 
             for (int i = 0; i < line.Length; i++)
             {
                 var symbol = line[i];
-                //Console.WriteLine(symbol);
                 switch (symbol)
                 {
                     case '\\':
