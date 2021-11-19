@@ -1,6 +1,8 @@
-﻿namespace Markdown
+﻿using System.Collections.Generic;
+
+namespace Markdown
 {
-    interface ITag : IToken
+    public interface ITag : IToken
     {
         bool IsClosed
         { get; set; }
@@ -10,5 +12,10 @@
 
         bool IsAtTheBeginning
         { get; set; }
+
+        new bool IsNotToPairToken
+        { get; set; }
+
+        void GenerateProperties(LinkedListNode<IToken> currentToken);
     }
 }

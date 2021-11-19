@@ -9,10 +9,12 @@ namespace Markdown
         {
             var result = new StringBuilder();
             var paragraphs = markdownText.Split(new char['\r'], StringSplitOptions.RemoveEmptyEntries);
-            foreach (var paragraph in paragraphs)
+            for (int i=0; i< paragraphs.Length; i++)
             {
-                string analyzedParagraph = AnalyzeParagraph(paragraph);
+                string analyzedParagraph = AnalyzeParagraph(paragraphs[i]);
                 result.Append(analyzedParagraph);
+                if (i != paragraphs.Length - 1)
+                    result.Append('\r');
             }
             Console.WriteLine();
             return result.ToString();
@@ -27,14 +29,15 @@ namespace Markdown
             {
                 isHeader = true;
                 lines[0] = lines[0].Substring(2);
-                // ...
             }
 
-            foreach (var line in lines)
+            for (int i=0; i < lines.Length; i++)
             {
                 var analyzer = new HtmlTokenAnalyzer();
-                var analyzedLine = analyzer.AnalyzeLine(line);
+                var analyzedLine = analyzer.AnalyzeLine(lines[i]);
                 resultParagraph.Append(analyzedLine);
+                if (i != lines.Length - 1)
+                    resultParagraph.Append('\n');
             }
 
             if (isHeader)

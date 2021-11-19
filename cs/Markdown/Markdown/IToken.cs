@@ -4,7 +4,7 @@
     {
         string Content
         { get;}
-        bool IsPrevent
-        { get; set; }
+        bool IsNotToPairToken //лучше идей для названия не пришло
+        { get;}
     }
 }

@@ -16,8 +16,8 @@ namespace Markdown
 
             for (int i = 0; i < line.Length; i++)
             {
-                var symbol = line[i];
-                switch (symbol)
+                var currentSymbol = line[i];
+                switch (currentSymbol)
                 {
                     case '\\':
                         if (_specialSymbols.Contains(line[i + 1]) || line[i + 1] == '\\')
@@ -32,40 +32,34 @@ namespace Markdown
                         break;
 
                     case '_':
-
-                        
-
+                        ITag token;
                         if (i != line.Length - 1 && line[i + 1] == '_')
                         {
-                            AddWordToken(currentBuilder);
-                            currentBuilder = new StringBuilder();
-                            AddBoldToken();
+                            token = new TagBold();
                             i++;
                         }
-
                         else
                         {
                             if (i < line.Length - 1 && char.IsDigit(line[i + 1]) || i > 0 && char.IsDigit(line[i - 1]))
                             {
-                                currentBuilder.Append(symbol);
+                                currentBuilder.Append(currentSymbol);
                                 break;
                             }
-                            AddWordToken(currentBuilder);
-                            currentBuilder = new StringBuilder();
-                            AddItalicToken();
+                            token = new TagItalic();
                         }
+                        AddWordToken(currentBuilder);
+                        currentBuilder = new StringBuilder();
+                        AddToken(token);
                         break;
 
                     case ' ':
-
                         AddWordToken(currentBuilder);
                         currentBuilder = new StringBuilder();
-
                         AddSpaceToken();
                         break;
 
                     default:
-                        currentBuilder.Append(symbol);
+                        currentBuilder.Append(currentSymbol);
                         break;
                 }
             }
@@ -78,77 +72,13 @@ namespace Markdown
             _tokens.AddLast(new TagSpace());
         }
 
-        private void AddItalicToken()
+        private void AddToken(ITag token)
         {
-            var italicToken = new TagItalic();
-
-            if (_tokens.Count > 0 && _tokens.Last.Value is TagSpace || _tokens.Count == 0)
-                italicToken.IsAtTheBeginning = true;
-
-            _tokens.AddLast(italicToken);
-            var currentToken = _tokens.Last.Previous;
-
-            var spacesCnt = 0;
-            var boldsCnt = 0;
-            var onlyEmptyStrings = true;
-            while (currentToken != null)
-            {
-                if (currentToken.Value is TagSpace)
-                    spacesCnt++;
-                if (currentToken.Value is TagBold)
-                    boldsCnt++;
-                if (currentToken.Value is TagBold && currentToken.Value.IsPrevent && boldsCnt%2!=0)
-                    break;
-                if (currentToken.Value is TagItalic && !currentToken.Value.IsPrevent)
-                {
-                    var starter = currentToken.Value as ITag;
-                    if ((!starter.IsAtTheBeginning && spacesCnt == 0 || starter.IsAtTheBeginning && !italicToken.IsAtTheBeginning) && !onlyEmptyStrings)
-                        MakePair(starter, italicToken);
-                }
-                if (!(currentToken.Value is TagWord && currentToken.Value.Content.Length == 0))
-                    onlyEmptyStrings = false;
-                currentToken = currentToken.Previous;
-            }
-        }
-
-        private void AddBoldToken()
-        {
-            var boldToken = new TagBold();
-
             if (_tokens.Count > 1 && _tokens.Last.Value is TagSpace || _tokens.Count == 0)
-                boldToken.IsAtTheBeginning = true;
-
-            _tokens.AddLast(boldToken);
+                token.IsAtTheBeginning = true;
+            _tokens.AddLast(token);
             var currentToken = _tokens.Last.Previous;
-            var spacesCnt = 0;
-            var onlyEmptyStrings = true;
-
-            while (currentToken != null)
-            {
-                if (currentToken.Value is TagSpace)
-                    spacesCnt++;
-
-
-                if (currentToken.Value.IsPrevent)
-                    break;
-
-                if (currentToken.Value is TagItalic && !currentToken.Value.IsPrevent && (currentToken.Value is ITag) && !(currentToken.Value as ITag).IsClosed)
-                {
-                    boldToken.IsPrevent = true;
-                    break;
-                }
-
-                if ((currentToken.Value is TagBold) && !currentToken.Value.IsPrevent)
-                {
-                    var starter = currentToken.Value as ITag;
-                    if ((!starter.IsAtTheBeginning && spacesCnt == 0 || starter.IsAtTheBeginning) && !onlyEmptyStrings)
-                        MakePair(starter, boldToken);
-                }
-                if (!(currentToken.Value is TagWord && currentToken.Value.Content.Length == 0))
-                    onlyEmptyStrings = false;
-
-                currentToken = currentToken.Previous;
-            }
+            token.GenerateProperties(currentToken);
         }
 
         private void AddWordToken(StringBuilder word)
@@ -164,9 +94,9 @@ namespace Markdown
         {
             return string.Concat(_tokens.Select(token => token.Content));
         }
-        private void MakePair(ITag opener, ITag endTag)
-        {
 
+        public static void MakePair(ITag opener, ITag endTag)
+        {
             opener.IsClosed = true;
             opener.IsStartTag = true;
             endTag.IsClosed = true;
