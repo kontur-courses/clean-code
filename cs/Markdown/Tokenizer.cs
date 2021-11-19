@@ -116,7 +116,7 @@ internal class Tokenizer
         return null;
     }
 
-    private string[] GetSeparators()
+    private string[] GetTokenSeparators()
     {
         return Settings
             .Select(x => x.Key)
