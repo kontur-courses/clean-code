@@ -4,7 +4,7 @@ using System.Linq;
 using Markdown.Tokens;
 using NUnit.Framework;
 
-namespace Markdown.Tests
+namespace Markdown.Tests.Lexer
 {
     public class LexerTestDataGenerator : IEnumerable<TestCaseData>
     {

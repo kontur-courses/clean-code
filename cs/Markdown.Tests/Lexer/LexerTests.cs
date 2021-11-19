@@ -5,7 +5,7 @@ using Markdown.Lexer;
 using Markdown.Tokens;
 using NUnit.Framework;
 
-namespace Markdown.Tests
+namespace Markdown.Tests.Lexer
 {
     public class LexerTests
     {
