@@ -3,6 +3,8 @@
     public enum TagType
     {
         Emphasized,
-        Header
+        Strong,
+        Header,
+        Escaped
     }
 }

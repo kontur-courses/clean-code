@@ -8,22 +8,27 @@ namespace Markdown.TagStore
         private static readonly List<ITag> Tags = new()
         {
             new Tag(TagType.Emphasized, "<em>", "</em>"),
+            new Tag(TagType.Strong, "<strong>", "</strong>"),
         };
+
+        private static readonly Dictionary<string, TagRole> ValueToTagRole = new();
 
         public HtmlTagStore()
         {
             Tags.ForEach(Register);
         }
 
-        public override TagRole GetTagRole(string tag, char? before, char? after)
+        private new void Register(ITag tag)
         {
-            if (!IsTag(tag)) return TagRole.NotTag;
-            return tag switch
-            {
-                "<em>" => TagRole.Opening,
-                "</em>" => TagRole.Closing,
-                _ => TagRole.NotTag
-            };
+            ValueToTagRole[tag.Opening] = TagRole.Opening;
+            ValueToTagRole[tag.Closing] = TagRole.Closing;
+            base.Register(tag);
+        }
+
+        public override TagRole GetTagRole(string text, int startIndex, int length)
+        {
+            var tag = text.Substring(startIndex, length);
+            return IsTag(tag) ? ValueToTagRole[tag] : TagRole.NotTag;
         }
     }
 }

@@ -8,6 +8,7 @@ namespace Markdown.TagStore
         private static readonly List<ITag> Tags = new()
         {
             new Tag(TagType.Emphasized, "_", "_"),
+            new Tag(TagType.Strong, "__", "__"),
         };
 
         public MdTagStore()
@@ -15,10 +16,10 @@ namespace Markdown.TagStore
             Tags.ForEach(Register);
         }
 
-        public override TagRole GetTagRole(string tag, char? before, char? after)
+        public override TagRole GetTagRole(string text, int startIndex, int length)
         {
-            if (!IsTag(tag)) return TagRole.NotTag;
-            
+            char? before = startIndex == 0 ? null : text[startIndex - 1];
+            char? after = startIndex + length == text.Length ? null : text[startIndex + length];
             if (before != ' ' && before != null)
                 return after is ' ' or null ? TagRole.Closing : TagRole.NotTag;
             return after != ' ' ? TagRole.Opening : TagRole.NotTag;

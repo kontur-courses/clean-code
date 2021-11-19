@@ -16,17 +16,11 @@ namespace Markdown.Tests
         public void Tokenize_IfStringHasTag_ShouldReturnTagToken()
         {
             const string text = "_Lorem ipsum dolor_ sit amet";
-            var tagRoles = new[] { TagRole.Opening, TagRole.Closing };
             var tagStore = A.Fake<ITagStore>();
-
-
-            A.CallTo(() => tagStore.GetTagType("_")).Returns(TagType.Emphasized);
-
-            A.CallTo(() => tagStore.GetTagRole(A<string>.Ignored, A<char>.Ignored, A<char>.Ignored))
+            A.CallTo(() => tagStore.GetTagType(text, A<int>.Ignored, A<int>.Ignored)).Returns(TagType.Emphasized);
+            A.CallTo(() => tagStore.GetTagRole(A<string>.Ignored, A<int>.Ignored, A<int>.Ignored))
                 .ReturnsNextFromSequence(TagRole.Opening, TagRole.Closing);
-            tagStore.GetTagRole("_", 'd', 'd'); //два раза выдает Opening поэтому первый скипаю так
             A.CallTo(() => tagStore.GetTagsValues()).Returns(new[] { "_" });
-
             var sut = new Tokenizer(tagStore);
 
             var tagTokens = sut.Tokenize(text).ToArray();

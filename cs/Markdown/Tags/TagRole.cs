@@ -2,8 +2,8 @@
 {
     public enum TagRole
     {
-        Opening,
         Closing,
-        NotTag
+        Opening,
+        NotTag,
     }
 }

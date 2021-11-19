@@ -1,8 +1,6 @@
 ﻿using System;
-using System.Diagnostics;
 using System.Linq;
 using System.Text;
-using Markdown.Tags;
 using Markdown.TagStore;
 using Markdown.Tokens;
 
@@ -10,13 +8,11 @@ namespace Markdown
 {
     public class Converter : IConverter
     {
-        private readonly ITagStore sourceTagStore;
         private readonly ITagStore resultTagStore;
-        private ITokenizer tokenizer;
+        private readonly ITokenizer tokenizer;
 
         public Converter(ITagStore sourceTagStore, ITagStore resultTagStore)
         {
-            this.sourceTagStore = sourceTagStore;
             this.resultTagStore = resultTagStore;
             tokenizer = new Tokenizer(sourceTagStore);
         }
@@ -30,7 +26,7 @@ namespace Markdown
             foreach (var tagToken in tokens)
             {
                 converted.Append(text.Substring(previousTokenEnd + 1, tagToken.Start - previousTokenEnd - 1));
-                converted.Append(resultTagStore.GetTag(tagToken.Type, tagToken.Role)); //todo разделить opening/closing
+                converted.Append(resultTagStore.GetTag(tagToken.Type, tagToken.Role));
                 previousTokenEnd = tagToken.End;
             }
 

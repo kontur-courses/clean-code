@@ -10,17 +10,17 @@ namespace Markdown.Tests
         [Test]
         public void FindAll_ReturnsAllSubstring()
         {
-            const string text = "abcdaefaga";
+            const string text = "abcdaefagaa";
 
-            var found = text.FindAll(new[] { "a", "b" }).ToArray();
+            var found = text.FindAll(new[] { "a", "b", "aa" }).ToArray();
 
-            found.Should().BeEquivalentTo(new[] { ("a", 0), ("a", 4), ("a", 7), ("a", 9), ("b", 1) });
+            found.Should().BeEquivalentTo(new[] { (0, 1), (4, 1), (7, 1), (9, 2), (1, 1) });
         }
 
         [Test]
         public void AllIndexesOf_ReturnAllIndexesOfSubstringInText()
         {
-            var text = "_sadsad_sdad_  sad_";
+            const string text = "_sadsad_sdad_  sad_";
 
             var found = text.AllIndexesOf("_").ToArray();
 

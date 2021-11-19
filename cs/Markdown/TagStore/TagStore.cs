@@ -8,23 +8,26 @@ namespace Markdown.TagStore
     {
         private readonly Dictionary<TagType, ITag> typeToTag = new();
         private readonly Dictionary<string, ITag> stringToTag = new();
+
         protected void Register(ITag tag)
         {
             typeToTag[tag.Type] = tag;
             stringToTag[tag.Closing] = tag;
-            if(tag.Opening != tag.Closing)
+            if (tag.Opening != tag.Closing)
                 stringToTag[tag.Opening] = tag;
         }
-        
+
 
         public string GetTag(TagType type, TagRole role)
         {
+            if (type == TagType.Escaped) return "";
             return role == TagRole.Opening ? typeToTag[type].Opening : typeToTag[type].Closing;
         }
 
-        public TagType GetTagType(string value)
+        public TagType GetTagType(string text, int start, int length)
         {
-            return stringToTag[value].Type;
+            if (start > 0 && text[start - 1] == '\\') return TagType.Escaped;
+            return stringToTag[text.Substring(start, length)].Type;
         }
 
         public string[] GetTagsValues()
@@ -32,7 +35,7 @@ namespace Markdown.TagStore
             return stringToTag.Keys.ToArray();
         }
 
-        public virtual TagRole GetTagRole(string value, char? before, char? after)
+        public virtual TagRole GetTagRole(string text, int startIndex, int length)
         {
             return TagRole.NotTag;
         }
@@ -41,6 +44,5 @@ namespace Markdown.TagStore
         {
             return stringToTag.ContainsKey(value);
         }
-        
     }
 }

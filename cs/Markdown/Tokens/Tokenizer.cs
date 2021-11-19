@@ -20,15 +20,17 @@ namespace Markdown.Tokens
         public IEnumerable<Token> Tokenize(string text)
         {
             var tokens = new Stack<Token>();
-            var allTagsInText = text.FindAll(tags).OrderBy(tuple => tuple.Item2);
-            foreach (var (tagValue, index) in allTagsInText)
+            var allTagsInText = text.FindAll(tags).OrderBy(i => i.start);
+            foreach (var (start, tagLength) in allTagsInText)
             {
-                char? charBefore = index > 0 ? text[index - 1] : null;
-                char? charAfter = index < text.Length ? text[index + tagValue.Length] : null;
-                var tagType = store.GetTagType(tagValue);
-                var tagRole = store.GetTagRole(tagValue, charBefore, charAfter);
-
-                var token = new Token(tagType, index, tagValue.Length, tagRole);
+                var tagType = store.GetTagType(text, start, tagLength);
+                if (tagType == TagType.Escaped)
+                {
+                    yield return new Token(TagType.Escaped, start - 1, 1, TagRole.Opening);
+                    continue;
+                }
+                var tagRole = store.GetTagRole(text, start, tagLength);
+                var token = new Token(tagType, start, tagLength, tagRole);
                 switch (tagRole)
                 {
                     case TagRole.Opening:
