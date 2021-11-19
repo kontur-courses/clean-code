@@ -1,16 +1,20 @@
 ﻿using System;
+using System.Linq;
+using System.Text;
 
 namespace MarkDown
 {
     public static class TextPreparer
     {
+        private static string paragraphSymbol = Environment.NewLine;
         public static string PrepareParagraph(string text)
         {
-            throw new NotImplementedException();
+            return text;
         }
         public static string[] PrepareText(string text)
         {
-            throw new NotImplementedException();
+            var splittedText = text.Split(paragraphSymbol);
+            return splittedText.Select(x => PrepareParagraph(x)).ToArray();
         }
     }
 }
