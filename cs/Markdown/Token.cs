@@ -4,7 +4,7 @@ internal class Token
 {
     public readonly string Value;
     public readonly int SourceStart;
-    protected readonly TagSetting? setting;
+    protected readonly TagSetting? Setting;
 
     public Token(string token, int sourceStart, TagSetting? setting)
     {
