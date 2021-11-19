@@ -8,17 +8,18 @@ namespace Markdown.Tests
 {
     public class LexerTestDataGenerator : IEnumerable<TestCaseData>
     {
-        private readonly Token[] testTokens = 
+        private readonly Token[] testTokens =
         {
-            new(TokenType.Italics, "_"), new(TokenType.Bold, "__"),
-            new(TokenType.Escape, "/"), new(TokenType.NewLine, "\n"),
-            new(TokenType.Header1, "#")
+            Token.Italics, Token.Bold,
+            Token.Escape, Token.NewLine,
+            Token.Header1
         };
+
         public IEnumerator<TestCaseData> GetEnumerator()
         {
             foreach (var testToken in testTokens)
             {
-                if(testToken.TokenType != TokenType.Italics)
+                if (testToken.TokenType != TokenType.Italics)
                     yield return GenerateCountSymbols(testToken.Value, testToken.TokenType, 3);
                 yield return SurroundAllTextWith(testToken.Value, testToken.TokenType);
                 yield return SurroundPartOfTextWith(testToken.Value, testToken.TokenType);
@@ -27,20 +28,18 @@ namespace Markdown.Tests
             foreach (var data in GenerateCombinedTestData())
                 yield return data;
         }
-        
+
         private IEnumerable<TestCaseData> GenerateCombinedTestData()
         {
             yield return new TestCaseData("___", new Token[]
             {
-                new(TokenType.Bold, "__"),
-                new(TokenType.Italics, "_")
+                Token.Bold, Token.Italics
             }).SetName("Combined Bold and Italics 1");
-            
+
             yield return new TestCaseData("___as___", new Token[]
             {
-                new(TokenType.Bold, "__"), new(TokenType.Italics, "_"),
-                new(TokenType.Text, "as"), new(TokenType.Bold, "__"),
-                new(TokenType.Italics, "_")
+                Token.Bold, Token.Italics, new(TokenType.Text, "as"),
+                Token.Bold, Token.Italics
             }).SetName("Combined Bold and Italics 2");
         }
 
@@ -69,12 +68,12 @@ namespace Markdown.Tests
             var testString = firstPart + symbol + middlePart + symbol + lastPart;
             return new TestCaseData(testString, new Token[]
             {
-                new(TokenType.Text, firstPart), new(tokenType, symbol), 
+                new(TokenType.Text, firstPart), new(tokenType, symbol),
                 new(TokenType.Text, middlePart), new(tokenType, symbol),
                 new(TokenType.Text, lastPart)
             }).SetName($"Only part of the text surrounded with {tokenType.ToString()}");
         }
-        
+
 
         IEnumerator IEnumerable.GetEnumerator()
         {

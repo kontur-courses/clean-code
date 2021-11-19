@@ -1,9 +1,13 @@
-﻿using System;
-
-namespace Markdown.Tokens
+﻿namespace Markdown.Tokens
 {
-    public class Token
+    public readonly struct Token
     {
+        public static Token Italics => new(TokenType.Italics, "_");
+        public static Token Bold => new(TokenType.Bold, "__");
+        public static Token Escape => new(TokenType.Escape, "\\");
+        public static Token Header1 => new(TokenType.Header1, "#");
+        public static Token NewLine => new(TokenType.NewLine, "\n");
+
         public Token(TokenType tokenType, string value)
         {
             TokenType = tokenType;
@@ -12,22 +16,5 @@ namespace Markdown.Tokens
 
         public TokenType TokenType { get; }
         public string Value { get; }
-
-        private bool Equals(Token other)
-        {
-            return TokenType == other.TokenType && Value == other.Value;
-        }
-
-        public override bool Equals(object obj)
-        {
-            if (ReferenceEquals(null, obj)) return false;
-            if (ReferenceEquals(this, obj)) return true;
-            return obj.GetType() == GetType() && Equals((Token) obj);
-        }
-
-        public override int GetHashCode()
-        {
-            return HashCode.Combine((int) TokenType, Value);
-        }
     }
 }

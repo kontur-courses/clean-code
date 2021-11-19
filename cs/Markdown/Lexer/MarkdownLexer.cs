@@ -9,7 +9,7 @@ namespace Markdown.Lexer
     public class MarkdownLexer : ILexer
     {
         private const char EndOfFile = '\0';
-        private readonly char[] specSymbols = {EndOfFile, '_', '/', '\n', '#'};
+        private readonly char[] specSymbols = {EndOfFile, '_', '\\', '\n', '#'};
         private int position;
         private string text;
 
@@ -25,9 +25,9 @@ namespace Markdown.Lexer
                 yield return Current switch
                 {
                     '_' => ParseUnderscore(),
-                    '/' => new Token(TokenType.Escape, "/"),
-                    '\n' => new Token(TokenType.NewLine, "\n"),
-                    '#' => new Token(TokenType.Header1, "#"),
+                    '\\' => Token.Escape,
+                    '\n' => Token.NewLine,
+                    '#' => Token.Header1,
                     _ => ParseText()
                 };
                 position++;
@@ -44,9 +44,9 @@ namespace Markdown.Lexer
         private Token ParseUnderscore()
         {
             if (Lookahead != '_')
-                return new Token(TokenType.Italics, "_");
+                return Token.Italics;
             position++;
-            return new Token(TokenType.Bold, "__");
+            return Token.Bold;
         }
 
         private Token ParseText()
