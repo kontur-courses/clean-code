@@ -39,17 +39,17 @@ namespace Markdown
                     var symbol = text[currentIndex];
                     yield return symbol switch
                     {
-                        '_' => ParseUnderscore(),
+                        '_' => LexUnderscore(),
                         '\\' => new Token(TokenType.Escape, "\\"),
                         '#' => new Token(TokenType.Header1, "#"),
                         '\n' => new Token(TokenType.NewLine, "\n"),
-                        _ => ParseText()
+                        _ => LexText()
                     };
                     currentIndex++;
                 }
             }
 
-            private Token ParseUnderscore()
+            private Token LexUnderscore()
             {
                 if (currentIndex + 1 < text.Length && text[currentIndex + 1] == '_')
                 {
@@ -60,7 +60,7 @@ namespace Markdown
                 return new Token(TokenType.Cursive, "_");
             }
 
-            private Token ParseText()
+            private Token LexText()
             {
                 var start = currentIndex;
                 var end = text.IndexOfAny(SpecialCharacters, start);
