@@ -6,7 +6,7 @@ namespace Markdown
 {
     public class HtmlConverter
     {
-        public string Convert(List<Token> tokens)
+        public string Convert(IEnumerable<Token> tokens)
         {
             //foreach
             // TokenToHtml
