@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Text;
 using MarkdownTask.Tags;
+using MarkdownTask.TextReading;
 
 namespace MarkdownTask
 {
@@ -9,24 +10,24 @@ namespace MarkdownTask
     {
         private const char Escape = '\\';
         private readonly Stack<Tag> outerTags = new Stack<Tag>();
+        private readonly IMarkupTextReader reader;
         private readonly HashSet<char> triggerChars = new HashSet<char> { '_', '\\', '#' };
 
         private int currentPos;
+
+        public Md(IMarkupTextReader textReader)
+        {
+            reader = textReader;
+        }
 
         public string Render(string mdText)
         {
             if (mdText == null)
                 throw new NullReferenceException("Text can't has null reference");
 
-            var result = GetTagContent(mdText);
+            reader.SetNewText(mdText);
 
-            if (outerTags.Count != 0)
-            {
-                var topTag = outerTags.Pop();
-                result = topTag.OpeningPart + result + topTag.ClosingPart;
-            }
-
-            return result;
+            return GetTagContent(mdText);
         }
 
         private string GetTagContent(string mdText)
@@ -70,6 +71,12 @@ namespace MarkdownTask
 
                     content.Append(tag.TagContent);
                 }
+            }
+
+            if (outerTags.Count > 0)
+            {
+                var topTag = outerTags.Pop();
+                content.WrapTo(topTag.OpeningPart, topTag.ClosingPart);
             }
 
             return content.ToString();

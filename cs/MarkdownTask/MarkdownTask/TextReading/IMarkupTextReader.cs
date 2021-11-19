@@ -2,8 +2,10 @@
 {
     public interface IMarkupTextReader
     {
-        char ReadNextChar();
-
         void SetNewText(string text);
+
+        char GetCurrentChar();
+
+        void SkipNextNChars(int skipCharCount);
     }
 }

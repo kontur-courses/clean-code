@@ -5,23 +5,19 @@
         private int currentPos;
         private string text;
 
-        public MarkupTextReader(string text = default)
+        public void SetNewText(string textToRead)
         {
-            this.text = text;
+            text = textToRead;
         }
 
-        public char ReadNextChar()
+        public char GetCurrentChar()
         {
-            var nextChar = currentPos < text.Length - 1 ? text[currentPos] : '\0';
-            currentPos++;
-
-            return nextChar;
+            return currentPos < text.Length ? text[currentPos] : '\0';
         }
 
-        public void SetNewText(string text)
+        public void SkipNextNChars(int skipCharCount)
         {
-            this.text = text;
-            currentPos = 0;
+            currentPos += skipCharCount;
         }
     }
 }

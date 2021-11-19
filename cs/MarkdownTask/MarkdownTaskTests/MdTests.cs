@@ -1,6 +1,7 @@
 ﻿using System;
 using FluentAssertions;
 using MarkdownTask;
+using MarkdownTask.TextReading;
 using NUnit.Framework;
 
 namespace MarkdownTaskTests
@@ -12,7 +13,7 @@ namespace MarkdownTaskTests
         [SetUp]
         public void SetUp()
         {
-            md = new Md();
+            md = new Md(new MarkupTextReader());
         }
 
         [Test]

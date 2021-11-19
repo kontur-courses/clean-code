@@ -43,16 +43,15 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="StringBuilderExtensions.cs" />
     <Compile Include="Tags\TagKeeper.cs" />
     <Compile Include="Tags\Tag.cs" />
     <Compile Include="Tags\TagType.cs" />
     <Compile Include="TextReading\IMarkupTextReader.cs" />
-    <Compile Include="Specification\ISpecificationApplyer.cs" />
     <Compile Include="TextReading\MarkupTextReader.cs" />
     <Compile Include="Md.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
-    <Compile Include="Specification\SpecificationApplyer.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="App.config" />
