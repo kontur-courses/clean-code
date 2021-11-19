@@ -1,6 +1,6 @@
 ﻿using Markdown.Tokens;
 
-namespace Markdown.Factories
+namespace Markdown.Factories.Html
 {
     public class HtmlTokenFactory : ITokenFactory<HtmlToken>
     {

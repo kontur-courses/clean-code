@@ -2,7 +2,7 @@
 using Markdown.Markings;
 using Markdown.Tokens;
 
-namespace Markdown.Factories
+namespace Markdown.Factories.Markdown
 {
     public class MarkdownMarkingFactory : IMarkingFactory<MarkdownToken, MarkdownMarking>
     {
