@@ -8,7 +8,6 @@ namespace AhoCorasick
         private readonly Dictionary<char, Node<TValue>> children = new();
         
         private char Symbol { get; }
-        // internal Node<TValue> Fail { get; set; }
         internal List<TValue> Values { get; } = new();
 
         internal Node() { }

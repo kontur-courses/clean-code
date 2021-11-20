@@ -31,8 +31,6 @@ namespace AhoCorasick
 
                 foreach (var child in node)
                     queue.Enqueue(child);
-
-                // node.Fail = root;
             }
         }
 

@@ -8,7 +8,6 @@ namespace Markdown
 {
     public class TokenParser : ITokenParser
     {
-        // private List<Token> tokens = new();
         private readonly Trie<Token> trie = new();
 
         internal TokenParser()
@@ -17,8 +16,6 @@ namespace Markdown
 
         public void SetTokens(List<Token> tokensToSearch)
         {
-            // tokens = tokensToSearch;
-            
             foreach (var token in tokensToSearch)
                 trie.Add(token.ToString(), token);
             trie.Build();
