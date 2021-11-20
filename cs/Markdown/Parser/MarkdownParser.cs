@@ -1,8 +1,6 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using Markdown.Lexer;
 using Markdown.SyntaxParser;
-using Markdown.Tokens;
 
 namespace Markdown.Parser
 {
@@ -17,7 +15,7 @@ namespace Markdown.Parser
             this.syntaxParser = syntaxParser;
         }
 
-        public IEnumerable<Token> Parse(string text)
+        public IEnumerable<TokenTree> Parse(string text)
         {
             var lexedTokens = lexer.Lex(text);
             return syntaxParser.Parse(lexedTokens);

@@ -6,19 +6,19 @@ namespace Markdown
     public class Md
     {
         private readonly IParser parser;
-        private readonly ITokenFormatter tokenFormatter;
+        private readonly ITokensFormatter tokensFormatter;
 
-        public Md(IParser parser, ITokenFormatter tokenFormatter)
+        public Md(IParser parser, ITokensFormatter tokensFormatter)
         {
             this.parser = parser;
-            this.tokenFormatter = tokenFormatter;
+            this.tokensFormatter = tokensFormatter;
         }
 
         public string Render(string text)
         {
             var tokens = parser.Parse(text);
 
-            return tokenFormatter.Format(tokens);
+            return tokensFormatter.Format(tokens);
         }
     }
 }

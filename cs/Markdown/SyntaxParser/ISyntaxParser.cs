@@ -5,6 +5,6 @@ namespace Markdown.SyntaxParser
 {
     public interface ISyntaxParser
     {
-        IEnumerable<Token> Parse(IEnumerable<Token> tokens);
+        IEnumerable<TokenTree> Parse(IEnumerable<Token> lexedTokens);
     }
 }

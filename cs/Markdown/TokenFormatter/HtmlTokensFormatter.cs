@@ -1,12 +1,12 @@
 ﻿using System;
 using System.Collections.Generic;
-using Markdown.Tokens;
+using Markdown.SyntaxParser;
 
 namespace Markdown.TokenFormatter
 {
-    public class HtmlTokenFormatter : ITokenFormatter
+    public class HtmlTokensFormatter : ITokensFormatter
     {
-        public string Format(IEnumerable<Token> tokens)
+        public string Format(IEnumerable<TokenTree> tokens)
         {
             throw new NotImplementedException();
         }

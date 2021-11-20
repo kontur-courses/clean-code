@@ -29,14 +29,20 @@ namespace Markdown.Tests.Lexer
                 yield return data;
         }
 
+
+        IEnumerator IEnumerable.GetEnumerator()
+        {
+            return GetEnumerator();
+        }
+
         private IEnumerable<TestCaseData> GenerateCombinedTestData()
         {
-            yield return new TestCaseData("___", new Token[]
+            yield return new TestCaseData("___", new[]
             {
                 Token.Bold, Token.Italics
             }).SetName("Combined Bold and Italics 1");
 
-            yield return new TestCaseData("___as___", new Token[]
+            yield return new TestCaseData("___as___", new[]
             {
                 Token.Bold, Token.Italics, new(TokenType.Text, "as"),
                 Token.Bold, Token.Italics
@@ -72,12 +78,6 @@ namespace Markdown.Tests.Lexer
                 new(TokenType.Text, middlePart), new(tokenType, symbol),
                 new(TokenType.Text, lastPart)
             }).SetName($"Only part of the text surrounded with {tokenType.ToString()}");
-        }
-
-
-        IEnumerator IEnumerable.GetEnumerator()
-        {
-            return GetEnumerator();
         }
     }
 }

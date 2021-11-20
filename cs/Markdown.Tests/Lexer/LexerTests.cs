@@ -33,7 +33,7 @@ namespace Markdown.Tests.Lexer
             tokens.Should().HaveCount(1);
             tokens.First().TokenType.Should().Be(TokenType.Text);
         }
-        
+
         [TestCaseSource(typeof(LexerTestDataGenerator))]
         public void Lex_Should_Return_CorrectTokens_When(string text, Token[] expectedResult)
         {

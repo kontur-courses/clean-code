@@ -1,10 +1,10 @@
 ﻿using System.Collections.Generic;
-using Markdown.Tokens;
+using Markdown.SyntaxParser;
 
 namespace Markdown.Parser
 {
     public interface IParser
     {
-        IEnumerable<Token> Parse(string text);
+        IEnumerable<TokenTree> Parse(string text);
     }
 }

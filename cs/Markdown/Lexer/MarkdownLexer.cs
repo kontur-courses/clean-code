@@ -27,7 +27,7 @@ namespace Markdown.Lexer
                     '_' => ParseUnderscore(),
                     '\\' => Token.Escape,
                     '\n' => Token.NewLine,
-                    '#' => Token.Header1,
+                    '#' => ParseHeader1(),
                     _ => ParseText()
                 };
                 position++;
@@ -49,6 +49,14 @@ namespace Markdown.Lexer
             return Token.Bold;
         }
 
+        private Token ParseHeader1()
+        {
+            if (Lookahead != ' ')
+                return Token.Text("#");
+            position++;
+            return Token.Header1;
+        }
+
         private Token ParseText()
         {
             var buffer = new StringBuilder();
@@ -59,7 +67,7 @@ namespace Markdown.Lexer
             }
 
             position--;
-            return new Token(TokenType.Text, buffer.ToString());
+            return Token.Text(buffer.ToString());
         }
     }
 }
