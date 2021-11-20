@@ -20,7 +20,7 @@ namespace Markdown.TagStore
         {
             char? before = startIndex == 0 ? null : text[startIndex - 1];
             char? after = startIndex + length == text.Length ? null : text[startIndex + length];
-            if (before != ' ' && before != null)
+            if (before != ' ' && before != '\\' && before != null)
                 return after is ' ' or null ? TagRole.Closing : TagRole.NotTag;
             return after != ' ' ? TagRole.Opening : TagRole.NotTag;
         }

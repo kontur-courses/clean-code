@@ -21,16 +21,24 @@ namespace Markdown.Tokens
         {
             var tokens = new Stack<Token>();
             var allTagsInText = text.FindAll(tags).OrderBy(i => i.start);
+            var escapeIndex = -1;
             foreach (var (start, tagLength) in allTagsInText)
             {
+                if (start == escapeIndex)
+                {
+                    yield return new Token(TagType.Escaped, start - 1, 1, TagRole.NotTag, TokenType.Tag);
+                    continue;
+                }
+
                 var tagType = store.GetTagType(text, start, tagLength);
                 if (tagType == TagType.Escaped)
                 {
-                    yield return new Token(TagType.Escaped, start - 1, 1, TagRole.Opening);
+                    escapeIndex = start + tagLength;
                     continue;
                 }
+
                 var tagRole = store.GetTagRole(text, start, tagLength);
-                var token = new Token(tagType, start, tagLength, tagRole);
+                var token = new Token(tagType, start, tagLength, tagRole, TokenType.Tag);
                 switch (tagRole)
                 {
                     case TagRole.Opening:

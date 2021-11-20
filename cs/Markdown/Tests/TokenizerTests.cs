@@ -27,8 +27,8 @@ namespace Markdown.Tests
 
             tagTokens.Should().BeEquivalentTo(new[]
             {
-                new Token(TagType.Emphasized, 0, 1, TagRole.Opening),
-                new Token(TagType.Emphasized, 18, 1, TagRole.Closing)
+                new Token(TagType.Emphasized, 0, 1, TagRole.Opening, TokenType.Tag),
+                new Token(TagType.Emphasized, 18, 1, TagRole.Closing, TokenType.Tag)
             });
         }
     }

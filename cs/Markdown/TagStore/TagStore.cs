@@ -26,7 +26,7 @@ namespace Markdown.TagStore
 
         public TagType GetTagType(string text, int start, int length)
         {
-            if (start > 0 && text[start - 1] == '\\') return TagType.Escaped;
+            if (text[start] == '\\') return TagType.Escaped;
             return stringToTag[text.Substring(start, length)].Type;
         }
 
