@@ -107,6 +107,19 @@ public class MarkdownShould
         result.Should().BeEquivalentTo(expectedResult);
     }
 
+    [Test]
+    public void WrapSeveralLinesInP_WithNestedTags()
+    {
+        var text = "_cursive_ __bold _cursive in bold___\nsecond line _second line in cursive_ ___bold second with cursive_ still bold__";
+        var md = new Md(text);
+
+        var expectedResult = "<p><em>cursive</em> <strong>bold <em>cursive in bold</em></strong></p><p>second line <em>second line in cursive</em> <strong><em>bold second with cursive</em> still bold</strong></p>";
+        var actualResult = md.Render();
+
+        actualResult.Should().BeEquivalentTo(expectedResult);
+
+    }
+
     [TestCase(100, 100)]
     [TestCase(1000, 100)]
     [TestCase(100, 1000)]

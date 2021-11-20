@@ -15,11 +15,10 @@ internal class Tokenizer
         foreach (var line in text.Split('\n'))
         {
             var lineTag = "";
-            var root = new TokenBuilder(this, line)
-            .WithStart(0)
+            var root = new TokenBuilder(this, line, 0, null)
             .WithEnd(line.Length)
             .WithMdTag(lineTag);
-            root.AddToken(ParseLine(line, tokenSeparators));
+            root.AddToken(ParseLine(line, tokenSeparators, root));
             yield return root.Build();
         }
     }
@@ -39,16 +38,15 @@ internal class Tokenizer
         return null;
     }
 
-    private TokenBuilder ParseLine(string line, string[] separators)
+    private TokenBuilder ParseLine(string line, string[] separators, TokenBuilder? root)
     {
-        return ParseToken(line, 0, null, separators);
+        return ParseToken(line, 0, null, separators, root);
     }
 
-    private TokenBuilder ParseToken(string line, int start, string? openingSeparator, string[] separators)
+    private TokenBuilder ParseToken(string line, int start, string? openingSeparator, string[] separators, TokenBuilder? root)
     {
         var openingSeparatorLength = openingSeparator?.Length ?? 0;
-        var token = new TokenBuilder(this, line)
-            .WithStart(start - openingSeparatorLength)
+        var token = new TokenBuilder(this, line, start - openingSeparatorLength, root)
             .WithMdTag(openingSeparator);
         var lastKnownTokenEnd = start;
         for (var i = start; i < line.Length; i++)
@@ -61,11 +59,11 @@ internal class Tokenizer
                 {
                     if (lastKnownTokenEnd != i)
                     {
-                        var plainToken = CreateTokenBuilder(line, lastKnownTokenEnd, i, null);
+                        var plainToken = CreateTokenBuilder(line, lastKnownTokenEnd, i, null, token);
                         token.AddToken(plainToken);
                     }
 
-                    var childToken = ParseToken(line, i + currentSeparator.Length, currentSeparator, separators);
+                    var childToken = ParseToken(line, i + currentSeparator.Length, currentSeparator, separators, token);
                     token.AddToken(childToken);
                     i = childToken.End - 1;
                     lastKnownTokenEnd = i + 1;
@@ -80,7 +78,7 @@ internal class Tokenizer
 
         if (lastKnownTokenEnd != line.Length)
         {
-            var plainToken = CreateTokenBuilder(line, lastKnownTokenEnd, line.Length, null);
+            var plainToken = CreateTokenBuilder(line, lastKnownTokenEnd, line.Length, null, token);
             token.AddToken(plainToken);
         }
 
@@ -88,10 +86,9 @@ internal class Tokenizer
         return token;
     }
 
-    private TokenBuilder CreateTokenBuilder(string source, int start, int end, string? mdTag)
+    private TokenBuilder CreateTokenBuilder(string source, int start, int end, string? mdTag, TokenBuilder? root)
     {
-        return new TokenBuilder(this, source)
-                  .WithStart(start)
+        return new TokenBuilder(this, source, start, root)
                   .WithMdTag(mdTag)
                   .WithEnd(end);
     }

@@ -8,18 +8,16 @@ internal class TokenBuilder
     public int End { get; private set; }
     public string? MdTag { get; private set; }
 
+    public TokenBuilder? Parent { get; private set; }
+
     private readonly List<TokenBuilder> tokens = new();
 
-    public TokenBuilder(Tokenizer tokenWrapper, string source)
+    public TokenBuilder(Tokenizer tokenWrapper, string source, int start, TokenBuilder? parent)
     {
         TokenWrapper = tokenWrapper;
         Source = source;
-    }
-
-    public TokenBuilder WithStart(int start)
-    {
+        Parent = parent;
         Start = start;
-        return this;
     }
 
     public TokenBuilder WithEnd(int end)
@@ -41,15 +39,17 @@ internal class TokenBuilder
 
     internal Token Build()
     {
+        var actualStart = Start - (Parent?.Start ?? 0) /*- (Parent?.MdTag?.Length ?? 0)*/;
         if (tokens.Count == 0)
-            return TokenWrapper.WrapToken(Source[Start..End], Start, MdTag);
-        return BuildCompound();
+            return TokenWrapper.WrapToken(Source[Start..End], actualStart, MdTag);
+
+        return BuildCompound(actualStart);
     }
 
-    private CompoundToken BuildCompound()
+    private CompoundToken BuildCompound(int actualStart)
     {
         var setting = TokenWrapper.GetSetting(MdTag);
-        var compound = new CompoundToken(Source[Start..End], Start, setting);
+        var compound = new CompoundToken(Source[Start..End], actualStart, setting);
         foreach (var token in tokens)
         {
             compound.AddToken(token.Build());
