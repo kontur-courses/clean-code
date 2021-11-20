@@ -23,16 +23,6 @@ namespace Markdown.Tests
             Assert.Throws<ArgumentNullException>(() => sut.Parse(null));
         }
 
-        [Test]
-        public void Parse_ShouldNotBeApplied_WhenNoToken()
-        {
-            var tokens = Enumerable.Empty<Token>();
-
-            var parsed = sut.Parse(tokens);
-
-            parsed.Should().BeEmpty();
-        }
-
         [TestCaseSource(nameof(GetCorrectnessTestCases))]
         public void Parse_ShouldReturnCorrectNodes(IEnumerable<Token> tokens, IEnumerable<TokenNode> expected)
         {
