@@ -1,5 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 
 namespace Markdown
 {
@@ -12,8 +11,6 @@ namespace Markdown
         public (IEnumerable<TokenSegment>, IEnumerable<TokenSegment>) ValidatePairSets((IEnumerable<TokenSegment>, IEnumerable<TokenSegment>) pair);
 
         string ReplaceTokens(IEnumerable<TokenSegment> tokens, ITokenTranslator translator);
-
-        // IEnumerable<ITokenSegment> GetTokensSegments(Dictionary<int, TokenInfo> tokens);
 
         Dictionary<int, TokenInfo> FindAllTokens(string paragraph);
     }

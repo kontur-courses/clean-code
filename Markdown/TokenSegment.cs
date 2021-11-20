@@ -45,6 +45,19 @@ namespace Markdown
         {
             return openToken;
         }
+
+        public bool Contain(TokenSegment other)
+        {
+            if (other is null) throw new ArgumentNullException();
+
+            var firstMin = Math.Min(openTokenLocation, closeTokenLocation);
+            var firstMax = Math.Max(openTokenLocation, closeTokenLocation);
+            var secondMin = Math.Min(other.openTokenLocation, other.closeTokenLocation);
+            var secondMax = Math.Max(other.openTokenLocation, other.closeTokenLocation);
+
+            return firstMin.Between(secondMin, secondMax) && firstMax.Between(secondMin, secondMax)
+                   || secondMin.Between(firstMin, firstMax) && secondMax.Between(firstMin, firstMax);
+        }
         
         public bool IsIntersectWith(TokenSegment other)
         {

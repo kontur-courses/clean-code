@@ -1,4 +1,5 @@
 ﻿using System.Collections.Generic;
+using System.Linq;
 using AhoCorasick;
 
 namespace Markdown
@@ -18,17 +19,26 @@ namespace Markdown
             trie.Build();
         }
 
+        //нужно убрать в другое место
         public (IEnumerable<TokenSegment>, IEnumerable<TokenSegment>) ValidatePairSets((IEnumerable<TokenSegment>, IEnumerable<TokenSegment>) pair)
         {
-            throw new System.NotImplementedException();
+            // Реализация без учета правил пересечения и вложенности
+
+            var firstSegments = pair.Item1
+                .Where(x => pair.Item2.Any(y => y.IsIntersectWith(x)))
+                .Where(x => pair.Item2.Any(y => y.Contain(x)));
+            
+            var secondSegment = pair.Item2
+                .Where(x => pair.Item1.Any(y => y.IsIntersectWith(x)))
+                .Where(x => pair.Item1.Any(y => y.Contain(x)));
+
+            return (firstSegments, secondSegment);
         }
 
         public string ReplaceTokens(IEnumerable<TokenSegment> tokenSegments, ITokenTranslator translator)
         {
             throw new System.NotImplementedException();
         }
-
-        
 
         public Dictionary<int, TokenInfo> FindAllTokens(string paragraph)
         {
