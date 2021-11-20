@@ -1,115 +1,146 @@
 ﻿using System.Collections.Generic;
+using System.Linq;
 using System.Text;
 
 namespace Markdown
 {
     public class Tokenizer
     {
-        private SimpleTrieStateMachine simpleTrieStateMachine;
+        private SimpleTrieStateMachine tagSearcherMachine;
 
-        public IReadOnlyList<Token> Tokenize(string line, IEnumerable<string> tags)
+        private List<Token> tokens;
+        private StringBuilder letterAggregator;
+        private bool isEscape;
+        private int escapeCount;
+        private string text;
+        private int pointer;
+
+        public IReadOnlyList<Token> Tokenize(string line, IEnumerable<string> keyWords)
         {
-            simpleTrieStateMachine = new SimpleTrieStateMachine(tags);
+            InitializeTokenizer(keyWords, line);
 
-            var tokens = new List<Token>();
-            var text = new StringBuilder();
-            var isEscape = false;
-            var escapeCount = 0;
-
-            for (var pointer = 0; pointer < line.Length;)
+            while (pointer < text.Length)
             {
-                if (char.IsWhiteSpace(line[pointer]))
+                if (char.IsWhiteSpace(text[pointer]))
                 {
-                    escapeCount = AddText(pointer, text, escapeCount, tokens, true);
+                    PullOutText();
                     pointer++;
                     continue;
                 }
 
                 if (isEscape)
                 {
-                    text.Append(line[pointer++]);
+                    letterAggregator.Append(text[pointer++]);
                     isEscape = false;
                     continue;
                 }
 
-                if (line[pointer] == '\\')
+                if (text[pointer] == '\\')
                 {
-                    pointer++;
-                    escapeCount++;
-                    isEscape = true;
+                    SetEscape();
                     continue;
                 }
 
-                if (simpleTrieStateMachine.UpdateStates(line[pointer]))
+                if (tagSearcherMachine.IsUpdateStates(text[pointer]))
                 {
-                    escapeCount = AddText(pointer, text, escapeCount, tokens);
-
-                    var tag = GetTag(line, pointer);
-                    var token = new Token(pointer, tag, TokenType.Tag);
-                    tokens.Add(token);
-                    pointer += tag.Length;
+                    PullOutText();
+                    AddTagToken();
                     continue;
                 }
 
-                if (char.IsDigit(line[pointer]))
+                if (char.IsDigit(text[pointer]))
                 {
-                    escapeCount = AddText(pointer, text, escapeCount, tokens);
-
-                    var number = GetNumber(line, pointer);
-                    var numberToken = new Token(pointer, number, TokenType.Number);
-                    tokens.Add(numberToken);
-                    pointer += number.Length;
+                    PullOutText();
+                    AddNumberToken();
                     continue;
                 }
 
-                text.Append(line[pointer++]);
+                letterAggregator.Append(text[pointer++]);
             }
 
-            AddText(line.Length, text, escapeCount, tokens);
+            if (letterAggregator.Length > 0)
+                PullOutText();
 
             return tokens;
         }
 
-        private static int AddText(int pointer, StringBuilder text, int escapeCount, ICollection<Token> tokens,
-            bool isWhiteSpace = false)
+        private void InitializeTokenizer(IEnumerable<string> tags, string line)
         {
-            if (!isWhiteSpace && text.Length == 0)
+            text = line;
+            tagSearcherMachine = new SimpleTrieStateMachine(tags);
+            tokens = new List<Token>();
+            letterAggregator = new StringBuilder();
+            isEscape = false;
+            escapeCount = 0;
+            pointer = 0;
+        }
+
+        private void SetEscape()
+        {
+            pointer++;
+            escapeCount++;
+            isEscape = true;
+        }
+
+        
+        private void PullOutText()
+        {
+            if (pointer < text.Length && !char.IsWhiteSpace(text[pointer]) && letterAggregator.Length == 0)
             {
-                return escapeCount;
+                return;
             }
 
-            var start = pointer - text.Length - escapeCount;
-            var textToken = new Token(start, text.ToString(), TokenType.Text);
+            var start = pointer - letterAggregator.Length - escapeCount;
+            var textToken = new Token(start, letterAggregator.ToString(), TokenType.Text);
 
             tokens.Add(textToken);
-            text.Clear();
+            letterAggregator.Clear();
 
-            return 0;
+            escapeCount = 0;
         }
 
-        private static string GetNumber(string line, int pointer)
+        private void AddNumberToken()
         {
-            var number = new StringBuilder();
-            number.Append(line[pointer]);
-            while (char.IsDigit(line[++pointer]))
+            var tokenValue = new StringBuilder();
+            tokenValue.Append(text[pointer]);
+
+            var i = pointer + 1;
+
+            while (i < text.Length && char.IsDigit(text[i]))
             {
-                number.Append(line[pointer]);
+                tokenValue.Append(text[i]);
+                i++;
             }
 
-            return number.ToString();
+            if (tokenValue.Length == 0) return;
+            var token = new Token(pointer, tokenValue.ToString(), TokenType.Number);
+            tokens.Add(token);
+
+            pointer += tokenValue.Length;
         }
 
-        private string GetTag(string line, int pointer)
+        private void AddTagToken()
         {
-            var tag = new StringBuilder();
-            tag.Append(line[pointer]);
+            var i = pointer + 1;
 
-            while (simpleTrieStateMachine.UpdateStates(line[++pointer]))
+            while (i < text.Length && tagSearcherMachine.IsUpdateStates(text[i]))
             {
-                tag.Append(line[pointer]);
+                i++;
             }
 
-            return tag.ToString();
+            var tokenValue = tagSearcherMachine.GetMaxFoundWord();
+
+            if (tokenValue == null)
+            {
+                letterAggregator.Append(text.Substring(pointer, i));
+                pointer += i;
+                return;
+            }
+
+            var token = new Token(pointer, tokenValue, TokenType.Tag);
+            tokens.Add(token);
+
+            pointer += tokenValue.Length;
         }
     }
 }

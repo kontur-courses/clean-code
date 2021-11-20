@@ -36,6 +36,20 @@ namespace MarkdownTests
         }
         
         [Test]
+        public void Tokenize_whenTextHasPrefixOfTag_shouldReturnExpectedTokens()
+        {
+            var text = "__abc43";
+            var tokens = new Tokenizer().Tokenize(text, new[] {"___"});
+            var expectedTokens = new[]
+            {
+                new Token(0, "__abc", TokenType.Text),
+                new Token(5, "43", TokenType.Number)
+            };
+
+            tokens.Should().Equal(expectedTokens);
+        }
+        
+        [Test]
         public void Tokenize_withCompoundAndSimpleTags_shouldReturnExpectedTokens()
         {
             var text = "__abc#qwer";
