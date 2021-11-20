@@ -22,7 +22,7 @@
         public string EncloseInTags(string line)
             => $"{GetOpener()}{line}{GetClosing()}";
 
-        public string EncloseInTags(Token token)
+        public string EncloseInTags(Markdown.Token token)
             => EncloseInTags(token.Value);
     }
 }

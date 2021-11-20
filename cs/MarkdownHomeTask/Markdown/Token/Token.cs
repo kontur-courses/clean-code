@@ -3,22 +3,22 @@
     public class Token
     {
         public readonly int Start;
-        public readonly int Length;
+        public readonly TokenType Type;
         public readonly string Value;
 
-        public Token(int start, int length, string value)
+        public Token(int start, string value, TokenType type)
         {
             Start = start;
-            Length = length;
             Value = value;
+            Type = type;
         }
 
-        public override bool Equals(object? obj)
+        public override bool Equals(object obj)
         {
             if (obj is Token token)
             {
                 return Start == token.Start
-                       && Length == token.Length
+                       && Type == token.Type
                        && Value == token.Value;
             }
 
@@ -29,7 +29,7 @@
         {
             unchecked
             {
-                return Start.GetHashCode() * 18253 + Length.GetHashCode() * 3571 + Value.GetHashCode() * 12289;
+                return Start.GetHashCode() * 18253 + Value.GetHashCode() * 12289 + Type.GetHashCode() * 3559;
             }
         }
     }

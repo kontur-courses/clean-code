@@ -10,7 +10,7 @@ namespace Markdown
             throw new NotImplementedException();
         }
 
-        private string ResultFromTokens(IReadOnlyDictionary<MdTag, List<Token>> tokens)
+        private string ResultFromTokens(IReadOnlyDictionary<MdTag, List<Markdown.Token>> tokens)
         {
             throw new NotImplementedException();
         }
