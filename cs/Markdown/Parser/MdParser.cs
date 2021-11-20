@@ -7,28 +7,21 @@ namespace Markdown.Parser
 {
     public class MdParser
     {
-        public static readonly Dictionary<string, Type> TokenTypes = new()
+        public static readonly Dictionary<string, Func<int, Token>> TokensBySeparator = new()
         {
-            { Token.Separators[typeof(ItalicToken)], typeof(ItalicToken) },
-            { Token.Separators[typeof(BoldToken)], typeof(BoldToken) },
-            { Token.Separators[typeof(HeaderToken)], typeof(HeaderToken) },
-            { Token.Separators[typeof(ScreeningToken)], typeof(ScreeningToken) }
+            { ItalicToken.Separator, index => new ItalicToken(index) },
+            { BoldToken.Separator, index => new BoldToken(index) },
+            { HeaderToken.Separator, index => new HeaderToken(index) },
+            { ScreeningToken.Separator, index => new ScreeningToken(index) }
         };
 
         private List<Token> result;
         private string textToParse;
-        private Dictionary<Type, Token> tokens;
+        private Dictionary<string, Token> tokens;
 
-        private void Initialize(string toParse)
+        public IEnumerable<Token> ParseTokens(string toParse)
         {
-            tokens = new Dictionary<Type, Token>();
-            result = new List<Token>();
-            textToParse = toParse;
-        }
-
-        public IEnumerable<Token> ParseTokens(string input)
-        {
-            Initialize(input);
+            Initialize(toParse);
             var possibleTag = new StringBuilder();
 
             for (var i = 0; i < textToParse.Length; i++)
@@ -42,49 +35,53 @@ namespace Markdown.Parser
                     continue;
                 }
 
-                if (TokenTypes.ContainsKey($"{possibleTag}{symbol}"))
+                if (TokensBySeparator.ContainsKey($"{possibleTag}{symbol}"))
                     possibleTag.Append(symbol);
-                else if (TokenTypes.ContainsKey(possibleTag.ToString()))
+                else if (TokensBySeparator.ContainsKey(possibleTag.ToString()))
                 {
-                    var type = TokenTypes[possibleTag.ToString()];
-                    ProcessToken(type, i - possibleTag.Length, possibleTag.Length);
+                    ProcessToken(possibleTag.ToString(), i - possibleTag.Length);
                     possibleTag.Clear();
 
-                    if (TokenTypes.ContainsKey($"{symbol}"))
+                    if (TokensBySeparator.ContainsKey($"{symbol}"))
                         possibleTag.Append(symbol);
                 }
                 else
-                    tokens.Remove(typeof(ScreeningToken));
+                    tokens.Remove("\\");
             }
 
             if (possibleTag.Length > 0)
             {
-                var type = TokenTypes[possibleTag.ToString()];
-                ProcessToken(type, textToParse.Length - possibleTag.Length, possibleTag.Length);
+                var type = TokensBySeparator[possibleTag.ToString()];
+                ProcessToken(possibleTag.ToString(), textToParse.Length - possibleTag.Length);
             }
 
             return result;
         }
 
-        private void ProcessToken(Type type, int openIndex, int length)
+        private void Initialize(string toParse)
+        {
+            tokens = new Dictionary<string, Token>();
+            result = new List<Token>();
+            textToParse = toParse;
+        }
+
+        private void ProcessToken(string separator, int index)
         {
             if (ExecuteScreening()) return;
 
-            if (type.IsSubclassOf(typeof(NonPairedToken)))
-                ((Token)Activator.CreateInstance(type, openIndex))?.Accept(this);
-            else if (tokens.TryGetValue(type, out var token))
+            if (tokens.TryGetValue(separator, out var token) && IsCorrectTokenCloseIndex(index, textToParse))
             {
-                if (IsCorrectClosePosition(openIndex, textToParse))
-                {
-                    token.Close(openIndex);
-                    token.Accept(this);
-                }
+                token.Close(index);
+                token.Accept(this);
+                return;
             }
-            else
-            {
-                if (IsCorrectOpenPosition(openIndex, textToParse, length))
-                    tokens[type] = (Token)Activator.CreateInstance(type, openIndex);
-            }
+
+            token = TokensBySeparator[separator].Invoke(index);
+
+            if (token.IsNonPaired)
+                token.Accept(this);
+            else if (IsCorrectTokenOpenIndex(index, textToParse, separator.Length))
+                tokens[separator] = token;
         }
 
         internal void Visit(HeaderToken token)
@@ -103,68 +100,67 @@ namespace Markdown.Parser
 
         internal void Visit(BoldToken token)
         {
-            VisitStyleToken(token, ValidateBoldTokenInteractions);
-        }
-
-        internal void Visit(ItalicToken token)
-        {
-            VisitStyleToken(token, ValidateStyleTokenInteractions);
-        }
-
-        internal void Visit(ScreeningToken token)
-        {
-            tokens.Add(token.GetType(), token);
-        }
-
-        internal void VisitStyleToken(StyleToken token, Action<StyleToken> interactionsValidator)
-        {
             token.ValidatePlacedCorrectly(textToParse);
 
-            interactionsValidator.Invoke(token);
+            ValidateBoldTokenInteractions(token);
 
-            tokens.Remove(token.GetType());
+            tokens.Remove(token.GetSeparator());
 
             if (token.IsCorrect)
                 result.Add(token);
         }
 
+        internal void Visit(ItalicToken token)
+        {
+            token.ValidatePlacedCorrectly(textToParse);
+
+            ValidateItalicTokenInteractions(token);
+
+            tokens.Remove(token.GetSeparator());
+
+            if (token.IsCorrect)
+                result.Add(token);
+        }
+
+        internal void Visit(ScreeningToken token)
+        {
+            tokens.Add(token.GetSeparator(), token);
+        }
+
         private bool ExecuteScreening()
         {
-            if (!tokens.ContainsKey(typeof(ScreeningToken))) return false;
+            if (!tokens.ContainsKey(ScreeningToken.Separator)) return false;
 
-            tokens.Remove(typeof(ScreeningToken), out var token);
+            tokens.Remove(ScreeningToken.Separator, out var token);
             token.Close(token.OpenIndex);
             result.Add(token);
             return true;
         }
 
-        private void ValidateStyleTokenInteractions(StyleToken token)
+        private void ValidateItalicTokenInteractions(ItalicToken token)
         {
-            foreach (var otherToken in tokens.Values)
-            {
-                if (otherToken is not StyleToken styleToken || otherToken == token)
-                    continue;
+            if (!tokens.TryGetValue(BoldToken.Separator, out var boldToken)) return;
+            if (!token.IsIntersectWith(boldToken)) return;
 
-                if (!token.IsIntersectWith(styleToken)) continue;
-
-                styleToken.IsCorrect = false;
-                token.IsCorrect = false;
-            }
+            boldToken.IsCorrect = false;
+            token.IsCorrect = false;
         }
 
-        private void ValidateBoldTokenInteractions(StyleToken token)
+        private void ValidateBoldTokenInteractions(BoldToken token)
         {
-            ValidateStyleTokenInteractions(token);
+            if (!token.IsCorrect || !tokens.TryGetValue(ItalicToken.Separator, out var italicToken)) return;
 
-            if (!token.IsCorrect || !tokens.ContainsKey(typeof(ItalicToken))) return;
-
-            var italicToken = tokens[typeof(ItalicToken)] as ItalicToken;
+            if (token.IsIntersectWith(italicToken))
+            {
+                italicToken.IsCorrect = false;
+                token.IsCorrect = false;
+            }
 
             if (italicToken.OpenIndex < token.OpenIndex && italicToken.IsOpened)
                 token.IsCorrect = false;
         }
 
-        private static bool IsCorrectOpenPosition(int openIndex, string text, int length)
+        private static bool IsCorrectTokenOpenIndex(int openIndex, string text, int length)
         {
             var indexNextToSeparator = openIndex + length;
 
@@ -172,7 +168,7 @@ namespace Markdown.Parser
                    text[indexNextToSeparator] != ' ';
         }
 
-        private static bool IsCorrectClosePosition(int closeIndex, string text)
+        private static bool IsCorrectTokenCloseIndex(int closeIndex, string text)
         {
             return closeIndex != 0 && text[closeIndex - 1] != ' ';
         }

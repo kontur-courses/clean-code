@@ -7,12 +7,12 @@ namespace Markdown.Renderer
 {
     public class HtmlRenderer : IRenderer
     {
-        public static readonly Dictionary<Type, HtmlTag> HtmlTags = new()
+        public static readonly Dictionary<string, HtmlTag> HtmlTags = new()
         {
-            { typeof(BoldToken), new HtmlTag("<strong>", "\\<strong>") },
-            { typeof(ItalicToken), new HtmlTag("<em>", "\\<em>") },
-            { typeof(HeaderToken), new HtmlTag("<h1>", "\\<h1>") },
-            { typeof(ScreeningToken), new HtmlTag(string.Empty, string.Empty) }
+            { "__", new HtmlTag("<strong>", "\\<strong>") },
+            { "_", new HtmlTag("<em>", "\\<em>") },
+            { "#", new HtmlTag("<h1>", "\\<h1>") },
+            { "\\", new HtmlTag(string.Empty, string.Empty) }
         };
 
         public string Render(IEnumerable<Token> tokens, string text)
@@ -30,8 +30,7 @@ namespace Markdown.Renderer
                     continue;
                 }
 
-                if (text[index] != '\n')
-                    result.Append(text[index]);
+                result.Append(text[index]);
 
                 index++;
             }
@@ -48,9 +47,9 @@ namespace Markdown.Renderer
 
             foreach (var token in tokens)
             {
-                var htmlTag = HtmlTags[token.GetType()];
-                result[token.OpenIndex] = new TagInsertion(htmlTag.OpenTag, token.Separator.Length);
-                result[token.CloseIndex] = new TagInsertion(htmlTag.CloseTag, token.Separator.Length);
+                var htmlTag = HtmlTags[token.GetSeparator()];
+                result[token.OpenIndex] = new TagInsertion(htmlTag.OpenTag, token.GetSeparator().Length);
+                result[token.CloseIndex] = new TagInsertion(htmlTag.CloseTag, token.GetSeparator().Length);
             }
 
             return result;

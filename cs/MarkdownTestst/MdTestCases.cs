@@ -35,7 +35,7 @@ namespace MarkdownTests
                     .SetName("ReturnCorrectString_WhenItalicTagInsideDifferentWords");
                 yield return new TestCaseData("_a", "_a")
                     .SetName("ReturnCorrectString_WhenThereIsUnpairedItalicTag");
-                yield return new TestCaseData("_a\na_a", "_aa_a")
+                yield return new TestCaseData("_a\na_a", "_a\na_a")
                     .SetName("ReturnCorrectString_WhenThereIsUnpairedItalicTagInParagraph");
                 yield return new TestCaseData("_a__a_a__", "_a__a_a__")
                     .SetName("ReturnCorrectString_WhenThereIsItalicBoldIntersection");
@@ -45,8 +45,8 @@ namespace MarkdownTests
                     .SetName("ReturnCorrectString_WhenBoldTagInsideDifferentWords");
                 yield return new TestCaseData("__a", "__a")
                     .SetName("ReturnCorrectString_WhenThereIsUnpairedBoldTag");
-                yield return new TestCaseData("__a\na__a", "__aa__a")
-                    .SetName("ReturnCorrectString_WhenThereIsUnpairedItalicTagInParagraph");
+                yield return new TestCaseData("__a\na__a", "__a\na__a")
+                    .SetName("ReturnCorrectString_WhenThereIsUnpairedBoldTagInParagraph");
                 yield return new TestCaseData("1__1__1", "1__1__1")
                     .SetName("ReturnCorrectString_WhenBoldTagInsideTextWithDigits");
                 yield return new TestCaseData("1_1_1", "1_1_1")

@@ -2,11 +2,19 @@
 
 namespace Markdown.Tokens
 {
-    internal class BoldToken : StyleToken
+    internal class BoldToken : Token
     {
+        public static readonly string Separator = "__";
+
+        public override bool IsNonPaired => false;
         public BoldToken(int openIndex) : base(openIndex) { }
 
         internal BoldToken(int openIndex, int closeIndex) : base(openIndex, closeIndex) { }
+
+        public override string GetSeparator()
+        {
+            return Separator;
+        }
 
         internal override void Accept(MdParser parser)
         {

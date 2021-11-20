@@ -3,39 +3,39 @@ using Markdown.Tokens;
 
 namespace Markdown.Parser
 {
-    internal static class StyleTokenExtensions
+    internal static class TokenExtensions
     {
-        internal static void ValidatePlacedCorrectly(this StyleToken token, string text)
+        internal static void ValidatePlacedCorrectly(this Token token, string text)
         {
             token.IsCorrect = !(token.IsInsideTextWithDigits(text) || token.IsInsideDifferentWords(text) || token.IsTokenEmpty(text));
         }
 
-        internal static bool IsIntersectWith(this StyleToken thisToken, StyleToken otherToken)
+        internal static bool IsIntersectWith(this Token thisToken, Token otherToken)
         {
             return thisToken.OpenIndex < otherToken.OpenIndex && otherToken.OpenIndex < thisToken.CloseIndex;
         }
 
-        private static bool IsTokenEmpty(this StyleToken token, string text)
+        private static bool IsTokenEmpty(this Token token, string text)
         {
             var tokenContent = token.GetTokenContent(text);
 
             return tokenContent.Length == 0;
         }
 
-        private static bool IsInsideDifferentWords(this StyleToken token, string text)
+        private static bool IsInsideDifferentWords(this Token token, string text)
         {
-            var openInsideWord = IsSeparatorInsideWord(token.OpenIndex, token.Separator.Length, text);
-            var closeInsideWord = IsSeparatorInsideWord(token.CloseIndex, token.Separator.Length, text);
+            var openInsideWord = IsSeparatorInsideWord(token.OpenIndex, token.GetSeparator().Length, text);
+            var closeInsideWord = IsSeparatorInsideWord(token.CloseIndex, token.GetSeparator().Length, text);
 
             var tokenContent = token.GetTokenContent(text);
 
             return (openInsideWord || closeInsideWord) && tokenContent.Any(x => x == ' ');
         }
 
-        private static bool IsInsideTextWithDigits(this StyleToken token, string text)
+        private static bool IsInsideTextWithDigits(this Token token, string text)
         {
-            var openInsideWord = IsSeparatorInsideTextWithDigits(token.OpenIndex, token.Separator.Length, text);
-            var closeInsideWord = IsSeparatorInsideTextWithDigits(token.CloseIndex, token.Separator.Length, text);
+            var openInsideWord = IsSeparatorInsideTextWithDigits(token.OpenIndex, token.GetSeparator().Length, text);
+            var closeInsideWord = IsSeparatorInsideTextWithDigits(token.CloseIndex, token.GetSeparator().Length, text);
 
             return openInsideWord || closeInsideWord;
         }
@@ -60,9 +60,9 @@ namespace Markdown.Parser
             return isLeftLetter && isRightLetter;
         }
 
-        private static string GetTokenContent(this StyleToken token, string text)
+        private static string GetTokenContent(this Token token, string text)
         {
-            var contentStartIndex = token.OpenIndex + token.Separator.Length;
+            var contentStartIndex = token.OpenIndex + token.GetSeparator().Length;
             var contentLength = token.CloseIndex - contentStartIndex;
 
             return text.Substring(contentStartIndex, contentLength);

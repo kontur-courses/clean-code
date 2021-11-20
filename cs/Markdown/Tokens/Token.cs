@@ -1,46 +1,49 @@
 ﻿using System;
-using System.Collections.Generic;
 using Markdown.Parser;
 
 namespace Markdown.Tokens
 {
     public abstract class Token
     {
-        public static readonly Dictionary<Type, string> Separators = new()
-        {
-            { typeof(HeaderToken), "#" },
-            { typeof(ItalicToken), "_" },
-            { typeof(BoldToken), "__" },
-            { typeof(ScreeningToken), "\\" }
-        };
+        private bool isCorrect = true;
 
         public int OpenIndex { get; }
 
         public int CloseIndex { get; private set; }
 
         public bool IsOpened => CloseIndex == 0;
+        public abstract bool IsNonPaired { get; }
 
-        public string Separator => Separators[GetType()];
+        public virtual bool IsCorrect
+        {
+            get => isCorrect;
+            set
+            {
+                if (!isCorrect)
+                    return;
+
+                isCorrect = value;
+            }
+        }
 
         protected Token(int openIndex)
         {
-            ValidateOpenIndex(openIndex);
+            if (openIndex < 0)
+                throw new ArgumentException("The open index must be greater than zero");
 
             OpenIndex = openIndex;
         }
 
         protected Token(int openIndex, int closeIndex)
         {
-            ValidateOpenIndex(openIndex);
+            if (openIndex < 0)
+                throw new ArgumentException("The open index must be greater than zero");
+
             OpenIndex = openIndex;
             Close(closeIndex);
         }
 
-        private static void ValidateOpenIndex(int openIndex)
-        {
-            if (openIndex < 0)
-                throw new ArgumentException("The open index must be greater than zero");
-        }
+        public abstract string GetSeparator();
 
         internal abstract void Accept(MdParser parser);
 
