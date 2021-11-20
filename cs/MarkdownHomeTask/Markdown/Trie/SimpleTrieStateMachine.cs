@@ -2,44 +2,57 @@
 
 namespace Markdown
 {
+    /// <summary>
+    /// Простой кончный автомат состояния которого - поддеревья суффикснового деревева некоторых ключевых слов
+    /// </summary>
     public class SimpleTrieStateMachine
     {
-        private readonly Trie tagsTrie = new();
-        private Trie currentTrie;
+        private readonly Trie keyWordsTrie = new();
+        private Trie currentState;
         private Trie maxTerminalTrie;
 
 
         public SimpleTrieStateMachine(IEnumerable<string> tags)
         {
-            currentTrie = tagsTrie;
-            tagsTrie.Add(tags);
+            currentState = keyWordsTrie;
+            keyWordsTrie.Add(tags);
         }
 
-        public bool UpdateStates(char letter)
+        /// <summary>
+        /// Обновляем состояние автомата, смотрим, содержат ли потомки текущего дерева префекс
+        /// с очередной буквой в конце
+        /// </summary>
+        /// <param name="letter">очередная буква</param>
+        /// <returns>true если удалось спуститься ниже по дереву, false если откатились до корня</returns>
+        public bool IsUpdateStates(char letter)
         {
             while (true)
             {
-                if (currentTrie.IsTerminate)
+                if (currentState.IsTerminate)
                 {
-                    maxTerminalTrie = currentTrie;
+                    maxTerminalTrie = currentState;
                 }
 
-                var key = string.Concat(currentTrie.Value, letter);
-                if (currentTrie.Children.ContainsKey(key))
+                var key = string.Concat(currentState.Value, letter);
+                if (currentState.Children.ContainsKey(key))
                 {
-                    currentTrie = currentTrie.Children[key];
+                    currentState = currentState.Children[key];
                     return true;
                 }
 
-                if (currentTrie == tagsTrie)
+                if (currentState == keyWordsTrie)
                 {
                     return false;
                 }
 
-                currentTrie = tagsTrie;
+                currentState = keyWordsTrie;
             }
         }
 
+        /// <summary>
+        /// возвращаем максимальное слово и обнуляем прогресс
+        /// </summary>
+        /// <returns>null если не было найдено слово</returns>
         public string GetMaxFoundWord()
         {
             var result = maxTerminalTrie?.Value;
