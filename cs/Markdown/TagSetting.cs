@@ -25,14 +25,14 @@ public class TagSetting
         {
             var startIndex = text.IndexOf(descriptor.Start, position);
             if (startIndex == -1)
-                throw new ArgumentException("Invalid string format", nameof(text));
+                throw new ArgumentException($"Invalid string format: failed to find start of variable {descriptor.Name}", nameof(text));
             startIndex += descriptor.Start.Length;
 
             var endIndex = descriptor.End != string.Empty
                 ? text.IndexOf(descriptor.End, startIndex + 1)
                 : text.Length;
             if (endIndex == -1)
-                throw new ArgumentException("Invalid string format", nameof(text));
+                throw new ArgumentException($"Invalid string format: failed to find end of variable {descriptor.Name}", nameof(text));
 
             result = result.Replace($"$({descriptor.Name})", text[startIndex..endIndex]);
             position = endIndex;
@@ -63,7 +63,7 @@ public class TagSetting
 
     private static VariableDescriptor CreateVariableDescriptor(string mdPattern, int variableStart, int variableEnd, out int nextPosition)
     {
-        var vairableStartTag = mdPattern[..variableStart];
+        var variableStartTag = mdPattern[..variableStart];
         var variableName = mdPattern[(variableStart + 2)..variableEnd];
         var nextVariable = mdPattern.IndexOf("$(", variableEnd + 1);
         string variableEndTag;
@@ -78,6 +78,6 @@ public class TagSetting
             nextPosition = nextVariable;
         }
 
-        return new(variableName, vairableStartTag, variableEndTag);
+        return new(variableName, variableStartTag, variableEndTag);
     }
 }
