@@ -6,6 +6,12 @@ namespace Markdown
 {
     public class TokenParser : ITokenParser
     {
-        public IEnumerable<TokenNode> Parse(IEnumerable<Token> tokens) => throw new NotImplementedException();
+        public IEnumerable<TokenNode> Parse(IEnumerable<Token> tokens)
+        {
+            if (tokens == null) throw new ArgumentNullException(nameof(tokens));
+            using var enumerator = tokens.GetEnumerator();
+            var iterator = new TokenParserIterator(enumerator);
+            return iterator.Parse();
+        }
     }
 }
