@@ -1,0 +1,31 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio Version 16
+VisualStudioVersion = 16.0.31729.503
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Markdown", "Markdown\Markdown.csproj", "{AE31EC68-E7A2-48CF-918E-2BD627DE02A8}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MarkdownTest", "MarkdownTest\MarkdownTest.csproj", "{51E681C0-1C93-4CC3-9C10-4C80738861BF}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{AE31EC68-E7A2-48CF-918E-2BD627DE02A8}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{AE31EC68-E7A2-48CF-918E-2BD627DE02A8}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{AE31EC68-E7A2-48CF-918E-2BD627DE02A8}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{AE31EC68-E7A2-48CF-918E-2BD627DE02A8}.Release|Any CPU.Build.0 = Release|Any CPU
+		{51E681C0-1C93-4CC3-9C10-4C80738861BF}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{51E681C0-1C93-4CC3-9C10-4C80738861BF}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{51E681C0-1C93-4CC3-9C10-4C80738861BF}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{51E681C0-1C93-4CC3-9C10-4C80738861BF}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {3F01F98E-348E-48F4-A662-D87AA55696C6}
+	EndGlobalSection
+EndGlobal
