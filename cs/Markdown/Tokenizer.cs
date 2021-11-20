@@ -2,11 +2,11 @@
 
 internal class Tokenizer
 {
-    public WrapperSettingsProvider Settings { get; private set; }
+    private readonly WrapperSettingsProvider settings;
 
     public Tokenizer(WrapperSettingsProvider settings)
     {
-        Settings = settings;
+        this.settings = settings;
     }
 
     public IEnumerable<Token> ParseLines(string text)
@@ -28,12 +28,12 @@ internal class Tokenizer
         if (mdTag == null)
             return new(token, start, null);
 
-        return Settings.TryGetSetting(mdTag!, out var setting) ? (new(token, start, setting)) : (new(token, start, null));
+        return settings.TryGetSetting(mdTag!, out var setting) ? (new(token, start, setting)) : (new(token, start, null));
     }
 
     internal TagSetting? GetSetting(string? mdTag)
     {
-        if (mdTag != null && Settings.TryGetSetting(mdTag!, out var setting))
+        if (mdTag != null && settings.TryGetSetting(mdTag!, out var setting))
             return setting;
         return null;
     }
@@ -114,7 +114,7 @@ internal class Tokenizer
 
     private string[] GetTokenSeparators()
     {
-        return Settings
+        return settings
             .Select(x => x.Key)
             .Where(x => !string.IsNullOrWhiteSpace(x))
             .OrderByDescending(x => x.Length)
