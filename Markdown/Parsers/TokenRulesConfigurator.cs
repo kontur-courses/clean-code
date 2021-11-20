@@ -4,22 +4,26 @@ namespace Markdown
 {
     public class TokenRulesConfigurator
     {
-        public TokenRulesConfiguratorEnd CantBeNestedIn(Token token)
+        private TokenRulesConfigurator()
+        {
+        }
+        
+        public TokenRulesConfiguratorEnd CantBeNestedIn(Tag tag)
         {
             throw new NotImplementedException();
         }
         
-        public TokenRulesConfiguratorEnd CanIntersectWith(Token token)
+        public TokenRulesConfiguratorEnd CanIntersectWith(Tag tag)
         {
             throw new NotImplementedException();
         }
         
-        public TokenRulesConfiguratorEnd CantIntersectWith(Token token)
+        public TokenRulesConfiguratorEnd CantIntersectWith(Tag tag)
         {
             throw new NotImplementedException();
         }
         
-        public TokenRulesConfiguratorEnd CanBeNestedIn(Token token)
+        public TokenRulesConfiguratorEnd CanBeNestedIn(Tag tag)
         {
             throw new NotImplementedException();
         }

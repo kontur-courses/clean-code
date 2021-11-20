@@ -1,17 +1,25 @@
 ﻿using System;
+using System.Collections.Generic;
 
 namespace Markdown
 {
     public class TokenParserConfigurator
     {
+        protected List<Token> Tokens = new();
+
+        protected TokenParserConfigurator()
+        {
+        }
+
         public static TokenParserConfigurator CreateTokenParser()
         {
-            throw new NotImplementedException();
+            return new TokenParserConfigurator();
         }
 
         public PreferTokenRulesConfigurator AddToken(Token token)
         {
-            throw new NotImplementedException();
+            Tokens.Add(token);
+            return new PreferTokenRulesConfigurator(Tokens);
         }
 
         public TokenParserConfigurator SetShieldingSymbol(char symbol)
@@ -21,7 +29,9 @@ namespace Markdown
         
         public ITokenParser Configure()
         {
-            throw new NotImplementedException();
+            var parser = new TokenParser();
+            parser.SetTokens(Tokens);
+            return parser;
         }
     }
 }

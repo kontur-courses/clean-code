@@ -17,7 +17,9 @@ namespace Markdown
             this Dictionary<TKey, TValue> source, 
             Func<KeyValuePair<TKey, TValue>, TGroup> groupFunc)
         {
-            throw new NotImplementedException();
+            return source
+                .GroupBy(groupFunc)
+                .Select(x => x.ToDictionary(t => t.Key, t => t.Value));
         }
     }
 }

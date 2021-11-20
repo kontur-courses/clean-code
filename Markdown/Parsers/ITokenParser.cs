@@ -5,7 +5,7 @@ namespace Markdown
 {
     public interface ITokenParser
     {
-        void ParseParagraph(string paragraph);
+        // void ParseParagraph(string paragraph);
 
         // Метод для валидации двух множеств отрезков токенов на пересечение и вложенность
         // возможно, стоит убрать в другое место
@@ -15,6 +15,6 @@ namespace Markdown
 
         IEnumerable<ITokenSegment> GetTokensSegments(Dictionary<int, TokenInfo> tokens);
 
-        Dictionary<int, TokenInfo> FindAllTokens();
+        Dictionary<int, TokenInfo> FindAllTokens(string paragraph);
     }
 }

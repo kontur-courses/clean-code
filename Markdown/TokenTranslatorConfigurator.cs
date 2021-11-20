@@ -4,7 +4,9 @@ namespace Markdown
 {
     public class TokenTranslatorToConfigurator
     {
-        public TokenTranslatorConfigurator To(Token token)
+        private TokenTranslatorToConfigurator(){}
+        
+        public TokenTranslatorConfigurator To(Tag tag)
         {
             throw new NotImplementedException();
         }
@@ -12,7 +14,9 @@ namespace Markdown
     
     public class TokenTranslatorFromConfigurator
     {
-        public TokenTranslatorToConfigurator From(Token token)
+        private TokenTranslatorFromConfigurator(){}
+        
+        public TokenTranslatorToConfigurator From(Tag tag)
         {
             throw new NotImplementedException();
         }
@@ -20,6 +24,8 @@ namespace Markdown
     
     public class TokenTranslatorConfigurator
     {
+        protected TokenTranslatorConfigurator(){}
+        
         public static TokenTranslatorConfigurator CreateTokenTranslator()
         {
             throw new NotImplementedException();

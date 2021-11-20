@@ -4,6 +4,6 @@ namespace Markdown
 {
     public interface ITokenTranslator
     {
-        Token Translate(Token token);
+        Tag Translate(Tag tag);
     }
 }

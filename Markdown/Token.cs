@@ -1,36 +1,25 @@
-﻿using System;
-
 namespace Markdown
 {
     public class Token
     {
-        private string value;
-        
-        public bool Pair => throw new NotImplementedException();
-        public bool Symmetric => throw new NotImplementedException();
-        public int Lenght => throw new NotImplementedException();
-        
-        private Token(){}
+        private readonly string value;
+        public int Length => value.Length;
 
-        // Все геттеры не создают новые токены, а берут их из базы токенов, которая создается перед парсингом
-        public static Token GetSingleToken(string token)
+        public Token(string value)
         {
-            throw new NotImplementedException();
+            this.value = value;
         }
-        
-        public static Token GetSymmetricToken(string token)
-        {
-            throw new NotImplementedException();
-        }
-        
-        public static Token GetPairToken(string token, Token endToken = null)
-        {
-            throw new NotImplementedException();
-        }
-        
-        public override string ToString()
-        {
-            return value;
-        }
+
+        public override bool Equals(object obj) 
+            => obj is Token token && Equals(token);
+
+        private bool Equals(Token other) 
+            => value == other.value;
+
+        public override int GetHashCode() 
+            => value != null ? value.GetHashCode() : 0;
+
+        public override string ToString() 
+            => value;
     }
 }
