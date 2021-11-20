@@ -20,7 +20,7 @@ namespace Markdown
         }
 
         //нужно убрать в другое место
-        public (IEnumerable<TokenSegment>, IEnumerable<TokenSegment>) ValidatePairSets((IEnumerable<TokenSegment>, IEnumerable<TokenSegment>) pair)
+        public (IEnumerable<TokenSegment>, IEnumerable<TokenSegment>) ValidatePairSetsByRules((IEnumerable<TokenSegment>, IEnumerable<TokenSegment>) pair)
         {
             // Реализация без учета правил пересечения и вложенности
 

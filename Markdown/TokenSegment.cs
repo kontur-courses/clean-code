@@ -1,8 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using FluentAssertions;
-using NUnit.Framework;
+using Markdown.Extensions;
 
 namespace Markdown
 {
@@ -41,9 +40,9 @@ namespace Markdown
             }
         }
         
-        public Token GetBaseToken()
+        public Tag GetBaseTag()
         {
-            return openToken;
+            return Tag.GetTagByChars(openToken.ToString());
         }
 
         public bool Contain(TokenSegment other)
@@ -70,17 +69,6 @@ namespace Markdown
 
             return firstMin.Between(secondMin, secondMax) && !firstMax.Between(secondMin, secondMax)
                    || !firstMin.Between(secondMin, secondMax) && firstMax.Between(secondMin, secondMax);
-        }
-    }
-
-    public static class IntExt
-    {
-        public static bool Between(this int source, int left, int right)
-        {
-            var min = Math.Min(left, right);
-            var max = Math.Max(left, right);
-
-            return min <= source && source <= max;
         }
     }
 }

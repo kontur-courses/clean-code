@@ -1,7 +1,6 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
+﻿using System.Linq;
 using System.Text;
+using Markdown.Extensions;
 
 namespace Markdown
 {
@@ -56,7 +55,7 @@ namespace Markdown
                     .Validate()
                     .GroupToDictionaries(x => x.Value.Token.ToString())
                     .Select(TokenSegment.GetTokensSegments)
-                    .ForEachPairs(parser.ValidatePairSets)
+                    .ForEachPairs(parser.ValidatePairSetsByRules)
                     .Aggregate((f, s) => f.Union(s));
 
                 parsedText.Append(parser.ReplaceTokens(tokenSegments, translator));

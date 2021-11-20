@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 
-namespace Markdown
+namespace Markdown.Extensions
 {
     public static class EnumerableExtension
     {
@@ -12,15 +12,15 @@ namespace Markdown
         where TSource : class
         {
             // ReSharper disable once PossibleMultipleEnumeration
-            // because in this method TSource should change by input action
-            foreach (var pair in source.Pairs())
+            // because in this method TSource should be changed by input action
+            foreach (var pair in source.AllPairs())
                 action(pair);
             
             // ReSharper disable once PossibleMultipleEnumeration
             return source;
         }
 
-        private static IEnumerable<(TSource, TSource)> Pairs<TSource>(this IEnumerable<TSource> source)
+        private static IEnumerable<(TSource, TSource)> AllPairs<TSource>(this IEnumerable<TSource> source)
         {
             var fixedSource = source.ToList();
 
