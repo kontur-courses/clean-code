@@ -3,7 +3,7 @@
 namespace Markdown
 {
     /// <summary>
-    /// Простой кончный автомат состояния которого - поддеревья суффикснового деревева некоторых ключевых слов
+    /// Простой кончный автомат состояния которого - поддеревья суффикснового дерева некоторых ключевых слов
     /// </summary>
     public class SimpleTrieStateMachine
     {
@@ -11,11 +11,11 @@ namespace Markdown
         private Trie currentState;
         private Trie maxTerminalTrie;
 
-
-        public SimpleTrieStateMachine(IEnumerable<string> tags)
+            /// <param name="keyWords">набор ключевых слов, которые будем искать этим автоматом</param>
+        public SimpleTrieStateMachine(IEnumerable<string> keyWords)
         {
             currentState = keyWordsTrie;
-            keyWordsTrie.Add(tags);
+            keyWordsTrie.Add(keyWords);
         }
 
         /// <summary>
