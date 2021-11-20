@@ -29,17 +29,13 @@ internal class Tokenizer
 
     public Token WrapToken(string token, int start, string? mdTag)
     {
-        if (mdTag == null)
-            return new(token, start, null);
-
-        return settings.TryGetSetting(mdTag!, out var setting) ? (new(token, start, setting)) : (new(token, start, null));
+        return TryGetSetting(mdTag, out var setting) ? new(token, start, setting) : new(token, start, null);
     }
 
-    internal TagSetting? GetSetting(string? mdTag)
+    internal bool TryGetSetting(string? mdTag, out TagSetting setting)
     {
-        if (mdTag != null && settings.TryGetSetting(mdTag!, out var setting))
-            return setting;
-        return null;
+        setting = null!;
+        return mdTag != null && settings.TryGetSetting(mdTag!, out setting);
     }
 
     private TokenBuilder ParseLine(StringBuilder line, string[] separators, TokenBuilder? root)
@@ -47,11 +43,12 @@ internal class Tokenizer
         return ParseToken(line, 0, null, separators, root);
     }
 
-    private TokenBuilder ParseToken(StringBuilder line, int start, string? openingSeparator, string[] separators, TokenBuilder? root)
+    private TokenBuilder ParseToken(StringBuilder line, int start, TagSetting? openingTag, string[] separators, TokenBuilder? root)
     {
-        var openingSeparatorLength = openingSeparator?.Length ?? 0;
-        var token = new TokenBuilder(this, line, start - openingSeparatorLength, root)
-            .WithMdTag(openingSeparator);
+        var openingSeparatorLength = openingTag?.OpeningTag?.Length ?? 0;
+        var token = new TokenBuilder(this, line, start, root)
+            .WithMdTag(openingTag?.OpeningTag);
+        start += openingSeparatorLength;
         var lastKnownTokenEnd = start;
 
         void TryAddPlainWord(int wordEnd)
@@ -65,15 +62,15 @@ internal class Tokenizer
 
         for (var i = start; i < line.Length; i++)
         {
-            if (TryGetCurrentSeparator(i, line.ToString(), separators, openingSeparator, out var currentSeparator))
+            if (TryGetCurrentTag(i, line.ToString(), separators, openingTag?.OpeningTag, out var currentTag))
             {
-                if (IsEscaped(line.ToString(), i))
+                if (IsEscaped(line, i))
                 {
                     line.Remove(i - 1, 1);
 
-                    if (!IsEscaped(line.ToString(), i - 1))
+                    if (!IsEscaped(line, i - 1))
                     {
-                        i += currentSeparator.Length;
+                        i += currentTag.OpeningTag.Length;
                         continue;
                     }
                     else
@@ -82,18 +79,18 @@ internal class Tokenizer
                     }
                 }
 
-                if (openingSeparator != currentSeparator)
+                if (!token.IsClosedBy(currentTag))
                 {
                     TryAddPlainWord(i);
 
-                    var childToken = ParseToken(line, i + currentSeparator.Length, currentSeparator, separators, token);
+                    var childToken = ParseToken(line, i, currentTag, separators, token);
                     token.AddToken(childToken);
                     i = childToken.End - 1;
                     lastKnownTokenEnd = i + 1;
                 }
                 else
                 {
-                    token.WithEnd(i + currentSeparator.Length);
+                    token.WithEnd(i + currentTag.EndTag.Length);
                     return token;
                 }
             }
@@ -112,7 +109,7 @@ internal class Tokenizer
                   .WithEnd(end);
     }
 
-    private bool TryGetCurrentSeparator(int i, string line, string[] separators, string? lastSeparator, out string currentSeparator)
+    private bool TryGetCurrentTag(int i, string line, string[] separators, string? lastSeparator, out TagSetting currentTag)
     {
         IEnumerable<string> finalSeparators = separators;
         if (lastSeparator != null)
@@ -123,17 +120,14 @@ internal class Tokenizer
                 continue;
             var separatorEnd = i + separator.Length;
             if (line[i..separatorEnd] == separator)
-            {
-                currentSeparator = separator;
-                return true;
-            }
+                return TryGetSetting(separator, out currentTag);
         }
 
-        currentSeparator = null!;
+        currentTag = null!;
         return false;
     }
 
-    private static bool IsEscaped(string source, int position)
+    private static bool IsEscaped(StringBuilder source, int position)
     {
         if (position < 1)
             return false;

@@ -38,6 +38,11 @@ internal class TokenBuilder
         tokens.Add(token);
     }
 
+    public bool IsClosedBy(TagSetting tag)
+    {
+        return TokenWrapper.TryGetSetting(MdTag, out var setting) && setting.EndTag == tag.EndTag;
+    }
+
     internal Token Build()
     {
         var actualStart = Start - (Parent?.Start ?? 0);
@@ -49,7 +54,7 @@ internal class TokenBuilder
 
     private CompoundToken BuildCompound(int actualStart)
     {
-        var setting = TokenWrapper.GetSetting(MdTag);
+        var setting = GetSetting();
         var compound = new CompoundToken(Source.ToString()[Start..End], actualStart, setting);
         foreach (var token in tokens)
         {
@@ -57,5 +62,10 @@ internal class TokenBuilder
         }
 
         return compound;
+    }
+
+    private TagSetting? GetSetting()
+    {
+        return TokenWrapper.TryGetSetting(MdTag, out var setting) ? setting : null;
     }
 }

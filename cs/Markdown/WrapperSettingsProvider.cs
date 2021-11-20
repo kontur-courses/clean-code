@@ -15,16 +15,16 @@ public class WrapperSettingsProvider : IEnumerable<TagSetting>
         {
             if (!TryAddSetting(setting))
             {
-                throw new ArgumentException($"Failed to add setting with key: {setting.MdTag}");
+                throw new ArgumentException($"Failed to add setting with key: {setting.OpeningTag}");
             }
         }
     }
 
     public bool TryAddSetting(TagSetting setting)
     {
-        if (setting?.MdTag == null)
+        if (setting?.OpeningTag == null)
             throw new ArgumentNullException(nameof(setting));
-        return settings.TryAdd(setting.MdTag, setting);
+        return settings.TryAdd(setting.OpeningTag, setting);
     }
 
     public bool TryGetSetting(string mdTag, out TagSetting setting)
@@ -41,7 +41,7 @@ public class WrapperSettingsProvider : IEnumerable<TagSetting>
     {
         return settings.Values
             .Where(x => x.IsLineOnly == isLineOnly)
-            .Select(x => x.MdTag)
+            .Select(x => x.OpeningTag)
             .OrderByDescending(x => x.Length)
             .ToArray();
     }

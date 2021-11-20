@@ -4,7 +4,8 @@ public class TagSetting
 {
     private record struct VariableDescriptor(string Name, string Start, string End);
 
-    public string MdTag { get; private set; }
+    public string OpeningTag { get; private set; }
+    public string EndTag { get; private set; }
     public bool IsLineOnly { get; private set; }
 
     private readonly string htmlPattern;
@@ -13,10 +14,11 @@ public class TagSetting
 
     public TagSetting(string mdTag, string mdPattern, string htmlPattern, bool isLineOnly = false)
     {
-        MdTag = mdTag;
+        OpeningTag = mdTag;
         this.htmlPattern = htmlPattern;
         IsLineOnly = isLineOnly;
         ParseVariables(mdPattern);
+        EndTag = variables.Count > 0 ? variables[^1].End : mdTag;
     }
 
     public string Render(string text)
