@@ -5,8 +5,8 @@ namespace Markdown.Tokens
 {
     public class HeaderTokenPattern : ITokenPattern
     {
-        public int StartTagLength { get; } = 2;
-        public int EndTagLength { get; } = 0;
+        public string StartTag => "# ";
+        public string EndTag => "";
         public bool LastCloseSucceed { get; private set; }
         public IEnumerable<TagType> ForbiddenChildren { get; } = new List<TagType>();
 

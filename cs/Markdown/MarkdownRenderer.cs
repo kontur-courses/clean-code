@@ -8,22 +8,26 @@ namespace Markdown
 {
     public class MarkdownRenderer
     {
+        private readonly List<IToken> tokensToRender = MarkdownTokensFactory.GetTokens().ToList();
+
         private readonly string text;
+        private readonly TokenEscaper escaper;
         private Dictionary<int, TokenMatch> matchStartAtPosition = new();
         private Dictionary<int, TokenMatch> matchEndAtPosition = new();
 
         public MarkdownRenderer(string text)
         {
             this.text = text;
+            escaper = new TokenEscaper(text, tokensToRender);
         }
 
         public string Render()
         {
-            var matches = new TokenReader(text, MarkdownTokensFactory.GetTokens()).FindAll();
+            var matches = new TokenReader(text, tokensToRender).FindAll();
             return RenderMatches(matches);
         }
 
-        internal string RenderMatches(IEnumerable<TokenMatch> matches)
+        private string RenderMatches(IEnumerable<TokenMatch> matches)
         {
             MarkPositions(matches);
             return ConvertText();
@@ -40,11 +44,26 @@ namespace Markdown
                 if (TryAppendEndTag(builder, ref i))
                     continue;
 
-                if (i != text.Length)
-                    builder.Append(text[i]);
+                AppendSymbol(builder, ref i);
             }
 
             return builder.ToString();
+        }
+
+        private void AppendSymbol(StringBuilder builder, ref int i)
+        {
+            if (i >= text.Length)
+                return;
+
+            if (escaper.IsEscapeSymbol(i))
+            {
+                builder.Append(text[i + 1]);
+                i++;
+            }
+            else
+            {
+                builder.Append(text[i]);
+            }
         }
 
         private bool TryAppendEndTag(StringBuilder builder, ref int i)
@@ -72,7 +91,7 @@ namespace Markdown
             var matchesList = matches.ToList();
             matchStartAtPosition = matchesList.ToDictionary(match => match.Start, match => match);
             matchEndAtPosition = matchesList.ToDictionary(
-                match => match.Start + match.Length - match.Token.Pattern.EndTagLength,
+                match => match.Start + match.Length - match.Token.Pattern.EndTag.Length,
                 match => match);
         }
     }

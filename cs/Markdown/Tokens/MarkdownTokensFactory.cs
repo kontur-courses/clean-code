@@ -10,7 +10,7 @@ namespace Markdown.Tokens
             return new Token
             {
                 Pattern = new PairedTokenPattern("_") {ForbiddenChildren = new List<TagType> {TagType.Bold}},
-                TagConverter = new HtmlTagConverter()
+                TagConverter = new HtmlTagConverter
                 {
                     HtmlOpenTag = "<em>",
                     HtmlCloseTag = "</em>",
@@ -26,7 +26,7 @@ namespace Markdown.Tokens
             return new Token
             {
                 Pattern = new PairedTokenPattern("__"),
-                TagConverter = new HtmlTagConverter()
+                TagConverter = new HtmlTagConverter
                 {
                     HtmlOpenTag = "<strong>",
                     HtmlCloseTag = "</strong>",
@@ -42,7 +42,7 @@ namespace Markdown.Tokens
             return new Token
             {
                 Pattern = new HeaderTokenPattern(),
-                TagConverter = new HtmlTagConverter()
+                TagConverter = new HtmlTagConverter
                 {
                     HtmlOpenTag = "<h1>",
                     HtmlCloseTag = "</h1>",

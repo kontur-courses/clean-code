@@ -2,9 +2,9 @@
 {
     public interface ITagConverter
     {
-        public string HtmlOpenTag { get; init; }
-        public string HtmlCloseTag { get; init; }
-        public int TrimFromStartCount { get; init; }
-        public int TrimFromEndCount { get; init; }
+        public string HtmlOpenTag { get; }
+        public string HtmlCloseTag { get; }
+        public int TrimFromStartCount { get; }
+        public int TrimFromEndCount { get; }
     }
 }

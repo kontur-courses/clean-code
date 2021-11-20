@@ -4,6 +4,6 @@
     {
         Italic,
         Bold,
-        Header,
+        Header
     }
 }

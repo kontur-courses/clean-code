@@ -5,8 +5,8 @@ namespace Markdown.Tokens
 {
     public class PairedTokenPattern : ITokenPattern
     {
-        public int StartTagLength => tag.Length;
-        public int EndTagLength => tag.Length;
+        public string StartTag => tag;
+        public string EndTag => tag;
         public bool LastCloseSucceed { get; private set; }
         public IEnumerable<TagType> ForbiddenChildren { get; init; } = new List<TagType>();
 

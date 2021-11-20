@@ -7,34 +7,36 @@ namespace Markdown
 {
     public class TokenReader
     {
-        private readonly string text;
         private readonly IEnumerable<IToken> tokens;
 
         private readonly HashSet<TokenMatch> matches = new();
         private readonly List<IToken> tokensToOpen = new();
         private readonly Stack<TokenMatch> matchesToClose = new();
         private readonly Dictionary<TokenMatch, List<TokenMatch>> matchChildren = new();
+        private readonly EscapedText escapedText;
 
-        public TokenReader(string text, IEnumerable<IToken> tokens)
+        public TokenReader(string originalText, IEnumerable<IToken> tokens)
         {
-            if (string.IsNullOrEmpty(text))
-                throw new ArgumentException($"{nameof(text)} is null or empty.", nameof(text));
+            if (string.IsNullOrEmpty(originalText))
+                throw new ArgumentException($"{nameof(originalText)} is null or empty.", nameof(originalText));
 
-            this.tokens = tokens;
-            this.text = text;
+            this.tokens = tokens.ToList();
+            // escapedText = EscapedText.RemoveEscapedTokens(originalText, this.tokens);
+            escapedText = new TokenEscaper(originalText, this.tokens).EscapeTokens();
         }
 
         public IEnumerable<TokenMatch> FindAll()
         {
-            var context = InitializeContext();
+            var context = InitializeContext(escapedText.Text);
 
-            for (var i = 0; i <= text.Length; i++)
+            for (var i = 0; i <= context.Text.Length; i++)
                 ProceedSymbol(context, i);
 
             return matches;
         }
 
-        private Context InitializeContext()
+
+        private Context InitializeContext(string text)
         {
             matches.Clear();
             tokensToOpen.Clear();
@@ -52,7 +54,6 @@ namespace Markdown
             else if (TryGetClosingMatch(context, out var closingMatch))
                 CloseMatch(context, closingMatch);
         }
-
 
         private bool TryGetStartingToken(Context context, out IToken startingToken)
         {
@@ -76,7 +77,9 @@ namespace Markdown
         private void OpenMatch(Context context, IToken startingToken)
         {
             tokensToOpen.Remove(startingToken);
-            matchesToClose.Push(new TokenMatch {Start = context.Index, Token = startingToken});
+            matchesToClose.Push(new TokenMatch
+                {Start = context.Index + escapedText.EscapedSymbolsBefore[context.Index], Token = startingToken});
+
             matchChildren[matchesToClose.Peek()] = new List<TokenMatch>();
         }
 
@@ -111,7 +114,15 @@ namespace Markdown
         private void AddMatch(Context context)
         {
             var matchToClose = matchesToClose.Pop();
-            matchToClose.Length = context.Index - matchToClose.Start + matchToClose.Token.Pattern.EndTagLength;
+            var escapedSymbolsBefore = escapedText.EscapedSymbolsBefore.Count < context.Index
+                ? escapedText.EscapedSymbolsBefore[context.Index]
+                : escapedText.EscapedSymbolsBefore[context.Index - 1];
+
+            matchToClose.Length = context.Index
+                                  - matchToClose.Start
+                                  + matchToClose.Token.Pattern.EndTag.Length
+                                  + escapedSymbolsBefore;
+
             matches.Add(matchToClose);
             tokensToOpen.Add(matchToClose.Token);
 

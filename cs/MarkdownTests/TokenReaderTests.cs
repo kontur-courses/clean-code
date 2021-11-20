@@ -144,7 +144,7 @@ namespace MarkdownTests
         {
             var matches = new[]
             {
-                new TokenMatch {Start = 0, Length = 9, Token = italic},
+                new TokenMatch {Start = 0, Length = 9, Token = italic}
             };
 
             var actual = new TokenReader("_q__w__q_", new[] {bold, italic}).FindAll();
@@ -152,15 +152,41 @@ namespace MarkdownTests
             actual.Should().BeEquivalentTo(matches);
         }
 
-        [TestCaseSource(nameof(FindAllReturnsReturnsEmptyCollectionCases))]
-        public void FindAll_ReturnsEmptyCollection(string text, IEnumerable<IToken> tokens)
+        [Test]
+        public void FindAll_ReturnMatches_ThatNotEscaped()
+        {
+            var matches = new[]
+            {
+                new TokenMatch {Start = 4, Length = 3, Token = italic}
+            };
+
+            var actual = new TokenReader(@"\_\__a_", new[] {italic}).FindAll();
+
+            actual.Should().BeEquivalentTo(matches);
+        }
+
+        [Test]
+        public void FindAll_ReturnMatches_WithEscapedEndSymbolInside()
+        {
+            var matches = new[]
+            {
+                new TokenMatch {Start = 0, Length = 6, Token = italic}
+            };
+
+            var actual = new TokenReader(@"_a\_b_", new[] {italic}).FindAll();
+
+            actual.Should().BeEquivalentTo(matches);
+        }
+
+        [TestCaseSource(nameof(FindAllIgnoreMatchesCases))]
+        public void FindAll_IgnoreMatches_IfTags(string text, IEnumerable<IToken> tokens)
         {
             new TokenReader(text, tokens)
                 .FindAll()
                 .Should().BeEmpty();
         }
 
-        public static IEnumerable<TestCaseData> FindAllReturnsReturnsEmptyCollectionCases()
+        public static IEnumerable<TestCaseData> FindAllIgnoreMatchesCases()
         {
             var italic = MarkdownTokensFactory.Italic();
             var bold = MarkdownTokensFactory.Bold();
@@ -169,6 +195,7 @@ namespace MarkdownTests
             yield return new TestCaseData("__one_ qwe", new[] {italic, bold}) {TestName = "Unpaired tags"};
             yield return new TestCaseData("o_ne tw_o", new[] {italic}) {TestName = "In different words"};
             yield return new TestCaseData("qwe_12_3", new[] {italic}) {TestName = "Tags inside digits"};
+            yield return new TestCaseData(@"\_ab\_", new[] {italic}) {TestName = "Escaped tags"};
         }
     }
 }
