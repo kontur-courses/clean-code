@@ -19,7 +19,7 @@
         
         public static Token Text(string text) => new(TokenType.Text, text);
         
-        public static Token Header1 => new(TokenType.Header1, "#");
+        public static Token Header1 => new(TokenType.Header1, "# ");
         
         public static Token NewLine => new(TokenType.NewLine, "\n");
     }
