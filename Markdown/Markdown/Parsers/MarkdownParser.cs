@@ -1,4 +1,5 @@
-﻿using System.Linq;
+﻿using System.Collections.Generic;
+using System.Linq;
 using Markdown.Factories;
 using Markdown.Markings;
 using Markdown.Tokens;
@@ -19,9 +20,7 @@ namespace Markdown.Parsers
 
         public IMarking<MarkdownToken> Parse(string markdown)
         {
-            var lines = markdown
-                .Split('\n')
-                .Select(line => line.Split(' '));
+            var lines = GetMarkdownWords(markdown);
 
             var tokensLines = lines
                 .Select(line => line
@@ -30,6 +29,13 @@ namespace Markdown.Parsers
                 .ToList();
 
             return markingFactory.NewMarking(tokensLines);
+        }
+
+        private IEnumerable<string[]> GetMarkdownWords(string markdown)
+        {
+            return markdown
+                .Split('\n')
+                .Select(line => line.Split(' '));
         }
     }
 }
