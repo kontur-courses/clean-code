@@ -56,27 +56,24 @@ public class TagSetting
                 continue;
             }
 
-            var variable = CreateVariableDescriptor(mdPattern, variableStart, variableEnd, out i);
+            var nextVariable = mdPattern.IndexOf("$(", variableEnd + 1);
+            if (nextVariable == -1)
+            {
+                nextVariable = mdPattern.Length;
+            }
+
+            var variable = CreateVariableDescriptor(mdPattern, variableStart, i, variableEnd, nextVariable);
             variables.Add(variable);
+
+            i = variableEnd + 1;
         }
     }
 
-    private static VariableDescriptor CreateVariableDescriptor(string mdPattern, int variableStart, int variableEnd, out int nextPosition)
+    private static VariableDescriptor CreateVariableDescriptor(string mdPattern, int variableStart, int variableStartPosition, int variableEnd, int variableEndPosition)
     {
-        var variableStartTag = mdPattern[..variableStart];
+        var variableStartTag = mdPattern[variableStartPosition..variableStart];
         var variableName = mdPattern[(variableStart + 2)..variableEnd];
-        var nextVariable = mdPattern.IndexOf("$(", variableEnd + 1);
-        string variableEndTag;
-        if (nextVariable == -1)
-        {
-            variableEndTag = mdPattern[(variableEnd + 1)..];
-            nextPosition = mdPattern.Length;
-        }
-        else
-        {
-            variableEndTag = mdPattern[variableEnd..(nextVariable - 1)];
-            nextPosition = nextVariable;
-        }
+        var variableEndTag = mdPattern[(variableEnd + 1)..variableEndPosition];
 
         return new(variableName, variableStartTag, variableEndTag);
     }
