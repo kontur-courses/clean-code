@@ -1,9 +1,11 @@
-﻿namespace Markdown;
+﻿using System.Text;
+
+namespace Markdown;
 
 internal class TokenBuilder
 {
     public Tokenizer TokenWrapper { get; private set; }
-    public string Source { get; private set; }
+    public StringBuilder Source { get; private set; }
     public int Start { get; private set; }
     public int End { get; private set; }
     public string? MdTag { get; private set; }
@@ -11,7 +13,7 @@ internal class TokenBuilder
 
     private readonly List<TokenBuilder> tokens = new();
 
-    public TokenBuilder(Tokenizer tokenWrapper, string source, int start, TokenBuilder? parent)
+    public TokenBuilder(Tokenizer tokenWrapper, StringBuilder source, int start, TokenBuilder? parent)
     {
         TokenWrapper = tokenWrapper;
         Source = source;
@@ -40,7 +42,7 @@ internal class TokenBuilder
     {
         var actualStart = Start - (Parent?.Start ?? 0);
         if (tokens.Count == 0)
-            return TokenWrapper.WrapToken(Source[Start..End], actualStart, MdTag);
+            return TokenWrapper.WrapToken(Source.ToString()[Start..End], actualStart, MdTag);
 
         return BuildCompound(actualStart);
     }
@@ -48,7 +50,7 @@ internal class TokenBuilder
     private CompoundToken BuildCompound(int actualStart)
     {
         var setting = TokenWrapper.GetSetting(MdTag);
-        var compound = new CompoundToken(Source[Start..End], actualStart, setting);
+        var compound = new CompoundToken(Source.ToString()[Start..End], actualStart, setting);
         foreach (var token in tokens)
         {
             compound.AddToken(token.Build());

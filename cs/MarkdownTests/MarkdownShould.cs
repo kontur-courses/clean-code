@@ -111,7 +111,11 @@ public class MarkdownShould
     public void WrapSeveralLinesInP_WithNestedTags()
     {
         var text = "_cursive_ __bold _cursive in bold___\nsecond line _second line in cursive_ ___bold second with cursive_ still bold__";
-        var md = new Md(text);
+        var settings = new WrapperSettingsProvider(
+            new("", "$(text)", "<p>$(text)</p>", true),
+            new("_", "_$(text)_", "<em>$(text)</em>"),
+            new("__", "__$(text)__", "<strong>$(text)</strong>"));
+        var md = new Md(text, settings);
 
         var expectedResult = "<p><em>cursive</em> <strong>bold <em>cursive in bold</em></strong></p><p>second line <em>second line in cursive</em> <strong><em>bold second with cursive</em> still bold</strong></p>";
         var actualResult = md.Render();
@@ -131,16 +135,48 @@ public class MarkdownShould
         var actualResult = md.Render();
 
         actualResult.Should().BeEquivalentTo(expectedResult);
+    }
 
+    [TestCase(@"\_abc\_", "_abc_")]
+    [TestCase(@"\__abc\__", "__abc__")]
+    [TestCase(@"\\__abc__", @"\<strong>abc</strong>")]
+    [TestCase(@"__\\_abc_ a__", @"<strong>\<em>abc</em> a</strong>")]
+    [TestCase(@"__a \\_abc___", @"<strong>a \<em>abc</em></strong>")]
+    public void NotWrap_WhenTagEscaped(string input, string expectedResult)
+    {
+        var md = new Md(input);
+
+        var actualResult = md.Render();
+
+        actualResult.Should().BeEquivalentTo(expectedResult);
+    }
+
+    [TestCase("_cursive em_", "<em>cursive em</em>", TestName = "Cursive specification", Category = "Specification")]
+    [TestCase("__bold strong__", "<strong>bold strong</strong>", TestName = "Bold specification", Category = "Specification")]
+    [TestCase("#header h1", "<h1>header h1</h1>", TestName = "Header specification", Category = "Specification")]
+    [TestCase(@"\_not cursive em\_", @"_not cursive em_", TestName = "Escape specification", Category = "Specification")]
+    [TestCase(@"\\_cursive em_", @"\<em>cursive em</em>", TestName = "Escape escape char specification", Category = "Specification")]
+    public void WrapAccordingToSpecification(string input, string expectedResult)
+    {
+
+        var settings = new WrapperSettingsProvider(
+            new("#", "#$(text)", "<h1>$(text)</h1>", true),
+            new("_", "_$(text)_", "<em>$(text)</em>"),
+            new("__", "__$(text)__", "<strong>$(text)</strong>"));
+        var md = new Md(input, settings);
+
+        var actualResult = md.Render();
+
+        actualResult.Should().BeEquivalentTo(expectedResult);
     }
 
     [TestCase(100, 100)]
     [TestCase(1000, 100)]
     [TestCase(100, 1000)]
-    [Timeout(2000)]
+    [Timeout(3000)]
     public void WorkLinearlyToItsInput(int actionCount, int textScale)
     {
-        var text = "__abc _def_ hkl__ mn";
+        var text = "#__abc _def_\nhkl__ mn";
         WarmUp(text);
         Action action = () => RunMd(text);
         var scaledText = string.Join('\n', Enumerable.Repeat(text, textScale));

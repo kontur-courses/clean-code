@@ -1,4 +1,6 @@
-﻿namespace Markdown;
+﻿using System.Text;
+
+namespace Markdown;
 
 internal class Tokenizer
 {
@@ -15,11 +17,12 @@ internal class Tokenizer
         var tokenSeparators = settings.GetTokenSeparators();
         foreach (var line in text.Split('\n'))
         {
-            var lineTag = lineTags.FirstOrDefault(x=>line.StartsWith(x));
-            var root = new TokenBuilder(this, line, 0, null)
-            .WithEnd(line.Length)
+            var lineTag = lineTags.FirstOrDefault(x => line.StartsWith(x));
+            var builder = new StringBuilder(line);
+            var root = new TokenBuilder(this, builder, 0, null)
             .WithMdTag(lineTag);
-            root.AddToken(ParseLine(line, tokenSeparators, root));
+            root.AddToken(ParseLine(builder, tokenSeparators, root));
+            root.WithEnd(builder.Length);
             yield return root.Build();
         }
     }
@@ -39,28 +42,49 @@ internal class Tokenizer
         return null;
     }
 
-    private TokenBuilder ParseLine(string line, string[] separators, TokenBuilder? root)
+    private TokenBuilder ParseLine(StringBuilder line, string[] separators, TokenBuilder? root)
     {
         return ParseToken(line, 0, null, separators, root);
     }
 
-    private TokenBuilder ParseToken(string line, int start, string? openingSeparator, string[] separators, TokenBuilder? root)
+    private TokenBuilder ParseToken(StringBuilder line, int start, string? openingSeparator, string[] separators, TokenBuilder? root)
     {
         var openingSeparatorLength = openingSeparator?.Length ?? 0;
         var token = new TokenBuilder(this, line, start - openingSeparatorLength, root)
             .WithMdTag(openingSeparator);
         var lastKnownTokenEnd = start;
+
+        void TryAddPlainWord(int wordEnd)
+        {
+            if (lastKnownTokenEnd != wordEnd)
+            {
+                var plainToken = CreateTokenBuilder(line, lastKnownTokenEnd, wordEnd, null, token);
+                token!.AddToken(plainToken);
+            }
+        }
+
         for (var i = start; i < line.Length; i++)
         {
-            if (TryGetCurrentSeparator(i, line, separators, openingSeparator, out var currentSeparator))
+            if (TryGetCurrentSeparator(i, line.ToString(), separators, openingSeparator, out var currentSeparator))
             {
+                if (IsEscaped(line.ToString(), i))
+                {
+                    line.Remove(i - 1, 1);
+
+                    if (!IsEscaped(line.ToString(), i - 1))
+                    {
+                        i += currentSeparator.Length;
+                        continue;
+                    }
+                    else
+                    {
+                        i -= 1;
+                    }
+                }
+
                 if (openingSeparator != currentSeparator)
                 {
-                    if (lastKnownTokenEnd != i)
-                    {
-                        var plainToken = CreateTokenBuilder(line, lastKnownTokenEnd, i, null, token);
-                        token.AddToken(plainToken);
-                    }
+                    TryAddPlainWord(i);
 
                     var childToken = ParseToken(line, i + currentSeparator.Length, currentSeparator, separators, token);
                     token.AddToken(childToken);
@@ -75,17 +99,13 @@ internal class Tokenizer
             }
         }
 
-        if (lastKnownTokenEnd != line.Length)
-        {
-            var plainToken = CreateTokenBuilder(line, lastKnownTokenEnd, line.Length, null, token);
-            token.AddToken(plainToken);
-        }
+        TryAddPlainWord(line.Length);
 
         token.WithEnd(line.Length);
         return token;
     }
 
-    private TokenBuilder CreateTokenBuilder(string source, int start, int end, string? mdTag, TokenBuilder? root)
+    private TokenBuilder CreateTokenBuilder(StringBuilder source, int start, int end, string? mdTag, TokenBuilder? root)
     {
         return new TokenBuilder(this, source, start, root)
                   .WithMdTag(mdTag)
@@ -111,5 +131,13 @@ internal class Tokenizer
 
         currentSeparator = null!;
         return false;
+    }
+
+    private static bool IsEscaped(string source, int position)
+    {
+        if (position < 1)
+            return false;
+
+        return source[position - 1] == '\\';
     }
 }
