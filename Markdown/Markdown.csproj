@@ -15,14 +15,17 @@
         <Link>AhoCorasic\Trie.cs</Link>
       </Compile>
       <Compile Remove="AhoCorasick\**" />
+      <Compile Remove="MarkdownTests\**" />
     </ItemGroup>
 
     <ItemGroup>
       <EmbeddedResource Remove="AhoCorasick\**" />
+      <EmbeddedResource Remove="MarkdownTests\**" />
     </ItemGroup>
 
     <ItemGroup>
       <None Remove="AhoCorasick\**" />
+      <None Remove="MarkdownTests\**" />
     </ItemGroup>
 
     <ItemGroup>
