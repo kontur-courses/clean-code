@@ -1,5 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics;
+using System.Linq;
 using FluentAssertions;
 using Markdown;
 using NUnit.Framework;
@@ -15,6 +17,38 @@ namespace MarkdownTests
         {
             Assert.Throws<ArgumentException>(() =>
                 new MarkdownRenderer(null));
+        }
+
+        [Test]
+        public void Render_ScalesLinearly()
+        {
+            const int scale = 300;
+            const string text = @"# \___bold _it\al\ic_ bold__";
+            void act() => new MarkdownRenderer(text).Render();
+            var scaledText = string.Join("", Enumerable.Repeat(text, scale));
+            void scaledAct() => new MarkdownRenderer(scaledText).Render();
+
+            var average = GetAverageExecutionTime(act);
+            var averageScaled = GetAverageExecutionTime(scaledAct);
+
+            var expected = average * scale * 5;
+            TestContext.WriteLine(
+                $"Average: {average}\nScale: {scale}\nExpected: {expected}\nActual: {averageScaled}");
+
+            averageScaled.Should().BeLessThan(expected);
+        }
+
+        private static float GetAverageExecutionTime(Action act)
+        {
+            const int iterations = 100;
+            var timer = new Stopwatch();
+
+            GC.Collect();
+            timer.Start();
+            Enumerable.Range(1, iterations).ToList().ForEach(_ => act());
+            timer.Stop();
+
+            return (float)timer.ElapsedMilliseconds / iterations;
         }
 
         [Test]
