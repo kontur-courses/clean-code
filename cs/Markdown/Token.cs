@@ -10,7 +10,7 @@ internal class Token
     {
         Value = token;
         SourceStart = sourceStart;
-        this.Setting = setting;
+        Setting = setting;
     }
 
     public virtual string Render()

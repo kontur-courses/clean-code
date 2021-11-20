@@ -11,7 +11,7 @@ public class TagSetting
 
     private readonly List<VariableDescriptor> variables = new();
 
-    public TagSetting(string mdTag, string mdPattern, string htmlPattern, bool isLineOnly=false)
+    public TagSetting(string mdTag, string mdPattern, string htmlPattern, bool isLineOnly = false)
     {
         MdTag = mdTag;
         this.htmlPattern = htmlPattern;
@@ -27,14 +27,14 @@ public class TagSetting
         {
             var startIndex = text.IndexOf(descriptor.Start, position);
             if (startIndex == -1)
-                throw new ArgumentException($"Invalid string format: failed to find start of variable {descriptor.Name}", nameof(text));
+                throw new ArgumentException($"Invalid string format: failed to find start of variable $({descriptor.Name})", nameof(text));
             startIndex += descriptor.Start.Length;
 
             var endIndex = descriptor.End != string.Empty
                 ? text.IndexOf(descriptor.End, startIndex + 1)
                 : text.Length;
             if (endIndex == -1)
-                throw new ArgumentException($"Invalid string format: failed to find end of variable {descriptor.Name}", nameof(text));
+                return text;
 
             result = result.Replace($"$({descriptor.Name})", text[startIndex..endIndex]);
             position = endIndex;

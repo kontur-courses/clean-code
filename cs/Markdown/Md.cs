@@ -16,7 +16,7 @@ public class Md
     {
         this.text = text;
         var settings = new WrapperSettingsProvider();
-        settings.TryAddSetting(new("", "$(text)", "<p>$(text)</p>", true));
+        settings.TryAddSetting(new("#", "#$(text)", "<h1>$(text)</h1>", true));
         settings.TryAddSetting(new("_", "_$(text)_", "<em>$(text)</em>"));
         settings.TryAddSetting(new("__", "__$(text)__", "<strong>$(text)</strong>"));
 
