@@ -46,6 +46,13 @@ namespace MarkdownTests
         }
 
         [Test]
+        public void Constructor_ThrowsException_TokensNull()
+        {
+            Assert.Throws<ArgumentException>(() =>
+                new TokenReader("qwe", null));
+        }
+
+        [Test]
         public void FindAll_ThrowsException_WhenTokenStartIntersect()
         {
             var reader = new TokenReader("_a_", new[] {italic, italic});
@@ -176,6 +183,15 @@ namespace MarkdownTests
             var actual = new TokenReader(@"_a\_b_", new[] {italic}).FindAll();
 
             actual.Should().BeEquivalentTo(matches);
+        }
+
+        [Test]
+        public void FindAll_ReturnSameMatches_EveryTime()
+        {
+            var reader = new TokenReader("# _a_ __bc__", MarkdownTokensFactory.GetTokens());
+            var firstMatches = reader.FindAll();
+            var secondMatches = reader.FindAll();
+            secondMatches.Should().BeEquivalentTo(firstMatches);
         }
 
         [TestCaseSource(nameof(FindAllIgnoreMatchesCases))]

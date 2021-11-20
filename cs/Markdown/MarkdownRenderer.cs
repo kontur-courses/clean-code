@@ -12,6 +12,8 @@ namespace Markdown
 
         private readonly string text;
         private readonly TokenEscaper escaper;
+        private readonly StringBuilder builder = new();
+        private int position;
         private Dictionary<int, TokenMatch> matchStartAtPosition = new();
         private Dictionary<int, TokenMatch> matchEndAtPosition = new();
 
@@ -24,66 +26,8 @@ namespace Markdown
         public string Render()
         {
             var matches = new TokenReader(text, tokensToRender).FindAll();
-            return RenderMatches(matches);
-        }
-
-        private string RenderMatches(IEnumerable<TokenMatch> matches)
-        {
             MarkPositions(matches);
             return ConvertText();
-        }
-
-        private string ConvertText()
-        {
-            var builder = new StringBuilder();
-            for (var i = 0; i <= text.Length; i++)
-            {
-                if (TryAppendStartTag(builder, ref i))
-                    continue;
-
-                if (TryAppendEndTag(builder, ref i))
-                    continue;
-
-                AppendSymbol(builder, ref i);
-            }
-
-            return builder.ToString();
-        }
-
-        private void AppendSymbol(StringBuilder builder, ref int i)
-        {
-            if (i >= text.Length)
-                return;
-
-            if (escaper.IsEscapeSymbol(i))
-            {
-                builder.Append(text[i + 1]);
-                i++;
-            }
-            else
-            {
-                builder.Append(text[i]);
-            }
-        }
-
-        private bool TryAppendEndTag(StringBuilder builder, ref int i)
-        {
-            if (!matchEndAtPosition.TryGetValue(i, out var matchAtEnd))
-                return false;
-
-            builder.Append(matchAtEnd.Token.TagConverter.HtmlCloseTag);
-            i += matchAtEnd.Token.TagConverter.TrimFromEndCount - 1;
-            return true;
-        }
-
-        private bool TryAppendStartTag(StringBuilder builder, ref int i)
-        {
-            if (!matchStartAtPosition.TryGetValue(i, out var matchAtStart))
-                return false;
-
-            builder.Append(matchAtStart.Token.TagConverter.HtmlOpenTag);
-            i += matchAtStart.Token.TagConverter.TrimFromStartCount - 1;
-            return true;
         }
 
         private void MarkPositions(IEnumerable<TokenMatch> matches)
@@ -93,6 +37,58 @@ namespace Markdown
             matchEndAtPosition = matchesList.ToDictionary(
                 match => match.Start + match.Length - match.Token.Pattern.EndTag.Length,
                 match => match);
+        }
+
+        private string ConvertText()
+        {
+            for (; position <= text.Length; position++)
+            {
+                if (TryAppendStartTag())
+                    continue;
+
+                if (TryAppendEndTag())
+                    continue;
+
+                AppendSymbol();
+            }
+
+            return builder.ToString();
+        }
+
+        private void AppendSymbol()
+        {
+            if (position >= text.Length)
+                return;
+
+            if (escaper.IsEscapeSymbol(position))
+            {
+                builder.Append(text[position + 1]);
+                position++;
+            }
+            else
+            {
+                builder.Append(text[position]);
+            }
+        }
+
+        private bool TryAppendEndTag()
+        {
+            if (!matchEndAtPosition.TryGetValue(position, out var matchAtEnd))
+                return false;
+
+            builder.Append(matchAtEnd.Token.TagConverter.HtmlCloseTag);
+            position += matchAtEnd.Token.TagConverter.TrimFromEndCount - 1;
+            return true;
+        }
+
+        private bool TryAppendStartTag()
+        {
+            if (!matchStartAtPosition.TryGetValue(position, out var matchAtStart))
+                return false;
+
+            builder.Append(matchAtStart.Token.TagConverter.HtmlOpenTag);
+            position += matchAtStart.Token.TagConverter.TrimFromStartCount - 1;
+            return true;
         }
     }
 }

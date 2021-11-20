@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 
@@ -15,7 +16,10 @@ namespace Markdown.Models
 
         public TokenEscaper(string text, IEnumerable<IToken> tokens)
         {
-            this.text = text;
+            if (tokens == null)
+                throw new ArgumentException($"{nameof(tokens)} can't be null.", nameof(tokens));
+
+            this.text = text ?? throw new ArgumentException($"{nameof(text)} can't be null.", nameof(text));
             symbolsToEscape = tokens
                 .Select(token => token.Pattern.StartTag.FirstOrDefault())
                 .Concat(new[] {'\\'})

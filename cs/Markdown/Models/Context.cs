@@ -1,4 +1,6 @@
-﻿namespace Markdown.Models
+﻿using System;
+
+namespace Markdown.Models
 {
     public class Context
     {
@@ -7,7 +9,7 @@
 
         public Context(string text, int index = 0)
         {
-            Text = text;
+            Text = text ?? throw new ArgumentException($"{nameof(text)} can't be null", nameof(text));
             Index = index;
         }
     }

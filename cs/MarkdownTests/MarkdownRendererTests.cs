@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using FluentAssertions;
 using Markdown;
 using NUnit.Framework;
@@ -10,10 +11,17 @@ namespace MarkdownTests
         private static List<string> whiteSpaces = new() {" ", "\t", "\n"};
 
         [Test]
+        public void Constructor_ThrowsException_TextNull()
+        {
+            Assert.Throws<ArgumentException>(() =>
+                new MarkdownRenderer(null));
+        }
+
+        [Test]
         public void Render_EmptyStringInsideTags() =>
-            new MarkdownRenderer("_____")
+            new MarkdownRenderer("____")
                 .Render()
-                .Should().Be("_____");
+                .Should().Be("____");
 
         [Test]
         public void Render_IgnoreUnderlines_InsideTag() =>
