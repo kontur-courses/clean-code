@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 using FluentAssertions;
 using Markdown;
@@ -13,6 +14,14 @@ namespace MarkdownTest
         public void Setup()
         {
             sut = new TokenCreator();
+        }
+
+        [Test]
+        public void Create_ShouldThrowArgumentException_OnNull()
+        {
+            FluentActions.Invoking(
+                () => sut.Create(null))
+                .Should().Throw<ArgumentException>();
         }
 
         [TestCaseSource(nameof(TokenCreatorTestCaseData))]

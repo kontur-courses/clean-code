@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using Markdown.Interfaces;
@@ -16,7 +17,7 @@ namespace Markdown
 
         public IEnumerable<Token> Create(string text)
         {
-            this.text = text;
+            this.text = text ?? throw new ArgumentException(nameof(text));
             var tokens = new List<Token>();
             while (index < text.Length)
             {
@@ -36,7 +37,7 @@ namespace Markdown
             return current switch
             {
                 '_' => ParseUnderScore(),
-                '#' when isNewLine => new(TokenType.Header1, "#"),
+                '#' when isNewLine => new Token(TokenType.Header1, "#"),
                 '\n' => new Token(TokenType.NewLine, "\n"),
                 '\\' => new Token(TokenType.Escape, "\\"),
                 _ => ParseText()
