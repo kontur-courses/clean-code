@@ -51,9 +51,7 @@ internal class Tokenizer
         var lastKnownTokenEnd = start;
         for (var i = start; i < line.Length; i++)
         {
-            var currentSeparator = GetCurrentSeparator(i, line, separators, openingSeparator);
-
-            if (currentSeparator != null)
+            if (TryGetCurrentSeparator(i, line, separators, openingSeparator, out var currentSeparator))
             {
                 if (openingSeparator != currentSeparator)
                 {
@@ -93,7 +91,7 @@ internal class Tokenizer
                   .WithEnd(end);
     }
 
-    private string? GetCurrentSeparator(int i, string line, string[] separators, string? lastSeparator = null)
+    private bool TryGetCurrentSeparator(int i, string line, string[] separators, string? lastSeparator, out string currentSeparator)
     {
         IEnumerable<string> finalSeparators = separators;
         if (lastSeparator != null)
@@ -105,11 +103,13 @@ internal class Tokenizer
             var separatorEnd = i + separator.Length;
             if (line[i..separatorEnd] == separator)
             {
-                return separator;
+                currentSeparator = separator;
+                return true;
             }
         }
 
-        return null;
+        currentSeparator = null!;
+        return false;
     }
 
     private string[] GetTokenSeparators()
