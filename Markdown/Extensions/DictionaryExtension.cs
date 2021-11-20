@@ -13,7 +13,7 @@ namespace Markdown
                 .ToDictionary(x => x.Key, x => x.Value);
         }
 
-        internal static IEnumerable<Dictionary<TKey, TValue>> GroupToDictionariesBy<TKey, TValue, TGroup>(
+        internal static IEnumerable<Dictionary<TKey, TValue>> GroupToDictionaries<TKey, TValue, TGroup>(
             this Dictionary<TKey, TValue> source, 
             Func<KeyValuePair<TKey, TValue>, TGroup> groupFunc)
         {

@@ -1,8 +1,5 @@
 ﻿using System.Collections.Generic;
-using System.Linq;
 using AhoCorasick;
-using FluentAssertions;
-using NUnit.Framework;
 
 namespace Markdown
 {
@@ -21,20 +18,17 @@ namespace Markdown
             trie.Build();
         }
 
-        public (IEnumerable<ITokenSegment>, IEnumerable<ITokenSegment>) ValidatePairSets((IEnumerable<ITokenSegment>, IEnumerable<ITokenSegment>) pair)
+        public (IEnumerable<TokenSegment>, IEnumerable<TokenSegment>) ValidatePairSets((IEnumerable<TokenSegment>, IEnumerable<TokenSegment>) pair)
         {
             throw new System.NotImplementedException();
         }
 
-        public string ReplaceTokens(IEnumerable<ITokenSegment> tokenSegments, ITokenTranslator translator)
+        public string ReplaceTokens(IEnumerable<TokenSegment> tokenSegments, ITokenTranslator translator)
         {
             throw new System.NotImplementedException();
         }
 
-        public IEnumerable<ITokenSegment> GetTokensSegments(Dictionary<int, TokenInfo> tokensByLocation)
-        {
-            throw new System.NotImplementedException();
-        }
+        
 
         public Dictionary<int, TokenInfo> FindAllTokens(string paragraph)
         {

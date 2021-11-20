@@ -54,8 +54,8 @@ namespace Markdown
                 var tokenSegments = parser
                     .FindAllTokens(paragraph)
                     .Validate()
-                    .GroupToDictionariesBy(x => x.Value.Token.ToString())
-                    .Select(g => parser.GetTokensSegments(g))
+                    .GroupToDictionaries(x => x.Value.Token.ToString())
+                    .Select(TokenSegment.GetTokensSegments)
                     .ForEachPairs(parser.ValidatePairSets)
                     .Aggregate((f, s) => f.Union(s));
 
