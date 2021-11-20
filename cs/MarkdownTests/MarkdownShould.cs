@@ -13,7 +13,7 @@ public class MarkdownShould
     {
         var text = "abc defg";
         var settings = new WrapperSettingsProvider();
-        settings.TryAddSetting(new("", "$(text)", "<p>$(text)</p>"));
+        settings.TryAddSetting(new("", "$(text)", "<p>$(text)</p>", true));
         var md = new Md(text, settings);
 
         var expectedResult = "<p>abc defg</p>";
@@ -27,7 +27,7 @@ public class MarkdownShould
     {
         var text = "abc\ndefg";
         var settings = new WrapperSettingsProvider();
-        settings.TryAddSetting(new("", "$(text)", "<p>$(text)</p>"));
+        settings.TryAddSetting(new("", "$(text)", "<p>$(text)</p>", true));
         var md = new Md(text, settings);
 
         var expectedResult = "<p>abc</p><p>defg</p>";
@@ -114,6 +114,20 @@ public class MarkdownShould
         var md = new Md(text);
 
         var expectedResult = "<p><em>cursive</em> <strong>bold <em>cursive in bold</em></strong></p><p>second line <em>second line in cursive</em> <strong><em>bold second with cursive</em> still bold</strong></p>";
+        var actualResult = md.Render();
+
+        actualResult.Should().BeEquivalentTo(expectedResult);
+    }
+
+    [Test]
+    public void WrapLineInH1_WhenTagProvided()
+    {
+        var text = "#some header";
+        var settings = new WrapperSettingsProvider();
+        settings.TryAddSetting(new("#", "#$(text)", "<h1>$(text)</h1>", true));
+        var md = new Md(text, settings);
+
+        var expectedResult = "<h1>some header</h1>";
         var actualResult = md.Render();
 
         actualResult.Should().BeEquivalentTo(expectedResult);

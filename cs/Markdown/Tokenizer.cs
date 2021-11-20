@@ -11,10 +11,11 @@ internal class Tokenizer
 
     public IEnumerable<Token> ParseLines(string text)
     {
-        var tokenSeparators = GetTokenSeparators();
+        var lineTags = settings.GetTokenSeparators(true);
+        var tokenSeparators = settings.GetTokenSeparators();
         foreach (var line in text.Split('\n'))
         {
-            var lineTag = "";
+            var lineTag = lineTags.FirstOrDefault(x=>line.StartsWith(x));
             var root = new TokenBuilder(this, line, 0, null)
             .WithEnd(line.Length)
             .WithMdTag(lineTag);
@@ -110,14 +111,5 @@ internal class Tokenizer
 
         currentSeparator = null!;
         return false;
-    }
-
-    private string[] GetTokenSeparators()
-    {
-        return settings
-            .Select(x => x.MdTag)
-            .Where(x => !string.IsNullOrWhiteSpace(x))
-            .OrderByDescending(x => x.Length)
-            .ToArray();
     }
 }

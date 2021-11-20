@@ -5,15 +5,17 @@ public class TagSetting
     private record struct VariableDescriptor(string Name, string Start, string End);
 
     public string MdTag { get; private set; }
+    public bool IsLineOnly { get; private set; }
 
     private readonly string htmlPattern;
 
     private readonly List<VariableDescriptor> variables = new();
 
-    public TagSetting(string mdTag, string mdPattern, string htmlPattern)
+    public TagSetting(string mdTag, string mdPattern, string htmlPattern, bool isLineOnly=false)
     {
         MdTag = mdTag;
         this.htmlPattern = htmlPattern;
+        IsLineOnly = isLineOnly;
         ParseVariables(mdPattern);
     }
 

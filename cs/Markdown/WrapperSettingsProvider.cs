@@ -13,7 +13,7 @@ public class WrapperSettingsProvider : IEnumerable<TagSetting>
     {
         foreach (var setting in settings)
         {
-            if(!this.settings.TryAdd(setting.MdTag, setting))
+            if (!TryAddSetting(setting))
             {
                 throw new ArgumentException($"Failed to add setting with key: {setting.MdTag}");
             }
@@ -22,6 +22,8 @@ public class WrapperSettingsProvider : IEnumerable<TagSetting>
 
     public bool TryAddSetting(TagSetting setting)
     {
+        if (setting?.MdTag == null)
+            throw new ArgumentNullException(nameof(setting));
         return settings.TryAdd(setting.MdTag, setting);
     }
 
@@ -33,6 +35,15 @@ public class WrapperSettingsProvider : IEnumerable<TagSetting>
     public bool TryRemoveSetting(string mdTag)
     {
         return settings.Remove(mdTag);
+    }
+
+    public string[] GetTokenSeparators(bool isLineOnly = false)
+    {
+        return settings.Values
+            .Where(x => x.IsLineOnly == isLineOnly)
+            .Select(x => x.MdTag)
+            .OrderByDescending(x => x.Length)
+            .ToArray();
     }
 
     public IEnumerator<TagSetting> GetEnumerator()
