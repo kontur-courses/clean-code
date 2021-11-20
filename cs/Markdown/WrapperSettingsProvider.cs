@@ -2,9 +2,23 @@
 
 namespace Markdown;
 
-public class WrapperSettingsProvider : IEnumerable<KeyValuePair<string, TagSetting>>
+public class WrapperSettingsProvider : IEnumerable<TagSetting>
 {
     private readonly Dictionary<string, TagSetting> settings = new();
+
+    public WrapperSettingsProvider(params TagSetting[] settings) : this((IEnumerable<TagSetting>)settings)
+    { }
+
+    public WrapperSettingsProvider(IEnumerable<TagSetting> settings)
+    {
+        foreach (var setting in settings)
+        {
+            if(!this.settings.TryAdd(setting.MdTag, setting))
+            {
+                throw new ArgumentException($"Failed to add setting with key: {setting.MdTag}");
+            }
+        }
+    }
 
     public bool TryAddSetting(TagSetting setting)
     {
@@ -21,9 +35,9 @@ public class WrapperSettingsProvider : IEnumerable<KeyValuePair<string, TagSetti
         return settings.Remove(mdTag);
     }
 
-    public IEnumerator<KeyValuePair<string, TagSetting>> GetEnumerator()
+    public IEnumerator<TagSetting> GetEnumerator()
     {
-        return settings.GetEnumerator();
+        return settings.Values.GetEnumerator();
     }
 
     IEnumerator IEnumerable.GetEnumerator()

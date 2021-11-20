@@ -115,7 +115,7 @@ internal class Tokenizer
     private string[] GetTokenSeparators()
     {
         return settings
-            .Select(x => x.Key)
+            .Select(x => x.MdTag)
             .Where(x => !string.IsNullOrWhiteSpace(x))
             .OrderByDescending(x => x.Length)
             .ToArray();
