@@ -16,7 +16,7 @@ namespace MarkdownTest
         }
 
         [TestCaseSource(nameof(TokenCreatorTestCaseData))]
-        public void Test(string text, IEnumerable<Token> expected)
+        public void Create_ShouldReturnCorrectTokens_When(string text, IEnumerable<Token> expected)
         {
             var actual = sut.Create(text);
 
@@ -28,35 +28,29 @@ namespace MarkdownTest
             yield return new TestCaseData("text", new List<Token>
             {
                 new(TokenType.Text, "text")
-            });
+            }).SetName("No markup symbols");
             
             yield return new TestCaseData("#text", new List<Token>
             {
                 new(TokenType.Header1, "#"), new(TokenType.Text, "text")
-            });
+            }).SetName("# symbol and text");
             
             yield return new TestCaseData("text #text", new List<Token>
             {
                 new(TokenType.Text, "text #text")
-            });
+            }).SetName("# symbol not in beginning");
             
             yield return new TestCaseData("text ##text", new List<Token>
             {
                 new(TokenType.Text, "text ##text")
-            });
+            }).SetName("Two # symbols");
 
             yield return new TestCaseData("#_\\_text_", new List<Token>
             {
                 new(TokenType.Header1, "#"), new(TokenType.Italics, "_"), 
                 new(TokenType.Escape, "\\"), new(TokenType.Italics, "_"),
                 new(TokenType.Text, "text"), new(TokenType.Italics, "_")
-            });
-            
-            yield return new TestCaseData("#_text_", new List<Token>
-            {
-                new(TokenType.Header1, "#"), new(TokenType.Italics, "_"), 
-                new(TokenType.Text, "text"), new(TokenType.Italics, "_")
-            });
+            }).SetName("Composite of different markup symbols");
             
             yield return new TestCaseData("#__text1___text2_", new List<Token>
             {
@@ -64,7 +58,7 @@ namespace MarkdownTest
                 new(TokenType.Text, "text1"), new(TokenType.Strong, "__"), 
                 new(TokenType.Italics, "_"), new(TokenType.Text, "text2"),
                 new(TokenType.Italics, "_")
-            });
+            }).SetName("Symbol __ is close to _");
         }
     }
 }
