@@ -8,25 +8,25 @@ internal class CompoundToken : Token
     {
     }
 
-    public List<Token> Tokens { get; private set; } = new();
+    private readonly List<Token> tokens = new();
 
     internal void AddToken(Token token)
     {
-        Tokens.Add(token);
+        tokens.Add(token);
     }
 
     public override string Render()
     {
         var builder = new StringBuilder(Value);
-        for (var i = Tokens.Count - 1; i >= 0; i--)
+        for (var i = tokens.Count - 1; i >= 0; i--)
         {
-            var token = Tokens[i];
+            var token = tokens[i];
             builder.Remove(token.SourceStart, token.Value.Length);
             builder.Insert(token.SourceStart, token.Render());
         }
 
-        if (setting != null)
-            return setting.Render(builder.ToString());
+        if (Setting != null)
+            return Setting.Render(builder.ToString());
 
         return builder.ToString();
     }

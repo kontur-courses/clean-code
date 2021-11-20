@@ -7,7 +7,6 @@ internal class TokenBuilder
     public int Start { get; private set; }
     public int End { get; private set; }
     public string? MdTag { get; private set; }
-
     public TokenBuilder? Parent { get; private set; }
 
     private readonly List<TokenBuilder> tokens = new();
@@ -39,7 +38,7 @@ internal class TokenBuilder
 
     internal Token Build()
     {
-        var actualStart = Start - (Parent?.Start ?? 0) /*- (Parent?.MdTag?.Length ?? 0)*/;
+        var actualStart = Start - (Parent?.Start ?? 0);
         if (tokens.Count == 0)
             return TokenWrapper.WrapToken(Source[Start..End], actualStart, MdTag);
 
