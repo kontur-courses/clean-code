@@ -5,16 +5,16 @@ namespace Markdown
 {
     public class LexIterator
     {
-        private static readonly char[] SpecialCharacters =
+        private static readonly HashSet<char> SpecialCharacters = new()
         {
             '_',
             '\\',
-            '#',
             '\n'
         };
 
         private readonly string text;
         private int currentIndex;
+        private bool isNewLine = true;
 
         public LexIterator(string text)
         {
@@ -30,9 +30,9 @@ namespace Markdown
                 yield return symbol switch
                 {
                     '_' => LexUnderscore(),
-                    '\\' => Token.Escape,
-                    '#' => Token.Header1,
-                    '\n' => Token.NewLine,
+                    '\\' => LexEscape(),
+                    '#' => LexHeader(),
+                    '\n' => LexNewLine(),
                     _ => LexText()
                 };
                 currentIndex++;
@@ -41,7 +41,8 @@ namespace Markdown
 
         private Token LexUnderscore()
         {
-            if (currentIndex + 1 < text.Length && text[currentIndex + 1] == '_')
+            isNewLine = false;
+            if (IsNextCharacter('_') )
             {
                 currentIndex++;
                 return Token.Bold;
@@ -50,13 +51,44 @@ namespace Markdown
             return Token.Cursive;
         }
 
+        private Token LexEscape()
+        {
+            isNewLine = false;
+            return Token.Escape;
+        }
+
+        private Token LexHeader()
+        {
+            if (isNewLine && IsNextCharacter(' '))
+            {
+                currentIndex++;
+                return Token.Header1;
+            }
+
+            return LexText();
+        }
+
+        private Token LexNewLine()
+        {
+            isNewLine = true;
+            return Token.NewLine;
+        }
+
         private Token LexText()
         {
             var start = currentIndex;
-            var end = text.IndexOfAny(SpecialCharacters, start);
-            if (end == -1) end = text.Length;
+            var end = start + 1;
+            for (; end < text.Length; end++)
+            {
+                if (isNewLine && text[end] == '#' || SpecialCharacters.Contains(text[end])) break;
+
+                isNewLine = isNewLine && char.IsWhiteSpace(text[end]);
+            }
+
             currentIndex = end - 1;
             return Token.Text(text.Substring(start, end - start));
         }
+
+        private bool IsNextCharacter(char ch) => currentIndex + 1 < text.Length && text[currentIndex + 1] == ch;
     }
 }

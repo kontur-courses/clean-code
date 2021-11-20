@@ -21,7 +21,7 @@ namespace Markdown.Tests
         [Test]
         public void Lex_ShouldThrowException_WhenTextIsNull()
         {
-            Assert.Throws<ArgumentNullException>(() =>  sut.Lex(null));
+            Assert.Throws<ArgumentNullException>(() => sut.Lex(null));
         }
 
         [TestCase("", TestName = "Empty string")]
@@ -56,8 +56,47 @@ namespace Markdown.Tests
         public static IEnumerable<TestCaseData> GetEscapeFormattingTestCases() =>
             GetFormattingTestCases(Token.Escape.Value, Token.Escape);
 
-        public static IEnumerable<TestCaseData> GetHeaderFormattingTestCases() =>
-            GetFormattingTestCases(Token.Header1.Value, Token.Header1);
+        public static IEnumerable<TestCaseData> GetHeaderFormattingTestCases()
+        {
+            yield return new TestCaseData("# Text", new[]
+            {
+                Token.Header1,
+                Token.Text("Text")
+            }).SetName("# before text");
+
+            yield return new TestCaseData("#Text", new[]
+            {
+                Token.Text("#Text")
+            }).SetName("# not followed by whitespace");
+
+            yield return new TestCaseData("Text#", new[]
+            {
+                Token.Text("Text#")
+            }).SetName("# after text");
+
+            yield return new TestCaseData("Text\n# Text", new[]
+            {
+                Token.Text("Text"),
+                Token.NewLine,
+                Token.Header1,
+                Token.Text("Text")
+            }).SetName("# on second line before text");
+
+            var specialTokens = new[] { Token.Bold, Token.Cursive, Token.Escape };
+            foreach (var token in specialTokens)
+                yield return new TestCaseData($"{token.Value}# Text", new[]
+                {
+                    token,
+                    Token.Text("# Text")
+                }).SetName($"# on second line before text and after {token.Value}");
+
+            yield return new TestCaseData("   # Text", new[]
+            {
+                Token.Text("   "),
+                Token.Header1,
+                Token.Text("Text")
+            }).SetName("# after whitespaces before text");
+        }
 
         public static IEnumerable<TestCaseData> GetNewLineFormattingTestCases() =>
             GetFormattingTestCases(Token.NewLine.Value, Token.NewLine);
@@ -67,10 +106,10 @@ namespace Markdown.Tests
         {
             var expected = new[]
             {
+                Token.Header1,
                 Token.Bold,
                 Token.Cursive,
-                Token.Escape,
-                Token.Header1
+                Token.Escape
             };
             var tokens = sut.Lex(string.Join("", expected.Select(t => t.Value)));
 
@@ -108,7 +147,7 @@ namespace Markdown.Tests
             first.Should().Contain(Token.Text("A"));
             second.Should().Contain(Token.Text("B"));
         }
-        
+
         [Test]
         public void Lex_ShouldNotClearPreviousTokens_WhenCalledTwice_AndAlternately()
         {
@@ -124,7 +163,7 @@ namespace Markdown.Tests
             second.MoveNext();
             second.Current.Should().Be(Token.Cursive);
         }
-        
+
         private static IEnumerable<TestCaseData> GetFormattingTestCases(string character, Token token)
         {
             yield return new TestCaseData(character, new[]
