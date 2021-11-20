@@ -1,12 +1,13 @@
 ﻿using System;
-using System.Runtime.ConstrainedExecution;
+using Markdown.Converters;
 
 namespace Markdown
 {
-    internal class Program
+    internal static class Program
     {
         public static void Main(string[] args)
         {
+            Console.WriteLine(Md.Render("#__ _ggwp_ __"));
         }
     }
 }
