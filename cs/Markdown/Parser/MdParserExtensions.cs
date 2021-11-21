@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using Markdown.Tokens;
 
 namespace Markdown.Parser
@@ -7,10 +8,20 @@ namespace Markdown.Parser
     {
         public static void Visit(this MdParser parser, HeaderToken token)
         {
-            if (token.OpenIndex != 0 && parser.TextToParse[token.OpenIndex - 1] != '\n')
+            if (token.OpenIndex != 0 && parser.TextToParse[token.OpenIndex - 1] != '\n' && parser.TextToParse[token.OpenIndex - 1] != '\r')
                 return;
 
-            var closeIndex = parser.ParserContext.TextToParse.IndexOf('\n', token.OpenIndex);
+            var closeIndexLf = parser.ParserContext.TextToParse.IndexOf('\n', token.OpenIndex);
+            var closeIndexCr = parser.ParserContext.TextToParse.IndexOf('\r', token.OpenIndex);
+
+            int closeIndex;
+
+            if (closeIndexCr == -1)
+                closeIndex = closeIndexLf;
+            else if (closeIndexLf == -1)
+                closeIndex = closeIndexCr;
+            else
+                closeIndex = Math.Min(closeIndexCr, closeIndexLf);
 
             if (closeIndex == -1)
                 closeIndex = parser.TextToParse.Length;

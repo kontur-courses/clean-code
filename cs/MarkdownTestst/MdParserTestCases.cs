@@ -57,11 +57,11 @@ namespace MarkdownTests
                 yield return new TestCaseData("![])", new List<Token>())
                     .SetName("ReturnEmptyIEnumerable_WhenImageTokenHasNotOpenedSource");
 
-                yield return new TestCaseData("#a", new List<Token>() { new HeaderToken(0, 2) })
+                yield return new TestCaseData("# a", new List<Token>() { new HeaderToken(0, 3) })
                     .SetName("ReturnHeaderToken_WhenThereIsHeaderToken");
-                yield return new TestCaseData("\\#a", new List<Token>() { new ScreeningToken(0, 0) })
+                yield return new TestCaseData("\\# a", new List<Token>() { new ScreeningToken(0, 0) })
                     .SetName("ReturnScreeningToken_WhenThereIsScreeningTag");
-                yield return new TestCaseData("#a\n#a", new List<Token>() { new HeaderToken(0, 2), new HeaderToken(3, 5) })
+                yield return new TestCaseData("# a\n# a", new List<Token>() { new HeaderToken(0, 3), new HeaderToken(4, 7) })
                     .SetName("ReturnHeaderToken_WhenThereAreManyHeaderTokensAndManyString");
 
                 yield return new TestCaseData("_a_", new List<Token>() { new ItalicToken(0, 2) })

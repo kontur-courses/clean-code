@@ -11,7 +11,7 @@ namespace Markdown.Renderer
         {
             { "__", new HtmlTag("<strong>", "</strong>", true) },
             { "_", new HtmlTag("<em>", "</em>", true) },
-            { "#", new HtmlTag("<h1>", "</h1>", true) },
+            { "# ", new HtmlTag("<h1>", "</h1>", true) },
             { "\\", new HtmlTag(string.Empty, string.Empty, false) },
             { "![", new HtmlTag("<img >", string.Empty, false) }
         };
@@ -28,7 +28,9 @@ namespace Markdown.Renderer
                 {
                     result.Append(replacement.Tag);
                     index += replacement.Shift;
-                    continue;
+
+                    if (replacement.Shift > 0)
+                        continue;
                 }
 
                 result.Append(text[index]);
@@ -52,6 +54,7 @@ namespace Markdown.Renderer
         private Dictionary<int, TagInsertion> GetTagInsertions(IEnumerable<Token> tokens)
         {
             var result = new Dictionary<int, TagInsertion>();
+
             foreach (var token in tokens)
             {
                 var htmlTag = HtmlTagsBySeparator[token.GetSeparator()];
@@ -62,7 +65,7 @@ namespace Markdown.Renderer
                     result[token.OpenIndex] = new TagInsertion(htmlTag.OpenTag, token.GetSeparator().Length);
 
                 if (htmlTag.IsPaired)
-                    result[token.CloseIndex] = new TagInsertion(htmlTag.CloseTag, token.GetSeparator().Length);
+                    result[token.CloseIndex] = new TagInsertion(htmlTag.CloseTag, token.IsNonPaired ? 0 : token.GetSeparator().Length);
             }
 
             return result;
