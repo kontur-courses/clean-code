@@ -1,5 +1,6 @@
 ﻿using System.Collections.Generic;
 using System.Linq;
+using System.Text;
 using AhoCorasick;
 
 namespace Markdown
@@ -20,29 +21,55 @@ namespace Markdown
         }
 
         //нужно убрать в другое место
-        public (IEnumerable<TokenSegment>, IEnumerable<TokenSegment>) ValidatePairSetsByRules((IEnumerable<TokenSegment>, IEnumerable<TokenSegment>) pair)
+        public (SegmentsCollection, SegmentsCollection) ValidatePairSetsByRules(SegmentsCollection first, SegmentsCollection second)
         {
             // Реализация без учета правил пересечения и вложенности
 
-            var firstSegments = pair.Item1
-                .Where(x => pair.Item2.Any(y => y.IsIntersectWith(x)))
-                .Where(x => pair.Item2.Any(y => y.Contain(x)));
+            var firstSorted = first.GetSortedSegments().ToList();
+            var secondSorted = second.GetSortedSegments().ToList();
             
-            var secondSegment = pair.Item2
-                .Where(x => pair.Item1.Any(y => y.IsIntersectWith(x)))
-                .Where(x => pair.Item1.Any(y => y.Contain(x)));
+            var firstSegments = firstSorted
+                // .Where(x => !secondSorted.Any(y => y.IsIntersectWith(x)))
+                .Where(x => !secondSorted.Any(y => y.Contain(x)))
+                .ToList();
+            
+            var secondSegment = secondSorted
+                // .Where(x => !firstSorted.Any(y => y.IsIntersectWith(x)))
+                .Where(x => !firstSorted.Any(y => y.Contain(x)))
+                .ToList();
 
-            return (firstSegments, secondSegment);
+            return (new SegmentsCollection(firstSegments), new SegmentsCollection(secondSegment));
         }
 
-        public string ReplaceTokens(IEnumerable<TokenSegment> tokenSegments, ITokenTranslator translator)
+        public string ReplaceTokens(string text, SegmentsCollection tokenSegments, ITagTranslator translator)
         {
-            throw new System.NotImplementedException();
+            var result = new StringBuilder();
+            var sortedSegments = tokenSegments.GetSortedSegments().ToList();
+            var sortedTokens = sortedSegments
+                .Select(x => new TokenInfo(x.StartPosition, x.GetBaseTag().Start, false, true, false, false))
+                .Union(sortedSegments.Select(x => new TokenInfo(x.EndPosition, x.GetBaseTag().End, true, false, false, false)))
+                .OrderBy(x => x.Position);
+
+            var lastTokenEndIndex = 0;
+
+            foreach (var (index, token, _, start, _, _) in sortedTokens)
+            {
+                result.Append(text.Substring(lastTokenEndIndex, index - lastTokenEndIndex));
+                
+                var translatedTag = translator.Translate(Tag.GetTagByChars(token.ToString()));
+                result.Append(start ? translatedTag.Start : translatedTag.End);
+
+                lastTokenEndIndex = index + token.Length;
+            }
+
+            result.Append(text[lastTokenEndIndex..]);
+            
+            return result.ToString();
         }
 
-        public Dictionary<int, TokenInfo> FindAllTokens(string paragraph)
+        public TokenInfoCollection FindAllTokens(string paragraph)
         {
-            var result = new Dictionary<int, TokenInfo>();
+            var tokenInfos = new Dictionary<int, TokenInfo>();
 
             foreach (var (token, index) in trie.Find(paragraph))
             {
@@ -51,15 +78,16 @@ namespace Markdown
                 var closeValid = index > 0 && !char.IsWhiteSpace(paragraph[index - 1]);
                 var openValid = index < paragraph.Length - token.Length 
                                 && !char.IsWhiteSpace(paragraph[index + token.Length]);
-                
-                result[index] = new TokenInfo(
+
+                tokenInfos[index] = new TokenInfo(
+                    index,
                     token, closeValid, openValid,
                     closeValid && openValid,
                     closeValid || openValid
                 );
             }
             
-            return result;
+            return new TokenInfoCollection(tokenInfos.Select(x => x.Value));
         }
     }
 }

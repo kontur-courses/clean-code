@@ -5,17 +5,23 @@ namespace Markdown
 {
     public class Tag
     {
-        private static readonly ConcurrentDictionary<string, Tag> Tags = new(); 
-        
-        public string Start { get; }
-        public string End { get; }
+        private static readonly ConcurrentDictionary<string, Tag> Tags = new();
+
+        private readonly string start;
+        private readonly string end;
+
+        public Token Start { get; }
+        public Token End { get; }
 
         private Tag() {}
 
         private Tag(string tagWord, string endWord = null)
         {
-            Start = tagWord;
-            End = endWord;
+            start = tagWord;
+            end = endWord;
+
+            Start = new Token(start);
+            End = new Token(end);
         }
 
         private static void CheckForValidityForRegistration(string startTag)
@@ -53,6 +59,26 @@ namespace Markdown
             if (!Tags.ContainsKey(startChars))
                 throw new ArgumentException($"Tag {startChars} is not registered"); 
             return Tags[startChars];
+        }
+
+        public static void ClearTagBase()
+        {
+            Tags?.Clear();
+        }
+
+        public override bool Equals(object obj)
+        {
+            return obj is Tag tag && Equals(tag);
+        }
+
+        private bool Equals(Tag other)
+        {
+            return start == other.start;
+        }
+
+        public override int GetHashCode()
+        {
+            return start.GetHashCode();
         }
     }
 }
