@@ -68,7 +68,7 @@ namespace Markdown
     }
 
     [TestFixture]
-    public class MdRenderTest
+    public class MdRenderShould
     {
         [TestCase("Hello _World_!! __Th_is__ i_s __a__ __markdown _test_ sentence__", 
             "Hello <em>World</em>!! __Th_is__ i_s <strong>a</strong> <strong>markdown <em>test</em> sentence</strong>")]
