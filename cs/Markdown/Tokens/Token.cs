@@ -4,15 +4,18 @@ using Markdown.Parser;
 namespace Markdown.Tokens
 {
     public abstract class Token
+
     {
         private bool isCorrect = true;
 
         public int OpenIndex { get; }
 
         public int CloseIndex { get; private set; }
-
         public bool IsOpened => CloseIndex == 0;
         public abstract bool IsNonPaired { get; }
+        public abstract bool IsContented { get; }
+        public virtual string AltText { get; set; }
+        public virtual string Source { get; set; }
 
         public virtual bool IsCorrect
         {
@@ -56,6 +59,19 @@ namespace Markdown.Tokens
                 throw new InvalidOperationException("The close index must be no larger than the open index");
 
             CloseIndex = index;
+        }
+
+        public static bool IsCorrectTokenOpenIndex(int openIndex, string text, int length)
+        {
+            var indexNextToSeparator = openIndex + length;
+
+            return openIndex != text.Length - 1 && indexNextToSeparator < text.Length &&
+                   text[indexNextToSeparator] != ' ';
+        }
+
+        public static bool IsCorrectTokenCloseIndex(int closeIndex, string text)
+        {
+            return closeIndex != 0 && text[closeIndex - 1] != ' ';
         }
     }
 }

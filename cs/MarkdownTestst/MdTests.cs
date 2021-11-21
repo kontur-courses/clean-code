@@ -29,8 +29,8 @@ namespace MarkdownTests
         [Test]
         public void Render_ShouldHaveLinearComplexity()
         {
-            const int repetitionsCount = 10000;
-            const string inputString = "# __a__ _a_ __a_a_a__ \\_a\\_ _a__a__a_ __a_a__a_ _a__a_a__ \n";
+            const int repetitionsCount = 1000;
+            const string inputString = "# ![abc](abc) __a__ _a_ __a_a_a__ \\_a\\_ _a__a__a_ __a_a__a_ _a__a_a__ \n";
             var shortString = string.Concat(Enumerable.Repeat(inputString, repetitionsCount));
             var longString = string.Concat(Enumerable.Repeat(inputString, repetitionsCount * 10));
 

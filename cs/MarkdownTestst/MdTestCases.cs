@@ -51,9 +51,11 @@ namespace MarkdownTests
                     .SetName("ReturnCorrectString_WhenBoldTagInsideTextWithDigits");
                 yield return new TestCaseData("1_1_1", "1_1_1")
                     .SetName("ReturnCorrectString_WhenItalicTagInsideTextWithDigits");
+                yield return new TestCaseData("![abc](abc)", "<img src=\"abc\" alt=\"abc\">")
+                    .SetName("ReturnCorrectString_WhenInputContainsImage");
                 yield return new TestCaseData(
-                        "# __a__ _a_ __a_a_a__ \\_a\\_ _a__a__a_ __a_a__a_ _a__a_a__ \n",
-                        "<h1> <strong>a\\<strong> <em>a\\<em> <strong>a<em>a\\<em>a\\<strong> _a_ <em>a__a__a\\<em> __a_a__a_ _a__a_a__ \\<h1>")
+                        "# ![abc](abc) __a__ _a_ __a_a_a__ \\_a\\_ _a__a__a_ __a_a__a_ _a__a_a__ \n",
+                        "<h1> <img src=\"abc\" alt=\"abc\"> <strong>a\\<strong> <em>a\\<em> <strong>a<em>a\\<em>a\\<strong> _a_ <em>a__a__a\\<em> __a_a__a_ _a__a_a__ \\<h1>")
                     .SetName("ReturnCorrectString_WhenThereAreManyTags");
             }
         }

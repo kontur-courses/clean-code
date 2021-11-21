@@ -68,17 +68,29 @@ namespace MarkdownTests
                     .SetName("ReturnScreeningTokens_WhenThereIsScreenedItalicToken");
                 yield return new TestCaseData("\\\\a", new List<Token>() { new ScreeningToken(0, 0)})
                     .SetName("ReturnScreeningToken_WhenThereIsScreenedScreeningToken");
+                yield return new TestCaseData("\\a", new List<Token>())
+                    .SetName("ReturnEmptyIEnumerable_WhenThereIsNothingToScreen");
 
-                yield return new TestCaseData("# __a__ _a_ __a_a_a__ \\_a\\_ _a__a__a_ __a_a__a_ _a__a_a__ \n", new List<Token>()
+                yield return new TestCaseData("![]()", new List<Token>() { new ImageToken(0, 4, "", "") })
+                    .SetName("ReturnImageToken_WhenThereIsEmptyImageToken");
+                yield return new TestCaseData("![abc]()", new List<Token>() { new ImageToken(0, 7, "", "abc") })
+                    .SetName("ReturnImageToken_WhenThereIsImageTokenWithOnlyAltText");
+                yield return new TestCaseData("![abc]()", new List<Token>() { new ImageToken(0, 7, "abc", "") })
+                    .SetName("ReturnImageToken_WhenThereIsImageTokenWithOnlySource");
+                yield return new TestCaseData("![abc](abc)", new List<Token>() { new ImageToken(0, 10, "abc", "abc") })
+                    .SetName("ReturnImageToken_WhenThereIsImageToken");
+
+                yield return new TestCaseData("# ![abc](abc) __a__ _a_ __a_a_a__ \\_a\\_ _a__a__a_ __a_a__a_ _a__a_a__ \n", new List<Token>()
                     {
-                        new HeaderToken(0, 58),
-                        new BoldToken(2, 5),
-                        new ItalicToken(8, 10),
-                        new BoldToken(12, 19),
-                        new ItalicToken(15, 17),
-                        new ScreeningToken(22, 22),
-                        new ScreeningToken(25, 25),
-                        new ItalicToken(28, 36)
+                        new HeaderToken(0, 70),
+                        new ImageToken(2, 12),
+                        new BoldToken(14, 17),
+                        new ItalicToken(20, 22),
+                        new BoldToken(24, 31),
+                        new ItalicToken(27, 29),
+                        new ScreeningToken(34, 34),
+                        new ScreeningToken(37, 37),
+                        new ItalicToken(40, 48)
                     })
                     .SetName("ReturnAllTokens_WhenThereIsManyInteractingTokens");
             }
