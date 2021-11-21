@@ -48,22 +48,15 @@ namespace Markdown.SyntaxParser
 
         private TokenTree ParseToken()
         {
-            switch (Current.TokenType)
+            return Current.TokenType switch
             {
-                case TokenType.Text:
-                case TokenType.NewLine:
-                    return TokenTree.FromText(Current.Value);
-                case TokenType.Italics:
-                    return ParseItalics();
-                case TokenType.Bold:
-                    return ParseBold();
-                case TokenType.Escape:
-                    return new TokenTree(ParseEscape());
-                case TokenType.Header1:
-                    return ParseHeader1();
-                default:
-                    throw new ArgumentOutOfRangeException($"unknown token type: {Current.TokenType}");
-            }
+                TokenType.Text or TokenType.NewLine => TokenTree.FromText(Current.Value),
+                TokenType.Italics => ParseItalics(),
+                TokenType.Bold => ParseBold(),
+                TokenType.Escape => new TokenTree(ParseEscape()),
+                TokenType.Header1 => ParseHeader1(),
+                _ => throw new ArgumentOutOfRangeException($"unknown token type: {Current.TokenType}")
+            };
         }
 
         private TokenTree ParseItalics()

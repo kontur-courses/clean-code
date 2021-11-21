@@ -8,6 +8,8 @@ namespace Markdown.Tests.SyntaxParser
 {
     public class SyntaxParserTestData
     {
+        private static readonly TokenTreeCreationHelper TokenTreeHelper = new();
+
         public static IEnumerable<TestCaseData> ItalicsData()
         {
             yield return new TestCaseData(new[] {Token.Italics, Token.Text("abc"), Token.Italics},
@@ -31,11 +33,11 @@ namespace Markdown.Tests.SyntaxParser
 
             yield return new TestCaseData(
                     new[] {Token.Text("a"), Token.Italics, Token.Text(" abc"), Token.Italics, Token.Text("a")},
-                    GenerateFromText("a", "_", " abc", "_", "a"))
+                    TokenTreeHelper.GenerateFromText("a", "_", " abc", "_", "a"))
                 .SetName("italics with space after opening tag");
             yield return new TestCaseData(
                     new[] {Token.Text("a"), Token.Italics, Token.Text("abc "), Token.Italics, Token.Text("a")},
-                    GenerateFromText("a", "_", "abc ", "_", "a"))
+                    TokenTreeHelper.GenerateFromText("a", "_", "abc ", "_", "a"))
                 .SetName("italics with space before closing tag");
 
             yield return new TestCaseData(new[]
@@ -57,7 +59,7 @@ namespace Markdown.Tests.SyntaxParser
                         Token.Text("c"), Token.Italics
                     },
                     new TokenTree[]
-                        {new(Token.Italics, GenerateFromText("a", "__", "b", "__", "c"))})
+                        {new(Token.Italics, TokenTreeHelper.GenerateFromText("a", "__", "b", "__", "c"))})
                 .SetName("bold in italics");
 
             yield return new TestCaseData(
@@ -65,12 +67,12 @@ namespace Markdown.Tests.SyntaxParser
                     {
                         Token.Text("a"), Token.Italics, Token.Text("b"), Token.Bold, Token.Text("a"),
                         Token.Italics, Token.Text("c"), Token.Bold
-                    }, GenerateFromText("a", "_b__a_c__"))
+                    }, TokenTreeHelper.GenerateFromText("a", "_b__a_c__"))
                 .SetName("italics intersects with bold");
 
             yield return new TestCaseData(
                     new[] {Token.Text("a"), Token.Italics, Token.Text("123"), Token.Italics, Token.Text("a")},
-                    GenerateFromText("a", "_", "123", "_", "a"))
+                    TokenTreeHelper.GenerateFromText("a", "_", "123", "_", "a"))
                 .SetName("italics surrounded with digits");
 
             yield return new TestCaseData(
@@ -84,10 +86,11 @@ namespace Markdown.Tests.SyntaxParser
 
             yield return new TestCaseData(
                     new[] {Token.Text("a"), Token.Italics, Token.Text("uncle bob"), Token.Italics, Token.Text("a")},
-                    GenerateFromText("a", "_", "uncle bob", "_", "a"))
+                    TokenTreeHelper.GenerateFromText("a", "_", "uncle bob", "_", "a"))
                 .SetName("italics tags in different words");
 
-            yield return new TestCaseData(new[] {Token.Italics, Token.Italics}, GenerateFromText("_", "_"))
+            yield return new TestCaseData(new[] {Token.Italics, Token.Italics},
+                    TokenTreeHelper.GenerateFromText("_", "_"))
                 .SetName("italics without text");
         }
 
@@ -114,11 +117,11 @@ namespace Markdown.Tests.SyntaxParser
 
             yield return new TestCaseData(
                     new[] {Token.Text("a"), Token.Bold, Token.Text(" abc"), Token.Bold, Token.Text("a")},
-                    GenerateFromText("a", "__", " abc", "__", "a"))
+                    TokenTreeHelper.GenerateFromText("a", "__", " abc", "__", "a"))
                 .SetName("bold with space after opening tag");
             yield return new TestCaseData(
                     new[] {Token.Text("a"), Token.Bold, Token.Text("abc "), Token.Bold, Token.Text("a")},
-                    GenerateFromText("a", "__", "abc ", "__", "a"))
+                    TokenTreeHelper.GenerateFromText("a", "__", "abc ", "__", "a"))
                 .SetName("bold with space before closing tag");
 
             yield return new TestCaseData(new[]
@@ -152,20 +155,20 @@ namespace Markdown.Tests.SyntaxParser
                     {
                         Token.Text("a"), Token.Bold, Token.Text("b"), Token.Italics, Token.Text("a"),
                         Token.Bold, Token.Text("c"), Token.Italics
-                    }, GenerateFromText("a", "__b_a__c_"))
+                    }, TokenTreeHelper.GenerateFromText("a", "__b_a__c_"))
                 .SetName("bold intersects with italics");
 
             yield return new TestCaseData(
                     new[] {Token.Text("a"), Token.Bold, Token.Text("123"), Token.Bold, Token.Text("a")},
-                    GenerateFromText("a", "__", "123", "__", "a"))
+                    TokenTreeHelper.GenerateFromText("a", "__", "123", "__", "a"))
                 .SetName("bold surrounded with digits");
 
             yield return new TestCaseData(
                     new[] {Token.Text("a"), Token.Bold, Token.Text("uncle bob"), Token.Bold, Token.Text("a")},
-                    GenerateFromText("a", "__", "uncle bob", "__", "a"))
+                    TokenTreeHelper.GenerateFromText("a", "__", "uncle bob", "__", "a"))
                 .SetName("bold tags in different words");
 
-            yield return new TestCaseData(new[] {Token.Bold, Token.Bold}, GenerateFromText("__", "__"))
+            yield return new TestCaseData(new[] {Token.Bold, Token.Bold}, TokenTreeHelper.GenerateFromText("__", "__"))
                 .SetName("bold without text");
         }
 
@@ -175,32 +178,32 @@ namespace Markdown.Tests.SyntaxParser
                     new[] {TokenTree.FromText("\\")})
                 .SetName("only escape tag");
             yield return new TestCaseData(new[] {Token.Escape, Token.Italics, Token.Text("abc"), Token.Italics},
-                    GenerateFromText("_", "abc", "_"))
+                    TokenTreeHelper.GenerateFromText("_", "abc", "_"))
                 .SetName("shielding italics in the beginning");
             yield return new TestCaseData(new[] {Token.Italics, Token.Text("abc"), Token.Escape, Token.Italics},
                     new[] {TokenTree.FromText("_abc_")})
                 .SetName("shielding italics in the end");
             yield return new TestCaseData(
                     new[] {Token.Italics, Token.Text("abc"), Token.Escape, Token.Italics, Token.Italics},
-                    new[] {new TokenTree(Token.Italics, GenerateFromText("abc", "_"))})
+                    new[] {new TokenTree(Token.Italics, TokenTreeHelper.GenerateFromText("abc", "_"))})
                 .SetName("shielding italics in the middle");
             yield return new TestCaseData(new[] {Token.Escape, Token.Bold, Token.Text("abc"), Token.Bold},
-                    GenerateFromText("__", "abc", "__"))
+                    TokenTreeHelper.GenerateFromText("__", "abc", "__"))
                 .SetName("shielding bold");
             yield return new TestCaseData(new[] {Token.Escape, Token.Escape},
                     new[] {TokenTree.FromText("\\")})
                 .SetName("shielding itself");
             yield return new TestCaseData(new[] {Token.Escape, Token.Escape, Token.Escape},
-                    GenerateFromText("\\", "\\"))
+                    TokenTreeHelper.GenerateFromText("\\", "\\"))
                 .SetName("shielding itself three times");
             yield return new TestCaseData(new[] {Token.Escape, Token.Escape, Token.Escape, Token.Escape},
-                    GenerateFromText("\\", "\\"))
+                    TokenTreeHelper.GenerateFromText("\\", "\\"))
                 .SetName("shielding itself four times");
             yield return new TestCaseData(new[]
                 {
                     Token.Text("another"), Token.Text("br"), Token.Escape, Token.Text("ick"),
                     Token.Escape, Token.Text("in the"), Token.Escape, Token.Text("wall"), Token.Escape
-                }, GenerateFromText("another", "br", "\\", "ick", "\\", "in the", "\\", "wall", "\\"))
+                }, TokenTreeHelper.GenerateFromText("another", "br", "\\", "ick", "\\", "in the", "\\", "wall", "\\"))
                 .SetName("shielding text");
             yield return new TestCaseData(
                     new[] {Token.Escape, Token.Escape, Token.Italics, Token.Text("abc"), Token.Italics},
@@ -232,10 +235,10 @@ namespace Markdown.Tests.SyntaxParser
                     })
                 .SetName("new line after header");
             yield return new TestCaseData(new[] {Token.Text("xyz"), Token.Header1, Token.Text("abc")},
-                    GenerateFromText("xyz", "# ", "abc"))
+                    TokenTreeHelper.GenerateFromText("xyz", "# ", "abc"))
                 .SetName("header after text");
             yield return new TestCaseData(new[] {Token.Italics, Token.Header1, Token.Text("abc")},
-                    GenerateFromText("_", "# ", "abc"))
+                    TokenTreeHelper.GenerateFromText("_", "# ", "abc"))
                 .SetName("header after italics");
             yield return new TestCaseData(new[] {Token.Header1, Token.Text("abc"), Token.NewLine, Token.Text("abc")},
                     new[]
@@ -246,7 +249,7 @@ namespace Markdown.Tests.SyntaxParser
                     })
                 .SetName("text after header paragraph");
             yield return new TestCaseData(new[] {Token.Header1, Token.Header1, Token.Text("abc")},
-                    new[] {new TokenTree(Token.Header1, GenerateFromText("# ", "abc"))})
+                    new[] {new TokenTree(Token.Header1, TokenTreeHelper.GenerateFromText("# ", "abc"))})
                 .SetName("two headers in one line");
             yield return new TestCaseData(new[] {Token.Header1, Token.Italics, Token.Text("abc"), Token.Italics},
                     new[]
@@ -264,13 +267,8 @@ namespace Markdown.Tests.SyntaxParser
             yield return new TestCaseData(new[] {Token.Text("abc cde")}, new[] {TokenTree.FromText("abc cde")})
                 .SetName("Only text tokens");
             yield return new TestCaseData(new[] {Token.Text("abc"), Token.NewLine, Token.Text("zyx")},
-                    GenerateFromText("abc", "\n", "zyx"))
+                    TokenTreeHelper.GenerateFromText("abc", "\n", "zyx"))
                 .SetName("Text tokens with NewLine");
-        }
-
-        private static TokenTree[] GenerateFromText(params string[] words)
-        {
-            return words.Select(TokenTree.FromText).ToArray();
         }
     }
 }
