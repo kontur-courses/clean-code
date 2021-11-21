@@ -9,14 +9,14 @@ namespace Markdown.Lexer
     {
         private const char EndOfFile = '\0';
 
-        private readonly Dictionary<char, Func<Token>> handlers;
+        private readonly Dictionary<char, Func<Token>> tokenSymbolsHandlers;
 
         private int position;
         private string text;
 
         public MarkdownLexer()
         {
-            handlers = new Dictionary<char, Func<Token>>
+            tokenSymbolsHandlers = new Dictionary<char, Func<Token>>
             {
                 {'_', LexUnderscore},
                 {'\\', () => Token.Escape},
@@ -34,7 +34,7 @@ namespace Markdown.Lexer
             text = inputText ?? throw new ArgumentNullException(nameof(inputText));
             do
             {
-                yield return handlers.GetValueOrDefault(Current, LexText)();
+                yield return tokenSymbolsHandlers.GetValueOrDefault(Current, LexText)();
                 position++;
             } while (Current != EndOfFile);
         }
@@ -65,7 +65,7 @@ namespace Markdown.Lexer
         private Token LexText()
         {
             var buffer = new StringBuilder();
-            while (!handlers.ContainsKey(Current) && Current != EndOfFile)
+            while (!tokenSymbolsHandlers.ContainsKey(Current) && Current != EndOfFile)
             {
                 buffer.Append(Current);
                 position++;
