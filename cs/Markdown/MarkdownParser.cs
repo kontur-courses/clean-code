@@ -18,10 +18,10 @@ namespace Markdown
             _specification = specification;
         }
 
-        public List<Token> ParseToTokens(string mdText)
+        public List<StringToken> ParseToTokens(string mdText)
         {
             var stack = new Stack<(Tag tag, int index)>();
-            var tokens = new List<Token>();
+            var tokens = new List<StringToken>();
             var nextTokenStart = 0;
             var mdTagBuilder = new StringBuilder();
 
@@ -64,7 +64,7 @@ namespace Markdown
                     else if (IsCorrectOpenTag(mdText, position, mdTagBuilder))
                     {
                         if (stack.IsEmpty())
-                            tokens.Add(new Token(nextTokenStart, position - tag.OpenMdTag.Length + 1));
+                            tokens.Add(new StringToken(nextTokenStart, position - tag.OpenMdTag.Length + 1));
                         (Tag tag, int index) currentTag = (tag, position - tag.OpenMdTag.Length + 1);
                         stack.Push(currentTag);
                         nextTokenStart = position;
@@ -75,10 +75,10 @@ namespace Markdown
             if (!stack.IsEmpty())
             {
                 var (_, index) = stack.Last();
-                tokens.Add(new Token(index, mdText.Length));
+                tokens.Add(new StringToken(index, mdText.Length));
             }
             else
-                tokens.Add(new Token(nextTokenStart, mdText.Length));
+                tokens.Add(new StringToken(nextTokenStart, mdText.Length));
             return tokens;
         }
 
@@ -118,19 +118,16 @@ namespace Markdown
         private bool CanUnionByToken(string mdText, (Tag tag, int index) open, (Tag tag, int index) close)
         {
             var behindOpenSymbol = mdText.InRange(open.index - 1) ? mdText[open.index - 1].ToString() : null;
-            var afterClose = mdText.InRange(close.index + close.tag.CloseMdTag.Length)
-                ? mdText[close.index + close.tag.CloseMdTag.Length].ToString() : null;
 
             var content = mdText.Substring(open.index + open.tag.OpenMdTag.Length, close.index - (open.index + open.tag.OpenMdTag.Length));
 
-            if (string.IsNullOrEmpty(content)) // пустая строка
+            if (content.IsNullOrWhiteSpace()) // пустая строка
                 return false;
             if (content.Contains("\n")) // разные абзацы
                 return false;
-            if (content.Any(ch => char.IsDigit(ch))) // цифры внутри
+            if (content.ContainsDigit()) // цифры внутри
                 return false;
-            if (!string.IsNullOrWhiteSpace(behindOpenSymbol)
-                && content.Any(ch => ch == ' ')) //  разные слова
+            if (!behindOpenSymbol.IsNullOrWhiteSpace() && content.ContainsWhiteSpace()) //  разные слова
                 return false;
             return true;
         }

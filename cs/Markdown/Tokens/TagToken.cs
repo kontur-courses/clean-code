@@ -3,7 +3,7 @@ using System.Text;
 
 namespace Markdown
 {
-    public class TagToken : Token
+    public class TagToken : StringToken
     {
         public readonly Tag Tag;
         public TagToken(int begin, int end, Tag tag) : base(begin, end)
@@ -13,9 +13,9 @@ namespace Markdown
         public override bool AllowInners => Tag.AllowNesting;
         public override int RenderDelta => Tag.OpenHTMLTag.Length + Tag.CloseHTMLTag.Length;
 
-        public override string Render(string str, int offset = 0)
+        public override string Render(string str)
         {
-            var content = str.Substring(Begin + offset, Length);
+            var content = str.Substring(Begin, Length);
             if (_inners.Count > 0)
             {
                 _inners = _inners.OrderBy(token => token.Begin).ToList();
@@ -26,12 +26,8 @@ namespace Markdown
                 if (first.Begin != 0)
                     renderedContent.Append(content.Substring(0, first.Begin - first.Tag.OpenMdTag.Length));
                 СompensateLoses();
-                var childOffset = 0;
                 for (int i = 0; i < _inners.Count; i++)
-                {
-                    //childOffset += i > 0 ? _inners[i - 1].RenderDelta : 0;
-                    renderedContent.Append(_inners[i].Render(content, childOffset));
-                }
+                    renderedContent.Append(_inners[i].Render(content));
 
                 if (last.End != content.Length)
                     renderedContent.Append(content.Substring(last.End + last.Tag.CloseMdTag.Length, content.Length - last.End - last.Tag.CloseMdTag.Length));
@@ -50,7 +46,7 @@ namespace Markdown
                 .Zip(_inners.OrderBy(token => token.Begin).Select(token => token as TagToken).Skip(1), (first, second) => (first, second))
                 .Select(tuple => (End: tuple.first.End + 1, Begin: tuple.second.Begin - tuple.second.Tag.OpenMdTag.Length))
                 .Where(tuple => tuple.End != tuple.Begin)
-                .Select(tuple => new Token(tuple.End, tuple.Begin));
+                .Select(tuple => new StringToken(tuple.End, tuple.Begin));
 
             _inners = _inners
                 .Union(loses)

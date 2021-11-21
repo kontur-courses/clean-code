@@ -1,39 +1,30 @@
-﻿namespace Markdown.Extensions
+﻿using System;
+using System.Linq;
+
+namespace Markdown.Extensions
 {
     public static class StringExtensions
     {
-        public static bool InRange(this string str, int position)
-        {
-            return position < str.Length && position >= 0;
-        }
+        public static bool InRange(this string str, int position) =>
+            position < str.Length && position >= 0;
 
-        public static int LastIndex(this string str)
-        {
-            return str.Length - 1;
-        }
+        public static int LastIndex(this string str) => str.Length - 1;
 
-        public static bool HasCharsBehind(this string str, int position, int amount)
-        {
-            return str.InRange(position - amount);
-        }
+        public static bool ContainsWhiteSpace(this string str) =>
+            str.ToCharArray().Any(ch => char.IsWhiteSpace(ch));
 
-        public static bool TryGetCharsBehind(this string str, int position, int amount, out char[] chars)
-        {
-            if (str.InRange(position - amount))
-            {
-                chars = str.Substring(position - amount, amount).ToCharArray();
-                return true;
-            }
-            chars = default;
-            return false;
-        }
+        public static bool ContainsDigit(this string str) =>
+            str.ToCharArray().Any(ch => char.IsDigit(ch));
 
-        // можно объединить
+        public static bool IsNullOrWhiteSpace(this string str) => string.IsNullOrWhiteSpace(str);
+
+        public static bool TryGetCharsBehind(this string str, int position, int amount, out char[] chars) => TryGetNextChars(str, position, -amount, out chars);
+
         public static bool TryGetNextChars(this string str, int position, int amount, out char[] chars)
         {
             if (str.InRange(position + amount))
             {
-                chars = str.Substring(position + amount, amount).ToCharArray();
+                chars = str.Substring(position + amount, Math.Abs(amount)).ToCharArray();
                 return true;
             }
             chars = default;

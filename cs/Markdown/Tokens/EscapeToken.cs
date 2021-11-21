@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace Markdown
 {
-    public class EscapeToken : Token
+    public class EscapeToken : StringToken
     {
         public EscapeToken(int begin, int end) : base(begin, end)
         {
@@ -14,7 +14,7 @@ namespace Markdown
 
         public override bool AllowInners => false;
         public override int RenderDelta => -1;
-        public override string Render(string str, int offset = 0)
+        public override string Render(string str)
         {
             return str.Substring(Begin + 1, Length - 1);
         }

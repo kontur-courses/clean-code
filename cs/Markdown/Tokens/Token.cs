@@ -1,9 +1,12 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Linq;
+using System.Text;
+using System.Threading.Tasks;
 
-namespace Markdown
+namespace Markdown.Tokens
 {
-    public class Token
+    public abstract class Token
     {
         public static void SetRelation(Token parent, Token child)
         {
@@ -14,12 +17,12 @@ namespace Markdown
             }
         }
 
-        public virtual int RenderDelta => 0;
-        public bool HasParent { get; private set; }
+        public abstract int RenderDelta { get; }
+        public abstract bool HasParent { get; set; }
         public int Begin { get; private set; }
         public int End { get; private set; }
         public int Length => End - Begin;
-        public virtual bool AllowInners => false;
+        public abstract bool AllowInners { get; }
 
         protected List<Token> _inners;
         public List<Token> Inners => _inners.ToList();
@@ -32,10 +35,7 @@ namespace Markdown
             HasParent = false;
         }
 
-        public virtual string Render(string str, int offset = 0)
-        {
-            return str.Substring(Begin + offset, Length);
-        }
+        public abstract string Render(string str);
 
         private void SetCoordinatesRelatively(Token parent)
         {
