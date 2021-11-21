@@ -54,6 +54,26 @@ namespace Markdown
                 return GetHashtagTagEvent(tag);
             if (tag == "_")
                 return GetOneLineTagEvent(input, symbolPos, tag);
+            if (tag == "--")
+                return GetTwoLineTagEvent(input, symbolPos, tag);
+            if (tag == "\n")
+            {
+                TurnAllOpenedTagsToText();
+                var firstOpenedTag = _openedTags.Pop();
+                if (firstOpenedTag == null)
+                    return new TagEvent(Side.None, Tag.Text, tag);
+                _openedTags.Pop();
+                return new TagEvent(Side.Right, Tag.Header, tag);
+            }
+        }
+
+        private void TurnAllOpenedTagsToText()
+        {
+            while (_openedTags.Peek() != null || _openedTags.Peek().TagContent != "#")
+            {
+                var openedTag = _openedTags.Pop();
+                ChangeTagToText(openedTag);
+            }
         }
 
         private TagEvent GetOneLineTagEvent(string input, int symbolPos, string tag)
