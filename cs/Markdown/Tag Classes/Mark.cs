@@ -1,8 +1,7 @@
 ﻿namespace Markdown.Tag_Classes
 {
-    public enum Tag
+    public enum Mark
     {
-        Border,
         Text,
         OneLine,
         TwoLines,

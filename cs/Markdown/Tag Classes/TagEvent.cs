@@ -3,13 +3,13 @@
     public class TagEvent
     {
         public Side Side;
-        public Tag Tag;
+        public Mark Mark;
         public string TagContent;
 
-        public TagEvent(Side side, Tag tag, string con)
+        public TagEvent(Side side, Mark mark, string con)
         {
             Side = side;
-            Tag = tag;
+            Mark = mark;
             TagContent = con;
         }
 
