@@ -50,6 +50,12 @@ namespace Markdown.MarkdownTests
                 {
                     new TagEvent(Side.None, Tag.Text, "just text"),
                 }).SetName("two words without tags");
+            yield return new TestCaseData(
+                "First line.\nSecond line.",
+                new List<TagEvent>
+                {
+                    new TagEvent(Side.None, Tag.Text, "First line.\nSecond line."),
+                }).SetName("two sentences separated by new line symbol");
         }
     }
 }
