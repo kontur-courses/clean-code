@@ -18,10 +18,10 @@ namespace Markdown
             _specification = specification;
         }
 
-        public List<StringToken> ParseToTokens(string mdText)
+        public List<Token> ParseToTokens(string mdText)
         {
             var stack = new Stack<(Tag tag, int index)>();
-            var tokens = new List<StringToken>();
+            var tokens = new List<Token>();
             var nextTokenStart = 0;
             var mdTagBuilder = new StringBuilder();
 
@@ -61,7 +61,7 @@ namespace Markdown
                             nextTokenStart = pop.index;
                         }
                     }
-                    else if (IsCorrectOpenTag(mdText, position, mdTagBuilder))
+                    else if (IsCorrectOpenTag(mdText, position))
                     {
                         if (stack.IsEmpty())
                             tokens.Add(new StringToken(nextTokenStart, position - tag.OpenMdTag.Length + 1));
@@ -82,11 +82,8 @@ namespace Markdown
             return tokens;
         }
 
-        private bool IsCorrectOpenTag(string mdText, int position, StringBuilder mdTagBuilder)
+        private bool IsCorrectOpenTag(string mdText, int position)
         {
-            //mdText.TryGetCharsBehind(position, 1, out char[] behindChars);
-            //if (behindChars != null && !char.IsWhiteSpace(behindChars[0]))
-            //    return false;
             mdText.TryGetNextChars(position, 1, out char[] nextChars);
             if (nextChars != null && char.IsWhiteSpace(nextChars[0]))
                 return false;
@@ -99,9 +96,6 @@ namespace Markdown
             mdText.TryGetCharsBehind(position, 1, out char[] behindChars);
             if (behindChars != null && char.IsWhiteSpace(behindChars[0]))
                 return false;
-            //mdText.TryGetNextChars(position, 1, out char[] nextChars);
-            //if (nextChars != null && char.IsWhiteSpace(nextChars[0]))
-            //    return false;
             return true;
         }
 

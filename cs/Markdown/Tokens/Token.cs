@@ -1,10 +1,7 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
-namespace Markdown.Tokens
+namespace Markdown
 {
     public abstract class Token
     {
@@ -17,14 +14,13 @@ namespace Markdown.Tokens
             }
         }
 
+        protected List<Token> _inners;
         public abstract int RenderDelta { get; }
-        public abstract bool HasParent { get; set; }
-        public int Begin { get; private set; }
-        public int End { get; private set; }
+        public bool HasParent { get; protected set; }
+        public int Begin { get; protected set; }
+        public int End { get; protected set; }
         public int Length => End - Begin;
         public abstract bool AllowInners { get; }
-
-        protected List<Token> _inners;
         public List<Token> Inners => _inners.ToList();
 
         public Token(int begin, int end)

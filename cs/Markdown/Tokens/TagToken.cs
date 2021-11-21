@@ -3,15 +3,16 @@ using System.Text;
 
 namespace Markdown
 {
-    public class TagToken : StringToken
+    public class TagToken : Token
     {
         public readonly Tag Tag;
+        public override bool AllowInners => Tag.AllowNesting;
+        public override int RenderDelta => Tag.OpenHTMLTag.Length + Tag.CloseHTMLTag.Length;
+
         public TagToken(int begin, int end, Tag tag) : base(begin, end)
         {
             Tag = tag;
         }
-        public override bool AllowInners => Tag.AllowNesting;
-        public override int RenderDelta => Tag.OpenHTMLTag.Length + Tag.CloseHTMLTag.Length;
 
         public override string Render(string str)
         {
@@ -25,7 +26,7 @@ namespace Markdown
                 var last = _inners.Last() as TagToken;
                 if (first.Begin != 0)
                     renderedContent.Append(content.Substring(0, first.Begin - first.Tag.OpenMdTag.Length));
-                СompensateLoses();
+                СompensateLosesParentParts();
                 for (int i = 0; i < _inners.Count; i++)
                     renderedContent.Append(_inners[i].Render(content));
 
@@ -38,7 +39,7 @@ namespace Markdown
                 return Tag.OpenHTMLTag + content + Tag.CloseHTMLTag;
         }
 
-        private void СompensateLoses()
+        private void СompensateLosesParentParts()
         {
             var loses = _inners
                 .Select(token => token as TagToken)
@@ -46,7 +47,7 @@ namespace Markdown
                 .Zip(_inners.OrderBy(token => token.Begin).Select(token => token as TagToken).Skip(1), (first, second) => (first, second))
                 .Select(tuple => (End: tuple.first.End + 1, Begin: tuple.second.Begin - tuple.second.Tag.OpenMdTag.Length))
                 .Where(tuple => tuple.End != tuple.Begin)
-                .Select(tuple => new StringToken(tuple.End, tuple.Begin));
+                .Select(tuple => new StringToken(tuple.End, tuple.Begin) as Token);
 
             _inners = _inners
                 .Union(loses)

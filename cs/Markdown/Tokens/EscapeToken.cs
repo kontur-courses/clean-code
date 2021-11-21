@@ -1,12 +1,6 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-
-namespace Markdown
+﻿namespace Markdown
 {
-    public class EscapeToken : StringToken
+    public class EscapeToken : Token
     {
         public EscapeToken(int begin, int end) : base(begin, end)
         {

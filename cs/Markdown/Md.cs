@@ -34,14 +34,14 @@ namespace Markdown
                 ;
         }
 
-        private List<StringToken> SetRelations(List<StringToken> tokens)
+        private List<Token> SetRelations(List<Token> tokens)
         {
             var sortedTokens = tokens
                 .Where(t => t.Length != 0)
                 .OrderBy(t => t.Length)
                 .ThenBy(t => t.Begin)
                 .ToList();
-            var childs = new List<StringToken>();
+            var childs = new List<Token>();
             for (int i = 0; i < sortedTokens.Count; i++)
                 for (int j = i + 1; j < sortedTokens.Count; j++)
                 {
@@ -52,7 +52,7 @@ namespace Markdown
                     {
                         childs.Add(sortedTokens[i]);
                         if (parent.AllowInners)
-                            StringToken.SetRelation(sortedTokens[j], sortedTokens[i]);
+                            Token.SetRelation(sortedTokens[j], sortedTokens[i]);
                     }
                 }
             return sortedTokens
