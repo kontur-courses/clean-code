@@ -10,7 +10,7 @@ namespace Markdown
             var lexer = new Lexer.Lexer();
             var tokenParser = new TokenParser.TokenParser();
             var htmlTokenRenderer = new HtmlTokenRenderer();
-            var md = new Md(lexer, tokenParser, htmlTokenRenderer);
+            var md = new MarkdownConverter(lexer, tokenParser, htmlTokenRenderer);
             Console.WriteLine(md.Render("__Выделенный двумя символами текст__"));
         }
     }

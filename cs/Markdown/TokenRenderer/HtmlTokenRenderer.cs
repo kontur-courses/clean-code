@@ -39,8 +39,7 @@ namespace Markdown.TokenRenderer
         }
 
         private static string WrapOpeningTag(string tag) => $"<{tag}>";
-        
+
         private static string WrapClosingTag(string tag) => $"</{tag}>";
     }
-
 }

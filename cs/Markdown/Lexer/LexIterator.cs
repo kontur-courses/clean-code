@@ -43,7 +43,7 @@ namespace Markdown.Lexer
         private Token LexUnderscore()
         {
             isNewLine = false;
-            if (IsNextCharacter('_') )
+            if (IsNextCharacter('_'))
             {
                 currentIndex++;
                 return Token.Bold;

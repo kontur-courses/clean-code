@@ -124,7 +124,8 @@ namespace Markdown.Tests
 
         [Test]
         public void Parse_ShouldApplyBoldFormat_WhenSurroundsWord(
-            [ValueSource(nameof(GetFormattingTokens))] Token token)
+            [ValueSource(nameof(GetFormattingTokens))]
+            Token token)
         {
             var tokens = new[]
             {
@@ -141,7 +142,8 @@ namespace Markdown.Tests
 
         [Test]
         public void Parse_ShouldApplyBoldFormat_WhenSurroundsText(
-            [ValueSource(nameof(GetFormattingTokens))] Token token)
+            [ValueSource(nameof(GetFormattingTokens))]
+            Token token)
         {
             var tokens = new[]
             {
@@ -158,7 +160,8 @@ namespace Markdown.Tests
 
         [Test]
         public void Parse_ShouldMakeFormattingAsText_WhenSingleBeforeText(
-            [ValueSource(nameof(GetFormattingTokens))] Token token)
+            [ValueSource(nameof(GetFormattingTokens))]
+            Token token)
         {
             var tokens = new[]
             {
@@ -174,7 +177,8 @@ namespace Markdown.Tests
 
         [Test]
         public void Parse_ShouldMakeFormattingAsText_WhenSingleAfterText(
-            [ValueSource(nameof(GetFormattingTokens))] Token token)
+            [ValueSource(nameof(GetFormattingTokens))]
+            Token token)
         {
             var tokens = new[]
             {
@@ -233,7 +237,8 @@ namespace Markdown.Tests
 
         [Test]
         public void Parse_ShouldNotApplyFormatting_WhenSurroundsNumber(
-            [ValueSource(nameof(GetFormattingTokens))] Token token)
+            [ValueSource(nameof(GetFormattingTokens))]
+            Token token)
         {
             var character = token.Value;
             var tokens = new[] { token, Token.Text("12"), token };

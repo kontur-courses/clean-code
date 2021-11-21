@@ -16,7 +16,6 @@ namespace Markdown.TokenParser.TokenParsingIteratorState
             var text = Iterator.Current.Value;
             sb.Append(text);
             while (Iterator.TryMoveNext(out var next))
-            {
                 if (next.Type == TokenType.Text)
                 {
                     sb.Append(next.Value);
@@ -26,7 +25,6 @@ namespace Markdown.TokenParser.TokenParsingIteratorState
                     Iterator.PushToBuffer(next);
                     break;
                 }
-            }
 
             return Token.Text(sb.ToString()).ToNode();
         }

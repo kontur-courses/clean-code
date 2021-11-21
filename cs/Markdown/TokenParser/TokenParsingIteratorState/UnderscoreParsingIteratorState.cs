@@ -58,7 +58,7 @@ namespace Markdown.TokenParser.TokenParsingIteratorState
                    || text.EndsWith(" ")
                    || context.IsSplitWord && text.Any(x => !char.IsLetter(x));
         }
-        
+
         protected virtual bool TryParseEntryOnSameTokenContext(TokenContext _, out TokenNode token)
         {
             token = default;

@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
 using FluentAssertions;
 using Markdown.Extensions;
 using Markdown.TokenRenderer;
@@ -17,13 +16,13 @@ namespace Markdown.Tests
         {
             sut = new HtmlTokenRenderer();
         }
-        
+
         [Test]
         public void Render_ShouldThrowException_WhenTokensIsNull()
         {
             Assert.Throws<ArgumentNullException>(() => sut.Render(null));
         }
-        
+
         [Test]
         public void Render_ShouldReturnEmptyString_WhenTokensEmpty()
         {
@@ -41,7 +40,7 @@ namespace Markdown.Tests
 
             html.Should().Be("Text");
         }
-        
+
         [Test]
         public void Render_ShouldReturnFormattedText_WhenSurroundsByCursive()
         {
@@ -51,7 +50,7 @@ namespace Markdown.Tests
 
             html.Should().Be("<em>Text</em>");
         }
-        
+
         [Test]
         public void Render_ShouldReturnFormattedText_WhenSurroundsByBold()
         {
@@ -67,11 +66,11 @@ namespace Markdown.Tests
         {
             var node = new TokenNode(Token.Header1, Token.Text("Text").ToNode());
 
-            var html = sut.Render(new[] {node});
+            var html = sut.Render(new[] { node });
 
             html.Should().Be("<h1>Text</h1>");
         }
-        
+
         [Test]
         public void Render_ShouldReturnFormattedText_WhenHasInnerFormatting()
         {
@@ -79,10 +78,10 @@ namespace Markdown.Tests
             {
                 Token.Text("A").ToNode(),
                 new TokenNode(Token.Cursive, Token.Text("B").ToNode()),
-                Token.Text("C").ToNode(),
+                Token.Text("C").ToNode()
             });
 
-            var html = sut.Render(new[] {node});
+            var html = sut.Render(new[] { node });
 
             html.Should().Be("<h1>A<em>B</em>C</h1>");
         }

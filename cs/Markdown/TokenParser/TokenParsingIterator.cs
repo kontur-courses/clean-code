@@ -103,7 +103,7 @@ namespace Markdown.TokenParser
         }
 
         public void PushToBuffer(Token token) => enumerator.PushToBuffer(token);
-        
+
         private TokenNode FlushToTextToken(IEnumerable<string> stack, TokenContext context)
         {
             contexts.Clear();
