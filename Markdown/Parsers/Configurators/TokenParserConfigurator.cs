@@ -3,7 +3,7 @@ using System.Collections.Generic;
 
 namespace Markdown
 {
-    public class TokenParserConfigurator
+    internal class TokenParserConfigurator
     {
         protected List<Token> Tokens = new();
 

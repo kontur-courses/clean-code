@@ -4,7 +4,7 @@ using System.Linq;
 
 namespace Markdown.Extensions
 {
-    public static class EnumerableExtension
+    internal static class EnumerableExtension
     {
         public static IEnumerable<TSource> ForEachPairs<TSource>(
             this IList<TSource> source,

@@ -2,7 +2,7 @@
 
 namespace Markdown
 {
-    public interface ITokenParser
+    internal interface ITokenParser
     {
         // void ParseParagraph(string paragraph);
 

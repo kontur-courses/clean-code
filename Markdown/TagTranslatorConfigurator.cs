@@ -3,7 +3,7 @@ using System.Collections.Generic;
 
 namespace Markdown
 {
-    public class TagTranslatorConfigurator
+    internal class TagTranslatorConfigurator
     {
         private readonly Dictionary<Tag, Tag> tags = new();
         

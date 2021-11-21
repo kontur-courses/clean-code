@@ -2,7 +2,7 @@
 
 namespace Markdown
 {
-    public class TokenRulesConfigurator
+    internal class TokenRulesConfigurator
     {
         private TokenRulesConfigurator()
         {

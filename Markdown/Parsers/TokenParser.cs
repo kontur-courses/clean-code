@@ -5,7 +5,7 @@ using AhoCorasick;
 
 namespace Markdown
 {
-    public class TokenParser : ITokenParser
+    internal class TokenParser : ITokenParser
     {
         private readonly Trie<Token> trie = new();
 

@@ -3,7 +3,7 @@ using System.Collections.Concurrent;
 
 namespace Markdown
 {
-    public class Tag
+    internal class Tag
     {
         private static readonly ConcurrentDictionary<string, Tag> Tags = new();
 

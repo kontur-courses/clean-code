@@ -3,7 +3,7 @@ using System.Collections.Generic;
 
 namespace Markdown
 {
-    public class PreferTokenRulesConfigurator : TokenParserConfigurator
+    internal class PreferTokenRulesConfigurator : TokenParserConfigurator
     {
         protected internal PreferTokenRulesConfigurator(List<Token> tokens)
         {

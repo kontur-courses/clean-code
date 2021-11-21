@@ -1,6 +1,6 @@
 namespace Markdown
 {
-    public class Token
+    internal class Token
     {
         private readonly string value;
         public int Length => value.Length;

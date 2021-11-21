@@ -2,7 +2,7 @@
 
 namespace Markdown.Extensions
 {
-    public static class IntExtension
+    internal static class IntExtension
     {
         public static bool Between(this int source, int left, int right)
         {

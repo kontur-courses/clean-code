@@ -5,7 +5,7 @@ using Markdown.Extensions;
 
 namespace Markdown
 {
-    public class TokenSegment
+    internal class TokenSegment
     {
         private readonly Token openToken;
         private readonly int openTokenLocation;

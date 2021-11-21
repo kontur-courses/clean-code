@@ -5,7 +5,7 @@ using Markdown.Extensions;
 
 namespace Markdown
 {
-    public class TokenInfoCollection
+    internal class TokenInfoCollection
     {
         private readonly IEnumerable<TokenInfo> tokens;
 
