@@ -15,9 +15,7 @@
 
         public override string ToString()
         {
-            return $"Side = {nameof(this.Side)}\n"
-                   + $"Tag = {nameof(this.Tag)}\n"
-                   + $"TagContent = {TagContent}\n";
+            return $"TagContent = {TagContent}\n";
         }
     }
 }

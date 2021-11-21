@@ -17,7 +17,6 @@ namespace Markdown
 
         public MdParser()
         {
-            //var rootTagEvent = new TagEvent(Side.None, Tag.Root, "");
             _openedTags = new Stack<TagEvent>();
             _openedTags.Push(null);
             _parsedTags = new List<TagEvent>();
@@ -63,12 +62,8 @@ namespace Markdown
                     }
                 }
             }
+            _parsedTags.Add(GetEndOfInputTagEvent());
             return _parsedTags;
-        }
-
-        private static bool NextSymbolIsTagged(string input, int nextPos)
-        {
-            return nextPos < input.Length && _tagSymbols.Contains(input[nextPos]);
         }
 
         private TagEvent GetTagEventCheckingRules(string input, int symbolPos, string tag)
@@ -79,26 +74,38 @@ namespace Markdown
                 return GetOneLineTagEvent(input, symbolPos, tag);
             if (tag == "__")
                 return GetTwoLineTagEvent(input, symbolPos, tag);
-            return GetEndOfLineTagEvent(tag);
+            return GetNewLineTagEvent(tag);
         }
 
-        private TagEvent GetEndOfLineTagEvent(string tag)
+        private TagEvent GetEndOfInputTagEvent()
         {
-            TurnAllOpenedTagsToText();
-            var firstOpenedTag = _openedTags.Pop();
-            if (firstOpenedTag == null)
+            const string fakeNewLineSymbol = "";
+            return GetNewLineTagEvent(fakeNewLineSymbol);
+        }
+
+        private TagEvent GetNewLineTagEvent(string tag)
+        {
+            TurnOpenedTagsToTextUpToHeader();
+            //var firstOpenedTag = _openedTags.Pop();
+            //if (firstOpenedTag == null)
+            if (_openedTags.Count == 0 || _openedTags.Pop() == null)
                 return new TagEvent(Side.None, Tag.Text, tag);
             _openedTags.Pop();
             return new TagEvent(Side.Right, Tag.Header, tag);
         }
 
-        private void TurnAllOpenedTagsToText()
+        private void TurnOpenedTagsToTextUpToHeader()
         {
-            while (_openedTags.Peek() != null && _openedTags.Peek().TagContent != "#")
+            while (StackContainsTagsToTurn())
             {
                 var openedTag = _openedTags.Pop();
                 ChangeTagToText(openedTag);
             }
+        }
+
+        private bool StackContainsTagsToTurn()
+        {
+            return _openedTags.Count > 0 && _openedTags.Peek() != null && _openedTags.Peek().TagContent != "#";
         }
 
         private TagEvent GetTwoLineTagEvent(string input, int symbolPos, string tag)

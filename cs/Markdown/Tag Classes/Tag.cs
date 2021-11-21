@@ -2,7 +2,7 @@
 {
     public enum Tag
     {
-        Root,
+        Border,
         Text,
         OneLine,
         TwoLines,

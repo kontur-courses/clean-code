@@ -26,7 +26,8 @@ namespace Markdown.MarkdownTests
                 {
                     new TagEvent(Side.Left, Tag.Header, "#"),
                     new TagEvent(Side.None, Tag.Text, "header with several words"),
-                    new TagEvent(Side.Right, Tag.Header, "\n")
+                    new TagEvent(Side.Right, Tag.Header, "\n"),
+                    new TagEvent(Side.None, Tag.Text, "")
                 }).SetName("simple header");
             yield return new TestCaseData(
                 "_simple single underline_",
@@ -34,7 +35,8 @@ namespace Markdown.MarkdownTests
                 {
                     new TagEvent(Side.Left, Tag.OneLine, "_"),
                     new TagEvent(Side.None, Tag.Text, "simple single underline"),
-                    new TagEvent(Side.Right, Tag.OneLine, "_")
+                    new TagEvent(Side.Right, Tag.OneLine, "_"),
+                    new TagEvent(Side.None, Tag.Text, "")
                 }).SetName("simple single underline");
             yield return new TestCaseData(
                 "__simple double underline__",
@@ -42,19 +44,24 @@ namespace Markdown.MarkdownTests
                 {
                     new TagEvent(Side.Left, Tag.TwoLines, "__"),
                     new TagEvent(Side.None, Tag.Text, "simple double underline"),
-                    new TagEvent(Side.Right, Tag.TwoLines, "__")
+                    new TagEvent(Side.Right, Tag.TwoLines, "__"),
+                    new TagEvent(Side.None, Tag.Text, "")
                 }).SetName("simple double underline");
             yield return new TestCaseData(
                 "just text",
                 new List<TagEvent>
                 {
                     new TagEvent(Side.None, Tag.Text, "just text"),
+                    new TagEvent(Side.None, Tag.Text, "")
                 }).SetName("two words without tags");
             yield return new TestCaseData(
                 "First line.\nSecond line.",
                 new List<TagEvent>
                 {
-                    new TagEvent(Side.None, Tag.Text, "First line.\nSecond line."),
+                    new TagEvent(Side.None, Tag.Text, "First line."),
+                    new TagEvent(Side.None, Tag.Text, "\n"),
+                    new TagEvent(Side.None, Tag.Text, "Second line."),
+                    new TagEvent(Side.None, Tag.Text, "")
                 }).SetName("two sentences separated by new line symbol");
             yield return new TestCaseData(
                 "#Header without new line",
@@ -63,7 +70,7 @@ namespace Markdown.MarkdownTests
                     new TagEvent(Side.Left, Tag.Header, "#"),
                     new TagEvent(Side.None, Tag.Text, "Header without new line"),
                     new TagEvent(Side.Right, Tag.Header, ""),
-                }).SetName("Opened header without new line symbol");
+                }).SetName("opened header without new line symbol");
         }
     }
 }
