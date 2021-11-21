@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Net.Mail;
 using System.Text;
 using Markdown.Tag_Classes;
 
@@ -16,7 +17,9 @@ namespace Markdown
 
         public MdParser()
         {
-            _openedTags = new Stack<TagEvent>(null);
+            //var rootTagEvent = new TagEvent(Side.None, Tag.Root, "");
+            _openedTags = new Stack<TagEvent>();
+            _openedTags.Push(null);
             _parsedTags = new List<TagEvent>();
         }
 
@@ -26,26 +29,46 @@ namespace Markdown
             var tag = new StringBuilder();
             for (var symbolPos = 0; symbolPos < input.Length; symbolPos++)
             {
-                if (_tagSymbols.Contains(input[symbolPos]))
+                var currentSymbol = input[symbolPos];
+                if (_tagSymbols.Contains(currentSymbol))
                 {
                     if (plainText.Length > 0)
                     {
-                        _parsedTags.Add(new TagEvent(Side.None,Tag.Text, plainText.ToString()));
+                        _parsedTags.Add(new TagEvent(Side.None, Tag.Text, plainText.ToString()));
                         plainText.Clear();
                     }
-                    tag.Append(input[symbolPos]);
-                    continue;
-                }
 
-                if (tag.Length > 0)
-                {
-                    var tagEvent = GetTagEventCheckingRules(input, symbolPos, tag.ToString());
-                    _parsedTags.Add(tagEvent);
-                    tag.Clear();
+                    tag.Append(currentSymbol);
+                    if (symbolPos == input.Length - 1)
+                    {
+                        var tagEvent = GetTagEventCheckingRules(input, symbolPos, tag.ToString());
+                        _parsedTags.Add(tagEvent);
+                        tag.Clear();
+                    }
                 }
-                plainText.Append(input[symbolPos]);
+                else
+                {
+                    if (tag.Length > 0)
+                    {
+                        var tagEvent = GetTagEventCheckingRules(input, symbolPos, tag.ToString());
+                        _parsedTags.Add(tagEvent);
+                        tag.Clear();
+                    }
+
+                    plainText.Append(currentSymbol);
+                    if (symbolPos == input.Length - 1)
+                    {
+                        _parsedTags.Add(new TagEvent(Side.None, Tag.Text, plainText.ToString()));
+                        plainText.Clear();
+                    }
+                }
             }
             return _parsedTags;
+        }
+
+        private static bool NextSymbolIsTagged(string input, int nextPos)
+        {
+            return nextPos < input.Length && _tagSymbols.Contains(input[nextPos]);
         }
 
         private TagEvent GetTagEventCheckingRules(string input, int symbolPos, string tag)
@@ -71,7 +94,7 @@ namespace Markdown
 
         private void TurnAllOpenedTagsToText()
         {
-            while (_openedTags.Peek() != null || _openedTags.Peek().TagContent != "#")
+            while (_openedTags.Peek() != null && _openedTags.Peek().TagContent != "#")
             {
                 var openedTag = _openedTags.Pop();
                 ChangeTagToText(openedTag);
@@ -111,17 +134,20 @@ namespace Markdown
             if (lastTag.Side == Side.Left & lastTag.Tag == Tag.TwoLines)
             {
                 lastTag = _openedTags.Pop();
-                var beforeLastTag = _openedTags.Peek();
-                if (beforeLastTag.Tag == Tag.OneLine && beforeLastTag.Side == Side.Left)
-                {
-                    ChangeTagToText(lastTag);
-                    return new TagEvent(Side.None, Tag.Text, tag);
-                }
+                var tagBeforeLastOne = _openedTags.Peek();
+                if (tagBeforeLastOne == null || !TagIsNotLeftOneliner(tagBeforeLastOne))
+                    return new TagEvent(Side.Right, Tag.TwoLines, tag);
 
-                return new TagEvent(Side.Right, Tag.Text, tag);
+                ChangeTagToText(lastTag);
+                return new TagEvent(Side.None, Tag.Text, tag);
             }
 
             throw new Exception("unknow tag in stack!");
+        }
+
+        private static bool TagIsNotLeftOneliner(TagEvent beforeLastTag)
+        {
+            return beforeLastTag.Tag == Tag.OneLine && beforeLastTag.Side == Side.Left;
         }
 
         private TagEvent GetLeftTwoLineTagEvent(string tag)
