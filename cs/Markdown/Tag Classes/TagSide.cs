@@ -1,4 +1,4 @@
-﻿namespace Markdown
+﻿namespace Markdown.Tag_Classes
 {
     public enum TagSide
     {

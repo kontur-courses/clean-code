@@ -58,7 +58,7 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="MdParser.cs" />
-    <Compile Include="MarkdownTests\MarkdownParserShould.cs" />
+    <Compile Include="MarkdownTests\MdParserShould.cs" />
     <Compile Include="Tag Classes\TagEvent.cs" />
     <Compile Include="Tag Classes\TagSide.cs" />
     <Compile Include="Md.cs" />
