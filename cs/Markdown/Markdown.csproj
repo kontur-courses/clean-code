@@ -57,7 +57,7 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="MarkdownParser.cs" />
+    <Compile Include="MdParser.cs" />
     <Compile Include="MarkdownTests\MarkdownParserShould.cs" />
     <Compile Include="Tag Classes\TagEvent.cs" />
     <Compile Include="Tag Classes\TagSide.cs" />

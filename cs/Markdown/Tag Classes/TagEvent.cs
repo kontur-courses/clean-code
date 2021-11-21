@@ -8,15 +8,15 @@ namespace Markdown.Tag_Classes
 {
     public class TagEvent
     {
-        public readonly TagSide tagSide;
-        public readonly TagKind tagKind;
-        public readonly string tagContent;
+        public readonly TagSide TagSide;
+        public readonly TagKind TagKind;
+        public readonly string TagContent;
 
-        public TagEvent(TagSide tagSide, TagKind tagKind, string content)
+        public TagEvent(TagSide tagSide, TagKind tagKind, string con)
         {
-            this.tagSide = tagSide;
-            this.tagKind = tagKind;
-            this.tagContent = content;
+            TagSide = tagSide;
+            TagKind = tagKind;
+            TagContent = con;
         }
     }
 }
