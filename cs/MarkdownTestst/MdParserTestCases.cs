@@ -68,6 +68,8 @@ namespace MarkdownTests
                     .SetName("ReturnScreeningTokens_WhenThereIsScreenedItalicToken");
                 yield return new TestCaseData("\\\\a", new List<Token>() { new ScreeningToken(0, 0)})
                     .SetName("ReturnScreeningToken_WhenThereIsScreenedScreeningToken");
+                yield return new TestCaseData("\\![]()", new List<Token>() { new ScreeningToken(0, 0) })
+                    .SetName("ReturnScreeningToken_WhenThereIsScreenedScreeningToken");
                 yield return new TestCaseData("\\a", new List<Token>())
                     .SetName("ReturnEmptyIEnumerable_WhenThereIsNothingToScreen");
 
