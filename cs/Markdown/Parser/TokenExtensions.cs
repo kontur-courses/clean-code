@@ -17,16 +17,13 @@ namespace Markdown.Parser
 
         private static bool IsTokenEmpty(this Token token, string text)
         {
-            var tokenContent = token.GetTokenContent(text);
-
-            return tokenContent.Length == 0;
+            return token.GetTokenContent(text).Length == 0;
         }
 
         private static bool IsInsideDifferentWords(this Token token, string text)
         {
             var openInsideWord = IsSeparatorInsideWord(token.OpenIndex, token.GetSeparator().Length, text);
             var closeInsideWord = IsSeparatorInsideWord(token.CloseIndex, token.GetSeparator().Length, text);
-
             var tokenContent = token.GetTokenContent(text);
 
             return (openInsideWord || closeInsideWord) && tokenContent.Any(x => x == ' ');
@@ -43,9 +40,7 @@ namespace Markdown.Parser
         private static bool IsSeparatorInsideWord(int index, int separatorLength, string text)
         {
             var isLeftLetter = index > 0 && char.IsLetter(text[index - 1]);
-
-            var isRightLetter = index + separatorLength < text.Length - 1 &&
-                                char.IsLetter(text[index + separatorLength]);
+            var isRightLetter = index + separatorLength < text.Length - 1 && char.IsLetter(text[index + separatorLength]);
 
             return isLeftLetter && isRightLetter;
         }
@@ -53,9 +48,7 @@ namespace Markdown.Parser
         private static bool IsSeparatorInsideTextWithDigits(int index, int separatorLength, string text)
         {
             var isLeftLetter = index > 0 && char.IsDigit(text[index - 1]);
-
-            var isRightLetter = index + separatorLength < text.Length - 1 &&
-                                char.IsDigit(text[index + separatorLength]);
+            var isRightLetter = index + separatorLength < text.Length - 1 && char.IsDigit(text[index + separatorLength]);
 
             return isLeftLetter && isRightLetter;
         }

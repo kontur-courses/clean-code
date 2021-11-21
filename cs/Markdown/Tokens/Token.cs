@@ -7,7 +7,6 @@ namespace Markdown.Tokens
 
     {
         private bool isCorrect = true;
-
         public int OpenIndex { get; }
         public int CloseIndex { get; private set; }
         public bool IsOpened => CloseIndex == 0;
@@ -45,10 +44,6 @@ namespace Markdown.Tokens
             Close(closeIndex);
         }
 
-        public abstract string GetSeparator();
-
-        internal abstract void Accept(MdParser parser);
-
         public void Close(int index)
         {
             if (!IsOpened)
@@ -59,6 +54,9 @@ namespace Markdown.Tokens
 
             CloseIndex = index;
         }
+        public abstract string GetSeparator();
+
+        internal abstract void Accept(MdParser parser);
 
         public static bool IsCorrectTokenOpenIndex(int openIndex, string text, int length)
         {

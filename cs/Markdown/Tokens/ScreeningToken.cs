@@ -8,14 +8,10 @@ namespace Markdown.Tokens
 
         public override bool IsNonPaired => true;
         public override bool IsContented => false;
+        public override string GetSeparator() => Separator;
 
         public ScreeningToken(int openIndex) : base(openIndex) { }
         internal ScreeningToken(int openIndex, int closeIndex) : base(openIndex, closeIndex) { }
-
-        public override string GetSeparator()
-        {
-            return Separator;
-        }
 
         internal override void Accept(MdParser parser)
         {

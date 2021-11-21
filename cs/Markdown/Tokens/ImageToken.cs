@@ -10,7 +10,7 @@ namespace Markdown.Tokens
         private string source;
         public override bool IsNonPaired => true;
         public override bool IsContented => true;
-
+        public override string GetSeparator() => Separator;
         public override string Source
         {
             get => source ?? string.Empty;
@@ -37,16 +37,10 @@ namespace Markdown.Tokens
 
         public ImageToken(int openIndex) : base(openIndex) { }
         internal ImageToken(int openIndex, int closeIndex) : base(openIndex, closeIndex) { }
-
         internal ImageToken(int openIndex, int closeIndex, string source, string altText) : base(openIndex, closeIndex)
         {
             this.source = source;
             this.altText = altText;
-        }
-
-        public override string GetSeparator()
-        {
-            return Separator;
         }
 
         internal override void Accept(MdParser parser)

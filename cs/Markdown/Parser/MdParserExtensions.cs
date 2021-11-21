@@ -22,9 +22,7 @@ namespace Markdown.Parser
         public static void Visit(this MdParser parser, BoldToken token)
         {
             token.ValidatePlacedCorrectly(parser.ParserContext.TextToParse);
-
             ValidateBoldTokenInteractions(parser.ParserContext.Tokens, token);
-
             parser.ParserContext.Tokens.Remove(token.GetSeparator());
 
             if (token.IsCorrect)
@@ -34,9 +32,7 @@ namespace Markdown.Parser
         public static void Visit(this MdParser parser, ItalicToken token)
         {
             token.ValidatePlacedCorrectly(parser.ParserContext.TextToParse);
-
             ValidateItalicTokenInteractions(parser.ParserContext.Tokens, token);
-
             parser.ParserContext.Tokens.Remove(token.GetSeparator());
 
             if (token.IsCorrect)
@@ -85,7 +81,8 @@ namespace Markdown.Parser
 
         private static void ValidateBoldTokenInteractions(IReadOnlyDictionary<string, Token> tokens, BoldToken token)
         {
-            if (!token.IsCorrect || !tokens.TryGetValue(ItalicToken.Separator, out var italicToken)) return;
+            if (!token.IsCorrect || !tokens.TryGetValue(ItalicToken.Separator, out var italicToken))
+                return;
 
             if (token.IsIntersectWith(italicToken))
             {

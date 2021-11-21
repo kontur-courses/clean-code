@@ -32,7 +32,6 @@ namespace Markdown.Renderer
                 }
 
                 result.Append(text[index]);
-
                 index++;
             }
 
