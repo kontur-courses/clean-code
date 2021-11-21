@@ -56,6 +56,14 @@ namespace Markdown.MarkdownTests
                 {
                     new TagEvent(Side.None, Tag.Text, "First line.\nSecond line."),
                 }).SetName("two sentences separated by new line symbol");
+            yield return new TestCaseData(
+                "#Header without new line",
+                new List<TagEvent>
+                {
+                    new TagEvent(Side.Left, Tag.Header, "#"),
+                    new TagEvent(Side.None, Tag.Text, "Header without new line"),
+                    new TagEvent(Side.Right, Tag.Header, ""),
+                }).SetName("Opened header without new line symbol");
         }
     }
 }
