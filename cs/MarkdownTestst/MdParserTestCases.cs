@@ -92,6 +92,11 @@ namespace MarkdownTests
                     .SetName("ReturnImageToken_WhenThereIsImageTokenWithOnlySource");
                 yield return new TestCaseData("![abc](abc)", new List<Token>() { new ImageToken(0, 10, "abc", "abc") })
                     .SetName("ReturnImageToken_WhenThereIsImageToken");
+                yield return new TestCaseData("![_a_]()", new List<Token>() { new ImageToken(0, 7, "", "_a_") })
+                    .SetName("ReturnImageToken_WhenThereOtherSeparatorInsideAltText");
+                yield return new TestCaseData("![](_a_)", new List<Token>() { new ImageToken(0, 7, "_a_", "") })
+                    .SetName("ReturnImageToken_WhenThereOtherSeparatorInsideAltText");
+
 
                 yield return new TestCaseData("# ![abc](abc) __a__ _a_ __a_a_a__ \\_a\\_ _a__a__a_ __a_a__a_ _a__a_a__ \n", new List<Token>()
                     {

@@ -87,7 +87,11 @@ namespace Markdown.Parser
 
         private bool ExecuteScreening(int index)
         {
-            if (!ParserContext.Tokens.TryGetValue(ScreeningToken.Separator, out var token)) return false;
+            if (!ParserContext.Tokens.TryGetValue(ScreeningToken.Separator, out var token))
+                return false;
+
+            if (token.CloseIndex > index - ScreeningToken.Separator.Length)
+                return true;
 
             if (token.CloseIndex != index - ScreeningToken.Separator.Length)
             {
