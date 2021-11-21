@@ -5,8 +5,8 @@ namespace Markdown
 {
     public class Md
     {
-        public IRenderer Renderer { get; }
         private readonly MdParser parser;
+        public IRenderer Renderer { get; }
 
         public Md(IRenderer renderer)
         {

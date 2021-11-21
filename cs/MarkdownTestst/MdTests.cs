@@ -34,7 +34,6 @@ namespace MarkdownTests
             var shortString = string.Concat(Enumerable.Repeat(inputString, repetitionsCount));
             var longString = string.Concat(Enumerable.Repeat(inputString, repetitionsCount * 10));
 
-            
             var shortStringTime = MeasureInMilliseconds(() => sut.Render(shortString));
             var longStringTime = MeasureInMilliseconds(() => sut.Render(longString));
 

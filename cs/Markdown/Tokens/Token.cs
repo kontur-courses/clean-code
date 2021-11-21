@@ -9,7 +9,6 @@ namespace Markdown.Tokens
         private bool isCorrect = true;
 
         public int OpenIndex { get; }
-
         public int CloseIndex { get; private set; }
         public bool IsOpened => CloseIndex == 0;
         public abstract bool IsNonPaired { get; }

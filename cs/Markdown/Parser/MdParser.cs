@@ -8,7 +8,7 @@ namespace Markdown.Parser
 {
     public class MdParser
     {
-        public static readonly Dictionary<string, Func<int, Token>> TokensBySeparator = new()
+        public readonly Dictionary<string, Func<int, Token>> TokensBySeparator = new()
         {
             { ItalicToken.Separator, index => new ItalicToken(index) },
             { BoldToken.Separator, index => new BoldToken(index) },

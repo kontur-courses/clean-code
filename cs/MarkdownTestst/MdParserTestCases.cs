@@ -75,7 +75,7 @@ namespace MarkdownTests
                     .SetName("ReturnImageToken_WhenThereIsEmptyImageToken");
                 yield return new TestCaseData("![abc]()", new List<Token>() { new ImageToken(0, 7, "", "abc") })
                     .SetName("ReturnImageToken_WhenThereIsImageTokenWithOnlyAltText");
-                yield return new TestCaseData("![abc]()", new List<Token>() { new ImageToken(0, 7, "abc", "") })
+                yield return new TestCaseData("![](abc)", new List<Token>() { new ImageToken(0, 7, "abc", "") })
                     .SetName("ReturnImageToken_WhenThereIsImageTokenWithOnlySource");
                 yield return new TestCaseData("![abc](abc)", new List<Token>() { new ImageToken(0, 10, "abc", "abc") })
                     .SetName("ReturnImageToken_WhenThereIsImageToken");
@@ -83,7 +83,7 @@ namespace MarkdownTests
                 yield return new TestCaseData("# ![abc](abc) __a__ _a_ __a_a_a__ \\_a\\_ _a__a__a_ __a_a__a_ _a__a_a__ \n", new List<Token>()
                     {
                         new HeaderToken(0, 70),
-                        new ImageToken(2, 12),
+                        new ImageToken(2, 12, "abc", "abc"),
                         new BoldToken(14, 17),
                         new ItalicToken(20, 22),
                         new BoldToken(24, 31),

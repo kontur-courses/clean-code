@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Text;
 using Markdown.Tokens;
 
@@ -6,7 +7,7 @@ namespace Markdown.Renderer
 {
     public class HtmlRenderer : IRenderer
     {
-        public static readonly Dictionary<string, HtmlTag> HtmlTags = new()
+        public readonly Dictionary<string, HtmlTag> HtmlTagsBySeparator = new()
         {
             { "__", new HtmlTag("<strong>", "\\<strong>", true) },
             { "_", new HtmlTag("<em>", "\\<em>", true) },
@@ -41,13 +42,13 @@ namespace Markdown.Renderer
             return result.ToString();
         }
 
-        private static Dictionary<int, TagInsertion> GetTagInsertions(IEnumerable<Token> tokens)
+        private Dictionary<int, TagInsertion> GetTagInsertions(IEnumerable<Token> tokens)
         {
             var result = new Dictionary<int, TagInsertion>();
 
             foreach (var token in tokens)
             {
-                var htmlTag = HtmlTags[token.GetSeparator()];
+                var htmlTag = HtmlTagsBySeparator[token.GetSeparator()];
 
                 if (token.IsContented)
                     result[token.OpenIndex] = GetContentedTokenInsertion(token, htmlTag);
@@ -68,6 +69,14 @@ namespace Markdown.Renderer
             var insertion = htmlTag.OpenTag.Insert(htmlTag.OpenTag.Length - 1, $"{source} {altText}");
             var shift = token.CloseIndex - token.OpenIndex + 1;
             return new TagInsertion(insertion, shift);
+        }
+
+        public void AddNewTag(string separator, HtmlTag htmlTag)
+        {
+            if (HtmlTagsBySeparator.ContainsKey(separator))
+                throw new InvalidOperationException("This separator is already present");
+
+            HtmlTagsBySeparator.Add(separator, htmlTag);
         }
     }
 }

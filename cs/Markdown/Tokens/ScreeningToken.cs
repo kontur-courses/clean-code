@@ -7,7 +7,6 @@ namespace Markdown.Tokens
         public static readonly string Separator = "\\";
 
         public override bool IsNonPaired => true;
-
         public override bool IsContented => false;
 
         public ScreeningToken(int openIndex) : base(openIndex) { }

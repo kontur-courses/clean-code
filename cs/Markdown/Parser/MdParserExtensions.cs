@@ -1,6 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Runtime.InteropServices.ComTypes;
+﻿using System.Collections.Generic;
 using Markdown.Tokens;
 
 namespace Markdown.Parser
@@ -42,7 +40,7 @@ namespace Markdown.Parser
             parser.ParserContext.Tokens.Remove(token.GetSeparator());
 
             if (token.IsCorrect)
-                parser.ParserContext.AddToResult(token);
+                parser.ParserContext.Result.Add(token);
         }
 
         public static void Visit(this MdParser parser, ScreeningToken token)
@@ -58,8 +56,10 @@ namespace Markdown.Parser
             var startOfSource = text.IndexOf('(', token.OpenIndex);
             var endOfSource = text.IndexOf(')', token.OpenIndex);
             var endOfParagraph = text.IndexOf('\n') > 0 ? text.IndexOf('\n') : text.Length - 1;
+
             if (endOfAltText == -1 || startOfSource == -1 || endOfSource == -1)
                 return;
+
             if (endOfAltText > endOfParagraph || startOfSource > endOfParagraph || endOfSource > endOfParagraph)
                 return;
 
