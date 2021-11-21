@@ -16,10 +16,7 @@ namespace Markdown.SyntaxParser
 
         public Token Token { get; }
 
-        public static TokenTree FromText(string text)
-        {
-            return new(Token.Text(text));
-        }
+        public static TokenTree FromText(string text) => new(Token.Text(text));
 
         public override bool Equals(object obj)
         {
@@ -29,10 +26,7 @@ namespace Markdown.SyntaxParser
             return Equals((TokenTree) obj);
         }
 
-        private bool Equals(TokenTree node)
-        {
-            return Token.Equals(node.Token) && Nodes.SequenceEqual(node.Nodes);
-        }
+        private bool Equals(TokenTree node) => Token.Equals(node.Token) && Nodes.SequenceEqual(node.Nodes);
 
         public override int GetHashCode()
         {
