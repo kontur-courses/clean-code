@@ -25,7 +25,9 @@ namespace Markdown.TokenFormatter
             {
                 var tokenType = tokenTree.Token.TokenType;
                 if (tokenType == TokenType.Text)
+                {
                     result.Append(tokenTree.Token.Value);
+                }
                 else
                 {
                     var wrapper = wrappers[tokenType];

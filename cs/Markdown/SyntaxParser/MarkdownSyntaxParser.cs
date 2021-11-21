@@ -55,7 +55,7 @@ namespace Markdown.SyntaxParser
                 TokenType.Bold => ParseBold(),
                 TokenType.Escape => new TokenTree(ParseEscape()),
                 TokenType.Header1 => ParseHeader1(),
-                _ => throw new ArgumentOutOfRangeException($"unknown token type: {Current.TokenType}")
+                _ => throw new Exception($"unknown token type: {Current.TokenType}")
             };
         }
 

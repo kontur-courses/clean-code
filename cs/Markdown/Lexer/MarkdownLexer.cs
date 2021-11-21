@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
 using System.Text;
 using Markdown.Tokens;
 
@@ -9,9 +8,22 @@ namespace Markdown.Lexer
     public class MarkdownLexer : ILexer
     {
         private const char EndOfFile = '\0';
-        private readonly char[] specSymbols = {EndOfFile, '_', '\\', '\n', '#'};
+
+        private readonly Dictionary<char, Func<Token>> handlers;
+
         private int position;
         private string text;
+
+        public MarkdownLexer()
+        {
+            handlers = new Dictionary<char, Func<Token>>
+            {
+                {'_', LexUnderscore},
+                {'\\', () => Token.Escape},
+                {'\n', () => Token.NewLine},
+                {'#', LexHeader1}
+            };
+        }
 
         private char Current => Peek(0);
 
@@ -22,14 +34,7 @@ namespace Markdown.Lexer
             text = inputText ?? throw new ArgumentNullException(nameof(inputText));
             do
             {
-                yield return Current switch
-                {
-                    '_' => ParseUnderscore(),
-                    '\\' => Token.Escape,
-                    '\n' => Token.NewLine,
-                    '#' => ParseHeader1(),
-                    _ => ParseText()
-                };
+                yield return handlers.GetValueOrDefault(Current, LexText)();
                 position++;
             } while (Current != EndOfFile);
         }
@@ -41,7 +46,7 @@ namespace Markdown.Lexer
             return index >= text.Length ? EndOfFile : text[index];
         }
 
-        private Token ParseUnderscore()
+        private Token LexUnderscore()
         {
             if (Lookahead != '_')
                 return Token.Italics;
@@ -49,7 +54,7 @@ namespace Markdown.Lexer
             return Token.Bold;
         }
 
-        private Token ParseHeader1()
+        private Token LexHeader1()
         {
             if (Lookahead != ' ')
                 return Token.Text("#");
@@ -57,10 +62,10 @@ namespace Markdown.Lexer
             return Token.Header1;
         }
 
-        private Token ParseText()
+        private Token LexText()
         {
             var buffer = new StringBuilder();
-            while (!specSymbols.Contains(Current))
+            while (!handlers.ContainsKey(Current) && Current != EndOfFile)
             {
                 buffer.Append(Current);
                 position++;
