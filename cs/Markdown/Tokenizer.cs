@@ -10,6 +10,7 @@ namespace Markdown
     {
         private readonly List<IToken> bufferTagTokens;
 
+        private string symbolShielding = @"\";
         public Tokenizer()
         {
             bufferTagTokens = new List<IToken>();
@@ -58,6 +59,14 @@ namespace Markdown
 
             if (IsTagCharacter(tmpTag))
             {
+                if (pointer > 0 && markDownText[pointer - 1].ToString() == symbolShielding)
+                {
+                    bufferTagTokens.RemoveAt(bufferTagTokens.Count - 1);
+                    bufferTagTokens.Add(new TextToken(){Value = tmpTag });
+                    pointer += 2;
+                    return true;
+                }
+
                 if (CreateHeaderTag(markDownText, ref pointer))
                     return true;
 
@@ -73,6 +82,14 @@ namespace Markdown
         {
             if (IsTagCharacter(markDownText[pointer].ToString()))
             {
+                if (pointer > 0 && markDownText[pointer - 1].ToString() == symbolShielding)
+                {
+                    bufferTagTokens.RemoveAt(bufferTagTokens.Count - 1);
+                    bufferTagTokens.Add(new TextToken() { Value = markDownText[pointer].ToString() });
+                    pointer ++;
+                    return true;
+                }
+
                 bufferTagTokens.Add(TokenFactory.CreateToken(markDownText[pointer].ToString()));
                 pointer++;
                 return true;
@@ -86,7 +103,7 @@ namespace Markdown
             var bufferBuilderText = new StringBuilder();
             while (pointer < markDownText.Length && !IsTagCharacter(markDownText[pointer].ToString()))
             {
-                if (markDownText[pointer] == ' ')
+                if (markDownText[pointer] == ' ' || markDownText[pointer] == '\\')
                 {
                     if (bufferBuilderText.Length > 0)
                     {
