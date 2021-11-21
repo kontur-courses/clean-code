@@ -98,7 +98,7 @@ namespace MarkdownTests
                     .SetName("ReturnImageToken_WhenThereOtherSeparatorInsideAltText");
 
 
-                yield return new TestCaseData("# ![abc](abc) __a__ _a_ __a_a_a__ \\_a\\_ _a__a__a_ __a_a__a_ _a__a_a__ \n", new List<Token>()
+                yield return new TestCaseData("# ![abc](abc) __a__ _a_ __a_a_a__ \\_a\\_ _a__a__a_ __a_a__a_ _a__a_a__ \n![]_a_()", new List<Token>()
                     {
                         new HeaderToken(0, 70),
                         new ImageToken(2, 12, "abc", "abc"),
@@ -108,7 +108,8 @@ namespace MarkdownTests
                         new ItalicToken(27, 29),
                         new ScreeningToken(34, 34),
                         new ScreeningToken(37, 37),
-                        new ItalicToken(40, 48)
+                        new ItalicToken(40, 48),
+                        new ItalicToken(74, 76)
                     })
                     .SetName("ReturnAllTokens_WhenThereIsManyInteractingTokens");
             }
