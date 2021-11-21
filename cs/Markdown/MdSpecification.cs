@@ -5,15 +5,36 @@ namespace Markdown
 {
     public class MdSpecification : IMdSpecification
     {
-        public Dictionary<string, string> MdToHTML =>
-            new Dictionary<string, string>
+        private readonly List<Tag> _tags;
+        private readonly Dictionary<string, Tag> _stringToTag;
+        private readonly List<string> _escapeSymbols;
+        private readonly HashSet<string> _escapeSequences;
+
+        public List<Tag> Tags => _tags.ToList();
+        public Dictionary<string, Tag> TagByMdStringRepresentation => _stringToTag;
+        public List<string> EscapeSymbols => _escapeSymbols.ToList();
+        public List<string> EscapeSequences => _escapeSequences.ToList();
+        public MdSpecification(List<Tag> tags = null, List<string> escapeSymbols = null)
+        {
+            _tags = tags ?? new List<Tag>
             {
-                {"_", "em"},
-                {"__", "strong"},
-                {"#", "h1"},
+                new StrongTag(),
+                new EmTag(),
+                new HeadingTag()
             };
-        public Dictionary<string, string> HTMLToMd => MdToHTML.ToDictionary(p => p.Value, p => p.Key);
-        public List<string> MdTags => MdToHTML.Keys.ToList();
-        public List<string> EscapeSymbols => new List<string> { @"\" };
+            _escapeSymbols = escapeSymbols ?? new List<string> { @"\" };
+            _stringToTag = _tags
+                .ToDictionary(p => p.OpenMdTag, p => p)
+                .Union(_tags.ToDictionary(p => p.CloseMdTag, p => p))
+                .ToDictionary(p => p.Key, p => p.Value);
+            _escapeSequences = _stringToTag
+                .SelectMany(p => _escapeSymbols
+                .Select(s => s + p.Key))
+                .ToHashSet();
+            _escapeSymbols
+                .SelectMany(s => _escapeSymbols.Select(f => f + s))
+                .ToList()
+                .ForEach(seq => _escapeSequences.Add(seq));
+        }
     }
 }

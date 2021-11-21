@@ -46,15 +46,23 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Extensions\StackExtensions.cs" />
+    <Compile Include="Extensions\StringExtensions.cs" />
     <Compile Include="IMdSpecification.cs" />
     <Compile Include="Md.cs" />
     <Compile Include="MarkdownParser.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
-    <Compile Include="HTMLTag.cs" />
     <Compile Include="MdSpecification.cs" />
-    <Compile Include="TagConverter.cs" />
-    <Compile Include="TagToken.cs" />
-    <Compile Include="Token.cs" />
+    <Compile Include="Extensions\StringBuilderExtensions.cs" />
+    <Compile Include="StringReader.cs" />
+    <Compile Include="Tags\ComplexTag.cs" />
+    <Compile Include="Tags\EmTag.cs" />
+    <Compile Include="Tags\HeadingTag.cs" />
+    <Compile Include="Tags\StrongTag.cs" />
+    <Compile Include="Tags\Tag.cs" />
+    <Compile Include="Tokens\EscapeToken.cs" />
+    <Compile Include="Tokens\TagToken.cs" />
+    <Compile Include="Tokens\Token.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="App.config" />

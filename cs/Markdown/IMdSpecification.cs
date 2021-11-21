@@ -4,9 +4,9 @@ namespace Markdown
 {
     public interface IMdSpecification
     {
-        Dictionary<string, string> MdToHTML { get; }
-        Dictionary<string, string> HTMLToMd { get; }
-        List<string> MdTags { get; }
+        List<Tag> Tags { get; }
         List<string> EscapeSymbols { get; }
+        Dictionary<string, Tag> TagByMdStringRepresentation { get; }
+        List<string> EscapeSequences { get; }
     }
 }
