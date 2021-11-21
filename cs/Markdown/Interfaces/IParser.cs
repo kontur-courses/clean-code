@@ -4,6 +4,6 @@ namespace Markdown.Interfaces
 {
     public interface IParser
     {
-        IEnumerable<TagToken> Parse(string expression);
-    } 
+        IEnumerable<IToken> Parse(string expression);
+    }
 }
