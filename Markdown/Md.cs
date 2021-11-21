@@ -1,6 +1,8 @@
 ﻿using System.Linq;
 using System.Text;
+using FluentAssertions;
 using Markdown.Extensions;
+using NUnit.Framework;
 
 namespace Markdown
 {
@@ -30,16 +32,16 @@ namespace Markdown
 
             parser = TokenParserConfigurator
                 .CreateTokenParser()
-                .SetShieldingSymbol('\\')
-                .AddToken(underscoreTag.Start).That
-                    .CanBeNestedIn(doubleUnderscoreTag).And
-                    .CantIntersect()
-                .AddToken(doubleUnderscoreTag.Start).That
-                    .CantBeNestedIn(underscoreTag).And
-                    .CantIntersect()
-                .AddToken(sharpTag.Start).That
-                    .CanIntersectWithAnyTokens().And
-                    .CanBeNestedInAnyTokens()
+                // .SetShieldingSymbol('\\')
+                .AddToken(underscoreTag.Start)//.That
+                    // .CanBeNestedIn(doubleUnderscoreTag).And
+                    // .CantIntersect()
+                .AddToken(doubleUnderscoreTag.Start)//.That
+                    // .CantBeNestedIn(underscoreTag).And
+                    // .CantIntersect()
+                .AddToken(sharpTag.Start)//.That
+                    // .CanIntersectWithAnyTokens().And
+                    // .CanBeNestedInAnyTokens()
                 .Configure();
         }
 
@@ -62,6 +64,19 @@ namespace Markdown
             }
     
             return parsedText.ToString();
+        }
+    }
+
+    [TestFixture]
+    public class MdRenderTest
+    {
+        [TestCase("Hello _World_!! __Th_is__ i_s __a__ __markdown _test_ sentence__", 
+            "Hello <em>World</em>!! __Th_is__ i_s <strong>a</strong> <strong>markdown <em>test</em> sentence</strong>")]
+        public void RenderTest(string text, string expectedResult)
+        {
+            var actual = new Md().Render(text);
+
+            actual.Should().Be(expectedResult);
         }
     }
 }

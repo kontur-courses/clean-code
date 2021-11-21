@@ -44,9 +44,11 @@ namespace MarkdownTests
         }
 
         [TestCase("a__b-c__d", "a(<*b-c/*>)d")]
-        [TestCase("a__b-d-c__d", "a(<*b-d-c/*>)d")]
-        [TestCase("a__-d-__d", "a(<*-d-/*>)d")]
-        [TestCase("a_<__-d-___<d", "a<H1>__-d-__</H1>d")]
+        
+        [TestCase("a__b-d-c__d", "a(<*b<d/>c/*>)d")]
+        [TestCase("a__-d-__d", "a(<*<d/>/*>)d")]
+        [TestCase("a_<__-d-___<d", "a<H1>(<*<d/>/*>)</H1>d")]
+        
         [TestCase("a_<__d-_<d", "a<H1>__d-</H1>d")]
         // [TestCase("a---bb---a", "a<*-bb-/*>a")]
         

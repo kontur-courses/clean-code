@@ -29,13 +29,11 @@ namespace Markdown
             var secondSorted = second.GetSortedSegments().ToList();
             
             var firstSegments = firstSorted
-                // .Where(x => !secondSorted.Any(y => y.IsIntersectWith(x)))
-                .Where(x => !secondSorted.Any(y => y.Contain(x)))
+                .Where(x => !secondSorted.Any(y => y.IsIntersectWith(x)))
                 .ToList();
             
             var secondSegment = secondSorted
-                // .Where(x => !firstSorted.Any(y => y.IsIntersectWith(x)))
-                .Where(x => !firstSorted.Any(y => y.Contain(x)))
+                .Where(x => !firstSorted.Any(y => y.IsIntersectWith(x)))
                 .ToList();
 
             return (new SegmentsCollection(firstSegments), new SegmentsCollection(secondSegment));
