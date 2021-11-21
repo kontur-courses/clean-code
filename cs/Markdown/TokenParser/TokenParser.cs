@@ -13,7 +13,7 @@ namespace Markdown.TokenParser
         {
             if (tokens == null) throw new ArgumentNullException(nameof(tokens));
             using var enumerator = tokens.GetEnumerator();
-            var iterator = new TokenParserIterator(enumerator);
+            var iterator = new TokenParsingIterator(enumerator);
             return ReduceTextTokens(iterator.Parse());
         }
 

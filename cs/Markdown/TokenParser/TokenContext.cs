@@ -20,16 +20,7 @@ namespace Markdown.TokenParser
         {
             if (Children.Count == 0)
                 return Token.Value;
-            var stack = new Stack<string>();
-            foreach (var child in ((IEnumerable<TokenNode>)Children).Reverse()) PushTokensToStack(stack, child);
-            stack.Push(Token.Value);
-            return string.Join("", stack);
-        }
-
-        private static void PushTokensToStack(Stack<string> stack, TokenNode node)
-        {
-            foreach (var child in node.Children.Reverse()) PushTokensToStack(stack, child);
-            stack.Push(node.Token.Value);
+            return Token.Value + string.Join("", Children.Select(x => x.ToText()));
         }
     }
 }
