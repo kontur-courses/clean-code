@@ -13,15 +13,15 @@ namespace MarkdownTests
                     .SetName("ReturnEmptyString_WhenInputIsEmpty");
                 yield return new TestCaseData("a", "a")
                     .SetName("ReturnEmptyString_WhenThereAreNoMarkdownsInInput");
-                yield return new TestCaseData("# a", "<h1> a\\<h1>")
+                yield return new TestCaseData("# a", "<h1> a</h1>")
                     .SetName("ReturnCorrectString_WhenInputContainsHeaderWithEOF");
-                yield return new TestCaseData("# a\n", "<h1> a\\<h1>")
+                yield return new TestCaseData("# a\n", "<h1> a</h1>")
                     .SetName("ReturnCorrectString_WhenInputContainsHeaderWithBackSlash");
-                yield return new TestCaseData("# a\n# a\n# a\n", "<h1> a\\<h1><h1> a\\<h1><h1> a\\<h1>")
+                yield return new TestCaseData("# a\n# a\n# a\n", "<h1> a</h1><h1> a</h1><h1> a</h1>")
                     .SetName("ReturnCorrectString_WhenThereAreManyHeadersAndManyStringsInInput");
-                yield return new TestCaseData("_a_", "<em>a\\<em>")
+                yield return new TestCaseData("_a_", "<em>a</em>")
                     .SetName("ReturnCorrectString_WhenInputContainsItalic");
-                yield return new TestCaseData("__a__", "<strong>a\\<strong>")
+                yield return new TestCaseData("__a__", "<strong>a</strong>")
                     .SetName("ReturnCorrectString_WhenInputContainsBold");
                 yield return new TestCaseData("__ a__", "__ a__")
                     .SetName("ReturnCorrectString_WhenThereIsIncorrectOpenBoldTag");
@@ -55,7 +55,7 @@ namespace MarkdownTests
                     .SetName("ReturnCorrectString_WhenInputContainsImage");
                 yield return new TestCaseData(
                         "# ![abc](abc) __a__ _a_ __a_a_a__ \\_a\\_ _a__a__a_ __a_a__a_ _a__a_a__ \n",
-                        "<h1> <img src=\"abc\" alt=\"abc\"> <strong>a\\<strong> <em>a\\<em> <strong>a<em>a\\<em>a\\<strong> _a_ <em>a__a__a\\<em> __a_a__a_ _a__a_a__ \\<h1>")
+                        "<h1> <img src=\"abc\" alt=\"abc\"> <strong>a</strong> <em>a</em> <strong>a<em>a</em>a</strong> _a_ <em>a__a__a</em> __a_a__a_ _a__a_a__ </h1>")
                     .SetName("ReturnCorrectString_WhenThereAreManyTags");
             }
         }

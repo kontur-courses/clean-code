@@ -9,9 +9,9 @@ namespace Markdown.Renderer
     {
         public readonly Dictionary<string, HtmlTag> HtmlTagsBySeparator = new()
         {
-            { "__", new HtmlTag("<strong>", "\\<strong>", true) },
-            { "_", new HtmlTag("<em>", "\\<em>", true) },
-            { "#", new HtmlTag("<h1>", "\\<h1>", true) },
+            { "__", new HtmlTag("<strong>", "</strong>", true) },
+            { "_", new HtmlTag("<em>", "</em>", true) },
+            { "#", new HtmlTag("<h1>", "</h1>", true) },
             { "\\", new HtmlTag(string.Empty, string.Empty, false) },
             { "![", new HtmlTag("<img >", string.Empty, false) }
         };
