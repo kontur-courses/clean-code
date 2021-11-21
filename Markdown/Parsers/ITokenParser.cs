@@ -8,10 +8,10 @@ namespace Markdown
 
         // Метод для валидации двух множеств отрезков токенов на пересечение и вложенность
         // возможно, стоит убрать в другое место
-        public (IEnumerable<TokenSegment>, IEnumerable<TokenSegment>) ValidatePairSetsByRules((IEnumerable<TokenSegment>, IEnumerable<TokenSegment>) pair);
+        public (SegmentsCollection, SegmentsCollection) ValidatePairSetsByRules(SegmentsCollection first, SegmentsCollection second);
 
-        string ReplaceTokens(IEnumerable<TokenSegment> tokens, ITokenTranslator translator);
+        string ReplaceTokens(string text, SegmentsCollection segments, ITagTranslator translator);
 
-        Dictionary<int, TokenInfo> FindAllTokens(string paragraph);
+        TokenInfoCollection FindAllTokens(string paragraph);
     }
 }

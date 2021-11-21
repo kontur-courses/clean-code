@@ -6,23 +6,32 @@ namespace Markdown.Extensions
 {
     public static class EnumerableExtension
     {
-        internal static IEnumerable<TSource> ForEachPairs<TSource>(
-            this IEnumerable<TSource> source,
-            Func<(TSource, TSource), (TSource, TSource)> action)
+        public static IEnumerable<TSource> ForEachPairs<TSource>(
+            this IList<TSource> source,
+            Func<TSource, TSource, (TSource, TSource)> action)
         where TSource : class
         {
-            // ReSharper disable once PossibleMultipleEnumeration
-            // because in this method TSource should be changed by input action
-            foreach (var pair in source.AllPairs())
-                action(pair);
+            if (source.Count < 2) return source;
             
-            // ReSharper disable once PossibleMultipleEnumeration
-            return source;
+            var dict = new Dictionary<Guid, TSource>();
+            
+            foreach (var (f, s) in source.AllPairs())
+            {
+                var a = action(
+                    dict.ContainsKey(f.Item1) ? dict[f.Item1] : f.Item2, 
+                    dict.ContainsKey(s.Item1) ? dict[s.Item1] : s.Item2);
+                
+                dict[f.Item1] = a.Item1;
+                dict[s.Item1] = a.Item2;
+            }
+            
+            
+            return dict.Select(x => x.Value);
         }
 
-        private static IEnumerable<(TSource, TSource)> AllPairs<TSource>(this IEnumerable<TSource> source)
+        private static IEnumerable<((Guid, TSource), (Guid, TSource))> AllPairs<TSource>(this IList<TSource> source)
         {
-            var fixedSource = source.ToList();
+            var fixedSource = source.Select(x => (Guid.NewGuid(), x)).ToList();
 
             for (var i = 0; i < fixedSource.Count - 1; i++)
                 for (var j = i + 1; j < fixedSource.Count; j++)

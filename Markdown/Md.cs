@@ -7,7 +7,7 @@ namespace Markdown
     public class Md
     {
         private readonly ITokenParser parser;
-        private readonly ITokenTranslator translator;
+        private readonly ITagTranslator translator;
 
         public Md()
         {
@@ -18,7 +18,7 @@ namespace Markdown
             var sharpTag = Tag.RegisterSingleTag("#");
             var h1Tag = Tag.RegisterPairTag("<h1>", "</h1>");
             
-            translator = TokenTranslatorConfigurator
+            translator = TagTranslatorConfigurator
                 .CreateTokenTranslator()
                 .SetReference()
                     .From(underscoreTag).To(emTag)
@@ -31,13 +31,13 @@ namespace Markdown
             parser = TokenParserConfigurator
                 .CreateTokenParser()
                 .SetShieldingSymbol('\\')
-                .AddToken(new Token(underscoreTag.Start)).That
+                .AddToken(underscoreTag.Start).That
                     .CanBeNestedIn(doubleUnderscoreTag).And
                     .CantIntersect()
-                .AddToken(new Token(doubleUnderscoreTag.Start)).That
+                .AddToken(doubleUnderscoreTag.Start).That
                     .CantBeNestedIn(underscoreTag).And
                     .CantIntersect()
-                .AddToken(new Token(sharpTag.Start)).That
+                .AddToken(sharpTag.Start).That
                     .CanIntersectWithAnyTokens().And
                     .CanBeNestedInAnyTokens()
                 .Configure();
@@ -52,13 +52,13 @@ namespace Markdown
             {
                 var tokenSegments = parser
                     .FindAllTokens(paragraph)
-                    .Validate()
-                    .GroupToDictionaries(x => x.Value.Token.ToString())
-                    .Select(TokenSegment.GetTokensSegments)
-                    .ForEachPairs(parser.ValidatePairSetsByRules)
-                    .Aggregate((f, s) => f.Union(s));
+                    .SelectValid()
+                    .GroupBy(x => x.Token.ToString())
+                    .Select(x => x.ToSegmentsCollection())
+                    .ToList()
+                    .ForEachPairs(parser.ValidatePairSetsByRules);
 
-                parsedText.Append(parser.ReplaceTokens(tokenSegments, translator));
+                parsedText.Append(parser.ReplaceTokens(paragraph, SegmentsCollection.Union(tokenSegments), translator));
             }
     
             return parsedText.ToString();
