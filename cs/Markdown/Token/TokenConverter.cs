@@ -1,7 +1,7 @@
 ﻿using System.Collections.Generic;
 using System.Linq;
 
-namespace Markdown.Token
+namespace Markdown
 {
     public class TokenConverter
     {
@@ -39,7 +39,8 @@ namespace Markdown.Token
                 {
                     var currentToken = tokens.Last();
                     currentToken.Length = i - currentToken.StartPosition + 1;
-                    if (currentToken.Tag.ClosingMarkup != s[i].ToString())
+                    if (currentToken.Tag.ClosingMarkup != s[i].ToString() ||
+                        currentToken.Tag.IsBrokenMarkup(s, currentToken.StartPosition, currentToken.Length))
                         tokens.Pop();
                 });
 

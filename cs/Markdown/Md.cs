@@ -1,5 +1,4 @@
 ﻿using System;
-using Markdown.Token;
 
 namespace Markdown
 {

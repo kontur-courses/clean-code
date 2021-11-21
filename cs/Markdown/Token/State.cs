@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 
-namespace Markdown.Token
+namespace Markdown
 {
     public class State
     {

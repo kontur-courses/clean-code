@@ -8,5 +8,6 @@ namespace Markdown
         string ClosingMarkup { get; }
         string OpeningTag { get; }
         string ClosingTag { get; }
+        bool IsBrokenMarkup(string source, int start, int length);
     }
 }
