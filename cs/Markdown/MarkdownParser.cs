@@ -4,7 +4,7 @@ using System.Text;
 
 namespace Markdown
 {
-    public static class MarkdownParser
+    public class MarkdownParser
     {
     }
 }
