@@ -8,6 +8,7 @@ namespace MarkDown
 {
     public class BoldToken : Token
     {
+        private string type = "bold";
         public BoldToken(int start, int length) : base(start, length)
         {
         }
