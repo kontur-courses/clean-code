@@ -1,6 +1,7 @@
 ﻿using System.Linq;
 using FluentAssertions;
 using Markdown;
+using Markdown.Extensions;
 using NUnit.Framework;
 
 namespace MarkdownTests
@@ -9,16 +10,63 @@ namespace MarkdownTests
     public class ParserShould
     {
         private ITokenParser parser;
+        private ITagTranslator translator;
         
         [SetUp]
         public void SetUp()
         {
+            Tag.ClearTagBase();
+            
+            var fromTag1 = Tag.RegisterSymmetricTag("-");
+            var fromTag2 = Tag.RegisterSymmetricTag("--");
+            var fromTag3 = Tag.RegisterSymmetricTag("__");
+            var fromTag4 = Tag.RegisterSymmetricTag("_<");
+            
+            var toTag1 = Tag.RegisterPairTag("<", "/>");
+            var toTag2 = Tag.RegisterPairTag("<*", "/*>");
+            var toTag3 = Tag.RegisterPairTag("(<*", "/*>)");
+            var toTag4 = Tag.RegisterPairTag("<H1>", "</H1>");
+            
             parser = TokenParserConfigurator.CreateTokenParser()
                 .AddToken(new Token("-"))
                 .AddToken(new Token("--"))
                 .AddToken(new Token("__"))
                 .AddToken(new Token("_<"))
                 .Configure();
+
+            translator = TagTranslatorConfigurator
+                .CreateTokenTranslator()
+                .SetReference().From(fromTag1).To(toTag1)
+                .SetReference().From(fromTag2).To(toTag2)
+                .SetReference().From(fromTag3).To(toTag3)
+                .SetReference().From(fromTag4).To(toTag4)
+                .Configure();
+        }
+
+        [TestCase("a__b-c__d", "a(<*b-c/*>)d")]
+        [TestCase("a__b-d-c__d", "a(<*b-d-c/*>)d")]
+        [TestCase("a__-d-__d", "a(<*-d-/*>)d")]
+        [TestCase("a_<__-d-___<d", "a<H1>__-d-__</H1>d")]
+        [TestCase("a_<__d-_<d", "a<H1>__d-</H1>d")]
+        // [TestCase("a---bb---a", "a<*-bb-/*>a")]
+        
+        [TestCase("a-bc-d", "a<bc/>d")]
+        [TestCase("a-bc-da-bc-d", "a<bc/>da<bc/>d")]
+        [TestCase("a--bc--d", "a<*bc/*>d")]
+        [TestCase("a--bc--da-bc-d", "a<*bc/*>da<bc/>d")]
+        public void ReplaceTokens_Test(string text, string expected)
+        {
+            var segments = parser
+                .FindAllTokens(text)
+                .SelectValid()
+                .GroupBy(x => x.Token.ToString())
+                .Select(x => x.ToSegmentsCollection())
+                .ToList()
+                .ForEachPairs((f, s) => parser.ValidatePairSetsByRules(f, s));
+            
+            var actualText = parser.ReplaceTokens(text, SegmentsCollection.Union(segments), translator);
+
+            actualText.Should().Be(expected);
         }
 
         [TestCase("-a", true, false)]
@@ -33,8 +81,8 @@ namespace MarkdownTests
         {
             var actualToken = parser
                 .FindAllTokens(text)
-                .First()
-                .Value;
+                .GetTokenInfos()
+                .First();
 
             var actualValidToStart = actualToken.OpenValid;
             var actualValidToClose = actualToken.CloseValid;
@@ -60,7 +108,8 @@ namespace MarkdownTests
         {
             var actualIndexes = parser
                 .FindAllTokens(text)
-                .Select(x => x.Key)
+                .GetTokenInfos()
+                .Select(x => x.Position)
                 .OrderBy(x => x)
                 .ToArray();
 

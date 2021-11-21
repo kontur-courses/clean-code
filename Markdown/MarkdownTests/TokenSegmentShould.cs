@@ -9,24 +9,25 @@ namespace MarkdownTests
     [TestFixture]
     public class TokenSegmentShould
     {
-        private Dictionary<int, TokenInfo> dictionary = new();
+        private List<TokenInfo> dictionary = new();
 
         [SetUp]
         public void SetUp()
         {
-            dictionary = new Dictionary<int, TokenInfo>
-            {
-                [1] = new(null, true, false, false, true),
-                [4] = new(null, true, true, true, true),
-                [6] = new(null, false, false, false, false),
-                [8] = new(null, true, false, false, true),
-                [10] = new(null, true, true, true, true),
-                [13] = new(null, false, true, false, true),
-                [16] = new(null, false, true, false, true),
-                [18] = new(null, true, false, false, true),
+            dictionary = new List<TokenInfo>
+            {  
+                new(1, new Token("-"), true, false, false, true),
+                new(4, new Token("-"), true, true, true, true),
+                new(6, new Token("-"), false, false, false, false),
+                new(8, new Token("-"), true, false, false, true),
+                new(10, new Token("-"), true, true, true, true),
+                new(13, new Token("-"), false, true, false, true),
+                new(16, new Token("-"), false, true, false, true),
+                new(18, new Token("-"), true, false, false, true)
             };
         }
 
+        [Test]
         public void GetTokensSegments_startIndexesTest()
         {
             var segments = TokenSegment.GetTokensSegments(dictionary);
