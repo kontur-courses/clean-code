@@ -1,6 +1,6 @@
 ﻿namespace Markdown.Tag_Classes
 {
-    public enum TagSide
+    public enum Side
     {
         None,
         Opening,

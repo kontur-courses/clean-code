@@ -30,7 +30,7 @@ namespace Markdown
                 {
                     if (plainText.Length > 0)
                     {
-                        _parsedTags.Add(new TagEvent(TagSide.None,TagKind.PlainText, plainText.ToString()));
+                        _parsedTags.Add(new TagEvent(Side.None,Tag.Text, plainText.ToString()));
                         plainText.Clear();
                     }
                     tag.Append(input[symbolPos]);
@@ -39,7 +39,8 @@ namespace Markdown
 
                 if (tag.Length > 0)
                 {
-                    _parsedTags.Add(GetTagEventCheckingRules(input, symbolPos, tag.ToString()));
+                    var tagEvent = GetTagEventCheckingRules(input, symbolPos, tag.ToString());
+                    _parsedTags.Add(tagEvent);
                     tag.Clear();
                 }
                 plainText.Append(input[symbolPos]);
@@ -52,25 +53,55 @@ namespace Markdown
             if (tag == "#")
                 return GetHashtagTagEvent(tag);
             if (tag == "_")
-                return GetSingleUnderlineTagEvent(input, symbolPos, tag);
+                return GetOneLineTagEvent(input, symbolPos, tag);
         }
 
-        private TagEvent GetSingleUnderlineTagEvent(string input, int symbolPos, string tag)
+        private TagEvent GetOneLineTagEvent(string input, int symbolPos, string tag)
         {
-            if (TagIsNotOpeningUnderline(input, symbolPos))
-                return new TagEvent(TagSide.None, TagKind.PlainText, tag);
+            if (TagIsOpeningUnderline(input, symbolPos))
+            {
+                return GetLeftOneLineTagEvent(tag);
+            }
+            return new TagEvent(Side.None, Tag.Text, tag);
+        }
+
+        private TagEvent GetLeftOneLineTagEvent(string tag)
+        {
+            TagEvent lastTag = _openedTags.Count == 0
+                ? null
+                : _openedTags.Peek();
+            if (lastTag == null || OnlyOtherLeftTagsInStack(lastTag))
+            {
+                var leftOneLineTag = new TagEvent(Side.Left, Tag.OneLine, tag);
+                _openedTags.Push(leftOneLineTag);
+                return leftOneLineTag;
+            }
+
+            if (lastTag.Tag == Tag.OneLine && lastTag.Side == Side.Left)
+                return new TagEvent(Side.None, Tag.Text, tag);
+            throw new Exception("right tag in the tagStack!");
+        }
+
+        private static bool OnlyOtherLeftTagsInStack(TagEvent lastTag)
+        {
+            return (lastTag.Side == Side.Left && (lastTag.Tag == Tag.Header || lastTag.Tag == Tag.TwoLines));
         }
 
         private TagEvent GetHashtagTagEvent(string tag)
         {
             if (TagIsHeader())
-                return new TagEvent(TagSide.Opening, TagKind.Header, tag);
-            return new TagEvent(TagSide.None, TagKind.PlainText, tag);
+            {
+                var headerTagEvent = new TagEvent(Side.Left, Tag.Header, tag);
+                _openedTags.Push(headerTagEvent);
+                return headerTagEvent;
+            }
+
+            return new TagEvent(Side.None, Tag.Text, tag);
         }
 
-        private bool TagIsNotOpeningUnderline(string input, int symbolPos)
+        private bool TagIsOpeningUnderline(string input, int symbolPos)
         {
-            return symbolPos >= input.Length - 1 || input[symbolPos + 1] == ' ';
+            return !(symbolPos >= input.Length - 1 || input[symbolPos + 1] == ' ');
         }
 
         private bool TagIsHeader()

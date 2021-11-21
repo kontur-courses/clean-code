@@ -60,10 +60,10 @@
     <Compile Include="MdParser.cs" />
     <Compile Include="MarkdownTests\MdParserShould.cs" />
     <Compile Include="Tag Classes\TagEvent.cs" />
-    <Compile Include="Tag Classes\TagSide.cs" />
+    <Compile Include="Tag Classes\Side.cs" />
     <Compile Include="Md.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
-    <Compile Include="Tag Classes\TagKind.cs" />
+    <Compile Include="Tag Classes\Tag.cs" />
   </ItemGroup>
   <ItemGroup />
   <ItemGroup>

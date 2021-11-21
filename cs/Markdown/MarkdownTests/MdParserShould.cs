@@ -24,25 +24,25 @@ namespace Markdown.MarkdownTests
                 "#header with several words\n",
                 new List<TagEvent>
                 {
-                    new TagEvent(TagSide.Opening, TagKind.Header, "#"),
-                    new TagEvent(TagSide.None, TagKind.PlainText, "header with several words"),
-                    new TagEvent(TagSide.None, TagKind.PlainText, "\n")
+                    new TagEvent(Side.Opening, Tag.Header, "#"),
+                    new TagEvent(Side.None, Tag.Text, "header with several words"),
+                    new TagEvent(Side.None, Tag.Text, "\n")
                 }).SetName("simple header");
             yield return new TestCaseData(
                 "_simple single underline_",
                 new List<TagEvent>
                 {
-                    new TagEvent(TagSide.Opening, TagKind.SingleUnderline, "_"),
-                    new TagEvent(TagSide.None, TagKind.PlainText, "simple single underline"),
-                    new TagEvent(TagSide.Closing, TagKind.SingleUnderline, "_")
+                    new TagEvent(Side.Opening, Tag.OneLine, "_"),
+                    new TagEvent(Side.None, Tag.Text, "simple single underline"),
+                    new TagEvent(Side.Closing, Tag.OneLine, "_")
                 }).SetName("simple single underline");
             yield return new TestCaseData(
                 "__simple double underline__",
                 new List<TagEvent>
                 {
-                    new TagEvent(TagSide.Opening, TagKind.DoubleUnderline, "__"),
-                    new TagEvent(TagSide.None, TagKind.PlainText, "simple double underline"),
-                    new TagEvent(TagSide.Closing, TagKind.DoubleUnderline, "\n")
+                    new TagEvent(Side.Opening, Tag.TwoLines, "__"),
+                    new TagEvent(Side.None, Tag.Text, "simple double underline"),
+                    new TagEvent(Side.Closing, Tag.TwoLines, "\n")
                 }).SetName("simple double underline");
         }
     }

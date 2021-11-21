@@ -2,14 +2,14 @@
 {
     public class TagEvent
     {
-        public readonly TagSide TagSide;
-        public readonly TagKind TagKind;
+        public readonly Side Side;
+        public readonly Tag Tag;
         public readonly string TagContent;
 
-        public TagEvent(TagSide tagSide, TagKind tagKind, string con)
+        public TagEvent(Side side, Tag tag, string con)
         {
-            TagSide = tagSide;
-            TagKind = tagKind;
+            Side = side;
+            Tag = tag;
             TagContent = con;
         }
     }
