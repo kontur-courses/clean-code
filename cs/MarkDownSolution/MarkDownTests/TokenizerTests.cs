@@ -83,6 +83,14 @@ namespace MarkDownTests
             var actualToken = Tokenizer.GetToken(text);
             actualToken.Should().BeEquivalentTo(expectedToken);
         }
+        [Test]
+        public void GetToken_OnTextWithEscapeAndDoubleGround_ShouldWorkCorrectly()
+        {
+            var text = "Всякое \\__иногда бывает\\__";
+            var expectedToken = new Token(0, text.Length);
+            var actualToken = Tokenizer.GetToken(text);
+            actualToken.Should().BeEquivalentTo(expectedToken);
+        }
 
         [Test]
         public void GetToken_OnTextWithEscapeWithoutGround_ShouldWorkCorrectly()
@@ -113,5 +121,71 @@ namespace MarkDownTests
 
             actualToken.Should().BeEquivalentTo(expectedToken);
         }
+
+        //[Test]
+        //public void GetToken_ItalicInsideBold_ShouldWork()
+        //{
+        //    var text = "Внутри __двойного выделения _одинарное_ тоже__ работает.";
+        //    var expectedToken = new Token(0, text.Length);
+        //    var innerToken = new BoldToken(7, 39);
+        //    innerToken.nestedTokens.Add(new ItalicToken(28, 11));
+        //    expectedToken.nestedTokens.Add(innerToken);
+        //    var actualToken = Tokenizer.GetToken(text);
+
+        //    actualToken.Should().BeEquivalentTo(expectedToken);
+        //}
+
+        [Test]
+        public void GetToken_InsideTextWithDigits_ShouldWorkCorrectly()
+        {
+            var text = "Текст _с цифрами 123_ не выделяется.";
+            var expectedToken = new Token(0, text.Length);
+            var actualToken = Tokenizer.GetToken(text);
+
+            actualToken.Should().BeEquivalentTo(expectedToken);
+        }
+
+        [Test]
+        public void GetToken_OutsideTextWithDigits_ShouldWorkCorrectly()
+        {
+            var text = "_Текст_ с цифрами 123 __выделяется__.";
+            var expectedToken = new Token(0, text.Length);
+            var actualToken = Tokenizer.GetToken(text);
+            expectedToken.nestedTokens.Add(new ItalicToken(0, 7));
+            expectedToken.nestedTokens.Add(new BoldToken(23, 14));
+
+            actualToken.Should().BeEquivalentTo(expectedToken);
+        }
+        
+        [Test]
+        public void GetToken_OnPartOfWord_ShouldTokenize()
+        {
+            var text = "_Ино_гда";
+            var expectedToken = new Token(0, text.Length);
+            expectedToken.nestedTokens.Add(new ItalicToken(0, 5));
+            var actualToken = Tokenizer.GetToken(text);
+
+            actualToken.Should().BeEquivalentTo(expectedToken);
+        }
+
+        [Test]
+        public void GetToken_OnPartsOfDifferentWords_ShouldNotTokenize()
+        {
+            var text = "пло_хая по_года";
+            var expectedToken = new Token(0, text.Length);
+            var actualToken = Tokenizer.GetToken(text);
+
+            actualToken.Should().BeEquivalentTo(expectedToken);
+        }
+
+        //[Test]
+        //public void GetToken_OnWhiteSpaceAfterGround_ShouldNotTokenize()
+        //{
+        //    var text = "эти_ подчерки_ не считаются выделением";
+        //    var expectedToken = new Token(0, text.Length);
+        //    var actualToken = Tokenizer.GetToken(text);
+
+        //    actualToken.Should().BeEquivalentTo(expectedToken);
+        //}
     }
 }
