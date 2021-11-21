@@ -6,11 +6,6 @@ using Markdown.Tokens;
 
 namespace Markdown.TokenParser
 {
-    public static class StringUtils
-    {
-        public static bool IsWord(string text) => text.All(char.IsLetterOrDigit);
-    }
-
     public class TokenParserIterator
     {
         private readonly BufferedEnumerator<Token> enumerator;
@@ -68,59 +63,39 @@ namespace Markdown.TokenParser
             return current.ToText().ToNode();
         }
 
-        private TokenNode ParseCursive()
-        {
-            if (contexts.TryPeek(out var peek) && peek.Token.Type == TokenType.Cursive)
-            {
-                var context = contexts.Pop();
-                if (context.Children.TrueForAll(x => x.Token.Type == TokenType.Text))
-                {
-                    var text = ConcatValues(context.Children.Select(x => x.Token));
-                    return text.All(char.IsDigit) || isWord
-                        ? Token.Text($"_{text}_").ToNode()
-                        : new TokenNode(Token.Cursive, Token.Text(text).ToNode());
-                }
+        private TokenNode ParseCursive() => ParseUnderscore(Token.Cursive);
 
-                return new TokenNode(Token.Cursive, context.Children.ToArray());
-            }
+        private TokenNode ParseBold() => ParseUnderscore(Token.Bold);
 
-            if (enumerator.MoveNext())
-            {
-                contexts.Push(new TokenContext(Token.Cursive));
-                return ParseToken(enumerator.Current);
-            }
-
-            return Token.Cursive.ToText().ToNode();
-        }
-
-        private TokenNode ParseBold()
+        private TokenNode ParseUnderscore(Token token)
         {
             if (contexts.TryPeek(out var peek))
             {
-                if (peek.Token.Type == TokenType.Bold)
+                if (peek.Token.Type == token.Type)
                 {
                     var context = contexts.Pop();
                     if (context.Children.TrueForAll(x => x.Token.Type == TokenType.Text))
                     {
                         var text = ConcatValues(context.Children.Select(x => x.Token));
                         return text.All(char.IsDigit) || isWord
-                            ? Token.Text($"__{text}__").ToNode()
-                            : new TokenNode(Token.Bold, Token.Text(text).ToNode());
+                            ? Token.Text(ConcatValues(token, Token.Text(text), token)).ToNode()
+                            : new TokenNode(token, Token.Text(text).ToNode());
                     }
 
-                    return new TokenNode(Token.Bold, context.Children.ToArray());
+                    return new TokenNode(token, context.Children.ToArray());
                 }
 
-                if (peek.Token.Type == TokenType.Cursive) return Token.Bold.ToText().ToNode();
+                if (token.Type == TokenType.Bold && peek.Token.Type == TokenType.Cursive)
+                    return Token.Bold.ToText().ToNode();
             }
 
             if (enumerator.MoveNext())
             {
-                contexts.Push(new TokenContext(Token.Bold));
+                contexts.Push(new TokenContext(token));
                 return ParseToken(enumerator.Current);
             }
 
-            return Token.Bold.ToText().ToNode();
+            return token.ToText().ToNode();
         }
 
         private TokenNode EscapeBold()
@@ -155,5 +130,6 @@ namespace Markdown.TokenParser
         }
 
         private static string ConcatValues(IEnumerable<Token> tokens) => string.Join("", tokens.Select(x => x.Value));
+        private static string ConcatValues(params Token[] tokens) => ConcatValues((IEnumerable<Token>)tokens);
     }
 }
