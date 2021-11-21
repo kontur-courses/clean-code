@@ -49,15 +49,21 @@ namespace MarkDown
                         }
                         else if (statesDict[CaseType.Italic])
                         {
-                            currentToken.nestedTokens.Add(new ItalicToken(start, i - start));
-                            statesDict[CaseType.Italic] = false;
+                            if (!CheckIfPreviousIsSpecificChar(text, i, ' '))
+                            {
+                                currentToken.nestedTokens.Add(new ItalicToken(start, i - start));
+                                statesDict[CaseType.Italic] = false;
+                            }
                         }
                         else
                         {
-                            if (CheckIfPreviousIsSpecificChar(text, i, '_'))
+                            if (!(CheckIfPreviousIsSpecificChar(text, i - 1, ' ') || CheckIfPreviousIsSpecificChar(text, i-1, '_')))
                             {
-                                currentToken.nestedTokens.Add(new BoldToken(start, i - start));
-                                statesDict[CaseType.Bold] = false;
+                                if (CheckIfPreviousIsSpecificChar(text, i, '_'))
+                                {
+                                    currentToken.nestedTokens.Add(new BoldToken(start, i - start));
+                                    statesDict[CaseType.Bold] = false;
+                                }
                             }
                         }
                     }

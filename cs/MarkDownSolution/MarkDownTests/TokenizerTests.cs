@@ -178,14 +178,45 @@ namespace MarkDownTests
             actualToken.Should().BeEquivalentTo(expectedToken);
         }
 
-        //[Test]
-        //public void GetToken_OnWhiteSpaceAfterGround_ShouldNotTokenize()
-        //{
-        //    var text = "эти_ подчерки_ не считаются выделением";
-        //    var expectedToken = new Token(0, text.Length);
-        //    var actualToken = Tokenizer.GetToken(text);
+        [Test]
+        public void GetToken_OnWhiteSpaceAfterGround_ShouldNotTokenize()
+        {
+            var text = "эти_ подчерки_ не считаются выделением";
+            var expectedToken = new Token(0, text.Length);
+            var actualToken = Tokenizer.GetToken(text);
 
-        //    actualToken.Should().BeEquivalentTo(expectedToken);
-        //}
+            actualToken.Should().BeEquivalentTo(expectedToken);
+        }
+
+        [Test]
+        public void GetToken_OnWhiteSpaceBeforeGround_ShouldNotTokenize()
+        {
+            var text = "эти _подчерки _не считаются_ окончанием выделения";
+            var expectedToken = new Token(0, text.Length);
+            expectedToken.nestedTokens.Add(new ItalicToken(4, 24));
+            var actualToken = Tokenizer.GetToken(text);       
+
+            actualToken.Should().BeEquivalentTo(expectedToken);
+        }
+
+        [Test]
+        public void GetToken_OnFourGroundsInRow_ShouldNotTokenize()
+        {
+            var text = "____";
+            var expectedToken = new Token(0, text.Length);
+            var actualToken = Tokenizer.GetToken(text);
+
+            actualToken.Should().BeEquivalentTo(expectedToken);
+        }
+        
+        [Test]
+        public void GetToken_OnTwoGroundsInRow_ShouldNotTokenize()
+        {
+            var text = "__";
+            var expectedToken = new Token(0, text.Length);
+            var actualToken = Tokenizer.GetToken(text);
+
+            actualToken.Should().BeEquivalentTo(expectedToken);
+        }
     }
 }
