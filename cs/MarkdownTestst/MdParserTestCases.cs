@@ -73,7 +73,7 @@ namespace MarkdownTests
                 yield return new TestCaseData("\\a", new List<Token>())
                     .SetName("ReturnEmptyIEnumerable_WhenThereIsNothingToScreen");
 
-                yield return new TestCaseData("![]()", new List<Token>() { new ImageToken(0, 4, "", "") })
+                yield return new TestCaseData("![]()", new List<Token>() { new ImageToken(0, 4) })
                     .SetName("ReturnImageToken_WhenThereIsEmptyImageToken");
                 yield return new TestCaseData("![abc]()", new List<Token>() { new ImageToken(0, 7, "", "abc") })
                     .SetName("ReturnImageToken_WhenThereIsImageTokenWithOnlyAltText");

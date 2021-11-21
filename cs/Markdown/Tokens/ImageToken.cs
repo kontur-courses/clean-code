@@ -36,7 +36,7 @@ namespace Markdown.Tokens
         }
 
         public ImageToken(int openIndex) : base(openIndex) { }
-        public ImageToken(int openIndex, int closeIndex) : base(openIndex, closeIndex) { }
+        internal ImageToken(int openIndex, int closeIndex) : base(openIndex, closeIndex) { }
 
         internal ImageToken(int openIndex, int closeIndex, string source, string altText) : base(openIndex, closeIndex)
         {
