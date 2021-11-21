@@ -2,7 +2,7 @@
 
 namespace Markdown
 {
-    public interface ITokenTranslator
+    public interface ITagTranslator
     {
         Tag Translate(Tag tag);
     }
