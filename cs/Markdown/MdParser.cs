@@ -54,17 +54,19 @@ namespace Markdown
                 return GetHashtagTagEvent(tag);
             if (tag == "_")
                 return GetOneLineTagEvent(input, symbolPos, tag);
-            if (tag == "--")
+            if (tag == "__")
                 return GetTwoLineTagEvent(input, symbolPos, tag);
-            if (tag == "\n")
-            {
-                TurnAllOpenedTagsToText();
-                var firstOpenedTag = _openedTags.Pop();
-                if (firstOpenedTag == null)
-                    return new TagEvent(Side.None, Tag.Text, tag);
-                _openedTags.Pop();
-                return new TagEvent(Side.Right, Tag.Header, tag);
-            }
+            return GetEndOfLineTagEvent(tag);
+        }
+
+        private TagEvent GetEndOfLineTagEvent(string tag)
+        {
+            TurnAllOpenedTagsToText();
+            var firstOpenedTag = _openedTags.Pop();
+            if (firstOpenedTag == null)
+                return new TagEvent(Side.None, Tag.Text, tag);
+            _openedTags.Pop();
+            return new TagEvent(Side.Right, Tag.Header, tag);
         }
 
         private void TurnAllOpenedTagsToText()
@@ -76,14 +78,81 @@ namespace Markdown
             }
         }
 
+        private TagEvent GetTwoLineTagEvent(string input, int symbolPos, string tag)
+        {
+            if (TagIsLeftLiner(input, symbolPos, tag))
+            {
+                return GetLeftTwoLineTagEvent(tag);
+            }
+
+            if (TagIsRightLiner(input, symbolPos, tag))
+            {
+                return GetRightTwoLineTagEvent(tag);
+            }
+
+            return new TagEvent(Side.None, Tag.Text, tag);
+        }
+
+        private TagEvent GetRightTwoLineTagEvent(string tag)
+        {
+            var lastTag = _openedTags.Peek();
+            if (lastTag == null || (lastTag.Side == Side.Left && lastTag.Tag == Tag.Header))
+            {
+                return new TagEvent(Side.None, Tag.Text, tag);
+            }
+
+            if (lastTag.Side == Side.Left && lastTag.Tag == Tag.OneLine)
+            {
+                ChangeTagToText(lastTag);
+                _openedTags.Pop();
+                return new TagEvent(Side.None, Tag.Text, tag);
+            }
+
+            if (lastTag.Side == Side.Left & lastTag.Tag == Tag.TwoLines)
+            {
+                lastTag = _openedTags.Pop();
+                var beforeLastTag = _openedTags.Peek();
+                if (beforeLastTag.Tag == Tag.OneLine && beforeLastTag.Side == Side.Left)
+                {
+                    ChangeTagToText(lastTag);
+                    return new TagEvent(Side.None, Tag.Text, tag);
+                }
+
+                return new TagEvent(Side.Right, Tag.Text, tag);
+            }
+
+            throw new Exception("unknow tag in stack!");
+        }
+
+        private TagEvent GetLeftTwoLineTagEvent(string tag)
+        {
+            var lastTag = _openedTags.Peek();
+            if (lastTag == null || LeftHeaderOrOneLinerOnStack(lastTag))
+            {
+                var leftTwoLineTag = new TagEvent(Side.Left, Tag.TwoLines, tag);
+                _openedTags.Push(leftTwoLineTag);
+                return leftTwoLineTag;
+            }
+
+            if (lastTag.Side == Side.Left && lastTag.Tag == Tag.TwoLines)
+                return new TagEvent(Side.None, Tag.Text, tag);
+            throw new Exception("unknown tag in stack!");
+        }
+
+        private bool LeftHeaderOrOneLinerOnStack(TagEvent lastTag)
+        {
+            return lastTag.Side == Side.Left 
+                   && (lastTag.Tag == Tag.Header || lastTag.Tag == Tag.OneLine);
+        }
+
         private TagEvent GetOneLineTagEvent(string input, int symbolPos, string tag)
         {
-            if (TagIsLeftOneline(input, symbolPos))
+            if (TagIsLeftLiner(input, symbolPos, tag))
             {
                 return GetLeftOneLineTagEvent(tag);
             }
 
-            if (TagIsRightOneline(input, symbolPos))
+            if (TagIsRightLiner(input, symbolPos, tag))
             {
                 return GetRightOneLineTagEvent(tag);
             }
@@ -119,7 +188,7 @@ namespace Markdown
         private TagEvent GetLeftOneLineTagEvent(string tag)
         {
             var lastTag = _openedTags.Peek();
-            if (lastTag == null || OnlyOtherLeftTagsInStack(lastTag))
+            if (lastTag == null || LeftHeaderOrTwolinerOnTop(lastTag))
             {
                 var leftOneLineTag = new TagEvent(Side.Left, Tag.OneLine, tag);
                 _openedTags.Push(leftOneLineTag);
@@ -131,7 +200,7 @@ namespace Markdown
             throw new Exception("not left tag in the tagStack!");
         }
 
-        private static bool OnlyOtherLeftTagsInStack(TagEvent lastTag)
+        private static bool LeftHeaderOrTwolinerOnTop(TagEvent lastTag)
         {
             return (lastTag.Side == Side.Left && (lastTag.Tag == Tag.Header || lastTag.Tag == Tag.TwoLines));
         }
@@ -148,14 +217,14 @@ namespace Markdown
             return new TagEvent(Side.None, Tag.Text, tag);
         }
 
-        private bool TagIsLeftOneline(string input, int symbolPos)
+        private bool TagIsLeftLiner(string input, int symbolPos, string tag)
         {
-            return !(symbolPos >= input.Length - 1 || input[symbolPos + 1] == ' ');
+            return !(symbolPos == input.Length - 1 || input[symbolPos + 1] == ' ');
         }
 
-        private bool TagIsRightOneline(string input, int symbolPos)
+        private bool TagIsRightLiner(string input, int symbolPos, string tag)
         {
-            return !(symbolPos == 0 || input[symbolPos - 1] == ' ');
+            return !(symbolPos == tag.Length - 1 || input[symbolPos - tag.Length] == ' ');
         }
 
         private bool HashtagIsHeader()
