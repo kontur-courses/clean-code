@@ -57,5 +57,61 @@ namespace MarkDownTests
             var actualToken = Tokenizer.GetToken(text);
             actualToken.Should().BeEquivalentTo(expectedToken);
         }
+
+        [Test]
+        public void GetToken_OnTextWithOnlyOneGround_ShouldWorkCorrectly()
+        {
+            var text = "_А как тебе такое, Илон Маск?";
+            var expectedToken = new Token(0, text.Length);
+            var actualToken = Tokenizer.GetToken(text);
+            actualToken.Should().BeEquivalentTo(expectedToken);
+        }
+        [Test]
+        public void GetToken_OnTextWithTwoGroundsInRow_ShouldWorkCorrectly()
+        {
+            var text = "__А как тебе такое, Илон Маск?";
+            var expectedToken = new Token(0, text.Length);
+            var actualToken = Tokenizer.GetToken(text);
+            actualToken.Should().BeEquivalentTo(expectedToken);
+        }
+        
+        [Test]
+        public void GetToken_OnTextWithEscapeAndGround_ShouldWorkCorrectly()
+        {
+            var text = "Всякое \\_иногда бывает\\_";
+            var expectedToken = new Token(0, text.Length);
+            var actualToken = Tokenizer.GetToken(text);
+            actualToken.Should().BeEquivalentTo(expectedToken);
+        }
+
+        [Test]
+        public void GetToken_OnTextWithEscapeWithoutGround_ShouldWorkCorrectly()
+        {
+            var text = "\\Но иногда это \\\\ просто иллюзия\\";
+            var expectedToken = new Token(0, text.Length);
+            var actualToken = Tokenizer.GetToken(text);
+            actualToken.Should().BeEquivalentTo(expectedToken);
+        }
+
+        [Test]
+        public void GetToken_OnTextWithHeader_ShouldWorkCorrectly()
+        {
+            var text = "# Самый главный заголовок.";
+            var expectedToken = new Token(0, text.Length);
+            expectedToken.nestedTokens.Add(new HeaderToken(0, text.Length));
+            var actualToken = Tokenizer.GetToken(text);
+
+            actualToken.Should().BeEquivalentTo(expectedToken);
+        }
+
+        [Test]
+        public void GetToken_OnTextWithHashTag_ShouldWorkCorrectly()
+        {
+            var text = "Иногда это просто #хештег";
+            var expectedToken = new Token(0, text.Length);
+            var actualToken = Tokenizer.GetToken(text);
+
+            actualToken.Should().BeEquivalentTo(expectedToken);
+        }
     }
 }
