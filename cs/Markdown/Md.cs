@@ -1,13 +1,9 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Text;
-
-namespace Markdown
+﻿namespace Markdown
 {
     public class Md
     {
-        private IStringTranslator stringTranslator;
-        private ITokenTranslator tokenTranslator;
+        private readonly IStringTranslator stringTranslator;
+        private readonly ITokenTranslator tokenTranslator;
 
         public Md(IStringTranslator stringTranslator, ITokenTranslator tokenTranslator)
         {
