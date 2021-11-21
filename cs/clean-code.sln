@@ -9,7 +9,9 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "ControlDigit", "ControlDigi
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Samples", "Samples\Samples.csproj", "{C3EF41D7-50EF-4CE1-B30A-D1D81C93D7FA}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Markdown", "Markdown\Markdown.csproj", "{86420621-FCD2-4E66-B6DE-863A774991CC}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Markdown", "Markdown\Markdown.csproj", "{86420621-FCD2-4E66-B6DE-863A774991CC}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MarkdownTests", "MarkdownTests\MarkdownTests.csproj", "{80A58715-E88A-4CD3-A643-A8E1043AB645}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -33,6 +35,10 @@ Global
 		{86420621-FCD2-4E66-B6DE-863A774991CC}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{86420621-FCD2-4E66-B6DE-863A774991CC}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{86420621-FCD2-4E66-B6DE-863A774991CC}.Release|Any CPU.Build.0 = Release|Any CPU
+		{80A58715-E88A-4CD3-A643-A8E1043AB645}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{80A58715-E88A-4CD3-A643-A8E1043AB645}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{80A58715-E88A-4CD3-A643-A8E1043AB645}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{80A58715-E88A-4CD3-A643-A8E1043AB645}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
