@@ -6,7 +6,11 @@ namespace Markdown
     {
         public string Render(string markdown)
         {
-            throw new NotImplementedException();
+            var converter = new TokenConverter();
+            return converter
+                .SetMarkupString(markdown)
+                .FindTokens()
+                .Build();
         }
     }
 }

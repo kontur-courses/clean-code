@@ -4,7 +4,7 @@
     {
         public readonly int StartPosition;
         public int Length;
-        public ITag Tag;
+        public readonly ITag Tag;
 
         public Token(int startPosition, ITag tag)
         {

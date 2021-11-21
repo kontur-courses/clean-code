@@ -5,13 +5,11 @@ namespace Markdown
 {
     public class Machine
     {
-        private readonly HashSet<State> states;
         private State currentState;
         private readonly string input;
 
         private Machine(string input, State startState)
         {
-            states = new HashSet<State>();
             currentState = startState;
             this.input = input;
         }
@@ -38,14 +36,6 @@ namespace Markdown
                 }
             }
             currentState.OnExit(input, input.Length - 1);
-        }
-        
-        public Machine AddState(State state)
-        {
-            if (state.Fallback is null)
-                throw new ArgumentException("State should have fallback!");
-            states.Add(state);
-            return this;
         }
 
         private State GetNextState(char symbol)
