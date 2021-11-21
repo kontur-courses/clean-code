@@ -62,7 +62,7 @@ namespace MarkdownUnitTests
 
         [TestCase("__test")]
         [TestCase("test__")]
-        public void Convert_UnclosedBoldTag_ReturnsStringToken(string input)
+        public void Convert_UnclosedBoldTag_ShouldBeReturnsStringToken(string input)
         {
             var tokenList = tokenizer.Parse(input).ToList();
 
@@ -75,12 +75,22 @@ namespace MarkdownUnitTests
         [TestCase("_test _")]
         [TestCase("__test __")]
         [TestCase("__ test __")]
-        public void Convert_WhiteSpaceAroundTag_ReturnsStringToken(string input)
+        public void Convert_WhiteSpaceAroundTag_ShouldBeReturnsStringToken(string input)
         {
             var tokenList = tokenizer.Parse(input).ToList();
 
             new HtmlConvector().Convert(tokenList).Should()
                 .Be(input);
+        }
+
+        [TestCase(@"\_test\_", ExpectedResult = "_test_")]
+        [TestCase(@"te\st", ExpectedResult = @"te\st")]
+        [TestCase(@"\\_test_", @"\<em>test</em>")]
+        public string Convert_ShouldBeCorrectlyIdentifyEscapeSymbol(string input)
+        {
+            var tokenList = tokenizer.Parse(input).ToList();
+
+            return new HtmlConvector().Convert(tokenList);
         }
     }
 }
