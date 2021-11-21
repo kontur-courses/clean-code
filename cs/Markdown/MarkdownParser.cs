@@ -33,13 +33,13 @@ namespace Markdown
                     continue;
 
                 if (EscapeSymbols.Contains(mdTagBuilder.ToString()))
-                    if (mdText.TrySubstring(position, 2, out string substring) && EscapeSequence.Contains(substring))
+                    if (mdText.TrySubstring(position, 2, out string substring) && EscapeSequence.Any(s => s.StartsWith(substring)))
                     {
                         tokens.Add(new EscapeToken(position, position + 2));
                         nextTokenStart = position + 2;
                     }
 
-                if (TagByMdRepresentation.TryGetValue(mdTagBuilder.ToString(), out Tag tag) 
+                if (TagByMdRepresentation.TryGetValue(mdTagBuilder.ToString(), out Tag tag)
                     && !Escaped(mdText, position, mdTagBuilder.ToString()))
                 {
                     if (!stack.IsEmpty() && tag == stack.Peek().tag)
@@ -129,7 +129,8 @@ namespace Markdown
                 return false;
             if (content.Any(ch => char.IsDigit(ch))) // цифры внутри
                 return false;
-            if (!string.IsNullOrEmpty(behindOpenSymbol) && content.Any(ch => ch == ' ')) //  разные слова
+            if (!string.IsNullOrWhiteSpace(behindOpenSymbol)
+                && content.Any(ch => ch == ' ')) //  разные слова
                 return false;
             return true;
         }

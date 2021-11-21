@@ -17,20 +17,19 @@ namespace MarkDown_Tests
         }
 
         [Test]
-        public static void ProcessStringWithoutTags_ToItself()
+        public static void ProcessToItself_WhenStringWithoutTags()
         {
             var mdText = "abcdefg";
-            var expected = mdText;
-            _mdProcessor.Render(mdText).Should().Be(expected);
+            _mdProcessor.Render(mdText).Should().Be(mdText);
         }
 
-        [TestCase("__", "__")]
-        [TestCase("____", "____")]
-        [TestCase("_   _", "_   _")]
-        [TestCase("__   __", "__   __")]
-        public static void NotProcess_WhenEmptyStringInTag(string mdText, string expected)
+        [TestCase("__")]
+        [TestCase("____")]
+        [TestCase("_   _")]
+        [TestCase("__   __")]
+        public static void NotProcess_WhenEmptyStringInTag(string mdText)
         {
-            _mdProcessor.Render(mdText).Should().Be(expected);
+            _mdProcessor.Render(mdText).Should().Be(mdText);
         }
 
         [TestCase("_abc_d", "<em>abc</em>d")]
@@ -53,49 +52,48 @@ namespace MarkDown_Tests
 
         [TestCase("__a_b_c__d", "<strong>a<em>b</em>c</strong>d")]
         [TestCase("__a _b_ abc _c_ d__e", "<strong>a <em>b</em> abc <em>c</em> d</strong>e")]
-        public static void ProcessEmTagInsideStrongTag(string mdText, string expected)
+        public static void ProcessEmTag_InsideStrongTag(string mdText, string expected)
         {
             _mdProcessor.Render(mdText).Should().Be(expected);
         }
 
         [TestCase("_a__b__c_d", "<em>a__b__c</em>d")]
         [TestCase("_a __b__ __c___d", "<em>a __b__ __c__</em>d")]
-        public static void NotProcessStrongTagInsideEmTag(string mdText, string expected)
+        public static void NotProcessStrongTag_InsideEmTag(string mdText, string expected)
         {
             _mdProcessor.Render(mdText).Should().Be(expected);
         }
 
-        [TestCase("_123_", "_123_")]
-        [TestCase("_ab1c_", "_ab1c_")]
-        public static void NotProcessEm_WhenDigitInside(string mdText, string expected)
+        [TestCase("_123_")]
+        [TestCase("_ab1c_")]
+        public static void NotProcessEm_WhenDigitInside(string mdText)
         {
-            _mdProcessor.Render(mdText).Should().Be(expected);
+            _mdProcessor.Render(mdText).Should().Be(mdText);
         }
 
-        [TestCase("a_bc de_f", "a_bc de_f")]
-        [TestCase("a__bc de__f", "a__bc de__f")]
-        public static void NotProcessEmAndStrong_WhenDifferentWords(string mdText, string expected)
+        [TestCase("a_bc de_f")]
+        [TestCase("a__bc de__f")]
+        public static void NotProcessEmAndStrong_WhenPlacedInDifferentWords(string mdText)
         {
-            _mdProcessor.Render(mdText).Should().Be(expected);
+            _mdProcessor.Render(mdText).Should().Be(mdText);
         }
 
-        [TestCase("_a__bc_d__", "_a__bc_d__")]
-        [TestCase("__a_bc__d_", "__a_bc__d_")]
-        public static void NotProcessEmAndStrongTags_WhenHasIntersects(string mdText, string expected)
+        [TestCase("_a__bc_d__")]
+        [TestCase("__a_bc__d_")]
+        public static void NotProcessEmAndStrongTags_WhenHasIntersects(string mdText)
         {
-            _mdProcessor.Render(mdText).Should().Be(expected);
+            _mdProcessor.Render(mdText).Should().Be(mdText);
         }
 
-
-        [TestCase("_abc__def", "_abc__def")]
-        [TestCase("__abc_def", "__abc_def")]
-        [TestCase("_abcdef", "_abcdef")]
-        [TestCase("__abcdef", "__abcdef")]
-        [TestCase("_abc\nd_ef", "_abc\nd_ef")]
-        [TestCase("__abc\nd__ef", "__abc\nd__ef")]
-        public static void NotProcessEmAndStrongTags_WhenHasNoPair(string mdText, string expected)
+        [TestCase("_abc__def")]
+        [TestCase("__abc_def")]
+        [TestCase("_abcdef")]
+        [TestCase("__abcdef")]
+        [TestCase("_abc\nd_ef")]
+        [TestCase("__abc\nd__ef")]
+        public static void NotProcessEmAndStrongTags_WhenHasNoPair(string mdText)
         {
-            _mdProcessor.Render(mdText).Should().Be(expected);
+            _mdProcessor.Render(mdText).Should().Be(mdText);
         }
 
         [TestCase("# abcd\n", "<h1>abcd</h1>")]
@@ -112,28 +110,35 @@ namespace MarkDown_Tests
             _mdProcessor.Render(mdText).Should().Be(expected);
         }
 
-        [TestCase("# a__b_c_d__e\n", "<h1>a<strong>b<em>c</em>d</strong>e</h1>")]
-        public static void ProcessHeadingTag_WithTwoNestingLevels(string mdText, string expected)
+        [Test]
+        public static void ProcessHeadingTag_WithTwoNestingLevels()
         {
+            var mdText = "# a __b _c_ d__ e\n";
+            var expected = "<h1>a <strong>b <em>c</em> d</strong> e</h1>";
             _mdProcessor.Render(mdText).Should().Be(expected);
         }
 
         [TestCase(@"\_abc_", "_abc_")]
+        [TestCase(@"\__abc__", "__abc__")]
+        [TestCase(@"\# abc\n", @"# abc\n")]
         public static void NotProcess_EscapedTag(string mdText, string expected)
         {
             _mdProcessor.Render(mdText).Should().Be(expected);
         }
 
-        [TestCase(@"\\", @"\")]
-        public static void EscapeSymbol_EscapeItself(string mdText, string expected)
+        public static void EscapeSymbol_EscapeItself()
         {
+            var mdText = @"\\";
+            var expected = @"\";
             _mdProcessor.Render(mdText).Should().Be(expected);
         }
 
-        [TestCase(@"a\bc", @"a\bc")]
-        public static void EscapeSymbol_Remain_WhenNotEscapeSequence(string mdText, string expected)
+        [TestCase(@"a\bc")]
+        [TestCase(@"a\ bc")]
+        [TestCase(@"a\1bc")]
+        public static void EscapeSymbol_Remain_WhenNotEscapeSequence(string mdText)
         {
-            _mdProcessor.Render(mdText).Should().Be(expected);
+            _mdProcessor.Render(mdText).Should().Be(mdText);
         }
 
         [TestCase("a_ bc _de_f", "a_ bc <em>de</em>f")]
