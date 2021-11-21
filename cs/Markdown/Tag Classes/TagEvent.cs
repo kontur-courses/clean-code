@@ -2,9 +2,9 @@
 {
     public class TagEvent
     {
-        public readonly Side Side;
-        public readonly Tag Tag;
-        public readonly string TagContent;
+        public Side Side;
+        public Tag Tag;
+        public string TagContent;
 
         public TagEvent(Side side, Tag tag, string con)
         {

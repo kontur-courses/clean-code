@@ -65,14 +65,40 @@ namespace Markdown
 
             if (TagIsRightOneline(input, symbolPos))
             {
-
+                return GetRightOneLineTagEvent(tag);
             }
             return new TagEvent(Side.None, Tag.Text, tag);
         }
 
+        private TagEvent GetRightOneLineTagEvent(string tag)
+        {
+            var lastTag = _openedTags.Peek();
+            if (lastTag == null || lastTag.Tag == Tag.Header)
+                return new TagEvent(Side.None, Tag.Text, tag);
+            if (lastTag.Side == Side.Left && lastTag.Tag == Tag.OneLine)
+            {
+                _openedTags.Pop();
+                return new TagEvent(Side.Right, Tag.OneLine, tag);
+            }
+
+            if (lastTag.Side == Side.Left && lastTag.Tag == Tag.TwoLines)
+            {
+                ChangeTagToText(lastTag);
+                return new TagEvent(Side.None, Tag.Text, tag);
+            }
+
+            throw new Exception($"unknown tag on the stack: {lastTag}");
+        }
+
+        private static void ChangeTagToText(TagEvent lastTag)
+        {
+            lastTag.Tag = Tag.Text;
+            lastTag.Side = Side.None;
+        }
+
         private TagEvent GetLeftOneLineTagEvent(string tag)
         {
-            TagEvent lastTag = _openedTags.Peek();
+            var lastTag = _openedTags.Peek();
             if (lastTag == null || OnlyOtherLeftTagsInStack(lastTag))
             {
                 var leftOneLineTag = new TagEvent(Side.Left, Tag.OneLine, tag);
@@ -92,7 +118,7 @@ namespace Markdown
 
         private TagEvent GetHashtagTagEvent(string tag)
         {
-            if (TagIsHeader())
+            if (HashtagIsHeader())
             {
                 var headerTagEvent = new TagEvent(Side.Left, Tag.Header, tag);
                 _openedTags.Push(headerTagEvent);
@@ -112,7 +138,7 @@ namespace Markdown
             return !(symbolPos == 0 || input[symbolPos - 1] == ' ');
         }
 
-        private bool TagIsHeader()
+        private bool HashtagIsHeader()
         {
             return _parsedTags.Count == 0 || _parsedTags.Last().TagContent.EndsWith("\n");
         }
