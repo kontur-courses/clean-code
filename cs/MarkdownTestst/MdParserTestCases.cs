@@ -46,6 +46,17 @@ namespace MarkdownTests
                 yield return new TestCaseData("1_1_1", new List<Token>())
                     .SetName("ReturnEmptyIEnumerable_WhenThereIsItalicTokenInTextWithDigits");
 
+                yield return new TestCaseData("![]a()", new List<Token>())
+                    .SetName("ReturnEmptyIEnumerable_WhenImageTokenIsSplit");
+                yield return new TestCaseData("![](", new List<Token>())
+                    .SetName("ReturnEmptyIEnumerable_WhenImageTokenHasNotClosedSource");
+                yield return new TestCaseData("!]()", new List<Token>())
+                    .SetName("ReturnEmptyIEnumerable_WhenImageTokenHasNotOpenedAltText");
+                yield return new TestCaseData("![()", new List<Token>())
+                    .SetName("ReturnEmptyIEnumerable_WhenImageTokenHasNotClosedAltText");
+                yield return new TestCaseData("![])", new List<Token>())
+                    .SetName("ReturnEmptyIEnumerable_WhenImageTokenHasNotOpenedSource");
+
                 yield return new TestCaseData("#a", new List<Token>() { new HeaderToken(0, 2) })
                     .SetName("ReturnHeaderToken_WhenThereIsHeaderToken");
                 yield return new TestCaseData("\\#a", new List<Token>() { new ScreeningToken(0, 0) })

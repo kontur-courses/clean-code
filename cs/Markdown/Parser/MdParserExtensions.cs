@@ -60,7 +60,7 @@ namespace Markdown.Parser
             if (endOfAltText == -1 || startOfSource == -1 || endOfSource == -1)
                 return;
 
-            if (endOfAltText > endOfParagraph || startOfSource > endOfParagraph || endOfSource > endOfParagraph)
+            if (startOfSource != endOfAltText + 1 || endOfSource > endOfParagraph)
                 return;
 
             var altText = text.Substring(token.OpenIndex + token.GetSeparator().Length, endOfAltText - token.OpenIndex - token.GetSeparator().Length);

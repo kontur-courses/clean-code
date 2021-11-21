@@ -46,15 +46,18 @@ namespace Markdown.Parser
                 }
 
                 if (TokensBySeparator.Keys.Any(x => x.StartsWith($"{possibleTag}{symbol}")))
-                    possibleTag.Append(symbol);
-                else if (TokensBySeparator.ContainsKey(possibleTag.ToString()))
                 {
-                    ProcessToken(possibleTag.ToString(), i - possibleTag.Length);
-                    possibleTag.Clear();
-
-                    if (TokensBySeparator.Keys.Any(x => x.StartsWith(symbol)))
-                        possibleTag.Append(symbol);
+                    possibleTag.Append(symbol);
+                    continue;
                 }
+
+                if (TokensBySeparator.ContainsKey(possibleTag.ToString()))
+                    ProcessToken(possibleTag.ToString(), i - possibleTag.Length);
+
+                possibleTag.Clear();
+
+                if (TokensBySeparator.Keys.Any(x => x.StartsWith(symbol)))
+                    possibleTag.Append(symbol);
             }
 
             if (possibleTag.Length > 0)
