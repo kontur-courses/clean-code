@@ -25,11 +25,7 @@ namespace Markdown
 
         public override bool Equals(object? obj) => obj is TokenNode node && Equals(node);
 
-        private bool Equals(TokenNode node)
-        {
-            return Token.Equals(node.Token) && Children.Length == node.Children.Length &&
-                   !Children.Where((t, i) => !t.Equals(node.Children[i])).Any();
-        }
+        private bool Equals(TokenNode node) => Token.Equals(node.Token) && Children.SequenceEqual(node.Children);
 
         public override int GetHashCode()
         {
@@ -49,11 +45,11 @@ namespace Markdown
             sb.AppendLine(tab);
             sb.AppendLine($"{tab}{{");
             sb.AppendLine($"{tab}\tToken = {ToString(Token)}");
-            foreach (var child in Children)
+            if (Children.Length > 0)
             {
                 sb.AppendLine($"{tab}\tChildren = ");
                 sb.Append($"{tab}\t[");
-                sb.Append($"{tab}\t{child.ToString(nesting + 1)}");
+                foreach (var child in Children) sb.Append($"{tab}\t{child.ToString(nesting + 1)}");
                 sb.AppendLine($"{tab}\t]");
             }
 
@@ -61,6 +57,6 @@ namespace Markdown
             return sb.ToString();
         }
 
-        private string ToString(Token token) => $"{{ TokenType = {token.Type}, Value = \"{token.Value}\" }}";
+        private static string ToString(Token token) => $"{{ TokenType = {token.Type}, Value = \"{token.Value}\" }}";
     }
 }

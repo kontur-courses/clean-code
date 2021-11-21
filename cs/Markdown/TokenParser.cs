@@ -1,5 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
+using System.Text;
 using Markdown.Interfaces;
 
 namespace Markdown
@@ -11,7 +13,29 @@ namespace Markdown
             if (tokens == null) throw new ArgumentNullException(nameof(tokens));
             using var enumerator = tokens.GetEnumerator();
             var iterator = new TokenParserIterator(enumerator);
-            return iterator.Parse();
+            return ReduceTextTokens(iterator.Parse());
+        }
+
+        private static IEnumerable<TokenNode> ReduceTextTokens(IEnumerable<TokenNode> nodes)
+        {
+            var sb = new StringBuilder();
+            foreach (var node in nodes)
+                if (node.Token.Type == TokenType.Text)
+                {
+                    sb.Append(node.Token.Value);
+                }
+                else
+                {
+                    if (sb.Length > 0)
+                    {
+                        yield return Token.Text(sb.ToString()).ToNode();
+                        sb.Clear();
+                    }
+
+                    yield return new TokenNode(node.Token, ReduceTextTokens(node.Children).ToArray());
+                }
+
+            if (sb.Length > 0) yield return Token.Text(sb.ToString()).ToNode();
         }
     }
 }

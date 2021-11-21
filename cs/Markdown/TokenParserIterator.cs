@@ -1,24 +1,19 @@
 ﻿using System.Collections.Generic;
+using System.Linq;
 using System.Text;
 
 namespace Markdown
 {
-    public class TokenContext
+    public static class StringUtils
     {
-        public Token Token { get; }
-        public List<TokenNode> Children { get; } = new();
-
-        public TokenContext(Token token)
-        {
-            Token = token;
-        }
+        public static bool IsWord(string text) => text.All(char.IsLetterOrDigit);
     }
 
     public class TokenParserIterator
     {
         private readonly BufferedEnumerator<Token> enumerator;
-
         private readonly Stack<TokenContext> contexts = new();
+        private bool isWord;
 
         public TokenParserIterator(IEnumerator<Token> tokens)
         {
@@ -49,6 +44,7 @@ namespace Markdown
             {
                 TokenType.Escape => ParseEscapeCharacter(),
                 TokenType.Cursive => ParseCursive(),
+                TokenType.Bold => ParseBold(),
                 _ => ParseTextToken()
             };
         }
@@ -75,6 +71,14 @@ namespace Markdown
             if (contexts.TryPeek(out var peek) && peek.Token.Type == TokenType.Cursive)
             {
                 var context = contexts.Pop();
+                if (context.Children.TrueForAll(x => x.Token.Type == TokenType.Text))
+                {
+                    var text = ConcatValues(context.Children.Select(x => x.Token));
+                    return text.All(char.IsDigit) || isWord
+                        ? Token.Text($"_{text}_").ToNode()
+                        : new TokenNode(Token.Cursive, Token.Text(text).ToNode());
+                }
+
                 return new TokenNode(Token.Cursive, context.Children.ToArray());
             }
 
@@ -84,7 +88,37 @@ namespace Markdown
                 return ParseToken(enumerator.Current);
             }
 
-            return Token.Text(Token.Cursive.Value).ToNode();
+            return Token.Cursive.ToText().ToNode();
+        }
+
+        private TokenNode ParseBold()
+        {
+            if (contexts.TryPeek(out var peek))
+            {
+                if (peek.Token.Type == TokenType.Bold)
+                {
+                    var context = contexts.Pop();
+                    if (context.Children.TrueForAll(x => x.Token.Type == TokenType.Text))
+                    {
+                        var text = ConcatValues(context.Children.Select(x => x.Token));
+                        return text.All(char.IsDigit) || isWord
+                            ? Token.Text($"__{text}__").ToNode()
+                            : new TokenNode(Token.Bold, Token.Text(text).ToNode());
+                    }
+
+                    return new TokenNode(Token.Bold, context.Children.ToArray());
+                }
+
+                if (peek.Token.Type == TokenType.Cursive) return Token.Bold.ToText().ToNode();
+            }
+
+            if (enumerator.MoveNext())
+            {
+                contexts.Push(new TokenContext(Token.Bold));
+                return ParseToken(enumerator.Current);
+            }
+
+            return Token.Bold.ToText().ToNode();
         }
 
         private TokenNode EscapeBold()
@@ -97,12 +131,15 @@ namespace Markdown
         private TokenNode ParseTextToken()
         {
             var sb = new StringBuilder();
-            sb.Append(enumerator.Current.Value);
+            var text = enumerator.Current.Value;
+            sb.Append(text);
+            isWord = !StringUtils.IsWord(text);
             while (enumerator.MoveNext())
             {
                 var next = enumerator.Current;
                 if (next.Type == TokenType.Text)
                 {
+                    isWord = !StringUtils.IsWord(next.Value);
                     sb.Append(next.Value);
                 }
                 else
@@ -114,5 +151,7 @@ namespace Markdown
 
             return Token.Text(sb.ToString()).ToNode();
         }
+
+        private static string ConcatValues(IEnumerable<Token> tokens) => string.Join("", tokens.Select(x => x.Value));
     }
 }
