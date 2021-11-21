@@ -1,5 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using Markdown.Tokens;
 
 namespace Markdown.Parser
@@ -12,16 +11,10 @@ namespace Markdown.Parser
                 return;
 
             var closeIndexLf = parser.ParserContext.TextToParse.IndexOf('\n', token.OpenIndex);
-            var closeIndexCr = parser.ParserContext.TextToParse.IndexOf('\r', token.OpenIndex);
 
-            int closeIndex;
-
-            if (closeIndexCr == -1)
-                closeIndex = closeIndexLf;
-            else if (closeIndexLf == -1)
-                closeIndex = closeIndexCr;
-            else
-                closeIndex = Math.Min(closeIndexCr, closeIndexLf);
+            var closeIndex = closeIndexLf > 0 && parser.TextToParse[closeIndexLf - 1] == '\r'
+                ? closeIndexLf - 1
+                : closeIndexLf;
 
             if (closeIndex == -1)
                 closeIndex = parser.TextToParse.Length;
