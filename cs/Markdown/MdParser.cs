@@ -16,7 +16,7 @@ namespace Markdown
 
         public MdParser()
         {
-            _openedTags = new Stack<TagEvent>();
+            _openedTags = new Stack<TagEvent>(null);
             _parsedTags = new List<TagEvent>();
         }
 
@@ -58,18 +58,21 @@ namespace Markdown
 
         private TagEvent GetOneLineTagEvent(string input, int symbolPos, string tag)
         {
-            if (TagIsOpeningUnderline(input, symbolPos))
+            if (TagIsLeftOneline(input, symbolPos))
             {
                 return GetLeftOneLineTagEvent(tag);
+            }
+
+            if (TagIsRightOneline(input, symbolPos))
+            {
+
             }
             return new TagEvent(Side.None, Tag.Text, tag);
         }
 
         private TagEvent GetLeftOneLineTagEvent(string tag)
         {
-            TagEvent lastTag = _openedTags.Count == 0
-                ? null
-                : _openedTags.Peek();
+            TagEvent lastTag = _openedTags.Peek();
             if (lastTag == null || OnlyOtherLeftTagsInStack(lastTag))
             {
                 var leftOneLineTag = new TagEvent(Side.Left, Tag.OneLine, tag);
@@ -79,7 +82,7 @@ namespace Markdown
 
             if (lastTag.Tag == Tag.OneLine && lastTag.Side == Side.Left)
                 return new TagEvent(Side.None, Tag.Text, tag);
-            throw new Exception("right tag in the tagStack!");
+            throw new Exception("not left tag in the tagStack!");
         }
 
         private static bool OnlyOtherLeftTagsInStack(TagEvent lastTag)
@@ -99,9 +102,14 @@ namespace Markdown
             return new TagEvent(Side.None, Tag.Text, tag);
         }
 
-        private bool TagIsOpeningUnderline(string input, int symbolPos)
+        private bool TagIsLeftOneline(string input, int symbolPos)
         {
             return !(symbolPos >= input.Length - 1 || input[symbolPos + 1] == ' ');
+        }
+
+        private bool TagIsRightOneline(string input, int symbolPos)
+        {
+            return !(symbolPos == 0 || input[symbolPos - 1] == ' ');
         }
 
         private bool TagIsHeader()

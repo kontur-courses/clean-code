@@ -3,7 +3,7 @@
     public enum Side
     {
         None,
-        Opening,
-        Closing
+        Left,
+        Right
     }
 }
