@@ -12,5 +12,12 @@
             Tag = tag;
             TagContent = con;
         }
+
+        public override string ToString()
+        {
+            return $"Side = {nameof(Side)}\n"
+                   + $"Tag = {nameof(Tag)}\n"
+                   + $"TagContent = {TagContent}\n";
+        }
     }
 }
