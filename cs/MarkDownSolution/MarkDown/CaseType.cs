@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace MarkDown
 {
-    enum CaseType
+    public enum CaseType
     {
         Italic,
         Bold
