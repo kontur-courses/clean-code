@@ -41,10 +41,17 @@ namespace Markdown.Renderer
             return result.ToString();
         }
 
+        public void AddNewTag(string separator, HtmlTag htmlTag)
+        {
+            if (HtmlTagsBySeparator.ContainsKey(separator))
+                throw new InvalidOperationException("This separator is already present");
+
+            HtmlTagsBySeparator.Add(separator, htmlTag);
+        }
+
         private Dictionary<int, TagInsertion> GetTagInsertions(IEnumerable<Token> tokens)
         {
             var result = new Dictionary<int, TagInsertion>();
-
             foreach (var token in tokens)
             {
                 var htmlTag = HtmlTagsBySeparator[token.GetSeparator()];
@@ -68,14 +75,6 @@ namespace Markdown.Renderer
             var insertion = htmlTag.OpenTag.Insert(htmlTag.OpenTag.Length - 1, $"{source} {altText}");
             var shift = token.CloseIndex - token.OpenIndex + 1;
             return new TagInsertion(insertion, shift);
-        }
-
-        public void AddNewTag(string separator, HtmlTag htmlTag)
-        {
-            if (HtmlTagsBySeparator.ContainsKey(separator))
-                throw new InvalidOperationException("This separator is already present");
-
-            HtmlTagsBySeparator.Add(separator, htmlTag);
         }
     }
 }
