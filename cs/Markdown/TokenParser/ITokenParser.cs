@@ -1,6 +1,7 @@
 ﻿using System.Collections.Generic;
+using Markdown.Tokens;
 
-namespace Markdown.Interfaces
+namespace Markdown.TokenParser
 {
     public interface ITokenParser
     {

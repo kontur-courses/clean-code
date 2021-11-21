@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
 using FluentAssertions;
+using Markdown.Tokens;
 using NUnit.Framework;
 
 namespace Markdown.Tests
@@ -10,12 +11,12 @@ namespace Markdown.Tests
     [TestFixture]
     public class LexerTests
     {
-        private Lexer sut;
+        private Lexer.Lexer sut;
 
         [SetUp]
         public void SetUp()
         {
-            sut = new Lexer();
+            sut = new Lexer.Lexer();
         }
 
         [Test]

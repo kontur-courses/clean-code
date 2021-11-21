@@ -2,7 +2,7 @@
 using System.Linq;
 using System.Text;
 
-namespace Markdown
+namespace Markdown.Tokens
 {
     public class TokenNode
     {

@@ -1,7 +1,8 @@
 ﻿using System;
 using System.Collections.Generic;
+using Markdown.Tokens;
 
-namespace Markdown
+namespace Markdown.Lexer
 {
     public class LexIterator
     {

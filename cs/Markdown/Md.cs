@@ -1,5 +1,7 @@
 ﻿using System;
-using Markdown.Interfaces;
+using Markdown.Lexer;
+using Markdown.TokenParser;
+using Markdown.TokenRenderer;
 
 namespace Markdown
 {

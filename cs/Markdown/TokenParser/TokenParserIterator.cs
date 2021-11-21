@@ -1,8 +1,10 @@
 ﻿using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using Markdown.Extensions;
+using Markdown.Tokens;
 
-namespace Markdown
+namespace Markdown.TokenParser
 {
     public static class StringUtils
     {
@@ -33,7 +35,7 @@ namespace Markdown
 
             while (contexts.TryPop(out var context))
             {
-                yield return Token.Text(context.Token.Value).ToNode();
+                yield return context.Token.ToText().ToNode();
                 foreach (var token in context.Children) yield return token;
             }
         }

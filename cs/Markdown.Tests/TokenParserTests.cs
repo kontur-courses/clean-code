@@ -2,6 +2,8 @@
 using System.Collections.Generic;
 using System.Linq;
 using FluentAssertions;
+using Markdown.Extensions;
+using Markdown.Tokens;
 using NUnit.Framework;
 
 namespace Markdown.Tests
@@ -9,12 +11,12 @@ namespace Markdown.Tests
     [TestFixture]
     public class TokenParserTests
     {
-        private TokenParser sut;
+        private TokenParser.TokenParser sut;
 
         [SetUp]
         public void SetUp()
         {
-            sut = new TokenParser();
+            sut = new TokenParser.TokenParser();
         }
 
         [Test]

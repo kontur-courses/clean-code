@@ -1,8 +1,8 @@
 ﻿using System;
 using System.Collections.Generic;
-using Markdown.Interfaces;
+using Markdown.Tokens;
 
-namespace Markdown
+namespace Markdown.TokenRenderer
 {
     public class HtmlTokenRenderer : ITokenRenderer
     {

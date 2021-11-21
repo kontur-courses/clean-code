@@ -1,5 +1,7 @@
 ﻿
-namespace Markdown
+using Markdown.Tokens;
+
+namespace Markdown.Extensions
 {
     public static class TokenExtensions
     {
