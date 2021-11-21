@@ -88,7 +88,9 @@ namespace Markdown.Parser
 
             if (token.CloseIndex != index - ScreeningToken.Separator.Length)
             {
-                if (token.CloseIndex < index) ParserContext.Tokens.Remove(ScreeningToken.Separator);
+                if (token.CloseIndex < index)
+                    ParserContext.Tokens.Remove(ScreeningToken.Separator);
+
                 return false;
             }
 
