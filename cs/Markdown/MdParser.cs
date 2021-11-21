@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Net.Mail;
 using System.Text;
 using Markdown.Tag_Classes;
 
@@ -40,7 +39,7 @@ namespace Markdown
                     tag.Append(currentSymbol);
                     if (symbolPos == input.Length - 1)
                     {
-                        var tagEvent = GetTagEventCheckingRules(input, symbolPos, tag.ToString());
+                        var tagEvent = GetTagEvent(input, symbolPos, tag.ToString());
                         _parsedTags.Add(tagEvent);
                         tag.Clear();
                     }
@@ -49,7 +48,7 @@ namespace Markdown
                 {
                     if (tag.Length > 0)
                     {
-                        var tagEvent = GetTagEventCheckingRules(input, symbolPos, tag.ToString());
+                        var tagEvent = GetTagEvent(input, symbolPos, tag.ToString());
                         _parsedTags.Add(tagEvent);
                         tag.Clear();
                     }
@@ -66,7 +65,7 @@ namespace Markdown
             return _parsedTags;
         }
 
-        private TagEvent GetTagEventCheckingRules(string input, int symbolPos, string tag)
+        private TagEvent GetTagEvent(string input, int symbolPos, string tag)
         {
             if (tag == "#")
                 return GetHashtagTagEvent(tag);

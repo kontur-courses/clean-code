@@ -1,10 +1,12 @@
-﻿namespace Markdown
+﻿using System;
+
+namespace Markdown
 {
     public class Md
     {
         public string Render(string rawInput)
         {
-            return "";
+            throw new NotImplementedException();
         }
     }
 }
