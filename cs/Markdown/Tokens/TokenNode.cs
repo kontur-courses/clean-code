@@ -23,6 +23,16 @@ namespace Markdown.Tokens
         {
         }
 
+        public string ToText()
+        {
+            if (Children.Length == 0) return Token.Value;
+            return new StringBuilder()
+                .Append(Token.Value)
+                .AppendJoin("", Children.Select(x => x.ToText()))
+                .Append(Token.Value)
+                .ToString();
+        }
+
         public override bool Equals(object? obj) => obj is TokenNode node && Equals(node);
 
         private bool Equals(TokenNode node) => Token.Equals(node.Token) && Children.SequenceEqual(node.Children);
