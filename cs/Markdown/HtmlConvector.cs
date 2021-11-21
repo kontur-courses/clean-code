@@ -1,13 +1,21 @@
-﻿using System.Collections.Generic;
-using Markdown.Interfaces;
+﻿using Markdown.Interfaces;
+using System.Collections.Generic;
+using System.Text;
 
 namespace Markdown
 {
-    public class HtmlConvector: IConvectorMarkup
+    public class HtmlConvector : IMarkupConverter
     {
-        public string Convert(IEnumerable<TagToken> inputTagTypes)
+        public string Convert(IEnumerable<IToken> inputTagTokens)
         {
-            return null;
+            var stringBuilder = new StringBuilder();
+
+            foreach (var tag in inputTagTokens)
+            {
+                stringBuilder.Append(tag.ConvertToHtml());
+            }
+
+            return stringBuilder.ToString();
         }
     }
 }
