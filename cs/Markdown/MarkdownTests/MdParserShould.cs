@@ -44,6 +44,12 @@ namespace Markdown.MarkdownTests
                     new TagEvent(Side.None, Tag.Text, "simple double underline"),
                     new TagEvent(Side.Right, Tag.TwoLines, "__")
                 }).SetName("simple double underline");
+            yield return new TestCaseData(
+                "just text",
+                new List<TagEvent>
+                {
+                    new TagEvent(Side.None, Tag.Text, "just text"),
+                }).SetName("two words without tags");
         }
     }
 }
