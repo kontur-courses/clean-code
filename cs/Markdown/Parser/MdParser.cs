@@ -6,7 +6,7 @@ using Markdown.Tokens;
 
 namespace Markdown.Parser
 {
-    public class MdParser
+    public class MdParser : IMdParser
     {
         public readonly Dictionary<string, Func<int, Token>> TokensBySeparator = new()
         {
