@@ -17,6 +17,7 @@ namespace Markdown.SyntaxParser.ConcreteParsers
             {
                 case TokenType.Bold:
                 case TokenType.Italics:
+                case TokenType.Header1:
                     Context.NextToken();
                     return TokenTree.FromText(Context.Current.Value);
                 case TokenType.Escape:

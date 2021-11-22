@@ -212,6 +212,10 @@ namespace Markdown.Tests.SyntaxParser
                         TokenTree.FromText("\\"), new TokenTree(Token.Italics, TokenTree.FromText("abc"))
                     })
                 .SetName("shielding itself before italics");
+            yield return new TestCaseData(
+                    new[] {Token.Escape, Token.Header1, Token.Text("abc")},
+                    TokenTreeHelper.GenerateFromText("# ", "abc"))
+                .SetName("shielding header");
         }
 
         public static IEnumerable<TestCaseData> Header1Data()

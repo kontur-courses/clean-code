@@ -30,10 +30,7 @@ namespace Markdown.Tests.Lexer
         }
 
 
-        IEnumerator IEnumerable.GetEnumerator()
-        {
-            return GetEnumerator();
-        }
+        IEnumerator IEnumerable.GetEnumerator() => GetEnumerator();
 
         private IEnumerable<TestCaseData> GenerateCombinedTestData()
         {
