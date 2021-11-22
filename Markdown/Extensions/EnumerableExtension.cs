@@ -15,17 +15,16 @@ namespace Markdown.Extensions
             
             var dict = new Dictionary<Guid, TSource>();
             
-            foreach (var (f, s) in source.AllPairs())
+            foreach (var ((firstGuid, firstItem), (secondGuid, secondItem)) in source.AllPairs())
             {
-                var a = action(
-                    dict.ContainsKey(f.Item1) ? dict[f.Item1] : f.Item2, 
-                    dict.ContainsKey(s.Item1) ? dict[s.Item1] : s.Item2);
+                var (transformedFirstItem, transformedSecondItem) = action(
+                    dict.ContainsKey(firstGuid) ? dict[firstGuid] : firstItem, 
+                    dict.ContainsKey(secondGuid) ? dict[secondGuid] : secondItem);
                 
-                dict[f.Item1] = a.Item1;
-                dict[s.Item1] = a.Item2;
+                dict[firstGuid] = transformedFirstItem;
+                dict[secondGuid] = transformedSecondItem;
             }
-            
-            
+
             return dict.Select(x => x.Value);
         }
 

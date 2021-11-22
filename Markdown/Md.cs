@@ -32,16 +32,16 @@ namespace Markdown
 
             parser = TokenParserConfigurator
                 .CreateTokenParser()
-                // .SetShieldingSymbol('\\')
-                .AddToken(underscoreTag.Start)//.That
-                    // .CanBeNestedIn(doubleUnderscoreTag).And
-                    // .CantIntersect()
-                .AddToken(doubleUnderscoreTag.Start)//.That
-                    // .CantBeNestedIn(underscoreTag).And
-                    // .CantIntersect()
-                .AddToken(sharpTag.Start)//.That
-                    // .CanIntersectWithAnyTokens().And
-                    // .CanBeNestedInAnyTokens()
+                .SetShieldingSymbol('\\')
+                .AddToken(underscoreTag.Start).That
+                    .CanBeNestedIn(doubleUnderscoreTag).And
+                    .CantIntersect()
+                .AddToken(doubleUnderscoreTag.Start).That
+                    .CantBeNestedIn(underscoreTag).And
+                    .CantIntersect()
+                .AddToken(sharpTag.Start).That
+                    .CanIntersectWithAnyTokens().And
+                    .CanBeNestedInAnyTokens()
                 .Configure();
         }
 
@@ -58,7 +58,7 @@ namespace Markdown
                     .GroupBy(x => x.Token.ToString())
                     .Select(x => x.ToSegmentsCollection())
                     .ToList()
-                    .ForEachPairs(parser.ValidatePairSetsByRules);
+                    .ForEachPairs(parser.IgnoreSegmentsThatDoNotMatchRules);
 
                 parsedText.Append(parser.ReplaceTokens(paragraph, SegmentsCollection.Union(tokenSegments), translator));
             }

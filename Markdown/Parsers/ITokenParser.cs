@@ -8,7 +8,7 @@ namespace Markdown
 
         // Метод для валидации двух множеств отрезков токенов на пересечение и вложенность
         // возможно, стоит убрать в другое место
-        public (SegmentsCollection, SegmentsCollection) ValidatePairSetsByRules(SegmentsCollection first, SegmentsCollection second);
+        public (SegmentsCollection, SegmentsCollection) IgnoreSegmentsThatDoNotMatchRules(SegmentsCollection first, SegmentsCollection second);
 
         string ReplaceTokens(string text, SegmentsCollection segments, ITagTranslator translator);
 

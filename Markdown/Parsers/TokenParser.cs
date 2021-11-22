@@ -20,11 +20,8 @@ namespace Markdown
             trie.Build();
         }
 
-        //нужно убрать в другое место
-        public (SegmentsCollection, SegmentsCollection) ValidatePairSetsByRules(SegmentsCollection first, SegmentsCollection second)
+        public (SegmentsCollection, SegmentsCollection) IgnoreSegmentsThatDoNotMatchRules(SegmentsCollection first, SegmentsCollection second)
         {
-            // Реализация без учета правил пересечения и вложенности
-
             var firstSorted = first.GetSortedSegments().ToList();
             var secondSorted = second.GetSortedSegments().ToList();
             

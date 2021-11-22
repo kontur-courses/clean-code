@@ -64,7 +64,7 @@ namespace MarkdownTests
                 .GroupBy(x => x.Token.ToString())
                 .Select(x => x.ToSegmentsCollection())
                 .ToList()
-                .ForEachPairs((f, s) => parser.ValidatePairSetsByRules(f, s));
+                .ForEachPairs((f, s) => parser.IgnoreSegmentsThatDoNotMatchRules(f, s));
             
             var actualText = parser.ReplaceTokens(text, SegmentsCollection.Union(segments), translator);
 
