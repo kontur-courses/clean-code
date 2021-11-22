@@ -41,5 +41,15 @@ namespace Markdown
         {
             return containRules.ContainsKey(outsideTag) && containRules[outsideTag].Contains(insideTag);
         }
+        
+        public bool DoesMatchIntersectingRule(TokenSegment first, TokenSegment second)
+        {
+            return CanIntersect(first.GetBaseTag(), second.GetBaseTag()) || !first.IsIntersectWith(second);
+        }
+        
+        public bool DoesMatchNestingRule(TokenSegment outside, TokenSegment inside)
+        {
+            return CanBeNested(outside.GetBaseTag(), inside.GetBaseTag()) || !outside.Contain(inside);
+        }
     }
 }
