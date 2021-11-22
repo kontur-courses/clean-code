@@ -1,14 +1,19 @@
 ﻿using System;
-using System.Collections.Generic;
 
 namespace Markdown
 {
     internal class TokenParserConfigurator
     {
-        protected List<Token> Tokens = new();
+        protected TokenParserConfig Config;
 
         protected TokenParserConfigurator()
         {
+            Config = new TokenParserConfig();
+        }
+        
+        protected internal TokenParserConfigurator(TokenParserConfig config)
+        {
+            Config = config;
         }
 
         public static TokenParserConfigurator CreateTokenParser()
@@ -16,21 +21,24 @@ namespace Markdown
             return new TokenParserConfigurator();
         }
 
-        public PreferTokenRulesConfigurator AddToken(Token token)
+        public PreferTokenRulesConfigurator AddToken(Tag token)
         {
-            Tokens.Add(token);
-            return new PreferTokenRulesConfigurator(Tokens);
+            Config.Tokens.Add(token.Start);
+            Config.LastAddedToken = token;
+            return new PreferTokenRulesConfigurator(Config);
         }
 
         public TokenParserConfigurator SetShieldingSymbol(char symbol)
         {
-            throw new NotImplementedException();
+            if (Config.ShieldingSymbol.Setted) throw new ArgumentException("shielding symbol already setted");
+            Config.ShieldingSymbol = (symbol, true);
+            return this;
         }
         
         public ITokenParser Configure()
         {
             var parser = new TokenParser();
-            parser.SetTokens(Tokens, null);
+            parser.SetTokens(Config.Tokens, null);
             return parser;
         }
     }

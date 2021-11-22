@@ -4,48 +4,27 @@ namespace Markdown
 {
     internal class TokenRulesConfigurator
     {
+        private TokenParserConfig config;
+        
         private TokenRulesConfigurator()
         {
         }
         
-        public TokenRulesConfiguratorEnd CantBeNestedIn(Tag tag)
+        protected internal TokenRulesConfigurator(TokenParserConfig config)
         {
-            throw new NotImplementedException();
+            this.config = config;
         }
         
         public TokenRulesConfiguratorEnd CanIntersectWith(Tag tag)
         {
-            throw new NotImplementedException();
-        }
-        
-        public TokenRulesConfiguratorEnd CantIntersectWith(Tag tag)
-        {
-            throw new NotImplementedException();
+            config.TagRules.SetRule(config.LastAddedToken, tag, InteractType.Intersecting);
+            return new TokenRulesConfiguratorEnd(config);
         }
         
         public TokenRulesConfiguratorEnd CanBeNestedIn(Tag tag)
         {
-            throw new NotImplementedException();
-        }
-        
-        public TokenRulesConfiguratorEnd CantIntersect()
-        {
-            throw new NotImplementedException();
-        }
-        
-        public TokenRulesConfiguratorEnd CantBeNested()
-        {
-            throw new NotImplementedException();
-        }
-        
-        public TokenRulesConfiguratorEnd CanBeNestedInAnyTokens()
-        {
-            throw new NotImplementedException();
-        }
-        
-        public TokenRulesConfiguratorEnd CanIntersectWithAnyTokens()
-        {
-            throw new NotImplementedException();
+            config.TagRules.SetRule(tag, config.LastAddedToken, InteractType.Nesting);
+            return new TokenRulesConfiguratorEnd(config);
         }
     }
 }

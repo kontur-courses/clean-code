@@ -33,15 +33,12 @@ namespace Markdown
             parser = TokenParserConfigurator
                 .CreateTokenParser()
                 .SetShieldingSymbol('\\')
-                .AddToken(underscoreTag.Start).That
+                .AddToken(underscoreTag).That
                     .CanBeNestedIn(doubleUnderscoreTag).And
-                    .CantIntersect()
-                .AddToken(doubleUnderscoreTag.Start).That
-                    .CantBeNestedIn(underscoreTag).And
-                    .CantIntersect()
-                .AddToken(sharpTag.Start).That
-                    .CanIntersectWithAnyTokens().And
-                    .CanBeNestedInAnyTokens()
+                    .CanBeNestedIn(sharpTag)
+                .AddToken(doubleUnderscoreTag).That
+                    .CanBeNestedIn(sharpTag)
+                .AddToken(sharpTag)
                 .Configure();
         }
 

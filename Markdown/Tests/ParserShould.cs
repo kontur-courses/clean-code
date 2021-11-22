@@ -28,10 +28,10 @@ namespace MarkdownTests
             var toTag4 = Tag.RegisterPairTag("<H1>", "</H1>");
             
             parser = TokenParserConfigurator.CreateTokenParser()
-                .AddToken(new Token("-"))
-                .AddToken(new Token("--"))
-                .AddToken(new Token("__"))
-                .AddToken(new Token("_<"))
+                .AddToken(fromTag1)
+                .AddToken(fromTag2)
+                .AddToken(fromTag3)
+                .AddToken(fromTag4)
                 .Configure();
 
             translator = TagTranslatorConfigurator

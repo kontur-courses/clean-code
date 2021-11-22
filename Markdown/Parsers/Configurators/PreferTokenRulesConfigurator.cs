@@ -1,15 +1,16 @@
-﻿using System;
-using System.Collections.Generic;
-
-namespace Markdown
+﻿namespace Markdown
 {
     internal class PreferTokenRulesConfigurator : TokenParserConfigurator
     {
-        protected internal PreferTokenRulesConfigurator(List<Token> tokens)
+        private PreferTokenRulesConfigurator()
         {
-            Tokens = tokens;
         }
         
-        public TokenRulesConfigurator That => throw new NotImplementedException();
+        protected internal PreferTokenRulesConfigurator(TokenParserConfig config)
+        {
+            Config = config;
+        }
+        
+        public TokenRulesConfigurator That => new(Config);
     }
 }
