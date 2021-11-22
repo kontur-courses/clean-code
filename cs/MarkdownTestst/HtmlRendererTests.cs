@@ -8,12 +8,21 @@ namespace MarkdownTests
 {
     internal class HtmlRendererTests
     {
+        public readonly IReadOnlyDictionary<string, HtmlTag> HtmlTagsBySeparator = new Dictionary<string, HtmlTag>
+        {
+            { BoldToken.Separator, new HtmlTag("<strong>", "</strong>", true) },
+            { ItalicToken.Separator, new HtmlTag("<em>", "</em>", true) },
+            { HeaderToken.Separator, new HtmlTag("<h1>", "</h1>", true) },
+            { ScreeningToken.Separator, new HtmlTag(string.Empty, string.Empty, false) },
+            { ImageToken.Separator, new HtmlTag("<img >", string.Empty, false) }
+        };
+
         private HtmlRenderer sut;
 
         [OneTimeSetUp]
         public void OneTimeSetUp()
         {
-            sut = new HtmlRenderer();
+            sut = new HtmlRenderer(HtmlTagsBySeparator);
         }
 
         [TestCaseSource(typeof(HtmlRendererTestCases), nameof(HtmlRendererTestCases.RenderTestCases))]

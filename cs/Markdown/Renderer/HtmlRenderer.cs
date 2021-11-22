@@ -1,5 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Text;
 using Markdown.Tokens;
 
@@ -7,14 +6,12 @@ namespace Markdown.Renderer
 {
     public class HtmlRenderer : IRenderer
     {
-        public readonly Dictionary<string, HtmlTag> HtmlTagsBySeparator = new()
+        public readonly IReadOnlyDictionary<string, HtmlTag> HtmlTagsBySeparator;
+
+        public HtmlRenderer(IReadOnlyDictionary<string, HtmlTag> htmlTagsBySeparators)
         {
-            { "__", new HtmlTag("<strong>", "</strong>", true) },
-            { "_", new HtmlTag("<em>", "</em>", true) },
-            { "# ", new HtmlTag("<h1>", "</h1>", true) },
-            { "\\", new HtmlTag(string.Empty, string.Empty, false) },
-            { "![", new HtmlTag("<img >", string.Empty, false) }
-        };
+            HtmlTagsBySeparator = htmlTagsBySeparators;
+        }
 
         public string Render(IEnumerable<Token> tokens, string text)
         {
@@ -43,14 +40,6 @@ namespace Markdown.Renderer
             return result.ToString();
         }
 
-        public void AddNewTag(string separator, HtmlTag htmlTag)
-        {
-            if (HtmlTagsBySeparator.ContainsKey(separator))
-                throw new InvalidOperationException("This separator is already present");
-
-            HtmlTagsBySeparator.Add(separator, htmlTag);
-        }
-
         private Dictionary<int, TagInsertion> GetTagInsertions(IEnumerable<Token> tokens)
         {
             var result = new Dictionary<int, TagInsertion>();
@@ -73,9 +62,9 @@ namespace Markdown.Renderer
 
         private static TagInsertion GetContentedTokenInsertion(Token token, HtmlTag htmlTag)
         {
-            var altText = token.AltText.Length > 0 ? $"alt=\"{token.AltText}\"" : string.Empty;
-            var source = token.AltText.Length > 0 ? $"src=\"{token.Source}\"" : string.Empty;
-            var insertion = htmlTag.OpenTag.Insert(htmlTag.OpenTag.Length - 1, $"{source} {altText}");
+            var altText = token.AltText.Length > 0 ? $" alt=\"{token.AltText}\"" : string.Empty;
+            var source = $"src=\"{token.Source}\"";
+            var insertion = htmlTag.OpenTag.Insert(htmlTag.OpenTag.Length - 1, $"{source}{altText}");
             var shift = token.CloseIndex - token.OpenIndex + 1;
             return new TagInsertion(insertion, shift);
         }

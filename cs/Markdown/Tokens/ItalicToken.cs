@@ -1,4 +1,5 @@
 ﻿using Markdown.Parser;
+using System.Collections.Generic;
 
 namespace Markdown.Tokens
 {
@@ -12,9 +13,22 @@ namespace Markdown.Tokens
         public ItalicToken(int openIndex) : base(openIndex) { }
         internal ItalicToken(int openIndex, int closeIndex) : base(openIndex, closeIndex) { }
 
-        internal override void Accept(MdParser parser)
+        internal override bool Validate(MdParser parser)
         {
-            parser.Visit(this);
+            this.ValidatePlacedCorrectly(parser.TextToParse);
+            ValidateItalicTokenInteractions(parser.Tokens, this);
+
+
+            return IsCorrect;
+        }
+
+        private static void ValidateItalicTokenInteractions(IReadOnlyDictionary<string, Token> tokens, Token token)
+        {
+            if (!tokens.TryGetValue(BoldToken.Separator, out var boldToken)) return;
+            if (!token.IsIntersectWith(boldToken)) return;
+
+            boldToken.IsCorrect = false;
+            token.IsCorrect = false;
         }
     }
 }

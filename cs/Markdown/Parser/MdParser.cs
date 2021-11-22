@@ -8,25 +8,15 @@ namespace Markdown.Parser
 {
     public class MdParser : IMdParser
     {
-        public readonly Dictionary<string, Func<int, Token>> TokensBySeparator = new()
-        {
-            { ItalicToken.Separator, index => new ItalicToken(index) },
-            { BoldToken.Separator, index => new BoldToken(index) },
-            { HeaderToken.Separator, index => new HeaderToken(index) },
-            { ScreeningToken.Separator, index => new ScreeningToken(index) },
-            { ImageToken.Separator, index => new ImageToken(index) }
-        };
-
-        public ParserContext ParserContext { get; private set; }
-
+        public readonly IReadOnlyDictionary<string, Func<int, Token>> TokensBySeparator;
+        private ParserContext ParserContext { get; set; }
         public string TextToParse => ParserContext.TextToParse;
+        public IReadOnlyDictionary<string, Token> Tokens => ParserContext.Tokens;
+        public IReadOnlyList<Token> Result => ParserContext.Result;
 
-        public void AddPossibleToken(string separator, Func<int, Token> tokenInstanceCreator)
+        public MdParser(IReadOnlyDictionary<string, Func<int, Token>> tokensBySeparator)
         {
-            if (TokensBySeparator.ContainsKey(separator))
-                throw new InvalidOperationException("This separator is already present");
-
-            TokensBySeparator.Add(separator, tokenInstanceCreator);
+            TokensBySeparator = tokensBySeparator;
         }
 
         public IEnumerable<Token> ParseTokens(string textToParse)
@@ -70,17 +60,20 @@ namespace Markdown.Parser
         {
             if (ExecuteScreening(index)) return;
 
-            if (ParserContext.Tokens.TryGetValue(separator, out var token) && Token.IsCorrectTokenCloseIndex(index, TextToParse))
+            if (ParserContext.Tokens.Remove(separator, out var token) && Token.IsCorrectTokenCloseIndex(index, TextToParse))
             {
                 token.Close(index);
-                token.Accept(this);
+
+                if (token.Validate(this))
+                    ParserContext.Result.Add(token);
+
                 return;
             }
 
             token = TokensBySeparator[separator].Invoke(index);
 
-            if (token.IsNonPaired)
-                token.Accept(this);
+            if (token.IsNonPaired && token.Validate(this))
+                ParserContext.Result.Add(token);
             else if (Token.IsCorrectTokenOpenIndex(index, TextToParse, separator.Length))
                 ParserContext.Tokens[separator] = token;
         }
@@ -105,6 +98,11 @@ namespace Markdown.Parser
                 ParserContext.Result.Add(token);
 
             return true;
+        }
+
+        public void AddScreening(ScreeningToken token)
+        {
+            ParserContext.Tokens.Add(token.GetSeparator(), token);
         }
     }
 }

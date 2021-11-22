@@ -10,7 +10,7 @@ namespace Markdown.Tokens
         private string source;
         public override bool IsNonPaired => true;
         public override bool IsContented => true;
-        public override string GetSeparator() => Separator;
+
         public override string Source
         {
             get => source ?? string.Empty;
@@ -37,15 +37,40 @@ namespace Markdown.Tokens
 
         public ImageToken(int openIndex) : base(openIndex) { }
         internal ImageToken(int openIndex, int closeIndex) : base(openIndex, closeIndex) { }
+
         internal ImageToken(int openIndex, int closeIndex, string source, string altText) : base(openIndex, closeIndex)
         {
             this.source = source;
             this.altText = altText;
         }
 
-        internal override void Accept(MdParser parser)
+        public override string GetSeparator()
         {
-            parser.Visit(this);
+            return Separator;
+        }
+
+        internal override bool Validate(MdParser parser)
+        {
+            var text = parser.TextToParse;
+            var endOfAltText = text.IndexOf(']', OpenIndex);
+            var startOfSource = text.IndexOf('(', OpenIndex);
+            var endOfSource = text.IndexOf(')', OpenIndex);
+            var endOfParagraph = text.IndexOf('\n') > 0 ? text.IndexOf('\n') : text.Length - 1;
+
+            if (endOfAltText == -1 || startOfSource == -1 || endOfSource == -1)
+                return false;
+
+            if (startOfSource != endOfAltText + 1 || endOfSource > endOfParagraph)
+                return false;
+
+            var altText = text.Substring(OpenIndex + GetSeparator().Length, endOfAltText - OpenIndex - GetSeparator().Length);
+            AltText = altText;
+            var source = text.Substring(startOfSource + 1, endOfSource - startOfSource - 1);
+            Source = source;
+            parser.AddScreening(new ScreeningToken(OpenIndex, endOfSource));
+
+            Close(endOfSource);
+            return true;
         }
     }
 }

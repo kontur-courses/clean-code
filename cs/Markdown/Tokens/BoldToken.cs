@@ -1,4 +1,5 @@
-﻿using Markdown.Parser;
+﻿using System.Collections.Generic;
+using Markdown.Parser;
 
 namespace Markdown.Tokens
 {
@@ -8,13 +9,35 @@ namespace Markdown.Tokens
 
         public override bool IsNonPaired => false;
         public override bool IsContented => false;
-        public override string GetSeparator() => Separator;
         public BoldToken(int openIndex) : base(openIndex) { }
         internal BoldToken(int openIndex, int closeIndex) : base(openIndex, closeIndex) { }
 
-        internal override void Accept(MdParser parser)
+        public override string GetSeparator()
         {
-            parser.Visit(this);
+            return Separator;
+        }
+
+        internal override bool Validate(MdParser parser)
+        {
+            this.ValidatePlacedCorrectly(parser.TextToParse);
+            ValidateBoldTokenInteractions(parser.Tokens, this);
+
+            return IsCorrect;
+        }
+
+        private static void ValidateBoldTokenInteractions(IReadOnlyDictionary<string, Token> tokens, Token token)
+        {
+            if (!token.IsCorrect || !tokens.TryGetValue(ItalicToken.Separator, out var italicToken))
+                return;
+
+            if (token.IsIntersectWith(italicToken))
+            {
+                italicToken.IsCorrect = false;
+                token.IsCorrect = false;
+            }
+
+            if (italicToken.OpenIndex < token.OpenIndex && italicToken.IsOpened)
+                token.IsCorrect = false;
         }
     }
 }

@@ -57,6 +57,8 @@ namespace MarkdownTests
                     .SetName("ReturnCorrectString_WhenInputContainsCRLF");
                 yield return new TestCaseData("# a\n", "<h1>a</h1>\n")
                     .SetName("ReturnCorrectString_WhenInputContainsLF");
+                yield return new TestCaseData("![]()", "<img src=\"\">")
+                    .SetName("ReturnCorrectString_WhenInputContainsEmptyImage");
                 yield return new TestCaseData(
                         "# ![abc](abc) __a__ _a_ __a_a_a__ \\_a\\_ _a__a__a_ __a_a__a_ _a__a_a__ \n",
                         "<h1><img src=\"abc\" alt=\"abc\"> <strong>a</strong> <em>a</em> <strong>a<em>a</em>a</strong> _a_ <em>a__a__a</em> __a_a__a_ _a__a_a__ </h1>\n")

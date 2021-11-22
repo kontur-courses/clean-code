@@ -54,9 +54,10 @@ namespace Markdown.Tokens
 
             CloseIndex = index;
         }
+
         public abstract string GetSeparator();
 
-        internal abstract void Accept(MdParser parser);
+        internal abstract bool Validate(MdParser parser);
 
         public static bool IsCorrectTokenOpenIndex(int openIndex, string text, int length)
         {

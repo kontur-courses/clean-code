@@ -8,13 +8,7 @@ namespace Markdown
         public IMdParser Parser { get; }
         public IRenderer Renderer { get; }
 
-        public Md(IRenderer renderer)
-        {
-            Renderer = renderer;
-            Parser = new MdParser();
-        }
-
-        public Md(IRenderer renderer,IMdParser parser)
+        public Md(IRenderer renderer, IMdParser parser)
         {
             Renderer = renderer;
             Parser = parser;

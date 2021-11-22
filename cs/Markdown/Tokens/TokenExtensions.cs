@@ -1,7 +1,6 @@
 ﻿using System.Linq;
-using Markdown.Tokens;
 
-namespace Markdown.Parser
+namespace Markdown.Tokens
 {
     internal static class TokenExtensions
     {

@@ -6,7 +6,6 @@ namespace Markdown.Parser
 {
     public interface IMdParser
     {
-        public void AddPossibleToken(string separator, Func<int, Token> tokenInstanceCreator);
         public IEnumerable<Token> ParseTokens(string textToParse);
     }
 }

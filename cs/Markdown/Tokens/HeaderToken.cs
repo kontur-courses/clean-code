@@ -8,13 +8,32 @@ namespace Markdown.Tokens
 
         public override bool IsNonPaired => true;
         public override bool IsContented => false;
-        public override string GetSeparator() => Separator;
         public HeaderToken(int openIndex) : base(openIndex) { }
         internal HeaderToken(int openIndex, int closeIndex) : base(openIndex, closeIndex) { }
 
-        internal override void Accept(MdParser parser)
+        public override string GetSeparator()
         {
-            parser.Visit(this);
+            return Separator;
+        }
+
+
+        internal override bool Validate(MdParser parser)
+        {
+            if (OpenIndex != 0 && parser.TextToParse[OpenIndex - 1] != '\n' && parser.TextToParse[OpenIndex - 1] != '\r')
+                return false;
+
+            var closeIndexLf = parser.TextToParse.IndexOf('\n', OpenIndex);
+
+            var closeIndex = closeIndexLf > 0 && parser.TextToParse[closeIndexLf - 1] == '\r'
+                ? closeIndexLf - 1
+                : closeIndexLf;
+
+            if (closeIndex == -1)
+                closeIndex = parser.TextToParse.Length;
+
+            Close(closeIndex);
+
+            return true;
         }
     }
 }
