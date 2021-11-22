@@ -1,5 +1,4 @@
 ﻿using Markdown.Extensions;
-using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -44,7 +43,7 @@ namespace Markdown
                 {
                     if (!stack.IsEmpty() && tag == stack.Peek().tag)
                     {
-                        if (!IsCorrectCloseTag(mdText, position, mdTagBuilder))
+                        if (!tag.IsCorrectCloseTag(mdText, position, mdTagBuilder.ToString()))
                         {
                             mdTagBuilder.Clear();
                             continue;
@@ -61,7 +60,7 @@ namespace Markdown
                             nextTokenStart = pop.index;
                         }
                     }
-                    else if (IsCorrectOpenTag(mdText, position))
+                    else if (tag.IsCorrectOpenTag(mdText, position))
                     {
                         if (stack.IsEmpty())
                             tokens.Add(new StringToken(nextTokenStart, position - tag.OpenMdTag.Length + 1));
@@ -80,23 +79,6 @@ namespace Markdown
             else
                 tokens.Add(new StringToken(nextTokenStart, mdText.Length));
             return tokens;
-        }
-
-        private bool IsCorrectOpenTag(string mdText, int position)
-        {
-            mdText.TryGetNextChars(position, 1, out char[] nextChars);
-            if (nextChars != null && char.IsWhiteSpace(nextChars[0]))
-                return false;
-            return true;
-        }
-
-        private bool IsCorrectCloseTag(string mdText, int position, StringBuilder mdTagBuilder)
-        {
-            position = position - mdTagBuilder.Length + 1;
-            mdText.TryGetCharsBehind(position, 1, out char[] behindChars);
-            if (behindChars != null && char.IsWhiteSpace(behindChars[0]))
-                return false;
-            return true;
         }
 
         private bool Escaped(string mdText, int position, string mdTag)

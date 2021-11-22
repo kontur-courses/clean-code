@@ -1,6 +1,6 @@
 ﻿namespace Markdown
 {
-    public class EmTag : Tag
+    public class EmTag : SelectingTag
     {
         public override string OpenHTMLTag => "<em>";
         public override string CloseHTMLTag => "</em>";

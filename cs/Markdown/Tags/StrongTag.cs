@@ -1,6 +1,6 @@
 ﻿namespace Markdown
 {
-    public class StrongTag : Tag
+    public class StrongTag : SelectingTag
     {
         public override string OpenHTMLTag => "<strong>";
         public override string CloseHTMLTag => "</strong>";
