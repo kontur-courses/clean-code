@@ -1,4 +1,5 @@
 ﻿using System;
+using AhoCorasick;
 
 namespace Markdown
 {
@@ -37,9 +38,13 @@ namespace Markdown
         
         public ITokenParser Configure()
         {
-            var parser = new TokenParser();
-            parser.SetTokens(Config.Tokens, null);
-            return parser;
+            var trie = new Trie<Token>();
+            
+            foreach (var token in Config.Tokens)
+                trie.Add(token.ToString(), token);
+            trie.Build();
+            
+            return new TokenParser(trie, Config.TagRules);
         }
     }
 }

@@ -7,17 +7,13 @@ namespace Markdown
 {
     internal class TokenParser : ITokenParser
     {
-        private readonly Trie<Token> trie = new();
+        private readonly Trie<Token> trie;
+        private readonly TagRules rules;
 
-        internal TokenParser()
+        internal TokenParser(Trie<Token> trie, TagRules rules)
         {
-        }
-
-        public void SetTokens(List<Token> tokensToSearch, TagRules rules)
-        {
-            foreach (var token in tokensToSearch)
-                trie.Add(token.ToString(), token);
-            trie.Build();
+            this.trie = trie;
+            this.rules = rules;
         }
 
         public (SegmentsCollection, SegmentsCollection) IgnoreSegmentsThatDoNotMatchRules(SegmentsCollection first, SegmentsCollection second)
