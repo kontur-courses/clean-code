@@ -30,7 +30,7 @@ namespace Markdown
         public ITokenParser Configure()
         {
             var parser = new TokenParser();
-            parser.SetTokens(Tokens);
+            parser.SetTokens(Tokens, null);
             return parser;
         }
     }

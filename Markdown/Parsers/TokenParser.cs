@@ -13,7 +13,7 @@ namespace Markdown
         {
         }
 
-        public void SetTokens(List<Token> tokensToSearch)
+        public void SetTokens(List<Token> tokensToSearch, TagRules rules)
         {
             foreach (var token in tokensToSearch)
                 trie.Add(token.ToString(), token);
