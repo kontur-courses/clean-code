@@ -66,10 +66,12 @@ namespace Markdown
             var tokenInfos = new Dictionary<int, TokenInfo>();
             var lastOpenedTokens = new Stack<Token>();
             var lastClosedToken = -1;
+            var currentSearchStartIndex = 0;
+            var lastIndex = 0;
 
             foreach (var (token, index) in trie.Find(paragraph))
             {
-                if (token is null) continue;
+                if (token is null || (currentSearchStartIndex > index && lastIndex != index)) continue;
                 
                 var closeValid = index > 0 && !char.IsWhiteSpace(paragraph[index - 1]);
                 var openValid = index < paragraph.Length - token.Length 
@@ -85,7 +87,8 @@ namespace Markdown
                 if (tokenInfos.ContainsKey(index) && lastClosedToken == index) continue;
                 if (tokenInfos.ContainsKey(index) && lastOpenedTokens.Any())
                     lastOpenedTokens.Pop();
-                tokenInfos[index] = tokenInfo;
+                tokenInfos[lastIndex = index] = tokenInfo;
+                currentSearchStartIndex = index + token.Length;
 
                 if (lastOpenedTokens.Any() && lastOpenedTokens.Peek().Equals(token) && closeValid)
                 {
