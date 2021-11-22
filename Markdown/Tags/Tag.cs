@@ -6,52 +6,40 @@ namespace Markdown
     internal class Tag
     {
         private static readonly ConcurrentDictionary<string, Tag> Tags = new();
-
         private readonly string start;
-        private readonly string end;
 
         public Token Start { get; }
         public Token End { get; }
 
         private Tag() {}
 
-        private Tag(string tagWord, string endWord = null)
+        private Tag(string openWord, string closeWord = null)
         {
-            start = tagWord;
-            end = endWord;
+            start = openWord;
 
             Start = new Token(start);
-            End = new Token(end);
+            End = new Token(closeWord);
         }
 
-        private static void CheckForValidityForRegistration(string startTag)
+        public static Tag GetOrAddSingleTag(string tag)
         {
-            if (string.IsNullOrWhiteSpace(startTag))
-                throw new ArgumentException($"Tag word can not be null, empty string or white space");
-            if (Tags.ContainsKey(startTag))
-                throw new ArgumentException($"Tag {startTag} is already registered"); 
-        }
-
-        public static Tag RegisterSingleTag(string tag)
-        {
-            CheckForValidityForRegistration(tag);
-            Tags.TryAdd(tag, new Tag(tag));
-            return Tags[tag];
+            if (string.IsNullOrWhiteSpace(tag)) 
+                throw new ArgumentException("Tag word can not be null, empty string or white space");
+            return Tags.GetOrAdd(tag, new Tag(tag));
         }
         
-        public static Tag RegisterSymmetricTag(string tag)
+        public static Tag GetOrAddSymmetricTag(string tag)
         {
-            CheckForValidityForRegistration(tag);
-            Tags.TryAdd(tag, new Tag(tag, tag));
-            return Tags[tag];
+            if (string.IsNullOrWhiteSpace(tag)) 
+                throw new ArgumentException("Tag word can not be null, empty string or white space");
+            return Tags.GetOrAdd(tag, new Tag(tag, tag));
         }
         
-        public static Tag RegisterPairTag(string startTag, string endTag)
+        public static Tag GetOrAddPairTag(string startTag, string endTag)
         {
-            CheckForValidityForRegistration(startTag);
-            CheckForValidityForRegistration(endTag);
-            Tags.TryAdd(startTag, new Tag(startTag, endTag));
-            return Tags[startTag];
+            if (string.IsNullOrWhiteSpace(startTag) || string.IsNullOrWhiteSpace(endTag)) 
+                throw new ArgumentException("Tag word can not be null, empty string or white space");
+            return Tags.GetOrAdd(startTag, new Tag(startTag, endTag));
         }
 
         public static Tag GetTagByChars(string startChars)
