@@ -28,9 +28,15 @@ namespace MarkdownTests
             var toTag4 = Tag.RegisterPairTag("<H1>", "</H1>");
             
             parser = TokenParserConfigurator.CreateTokenParser()
-                .AddToken(fromTag1)
-                .AddToken(fromTag2)
-                .AddToken(fromTag3)
+                .AddToken(fromTag1).That
+                    .CanBeNestedIn(fromTag2).And
+                    .CanBeNestedIn(fromTag3).And
+                    .CanBeNestedIn(fromTag4)
+                .AddToken(fromTag2).That
+                    .CanBeNestedIn(fromTag3).And
+                    .CanBeNestedIn(fromTag4)
+                .AddToken(fromTag3).That
+                    .CanBeNestedIn(fromTag4)
                 .AddToken(fromTag4)
                 .Configure();
 
@@ -47,6 +53,7 @@ namespace MarkdownTests
         
         [TestCase("a__b-d-c__d", "a(<*b<d/>c/*>)d")]
         [TestCase("a__-d-__d", "a(<*<d/>/*>)d")]
+        [TestCase("a-__d__-d", "a<__d__/>d")]//
         [TestCase("a_<__-d-___<d", "a<H1>(<*<d/>/*>)</H1>d")]
         
         [TestCase("a_<__d-_<d", "a<H1>__d-</H1>d")]
