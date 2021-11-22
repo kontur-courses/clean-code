@@ -1,0 +1,22 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Markdown", "Markdown\Markdown.csproj", "{3A8866FF-13B7-485E-B996-5B2422C5F7E5}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MarkdownTests", "MarkdownTests\MarkdownTests.csproj", "{54AE0449-D9E8-4E89-A9B6-FC00197A93F8}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{3A8866FF-13B7-485E-B996-5B2422C5F7E5}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{3A8866FF-13B7-485E-B996-5B2422C5F7E5}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{3A8866FF-13B7-485E-B996-5B2422C5F7E5}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{3A8866FF-13B7-485E-B996-5B2422C5F7E5}.Release|Any CPU.Build.0 = Release|Any CPU
+		{54AE0449-D9E8-4E89-A9B6-FC00197A93F8}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{54AE0449-D9E8-4E89-A9B6-FC00197A93F8}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{54AE0449-D9E8-4E89-A9B6-FC00197A93F8}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{54AE0449-D9E8-4E89-A9B6-FC00197A93F8}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+EndGlobal

@@ -80,5 +80,4 @@ public void SetUp()&#xD;
 {&#xD;
 	$END$&#xD;
 }&#xD;
-</s:String>
-	<s:Boolean x:Key="/Default/UserDictionary/Words/=Escaper/@EntryIndexedValue">True</s:Boolean></wpf:ResourceDictionary>
+</s:String></wpf:ResourceDictionary>
