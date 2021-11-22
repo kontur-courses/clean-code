@@ -7,14 +7,17 @@ namespace AhoCorasick
     {
         private readonly Dictionary<char, Node<TValue>> children = new();
         
-        private char Symbol { get; }
+        public char Word { get; }
+        public Node<TValue> Parent { get; }
+        public Node<TValue> Suffix { get; set; }
         internal List<TValue> Values { get; } = new();
 
         internal Node() { }
 
-        internal Node(char symbol)
+        public Node(char word, Node<TValue> parent)
         {
-            Symbol = symbol;
+            Word = word;
+            Parent = parent;
         }
         
         internal Node<TValue> this[char symbol]
@@ -31,11 +34,6 @@ namespace AhoCorasick
         IEnumerator IEnumerable.GetEnumerator()
         {
             return GetEnumerator();
-        }
-
-        public override string ToString()
-        {
-            return Symbol.ToString();
         }
     }
 }

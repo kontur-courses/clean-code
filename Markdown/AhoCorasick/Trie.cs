@@ -13,7 +13,7 @@ namespace AhoCorasick
 
             foreach (var symbol in word)
             {
-                var child = node[symbol] ?? (node[symbol] = new Node<TValue>(symbol));
+                var child = node[symbol] ?? (node[symbol] = new Node<TValue>(symbol, node));
                 node = child;
             }
 
@@ -23,17 +23,31 @@ namespace AhoCorasick
         public void Build()
         {
             var queue = new Queue<Node<TValue>>();
-            
             queue.Enqueue(root);
+
             while (queue.Any())
             {
                 var node = queue.Dequeue();
-
                 foreach (var child in node)
                     queue.Enqueue(child);
+
+                if (node == root)
+                {
+                    root.Suffix = root;
+                    continue;
+                }
+
+                var suffix = node.Parent.Suffix;
+
+                while (suffix[node.Word] == null && suffix != root)
+                    suffix = suffix.Suffix;
+
+                node.Suffix = suffix[node.Word] ?? root;
+                if (node.Suffix == node) 
+                    node.Suffix = root;
             }
         }
-
+        
         public IEnumerable<(TValue, int)> Find(IEnumerable<char> text)
         {
             var node = root;
@@ -42,16 +56,18 @@ namespace AhoCorasick
             foreach (var c in text)
             {
                 while (node[c] == null && node != root)
-                    node = root;
+                    node = node.Suffix;
 
                 node = node[c] ?? root;
 
-                if (node != root)
+                for (var t = node; t != root; t = t.Suffix)
                 {
-                    var foundedWord = node.Values.FirstOrDefault();
-                    yield return (foundedWord, index - (foundedWord?.ToString()?.Length - 1) ?? 0);
+                    foreach (var value in t.Values)
+                    {
+                        yield return (value, index - (value.ToString()?.Length - 1) ?? 0);
+                    }
                 }
-
+                
                 index++;
             }
         }
