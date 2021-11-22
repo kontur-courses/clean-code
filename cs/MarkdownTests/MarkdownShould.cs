@@ -156,6 +156,17 @@ public class MarkdownShould
     [TestCase("#header h1", "<h1>header h1</h1>", TestName = "Header specification", Category = "Specification")]
     [TestCase(@"\_not cursive em\_", @"_not cursive em_", TestName = "Escape specification", Category = "Specification")]
     [TestCase(@"\\_cursive em_", @"\<em>cursive em</em>", TestName = "Escape escape char specification", Category = "Specification")]
+    [TestCase("__bold _with cursiv___", "<strong>bold <em>with cursiv</em></strong>", TestName = "Nesting cursive in bold specification", Category = "Specification")]
+    [TestCase("_cursive __without bold___", "<em>cursive __without bold__</em>", TestName = "No nesting bold in cursive specification", Category = "Specification")]
+    [TestCase("numbers1_23_", "numbers1_23_", TestName = "No breaking numbers specification", Category = "Specification")]
+    [TestCase("wo_rds_", "wo<em>rds</em>", TestName = "Can break single word specification", Category = "Specification")]
+    [TestCase("so_me wo_rds", "so_me wo_rds", TestName = "No breaking across different words specification", Category = "Specification")]
+    [TestCase("_paragraph a", "_paragraph a", TestName = "No tags without pair specification", Category = "Specification")]
+    [TestCase("spaced_ word_", "spaced_ word_", TestName = "No whitespace after opening specification", Category = "Specification")]
+    [TestCase("_spaced _word", "_spaced _word", TestName = "No whitespace before closing specification", Category = "Specification")]
+    [TestCase("__bold _cursiv__ intersection_", "__bold _cursiv__ intersection_", TestName = "No tags intersection specification", Category = "Specification")]
+    [TestCase("__", "__", TestName = "No empty tags specification", Category = "Specification")]
+
     public void WrapAccordingToSpecification(string input, string expectedResult)
     {
 
