@@ -1,11 +1,12 @@
 ﻿namespace Markdown
 {
-    public class Md
+    public static class Md
     {
-        public string Render(string markdownText)
+        public static string Render(string markdownText)
         {
-            var tokenizer = new HtmlTokenizer();
-            return tokenizer.ProcessMarkdown(markdownText).ToHtmlText();
+            var tokenizer = new Tokenizer();
+            var tokens = tokenizer.ProcessMarkdown(markdownText);
+            return tokens.Render();
         }
     }
 }
