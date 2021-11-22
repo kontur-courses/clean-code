@@ -2,7 +2,7 @@
 {
     public enum TokenType
     {
-        Content,
+        Unformatted,
         Bold,
         Italic,
         Header
