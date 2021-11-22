@@ -15,6 +15,7 @@ namespace Markdown
         public int StartPosition => openTokenLocation;
         public int EndPosition => closeTokenLocation;
         public int Length => closeTokenLocation - openTokenLocation;
+        public int InnerLength => closeTokenLocation - (openTokenLocation + openToken.Length);
         
         private TokenSegment(int openTokenLocation, int closeTokenLocation, Token openToken, Token closeToken)
         {
@@ -71,6 +72,11 @@ namespace Markdown
 
             return firstMin.Between(secondMin, secondMax) && !firstMax.Between(secondMin, secondMax)
                    || !firstMin.Between(secondMin, secondMax) && firstMax.Between(secondMin, secondMax);
+        }
+
+        public bool IsEmpty()
+        {
+            return InnerLength == 0;
         }
     }
 }

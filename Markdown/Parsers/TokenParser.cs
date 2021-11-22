@@ -38,7 +38,7 @@ namespace Markdown
         public string ReplaceTokens(string text, SegmentsCollection tokenSegments, ITagTranslator translator)
         {
             var result = new StringBuilder();
-            var sortedSegments = tokenSegments.GetSortedSegments().ToList();
+            var sortedSegments = tokenSegments.GetSortedSegments().Where(x => !x.IsEmpty()).ToList();
             var sortedTokens = sortedSegments
                 .Select(x => new TokenInfo(x.StartPosition, x.GetBaseTag().Start, false, true, false, false))
                 .Union(sortedSegments.Select(x => new TokenInfo(x.EndPosition, x.GetBaseTag().End, true, false, false, false)))
