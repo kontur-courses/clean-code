@@ -7,7 +7,6 @@ namespace Markdown
     {
         public readonly Tag Tag;
         public override bool AllowInners => Tag.AllowNesting;
-        public override int RenderDelta => Tag.OpenHTMLTag.Length + Tag.CloseHTMLTag.Length;
 
         public TagToken(int begin, int end, Tag tag) : base(begin, end)
         {

@@ -34,16 +34,9 @@ namespace Markdown
                 .Except(childs)
                 .OrderBy(t => t.Begin)
                 .ToList();
-
-            //if (!child.HasParent)
-            //{
-            //    child.SetCoordinatesRelatively(parent);
-            //    parent._inners.Add(child);
-            //}
         }
 
         protected List<Token> _inners;
-        public abstract int RenderDelta { get; }
         public bool HasParent { get; protected set; }
         public int Begin { get; protected set; }
         public int End { get; protected set; }

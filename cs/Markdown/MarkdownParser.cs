@@ -8,7 +8,6 @@ namespace Markdown
     public class MarkdownParser
     {
         private readonly IMdSpecification _specification;
-        private List<string> EscapeSymbols => _specification.EscapeSymbols;
         private List<string> EscapeSequence => _specification.EscapeSequences;
         private Dictionary<string, Tag> TagByMdRepresentation => _specification.TagByMdStringRepresentation;
 
@@ -28,33 +27,30 @@ namespace Markdown
             {
                 mdTagBuilder.Append(mdText[position]);
 
-                if (IsPartialTag(mdText, mdTagBuilder.ToString(), position, out _))
+                if (IsPartialTag(mdText, mdTagBuilder.ToString(), position))
                     continue;
 
-                if (EscapeSymbols.Contains(mdTagBuilder.ToString()))
-                    if (mdText.TrySubstring(position, 2, out string substring) && EscapeSequence.Any(s => s.StartsWith(substring)))
-                    {
-                        tokens.Add(new EscapeToken(position, position + 2));
-                        nextTokenStart = position + 2;
-                    }
+                if (mdText.TrySubstring(position, 2, out string substring) && EscapeSequence.Any(s => s.StartsWith(substring)))
+                {
+                    var sequence = EscapeSequence.Where(s => s.StartsWith(substring)).First();
+                    tokens.Add(new EscapeToken(position, position + sequence.Length));
+                    nextTokenStart = position + sequence.Length;
+                }
 
                 if (TagByMdRepresentation.TryGetValue(mdTagBuilder.ToString(), out Tag tag)
                     && !Escaped(mdText, position, mdTagBuilder.ToString()))
                 {
                     if (!stack.IsEmpty() && tag == stack.Peek().tag)
                     {
-                        if (!tag.IsCorrectCloseTag(mdText, position, mdTagBuilder.ToString()))
-                        {
-                            mdTagBuilder.Clear();
-                            continue;
-                        }
+                        var correctCloseTag = tag.IsCorrectCloseTag(mdText, position, mdTagBuilder.ToString());
+
                         (Tag tag, int index) currentTag = (tag, position - tag.CloseMdTag.Length + 1);
-                        if (CanUnionByToken(mdText, stack.Peek(), currentTag))
+                        if (correctCloseTag && CanUnionByToken(mdText, stack.Peek(), currentTag))
                         {
                             tokens.Add(new TagToken(stack.Pop().index + tag.OpenMdTag.Length, currentTag.index, tag));
                             nextTokenStart = position + 1;
                         }
-                        else
+                        else if (correctCloseTag)
                         {
                             var pop = stack.Pop();
                             nextTokenStart = pop.index;
@@ -84,35 +80,27 @@ namespace Markdown
         private bool Escaped(string mdText, int position, string mdTag)
         {
             position = position - mdTag.Length + 1;
-            if (mdText.TryGetCharsBehind(position, 2, out char[] behindChars))
-            {
-                return behindChars[1] == '\\' && behindChars[0] != '\\';
-            }
+            if (mdText.TryGetCharsBehind(position, 2, out char[] behindChars))            
+                return behindChars[1] == '\\' && behindChars[0] != '\\';            
             return mdText.TryGetCharsBehind(position, 1, out char[] behindChar) && behindChar[0] == '\\';
         }
 
         private bool CanUnionByToken(string mdText, (Tag tag, int index) open, (Tag tag, int index) close)
         {
             var behindOpenSymbol = mdText.InRange(open.index - 1) ? mdText[open.index - 1].ToString() : null;
+            var content = mdText.Substring(open.index + open.tag.OpenMdTag.Length, 
+                close.index - (open.index + open.tag.OpenMdTag.Length));
 
-            var content = mdText.Substring(open.index + open.tag.OpenMdTag.Length, close.index - (open.index + open.tag.OpenMdTag.Length));
-
-            if (content.IsNullOrWhiteSpace()) // пустая строка
-                return false;
-            if (content.Contains("\n")) // разные абзацы
-                return false;
-            if (content.ContainsDigit()) // цифры внутри
-                return false;
-            if (!behindOpenSymbol.IsNullOrWhiteSpace() && content.ContainsWhiteSpace()) //  разные слова
+            if (content.IsNullOrWhiteSpace()
+                || content.Contains("\n")
+                || content.ContainsDigit()
+                || !behindOpenSymbol.IsNullOrWhiteSpace() && content.ContainsWhiteSpace())
                 return false;
             return true;
         }
 
-        private bool IsPartialTag(string mdText, string mdTag, int position, out string fullTag)
+        private bool IsPartialTag(string mdText, string mdTag, int position)
         {
-            if (position != mdText.LastIndex())
-                fullTag = $"{mdTag}{mdText[position + 1]}";
-            else fullTag = null;
             return position != mdText.LastIndex()
                 && TagByMdRepresentation.Any(t => t.Key.StartsWith($"{mdTag}{mdText[position + 1]}"));
         }

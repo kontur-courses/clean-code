@@ -2,7 +2,6 @@
 {
     public class StringToken : Token
     {
-        public override int RenderDelta => 0;
         public override bool AllowInners => false;
 
         public StringToken(int begin, int end) : base(begin, end)
