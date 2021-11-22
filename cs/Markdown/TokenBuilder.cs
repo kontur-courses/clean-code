@@ -4,18 +4,16 @@ namespace Markdown;
 
 internal class TokenBuilder
 {
-    public Tokenizer TokenWrapper { get; private set; }
     public StringBuilder Source { get; private set; }
     public int Start { get; private set; }
     public int End { get; private set; }
-    public string? MdTag { get; private set; }
+    public TagSetting? MdTag { get; private set; }
     public TokenBuilder? Parent { get; private set; }
 
     private readonly List<TokenBuilder> tokens = new();
 
-    public TokenBuilder(Tokenizer tokenWrapper, StringBuilder source, int start, TokenBuilder? parent)
+    public TokenBuilder(StringBuilder source, int start, TokenBuilder? parent)
     {
-        TokenWrapper = tokenWrapper;
         Source = source;
         Parent = parent;
         Start = start;
@@ -27,7 +25,7 @@ internal class TokenBuilder
         return this;
     }
 
-    public TokenBuilder WithMdTag(string? mdTag)
+    public TokenBuilder WithMdTag(TagSetting? mdTag)
     {
         MdTag = mdTag;
         return this;
@@ -38,34 +36,23 @@ internal class TokenBuilder
         tokens.Add(token);
     }
 
-    public bool IsClosedBy(TagSetting tag)
-    {
-        return TokenWrapper.TryGetSetting(MdTag, out var setting) && setting.EndTag == tag.EndTag;
-    }
-
     internal Token Build()
     {
         var actualStart = Start - (Parent?.Start ?? 0);
         if (tokens.Count == 0)
-            return TokenWrapper.WrapToken(Source.ToString()[Start..End], actualStart, MdTag);
+            return Tokenizer.WrapToken(Source.ToString()[Start..End], actualStart, MdTag);
 
         return BuildCompound(actualStart);
     }
 
     private CompoundToken BuildCompound(int actualStart)
     {
-        var setting = GetSetting();
-        var compound = new CompoundToken(Source.ToString()[Start..End], actualStart, setting);
+        var compound = new CompoundToken(Source.ToString()[Start..End], actualStart, MdTag);
         foreach (var token in tokens)
         {
             compound.AddToken(token.Build());
         }
 
         return compound;
-    }
-
-    private TagSetting? GetSetting()
-    {
-        return TokenWrapper.TryGetSetting(MdTag, out var setting) ? setting : null;
     }
 }

@@ -37,13 +37,27 @@ public class WrapperSettingsProvider : IEnumerable<TagSetting>
         return settings.Remove(mdTag);
     }
 
-    public string[] GetTokenSeparators(bool isLineOnly = false)
+    public TagSetting[] GetSettings(bool isLineOnly)
+    {
+        return settings.Values.Where(x => x.IsLineOnly == isLineOnly).ToArray();
+    }
+
+    public string[] GetOpeningTags(bool isLineOnly)
+    {
+        return GetTokenSeparators(isLineOnly, x => x.OpeningTag).ToArray();
+    }
+
+    public string[] GetClosingTags(bool isLineOnly)
+    {
+        return GetTokenSeparators(isLineOnly, x => x.EndTag).ToArray();
+    }
+
+    private IEnumerable<string> GetTokenSeparators(bool isLineOnly, Func<TagSetting,string> separatorGetter)
     {
         return settings.Values
             .Where(x => x.IsLineOnly == isLineOnly)
-            .Select(x => x.OpeningTag)
-            .OrderByDescending(x => x.Length)
-            .ToArray();
+            .Select(separatorGetter)
+            .OrderByDescending(x => x.Length);
     }
 
     public IEnumerator<TagSetting> GetEnumerator()
