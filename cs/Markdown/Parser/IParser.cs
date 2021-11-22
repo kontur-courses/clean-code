@@ -1,10 +1,11 @@
 ﻿using System.Collections.Generic;
+using Markdown.Tags;
 using Markdown.Tokens;
 
 namespace Markdown.Parser
 {
     public interface IParser
     {
-        public IEnumerable<IToken> GetTokens(string textInMarkdown);
+        List<IToken> GetTokens(string text);
     }
 }
