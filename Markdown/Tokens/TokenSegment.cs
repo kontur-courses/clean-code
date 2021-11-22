@@ -58,8 +58,6 @@ namespace Markdown
             var secondMax = Math.Max(other.openTokenLocation, other.closeTokenLocation);
 
             return secondMin.Between(firstMin, firstMax) && secondMax.Between(firstMin, firstMax);
-            // return firstMin.Between(secondMin, secondMax) && firstMax.Between(secondMin, secondMax);
-            // // || secondMin.Between(firstMin, firstMax) && secondMax.Between(firstMin, firstMax);
         }
         
         public bool IsIntersectWith(TokenSegment other)

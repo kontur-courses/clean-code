@@ -1,6 +1,4 @@
-﻿using System;
-
-namespace Markdown
+﻿namespace Markdown
 {
     internal interface ITagTranslator
     {
