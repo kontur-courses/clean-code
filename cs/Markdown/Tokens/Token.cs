@@ -5,13 +5,41 @@ namespace Markdown
 {
     public abstract class Token
     {
-        public static void SetRelation(Token parent, Token child)
+        public static List<Token> SetRelations(List<Token> tokens)
         {
-            if (!child.HasParent)
-            {
-                child.SetCoordinatesRelatively(parent);
-                parent._inners.Add(child);
-            }
+            var sortedTokens = tokens
+                .Where(t => t.Length != 0)
+                .OrderBy(t => t.Length)
+                .ThenBy(t => t.Begin)
+                .ToList();
+            var childs = new List<Token>();
+            for (int i = 0; i < sortedTokens.Count; i++)
+                for (int j = i + 1; j < sortedTokens.Count; j++)
+                {
+                    var parent = sortedTokens[j];
+                    var child = sortedTokens[i];
+                    if (parent is TagToken && parent.Begin <= child.Begin
+                        && parent.End >= child.End)
+                    {
+                        childs.Add(sortedTokens[i]);
+                        if (parent.AllowInners && !child.HasParent)
+                        {
+                            child.SetCoordinatesRelatively(parent);
+                            parent._inners.Add(child);
+                        }
+                    }
+                }
+            return sortedTokens
+
+                .Except(childs)
+                .OrderBy(t => t.Begin)
+                .ToList();
+
+            //if (!child.HasParent)
+            //{
+            //    child.SetCoordinatesRelatively(parent);
+            //    parent._inners.Add(child);
+            //}
         }
 
         protected List<Token> _inners;
