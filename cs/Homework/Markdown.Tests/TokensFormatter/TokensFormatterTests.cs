@@ -15,7 +15,7 @@ namespace Markdown.Tests.TokensFormatter
             sut = new HtmlTokensFormatter();
         }
 
-        [TestCaseSource(typeof(TokensFormatterTestData), nameof(TokensFormatterTestData.TestBoldData))]
+        [TestCaseSource(typeof(TokensFormatterTestData), nameof(TokensFormatterTestData.TestTextData))]
         [TestCaseSource(typeof(TokensFormatterTestData), nameof(TokensFormatterTestData.TestBoldData))]
         [TestCaseSource(typeof(TokensFormatterTestData), nameof(TokensFormatterTestData.TestHeaderData))]
         [TestCaseSource(typeof(TokensFormatterTestData), nameof(TokensFormatterTestData.TestItalicsData))]
