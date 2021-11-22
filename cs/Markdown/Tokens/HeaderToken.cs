@@ -4,7 +4,7 @@ namespace Markdown.Tokens
 {
     public class HeaderToken : Token
     {
-        public static readonly string Separator = "# ";
+        public const string Separator = "# ";
 
         public override bool IsNonPaired => true;
         public override bool IsContented => false;

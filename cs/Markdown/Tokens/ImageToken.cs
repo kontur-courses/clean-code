@@ -5,7 +5,7 @@ namespace Markdown.Tokens
 {
     public class ImageToken : Token
     {
-        public static string Separator = "![";
+        public const string Separator = "![";
         private string altText;
         private string source;
         public override bool IsNonPaired => true;

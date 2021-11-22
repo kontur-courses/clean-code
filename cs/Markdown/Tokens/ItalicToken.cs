@@ -5,7 +5,7 @@ namespace Markdown.Tokens
 {
     public class ItalicToken : Token
     {
-        public static readonly string Separator = "_";
+        public const string Separator = "_";
 
         public override bool IsNonPaired => false;
         public override bool IsContented => false;

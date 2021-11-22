@@ -5,7 +5,7 @@ namespace Markdown.Tokens
 {
     public class BoldToken : Token
     {
-        public static readonly string Separator = "__";
+        public const string Separator = "__";
 
         public override bool IsNonPaired => false;
         public override bool IsContented => false;

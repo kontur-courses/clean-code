@@ -13,7 +13,7 @@ namespace MarkdownTests
 {
     internal class MdTests
     {
-        public readonly IReadOnlyDictionary<string, HtmlTag> HtmlTagsBySeparator = new Dictionary<string, HtmlTag>
+        private readonly IReadOnlyDictionary<string, HtmlTag> htmlTagsBySeparator = new Dictionary<string, HtmlTag>
         {
             { BoldToken.Separator, new HtmlTag("<strong>", "</strong>", true) },
             { ItalicToken.Separator, new HtmlTag("<em>", "</em>", true) },
@@ -22,7 +22,7 @@ namespace MarkdownTests
             { ImageToken.Separator, new HtmlTag("<img >", string.Empty, false) }
         };
 
-        public readonly IReadOnlyDictionary<string, Func<int, Token>> TokensBySeparator = new Dictionary<string, Func<int, Token>>
+        private readonly IReadOnlyDictionary<string, Func<int, Token>> tokensBySeparator = new Dictionary<string, Func<int, Token>>
         {
             { ItalicToken.Separator, index => new ItalicToken(index) },
             { BoldToken.Separator, index => new BoldToken(index) },
@@ -36,8 +36,8 @@ namespace MarkdownTests
         [OneTimeSetUp]
         public void OneTimeSetUp()
         {
-            var renderer = new HtmlRenderer(HtmlTagsBySeparator);
-            var parser = new MdParser(TokensBySeparator);
+            var renderer = new HtmlRenderer(htmlTagsBySeparator);
+            var parser = new MdParser(tokensBySeparator);
             sut = new Md(renderer, parser);
         }
 

@@ -9,7 +9,7 @@ namespace MarkdownTests
 {
     public class MdParserTests
     {
-        public readonly IReadOnlyDictionary<string, Func<int, Token>> TokensBySeparator = new Dictionary<string, Func<int, Token>>
+        private readonly IReadOnlyDictionary<string, Func<int, Token>> tokensBySeparator = new Dictionary<string, Func<int, Token>>
         {
             { ItalicToken.Separator, index => new ItalicToken(index) },
             { BoldToken.Separator, index => new BoldToken(index) },
@@ -23,7 +23,7 @@ namespace MarkdownTests
         [OneTimeSetUp]
         public void OneTimeSetUp()
         {
-            sut = new MdParser(TokensBySeparator);
+            sut = new MdParser(tokensBySeparator);
         }
 
         [TestCaseSource(typeof(MdParserTestCases), nameof(MdParserTestCases.ParseTokenTestCases))]
