@@ -31,7 +31,7 @@ namespace Markdown
 
             return (
                 new SegmentsCollection(firstSegments.Where(x => secondSegment.All(y => rules.DoesMatchNestingRule(y, x)))), 
-                new SegmentsCollection(secondSegment.Where(x => secondSegment.All(y => rules.DoesMatchNestingRule(y, x))))
+                new SegmentsCollection(secondSegment.Where(x => firstSegments.All(y => rules.DoesMatchNestingRule(y, x))))
                 );
         }
 
