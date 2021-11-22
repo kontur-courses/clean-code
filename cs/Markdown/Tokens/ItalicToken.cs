@@ -1,5 +1,5 @@
-﻿using Markdown.Parser;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
+using Markdown.Parser;
 
 namespace Markdown.Tokens
 {
@@ -9,15 +9,18 @@ namespace Markdown.Tokens
 
         public override bool IsNonPaired => false;
         public override bool IsContented => false;
-        public override string GetSeparator() => Separator;
         public ItalicToken(int openIndex) : base(openIndex) { }
         internal ItalicToken(int openIndex, int closeIndex) : base(openIndex, closeIndex) { }
+
+        public override string GetSeparator()
+        {
+            return Separator;
+        }
 
         internal override bool Validate(MdParser parser)
         {
             this.ValidatePlacedCorrectly(parser.TextToParse);
             ValidateInteractions(parser.Tokens, this);
-
 
             return IsCorrect;
         }

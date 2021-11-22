@@ -16,7 +16,6 @@ namespace Markdown.Tokens
             return Separator;
         }
 
-
         internal override bool Validate(MdParser parser)
         {
             if (OpenIndex != 0 && parser.TextToParse[OpenIndex - 1] != '\n' && parser.TextToParse[OpenIndex - 1] != '\r')
