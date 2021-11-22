@@ -17,15 +17,15 @@ namespace MarkdownTests
         {
             Tag.ClearTagBase();
             
-            var fromTag1 = Tag.RegisterSymmetricTag("-");
-            var fromTag2 = Tag.RegisterSymmetricTag("--");
-            var fromTag3 = Tag.RegisterSymmetricTag("__");
-            var fromTag4 = Tag.RegisterSymmetricTag("_<");
+            var fromTag1 = Tag.GetOrAddSymmetricTag("-");
+            var fromTag2 = Tag.GetOrAddSymmetricTag("--");
+            var fromTag3 = Tag.GetOrAddSymmetricTag("__");
+            var fromTag4 = Tag.GetOrAddSymmetricTag("_<");
             
-            var toTag1 = Tag.RegisterPairTag("<", "/>");
-            var toTag2 = Tag.RegisterPairTag("<*", "/*>");
-            var toTag3 = Tag.RegisterPairTag("(<*", "/*>)");
-            var toTag4 = Tag.RegisterPairTag("<H1>", "</H1>");
+            var toTag1 = Tag.GetOrAddPairTag("<", "/>");
+            var toTag2 = Tag.GetOrAddPairTag("<*", "/*>");
+            var toTag3 = Tag.GetOrAddPairTag("(<*", "/*>)");
+            var toTag4 = Tag.GetOrAddPairTag("<H1>", "</H1>");
             
             parser = TokenParserConfigurator.CreateTokenParser()
                 .AddToken(fromTag1).That
@@ -57,7 +57,8 @@ namespace MarkdownTests
         [TestCase("a_<__-d-___<d", "a<H1>(<*<d/>/*>)</H1>d")]
         
         [TestCase("a_<__d-_<d", "a<H1>__d-</H1>d")]
-        // [TestCase("a---bb---a", "a<*<bb/>/*>a")]
+        [TestCase("a---bb---a", "a<*<bb/>/*>a")]
+        [TestCase("a---bb--a", "a--<bb/>-a")]
         
         [TestCase("a-bc-d", "a<bc/>d")]
         [TestCase("a-bc-da-bc-d", "a<bc/>da<bc/>d")]
@@ -116,6 +117,8 @@ namespace MarkdownTests
         [TestCase("_<a", 0)]
         
         [TestCase("a---bb---a", 1, 3, 6, 7)]
+        [TestCase("a---bb--a", 1, 3, 6, 7)]
+        [TestCase("a---bb-a", 1, 3, 6)]
         public void FindAllTokens_Location_Test(string text, params int[] expectedIndexes)
         {
             var actualIndexes = parser
