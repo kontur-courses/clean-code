@@ -9,9 +9,7 @@ namespace Markdown.SyntaxParser
         public IEnumerable<TokenTree> Parse(IEnumerable<Token> lexedTokens)
         {
             var tokens = lexedTokens ?? throw new ArgumentNullException(nameof(lexedTokens));
-            var parseContext = new ParseContext(tokens);
-            foreach (var tokenTree in parseContext.Parse())
-                yield return tokenTree;
+            return new ParseContext(tokens).Parse();
         }
     }
 }
