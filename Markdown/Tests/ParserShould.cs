@@ -57,7 +57,7 @@ namespace MarkdownTests
         [TestCase("a_<__-d-___<d", "a<H1>(<*<d/>/*>)</H1>d")]
         
         [TestCase("a_<__d-_<d", "a<H1>__d-</H1>d")]
-        // [TestCase("a---bb---a", "a<*-bb-/*>a")]
+        // [TestCase("a---bb---a", "a<*<bb/>/*>a")]
         
         [TestCase("a-bc-d", "a<bc/>d")]
         [TestCase("a-bc-da-bc-d", "a<bc/>da<bc/>d")]
@@ -100,6 +100,7 @@ namespace MarkdownTests
             actualValidToClose.Should().Be(expectedValidToClose);
         }
         
+        [TestCase("abc")]
         [TestCase("a-a", 1)]
         [TestCase("a-a-a", 1, 3)]
         [TestCase("-a", 0)]
@@ -113,6 +114,8 @@ namespace MarkdownTests
         [TestCase("__a", 0)]
         [TestCase("a_<", 1)]
         [TestCase("_<a", 0)]
+        
+        [TestCase("a---bb---a", 1, 3, 6, 7)]
         public void FindAllTokens_Location_Test(string text, params int[] expectedIndexes)
         {
             var actualIndexes = parser

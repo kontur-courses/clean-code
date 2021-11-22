@@ -64,6 +64,8 @@ namespace Markdown
         public TokenInfoCollection FindAllTokens(string paragraph)
         {
             var tokenInfos = new Dictionary<int, TokenInfo>();
+            var lastOpenedTokens = new Stack<Token>();
+            var lastClosedToken = -1;
 
             foreach (var (token, index) in trie.Find(paragraph))
             {
@@ -73,12 +75,27 @@ namespace Markdown
                 var openValid = index < paragraph.Length - token.Length 
                                 && !char.IsWhiteSpace(paragraph[index + token.Length]);
 
-                tokenInfos[index] = new TokenInfo(
+                var tokenInfo = new TokenInfo(
                     index,
                     token, closeValid, openValid,
                     closeValid && openValid,
                     closeValid || openValid
                 );
+                
+                if (tokenInfos.ContainsKey(index) && lastClosedToken == index) continue;
+                if (tokenInfos.ContainsKey(index) && lastOpenedTokens.Any())
+                    lastOpenedTokens.Pop();
+                tokenInfos[index] = tokenInfo;
+
+                if (lastOpenedTokens.Any() && lastOpenedTokens.Peek().Equals(token) && closeValid)
+                {
+                    lastOpenedTokens.Pop();
+                    lastClosedToken = index;
+                }
+                else if (openValid)
+                {
+                    lastOpenedTokens.Push(token);
+                }
             }
             
             return new TokenInfoCollection(tokenInfos.Select(x => x.Value));
