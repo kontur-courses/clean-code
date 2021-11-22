@@ -16,13 +16,13 @@ namespace Markdown.Tokens
         internal override bool Validate(MdParser parser)
         {
             this.ValidatePlacedCorrectly(parser.TextToParse);
-            ValidateItalicTokenInteractions(parser.Tokens, this);
+            ValidateInteractions(parser.Tokens, this);
 
 
             return IsCorrect;
         }
 
-        private static void ValidateItalicTokenInteractions(IReadOnlyDictionary<string, Token> tokens, Token token)
+        private static void ValidateInteractions(IReadOnlyDictionary<string, Token> tokens, Token token)
         {
             if (!tokens.TryGetValue(BoldToken.Separator, out var boldToken)) return;
             if (!token.IsIntersectWith(boldToken)) return;

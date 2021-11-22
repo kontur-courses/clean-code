@@ -20,12 +20,12 @@ namespace Markdown.Tokens
         internal override bool Validate(MdParser parser)
         {
             this.ValidatePlacedCorrectly(parser.TextToParse);
-            ValidateBoldTokenInteractions(parser.Tokens, this);
+            ValidateInteractions(parser.Tokens, this);
 
             return IsCorrect;
         }
 
-        private static void ValidateBoldTokenInteractions(IReadOnlyDictionary<string, Token> tokens, Token token)
+        private static void ValidateInteractions(IReadOnlyDictionary<string, Token> tokens, Token token)
         {
             if (!token.IsCorrect || !tokens.TryGetValue(ItalicToken.Separator, out var italicToken))
                 return;
