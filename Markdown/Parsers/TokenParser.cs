@@ -16,20 +16,33 @@ namespace Markdown
             this.rules = rules;
         }
 
+        public bool DoesMatchIntersectingRule(TokenSegment first, TokenSegment second)
+        {
+            return rules.CanIntersect(first.GetBaseTag(), second.GetBaseTag()) || !first.IsIntersectWith(second);
+        }
+        
+        public bool DoesMatchNestingRule(TokenSegment outside, TokenSegment inside)
+        {
+            return rules.CanBeNested(outside.GetBaseTag(), inside.GetBaseTag()) || !outside.Contain(inside);
+        }
+
         public (SegmentsCollection, SegmentsCollection) IgnoreSegmentsThatDoNotMatchRules(SegmentsCollection first, SegmentsCollection second)
         {
             var firstSorted = first.GetSortedSegments().ToList();
             var secondSorted = second.GetSortedSegments().ToList();
             
             var firstSegments = firstSorted
-                .Where(x => !secondSorted.Any(y => y.IsIntersectWith(x)))
+                .Where(x => secondSorted.All(y => DoesMatchIntersectingRule(x, y)))
                 .ToList();
             
             var secondSegment = secondSorted
-                .Where(x => !firstSorted.Any(y => y.IsIntersectWith(x)))
+                .Where(x => firstSegments.All(y => DoesMatchIntersectingRule(x, y)))
                 .ToList();
 
-            return (new SegmentsCollection(firstSegments), new SegmentsCollection(secondSegment));
+            return (
+                new SegmentsCollection(firstSegments.Where(x => secondSegment.All(y => DoesMatchNestingRule(y, x)))), 
+                new SegmentsCollection(secondSegment.Where(x => secondSegment.All(y => DoesMatchNestingRule(y, x))))
+                );
         }
 
         public string ReplaceTokens(string text, SegmentsCollection tokenSegments, ITagTranslator translator)
