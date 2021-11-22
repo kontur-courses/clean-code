@@ -1,41 +1,75 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Linq;
+using System.Text;
 using Markdown.Factories;
 using Markdown.Markings;
 using Markdown.Tokens;
 
 namespace Markdown.Parsers
 {
-    public class MarkdownParser : IParser<IMarking<MarkdownToken>>
+    public class MarkdownParser : IParser<IMarkingTree<MarkdownToken>>
     {
         private readonly ITokenFactory<MarkdownToken> tokenFactory;
-        private readonly IMarkingFactory<MarkdownToken, IMarking<MarkdownToken>> markingFactory;
+        private readonly IMarkingTreeFactory<MarkdownToken> markingTreeFactory;
 
         public MarkdownParser(ITokenFactory<MarkdownToken> tokenFactory,
-            IMarkingFactory<MarkdownToken, IMarking<MarkdownToken>> markingFactory)
+            IMarkingTreeFactory<MarkdownToken> markingTreeFactory)
         {
             this.tokenFactory = tokenFactory;
-            this.markingFactory = markingFactory;
+            this.markingTreeFactory = markingTreeFactory;
         }
 
-        public IMarking<MarkdownToken> Parse(string markdown)
+        public IMarkingTree<MarkdownToken> Parse(string markdown)
         {
-            var lines = GetMarkdownWords(markdown);
+            var rootTokenValues = ParseTokens(markdown);
 
-            var tokensLines = lines
-                .Select(line => line
-                    .Select(word => tokenFactory.NewToken(word))
-                    .ToList())
-                .ToList();
+            var rootToken = tokenFactory.NewToken(TokenType.TreeRoot, null, rootTokenValues);
 
-            return markingFactory.NewMarking(tokensLines);
+            return markingTreeFactory.NewMarking(rootToken);
         }
 
-        private IEnumerable<string[]> GetMarkdownWords(string markdown)
+        private List<MarkdownToken> ParseTokens(string markdown)
         {
-            return markdown
-                .Split('\n')
-                .Select(line => line.Split(' '));
+            var tokens = new List<MarkdownToken>();
+
+            var index = 0;
+
+            while (index < markdown.Length)
+            {
+                if (markdown[index] == '_')
+                {
+                    var substring = new StringBuilder();
+                    while (!char.IsWhiteSpace(markdown[index]) && markdown[index] != '_')
+                    {
+                        substring.Append(markdown[index]);
+                        ++index;
+                    }
+
+                    var word = tokenFactory.NewToken(TokenType.Word, substring.ToString(), null);
+
+                    tokens.Add(tokenFactory.NewToken(TokenType.Tag, "_", new[] {word}));
+                }
+                else if (char.IsWhiteSpace(markdown[index]))
+                {
+                    tokens.Add(tokenFactory.NewToken(TokenType.Word, markdown[index].ToString(), null));
+                }
+                else
+                {
+                    var substring = new StringBuilder();
+                    while (index < markdown.Length && !char.IsWhiteSpace(markdown[index]) && markdown[index] != '_')
+                    {
+                        substring.Append(markdown[index]);
+                        ++index;
+                    }
+
+                    var word = tokenFactory.NewToken(TokenType.Word, substring.ToString(), null);
+
+                    tokens.Add(word);
+                }
+            }
+
+            return tokens;
         }
     }
 }

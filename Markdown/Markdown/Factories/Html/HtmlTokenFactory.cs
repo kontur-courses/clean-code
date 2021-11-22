@@ -1,12 +1,13 @@
-﻿using Markdown.Tokens;
+﻿using System.Collections.Generic;
+using Markdown.Tokens;
 
 namespace Markdown.Factories.Html
 {
     public class HtmlTokenFactory : ITokenFactory<HtmlToken>
     {
-        public HtmlToken NewToken(string value)
+        public HtmlToken NewToken(TokenType type, string value, IEnumerable<HtmlToken> childTokens)
         {
-            return new HtmlToken(value);
+            return new HtmlToken(type, value, childTokens);
         }
     }
 }

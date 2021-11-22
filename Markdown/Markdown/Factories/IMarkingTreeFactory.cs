@@ -1,11 +1,12 @@
 ﻿using System.Collections.Generic;
+using Markdown.Markings;
 using Markdown.Tokens;
 
 namespace Markdown.Factories
 {
-    public interface ITokenFactory<T>
+    public interface IMarkingTreeFactory<T>
         where T : IToken
     {
-        public T NewToken(TokenType type, string value, IEnumerable<T> childTokens);
+        public IMarkingTree<T> NewMarking(T rootToken);
     }
 }
