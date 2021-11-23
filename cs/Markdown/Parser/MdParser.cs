@@ -8,8 +8,9 @@ namespace Markdown.Parser
 {
     public class MdParser : IMdParser
     {
-        public readonly IReadOnlyDictionary<string, Func<int, Token>> TokensBySeparator;
         private ParserContext ParserContext { get; set; }
+        
+        public readonly IReadOnlyDictionary<string, Func<int, Token>> TokensBySeparator;
         public string TextToParse => ParserContext.TextToParse;
         public IReadOnlyDictionary<string, Token> Tokens => ParserContext.Tokens;
         public IReadOnlyList<Token> Result => ParserContext.Result;
@@ -41,8 +42,10 @@ namespace Markdown.Parser
                     continue;
                 }
 
-                if (TokensBySeparator.ContainsKey(possibleTag.ToString()))
-                    ProcessToken(possibleTag.ToString(), i - possibleTag.Length);
+                var tag = possibleTag.ToString();
+
+                if (TokensBySeparator.ContainsKey(tag))
+                    ProcessToken(tag, i - tag.Length);
 
                 possibleTag.Clear();
 
@@ -56,9 +59,21 @@ namespace Markdown.Parser
             return ParserContext.Result;
         }
 
+        public void AddScreening(ScreeningToken token)
+        {
+            ParserContext.Tokens.Add(token.GetSeparator(), token);
+        }
+
         private void ProcessToken(string separator, int index)
         {
-            if (ExecuteScreening(index)) return;
+            if (ExecuteScreening(index))
+            {
+                separator = separator[1..];
+                index++;
+
+                if (!(separator.Length > 0 && TokensBySeparator.ContainsKey(separator)))
+                    return;
+            }
 
             if (ParserContext.Tokens.Remove(separator, out var token) && Token.IsCorrectTokenCloseIndex(index, TextToParse))
             {
@@ -98,11 +113,6 @@ namespace Markdown.Parser
                 ParserContext.Result.Add(token);
 
             return true;
-        }
-
-        public void AddScreening(ScreeningToken token)
-        {
-            ParserContext.Tokens.Add(token.GetSeparator(), token);
         }
     }
 }
