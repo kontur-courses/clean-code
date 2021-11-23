@@ -1,12 +1,11 @@
 ﻿using System.Collections.Generic;
 using System.Linq;
-using System.Text;
 
 namespace Markdown
 {
     public class TokenConverter
     {
-        private readonly Stack<Token> tokens;
+        private IEnumerable<Token> tokens;
         private string source;
 
         public TokenConverter()
@@ -23,8 +22,13 @@ namespace Markdown
             foreach (var token in tokens)
             {
                 builder[token.StartPosition] = token.Tag.OpeningTag;
+                for (var i = 1; i < token.Tag.OpeningMarkup.Length; i++)
+                    builder[token.StartPosition + i] = "";
                 builder[token.StartPosition + token.Length - 1] = token.Tag.ClosingTag;
+                for (var i = 1; i < token.Tag.ClosingMarkup.Length; i++)
+                    builder[token.StartPosition + token.Length - i - 1] = "";
             }
+
             return string.Join("", builder);
         }
 
@@ -36,35 +40,85 @@ namespace Markdown
 
         public TokenConverter FindTokens()
         {
-            GetBuildsMachine(source)
-                .Run();
+            GetBuildsMachine()
+                .Run(source);
             return this;
         }
 
-        private Machine GetBuildsMachine(string input)
+        private Machine GetBuildsMachine()
         {
-            var italicsTag = new ItalicsTag();
+            var anyTokens = new Stack<Token>();
+            
+            var startState = State.CreateState();
+            var markdownState = State.CreateState();
+            var italicsWaitingState = State.CreateState();
+            var italicsEndState = State.CreateState();
+            var boldWaitingState = State.CreateState();
+            var boldPreEndState = State.CreateState();
+            var boldInnerItalicsWaitingState = State.CreateState();
+            var boldInnerItalicsEndState = State.CreateState();
+            var boldAfterInnerItalicsState = State.CreateState();
+            var boldEndState = State.CreateState();
 
-            var defaultState = State.CreateState();
-            var italicsState = State.CreateState();
+            startState.AddTransition('_', markdownState)
+                .SetFallback(startState);
 
-            defaultState.AddTransition(italicsTag.OpeningMarkup[0], italicsState)
-                .SetFallback(defaultState);
+            markdownState.AddTransition('_', boldWaitingState)
+                .SetFallback(italicsWaitingState);
 
-            italicsState
-                .AddTransition(italicsTag.ClosingMarkup[0], defaultState)
-                .SetFallback(italicsState)
-                .SetOnEntry((s, i) => { tokens.Push(new Token(i, new ItalicsTag())); })
-                .SetOnExit((s, i) =>
+            italicsWaitingState.AddTransition('_', italicsEndState)
+                .SetFallback(italicsWaitingState)
+                .SetOnEntry((s, i) => { anyTokens.Push(new Token(i - 1, new ItalicsTag())); });
+
+            italicsEndState.AddTransition('_', markdownState)
+                .SetFallback(startState)
+                .SetOnEntry((s, i) =>
                 {
-                    var currentToken = tokens.Peek();
-                    currentToken.Length = i - currentToken.StartPosition + 1;
-                    if (currentToken.Tag.ClosingMarkup != s[i].ToString() ||
-                        currentToken.Tag.IsBrokenMarkup(s, currentToken.StartPosition, currentToken.Length))
-                        tokens.Pop();
+                    var token = anyTokens.Peek();
+                    token.Length = i - token.StartPosition + 1;
                 });
 
-            return Machine.CreateMachine(input, defaultState);
+            boldWaitingState.AddTransition('_', boldPreEndState)
+                .SetFallback(boldWaitingState)
+                .SetOnEntry((s, i) => { anyTokens.Push(new Token(i - 1, new BoldTag())); });
+
+            boldPreEndState.AddTransition('_', boldEndState)
+                .SetFallback(boldInnerItalicsWaitingState);
+
+            boldInnerItalicsWaitingState.AddTransition('_', boldInnerItalicsEndState)
+                .SetFallback(boldInnerItalicsWaitingState)
+                .SetOnEntry((s, i) => { anyTokens.Push(new Token(i - 1, new ItalicsTag())); });
+
+            boldInnerItalicsEndState.AddTransition('_', boldPreEndState)
+                .SetFallback(boldAfterInnerItalicsState)
+                .SetOnEntry((s, i) =>
+                {
+                    var token = anyTokens.Pop();
+                    token.Length = i - token.StartPosition + 1;
+                    var upperToken = anyTokens.Pop();
+                    anyTokens.Push(token);
+                    anyTokens.Push(upperToken);
+                });
+            
+            boldAfterInnerItalicsState.AddTransition('_', boldPreEndState)
+                .SetFallback(boldAfterInnerItalicsState);
+
+            boldEndState.AddTransition('_', markdownState)
+                .SetFallback(startState)
+                .SetOnEntry((s, i) =>
+                {
+                    var token = anyTokens.Peek();
+                    token.Length = i - token.StartPosition + 1;
+                });
+
+            tokens = GetNotBrokenTokens(anyTokens);
+            
+            return Machine.CreateMachine(startState);
+        }
+
+        private IEnumerable<Token> GetNotBrokenTokens(IEnumerable<Token> anyTokens)
+        {
+            return anyTokens.Where(t => !t.Tag.IsBrokenMarkup(source, t.StartPosition, t.Length));
         }
     }
 }

@@ -1,18 +1,16 @@
 ﻿using System.Linq;
-using System.Text;
 
 namespace Markdown
 {
-    public class ItalicsTag : ITag
+    public class BoldTag : ITag
     {
-        public string OpeningMarkup => "_";
-        public string ClosingMarkup => "_";
-        public string OpeningTag => "<em>";
-        public string ClosingTag => "</em>";
-
+        public string OpeningMarkup => "__";
+        public string ClosingMarkup => "__";
+        public string OpeningTag => "<strong>";
+        public string ClosingTag => "</strong>";
+        
         public bool IsBrokenMarkup(string source, int start, int length)
         {
-            
             return HasEmptyBody(length)
                    || HasFirstGap(source, start)
                    || HasLastGap(source, start, length)
