@@ -4,8 +4,7 @@
     {
         public static string Render(string markdownText)
         {
-            var tokenizer = new Tokenizer();
-            var tokens = tokenizer.ProcessMarkdown(markdownText);
+            var tokens = Tokenizer.ProcessMarkdown(markdownText);
             return tokens.Render();
         }
     }
