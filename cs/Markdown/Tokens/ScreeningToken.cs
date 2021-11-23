@@ -17,7 +17,7 @@ namespace Markdown.Tokens
             return Separator;
         }
 
-        internal override bool Validate(MdParser parser)
+        internal override bool Validate(IMdParser parser)
         {
             Close(OpenIndex);
             parser.AddScreening(this);

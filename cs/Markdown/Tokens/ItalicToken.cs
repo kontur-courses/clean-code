@@ -17,21 +17,21 @@ namespace Markdown.Tokens
             return Separator;
         }
 
-        internal override bool Validate(MdParser parser)
+        internal override bool Validate(IMdParser parser)
         {
             this.ValidatePlacedCorrectly(parser.TextToParse);
-            ValidateInteractions(parser.Tokens, this);
+            ValidateInteractions(parser.Tokens);
 
             return IsCorrect;
         }
 
-        private static void ValidateInteractions(IReadOnlyDictionary<string, Token> tokens, Token token)
+        private void ValidateInteractions(IReadOnlyDictionary<string, Token> tokens)
         {
             if (!tokens.TryGetValue(BoldToken.Separator, out var boldToken)) return;
-            if (!token.IsIntersectWith(boldToken)) return;
+            if (!this.IsIntersectWith(boldToken)) return;
 
             boldToken.IsCorrect = false;
-            token.IsCorrect = false;
+            IsCorrect = false;
         }
     }
 }

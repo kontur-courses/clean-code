@@ -57,7 +57,7 @@ namespace Markdown.Tokens
 
         public abstract string GetSeparator();
 
-        internal abstract bool Validate(MdParser parser);
+        internal abstract bool Validate(IMdParser parser);
 
         public static bool IsCorrectTokenOpenIndex(int openIndex, string text, int length)
         {

@@ -6,10 +6,18 @@ namespace Markdown.Tokens
     public class ImageToken : Token
     {
         public const string Separator = "![";
+
         private string altText;
         private string source;
         public override bool IsNonPaired => true;
         public override bool IsContented => true;
+        public ImageToken(int openIndex) : base(openIndex) { }
+        internal ImageToken(int openIndex, int closeIndex) : base(openIndex, closeIndex) { }
+        internal ImageToken(int openIndex, int closeIndex, string source, string altText) : base(openIndex, closeIndex)
+        {
+            this.source = source;
+            this.altText = altText;
+        }
 
         public override string Source
         {
@@ -35,27 +43,20 @@ namespace Markdown.Tokens
             }
         }
 
-        public ImageToken(int openIndex) : base(openIndex) { }
-        internal ImageToken(int openIndex, int closeIndex) : base(openIndex, closeIndex) { }
-
-        internal ImageToken(int openIndex, int closeIndex, string source, string altText) : base(openIndex, closeIndex)
-        {
-            this.source = source;
-            this.altText = altText;
-        }
-
         public override string GetSeparator()
         {
             return Separator;
         }
 
-        internal override bool Validate(MdParser parser)
+        internal override bool Validate(IMdParser parser)
         {
             var text = parser.TextToParse;
             var endOfAltText = text.IndexOf(']', OpenIndex);
             var startOfSource = text.IndexOf('(', OpenIndex);
             var endOfSource = text.IndexOf(')', OpenIndex);
-            var endOfParagraph = text.IndexOf('\n') > 0 ? text.IndexOf('\n') : text.Length - 1;
+            var endOfParagraph = text.IndexOf('\n', OpenIndex);
+            if (endOfParagraph < 0)
+                endOfParagraph = text.Length - 1;
 
             if (endOfAltText == -1 || startOfSource == -1 || endOfSource == -1)
                 return false;

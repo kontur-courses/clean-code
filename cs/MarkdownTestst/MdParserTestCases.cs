@@ -56,6 +56,10 @@ namespace MarkdownTests
                     .SetName("ReturnEmptyIEnumerable_WhenImageTokenHasNotClosedAltText");
                 yield return new TestCaseData("![])", new List<Token>())
                     .SetName("ReturnEmptyIEnumerable_WhenImageTokenHasNotOpenedSource");
+                yield return new TestCaseData("\n![\n]()", new List<Token>())
+                    .SetName("ReturnEmptyIEnumerable_WhenImageTokenAltTextClosingAfterNewParagraph");
+                yield return new TestCaseData("\n![](\n)", new List<Token>())
+                    .SetName("ReturnEmptyIEnumerable_WhenImageTokenSourceClosingAfterNewParagraph");
 
                 yield return new TestCaseData("# a", new List<Token>() { new HeaderToken(0, 3) })
                     .SetName("ReturnHeaderToken_WhenThereIsHeaderToken");

@@ -1,44 +1,20 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
 using FluentAssertions;
 using Markdown;
-using Markdown.Parser;
-using Markdown.Renderer;
-using Markdown.Tokens;
 using NUnit.Framework;
 
 namespace MarkdownTests
 {
     internal class MdTests
     {
-        private readonly IReadOnlyDictionary<string, HtmlTag> htmlTagsBySeparator = new Dictionary<string, HtmlTag>
-        {
-            { BoldToken.Separator, new HtmlTag("<strong>", "</strong>", true) },
-            { ItalicToken.Separator, new HtmlTag("<em>", "</em>", true) },
-            { HeaderToken.Separator, new HtmlTag("<h1>", "</h1>", true) },
-            { ScreeningToken.Separator, new HtmlTag(string.Empty, string.Empty, false) },
-            { ImageToken.Separator, new HtmlTag("<img >", string.Empty, false) }
-        };
-
-        private readonly IReadOnlyDictionary<string, Func<int, Token>> tokensBySeparator = new Dictionary<string, Func<int, Token>>
-        {
-            { ItalicToken.Separator, index => new ItalicToken(index) },
-            { BoldToken.Separator, index => new BoldToken(index) },
-            { HeaderToken.Separator, index => new HeaderToken(index) },
-            { ScreeningToken.Separator, index => new ScreeningToken(index) },
-            { ImageToken.Separator, index => new ImageToken(index) }
-        };
-
         private Md sut;
 
         [OneTimeSetUp]
         public void OneTimeSetUp()
         {
-            var renderer = new HtmlRenderer(htmlTagsBySeparator);
-            var parser = new MdParser(tokensBySeparator);
-            sut = new Md(renderer, parser);
+            sut = new Md();
         }
 
         [TestCaseSource(typeof(MdTestCases), nameof(MdTestCases.RenderTestCases))]

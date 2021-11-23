@@ -8,6 +8,12 @@ namespace Markdown
         public IMdParser Parser { get; }
         public IRenderer Renderer { get; }
 
+        public Md()
+        {
+            Renderer = new HtmlRenderer(DefaultTagSets.HtmlTagsBySeparator);
+            Parser = new MdParser(DefaultTagSets.TokensBySeparator);
+        }
+
         public Md(IRenderer renderer, IMdParser parser)
         {
             Renderer = renderer;
