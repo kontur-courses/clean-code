@@ -6,26 +6,24 @@ namespace Markdown.Extensions
 {
     internal static class EnumerableExtension
     {
-        public static IEnumerable<TSource> ForEachPairs<TSource>(
-            this IList<TSource> source,
-            Func<TSource, TSource, (TSource, TSource)> action)
-        where TSource : class
+        public static IEnumerable<SegmentsCollection> ForEachPairs(this IList<SegmentsCollection> source,
+            Func<SegmentsCollection, SegmentsCollection, (SegmentsCollection, SegmentsCollection)> action)
         {
             if (source.Count < 2) return source;
             
-            var dict = new Dictionary<Guid, TSource>();
+            var dict = new Dictionary<Guid, List<SegmentsCollection>>();
             
             foreach (var ((firstGuid, firstItem), (secondGuid, secondItem)) in source.AllPairs())
             {
-                var (transformedFirstItem, transformedSecondItem) = action(
-                    dict.ContainsKey(firstGuid) ? dict[firstGuid] : firstItem, 
-                    dict.ContainsKey(secondGuid) ? dict[secondGuid] : secondItem);
-                
-                dict[firstGuid] = transformedFirstItem;
-                dict[secondGuid] = transformedSecondItem;
+                var (transformedFirstItem, transformedSecondItem) = action(firstItem, secondItem);
+                if (!dict.ContainsKey(firstGuid)) dict[firstGuid] = new List<SegmentsCollection>();
+                if (!dict.ContainsKey(secondGuid)) dict[secondGuid] = new List<SegmentsCollection>();
+                dict[firstGuid].Add(transformedFirstItem);
+                dict[secondGuid].Add(transformedSecondItem);
             }
 
-            return dict.Select(x => x.Value);
+            var d = dict.Select(x => SegmentsCollection.GetIntersection(x.Value)).ToList();
+            return d;
         }
 
         private static IEnumerable<((Guid, TSource), (Guid, TSource))> AllPairs<TSource>(this IList<TSource> source)
