@@ -50,16 +50,12 @@ namespace MarkdownTests
         }
 
         [TestCase("a__b-c__d", "a(<*b-c/*>)d")]
-        
         [TestCase("a__b-d-c__d", "a(<*b<d/>c/*>)d")]
         [TestCase("a__-d-__d", "a(<*<d/>/*>)d")]
         [TestCase("a-__d__-d", "a<__d__/>d")]//
         [TestCase("a_<__-d-___<d", "a<H1>(<*<d/>/*>)</H1>d")]
-        
         [TestCase("a_<__d-_<d", "a<H1>__d-</H1>d")]
-        // [TestCase("a---bb---a", "a<*<bb/>/*>a")] пока непонятно, как это рендерить
         [TestCase("a---bb--a", "a<*-bb/*>a")]
-        
         [TestCase("a-bc-d", "a<bc/>d")]
         [TestCase("a-bc-da-bc-d", "a<bc/>da<bc/>d")]
         [TestCase("a--bc--d", "a<*bc/*>d")]
@@ -115,11 +111,8 @@ namespace MarkdownTests
         [TestCase("__a", 0)]
         [TestCase("a_<", 1)]
         [TestCase("_<a", 0)]
-        
-        // [TestCase("a---bb---a", 1, 3, 6, 7)] пока непонятно, как это рендерить
         [TestCase("a---bb--a", 1, 3, 6)]
         [TestCase("a---bb-a", 1, 3, 6)]
-        
         [TestCase("a-a--aa--a-a", 1, 3, 7, 10)]
         public void FindAllTokens_Location_Test(string text, params int[] expectedIndexes)
         {
