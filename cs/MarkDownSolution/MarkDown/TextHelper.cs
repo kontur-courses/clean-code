@@ -11,7 +11,9 @@ namespace MarkDown
         private static char ground = '_';
         public static bool CanCloseItalicToken(string text, int i)
         {
-            return !CheckIfPreviousIsSpecificChar(text, i, ' ');
+            return !(CheckIfPreviousIsSpecificChar(text, i, ' ') ||
+                CheckIfPreviousIsSpecificChar(text, i, ground) ||
+                     CheckIfNextsIsSpecificChar(text, i, ground));
         }
 
         public static bool CanCloseBoldToken(string text, int i)
@@ -33,6 +35,24 @@ namespace MarkDown
                 return false;
             }
             return text[i - 1] == ch;
+        }
+
+        public static bool CheckIfNextsIsSpecificChar(string text, int i, char ch)
+        {
+            if (i == text.Length - 1)
+            {
+                return false;
+            }
+            return text[i + 1] == ch;
+        }
+
+        public static bool CheckIfPreviousIsLetter(string text, int i)
+        {
+            if (i == 0)
+            {
+                return false;
+            }
+            return char.IsLetter(text[i - 1]);
         }
     }
 }

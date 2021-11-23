@@ -4,33 +4,38 @@ namespace MarkDown
 {
     public class Token
     {
-        //bool closed { get; set; }
-        int start { get; set; }
-        int length { get; set; }
+        public bool closed { get; set; }
+        public int start { get; }
+        public int length { get; private set; }
 
-        private readonly List<Token> nestedTokens = new List<Token>();
+        public readonly List<Token> nestedTokens = new List<Token>();
 
         public Token fatherToken;
         public Token(int start, int length)
         {
             this.start = start;
             this.length = length;
-            //closed = true;
+            closed = true;
         }
-        //public Token(int start)
-        //{
-        //    this.start = start;
-        //    closed = false;
-        //}
-        //public void SetLength(int length)
-        //{
-        //    this.length = length;
-        //    closed = true;
-        //}
+        public Token(int start)
+        {
+            this.start = start;
+            closed = false;
+        }
+        public void SetLength(int length)
+        {
+            this.length = length;
+            closed = true;
+        }
         public void AddNestedToken(Token token)
         {
             nestedTokens.Add(token);
             token.fatherToken = this;
+        }
+
+        public void RemoveNestedToken(Token token)
+        {
+            nestedTokens.Remove(token);
         }
 
         public List<Token> GetNestedTokens()

@@ -18,7 +18,9 @@ namespace MarkDown
             state.currentToken = token;
             if (text[0] == header)
             {
-                state.currentToken.AddNestedToken(new HeaderToken(0, text.Length));
+                var newToken = new HeaderToken(0, text.Length);
+                state.currentToken.AddNestedToken(newToken);
+                state.currentToken = newToken;
             }
             for (int i = 0; i < text.Length; i++)
             {
@@ -35,6 +37,7 @@ namespace MarkDown
                     state.isEscaping = false;
                 }
             }
+            TokenCleaner.CleanToken(token);
             return token;
         }
 
@@ -56,9 +59,13 @@ namespace MarkDown
             {
                 state.isEscaping = true;
             }
-            else
+            else if (!TextHelper.CheckIfNextsIsSpecificChar(text, i, ground))
             {
                 state.OpenItalicToken(i, text);
+            }
+            else
+            {
+                state.OpenBoldToken(i, text);
             }
         }
 

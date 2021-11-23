@@ -15,7 +15,6 @@ namespace MarkDown
                 { CaseType.Italic, false },
                 { CaseType.Bold, false }
             };
-        public int start = -1;
         public Token currentToken;
     }
 }

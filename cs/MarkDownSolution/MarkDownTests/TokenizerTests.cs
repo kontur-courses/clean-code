@@ -16,7 +16,7 @@ namespace MarkDownTests
         {
             var text = "А роза упала на лапу Азора";
             var expectedToken = new Token(0, text.Length);
-            Tokenizer.GetToken(text).Should().BeEquivalentTo(expectedToken);
+            Tokenizer.GetToken(text).Should().BeEquivalentTo(expectedToken, p => p.IgnoringCyclicReferences());
         }
         
         [Test]
@@ -25,7 +25,7 @@ namespace MarkDownTests
             var text = "Ну и _что_ дальше?";
             var expectedToken = new Token(0, text.Length);
             expectedToken.AddNestedToken(new ItalicToken(5, 5));
-            Tokenizer.GetToken(text).Should().BeEquivalentTo(expectedToken);
+            Tokenizer.GetToken(text).Should().BeEquivalentTo(expectedToken, p => p.IgnoringCyclicReferences());
         }
 
         [Test]
@@ -35,7 +35,7 @@ namespace MarkDownTests
             var expectedToken = new Token(0, text.Length);
             expectedToken.AddNestedToken(new ItalicToken(5, 5));
             expectedToken.AddNestedToken(new ItalicToken(11, 8));
-            Tokenizer.GetToken(text).Should().BeEquivalentTo(expectedToken);
+            Tokenizer.GetToken(text).Should().BeEquivalentTo(expectedToken, p => p.IgnoringCyclicReferences());
         }
 
         [Test]
@@ -44,7 +44,7 @@ namespace MarkDownTests
             var text = "Ну и __что__ дальше?";
             var expectedToken = new Token(0, text.Length);
             expectedToken.AddNestedToken(new BoldToken(5, 7));
-            Tokenizer.GetToken(text).Should().BeEquivalentTo(expectedToken);
+            Tokenizer.GetToken(text).Should().BeEquivalentTo(expectedToken, p => p.IgnoringCyclicReferences());
         }
 
         [Test]
@@ -55,7 +55,7 @@ namespace MarkDownTests
             expectedToken.AddNestedToken(new BoldToken(5, 7));
             expectedToken.AddNestedToken(new ItalicToken(13, 8));
             var actualToken = Tokenizer.GetToken(text);
-            actualToken.Should().BeEquivalentTo(expectedToken);
+            actualToken.Should().BeEquivalentTo(expectedToken, p => p.IgnoringCyclicReferences());
         }
 
         [Test]
@@ -64,7 +64,7 @@ namespace MarkDownTests
             var text = "_А как тебе такое, Илон Маск?";
             var expectedToken = new Token(0, text.Length);
             var actualToken = Tokenizer.GetToken(text);
-            actualToken.Should().BeEquivalentTo(expectedToken);
+            actualToken.Should().BeEquivalentTo(expectedToken, p => p.IgnoringCyclicReferences());
         }
         [Test]
         public void GetToken_OnTextWithTwoGroundsInRow_ShouldWorkCorrectly()
@@ -72,7 +72,7 @@ namespace MarkDownTests
             var text = "__А как тебе такое, Илон Маск?";
             var expectedToken = new Token(0, text.Length);
             var actualToken = Tokenizer.GetToken(text);
-            actualToken.Should().BeEquivalentTo(expectedToken);
+            actualToken.Should().BeEquivalentTo(expectedToken, p => p.IgnoringCyclicReferences());
         }
         
         [Test]
@@ -81,7 +81,7 @@ namespace MarkDownTests
             var text = "Всякое \\_иногда бывает\\_";
             var expectedToken = new Token(0, text.Length);
             var actualToken = Tokenizer.GetToken(text);
-            actualToken.Should().BeEquivalentTo(expectedToken);
+            actualToken.Should().BeEquivalentTo(expectedToken, p => p.IgnoringCyclicReferences());
         }
         [Test]
         public void GetToken_OnTextWithEscapeAndDoubleGround_ShouldWorkCorrectly()
@@ -89,7 +89,7 @@ namespace MarkDownTests
             var text = "Всякое \\__иногда бывает\\__";
             var expectedToken = new Token(0, text.Length);
             var actualToken = Tokenizer.GetToken(text);
-            actualToken.Should().BeEquivalentTo(expectedToken);
+            actualToken.Should().BeEquivalentTo(expectedToken, p => p.IgnoringCyclicReferences());
         }
 
         [Test]
@@ -98,7 +98,7 @@ namespace MarkDownTests
             var text = "\\Но иногда это \\\\ просто иллюзия\\";
             var expectedToken = new Token(0, text.Length);
             var actualToken = Tokenizer.GetToken(text);
-            actualToken.Should().BeEquivalentTo(expectedToken);
+            actualToken.Should().BeEquivalentTo(expectedToken, p => p.IgnoringCyclicReferences());
         }
 
         [Test]
@@ -109,7 +109,7 @@ namespace MarkDownTests
             expectedToken.AddNestedToken(new HeaderToken(0, text.Length));
             var actualToken = Tokenizer.GetToken(text);
 
-            actualToken.Should().BeEquivalentTo(expectedToken);
+            actualToken.Should().BeEquivalentTo(expectedToken, p => p.IgnoringCyclicReferences());
         }
 
         [Test]
@@ -119,21 +119,8 @@ namespace MarkDownTests
             var expectedToken = new Token(0, text.Length);
             var actualToken = Tokenizer.GetToken(text);
 
-            actualToken.Should().BeEquivalentTo(expectedToken);
+            actualToken.Should().BeEquivalentTo(expectedToken, p => p.IgnoringCyclicReferences());
         }
-
-        //[Test]
-        //public void GetToken_ItalicInsideBold_ShouldWork()
-        //{
-        //    var text = "Внутри __двойного выделения _одинарное_ тоже__ работает.";
-        //    var expectedToken = new Token(0, text.Length);
-        //    var innerToken = new BoldToken(7, 39);
-        //    innerToken.nestedTokens.Add(new ItalicToken(28, 11));
-        //    expectedToken.nestedTokens.Add(innerToken);
-        //    var actualToken = Tokenizer.GetToken(text);
-
-        //    actualToken.Should().BeEquivalentTo(expectedToken);
-        //}
 
         [Test]
         public void GetToken_InsideTextWithDigits_ShouldWorkCorrectly()
@@ -142,7 +129,7 @@ namespace MarkDownTests
             var expectedToken = new Token(0, text.Length);
             var actualToken = Tokenizer.GetToken(text);
 
-            actualToken.Should().BeEquivalentTo(expectedToken);
+            actualToken.Should().BeEquivalentTo(expectedToken, p => p.IgnoringCyclicReferences());
         }
 
         [Test]
@@ -152,9 +139,9 @@ namespace MarkDownTests
             var expectedToken = new Token(0, text.Length);
             var actualToken = Tokenizer.GetToken(text);
             expectedToken.AddNestedToken(new ItalicToken(0, 7));
-            expectedToken.AddNestedToken(new BoldToken(23, 14));
+            expectedToken.AddNestedToken(new BoldToken(22, 14));
 
-            actualToken.Should().BeEquivalentTo(expectedToken);
+            actualToken.Should().BeEquivalentTo(expectedToken, p => p.IgnoringCyclicReferences());
         }
         
         [Test]
@@ -165,7 +152,7 @@ namespace MarkDownTests
             expectedToken.AddNestedToken(new ItalicToken(0, 5));
             var actualToken = Tokenizer.GetToken(text);
 
-            actualToken.Should().BeEquivalentTo(expectedToken);
+            actualToken.Should().BeEquivalentTo(expectedToken, p => p.IgnoringCyclicReferences());
         }
 
         [Test]
@@ -175,7 +162,7 @@ namespace MarkDownTests
             var expectedToken = new Token(0, text.Length);
             var actualToken = Tokenizer.GetToken(text);
 
-            actualToken.Should().BeEquivalentTo(expectedToken);
+            actualToken.Should().BeEquivalentTo(expectedToken, p => p.IgnoringCyclicReferences());
         }
 
         [Test]
@@ -185,7 +172,7 @@ namespace MarkDownTests
             var expectedToken = new Token(0, text.Length);
             var actualToken = Tokenizer.GetToken(text);
 
-            actualToken.Should().BeEquivalentTo(expectedToken);
+            actualToken.Should().BeEquivalentTo(expectedToken, p => p.IgnoringCyclicReferences());
         }
 
         [Test]
@@ -196,7 +183,7 @@ namespace MarkDownTests
             expectedToken.AddNestedToken(new ItalicToken(4, 24));
             var actualToken = Tokenizer.GetToken(text);       
 
-            actualToken.Should().BeEquivalentTo(expectedToken);
+            actualToken.Should().BeEquivalentTo(expectedToken, p => p.IgnoringCyclicReferences());
         }
 
         [Test]
@@ -206,7 +193,7 @@ namespace MarkDownTests
             var expectedToken = new Token(0, text.Length);
             var actualToken = Tokenizer.GetToken(text);
 
-            actualToken.Should().BeEquivalentTo(expectedToken);
+            actualToken.Should().BeEquivalentTo(expectedToken, p => p.IgnoringCyclicReferences());
         }
         
         [Test]
@@ -216,7 +203,67 @@ namespace MarkDownTests
             var expectedToken = new Token(0, text.Length);
             var actualToken = Tokenizer.GetToken(text);
 
-            actualToken.Should().BeEquivalentTo(expectedToken);
+            actualToken.Should().BeEquivalentTo(expectedToken, p => p.IgnoringCyclicReferences());
+        }
+
+        [Test]
+        public void GetToken_OnBoldInsideItalic_ShouldTokenize()
+        {
+            var text = "_итальянец и __жирный__ текст_";
+            var expectedToken = new Token(0, text.Length);
+            var firstNested = new ItalicToken(0, text.Length);
+            var secondNested = new BoldToken(13, 10);
+            secondNested.fatherToken = firstNested;
+            firstNested.fatherToken = expectedToken;
+            expectedToken.GetNestedTokens().Add(firstNested);
+            firstNested.GetNestedTokens().Add(secondNested);
+
+            var actualToken = Tokenizer.GetToken(text);
+
+            actualToken.Should().BeEquivalentTo(expectedToken, p => p.IgnoringCyclicReferences());
+        }
+
+        [Test]
+        public void GetToken_OnItalicInsideBold_ShouldTokenize()
+        {
+            var text = "__жирный итальянец _и_ курсив__";
+            var expectedToken = new Token(0, text.Length);
+            var firstNested = new BoldToken(0, text.Length);
+            var secondNested = new ItalicToken(19, 3);
+            secondNested.fatherToken = firstNested;
+            firstNested.fatherToken = expectedToken;
+            expectedToken.GetNestedTokens().Add(firstNested);
+            firstNested.GetNestedTokens().Add(secondNested);
+
+            var actualToken = Tokenizer.GetToken(text);
+
+            actualToken.Should().BeEquivalentTo(expectedToken, p => p.IgnoringCyclicReferences());
+        }
+
+        [Test]
+        public void GetToken_OnInvalidSituation_ShouldNotTokenize()
+        {
+            var text = "__Мне кажется это будет сложно_";
+            var expectedToken = new Token(0, text.Length);
+            var actualToken = Tokenizer.GetToken(text);
+
+            actualToken.Should().BeEquivalentTo(expectedToken, p => p.IgnoringCyclicReferences());
+        }
+
+        [Test]
+        public void GetToken_ItalicInsideHeader_ShouldTokenize()
+        {
+            var text = "# Всё _просто_";
+            var innerInnerToken = new ItalicToken(6, 8);
+            var innerToken = new HeaderToken(0, text.Length);
+            var expectedToken = new Token(0, text.Length);
+
+            innerToken.AddNestedToken(innerInnerToken);
+            expectedToken.AddNestedToken(innerToken);
+
+            var actualToken = Tokenizer.GetToken(text);
+
+            actualToken.Should().BeEquivalentTo(expectedToken, p => p.IgnoringCyclicReferences());
         }
     }
 }

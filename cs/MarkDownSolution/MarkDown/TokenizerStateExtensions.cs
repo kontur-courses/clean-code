@@ -22,11 +22,16 @@ namespace MarkDown
         {
             state.statesDict[CaseType.Bold] = true;
             state.statesDict[CaseType.Italic] = false;
+            var oldToken = state.currentToken;
+            oldToken.fatherToken.RemoveNestedToken(oldToken);
+            var newToken = new BoldToken(oldToken.start);
+            oldToken.fatherToken.AddNestedToken(newToken);
+            state.currentToken = newToken;
         }
 
         public static bool IsSecondGroundInRow(this TokenizerState state, int i)
         {
-            return i - state.start == 1;
+            return i - state.currentToken.start == 1;
         }
 
         public static bool IsSomeTokenOpened(this TokenizerState state)
@@ -36,20 +41,35 @@ namespace MarkDown
 
         public static void OpenItalicToken(this TokenizerState state, int i, string text)
         {
-            state.isSplittingWord = CheckIfPreviousIsLetter(text, i);
-            state.start = i;
+            var token = new ItalicToken(i);
+            state.currentToken.AddNestedToken(token);
+            state.currentToken = token;
+            state.isSplittingWord = TextHelper.CheckIfPreviousIsLetter(text, i);
             state.statesDict[CaseType.Italic] = true;
+        }
+
+        public static void OpenBoldToken(this TokenizerState state, int i, string text)
+        {
+            var token = new BoldToken(i);
+            state.currentToken.AddNestedToken(token);
+            state.currentToken = token;
+            state.isSplittingWord = TextHelper.CheckIfPreviousIsLetter(text, i);
+            state.statesDict[CaseType.Bold] = true;
         }
 
         public static void CloseItalicToken(this TokenizerState state, int i)
         {
-            state.currentToken.AddNestedToken(new ItalicToken(state.start, i - state.start));
+            var token = state.currentToken;
+            token.SetLength(1 + i - token.start);
+            state.currentToken = token.fatherToken;
             state.statesDict[CaseType.Italic] = false;
         }
 
         public static void CloseBoldToken(this TokenizerState state, int i)
         {
-            state.currentToken.AddNestedToken(new BoldToken(state.start, i - state.start));
+            var token = state.currentToken;
+            token.SetLength(1 + i - token.start);
+            state.currentToken = token.fatherToken;
             state.statesDict[CaseType.Bold] = false;
         }
 
@@ -59,15 +79,6 @@ namespace MarkDown
             {
                 state.statesDict[pair.Key] = false;
             }
-        }
-
-        private static bool CheckIfPreviousIsLetter(string text, int i)
-        {
-            if (i == 0)
-            {
-                return false;
-            }
-            return char.IsLetter(text[i - 1]);
         }
     }
 }
