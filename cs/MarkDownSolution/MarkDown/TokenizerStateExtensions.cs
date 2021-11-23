@@ -18,17 +18,6 @@ namespace MarkDown
             return state.statesDict[CaseType.Italic];
         }
 
-        public static void CloseItalicAndOpenBold(this TokenizerState state)
-        {
-            state.statesDict[CaseType.Bold] = true;
-            state.statesDict[CaseType.Italic] = false;
-            var oldToken = state.currentToken;
-            oldToken.fatherToken.RemoveNestedToken(oldToken);
-            var newToken = new BoldToken(oldToken.start);
-            oldToken.fatherToken.AddNestedToken(newToken);
-            state.currentToken = newToken;
-        }
-
         public static bool IsSecondGroundInRow(this TokenizerState state, int i)
         {
             return i - state.currentToken.start == 1;

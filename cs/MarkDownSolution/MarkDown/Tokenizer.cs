@@ -71,11 +71,7 @@ namespace MarkDown
 
         private static void HandleOpenedTokenSituation(string text, int i, TokenizerState state)
         {
-            if (state.IsSecondGroundInRow(i))
-            {
-                state.CloseItalicAndOpenBold();
-            }
-            else if (state.ItalicTokenIsOpened())
+            if (state.ItalicTokenIsOpened())
             {
                 if (TextHelper.CanCloseItalicToken(text, i))
                 {
@@ -84,7 +80,7 @@ namespace MarkDown
             }
             else if (state.BoldTokenIsOpened())
             {
-                if (TextHelper.CanCloseBoldToken(text, i))
+                if (TextHelper.CanCloseBoldToken(text, i) && i - state.currentToken.start > 4)
                 {
                     state.CloseBoldToken(i);
                 }
