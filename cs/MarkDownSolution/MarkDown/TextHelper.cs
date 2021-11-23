@@ -9,18 +9,32 @@ namespace MarkDown
     public static class TextHelper
     {
         private static char ground = '_';
+        
+        public static bool CanOpenBoldToken(string text, int i)
+        {
+            return CheckIfIthIsSpecificChar(text, i + 1, '_')
+                && !CheckIfIthIsSpecificChar(text, i + 2, ' ');
+        }
+
+        public static bool CanOpenItalicToken(string text, int i)
+        {
+            return !CheckIfIthIsSpecificChar(text, i + 1, '_')
+                && !CheckIfIthIsSpecificChar(text, i + 1, ' ')
+                && !CheckIfIthIsSpecificChar(text, i - 1, '_');
+        }
+
         public static bool CanCloseItalicToken(string text, int i)
         {
-            return !(CheckIfPreviousIsSpecificChar(text, i, ' ') ||
-                CheckIfPreviousIsSpecificChar(text, i, ground) ||
-                     CheckIfNextsIsSpecificChar(text, i, ground));
+            return !(CheckIfIthIsSpecificChar(text, i - 1, ' ') ||
+                CheckIfIthIsSpecificChar(text, i-1, ground) ||
+                     CheckIfIthIsSpecificChar(text, i + 1, ground));
         }
 
         public static bool CanCloseBoldToken(string text, int i)
         {
-            return !(CheckIfPreviousIsSpecificChar(text, i - 1, ' ')
-                || CheckIfPreviousIsSpecificChar(text, i - 1, ground)
-                || !CheckIfPreviousIsSpecificChar(text, i, ground));
+            return !(CheckIfIthIsSpecificChar(text, i - 2, ' ')
+                || CheckIfIthIsSpecificChar(text, i - 2, ground)
+                || !CheckIfIthIsSpecificChar(text, i - 1, ground));
         }
 
         public static bool IsCaseWhenShouldNotTokenize(string text, TokenizerState state, int i)
@@ -28,31 +42,22 @@ namespace MarkDown
             return char.IsDigit(text[i]) || char.IsWhiteSpace(text[i]) && state.isSplittingWord;
         }
 
-        public static bool CheckIfPreviousIsSpecificChar(string text, int i, char ch)
+        public static bool CheckIfIthIsSpecificChar(string text, int i, char ch)
         {
-            if (i == 0)
+            if (i >= text.Length || i < 0)
             {
                 return false;
             }
-            return text[i - 1] == ch;
+            return text[i] == ch;
         }
 
-        public static bool CheckIfNextsIsSpecificChar(string text, int i, char ch)
+        public static bool CheckIfIthIsLetter(string text, int i)
         {
-            if (i == text.Length - 1)
+            if (i >= text.Length || i < 0)
             {
                 return false;
             }
-            return text[i + 1] == ch;
-        }
-
-        public static bool CheckIfPreviousIsLetter(string text, int i)
-        {
-            if (i == 0)
-            {
-                return false;
-            }
-            return char.IsLetter(text[i - 1]);
+            return char.IsLetter(text[i]);
         }
     }
 }

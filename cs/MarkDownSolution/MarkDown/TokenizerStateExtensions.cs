@@ -33,7 +33,7 @@ namespace MarkDown
             var token = new ItalicToken(i);
             state.currentToken.AddNestedToken(token);
             state.currentToken = token;
-            state.isSplittingWord = TextHelper.CheckIfPreviousIsLetter(text, i);
+            state.isSplittingWord = TextHelper.CheckIfIthIsLetter(text, i - 1);
             state.statesDict[CaseType.Italic] = true;
         }
 
@@ -42,7 +42,7 @@ namespace MarkDown
             var token = new BoldToken(i);
             state.currentToken.AddNestedToken(token);
             state.currentToken = token;
-            state.isSplittingWord = TextHelper.CheckIfPreviousIsLetter(text, i);
+            state.isSplittingWord = TextHelper.CheckIfIthIsLetter(text, i - 1);
             state.statesDict[CaseType.Bold] = true;
         }
 

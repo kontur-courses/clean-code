@@ -43,27 +43,21 @@ namespace MarkDown
 
         private static void HandleGroundSituation(string text, TokenizerState state, int i)
         {
-            if (state.IsSomeTokenOpened())
-            {
-                HandleOpenedTokenSituation(text, i, state);
-            }
-            else
-            {
-                HandleClosedTokensSituation(text, state, i);
-            }
+            HandleOpenedTokenSituation(text, i, state);
+            HandleClosedTokensSituation(text, state, i);
         }
 
         private static void HandleClosedTokensSituation(string text, TokenizerState state, int i)
         {
-            if (TextHelper.CheckIfPreviousIsSpecificChar(text, i, escape) || state.isEscaping)
+            if (TextHelper.CheckIfIthIsSpecificChar(text, i - 1, escape) || state.isEscaping)
             {
                 state.isEscaping = true;
             }
-            else if (!TextHelper.CheckIfNextsIsSpecificChar(text, i, ground))
+            else if (TextHelper.CanOpenItalicToken(text, i) && !state.ItalicTokenIsOpened())
             {
                 state.OpenItalicToken(i, text);
             }
-            else
+            else if (TextHelper.CanOpenBoldToken(text, i) && !state.BoldTokenIsOpened())
             {
                 state.OpenBoldToken(i, text);
             }
@@ -73,14 +67,15 @@ namespace MarkDown
         {
             if (state.ItalicTokenIsOpened())
             {
-                if (TextHelper.CanCloseItalicToken(text, i))
+                if (TextHelper.CanCloseItalicToken(text, i) && i - state.currentToken.start >= 2)
                 {
                     state.CloseItalicToken(i);
+                    return;
                 }
             }
-            else if (state.BoldTokenIsOpened())
+            if (state.BoldTokenIsOpened())
             {
-                if (TextHelper.CanCloseBoldToken(text, i) && i - state.currentToken.start > 4)
+                if (TextHelper.CanCloseBoldToken(text, i) && i - state.currentToken.start >= 4)
                 {
                     state.CloseBoldToken(i);
                 }
