@@ -5,15 +5,17 @@ namespace Markdown
 {
     internal class TagRules
     {
-        private readonly Dictionary<Tag, HashSet<Tag>> containRules = new();
+        private readonly Dictionary<Tag, HashSet<Tag>> nestingRules = new();
         private readonly Dictionary<Tag, HashSet<Tag>> intersectingRules = new();
+        private readonly Dictionary<Tag, HashSet<Tag>> containRules = new();
 
         public void SetRule(Tag firstTag, Tag secondTag, InteractType interactType)
         {
             var ruleListToUpdate = interactType switch
             {
                 InteractType.Intersecting => intersectingRules,
-                InteractType.Nesting => containRules,
+                InteractType.Nesting => nestingRules,
+                InteractType.Contain => containRules,
                 _ => throw new ArgumentException($"unexpected interaction type {interactType}")
             };
 
@@ -39,7 +41,12 @@ namespace Markdown
         
         public bool CanBeNested(Tag outsideTag, Tag insideTag)
         {
-            return containRules.ContainsKey(outsideTag) && containRules[outsideTag].Contains(insideTag);
+            return nestingRules.ContainsKey(outsideTag) && nestingRules[outsideTag].Contains(insideTag);
+        }
+        
+        public bool CanContain(Tag outsideTag, Tag insideTag)
+        {
+            return !nestingRules.ContainsKey(outsideTag) || !nestingRules[outsideTag].Contains(insideTag);
         }
         
         public bool DoesMatchIntersectingRule(TokenSegment first, TokenSegment second)
@@ -50,6 +57,11 @@ namespace Markdown
         public bool DoesMatchNestingRule(TokenSegment outside, TokenSegment inside)
         {
             return CanBeNested(outside.GetBaseTag(), inside.GetBaseTag()) || !outside.Contain(inside);
+        }
+        
+        public bool DoesMatchContainRule(TokenSegment outside, TokenSegment inside)
+        {
+            return CanContain(outside.GetBaseTag(), inside.GetBaseTag()) || !outside.Contain(inside);
         }
     }
 }

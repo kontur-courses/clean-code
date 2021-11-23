@@ -24,5 +24,11 @@
             config.TagRules.SetRule(tag, config.LastAddedToken, InteractType.Nesting);
             return new TokenRulesConfiguratorEnd(config);
         }
+
+        public TokenRulesConfiguratorEnd CantContain(Tag tag)
+        {
+            config.TagRules.SetRule(config.LastAddedToken, tag, InteractType.Contain);
+            return new TokenRulesConfiguratorEnd(config);
+        }
     }
 }

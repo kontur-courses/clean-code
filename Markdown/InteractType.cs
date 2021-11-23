@@ -3,6 +3,7 @@
     internal enum InteractType
     {
         Nesting,
-        Intersecting
+        Intersecting,
+        Contain
     }
 }
