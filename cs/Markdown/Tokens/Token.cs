@@ -30,7 +30,6 @@ namespace Markdown
                     }
                 }
             return sortedTokens
-
                 .Except(childs)
                 .OrderBy(t => t.Begin)
                 .ToList();

@@ -56,6 +56,7 @@
     <Compile Include="Tags\ComplexTag.cs" />
     <Compile Include="Tags\EmTag.cs" />
     <Compile Include="Tags\HeadingTag.cs" />
+    <Compile Include="Tags\SelectingTag.cs" />
     <Compile Include="Tags\StrongTag.cs" />
     <Compile Include="Tags\Tag.cs" />
     <Compile Include="Tokens\EscapeToken.cs" />

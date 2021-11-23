@@ -1,5 +1,6 @@
 ﻿using System.Linq;
 using System.Text;
+using Markdown.Tags;
 
 namespace Markdown
 {
@@ -32,10 +33,10 @@ namespace Markdown
                 if (last.End != content.Length)
                     renderedContent.Append(content.Substring(last.End + last.Tag.CloseMdTag.Length, content.Length - last.End - last.Tag.CloseMdTag.Length));
 
-                return Tag.OpenHTMLTag + renderedContent + Tag.CloseHTMLTag;
+                return Tag.OpenHtmlTag + renderedContent + Tag.CloseHtmlTag;
             }
             else
-                return Tag.OpenHTMLTag + content + Tag.CloseHTMLTag;
+                return Tag.OpenHtmlTag + content + Tag.CloseHtmlTag;
         }
 
         private void СompensateLosesParentParts()

@@ -11,10 +11,10 @@ namespace Markdown.Extensions
         public static int LastIndex(this string str) => str.Length - 1;
 
         public static bool ContainsWhiteSpace(this string str) =>
-            str.ToCharArray().Any(ch => char.IsWhiteSpace(ch));
+            str.Any(char.IsWhiteSpace);
 
         public static bool ContainsDigit(this string str) =>
-            str.ToCharArray().Any(ch => char.IsDigit(ch));
+            str.Any(char.IsDigit);
 
         public static bool IsNullOrWhiteSpace(this string str) => string.IsNullOrWhiteSpace(str);
 

@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using Markdown.Tags;
 
 namespace Markdown
 {
@@ -32,7 +33,7 @@ namespace Markdown
 
                 if (mdText.TrySubstring(position, 2, out string substring) && EscapeSequence.Any(s => s.StartsWith(substring)))
                 {
-                    var sequence = EscapeSequence.Where(s => s.StartsWith(substring)).First();
+                    var sequence = EscapeSequence.First(s => s.StartsWith(substring));
                     tokens.Add(new EscapeToken(position, position + sequence.Length));
                     nextTokenStart = position + sequence.Length;
                 }
@@ -91,12 +92,11 @@ namespace Markdown
             var content = mdText.Substring(open.index + open.tag.OpenMdTag.Length, 
                 close.index - (open.index + open.tag.OpenMdTag.Length));
 
-            if (content.IsNullOrWhiteSpace()
-                || content.Contains("\n")
-                || content.ContainsDigit()
-                || !behindOpenSymbol.IsNullOrWhiteSpace() && content.ContainsWhiteSpace())
-                return false;
-            return true;
+            return !content.IsNullOrWhiteSpace() 
+                   && !content.Contains("\n") 
+                   && !content.ContainsDigit() 
+                   && (behindOpenSymbol.IsNullOrWhiteSpace() 
+                       || !content.ContainsWhiteSpace());
         }
 
         private bool IsPartialTag(string mdText, string mdTag, int position)
