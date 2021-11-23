@@ -18,7 +18,7 @@ namespace Markdown
             start = openWord;
 
             Start = new Token(start);
-            End = new Token(closeWord);
+            if (closeWord is not null) End = new Token(closeWord);
         }
 
         public static Tag GetOrAddSingleTag(string tag)
