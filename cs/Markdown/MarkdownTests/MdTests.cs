@@ -1,183 +1,123 @@
-﻿using Markdown;
+﻿using FluentAssertions;
+using Markdown;
 using NUnit.Framework;
-using FluentAssertions;
 
 namespace MarkdownTests
 {
     [TestFixture]
-    public class MdSimpleTests
+    public class SimpleTests
     {
+        [TestCase(
+            "Текст, _окруженный с двух сторон_ одинарными символами подчерка.",
+            "Текст, <em>окруженный с двух сторон</em> одинарными символами подчерка.",
+            TestName = "Correctly Single Underlining")]
 
-        [Test]
-        public void SimpleSingleUnderlyingShouldWorkCorrectly()
+        [TestCase(
+            "__Выделенный двумя символами текст__ должен становиться полужирным.",
+            "<strong>Выделенный двумя символами текст</strong> должен становиться полужирным.",
+            TestName = "Correctly Double Underlining")]
+        public void UnderliningShouldHandled(string input, string expectedResult)
         {
-            var input = "Текст, _окруженный с двух сторон_ одинарными символами подчерка.";
-            var expectedResult = "Текст, <em>окруженный с двух сторон</em> одинарными символами подчерка.";
-            var markdown = new Md();
-            markdown.Render(input).Should().Be(expectedResult);
-            markdown.Render(input).Length.Should().Be(expectedResult.Length);
-        }
-
-        [Test]
-        public void SimpleDoubleUnderlyingShouldWorkCorrectly()
-        {
-            var input = "__Выделенный двумя символами текст__ должен становиться полужирным.";
-            var expectedResult = "<strong>Выделенный двумя символами текст</strong> должен становиться полужирным.";
-            var markdown = new Md();
-            markdown.Render(input).Should().Be(expectedResult);
-            markdown.Render(input).Length.Should().Be(expectedResult.Length);
+            TestAssertions.AssertTest(input, expectedResult);
         }
     }
 
     [TestFixture]
-    public class MdShieldingTests
+    public class ShieldingTests
     {
-        [Test]
-        public void ShouldShieldeShieldSign()
-        {
-            var input = @"alp\\ha beta";
-            var expectedResult = @"alp\ha beta";
-            var markdown = new Md();
-            markdown.Render(input).Should().Be(expectedResult, expectedResult);
-            markdown.Render(input).Length.Should().Be(expectedResult.Length);
-        }
+        [TestCase(
+            @"alp\\ha beta", @"alp\ha beta",
+            TestName = "Should Shields Shield Sign")]
 
-        [Test]
-        public void ShouldShieldingUnderlying()
+        [TestCase(
+            @"_alpha\_ beta", @"_alpha_ beta",
+            TestName = "Should Shields Underlining")]
+        public void ShieldingShouldHandled(string input, string expectedResult)
         {
-            var input = @"_alpha\_ beta";
-            var expectedResult = @"_alpha_ beta";
-            var markdown = new Md();
-            markdown.Render(input).Should().Be(expectedResult);
-            markdown.Render(input).Length.Should().Be(expectedResult.Length);
+            TestAssertions.AssertTest(input, expectedResult);
         }
     }
 
     [TestFixture]
-    public class MdHeaderTests
+    public class HeaderTests
     {
-        [Test]
-        public void HeaderTest()
-        {
-            var input = @"# Simple Header.";
-            var expectedResult = @"<h1>Simple Header.</h1>";
-            var markdown = new Md();
-            markdown.Render(input).Should().Be(expectedResult);
-            markdown.Render(input).Length.Should().Be(expectedResult.Length);
-        }
+        [TestCase(
+            @"# Simple Header.", @"<h1>Simple Header.</h1>",
+            TestName = "Simple Header Test")]
 
-        [Test]
-        public void HeaderAndUndelinesTest()
+        [TestCase(
+            @"# Заголовок __с _разными_ символами__", 
+            @"<h1>Заголовок <strong>с <em>разными</em> символами</strong></h1>",
+            TestName = "Header And Underlines Test")]
+        public void HeadersShouldHandled(string input, string expectedResult)
         {
-            var input = @"# Заголовок __с _разными_ символами__";
-            var expectedResult = @"<h1>Заголовок <strong>с <em>разными</em> символами</strong></h1>";
-            var markdown = new Md();
-            markdown.Render(input).Should().Be(expectedResult);
-            markdown.Render(input).Length.Should().Be(expectedResult.Length);
+            TestAssertions.AssertTest(input, expectedResult);
         }
     }
 
     [TestFixture]
-    public class MdTagCombinationsTests
+    public class TagCombinationsTests
     {
-        [Test]
-        public void DoubleUnderlyingInsideSingleUnderlying()
+        [TestCase(
+            @"Внутри __двойного выделения _одинарное_ тоже__ работает.",
+            @"Внутри <strong>двойного выделения <em>одинарное</em> тоже</strong> работает.",
+            TestName = "Single Underlining Inside Double Underlining Test")]
+
+        [TestCase(
+            @"Но не наоборот — внутри _одинарного __двойное__ не_ работает.",
+            @"Но не наоборот — внутри <em>одинарного __двойное__ не</em> работает.",
+            TestName = "Double Underlining Inside Single Underlining Test")]
+
+        [TestCase(
+            @"_12_4_85_9",
+            @"_12_4_85_9",
+            TestName = "Underlining Between Digits Test")]
+
+        [TestCase(
+            "На улице бы_ла ясная__ погода. Мы решили прогуляться.",
+            "На улице бы_ла ясная__ погода. Мы решили прогуляться.",
+            TestName = "Unpaired Symbols In Paragraph Test")]
+
+        [TestCase(
+            "Эти_ подчерки_ не считаются выделением.",
+            "Эти_ подчерки_ не считаются выделением.",
+            TestName = "Should Be Not Space After Starting Underline Test")]
+
+        [TestCase(
+            "Эти _подчерки _не считаются выделением.",
+            "Эти _подчерки _не считаются выделением.",
+            TestName = "Should Be Not Space Before Ending Underline Test")]
+
+        [TestCase("_нач_ало", "<em>нач</em>ало",
+            TestName = "Underlining Beginning Of Word Test")]
+        [TestCase("сер_ед_ина", "сер<em>ед</em>ина",
+            TestName = "Underlining Middle Of Word Test")]
+        [TestCase("кон_ец_", "кон<em>ец</em>",
+            TestName = "Underlining Ending Of Word Test")]
+        [TestCase("al__pha be__ta", "al__pha be__ta",
+            TestName = "Double Underlining Inside Different Words Test")]
+        [TestCase("al_pha be_ta", "al_pha be_ta",
+            TestName = "Single Underlining Inside Different Words Test")]
+        [TestCase("На __улице_ бы__ла ясная_ погода", "На __улице_ бы__ла ясная_ погода",
+            TestName = "Intersection Between Double And Single Test")]
+        [TestCase("На _улице__ бы_ла ясная__ погода", "На _улице__ бы_ла ясная__ погода",
+            TestName = "Intersection Between Single And Double Test")]
+        [TestCase("____", "____",
+            TestName = "Empty Token Between Double Underlining Test")]
+        [TestCase("__", "__",
+            TestName = "Empty Token Between Single Underlining Test")]
+        public void TagCombinationsShouldHandled(string input, string expectedResult)
         {
-            var input = @"Внутри __двойного выделения _одинарное_ тоже__ работает.";
-            var expectedResult = @"Внутри <strong>двойного выделения <em>одинарное</em> тоже</strong> работает.";
-            var markdown = new Md();
-            markdown.Render(input).Should().Be(expectedResult);
-            markdown.Render(input).Length.Should().Be(expectedResult.Length);
+            TestAssertions.AssertTest(input, expectedResult);
         }
+    }
 
-        [Test]
-        public void SingleUnderlyingInsideDoubleUnderlying()
-        {
-            var input = @"Но не наоборот — внутри _одинарного __двойное__ не_ работает.";
-            var expectedResult = @"Но не наоборот — внутри <em>одинарного __двойное__ не</em> работает.";
-            var markdown = new Md();
-            markdown.Render(input).Should().Be(expectedResult);
-            markdown.Render(input).Length.Should().Be(expectedResult.Length);
-        }
-
-        [Test]
-        public void UnderlyingBetweenDigitsShouldProcessedCorrectly()
-        {
-
-            var input = @"_12_4_85_9";
-            var expectedResult = @"_12_4_85_9";
-            var markdown = new Md();
-            markdown.Render(input).Should().Be(expectedResult);
-            markdown.Render(input).Length.Should().Be(expectedResult.Length);
-        }
-
-        [TestCase("_нач_ало", "<em>нач</em>ало")]
-        [TestCase("сер_ед_ина", "сер<em>ед</em>ина")]
-        [TestCase("кон_ец_", "кон<em>ец</em>")]
-        public void ShouldWorkCorrectInDifferentParts(string input, string expected)
-        {
-            var markdown = new Md();
-            markdown.Render(input).Should().Be(expected, expected);
-            //markdown.Render(input).Length.Should().Be(expected.Length);
-        }
-
-        [TestCase("unpa__ired sym__bols", "unpa__ired sym__bols")]
-        [TestCase("al_pha be_ta", "al_pha be_ta")]
-        public void UnderlineInsideDifferentWords(string input, string expected)
+    public class TestAssertions
+    {
+        public static void AssertTest(string input, string expected)
         {
             var markdown = new Md();
             markdown.Render(input).Should().Be(expected);
-            markdown.Render(input).Length.Should().Be(expected.Length);
-        }
-
-        [Test]
-        public void UnpairedSymbols()
-        {
-            var input = "На улице бы_ла ясная__ погода";
-            var expected = "На улице бы_ла ясная__ погода";
-            var markdown = new Md();
-            markdown.Render(input).Should().Be(expected);
-            markdown.Render(input).Length.Should().Be(expected.Length);
-        }
-
-        [TestCase("На __улице_ бы__ла ясная_ погода")]
-        [TestCase("На _улице__ бы_ла ясная__ погода")]
-        public void IntersectingUnderlinesShouldProcessedCorrectly(string input)
-        {
-            var markdown = new Md();
-            markdown.Render(input).Should().Be(input);
-            markdown.Render(input).Length.Should().Be(input.Length);
-        }
-
-        [TestCase("____", "____")]
-        [TestCase("__", "__")]
-        public void ShouldAnalyzeEmptyStringsInsideTags(string input, string expected)
-        {
-            var markdown = new Md();
-            markdown.Render(input).Should().Be(expected);
-            markdown.Render(input).Length.Should().Be(expected.Length);
-        }
-
-        [Test]
-        public void ShouldBeNotSpaceAfterStartingUnderline()
-        {
-            var input = "Эти_ подчерки_ не считаются выделением.";
-            var expected = "Эти_ подчерки_ не считаются выделением.";
-            var markdown = new Md();
-            markdown.Render(input).Should().Be(expected);
-            markdown.Render(input).Length.Should().Be(expected.Length);
-        }
-
-        [Test]
-        public void ShouldBeNotSpaceBeforeEndingUnderline()
-        {
-            //в примере после "считаются" стояло подчеркивание, мне кажется это опечатка, иначе противоречит описанию требования
-
-            var input = "Эти _подчерки _не считаются выделением.";
-            var expected = "Эти _подчерки _не считаются выделением.";
-            var markdown = new Md();
-            markdown.Render(input).Should().Be(expected);
-            markdown.Render(input).Length.Should().Be(expected.Length);
         }
     }
 }

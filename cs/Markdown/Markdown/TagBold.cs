@@ -23,7 +23,7 @@ namespace Markdown
 
         public bool IsNotToPairToken { get; set; }
 
-        public void GenerateProperties(LinkedListNode<IToken> currentToken)
+        public void FindPairToken(LinkedListNode<IToken> currentToken)
         {
             var spaceCnt = 0;
             var onlyEmptyStrings = true;
@@ -35,7 +35,9 @@ namespace Markdown
                 if (currentToken.Value.IsNotToPairToken)
                     break;
 
-                if (currentToken.Value is TagItalic currentAsItalic && !currentAsItalic.IsClosed && !currentToken.Value.IsNotToPairToken)
+                if (currentToken.Value is TagItalic currentAsItalic 
+                    && !currentAsItalic.IsClosed 
+                    && !currentToken.Value.IsNotToPairToken)
                 {
                     IsNotToPairToken = true;
                     break;
@@ -44,7 +46,8 @@ namespace Markdown
                 if (currentToken.Value is TagBold && !currentToken.Value.IsNotToPairToken)
                 {
                     if (currentToken.Value is ITag starter)
-                        if ((!starter.IsAtTheBeginning && spaceCnt == 0 || starter.IsAtTheBeginning) && !onlyEmptyStrings)
+                        if ((!starter.IsAtTheBeginning && spaceCnt == 0
+                             || starter.IsAtTheBeginning) && !onlyEmptyStrings)
                             HtmlTokenAnalyzer.MakePair(starter, this);
                 }
 

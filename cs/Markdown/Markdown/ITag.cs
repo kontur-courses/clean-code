@@ -16,6 +16,6 @@ namespace Markdown
         new bool IsNotToPairToken
         { get; set; }
 
-        void GenerateProperties(LinkedListNode<IToken> currentToken);
+        void FindPairToken(LinkedListNode<IToken> currentToken);
     }
 }

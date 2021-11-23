@@ -3,8 +3,8 @@
     public interface IToken
     {
         string Content
-        { get;}
+        { get; }
         bool IsNotToPairToken //лучше идей для названия не пришло :(
-        { get;}
+        { get; }
     }
 }

@@ -8,7 +8,7 @@ namespace Markdown
     {
         private readonly LinkedList<IToken> _tokens = new LinkedList<IToken>();
 
-        private readonly HashSet<char> _specialSymbols = new HashSet<char> {'_'};
+        private readonly HashSet<char> _specialSymbols = new HashSet<char> { '_' };
 
         public string AnalyzeLine(string line)
         {
@@ -20,7 +20,8 @@ namespace Markdown
                 switch (currentSymbol)
                 {
                     case '\\':
-                        if (_specialSymbols.Contains(line[i + 1]) || line[i + 1] == '\\')
+                        if (_specialSymbols.Contains(line[i + 1]) ||
+                            line[i + 1] == '\\')
                         {
                             currentBuilder.Append(line[i + 1]);
                             i++;
@@ -40,7 +41,8 @@ namespace Markdown
                         }
                         else
                         {
-                            if (i < line.Length - 1 && char.IsDigit(line[i + 1]) || i > 0 && char.IsDigit(line[i - 1]))
+                            if (i < line.Length - 1 && char.IsDigit(line[i + 1]) ||
+                                i > 0 && char.IsDigit(line[i - 1]))
                             {
                                 currentBuilder.Append(currentSymbol);
                                 break;
@@ -74,11 +76,12 @@ namespace Markdown
 
         private void AddToken(ITag token)
         {
-            if (_tokens.Count > 1 && _tokens.Last.Value is TagSpace || _tokens.Count == 0)
+            if (_tokens.Count > 1 && _tokens.Last.Value is TagSpace ||
+                _tokens.Count == 0)
                 token.IsAtTheBeginning = true;
             _tokens.AddLast(token);
             var currentToken = _tokens.Last.Previous;
-            token.GenerateProperties(currentToken);
+            token.FindPairToken(currentToken);
         }
 
         private void AddWordToken(StringBuilder word)
