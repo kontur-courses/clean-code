@@ -61,9 +61,12 @@ namespace Markdown
                     : tokenBuilder.Build());
                 tokenBuilder.Clear();
             }
-
-            tokens.RemoveAll(token => token.Length == 0 && token.Type != TokenType.Heading);
-            return tokens.OrderBy(token => token.Position);
+            var unpairedTokens = new HashSet<Token>();
+            var pairedTokens = PairedToken.GetPairedTokens(tokens, unpairedTokens);
+            var forbiddenTokens = tokens.GetForbiddenTokens(pairedTokens, unpairedTokens);
+            var resultTokens = SetSkipForTokens(tokens, forbiddenTokens).ToList();
+            resultTokens.RemoveAll(token => token.Length == 0 && token.Type != TokenType.Heading);
+            return resultTokens.OrderBy(token => token.Position);
         }
 
         private void CloseHeadingToken(List<Token> tokens, TokenBuilder tokenBuilder, string paragraph)
@@ -155,6 +158,20 @@ namespace Markdown
         private int PreviousParagraphLengthSum(string[] paragraphs, int currentParagraph)
         {
             return paragraphs.Take(currentParagraph).Sum(p => p.Length);
+        }
+
+        private IEnumerable<Token> SetSkipForTokens(IEnumerable<Token> tokens, HashSet<Token> tokensForSkip)
+        {
+            var tokenBuilder = new TokenBuilder();
+            foreach (var token in tokens)
+            {
+                if (tokensForSkip.Contains(token))
+                    yield return tokenBuilder.SetSettingsByToken(token)
+                        .SetSkip(true)
+                        .Build();
+                else
+                    yield return token;
+            }
         }
     }
 }

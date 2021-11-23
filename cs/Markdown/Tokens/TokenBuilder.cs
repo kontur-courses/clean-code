@@ -6,6 +6,7 @@ namespace Markdown.Tokens
     {
         private int position;
         private bool isOpening;
+        private bool shouldBeSkipped;
         public TokenType Type { get; private set; }
         private readonly StringBuilder valueBuilder = new StringBuilder();
 
@@ -39,15 +40,34 @@ namespace Markdown.Tokens
             return this;
         }
 
+        public TokenBuilder SetSkip(bool shouldBeSkipped)
+        {
+            this.shouldBeSkipped = shouldBeSkipped;
+            return this;
+        }
+
+        public TokenBuilder SetSettingsByToken(Token token)
+        {
+            position = token.Position;
+            isOpening = token.IsOpening;
+            shouldBeSkipped = token.ShouldBeSkipped;
+            Type = token.Type;
+            valueBuilder.Clear();
+            valueBuilder.Append(token.Value);
+            return this;
+        }
+
         public Token Build()
         {
-            return new Token(valueBuilder.ToString(), Type, position, isOpening);
+            return new Token(valueBuilder.ToString(), Type, position, isOpening, shouldBeSkipped);
         }
 
         public TokenBuilder Clear()
         {
             position = 0;
             Type = default;
+            isOpening = false;
+            shouldBeSkipped = false;
             valueBuilder.Clear();
             return this;
         }
