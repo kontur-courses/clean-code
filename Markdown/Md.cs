@@ -1,8 +1,6 @@
-﻿using System.Linq;
-using System.Text;
-using FluentAssertions;
+﻿using System.Collections.Generic;
+using System.Linq;
 using Markdown.Extensions;
-using NUnit.Framework;
 
 namespace Markdown
 {
@@ -13,12 +11,14 @@ namespace Markdown
 
         public Md()
         {
-            var underscoreTag = Tag.RegisterSymmetricTag("_");
-            var emTag = Tag.RegisterPairTag("<em>", "</em>");
-            var doubleUnderscoreTag = Tag.RegisterSymmetricTag("__");
-            var strongTag = Tag.RegisterPairTag("<strong>", "</strong>");
-            var sharpTag = Tag.RegisterSingleTag("#");
-            var h1Tag = Tag.RegisterPairTag("<h1>", "</h1>");
+            var underscoreTag = Tag.GetOrAddSymmetricTag("_");
+            var emTag = Tag.GetOrAddPairTag("<em>", "</em>");
+            var doubleUnderscoreTag = Tag.GetOrAddSymmetricTag("__");
+            var strongTag = Tag.GetOrAddPairTag("<strong>", "</strong>");
+            var sharpTag = Tag.GetOrAddSingleTag("# ");
+            var h1Tag = Tag.GetOrAddPairTag("<h1>", "</h1>");
+            var shieldTag = Tag.GetOrAddSingleTag("\\");
+            var emptyTag = Tag.GetOrAddSingleTag("");
             
             translator = TagTranslatorConfigurator
                 .CreateTokenTranslator()
@@ -28,24 +28,31 @@ namespace Markdown
                     .From(doubleUnderscoreTag).To(strongTag)
                 .SetReference()
                     .From(sharpTag).To(h1Tag)
+                .SetReference()
+                    .From(shieldTag).To(emptyTag)
                 .Configure();
+
+            var forbiddenInnerTextSymbols = "1234567890 ".ToCharArray();
 
             parser = TokenParserConfigurator
                 .CreateTokenParser()
-                .SetShieldingSymbol('\\')
+                .SetShieldingSymbol(shieldTag)
                 .AddToken(underscoreTag).That
                     .CanBeNestedIn(doubleUnderscoreTag).And
-                    .CanBeNestedIn(sharpTag)
+                    .CanBeNestedIn(sharpTag).And
+                    .CantContain(forbiddenInnerTextSymbols)
                 .AddToken(doubleUnderscoreTag).That
-                    .CanBeNestedIn(sharpTag)
-                .AddToken(sharpTag)
+                    .CanBeNestedIn(sharpTag).And
+                    .CantContain(forbiddenInnerTextSymbols)
+                .AddToken(sharpTag).That
+                    .CanBeInFrontOnly()
                 .Configure();
         }
 
         public string Render(string input)
         {
             var paragraphs = input.Split('\n');
-            var parsedText = new StringBuilder();
+            var parsedText = new List<string>();
             
             foreach (var paragraph in paragraphs)
             {
@@ -57,23 +64,10 @@ namespace Markdown
                     .ToList()
                     .ForEachPairs(parser.IgnoreSegmentsThatDoNotMatchRules);
 
-                parsedText.Append(parser.ReplaceTokens(paragraph, SegmentsCollection.Union(tokenSegments), translator));
+                parsedText.Add(parser.ReplaceTokens(paragraph, SegmentsCollection.Union(tokenSegments), translator));
             }
     
-            return parsedText.ToString();
-        }
-    }
-
-    [TestFixture]
-    public class MdRenderShould
-    {
-        [TestCase("Hello _World_!! __Th_is__ i_s __a__ __markdown _test_ sentence__", 
-            "Hello <em>World</em>!! __Th_is__ i_s <strong>a</strong> <strong>markdown <em>test</em> sentence</strong>")]
-        public void RenderTest(string text, string expectedResult)
-        {
-            var actual = new Md().Render(text);
-
-            actual.Should().Be(expectedResult);
+            return string.Join('\n', parsedText);
         }
     }
 }
