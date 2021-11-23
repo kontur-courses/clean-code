@@ -1,10 +1,10 @@
-﻿using Markdown.Markings;
+﻿using System.Collections.Generic;
 using Markdown.Tokens;
 
 namespace Markdown.Parsers
 {
-    public interface IParser<out TMarking> where TMarking : IMarkingTree<IToken>
+    public interface IMarkdownParser
     {
-        public TMarking Parse(string markdown);
+        public IEnumerable<string> Parse(string markdown);
     }
 }

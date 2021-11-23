@@ -5,9 +5,9 @@ namespace Markdown.Factories.Markdown
 {
     public class MarkdownTokenFactory : ITokenFactory<MarkdownToken>
     {
-        public MarkdownToken NewToken(TokenType type, string value, IEnumerable<MarkdownToken> childTokens)
+        public MarkdownToken NewToken(TokenType type, string value)
         {
-            return new MarkdownToken(type, value, childTokens);
+            return new MarkdownToken(type, value);
         }
     }
 }

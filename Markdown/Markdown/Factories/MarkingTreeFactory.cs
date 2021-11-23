@@ -1,15 +1,15 @@
-﻿using System.Collections.Generic;
-using Markdown.Markings;
-using Markdown.Tokens;
+﻿using Markdown.Tokens;
+using Markdown.Trees;
+using Markdown.Trees.Nodes;
 
 namespace Markdown.Factories
 {
     public class MarkingTreeFactory<T> : IMarkingTreeFactory<T>
         where T : IToken
     {
-        public IMarkingTree<T> NewMarking(T rootToken)
+        public IMarkingTree<T> NewMarkingTree(ITreeNode<T> root)
         {
-            return new MarkingTree<T>(rootToken);
+            return new MarkingTree<T>(root);
         }
     }
 }

@@ -6,13 +6,11 @@ namespace Markdown.Tokens
     {
         public TokenType Type { get; }
         public string Value { get; }
-        public IEnumerable<IToken> ChildTokens { get; }
 
-        public MarkdownToken(TokenType type, string value, IEnumerable<MarkdownToken> childTokens)
+        public MarkdownToken(TokenType type, string value)
         {
             Type = type;
             Value = value;
-            ChildTokens = childTokens;
         }
     }
 }

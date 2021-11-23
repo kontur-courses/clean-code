@@ -6,6 +6,6 @@ namespace Markdown.Factories
     public interface ITokenFactory<T>
         where T : IToken
     {
-        public T NewToken(TokenType type, string value, IEnumerable<T> childTokens);
+        public T NewToken(TokenType type, string value);
     }
 }

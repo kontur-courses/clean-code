@@ -1,22 +1,22 @@
 ﻿using System;
 using Markdown.Converters;
-using Markdown.Markings;
 using Markdown.Parsers;
 using Markdown.Tokens;
+using Markdown.Trees;
 
 namespace Markdown
 {
     public class MarkdownRenderer : IMarkdownRenderer
     {
         private readonly IConverter<IMarkingTree<MarkdownToken>, IMarkingTree<HtmlToken>> converter;
-        private readonly IParser<IMarkingTree<MarkdownToken>> parser;
+        private readonly IMarkdownParser markdownParser;
 
         public MarkdownRenderer(
             IConverter<IMarkingTree<MarkdownToken>, IMarkingTree<HtmlToken>> converter,
-            IParser<IMarkingTree<MarkdownToken>> parser)
+            IMarkdownParser markdownParser)
         {
             this.converter = converter;
-            this.parser = parser;
+            this.markdownParser = markdownParser;
         }
 
         public string Render(string markdown)
