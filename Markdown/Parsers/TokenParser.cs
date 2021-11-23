@@ -22,11 +22,13 @@ namespace Markdown
             var secondSorted = second.GetSortedSegments().ToList();
             
             var firstSegments = firstSorted
+                .Where(x => !x.InTextSegment || secondSorted.All(y => rules.DoesMatchContainRule(x, y)))
                 .Where(x => secondSorted.All(y => rules.DoesMatchIntersectingRule(x, y)))
                 .ToList();
             
             var secondSegment = secondSorted
-                .Where(x => firstSegments.All(y => rules.DoesMatchIntersectingRule(x, y)))
+                .Where(x => !x.InTextSegment || firstSorted.All(y => rules.DoesMatchContainRule(x, y)))
+                .Where(x => firstSorted.All(y => rules.DoesMatchIntersectingRule(x, y)))
                 .ToList();
 
             return (
@@ -41,7 +43,7 @@ namespace Markdown
             var sortedSegments = tokenSegments.GetSortedSegments().Where(x => !x.IsEmpty()).ToList();
             var sortedTokens = sortedSegments
                 .Select(x => new TokenInfo(x.StartPosition, x.GetBaseTag().Start, false, true, false, false))
-                .Union(sortedSegments.Select(x => new TokenInfo(x.EndPosition, x.GetBaseTag().End, true, false, false, false)))
+                .Union(sortedSegments.Where(x => x.GetBaseTag().End is not null).Select(x => new TokenInfo(x.EndPosition, x.GetBaseTag().End, true, false, false, false)))
                 .OrderBy(x => x.Position);
 
             var lastTokenEndIndex = 0;
@@ -64,8 +66,6 @@ namespace Markdown
         public TokenInfoCollection FindAllTokens(string paragraph)
         {
             var tokenInfos = new Dictionary<int, TokenInfo>();
-            var lastOpenedTokens = new Stack<Token>();
-            var lastClosedToken = -1;
             var currentSearchStartIndex = 0;
             var lastIndex = 0;
 
@@ -84,21 +84,8 @@ namespace Markdown
                     closeValid || openValid
                 );
                 
-                if (tokenInfos.ContainsKey(index) && lastClosedToken == index) continue;
-                if (tokenInfos.ContainsKey(index) && lastOpenedTokens.Any())
-                    lastOpenedTokens.Pop();
                 tokenInfos[lastIndex = index] = tokenInfo;
                 currentSearchStartIndex = index + token.Length;
-
-                if (lastOpenedTokens.Any() && lastOpenedTokens.Peek().Equals(token) && closeValid)
-                {
-                    lastOpenedTokens.Pop();
-                    lastClosedToken = index;
-                }
-                else if (openValid)
-                {
-                    lastOpenedTokens.Push(token);
-                }
             }
             
             return new TokenInfoCollection(tokenInfos.Select(x => x.Value));

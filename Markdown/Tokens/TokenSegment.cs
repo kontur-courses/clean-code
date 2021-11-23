@@ -7,23 +7,24 @@ namespace Markdown
 {
     internal class TokenSegment
     {
-        private readonly Token openToken;
         private readonly int openTokenLocation;
-        private readonly Token closeToken;
         private readonly int closeTokenLocation;
+        private Tag tag;
 
+        public bool InTextSegment { get; private init; }
         public int StartPosition => openTokenLocation;
         public int EndPosition => closeTokenLocation;
         public int Length => closeTokenLocation - openTokenLocation;
-        public int InnerLength => closeTokenLocation - (openTokenLocation + openToken.Length);
+        public int InnerLength => closeTokenLocation - (openTokenLocation + tag.Start.Length);
         
-        private TokenSegment(int openTokenLocation, int closeTokenLocation, Token openToken, Token closeToken)
+        private TokenSegment(Tag tag, int openTokenLocation, int closeTokenLocation)
         {
-            if (openToken is null || closeToken is null) throw new ArgumentNullException();
-            
-            this.openToken = openToken;
+            if (tag is null) throw new ArgumentNullException();
+            if (tag.End is null && openTokenLocation != closeTokenLocation)
+                throw new AggregateException("single tag open and close in different location");
+
+            this.tag = tag;
             this.openTokenLocation = openTokenLocation;
-            this.closeToken = closeToken;
             this.closeTokenLocation = closeTokenLocation;
         }
         
@@ -31,14 +32,24 @@ namespace Markdown
         {
             if (tokensByLocation is null) throw new ArgumentNullException();
             
-            (int, Token)? currentOpenToken = null;
-            foreach (var (index, token, close, open, _, _) in tokensByLocation.OrderBy(x => x.Position))
+            (int, TokenInfo)? currentOpenToken = null;
+            foreach (var info in tokensByLocation.OrderBy(x => x.Position))
             {
-                if (currentOpenToken is null && open)
-                    currentOpenToken = (index, token);
+                var (index, token, close, open, _, _) = info;
+                var tag = Tag.GetTagByChars(token.ToString());
+                if (tag.End is null)
+                {
+                    yield return new TokenSegment(tag, index, index);
+                }
+                else if (currentOpenToken is null && open)
+                    currentOpenToken = (index, info);
                 else if (currentOpenToken is not null && close)
                 {
-                    yield return new TokenSegment(currentOpenToken.Value.Item1, index, currentOpenToken.Value.Item2, token);
+                    // yield return new TokenSegment(currentOpenToken.Value.Item1, index, currentOpenToken.Value.Item2, token);
+                    yield return new TokenSegment(Tag.GetTagByChars(currentOpenToken.Value.Item2.Token.ToString()), currentOpenToken.Value.Item1, index)
+                    {
+                        InTextSegment = currentOpenToken.Value.Item2.CloseValid || info.OpenValid
+                    };
                     currentOpenToken = null;
                 }
             }
@@ -46,7 +57,7 @@ namespace Markdown
         
         public Tag GetBaseTag()
         {
-            return Tag.GetTagByChars(openToken.ToString());
+            return tag;
         }
 
         public bool Contain(TokenSegment other)
