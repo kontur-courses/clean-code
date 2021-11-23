@@ -61,6 +61,9 @@ namespace Markdown.Tokens
             if (endOfAltText == -1 || startOfSource == -1 || endOfSource == -1)
                 return false;
 
+            if (!(endOfAltText < startOfSource && startOfSource < endOfSource))
+                return false;
+
             if (startOfSource != endOfAltText + 1 || endOfSource > endOfParagraph)
                 return false;
 
