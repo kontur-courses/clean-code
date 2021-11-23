@@ -46,7 +46,7 @@ namespace Markdown
         
         public bool CanContain(Tag outsideTag, Tag insideTag)
         {
-            return !nestingRules.ContainsKey(outsideTag) || !nestingRules[outsideTag].Contains(insideTag);
+            return !containRules.ContainsKey(outsideTag) || !containRules[outsideTag].Contains(insideTag);
         }
         
         public bool DoesMatchIntersectingRule(TokenSegment first, TokenSegment second)
