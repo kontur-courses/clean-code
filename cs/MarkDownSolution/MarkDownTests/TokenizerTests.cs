@@ -24,7 +24,7 @@ namespace MarkDownTests
         {
             var text = "Ну и _что_ дальше?";
             var expectedToken = new Token(0, text.Length);
-            expectedToken.nestedTokens.Add(new ItalicToken(5, 5));
+            expectedToken.AddNestedToken(new ItalicToken(5, 5));
             Tokenizer.GetToken(text).Should().BeEquivalentTo(expectedToken);
         }
 
@@ -33,8 +33,8 @@ namespace MarkDownTests
         {
             var text = "Ну и _что_ _дальше_?";
             var expectedToken = new Token(0, text.Length);
-            expectedToken.nestedTokens.Add(new ItalicToken(5, 5));
-            expectedToken.nestedTokens.Add(new ItalicToken(11, 8));
+            expectedToken.AddNestedToken(new ItalicToken(5, 5));
+            expectedToken.AddNestedToken(new ItalicToken(11, 8));
             Tokenizer.GetToken(text).Should().BeEquivalentTo(expectedToken);
         }
 
@@ -43,7 +43,7 @@ namespace MarkDownTests
         {
             var text = "Ну и __что__ дальше?";
             var expectedToken = new Token(0, text.Length);
-            expectedToken.nestedTokens.Add(new BoldToken(5, 7));
+            expectedToken.AddNestedToken(new BoldToken(5, 7));
             Tokenizer.GetToken(text).Should().BeEquivalentTo(expectedToken);
         }
 
@@ -52,8 +52,8 @@ namespace MarkDownTests
         {
             var text = "Ну и __что__ _дальше_?";
             var expectedToken = new Token(0, text.Length);
-            expectedToken.nestedTokens.Add(new BoldToken(5, 7));
-            expectedToken.nestedTokens.Add(new ItalicToken(13, 8));
+            expectedToken.AddNestedToken(new BoldToken(5, 7));
+            expectedToken.AddNestedToken(new ItalicToken(13, 8));
             var actualToken = Tokenizer.GetToken(text);
             actualToken.Should().BeEquivalentTo(expectedToken);
         }
@@ -106,7 +106,7 @@ namespace MarkDownTests
         {
             var text = "# Самый главный заголовок.";
             var expectedToken = new Token(0, text.Length);
-            expectedToken.nestedTokens.Add(new HeaderToken(0, text.Length));
+            expectedToken.AddNestedToken(new HeaderToken(0, text.Length));
             var actualToken = Tokenizer.GetToken(text);
 
             actualToken.Should().BeEquivalentTo(expectedToken);
@@ -151,8 +151,8 @@ namespace MarkDownTests
             var text = "_Текст_ с цифрами 123 __выделяется__.";
             var expectedToken = new Token(0, text.Length);
             var actualToken = Tokenizer.GetToken(text);
-            expectedToken.nestedTokens.Add(new ItalicToken(0, 7));
-            expectedToken.nestedTokens.Add(new BoldToken(23, 14));
+            expectedToken.AddNestedToken(new ItalicToken(0, 7));
+            expectedToken.AddNestedToken(new BoldToken(23, 14));
 
             actualToken.Should().BeEquivalentTo(expectedToken);
         }
@@ -162,7 +162,7 @@ namespace MarkDownTests
         {
             var text = "_Ино_гда";
             var expectedToken = new Token(0, text.Length);
-            expectedToken.nestedTokens.Add(new ItalicToken(0, 5));
+            expectedToken.AddNestedToken(new ItalicToken(0, 5));
             var actualToken = Tokenizer.GetToken(text);
 
             actualToken.Should().BeEquivalentTo(expectedToken);
@@ -193,7 +193,7 @@ namespace MarkDownTests
         {
             var text = "эти _подчерки _не считаются_ окончанием выделения";
             var expectedToken = new Token(0, text.Length);
-            expectedToken.nestedTokens.Add(new ItalicToken(4, 24));
+            expectedToken.AddNestedToken(new ItalicToken(4, 24));
             var actualToken = Tokenizer.GetToken(text);       
 
             actualToken.Should().BeEquivalentTo(expectedToken);

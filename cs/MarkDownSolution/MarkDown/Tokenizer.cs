@@ -18,13 +18,13 @@ namespace MarkDown
             state.currentToken = token;
             if (text[0] == header)
             {
-                state.currentToken.nestedTokens.Add(new HeaderToken(0, text.Length));
+                state.currentToken.AddNestedToken(new HeaderToken(0, text.Length));
             }
             for (int i = 0; i < text.Length; i++)
             {
-                if (isCaseWhenShouldNotTokenize(text, state.isSplittingWord, i))
+                if (TextHelper.IsCaseWhenShouldNotTokenize(text, state, i))
                 {
-                    MakeAllStatesFalse(state);
+                    state.MakeAllStatesFalse();
                 }
                 if (text[i] == ground)
                 {
@@ -40,7 +40,7 @@ namespace MarkDown
 
         private static void HandleGroundSituation(string text, TokenizerState state, int i)
         {
-            if (SomeTokenIsOpened(state))
+            if (state.IsSomeTokenOpened())
             {
                 HandleOpenedTokenSituation(text, i, state);
             }
@@ -52,124 +52,36 @@ namespace MarkDown
 
         private static void HandleClosedTokensSituation(string text, TokenizerState state, int i)
         {
-            if (CheckIfPreviousIsSpecificChar(text, i, escape) || state.isEscaping)
+            if (TextHelper.CheckIfPreviousIsSpecificChar(text, i, escape) || state.isEscaping)
             {
                 state.isEscaping = true;
             }
             else
             {
-                OpenItalicToken(text, state, i);
+                state.OpenItalicToken(i, text);
             }
-        }
-
-        private static void OpenItalicToken(string text, TokenizerState state, int i)
-        {
-            state.isSplittingWord = CheckIfPreviousIsLetter(text, i);
-            state.start = i;
-            state.statesDict[CaseType.Italic] = true;
         }
 
         private static void HandleOpenedTokenSituation(string text, int i, TokenizerState state)
         {
-            if (IsSecondGroundInRow(state, i))
+            if (state.IsSecondGroundInRow(i))
             {
-                CloseItalicAndOpenBold(state);
+                state.CloseItalicAndOpenBold();
             }
-            else if (ItalicTokenIsOpened(state))
+            else if (state.ItalicTokenIsOpened())
             {
-                if (CanCloseItalicToken(text, i))
+                if (TextHelper.CanCloseItalicToken(text, i))
                 {
-                    CloseItalicToken(state, i);
+                    state.CloseItalicToken(i);
                 }
             }
-            else if (BoldTokenIsOpened(state))
+            else if (state.BoldTokenIsOpened())
             {
-                if (CanCloseBoldToken(text, i))
+                if (TextHelper.CanCloseBoldToken(text, i))
                 {
-                    CloseBoldToken(state, i);
+                    state.CloseBoldToken(i);
                 }
             }
-        }
-
-        private static bool BoldTokenIsOpened(TokenizerState state)
-        {
-            return state.statesDict[CaseType.Bold];
-        }
-
-        private static bool ItalicTokenIsOpened(TokenizerState state)
-        {
-            return state.statesDict[CaseType.Italic];
-        }
-
-        private static void CloseItalicAndOpenBold(TokenizerState state)
-        {
-            state.statesDict[CaseType.Bold] = true;
-            state.statesDict[CaseType.Italic] = false;
-        }
-
-        private static bool IsSecondGroundInRow(TokenizerState state, int i)
-        {
-            return i - state.start == 1;
-        }
-
-        private static bool SomeTokenIsOpened(TokenizerState state)
-        {
-            return state.statesDict.ContainsValue(true);
-        }
-
-        private static bool CanCloseItalicToken(string text, int i)
-        {
-            return !CheckIfPreviousIsSpecificChar(text, i, ' ');
-        }
-
-        private static bool CanCloseBoldToken(string text, int i)
-        {
-            return !(CheckIfPreviousIsSpecificChar(text, i - 1, ' ') 
-                || CheckIfPreviousIsSpecificChar(text, i - 1, ground) 
-                || !CheckIfPreviousIsSpecificChar(text, i, ground));
-        }
-
-        private static void CloseItalicToken(TokenizerState state, int i)
-        {
-            state.currentToken.nestedTokens.Add(new ItalicToken(state.start, i - state.start));
-            state.statesDict[CaseType.Italic] = false;
-        }
-
-        private static void CloseBoldToken(TokenizerState state, int i)
-        {
-            state.currentToken.nestedTokens.Add(new BoldToken(state.start, i - state.start));
-            state.statesDict[CaseType.Bold] = false;
-        }
-
-        private static bool isCaseWhenShouldNotTokenize(string text, bool isSplittingWord, int i)
-        {
-            return char.IsDigit(text[i]) || char.IsWhiteSpace(text[i]) && isSplittingWord;
-        }
-
-        private static void MakeAllStatesFalse(TokenizerState state)
-        {
-            foreach (var pair in state.statesDict)
-            {
-                state.statesDict[pair.Key] = false;
-            }
-        }
-
-        private static bool CheckIfPreviousIsSpecificChar(string text, int i, char ch)
-        {
-            if (i == 0)
-            {
-                return false;
-            }
-            return text[i - 1] == ch;
-        }
-
-        private static bool CheckIfPreviousIsLetter(string text, int i)
-        {
-            if (i == 0)
-            {
-                return false;
-            }
-            return char.IsLetter(text[i - 1]);
         }
     }
 }

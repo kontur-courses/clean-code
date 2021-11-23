@@ -8,7 +8,9 @@ namespace MarkDown
         int start { get; set; }
         int length { get; set; }
 
-        public readonly List<Token> nestedTokens = new List<Token>();
+        private readonly List<Token> nestedTokens = new List<Token>();
+
+        public Token fatherToken;
         public Token(int start, int length)
         {
             this.start = start;
@@ -25,5 +27,15 @@ namespace MarkDown
         //    this.length = length;
         //    closed = true;
         //}
+        public void AddNestedToken(Token token)
+        {
+            nestedTokens.Add(token);
+            token.fatherToken = this;
+        }
+
+        public List<Token> GetNestedTokens()
+        {
+            return nestedTokens;
+        }
     }
 }
