@@ -1,62 +1,117 @@
-using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Text;
 
 namespace MarkdownProcessor
 {
     public class Tokenizer
     {
-        private Dictionary<string, TokenType> tags = new Dictionary<string, TokenType>
+        private readonly HashSet<string> singleTags;
+        private readonly HashSet<string> doubleTags;
+        private readonly HashSet<string> screeners;
+        private readonly Dictionary<string, int> doubleTagsRanks;
+
+        public Tokenizer(HashSet<string> singleTags, Dictionary<string, int> doubleTagsRanks, HashSet<string> screeners)
         {
-            {"_", TokenType.ItalicTag},
-            {"__", TokenType.BoldTag},
-            {"# ", TokenType.HeaderTag}
-        };
-        
-        private int maxTagLength;
-        
-        
-        public Tokenizer()
-        {
-            maxTagLength = tags.Keys.OrderByDescending(x => x.Length).First().Length;
+            this.screeners = screeners;
+            this.singleTags = singleTags;
+            doubleTags = doubleTagsRanks.Keys.ToHashSet();
+            this.doubleTagsRanks = doubleTagsRanks;
         }
 
-        public IEnumerable<Token> GetTokens(string input)
+        public IList<IToken> GetTokens(string input)
         {
-            var lastReturnedIndex = 0;
             var index = 0;
-            while (index < input.Length)
-            {
-                if (IsTagFound(input, index))
-                {
-                    if (index > lastReturnedIndex)
-                    {
-                        yield return new Token(input.Substring(lastReturnedIndex + 1, index - lastReturnedIndex - 1), TokenType.Text);
-                        lastReturnedIndex += index - lastReturnedIndex - 1;
-                    }
+            var stringBuilder = new StringBuilder();
+            var result = new List<IToken>();
 
-                    foreach (var tag in tags.Where(tag => input.StartsWith(tag.Key)))
-                    {
-                        yield return new Token(tag.Key, tag.Value);
-                        lastReturnedIndex = index - 1 + tag.Key.Length;
-                    }
+            while (index < input.Length)
+                if (IsLineContainsCollectionElementInIndex(input, singleTags, index))
+                {
+                    index = CreatePossibleTokensAndUpdateIndex(input, singleTags, stringBuilder, result, index);
+                }
+                else if (IsLineContainsCollectionElementInIndex(input, doubleTags, index))
+                {
+                    index = CreatePossibleTokensAndUpdateIndex(input, doubleTags, stringBuilder, result, index);
+                }
+                else if (IsLineContainsCollectionElementInIndex(input, screeners, index))
+                {
+                    index = CreatePossibleTokensAndUpdateIndex(input, screeners, stringBuilder, result, index);
+
+                    if (index >= input.Length)
+                        break;
+
+                    CreateTokenFromNextChar(input, index, result, stringBuilder);
+
+                    index++;
+                }
+                else
+                {
+                    stringBuilder.Append(input[index]);
+                    index++;
                 }
 
-                index++;
-            }
+            if (stringBuilder.Length > 0) CreateTextToken(result, stringBuilder);
 
-            if (index - 1 > lastReturnedIndex)
-            {
-                if (lastReturnedIndex == 0)
-                    yield return new Token(input, TokenType.Text);
-                else
-                    yield return new Token(input.Substring(lastReturnedIndex + 1), TokenType.Text);
-            }
+            return result;
         }
 
-        private bool IsTagFound(string line, int index)
+        private static void CreateTextToken(List<IToken> result, StringBuilder stringBuilder)
         {
-            return tags.Keys.Any(line.Substring(index).StartsWith);
+            result.Add(new TextToken(stringBuilder.ToString()));
+            stringBuilder.Clear();
+        }
+
+        private void CreateTokenFromNextChar(string input, int index, List<IToken> result, StringBuilder stringBuilder)
+        {
+            var nextChar = input[index].ToString();
+
+            if (singleTags.Contains(nextChar))
+                result.Add(new SingleTagToken(nextChar));
+            else if (doubleTags.Contains(nextChar))
+                result.Add(new DoubleTagToken(nextChar, false, doubleTagsRanks[nextChar]));
+            else if (screeners.Contains(nextChar))
+                result.Add(new ScreenerToken(nextChar));
+            else
+                stringBuilder.Append(nextChar);
+        }
+
+        private int CreatePossibleTokensAndUpdateIndex(string input, HashSet<string> collection,
+            StringBuilder stringBuilder, List<IToken> result, int index)
+        {
+            TryCreateTextToken(stringBuilder, result);
+
+            var tagValue = GetPossibleLongestValueInCollectionFromLineInIndex(input, collection, index);
+            if (collection.Equals(singleTags))
+                result.Add(new SingleTagToken(tagValue));
+            else if (collection.Equals(doubleTags))
+                result.Add(new DoubleTagToken(tagValue, false, doubleTagsRanks[tagValue]));
+            else
+                result.Add(new ScreenerToken(tagValue));
+
+            index += tagValue.Length;
+            return index;
+        }
+
+        private static void TryCreateTextToken(StringBuilder stringBuilder, List<IToken> result)
+        {
+            if (stringBuilder.Length > 0)
+                CreateTextToken(result, stringBuilder);
+        }
+
+        private static string GetPossibleLongestValueInCollectionFromLineInIndex(string input,
+            IEnumerable<string> collection, int index)
+        {
+            return collection
+                .OrderByDescending(x => x.Length).First(x => input.Substring(index).StartsWith(x));
+        }
+
+        private static bool IsLineContainsCollectionElementInIndex(string line, IEnumerable<string> collection,
+            int index)
+        {
+            return collection
+                .OrderByDescending(x => x.Length)
+                .Any(line.Substring(index).StartsWith);
         }
     }
 }

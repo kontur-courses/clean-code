@@ -8,52 +8,68 @@ namespace MarkdownProcessor
     [TestFixture]
     public class TokenizerTests
     {
-        private Tokenizer tokenizer = new Tokenizer();
-
-        [Test]
-        public void Tokenizer_ShouldReturnTextToken_WhenNoTags()
+        private static IEnumerable<TestCaseData> CorrectInputsTests()
         {
-            var tokens = tokenizer.GetTokens("abc").ToList();
-            tokens.Count.Should().Be(1);
-            tokens[0].Type.Should().Be(TokenType.Text);
-            tokens[0].Value.Should().Be("abc");
+            yield return new TestCaseData("abc", new[] { new TextToken("abc") });
+            yield return new TestCaseData("_abc", new IToken[]
+            {
+                new DoubleTagToken("_", false, 2),
+                new TextToken("abc")
+            }).SetName("Should found double tag");
+            yield return new TestCaseData("__abc_", new IToken[]
+            {
+                new DoubleTagToken("__", false, 1),
+                new TextToken("abc"),
+                new DoubleTagToken("_", false, 2)
+            }).SetName("Should found double tag");
+            yield return new TestCaseData("# abc\n_dgv_", new IToken[]
+            {
+                new SingleTagToken("# "),
+                new TextToken("abc\n"),
+                new DoubleTagToken("_", false, 2),
+                new TextToken("dgv"),
+                new DoubleTagToken("_", false, 2)
+            }).SetName("Should found single tag");
+            yield return new TestCaseData("as# sd", new IToken[]
+            {
+                new TextToken("as"),
+                new SingleTagToken("# "),
+                new TextToken("sd")
+            }).SetName("Should found double tag");
+            yield return new TestCaseData(@"\__avd_", new IToken[]
+            {
+                new ScreenerToken(@"\"),
+                new DoubleTagToken("_", false, 2),
+                new DoubleTagToken("_", false, 2),
+                new TextToken("avd"),
+                new DoubleTagToken("_", false, 2)
+            }).SetName("Should found screeners");
+            yield return new TestCaseData(@"\\\__ad", new IToken[]
+            {
+                new ScreenerToken(@"\"),
+                new ScreenerToken(@"\"),
+                new ScreenerToken(@"\"),
+                new DoubleTagToken("_", false, 2),
+                new DoubleTagToken("_", false, 2),
+                new TextToken("ad")
+            }).SetName("Should found screeners");
+            yield return new TestCaseData(@"as\cd", new IToken[]
+            {
+                new TextToken("as"),
+                new ScreenerToken(@"\"),
+                new TextToken("cd")
+            }).SetName("Should found screeners");
         }
-        
 
-        [TestCase("_abc_", 3)]
-        [TestCase("_asd_ das", 4)]
-        [TestCase("_das_ _daf_ _sad", 10)]
-        [TestCase("_sad", 2)]
-        public void Tokenizer_ShouldReturnTokens_WhenTags(string text, int count)
+        [TestCaseSource(nameof(CorrectInputsTests))]
+        public void GetTokens_ShouldReturnCorrectTokens_WhenInputIsCorrect(string text, IToken[] expectedTokens)
         {
+            var tokenizer = new Tokenizer(new HashSet<string> { "# ", "- " },
+                new Dictionary<string, int> { { "_", 2 }, { "__", 1 } },
+                new HashSet<string> { @"\" });
+
             var tokens = tokenizer.GetTokens(text).ToList();
-            tokens.Count.Should().Be(count);
-        }
-
-        [Test]
-        public void Tokenizer_ShouldReturnCorrectTokens_WhenItalicTag()
-        {
-            var tokens = tokenizer.GetTokens("_asd_ _fsd").ToList();
-            
-            tokens.Count.Should().Be(6);
-            
-            tokens[0].Type.Should().Be(TokenType.ItalicTag);
-            tokens[0].Value.Should().Be("_");
-            
-            tokens[1].Type.Should().Be(TokenType.Text);
-            tokens[1].Value.Should().Be("asd");
-            
-            tokens[2].Type.Should().Be(TokenType.ItalicTag);
-            tokens[2].Value.Should().Be("_");
-            
-            tokens[3].Type.Should().Be(TokenType.Text);
-            tokens[3].Value.Should().Be(" ");
-            
-            tokens[4].Type.Should().Be(TokenType.ItalicTag);
-            tokens[4].Value.Should().Be("_");
-            
-            tokens[5].Type.Should().Be(TokenType.Text);
-            tokens[5].Value.Should().Be("fsd");
+            tokens.Should().BeEquivalentTo(expectedTokens);
         }
     }
 }
