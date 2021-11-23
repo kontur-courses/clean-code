@@ -12,22 +12,24 @@ namespace MarkDown
         
         public static bool CanOpenBoldToken(string text, int i)
         {
-            return CheckIfIthIsSpecificChar(text, i + 1, '_')
-                && !CheckIfIthIsSpecificChar(text, i + 2, ' ');
+            return CheckIfIthIsSpecificChar(text, i + 1, ground)
+                && !CheckIfIthIsSpecificChar(text, i + 2, ' ')
+                && !IsThreeGroundsInRow(text, i);
         }
 
         public static bool CanOpenItalicToken(string text, int i)
         {
-            return !CheckIfIthIsSpecificChar(text, i + 1, '_')
+            return !CheckIfIthIsSpecificChar(text, i + 1, ground)
                 && !CheckIfIthIsSpecificChar(text, i + 1, ' ')
-                && !CheckIfIthIsSpecificChar(text, i - 1, '_');
+                && !CheckIfIthIsSpecificChar(text, i - 1, ground)
+                && !IsThreeGroundsInRow(text, i);
         }
 
         public static bool CanCloseItalicToken(string text, int i)
         {
-            return !(CheckIfIthIsSpecificChar(text, i - 1, ' ') ||
-                CheckIfIthIsSpecificChar(text, i-1, ground) ||
-                     CheckIfIthIsSpecificChar(text, i + 1, ground));
+            return !(CheckIfIthIsSpecificChar(text, i - 1, ' ')
+                  || CheckIfIthIsSpecificChar(text, i-1, ground)
+                  || CheckIfIthIsSpecificChar(text, i + 1, ground));
         }
 
         public static bool CanCloseBoldToken(string text, int i)
@@ -58,6 +60,19 @@ namespace MarkDown
                 return false;
             }
             return char.IsLetter(text[i]);
+        }
+
+        private static bool IsThreeGroundsInRow(string text, int i)
+        {
+            var caseMinus2 = CheckIfIthIsSpecificChar(text, i - 2, ground);
+            var caseMinus1 = CheckIfIthIsSpecificChar(text, i - 1, ground);
+            var case0 = CheckIfIthIsSpecificChar(text, i + 0, ground);
+            var case1 = CheckIfIthIsSpecificChar(text, i + 1, ground);
+            var case2 = CheckIfIthIsSpecificChar(text, i + 2, ground);
+            var situation1 = caseMinus2 && caseMinus1 && case0;
+            var situation2 = caseMinus1 && case0 && case1;
+            var situation3 = case0 && case1 && case2;
+            return situation1 || situation2 || situation3;
         }
     }
 }
