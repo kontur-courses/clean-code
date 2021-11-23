@@ -6,22 +6,25 @@ namespace Markdown
     public class Trie
     {
         public readonly string Value;
-        private readonly Dictionary<string, Trie> children = new();
+        private readonly Dictionary<char, Trie> children = new();
+        public readonly Trie Root;
 
         public Trie()
         {
             Value = "";
             IsTerminate = false;
+            Root = this;
         }
 
-        private Trie(string value, bool isTerminate)
+        private Trie(string value, bool isTerminate, Trie parent)
         {
             Value = value;
             IsTerminate = isTerminate;
+            Root = parent.Root;
         }
 
         public bool IsTerminate { get; private set; }
-        public IReadOnlyDictionary<string, Trie> Children => children;
+        public IReadOnlyDictionary<char, Trie> Children => children;
 
         public void Add(IEnumerable<string> words)
         {
@@ -45,12 +48,12 @@ namespace Markdown
             }
 
             var value = word.Substring(0, position + 1);
-            if (!children.ContainsKey(value))
+            if (!children.ContainsKey(word[position]))
             {
-                children[value] = new Trie(value, false);
+                children[word[position]] = new Trie(value, false, this);
             }
 
-            children[value].Add(word, position + 1);
+            children[word[position]].Add(word, position + 1);
         }
     }
 }

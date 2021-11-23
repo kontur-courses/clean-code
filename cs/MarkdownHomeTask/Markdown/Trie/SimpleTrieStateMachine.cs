@@ -7,57 +7,32 @@ namespace Markdown
     /// </summary>
     public class SimpleTrieStateMachine
     {
-        private readonly Trie keyWordsTrie = new();
-        private Trie currentState;
-        private Trie maxTerminalTrie;
+        public Trie KeyWordsTrie { get; } = new();
 
-            /// <param name="keyWords">набор ключевых слов, которые будем искать этим автоматом</param>
         public SimpleTrieStateMachine(IEnumerable<string> keyWords)
         {
-            currentState = keyWordsTrie;
-            keyWordsTrie.Add(keyWords);
+            KeyWordsTrie.Add(keyWords);
         }
 
-        /// <summary>
-        /// Обновляем состояние автомата, смотрим, содержат ли потомки текущего дерева префекс
-        /// с очередной буквой в конце
-        /// </summary>
-        /// <param name="letter">очередная буква</param>
-        /// <returns>true если удалось спуститься ниже по дереву, false если откатились до корня</returns>
-        public bool IsUpdateStates(char letter)
+        public bool CanUpdateStates(char letter, Trie currentState)
         {
-            while (true)
-            {
-                if (currentState.IsTerminate)
-                {
-                    maxTerminalTrie = currentState;
-                }
-
-                var key = string.Concat(currentState.Value, letter);
-                if (currentState.Children.ContainsKey(key))
-                {
-                    currentState = currentState.Children[key];
-                    return true;
-                }
-
-                if (currentState == keyWordsTrie)
-                {
-                    return false;
-                }
-
-                currentState = keyWordsTrie;
-            }
+            return currentState.Children.ContainsKey(letter) ||
+                   KeyWordsTrie.Children.ContainsKey(letter);
         }
 
-        /// <summary>
-        /// возвращаем максимальное слово и обнуляем прогресс
-        /// </summary>
-        /// <returns>null если не было найдено слово</returns>
-        public string GetMaxFoundWord()
+        public bool CanUpdateStates(char letter)
         {
-            var result = maxTerminalTrie?.Value;
-            maxTerminalTrie = null;
-            return result;
+            return KeyWordsTrie.Children.ContainsKey(letter);
+        }
+
+        public Trie UpdateStates(char letter, Trie currentState)
+        {
+            if (currentState.Children.ContainsKey(letter))
+                return currentState.Children[letter];
+
+            return currentState.Root.Children.ContainsKey(letter)
+                ? currentState.Root.Children[letter]
+                : currentState.Root;
         }
     }
 }

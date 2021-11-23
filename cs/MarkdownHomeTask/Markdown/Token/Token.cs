@@ -6,12 +6,15 @@
         public readonly TokenType Type;
         public readonly string Value;
 
+
         public Token(int start, string value, TokenType type)
         {
             Start = start;
             Value = value;
             Type = type;
         }
+
+        public bool IsEmpty => string.IsNullOrEmpty(Value);
 
         public override bool Equals(object obj)
         {
