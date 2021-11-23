@@ -8,7 +8,13 @@ namespace Markdown
         private readonly Dictionary<Tag, HashSet<Tag>> nestingRules = new();
         private readonly Dictionary<Tag, HashSet<Tag>> intersectingRules = new();
         private readonly Dictionary<Tag, HashSet<Tag>> containRules = new();
+        private readonly HashSet<Tag> inFrontRules = new();
 
+        public void AddInFrontOnlyTag(Tag tag)
+        {
+            inFrontRules.Add(tag);
+        }
+        
         public void SetRule(Tag firstTag, Tag secondTag, InteractType interactType)
         {
             var ruleListToUpdate = interactType switch
@@ -33,20 +39,25 @@ namespace Markdown
                     ruleListToUpdate[secondTag].Add(firstTag);
             }
         }
-        
-        public bool CanIntersect(Tag firstTag, Tag secondTag)
+
+        private bool CanIntersect(Tag firstTag, Tag secondTag)
         {
             return intersectingRules.ContainsKey(firstTag) && intersectingRules[firstTag].Contains(secondTag);
         }
-        
-        public bool CanBeNested(Tag outsideTag, Tag insideTag)
+
+        private bool CanBeNested(Tag outsideTag, Tag insideTag)
         {
             return nestingRules.ContainsKey(outsideTag) && nestingRules[outsideTag].Contains(insideTag);
         }
-        
-        public bool CanContain(Tag outsideTag, Tag insideTag)
+
+        private bool CanContain(Tag outsideTag, Tag insideTag)
         {
             return !containRules.ContainsKey(outsideTag) || !containRules[outsideTag].Contains(insideTag);
+        }
+        
+        private bool CanBeNotInFront(Tag tag)
+        {
+            return !inFrontRules.Contains(tag);
         }
         
         public bool DoesMatchIntersectingRule(TokenSegment first, TokenSegment second)
@@ -62,6 +73,11 @@ namespace Markdown
         public bool DoesMatchContainRule(TokenSegment outside, TokenSegment inside)
         {
             return CanContain(outside.GetBaseTag(), inside.GetBaseTag()) || !outside.Contain(inside);
+        }
+
+        public bool DoesMatchInFrontRule(TokenSegment segment)
+        {
+            return CanBeNotInFront(segment.GetBaseTag()) || segment.StartPosition == 0;
         }
     }
 }

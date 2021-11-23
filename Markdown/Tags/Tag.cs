@@ -23,8 +23,8 @@ namespace Markdown
 
         public static Tag GetOrAddSingleTag(string tag)
         {
-            if (string.IsNullOrWhiteSpace(tag)) 
-                throw new ArgumentException("Tag word can not be null, empty string or white space");
+            // if (string.IsNullOrWhiteSpace(tag)) 
+            //     throw new ArgumentException("Tag word can not be null, empty string or white space");
             return Tags.GetOrAdd(tag, new Tag(tag));
         }
         

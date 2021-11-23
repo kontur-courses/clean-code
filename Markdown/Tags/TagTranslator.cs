@@ -21,8 +21,7 @@ namespace Markdown
         public Tag Translate(Tag tag)
         {
             if (tag is null) throw new ArgumentNullException();
-            if (!tagsRelations.ContainsKey(tag))
-                throw new ArgumentException($"unknown tag {tag.Start} for translation");
+            if (!tagsRelations.ContainsKey(tag)) return tag;
 
             return tagsRelations[tag];
         }

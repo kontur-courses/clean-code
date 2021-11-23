@@ -18,16 +18,27 @@
             config.TagRules.SetRule(config.LastAddedToken, tag, InteractType.Intersecting);
             return new TokenRulesConfiguratorEnd(config);
         }
-        
+
         public TokenRulesConfiguratorEnd CanBeNestedIn(Tag tag)
         {
             config.TagRules.SetRule(tag, config.LastAddedToken, InteractType.Nesting);
             return new TokenRulesConfiguratorEnd(config);
         }
 
-        public TokenRulesConfiguratorEnd CantContain(Tag tag)
+        public TokenRulesConfiguratorEnd CantContain(params char[] symbols)
         {
-            config.TagRules.SetRule(config.LastAddedToken, tag, InteractType.Contain);
+            foreach (var symbol in symbols)
+            {
+                config.TagRules.SetRule(config.LastAddedToken, Tag.GetOrAddSingleTag(symbol.ToString()), InteractType.Contain);
+                config.Tokens.Add(new Token(symbol.ToString()));
+            }
+            
+            return new TokenRulesConfiguratorEnd(config);
+        }
+
+        public TokenRulesConfiguratorEnd CanBeInFrontOnly()
+        {
+            config.TagRules.AddInFrontOnlyTag(config.LastAddedToken);
             return new TokenRulesConfiguratorEnd(config);
         }
     }

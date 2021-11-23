@@ -29,7 +29,7 @@ namespace Markdown
             return new PreferTokenRulesConfigurator(Config);
         }
 
-        public TokenParserConfigurator SetShieldingSymbol(char symbol)
+        public TokenParserConfigurator SetShieldingSymbol(Tag symbol)
         {
             if (Config.ShieldingSymbol.Setted) throw new ArgumentException("shielding symbol already setted");
             Config.ShieldingSymbol = (symbol, true);
@@ -38,13 +38,18 @@ namespace Markdown
         
         public ITokenParser Configure()
         {
+            if (Config.ShieldingSymbol.Setted && Config.Tokens.Contains(Config.ShieldingSymbol.Symbol.Start))
+                throw new ArgumentException($"shielding symbol can not be {Config.ShieldingSymbol.Symbol.Start}, because it's already added like token");
+            
             var trie = new Trie<Token>();
             
             foreach (var token in Config.Tokens)
                 trie.Add(token.ToString(), token);
+            if (Config.ShieldingSymbol.Setted)
+                trie.Add(Config.ShieldingSymbol.Symbol.Start.ToString(), Config.ShieldingSymbol.Symbol.Start);
             trie.Build();
             
-            return new TokenParser(trie, Config.TagRules);
+            return new TokenParser(trie, Config.TagRules, Config.ShieldingSymbol.Setted ? Config.ShieldingSymbol.Symbol.Start.ToString() : null);
         }
     }
 }
