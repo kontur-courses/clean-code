@@ -1,9 +1,11 @@
-﻿namespace Markdown.Models
+﻿using Markdown.Tokens;
+
+namespace Markdown.Models
 {
     public interface IToken
     {
-        public TagType TagType { get; }
-        public ITokenPattern Pattern { get; }
-        public ITagConverter TagConverter { get; }
+        TagType TagType { get; }
+        ITokenPattern Pattern { get; }
+        TokenHtmlRepresentation TokenHtmlRepresentation { get; }
     }
 }

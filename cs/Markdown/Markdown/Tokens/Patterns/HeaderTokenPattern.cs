@@ -1,13 +1,13 @@
 ﻿using System.Collections.Generic;
 using Markdown.Models;
 
-namespace Markdown.Tokens
+namespace Markdown.Tokens.Patterns
 {
     public class HeaderTokenPattern : ITokenPattern
     {
         public string StartTag => "# ";
         public string EndTag => "";
-        public bool LastCloseSucceed { get; private set; }
+        public bool LastEndingSucceed { get; private set; }
         public IEnumerable<TagType> ForbiddenChildren { get; } = new List<TagType>();
 
         public bool TrySetStart(Context context) => context.Text.StartsWith("# ") && context.Index == 0;
@@ -17,13 +17,12 @@ namespace Markdown.Tokens
             var isLineEnd = context.Index == context.Text.Length;
             if (isLineEnd)
             {
-                LastCloseSucceed = true;
+                LastEndingSucceed = true;
                 return false;
             }
 
-            var symbol = context.Text[context.Index];
-            var isTerminateSymbol = symbol is '\n' or '\r';
-            LastCloseSucceed = isTerminateSymbol;
+            var isTerminateSymbol = context.CurrentSymbol is '\n' or '\r';
+            LastEndingSucceed = isTerminateSymbol;
             return !isTerminateSymbol;
         }
     }

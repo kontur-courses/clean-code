@@ -7,50 +7,64 @@ namespace Markdown
 {
     public class TokenReader
     {
-        private readonly EscapedText escapedText;
-        private readonly List<IToken> tokensToOpen;
+        private readonly TokenEscaper escaper;
+        private readonly List<IToken> tokens;
 
-        private readonly HashSet<TokenMatch> matches = new();
-        private readonly Stack<TokenMatch> matchesToClose = new();
-        private readonly Dictionary<TokenMatch, List<TokenMatch>> matchChildren = new();
-        private int position;
-
-        public TokenReader(string text, IEnumerable<IToken> tokens)
+        public TokenReader(IEnumerable<IToken> tokens)
         {
             if (tokens == null)
                 throw new ArgumentException($"{nameof(tokens)} can't be null.", nameof(tokens));
 
-            if (string.IsNullOrEmpty(text))
-                throw new ArgumentException($"{nameof(text)} is null or empty.", nameof(text));
-
             var tokensList = tokens.ToList();
-            tokensToOpen = tokensList;
-            escapedText = new TokenEscaper(text, tokensList).EscapeTokens();
+            escaper = new TokenEscaper(tokensList);
+            this.tokens = tokensList;
         }
 
-        public IEnumerable<TokenMatch> FindAll()
+        public IEnumerable<TokenMatch> FindAll(string text)
         {
-            for (; position <= escapedText.Text.Length; position++)
-                ProceedSymbol();
+            if (text == null)
+                throw new ArgumentNullException(nameof(text));
 
-            return matches;
+            var escapedText = escaper.EscapeTokens(text);
+            var matches = GetMatches(escapedText.Text);
+            return OffsetMatches(matches, escapedText);
         }
 
-        private void ProceedSymbol()
+        private IEnumerable<TokenMatch> GetMatches(string text)
         {
-            if (TryGetStartingToken(out var startingToken))
-                OpenMatch(startingToken);
-            else if (TryGetClosingMatch(out var closingMatch))
-                CloseMatch(closingMatch);
+            var manager = new TokenMatchManager(tokens);
+            var context = new Context(text);
+
+            for (var i = 0; i <= text.Length; i++)
+            {
+                context.Index = i;
+                if (TryGetStartingToken(manager.TokensToOpen, context, out var startingToken))
+                    manager.OpenMatch(startingToken, i);
+                else if (TryGetClosingMatch(manager.MatchesToClose, context, out var closingMatch))
+                    manager.CloseMatch(closingMatch, i);
+            }
+
+            return manager.Matches;
         }
 
-        private bool TryGetStartingToken(out IToken startingToken)
+        private static bool TryGetStartingToken(IEnumerable<IToken> tokensToOpen, Context context,
+            out IToken startingToken)
         {
             var startingTokens = tokensToOpen
-                .Where(token => token.Pattern.TrySetStart(new Context(escapedText.Text, position)))
+                .Where(token => token.Pattern.TrySetStart(context))
                 .ToList();
 
             return IsSinglePatternSuited(startingTokens, out startingToken);
+        }
+
+        private static bool TryGetClosingMatch(IEnumerable<TokenMatch> matchesToClose, Context context,
+            out TokenMatch closingMatch)
+        {
+            var closingMatches = matchesToClose
+                .Where(match => !match.Token.Pattern.TryContinue(context))
+                .ToList();
+
+            return IsSinglePatternSuited(closingMatches, out closingMatch);
         }
 
         private static bool IsSinglePatternSuited<T>(IReadOnlyList<T> suitableElements, out T element)
@@ -68,81 +82,16 @@ namespace Markdown
             }
         }
 
-        private void OpenMatch(IToken startingToken)
+        private static IEnumerable<TokenMatch> OffsetMatches(IEnumerable<TokenMatch> matches, EscapedText escapedText)
         {
-            tokensToOpen.Remove(startingToken);
-            matchesToClose.Push(new TokenMatch
-                {Start = position + escapedText.EscapedSymbolsBefore[position], Token = startingToken});
-
-            matchChildren[matchesToClose.Peek()] = new List<TokenMatch>();
-        }
-
-        private bool TryGetClosingMatch(out TokenMatch closingMatch)
-        {
-            var closingMatches = matchesToClose
-                .Where(match => !match.Token.Pattern.TryContinue(new Context(escapedText.Text, position)))
-                .ToList();
-
-            return IsSinglePatternSuited(closingMatches, out closingMatch);
-        }
-
-        private void CloseMatch(TokenMatch closingMatch)
-        {
-            var lastOpened = matchesToClose.Peek();
-            if (lastOpened.Token.TagType == closingMatch.Token.TagType && closingMatch.Token.Pattern.LastCloseSucceed)
-                AddMatch();
-            else
-                BreakOpenedMatches(closingMatch);
-        }
-
-        private void AddMatch()
-        {
-            var matchToClose = CreateMatchToClose();
-            matches.Add(matchToClose);
-            tokensToOpen.Add(matchToClose.Token);
-            AddAsChildren(matchToClose);
-            RemoveForbiddenChildren(matchToClose);
-        }
-
-        private TokenMatch CreateMatchToClose()
-        {
-            var matchToClose = matchesToClose.Pop();
-            var escapedSymbolsBefore = escapedText.EscapedSymbolsBefore.Count < position
-                ? escapedText.EscapedSymbolsBefore[position]
-                : escapedText.EscapedSymbolsBefore[position - 1];
-
-            matchToClose.Length = position
-                                  - matchToClose.Start
-                                  + matchToClose.Token.Pattern.EndTag.Length
-                                  + escapedSymbolsBefore;
-
-            return matchToClose;
-        }
-
-        private void AddAsChildren(TokenMatch matchToClose)
-        {
-            if (matchesToClose.TryPeek(out var parent))
-                matchChildren[parent].Add(matchToClose);
-        }
-
-        private void RemoveForbiddenChildren(TokenMatch matchToClose)
-        {
-            foreach (var child in matchChildren[matchToClose].Where(child =>
-                matchToClose.Token.Pattern.ForbiddenChildren.Contains(child.Token.TagType)))
-                matches.Remove(child);
-        }
-
-        private void BreakOpenedMatches(TokenMatch closingMatch)
-        {
-            while (true)
+            return matches.Select(match =>
             {
-                if (!matchesToClose.TryPop(out var lastOpened))
-                    continue;
+                match.Length += escapedText.GetPositionOffset(match.Start + match.Length)
+                                - escapedText.GetPositionOffset(match.Start);
 
-                tokensToOpen.Add(lastOpened.Token);
-                if (lastOpened.Token.TagType == closingMatch.Token.TagType)
-                    break;
-            }
+                match.Start += escapedText.GetPositionOffset(match.Start);
+                return match;
+            });
         }
     }
 }

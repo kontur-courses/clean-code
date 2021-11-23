@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using Markdown.Models;
@@ -10,85 +11,51 @@ namespace Markdown
     {
         private readonly List<IToken> tokensToRender = MarkdownTokensFactory.GetTokens().ToList();
 
-        private readonly string text;
         private readonly TokenEscaper escaper;
-        private readonly StringBuilder builder = new();
-        private int position;
-        private Dictionary<int, TokenMatch> matchStartAtPosition = new();
-        private Dictionary<int, TokenMatch> matchEndAtPosition = new();
+        private readonly TokenReader reader;
 
-        public MarkdownRenderer(string text)
+        public MarkdownRenderer()
         {
-            this.text = text;
-            escaper = new TokenEscaper(text, tokensToRender);
+            escaper = new TokenEscaper(tokensToRender);
+            reader = new TokenReader(tokensToRender);
         }
 
-        public string Render()
+        public string Render(string text)
         {
-            var matches = new TokenReader(text, tokensToRender).FindAll();
-            MarkPositions(matches);
-            return ConvertText();
+            if (text == null)
+                throw new ArgumentNullException(nameof(text));
+
+            var matches = reader.FindAll(text);
+            var matchesMap = new MatchesMap(matches.ToList());
+            return ConvertText(text, matchesMap);
         }
 
-        private void MarkPositions(IEnumerable<TokenMatch> matches)
+        private string ConvertText(string text, MatchesMap matchesMap)
         {
-            var matchesList = matches.ToList();
-            matchStartAtPosition = matchesList.ToDictionary(match => match.Start, match => match);
-            matchEndAtPosition = matchesList.ToDictionary(
-                match => match.Start + match.Length - match.Token.Pattern.EndTag.Length,
-                match => match);
-        }
-
-        private string ConvertText()
-        {
-            for (; position <= text.Length; position++)
+            var builder = new StringBuilder();
+            var context = new Context(text);
+            for (var i = 0; i <= text.Length; i++)
             {
-                if (TryAppendStartTag())
-                    continue;
-
-                if (TryAppendEndTag())
-                    continue;
-
-                AppendSymbol();
+                context.Index = i;
+                var nextPart = GetNextPart(matchesMap, context);
+                builder.Append(nextPart.Text);
+                i = nextPart.Index;
             }
 
             return builder.ToString();
         }
 
-        private void AppendSymbol()
+        private Context GetNextPart(MatchesMap matchesMap, Context context)
         {
-            if (position >= text.Length)
-                return;
+            if (matchesMap.TryGetTagReplacerAtPosition(context.Index, out var replacer))
+                return new Context(replacer.Tag, context.Index + replacer.TrimLength - 1);
 
-            if (escaper.IsEscapeSymbol(position))
-            {
-                builder.Append(text[position + 1]);
-                position++;
-            }
-            else
-            {
-                builder.Append(text[position]);
-            }
-        }
+            if (context.Index < context.Text.Length)
+                return escaper.IsEscapeSymbol(context)
+                    ? new Context(context.Skip(1).CurrentSymbol.ToString(), context.Index + 1)
+                    : new Context(context.CurrentSymbol.ToString(), context.Index);
 
-        private bool TryAppendEndTag()
-        {
-            if (!matchEndAtPosition.TryGetValue(position, out var matchAtEnd))
-                return false;
-
-            builder.Append(matchAtEnd.Token.TagConverter.HtmlCloseTag);
-            position += matchAtEnd.Token.TagConverter.TrimFromEndCount - 1;
-            return true;
-        }
-
-        private bool TryAppendStartTag()
-        {
-            if (!matchStartAtPosition.TryGetValue(position, out var matchAtStart))
-                return false;
-
-            builder.Append(matchAtStart.Token.TagConverter.HtmlOpenTag);
-            position += matchAtStart.Token.TagConverter.TrimFromStartCount - 1;
-            return true;
+            return new Context("", context.Index);
         }
     }
 }

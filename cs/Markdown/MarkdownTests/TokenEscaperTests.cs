@@ -1,5 +1,7 @@
 ﻿using System;
+using System.Collections.Generic;
 using FluentAssertions;
+using Markdown;
 using Markdown.Models;
 using Markdown.Tokens;
 using NUnit.Framework;
@@ -8,41 +10,56 @@ namespace MarkdownTests
 {
     public class TokenEscaperTests
     {
-        [Test]
-        public void Constructor_ThrowsException_TextNull()
+        private TokenEscaper escaper;
+
+        [SetUp]
+        public void SetUp()
         {
-            Assert.Throws<ArgumentException>(() =>
-                new TokenEscaper(null, new[] {MarkdownTokensFactory.Italic()}));
+            escaper = new TokenEscaper(new List<IToken> {new ItalicToken()});
         }
 
         [Test]
-        public void Constructor_ThrowsException_TokensNull()
-        {
-            Assert.Throws<ArgumentException>(() =>
-                new TokenEscaper("qwe", null));
-        }
+        public void Constructor_ThrowsException_IfTokensNull() =>
+            Assert.That(() => new TokenEscaper(null), Throws.InstanceOf<ArgumentException>());
+
+        [Test]
+        public void EscapeTokens_ThrowsException_IfTextNull() =>
+            Assert.That(() => escaper.EscapeTokens(null), Throws.InstanceOf<ArgumentException>());
 
         [Test]
         public void EscapeTokens_RemovesOnlyEscapedTokens()
         {
-            new TokenEscaper(@"\__a_", new[] {MarkdownTokensFactory.Italic()})
-                .EscapeTokens()
+            escaper
+                .EscapeTokens(@"\__a_")
                 .Text.Should().Be("_a_");
         }
 
         [Test]
-        public void IsEscapeSymbol_True()
+        public void IsEscapeSymbol_True_IfNextSymbolTagStart()
         {
-            new TokenEscaper(@"\__a_", new[] {MarkdownTokensFactory.Italic()})
-                .IsEscapeSymbol(0)
+            escaper
+                .IsEscapeSymbol(new Context(@"\__a_"))
                 .Should().BeTrue();
         }
 
         [Test]
-        public void IsEscapeSymbol_False()
+        public void IsEscapeSymbol_False_IfSymbolNotSlash()
         {
-            new TokenEscaper(@"\__a_", new[] {MarkdownTokensFactory.Italic()})
-                .IsEscapeSymbol(1)
+            escaper
+                .IsEscapeSymbol(new Context(@"\__a_", 1))
+                .Should().BeFalse();
+        }
+
+        [TestCase("a")]
+        [TestCase("1")]
+        [TestCase(" ")]
+        [TestCase("\t")]
+        [TestCase("\n")]
+        [TestCase("\r")]
+        public void IsEscapeSymbol_False_IfNextSymbol(string nextSymbol)
+        {
+            escaper
+                .IsEscapeSymbol(new Context($"\\{nextSymbol}_a_"))
                 .Should().BeFalse();
         }
     }

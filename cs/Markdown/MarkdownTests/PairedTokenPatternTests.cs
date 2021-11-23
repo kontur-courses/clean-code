@@ -2,8 +2,8 @@
 using System.Collections.Generic;
 using System.Linq;
 using FluentAssertions;
-using Markdown.Models;
-using Markdown.Tokens;
+using Markdown;
+using Markdown.Tokens.Patterns;
 using NUnit.Framework;
 
 namespace MarkdownTests
@@ -12,14 +12,11 @@ namespace MarkdownTests
     {
         private static readonly List<string> tagsToTest = new() {"_", "__"};
 
-        [TestCaseSource(nameof(TrySetStartTrueWithCases))]
+        [TestCaseSource(nameof(TrySetStartTrueCases))]
         public void TrySetStart_True(Context context, string tag) =>
             new PairedTokenPattern(tag)
                 .TrySetStart(context)
                 .Should().BeTrue();
-
-        public static IEnumerable<TestCaseData> TrySetStartTrueWithCases() =>
-            GenerateCases(GenerateTrySetStartTrueCases);
 
         [TestCaseSource(nameof(TrySetStartFalseCases))]
         public void TrySetStart_False(Context context, string tag) =>
@@ -27,17 +24,11 @@ namespace MarkdownTests
                 .TrySetStart(context)
                 .Should().BeFalse();
 
-        public static IEnumerable<TestCaseData> TrySetStartFalseCases =>
-            GenerateCases(GenerateTrySetStartFalseCases);
-
         [TestCaseSource(nameof(TryContinueFalseCases))]
         public void TryContinue_False(Context context, string tag) =>
             new PairedTokenPattern(tag)
                 .TryContinue(context)
                 .Should().BeFalse();
-
-        public static IEnumerable<TestCaseData> TryContinueFalseCases =>
-            GenerateCases(GenerateTryContinueFalseCases);
 
         [TestCaseSource(nameof(tagsToTest))]
         public void TryContinue_False_TagInDifferentWord(string tag)
@@ -53,6 +44,12 @@ namespace MarkdownTests
                 .Should().BeFalse();
         }
 
+        [TestCaseSource(nameof(TryContinueTrueCases))]
+        public void TryContinue_True(Context context, string tag) =>
+            new PairedTokenPattern(tag)
+                .TryContinue(context)
+                .Should().BeTrue();
+
         [TestCaseSource(nameof(tagsToTest))]
         public void LastCloseSucceed_True_AfterTagClose(string tag)
         {
@@ -63,7 +60,7 @@ namespace MarkdownTests
             context.Index = tag.Length + 1;
             pattern.TryContinue(context);
 
-            pattern.LastCloseSucceed.Should().BeTrue();
+            pattern.LastEndingSucceed.Should().BeTrue();
         }
 
         [TestCaseSource(nameof(tagsToTest))]
@@ -77,26 +74,23 @@ namespace MarkdownTests
             context.Index += tag.Length + 2;
             pattern.TryContinue(context);
 
-            pattern.LastCloseSucceed.Should().BeFalse();
+            pattern.LastEndingSucceed.Should().BeFalse();
         }
 
-        [TestCaseSource(nameof(TryContinueTrueCases))]
-        public void TryContinue_True(Context context, string tag) =>
-            new PairedTokenPattern(tag)
-                .TryContinue(context)
-                .Should().BeTrue();
+        private static IEnumerable<TestCaseData> TrySetStartTrueCases() =>
+            GenerateCases(TrySetStartTrueCasesPattern);
 
-        public static IEnumerable<TestCaseData> TryContinueTrueCases =>
-            GenerateCases(GenerateTryContinueTrueCases);
-
-        private static IEnumerable<TestCaseData> GenerateTrySetStartTrueCases(string tag)
+        private static IEnumerable<TestCaseData> TrySetStartTrueCasesPattern(string tag)
         {
             yield return new TestCaseData(new Context($"{tag}a"), tag) {TestName = "Before letter"};
             yield return new TestCaseData(new Context($" {tag}a", 1), tag) {TestName = "Before letter after space"};
             yield return new TestCaseData(new Context($"a{tag}b", 1), tag) {TestName = "In the middle of a word"};
         }
 
-        private static IEnumerable<TestCaseData> GenerateTrySetStartFalseCases(string tag)
+        private static IEnumerable<TestCaseData> TrySetStartFalseCases =>
+            GenerateCases(TrySetStartFalseCasesPattern);
+
+        private static IEnumerable<TestCaseData> TrySetStartFalseCasesPattern(string tag)
         {
             yield return new TestCaseData(new Context("U"), tag) {TestName = "Symbol is wrong"};
             yield return new TestCaseData(new Context(tag), tag) {TestName = "Tag is alone"};
@@ -107,14 +101,20 @@ namespace MarkdownTests
             yield return new TestCaseData(new Context($"1{tag}a", 1), tag) {TestName = "Previous symbol is digit"};
         }
 
-        private static IEnumerable<TestCaseData> GenerateTryContinueFalseCases(string tag)
+        private static IEnumerable<TestCaseData> TryContinueFalseCases =>
+            GenerateCases(TryContinueFalseCasesPattern);
+
+        private static IEnumerable<TestCaseData> TryContinueFalseCasesPattern(string tag)
         {
             yield return new TestCaseData(new Context($"a{tag} ", 1), tag) {TestName = "After letter"};
             yield return new TestCaseData(new Context($"a{tag}b", 1), tag) {TestName = "In the middle of word"};
             yield return new TestCaseData(new Context($"a{tag}", 1), tag) {TestName = "At the end of a string"};
         }
 
-        private static IEnumerable<TestCaseData> GenerateTryContinueTrueCases(string tag)
+        private static IEnumerable<TestCaseData> TryContinueTrueCases =>
+            GenerateCases(TryContinueTrueCasesPattern);
+
+        private static IEnumerable<TestCaseData> TryContinueTrueCasesPattern(string tag)
         {
             yield return new TestCaseData(new Context("U"), tag) {TestName = "Symbol is wrong"};
             yield return new TestCaseData(new Context(tag), tag) {TestName = "Tag is alone"};
