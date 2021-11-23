@@ -5,18 +5,17 @@ using Markdown.Extensions;
 
 namespace Markdown
 {
-    internal class TokenSegment
+    internal class TokenSegment : IEqualityComparer<TokenSegment>
     {
-        private readonly int openTokenLocation;
-        private readonly int closeTokenLocation;
         private Tag tag;
 
         public bool InTextSegment { get; private init; }
-        public int StartPosition => openTokenLocation;
-        public int EndPosition => closeTokenLocation;
-        public int Length => closeTokenLocation - openTokenLocation;
-        public int InnerLength => closeTokenLocation - (openTokenLocation + tag.Start.Length);
+        public int StartPosition { get; }
+        public int EndPosition { get; }
+        public int Length => EndPosition - StartPosition;
+        public int InnerLength => EndPosition - (StartPosition + tag.Start.Length);
         
+        internal TokenSegment(){}
         private TokenSegment(Tag tag, int openTokenLocation, int closeTokenLocation)
         {
             if (tag is null) throw new ArgumentNullException();
@@ -24,8 +23,8 @@ namespace Markdown
                 throw new AggregateException("single tag open and close in different location");
 
             this.tag = tag;
-            this.openTokenLocation = openTokenLocation;
-            this.closeTokenLocation = closeTokenLocation;
+            StartPosition = openTokenLocation;
+            EndPosition = closeTokenLocation;
         }
         
         public static IEnumerable<TokenSegment> GetTokensSegments(IEnumerable<TokenInfo> tokensByLocation)
@@ -45,7 +44,6 @@ namespace Markdown
                     currentOpenToken = (index, info);
                 else if (currentOpenToken is not null && close)
                 {
-                    // yield return new TokenSegment(currentOpenToken.Value.Item1, index, currentOpenToken.Value.Item2, token);
                     yield return new TokenSegment(Tag.GetTagByChars(currentOpenToken.Value.Item2.Token.ToString()), currentOpenToken.Value.Item1, index)
                     {
                         InTextSegment = currentOpenToken.Value.Item2.CloseValid || info.OpenValid
@@ -64,10 +62,10 @@ namespace Markdown
         {
             if (other is null) throw new ArgumentNullException();
 
-            var firstMin = Math.Min(openTokenLocation, closeTokenLocation);
-            var firstMax = Math.Max(openTokenLocation, closeTokenLocation);
-            var secondMin = Math.Min(other.openTokenLocation, other.closeTokenLocation);
-            var secondMax = Math.Max(other.openTokenLocation, other.closeTokenLocation);
+            var firstMin = Math.Min(StartPosition, EndPosition);
+            var firstMax = Math.Max(StartPosition, EndPosition);
+            var secondMin = Math.Min(other.StartPosition, other.EndPosition);
+            var secondMax = Math.Max(other.StartPosition, other.EndPosition);
 
             return secondMin.Between(firstMin, firstMax) && secondMax.Between(firstMin, firstMax);
         }
@@ -76,10 +74,10 @@ namespace Markdown
         {
             if (other is null) throw new ArgumentNullException();
 
-            var firstMin = Math.Min(openTokenLocation, closeTokenLocation);
-            var firstMax = Math.Max(openTokenLocation, closeTokenLocation);
-            var secondMin = Math.Min(other.openTokenLocation, other.closeTokenLocation);
-            var secondMax = Math.Max(other.openTokenLocation, other.closeTokenLocation);
+            var firstMin = Math.Min(StartPosition, EndPosition);
+            var firstMax = Math.Max(StartPosition, EndPosition);
+            var secondMin = Math.Min(other.StartPosition, other.EndPosition);
+            var secondMax = Math.Max(other.StartPosition, other.EndPosition);
 
             return firstMin.Between(secondMin, secondMax) && !firstMax.Between(secondMin, secondMax)
                    || !firstMin.Between(secondMin, secondMax) && firstMax.Between(secondMin, secondMax);
@@ -88,6 +86,20 @@ namespace Markdown
         public bool IsEmpty()
         {
             return InnerLength == 0;
+        }
+
+        public bool Equals(TokenSegment x, TokenSegment y)
+        {
+            if (ReferenceEquals(x, y)) return true;
+            if (ReferenceEquals(x, null)) return false;
+            if (ReferenceEquals(y, null)) return false;
+            if (x.GetType() != y.GetType()) return false;
+            return x.StartPosition == y.StartPosition && x.EndPosition == y.EndPosition && Equals(x.tag, y.tag) && x.InTextSegment == y.InTextSegment;
+        }
+
+        public int GetHashCode(TokenSegment obj)
+        {
+            return HashCode.Combine(obj.StartPosition, obj.EndPosition, obj.tag, obj.InTextSegment);
         }
     }
 }
