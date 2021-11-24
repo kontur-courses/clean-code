@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Diagnostics;
 using System.Linq;
 using System.Text;
 using Markdown.TagStore;
@@ -9,6 +10,7 @@ namespace Markdown
     public class Converter : IConverter
     {
         private readonly ITagStore resultTagStore;
+
         private readonly ITokenizer tokenizer;
 
         public Converter(ITagStore sourceTagStore, ITagStore resultTagStore)
@@ -19,18 +21,26 @@ namespace Markdown
 
         public string Convert(string text)
         {
-            var tokens = tokenizer.Tokenize(text).ToArray();
-            Array.Sort(tokens, (t1, t2) => t1.Start - t2.Start);
             var converted = new StringBuilder();
-            var previousTokenEnd = -1;
-            foreach (var tagToken in tokens)
+            foreach (var token in TagTokenSpecifier.Normalize(tokenizer.Tokenize(text), text))
             {
-                converted.Append(text.Substring(previousTokenEnd + 1, tagToken.Start - previousTokenEnd - 1));
-                converted.Append(resultTagStore.GetTag(tagToken.Type, tagToken.Role));
-                previousTokenEnd = tagToken.End;
+                switch (token.TokenType)
+                {
+                    case TokenType.Text:
+                        converted.Append(text.Substring(token.Start, token.Length));
+                        break;
+                    case TokenType.Tag:
+                        var convertedTag = resultTagStore.GetTag(token.TagType, token.TagRole);
+                        converted.Append(convertedTag);
+                        break;
+                    case TokenType.Escape:
+                        converted.Append('\\');
+                        break;
+                    default:
+                        throw new ArgumentOutOfRangeException();
+                }
             }
 
-            converted.Append(text[(previousTokenEnd + 1)..]);
             return converted.ToString();
         }
     }

@@ -30,9 +30,9 @@ namespace Markdown.TagStore
             return stringToTag[text.Substring(start, length)].Type;
         }
 
-        public string[] GetTagsValues()
+        public HashSet<string> GetTagsValues()
         {
-            return stringToTag.Keys.ToArray();
+            return stringToTag.Keys.ToHashSet();
         }
 
         public virtual TagRole GetTagRole(string text, int startIndex, int length)

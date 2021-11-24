@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 using FakeItEasy;
 using FluentAssertions;
@@ -15,20 +16,27 @@ namespace Markdown.Tests
         [Test]
         public void Tokenize_IfStringHasTag_ShouldReturnTagToken()
         {
-            const string text = "_Lorem ipsum dolor_ sit amet";
+            const string text = "Lorem _ipsum_ _dolor_ sit amet";
             var tagStore = A.Fake<ITagStore>();
             A.CallTo(() => tagStore.GetTagType(text, A<int>.Ignored, A<int>.Ignored)).Returns(TagType.Emphasized);
             A.CallTo(() => tagStore.GetTagRole(A<string>.Ignored, A<int>.Ignored, A<int>.Ignored))
-                .ReturnsNextFromSequence(TagRole.Opening, TagRole.Closing);
-            A.CallTo(() => tagStore.GetTagsValues()).Returns(new[] { "_" });
+                .ReturnsNextFromSequence(TagRole.Opening, TagRole.Closing, TagRole.Opening, TagRole.Closing);
+            A.CallTo(() => tagStore.GetTagsValues()).Returns(new HashSet<string> { "_" });
             var sut = new Tokenizer(tagStore);
 
-            var tagTokens = sut.Tokenize(text).ToArray();
+            var tagTokens = sut.Tokenize(text).OrderBy(t=>t.Start).ToArray();
 
             tagTokens.Should().BeEquivalentTo(new[]
             {
-                new Token(TagType.Emphasized, 0, 1, TagRole.Opening, TokenType.Tag),
-                new Token(TagType.Emphasized, 18, 1, TagRole.Closing, TokenType.Tag)
+                new Token(TokenType.Text, 0, 6),
+                new Token(TokenType.Tag, TagType.Emphasized, TagRole.Opening, 6, 1),
+                new Token(TokenType.Text, 7, 5),
+                new Token(TokenType.Tag, TagType.Emphasized, TagRole.Closing, 12, 1),
+                new Token(TokenType.Text, 13, 1),
+                new Token(TokenType.Tag, TagType.Emphasized, TagRole.Opening, 14, 1),
+                new Token(TokenType.Text, 15, 5),
+                new Token(TokenType.Tag, TagType.Emphasized, TagRole.Closing, 20, 1),
+                new Token(TokenType.Text, 21, 9)
             });
         }
     }

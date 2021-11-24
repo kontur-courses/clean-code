@@ -7,11 +7,10 @@ namespace Markdown
 {
     public static class StringExtensions
     {
-        public static IEnumerable<(int start, int length)> FindAll(this string text,
-            IEnumerable<string> substrings)
+        public static IEnumerable<(int start, int length)> FindAll(this string text, IEnumerable<string> tags)
         {
             var foundIndexes = new HashSet<int>();
-            foreach (var substring in substrings.OrderByDescending(s => s.Length))
+            foreach (var substring in tags.OrderByDescending(s => s.Length))
             foreach (var i in text.AllIndexesOf(substring))
             {
                 if (foundIndexes.Contains(i)) continue;

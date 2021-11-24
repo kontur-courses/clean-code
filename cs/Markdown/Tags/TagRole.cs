@@ -5,5 +5,6 @@
         Closing,
         Opening,
         NotTag,
+        Undefined
     }
 }

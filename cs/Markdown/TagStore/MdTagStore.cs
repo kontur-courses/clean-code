@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using Markdown.Tags;
 
 namespace Markdown.TagStore
@@ -9,8 +10,12 @@ namespace Markdown.TagStore
         {
             new Tag(TagType.Emphasized, "_", "_"),
             new Tag(TagType.Strong, "__", "__"),
+            new Tag(TagType.Header, "#", "\r\n"),
+            new Tag(TagType.Header, "#", "\n"),
         };
 
+        private static readonly HashSet<char?> AfterOpeningBanned = new() { ' ', null, '\\', '\n', '\r' };
+        private static readonly HashSet<char?> BeforeClosingBanned = new() { ' ', null };
         public MdTagStore()
         {
             Tags.ForEach(Register);
@@ -20,9 +25,22 @@ namespace Markdown.TagStore
         {
             char? before = startIndex == 0 ? null : text[startIndex - 1];
             char? after = startIndex + length == text.Length ? null : text[startIndex + length];
-            if (before != ' ' && before != '\\' && before != null)
-                return after is ' ' or null ? TagRole.Closing : TagRole.NotTag;
-            return after != ' ' ? TagRole.Opening : TagRole.NotTag;
+            if (AfterOpeningBanned.Contains(after))
+            {
+                if (BeforeClosingBanned.Contains(before))
+                {
+                    return TagRole.NotTag;
+                }
+
+                return TagRole.Closing;
+            }
+
+            if (!BeforeClosingBanned.Contains(before))
+            {
+                return TagRole.Undefined;
+            }
+
+            return TagRole.Opening;
         }
     }
 }

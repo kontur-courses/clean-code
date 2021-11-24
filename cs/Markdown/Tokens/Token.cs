@@ -1,24 +1,35 @@
 ﻿using Markdown.Tags;
-using Markdown.Tokens;
 
-namespace Markdown
+namespace Markdown.Tokens
 {
     public class Token
     {
-        public TagType Type { get; }
-        public TagRole Role { get; }
-        public TokenType TokenType { get; }
+        public TagType TagType { get; }
+        public TagRole TagRole { get; set; }
+        public TokenType TokenType { get; private set; }
         public int Start { get; }
         public int Length { get; }
         public int End => Start + Length - 1;
 
-        public Token(TagType type, int start, int length, TagRole role, TokenType tokenType)
+        public Token(TokenType tokenType, TagType tagType, TagRole tagRole, int start, int length)
         {
-            Type = type;
+            TagType = tagType;
             Start = start;
             Length = length;
-            Role = role;
+            TagRole = tagRole;
             TokenType = tokenType;
+        }
+
+        public Token(TokenType tokenType, int start, int length)
+        {
+            Length = length;
+            TokenType = tokenType;
+            Start = start;
+        }
+
+        public void SwitchToText()
+        {
+            TokenType = TokenType.Text;
         }
     }
 }
