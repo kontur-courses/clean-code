@@ -52,7 +52,7 @@ public class TagSetting
                 ? FindNext(text, startIndex, descriptor.End, excludedParts)
                 : text.Length;
             if (endIndex == -1)
-                return text;
+                throw new ArgumentException($"Invalid string format: failed to find end of variable $({descriptor.Name})", nameof(text));
 
             result = result.Replace($"$({descriptor.Name})", text[startIndex..endIndex]);
             position = endIndex;
@@ -80,6 +80,7 @@ public class TagSetting
                     break;
                 }
             }
+
             if (toSkip == 0)
                 break;
             possibleFind = text.IndexOf(toFind, possibleFind + toSkip);

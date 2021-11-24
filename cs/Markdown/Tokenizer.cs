@@ -66,9 +66,8 @@ internal class Tokenizer
         return ParseToken(line, start, null, root);
     }
 
-    private TokenBuilder ParseToken(StringBuilder line, int start, TagDescriptor? openingDescriptor, TokenBuilder? root, HashSet<string>? usedOpeners = null)
+    private TokenBuilder ParseToken(StringBuilder line, int start, TagDescriptor? openingDescriptor, TokenBuilder? root)
     {
-        usedOpeners ??= new HashSet<string>();
         TagSetting? openingTag = null;
         if (openingDescriptor != null)
             openingTag = openingDescriptor.Tag;
@@ -82,18 +81,17 @@ internal class Tokenizer
         {
             var ignoreEscape = false;
             if (line[i] == '\\')
-                ignoreEscape = TryEscape(line, i, null);
-            if (openingDescriptor != null && CanCloseTag(i, line.ToString(), openingDescriptor, usedOpeners, out var closingTag))
+                ignoreEscape = TryEscape(line, i);
+            if (openingDescriptor != null && CanCloseTag(i, line.ToString(), openingDescriptor, out var closingTag))
             {
-                if (!ignoreEscape && TryEscape(line, i, closingTag))
+                if (!ignoreEscape && TryEscape(line, i))
                 {
                     i += closingTag.EndTag.Length - 1;
                     continue;
                 }
 
-                usedOpeners.Remove(closingTag.EndTag);
                 token.WithEnd(i + openingTag!.EndTag.Length);
-                if (openingDescriptor.IsValid)
+                if (openingDescriptor!.IsValid)
                     token.WithMdTag(closingTag);
                 else
                     token.WithMdTag(null);
@@ -101,17 +99,16 @@ internal class Tokenizer
                 return token;
             }
 
-            if (CanOpenTag(i, line.ToString(), start, openingDescriptor, usedOpeners, out var openedTag))
+            if (CanOpenTag(i, line.ToString(), start, openingDescriptor, out var openedTag))
             {
-                if (!ignoreEscape && TryEscape(line, i, openedTag.Tag))
+                if (!ignoreEscape && TryEscape(line, i))
                 {
                     i += openedTag.Tag.EndTag.Length - 1;
                     continue;
                 }
 
                 TryAddPlainWord(i);
-                usedOpeners.Add(openedTag.Tag.OpeningTag);
-                var childToken = ParseToken(line, i, openedTag, token, usedOpeners);
+                var childToken = ParseToken(line, i, openedTag, token);
                 token.AddToken(childToken);
                 lastKnownTokenEnd = childToken.End;
                 i = lastKnownTokenEnd - 1;
@@ -133,7 +130,7 @@ internal class Tokenizer
         }
     }
 
-    private bool TryEscape(StringBuilder line, int position, TagSetting? tag)
+    private static bool TryEscape(StringBuilder line, int position)
     {
         if (IsEscaped(line, position))
         {
@@ -151,14 +148,14 @@ internal class Tokenizer
         return line[position - 1] == '\\' && !IsEscaped(line, position - 1);
     }
 
-    private bool CanOpenTag(int position, string source, int start, TagDescriptor? openingDescriptor, HashSet<string> usedOpeners, out TagDescriptor tagData)
+    private bool CanOpenTag(int position, string source, int start, TagDescriptor? openingDescriptor, out TagDescriptor tagData)
     {
         tagData = new(null!, false, 0, false);
         if (position < 0 || position >= source.Length)
             return false;
         if (TryGetCurrentTag(position, source, plainTokenTags, null, out var openedTag))
         {
-            var openingTag = openingDescriptor != null ? openingDescriptor.Tag : null;
+            var openingTag = openingDescriptor?.Tag;
             var isValid = openedTag.CanBeNestedIn(openingTag);
             var tagEndPosition = position + openedTag.OpeningTag.Length;
             if (tagEndPosition <= source.Length)
@@ -179,7 +176,7 @@ internal class Tokenizer
         return false;
     }
 
-    private bool CanCloseTag(int position, string source, TagDescriptor openedDescriptor, HashSet<string> usedOpeners, out TagSetting closingTag)
+    private bool CanCloseTag(int position, string source, TagDescriptor openedDescriptor, out TagSetting closingTag)
     {
         closingTag = null!;
         if (position < 1 || position >= source.Length)
