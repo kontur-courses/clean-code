@@ -47,11 +47,6 @@ namespace Markdown
             return Tags[startChars];
         }
 
-        public static void ClearTagBase()
-        {
-            Tags?.Clear();
-        }
-
         public override bool Equals(object obj)
         {
             return obj is Tag tag && Equals(tag);

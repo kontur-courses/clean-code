@@ -126,15 +126,11 @@ namespace Markdown
 
         private void TryAllowTokens()
         {
-            foreach (var (key, value) in allowWaitTokens)
+            foreach (var value in allowWaitTokens.Where(y => currentOpenedTag.Any(x => x.Position == y.Key))
+                                                 .Select(x => x.Value))
             {
-                var allower = currentOpenedTag.FirstOrDefault(x => x.Position == key);
-                
-                if (allower is not null)
-                    foreach (var segment in value)
-                    {
-                        allowTokens.Add(segment);
-                    }
+                foreach (var segment in value)
+                    allowTokens.Add(segment);
             }
         }
         

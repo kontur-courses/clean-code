@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace Markdown.Extensions
+namespace Markdown
 {
     internal static class IntExtension
     {

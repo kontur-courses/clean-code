@@ -51,11 +51,6 @@ namespace Markdown
             }
         }
 
-        public bool CanIntersect(Tag firstTag, Tag secondTag)
-        {
-            return intersectingRules.ContainsKey(firstTag) && intersectingRules[firstTag].Contains(secondTag);
-        }
-
         public bool CanBeNested(Tag outsideTag, Tag insideTag)
         {
             return nestingRules.ContainsKey(outsideTag) && nestingRules[outsideTag].Contains(insideTag);
@@ -65,25 +60,10 @@ namespace Markdown
         {
             return !containRules.ContainsKey(outsideTag) || !containRules[outsideTag].Contains(insideTag);
         }
-        
-        public bool CanBeNotInFront(Tag tag)
+
+        private bool CanBeNotInFront(Tag tag)
         {
             return !inFrontRules.Contains(tag);
-        }
-        
-        public bool DoesMatchIntersectingRule(TokenSegment first, TokenSegment second)
-        {
-            return CanIntersect(first.GetBaseTag(), second.GetBaseTag()) || !first.IsIntersectWith(second);
-        }
-        
-        public bool DoesMatchNestingRule(TokenSegment outside, TokenSegment inside)
-        {
-            return CanBeNested(outside.GetBaseTag(), inside.GetBaseTag()) || !outside.Contain(inside);
-        }
-        
-        public bool DoesMatchContainRule(TokenSegment outside, TokenSegment inside)
-        {
-            return CanContain(outside.GetBaseTag(), inside.GetBaseTag()) || !outside.Contain(inside);
         }
 
         public bool DoesMatchInFrontRule(TokenSegment segment, int newLinePosition)
