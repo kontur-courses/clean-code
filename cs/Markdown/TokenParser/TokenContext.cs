@@ -10,9 +10,9 @@ namespace Markdown.TokenParser
         public bool ContainsWhiteSpace { get; private set; }
         public readonly Token Token;
         public readonly bool IsInMiddleOfWord;
-        public IEnumerable<TokenNode> Children => children;
+        public IEnumerable<TagNode> Children => children;
 
-        private readonly List<TokenNode> children = new();
+        private readonly List<TagNode> children = new();
 
         public TokenContext(Token token, bool isInMiddleOfWord)
         {
@@ -20,9 +20,9 @@ namespace Markdown.TokenParser
             Token = token;
         }
 
-        public void AddChild(TokenNode node)
+        public void AddChild(TagNode node)
         {
-            ContainsWhiteSpace = ContainsWhiteSpace || node.Token.Value.Contains(Characters.WhiteSpace);
+            ContainsWhiteSpace = ContainsWhiteSpace || node.Tag.Value.Contains(Characters.WhiteSpace);
             children.Add(node);
         }
 

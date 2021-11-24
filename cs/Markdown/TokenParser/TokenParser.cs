@@ -9,7 +9,7 @@ namespace Markdown.TokenParser
 {
     public class TokenParser : ITokenParser
     {
-        public IEnumerable<TokenNode> Parse(IEnumerable<Token> tokens)
+        public IEnumerable<TagNode> Parse(IEnumerable<Token> tokens)
         {
             if (tokens == null) throw new ArgumentNullException(nameof(tokens));
             using var enumerator = tokens.GetEnumerator();
@@ -17,13 +17,13 @@ namespace Markdown.TokenParser
             return ReduceTextTokens(iterator.Parse());
         }
 
-        private static IEnumerable<TokenNode> ReduceTextTokens(IEnumerable<TokenNode> nodes)
+        private static IEnumerable<TagNode> ReduceTextTokens(IEnumerable<TagNode> nodes)
         {
             var sb = new StringBuilder();
             foreach (var node in nodes)
-                if (node.Token.Type == TokenType.Text)
+                if (node.Tag.Type == TagType.Text)
                 {
-                    sb.Append(node.Token.Value);
+                    sb.Append(node.Tag.Value);
                 }
                 else
                 {
@@ -33,7 +33,7 @@ namespace Markdown.TokenParser
                         sb.Clear();
                     }
 
-                    yield return new TokenNode(node.Token, ReduceTextTokens(node.Children).ToArray());
+                    yield return new TagNode(node.Tag, ReduceTextTokens(node.Children).ToArray());
                 }
 
             if (sb.Length > 0) yield return Token.Text(sb.ToString()).ToNode();

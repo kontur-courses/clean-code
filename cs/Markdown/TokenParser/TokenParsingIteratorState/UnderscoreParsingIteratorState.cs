@@ -10,22 +10,22 @@ namespace Markdown.TokenParser.TokenParsingIteratorState
         {
         }
 
-        protected TokenNode ParseUnderscore(Token token)
+        protected TagNode ParseUnderscore(Token token)
         {
             if (Iterator.TryPopContext(out var context))
                 if (CanCloseContext(context, token))
                 {
-                    if (context.Children.All(x => x.Token.Type == TokenType.Text))
+                    if (context.Children.All(x => x.Tag.Type == TagType.Text))
                     {
-                        var text = StringUtils.Join(context.Children.Select(x => x.Token));
+                        var text = StringUtils.Join(context.Children.Select(x => x.Tag.ToToken().Value));
                         return ShouldParseUnderscoreAsText(context, text)
                             ? Token.Text(StringUtils.Join(token, Token.Text(text), token)).ToNode()
-                            : new TokenNode(token, Token.Text(text).ToNode());
+                            : new TagNode(token.ToTag(), Token.Text(text).ToNode());
                     }
 
                     return TryParseNonTextEntryOnSameTokenContext(context, out var node)
                         ? node
-                        : new TokenNode(token, context.Children.ToArray());
+                        : new TagNode(token.ToTag(), context.Children.ToArray());
                 }
                 else
                 {
@@ -68,9 +68,9 @@ namespace Markdown.TokenParser.TokenParsingIteratorState
                                                                && token.Value.Length > 0
                                                                && char.IsLetterOrDigit(token.Value[^1]);
         
-        protected virtual bool TryParseNonTextEntryOnSameTokenContext(TokenContext _, out TokenNode token)
+        protected virtual bool TryParseNonTextEntryOnSameTokenContext(TokenContext _, out TagNode tag)
         {
-            token = default;
+            tag = default;
             return false;
         }
         

@@ -26,7 +26,7 @@ namespace Markdown.Tests
         [Test]
         public void Render_ShouldReturnEmptyString_WhenTokensEmpty()
         {
-            var html = sut.Render(Array.Empty<TokenNode>());
+            var html = sut.Render(Array.Empty<TagNode>());
 
             html.Should().Be(string.Empty);
         }
@@ -34,7 +34,7 @@ namespace Markdown.Tests
         [Test]
         public void Render_ShouldReturnText_WhenTextNode()
         {
-            var node = Token.Text("Text").ToNode();
+            var node = Tag.Text("Text").ToNode();
 
             var html = sut.Render(new[] { node });
 
@@ -44,7 +44,7 @@ namespace Markdown.Tests
         [Test]
         public void Render_ShouldReturnFormattedText_WhenSurroundsByCursive()
         {
-            var node = new TokenNode(Token.Cursive, Token.Text("Text").ToNode());
+            var node = new TagNode(Tag.Cursive, Tag.Text("Text").ToNode());
 
             var html = sut.Render(new[] { node });
 
@@ -54,7 +54,7 @@ namespace Markdown.Tests
         [Test]
         public void Render_ShouldReturnFormattedText_WhenSurroundsByBold()
         {
-            var node = new TokenNode(Token.Bold, Token.Text("Text").ToNode());
+            var node = new TagNode(Tag.Bold, Tag.Text("Text").ToNode());
 
             var html = sut.Render(new[] { node });
 
@@ -64,7 +64,7 @@ namespace Markdown.Tests
         [Test]
         public void Render_ShouldReturnFormattedText_WhenStartsWithHeader1()
         {
-            var node = new TokenNode(Token.Header1, Token.Text("Text").ToNode());
+            var node = new TagNode(Tag.Header1, Tag.Text("Text").ToNode());
 
             var html = sut.Render(new[] { node });
 
@@ -74,11 +74,11 @@ namespace Markdown.Tests
         [Test]
         public void Render_ShouldReturnFormattedText_WhenHasInnerFormatting()
         {
-            var node = new TokenNode(Token.Header1, new[]
+            var node = new TagNode(Tag.Header1, new[]
             {
-                Token.Text("A").ToNode(),
-                new TokenNode(Token.Cursive, Token.Text("B").ToNode()),
-                Token.Text("C").ToNode()
+                Tag.Text("A").ToNode(),
+                new TagNode(Tag.Cursive, Tag.Text("B").ToNode()),
+                Tag.Text("C").ToNode()
             });
 
             var html = sut.Render(new[] { node });

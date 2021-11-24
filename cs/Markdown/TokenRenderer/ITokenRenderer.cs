@@ -5,6 +5,6 @@ namespace Markdown.TokenRenderer
 {
     public interface ITokenRenderer
     {
-        string Render(IEnumerable<TokenNode> tokens);
+        string Render(IEnumerable<TagNode> tokens);
     }
 }

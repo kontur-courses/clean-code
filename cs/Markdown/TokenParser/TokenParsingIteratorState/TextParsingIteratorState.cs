@@ -10,7 +10,7 @@ namespace Markdown.TokenParser.TokenParsingIteratorState
         {
         }
 
-        public override TokenNode Parse()
+        public override TagNode Parse()
         {
             var sb = new StringBuilder();
             var text = Iterator.Current.Value;

@@ -11,6 +11,6 @@ namespace Markdown.TokenParser.TokenParsingIteratorState
             Iterator = iterator;
         }
 
-        public abstract TokenNode Parse();
+        public abstract TagNode Parse();
     }
 }

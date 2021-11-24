@@ -8,6 +8,6 @@ namespace Markdown.TokenParser.TokenParsingIteratorState
         {
         }
 
-        public override TokenNode Parse() => ParseUnderscore(Token.Bold);
+        public override TagNode Parse() => ParseUnderscore(Token.Bold);
     }
 }

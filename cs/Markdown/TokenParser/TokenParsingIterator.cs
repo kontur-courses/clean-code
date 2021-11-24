@@ -30,7 +30,7 @@ namespace Markdown.TokenParser
 
         public Token Current => enumerator.Current;
 
-        public IEnumerable<TokenNode> Parse()
+        public IEnumerable<TagNode> Parse()
         {
             while (TryMoveNext(out var current))
             {
@@ -44,7 +44,7 @@ namespace Markdown.TokenParser
             if (TryFlushContexts(out var contextNode)) yield return contextNode;
         }
 
-        public bool TryFlushContexts(out TokenNode node)
+        public bool TryFlushContexts(out TagNode node)
         {
             var stack = new Stack<string>();
             while (contexts.TryPop(out var context))
@@ -67,7 +67,7 @@ namespace Markdown.TokenParser
             return false;
         }
 
-        public TokenNode ParseToken(Token token)
+        public TagNode ParseToken(Token token)
         {
             return token.Type switch
             {
@@ -102,13 +102,13 @@ namespace Markdown.TokenParser
 
         public void PushToBuffer(Token token) => enumerator.PushToBuffer(token);
 
-        private TokenNode FlushToTextToken(IEnumerable<string> stack, TokenContext context)
+        private TagNode FlushToTextToken(IEnumerable<string> stack, TokenContext context)
         {
             contexts.Clear();
             var node = Token.Text(StringUtils.Join(stack)).ToNode();
             return context.Token.Type switch
             {
-                TokenType.Header1 => new TokenNode(Token.Header1, context.Children.Append(node).ToArray()),
+                TokenType.Header1 => new TagNode(Tag.Header1, context.Children.Append(node).ToArray()),
                 _ => node
             };
         }

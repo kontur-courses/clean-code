@@ -9,7 +9,7 @@ namespace Markdown.TokenParser.TokenParsingIteratorState
         {
         }
 
-        public override TokenNode Parse()
+        public override TagNode Parse()
         {
             if (Iterator.TryMoveNext(out var next))
             {

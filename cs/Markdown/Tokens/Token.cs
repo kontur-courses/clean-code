@@ -1,9 +1,9 @@
 ﻿namespace Markdown.Tokens
 {
-    public readonly struct Token
+    public readonly struct Token : ITextContainer
     {
         public readonly TokenType Type;
-        public readonly string Value;
+        public string Value { get; }
 
         private Token(TokenType type, string value)
         {

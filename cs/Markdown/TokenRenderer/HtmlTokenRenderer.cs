@@ -9,17 +9,17 @@ namespace Markdown.TokenRenderer
 {
     public class HtmlTokenRenderer : ITokenRenderer
     {
-        public string Render(IEnumerable<TokenNode> tokens)
+        public string Render(IEnumerable<TagNode> tokens)
         {
             if (tokens == null) throw new ArgumentNullException(nameof(tokens));
             return StringUtils.Join(tokens.Select(ToString));
         }
 
-        private static string ToString(TokenNode node)
+        private static string ToString(TagNode node)
         {
             if (node.Children.Length == 0)
-                return node.Token.Value;
-            var tag = MapToTag(node.Token.Type);
+                return node.Tag.Value;
+            var tag = MapToTag(node.Tag.Type);
             return new StringBuilder()
                 .Append(WrapOpeningTag(tag))
                 .Append(StringUtils.Join(node.Children.Select(ToString)))
@@ -27,14 +27,15 @@ namespace Markdown.TokenRenderer
                 .ToString();
         }
 
-        private static string MapToTag(TokenType type)
+        private static string MapToTag(TagType type)
         {
             return type switch
             {
-                TokenType.Header1 => "h1",
-                TokenType.Cursive => "em",
-                TokenType.Bold => "strong",
-                _ => throw new Exception($"Unsupported token: {type}")
+                TagType.Header1 => "h1",
+                TagType.Cursive => "em",
+                TagType.Bold => "strong",
+                TagType.Text => throw new Exception($"Unsupported tag: {type}"),
+                _ => throw new Exception($"Unsupported tag: {type}")
             };
         }
 

@@ -5,6 +5,6 @@ namespace Markdown.TokenParser
 {
     public interface ITokenParser
     {
-        IEnumerable<TokenNode> Parse(IEnumerable<Token> tokens);
+        IEnumerable<TagNode> Parse(IEnumerable<Token> tokens);
     }
 }

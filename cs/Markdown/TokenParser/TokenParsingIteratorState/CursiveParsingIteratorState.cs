@@ -10,15 +10,15 @@ namespace Markdown.TokenParser.TokenParsingIteratorState
         {
         }
 
-        public override TokenNode Parse() => ParseUnderscore(Token.Cursive);
+        public override TagNode Parse() => ParseUnderscore(Token.Cursive);
 
-        protected override bool TryParseNonTextEntryOnSameTokenContext(TokenContext context, out TokenNode node)
+        protected override bool TryParseNonTextEntryOnSameTokenContext(TokenContext context, out TagNode node)
         {
             var token = Token.Cursive;
             var children = context.Children
-                .Select(x => x.Token.Type == TokenType.Bold ? Token.Text(x.ToText()).ToNode() : x)
+                .Select(x => x.Tag.Type == TagType.Bold ? Token.Text(x.ToText()).ToNode() : x)
                 .ToArray();
-            node = new TokenNode(token, children);
+            node = new TagNode(token.ToTag(), children);
             return true;
         }
     }

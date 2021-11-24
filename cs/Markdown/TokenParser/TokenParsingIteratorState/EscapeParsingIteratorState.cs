@@ -9,7 +9,7 @@ namespace Markdown.TokenParser.TokenParsingIteratorState
         {
         }
 
-        public override TokenNode Parse()
+        public override TagNode Parse()
         {
             if (Iterator.TryMoveNext(out var next))
                 return next.Type switch
@@ -22,7 +22,7 @@ namespace Markdown.TokenParser.TokenParsingIteratorState
             return Token.Escape.ToText().ToNode();
         }
 
-        private TokenNode EscapeBold()
+        private TagNode EscapeBold()
         {
             var cursive = Token.Cursive;
             Iterator.PushToBuffer(cursive);
