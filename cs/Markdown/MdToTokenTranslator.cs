@@ -79,7 +79,7 @@ namespace Markdown
                 tokens.Add(new HeadingToken(i, true));
                 tokenBuilder.Clear();
                 tokenBuilder.SetPosition(i + 1);
-                i++;
+                //i++;
             }
             else
                 tokenBuilder.Append(markdown[i]);
@@ -113,14 +113,14 @@ namespace Markdown
             var tokenBuilder = new TokenBuilder();
             if (i + 1 < markdown.Length && markdown[i + 1] == '_')
             {
-                tokenBuilder.SetType(TokenType.Bold).SetPosition(i);
+                tokenBuilder.SetType(TokenType.Bold);
                 isBold = true;
             }
             else
-                tokenBuilder.SetType(TokenType.Italics).SetPosition(i);
+                tokenBuilder.SetType(TokenType.Italics);
 
             var isOpening = IsOpeningToken(tokenBuilder.Type, openedTokens);
-            tokenBuilder.SetOpening(isOpening);
+            tokenBuilder.SetPosition(i).SetOpening(isOpening);
             var token = tokenBuilder.Build();
             if (isOpening)
                 openedTokens.Push(token);
