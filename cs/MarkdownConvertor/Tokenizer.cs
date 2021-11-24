@@ -19,12 +19,12 @@ namespace MarkdownConvertor
             tags = TagToken.GetTags();
         }
 
-        public IEnumerable<IToken> GetTokens(string input)
+        public IEnumerable<List<IToken>> GetTokens(string input)
         {
-            return input.Split('\n').SelectMany(s => GetTokensFromParagraph($"{s}\n"));
+            return input.Split('\n').Select(paragraph => GetTokensFromParagraph($"{paragraph}\n"));
         }
 
-        private IEnumerable<IToken> GetTokensFromParagraph(string input)
+        private List<IToken> GetTokensFromParagraph(string input)
         {
             var index = 0;
             var stringBuilder = new StringBuilder();
@@ -39,10 +39,10 @@ namespace MarkdownConvertor
                 {
                     index = CreatePossibleTokensAndUpdateIndex(stringBuilder, tokens, screenerTagValue, index);
 
-                    if (index >= input.Length)
+                    if (index >= input.Length - 1)
                         break;
 
-                    if (!TryCreateToken(input[index + 1].ToString(), tokens)) stringBuilder.Append(input[index]);
+                    if (!TryCreateToken(input[index].ToString(), tokens)) stringBuilder.Append(input[index]);
 
                     index++;
                 }

@@ -7,7 +7,12 @@ namespace MarkdownConvertor
 {
     public class TagValidator
     {
-        public IEnumerable<IToken> GetValidTokens(List<IToken> tokens)
+        public static IEnumerable<IToken> GetValidTokens(IEnumerable<List<IToken>> tokensInParagraphs)
+        {
+            return tokensInParagraphs.SelectMany(GetValidTokensFromParagraph);
+        }
+
+        private static IEnumerable<IToken> GetValidTokensFromParagraph(List<IToken> tokens)
         {
             var validTokens = new List<IToken>();
             var foundTokenTypeCounter = new Dictionary<string, List<IToken>>();
@@ -148,14 +153,11 @@ namespace MarkdownConvertor
         private static bool DoubleTagCanBeValid(int i, IList<IToken> tokens,
             IReadOnlyDictionary<string, List<IToken>> foundTokenTypeCounter)
         {
-            return IsTagNotScreened(i, tokens)
-                   && IsNotWhiteSpaceBetweenSameTags(foundTokenTypeCounter, tokens, i)
+            return IsNotWhiteSpaceBetweenSameTags(foundTokenTypeCounter, tokens, i)
                    && IsTagNotInsideDigits(i, tokens, foundTokenTypeCounter)
-                   && (!IsTagInsideWord(tokens, i) &&
-                       (IsTagOpeningAndNoWhiteSpaceAfterTag(foundTokenTypeCounter, tokens, i)
-                        || IsTagClosingAndNoWhiteSpaceBeforeTag(foundTokenTypeCounter, tokens, i))
-                       || IsTagInsideWord(tokens, i) &&
-                       IsTagNotInDifferentWordsWithPair(i, tokens, foundTokenTypeCounter));
+                   && (IsTagOpeningAndNoWhiteSpaceAfterTag(foundTokenTypeCounter, tokens, i)
+                       || IsTagClosingAndNoWhiteSpaceBeforeTag(foundTokenTypeCounter, tokens, i)
+                       || IsTagNotInDifferentWordsWithPair(i, tokens, foundTokenTypeCounter));
         }
 
         private static bool IsTagNotInDifferentWordsWithPair(int i, IList<IToken> tokens,
@@ -174,17 +176,13 @@ namespace MarkdownConvertor
                    !char.IsDigit(tokens[i - 1].Value.Last());
         }
 
-        private static bool IsTagNotScreened(int i, IList<IToken> tokens)
-        {
-            return i == 0 || i > 0 && !(tokens[i - 1] is ScreenerToken);
-        }
-
         private static bool ContainsWhiteSpace(string value)
         {
             return value.Contains(' ');
         }
 
-        private static void HandlePotentialSingleTag(int i, ICollection<IToken> result, IToken singleTagToken, List<IToken> tokens)
+        private static void HandlePotentialSingleTag(int i, ICollection<IToken> result, IToken singleTagToken,
+            IReadOnlyList<IToken> tokens)
         {
             if (i == 0 || tokens[i - 1].Value == "\n")
                 result.Add(new TagToken(singleTagToken.Value));
@@ -238,12 +236,6 @@ namespace MarkdownConvertor
             return !(IsTagOpening(foundTokenTypeCounter, tokens, i) && i < tokens.Count - 1 &&
                      tokens[i + 1].Value == tokens[i].Value
                      || IsTagClosing(foundTokenTypeCounter, tokens, i) && tokens[i - 1].Value == tokens[i].Value);
-        }
-
-        private static bool IsTagInsideWord(IList<IToken> tokens, int i)
-        {
-            return i > 0 && i < tokens.Count - 1 && !tokens[i - 1].Value.EndsWith(" ")
-                   && !tokens[i + 1].Value.StartsWith(" ");
         }
 
         private static bool IsTagClosingAndNoWhiteSpaceBeforeTag(
