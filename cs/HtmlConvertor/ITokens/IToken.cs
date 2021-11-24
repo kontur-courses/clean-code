@@ -1,4 +1,4 @@
-namespace MarkdownProcessor
+namespace HtmlConvertor.ITokens
 {
     public interface IToken
     {
