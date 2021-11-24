@@ -20,7 +20,7 @@ namespace Markdown
                 var parsersTable = ParsersStorage.ParsersTable;
 
                 IToken token = null;
-
+                /*
                 foreach (var parser in parsersTable.Values)
                 {
                     token = parser.TryGetToken(ref i, ref _currentBuilder, ref line);
@@ -33,28 +33,34 @@ namespace Markdown
                     _currentBuilder.Append(currentSymbol);
                     continue;
                 }
+                */
 
-                // var currentAndNextSymbols = (i< line.Length - 1) ? currentSymbol.ToString() +line[i+1] : null;
-                // IParser parser;
-                // StringBuilder builder;
-                //
-                // if (currentAndNextSymbols != null && parsersTable.ContainsKey(currentAndNextSymbols))
-                // {
-                //     parser = parsersTable[currentAndNextSymbols];
-                //     builder = _currentBuilder;
-                // }
-                // else if (parsersTable.ContainsKey(currentSymbol.ToString()))
-                // {
-                //     parser = parsersTable[currentSymbol.ToString()];
-                //     builder = (currentSymbol == '\\') ? null : _currentBuilder;
-                // }
-                // else
-                // {
-                //     _currentBuilder.Append(currentSymbol);
-                //     continue;
-                // }
+                var currentAndNextSymbols = (i< line.Length - 1) ? currentSymbol.ToString() +line[i+1] : null;
+                IParser parser;
+                StringBuilder builder;
+                
+                if (currentAndNextSymbols != null && parsersTable.ContainsKey(currentAndNextSymbols))
+                { 
+                    parser = parsersTable[currentAndNextSymbols]; 
+                    builder = _currentBuilder;
+                }
+                else if (parsersTable.ContainsKey(currentSymbol.ToString()))
+                {
+                    parser = parsersTable[currentSymbol.ToString()]; 
+                    builder = (currentSymbol == '\\') ? null : _currentBuilder;
+                }
+                else
+                { 
+                    _currentBuilder.Append(currentSymbol); 
+                    continue;
+                }
 
-                AddWordToken(_currentBuilder);
+                //AddWordToken(_currentBuilder);
+                //AddToken(token);
+
+
+                token = parser.TryGetToken(ref i, ref builder, ref line);
+                AddWordToken(builder);
                 AddToken(token);
             }
             AddWordToken(_currentBuilder);

@@ -9,8 +9,8 @@ namespace Markdown.Parsers
 
         public IToken TryGetToken(ref int i, ref StringBuilder stringBuilder, ref string line)
         {
-            if (_specialSymbols.Contains(line[i + 1]) ||
-                line[i + 1] == '\\')
+            if (i + 1 < line.Length && (_specialSymbols.Contains(line[i + 1]) ||
+                line[i + 1] == '\\'))
             {
                 stringBuilder.Append(line[i + 1]);
                 i++;
