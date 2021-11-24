@@ -16,9 +16,9 @@ public class Md
     {
         this.text = text;
         var settings = new WrapperSettingsProvider();
-        settings.TryAddSetting(new("#", "#$(text)", "<h1>$(text)</h1>", true));
-        settings.TryAddSetting(new("_", "_$(text)_", "<em>$(text)</em>"));
-        settings.TryAddSetting(new("__", "__$(text)__", "<strong>$(text)</strong>"));
+        settings.TryAddSetting(new("#", "<h1>", "#$(text)", "<h1>$(text)</h1>", true));
+        settings.TryAddSetting(new("_", "<em>", "_$(text)_", "<em>$(text)</em>", nestingLevel: 2));
+        settings.TryAddSetting(new("__", "<strong>", "__$(text)__", "<strong>$(text)</strong>", nestingLevel: 1));
 
         tokenizer = new Tokenizer(settings);
     }

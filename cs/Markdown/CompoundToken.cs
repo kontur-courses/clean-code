@@ -4,7 +4,7 @@ namespace Markdown;
 
 internal class CompoundToken : Token
 {
-    public CompoundToken(string value, int sourceStart, TagSetting? setting) : base(value, sourceStart, setting)
+    public CompoundToken(string value, int sourceStart, TagSetting? setting, IReadOnlySet<string> excludedParts) : base(value, sourceStart, setting, excludedParts)
     {
     }
 
@@ -26,7 +26,7 @@ internal class CompoundToken : Token
         }
 
         if (Setting != null)
-            return Setting.Render(builder.ToString());
+            return Setting.Render(builder.ToString(), excludedParts);
 
         return builder.ToString();
     }

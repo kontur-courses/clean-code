@@ -1,39 +1,55 @@
-﻿namespace Markdown;
+﻿using System.Text;
+
+namespace Markdown;
 
 public class TagSetting
 {
     private record struct VariableDescriptor(string Name, string Start, string End);
 
+    public string HtmlTag { get; private set; }
     public string OpeningTag { get; private set; }
     public string EndTag { get; private set; }
     public bool IsLineOnly { get; private set; }
+    public IReadOnlySet<string> SpecialParts { get; private set; }
 
     private readonly string htmlPattern;
-
+    private readonly int nestingLevel;
     private readonly List<VariableDescriptor> variables = new();
 
-    public TagSetting(string mdTag, string mdPattern, string htmlPattern, bool isLineOnly = false)
+    public TagSetting(string mdTag, string htmlTag, string mdPattern, string htmlPattern, bool isLineOnly = false, int nestingLevel = 0)
     {
         OpeningTag = mdTag;
+        HtmlTag = htmlTag;
         this.htmlPattern = htmlPattern;
         IsLineOnly = isLineOnly;
+        this.nestingLevel = nestingLevel;
         ParseVariables(mdPattern);
         EndTag = variables.Count > 0 ? variables[^1].End : mdTag;
+        SpecialParts = variables.Select(x => x.Start)
+            .Concat(variables.Select(x => x.End))
+            .Where(x => !string.IsNullOrWhiteSpace(x))
+            .ToHashSet();
     }
 
-    public string Render(string text)
+    public bool CanBeNestedIn(TagSetting? setting)
     {
-        var result = htmlPattern;
+        return setting == null || nestingLevel > setting.nestingLevel;
+    }
+
+    public string Render(string text, IReadOnlySet<string> excludedParts)
+    {
+        var result = new StringBuilder(htmlPattern);
         var position = 0;
-        foreach (var descriptor in variables)
+        for (var i = 0; i < variables.Count; i++)
         {
-            var startIndex = text.IndexOf(descriptor.Start, position);
+            var descriptor = variables[i];
+            var startIndex = FindNext(text, position, descriptor.Start, excludedParts);
             if (startIndex == -1)
                 throw new ArgumentException($"Invalid string format: failed to find start of variable $({descriptor.Name})", nameof(text));
             startIndex += descriptor.Start.Length;
 
             var endIndex = descriptor.End != string.Empty
-                ? text.IndexOf(descriptor.End, startIndex + 1)
+                ? FindNext(text, startIndex, descriptor.End, excludedParts)
                 : text.Length;
             if (endIndex == -1)
                 return text;
@@ -42,7 +58,34 @@ public class TagSetting
             position = endIndex;
         }
 
-        return result;
+        return result.ToString();
+    }
+
+    private static int FindNext(string text, int start, string toFind, IReadOnlySet<string> excludedParts)
+    {
+        var possibleFind = text.IndexOf(toFind, start);
+        while (possibleFind != -1)
+        {
+            var toSkip = 0;
+            foreach (var part in excludedParts)
+            {
+                if (text.Length < possibleFind + part.Length)
+                    continue;
+                if (toFind.Length > part.Length)
+                    continue;
+
+                if (excludedParts.Contains(text.Substring(possibleFind, part.Length)))
+                {
+                    toSkip = part.Length;
+                    break;
+                }
+            }
+            if (toSkip == 0)
+                break;
+            possibleFind = text.IndexOf(toFind, possibleFind + toSkip);
+        }
+
+        return possibleFind;
     }
 
     private void ParseVariables(string mdPattern)

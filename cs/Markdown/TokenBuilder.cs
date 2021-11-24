@@ -11,9 +11,11 @@ internal class TokenBuilder
     public TokenBuilder? Parent { get; private set; }
 
     private readonly List<TokenBuilder> tokens = new();
+    private readonly Tokenizer tokenizer;
 
-    public TokenBuilder(StringBuilder source, int start, TokenBuilder? parent)
+    public TokenBuilder(Tokenizer tokenizer, StringBuilder source, int start, TokenBuilder? parent)
     {
+        this.tokenizer = tokenizer;
         Source = source;
         Parent = parent;
         Start = start;
@@ -38,16 +40,17 @@ internal class TokenBuilder
 
     internal Token Build()
     {
+
         var actualStart = Start - (Parent?.Start ?? 0);
         if (tokens.Count == 0)
-            return Tokenizer.WrapToken(Source.ToString()[Start..End], actualStart, MdTag);
+            return tokenizer.WrapToken(Source.ToString()[Start..End], actualStart, MdTag);
 
-        return BuildCompound(actualStart);
+        return BuildCompound(actualStart, tokenizer.GetExcludedParts(MdTag));
     }
 
-    private CompoundToken BuildCompound(int actualStart)
+    private CompoundToken BuildCompound(int actualStart, IReadOnlySet<string> excludedParts)
     {
-        var compound = new CompoundToken(Source.ToString()[Start..End], actualStart, MdTag);
+        var compound = new CompoundToken(Source.ToString()[Start..End], actualStart, MdTag, excludedParts);
         foreach (var token in tokens)
         {
             compound.AddToken(token.Build());

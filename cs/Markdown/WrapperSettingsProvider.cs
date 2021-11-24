@@ -39,7 +39,10 @@ public class WrapperSettingsProvider : IEnumerable<TagSetting>
 
     public TagSetting[] GetSettings(bool isLineOnly)
     {
-        return settings.Values.Where(x => x.IsLineOnly == isLineOnly).ToArray();
+        return settings.Values
+            .Where(x => x.IsLineOnly == isLineOnly)
+            .OrderByDescending(x => x.OpeningTag.Length)
+            .ToArray();
     }
 
     public string[] GetOpeningTags(bool isLineOnly)
@@ -52,7 +55,7 @@ public class WrapperSettingsProvider : IEnumerable<TagSetting>
         return GetTokenSeparators(isLineOnly, x => x.EndTag).ToArray();
     }
 
-    private IEnumerable<string> GetTokenSeparators(bool isLineOnly, Func<TagSetting,string> separatorGetter)
+    private IEnumerable<string> GetTokenSeparators(bool isLineOnly, Func<TagSetting, string> separatorGetter)
     {
         return settings.Values
             .Where(x => x.IsLineOnly == isLineOnly)
