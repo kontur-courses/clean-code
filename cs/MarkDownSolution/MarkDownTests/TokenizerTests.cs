@@ -241,16 +241,13 @@ namespace MarkDownTests
         }
 
         [Test]
-        public void GetToken_OnBoldInsideItalic_ShouldTokenize()
+        public void GetToken_OnBoldInsideItalic_ShouldNotTokenize()
         {
             var text = "_итальянец и __жирный__ текст_";
             var expectedToken = new Token(0, text.Length);
             var firstNested = new ItalicToken(0, text.Length);
-            var secondNested = new BoldToken(13, 10);
-            secondNested.fatherToken = firstNested;
             firstNested.fatherToken = expectedToken;
             expectedToken.GetNestedTokens().Add(firstNested);
-            firstNested.GetNestedTokens().Add(secondNested);
 
             var actualToken = Tokenizer.GetToken(text);
 
@@ -333,6 +330,28 @@ namespace MarkDownTests
         public void GetToken_TripleGround_ShouldWorkCorrectly()
         {
             var text = "___И что с этим делать?___";
+            var expectedToken = new Token(0, text.Length);
+
+            var actualToken = Tokenizer.GetToken(text);
+
+            actualToken.Should().BeTheSameAs(expectedToken);
+        }
+
+        [Test]
+        public void GetToken_IntersectionWithDifferentSpacing_ShouldNotTokenize()
+        {
+            var text = "В случае __пересечения _двойных__ и одинарных_ подчерков ни один из них не считается выделением.";
+            var expectedToken = new Token(0, text.Length);
+
+            var actualToken = Tokenizer.GetToken(text);
+
+            actualToken.Should().BeTheSameAs(expectedToken);
+        }
+
+        [Test]
+        public void GetToken_AfterIntersection_ShouldNotTokenize()
+        {
+            var text = " __п _д__ и о_";
             var expectedToken = new Token(0, text.Length);
 
             var actualToken = Tokenizer.GetToken(text);

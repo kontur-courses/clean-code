@@ -10,6 +10,7 @@ namespace MarkDown
     {
         public bool isEscaping = false;
         public bool isSplittingWord = false;
+        public bool wasIntersected = false;
         public Dictionary<CaseType, bool> statesDict = new Dictionary<CaseType, bool>()
             {
                 { CaseType.Italic, false },

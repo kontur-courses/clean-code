@@ -34,14 +34,16 @@ namespace MarkDown
 
         public static bool CanCloseBoldToken(string text, int i)
         {
-            return !(CheckIfIthIsSpecificChar(text, i - 2, ' ')
+            return (!(CheckIfIthIsSpecificChar(text, i - 2, ' ')
                 || CheckIfIthIsSpecificChar(text, i - 2, ground)
-                || !CheckIfIthIsSpecificChar(text, i - 1, ground));
+                || !CheckIfIthIsSpecificChar(text, i - 1, ground)))
+                && CheckIfIthIsSpecificChar(text, i - 1, ground)
+                && CheckIfIthIsSpecificChar(text, i, ground);
         }
 
         public static bool IsCaseWhenShouldNotTokenize(string text, TokenizerState state, int i)
         {
-            return char.IsDigit(text[i]) || char.IsWhiteSpace(text[i]) && state.isSplittingWord;
+            return char.IsDigit(text[i]) || char.IsWhiteSpace(text[i]) && state.isSplittingWord || state.wasIntersected;
         }
 
         public static bool CheckIfIthIsSpecificChar(string text, int i, char ch)

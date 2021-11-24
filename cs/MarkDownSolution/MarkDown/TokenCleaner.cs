@@ -10,17 +10,17 @@ namespace MarkDown
     {
         public static void CleanToken(Token token)
         {
-            IfOpenedAddNestedToFather(token);
+            IfOpenedOrIncorrectAddNestedToFather(token);
         }
         
-        private static void IfOpenedAddNestedToFather(Token token)
+        private static void IfOpenedOrIncorrectAddNestedToFather(Token token)
         {
             var nested = token.GetNestedTokens();
             for (int i = 0; i < nested.Count; i++)
             {
-                IfOpenedAddNestedToFather(nested[i]);
+                IfOpenedOrIncorrectAddNestedToFather(nested[i]);
             }
-            if (!token.closed)
+            if (!token.closed || token is BoldToken && token.fatherToken is ItalicToken)
             {
                 foreach(var n in nested)
                 {

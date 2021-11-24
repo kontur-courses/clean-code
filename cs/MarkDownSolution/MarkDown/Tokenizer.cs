@@ -24,6 +24,10 @@ namespace MarkDown
             }
             for (int i = 0; i < text.Length; i++)
             {
+                if (state.wasIntersected)
+                {
+                    break;
+                }
                 if (TextHelper.IsCaseWhenShouldNotTokenize(text, state, i))
                 {
                     state.MakeAllStatesFalse();
@@ -67,17 +71,37 @@ namespace MarkDown
         {
             if (state.ItalicTokenIsOpened())
             {
-                if (TextHelper.CanCloseItalicToken(text, i) && i - state.currentToken.start >= 2)
+                if (TextHelper.CanCloseItalicToken(text, i) 
+                    && i - state.currentToken.start >= 2
+                    && !state.wasIntersected)
                 {
-                    state.CloseItalicToken(i);
-                    return;
+                    if (state.currentToken is ItalicToken)
+                    {
+                        state.CloseItalicToken(i);
+                        return;
+                    }
+                    else
+                    {
+                        state.wasIntersected = true;
+                    }
                 }
             }
             if (state.BoldTokenIsOpened())
             {
-                if (TextHelper.CanCloseBoldToken(text, i) && i - state.currentToken.start >= 4)
+                if (TextHelper.CanCloseBoldToken(text, i)  
+                    && !state.wasIntersected)
                 {
-                    state.CloseBoldToken(i);
+                    if (state.currentToken is BoldToken)
+                    {
+                        if (i - state.currentToken.start >= 4)
+                        {
+                            state.CloseBoldToken(i);
+                        }
+                    }
+                    else
+                    {
+                        state.wasIntersected = true;
+                    }
                 }
             }
         }

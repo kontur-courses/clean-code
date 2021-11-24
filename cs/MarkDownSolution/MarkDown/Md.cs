@@ -1,5 +1,5 @@
 ﻿using System;
-using System.Linq;
+using System.Collections.Generic;
 
 namespace MarkDown
 {
@@ -7,9 +7,15 @@ namespace MarkDown
     {
         public string Render(string input)
         {
-            var paragraps = TextPreparer.PrepareText(input);
-            var preparedParagraphs = paragraps.Select(x => TextPreparer.PrepareParagraph(x));
-            throw new NotImplementedException();
+            var paragraphList = new List<string>();
+            var paragraphs = TextPreparer.PrepareText(input);
+            foreach (var paragraph in paragraphs)
+            {
+                var token = Tokenizer.GetToken(paragraph);
+                var htmlParagraph = HtmlTagger.GetString(token, paragraph);
+                paragraphList.Add(htmlParagraph);
+            }
+            return string.Join(Environment.NewLine, paragraphList);
         }
     }
 }

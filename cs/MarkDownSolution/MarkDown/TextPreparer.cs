@@ -7,7 +7,7 @@ namespace MarkDown
     public static class TextPreparer
     {
         private static string paragraphSymbol = Environment.NewLine;
-        public static string PrepareParagraph(string text)
+        private static string PrepareParagraph(string text)
         {
             return text;
         }
