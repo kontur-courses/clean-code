@@ -41,12 +41,12 @@ namespace Markdown
             if (Config.ShieldingSymbol.Setted && Config.Tokens.Contains(Config.ShieldingSymbol.Symbol.Start))
                 throw new ArgumentException($"shielding symbol can not be {Config.ShieldingSymbol.Symbol.Start}, because it's already added like token");
             
-            var trie = new Trie<Token>();
+            var trie = new Trie();
             
             foreach (var token in Config.Tokens)
-                trie.Add(token.ToString(), token);
+                trie.Add(token.ToString(), token.ToString());
             if (Config.ShieldingSymbol.Setted)
-                trie.Add(Config.ShieldingSymbol.Symbol.Start.ToString(), Config.ShieldingSymbol.Symbol.Start);
+                trie.Add(Config.ShieldingSymbol.Symbol.Start.ToString(), Config.ShieldingSymbol.Symbol.Start.ToString());
             trie.Build();
             
             return new TokenParser(trie, Config.TagRules, Config.ShieldingSymbol.Setted ? Config.ShieldingSymbol.Symbol.Start.ToString() : null);

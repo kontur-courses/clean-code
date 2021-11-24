@@ -67,7 +67,7 @@ namespace Markdown
             var secondMin = Math.Min(other.StartPosition, other.EndPosition);
             var secondMax = Math.Max(other.StartPosition, other.EndPosition);
 
-            return secondMin.Between(firstMin, firstMax) && secondMax.Between(firstMin, firstMax);
+            return secondMin.IsBetween(firstMin, firstMax) && secondMax.IsBetween(firstMin, firstMax);
         }
         
         public bool IsIntersectWith(TokenSegment other)
@@ -79,8 +79,8 @@ namespace Markdown
             var secondMin = Math.Min(other.StartPosition, other.EndPosition);
             var secondMax = Math.Max(other.StartPosition, other.EndPosition);
 
-            return firstMin.Between(secondMin, secondMax) && !firstMax.Between(secondMin, secondMax)
-                   || !firstMin.Between(secondMin, secondMax) && firstMax.Between(secondMin, secondMax);
+            return firstMin.IsBetween(secondMin, secondMax) && !firstMax.IsBetween(secondMin, secondMax)
+                   || !firstMin.IsBetween(secondMin, secondMax) && firstMax.IsBetween(secondMin, secondMax);
         }
 
         public bool IsEmpty()

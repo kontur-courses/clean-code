@@ -7,11 +7,11 @@ namespace Markdown
 {
     internal class TokenParser : ITokenParser
     {
-        private readonly Trie<Token> trie;
+        private readonly Trie trie;
         private readonly TagRules rules;
         private readonly string shieldingSymbol;
 
-        internal TokenParser(Trie<Token> trie, TagRules rules, string shieldingSymbol)
+        internal TokenParser(Trie trie, TagRules rules, string shieldingSymbol)
         {
             this.shieldingSymbol = shieldingSymbol;
             this.trie = trie;
@@ -99,15 +99,15 @@ namespace Markdown
 
                 var tokenInfo = new TokenInfo(
                     index,
-                    token, closeValid, openValid,
+                    new Token(token), closeValid, openValid,
                     closeValid && openValid,
-                    closeValid || openValid || shieldingSymbol is not null && shieldingSymbol == token.ToString()
+                    closeValid || openValid || shieldingSymbol is not null && shieldingSymbol == token
                 );
                 
                 tokenInfos[lastIndex = index] = tokenInfo;
                 currentSearchStartIndex = index + token.Length;
 
-                if (token.ToString() == shieldingSymbol)
+                if (token == shieldingSymbol)
                     lastShieldToken = tokenInfo;
             }
             
