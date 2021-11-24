@@ -1,8 +1,9 @@
+using System;
 using System.Linq;
 
-namespace HtmlConvertor
+namespace MarkdownConvertor
 {
-    public class HtmlConvertor
+    public class MarkdownConverter
     {
         private readonly Tokenizer tokenizer = new Tokenizer();
         private readonly TagValidator tagValidator = new TagValidator();

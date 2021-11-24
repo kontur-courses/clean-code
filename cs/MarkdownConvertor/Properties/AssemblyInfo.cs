@@ -4,11 +4,11 @@ using System.Runtime.InteropServices;
 // General Information about an assembly is controlled through the following 
 // set of attributes. Change these attribute values to modify the information
 // associated with an assembly.
-[assembly: AssemblyTitle("HtmlConvertor")]
+[assembly: AssemblyTitle("MarkdownConvertor")]
 [assembly: AssemblyDescription("")]
 [assembly: AssemblyConfiguration("")]
 [assembly: AssemblyCompany("")]
-[assembly: AssemblyProduct("HtmlConvertor")]
+[assembly: AssemblyProduct("MarkdownConvertor")]
 [assembly: AssemblyCopyright("Copyright ©  2021")]
 [assembly: AssemblyTrademark("")]
 [assembly: AssemblyCulture("")]
@@ -19,7 +19,7 @@ using System.Runtime.InteropServices;
 [assembly: ComVisible(false)]
 
 // The following GUID is for the ID of the typelib if this project is exposed to COM
-[assembly: Guid("73040D34-E00D-4D87-9E3C-7F3400BEDF80")]
+[assembly: Guid("2BE96120-20D9-4317-A265-9F9C3ADC9016")]
 
 // Version information for an assembly consists of the following four values:
 //

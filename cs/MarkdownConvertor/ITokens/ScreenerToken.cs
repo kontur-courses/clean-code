@@ -1,4 +1,4 @@
-namespace HtmlConvertor.ITokens
+namespace MarkdownConvertor.ITokens
 {
     public class ScreenerToken : IToken
     {

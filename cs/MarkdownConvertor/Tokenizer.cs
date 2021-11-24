@@ -1,9 +1,9 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
-using HtmlConvertor.ITokens;
+using MarkdownConvertor.ITokens;
 
-namespace HtmlConvertor
+namespace MarkdownConvertor
 {
     public class Tokenizer
     {
@@ -30,7 +30,7 @@ namespace HtmlConvertor
             var stringBuilder = new StringBuilder();
             var tokens = new List<IToken>();
 
-            while (index < input.Length)
+            while (index < input.Length - 1)
                 if (TryGetLongestCollectionElementStartInIndex(input, tags, index, out var tagValue))
                 {
                     index = CreatePossibleTokensAndUpdateIndex(stringBuilder, tokens, tagValue, index);
@@ -53,6 +53,7 @@ namespace HtmlConvertor
                 }
 
             TryCreateTextToken(stringBuilder, tokens);
+            tokens.Add(new TextToken(input.Last().ToString()));
 
             return tokens;
         }

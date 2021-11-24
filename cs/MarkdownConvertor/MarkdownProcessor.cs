@@ -1,9 +1,9 @@
 using System;
 using System.Collections.Generic;
 using System.Text;
-using HtmlConvertor.ITokens;
+using MarkdownConvertor.ITokens;
 
-namespace HtmlConvertor
+namespace MarkdownConvertor
 {
     public class MarkdownProcessor
     {

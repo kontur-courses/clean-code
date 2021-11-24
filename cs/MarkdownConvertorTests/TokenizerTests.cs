@@ -1,22 +1,26 @@
 using System.Collections.Generic;
 using System.Linq;
 using FluentAssertions;
-using HtmlConvertor;
-using HtmlConvertor.ITokens;
+using MarkdownConvertor;
+using MarkdownConvertor.ITokens;
 using NUnit.Framework;
 
-namespace HtmlConvertorTests
+namespace MarkdownConvertorTests
 {
     [TestFixture]
     public class TokenizerTests
     {
         private static IEnumerable<TestCaseData> CorrectInputsTests()
         {
-            yield return new TestCaseData("abc", new[] { new TextToken("abc\n") });
+            yield return new TestCaseData("abc", new[] { 
+                new TextToken("abc"),
+                new TextToken("\n") 
+            });
             yield return new TestCaseData("_abc", new IToken[]
             {
                 new TagToken("_"),
-                new TextToken("abc\n")
+                new TextToken("abc"),
+                new TextToken("\n")
             }).SetName("Should found double tag");
             yield return new TestCaseData("__abc_", new IToken[]
             {
@@ -28,7 +32,8 @@ namespace HtmlConvertorTests
             yield return new TestCaseData("# abc\n_dgv_", new IToken[]
             {
                 new TagToken("# "),
-                new TextToken("abc\n"),
+                new TextToken("abc"),
+                new TextToken("\n"),
                 new TagToken("_"),
                 new TextToken("dgv"),
                 new TagToken("_"),
@@ -38,7 +43,8 @@ namespace HtmlConvertorTests
             {
                 new TextToken("as"),
                 new TagToken("# "),
-                new TextToken("sd\n")
+                new TextToken("sd"),
+                new TextToken("\n")
             }).SetName("Should found double tag");
             yield return new TestCaseData(@"\__avd_", new IToken[]
             {
@@ -56,14 +62,28 @@ namespace HtmlConvertorTests
                 new ScreenerToken(@"\"),
                 new TagToken("_"),
                 new TagToken("_"),
-                new TextToken("ad\n")
+                new TextToken("ad"),
+                new TextToken("\n")
             }).SetName("Should found screeners");
             yield return new TestCaseData(@"as\cd", new IToken[]
             {
                 new TextToken("as"),
                 new ScreenerToken(@"\"),
-                new TextToken("cd\n")
+                new TextToken("cd"),
+                new TextToken("\n")
             }).SetName("Should found screeners");
+            yield return new TestCaseData("- a\n- b\n- c", new IToken[]
+            {
+                new TagToken("- "),
+                new TextToken("a"),
+                new TextToken("\n"),
+                new TagToken("- "),
+                new TextToken("b"),
+                new TextToken("\n"),
+                new TagToken("- "),
+                new TextToken("c"),
+                new TextToken("\n")
+            });
         }
 
         [TestCaseSource(nameof(CorrectInputsTests))]

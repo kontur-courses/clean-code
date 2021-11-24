@@ -1,4 +1,4 @@
-namespace HtmlConvertor
+namespace MarkdownConvertor
 {
     public enum TokenType
     {

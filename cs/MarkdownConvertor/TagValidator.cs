@@ -1,9 +1,9 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using HtmlConvertor.ITokens;
+using MarkdownConvertor.ITokens;
 
-namespace HtmlConvertor
+namespace MarkdownConvertor
 {
     public class TagValidator
     {
@@ -27,7 +27,7 @@ namespace HtmlConvertor
                             validTokens.Add(textToken);
                             break;
                         case TagToken tagToken when tagToken.TokenType is TokenType.SingleTag:
-                            HandlePotentialSingleTag(i, validTokens, tagToken);
+                            HandlePotentialSingleTag(i, validTokens, tagToken, tokens);
                             break;
                         case TagToken tagToken:
                             HandlePotentialDoubleTag(i, tokens, foundTokenTypeCounter, tagToken, validTokens);
@@ -123,7 +123,7 @@ namespace HtmlConvertor
                 validTokens.Add(new TextToken(screenerToken.Value));
         }
 
-        private void HandlePotentialDoubleTag(int i, IList<IToken> tokens,
+        private static void HandlePotentialDoubleTag(int i, IList<IToken> tokens,
             Dictionary<string, List<IToken>> foundTokenTypeCounter,
             IToken doubleTagToken, ICollection<IToken> validTokens)
         {
@@ -184,9 +184,9 @@ namespace HtmlConvertor
             return value.Contains(' ');
         }
 
-        private static void HandlePotentialSingleTag(int i, ICollection<IToken> result, IToken singleTagToken)
+        private static void HandlePotentialSingleTag(int i, ICollection<IToken> result, IToken singleTagToken, List<IToken> tokens)
         {
-            if (i == 0)
+            if (i == 0 || tokens[i - 1].Value == "\n")
                 result.Add(new TagToken(singleTagToken.Value));
             else
                 result.Add(new TextToken(singleTagToken.Value));

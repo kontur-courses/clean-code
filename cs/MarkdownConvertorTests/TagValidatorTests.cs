@@ -1,11 +1,11 @@
 using System.Collections.Generic;
 using System.Linq;
 using FluentAssertions;
-using HtmlConvertor;
-using HtmlConvertor.ITokens;
+using MarkdownConvertor;
+using MarkdownConvertor.ITokens;
 using NUnit.Framework;
 
-namespace HtmlConvertorTests
+namespace MarkdownConvertorTests
 {
     [TestFixture]
     public class TagValidatorTests
@@ -363,6 +363,29 @@ namespace HtmlConvertorTests
                 new TagToken("_"),
                 new TextToken("\n")
             }).SetName("Should be TagToken when italic and strong inside header");
+            yield return new TestCaseData(new IToken[]
+            {
+                new TagToken("- "),
+                new TextToken("a"),
+                new TextToken("\n"),
+                new TagToken("- "),
+                new TextToken("b"),
+                new TextToken("\n"),
+                new TagToken("- "),
+                new TextToken("c"),
+                new TextToken("\n")
+            }, new IToken[]
+            {
+                new TagToken("- "),
+                new TextToken("a"),
+                new TextToken("\n"),
+                new TagToken("- "),
+                new TextToken("b"),
+                new TextToken("\n"),
+                new TagToken("- "),
+                new TextToken("c"),
+                new TextToken("\n")
+            });
         }
 
         [TestCaseSource(nameof(Tests))]

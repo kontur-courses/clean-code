@@ -4,13 +4,14 @@
     <PropertyGroup>
         <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
         <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
-        <ProjectGuid>{73040D34-E00D-4D87-9E3C-7F3400BEDF80}</ProjectGuid>
+        <ProjectGuid>{2BE96120-20D9-4317-A265-9F9C3ADC9016}</ProjectGuid>
         <OutputType>Exe</OutputType>
         <AppDesignerFolder>Properties</AppDesignerFolder>
-        <RootNamespace>HtmlConvertor</RootNamespace>
-        <AssemblyName>HtmlConvertor</AssemblyName>
+        <RootNamespace>MarkdownConvertor</RootNamespace>
+        <AssemblyName>MarkdownConvertor</AssemblyName>
         <TargetFrameworkVersion>v4.8</TargetFrameworkVersion>
         <FileAlignment>512</FileAlignment>
+        <LangVersion>7</LangVersion>
     </PropertyGroup>
     <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
         <PlatformTarget>AnyCPU</PlatformTarget>
@@ -38,7 +39,7 @@
         <Reference Include="System.Xml" />
     </ItemGroup>
     <ItemGroup>
-        <Compile Include="HtmlConvertor.cs" />
+        <Compile Include="MarkdownConvertor.cs" />
         <Compile Include="ITokens\IToken.cs" />
         <Compile Include="ITokens\ScreenerToken.cs" />
         <Compile Include="ITokens\TagToken.cs" />
