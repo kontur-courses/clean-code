@@ -5,6 +5,7 @@
         Text,
         Bold,
         Cursive,
-        Header1
+        Header1,
+        Link
     }
 }
