@@ -22,10 +22,9 @@ namespace MarkdownTests
             };
             
             var parser = new TextParser(availableTags);
-            var validator = new TokenValidator();
             var converter = new TokenConverter(availableTags);
 
-            markdown = new Md(parser, validator, converter);
+            markdown = new Md(parser, converter);
         }
 
         [Test]

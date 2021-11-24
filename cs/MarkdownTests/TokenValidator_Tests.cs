@@ -11,7 +11,6 @@ namespace MarkdownTests
     public class TokenValidator_Tests
     {
         private TextParser parser;
-        private TokenValidator validator;
         
         [SetUp]
         public void SetUp()
@@ -22,7 +21,6 @@ namespace MarkdownTests
             };
 
             parser = new TextParser(availableTags);
-            validator = new TokenValidator();
         }
 
         [TestCase("text with digits_12_3", TestName = "WhenTokenContainsDigits")]
@@ -32,7 +30,7 @@ namespace MarkdownTests
         {
             var tokens = parser.GetTokens(text);
             
-            var validatedTokens = validator.ValidateTokens(tokens, text);
+            var validatedTokens = TokenValidator.ValidateTokens(tokens, text);
 
             validatedTokens.Should().BeEmpty();
         }
@@ -47,7 +45,7 @@ namespace MarkdownTests
                 new TagToken(new ItalicsTag(), 4, 15, "_a __vc__ d_")
             };
 
-            var validatedTokens = validator.ValidateTokens(tokens, text);
+            var validatedTokens = TokenValidator.ValidateTokens(tokens, text);
 
             validatedTokens.Should().BeEquivalentTo(expectedTokens);
         }
