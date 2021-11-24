@@ -142,11 +142,12 @@ namespace Markdown.Tests
             var tokens = new[]
             {
                 Token.Escape,
+                Token.Header1,
                 Token.Text("A")
             };
             var expected = new[]
             {
-                Token.Text("\\A").ToNode()
+                CreateTextTokenFrom(tokens).ToNode()
             };
             AssertParse(tokens, expected);
         }
