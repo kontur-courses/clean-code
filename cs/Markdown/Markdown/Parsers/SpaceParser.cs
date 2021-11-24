@@ -4,9 +4,11 @@ namespace Markdown.Parsers
 {
     internal class SpaceParser : IParser
     {
-        public IToken TryGetToken(ref int i, ref StringBuilder stringBuilder, ref string line, char currentSymbol)
+        public IToken TryGetToken(ref int i, ref StringBuilder stringBuilder, ref string line)
         {
-            return new TokenSpace();
+            if (line[i] == ' ')
+                return new TokenSpace();
+            return null;
         }
     }
 }

@@ -17,7 +17,7 @@ namespace Markdown
                 ["["] = new StartLinkParser(),
                 ["]"] = new EndLinkParser(),
                 ["__"] = new DoubleUnderliningParser(),
-                ["_"] = new SingleUnderliningParser(),
+                ["_"] = new SingleUnderliningParser()
             };
         }
     }

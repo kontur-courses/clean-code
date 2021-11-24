@@ -6,7 +6,7 @@ namespace Markdown.Parsers
 {
     public class EndLinkParser : IParser
     {
-        public IToken TryGetToken(ref int i, ref StringBuilder stringBuilder, ref string line, char currentSymbol)
+        public IToken TryGetToken(ref int i, ref StringBuilder stringBuilder, ref string line)
         {
             var substring = line.Substring(i + 1, line.Length - i - 1);
             string address;

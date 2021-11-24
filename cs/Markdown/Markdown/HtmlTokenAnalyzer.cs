@@ -18,29 +18,43 @@ namespace Markdown
             {
                 var currentSymbol = line[i];
                 var parsersTable = ParsersStorage.ParsersTable;
-                var currentAndNextSymbols = (i< line.Length - 1) ? currentSymbol.ToString() +line[i+1] : null;
-                IParser parser;
-                StringBuilder builder;
-                
-                if (currentAndNextSymbols != null && parsersTable.ContainsKey(currentAndNextSymbols))
+
+                IToken token = null;
+
+                foreach (var parser in parsersTable.Values)
                 {
-                    parser = parsersTable[currentAndNextSymbols];
-                    builder = _currentBuilder;
+                    token = parser.TryGetToken(ref i, ref _currentBuilder, ref line);
+                    if (token != null)
+                        break;
                 }
-                else if (parsersTable.ContainsKey(currentSymbol.ToString()))
-                {
-                    parser = parsersTable[currentSymbol.ToString()];
-                    builder = (currentSymbol == '\\') ? null : _currentBuilder;
-                }
-                else
+
+                if (token == null)
                 {
                     _currentBuilder.Append(currentSymbol);
                     continue;
                 }
-                var token = parser.TryGetToken(ref i, ref _currentBuilder, ref line, currentSymbol);
-                if (token == null)
-                    continue;
-                AddWordToken(builder);
+
+                // var currentAndNextSymbols = (i< line.Length - 1) ? currentSymbol.ToString() +line[i+1] : null;
+                // IParser parser;
+                // StringBuilder builder;
+                //
+                // if (currentAndNextSymbols != null && parsersTable.ContainsKey(currentAndNextSymbols))
+                // {
+                //     parser = parsersTable[currentAndNextSymbols];
+                //     builder = _currentBuilder;
+                // }
+                // else if (parsersTable.ContainsKey(currentSymbol.ToString()))
+                // {
+                //     parser = parsersTable[currentSymbol.ToString()];
+                //     builder = (currentSymbol == '\\') ? null : _currentBuilder;
+                // }
+                // else
+                // {
+                //     _currentBuilder.Append(currentSymbol);
+                //     continue;
+                // }
+
+                AddWordToken(_currentBuilder);
                 AddToken(token);
             }
             AddWordToken(_currentBuilder);
