@@ -21,21 +21,21 @@ namespace Markdown
                 match => match);
         }
 
-        public bool TryGetTagReplacerAtPosition(int position, out TagReplacer tag)
+        public bool TryGetTagReplacerAtPosition(int position, out TagReplacer replacer)
         {
             if (matchStartAtPosition.TryGetValue(position, out var matchAtStart))
             {
-                tag = matchAtStart.Token.TokenHtmlRepresentation.OpenTag;
+                replacer = matchAtStart.Token.TokenHtmlRepresentation.OpenTag;
                 return true;
             }
 
             if (matchEndAtPosition.TryGetValue(position, out var matchAtEnd))
             {
-                tag = matchAtEnd.Token.TokenHtmlRepresentation.CloseTag;
+                replacer = matchAtEnd.Token.TokenHtmlRepresentation.CloseTag;
                 return true;
             }
 
-            tag = null;
+            replacer = null;
             return false;
         }
     }

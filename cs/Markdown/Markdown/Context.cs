@@ -36,8 +36,6 @@ namespace Markdown
             Text.Length > Index + value.Length
             && checker(Skip(value.Length).CurrentSymbol);
 
-        public bool CharAfter(Func<char, bool> checker) => Skip(1).CharAfter("", checker);
-        
         public bool CharBefore(Func<char, bool> checker) =>
             Index - 1 >= 0
             && checker(Skip(-1).CurrentSymbol);

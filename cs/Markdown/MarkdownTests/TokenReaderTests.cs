@@ -52,7 +52,7 @@ namespace MarkdownTests
         [Test]
         public void FindAll_ReturnEmptyCollection_IfTextHaveNoTokens()
         {
-            new TokenReader(MarkdownTokensFactory.GetTokens().ToList())
+            new TokenReader(MarkdownRenderConfigFactory.GetTokens().ToList())
                 .FindAll("qwerty")
                 .Should().BeEmpty();
         }
@@ -185,7 +185,7 @@ namespace MarkdownTests
         [Test]
         public void FindAll_ReturnSameMatches_EveryTime()
         {
-            var reader = new TokenReader(MarkdownTokensFactory.GetTokens().ToList());
+            var reader = new TokenReader(MarkdownRenderConfigFactory.GetTokens().ToList());
             var firstMatches = reader.FindAll("# _a_ __bc__");
             var secondMatches = reader.FindAll("# _a_ __bc__");
             secondMatches.Should().BeEquivalentTo(firstMatches);

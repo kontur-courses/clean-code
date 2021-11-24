@@ -3,14 +3,19 @@ using Markdown.Models;
 
 namespace Markdown.Tokens.Patterns
 {
-    public class HeaderTokenPattern : ITokenPattern
+    public class ParagraphTokenPattern : ITokenPattern
     {
-        public string StartTag => "# ";
+        public string StartTag { get; }
         public string EndTag => "";
         public bool LastEndingSucceed { get; private set; }
         public IEnumerable<TagType> ForbiddenChildren { get; } = new List<TagType>();
 
-        public bool TrySetStart(Context context) => context.Text.StartsWith("# ") && context.Index == 0;
+        public ParagraphTokenPattern(string startSymbol)
+        {
+            StartTag = startSymbol + " ";
+        }
+
+        public bool TrySetStart(Context context) => context.Text.StartsWith(StartTag) && context.Index == 0;
 
         public bool TryContinue(Context context)
         {

@@ -5,13 +5,21 @@ using NUnit.Framework;
 
 namespace MarkdownTests
 {
-    public class HeaderTokenPatternTests
+    public class ParagraphTokenPatternTests
     {
+        private ParagraphTokenPattern headerPattern;
+
+        [SetUp]
+        public void SetUp()
+        {
+            headerPattern = new ParagraphTokenPattern("#");
+        }
+
         [Test]
         public void TryStart_False_IfNoSpaceAfterSharp()
         {
             var context = new Context("#");
-            new HeaderTokenPattern()
+            headerPattern
                 .TrySetStart(context)
                 .Should().BeFalse();
         }
@@ -20,7 +28,7 @@ namespace MarkdownTests
         public void TryStart_False_IfSharpInLineMiddleButLineStartsCorrect()
         {
             var context = new Context("# qwe # ", 6);
-            new HeaderTokenPattern()
+            headerPattern
                 .TrySetStart(context)
                 .Should().BeFalse();
         }
@@ -29,7 +37,7 @@ namespace MarkdownTests
         public void TryStart_True_IfSpaceAfterSharp()
         {
             var context = new Context("# ");
-            new HeaderTokenPattern()
+            headerPattern
                 .TrySetStart(context)
                 .Should().BeTrue();
         }
@@ -38,7 +46,7 @@ namespace MarkdownTests
         public void TryStart_True_IfLetterAfterSpace()
         {
             var context = new Context("# a");
-            new HeaderTokenPattern()
+            headerPattern
                 .TrySetStart(context)
                 .Should().BeTrue();
         }
@@ -50,7 +58,7 @@ namespace MarkdownTests
         public void TryContinue_True_After(string text)
         {
             var context = new Context($"abc{text}def");
-            new HeaderTokenPattern()
+            headerPattern
                 .TryContinue(context)
                 .Should().BeTrue();
         }
@@ -60,7 +68,7 @@ namespace MarkdownTests
         public void TryContinue_False_AfterNewLineChar(string ending)
         {
             var context = new Context(ending);
-            new HeaderTokenPattern()
+            headerPattern
                 .TryContinue(context)
                 .Should().BeFalse();
         }
@@ -69,7 +77,7 @@ namespace MarkdownTests
         public void TryContinue_False_IfLineEnd()
         {
             var context = new Context("a", 1);
-            new HeaderTokenPattern()
+            headerPattern
                 .TryContinue(context)
                 .Should().BeFalse();
         }
@@ -78,11 +86,8 @@ namespace MarkdownTests
         public void LastCloseSucceed_True_IfEndingCorrect()
         {
             var context = new Context("qwe", 3);
-            var pattern = new HeaderTokenPattern();
-
-            pattern.TryContinue(context);
-
-            pattern.LastEndingSucceed.Should().BeTrue();
+            headerPattern.TryContinue(context);
+            headerPattern.LastEndingSucceed.Should().BeTrue();
         }
     }
 }

@@ -6,7 +6,7 @@ namespace Markdown.Tokens
     public class HeaderToken : IToken
     {
         public TagType TagType => TagType.Header;
-        public ITokenPattern Pattern { get; } = new HeaderTokenPattern();
+        public ITokenPattern Pattern { get; } = new ParagraphTokenPattern("#");
         public TokenHtmlRepresentation TokenHtmlRepresentation { get; } = new()
         {
             OpenTag = new TagReplacer("<h1>", 2),

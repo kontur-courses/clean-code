@@ -4,6 +4,7 @@
     {
         Italic,
         Bold,
-        Header
+        Header,
+        UnorderedList
     }
 }

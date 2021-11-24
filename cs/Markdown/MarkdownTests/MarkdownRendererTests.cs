@@ -10,7 +10,7 @@ namespace MarkdownTests
 {
     public class MarkdownRendererTests
     {
-        private static List<string> whiteSpaces = new() {" ", "\t", "\n"};
+        private static List<string> whiteSpaces = new() {" ", "\t"};
 
         [Test]
         public void Render_ScalesLinearly()
@@ -65,6 +65,7 @@ namespace MarkdownTests
         [TestCase("__bold__", ExpectedResult = "<strong>bold</strong>", TestName = "Bold")]
         [TestCase("_italic_", ExpectedResult = "<em>italic</em>", TestName = "Italic")]
         [TestCase("# header", ExpectedResult = "<h1>header</h1>", TestName = "Header")]
+        [TestCase("- list", ExpectedResult = "<ul>\n<li>list</li>\n</ul>", TestName = "Unordered list")]
         public string Render_SingleTag(string text) => new MarkdownRenderer().Render(text);
 
         [TestCase("_a_b", ExpectedResult = "<em>a</em>b", TestName = "In word start")]
@@ -94,6 +95,40 @@ namespace MarkdownTests
         [TestCase(@"\\_a_", ExpectedResult = @"\<em>a</em>", TestName = "Escape symbol can be escaped")]
         [TestCase(@"\\\_a_", ExpectedResult = @"\_a_", TestName = "Escaped escape symbol not escape next char")]
         public string Render_SupportEscaping(string text) => new MarkdownRenderer().Render(text);
+
+
+        [TestCase("\n")]
+        [TestCase("\r")]
+        public void Render_SupportParagraphSeparation(string paragraphSeparator)
+        {
+            var text = $"_a {paragraphSeparator} b_";
+            new MarkdownRenderer().Render(text)
+                .Should().Be("_a \n b_");
+        }
+
+        [Test]
+        public void Render_IgnoreEmptyParagraphs()
+        {
+            new MarkdownRenderer().Render("a\n\n\nb")
+                .Should().Be("a\nb");
+        }
+
+        [TestCase("abc\n- one\n- two\nqwe",
+            ExpectedResult = "abc\n<ul>\n<li>one</li>\n<li>two</li>\n</ul>\nqwe",
+            TestName = "Surrounded by text")]
+        [TestCase("- one\n- \n- two",
+            ExpectedResult = "<ul>\n<li>one</li>\n<li></li>\n<li>two</li>\n</ul>",
+            TestName = "Empty string inside list item")]
+        [TestCase("- __b _i_ b__",
+            ExpectedResult = "<ul>\n<li><strong>b <em>i</em> b</strong></li>\n</ul>",
+            TestName = "Render other styles inside")]
+        [TestCase("- a\ntext\n- b",
+            ExpectedResult = "<ul>\n<li>a</li>\n</ul>\ntext\n<ul>\n<li>b</li>\n</ul>",
+            TestName = "Two lists divided by text")]
+        [TestCase("- # a",
+            ExpectedResult = "<ul>\n<li># a</li>\n</ul>",
+            TestName = "Ignore header in list item")]
+        public string Render_SupportUnorderedList(string text) => new MarkdownRenderer().Render(text);
 
         private static float GetAverageExecutionTime(Action act)
         {
