@@ -1,6 +1,4 @@
-﻿using System;
-
-namespace Markdown.Tags
+﻿namespace Markdown.Tags
 {
     public class HeadingTag : Tag
     {
@@ -9,8 +7,7 @@ namespace Markdown.Tags
         public override string OpenMdTag => "# ";
         public override string CloseMdTag => "\n";
         public override bool AllowNesting => true;
-        public override Func<string, int, bool> IsCorrectOpenTag => (mdText, position) => true;
-        public override Func<string, int, string, bool> IsCorrectCloseTag => (mdText, position, mdTag) =>
-        true;
+        public override bool IsCorrectOpenTag(string mdText, int position) => true;
+        public override bool IsCorrectCloseTag(string mdText, int position) => true;
     }
 }

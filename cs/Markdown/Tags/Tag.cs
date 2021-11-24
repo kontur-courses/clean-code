@@ -9,7 +9,7 @@ namespace Markdown.Tags
         public abstract string OpenMdTag { get; }
         public abstract string CloseMdTag { get; }
         public abstract bool AllowNesting { get; }
-        public abstract Func<string, int, bool> IsCorrectOpenTag { get; }
-        public abstract Func<string, int, string, bool> IsCorrectCloseTag { get; }
+        public abstract bool IsCorrectOpenTag(string mdText, int position);
+        public abstract bool IsCorrectCloseTag(string mdText, int position);
     }
 }

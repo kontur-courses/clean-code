@@ -5,9 +5,10 @@ namespace Markdown
 {
     public interface IMdSpecification
     {
-        List<Tag> Tags { get; }
-        List<string> EscapeSymbols { get; }
-        Dictionary<string, Tag> TagByMdStringRepresentation { get; }
-        List<string> EscapeSequences { get; }
+        char EscapeSymbol { get; }
+        Dictionary<string, Tag> TagByMdRepresentation { get; }
+        Dictionary<string, string> EscapeReplaces { get; }
+        void CheckMdText(string mdText);
+        string PreProcess(string mdText);
     }
 }

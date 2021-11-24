@@ -1,15 +1,15 @@
-﻿namespace Markdown
+﻿namespace Markdown.Tokens
 {
     public class EscapeToken : Token
     {
-        public EscapeToken(int begin, int end) : base(begin, end)
+        public EscapeToken(string content) : base(content)
         {
         }
 
-        public override bool AllowInners => false;
-        public override string Render(string str)
+        protected override bool AllowInners => false;
+        public override string Render()
         {
-            return str.Substring(Begin + 1, Length - 1);
+            return Content.Substring(1, Content.Length -1);
         }
     }
 }
