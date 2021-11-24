@@ -907,6 +907,42 @@ namespace Markdown.Tests
             AssertParse(tokens, expected);
         }
 
+        [Test]
+        public void Parse_ShouldNotCreateLink_WhenEmptySquareBrackets()
+        {
+            var tokens = new[]
+            {
+                Token.OpenSquareBracket,
+                Token.CloseSquareBracket,
+                Token.OpenCircleBracket,
+                Token.Text("A"),
+                Token.CloseCircleBracket
+            };
+            var expected = new[]
+            {
+                CreateTextTokenFrom(tokens).ToNode()
+            };
+            AssertParse(tokens, expected);
+        }
+        
+        [Test]
+        public void Parse_ShouldNotCreateLink_WhenEmptyCircleBrackets()
+        {
+            var tokens = new[]
+            {
+                Token.OpenSquareBracket,
+                Token.Text("A"),
+                Token.CloseSquareBracket,
+                Token.OpenCircleBracket,
+                Token.CloseCircleBracket
+            };
+            var expected = new[]
+            {
+                CreateTextTokenFrom(tokens).ToNode()
+            };
+            AssertParse(tokens, expected);
+        }
+        
         public static IEnumerable<(Token token, Token opposite)> GetOppositeTokens()
         {
             yield return (Token.Cursive, Token.Bold);
