@@ -16,6 +16,9 @@ namespace Markdown
         new bool IsNotToPairToken
         { get; set; }
 
+        string HtmlTagAnalog
+        { get; }
+
         void FindPairToken(LinkedListNode<IToken> currentToken);
     }
 }

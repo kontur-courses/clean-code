@@ -112,6 +112,21 @@ namespace MarkdownTests
         }
     }
 
+    [TestFixture]
+    public class LinkTests
+    {
+        [TestCase("[Эта ссылка](http://example.net/)",
+            "<a href=\"http://example.net/\">Эта ссылка</a>",
+            TestName = "SimpleLinkTest")]
+        [TestCase("Empty _[To_ke_n](http://ex__ampl__e.net/) Between Double_ Underlining Test",
+            "Empty <em><a href=\"http://ex__ampl__e.net/\">To_ke_n</a> Between Double</em> Underlining Test",
+            TestName = "SimpleLinkTest!")]
+        public void TagCombinationsShouldHandled(string input, string expectedResult)
+        {
+            TestAssertions.AssertTest(input, expectedResult);
+        }
+    }
+
     public class TestAssertions
     {
         public static void AssertTest(string input, string expected)

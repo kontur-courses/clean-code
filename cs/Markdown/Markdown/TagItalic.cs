@@ -7,19 +7,11 @@ namespace Markdown
         public bool IsAtTheBeginning { get; set; }
         public bool IsClosed { get; set; }
 
-        private string HtmlTagAnalog
-        {
-            get
-            {
-                if (IsClosed)
-                    return (IsStartTag) ? "<em>" : "</em>";
-                return "_";
-            }
-        }
+        public string HtmlTagAnalog => (IsStartTag) ? "<em>" : "</em>";
 
         public bool IsStartTag { get; set; }
 
-        public string Content => HtmlTagAnalog;
+        public string Content => "_";
 
         public bool IsNotToPairToken { get; set; }
 

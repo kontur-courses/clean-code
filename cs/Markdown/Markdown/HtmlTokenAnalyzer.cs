@@ -54,11 +54,46 @@ namespace Markdown
                         AddToken(token);
                         break;
 
+                    case '#':
+                        AddWordToken(currentBuilder);
+                        currentBuilder = new StringBuilder();
+                        AddToken(new TagHeader());
+                        break;
+
                     case ' ':
                         AddWordToken(currentBuilder);
                         currentBuilder = new StringBuilder();
                         AddSpaceToken();
                         break;
+
+
+                    case '[':
+                        AddWordToken(currentBuilder);
+                        currentBuilder = new StringBuilder();
+                        AddToken(new TagLink(null));
+                        break;
+
+                    case ']':
+                        AddWordToken(currentBuilder);
+                        currentBuilder = new StringBuilder();
+                        var substring = line.Substring(i + 1, line.Length - i-1);
+                        string address;
+                        if (line[i + 1] == '(' && substring.Contains(')'))
+                        {
+
+                            var start = substring.IndexOf('(');
+                            var finish = substring.IndexOf(')');
+                            address = line.Substring(i + start + 2, finish -1 - start);
+                            line = line.Remove(start, finish - start + 1);
+                            AddToken(new TagLink(address));
+                        }
+                        else
+                        {
+                            AddToken(new TagLink(null));
+                        }
+                        break;
+
+
 
                     default:
                         currentBuilder.Append(currentSymbol);
@@ -94,7 +129,12 @@ namespace Markdown
 
         private string MakeHtml()
         {
-            return string.Concat(_tokens.Select(token => token.Content));
+            return string.Concat(_tokens.Select(token =>
+            {
+                if (token is ITag tag && tag.IsClosed)
+                    return tag.HtmlTagAnalog;
+                return token.Content;
+            }));
         }
 
         public static void MakePair(ITag opener, ITag endTag)

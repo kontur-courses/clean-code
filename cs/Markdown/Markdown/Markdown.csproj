@@ -46,7 +46,9 @@
     <Compile Include="IToken.cs" />
     <Compile Include="Md.cs" />
     <Compile Include="TagBold.cs" />
+    <Compile Include="TagHeader.cs" />
     <Compile Include="TagItalic.cs" />
+    <Compile Include="TagLink.cs" />
     <Compile Include="TagSpace.cs" />
     <Compile Include="TagWord.cs" />
   </ItemGroup>
