@@ -46,12 +46,12 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="Extensions\StackExtensions.cs" />
     <Compile Include="Extensions\StringExtensions.cs" />
+    <Compile Include="IMdParser.cs" />
     <Compile Include="IMdSpecification.cs" />
     <Compile Include="Md.cs" />
     <Compile Include="MarkdownParser.cs" />
-    <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="PositionTag.cs" />
     <Compile Include="MdSpecification.cs" />
     <Compile Include="Tags\ComplexTag.cs" />
     <Compile Include="Tags\EmTag.cs" />
@@ -59,13 +59,15 @@
     <Compile Include="Tags\SelectingTag.cs" />
     <Compile Include="Tags\StrongTag.cs" />
     <Compile Include="Tags\Tag.cs" />
-    <Compile Include="Tokens\EscapeToken.cs" />
     <Compile Include="Tokens\TagToken.cs" />
     <Compile Include="Tokens\StringToken.cs" />
     <Compile Include="Tokens\Token.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="App.config" />
+  </ItemGroup>
+  <ItemGroup>
+    <Folder Include="Properties\" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
 </Project>

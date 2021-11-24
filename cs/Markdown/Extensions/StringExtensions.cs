@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 
 namespace Markdown.Extensions
@@ -15,9 +16,7 @@ namespace Markdown.Extensions
 
         public static bool ContainsDigit(this string str) =>
             str.Any(char.IsDigit);
-
-        public static bool IsNullOrWhiteSpace(this string str) => string.IsNullOrWhiteSpace(str);
-
+        
         public static bool TryGetCharsBehind(this string str, int position, int amount, out char[] chars) => TryGetNextChars(str, position, -amount, out chars);
 
         public static bool TryGetNextChars(this string str, int position, int amount, out char[] chars)
@@ -31,15 +30,12 @@ namespace Markdown.Extensions
             return false;
         }
 
-        public static bool TrySubstring(this string str, int position, int length, out string substring)
+        public static string Substring(this string str, int start, int length, Dictionary<string, string> replaces)
         {
-            if (str.InRange(position + length - 1))
-            {
-                substring = str.Substring(position, length);
-                return true;
-            }
-            substring = default;
-            return false;
+            var substring = str.Substring(start, length);
+            foreach (var p in replaces)            
+                substring = substring.Replace(p.Key, p.Value);
+            return substring;            
         }
     }
 }

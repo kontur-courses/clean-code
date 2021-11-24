@@ -1,63 +1,28 @@
 ﻿using System.Collections.Generic;
-using System.Linq;
 
-namespace Markdown
+namespace Markdown.Tokens
 {
     public abstract class Token
     {
-        public static List<Token> SetRelations(List<Token> tokens)
-        {
-            var sortedTokens = tokens
-                .Where(t => t.Length != 0)
-                .OrderBy(t => t.Length)
-                .ThenBy(t => t.Begin)
-                .ToList();
-            var childs = new List<Token>();
-            for (int i = 0; i < sortedTokens.Count; i++)
-                for (int j = i + 1; j < sortedTokens.Count; j++)
-                {
-                    var parent = sortedTokens[j];
-                    var child = sortedTokens[i];
-                    if (parent is TagToken && parent.Begin <= child.Begin
-                        && parent.End >= child.End)
-                    {
-                        childs.Add(sortedTokens[i]);
-                        if (parent.AllowInners && !child.HasParent)
-                        {
-                            child.SetCoordinatesRelatively(parent);
-                            parent._inners.Add(child);
-                        }
-                    }
-                }
-            return sortedTokens
-                .Except(childs)
-                .OrderBy(t => t.Begin)
-                .ToList();
-        }
-
         protected List<Token> _inners;
-        public bool HasParent { get; protected set; }
-        public int Begin { get; protected set; }
-        public int End { get; protected set; }
-        public int Length => End - Begin;
-        public abstract bool AllowInners { get; }
-        public List<Token> Inners => _inners.ToList();
+        protected string Content { get;}
 
-        public Token(int begin, int end)
+        protected abstract bool AllowInners { get; }
+
+        public Token(string content)
         {
-            Begin = begin;
-            End = end;
+            Content = content;
             _inners = new List<Token>();
-            HasParent = false;
         }
 
-        public abstract string Render(string str);
+        public abstract string Render();
 
-        private void SetCoordinatesRelatively(Token parent)
+        public void BuildTokenTree(IMdParser parser)
         {
-            HasParent = true;
-            Begin -= parent.Begin;
-            End -= parent.Begin;
+            _inners = parser.ParseToTokens(Content);
+            foreach (var inner in _inners)
+                if (inner.AllowInners)
+                    inner.BuildTokenTree(parser);
         }
     }
 }

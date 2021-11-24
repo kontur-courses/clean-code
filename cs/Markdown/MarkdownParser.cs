@@ -3,106 +3,112 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using Markdown.Tags;
+using Markdown.Tokens;
 
 namespace Markdown
 {
-    public class MarkdownParser
+    public class MarkdownParser : IMdParser
     {
         private readonly IMdSpecification _specification;
-        private List<string> EscapeSequence => _specification.EscapeSequences;
-        private Dictionary<string, Tag> TagByMdRepresentation => _specification.TagByMdStringRepresentation;
 
         public MarkdownParser(IMdSpecification specification)
         {
             _specification = specification;
         }
 
-        public List<Token> ParseToTokens(string mdText)
+        public List<Token> ParseToTokens(string mdTextRaw)
         {
-            var stack = new Stack<(Tag tag, int index)>();
-            var tokens = new List<Token>();
-            var nextTokenStart = 0;
-            var mdTagBuilder = new StringBuilder();
+            _specification.CheckMdText(mdTextRaw);
+            var mdText = _specification.PreProcess(mdTextRaw);
 
+            var tokens = new List<Token>();
+            var lastClosePosition = 0;
             for (int position = 0; position < mdText.Length; position++)
             {
-                mdTagBuilder.Append(mdText[position]);
+                var open = FindNextTag(mdText, position).FirstOrDefault();
+                if (open == null)
+                    break;
 
-                if (IsPartialTag(mdText, mdTagBuilder.ToString(), position))
-                    continue;
-
-                if (mdText.TrySubstring(position, 2, out string substring) && EscapeSequence.Any(s => s.StartsWith(substring)))
+                var closeTags = FindNextTag(mdText, open.Position + open.Tag.OpenMdTag.Length, open.Tag).ToList();
+                if (closeTags.Count == 0)
+                    position = open.Position + open.Tag.OpenMdTag.Length;
+                foreach (var close in closeTags)
                 {
-                    var sequence = EscapeSequence.First(s => s.StartsWith(substring));
-                    tokens.Add(new EscapeToken(position, position + sequence.Length));
-                    nextTokenStart = position + sequence.Length;
-                }
+                    if (close == null || !CanUnionByToken(mdText, open.Position, close.Position, close.Tag)) continue;
+                    var tag = open.Tag;
+                    tokens.Add(new StringToken(mdText.Substring(lastClosePosition, open.Position - lastClosePosition, _specification.EscapeReplaces)));
 
-                if (TagByMdRepresentation.TryGetValue(mdTagBuilder.ToString(), out Tag tag)
-                    && !Escaped(mdText, position, mdTagBuilder.ToString()))
-                {
-                    if (!stack.IsEmpty() && tag == stack.Peek().tag)
-                    {
-                        var correctCloseTag = tag.IsCorrectCloseTag(mdText, position, mdTagBuilder.ToString());
+                    var contentStart = open.Position + tag.OpenMdTag.Length;
+                    var contentLength = close.Position - contentStart;
 
-                        (Tag tag, int index) currentTag = (tag, position - tag.CloseMdTag.Length + 1);
-                        if (correctCloseTag && CanUnionByToken(mdText, stack.Peek(), currentTag))
-                        {
-                            tokens.Add(new TagToken(stack.Pop().index + tag.OpenMdTag.Length, currentTag.index, tag));
-                            nextTokenStart = position + 1;
-                        }
-                        else if (correctCloseTag)
-                        {
-                            var pop = stack.Pop();
-                            nextTokenStart = pop.index;
-                        }
-                    }
-                    else if (tag.IsCorrectOpenTag(mdText, position))
-                    {
-                        if (stack.IsEmpty())
-                            tokens.Add(new StringToken(nextTokenStart, position - tag.OpenMdTag.Length + 1));
-                        (Tag tag, int index) currentTag = (tag, position - tag.OpenMdTag.Length + 1);
-                        stack.Push(currentTag);
-                        nextTokenStart = position;
-                    }
+                    tokens.Add(new TagToken(mdText.Substring(contentStart, contentLength, _specification.EscapeReplaces), tag));
+                    lastClosePosition = position = close.Position + tag.CloseMdTag.Length;
+                    break;
                 }
-                mdTagBuilder.Clear();
             }
-            if (!stack.IsEmpty())
-            {
-                var (_, index) = stack.Last();
-                tokens.Add(new StringToken(index, mdText.Length));
-            }
-            else
-                tokens.Add(new StringToken(nextTokenStart, mdText.Length));
+            if (lastClosePosition != mdText.Length)
+                tokens.Add(new StringToken(mdText.Substring(lastClosePosition, mdText.Length - lastClosePosition, _specification.EscapeReplaces)));
             return tokens;
         }
 
-        private bool Escaped(string mdText, int position, string mdTag)
+        private IEnumerable<PositionTag> FindNextTag(string mdText, int startPosition, Tag openTag = null)
         {
-            position = position - mdTag.Length + 1;
-            if (mdText.TryGetCharsBehind(position, 2, out char[] behindChars))            
-                return behindChars[1] == '\\' && behindChars[0] != '\\';            
-            return mdText.TryGetCharsBehind(position, 1, out char[] behindChar) && behindChar[0] == '\\';
+            var openTagSeek = openTag == null;
+            var tagBuilder = new StringBuilder();
+            var stack = new Stack<Tag>();
+            for (int position = startPosition; position < mdText.Length; position++)
+            {
+                tagBuilder.Append(mdText[position]);
+                if (IsPartialTag(mdText, tagBuilder.ToString(), position))
+                    continue;
+                var tagPosition = position - tagBuilder.Length + 1;
+
+                if (_specification.TagByMdRepresentation.TryGetValue(tagBuilder.ToString(), out Tag tag)
+                    && !Escaped(mdText, tagPosition))
+                {
+                    if (openTagSeek && tag.IsCorrectOpenTag(mdText, tagPosition))
+                        yield return new PositionTag(tag, tagPosition);
+                    else if (!openTagSeek)
+                    {
+                        if (tag == openTag && !stack.Any() && tag.IsCorrectCloseTag(mdText, tagPosition))
+                            yield return new PositionTag(tag, tagPosition);
+                        else if (tag != openTag)
+                        {
+                            if (stack.Any() && stack.Peek() == tag)
+                                stack.Pop();
+                            else
+                                stack.Push(tag);
+                        }
+                    }
+                }
+                tagBuilder.Clear();
+            }
         }
 
-        private bool CanUnionByToken(string mdText, (Tag tag, int index) open, (Tag tag, int index) close)
+        private bool Escaped(string mdText, int position)
         {
-            var behindOpenSymbol = mdText.InRange(open.index - 1) ? mdText[open.index - 1].ToString() : null;
-            var content = mdText.Substring(open.index + open.tag.OpenMdTag.Length, 
-                close.index - (open.index + open.tag.OpenMdTag.Length));
+            if (mdText.TryGetCharsBehind(position, 2, out char[] behindChars))
+                return behindChars[1] == _specification.EscapeSymbol && behindChars[0] != _specification.EscapeSymbol;
+            return mdText.TryGetCharsBehind(position, 1, out char[] behindChar) && behindChar[0] == _specification.EscapeSymbol;
+        }
 
-            return !content.IsNullOrWhiteSpace() 
-                   && !content.Contains("\n") 
-                   && !content.ContainsDigit() 
-                   && (behindOpenSymbol.IsNullOrWhiteSpace() 
-                       || !content.ContainsWhiteSpace());
+        private bool CanUnionByToken(string mdText, int openIndex, int closeIndex, Tag tag)
+        {
+            var behindOpenSymbol = mdText.InRange(openIndex - 1) ? mdText[openIndex - 1].ToString() : null;
+            var content = mdText.Substring(openIndex + tag.OpenMdTag.Length,
+               closeIndex - (openIndex + tag.OpenMdTag.Length));
+
+            return !string.IsNullOrWhiteSpace(content)
+                   && !content.Contains("\n")
+                   && !content.ContainsDigit()
+                   && (string.IsNullOrWhiteSpace(behindOpenSymbol)
+                   || !content.ContainsWhiteSpace());
         }
 
         private bool IsPartialTag(string mdText, string mdTag, int position)
         {
             return position != mdText.LastIndex()
-                && TagByMdRepresentation.Any(t => t.Key.StartsWith($"{mdTag}{mdText[position + 1]}"));
+                && _specification.TagByMdRepresentation.Any(t => t.Key.StartsWith($"{mdTag}{mdText[position + 1]}"));
         }
     }
 }
