@@ -60,14 +60,13 @@ namespace Markdown.Extensions
                 var isLastToken = false;
                 foreach (var token in tokens)
                 {
-                    if (token == pair.From)
+                    if (token == pair.From && previousContent != token)
                         isLeftTokenEndsOnSpace = previousContent.Value.LastOrDefault() != ' ';
                     if (token == pair.To)
                     {
                         isMiddleTokenMatched = switchResult(previousContent.Value.All(predicate));
                         isLastToken = true;
                     }
-
                     if (isLastToken && token != pair.To)
                         isRightTokenBeginsOnSpace = token.Value.FirstOrDefault() != ' ';
 
@@ -78,11 +77,15 @@ namespace Markdown.Extensions
                         break;
                     }
                     if (isLastToken && token != pair.To)
+                    {
+                        previousContent = tokens.First();
                         break;
+                    }
                     previousContent = token;
                 }
             }
         }
+
         public static IEnumerable<IToken> GetIntersectedTokens(this IEnumerable<PairedToken> tokens,
             Func<PairedToken, PairedToken, bool> condition)
         {

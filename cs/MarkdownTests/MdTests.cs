@@ -55,6 +55,12 @@ namespace MarkdownTests
                 yield return new TestCaseData("# aa\naa",
                         "<h1>aa</h1>\naa")
                     .SetName("Heading ends on different paragraphs");
+                yield return new TestCaseData("#aa",
+                        "#aa")
+                    .SetName("Heading without space doesn't create tag");
+                yield return new TestCaseData("# aa\r\n# aa",
+                        "<h1>aa</h1>\r\n<h1>aa</h1>")
+                    .SetName("Heading should creates in new paragraph");
             }
         }
 
@@ -97,7 +103,7 @@ namespace MarkdownTests
         {
             get
             {
-                yield return new TestCaseData("\\#Header", "#Header")
+                yield return new TestCaseData("\\# Header", "# Header")
                     .SetName("Escaped sharp doesn't create tag header");
                 yield return new TestCaseData("\\_test\\_", "_test_")
                     .SetName("Escaped underscore doesn't create tag em");
@@ -148,10 +154,13 @@ namespace MarkdownTests
             get
             {
                 yield return new TestCaseData("__text_", "__text_")
-                    .SetName("Different underscores dont't create bold tag");
+                    .SetName("Different underscores don't create bold tag");
                 yield return new TestCaseData("a __aaa _aaa_ aaa__ a",
                         "a <strong>aaa <em>aaa</em> aaa</strong> a")
                     .SetName("Double underscore inside unary creates both tags");
+                yield return new TestCaseData("__aaa _aaa_ aaa__",
+                        "<strong>aaa <em>aaa</em> aaa</strong>")
+                    .SetName("Double underscore in beginning inside unary creates both tags");
                 yield return new TestCaseData("_aaa __aaa__ aaa_",
                         "_aaa __aaa__ aaa_")
                     .SetName("Unary underscore inside double doesn't create any tags");
@@ -161,6 +170,9 @@ namespace MarkdownTests
                 yield return new TestCaseData("__a _a__ a_",
                         "__a _a__ a_")
                     .SetName("Intersected underscores don't create any tag");
+                yield return new TestCaseData("a __a _a__ a_ a",
+                        "a __a _a__ a_ a")
+                    .SetName("Intersected underscores in middle of sentence don't create any tag");
             }
         }
     }

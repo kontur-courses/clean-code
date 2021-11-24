@@ -2,6 +2,7 @@
 using System.Linq;
 using Markdown.Extensions;
 using Markdown.Tokens;
+using Microsoft.VisualBasic;
 
 namespace Markdown
 {
@@ -18,16 +19,9 @@ namespace Markdown
                 switch (markdown[i])
                 {
                     case '#':
-                        var isNewParagraph = i == 0 || markdown[i - 1] == '\r' || markdown[i - 1] == '\n';
-                        var isNextSymbolSpace = i + 1 < markdown.Length && markdown[i + 1] == ' ';
-                        if (isNewParagraph && isNextSymbolSpace)
-                        {
-                            isHeadingTokenOpened = true;
-                            tokens.Add(new HeadingToken(i, true));
+                        AnalyzeSharpSymbol(tokens, tokenBuilder, markdown, i, out isHeadingTokenOpened);
+                        if (isHeadingTokenOpened)
                             i++;
-                        }
-                        else
-                            tokenBuilder.Append(markdown[i]);
                         break;
                     case '_':
                         BuildPreviousToken(tokens, tokenBuilder, i);
@@ -62,10 +56,34 @@ namespace Markdown
 
             var unpairedTokens = new HashSet<IToken>();
             var pairedTokens = PairedToken.GetPairedTokens(tokens, unpairedTokens);
+            tokens.RemoveAll(token => token.Length == 0);
             var forbiddenTokens = tokens.GetForbiddenTokens(pairedTokens, unpairedTokens);
             var resultTokens = SetSkipForTokens(tokens, forbiddenTokens).ToList();
-            resultTokens.RemoveAll(token => token.Length == 0 && token.Type != TokenType.Heading);
+            //resultTokens.RemoveAll(token => token.Length == 0 /*&& token.Type != TokenType.Heading*/);
             return resultTokens.OrderBy(token => token.Position);
+        }
+
+        private void AnalyzeSharpSymbol(List<IToken> tokens, 
+            TokenBuilder tokenBuilder, 
+            string markdown, 
+            int i, 
+            out bool isHeadingTokenOpened)
+        {
+            isHeadingTokenOpened = false;
+            var isNewParagraph = i == 0 || markdown[i - 1] == '\r' || markdown[i - 1] == '\n';
+            var isNextSymbolSpace = i + 1 < markdown.Length && markdown[i + 1] == ' ';
+            if (isNewParagraph && isNextSymbolSpace)
+            {
+                isHeadingTokenOpened = true;
+                if (i != 0)
+                    tokens.Add(tokenBuilder.Build());
+                tokens.Add(new HeadingToken(i, true));
+                tokenBuilder.Clear();
+                tokenBuilder.SetPosition(i + 1);
+                i++;
+            }
+            else
+                tokenBuilder.Append(markdown[i]);
         }
 
         private void AnalyzeNewLineSymbol(List<IToken> tokens,
@@ -109,7 +127,8 @@ namespace Markdown
             var token = boldToken != null 
                 ? (IToken) new BoldToken(i, isOpening, false) 
                 : new ItalicToken(i, isOpening, false);
-            openedTokens.Push(token);
+            if (isOpening)
+                openedTokens.Push(token);
             return token;
         }
 
