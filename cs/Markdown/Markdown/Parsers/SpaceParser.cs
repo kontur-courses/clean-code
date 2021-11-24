@@ -1,4 +1,4 @@
-﻿namespace Markdown
+﻿namespace Markdown.Parsers
 {
     internal class SpaceParser : IParser
     {

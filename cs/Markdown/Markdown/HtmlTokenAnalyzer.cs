@@ -15,123 +15,77 @@ namespace Markdown
 
         public string AnalyzeLine(string line)
         {
-            //var currentBuilder = new StringBuilder();
 
             for (int i = 0; i < line.Length; i++)
             {
                 var currentSymbol = line[i];
+                IToken token;
                 switch (currentSymbol)
                 {
                     case '\\':
                         if (_specialSymbols.Contains(line[i + 1]) ||
                             line[i + 1] == '\\')
                         {
-                            _currentBuilder.Append(line[i + 1]);
-                            i++;
+                            token = new ShieldingShieldParser().TryGetToken(ref i, ref _currentBuilder, line);
+
+                            AddWordToken(null);
+                            AddToken(token);
                         }
                         else
                         {
-                            _currentBuilder.Append(line[i]);
+                            token = new ShieldingTagParser().TryGetToken(ref _currentBuilder, i, line);
+
+                            AddWordToken(null);
+                            AddToken(token);
                         }
                         break;
 
                     case '_':
-                        //ITag token;
                         if (i != line.Length - 1 && line[i + 1] == '_')
                         {
-                            
-                            var token = new DoubleUnderliningParser().TryGetToken(ref i);
+                            token = new DoubleUnderliningParser().TryGetToken(ref i);
 
                             AddWordToken(_currentBuilder);
                             AddToken(token);
-                            //token = new TagBold();
-
-                            //i++;
-
                         }
                         else
                         {
-                            var token = new SingleUnderliningParser().TryGetToken(i, line, _currentBuilder, currentSymbol);
-
+                            token = new SingleUnderliningParser().TryGetToken(i, line, _currentBuilder, currentSymbol);
                             if (token == null)
                                 break;
 
                             AddWordToken(_currentBuilder);
                             AddToken(token);
-                            
-
-
-                            /*
-
-                            if (i < line.Length - 1 && char.IsDigit(line[i + 1]) ||
-                                i > 0 && char.IsDigit(line[i - 1]))
-                            {
-                                _currentBuilder.Append(currentSymbol);
-                                break;
-                            }
-
-                            */
-
-                            //token = new TagItalic();
                         }
-                        //AddWordToken(_currentBuilder);
-                        //_currentBuilder = new StringBuilder();
-
-                        //AddToken(token);
-
                         break;
 
                     case '#':
+                        token = new HeaderParser().TryGetToken();
+
                         AddWordToken(_currentBuilder);
-                        //_currentBuilder = new StringBuilder();
-
-                        AddToken(new HeaderParser().TryGetToken());
-                        //AddToken(new TagHeader());
-
+                        AddToken(token);
                         break;
 
                     case ' ':
+                        token = new SpaceParser().TryGetToken();
+
                         AddWordToken(_currentBuilder);
-                        //_currentBuilder = new StringBuilder();
-
-                        AddToken(new SpaceParser().TryGetToken());
-                        //AddSpaceToken();
-
+                        AddToken(token);
                         break;
 
 
                     case '[':
+                        token = new StartLinkParser().TryGetToken();
+
                         AddWordToken(_currentBuilder);
-                        //_currentBuilder = new StringBuilder();
-
-                        AddToken(new StartLinkParser().TryGetToken());
-                        //AddToken(new TagLink(null));
-
+                        AddToken(token);
                         break;
 
                     case ']':
+                        token = new EndLinkParser().TryGetToken(ref line, i);
+
                         AddWordToken(_currentBuilder);
-                        //_currentBuilder = new StringBuilder();
-
-                        /*
-                        var substring = line.Substring(i + 1, line.Length - i-1);
-                        string address;
-                        if (line[i + 1] == '(' && substring.Contains(')'))
-                        {
-
-                            var start = substring.IndexOf('(');
-                            var finish = substring.IndexOf(')');
-                            address = line.Substring(i + start + 2, finish -1 - start);
-                            line = line.Remove(start, finish - start + 1);
-                        }
-                        else
-                        {
-                            address = null;
-                        }
-                        */
-                        AddToken(new EndLinkParser().TryGetToken(ref line, i));
-                        //AddToken(new TagLink(address));
-
+                        AddToken(token);
                         break;
 
                     default:
@@ -150,7 +104,9 @@ namespace Markdown
 
         private void AddToken(IToken token)
         {
-            //var tokenAsTag = token as ITag;
+            if (token == null)
+                return;
+
             if (token is ITag tag)
             {
                 if (_tokens.Count > 1 && _tokens.Last.Value is TokenSpace ||
@@ -169,6 +125,9 @@ namespace Markdown
 
         private void AddWordToken(StringBuilder word)
         {
+            if (word == null)
+                return;
+
             if (word.Length == 0)
                 return;
             var wordToken = new TokenWord(word.ToString());

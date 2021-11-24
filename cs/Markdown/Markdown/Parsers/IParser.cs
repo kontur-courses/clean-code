@@ -1,4 +1,4 @@
-﻿namespace Markdown
+﻿namespace Markdown.Parsers
 {
     public interface IParser
     {

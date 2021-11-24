@@ -1,6 +1,6 @@
 ﻿using System.Collections.Generic;
 
-namespace Markdown
+namespace Markdown.Tags
 {
     public class TagBold : ITag
     {
