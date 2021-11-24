@@ -1,5 +1,5 @@
 ﻿using System;
-using Markdown.TokenRenderer;
+using Markdown.TagRenderer;
 
 namespace Markdown
 {
@@ -9,7 +9,7 @@ namespace Markdown
         {
             var lexer = new Lexer.Lexer();
             var tokenParser = new TokenParser.TokenParser();
-            var htmlTokenRenderer = new HtmlTokenRenderer();
+            var htmlTokenRenderer = new HtmlTagRenderer();
             var md = new MarkdownConverter(lexer, tokenParser, htmlTokenRenderer);
             Console.WriteLine(md.Render("__Выделенный двумя символами текст__"));
         }

@@ -1,7 +1,7 @@
 ﻿using System;
 using FluentAssertions;
 using Markdown.Extensions;
-using Markdown.TokenRenderer;
+using Markdown.TagRenderer;
 using Markdown.Tokens;
 using NUnit.Framework;
 
@@ -9,12 +9,12 @@ namespace Markdown.Tests
 {
     public class HtmlTokenRendererTests
     {
-        private HtmlTokenRenderer sut;
+        private HtmlTagRenderer sut;
 
         [SetUp]
         public void SetUp()
         {
-            sut = new HtmlTokenRenderer();
+            sut = new HtmlTagRenderer();
         }
 
         [Test]

@@ -1,9 +1,9 @@
 ﻿using System.Collections.Generic;
 using Markdown.Tokens;
 
-namespace Markdown.TokenRenderer
+namespace Markdown.TagRenderer
 {
-    public interface ITokenRenderer
+    public interface ITagRenderer
     {
         string Render(IEnumerable<TagNode> tokens);
     }

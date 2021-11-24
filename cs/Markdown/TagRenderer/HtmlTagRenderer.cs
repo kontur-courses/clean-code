@@ -5,9 +5,9 @@ using System.Text;
 using Markdown.Extensions;
 using Markdown.Tokens;
 
-namespace Markdown.TokenRenderer
+namespace Markdown.TagRenderer
 {
-    public class HtmlTokenRenderer : ITokenRenderer
+    public class HtmlTagRenderer : ITagRenderer
     {
         public string Render(IEnumerable<TagNode> tokens)
         {

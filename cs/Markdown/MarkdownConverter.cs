@@ -1,6 +1,6 @@
 ﻿using Markdown.Lexer;
+using Markdown.TagRenderer;
 using Markdown.TokenParser;
-using Markdown.TokenRenderer;
 
 namespace Markdown
 {
@@ -8,9 +8,9 @@ namespace Markdown
     {
         private readonly ILexer lexer;
         private readonly ITokenParser parser;
-        private readonly ITokenRenderer renderer;
+        private readonly ITagRenderer renderer;
 
-        public MarkdownConverter(ILexer lexer, ITokenParser parser, ITokenRenderer renderer)
+        public MarkdownConverter(ILexer lexer, ITokenParser parser, ITagRenderer renderer)
         {
             this.lexer = lexer;
             this.parser = parser;

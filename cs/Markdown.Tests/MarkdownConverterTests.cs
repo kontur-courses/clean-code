@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Diagnostics;
 using FluentAssertions;
-using Markdown.TokenRenderer;
+using Markdown.TagRenderer;
 using NUnit.Framework;
 
 namespace Markdown.Tests
@@ -15,7 +15,7 @@ namespace Markdown.Tests
         {
             var lexer = new Lexer.Lexer();
             var parser = new TokenParser.TokenParser();
-            var renderer = new HtmlTokenRenderer();
+            var renderer = new HtmlTagRenderer();
             sut = new MarkdownConverter(lexer, parser, renderer);
         }
 
