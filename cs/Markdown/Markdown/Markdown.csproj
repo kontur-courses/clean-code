@@ -46,7 +46,6 @@
     <Compile Include="Parsers\HeaderParser.cs" />
     <Compile Include="HtmlTokenAnalyzer.cs" />
     <Compile Include="Parsers\IParser.cs" />
-    <Compile Include="Parsers\ShieldingShieldParser.cs" />
     <Compile Include="Parsers\ShieldingTagParser.cs" />
     <Compile Include="Parsers\SingleUnderliningParser.cs" />
     <Compile Include="Parsers\StartLinkParser.cs" />

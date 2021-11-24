@@ -8,11 +8,22 @@ namespace Markdown.Parsers
 {
     public class ShieldingTagParser : IParser
     {
-        public IToken TryGetToken(ref StringBuilder currentBuilder, int i, string line)
-        {
-            currentBuilder.Append(line[i]);
-            return new TokenWord(null);
+        private readonly HashSet<char> _specialSymbols = new HashSet<char> { '_', '#', '[', ']' };
 
+        public IToken TryGetToken(ref int i, ref StringBuilder currentBuilder, string line)
+        {
+            if (_specialSymbols.Contains(line[i + 1]) ||
+                line[i + 1] == '\\')
+            {
+                currentBuilder.Append(line[i + 1]);
+                i++;
+            }
+            else
+            {
+                currentBuilder.Append(line[i]);
+            }
+                
+            return new TokenWord(null);
         }
 
         public IToken TryGetToken()

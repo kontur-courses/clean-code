@@ -9,8 +9,6 @@ namespace Markdown
     {
         private readonly LinkedList<IToken> _tokens = new LinkedList<IToken>();
 
-        private readonly HashSet<char> _specialSymbols = new HashSet<char> { '_', '#', '[', ']' };
-
         private StringBuilder _currentBuilder = new StringBuilder();
 
         public string AnalyzeLine(string line)
@@ -23,21 +21,10 @@ namespace Markdown
                 switch (currentSymbol)
                 {
                     case '\\':
-                        if (_specialSymbols.Contains(line[i + 1]) ||
-                            line[i + 1] == '\\')
-                        {
-                            token = new ShieldingShieldParser().TryGetToken(ref i, ref _currentBuilder, line);
+                        token = new ShieldingTagParser().TryGetToken(ref i, ref _currentBuilder, line);
 
-                            AddWordToken(null);
-                            AddToken(token);
-                        }
-                        else
-                        {
-                            token = new ShieldingTagParser().TryGetToken(ref _currentBuilder, i, line);
-
-                            AddWordToken(null);
-                            AddToken(token);
-                        }
+                        AddWordToken(null);
+                        AddToken(token);
                         break;
 
                     case '_':
@@ -95,11 +82,6 @@ namespace Markdown
             }
             AddWordToken(_currentBuilder);
             return MakeHtml();
-        }
-
-        private void AddSpaceToken()
-        {
-            _tokens.AddLast(new TokenSpace());
         }
 
         private void AddToken(IToken token)
