@@ -4,22 +4,22 @@ namespace Markdown.Tokens
 {
     public class TagToken : IToken
     {
-        public Tag TagType { get; }
+        public Tag Tag { get; }
         public int StartPosition { get; }
         public int EndPosition { get; }
         public string Value { get; }
 
-        public TagToken(Tag tagType, int startPosition, int endPosition, string value)
+        public TagToken(Tag tag, int startPosition, int endPosition, string value)
         {
-            TagType = tagType;
+            Tag = tag;
             StartPosition = startPosition;
             EndPosition = endPosition;
             Value = value;
         }
 
-        public bool IsNestedInToken(IToken otherToken)
+        public bool IsNestedInAnotherToken(IToken anotherToken)
         {
-            return StartPosition > otherToken.StartPosition && EndPosition < otherToken.EndPosition;
+            return StartPosition > anotherToken.StartPosition && EndPosition < anotherToken.EndPosition;
         }
     }
 }

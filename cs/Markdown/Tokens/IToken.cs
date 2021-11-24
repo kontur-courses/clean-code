@@ -4,11 +4,11 @@ namespace Markdown.Tokens
 {
     public interface IToken
     {
-        Tag TagType { get; }
+        Tag Tag { get; }
         int StartPosition { get; }
         int EndPosition { get; }
         string Value { get; }
 
-        bool IsNestedInToken(IToken otherToken);
+        bool IsNestedInAnotherToken(IToken anotherToken);
     }
 }

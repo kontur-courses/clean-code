@@ -16,7 +16,9 @@ namespace MarkdownTests
         {
             var availableTags = new List<Tag>()
             {
-                new BoldTag(), new HeaderTag(), new ItalicsTag()
+                new BoldTag(), 
+                new HeaderTag(), 
+                new ItalicsTag()
             };
 
             converter = new TokenConverter(availableTags);
@@ -30,7 +32,6 @@ namespace MarkdownTests
             {
                 new TagToken(new ItalicsTag(), 4, 8, "_xzc_")
             };
-
             var expectedText = "abc <em>xzc</em> asd";
 
             var convertedText = converter.ConvertTokensInText(tokens, text);
@@ -46,7 +47,6 @@ namespace MarkdownTests
             {
                 new TagToken(new BoldTag(), 4, 10, "__xzc__")
             };
-
             var expectedText = "abc <strong>xzc</strong> asd";
 
             var convertedText = converter.ConvertTokensInText(tokens, text);
@@ -62,7 +62,6 @@ namespace MarkdownTests
             {
                 new TagToken(new HeaderTag(), 0, 6, "# aaaaa")
             };
-
             var expectedText = "<h1> aaaaa</h1>";
 
             var convertedText = converter.ConvertTokensInText(tokens, text);
@@ -79,7 +78,6 @@ namespace MarkdownTests
                 new TagToken(new BoldTag(), 0, 15, "__xvc _as_ qwe__"),
                 new TagToken(new ItalicsTag(), 6, 9, "_as_")
             };
-
             var expectedText = "<strong>xvc <em>as</em> qwe</strong>";
 
             var convertedText = converter.ConvertTokensInText(tokens, text);
@@ -97,7 +95,6 @@ namespace MarkdownTests
                 new TagToken(new BoldTag(), 6, 21, "__xvc _as_ qwe__"),
                 new TagToken(new ItalicsTag(), 12, 15, "_as_")
             };
-
             var expectedText = "<h1> asd <strong>xvc <em>as</em> qwe</strong></h1>";
 
             var convertedText = converter.ConvertTokensInText(tokens, text);
@@ -110,7 +107,6 @@ namespace MarkdownTests
         {
             var text = "asd asd xcx cvb";
             var tokens = new List<IToken>();
-
             var expectedText = "asd asd xcx cvb";
 
             var convertedText = converter.ConvertTokensInText(tokens, text);
