@@ -23,79 +23,84 @@ namespace Markdown.Parser
 
             for (var i = 0; i < text.Length; i++)
             {
-                if (CheckIfNonPairTag(text, i, tokens)) continue;
+                var nonPairToken = TryGetNonPairToken(text, i);
+                if (nonPairToken != null)
+                {
+                    tokens.Add(nonPairToken);
+                    continue;
+                }
 
-                if (CheckIfStartPairTag(text, openedTags, ref i)) continue;
+                var openTag = TryGetOpenTag(text, i, openedTags);
+                if (openTag != null)
+                {
+                    openedTags.Push(openTag);
+                    i += openTag.Tag.MdTag.Length - 1;
+                    continue;
+                }
 
-                i = CheckIfEndPairTag(text, i, openedTags, tokens);
+                if (IsEndPairTag(text, i))
+                {
+                    var tag = GetTokenTag(text, i);
+                    i += tag.MdTag.Length - 1;
 
+                    if (IsCorrectEndTag(tag, openedTags))
+                    {
+                        var openedTag = openedTags.Pop();
+                        var tokenValue = text.Substring(openedTag.OpenIndex, i - openedTag.OpenIndex + 1);
+                        tokens.Add(new TagToken(tag, openedTag.OpenIndex, i, tokenValue));
+                    }
+                    else
+                    {
+                        if (openedTags.TryPop(out var openedTag))
+                        {
+                            if (openedTags.Any())
+                                openedTags.Pop();
+                            else
+                                openedTags.Push(openedTag);
+                        }
+                    }
+                }
             }
 
             return tokens;
         }
 
-        private int CheckIfEndPairTag(string text, int i, Stack<OpenTag> openedTags, List<IToken> tokens)
+        private bool IsCorrectEndTag(Tag endTag, Stack<OpenTag> openedTags)
         {
-            if (IsEndPairTag(text, i))
-            {
-                var tagType = GetTokenTagType(text, i);
+            if (openedTags.Count == 0)
+                return false;
 
-                i += tagType.MdTag.Length - 1;
-
-                if (openedTags.Count == 0)
-                    return i;
-
-                var openedTag = openedTags.Pop();
-                if (tagType.MdTag != openedTag.TagType.MdTag)
-                {
-                    if (openedTags.Any())
-                        openedTags.Pop();
-                    else
-                        openedTags.Push(openedTag);
-
-                    return i;
-                }
-
-                var tokenValue = text.Substring(openedTag.OpenIndex, i - openedTag.OpenIndex + 1);
-                tokens.Add(new TagToken(tagType, openedTag.OpenIndex, i, tokenValue));
-            }
-
-            return i;
+            var openedTag = openedTags.Peek();
+            return endTag.MdTag == openedTag.Tag.MdTag;
         }
 
-        private bool CheckIfStartPairTag(string text, Stack<OpenTag> openedTags, ref int i)
+        private OpenTag TryGetOpenTag(string text, int i, Stack<OpenTag> openedTags)
         {
             if (IsStartPairTag(text, i))
             {
-                var tagType = GetTokenTagType(text, i);
-                var openTag = new OpenTag(tagType, i);
-                if (openedTags.TryPeek(out var openedTag))
+                var tag = GetTokenTag(text, i);
+                var openTag = new OpenTag(tag, i);
+                if (openedTags.TryPeek(out var previousOpenTag))
                 {
-                    if (openedTag.TagType.MdTag != tagType.MdTag)
+                    if (previousOpenTag.Tag.MdTag != tag.MdTag)
                     {
-                        i += tagType.MdTag.Length - 1;
-
-                        openedTags.Push(openTag);
-                        return true;
+                        return openTag;
                     }
                 }
                 else
                 {
-                    i += tagType.MdTag.Length - 1;
-
-                    openedTags.Push(openTag);
-                    return true;
+                    return openTag;
                 }
             }
 
-            return false;
+            return null;
         }
 
-        private bool CheckIfNonPairTag(string text, int i, List<IToken> tokens)
+        private TagToken TryGetNonPairToken(string text, int i)
         {
             if (IsNonPairTag(text, i))
             {
-                var tagType = GetTokenTagType(text, i);
+                var tag = GetTokenTag(text, i);
                 var tokenEndIndex = text[i..].IndexOf("\n", StringComparison.Ordinal);
 
                 if (tokenEndIndex == -1)
@@ -104,11 +109,10 @@ namespace Markdown.Parser
                 }
 
                 var tokenValue = text.Substring(i, tokenEndIndex - i + 1);
-                tokens.Add(new TagToken(tagType, i, tokenEndIndex, tokenValue));
-                return true;
+                return new TagToken(tag, i, tokenEndIndex, tokenValue);
             }
-
-            return false;
+            
+            return null;
         }
 
         private bool IsNonPairTag(string text, int index)
@@ -135,20 +139,10 @@ namespace Markdown.Parser
         
         private bool IsEscaped(string text, int index)
         {
-            if (index - 1 >= 0 && text[index - 1] == EscapeChar)
-            {
-                if (index - 2 >= 0 && text[index - 2] == EscapeChar)
-                {
-                    return false;
-                }
-                
-                return true;
-            }
-
-            return false;
+            return index - 1 >= 0 && text[index - 1] == EscapeChar && (index - 2 < 0 || text[index - 2] != EscapeChar);
         }
 
-        private Tag GetTokenTagType(string text, int index)
+        private Tag GetTokenTag(string text, int index)
         {
             var mdTag = GetPossibleTag(text, index);
 
@@ -165,18 +159,6 @@ namespace Markdown.Parser
             }
 
             return mdTag;
-        }
-
-        private class OpenTag
-        {
-            public Tag TagType { get; }
-            public int OpenIndex { get; }
-
-            public OpenTag(Tag tagType, int openIndex)
-            {
-                TagType = tagType;
-                OpenIndex = openIndex;
-            }
         }
     }
 }
