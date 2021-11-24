@@ -1,10 +1,16 @@
-﻿using System.Linq;
+﻿using System.Collections.Generic;
+using System.Linq;
 using System.Text;
 
 namespace Markdown
 {
     public class ItalicsTag : ITag
     {
+        private readonly HashSet<char> stopSymbols = new HashSet<char>()
+        {
+            ' ', '\\'
+        };
+
         public string OpeningMarkup => "_";
         public string ClosingMarkup => "_";
         public string OpeningTag => "<em>";
@@ -12,7 +18,6 @@ namespace Markdown
 
         public bool IsBrokenMarkup(string source, int start, int length)
         {
-            
             return HasEmptyBody(length)
                    || HasFirstGap(source, start)
                    || HasLastGap(source, start, length)
@@ -31,15 +36,15 @@ namespace Markdown
         private int GetWordStartPosition(string source, int start)
         {
             var result = start;
-            while (result > 0 && source[result] != ' ')
+            while (result > 0 && !stopSymbols.Contains(source[result]))
                 result--;
             return result;
         }
-        
+
         private int GetWordEndPosition(string source, int end)
         {
             var result = end;
-            while (result < source.Length - 1 && source[result] != ' ')
+            while (result < source.Length - 1 && !stopSymbols.Contains(source[result]))
                 result++;
             return result;
         }
@@ -48,8 +53,8 @@ namespace Markdown
         {
             var end = start + length;
             return HasGaps(source, start, length)
-                   && (start > 0 && source[start - 1] != ' '
-                       || end < source.Length && source[end] != ' ');
+                   && (start > 0 && !stopSymbols.Contains(source[start - 1])
+                       || end < source.Length && !stopSymbols.Contains(source[end]));
         }
 
         private bool HasGaps(string source, int start, int length)

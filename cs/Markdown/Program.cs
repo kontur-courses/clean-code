@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Linq;
 
 namespace Markdown
 {
@@ -6,12 +7,12 @@ namespace Markdown
     {
         static void Main(string[] args)
         {
-            var source = "_a__";
+            var source = "_\\_a_";
             var converter = new TokenConverter();
-            var result = converter.SetMarkupString(source)
+            var tokens = converter.SetMarkupString(source)
                 .FindTokens()
-                .Build();
-            Console.WriteLine(result);
+                .GetTokens().ToList();
+            Console.WriteLine(converter.Build());
         }
     }
 }

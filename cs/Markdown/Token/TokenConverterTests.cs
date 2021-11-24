@@ -317,13 +317,63 @@ namespace Markdown
         [TestCase("\\__a__")]
         [TestCase("_a\\_")]
         [TestCase("__a\\__")]
-        public void FindTokens_ShouldNotFindMarkup_ShieldingMarkup(string source)
+        public void FindTokens_ShouldNotFindBoldAndItalicsMarkup_ShieldingMarkup(string source)
         {
             converter.SetMarkupString(source)
                 .FindTokens()
                 .GetTokens()
+                .Select(t => t.Tag)
                 .Should()
-                .BeEmpty();
+                .AllBeAssignableTo<ShieldingTag>();
+        }
+        
+        [TestCase("\\\\_a b_")]
+        [TestCase("\\\\__a b__")]
+        [TestCase("_\\__")]
+        [TestCase("__\\___")]
+        public void FindTokens_ShouldFindMarkup_ShieldingMarkup(string source)
+        {
+            converter.SetMarkupString(source)
+                .FindTokens()
+                .GetTokens()
+                .Where(t => t.Tag is BoldTag || t.Tag is ItalicsTag)
+                .Should()
+                .HaveCount(1);
+        }
+        
+        [TestCase("\\_", "_")]
+        [TestCase("\\__", "__")]
+        public void Build_ShouldReplaceShielding_ShieldingMarkup(string source, string result)
+        {
+            converter.SetMarkupString(source)
+                .FindTokens()
+                .Build()
+                .Should()
+                .Be(result);
+        }
+
+        [Test]
+        public void Build_ShouldNotReplaceShielding_ShieldingMarkup()
+        {
+            var source = "a\\b\\c\\ \\";
+            converter.SetMarkupString(source)
+                .FindTokens()
+                .Build()
+                .Should()
+                .Be(source);
+        }
+
+        [TestCase("# abc\n", 1)]
+        [TestCase("# abc\n# \n", 2)]
+        public void FindTokens_ShouldFindAll_HeadingMarkup(string source, int count)
+        {
+            converter
+                .SetMarkupString(source)
+                .FindTokens()
+                .GetTokens()
+                .Select(t => t.Tag)
+                .Should().AllBeOfType<HeadingTag>()
+                .And.HaveCount(count);
         }
     }
 }

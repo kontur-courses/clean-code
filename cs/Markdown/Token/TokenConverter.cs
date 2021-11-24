@@ -50,38 +50,48 @@ namespace Markdown
         {
             var italicsTokens = new Stack<Token>();
             var boldTokens = new Stack<Token>();
+            var shieldingTokens = new Stack<Token>();
 
             var startState = State.CreateState();
-            var markdownState = State.CreateState();
-            var italicState = State.CreateState();
+            var shieldingState = State.CreateState();
+            var italicsState = State.CreateState();
             var boldState = State.CreateState();
 
             startState
-                .AddTransition('_', markdownState)
+                .AddTransition('\\', shieldingState)
+                .AddTransition('_', italicsState)
                 .SetFallback(startState);
 
-            markdownState
-                .AddTransition('_', boldState)
-                .SetFallback(italicState);
-
-            italicState
-                .AddTransition('_', markdownState)
+            shieldingState
                 .SetFallback(startState)
                 .SetOnEntry((s, i) =>
                 {
+                    if (s[i + 1] == '_' || s[i + 1] == '\\')
+                        shieldingTokens.Push(new Token(i, new ShieldingTag()) {Length = 1});
+                });
+
+            italicsState
+                .AddTransition('_', boldState)
+                .AddTransition('\\', shieldingState)
+                .SetFallback(startState)
+                .SetOnEntry((s, i) =>
+                {
+                    if (s[i + 1] == '_')
+                        return;
                     if (!italicsTokens.TryGetPeekItem(out var italicsToken))
-                        italicsTokens.Push(new Token(i - 1, new ItalicsTag()));
+                        italicsTokens.Push(new Token(i, new ItalicsTag()));
                     else if (italicsToken.Length != 0)
-                        italicsTokens.Push(new Token(i - 1, new ItalicsTag()));
+                        italicsTokens.Push(new Token(i, new ItalicsTag()));
                     else if (boldTokens.TryGetPeekItem(out var boldToken)
                              && boldToken.StartPosition > italicsToken.StartPosition)
                         return;
                     else
-                        italicsToken.Length = i - italicsToken.StartPosition;
+                        italicsToken.Length = i + 1 - italicsToken.StartPosition;
                 });
 
             boldState
-                .AddTransition('_', markdownState)
+                .AddTransition('_', italicsState)
+                .AddTransition('\\', shieldingState)
                 .SetFallback(startState)
                 .SetOnEntry((s, i) =>
                 {
@@ -97,9 +107,14 @@ namespace Markdown
                         boldToken.Length = i - boldToken.StartPosition + 1;
                 });
 
-            tokens = GetNotBrokenTokens(italicsTokens.Concat(boldTokens));
+            tokens = GetNotBrokenTokens(Concat(italicsTokens, boldTokens, shieldingTokens));
 
             return Machine.CreateMachine(startState);
+        }
+
+        private IEnumerable<Token> Concat(params IEnumerable<Token>[] collections)
+        {
+            return collections.SelectMany(collection => collection);
         }
 
         private IEnumerable<Token> GetNotBrokenTokens(IEnumerable<Token> anyTokens)
