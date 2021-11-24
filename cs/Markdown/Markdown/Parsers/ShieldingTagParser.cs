@@ -19,7 +19,6 @@ namespace Markdown.Parsers
             {
                 stringBuilder.Append(line[i]);
             }
-                
             return new TokenWord(null);
         }
     }

@@ -10,11 +10,11 @@ namespace Markdown
             var lines = markdownText.Split(new[] {'\r','\n'});
             if (HasHeader(lines[0]))
             {
-                lines[lines.Length-1] = lines[lines.Length - 1]  + "#";
+                lines[lines.Length-1] += "#";
                 lines[0] = "#" + lines[0].Substring(2);
             }
 
-            for (int i = 0; i < lines.Length; i++)
+            for (var i = 0; i < lines.Length; i++)
             {
                 var analyzer = new HtmlTokenAnalyzer();
                 var analyzedLine = analyzer.AnalyzeLine(lines[i]);

@@ -5,8 +5,11 @@ namespace Markdown.Tags
     public class TagHeader : ITag
     {
         public bool IsClosed { get; set; }
+
         public bool IsStartTag { get; set; }
+
         public bool IsAtTheBeginning { get; set; }
+
         public bool IsNotToPairTag { get; set; }
 
         public string HtmlTagAnalog => (IsStartTag) ? "<h1>" : "</h1>";

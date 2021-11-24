@@ -1,7 +1,6 @@
 ﻿using System.Collections.Generic;
 using System.Linq;
 using System.Text;
-using Markdown.Parsers;
 
 namespace Markdown
 {
@@ -14,106 +13,35 @@ namespace Markdown
         public string AnalyzeLine(string line)
         {
 
-            for (int i = 0; i < line.Length; i++)
+            for (var i = 0; i < line.Length; i++)
             {
                 var currentSymbol = line[i];
                 var parsersTable = ParsersStorage.ParsersTable;
                 var currentAndNextSymbols = (i< line.Length - 1) ? currentSymbol.ToString() +line[i+1] : null; 
                 IToken token;
-
+                StringBuilder builder;
                 
                 if (currentAndNextSymbols != null && parsersTable.ContainsKey(currentAndNextSymbols))
                 {
                     token = parsersTable[currentAndNextSymbols]
                         .TryGetToken(ref i, ref _currentBuilder, ref line, currentSymbol);
-                    AddWordToken(_currentBuilder);
-                    AddToken(token);
+                    builder = _currentBuilder;
                 }
                 else if (parsersTable.ContainsKey(currentSymbol.ToString()))
                 {
                     token = parsersTable[currentSymbol.ToString()]
                         .TryGetToken(ref i, ref _currentBuilder, ref line, currentSymbol);
-                    if (token == null)
-                        continue;
-                    if (currentSymbol == '\\')
-                        AddWordToken(null);
-                    else
-                        AddWordToken(_currentBuilder);
-                    AddToken(token);
+                    builder = (currentSymbol == '\\') ? null : _currentBuilder;
                 }
                 else
                 {
                     _currentBuilder.Append(currentSymbol);
-                    //continue;
+                    continue;
                 }
-                
-
-
-                
-                /*
-                switch (currentSymbol)
-                {
-                    case '\\':
-                        token = new ShieldingTagParser().TryGetToken(ref i, ref _currentBuilder, ref line, currentSymbol);
-
-                        AddWordToken(null);
-                        AddToken(token);
-                        break;
-
-                    case '_':
-                        if (i != line.Length - 1 && line[i + 1] == '_')
-                        {
-                            token = new DoubleUnderliningParser().TryGetToken(ref i, ref _currentBuilder, ref line, currentSymbol);
-
-                            AddWordToken(_currentBuilder);
-                            AddToken(token);
-                        }
-                        else
-                        {
-                            token = new SingleUnderliningParser().TryGetToken(ref i, ref _currentBuilder, ref line, currentSymbol);
-                            if (token == null)
-                                break;
-
-                            AddWordToken(_currentBuilder);
-                            AddToken(token);
-                        }
-                        break;
-
-                    case '#':
-                        token = new HeaderParser().TryGetToken(ref i, ref _currentBuilder, ref line, currentSymbol);
-
-                        AddWordToken(_currentBuilder);
-                        AddToken(token);
-                        break;
-
-                    case ' ':
-                        token = new SpaceParser().TryGetToken(ref i, ref _currentBuilder, ref line, currentSymbol);
-
-                        AddWordToken(_currentBuilder);
-                        AddToken(token);
-                        break;
-
-
-                    case '[':
-                        token = new StartLinkParser().TryGetToken(ref i, ref _currentBuilder, ref line, currentSymbol);
-
-                        AddWordToken(_currentBuilder);
-                        AddToken(token);
-                        break;
-
-                    case ']':
-                        token = new EndLinkParser().TryGetToken(ref i, ref _currentBuilder, ref line, currentSymbol);
-
-                        AddWordToken(_currentBuilder);
-                        AddToken(token);
-                        break;
-
-                    default:
-                        _currentBuilder.Append(currentSymbol);
-                        break;
-                }
-                */
-                
+                if (token == null)
+                    continue;
+                AddWordToken(builder);
+                AddToken(token);
             }
             AddWordToken(_currentBuilder);
             return MakeHtml();
@@ -121,9 +49,6 @@ namespace Markdown
 
         private void AddToken(IToken token)
         {
-            if (token == null)
-                return;
-
             if (token is ITag tag)
             {
                 if (_tokens.Count > 1 && _tokens.Last.Value is TokenSpace ||
@@ -137,16 +62,13 @@ namespace Markdown
             {
                 _tokens.AddLast(token);
             }
-
         }
 
         private void AddWordToken(StringBuilder word)
         {
-            if (word == null)
+            if (word == null || word.Length == 0)
                 return;
 
-            if (word.Length == 0)
-                return;
             var wordToken = new TokenWord(word.ToString());
             _tokens.AddLast(wordToken);
             _currentBuilder = new StringBuilder();

@@ -9,7 +9,7 @@ namespace Markdown
 
         private static Dictionary<string, IParser> MakeDictionary()
         {
-            return new Dictionary<string, IParser>()
+            return new Dictionary<string, IParser>
             {
                 ["\\"] = new ShieldingTagParser(),
                 ["#"] = new HeaderParser(),

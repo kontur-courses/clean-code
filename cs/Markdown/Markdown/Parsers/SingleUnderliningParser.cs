@@ -11,10 +11,8 @@ namespace Markdown.Parsers
                 i > 0 && char.IsDigit(line[i - 1]))
             {
                 stringBuilder.Append(currentSymbol);
-                //break;
                 return null;
             }
-
             return new TagItalic();
         }
     }

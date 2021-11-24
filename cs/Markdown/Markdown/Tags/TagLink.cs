@@ -10,19 +10,18 @@ namespace Markdown.Tags
         }
 
         public bool IsClosed { get; set; }
+
         public bool IsStartTag { get; set; }
+
         public bool IsAtTheBeginning { get; set; }
+
         public bool IsNotToPairTag { get; set; }
 
         public string HtmlTagAnalog => (IsStartTag) ? $"<a href=\"{Address}\">" : "</a>";
 
-
         public string Content => null;
 
-
         public string Address { get; set; }
-
-
 
         public void FindPairToken(LinkedListNode<IToken> currentToken)
         {

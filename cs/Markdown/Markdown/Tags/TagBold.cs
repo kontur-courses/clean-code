@@ -5,6 +5,7 @@ namespace Markdown.Tags
     public class TagBold : ITag
     {
         public bool IsAtTheBeginning { get; set; }
+
         public bool IsClosed { get; set; }
 
         public string HtmlTagAnalog => (IsStartTag) ? "<strong>" : "</strong>";
