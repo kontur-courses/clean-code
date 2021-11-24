@@ -8,9 +8,9 @@ namespace Markdown.Lexer
     {
         private static readonly HashSet<char> SpecialCharacters = new()
         {
-            '_',
-            '\\',
-            '\n'
+            Characters.Underscore,
+            Characters.Escape,
+            Characters.NewLine,
         };
 
         private readonly string text;
@@ -30,10 +30,10 @@ namespace Markdown.Lexer
                 var symbol = text[currentIndex];
                 yield return symbol switch
                 {
-                    '_' => LexUnderscore(),
-                    '\\' => LexEscape(),
-                    '#' => LexHeader(),
-                    '\n' => LexNewLine(),
+                    Characters.Underscore => LexUnderscore(),
+                    Characters.Escape => LexEscape(), 
+                    Characters.Sharp => LexHeader(),
+                    Characters.NewLine => LexNewLine(),
                     _ => LexText()
                 };
                 currentIndex++;
@@ -43,13 +43,11 @@ namespace Markdown.Lexer
         private Token LexUnderscore()
         {
             isNewLine = false;
-            if (IsNextCharacter('_'))
-            {
-                currentIndex++;
-                return Token.Bold;
-            }
+            if (!IsNextCharacter(Characters.Underscore)) 
+                return Token.Cursive;
+            currentIndex++;
+            return Token.Bold;
 
-            return Token.Cursive;
         }
 
         private Token LexEscape()
@@ -60,13 +58,10 @@ namespace Markdown.Lexer
 
         private Token LexHeader()
         {
-            if (isNewLine && IsNextCharacter(' '))
-            {
-                currentIndex++;
-                return Token.Header1;
-            }
+            if (!isNewLine || !IsNextCharacter(Characters.Underscore)) return LexText();
+            currentIndex++;
+            return Token.Header1;
 
-            return LexText();
         }
 
         private Token LexNewLine()
@@ -81,7 +76,7 @@ namespace Markdown.Lexer
             var end = start + 1;
             for (; end < text.Length; end++)
             {
-                if (isNewLine && text[end] == '#' || SpecialCharacters.Contains(text[end])) break;
+                if (isNewLine && text[end] == Characters.Sharp || SpecialCharacters.Contains(text[end])) break;
 
                 isNewLine = isNewLine && char.IsWhiteSpace(text[end]);
             }

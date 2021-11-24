@@ -1,5 +1,6 @@
 ﻿using System.Collections.Generic;
 using System.Linq;
+using Markdown.Extensions;
 using Markdown.Tokens;
 
 namespace Markdown.TokenParser
@@ -22,7 +23,7 @@ namespace Markdown.TokenParser
         {
             if (Children.Count == 0)
                 return Token.Value;
-            return Token.Value + string.Join("", Children.Select(x => x.ToText()));
+            return Token.Value + StringUtils.Join(Children.Select(x => x.ToText()));
         }
     }
 }

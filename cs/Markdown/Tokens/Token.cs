@@ -11,16 +11,16 @@
             Value = value;
         }
 
-        public static readonly Token Cursive = new(TokenType.Cursive, "_");
+        public static readonly Token Cursive = new(TokenType.Cursive, $"{Characters.Underscore}");
 
-        public static readonly Token Bold = new(TokenType.Bold, "__");
+        public static readonly Token Bold = new(TokenType.Bold, $"{Characters.Underscore}{Characters.Underscore}");
 
-        public static readonly Token Escape = new(TokenType.Escape, "\\");
+        public static readonly Token Escape = new(TokenType.Escape, $"{Characters.Escape}");
 
         public static Token Text(string text) => new(TokenType.Text, text);
 
-        public static readonly Token Header1 = new(TokenType.Header1, "# ");
+        public static readonly Token Header1 = new(TokenType.Header1, $"{Characters.Sharp} ");
 
-        public static readonly Token NewLine = new(TokenType.NewLine, "\n");
+        public static readonly Token NewLine = new(TokenType.NewLine, $"{Characters.NewLine}");
     }
 }

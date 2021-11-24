@@ -9,8 +9,8 @@ namespace Markdown.Lexer
         public IEnumerable<Token> Lex(string text)
         {
             if (text is null) throw new ArgumentNullException(nameof(text));
-            var helper = new LexIterator(text);
-            return helper.Lex();
+            var lexIterator = new LexIterator(text);
+            return lexIterator.Lex();
         }
     }
 }

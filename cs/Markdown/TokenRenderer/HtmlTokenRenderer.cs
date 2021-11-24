@@ -22,7 +22,7 @@ namespace Markdown.TokenRenderer
             var tag = MapToTag(node.Token.Type);
             return new StringBuilder()
                 .Append(WrapOpeningTag(tag))
-                .AppendJoin("", node.Children.Select(ToString))
+                .Append(StringUtils.Join(node.Children.Select(ToString)))
                 .Append(WrapClosingTag(tag))
                 .ToString();
         }
