@@ -17,8 +17,10 @@ namespace Markdown.Extensions
                 .ToHashSet();
 
             forbiddenTokens.UnionWith(pairedTokens.GetIntersectedTokens(
-                (i, b) => i.From.Position > b.From.Position
-                          && i.To.Position > b.To.Position));
+                (i, b) => i.IsPairsIntersect(b)));
+
+            forbiddenTokens.UnionWith(pairedTokens.GetIntersectedTokens(
+                (i, b) => b.IsPairsIntersect(i)));
 
             forbiddenTokens.UnionWith(tokens.GetEmptyTokens());
 

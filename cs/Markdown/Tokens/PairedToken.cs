@@ -39,5 +39,12 @@ namespace Markdown.Tokens
             while (tokensWithoutPair.Count != 0)
                 unpairedTokens.Add(tokensWithoutPair.Pop());
         }
+
+        public bool IsPairsIntersect(PairedToken pt)
+        {
+            return From.Position < pt.From.Position
+                   && pt.From.Position < To.Position
+                   && To.Position < pt.To.Position;
+        }
     }
 }
