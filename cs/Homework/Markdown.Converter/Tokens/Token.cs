@@ -1,5 +1,4 @@
 ﻿using System;
-using Markdown.TokenFormatter;
 using Markdown.TokenFormatter.Renders;
 
 namespace Markdown.Tokens
