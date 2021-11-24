@@ -13,7 +13,7 @@ namespace Markdown
 
         public string Content => "__";
 
-        public bool IsNotToPairToken { get; set; }
+        public bool IsNotToPairTag { get; set; }
 
         public void FindPairToken(LinkedListNode<IToken> currentToken)
         {
@@ -21,21 +21,21 @@ namespace Markdown
             var onlyEmptyStrings = true;
             while (currentToken != null)
             {
-                if (currentToken.Value is TagSpace)
+                if (currentToken.Value is TokenSpace)
                     spaceCnt++;
 
-                if (currentToken.Value.IsNotToPairToken)
+                if ((currentToken.Value is ITag currentTag && currentTag.IsNotToPairTag))
                     break;
 
                 if (currentToken.Value is TagItalic currentAsItalic 
                     && !currentAsItalic.IsClosed 
-                    && !currentToken.Value.IsNotToPairToken)
+                    && !currentAsItalic.IsNotToPairTag)
                 {
-                    IsNotToPairToken = true;
+                    IsNotToPairTag = true;
                     break;
                 }
 
-                if (currentToken.Value is TagBold && !currentToken.Value.IsNotToPairToken)
+                if (currentToken.Value is TagBold currentAsBold && !currentAsBold.IsNotToPairTag)
                 {
                     if (currentToken.Value is ITag starter)
                         if ((!starter.IsAtTheBeginning && spaceCnt == 0
@@ -43,7 +43,7 @@ namespace Markdown
                             HtmlTokenAnalyzer.MakePair(starter, this);
                 }
 
-                if (!(currentToken.Value is TagWord && currentToken.Value.Content.Length == 0))
+                if (!(currentToken.Value is TokenWord && currentToken.Value.Content.Length == 0))
                     onlyEmptyStrings = false;
                 currentToken = currentToken.Previous;
             }

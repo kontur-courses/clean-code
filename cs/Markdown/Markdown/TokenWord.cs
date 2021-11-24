@@ -1,13 +1,11 @@
 ﻿namespace Markdown
 {
-    public class TagWord : IToken
+    public class TokenWord : IToken
     {
         public string Content
         { get; set; }
 
-        public bool IsNotToPairToken => false;
-
-        public TagWord(string word)
+        public TokenWord(string word)
         {
             Content = word;
         }

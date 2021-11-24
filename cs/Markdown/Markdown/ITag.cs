@@ -13,7 +13,7 @@ namespace Markdown
         bool IsAtTheBeginning
         { get; set; }
 
-        new bool IsNotToPairToken
+        bool IsNotToPairTag
         { get; set; }
 
         string HtmlTagAnalog

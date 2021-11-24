@@ -8,7 +8,7 @@ namespace Markdown
     {
         private readonly LinkedList<IToken> _tokens = new LinkedList<IToken>();
 
-        private readonly HashSet<char> _specialSymbols = new HashSet<char> { '_' };
+        private readonly HashSet<char> _specialSymbols = new HashSet<char> { '_', '#', '[', ']' };
 
         public string AnalyzeLine(string line)
         {
@@ -41,12 +41,14 @@ namespace Markdown
                         }
                         else
                         {
+
                             if (i < line.Length - 1 && char.IsDigit(line[i + 1]) ||
                                 i > 0 && char.IsDigit(line[i - 1]))
                             {
                                 currentBuilder.Append(currentSymbol);
                                 break;
                             }
+
                             token = new TagItalic();
                         }
                         AddWordToken(currentBuilder);
@@ -57,13 +59,19 @@ namespace Markdown
                     case '#':
                         AddWordToken(currentBuilder);
                         currentBuilder = new StringBuilder();
-                        AddToken(new TagHeader());
+
+                        AddToken(new HeaderParser().TryGetToken());
+                        //AddToken(new TagHeader());
+
                         break;
 
                     case ' ':
                         AddWordToken(currentBuilder);
                         currentBuilder = new StringBuilder();
-                        AddSpaceToken();
+
+                        AddToken(new SpaceParser().TryGetToken());
+                        //AddSpaceToken();
+
                         break;
 
 
@@ -77,22 +85,21 @@ namespace Markdown
                         AddWordToken(currentBuilder);
                         currentBuilder = new StringBuilder();
                         var substring = line.Substring(i + 1, line.Length - i-1);
+                        string address;
                         if (line[i + 1] == '(' && substring.Contains(')'))
                         {
 
                             var start = substring.IndexOf('(');
                             var finish = substring.IndexOf(')');
-                            var address = line.Substring(i + start + 2, finish -1 - start);
+                            address = line.Substring(i + start + 2, finish -1 - start);
                             line = line.Remove(start, finish - start + 1);
-                            AddToken(new TagLink(address));
                         }
                         else
                         {
-                            AddToken(new TagLink(null));
+                            address = null;
                         }
+                        AddToken(new TagLink(address));
                         break;
-
-
 
                     default:
                         currentBuilder.Append(currentSymbol);
@@ -105,24 +112,33 @@ namespace Markdown
 
         private void AddSpaceToken()
         {
-            _tokens.AddLast(new TagSpace());
+            _tokens.AddLast(new TokenSpace());
         }
 
-        private void AddToken(ITag token)
+        private void AddToken(IToken token)
         {
-            if (_tokens.Count > 1 && _tokens.Last.Value is TagSpace ||
-                _tokens.Count == 0)
-                token.IsAtTheBeginning = true;
-            _tokens.AddLast(token);
-            var currentToken = _tokens.Last.Previous;
-            token.FindPairToken(currentToken);
+            //var tokenAsTag = token as ITag;
+            if (token is ITag tag)
+            {
+                if (_tokens.Count > 1 && _tokens.Last.Value is TokenSpace ||
+                    _tokens.Count == 0)
+                    tag.IsAtTheBeginning = true;
+                _tokens.AddLast(token);
+                var currentToken = _tokens.Last.Previous;
+                tag.FindPairToken(currentToken);
+            }
+            else
+            {
+                _tokens.AddLast(token);
+            }
+
         }
 
         private void AddWordToken(StringBuilder word)
         {
             if (word.Length == 0)
                 return;
-            var wordToken = new TagWord(word.ToString());
+            var wordToken = new TokenWord(word.ToString());
             _tokens.AddLast(wordToken);
         }
 

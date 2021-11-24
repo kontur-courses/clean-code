@@ -8,7 +8,7 @@ namespace Markdown
         {
             var htmlLinesBuilder = new StringBuilder();
             var lines = markdownText.Split(new[] {'\r','\n'});
-            if (IsThisLineHasHeader(lines[0]))
+            if (HasHeader(lines[0]))
             {
                 lines[lines.Length-1] = lines[lines.Length - 1]  + "#";
                 lines[0] = "#" + lines[0].Substring(2);
@@ -25,7 +25,7 @@ namespace Markdown
             return htmlLinesBuilder.ToString();
         }
 
-        private static bool IsThisLineHasHeader(string line)
+        private static bool HasHeader(string line)
         {
             return line[0] == '#';
         }

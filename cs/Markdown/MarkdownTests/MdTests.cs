@@ -18,7 +18,7 @@ namespace MarkdownTests
             TestName = "Correctly Double Underlining")]
         public void UnderliningShouldHandled(string input, string expectedResult)
         {
-            TestAssertions.AssertTest(input, expectedResult);
+            RenderChecker.CheckRender(input, expectedResult);
         }
     }
 
@@ -34,7 +34,7 @@ namespace MarkdownTests
             TestName = "Should Shields Underlining")]
         public void ShieldingShouldHandled(string input, string expectedResult)
         {
-            TestAssertions.AssertTest(input, expectedResult);
+            RenderChecker.CheckRender(input, expectedResult);
         }
     }
 
@@ -51,7 +51,7 @@ namespace MarkdownTests
             TestName = "Header And Underlines Test")]
         public void HeadersShouldHandled(string input, string expectedResult)
         {
-            TestAssertions.AssertTest(input, expectedResult);
+            RenderChecker.CheckRender(input, expectedResult);
         }
     }
 
@@ -90,25 +90,43 @@ namespace MarkdownTests
 
         [TestCase("_нач_ало", "<em>нач</em>ало",
             TestName = "Underlining Beginning Of Word Test")]
+
         [TestCase("сер_ед_ина", "сер<em>ед</em>ина",
             TestName = "Underlining Middle Of Word Test")]
+
         [TestCase("кон_ец_", "кон<em>ец</em>",
             TestName = "Underlining Ending Of Word Test")]
+
         [TestCase("al__pha be__ta", "al__pha be__ta",
             TestName = "Double Underlining Inside Different Words Test")]
+
         [TestCase("al_pha be_ta", "al_pha be_ta",
             TestName = "Single Underlining Inside Different Words Test")]
+
         [TestCase("На __улице_ бы__ла ясная_ погода", "На __улице_ бы__ла ясная_ погода",
             TestName = "Intersection Between Double And Single Test")]
+
         [TestCase("На _улице__ бы_ла ясная__ погода", "На _улице__ бы_ла ясная__ погода",
             TestName = "Intersection Between Single And Double Test")]
+
         [TestCase("____", "____",
             TestName = "Empty Token Between Double Underlining Test")]
+
         [TestCase("__", "__",
             TestName = "Empty Token Between Single Underlining Test")]
+
+        [TestCase("start____end", "start____end",
+            TestName = "Empty Token Between Double Inside Word Test")]
+
+        [TestCase("start__", "start__",
+            TestName = "Empty Token Between Single Underlining In Word End Test")]
+
+        [TestCase("____start__", "____start__",
+            TestName = "Empty Token Between Double Underlining At Beginning And Single Underlining At Ending Test")]
+
         public void TagCombinationsShouldHandled(string input, string expectedResult)
         {
-            TestAssertions.AssertTest(input, expectedResult);
+            RenderChecker.CheckRender(input, expectedResult);
         }
     }
 
@@ -123,13 +141,13 @@ namespace MarkdownTests
             TestName = "SimpleLinkTest!")]
         public void TagCombinationsShouldHandled(string input, string expectedResult)
         {
-            TestAssertions.AssertTest(input, expectedResult);
+            RenderChecker.CheckRender(input, expectedResult);
         }
     }
 
-    public class TestAssertions
+    public class RenderChecker
     {
-        public static void AssertTest(string input, string expected)
+        public static void CheckRender(string input, string expected)
         {
             var markdown = new Md();
             markdown.Render(input).Should().Be(expected);

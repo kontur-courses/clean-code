@@ -41,16 +41,19 @@
     <None Include="packages.config" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="HeaderParser.cs" />
     <Compile Include="HtmlTokenAnalyzer.cs" />
+    <Compile Include="IParser.cs" />
     <Compile Include="ITag.cs" />
     <Compile Include="IToken.cs" />
     <Compile Include="Md.cs" />
+    <Compile Include="SpaceParser.cs" />
     <Compile Include="TagBold.cs" />
     <Compile Include="TagHeader.cs" />
     <Compile Include="TagItalic.cs" />
     <Compile Include="TagLink.cs" />
-    <Compile Include="TagSpace.cs" />
-    <Compile Include="TagWord.cs" />
+    <Compile Include="TokenSpace.cs" />
+    <Compile Include="TokenWord.cs" />
   </ItemGroup>
   <ItemGroup>
     <Reference Include="System" />

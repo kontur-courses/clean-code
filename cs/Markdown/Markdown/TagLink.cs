@@ -1,5 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 
 namespace Markdown
 {
@@ -13,7 +12,7 @@ namespace Markdown
         public bool IsClosed { get; set; }
         public bool IsStartTag { get; set; }
         public bool IsAtTheBeginning { get; set; }
-        public bool IsNotToPairToken { get; set; }
+        public bool IsNotToPairTag { get; set; }
 
         public string HtmlTagAnalog => (IsStartTag) ? $"<a href=\"{Address}\">" : "</a>";
 
@@ -30,7 +29,7 @@ namespace Markdown
             while (currentToken != null)
             {
                 if (currentToken.Value is TagLink link
-                    && !currentToken.Value.IsNotToPairToken)
+                    && !link.IsNotToPairTag)
                 {
                     link.Address = Address;
                     HtmlTokenAnalyzer.MakePair(link, this);

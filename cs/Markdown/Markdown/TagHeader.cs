@@ -7,7 +7,7 @@ namespace Markdown
         public bool IsClosed { get; set; }
         public bool IsStartTag { get; set; }
         public bool IsAtTheBeginning { get; set; }
-        public bool IsNotToPairToken { get; set; }
+        public bool IsNotToPairTag { get; set; }
 
         public string HtmlTagAnalog => (IsStartTag) ? "<h1>" : "</h1>";
 
@@ -18,7 +18,7 @@ namespace Markdown
             while (currentToken != null)
             {
                 if (currentToken.Value is TagHeader header
-                    && !currentToken.Value.IsNotToPairToken)
+                    && !header.IsNotToPairTag)
                 {
                     HtmlTokenAnalyzer.MakePair(header, this);
                 }
