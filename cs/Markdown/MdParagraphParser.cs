@@ -1,5 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
+using System.Text;
 
 namespace Markdown
 {
@@ -7,22 +9,28 @@ namespace Markdown
     {
         public MdParagraphParser()
         {
-            childParsers = new IParser[] { new MdBoldTextParser(), new MdItalicTextParser(), new MdPlainTextParser() };
+            ChildParsers = new IParser[] { new MdBoldTextParser(), new MdItalicTextParser()};
         }
-        
+
         public override ParsingResult Parse(string mdText, int startBoundary, int endBoundary)
         {
+            var type = TextType.Paragraph;
+            var childrenStart = startBoundary;
+            if (mdText[startBoundary] == Md.HeaderSymbol)
+            {
+                type = TextType.Header;
+                childrenStart++;
+            }
             var (paragraphEnd, childrenEnd) = FindParagraphEnd(mdText, startBoundary, endBoundary);
-            var children = ParseChildren(mdText, startBoundary, childrenEnd);
+            var children = ParseChildren(type, mdText, childrenStart, childrenEnd);
             if (children.Failure)
                 return children;
-            children.Value.Type = "Paragraph";
             children.StartIndex = startBoundary;
             children.EndIndex = paragraphEnd;
             return children;
         }
 
-        public static (int paragraphEnd, int childBlockEnd)  FindParagraphEnd(string mdText, int startBoundary, int endBoundary)
+        private static (int paragraphEnd, int childBlockEnd)  FindParagraphEnd(string mdText, int startBoundary, int endBoundary)
         {
             var paragraphEnd = mdText.IndexOf('\n', startBoundary);
             if (paragraphEnd < 0 || paragraphEnd > endBoundary)

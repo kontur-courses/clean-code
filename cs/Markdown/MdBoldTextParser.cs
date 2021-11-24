@@ -6,7 +6,7 @@ namespace Markdown
     {
         public MdBoldTextParser()
         {
-            childParsers = new IParser[] { new MdItalicTextParser(), new MdPlainTextParser() };
+            ChildParsers = new IParser[] { new MdItalicTextParser() };
         }
         
         public override ParsingResult Parse(string mdText, int startBoundary, int endBoundary)
@@ -14,12 +14,11 @@ namespace Markdown
             if (!mdText.ContainsAt(startBoundary, Md.BoldQuotes)
                 || mdText[startBoundary + 2] == ' ')
                 return ParsingResult.Fail();
-            var end = FindEndQuotes(mdText, startBoundary, endBoundary);
-            if (end > endBoundary || end == -1)
+            var endQuotesIndex = FindEndQuotes(mdText, startBoundary, endBoundary);
+            if (endQuotesIndex > endBoundary || endQuotesIndex == -1)
                 return ParsingResult.Fail();
-            var value = mdText.Substring(startBoundary + 2,   end - startBoundary - 2);
-            var element = new HyperTextElement("BoldText", value);
-            return ParsingResult.Ok(element, startBoundary, end + 1);
+            var children = ParseChildren(TextType.BoldText, mdText, startBoundary + 2, endQuotesIndex - 1);
+            return children.Failure ? children : ParsingResult.Ok(children.Value, startBoundary, endQuotesIndex + 1);
         }
 
         private static int FindEndQuotes(string mdText, int startBoundary, int endBoundary)

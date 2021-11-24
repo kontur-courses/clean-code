@@ -27,8 +27,8 @@ namespace Markdown.Tests
         {
             var text = "qwerty";
             var actual = mdParser.Parse(text).Value;
-            var expected = new HyperTextElement("Body", 
-                new HyperTextElement("Paragraph", new HyperTextElement("PlainText", "qwerty")));
+            var expected = new HyperTextElement(TextType.Body, 
+                new HyperTextElement(TextType.Paragraph, new HyperTextElement<string>(TextType.PlainText, "qwerty")));
             actual.Should().BeEquivalentTo(expected);
         }
         
@@ -37,8 +37,10 @@ namespace Markdown.Tests
         {
             var text = "_qwerty_";
             var actual = mdParser.Parse(text).Value;
-            var expected = new HyperTextElement("Body", 
-                new HyperTextElement("Paragraph", new HyperTextElement("ItalicText", "qwerty")));
+            var expected = new HyperTextElement(TextType.Body, 
+                new HyperTextElement(TextType.Paragraph, 
+                    new HyperTextElement(TextType.ItalicText, 
+                        new HyperTextElement<string>(TextType.PlainText, "qwerty"))));
             actual.Should().BeEquivalentTo(expected);
         }
         
@@ -47,8 +49,10 @@ namespace Markdown.Tests
         {
             var text = "__qwerty__";
             var actual = mdParser.Parse(text).Value;
-            var expected = new HyperTextElement("Body", 
-                new HyperTextElement("Paragraph", new HyperTextElement("BoldText", "qwerty")));
+            var expected = new HyperTextElement(TextType.Body, 
+                new HyperTextElement(TextType.Paragraph, 
+                    new HyperTextElement(TextType.BoldText, 
+                        new HyperTextElement<string>(TextType.PlainText, "qwerty"))));
             actual.Should().BeEquivalentTo(expected);
         }
         
@@ -57,8 +61,8 @@ namespace Markdown.Tests
         {
             var text = "#qwerty";
             var actual = mdParser.Parse(text).Value;
-            var expected = new HyperTextElement("Body", 
-                new HyperTextElement("Header", new HyperTextElement("PlainText", "qwerty")));
+            var expected = new HyperTextElement(TextType.Body, 
+                new HyperTextElement(TextType.Header, new HyperTextElement<string>(TextType.PlainText, "qwerty")));
             actual.Should().BeEquivalentTo(expected);
         }
 
@@ -67,9 +71,12 @@ namespace Markdown.Tests
         {
             var text = "qwerty\r\n_qwerty_";
             var actual = mdParser.Parse(text).Value;
-            var expected = new HyperTextElement("Body",
-                new HyperTextElement("Paragraph", new HyperTextElement("PlainText", "qwerty")),
-                new HyperTextElement("Paragraph", new HyperTextElement("ItalicText", "qwerty")));
+            var expected = new HyperTextElement(TextType.Body, 
+                new HyperTextElement(TextType.Paragraph, 
+                    new HyperTextElement<string>(TextType.PlainText, "qwerty")),
+                             new HyperTextElement(TextType.Paragraph, 
+                    new HyperTextElement(TextType.ItalicText,
+                         new HyperTextElement<string>(TextType.PlainText, "qwerty"))));
             actual.Should().BeEquivalentTo(expected);
         }
         
@@ -78,9 +85,12 @@ namespace Markdown.Tests
         {
             var text = "__qwerty___hello_world";
             var actual = mdParser.Parse(text).Value;
-            var expected = new HyperTextElement("Body", 
-                new HyperTextElement("Paragraph", new HyperTextElement("BoldText", "qwerty"),
-            new HyperTextElement("ItalicText", "hello"), new HyperTextElement("PlainText", "world")));
+            var expected = new HyperTextElement(TextType.Body, 
+                new HyperTextElement(TextType.Paragraph, 
+                    new HyperTextElement(TextType.BoldText, new HyperTextElement<string>(TextType.PlainText,"qwerty")),
+                                 new HyperTextElement(TextType.ItalicText, 
+                                     new HyperTextElement<string>(TextType.PlainText, "hello")), 
+                                 new HyperTextElement<string>(TextType.PlainText, "world")));
             actual.Should().BeEquivalentTo(expected);
         }
     }
