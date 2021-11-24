@@ -58,7 +58,7 @@ namespace Markdown.Lexer
 
         private Token LexHeader()
         {
-            if (!isNewLine || !IsNextCharacter(Characters.Underscore)) return LexText();
+            if (!isNewLine || !IsNextCharacter(Characters.WhiteSpace)) return LexText();
             currentIndex++;
             return Token.Header1;
 

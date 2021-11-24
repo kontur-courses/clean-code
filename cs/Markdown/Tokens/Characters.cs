@@ -9,5 +9,7 @@
         public const char Sharp = '#';
 
         public const char NewLine = '\n';
+        
+        public const char WhiteSpace = ' ';
     }
 }
