@@ -2,6 +2,10 @@
 {
     public class HeadingToken : IToken
     {
+        public const char FirstSymbol = '#';
+        public const char SecondSymbol = ' ';
+        public static readonly char[] NewParagraphSymbols = {'\r', '\n'};
+
         public string Value => "# ";
         public TokenType Type => TokenType.Heading;
         public int Position { get; }

@@ -23,6 +23,11 @@ namespace MarkdownTests
         [TestCaseSource(nameof(CasesForDoubleUnderscore))]
         [TestCaseSource(nameof(CasesForInteractBetweenUnderscores))]
         [TestCase("No Header", "No Header", TestName = "No tags do not create any tag")]
+        [TestCase("a_b__c__d_e", "a<em>b__c__d</em>e")]
+        [TestCase("a_b__c_d__e", "a_b__c_d__e")]
+        [TestCase("_bc _", "_bc _")]
+        [TestCase("__bc __", "__bc __")]
+        [TestCase("# ab# c", "<h1>ab# c</h1>")]
         public void Render_Should(string markdown, string expected)
         {
             md.Render(markdown).Should().Be(expected);
@@ -162,7 +167,7 @@ namespace MarkdownTests
                         "<strong>aaa <em>aaa</em> aaa</strong>")
                     .SetName("Double underscore in beginning inside unary creates both tags");
                 yield return new TestCaseData("_aaa __aaa__ aaa_",
-                        "_aaa __aaa__ aaa_")
+                        "<em>aaa __aaa__ aaa</em>")
                     .SetName("Unary underscore inside double doesn't create any tags");
                 yield return new TestCaseData("__a _a\na_ a__",
                         "__a _a\na_ a__")

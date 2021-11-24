@@ -2,6 +2,9 @@
 {
     public class BoldToken : IToken
     {
+        public const char FirstSymbol = '_';
+        public const char SecondSymbol = '_';
+
         public string Value => "__";
         public TokenType Type => TokenType.Bold;
         public int Position { get; }

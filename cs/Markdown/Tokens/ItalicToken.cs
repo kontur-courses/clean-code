@@ -2,6 +2,8 @@
 {
     public class ItalicToken : IToken
     {
+        public const char FirstSymbol = '_';
+
         public string Value => "_";
         public TokenType Type => TokenType.Italics;
         public int Position { get; }

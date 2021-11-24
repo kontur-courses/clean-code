@@ -12,7 +12,9 @@ namespace Markdown.Extensions
         {
             var forbiddenTokens = pairedTokens.GetIntersectedTokens(
                 (i, b) => i.From.Position < b.From.Position
-                          && i.To.Position > b.To.Position).ToHashSet();
+                          && i.To.Position > b.To.Position)
+                .Where(t => t.Type == TokenType.Bold)
+                .ToHashSet();
 
             forbiddenTokens.UnionWith(pairedTokens.GetIntersectedTokens(
                 (i, b) => i.From.Position > b.From.Position
@@ -57,15 +59,19 @@ namespace Markdown.Extensions
                 var isMiddleTokenMatched = false;
                 var isRightTokenBeginsOnSpace = false;
                 var isLastToken = false;
+                var flag = false;
                 foreach (var token in tokens)
                 {
                     if (token == pair.From && previousContent != token)
+                    {
                         isLeftTokenEndsOnSpace = previousContent.Value.LastOrDefault() != ' ';
+                    }
                     if (token == pair.To)
                     {
                         isMiddleTokenMatched = switchResult(previousContent.Value.All(predicate));
                         isLastToken = true;
                     }
+
                     if (isLastToken && token != pair.To)
                         isRightTokenBeginsOnSpace = token.Value.FirstOrDefault() != ' ';
 
