@@ -1,9 +1,9 @@
 ﻿using System.Collections.Generic;
 using System.Linq;
-using Markdown.Models;
 using Markdown.Paragraphs;
+using Markdown.Tokens;
 
-namespace Markdown.Tokens
+namespace Markdown
 {
     public static class MarkdownRenderConfigFactory
     {

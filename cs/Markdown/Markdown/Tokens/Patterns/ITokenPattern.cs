@@ -1,7 +1,7 @@
 ﻿using System.Collections.Generic;
 using Markdown.Models;
 
-namespace Markdown.Tokens
+namespace Markdown.Tokens.Patterns
 {
     public interface ITokenPattern
     {

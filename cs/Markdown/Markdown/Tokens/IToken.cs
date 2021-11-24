@@ -1,6 +1,7 @@
-﻿using Markdown.Tokens;
+﻿using Markdown.Models;
+using Markdown.Tokens.Patterns;
 
-namespace Markdown.Models
+namespace Markdown.Tokens
 {
     public interface IToken
     {

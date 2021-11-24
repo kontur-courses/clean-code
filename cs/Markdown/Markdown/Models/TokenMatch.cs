@@ -1,4 +1,6 @@
-﻿namespace Markdown.Models
+﻿using Markdown.Tokens;
+
+namespace Markdown.Models
 {
     public class TokenMatch
     {

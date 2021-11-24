@@ -2,7 +2,6 @@
 using System.Collections.Generic;
 using FluentAssertions;
 using Markdown;
-using Markdown.Models;
 using Markdown.Tokens;
 using NUnit.Framework;
 
