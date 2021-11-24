@@ -23,11 +23,7 @@ namespace Markdown
 
         private bool IsThisTokenOpened(TokenInfo tokenInfo)
         {
-            if (currentOpenedTag.RemoveWhere(x => x.Token == tokenInfo.Token) != 0)
-            {
-                // ignoredTokens.RemoveWhere(x => x.Token == tokenInfo.Token);
-                return false;
-            }
+            if (currentOpenedTag.RemoveWhere(x => x.Token == tokenInfo.Token) != 0) return false;
             tokenStack.Push(tokenInfo);
             if (tokenInfo.OpenValid) currentOpenedTag.Add(tokenInfo);
             return true;
@@ -71,7 +67,7 @@ namespace Markdown
 
         private void HandlePairToken(TokenInfo tokenInfo, out TokenSegment validSegment)
         {
-            var (index, token, closeValid, openValid, inWordPartPlaced, _) = tokenInfo;
+            var (_, token, closeValid, _, _, _) = tokenInfo;
             validSegment = null;
 
             if (IsThisTokenOpened(tokenInfo) 
@@ -94,7 +90,6 @@ namespace Markdown
 
         private void HandleSingleToken(TokenInfo tokenInfo, out TokenSegment segment)
         {
-            // segment = new TokenSegment(Tag.GetTagByChars(tokenInfo.Token), tokenInfo.Position, tokenInfo.Position);
             segment = new TokenSegment(tokenInfo);
 
             foreach (var openedTokenInfo in currentOpenedTag)
@@ -115,7 +110,7 @@ namespace Markdown
         {
             foreach (var tokenInfo in tokens)
             {
-                var (index, token, closeValid, openValid, inWordPartPlaced, _) = tokenInfo;
+                var (_, token, _, _, _, _) = tokenInfo;
                 TokenSegment segment;
                 
                 if (Tag.GetTagByChars(token).End is null) HandleSingleToken(tokenInfo, out segment);

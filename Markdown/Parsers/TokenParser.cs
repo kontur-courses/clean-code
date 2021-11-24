@@ -18,25 +18,6 @@ namespace Markdown
             this.rules = rules;
         }
 
-        // public (SegmentsCollection, SegmentsCollection) IgnoreSegmentsThatDoNotMatchRules(SegmentsCollection first, SegmentsCollection second)
-        // {
-        //     var firstSorted = first.GetSortedSegments().Where(x => rules.DoesMatchInFrontRule(x)).ToList();
-        //     var secondSorted = second.GetSortedSegments().Where(x => rules.DoesMatchInFrontRule(x)).ToList();
-        //     
-        //     var firstSegments = firstSorted
-        //         .Where(x => !x.InTextSegment || secondSorted.All(y => rules.DoesMatchContainRule(x, y)))
-        //         .Where(x => secondSorted.All(y => rules.DoesMatchIntersectingRule(x, y))).ToList();
-        //     
-        //     var secondSegment = secondSorted
-        //         .Where(x => !x.InTextSegment || firstSorted.All(y => rules.DoesMatchContainRule(x, y)))
-        //         .Where(x => firstSorted.All(y => rules.DoesMatchIntersectingRule(x, y))).ToList();
-        //
-        //     return (
-        //         new SegmentsCollection(firstSegments.Where(x => secondSegment.All(y => rules.DoesMatchNestingRule(y, x)))), 
-        //         new SegmentsCollection(secondSegment.Where(x => firstSegments.All(y => rules.DoesMatchNestingRule(y, x))))
-        //         );
-        // }
-
         public TagRules GetRules()
         {
             return rules;

@@ -1,5 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Linq;
 
 namespace Markdown
@@ -16,23 +15,6 @@ namespace Markdown
         public TokenInfoCollection SelectValid()
         {
             return new TokenInfoCollection(tokens.Where(x => x.Valid));
-        }
-        
-        public IEnumerable<TokenInfoCollection> GroupBy<TGroup>(Func<TokenInfo, TGroup> groupFunc)
-        {
-            return tokens
-                .GroupBy(groupFunc)
-                .Select(x => new TokenInfoCollection(x));
-        }
-
-        // public SegmentsCollection ToSegmentsCollection()
-        // {
-        //     return new SegmentsCollection(TokenSegment.GetTokensSegments(tokens));
-        // }
-
-        public IEnumerable<TokenInfo> GetTokenInfos()
-        {
-            return tokens;
         }
         
         public IEnumerable<TokenSegment> ToTokenSegments(TagRules rules)
