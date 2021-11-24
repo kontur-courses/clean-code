@@ -1,4 +1,5 @@
 ﻿using Markdown.Extensions;
+using Markdown.Tags;
 using Markdown.Tokens;
 
 namespace Markdown.TokenParser.TokenParsingIteratorState

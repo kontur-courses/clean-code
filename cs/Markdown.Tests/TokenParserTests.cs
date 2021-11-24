@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using FluentAssertions;
 using Markdown.Extensions;
+using Markdown.Tags;
 using Markdown.Tokens;
 using NUnit.Framework;
 

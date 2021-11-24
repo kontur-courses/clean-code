@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using Markdown.Extensions;
+using Markdown.Tags;
 using Markdown.Tokens;
 
 namespace Markdown.TagRenderer

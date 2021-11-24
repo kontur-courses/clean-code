@@ -2,6 +2,7 @@
 using FluentAssertions;
 using Markdown.Extensions;
 using Markdown.TagRenderer;
+using Markdown.Tags;
 using Markdown.Tokens;
 using NUnit.Framework;
 

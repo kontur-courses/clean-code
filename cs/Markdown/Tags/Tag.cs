@@ -1,4 +1,4 @@
-﻿namespace Markdown.Tokens
+﻿namespace Markdown.Tags
 {
     public readonly struct Tag : ITextContainer
     {

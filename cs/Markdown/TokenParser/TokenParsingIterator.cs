@@ -1,6 +1,7 @@
 ﻿using System.Collections.Generic;
 using System.Linq;
 using Markdown.Extensions;
+using Markdown.Tags;
 using Markdown.TokenParser.TokenParsingIteratorState;
 using Markdown.Tokens;
 

@@ -1,4 +1,5 @@
-﻿using Markdown.Tokens;
+﻿using Markdown.Tags;
+using Markdown.Tokens;
 
 namespace Markdown.Extensions
 {
