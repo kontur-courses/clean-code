@@ -1,25 +1,25 @@
 ﻿using System.Linq;
 using Markdown.Tags;
 
-namespace Markdown
+namespace Markdown.Tokens
 {
     public class TagToken : Token
     {
-        public readonly Tag Tag;
-        public override bool AllowInners => Tag.AllowNesting;
+        private readonly Tag _tag;
+        protected override bool AllowInners => _tag.AllowNesting;
 
         public TagToken(string content, Tag tag) : base(content)
         {
-            Tag = tag;
+            _tag = tag;
         }
 
         public override string Render()
         {
             if (_inners.Count == 0)
-                return Tag.OpenHtmlTag + Content + Tag.CloseHtmlTag;
-            return Tag.OpenHtmlTag
+                return _tag.OpenHtmlTag + Content + _tag.CloseHtmlTag;
+            return _tag.OpenHtmlTag
                 + string.Join("", _inners.Select(inner => inner.Render()))
-                + Tag.CloseHtmlTag;
+                + _tag.CloseHtmlTag;
         }
     }
 }

@@ -1,10 +1,10 @@
 ﻿using System.Linq;
 
-namespace Markdown
+namespace Markdown.Tokens
 {
     public class StringToken : Token
     {
-        public override bool AllowInners => false;
+        protected override bool AllowInners => false;
 
         public StringToken(string content) : base(content)
         {
@@ -12,9 +12,7 @@ namespace Markdown
 
         public override string Render()
         {
-            if (_inners.Count == 0)
-                return Content;
-            return string.Join("", _inners.Select(inner => inner.Render()));
+            return _inners.Count == 0 ? Content : string.Join("", _inners.Select(inner => inner.Render()));
         }
     }
 }

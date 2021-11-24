@@ -16,9 +16,7 @@ namespace Markdown.Extensions
 
         public static bool ContainsDigit(this string str) =>
             str.Any(char.IsDigit);
-
-        public static bool IsNullOrWhiteSpace(this string str) => string.IsNullOrWhiteSpace(str);
-
+        
         public static bool TryGetCharsBehind(this string str, int position, int amount, out char[] chars) => TryGetNextChars(str, position, -amount, out chars);
 
         public static bool TryGetNextChars(this string str, int position, int amount, out char[] chars)
@@ -29,17 +27,6 @@ namespace Markdown.Extensions
                 return true;
             }
             chars = default;
-            return false;
-        }
-
-        public static bool TrySubstring(this string str, int position, int length, out string substring)
-        {
-            if (str.InRange(position + length - 1))
-            {
-                substring = str.Substring(position, length);
-                return true;
-            }
-            substring = default;
             return false;
         }
 

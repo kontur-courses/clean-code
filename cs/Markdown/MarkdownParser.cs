@@ -3,21 +3,24 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using Markdown.Tags;
+using Markdown.Tokens;
 
 namespace Markdown
 {
     public class MarkdownParser : IMdParser
     {
         private readonly IMdSpecification _specification;
-        private Dictionary<string, Tag> TagByMdRepresentation => _specification.TagByMdStringRepresentation;
 
         public MarkdownParser(IMdSpecification specification)
         {
             _specification = specification;
         }
 
-        public List<Token> ParseToTokens(string mdText)
+        public List<Token> ParseToTokens(string mdTextRaw)
         {
+            _specification.CheckMdText(mdTextRaw);
+            var mdText = _specification.PreProcess(mdTextRaw);
+
             var tokens = new List<Token>();
             var lastClosePosition = 0;
             for (int position = 0; position < mdText.Length; position++)
@@ -26,23 +29,21 @@ namespace Markdown
                 if (open == null)
                     break;
 
-                var closeTags = FindNextTag(mdText, open.Index + open.Tag.OpenMdTag.Length, open.Tag).ToList();
+                var closeTags = FindNextTag(mdText, open.Position + open.Tag.OpenMdTag.Length, open.Tag).ToList();
                 if (closeTags.Count == 0)
-                    position = open.Index + open.Tag.OpenMdTag.Length;
+                    position = open.Position + open.Tag.OpenMdTag.Length;
                 foreach (var close in closeTags)
                 {
-                    if (close != null && CanUnionByToken(mdText, open.Index, close.Index, close.Tag))
-                    {
-                        var tag = open.Tag;
-                        tokens.Add(new StringToken(mdText.Substring(lastClosePosition, open.Index - lastClosePosition, _specification.EscapeReplaces)));
+                    if (close == null || !CanUnionByToken(mdText, open.Position, close.Position, close.Tag)) continue;
+                    var tag = open.Tag;
+                    tokens.Add(new StringToken(mdText.Substring(lastClosePosition, open.Position - lastClosePosition, _specification.EscapeReplaces)));
 
-                        var contentStart = open.Index + tag.OpenMdTag.Length;
-                        var contentLength = close.Index - contentStart;
+                    var contentStart = open.Position + tag.OpenMdTag.Length;
+                    var contentLength = close.Position - contentStart;
 
-                        tokens.Add(new TagToken(mdText.Substring(contentStart, contentLength, _specification.EscapeReplaces), tag));
-                        lastClosePosition = position = close.Index + tag.CloseMdTag.Length;
-                        break;
-                    }
+                    tokens.Add(new TagToken(mdText.Substring(contentStart, contentLength, _specification.EscapeReplaces), tag));
+                    lastClosePosition = position = close.Position + tag.CloseMdTag.Length;
+                    break;
                 }
             }
             if (lastClosePosition != mdText.Length)
@@ -50,7 +51,7 @@ namespace Markdown
             return tokens;
         }
 
-        private IEnumerable<IndexedTag> FindNextTag(string mdText, int startPosition, Tag openTag = null)
+        private IEnumerable<PositionTag> FindNextTag(string mdText, int startPosition, Tag openTag = null)
         {
             var openTagSeek = openTag == null;
             var tagBuilder = new StringBuilder();
@@ -62,15 +63,15 @@ namespace Markdown
                     continue;
                 var tagPosition = position - tagBuilder.Length + 1;
 
-                if (TagByMdRepresentation.TryGetValue(tagBuilder.ToString(), out Tag tag)
+                if (_specification.TagByMdRepresentation.TryGetValue(tagBuilder.ToString(), out Tag tag)
                     && !Escaped(mdText, tagPosition))
                 {
                     if (openTagSeek && tag.IsCorrectOpenTag(mdText, tagPosition))
-                        yield return new IndexedTag(tag, tagPosition);
+                        yield return new PositionTag(tag, tagPosition);
                     else if (!openTagSeek)
                     {
                         if (tag == openTag && !stack.Any() && tag.IsCorrectCloseTag(mdText, tagPosition))
-                            yield return new IndexedTag(tag, tagPosition);
+                            yield return new PositionTag(tag, tagPosition);
                         else if (tag != openTag)
                         {
                             if (stack.Any() && stack.Peek() == tag)
@@ -87,8 +88,8 @@ namespace Markdown
         private bool Escaped(string mdText, int position)
         {
             if (mdText.TryGetCharsBehind(position, 2, out char[] behindChars))
-                return behindChars[1] == '\\' && behindChars[0] != '\\';
-            return mdText.TryGetCharsBehind(position, 1, out char[] behindChar) && behindChar[0] == '\\';
+                return behindChars[1] == _specification.EscapeSymbol && behindChars[0] != _specification.EscapeSymbol;
+            return mdText.TryGetCharsBehind(position, 1, out char[] behindChar) && behindChar[0] == _specification.EscapeSymbol;
         }
 
         private bool CanUnionByToken(string mdText, int openIndex, int closeIndex, Tag tag)
@@ -107,19 +108,7 @@ namespace Markdown
         private bool IsPartialTag(string mdText, string mdTag, int position)
         {
             return position != mdText.LastIndex()
-                && TagByMdRepresentation.Any(t => t.Key.StartsWith($"{mdTag}{mdText[position + 1]}"));
-        }
-    }
-
-    public class IndexedTag
-    {
-        public readonly Tag Tag;
-        public readonly int Index;
-
-        public IndexedTag(Tag tag, int index)
-        {
-            Tag = tag;
-            Index = index;
+                && _specification.TagByMdRepresentation.Any(t => t.Key.StartsWith($"{mdTag}{mdText[position + 1]}"));
         }
     }
 }

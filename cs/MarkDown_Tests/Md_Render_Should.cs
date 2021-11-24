@@ -122,7 +122,7 @@ namespace MarkDown_Tests
 
         [TestCase(@"\_abc_", "_abc_")]
         [TestCase(@"\__abc__", "__abc__")]
-        [TestCase(@"\# abc\n", @"# abc\n")]
+        [TestCase("\\# abc\n", "# abc\n")]
         public static void NotProcess_EscapedTag(string mdText, string expected)
         {
             _mdProcessor.Render(mdText).Should().Be(expected);

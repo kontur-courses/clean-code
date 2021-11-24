@@ -1,22 +1,18 @@
 ﻿using System.Collections.Generic;
-using System.Linq;
 
-namespace Markdown
+namespace Markdown.Tokens
 {
     public abstract class Token
     {
         protected List<Token> _inners;
-        public virtual string Content { get; protected set; }
+        protected string Content { get;}
 
-        public bool HasParent { get; protected set; }
-        public abstract bool AllowInners { get; }
-        public List<Token> Inners => _inners.ToList();
+        protected abstract bool AllowInners { get; }
 
         public Token(string content)
         {
             Content = content;
             _inners = new List<Token>();
-            HasParent = false;
         }
 
         public abstract string Render();
