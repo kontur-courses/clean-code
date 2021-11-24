@@ -41,9 +41,13 @@
     <None Include="packages.config" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Parsers\DoubleUnderliningParser.cs" />
+    <Compile Include="Parsers\EndLinkParser.cs" />
     <Compile Include="Parsers\HeaderParser.cs" />
     <Compile Include="HtmlTokenAnalyzer.cs" />
     <Compile Include="Parsers\IParser.cs" />
+    <Compile Include="Parsers\SingleUnderliningParser.cs" />
+    <Compile Include="Parsers\StartLinkParser.cs" />
     <Compile Include="Tags\ITag.cs" />
     <Compile Include="IToken.cs" />
     <Compile Include="Md.cs" />

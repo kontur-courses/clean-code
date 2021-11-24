@@ -1,6 +1,7 @@
 ﻿using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using Markdown.Parsers;
 
 namespace Markdown
 {
@@ -10,9 +11,11 @@ namespace Markdown
 
         private readonly HashSet<char> _specialSymbols = new HashSet<char> { '_', '#', '[', ']' };
 
+        private StringBuilder _currentBuilder = new StringBuilder();
+
         public string AnalyzeLine(string line)
         {
-            var currentBuilder = new StringBuilder();
+            //var currentBuilder = new StringBuilder();
 
             for (int i = 0; i < line.Length; i++)
             {
@@ -23,42 +26,64 @@ namespace Markdown
                         if (_specialSymbols.Contains(line[i + 1]) ||
                             line[i + 1] == '\\')
                         {
-                            currentBuilder.Append(line[i + 1]);
+                            _currentBuilder.Append(line[i + 1]);
                             i++;
                         }
                         else
                         {
-                            currentBuilder.Append(line[i]);
+                            _currentBuilder.Append(line[i]);
                         }
                         break;
 
                     case '_':
-                        ITag token;
+                        //ITag token;
                         if (i != line.Length - 1 && line[i + 1] == '_')
                         {
-                            token = new TagBold();
-                            i++;
+                            
+                            var token = new DoubleUnderliningParser().TryGetToken(ref i);
+
+                            AddWordToken(_currentBuilder);
+                            AddToken(token);
+                            //token = new TagBold();
+
+                            //i++;
+
                         }
                         else
                         {
+                            var token = new SingleUnderliningParser().TryGetToken(i, line, _currentBuilder, currentSymbol);
+
+                            if (token == null)
+                                break;
+
+                            AddWordToken(_currentBuilder);
+                            AddToken(token);
+                            
+
+
+                            /*
 
                             if (i < line.Length - 1 && char.IsDigit(line[i + 1]) ||
                                 i > 0 && char.IsDigit(line[i - 1]))
                             {
-                                currentBuilder.Append(currentSymbol);
+                                _currentBuilder.Append(currentSymbol);
                                 break;
                             }
 
-                            token = new TagItalic();
+                            */
+
+                            //token = new TagItalic();
                         }
-                        AddWordToken(currentBuilder);
-                        currentBuilder = new StringBuilder();
-                        AddToken(token);
+                        //AddWordToken(_currentBuilder);
+                        //_currentBuilder = new StringBuilder();
+
+                        //AddToken(token);
+
                         break;
 
                     case '#':
-                        AddWordToken(currentBuilder);
-                        currentBuilder = new StringBuilder();
+                        AddWordToken(_currentBuilder);
+                        //_currentBuilder = new StringBuilder();
 
                         AddToken(new HeaderParser().TryGetToken());
                         //AddToken(new TagHeader());
@@ -66,8 +91,8 @@ namespace Markdown
                         break;
 
                     case ' ':
-                        AddWordToken(currentBuilder);
-                        currentBuilder = new StringBuilder();
+                        AddWordToken(_currentBuilder);
+                        //_currentBuilder = new StringBuilder();
 
                         AddToken(new SpaceParser().TryGetToken());
                         //AddSpaceToken();
@@ -76,14 +101,19 @@ namespace Markdown
 
 
                     case '[':
-                        AddWordToken(currentBuilder);
-                        currentBuilder = new StringBuilder();
-                        AddToken(new TagLink(null));
+                        AddWordToken(_currentBuilder);
+                        //_currentBuilder = new StringBuilder();
+
+                        AddToken(new StartLinkParser().TryGetToken());
+                        //AddToken(new TagLink(null));
+
                         break;
 
                     case ']':
-                        AddWordToken(currentBuilder);
-                        currentBuilder = new StringBuilder();
+                        AddWordToken(_currentBuilder);
+                        //_currentBuilder = new StringBuilder();
+
+                        /*
                         var substring = line.Substring(i + 1, line.Length - i-1);
                         string address;
                         if (line[i + 1] == '(' && substring.Contains(')'))
@@ -98,15 +128,18 @@ namespace Markdown
                         {
                             address = null;
                         }
-                        AddToken(new TagLink(address));
+                        */
+                        AddToken(new EndLinkParser().TryGetToken(ref line, i));
+                        //AddToken(new TagLink(address));
+
                         break;
 
                     default:
-                        currentBuilder.Append(currentSymbol);
+                        _currentBuilder.Append(currentSymbol);
                         break;
                 }
             }
-            AddWordToken(currentBuilder);
+            AddWordToken(_currentBuilder);
             return MakeHtml();
         }
 
@@ -140,6 +173,7 @@ namespace Markdown
                 return;
             var wordToken = new TokenWord(word.ToString());
             _tokens.AddLast(wordToken);
+            _currentBuilder = new StringBuilder();
         }
 
         private string MakeHtml()
