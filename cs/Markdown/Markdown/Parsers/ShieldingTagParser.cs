@@ -1,8 +1,5 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
+﻿using System.Collections.Generic;
 using System.Text;
-using System.Threading.Tasks;
 
 namespace Markdown.Parsers
 {
@@ -10,25 +7,20 @@ namespace Markdown.Parsers
     {
         private readonly HashSet<char> _specialSymbols = new HashSet<char> { '_', '#', '[', ']' };
 
-        public IToken TryGetToken(ref int i, ref StringBuilder currentBuilder, string line)
+        public IToken TryGetToken(ref int i, ref StringBuilder stringBuilder, ref string line, char currentSymbol)
         {
             if (_specialSymbols.Contains(line[i + 1]) ||
                 line[i + 1] == '\\')
             {
-                currentBuilder.Append(line[i + 1]);
+                stringBuilder.Append(line[i + 1]);
                 i++;
             }
             else
             {
-                currentBuilder.Append(line[i]);
+                stringBuilder.Append(line[i]);
             }
                 
             return new TokenWord(null);
-        }
-
-        public IToken TryGetToken()
-        {
-            throw new NotImplementedException();
         }
     }
 }

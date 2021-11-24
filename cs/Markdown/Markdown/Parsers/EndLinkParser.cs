@@ -1,12 +1,12 @@
-﻿using System;
-using System.Linq;
+﻿using System.Linq;
+using System.Text;
 using Markdown.Tags;
 
 namespace Markdown.Parsers
 {
     public class EndLinkParser : IParser
     {
-        public IToken TryGetToken(ref string line, int i)
+        public IToken TryGetToken(ref int i, ref StringBuilder stringBuilder, ref string line, char currentSymbol)
         {
             var substring = line.Substring(i + 1, line.Length - i - 1);
             string address;
@@ -24,11 +24,6 @@ namespace Markdown.Parsers
             }
 
             return new TagLink(address);
-        }
-
-        public IToken TryGetToken()
-        {
-            throw new NotImplementedException();
         }
     }
 }

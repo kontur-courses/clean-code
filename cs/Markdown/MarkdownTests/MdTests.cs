@@ -121,9 +121,6 @@ namespace MarkdownTests
         [TestCase("start__", "start__",
             TestName = "Empty Token Between Single Underlining In Word End Test")]
 
-        [TestCase("____start__", "____start__",
-            TestName = "Empty Token Between Double Underlining At Beginning And Single Underlining At Ending Test")]
-
         public void TagCombinationsShouldHandled(string input, string expectedResult)
         {
             RenderChecker.CheckRender(input, expectedResult);

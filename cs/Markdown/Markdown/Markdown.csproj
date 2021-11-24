@@ -41,6 +41,7 @@
     <None Include="packages.config" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="ParsersStorage.cs" />
     <Compile Include="Parsers\DoubleUnderliningParser.cs" />
     <Compile Include="Parsers\EndLinkParser.cs" />
     <Compile Include="Parsers\HeaderParser.cs" />

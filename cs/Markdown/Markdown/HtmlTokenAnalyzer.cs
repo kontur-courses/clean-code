@@ -17,11 +17,44 @@ namespace Markdown
             for (int i = 0; i < line.Length; i++)
             {
                 var currentSymbol = line[i];
+                var parsersTable = ParsersStorage.ParsersTable;
+                var currentAndNextSymbols = (i< line.Length - 1) ? currentSymbol.ToString() +line[i+1] : null; 
                 IToken token;
+
+                
+                if (currentAndNextSymbols != null && parsersTable.ContainsKey(currentAndNextSymbols))
+                {
+                    token = parsersTable[currentAndNextSymbols]
+                        .TryGetToken(ref i, ref _currentBuilder, ref line, currentSymbol);
+                    AddWordToken(_currentBuilder);
+                    AddToken(token);
+                }
+                else if (parsersTable.ContainsKey(currentSymbol.ToString()))
+                {
+                    token = parsersTable[currentSymbol.ToString()]
+                        .TryGetToken(ref i, ref _currentBuilder, ref line, currentSymbol);
+                    if (token == null)
+                        continue;
+                    if (currentSymbol == '\\')
+                        AddWordToken(null);
+                    else
+                        AddWordToken(_currentBuilder);
+                    AddToken(token);
+                }
+                else
+                {
+                    _currentBuilder.Append(currentSymbol);
+                    //continue;
+                }
+                
+
+
+                
+                /*
                 switch (currentSymbol)
                 {
                     case '\\':
-                        token = new ShieldingTagParser().TryGetToken(ref i, ref _currentBuilder, line);
+                        token = new ShieldingTagParser().TryGetToken(ref i, ref _currentBuilder, ref line, currentSymbol);
 
                         AddWordToken(null);
                         AddToken(token);
@@ -30,14 +63,14 @@ namespace Markdown
                     case '_':
                         if (i != line.Length - 1 && line[i + 1] == '_')
                         {
-                            token = new DoubleUnderliningParser().TryGetToken(ref i);
+                            token = new DoubleUnderliningParser().TryGetToken(ref i, ref _currentBuilder, ref line, currentSymbol);
 
                             AddWordToken(_currentBuilder);
                             AddToken(token);
                         }
                         else
                         {
-                            token = new SingleUnderliningParser().TryGetToken(i, line, _currentBuilder, currentSymbol);
+                            token = new SingleUnderliningParser().TryGetToken(ref i, ref _currentBuilder, ref line, currentSymbol);
                             if (token == null)
                                 break;
 
@@ -47,14 +80,14 @@ namespace Markdown
                         break;
 
                     case '#':
-                        token = new HeaderParser().TryGetToken();
+                        token = new HeaderParser().TryGetToken(ref i, ref _currentBuilder, ref line, currentSymbol);
 
                         AddWordToken(_currentBuilder);
                         AddToken(token);
                         break;
 
                     case ' ':
-                        token = new SpaceParser().TryGetToken();
+                        token = new SpaceParser().TryGetToken(ref i, ref _currentBuilder, ref line, currentSymbol);
 
                         AddWordToken(_currentBuilder);
                         AddToken(token);
@@ -62,14 +95,14 @@ namespace Markdown
 
 
                     case '[':
-                        token = new StartLinkParser().TryGetToken();
+                        token = new StartLinkParser().TryGetToken(ref i, ref _currentBuilder, ref line, currentSymbol);
 
                         AddWordToken(_currentBuilder);
                         AddToken(token);
                         break;
 
                     case ']':
-                        token = new EndLinkParser().TryGetToken(ref line, i);
+                        token = new EndLinkParser().TryGetToken(ref i, ref _currentBuilder, ref line, currentSymbol);
 
                         AddWordToken(_currentBuilder);
                         AddToken(token);
@@ -79,6 +112,8 @@ namespace Markdown
                         _currentBuilder.Append(currentSymbol);
                         break;
                 }
+                */
+                
             }
             AddWordToken(_currentBuilder);
             return MakeHtml();
