@@ -1,6 +1,7 @@
 ﻿using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using Markdown.Parsers;
 
 namespace Markdown
 {
@@ -17,20 +18,18 @@ namespace Markdown
             {
                 var currentSymbol = line[i];
                 var parsersTable = ParsersStorage.ParsersTable;
-                var currentAndNextSymbols = (i< line.Length - 1) ? currentSymbol.ToString() +line[i+1] : null; 
-                IToken token;
+                var currentAndNextSymbols = (i< line.Length - 1) ? currentSymbol.ToString() +line[i+1] : null;
+                IParser parser;
                 StringBuilder builder;
                 
                 if (currentAndNextSymbols != null && parsersTable.ContainsKey(currentAndNextSymbols))
                 {
-                    token = parsersTable[currentAndNextSymbols]
-                        .TryGetToken(ref i, ref _currentBuilder, ref line, currentSymbol);
+                    parser = parsersTable[currentAndNextSymbols];
                     builder = _currentBuilder;
                 }
                 else if (parsersTable.ContainsKey(currentSymbol.ToString()))
                 {
-                    token = parsersTable[currentSymbol.ToString()]
-                        .TryGetToken(ref i, ref _currentBuilder, ref line, currentSymbol);
+                    parser = parsersTable[currentSymbol.ToString()];
                     builder = (currentSymbol == '\\') ? null : _currentBuilder;
                 }
                 else
@@ -38,6 +37,7 @@ namespace Markdown
                     _currentBuilder.Append(currentSymbol);
                     continue;
                 }
+                var token = parser.TryGetToken(ref i, ref _currentBuilder, ref line, currentSymbol);
                 if (token == null)
                     continue;
                 AddWordToken(builder);
