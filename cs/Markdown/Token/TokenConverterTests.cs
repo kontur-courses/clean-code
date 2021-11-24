@@ -34,7 +34,7 @@ namespace Markdown
         [TestCase("_abc_", 0, 5)]
         [TestCase("ab _cd_", 3, 4)]
         [TestCase("_a_ cd", 0, 3)]
-        public void FindTokens_ShouldSaveCorrectTokens_ItalicsMarkup(string source, int start, int length)
+        public void GetTokens_ShouldReturnCorrectTokens_ItalicsMarkup(string source, int start, int length)
         {
             var expectedToken = new Token(start, new ItalicsTag()) {Length = length};
             converter
@@ -47,7 +47,7 @@ namespace Markdown
         }
 
         [Test]
-        public void FindTokens_ShouldSaveCorrectTokenParams_ItalicsMarkup()
+        public void GetTokens_ShouldReturnCorrectTokenParams_ItalicsMarkup()
         {
             var source = "_a_ _a_";
             var expected = new[]
@@ -72,7 +72,7 @@ namespace Markdown
         [TestCase("a_a b_")]
         [TestCase("_ a_")]
         [TestCase("_a _")]
-        public void FindTokens_ShouldNotFind_IncorrectItalicsMarkup(string source)
+        public void GetTokens_ShouldNotReturn_IncorrectItalicsMarkup(string source)
         {
             converter
                 .SetMarkupString(source)
@@ -109,11 +109,11 @@ namespace Markdown
                 .Should().AllBeOfType<BoldTag>()
                 .And.HaveCount(count);
         }
-        
+
         [TestCase("__abc__", 0, 7)]
         [TestCase("ab __cd__", 3, 6)]
         [TestCase("__a__ cd", 0, 5)]
-        public void FindTokens_ShouldSaveCorrectTokens_BoldMarkup(string source, int start, int length)
+        public void GetTokens_ShouldReturnCorrectToken_BoldMarkup(string source, int start, int length)
         {
             var expectedToken = new Token(start, new BoldTag()) {Length = length};
             converter
@@ -124,9 +124,9 @@ namespace Markdown
                 .Should()
                 .BeEquivalentTo(expectedToken);
         }
-        
+
         [Test]
-        public void FindTokens_ShouldSaveCorrectTokenParams_BoldMarkup()
+        public void GetTokens_ShouldReturnCorrectTokenParams_BoldMarkup()
         {
             var source = "__a__ __a__";
             var expected = new[]
@@ -160,7 +160,7 @@ namespace Markdown
                 .Should()
                 .BeEmpty();
         }
-        
+
         [TestCase("__ab c__", "<strong>ab c</strong>")]
         [TestCase("__abc__ __abc__", "<strong>abc</strong> <strong>abc</strong>")]
         public void Build_ShouldReplaceMarkup_BoldMarkup(string source, string result)
@@ -192,8 +192,8 @@ namespace Markdown
         [TestCase("__ab_c_de__", 1)]
         [TestCase("___c_ a__", 1)]
         [TestCase("__c _a___", 1)]
-        [TestCase("__ _c_ _a_ __", 2)]
-        public void FindTokens_ShouldFind_InnerItalicMarkup(string source, int count)
+        [TestCase("___c_ _a___", 2)]
+        public void FindTokens_ShouldFind_InnerItalicsMarkup(string source, int count)
         {
             converter
                 .SetMarkupString(source)
@@ -204,11 +204,11 @@ namespace Markdown
                 .HaveCount(count);
         }
         
-        [TestCase("___c_ a__", 2, 3)]
-        [TestCase("__c _a___", 4, 3)]
-        public void FindTokens_ShouldSaveCorrectTokens_InnerItalicMarkup(string source, int start, int length)
+        [Test]
+        public void GetTokens_ShouldReturnCorrectItalicsToken_InnerItalicsMarkup()
         {
-            var expectedToken = new Token(start, new ItalicsTag()) {Length = length};
+            var source = "___c_ a__";
+            var expectedToken = new Token(2, new ItalicsTag()) {Length = 3};
             converter
                 .SetMarkupString(source)
                 .FindTokens()
@@ -220,11 +220,9 @@ namespace Markdown
         
         [TestCase("__ab_c_de__")]
         [TestCase("___c_ a__")]
-        [TestCase("__c _a___")]
-        [TestCase("___c_ _a___")]
         public void FindTokens_ShouldFind_ExternalBoldMarkup(string source)
         {
-             converter
+            converter
                 .SetMarkupString(source)
                 .FindTokens()
                 .GetTokens()
@@ -232,11 +230,11 @@ namespace Markdown
                 .Should()
                 .HaveCount(1);
         }
-        
-        [TestCase("___c_ a__")]
-        [TestCase("__c _a___")]
-        public void FindTokens_ShouldSaveCorrectTokens_ExternalBoldMarkup(string source)
+
+        [Test]
+        public void GetTokens_ShouldReturnCorrectToken_ExternalBoldMarkup()
         {
+            var source = "___c_ a__";
             var expectedToken = new Token(0, new BoldTag()) {Length = 9};
             converter
                 .SetMarkupString(source)
@@ -245,6 +243,87 @@ namespace Markdown
                 .First(t => t.Tag is BoldTag)
                 .Should()
                 .BeEquivalentTo(expectedToken);
+        }
+        
+        [TestCase("_a __b__ c_")]
+        [TestCase("_a__b__ __d__e_")]
+        [TestCase("_a__b__ __c__ __d__e_")]
+        public void FindTokens_ShouldNotFindBoldMarkup_InnerBoldMarkup(string source)
+        {
+            converter.SetMarkupString(source)
+                .FindTokens()
+                .GetTokens()
+                .Where(t => t.Tag is BoldTag)
+                .Should()
+                .BeEmpty();
+        }
+        
+        [Test]
+        public void GetTokens_ShouldReturnCorrectToken_InnerBoldMarkup()
+        {
+            var source = "_ab __b__ c_";
+            var expectedToken = new Token(0, new ItalicsTag()) {Length = source.Length};
+            converter.SetMarkupString(source)
+                .FindTokens()
+                .GetTokens()
+                .Where(t => t.Tag is ItalicsTag)
+                .Should()
+                .HaveCount(1)
+                .And.OnlyContain(
+                    t => t.StartPosition == expectedToken.StartPosition
+                         && t.Length == expectedToken.Length
+                );
+        }
+        
+        [TestCase("_a __b_ c__")]
+        [TestCase("__a_")]
+        [TestCase("_a__")]
+        public void FindTokens_ShouldNotFindMarkup_IntersectedBoldAndItalicsMarkup(string source)
+        {
+            converter.SetMarkupString(source)
+                .FindTokens()
+                .GetTokens()
+                .Should()
+                .BeEmpty();
+        }
+
+        [Test]
+        public void FindTokens_ShouldFindItalicsAndBoldTokens()
+        {
+            var source = "_ab c_ __a__";
+            converter
+                .SetMarkupString(source)
+                .FindTokens()
+                .GetTokens()
+                .Should()
+                .Contain(t => t.StartPosition == 0 && t.Length == 6 && t.Tag is ItalicsTag)
+                .And.Contain(t => t.StartPosition == 7 && t.Length == 5 && t.Tag is BoldTag);
+        }
+
+        [TestCase("_ab c_ __a__", "<em>ab c</em> <strong>a</strong>")]
+        [TestCase("__a_b_c__", "<strong>a<em>b</em>c</strong>")]
+        [TestCase("_a __b__ c_", "<em>a __b__ c</em>")]
+        public void Build_ShouldReplaceMarkup_ItalicsAndBoldMarkup(string source, string result)
+        {
+            converter
+                .SetMarkupString(source)
+                .FindTokens()
+                .Build()
+                .Should()
+                .Be(result);
+        }
+
+        [TestCase("\\_a_")]
+        [TestCase("\\__a__")]
+        [TestCase("_a\\_")]
+        [TestCase("__a\\__")]
+        public void FindTokens_ShouldNotFindMarkup_ShieldingMarkup(string source)
+        {
+            converter.SetMarkupString(source)
+                .FindTokens()
+                .GetTokens()
+                .Should()
+                .BeEmpty();
         }
     }
 }

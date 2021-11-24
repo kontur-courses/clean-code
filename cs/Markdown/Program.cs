@@ -1,12 +1,17 @@
 ﻿using System;
 
-namespace Markdown1
+namespace Markdown
 {
     class Program
     {
         static void Main(string[] args)
         {
-            Console.WriteLine("Hello World!");
+            var source = "_a__";
+            var converter = new TokenConverter();
+            var result = converter.SetMarkupString(source)
+                .FindTokens()
+                .Build();
+            Console.WriteLine(result);
         }
     }
 }

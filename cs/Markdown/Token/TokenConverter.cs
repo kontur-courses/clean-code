@@ -18,7 +18,8 @@ namespace Markdown
 
         public string Build()
         {
-            var builder = source.Select(symbol => symbol.ToString()).ToList();
+            var builder = source.Take(source.Length - 1)
+                .Select(symbol => symbol.ToString()).ToList();
             foreach (var token in tokens)
             {
                 builder[token.StartPosition] = token.Tag.OpeningTag;
@@ -34,7 +35,7 @@ namespace Markdown
 
         public TokenConverter SetMarkupString(string markup)
         {
-            source = markup;
+            source = markup + ' ';
             return this;
         }
 
@@ -47,72 +48,57 @@ namespace Markdown
 
         private Machine GetBuildsMachine()
         {
-            var anyTokens = new Stack<Token>();
-            
+            var italicsTokens = new Stack<Token>();
+            var boldTokens = new Stack<Token>();
+
             var startState = State.CreateState();
             var markdownState = State.CreateState();
-            var italicsWaitingState = State.CreateState();
-            var italicsEndState = State.CreateState();
-            var boldWaitingState = State.CreateState();
-            var boldPreEndState = State.CreateState();
-            var boldInnerItalicsWaitingState = State.CreateState();
-            var boldInnerItalicsEndState = State.CreateState();
-            var boldAfterInnerItalicsState = State.CreateState();
-            var boldEndState = State.CreateState();
+            var italicState = State.CreateState();
+            var boldState = State.CreateState();
 
-            startState.AddTransition('_', markdownState)
+            startState
+                .AddTransition('_', markdownState)
                 .SetFallback(startState);
 
-            markdownState.AddTransition('_', boldWaitingState)
-                .SetFallback(italicsWaitingState);
+            markdownState
+                .AddTransition('_', boldState)
+                .SetFallback(italicState);
 
-            italicsWaitingState.AddTransition('_', italicsEndState)
-                .SetFallback(italicsWaitingState)
-                .SetOnEntry((s, i) => { anyTokens.Push(new Token(i - 1, new ItalicsTag())); });
-
-            italicsEndState.AddTransition('_', markdownState)
+            italicState
+                .AddTransition('_', markdownState)
                 .SetFallback(startState)
                 .SetOnEntry((s, i) =>
                 {
-                    var token = anyTokens.Peek();
-                    token.Length = i - token.StartPosition + 1;
+                    if (!italicsTokens.TryGetPeekItem(out var italicsToken))
+                        italicsTokens.Push(new Token(i - 1, new ItalicsTag()));
+                    else if (italicsToken.Length != 0)
+                        italicsTokens.Push(new Token(i - 1, new ItalicsTag()));
+                    else if (boldTokens.TryGetPeekItem(out var boldToken)
+                             && boldToken.StartPosition > italicsToken.StartPosition)
+                        return;
+                    else
+                        italicsToken.Length = i - italicsToken.StartPosition;
                 });
 
-            boldWaitingState.AddTransition('_', boldPreEndState)
-                .SetFallback(boldWaitingState)
-                .SetOnEntry((s, i) => { anyTokens.Push(new Token(i - 1, new BoldTag())); });
-
-            boldPreEndState.AddTransition('_', boldEndState)
-                .SetFallback(boldInnerItalicsWaitingState);
-
-            boldInnerItalicsWaitingState.AddTransition('_', boldInnerItalicsEndState)
-                .SetFallback(boldInnerItalicsWaitingState)
-                .SetOnEntry((s, i) => { anyTokens.Push(new Token(i - 1, new ItalicsTag())); });
-
-            boldInnerItalicsEndState.AddTransition('_', boldPreEndState)
-                .SetFallback(boldAfterInnerItalicsState)
-                .SetOnEntry((s, i) =>
-                {
-                    var token = anyTokens.Pop();
-                    token.Length = i - token.StartPosition + 1;
-                    var upperToken = anyTokens.Pop();
-                    anyTokens.Push(token);
-                    anyTokens.Push(upperToken);
-                });
-            
-            boldAfterInnerItalicsState.AddTransition('_', boldPreEndState)
-                .SetFallback(boldAfterInnerItalicsState);
-
-            boldEndState.AddTransition('_', markdownState)
+            boldState
+                .AddTransition('_', markdownState)
                 .SetFallback(startState)
                 .SetOnEntry((s, i) =>
                 {
-                    var token = anyTokens.Peek();
-                    token.Length = i - token.StartPosition + 1;
+                    if (!boldTokens.TryGetPeekItem(out var boldToken))
+                        boldTokens.Push(new Token(i - 1, new BoldTag()));
+                    else if (boldToken.Length != 0)
+                        boldTokens.Push(new Token(i - 1, new BoldTag()));
+                    else if (italicsTokens.TryGetPeekItem(out var italicsToken)
+                             && italicsToken.Length == 0
+                             && boldToken.StartPosition > italicsToken.StartPosition)
+                        boldTokens.Pop();
+                    else
+                        boldToken.Length = i - boldToken.StartPosition + 1;
                 });
 
-            tokens = GetNotBrokenTokens(anyTokens);
-            
+            tokens = GetNotBrokenTokens(italicsTokens.Concat(boldTokens));
+
             return Machine.CreateMachine(startState);
         }
 
