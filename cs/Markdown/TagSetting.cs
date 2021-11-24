@@ -36,7 +36,7 @@ public class TagSetting
         return setting == null || nestingLevel > setting.nestingLevel;
     }
 
-    public string Render(string text, IReadOnlySet<string> excludedParts)
+    public StringBuilder Render(string text, IReadOnlySet<string> excludedParts)
     {
         var result = new StringBuilder(htmlPattern);
         var position = 0;
@@ -58,7 +58,7 @@ public class TagSetting
             position = endIndex;
         }
 
-        return result.ToString();
+        return result;
     }
 
     private static int FindNext(string text, int start, string toFind, IReadOnlySet<string> excludedParts)
@@ -69,6 +69,12 @@ public class TagSetting
             var toSkip = 0;
             foreach (var part in excludedParts)
             {
+                if (Tokenizer.IsEscaped(text, possibleFind))
+                {
+                    toSkip = toFind.Length;
+                    break;
+                }
+
                 if (text.Length < possibleFind + part.Length)
                     continue;
                 if (toFind.Length > part.Length)

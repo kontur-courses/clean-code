@@ -169,6 +169,7 @@ public class MarkdownShould
     [TestCase("__bold strong__", "<strong>bold strong</strong>", TestName = "Bold specification", Category = "Specification")]
     [TestCase("#header h1", "<h1>header h1</h1>", TestName = "Header specification", Category = "Specification")]
     [TestCase(@"\_not cursive em\_", @"_not cursive em_", TestName = "Escape specification", Category = "Specification")]
+    [TestCase(@"_curs\_ive em_", "<em>curs_ive em</em>", TestName = "No tag end on escaped char specification", Category = "Specification")]
     [TestCase(@"\\_cursive em_", @"\<em>cursive em</em>", TestName = "Escape escape char specification", Category = "Specification")]
     [TestCase(@"_curs\ive em_", @"<em>curs\ive em</em>", TestName = "Escape char stays when escapes nothing specification", Category = "Specification")]
     [TestCase("__bold _with cursiv___", "<strong>bold <em>with cursiv</em></strong>", TestName = "Nesting cursive in bold specification", Category = "Specification")]

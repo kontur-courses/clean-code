@@ -15,7 +15,7 @@ internal class CompoundToken : Token
         tokens.Add(token);
     }
 
-    public override string Render()
+    public override StringBuilder Render()
     {
         var builder = new StringBuilder(Value);
         for (var i = tokens.Count - 1; i >= 0; i--)
@@ -28,6 +28,6 @@ internal class CompoundToken : Token
         if (Setting != null)
             return Setting.Render(builder.ToString(), excludedParts);
 
-        return builder.ToString();
+        return builder;
     }
 }

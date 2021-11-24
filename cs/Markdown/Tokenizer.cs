@@ -17,8 +17,6 @@ internal class Tokenizer
         var allTags = lineOnlyTags.Concat(plainTokenTags);
         SpecialParts = allTags.SelectMany(x => x.SpecialParts)
             .Append("\\")
-            //.Distinct()
-            //.OrderBy(x => x.Length)
             .ToHashSet();
     }
 
@@ -47,7 +45,9 @@ internal class Tokenizer
     public Token WrapToken(string token, int start, string? mdTag)
     {
 
-        return TryGetSetting(mdTag, out var setting) ? new(token, start, setting, GetExcludedParts(setting)) : new(token, start, null, SpecialParts);
+        return TryGetSetting(mdTag, out var setting) 
+            ? new(token, start, setting, GetExcludedParts(setting)) 
+            : new(token, start, null, SpecialParts);
     }
 
     public Token WrapToken(string token, int start, TagSetting? mdTag)
@@ -81,10 +81,11 @@ internal class Tokenizer
         {
             var ignoreEscape = false;
             if (line[i] == '\\')
-                ignoreEscape = TryEscape(line, i);
+                ignoreEscape = IsEscaped(line, i);
+
             if (openingDescriptor != null && CanCloseTag(i, line.ToString(), openingDescriptor, out var closingTag))
             {
-                if (!ignoreEscape && TryEscape(line, i))
+                if (!ignoreEscape && IsEscaped(line, i))
                 {
                     i += closingTag.EndTag.Length - 1;
                     continue;
@@ -101,8 +102,9 @@ internal class Tokenizer
 
             if (CanOpenTag(i, line.ToString(), start, openingDescriptor, out var openedTag))
             {
-                if (!ignoreEscape && TryEscape(line, i))
+                if (!ignoreEscape && IsEscaped(line, i))
                 {
+                    line.Remove(i - 1, 1);
                     i += openedTag.Tag.EndTag.Length - 1;
                     continue;
                 }
@@ -112,6 +114,13 @@ internal class Tokenizer
                 token.AddToken(childToken);
                 lastKnownTokenEnd = childToken.End;
                 i = lastKnownTokenEnd - 1;
+                continue;
+            }
+
+            if (line[i] != '\\' && IsEscaped(line,i))
+            {
+                line.Insert(i, '\\');
+                i += 1;
             }
         }
 
@@ -130,15 +139,11 @@ internal class Tokenizer
         }
     }
 
-    private static bool TryEscape(StringBuilder line, int position)
+    public static bool IsEscaped(string line, int position)
     {
-        if (IsEscaped(line, position))
-        {
-            line.Remove(position - 1, 1);
-            return true;
-        }
-
-        return false;
+        if (line.Length < position || position < 1)
+            return false;
+        return line[position - 1] == '\\' && !IsEscaped(line, position - 1);
     }
 
     public static bool IsEscaped(StringBuilder line, int position)

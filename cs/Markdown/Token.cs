@@ -1,4 +1,6 @@
-﻿namespace Markdown;
+﻿using System.Text;
+
+namespace Markdown;
 
 internal class Token
 {
@@ -15,11 +17,11 @@ internal class Token
         this.excludedParts = excludedParts;
     }
 
-    public virtual string Render()
+    public virtual StringBuilder Render()
     {
         if (Setting != null)
-            return Setting.Render(Value, excludedParts).ToString();
+            return Setting.Render(Value, excludedParts);
 
-        return Value;
+        return new StringBuilder(Value);
     }
 }

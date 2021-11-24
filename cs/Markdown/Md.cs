@@ -28,9 +28,21 @@ public class Md
         var builder = new StringBuilder();
         foreach (var token in tokenizer.ParseLines(text))
         {
-            builder.Append(token.Render());
+            builder.Append(Escape(token.Render()));
         }
 
         return builder.ToString();
+    }
+
+    private static StringBuilder Escape(StringBuilder toEscape)
+    {
+        for (var i = 0; i < toEscape.Length; i++)
+        {
+            if (Tokenizer.IsEscaped(toEscape, i))
+                toEscape.Remove(i - 1, 1);
+
+        }
+
+        return toEscape;
     }
 }
