@@ -3,37 +3,37 @@ using System.Collections.Generic;
 
 namespace Markdown.TokenizerLogic
 {
-    public class TokenFilter
+    public class TokenComposer
     {
-        private IEnumerable<Token> toFilter;
-        private LinkedList<Token> filtered;
+        private IEnumerable<Token> tokens;
+        private LinkedList<Token> composed;
         private bool isEscaped;
         private bool isNewline;
         private bool isList;
         private bool isHeader;
 
-        private TokenFilter(IEnumerable<Token> rawTokens)
+        private TokenComposer(IEnumerable<Token> rawTokens)
         {
-            toFilter = rawTokens;
-            filtered = new LinkedList<Token>();
+            tokens = rawTokens;
+            composed = new LinkedList<Token>();
             isNewline = true;
         }
 
         public static IEnumerable<Token> FilterRawTokens(IEnumerable<Token> rawTokens)
         {
-            var filter = new TokenFilter(rawTokens);
+            var filter = new TokenComposer(rawTokens);
             filter.Apply();
-            return filter.filtered;
+            return filter.composed;
         }
 
         private void Apply()
         {
-            foreach (var token in toFilter)
+            foreach (var token in tokens)
                 HandleToken(token);
 
-            TryFailedEscape();
-            TryCloseHeader();
-            TryCloseEndList();
+            HandleFailedEscape();
+            HandleHeaderClosing();
+            HandleTextEndListClosing();
         }
 
         private void HandleToken(Token token)
@@ -65,35 +65,35 @@ namespace Markdown.TokenizerLogic
 
         private void HandleNewlineToken(NewlineToken nl)
         {
-            TryFailedEscape();
-            TryCloseHeader();
+            HandleFailedEscape();
+            HandleHeaderClosing();
             if (isList)
             {
                 var itemEnd = new ListItemToken();
                 itemEnd.Close();
-                filtered.AddLast(itemEnd);
+                composed.AddLast(itemEnd);
             }
             else
-                filtered.AddLast(nl);
+                composed.AddLast(nl);
             isNewline = true;
         }
 
         private void HandleEscapeToken()
         {
-            TryCloseList();
+            HandleListClosing();
             isNewline = false;
-            if (!TryFailedEscape())
+            if (!HandleFailedEscape())
                 isEscaped = true;
         }
 
         private void HandleHeaderToken(HeaderToken h)
         {
-            TryCloseList();
+            HandleListClosing();
             if (isEscaped)
                 HandleEscapedToken(h);
             else if (isNewline)
             {
-                filtered.AddLast(h);
+                composed.AddLast(h);
                 isHeader = true;
             }
             else
@@ -109,10 +109,10 @@ namespace Markdown.TokenizerLogic
             {
                 if (!isList)
                 {
-                    filtered.AddLast(new UnorderedListToken());
+                    composed.AddLast(new UnorderedListToken());
                     isList = true;
                 }
-                filtered.AddLast(li);
+                composed.AddLast(li);
             }
             else
                 HandleFailedToken('-');
@@ -121,23 +121,23 @@ namespace Markdown.TokenizerLogic
 
         private void HandleItalicToken(ItalicToken i)
         {
-            TryCloseList();
+            HandleListClosing();
             isNewline = false;
             if (isEscaped)
                 HandleEscapedToken(i);
-            else if (filtered.Count > 0
-                && filtered.Last.Value is ItalicToken last)
+            else if (composed.Count > 0
+                && composed.Last.Value is ItalicToken last)
                 AddBoldToken(last);
             else
-                filtered.AddLast(i);
+                composed.AddLast(i);
         }
 
         private void HandleSimpleToken(SingleToken token)
         {
-            TryCloseList();
+            HandleListClosing();
             isNewline = false;
-            TryFailedEscape();
-            filtered.AddLast(token);
+            HandleFailedEscape();
+            composed.AddLast(token);
         }
 
         private void AddBoldToken(ItalicToken last)
@@ -145,65 +145,65 @@ namespace Markdown.TokenizerLogic
             var bold = new BoldToken();
             if (last.IsEscaped)
                 bold.Escape();
-            filtered.RemoveLast();
-            filtered.AddLast(bold);
+            composed.RemoveLast();
+            composed.AddLast(bold);
         }
 
         private void HandleFailedToken(char failedChar)
         {
-            filtered.AddLast(new TextToken(failedChar.ToString()));
-            filtered.AddLast(new SpaceToken());
+            composed.AddLast(new TextToken(failedChar.ToString()));
+            composed.AddLast(new SpaceToken());
         }
 
         private void HandleEscapedToken(PairedToken token)
         {
             token.Escape();
-            filtered.AddLast(token);
+            composed.AddLast(token);
             isEscaped = false;
         }
 
-        private void TryCloseHeader()
+        private void HandleHeaderClosing()
         {
             if (isHeader)
             {
                 var headerEnd = new HeaderToken();
                 headerEnd.Close();
-                filtered.AddLast(headerEnd);
+                composed.AddLast(headerEnd);
                 isHeader = false;
             }
         }
 
-        private bool TryFailedEscape()
+        private bool HandleFailedEscape()
         {
             if (isEscaped)
             {
-                filtered.AddLast(new EscapeToken());
+                composed.AddLast(new EscapeToken());
                 isEscaped = false;
                 return true;
             }
             return false;
         }
 
-        private void TryCloseEndList()
+        private void HandleTextEndListClosing()
         {
             if (isList)
             {
                 var itemEnd = new ListItemToken();
                 itemEnd.Close();
-                filtered.AddLast(itemEnd);
+                composed.AddLast(itemEnd);
                 isNewline = true;
-                TryCloseList();
+                HandleListClosing();
             }
         }
 
-        private void TryCloseList()
+        private void HandleListClosing()
         {
             if (isNewline && isList)
             {
                 isList = false;
                 var listEnd = new UnorderedListToken();
                 listEnd.Close();
-                filtered.AddLast(listEnd);
+                composed.AddLast(listEnd);
             }
         }
     }

@@ -32,8 +32,7 @@ namespace MarkdownTests
         private TimeSpan MeasureAverage(Action action, int count)
         {
             GC.Collect();
-            var timer = new Stopwatch();
-            timer.Start();
+            var timer = Stopwatch.StartNew();
             for (var i = 0; i < count; i++)
                 action();
             timer.Stop();

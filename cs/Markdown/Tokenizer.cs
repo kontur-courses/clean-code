@@ -1,5 +1,5 @@
-﻿using System.Collections.Generic;
-using Markdown.TokenizerLogic;
+﻿using Markdown.TokenizerLogic;
+using System.Collections.Generic;
 
 namespace Markdown
 {
@@ -8,10 +8,10 @@ namespace Markdown
         public static IEnumerable<Token> ProcessMarkdown(string markdownText)
         {
             var rawTokens = TokenParser.ToRawTokens(markdownText);
-            var filteredTokens = TokenFilter.FilterRawTokens(rawTokens);
-            var pairedTokens = TokenPairer.PairFilteredTokens(filteredTokens);
+            var composedTokens = TokenComposer.FilterRawTokens(rawTokens);
+            var pairedTokens = TokenPairer.PairFilteredTokens(composedTokens);
 
             return pairedTokens;
         }
-    }   
+    }
 }

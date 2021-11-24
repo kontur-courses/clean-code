@@ -1,7 +1,7 @@
-﻿using System;
+﻿using Markdown.TokenizerLogic;
+using System;
 using System.Collections.Generic;
 using System.Text;
-using Markdown.TokenizerLogic;
 
 namespace Markdown
 {
@@ -34,7 +34,7 @@ namespace Markdown
                             if (toPair.Count > 0
                                 && toPair.Peek().CanOpen
                                 && toPair.Peek().CanClose)
-                                toPair.Peek().LockOpen();
+                                toPair.Peek().DisapleOpen();
                             isLastPaired = false;
                             isWord = false;
                             withDigits = false;
@@ -48,7 +48,7 @@ namespace Markdown
                             if (toPair.Count > 0
                                 && toPair.Peek().CanOpen
                                 && toPair.Peek().CanClose)
-                                toPair.Peek().LockOpen();
+                                toPair.Peek().DisapleOpen();
                             isLastPaired = false;
                             isWord = false;
                             withDigits = false;
@@ -62,7 +62,7 @@ namespace Markdown
                             if (toPair.Count > 0
                                 && toPair.Peek().CanOpen
                                 && toPair.Peek().CanClose)
-                                toPair.Peek().LockOpen();
+                                toPair.Peek().DisapleOpen();
                             isLastPaired = false;
                             isWord = false;
                             withDigits = false;
@@ -76,7 +76,7 @@ namespace Markdown
                             if (toPair.Count > 0
                                 && toPair.Peek().CanOpen
                                 && toPair.Peek().CanClose)
-                                toPair.Peek().LockOpen();
+                                toPair.Peek().DisapleOpen();
                             isLastPaired = false;
                             isWord = false;
                             withDigits = false;
@@ -87,7 +87,7 @@ namespace Markdown
                             if (toPair.Count > 0
                                 && toPair.Peek().CanOpen
                                 && toPair.Peek().CanClose)
-                                toPair.Peek().LockOpen();
+                                toPair.Peek().DisapleOpen();
                             isLastPaired = false;
                             isWord = false;
                             withDigits = false;
@@ -122,7 +122,7 @@ namespace Markdown
                             if (isWord)
                             {
                                 if (toPair.Count > 0
-                                && toPair.Peek().IsItalic
+                                && toPair.Peek().Token is ItalicToken
                                 && toPair.Peek().CanOpen)
                                 {
                                     var pair = toPair.Pop();
@@ -165,7 +165,7 @@ namespace Markdown
                             if (isWord)
                             {
                                 if (toPair.Count > 0
-                                && !toPair.Peek().IsItalic
+                                && !(toPair.Peek().Token is ItalicToken)
                                 && toPair.Peek().CanOpen)
                                 {
                                     var pair = toPair.Pop();
@@ -178,7 +178,7 @@ namespace Markdown
                                     else
                                     {
                                         if (toPair.Count > 0
-                                            && toPair.Peek().IsItalic
+                                            && toPair.Peek().Token is ItalicToken
                                             && toPair.Peek().CanOpen)
                                         {
                                             pair.Token.Escape();

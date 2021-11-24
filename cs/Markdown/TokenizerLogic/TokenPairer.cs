@@ -8,7 +8,7 @@ namespace Markdown.TokenizerLogic
         private IEnumerable<Token> filtered;
         private Stack<PairedTokenInfo> toPair;
         private bool isWord;
-        private bool withDigits;
+        private bool isTagPairSkipped;
         private bool isLastPaired;
 
         private TokenPairer(IEnumerable<Token> filteredTokens)
@@ -86,7 +86,7 @@ namespace Markdown.TokenizerLogic
         {
             StartWord();
             if (token is TextToken text)
-                withDigits = text.WithDigits ? true : withDigits;
+                isTagPairSkipped = text.WithDigits ? true : isTagPairSkipped;
         }
 
         private bool CanPair(PairedToken token)
@@ -100,7 +100,7 @@ namespace Markdown.TokenizerLogic
         {
             var pair = toPair.Pop();
 
-            if (withDigits)
+            if (isTagPairSkipped)
             {
                 pair.Token.Escape();
                 token.Escape();
@@ -129,7 +129,7 @@ namespace Markdown.TokenizerLogic
         private bool IsIncorrectNesting()
         {
             return toPair.Count > 0
-                && toPair.Peek().IsItalic
+                && toPair.Peek().Token is ItalicToken
                 && toPair.Peek().CanOpen;
         }
 
@@ -159,10 +159,10 @@ namespace Markdown.TokenizerLogic
             if (toPair.Count > 0
                 && toPair.Peek().CanOpen
                 && toPair.Peek().CanClose)
-                toPair.Peek().LockOpen();
+                toPair.Peek().DisapleOpen();
             isLastPaired = false;
             isWord = false;
-            withDigits = false;
+            isTagPairSkipped = false;
         }
 
         private void DiscardUnpaired()

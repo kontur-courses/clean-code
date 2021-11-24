@@ -107,8 +107,8 @@ namespace Markdown.TokenizerLogic
 
         private void HandleFailedTags()
         {
-            TryFailedHeader();
-            TryFailedListItem();
+            HandleFailedHeader();
+            HandleFailedListItem();
         }
 
         private void HandleHeader()
@@ -125,7 +125,7 @@ namespace Markdown.TokenizerLogic
             isListItem = true;
         }
 
-        private void TryFailedListItem()
+        private void HandleFailedListItem()
         {
             if (isListItem)
             {
@@ -134,7 +134,7 @@ namespace Markdown.TokenizerLogic
             }
         }
 
-        private void TryFailedHeader()
+        private void HandleFailedHeader()
         {
             if (isHeader)
             {

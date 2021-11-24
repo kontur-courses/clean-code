@@ -3,7 +3,6 @@
     internal class PairedTokenInfo
     {
         public readonly PairedToken Token;
-        public bool IsItalic => Token is ItalicToken;
         public bool CanOpen { get; private set; }
         public bool CanClose { get; private set; }
 
@@ -19,10 +18,10 @@
 
         public void Open() => CanOpen = true;
 
-        public void LockOpen() => CanOpen = false;
+        public void DisapleOpen() => CanOpen = false;
 
         public void Close() => CanClose = true;
 
-        public void LockClose() => CanClose = false;
+        public void DisableClose() => CanClose = false;
     }
 }
