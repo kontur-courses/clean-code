@@ -36,11 +36,11 @@ namespace Markdown.Tests
             tokens.Should().Contain(Token.Text(text)).And.HaveCount(1);
         }
 
-        [TestCaseSource(typeof(LexerTests), nameof(GetCursiveFormattingTestCases))]
-        [TestCaseSource(typeof(LexerTests), nameof(GetBoldFormattingTestCases))]
-        [TestCaseSource(typeof(LexerTests), nameof(GetEscapeFormattingTestCases))]
-        [TestCaseSource(typeof(LexerTests), nameof(GetHeaderFormattingTestCases))]
-        [TestCaseSource(typeof(LexerTests), nameof(GetNewLineFormattingTestCases))]
+        [TestCaseSource(nameof(GetCursiveFormattingTestCases))]
+        [TestCaseSource(nameof(GetBoldFormattingTestCases))]
+        [TestCaseSource(nameof(GetEscapeFormattingTestCases))]
+        [TestCaseSource(nameof(GetHeaderFormattingTestCases))]
+        [TestCaseSource(nameof(GetNewLineFormattingTestCases))]
         public void Lex_ShouldReturnCorrectTokens_WhenTextWithSpecialCharacters(string text, Token[] expectedTokens)
         {
             var tokens = sut.Lex(text);
@@ -49,13 +49,13 @@ namespace Markdown.Tests
         }
 
         public static IEnumerable<TestCaseData> GetCursiveFormattingTestCases() =>
-            GetFormattingTestCases(Token.Cursive.Value, Token.Cursive);
+            GetFormattingTestCases(Token.Cursive);
 
         public static IEnumerable<TestCaseData> GetBoldFormattingTestCases() =>
-            GetFormattingTestCases(Token.Bold.Value, Token.Bold);
+            GetFormattingTestCases(Token.Bold);
 
         public static IEnumerable<TestCaseData> GetEscapeFormattingTestCases() =>
-            GetFormattingTestCases(Token.Escape.Value, Token.Escape);
+            GetFormattingTestCases(Token.Escape);
 
         public static IEnumerable<TestCaseData> GetHeaderFormattingTestCases()
         {
@@ -100,7 +100,7 @@ namespace Markdown.Tests
         }
 
         public static IEnumerable<TestCaseData> GetNewLineFormattingTestCases() =>
-            GetFormattingTestCases(Token.NewLine.Value, Token.NewLine);
+            GetFormattingTestCases(Token.NewLine);
 
         [Test]
         public void Lex_ShouldReturnTokens_WhenOnlySpecialSymbols()
@@ -110,7 +110,11 @@ namespace Markdown.Tests
                 Token.Header1,
                 Token.Bold,
                 Token.Cursive,
-                Token.Escape
+                Token.Escape,
+                Token.OpenCircleBracket,
+                Token.CloseCircleBracket,
+                Token.OpenSquareBracket,
+                Token.CloseSquareBracket
             };
             var tokens = sut.Lex(string.Join("", expected.Select(t => t.Value)));
 
@@ -124,7 +128,11 @@ namespace Markdown.Tests
         public void Lex_ShouldBeFast(int characterCount, long maxMilliseconds)
         {
             var rnd = new Random();
-            var characters = new[] { 'a', '\\', '\n', '#', '_' };
+            var characters = new[]
+            {
+                'a', Characters.Escape, Characters.Underscore, Characters.NewLine, Characters.Sharp,
+                Characters.WhiteSpace
+            };
             var text = string.Join("", Enumerable.Range(0, characterCount)
                 .Select(x => characters[rnd.Next(characters.Length)]));
             GC.Collect();
@@ -165,8 +173,9 @@ namespace Markdown.Tests
             second.Current.Should().Be(Token.Cursive);
         }
 
-        private static IEnumerable<TestCaseData> GetFormattingTestCases(string character, Token token)
+        private static IEnumerable<TestCaseData> GetFormattingTestCases(Token token)
         {
+            var character = token.Value;
             yield return new TestCaseData(character, new[]
             {
                 token
