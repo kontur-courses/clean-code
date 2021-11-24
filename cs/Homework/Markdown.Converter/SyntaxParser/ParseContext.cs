@@ -6,7 +6,7 @@ using Markdown.Tokens;
 
 namespace Markdown.SyntaxParser
 {
-    internal class ParseContext
+    public class ParseContext
     {
         public readonly Token[] Tokens;
         public int Position;
@@ -35,6 +35,7 @@ namespace Markdown.SyntaxParser
                 TokenType.Bold => new BoldParser(this).Parse(),
                 TokenType.Escape => new EscapeParser(this).Parse(),
                 TokenType.Header1 => new Header1Parser(this).Parse(),
+                TokenType.OpenImageAlt => new ImageParser(this).Parse(),
                 _ => throw new Exception($"unknown token type: {Current.TokenType}")
             };
         }
@@ -56,9 +57,5 @@ namespace Markdown.SyntaxParser
             Peek(offset).TokenType == TokenType.NewLine || IsEndOfFile(offset);
 
         public bool IsEndOfFile(int offset = 1) => Position + offset == Tokens.Length;
-
-        public bool CanBeClosedTag(int offset) =>
-            !char.IsWhiteSpace(Peek(offset - 1).Value.Last())
-            || IsEndOfFileOrNewLine(offset + 1);
     }
 }

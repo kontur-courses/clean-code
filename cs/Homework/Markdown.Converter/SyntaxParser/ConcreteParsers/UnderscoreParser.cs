@@ -24,7 +24,7 @@ namespace Markdown.SyntaxParser.ConcreteParsers
                 return TokenTree.FromText(Context.Current.Value);
             var intersectionOffset = IsIntersectsWith(oppositeTokenTypes[current.TokenType]);
             if (intersectionOffset != -1)
-                return ParseToText(intersectionOffset, Context.Current.Value);
+                return TokenTree.FromText(ParseToText(intersectionOffset, Context.Current.Value));
             var buffer = new List<TokenTree>();
             do
             {
@@ -77,18 +77,6 @@ namespace Markdown.SyntaxParser.ConcreteParsers
             return false;
         }
 
-        private TokenTree ParseToText(int endOffset, string prefix)
-        {
-            var buffer = new List<TokenTree>();
-            for (var i = 0; i < endOffset; i++)
-            {
-                Context.NextToken();
-                buffer.Add(TokenTree.FromText(Context.Current.Value));
-            }
-
-            return TokenTree.FromText(buffer.Aggregate(prefix, (s, token) => s + token.Token.Value));
-        }
-
         private int IsIntersectsWith(TokenType tokenType)
         {
             var closingTag = GetOffsetOfFirstTagAppearanceInLine(Context.Current.TokenType);
@@ -102,19 +90,8 @@ namespace Markdown.SyntaxParser.ConcreteParsers
 
         private bool HasTokenInSameLine() => GetOffsetOfFirstTagAppearanceInLine(Context.Current.TokenType) != -1;
 
-        private int GetOffsetOfFirstTagAppearanceInLine(TokenType tokenType, int startOffset = 1)
-        {
-            var i = startOffset;
-            Token currentToken;
-            do
-            {
-                currentToken = Context.Peek(i);
-                if (currentToken.TokenType == tokenType && Context.CanBeClosedTag(i))
-                    return i;
-                i++;
-            } while (currentToken.TokenType != TokenType.NewLine && Context.Position + i != Context.Tokens.Length);
-
-            return -1;
-        }
+        private bool CanBeClosingTag(int offset) =>
+            !char.IsWhiteSpace(Context.Peek(offset - 1).Value.Last())
+            || Context.IsEndOfFileOrNewLine(offset + 1);
     }
 }

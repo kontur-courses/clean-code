@@ -7,6 +7,10 @@
         Italics,
         Bold,
         Escape,
-        Header1
+        Header1,
+        OpenImageAlt,
+        CloseImageAlt,
+        CloseBracket,
+        Image
     }
 }

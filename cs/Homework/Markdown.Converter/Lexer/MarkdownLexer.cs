@@ -21,7 +21,10 @@ namespace Markdown.Lexer
                 {'_', LexUnderscore},
                 {'\\', () => Token.Escape},
                 {'\n', () => Token.NewLine},
-                {'#', LexHeader1}
+                {'#', LexHeader1},
+                {'!', LexOpenImageAlt},
+                {']', LexCloseImageAlt},
+                {')', () => Token.CloseImageTag}
             };
         }
 
@@ -73,6 +76,22 @@ namespace Markdown.Lexer
 
             position--;
             return Token.Text(buffer.ToString());
+        }
+
+        private Token LexOpenImageAlt()
+        {
+            if (Lookahead != '[')
+                return Token.Text("!");
+            position++;
+            return Token.OpenImageAlt;
+        }
+
+        private Token LexCloseImageAlt()
+        {
+            if (Lookahead != '(')
+                return Token.Text("]");
+            position++;
+            return Token.CloseImageAlt;
         }
     }
 }
