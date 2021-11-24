@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 
 namespace Markdown.Extensions
@@ -40,6 +41,14 @@ namespace Markdown.Extensions
             }
             substring = default;
             return false;
+        }
+
+        public static string Substring(this string str, int start, int length, Dictionary<string, string> replaces)
+        {
+            var substring = str.Substring(start, length);
+            foreach (var p in replaces)            
+                substring = substring.Replace(p.Key, p.Value);
+            return substring;            
         }
     }
 }

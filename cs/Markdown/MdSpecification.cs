@@ -15,6 +15,9 @@ namespace Markdown
         public Dictionary<string, Tag> TagByMdStringRepresentation => _stringToTag;
         public List<string> EscapeSymbols => _escapeSymbols.ToList();
         public List<string> EscapeSequences => _escapeSequences.ToList();
+
+        public Dictionary<string, string> EscapeReplaces { get; private set; }
+
         public MdSpecification(List<Tag> tags = null, List<string> escapeSymbols = null)
         {
             _tags = tags ?? new List<Tag>
@@ -36,6 +39,9 @@ namespace Markdown
                 .SelectMany(s => _escapeSymbols.Select(f => f + s))
                 .ToList()
                 .ForEach(seq => _escapeSequences.Add(seq));
+
+            EscapeReplaces = _escapeSequences
+                .ToDictionary(s => s, s => s.Substring(1, s.Length - 1));
         }
     }
 }

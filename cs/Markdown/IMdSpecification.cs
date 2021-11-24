@@ -9,5 +9,6 @@ namespace Markdown
         List<string> EscapeSymbols { get; }
         Dictionary<string, Tag> TagByMdStringRepresentation { get; }
         List<string> EscapeSequences { get; }
+        Dictionary<string, string> EscapeReplaces { get; }
     }
 }

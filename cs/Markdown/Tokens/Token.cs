@@ -23,7 +23,7 @@ namespace Markdown
 
         public void BuildTokenTree(IMdParser parser)
         {
-            _inners = parser.ParseToTokensDecompose(Content);
+            _inners = parser.ParseToTokens(Content);
             foreach (var inner in _inners)
                 if (inner.AllowInners)
                     inner.BuildTokenTree(parser);

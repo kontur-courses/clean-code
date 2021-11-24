@@ -8,6 +8,6 @@ namespace Markdown
 {
     public interface IMdParser
     {
-        List<Token> ParseToTokensDecompose(string mdText);
+        List<Token> ParseToTokens(string mdText);
     }
 }
