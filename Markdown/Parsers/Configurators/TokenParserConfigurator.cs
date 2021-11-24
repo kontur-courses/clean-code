@@ -44,12 +44,12 @@ namespace Markdown
             var trie = new Trie();
             
             foreach (var token in Config.Tokens)
-                trie.Add(token.ToString(), token.ToString());
+                trie.Add(token, token);
             if (Config.ShieldingSymbol.Setted)
-                trie.Add(Config.ShieldingSymbol.Symbol.Start.ToString(), Config.ShieldingSymbol.Symbol.Start.ToString());
+                trie.Add(Config.ShieldingSymbol.Symbol.Start, Config.ShieldingSymbol.Symbol.Start);
             trie.Build();
             
-            return new TokenParser(trie, Config.TagRules, Config.ShieldingSymbol.Setted ? Config.ShieldingSymbol.Symbol.Start.ToString() : null);
+            return new TokenParser(trie, Config.TagRules, Config.ShieldingSymbol.Setted ? Config.ShieldingSymbol.Symbol.Start : null);
         }
     }
 }

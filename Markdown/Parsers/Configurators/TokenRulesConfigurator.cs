@@ -30,7 +30,7 @@
             foreach (var symbol in symbols)
             {
                 config.TagRules.SetRule(config.LastAddedToken, Tag.GetOrAddSingleTag(symbol.ToString()), InteractType.Contain);
-                config.Tokens.Add(new Token(symbol.ToString()));
+                config.Tokens.Add(symbol.ToString());
             }
             
             return new TokenRulesConfiguratorEnd(config);

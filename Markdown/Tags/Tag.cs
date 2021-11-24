@@ -8,8 +8,8 @@ namespace Markdown
         private static readonly ConcurrentDictionary<string, Tag> Tags = new();
         private readonly string start;
 
-        public Token Start { get; }
-        public Token End { get; }
+        public string Start { get; }
+        public string End { get; }
 
         private Tag() {}
 
@@ -17,8 +17,8 @@ namespace Markdown
         {
             start = openWord;
 
-            Start = new Token(start);
-            if (closeWord is not null) End = new Token(closeWord);
+            Start = start;
+            if (closeWord is not null) End = closeWord;
         }
 
         public static Tag GetOrAddSingleTag(string tag)
