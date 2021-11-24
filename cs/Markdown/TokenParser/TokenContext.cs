@@ -22,7 +22,7 @@ namespace Markdown.TokenParser
 
         public void AddChild(TokenNode node)
         {
-            ContainsWhiteSpace = ContainsWhiteSpace || node.Token.Value.Contains(" ");
+            ContainsWhiteSpace = ContainsWhiteSpace || node.Token.Value.Contains(Characters.WhiteSpace);
             children.Add(node);
         }
 
