@@ -7,6 +7,10 @@
         Bold,
         Escape,
         Header1,
-        NewLine
+        NewLine,
+        OpenSquareBracket,
+        CloseSquareBracket,
+        OpenCircleBracket,
+        CloseCircleBracket
     }
 }

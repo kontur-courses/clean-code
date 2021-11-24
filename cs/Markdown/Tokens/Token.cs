@@ -22,5 +22,13 @@
         public static readonly Token Header1 = new(TokenType.Header1, $"{Characters.Sharp} ");
 
         public static readonly Token NewLine = new(TokenType.NewLine, $"{Characters.NewLine}");
+        
+        public static readonly Token OpenSquareBracket = new(TokenType.OpenSquareBracket, $"{Characters.OpenSquareBracket}");
+        
+        public static readonly Token CloseSquareBracket = new(TokenType.CloseSquareBracket, $"{Characters.CloseSquareBracket}");
+        
+        public static readonly Token OpenCircleBracket = new(TokenType.OpenCircleBracket, $"{Characters.OpenCircleBracket}");
+        
+        public static readonly Token CloseCircleBracket = new(TokenType.CloseCircleBracket, $"{Characters.CloseCircleBracket}");
     }
 }
