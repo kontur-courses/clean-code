@@ -10,10 +10,10 @@ namespace Markdown.Lexer.ConcreteLexers
 
         public override Token Lex()
         {
-            if (Context.Lookahead != '[')
-                return Token.Text("!");
+            if (Context.Lookahead != '(')
+                return Token.Text("]");
             Context.NextSymbol();
-            return Token.OpenImageAlt;
+            return Token.CloseImageAlt;
         }
     }
 }

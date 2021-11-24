@@ -99,6 +99,14 @@ namespace Markdown.Tests
         {
             RenderAndAssert(text, expected);
         }
+        
+        [TestCase("![alt](src)", "<img src=\"src\" alt=\"alt\">", TestName = "With alt")]
+        [TestCase("![](src)", "<img src=\"src\">", TestName = "Without alt")]
+        [TestCase("_![a](src)_", "<em><img src=\"src\" alt=\"a\"></em>", TestName = "With italics")]
+        public void Render_Should_RenderImage_When(string text, string expected)
+        {
+            RenderAndAssert(text, expected);
+        }
 
         private void RenderAndAssert(string text, string expectedResult)
         {

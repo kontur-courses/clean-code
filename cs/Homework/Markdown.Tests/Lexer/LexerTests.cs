@@ -41,5 +41,20 @@ namespace Markdown.Tests.Lexer
 
             tokens.Should().Equal(expectedResult);
         }
+
+        [Test]
+        public void Lex_Should_Lex_Image()
+        {
+            var text = "![alt](src)";
+            var expected = new[]
+            {
+                Token.OpenImageAlt, Token.Text("alt"), Token.CloseImageAlt,
+                Token.Text("src"), Token.CloseImageTag
+            };
+
+            var tokens = sut.Lex(text);
+
+            tokens.Should().Equal(expected);
+        }
     }
 }

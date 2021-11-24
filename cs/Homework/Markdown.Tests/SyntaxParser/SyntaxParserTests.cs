@@ -4,6 +4,7 @@ using System.Linq;
 using FluentAssertions;
 using Markdown.SyntaxParser;
 using Markdown.Tokens;
+using Markdown.Tokens.ConcreteTokens;
 using NUnit.Framework;
 
 namespace Markdown.Tests.SyntaxParser
@@ -39,6 +40,54 @@ namespace Markdown.Tests.SyntaxParser
             var parsedTokens = sut.Parse(lexed);
 
             parsedTokens.Should().Equal(expected);
+        }
+
+        [Test]
+        public void Should_Parse_ImageCorrectly()
+        {
+            var lexedTokens = new[]
+                {Token.OpenImageAlt, Token.Text("abc"), Token.CloseImageAlt, Token.Text("a"), Token.CloseImageTag};
+            var expected = new TokenTree[]
+            {
+                new(new ImageToken("a", "abc"))
+            };
+            var parsed = sut.Parse(lexedTokens);
+            parsed.Should().Equal(expected);
+        }
+        
+        [Test]
+        public void Should_Parse_ImageWithItalicsCorrectly()
+        {
+            var lexedTokens = new[]
+                {
+                    Token.Italics, Token.OpenImageAlt, Token.Text("abc"), 
+                    Token.CloseImageAlt, Token.Text("a"), Token.CloseImageTag, 
+                    Token.Italics
+                };
+            var expected = new TokenTree[]
+            {
+                new(Token.Italics,
+                    new TokenTree(new ImageToken("a", "abc")))
+            };
+            var parsed = sut.Parse(lexedTokens);
+            parsed.Should().Equal(expected);
+        }
+        
+        [Test]
+        public void Should_Parse_Image_WhenTextAfter()
+        {
+            var lexedTokens = new[]
+            {
+                Token.OpenImageAlt, Token.Text("abc"), 
+                Token.CloseImageAlt, Token.Text("a"), Token.CloseImageTag, Token.Text("aaa")
+            };
+            var expected = new TokenTree[]
+            {
+                new(new ImageToken("a", "abc")),
+                TokenTree.FromText("aaa")
+            };
+            var parsed = sut.Parse(lexedTokens);
+            parsed.Should().Equal(expected);
         }
     }
 }
