@@ -6,6 +6,6 @@ namespace Markdown.Extensions
     {
         public static TokenNode ToNode(this Token token) => new(token);
 
-        public static Token ToText(this Token token) => new(TokenType.Text, token.Value);
+        public static Token ToText(this Token token) => Token.Text(token.Value);
     }
 }
