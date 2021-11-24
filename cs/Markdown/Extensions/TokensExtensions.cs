@@ -8,8 +8,8 @@ namespace Markdown.Extensions
 {
     public static class TokensExtensions
     {
-        public static HashSet<Token> GetForbiddenTokens(this IEnumerable<Token> tokens,
-            IEnumerable<PairedToken> pairedTokens, HashSet<Token> unpairedTokens)
+        public static HashSet<IToken> GetForbiddenTokens(this IEnumerable<IToken> tokens,
+            IEnumerable<PairedToken> pairedTokens, HashSet<IToken> unpairedTokens)
         {
             var forbiddenTokens = pairedTokens.GetIntersectedTokens(
                 (i, b) => i.From.Position < b.From.Position
@@ -38,13 +38,13 @@ namespace Markdown.Extensions
             return forbiddenTokens;
         }
 
-        public static IEnumerable<Token> GetTokensByRule(this IEnumerable<Token> tokens,
+        public static IEnumerable<IToken> GetTokensByRule(this IEnumerable<IToken> tokens,
             IEnumerable<PairedToken> pairedTokens,
             Func<bool, bool, bool, bool> tokensCondition,
             Func<char, bool> predicate) =>
             tokens.GetTokensByRule(pairedTokens, tokensCondition, predicate, x => x);
 
-        public static IEnumerable<Token> GetTokensByRule(this IEnumerable<Token> tokens,
+        public static IEnumerable<IToken> GetTokensByRule(this IEnumerable<IToken> tokens,
             IEnumerable<PairedToken> pairedTokens,
             Func<bool, bool, bool, bool> tokensCondition,
             Func<char, bool> predicate,
@@ -83,7 +83,7 @@ namespace Markdown.Extensions
                 }
             }
         }
-        public static IEnumerable<Token> GetIntersectedTokens(this IEnumerable<PairedToken> tokens,
+        public static IEnumerable<IToken> GetIntersectedTokens(this IEnumerable<PairedToken> tokens,
             Func<PairedToken, PairedToken, bool> condition)
         {
             var boldTokens = tokens.Where(t => t.Type == TokenType.Bold);
@@ -99,9 +99,9 @@ namespace Markdown.Extensions
                     }
         }
 
-        public static IEnumerable<Token> GetEmptyTokens(this IEnumerable<Token> tokens)
+        public static IEnumerable<IToken> GetEmptyTokens(this IEnumerable<IToken> tokens)
         {
-            Token previousToken = null;
+            IToken previousToken = null;
             foreach (var token in tokens)
             {
                 if (previousToken == null)

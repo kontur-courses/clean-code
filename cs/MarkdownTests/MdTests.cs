@@ -32,27 +32,27 @@ namespace MarkdownTests
         {
             get
             {
-                yield return new TestCaseData("#Header", "<h1>Header</h1>")
+                yield return new TestCaseData("# Header", "<h1>Header</h1>")
                     .SetName("Sharp Creates Tag Header");
-                yield return new TestCaseData("#Header _with_ underscore",
+                yield return new TestCaseData("# Header _with_ underscore",
                         "<h1>Header <em>with</em> underscore</h1>")
                     .SetName("Underscore creates tag in heading");
-                yield return new TestCaseData("#Header with __double__",
+                yield return new TestCaseData("# Header with __double__",
                         "<h1>Header with <strong>double</strong></h1>")
                     .SetName("Double underscore creates tag in heading");
-                yield return new TestCaseData("#Header _with_ __both__ underscores",
+                yield return new TestCaseData("# Header _with_ __both__ underscores",
                         "<h1>Header <em>with</em> <strong>both</strong> underscores</h1>")
                     .SetName("Header with both underscores create tags after each other");
-                yield return new TestCaseData("#Header __works _with_ tag__ inside",
+                yield return new TestCaseData("# Header __works _with_ tag__ inside",
                         "<h1>Header <strong>works <em>with</em> tag</strong> inside</h1>")
                     .SetName("Header with underscores inside create tags");
-                yield return new TestCaseData("#abc _test __def__ test_",
+                yield return new TestCaseData("# abc _test __def__ test_",
                         "<h1>abc _test __def__ test_</h1>")
                     .SetName("Ignore double inside unary underscore");
-                yield return new TestCaseData("#abc __test _def__ test_",
+                yield return new TestCaseData("# abc __test _def__ test_",
                         "<h1>abc __test _def__ test_</h1>")
                     .SetName("Ignore intersections of underscores");
-                yield return new TestCaseData("#aa\naa",
+                yield return new TestCaseData("# aa\naa",
                         "<h1>aa</h1>\naa")
                     .SetName("Heading ends on different paragraphs");
             }

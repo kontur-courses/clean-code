@@ -46,7 +46,7 @@ namespace Markdown.Tokens
             return this;
         }
 
-        public TokenBuilder SetSettingsByToken(Token token)
+        public TokenBuilder SetSettingsByToken(IToken token)
         {
             position = token.Position;
             isOpening = token.IsOpening;
@@ -57,9 +57,16 @@ namespace Markdown.Tokens
             return this;
         }
 
-        public Token Build()
+        public IToken Build()
         {
-            return new Token(valueBuilder.ToString(), Type, position, isOpening, shouldBeSkipped);
+            return Type switch
+            {
+                TokenType.Content => new ContentToken(valueBuilder.ToString(), position),
+                TokenType.Heading => new HeadingToken(position, isOpening),
+                TokenType.Bold => new BoldToken(position, isOpening, shouldBeSkipped),
+                TokenType.Italics => new ItalicToken(position, isOpening, shouldBeSkipped),
+                _ => new EscapeToken(),
+            };
         }
 
         public TokenBuilder Clear()

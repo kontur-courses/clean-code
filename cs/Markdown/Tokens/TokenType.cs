@@ -5,6 +5,7 @@
         Content,
         Italics,
         Bold,
-        Heading
+        Heading,
+        Escape
     }
 }

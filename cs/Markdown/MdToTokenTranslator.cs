@@ -7,61 +7,60 @@ namespace Markdown
 {
     public class MdToTokenTranslator : IStringTranslator
     {
-        public IEnumerable<Token> Translate(string markup)
+        public IEnumerable<IToken> Translate(string markdown)
         {
-            var paragraphs = markup.Split('\n');
-            var tokens = new List<Token>();
+            var tokens = new List<IToken>();
             var tokenBuilder = new TokenBuilder();
-            var currentParagraph = 0;
-            foreach (var paragraph in paragraphs)
+            var isHeadingTokenOpened = false;
+            var openedTokens = new Stack<IToken>();
+            for (var i = 0; i < markdown.Length; i++)
             {
-                var openedTokens = new Stack<Token>();
-                for (var i = 0; i < paragraph.Length; i++)
+                switch (markdown[i])
                 {
-                    var currentPositionInText = i + PreviousParagraphLengthSum(paragraphs, currentParagraph);
-                    switch (paragraph[i])
-                    {
-                        case '#':
-                            if (i == 0)
-                                AddHeaderToken(tokens, tokenBuilder, paragraph[i], currentPositionInText);
-                            else
-                                tokenBuilder.Append(paragraph[i]);
-                            break;
-                        case '_':
-                            BuildPreviousToken(tokens, tokenBuilder, i);
-                            SetTypeForBuilder(tokenBuilder, paragraph, 
-                                currentPositionInText, i);
-                            if (tokenBuilder.Type == TokenType.Bold)
-                                i++;
-                            SetOpeningForBuilder(tokenBuilder, openedTokens);
-                            tokens.Add(tokenBuilder.Build());
-                            tokenBuilder.Clear();
-                            break;
-                        case '\\':
-                            if (i + 1 < paragraph.Length && paragraph[i + 1].IsTagSymbol())
-                            {
-                                i++;
-                                tokenBuilder.Append(paragraph[i]);
-                            }
-                            else
-                                tokenBuilder.Append(paragraph[i]);
-                            break;
-                        default:
-                            if (i != 0 && paragraph[i - 1].IsTagSymbol() || i == 0)
-                                tokenBuilder.SetPosition(currentPositionInText);
-                            tokenBuilder.Append(paragraph[i]);
-                            break;
-                    }
+                    case '#':
+                        var isNewParagraph = i == 0 || markdown[i - 1] == '\r' || markdown[i - 1] == '\n';
+                        var isNextSymbolSpace = i + 1 < markdown.Length && markdown[i + 1] == ' ';
+                        if (isNewParagraph && isNextSymbolSpace)
+                        {
+                            isHeadingTokenOpened = true;
+                            tokens.Add(new HeadingToken(i, true));
+                            i++;
+                        }
+                        else
+                            tokenBuilder.Append(markdown[i]);
+                        break;
+                    case '_':
+                        BuildPreviousToken(tokens, tokenBuilder, i);
+                        tokens.Add(GetBoldOrItalicToken(openedTokens, markdown, i, out var isBold));
+                        if (isBold)
+                            i++;
+                        break;
+                    case '\\':
+                        if (i + 1 < markdown.Length && markdown[i + 1].IsTagSymbol())
+                        {
+                            i++;
+                            tokenBuilder.Append(markdown[i]);
+                        }
+                        else 
+                            tokenBuilder.Append(markdown[i]);
+                        break;
+                    case '\r':
+                    case '\n':
+                        AnalyzeNewLineSymbol(tokens, openedTokens, tokenBuilder, markdown, i, isHeadingTokenOpened);
+                        isHeadingTokenOpened = false;
+                        break;
+                    default:
+                        if (i != 0 && markdown[i - 1].IsTagSymbol() || i == 0)
+                            tokenBuilder.SetPosition(i);
+                        tokenBuilder.Append(markdown[i]);
+                        break;
                 }
-                currentParagraph++;
-                BuildPreviousToken(tokens, tokenBuilder, currentParagraph);
-                CloseHeadingToken(tokens, tokenBuilder, paragraph);
-                tokens.Add(currentParagraph < paragraphs.Length
-                    ? tokenBuilder.Append('\n').SetPosition(paragraph.Length).Build()
-                    : tokenBuilder.Build());
-                tokenBuilder.Clear();
             }
-            var unpairedTokens = new HashSet<Token>();
+            tokens.Add(tokenBuilder.Build());
+            if (isHeadingTokenOpened)
+                tokens.Add(new HeadingToken(markdown.Length - 1, false));
+
+            var unpairedTokens = new HashSet<IToken>();
             var pairedTokens = PairedToken.GetPairedTokens(tokens, unpairedTokens);
             var forbiddenTokens = tokens.GetForbiddenTokens(pairedTokens, unpairedTokens);
             var resultTokens = SetSkipForTokens(tokens, forbiddenTokens).ToList();
@@ -69,70 +68,128 @@ namespace Markdown
             return resultTokens.OrderBy(token => token.Position);
         }
 
-        private void CloseHeadingToken(List<Token> tokens, TokenBuilder tokenBuilder, string paragraph)
+        private void AnalyzeNewLineSymbol(List<IToken> tokens,
+            Stack<IToken> openedTokens,
+            TokenBuilder tokenBuilder, 
+            string markdown, 
+            int i,
+            bool isHeadingTokenOpened)
         {
-            var first = paragraph.FirstOrDefault();
-            if (first == '#')
+            if (isHeadingTokenOpened)
             {
-                tokens.Add(tokenBuilder.Clear()
-                    .SetPosition(paragraph.Length - 1)
-                    .SetType(TokenType.Heading)
-                    .SetOpening(false)
-                    .Build());
+                tokens.Add(tokenBuilder.Build());
+                var token = new HeadingToken(i - 1, false);
+                tokens.Add(token);
                 tokenBuilder.Clear();
+                tokenBuilder.SetPosition(i).Append(markdown[i]);
             }
-        }
-
-        private void SetOpeningForBuilder(TokenBuilder tokenBuilder, Stack<Token> openedTokens)
-        {
-            if (openedTokens.TryPop(out var openedToken))
-                if (openedToken.Type == tokenBuilder.Type)
-                    tokenBuilder.SetOpening(false);
-                else
-                    SetOpeningWhenTokensIntersect(tokenBuilder, openedTokens, openedToken);
             else
             {
-                tokenBuilder.SetOpening(true);
-                openedTokens.Push(tokenBuilder.Build());
+                openedTokens.Clear();
+                tokenBuilder.Append(markdown[i]);
             }
         }
 
-        private void SetOpeningWhenTokensIntersect(TokenBuilder tokenBuilder, 
-            Stack<Token> openedTokens,
-            Token openedToken)
+        private IToken GetBoldOrItalicToken(Stack<IToken> openedTokens, string markdown, int i, out bool isBold)
         {
+            isBold = false;
+            TokenType type;
+            BoldToken boldToken = null;
+            if (i + 1 < markdown.Length && markdown[i + 1] == '_')
+            {
+                boldToken = new BoldToken(i);
+                type = boldToken.Type;
+                isBold = true;
+            }
+            else
+                type = TokenType.Italics;
+
+            var isOpening = IsOpeningToken(type, openedTokens);
+
+            var token = boldToken != null 
+                ? (IToken) new BoldToken(i, isOpening, false) 
+                : new ItalicToken(i, isOpening, false);
+            openedTokens.Push(token);
+            return token;
+        }
+
+        private bool IsOpeningToken(TokenType type, Stack<IToken> openedTokens)
+        {
+            //IToken openedToken = null;
+            if (!openedTokens.TryPop(out var openedToken)) return true;
+            if (openedToken.Type == type) return false;
             if (openedTokens.Count == 0)
             {
-                tokenBuilder.SetOpening(true);
                 openedTokens.Push(openedToken);
-                openedTokens.Push(tokenBuilder.Build());
+                return true;
             }
-            else
-            {
-                tokenBuilder.SetOpening(false);
-                openedTokens.Pop();
-                openedTokens.Push(openedToken);
-            }
+            openedTokens.Pop();
+            openedTokens.Push(openedToken);
+            return false;
         }
 
-        private void SetTypeForBuilder(TokenBuilder tokenBuilder, 
-            string paragraph,
-            int currentPositionInText, 
-            int i)
-        {
-            if (i + 1 < paragraph.Length && paragraph[i + 1] == '_')
-            {
-                tokenBuilder.SetPosition(currentPositionInText)
-                    .SetType(TokenType.Bold)
-                    .Append(new string(paragraph[i], 2));
-            }
-            else
-                tokenBuilder.SetPosition(currentPositionInText)
-                    .SetType(TokenType.Italics)
-                    .Append(paragraph[i]);
-        }
+        //private void CloseHeadingToken(List<Token> tokens, TokenBuilder tokenBuilder, string paragraph)
+        //{
+        //    var first = paragraph.FirstOrDefault();
+        //    if (first == '#')
+        //    {
+        //        tokens.Add(tokenBuilder.Clear()
+        //            .SetPosition(paragraph.Length - 1)
+        //            .SetType(TokenType.Heading)
+        //            .SetOpening(false)
+        //            .Build());
+        //        tokenBuilder.Clear();
+        //    }
+        //}
 
-        private void BuildPreviousToken(List<Token> tokens, TokenBuilder tokenBuilder, int currentIndex)
+        //private void SetOpeningForBuilder(TokenBuilder tokenBuilder, Stack<IToken> openedTokens)
+        //{
+        //    if (openedTokens.TryPop(out var openedToken))
+        //        if (openedToken.Type == tokenBuilder.Type)
+        //            tokenBuilder.SetOpening(false);
+        //        else
+        //            SetOpeningWhenTokensIntersect(tokenBuilder, openedTokens, openedToken);
+        //    else
+        //    {
+        //        tokenBuilder.SetOpening(true);
+        //        openedTokens.Push(tokenBuilder.Build());
+        //    }
+        //}
+
+        //private void SetOpeningWhenTokensIntersect(TokenBuilder tokenBuilder, 
+        //    Stack<IToken> openedTokens,
+        //    IToken openedToken)
+        //{
+        //    if (openedTokens.Count == 0)
+        //    {
+        //        tokenBuilder.SetOpening(true);
+        //        openedTokens.Push(openedToken);
+        //        openedTokens.Push(tokenBuilder.Build());
+        //    }
+        //    else
+        //    {
+        //        tokenBuilder.SetOpening(false);
+        //        openedTokens.Pop();
+        //        openedTokens.Push(openedToken);
+        //    }
+        //}
+
+        //private void SetTypeForBuilder(TokenBuilder tokenBuilder, 
+        //    string paragraph, int i)
+        //{
+        //    if (i + 1 < paragraph.Length && paragraph[i + 1] == '_')
+        //    {
+        //        tokenBuilder.SetPosition(i)
+        //            .SetType(TokenType.Bold)
+        //            .Append(new string(paragraph[i], 2));
+        //    }
+        //    else
+        //        tokenBuilder.SetPosition(i)
+        //            .SetType(TokenType.Italics)
+        //            .Append(paragraph[i]);
+        //}
+
+        private void BuildPreviousToken(List<IToken> tokens, TokenBuilder tokenBuilder, int currentIndex)
         {
             if (tokenBuilder.Type == TokenType.Content)
             {
@@ -142,25 +199,25 @@ namespace Markdown
             }
         }
 
-        private void AddHeaderToken(List<Token> tokens, 
-            TokenBuilder tokenBuilder,
-            char symbol,
-            int currentPositionInText)
-        {
-            tokens.Add(tokenBuilder.SetPosition(currentPositionInText)
-                .SetType(TokenType.Heading)
-                .Append(symbol)
-                .SetOpening(true)
-                .Build());
-            tokenBuilder.Clear();
-        }
+        //private void AddHeaderToken(List<Token> tokens, 
+        //    TokenBuilder tokenBuilder,
+        //    char symbol,
+        //    int currentPositionInText)
+        //{
+        //    tokens.Add(tokenBuilder.SetPosition(currentPositionInText)
+        //        .SetType(TokenType.Heading)
+        //        .Append(symbol)
+        //        .SetOpening(true)
+        //        .Build());
+        //    tokenBuilder.Clear();
+        //}
 
-        private int PreviousParagraphLengthSum(string[] paragraphs, int currentParagraph)
-        {
-            return paragraphs.Take(currentParagraph).Sum(p => p.Length);
-        }
+        //private int PreviousParagraphLengthSum(string[] paragraphs, int currentParagraph)
+        //{
+        //    return paragraphs.Take(currentParagraph).Sum(p => p.Length);
+        //}
 
-        private IEnumerable<Token> SetSkipForTokens(IEnumerable<Token> tokens, HashSet<Token> tokensForSkip)
+        private IEnumerable<IToken> SetSkipForTokens(IEnumerable<IToken> tokens, HashSet<IToken> tokensForSkip)
         {
             var tokenBuilder = new TokenBuilder();
             foreach (var token in tokens)

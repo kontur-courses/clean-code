@@ -5,19 +5,19 @@ namespace Markdown.Tokens
     public class PairedToken
     {
         public TokenType Type => From.Type;
-        public Token From { get; }
-        public Token To { get; }
+        public IToken From { get; }
+        public IToken To { get; }
 
-        public PairedToken(Token from, Token to)
+        public PairedToken(IToken from, IToken to)
         {
             From = from;
             To = to;
         }
 
-        public static IEnumerable<PairedToken> GetPairedTokens(IEnumerable<Token> tokens,
-            HashSet<Token> unpairedTokens)
+        public static IEnumerable<PairedToken> GetPairedTokens(IEnumerable<IToken> tokens,
+            HashSet<IToken> unpairedTokens)
         {
-            var tokensWithoutPair = new Stack<Token>();
+            var tokensWithoutPair = new Stack<IToken>();
             foreach (var token in tokens)
             {
                 if (token.Type == TokenType.Content || token.Type == TokenType.Heading)
