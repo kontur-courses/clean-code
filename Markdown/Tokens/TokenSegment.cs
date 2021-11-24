@@ -9,49 +9,62 @@ namespace Markdown
     {
         private Tag tag;
 
-        public bool InTextSegment { get; private init; }
+        public bool InTextSegment { get; }
         public int StartPosition { get; }
         public int EndPosition { get; }
         public int Length => EndPosition - StartPosition;
         public int InnerLength => EndPosition - (StartPosition + tag.Start.Length);
         
         internal TokenSegment(){}
-        private TokenSegment(Tag tag, int openTokenLocation, int closeTokenLocation)
-        {
-            if (tag is null) throw new ArgumentNullException();
-            if (tag.End is null && openTokenLocation != closeTokenLocation)
-                throw new AggregateException("single tag open and close in different location");
+        // private TokenSegment(Tag tag, int openTokenLocation, int closeTokenLocation)
+        // {
+        //     if (tag is null) throw new ArgumentNullException();
+        //     if (tag.End is null && openTokenLocation != closeTokenLocation)
+        //         throw new AggregateException("single tag open and close in different location");
+        //
+        //     this.tag = tag;
+        //     StartPosition = openTokenLocation;
+        //     EndPosition = closeTokenLocation;
+        // }
 
-            this.tag = tag;
-            StartPosition = openTokenLocation;
-            EndPosition = closeTokenLocation;
-        }
-        
-        public static IEnumerable<TokenSegment> GetTokensSegments(IEnumerable<TokenInfo> tokensByLocation)
+        internal TokenSegment(TokenInfo first, TokenInfo second = null)
         {
-            if (tokensByLocation is null) throw new ArgumentNullException();
+            if (first is null) throw new ArgumentNullException();
+
+            tag = second is null 
+                ? Tag.GetOrAddSingleTag(first.Token) 
+                : Tag.GetOrAddSymmetricTag(first.Token);
             
-            (int, TokenInfo)? currentOpenToken = null;
-            foreach (var info in tokensByLocation.OrderBy(x => x.Position))
-            {
-                var (index, token, close, open, _, _) = info;
-                var tag = Tag.GetTagByChars(token.ToString());
-                if (tag.End is null)
-                {
-                    yield return new TokenSegment(tag, index, index);
-                }
-                else if (currentOpenToken is null && open)
-                    currentOpenToken = (index, info);
-                else if (currentOpenToken is not null && close)
-                {
-                    yield return new TokenSegment(Tag.GetTagByChars(currentOpenToken.Value.Item2.Token.ToString()), currentOpenToken.Value.Item1, index)
-                    {
-                        InTextSegment = currentOpenToken.Value.Item2.CloseValid || info.OpenValid
-                    };
-                    currentOpenToken = null;
-                }
-            }
+            StartPosition = first.Position;
+            EndPosition = second?.Position ?? first.Position;
+            InTextSegment = first.WordPartPlaced || (second?.WordPartPlaced ?? false);
         }
+
+        // public static IEnumerable<TokenSegment> GetTokensSegments(IEnumerable<TokenInfo> tokensByLocation)
+        // {
+        //     if (tokensByLocation is null) throw new ArgumentNullException();
+        //     
+        //     (int, TokenInfo)? currentOpenToken = null;
+        //     foreach (var info in tokensByLocation.OrderBy(x => x.Position))
+        //     {
+        //         var (index, token, close, open, _, _) = info;
+        //         var tag = Tag.GetTagByChars(token);
+        //         if (tag.End is null)
+        //         {
+        //             yield return new TokenSegment(tag, index, index);
+        //         }
+        //         else if (currentOpenToken is null && open)
+        //             currentOpenToken = (index, info);
+        //         else if (currentOpenToken is not null && close)
+        //         {
+        //             yield return new TokenSegment(Tag.GetTagByChars(currentOpenToken.Value.Item2.Token), currentOpenToken.Value.Item1, index)
+        //             {
+        //                 InTextSegment = currentOpenToken.Value.Item2.CloseValid || info.OpenValid
+        //             };
+        //             currentOpenToken = null;
+        //         }
+        //     }
+        // }
         
         public Tag GetBaseTag()
         {

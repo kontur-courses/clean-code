@@ -40,22 +40,22 @@ namespace Markdown
             }
         }
 
-        private bool CanIntersect(Tag firstTag, Tag secondTag)
+        public bool CanIntersect(Tag firstTag, Tag secondTag)
         {
             return intersectingRules.ContainsKey(firstTag) && intersectingRules[firstTag].Contains(secondTag);
         }
 
-        private bool CanBeNested(Tag outsideTag, Tag insideTag)
+        public bool CanBeNested(Tag outsideTag, Tag insideTag)
         {
             return nestingRules.ContainsKey(outsideTag) && nestingRules[outsideTag].Contains(insideTag);
         }
 
-        private bool CanContain(Tag outsideTag, Tag insideTag)
+        public bool CanContain(Tag outsideTag, Tag insideTag)
         {
             return !containRules.ContainsKey(outsideTag) || !containRules[outsideTag].Contains(insideTag);
         }
         
-        private bool CanBeNotInFront(Tag tag)
+        public bool CanBeNotInFront(Tag tag)
         {
             return !inFrontRules.Contains(tag);
         }

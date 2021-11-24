@@ -1,4 +1,7 @@
-﻿using FluentAssertions;
+﻿using System;
+using System.Diagnostics;
+using System.Text;
+using FluentAssertions;
 using NUnit.Framework;
 
 namespace Markdown
@@ -6,6 +9,14 @@ namespace Markdown
     [TestFixture]
     public class MdRenderShould
     {
+        private Md parser;
+
+        [SetUp]
+        public void SetUp()
+        {
+            parser = new Md();
+        }
+        
         [TestCase("# Hello _World_!! __Th_is__ i_s __a__ __markdown _test_ sentence__", "<h1>Hello <em>World</em>!! __Th_is__ i_s <strong>a</strong> <strong>markdown <em>test</em> sentence</strong></h1>")]
         [TestCase("# _a \n\n a_\n\na", "<h1>_a </h1>\n\n a_\n\na")]
         [TestCase("# _a \n\n# a_\n\na", "<h1>_a </h1>\n\n<h1>a_</h1>\n\na")]
@@ -55,6 +66,7 @@ namespace Markdown
         [TestCase(" __a__b_cd_e__f__ ", " <strong>a</strong>b<em>cd</em>e<strong>f</strong> ")]
         [TestCase("a__b_cd_e__f", "a<strong>b<em>cd</em>e</strong>f")]
         [TestCase("a_b__cd__e_f", "a<em>b__cd__e</em>f")]
+        [TestCase("__a_a__a_a __a _a_ a__", "__a_a__a_a <strong>a <em>a</em> a</strong>")]
         
         // Пересечение
         [TestCase("a_b__cd_e__f", "a_b__cd_e__f")]
@@ -62,6 +74,7 @@ namespace Markdown
         [TestCase("__Th_is__ i_s", "__Th_is__ i_s")]
         [TestCase(" __Th_is__ i_s", " __Th_is__ i_s")]
         [TestCase("__Th_is__ a", "<strong>Th_is</strong> a")]
+        [TestCase("__a_b__c_d __a__", "__a_b__c_d <strong>a</strong>")]
         
         // Части слов
         [TestCase("ра_зных сл_овах", "ра_зных сл_овах")]
@@ -101,6 +114,48 @@ namespace Markdown
             var actual = new Md().Render(text);
 
             actual.Should().Be(expectedResult);
+        }
+        
+        [TestCase(" __sf__ ", 100, 6)]
+        [TestCase(" __sf__ ", 100, 2)]
+        [TestCase("2s1f", 100, 2)]
+        [TestCase(" sf ", 100, 8)]
+        [TestCase(" _s_ \n\n __s__  ", 100, 8)]
+        public void RenderTime_Should(string text, int repetitionsCount, int factor)
+        {
+            var firstInputBuilder = new StringBuilder();
+            for (var i = 0; i < repetitionsCount; i++)
+                firstInputBuilder.Append(text);
+
+            var secondInputBuilder = new StringBuilder();
+            for (var i = 0; i < repetitionsCount * factor; i++)
+                secondInputBuilder.Append(text);
+
+            var firstInput = firstInputBuilder.ToString();
+            var secondInput = secondInputBuilder.ToString();
+
+            parser.Render("");
+
+            var firstTime = new TimeSpan();
+            var secondTime = new TimeSpan();
+
+            for (var j = 0; j < 1000; j++)
+            {
+                var firstTimer = new Stopwatch();
+                firstTimer.Start();
+                var a = parser.Render($"# {firstInput}");
+                firstTimer.Stop();
+
+                firstTime += firstTimer.Elapsed;
+
+                var secondTimer = new Stopwatch();
+                secondTimer.Start();
+                parser.Render($"# {secondInput}");
+                secondTimer.Stop();
+                secondTime += secondTimer.Elapsed;
+            }
+
+            secondTime.Should().BeLessThan(firstTime * (1 + factor));
         }
     }
 }

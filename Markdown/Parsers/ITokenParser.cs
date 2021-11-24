@@ -2,7 +2,7 @@
 {
     internal interface ITokenParser
     {
-        public (SegmentsCollection, SegmentsCollection) IgnoreSegmentsThatDoNotMatchRules(SegmentsCollection first, SegmentsCollection second);
+        public TagRules GetRules();
 
         string ReplaceTokens(string text, SegmentsCollection segments, ITagTranslator translator);
 

@@ -59,12 +59,10 @@ namespace Markdown
                 var tokenSegments = parser
                     .FindAllTokens(paragraph)
                     .SelectValid()
-                    .GroupBy(x => x.Token.ToString())
-                    .Select(x => x.ToSegmentsCollection())
-                    .ToList()
-                    .ForEachPairs(parser.IgnoreSegmentsThatDoNotMatchRules);
+                    .ToTokenSegments(parser.GetRules())
+                    .ToList();
 
-                parsedText.Add(parser.ReplaceTokens(paragraph, SegmentsCollection.Union(tokenSegments), translator));
+                parsedText.Add(parser.ReplaceTokens(paragraph, new SegmentsCollection(tokenSegments), translator));
             }
     
             return string.Join('\n', parsedText);

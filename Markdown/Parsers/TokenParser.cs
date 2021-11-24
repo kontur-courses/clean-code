@@ -18,23 +18,28 @@ namespace Markdown
             this.rules = rules;
         }
 
-        public (SegmentsCollection, SegmentsCollection) IgnoreSegmentsThatDoNotMatchRules(SegmentsCollection first, SegmentsCollection second)
-        {
-            var firstSorted = first.GetSortedSegments().Where(x => rules.DoesMatchInFrontRule(x)).ToList();
-            var secondSorted = second.GetSortedSegments().Where(x => rules.DoesMatchInFrontRule(x)).ToList();
-            
-            var firstSegments = firstSorted
-                .Where(x => !x.InTextSegment || secondSorted.All(y => rules.DoesMatchContainRule(x, y)))
-                .Where(x => secondSorted.All(y => rules.DoesMatchIntersectingRule(x, y))).ToList();
-            
-            var secondSegment = secondSorted
-                .Where(x => !x.InTextSegment || firstSorted.All(y => rules.DoesMatchContainRule(x, y)))
-                .Where(x => firstSorted.All(y => rules.DoesMatchIntersectingRule(x, y))).ToList();
+        // public (SegmentsCollection, SegmentsCollection) IgnoreSegmentsThatDoNotMatchRules(SegmentsCollection first, SegmentsCollection second)
+        // {
+        //     var firstSorted = first.GetSortedSegments().Where(x => rules.DoesMatchInFrontRule(x)).ToList();
+        //     var secondSorted = second.GetSortedSegments().Where(x => rules.DoesMatchInFrontRule(x)).ToList();
+        //     
+        //     var firstSegments = firstSorted
+        //         .Where(x => !x.InTextSegment || secondSorted.All(y => rules.DoesMatchContainRule(x, y)))
+        //         .Where(x => secondSorted.All(y => rules.DoesMatchIntersectingRule(x, y))).ToList();
+        //     
+        //     var secondSegment = secondSorted
+        //         .Where(x => !x.InTextSegment || firstSorted.All(y => rules.DoesMatchContainRule(x, y)))
+        //         .Where(x => firstSorted.All(y => rules.DoesMatchIntersectingRule(x, y))).ToList();
+        //
+        //     return (
+        //         new SegmentsCollection(firstSegments.Where(x => secondSegment.All(y => rules.DoesMatchNestingRule(y, x)))), 
+        //         new SegmentsCollection(secondSegment.Where(x => firstSegments.All(y => rules.DoesMatchNestingRule(y, x))))
+        //         );
+        // }
 
-            return (
-                new SegmentsCollection(firstSegments.Where(x => secondSegment.All(y => rules.DoesMatchNestingRule(y, x)))), 
-                new SegmentsCollection(secondSegment.Where(x => firstSegments.All(y => rules.DoesMatchNestingRule(y, x))))
-                );
+        public TagRules GetRules()
+        {
+            return rules;
         }
 
         public string ReplaceTokens(string text, SegmentsCollection tokenSegments, ITagTranslator translator)
@@ -52,7 +57,7 @@ namespace Markdown
 
             foreach (var (index, token, _, start, _, _) in sortedTokens)
             {
-                var tag = Tag.GetTagByChars(token.ToString());
+                var tag = Tag.GetTagByChars(token);
                 result.Append(text.Substring(lastTokenEndIndex, index - lastTokenEndIndex));
                 
                 var translatedTag = translator.Translate(tag);
@@ -60,7 +65,7 @@ namespace Markdown
 
                 lastTokenEndIndex = index + token.Length;
                 if (tag.End is null && start && translatedTag.End is not null) 
-                    singleTagsCloseSymbols.Push(translatedTag.End.ToString());
+                    singleTagsCloseSymbols.Push(translatedTag.End);
             }
 
             result.Append(text[lastTokenEndIndex..]);
@@ -97,17 +102,19 @@ namespace Markdown
                 var openValid = index < paragraph.Length - token.Length 
                                 && !char.IsWhiteSpace(paragraph[index + token.Length]);
 
+                var isTokenShieldSymbol = shieldingSymbol == token;
+                
                 var tokenInfo = new TokenInfo(
                     index,
-                    new Token(token), closeValid, openValid,
+                    token, closeValid, openValid,
                     closeValid && openValid,
-                    closeValid || openValid || shieldingSymbol is not null && shieldingSymbol == token
+                    closeValid || openValid || isTokenShieldSymbol
                 );
                 
                 tokenInfos[lastIndex = index] = tokenInfo;
                 currentSearchStartIndex = index + token.Length;
 
-                if (token == shieldingSymbol)
+                if (isTokenShieldSymbol)
                     lastShieldToken = tokenInfo;
             }
             

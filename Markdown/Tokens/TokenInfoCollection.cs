@@ -25,14 +25,19 @@ namespace Markdown
                 .Select(x => new TokenInfoCollection(x));
         }
 
-        public SegmentsCollection ToSegmentsCollection()
-        {
-            return new SegmentsCollection(TokenSegment.GetTokensSegments(tokens));
-        }
+        // public SegmentsCollection ToSegmentsCollection()
+        // {
+        //     return new SegmentsCollection(TokenSegment.GetTokensSegments(tokens));
+        // }
 
         public IEnumerable<TokenInfo> GetTokenInfos()
         {
             return tokens;
+        }
+        
+        public IEnumerable<TokenSegment> ToTokenSegments(TagRules rules)
+        {
+            return new Segmenter(tokens, rules).ToTokenSegments();
         }
     }
 }
