@@ -15,14 +15,11 @@ internal class Tokenizer
         lineOnlyTags = settings.GetSettings(true);
         plainTokenTags = settings.GetSettings(false);
         var allTags = lineOnlyTags.Concat(plainTokenTags);
-        SpecialParts = allTags.SelectMany(x => x.SpecialParts)
-            .Append("\\")
-            .ToHashSet();
+        SpecialParts = allTags.SelectMany(x => x.SpecialParts).ToHashSet();
     }
 
     public IEnumerable<Token> ParseLines(string text)
     {
-
         foreach (var line in text.Split('\n'))
         {
             var lineTag = lineOnlyTags.FirstOrDefault(x => line.StartsWith(x.OpeningTag));
@@ -42,23 +39,9 @@ internal class Tokenizer
         return excludedParts;
     }
 
-    public Token WrapToken(string token, int start, string? mdTag)
-    {
-
-        return TryGetSetting(mdTag, out var setting) 
-            ? new(token, start, setting, GetExcludedParts(setting)) 
-            : new(token, start, null, SpecialParts);
-    }
-
     public Token WrapToken(string token, int start, TagSetting? mdTag)
     {
         return new(token, start, mdTag, GetExcludedParts(mdTag));
-    }
-
-    internal bool TryGetSetting(string? mdTag, out TagSetting setting)
-    {
-        setting = null!;
-        return mdTag != null && settings.TryGetSetting(mdTag!, out setting);
     }
 
     private TokenBuilder ParseLine(StringBuilder line, TokenBuilder? root, int start)
@@ -117,7 +100,7 @@ internal class Tokenizer
                 continue;
             }
 
-            if (line[i] != '\\' && IsEscaped(line,i))
+            if (line[i] != '\\' && IsEscaped(line, i))
             {
                 line.Insert(i, '\\');
                 i += 1;
@@ -133,7 +116,9 @@ internal class Tokenizer
         {
             if (lastKnownTokenEnd != wordEnd)
             {
-                var plainToken = CreateTokenBuilder(line, lastKnownTokenEnd, wordEnd, null, token);
+                var plainToken = new TokenBuilder(this, line, lastKnownTokenEnd, token)
+                  .WithMdTag(null)
+                  .WithEnd(wordEnd);
                 token!.AddToken(plainToken);
             }
         }
@@ -242,13 +227,6 @@ internal class Tokenizer
         if (IsFreeSpace(source, position + length, sourceStart, openingDescriptor) || afterChar == '\\')
             return false;
         return true;
-    }
-
-    private TokenBuilder CreateTokenBuilder(StringBuilder source, int start, int end, TagSetting? mdTag, TokenBuilder? root)
-    {
-        return new TokenBuilder(this, source, start, root)
-                  .WithMdTag(mdTag)
-                  .WithEnd(end);
     }
 
     private bool TryGetCurrentTag(int i, string line, TagSetting[] tags, TagSetting? openedTag, out TagSetting currentTag)
