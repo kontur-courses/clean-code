@@ -48,6 +48,7 @@
   <ItemGroup>
     <Compile Include="Extensions\StackExtensions.cs" />
     <Compile Include="Extensions\StringExtensions.cs" />
+    <Compile Include="IMdParser.cs" />
     <Compile Include="IMdSpecification.cs" />
     <Compile Include="Md.cs" />
     <Compile Include="MarkdownParser.cs" />

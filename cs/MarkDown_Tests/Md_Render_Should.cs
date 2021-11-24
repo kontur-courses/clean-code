@@ -7,13 +7,15 @@ namespace MarkDown_Tests
     public class Md_Render_Should
     {
         private static IMdSpecification _specification;
+        private static IMdParser _mdParser;
         private static Md _mdProcessor;
 
         [OneTimeSetUp]
         public static void SetUp()
         {
             _specification = new MdSpecification();
-            _mdProcessor = new Md(_specification);
+            _mdParser = new MarkdownParser(_specification);
+            _mdProcessor = new Md(_mdParser);
         }
 
         [Test]

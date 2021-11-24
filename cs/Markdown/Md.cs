@@ -1,23 +1,19 @@
-﻿using System.Linq;
-
-namespace Markdown
+﻿namespace Markdown
 {
     public class Md
     {
-        private readonly IMdSpecification _specification;
+        private readonly IMdParser _parser;
 
-        public Md(IMdSpecification specification)
+        public Md(IMdParser parser)
         {
-            _specification = specification;
+            _parser = parser;
         }
 
         public string Render(string mdText)
-        {
-            var parser = new MarkdownParser(_specification);
-            var tokens = parser.ParseToTokens(mdText);
-            var relationTokens = Token.SetRelations(tokens);
-            var renderedTokens = relationTokens.Select(t => t.Render(mdText));
-            return string.Join("", renderedTokens);
+        {            
+            var mdTextToken = new StringToken(mdText);
+            mdTextToken.BuildTokenTree(_parser);
+            return mdTextToken.Render();
         }
     }
 }

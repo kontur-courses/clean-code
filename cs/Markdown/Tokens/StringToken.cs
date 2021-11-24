@@ -1,16 +1,20 @@
-﻿namespace Markdown
+﻿using System.Linq;
+
+namespace Markdown
 {
     public class StringToken : Token
     {
         public override bool AllowInners => false;
 
-        public StringToken(int begin, int end) : base(begin, end)
+        public StringToken(string content) : base(content)
         {
         }
 
-        public override string Render(string str)
+        public override string Render()
         {
-            return str.Substring(Begin, Length);
+            if (_inners.Count == 0)
+                return Content;
+            return string.Join("", _inners.Select(inner => inner.Render()));
         }
     }
 }
