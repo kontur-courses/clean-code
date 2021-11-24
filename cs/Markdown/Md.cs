@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using Markdown.Render;
 
 namespace Markdown
 {
@@ -12,7 +13,12 @@ namespace Markdown
         
         public static string Render(string mdText)
         {
-            throw new NotImplementedException();
+            var mdParser = new MdParser();
+            var htmlRenderer = new HtmlRender();
+            var parseResult = mdParser.Parse(mdText);
+            if (parseResult.Failure)
+                throw new ArgumentException("Incorrect");
+            return htmlRenderer.Render(parseResult.Value);
         }
     }
 }

@@ -16,10 +16,10 @@ namespace Markdown
         {
             var type = TextType.Paragraph;
             var childrenStart = startBoundary;
-            if (mdText[startBoundary] == Md.HeaderSymbol)
+            if (mdText.ContainsAt(startBoundary, Md.HeaderSymbol + " "))
             {
                 type = TextType.Header;
-                childrenStart++;
+                childrenStart += 2;
             }
             var (paragraphEnd, childrenEnd) = FindParagraphEnd(mdText, startBoundary, endBoundary);
             var children = ParseChildren(type, mdText, childrenStart, childrenEnd);
