@@ -18,7 +18,7 @@ namespace Markdown
         public string HtmlTagAnalog => (IsStartTag) ? $"<a href=\"{Address}\">" : "</a>";
 
 
-        public string Content => throw new NotImplementedException();
+        public string Content => null;
 
 
         public string Address { get; set; }
@@ -29,14 +29,11 @@ namespace Markdown
         {
             while (currentToken != null)
             {
-                if (currentToken.Value is TagLink
+                if (currentToken.Value is TagLink link
                     && !currentToken.Value.IsNotToPairToken)
                 {
-                    var opener = currentToken.Value as TagLink;
-
-                    opener.Address = Address;
-
-                    HtmlTokenAnalyzer.MakePair(opener, this);
+                    link.Address = Address;
+                    HtmlTokenAnalyzer.MakePair(link, this);
                 }
                 else if (currentToken.Value is ITag tagValue)
                     tagValue.IsClosed = false;

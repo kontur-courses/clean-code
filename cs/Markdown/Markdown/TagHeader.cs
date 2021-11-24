@@ -1,5 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 
 namespace Markdown
 {
@@ -18,10 +17,10 @@ namespace Markdown
         {
             while (currentToken != null)
             {
-                if (currentToken.Value is TagHeader
+                if (currentToken.Value is TagHeader header
                     && !currentToken.Value.IsNotToPairToken)
                 {
-                    HtmlTokenAnalyzer.MakePair(currentToken.Value as ITag, this);
+                    HtmlTokenAnalyzer.MakePair(header, this);
                 }
                 currentToken = currentToken.Previous;
             }
