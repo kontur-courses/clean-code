@@ -13,10 +13,10 @@
 
         public static Tag Text(string value) => new(TagType.Text, value);
 
-        public static Tag Cursive = new(TagType.Cursive, Token.Cursive.Value);
+        public static Tag Cursive(string value) => new(TagType.Cursive, value);
 
-        public static Tag Bold = new(TagType.Bold, Token.Bold.Value);
+        public static Tag Bold(string value) => new(TagType.Bold, value);
 
-        public static Tag Header1 = new(TagType.Header1, Token.Header1.Value);
+        public static Tag Header1(string value) => new(TagType.Header1, value);
     }
 }

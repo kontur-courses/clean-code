@@ -44,7 +44,7 @@ namespace Markdown.Tests
         [Test]
         public void Render_ShouldReturnFormattedText_WhenSurroundsByCursive()
         {
-            var node = new TagNode(Tag.Cursive, Tag.Text("Text").ToNode());
+            var node = new TagNode(Tag.Cursive(Token.Cursive.Value), Tag.Text("Text").ToNode());
 
             var html = sut.Render(new[] { node });
 
@@ -54,7 +54,7 @@ namespace Markdown.Tests
         [Test]
         public void Render_ShouldReturnFormattedText_WhenSurroundsByBold()
         {
-            var node = new TagNode(Tag.Bold, Tag.Text("Text").ToNode());
+            var node = new TagNode(Tag.Bold(Token.Bold.Value), Tag.Text("Text").ToNode());
 
             var html = sut.Render(new[] { node });
 
@@ -64,7 +64,7 @@ namespace Markdown.Tests
         [Test]
         public void Render_ShouldReturnFormattedText_WhenStartsWithHeader1()
         {
-            var node = new TagNode(Tag.Header1, Tag.Text("Text").ToNode());
+            var node = new TagNode(Tag.Header1(Token.Header1.Value), Tag.Text("Text").ToNode());
 
             var html = sut.Render(new[] { node });
 
@@ -74,10 +74,10 @@ namespace Markdown.Tests
         [Test]
         public void Render_ShouldReturnFormattedText_WhenHasInnerFormatting()
         {
-            var node = new TagNode(Tag.Header1, new[]
+            var node = new TagNode(Tag.Header1(Token.Header1.Value), new[]
             {
                 Tag.Text("A").ToNode(),
-                new TagNode(Tag.Cursive, Tag.Text("B").ToNode()),
+                new TagNode(Tag.Cursive(Token.Cursive.Value), Tag.Text("B").ToNode()),
                 Tag.Text("C").ToNode()
             });
 

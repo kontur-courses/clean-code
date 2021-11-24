@@ -198,7 +198,7 @@ namespace Markdown.Tests
             var expected = new[]
             {
                 Token.Escape.ToText().ToNode(),
-                new TagNode(Tag.Cursive, Tag.Text("A").ToNode())
+                new TagNode(Tag.Cursive(Token.Cursive.Value), Tag.Text("A").ToNode())
             };
             AssertParse(tokens, expected);
         }
@@ -217,7 +217,7 @@ namespace Markdown.Tests
             var expected = new[]
             {
                 Token.Escape.ToText().ToNode(),
-                new TagNode(Tag.Cursive, Tag.Text("A B").ToNode())
+                new TagNode(Tag.Cursive(Token.Cursive.Value), Tag.Text("A B").ToNode())
             };
             AssertParse(tokens, expected);
         }
@@ -235,7 +235,7 @@ namespace Markdown.Tests
             var expected = new[]
             {
                 Token.Cursive.ToText().ToNode(),
-                new TagNode(Tag.Cursive, Tag.Text("A").ToNode())
+                new TagNode(Tag.Cursive(Token.Cursive.Value), Tag.Text("A").ToNode())
             };
             AssertParse(tokens, expected);
         }
@@ -343,11 +343,11 @@ namespace Markdown.Tests
             };
             var expected = new[]
             {
-                new TagNode(Tag.Bold,
+                new TagNode(Tag.Bold(Token.Bold.Value),
                     new[]
                     {
                         Token.Text("A ").ToNode(),
-                        new TagNode(Tag.Cursive, Token.Text("B").ToNode()),
+                        new TagNode(Tag.Cursive(Token.Cursive.Value), Token.Text("B").ToNode()),
                         Token.Text(" C").ToNode()
                     })
             };
@@ -369,11 +369,11 @@ namespace Markdown.Tests
             };
             var expected = new[]
             {
-                new TagNode(Tag.Bold,
+                new TagNode(Tag.Bold(Token.Bold.Value),
                     new[]
                     {
                         Token.Text("A ").ToNode(),
-                        new TagNode(Tag.Cursive, Tag.Text("B C").ToNode()),
+                        new TagNode(Tag.Cursive(Token.Cursive.Value), Tag.Text("B C").ToNode()),
                         Token.Text(" D").ToNode()
                     })
             };
@@ -393,7 +393,7 @@ namespace Markdown.Tests
                 Token.Text(" C"),
                 Token.Cursive
             };
-            var expected = new[] { new TagNode(Tag.Cursive, Tag.Text("A __B__ C").ToNode()) };
+            var expected = new[] { new TagNode(Tag.Cursive(Token.Cursive.Value), Tag.Text("A __B__ C").ToNode()) };
             AssertParse(tokens, expected);
         }
 
@@ -410,7 +410,7 @@ namespace Markdown.Tests
                 Token.Text(" D"),
                 Token.Cursive
             };
-            var expected = new[] { new TagNode(Tag.Cursive, Token.Text("A __B C__ D").ToNode()) };
+            var expected = new[] { new TagNode(Tag.Cursive(Token.Cursive.Value), Token.Text("A __B C__ D").ToNode()) };
             AssertParse(tokens, expected);
         }
 
@@ -816,7 +816,7 @@ namespace Markdown.Tests
             };
             var expected = new[]
             {
-                new TagNode(Tag.Header1, Token.Text("A").ToNode())
+                new TagNode(Tag.Header1(Token.Header1.Value), Token.Text("A").ToNode())
             };
             AssertParse(tokens, expected);
         }
@@ -831,7 +831,7 @@ namespace Markdown.Tests
             };
             var expected = new[]
             {
-                Tag.Header1.ToNode()
+                Tag.Header1(Token.Header1.Value).ToNode()
             };
             AssertParse(tokens, expected);
         }
@@ -852,7 +852,7 @@ namespace Markdown.Tests
             };
             var expected = new[]
             {
-                new TagNode(Tag.Header1, new[]
+                new TagNode(Tag.Header1(Token.Header1.Value), new[]
                 {
                     Token.Text("A ").ToNode(),
                     new TagNode(token.ToTag(), Token.Text("B").ToNode())
@@ -873,7 +873,7 @@ namespace Markdown.Tests
             };
             var expected = new[]
             {
-                new TagNode(Tag.Header1, new[]
+                new TagNode(Tag.Header1(Token.Header1.Value), new[]
                 {
                     Token.Text("A").ToNode()
                 }),

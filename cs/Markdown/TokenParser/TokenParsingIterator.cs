@@ -108,7 +108,8 @@ namespace Markdown.TokenParser
             var node = Token.Text(StringUtils.Join(stack)).ToNode();
             return context.Token.Type switch
             {
-                TokenType.Header1 => new TagNode(Tag.Header1, context.Children.Append(node).ToArray()),
+                TokenType.Header1 => new TagNode(Tag.Header1(Token.Header1.Value),
+                    context.Children.Append(node).ToArray()),
                 _ => node
             };
         }
