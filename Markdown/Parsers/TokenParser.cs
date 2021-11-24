@@ -38,15 +38,19 @@ namespace Markdown
 
             foreach (var (index, token, _, start, _, _) in sortedTokens)
             {
-                var tag = Tag.GetTagByChars(token);
                 result.Append(text.Substring(lastTokenEndIndex, index - lastTokenEndIndex));
+                if (rules.IsInterruptTag(Tag.GetTagByChars(token)))
+                    while (singleTagsCloseSymbols.Any())
+                        result.Append(singleTagsCloseSymbols.Pop());
                 
+                var tag = Tag.GetTagByChars(token);
                 var translatedTag = translator.Translate(tag);
                 result.Append(start ? translatedTag.Start : translatedTag.End);
-
+                
                 lastTokenEndIndex = index + token.Length;
                 if (tag.End is null && start && translatedTag.End is not null) 
                     singleTagsCloseSymbols.Push(translatedTag.End);
+                
             }
 
             result.Append(text[lastTokenEndIndex..]);
@@ -89,7 +93,7 @@ namespace Markdown
                     index,
                     token, closeValid, openValid,
                     closeValid && openValid,
-                    closeValid || openValid || isTokenShieldSymbol
+                    closeValid || openValid || isTokenShieldSymbol || rules.IsInterruptTag(Tag.GetTagByChars(token))
                 );
                 
                 tokenInfos[lastIndex = index] = tokenInfo;

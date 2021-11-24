@@ -5,6 +5,7 @@ namespace Markdown
     internal class TokenParserConfig
     {
         public List<string> Tokens { get; } = new();
+        public List<string> InterruptTokens { get; } = new();
         public (Tag Symbol, bool Setted) ShieldingSymbol { get; set; }
         public Tag LastAddedToken { get; set; }
         public TagRules TagRules { get; } = new();

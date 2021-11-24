@@ -1,5 +1,4 @@
-﻿using System.Collections.Generic;
-using System.Linq;
+﻿using System.Linq;
 
 namespace Markdown
 {
@@ -14,10 +13,12 @@ namespace Markdown
             var emTag = Tag.GetOrAddPairTag("<em>", "</em>");
             var doubleUnderscoreTag = Tag.GetOrAddSymmetricTag("__");
             var strongTag = Tag.GetOrAddPairTag("<strong>", "</strong>");
-            var sharpTag = Tag.GetOrAddSingleTag("# ");
+            var firstLineSharpTag = Tag.GetOrAddSingleTag("# ");
             var h1Tag = Tag.GetOrAddPairTag("<h1>", "</h1>");
             var shieldTag = Tag.GetOrAddSingleTag("\\");
             var emptyTag = Tag.GetOrAddSingleTag("");
+            var unixNewLineTag = Tag.GetOrAddSingleTag("\n\n");
+            var windowsNewLineTag = Tag.GetOrAddSingleTag("\r\n");
             
             translator = TagTranslatorConfigurator
                 .CreateTokenTranslator()
@@ -26,7 +27,7 @@ namespace Markdown
                 .SetReference()
                     .From(doubleUnderscoreTag).To(strongTag)
                 .SetReference()
-                    .From(sharpTag).To(h1Tag)
+                    .From(firstLineSharpTag).To(h1Tag)
                 .SetReference()
                     .From(shieldTag).To(emptyTag)
                 .Configure();
@@ -36,35 +37,29 @@ namespace Markdown
             parser = TokenParserConfigurator
                 .CreateTokenParser()
                 .SetShieldingSymbol(shieldTag)
+                .AddTagInterruptToken(unixNewLineTag)
+                .AddTagInterruptToken(windowsNewLineTag)
                 .AddToken(underscoreTag).That
                     .CanBeNestedIn(doubleUnderscoreTag).And
-                    .CanBeNestedIn(sharpTag).And
+                    .CanBeNestedIn(firstLineSharpTag).And
                     .CantContain(forbiddenInnerTextSymbols)
                 .AddToken(doubleUnderscoreTag).That
-                    .CanBeNestedIn(sharpTag).And
+                    .CanBeNestedIn(firstLineSharpTag).And
                     .CantContain(forbiddenInnerTextSymbols)
-                .AddToken(sharpTag).That
+                .AddToken(firstLineSharpTag).That
                     .CanBeInFrontOnly()
                 .Configure();
         }
 
         public string Render(string input)
         {
-            var paragraphs = input.Split('\n');
-            var parsedText = new List<string>();
-            
-            foreach (var paragraph in paragraphs)
-            {
-                var tokenSegments = parser
-                    .FindAllTokens(paragraph)
-                    .SelectValid()
-                    .ToTokenSegments(parser.GetRules())
-                    .ToList();
+            var tokenSegments = parser
+                .FindAllTokens(input)
+                .SelectValid()
+                .ToTokenSegments(parser.GetRules())
+                .ToList();
 
-                parsedText.Add(parser.ReplaceTokens(paragraph, new SegmentsCollection(tokenSegments), translator));
-            }
-    
-            return string.Join('\n', parsedText);
+            return parser.ReplaceTokens(input, new SegmentsCollection(tokenSegments), translator);
         }
     }
 }

@@ -8,17 +8,30 @@ namespace Markdown
     {
         private readonly IEnumerable<TokenInfo> tokens;
         private readonly TagRules rules;
-        
-        private readonly Dictionary<int, List<TokenSegment>> allowToken = new();
+
+        private int newLineStartIndex;
+        private readonly Dictionary<int, List<TokenSegment>> allowWaitTokens = new();
+        private readonly List<TokenSegment> allowTokens = new();
         private readonly HashSet<TokenInfo> currentOpenedTag = new();
         private readonly HashSet<TokenInfo> ignoredTokens = new();
         private readonly HashSet<TokenInfo> provisionalContainRuleIgnoredTokens = new();
         private readonly Stack<TokenInfo> tokenStack = new();
-        
+
         public Segmenter(IEnumerable<TokenInfo> tokens, TagRules rules)
         {
             this.tokens = tokens ?? throw new ArgumentNullException();
             this.rules = rules;
+        }
+
+        private void GoToNextLine()
+        {
+            TryAllowTokens();
+            
+            allowWaitTokens.Clear();
+            currentOpenedTag.Clear();
+            ignoredTokens.Clear();
+            provisionalContainRuleIgnoredTokens.Clear();
+            tokenStack.Clear();
         }
 
         private bool IsThisTokenOpened(TokenInfo tokenInfo)
@@ -45,8 +58,8 @@ namespace Markdown
             
             tempStack.Pop();
             while (tempStack.Any()) tokenStack.Push(tempStack.Pop());
-            if (!allowToken.ContainsKey(allowPosition)) allowToken[allowPosition] = new List<TokenSegment>();
-            allowToken[allowPosition].Add(new TokenSegment(closeTokenToSearch.WithPosition(openedToken.Position), closeTokenToSearch));
+            if (!allowWaitTokens.ContainsKey(allowPosition)) allowWaitTokens[allowPosition] = new List<TokenSegment>();
+            allowWaitTokens[allowPosition].Add(new TokenSegment(closeTokenToSearch.WithPosition(openedToken.Position), closeTokenToSearch));
         }
 
         private bool DoesMatchNestingRule(TokenSegment segment)
@@ -54,8 +67,8 @@ namespace Markdown
             if (!tokenStack.Any()) return true;
             if (rules.CanBeNested(Tag.GetTagByChars(tokenStack.Peek().Token), segment.GetBaseTag())) return true;
             var allowPosition = tokenStack.Peek().Position;
-            if (!allowToken.ContainsKey(allowPosition)) allowToken[allowPosition] = new List<TokenSegment>();
-            allowToken[allowPosition].Add(segment);
+            if (!allowWaitTokens.ContainsKey(allowPosition)) allowWaitTokens[allowPosition] = new List<TokenSegment>();
+            allowWaitTokens[allowPosition].Add(segment);
             return false;
         }
 
@@ -90,6 +103,11 @@ namespace Markdown
 
         private void HandleSingleToken(TokenInfo tokenInfo, out TokenSegment segment)
         {
+            if (rules.IsInterruptTag(Tag.GetTagByChars(tokenInfo.Token)))
+            {
+                newLineStartIndex = tokenInfo.Position + tokenInfo.Token.Length;
+                GoToNextLine();
+            }
             segment = new TokenSegment(tokenInfo);
 
             foreach (var openedTokenInfo in currentOpenedTag)
@@ -103,7 +121,21 @@ namespace Markdown
                 }
             }
 
-            if (!rules.DoesMatchInFrontRule(segment)) segment = null;
+            if (!rules.DoesMatchInFrontRule(segment, segment.StartPosition - newLineStartIndex)) segment = null;
+        }
+
+        private void TryAllowTokens()
+        {
+            foreach (var (key, value) in allowWaitTokens)
+            {
+                var allower = currentOpenedTag.FirstOrDefault(x => x.Position == key);
+                
+                if (allower is not null)
+                    foreach (var segment in value)
+                    {
+                        allowTokens.Add(segment);
+                    }
+            }
         }
         
         public IEnumerable<TokenSegment> ToTokenSegments()
@@ -118,20 +150,10 @@ namespace Markdown
                 if (segment is not null) yield return segment;
             }
 
-            foreach (var (key, value) in allowToken)
+            TryAllowTokens();
+            foreach (var tokenSegment in allowTokens)
             {
-                var allower = currentOpenedTag.FirstOrDefault(x => x.Position == key);
-                
-                if (allower is not null)
-                    foreach (var segment in value)
-                    {
-                        yield return segment;
-                    }
-                if (allower is not null && Tag.GetTagByChars(allower.Token).End is null)
-                    foreach (var segment in value)
-                    {
-                        if (!segment.InTextSegment) yield return segment;
-                    }
+                yield return tokenSegment;
             }
         }
     }

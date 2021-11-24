@@ -9,10 +9,21 @@ namespace Markdown
         private readonly Dictionary<Tag, HashSet<Tag>> intersectingRules = new();
         private readonly Dictionary<Tag, HashSet<Tag>> containRules = new();
         private readonly HashSet<Tag> inFrontRules = new();
+        private readonly HashSet<Tag> tagInterruptTokens = new();
 
         public void AddInFrontOnlyTag(Tag tag)
         {
             inFrontRules.Add(tag);
+        }
+        
+        public void AddTagInterruptTag(Tag tag)
+        {
+            tagInterruptTokens.Add(tag);
+        }
+
+        public bool IsInterruptTag(Tag tag)
+        {
+            return tagInterruptTokens.Contains(tag);
         }
         
         public void SetRule(Tag firstTag, Tag secondTag, InteractType interactType)
@@ -75,9 +86,9 @@ namespace Markdown
             return CanContain(outside.GetBaseTag(), inside.GetBaseTag()) || !outside.Contain(inside);
         }
 
-        public bool DoesMatchInFrontRule(TokenSegment segment)
+        public bool DoesMatchInFrontRule(TokenSegment segment, int newLinePosition)
         {
-            return CanBeNotInFront(segment.GetBaseTag()) || segment.StartPosition == 0;
+            return CanBeNotInFront(segment.GetBaseTag()) || newLinePosition == 0;
         }
     }
 }

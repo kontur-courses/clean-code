@@ -29,6 +29,13 @@ namespace Markdown
             return new PreferTokenRulesConfigurator(Config);
         }
 
+        public TokenParserConfigurator AddTagInterruptToken(Tag token)
+        {
+            if (token.End is not null) throw new ArgumentException();
+            Config.InterruptTokens.Add(token.Start);
+            return this;
+        }
+
         public TokenParserConfigurator SetShieldingSymbol(Tag symbol)
         {
             if (Config.ShieldingSymbol.Setted) throw new ArgumentException("shielding symbol already setted");
@@ -42,7 +49,11 @@ namespace Markdown
                 throw new ArgumentException($"shielding symbol can not be {Config.ShieldingSymbol.Symbol.Start}, because it's already added like token");
             
             var trie = new Trie();
-            
+            foreach (var token in Config.InterruptTokens)
+            {
+                Config.TagRules.AddTagInterruptTag(Tag.GetTagByChars(token));
+                trie.Add(token, token);
+            }
             foreach (var token in Config.Tokens)
                 trie.Add(token, token);
             if (Config.ShieldingSymbol.Setted)
