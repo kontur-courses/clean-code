@@ -8,13 +8,15 @@ namespace Markdown.TokenParser
     {
         public readonly Token Token;
         public readonly List<TokenNode> Children = new();
-        public readonly bool IsSplitWord;
+        public readonly bool IsInMiddleOfWord;
 
-        public TokenContext(Token token, bool isSplitWord)
+        public TokenContext(Token token, bool isInMiddleOfWord)
         {
-            IsSplitWord = isSplitWord;
+            IsInMiddleOfWord = isInMiddleOfWord;
             Token = token;
         }
+
+        public bool ContainsWhiteSpace => Children.Any(x => x.Token.Value.Contains(" "));
 
         public string ToText()
         {

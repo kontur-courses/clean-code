@@ -1,5 +1,4 @@
-﻿using System.Linq;
-using Markdown.Extensions;
+﻿using Markdown.Extensions;
 using Markdown.Tokens;
 
 namespace Markdown.TokenParser.TokenParsingIteratorState
@@ -13,9 +12,14 @@ namespace Markdown.TokenParser.TokenParsingIteratorState
         public override TokenNode Parse()
         {
             if (Iterator.TryFlushContexts(out var node))
-                return node.Token.Type == TokenType.Text
-                    ? Token.Text(StringUtils.Join(node.Token, Token.NewLine)).ToNode()
-                    : new TokenNode(node.Token, node.Children.Append(Token.NewLine.ToText().ToNode()).ToArray());
+            {
+                if (node.Token.Type == TokenType.Text)
+                    return Token.Text(StringUtils.Join(node.Token, Token.NewLine)).ToNode();
+
+                Iterator.PushToBuffer(Token.NewLine);
+                return new TokenNode(node.Token, node.Children);
+            }
+
             return Token.NewLine.ToText().ToNode();
         }
     }

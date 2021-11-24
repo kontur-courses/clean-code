@@ -12,10 +12,9 @@ namespace Markdown.TokenParser.TokenParsingIteratorState
 
         protected TokenNode ParseUnderscore(Token token)
         {
-            if (Iterator.TryPeekContext(out var peek))
-                if (peek.Token.Type == token.Type)
+            if (Iterator.TryPopContext(out var context))
+                if (CanCloseContext(context, token))
                 {
-                    var context = Iterator.PopContext();
                     if (context.Children.TrueForAll(x => x.Token.Type == TokenType.Text))
                     {
                         var text = StringUtils.Join(context.Children.Select(x => x.Token));
@@ -24,13 +23,18 @@ namespace Markdown.TokenParser.TokenParsingIteratorState
                             : new TokenNode(token, Token.Text(text).ToNode());
                     }
 
-                    return TryParseEntryOnSameTokenContext(context, out var node)
+                    return TryParseNonTextEntryOnSameTokenContext(context, out var node)
                         ? node
                         : new TokenNode(token, context.Children.ToArray());
                 }
+                else
+                {
+                    Iterator.PushContext(context);
+                }
 
-            var isInMiddleOfWord = IsPreviousTokenContainsFirstPartOfWord() && IsNextTokenContainsSecondPartOfWord();
-            if (Iterator.TryMoveNext(out var next))
+
+            var isInMiddleOfWord = IsInMiddleOfWord();
+            if (CanOpenContext() && Iterator.TryMoveNext(out var next))
             {
                 Iterator.PushContext(new TokenContext(token, isInMiddleOfWord));
                 return Iterator.ParseToken(next);
@@ -39,30 +43,41 @@ namespace Markdown.TokenParser.TokenParsingIteratorState
             return token.ToText().ToNode();
         }
 
-        private bool IsPreviousTokenContainsFirstPartOfWord() =>
-            Iterator.TryGetPreviousToken(out var previous)
-            && previous.Type == TokenType.Text
-            && previous.Value.Length > 0
-            && char.IsLetterOrDigit(previous.Value[^1]);
+        private bool CanOpenContext() => IsNextTokenStartsWithNonWhiteSpace();
 
-        private bool IsNextTokenContainsSecondPartOfWord() =>
-            Iterator.TryGetNextToken(out var previous)
-            && previous.Type == TokenType.Text
-            && previous.Value.Length > 0
-            && char.IsLetterOrDigit(previous.Value[0]);
-
-        protected static bool ShouldParseUnderscoreAsText(TokenContext context, string text)
+        private bool CanCloseContext(TokenContext tokenContext, Token token)
         {
-            return text.All(char.IsDigit)
-                   || text.StartsWith(" ")
-                   || text.EndsWith(" ")
-                   || context.IsSplitWord && text.Any(x => !char.IsLetter(x));
+            var isAnyTokenInMiddleOfWord = tokenContext.IsInMiddleOfWord || IsInMiddleOfWord();
+            var areBothTokensNotInMiddleOfWord = !isAnyTokenInMiddleOfWord;
+            return tokenContext.Token.Type == token.Type
+                   && IsPreviousTokenEndsWithNonWhiteSpace()
+                   && (isAnyTokenInMiddleOfWord && !tokenContext.ContainsWhiteSpace || areBothTokensNotInMiddleOfWord);
         }
 
-        protected virtual bool TryParseEntryOnSameTokenContext(TokenContext _, out TokenNode token)
+        private bool IsInMiddleOfWord() =>
+            IsNextTokenStartsWithNonWhiteSpace() && IsPreviousTokenEndsWithNonWhiteSpace();
+
+        
+        private bool IsNextTokenStartsWithNonWhiteSpace() => Iterator.TryGetNextToken(out var token)
+                                                             && token.Type == TokenType.Text
+                                                             && token.Value.Length > 0
+                                                             && char.IsLetterOrDigit(token.Value[0]);
+
+        private bool IsPreviousTokenEndsWithNonWhiteSpace() => Iterator.TryGetPreviousToken(out var token)
+                                                               && token.Type == TokenType.Text
+                                                               && token.Value.Length > 0
+                                                               && char.IsLetterOrDigit(token.Value[^1]);
+        
+        protected virtual bool TryParseNonTextEntryOnSameTokenContext(TokenContext _, out TokenNode token)
         {
             token = default;
             return false;
         }
+        
+        private static bool ShouldParseUnderscoreAsText(TokenContext context, string text)
+        {
+            return text.All(char.IsDigit) || context.IsInMiddleOfWord && text.Any(x => !char.IsLetter(x));
+        }
+
     }
 }

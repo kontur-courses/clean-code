@@ -19,13 +19,13 @@ namespace Markdown.Tests
             sut = new TokenParser.TokenParser();
         }
 
-        [Test]
+        [Test(Description = "null")]
         public void Parse_ShouldThrowException_WhenArgumentIsNull()
         {
             Assert.Throws<ArgumentNullException>(() => sut.Parse(null));
         }
 
-        [Test]
+        [Test(Description = "empty")]
         public void Parse_ShouldNotApplyParsing_WhenNoToken()
         {
             var tokens = Array.Empty<Token>();
@@ -34,21 +34,51 @@ namespace Markdown.Tests
         }
 
 
-        [Test]
+        [Test(Description = "A")]
         public void Parse_ShouldNotApply_WhenOnlyTextToken()
         {
             var tokens = new[]
             {
-                Token.Text("text")
+                Token.Text("A")
             };
             var expected = new[]
             {
-                Token.Text("text").ToNode()
+                Token.Text("A").ToNode()
             };
             AssertParse(tokens, expected);
         }
 
-        [Test]
+        [Test(Description = @"A\n")]
+        public void Parse_ShouldConcatenateTextAndNewLine_WhenNewLineAfter()
+        {
+            var tokens = new[]
+            {
+                Token.Text("A"),
+                Token.NewLine
+            };
+            var expected = new[]
+            {
+                CreateTextTokenFrom(Token.Text("A"), Token.NewLine).ToNode()
+            };
+            AssertParse(tokens, expected);
+        }
+
+        [Test(Description = @"\nA")]
+        public void Parse_ShouldConcatenateTextAndNewLine_WhenNewLineBefore()
+        {
+            var tokens = new[]
+            {
+                Token.NewLine,
+                Token.Text("A")
+            };
+            var expected = new[]
+            {
+                CreateTextTokenFrom(Token.NewLine, Token.Text("A")).ToNode()
+            };
+            AssertParse(tokens, expected);
+        }
+
+        [Test(Description = "AB separated")]
         public void Parse_ShouldConcatenateTextTokens()
         {
             var tokens = new[]
@@ -63,7 +93,21 @@ namespace Markdown.Tests
             AssertParse(tokens, expected);
         }
 
-        [Test]
+        [Test(Description = "A B")]
+        public void Parse_ShouldParseTextWithSeveralWords()
+        {
+            var tokens = new[]
+            {
+                Token.Text("A B")
+            };
+            var expected = new[]
+            {
+                Token.Text("A B").ToNode()
+            };
+            AssertParse(tokens, expected);
+        }
+
+        [Test(Description = @"\")]
         public void Parse_ShouldTransformEscapeToText()
         {
             var tokens = new[]
@@ -77,53 +121,126 @@ namespace Markdown.Tests
             AssertParse(tokens, expected);
         }
 
-        [Test]
+        [Test(Description = @"\A")]
         public void Parse_ShouldConcatenateEscapeAndText()
         {
             var tokens = new[]
             {
                 Token.Escape,
-                Token.Text("Text")
+                Token.Text("A")
             };
             var expected = new[]
             {
-                Token.Text("\\Text").ToNode()
+                CreateTextTokenFrom(Token.Escape, Token.Text("A")).ToNode()
             };
             AssertParse(tokens, expected);
         }
 
-        [Test]
-        public void Parse_ShouldEscapeCursiveCharacterWhen_SingleCharacter()
+        [Test(Description = @"\# A")]
+        public void Parse_ShouldEscapeHeader()
         {
             var tokens = new[]
             {
                 Token.Escape,
-                Token.Cursive
+                Token.Text("A")
             };
             var expected = new[]
             {
-                Token.Cursive.ToText().ToNode()
+                Token.Text("\\A").ToNode()
             };
             AssertParse(tokens, expected);
         }
 
-        [Test]
+        [Test(Description = @"\\n")]
+        public void Parse_ShouldEscapeNotEscapeNewLine()
+        {
+            var tokens = new[]
+            {
+                Token.Escape,
+                Token.NewLine
+            };
+            var expected = new[]
+            {
+                CreateTextTokenFrom(Token.Escape, Token.NewLine).ToNode()
+            };
+            AssertParse(tokens, expected);
+        }
+
+        [Test(Description = @"\_A_")]
+        public void Parse_ShouldEscapeFormattingCharacter_WhenSingleCharacter()
+        {
+            var tokens = new[]
+            {
+                Token.Escape,
+                Token.Cursive,
+                Token.Text("A"),
+                Token.Cursive
+            };
+            var expected = new[]
+            {
+                CreateTextTokenFrom(Token.Cursive, Token.Text("A"), Token.Cursive).ToNode()
+            };
+            AssertParse(tokens, expected);
+        }
+        
+        [Test(Description = @"\\_A_")]
+        public void Parse_ShouldEscapeFormattingCharacter_WhenDoubleCharacter()
+        {
+            var tokens = new[]
+            {
+                Token.Escape,
+                Token.Escape,
+                Token.Cursive,
+                Token.Text("A"),
+                Token.Cursive
+            };
+            var expected = new[]
+            {
+                Token.Escape.ToText().ToNode(),
+                new TokenNode(Token.Cursive, Token.Text("A").ToNode())
+            };
+            AssertParse(tokens, expected);
+        }
+        
+        [Test(Description = @"\\_A B_")]
+        public void Parse_ShouldEscapeFormattingCharacter_WhenDoubleCharacter_AndSeveralWords()
+        {
+            var tokens = new[]
+            {
+                Token.Escape,
+                Token.Escape,
+                Token.Cursive,
+                Token.Text("A B"),
+                Token.Cursive
+            };
+            var expected = new[]
+            {
+                Token.Escape.ToText().ToNode(),
+                new TokenNode(Token.Cursive, Token.Text("A B").ToNode())
+            };
+            AssertParse(tokens, expected);
+        }
+
+        [Test(Description = @"\__A_")]
         public void Parse_ShouldEscapeCursiveCharacter_WhenSingleBoldCharacter()
         {
             var tokens = new[]
             {
                 Token.Escape,
-                Token.Bold
+                Token.Bold,
+                Token.Text("A"),
+                Token.Cursive
             };
             var expected = new[]
             {
-                Token.Text("__").ToNode()
+                Token.Cursive.ToText().ToNode(),
+                new TokenNode(Token.Cursive, Token.Text("A").ToNode())
             };
             AssertParse(tokens, expected);
         }
 
-        [Test]
-        public void Parse_ShouldApplyBoldFormat_WhenSurroundsWord(
+        [Test(Description = "_A_")]
+        public void Parse_ShouldApplyFormatting_WhenCharactersSurroundsWord(
             [ValueSource(nameof(GetFormattingTokens))]
             Token token)
         {
@@ -140,69 +257,87 @@ namespace Markdown.Tests
             AssertParse(tokens, expected);
         }
 
-        [Test]
-        public void Parse_ShouldApplyBoldFormat_WhenSurroundsText(
+        [Test(Description = "_A")]
+        public void Parse_ShouldTransformFormattingToText_WhenSingleBeforeText(
             [ValueSource(nameof(GetFormattingTokens))]
             Token token)
         {
             var tokens = new[]
             {
                 token,
-                Token.Text("A B C"),
-                token
+                Token.Text("A")
             };
             var expected = new[]
             {
-                new TokenNode(token, Token.Text("A B C").ToNode())
+                CreateTextTokenFrom(token, Token.Text("A")).ToNode()
             };
             AssertParse(tokens, expected);
         }
 
-        [Test]
-        public void Parse_ShouldMakeFormattingAsText_WhenSingleBeforeText(
-            [ValueSource(nameof(GetFormattingTokens))]
-            Token token)
-        {
-            var tokens = new[]
-            {
-                token,
-                Token.Text("Text")
-            };
-            var expected = new[]
-            {
-                Token.Text($"{token.Value}Text").ToNode()
-            };
-            AssertParse(tokens, expected);
-        }
-
-        [Test]
+        [Test(Description = "A_")]
         public void Parse_ShouldMakeFormattingAsText_WhenSingleAfterText(
             [ValueSource(nameof(GetFormattingTokens))]
             Token token)
         {
             var tokens = new[]
             {
-                Token.Text("Text"),
+                Token.Text("A"),
                 token
             };
             var expected = new[]
             {
-                Token.Text($"Text{token.Value}").ToNode()
+                CreateTextTokenFrom(Token.Text("A"), token).ToNode()
+            };
+            AssertParse(tokens, expected);
+        }
+        
+        [Test(Description = "_ A_")]
+        public void Parse_ShouldNotApplyFormatting_WhenBeforeWhitespace(
+            [ValueSource(nameof(GetFormattingTokens))]
+            Token token)
+        {
+            var tokens = new[]
+            {
+                token,
+                Token.Text(" A"),
+                token
+            };
+            var expected = new[]
+            {
+                CreateTextTokenFrom(token, Token.Text(" A"), token).ToNode()
             };
             AssertParse(tokens, expected);
         }
 
-        [Test]
-        public void Parse_ShouldApplyCursive_WhenWithinBold()
+        [Test(Description = "_A _")]
+        public void Parse_ShouldNotApplyUnderscore_WhenClosing_AndAfterWhitespace(
+            [ValueSource(nameof(GetFormattingTokens))]
+            Token token)
+        {
+            var tokens = new[]
+            {
+                token,
+                Token.Text("A "),
+                token
+            };
+            var expected = new[]
+            {
+                CreateTextTokenFrom(token, Token.Text("A "), token).ToNode()
+            };
+            AssertParse(tokens, expected);
+        }
+
+        [Test(Description = "__A _B_ C__")]
+        public void Parse_ShouldApplyCursive_WhenWithinBoldSurroundsSingleWord()
         {
             var tokens = new[]
             {
                 Token.Bold,
-                Token.Text("Start"),
+                Token.Text("A "),
                 Token.Cursive,
-                Token.Text("Cursive"),
+                Token.Text("B"),
                 Token.Cursive,
-                Token.Text("End"),
+                Token.Text(" C"),
                 Token.Bold
             };
             var expected = new[]
@@ -210,43 +345,93 @@ namespace Markdown.Tests
                 new TokenNode(Token.Bold,
                     new[]
                     {
-                        Token.Text("Start").ToNode(),
-                        new TokenNode(Token.Cursive, Token.Text("Cursive").ToNode()),
-                        Token.Text("End").ToNode()
+                        Token.Text("A ").ToNode(),
+                        new TokenNode(Token.Cursive, Token.Text("B").ToNode()),
+                        Token.Text(" C").ToNode()
                     })
             };
             AssertParse(tokens, expected);
         }
 
-        [Test]
-        public void Parse_ShouldNotApplyBold_WhenWithinCursiveWithText()
+        [Test(Description = "__A _B C_ D__")]
+        public void Parse_ShouldApplyCursive_WhenWithinBoldSurroundsSeveralWords()
+        {
+            var tokens = new[]
+            {
+                Token.Bold,
+                Token.Text("A "),
+                Token.Cursive,
+                Token.Text("B C"),
+                Token.Cursive,
+                Token.Text(" D"),
+                Token.Bold
+            };
+            var expected = new[]
+            {
+                new TokenNode(Token.Bold,
+                    new[]
+                    {
+                        Token.Text("A ").ToNode(),
+                        new TokenNode(Token.Cursive, Token.Text("B C").ToNode()),
+                        Token.Text(" D").ToNode()
+                    })
+            };
+            AssertParse(tokens, expected);
+        }
+
+        [Test(Description = "_A __B__ C_")]
+        public void Parse_ShouldNotApplyBold_WhenWithinCursiveSurroundsSingleWord()
         {
             var tokens = new[]
             {
                 Token.Cursive,
-                Token.Text("Start"),
+                Token.Text("A "),
                 Token.Bold,
-                Token.Text("Bold"),
+                Token.Text("B"),
                 Token.Bold,
-                Token.Text("End"),
+                Token.Text(" C"),
                 Token.Cursive
             };
-            var expected = new[] { new TokenNode(Token.Cursive, Token.Text("Start__Bold__End").ToNode()) };
+            var expected = new[] { new TokenNode(Token.Cursive, Token.Text("A __B__ C").ToNode()) };
             AssertParse(tokens, expected);
         }
 
-        [Test]
+        [Test(Description = "_A __B C__ D_")]
+        public void Parse_ShouldNotApplyBold_WhenWithinCursiveSurroundsSeveralWords()
+        {
+            var tokens = new[]
+            {
+                Token.Cursive,
+                Token.Text("A "),
+                Token.Bold,
+                Token.Text("B C"),
+                Token.Bold,
+                Token.Text(" D"),
+                Token.Cursive
+            };
+            var expected = new[] { new TokenNode(Token.Cursive, Token.Text("A __B C__ D").ToNode()) };
+            AssertParse(tokens, expected);
+        }
+
+        [Test(Description = "_12_")]
         public void Parse_ShouldNotApplyFormatting_WhenSurroundsNumber(
             [ValueSource(nameof(GetFormattingTokens))]
             Token token)
         {
-            var character = token.Value;
-            var tokens = new[] { token, Token.Text("12"), token };
-            var expected = new[] { Token.Text($"{character}12{character}").ToNode() };
+            var tokens = new[]
+            {
+                token,
+                Token.Text("12"),
+                token
+            };
+            var expected = new[]
+            {
+                CreateTextTokenFrom(token, Token.Text("12"), token).ToNode()
+            };
             AssertParse(tokens, expected);
         }
 
-        [Test]
+        [Test(Description = "_A_BC")]
         public void Parse_ShouldApplyFormatting_WhenSurroundsBeginningOfWord(
             [ValueSource(nameof(GetFormattingTokens))]
             Token token)
@@ -254,63 +439,262 @@ namespace Markdown.Tests
             var tokens = new[]
             {
                 token,
-                Token.Text("Beg"),
+                Token.Text("A"),
                 token,
-                Token.Text("in of word")
+                Token.Text("BC")
             };
             var expected = new[]
             {
-                new TokenNode(token, Token.Text("Beg").ToNode()),
-                Token.Text("in of word").ToNode()
+                new TokenNode(token, Token.Text("A").ToNode()),
+                Token.Text("BC").ToNode()
             };
             AssertParse(tokens, expected);
         }
 
-        [Test]
+        [Test(Description = "A_B_C")]
         public void Parse_ShouldApplyFormatting_WhenSurroundsMiddleOfWord(
             [ValueSource(nameof(GetFormattingTokens))]
             Token token)
         {
             var tokens = new[]
             {
-                Token.Text("Surround m"),
+                Token.Text("A"),
                 token,
-                Token.Text("iddl"),
+                Token.Text("B"),
                 token,
-                Token.Text("e part")
+                Token.Text("C")
             };
             var expected = new[]
             {
-                Token.Text("Surround m").ToNode(),
-                new TokenNode(token, Token.Text("iddl").ToNode()),
-                Token.Text("e part").ToNode()
+                Token.Text("A").ToNode(),
+                new TokenNode(token, Token.Text("B").ToNode()),
+                Token.Text("C").ToNode()
             };
             AssertParse(tokens, expected);
         }
 
-        [Test]
+        [Test(Description = "AB_C_")]
         public void Parse_ShouldApplyFormatting_WhenSurroundsEndOfWord(
             [ValueSource(nameof(GetFormattingTokens))]
             Token token)
         {
             var tokens = new[]
             {
-                Token.Text("Surround m"),
+                Token.Text("AB"),
                 token,
-                Token.Text("iddl"),
-                token,
-                Token.Text("e part")
+                Token.Text("C"),
+                token
             };
             var expected = new[]
             {
-                Token.Text("Surround m").ToNode(),
-                new TokenNode(token, Token.Text("iddl").ToNode()),
-                Token.Text("e part").ToNode()
+                Token.Text("AB").ToNode(),
+                new TokenNode(token, Token.Text("C").ToNode())
             };
             AssertParse(tokens, expected);
         }
 
-        [Test]
+        [Test(Description = "_A _B_ C_")]
+        public void Parse_ShouldApplyFormatting_WhenSameTokenInsideFormatting(
+            [ValueSource(nameof(GetFormattingTokens))]
+            Token token)
+        {
+            var tokens = new[]
+            {
+                token,
+                Token.Text("A "),
+                token,
+                Token.Text("B"),
+                token,
+                Token.Text(" C"),
+                token
+            };
+            var expected = new[]
+            {
+                new TokenNode(token, new[]
+                {
+                    Token.Text("A ").ToNode(),
+                    new TokenNode(token, Token.Text("B").ToNode()),
+                    Token.Text(" C").ToNode()
+                })
+            };
+            AssertParse(tokens, expected);
+        }
+
+        [Test(Description = "_AC _DE")]
+        public void Parse_ShouldNotApplyFormatting_WhenBothUnderscoreBeforeWordBeginning(
+            [ValueSource(nameof(GetFormattingTokens))]
+            Token token)
+        {
+            var tokens = new[]
+            {
+                token,
+                Token.Text("AC "),
+                token,
+                Token.Text("DE"),
+            };
+            var expected = new[]
+            {
+                CreateTextTokenFrom(tokens).ToNode()
+            };
+            AssertParse(tokens, expected);
+        }
+        
+        [Test(Description = "_AC D_E")]
+        public void Parse_ShouldNotApplyFormatting_WhenFirstUnderscoreInBeginning_AndSecondUnderscoreInMiddle(
+            [ValueSource(nameof(GetFormattingTokens))]
+            Token token)
+        {
+            var tokens = new[]
+            {
+                token,
+                Token.Text("AC D"),
+                token,
+                Token.Text("E"),
+            };
+            var expected = new[]
+            {
+                CreateTextTokenFrom(tokens).ToNode()
+            };
+            AssertParse(tokens, expected);
+        }
+        
+        [Test(Description = "_AB CD_")]
+        public void Parse_ShouldApplyBoldFormat_WhenFirstUnderscoreInBeginning_AndSecondUnderscoreInEnding(
+            [ValueSource(nameof(GetFormattingTokens))]
+            Token token)
+        {
+            var tokens = new[]
+            {
+                token,
+                Token.Text("AB CD"),
+                token
+            };
+            var expected = new[]
+            {
+                new TokenNode(token, Token.Text("AB CD").ToNode())
+            };
+            AssertParse(tokens, expected);
+        }
+        
+        [Test(Description = "A_C _DE")]
+        public void Parse_ShouldNotApplyFormatting_WhenFirstUnderscoreInMiddle_AndSecondUnderscoreInBeginning(
+            [ValueSource(nameof(GetFormattingTokens))]
+            Token token)
+        {
+            var tokens = new[]
+            {
+                Token.Text("A"),
+                token,
+                Token.Text("C "),
+                token,
+                Token.Text("DE")
+            };
+            var expected = new[]
+            {
+                CreateTextTokenFrom(tokens).ToNode()
+            };
+            AssertParse(tokens, expected);
+        }
+        
+        [Test(Description = "A_C D_E")]
+        public void Parse_ShouldNotApplyFormatting_WhenFirstUnderscoreInMiddle_AndSecondUnderscoreInMiddle(
+            [ValueSource(nameof(GetFormattingTokens))]
+            Token token)
+        {
+            var tokens = new[]
+            {
+                Token.Text("A"),
+                token,
+                Token.Text("C D"),
+                token,
+                Token.Text("E")
+            };
+            var expected = new[]
+            {
+                CreateTextTokenFrom(tokens).ToNode()
+            };
+            AssertParse(tokens, expected);
+        }
+        
+        [Test(Description = "A_C DE_")]
+        public void Parse_ShouldNotApplyFormatting_WhenFirstUnderscoreInMiddle_AndSecondUnderscoreInEnd(
+            [ValueSource(nameof(GetFormattingTokens))]
+            Token token)
+        {
+            var tokens = new[]
+            {
+                Token.Text("A"),
+                token,
+                Token.Text("C DE"),
+                token,
+            };
+            var expected = new[]
+            {
+                CreateTextTokenFrom(tokens).ToNode()
+            };
+            AssertParse(tokens, expected);
+        }
+        
+        [Test(Description = "AC_ _DE")]
+        public void Parse_ShouldNotApplyFormatting_WhenFirstUnderscoreInEnd_AndSecondUnderscoreInBeginning(
+            [ValueSource(nameof(GetFormattingTokens))]
+            Token token)
+        {
+            var tokens = new[]
+            {
+                Token.Text("AC"),
+                token,
+                Token.Text(" "),
+                token,
+                Token.Text("DE"),
+            };
+            var expected = new[]
+            {
+                CreateTextTokenFrom(tokens).ToNode()
+            };
+            AssertParse(tokens, expected);
+        }
+        
+        [Test(Description = "AC_ D_E")]
+        public void Parse_ShouldNotApplyFormatting_WhenFirstUnderscoreInEnd_AndSecondUnderscoreInMiddle(
+            [ValueSource(nameof(GetFormattingTokens))]
+            Token token)
+        {
+            var tokens = new[]
+            {
+                Token.Text("AC"),
+                token,
+                Token.Text(" D"),
+                token,
+                Token.Text("E")
+            };
+            var expected = new[]
+            {
+                CreateTextTokenFrom(tokens).ToNode()
+            };
+            AssertParse(tokens, expected);
+        }
+        
+        [Test(Description = "AC_ DE_")]
+        public void Parse_ShouldNotApplyFormatting_WhenFirstUnderscoreInEnd_AndSecondUnderscoreInEnd(
+            [ValueSource(nameof(GetFormattingTokens))]
+            Token token)
+        {
+            var tokens = new[]
+            {
+                Token.Text("AC"),
+                token,
+                Token.Text(" DE"),
+                token,
+            };
+            var expected = new[]
+            {
+                CreateTextTokenFrom(tokens).ToNode()
+            };
+            AssertParse(tokens, expected);
+        }
+        
+        [Test(Description = "A_B?C_D")]
         public void Parse_ShouldNotApplyFormatting_WhenInMiddleOfDifferentWords(
             [ValueSource(nameof(GetFormattingTokens))]
             Token token,
@@ -320,112 +704,62 @@ namespace Markdown.Tests
             var tokenCharacter = token.Value;
             var tokens = new[]
             {
-                Token.Text("Sta"),
+                Token.Text("A"),
                 token,
-                Token.Text($"rt{wordSeparator}te"),
+                Token.Text($"B{wordSeparator}C"),
                 token,
-                Token.Text("xt")
+                Token.Text("D")
             };
             var expected = new[]
             {
-                Token.Text($"Sta{tokenCharacter}rt{wordSeparator}te{tokenCharacter}xt").ToNode()
+                CreateTextTokenFrom(
+                    Token.Text("A"),
+                    token,
+                    Token.Text($"B{wordSeparator}C"),
+                    token,
+                    Token.Text("D")
+                ).ToNode()
             };
             AssertParse(tokens, expected);
         }
 
-        [Test]
-        public void Parse_ShouldNotApplyBoldAndCursive_WhenCursiveBetweenBold()
+        [Test(Description = "__A _B C__")]
+        public void Parse_ShouldNotApplyFormatting_WhenCursiveBetweenBold()
         {
             var tokens = new[]
             {
                 Token.Bold,
-                Token.Text("Text "),
+                Token.Text("A "),
                 Token.Cursive,
-                Token.Text("Text"),
+                Token.Text("B C"),
                 Token.Bold
             };
             var expected = new[]
             {
-                Token.Text("__Text _Text__").ToNode()
+                CreateTextTokenFrom(tokens).ToNode()
             };
             AssertParse(tokens, expected);
         }
 
-        [Test]
-        public void Parse_ShouldNotApplyBoldAndCursive_WhenBoldBetweenCursive()
+        [Test(Description = "_A __B C_")]
+        public void Parse_ShouldNotApplyFormatting_WhenBoldBetweenCursive()
         {
             var tokens = new[]
             {
                 Token.Cursive,
-                Token.Text("Text "),
+                Token.Text("A "),
                 Token.Bold,
-                Token.Text("Text"),
+                Token.Text("B C"),
                 Token.Cursive
             };
             var expected = new[]
             {
-                Token.Text("_Text __Text_").ToNode()
+                CreateTextTokenFrom(tokens).ToNode()
             };
             AssertParse(tokens, expected);
         }
 
-        [Test]
-        public void Parse_ShouldNotApplyFormatting_WhenBeforeWhitespace(
-            [ValueSource(nameof(GetFormattingTokens))]
-            Token token)
-        {
-            var tokens = new[]
-            {
-                token,
-                Token.Text(" Text"),
-                token
-            };
-            var expected = new[]
-            {
-                Token.Text($"{token.Value} Text{token.Value}").ToNode()
-            };
-            AssertParse(tokens, expected);
-        }
-
-        [Test]
-        public void Parse_ShouldNotApplyFormatting_WhenOpening_AndBeforeWhitespace_AndThenTheThirdToken(
-            [ValueSource(nameof(GetFormattingTokens))]
-            Token token)
-        {
-            var tokens = new[]
-            {
-                token,
-                Token.Text(" Text"),
-                token,
-                Token.Text("Text"),
-                token
-            };
-            var expected = new[]
-            {
-                Token.Text($"{token.Value} Text{token.Value}Text{token.Value}").ToNode()
-            };
-            AssertParse(tokens, expected);
-        }
-
-        [Test]
-        public void Parse_ShouldNotApplyUnderscore_WhenClosing_AndAfterWhitespace(
-            [ValueSource(nameof(GetFormattingTokens))]
-            Token token)
-        {
-            var tokens = new[]
-            {
-                token,
-                Token.Text("Text "),
-                token
-            };
-            var expected = new[]
-            {
-                Token.Text($"{token.Value}Text {token.Value}").ToNode()
-            };
-            AssertParse(tokens, expected);
-        }
-
-        [Test]
+        [Test(Description = "_A__B_C__ | __A_B__C_")]
         public void Parse_ShouldNotApplyFormatting_WhenFormattingTokensIntersected(
             [ValueSource(nameof(GetOppositeTokens))]
             (Token, Token) pair)
@@ -434,21 +768,29 @@ namespace Markdown.Tests
             var tokens = new[]
             {
                 token,
-                Token.Text("Text"),
+                Token.Text("A"),
                 opposite,
-                Token.Text("Text"),
+                Token.Text("B"),
                 token,
-                Token.Text("Text"),
+                Token.Text("C"),
                 opposite
             };
             var expected = new[]
             {
-                Token.Text($"{token.Value}Text{opposite.Value}Text{token.Value}Text{opposite.Value}").ToNode()
+                CreateTextTokenFrom(
+                    token,
+                    Token.Text("A"),
+                    opposite,
+                    Token.Text("B"),
+                    token,
+                    Token.Text("C"),
+                    opposite
+                ).ToNode()
             };
             AssertParse(tokens, expected);
         }
 
-        [Test]
+        [Test(Description = "_empty_")]
         public void Parse_ShouldNotApplyFormatting_WhenEmptyText([ValueSource(nameof(GetFormattingTokens))] Token token)
         {
             var tokens = new[]
@@ -458,27 +800,27 @@ namespace Markdown.Tests
             };
             var expected = new[]
             {
-                Token.Text($"{token.Value}{token.Value}").ToNode()
+                CreateTextTokenFrom(token, token).ToNode()
             };
             AssertParse(tokens, expected);
         }
 
-        [Test]
+        [Test(Description = "# A")]
         public void Parse_ShouldFormatHeader_WhenJustText()
         {
             var tokens = new[]
             {
                 Token.Header1,
-                Token.Text("Text")
+                Token.Text("A")
             };
             var expected = new[]
             {
-                new TokenNode(Token.Header1, Token.Text("Text").ToNode())
+                new TokenNode(Token.Header1, Token.Text("A").ToNode())
             };
             AssertParse(tokens, expected);
         }
 
-        [Test]
+        [Test(Description = "# empty")]
         public void Parse_ShouldFormatHeader_WhenEmptyText()
         {
             var tokens = new[]
@@ -494,29 +836,31 @@ namespace Markdown.Tests
         }
 
 
-        [Test]
-        public void Parse_ShouldFormatHeader_WhenFormattingText()
+        [Test(Description = "# A _B_")]
+        public void Parse_ShouldFormatHeader_WhenFormattingText(
+            [ValueSource(nameof(GetFormattingTokens))] 
+            Token token)
         {
             var tokens = new[]
             {
                 Token.Header1,
                 Token.Text("A "),
-                Token.Cursive,
+                token,
                 Token.Text("B"),
-                Token.Cursive
+                token
             };
             var expected = new[]
             {
                 new TokenNode(Token.Header1, new[]
                 {
                     Token.Text("A ").ToNode(),
-                    new TokenNode(Token.Cursive, Token.Text("B").ToNode())
+                    new TokenNode(token, Token.Text("B").ToNode())
                 })
             };
             AssertParse(tokens, expected);
         }
 
-        [Test]
+        [Test(Description = @"# A\nB")]
         public void Parse_ShouldFormatHeader_WhenTextAfterNewLine()
         {
             var tokens = new[]
@@ -530,14 +874,14 @@ namespace Markdown.Tests
             {
                 new TokenNode(Token.Header1, new[]
                 {
-                    Token.Text("A\n").ToNode()
+                    Token.Text("A").ToNode()
                 }),
-                Token.Text("B").ToNode()
+                Token.Text("\nB").ToNode()
             };
             AssertParse(tokens, expected);
         }
 
-        [Test]
+        [Test(Description = @"_A\nB_")]
         public void Parse_ShouldFlushFormatting_WhenNewLine(
             [ValueSource(nameof(GetFormattingTokens))]
             Token token)
@@ -547,11 +891,17 @@ namespace Markdown.Tests
                 token,
                 Token.Text("A"),
                 Token.NewLine,
-                Token.Text("B")
+                Token.Text("B"),
+                token
             };
             var expected = new[]
             {
-                Token.Text($"{token.Value}A{Token.NewLine.Value}B").ToNode()
+                CreateTextTokenFrom(token,
+                    Token.Text("A"),
+                    Token.NewLine,
+                    Token.Text("B"),
+                    token
+                ).ToNode()
             };
             AssertParse(tokens, expected);
         }
@@ -576,5 +926,7 @@ namespace Markdown.Tests
             var parsed = sut.Parse(tokens);
             parsed.Should().Equal(expectedNodes);
         }
+
+        private static Token CreateTextTokenFrom(params Token[] tokens) => Token.Text(StringUtils.Join(tokens));
     }
 }

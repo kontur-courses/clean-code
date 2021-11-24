@@ -80,11 +80,9 @@ namespace Markdown.TokenParser
             };
         }
 
-        public bool TryPeekContext(out TokenContext context) => contexts.TryPeek(out context);
+        public bool TryPopContext(out TokenContext context) => contexts.TryPop(out context);
 
         public void PushContext(TokenContext tokenContext) => contexts.Push(tokenContext);
-
-        public TokenContext PopContext() => contexts.Pop();
 
         public bool TryGetPreviousToken(out Token token) => enumerator.TryGetPrevious(out token);
 
