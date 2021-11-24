@@ -7,9 +7,9 @@ namespace Markdown
     {
         public string Render(string mdText)
         {
-            //new HtmlConverter().Convert(new Parser().Parse(mdText));
-            
-            throw new NotImplementedException();
+            return new HtmlConverter().Convert(new Parser()
+                .Parse(mdText)
+                .ToList());
         }
     }
 }

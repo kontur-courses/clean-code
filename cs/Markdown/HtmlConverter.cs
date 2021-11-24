@@ -1,46 +1,95 @@
 ﻿using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.Linq;
+using System.Text;
 
 namespace Markdown
 {
     public class HtmlConverter
     {
-        public string Convert(IEnumerable<Token> tokens)
+        private Stack<Token> upperTokens = new Stack<Token>();
+
+        public string Convert(List<Token> tokens)
         {
-            //foreach
-            // TokenToHtml
-            throw new NotImplementedException();
+            var sb = new StringBuilder();
+            foreach (var token in tokens)
+                sb.Append(TokenToHtml(token));
+            return sb.Length > 2 ?
+                sb.ToString()[..(sb.Length - 2)] : 
+                sb.ToString();
         }
 
         private string TokenToHtml(Token token)
         {
-            //switch(token) by Type => ToHtml
-            throw new NotImplementedException();
+            switch (token)
+            {
+                case StrongText t:
+                    return TokenToHtml(t);
+                case ItalicText t:
+                    return TokenToHtml(t);
+                case Paragraph t:
+                    return TokenToHtml(t);
+                case Header t:
+                    return TokenToHtml(t);
+                default:
+                    return token.Value;
+            }
         }
 
-        private string HeaderToHtml(Token token)
+        private string TokenToHtml(StrongText token)
+            => DecorateWithTag(token, "strong", "__");
+
+        private string TokenToHtml(ItalicText token)
+            => DecorateWithTag(token, "em", "_");
+
+        private string DecorateWithTag(Token token, string tag, string altTag)
         {
-            throw new NotImplementedException();
-        }
-        private string ParagraphToHtml(Token token)
-        {
-            throw new NotImplementedException();
+            if (token.Closed)
+            {
+                var goodOpenClosing = !token.HaveInner || token.InnerTokens[0].Value[0] != ' ' &&
+                    GetLastElementOrX(token) != ' ';
+                var canBeTag = token.Valid && token.HaveInner &&
+                    !(token is StrongText && upperTokens.Peek() is ItalicText);
+                return canBeTag && goodOpenClosing ?
+                    $"<{tag}>{AddTextInTag(token)}</{tag}>" :
+                    $"{altTag}{AddTextInTag(token)}{altTag}";
+            }
+            return $"{altTag}{AddTextInTag(token)}";
         }
 
-        private string StrongToHtml(Token token)
-        {
-            throw new NotImplementedException();
-        }
+        private char GetLastElementOrX(Token token)
+            => token.HaveInner && !string.IsNullOrEmpty(token.InnerTokens.Last().Value) ?
+                token.InnerTokens.Last().Value.Last() : 'X';
 
-        private string ItalicToHtml(Token token)
+        private string TokenToHtml(Paragraph token) 
+            => $"<div>{AddTextInTag(token)}</div>\r\n";
+
+        private string TokenToHtml(Header token) 
+            => $"<h1>{AddTextInTag(token)}</h1>\r\n";
+
+        private string AddTextInTag(Token token)
         {
-            throw new NotImplementedException();
+            if(!token.HaveInner)
+                return token.Value;
+            var sb = new StringBuilder();
+            upperTokens.Push(token);
+            foreach (var innerToken in token.InnerTokens)
+                sb.Append(TokenToHtml(innerToken));
+            upperTokens.Pop();
+            return EscapeSymbols(sb.ToString());
         }
 
         private string EscapeSymbols(string text)
         {
-            throw new NotImplementedException();
+            var res = new StringBuilder();
+            for (var i = 0; i < text.Length; i++)
+            {
+                if(text[i] == '\\' && i + 1 < text.Length && text[i+1] == '<')
+                        continue;
+                res.Append(text[i]);
+            }
+            return res.ToString();
         }
     }
 }

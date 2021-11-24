@@ -1,24 +1,30 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 
 namespace Markdown
 {
     public class Token
     {
-        public readonly string Value;
-        public List<Token> InnerTokens;
+        public string Value;
+        public List<Token> InnerTokens = new List<Token>();
+        public bool Closed;
+        public bool Valid = true;
+        public bool HaveInner => InnerTokens != null && InnerTokens.Count > 0;
 
-        protected Token(string value, List<Token> innerTokens)
+        public Token()
+        {
+        }
+
+        public Token(string value)
         {
             Value = value;
-            InnerTokens = innerTokens;
+            Closed = true;
         }
     }
     
     public class Header : Token
     {
         public Header(string value, List<Token> innerTokens = null) :
-            base(value, innerTokens)
+            base(value)
         {
         }
     }
@@ -26,24 +32,16 @@ namespace Markdown
     public class Paragraph : Token
     {
         public Paragraph(string value, List<Token> innerTokens = null) :
-            base(value, innerTokens)
+            base(value)
         {
         }
     }
 
     public class StrongText : Token
     {
-        public StrongText(string value, List<Token> innerTokens = null) :
-            base(value, innerTokens)
-        {
-        }
     }
 
     public class ItalicText : Token
     {
-        public ItalicText(string value, List<Token> innerTokens = null) :
-            base(value, innerTokens)
-        {
-        }
     }
 }
