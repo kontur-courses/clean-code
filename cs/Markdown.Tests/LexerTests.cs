@@ -41,6 +41,10 @@ namespace Markdown.Tests
         [TestCaseSource(nameof(GetEscapeFormattingTestCases))]
         [TestCaseSource(nameof(GetHeaderFormattingTestCases))]
         [TestCaseSource(nameof(GetNewLineFormattingTestCases))]
+        [TestCaseSource(nameof(GetOpenCircleBracketFormattingTestCases))]
+        [TestCaseSource(nameof(GetCloseCircleBracketFormattingTestCases))]
+        [TestCaseSource(nameof(GetOpenSquareBracketFormattingTestCases))]
+        [TestCaseSource(nameof(GetCloseSquareBracketFormattingTestCases))]
         public void Lex_ShouldReturnCorrectTokens_WhenTextWithSpecialCharacters(string text, Token[] expectedTokens)
         {
             var tokens = sut.Lex(text);
@@ -101,6 +105,20 @@ namespace Markdown.Tests
 
         public static IEnumerable<TestCaseData> GetNewLineFormattingTestCases() =>
             GetFormattingTestCases(Token.NewLine);
+        
+                
+        public static IEnumerable<TestCaseData> GetOpenCircleBracketFormattingTestCases() =>
+            GetFormattingTestCases(Token.OpenCircleBracket);
+        
+        public static IEnumerable<TestCaseData> GetCloseCircleBracketFormattingTestCases() =>
+            GetFormattingTestCases(Token.CloseCircleBracket);
+        
+        public static IEnumerable<TestCaseData> GetOpenSquareBracketFormattingTestCases() =>
+            GetFormattingTestCases(Token.OpenSquareBracket);
+        
+        public static IEnumerable<TestCaseData> GetCloseSquareBracketFormattingTestCases() =>
+            GetFormattingTestCases(Token.CloseSquareBracket);
+
 
         [Test]
         public void Lex_ShouldReturnTokens_WhenOnlySpecialSymbols()

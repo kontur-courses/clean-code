@@ -11,6 +11,10 @@ namespace Markdown.Lexer
             Characters.Underscore,
             Characters.Escape,
             Characters.NewLine,
+            Characters.OpenCircleBracket,
+            Characters.CloseCircleBracket,
+            Characters.OpenSquareBracket,
+            Characters.CloseSquareBracket
         };
 
         private readonly string text;
@@ -30,16 +34,34 @@ namespace Markdown.Lexer
                 var symbol = text[currentIndex];
                 yield return symbol switch
                 {
-                    Characters.Underscore => LexUnderscore(),
-                    Characters.Escape => LexEscape(), 
+                    Characters.Underscore => LexNonNewLineContainsToken(LexUnderscore),
+                    Characters.Escape => LexNonNewLineContainsToken(LexEscape), 
                     Characters.Sharp => LexHeader(),
                     Characters.NewLine => LexNewLine(),
+                    Characters.OpenCircleBracket => LexNonNewLineContainsToken(LexOpenCircleBracket),
+                    Characters.CloseCircleBracket => LexNonNewLineContainsToken(LexCloseCircleBracket),
+                    Characters.OpenSquareBracket => LexNonNewLineContainsToken(LexOpenSquareBracket),
+                    Characters.CloseSquareBracket => LexNonNewLineContainsToken(LexCloseSquareBracket),
                     _ => LexText()
                 };
                 currentIndex++;
             }
         }
 
+        private Token LexNonNewLineContainsToken(Func<Token> getToken)
+        {
+            isNewLine = false;
+            return getToken();
+        }
+        
+        private static Token LexOpenCircleBracket() => Token.OpenCircleBracket;
+
+        private static Token LexCloseCircleBracket() => Token.CloseCircleBracket;
+        
+        private static Token LexOpenSquareBracket() => Token.OpenSquareBracket;
+
+        private static Token LexCloseSquareBracket() => Token.CloseSquareBracket;
+        
         private Token LexUnderscore()
         {
             isNewLine = false;
@@ -50,11 +72,7 @@ namespace Markdown.Lexer
 
         }
 
-        private Token LexEscape()
-        {
-            isNewLine = false;
-            return Token.Escape;
-        }
+        private static Token LexEscape() => Token.Escape;
 
         private Token LexHeader()
         {
