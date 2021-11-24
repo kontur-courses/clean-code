@@ -59,7 +59,6 @@ namespace Markdown
             tokens.RemoveAll(token => token.Length == 0);
             var forbiddenTokens = tokens.GetForbiddenTokens(pairedTokens, unpairedTokens);
             var resultTokens = SetSkipForTokens(tokens, forbiddenTokens).ToList();
-            //resultTokens.RemoveAll(token => token.Length == 0 /*&& token.Type != TokenType.Heading*/);
             return resultTokens.OrderBy(token => token.Position);
         }
 
@@ -134,7 +133,6 @@ namespace Markdown
 
         private bool IsOpeningToken(TokenType type, Stack<IToken> openedTokens)
         {
-            //IToken openedToken = null;
             if (!openedTokens.TryPop(out var openedToken)) return true;
             if (openedToken.Type == type) return false;
             if (openedTokens.Count == 0)
@@ -147,67 +145,6 @@ namespace Markdown
             return false;
         }
 
-        //private void CloseHeadingToken(List<Token> tokens, TokenBuilder tokenBuilder, string paragraph)
-        //{
-        //    var first = paragraph.FirstOrDefault();
-        //    if (first == '#')
-        //    {
-        //        tokens.Add(tokenBuilder.Clear()
-        //            .SetPosition(paragraph.Length - 1)
-        //            .SetType(TokenType.Heading)
-        //            .SetOpening(false)
-        //            .Build());
-        //        tokenBuilder.Clear();
-        //    }
-        //}
-
-        //private void SetOpeningForBuilder(TokenBuilder tokenBuilder, Stack<IToken> openedTokens)
-        //{
-        //    if (openedTokens.TryPop(out var openedToken))
-        //        if (openedToken.Type == tokenBuilder.Type)
-        //            tokenBuilder.SetOpening(false);
-        //        else
-        //            SetOpeningWhenTokensIntersect(tokenBuilder, openedTokens, openedToken);
-        //    else
-        //    {
-        //        tokenBuilder.SetOpening(true);
-        //        openedTokens.Push(tokenBuilder.Build());
-        //    }
-        //}
-
-        //private void SetOpeningWhenTokensIntersect(TokenBuilder tokenBuilder, 
-        //    Stack<IToken> openedTokens,
-        //    IToken openedToken)
-        //{
-        //    if (openedTokens.Count == 0)
-        //    {
-        //        tokenBuilder.SetOpening(true);
-        //        openedTokens.Push(openedToken);
-        //        openedTokens.Push(tokenBuilder.Build());
-        //    }
-        //    else
-        //    {
-        //        tokenBuilder.SetOpening(false);
-        //        openedTokens.Pop();
-        //        openedTokens.Push(openedToken);
-        //    }
-        //}
-
-        //private void SetTypeForBuilder(TokenBuilder tokenBuilder, 
-        //    string paragraph, int i)
-        //{
-        //    if (i + 1 < paragraph.Length && paragraph[i + 1] == '_')
-        //    {
-        //        tokenBuilder.SetPosition(i)
-        //            .SetType(TokenType.Bold)
-        //            .Append(new string(paragraph[i], 2));
-        //    }
-        //    else
-        //        tokenBuilder.SetPosition(i)
-        //            .SetType(TokenType.Italics)
-        //            .Append(paragraph[i]);
-        //}
-
         private void BuildPreviousToken(List<IToken> tokens, TokenBuilder tokenBuilder, int currentIndex)
         {
             if (tokenBuilder.Type == TokenType.Content)
@@ -217,24 +154,6 @@ namespace Markdown
                 tokenBuilder.Clear();
             }
         }
-
-        //private void AddHeaderToken(List<Token> tokens, 
-        //    TokenBuilder tokenBuilder,
-        //    char symbol,
-        //    int currentPositionInText)
-        //{
-        //    tokens.Add(tokenBuilder.SetPosition(currentPositionInText)
-        //        .SetType(TokenType.Heading)
-        //        .Append(symbol)
-        //        .SetOpening(true)
-        //        .Build());
-        //    tokenBuilder.Clear();
-        //}
-
-        //private int PreviousParagraphLengthSum(string[] paragraphs, int currentParagraph)
-        //{
-        //    return paragraphs.Take(currentParagraph).Sum(p => p.Length);
-        //}
 
         private IEnumerable<IToken> SetSkipForTokens(IEnumerable<IToken> tokens, HashSet<IToken> tokensForSkip)
         {

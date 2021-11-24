@@ -1,8 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Text;
-
-namespace Markdown.Tokens
+﻿namespace Markdown.Tokens
 {
     public class BoldToken : IToken
     {
@@ -18,13 +14,6 @@ namespace Markdown.Tokens
         {
             Position = position;
             IsOpening = isOpening;
-            ShouldBeSkipped = shouldBeSkipped;
-        }
-
-        public BoldToken(BoldToken token, bool shouldBeSkipped)
-        {
-            Position = token.Position;
-            IsOpening = token.IsOpening;
             ShouldBeSkipped = shouldBeSkipped;
         }
 
