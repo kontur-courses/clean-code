@@ -4,10 +4,10 @@ namespace Markdown.Extensions
 {
     internal static class IntExtension
     {
-        public static bool Between(this int source, int left, int right)
+        public static bool IsBetween(this int source, int first, int second)
         {
-            var min = Math.Min(left, right);
-            var max = Math.Max(left, right);
+            var min = Math.Min(first, second);
+            var max = Math.Max(first, second);
 
             return min <= source && source <= max;
         }
