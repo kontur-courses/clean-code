@@ -3,72 +3,87 @@ using System.Linq;
 
 namespace AhoCorasick
 {
-    public class Trie<TValue>
+    public class Trie
     {
-        private readonly Node<TValue> root = new();
+        private readonly Node<string> root = new();
 
-        public void Add(IEnumerable<char> word, TValue value)
+        public void Add(IEnumerable<char> word, string value)
         {
             var node = root;
 
             foreach (var symbol in word)
             {
-                var child = node[symbol] ?? (node[symbol] = new Node<TValue>(symbol, node));
-                node = child;
+                node = node[symbol] ??= new Node<string>(symbol, node);
             }
 
             node.Values.Add(value);
         }
-        
-        public void Build()
-        {
-            var queue = new Queue<Node<TValue>>();
-            queue.Enqueue(root);
 
+        private static IEnumerable<Node<string>> EnumerateBfs(Node<string> startNode)
+        {
+            var queue = new Queue<Node<string>>();
+            queue.Enqueue(startNode);
+            
             while (queue.Any())
             {
                 var node = queue.Dequeue();
+                yield return node;
                 foreach (var child in node)
                     queue.Enqueue(child);
-
+            }
+        }
+        
+        public void Build()
+        {
+            foreach (var node in EnumerateBfs(root))
+            {
                 if (node == root)
                 {
                     root.Suffix = root;
                     continue;
                 }
-
+            
                 var suffix = node.Parent.Suffix;
-
-                while (suffix[node.Word] == null && suffix != root)
+            
+                while (suffix[node.Word] is null && suffix != root)
                     suffix = suffix.Suffix;
-
+            
                 node.Suffix = suffix[node.Word] ?? root;
                 if (node.Suffix == node) 
                     node.Suffix = root;
             }
         }
-        
-        public IEnumerable<(TValue, int)> Find(IEnumerable<char> text)
+
+        private Node<string> GetNextMachineStateBySymbol(Node<string> machineState, char symbol)
         {
-            var node = root;
-            var index = 0;
+            while (machineState[symbol] is null && machineState != root)
+                machineState = machineState.Suffix;
+            return machineState[symbol] ?? root;
+        }
 
-            foreach (var c in text)
+        private IEnumerable<string> GetAllValuesOfState(Node<string> machineState)
+        {
+            while (machineState != root)
             {
-                while (node[c] == null && node != root)
-                    node = node.Suffix;
+                foreach (var value in machineState.Values)
+                    yield return value;
+                machineState = machineState.Suffix;
+            }
+        }
 
-                node = node[c] ?? root;
+        public IEnumerable<(string, int)> Find(string text)
+        {
+            var machineState = root;
 
-                for (var t = node; t != root; t = t.Suffix)
-                {
-                    foreach (var value in t.Values)
-                    {
-                        yield return (value, index - (value.ToString()?.Length - 1) ?? 0);
-                    }
-                }
+            for (var symbolPosition = 0; symbolPosition < text.Length; symbolPosition++)
+            {
+                machineState = GetNextMachineStateBySymbol(machineState, text[symbolPosition]);
                 
-                index++;
+                foreach (var value in GetAllValuesOfState(machineState))
+                {
+                    var foundedWordStartPosition = symbolPosition - value.Length + 1;
+                    yield return (value, foundedWordStartPosition);
+                }
             }
         }
     }

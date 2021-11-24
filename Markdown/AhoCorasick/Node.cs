@@ -22,7 +22,7 @@ namespace AhoCorasick
         
         internal Node<TValue> this[char symbol]
         {
-            get => children.ContainsKey(symbol) ? children[symbol] : null;
+            get => children.TryGetValue(symbol, out var result) ? result : null;
             set => children[symbol] = value;
         }
 
