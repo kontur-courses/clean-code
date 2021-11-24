@@ -36,7 +36,7 @@ namespace Markdown.TokenParser
             {
                 var node = ParseToken(current);
                 if (contexts.TryPeek(out var context))
-                    context.Children.Add(node);
+                    context.AddChild(node);
                 else
                     yield return node;
             }

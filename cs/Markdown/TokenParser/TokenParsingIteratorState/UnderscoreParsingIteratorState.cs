@@ -15,7 +15,7 @@ namespace Markdown.TokenParser.TokenParsingIteratorState
             if (Iterator.TryPopContext(out var context))
                 if (CanCloseContext(context, token))
                 {
-                    if (context.Children.TrueForAll(x => x.Token.Type == TokenType.Text))
+                    if (context.Children.All(x => x.Token.Type == TokenType.Text))
                     {
                         var text = StringUtils.Join(context.Children.Select(x => x.Token));
                         return ShouldParseUnderscoreAsText(context, text)
