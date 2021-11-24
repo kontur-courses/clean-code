@@ -20,7 +20,7 @@ namespace Markdown.TokenParser
             if (buffer.TryDequeue(out var peek))
             {
                 if (buffer.Count > 0) previous = current;
-                Current = peek;
+                current = peek;
                 return true;
             }
 
