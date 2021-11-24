@@ -41,43 +41,41 @@ namespace Markdown.Converter
 
                 if (startToken != null)
                 {
-                    builder.Append(startToken.TagType.GetOpeningHtmlTag());
-                    i += startToken.TagType.MdTag.Length - 1;
+                    builder.Append(startToken.Tag.GetOpeningHtmlTag());
+                    i += startToken.Tag.MdTag.Length - 1;
                     continue;
                 }
+
+                var endPairToken = tokens.FirstOrDefault(token => token.EndPosition == i && token.Tag.IsPairMdTag);
+
+                if (endPairToken != null)
+                {
+                    if (endPairToken.Tag.MdTag.Length > 1 && endPairToken.Tag.IsPairMdTag)
+                        builder.Remove(builder.Length - 1, 1);
+                    builder.Append(endPairToken.Tag.GetClosingHtmlTag());
+                }
+
+                var endNonPairToken = tokens.FirstOrDefault(token => token.EndPosition == i && !token.Tag.IsPairMdTag);
+
+                if (endNonPairToken != null)
+                {
+                    if (endPairToken == null)
+                    {
+                        builder.Append(text[i]);
+                        builder.Append(endNonPairToken.Tag.GetClosingHtmlTag());
+                    }
+                    else
+                        builder.Append(endNonPairToken.Tag.GetClosingHtmlTag());
+                    
+                }
                 
-                if (IsEndOfToken(tokens, text, i, builder)) continue;
+                if (endPairToken != null || endNonPairToken != null)
+                    continue;
 
                 builder.Append(text[i]);
             }
 
             return builder.ToString();
-        }
-
-        private static bool IsEndOfToken(List<IToken> tokens, string text, int i, StringBuilder builder)
-        {
-            var endingTokens = tokens.Where(token => token.EndPosition == i).Reverse().ToList();
-
-            if (endingTokens.Any())
-            {
-                foreach (var token in endingTokens)
-                {
-                    if (endingTokens.Count == 1 && !token.TagType.IsPairMdTag)
-                    {
-                        builder.Append(text[i]);
-                        builder.Append(token.TagType.GetClosingHtmlTag());
-                        continue;
-                    }
-
-                    if (token.TagType.MdTag.Length > 1 && token.TagType.IsPairMdTag)
-                        builder.Remove(builder.Length - 1, 1);
-                    builder.Append(token.TagType.GetClosingHtmlTag());
-                }
-
-                return true;
-            }
-
-            return false;
         }
     }
 }
