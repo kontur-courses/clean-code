@@ -110,22 +110,18 @@ namespace Markdown
         private IToken GetBoldOrItalicToken(Stack<IToken> openedTokens, string markdown, int i, out bool isBold)
         {
             isBold = false;
-            TokenType type;
-            BoldToken boldToken = null;
+            var tokenBuilder = new TokenBuilder();
             if (i + 1 < markdown.Length && markdown[i + 1] == '_')
             {
-                boldToken = new BoldToken(i);
-                type = boldToken.Type;
+                tokenBuilder.SetType(TokenType.Bold).SetPosition(i);
                 isBold = true;
             }
             else
-                type = TokenType.Italics;
+                tokenBuilder.SetType(TokenType.Italics).SetPosition(i);
 
-            var isOpening = IsOpeningToken(type, openedTokens);
-
-            var token = boldToken != null 
-                ? (IToken) new BoldToken(i, isOpening, false) 
-                : new ItalicToken(i, isOpening, false);
+            var isOpening = IsOpeningToken(tokenBuilder.Type, openedTokens);
+            tokenBuilder.SetOpening(isOpening);
+            var token = tokenBuilder.Build();
             if (isOpening)
                 openedTokens.Push(token);
             return token;
