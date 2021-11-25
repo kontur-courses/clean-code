@@ -46,41 +46,20 @@ namespace Markdown
 
         private IToken ChooseTokenBySymbol(TokenBuilder tokenBuilder, string markdown, int position)
         {
-            var tag = new StringBuilder();
-            if (tokensByTags.Keys.Any(key => key.StartsWith(markdown[position])))
-            {
-                tag.Append(markdown[position]);
-                for (var i = position + 1; i < markdown.Length; i++)
-                {
-                    if (tokensByTags.Keys.Any(key => key.StartsWith($"{tag}{markdown[i]}")))
-                        tag.Append(markdown[i]);
-                    else if (tokensByTags.TryGetValue(tag.ToString(), out var tokenGenerator))
-                    {
-                        var token = tokenGenerator(position);
-                        return token;
-                    }
-                    else
-                        tokenBuilder.Append(tag.ToString());
-                }
-                if (position + tag.Length == markdown.Length)
-                    return tokensByTags[tag.ToString()](position);
-            }
-            else
-            {
-                tokenBuilder.SetPosition(position);
-                tokenBuilder.Append(markdown[position]);
-                for (var i = position + 1; i < markdown.Length; i++)
-                {
-                    if (tokensByTags.Keys.Any(key => key.StartsWith(markdown[i])))
-                    {
-                        var token = tokenBuilder.Build();
-                        tokenBuilder.Clear();
-                        return token;
-                    }
-                    tokenBuilder.Append(markdown[i]);
-                }
-            }
-            return tokenBuilder.Build();
+            var tag = tokensByTags.Keys
+                .Where(tag => markdown[position..].StartsWith(tag))
+                .Max();
+            if (tag != null)
+                return tokensByTags[tag](position);
+            var index = position + 1;
+            while (index < markdown.Length
+                   && !tokensByTags.Keys.Any(tag => tag.StartsWith(markdown[index])))
+                index++;
+            var token = tokenBuilder.SetPosition(position)
+                .Append(markdown[position..index])
+                .Build();
+            tokenBuilder.Clear();
+            return token;
         }
 
         private IEnumerable<IToken> SetSkipForTokens(IEnumerable<IToken> tokens, HashSet<IToken> tokensForSkip)
