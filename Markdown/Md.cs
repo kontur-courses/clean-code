@@ -18,7 +18,7 @@ namespace Markdown
         
         private static readonly Tag EmptyTag = Tag.GetOrAddSingleTag("");
         private static readonly Tag UnixNewLineTag = Tag.GetOrAddSingleTag("\n\n");
-        private static readonly Tag WindowsNewLineTag = Tag.GetOrAddSingleTag("\r\n");
+        private static readonly Tag WindowsNewLineTag = Tag.GetOrAddSingleTag("\r\n\r\n");
 
         static Md()
         {
