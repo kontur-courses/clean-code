@@ -1,6 +1,4 @@
-﻿using System;
-using System.Collections;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Linq;
 using Markdown.Tags;
 using Markdown.Tokens;
@@ -11,6 +9,7 @@ namespace Markdown
     {
         private static Dictionary<TagType, int> tagToPriority = new()
         {
+            { TagType.Image, 5 },
             { TagType.Emphasized, 4 },
             { TagType.Strong, 3 },
             { TagType.Header, 1 }
@@ -19,10 +18,7 @@ namespace Markdown
 
         public static IEnumerable<Token> Normalize(IEnumerable<Token> tokens, string text)
         {
-            /*var a = ApplyPriority(tokens).ToArray();
-            var b = a.ExcludeTagsWithNumbersAndWhiteSpaces(text).ToArray();*/
-            
-            return ApplyPriority(tokens).ExcludeTagsWithNumbersAndWhiteSpaces(text).OrderBy(t=>t.Start);
+            return ApplyPriority(tokens).ExcludeTagsWithNumbersAndWhiteSpaces(text).OrderBy(t => t.Start);
         }
 
         private static IEnumerable<Token> ApplyPriority(this IEnumerable<Token> tokens)
@@ -42,21 +38,23 @@ namespace Markdown
                 {
                     token.SwitchToText();
                 }
-                else switch (token.TagRole)
-                {
-                    case TagRole.Closing:
-                        priorityStack.Pop();
-                        break;
-                    case TagRole.Opening:
-                        priorityStack.Push(tagToPriority[token.TagType]);
-                        break;
-                }
+                else
+                    switch (token.TagRole)
+                    {
+                        case TagRole.Closing:
+                            priorityStack.Pop();
+                            break;
+                        case TagRole.Opening:
+                            priorityStack.Push(tagToPriority[token.TagType]);
+                            break;
+                    }
 
                 yield return token;
             }
         }
 
-        private static IEnumerable<Token> ExcludeTagsWithNumbersAndWhiteSpaces(this IEnumerable<Token> tokens, string text)
+        private static IEnumerable<Token> ExcludeTagsWithNumbersAndWhiteSpaces(this IEnumerable<Token> tokens,
+            string text)
         {
             var openingTags = new Stack<Token>();
             foreach (var current in tokens)

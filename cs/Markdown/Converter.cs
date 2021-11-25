@@ -1,6 +1,4 @@
 ﻿using System;
-using System.Diagnostics;
-using System.Linq;
 using System.Text;
 using Markdown.TagStore;
 using Markdown.Tokens;
@@ -37,7 +35,7 @@ namespace Markdown
                         converted.Append('\\');
                         break;
                     default:
-                        throw new ArgumentOutOfRangeException();
+                        throw new ArgumentOutOfRangeException($"Unidentified token type {token.TokenType.ToString()}");
                 }
             }
 

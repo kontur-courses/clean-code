@@ -21,10 +21,10 @@ namespace Markdown.Tests
             A.CallTo(() => tagStore.GetTagType(text, A<int>.Ignored, A<int>.Ignored)).Returns(TagType.Emphasized);
             A.CallTo(() => tagStore.GetTagRole(A<string>.Ignored, A<int>.Ignored, A<int>.Ignored))
                 .ReturnsNextFromSequence(TagRole.Opening, TagRole.Closing, TagRole.Opening, TagRole.Closing);
-            A.CallTo(() => tagStore.GetTagsValues()).Returns(new HashSet<string> { "_" });
+            A.CallTo(() => tagStore.GetTagValues()).Returns(new HashSet<string> { "_" });
             var sut = new Tokenizer(tagStore);
 
-            var tagTokens = sut.Tokenize(text).OrderBy(t=>t.Start).ToArray();
+            var tagTokens = sut.Tokenize(text).OrderBy(t => t.Start).ToArray();
 
             tagTokens.Should().BeEquivalentTo(new[]
             {

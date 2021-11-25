@@ -61,60 +61,14 @@ namespace Markdown.Tokens
                         break;
                     case TagRole.Closing:
                     {
-                        if (tagsStack.Count <= 0)
-                        {
-                            if (undefinedTags.Count > 0 && undefinedTags.Peek().TagType == token.TagType)
-                            {
-                                undefinedTags.Peek().TagRole = TagRole.Opening;
-                                yield return undefinedTags.Pop();
-                                yield return token;
-                                continue;
-                            }
-
-                            token.SwitchToText();
-                            yield return token;
-                            continue;
-                        }
-
-                        var previous = tagsStack.Pop();
-                        if (previous.TagType != token.TagType)
-                        {
-                            previous.SwitchToText();
-                            token.SwitchToText();
-                        }
-                        yield return previous;
-                        yield return token;
+                        foreach (var returnedToken in HandleClosingTag(tagsStack, undefinedTags, token))
+                            yield return returnedToken;
                         break;
                     }
                     case TagRole.Undefined:
-                        if (undefinedTags.Count == 0)
-                        {
-                            if (tagsStack.Count > 0 && tagsStack.Peek().TagType == token.TagType)
-                            {
-                                var textBetween = text.Substring(tagsStack.Peek().End + 1,
-                                    token.Start - tagsStack.Peek().End - 1);
-                                if (!textBetween.Contains(' '))
-                                {
-                                    token.TagRole = TagRole.Closing;
-                                    yield return tagsStack.Pop();
-                                    yield return token;
-                                }
-                                else
-                                    undefinedTags.Push(token);
-                            }
-                            else
-                                undefinedTags.Push(token);
-                        }
-                        else if (undefinedTags.Peek().TagType == token.TagType)
-                        {
-                            undefinedTags.Peek().TagRole = TagRole.Opening;
-                            token.TagRole = TagRole.Closing;
-                            yield return undefinedTags.Pop();
-                            yield return token;
-                        }
-                        else
-                            undefinedTags.Push(token);
-
+                        foreach (var returnedFromUndefinedHandler in HandleUndefinedTag(text, undefinedTags, tagsStack,
+                            token))
+                            yield return returnedFromUndefinedHandler;
                         break;
                     default:
                         yield return token;
@@ -125,6 +79,86 @@ namespace Markdown.Tokens
             foreach (var token in ReturnAsText(undefinedTags)) yield return token;
             foreach (var token in ReturnAsText(tagsStack)) yield return token;
         }
+
+        public static void AddTextBetween(this IList<Token> tokens, TagToken firstTag, TagToken secondTag)
+        {
+            var textStart = firstTag.Start + firstTag.Length;
+            var textLength = secondTag.Start - textStart;
+            if (textLength > 0)
+                tokens.Add(new Token(TokenType.Text, textStart, textLength));
+        }
+
+        public static void AddTextBefore(this IList<Token> tokens, TagToken token)
+        {
+            tokens.AddTextBetween(new TagToken(0, 0), token);
+        }
+
+        public static void AddTextAfter(this IList<Token> tokens, TagToken token, int end)
+        {
+            tokens.AddTextBetween(token, new TagToken(end + 1, 0));
+        }
+
+        private static IEnumerable<Token> HandleUndefinedTag(string text, Stack<Token> undefinedTags,
+            Stack<Token> tagsStack, Token token)
+        {
+            if (undefinedTags.Count == 0)
+            {
+                if (tagsStack.Count > 0 && tagsStack.Peek().TagType == token.TagType)
+                {
+                    var textBetween = text.Substring(tagsStack.Peek().End + 1,
+                        token.Start - tagsStack.Peek().End - 1);
+                    if (!textBetween.Contains(' '))
+                    {
+                        token.TagRole = TagRole.Closing;
+                        yield return tagsStack.Pop();
+                        yield return token;
+                    }
+                    else
+                        undefinedTags.Push(token);
+                }
+                else
+                    undefinedTags.Push(token);
+            }
+            else if (undefinedTags.Peek().TagType == token.TagType)
+            {
+                undefinedTags.Peek().TagRole = TagRole.Opening;
+                token.TagRole = TagRole.Closing;
+                yield return undefinedTags.Pop();
+                yield return token;
+            }
+            else
+                undefinedTags.Push(token);
+        }
+
+        private static IEnumerable<Token> HandleClosingTag(Stack<Token> tagsStack, Stack<Token> undefinedTags,
+            Token token)
+        {
+            if (tagsStack.Count <= 0)
+            {
+                if (undefinedTags.Count > 0 && undefinedTags.Peek().TagType == token.TagType)
+                {
+                    undefinedTags.Peek().TagRole = TagRole.Opening;
+                    yield return undefinedTags.Pop();
+                    yield return token;
+                    yield break;
+                }
+
+                token.SwitchToText();
+                yield return token;
+                yield break;
+            }
+
+            var previous = tagsStack.Pop();
+            if (previous.TagType != token.TagType)
+            {
+                previous.SwitchToText();
+                token.SwitchToText();
+            }
+
+            yield return previous;
+            yield return token;
+        }
+
 
         private static IEnumerable<Token> ReturnAsText(Stack<Token> tokens)
         {

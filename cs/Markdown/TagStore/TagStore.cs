@@ -26,11 +26,12 @@ namespace Markdown.TagStore
 
         public TagType GetTagType(string text, int start, int length)
         {
-            if (text[start] == '\\') return TagType.Escaped;
-            return stringToTag[text.Substring(start, length)].Type;
+            return text[start] == '\\'
+                ? TagType.Escaped
+                : stringToTag[text.Substring(start, length)].Type;
         }
 
-        public HashSet<string> GetTagsValues()
+        public HashSet<string> GetTagValues()
         {
             return stringToTag.Keys.ToHashSet();
         }

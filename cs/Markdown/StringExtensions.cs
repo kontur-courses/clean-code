@@ -1,13 +1,13 @@
 ﻿using System;
-using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
+using Markdown.Tokens;
 
 namespace Markdown
 {
     public static class StringExtensions
     {
-        public static IEnumerable<(int start, int length)> FindAll(this string text, IEnumerable<string> tags)
+        public static IEnumerable<TagToken> FindAll(this string text, IEnumerable<string> tags)
         {
             var foundIndexes = new HashSet<int>();
             foreach (var substring in tags.OrderByDescending(s => s.Length))
@@ -19,7 +19,7 @@ namespace Markdown
                     foundIndexes.Add(j);
                 }
 
-                yield return (i, substring.Length);
+                yield return new TagToken(i, substring.Length);
             }
         }
 

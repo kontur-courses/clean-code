@@ -10,6 +10,7 @@ namespace Markdown.TagStore
             new Tag(TagType.Emphasized, "<em>", "</em>"),
             new Tag(TagType.Strong, "<strong>", "</strong>"),
             new Tag(TagType.Header, "<h1>", "</h1>"),
+            new Tag(TagType.Image, "<img  src=\"", "\">"),
         };
 
         private static readonly Dictionary<string, TagRole> ValueToTagRole = new();

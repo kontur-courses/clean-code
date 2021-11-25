@@ -5,6 +5,7 @@
         Emphasized,
         Strong,
         Header,
-        Escaped
+        Escaped,
+        Image
     }
 }
