@@ -1,6 +1,5 @@
 ﻿using System.Collections.Generic;
 using System.Linq;
-using System.Text;
 
 namespace Markdown
 {
@@ -15,6 +14,12 @@ namespace Markdown
         public string ClosingMarkup => "_";
         public string OpeningTag => "<em>";
         public string ClosingTag => "</em>";
+
+        public void Replace(List<string> builder, int start, int end)
+        {
+            builder[start] = OpeningTag;
+            builder[end] = ClosingTag;
+        }
 
         public bool IsBrokenMarkup(string source, int start, int length)
         {

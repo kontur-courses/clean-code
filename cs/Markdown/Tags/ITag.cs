@@ -1,4 +1,4 @@
-﻿using System;
+﻿using System.Collections.Generic;
 
 namespace Markdown
 {
@@ -9,5 +9,6 @@ namespace Markdown
         string OpeningTag { get; }
         string ClosingTag { get; }
         bool IsBrokenMarkup(string source, int start, int length);
+        void Replace(List<string> builder, int start, int end);
     }
 }

@@ -8,7 +8,7 @@ namespace Markdown
         {
             var converter = new TokenConverter();
             return converter
-                .SetMarkupString(markdown)
+                .Initialize(markdown)
                 .FindTokens()
                 .Build();
         }

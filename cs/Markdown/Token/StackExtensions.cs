@@ -4,7 +4,7 @@ namespace Markdown
 {
     public static class StackExtensions
     {
-        public static bool TryGetPeekItem<T>(this Stack<T> stack, out T item)
+        public static bool TryPeek<T>(this Stack<T> stack, out T item)
             where T : class
         {
             item = null;

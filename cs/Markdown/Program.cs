@@ -7,9 +7,9 @@ namespace Markdown
     {
         static void Main(string[] args)
         {
-            var source = "_\\_a_";
+            var source = "# Заголовок __с _разными_ символами__";
             var converter = new TokenConverter();
-            var tokens = converter.SetMarkupString(source)
+            var tokens = converter.Initialize(source)
                 .FindTokens()
                 .GetTokens().ToList();
             Console.WriteLine(converter.Build());

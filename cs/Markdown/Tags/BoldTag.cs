@@ -15,6 +15,14 @@ namespace Markdown
         public string OpeningTag => "<strong>";
         public string ClosingTag => "</strong>";
 
+        public void Replace(List<string> builder, int start, int end)
+        {
+            builder[start] = OpeningTag;
+            builder[start + 1] = "";
+            builder[end] = ClosingTag;
+            builder[end - 1] = "";
+        }
+
         public bool IsBrokenMarkup(string source, int start, int length)
         {
             return HasEmptyBody(length)

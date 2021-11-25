@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
 
 namespace Markdown
 {
@@ -12,7 +11,7 @@ namespace Markdown
             currentState = startState;
         }
 
-        public static Machine CreateMachine(State startState)
+        public static Machine Create(State startState)
         {
             return new Machine(startState);
         }
@@ -26,19 +25,10 @@ namespace Markdown
             for (var index = 0; index < input.Length; index++)
             {
                 var nextState = GetNextState(input[index]);
-                if (!nextState.Equals(currentState))
-                {
-                    currentState.OnExit(input, index);
-                    currentState = nextState;
-                    currentState.OnEntry(input, index);
-                }
-                else
-                {
-                    currentState.OnStay(input, index);
-                }
+                if (nextState.Equals(currentState)) continue;
+                currentState = nextState;
+                currentState.OnEntry(input, index);
             }
-
-            currentState.OnExit(input, input.Length - 1);
         }
 
         private State GetNextState(char symbol)
