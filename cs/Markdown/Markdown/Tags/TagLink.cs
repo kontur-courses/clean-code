@@ -29,8 +29,8 @@ namespace Markdown.Tags
             {
                 if (currentToken.Value is TagLink link
                     && !link.IsNotToPairTag)
-                {
-                    link.Address = Address;
+                { 
+                    link.Address = Address; 
                     HtmlTokenAnalyzer.MakePair(link, this);
                 }
                 else if (currentToken.Value is ITag tagValue)
