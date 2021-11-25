@@ -8,6 +8,8 @@
         Paragraph,
         BoldText,
         ItalicText,
-        PlainText
+        PlainText,
+        Link,
+        Image
     }   
 }

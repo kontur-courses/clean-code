@@ -10,7 +10,7 @@ namespace Markdown
         public static readonly MdParagraphParser Default = new MdParagraphParser();
         private MdParagraphParser()
         {
-            ChildParsers = new IParser[] { MdBoldTextParser.Default, MdItalicTextParser.Default};
+            ChildParsers = new IParser[] { MdLinkAndImageParser.Instance,  MdBoldTextParser.Default, MdItalicTextParser.Default};
         }
 
         public override ParsingResult Parse(StringWithShielding mdText, int startBoundary, int endBoundary)

@@ -69,5 +69,15 @@ namespace Markdown_Tests
             var actualRender = Md.TranslateToHtml(input);
             Assert.AreEqual(expectedRender, actualRender);
         }
+        
+        [TestCase("[Contribution guidelines for this project](docs/CONTRIBUTING.md)",
+            "<p><a href=\"docs/CONTRIBUTING.md\">Contribution guidelines for this project</a></p>")]
+        [TestCase("![This is an image](https://myoctocat.com/assets/images/base-octocat.svg)",
+            "<p><img src=\"https://myoctocat.com/assets/images/base-octocat.svg\" alt=\"This is an image\"></p>")]
+        public void ImageAndLink_Test(string input, string expectedRender)
+        {
+            var actualRender = Md.TranslateToHtml(input);
+            Assert.AreEqual(expectedRender, actualRender);
+        }
     }
 }

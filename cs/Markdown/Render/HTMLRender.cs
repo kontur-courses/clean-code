@@ -17,7 +17,9 @@ namespace Markdown.Render
                 [TextType.Paragraph] = new RenderInfo(TextType.Paragraph, "<p>", "</p>\n"),
                 [TextType.BoldText] = new RenderInfo(TextType.BoldText, "<strong>", "</strong>"),
                 [TextType.ItalicText] = new RenderInfo(TextType.ItalicText, "<em>", "</em>"),
-                [TextType.PlainText] = new RenderInfo(TextType.PlainText, "", "")
+                [TextType.PlainText] = new RenderInfo(TextType.PlainText, "", ""),
+                [TextType.Link] = new RenderInfo(TextType.PlainText, "", ""),
+                [TextType.Image] = new RenderInfo(TextType.PlainText, "", "")
             };
         }
 
@@ -59,6 +61,16 @@ namespace Markdown.Render
             }
             if (element is HyperTextElement<string> valueElement)
                 currentRender.Append(valueElement.Value);
+            if (element is HyperTextElement<LinkInfo> linkElement)
+            {
+                if (linkElement.Type == TextType.Image)
+                    currentRender.Append($"<img src=\"{linkElement.Value.Source}\" alt=\"{linkElement.Value.Text}\">");
+                else if (linkElement.Type == TextType.Link)
+                    currentRender.Append($"<a href=\"{linkElement.Value.Source}\">{linkElement.Value.Text}</a>");
+                else
+                    throw new ArgumentException("Can't render links of " + linkElement.Type);
+
+            }
             currentRender.Append(renderInfo[element.Type].Suffix);
         }  
     }
