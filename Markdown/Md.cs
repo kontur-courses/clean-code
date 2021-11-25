@@ -2,64 +2,59 @@
 
 namespace Markdown
 {
-    public class Md
+    public static class Md
     {
-        private readonly ITokenParser parser;
-        private readonly ITagTranslator translator;
+        private static readonly ITokenParser MdToHtmlParser;
+        private static readonly ITagTranslator MdToHtmlTagTranslator;
+        
+        private static readonly Tag MdUnderscoreTag = Tag.GetOrAddSymmetricTag("_");
+        private static readonly Tag MdDoubleUnderscoreTag = Tag.GetOrAddSymmetricTag("__");
+        private static readonly Tag MdSharpTag = Tag.GetOrAddSingleTag("# ");
+        private static readonly Tag MdShieldTag = Tag.GetOrAddSingleTag("\\");
+        
+        private static readonly Tag HtmlEmTag = Tag.GetOrAddPairTag("<em>", "</em>");
+        private static readonly Tag HtmlStrongTag = Tag.GetOrAddPairTag("<strong>", "</strong>");
+        private static readonly Tag HtmlH1Tag = Tag.GetOrAddPairTag("<h1>", "</h1>");
+        
+        private static readonly Tag EmptyTag = Tag.GetOrAddSingleTag("");
+        private static readonly Tag UnixNewLineTag = Tag.GetOrAddSingleTag("\n\n");
+        private static readonly Tag WindowsNewLineTag = Tag.GetOrAddSingleTag("\r\n");
 
-        public Md()
+        static Md()
         {
-            var underscoreTag = Tag.GetOrAddSymmetricTag("_");
-            var emTag = Tag.GetOrAddPairTag("<em>", "</em>");
-            var doubleUnderscoreTag = Tag.GetOrAddSymmetricTag("__");
-            var strongTag = Tag.GetOrAddPairTag("<strong>", "</strong>");
-            var firstLineSharpTag = Tag.GetOrAddSingleTag("# ");
-            var h1Tag = Tag.GetOrAddPairTag("<h1>", "</h1>");
-            var shieldTag = Tag.GetOrAddSingleTag("\\");
-            var emptyTag = Tag.GetOrAddSingleTag("");
-            var unixNewLineTag = Tag.GetOrAddSingleTag("\n\n");
-            var windowsNewLineTag = Tag.GetOrAddSingleTag("\r\n");
-            
-            translator = TagTranslatorConfigurator
+            MdToHtmlTagTranslator = TagTranslatorConfigurator
                 .CreateTokenTranslator()
-                .SetReference()
-                    .From(underscoreTag).To(emTag)
-                .SetReference()
-                    .From(doubleUnderscoreTag).To(strongTag)
-                .SetReference()
-                    .From(firstLineSharpTag).To(h1Tag)
-                .SetReference()
-                    .From(shieldTag).To(emptyTag)
+                .SetReference().From(MdUnderscoreTag).To(HtmlEmTag)
+                .SetReference().From(MdDoubleUnderscoreTag).To(HtmlStrongTag)
+                .SetReference().From(MdSharpTag).To(HtmlH1Tag)
+                .SetReference().From(MdShieldTag).To(EmptyTag)
                 .Configure();
 
             var forbiddenInnerTextSymbols = "1234567890 ".ToCharArray();
 
-            parser = TokenParserConfigurator
+            MdToHtmlParser = TokenParserConfigurator
                 .CreateTokenParser()
-                .SetShieldingSymbol(shieldTag)
-                .AddTagInterruptToken(unixNewLineTag)
-                .AddTagInterruptToken(windowsNewLineTag)
-                .AddToken(underscoreTag).That
-                    .CanBeNestedIn(doubleUnderscoreTag).And
-                    .CanBeNestedIn(firstLineSharpTag).And
+                .SetShieldingSymbol(MdShieldTag)
+                .AddTagInterruptToken(UnixNewLineTag)
+                .AddTagInterruptToken(WindowsNewLineTag)
+                .AddToken(MdUnderscoreTag).That
+                    .CanBeNestedIn(MdDoubleUnderscoreTag).And
+                    .CanBeNestedIn(MdSharpTag).And
                     .CantContain(forbiddenInnerTextSymbols)
-                .AddToken(doubleUnderscoreTag).That
-                    .CanBeNestedIn(firstLineSharpTag).And
+                .AddToken(MdDoubleUnderscoreTag).That
+                    .CanBeNestedIn(MdSharpTag).And
                     .CantContain(forbiddenInnerTextSymbols)
-                .AddToken(firstLineSharpTag).That
+                .AddToken(MdSharpTag).That
                     .CanBeInFrontOnly()
                 .Configure();
         }
 
-        public string Render(string input)
+        public static string Render(string input)
         {
-            var tokenSegments = parser
+            var tokenSegments = MdToHtmlParser
                 .FindAllTokens(input)
-                .SelectValid()
-                .ToTokenSegments(parser.GetRules())
-                .ToList();
-
-            return parser.ReplaceTokens(input, tokenSegments, translator);
+                .ToTokenSegments(MdToHtmlParser.GetRules());
+            return MdToHtmlParser.ReplaceTokens(input, tokenSegments, MdToHtmlTagTranslator);
         }
     }
 }

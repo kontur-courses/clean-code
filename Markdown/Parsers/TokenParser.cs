@@ -37,7 +37,9 @@ namespace Markdown
         public TokenInfoCollection FindAllTokens(string text)
         {
             MdExceptionHelper.ThrowArgumentNullExceptionIf(new ExceptionCheckObject(nameof(text), text));
-            return new MdTokenFinder(trie, rules, shieldingSymbol).FindAllTokens(text);
+            return new MdTokenFinder(trie, rules, shieldingSymbol)
+                .FindAllTokens(text)
+                .SelectValid();
         }
     }
 }

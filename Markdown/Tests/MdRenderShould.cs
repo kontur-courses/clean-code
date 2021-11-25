@@ -9,14 +9,6 @@ namespace Markdown
     [TestFixture]
     public class MdRenderShould
     {
-        private Md parser;
-
-        [SetUp]
-        public void SetUp()
-        {
-            parser = new Md();
-        }
-        
         [TestCase("# Hello _World_!! __Th_is__ i_s __a__ __markdown _test_ sentence__", "<h1>Hello <em>World</em>!! __Th_is__ i_s <strong>a</strong> <strong>markdown <em>test</em> sentence</strong></h1>")]
         [TestCase("# _a \n\n a_\n\na", "<h1>_a </h1>\n\n a_\n\na")]
         [TestCase("# _a \n\n# a_\n\na", "<h1>_a </h1>\n\n<h1>a_</h1>\n\na")]
@@ -109,53 +101,49 @@ namespace Markdown
         [TestCase(@"\a \_a_", @"\a _a_")]
         [TestCase(@"\a \\\\\_a_", @"\a \\_a_")]
         [TestCase(@"\a \\_a_", @"\a \<em>a</em>")]
-        public void RenderTest(string text, string expectedResult)
+        public void CorrectRender(string text, string expectedResult)
         {
-            var actual = new Md().Render(text);
-
+            var actual = Md.Render(text);
             actual.Should().Be(expectedResult);
         }
         
-        // [TestCase(" __sf__ ", 100, 6)]
-        // [TestCase(" __sf__ ", 100, 2)]
-        // [TestCase("2s1f", 100, 2)]
-        // [TestCase(" sf ", 100, 8)]
-        // [TestCase(" _s_ \n\n __s__  ", 100, 8)]
-        public void RenderTime_Should(string text, int repetitionsCount, int factor)
+        [TestCase(" __ab__ ", 100, 6)]
+        [TestCase("2a1b", 100, 2)]
+        [TestCase(" ab ", 100, 8)]
+        [TestCase(" _a_ \n\n __a__  ", 100, 8)]
+        public void HaveCorrectRenderTime(string text, int textLenghtFactor, int timeFactor)
         {
-            var firstInputBuilder = new StringBuilder();
-            for (var i = 0; i < repetitionsCount; i++)
-                firstInputBuilder.Append(text);
+            var firstTextBuilder = new StringBuilder();
+            for (var i = 0; i < textLenghtFactor; i++)
+                firstTextBuilder.Append(text);
 
-            var secondInputBuilder = new StringBuilder();
-            for (var i = 0; i < repetitionsCount * factor; i++)
-                secondInputBuilder.Append(text);
+            var secondTextBuilder = new StringBuilder();
+            for (var i = 0; i < textLenghtFactor * timeFactor; i++)
+                secondTextBuilder.Append(text);
 
-            var firstInput = firstInputBuilder.ToString();
-            var secondInput = secondInputBuilder.ToString();
-
-            parser.Render("");
-
+            var firstText = firstTextBuilder.ToString();
+            var secondText = secondTextBuilder.ToString();
+            
             var firstTime = new TimeSpan();
             var secondTime = new TimeSpan();
 
-            for (var j = 0; j < 1000; j++)
+            Md.Render("");
+            for (var i = 0; i < 1000; i++)
             {
                 var firstTimer = new Stopwatch();
                 firstTimer.Start();
-                var a = parser.Render($"# {firstInput}");
+                Md.Render($"# {firstText}");
                 firstTimer.Stop();
-
                 firstTime += firstTimer.Elapsed;
 
                 var secondTimer = new Stopwatch();
                 secondTimer.Start();
-                parser.Render($"# {secondInput}");
+                Md.Render($"# {secondText}");
                 secondTimer.Stop();
                 secondTime += secondTimer.Elapsed;
             }
 
-            secondTime.Should().BeLessThan(firstTime * (1 + factor));
+            secondTime.Should().BeLessThan(firstTime * (1 + timeFactor));
         }
     }
 }
