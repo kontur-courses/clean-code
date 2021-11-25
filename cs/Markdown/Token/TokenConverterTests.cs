@@ -1,4 +1,7 @@
-﻿using System.Linq;
+﻿using System;
+using System.Collections.Generic;
+using System.Diagnostics;
+using System.Linq;
 using NUnit.Framework;
 using FluentAssertions;
 
@@ -471,6 +474,38 @@ namespace Markdown
                 .Build()
                 .Should()
                 .Be(result);
+        }
+
+        [TestCase("__a____a____a__\\_\\_\\_\n# \n")]
+        [TestCase("# Заголовок __с _разными_ символами__")]
+        public void TokenConverter_ShouldHaveLinearComplexity(string source)
+        {
+            const int count = 100;
+            const double precision = 250;
+            var multipliers = new[] {359, 593, 697, 1003};
+            var tgs = new List<double>();
+            Action<string> act = s => converter.Initialize(s).FindTokens().Build();
+            
+            foreach (var mult in multipliers)
+            {
+                var newSource = string.Join("", Enumerable.Range(0, mult).Select(t => source));
+                var dTime = Measure(act, count, newSource);
+                var dx = mult * source.Length;
+                tgs.Add((double) dTime.Ticks / dx);
+            }
+
+            var averageTg = tgs.Sum() / tgs.Count;
+            foreach (var tg in tgs)
+                tg.Should().BeApproximately(averageTg, precision);
+        }
+
+        private static TimeSpan Measure(Action<string> action, int count, string source)
+        {
+            var timer = Stopwatch.StartNew();
+            for (var i = 0; i < count; i++)
+                action(source);
+            timer.Stop();
+            return timer.Elapsed;
         }
     }
 }

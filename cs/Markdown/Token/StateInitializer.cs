@@ -78,14 +78,22 @@
                     var italicsTokens = provider.GetStack(typeof(ItalicsTag));
                     if (!italicsTokens.TryPeek(out var italicsToken))
                         italicsTokens.Push(new Token(i, new ItalicsTag()));
-                    else if (italicsToken.Length != 0)
+                    else if (IsReadyToken(italicsToken))
                         italicsTokens.Push(new Token(i, new ItalicsTag()));
-                    else if (provider.GetStack(typeof(BoldTag)).TryPeek(out var boldToken)
-                             && boldToken.StartPosition > italicsToken.StartPosition)
-                        return;
-                    else
+                    else if (IsNotInnerItalicsToken(italicsToken))
                         italicsToken.Length = i + 1 - italicsToken.StartPosition;
                 });
+        }
+
+        private bool IsNotInnerItalicsToken(Token italicsToken)
+        {
+            return !provider.GetStack(typeof(BoldTag)).TryPeek(out var boldToken)
+                   || boldToken.StartPosition <= italicsToken.StartPosition;
+        }
+
+        private static bool IsReadyToken(Token token)
+        {
+            return token.Length != 0;
         }
 
         private void InitBoldState()
@@ -100,15 +108,19 @@
                     var boldTokens = provider.GetStack(typeof(BoldTag));
                     if (!boldTokens.TryPeek(out var boldToken))
                         boldTokens.Push(new Token(i - 1, new BoldTag()));
-                    else if (boldToken.Length != 0)
+                    else if (IsReadyToken(boldToken))
                         boldTokens.Push(new Token(i - 1, new BoldTag()));
-                    else if (provider.GetStack(typeof(ItalicsTag)).TryPeek(out var italicsToken)
-                             && italicsToken.Length == 0
-                             && boldToken.StartPosition > italicsToken.StartPosition)
+                    else if (IsInnerBoldToken())
                         boldTokens.Pop();
                     else
                         boldToken.Length = i - boldToken.StartPosition + 1;
                 });
+        }
+
+        private bool IsInnerBoldToken()
+        {
+            return provider.GetStack(typeof(ItalicsTag)).TryPeek(out var italicsToken)
+                   && !IsReadyToken(italicsToken);
         }
 
         private void InitHeadingState()
