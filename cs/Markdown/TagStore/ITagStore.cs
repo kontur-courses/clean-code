@@ -1,5 +1,6 @@
 ﻿using System.Collections.Generic;
 using Markdown.Tags;
+using Markdown.Tokens;
 
 namespace Markdown.TagStore
 {
