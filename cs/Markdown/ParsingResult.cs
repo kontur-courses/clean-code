@@ -1,28 +1,35 @@
 ﻿namespace Markdown
 {
+    public enum Status
+    {
+        Success,
+        NotFound,
+        BadResult
+    }
+    
     public class ParsingResult
     {
-        public readonly bool IsSuccess;
+        public readonly Status Status;
         public readonly HyperTextElement Value;
         public readonly int StartIndex;
         public readonly int EndIndex;
 
-        private ParsingResult(bool isSuccess, HyperTextElement value, int start, int end)
+        private ParsingResult(Status status, HyperTextElement value, int start, int end)
         {
-            IsSuccess = isSuccess;
+            Status = status;
             Value = value;
             StartIndex = start;
             EndIndex = end;
         }
 
-        public static ParsingResult Ok(HyperTextElement value, int startIndex, int endIndex)
+        public static ParsingResult Success(HyperTextElement value, int startIndex, int endIndex)
         {
-            return new ParsingResult(true, value, startIndex, endIndex);
+            return new ParsingResult(Status.Success, value, startIndex, endIndex);
         }
 
-        public static ParsingResult Fail()
+        public static ParsingResult Fail(Status reason)
         {
-            return new ParsingResult(false, null, 0, 0);
+            return new ParsingResult(reason, null, 0, 0);
         }
     }
 }

@@ -20,22 +20,22 @@ namespace Markdown
             while (index <= endBoundary)
             {
                 var result = childParsers.Select(parser => parser.Parse(mdText, index, endBoundary))
-                    .FirstOrDefault(r => r.IsSuccess);
+                    .FirstOrDefault(r => r.Status == Status.Success);
                 if (result is null)
                     break;
                 elements.Add(result.Value);
                 index = result.EndIndex + 1;
             }
             if (elements.Count == 0)
-                return ParsingResult.Fail();
+                return ParsingResult.Fail(Status.NotFound);
             var tempElement = new HyperTextElement(TextType.Body, elements.ToArray());
-            return ParsingResult.Ok(tempElement, startBoundary, index);
+            return ParsingResult.Success(tempElement, startBoundary, index);
         }
 
         public ParsingResult Parse(StringWithShielding mdText)
         {
             if (mdText.Length == 0)
-                return ParsingResult.Ok(new HyperTextElement(TextType.Body), 0, 0);
+                return ParsingResult.Success(new HyperTextElement(TextType.Body), 0, 0);
             return Parse(mdText, 0, mdText.Length - 1);
         }
     }

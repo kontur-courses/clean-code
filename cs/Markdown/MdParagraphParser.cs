@@ -24,7 +24,7 @@ namespace Markdown
             }
             var (paragraphEnd, childrenEnd) = FindParagraphEnd(mdText, startBoundary, endBoundary);
             var children = ParseChildren(type, mdText, childrenStart, childrenEnd);
-            return !children.IsSuccess ? children : ParsingResult.Ok(children.Value, startBoundary, paragraphEnd);
+            return children.Status != Status.Success ? children : ParsingResult.Success(children.Value, startBoundary, paragraphEnd);
         }
 
         private static (int paragraphEnd, int childBlockEnd)  FindParagraphEnd(StringWithShielding mdText, int startBoundary, int endBoundary)

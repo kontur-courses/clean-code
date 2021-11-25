@@ -19,11 +19,21 @@ namespace Markdown
         {
             var elements = new List<HyperTextElement>();
             var currentPlainTextStart = startBoundary;
+            var ignoredParsers = new HashSet<IParser>();
             for (var index = startBoundary; index <= endBoundary; index++)
             {
-                var result = ChildParsers.Select(parser => parser.Parse(text, index, endBoundary))
-                    .FirstOrDefault(r => r.IsSuccess);
-                if (result is null)
+                ParsingResult result = null;
+                foreach (var parser in ChildParsers.Where(parser => !ignoredParsers.Contains(parser)))
+                {
+                    result = parser.Parse(text, index, endBoundary);
+                    if (result.Status == Status.NotFound)
+                        continue;
+                    if (result.Status == Status.Success)
+                        break;
+                    if (result.Status == Status.BadResult)
+                        ignoredParsers.Add(parser);
+                }
+                if (result is not { Status: Status.Success })
                     continue;
                 if (currentPlainTextStart != index)
                     elements.Add(new HyperTextElement<string>(TextType.PlainText,
@@ -36,9 +46,9 @@ namespace Markdown
                 elements.Add(new HyperTextElement<string>(TextType.PlainText,
                     text.ShieldedSubstring(currentPlainTextStart, endBoundary)));
             if (elements.Count == 0)
-                return ParsingResult.Fail();
+                return ParsingResult.Fail(Status.NotFound);
             var tempElement = new HyperTextElement(parentType, elements.ToArray());
-            return ParsingResult.Ok(tempElement, startBoundary, endBoundary);
+            return ParsingResult.Success(tempElement, startBoundary, endBoundary);
         }
     }
 }

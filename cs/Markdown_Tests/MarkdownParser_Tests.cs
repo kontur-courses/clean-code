@@ -34,7 +34,7 @@ namespace Markdown_Tests
             ParsingResult result = null;
             Action parseAction = () => result = mdParser.Parse(shielded);
             parseAction.Should().NotThrow();
-            result.IsSuccess.Should().BeTrue();
+            result.Status.Should().Be(Status.Success);
         }
 
         [Test]
@@ -123,14 +123,13 @@ namespace Markdown_Tests
         [Test]
         public void Parse_ShieldedBoldQuotes()
         {
-            var text = GetShieldedString("asd\\__asd  f__ ");
+            var text = GetShieldedString("\\__asdasd  f_");
             var actual = mdParser.Parse(text).Value;
             var expected =  new HyperTextElement(TextType.Body,
                 new HyperTextElement(TextType.Paragraph, 
-                    new HyperTextElement<string>(TextType.PlainText, "asd_"),
+                    new HyperTextElement<string>(TextType.PlainText, "_"),
                                  new HyperTextElement(TextType.ItalicText, 
-                                     new HyperTextElement<string>(TextType.PlainText, "asd  f")),
-                                 new HyperTextElement<string>(TextType.PlainText, "_ ")));
+                                     new HyperTextElement<string>(TextType.PlainText, "asdasd  f"))));
             actual.Should().BeEquivalentTo(expected, 
                 config => config.AllowingInfiniteRecursion());
         }

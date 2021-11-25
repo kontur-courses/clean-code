@@ -18,7 +18,7 @@ namespace Markdown
             var shieldedText = new StringWithShielding(mdText, ShieldingSymbol, '!',
                 new HashSet<char>() { ItalicQuotes, HeaderSymbol });
             var parseResult = mdParser.Parse(shieldedText);
-            if (!parseResult.IsSuccess)
+            if (parseResult.Status != Status.Success)
                 throw new ArgumentException("Incorrect");
             return htmlRenderer.Render(parseResult.Value);
         }
