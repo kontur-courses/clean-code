@@ -23,10 +23,6 @@ namespace MarkdownTests
         [TestCaseSource(nameof(CasesForDoubleUnderscore))]
         [TestCaseSource(nameof(CasesForInteractBetweenUnderscores))]
         [TestCase("No Header", "No Header", TestName = "No tags do not create any tag")]
-        [TestCase("a_b__c__d_e", "a<em>b__c__d</em>e")]
-        [TestCase("a_b__c_d__e", "a_b__c_d__e")]
-        [TestCase("_bc _", "_bc _")]
-        [TestCase("__bc __", "__bc __")]
         [TestCase("# ab# c", "<h1>ab# c</h1>")]
         public void Render_Should(string markdown, string expected)
         {
@@ -66,6 +62,10 @@ namespace MarkdownTests
                 yield return new TestCaseData("# aa\r\n# aa",
                         "<h1>aa</h1>\r\n<h1>aa</h1>")
                     .SetName("Heading should creates in new paragraph");
+                yield return new TestCaseData("# ab# c", "<h1>ab# c</h1>")
+                    .SetName("Heading inside paragraph doesn't create any tag");
+
+                
             }
         }
 
@@ -101,6 +101,8 @@ namespace MarkdownTests
                     .SetName("Underscore doesn't create tag inside digits");
                 yield return new TestCaseData("__", "__")
                     .SetName("Underscore doesn't create tag when empty string");
+                yield return new TestCaseData("_bc _", "_bc _")
+                    .SetName("Closing underscore after space doesn't create any tag");
             }
         }
 
@@ -151,6 +153,8 @@ namespace MarkdownTests
                 yield return new TestCaseData("__test __test",
                         "__test __test")
                     .SetName("Double underscore at begin of word not close tag");
+                yield return new TestCaseData("__bc __", "__bc __")
+                    .SetName("Closing double underscore after space doesn't create any tag");
             }
         }
 
@@ -178,6 +182,11 @@ namespace MarkdownTests
                 yield return new TestCaseData("a __a _a__ a_ a",
                         "a __a _a__ a_ a")
                     .SetName("Intersected underscores in middle of sentence don't create any tag");
+                yield return new TestCaseData("a_b__c__d_e", "a<em>b__c__d</em>e")
+                    .SetName("Double underscore inside unary doesn't create tag");
+                yield return new TestCaseData("a_b__c_d__e", "a_b__c_d__e")
+                    .SetName("Double underscore inside unary doesn't create tag");
+
             }
         }
     }
