@@ -14,7 +14,7 @@ namespace Markdown
 
             foreach (var token in tokens)
             {
-                if (token.ShouldBeSkipped)
+                if (token.ShouldShowValue)
                     htmlMarkup.Append(token.Value);
                 else
                     htmlMarkup.Append(token.IsOpening

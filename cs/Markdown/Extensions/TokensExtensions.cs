@@ -8,7 +8,9 @@ namespace Markdown.Extensions
     public static class TokensExtensions
     {
         public static HashSet<IToken> GetForbiddenTokens(this IEnumerable<IToken> tokens,
-            IEnumerable<PairedToken> pairedTokens, HashSet<IToken> unpairedTokens)
+            IEnumerable<PairedToken> pairedTokens, 
+            HashSet<IToken> unpairedTokens, 
+            string markdown)
         {
             var forbiddenTokens = pairedTokens.GetIntersectedTokens(
                 (i, b) => i.From.Position < b.From.Position
@@ -61,7 +63,6 @@ namespace Markdown.Extensions
                 var isMiddleTokenMatched = false;
                 var isRightTokenBeginsOnSpace = false;
                 var isLastToken = false;
-                var flag = false;
                 foreach (var token in tokens)
                 {
                     if (token == pair.From && previousContent != token)

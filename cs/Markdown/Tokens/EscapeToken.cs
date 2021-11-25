@@ -1,15 +1,37 @@
-﻿namespace Markdown.Tokens
+﻿using System.Collections.Generic;
+using Markdown.Extensions;
+
+namespace Markdown.Tokens
 {
     public class EscapeToken : IToken
     {
-        public const char FirstSymbol = '\\';
+        public const string MdTag = "\\";
 
         public string Value => "\\";
         public TokenType Type => TokenType.Escape;
         public int Position { get; }
-        public bool IsOpening => false;
-        public bool ShouldBeSkipped { get; }
+        public bool IsOpening { get; private set; }
+        public bool ShouldShowValue { get; private set; }
         public string OpeningTag => Value;
         public string ClosingTag => Value;
+        public bool ShouldBeIgnored { get; private set; }
+        public int SkipLength => 1;
+
+        public EscapeToken(int position)
+        {
+            Position = position;
+        }
+
+        public void SetIsOpening(string markdown, HashSet<TokenType> tokens)
+        {
+            IsOpening = false;
+        }
+
+        public void Validate(string markdown, IEnumerable<IToken> tokens)
+        {
+            ShouldShowValue = true;
+            var isNotLast = Position + Value.Length < markdown.Length;
+            ShouldBeIgnored = isNotLast && markdown[Position + Value.Length].IsTagSymbol();
+        }
     }
 }

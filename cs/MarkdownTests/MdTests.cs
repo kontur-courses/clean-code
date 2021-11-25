@@ -12,7 +12,7 @@ namespace MarkdownTests
         [SetUp]
         public void SetUp()
         {
-            var stringTranslator = new MdToTokenTranslator();
+            var stringTranslator = new MdToTokenTranslator(MdTagSet.TokensByTags);
             var tokenTranslator = new TokenToHtmlTranslator();
             md = new Md(stringTranslator, tokenTranslator);
         }
@@ -52,7 +52,7 @@ namespace MarkdownTests
                         "<h1>Header <strong>works <em>with</em> tag</strong> inside</h1>")
                     .SetName("Header with underscores inside create tags");
                 yield return new TestCaseData("# abc _test __def__ test_",
-                        "<h1>abc _test __def__ test_</h1>")
+                        "<h1>abc <em>test __def__ test</em></h1>")
                     .SetName("Ignore double inside unary underscore");
                 yield return new TestCaseData("# abc __test _def__ test_",
                         "<h1>abc __test _def__ test_</h1>")

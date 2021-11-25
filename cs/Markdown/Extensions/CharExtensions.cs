@@ -12,7 +12,7 @@ namespace Markdown.Extensions
         {
             yield return new ItalicToken(0).Value[0];
             yield return new HeadingToken(0, true).Value[0];
-            yield return new EscapeToken().Value[0];
+            yield return new EscapeToken(0).Value[0];
         }
 
         public static bool IsTagSymbol(this char s)

@@ -1,4 +1,6 @@
-﻿namespace Markdown.Tokens
+﻿using System.Collections.Generic;
+
+namespace Markdown.Tokens
 {
     public interface IToken
     {
@@ -7,8 +9,13 @@
         public int Length => Value.Length;
         public int Position { get; }
         public bool IsOpening { get; }
-        public bool ShouldBeSkipped { get; }
+        public bool ShouldShowValue { get; }
+        public bool ShouldBeIgnored { get; }
         public string OpeningTag { get; }
         public string ClosingTag { get; }
+        public int SkipLength { get; }
+
+        public void Validate(string markdown, IEnumerable<IToken> tokens);
+        public void SetIsOpening(string markdown, HashSet<TokenType> tokens);
     }
 }

@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Runtime.Serialization;
+using System.Text;
 using Markdown.Extensions;
 using Markdown.Tokens;
 using Microsoft.VisualBasic;
@@ -10,104 +11,78 @@ namespace Markdown
 {
     public class MdToTokenTranslator : IStringTranslator
     {
+        private readonly IReadOnlyDictionary<string, Func<int, IToken>> tokensByTags;
+
+        public MdToTokenTranslator(IReadOnlyDictionary<string, Func<int, IToken>> tokensByTags)
+        {
+            this.tokensByTags = tokensByTags;
+        }
+
         public IEnumerable<IToken> Translate(string markdown)
         {
             var tokens = new List<IToken>();
             var tokenBuilder = new TokenBuilder();
-            //var isHeadingTokenOpened = false;
             var openedTokens = new HashSet<TokenType>();
             for (var i = 0; i < markdown.Length; i++)
             {
-                switch (markdown[i])
+                var token = ChooseTokenBySymbol(tokenBuilder, markdown, i);
+                i += token.Length - 1;
+                token.SetIsOpening(markdown, openedTokens);
+                token.Validate(markdown, tokens);
+                if (token.ShouldBeIgnored)
                 {
-                    case HeadingToken.FirstSymbol:
-                        var isNewParagraph = i == 0 || HeadingToken.NewParagraphSymbols.Any(s => markdown[i - 1] == s);
-                        var isHeading = i + 1 < markdown.Length && markdown[i + 1] == HeadingToken.SecondSymbol;
-                        var isHeadingOpened = isHeading && isNewParagraph;
-                        AnalyzeTagSymbol(openedTokens, tokens, tokenBuilder, 
-                            markdown, i,  isHeadingOpened,
-                            condition => condition ? TokenType.Heading : TokenType.Content);
-                        if (isHeadingOpened)
-                            i++;
-                        break;
-                    case BoldToken.FirstSymbol:
-                        var isBold = i + 1 < markdown.Length && markdown[i + 1] == BoldToken.SecondSymbol;
-                        AnalyzeTagSymbol(openedTokens, tokens, tokenBuilder,
-                            markdown, i, isBold,
-                            condition => condition ? TokenType.Bold : TokenType.Italics);
-                        if (isBold)
-                            i++;
-                        break;
-                    case EscapeToken.FirstSymbol:
-                        if (i + 1 < markdown.Length && markdown[i + 1].IsTagSymbol())
-                        {
-                            i++;
-                            tokenBuilder.Append(markdown[i]);
-                        }
-                        else 
-                            tokenBuilder.Append(markdown[i]);
-                        break;
-                    case '\r':
-                    case '\n':
-                        isHeadingOpened = openedTokens.Contains(TokenType.Heading);
-                        AnalyzeTagSymbol(openedTokens, tokens, tokenBuilder, 
-                            markdown, i, isHeadingOpened,
-                            condition => condition ? TokenType.Heading : TokenType.Content);
-                        if (isHeadingOpened)
-                            tokenBuilder.Append(markdown[i]);
-                        openedTokens.Clear();
-                        break;
-                    default:
-                        tokenBuilder.Append(markdown[i]);
-                        break;
+                    tokenBuilder.Append(markdown[i + token.SkipLength]);
+                    i += token.SkipLength;
                 }
+                else 
+                    tokens.Add(token);
             }
-            tokens.Add(tokenBuilder.Build());
-            if (openedTokens.Contains(TokenType.Heading))
-                tokens.Add(new HeadingToken(markdown.Length - 1, false));
 
             var unpairedTokens = new HashSet<IToken>();
             var pairedTokens = PairedToken.GetPairedTokens(tokens, unpairedTokens);
             tokens.RemoveAll(token => token.Length == 0);
-            var forbiddenTokens = tokens.GetForbiddenTokens(pairedTokens, unpairedTokens);
+            var forbiddenTokens = tokens.GetForbiddenTokens(pairedTokens, unpairedTokens, markdown);
             var resultTokens = SetSkipForTokens(tokens, forbiddenTokens).ToList();
             return resultTokens.OrderBy(token => token.Position);
         }
 
-        private void AnalyzeTagSymbol(HashSet<TokenType> openedTokens,
-            List<IToken> tokens,
-            TokenBuilder tokenBuilder,
-            string markdown,
-            int i, 
-            bool conditionForType,
-            Func<bool, TokenType> typeCreator)
+        private IToken ChooseTokenBySymbol(TokenBuilder tokenBuilder, string markdown, int position)
         {
-            var type = typeCreator(conditionForType);
-            var isOpening = IsOpeningToken(type, openedTokens);
-            if (type != TokenType.Content)
+            var tag = new StringBuilder();
+            if (tokensByTags.Keys.Any(key => key.StartsWith(markdown[position])))
             {
-                tokens.Add(tokenBuilder.Build());
-                tokenBuilder.Clear();
-                tokenBuilder.SetType(type);
-                tokenBuilder.SetOpening(isOpening);
-                tokenBuilder.SetPosition(i);
-                tokens.Add(tokenBuilder.Build());
-                tokenBuilder.Clear();
-                tokenBuilder.SetPosition(i + 1);
+                tag.Append(markdown[position]);
+                for (var i = position + 1; i < markdown.Length; i++)
+                {
+                    if (tokensByTags.Keys.Any(key => key.StartsWith($"{tag}{markdown[i]}")))
+                        tag.Append(markdown[i]);
+                    else if (tokensByTags.TryGetValue(tag.ToString(), out var tokenGenerator))
+                    {
+                        var token = tokenGenerator(position);
+                        return token;
+                    }
+                    else
+                        tokenBuilder.Append(tag.ToString());
+                }
+                if (position + tag.Length == markdown.Length)
+                    return tokensByTags[tag.ToString()](position);
             }
-            else 
-                tokenBuilder.Append(markdown[i]);
-        }
-
-        private bool IsOpeningToken(TokenType type, HashSet<TokenType> openedTokens)
-        {
-            if (openedTokens.Contains(type))
+            else
             {
-                openedTokens.Remove(type);
-                return false;
+                tokenBuilder.SetPosition(position);
+                tokenBuilder.Append(markdown[position]);
+                for (var i = position + 1; i < markdown.Length; i++)
+                {
+                    if (tokensByTags.Keys.Any(key => key.StartsWith(markdown[i])))
+                    {
+                        var token = tokenBuilder.Build();
+                        tokenBuilder.Clear();
+                        return token;
+                    }
+                    tokenBuilder.Append(markdown[i]);
+                }
             }
-            openedTokens.Add(type);
-            return true;
+            return tokenBuilder.Build();
         }
 
         private IEnumerable<IToken> SetSkipForTokens(IEnumerable<IToken> tokens, HashSet<IToken> tokensForSkip)
@@ -117,7 +92,6 @@ namespace Markdown
             {
                 if (tokensForSkip.Contains(token))
                     yield return tokenBuilder.SetSettingsByToken(token)
-                        .SetSkip(true)
                         .Build();
                 else
                     yield return token;
