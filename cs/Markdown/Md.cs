@@ -11,12 +11,14 @@ namespace Markdown
         public const char ShieldingSymbol = '\\';
         public const char HeaderSymbol = '#';
         
-        public static string Render(string mdText)
+        public static string TranslateToHtml(string mdText)
         {
-            var mdParser = new MdParser();
-            var htmlRenderer = new HtmlRender();
-            var parseResult = mdParser.Parse(mdText);
-            if (parseResult.Failure)
+            var mdParser = MdParser.Default;
+            var htmlRenderer = HtmlRender.Default;
+            var shieldedText = new StringWithShielding(mdText, ShieldingSymbol, '!',
+                new HashSet<char>() { ItalicQuotes, HeaderSymbol });
+            var parseResult = mdParser.Parse(shieldedText);
+            if (!parseResult.IsSuccess)
                 throw new ArgumentException("Incorrect");
             return htmlRenderer.Render(parseResult.Value);
         }

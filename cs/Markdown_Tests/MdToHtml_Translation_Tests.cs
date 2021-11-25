@@ -1,8 +1,8 @@
 ﻿using System;
+using Markdown;
 using NUnit.Framework;
-using NUnit.Framework.Internal;
 
-namespace Markdown.Tests
+namespace Markdown_Tests
 {
     [TestFixture]
     public class MdToHtml_Translation_Tests
@@ -11,7 +11,7 @@ namespace Markdown.Tests
         public void Test()
         {
             var text = "Текст, _окруженный с двух сторон_ одинарными символами подчерка, должен помещаться в HTML-тег <em>";
-            Console.WriteLine(Md.Render(text));
+            Console.WriteLine(Md.TranslateToHtml(text));
         }
         
         [TestCase("Текст, _окруженный с двух сторон_ одинарными символами подчерка, должен помещаться в HTML-тег <em>",
@@ -22,7 +22,7 @@ namespace Markdown.Tests
             "<h1>Заголовок <strong>с <em>разными</em> символами</strong></h1>")]
         public void Render_Test(string input, string expectedRender)
         {
-            var actualRender = Md.Render(input);
+            var actualRender = Md.TranslateToHtml(input);
             Assert.AreEqual(expectedRender, actualRender);
         }
     }

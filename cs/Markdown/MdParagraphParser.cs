@@ -5,14 +5,15 @@ using System.Text;
 
 namespace Markdown
 {
-    public class MdParagraphParser : ParentParser
+    public class MdParagraphParser : ParserBase
     {
-        public MdParagraphParser()
+        public static readonly MdParagraphParser Default = new MdParagraphParser();
+        private MdParagraphParser()
         {
-            ChildParsers = new IParser[] { new MdBoldTextParser(), new MdItalicTextParser()};
+            ChildParsers = new IParser[] { MdBoldTextParser.Default, MdItalicTextParser.Default};
         }
 
-        public override ParsingResult Parse(string mdText, int startBoundary, int endBoundary)
+        public override ParsingResult Parse(StringWithShielding mdText, int startBoundary, int endBoundary)
         {
             var type = TextType.Paragraph;
             var childrenStart = startBoundary;
@@ -23,14 +24,10 @@ namespace Markdown
             }
             var (paragraphEnd, childrenEnd) = FindParagraphEnd(mdText, startBoundary, endBoundary);
             var children = ParseChildren(type, mdText, childrenStart, childrenEnd);
-            if (children.Failure)
-                return children;
-            children.StartIndex = startBoundary;
-            children.EndIndex = paragraphEnd;
-            return children;
+            return !children.IsSuccess ? children : ParsingResult.Ok(children.Value, startBoundary, paragraphEnd);
         }
 
-        private static (int paragraphEnd, int childBlockEnd)  FindParagraphEnd(string mdText, int startBoundary, int endBoundary)
+        private static (int paragraphEnd, int childBlockEnd)  FindParagraphEnd(StringWithShielding mdText, int startBoundary, int endBoundary)
         {
             var paragraphEnd = mdText.IndexOf('\n', startBoundary);
             if (paragraphEnd < 0 || paragraphEnd > endBoundary)

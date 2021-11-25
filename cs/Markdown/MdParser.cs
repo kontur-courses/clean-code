@@ -7,19 +7,20 @@ namespace Markdown
     public class MdParser : IParser
     {
         private readonly IParser[] childParsers;
-        public MdParser()
+        public static readonly MdParser Default = new MdParser();
+        private MdParser()
         {
-            childParsers = new IParser[] { new MdParagraphParser() };
+            childParsers = new IParser[] { MdParagraphParser.Default };
         }
         
-        private  ParsingResult ParseChildren(string text, int startBoundary, int endBoundary)
+        private  ParsingResult ParseChildren(StringWithShielding text, int startBoundary, int endBoundary)
         {
             var elements = new List<HyperTextElement>();
             var index = startBoundary;
             while (index <= endBoundary)
             {
                 var result = childParsers.Select(parser => parser.Parse(text, index, endBoundary))
-                    .FirstOrDefault(r => r.Success);
+                    .FirstOrDefault(r => r.IsSuccess);
                 if (result is null)
                     break;
                 elements.Add(result.Value);
@@ -31,14 +32,14 @@ namespace Markdown
             return ParsingResult.Ok(tempElement, startBoundary, index);
         }
         
-        public ParsingResult Parse(string mdText, int startBoundary, int endBoundary)
+        public ParsingResult Parse(StringWithShielding mdText, int startBoundary, int endBoundary)
         {
             var parsed = ParseChildren(mdText, startBoundary, endBoundary);
             parsed.Value.Type = TextType.Body;
             return parsed;
         }
 
-        public ParsingResult Parse(string mdText)
+        public ParsingResult Parse(StringWithShielding mdText)
         {
             return Parse(mdText, 0, mdText.Length - 1);
         }

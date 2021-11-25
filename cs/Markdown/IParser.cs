@@ -2,6 +2,6 @@
 {
     public interface IParser
     {
-        ParsingResult Parse(string mdText, int startBoundary, int endBoundary);
+        ParsingResult Parse(StringWithShielding mdText, int startBoundary, int endBoundary);
     }
 }

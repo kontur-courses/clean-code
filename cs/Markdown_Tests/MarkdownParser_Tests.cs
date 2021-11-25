@@ -1,8 +1,10 @@
 ﻿using System;
+using System.Collections.Generic;
 using FluentAssertions;
+using Markdown;
 using NUnit.Framework;
 
-namespace Markdown.Tests
+namespace Markdown_Tests
 {
     [TestFixture]
     public class MarkdownParser_Tests
@@ -12,20 +14,27 @@ namespace Markdown.Tests
         [SetUp]
         public void SetUp()
         {
-            mdParser = new MdParser();
+            mdParser = MdParser.Default;
+        }
+
+        public static StringWithShielding GetShieldedString(string s)
+        {
+            return new StringWithShielding(s, Md.ShieldingSymbol, '!',
+                new HashSet<char>() { Md.ItalicQuotes, Md.HeaderSymbol });
         }
         
         [TestCase("qwerty")]
         public void Parse_ValidText_NotThrows(string text)
         {
-            Action parseAction = () => mdParser.Parse(text);
+            var shielded = GetShieldedString(text);
+            Action parseAction = () => mdParser.Parse(shielded);
             parseAction.Should().NotThrow();
         }
 
         [Test]
         public void Parse_SimplePlainText()
         {
-            var text = "qwerty";
+            var text = GetShieldedString("qwerty");
             var actual = mdParser.Parse(text).Value;
             var expected = new HyperTextElement(TextType.Body, 
                 new HyperTextElement(TextType.Paragraph, new HyperTextElement<string>(TextType.PlainText, "qwerty")));
@@ -35,7 +44,7 @@ namespace Markdown.Tests
         [Test]
         public void Parse_SimpleItalicText()
         {
-            var text = "_qwerty_";
+            var text = GetShieldedString("_qwerty_");
             var actual = mdParser.Parse(text).Value;
             var expected = new HyperTextElement(TextType.Body, 
                 new HyperTextElement(TextType.Paragraph, 
@@ -47,7 +56,7 @@ namespace Markdown.Tests
         [Test]
         public void Parse_SimpleBoldText()
         {
-            var text = "__qwerty__";
+            var text = GetShieldedString("__qwerty__");
             var actual = mdParser.Parse(text).Value;
             var expected = new HyperTextElement(TextType.Body, 
                 new HyperTextElement(TextType.Paragraph, 
@@ -59,7 +68,7 @@ namespace Markdown.Tests
         [Test]
         public void Parse_HeaderPlainText()
         {
-            var text = "#qwerty";
+            var text = GetShieldedString("# qwerty");
             var actual = mdParser.Parse(text).Value;
             var expected = new HyperTextElement(TextType.Body, 
                 new HyperTextElement(TextType.Header, new HyperTextElement<string>(TextType.PlainText, "qwerty")));
@@ -69,7 +78,7 @@ namespace Markdown.Tests
         [Test]
         public void Parse_MultipleParagraphs()
         {
-            var text = "qwerty\r\n_qwerty_";
+            var text = GetShieldedString("qwerty\r\n_qwerty_");
             var actual = mdParser.Parse(text).Value;
             var expected = new HyperTextElement(TextType.Body, 
                 new HyperTextElement(TextType.Paragraph, 
@@ -83,7 +92,7 @@ namespace Markdown.Tests
         [Test]
         public void Parse_MultipleTypeTextInParagraph()
         {
-            var text = "__qwerty___hello_world";
+            var text = GetShieldedString("__qwerty___hello_world");
             var actual = mdParser.Parse(text).Value;
             var expected = new HyperTextElement(TextType.Body, 
                 new HyperTextElement(TextType.Paragraph, 

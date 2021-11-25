@@ -3,9 +3,13 @@ using System.Collections.Generic;
 
 namespace Markdown
 {
-    public class MdItalicTextParser : ParentParser
+    public class MdItalicTextParser : ParserBase
     {
-        public override ParsingResult Parse(string mdText, int startBoundary, int endBoundary)
+        public static readonly MdItalicTextParser Default = new MdItalicTextParser();
+        
+        private MdItalicTextParser(){}
+        
+        public override ParsingResult Parse(StringWithShielding mdText, int startBoundary, int endBoundary)
         {
             if (mdText[startBoundary] != Md.ItalicQuotes
                 || mdText[startBoundary + 1] == ' ')
@@ -14,10 +18,10 @@ namespace Markdown
             if (endQuotesIndex > endBoundary || endQuotesIndex == -1)
                 return ParsingResult.Fail();
             var children = ParseChildren(TextType.ItalicText, mdText, startBoundary + 1, endQuotesIndex - 1);
-            return children.Failure ? children : ParsingResult.Ok(children.Value, startBoundary, endQuotesIndex);
+            return !children.IsSuccess ? children : ParsingResult.Ok(children.Value, startBoundary, endQuotesIndex);
         }
 
-        private static int FindEndQuotes(string mdText, int startBoundary, int endBoundary)
+        private static int FindEndQuotes(StringWithShielding mdText, int startBoundary, int endBoundary)
         {
             for (var i = startBoundary + 1; i <= endBoundary; i++)
             {

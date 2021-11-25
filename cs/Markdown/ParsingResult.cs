@@ -2,15 +2,14 @@
 {
     public class ParsingResult
     {
-        public bool Success;
-        public bool Failure => !Success;
-        public HyperTextElement Value;
-        public int StartIndex;
-        public int EndIndex;
+        public readonly bool IsSuccess;
+        public readonly HyperTextElement Value;
+        public readonly int StartIndex;
+        public readonly int EndIndex;
 
-        private ParsingResult(bool success, HyperTextElement value, int start, int end)
+        private ParsingResult(bool isSuccess, HyperTextElement value, int start, int end)
         {
-            Success = success;
+            IsSuccess = isSuccess;
             Value = value;
             StartIndex = start;
             EndIndex = end;
