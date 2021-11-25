@@ -7,25 +7,23 @@ namespace Markdown
     internal class Tag
     {
         private static readonly ConcurrentDictionary<string, Tag> Tags = new();
-        private readonly string start;
 
         public string Start { get; }
         public string End { get; }
 
         private Tag() {}
 
-        private Tag(string openWord, string closeWord = null)
+        private Tag(string openWord, string closeWord)
         {
             MdExceptionHelper.ThrowArgumentNullExceptionIf(new ExceptionCheckObject(nameof(openWord), openWord));
-            start = openWord;
-
-            Start = start;
-            if (closeWord is not null) End = closeWord;
+            
+            Start = openWord;
+            End = closeWord;
         }
 
         public static Tag GetOrAddSingleTag(string tag)
         {
-            return Tags.GetOrAdd(tag, new Tag(tag));
+            return Tags.GetOrAdd(tag, new Tag(tag, null));
         }
         
         public static Tag GetOrAddSymmetricTag(string tag)
@@ -56,12 +54,12 @@ namespace Markdown
 
         private bool Equals(Tag other)
         {
-            return start == other.start;
+            return Start == other.Start;
         }
 
         public override int GetHashCode()
         {
-            return start.GetHashCode();
+            return End is not null ? HashCode.Combine(Start, End) : Start.GetHashCode();
         }
     }
 }
