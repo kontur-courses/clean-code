@@ -1,5 +1,5 @@
-﻿using System.Collections.Generic;
-using Markdown.Parsers;
+﻿using Markdown.Parsers;
+using System.Collections.Generic;
 
 namespace Markdown
 {

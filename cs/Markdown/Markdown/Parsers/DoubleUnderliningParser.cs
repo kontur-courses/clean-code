@@ -1,5 +1,5 @@
-﻿using System.Text;
-using Markdown.Tags;
+﻿using Markdown.Tags;
+using System.Text;
 
 namespace Markdown.Parsers
 {

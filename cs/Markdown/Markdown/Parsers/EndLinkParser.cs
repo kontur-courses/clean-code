@@ -1,6 +1,5 @@
-﻿using System.Linq;
+﻿using Markdown.Tags;
 using System.Text;
-using Markdown.Tags;
 
 namespace Markdown.Parsers
 {
@@ -12,7 +11,7 @@ namespace Markdown.Parsers
                 return null;
 
             string address = null;
-            if (line[i + 1] == '(' && line.IndexOf(')', i+1) != -1)
+            if (line[i + 1] == '(' && line.IndexOf(')', i + 1) != -1)
             {
                 var start = line.IndexOf('(', i);
                 var finish = line.IndexOf(')', i);

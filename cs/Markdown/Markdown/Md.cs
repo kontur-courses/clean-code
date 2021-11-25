@@ -1,4 +1,5 @@
-﻿using System.Text;
+﻿using Markdown.Parsers;
+using System.Text;
 
 namespace Markdown
 {
@@ -7,10 +8,10 @@ namespace Markdown
         public string Render(string markdownText)
         {
             var htmlLinesBuilder = new StringBuilder();
-            var lines = markdownText.Split(new[] {'\r','\n'});
-            if (HasHeader(lines[0]))
+            var lines = markdownText.Split(new[] { '\r', '\n' });
+            if (new HeaderParser().TryGetToken(0, ref lines[0]) != null)
             {
-                lines[lines.Length-1] += "#";
+                lines[lines.Length - 1] += "#";
                 lines[0] = "#" + lines[0].Substring(2);
             }
 
@@ -23,11 +24,6 @@ namespace Markdown
                     htmlLinesBuilder.Append('\n');
             }
             return htmlLinesBuilder.ToString();
-        }
-
-        private static bool HasHeader(string line)
-        {
-            return line[0] == '#';
         }
     }
 }

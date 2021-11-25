@@ -40,7 +40,7 @@ namespace Markdown.Tags
                 }
                 if (!(currentToken.Value is TokenWord tokenWord
                       && tokenWord.Content.Length == 0))
-                        onlyEmptyStrings = false;
+                    onlyEmptyStrings = false;
                 currentToken = currentToken.Previous;
             }
         }

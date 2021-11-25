@@ -28,8 +28,8 @@ namespace Markdown.Tags
                 if ((currentToken.Value is ITag currentTag && currentTag.IsNotToPairTag))
                     break;
 
-                if (currentToken.Value is TagItalic currentAsItalic 
-                    && !currentAsItalic.IsClosed 
+                if (currentToken.Value is TagItalic currentAsItalic
+                    && !currentAsItalic.IsClosed
                     && !currentAsItalic.IsNotToPairTag)
                 {
                     IsNotToPairTag = true;

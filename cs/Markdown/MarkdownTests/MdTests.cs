@@ -46,7 +46,7 @@ namespace MarkdownTests
             TestName = "Simple Header Test")]
 
         [TestCase(
-            @"# Заголовок __с _разными_ символами__", 
+            @"# Заголовок __с _разными_ символами__",
             @"<h1>Заголовок <strong>с <em>разными</em> символами</strong></h1>",
             TestName = "Header And Underlines Test")]
         public void HeadersShouldHandled(string input, string expectedResult)
