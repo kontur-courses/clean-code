@@ -11,6 +11,7 @@
 
         public TokenInfo(int position, string token, bool closeValid = false, bool openValid = false, bool wordPartPlaced = false, bool valid = false)
         {
+            MdExceptionHelper.ThrowArgumentNullExceptionIf(new ExceptionCheckObject(nameof(token), token));
             Position = position;
             Token = token;
             CloseValid = closeValid;

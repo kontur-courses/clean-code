@@ -9,6 +9,7 @@ namespace Markdown
 
         internal SegmentsCollection(IEnumerable<TokenSegment> segments)
         {
+            MdExceptionHelper.ThrowArgumentNullExceptionIf(new ExceptionCheckObject(nameof(segments), segments));
             this.segments = segments;
         }
 

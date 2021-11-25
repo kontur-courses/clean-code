@@ -10,6 +10,7 @@ namespace Markdown
         {
             foreach (var (name, obj) in objects)
             {
+                if (name is null) throw new ArgumentException("object name can not be null");
                 if (obj is null) throw new ArgumentNullException(name);
             }
         }

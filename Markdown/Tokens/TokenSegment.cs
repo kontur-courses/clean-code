@@ -16,7 +16,7 @@ namespace Markdown
 
         internal TokenSegment(TokenInfo first, TokenInfo second = null)
         {
-            if (first is null) throw new ArgumentNullException();
+            MdExceptionHelper.ThrowArgumentNullExceptionIf(new ExceptionCheckObject(nameof(first), first));
 
             tag = second is null 
                 ? Tag.GetOrAddSingleTag(first.Token) 

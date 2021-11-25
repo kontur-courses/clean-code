@@ -19,7 +19,11 @@ namespace Markdown
 
         public Segmenter(IEnumerable<TokenInfo> tokens, TagRules rules)
         {
-            this.tokens = tokens ?? throw new ArgumentNullException();
+            MdExceptionHelper.ThrowArgumentNullExceptionIf(
+                new ExceptionCheckObject(nameof(tokens), tokens),
+                new ExceptionCheckObject(nameof(rules), rules));
+            
+            this.tokens = tokens;
             this.rules = rules;
         }
 

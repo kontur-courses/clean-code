@@ -14,15 +14,18 @@ namespace Markdown
         
         public StringHelper(TagRules rules, string text)
         {
+            MdExceptionHelper.ThrowArgumentNullExceptionIf(
+                new ExceptionCheckObject(nameof(rules), rules),
+                new ExceptionCheckObject(nameof(text), text));
             this.rules = rules;
             this.text = text;
         }
 
         private static TokenInfo GetCloseToken(TokenSegment segment)
         {
-           return new TokenInfo(
-               segment.GetBaseTag().End is null ? -1 : segment.EndPosition, 
-               segment.GetBaseTag().End ?? segment.GetBaseTag().Start, true);
+            return new TokenInfo(
+                segment.GetBaseTag().End is null ? -1 : segment.EndPosition,
+                segment.GetBaseTag().End ?? segment.GetBaseTag().Start, true);
         }
         
         private static TokenInfo GetOpenToken(TokenSegment segment)
@@ -52,6 +55,10 @@ namespace Markdown
         
         public string ReplaceTokens(SegmentsCollection tokenSegments, ITagTranslator translator)
         {
+            MdExceptionHelper.ThrowArgumentNullExceptionIf(
+                new ExceptionCheckObject(nameof(tokenSegments), tokenSegments),
+                new ExceptionCheckObject(nameof(translator), translator));
+            
             var lastTokenEndIndex = 0;
 
             foreach (var (position, token, _, isOpenToken, _, _) in DecomposeIntoTokens(tokenSegments))
