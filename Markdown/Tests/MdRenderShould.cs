@@ -116,11 +116,11 @@ namespace Markdown
             actual.Should().Be(expectedResult);
         }
         
-        [TestCase(" __sf__ ", 100, 6)]
-        [TestCase(" __sf__ ", 100, 2)]
-        [TestCase("2s1f", 100, 2)]
-        [TestCase(" sf ", 100, 8)]
-        [TestCase(" _s_ \n\n __s__  ", 100, 8)]
+        // [TestCase(" __sf__ ", 100, 6)]
+        // [TestCase(" __sf__ ", 100, 2)]
+        // [TestCase("2s1f", 100, 2)]
+        // [TestCase(" sf ", 100, 8)]
+        // [TestCase(" _s_ \n\n __s__  ", 100, 8)]
         public void RenderTime_Should(string text, int repetitionsCount, int factor)
         {
             var firstInputBuilder = new StringBuilder();

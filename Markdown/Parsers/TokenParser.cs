@@ -60,50 +60,9 @@ namespace Markdown
             return result.ToString();
         }
 
-        public TokenInfoCollection FindAllTokens(string paragraph)
+        public TokenInfoCollection FindAllTokens(string text)
         {
-            var tokenInfos = new Dictionary<int, TokenInfo>();
-            var currentSearchStartIndex = 0;
-            var lastIndex = 0;
-            TokenInfo lastShieldToken = null;
-
-            foreach (var (token, index) in trie.Find(paragraph))
-            {
-                if (token is null || currentSearchStartIndex > index && lastIndex != index) continue;
-                if (shieldingSymbol is not null 
-                    && lastShieldToken is not null 
-                    && lastShieldToken.Position + shieldingSymbol.Length == index)
-                {
-                    lastShieldToken = null;
-                    continue;
-                }
-
-                if (lastShieldToken is not null)
-                {
-                    lastShieldToken.Valid = false;
-                }
-
-                var closeValid = index > 0 && !char.IsWhiteSpace(paragraph[index - 1]);
-                var openValid = index < paragraph.Length - token.Length 
-                                && !char.IsWhiteSpace(paragraph[index + token.Length]);
-
-                var isTokenShieldSymbol = shieldingSymbol == token;
-                
-                var tokenInfo = new TokenInfo(
-                    index,
-                    token, closeValid, openValid,
-                    closeValid && openValid,
-                    closeValid || openValid || isTokenShieldSymbol || rules.IsInterruptTag(Tag.GetTagByChars(token))
-                );
-                
-                tokenInfos[lastIndex = index] = tokenInfo;
-                currentSearchStartIndex = index + token.Length;
-
-                if (isTokenShieldSymbol)
-                    lastShieldToken = tokenInfo;
-            }
-            
-            return new TokenInfoCollection(tokenInfos.Select(x => x.Value));
+            return new MdTokenFinder(trie, rules, shieldingSymbol).FindAllTokens(text);
         }
     }
 }
