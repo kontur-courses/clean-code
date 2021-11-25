@@ -61,14 +61,15 @@ namespace Markdown
             
             var lastTokenEndIndex = 0;
 
-            foreach (var (position, token, _, isOpenToken, _, _) in DecomposeIntoTokens(tokenSegments))
+            foreach (var tokenInfo in DecomposeIntoTokens(tokenSegments))
             {
+                var (position, token, _, isOpenToken, _, _) = tokenInfo;
                 builder.Append(text.Substring(lastTokenEndIndex, position - lastTokenEndIndex));
                 
-                if (rules.IsInterruptTag(Tag.GetTagByChars(token)))
+                if (rules.IsInterruptTag(tokenInfo.Tag))
                     CloseAllSingleTokens();
                 
-                var tag = Tag.GetTagByChars(token);
+                var tag = tokenInfo.Tag;
                 var translatedTag = translator.Translate(tag);
                 builder.Append(isOpenToken ? translatedTag.Start : translatedTag.End);
                 

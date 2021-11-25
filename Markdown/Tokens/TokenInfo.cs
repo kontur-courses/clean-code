@@ -8,6 +8,7 @@
         public bool OpenValid { get; }
         public bool WordPartPlaced { get; }
         public bool Valid { get; set; }
+        public Tag Tag => Tag.GetTagByChars(Token);
 
         public TokenInfo(int position, string token, bool closeValid = false, bool openValid = false, bool wordPartPlaced = false, bool valid = false)
         {

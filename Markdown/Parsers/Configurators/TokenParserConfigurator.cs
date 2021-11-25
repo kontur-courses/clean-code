@@ -32,11 +32,11 @@ namespace Markdown
             return new PreferTokenRulesConfigurator(Config);
         }
 
-        public TokenParserConfigurator AddTagInterruptToken(Tag token)
+        public TokenParserConfigurator AddTagInterruptToken(Tag tag)
         {
-            MdExceptionHelper.ThrowArgumentNullExceptionIf(new ExceptionCheckObject(nameof(token), token));
+            MdExceptionHelper.ThrowArgumentNullExceptionIf(new ExceptionCheckObject(nameof(tag), tag));
             
-            Config.InterruptTokens.Add(token.Start);
+            Config.InterruptTags.Add(tag);
             return this;
         }
 
@@ -55,10 +55,10 @@ namespace Markdown
                 throw new ArgumentException($"shielding symbol can not be {Config.ShieldingSymbol.Symbol.Start}, because it's already added like token");
             
             var trie = new Trie();
-            foreach (var token in Config.InterruptTokens)
+            foreach (var token in Config.InterruptTags)
             {
-                Config.TagRules.AddTagInterruptTag(Tag.GetTagByChars(token));
-                trie.Add(token, token);
+                Config.TagRules.AddTagInterruptTag(token);
+                trie.Add(token.Start, token.Start);
             }
             foreach (var token in Config.Tokens)
                 trie.Add(token, token);

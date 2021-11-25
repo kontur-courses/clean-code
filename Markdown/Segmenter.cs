@@ -69,7 +69,7 @@ namespace Markdown
         private bool DoesMatchNestingRule(TokenSegment segment)
         {
             if (!tokenStack.Any()) return true;
-            if (rules.CanBeNested(Tag.GetTagByChars(tokenStack.Peek().Token), segment.GetBaseTag())) return true;
+            if (rules.CanBeNested(tokenStack.Peek().Tag, segment.GetBaseTag())) return true;
             var allowPosition = tokenStack.Peek().Position;
             if (!allowWaitTokens.ContainsKey(allowPosition)) allowWaitTokens[allowPosition] = new List<TokenSegment>();
             allowWaitTokens[allowPosition].Add(segment);
@@ -107,7 +107,7 @@ namespace Markdown
 
         private void HandleSingleToken(TokenInfo tokenInfo, out TokenSegment segment)
         {
-            if (rules.IsInterruptTag(Tag.GetTagByChars(tokenInfo.Token)))
+            if (rules.IsInterruptTag(tokenInfo.Tag))
             {
                 newLineStartIndex = tokenInfo.Position + tokenInfo.Token.Length;
                 GoToNextLine();
@@ -116,7 +116,7 @@ namespace Markdown
 
             foreach (var openedTokenInfo in currentOpenedTag)
             {
-                if (!rules.CanContain(Tag.GetTagByChars(openedTokenInfo.Token), segment.GetBaseTag()))
+                if (!rules.CanContain(openedTokenInfo.Tag, segment.GetBaseTag()))
                 {
                     if (openedTokenInfo.WordPartPlaced)
                         ignoredTokens.Add(openedTokenInfo);
@@ -142,10 +142,9 @@ namespace Markdown
         {
             foreach (var tokenInfo in tokens)
             {
-                var (_, token, _, _, _, _) = tokenInfo;
                 TokenSegment segment;
                 
-                if (Tag.GetTagByChars(token).End is null) HandleSingleToken(tokenInfo, out segment);
+                if (tokenInfo.Tag.End is null) HandleSingleToken(tokenInfo, out segment);
                 else HandlePairToken(tokenInfo, out segment);
                 if (segment is not null) yield return segment;
             }
