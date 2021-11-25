@@ -14,8 +14,9 @@ namespace Markdown.Tokens
         public string OpeningTag { get; }
         public string ClosingTag { get; }
         public int SkipLength { get; }
+        public bool ShouldBeClosed { get; }
 
         public void Validate(string markdown, IEnumerable<IToken> tokens);
-        public void SetIsOpening(string markdown, HashSet<TokenType> tokens);
+        public void SetIsOpening(TokenBuilder tokenBuilder, string markdown, HashSet<TokenType> tokens);
     }
 }

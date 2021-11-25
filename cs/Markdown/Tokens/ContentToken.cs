@@ -13,6 +13,7 @@ namespace Markdown.Tokens
         public string OpeningTag => Value;
         public string ClosingTag => Value;
         public int SkipLength => 0;
+        public bool ShouldBeClosed => false;
 
         public ContentToken(string value, int position)
         {
@@ -24,7 +25,8 @@ namespace Markdown.Tokens
         {
         }
 
-        public void SetIsOpening(string markdown, HashSet<TokenType> tokens)
+        public void SetIsOpening(TokenBuilder tokenBuilder, string markdown,
+            HashSet<TokenType> tokens)
         {
         }
     }

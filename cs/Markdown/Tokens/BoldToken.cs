@@ -15,6 +15,7 @@ namespace Markdown.Tokens
         public string ClosingTag => "</strong>";
         public bool ShouldBeIgnored => false;
         public int SkipLength => 0;
+        public bool ShouldBeClosed => false;
 
         public BoldToken(int position)
         {
@@ -26,7 +27,8 @@ namespace Markdown.Tokens
 
         }
 
-        public void SetIsOpening(string markdown, HashSet<TokenType> tokens)
+        public void SetIsOpening(TokenBuilder tokenBuilder, string markdown,
+            HashSet<TokenType> tokens)
         {
             var isNotFirst = Position != 0;
             var isNotLast = Position + Value.Length < markdown.Length;

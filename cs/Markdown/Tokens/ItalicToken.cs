@@ -15,6 +15,7 @@ namespace Markdown.Tokens
         public int SkipLength => 0;
         public string OpeningTag => "<em>";
         public string ClosingTag => "</em>";
+        public bool ShouldBeClosed => false;
 
         public ItalicToken(int position, bool isOpening, bool shouldBeSkipped)
         {
@@ -28,7 +29,8 @@ namespace Markdown.Tokens
             Position = position;
         }
 
-        public void SetIsOpening(string markdown, HashSet<TokenType> tokens)
+        public void SetIsOpening(TokenBuilder tokenBuilder, string markdown, 
+            HashSet<TokenType> tokens)
         {
             var isNotFirst = Position != 0;
             var isNotLast = Position + Value.Length < markdown.Length;

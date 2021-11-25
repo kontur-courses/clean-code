@@ -22,27 +22,54 @@ namespace Markdown.Tokens
             var closedTokens = new Queue<IToken>();
             foreach (var token in tokens)
             {
-                if (token.Type == TokenType.Content || token.Type == TokenType.Heading)
+                if (token.Type == TokenType.Content || token.Type == TokenType.Heading) 
+                {
+                    if (token.Value.Contains('\n'))
+                        UnionAndClear(openedTokens, closedTokens, unpairedTokens);
                     continue;
+                }
+
                 if (token.IsOpening)
                     openedTokens.Push(token);
                 else
                     closedTokens.Enqueue(token);
+                if (openedTokens.Count != closedTokens.Count) continue;
+                if (CompareTokensByType(openedTokens, closedTokens, unpairedTokens,
+                    out var openToken, out var closeToken))
+                    yield return new PairedToken(openToken, closeToken);
             }
 
             var minCount = Math.Min(openedTokens.Count, closedTokens.Count);
             while (minCount > 0)
             {
-                var openToken = openedTokens.Pop();
-                var closeToken = closedTokens.Dequeue();
-                if (openToken.Type != closeToken.Type)
-                    unpairedTokens.UnionWith(new[] {openToken, closeToken});
-                else
+                if (CompareTokensByType(openedTokens, closedTokens, unpairedTokens, 
+                    out var openToken, out var closeToken))
                     yield return new PairedToken(openToken, closeToken);
                 minCount--;
             }
+            UnionAndClear(openedTokens, closedTokens, unpairedTokens);
+        }
+
+        private static bool CompareTokensByType(Stack<IToken> openedTokens, 
+            Queue<IToken> closedTokens, 
+            HashSet<IToken> unpairedTokens, out IToken openToken,
+            out IToken closeToken)
+        {
+            openToken = openedTokens.Pop();
+            closeToken = closedTokens.Dequeue();
+            if (openToken.Type == closeToken.Type) return true;
+            unpairedTokens.UnionWith(new[] {openToken, closeToken});
+            return false;
+        }
+
+        private static void UnionAndClear(Stack<IToken> openedTokens,
+            Queue<IToken> closedTokens,
+            HashSet<IToken> unpairedTokens)
+        {
             unpairedTokens.UnionWith(openedTokens);
             unpairedTokens.UnionWith(closedTokens);
+            openedTokens.Clear();
+            closedTokens.Clear();
         }
 
         public bool IsPairsIntersect(PairedToken pt)

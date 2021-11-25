@@ -7,6 +7,7 @@ namespace Markdown.Tokens
         private int position;
         private readonly StringBuilder valueBuilder = new StringBuilder();
 
+        public string CurrentValue => valueBuilder.ToString();
         public TokenType Type { get; private set; }
 
         public TokenBuilder SetPosition(int position)

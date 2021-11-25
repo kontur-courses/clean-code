@@ -16,13 +16,15 @@ namespace Markdown.Tokens
         public string ClosingTag => Value;
         public bool ShouldBeIgnored { get; private set; }
         public int SkipLength => 1;
+        public bool ShouldBeClosed => false;
 
         public EscapeToken(int position)
         {
             Position = position;
         }
 
-        public void SetIsOpening(string markdown, HashSet<TokenType> tokens)
+        public void SetIsOpening(TokenBuilder tokenBuilder, string markdown,
+            HashSet<TokenType> tokens)
         {
             IsOpening = false;
         }

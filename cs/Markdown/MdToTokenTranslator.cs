@@ -25,17 +25,28 @@ namespace Markdown
             {
                 var token = ChooseTokenBySymbol(tokenBuilder, markdown, i);
                 i += token.Length - 1;
-                token.SetIsOpening(markdown, openedTokens);
+                token.SetIsOpening(tokenBuilder, markdown, openedTokens);
                 token.Validate(markdown, tokens);
                 if (token.ShouldBeIgnored)
                 {
-                    tokenBuilder.Append(markdown[i + token.SkipLength]);
                     i += token.SkipLength;
+                    tokenBuilder.SetPosition(i)
+                        .Append(markdown[i]);
+                    tokens.Add(tokenBuilder.Build());
+                    tokenBuilder.Clear();
                 }
                 else 
                     tokens.Add(token);
             }
 
+            var tokenToClose = tokens.FirstOrDefault(t => t.ShouldBeClosed);
+            if (tokenToClose != null)
+            {
+                var token = tokensByTags[tokenToClose.Value](markdown.Length - 1);
+                token.SetIsOpening(tokenBuilder, markdown, openedTokens);
+                tokens.Add(token);
+            }
+            
             var unpairedTokens = new HashSet<IToken>();
             var pairedTokens = PairedToken.GetPairedTokens(tokens, unpairedTokens);
             tokens.RemoveAll(token => token.Length == 0);
@@ -46,6 +57,8 @@ namespace Markdown
 
         private IToken ChooseTokenBySymbol(TokenBuilder tokenBuilder, string markdown, int position)
         {
+            //if (tokenBuilder.CurrentValue != "")
+                
             var tag = tokensByTags.Keys
                 .Where(tag => markdown[position..].StartsWith(tag))
                 .Max();

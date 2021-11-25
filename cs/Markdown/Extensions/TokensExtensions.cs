@@ -27,10 +27,6 @@ namespace Markdown.Extensions
             forbiddenTokens.UnionWith(tokens.GetEmptyTokens());
 
             forbiddenTokens.UnionWith(unpairedTokens);
-            forbiddenTokens.UnionWith(tokens.GetTokensByRule(pairedTokens,
-                (x, y, z) => (x || z) && y,
-                c => c != ' ',
-                x => !x));
 
             forbiddenTokens.UnionWith(tokens.GetTokensByRule(pairedTokens,
                 (x, y, z) => x && y && z,
