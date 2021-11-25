@@ -12,7 +12,7 @@ namespace Markdown
         public override ParsingResult Parse(StringWithShielding mdText, int startBoundary, int endBoundary)
         {
             if (mdText[startBoundary] != Md.ItalicQuotes
-                || mdText[startBoundary + 1] == ' ')
+                || startBoundary == endBoundary || mdText[startBoundary + 1] == ' ')
                 return ParsingResult.Fail();
             var endQuotesIndex = FindEndQuotes(mdText, startBoundary, endBoundary);
             if (endQuotesIndex > endBoundary || endQuotesIndex == -1)

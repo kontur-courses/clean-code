@@ -20,6 +20,18 @@ namespace Markdown_Tests
             "<p><strong>Выделенный двумя символами текст</strong> должен становиться полужирным с помощью тега <strong></p>")]
         [TestCase("# Заголовок __с _разными_ символами__",
             "<h1>Заголовок <strong>с <em>разными</em> символами</strong></h1>")]
+        [TestCase("\\_Вот это\\_, не должно выделиться тегом <em>",
+            "<p>_Вот это_, не должно выделиться тегом <em></p>")]
+        [TestCase("\\_ \\_\\_",
+            "<p>_ __</p>")]
+        [TestCase("сл\\эш",
+            "<p>сл\\эш</p>")]
+        [TestCase("\\\\",
+            "<p>\\</p>")]
+        [TestCase("\\\\_Крусив_",
+            "<p>\\<em>Крусив</em></p>")]
+        [TestCase("\\\\__Жирный__",
+            "<p>\\<strong>Жирный</strong></p>")]
         public void Render_Test(string input, string expectedRender)
         {
             var actualRender = Md.TranslateToHtml(input);

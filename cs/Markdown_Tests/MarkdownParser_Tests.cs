@@ -24,11 +24,17 @@ namespace Markdown_Tests
         }
         
         [TestCase("qwerty")]
-        public void Parse_ValidText_NotThrows(string text)
+        [TestCase("qwerty_")]
+        [TestCase("qwerty__")]
+        [TestCase("")]
+        [TestCase("1")]
+        public void Parse_ValidText_NotThrowsAndSuccess(string text)
         {
             var shielded = GetShieldedString(text);
-            Action parseAction = () => mdParser.Parse(shielded);
+            ParsingResult result = null;
+            Action parseAction = () => result = mdParser.Parse(shielded);
             parseAction.Should().NotThrow();
+            result.IsSuccess.Should().BeTrue();
         }
 
         [Test]
@@ -100,6 +106,44 @@ namespace Markdown_Tests
                                  new HyperTextElement(TextType.ItalicText, 
                                      new HyperTextElement<string>(TextType.PlainText, "hello")), 
                                  new HyperTextElement<string>(TextType.PlainText, "world")));
+            actual.Should().BeEquivalentTo(expected);
+        }
+
+        [Test]
+        public void Parse_ShieldedItalicQuotes_PlainText()
+        {
+            var text = GetShieldedString("asd\\_asd  _ ");
+            var actual = mdParser.Parse(text).Value;
+            var expected =  new HyperTextElement(TextType.Body,
+                new HyperTextElement(TextType.Paragraph, 
+                    new HyperTextElement<string>(TextType.PlainText, "asd_asd  _")));
+            actual.Should().BeEquivalentTo(expected);
+        }
+        
+        [Test]
+        public void Parse_ShieldedBoldQuotes()
+        {
+            var text = GetShieldedString("asd\\__asd  f__ ");
+            var actual = mdParser.Parse(text).Value;
+            var expected =  new HyperTextElement(TextType.Body,
+                new HyperTextElement(TextType.Paragraph, 
+                    new HyperTextElement<string>(TextType.PlainText, "asd_"),
+                                 new HyperTextElement(TextType.ItalicText, 
+                                     new HyperTextElement<string>(TextType.PlainText, "asd  f")),
+                                 new HyperTextElement<string>(TextType.PlainText, "_ ")));
+            actual.Should().BeEquivalentTo(expected, 
+                config => config.AllowingInfiniteRecursion());
+        }
+
+        [Test]
+        public void Parse_ShieldedShielding()
+        {
+            var text = GetShieldedString("_Hi\\\\_");
+            var actual = mdParser.Parse(text).Value;
+            var expected =  new HyperTextElement(TextType.Body,
+                new HyperTextElement(TextType.Paragraph, 
+                    new HyperTextElement(TextType.ItalicText, 
+                        new HyperTextElement<string>(TextType.PlainText, "Hi\\"))));
             actual.Should().BeEquivalentTo(expected);
         }
     }

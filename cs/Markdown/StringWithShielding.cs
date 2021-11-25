@@ -28,8 +28,13 @@ namespace Markdown
             {
                 if (index >= Text.Length)
                     throw new IndexOutOfRangeException();
-                if (index > 0  && Text[index - 1] == ShieldingSymbol && FunctionSymbols.Contains(Text[index]))
-                    return ShieldingReplacement;
+                if (index > 0  &&  FunctionSymbols.Contains(Text[index]))
+                {
+                    var shieldingCount = 0;
+                    for (var i = index - 1; i >= 0 && Text[i] == ShieldingSymbol; i--)
+                        shieldingCount++;
+                    return shieldingCount % 2 == 1 ? ShieldingReplacement : Text[index];
+                }
                 return Text[index];
             }
         }
@@ -41,8 +46,17 @@ namespace Markdown
             var substring = new StringBuilder();
             for (var i = startIndex; i <= endIndex; i++)
             {
-                if (i + 1 <= endIndex && Text[i] == ShieldingSymbol && FunctionSymbols.Contains(Text[i+1]))
-                    continue;
+                if (i + 1 <= endIndex && Text[i] == ShieldingSymbol)
+                {
+                    if (FunctionSymbols.Contains(Text[i+1]))
+                        continue;
+                    if (Text[i+1] == ShieldingSymbol)
+                    {
+                        substring.Append(ShieldingSymbol);
+                        i++;
+                        continue;
+                    }
+                }
                 substring.Append(Text[i]);
             }
             return substring.ToString();

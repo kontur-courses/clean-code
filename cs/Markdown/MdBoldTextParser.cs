@@ -13,7 +13,7 @@ namespace Markdown
         public override ParsingResult Parse(StringWithShielding mdText, int startBoundary, int endBoundary)
         {
             if (!mdText.ContainsAt(startBoundary, Md.BoldQuotes)
-                || mdText[startBoundary + 2] == ' ')
+                || startBoundary >= endBoundary - 1 || mdText[startBoundary + 2] == ' ')
                 return ParsingResult.Fail();
             var endQuotesIndex = FindEndQuotes(mdText, startBoundary, endBoundary);
             if (endQuotesIndex > endBoundary || endQuotesIndex == -1)
