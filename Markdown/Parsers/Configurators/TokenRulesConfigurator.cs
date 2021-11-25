@@ -33,7 +33,7 @@
             MdExceptionHelper.ThrowArgumentNullExceptionIf(new ExceptionCheckObject(nameof(symbols), symbols));
             foreach (var symbol in symbols)
             {
-                config.TagRules.SetRule(config.LastAddedToken, Tag.GetOrAddSingleTag(symbol.ToString()), InteractType.Contain);
+                config.TagRules.SetRule(config.LastAddedToken, TagFactory.GetOrAddSingleTag(symbol.ToString()), InteractType.Contain);
                 config.Tokens.Add(symbol.ToString());
             }
             

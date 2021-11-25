@@ -7,18 +7,18 @@ namespace Markdown
         private static readonly ITokenParser MdToHtmlParser;
         private static readonly ITagTranslator MdToHtmlTagTranslator;
         
-        private static readonly Tag MdUnderscoreTag = Tag.GetOrAddSymmetricTag("_");
-        private static readonly Tag MdDoubleUnderscoreTag = Tag.GetOrAddSymmetricTag("__");
-        private static readonly Tag MdSharpTag = Tag.GetOrAddSingleTag("# ");
-        private static readonly Tag MdShieldTag = Tag.GetOrAddSingleTag("\\");
+        private static readonly Tag MdUnderscoreTag = TagFactory.GetOrAddSymmetricTag("_");
+        private static readonly Tag MdDoubleUnderscoreTag = TagFactory.GetOrAddSymmetricTag("__");
+        private static readonly Tag MdSharpTag = TagFactory.GetOrAddSingleTag("# ");
+        private static readonly Tag MdShieldTag = TagFactory.GetOrAddSingleTag("\\");
         
-        private static readonly Tag HtmlEmTag = Tag.GetOrAddPairTag("<em>", "</em>");
-        private static readonly Tag HtmlStrongTag = Tag.GetOrAddPairTag("<strong>", "</strong>");
-        private static readonly Tag HtmlH1Tag = Tag.GetOrAddPairTag("<h1>", "</h1>");
+        private static readonly Tag HtmlEmTag = TagFactory.GetOrAddPairTag("<em>", "</em>");
+        private static readonly Tag HtmlStrongTag = TagFactory.GetOrAddPairTag("<strong>", "</strong>");
+        private static readonly Tag HtmlH1Tag = TagFactory.GetOrAddPairTag("<h1>", "</h1>");
         
-        private static readonly Tag EmptyTag = Tag.GetOrAddSingleTag("");
-        private static readonly Tag UnixNewLineTag = Tag.GetOrAddSingleTag("\n\n");
-        private static readonly Tag WindowsNewLineTag = Tag.GetOrAddSingleTag("\r\n\r\n");
+        private static readonly Tag EmptyTag = TagFactory.GetOrAddSingleTag("");
+        private static readonly Tag UnixNewLineTag = TagFactory.GetOrAddSingleTag("\n\n");
+        private static readonly Tag WindowsNewLineTag = TagFactory.GetOrAddSingleTag("\r\n\r\n");
 
         static Md()
         {

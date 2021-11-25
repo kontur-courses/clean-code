@@ -46,7 +46,7 @@ namespace Markdown
                 position,
                 token, closeValid, openValid,
                 closeValid && openValid,
-                closeValid || openValid || shieldingSymbol == token || rules.IsInterruptTag(Tag.GetTagByChars(token))
+                closeValid || openValid || shieldingSymbol == token || rules.IsInterruptTag(TagFactory.GetTagByChars(token))
             );
         }
 

@@ -19,8 +19,8 @@ namespace Markdown
             MdExceptionHelper.ThrowArgumentNullExceptionIf(new ExceptionCheckObject(nameof(first), first));
 
             tag = second is null 
-                ? Tag.GetOrAddSingleTag(first.Token) 
-                : Tag.GetOrAddSymmetricTag(first.Token);
+                ? TagFactory.GetOrAddSingleTag(first.Token) 
+                : TagFactory.GetOrAddSymmetricTag(first.Token);
             
             StartPosition = first.Position;
             EndPosition = second?.Position ?? first.Position;
