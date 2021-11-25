@@ -37,7 +37,7 @@ namespace Markdown
                         converted.Append('\\');
                         break;
                     default:
-                        throw new ArgumentOutOfRangeException();
+                        throw new ArgumentOutOfRangeException($"Unidentified token type {token.TokenType.ToString()}");
                 }
             }
 

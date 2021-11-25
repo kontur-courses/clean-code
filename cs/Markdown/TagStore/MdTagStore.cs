@@ -1,5 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using Markdown.Tags;
 
 namespace Markdown.TagStore
@@ -12,10 +11,12 @@ namespace Markdown.TagStore
             new Tag(TagType.Strong, "__", "__"),
             new Tag(TagType.Header, "#", "\r\n"),
             new Tag(TagType.Header, "#", "\n"),
+            new Tag(TagType.Header, "#", "\n"),
         };
 
         private static readonly HashSet<char?> AfterOpeningBanned = new() { ' ', null, '\\', '\n', '\r' };
         private static readonly HashSet<char?> BeforeClosingBanned = new() { ' ', null };
+
         public MdTagStore()
         {
             Tags.ForEach(Register);
@@ -23,24 +24,18 @@ namespace Markdown.TagStore
 
         public override TagRole GetTagRole(string text, int startIndex, int length)
         {
-            char? before = startIndex == 0 ? null : text[startIndex - 1];
-            char? after = startIndex + length == text.Length ? null : text[startIndex + length];
+            char? before = startIndex > 0 ? text[startIndex - 1] : null;
+            char? after = startIndex + length < text.Length ? text[startIndex + length] : null;
             if (AfterOpeningBanned.Contains(after))
             {
-                if (BeforeClosingBanned.Contains(before))
-                {
-                    return TagRole.NotTag;
-                }
-
-                return TagRole.Closing;
+                return BeforeClosingBanned.Contains(before)
+                    ? TagRole.NotTag
+                    : TagRole.Closing;
             }
 
-            if (!BeforeClosingBanned.Contains(before))
-            {
-                return TagRole.Undefined;
-            }
-
-            return TagRole.Opening;
+            return BeforeClosingBanned.Contains(before)
+                ? TagRole.Opening
+                : TagRole.Undefined;
         }
     }
 }

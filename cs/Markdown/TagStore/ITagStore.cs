@@ -1,5 +1,6 @@
 ﻿using System.Collections.Generic;
 using Markdown.Tags;
+using Markdown.Tokens;
 
 namespace Markdown.TagStore
 {
@@ -7,7 +8,7 @@ namespace Markdown.TagStore
     {
         string GetTag(TagType type, TagRole role);
         TagType GetTagType(string text, int start, int length);
-        HashSet<string> GetTagsValues();
+        HashSet<string> GetTagValues();
         public TagRole GetTagRole(string text, int startIndex, int length);
     }
 }

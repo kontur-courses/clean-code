@@ -1,6 +1,4 @@
-﻿using System.Collections.Generic;
-using FluentAssertions;
-using Markdown.Tags;
+﻿using FluentAssertions;
 using Markdown.TagStore;
 using NUnit.Framework;
 
@@ -9,8 +7,6 @@ namespace Markdown.Tests
     [TestFixture]
     public class ConverterTests
     {
-        // [TestCaseSource(nameof(ConvertExamplesWithOneTag), new object[] {"_", "_", "<em>", "</em>"})]
-
         [TestCase("_Lorem _ipsum dolor_ sit_ amet", "<em>Lorem <em>ipsum dolor</em> sit</em> amet",
             TestName = "Two nested paired tags")]
         [TestCase("Lorem _ipsum dolor_ sit_ amet", "Lorem <em>ipsum dolor</em> sit_ amet",
@@ -52,7 +48,6 @@ namespace Markdown.Tests
         [TestCase("#Заголовок __с _разными_ символами__\n",
             "<h1>Заголовок <strong>с <em>разными</em> символами</strong></h1>",
             TestName = "Header tag")]
-        
         public void Convert_ShouldReplaceMdTagToHtml(string originalText, string convertedText)
         {
             var from = new MdTagStore();
@@ -62,18 +57,6 @@ namespace Markdown.Tests
             var converted = sut.Convert(originalText);
 
             converted.Should().Be(convertedText);
-        }
-
-
-        public void Convert_ShouldReplaceHtmlTagToMd(string markdown, string origianl)
-        {
-            var from = new HtmlTagStore();
-            var to = new MdTagStore();
-            var sut = new Converter(from, to);
-
-            var converted = sut.Convert(origianl);
-
-            converted.Should().Be(markdown);
         }
     }
 }

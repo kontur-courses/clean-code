@@ -12,7 +12,7 @@ namespace Markdown.Tests
         {
             const string text = "abcdaefagaa";
 
-            var found = text.FindAll(new[] { "a", "b", "aa" }).ToArray();
+            var found = text.FindAll(new[] { "a", "b", "aa" }).ToArray().Select(t=>(t.Start, t.Length));
 
             found.Should().BeEquivalentTo(new[] { (0, 1), (4, 1), (7, 1), (9, 2), (1, 1) });
         }
