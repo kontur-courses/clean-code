@@ -15,10 +15,10 @@ public class Md
     public Md(string text)
     {
         this.text = text;
-        var settings = new WrapperSettingsProvider();
-        settings.TryAddSetting(new("#", "<h1>", "#$(text)", "<h1>$(text)</h1>", true));
-        settings.TryAddSetting(new("_", "<em>", "_$(text)_", "<em>$(text)</em>", nestingLevel: 2));
-        settings.TryAddSetting(new("__", "<strong>", "__$(text)__", "<strong>$(text)</strong>", nestingLevel: 1));
+        var settings = new WrapperSettingsProvider(
+            new("#", "<h1>", "#$(text)", "<h1>$(text)</h1>", true),
+            new("_", "<em>", "_$(text)_", "<em>$(text)</em>", nestingLevel: 2),
+            new("__", "<strong>", "__$(text)__", "<strong>$(text)</strong>", nestingLevel: 1));
 
         tokenizer = new Tokenizer(settings);
     }
@@ -40,7 +40,6 @@ public class Md
         {
             if (Tokenizer.IsEscaped(toEscape, i))
                 toEscape.Remove(i - 1, 1);
-
         }
 
         return toEscape;

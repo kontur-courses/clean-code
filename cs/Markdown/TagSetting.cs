@@ -14,7 +14,7 @@ public class TagSetting
 
     private readonly string htmlPattern;
     private readonly int nestingLevel;
-    private readonly List<VariableDescriptor> variables = new();
+    private readonly List<VariableDescriptor> variables;
 
     public TagSetting(string mdTag, string htmlTag, string mdPattern, string htmlPattern, bool isLineOnly = false, int nestingLevel = 0)
     {
@@ -23,7 +23,7 @@ public class TagSetting
         this.htmlPattern = htmlPattern;
         IsLineOnly = isLineOnly;
         this.nestingLevel = nestingLevel;
-        ParseVariables(mdPattern);
+        variables = ParseVariables(mdPattern);
         EndTag = variables.Count > 0 ? variables[^1].End : mdTag;
         SpecialParts = variables.Select(x => x.Start)
             .Concat(variables.Select(x => x.End))
@@ -95,14 +95,15 @@ public class TagSetting
         return possibleFind;
     }
 
-    private void ParseVariables(string mdPattern)
+    private List<VariableDescriptor> ParseVariables(string mdPattern)
     {
+        var result = new List<VariableDescriptor>();
         for (var i = 0; i < mdPattern.Length; i++)
         {
             var variableStart = mdPattern.IndexOf("$(", i);
 
             if (variableStart == -1)
-                return;
+                return result;
             var variableEnd = mdPattern.IndexOf(')', variableStart);
             if (variableEnd == -1)
             {
@@ -117,10 +118,12 @@ public class TagSetting
             }
 
             var variable = CreateVariableDescriptor(mdPattern, variableStart, i, variableEnd, nextVariable);
-            variables.Add(variable);
+            result.Add(variable);
 
             i = variableEnd + 1;
         }
+
+        return result;
     }
 
     private static VariableDescriptor CreateVariableDescriptor(string mdPattern, int variableStart, int variableStartPosition, int variableEnd, int variableEndPosition)

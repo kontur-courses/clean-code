@@ -177,8 +177,7 @@ public class MarkdownShould
     [TestCase("numbers1_23_", "numbers1_23_", TestName = "No breaking numbers specification", Category = "Specification")]
     [TestCase("wo_rds_", "wo<em>rds</em>", TestName = "Can break single word specification", Category = "Specification")]
     [TestCase("so_me wo_rds", "so_me wo_rds", TestName = "No breaking across different words specification", Category = "Specification")]
-    [TestCase("__paragraph_ a", "_<em>paragraph</em> a", TestName = "No tags without pair specification 1", Category = "Specification")]
-    [TestCase("__paragraph_ a", "__paragraph_ a", TestName = "No tags without pair specification 2", Category = "Specification")]
+    [TestCase("__paragraph_ a", "__paragraph_ a", TestName = "No tags without pair specification", Category = "Specification")]
     [TestCase("spaced_ word_", "spaced_ word_", TestName = "No whitespace after opening specification", Category = "Specification")]
     [TestCase("_spaced _word", "_spaced _word", TestName = "No whitespace before closing specification", Category = "Specification")]
     [TestCase("__bold _cursiv__ intersection_", "__bold _cursiv__ intersection_", TestName = "No tags intersection specification", Category = "Specification")]
@@ -234,10 +233,7 @@ public class MarkdownShould
 
     private static void WarmUp(string text)
     {
-        for (var i = 0; i < 100; i++)
-        {
-            var a = RunMd(text);
-        }
+        RunMd(text);
     }
 
     private static string RunMd(string input)
