@@ -1,6 +1,4 @@
-﻿using System;
-using System.Collections;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 
@@ -10,14 +8,12 @@ namespace Markdown
     {
         private Stack<Token> upperTokens = new Stack<Token>();
 
-        public string Convert(List<Token> tokens)
+        public string Convert(IEnumerable<Token> tokens)
         {
             var sb = new StringBuilder();
             foreach (var token in tokens)
                 sb.Append(TokenToHtml(token));
-            return sb.Length > 2 ?
-                sb.ToString()[..(sb.Length - 2)] : 
-                sb.ToString();
+            return sb.ToString()[..(sb.Length - 2)];
         }
 
         private string TokenToHtml(Token token)
@@ -48,7 +44,7 @@ namespace Markdown
             if (token.Closed)
             {
                 var goodOpenClosing = !token.HaveInner || token.InnerTokens[0].Value[0] != ' ' &&
-                    GetLastElementOrX(token) != ' ';
+                    !IsLastElementWhiteSpace(token);
                 var canBeTag = token.Valid && token.HaveInner &&
                     !(token is StrongText && upperTokens.Peek() is ItalicText);
                 return canBeTag && goodOpenClosing ?
@@ -58,9 +54,9 @@ namespace Markdown
             return $"{altTag}{AddTextInTag(token)}";
         }
 
-        private char GetLastElementOrX(Token token)
-            => token.HaveInner && !string.IsNullOrEmpty(token.InnerTokens.Last().Value) ?
-                token.InnerTokens.Last().Value.Last() : 'X';
+        private bool IsLastElementWhiteSpace(Token token)
+            => token.HaveInner && !string.IsNullOrEmpty(token.InnerTokens.Last().Value)
+                && token.InnerTokens.Last().Value.Last() == ' ';
 
         private string TokenToHtml(Paragraph token) 
             => $"<div>{AddTextInTag(token)}</div>\r\n";
@@ -85,7 +81,7 @@ namespace Markdown
             var res = new StringBuilder();
             for (var i = 0; i < text.Length; i++)
             {
-                if(text[i] == '\\' && i + 1 < text.Length && text[i+1] == '<')
+                if (text[i] == '\\' && i + 1 < text.Length && text[i + 1] == '<') 
                         continue;
                 res.Append(text[i]);
             }

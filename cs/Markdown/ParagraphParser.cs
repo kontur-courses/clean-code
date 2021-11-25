@@ -1,18 +1,18 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Reflection;
 using System.Text;
 
 namespace Markdown
 {
-    public class ParagraphParser
+    internal class ParagraphParser
     {
         private List<Token> tokens;
         private Stack<Token> openedTokens;
         private Token upperToken;
         private StringBuilder current;
         private string paragraph;
+        private static readonly List<char> specSymbols = 
+            new List<char> {'\\', '_'};
 
         private void Initialize()
         {
@@ -53,13 +53,11 @@ namespace Markdown
         private int AddTagToken(int i, char symbol)
         {
             Token token;
-            var canOpen = false;
-            var canClose = i <= 1 || paragraph[i - 1] != ' ';
+            var canClose = CanClose(i);
             if (i < paragraph.Length - 1 && paragraph[i + 1] == '_')
             {
                 i++;
-                canOpen = i >= paragraph.Length - 1 || paragraph[i + 1] != ' ';
-                if (!CanUseTag(canOpen, canClose, typeof(ItalicText)))
+                if (!CanUseTag(CanOpen(i), canClose, typeof(ItalicText)))
                 {
                     current.Append(symbol);
                     current.Append(paragraph[++i]);
@@ -71,15 +69,14 @@ namespace Markdown
             {
                 var withDigits = i < paragraph.Length - 1 && char.IsDigit(paragraph[i + 1]) ||
                                  i > 0 && char.IsDigit(paragraph[i - 1]);
-                canOpen = i >= paragraph.Length - 1 || paragraph[i + 1] != ' ';
-                if (!CanUseTag(canOpen, canClose, typeof(StrongText)) || withDigits)
+                if (!CanUseTag(CanOpen(i), canClose, typeof(StrongText)) || withDigits)
                 {
                     current.Append(symbol);
                     return i;
                 }
                 token = new ItalicText();
             }
-            TryCloseTag(token);
+            TryCloseTag(token, i);
             current = new StringBuilder();
             return i;
         }
@@ -88,9 +85,11 @@ namespace Markdown
             => canClose || canOpen &&
                 openedTokens.Count == 0 || openedTokens.Peek().GetType() == tokenType;
 
-        private void TryCloseTag(Token token)
+        private void TryCloseTag(Token token, int i)
         {
-            if (openedTokens.Count == 0)
+            if (CanOpen(i) && CanClose(i))
+                token.InText = true;
+            if (openedTokens.Count == 0) 
             {
                 AddTextToTokens();
                 upperToken = token;
@@ -101,31 +100,62 @@ namespace Markdown
             var opened = openedTokens.Pop();
             var isClosed = opened.GetType() == token.GetType();
             AddTextToTokens(opened);
+
             if (isClosed)
-            {
-                if (openedTokens.Count == 0)
-                    upperToken = null;
-                opened.Closed = true;
-            }
+                CloseToken(token, opened);
             else if (openedTokens.Count == 0)
-            {
-                openedTokens.Push(opened);
-                openedTokens.Push(token);
-                opened.InnerTokens.Add(token);
-            }
+                AddInnerTokenToOpened(token, opened);
             else
+                CloseInvalidTag();
+        }
+
+        private void CloseToken(Token token, Token opened)
+        {
+            if (opened.InText && token.InText &&
+                !(opened.HaveInner && opened.InnerTokens.Count == 1))
             {
-                upperToken.Valid = false;
-                upperToken.Closed = true;
-                upperToken = null;
-                openedTokens = new Stack<Token>();
+                CloseInvalidTag();
+                return;
             }
+            if (openedTokens.Count == 0)
+                upperToken = null;
+            opened.Closed = true;
+        }
+
+        private void AddInnerTokenToOpened(Token token, Token opened)
+        {
+            openedTokens.Push(opened);
+            openedTokens.Push(token);
+            opened.InnerTokens.Add(token);
+        }
+
+        private bool CanClose(int i, int depth = 0)
+            => --i > 1 && GetOpenNextStep(i, depth);
+
+        private bool CanOpen(int i, int depth = 0)
+            => ++i < paragraph.Length - 1 && GetOpenNextStep(i, depth);
+
+        // Сам не понял почему это работает, но если в CanClose вызывать
+        // CanClose то ломается пара тестов
+        private bool GetOpenNextStep(int i, int depth = 0)
+            => IsSpecSymbol(i) ?
+                depth < 16 && CanOpen(i, depth + 1) :
+                paragraph[i] != ' ';
+
+        private bool IsSpecSymbol(int i)
+            => specSymbols.Contains(paragraph[i]);
+
+        private void CloseInvalidTag()
+        {
+            upperToken.Valid = false;
+            upperToken.Closed = true;
+            upperToken = null;
+            openedTokens = new Stack<Token>();
         }
 
         private int TryEscapeSymbol(int i)
         {
-            if (i < paragraph.Length - 2 && 
-                (paragraph[i + 1] == '_' || paragraph[i + 1] == '\\'))
+            if (i < paragraph.Length - 2 && IsSpecSymbol(i + 1))
                 i++;
             current.Append(paragraph[i]);
             return i;

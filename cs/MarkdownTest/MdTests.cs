@@ -1,10 +1,9 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
+using System.Diagnostics;
+using System.IO;
+using FluentAssertions;
 using Markdown;
 using NUnit.Framework;
-using FluentAssertions;
 
 namespace MarkdownTest
 {
@@ -12,9 +11,6 @@ namespace MarkdownTest
     public class MdShould
     {
         private Md md = new Md();
-        public void SetUp()
-        {
-        }
 
         [Test]
         public void ThrowException_WhenTextIsEmpty()
@@ -79,8 +75,8 @@ namespace MarkdownTest
         [TestCase("Однако выделять часть слова они могут: и в _нач_але, и в сер_еди_не, и в кон_це._",
             "<div>Однако выделять часть слова они могут: и в <em>нач</em>але, и в сер<em>еди</em>не, и в кон<em>це.</em></div>")]
 
-        //[TestCase("В то же время выделение в ра_зных сл_овах не работает",
-        //   "<div>В то же время выделение в ра_зных сл_овах не работает</div>")]
+        [TestCase("В то же время выделение в ра_зных сл_овах не работает",
+           "<div>В то же время выделение в ра_зных сл_овах не работает</div>")]
         
         [TestCase("__Непарные_ символы в рамках одного абзаца не считаются выделением",
             "<div>__Непарные_ символы в рамках одного абзаца не считаются выделением</div>")]
@@ -111,10 +107,35 @@ namespace MarkdownTest
             "<div>Здесь сим\\волы экранирования\\ \\должны остаться.\\</div>")]
         [TestCase("\\\\_вот это будет выделено тегом_",
             "<div><em>вот это будет выделено тегом</em></div>")]
+        [TestCase("\\\\\\\\_\\\\вот это будет выделено тегом_",
+            "<div>\\<em>\\вот это будет выделено тегом</em></div>")]
 
         public void RenderTagsWithEscaping(string text, string expected)
         {
             TestRender(text, expected);
+        }
+
+        [Test]
+        public void RenderWithLinearSpeed()
+        {
+            var sample = "# Заголовок __с _разными_ символами__";
+            var bigText = File.ReadAllText("..\\..\\..\\BigMdText.txt");
+            GC.Collect();
+            GetAverageTimeOfRender(sample);
+            var averageSampleTime = GetAverageTimeOfRender(sample);
+            var averageBigTextTime = GetAverageTimeOfRender(bigText);
+            averageBigTextTime.Should()
+                .BeInRange(averageSampleTime * 0.2, averageSampleTime * 1.2);
+        }
+
+        private double GetAverageTimeOfRender(string text)
+        {
+            var watch = new Stopwatch();
+            var symbolsCount = text.Length;
+            watch.Start();
+            md.Render(text);
+            watch.Stop();
+            return watch.ElapsedTicks / (double)symbolsCount;
         }
 
 
@@ -123,82 +144,5 @@ namespace MarkdownTest
             var res = md.Render(text);
             res.Should().Be(expected);
         }
-    }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-    public class TestHelper
-    {
-        public List<Token> GetMdTokens(List<Token> tokens)
-        {
-            return GetConvertedTokens(StringToMd, tokens);
-        }
-
-        public List<Token> GetHtmlTokens(List<Token> tokens)
-        {
-            return GetConvertedTokens(StringToHtml, tokens);
-        }
-
-        private List<Token> GetConvertedTokens
-            (Dictionary<Type, Func<string, string>> convertDict, List<Token> tokens)
-        {
-            var res = new List<Token>();
-            foreach (var token in tokens)
-            {
-                var resToken = new Token(GetConvertedToken(convertDict, token));
-                if (token.InnerTokens != null && token.InnerTokens.Count > 0)
-                    resToken.InnerTokens = GetConvertedTokens(convertDict, token.InnerTokens);
-                res.Add(resToken);
-            }
-            
-            return res;
-        }
-
-        private string GetConvertedToken<T>
-            (Dictionary<Type, Func<string, string>> convertDict,T token)
-            where T : Token
-        {
-            return convertDict[token.GetType()](token.Value);
-        }
-
-        private Dictionary<Type, Func<string, string>> StringToMd =
-            new Dictionary<Type, Func<string, string>>
-            {
-                {typeof(Header), s => "#" + s + "\r\n"},
-                {typeof(Paragraph), s => s+ "\r\n"},
-                {typeof(Token), s => s},
-                {typeof(StrongText), s => "__" + s + "__"},
-                {typeof(ItalicText), s => "_" + s + "_"}
-            };
-
-        private Dictionary<Type, Func<string, string>> StringToHtml =
-            new Dictionary<Type, Func<string, string>>
-            {
-                {typeof(Header), s => "<h1>" + s + "</h1\r\n>"},
-                {typeof(Paragraph), s => "<div>" + s + "</div>\r\n"},
-                {typeof(Token), s => s},
-                {typeof(StrongText), s => "<strong>" + s + "</strong>"},
-                {typeof(ItalicText), s => "<em>" + s + "</em>"}
-            };
     }
 }

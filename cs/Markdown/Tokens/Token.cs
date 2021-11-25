@@ -7,7 +7,9 @@ namespace Markdown
         public string Value;
         public List<Token> InnerTokens = new List<Token>();
         public bool Closed;
+        public bool InText;
         public bool Valid = true;
+        
         public bool HaveInner => InnerTokens != null && InnerTokens.Count > 0;
 
         public Token()
@@ -19,29 +21,5 @@ namespace Markdown
             Value = value;
             Closed = true;
         }
-    }
-    
-    public class Header : Token
-    {
-        public Header(string value, List<Token> innerTokens = null) :
-            base(value)
-        {
-        }
-    }
-
-    public class Paragraph : Token
-    {
-        public Paragraph(string value, List<Token> innerTokens = null) :
-            base(value)
-        {
-        }
-    }
-
-    public class StrongText : Token
-    {
-    }
-
-    public class ItalicText : Token
-    {
     }
 }
