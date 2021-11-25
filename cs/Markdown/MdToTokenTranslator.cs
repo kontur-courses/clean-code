@@ -1,11 +1,9 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Runtime.Serialization;
 using System.Text;
 using Markdown.Extensions;
 using Markdown.Tokens;
-using Microsoft.VisualBasic;
 
 namespace Markdown
 {
