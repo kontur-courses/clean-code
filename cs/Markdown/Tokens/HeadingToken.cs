@@ -42,6 +42,7 @@ namespace Markdown.Tokens
                     var notValid = false;
                     if (isNotFirst)
                         notValid = NewParagraphSymbols.All(c => markdown[Position - 1] != c[0]);
+                    ShouldBeClosed = !notValid;
                     ShouldShowValue = notValid;
                     if(!ShouldShowValue)
                         tokens.Add(Type);
@@ -59,7 +60,12 @@ namespace Markdown.Tokens
                         Position--;
                 }
                 else
-                    ShouldBeIgnored = true;
+                {
+                    if (Position != markdown.Length - Value.Length)
+                        ShouldBeIgnored = true;
+                    else
+                        ShouldShowValue = true;
+                }
                 tokens.Clear();
             }
         }

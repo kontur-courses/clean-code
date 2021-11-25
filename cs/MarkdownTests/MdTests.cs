@@ -23,7 +23,6 @@ namespace MarkdownTests
         [TestCaseSource(nameof(CasesForDoubleUnderscore))]
         [TestCaseSource(nameof(CasesForInteractBetweenUnderscores))]
         [TestCase("No Header", "No Header", TestName = "No tags do not create any tag")]
-        [TestCase("# ab# c", "<h1>ab# c</h1>")]
         public void Render_Should(string markdown, string expected)
         {
             md.Render(markdown).Should().Be(expected);
@@ -63,9 +62,14 @@ namespace MarkdownTests
                         "<h1>aa</h1>\r\n<h1>aa</h1>")
                     .SetName("Heading should creates in new paragraph");
                 yield return new TestCaseData("# ab# c", "<h1>ab# c</h1>")
+                    .SetName("Heading inside in heading paragraph doesn't create any tag");
+                yield return new TestCaseData("a# bc", "a# bc")
                     .SetName("Heading inside paragraph doesn't create any tag");
+                yield return new TestCaseData("abc# ", "abc# ")
+                    .SetName("Heading at end doesn't create any tag");
+                yield return new TestCaseData("a# bc\r\ncd# e", "a# bc\r\ncd# e")
+                    .SetName("Heading inside paragraphs doesn't create any tag");
 
-                
             }
         }
 
@@ -103,6 +107,8 @@ namespace MarkdownTests
                     .SetName("Underscore doesn't create tag when empty string");
                 yield return new TestCaseData("_bc _", "_bc _")
                     .SetName("Closing underscore after space doesn't create any tag");
+                yield return new TestCaseData("_ bc_", "_ bc_")
+                    .SetName("Closing underscore before opening doesn't create any tag");
             }
         }
 
@@ -155,6 +161,8 @@ namespace MarkdownTests
                     .SetName("Double underscore at begin of word not close tag");
                 yield return new TestCaseData("__bc __", "__bc __")
                     .SetName("Closing double underscore after space doesn't create any tag");
+                yield return new TestCaseData("__ bc__", "__ bc__")
+                    .SetName("Closing double underscore before opening doesn't create any tag");
             }
         }
 

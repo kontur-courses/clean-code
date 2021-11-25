@@ -57,7 +57,7 @@ namespace Markdown.Tokens
         {
             openToken = openedTokens.Pop();
             closeToken = closedTokens.Dequeue();
-            if (openToken.Type == closeToken.Type) return true;
+            if (openToken.Type == closeToken.Type && openToken.Position < closeToken.Position) return true;
             unpairedTokens.UnionWith(new[] {openToken, closeToken});
             return false;
         }
