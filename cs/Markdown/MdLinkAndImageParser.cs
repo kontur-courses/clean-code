@@ -6,6 +6,8 @@
         private MdLinkAndImageParser(){}
         public ParsingResult Parse(StringWithShielding mdText, int startBoundary, int endBoundary)
         {
+            if (startBoundary + 4 > endBoundary)
+                return ParsingResult.Fail(Status.NotFound);
             var type = TextType.Link;
             var index = startBoundary;
             if (mdText[startBoundary] == '!')
