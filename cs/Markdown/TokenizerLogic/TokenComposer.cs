@@ -33,7 +33,11 @@ namespace Markdown.TokenizerLogic
 
             HandleFailedEscape();
             HandleHeaderClosing();
-            HandleTextEndListClosing();
+            if (isList)
+            {
+                AddClosingListItemToken();
+                HandleListClosing();
+            }
         }
 
         private void HandleToken(Token token)
@@ -68,13 +72,17 @@ namespace Markdown.TokenizerLogic
             HandleFailedEscape();
             HandleHeaderClosing();
             if (isList)
-            {
-                var itemEnd = new ListItemToken();
-                itemEnd.Close();
-                composed.AddLast(itemEnd);
-            }
+                AddClosingListItemToken();
             else
                 composed.AddLast(nl);
+            isNewline = true;
+        }
+
+        private void AddClosingListItemToken()
+        {
+            var itemEnd = new ListItemToken();
+            itemEnd.Close();
+            composed.AddLast(itemEnd);
             isNewline = true;
         }
 
@@ -182,18 +190,6 @@ namespace Markdown.TokenizerLogic
                 return true;
             }
             return false;
-        }
-
-        private void HandleTextEndListClosing()
-        {
-            if (isList)
-            {
-                var itemEnd = new ListItemToken();
-                itemEnd.Close();
-                composed.AddLast(itemEnd);
-                isNewline = true;
-                HandleListClosing();
-            }
         }
 
         private void HandleListClosing()

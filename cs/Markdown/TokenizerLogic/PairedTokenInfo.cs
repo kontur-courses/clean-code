@@ -18,7 +18,7 @@
 
         public void Open() => CanOpen = true;
 
-        public void DisapleOpen() => CanOpen = false;
+        public void DisableOpen() => CanOpen = false;
 
         public void Close() => CanClose = true;
 

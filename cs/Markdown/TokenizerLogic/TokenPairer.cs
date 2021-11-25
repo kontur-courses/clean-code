@@ -159,7 +159,7 @@ namespace Markdown.TokenizerLogic
             if (toPair.Count > 0
                 && toPair.Peek().CanOpen
                 && toPair.Peek().CanClose)
-                toPair.Peek().DisapleOpen();
+                toPair.Peek().DisableOpen();
             isLastPaired = false;
             isWord = false;
             isTagPairSkipped = false;
