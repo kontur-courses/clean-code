@@ -11,17 +11,17 @@ namespace Markdown.SyntaxParser.ConcreteParsers
 
         public override TokenTree Parse()
         {
-            var closingTagOffset = GetOffsetOfFirstTagAppearanceInLine(TokenType.CloseImageAlt);
-            if (closingTagOffset == -1)
+            if (!Helper.TryGetOffsetOfFirstTagAppearanceInLine(TokenType.CloseImageAlt, out var closingTagOffset))
                 return TokenTree.FromText(Context.Current.Value);
-            var closingImageOffset = GetOffsetOfFirstTagAppearanceInLine(TokenType.CloseBracket);
-            if (closingImageOffset == -1)
+
+            if (!Helper.TryGetOffsetOfFirstTagAppearanceInLine(TokenType.CloseBracket, out var closingImageOffset))
                 return TokenTree.FromText(Context.Current.Value);
 
             var altPart = ParseToText(closingTagOffset - 1);
-            Context.NextToken();
+            Context.MoveToNextToken();
+
             var srcPart = ParseToText(closingImageOffset - closingTagOffset - 1);
-            Context.NextToken();
+            Context.MoveToNextToken();
 
             var token = new ImageToken(srcPart, altPart);
             return new TokenTree(token);

@@ -8,5 +8,13 @@ namespace Markdown.Lexer.ConcreteLexers
         protected LexContext Context { get; }
 
         public abstract Token Lex();
+
+        protected Token GetDefaultTokenOrText(char lookaheadShould, Token defaultToken)
+        {
+            if (Context.Lookahead != lookaheadShould)
+                return Token.Text(Context.Current.ToString());
+            Context.MoveToNextSymbol();
+            return defaultToken;
+        }
     }
 }

@@ -24,19 +24,23 @@ namespace Markdown.TokenFormatter
         {
             if (tokens == null)
                 throw new ArgumentNullException(nameof(tokens));
+
             var result = new StringBuilder();
 
             foreach (var tokenTree in tokens)
-            {
-                var tokenType = tokenTree.Token.TokenType;
-                var formattedNodes = new StringBuilder(Format(tokenTree.Nodes));
-
-                result.Append(formattedNodes.Length == 0
-                    ? tokenTree.Token.Render(renderer)
-                    : wrappers[tokenType](formattedNodes.ToString()));
-            }
+                result.Append(ProcessTree(tokenTree));
 
             return result.ToString();
+        }
+
+        private string ProcessTree(TokenTree tokenTree)
+        {
+            var tokenType = tokenTree.Token.TokenType;
+            var formattedNodes = new StringBuilder(Format(tokenTree.Nodes));
+
+            return formattedNodes.Length == 0
+                ? tokenTree.Token.Render(renderer)
+                : wrappers[tokenType](formattedNodes.ToString());
         }
     }
 }

@@ -7,11 +7,13 @@ namespace Markdown.SyntaxParser.ConcreteParsers
 {
     internal abstract class UnderscoreParser : ConcreteParser
     {
-        private readonly Dictionary<TokenType, TokenType> oppositeTokenTypes = new()
-        {
-            {TokenType.Italics, TokenType.Bold},
-            {TokenType.Bold, TokenType.Italics}
-        };
+        private readonly Func<TokenType, TokenType> oppositeTokenTypes =
+            tokenType => tokenType switch
+            {
+                TokenType.Italics => TokenType.Bold,
+                TokenType.Bold => TokenType.Italics,
+                _ => throw new Exception($"unsupported token type: {tokenType}")
+            };
 
         protected UnderscoreParser(ParseContext context) : base(context)
         {
@@ -19,22 +21,29 @@ namespace Markdown.SyntaxParser.ConcreteParsers
 
         protected TokenTree ParseUnderscore(Func<TokenTree> transformCurrentItem)
         {
-            var current = Context.Current;
             if (ShouldParseAsText())
                 return TokenTree.FromText(Context.Current.Value);
-            var intersectionOffset = IsIntersectsWith(oppositeTokenTypes[current.TokenType]);
-            if (intersectionOffset != -1)
+
+            if (TryGetIntersectionIndex(oppositeTokenTypes(Context.Current.TokenType), out var intersectionOffset))
                 return TokenTree.FromText(ParseToText(intersectionOffset, Context.Current.Value));
+
+            return CreateToken(transformCurrentItem);
+        }
+
+        private TokenTree CreateToken(Func<TokenTree> transformCurrentItem)
+        {
             var buffer = new List<TokenTree>();
+            var current = Context.Current;
             do
             {
-                Context.NextToken();
+                Context.MoveToNextToken();
                 if (Context.Current.TokenType == current.TokenType)
                     return new TokenTree(Context.Current, buffer.ToArray());
                 buffer.Add(transformCurrentItem());
             } while (!Context.IsEndOfFileOrNewLine());
 
-            return TokenTree.FromText(buffer.Aggregate(current.Value, (s, token) => s + token.Token.Value));
+            var tokensText = buffer.Aggregate(current.Value, (s, tokenTree) => s + tokenTree.Token.Value);
+            return TokenTree.FromText(tokensText);
         }
 
         private bool ShouldParseAsText()
@@ -77,21 +86,20 @@ namespace Markdown.SyntaxParser.ConcreteParsers
             return false;
         }
 
-        private int IsIntersectsWith(TokenType tokenType)
+        private bool TryGetIntersectionIndex(TokenType tokenType, out int index)
         {
-            var closingTag = GetOffsetOfFirstTagAppearanceInLine(Context.Current.TokenType);
-            var otherOpeningTag = GetOffsetOfFirstTagAppearanceInLine(tokenType);
-            if (otherOpeningTag == -1)
-                return -1;
-            var otherClosingTag = GetOffsetOfFirstTagAppearanceInLine(tokenType, otherOpeningTag + 1);
-            var result = otherOpeningTag < closingTag && otherClosingTag > closingTag;
-            return result ? otherClosingTag : -1;
+            index = 0;
+            if (!Helper.TryGetOffsetOfFirstTagAppearanceInLine(Context.Current.TokenType, out var closingTagIndex))
+                return false;
+            if (!Helper.TryGetOffsetOfFirstTagAppearanceInLine(tokenType, out var otherOpeningTagIndex))
+                return false;
+            if (!Helper.TryGetOffsetOfFirstTagAppearanceInLine(tokenType, out index, otherOpeningTagIndex + 1))
+                return false;
+
+            return otherOpeningTagIndex < closingTagIndex && index > closingTagIndex;
         }
 
-        private bool HasTokenInSameLine() => GetOffsetOfFirstTagAppearanceInLine(Context.Current.TokenType) != -1;
-
-        private bool CanBeClosingTag(int offset) =>
-            !char.IsWhiteSpace(Context.Peek(offset - 1).Value.Last())
-            || Context.IsEndOfFileOrNewLine(offset + 1);
+        private bool HasTokenInSameLine() =>
+            Helper.TryGetOffsetOfFirstTagAppearanceInLine(Context.Current.TokenType, out _);
     }
 }

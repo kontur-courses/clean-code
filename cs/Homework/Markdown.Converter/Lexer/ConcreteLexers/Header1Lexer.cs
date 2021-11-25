@@ -8,12 +8,6 @@ namespace Markdown.Lexer.ConcreteLexers
         {
         }
 
-        public override Token Lex()
-        {
-            if (Context.Lookahead != ' ')
-                return Token.Text("#");
-            Context.NextSymbol();
-            return Token.Header1;
-        }
+        public override Token Lex() => GetDefaultTokenOrText(' ', Token.Header1);
     }
 }

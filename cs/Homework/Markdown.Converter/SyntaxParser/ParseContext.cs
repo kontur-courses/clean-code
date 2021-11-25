@@ -8,10 +8,10 @@ namespace Markdown.SyntaxParser
 {
     public class ParseContext
     {
-        public readonly Token[] Tokens;
-        public int Position;
+        private readonly Token[] tokens;
+        private int position;
 
-        public ParseContext(IEnumerable<Token> tokens) => Tokens = tokens.ToArray();
+        public ParseContext(IEnumerable<Token> tokens) => this.tokens = tokens.ToArray();
 
         public Token Current => Peek(0);
         public Token LookAhead => Peek(1);
@@ -19,10 +19,10 @@ namespace Markdown.SyntaxParser
 
         public IEnumerable<TokenTree> Parse()
         {
-            while (Position != Tokens.Length)
+            while (position != tokens.Length)
             {
                 yield return ParseToken();
-                NextToken();
+                MoveToNextToken();
             }
         }
 
@@ -42,20 +42,23 @@ namespace Markdown.SyntaxParser
 
         public Token Peek(int offset)
         {
-            var index = Position + offset;
-            if (index >= Tokens.Length)
-                return Tokens[^1];
+            var index = position + offset;
+            if (index >= tokens.Length)
+                return tokens[^1];
             if (index <= 0)
-                return Tokens[0];
+                return tokens[0];
 
-            return Tokens[index];
+            return tokens[index];
         }
 
-        public void NextToken() => Position++;
+        public void MoveToNextToken() => position++;
 
         public bool IsEndOfFileOrNewLine(int offset = 1) =>
             Peek(offset).TokenType == TokenType.NewLine || IsEndOfFile(offset);
 
-        public bool IsEndOfFile(int offset = 1) => Position + offset == Tokens.Length;
+        public bool IsStartOfFileOrNewLine(int offset = 0) =>
+            Peek(offset - 1).TokenType == TokenType.NewLine || position + offset == 0;
+
+        public bool IsEndOfFile(int offset = 1) => position + offset == tokens.Length;
     }
 }

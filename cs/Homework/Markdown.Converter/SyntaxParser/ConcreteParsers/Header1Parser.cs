@@ -11,14 +11,16 @@ namespace Markdown.SyntaxParser.ConcreteParsers
 
         public override TokenTree Parse()
         {
-            if (Context.Previous.TokenType != TokenType.NewLine && Context.Position != 0)
+            if (!Context.IsStartOfFileOrNewLine())
                 return TokenTree.FromText(Context.Current.Value);
-            if (Context.Position + 1 == Context.Tokens.Length)
+
+            if (Context.IsEndOfFile())
                 return TokenTree.FromText(string.Empty);
+
             var buffer = new List<TokenTree>();
             do
             {
-                Context.NextToken();
+                Context.MoveToNextToken();
                 buffer.Add(Context.ParseToken());
             } while (!Context.IsEndOfFileOrNewLine());
 

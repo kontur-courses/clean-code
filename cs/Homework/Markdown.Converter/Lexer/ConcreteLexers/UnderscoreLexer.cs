@@ -12,7 +12,7 @@ namespace Markdown.Lexer.ConcreteLexers
         {
             if (Context.Lookahead != '_')
                 return Token.Italics;
-            Context.NextSymbol();
+            Context.MoveToNextSymbol();
             return Token.Bold;
         }
     }

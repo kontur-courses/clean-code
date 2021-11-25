@@ -18,10 +18,10 @@ namespace Markdown.SyntaxParser.ConcreteParsers
                 case TokenType.Bold:
                 case TokenType.Italics:
                 case TokenType.Header1:
-                    Context.NextToken();
+                    Context.MoveToNextToken();
                     return TokenTree.FromText(Context.Current.Value);
                 case TokenType.Escape:
-                    Context.NextToken();
+                    Context.MoveToNextToken();
                     break;
             }
 

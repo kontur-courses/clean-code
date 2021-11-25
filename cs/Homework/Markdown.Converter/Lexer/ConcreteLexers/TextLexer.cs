@@ -14,13 +14,15 @@ namespace Markdown.Lexer.ConcreteLexers
         public override Token Lex()
         {
             var buffer = new StringBuilder();
+
             while (!specSymbols.Contains(Context.Current) && Context.Current != LexContext.EndOfFile)
             {
                 buffer.Append(Context.Current);
-                Context.NextSymbol();
+                Context.MoveToNextSymbol();
             }
 
-            Context.Position--;
+            Context.MoveToPreviousSymbol();
+
             return Token.Text(buffer.ToString());
         }
     }

@@ -1,7 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using Markdown.Lexer.ConcreteLexers;
+﻿using System.Collections.Generic;
 using Markdown.Tokens;
 
 namespace Markdown.Lexer
@@ -9,27 +6,11 @@ namespace Markdown.Lexer
     public class LexContext
     {
         public const char EndOfFile = '\0';
-        private readonly HashSet<char> specSymbols;
         private readonly string text;
-        private readonly Dictionary<char, Func<Token>> tokenSymbolsHandlers;
 
-        public int Position;
+        private int position;
 
-        public LexContext(string text)
-        {
-            this.text = text;
-            tokenSymbolsHandlers = new Dictionary<char, Func<Token>>
-            {
-                {'_', () => new UnderscoreLexer(this).Lex()},
-                {'\\', () => Token.Escape},
-                {'\n', () => Token.NewLine},
-                {'#', () => new Header1Lexer(this).Lex()},
-                {'!', () => new OpenImageAltLexer(this).Lex()},
-                {']', () => new CloseImageAltLexer(this).Lex()},
-                {')', () => Token.CloseImageTag}
-            };
-            specSymbols = tokenSymbolsHandlers.Keys.ToHashSet();
-        }
+        public LexContext(string text) => this.text = text;
 
         public char Current => Peek(0);
 
@@ -39,17 +20,17 @@ namespace Markdown.Lexer
         {
             do
             {
-                yield return tokenSymbolsHandlers.GetValueOrDefault(Current,
-                    () => new TextLexer(specSymbols, this).Lex())();
-                Position++;
+                yield return LexConfig.GetLexer(Current)(this);
+                MoveToNextSymbol();
             } while (Current != EndOfFile);
         }
 
-        public void NextSymbol() => Position++;
+        public void MoveToNextSymbol() => position++;
+        public void MoveToPreviousSymbol() => position--;
 
         private char Peek(int offset)
         {
-            var index = Position + offset;
+            var index = position + offset;
 
             return index >= text.Length ? EndOfFile : text[index];
         }
