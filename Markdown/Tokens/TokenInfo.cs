@@ -9,7 +9,7 @@
         public bool WordPartPlaced { get; }
         public bool Valid { get; set; }
 
-        public TokenInfo(int position, string token, bool closeValid, bool openValid, bool wordPartPlaced, bool valid)
+        public TokenInfo(int position, string token, bool closeValid = false, bool openValid = false, bool wordPartPlaced = false, bool valid = false)
         {
             Position = position;
             Token = token;

@@ -3,7 +3,7 @@ using System.Linq;
 
 namespace Markdown
 {
-    public class SegmentsCollection
+    internal class SegmentsCollection
     {
         private readonly IEnumerable<TokenSegment> segments;
 
