@@ -11,41 +11,26 @@ namespace Markdown
         public static string ParseTermsToHtml(IEnumerable<Term> terms, string input, Dictionary<string, string> serviceSymbolTag)
         {
             var result = new StringBuilder();
-            foreach (var term in terms)
+            var closedTag = new HashSet<Term>();
+
+            for(var i = 0; i <= input.Length; i++)
             {
-                if (!term.IsOpen && term.ServiceSymbol != "")
+                var borderTerms = terms.Where(term => term.StartIndex == i || term.EndIndex == i);
+                foreach(var term in borderTerms)
                 {
-                    result.Append(ExpandChildToken(term, input, serviceSymbolTag));
+                    if (serviceSymbolTag.ContainsKey(term.ServiceSymbol))
+                    {
+                        if(!closedTag.Contains(term))
+                            result.Append($"<{serviceSymbolTag[term.ServiceSymbol]}>");
+                        else
+                            result.Append($"</{serviceSymbolTag[term.ServiceSymbol]}>");
+                    }
+                    else if(!closedTag.Contains(term))
+                        result.Append(input.Substring(term.StartIndex, term.EndIndex - term.StartIndex + 1));
+
+                    closedTag.Add(term);
                 }
-                else
-                {
-                    result.Append(term.GetInnerText(input));
-                }
             }
-
-            return result.ToString();
-        }
-
-        private static string ExpandChildToken(Term parent, string input, Dictionary<string,string> serviceSymbolTag)
-        {
-            var result = new StringBuilder();
-
-            var childText = new StringBuilder();
-
-            foreach (var e in parent.InnerTerms)
-                childText.Append(ExpandChildToken(e, input, serviceSymbolTag));
-
-            if (!parent.IsOpen && parent.ServiceSymbol != "")
-            {
-                result.Append($"<{serviceSymbolTag[parent.ServiceSymbol]}>{childText}</{serviceSymbolTag[parent.ServiceSymbol]}>");
-            }
-            else
-            {
-                result.Append(parent.GetInnerText(input));
-            }
-
-
-
             return result.ToString();
         }
     }

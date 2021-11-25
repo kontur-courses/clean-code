@@ -9,8 +9,7 @@ namespace Markdown
     {
         static void Main(string[] args)
         {
-            var res = Md.Render("\\a");
-            Console.WriteLine(res);
+            var a = Md.Render("#___asfdf___");
         }
     }
 }

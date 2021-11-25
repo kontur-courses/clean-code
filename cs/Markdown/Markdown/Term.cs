@@ -16,12 +16,9 @@ namespace Markdown
             IsOpen = isOpen;
             StartIndex = startIndex;
             EndIndex = endIndex;
-            InnerTerms = new Stack<Term>();
         }
         public string ServiceSymbol { get; private set; }
         public bool IsOpen { get; private set; }
-
-        public Stack<Term> InnerTerms;
         public int StartIndex 
         { 
             get
@@ -30,11 +27,10 @@ namespace Markdown
             }
             set
             {
-                if(value<0)
+                if(value < 0)
                     throw new ArgumentException();
                 startIndex = value;
             }
-
         }
 
         public int EndIndex
@@ -49,7 +45,6 @@ namespace Markdown
                     throw new ArgumentException();
                 endIndex = value;
             }
-
         }
 
         public void Close()
@@ -62,11 +57,5 @@ namespace Markdown
             ServiceSymbol = newSymbol;
         }
 
-        public string GetInnerText(string input)
-        {
-            if (IsOpen)
-                return input.Substring(StartIndex, EndIndex - StartIndex+1);
-            return input.Substring(StartIndex + ServiceSymbol.Length, EndIndex - StartIndex-ServiceSymbol.Length+1);
-        }
     }
 }

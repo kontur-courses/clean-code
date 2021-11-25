@@ -16,8 +16,8 @@ namespace Markdown
                 {"_","em"},
                 {"__","strong"}
             };
-            var terms = StringToTermParser.ParseByServiceSymbols(input, new List<char>() {'_', '\\', '#'});
-            var resultTerms = TermsAnalizator.AnalyseTerms(terms, input);
+            var terms = new StringToTermParser(input, new List<char>() {'_', '\\', '#'}).ParseByServiceSymbols();
+            var resultTerms = new TermsAnalizator(input).AnalyseTerms(terms);
             var result = TermsToHtmlParser.ParseTermsToHtml(resultTerms, input, serviceSymbolHtml);
             return result;
         }

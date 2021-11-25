@@ -1,44 +1,54 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Collections.Immutable;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
 namespace Markdown
 {
-    public static class StringToTermParser
+    public class StringToTermParser
     {
-
-        //Подумал что будет лучше разбивать на блоки по принципу - _a_ - будет 3 отдельных блока(_, a, _)
-        public static IEnumerable<Term> ParseByServiceSymbols(string input, List<char> serviceSymbols)
+        public StringToTermParser(string input, List<char> serviceSymbols)
         {
+            this.input = input;
+            this.serviceSymbols = ImmutableList.Create(serviceSymbols.ToArray());
+        }
+
+        private readonly string input;
+        private readonly ImmutableList<char> serviceSymbols;
+        public IEnumerable<Term> ParseByServiceSymbols()
+        {
+            var result = new Stack<Term>();
             var splitString = input.Select((c, i) => Tuple.Create(c, i)).Where(t => serviceSymbols.Contains(t.Item1));
             var startIndex = 0;
 
-            foreach (var c in splitString)
+            foreach (var serviceSymbol in splitString)
             {
-                if (startIndex == c.Item2)
+                if (startIndex == serviceSymbol.Item2)
                     continue;
-                if (serviceSymbols.Contains(input[startIndex]))
-                {
-                    yield return new Term(startIndex, startIndex, input[startIndex].ToString());
-                    if (startIndex + 1 <= c.Item2 - 1)
-                        yield return new Term(startIndex + 1, c.Item2 - 1, "", false);
-                }
-                else
-                    yield return new Term(startIndex, c.Item2 - 1, "", false);
+                AddTermsBetweenServiceSymbolsIndexes(result, startIndex, serviceSymbol.Item2);
 
-                startIndex = c.Item2;
+                startIndex = serviceSymbol.Item2;
             }
+            AddTermsBetweenServiceSymbolsIndexes(result, startIndex, input.Length);
 
+            return result.Reverse();
+        }
+
+        private void AddTermsBetweenServiceSymbolsIndexes(Stack<Term> result, int startIndex, int serviceSymbolIndex)
+        {
             if (serviceSymbols.Contains(input[startIndex]))
             {
-                yield return new Term(startIndex, startIndex, input[startIndex].ToString());
-                if (startIndex != input.Length - 1)
-                    yield return new Term(startIndex + 1, input.Length - 1, "", false);
+                Term last;
+                result.TryPop(out last);
+                foreach (var term in TermsDeterminant.Determinate(last, new Term(startIndex, startIndex, input[startIndex].ToString()), input))
+                    result.Push(term);
+                if (startIndex + 1 <= serviceSymbolIndex - 1)
+                    result.Push(new Term(startIndex + 1, serviceSymbolIndex - 1, "", false));
             }
             else
-                yield return new Term(startIndex, input.Length - 1, "", false);
+                result.Push(new Term(startIndex, serviceSymbolIndex - 1, "", false));
         }
     }
 }
