@@ -26,7 +26,7 @@ namespace MarkdownTests
 
             var averageTimeScaled = MeasureAverage(scaledRender, actionCount);
 
-            averageTimeScaled.Should().BeLessThan(averageTime * scale * 1.2);
+            averageTimeScaled.Should().BeLessThan(averageTime * scale * 1.5);
         }
 
         private TimeSpan MeasureAverage(Action action, int count)
