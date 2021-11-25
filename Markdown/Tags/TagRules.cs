@@ -13,21 +13,28 @@ namespace Markdown
 
         public void AddInFrontOnlyTag(Tag tag)
         {
+            MdExceptionHelper.ThrowArgumentNullExceptionIf(new ExceptionCheckObject(nameof(tag), tag));
             inFrontRules.Add(tag);
         }
         
         public void AddTagInterruptTag(Tag tag)
         {
+            MdExceptionHelper.ThrowArgumentNullExceptionIf(new ExceptionCheckObject(nameof(tag), tag));
             tagInterruptTokens.Add(tag);
         }
 
         public bool IsInterruptTag(Tag tag)
         {
+            MdExceptionHelper.ThrowArgumentNullExceptionIf(new ExceptionCheckObject(nameof(tag), tag));
             return tagInterruptTokens.Contains(tag);
         }
         
         public void SetRule(Tag firstTag, Tag secondTag, InteractType interactType)
         {
+            MdExceptionHelper.ThrowArgumentNullExceptionIf(
+                new ExceptionCheckObject(nameof(firstTag), firstTag), 
+                new ExceptionCheckObject(nameof(secondTag), secondTag));
+            
             var ruleListToUpdate = interactType switch
             {
                 InteractType.Intersecting => intersectingRules,
@@ -53,11 +60,17 @@ namespace Markdown
 
         public bool CanBeNested(Tag outsideTag, Tag insideTag)
         {
+            MdExceptionHelper.ThrowArgumentNullExceptionIf(
+                new ExceptionCheckObject(nameof(outsideTag), outsideTag), 
+                new ExceptionCheckObject(nameof(insideTag), insideTag));
             return nestingRules.ContainsKey(outsideTag) && nestingRules[outsideTag].Contains(insideTag);
         }
 
         public bool CanContain(Tag outsideTag, Tag insideTag)
         {
+            MdExceptionHelper.ThrowArgumentNullExceptionIf(
+                new ExceptionCheckObject(nameof(outsideTag), outsideTag), 
+                new ExceptionCheckObject(nameof(insideTag), insideTag));
             return !containRules.ContainsKey(outsideTag) || !containRules[outsideTag].Contains(insideTag);
         }
 
@@ -68,6 +81,9 @@ namespace Markdown
 
         public bool DoesMatchInFrontRule(TokenSegment segment, int newLinePosition)
         {
+            MdExceptionHelper.ThrowArgumentNullExceptionIf(
+                new ExceptionCheckObject(nameof(segment), segment), 
+                new ExceptionCheckObject(nameof(newLinePosition), newLinePosition));
             return CanBeNotInFront(segment.GetBaseTag()) || newLinePosition == 0;
         }
     }

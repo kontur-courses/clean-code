@@ -15,6 +15,7 @@ namespace Markdown
 
         private Tag(string openWord, string closeWord = null)
         {
+            MdExceptionHelper.ThrowArgumentNullExceptionIf(new ExceptionCheckObject(nameof(openWord), openWord));
             start = openWord;
 
             Start = start;

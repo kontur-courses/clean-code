@@ -8,6 +8,7 @@
         
         protected internal PreferTokenRulesConfigurator(TokenParserConfig config)
         {
+            MdExceptionHelper.ThrowArgumentNullExceptionIf(new ExceptionCheckObject(nameof(config), config));
             Config = config;
         }
         

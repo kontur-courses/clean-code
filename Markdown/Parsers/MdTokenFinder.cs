@@ -17,6 +17,10 @@ namespace Markdown
         
         public MdTokenFinder(Trie trie, TagRules rules, string shieldingSymbol)
         {
+            MdExceptionHelper.ThrowArgumentNullExceptionIf(
+                new ExceptionCheckObject(nameof(trie), trie),
+                new ExceptionCheckObject(nameof(rules), rules),
+                new ExceptionCheckObject(nameof(shieldingSymbol), shieldingSymbol));
             this.shieldingSymbol = shieldingSymbol;
             this.trie = trie;
             this.rules = rules;
@@ -55,6 +59,8 @@ namespace Markdown
         
         public TokenInfoCollection FindAllTokens(string text)
         {
+            MdExceptionHelper.ThrowArgumentNullExceptionIf(new ExceptionCheckObject(nameof(text), text));
+            
             foreach (var (token, index) in trie.Find(text))
             {
                 if (token is null || currentSearchStartIndex > index && lastIndex != index) continue;

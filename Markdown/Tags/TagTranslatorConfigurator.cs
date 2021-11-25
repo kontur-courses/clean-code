@@ -11,6 +11,7 @@ namespace Markdown
 
         private TagTranslatorConfigurator(Dictionary<Tag, Tag> tags)
         {
+            MdExceptionHelper.ThrowArgumentNullExceptionIf(new ExceptionCheckObject(nameof(tags), tags));
             this.tags = tags;
         }
         
@@ -45,13 +46,17 @@ namespace Markdown
 
             internal TagTranslatorToConfigurator(Dictionary<Tag, Tag> tags, Tag fromTag)
             {
+                MdExceptionHelper.ThrowArgumentNullExceptionIf(
+                    new ExceptionCheckObject(nameof(tags), tags),
+                    new ExceptionCheckObject(nameof(fromTag), fromTag));
                 this.fromTag = fromTag;
                 this.tags = tags;
             }
         
             internal TagTranslatorConfigurator To(Tag toTag)
             {
-                tags[fromTag] = toTag ?? throw new ArgumentNullException();
+                MdExceptionHelper.ThrowArgumentNullExceptionIf(new ExceptionCheckObject(nameof(toTag), toTag));
+                tags[fromTag] = toTag;
                 return new TagTranslatorConfigurator(tags);
             }
         } 
@@ -64,11 +69,13 @@ namespace Markdown
 
             internal TagTranslatorFromConfigurator(Dictionary<Tag, Tag> tags)
             {
+                MdExceptionHelper.ThrowArgumentNullExceptionIf(new ExceptionCheckObject(nameof(tags), tags));
                 this.tags = tags;
             }
         
             internal TagTranslatorToConfigurator From(Tag tag)
             {
+                MdExceptionHelper.ThrowArgumentNullExceptionIf(new ExceptionCheckObject(nameof(tag), tag));
                 return new TagTranslatorToConfigurator(tags, tag);
             }
         }

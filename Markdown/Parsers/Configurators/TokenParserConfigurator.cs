@@ -14,6 +14,7 @@ namespace Markdown
         
         protected internal TokenParserConfigurator(TokenParserConfig config)
         {
+            MdExceptionHelper.ThrowArgumentNullExceptionIf(new ExceptionCheckObject(nameof(config), config));
             Config = config;
         }
 
@@ -24,6 +25,8 @@ namespace Markdown
 
         public PreferTokenRulesConfigurator AddToken(Tag token)
         {
+            MdExceptionHelper.ThrowArgumentNullExceptionIf(new ExceptionCheckObject(nameof(token), token));
+            
             Config.Tokens.Add(token.Start);
             Config.LastAddedToken = token;
             return new PreferTokenRulesConfigurator(Config);
@@ -31,13 +34,16 @@ namespace Markdown
 
         public TokenParserConfigurator AddTagInterruptToken(Tag token)
         {
-            if (token.End is not null) throw new ArgumentException();
+            MdExceptionHelper.ThrowArgumentNullExceptionIf(new ExceptionCheckObject(nameof(token), token));
+            
             Config.InterruptTokens.Add(token.Start);
             return this;
         }
 
         public TokenParserConfigurator SetShieldingSymbol(Tag symbol)
         {
+            MdExceptionHelper.ThrowArgumentNullExceptionIf(new ExceptionCheckObject(nameof(symbol), symbol));
+            
             if (Config.ShieldingSymbol.Setted) throw new ArgumentException("shielding symbol already setted");
             Config.ShieldingSymbol = (symbol, true);
             return this;

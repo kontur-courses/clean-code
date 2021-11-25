@@ -11,7 +11,9 @@ namespace Markdown
 
         public void SetReference(Tag from, Tag to)
         {
-            if (from is null || to is null) throw new ArgumentNullException();
+            MdExceptionHelper.ThrowArgumentNullExceptionIf(
+                new ExceptionCheckObject(nameof(from), from),
+                new ExceptionCheckObject(nameof(to), to));
             if (tagsRelations.ContainsKey(from))
                 throw new ArgumentException($"tag {from.Start} already translating to tag {tagsRelations[from].Start}");
 
@@ -20,10 +22,8 @@ namespace Markdown
 
         public Tag Translate(Tag tag)
         {
-            if (tag is null) throw new ArgumentNullException();
-            if (!tagsRelations.ContainsKey(tag)) return tag;
-
-            return tagsRelations[tag];
+            MdExceptionHelper.ThrowArgumentNullExceptionIf(new ExceptionCheckObject(nameof(tag), tag));
+            return !tagsRelations.ContainsKey(tag) ? tag : tagsRelations[tag];
         }
     }
 }

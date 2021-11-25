@@ -10,6 +10,10 @@ namespace Markdown
 
         internal TokenParser(Trie trie, TagRules rules, string shieldingSymbol)
         {
+            MdExceptionHelper.ThrowArgumentNullExceptionIf(
+                new ExceptionCheckObject(nameof(trie), trie),
+                new ExceptionCheckObject(nameof(rules), rules),
+                new ExceptionCheckObject(nameof(shieldingSymbol), shieldingSymbol));
             this.shieldingSymbol = shieldingSymbol;
             this.trie = trie;
             this.rules = rules;
@@ -22,11 +26,16 @@ namespace Markdown
 
         public string ReplaceTokens(string text, SegmentsCollection tokenSegments, ITagTranslator translator)
         {
+            MdExceptionHelper.ThrowArgumentNullExceptionIf(
+                new ExceptionCheckObject(nameof(text), text),
+                new ExceptionCheckObject(nameof(tokenSegments), tokenSegments),
+                new ExceptionCheckObject(nameof(translator), translator));
             return new StringHelper(rules, text).ReplaceTokens(tokenSegments, translator);
         }
 
         public TokenInfoCollection FindAllTokens(string text)
         {
+            MdExceptionHelper.ThrowArgumentNullExceptionIf(new ExceptionCheckObject(nameof(text), text));
             return new MdTokenFinder(trie, rules, shieldingSymbol).FindAllTokens(text);
         }
     }
