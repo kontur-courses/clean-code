@@ -33,10 +33,10 @@ namespace Markdown
             return new TokenInfo(segment.StartPosition, segment.GetBaseTag().Start, false, true);
         }
 
-        private static IEnumerable<TokenInfo> DecomposeIntoTokens(SegmentsCollection tokenSegments)
+        private static IEnumerable<TokenInfo> DecomposeIntoTokens(IEnumerable<TokenSegment> tokenSegments)
         {
             var sortedSegments = tokenSegments
-                .GetSortedSegments()
+                .OrderBy(x => x.StartPosition)
                 .Where(x => !x.IsEmpty())
                 .ToList();
 
@@ -53,7 +53,7 @@ namespace Markdown
                 builder.Append(singleTagsCloseSymbols.Pop());
         }
         
-        public string ReplaceTokens(SegmentsCollection tokenSegments, ITagTranslator translator)
+        public string ReplaceTokens(IEnumerable<TokenSegment> tokenSegments, ITagTranslator translator)
         {
             MdExceptionHelper.ThrowArgumentNullExceptionIf(
                 new ExceptionCheckObject(nameof(tokenSegments), tokenSegments),

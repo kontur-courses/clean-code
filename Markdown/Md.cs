@@ -59,7 +59,7 @@ namespace Markdown
                 .ToTokenSegments(parser.GetRules())
                 .ToList();
 
-            return parser.ReplaceTokens(input, new SegmentsCollection(tokenSegments), translator);
+            return parser.ReplaceTokens(input, tokenSegments, translator);
         }
     }
 }

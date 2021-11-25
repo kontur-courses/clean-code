@@ -1,4 +1,5 @@
-﻿using AhoCorasick;
+﻿using System.Collections.Generic;
+using AhoCorasick;
 
 namespace Markdown
 {
@@ -24,7 +25,7 @@ namespace Markdown
             return rules;
         }
 
-        public string ReplaceTokens(string text, SegmentsCollection tokenSegments, ITagTranslator translator)
+        public string ReplaceTokens(string text, IEnumerable<TokenSegment> tokenSegments, ITagTranslator translator)
         {
             MdExceptionHelper.ThrowArgumentNullExceptionIf(
                 new ExceptionCheckObject(nameof(text), text),
