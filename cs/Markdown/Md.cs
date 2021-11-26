@@ -16,7 +16,7 @@ namespace Markdown
             var mdParser = MdParser.Default;
             var htmlRenderer = HtmlRender.Default;
             var shieldedText = new StringWithShielding(mdText, ShieldingSymbol, '*',
-                new HashSet<char>() { ItalicQuotes, HeaderSymbol });
+                new HashSet<char>() { '!', '[', ']', '(', ')', ItalicQuotes, HeaderSymbol });
             var parseResult = mdParser.Parse(shieldedText);
             if (parseResult.Status != Status.Success)
                 throw new ArgumentException("Incorrect");
