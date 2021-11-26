@@ -6,45 +6,71 @@ namespace MarkdownTest
 {
     public class MdTests
     {
-        [TestCase("_a_", "<em>a</em>", TestName = "Word is highlighted by tag when word is key in terms")]
-        [TestCase("__", "__", TestName = "Term does not become tag when there is nothing in it")]
-        [TestCase("_aa", "_aa", TestName = "Word is not tagged when term is not closed")]
-        [TestCase("a_sds_d", "a<em>sds</em>d", TestName = "Part of word is highlighted with tag when term is closed inside word")]
-        [TestCase("_a b_", "<em>a b</em>", TestName = "Multiple words are highlighted with tag when term is behind word")]
-        [TestCase("a_s d_d", "a_s d_d", TestName = "Part of word is not highlighted with tag when opening and closing terms are inside different words")]
-        [TestCase("_s d_d", "_s d_d", TestName = "Input is not highlighted with tag when only closing term is inside word")]
-        [TestCase("a_s d_", "a_s d_", TestName = "Input is not highlighted with tag when only opening term is inside word")]
-        [TestCase("_asd _", "_asd _", TestName = "Input is not tagged when space is before closing tag")]
-        [TestCase("_ sdf_", "_ sdf_", TestName = "Input is not tagged when space is after opening tag")]
-        [TestCase("dfdf _sdf_ dfsdf _dddd_ df", "dfdf <em>sdf</em> dfsdf <em>dddd</em> df", TestName = "Terms in sentence are tagged when they are closed")]
-        [TestCase("dfdf _sdf_ dfsdf _dddd df", "dfdf <em>sdf</em> dfsdf _dddd df", TestName = "Closed terms in sentence are highlighted with tag when there is open after closed one")]
-        [TestCase("dfdf _sdf dfsdf _dddd_ df", "dfdf _sdf dfsdf <em>dddd</em> df", TestName = "Closed terms in sentence are highlighted with tag when there is closed one after open one")]
-        [TestCase("df_123_2", "df_123_2", TestName = "Numbers enclosed in term are not tagged when term is inside word")]
-        [TestCase("_123_", "<em>123</em>", TestName = "Numbers enclosed in term are highlighted with tag when word is inside term")]
-        //[TestCase("_a_ _b_", "<em>a</em> <em>b</em>", TestName = "два тега друг за другом")]
-        //[TestCase("__ _b_", "__ <em>b</em>", TestName = "два тега друг за другом")]
-        //[TestCase("_", "_", TestName = "только подчеркивание")]
-        //[TestCase("a_", "a_", TestName = "подчеркивание после слова")]
+        [TestCase("", "", TestName = "Empty input")]
+        [TestCase(null, "", TestName = "Null in input")]
 
+        [TestCase("aa", "aa", TestName = "Only one word")]
+        [TestCase("aaa sdsd", "aaa sdsd", TestName = "Sentance without service symbols")]
 
+        [TestCase("_a_", "<em>a</em>", TestName = "One word in italic tag")]
+        [TestCase("__", "__", TestName = "Only bold term")]
+        [TestCase("_aa", "_aa", TestName = "Opened italic term and word")]
+        [TestCase("_a_sds_d_", "<em>a</em>sds<em>d</em>",
+            TestName = "Part of word is highlighted with tag when term is closed inside word")]
+        [TestCase("_a b_", "<em>a b</em>", TestName = "Multiple words in italic tag")]
+        [TestCase("a_s d_d", "a_s d_d",
+            TestName = "Opening and closing terms are inside different words")]
+        [TestCase("_s d_d", "_s d_d",
+            TestName = "Input is not highlighted with tag when only closing term is inside word")]
+        [TestCase("a_s d_", "a_s d_",
+            TestName = "Input is not highlighted with tag when only opening term is inside word")]
+        [TestCase("_asd _", "_asd _",
+            TestName = "Space before closed term")]
+        [TestCase("_ sdf_", "_ sdf_",
+            TestName = "Space after opened term")]
+        [TestCase("dfdf _sdf_ dfsdf _dddd_ df", "dfdf <em>sdf</em> dfsdf <em>dddd</em> df",
+            TestName = "Italic tags inside sentence")]
+        [TestCase("dfdf _sdf_ dfsdf _dddd df", "dfdf <em>sdf</em> dfsdf _dddd df",
+            TestName = "Italic tag before unclosed italic term")]
+        [TestCase("dfdf _sdf dfsdf _dddd_ df", "dfdf _sdf dfsdf <em>dddd</em> df",
+            TestName = "Italic tag after unclosed italic term")]
+        [TestCase("df_123_2", "df_123_2", TestName = "Italic term in word with digits")]
+        [TestCase("_123_", "<em>123</em>", TestName = "Number in italic tag")]
+        [TestCase("_a_ _b_", "<em>a</em> <em>b</em>", TestName = "Only words in tags in sentence")]
+        [TestCase("__ _b_", "__ <em>b</em>", TestName = "Open bold term and italic tag")]
+        [TestCase("_", "_", TestName = "Only italic term")]
+        [TestCase("a_", "a_", TestName = "Word and italic term")]
 
-        [TestCase("__asd _aa_ dfdf__", "<strong>asd <em>aa</em> dfdf</strong>", TestName = "Terms become tags when singles inside doubles")]
-        [TestCase("_a __a__ d_", "<em>a __a__ d</em>", TestName = "Internal terms do not turn into tags when doubles inside singles")]
-        //[TestCase("_asd __aa__ dfdf", "_asd <strong>aa</strong> dfdf", TestName = "двойные после незакрытой одинарной")]
-        [TestCase("_asd __aa_ dfdf__", "_asd __aa_ dfdf__", TestName = "Terms do not become tags when doubles and singles intersect")]
-        [TestCase("_asd__", "_asd__", TestName = "Word is not highlighted in tag when terms are unpaired")]
+        [TestCase("__ aa__", "__ aa__", TestName = "Space after open bold tag")]
+        [TestCase("__aa __", "__aa __", TestName = "Space before closing bold tag")]
+        [TestCase("__a__aaa__a__", "<strong>a</strong>aaa<strong>a</strong>",
+            TestName = "Bold tags inside word")]
+        [TestCase("a__d a__d", "a__d a__d", TestName = "Bold terms in different words")]
 
-        [TestCase(@"\asd \n \t", @"\asd \n \t", TestName = "Escaping character is displayed when nothing is escaping")]
-        [TestCase(@"\_a_", @"_a_", TestName = "Escaping character is not displayed when escaping underscore")]
-        [TestCase(@"\__a__", @"__a__", TestName = "Escaping character is not displayed when escaping double underscore")]
-        [TestCase(@"\\", @"\", TestName = "Escaping character is not displayed when escaping itself")]
-        [TestCase(@"\#", @"#", TestName = "Escaping character is not displayed when escaping header term")]
+        [TestCase("__asd _aa_ dfdf__", "<strong>asd <em>aa</em> dfdf</strong>",
+            TestName = "Italic tag inside bold tag")]
+        [TestCase("_a __a__ d_", "<em>a __a__ d</em>", TestName = "Bold tag inside italic tag")]
+        [TestCase("_asd __aa__ dfdf", "_asd <strong>aa</strong> dfdf",
+            TestName = "Unclosed italic term and bold tag")]
+        [TestCase("_asd __aa_ dfdf__", "_asd __aa_ dfdf__", TestName = "Crossing italic and bold terms")]
+        [TestCase("_asd__", "_asd__", TestName = "Unpaired terms")]
 
-        [TestCase("#asfdf asd", "<h1>asfdf asd</h1>", TestName = "Sentence is highlighted in title tag when title term is at beginning")]
-        [TestCase("aa #asfdf asd", "aa #asfdf asd", TestName = "Sentence is not highlighted in title tag when title term is not at beginning")]
-        //[TestCase("#_asfdf_ asd", "<h1><em>asfdf</em> asd</h1>", TestName = "заголовок содержащий курсив")]
-        //[TestCase("#__as _asfdf_ as__", "<h1><strong>as <em>asfdf</em> as</strong></h1>", TestName = "максимальный уровень вложенности")]
-      
+        [TestCase(@"\asd\n\t", @"\asd\n\t", TestName = "Escaping with regular characters")]
+        [TestCase(@"\_a_", @"_a_", TestName = "Escaping italic term")]
+        [TestCase(@"\_ai _sjj_ dfdf_", @"_ai <em>sjj</em> dfdf_",
+            TestName = "Escaping italic term and italic tag")]
+        [TestCase(@"\__a__", @"__a__", TestName = "Escaping bold term")]
+        [TestCase(@"\\", @"\", TestName = "Escaping itself")]
+        [TestCase(@"\#", @"#", TestName = "Escaping header term")]
+
+        [TestCase("# ", "# ", TestName = "Only header tag")]
+        [TestCase("#asfdf", "<h1>asfdf</h1>", TestName = "One word in header tag")]
+        [TestCase("#asfdf asd", "<h1>asfdf asd</h1>", TestName = "Sentence in header tag")]
+        [TestCase("aa #asfdf asd", "aa #asfdf asd", TestName = "Header term inside sentence")]
+        [TestCase("#_asfdf_ asd", "<h1><em>asfdf</em> asd</h1>", TestName = "Header with italic tag")]
+        [TestCase("#__aaaa__", "<h1><strong>aaaa</strong></h1>", TestName = "Header with bold tag")]
+        [TestCase("#__as _asfdf_ as__", "<h1><strong>as <em>asfdf</em> as</strong></h1>",
+            TestName = "Header with italic tag inside bold tag")]
         public void CheckHeaderOnly(string input, string asertResult)
         {
             var html = Md.Render(input);

@@ -9,10 +9,10 @@ namespace MarkdownTest
     {
         private List<char> serviceSymbols = new List<char>() { '_', '#', '\\' };
 
-        [TestCase("_a_", 2, TestName = "ee")]
+        [TestCase("_a_", 2, TestName = "Tag is one term")]
         public void CheckMethod(string input, int resultCount)
         {
-            var terms = new StringToTermParser(input, serviceSymbols).ParseByServiceSymbols();
+            var terms = new StringToTermParser(serviceSymbols).ParseByServiceSymbols(input);
             var termAnalizator = new TermsAnalizator(input);
 
             var resultTerms = termAnalizator.AnalyseTerms(terms);

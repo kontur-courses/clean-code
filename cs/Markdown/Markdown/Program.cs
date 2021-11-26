@@ -9,7 +9,6 @@ namespace Markdown
     {
         static void Main(string[] args)
         {
-            var a = Md.Render("#___asfdf___");
         }
     }
 }

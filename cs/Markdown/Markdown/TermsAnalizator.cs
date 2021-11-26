@@ -44,8 +44,7 @@ namespace Markdown
 
         private void AnalyseServiceTerm(Stack<Term> stack, List<Term> result, List<Term> excludeTerms, Term term)
         {
-            Term lastTerm;
-            if (stack.TryPeek(out lastTerm))
+            if (stack.TryPeek(out var lastTerm))
             {
                 if (ArePair(lastTerm, term))
                 {
@@ -55,7 +54,7 @@ namespace Markdown
                     result.Add(lastTerm);
                     if (lastTerm.ServiceSymbol == "_")
                     {
-                        ExcludeInternalTerm(result, excludeTerms, lastTerm, "__");
+                        excludeTerms.AddRange(ExcludeInternalTerm(result, lastTerm, "__"));
                     }
                 }
                 else
@@ -65,7 +64,7 @@ namespace Markdown
                 stack.Push(term);
         }
 
-        private void ExcludeInternalTerm(List<Term> result, List<Term> excludeTerms, Term lastTerm, string excludeServiceSymbol)
+        private IEnumerable<Term> ExcludeInternalTerm(List<Term> result, Term lastTerm, string excludeServiceSymbol)
         {
             var internalTerms = result
                 .Where
@@ -79,7 +78,7 @@ namespace Markdown
             {
                 excludeTerm.ChangeServiseSymbol("");
                 foreach (var term in result.Where(term => term.StartIndex > excludeTerm.StartIndex && term.EndIndex < excludeTerm.EndIndex))
-                    excludeTerms.Add(term);
+                    yield return term;
             }
         }
 
@@ -100,15 +99,16 @@ namespace Markdown
                 return false;
             if (openingTerm.ServiceSymbol != "")
             {
-                var innerText = input.Substring(openingTerm.EndIndex + openingTerm.ServiceSymbol.Length,
-                    closingTerm.StartIndex - openingTerm.EndIndex - openingTerm.ServiceSymbol.Length);
+                var innerText = input.Substring(openingTerm.StartIndex + openingTerm.ServiceSymbol.Length,
+                    closingTerm.StartIndex - openingTerm.StartIndex - openingTerm.ServiceSymbol.Length);
 
-                if(IsInsideText(openingTerm) || IsInsideText(closingTerm))
-                    return !innerText.Contains(" ") && !innerText.Where(c => char.IsDigit(c)).Any();
+                if (IsInsideText(openingTerm) || IsInsideText(closingTerm))
+                    return !innerText.Contains(" ") && !innerText.Any(char.IsDigit);
 
                 return 
                     input[openingTerm.StartIndex + openingTerm.ServiceSymbol.Length] != ' ' 
-                    && input[closingTerm.StartIndex - 1] != ' ';
+                    && input[closingTerm.StartIndex - 1] != ' ' 
+                    && !(string.IsNullOrEmpty(innerText) || string.IsNullOrWhiteSpace(innerText));
             }
             return false;
         }

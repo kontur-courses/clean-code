@@ -15,10 +15,10 @@ namespace MarkdownTest
                 {"__","strong"}
             };
 
-        [TestCase("_a_","<em>a</em>",TestName ="ww")]
+        [TestCase("_a_","<em>a</em>", TestName = "Word in italic tag when italic term is closing")]
         public void CheckMethod(string input, string expectedResult)
         {
-            var terms = new StringToTermParser(input, new List<char>() { '_', '\\', '#' }).ParseByServiceSymbols();
+            var terms = new StringToTermParser(serviceSymbols).ParseByServiceSymbols(input);
             var resultTerms = new TermsAnalizator(input).AnalyseTerms(terms);
             var result = TermsToHtmlParser.ParseTermsToHtml(resultTerms, input, serviceSymbolHtml);
 
