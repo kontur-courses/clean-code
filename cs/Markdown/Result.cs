@@ -7,13 +7,13 @@
         NotFound,
         BadResult
     }
-    
+
     public class Result<T>
     {
-        public readonly Status Status;
         public readonly T Value;
+        public readonly Status Status;
 
-        public Result(Status status, T value)
+        public Result(Status status, T value )
         {
             Status = status;
             Value = value;

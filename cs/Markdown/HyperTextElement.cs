@@ -2,8 +2,8 @@
 {
     public class HyperTextElement
     {
-        public HyperTextElement[] Children;
-        public TextType Type;
+        public readonly HyperTextElement[] Children;
+        public readonly TextType Type;
         
         public HyperTextElement(TextType type, params HyperTextElement[] children)
         {
@@ -14,7 +14,7 @@
 
     public class HyperTextElement<T> : HyperTextElement
     {
-        public T Value;
+        public readonly T Value;
         
         public HyperTextElement(TextType type, T value) : base(type)
         {

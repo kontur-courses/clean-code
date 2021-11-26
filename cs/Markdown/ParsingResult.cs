@@ -17,7 +17,7 @@
             return new ParsingResult(Status.Success, value, startIndex, endIndex);
         }
 
-        public static ParsingResult Fail(Status reason)
+        public new static ParsingResult Fail(Status reason)
         {
             return new ParsingResult(reason, null, 0, 0);
         }

@@ -26,16 +26,14 @@ namespace Markdown
         {
             get
             {
-                if (index >= Text.Length)
+                if (index >= Text.Length || index < 0)
                     throw new IndexOutOfRangeException();
-                if (index > 0  &&  FunctionSymbols.Contains(Text[index]))
-                {
-                    var shieldingCount = 0;
-                    for (var i = index - 1; i >= 0 && Text[i] == ShieldingSymbol; i--)
-                        shieldingCount++;
-                    return shieldingCount % 2 == 1 ? ShieldingReplacement : Text[index];
-                }
-                return Text[index];
+                if (index <= 0 || !FunctionSymbols.Contains(Text[index])) 
+                    return Text[index];
+                var shieldingCount = 0;
+                for (var i = index - 1; i >= 0 && Text[i] == ShieldingSymbol; i--)
+                    shieldingCount++;
+                return shieldingCount % 2 == 1 ? ShieldingReplacement : Text[index];
             }
         }
 
