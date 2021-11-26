@@ -63,17 +63,18 @@
         <Compile Include="Converters\TreeConverter.cs" />
         <Compile Include="Program.cs" />
         <Compile Include="Properties\AssemblyInfo.cs" />
-        <Compile Include="Tag\ItalicsTag.cs" />
-        <Compile Include="Tag\EmptyTag.cs" />
-        <Compile Include="Tag\ITag.cs" />
-        <Compile Include="Tag\StrongTextTag.cs" />
-        <Compile Include="Tag\TagBuilder.cs" />
-        <Compile Include="Tag\TagType.cs" />
-        <Compile Include="Tag\TitleTag.cs" />
+        <Compile Include="MdTags\ItalicsTag.cs" />
+        <Compile Include="MdTags\ListElement.cs" />
+        <Compile Include="MdTags\Tag.cs" />
+        <Compile Include="MdTags\StrongTextTag.cs" />
+        <Compile Include="MdTags\TagBuilder.cs" />
+        <Compile Include="MdTags\TagType.cs" />
+        <Compile Include="MdTags\TitleTag.cs" />
+        <Compile Include="MdTags\UnnumberedList.cs" />
         <Compile Include="Tests\MdTests.cs" />
         <Compile Include="Tests\TagsConverterTests.cs" />
         <Compile Include="Tests\TreeConverterTests.cs" />
-        <Compile Include="Tree\Node.cs" />
+        <Compile Include="SyntaxTree\Tree.cs" />
     </ItemGroup>
     <ItemGroup>
       <None Include="packages.config" />

@@ -1,12 +1,12 @@
-﻿namespace Markdown.Tag
+﻿namespace Markdown.MdTags
 {
-    public class TitleTag : ITag
+    public class Tag
     {
-        public TagType Type => TagType.Title;
+        public virtual TagType Type => TagType.None;
         public int Start { get; }
         public int End { get; }
 
-        public TitleTag(int start, int end)
+        public Tag(int start, int end)
         {
             Start = start;
             End = end;

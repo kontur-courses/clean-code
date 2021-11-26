@@ -1,21 +1,21 @@
 ﻿using System.Linq;
-using Markdown.Tag;
-using Markdown.Tree;
+using Markdown.MdTags;
+using Markdown.SyntaxTree;
 
 namespace Markdown.Converters
 {
     public static class TreeConverter
     {
-        public static Node ConvertToTree(string text)
+        public static Tree ConvertToTree(string paragraph)
         {
-            if (text == null)
+            if (paragraph == null)
             {
                 return null;
             }
 
-            var result = new Node(new EmptyTag(0, text.Length));
+            var result = new Tree(new Tag(0, paragraph.Length));
 
-            var tags = TagsConverter.GetAllTags(text);
+            var tags = TagsConverter.GetAllTags(paragraph);
             foreach (var tag in tags)
             {
                 AddTag(result, tag);
@@ -24,30 +24,44 @@ namespace Markdown.Converters
             return result;
         }
 
-        private static void AddTag(Node tree, ITag tag)
+        private static void AddTag(Tree tree, Tag tag)
         {
-            if (tree.Tag == null)
+            if (tree.Root == null)
             {
-                tree.Tag = tag;
+                tree.Root = tag;
             }
             else
             {
+                if (!CanAddTag(tree, tag))
+                {
+                    return;
+                }
+
                 if (tree.Children.Count == 0)
                 {
-                    tree.Children.Add(new Node(tag));
+                    tree.Children.Add(new Tree(tag));
                 }
                 else
                 {
                     foreach (var subtree in tree.Children.Where(node =>
-                        tag.End < node.Tag.End && tag.Start > node.Tag.Start))
+                        tag.End < node.Root.End && tag.Start > node.Root.Start))
                     {
                         AddTag(subtree, tag);
                         return;
                     }
 
-                    tree.Children.Add(new Node(tag));
+                    tree.Children.Add(new Tree(tag));
                 }
             }
+        }
+
+        private static bool CanAddTag(Tree tree, Tag tag)
+        {
+            return !(tree.Root.Type == TagType.Italics && tag.Type == TagType.StrongText ||
+                     tree.Root.Type == TagType.UnnumberedList && tag.Type != TagType.ListElement ||
+                     tree.Root.Type == TagType.Title && tag.Type is TagType.UnnumberedList or TagType.ListElement ||
+                     tree.Children.Count == 0 && tree.Root.Type != TagType.UnnumberedList &&
+                     tag.Type == TagType.ListElement);
         }
     }
 }

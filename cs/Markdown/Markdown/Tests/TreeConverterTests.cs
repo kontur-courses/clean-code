@@ -1,7 +1,8 @@
-﻿using FluentAssertions;
+﻿using System.Collections.Generic;
+using FluentAssertions;
 using Markdown.Converters;
-using Markdown.Tag;
-using Markdown.Tree;
+using Markdown.MdTags;
+using Markdown.SyntaxTree;
 using NUnit.Framework;
 
 namespace Markdown.Tests
@@ -22,33 +23,64 @@ namespace Markdown.Tests
         {
             var tree = TreeConverter.ConvertToTree(text);
 
-            tree.Tag.Should().BeEquivalentTo(new EmptyTag(0, text.Length));
+            tree.Root.Should().BeEquivalentTo(new Tag(0, text.Length));
             tree.Children.Should().BeEmpty();
         }
 
         [Test]
         public void ConvertToTree_AddsFirstTagToChildrenOfMainNode()
         {
-            TreeConverter.ConvertToTree("_a_").Children[0].Should().BeEquivalentTo(new Node(new ItalicsTag(0, 2)));
+            TreeConverter.ConvertToTree("_a_").Children[0].Should().BeEquivalentTo(new Tree(new ItalicsTag(0, 2)));
         }
 
         [Test]
         public void ConvertToTree_AddsDisjointTagsToChildrenOfMainNode()
         {
-            var children = TreeConverter.ConvertToTree("_a_ _b_").Children;
+            var expectedChildren = new List<Tree> {new Tree(new ItalicsTag(4, 6)), new Tree(new ItalicsTag(0, 2))};
 
-            children[0].Should().BeEquivalentTo(new Node(new ItalicsTag(4, 6)));
-            children[1].Should().BeEquivalentTo(new Node(new ItalicsTag(0, 2)));
+            TreeConverter.ConvertToTree("_a_ _b_")
+                .Children.Should()
+                .BeEquivalentTo(expectedChildren, options => options.WithoutStrictOrdering());
         }
 
         [Test]
         public void ConvertToTree_CorrectlyAddsIntersectingTags()
         {
-            var tree = TreeConverter.ConvertToTree("#a _b_ \n");
+            var tree = TreeConverter.ConvertToTree("#a _b_");
             var child = tree.Children[0];
 
-            child.Tag.Should().BeEquivalentTo(new TitleTag(0, 7));
-            child.Children[0].Tag.Should().BeEquivalentTo(new ItalicsTag(3, 5));
+            child.Root.Should().BeEquivalentTo(new TitleTag(0, 6));
+            child.Children[0].Root.Should().BeEquivalentTo(new ItalicsTag(3, 5));
+        }
+
+        [TestCase("_x__a__x_", TestName = "strong text tag is children of italic tag")]
+        [TestCase("*_a_*", TestName = "italic tag is children of unnumbered list")]
+        [TestCase("#*a*", TestName = "unnumbered list is children of title tag")]
+        [TestCase("#+a+", TestName = "list element is children of title tag")]
+        public void ConvertToTree_NotTagToChildrenOfAnother(string text)
+        {
+            var tree = TreeConverter.ConvertToTree(text);
+            var child = tree.Children[0];
+
+            child.Children.Should().BeEmpty();
+        }
+
+        [Test]
+        public void ConvertToTree_NotAddsTagToChildrenOfListElement_WhenItIsChildrenOfUnnumberedList()
+        {
+            var tree = TreeConverter.ConvertToTree("*+_a_+*");
+            var child = tree.Children[0].Children[0];
+
+            child.Children.Should().BeEmpty();
+        }
+
+        [Test]
+        public void ConvertToTree_NotAddsListElement_WhenItIsNotInsideUnnumberedList()
+        {
+            var tree = TreeConverter.ConvertToTree("+a+");
+            var child = tree.Children;
+
+            child.Should().BeEmpty();
         }
     }
 }

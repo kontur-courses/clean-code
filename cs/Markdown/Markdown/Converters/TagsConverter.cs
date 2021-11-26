@@ -1,25 +1,36 @@
-﻿using System;
-using System.Collections.Generic;
-using Markdown.Tag;
+﻿using System.Collections.Generic;
+using Markdown.MdTags;
 
 namespace Markdown.Converters
 {
     public static class TagsConverter
     {
-        public static Stack<ITag> GetAllTags(string mdText)
+        private const char EscapeChar = '\\';
+
+        public static Stack<Tag> GetAllTags(string mdParagraph)
         {
-            if (mdText == null)
+            if (mdParagraph == null)
             {
-                return new Stack<ITag>();
+                return new Stack<Tag>();
             }
 
-            var result = new Stack<ITag>();
-            var stack = new Stack<Tuple<TagType, int>>();
-            for (var i = 0; i < mdText.Length; i++)
+            var slashesCount = 0;
+            var openedTagsTypes = new List<TagType>();
+            var result = new Stack<Tag>();
+            var stack = new Stack<(TagType Type, int index)>();
+            for (var i = 0; i <= mdParagraph.Length; i++)
             {
-                var typeAndBound = GetBoundOfTag(mdText, i);
-                switch (typeAndBound.Item1)
+                if (i != mdParagraph.Length && mdParagraph[i].Equals(EscapeChar))
                 {
+                    slashesCount++;
+                }
+
+                var typeOfTag = GetTagType(mdParagraph, i);
+                switch (typeOfTag)
+                {
+                    case TagType.None when !mdParagraph[i].Equals(EscapeChar):
+                        slashesCount = 0;
+                        continue;
                     case TagType.None:
                         continue;
                     case TagType.StrongText:
@@ -27,54 +38,134 @@ namespace Markdown.Converters
                         break;
                 }
 
-                if (stack.Count != 0 && stack.Peek().Item1 == typeAndBound.Item1)
+                if (slashesCount % 2 == 1)
                 {
-                    result.Push(TagBuilder.OfType(typeAndBound.Item1).WithBounds(stack.Pop().Item2, i));
+                    continue;
+                }
+
+                if (!openedTagsTypes.Contains(typeOfTag) || stack.Count == 0)
+                {
+                    if (!IsCorrectOpening(mdParagraph, i, typeOfTag)) continue;
+                    openedTagsTypes.Add(typeOfTag);
+                    stack.Push((typeOfTag, i));
                 }
                 else
                 {
-                    stack.Push(Tuple.Create(typeAndBound.Item1, i));
+                    var previousTags = new Stack<(TagType Type, int index)>();
+                    previousTags.Push((typeOfTag, i));
+                    if (!IsCorrectClosing(mdParagraph, i, typeOfTag)) continue;
+                    while (stack.Count != 0 && previousTags.Count != 0)
+                    {
+                        if (stack.Peek().Type == previousTags.Peek().Type)
+                        {
+                            openedTagsTypes.Remove(stack.Peek().Type);
+                            result.Push(TagBuilder.OfType(stack.Peek().Type)
+                                .WithBounds(stack.Pop().index, previousTags.Pop().index));
+                        }
+                        else
+                        {
+                            previousTags.Push(stack.Pop());
+                        }
+                    }
                 }
             }
 
-            var lastBoundary = Tuple.Create(TagType.Title, mdText.Length);
-            while (stack.Count != 0)
+            return new Stack<Tag>(GetAllCorrectTags(mdParagraph, result)); // разворот стека в обратном порядке
+        }
+
+        private static Stack<Tag> GetAllCorrectTags(string paragraph, Stack<Tag> tags)
+        {
+            var result = new Stack<Tag>();
+            foreach (var tag in tags)
             {
-                if (stack.Count == 0)
+                var isCorrect = true;
+                if (tag.Type is TagType.Italics or TagType.StrongText)
                 {
-                    break;
+                    for (var i = tag.Start; i < tag.End; i++)
+                    {
+                        if (paragraph[i].Equals(' '))
+                        {
+                            isCorrect = false;
+                            break;
+                        }
+                    }
+
+                    if ((tag.Start == 0 || paragraph[tag.Start - 1].Equals(' ')) &&
+                        (tag.End == paragraph.Length - 1 || paragraph[tag.End + 1].Equals(' ')))
+                    {
+                        isCorrect = true;
+                    }
+
+                    if (tag.Type == TagType.Italics && tag.End - tag.Start == 1 ||
+                        tag.Type == TagType.StrongText && tag.End - tag.Start == 3)
+                    {
+                        isCorrect = false;
+                    }
                 }
 
-                if (lastBoundary.Item1 != stack.Peek().Item1)
+                if (isCorrect)
                 {
-                    stack.Pop();
-                }
-                else
-                {
-                    var index = stack.Pop().Item2;
-                    result.Push(TagBuilder.OfType(GetBoundOfTag(mdText, index).Item1)
-                        .WithBounds(index, lastBoundary.Item2));
+                    result.Push(tag);
                 }
             }
 
             return result;
         }
 
-        private static Tuple<TagType, string> GetBoundOfTag(string text, int index)
+        private static TagType GetTagType(string text, int index)
         {
-            var symbol = text[index];
-            switch (symbol)
+            if (index == text.Length)
             {
-                case '_' when index != text.Length - 1 && text[index + 1].Equals('_'):
-                    return Tuple.Create(TagType.StrongText, "__");
-                case '_':
-                    return Tuple.Create(TagType.Italics, "_");
-                case '#':
-                case '\n':
-                    return Tuple.Create(TagType.Title, symbol.ToString());
-                default:
-                    return Tuple.Create(TagType.None, "");
+                return TagType.Title;
             }
+
+            var digits = new List<char>()
+            {
+                '0',
+                '1',
+                '2',
+                '3',
+                '4',
+                '5',
+                '6',
+                '7',
+                '8',
+                '9'
+            };
+            var symbol = text[index];
+            return symbol switch
+            {
+                '_' when index != 0 && digits.Contains(text[index - 1]) ||
+                         index != text.Length - 1 && digits.Contains(text[index + 1]) => TagType.None,
+                '_' when (index != text.Length - 1 && text[index + 1].Equals('_')) => TagType.StrongText,
+                '_' => TagType.Italics,
+                '*' => TagType.UnnumberedList,
+                '+' => TagType.ListElement,
+                '#' when index == 0 => TagType.Title,
+                _ => TagType.None
+            };
+        }
+
+        private static bool IsCorrectOpening(string text, int index, TagType type)
+        {
+            return type switch
+            {
+                TagType.Italics when index != text.Length - 1 && text[index + 1].Equals(' ') => false,
+                TagType.Italics => true,
+                TagType.StrongText when index < text.Length - 1 && text[index + 1].Equals(' ') => false,
+                _ => true
+            };
+        }
+
+        private static bool IsCorrectClosing(string text, int index, TagType type)
+        {
+            return type switch
+            {
+                TagType.Italics when index != 0 && text[index - 1].Equals(' ') => false,
+                TagType.Italics => true,
+                TagType.StrongText when index != 1 && text[index - 2].Equals(' ') => false,
+                _ => true
+            };
         }
     }
 }
