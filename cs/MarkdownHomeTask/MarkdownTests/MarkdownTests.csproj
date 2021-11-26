@@ -63,6 +63,7 @@
         <Reference Include="System.Xml.Linq" />
     </ItemGroup>
     <ItemGroup>
+        <Compile Include="SemanticAnalyzerTests.cs" />
         <Compile Include="TokenizerTests.cs" />
         <Compile Include="Properties\AssemblyInfo.cs" />
     </ItemGroup>

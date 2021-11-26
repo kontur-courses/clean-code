@@ -1,9 +1,11 @@
-﻿namespace Markdown
+﻿using System.Runtime.Remoting.Channels;
+
+namespace Markdown
 {
     public class Token
     {
         public readonly int Start;
-        public readonly TokenType Type;
+        public TokenType Type { get; protected set; }
         public readonly string Value;
 
 
@@ -15,6 +17,17 @@
         }
 
         public bool IsEmpty => string.IsNullOrEmpty(Value);
+
+        public bool IsTag => Type == TokenType.Tag;
+
+        public bool IsWhiteSpace => Type == TokenType.WhiteSpace;
+        public bool IsText => Type == TokenType.Text;
+
+        public Token ToTextToken()
+        {
+            Type = TokenType.Text;
+            return this;
+        }
 
         public override bool Equals(object obj)
         {
