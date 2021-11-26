@@ -8,7 +8,13 @@ namespace MarkDown
 {
     public class ItalicToken : Token
     {
-        public string type = "italic";
+        public override string OpenedHtmlTag => "<em>";
+
+        public override string ClosedHtmlTag => "</em>";
+
+        public override int RawLengthOpen => 1;
+
+        public override int RawLengthClose => 1;
 
         public ItalicToken(int start) : base(start)
         {

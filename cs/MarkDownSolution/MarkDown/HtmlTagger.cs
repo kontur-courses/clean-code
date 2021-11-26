@@ -6,111 +6,46 @@ namespace MarkDown
 {
     public static class HtmlTagger
     {
-        private static string italicOpen = "<em>";
-        private static string italicClose = "</em>";
-        private static string boldOpen = "<strong>";
-        private static string boldClose = "</strong>";
-        private static string headerOpen = "<h1>";
-        private static string headerClose = "</h1>";
         private static List<char> protectedChars = new() { '_', '\\'};
         private static int counter = 0;
         public static string GetString(Token inputToken, string text)
         {
             counter = 0;
             var SB = new StringBuilder(text);
-            HandleTokenOpen(SB, inputToken);
+            OpenToken(SB, inputToken);
             var nested = inputToken.GetNestedTokens();
             foreach (var token in nested)
             {
                 ModifyStringBuilder(token, SB);
             }
-            HandleTokenClose(SB, inputToken);
+            CloseToken(SB, inputToken);
 
             return GetStringWithoutEscapes(SB);
         }
         
         private static void ModifyStringBuilder(Token inputToken, StringBuilder SB)
         {
-            HandleTokenOpen(SB, inputToken);
+            OpenToken(SB, inputToken);
             var nested = inputToken.GetNestedTokens();
             foreach (var token in nested)
             {
                 ModifyStringBuilder(token, SB);
             }
-            HandleTokenClose(SB, inputToken);
+            CloseToken(SB, inputToken);
         }
 
-        private static void HandleTokenOpen(StringBuilder SB, Token token)
+        private static void CloseToken(StringBuilder SB, Token token)
         {
-            switch (token)
-            {
-                case ItalicToken:
-                    OpenItalic(SB, token);
-                    break;
-                case BoldToken:
-                    OpenBold(SB, token);
-                    break;
-                case HeaderToken:
-                    OpenHeader(SB, token);
-                    break;
-            }
+            SB.Remove(token.Start + counter + token.Length - token.RawLengthClose, token.RawLengthClose);
+            SB.Insert(token.Start + counter + token.Length - token.RawLengthClose, token.ClosedHtmlTag);
+            counter = counter - token.RawLengthClose + token.ClosedHtmlTag.Length;
         }
 
-        private static void HandleTokenClose(StringBuilder SB, Token token)
+        private static void OpenToken(StringBuilder SB, Token token)
         {
-            switch (token)
-            {
-                case ItalicToken:
-                    CloseItalic(SB, token);
-                    break;
-                case BoldToken:
-                    CloseBold(SB, token);
-                    break;
-                case HeaderToken:
-                    CloseHeader(SB);
-                    break;
-            }
-        }
-
-        private static void CloseHeader(StringBuilder SB)
-        {
-            SB.Append(headerClose);
-            counter += 5;
-        }
-
-        private static void OpenHeader(StringBuilder SB, Token token)
-        {
-            SB.Remove(token.start, 2);
-            SB.Insert(token.start, headerOpen);
-            counter += 2;
-        }
-
-        private static void CloseBold(StringBuilder SB, Token token)
-        {
-            SB.Remove(token.start + counter + token.length - 2, 2);
-            SB.Insert(token.start + counter + token.length - 2, boldClose);
-            counter += 7;
-        }
-
-        private static void OpenBold(StringBuilder SB, Token token)
-        {
-            SB.Remove(token.start + counter, 2);
-            SB.Insert(token.start + counter, boldOpen);
-            counter += 6;
-        }
-
-        private static void CloseItalic(StringBuilder SB, Token token)
-        {
-            SB.Remove(token.start + counter + token.length - 1, 1);
-            SB.Insert(token.start + counter + token.length - 1, italicClose);
-            counter += 4;
-        }
-
-        private static void OpenItalic(StringBuilder SB, Token token)
-        {
-            SB.Remove(token.start + counter, 1);
-            SB.Insert(token.start + counter, italicOpen);
-            counter += 3;
+            SB.Remove(token.Start + counter, token.RawLengthOpen);
+            SB.Insert(token.Start + counter, token.OpenedHtmlTag);
+            counter = counter - token.RawLengthOpen + token.OpenedHtmlTag.Length;
         }
 
         private static string GetStringWithoutEscapes(StringBuilder SB)

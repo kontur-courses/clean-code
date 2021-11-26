@@ -4,11 +4,19 @@ namespace MarkDown
 {
     public class Token
     {
-        public bool closed { get; private set; }
+        public virtual string OpenedHtmlTag => "";
 
-        public int start { get; }
+        public virtual string ClosedHtmlTag => "";
 
-        public int length { get; private set; }
+        public virtual int RawLengthOpen => 0;
+
+        public virtual int RawLengthClose => 0;
+
+        public bool Closed { get; private set; }
+
+        public int Start { get; }
+
+        public int Length { get; private set; }
 
 
         public readonly List<Token> nestedTokens = new();
@@ -17,21 +25,21 @@ namespace MarkDown
 
         public Token(int start, int length)
         {
-            this.start = start;
-            this.length = length;
-            closed = true;
+            this.Start = start;
+            this.Length = length;
+            Closed = true;
         }
 
         public Token(int start)
         {
-            this.start = start;
-            closed = false;
+            this.Start = start;
+            Closed = false;
         }
 
         public void SetLength(int length)
         {
-            this.length = length;
-            closed = true;
+            this.Length = length;
+            Closed = true;
         }
 
         public void AddNestedToken(Token token)

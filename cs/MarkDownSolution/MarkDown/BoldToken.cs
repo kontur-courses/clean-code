@@ -8,7 +8,13 @@ namespace MarkDown
 {
     public class BoldToken : Token
     {
-        public string type = "bold";
+        public override string OpenedHtmlTag => "<strong>";
+
+        public override string ClosedHtmlTag => "</strong>";
+
+        public override int RawLengthOpen => 2;
+
+        public override int RawLengthClose => 2;
 
         public BoldToken(int start) : base(start)
         {

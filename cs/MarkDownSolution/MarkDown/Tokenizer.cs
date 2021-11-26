@@ -72,7 +72,7 @@ namespace MarkDown
             if (state.ItalicTokenIsOpened())
             {
                 if (TextHelper.CanCloseItalicToken(text, i) 
-                    && i - state.currentToken.start >= 2
+                    && i - state.currentToken.Start >= 2
                     && !state.wasIntersected)
                 {
                     if (state.currentToken is ItalicToken)
@@ -93,7 +93,7 @@ namespace MarkDown
                 {
                     if (state.currentToken is BoldToken)
                     {
-                        if (i - state.currentToken.start >= 4)
+                        if (i - state.currentToken.Start >= 4)
                         {
                             state.CloseBoldToken(i);
                         }

@@ -20,7 +20,7 @@ namespace MarkDown
 
         public static bool IsSecondGroundInRow(this TokenizerState state, int i)
         {
-            return i - state.currentToken.start == 1;
+            return i - state.currentToken.Start == 1;
         }
 
         public static bool IsSomeTokenOpened(this TokenizerState state)
@@ -49,7 +49,7 @@ namespace MarkDown
         public static void CloseItalicToken(this TokenizerState state, int i)
         {
             var token = state.currentToken;
-            token.SetLength(1 + i - token.start);
+            token.SetLength(1 + i - token.Start);
             state.currentToken = token.fatherToken;
             state.statesDict[CaseType.Italic] = false;
         }
@@ -57,7 +57,7 @@ namespace MarkDown
         public static void CloseBoldToken(this TokenizerState state, int i)
         {
             var token = state.currentToken;
-            token.SetLength(1 + i - token.start);
+            token.SetLength(1 + i - token.Start);
             state.currentToken = token.fatherToken;
             state.statesDict[CaseType.Bold] = false;
         }

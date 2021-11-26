@@ -20,7 +20,7 @@ namespace MarkDown
             {
                 IfOpenedOrIncorrectAddNestedToFather(nested[i]);
             }
-            if (!token.closed || token is BoldToken && token.fatherToken is ItalicToken)
+            if (!token.Closed || token is BoldToken && token.fatherToken is ItalicToken)
             {
                 foreach(var n in nested)
                 {
