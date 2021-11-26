@@ -27,7 +27,9 @@
 
         public override bool CanBeOpened(string text, int i)
         {
-            return TextHelper.CheckIfIthIsSpecificChar(text, i, '*') && i == 0;
+            return TextHelper.CheckIfIthIsSpecificChar(text, i, '*') 
+                && i == 0
+                && TextHelper.CheckIfIthIsSpecificChar(text, i + 1, ' ');
         }
 
         public override ListElementToken CreateNewTokenOfSameType(int start)
