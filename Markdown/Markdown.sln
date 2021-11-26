@@ -4,6 +4,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "AhoCorasick", "AhoCorasick\
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Markdown", "Markdown\Markdown.csproj", "{56FD7EE6-17DA-4360-B5C5-9DAD68E260B0}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MarkdownTests", "MarkdownTests\MarkdownTests.csproj", "{3F60C12C-0E1D-4DC7-BFB7-D31B24F65103}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -18,5 +20,9 @@ Global
 		{56FD7EE6-17DA-4360-B5C5-9DAD68E260B0}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{56FD7EE6-17DA-4360-B5C5-9DAD68E260B0}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{56FD7EE6-17DA-4360-B5C5-9DAD68E260B0}.Release|Any CPU.Build.0 = Release|Any CPU
+		{3F60C12C-0E1D-4DC7-BFB7-D31B24F65103}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{3F60C12C-0E1D-4DC7-BFB7-D31B24F65103}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{3F60C12C-0E1D-4DC7-BFB7-D31B24F65103}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{3F60C12C-0E1D-4DC7-BFB7-D31B24F65103}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 EndGlobal
