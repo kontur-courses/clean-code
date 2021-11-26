@@ -1,9 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-
-namespace Markdown
+﻿namespace Markdown
 {
     public class MdParagraphParser : ParserBase
     {
@@ -31,7 +26,7 @@ namespace Markdown
         {
             var paragraphEnd = mdText.IndexOf('\n', startBoundary);
             if (paragraphEnd < 0 || paragraphEnd > endBoundary)
-                paragraphEnd = endBoundary + 1;
+                return (endBoundary, endBoundary);
             var childrenEnd = paragraphEnd - 1;
             if (mdText[childrenEnd] == '\r')
                 childrenEnd--;

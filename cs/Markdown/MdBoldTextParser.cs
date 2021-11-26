@@ -1,6 +1,4 @@
-﻿using System.Collections.Generic;
-
-namespace Markdown
+﻿namespace Markdown
 {
     public class MdBoldTextParser : ParserBase
     {

@@ -15,38 +15,26 @@
                 type = TextType.Image;
                 index++;
             }
-            var text = TryReadTextPart(mdText, ref index, endBoundary);
+            var text = TryReadBrackets(mdText, ref index, endBoundary, '[', ']');
             if (text is null)
                 return ParsingResult.Fail(Status.NotFound);
             index++;
-            var source = TryReadSourcePart(mdText, ref index, endBoundary);
+            var source = TryReadBrackets(mdText, ref index, endBoundary, '(', ')');
             return source is null ? ParsingResult.Fail(Status.NotFound) : 
                 ParsingResult.Success(new HyperTextElement<LinkInfo>(type, 
                     new LinkInfo(text, source)), startBoundary, index);
         }
 
-        private string TryReadTextPart(StringWithShielding mdText, ref int index, int endBoundary)
+        private static string TryReadBrackets(StringWithShielding mdText, ref int index, int endBoundary, char openBracket,
+            char closedBracket)
         {
-            if (mdText[index] != '[')
+            if (mdText[index] != openBracket)
                 return null;
             index++;
             var textStart = index;
             for (; index <= endBoundary; index++)
             {
-                if (mdText[index] == ']')
-                    return mdText.ShieldedSubstring(textStart, index - 1);
-            }
-            return null;
-        }
-        private string TryReadSourcePart(StringWithShielding mdText, ref int index, int endBoundary)
-        {
-            if (mdText[index] != '(')
-                return null;
-            index++;
-            var textStart = index;
-            for (; index <= endBoundary; index++)
-            {
-                if (mdText[index] == ')')
+                if (mdText[index] == closedBracket)
                     return mdText.ShieldedSubstring(textStart, index - 1);
             }
             return null;

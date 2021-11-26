@@ -1,6 +1,4 @@
-﻿using System.Text;
-
-namespace Markdown.Render
+﻿namespace Markdown.Render
 {
     public interface IRenderer
     {
