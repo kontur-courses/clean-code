@@ -9,46 +9,56 @@ namespace Markdown
 {
     public class StringToTermParser
     {
-        public StringToTermParser(string input, List<char> serviceSymbols)
+        public StringToTermParser(List<char> serviceSymbols)
         {
-            this.input = input;
             this.serviceSymbols = ImmutableList.Create(serviceSymbols.ToArray());
         }
 
-        private readonly string input;
         private readonly ImmutableList<char> serviceSymbols;
-        public IEnumerable<Term> ParseByServiceSymbols()
+
+        public IEnumerable<Term> ParseByServiceSymbols(string input)
         {
             var result = new Stack<Term>();
-            var splitString = input.Select((c, i) => Tuple.Create(c, i)).Where(t => serviceSymbols.Contains(t.Item1));
-            var startIndex = 0;
+            var start = 0;
 
-            foreach (var serviceSymbol in splitString)
-            {
-                if (startIndex == serviceSymbol.Item2)
-                    continue;
-                AddTermsBetweenServiceSymbolsIndexes(result, startIndex, serviceSymbol.Item2);
+            for (var i = 0; i < input.Length; i++)
+                if (serviceSymbols.Contains(input[i]))
+                {
+                    if (start != i)
+                        result.Push(new Term(start, i - 1, "", false));
 
-                startIndex = serviceSymbol.Item2;
-            }
-            AddTermsBetweenServiceSymbolsIndexes(result, startIndex, input.Length);
+                    var nextSymb = TryGetSymbol(input, i + 1);
+
+                    Term currentTerm;
+                    if (input[i] == '_' && nextSymb == '_')
+                    {
+                        currentTerm = new Term(i, i + 1, "__");
+                        i++;
+                    }
+                    else if(input[i] == '\\')
+                        currentTerm = new Term(i, i, input[i].ToString(), false);
+                    else
+                        currentTerm = new Term(i, i, input[i].ToString());
+
+                    result.TryPop(out var lastTerm);
+                    foreach (var term in TermsDeterminant.Determinate(lastTerm, currentTerm, input))
+                        result.Push(term);
+
+                    start = i + 1;
+                }
+
+            if (start < input.Length)
+                result.Push(new Term(start, input.Length - 1, "", false));
 
             return result.Reverse();
         }
 
-        private void AddTermsBetweenServiceSymbolsIndexes(Stack<Term> result, int startIndex, int serviceSymbolIndex)
+        private static char? TryGetSymbol(string input, int index)
         {
-            if (serviceSymbols.Contains(input[startIndex]))
-            {
-                Term last;
-                result.TryPop(out last);
-                foreach (var term in TermsDeterminant.Determinate(last, new Term(startIndex, startIndex, input[startIndex].ToString()), input))
-                    result.Push(term);
-                if (startIndex + 1 <= serviceSymbolIndex - 1)
-                    result.Push(new Term(startIndex + 1, serviceSymbolIndex - 1, "", false));
-            }
-            else
-                result.Push(new Term(startIndex, serviceSymbolIndex - 1, "", false));
+            if (index >= 0 && index < input.Length)
+                return input[index];
+            return null;
         }
+        
     }
 }
