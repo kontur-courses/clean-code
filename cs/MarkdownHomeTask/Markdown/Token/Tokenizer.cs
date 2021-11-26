@@ -12,11 +12,11 @@ namespace Markdown
         private List<char> escapedSymbols;
         private int pointer;
 
-        public IEnumerable<Sentence> Tokenize(string line, IEnumerable<string> keyWords)
+        public IEnumerable<Sentence> Tokenize(string text, IEnumerable<string> keyWords)
         {
-            InitializeTokenizer(keyWords, line);
+            InitializeTokenizer(keyWords, text);
 
-            foreach (var sentence in line.Split('\n'))
+            foreach (var sentence in text.Split('\n'))
             {
                 yield return TokenizeWord(sentence);
                 pointer += sentence.Length + 1;

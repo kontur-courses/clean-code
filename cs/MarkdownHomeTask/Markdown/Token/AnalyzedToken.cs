@@ -4,6 +4,10 @@
     {
         public AnalyzedTokenType TagType { get; private set; }
 
+        public bool IsOpener => TagType == AnalyzedTokenType.Opener;
+        public bool IsClosing => TagType == AnalyzedTokenType.Closing;
+        public bool IsSentenceModifer => TagType == AnalyzedTokenType.SentenceModifer;
+
         public AnalyzedToken(int start, string value, TokenType type,
             AnalyzedTokenType analyzedTagType = AnalyzedTokenType.None)
             : base(start, value, type)

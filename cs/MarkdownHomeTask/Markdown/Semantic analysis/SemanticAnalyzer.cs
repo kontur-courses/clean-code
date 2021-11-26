@@ -1,6 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Globalization;
+﻿using System.Collections.Generic;
 using System.Linq;
 
 namespace Markdown
@@ -21,13 +19,6 @@ namespace Markdown
 
 
         public IReadOnlyList<AnalyzedToken> Analise(IReadOnlyList<Token> sourceTokens)
-        {
-            return GetTokensForSentence(sourceTokens);
-        }
-
-
-        private IReadOnlyList<AnalyzedToken> GetTokensForSentence(
-            IReadOnlyList<Token> sourceTokens)
         {
             List<AnalyzedToken> result = new();
 
@@ -69,6 +60,10 @@ namespace Markdown
                 isInsideWord = IsInsideWord(sourceTokens, i);
 
                 var analyzedToken = new AnalyzedToken(sourceTokens[i]);
+                var lastTokenTag = result.Count > 0 && result[result.Count - 1].IsTag
+                    ? result[result.Count - 1].Value
+                    : "";
+
                 result.Add(analyzedToken);
 
                 var tag = analyzedToken.Value;
@@ -81,8 +76,9 @@ namespace Markdown
 
                 else if (openedTagsStack.Count > 0 && openedTagsStack.Peek().Value.Equals(tag))
                 {
-                    if (!(isInsideWord && hasWhiteSpace) &&
-                        TryCloseTag(sourceTokens, i, openedTagsStack, analyzedToken, opened))
+                    if (!(isInsideWord && hasWhiteSpace)
+                        && !tag.Equals(lastTokenTag)
+                        && TryCloseTag(sourceTokens, i, openedTagsStack, analyzedToken, opened))
                     {
                         isInsideWord = false;
                         hasWhiteSpace = false;
@@ -102,6 +98,7 @@ namespace Markdown
 
             return result;
         }
+
 
         private bool TryCloseTag(IReadOnlyList<Token> sourceTokens,
             int index,
