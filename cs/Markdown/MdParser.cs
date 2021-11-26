@@ -22,7 +22,10 @@ namespace Markdown
                 var result = childParsers.Select(parser => parser.Parse(mdText, index, endBoundary))
                     .FirstOrDefault(r => r.Status == Status.Success);
                 if (result is null)
-                    break;
+                {
+                    index++;
+                    continue;
+                }
                 elements.Add(result.Value);
                 index = result.EndIndex + 1;
             }

@@ -68,6 +68,14 @@ namespace Markdown
                 return false;
             return !substring.Where((t, i) => this[index + i] != t).Any();
         }
+        
+        public int GetIntersectionLength(int index, string substring)
+        {
+            for (var i = index; index < Text.Length && i - index < substring.Length; i++)
+                if (substring[i - index] != Text[i])
+                    return i - index;
+            return Math.Min(Text.Length - index, substring.Length);
+        }
 
         public int IndexOf(char c, int startIndex)
         {

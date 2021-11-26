@@ -21,10 +21,16 @@ namespace Markdown
             if (IsInsideWordWithNumber(mdText, startBoundary, startBoundary + 1))
                 return ParsingResult.Fail(Status.NotFound);
             var endQuotesIndex = FindEndQuotes(mdText, startBoundary, endBoundary, inWord);
-            if (endQuotesIndex > endBoundary || endQuotesIndex == -1)
-                return inWord ? ParsingResult.Fail(Status.NotFound) : ParsingResult.Fail(Status.BadResult);
-            var children = ParseChildren(TextType.BoldText, mdText, startBoundary + 2, endQuotesIndex - 1);
-            return children.Status != Status.Success ? children : ParsingResult.Success(children.Value, startBoundary, endQuotesIndex + 1);
+            if (endQuotesIndex.Status != Status.Success)
+            {
+                if (!inWord && endQuotesIndex.Status == Status.NotFound)
+                    return ParsingResult.Success(new HyperTextElement<string>(TextType.PlainText, Md.BoldQuotes), startBoundary, startBoundary + 1);
+                return ParsingResult.Fail(endQuotesIndex.Status);
+            }
+            if (startBoundary + 2 == endQuotesIndex.Value)
+                return ParsingResult.Success(new HyperTextElement<string>(TextType.PlainText, Md.BoldQuotes + Md.BoldQuotes), startBoundary, startBoundary + 3);
+            var children = ParseChildren(TextType.BoldText, mdText, startBoundary + 2, endQuotesIndex.Value - 1);
+            return children.Status != Status.Success ? children : ParsingResult.Success(children.Value, startBoundary, endQuotesIndex.Value + 1);
         }
         
         public static bool IsInsideWord(StringWithShielding mdText, int leftIndex, int rightIndex)
@@ -49,16 +55,21 @@ namespace Markdown
             return false;
         }
 
-        private static int FindEndQuotes(StringWithShielding mdText, int startBoundary, int endBoundary, bool inSameWord)
+        private static Result<int> FindEndQuotes(StringWithShielding mdText, int startBoundary, int endBoundary, bool inSameWord)
         {
+            var spaceWas = false;
             for (var i = startBoundary + 2; i <= endBoundary; i++)
             {
-                if (inSameWord && mdText[i] == ' ')
-                    return -1;
-                if (mdText.ContainsAt(i, Md.BoldQuotes) && (mdText[i - 1] != ' ' || inSameWord))
-                    return i;
+                if (mdText[i] == ' ')
+                    spaceWas = true;
+                if (inSameWord && spaceWas)
+                    return Result<int>.Fail(Status.NotFound);
+                if (!mdText.ContainsAt(i, Md.BoldQuotes)) continue;
+                if (mdText[i - 1] != ' ' && (!spaceWas || (i + 1 == endBoundary || mdText[i + 2] == ' ')))
+                    return Result<int>.Success(i);
+                return Result<int>.Fail(Status.BadResult);
             }
-            return -1;
+            return Result<int>.Fail(Status.NotFound);
         }
     }
 }

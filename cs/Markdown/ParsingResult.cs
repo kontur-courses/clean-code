@@ -1,23 +1,13 @@
 ﻿namespace Markdown
 {
-    public enum Status
-    {
-        Success,
-        NotFound,
-        BadResult
-    }
     
-    public class ParsingResult
+    public class ParsingResult : Result<HyperTextElement>
     {
-        public readonly Status Status;
-        public readonly HyperTextElement Value;
         public readonly int StartIndex;
         public readonly int EndIndex;
 
-        private ParsingResult(Status status, HyperTextElement value, int start, int end)
+        private ParsingResult(Status status, HyperTextElement value, int start, int end) : base(status, value)
         {
-            Status = status;
-            Value = value;
             StartIndex = start;
             EndIndex = end;
         }
