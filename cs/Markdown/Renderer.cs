@@ -25,9 +25,13 @@ namespace Markdown
                 return token.Value;
             var tag = GetTag(token.TokenType);
             return new StringBuilder()
-                .Append(ConvertValueToHtml(tag,string.Join("", token.Children.Select(ToString))))
+                .Append(token.TokenType == TokenType.Link 
+                    ? GEtImage(token) 
+                    : ConvertValueToHtml(tag,string.Join("", token.Children.Select(ToString))))
                 .ToString();
         }
+
+        private string GEtImage(TokenTree token) => $"{string.Join("", token.Children.Select(x => ToString(x)))} href=\"{token.Value}\"";
         
         private string GetTag(TokenType type)
         {
@@ -36,10 +40,12 @@ namespace Markdown
                 TokenType.Header1 => "h1",
                 TokenType.Italics => "em",
                 TokenType.Strong => "strong",
+                TokenType.Link => "",
                 _ => throw new ArgumentException($"Unsupported token: {type}")
             };
         }
         
         private string ConvertValueToHtml(string tag, string value) => $"<{tag}>{value}</{tag}>";
+        
     }
 }

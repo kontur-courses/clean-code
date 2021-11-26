@@ -7,7 +7,7 @@ namespace Markdown
     {
         public static TokenText FromText(string value) => new() { Value = value };
         
-        private readonly HashSet<string> markupSymbols = new() { "\n", "_", "__", "\\", "#" };
+        private readonly HashSet<string> markupSymbols = new() { "\n", "_", "__", "\\", "#", "[", "]", "(", ")" };
         
         public TokenType TokenType => TokenType.Text;
         public string Value { get; private init; }

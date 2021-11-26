@@ -59,5 +59,13 @@ namespace MarkdownTest
         {
             return markdown.Render(text);
         }
+        
+        
+        [TestCase("[спецификации](MarkdownSpec.md)", ExpectedResult = "спецификации href=\"MarkdownSpec.md\"", TestName = "basic link")]
+        [TestCase("[__спецификации__](MarkdownSpec.md)", ExpectedResult = "<strong>спецификации</strong> href=\"MarkdownSpec.md\"", TestName = "Strong link")]
+        public string Render_ShouldWorkCorrectly_WhenLink(string text)
+        {
+            return markdown.Render(text);
+        }
     }
 }

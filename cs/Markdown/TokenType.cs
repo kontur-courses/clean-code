@@ -7,6 +7,11 @@
         Strong,
         Escape,
         NewLine,
-        Header1
+        Header1,
+        SquareBracketOpen,
+        SquareBracketClose,
+        BracketClose,
+        BracketOpen,
+        Link,
     }
 }

@@ -72,6 +72,13 @@ namespace MarkdownTest
             {
                 Token.Italics, Token.Escape, Token.Escape, Token.Italics
             }).SetName("Parse escape");
+            
+            
+            yield return new TestCaseData("[text](link)", new List<IToken>
+            {
+                Token.OpenSquareBracket, Token.FromText("text"), Token.CloseSquareBracket, 
+                Token.OpenBracket, Token.FromText("link"), Token.CloseBracket
+            }).SetName("Parse escape");
         }
     }
 }

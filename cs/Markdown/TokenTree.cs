@@ -24,6 +24,15 @@ namespace Markdown
         {
             Children = children;
         }
+        
+        public TokenTree(IToken token, List<TokenTree> children, int weight)
+        {
+            TokenType = token.TokenType;
+            Value = token.Value;
+            Children = children;
+            this.weight = weight;
+        }
+
 
         public TokenTree(string value)
         {
@@ -38,6 +47,8 @@ namespace Markdown
             TokenType = TokenType.Text;
             this.weight = weight;
         }
+        
+        
 
         public TokenTree(IToken token, int weight)
         {
