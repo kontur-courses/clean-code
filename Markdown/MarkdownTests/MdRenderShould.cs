@@ -90,6 +90,7 @@ namespace Markdown
         [TestCase("_18_", ExpectedResult = "<em>18</em>")]
 
         // Шарп
+        [TestCase("# ", ExpectedResult = "# ")]
         [TestCase("#_a ", ExpectedResult = "#_a ")]
         [TestCase("#_ab_", ExpectedResult = "#<em>ab</em>")]
         [TestCase("# _ab_", ExpectedResult = "<h1><em>ab</em></h1>")]
@@ -104,6 +105,16 @@ namespace Markdown
         [TestCase(@"\a \_a_", ExpectedResult = @"\a _a_")]
         [TestCase(@"\a \\\\\_a_", ExpectedResult = @"\a \\_a_")]
         [TestCase(@"\a \\_a_", ExpectedResult = @"\a \<em>a</em>")]
+        
+        // Список
+        [TestCase("* ", ExpectedResult = "* ")]
+        [TestCase("* a", ExpectedResult = "<ul>\n<li>a</li>\n</ul>")]
+        [TestCase("* a\n+ b\n- c", ExpectedResult = "<ul>\n<li>a</li>\n<li>b</li>\n<li>c</li>\n</ul>")]
+        [TestCase("* a\n* b", ExpectedResult = "<ul>\n<li>a</li>\n<li>b</li>\n</ul>")]
+        [TestCase("* a\n\n* b", ExpectedResult = "<ul>\n<li>a</li>\n</ul>\n\n<ul>\n<li>b</li>\n</ul>")]
+        [TestCase("* a\n\n+ b", ExpectedResult = "<ul>\n<li>a</li>\n</ul>\n\n<ul>\n<li>b</li>\n</ul>")]
+        [TestCase("- a\n\n+ b", ExpectedResult = "<ul>\n<li>a</li>\n</ul>\n\n<ul>\n<li>b</li>\n</ul>")]
+        [TestCase("* a\n\n* b", ExpectedResult = "<ul>\n<li>a</li>\n</ul>\n\n<ul>\n<li>b</li>\n</ul>")]
         public string CorrectRender(string text) => Md.Render(text);
         
         [TestCase(" __ab__ ", 100, 6, 4)]

@@ -10,8 +10,15 @@ namespace Markdown
         private readonly Dictionary<Tag, HashSet<Tag>> containRules = new();
         private readonly HashSet<Tag> inFrontRules = new();
         private readonly HashSet<Tag> tagInterruptTokens = new();
+        private readonly HashSet<Tag> tagNewLineTokens = new();
         private readonly HashSet<Tag> shieldedTags = new();
+        private readonly Dictionary<Tag, Tag> shells = new();
 
+        public void AddShellReference(Tag shelled, Tag shell)
+        {
+            shells.Add(shelled, shell);
+        }
+        
         public void SetShieldedTeg(Tag tag)
         {
             shieldedTags.Add(tag);
@@ -26,10 +33,20 @@ namespace Markdown
         {
             tagInterruptTokens.Add(tag);
         }
+        
+        public void AddNewLineTag(Tag tag)
+        {
+            tagNewLineTokens.Add(tag);
+        }
 
         public bool IsInterruptTag(Tag tag)
         {
             return tagInterruptTokens.Contains(tag);
+        }
+        
+        public bool IsNewLineTag(Tag tag)
+        {
+            return tagNewLineTokens.Contains(tag);
         }
         
         public void SetRule(Tag firstTag, Tag secondTag, InteractType interactType)
@@ -80,6 +97,14 @@ namespace Markdown
         public bool CanBeShielded(Tag tag)
         {
             return shieldedTags.Contains(tag);
+        }
+
+        public bool IsThisTagForShelling(Tag tokenInfoTag, out Tag? shellTag)
+        {
+            shellTag = null;
+            if (!shells.TryGetValue(tokenInfoTag, out var tag)) return false;
+            shellTag = tag;
+            return true;
         }
     }
 }

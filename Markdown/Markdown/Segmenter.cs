@@ -16,6 +16,8 @@ namespace Markdown
         private readonly HashSet<TokenInfo> provisionalContainRuleIgnoredTokens = new();
         private readonly Stack<TokenInfo> tokenStack = new();
 
+        private readonly Dictionary<Tag, TokenShellStatus> shells = new();
+
         public Segmenter(IEnumerable<TokenInfo> tokens, TagRules rules)
         {
             this.tokens = tokens;
@@ -109,7 +111,8 @@ namespace Markdown
 
         private void HandleSingleToken(TokenInfo tokenInfo, out TokenSegment? segment)
         {
-            if (rules.IsInterruptTag(tokenInfo.Tag))
+            TryHandleShells(tokenInfo);
+            if (rules.IsNewLineTag(tokenInfo.Tag) || rules.IsInterruptTag(tokenInfo.Tag))
             {
                 newLineStartIndex = tokenInfo.Position + tokenInfo.Token.Length;
                 GoToNextLine();
@@ -162,22 +165,38 @@ namespace Markdown
             return isTokenFound;
         }
 
+        private void TryHandleShells(TokenInfo tokenInfo)
+        {
+            if (rules.IsInterruptTag(tokenInfo.Tag))
+            {
+                foreach (var (_, tokenShellStatus) in shells)
+                    tokenShellStatus.IsEndShellNeed = true;
+                shells.Clear();
+            }
+
+            if (!rules.IsThisTagForShelling(tokenInfo.Tag, out var shellTag)) return;
+
+            tokenInfo.ShellStatus = shells[shellTag!] = new TokenShellStatus(shellTag!)
+            {
+                IsFrontShellNeed = !shells.ContainsKey(shellTag!)
+            };
+        }
+
         public IEnumerable<TokenSegment> ToTokenSegments()
         {
             foreach (var tokenInfo in tokens)
             {
                 TokenSegment? segment;
-                
                 if (tokenInfo.Tag.End is null) HandleSingleToken(tokenInfo, out segment);
                 else HandlePairToken(tokenInfo, out segment);
                 if (segment is not null) yield return segment;
             }
+            foreach (var (_, tokenShellStatus) in shells)
+                tokenShellStatus.IsEndShellNeed = true;
 
             TryAllowTokens();
             foreach (var tokenSegment in allowTokens)
-            {
                 yield return tokenSegment;
-            }
         }
     }
 }

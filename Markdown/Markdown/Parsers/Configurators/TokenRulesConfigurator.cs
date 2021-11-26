@@ -10,7 +10,7 @@ namespace Markdown
         {
             this.config = config;
         }
-
+        
         public TokenRulesConfiguratorEnd CanBeShielded()
         {
             if (config.LastAddedToken is null) throw new ArgumentNullException(nameof(config.LastAddedToken));

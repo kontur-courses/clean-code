@@ -4,8 +4,11 @@
     {
         private readonly Tag tag;
 
-        public int StartPosition { get; }
-        public int EndPosition { get; }
+        public TokenInfo StartTokenInfo { get; }
+        public TokenInfo? EndTokenInfo { get; }
+
+        public int StartPosition => StartTokenInfo.Position;
+        public int EndPosition => EndTokenInfo?.Position ?? StartPosition;
         private int InnerLength => EndPosition - (StartPosition + tag.Start.Length);
 
         internal TokenSegment(TokenInfo first, TokenInfo? second = null)
@@ -13,9 +16,9 @@
             tag = second is null 
                 ? TagFactory.GetOrAddSingleTag(first.Token) 
                 : TagFactory.GetOrAddSymmetricTag(first.Token);
-            
-            StartPosition = first.Position;
-            EndPosition = second?.Position ?? first.Position;
+
+            StartTokenInfo = first;
+            EndTokenInfo = second;
         }
         
         public Tag GetBaseTag()
