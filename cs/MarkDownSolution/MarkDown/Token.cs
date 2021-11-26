@@ -18,6 +18,15 @@ namespace MarkDown
 
         public int Length { get; private set; }
 
+        public virtual bool CanBeOpened(string text, int i) => true;
+
+        public virtual bool CanBeClosed(string text, int i) => true;
+
+        public virtual Token CreateNewTokenOfSameType(int start)
+        {
+            return new Token(start);
+        }
+
 
         public readonly List<Token> nestedTokens = new();
 

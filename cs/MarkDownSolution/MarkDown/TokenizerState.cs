@@ -11,11 +11,11 @@ namespace MarkDown
         public bool isEscaping = false;
         public bool isSplittingWord = false;
         public bool wasIntersected = false;
-        public Dictionary<CaseType, bool> statesDict = new Dictionary<CaseType, bool>()
-            {
-                { CaseType.Italic, false },
-                { CaseType.Bold, false }
-            };
+        public Dictionary<Type, bool> statesDict = new Dictionary<Type, bool>()
+        {
+            { typeof(BoldToken), false },
+            { typeof(ItalicToken), false }
+        };
         public Token currentToken;
     }
 }

@@ -8,14 +8,14 @@ namespace MarkDown
 {
     public static class TokenizerStateExtensions
     {
-        public static bool BoldTokenIsOpened(this TokenizerState state)
+        public static bool IsSpecificTokenOpened(this TokenizerState state, Token tokenOfThisType)
         {
-            return state.statesDict[CaseType.Bold];
-        }
-
-        public static bool ItalicTokenIsOpened(this TokenizerState state)
-        {
-            return state.statesDict[CaseType.Italic];
+            var gettedType = tokenOfThisType.GetType();
+            if (state.statesDict.ContainsKey(gettedType))
+            {
+                return state.statesDict[tokenOfThisType.GetType()];
+            }
+            return false;
         }
 
         public static bool IsSecondGroundInRow(this TokenizerState state, int i)
@@ -28,38 +28,20 @@ namespace MarkDown
             return state.statesDict.ContainsValue(true);
         }
 
-        public static void OpenItalicToken(this TokenizerState state, int i, string text)
+        public static void OpenSpecificToken(this TokenizerState state, int i, string text, Token token)
         {
-            var token = new ItalicToken(i);
             state.currentToken.AddNestedToken(token);
             state.currentToken = token;
             state.isSplittingWord = TextHelper.CheckIfIthIsLetter(text, i - 1);
-            state.statesDict[CaseType.Italic] = true;
+            state.statesDict[token.GetType()] = true;
         }
 
-        public static void OpenBoldToken(this TokenizerState state, int i, string text)
-        {
-            var token = new BoldToken(i);
-            state.currentToken.AddNestedToken(token);
-            state.currentToken = token;
-            state.isSplittingWord = TextHelper.CheckIfIthIsLetter(text, i - 1);
-            state.statesDict[CaseType.Bold] = true;
-        }
-
-        public static void CloseItalicToken(this TokenizerState state, int i)
+        public static void CloseCurrentToken(this TokenizerState state, int i)
         {
             var token = state.currentToken;
             token.SetLength(1 + i - token.Start);
             state.currentToken = token.fatherToken;
-            state.statesDict[CaseType.Italic] = false;
-        }
-
-        public static void CloseBoldToken(this TokenizerState state, int i)
-        {
-            var token = state.currentToken;
-            token.SetLength(1 + i - token.Start);
-            state.currentToken = token.fatherToken;
-            state.statesDict[CaseType.Bold] = false;
+            state.statesDict[token.GetType()] = false;
         }
 
         public static void MakeAllStatesFalse(this TokenizerState state)

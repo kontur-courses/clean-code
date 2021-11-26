@@ -7,9 +7,14 @@ namespace MarkDown
 {
     public static class Tokenizer
     {
-        private static char header = '#';
-        private static char ground = '_';
-        private static char escape = '\\';
+        private static readonly List<Token> pseudoStaticTokens = new()
+        {
+            new BoldToken(0),
+            new ItalicToken(0)
+        };
+        private static readonly char header = '#';
+        private static readonly char ground = '_';
+        private static readonly char escape = '\\';
 
         public static Token GetToken(string text)
         {
@@ -34,7 +39,8 @@ namespace MarkDown
                 }
                 if (text[i] == ground)
                 {
-                    HandleGroundSituation(text, state, i);
+                    HandleOpenedTokenSituation(text, state, i);
+                    HandleClosedTokensSituation(text, state, i);
                 }
                 else
                 {
@@ -45,63 +51,42 @@ namespace MarkDown
             return token;
         }
 
-        private static void HandleGroundSituation(string text, TokenizerState state, int i)
-        {
-            HandleOpenedTokenSituation(text, i, state);
-            HandleClosedTokensSituation(text, state, i);
-        }
-
         private static void HandleClosedTokensSituation(string text, TokenizerState state, int i)
         {
             if (TextHelper.CheckIfIthIsSpecificChar(text, i - 1, escape) || state.isEscaping)
             {
                 state.isEscaping = true;
             }
-            else if (TextHelper.CanOpenItalicToken(text, i) && !state.ItalicTokenIsOpened())
+            else
             {
-                state.OpenItalicToken(i, text);
-            }
-            else if (TextHelper.CanOpenBoldToken(text, i) && !state.BoldTokenIsOpened())
-            {
-                state.OpenBoldToken(i, text);
-            }
-        }
-
-        private static void HandleOpenedTokenSituation(string text, int i, TokenizerState state)
-        {
-            if (state.ItalicTokenIsOpened())
-            {
-                if (TextHelper.CanCloseItalicToken(text, i) 
-                    && i - state.currentToken.Start >= 2
-                    && !state.wasIntersected)
+                foreach (var staticToken in pseudoStaticTokens)
                 {
-                    if (state.currentToken is ItalicToken)
+                    if (staticToken.CanBeOpened(text, i) && !state.IsSpecificTokenOpened(staticToken))
                     {
-                        state.CloseItalicToken(i);
-                        return;
-                    }
-                    else
-                    {
-                        state.wasIntersected = true;
+                        state.OpenSpecificToken(i, text, staticToken.CreateNewTokenOfSameType(i));
                     }
                 }
             }
-            if (state.BoldTokenIsOpened())
+        }
+
+        private static void HandleOpenedTokenSituation(string text, TokenizerState state, int i)
+        {
+            var token = state.currentToken;
+            if (i - token.Start < token.RawLengthOpen + token.RawLengthClose)
             {
-                if (TextHelper.CanCloseBoldToken(text, i)  
-                    && !state.wasIntersected)
+                return;
+            }
+            if (TextHelper.IsIntersecionState(state, text, i))
+            {
+                state.wasIntersected = true;
+                return;
+            }
+
+            if (state.IsSpecificTokenOpened(token)) 
+            {
+                if (token.CanBeClosed(text, i))
                 {
-                    if (state.currentToken is BoldToken)
-                    {
-                        if (i - state.currentToken.Start >= 4)
-                        {
-                            state.CloseBoldToken(i);
-                        }
-                    }
-                    else
-                    {
-                        state.wasIntersected = true;
-                    }
+                    state.CloseCurrentToken(i);
                 }
             }
         }

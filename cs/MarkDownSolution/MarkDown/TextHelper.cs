@@ -9,36 +9,38 @@ namespace MarkDown
     public static class TextHelper
     {
         private static char ground = '_';
-        
-        public static bool CanOpenBoldToken(string text, int i)
+
+        public static bool CanCloseToken(string text, int i, Type tokenType)
         {
-            return CheckIfIthIsSpecificChar(text, i + 1, ground)
-                && !CheckIfIthIsSpecificChar(text, i + 2, ' ')
-                && !IsThreeGroundsInRow(text, i);
+            if (tokenType == typeof(BoldToken))
+            {
+                var token = new BoldToken(0);
+                return token.CanBeClosed(text, i);
+            }
+            else if (tokenType == typeof(ItalicToken))
+            {
+                var token = new ItalicToken(0);
+                return token.CanBeClosed(text, i);
+            }
+            return false;
         }
 
-        public static bool CanOpenItalicToken(string text, int i)
+        public static bool IsIntersecionState(TokenizerState state, string text, int i)
         {
-            return !CheckIfIthIsSpecificChar(text, i + 1, ground)
-                && !CheckIfIthIsSpecificChar(text, i + 1, ' ')
-                && !CheckIfIthIsSpecificChar(text, i - 1, ground)
-                && !IsThreeGroundsInRow(text, i);
-        }
-
-        public static bool CanCloseItalicToken(string text, int i)
-        {
-            return !(CheckIfIthIsSpecificChar(text, i - 1, ' ')
-                  || CheckIfIthIsSpecificChar(text, i-1, ground)
-                  || CheckIfIthIsSpecificChar(text, i + 1, ground));
-        }
-
-        public static bool CanCloseBoldToken(string text, int i)
-        {
-            return (!(CheckIfIthIsSpecificChar(text, i - 2, ' ')
-                || CheckIfIthIsSpecificChar(text, i - 2, ground)
-                || !CheckIfIthIsSpecificChar(text, i - 1, ground)))
-                && CheckIfIthIsSpecificChar(text, i - 1, ground)
-                && CheckIfIthIsSpecificChar(text, i, ground);
+            foreach (var key in state.statesDict.Keys)
+            {
+                if (state.statesDict[key])
+                {
+                    if (CanCloseToken(text, i, key))
+                    {
+                        if (state.currentToken.GetType() != key)
+                        {
+                            return true;
+                        }
+                    }
+                }
+            }
+            return false;
         }
 
         public static bool IsCaseWhenShouldNotTokenize(string text, TokenizerState state, int i)
@@ -64,7 +66,7 @@ namespace MarkDown
             return char.IsLetter(text[i]);
         }
 
-        private static bool IsThreeGroundsInRow(string text, int i)
+        public static bool IsThreeGroundsInRow(string text, int i)
         {
             var caseMinus2 = CheckIfIthIsSpecificChar(text, i - 2, ground);
             var caseMinus1 = CheckIfIthIsSpecificChar(text, i - 1, ground);

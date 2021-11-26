@@ -16,6 +16,26 @@ namespace MarkDown
 
         public override int RawLengthClose => 1;
 
+        public override bool CanBeOpened(string text, int i)
+        {
+            return !TextHelper.CheckIfIthIsSpecificChar(text, i + 1, '_')
+                && !TextHelper.CheckIfIthIsSpecificChar(text, i + 1, ' ')
+                && !TextHelper.CheckIfIthIsSpecificChar(text, i - 1, '_')
+                && !TextHelper.IsThreeGroundsInRow(text, i);
+        }
+
+        public override bool CanBeClosed(string text, int i)
+        {
+            return !(TextHelper.CheckIfIthIsSpecificChar(text, i - 1, ' ')
+                  || TextHelper.CheckIfIthIsSpecificChar(text, i - 1, '_')
+                  || TextHelper.CheckIfIthIsSpecificChar(text, i + 1, '_'));
+        }
+
+        public override ItalicToken CreateNewTokenOfSameType(int start)
+        {
+            return new ItalicToken(start);
+        }
+
         public ItalicToken(int start) : base(start)
         {
         }
