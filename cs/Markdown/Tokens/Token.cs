@@ -3,7 +3,7 @@
     public readonly struct Token : ITextContainer
     {
         public readonly TokenType Type;
-        public string Value { get; }
+        public readonly string Value;
 
         private Token(TokenType type, string value)
         {
@@ -30,5 +30,7 @@
         public static readonly Token OpenCircleBracket = new(TokenType.OpenCircleBracket, $"{Characters.OpenCircleBracket}");
         
         public static readonly Token CloseCircleBracket = new(TokenType.CloseCircleBracket, $"{Characters.CloseCircleBracket}");
+        
+        public string GetText() => Value;
     }
 }

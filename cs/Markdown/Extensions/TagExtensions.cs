@@ -9,7 +9,7 @@ namespace Markdown.Extensions
         {
             TagType.Bold => Token.Bold,
             TagType.Cursive => Token.Cursive,
-            _ => Token.Text(tag.Value)
+            _ => Token.Text(tag.GetText())
         };
         
         public static TagNode ToNode(this Tag tag) => new(tag);

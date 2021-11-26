@@ -14,16 +14,17 @@ namespace Markdown.TokenParser
 
         private readonly List<TagNode> children = new();
 
-        public TokenContext(Token token, bool isInMiddleOfWord)
+        public TokenContext(Token token, bool isInMiddleOfWord = false)
         {
             IsInMiddleOfWord = isInMiddleOfWord;
             Token = token;
         }
 
-        public void AddChild(TagNode node)
+        public TokenContext AddChild(TagNode node)
         {
-            ContainsWhiteSpace = ContainsWhiteSpace || node.Tag.Value.Contains(Characters.WhiteSpace);
+            ContainsWhiteSpace = ContainsWhiteSpace || node.Tag.GetText().Contains(Characters.WhiteSpace);
             children.Add(node);
+            return this;
         }
 
         public string ToText()
@@ -32,5 +33,8 @@ namespace Markdown.TokenParser
                 return Token.Value;
             return Token.Value + StringUtils.Join(children.Select(x => x.ToText()));
         }
+
+        public static bool IsHeader1(TokenContext context) => context.Token.Type == TokenType.Header1;
+        public static bool IsLink(TokenContext context) => context.Token.Type == TokenType.OpenSquareBracket;
     }
 }

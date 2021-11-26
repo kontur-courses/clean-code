@@ -86,5 +86,15 @@ namespace Markdown.Tests
 
             html.Should().Be("<h1>A<em>B</em>C</h1>");
         }
+        
+        [Test]
+        public void Render_ShouldReturnLink()
+        {
+            var node = new TagNode(Tag.Link("B"), Tag.Text("A").ToNode());
+
+            var html = sut.Render(new[] { node });
+
+            html.Should().Be("<a href=\"B\">A</a>");
+        }
     }
 }

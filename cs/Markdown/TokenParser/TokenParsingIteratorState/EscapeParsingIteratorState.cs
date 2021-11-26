@@ -1,4 +1,5 @@
 ﻿using Markdown.Extensions;
+using Markdown.Tags;
 using Markdown.Tokens;
 
 namespace Markdown.TokenParser.TokenParsingIteratorState
@@ -16,11 +17,17 @@ namespace Markdown.TokenParser.TokenParsingIteratorState
                 {
                     TokenType.Cursive or TokenType.Escape => next.ToText().ToNode(),
                     TokenType.Bold => EscapeBold(),
+                    TokenType.OpenSquareBracket => Token.OpenSquareBracket.ToText().ToNode(),
+                    TokenType.CloseSquareBracket => EscapeSquareBracket(next),
                     _ => Token.Text(StringUtils.Join(Token.Escape, next)).ToNode()
                 };
 
             return Token.Escape.ToText().ToNode();
         }
+
+        private TagNode EscapeSquareBracket(Token token) => Iterator.AnyContext(TokenContext.IsLink)
+            ? token.ToText().ToNode()
+            : Tag.Text(StringUtils.Join(Token.Escape, token)).ToNode();
 
         private TagNode EscapeBold()
         {

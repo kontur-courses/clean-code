@@ -26,11 +26,11 @@ namespace Markdown.Tokens
 
         public string ToText()
         {
-            if (Children.Length == 0) return Tag.Value;
+            if (Children.Length == 0) return Tag.GetText();
             return new StringBuilder()
-                .Append(Tag.Value)
+                .Append(Tag.GetText())
                 .AppendJoin("", Children.Select(x => x.ToText()))
-                .Append(Tag.Value)
+                .Append(Tag.GetText())
                 .ToString();
         }
 
@@ -68,6 +68,6 @@ namespace Markdown.Tokens
             return sb.ToString();
         }
 
-        private static string ToString(Tag token) => $"{{ TagType = {token.Type}, Value = \"{token.Value}\" }}";
+        private static string ToString(Tag tag) => $"{{ TagType = {tag.Type}, Value = \"{tag.GetText()}\" }}";
     }
 }

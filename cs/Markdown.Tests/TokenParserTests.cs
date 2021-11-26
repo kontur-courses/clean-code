@@ -909,14 +909,57 @@ namespace Markdown.Tests
         }
 
         [Test]
-        public void Parse_ShouldNotCreateLink_WhenEmptySquareBrackets()
+        public void Parse_ShouldCreateLink()
         {
             var tokens = new[]
             {
                 Token.OpenSquareBracket,
+                Token.Text("A"),
                 Token.CloseSquareBracket,
                 Token.OpenCircleBracket,
+                Token.Text("B"),
+                Token.CloseCircleBracket
+            };
+            var expected = new[]
+            {
+                new TagNode(Tag.Link("B"), Tag.Text("A").ToNode())
+            };
+            AssertParse(tokens, expected);
+        }
+        
+        [Test]
+        public void Parse_ShouldReopenLinkOnDoubleOpenSquareBracket()
+        {
+            var tokens = new[]
+            {
+                Token.OpenSquareBracket,
                 Token.Text("A"),
+                Token.OpenSquareBracket,
+                Token.Text("A"),
+                Token.CloseSquareBracket,
+                Token.OpenCircleBracket,
+                Token.Text("B"),
+                Token.CloseCircleBracket
+            };
+            var expected = new[]
+            {
+                Tag.Text("[A").ToNode(),
+                new TagNode(Tag.Link("B"), Tag.Text("A").ToNode())
+            };
+            AssertParse(tokens, expected);
+        }
+        
+        [Test]
+        public void Parse_ShouldNotCreateLink_WhenHasCharactersBetweenNameAndLink()
+        {
+            var tokens = new[]
+            {
+                Token.OpenSquareBracket,
+                Token.Text("A"),
+                Token.CloseSquareBracket,
+                Token.Text("B"),
+                Token.OpenCircleBracket,
+                Token.Text("C"),
                 Token.CloseCircleBracket
             };
             var expected = new[]
@@ -927,7 +970,140 @@ namespace Markdown.Tests
         }
         
         [Test]
-        public void Parse_ShouldNotCreateLink_WhenEmptyCircleBrackets()
+        public void Parse_ShouldCreateLink_WhenFormattingInsideName(
+            [ValueSource(nameof(GetFormattingTokens))]
+            Token token)
+        {
+            var tokens = new[]
+            {
+                Token.OpenSquareBracket,
+                token,
+                Token.Text("A"),
+                token,
+                Token.CloseSquareBracket,
+                Token.OpenCircleBracket,
+                Token.Text("B"),
+                Token.CloseCircleBracket
+            };
+            var expected = new[]
+            {
+                new TagNode(Tag.Link("B"), 
+                    new TagNode(token.ToTag(), 
+                        Tag.Text("A").ToNode()))
+            };
+            AssertParse(tokens, expected);
+        }
+        
+        [Test]
+        public void Parse_ShouldCreateLink_WhenSingleFormattingTokenInsideName(
+            [ValueSource(nameof(GetFormattingTokens))]
+            Token token)
+        {
+            var tokens = new[]
+            {
+                Token.OpenSquareBracket,
+                token,
+                Token.Text("A"),
+                Token.CloseSquareBracket,
+                Token.OpenCircleBracket,
+                Token.Text("B"),
+                Token.CloseCircleBracket
+            };
+            var expected = new[]
+            {
+                new TagNode(Tag.Link("B"), CreateTextTokenFrom(token, Token.Text("A")).ToNode())
+            };
+            AssertParse(tokens, expected);
+        }
+        
+        [Test]
+        public void Parse_ShouldNotAddHeaderInName_WhenCreateLink()
+        {
+            var tokens = new[]
+            {
+                Token.OpenSquareBracket,
+                Token.Header1,
+                Token.Text("A"),
+                Token.NewLine,
+                Token.CloseSquareBracket,
+                Token.OpenCircleBracket,
+                Token.Text("B"),
+                Token.CloseCircleBracket
+            };
+            var expected = new[]
+            {
+                new TagNode(Tag.Link("B"), 
+                        CreateTextTokenFrom(
+                            Token.Header1,
+                            Token.Text("A"),
+                            Token.NewLine).ToNode())
+            };
+            AssertParse(tokens, expected);
+        }
+        
+        
+        [Test]
+        public void Parse_ShouldNotCreateLink_WhenEscapeOpenSquareBracket()
+        {
+            var tokens = new[]
+            {
+                Token.Escape,
+                Token.OpenSquareBracket,
+                Token.Text("A"),
+                Token.CloseSquareBracket,
+                Token.OpenCircleBracket,
+                Token.Text("B"),
+                Token.CloseCircleBracket
+            };
+            var expected = new[]
+            {
+                CreateTextTokenFrom(tokens.Except(new[] {Token.Escape}).ToArray()).ToNode(),
+            };
+            AssertParse(tokens, expected);
+        }
+        
+        [Test]
+        public void Parse_ShouldNotCreateLink_WhenEscapeCloseSquareBracket()
+        {
+            var tokens = new[]
+            {
+                Token.OpenSquareBracket,
+                Token.Text("A"),
+                Token.Escape,
+                Token.CloseSquareBracket,
+                Token.OpenCircleBracket,
+                Token.Text("B"),
+                Token.CloseCircleBracket
+            };
+            var expected = new[]
+            {
+                CreateTextTokenFrom(tokens.Except(new[] {Token.Escape}).ToArray()).ToNode(),
+            };
+            AssertParse(tokens, expected);
+        }
+        
+        [Test]
+        public void Parse_ShouldNotCreateLink_WhenAnyCharacterBeforeOpenCircleBracket()
+        {
+            var tokens = new[]
+            {
+                Token.OpenSquareBracket,
+                Token.Text("A"),
+                Token.CloseSquareBracket,
+                Token.Text("AAA"),
+                Token.OpenCircleBracket,
+                Token.Text("B"),
+                Token.CloseCircleBracket
+            };
+            var expected = new[]
+            {
+                CreateTextTokenFrom(tokens).ToNode(),
+            };
+            AssertParse(tokens, expected);
+        }
+        
+        [Test]
+        public void Parse_ShouldNotCreateLink_WhenEscapeCloseCircleBracket()
         {
             var tokens = new[]
             {
@@ -935,7 +1111,24 @@ namespace Markdown.Tests
                 Token.Text("A"),
                 Token.CloseSquareBracket,
                 Token.OpenCircleBracket,
+                Token.Text("B"),
+                Token.Escape,
                 Token.CloseCircleBracket
+            };
+            var expected = new[]
+            {
+                CreateTextTokenFrom(tokens.Except(new[] {Token.Escape}).ToArray()).ToNode(),
+            };
+            AssertParse(tokens, expected);
+        }
+
+        [Test]
+        public void Parse_ShouldNotEscapeCloseBracket_WhenIsNotInLinkContext()
+        {
+            var tokens = new[]
+            {
+                Token.Escape,
+                Token.CloseSquareBracket,
             };
             var expected = new[]
             {

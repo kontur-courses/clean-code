@@ -11,6 +11,7 @@ namespace Markdown.Extensions
         {
             TokenType.Bold => Tag.Bold(Token.Bold.Value),
             TokenType.Cursive => Tag.Cursive(Token.Cursive.Value),
+            TokenType.Header1 => Tag.Header1(Token.Header1.Value),
             _ => Tag.Text(token.Value)
         };
         

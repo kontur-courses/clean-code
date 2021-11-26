@@ -84,6 +84,10 @@ namespace Markdown.Tests
             "# Заголовок __с _разными_ символами__",
             "<h1>Заголовок <strong>с <em>разными</em> символами</strong></h1>"
         )]
+        [TestCase(
+            "[__Ссылка__ с _форматированием_](http://markdown.com)",
+            "<a href=\"http://markdown.com\"><strong>Ссылка</strong> с <em>форматированием</em></a>"
+        )]
         public void Render_ShouldReturnCorrectText(string mdText, string htmlText)
         {
             var actualHtmlText = sut.Render(mdText);

@@ -12,8 +12,9 @@ namespace Markdown.TokenParser.TokenParsingIteratorState
 
         public override TagNode Parse()
         {
-            if (Iterator.TryFlushContexts(out var node))
+            if (Iterator.TryFlushContextsUntil(out var context, TokenContext.IsHeader1))
             {
+                var node = Iterator.ToNode(context);
                 if (node.Tag.Type == TagType.Text)
                     return Token.Text(StringUtils.Join(node.Tag, Token.NewLine)).ToNode();
 

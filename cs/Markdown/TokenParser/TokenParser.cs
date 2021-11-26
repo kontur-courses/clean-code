@@ -24,7 +24,7 @@ namespace Markdown.TokenParser
             foreach (var node in nodes)
                 if (node.Tag.Type == TagType.Text)
                 {
-                    sb.Append(node.Tag.Value);
+                    sb.Append(node.Tag.GetText());
                 }
                 else
                 {

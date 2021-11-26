@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 using Markdown.Extensions;
 using Markdown.Tags;
@@ -17,6 +18,7 @@ namespace Markdown.TokenParser
         private readonly NewLineParsingIteratorState newLineState;
         private readonly Header1ParsingIteratorState header1State;
         private readonly TextParsingIteratorState textState;
+        private readonly LinkParsingIteratorState linkState;
 
         public TokenParsingIterator(IEnumerator<Token> tokens)
         {
@@ -27,6 +29,7 @@ namespace Markdown.TokenParser
             newLineState = new NewLineParsingIteratorState(this);
             header1State = new Header1ParsingIteratorState(this);
             textState = new TextParsingIteratorState(this);
+            linkState = new LinkParsingIteratorState(this);
         }
 
         public Token Current => enumerator.Current;
@@ -42,32 +45,32 @@ namespace Markdown.TokenParser
                     yield return node;
             }
 
-            if (TryFlushContexts(out var contextNode)) yield return contextNode;
+            if (TryFlushContextsUntil(out var contextNode, TokenContext.IsHeader1))
+                yield return ToNode(contextNode);
         }
 
-        public bool TryFlushContexts(out TagNode node)
+
+        public bool TryFlushContextsUntil(out TokenContext resultContext, Func<TokenContext, bool> isStopper)
         {
+            if (isStopper == null) throw new ArgumentNullException(nameof(isStopper));
             var stack = new Stack<string>();
             while (contexts.TryPop(out var context))
-                if (context.Token.Type != TokenType.Header1)
+            {
+                if (isStopper(context) || contexts.Count == 0)
                 {
-                    stack.Push(context.ToText());
-                    if (contexts.Count == 0)
-                    {
-                        node = FlushToTextToken(stack, context);
-                        return true;
-                    }
-                }
-                else
-                {
-                    node = FlushToTextToken(stack, context);
+                    var node = Token.Text(StringUtils.Join(stack)).ToNode();
+                    context.AddChild(node);
+                    resultContext = context;
                     return true;
                 }
 
-            node = default;
+                stack.Push(context.ToText());
+            }
+
+            resultContext = default;
             return false;
         }
-
+        
         public TagNode ParseToken(Token token)
         {
             return token.Type switch
@@ -77,11 +80,14 @@ namespace Markdown.TokenParser
                 TokenType.Bold => boldState.Parse(),
                 TokenType.Header1 => header1State.Parse(),
                 TokenType.NewLine => newLineState.Parse(),
+                TokenType.OpenSquareBracket or TokenType.CloseSquareBracket => linkState.Parse(),
                 _ => textState.Parse()
             };
         }
 
         public bool TryPopContext(out TokenContext context) => contexts.TryPop(out context);
+
+        public bool TryPeekContext(out TokenContext context) => contexts.TryPeek(out context);
 
         public void PushContext(TokenContext tokenContext) => contexts.Push(tokenContext);
 
@@ -103,16 +109,17 @@ namespace Markdown.TokenParser
 
         public void PushToBuffer(Token token) => enumerator.PushToBuffer(token);
 
-        private TagNode FlushToTextToken(IEnumerable<string> stack, TokenContext context)
+        public TagNode ToNode(TokenContext context)
         {
-            contexts.Clear();
-            var node = Token.Text(StringUtils.Join(stack)).ToNode();
             return context.Token.Type switch
             {
-                TokenType.Header1 => new TagNode(Tag.Header1(Token.Header1.Value),
-                    context.Children.Append(node).ToArray()),
-                _ => node
+                TokenType.Header1 => contexts.Count == 0
+                    ? new TagNode(Token.Header1.ToTag(), context.Children.ToArray())
+                    : Tag.Text(context.ToText()).ToNode(),
+                _ => Tag.Text(context.ToText()).ToNode()
             };
         }
+
+        public bool AnyContext(Func<TokenContext, bool> func) => contexts.Any(func);
     }
 }
