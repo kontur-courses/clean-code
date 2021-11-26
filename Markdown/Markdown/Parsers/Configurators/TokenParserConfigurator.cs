@@ -32,16 +32,15 @@ namespace Markdown
 
         public TokenParserConfigurator SetShieldingSymbol(Tag symbol)
         {
-            if (Config.ShieldingSymbol.Setted) throw new ArgumentException("shielding symbol already setted");
-            Config.ShieldingSymbol = (symbol, true);
+            Config.ShieldingSymbol.SetValue(symbol);
             Config.TagRules.SetShieldedTeg(symbol);
             return this;
         }
         
         public ITokenParser Configure()
         {
-            if (Config.ShieldingSymbol.Setted && Config.Tokens.Contains(Config.ShieldingSymbol.Symbol.Start))
-                throw new ArgumentException($"shielding symbol can not be {Config.ShieldingSymbol.Symbol.Start}, because it's already added like token");
+            if (Config.ShieldingSymbol.Setted && Config.Tokens.Contains(Config.ShieldingSymbol.GetValue().Start))
+                throw new ArgumentException($"shielding symbol can not be {Config.ShieldingSymbol.GetValue().Start}, because it's already added like token");
             
             var trie = new Trie();
             foreach (var token in Config.InterruptTags)
@@ -52,10 +51,10 @@ namespace Markdown
             foreach (var token in Config.Tokens)
                 trie.Add(token, token);
             if (Config.ShieldingSymbol.Setted)
-                trie.Add(Config.ShieldingSymbol.Symbol.Start, Config.ShieldingSymbol.Symbol.Start);
+                trie.Add(Config.ShieldingSymbol.GetValue().Start, Config.ShieldingSymbol.GetValue().Start);
             trie.Build();
             
-            return new TokenParser(trie, Config.TagRules, Config.ShieldingSymbol.Setted ? Config.ShieldingSymbol.Symbol.Start : null);
+            return new TokenParser(trie, Config.TagRules, Config.ShieldingSymbol.Setted ? Config.ShieldingSymbol.GetValue().Start : null);
         }
     }
 }
