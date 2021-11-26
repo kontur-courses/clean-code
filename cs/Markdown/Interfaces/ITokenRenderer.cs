@@ -2,6 +2,6 @@
 {
     public interface ITokenRenderer
     {
-        string Render(Component tree);
+        string Render(TokenTree[] trees);
     }
 }

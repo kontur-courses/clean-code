@@ -4,6 +4,6 @@ namespace Markdown.Interfaces
 {
     public interface ITokenParser
     {
-        Component[] Parse(IEnumerable<Token> tokens);
+        TokenTree[] Parse(IEnumerable<IToken> tokens);
     }
 }

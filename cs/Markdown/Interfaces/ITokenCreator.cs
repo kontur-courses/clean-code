@@ -4,6 +4,6 @@ namespace Markdown.Interfaces
 {
     public interface ITokenCreator
     {
-        IEnumerable<Token> Create(string text);
+        IEnumerable<IToken> Create(string text);
     }
 }
