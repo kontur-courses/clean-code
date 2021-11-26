@@ -24,7 +24,7 @@ namespace Markdown.SyntaxParser.ConcreteParsers
             if (ShouldParseAsText())
                 return TokenTree.FromText(Context.Current.Value);
 
-            if (TryGetIntersectionIndex(oppositeTokenTypes(Context.Current.TokenType), out var intersectionOffset))
+            if (ParseHelper.TryGetIntersectionIndex(Context, oppositeTokenTypes(Context.Current.TokenType), out var intersectionOffset))
                 return TokenTree.FromText(ParseToText(intersectionOffset, Context.Current.Value));
 
             return CreateToken(transformCurrentItem);
@@ -58,7 +58,7 @@ namespace Markdown.SyntaxParser.ConcreteParsers
                 return true;
             if (!HasTokenInSameLine())
                 return true;
-            if (ContainsWordsThatSeparatedBy(' '))
+            if (ParseHelper.ContainsWordsThatSeparatedBy(Context, ' '))
                 return true;
             return false;
         }
@@ -70,36 +70,7 @@ namespace Markdown.SyntaxParser.ConcreteParsers
         private bool SurroundedWithDigits(Token before, Token after) =>
             char.IsDigit(before.Value.First()) && !char.IsWhiteSpace(after.Value.Last());
 
-        private bool ContainsWordsThatSeparatedBy(char symbol)
-        {
-            var i = 1;
-            Token currentToken;
-            do
-            {
-                currentToken = Context.Peek(i);
-                var value = currentToken.Value;
-                if (value.Contains(symbol))
-                    return true;
-                i++;
-            } while (!Context.IsEndOfFileOrNewLine() && currentToken.TokenType != Context.Current.TokenType);
-
-            return false;
-        }
-
-        private bool TryGetIntersectionIndex(TokenType tokenType, out int index)
-        {
-            index = 0;
-            if (!Helper.TryGetOffsetOfFirstTagAppearanceInLine(Context.Current.TokenType, out var closingTagIndex))
-                return false;
-            if (!Helper.TryGetOffsetOfFirstTagAppearanceInLine(tokenType, out var otherOpeningTagIndex))
-                return false;
-            if (!Helper.TryGetOffsetOfFirstTagAppearanceInLine(tokenType, out index, otherOpeningTagIndex + 1))
-                return false;
-
-            return otherOpeningTagIndex < closingTagIndex && index > closingTagIndex;
-        }
-
         private bool HasTokenInSameLine() =>
-            Helper.TryGetOffsetOfFirstTagAppearanceInLine(Context.Current.TokenType, out _);
+            ParseHelper.TryGetOffsetOfFirstTagAppearanceInLine(Context, Context.Current.TokenType, out _);
     }
 }

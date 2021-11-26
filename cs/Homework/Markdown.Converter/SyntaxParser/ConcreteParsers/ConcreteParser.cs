@@ -6,13 +6,7 @@ namespace Markdown.SyntaxParser.ConcreteParsers
     {
         protected readonly ParseContext Context;
 
-        protected ConcreteParser(ParseContext context)
-        {
-            Context = context;
-            Helper = new ParseHelper(context);
-        }
-
-        protected ParseHelper Helper { get; }
+        protected ConcreteParser(ParseContext context) => Context = context;
 
         public abstract TokenTree Parse();
 

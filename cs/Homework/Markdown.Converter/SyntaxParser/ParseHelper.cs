@@ -2,13 +2,13 @@
 
 namespace Markdown.SyntaxParser
 {
-    public class ParseHelper
+    public static class ParseHelper
     {
-        private readonly ParseContext context;
-
-        public ParseHelper(ParseContext context) => this.context = context;
-
-        public bool TryGetOffsetOfFirstTagAppearanceInLine(TokenType tokenType, out int offset, int startOffset = 1)
+        public static bool TryGetOffsetOfFirstTagAppearanceInLine(
+            ParseContext context, 
+            TokenType tokenType, 
+            out int offset, 
+            int startOffset = 1)
         {
             offset = startOffset;
             do
@@ -18,6 +18,36 @@ namespace Markdown.SyntaxParser
                     return true;
                 offset++;
             } while (!context.IsEndOfFileOrNewLine(offset));
+
+            return false;
+        }
+        
+        public static bool TryGetIntersectionIndex(ParseContext context, TokenType tokenType, out int index)
+        {
+            index = 0;
+            if (!ParseHelper.TryGetOffsetOfFirstTagAppearanceInLine(context, context.Current.TokenType, out var closingTagIndex))
+                return false;
+            if (!ParseHelper.TryGetOffsetOfFirstTagAppearanceInLine(context, tokenType, out var otherOpeningTagIndex))
+                return false;
+            if (!ParseHelper.TryGetOffsetOfFirstTagAppearanceInLine(context, tokenType, 
+                out index, otherOpeningTagIndex + 1))
+                return false;
+
+            return otherOpeningTagIndex < closingTagIndex && index > closingTagIndex;
+        }
+        
+        public static bool ContainsWordsThatSeparatedBy(ParseContext context, char symbol)
+        {
+            var i = 1;
+            Token currentToken;
+            do
+            {
+                currentToken = context.Peek(i);
+                var value = currentToken.Value;
+                if (value.Contains(symbol))
+                    return true;
+                i++;
+            } while (!context.IsEndOfFileOrNewLine() && currentToken.TokenType != context.Current.TokenType);
 
             return false;
         }
