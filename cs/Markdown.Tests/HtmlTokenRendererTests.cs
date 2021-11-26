@@ -86,7 +86,7 @@ namespace Markdown.Tests
 
             html.Should().Be("<h1>A<em>B</em>C</h1>");
         }
-        
+
         [Test]
         public void Render_ShouldReturnLink()
         {

@@ -103,13 +103,10 @@ namespace Markdown.Tests
 
             GC.Collect();
             var sw = Stopwatch.StartNew();
-            for (var i = 0; i < count; i++)
-            {
-                sut.Render(text);
-            }
+            for (var i = 0; i < count; i++) sut.Render(text);
 
             sw.Stop();
-            var measure = (sw.ElapsedMilliseconds) / count;
+            var measure = sw.ElapsedMilliseconds / count;
             measure.Should().BeLessOrEqualTo(maxAverageMilliseconds);
         }
     }

@@ -105,17 +105,17 @@ namespace Markdown.Tests
 
         public static IEnumerable<TestCaseData> GetNewLineFormattingTestCases() =>
             GetFormattingTestCases(Token.NewLine);
-        
-                
+
+
         public static IEnumerable<TestCaseData> GetOpenCircleBracketFormattingTestCases() =>
             GetFormattingTestCases(Token.OpenCircleBracket);
-        
+
         public static IEnumerable<TestCaseData> GetCloseCircleBracketFormattingTestCases() =>
             GetFormattingTestCases(Token.CloseCircleBracket);
-        
+
         public static IEnumerable<TestCaseData> GetOpenSquareBracketFormattingTestCases() =>
             GetFormattingTestCases(Token.OpenSquareBracket);
-        
+
         public static IEnumerable<TestCaseData> GetCloseSquareBracketFormattingTestCases() =>
             GetFormattingTestCases(Token.CloseSquareBracket);
 

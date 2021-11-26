@@ -908,7 +908,7 @@ namespace Markdown.Tests
             AssertParse(tokens, expected);
         }
 
-        [Test]
+        [Test(Description = "[A](B)")]
         public void Parse_ShouldCreateLink()
         {
             var tokens = new[]
@@ -927,7 +927,7 @@ namespace Markdown.Tests
             AssertParse(tokens, expected);
         }
         
-        [Test]
+        [Test(Description = "[A[A](B)")]
         public void Parse_ShouldReopenLinkOnDoubleOpenSquareBracket()
         {
             var tokens = new[]
@@ -949,7 +949,7 @@ namespace Markdown.Tests
             AssertParse(tokens, expected);
         }
         
-        [Test]
+        [Test(Description = "[A]B(C)")]
         public void Parse_ShouldNotCreateLink_WhenHasCharactersBetweenNameAndLink()
         {
             var tokens = new[]
@@ -969,7 +969,7 @@ namespace Markdown.Tests
             AssertParse(tokens, expected);
         }
         
-        [Test]
+        [Test(Description = "[_A_](B)")]
         public void Parse_ShouldCreateLink_WhenFormattingInsideName(
             [ValueSource(nameof(GetFormattingTokens))]
             Token token)
@@ -994,7 +994,7 @@ namespace Markdown.Tests
             AssertParse(tokens, expected);
         }
         
-        [Test]
+        [Test(Description = "[_A](B)")]
         public void Parse_ShouldCreateLink_WhenSingleFormattingTokenInsideName(
             [ValueSource(nameof(GetFormattingTokens))]
             Token token)
@@ -1016,7 +1016,7 @@ namespace Markdown.Tests
             AssertParse(tokens, expected);
         }
         
-        [Test]
+        [Test(Description = "[# A\n](B)")]
         public void Parse_ShouldNotAddHeaderInName_WhenCreateLink()
         {
             var tokens = new[]
@@ -1042,7 +1042,7 @@ namespace Markdown.Tests
         }
         
         
-        [Test]
+        [Test(Description = @"\[A](B)")]
         public void Parse_ShouldNotCreateLink_WhenEscapeOpenSquareBracket()
         {
             var tokens = new[]
@@ -1062,7 +1062,7 @@ namespace Markdown.Tests
             AssertParse(tokens, expected);
         }
         
-        [Test]
+        [Test(Description = @"[A\](B)")]
         public void Parse_ShouldNotCreateLink_WhenEscapeCloseSquareBracket()
         {
             var tokens = new[]
@@ -1082,27 +1082,7 @@ namespace Markdown.Tests
             AssertParse(tokens, expected);
         }
         
-        [Test]
-        public void Parse_ShouldNotCreateLink_WhenAnyCharacterBeforeOpenCircleBracket()
-        {
-            var tokens = new[]
-            {
-                Token.OpenSquareBracket,
-                Token.Text("A"),
-                Token.CloseSquareBracket,
-                Token.Text("AAA"),
-                Token.OpenCircleBracket,
-                Token.Text("B"),
-                Token.CloseCircleBracket
-            };
-            var expected = new[]
-            {
-                CreateTextTokenFrom(tokens).ToNode(),
-            };
-            AssertParse(tokens, expected);
-        }
-        
-        [Test]
+        [Test(Description = @"[A](B\)")]
         public void Parse_ShouldNotCreateLink_WhenEscapeCloseCircleBracket()
         {
             var tokens = new[]
@@ -1122,7 +1102,7 @@ namespace Markdown.Tests
             AssertParse(tokens, expected);
         }
 
-        [Test]
+        [Test(Description = @"\]")]
         public void Parse_ShouldNotEscapeCloseBracket_WhenIsNotInLinkContext()
         {
             var tokens = new[]
