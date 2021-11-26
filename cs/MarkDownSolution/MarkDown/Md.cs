@@ -3,9 +3,9 @@ using System.Collections.Generic;
 
 namespace MarkDown
 {
-    public class Md
+    public static class Md
     {
-        public string Render(string input)
+        public static string Render(string input)
         {
             var paragraphList = new List<string>();
             var paragraphs = TextPreparer.PrepareText(input);

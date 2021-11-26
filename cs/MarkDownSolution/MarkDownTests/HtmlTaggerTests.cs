@@ -1,6 +1,4 @@
-﻿using FluentAssertions;
-using MarkDown;
-using NUnit.Framework;
+﻿using NUnit.Framework;
 
 namespace MarkDownTests
 {
@@ -145,11 +143,26 @@ namespace MarkDownTests
             "\\\\Вот это\\\\, не должно выделиться тегом"
                 .AfterProcessingShouldBe("\\Вот это\\, не должно выделиться тегом");
         }
+
         [Test]
         public void GetString_OnEscapeNothing_ShouldWork()
         {
             "\\Вот это\\, не должно выделиться тегом"
                 .AfterProcessingShouldBe("\\Вот это\\, не должно выделиться тегом");
+        }
+
+        [Test]
+        public void GetString_List_ShouldWork()
+        {
+            "* работает"
+                .AfterProcessingShouldBe("<li>работает</li>");
+        }
+
+        [Test]
+        public void GetString_NotList_ShouldNotWork()
+        {
+            "не * работает"
+                .AfterProcessingShouldBe("не * работает");
         }
     }
 }

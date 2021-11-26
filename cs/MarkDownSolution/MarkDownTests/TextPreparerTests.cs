@@ -1,7 +1,6 @@
 ﻿using FluentAssertions;
 using MarkDown;
 using NUnit.Framework;
-using System;
 
 namespace MarkDownTests
 {

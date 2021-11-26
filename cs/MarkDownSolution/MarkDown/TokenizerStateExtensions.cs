@@ -1,10 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-
-namespace MarkDown
+﻿namespace MarkDown
 {
     public static class TokenizerStateExtensions
     {
@@ -40,7 +34,7 @@ namespace MarkDown
         {
             var token = state.currentToken;
             token.SetLength(1 + i - token.Start);
-            state.currentToken = token.fatherToken;
+            state.currentToken = token.FatherToken;
             state.statesDict[token.GetType()] = false;
         }
 

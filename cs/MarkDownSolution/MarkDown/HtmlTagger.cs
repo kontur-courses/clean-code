@@ -1,12 +1,11 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Text;
 
 namespace MarkDown
 {
     public static class HtmlTagger
     {
-        private static List<char> protectedChars = new() { '_', '\\'};
+        private static readonly List<char> protectedChars = new() { '_', '\\'};
         private static int counter = 0;
         public static string GetString(Token inputToken, string text)
         {
@@ -36,8 +35,9 @@ namespace MarkDown
 
         private static void CloseToken(StringBuilder SB, Token token)
         {
-            SB.Remove(token.Start + counter + token.Length - token.RawLengthClose, token.RawLengthClose);
-            SB.Insert(token.Start + counter + token.Length - token.RawLengthClose, token.ClosedHtmlTag);
+            var newStart = token.Start + counter + token.Length - token.RawLengthClose;
+            SB.Remove(newStart, token.RawLengthClose);
+            SB.Insert(newStart, token.ClosedHtmlTag);
             counter = counter - token.RawLengthClose + token.ClosedHtmlTag.Length;
         }
 

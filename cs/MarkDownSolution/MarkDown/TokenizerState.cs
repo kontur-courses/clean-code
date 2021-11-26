@@ -1,21 +1,21 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace MarkDown
 {
     public class TokenizerState
     {
+        public Token currentToken;
         public bool isEscaping = false;
         public bool isSplittingWord = false;
         public bool wasIntersected = false;
-        public Dictionary<Type, bool> statesDict = new Dictionary<Type, bool>()
+
+        public Dictionary<Type, bool> statesDict = new()
         {
             { typeof(BoldToken), false },
-            { typeof(ItalicToken), false }
+            { typeof(ItalicToken), false },
+            { typeof(ListElementToken), false },
+            { typeof(HeaderToken), false }
         };
-        public Token currentToken;
     }
 }

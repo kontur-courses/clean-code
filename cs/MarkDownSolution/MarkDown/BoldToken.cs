@@ -1,13 +1,15 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-
-namespace MarkDown
+﻿namespace MarkDown
 {
     public class BoldToken : Token
     {
+        public BoldToken(int start) : base(start)
+        {
+        }
+
+        public BoldToken(int start, int length) : base(start, length)
+        {
+        }
+
         public override string OpenedHtmlTag => "<strong>";
 
         public override string ClosedHtmlTag => "</strong>";
@@ -18,9 +20,7 @@ namespace MarkDown
 
         public override bool CanBeClosed(string text, int i)
         {
-            return (!(TextHelper.CheckIfIthIsSpecificChar(text, i - 2, ' ')
-                || TextHelper.CheckIfIthIsSpecificChar(text, i - 2, '_')
-                || !TextHelper.CheckIfIthIsSpecificChar(text, i - 1, '_')))
+            return !TextHelper.CheckIfIthIsSpecificChar(text, i - 2, ' ')
                 && TextHelper.CheckIfIthIsSpecificChar(text, i - 1, '_')
                 && TextHelper.CheckIfIthIsSpecificChar(text, i, '_');
 
@@ -30,20 +30,13 @@ namespace MarkDown
         {
             return TextHelper.CheckIfIthIsSpecificChar(text, i + 1, '_')
                 && !TextHelper.CheckIfIthIsSpecificChar(text, i + 2, ' ')
-                && !TextHelper.IsThreeGroundsInRow(text, i);
+                && !TextHelper.IsThreeGroundsInRow(text, i)
+                && TextHelper.CheckIfIthIsSpecificChar(text, i, '_');
         }
 
         public override BoldToken CreateNewTokenOfSameType(int start)
         {
             return new BoldToken(start);
-        }
-
-        public BoldToken(int start) : base(start)
-        {
-        }
-
-        public BoldToken(int start, int length) : base(start, length)
-        {
         }
     }
 }

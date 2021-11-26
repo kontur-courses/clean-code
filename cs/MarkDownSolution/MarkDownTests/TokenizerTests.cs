@@ -1,11 +1,6 @@
 ﻿using FluentAssertions;
 using MarkDown;
 using NUnit.Framework;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace MarkDownTests
 {
@@ -246,7 +241,7 @@ namespace MarkDownTests
             var text = "_итальянец и __жирный__ текст_";
             var expectedToken = new Token(0, text.Length);
             var firstNested = new ItalicToken(0, text.Length);
-            firstNested.fatherToken = expectedToken;
+            firstNested.FatherToken = expectedToken;
             expectedToken.GetNestedTokens().Add(firstNested);
 
             var actualToken = Tokenizer.GetToken(text);
@@ -261,8 +256,8 @@ namespace MarkDownTests
             var expectedToken = new Token(0, text.Length);
             var firstNested = new BoldToken(0, text.Length);
             var secondNested = new ItalicToken(19, 3);
-            secondNested.fatherToken = firstNested;
-            firstNested.fatherToken = expectedToken;
+            secondNested.FatherToken = firstNested;
+            firstNested.FatherToken = expectedToken;
             expectedToken.GetNestedTokens().Add(firstNested);
             firstNested.GetNestedTokens().Add(secondNested);
 
@@ -353,6 +348,49 @@ namespace MarkDownTests
         {
             var text = " __п _д__ и о_";
             var expectedToken = new Token(0, text.Length);
+
+            var actualToken = Tokenizer.GetToken(text);
+
+            actualToken.Should().BeTheSameAs(expectedToken);
+        }
+
+        [Test]
+        public void GetToken_WithOneListElement_ShouldTokenize()
+        {
+            var text = "* а";
+            var expectedToken = new Token(0, text.Length);
+            expectedToken.AddNestedToken(new ListElementToken(0, text.Length));
+
+            var actualToken = Tokenizer.GetToken(text);
+
+            actualToken.Should().BeTheSameAs(expectedToken);
+        }
+
+        [Test]
+        public void GetToken_WithOneListElementNotAtStart_ShouldNotTokenize()
+        {
+            var text = " * а";
+            var expectedToken = new Token(0, text.Length);
+
+            var actualToken = Tokenizer.GetToken(text);
+
+            actualToken.Should().BeTheSameAs(expectedToken);
+        }
+
+        [Test]
+        public void GetToken_WithListAndOther_ShouldTokenize()
+        {
+            var text = "* __жирный итальянец _и_ курсив__";
+            var expectedToken = new Token(0, text.Length);
+            var zeroNested = new ListElementToken(0, text.Length);
+            var firstNested = new BoldToken(2, text.Length - 2);
+            var secondNested = new ItalicToken(21, 3);
+            secondNested.FatherToken = firstNested;
+            firstNested.FatherToken = zeroNested;
+            zeroNested.FatherToken = expectedToken;
+            expectedToken.GetNestedTokens().Add(zeroNested);
+            firstNested.GetNestedTokens().Add(secondNested);
+            zeroNested.AddNestedToken(firstNested);
 
             var actualToken = Tokenizer.GetToken(text);
 

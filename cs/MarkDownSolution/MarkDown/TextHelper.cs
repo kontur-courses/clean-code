@@ -1,14 +1,10 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace MarkDown
 {
     public static class TextHelper
     {
-        private static char ground = '_';
+        private static readonly char ground = '_';
 
         public static bool CanCloseToken(string text, int i, Type tokenType)
         {
@@ -45,7 +41,7 @@ namespace MarkDown
 
         public static bool IsCaseWhenShouldNotTokenize(string text, TokenizerState state, int i)
         {
-            return char.IsDigit(text[i]) || char.IsWhiteSpace(text[i]) && state.isSplittingWord || state.wasIntersected;
+            return char.IsDigit(text[i]) || char.IsWhiteSpace(text[i]) && state.isSplittingWord;
         }
 
         public static bool CheckIfIthIsSpecificChar(string text, int i, char ch)

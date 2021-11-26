@@ -1,12 +1,11 @@
 ﻿using System;
 using System.Linq;
-using System.Text;
 
 namespace MarkDown
 {
     public static class TextPreparer
     {
-        private static string paragraphSymbol = Environment.NewLine;
+        private static readonly string paragraphSymbol = Environment.NewLine;
         private static string PrepareParagraph(string text)
         {
             return text;

@@ -1,7 +1,4 @@
-﻿using System;
-using System.Collections;
-using System.Collections.Generic;
-using System.Linq;
+﻿using System.Collections.Generic;
 
 namespace MarkDown
 {
@@ -10,10 +7,11 @@ namespace MarkDown
         private static readonly List<Token> pseudoStaticTokens = new()
         {
             new BoldToken(0),
-            new ItalicToken(0)
+            new ItalicToken(0),
+            new ListElementToken(0),
+            new HeaderToken(0)
         };
-        private static readonly char header = '#';
-        private static readonly char ground = '_';
+        private static readonly List<char> protectedChars = new() { '_' };
         private static readonly char escape = '\\';
 
         public static Token GetToken(string text)
@@ -21,12 +19,6 @@ namespace MarkDown
             var state = new TokenizerState();
             var token = new Token(0, text.Length);
             state.currentToken = token;
-            if (text[0] == header)
-            {
-                var newToken = new HeaderToken(0, text.Length);
-                state.currentToken.AddNestedToken(newToken);
-                state.currentToken = newToken;
-            }
             for (int i = 0; i < text.Length; i++)
             {
                 if (state.wasIntersected)
@@ -37,17 +29,14 @@ namespace MarkDown
                 {
                     state.MakeAllStatesFalse();
                 }
-                if (text[i] == ground)
-                {
-                    HandleOpenedTokenSituation(text, state, i);
-                    HandleClosedTokensSituation(text, state, i);
-                }
-                else
+                if (!protectedChars.Contains(text[i]))
                 {
                     state.isEscaping = false;
                 }
+                HandleOpenedTokenSituation(text, state, i);
+                HandleClosedTokensSituation(text, state, i);
             }
-            TokenCleaner.CleanToken(token);
+            TokenCleaner.CleanToken(token, text.Length);
             return token;
         }
 
@@ -76,6 +65,7 @@ namespace MarkDown
             {
                 return;
             }
+
             if (TextHelper.IsIntersecionState(state, text, i))
             {
                 state.wasIntersected = true;
