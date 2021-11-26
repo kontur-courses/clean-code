@@ -1,4 +1,4 @@
-﻿namespace Markdown
+﻿namespace Markdown.Parser
 {
     public enum TagType
     {

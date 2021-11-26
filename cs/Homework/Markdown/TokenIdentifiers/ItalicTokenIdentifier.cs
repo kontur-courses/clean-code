@@ -1,8 +1,7 @@
 ﻿using System;
-using System.Globalization;
-using System.Linq;
+using Markdown.Tokens;
 
-namespace Markdown
+namespace Markdown.TokenIdentifiers
 {
     public class ItalicTokenIdentifier : DoubleTagTokenIdentifier
     {

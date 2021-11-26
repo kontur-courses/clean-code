@@ -1,4 +1,4 @@
-﻿namespace Markdown
+﻿namespace Markdown.Tokens
 {
     public class ItalicToken : Token, IMarkdownToken
     {

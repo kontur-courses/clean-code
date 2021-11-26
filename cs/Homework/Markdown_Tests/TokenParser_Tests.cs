@@ -3,6 +3,8 @@ using System.Collections.Generic;
 using System.Linq;
 using FluentAssertions;
 using Markdown;
+using Markdown.Parser;
+using Markdown.Tokens;
 using NUnit.Framework;
 
 namespace Markdown_Tests

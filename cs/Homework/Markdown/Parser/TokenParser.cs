@@ -2,8 +2,10 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using Markdown.TokenIdentifiers;
+using Markdown.Tokens;
 
-namespace Markdown
+namespace Markdown.Parser
 {
     public class TokenParser : IParser
     {

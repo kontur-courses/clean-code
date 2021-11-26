@@ -1,7 +1,8 @@
 ﻿using System;
 using System.Linq;
+using Markdown.Tokens;
 
-namespace Markdown
+namespace Markdown.TokenIdentifiers
 {
     public abstract class DoubleTagTokenIdentifier : TokenIdentifier
     {

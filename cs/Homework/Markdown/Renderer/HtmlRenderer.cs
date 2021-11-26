@@ -1,6 +1,7 @@
 ﻿using System;
+using Markdown.Tokens;
 
-namespace Markdown
+namespace Markdown.Renderer
 {
     public class HtmlRenderer : IRenderer
     {

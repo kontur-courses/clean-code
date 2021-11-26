@@ -1,4 +1,7 @@
-﻿namespace Markdown
+﻿using Markdown.Parser;
+using Markdown.Renderer;
+
+namespace Markdown
 {
     public class Md
     {

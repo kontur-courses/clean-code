@@ -1,7 +1,7 @@
 ﻿using System;
-using System.Linq;
+using Markdown.Tokens;
 
-namespace Markdown
+namespace Markdown.TokenIdentifiers
 {
     public class BoldTokenIdentifier : DoubleTagTokenIdentifier
     {
