@@ -14,9 +14,6 @@ namespace Markdown
         
         public StringHelper(TagRules rules, string text)
         {
-            MdExceptionHelper.ThrowArgumentNullExceptionIf(
-                new ExceptionCheckObject(nameof(rules), rules),
-                new ExceptionCheckObject(nameof(text), text));
             this.rules = rules;
             this.text = text;
         }
@@ -55,10 +52,6 @@ namespace Markdown
         
         public string ReplaceTokens(IEnumerable<TokenSegment> tokenSegments, ITagTranslator translator)
         {
-            MdExceptionHelper.ThrowArgumentNullExceptionIf(
-                new ExceptionCheckObject(nameof(tokenSegments), tokenSegments),
-                new ExceptionCheckObject(nameof(translator), translator));
-            
             var lastTokenEndIndex = 0;
 
             foreach (var tokenInfo in DecomposeIntoTokens(tokenSegments))

@@ -1,8 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-
-namespace Markdown
+﻿namespace Markdown
 {
     internal class TokenSegment
     {
@@ -11,13 +7,9 @@ namespace Markdown
         public int StartPosition { get; }
         public int EndPosition { get; }
         private int InnerLength => EndPosition - (StartPosition + tag.Start.Length);
-        
-        internal TokenSegment(){}
 
-        internal TokenSegment(TokenInfo first, TokenInfo second = null)
+        internal TokenSegment(TokenInfo first, TokenInfo? second = null)
         {
-            MdExceptionHelper.ThrowArgumentNullExceptionIf(new ExceptionCheckObject(nameof(first), first));
-
             tag = second is null 
                 ? TagFactory.GetOrAddSingleTag(first.Token) 
                 : TagFactory.GetOrAddSymmetricTag(first.Token);

@@ -1,4 +1,4 @@
-﻿using System.Linq;
+﻿using System;
 
 namespace Markdown
 {
@@ -52,8 +52,10 @@ namespace Markdown
                 .Configure();
         }
 
-        public static string Render(string input)
+        public static string Render(string? input)
         {
+            if (input is null) throw new ArgumentNullException();
+            
             var tokenSegments = MdToHtmlParser
                 .FindAllTokens(input)
                 .ToTokenSegments(MdToHtmlParser.GetRules());

@@ -9,7 +9,6 @@ namespace Markdown
 
         internal TokenInfoCollection(IEnumerable<TokenInfo> tokens)
         {
-            MdExceptionHelper.ThrowArgumentNullExceptionIf(new ExceptionCheckObject(nameof(tokens), tokens));
             this.tokens = tokens;
         }
         
@@ -20,7 +19,6 @@ namespace Markdown
         
         public IEnumerable<TokenSegment> ToTokenSegments(TagRules rules)
         {
-            MdExceptionHelper.ThrowArgumentNullExceptionIf(new ExceptionCheckObject(nameof(rules), rules));
             return new Segmenter(tokens, rules).ToTokenSegments();
         }
     }

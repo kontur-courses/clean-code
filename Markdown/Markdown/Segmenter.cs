@@ -18,10 +18,6 @@ namespace Markdown
 
         public Segmenter(IEnumerable<TokenInfo> tokens, TagRules rules)
         {
-            MdExceptionHelper.ThrowArgumentNullExceptionIf(
-                new ExceptionCheckObject(nameof(tokens), tokens),
-                new ExceptionCheckObject(nameof(rules), rules));
-            
             this.tokens = tokens;
             this.rules = rules;
         }
@@ -81,7 +77,7 @@ namespace Markdown
             return token is null || !tokenInfo.WordPartPlaced;
         }
 
-        private void HandlePairToken(TokenInfo tokenInfo, out TokenSegment validSegment)
+        private void HandlePairToken(TokenInfo tokenInfo, out TokenSegment? validSegment)
         {
             var (_, token, closeValid, _, _, _) = tokenInfo;
             validSegment = null;
@@ -111,7 +107,7 @@ namespace Markdown
             SearchOpenTokenDueToIntersecting(openedToken, tokenInfo);
         }
 
-        private void HandleSingleToken(TokenInfo tokenInfo, out TokenSegment segment)
+        private void HandleSingleToken(TokenInfo tokenInfo, out TokenSegment? segment)
         {
             if (rules.IsInterruptTag(tokenInfo.Tag))
             {
@@ -170,7 +166,7 @@ namespace Markdown
         {
             foreach (var tokenInfo in tokens)
             {
-                TokenSegment segment;
+                TokenSegment? segment;
                 
                 if (tokenInfo.Tag.End is null) HandleSingleToken(tokenInfo, out segment);
                 else HandlePairToken(tokenInfo, out segment);

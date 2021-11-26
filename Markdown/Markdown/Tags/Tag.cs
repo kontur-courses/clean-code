@@ -6,19 +6,15 @@ namespace Markdown
     internal class Tag
     {
         public string Start { get; }
-        public string End { get; }
+        public string? End { get; }
 
-        private Tag() {}
-
-        internal Tag(string openWord, string closeWord)
+        internal Tag(string openWord, string? closeWord)
         {
-            MdExceptionHelper.ThrowArgumentNullExceptionIf(new ExceptionCheckObject(nameof(openWord), openWord));
-            
             Start = openWord;
             End = closeWord;
         }
 
-        public override bool Equals(object obj)
+        public override bool Equals(object? obj)
         {
             return obj is Tag tag && Equals(tag);
         }

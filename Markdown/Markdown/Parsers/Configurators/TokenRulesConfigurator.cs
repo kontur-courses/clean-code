@@ -1,42 +1,33 @@
-﻿namespace Markdown
+﻿using System;
+
+namespace Markdown
 {
     internal class TokenRulesConfigurator
     {
-        private TokenParserConfig config;
-        
-        private TokenRulesConfigurator()
-        {
-        }
+        private readonly TokenParserConfig config;
         
         protected internal TokenRulesConfigurator(TokenParserConfig config)
         {
-            MdExceptionHelper.ThrowArgumentNullExceptionIf(new ExceptionCheckObject(nameof(config), config));
             this.config = config;
-        }
-        
-        public TokenRulesConfiguratorEnd CanIntersectWith(Tag tag)
-        {
-            MdExceptionHelper.ThrowArgumentNullExceptionIf(new ExceptionCheckObject(nameof(tag), tag));
-            config.TagRules.SetRule(config.LastAddedToken, tag, InteractType.Intersecting);
-            return new TokenRulesConfiguratorEnd(config);
         }
 
         public TokenRulesConfiguratorEnd CanBeShielded()
         {
+            if (config.LastAddedToken is null) throw new ArgumentNullException(nameof(config.LastAddedToken));
             config.TagRules.SetShieldedTeg(config.LastAddedToken);
             return new TokenRulesConfiguratorEnd(config);
         }
 
         public TokenRulesConfiguratorEnd CanBeNestedIn(Tag tag)
         {
-            MdExceptionHelper.ThrowArgumentNullExceptionIf(new ExceptionCheckObject(nameof(tag), tag));
+            if (config.LastAddedToken is null) throw new ArgumentNullException(nameof(config.LastAddedToken));
             config.TagRules.SetRule(tag, config.LastAddedToken, InteractType.Nesting);
             return new TokenRulesConfiguratorEnd(config);
         }
 
         public TokenRulesConfiguratorEnd CantContain(params char[] symbols)
         {
-            MdExceptionHelper.ThrowArgumentNullExceptionIf(new ExceptionCheckObject(nameof(symbols), symbols));
+            if (config.LastAddedToken is null) throw new ArgumentNullException(nameof(config.LastAddedToken));
             foreach (var symbol in symbols)
             {
                 config.TagRules.SetRule(config.LastAddedToken, TagFactory.GetOrAddSingleTag(symbol.ToString()), InteractType.Contain);
@@ -48,6 +39,7 @@
 
         public TokenRulesConfiguratorEnd CanBeInFrontOnly()
         {
+            if (config.LastAddedToken is null) throw new ArgumentNullException(nameof(config.LastAddedToken));
             config.TagRules.AddInFrontOnlyTag(config.LastAddedToken);
             return new TokenRulesConfiguratorEnd(config);
         }

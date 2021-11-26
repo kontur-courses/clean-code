@@ -3,6 +3,7 @@ using System.Diagnostics;
 using System.Text;
 using FluentAssertions;
 using NUnit.Framework;
+using static FluentAssertions.FluentActions;
 
 namespace Markdown
 {
@@ -141,6 +142,12 @@ namespace Markdown
             }
 
             secondTime.Should().BeLessThan(firstTime * (1 + timeFactor));
+        }
+
+        [Test]
+        public void ThrowArgumentNullExceptionWhenInputIsNull()
+        {
+            Invoking(() => Md.Render(null!)).Should().Throw<ArgumentNullException>();
         }
     }
 }
