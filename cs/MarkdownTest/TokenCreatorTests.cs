@@ -46,15 +46,15 @@ namespace MarkdownTest
             }).SetName("header and text");
 
             yield return new TestCaseData("#text", new List<IToken>
-            {
-                new TokenHeader1(), TokenText.FromText("text")
+            { 
+                TokenText.FromText("#text")
             }).SetName("wrong header and text");
 
-            yield return new TestCaseData("text ## text", new List<IToken>
-            {
-                TokenText.FromText("text ## text")
-            }).SetName("Two header symbols");
-
+            yield return new TestCaseData("text# text", new List<IToken>
+            { 
+                TokenText.FromText("text"), Token.Header1, Token.FromText("text")
+            }).SetName("wrong header and text");
+            
             yield return new TestCaseData("# _\\_text_", new List<IToken>
             {
                 new TokenHeader1(), new TokenItalics(),
