@@ -105,11 +105,11 @@ namespace Markdown
         [TestCase(@"\a \\_a_", ExpectedResult = @"\a \<em>a</em>")]
         public string CorrectRender(string text) => Md.Render(text);
         
-        [TestCase(" __ab__ ", 100, 6)]
-        [TestCase("2a1b", 100, 2)]
-        [TestCase(" ab ", 100, 8)]
-        [TestCase(" _a_ \n\n __a__  ", 100, 8)]
-        public void HaveCorrectRenderTime(string text, int textLenghtFactor, int timeFactor)
+        [TestCase(" __ab__ ", 100, 6, 4)]
+        [TestCase("2a1b", 100, 2, 2)]
+        [TestCase(" ab ", 100, 8, 2)]
+        [TestCase(" _a_ \n\n __a__  ", 100, 8, 10)]
+        public void HaveCorrectRenderTime(string text, int textLenghtFactor, int timeFactor, int tokenOccurrencesCount)
         {
             var firstTextBuilder = new StringBuilder();
             for (var i = 0; i < textLenghtFactor; i++)
@@ -141,7 +141,7 @@ namespace Markdown
                 secondTime += secondTimer.Elapsed;
             }
 
-            secondTime.Should().BeLessThan(firstTime * (1 + timeFactor));
+            secondTime.Should().BeLessThan(firstTime * timeFactor * Math.Log10(tokenOccurrencesCount * textLenghtFactor * timeFactor));
         }
 
         [Test]
