@@ -40,12 +40,15 @@ namespace Markdown
                 .AddToken(MdUnderscoreTag).That
                     .CanBeNestedIn(MdDoubleUnderscoreTag).And
                     .CanBeNestedIn(MdSharpTag).And
-                    .CantContain(forbiddenInnerTextSymbols)
+                    .CantContain(forbiddenInnerTextSymbols).And
+                    .CanBeShielded()
                 .AddToken(MdDoubleUnderscoreTag).That
                     .CanBeNestedIn(MdSharpTag).And
-                    .CantContain(forbiddenInnerTextSymbols)
+                    .CantContain(forbiddenInnerTextSymbols).And
+                    .CanBeShielded()
                 .AddToken(MdSharpTag).That
-                    .CanBeInFrontOnly()
+                    .CanBeInFrontOnly().And
+                    .CanBeShielded()
                 .Configure();
         }
 
