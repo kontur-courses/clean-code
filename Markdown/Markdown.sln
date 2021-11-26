@@ -1,8 +1,8 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Markdown", "Markdown.csproj", "{D8E63DB0-2F1D-4ECC-BC7A-C100B9455AED}"
-EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "AhoCorasick", "AhoCorasick\AhoCorasick.csproj", "{A99666B5-1380-4D9F-8B07-1EAA7919DDC9}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Markdown", "Markdown\Markdown.csproj", "{56FD7EE6-17DA-4360-B5C5-9DAD68E260B0}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -10,13 +10,13 @@ Global
 		Release|Any CPU = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(ProjectConfigurationPlatforms) = postSolution
-		{D8E63DB0-2F1D-4ECC-BC7A-C100B9455AED}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{D8E63DB0-2F1D-4ECC-BC7A-C100B9455AED}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{D8E63DB0-2F1D-4ECC-BC7A-C100B9455AED}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{D8E63DB0-2F1D-4ECC-BC7A-C100B9455AED}.Release|Any CPU.Build.0 = Release|Any CPU
 		{A99666B5-1380-4D9F-8B07-1EAA7919DDC9}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{A99666B5-1380-4D9F-8B07-1EAA7919DDC9}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{A99666B5-1380-4D9F-8B07-1EAA7919DDC9}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{A99666B5-1380-4D9F-8B07-1EAA7919DDC9}.Release|Any CPU.Build.0 = Release|Any CPU
+		{56FD7EE6-17DA-4360-B5C5-9DAD68E260B0}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{56FD7EE6-17DA-4360-B5C5-9DAD68E260B0}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{56FD7EE6-17DA-4360-B5C5-9DAD68E260B0}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{56FD7EE6-17DA-4360-B5C5-9DAD68E260B0}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 EndGlobal
