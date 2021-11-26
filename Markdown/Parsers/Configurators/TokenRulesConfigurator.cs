@@ -21,6 +21,12 @@
             return new TokenRulesConfiguratorEnd(config);
         }
 
+        public TokenRulesConfiguratorEnd CanBeShielded()
+        {
+            config.TagRules.SetShieldedTeg(config.LastAddedToken);
+            return new TokenRulesConfiguratorEnd(config);
+        }
+
         public TokenRulesConfiguratorEnd CanBeNestedIn(Tag tag)
         {
             MdExceptionHelper.ThrowArgumentNullExceptionIf(new ExceptionCheckObject(nameof(tag), tag));

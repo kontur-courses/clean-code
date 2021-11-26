@@ -10,7 +10,14 @@ namespace Markdown
         private readonly Dictionary<Tag, HashSet<Tag>> containRules = new();
         private readonly HashSet<Tag> inFrontRules = new();
         private readonly HashSet<Tag> tagInterruptTokens = new();
+        private readonly HashSet<Tag> shieldedTags = new();
 
+        public void SetShieldedTeg(Tag tag)
+        {
+            MdExceptionHelper.ThrowArgumentNullExceptionIf(new ExceptionCheckObject(nameof(tag), tag));
+            shieldedTags.Add(tag);
+        }
+        
         public void AddInFrontOnlyTag(Tag tag)
         {
             MdExceptionHelper.ThrowArgumentNullExceptionIf(new ExceptionCheckObject(nameof(tag), tag));
@@ -76,6 +83,7 @@ namespace Markdown
 
         private bool CanBeNotInFront(Tag tag)
         {
+            MdExceptionHelper.ThrowArgumentNullExceptionIf(new ExceptionCheckObject(nameof(tag), tag));
             return !inFrontRules.Contains(tag);
         }
 
@@ -85,6 +93,12 @@ namespace Markdown
                 new ExceptionCheckObject(nameof(segment), segment), 
                 new ExceptionCheckObject(nameof(newLinePosition), newLinePosition));
             return CanBeNotInFront(segment.GetBaseTag()) || newLinePosition == 0;
+        }
+
+        public bool CanBeShielded(Tag tag)
+        {
+            MdExceptionHelper.ThrowArgumentNullExceptionIf(new ExceptionCheckObject(nameof(tag), tag));
+            return shieldedTags.Contains(tag);
         }
     }
 }

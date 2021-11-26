@@ -46,6 +46,7 @@ namespace Markdown
             
             if (Config.ShieldingSymbol.Setted) throw new ArgumentException("shielding symbol already setted");
             Config.ShieldingSymbol = (symbol, true);
+            Config.TagRules.SetShieldedTeg(symbol);
             return this;
         }
         

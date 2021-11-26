@@ -37,24 +37,37 @@ namespace Markdown
                    && !char.IsWhiteSpace(text[position + token.Length]);
         }
 
+        private bool IsInWordToken(string text, int position, string token)
+        {
+            return CanTokenCloseTag(text, position, token) 
+                   && CanTokenOpenTag(text, position) 
+                   && text[position - 1].ToString() != shieldingSymbol 
+                   && text[position + token.Length].ToString() != shieldingSymbol;
+        }
+
+        private bool IsValidToken(string text, int position, string token)
+        {
+            return CanTokenOpenTag(text, position) 
+                   || CanTokenCloseTag(text, position, token) 
+                   || shieldingSymbol == token 
+                   || rules.IsInterruptTag(TagFactory.GetTagByChars(token));
+        }
+
         private TokenInfo CreateTokenInfo(string text, int position, string token)
         {
-            var closeValid = CanTokenOpenTag(text, position);
-            var openValid = CanTokenCloseTag(text, position, token);
-
             return new TokenInfo(
                 position,
-                token, closeValid, openValid,
-                closeValid && openValid,
-                closeValid || openValid || shieldingSymbol == token || rules.IsInterruptTag(TagFactory.GetTagByChars(token))
+                token, CanTokenOpenTag(text, position), CanTokenCloseTag(text, position, token),
+                IsInWordToken(text, position, token), IsValidToken(text, position, token)
             );
         }
 
-        private bool Shielded(int position)
+        private bool Shielded(string token, int position)
         {
             return shieldingSymbol is not null
                    && lastShieldToken is not null
-                   && lastShieldToken.Position + shieldingSymbol.Length == position;
+                   && lastShieldToken.Position + shieldingSymbol.Length == position
+                   && rules.CanBeShielded(TagFactory.GetTagByChars(token));
         }
         
         public TokenInfoCollection FindAllTokens(string text)
@@ -64,7 +77,7 @@ namespace Markdown
             foreach (var (token, index) in trie.Find(text))
             {
                 if (token is null || currentSearchStartIndex > index && lastIndex != index) continue;
-                if (Shielded(index))
+                if (Shielded(token, index))
                 {
                     lastShieldToken = null;
                     continue;
@@ -80,6 +93,9 @@ namespace Markdown
                 if (shieldingSymbol == token)
                     lastShieldToken = tokenInfo;
             }
+            
+            if (lastShieldToken is not null)
+                lastShieldToken.Valid = false;
             
             return new TokenInfoCollection(tokenInfos.Select(x => x.Value));
         }
