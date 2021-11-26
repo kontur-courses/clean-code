@@ -115,6 +115,7 @@ namespace Markdown
         [TestCase("* a\n\n+ b", ExpectedResult = "<ul>\n<li>a</li>\n</ul>\n\n<ul>\n<li>b</li>\n</ul>")]
         [TestCase("- a\n\n+ b", ExpectedResult = "<ul>\n<li>a</li>\n</ul>\n\n<ul>\n<li>b</li>\n</ul>")]
         [TestCase("* a\n\n* b", ExpectedResult = "<ul>\n<li>a</li>\n</ul>\n\n<ul>\n<li>b</li>\n</ul>")]
+        [TestCase("* a_b_c\n\n* b", ExpectedResult = "<ul>\n<li>a<em>b</em>c</li>\n</ul>\n\n<ul>\n<li>b</li>\n</ul>")]
         public string CorrectRender(string text) => Md.Render(text);
         
         [TestCase(" __ab__ ", 100, 6, 4)]
