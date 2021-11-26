@@ -1,6 +1,5 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Text;
+﻿using System.Collections.Generic;
+using System.Linq;
 
 namespace Markdown
 {
@@ -13,11 +12,11 @@ namespace Markdown
         public override TokenTree ParseToken(int position)
         {
             var token = Tokens[position];
-            var oppositeTokenType = GetOppositeTokenType(token.TokenType);
+            var oppositeTokenType = TokenType.BracketClose;
             if (!HasCloseTokenInLine(oppositeTokenType, position + 1))
                 return new ParseAsText(Tokens).ParseToken(position);
 
-            if (!HasLink(position, oppositeTokenType, out var closeIndex, out var oppositeCloseIndex))
+            if (!IsLink(position, out var closeIndex, out var oppositeCloseIndex))
                 return new ParseAsText(Tokens).ParseToken(position);
             var name = new List<TokenTree>();
             position++;
@@ -27,17 +26,12 @@ namespace Markdown
                 name.Add(component);
                 position += component.Count;
             }
-            
-            var text = new List<string>();
-            for (var i = 1; i < 3; i++)
-            {
-                text.Add(NextToken(position + i).Value);
-            }
-            
-            return new TokenTree(new TokenLink().Create(text.ToArray(), 0), name, 5);
-        }
 
-        private bool HasLink(int position, TokenType tokenType, out int closeIndex, out int oppositeCloseIndex)
+            var link = NextToken(position + 1).Value.Select(x => x.ToString()).ToArray();
+            return new TokenTree(new TokenLink().Create(link, 0), name, 5);
+        }
+        
+        private bool IsLink(int position, out int closeIndex, out int oppositeCloseIndex)
         {
             var token = Tokens[position];
             oppositeCloseIndex = 0;
@@ -49,16 +43,6 @@ namespace Markdown
                 return false;
 
             return oppositeOpenIndex == closeIndex  + 1;
-        }
-        
-        private TokenType GetOppositeTokenType(TokenType tokenType)
-        {
-            return tokenType switch
-            {
-                TokenType.BracketOpen => TokenType.BracketClose,
-                TokenType.SquareBracketOpen => TokenType.SquareBracketClose,
-                _ => throw new ArgumentException($"Unsupported tokenType: {tokenType}")
-            };
         }
     }
 }

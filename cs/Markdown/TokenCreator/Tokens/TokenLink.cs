@@ -3,20 +3,13 @@
     public class TokenLink : IToken
     {
         public TokenType TokenType => TokenType.Link;
-        public string Value { get; private set;}
+        public string Value { get; private init;}
 
         public bool CanParse(string symbol) => false;
 
         public IToken Create(string[] text, int index)
         {
-            var link = "";
-            while (text[index] != ")")
-            {
-                link += text[index];
-                index++;
-            }
-
-            return new TokenLink{Value = link};
+            return new TokenLink{Value = string.Join("", text)};
         }
     }
 }

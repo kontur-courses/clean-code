@@ -35,8 +35,8 @@ namespace Markdown
                 TokenType.Header1 => new ParseHeader(Tokens).ParseToken(position),
                 TokenType.Text or TokenType.NewLine => new ParseAsText(Tokens).ParseToken(position),
                 TokenType.Italics or TokenType.Strong => new ParseUnderscore(Tokens).ParseToken(position),
-                TokenType.SquareBracketOpen or TokenType.BracketOpen => new ParserLink(Tokens).ParseToken(position),
-                TokenType.SquareBracketClose or TokenType.BracketClose  => new ParseAsText(Tokens).ParseToken(position),
+                TokenType.SquareBracketOpen => new ParserLink(Tokens).ParseToken(position),
+                TokenType.SquareBracketClose or TokenType.BracketClose or TokenType.BracketOpen => new ParseAsText(Tokens).ParseToken(position),
                 _ => throw new ArgumentOutOfRangeException($"Unsupported tokenType: {token.TokenType}")
             };
         }
