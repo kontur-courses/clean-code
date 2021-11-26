@@ -1,5 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Linq;
 
 namespace Markdown
@@ -91,7 +90,14 @@ namespace Markdown
                 || !closeValid 
                 || ignoredTokens.RemoveWhere(x => x.Token == token) == 1
                 || !tokenStack.Any() 
-                || !ValidateByContainRule(tokenInfo)) return;
+                || !ValidateByContainRule(tokenInfo))
+            {
+                if (tokenInfo.CloseValid) return;
+                currentOpenedTag.Add(tokenInfo);
+                PopTokenIfContain(tokenInfo.Token);
+                tokenStack.Push(tokenInfo);
+                return;
+            }
 
             var openedToken = tokenStack.Pop();
             if (openedToken.Token == token)
@@ -137,7 +143,29 @@ namespace Markdown
                     allowTokens.Add(segment);
             }
         }
-        
+
+        private bool PopTokenIfContain(string token)
+        {
+            var isTokenFound = false;
+
+            var tempStack = new Stack<TokenInfo>();
+            while (tokenStack.Any())
+            {
+                var tokenInfo = tokenStack.Pop();
+                if (token == tokenInfo.Token)
+                {
+                    isTokenFound = true;
+                    break;
+                }
+                tempStack.Push(tokenInfo);
+            }
+
+            while (tempStack.Any())
+                tokenStack.Push(tempStack.Pop());
+
+            return isTokenFound;
+        }
+
         public IEnumerable<TokenSegment> ToTokenSegments()
         {
             foreach (var tokenInfo in tokens)
