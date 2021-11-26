@@ -1,24 +1,12 @@
 ﻿namespace Markdown
 {
-    public enum TokenType
+    public static class Token
     {
-        Text,
-        Italics,
-        Strong,
-        Escape,
-        NewLine,
-        Header1
-    }
-
-    public class Token
-    {
-        public Token(TokenType tokenType, string value)
-        {
-            TokenType = tokenType;
-            Value = value;
-        }
-
-        public TokenType TokenType { get; }
-        public string Value { get; }
+        public static IToken Header1 => new TokenHeader1();
+        public static IToken Italics => new TokenItalics();
+        public static IToken Strong => new TokenStrong();
+        public static IToken Escape => new TokenEscape();
+        public static IToken NewLine => new TokenNewLine();
+        public static IToken FromText(string value) => TokenText.FromText(value);
     }
 }
