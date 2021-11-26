@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Diagnostics;
+using System.IO;
 using System.Text;
 using FluentAssertions;
 using NUnit.Framework;
@@ -148,6 +149,13 @@ namespace Markdown
         public void ThrowArgumentNullExceptionWhenInputIsNull()
         {
             Invoking(() => Md.Render(null!)).Should().Throw<ArgumentNullException>();
+        }
+
+        [Test]
+        public void TextFileRenderTest()
+        {
+            var actual = Md.Render(File.ReadAllText("..\\..\\..\\MarkdownSpec.txt"));
+            actual.Should().Be(File.ReadAllText("..\\..\\..\\ExpectedSpec.txt"));
         }
     }
 }
