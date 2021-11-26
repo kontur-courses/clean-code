@@ -21,10 +21,19 @@ namespace Markdown.Parsers
                 }
                 else
                 {
-                    rawTokens.Add(token.ToString());
+                    if (token.Length > 0)
+                    {
+                        rawTokens.Add(token.ToString());
+                    }
+
                     rawTokens.Add(symbol.ToString());
                     token = new StringBuilder();
                 }
+            }
+
+            if (token.Length > 0)
+            {
+                rawTokens.Add(token.ToString());
             }
 
             return rawTokens;

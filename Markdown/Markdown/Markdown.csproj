@@ -4,4 +4,20 @@
         <TargetFramework>net5.0</TargetFramework>
     </PropertyGroup>
 
+    <ItemGroup>
+        <Compile Remove="Trees\**"/>
+        <Compile Remove="Factories\IMarkingTreeFactory.cs"/>
+        <Compile Remove="Factories\ITreeNodeFactory.cs"/>
+        <Compile Remove="Factories\MarkingTreeFactory.cs"/>
+        <Compile Remove="Factories\TreeNodeFactory.cs"/>
+    </ItemGroup>
+
+    <ItemGroup>
+        <EmbeddedResource Remove="Trees\**"/>
+    </ItemGroup>
+
+    <ItemGroup>
+        <None Remove="Trees\**"/>
+    </ItemGroup>
+
 </Project>

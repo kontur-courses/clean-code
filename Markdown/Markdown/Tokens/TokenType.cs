@@ -2,8 +2,9 @@
 {
     public enum TokenType
     {
-        Tag,
-        Word,
-        TreeRoot
+        PairedTagOpened,
+        PairedTagClosed,
+        SingleTag,
+        Word
     }
 }
