@@ -6,9 +6,8 @@ namespace Markdown.TokenParser
     {
         private readonly IEnumerator<T> enumerator;
         private readonly Queue<T> buffer = new();
-        private int count;
+        private int enumeratesCount;
         private T previous;
-        private T current;
 
         public BufferedEnumerator(IEnumerator<T> enumerator)
         {
@@ -19,14 +18,15 @@ namespace Markdown.TokenParser
         {
             if (buffer.TryDequeue(out var peek))
             {
-                if (buffer.Count > 0) previous = current;
-                current = peek;
+                if (buffer.Count > 0) previous = Current;
+                Current = peek;
                 return true;
             }
 
             if (enumerator.MoveNext())
             {
                 previous = Current;
+                enumeratesCount++;
                 Current = enumerator.Current;
                 return true;
             }
@@ -34,15 +34,7 @@ namespace Markdown.TokenParser
             return false;
         }
 
-        public T Current
-        {
-            get => current;
-            private set
-            {
-                count++;
-                current = value;
-            }
-        }
+        public T Current { get; private set; }
 
         public void PushToBuffer(T next)
         {
@@ -65,7 +57,7 @@ namespace Markdown.TokenParser
         public bool TryGetPrevious(out T value)
         {
             value = previous;
-            return count > 1;
+            return enumeratesCount > 1;
         }
     }
 }

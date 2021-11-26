@@ -17,7 +17,7 @@ namespace Markdown.TokenParser.TokenParsingIteratorState
         {
             var token = Token.Cursive;
             var children = context.Children
-                .Select(x => x.Tag.Type == TagType.Bold ? Token.Text(x.ToText()).ToNode() : x)
+                .Select(x => x.Tag.Type == TagType.Bold ? Tag.Text(x.ToText()).ToNode() : x)
                 .ToArray();
             node = new TagNode(token.ToTag(), children);
             return true;

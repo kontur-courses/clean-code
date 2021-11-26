@@ -1,6 +1,4 @@
-﻿using System;
-
-namespace Markdown.Tags
+﻿namespace Markdown.Tags
 {
     public readonly struct Tag : ITextContainer
     {

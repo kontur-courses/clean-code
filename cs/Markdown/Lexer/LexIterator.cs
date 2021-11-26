@@ -35,7 +35,7 @@ namespace Markdown.Lexer
                 yield return symbol switch
                 {
                     Characters.Underscore => LexNonNewLineContainsToken(LexUnderscore),
-                    Characters.Escape => LexNonNewLineContainsToken(LexEscape), 
+                    Characters.Escape => LexNonNewLineContainsToken(LexEscape),
                     Characters.Sharp => LexHeader(),
                     Characters.NewLine => LexNewLine(),
                     Characters.OpenCircleBracket => LexNonNewLineContainsToken(LexOpenCircleBracket),
@@ -53,23 +53,21 @@ namespace Markdown.Lexer
             isNewLine = false;
             return getToken();
         }
-        
+
         private static Token LexOpenCircleBracket() => Token.OpenCircleBracket;
 
         private static Token LexCloseCircleBracket() => Token.CloseCircleBracket;
-        
+
         private static Token LexOpenSquareBracket() => Token.OpenSquareBracket;
 
         private static Token LexCloseSquareBracket() => Token.CloseSquareBracket;
-        
+
         private Token LexUnderscore()
         {
-            isNewLine = false;
-            if (!IsNextCharacter(Characters.Underscore)) 
+            if (!IsNextCharacter(Characters.Underscore))
                 return Token.Cursive;
             currentIndex++;
             return Token.Bold;
-
         }
 
         private static Token LexEscape() => Token.Escape;
@@ -79,7 +77,6 @@ namespace Markdown.Lexer
             if (!isNewLine || !IsNextCharacter(Characters.WhiteSpace)) return LexText();
             currentIndex++;
             return Token.Header1;
-
         }
 
         private Token LexNewLine()

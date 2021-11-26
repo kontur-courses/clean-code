@@ -70,7 +70,7 @@ namespace Markdown.TokenParser
             resultContext = default;
             return false;
         }
-        
+
         public TagNode ParseToken(Token token)
         {
             return token.Type switch
@@ -86,8 +86,6 @@ namespace Markdown.TokenParser
         }
 
         public bool TryPopContext(out TokenContext context) => contexts.TryPop(out context);
-
-        public bool TryPeekContext(out TokenContext context) => contexts.TryPeek(out context);
 
         public void PushContext(TokenContext tokenContext) => contexts.Push(tokenContext);
 
@@ -111,15 +109,11 @@ namespace Markdown.TokenParser
 
         public TagNode ToNode(TokenContext context)
         {
-            return context.Token.Type switch
-            {
-                TokenType.Header1 => contexts.Count == 0
-                    ? new TagNode(Token.Header1.ToTag(), context.Children.ToArray())
-                    : Tag.Text(context.ToText()).ToNode(),
-                _ => Tag.Text(context.ToText()).ToNode()
-            };
+            if (context.Token.Type == TokenType.Header1 && contexts.Count == 0)
+                return new TagNode(Token.Header1.ToTag(), context.Children.ToArray());
+            return Tag.Text(context.ToText()).ToNode();
         }
 
-        public bool AnyContext(Func<TokenContext, bool> func) => contexts.Any(func);
+        public bool AnyContext(Func<TokenContext, bool> predicate) => contexts.Any(predicate);
     }
 }

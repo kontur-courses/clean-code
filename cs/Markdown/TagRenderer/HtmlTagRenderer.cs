@@ -13,10 +13,10 @@ namespace Markdown.TagRenderer
         public string Render(IEnumerable<TagNode> tokens)
         {
             if (tokens == null) throw new ArgumentNullException(nameof(tokens));
-            return StringUtils.Join(tokens.Select(ToString));
+            return StringUtils.Join(tokens.Select(ToHtml));
         }
 
-        private static string ToString(TagNode node)
+        private static string ToHtml(TagNode node)
         {
             if (node.Tag.Type == TagType.Text)
                 return node.Tag.GetText();
@@ -25,7 +25,7 @@ namespace Markdown.TagRenderer
             sb.Append(node.Tag.Type == TagType.Link
                 ? WrapOpeningTag($"{tag} href=\"{node.Tag.Value}\"")
                 : WrapOpeningTag(tag));
-            if (node.Children.Length > 0) sb.Append(StringUtils.Join(node.Children.Select(ToString)));
+            if (node.Children.Length > 0) sb.Append(StringUtils.Join(node.Children.Select(ToHtml)));
             sb.Append(WrapClosingTag(tag));
 
             return sb.ToString();

@@ -29,9 +29,7 @@ namespace Markdown.TokenParser.TokenParsingIteratorState
             if (Iterator.AnyContext(TokenContext.IsLink))
             {
                 if (Iterator.TryFlushContextsUntil(out var context, TokenContext.IsLink))
-                {
-                    return ParseLinkAddress(context);
-                }
+                    return ParseLinkAddressAfterClosedSquareBracket(context);
 
                 throw new Exception("Link context was not found");
             }
@@ -39,14 +37,12 @@ namespace Markdown.TokenParser.TokenParsingIteratorState
             return Token.CloseSquareBracket.ToText().ToNode();
         }
 
-        private TagNode ParseLinkAddress(TokenContext linkContext)
+        private TagNode ParseLinkAddressAfterClosedSquareBracket(TokenContext linkContext)
         {
             if (Iterator.TryMoveNext(out var token))
             {
                 if (token.Type == TokenType.OpenCircleBracket)
-                {
-                    return ParseLinkAddress2(linkContext);
-                }
+                    return ParseLinkAddressAfterOpenCircleBracket(linkContext);
 
                 Iterator.PushToBuffer(token);
             }
@@ -55,11 +51,10 @@ namespace Markdown.TokenParser.TokenParsingIteratorState
             return Tag.Text(linkContext.ToText()).ToNode();
         }
 
-        private TagNode ParseLinkAddress2(TokenContext linkContext)
+        private TagNode ParseLinkAddressAfterOpenCircleBracket(TokenContext linkContext)
         {
             var sb = new StringBuilder();
             while (Iterator.TryMoveNext(out var next))
-            {
                 switch (next)
                 {
                     case { Type: TokenType.CloseCircleBracket }:
@@ -67,11 +62,10 @@ namespace Markdown.TokenParser.TokenParsingIteratorState
                     case { Type: TokenType.Escape }:
                         sb.Append(ParseEscapeInLinkAddress());
                         break;
-                    default: 
+                    default:
                         sb.Append(next.Value);
                         break;
                 }
-            }
 
             linkContext.AddChild(Token.CloseSquareBracket.ToNode());
             linkContext.AddChild(Token.OpenCircleBracket.ToNode());
@@ -83,7 +77,7 @@ namespace Markdown.TokenParser.TokenParsingIteratorState
             if (Iterator.TryMoveNext(out var next) && next.Type == TokenType.CloseCircleBracket)
                 return Token.CloseCircleBracket.Value;
 
-            return $"{Token.Escape.Value}{Token.CloseCircleBracket.Value}";
+            return StringUtils.Join(Token.Escape, Token.CloseCircleBracket);
         }
 
         private TagNode ParseOpenSquareBracket()

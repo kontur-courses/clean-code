@@ -16,9 +16,11 @@ namespace Markdown.TokenParser.TokenParsingIteratorState
             if (Iterator.TryPopContext(out var context))
                 if (CanCloseContext(context, token))
                 {
-                    if (context.Children.All(x => x.Tag.Type == TagType.Text))
+                    if (context.Children.All(n => n.Tag.Type == TagType.Text))
                     {
-                        var text = StringUtils.Join(context.Children.Select(x => x.Tag.ToToken().Value));
+                        var textParts = context.Children
+                            .Select(n => ConvertToToken(n.Tag).GetText());
+                        var text = StringUtils.Join(textParts);
                         return ShouldParseUnderscoreAsText(context, text)
                             ? Token.Text(StringUtils.Join(token, Token.Text(text), token)).ToNode()
                             : new TagNode(token.ToTag(), Token.Text(text).ToNode());
@@ -58,7 +60,7 @@ namespace Markdown.TokenParser.TokenParsingIteratorState
         private bool IsInMiddleOfWord() =>
             IsNextTokenStartsWithNonWhiteSpace() && IsPreviousTokenEndsWithNonWhiteSpace();
 
-        
+
         private bool IsNextTokenStartsWithNonWhiteSpace() => Iterator.TryGetNextToken(out var token)
                                                              && token.Type == TokenType.Text
                                                              && token.Value.Length > 0
@@ -68,17 +70,22 @@ namespace Markdown.TokenParser.TokenParsingIteratorState
                                                                && token.Type == TokenType.Text
                                                                && token.Value.Length > 0
                                                                && char.IsLetterOrDigit(token.Value[^1]);
-        
-        protected virtual bool TryParseNonTextEntryOnSameTokenContext(TokenContext _, out TagNode tag)
+
+        protected abstract bool TryParseNonTextEntryOnSameTokenContext(TokenContext context, out TagNode tag);
+
+        private static Token ConvertToToken(Tag tag)
         {
-            tag = default;
-            return false;
+            return tag.Type switch
+            {
+                TagType.Bold => Token.Bold,
+                TagType.Cursive => Token.Cursive,
+                _ => Token.Text(tag.GetText())
+            };
         }
-        
+
         private static bool ShouldParseUnderscoreAsText(TokenContext context, string text)
         {
             return text.All(char.IsDigit) || context.IsInMiddleOfWord && text.Any(x => !char.IsLetter(x));
         }
-
     }
 }

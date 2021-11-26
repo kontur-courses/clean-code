@@ -1,6 +1,7 @@
 ﻿using System.Collections.Generic;
 using System.Linq;
 using Markdown.Extensions;
+using Markdown.Tags;
 using Markdown.Tokens;
 
 namespace Markdown.TokenParser
@@ -20,11 +21,10 @@ namespace Markdown.TokenParser
             Token = token;
         }
 
-        public TokenContext AddChild(TagNode node)
+        public void AddChild(TagNode node)
         {
             ContainsWhiteSpace = ContainsWhiteSpace || node.Tag.GetText().Contains(Characters.WhiteSpace);
             children.Add(node);
-            return this;
         }
 
         public string ToText()
@@ -35,6 +35,7 @@ namespace Markdown.TokenParser
         }
 
         public static bool IsHeader1(TokenContext context) => context.Token.Type == TokenType.Header1;
+        
         public static bool IsLink(TokenContext context) => context.Token.Type == TokenType.OpenSquareBracket;
     }
 }

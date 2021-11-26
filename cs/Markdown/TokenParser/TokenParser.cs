@@ -30,14 +30,14 @@ namespace Markdown.TokenParser
                 {
                     if (sb.Length > 0)
                     {
-                        yield return Token.Text(sb.ToString()).ToNode();
+                        yield return Tag.Text(sb.ToString()).ToNode();
                         sb.Clear();
                     }
 
                     yield return new TagNode(node.Tag, ReduceTextTokens(node.Children).ToArray());
                 }
 
-            if (sb.Length > 0) yield return Token.Text(sb.ToString()).ToNode();
+            if (sb.Length > 0) yield return Tag.Text(sb.ToString()).ToNode();
         }
     }
 }

@@ -1,4 +1,5 @@
 ﻿using Markdown.Extensions;
+using Markdown.Tags;
 using Markdown.Tokens;
 
 namespace Markdown.TokenParser.TokenParsingIteratorState
@@ -13,7 +14,7 @@ namespace Markdown.TokenParser.TokenParsingIteratorState
         {
             if (Iterator.TryMoveNext(out var next))
             {
-                Iterator.PushContext(new TokenContext(Token.Header1, false));
+                Iterator.PushContext(new TokenContext(Token.Header1));
                 return Iterator.ParseToken(next);
             }
 

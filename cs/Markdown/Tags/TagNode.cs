@@ -1,9 +1,8 @@
 ﻿using System;
 using System.Linq;
 using System.Text;
-using Markdown.Tags;
 
-namespace Markdown.Tokens
+namespace Markdown.Tags
 {
     public class TagNode
     {

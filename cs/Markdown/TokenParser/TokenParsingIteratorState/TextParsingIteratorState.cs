@@ -1,5 +1,5 @@
-﻿using System.Text;
-using Markdown.Extensions;
+﻿using Markdown.Extensions;
+using Markdown.Tags;
 using Markdown.Tokens;
 
 namespace Markdown.TokenParser.TokenParsingIteratorState
@@ -10,23 +10,6 @@ namespace Markdown.TokenParser.TokenParsingIteratorState
         {
         }
 
-        public override TagNode Parse()
-        {
-            var sb = new StringBuilder();
-            var text = Iterator.Current.Value;
-            sb.Append(text);
-            while (Iterator.TryMoveNext(out var next))
-                if (next.Type == TokenType.Text)
-                {
-                    sb.Append(next.Value);
-                }
-                else
-                {
-                    Iterator.PushToBuffer(next);
-                    break;
-                }
-
-            return Token.Text(sb.ToString()).ToNode();
-        }
+        public override TagNode Parse() => Token.Text(Iterator.Current.Value).ToNode();
     }
 }
