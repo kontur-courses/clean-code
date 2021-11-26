@@ -8,7 +8,7 @@
         public static string Render(string text)
         {
             var tokens = parser.Parse(text);
-            return renderer.Render(tokens);
+            return renderer.Render(tokens.ToArray());
         }
     }
 }

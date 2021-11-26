@@ -1,7 +1,9 @@
-﻿namespace Markdown
+﻿using System.Collections.Generic;
+
+namespace Markdown
 {
     public interface IParser
     {
-        public Token[] Parse(string text);
+        public List<Token> Parse(string text);
     }
 }

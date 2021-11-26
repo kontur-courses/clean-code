@@ -2,18 +2,16 @@
 {
     public abstract class Token
     {
-        protected Token(TokenType type, string value, int startIndex, int finishIndex)
+        protected Token(string value, int paragraphIndex, int startIndex)
         {
-            TokenType = type;
             Value = value;
+            ParagraphIndex = paragraphIndex;
             StartIndex = startIndex;
-            FinishIndex = finishIndex;
         }
 
         public string Value { get; }
-        public TokenType TokenType { get; }
+        public int ParagraphIndex { get; }
         public int StartIndex { get; }
-        public int FinishIndex { get; }
-        public int Length => FinishIndex - StartIndex;
+        public int Length => Value.Length;
     }
 }

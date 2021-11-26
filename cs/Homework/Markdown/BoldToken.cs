@@ -1,8 +1,8 @@
 ﻿namespace Markdown
 {
-    public class ItalicToken : Token, IMarkdownToken
+    public class BoldToken : Token, IMarkdownToken
     {
-        public ItalicToken(string value, int paragraphIndex, int startIndex) : base(value, paragraphIndex, startIndex)
+        public BoldToken(string value, int paragraphIndex, int startIndex) : base(value, paragraphIndex, startIndex)
         {
         }
 
