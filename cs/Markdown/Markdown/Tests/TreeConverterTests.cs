@@ -22,7 +22,6 @@ namespace Markdown.Tests
         public void ConvertToTree_ReturnsTreeWithoutTags_WhenTextHasNoTags(string text)
         {
             var tree = TreeConverter.ConvertToTree(text);
-
             tree.Root.Should().BeEquivalentTo(new Tag(0, text.Length));
             tree.Children.Should().BeEmpty();
         }
@@ -37,9 +36,7 @@ namespace Markdown.Tests
         public void ConvertToTree_AddsDisjointTagsToChildrenOfMainNode()
         {
             var expectedChildren = new List<Tree> {new Tree(new ItalicsTag(4, 6)), new Tree(new ItalicsTag(0, 2))};
-
-            TreeConverter.ConvertToTree("_a_ _b_")
-                .Children.Should()
+            TreeConverter.ConvertToTree("_a_ _b_").Children.Should()
                 .BeEquivalentTo(expectedChildren, options => options.WithoutStrictOrdering());
         }
 
@@ -48,7 +45,6 @@ namespace Markdown.Tests
         {
             var tree = TreeConverter.ConvertToTree("#a _b_");
             var child = tree.Children[0];
-
             child.Root.Should().BeEquivalentTo(new TitleTag(0, 6));
             child.Children[0].Root.Should().BeEquivalentTo(new ItalicsTag(3, 5));
         }
@@ -61,7 +57,6 @@ namespace Markdown.Tests
         {
             var tree = TreeConverter.ConvertToTree(text);
             var child = tree.Children[0];
-
             child.Children.Should().BeEmpty();
         }
 
@@ -70,7 +65,6 @@ namespace Markdown.Tests
         {
             var tree = TreeConverter.ConvertToTree("*+_a_+*");
             var child = tree.Children[0].Children[0];
-
             child.Children.Should().BeEmpty();
         }
 
@@ -79,7 +73,6 @@ namespace Markdown.Tests
         {
             var tree = TreeConverter.ConvertToTree("+a+");
             var child = tree.Children;
-
             child.Should().BeEmpty();
         }
     }

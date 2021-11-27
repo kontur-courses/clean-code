@@ -29,7 +29,6 @@ namespace Markdown.Tests
             int expectedEnd)
         {
             var tags = TagsConverter.GetAllTags(text);
-
             tags.Count.Should().Be(1);
             tags.Pop().Should().BeEquivalentTo(TagBuilder.OfType(expectedType).WithBounds(expectedStart, expectedEnd));
         }
@@ -41,9 +40,7 @@ namespace Markdown.Tests
             var expectedResult = new Stack<Tag>();
             expectedResult.Push(new ItalicsTag(6, 8));
             expectedResult.Push(new ItalicsTag(0, 2));
-
-            TagsConverter.GetAllTags(text)
-                .Should()
+            TagsConverter.GetAllTags(text).Should()
                 .BeEquivalentTo(expectedResult, options => options.WithoutStrictOrdering());
         }
 
@@ -54,9 +51,7 @@ namespace Markdown.Tests
             var expectedResult = new Stack<Tag>();
             expectedResult.Push(new ItalicsTag(6, 8));
             expectedResult.Push(new StrongTextTag(0, 4));
-
-            TagsConverter.GetAllTags(text)
-                .Should()
+            TagsConverter.GetAllTags(text).Should()
                 .BeEquivalentTo(expectedResult, options => options.WithoutStrictOrdering());
         }
 
@@ -84,9 +79,7 @@ namespace Markdown.Tests
             expectedResult.Push(new TitleTag(0, 10));
             expectedResult.Push(new StrongTextTag(1, 9));
             expectedResult.Push(new ItalicsTag(4, 6));
-
-            TagsConverter.GetAllTags(text)
-                .Should()
+            TagsConverter.GetAllTags(text).Should()
                 .BeEquivalentTo(expectedResult, options => options.WithoutStrictOrdering());
         }
 

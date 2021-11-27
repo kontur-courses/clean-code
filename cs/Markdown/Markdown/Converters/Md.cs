@@ -17,9 +17,8 @@ namespace Markdown.Converters
                 return "";
             }
 
-            var convertedParagraphs = mdText.Split('\n')
-                .Select(paragraph =>
-                    HandleEscapedSymbols(ConvertToHtml(paragraph, TreeConverter.ConvertToTree(paragraph))));
+            var convertedParagraphs = mdText.Split('\n').Select(paragraph =>
+                HandleEscapedSymbols(ConvertToHtml(paragraph, TreeConverter.ConvertToTree(paragraph))));
             return string.Join("\n", convertedParagraphs);
         }
 
@@ -39,7 +38,6 @@ namespace Markdown.Converters
         private static string ConvertToHtml(string paragraph, Tree currentTree)
         {
             var result = new StringBuilder();
-
             if (currentTree.Children.Count == 0)
             {
                 return PrintSingleTag(currentTree.Root, paragraph);

@@ -7,7 +7,7 @@ namespace Markdown
     {
         public static void Main(string[] args)
         {
-            Console.WriteLine(Md.Render("__x_*+a+ +b+*_x__"));
+            Console.WriteLine(Md.Render("*+_a_+*"));
         }
     }
 }

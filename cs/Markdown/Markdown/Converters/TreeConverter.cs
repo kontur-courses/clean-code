@@ -14,7 +14,6 @@ namespace Markdown.Converters
             }
 
             var result = new Tree(new Tag(0, paragraph.Length));
-
             var tags = TagsConverter.GetAllTags(paragraph);
             foreach (var tag in tags)
             {

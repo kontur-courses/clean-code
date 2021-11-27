@@ -78,7 +78,7 @@ namespace Markdown.Tests
         {
             Md.Render(text).Should().BeEquivalentTo(expectedResult);
         }
-        
+
         [TestCase(1000, 100, TestName = "4000 tags in 100 milliseconds")]
         [TestCase(10000, 1000, TestName = "40000 tags in 1000 milliseconds")]
         public void Render_HandlesTagsFastly(int iterationsNumber, int timeInMilliseconds)
