@@ -4,6 +4,6 @@ namespace Markdown.Renderer
 {
     public interface IRenderer
     {
-        public string Render(Token[] tokens);
+        public string Render(IMarkdownToken[] tokens);
     }
 }

@@ -3,9 +3,9 @@ using Markdown.Tokens;
 
 namespace Markdown.TokenIdentifiers
 {
-    public class BoldTokenIdentifier : DoubleTagTokenIdentifier
+    public class StrongTokenIdentifier : DoubleTagTokenIdentifier
     {
-        public BoldTokenIdentifier(string tag, Func<TemporaryToken, Token> tokenCreator) : base(tag, tokenCreator)
+        public StrongTokenIdentifier(string tag, Func<TemporaryToken, Token> tokenCreator) : base(tag, tokenCreator)
         {
         }
 

@@ -18,7 +18,7 @@ namespace Markdown.TokenIdentifiers
         {
             if (IsValid(paragraphs, temporaryToken))
             {
-                identifiedToken = TokenCreator(temporaryToken);
+                identifiedToken = CreateToken(temporaryToken);
                 return true;
             }
 
@@ -26,6 +26,7 @@ namespace Markdown.TokenIdentifiers
             return false;
         }
 
+        protected virtual Token CreateToken(TemporaryToken temporaryToken) => TokenCreator(temporaryToken); 
         protected abstract bool IsValid(string[] paragraphs, TemporaryToken temporaryToken);
 
     }

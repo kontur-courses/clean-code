@@ -1,13 +1,15 @@
 ﻿using System;
+using System.Linq;
 using Markdown.Tokens;
 
 namespace Markdown.Renderer
 {
     public class HtmlRenderer : IRenderer
     {
-        public string Render(Token[] tokens)
+        public string Render(IMarkdownToken[] tokens)
         {
-            throw new NotImplementedException();
+            var htmlText = tokens.Select(t => t.GetHtmlFormatted());
+            return string.Join("", htmlText);
         }
     }
 }

@@ -19,6 +19,13 @@ namespace Markdown.TokenIdentifiers
                    && HasOtherCharsAfterTags(paragraphParts);
         }
 
+        protected override Token CreateToken(TemporaryToken temporaryToken)
+        {
+            var newTag = temporaryToken.Value.Split().First();
+            return new HeaderToken(temporaryToken.Value, newTag, temporaryToken.ParagraphIndex,
+                temporaryToken.StartIndex);
+        }
+
         private bool TagPartContainsOnlyTags(string tagPart)
             => tagPart.All(t => t == char.Parse(Tag));
 

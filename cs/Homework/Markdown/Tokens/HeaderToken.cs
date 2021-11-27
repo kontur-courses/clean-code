@@ -2,13 +2,17 @@
 {
     public class HeaderToken: Token, IMarkdownToken
     {
-        public HeaderToken(string value, int paragraphIndex, int startIndex) : base(value, paragraphIndex, startIndex)
+        public HeaderToken(string value, string tag, int paragraphIndex, int startIndex) : base(value, tag, paragraphIndex, startIndex)
         {
         }
 
         public string GetHtmlFormatted()
         {
-            throw new System.NotImplementedException();
+            var headerLevel = Tag.Length;
+            var valueWithoutTag = Value[Tag.Length..].Trim();
+            return $"<h{headerLevel}>{valueWithoutTag}</h{headerLevel}>";
         }
+
+        
     }
 }

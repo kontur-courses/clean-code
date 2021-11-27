@@ -11,9 +11,9 @@ namespace Markdown.Parser
     {
         private readonly Dictionary<string, TokenIdentifier> identifiers = new()
         {
-            ["_"] = new ItalicTokenIdentifier("_", t => new ItalicToken(t.Value, t.ParagraphIndex, t.StartIndex)),
-            ["__"] = new BoldTokenIdentifier("__", t => new BoldToken(t.Value, t.ParagraphIndex, t.StartIndex)),
-            ["#"] = new HeaderTokenIdentifier("#", t => new HeaderToken(t.Value, t.ParagraphIndex, t.StartIndex)),
+            ["_"] = new ItalicTokenIdentifier("_", t => new ItalicToken(t.Value,t.Tag, t.ParagraphIndex, t.StartIndex)),
+            ["__"] = new StrongTokenIdentifier("__", t => new StrongToken(t.Value,t.Tag,t.ParagraphIndex, t.StartIndex)),
+            ["#"] = new HeaderTokenIdentifier("#", t => new HeaderToken(t.Value, t.Tag, t.ParagraphIndex, t.StartIndex)),
         };
 
         private readonly Dictionary<string, TagType> tagTypes = new()
@@ -86,7 +86,7 @@ namespace Markdown.Parser
                         if (token != null)
                         {
                             if (plainText.Length > 0)
-                                yield return new PlainTextToken(plainText.ToString(), paragraphIndex,
+                                yield return new PlainTextToken(plainText.ToString(), null, paragraphIndex,
                                     position - plainText.Length);
                             plainText.Clear();
                             yield return token;
@@ -107,7 +107,7 @@ namespace Markdown.Parser
 
             if (plainText.Length > 0)
             {
-                yield return new PlainTextToken(plainText.ToString(), paragraphIndex,
+                yield return new PlainTextToken(plainText.ToString(), null, paragraphIndex,
                     position - plainText.Length);
                 plainText.Clear();
             }
@@ -133,7 +133,7 @@ namespace Markdown.Parser
             var closeTagIndex = IndexOfCloseTag(paragraph, tag, position);
             if (closeTagIndex == -1) return null;
             var tokenValue = paragraph[position..(closeTagIndex + tag.Length)];
-            var temporaryToken = new TemporaryToken(tokenValue, paragraphIndex, position);
+            var temporaryToken = new TemporaryToken(tokenValue, tag, paragraphIndex, position);
             if (identifiers[tag].Identify(paragraphs, temporaryToken, out var identifiedToken))
                 openedTags.Add(tag);
             return identifiedToken;
@@ -141,7 +141,7 @@ namespace Markdown.Parser
 
         private Token TryReadLineToken(string[] paragraphs, int paragraphIndex, int position, string tag)
         {
-            var temporaryToken = new TemporaryToken(paragraphs[paragraphIndex], paragraphIndex, position);
+            var temporaryToken = new TemporaryToken(paragraphs[paragraphIndex], tag, paragraphIndex, position);
             if (identifiers[tag].Identify(paragraphs, temporaryToken, out var identifiedToken))
                 openedTags.Add(tag);
             return identifiedToken;

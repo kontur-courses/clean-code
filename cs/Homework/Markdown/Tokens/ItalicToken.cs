@@ -2,13 +2,14 @@
 {
     public class ItalicToken : Token, IMarkdownToken
     {
-        public ItalicToken(string value, int paragraphIndex, int startIndex) : base(value, paragraphIndex, startIndex)
+        public ItalicToken(string value, string tag, int paragraphIndex, int startIndex) : base(value, tag, paragraphIndex, startIndex)
         {
         }
 
         public string GetHtmlFormatted()
         {
-            throw new System.NotImplementedException();
+            var valueWithoutTags = Value.Trim('_');
+            return $"<i>{valueWithoutTags}</i>";
         }
     }
 }

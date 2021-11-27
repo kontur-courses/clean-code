@@ -35,7 +35,7 @@ namespace Markdown_Tests
         [TestCase("abc\n", TestName = "string with newline symbol")]
         public void Parse_ReturnsSingleTokenWithText_WhenNoTags(string text)
         {
-            var expected = new PlainTextToken(text, 0, 0);
+            var expected = new PlainTextToken(text, null, 0, 0);
             AssertSingleToken(text, expected);
         }
 
@@ -45,8 +45,8 @@ namespace Markdown_Tests
             var text = "abc\ndef";
             var expected = new List<Token>()
             {
-                new PlainTextToken("abc\n", 0, 0),
-                new PlainTextToken("def", 1, 0)
+                new PlainTextToken("abc\n", null, 0, 0),
+                new PlainTextToken("def", null, 1, 0)
             };
             tokenParser.Parse(text).Should().BeEquivalentTo(expected);
         }
@@ -55,7 +55,7 @@ namespace Markdown_Tests
         [TestCase("_a b c_", TestName = "string with spaces (with tags)")]
         public void Parse_ReturnsItalicToken(string text)
         {
-            var expected = new ItalicToken(text, 0, 0);
+            var expected = new ItalicToken(text, "_", 0, 0);
             AssertSingleToken(text, expected);
         }
 
@@ -69,7 +69,7 @@ namespace Markdown_Tests
         [TestCase("_ab__cd__e_", TestName = "bold inside italic tags")]
         public void Parse_ReturnSingleUnformattedToken_WhenTagUsingIsIncorrect(string text)
         {
-            var expected = new PlainTextToken(text, 0, 0);
+            var expected = new PlainTextToken(text, null, 0, 0);
             AssertSingleToken(text, expected);
         }
 
@@ -79,8 +79,8 @@ namespace Markdown_Tests
             var text = "_abc_ de";
             var expected = new List<Token>()
             {
-                new ItalicToken("_abc_", 0, 0),
-                new PlainTextToken(" de", 0, 5),
+                new ItalicToken("_abc_", "_", 0, 0),
+                new PlainTextToken(" de", null, 0, 5),
             };
             tokenParser.Parse(text).Should().BeEquivalentTo(expected);
         }
@@ -91,8 +91,8 @@ namespace Markdown_Tests
             var text = "_abc_de";
             var expected = new List<Token>()
             {
-                new ItalicToken("_abc_", 0, 0),
-                new PlainTextToken("de", 0, 5),
+                new ItalicToken("_abc_", "_", 0, 0),
+                new PlainTextToken("de", null, 0, 5),
             };
             tokenParser.Parse(text).Should().BeEquivalentTo(expected);
         }
@@ -100,7 +100,7 @@ namespace Markdown_Tests
         [TestCase("__abc__")]
         public void Parse_ReturnsBoldToken(string text)
         {
-            var expected = new BoldToken(text, 0, 0);
+            var expected = new StrongToken(text, "__", 0, 0);
             AssertSingleToken(text, expected);
         }
 
@@ -110,8 +110,8 @@ namespace Markdown_Tests
             var text = "__ab_cd_e__";
             var expected = new List<Token>()
             {
-                new BoldToken("__ab_cd_e__", 0, 0),
-                new PlainTextToken("_cd_", 0, 4),
+                new StrongToken("__ab_cd_e__","__", 0, 0),
+                new ItalicToken("_cd_", "_", 0, 4),
             };
             tokenParser.Parse(text).Should().BeEquivalentTo(expected);
         }
@@ -120,7 +120,7 @@ namespace Markdown_Tests
         public void Parse_ReturnsHeaderTag()
         {
             var text = "### abc";
-            var expected = new HeaderToken(text, 0, 0);
+            var expected = new HeaderToken(text, "###", 0, 0);
             AssertSingleToken(text, expected);
         }
 
@@ -130,8 +130,8 @@ namespace Markdown_Tests
             var text = "# abc\n# cde";
             var expected = new List<Token>()
             {
-                new HeaderToken("# abc\n", 0, 0),
-                new HeaderToken("# cde", 1, 0),
+                new HeaderToken("# abc\n", "#", 0, 0),
+                new HeaderToken("# cde", "#", 1, 0),
             };
             tokenParser.Parse(text).Should().BeEquivalentTo(expected);
         }
@@ -142,9 +142,9 @@ namespace Markdown_Tests
             var text = "# abc _cde_ __fg__";
             var expected = new List<Token>()
             {
-                new HeaderToken("# abc _cde_ __fg__", 0, 0),
-                new ItalicToken("_cde_", 0, 6),
-                new BoldToken("__fg__", 0, 12),
+                new HeaderToken("# abc _cde_ __fg__", "#",0, 0),
+                new ItalicToken("_cde_", "_", 0, 6),
+                new StrongToken("__fg__", "__", 0, 12),
             };
             tokenParser.Parse(text).Should().BeEquivalentTo(expected);
         }
