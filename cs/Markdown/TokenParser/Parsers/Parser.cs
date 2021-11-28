@@ -1,16 +1,19 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using Markdow.Interfaces;
 
-namespace Markdown
+namespace Markdown.TokenParser.Parsers
 {
     public class Parser
     {
         protected readonly IReadOnlyList<IToken> Tokens;
-        
+        private readonly IEnumerable<IConcreteParser> concreteParsers;
+
         public Parser(IEnumerable<IToken> tokens)
         {
             Tokens = tokens.ToList();
+            concreteParsers = GetAllInheritors();
         }
         
         public TokenTree[] Parse()
@@ -30,15 +33,19 @@ namespace Markdown
         public virtual TokenTree ParseToken(int position)
         {
             var token = Tokens[position];
-            return token.TokenType switch
+            var parser = DefineParser(token.TokenType);
+            return parser.ParseToken(position);
+        }
+
+        private IConcreteParser DefineParser(TokenType tokenType)
+        {
+            foreach (var parser in concreteParsers)
             {
-                TokenType.Header1 => new ParseHeader(Tokens).ParseToken(position),
-                TokenType.Text or TokenType.NewLine => new ParseAsText(Tokens).ParseToken(position),
-                TokenType.Italics or TokenType.Strong => new ParseUnderscore(Tokens).ParseToken(position),
-                TokenType.SquareBracketOpen => new ParserLink(Tokens).ParseToken(position),
-                TokenType.SquareBracketClose or TokenType.BracketClose or TokenType.BracketOpen => new ParseAsText(Tokens).ParseToken(position),
-                _ => throw new ArgumentOutOfRangeException($"Unsupported tokenType: {token.TokenType}")
-            };
+                if (parser.CanParse(tokenType))
+                    return parser;
+            }
+
+            throw new ArgumentOutOfRangeException($"Unsupported tokenType: {tokenType}");
         }
         
         protected IToken NextToken(int position) => GetTokenWithOffset(position, 1);
@@ -50,14 +57,14 @@ namespace Markdown
 
         protected bool TryGetFirstIndexOfTokenInLine(TokenType tokenType, int position, out int index, int offset = 1)
         {
-            index = offset;
+            index = offset  + position;
             do
             {
-                var currentToken = GetTokenWithOffset(position, index);
+                var currentToken = GetTokenWithOffset(index, 0);
                 if (currentToken.TokenType == tokenType)
                     return true;
                 index++;
-            } while (position + index < Tokens.Count && Tokens[position + index].TokenType != TokenType.NewLine);
+            } while (index < Tokens.Count && Tokens[index].TokenType != TokenType.NewLine);
 
             return false;
         }
@@ -66,10 +73,21 @@ namespace Markdown
         {
             var index = currentPosition + offset;
             if (index >= Tokens.Count)
-                return Tokens[^1];
+                return Tokens.Last();
             if (index <= 0)
-                return Tokens[0];
+                return Tokens.First();
             return Tokens[index];
         }
+
+        private IEnumerable<IConcreteParser> GetAllInheritors()
+        {
+            return typeof(IConcreteParser)
+                .Assembly.GetTypes()
+                .Where(ImplementInterfaceAndIsClass)
+                .Select(type => (IConcreteParser) Activator.CreateInstance(type, Tokens));
+        }
+        
+        private static bool ImplementInterfaceAndIsClass(Type type)
+            => typeof(IConcreteParser).IsAssignableFrom(type) && type.IsClass;
     }
 }

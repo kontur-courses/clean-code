@@ -1,9 +1,9 @@
 ﻿using System.Collections.Generic;
-using Markdown.Interfaces;
+using Markdown.TokenParser.Parsers;
 
-namespace Markdown
+namespace Markdown.TokenParser
 {
-    public class TokenParser : ITokenParser
+    public class TokenParser
     {
         public TokenTree[] Parse(IEnumerable<IToken> tokens)
         {

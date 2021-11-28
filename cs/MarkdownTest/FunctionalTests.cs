@@ -1,4 +1,6 @@
 ﻿using Markdown;
+using Markdown.TokenCreator;
+using Markdown.TokenParser;
 using NUnit.Framework;
 
 namespace MarkdownTest
@@ -46,15 +48,28 @@ namespace MarkdownTest
 
         [TestCase("__a_text__c_", ExpectedResult = "__a_text__c_", TestName = "Italics intersect strong")]
         [TestCase("_a__text_c__", ExpectedResult = "_a__text_c__", TestName = "Strong intersect italics")]
-        [TestCase("_a__text__c_", ExpectedResult = "<em>a<strong>text</strong>c</em>", TestName = "Strong in italics")]
         public string Render_ShouldWorkCorrectly_WhenStrongAndItalics(string text)
         {
             return markdown.Render(text);
         }
         
+       // [TestCase("__a_text text_c__", ExpectedResult = "<em>a<strong>text text</strong>c</em>", TestName = "Italics intersect strong")]
+        [TestCase("Внутри __двойного выделения _одинарное_ тоже__ работает", 
+            ExpectedResult = "Внутри <strong>двойного выделения <em>одинарное</em> тоже</strong> работает")]
+        [TestCase("Внутри _одинарного __двойное__ не_ работает", 
+            ExpectedResult = "Внутри _одинарного __двойное__ не_ работает")]
+        
+        public string Render_ShouldWorkCorrectly_ShouldWorkWith(string text)
+        {
+            return markdown.Render(text);
+        }
+        
+        
         [TestCase("# text", ExpectedResult = "<h1>text</h1>", TestName = "Header1 and text")]
         [TestCase("# # text", ExpectedResult = "<h1># text</h1>", TestName = "Two header1")]
         [TestCase("text # text", ExpectedResult = "text # text", TestName = "Header1 not at the beginning")]
+        [TestCase("# Внутри __двойного выделения _одинарное_ тоже__ работает", 
+            ExpectedResult = "<h1>Внутри <strong>двойного выделения <em>одинарное</em> тоже</strong> работает</h1>")]
         public string Render_ShouldWorkCorrectly_WhenHeader(string text)
         {
             return markdown.Render(text);

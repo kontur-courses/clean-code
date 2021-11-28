@@ -4,7 +4,7 @@
     {
         TokenType TokenType { get; }
         string Value { get; }
-        public bool CanParse(string symbol) => symbol == Value;
+        public bool CanParse(string symbol);
 
         IToken Create(string[] text, int index);
     }

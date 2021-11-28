@@ -1,10 +1,14 @@
 ﻿using System.Collections.Generic;
 using System.Text;
+using Markdow.Interfaces;
 
-namespace Markdown
+namespace Markdown.TokenParser.Parsers
 {
-    public class ParseAsText : Parser
+    public class ParseAsText : Parser, IConcreteParser
     {
+        private readonly List<TokenType> availableTokenTypes = new()
+            { TokenType.Text, TokenType.SquareBracketClose, TokenType.BracketClose, TokenType.BracketOpen, TokenType.NewLine, TokenType.WhiteSpace };
+        
         public ParseAsText(IEnumerable<IToken> tokens) : base(tokens) { }
         
         public override TokenTree ParseToken(int position)
@@ -25,5 +29,7 @@ namespace Markdown
             var leaf = new TokenTree(text.ToString(), indexEnd - indexStart);
             return leaf;
         }
+
+        public bool CanParse(TokenType tokenType) => availableTokenTypes.Contains(tokenType);
     }
 }

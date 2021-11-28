@@ -1,9 +1,10 @@
 ﻿using System.Collections.Generic;
 using FluentAssertions;
 using Markdown;
+using Markdown.TokenParser;
 using NUnit.Framework;
 
-namespace MarkdownTest
+namespace MarkdownTest.ParserTokenTests
 {
     public class TokenParserTests
     {
@@ -16,7 +17,7 @@ namespace MarkdownTest
         }
     
         [TestCaseSource(typeof(ParseTokenSourceData), nameof(ParseTokenSourceData.Italics))]
-        [TestCaseSource(typeof(ParseTokenSourceData), nameof(ParseTokenSourceData.Strong))]
+       [TestCaseSource(typeof(ParseTokenSourceData), nameof(ParseTokenSourceData.Strong))]
         [TestCaseSource(typeof(ParseTokenSourceData), nameof(ParseTokenSourceData.ItalicsAndStrong))]
         public void Parse_ShouldReturn(IEnumerable<IToken> tokens, TokenTree[] expected)
         {

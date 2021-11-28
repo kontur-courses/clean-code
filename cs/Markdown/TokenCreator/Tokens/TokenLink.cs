@@ -1,4 +1,4 @@
-﻿namespace Markdown
+﻿namespace Markdown.TokenCreator.Tokens
 {
     public class TokenLink : IToken
     {

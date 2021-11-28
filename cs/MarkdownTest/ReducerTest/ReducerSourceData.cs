@@ -2,7 +2,7 @@
 using Markdown;
 using NUnit.Framework;
 
-namespace MarkdownTest
+namespace MarkdownTest.ReducerTest
 {
     public static class ReducerSourceData
     {

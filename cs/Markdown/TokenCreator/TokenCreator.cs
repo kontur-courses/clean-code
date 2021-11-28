@@ -1,11 +1,11 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using Markdown.Interfaces;
+using Markdown.TokenCreator.Tokens;
 
-namespace Markdown
+namespace Markdown.TokenCreator
 {
-    public class TokenCreator : ITokenCreator
+    public class TokenCreator
     {
         private readonly IEnumerable<IToken> subClasses = GetAllInheritors();
         private static readonly List<Type> ListOfDuplicateCreators = new() { typeof(TokenItalics), typeof(TokenStrong) };

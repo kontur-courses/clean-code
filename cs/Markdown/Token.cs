@@ -1,4 +1,6 @@
-﻿namespace Markdown
+﻿using Markdown.TokenCreator.Tokens;
+
+namespace Markdown
 {
     public static class Token
     {
@@ -11,6 +13,7 @@
         public static IToken CloseSquareBracket => new SquareBracketClose();
         public static IToken OpenBracket => new BracketOpen();
         public static IToken CloseBracket => new BracketClose();
+        public static IToken WhiteSpace => new Whitespace();
         public static IToken FromText(string value) => TokenText.FromText(value);
     }
 }

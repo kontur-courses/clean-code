@@ -1,11 +1,10 @@
 ﻿using System;
 using System.Linq;
 using System.Text;
-using Markdown.Interfaces;
 
 namespace Markdown
 {
-    public class Renderer : ITokenRenderer
+    public class Renderer
     {
         public string Render(TokenTree[] trees)
         {
@@ -31,7 +30,7 @@ namespace Markdown
                 .ToString();
         }
 
-        private string GEtImage(TokenTree token) => $"{string.Join("", token.Children.Select(x => ToString(x)))} href=\"{token.Value}\"";
+        private string GEtImage(TokenTree token) => $"{string.Join("", token.Children.Select(ToString))} href=\"{token.Value}\"";
         
         private string GetTag(TokenType type)
         {

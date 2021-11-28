@@ -3,7 +3,7 @@ using FluentAssertions;
 using Markdown;
 using NUnit.Framework;
 
-namespace MarkdownTest
+namespace MarkdownTest.ReducerTest
 {
     public class ReducerTests
     {

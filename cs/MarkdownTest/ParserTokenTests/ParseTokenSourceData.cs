@@ -1,8 +1,9 @@
 ﻿using System.Collections.Generic;
 using Markdown;
+using Markdown.TokenCreator.Tokens;
 using NUnit.Framework;
 
-namespace MarkdownTest
+namespace MarkdownTest.ParserTokenTests
 {
     public static class ParseTokenSourceData
     {
@@ -48,7 +49,7 @@ namespace MarkdownTest
             yield return new TestCaseData(
                 new List<IToken>
                 {
-                    Token.FromText("t"), Token.Italics, Token.FromText(" "), Token.FromText("a"), Token.Italics
+                    Token.FromText("t"), Token.Italics, Token.WhiteSpace, Token.FromText("a"), Token.Italics
                 },
                 new TokenTree[]
                 {
@@ -58,11 +59,11 @@ namespace MarkdownTest
             yield return new TestCaseData(
                 new List<IToken>
                 {
-                    Token.Italics, Token.FromText(" t"), Token.Italics
+                    Token.Italics, Token.WhiteSpace, Token.FromText("t"), Token.Italics
                 },
                 new TokenTree[]
                 {
-                    new("_"), new(" t"), new("_")
+                    new("_"), new (" "), new("t"), new("_")
                 }).SetName("Italics must be followed by a non-whitespace character");
         }
 
@@ -101,7 +102,7 @@ namespace MarkdownTest
                 },
                 new TokenTree[]
                 {
-                    new("a"), new("_b__a_"), new("c"), new("__")
+                    new("a"), new("_b__a_c"), new("__")
                 }).SetName("italics intersects with strong");
 
             yield return new TestCaseData(
@@ -134,7 +135,7 @@ namespace MarkdownTest
             yield return new TestCaseData(
                 new List<IToken>
                 {
-                    Token.FromText("t"), Token.Strong, Token.FromText(" "), Token.FromText("a"), Token.Strong
+                    Token.FromText("t"), Token.Strong, Token.WhiteSpace, Token.FromText("a"), Token.Strong
                 },
                 new TokenTree[]
                 {

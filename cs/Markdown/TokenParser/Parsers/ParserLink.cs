@@ -1,22 +1,21 @@
 ﻿using System.Collections.Generic;
 using System.Linq;
+using Markdow.Interfaces;
+using Markdown.TokenCreator.Tokens;
 
-namespace Markdown
+namespace Markdown.TokenParser.Parsers
 {
-    public class ParserLink : Parser
+    public class ParserLink : Parser, IConcreteParser
     {
-        public ParserLink(IEnumerable<IToken> tokens) : base(tokens)
-        {
-        }
+        public ParserLink(IEnumerable<IToken> tokens) : base(tokens) { }
         
         public override TokenTree ParseToken(int position)
         {
-            var token = Tokens[position];
             var oppositeTokenType = TokenType.BracketClose;
             if (!HasCloseTokenInLine(oppositeTokenType, position + 1))
                 return new ParseAsText(Tokens).ParseToken(position);
 
-            if (!IsLink(position, out var closeIndex, out var oppositeCloseIndex))
+            if (!IsLink(position, out var closeIndex, out  _))
                 return new ParseAsText(Tokens).ParseToken(position);
             var name = new List<TokenTree>();
             position++;
@@ -33,7 +32,6 @@ namespace Markdown
         
         private bool IsLink(int position, out int closeIndex, out int oppositeCloseIndex)
         {
-            var token = Tokens[position];
             oppositeCloseIndex = 0;
             if (!TryGetFirstIndexOfTokenInLine(TokenType.SquareBracketClose, position, out closeIndex))
                 return false;
@@ -44,5 +42,7 @@ namespace Markdown
 
             return oppositeOpenIndex == closeIndex  + 1;
         }
+
+        public bool CanParse(TokenType tokenType) => tokenType == TokenType.SquareBracketOpen;
     }
 }

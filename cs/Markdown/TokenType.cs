@@ -13,5 +13,6 @@
         BracketClose,
         BracketOpen,
         Link,
+        WhiteSpace
     }
 }

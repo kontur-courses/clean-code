@@ -1,8 +1,9 @@
 ﻿using System.Collections.Generic;
+using Markdow.Interfaces;
 
-namespace Markdown
+namespace Markdown.TokenParser.Parsers
 {
-    public class ParseHeader : Parser
+    public class ParseHeader : Parser, IConcreteParser
     {
         public ParseHeader(IEnumerable<IToken> tokens) : base(tokens) { }
 
@@ -20,5 +21,7 @@ namespace Markdown
 
             return tree;
         }
+
+        public bool CanParse(TokenType tokenType) => tokenType == TokenType.Header1;
     }
 }

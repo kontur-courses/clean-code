@@ -1,15 +1,13 @@
-﻿using Markdown.Interfaces;
-
-namespace Markdown
+﻿namespace Markdown
 {
     public class Md
     {
-        private readonly ITokenCreator tokenCreator;
+        private readonly TokenCreator.TokenCreator tokenCreator;
         private readonly Reducer reducer;
-        private readonly ITokenParser tokenParser;
-        private readonly ITokenRenderer tokenRenderer;
+        private readonly TokenParser.TokenParser tokenParser;
+        private readonly Renderer tokenRenderer;
 
-        public Md(ITokenCreator tokenCreator, Reducer reducer, ITokenParser tokenParser, ITokenRenderer tokenRenderer)
+        public Md(TokenCreator.TokenCreator tokenCreator, Reducer reducer, TokenParser.TokenParser tokenParser, Renderer tokenRenderer)
         {
             this.tokenCreator = tokenCreator;
             this.reducer = reducer;

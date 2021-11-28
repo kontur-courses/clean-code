@@ -47,8 +47,6 @@ namespace Markdown
             TokenType = TokenType.Text;
             this.weight = weight;
         }
-        
-        
 
         public TokenTree(IToken token, int weight)
         {
