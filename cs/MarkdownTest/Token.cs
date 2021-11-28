@@ -14,6 +14,5 @@ namespace Markdown
         public static IToken OpenBracket => new BracketOpen();
         public static IToken CloseBracket => new BracketClose();
         public static IToken WhiteSpace => new Whitespace();
-        public static IToken FromText(string value) => TokenText.FromText(value);
     }
 }

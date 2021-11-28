@@ -1,6 +1,6 @@
-﻿using System.Collections;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Linq;
+using Markdown.Engine.Tokens;
 
 namespace Markdown
 {
@@ -22,7 +22,7 @@ namespace Markdown
 
                 if (token.TokenType == TokenType.Header1 && HeaderNotAtTheLineStart(reducedTokens))
                 {
-                    reducedTokens.Add(Token.FromText(token.Value));
+                    reducedTokens.Add(TokenText.FromText(token.Value));
                     continue;
                 }
                
@@ -31,7 +31,7 @@ namespace Markdown
             }
             
             if (OneEscapeSymbolWasProvided(tokens))
-                reducedTokens.Add(Token.FromText("\\"));
+                reducedTokens.Add(TokenText.FromText("\\"));
             return reducedTokens;
         }
 
@@ -43,12 +43,12 @@ namespace Markdown
         private IToken DefineTokenToAdd(IToken token, bool previousWasEscape)
         {
             if (token.TokenType == TokenType.Escape && previousWasEscape)
-                return Token.FromText("\\");
+                return TokenText.FromText("\\");
             if (token.TokenType == TokenType.Text && previousWasEscape)
-                return Token.FromText($"\\{token.Value}");
+                return TokenText.FromText($"\\{token.Value}");
             if (token.TokenType == TokenType.Text && previousWasEscape)
                 return token;
-            return previousWasEscape ? Token.FromText(token.Value) : token;
+            return previousWasEscape ? TokenText.FromText(token.Value) : token;
         }
     }
 }

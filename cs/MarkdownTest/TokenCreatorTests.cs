@@ -33,7 +33,6 @@ namespace MarkdownTest
             actual.Should().BeEquivalentTo(expected);
         }
 
-
         private static IEnumerable<TestCaseData> TokenCreatorTestCaseData()
         {
             yield return new TestCaseData("text", new List<IToken>
@@ -43,43 +42,46 @@ namespace MarkdownTest
 
             yield return new TestCaseData("# text", new List<IToken>
             {
-                new TokenHeader1(), TokenText.FromText("text")
-            }).SetName("header and text");
+                Token.Header1, TokenText.FromText("text")
+            }).SetName("Header and text");
 
             yield return new TestCaseData("#text", new List<IToken>
             { 
                 TokenText.FromText("#text")
-            }).SetName("wrong header and text");
+            }).SetName("Wrong header and text");
 
             yield return new TestCaseData("text# text", new List<IToken>
             { 
-                TokenText.FromText("text"), Token.Header1, Token.FromText("text")
-            }).SetName("wrong header and text");
+                TokenText.FromText("text"), Token.Header1, TokenText.FromText("text")
+            }).SetName("Wrong header and text");
             
             yield return new TestCaseData("# _\\_text_", new List<IToken>
             {
-                new TokenHeader1(), new TokenItalics(),
-                new TokenEscape(), new TokenItalics(),
-                TokenText.FromText("text"), new TokenItalics()
+                Token.Header1, Token.Italics, Token.Escape,
+                Token.Italics, TokenText.FromText("text"), Token.Italics
             }).SetName("Composite of different markup symbols");
 
             yield return new TestCaseData("# __text___text_", new List<IToken>
             {
-                new TokenHeader1(), new TokenStrong(), TokenText.FromText("text"), new TokenStrong(),
-                new TokenItalics(), TokenText.FromText("text"), new TokenItalics()
+                Token.Header1, Token.Strong, TokenText.FromText("text"), Token.Strong,
+                Token.Italics, TokenText.FromText("text"), Token.Italics
             }).SetName("Strong is close to italics");
 
             yield return new TestCaseData("_\\\\_", new List<IToken>
             {
                 Token.Italics, Token.Escape, Token.Escape, Token.Italics
-            }).SetName("Parse escape");
-            
-            
+            }).SetName("Escape");
+
+            yield return new TestCaseData("text text", new List<IToken>
+            {
+                TokenText.FromText("text"), Token.WhiteSpace, TokenText.FromText("text")
+            }).SetName("Whitespace");
+
             yield return new TestCaseData("[text](link)", new List<IToken>
             {
-                Token.OpenSquareBracket, Token.FromText("text"), Token.CloseSquareBracket, 
-                Token.OpenBracket, Token.FromText("link"), Token.CloseBracket
-            }).SetName("Parse escape");
+                Token.OpenSquareBracket, TokenText.FromText("text"), Token.CloseSquareBracket, 
+                Token.OpenBracket, TokenText.FromText("link"), Token.CloseBracket
+            }).SetName("Link");
         }
     }
 }

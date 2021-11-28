@@ -16,7 +16,7 @@ namespace MarkdownTest.ParserTokenTests
             yield return new TestCaseData(
                 new List<IToken>
                 {
-                    Token.Italics, Token.FromText("text"), Token.Italics
+                    Token.Italics, TokenText.FromText("text"), Token.Italics
                 },
                 new[]
                 {
@@ -29,7 +29,8 @@ namespace MarkdownTest.ParserTokenTests
             yield return new TestCaseData(
                 new List<IToken>
                 {
-                    Token.FromText("t"), Token.Italics, Token.FromText("12"), Token.Italics, Token.FromText("3")
+                    TokenText.FromText("t"), Token.Italics, TokenText.FromText("12"), 
+                    Token.Italics, TokenText.FromText("3")
                 },
                 new TokenTree[]
                 {
@@ -39,17 +40,19 @@ namespace MarkdownTest.ParserTokenTests
             yield return new TestCaseData(
                 new List<IToken>
                 {
-                    Token.FromText("t"), Token.Italics, Token.FromText("a"), Token.Italics
+                    TokenText.FromText("t"), Token.Italics, TokenText.FromText("a"), 
+                    Token.Italics
                 },
                 new TokenTree[]
                 {
-                    new("t"), new(new TokenItalics(), new List<TokenTree> { new(Token.FromText("a")) })
+                    new("t"), new(Token.Italics, new List<TokenTree> { new(TokenText.FromText("a")) })
                 }).SetName("Italics with word part");
 
             yield return new TestCaseData(
                 new List<IToken>
                 {
-                    Token.FromText("t"), Token.Italics, Token.WhiteSpace, Token.FromText("a"), Token.Italics
+                    TokenText.FromText("t"), Token.Italics, Token.WhiteSpace, 
+                    TokenText.FromText("a"), Token.Italics
                 },
                 new TokenTree[]
                 {
@@ -59,7 +62,7 @@ namespace MarkdownTest.ParserTokenTests
             yield return new TestCaseData(
                 new List<IToken>
                 {
-                    Token.Italics, Token.WhiteSpace, Token.FromText("t"), Token.Italics
+                    Token.Italics, Token.WhiteSpace, TokenText.FromText("t"), Token.Italics
                 },
                 new TokenTree[]
                 {
@@ -91,14 +94,15 @@ namespace MarkdownTest.ParserTokenTests
                                     new("text")
                                 })
                         }),
-                    new(Token.FromText("\n"))
+                    new(TokenText.FromText("\n"))
                 }).SetName("Strong and italics are close to each other");
 
             yield return new TestCaseData(
                 new List<IToken>
                 {
-                    Token.FromText("a"), Token.Italics, Token.FromText("b"), Token.Strong, Token.FromText("a"),
-                    Token.Italics, Token.FromText("c"), Token.Strong
+                    TokenText.FromText("a"), Token.Italics, TokenText.FromText("b"), 
+                    Token.Strong, TokenText.FromText("a"), Token.Italics, 
+                    TokenText.FromText("c"), Token.Strong
                 },
                 new TokenTree[]
                 {
@@ -108,7 +112,7 @@ namespace MarkdownTest.ParserTokenTests
             yield return new TestCaseData(
                 new List<IToken>
                 {
-                    Token.Italics, Token.FromText(""), Token.Italics
+                    Token.Italics, TokenText.FromText(""), Token.Italics
                 },
                 new TokenTree[]
                 {
@@ -119,13 +123,20 @@ namespace MarkdownTest.ParserTokenTests
         public static IEnumerable<TestCaseData> Strong()
         {
             yield return new TestCaseData(
-                new List<IToken> { Token.Strong, TokenText.FromText("#text") },
-                new TokenTree[] { new("__"), new("#text") }).SetName("Italics doesn't close");
+                new List<IToken>
+                {
+                    Token.Strong, TokenText.FromText("#text")
+                },
+                new TokenTree[]
+                {
+                    new("__"), new("#text")
+                }).SetName("Italics doesn't close");
 
             yield return new TestCaseData(
                 new List<IToken>
                 {
-                    Token.FromText("t"), Token.Strong, Token.FromText("12"), Token.Strong, Token.FromText("3")
+                    TokenText.FromText("t"), Token.Strong, TokenText.FromText("12"), 
+                    Token.Strong, TokenText.FromText("3")
                 },
                 new TokenTree[]
                 {
@@ -135,7 +146,8 @@ namespace MarkdownTest.ParserTokenTests
             yield return new TestCaseData(
                 new List<IToken>
                 {
-                    Token.FromText("t"), Token.Strong, Token.WhiteSpace, Token.FromText("a"), Token.Strong
+                    TokenText.FromText("t"), Token.Strong, Token.WhiteSpace,
+                    TokenText.FromText("a"), Token.Strong
                 },
                 new TokenTree[]
                 {
@@ -145,7 +157,7 @@ namespace MarkdownTest.ParserTokenTests
             yield return new TestCaseData(
                 new List<IToken>
                 {
-                    Token.Strong, Token.FromText("text"), Token.Strong
+                    Token.Strong, TokenText.FromText("text"), Token.Strong
                 },
                 new[]
                 {

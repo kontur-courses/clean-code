@@ -45,7 +45,7 @@ namespace MarkdownTest
             
             yield return new TestCaseData(new TokenTree[]
             {
-                new TokenTree("text "),
+                new TokenTree("text"), new TokenTree(Token.WhiteSpace),
                 new TokenTree("text")
             }, "text text").SetName("Not nested structure"); 
         }

@@ -1,5 +1,6 @@
 ﻿using System.Collections.Generic;
 using Markdown;
+using Markdown.Engine.Tokens;
 using NUnit.Framework;
 
 namespace MarkdownTest.ReducerTest
@@ -13,31 +14,33 @@ namespace MarkdownTest.ReducerTest
                 Token.Strong, Token.Escape, Token.Strong
             }, new List<IToken>
             {
-                Token.Strong, Token.FromText("__")
+                Token.Strong, TokenText.FromText("__")
             }).SetName("Escape shield token");
 
             yield return new TestCaseData(new List<IToken>
             {
-                Token.Escape, Token.FromText("text")
+                Token.Escape, TokenText.FromText("text")
             }, new List<IToken>
             {
-                Token.FromText("\\text")
+                TokenText.FromText("\\text")
             }).SetName("Escape before text");
 
             yield return new TestCaseData(new List<IToken>
             {
-                Token.Escape, Token.Italics, Token.FromText("text"), Token.Escape, Token.Italics
+                Token.Escape, Token.Italics, TokenText.FromText("text"), 
+                Token.Escape, Token.Italics
             }, new List<IToken>
             {
-                Token.FromText("_"), Token.FromText("text"), Token.FromText("_")
+                TokenText.FromText("_"), TokenText.FromText("text"), TokenText.FromText("_")
             }).SetName("Escape before markup symbol");
 
             yield return new TestCaseData(new List<IToken>
             {
-                Token.Escape, Token.Escape, Token.Italics, Token.FromText("text"), Token.Italics
+                Token.Escape, Token.Escape, Token.Italics, 
+                TokenText.FromText("text"), Token.Italics
             }, new List<IToken>
             {
-                Token.FromText("\\"), Token.Italics, Token.FromText("text"), Token.Italics
+                TokenText.FromText("\\"), Token.Italics, TokenText.FromText("text"), Token.Italics
             }).SetName("Shield escape before markup symbol");
         }
 
@@ -45,18 +48,18 @@ namespace MarkdownTest.ReducerTest
         {
             yield return new TestCaseData(new List<IToken>
             {
-                Token.FromText("t"), Token.Header1, Token.FromText("t")
+                TokenText.FromText("t"), Token.Header1, TokenText.FromText("t")
             }, new List<IToken>
             {
-                Token.FromText("t"), Token.FromText("# "), Token.FromText("t")
+                TokenText.FromText("t"), TokenText.FromText("# "), TokenText.FromText("t")
             }).SetName("Header not at the beginning");
 
             yield return new TestCaseData(new List<IToken>
             {
-                Token.Header1, Token.Header1, Token.FromText("t")
+                Token.Header1, Token.Header1, TokenText.FromText("t")
             }, new List<IToken>
             {
-                Token.Header1, Token.FromText("# "), Token.FromText("t")
+                Token.Header1, TokenText.FromText("# "), TokenText.FromText("t")
             }).SetName("Two headers");
         }
     }
