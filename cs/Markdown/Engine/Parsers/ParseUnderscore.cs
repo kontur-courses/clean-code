@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using Markdow.Interfaces;
 
-namespace Markdown.TokenParser.Parsers
+namespace Markdown.Engine.Parsers
 {
     public class ParseUnderscore : Parser, IConcreteParser
     { 
@@ -51,7 +51,6 @@ namespace Markdown.TokenParser.Parsers
                 return true;
             if (!HasCloseTokenInLine(tokenType, position + 1))
                 return true;
-            TryGetFirstIndexOfTokenInLine(Tokens[position].TokenType, position, out var closeIndex);
             if (!CheckUnderscoreWithWhiteSpacesRules(position))
                 return true;
             return false;
@@ -67,7 +66,7 @@ namespace Markdown.TokenParser.Parsers
 
         private bool StartsAndEndWithWhiteSpace(int position, int closeIndex) =>
             PreviousToken(position).TokenType == TokenType.WhiteSpace &&
-            NextToken(closeIndex).TokenType == TokenType.WhiteSpace;
+            (NextToken(closeIndex).TokenType == TokenType.WhiteSpace || closeIndex + 1 == Tokens.Count);
 
         private bool IsWhiteSpaceBetweenOpenAndClose(int position, int closeIndex)
         {

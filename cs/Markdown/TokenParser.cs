@@ -1,7 +1,7 @@
 ﻿using System.Collections.Generic;
-using Markdown.TokenParser.Parsers;
+using Markdown.Engine.Parsers;
 
-namespace Markdown.TokenParser
+namespace Markdown
 {
     public class TokenParser
     {

@@ -1,7 +1,7 @@
 ﻿using System.Collections.Generic;
 using System.Text;
 
-namespace Markdown
+namespace Markdown.Engine.Tokens
 {
     public sealed class TokenText : IToken
     {

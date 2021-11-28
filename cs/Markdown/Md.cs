@@ -2,12 +2,12 @@
 {
     public class Md
     {
-        private readonly TokenCreator.TokenCreator tokenCreator;
+        private readonly TokenCreator tokenCreator;
         private readonly Reducer reducer;
-        private readonly TokenParser.TokenParser tokenParser;
+        private readonly TokenParser tokenParser;
         private readonly Renderer tokenRenderer;
 
-        public Md(TokenCreator.TokenCreator tokenCreator, Reducer reducer, TokenParser.TokenParser tokenParser, Renderer tokenRenderer)
+        public Md(TokenCreator tokenCreator, Reducer reducer, TokenParser tokenParser, Renderer tokenRenderer)
         {
             this.tokenCreator = tokenCreator;
             this.reducer = reducer;

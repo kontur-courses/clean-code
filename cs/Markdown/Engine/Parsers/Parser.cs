@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using Markdow.Interfaces;
 
-namespace Markdown.TokenParser.Parsers
+namespace Markdown.Engine.Parsers
 {
     public class Parser
     {

@@ -2,12 +2,15 @@
 using System.Text;
 using Markdow.Interfaces;
 
-namespace Markdown.TokenParser.Parsers
+namespace Markdown.Engine.Parsers
 {
     public class ParseAsText : Parser, IConcreteParser
     {
         private readonly List<TokenType> availableTokenTypes = new()
-            { TokenType.Text, TokenType.SquareBracketClose, TokenType.BracketClose, TokenType.BracketOpen, TokenType.NewLine, TokenType.WhiteSpace };
+        {
+            TokenType.Text, TokenType.SquareBracketClose, TokenType.BracketClose, 
+            TokenType.BracketOpen, TokenType.NewLine, TokenType.WhiteSpace
+        };
         
         public ParseAsText(IEnumerable<IToken> tokens) : base(tokens) { }
         
