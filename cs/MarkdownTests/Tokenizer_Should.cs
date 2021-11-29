@@ -82,8 +82,9 @@ namespace MarkdownTests
             result.First().Should().BeEquivalentTo(expectedToken);
         }
 
-        [TestCase("__ abc _", "B W IP", TestName = "A KAK NAZVATb")]
-        [TestCase("[Link](vk.com)", "[W](W)P", TestName = "A KAK NAZVATb")]
+        //Честно говоря без понятия, как эти тесты назвать
+        [TestCase("__ abc _", "B W IP", TestName = "?")]
+        [TestCase("[Link](vk.com)", "[W](W)P", TestName = "?")]
         public void ReturnMultipliedTokens_When(string rawString, string expectedTokens)
         {
             var expectedTokensTypes = GetTokensFromStringWithFirstLetters(expectedTokens);
