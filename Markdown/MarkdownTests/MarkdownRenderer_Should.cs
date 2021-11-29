@@ -49,7 +49,7 @@ namespace MarkdownTests
         [TestCase("_a\na_", ExpectedResult = "_a\na_", TestName = "Doesn't pairing tags on different lines")]
         [TestCase("_ a_", ExpectedResult = "_ a_", TestName = "Doesn't pairing if space after opening tag")]
         [TestCase("_a _", ExpectedResult = "_a _", TestName = "Doesn't pairing if space before closing tag")]
-        public string RenderItalic(string markdown)
+        public string RenderEmphasized(string markdown)
         {
             var result = renderer.Render(markdown);
 
@@ -73,8 +73,8 @@ namespace MarkdownTests
         [TestCase("__ a__", ExpectedResult = "__ a__", TestName = "Doesn't pairing if space after opening tag")]
         [TestCase("__a __", ExpectedResult = "__a __", TestName = "Doesn't pairing if space before closing tag")]
         [TestCase("____", ExpectedResult = "____",
-            TestName = "Stays underlines if emptystring beetween opening and closing tag")]
-        public string RenderBold(string markdown)
+            TestName = "Stays underlines if empty string beetween opening and closing tag")]
+        public string RenderStrong(string markdown)
         {
             var result = renderer.Render(markdown);
 
