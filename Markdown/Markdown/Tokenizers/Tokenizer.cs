@@ -102,6 +102,7 @@ namespace Markdown.Tokenizers
                 {
                     resolvedTokens.Add(new Token(TokenType.HeaderClosed, ""));
                     resolvedTokens.Add(tokens[i]);
+                    isHeaderOpened = false;
                 }
                 else
                 {

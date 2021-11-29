@@ -22,10 +22,12 @@ namespace MarkdownTests
 
         [Parallelizable]
         [TestCase("# privet", ExpectedResult = "<h1>privet</h1>", TestName = "Simple")]
-        [TestCase("# Заголовок __с _разными_ символами__",
-            ExpectedResult = "<h1>Заголовок <strong>с <em>разными</em> символами</strong></h1>",
-            TestName = "Example from specification")]
-        public string RenderParagraph(string markdown)
+        // На прошлом ревью это работало наоборот, но в спецификации указано, что должен работать именно "# " 
+        [TestCase("#privet", ExpectedResult = "#privet", TestName = "Doesn't render header if not space after #")]
+        [TestCase("privet# ", ExpectedResult = "privet# ",
+            TestName = "Doesn't render if header is not at line start")]
+        [TestCase("# a\n# b\n# c", ExpectedResult = "<h1>a</h1>\n<h1>b</h1>\n<h1>c</h1>", TestName = "Multiple lines")]
+        public string RenderHeader(string markdown)
         {
             var result = renderer.Render(markdown);
 
@@ -34,14 +36,19 @@ namespace MarkdownTests
 
         [Parallelizable]
         [TestCase("_privet_", ExpectedResult = "<em>privet</em>", TestName = "Simple")]
-        [TestCase("__please_work___", ExpectedResult = "<strong>please<em>work</em></strong>",
-            TestName = "Italic inside bold")]
-        [TestCase("_a_123a_", ExpectedResult = "<em>a_123a</em>")]
-        [TestCase("a_a a_a", ExpectedResult = "a_a a_a")]
-        [TestCase("_a_a", ExpectedResult = "<em>a</em>a")]
-        [TestCase("_a a_a", ExpectedResult = "_a a_a")]
-        [TestCase("a_a a_", ExpectedResult = "a_a a_")]
-        [TestCase("_a__a_b__", ExpectedResult = "_a__a_b__")]
+        [TestCase("_a_123a_", ExpectedResult = "<em>a_123a</em>",
+            TestName = "Doesn't pairing with tag in word with digits")]
+        [TestCase("a_a a_a", ExpectedResult = "a_a a_a", TestName = "Doesn't pairing tags in different words")]
+        [TestCase("_a_a a_a_a a_a_", ExpectedResult = "<em>a</em>a a<em>a</em>a a<em>a</em>",
+            TestName = "Emphasizing part of word")]
+        [TestCase("_a a_a", ExpectedResult = "_a a_a",
+            TestName = "When tag in word doesn't pairing with tag in another word")]
+        [TestCase("a_a a_", ExpectedResult = "a_a a_",
+            TestName = "When tag not in word doesn't pairing with tag in another word")]
+        [TestCase("_a_a_", ExpectedResult = "<em>a</em>a_", TestName = "Unpaired stays underline")]
+        [TestCase("_a\na_", ExpectedResult = "_a\na_", TestName = "Doesn't pairing tags on different lines")]
+        [TestCase("_ a_", ExpectedResult = "_ a_", TestName = "Doesn't pairing if space after opening tag")]
+        [TestCase("_a _", ExpectedResult = "_a _", TestName = "Doesn't pairing if space before closing tag")]
         public string RenderItalic(string markdown)
         {
             var result = renderer.Render(markdown);
@@ -51,10 +58,22 @@ namespace MarkdownTests
 
         [Parallelizable]
         [TestCase("__privet__", ExpectedResult = "<strong>privet</strong>", TestName = "Simple")]
-        [TestCase("_it__doesnt__work_", ExpectedResult = "<em>it__doesnt__work</em>")]
-        [TestCase("a__a a__a", ExpectedResult = "a__a a__a")]
-        [TestCase("__a a__a", ExpectedResult = "__a a__a")]
-        [TestCase("a__a a__", ExpectedResult = "a__a a__")]
+        [TestCase("__a__123a__", ExpectedResult = "<strong>a__123a</strong>",
+            TestName = "Doesn't pairing with tag in word with digits")]
+        [TestCase("a__a a__a", ExpectedResult = "a__a a__a", TestName = "Doesn't pairing tags in different words")]
+        [TestCase("__a__a a__a__a a__a__",
+            ExpectedResult = "<strong>a</strong>a a<strong>a</strong>a a<strong>a</strong>",
+            TestName = "Strong part of word")]
+        [TestCase("__a a__a", ExpectedResult = "__a a__a",
+            TestName = "When tag in word doesn't pairing with tag in another word")]
+        [TestCase("a__a a__", ExpectedResult = "a__a a__",
+            TestName = "When tag not in word doesn't pairing with tag in another word")]
+        [TestCase("__a__a__", ExpectedResult = "<strong>a</strong>a__", TestName = "Unpaired stays underlines")]
+        [TestCase("__a\na__", ExpectedResult = "__a\na__", TestName = "Doesn't pairing tags on different lines")]
+        [TestCase("__ a__", ExpectedResult = "__ a__", TestName = "Doesn't pairing if space after opening tag")]
+        [TestCase("__a __", ExpectedResult = "__a __", TestName = "Doesn't pairing if space before closing tag")]
+        [TestCase("____", ExpectedResult = "____",
+            TestName = "Stays underlines if emptystring beetween opening and closing tag")]
         public string RenderBold(string markdown)
         {
             var result = renderer.Render(markdown);
