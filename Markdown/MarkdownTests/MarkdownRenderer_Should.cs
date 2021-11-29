@@ -10,6 +10,7 @@ using NUnit.Framework;
 namespace MarkdownTests
 {
     [TestFixture]
+    // ReSharper disable once InconsistentNaming
     public class MarkdownRenderer_Should
     {
         private IMarkdownRenderer renderer;
