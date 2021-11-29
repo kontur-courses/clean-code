@@ -20,11 +20,11 @@ namespace MarkdownTests
         [TestCase("abcDEF", TestName = "When input does not contains tags")]
         [TestCase("__hello _great__ world_", TestName = "When different tags was crossed")]
         [TestCase("____", TestName = "When nothing inside strong marked line")]
-        public void ReturnSameStringWhen(string input)
+        public void ReturnSameStringWhen(string rawString)
         {
-            var result = markdown.Render(input);
+            var result = markdown.Render(rawString);
 
-            result.Should().Be(input);
+            result.Should().Be(rawString);
         }
 
         [TestCase("_hello_",
@@ -33,9 +33,9 @@ namespace MarkdownTests
         [TestCase("_hello wonderful world_",
             "<em>hello wonderful world</em>",
             TestName = "When one word been emphasized")]
-        public void ReturnEmphasizedValueWhen(string input, string expected)
+        public void ReturnEmphasizedValueWhen(string rawString, string expected)
         {
-            AssertRenderIsCorrect(input, expected);
+            AssertRenderIsCorrect(rawString, expected);
         }
 
         [TestCase("__hello__",
@@ -44,9 +44,9 @@ namespace MarkdownTests
         [TestCase("__hello wonderful world__",
             "<strong>hello wonderful world</strong>",
             TestName = "When more than one word been marked")]
-        public void ReturnStrongValueWhen(string input, string expected)
+        public void ReturnStrongValueWhen(string rawString, string expected)
         {
-            AssertRenderIsCorrect(input, expected);
+            AssertRenderIsCorrect(rawString, expected);
         }
 
         [TestCase("# Hello world",
@@ -58,25 +58,25 @@ namespace MarkdownTests
         [TestCase("# Hello world\n\n# It's me",
             "<h1>Hello world</h1><h1>It's me</h1>",
             TestName = "When two different paragraphs contains header")]
-        public void ReturnHeadedValueWhen(string input, string expected)
+        public void ReturnHeadedValueWhen(string rawString, string expected)
         {
-            AssertRenderIsCorrect(input, expected);
+            AssertRenderIsCorrect(rawString, expected);
         }
 
         [TestCase("__hello _great_ world__",
             "<strong>hello <em>great</em> world</strong>",
             TestName = "When <em> tag inside <strong>")]
-        public void ReturnMarkedValueWithDifferentMarkingTypes(string input, string expected)
+        public void ReturnMarkedValueWithDifferentMarkingTypes(string rawString, string expected)
         {
-            AssertRenderIsCorrect(input, expected);
+            AssertRenderIsCorrect(rawString, expected);
         }
 
         [TestCase("_abc", TestName = "When <em> tag was not closed")]
         [TestCase("__abc", TestName = "When <strong> was not closed")]
         [TestCase("_a \n\n b_", TestName = "When closing symbols in different paragraphs")]
-        public void IgnoreUnpairedSymbols(string input)
+        public void IgnoreUnpairedSymbols(string rawString)
         {
-            var result = markdown.Render(input);
+            var result = markdown.Render(rawString);
 
             result.Should().NotContain("<strong>");
             result.Should().NotContain("<em>");
@@ -87,8 +87,8 @@ namespace MarkdownTests
         [Test]
         public void NotContainsStrongTag_WhenStrongTagWasInsideEmphasized()
         {
-            var input = "_hello __great__ world_";
-            var result = markdown.Render(input);
+            var rawString = "_hello __great__ world_";
+            var result = markdown.Render(rawString);
 
             result.Should().NotContain("<strong>");
         }
@@ -125,9 +125,9 @@ namespace MarkdownTests
         [Test]
         public void MarkWhen_TagWasInsideOneWord()
         {
-            var input = "h_ell_o";
+            var rawString = "h_ell_o";
             var expected = "h<em>ell</em>o";
-            AssertRenderIsCorrect(input, expected);
+            AssertRenderIsCorrect(rawString, expected);
         }
 
 
@@ -135,9 +135,9 @@ namespace MarkdownTests
         [TestCase("[My site](vk.com)",
             "<a href=\"vk.com\">My site</a>",
             TestName = "Only link header contains multiplied words")]
-        public void ReturnLinkedValue_When(string input, string expected)
+        public void ReturnLinkedValue_When(string rawString, string expected)
         {
-            AssertRenderIsCorrect(input, expected);
+            AssertRenderIsCorrect(rawString, expected);
         }
 
         [TestCase("[Link(vk.com)]", TestName = "URL was inside header")]
@@ -145,9 +145,9 @@ namespace MarkdownTests
         [TestCase("[Link]\n\n(vk.com)", TestName = "URL was in different paragraph")]
         [TestCase("[]](vk.com)", TestName = "Header was closed twice")]
         [TestCase("[Link]((vk.com)", TestName = "URL was opened twice")]
-        public void ReturnUnlinkedValue_When(string input)
+        public void ReturnUnlinkedValue_When(string rawString)
         {
-            var rendered = markdown.Render(input);
+            var rendered = markdown.Render(rawString);
 
             rendered.Should().NotContain("<a href");
         }
@@ -164,9 +164,9 @@ namespace MarkdownTests
         [Test]
         public void NotMarkWhen_OpenedTagWasInsideOneWordAndClosingInsideOtherWord()
         {
-            var input = "h_ello worl_d";
-            var expected = input;
-            AssertRenderIsCorrect(input, expected);
+            var rawString = "h_ello worl_d";
+            var expected = rawString;
+            AssertRenderIsCorrect(rawString, expected);
         }
 
         [Test]
@@ -181,14 +181,14 @@ namespace MarkdownTests
         [Test]
         public void NotMarkWhen_TagWasInsideNumber()
         {
-            var input = "1_2_3";
+            var rawString = "1_2_3";
             var expected = "1_2_3";
-            AssertRenderIsCorrect(input, expected);
+            AssertRenderIsCorrect(rawString, expected);
         }
 
-        private void AssertRenderIsCorrect(string input, string expected)
+        private void AssertRenderIsCorrect(string rawString, string expected)
         {
-            var result = markdown.Render(input);
+            var result = markdown.Render(rawString);
 
             result.Should().StartWith(expected);
         }

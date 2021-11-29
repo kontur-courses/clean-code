@@ -77,7 +77,6 @@ namespace Markdown.Tokens
             }
 
             return converted;
-
         }
 
         private List<IToken> AddParagraphEndTokens(List<IToken> tokens)
