@@ -1,64 +1,33 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Text;
+﻿using System.Collections.Generic;
 using Markdown.Converters;
 using Markdown.Parsers;
-using Markdown.Tokenizer;
+using Markdown.Tokenizers;
 using Markdown.Tokens;
 
 namespace Markdown
 {
     public class MarkdownRenderer : IMarkdownRenderer
     {
-        private readonly IConverter<IEnumerable<MarkdownToken>, IEnumerable<HtmlToken>> converter;
+        private readonly ITokenizer tokenizer;
         private readonly IMarkdownParser markdownParser;
-        private readonly ITokenizer<MarkdownToken> tokenizer;
+        private readonly IConverter<IEnumerable<Token>, string> converter;
 
-        public MarkdownRenderer(
-            IMarkdownParser markdownParser,
-            ITokenizer<MarkdownToken> tokenizer,
-            IConverter<IEnumerable<MarkdownToken>, IEnumerable<HtmlToken>> converter)
+        public MarkdownRenderer(IMarkdownParser markdownParser,
+            ITokenizer tokenizer,
+            IConverter<IEnumerable<Token>, string> mdToHtmlConverter)
         {
-            this.converter = converter;
-            this.tokenizer = tokenizer;
             this.markdownParser = markdownParser;
+            this.tokenizer = tokenizer;
+            converter = mdToHtmlConverter;
         }
 
         public string Render(string markdown)
         {
-            var parsedValues = markdownParser.Parse(markdown);
+            var lexemes = markdownParser.ParseMarkdownLexemes(markdown);
 
-            var tokens = tokenizer.Tokenize(parsedValues);
+            var tokens = tokenizer.Tokenize(lexemes);
 
-            var converted = converter.Convert(tokens);
-
-            return RenderHtml(converted);
-        }
-
-        private string RenderHtml(IEnumerable<HtmlToken> tokens)
-        {
-            var rendered = new StringBuilder();
-
-            foreach (var token in tokens)
-            {
-                // ReSharper disable once SwitchStatementMissingSomeEnumCasesNoDefault
-                switch (token.Type)
-                {
-                    case TokenType.Word:
-                        rendered.Append(token.Value[0] == '\\' && token.Value.Length > 1
-                            ? token.Value[1..]
-                            : token.Value);
-                        break;
-                    case TokenType.PairedTagOpened:
-                        rendered.Append('<' + token.Value + '>');
-                        break;
-                    case TokenType.PairedTagClosed:
-                        rendered.Append("</" + token.Value + '>');
-                        break;
-                }
-            }
-
-            return rendered.ToString();
+            return converter.Convert(tokens);
         }
     }
 }

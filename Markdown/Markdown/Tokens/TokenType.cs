@@ -2,9 +2,13 @@
 {
     public enum TokenType
     {
-        PairedTagOpened,
-        PairedTagClosed,
-        SingleTag,
+        ItalicOpened,
+        ItalicClosed,
+        BoldOpened,
+        BoldClosed,
+        HeaderOpened,
+        HeaderClosed,
+        EscapeSymbol,
         Word
     }
 }

@@ -1,12 +1,8 @@
-﻿using FluentAssertions;
-using Markdown;
+﻿using Markdown;
 using Markdown.Converters;
-using Markdown.Factories.Html;
-using Markdown.Factories.Markdown;
 using Markdown.Parsers;
-using Markdown.Tokenizer;
+using Markdown.Tokenizers;
 using NUnit.Framework;
-using NUnit.Framework.Internal;
 
 namespace MarkdownTests
 {
@@ -16,56 +12,65 @@ namespace MarkdownTests
         private IMarkdownRenderer renderer;
 
         [SetUp]
-        public void SetUp()
+        public void Setup()
         {
             var parser = new MarkdownParser();
-
-            var tokenizer = new Tokenizer(new MarkdownTokenFactory());
-
-            var converter = new ConverterMarkdownToHtml(new HtmlTokenFactory());
-
+            var tokenizer = new Tokenizer();
+            var converter = new TokensToHtmlConverter();
             renderer = new MarkdownRenderer(parser, tokenizer, converter);
         }
 
-        [Test]
-        [TestCase("_privet_", ExpectedResult = "<em>privet</em>", TestName = "Emphasized")]
-        [TestCase("__privet__", ExpectedResult = "<strong>privet</strong>", TestName = "Strong")]
-        [TestCase("#privet", ExpectedResult = "<h1>privet</h1>", TestName = "Paragraph")]
-        [TestCase("__please_work_!!!__", ExpectedResult = "<strong>please<em>work</em>!!!</strong>",
-            TestName = "Emphasized inside strong")]
+        [Parallelizable]
+        [TestCase("# privet", ExpectedResult = "<h1>privet</h1>", TestName = "Simple")]
         [TestCase("# Заголовок __с _разными_ символами__",
             ExpectedResult = "<h1>Заголовок <strong>с <em>разными</em> символами</strong></h1>",
             TestName = "Example from specification")]
-        [TestCase("\\\\_is em_", ExpectedResult = "\\<em>is em</em>", TestName = "Escaped escape symbol")]
-        [TestCase("Здесь сим\\волы экранирования\\ \\должны остаться.\\",
-            ExpectedResult = "Здесь сим\\волы экранирования\\ \\должны остаться.\\",
-            TestName = "Escape symbols from example")]
-        public string Render(string markdown)
+        public string RenderParagraph(string markdown)
         {
-            var render = renderer.Render(markdown);
+            var result = renderer.Render(markdown);
 
-            return render;
+            return result;
         }
 
-        [Test]
-        [TestCase("__please_doesn't work___", ExpectedResult = "__please_doesn't work___",
-            TestName = "Collision")] // В спецификации про это ничего нет, так что пока что это работает так, это поведение можно легко изменить, если мерджить в <strong> с конца
-        [TestCase("_html__doesn't works__maybe_", ExpectedResult = "<em>html__doesn't works__maybe</em>",
-            TestName = "Strong inside emphasized")]
-        [TestCase("\\_not em_", ExpectedResult = "_not em_", TestName = "One of tags is escaped")]
-        [TestCase("w_e aren't e_m", ExpectedResult = "w_e aren't e_m", TestName = "Tags in different words")]
-        [TestCase("here ____ nothing in tags", ExpectedResult = "here ____ nothing in tags",
-            TestName = "Empty string inside strong tag")]
-        [TestCase("here __ nothing", ExpectedResult = "here __ nothing",
-            TestName = "Empty string inside single underline")]
-        [TestCase("a1_2b_", ExpectedResult = "a1_2b_", TestName = "Tags in text with digits")]
-        [TestCase("_ a_", ExpectedResult = "_ a_", TestName = "Space after opening tag")]
-        [TestCase("_a _", ExpectedResult = "_a _", TestName = "Space before closing tag")]
-        public string DoesNotRender(string markdown)
+        [Parallelizable]
+        [TestCase("_privet_", ExpectedResult = "<em>privet</em>", TestName = "Simple")]
+        [TestCase("__please_work___", ExpectedResult = "<strong>please<em>work</em></strong>",
+            TestName = "Italic inside bold")]
+        [TestCase("_a_123a_", ExpectedResult = "<em>a_123a</em>")]
+        [TestCase("a_a a_a", ExpectedResult = "a_a a_a")]
+        [TestCase("_a_a", ExpectedResult = "<em>a</em>a")]
+        [TestCase("_a a_a", ExpectedResult = "_a a_a")]
+        [TestCase("a_a a_", ExpectedResult = "a_a a_")]
+        [TestCase("_a__a_b__", ExpectedResult = "_a__a_b__")]
+        public string RenderItalic(string markdown)
         {
-            var render = renderer.Render(markdown);
+            var result = renderer.Render(markdown);
 
-            return render;
+            return result;
+        }
+
+        [Parallelizable]
+        [TestCase("__privet__", ExpectedResult = "<strong>privet</strong>", TestName = "Simple")]
+        [TestCase("_it__doesnt__work_", ExpectedResult = "<em>it__doesnt__work</em>")]
+        [TestCase("a__a a__a", ExpectedResult = "a__a a__a")]
+        [TestCase("__a a__a", ExpectedResult = "__a a__a")]
+        [TestCase("a__a a__", ExpectedResult = "a__a a__")]
+        public string RenderBold(string markdown)
+        {
+            var result = renderer.Render(markdown);
+
+            return result;
+        }
+
+        [Parallelizable]
+        [TestCase("Здесь сим\\волы экранирования\\ \\должны остаться.\\",
+            ExpectedResult = "Здесь сим\\волы экранирования\\ \\должны остаться.\\",
+            TestName = "Example from specification")]
+        public string RenderEscape(string markdown)
+        {
+            var result = renderer.Render(markdown);
+
+            return result;
         }
     }
 }
