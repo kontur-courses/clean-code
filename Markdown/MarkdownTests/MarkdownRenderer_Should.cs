@@ -85,6 +85,10 @@ namespace MarkdownTests
         [TestCase("Здесь сим\\волы экранирования\\ \\должны остаться.\\",
             ExpectedResult = "Здесь сим\\волы экранирования\\ \\должны остаться.\\",
             TestName = "Example from specification")]
+        [TestCase("\\_a_", ExpectedResult = "_a_", TestName = "Doesn't render escaped opening em tag")]
+        [TestCase("\\__a__", ExpectedResult = "__a__", TestName = "Doesn't render escaped opening strong tag")]
+        [TestCase("_a\\_", ExpectedResult = "_a_", TestName = "Doesn't render escaped closing em tag")]
+        [TestCase("__a\\__", ExpectedResult = "__a__", TestName = "Doesn't render escaped closing strong tag")]
         public string RenderEscape(string markdown)
         {
             var result = renderer.Render(markdown);

@@ -68,6 +68,7 @@ namespace Markdown.Tokenizers
                     tokens[i + 1].Type is not TokenType.Word)
                 {
                     resolvedTokens.Add(new Token(TokenType.Word, tokens[i + 1].Value));
+                    ++i;
                 }
                 else
                 {
