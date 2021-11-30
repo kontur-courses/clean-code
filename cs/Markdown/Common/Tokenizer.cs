@@ -50,17 +50,30 @@ namespace Markdown.Common
                 .ToArray();
 
             var root = new Token(text);
-            var tokens = GetTokens(text).OrderBy(token => token.Position).ToList();
-            foreach (var token in tokens
-                .Where(token => ignoreGroupTokenRules
-                    .Select(rule => rule.Invoke(token, tokens))
-                    .All(result => !result)))
-                root.AddToken(token);
-
+            foreach (var line in GetLines(text))
+            {
+                var tokens = GetTokens(line.Text).OrderBy(token => token.Position).ToList();
+                foreach (var token in tokens
+                    .Where(token => ignoreGroupTokenRules
+                        .Select(rule => rule.Invoke(token, tokens))
+                        .All(result => !result)))
+                    line.AddToken(token);
+                root.AddToken(line);
+            }
+            
             return root;
         }
 
-
+        private static IEnumerable<Token> GetLines(string text)
+        {
+            var position = 0;
+            foreach (var line in text.Split(Environment.NewLine))
+            {
+                yield return new Token(line, position, new MdWrapSetting("", MdTagType.Block));
+                position += line.Length + Environment.NewLine.Length;
+            }
+        }
+        
         private IEnumerable<Token> GetTokens(string text)
         {
             var spanTags = new List<Token>();

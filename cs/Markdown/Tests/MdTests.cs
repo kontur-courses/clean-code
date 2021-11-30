@@ -1,5 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics;
+using System.Linq;
 using FluentAssertions;
 using Markdown.Common;
 using NUnit.Framework;
@@ -26,10 +28,43 @@ namespace Markdown.Tests
             parseData.Actual.Should().Be(expected);
         }
         
+        [TestCase(100, 10), Category("Algorithm complexity")]
+        [TestCase(100, 100), Category("Algorithm complexity")]
+        [TestCase(100, 1000), Category("Algorithm complexity")]
+        public void Parse_ShouldWorksLinearly(int actionCount, int inputScale)
+        {
+            const string input = "# _Лучше_ _1_раз_ __увидеть,__\r\n_чем\\_ 100_ __раз_ услышать.__";
+            const string expected = "<h1> <em>Лучше</em> _1_раз_ <strong>увидеть,</strong></h1>\r\n_чем_ 100_ __раз_ услышать.__";
+            var bigInput = string.Join(Environment.NewLine, Enumerable.Repeat(input, inputScale));
+            
+            Parse_ShouldWorksCorrectly(input, expected);
+
+            var inputTime = GetRenderTime(input, actionCount);
+            var bigInputTime = GetRenderTime(bigInput, actionCount);
+            var averageInputTime = inputTime / actionCount;
+            var averageBigInputTime = bigInputTime / (actionCount * inputScale);
+
+            averageInputTime.Should().BeCloseTo(averageBigInputTime, new TimeSpan(2000));
+            Console.WriteLine($"Average time parsing test string by {input.Length} length - {averageInputTime}");
+            Console.WriteLine($"Average time parsing string by {bigInput.Length} length - {bigInputTime / actionCount} (or {averageBigInputTime} per test string)");
+        }
+
+        private TimeSpan GetRenderTime(string input, int count = 1)
+        {
+            var timer = new Stopwatch();
+            for (var i = 0; i < count; i++)
+            {
+                timer.Start();
+                mdParser.Render(input);
+                timer.Stop();
+            }
+            return timer.Elapsed;
+        }
+        
         [TearDown]
         public void TearDown()
         {
-            Console.WriteLine($"Input:\r\n{parseData.Input}\r\n");
+            Console.WriteLine($"\r\nInput:\r\n{parseData.Input}\r\n");
             Console.WriteLine($"Expected:\r\n{parseData.Expected}\r\n");
             Console.WriteLine($"Actual:\r\n{parseData.Actual}\r\n");
         }
