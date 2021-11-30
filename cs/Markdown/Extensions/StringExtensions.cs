@@ -1,45 +1,10 @@
 ﻿using System;
+using Markdown.Common;
 
 namespace Markdown.Extensions
 {
     public static class StringExtensions
     {
-        public static string RemoveMdTags(this string value, MdWrapSetting setting)
-        {
-            switch (setting.TagType)
-            {
-                case MdTagType.Root:
-                case MdTagType.Block:
-                case MdTagType.Backslash:
-                    return value.Remove(0, setting.MdTag.Length);
-                case MdTagType.Span:
-                    return value.Remove(value.Length - setting.MdTag.Length).Remove(0, setting.MdTag.Length);
-                default:
-                    throw new NotImplementedException(
-                        $"Невозможно выполнить {nameof(RemoveMdTags)} для {setting.TagType}.");
-            }
-        }
-
-        public static string InsertHtmlTags(this string text, MdWrapSetting setting)
-        {
-            switch (setting.TagType)
-            {
-                case MdTagType.Root:
-                case MdTagType.Block:
-                    return text.Insert(text.EndsWith(Environment.NewLine)
-                                ? text.Length - Environment.NewLine.Length
-                                : text.Length,
-                            setting.HtmlCloseTag)
-                        .Insert(0, setting.HtmlOpenTag);
-                case MdTagType.Backslash:
-                case MdTagType.Span:
-                    return text.Insert(text.Length, setting.HtmlCloseTag).Insert(0, setting.HtmlOpenTag);
-                default:
-                    throw new NotImplementedException(
-                        $"Невозможно выполнить {nameof(InsertHtmlTags)} для {setting.TagType}.");
-            }
-        }
-
         public static bool IsSubstring(this string text, int pos, string value, bool isForward = true)
         {
             if (isForward ? pos + value.Length > text.Length : pos - value.Length < 0)
@@ -59,6 +24,21 @@ namespace Markdown.Extensions
 
             pos = isForward ? pos : pos - 1;
             return predicate.Invoke(text[pos]);
+        }
+
+        public static Token GetTokenUntilNewLine(this string text, Token openTag)
+        {
+            var endPos = text.IndexOf(Environment.NewLine, openTag.Position, StringComparison.Ordinal);
+            var value = text.Substring(openTag.Position, endPos == -1
+                ? text.Length - openTag.Position
+                : endPos - openTag.Position + Environment.NewLine.Length);
+            return new Token(value, openTag.Position, openTag.WrapSetting);
+        }
+
+        public static Token GetToken(this string text, Token openTag, Token closeTag)
+        {
+            var value = text.Substring(openTag.Position, closeTag.Position - openTag.Position + closeTag.Value.Length);
+            return new Token(value, openTag.Position, openTag.WrapSetting);
         }
     }
 }
