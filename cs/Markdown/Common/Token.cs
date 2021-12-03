@@ -9,27 +9,25 @@ namespace Markdown.Common
         private readonly List<Token> childTokens = new List<Token>();
 
         public string Value { get; }
-        public string Text => WrapSetting.RemoveMdTags(Value);
         public int Position { get; private set; }
-        public MdWrapSetting WrapSetting { get; }
+        public BaseMdTag MdTag { get; }
 
 
         public Token(string value)
-            : this(value, 0, new MdWrapSetting("", MdTagType.Block))
+            : this(value, 0, new BlockMdTag())
+        {
+        }
+        
+        public Token(int position, BaseMdTag mdTag)
+            : this(mdTag.MdTag, 0, new BlockMdTag())
         {
         }
 
-        public Token(int position, MdWrapSetting setting)
-            : this(setting.MdTag, position, setting)
-        {
-            Value = setting.MdTag;
-        }
-
-        public Token(string value, int position, MdWrapSetting wrapSetting)
+        public Token(string value, int position, BaseMdTag tag)
         {
             Value = value;
             Position = position;
-            WrapSetting = wrapSetting;
+            MdTag = tag;
         }
 
 
@@ -39,7 +37,7 @@ namespace Markdown.Common
             if (parent != null)
             {
                 parent.AddToken(child);
-                child.Position -= parent.Position + parent.WrapSetting.MdTag.Length;
+                child.Position -= parent.Position + parent.MdTag.MdTag.Length;
             }
             else
                 childTokens.Add(child);
@@ -47,14 +45,14 @@ namespace Markdown.Common
 
         public string Render()
         {
-            var render = new StringBuilder(Text);
+            var render = new StringBuilder(MdTag.RemoveMdTags(Value));
             foreach (var childToken in childTokens.OrderByDescending(token => token.Position))
             {
                 render.Remove(childToken.Position, childToken.Value.Length);
                 render.Insert(childToken.Position, childToken.Render());
             }
 
-            return WrapSetting.InsertHtmlTags(render.ToString());
+            return MdTag.InsertHtmlTags(render.ToString());
         }
 
         public bool IsChild(Token child)

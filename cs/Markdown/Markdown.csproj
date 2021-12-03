@@ -12,6 +12,8 @@
 
     <ItemGroup>
       <Compile Remove="Markdown\CompositeToken.cs" />
+      <Compile Remove="Common\MdTagType.cs" />
+      <Compile Remove="Common\MdWrapSetting.cs" />
     </ItemGroup>
 
 </Project>

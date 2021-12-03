@@ -26,19 +26,31 @@ namespace Markdown.Extensions
             return predicate.Invoke(text[pos]);
         }
 
-        public static Token GetTokenUntilNewLine(this string text, Token openTag)
+        public static int GetEndOfLine(this string text, int startIndex = 0)
         {
-            var endPos = text.IndexOf(Environment.NewLine, openTag.Position, StringComparison.Ordinal);
-            var value = text.Substring(openTag.Position, endPos == -1
-                ? text.Length - openTag.Position
-                : endPos - openTag.Position + Environment.NewLine.Length);
-            return new Token(value, openTag.Position, openTag.WrapSetting);
+            var newLinePos = text.IndexOf(Environment.NewLine, startIndex, StringComparison.Ordinal);
+            return newLinePos != -1 ? newLinePos + Environment.NewLine.Length : text.Length;
         }
 
-        public static Token GetToken(this string text, Token openTag, Token closeTag)
+        // public static Token GetTokenUntilNewLine(this string text, Tag openTag)
+        // {
+        //     var endPos = text.IndexOf(Environment.NewLine, openTag.Position, StringComparison.Ordinal);
+        //     var value = text.Substring(openTag.Position, endPos == -1
+        //         ? text.Length - openTag.Position
+        //         : endPos - openTag.Position + Environment.NewLine.Length);
+        //     return new Token(value, openTag.Position, openTag.MdTagType);
+        // }
+
+        // public static Token GetToken(this string text, Tag openTag, Tag closeTag)
+        // {
+        //     var value = text.Substring(openTag.Position, closeTag.Position - openTag.Position + closeTag.MdTagType.MdTag.Length);
+        //     return new Token(value, openTag.Position, openTag.MdTagType);
+        // }
+        
+        public static Token GetToken(this string text, int startIndex, int stopIndex, BaseMdTag tag)
         {
-            var value = text.Substring(openTag.Position, closeTag.Position - openTag.Position + closeTag.Value.Length);
-            return new Token(value, openTag.Position, openTag.WrapSetting);
+            var value = text.Substring(startIndex, stopIndex - startIndex);
+            return new Token(value, startIndex, tag);
         }
     }
 }

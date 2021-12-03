@@ -7,43 +7,40 @@ namespace Markdown.Common
 {
     public class Tokenizer
     {
-        private readonly Dictionary<string, MdWrapSetting> wrapSettings;
-        private readonly List<Func<string, Token, bool>> ignoreTokenRules;
+        private readonly Dictionary<string, BaseMdTag> parseTags;
         private readonly List<Func<Token, IEnumerable<Token>, bool>> ignoreGroupTokenRules;
         private int[] mdTagSignatures;
 
 
         public Tokenizer()
         {
-            var backslashSetting = new MdWrapSetting("\\", MdTagType.Backslash);
-            wrapSettings = new Dictionary<string, MdWrapSetting>
+            var bsTag = new BackslashMdTag();
+            parseTags = new Dictionary<string, BaseMdTag>
             {
-                {backslashSetting.MdTag, backslashSetting}
+                {bsTag.MdTag, bsTag}
             };
 
-            ignoreTokenRules = new List<Func<string, Token, bool>>();
             ignoreGroupTokenRules = new List<Func<Token, IEnumerable<Token>, bool>>();
         }
 
-        public Tokenizer(IEnumerable<MdWrapSetting> wrapSettings)
+        public Tokenizer(IEnumerable<BaseMdTag> parseTags)
             : this()
         {
-            foreach (var setting in wrapSettings)
-                this.wrapSettings.TryAdd(setting.MdTag, setting);
+            foreach (var parseTag in parseTags)
+                this.parseTags[parseTag.MdTag] = parseTag;
         }
 
-        public Tokenizer(IEnumerable<MdWrapSetting> wrapSettings,
-            IEnumerable<Func<string, Token, bool>> ignoreTokenRules,
+        public Tokenizer(IEnumerable<BaseMdTag> parseTags,
             IEnumerable<Func<Token, IEnumerable<Token>, bool>> ignoreGroupTokenRules)
-            : this(wrapSettings)
+            : this(parseTags)
         {
-            this.ignoreTokenRules.AddRange(ignoreTokenRules);
             this.ignoreGroupTokenRules.AddRange(ignoreGroupTokenRules);
         }
 
+
         public Token Tokenize(string text)
         {
-            mdTagSignatures = wrapSettings
+            mdTagSignatures = parseTags
                 .Select(ws => ws.Key.Length)
                 .Distinct()
                 .OrderByDescending(x => x)
@@ -52,7 +49,7 @@ namespace Markdown.Common
             var root = new Token(text);
             foreach (var line in GetLines(text))
             {
-                var tokens = GetTokens(line.Text).OrderBy(token => token.Position).ToList();
+                var tokens = GetTokens(line.Value).OrderBy(token => token.Position).ToList();
                 foreach (var token in tokens
                     .Where(token => ignoreGroupTokenRules
                         .Select(rule => rule.Invoke(token, tokens))
@@ -60,7 +57,7 @@ namespace Markdown.Common
                     line.AddToken(token);
                 root.AddToken(line);
             }
-            
+
             return root;
         }
 
@@ -69,83 +66,59 @@ namespace Markdown.Common
             var position = 0;
             foreach (var line in text.Split(Environment.NewLine))
             {
-                yield return new Token(line, position, new MdWrapSetting("", MdTagType.Block));
+                yield return new Token(line, position, new BlockMdTag());
                 position += line.Length + Environment.NewLine.Length;
             }
         }
-        
+
         private IEnumerable<Token> GetTokens(string text)
         {
-            var spanTags = new List<Token>();
-
-            Token lastBackslash = null;
-            foreach (var tag in GetTags(text))
-            {
-                if (lastBackslash != null && tag.Position - lastBackslash.Position == 1)
-                {
-                    yield return text.GetToken(lastBackslash, tag);
-                    continue;
-                }
-
-                if (tag.WrapSetting.IgnoreTagRules
-                    .Select(rule => rule.Invoke(text, tag))
-                    .Any(result => result))
-                    continue;
-
-                switch (tag.WrapSetting.TagType)
-                {
-                    case MdTagType.Backslash:
-                        lastBackslash = tag;
-                        break;
-                    case MdTagType.Block:
-                        yield return text.GetTokenUntilNewLine(tag);
-                        break;
-                    case MdTagType.Span:
-                        if (TryBuildSpanToken(text, spanTags, tag, out var openTag))
-                        {
-                            yield return text.GetToken(openTag, tag);
-                            spanTags.Remove(openTag);
-                        }
-                        else
-                            spanTags.Add(tag);
-
-                        break;
-                    default:
-                        throw new NotSupportedException();
-                }
-            }
-        }
-
-        private IEnumerable<Token> GetTags(string text)
-        {
+            var usedTagsAtPositions = new Dictionary<int, int>();
             for (var pos = 0; pos < text.Length; pos++)
             {
-                foreach (var mdTagSignature in mdTagSignatures)
+                if (usedTagsAtPositions.TryGetValue(pos, out var skip))
                 {
-                    if (pos + mdTagSignature > text.Length ||
-                        !wrapSettings.TryGetValue(text.Substring(pos, mdTagSignature), out var setting))
-                        continue;
-
-                    yield return new Token(pos, setting);
-                    pos += setting.MdTag.Length - 1;
-                    break;
+                    pos += skip - 1;
+                    continue;
                 }
+
+                if (!TryGetTag(text, pos, out var tag))
+                    continue;
+
+                if (tag is BackslashMdTag backslash &&
+                    TryGetTag(text, pos + 1, out var backSlashedTag))
+                {
+                    yield return text.GetToken(pos, pos + backslash.Length + backSlashedTag.Length, backslash);
+                    pos += backslash.Length + backSlashedTag.Length - 1;
+                    continue;
+                }
+                
+                if (!tag.IsTag(text, pos))
+                    continue;
+
+                if (!tag.TryGetToken(text, pos, out var token))
+                    continue;
+
+                if (tag.HasCloseMdTag)
+                    usedTagsAtPositions.Add(pos + token.Value.Length - tag.Length, tag.Length);
+                yield return token;
+                pos += tag.Length - 1;
             }
         }
 
-        private bool TryBuildSpanToken(string text, IEnumerable<Token> openTags, Token closeTag, out Token tag)
+        private bool TryGetTag(string text, int pos, out BaseMdTag mdTag)
         {
-            tag = null;
-
-            foreach (var openTag in openTags.Where(openTag => openTag.WrapSetting == closeTag.WrapSetting))
+            foreach (var mdTagSignature in mdTagSignatures)
             {
-                tag = openTag;
-                if (ignoreTokenRules
-                    .Select(rule => rule.Invoke(text, text.GetToken(openTag, closeTag)))
-                    .All(result => !result))
-                    return true;
+                if (pos + mdTagSignature > text.Length ||
+                    !parseTags.TryGetValue(text.Substring(pos, mdTagSignature), out var tag))
+                    continue;
+
+                mdTag = tag;
+                return true;
             }
 
+            mdTag = null;
             return false;
         }
     }
