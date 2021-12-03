@@ -31,7 +31,7 @@ namespace Markdown.TokenIdentifiers
         private bool TagPartContainsOnlyTags(string tagPart)
             => tagPart.All(t => t == char.Parse(Selector));
 
-        private bool HasOtherCharsAfterTags(string[] paragraphParts)
+        private static bool HasOtherCharsAfterTags(string[] paragraphParts)
             => paragraphParts.Length > 1;
     }
 }

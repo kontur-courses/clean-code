@@ -1,9 +1,10 @@
-﻿using Markdown.Tokens;
+﻿using System.Collections.Generic;
+using Markdown.Tokens;
 
 namespace Markdown.Renderer
 {
-    public interface IRenderer
+    public interface IRenderer<TToken>
     {
-        public string Render(MarkdownToken[] tokens);
+        public string Render(IEnumerable<TToken> tokens);
     }
 }

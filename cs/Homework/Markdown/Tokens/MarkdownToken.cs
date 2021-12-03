@@ -13,13 +13,13 @@ namespace Markdown.Tokens
         public virtual string OpenHtmlTag => string.Empty;
         public virtual string CloseHtmlTag => string.Empty;
 
-        public List<MarkdownToken> SubTokens { get; set; }
+        public IEnumerable<MarkdownToken> SubTokens { get; set; }
 
         public virtual string GetHtmlFormatted()
         {
             var innerValue = SubTokens
                 .Select(t => t.GetHtmlFormatted());
-            return $"{OpenHtmlTag}{string.Join("", innerValue)}{CloseHtmlTag}";
+            return $"{OpenHtmlTag}{string.Concat(innerValue)}{CloseHtmlTag}";
         }
     }
 }

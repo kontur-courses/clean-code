@@ -6,17 +6,22 @@ using Markdown.Tokens;
 
 namespace Markdown
 {
-    public static class Md
+    public class Md
     {
-        private static readonly TokenParser parser = new();
-        private static readonly HtmlRenderer renderer = new();
+        private readonly IParser<MarkdownToken> parser;
+        private readonly IRenderer<MarkdownToken> renderer;
 
-        public static string Render(string text)
+        public Md(IParser<MarkdownToken> parser, IRenderer<MarkdownToken> renderer)
         {
-            var result = new List<MarkdownToken>();
-            var tokens = parser.Parse(text);
+            this.parser = parser;
+            this.renderer = renderer;
+        }
 
-            return new HtmlRenderer().Render(tokens.ToArray());
+
+        public string Render(string text)
+        {
+            var tokens = parser.Parse(text);
+            return renderer.Render(tokens);
         }
     }
 }

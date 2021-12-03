@@ -7,7 +7,7 @@ using Markdown.Tokens;
 
 namespace Markdown.Parser
 {
-    public class TokenParser : IParser<MarkdownToken>
+    public class MdTokenParser : IParser<MarkdownToken>
     {
         private readonly Dictionary<string, TokenIdentifier<MarkdownToken>> identifiers;
 
@@ -24,7 +24,7 @@ namespace Markdown.Parser
         private readonly int maxTagLength;
 
 
-        public TokenParser()
+        public MdTokenParser()
         {
             identifiers = new Dictionary<string, TokenIdentifier<MarkdownToken>>()
             {
@@ -35,17 +35,15 @@ namespace Markdown.Parser
             maxTagLength = GetMaxTagLength();
         }
 
-        public List<MarkdownToken> Parse(string text)
+        public IEnumerable<MarkdownToken> Parse(string text)
         {
             if (text == null) throw new ArgumentNullException(nameof(text));
-            var tokensFromText = new List<MarkdownToken>();
             var paragraphs = SplitSavingSeparator(text, '\n');
             for ( var paragraphIndex = 0; paragraphIndex < paragraphs.Length; paragraphIndex++)
             {
                 foreach (var token in GetTokensFromParagraph(paragraphs, paragraphIndex))
-                    tokensFromText.Add(token);
+                    yield return token;
             }
-            return tokensFromText;
         }
 
         private static string[] SplitSavingSeparator(string text, char separator)
@@ -71,25 +69,25 @@ namespace Markdown.Parser
             while (position < currentParagraph.Length)
             {
                 isScreening = !isScreening ? IsScreeningAt(currentParagraph, position) : isScreening;
-                var tag = TryGetTagInPosition(currentParagraph, position);
+                var selector = TryGetTagInPosition(currentParagraph, position);
                 MarkdownToken token = null;
-                if (tag != null)
+                if (selector != null)
                 {
                     if (!isScreening)
-                        token = FindTokenFromPosition(paragraphs, paragraphIndex, position, tag);
+                        token = FindTokenFromPosition(paragraphs, paragraphIndex, position, selector);
                     else
                         isScreening = false;
                 }
 
-                if (tag == null || token == null)
+                if (selector == null || token == null)
                 {
                     if(!isScreening)
-                        plainText.Append(tag == null 
+                        plainText.Append(selector == null 
                             ? currentParagraph[position]
-                            : currentParagraph[position..(position + tag.Length)]);
+                            : currentParagraph[position..(position + selector.Length)]);
                     if (position + 1 < currentParagraph.Length && currentParagraph[position + 1] == '\\')
                         isScreening = false;
-                    position += tag?.Length ?? 1;
+                    position += selector?.Length ?? 1;
                     continue;
                 }
 
@@ -98,7 +96,7 @@ namespace Markdown.Parser
                         position - plainText.Length);
                 plainText.Clear();
                 yield return token;
-                position += token.Value.Length;
+                position += token.Length;
             }
             if (plainText.Length != 0)
                 yield return new PlainTextToken(plainText.ToString(), null, paragraphIndex,

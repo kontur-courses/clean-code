@@ -22,7 +22,7 @@ namespace Markdown.TokenIdentifiers
             return !HasSpacesAfterOpenTag(startIndex)
                    && !HasSpacesBeforeCloseTag(finishIndex)
                    && !HasDigits(startIndex, finishIndex)
-                   && !HasSelectionInDifferentWords(startIndex, finishIndex)
+                   && !HasSelectionInDifferentWords()
                    && IsValidWithAdditionalRestriction(temporaryToken);
         }
 
@@ -37,7 +37,7 @@ namespace Markdown.TokenIdentifiers
         private bool HasDigits(int startIndex, int finishIndex) =>
             Paragraph[startIndex..finishIndex].Any(char.IsDigit);
 
-        private bool HasSelectionInDifferentWords(int startIndex, int finishIndex)
+        private bool HasSelectionInDifferentWords()
         {
             return Paragraph
                 .Split()

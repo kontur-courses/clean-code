@@ -17,6 +17,5 @@ namespace Markdown.Tokens
         public int StartIndex { get; }
         public string Selector { get; }
         public int Length => Value.Length;
-        public int FinishIndex => StartIndex + Length - 1;
     }
 }

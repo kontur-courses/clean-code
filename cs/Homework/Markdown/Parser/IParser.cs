@@ -5,6 +5,6 @@ namespace Markdown.Parser
 {
     public interface IParser<TToken>
     {
-        public List<TToken> Parse(string text);
+        public IEnumerable<TToken> Parse(string text);
     }
 }

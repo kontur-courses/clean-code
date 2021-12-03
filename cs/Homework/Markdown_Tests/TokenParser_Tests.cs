@@ -12,19 +12,19 @@ namespace Markdown_Tests
     [TestFixture]
     public class TokenParser_Tests
     {
-        private readonly TokenParser tokenParser = new();
+        private readonly MdTokenParser sut = new();
 
         [Test]
         public void Parse_Throw_WhenNullArgument()
         {
-            Action act = () => tokenParser.Parse(null);
+            Action act = () => sut.Parse(null).First();
             act.Should().Throw<ArgumentNullException>();
         }
 
         [Test]
         public void Parse_ReturnsNothing_WhenEmptyString()
         {
-            tokenParser.Parse("")
+            sut.Parse("")
                 .Count()
                 .Should()
                 .Be(0);
@@ -48,7 +48,7 @@ namespace Markdown_Tests
                 new PlainTextToken("abc\n", null, 0, 0),
                 new PlainTextToken("def", null, 1, 0)
             };
-            tokenParser.Parse(text).Should().BeEquivalentTo(expected);
+            sut.Parse(text).Should().BeEquivalentTo(expected);
         }
 
         [TestCase("_abc_", TestName = "one word with italic tags")]
@@ -82,7 +82,7 @@ namespace Markdown_Tests
                 new ItalicToken("_abc_", "_", 0, 0),
                 new PlainTextToken(" de", null, 0, 5),
             };
-            tokenParser.Parse(text).Should().BeEquivalentTo(expected);
+            sut.Parse(text).Should().BeEquivalentTo(expected);
         }
 
         [Test]
@@ -94,7 +94,7 @@ namespace Markdown_Tests
                 new ItalicToken("_abc_", "_", 0, 0),
                 new PlainTextToken("de", null, 0, 5),
             };
-            tokenParser.Parse(text).Should().BeEquivalentTo(expected);
+            sut.Parse(text).Should().BeEquivalentTo(expected);
         }
 
         [Test]
@@ -113,7 +113,7 @@ namespace Markdown_Tests
             {
                 new StrongToken("__ab_cd_e__","__", 0, 0)
             };
-            var result = tokenParser.Parse(text);
+            var result = sut.Parse(text);
             result.Should().BeEquivalentTo(expected);
         }
 
@@ -134,7 +134,7 @@ namespace Markdown_Tests
                 new HeaderToken("# abc\n", "#", 0, 0),
                 new HeaderToken("# cde", "#", 1, 0),
             };
-            tokenParser.Parse(text).Should().BeEquivalentTo(expected);
+            sut.Parse(text).Should().BeEquivalentTo(expected);
         }
 
         [Test]
@@ -153,7 +153,7 @@ namespace Markdown_Tests
                     }
                 },
             };
-            tokenParser.Parse(text).Should().BeEquivalentTo(expected);
+            sut.Parse(text).Should().BeEquivalentTo(expected);
         }
 
         [Test]
@@ -182,7 +182,7 @@ namespace Markdown_Tests
 
         private void AssertSingleToken(string text, Token expectedToken)
         {
-            var actual = tokenParser.Parse(text);
+            var actual = sut.Parse(text);
             actual.Single()
                 .Should()
                 .BeEquivalentTo(expectedToken);

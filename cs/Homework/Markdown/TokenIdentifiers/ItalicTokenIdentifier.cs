@@ -24,7 +24,7 @@ namespace Markdown.TokenIdentifiers
                    && !HasUnderlineAfterCloseTag(temporaryToken);
         }
 
-        private bool HasNestedBoldTags(TemporaryToken temporaryToken)
+        private static bool HasNestedBoldTags(TemporaryToken temporaryToken)
         {
             var firstOccurrence = temporaryToken.Value.IndexOf("__");
             if (firstOccurrence == -1)

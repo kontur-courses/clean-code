@@ -7,16 +7,12 @@ using Markdown.Tokens;
 
 namespace Markdown.Renderer
 {
-    public class HtmlRenderer : IRenderer
+    public class MdToHtmlRenderer : IRenderer<MarkdownToken>
     {
-        private HashSet<MarkdownToken> visitedTokens = new();
-
-        public string Render(MarkdownToken[] tokens)
+        public string Render(IEnumerable<MarkdownToken> tokens)
         {
             var result = tokens.Select(t => t.GetHtmlFormatted());
-            return string.Join("", result);
-
+            return string.Concat(result);
         }
-
     }
 }
