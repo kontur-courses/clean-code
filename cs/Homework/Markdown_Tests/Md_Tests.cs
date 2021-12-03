@@ -1,3 +1,5 @@
+using System;
+using System.Diagnostics;
 using System.Linq;
 using FluentAssertions;
 using Markdown;
@@ -36,6 +38,48 @@ namespace Markdown_Tests
         public string Render_RenderNestedTokens(string text)
         {
             return Md.Render(text);
+        }
+
+        [TestCase(@"\_ab_", ExpectedResult = "_ab_", TestName = "when screen italic selector")]
+        [TestCase(@"\__ab__", ExpectedResult = "__ab__", TestName = "when screen strong selector")]
+        [TestCase(@"\\", ExpectedResult = @"\", TestName = "when screen strong screening symbol")]
+        [TestCase(@"\\_abc_", ExpectedResult = @"\<i>abc</i>", TestName = "screening symbol does not screen selector when under screen itself")]
+        public string Render_RenderCorrectly_WhenScreening(string text)
+        {
+            return Md.Render(text);
+        }
+
+        [Test]
+        public void Render_ShouldHaveLinearExecutionTime()
+        {
+            var testingString = "# abc __ab_abc_de__\n";
+            var repeationCount = 100;
+
+            var shortString = string.Concat(Enumerable.Repeat(testingString, repeationCount));
+            var longString = string.Concat(Enumerable.Repeat(testingString, repeationCount * 100));
+
+            var shortStringTime = MeasureActionTimeInMilliseconds(() => Md.Render(shortString));
+            var longStringTime = MeasureActionTimeInMilliseconds(() => Md.Render(longString));
+
+            longStringTime.Should().BeLessOrEqualTo((long)(shortStringTime * 100 * 1.25));
+
+            Console.WriteLine(@$"string '{testingString}' repeated {repeationCount}: {shortStringTime}");
+            Console.WriteLine(@$"string '{testingString}' repeated {repeationCount * 100}: {longStringTime}");
+        }
+
+        private long MeasureActionTimeInMilliseconds(Action action)
+        {
+            var watch = new Stopwatch();
+
+            action.Invoke();
+            GC.Collect();
+            GC.WaitForPendingFinalizers();
+
+            watch.Start();
+            action.Invoke();
+            watch.Stop();
+
+            return watch.ElapsedMilliseconds;
         }
     }
 }

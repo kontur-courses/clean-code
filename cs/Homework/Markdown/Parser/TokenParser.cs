@@ -22,10 +22,7 @@ namespace Markdown.Parser
 
         private readonly char screeningSymbol = '\\';
         private readonly int maxTagLength;
-        private readonly HashSet<string> openedTags = new();
 
-        private bool isInsideTag => openedTags.Count > 0;
-        
 
         public TokenParser()
         {
@@ -47,12 +44,11 @@ namespace Markdown.Parser
             {
                 foreach (var token in GetTokensFromParagraph(paragraphs, paragraphIndex))
                     tokensFromText.Add(token);
-                ResetTemporaryResources();
             }
             return tokensFromText;
         }
 
-        private string[] SplitSavingSeparator(string text, char separator)
+        private static string[] SplitSavingSeparator(string text, char separator)
         {
             var splitedText = text.Split(separator, StringSplitOptions.RemoveEmptyEntries);
             if (splitedText.Length == 1)
@@ -71,15 +67,28 @@ namespace Markdown.Parser
             var currentParagraph = paragraphs[paragraphIndex];
             var position = 0;
             var plainText = new StringBuilder();
+            var isScreening = false;
             while (position < currentParagraph.Length)
             {
+                isScreening = !isScreening ? IsScreeningAt(currentParagraph, position) : isScreening;
                 var tag = TryGetTagInPosition(currentParagraph, position);
                 MarkdownToken token = null;
                 if (tag != null)
-                    token = FindTokenFromPosition(paragraphs, paragraphIndex, position, tag);
+                {
+                    if (!isScreening)
+                        token = FindTokenFromPosition(paragraphs, paragraphIndex, position, tag);
+                    else
+                        isScreening = false;
+                }
+
                 if (tag == null || token == null)
                 {
-                    plainText.Append(tag == null ? currentParagraph[position] : currentParagraph[position..(position + tag.Length)]);
+                    if(!isScreening)
+                        plainText.Append(tag == null 
+                            ? currentParagraph[position]
+                            : currentParagraph[position..(position + tag.Length)]);
+                    if (position + 1 < currentParagraph.Length && currentParagraph[position + 1] == '\\')
+                        isScreening = false;
                     position += tag?.Length ?? 1;
                     continue;
                 }
@@ -96,6 +105,20 @@ namespace Markdown.Parser
                     position - plainText.Length);
         }
 
+        private bool IsScreeningAt(string currentParagraph, int position)
+        {
+            var nextPossibleSelector = position != currentParagraph.Length - 1
+            ? TryGetTagInPosition(currentParagraph, position + 1)
+            : null;
+            char? next = position != currentParagraph.Length - 1
+                ? currentParagraph[position + 1]
+                : null;
+            if (position < 0 || currentParagraph[position] != screeningSymbol)
+                return false;
+            return !IsScreeningAt(currentParagraph, position - 1)
+                && nextPossibleSelector != null || next == screeningSymbol;
+        }
+
 
         private MarkdownToken FindTokenFromPosition(string[] paragraphs, int paragraphIndex, int position, string tag)
         {
@@ -110,26 +133,23 @@ namespace Markdown.Parser
 
         private MarkdownToken TryReadDoubleTagToken(string[] paragraphs, int paragraphIndex, int position, string tag)
         {
-            if (openedTags.Contains(tag)) return null;
             var paragraph = paragraphs[paragraphIndex];
             var closeTagIndex = IndexOfCloseTag(paragraph, tag, position);
             if (closeTagIndex == -1) return null;
             var tokenValue = paragraph[position..(closeTagIndex + tag.Length)];
             var temporaryToken = new TemporaryToken(tokenValue, tag, paragraphIndex, position);
-            if (identifiers[tag].Identify(paragraphs, temporaryToken, out var identifiedToken))
-                openedTags.Add(tag);
+            identifiers[tag].Identify(paragraphs, temporaryToken, out var identifiedToken);
             return identifiedToken;
         }
 
         private MarkdownToken TryReadLineToken(string[] paragraphs, int paragraphIndex, int position, string tag)
         {
             var temporaryToken = new TemporaryToken(paragraphs[paragraphIndex], tag, paragraphIndex, position);
-            if (identifiers[tag].Identify(paragraphs, temporaryToken, out var identifiedToken))
-                openedTags.Add(tag);
-            return identifiedToken;
+            identifiers[tag].Identify(paragraphs, temporaryToken, out var identifiedToken);
+                return identifiedToken;
         }
 
-        private int IndexOfCloseTag(string paragraph, string openTag, int openTagIndex)
+        private static int IndexOfCloseTag(string paragraph, string openTag, int openTagIndex)
         {
             var startIndex = openTagIndex + openTag.Length;
             return paragraph.IndexOf(openTag, startIndex);
@@ -150,11 +170,6 @@ namespace Markdown.Parser
         private int GetMaxTagLength()
         {
             return identifiers.Keys.Max(tag => tag.Length);
-        }
-
-        private void ResetTemporaryResources()
-        {
-            openedTags.Clear();
         }
     }
 }

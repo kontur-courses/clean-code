@@ -156,9 +156,33 @@ namespace Markdown_Tests
             tokenParser.Parse(text).Should().BeEquivalentTo(expected);
         }
 
+        [Test]
+        public void Parse_ReturnsPlainText_WhenSelectorUnderScreening()
+        {
+            var text = @"\_abc_";
+            var expected = new PlainTextToken(@"_abc_", null, 0, 1);
+            AssertSingleToken(text, expected);
+        }
+
+        [Test]
+        public void Parse_ReturnsScreeningSymbol_WhenUnderScreening()
+        {
+            var text = @"\\";
+            var expected = new PlainTextToken(@"\", null, 0, 1);
+            AssertSingleToken(text, expected);
+        }
+
+        [Test]
+        public void Parse_IdentifyScreeningAsPlainText_WhenNothingToScreen()
+        {
+            var text = @"ab\c";
+            var expected = new PlainTextToken(@"ab\c", null, 0, 0);
+            AssertSingleToken(text, expected);
+        }
+
         private void AssertSingleToken(string text, Token expectedToken)
         {
-            var actual = tokenParser.Parse(text).ToArray();
+            var actual = tokenParser.Parse(text);
             actual.Single()
                 .Should()
                 .BeEquivalentTo(expectedToken);

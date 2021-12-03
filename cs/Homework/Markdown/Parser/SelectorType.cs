@@ -2,7 +2,6 @@
 {
     public enum SelectorType
     {
-        Single,
         Double,
         Line,
     }
