@@ -1,24 +1,22 @@
-﻿using Markdown.Extensions;
+﻿using System.Collections.Generic;
+using Markdown.Extensions;
 
 namespace Markdown.Common
 {
     public abstract class BaseMdTag
     {
         public string MdTag { get; }
-        public string HtmlOpenTag { get; }
-        public string HtmlCloseTag { get; }
+        protected string HtmlOpenTag { get; }
+        protected string HtmlCloseTag { get; }
         public int Length => MdTag.Length;
-        public bool IsInLine { get; }
-        public bool HasCloseMdTag { get; protected set; }
-
+        public bool IsMultiLine { get; protected set; }
 
         protected BaseMdTag()
         {
             MdTag = string.Empty;
             HtmlOpenTag = string.Empty;
             HtmlCloseTag = string.Empty;
-            IsInLine = true;
-            HasCloseMdTag = true;
+            IsMultiLine = false;
         }
 
         protected BaseMdTag(string mdTag)
@@ -34,15 +32,15 @@ namespace Markdown.Common
             HtmlCloseTag = htmlCloseTag;
         }
 
-
-        public virtual bool IsTag(string text, int pos)
+        protected virtual bool IsTag(string text, int pos)
         {
             return text.IsSubstring(pos, MdTag);
         }
 
-        protected abstract bool CanCreateToken(string text, int startIndex, int stopIndex);
+        public abstract bool CanCreateToken(string text, int startIndex, int stopIndex);
 
-        public abstract bool TryGetToken(string text, int startIndex, out Token token);
+        public abstract bool TryGetToken(string text, Tag openTag, IList<Tag> closeTags, out Token token,
+            out Tag closeTag);
 
         public abstract string RemoveMdTags(string value);
 

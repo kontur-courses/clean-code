@@ -3,7 +3,6 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
 using FluentAssertions;
-using Markdown.Common;
 using NUnit.Framework;
 
 namespace Markdown.Tests
@@ -27,16 +26,17 @@ namespace Markdown.Tests
             parseData = (input, expected, mdParser.Render(input));
             parseData.Actual.Should().Be(expected);
         }
-        
+
         [TestCase(100, 10), Category("Algorithm complexity")]
         [TestCase(100, 100), Category("Algorithm complexity")]
         [TestCase(100, 1000), Category("Algorithm complexity")]
         public void Parse_ShouldWorksLinearly(int actionCount, int inputScale)
         {
             const string input = "# _Лучше_ _1_раз_ __увидеть,__\r\n_чем\\_ 100_ __раз_ услышать.__";
-            const string expected = "<h1> <em>Лучше</em> _1_раз_ <strong>увидеть,</strong></h1>\r\n_чем_ 100_ __раз_ услышать.__";
+            const string expected =
+                "<h1> <em>Лучше</em> _1_раз_ <strong>увидеть,</strong></h1>\r\n_чем_ 100_ __раз_ услышать.__";
             var bigInput = string.Join(Environment.NewLine, Enumerable.Repeat(input, inputScale));
-            
+
             Parse_ShouldWorksCorrectly(input, expected);
 
             var inputTime = GetRenderTime(input, actionCount);
@@ -46,7 +46,8 @@ namespace Markdown.Tests
 
             averageInputTime.Should().BeCloseTo(averageBigInputTime, new TimeSpan(2000));
             Console.WriteLine($"Average time parsing test string by {input.Length} length - {averageInputTime}");
-            Console.WriteLine($"Average time parsing string by {bigInput.Length} length - {bigInputTime / actionCount} (or {averageBigInputTime} per test string)");
+            Console.WriteLine(
+                $"Average time parsing string by {bigInput.Length} length - {bigInputTime / actionCount} (or {averageBigInputTime} per test string)");
         }
 
         private TimeSpan GetRenderTime(string input, int count = 1)
@@ -58,9 +59,10 @@ namespace Markdown.Tests
                 mdParser.Render(input);
                 timer.Stop();
             }
+
             return timer.Elapsed;
         }
-        
+
         [TearDown]
         public void TearDown()
         {
@@ -68,7 +70,7 @@ namespace Markdown.Tests
             Console.WriteLine($"Expected:\r\n{parseData.Expected}\r\n");
             Console.WriteLine($"Actual:\r\n{parseData.Actual}\r\n");
         }
-        
+
         private class TestsData
         {
             public static IEnumerable<TestCaseData> ParseTagsTests
@@ -94,6 +96,17 @@ namespace Markdown.Tests
                             "#Это не заголовок первого уровня\r\nЭто _не курсив,_ а это __не полужирный__\r\nЭто <em>пров\\ерка\\</em> на <strong>экранирование\\</strong> тегов\\")
                         .SetName("Render_ShouldParseBackslashTag")
                         .SetCategory(nameof(ParseTagsTests));
+                    yield return new TestCaseData(
+                            "_чем\\_ 100_ __раз_ услышать.__",
+                            "_чем_ 100_ __раз_ услышать.__")
+                        .SetName("Render_ShouldParseBackslashTag2")
+                        .SetCategory(nameof(ParseTagsTests));
+                    yield return new TestCaseData(
+                            "+ значение 1;\r\n+значение 2;\r\n+ значение 3.\r\n",
+                            "<ul><li> значение 1;</li><li> значение 2;</li><li> значение 3;</li></ul>")
+                        .SetName("Render_ShouldParseListTag")
+                        .SetCategory(nameof(ParseTagsTests))
+                        .Ignore("NotImplemented");
                     yield return new TestCaseData(
                             "# Заголовок c _курсивным текстом_ и __полужирным текстом__",
                             "<h1> Заголовок c <em>курсивным текстом</em> и <strong>полужирным текстом</strong></h1>")

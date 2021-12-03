@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using Markdown.Extensions;
 
 namespace Markdown.Common
@@ -8,40 +9,41 @@ namespace Markdown.Common
         public BlockMdTag()
             : base()
         {
-            HasCloseMdTag = false;
         }
 
         public BlockMdTag(string mdTag, string htmlOpenTag, string htmlCloseTag)
             : base(mdTag, htmlOpenTag, htmlCloseTag)
         {
-            HasCloseMdTag = false;
         }
 
-        public override bool IsTag(string text, int pos)
+        protected override bool IsTag(string text, int pos)
         {
             return base.IsTag(text, pos) &&
                    (text.IsSubstring(pos, Environment.NewLine, false) || pos == 0);
         }
-        
-        protected override bool CanCreateToken(string text, int startIndex, int stopIndex)
+
+        public override bool CanCreateToken(string text, int startIndex, int stopIndex)
         {
             return IsTag(text, startIndex) &&
                    (text.IsSubstring(stopIndex, Environment.NewLine, false) || text.Length == stopIndex);
         }
-        
-        public override bool TryGetToken(string text, int startIndex, out Token token)
+
+        public override bool TryGetToken(string text, Tag openTag, IList<Tag> closeTags, out Token token,
+            out Tag closeTag)
         {
-            var closeTagIndex = text.GetEndOfLine();
-            if (CanCreateToken(text, startIndex, closeTagIndex))
+            var closeTagIndex = text.GetEndOfLine(openTag.Position);
+            if (CanCreateToken(text, openTag.Position, closeTagIndex))
             {
-                token = text.GetToken(startIndex, closeTagIndex, this);
+                closeTag = null;
+                token = text.GetToken(openTag.Position, closeTagIndex, this);
                 return true;
             }
 
+            closeTag = null;
             token = null;
             return false;
         }
-        
+
         public override string RemoveMdTags(string value)
         {
             return value.Remove(0, MdTag.Length);

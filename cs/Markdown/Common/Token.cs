@@ -8,18 +8,13 @@ namespace Markdown.Common
     {
         private readonly List<Token> childTokens = new List<Token>();
 
-        public string Value { get; }
+        public string Value { get; private set; }
         public int Position { get; private set; }
         public BaseMdTag MdTag { get; }
-
+        public IEnumerable<Token> ChildTokens => childTokens.AsReadOnly();
 
         public Token(string value)
             : this(value, 0, new BlockMdTag())
-        {
-        }
-        
-        public Token(int position, BaseMdTag mdTag)
-            : this(mdTag.MdTag, 0, new BlockMdTag())
         {
         }
 
@@ -29,7 +24,6 @@ namespace Markdown.Common
             Position = position;
             MdTag = tag;
         }
-
 
         public void AddToken(Token child)
         {
@@ -41,6 +35,19 @@ namespace Markdown.Common
             }
             else
                 childTokens.Add(child);
+
+            // parent = childTokens.FirstOrDefault(token => token.IsMultiLine(child));
+            // if (parent != null)
+            // {
+            //     var pos = parent.Value.Length;
+            //     parent.Value += child.Value;
+            //     foreach (var child1 in child.ChildTokens)
+            //     {
+            //         parent.childTokens.Add(child1);
+            //         child1.Position += pos;
+            //     }
+            // }
+            
         }
 
         public string Render()
@@ -60,6 +67,13 @@ namespace Markdown.Common
             return child.Position >= Position &&
                    child.Position < Position + Value.Length &&
                    child.Position + child.Value.Length <= Position + Value.Length;
+        }
+
+        private bool IsMultiLine(Token child)
+        {
+            return MdTag.IsMultiLine &&
+                   child.MdTag == MdTag &&
+                   child.Position == Position + Value.Length;
         }
     }
 }

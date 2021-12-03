@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using Markdown.Extensions;
 
 namespace Markdown.Common
@@ -10,42 +11,43 @@ namespace Markdown.Common
         {
         }
 
-        public override bool IsTag(string text, int pos)
+        protected override bool IsTag(string text, int pos)
         {
             return base.IsTag(text, pos) &&
                    text.IsSubstring(pos, char.IsDigit, false) != true &&
                    text.IsSubstring(pos + MdTag.Length, char.IsDigit) != true;
         }
 
-        protected override bool CanCreateToken(string text, int startIndex, int stopIndex)
+        public override bool CanCreateToken(string text, int startIndex, int stopIndex)
         {
-            if (!IsTag(text, startIndex) || !IsTag(text, stopIndex))
+            if (!IsTag(text, startIndex) || !IsTag(text, stopIndex - MdTag.Length))
                 return false;
 
-            var value = text.Substring(startIndex, stopIndex + MdTag.Length - startIndex);
+            var value = text.Substring(startIndex, stopIndex - startIndex);
             if (value.Split(' ').Length == 1)
                 return value.Length > MdTag.Length * 2;
 
             return value.Split(Environment.NewLine).Length == 1 &&
                    text.IsSubstring(startIndex, char.IsWhiteSpace, false) != false &&
-                   text.IsSubstring(stopIndex + MdTag.Length, char.IsWhiteSpace) != false;
+                   text.IsSubstring(stopIndex, char.IsWhiteSpace) != false;
         }
 
-        public override bool TryGetToken(string text, int startIndex, out Token token)
+        public override bool TryGetToken(string text, Tag openTag, IList<Tag> closeTags, out Token token, out Tag clTag)
         {
-            var stopSearchIndex = IsInLine ? text.GetEndOfLine() : text.Length;
-            var closeTagIndex = text.IndexOf(MdTag, startIndex + MdTag.Length, StringComparison.Ordinal);
-            while (closeTagIndex < stopSearchIndex && closeTagIndex != -1)
+            for (var i = 0; i < closeTags.Count; i++)
             {
-                if (CanCreateToken(text, startIndex, closeTagIndex))
-                {
-                    token = text.GetToken(startIndex, closeTagIndex + MdTag.Length, this);
-                    return true;
-                }
+                if (openTag == closeTags[i] ||
+                    openTag.MdTagType != closeTags[i].MdTagType ||
+                    openTag.Position > closeTags[i].Position ||
+                    !openTag.MdTagType.CanCreateToken(text, openTag.Position, closeTags[i].Position + closeTags[i].MdTagType.Length))
+                    continue;
 
-                closeTagIndex = text.IndexOf(MdTag, closeTagIndex + MdTag.Length, StringComparison.Ordinal);
+                clTag = closeTags[i];
+                token = text.GetToken(openTag.Position, closeTags[i].Position + closeTags[i].MdTagType.Length, openTag.MdTagType);
+                return true;
             }
 
+            clTag = null;
             token = null;
             return false;
         }

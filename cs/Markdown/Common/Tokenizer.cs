@@ -9,7 +9,7 @@ namespace Markdown.Common
     {
         private readonly Dictionary<string, BaseMdTag> parseTags;
         private readonly List<Func<Token, IEnumerable<Token>, bool>> ignoreGroupTokenRules;
-        private int[] mdTagSignatures;
+        private readonly int[] mdTagSignatures;
 
 
         public Tokenizer()
@@ -28,6 +28,12 @@ namespace Markdown.Common
         {
             foreach (var parseTag in parseTags)
                 this.parseTags[parseTag.MdTag] = parseTag;
+            
+            mdTagSignatures = this.parseTags
+                .Select(ws => ws.Key.Length)
+                .Distinct()
+                .OrderByDescending(x => x)
+                .ToArray();
         }
 
         public Tokenizer(IEnumerable<BaseMdTag> parseTags,
@@ -37,15 +43,9 @@ namespace Markdown.Common
             this.ignoreGroupTokenRules.AddRange(ignoreGroupTokenRules);
         }
 
-
+        
         public Token Tokenize(string text)
         {
-            mdTagSignatures = parseTags
-                .Select(ws => ws.Key.Length)
-                .Distinct()
-                .OrderByDescending(x => x)
-                .ToArray();
-
             var root = new Token(text);
             foreach (var line in GetLines(text))
             {
@@ -57,7 +57,6 @@ namespace Markdown.Common
                     line.AddToken(token);
                 root.AddToken(line);
             }
-
             return root;
         }
 
@@ -73,35 +72,20 @@ namespace Markdown.Common
 
         private IEnumerable<Token> GetTokens(string text)
         {
-            var usedTagsAtPositions = new Dictionary<int, int>();
+            var tags = GetTags(text).ToList();
+            var bsTokens = ParseBackslashTokens(text, tags).ToList();
+            
+            return ParseTokens(text, tags).Concat(bsTokens);
+        }
+
+        private IEnumerable<Tag> GetTags(string text)
+        {
             for (var pos = 0; pos < text.Length; pos++)
             {
-                if (usedTagsAtPositions.TryGetValue(pos, out var skip))
-                {
-                    pos += skip - 1;
-                    continue;
-                }
-
                 if (!TryGetTag(text, pos, out var tag))
                     continue;
 
-                if (tag is BackslashMdTag backslash &&
-                    TryGetTag(text, pos + 1, out var backSlashedTag))
-                {
-                    yield return text.GetToken(pos, pos + backslash.Length + backSlashedTag.Length, backslash);
-                    pos += backslash.Length + backSlashedTag.Length - 1;
-                    continue;
-                }
-                
-                if (!tag.IsTag(text, pos))
-                    continue;
-
-                if (!tag.TryGetToken(text, pos, out var token))
-                    continue;
-
-                if (tag.HasCloseMdTag)
-                    usedTagsAtPositions.Add(pos + token.Value.Length - tag.Length, tag.Length);
-                yield return token;
+                yield return new Tag(pos, tag);
                 pos += tag.Length - 1;
             }
         }
@@ -120,6 +104,42 @@ namespace Markdown.Common
 
             mdTag = null;
             return false;
+        }
+
+        private IEnumerable<Token> ParseBackslashTokens(string text, IList<Tag> tags)
+        {
+            for (var i = 0; i < tags.Count - 1; i++)
+            {
+                if (!(tags[i].MdTagType is BackslashMdTag)) 
+                    continue;
+                
+                var pos = tags[i].Position;
+                tags.Remove(tags[i]);
+
+                if (tags[i].Position - pos == 1)
+                {
+                    yield return text.GetBackslashToken(tags[i]);
+                    tags.Remove(tags[i]);
+                }
+
+                i--;
+            }
+        }
+
+        private IEnumerable<Token> ParseTokens(string text, IList<Tag> tags)
+        {
+            for (var i = 0; i < tags.Count; i++)
+            {
+                if (!tags[i].MdTagType.TryGetToken(text, tags[i], tags, out var token, out var closeToken)) 
+                    continue;
+
+                if (closeToken != null)
+                    tags.Remove(closeToken);
+                
+                yield return token;
+                tags.RemoveAt(i);
+                i--;
+            }
         }
     }
 }

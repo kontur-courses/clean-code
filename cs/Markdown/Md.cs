@@ -9,14 +9,12 @@ namespace Markdown
     {
         private readonly Tokenizer tokenizer;
 
-
         public Md()
         {
             tokenizer = new Tokenizer(
                 GetMdTags(),
                 GetGroupTokenRules());
         }
-
 
         public string Render(string text)
         {
@@ -29,6 +27,7 @@ namespace Markdown
             yield return new BlockMdTag("#", "<h1>", "</h1>");
             yield return new SpanMdTag("_", "<em>", "</em>");
             yield return new SpanMdTag("__", "<strong>", "</strong>");
+            yield return new ListMdTag("+", "<ul>", "</ul>", "<li>", "</li>");
         }
 
         private static IEnumerable<Func<Token, IEnumerable<Token>, bool>> GetGroupTokenRules()

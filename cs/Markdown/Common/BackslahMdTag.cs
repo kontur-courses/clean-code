@@ -1,4 +1,5 @@
-﻿using Markdown.Extensions;
+﻿using System.Collections.Generic;
+using Markdown.Extensions;
 
 namespace Markdown.Common
 {
@@ -9,21 +10,27 @@ namespace Markdown.Common
         {
         }
 
-        protected override bool CanCreateToken(string text, int startIndex, int stopIndex)
+        public override bool CanCreateToken(string text, int startIndex, int stopIndex)
         {
-            return IsTag(text, startIndex) &&
-                   IsTag(text, startIndex + 1) &&
-                   startIndex - stopIndex == 2;
+            return IsTag(text, startIndex);
         }
 
-        public override bool TryGetToken(string text, int startIndex, out Token token)
+        public override bool TryGetToken(string text, Tag openTag, IList<Tag> closeTags, out Token token,
+            out Tag closeTag)
         {
-            if (CanCreateToken(text, startIndex, startIndex + 2))
+            var openTagIndex = closeTags.IndexOf(openTag);
+            var backslashedTag = openTagIndex + 1 > closeTags.Count 
+                ? null 
+                : closeTags[openTagIndex + 1];
+            
+            if (backslashedTag != null)
             {
-                token = text.GetToken(startIndex, startIndex + 2, this);
+                closeTag = backslashedTag;
+                token = text.GetToken(openTag.Position, backslashedTag.Position + backslashedTag.MdTagType.Length, this);
                 return true;
             }
 
+            closeTag = null;
             token = null;
             return false;
         }
