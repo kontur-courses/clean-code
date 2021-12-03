@@ -1,18 +1,18 @@
 ﻿namespace Markdown.Tokens
 {
-    public class HeaderToken: Token, IMarkdownToken
+    public class HeaderToken: MarkdownToken
     {
-        public HeaderToken(string value, string tag, int paragraphIndex, int startIndex) : base(value, tag, paragraphIndex, startIndex)
+        public HeaderToken(string value, string selector, int paragraphIndex, int startIndex) : base(value, selector, paragraphIndex, startIndex)
         {
         }
-
-        public string GetHtmlFormatted()
-        {
-            var headerLevel = Tag.Length;
-            var valueWithoutTag = Value[Tag.Length..].Trim();
-            return $"<h{headerLevel}>{valueWithoutTag}</h{headerLevel}>";
-        }
-
         
+        public override string OpenHtmlTag => $"<h{Selector.Length - 1}>";
+        public override string CloseHtmlTag => $"</h{Selector.Length - 1}>";
+
+        public override string GetHtmlFormatted()
+        {
+            var valueWithoutSelectors = Value[(Selector.Length)..];
+            return $"{OpenHtmlTag}{valueWithoutSelectors}{CloseHtmlTag}";
+        }
     }
 }

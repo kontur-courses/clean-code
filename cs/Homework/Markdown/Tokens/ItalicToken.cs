@@ -1,15 +1,17 @@
 ﻿namespace Markdown.Tokens
 {
-    public class ItalicToken : Token, IMarkdownToken
+    public class ItalicToken : MarkdownToken
     {
-        public ItalicToken(string value, string tag, int paragraphIndex, int startIndex) : base(value, tag, paragraphIndex, startIndex)
+        public ItalicToken(string value, string selector, int paragraphIndex, int startIndex) : base(value, selector, paragraphIndex, startIndex)
         {
         }
 
-        public string GetHtmlFormatted()
+        public override string OpenHtmlTag => "<i>";
+        public override string CloseHtmlTag => "</i>";
+        public override string GetHtmlFormatted()
         {
-            var valueWithoutTags = Value.Trim('_');
-            return $"<i>{valueWithoutTags}</i>";
+            var valueWithoutSelectors = Value.Trim('_');
+            return $"{OpenHtmlTag}{valueWithoutSelectors}{CloseHtmlTag}";
         }
     }
 }

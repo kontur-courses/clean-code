@@ -4,9 +4,9 @@ using Markdown.Tokens;
 
 namespace Markdown.TokenIdentifiers
 {
-    public class HeaderTokenIdentifier: TokenIdentifier
+    public class HeaderTokenIdentifier: TokenIdentifier<MarkdownToken>
     {
-        public HeaderTokenIdentifier(string tag, Func<TemporaryToken, Token> tokenCreator) : base(tag, tokenCreator)
+        public HeaderTokenIdentifier(string selector) : base(selector)
         {
         }
 
@@ -14,20 +14,20 @@ namespace Markdown.TokenIdentifiers
         {
             var paragraph = paragraphs[temporaryToken.ParagraphIndex];
             var paragraphParts = paragraph.Split();
-            return paragraph.StartsWith(Tag)
+            return paragraph.StartsWith(Selector)
                    && TagPartContainsOnlyTags(paragraphParts[0])
                    && HasOtherCharsAfterTags(paragraphParts);
         }
 
-        protected override Token CreateToken(TemporaryToken temporaryToken)
+        public override HeaderToken CreateToken(TemporaryToken temporaryToken)
         {
-            var newTag = temporaryToken.Value.Split().First();
+            var newTag = temporaryToken.Value.Split().First() + " ";
             return new HeaderToken(temporaryToken.Value, newTag, temporaryToken.ParagraphIndex,
                 temporaryToken.StartIndex);
         }
 
         private bool TagPartContainsOnlyTags(string tagPart)
-            => tagPart.All(t => t == char.Parse(Tag));
+            => tagPart.All(t => t == char.Parse(Selector));
 
         private bool HasOtherCharsAfterTags(string[] paragraphParts)
             => paragraphParts.Length > 1;

@@ -3,18 +3,17 @@ using Markdown.Tokens;
 
 namespace Markdown.TokenIdentifiers
 {
-    public abstract class TokenIdentifier
+    public abstract class TokenIdentifier<TToken>
+    where TToken: Token
     {
-        protected TokenIdentifier(string tag, Func<TemporaryToken, Token> tokenCreator)
+        protected TokenIdentifier(string selector)
         {
-            Tag = tag;
-            TokenCreator = tokenCreator;
+            Selector = selector;
         }
 
-        protected string Tag { get; }
-        protected Func<TemporaryToken, Token> TokenCreator { get; }
+        protected string Selector { get; }
 
-        public bool Identify(string[] paragraphs, TemporaryToken temporaryToken, out Token identifiedToken)
+        public bool Identify(string[] paragraphs, TemporaryToken temporaryToken, out TToken identifiedToken)
         {
             if (IsValid(paragraphs, temporaryToken))
             {
@@ -26,7 +25,7 @@ namespace Markdown.TokenIdentifiers
             return false;
         }
 
-        protected virtual Token CreateToken(TemporaryToken temporaryToken) => TokenCreator(temporaryToken); 
+        public abstract TToken CreateToken(TemporaryToken temporaryToken);
         protected abstract bool IsValid(string[] paragraphs, TemporaryToken temporaryToken);
 
     }

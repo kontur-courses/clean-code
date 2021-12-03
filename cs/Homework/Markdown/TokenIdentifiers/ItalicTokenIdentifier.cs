@@ -3,10 +3,16 @@ using Markdown.Tokens;
 
 namespace Markdown.TokenIdentifiers
 {
-    public class ItalicTokenIdentifier : DoubleTagTokenIdentifier
+    public class ItalicTokenIdentifier : DoubleTagTokenIdentifier<MarkdownToken>
     {
-        public ItalicTokenIdentifier(string tag, Func<TemporaryToken, Token> tokenCreator) : base(tag, tokenCreator)
+        public ItalicTokenIdentifier(string selector) : base(selector)
         {
+        }
+
+        public override ItalicToken CreateToken(TemporaryToken temporaryToken)
+        {
+            return new ItalicToken(temporaryToken.Value, Selector, temporaryToken.ParagraphIndex,
+                temporaryToken.StartIndex);
         }
 
         protected override bool IsValidWithAdditionalRestriction(TemporaryToken temporaryToken)

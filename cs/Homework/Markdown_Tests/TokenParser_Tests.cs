@@ -97,15 +97,16 @@ namespace Markdown_Tests
             tokenParser.Parse(text).Should().BeEquivalentTo(expected);
         }
 
-        [TestCase("__abc__")]
-        public void Parse_ReturnsBoldToken(string text)
+        [Test]
+        public void Parse_ReturnsStrongToken()
         {
-            var expected = new StrongToken(text, "__", 0, 0);
+            var text = "__abc__";
+            var expected = new StrongToken("__abc__", "__", 0, 0);
             AssertSingleToken(text, expected);
         }
 
         [Test]
-        public void Parse_ReturnsBoldAndItalic_WhenItalicTagsInsideBold()
+        public void Parse_ReturnsStrongAndItalic_WhenItalicTagsInsideBold()
         {
             var text = "__ab_cd_e__";
             var expected = new List<Token>()
@@ -120,7 +121,7 @@ namespace Markdown_Tests
         public void Parse_ReturnsHeaderTag()
         {
             var text = "### abc";
-            var expected = new HeaderToken(text, "###", 0, 0);
+            var expected = new HeaderToken("### abc", "###", 0, 0);
             AssertSingleToken(text, expected);
         }
 

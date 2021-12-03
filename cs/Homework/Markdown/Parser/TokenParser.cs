@@ -7,13 +7,13 @@ using Markdown.Tokens;
 
 namespace Markdown.Parser
 {
-    public class TokenParser : IParser
+    public class TokenParser : IParser<MarkdownToken>
     {
-        private readonly Dictionary<string, TokenIdentifier> identifiers = new()
+        private readonly Dictionary<string, TokenIdentifier<MarkdownToken>> identifiers = new()
         {
-            ["_"] = new ItalicTokenIdentifier("_", t => new ItalicToken(t.Value,t.Tag, t.ParagraphIndex, t.StartIndex)),
-            ["__"] = new StrongTokenIdentifier("__", t => new StrongToken(t.Value,t.Tag,t.ParagraphIndex, t.StartIndex)),
-            ["#"] = new HeaderTokenIdentifier("#", t => new HeaderToken(t.Value, t.Tag, t.ParagraphIndex, t.StartIndex)),
+            ["_"] = new ItalicTokenIdentifier("_"),
+            ["__"] = new StrongTokenIdentifier("__"),
+            ["#"] = new HeaderTokenIdentifier("#")
         };
 
         private readonly Dictionary<string, TagType> tagTypes = new()
@@ -36,10 +36,10 @@ namespace Markdown.Parser
             maxTagLength = GetMaxTagLength();
         }
 
-        public List<Token> Parse(string text)
+        public List<MarkdownToken> Parse(string text)
         {
             if (text == null) throw new ArgumentNullException(nameof(text));
-            var tokensFromText = new List<Token>();
+            var tokensFromText = new List<MarkdownToken>();
             var paragraphs = SplitSavingSeparator(text, '\n');
             for ( var paragraphIndex = 0; paragraphIndex < paragraphs.Length; paragraphIndex++)
             {
@@ -64,7 +64,7 @@ namespace Markdown.Parser
         }
 
 
-        private IEnumerable<Token> GetTokensFromParagraph(string[] paragraphs, int paragraphIndex)
+        private IEnumerable<MarkdownToken> GetTokensFromParagraph(string[] paragraphs, int paragraphIndex)
         {
             var currentParagraph = paragraphs[paragraphIndex];
             var position = 0;
@@ -113,7 +113,7 @@ namespace Markdown.Parser
             }
         }
 
-        private Token FindTokenFromPosition(string[] paragraphs, int paragraphIndex, int position, string tag)
+        private MarkdownToken FindTokenFromPosition(string[] paragraphs, int paragraphIndex, int position, string tag)
         {
             switch (tagTypes[tag])
             {
@@ -126,7 +126,7 @@ namespace Markdown.Parser
             }
         }
 
-        private Token TryReadDoubleTagToken(string[] paragraphs, int paragraphIndex, int position, string tag)
+        private MarkdownToken TryReadDoubleTagToken(string[] paragraphs, int paragraphIndex, int position, string tag)
         {
             if (openedTags.Contains(tag)) return null;
             var paragraph = paragraphs[paragraphIndex];
@@ -139,7 +139,7 @@ namespace Markdown.Parser
             return identifiedToken;
         }
 
-        private Token TryReadLineToken(string[] paragraphs, int paragraphIndex, int position, string tag)
+        private MarkdownToken TryReadLineToken(string[] paragraphs, int paragraphIndex, int position, string tag)
         {
             var temporaryToken = new TemporaryToken(paragraphs[paragraphIndex], tag, paragraphIndex, position);
             if (identifiers[tag].Identify(paragraphs, temporaryToken, out var identifiedToken))

@@ -3,10 +3,16 @@ using Markdown.Tokens;
 
 namespace Markdown.TokenIdentifiers
 {
-    public class StrongTokenIdentifier : DoubleTagTokenIdentifier
+    public class StrongTokenIdentifier : DoubleTagTokenIdentifier<MarkdownToken>
     {
-        public StrongTokenIdentifier(string tag, Func<TemporaryToken, Token> tokenCreator) : base(tag, tokenCreator)
+        public StrongTokenIdentifier(string selector) : base(selector)
         {
+        }
+
+        public override StrongToken CreateToken(TemporaryToken temporaryToken)
+        {
+            return new StrongToken(temporaryToken.Value, temporaryToken.Selector, temporaryToken.ParagraphIndex,
+                temporaryToken.StartIndex);
         }
 
         protected override bool IsValidWithAdditionalRestriction(TemporaryToken temporaryToken)
@@ -36,8 +42,8 @@ namespace Markdown.TokenIdentifiers
 
         private string GetValueWithoutTags(TemporaryToken token)
         {
-            var startIndex = Tag.Length;
-            var finishIndex = token.Length - Tag.Length;
+            var startIndex = Selector.Length;
+            var finishIndex = token.Length - Selector.Length;
             return token.Value[startIndex..finishIndex];
         }
     }

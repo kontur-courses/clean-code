@@ -13,15 +13,10 @@ namespace Markdown
 
         public static string Render(string text)
         {
-            var result = new List<string>();
+            var result = new List<MarkdownToken>();
             var tokens = parser.Parse(text);
-            foreach (var token in tokens)
-            {
-                if(token is IMarkdownToken mdToken)
-                    result.Add(mdToken.GetHtmlFormatted());
-            }
 
-            return string.Concat(result);
+            return new HtmlRenderer().Render(tokens.ToArray());
         }
     }
 }

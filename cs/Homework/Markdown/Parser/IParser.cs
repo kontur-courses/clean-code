@@ -3,8 +3,8 @@ using Markdown.Tokens;
 
 namespace Markdown.Parser
 {
-    public interface IParser
+    public interface IParser<TToken>
     {
-        public List<Token> Parse(string text);
+        public List<TToken> Parse(string text);
     }
 }

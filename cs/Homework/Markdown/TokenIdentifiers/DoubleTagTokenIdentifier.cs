@@ -4,11 +4,12 @@ using Markdown.Tokens;
 
 namespace Markdown.TokenIdentifiers
 {
-    public abstract class DoubleTagTokenIdentifier : TokenIdentifier
+    public abstract class DoubleTagTokenIdentifier<TToken> : TokenIdentifier<TToken>
+    where TToken : Token
     {
         protected string Paragraph;
 
-        protected DoubleTagTokenIdentifier(string tag, Func<TemporaryToken, Token> tokenCreator) : base(tag, tokenCreator)
+        protected DoubleTagTokenIdentifier(string selector) : base(selector)
         {
         }
 
@@ -16,7 +17,7 @@ namespace Markdown.TokenIdentifiers
         {
             Paragraph = paragraphs[temporaryToken.ParagraphIndex];
             var startIndex = temporaryToken.StartIndex;
-            var finishIndex = startIndex + temporaryToken.Length - Tag.Length;
+            var finishIndex = startIndex + temporaryToken.Length - Selector.Length;
             return !HasSpacesAfterOpenTag(startIndex)
                    && !HasSpacesBeforeCloseTag(finishIndex)
                    && !HasDigits(startIndex, finishIndex)
@@ -39,7 +40,7 @@ namespace Markdown.TokenIdentifiers
         {
             return Paragraph
                 .Split()
-                .Select(w => (index: w.IndexOf(Tag), length: w.Length))
+                .Select(w => (index: w.IndexOf(Selector), length: w.Length))
                 .Count((wordInfo => wordInfo.index > 0 && wordInfo.index < wordInfo.length - 1)) > 1;
         }
     }

@@ -1,15 +1,18 @@
 ﻿namespace Markdown.Tokens
 {
-    public class StrongToken : Token, IMarkdownToken
+    public class StrongToken : MarkdownToken
     {
-        public StrongToken(string value, string tag, int paragraphIndex, int startIndex) : base(value, tag, paragraphIndex, startIndex)
+        public StrongToken(string value, string selector, int paragraphIndex, int startIndex) : base(value, selector, paragraphIndex, startIndex)
         {
         }
 
-        public string GetHtmlFormatted()
+        public override string OpenHtmlTag => "<strong>";
+        public override string CloseHtmlTag => "</strong>";
+
+        public override string GetHtmlFormatted()
         {
-            var valueWithoutTags = Value.Trim('_');
-            return $"<strong>{valueWithoutTags}</strong>";
+            var valueWithoutSelectors = Value.Trim('_');
+            return $"{OpenHtmlTag}{valueWithoutSelectors}{CloseHtmlTag}";
         }
     }
 }

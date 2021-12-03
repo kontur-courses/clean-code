@@ -29,5 +29,13 @@ namespace Markdown_Tests
                 Md.Render(text).Should().Be($"<h{i}>abc</h{i}>");
             }
         }
+
+        [TestCase("__ab_cd_e__", ExpectedResult = "<strong>ab<i>cd</i>e</strong>")]
+        [TestCase("# _abc_", ExpectedResult = "<h1><i>abc</i></h1>")]
+        [TestCase("# __ab _cd_ fg__", ExpectedResult = "<h1><strong>ab <i>cd</i> fg</strong></h1>")]
+        public string Render_RenderNestedTokens(string text)
+        {
+            return Md.Render(text);
+        }
     }
 }
