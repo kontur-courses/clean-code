@@ -1,12 +1,13 @@
 ﻿using System;
 using System.Linq;
+using Markdown.Parser;
 using Markdown.Tokens;
 
 namespace Markdown.TokenIdentifiers
 {
     public class HeaderTokenIdentifier: TokenIdentifier<MarkdownToken>
     {
-        public HeaderTokenIdentifier(string selector) : base(selector)
+        public HeaderTokenIdentifier(IParser<MarkdownToken> parser, string selector) : base(parser, selector)
         {
         }
 
@@ -21,9 +22,10 @@ namespace Markdown.TokenIdentifiers
 
         public override HeaderToken CreateToken(TemporaryToken temporaryToken)
         {
-            var newTag = temporaryToken.Value.Split().First() + " ";
+            var newTag = temporaryToken.Value.Split().First();
+            var innerValue = temporaryToken.Value[(newTag.Length + 1)..];
             return new HeaderToken(temporaryToken.Value, newTag, temporaryToken.ParagraphIndex,
-                temporaryToken.StartIndex);
+                temporaryToken.StartIndex) {SubTokens = Parser.Parse(innerValue)};
         }
 
         private bool TagPartContainsOnlyTags(string tagPart)

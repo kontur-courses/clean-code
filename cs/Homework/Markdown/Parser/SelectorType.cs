@@ -1,6 +1,6 @@
 ﻿namespace Markdown.Parser
 {
-    public enum TagType
+    public enum SelectorType
     {
         Single,
         Double,

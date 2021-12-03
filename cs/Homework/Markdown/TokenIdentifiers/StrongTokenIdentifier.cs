@@ -1,18 +1,20 @@
 ﻿using System;
+using Markdown.Parser;
 using Markdown.Tokens;
 
 namespace Markdown.TokenIdentifiers
 {
     public class StrongTokenIdentifier : DoubleTagTokenIdentifier<MarkdownToken>
     {
-        public StrongTokenIdentifier(string selector) : base(selector)
+        public StrongTokenIdentifier(IParser<MarkdownToken> parser, string selector) : base(parser, selector)
         {
         }
 
         public override StrongToken CreateToken(TemporaryToken temporaryToken)
         {
+            var innerValue = temporaryToken.Value[Selector.Length..^Selector.Length];
             return new StrongToken(temporaryToken.Value, temporaryToken.Selector, temporaryToken.ParagraphIndex,
-                temporaryToken.StartIndex);
+                temporaryToken.StartIndex) {SubTokens = Parser.Parse(innerValue)};
         }
 
         protected override bool IsValidWithAdditionalRestriction(TemporaryToken temporaryToken)

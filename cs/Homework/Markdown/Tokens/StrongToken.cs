@@ -8,11 +8,5 @@
 
         public override string OpenHtmlTag => "<strong>";
         public override string CloseHtmlTag => "</strong>";
-
-        public override string GetHtmlFormatted()
-        {
-            var valueWithoutSelectors = Value.Trim('_');
-            return $"{OpenHtmlTag}{valueWithoutSelectors}{CloseHtmlTag}";
-        }
     }
 }

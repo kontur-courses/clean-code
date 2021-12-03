@@ -1,18 +1,20 @@
 ﻿using System;
+using Markdown.Parser;
 using Markdown.Tokens;
 
 namespace Markdown.TokenIdentifiers
 {
     public class ItalicTokenIdentifier : DoubleTagTokenIdentifier<MarkdownToken>
     {
-        public ItalicTokenIdentifier(string selector) : base(selector)
+        public ItalicTokenIdentifier(IParser<MarkdownToken> parser, string selector) : base(parser, selector)
         {
         }
 
         public override ItalicToken CreateToken(TemporaryToken temporaryToken)
         {
+            var innerValue = temporaryToken.Value[Selector.Length..^Selector.Length];
             return new ItalicToken(temporaryToken.Value, Selector, temporaryToken.ParagraphIndex,
-                temporaryToken.StartIndex);
+                temporaryToken.StartIndex) {SubTokens = Parser.Parse(innerValue)};
         }
 
         protected override bool IsValidWithAdditionalRestriction(TemporaryToken temporaryToken)

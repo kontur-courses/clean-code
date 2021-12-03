@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Linq;
+using Markdown.Parser;
 using Markdown.Tokens;
 
 namespace Markdown.TokenIdentifiers
@@ -9,7 +10,7 @@ namespace Markdown.TokenIdentifiers
     {
         protected string Paragraph;
 
-        protected DoubleTagTokenIdentifier(string selector) : base(selector)
+        protected DoubleTagTokenIdentifier(IParser<TToken> parser, string selector) : base(parser, selector)
         {
         }
 

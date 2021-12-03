@@ -9,18 +9,13 @@ namespace Markdown.Parser
 {
     public class TokenParser : IParser<MarkdownToken>
     {
-        private readonly Dictionary<string, TokenIdentifier<MarkdownToken>> identifiers = new()
-        {
-            ["_"] = new ItalicTokenIdentifier("_"),
-            ["__"] = new StrongTokenIdentifier("__"),
-            ["#"] = new HeaderTokenIdentifier("#")
-        };
+        private readonly Dictionary<string, TokenIdentifier<MarkdownToken>> identifiers;
 
-        private readonly Dictionary<string, TagType> tagTypes = new()
+        private readonly Dictionary<string, SelectorType> tagTypes = new()
         {
-            ["_"] = TagType.Double,
-            ["__"] = TagType.Double,
-            ["#"] = TagType.Line,
+            ["_"] = SelectorType.Double,
+            ["__"] = SelectorType.Double,
+            ["#"] = SelectorType.Line,
             
         };
 
@@ -28,13 +23,18 @@ namespace Markdown.Parser
         private readonly char screeningSymbol = '\\';
         private readonly int maxTagLength;
         private readonly HashSet<string> openedTags = new();
-        private readonly StringBuilder plainText = new();
 
         private bool isInsideTag => openedTags.Count > 0;
         
 
         public TokenParser()
         {
+            identifiers = new Dictionary<string, TokenIdentifier<MarkdownToken>>()
+            {
+                ["_"] = new ItalicTokenIdentifier(this, "_"),
+                ["__"] = new StrongTokenIdentifier(this, "__"),
+                ["#"] = new HeaderTokenIdentifier(this, "#")
+            };
             maxTagLength = GetMaxTagLength();
         }
 
@@ -70,45 +70,30 @@ namespace Markdown.Parser
         {
             var currentParagraph = paragraphs[paragraphIndex];
             var position = 0;
+            var plainText = new StringBuilder();
             while (position < currentParagraph.Length)
             {
                 var tag = TryGetTagInPosition(currentParagraph, position);
+                MarkdownToken token = null;
                 if (tag != null)
+                    token = FindTokenFromPosition(paragraphs, paragraphIndex, position, tag);
+                if (tag == null || token == null)
                 {
-                    if (openedTags.Contains(tag))
-                    {
-                        position += tag.Length;
-                        if(tagTypes[tag] == TagType.Double)
-                            openedTags.Remove(tag);
-                        continue;
-                    }
-
-                    var token = FindTokenFromPosition(paragraphs, paragraphIndex, position, tag);
-                    if (token != null)
-                    {
-                        if (plainText.Length > 0)
-                            yield return new PlainTextToken(plainText.ToString(), null, paragraphIndex,
-                                position - plainText.Length);
-                        plainText.Clear();
-                        yield return token;
-                        position += tag.Length;
-                        continue;
-                    }
-                    plainText.Append(tag);
-                    position += tag.Length;
+                    plainText.Append(tag == null ? currentParagraph[position] : currentParagraph[position..(position + tag.Length)]);
+                    position += tag?.Length ?? 1;
                     continue;
                 }
-                else if (!isInsideTag)
-                {
-                    plainText.Append(currentParagraph[position]);
-                }
-                position++;
-            }
 
-            if (plainText.Length <= 0) yield break;
-            yield return new PlainTextToken(plainText.ToString(), null, paragraphIndex,
-                position - plainText.Length);
-            plainText.Clear();
+                if (plainText.Length != 0)
+                    yield return new PlainTextToken(plainText.ToString(), null, paragraphIndex,
+                        position - plainText.Length);
+                plainText.Clear();
+                yield return token;
+                position += token.Value.Length;
+            }
+            if (plainText.Length != 0)
+                yield return new PlainTextToken(plainText.ToString(), null, paragraphIndex,
+                    position - plainText.Length);
         }
 
 
@@ -116,8 +101,8 @@ namespace Markdown.Parser
         {
             return tagTypes[tag] switch
             {
-                TagType.Double => TryReadDoubleTagToken(paragraphs, paragraphIndex, position, tag),
-                TagType.Line => TryReadLineToken(paragraphs, paragraphIndex, position, tag),
+                SelectorType.Double => TryReadDoubleTagToken(paragraphs, paragraphIndex, position, tag),
+                SelectorType.Line => TryReadLineToken(paragraphs, paragraphIndex, position, tag),
                 _ => null
             };
         }
@@ -170,7 +155,6 @@ namespace Markdown.Parser
         private void ResetTemporaryResources()
         {
             openedTags.Clear();
-            plainText.Clear();
         }
     }
 }

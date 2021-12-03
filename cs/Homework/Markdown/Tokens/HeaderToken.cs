@@ -1,4 +1,6 @@
-﻿namespace Markdown.Tokens
+﻿using System.Linq;
+
+namespace Markdown.Tokens
 {
     public class HeaderToken: MarkdownToken
     {
@@ -6,13 +8,7 @@
         {
         }
         
-        public override string OpenHtmlTag => $"<h{Selector.Length - 1}>";
-        public override string CloseHtmlTag => $"</h{Selector.Length - 1}>";
-
-        public override string GetHtmlFormatted()
-        {
-            var valueWithoutSelectors = Value[(Selector.Length)..];
-            return $"{OpenHtmlTag}{valueWithoutSelectors}{CloseHtmlTag}";
-        }
+        public override string OpenHtmlTag => $"<h{Selector.Length}>";
+        public override string CloseHtmlTag => $"</h{Selector.Length}>";
     }
 }

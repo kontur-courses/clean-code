@@ -1,4 +1,6 @@
-﻿namespace Markdown.Tokens
+﻿using System.Collections.Generic;
+
+namespace Markdown.Tokens
 {
     public abstract class Token
     {

@@ -106,22 +106,22 @@ namespace Markdown_Tests
         }
 
         [Test]
-        public void Parse_ReturnsStrongAndItalic_WhenItalicTagsInsideBold()
+        public void Parse_ReturnsStrong_WhenItalicTagsInsideBold()
         {
             var text = "__ab_cd_e__";
             var expected = new List<Token>()
             {
-                new StrongToken("__ab_cd_e__","__", 0, 0),
-                new ItalicToken("_cd_", "_", 0, 4),
+                new StrongToken("__ab_cd_e__","__", 0, 0)
             };
-            tokenParser.Parse(text).Should().BeEquivalentTo(expected);
+            var result = tokenParser.Parse(text);
+            result.Should().BeEquivalentTo(expected);
         }
 
         [Test]
         public void Parse_ReturnsHeaderTag()
         {
             var text = "### abc";
-            var expected = new HeaderToken("### abc", "### ", 0, 0);
+            var expected = new HeaderToken("### abc", "###", 0, 0);
             AssertSingleToken(text, expected);
         }
 
@@ -131,8 +131,8 @@ namespace Markdown_Tests
             var text = "# abc\n# cde";
             var expected = new List<Token>()
             {
-                new HeaderToken("# abc\n", "# ", 0, 0),
-                new HeaderToken("# cde", "# ", 1, 0),
+                new HeaderToken("# abc\n", "#", 0, 0),
+                new HeaderToken("# cde", "#", 1, 0),
             };
             tokenParser.Parse(text).Should().BeEquivalentTo(expected);
         }
@@ -143,9 +143,15 @@ namespace Markdown_Tests
             var text = "# abc _cde_ __fg__";
             var expected = new List<Token>()
             {
-                new HeaderToken("# abc _cde_ __fg__", "# ",0, 0),
-                new ItalicToken("_cde_", "_", 0, 6),
-                new StrongToken("__fg__", "__", 0, 12),
+                new HeaderToken("# abc _cde_ __fg__", "#",0, 0)
+                {
+                    SubTokens = new List<MarkdownToken>()
+                    {
+                        new PlainTextToken("abc ", null, 0, 0),
+                        new ItalicToken("_cde_", "_", 0, 6),
+                        new StrongToken("__fg__", "__", 0, 12)
+                    }
+                },
             };
             tokenParser.Parse(text).Should().BeEquivalentTo(expected);
         }

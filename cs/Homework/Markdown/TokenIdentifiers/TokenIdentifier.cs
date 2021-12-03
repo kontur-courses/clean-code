@@ -1,4 +1,5 @@
 ﻿using System;
+using Markdown.Parser;
 using Markdown.Tokens;
 
 namespace Markdown.TokenIdentifiers
@@ -6,11 +7,13 @@ namespace Markdown.TokenIdentifiers
     public abstract class TokenIdentifier<TToken>
     where TToken: Token
     {
-        protected TokenIdentifier(string selector)
+        protected TokenIdentifier(IParser<TToken> parser, string selector)
         {
+            Parser = parser;
             Selector = selector;
         }
 
+        protected IParser<TToken> Parser;
         protected string Selector { get; }
 
         public bool Identify(string[] paragraphs, TemporaryToken temporaryToken, out TToken identifiedToken)
