@@ -24,6 +24,8 @@ namespace Markdown.Parser
             
         };
 
+
+        private readonly char screeningSymbol = '\\';
         private readonly int maxTagLength;
         private readonly HashSet<string> openedTags = new();
         private readonly StringBuilder plainText = new();
@@ -80,23 +82,21 @@ namespace Markdown.Parser
                             openedTags.Remove(tag);
                         continue;
                     }
-                    else
+
+                    var token = FindTokenFromPosition(paragraphs, paragraphIndex, position, tag);
+                    if (token != null)
                     {
-                        var token = FindTokenFromPosition(paragraphs, paragraphIndex, position, tag);
-                        if (token != null)
-                        {
-                            if (plainText.Length > 0)
-                                yield return new PlainTextToken(plainText.ToString(), null, paragraphIndex,
-                                    position - plainText.Length);
-                            plainText.Clear();
-                            yield return token;
-                            position += tag.Length;
-                            continue;
-                        }
-                        plainText.Append(tag);
+                        if (plainText.Length > 0)
+                            yield return new PlainTextToken(plainText.ToString(), null, paragraphIndex,
+                                position - plainText.Length);
+                        plainText.Clear();
+                        yield return token;
                         position += tag.Length;
                         continue;
                     }
+                    plainText.Append(tag);
+                    position += tag.Length;
+                    continue;
                 }
                 else if (!isInsideTag)
                 {
@@ -105,26 +105,23 @@ namespace Markdown.Parser
                 position++;
             }
 
-            if (plainText.Length > 0)
-            {
-                yield return new PlainTextToken(plainText.ToString(), null, paragraphIndex,
-                    position - plainText.Length);
-                plainText.Clear();
-            }
+            if (plainText.Length <= 0) yield break;
+            yield return new PlainTextToken(plainText.ToString(), null, paragraphIndex,
+                position - plainText.Length);
+            plainText.Clear();
         }
+
 
         private MarkdownToken FindTokenFromPosition(string[] paragraphs, int paragraphIndex, int position, string tag)
         {
-            switch (tagTypes[tag])
+            return tagTypes[tag] switch
             {
-                case TagType.Double:
-                    return TryReadDoubleTagToken(paragraphs, paragraphIndex, position, tag);
-                case TagType.Line:
-                    return TryReadLineToken(paragraphs, paragraphIndex, position, tag);
-                default:
-                    return null;
-            }
+                TagType.Double => TryReadDoubleTagToken(paragraphs, paragraphIndex, position, tag),
+                TagType.Line => TryReadLineToken(paragraphs, paragraphIndex, position, tag),
+                _ => null
+            };
         }
+
 
         private MarkdownToken TryReadDoubleTagToken(string[] paragraphs, int paragraphIndex, int position, string tag)
         {
