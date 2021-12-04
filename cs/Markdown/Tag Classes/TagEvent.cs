@@ -18,6 +18,9 @@ namespace Markdown.Tag_Classes
             TagContent = content;
         }
 
+        public static TagEvent GetTextTagEvent(string content)
+            => new TagEvent(Side.None, Mark.Text, content);
+
         public override string ToString()
         {
             return $"TagContent = {TagContent}\n";
