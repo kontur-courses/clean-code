@@ -2,8 +2,8 @@
 {
     public enum TagType
     {
-        SingleHighlight,
-        DoubleHighlight,
+        Italic,
+        Bold,
         Header
     }
 }

@@ -8,33 +8,20 @@ namespace MarkdownTask.Tags
         private static readonly Dictionary<TagType, Tuple<string, string>> TagParts =
             new Dictionary<TagType, Tuple<string, string>>
             {
-                { TagType.SingleHighlight, Tuple.Create(@"\<em>", @"\</em>") },
-                { TagType.DoubleHighlight, Tuple.Create(@"\<strong>", @"\</strong>") },
+                { TagType.Italic, Tuple.Create(@"\<em>", @"\</em>") },
+                { TagType.Bold, Tuple.Create(@"\<strong>", @"\</strong>") },
                 { TagType.Header, Tuple.Create(@"\<h1>", @"\</h1>") }
             };
 
         public static Tag GetHtmlTagByType(TagType type)
         {
-            switch (type)
+            return type switch
             {
-                case TagType.SingleHighlight:
-                    return new Tag(TagType.SingleHighlight,
-                        TagParts[TagType.SingleHighlight].Item1,
-                        TagParts[TagType.SingleHighlight].Item2);
-
-                case TagType.DoubleHighlight:
-                    return new Tag(TagType.DoubleHighlight,
-                        TagParts[TagType.DoubleHighlight].Item1,
-                        TagParts[TagType.DoubleHighlight].Item2);
-
-                case TagType.Header:
-                    return new Tag(TagType.Header,
-                        TagParts[TagType.Header].Item1,
-                        TagParts[TagType.Header].Item2);
-
-                default:
-                    throw new ArgumentException("Unknown tag");
-            }
+                TagType.Italic => new Tag(TagType.Italic, TagParts[TagType.Italic].Item1, TagParts[TagType.Italic].Item2),
+                TagType.Bold => new Tag(TagType.Bold, TagParts[TagType.Bold].Item1, TagParts[TagType.Bold].Item2),
+                TagType.Header => new Tag(TagType.Header, TagParts[TagType.Header].Item1, TagParts[TagType.Header].Item2),
+                _ => throw new ArgumentException("Uknown tag")
+            };
         }
     }
 }

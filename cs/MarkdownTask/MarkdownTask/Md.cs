@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Text;
+using MarkdownTask.Extensions;
 using MarkdownTask.Tags;
 
 namespace MarkdownTask
@@ -8,7 +9,7 @@ namespace MarkdownTask
     public class Md
     {
         private const char Escape = '\\';
-        private readonly Stack<Tag> outerTags = new Stack<Tag>();
+        private readonly Stack<Tag> openedTags = new Stack<Tag>();
         private readonly HashSet<char> triggerChars = new HashSet<char> { '_', '\\', '#' };
 
         private int currentPos;
@@ -18,13 +19,7 @@ namespace MarkdownTask
             if (mdText == null)
                 throw new NullReferenceException("Text can't has null reference");
 
-            var result = GetTagContent(mdText);
-
-            if (outerTags.Count != 0)
-            {
-                var topTag = outerTags.Pop();
-                result = topTag.OpeningPart + result + topTag.ClosingPart;
-            }
+            var result = GetTagContent(mdText);          
 
             return result;
         }
@@ -54,60 +49,64 @@ namespace MarkdownTask
                         continue;
                     }
 
-                    var tag = GetTag(mdText);
+                    var tag = BuildTag(mdText);
 
-                    if (outerTags.Count == 0 || outerTags.Peek().Type != tag.Type)
+                    if (IsTagOpening(tag))
                     {
-                        outerTags.Push(tag);
+                        openedTags.Push(tag);
                         tag.TagContent = GetTagContent(mdText);
                     }
                     else
                     {
-                        outerTags.Pop();
-                        content.Insert(0, tag.OpeningPart);
-                        content.Append(tag.ClosingPart);
+                        openedTags.Pop();
+                        content = content.WrapContentToTag(tag);
                     }
 
                     content.Append(tag.TagContent);
                 }
             }
 
+            if (openedTags.Count != 0)
+            {
+                var topTag = openedTags.Pop();
+                content = content.WrapContentToTag(topTag);
+            }
+
             return content.ToString();
         }
 
-        private Tag GetTag(string mdText)
+        private bool IsTagOpening(Tag tag)
         {
-            var sb = new StringBuilder();
+            return openedTags.Count == 0 || openedTags.Peek().Type != tag.Type;
+        }
+
+        private Tag BuildTag(string mdText)
+        {
+            var builder = new StringBuilder();
             var currentChar = mdText[currentPos];
 
             while (triggerChars.Contains(currentChar) && currentChar != Escape)
             {
-                sb.Append(currentChar);
+                builder.Append(currentChar);
                 currentPos++;
                 if (currentPos >= mdText.Length)
                     break;
                 currentChar = mdText[currentPos];
             }
 
-            var tagType = GetTagType(sb.ToString());
+            var tagType = GetTagType(builder.ToString());
             return TagKeeper.GetHtmlTagByType(tagType);
         }
 
         private TagType GetTagType(string tag)
         {
-            switch (tag)
+            return tag switch
             {
-                case "_":
-                    return TagType.SingleHighlight;
-
-                case "__":
-                    return TagType.DoubleHighlight;
-                case "#":
-                    return TagType.Header;
-
-                default:
-                    throw new ArgumentException("Unknown tag");
-            }
+                "_" => TagType.Italic,
+                "__" => TagType.Bold,
+                "#" => TagType.Header,
+                _ => throw new ArgumentException("Uknown tag")
+            };
         }
     }
 }
