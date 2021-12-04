@@ -2,6 +2,7 @@
 {
     public enum Side
     {
+        Unknown,
         None,
         Left,
         Right

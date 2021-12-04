@@ -3,8 +3,8 @@
     public enum Mark
     {
         Text,
-        OneLine,
-        TwoLines,
+        Underliner,
+        DoubleUnderliner,
         Header
     }
 }

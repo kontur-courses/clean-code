@@ -142,7 +142,7 @@ namespace Markdown
                 topTag = _openedTags.Pop();
                 var tagBeforeLastOne = _openedTags.Peek();
                 if (tagBeforeLastOne == null || TagIsLeftOneliner(tagBeforeLastOne))
-                    return new TagEvent(Side.Right, Mark.TwoLines, tag);
+                    return new TagEvent(Side.Right, Mark.DoubleUnderliner, tag);
 
                 ChangeTagToText(topTag);
                 return new TagEvent(Side.None, Mark.Text, tag);
@@ -156,19 +156,19 @@ namespace Markdown
             var lastTag = _openedTags.Peek();
             if (lastTag == null || TagIsLeftHeaderOrOneLiner(lastTag))
             {
-                var leftTwoLineTag = new TagEvent(Side.Left, Mark.TwoLines, tag);
+                var leftTwoLineTag = new TagEvent(Side.Left, Mark.DoubleUnderliner, tag);
                 _openedTags.Push(leftTwoLineTag);
                 return leftTwoLineTag;
             }
 
-            if (lastTag.Side == Side.Left && lastTag.Mark == Mark.TwoLines)
+            if (lastTag.Side == Side.Left && lastTag.Mark == Mark.DoubleUnderliner)
                 return new TagEvent(Side.None, Mark.Text, tag);
             throw new Exception("unknown mark in stack!");
         }
 
         private bool TagIsLeftHeaderOrOneLiner(TagEvent lastTag)
         {
-            return (lastTag.Mark == Mark.Header || lastTag.Mark == Mark.OneLine) 
+            return (lastTag.Mark == Mark.Header || lastTag.Mark == Mark.Underliner) 
                    && lastTag.Side == Side.Left;
         }
 
@@ -191,13 +191,13 @@ namespace Markdown
             var lastTag = _openedTags.Peek();
             if (lastTag == null || TagIsHeader(lastTag))
                 return new TagEvent(Side.None, Mark.Text, tag);
-            if (lastTag.Side == Side.Left && lastTag.Mark == Mark.OneLine)
+            if (lastTag.Side == Side.Left && lastTag.Mark == Mark.Underliner)
             {
                 _openedTags.Pop();
-                return new TagEvent(Side.Right, Mark.OneLine, tag);
+                return new TagEvent(Side.Right, Mark.Underliner, tag);
             }
 
-            if (lastTag.Side == Side.Left && lastTag.Mark == Mark.TwoLines)
+            if (lastTag.Side == Side.Left && lastTag.Mark == Mark.DoubleUnderliner)
             {
                 ChangeTagToText(lastTag);
                 return new TagEvent(Side.None, Mark.Text, tag);
@@ -222,19 +222,19 @@ namespace Markdown
             var lastTag = _openedTags.Peek();
             if (lastTag == null || LeftHeaderOrTwolinerOnTop(lastTag))
             {
-                var leftOneLineTag = new TagEvent(Side.Left, Mark.OneLine, tag);
+                var leftOneLineTag = new TagEvent(Side.Left, Mark.Underliner, tag);
                 _openedTags.Push(leftOneLineTag);
                 return leftOneLineTag;
             }
 
-            if (lastTag.Mark == Mark.OneLine && lastTag.Side == Side.Left)
+            if (lastTag.Mark == Mark.Underliner && lastTag.Side == Side.Left)
                 return new TagEvent(Side.None, Mark.Text, tag);
             throw new Exception("not left mark in the tagStack!");
         }
 
         private static bool LeftHeaderOrTwolinerOnTop(TagEvent lastTag)
         {
-            return (lastTag.Side == Side.Left && (lastTag.Mark == Mark.Header || lastTag.Mark == Mark.TwoLines));
+            return (lastTag.Side == Side.Left && (lastTag.Mark == Mark.Header || lastTag.Mark == Mark.DoubleUnderliner));
         }
 
         private TagEvent GetHashtagTagEvent(string tag)
@@ -251,12 +251,12 @@ namespace Markdown
 
         private static bool TagIsLeftTwoliner(TagEvent topTag)
         {
-            return topTag.Side == Side.Left & topTag.Mark == Mark.TwoLines;
+            return topTag.Side == Side.Left & topTag.Mark == Mark.DoubleUnderliner;
         }
 
         private static bool TagIsLeftOneliner(TagEvent tag)
         {
-            return tag.Side == Side.Left && tag.Mark == Mark.OneLine;
+            return tag.Side == Side.Left && tag.Mark == Mark.Underliner;
         }
 
         private static bool TagIsLeftHeader(TagEvent lastTag)

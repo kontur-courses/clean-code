@@ -33,18 +33,18 @@ namespace Markdown.MarkdownTests
                 "_simple single underline_",
                 new List<TagEvent>
                 {
-                    new TagEvent(Side.Left, Mark.OneLine, "_"),
+                    new TagEvent(Side.Left, Mark.Underliner, "_"),
                     new TagEvent(Side.None, Mark.Text, "simple single underline"),
-                    new TagEvent(Side.Right, Mark.OneLine, "_"),
+                    new TagEvent(Side.Right, Mark.Underliner, "_"),
                     new TagEvent(Side.None, Mark.Text, "")
                 }).SetName("simple single underline");
             yield return new TestCaseData(
                 "__simple double underline__",
                 new List<TagEvent>
                 {
-                    new TagEvent(Side.Left, Mark.TwoLines, "__"),
+                    new TagEvent(Side.Left, Mark.DoubleUnderliner, "__"),
                     new TagEvent(Side.None, Mark.Text, "simple double underline"),
-                    new TagEvent(Side.Right, Mark.TwoLines, "__"),
+                    new TagEvent(Side.Right, Mark.DoubleUnderliner, "__"),
                     new TagEvent(Side.None, Mark.Text, "")
                 }).SetName("simple double underline");
             yield return new TestCaseData(
