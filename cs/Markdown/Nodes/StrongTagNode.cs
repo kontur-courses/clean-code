@@ -12,24 +12,25 @@ namespace Markdown.Nodes
         private const string MarkdownTag = "__";
         
         public StrongTaggedNode() : base(HtmlTag, MarkdownTag) {}
-
         
-        //FIXME не проверяешь на цифры
         public override bool TryOpen(Stack<INode> parentNodes, CollectionIterator<IToken> tokensIterator)
         {
-            var isOpened =
+            var isOpening =
                 !ParentNodeWasEmphasized(parentNodes) &&
                 tokensIterator.TryGet(1, out var nextToken) &&
                 nextToken is not SpaceToken;
 
-            if (isOpened)
+            if (isOpening)
             {
                 openedInsideWord = tokensIterator.TryGet(-1, out var prevToken) &&
                                    prevToken is WordToken;
                 tokensIterator.Move(1);
+                Condition = NodeCondition.Opened;
+                return true;
             }
 
-            return isOpened;
+            Condition = NodeCondition.ImpossibleToClose;
+            return false;
         }
 
         public override void UpdateCondition(IToken newToken)
@@ -41,7 +42,7 @@ namespace Markdown.Nodes
             }
             else if (newToken is BoldToken && !prevTokenWasSpace)
             {
-                Condition = NodeCondition.Closed;
+                Condition = Children.Any() ? NodeCondition.Closed : NodeCondition.ImpossibleToClose;
             }
 
             prevTokenWasSpace = newToken is SpaceToken;

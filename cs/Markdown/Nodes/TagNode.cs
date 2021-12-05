@@ -10,7 +10,7 @@ namespace Markdown.Nodes
     {
         public NodeCondition Condition { get; protected set; }
 
-        private readonly List<INode> children = new();
+        protected readonly List<INode> Children = new();
         private readonly string htmlTag;
         private readonly string markdownTag;
         
@@ -22,7 +22,7 @@ namespace Markdown.Nodes
 
         public virtual void AddChild(INode child)
         {
-            children.Add(child);
+            Children.Add(child);
         }
         
         public abstract bool TryOpen(Stack<INode> openedNodes, CollectionIterator<IToken> tokensIterator);
@@ -35,13 +35,13 @@ namespace Markdown.Nodes
             if (Condition == NodeCondition.Closed)
             {
                 builder.Append(GetHtmlOpeningBracket());
-                builder.AppendJoin("", children.Select(x => x.GetNodeBuilder()));
+                builder.AppendJoin("", Children.Select(x => x.GetNodeBuilder()));
                 builder.Append(GetHtmlClosingBracket());
             }
             else
             {
                 builder.Append(markdownTag);
-                builder.AppendJoin("", children.Select(x => x.GetNodeBuilder()));
+                builder.AppendJoin("", Children.Select(x => x.GetNodeBuilder()));
             }
 
             return builder;
