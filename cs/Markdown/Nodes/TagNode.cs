@@ -8,7 +8,7 @@ namespace Markdown.Nodes
 {
     public abstract class TaggedNode: INode
     {
-        public NodeCondition Condition { get; protected set; }
+        public NodeCondition Condition { get; protected set; } = NodeCondition.Undeclared;
 
         protected readonly List<INode> Children = new();
         private readonly string htmlTag;

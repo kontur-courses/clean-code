@@ -15,12 +15,7 @@ namespace Markdown.Nodes
         
         public override bool TryOpen(Stack<INode> parentNodes, CollectionIterator<IToken> tokensIterator)
         {
-            var isOpening =
-                !ParentNodeWasEmphasized(parentNodes) &&
-                tokensIterator.TryGet(1, out var nextToken) &&
-                nextToken is not SpaceToken;
-
-            if (isOpening)
+            if (IsOpening(parentNodes, tokensIterator))
             {
                 openedInsideWord = tokensIterator.TryGet(-1, out var prevToken) &&
                                    prevToken is WordToken;
@@ -48,6 +43,13 @@ namespace Markdown.Nodes
             prevTokenWasSpace = newToken is SpaceToken;
         }
 
+        private bool IsOpening(Stack<INode> parentNodes, CollectionIterator<IToken> tokensIterator)
+        {
+            return !ParentNodeWasEmphasized(parentNodes) &&
+                   tokensIterator.TryGet(1, out var nextToken) &&
+                   nextToken is not SpaceToken;
+        }
+        
         private bool ParentNodeWasEmphasized(Stack<INode> openedNodes)
         {
             return openedNodes.Any(parent => parent is EmphasizedTaggedNode);

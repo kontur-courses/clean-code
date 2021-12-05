@@ -29,10 +29,7 @@ namespace Markdown.Nodes
             builder.Append(child.GetNodeBuilder());
         }
 
-        public void UpdateCondition(IToken newToken)
-        {
-            return;
-        }
+        public void UpdateCondition(IToken newToken) {}
 
         public StringBuilder GetNodeBuilder()
         {

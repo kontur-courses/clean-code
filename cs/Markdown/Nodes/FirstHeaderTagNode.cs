@@ -10,17 +10,17 @@ namespace Markdown.Nodes
         
         public FirstHeaderTaggedNode() : base(HtmlTag, MarkdownTag) {}
 
-        //FIXME
         public override bool TryOpen(Stack<INode> openedNodes, CollectionIterator<IToken> tokensIterator)
         {
-            var isOpened = PreviousTokenIsParagraphEndToken(tokensIterator) &&
-                   NextTokenIsWhiteSpace(tokensIterator);
-            if (isOpened)
+            if (IsOpening(tokensIterator))
             {
                 tokensIterator.Move(2);
+                Condition = NodeCondition.Opened;
+                return true;
             }
 
-            return isOpened;
+            Condition = NodeCondition.ImpossibleToClose;
+            return false;
         }
 
         public override void UpdateCondition(IToken newToken)
@@ -40,6 +40,12 @@ namespace Markdown.Nodes
         {
             return !tokensIterator.TryGet(-1, out var prevToken) ||
                    prevToken is ParagraphEndToken;
+        }
+
+        private bool IsOpening(CollectionIterator<IToken> tokensIterator)
+        {
+            return PreviousTokenIsParagraphEndToken(tokensIterator) &&
+                   NextTokenIsWhiteSpace(tokensIterator);
         }
 
         private bool NextTokenIsWhiteSpace(CollectionIterator<IToken> tokensIterator)

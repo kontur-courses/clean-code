@@ -7,7 +7,7 @@ namespace Markdown.Nodes
 {
     public class LinkNode : INode
     {
-        public NodeCondition Condition { get; private set; }
+        public NodeCondition Condition { get; private set; } = NodeCondition.Undeclared;
 
         private readonly List<INode> urlChildren = new();
         private readonly List<INode> headerChildren = new();
@@ -17,13 +17,9 @@ namespace Markdown.Nodes
 
         public bool TryOpen(Stack<INode> parentNodes, CollectionIterator<IToken> tokensIterator)
         {
-            if (tokensIterator.GetCurrent() is OpeningSquareBracketToken)
-            {
-                tokensIterator.Move(1);
-                return true;
-            }
-
-            return false;
+            Condition = NodeCondition.Opened;
+            tokensIterator.Move(1);
+            return true;
         }
 
         public void AddChild(INode child)
@@ -47,17 +43,11 @@ namespace Markdown.Nodes
             else
             {
                 if (newToken is ClosingSquareBracketToken)
-                {
                     headerWasClosed = true;
-                }
                 else if (newToken is ClosingRoundBracketToken)
-                {
                     urlWasClosed = true;
-                }
                 else if (newToken is OpeningRoundBracketToken)
-                {
                     urlWasOpened = true;
-                }
 
                 if (headerWasClosed && urlWasOpened && urlWasClosed)
                 {

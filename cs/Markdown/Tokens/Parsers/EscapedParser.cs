@@ -1,7 +1,21 @@
-﻿namespace Markdown.Tokens.Parsers
+﻿using System.Collections.Generic;
+
+namespace Markdown.Tokens.Parsers
 {
     public class EscapedParser: ITokenParser
     {
+        private readonly HashSet<char> markingSymbols = new()
+        {
+            '_',
+            '#',
+            '[',
+            ']',
+            '(',
+            ')',
+            '\n',
+            '\\'
+        };
+        
         public bool TryFindToken(string rawString, ref int position, out IToken token)
         {
             if (rawString[position] == '\\' && NextCharIsMarking(rawString, position))
@@ -20,7 +34,7 @@
             if (!rawString.InBorders(position + 1))
                 return false;
             var nextChar = rawString[position + 1];
-            return !char.IsLetterOrDigit(nextChar);
+            return markingSymbols.Contains(nextChar);
         }
     }
 }
