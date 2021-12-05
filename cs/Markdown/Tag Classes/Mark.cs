@@ -6,6 +6,7 @@
         Underliner,
         DoubleUnderliner,
         Escape,
+        Digit,
         Header
     }
 }

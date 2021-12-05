@@ -11,11 +11,10 @@ namespace Markdown.MarkdownTests
     {
         [TestCaseSource(nameof(SimpleSingleUnderlinerTagCases))]
         [TestCaseSource(nameof(SimpleDoubleUnderlinerTagCases))]
-        [TestCaseSource(nameof(UnderlineDigitsIntercation))]
         [TestCaseSource(nameof(EscapeCases))]
         public void ParseSimpleTagCasesCorrectly(string input, List<TagEvent> expectedTagEvents)
         {
-            var stateMachine = new TagFiniteStateMachine();
+            var stateMachine = new TagHighlighterStateMachine();
 
             var tagEvents = stateMachine.GetTagEvents(input);
 
@@ -95,46 +94,6 @@ namespace Markdown.MarkdownTests
                     new TagEvent(Side.Left, Mark.Underliner, "_"),
                     new TagEvent(Side.Right, Mark.Underliner, "_"),
                 }).SetName("escape double underliners");
-        }
-
-        public static IEnumerable<TestCaseData> UnderlineEscaping()
-        {
-            yield return new TestCaseData(
-                "\\_hello\\_",
-                new List<TagEvent>
-                {
-                    new TagEvent(Side.Left, Mark.Underliner, "_"),
-                    new TagEvent(Side.None, Mark.Text, "12_3"),
-                    new TagEvent(Side.Right, Mark.Underliner, "_"),
-                }).SetName("shield simple underliners");
-            yield return new TestCaseData(
-                "_123_",
-                new List<TagEvent>
-                {
-                    new TagEvent(Side.Left, Mark.Underliner, "_"),
-                    new TagEvent(Side.None, Mark.Text, "123"),
-                    new TagEvent(Side.Right, Mark.Underliner, "_"),
-                }).SetName("underline number");
-        }
-
-        public static IEnumerable<TestCaseData> UnderlineDigitsIntercation()
-        {
-            yield return new TestCaseData(
-                "_12_3_",
-                new List<TagEvent>
-                {
-                    new TagEvent(Side.Left, Mark.Underliner, "_"),
-                    new TagEvent(Side.None, Mark.Text, "12_3"),
-                    new TagEvent(Side.Right, Mark.Underliner, "_"),
-                }).SetName("not underline between digits");
-            yield return new TestCaseData(
-                "_123_",
-                new List<TagEvent>
-                {
-                    new TagEvent(Side.Left, Mark.Underliner, "_"),
-                    new TagEvent(Side.None, Mark.Text, "123"),
-                    new TagEvent(Side.Right, Mark.Underliner, "_"),
-                }).SetName("underline number");
         }
 
         public static IEnumerable<TestCaseData> SimpleSingleUnderlinerTagCases()

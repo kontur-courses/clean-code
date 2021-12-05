@@ -5,7 +5,7 @@ using Markdown.Tag_Classes;
 
 namespace Markdown
 {
-    public class TagFiniteStateMachine
+    public class TagHighlighterStateMachine
     {
         private readonly List<TagEvent> tagEvents;
         private string _input;
@@ -13,7 +13,7 @@ namespace Markdown
         private Sign _sign;
         private StringBuilder text;
 
-        public TagFiniteStateMachine()
+        public TagHighlighterStateMachine()
         {
             tagEvents = new List<TagEvent>();
             text = new StringBuilder();
@@ -25,20 +25,18 @@ namespace Markdown
         {
             _input = input;
             LaunchStateMachine();
+            FinishStateMachine();
             return tagEvents;
         }
 
         private void LaunchStateMachine()
         {
-            for (var index = 0; index < _input.Length; index++)
+            foreach (var symbol in _input)
             {
-                var symbol = _input[index];
-                _sign = GetSymbol(symbol);
-                var tagEvent = ProcessStateWithSymbol(symbol);
+                _sign = GetSign(symbol);
+                var tagEvent = ProcessState(symbol);
                 if (tagEvent != null) tagEvents.Add(tagEvent);
             }
-
-            FinishStateMachine();
         }
 
         private void FinishStateMachine()
@@ -47,7 +45,7 @@ namespace Markdown
             AddTextToTagEventsIfNotEmpty();
         }
 
-        private TagEvent ProcessStateWithSymbol(char symbol)
+        private TagEvent ProcessState(char symbol)
         {
             switch (state)
             {
@@ -72,6 +70,7 @@ namespace Markdown
                     break;
                 case Sign.Escape:
                     text.Append(symbol);
+                    state = State.Escape;
                     break;
                 case Sign.Whitespace:
                     text.Append(symbol);
@@ -110,7 +109,6 @@ namespace Markdown
 
         private TagEvent ProcessStateUnderlineEnding(char symbol)
         {
-            TagEvent tagEvent = null;
             switch (_sign)
             {
                 case Sign.Whitespace:
@@ -120,13 +118,17 @@ namespace Markdown
                 case Sign.Escape:
                     GoToEscapeState(symbol);
                     break;
+                case Sign.Digit:
+                    state = State.Digit;
+                    text.Append(symbol);
+                    break;
                 case Sign.Other:
                     state = State.Other;
                     text.Append(symbol);
                     break;
             }
 
-            return tagEvent;
+            return null;
         }
 
         private TagEvent ProcessStateUnderlineBeginnig(char symbol)
@@ -161,7 +163,6 @@ namespace Markdown
             TagEvent tagEvent = null;
             switch (_sign)
             {
-                case Sign.Digit:
                 case Sign.Other:
                     text.Append(symbol);
                     break;
@@ -181,9 +182,10 @@ namespace Markdown
             return tagEvent;
         }
 
-        private Sign GetSymbol(char symbol)
+
+
+        private Sign GetSign(char symbol)
         {
-            if (char.IsDigit(symbol)) return Sign.Digit;
             switch (symbol)
             {
                 case ' ': return Sign.Whitespace;
@@ -192,7 +194,6 @@ namespace Markdown
                 default: return Sign.Other;
             }
         }
-
 
         private void AddEscapeToTagEvents()
         {
@@ -211,9 +212,10 @@ namespace Markdown
 
         private void AddTextToTagEventsIfNotEmpty()
         {
-            if (text.Length > 0)
+            var textAsString = text.ToString();
+            if (textAsString.Length > 0)
             {
-                tagEvents.Add(TagEvent.GetTextTagEvent(text.ToString()));
+                tagEvents.Add(TagEvent.GetTextTagEvent(textAsString));
                 text.Clear();
             }
         }
