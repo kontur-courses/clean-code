@@ -12,6 +12,7 @@ namespace Markdown.MarkdownTests
         [TestCaseSource(nameof(SimpleSingleUnderlinerTagCases))]
         [TestCaseSource(nameof(SimpleDoubleUnderlinerTagCases))]
         [TestCaseSource(nameof(UnderlineDigitsIntercation))]
+        [TestCaseSource(nameof(EscapeCases))]
         public void ParseSimpleTagCasesCorrectly(string input, List<TagEvent> expectedTagEvents)
         {
             var stateMachine = new TagFiniteStateMachine();
@@ -19,6 +20,81 @@ namespace Markdown.MarkdownTests
             var tagEvents = stateMachine.GetTagEvents(input);
 
             tagEvents.Should().BeEquivalentTo(expectedTagEvents);
+        }
+
+        public static IEnumerable<TestCaseData> EscapeCases()
+        {
+            yield return new TestCaseData(
+                "\\ \\",
+                new List<TagEvent>
+                {
+                    new TagEvent(Side.None, Mark.Escape, "\\"),
+                    new TagEvent(Side.None, Mark.Text, " "),
+                    new TagEvent(Side.None, Mark.Escape, "\\"),
+                }).SetName("whitespace between slashes");
+            yield return new TestCaseData(
+                "\\",
+                new List<TagEvent>
+                {
+                    new TagEvent(Side.None, Mark.Escape, "\\"),
+                }).SetName("single slash");
+            yield return new TestCaseData(
+                "hel\\lo",
+                new List<TagEvent>
+                {
+                    new TagEvent(Side.None, Mark.Text, "hel"),
+                    new TagEvent(Side.None, Mark.Escape, "\\"),
+                    new TagEvent(Side.None, Mark.Text, "lo"),
+                }).SetName("escape text");
+            yield return new TestCaseData(
+                "hel\\\\lo",
+                new List<TagEvent>
+                {
+                    new TagEvent(Side.None, Mark.Text, "hel"),
+                    new TagEvent(Side.None, Mark.Escape, "\\"),
+                    new TagEvent(Side.None, Mark.Escape, "\\"),
+                    new TagEvent(Side.None, Mark.Text, "lo"),
+                }).SetName("escape slash");
+            yield return new TestCaseData(
+                "hel\\\\\\lo",
+                new List<TagEvent>
+                {
+                    new TagEvent(Side.None, Mark.Text, "hel"),
+                    new TagEvent(Side.None, Mark.Escape, "\\"),
+                    new TagEvent(Side.None, Mark.Escape, "\\"),
+                    new TagEvent(Side.None, Mark.Escape, "\\"),
+                    new TagEvent(Side.None, Mark.Text, "lo"),
+                }).SetName("three slashes in a row inside word");
+            yield return new TestCaseData(
+                "hel\\ lo",
+                new List<TagEvent>
+                {
+                    new TagEvent(Side.None, Mark.Text, "hel"),
+                    new TagEvent(Side.None, Mark.Escape, "\\"),
+                    new TagEvent(Side.None, Mark.Text, " lo"),
+                }).SetName("escape whitespace");
+            yield return new TestCaseData(
+                "\\_hello\\_",
+                new List<TagEvent>
+                {
+                    new TagEvent(Side.None, Mark.Escape, "\\"),
+                    new TagEvent(Side.Left, Mark.Underliner, "_"),
+                    new TagEvent(Side.None, Mark.Text, "hello"),
+                    new TagEvent(Side.None, Mark.Escape, "\\"),
+                    new TagEvent(Side.Left, Mark.Underliner, "_"),
+                }).SetName("escape single underliners");
+            yield return new TestCaseData(
+                "\\__hello\\__",
+                new List<TagEvent>
+                {
+                    new TagEvent(Side.None, Mark.Escape, "\\"),
+                    new TagEvent(Side.Left, Mark.Underliner, "_"),
+                    new TagEvent(Side.Right, Mark.Underliner, "_"),
+                    new TagEvent(Side.None, Mark.Text, "hello"),
+                    new TagEvent(Side.None, Mark.Escape, "\\"),
+                    new TagEvent(Side.Left, Mark.Underliner, "_"),
+                    new TagEvent(Side.Right, Mark.Underliner, "_"),
+                }).SetName("escape double underliners");
         }
 
         public static IEnumerable<TestCaseData> UnderlineEscaping()
