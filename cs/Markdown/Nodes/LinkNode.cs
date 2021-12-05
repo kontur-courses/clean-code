@@ -64,7 +64,7 @@ namespace Markdown.Nodes
                 return GetClosedNodeBuilder();
             }
 
-            return GetOpenedNodeBuilder();
+            return GetUnclosedNodeBuilder();
         }
 
         private StringBuilder GetClosedNodeBuilder()
@@ -76,14 +76,14 @@ namespace Markdown.Nodes
             return new StringBuilder(href);
         }
 
-        private StringBuilder GetOpenedNodeBuilder()
+        private StringBuilder GetUnclosedNodeBuilder()
         {
             var builder = new StringBuilder();
             builder.Append('[');
             var url = string.Join("", urlChildren.Select(x => x.GetNodeBuilder()));
             var header = string.Join("", headerChildren.Select(x => x.GetNodeBuilder()));
-            builder.Append(url);
             builder.Append(header);
+            builder.Append(url);
             return builder;
         }
 

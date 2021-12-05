@@ -5,9 +5,10 @@ using Markdown;
 
 namespace MarkdownTests
 {
-    class Md_Should
+    [TestFixture]
+    public class Md_Should
     {
-        private readonly Md markdown = new Md();
+        private readonly Md markdown = new();
 
         [Test]
         public void Throw_WhenNullGiven()
@@ -22,9 +23,7 @@ namespace MarkdownTests
         [TestCase("____", TestName = "When nothing inside strong marked line")]
         public void ReturnSameStringWhen(string rawString)
         {
-            var result = markdown.Render(rawString);
-
-            result.Should().Be(rawString);
+            AssertRenderReturnSameString(rawString);
         }
 
         [TestCase("_hello_",
@@ -56,7 +55,7 @@ namespace MarkdownTests
             "<h1>Hello world</h1>",
             TestName = "When paragraph was closed with \\n\\n")]
         [TestCase("# Hello world\n\n# It's me",
-            "<h1>Hello world</h1><h1>It's me</h1>",
+            "<h1>Hello world</h1>\n\n<h1>It's me</h1>",
             TestName = "When two different paragraphs contains header")]
         public void ReturnHeadedValueWhen(string rawString, string expected)
         {
@@ -76,21 +75,14 @@ namespace MarkdownTests
         [TestCase("_a \n\n b_", TestName = "When closing symbols in different paragraphs")]
         public void IgnoreUnpairedSymbols(string rawString)
         {
-            var result = markdown.Render(rawString);
-
-            result.Should().NotContain("<strong>");
-            result.Should().NotContain("<em>");
+            AssertRenderReturnSameString(rawString);
         }
-
-
-        //Падает
+        
         [Test]
         public void NotContainsStrongTag_WhenStrongTagWasInsideEmphasized()
         {
             var rawString = "_hello __great__ world_";
-            var result = markdown.Render(rawString);
-
-            result.Should().NotContain("<strong>");
+            AssertRenderReturnSameString(rawString);
         }
         
         [Test]
@@ -98,18 +90,16 @@ namespace MarkdownTests
         {
             var rawString = @"\\hello\\";
             var expected = @"\hello\";
-            var result = markdown.Render(rawString);
-
-            result.Should().Be(expected);
+            
+            AssertRenderIsCorrect(rawString, expected);
         }
         
         [Test]
         public void NotMarkTextWhichContainDigits()
         {
             var rawString = @"ab_c123_d";
-            var result = markdown.Render(rawString);
-
-            result.Should().Be(rawString);
+            
+            AssertRenderReturnSameString(rawString);
         }
         
         [Test]
@@ -117,9 +107,8 @@ namespace MarkdownTests
         {
             var rawString = @"\_hello\_";
             var expected = "_hello_";
-            var result = markdown.Render(rawString);
-
-            result.Should().Be(expected);
+            
+            AssertRenderIsCorrect(rawString, expected);
         }
 
         [Test]
@@ -127,6 +116,7 @@ namespace MarkdownTests
         {
             var rawString = "h_ell_o";
             var expected = "h<em>ell</em>o";
+            
             AssertRenderIsCorrect(rawString, expected);
         }
 
@@ -147,9 +137,7 @@ namespace MarkdownTests
         [TestCase("[Link]((vk.com)", TestName = "URL was opened twice")]
         public void ReturnUnlinkedValue_When(string rawString)
         {
-            var rendered = markdown.Render(rawString);
-
-            rendered.Should().NotContain("<a href");
+            AssertRenderReturnSameString(rawString);
         }
 
         [Test]
@@ -165,17 +153,16 @@ namespace MarkdownTests
         public void NotMarkWhen_OpenedTagWasInsideOneWordAndClosingInsideOtherWord()
         {
             var rawString = "h_ello worl_d";
-            var expected = rawString;
-            AssertRenderIsCorrect(rawString, expected);
+            
+            AssertRenderReturnSameString(rawString);
         }
 
         [Test]
         public void ContainsNewLineItDoesNotCloseParagraph()
         {
             var rawString = "abc\ndef";
-            var expected = rawString;
 
-            AssertRenderIsCorrect(rawString, expected);
+            AssertRenderReturnSameString(rawString);
         }
 
         [Test]
@@ -183,6 +170,16 @@ namespace MarkdownTests
         {
             var rawString = "1_2_3";
             var expected = "1_2_3";
+            
+            AssertRenderIsCorrect(rawString, expected);
+        }
+
+        [Test]
+        public void HeadFirstHeader_WhenMultipliedHeadersGiven()
+        {
+            var rawString = "# # hello";
+            var expected = "<h1># hello</h1>";
+            
             AssertRenderIsCorrect(rawString, expected);
         }
 
@@ -190,7 +187,12 @@ namespace MarkdownTests
         {
             var result = markdown.Render(rawString);
 
-            result.Should().StartWith(expected);
+            result.Should().Be(expected);
+        }
+
+        private void AssertRenderReturnSameString(string rawString)
+        {
+            AssertRenderIsCorrect(rawString, rawString);
         }
     }
 }

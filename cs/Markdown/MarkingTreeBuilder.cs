@@ -15,7 +15,7 @@ namespace Markdown
             {
                 if (tokensIterator.GetCurrent() is ParagraphEndToken paragraphEndToken)
                 {
-                    CloseParagraph(openedNodes, paragraphEndToken);
+                    CloseParagraph(openedNodes, paragraphEndToken, tokensIterator.ElementIsLast);
                     tokensIterator.Move(1);
                 } else if (!TryCloseLastNode(openedNodes, tokensIterator))
                 {
@@ -64,7 +64,7 @@ namespace Markdown
             }
         }
 
-        private void CloseParagraph(Stack<INode> openedNodes, ParagraphEndToken paragraphEndToken)
+        private void CloseParagraph(Stack<INode> openedNodes, ParagraphEndToken paragraphEndToken, bool paragraphIsLast)
         {
             var topNode = default(INode);
             while (openedNodes.TryPop(out var node))
@@ -75,7 +75,12 @@ namespace Markdown
                 node.UpdateCondition(paragraphEndToken);
                 topNode = node;
             }
-            
+
+            if (!paragraphIsLast)
+            {
+                topNode!.AddChild(paragraphEndToken.ToNode());
+            }
+
             openedNodes.Push(topNode);
         }
     }

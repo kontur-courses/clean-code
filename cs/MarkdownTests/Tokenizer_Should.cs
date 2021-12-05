@@ -9,6 +9,7 @@ using NUnit.Framework;
 
 namespace MarkdownTests
 {
+    [TestFixture]
     public class Tokenizer_Should
     {
         private readonly Tokenizer tokenizer = new();
@@ -16,7 +17,7 @@ namespace MarkdownTests
         [TestCase("\n\n", TestName = "When two \n symbols given")]
         [TestCase("\n     \n", TestName = "When two \n symbols given")]
         [TestCase("\n\n\n\n\n\n", TestName = "When multiplied \n symbols given")]
-        public void AlwaysReturnEndParagraphToken(string rawString)
+        public void AlwaysReturnEndParagraphTokenInLastElement(string rawString)
         {
             var result = tokenizer.GetTokens(rawString);
             
@@ -81,10 +82,9 @@ namespace MarkdownTests
             
             result.First().Should().BeEquivalentTo(expectedToken);
         }
-
-        //Честно говоря без понятия, как эти тесты назвать
-        [TestCase("__ abc _", "B W IP", TestName = "?")]
-        [TestCase("[Link](vk.com)", "[W](W)P", TestName = "?")]
+        
+        [TestCase("__ abc _", "B W IP", TestName = "Tokens was separated from other tokens")]
+        [TestCase("[Link](vk.com)", "[W](W)P", TestName = "Link given")]
         public void ReturnMultipliedTokens_When(string rawString, string expectedTokens)
         {
             var expectedTokensTypes = GetTokensFromStringWithFirstLetters(expectedTokens);
@@ -134,7 +134,6 @@ namespace MarkdownTests
                 }
             }
         }
-        
         
         private List<Type> GetTokensFromStringWithFirstLetters(string tokens)
         {

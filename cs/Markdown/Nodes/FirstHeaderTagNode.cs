@@ -29,11 +29,6 @@ namespace Markdown.Nodes
             {
                 this.Condition = NodeCondition.Closed;
             }
-
-            if (newToken is Header1Token)
-            {
-                this.Condition = NodeCondition.ImpossibleToClose;
-            }
         }
 
         private bool PreviousTokenIsParagraphEndToken(CollectionIterator<IToken> tokensIterator)
