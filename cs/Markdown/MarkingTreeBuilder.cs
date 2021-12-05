@@ -6,7 +6,7 @@ namespace Markdown
 {
     public class MarkingTreeBuilder
     {
-        public INode BuildTree(List<IToken> tokens)
+        public INode BuildTree(IEnumerable<IToken> tokens)
         {
             var openedNodes = new Stack<INode>();
             openedNodes.Push(new StringNode(string.Empty));
