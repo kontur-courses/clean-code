@@ -7,17 +7,17 @@ namespace Markdown
 {
     public class TagHighlighterStateMachine
     {
-        private readonly List<TagEvent> tagEvents;
+        private readonly StringBuilder _text;
+        private readonly List<TagEvent> _tagEvents;
         private string _input;
-        private State state;
+        private State _state;
         private Sign _sign;
-        private StringBuilder text;
 
         public TagHighlighterStateMachine()
         {
-            tagEvents = new List<TagEvent>();
-            text = new StringBuilder();
-            state = State.Other;
+            _tagEvents = new List<TagEvent>();
+            _text = new StringBuilder();
+            _state = State.Other;
             _sign = Sign.Other;
         }
 
@@ -26,7 +26,7 @@ namespace Markdown
             _input = input;
             LaunchStateMachine();
             FinishStateMachine();
-            return tagEvents;
+            return _tagEvents;
         }
 
         private void LaunchStateMachine()
@@ -35,7 +35,7 @@ namespace Markdown
             {
                 _sign = GetSign(symbol);
                 var tagEvent = ProcessState(symbol);
-                if (tagEvent != null) tagEvents.Add(tagEvent);
+                if (tagEvent != null) _tagEvents.Add(tagEvent);
             }
         }
 
@@ -47,14 +47,14 @@ namespace Markdown
 
         private TagEvent ProcessState(char symbol)
         {
-            switch (state)
+            switch (_state)
             {
                 case State.Other: return ProcessStateOther(symbol);
                 case State.UnderlineBeginnig: return ProcessStateUnderlineBeginnig(symbol);
                 case State.UnderlineEnding: return ProcessStateUnderlineEnding(symbol);
                 case State.Whitespace: return ProcessStateWhitespace(symbol);
                 case State.Escape: return ProcessStateEscape(symbol);
-                default: throw new ArgumentException($"unrecognized state: {state}");
+                default: throw new ArgumentException($"unrecognized _state: {_state}");
             }
         }
 
@@ -66,19 +66,19 @@ namespace Markdown
             {
                 case Sign.Underline:
                     tagEvent = new TagEvent(Side.Left, Mark.Underliner, symbol.ToString());
-                    state = State.UnderlineBeginnig;
+                    _state = State.UnderlineBeginnig;
                     break;
                 case Sign.Escape:
-                    text.Append(symbol);
-                    state = State.Escape;
+                    _text.Append(symbol);
+                    _state = State.Escape;
                     break;
                 case Sign.Whitespace:
-                    text.Append(symbol);
-                    state = State.Whitespace;
+                    _text.Append(symbol);
+                    _state = State.Whitespace;
                     break;
                 case Sign.Other:
-                    text.Append(symbol);
-                    state = State.Other;
+                    _text.Append(symbol);
+                    _state = State.Other;
                     break;
             }
             return tagEvent;
@@ -92,14 +92,14 @@ namespace Markdown
                 case Sign.Underline:
                     AddTextToTagEventsIfNotEmpty();
                     tagEvent = new TagEvent(Side.Left, Mark.Underliner, symbol.ToString());
-                    state = State.UnderlineBeginnig;
+                    _state = State.UnderlineBeginnig;
                     break;
                 case Sign.Escape:
                     GoToEscapeState(symbol);
                     break;
                 case Sign.Other:
-                    text.Append(symbol);
-                    state = State.Other;
+                    _text.Append(symbol);
+                    _state = State.Other;
                     break;
                 default:
                     throw new ArgumentException($"unrecognized sign: {_sign}");
@@ -112,19 +112,19 @@ namespace Markdown
             switch (_sign)
             {
                 case Sign.Whitespace:
-                    state = State.Whitespace;
-                    text.Append(symbol);
+                    _state = State.Whitespace;
+                    _text.Append(symbol);
                     break;
                 case Sign.Escape:
                     GoToEscapeState(symbol);
                     break;
                 case Sign.Digit:
-                    state = State.Digit;
-                    text.Append(symbol);
+                    _state = State.Digit;
+                    _text.Append(symbol);
                     break;
                 case Sign.Other:
-                    state = State.Other;
-                    text.Append(symbol);
+                    _state = State.Other;
+                    _text.Append(symbol);
                     break;
             }
 
@@ -137,19 +137,19 @@ namespace Markdown
             switch (_sign)
             {
                 case Sign.Underline:
-                    state = State.UnderlineEnding;
+                    _state = State.UnderlineEnding;
                     AddTextToTagEventsIfNotEmpty();
                     tagEvent = new TagEvent(Side.Right, Mark.Underliner, symbol.ToString());
                     break;
                 case Sign.Whitespace:
-                    text.Append(symbol);
-                    state = State.Whitespace;
+                    _text.Append(symbol);
+                    _state = State.Whitespace;
                     break;
                 case Sign.Escape:
                     GoToEscapeState(symbol);
                     break;
                 case Sign.Other:
-                    text.Append(symbol);
+                    _text.Append(symbol);
                     break;
                 default:
                     throw new ArgumentException($"unrecognized sigh: {_sign}");
@@ -164,14 +164,14 @@ namespace Markdown
             switch (_sign)
             {
                 case Sign.Other:
-                    text.Append(symbol);
+                    _text.Append(symbol);
                     break;
                 case Sign.Whitespace:
-                    state = State.Whitespace;
-                    text.Append(symbol);
+                    _state = State.Whitespace;
+                    _text.Append(symbol);
                     break;
                 case Sign.Underline:
-                    state = State.UnderlineBeginnig;
+                    _state = State.UnderlineBeginnig;
                     AddTextToTagEventsIfNotEmpty();
                     tagEvent = new TagEvent(Side.Left, Mark.Underliner, symbol.ToString());
                     break;
@@ -182,9 +182,7 @@ namespace Markdown
             return tagEvent;
         }
 
-
-
-        private Sign GetSign(char symbol)
+        private static Sign GetSign(char symbol)
         {
             switch (symbol)
             {
@@ -197,27 +195,25 @@ namespace Markdown
 
         private void AddEscapeToTagEvents()
         {
-            var buffer = text.ToString();
+            var buffer = _text.ToString();
             if (buffer != "\\") return;
-            tagEvents.Add(new TagEvent(Side.None, Mark.Escape, text.ToString()));
-            text.Clear();
+            _tagEvents.Add(new TagEvent(Side.None, Mark.Escape, _text.ToString()));
+            _text.Clear();
         }
 
         private void GoToEscapeState(char symbol)
         {
-            state = State.Escape;
+            _state = State.Escape;
             AddTextToTagEventsIfNotEmpty();
-            text.Append(symbol);
+            _text.Append(symbol);
         }
 
         private void AddTextToTagEventsIfNotEmpty()
         {
-            var textAsString = text.ToString();
-            if (textAsString.Length > 0)
-            {
-                tagEvents.Add(TagEvent.GetTextTagEvent(textAsString));
-                text.Clear();
-            }
+            var textAsString = _text.ToString();
+            if (textAsString.Length <= 0) return;
+            _tagEvents.Add(TagEvent.GetTextTagEvent(textAsString));
+            _text.Clear();
         }
     }
 }

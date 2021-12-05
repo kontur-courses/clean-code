@@ -7,7 +7,7 @@ using NUnit.Framework;
 namespace Markdown.MarkdownTests
 {
     [TestFixture]
-    public class TagFiniteStateMachineShould
+    public class TagHighlighterStateMachineShould
     {
         [TestCaseSource(nameof(SimpleSingleUnderlinerTagCases))]
         [TestCaseSource(nameof(SimpleDoubleUnderlinerTagCases))]

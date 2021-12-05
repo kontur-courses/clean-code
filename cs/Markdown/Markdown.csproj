@@ -57,7 +57,7 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="MarkdownTests\TagFiniteStateMachineShould.cs" />
+    <Compile Include="MarkdownTests\TagHighlighterStateMachineShould.cs" />
     <Compile Include="MdParser.cs" />
     <Compile Include="MarkdownTests\MdParserShould.cs" />
     <Compile Include="State.cs" />
