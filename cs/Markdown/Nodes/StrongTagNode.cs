@@ -1,4 +1,5 @@
 ﻿using System.Collections.Generic;
+using System.Linq;
 using Markdown.Tokens;
 
 namespace Markdown.Nodes
@@ -11,10 +12,14 @@ namespace Markdown.Nodes
         
         public StrongTaggedNode() : base(HtmlTag, MarkdownTag) {}
 
-        public override bool TryOpen(List<IToken> tokens, ref int parentTokenPosition)
+        
+        //FIXME не проверяешь на цифры
+        public override bool TryOpen(Stack<INode> openedNodes, List<IToken> tokens, ref int parentTokenPosition)
         {
-            var isOpened = tokens.InBorders(parentTokenPosition + 1) &&
-                           tokens[parentTokenPosition + 1] is not SpaceToken;
+            var isOpened =
+                !ParentNodeWasEmphasized(openedNodes) &&
+                tokens.InBorders(parentTokenPosition + 1) &&
+                tokens[parentTokenPosition + 1] is not SpaceToken;
 
             if (isOpened)
             {
@@ -26,22 +31,23 @@ namespace Markdown.Nodes
             return isOpened;
         }
 
-        public override bool ShouldBeClosedByNewToken(List<IToken> tokens, int anotherTokenPosition)
+        public override void UpdateCondition(IToken newToken)
         {
-            return tokens[anotherTokenPosition] is BoldToken &&
-                   tokens[anotherTokenPosition - 1] is WordToken;
+            if (newToken is BoldToken)
+            {
+                Condition = NodeCondition.Closed;
+            }
+            else if (newToken is ParagraphEndToken ||
+                     newToken is WordToken {ContainsDigits: true} ||
+                     openedInsideWord && newToken is SpaceToken)
+            {
+                Condition = NodeCondition.ImpossibleToClose;
+            }
         }
 
-        public override bool CannotBeClosed(List<IToken> tokens, int anotherTokenPosition)
+        private bool ParentNodeWasEmphasized(Stack<INode> openedNodes)
         {
-            return tokens[anotherTokenPosition] is ParagraphEndToken ||
-                   tokens[anotherTokenPosition] is WordToken {ContainsDigits: true} ||
-                   openedInsideWord && tokens[anotherTokenPosition] is SpaceToken;
-        }
-
-        public override bool ShouldBeClosedWhenParagraphEnds()
-        {
-            return false;
+            return openedNodes.Any(parent => parent is EmphasizedTaggedNode);
         }
     }
 }

@@ -6,43 +6,43 @@ namespace Markdown
 {
     public class MarkingTreeBuilder
     {
-        public INode BuiltTree(List<IToken> tokens)
+        public INode BuildTree(List<IToken> tokens)
         {
             var openedNodes = new Stack<INode>();
             openedNodes.Push(new StringNode(string.Empty));
-            var tokenId = 0;
-            while (tokenId < tokens.Count)
+            var tokenIndex = 0;
+            while (tokenIndex < tokens.Count)
             {
-                if (tokens[tokenId] is ParagraphEndToken)
+                if (tokens[tokenIndex] is ParagraphEndToken paragraphEndToken)
                 {
-                    CloseParagraph(openedNodes);
-                    tokenId++;
+                    CloseParagraph(openedNodes, paragraphEndToken);
+                    tokenIndex++;
                     continue;
                 }
 
-                if (!TryCloseLastNode(openedNodes, tokens, ref tokenId))
+                if (!TryCloseLastNode(openedNodes, tokens, ref tokenIndex))
                 {
-                    AddNewNode(openedNodes, tokens, ref tokenId);
+                    AddNewNode(openedNodes, tokens, ref tokenIndex);
                 }
             }
 
-            CloseParagraph(openedNodes);
             return openedNodes.Pop();
         }
 
         private bool TryCloseLastNode(Stack<INode> openedNodes, List<IToken> tokens, ref int tokenId)
         {
             var parentNode = openedNodes.Peek();
-            if (parentNode.CannotBeClosed(tokens, tokenId))
+            parentNode.UpdateCondition(tokens[tokenId]);
+            var parentNodeCondition = parentNode.Condition;
+            if (parentNodeCondition == NodeCondition.ImpossibleToClose)
             {
                 openedNodes.Pop();
                 openedNodes.Peek().AddChild(parentNode);
                 return false;
             }
-            if (parentNode.ShouldBeClosedByNewToken(tokens, tokenId))
+            if (parentNodeCondition == NodeCondition.Closed)
             {
-                tokenId++;
-                parentNode.Close();
+                tokenId++;  
                 openedNodes.Pop();
                 openedNodes.Peek().AddChild(parentNode);
 
@@ -52,38 +52,35 @@ namespace Markdown
             return false;
         }
 
-        private void AddNewNode(Stack<INode> stack, List<IToken> tokens, ref int tokenId)
+        private void AddNewNode(Stack<INode> openedNodes, List<IToken> tokens, ref int tokenId)
         {
             var token = tokens[tokenId];
             var node = token.ToNode();
-            if (node.TryOpen(tokens, ref tokenId))
+            //FIXME
+            if (node.TryOpen(openedNodes, tokens, ref tokenId))
             {
-                stack.Push(node);
+                openedNodes.Push(node);
             }
             else
             {
                 tokenId++;
-                stack.Peek().AddChild(node);
+                openedNodes.Peek().AddChild(node);
             }
         }
 
-        private void CloseParagraph(Stack<INode> stack)
+        private void CloseParagraph(Stack<INode> openedNodes, ParagraphEndToken paragraphEndToken)
         {
             var topNode = default(INode);
-            while (stack.TryPop(out var node))
+            while (openedNodes.TryPop(out var node))
             {
                 if (topNode != null)
                     node.AddChild(topNode);
-
-                if (node.ShouldBeClosedWhenParagraphEnds())
-                {
-                    node.Close();
-                }
-
+                
+                node.UpdateCondition(paragraphEndToken);
                 topNode = node;
             }
             
-            stack.Push(topNode);
+            openedNodes.Push(topNode);
         }
     }
 }

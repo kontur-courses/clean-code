@@ -10,7 +10,8 @@ namespace Markdown.Nodes
         
         public FirstHeaderTaggedNode() : base(HtmlTag, MarkdownTag) {}
 
-        public override bool TryOpen(List<IToken> tokens, ref int parentTokenPosition)
+        //FIXME
+        public override bool TryOpen(Stack<INode> openedNodes, List<IToken> tokens, ref int parentTokenPosition)
         {
             var isOpened = PreviousTokenIsParagraphEndToken(tokens, parentTokenPosition) &&
                    NextTokenIsWhiteSpace(tokens, parentTokenPosition);
@@ -22,19 +23,17 @@ namespace Markdown.Nodes
             return isOpened;
         }
 
-        public override bool ShouldBeClosedByNewToken(List<IToken> tokens, int anotherTokenPosition)
+        public override void UpdateCondition(IToken newToken)
         {
-            return tokens[anotherTokenPosition] is ParagraphEndToken;
-        }
+            if (newToken is ParagraphEndToken)
+            {
+                this.Condition = NodeCondition.Closed;
+            }
 
-        public override bool CannotBeClosed(List<IToken> tokens, int anotherTokenPosition)
-        {
-            return tokens[anotherTokenPosition] is Header1Token;
-        }
-
-        public override bool ShouldBeClosedWhenParagraphEnds()
-        {
-            return true;
+            if (newToken is Header1Token)
+            {
+                this.Condition = NodeCondition.ImpossibleToClose;
+            }
         }
 
         private bool PreviousTokenIsParagraphEndToken(List<IToken> tokens, int parentTokenPosition)

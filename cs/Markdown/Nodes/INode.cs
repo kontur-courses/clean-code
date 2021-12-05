@@ -6,12 +6,10 @@ namespace Markdown.Nodes
 {
     public interface INode
     {
-        public bool TryOpen(List<IToken> tokens, ref int parentTokenPosition);
+        public NodeCondition Condition { get; }
+        public bool TryOpen(Stack<INode> parentNodes, List<IToken> tokens, ref int parentTokenPosition);
         public void AddChild(INode child);
-        public void Close();
-        public bool ShouldBeClosedByNewToken(List<IToken> tokens, int anotherTokenPosition);
-        public bool CannotBeClosed(List<IToken> tokens, int anotherTokenPosition);
-        public bool ShouldBeClosedWhenParagraphEnds();
+        public void UpdateCondition(IToken newToken);
         public StringBuilder GetNodeBuilder();
     }
 }

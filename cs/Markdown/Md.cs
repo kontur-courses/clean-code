@@ -16,7 +16,7 @@ namespace Markdown
                 throw new ArgumentNullException($"{nameof(rawString)} can not be null");
             }
             var tokens = tokenizer.GetTokens(rawString).ToList();
-            var topTreeNode = treeBuilder.BuiltTree(tokens);
+            var topTreeNode = treeBuilder.BuildTree(tokens);
             return topTreeNode.GetNodeBuilder().ToString();
         }
     }

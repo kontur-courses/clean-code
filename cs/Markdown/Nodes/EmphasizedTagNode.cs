@@ -11,7 +11,8 @@ namespace Markdown.Nodes
         
         public EmphasizedTaggedNode() : base(HtmlTag, MarkdownTag) {}
 
-        public override bool TryOpen(List<IToken> tokens, ref int parentTokenPosition)
+        //FIXME
+        public override bool TryOpen(Stack<INode> openedNodes, List<IToken> tokens, ref int parentTokenPosition)
         {
             var isOpened = tokens.InBorders(parentTokenPosition + 1) &&
                            tokens[parentTokenPosition + 1] is not SpaceToken;
@@ -22,25 +23,23 @@ namespace Markdown.Nodes
                 parentTokenPosition += 1;
             }
 
+            //FIXME
+            Condition = NodeCondition.Opened;
             return isOpened;
         }
 
-        public override bool ShouldBeClosedByNewToken(List<IToken> tokens, int anotherTokenPosition)
+        public override void UpdateCondition(IToken newToken)
         {
-            return tokens[anotherTokenPosition] is ItalicToken;
-        }
-
-        public override bool CannotBeClosed(List<IToken> tokens, int anotherTokenPosition)
-        {
-            return tokens[anotherTokenPosition] is ParagraphEndToken ||
-                   tokens[anotherTokenPosition] is BoldToken ||
-                   tokens[anotherTokenPosition] is WordToken {ContainsDigits: true} ||
-                   openedInsideWord && tokens[anotherTokenPosition] is SpaceToken;
-        }
-
-        public override bool ShouldBeClosedWhenParagraphEnds()
-        {
-            return false;
+            if (newToken is WordToken {ContainsDigits: true} ||
+                openedInsideWord && newToken is SpaceToken)
+            {
+                Condition = NodeCondition.ImpossibleToClose;
+            }
+            else if (newToken is ItalicToken)
+            {
+                //ЧЕГО???
+                Condition = NodeCondition.Closed;
+            }
         }
     }
 }

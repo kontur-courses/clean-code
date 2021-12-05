@@ -7,46 +7,31 @@ namespace Markdown.Nodes
 {
     public class StringNode : INode
     {
+        public NodeCondition Condition { get; protected set; }
+        
         private StringBuilder builder;
-        private bool isClosed;
 
         public StringNode(string value)
         {
-            this.builder = new StringBuilder(value);
+            builder = new StringBuilder(value);
+            Condition = NodeCondition.Opened;
         }
 
-        public bool TryOpen(List<IToken> tokens, ref int parentTokenPosition)
+        public bool TryOpen(Stack<INode> openedNodes, List<IToken> tokens, ref int parentTokenPosition)
         {
             return false;
         }
 
         public void AddChild(INode child)
         {
-            if (isClosed)
+            if (Condition == NodeCondition.Closed)
                 throw new Exception("Closed node can not add anything to itself");
             builder.Append(child.GetNodeBuilder());
         }
 
-        public void Close()
+        public void UpdateCondition(IToken newToken)
         {
-            if (isClosed)
-                throw new Exception("Was already closed");
-            isClosed = true;
-        }
-
-        public bool ShouldBeClosedByNewToken(List<IToken> tokens, int anotherTokenPosition)
-        {
-            return false;
-        }
-
-        public bool CannotBeClosed(List<IToken> tokens, int anotherTokenPosition)
-        {
-            return false;
-        }
-
-        public bool ShouldBeClosedWhenParagraphEnds()
-        {
-            return false;
+            return;
         }
 
         public StringBuilder GetNodeBuilder()

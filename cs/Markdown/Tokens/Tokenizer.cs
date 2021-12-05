@@ -7,7 +7,7 @@ namespace Markdown.Tokens
 {
     public class Tokenizer
     {
-        private List<ITokenParser> parsers = new()
+        private readonly List<ITokenParser> parsers = new()
         {
             new EscapedParser(),
             new BoldParser(),

@@ -8,40 +8,31 @@ namespace Markdown.Nodes
 {
     public abstract class TaggedNode: INode
     {
-        public bool IsClosed { get; private set; }
-        
+        public NodeCondition Condition { get; set; }
+
         private readonly List<INode> children = new List<INode>();
         private readonly string htmlTag;
         private readonly string markdownTag;
-
-        public virtual void AddChild(INode child)
-        {
-            children.Add(child);
-        }
         
-        public abstract bool TryOpen(List<IToken> tokens, ref int parentTokenPosition);
-        public abstract bool ShouldBeClosedByNewToken(List<IToken> tokens, int anotherTokenPosition);
-        public abstract bool CannotBeClosed(List<IToken> tokens, int anotherTokenPosition);
-        public abstract bool ShouldBeClosedWhenParagraphEnds();
-
         protected TaggedNode(string htmlTag, string markdownTag)
         {
             this.htmlTag = htmlTag;
             this.markdownTag = markdownTag;
         }
 
-        public void Close()
+        public virtual void AddChild(INode child)
         {
-            if (IsClosed)
-                throw new Exception("Tag can not be closed twice");
-            IsClosed = true;
+            children.Add(child);
         }
+        
+        public abstract bool TryOpen(Stack<INode> openedNodes, List<IToken> tokens, ref int parentTokenPosition);
+        public abstract void UpdateCondition(IToken newToken);
 
         public StringBuilder GetNodeBuilder()
         {
             var builder = new StringBuilder();
 
-            if (IsClosed)
+            if (Condition == NodeCondition.Closed)
             {
                 builder.Append(GetHtmlOpeningBracket());
                 builder.AppendJoin("", children.Select(x => x.GetNodeBuilder()));
