@@ -5,6 +5,7 @@
         Text,
         Underliner,
         DoubleUnderliner,
+        Escape,
         Header
     }
 }

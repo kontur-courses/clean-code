@@ -8,10 +8,10 @@ namespace Markdown
 {
     public enum Sign
     {
-        Whitespace = 32,
-        TagSign = 64,
-        Escape = 128,
-        Digit = 256,
-        Other = 512
+        Whitespace,
+        Underline,
+        Escape,
+        Digit,
+        Other
     }
 }

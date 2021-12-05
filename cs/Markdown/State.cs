@@ -8,11 +8,11 @@ namespace Markdown
 {
     public enum State
     {
-        TagBeginning = 1,
-        TagEnding = 2,
-        Whitespace = 4,
-        Digit = 8,
-        Escape = 16,
-        Other = 32
+        UnderlineBeginnig,
+        UnderlineEnding,
+        Whitespace,
+        Digit,
+        Escape,
+        Other
     }
 }

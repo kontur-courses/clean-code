@@ -45,8 +45,8 @@ namespace Markdown
             switch (state)
             {
                 case State.Other: return ProcessStateOther(symbol);
-                case State.TagBeginning: return ProcessStateTagBeginnig(symbol);
-                case State.TagEnding: return ProcessStateTagEnding(symbol);
+                case State.UnderlineBeginnig: return ProcessStateSingleUnderlineBeginnig(symbol);
+                case State.UnderlineEnding: return ProcessStateTagEnding(symbol);
                 case State.Whitespace: return ProcessStateWhitespace(symbol);
                 default: throw new ArgumentException($"unrecognized state: {state}");
             }
@@ -57,10 +57,10 @@ namespace Markdown
             TagEvent tagEvent = null;
             switch (_sign)
             {
-                case Sign.TagSign:
+                case Sign.Underline:
                     AddTextToTagEventsIfNotEmpty();
                     tagEvent = new TagEvent(Side.Left, Mark.Underliner, symbol.ToString());
-                    state = State.TagBeginning;
+                    state = State.UnderlineBeginnig;
                     break;
                 case Sign.Other:
                     text.Append(symbol);
@@ -91,7 +91,7 @@ namespace Markdown
             return tagEvent;
         }
 
-        private TagEvent ProcessStateTagBeginnig(char symbol)
+        private TagEvent ProcessStateSingleUnderlineBeginnig(char symbol)
         {
             TagEvent tagEvent = null;
             switch (_sign)
@@ -103,8 +103,8 @@ namespace Markdown
                     text.Append(symbol);
                     state = State.Whitespace;
                     break;
-                case Sign.TagSign:
-                    state = State.TagEnding;
+                case Sign.Underline:
+                    state = State.UnderlineEnding;
                     AddTextToTagEventsIfNotEmpty();
                     tagEvent = new TagEvent(Side.Right, Mark.Underliner, symbol.ToString());
                     break;
@@ -128,8 +128,8 @@ namespace Markdown
                     state = State.Whitespace;
                     text.Append(symbol);
                     break;
-                case Sign.TagSign:
-                    state = State.TagBeginning;
+                case Sign.Underline:
+                    state = State.UnderlineBeginnig;
                     AddTextToTagEventsIfNotEmpty();
                     tagEvent = new TagEvent(Side.Left, Mark.Underliner, symbol.ToString());
                     break;
@@ -143,7 +143,7 @@ namespace Markdown
             switch (symbol)
             {
                 case ' ': return Sign.Whitespace;
-                case '_': return Sign.TagSign;
+                case '_': return Sign.Underline;
                 case '\\': return Sign.Escape;
                 default: return Sign.Other;
             }
