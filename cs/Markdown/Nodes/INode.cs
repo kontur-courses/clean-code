@@ -7,9 +7,9 @@ namespace Markdown.Nodes
     public interface INode
     {
         public NodeCondition Condition { get; }
-        public bool TryOpen(Stack<INode> parentNodes, List<IToken> tokens, ref int parentTokenPosition);
-        public void AddChild(INode child);
+        public bool TryOpen(Stack<INode> parentNodes, CollectionIterator<IToken> iterator);
         public void UpdateCondition(IToken newToken);
+        public void AddChild(INode child);
         public StringBuilder GetNodeBuilder();
     }
 }

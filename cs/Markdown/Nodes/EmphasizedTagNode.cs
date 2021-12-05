@@ -8,19 +8,20 @@ namespace Markdown.Nodes
         private const string HtmlTag = "em";
         private const string MarkdownTag = "_";
         private bool openedInsideWord;
+        private bool prevTokenWasSpace;
         
         public EmphasizedTaggedNode() : base(HtmlTag, MarkdownTag) {}
 
         //FIXME
-        public override bool TryOpen(Stack<INode> openedNodes, List<IToken> tokens, ref int parentTokenPosition)
+        public override bool TryOpen(Stack<INode> openedNodes, CollectionIterator<IToken> tokensIterator)
         {
-            var isOpened = tokens.InBorders(parentTokenPosition + 1) &&
-                           tokens[parentTokenPosition + 1] is not SpaceToken;
+            var isOpened = tokensIterator.TryGet(1, out var nextToken) &&
+                           nextToken is not SpaceToken;
             if (isOpened)
             {
-                openedInsideWord = tokens.InBorders(parentTokenPosition - 1) &&
-                                   tokens[parentTokenPosition - 1] is WordToken;
-                parentTokenPosition += 1;
+                openedInsideWord = tokensIterator.TryGet(-1, out var prevToken) &&
+                                   prevToken is WordToken;
+                tokensIterator.Move(1);
             }
 
             //FIXME
@@ -30,16 +31,18 @@ namespace Markdown.Nodes
 
         public override void UpdateCondition(IToken newToken)
         {
-            if (newToken is WordToken {ContainsDigits: true} ||
+            if (newToken is ParagraphEndToken or WordToken {ContainsDigits: true} ||
                 openedInsideWord && newToken is SpaceToken)
             {
                 Condition = NodeCondition.ImpossibleToClose;
             }
-            else if (newToken is ItalicToken)
+            else if (newToken is ItalicToken && !prevTokenWasSpace)
             {
                 //ЧЕГО???
                 Condition = NodeCondition.Closed;
             }
+
+            prevTokenWasSpace = newToken is SpaceToken;
         }
     }
 }

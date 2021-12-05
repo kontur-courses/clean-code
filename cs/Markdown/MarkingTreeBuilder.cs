@@ -10,29 +10,26 @@ namespace Markdown
         {
             var openedNodes = new Stack<INode>();
             openedNodes.Push(new StringNode(string.Empty));
-            var tokenIndex = 0;
-            while (tokenIndex < tokens.Count)
+            var tokensIterator = new CollectionIterator<IToken>(tokens);
+            while (!tokensIterator.IsFinished)
             {
-                if (tokens[tokenIndex] is ParagraphEndToken paragraphEndToken)
+                if (tokensIterator.GetCurrent() is ParagraphEndToken paragraphEndToken)
                 {
                     CloseParagraph(openedNodes, paragraphEndToken);
-                    tokenIndex++;
-                    continue;
-                }
-
-                if (!TryCloseLastNode(openedNodes, tokens, ref tokenIndex))
+                    tokensIterator.Move(1);
+                } else if (!TryCloseLastNode(openedNodes, tokensIterator))
                 {
-                    AddNewNode(openedNodes, tokens, ref tokenIndex);
+                    AddNewNode(openedNodes, tokensIterator);
                 }
             }
 
             return openedNodes.Pop();
         }
 
-        private bool TryCloseLastNode(Stack<INode> openedNodes, List<IToken> tokens, ref int tokenId)
+        private bool TryCloseLastNode(Stack<INode> openedNodes, CollectionIterator<IToken> tokensIterator)
         {
             var parentNode = openedNodes.Peek();
-            parentNode.UpdateCondition(tokens[tokenId]);
+            parentNode.UpdateCondition(tokensIterator.GetCurrent());
             var parentNodeCondition = parentNode.Condition;
             if (parentNodeCondition == NodeCondition.ImpossibleToClose)
             {
@@ -42,7 +39,7 @@ namespace Markdown
             }
             if (parentNodeCondition == NodeCondition.Closed)
             {
-                tokenId++;  
+                tokensIterator.Move(1);  
                 openedNodes.Pop();
                 openedNodes.Peek().AddChild(parentNode);
 
@@ -52,18 +49,17 @@ namespace Markdown
             return false;
         }
 
-        private void AddNewNode(Stack<INode> openedNodes, List<IToken> tokens, ref int tokenId)
+        private void AddNewNode(Stack<INode> openedNodes, CollectionIterator<IToken> tokensIterator)
         {
-            var token = tokens[tokenId];
+            var token = tokensIterator.GetCurrent();
             var node = token.ToNode();
-            //FIXME
-            if (node.TryOpen(openedNodes, tokens, ref tokenId))
+            if (node.TryOpen(openedNodes, tokensIterator))
             {
                 openedNodes.Push(node);
             }
             else
             {
-                tokenId++;
+                tokensIterator.Move(1);
                 openedNodes.Peek().AddChild(node);
             }
         }

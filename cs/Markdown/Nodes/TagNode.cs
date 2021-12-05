@@ -8,9 +8,9 @@ namespace Markdown.Nodes
 {
     public abstract class TaggedNode: INode
     {
-        public NodeCondition Condition { get; set; }
+        public NodeCondition Condition { get; protected set; }
 
-        private readonly List<INode> children = new List<INode>();
+        private readonly List<INode> children = new();
         private readonly string htmlTag;
         private readonly string markdownTag;
         
@@ -25,7 +25,7 @@ namespace Markdown.Nodes
             children.Add(child);
         }
         
-        public abstract bool TryOpen(Stack<INode> openedNodes, List<IToken> tokens, ref int parentTokenPosition);
+        public abstract bool TryOpen(Stack<INode> openedNodes, CollectionIterator<IToken> tokensIterator);
         public abstract void UpdateCondition(IToken newToken);
 
         public StringBuilder GetNodeBuilder()

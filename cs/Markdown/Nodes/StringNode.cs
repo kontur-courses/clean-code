@@ -17,7 +17,7 @@ namespace Markdown.Nodes
             Condition = NodeCondition.Opened;
         }
 
-        public bool TryOpen(Stack<INode> openedNodes, List<IToken> tokens, ref int parentTokenPosition)
+        public bool TryOpen(Stack<INode> openedNodes, CollectionIterator<IToken> tokensIterator)
         {
             return false;
         }

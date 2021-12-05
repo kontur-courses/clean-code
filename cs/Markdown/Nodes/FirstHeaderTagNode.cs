@@ -11,13 +11,13 @@ namespace Markdown.Nodes
         public FirstHeaderTaggedNode() : base(HtmlTag, MarkdownTag) {}
 
         //FIXME
-        public override bool TryOpen(Stack<INode> openedNodes, List<IToken> tokens, ref int parentTokenPosition)
+        public override bool TryOpen(Stack<INode> openedNodes, CollectionIterator<IToken> tokensIterator)
         {
-            var isOpened = PreviousTokenIsParagraphEndToken(tokens, parentTokenPosition) &&
-                   NextTokenIsWhiteSpace(tokens, parentTokenPosition);
+            var isOpened = PreviousTokenIsParagraphEndToken(tokensIterator) &&
+                   NextTokenIsWhiteSpace(tokensIterator);
             if (isOpened)
             {
-                parentTokenPosition += 2;
+                tokensIterator.Move(2);
             }
 
             return isOpened;
@@ -36,16 +36,16 @@ namespace Markdown.Nodes
             }
         }
 
-        private bool PreviousTokenIsParagraphEndToken(List<IToken> tokens, int parentTokenPosition)
+        private bool PreviousTokenIsParagraphEndToken(CollectionIterator<IToken> tokensIterator)
         {
-            return !tokens.InBorders(parentTokenPosition - 1) ||
-                   tokens[parentTokenPosition - 1] is ParagraphEndToken;
+            return !tokensIterator.TryGet(-1, out var prevToken) ||
+                   prevToken is ParagraphEndToken;
         }
 
-        private bool NextTokenIsWhiteSpace(List<IToken> tokens, int parentTokenPosition)
+        private bool NextTokenIsWhiteSpace(CollectionIterator<IToken> tokensIterator)
         {
-            return tokens.InBorders(parentTokenPosition + 1) &&
-                   tokens[parentTokenPosition + 1] is SpaceToken;
+            return tokensIterator.TryGet(1, out var nextToken) &&
+                   nextToken is SpaceToken;
         }
     }
 }

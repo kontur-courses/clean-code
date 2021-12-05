@@ -9,17 +9,17 @@ namespace Markdown.Nodes
     {
         public NodeCondition Condition { get; private set; }
 
-        private List<INode> urlChildren = new();
-        private List<INode> headerChildren = new();
-        private bool urlWasClosed = false;
-        private bool urlWasOpened = false;
-        private bool headerWasClosed = false;
+        private readonly List<INode> urlChildren = new();
+        private readonly List<INode> headerChildren = new();
+        private bool urlWasClosed;
+        private bool urlWasOpened;
+        private bool headerWasClosed;
 
-        public bool TryOpen(Stack<INode> openedNodes, List<IToken> tokens, ref int parentTokenPosition)
+        public bool TryOpen(Stack<INode> parentNodes, CollectionIterator<IToken> tokensIterator)
         {
-            if (tokens[parentTokenPosition] is OpeningSquareBracketToken)
+            if (tokensIterator.GetCurrent() is OpeningSquareBracketToken)
             {
-                parentTokenPosition++;
+                tokensIterator.Move(1);
                 return true;
             }
 
@@ -40,40 +40,31 @@ namespace Markdown.Nodes
 
         public void UpdateCondition(IToken newToken)
         {
-            if (newToken is ClosingSquareBracketToken)
+            if (IsImpossibleToClose(newToken))
             {
-                headerWasClosed = true;
+                Condition = NodeCondition.ImpossibleToClose;
             }
-
-            if (newToken is ClosingRoundBracketToken)
+            else
             {
-                urlWasClosed = true;
-            }
+                if (newToken is ClosingSquareBracketToken)
+                {
+                    headerWasClosed = true;
+                }
+                else if (newToken is ClosingRoundBracketToken)
+                {
+                    urlWasClosed = true;
+                }
+                else if (newToken is OpeningRoundBracketToken)
+                {
+                    urlWasOpened = true;
+                }
 
-            if (newToken is OpeningRoundBracketToken)
-            {
-                urlWasOpened = true;
-            }
-
-            if (headerWasClosed && urlWasOpened && urlWasClosed)
-            {
-                Condition = NodeCondition.Closed;
+                if (headerWasClosed && urlWasOpened && urlWasClosed)
+                {
+                    Condition = NodeCondition.Closed;
+                }
             }
         }
-
-        // var newToken = tokens[anotherTokenPosition];
-        // if ((urlWasClosed || urlWasOpened) && !headerWasClosed ||
-        //     urlWasClosed && !urlWasOpened)
-        //     return true;
-        // if (headerWasClosed && newToken is ClosingSquareBracketToken or OpeningSquareBracketToken)
-        //     return true;
-        // if (urlWasClosed && newToken is ClosingRoundBracketToken)
-        //     return true;
-        // if (urlWasOpened && newToken is OpeningRoundBracketToken)
-        //     return true;
-        // if (headerWasClosed && tokens[anotherTokenPosition] is SpaceToken)
-        //     return true;
-        // return false;
 
         public StringBuilder GetNodeBuilder()
         {
@@ -104,6 +95,23 @@ namespace Markdown.Nodes
             builder.Append(url);
             builder.Append(header);
             return builder;
+        }
+
+        private bool IsImpossibleToClose(IToken newToken)
+        {
+            if (newToken is ParagraphEndToken)
+                return true;
+            if (!headerWasClosed && (urlWasOpened || urlWasClosed))
+                return true;
+            if (headerWasClosed && newToken is ClosingSquareBracketToken or OpeningSquareBracketToken)
+                return true;
+            if (urlWasOpened && newToken is OpeningRoundBracketToken)
+                return true;
+            if (urlWasClosed && newToken is ClosingRoundBracketToken)
+                return true;
+            if (headerWasClosed && newToken is SpaceToken)
+                return true;
+            return false;
         }
     }
 }
