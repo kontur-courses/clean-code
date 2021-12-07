@@ -43,7 +43,7 @@ namespace Markdown.MarkdownTests
                     new TagEvent(TagSide.None, TagName.Word, "hello"),
                     new TagEvent(TagSide.Left, TagName.Underliner, "_"),
                     new TagEvent(TagSide.None, TagName.Eof, "")
-                }).SetName("simple intersection is given");
+                }).SetName("different underliners around the word");
             yield return new TestCaseData(
                 "__hello _my friend__",
                 new List<TagEvent>()
@@ -58,6 +58,21 @@ namespace Markdown.MarkdownTests
                     new TagEvent(TagSide.Left, TagName.DoubleUnderliner, "__"),
                     new TagEvent(TagSide.None, TagName.Eof, "")
                 }).SetName("simple intersection is given");
+            yield return new TestCaseData(
+                "__hello _my_ friend__",
+                new List<TagEvent>()
+                {
+                    new TagEvent(TagSide.Left, TagName.DoubleUnderliner, "__"),
+                    new TagEvent(TagSide.None, TagName.Word, "hello"),
+                    new TagEvent(TagSide.None, TagName.Whitespace, " "),
+                    new TagEvent(TagSide.Left, TagName.Underliner, "_"),
+                    new TagEvent(TagSide.None, TagName.Word, "my"),
+                    new TagEvent(TagSide.Right, TagName.Underliner, "_"),
+                    new TagEvent(TagSide.None, TagName.Whitespace, " "),
+                    new TagEvent(TagSide.None, TagName.Word, "friend"),
+                    new TagEvent(TagSide.Left, TagName.DoubleUnderliner, "__"),
+                    new TagEvent(TagSide.None, TagName.Eof, "")
+                }).SetName("single nderliners between double");
         }
 
         private static IEnumerable<TestCaseData> SimpleCases()

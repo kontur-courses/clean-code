@@ -1,12 +1,13 @@
 ﻿using System.Collections.Generic;
+using System.Xml.Schema;
 using Markdown.TagEvents;
+using NUnit.Framework.Internal;
 
 namespace Markdown.TagParsers
 {
     public class UnderlineTagParser : ITagParser
     {
         private readonly TagName currentUnderliner;
-        private readonly TagName anotherUnderliner;
         private readonly List<TagEvent> tagEvents;
         private State state;
 
@@ -14,7 +15,7 @@ namespace Markdown.TagParsers
         {
             this.tagEvents = tagEvents;
             this.currentUnderliner = currentUnderliner;
-            this.anotherUnderliner = GetAnotherUnderlineTagKind(currentUnderliner);
+            //this.anotherUnderliner = GetAnotherUnderlineTagKind(currentUnderliner);
             this.state = State.Start;
         }
 
@@ -51,7 +52,9 @@ namespace Markdown.TagParsers
         private void ProcessStartState(TagEvent tagEvent)
         {
             if (tagEvent.Name == currentUnderliner)
-                MakeUnderlineOpeningAndChangeStateToFinding(tagEvent);
+            {
+                ChangeUnderlinerSideAndState(tagEvent);
+            }
             else
                 MakeStandartStateChanging(tagEvent);
         }
@@ -92,7 +95,7 @@ namespace Markdown.TagParsers
         private void ProcessStateWhitespace(TagEvent tagEvent)
         {
             if (tagEvent.Name == currentUnderliner)
-                MakeUnderlineOpeningAndChangeStateToFinding(tagEvent);
+                ChangeUnderlinerSideAndState(tagEvent);
             else
                 MakeStandartStateChanging(tagEvent);
         }
@@ -100,7 +103,7 @@ namespace Markdown.TagParsers
         private void ProcessStateOther(TagEvent tagEvent)
         {
             if (tagEvent.Name == currentUnderliner)
-                MakeUnderlineOpeningAndChangeStateToFinding(tagEvent);
+                ChangeUnderlinerSideAndState(tagEvent);
             else 
                 MakeStandartStateChanging(tagEvent);
         }
@@ -121,20 +124,20 @@ namespace Markdown.TagParsers
             }
         }
 
-        private void MakeUnderlineOpeningAndChangeStateToFinding(TagEvent tagEvent)
+        private void ChangeUnderlinerSideAndState(TagEvent tagEvent)
         {
             state = State.FindClosingUnderline;
             tagEvent.Side = TagSide.Left;
         }
 
 
-        private static void ConvertUnderlinerToWord(TagEvent tagEvent)
+        private void ConvertUnderlinerToWord(TagEvent tagEvent)
         {
             tagEvent.Name = TagName.Word;
             tagEvent.Side = TagSide.None;
         }
 
-        private static bool IsClosingContextNumbersOnly(TagEvent currentTag, TagEvent tagBeforeClosingUnderline)
+        private bool IsClosingContextNumbersOnly(TagEvent currentTag, TagEvent tagBeforeClosingUnderline)
         {
             return tagBeforeClosingUnderline.Name == TagName.Number 
                    && currentTag.Name == TagName.Number;

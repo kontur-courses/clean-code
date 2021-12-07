@@ -34,6 +34,13 @@
             return $"Content = {Content}\n";
         }
 
+        public bool IsWordOrNumber()
+            => Name == TagName.Word || Name == TagName.Number;
+
+        public bool IsWhiteSpaceOrNewLineOrEof()
+            => Name == TagName.Whitespace  || Name == TagName.NewLine
+            || Name == TagName.Eof;
+
         public bool IsUnderliner()
             => Name == TagName.Underliner || Name == TagName.DoubleUnderliner;
 
