@@ -1,101 +1,113 @@
 ﻿using Markdown.TagEvents;
 using System;
 using System.Collections.Generic;
+using Markdown.TagParsers;
 
 namespace Markdown
 {
     public class Taginizer
     {
-        private readonly List<TagEvent> _tokens;
-        private readonly string _input;
+        private readonly List<TagEvent> tokens;
+        private readonly string input;
 
         public Taginizer(string input)
         {
-            _tokens = new List<TagEvent>();
-            _input = input;
+            tokens = new List<TagEvent>();
+            this.input = input;
         }
 
         public List<TagEvent> Taginize()
         {
-            for (var index = 0; index < _input.Length; index++)
+            for (var index = 0; index < input.Length; index++)
             {
-                var symbol = _input[index];
-                if (char.IsLetter(symbol))
+                var symbol = input[index];
+                if (symbol.IsLetterOrPunctuationButNotTag())
                 {
-                    var contentLength = GetTagContentLength(index, char.IsLetter);
-                    var content = _input.Substring(index, contentLength);
-                    _tokens.Add(new TagEvent(TagSide.None, TagName.Word, content));
-                    index = index + contentLength - 1;
+                    index = AddSeveralSymbolsAsTokenAndGetNextIndex(s => s.IsLetterOrPunctuationButNotTag(),
+                        TagName.Word, index);
+                    continue;
                 }
-                else if (char.IsDigit(symbol))
+
+                if (char.IsDigit(symbol))
                 {
-                    var contentLength = GetTagContentLength(index, char.IsDigit);
-                    var content = _input.Substring(index, contentLength);
-                    _tokens.Add(new TagEvent(TagSide.None, TagName.Number, content));
-                    index = index + contentLength - 1;
+                    index = AddSeveralSymbolsAsTokenAndGetNextIndex(char.IsDigit,
+                        TagName.Number, index);
+                    continue;
+                }
+
+                if (symbol.IsWhitespaceButNotNewLine())
+                {
+                    index = AddSeveralSymbolsAsTokenAndGetNextIndex(s => s.IsWhitespaceButNotNewLine(),
+                        TagName.Whitespace, index);
+                    continue;
                 }
                 switch (symbol)
                 {
                     case '_':
-                        index = ProcessUnderlineAndGetNewIndex(index);
+                        index = AddUnderlinersTagAndGetNextIndex(index);
                         break;
                     case '#':
-                        index = ProcessHashtagAndGetNewIndex(index);
+                        index = AddHashtagAndGetNextIndex(index);
                         break;
                     case '\n':
-                        _tokens.Add(new TagEvent(TagSide.Right, TagName.NewLine, symbol.ToString()));
+                        tokens.Add(new TagEvent(TagSide.Right, TagName.NewLine, symbol.ToString()));
                         break;
                     case '\\':
-                        _tokens.Add(new TagEvent(TagSide.None, TagName.Escape, symbol.ToString()));
+                        tokens.Add(new TagEvent(TagSide.None, TagName.Escape, symbol.ToString()));
                         break;
-                    case ' ':
-                        _tokens.Add(new TagEvent(TagSide.None, TagName.Whitespace, symbol.ToString()));
+                    default:
+                        tokens.Add(new TagEvent(TagSide.None, TagName.Word, symbol.ToString()));
                         break;
                 }
             }
-            _tokens.Add(new TagEvent(TagSide.None, TagName.Eof, ""));
-            return _tokens;
+            tokens.Add(new TagEvent(TagSide.None, TagName.Eof, ""));
+            return tokens;
         }
 
-        private int ProcessHashtagAndGetNewIndex(int index)
+        private int AddSeveralSymbolsAsTokenAndGetNextIndex(
+            Func<char, bool> symbolSelector,
+            TagName tagName, 
+            int symbolIndex)
         {
-            var prevIndex = index - 1;
-            var nextIndex = index + 1;
-            if (index == 0 || _input[prevIndex] == '\n')
+            var contentLength = GetTagContentLength(symbolIndex, symbolSelector);
+            var tagContent = input.Substring(symbolIndex, contentLength);
+            tokens.Add(new TagEvent(TagSide.None, tagName, tagContent));
+            return symbolIndex + contentLength - 1;
+        }
+        private int AddHashtagAndGetNextIndex(int index)
+        {
+            if (index == 0 || input[index - 1] == '\n' || input[index - 1] == '\\')
             {
-                _tokens.Add(new TagEvent(TagSide.Left, TagName.Header, _input[index].ToString()));
+                tokens.Add(new TagEvent(TagSide.Left, TagName.Header, input[index].ToString()));
                 return index;
             }
 
-            var contentLength = GetTagContentLength(index, s => s == '#');
-            var content = _input.Substring(index, contentLength);
-            _tokens.Add(new TagEvent(TagSide.None, TagName.Word, content));
-            return index = index + contentLength - 1;
+            return AddSeveralSymbolsAsTokenAndGetNextIndex(s => s == '#', TagName.Word, index);
         }
 
-        private int ProcessUnderlineAndGetNewIndex(int index)
+        private int AddUnderlinersTagAndGetNextIndex(int index)
         {
             var nextIndex = index + 1;
             if (IsDoubleUnderlineDetected(nextIndex))
             {
-                _tokens.Add(new TagEvent(TagSide.None, TagName.DoubleUnderliner, "__"));
+                tokens.Add(new TagEvent(TagSide.None, TagName.DoubleUnderliner, "__"));
                 index = nextIndex;
             }
             else
-                _tokens.Add(new TagEvent(TagSide.None, TagName.Underliner, "_"));
+                tokens.Add(new TagEvent(TagSide.None, TagName.Underliner, "_"));
 
             return index;
         }
 
         private bool IsDoubleUnderlineDetected(int nextIndex)
         {
-            return nextIndex < _input.Length && _input[nextIndex] == '_';
+            return nextIndex < input.Length && input[nextIndex] == '_';
         }
 
         private int GetTagContentLength(int index, Func<char, bool> predicate)
         {
             var length = 0;
-            while (index < _input.Length && predicate(_input[index]))
+            while (index < input.Length && predicate(input[index]))
             {
                 length++;
                 index++;

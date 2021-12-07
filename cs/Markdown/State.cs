@@ -8,11 +8,14 @@ namespace Markdown
 {
     public enum State
     {
-        UnderlineBeginnig,
-        UnderlineEnding,
+        Start,
+        FindClosingUnderline,
+        CheckClosingContext,
         Whitespace,
-        Digit,
-        Escape,
+        Number,
+        Word,
+        Header,
+        NewLine,
         Other
     }
 }

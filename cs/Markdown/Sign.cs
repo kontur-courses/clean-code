@@ -10,8 +10,11 @@ namespace Markdown
     {
         Whitespace,
         Underline,
+        DoubleUnderline,
         Escape,
         Digit,
+        Header,
+        Newline,
         Other
     }
 }
