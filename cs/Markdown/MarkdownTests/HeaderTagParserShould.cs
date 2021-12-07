@@ -1,5 +1,4 @@
 ﻿using System.Collections.Generic;
-using NUnit;
 using FluentAssertions;
 using Markdown.TagEvents;
 using Markdown.TagParsers;

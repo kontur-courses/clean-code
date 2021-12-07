@@ -1,7 +1,5 @@
 ﻿using System.Collections.Generic;
-using System.Xml.Schema;
 using Markdown.TagEvents;
-using NUnit.Framework.Internal;
 
 namespace Markdown.TagParsers
 {
@@ -15,7 +13,6 @@ namespace Markdown.TagParsers
         {
             this.tagEvents = tagEvents;
             this.currentUnderliner = currentUnderliner;
-            //this.anotherUnderliner = GetAnotherUnderlineTagKind(currentUnderliner);
             this.state = State.Start;
         }
 

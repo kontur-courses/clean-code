@@ -1,7 +1,4 @@
-﻿using System;
-using System.Runtime.Remoting.Messaging;
-
-namespace Markdown.TagEvents
+﻿namespace Markdown.TagEvents
 {
     public class TagEvent
     {
@@ -23,19 +20,28 @@ namespace Markdown.TagEvents
             Content = content;
         }
 
-        public static TagEvent GetHeaderTagEvent(char symbol)
-        {
-            return symbol == '#'
-                ? new TagEvent(TagSide.Left, TagName.Header, symbol.ToString())
-                : new TagEvent(TagSide.Right, TagName.Header, symbol.ToString());
-        }
-        public static TagEvent GetTextTagEvent(string content)
-            => new TagEvent(TagSide.None, TagName.Text, content);
-
         public override string ToString()
         {
             return $"Content = {Content}\n";
         }
+
+        public bool IsLeftUnderliner()
+            => Name == TagName.Underliner && Side == TagSide.Left;
+
+        public bool IsRightUnderliner()
+            => Name == TagName.Underliner && Side == TagSide.Right;
+
+        public bool IsLeftDoubleUnderliner()
+            => Name == TagName.DoubleUnderliner && Side == TagSide.Left;
+
+        public bool IsRightDoubleUnderliner()
+            => Name == TagName.DoubleUnderliner && Side == TagSide.Right;
+
+        public bool IsRightHeader()
+            => Name == TagName.Header && Side == TagSide.Right;
+
+        public bool IsNewLineHeader()
+            => Name == TagName.NewLine && Side == TagSide.Right;
 
         public bool IsWordOrNumber()
             => Name == TagName.Word || Name == TagName.Number;
@@ -47,32 +53,15 @@ namespace Markdown.TagEvents
         public bool IsUnderliner()
             => Name == TagName.Underliner || Name == TagName.DoubleUnderliner;
 
-        public bool IsTextContainingWhitespace()
-            => Name == TagName.Text && Content.Contains(" ");
-
-        public void ChangeMarkAndSideTo(TagName mark, TagSide side)
-        {
-            Name = mark;
-            Side = side;
-        }
-
-        public void ChangeSideTo(TagSide side)
-            => Side = side;
-
-        public void ChangeMarkTo(TagName newMark)
-            => Name = newMark;
-
-        public bool IsPlainText()
-            => Name == TagName.Text;
-
-        public bool IsEmpty()
-            => string.IsNullOrEmpty(this.Content);
 
         public void ConvertToWord()
         {
             Side = TagSide.None;
             Name = TagName.Word;
         }
+
+        public bool IsHashtagHeader()
+            => Side == TagSide.Left && Name == TagName.Header;
 
         public void ConvertToRightHeader()
         {

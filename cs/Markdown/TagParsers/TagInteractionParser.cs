@@ -1,7 +1,6 @@
 ﻿using System.Collections.Generic;
-using System.Data;
 using Markdown.TagEvents;
-using NUnit.Framework;
+using NUnit.Framework.Internal;
 
 namespace Markdown.TagParsers
 {
@@ -66,13 +65,11 @@ namespace Markdown.TagParsers
                     var leftDoubleUnderliner = tagPairs.Pop();
                     if (!IsTagStackEmpty() && IsLeftUnderlinerOnStackTop())
                     {
-                        // для случая _ __ _ __
                         tagPairs.Push(leftDoubleUnderliner);
                         tagPairs.Push(tagEvent);
                     }
                     else
                     {
-                        //для случая __ _
                         leftDoubleUnderliner.ConvertToWord();
                         tagEvent.ConvertToWord();
                     }
@@ -101,6 +98,7 @@ namespace Markdown.TagParsers
                 {
                     var stackTop = tagPairs.Pop();
                     stackTop.ConvertToWord();
+                    tagEvent.ConvertToWord();
                 }
                 else if (IsLeftDoubleUnderlinerOnStackTop())
                 {
@@ -129,31 +127,29 @@ namespace Markdown.TagParsers
             }
         }
 
-        private void ProcessNewLine(TagEvent tagEvent)
+        private bool ProcessNewLine(TagEvent tagEvent)
         {
+            var wasHeader = false;
             while (!IsTagStackEmpty())
             {
                 var stackTop = tagPairs.Pop();
                 if (stackTop.IsHeader())
+                {
+                    wasHeader = true;
                     continue;
+                }
                 stackTop.ConvertToWord();
             }
+
+            return wasHeader;
         }
 
         private void ProcessEof(TagEvent tagEvent)
         {
             if (IsTagStackEmpty()) 
                 return;
-            ProcessNewLine(tagEvent);
-            tagEvent.ConvertToRightHeader();
-        }
-
-        private void PopAllExceptHeader()
-        {
-            while (!IsTagStackEmpty())
-            {
-
-            }
+            if (ProcessNewLine(tagEvent))
+                tagEvent.ConvertToRightHeader();
         }
 
         private bool IsRightUnderlinerOnStackTop()

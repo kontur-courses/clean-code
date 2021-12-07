@@ -59,12 +59,13 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="MarkdownTests\TagInteractionParserShould.cs" />
+    <Compile Include="MarkdownTests\MarkdownToHtmlTranslatorShould.cs" />
     <Compile Include="MarkdownTests\UnderlinerParserCorrectorShould.cs" />
     <Compile Include="MarkdownTests\EscapingTagParserShould.cs" />
     <Compile Include="MarkdownTests\HeaderTagParserShould.cs" />
     <Compile Include="MarkdownTests\TaginizerShould.cs" />
     <Compile Include="MarkdownTests\UnderlineTagParserShould.cs" />
-    <Compile Include="State.cs" />
+    <Compile Include="TagParsers\State.cs" />
     <Compile Include="TagEvents\TagEvent.cs" />
     <Compile Include="TagEvents\TagSide.cs" />
     <Compile Include="Md.cs" />
@@ -76,9 +77,9 @@
     <Compile Include="TagParsers\HeaderTagParser.cs" />
     <Compile Include="TagParsers\EscapingTagParser.cs" />
     <Compile Include="TagParsers\ITagParser.cs" />
-    <Compile Include="TagParsers\UnderlinerContext.cs" />
     <Compile Include="TagParsers\UnderlineTagParser.cs" />
     <Compile Include="Taginizer.cs" />
+    <Compile Include="MarkdownToHtmlTranslator.cs" />
   </ItemGroup>
   <ItemGroup />
   <ItemGroup>

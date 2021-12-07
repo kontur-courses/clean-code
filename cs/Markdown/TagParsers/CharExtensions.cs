@@ -1,7 +1,4 @@
-﻿using System.Collections.Generic;
-using System.Xml;
-
-namespace Markdown.TagParsers
+﻿namespace Markdown.TagParsers
 {
     public static class CharExtensions
     {

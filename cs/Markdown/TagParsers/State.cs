@@ -1,10 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-
-namespace Markdown
+﻿namespace Markdown.TagParsers
 {
     public enum State
     {
@@ -12,8 +6,6 @@ namespace Markdown
         FindClosingUnderline,
         CheckClosingContext,
         Whitespace,
-        Number,
-        Word,
         Header,
         NewLine,
         Other

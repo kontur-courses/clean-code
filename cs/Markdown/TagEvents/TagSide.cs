@@ -2,7 +2,6 @@
 {
     public enum TagSide
     {
-        Unknown,
         None,
         Left,
         Right
