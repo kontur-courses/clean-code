@@ -45,7 +45,7 @@ namespace Markdown.TagParsers
             }
         }
 
-        private static void ConvertTagToWordTag(TagEvent currentTag, string content)
+        private void ConvertTagToWordTag(TagEvent currentTag, string content)
         {
             currentTag.Side = TagSide.None;
             currentTag.Name = TagName.Word;

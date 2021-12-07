@@ -21,11 +21,16 @@ namespace Markdown.MarkdownTests
         public static IEnumerable<TestCaseData> SimpleCases()
         {
             yield return new TestCaseData(
-                "####",
+                "# # # # ",
                 new List<TagEvent>
                 {
-                    new TagEvent(TagSide.Left, TagName.Header, "#"),
-                    new TagEvent(TagSide.None, TagName.Word, "###"),
+                    new TagEvent(TagSide.Left, TagName.Header, "# "),
+                    new TagEvent(TagSide.None, TagName.Word, "#"),
+                    new TagEvent(TagSide.None, TagName.Whitespace, " "),
+                    new TagEvent(TagSide.None, TagName.Word, "#"),
+                    new TagEvent(TagSide.None, TagName.Whitespace, " "),
+                    new TagEvent(TagSide.None, TagName.Word, "#"),
+                    new TagEvent(TagSide.None, TagName.Whitespace, " "),
                     new TagEvent(TagSide.None, TagName.Eof, "")
                 }).SetName("several header symbols are given");
             yield return new TestCaseData(
@@ -63,11 +68,11 @@ namespace Markdown.MarkdownTests
                     new TagEvent(TagSide.None, TagName.Eof, "")
                 }).SetName("two digits are separated by dot");
             yield return new TestCaseData(
-                "\\#",
+                "\\# ",
                 new List<TagEvent>
                 {
                     new TagEvent(TagSide.None, TagName.Escape, "\\"),
-                    new TagEvent(TagSide.Left, TagName.Header, "#"),
+                    new TagEvent(TagSide.Left, TagName.Header, "# "),
                     new TagEvent(TagSide.None, TagName.Eof, "")
                 }).SetName("header is escaped");
             yield return new TestCaseData(

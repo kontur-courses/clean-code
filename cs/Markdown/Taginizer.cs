@@ -76,13 +76,42 @@ namespace Markdown
         }
         private int AddHashtagAndGetNextIndex(int index)
         {
-            if (index == 0 || input[index - 1] == '\n' || input[index - 1] == '\\')
+            if (IsSymbolMeansHeader(index))
             {
-                tokens.Add(new TagEvent(TagSide.Left, TagName.Header, input[index].ToString()));
-                return index;
+                tokens.Add(new TagEvent(TagSide.Left, TagName.Header, "# "));
+                return index + 1;
             }
 
             return AddSeveralSymbolsAsTokenAndGetNextIndex(s => s == '#', TagName.Word, index);
+        }
+
+        private bool IsSymbolMeansHeader(int index)
+        {
+            return (IsHashtagFirstSymbol(index) 
+                    || IsHashtagGoesAfterNewLine(index) 
+                    || IsHashtagGoesAfterSlash(index))
+                   && IsNextSymbolWhiteSpace(index);
+        }
+
+        private bool IsHashtagGoesAfterSlash(int index)
+        {
+            return input[index - 1] == '\\';
+        }
+
+        private bool IsHashtagGoesAfterNewLine(int index)
+        {
+            return input[index - 1] == '\n';
+        }
+
+        private static bool IsHashtagFirstSymbol(int index)
+        {
+            return index == 0;
+        }
+
+        private bool IsNextSymbolWhiteSpace(int index)
+        {
+            var nextInd = index + 1;
+            return nextInd < input.Length && input[nextInd] == ' ';
         }
 
         private int AddUnderlinersTagAndGetNextIndex(int index)

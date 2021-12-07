@@ -84,11 +84,11 @@ namespace Markdown.MarkdownTests
                 }
             ).SetName("new line symbol is escaped");
             yield return new TestCaseData(
-                "\\#",
+                "\\# ",
                 new List<TagEvent>
                 {
                     new TagEvent(TagSide.None, TagName.Word, ""),
-                    new TagEvent(TagSide.None, TagName.Word, "#"),
+                    new TagEvent(TagSide.None, TagName.Word, "# "),
                     new TagEvent(TagSide.None, TagName.Eof, "")
                 }
             ).SetName("escape tag header symbol");

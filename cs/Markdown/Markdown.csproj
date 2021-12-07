@@ -73,6 +73,7 @@
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="TagEvents\TagName.cs" />
     <Compile Include="TagParsers\CharExtensions.cs" />
+    <Compile Include="TagParsers\TagInteractionParser.cs" />
     <Compile Include="TagParsers\UnderlineParserCorrector.cs" />
     <Compile Include="TagParsers\HeaderTagParser.cs" />
     <Compile Include="TagParsers\EscapingTagParser.cs" />

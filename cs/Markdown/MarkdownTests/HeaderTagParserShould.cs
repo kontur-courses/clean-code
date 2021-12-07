@@ -26,8 +26,7 @@ namespace Markdown.MarkdownTests
                 "# hello!",
                 new List<TagEvent>
                 {
-                    new TagEvent(TagSide.Left, TagName.Header, "#"),
-                    new TagEvent(TagSide.None, TagName.Whitespace, " "),
+                    new TagEvent(TagSide.Left, TagName.Header, "# "),
                     new TagEvent(TagSide.None, TagName.Word, "hello!"),
                     new TagEvent(TagSide.None, TagName.Eof, "")
                 }).SetName("header and text without newline are given");
@@ -35,8 +34,7 @@ namespace Markdown.MarkdownTests
                 "## hello!",
                 new List<TagEvent>
                 {
-                    new TagEvent(TagSide.Left, TagName.Header, "#"),
-                    new TagEvent(TagSide.None, TagName.Word, "#"),
+                    new TagEvent(TagSide.None, TagName.Word, "##"),
                     new TagEvent(TagSide.None, TagName.Whitespace, " "),
                     new TagEvent(TagSide.None, TagName.Word, "hello!"),
                     new TagEvent(TagSide.None, TagName.Eof, "")
@@ -45,55 +43,56 @@ namespace Markdown.MarkdownTests
                 "# hello!\n",
                 new List<TagEvent>
                 {
-                    new TagEvent(TagSide.Left, TagName.Header, "#"),
-                    new TagEvent(TagSide.None, TagName.Whitespace, " "),
+                    new TagEvent(TagSide.Left, TagName.Header, "# "),
                     new TagEvent(TagSide.None, TagName.Word, "hello!"),
                     new TagEvent(TagSide.Right, TagName.NewLine, "\n"),
                     new TagEvent(TagSide.None, TagName.Eof, "")
                 }).SetName("header and text with newline are given");
             yield return new TestCaseData(
-                "\n\n#",
+                "\n\n# ",
                 new List<TagEvent>
                 {
                     new TagEvent(TagSide.None, TagName.Word, "\n"),
                     new TagEvent(TagSide.None, TagName.Word, "\n"),
-                    new TagEvent(TagSide.Left, TagName.Header, "#"),
+                    new TagEvent(TagSide.Left, TagName.Header, "# "),
                     new TagEvent(TagSide.None, TagName.Eof, "")
                 }).SetName("header after double new line are given");
             yield return new TestCaseData(
-                "#\n#",
+                "# \n# ",
                 new List<TagEvent>
                 {
-                    new TagEvent(TagSide.Left, TagName.Header, "#"),
+                    new TagEvent(TagSide.Left, TagName.Header, "# "),
                     new TagEvent(TagSide.Right, TagName.NewLine, "\n"),
-                    new TagEvent(TagSide.Left, TagName.Header, "#"),
+                    new TagEvent(TagSide.Left, TagName.Header, "# "),
                     new TagEvent(TagSide.None, TagName.Eof, "")
                 }).SetName("header after headers pair is given");
             yield return new TestCaseData(
-                "word#\n",
+                "word# \n",
                 new List<TagEvent>
                 {
                     new TagEvent(TagSide.None, TagName.Word, "word"),
                     new TagEvent(TagSide.None, TagName.Word, "#"),
+                    new TagEvent(TagSide.None, TagName.Whitespace, " "),
                     new TagEvent(TagSide.None, TagName.Word, "\n"),
                     new TagEvent(TagSide.None, TagName.Eof, "")
                 }).SetName("headers pair after word is given");
             yield return new TestCaseData(
-                "word#\n#",
+                "word# \n# ",
                 new List<TagEvent>
                 {
                     new TagEvent(TagSide.None, TagName.Word, "word"),
                     new TagEvent(TagSide.None, TagName.Word, "#"),
+                    new TagEvent(TagSide.None, TagName.Whitespace, " "),
                     new TagEvent(TagSide.None, TagName.Word, "\n"),
-                    new TagEvent(TagSide.Left, TagName.Header, "#"),
+                    new TagEvent(TagSide.Left, TagName.Header, "# "),
                     new TagEvent(TagSide.None, TagName.Eof, "")
                 }).SetName("header after headers pair after word is given");
             yield return new TestCaseData(
-                "\\#\n",
+                "\\# \n",
                 new List<TagEvent>
                 {
                     new TagEvent(TagSide.None, TagName.Word, ""),
-                    new TagEvent(TagSide.None, TagName.Word, "#"),
+                    new TagEvent(TagSide.None, TagName.Word, "# "),
                     new TagEvent(TagSide.None, TagName.Word, "\n"),
                     new TagEvent(TagSide.None, TagName.Eof, "")
                 }).SetName("header is escaped in headers pair");
