@@ -1,4 +1,7 @@
-﻿namespace Markdown.TagEvents
+﻿using System;
+using System.Runtime.Remoting.Messaging;
+
+namespace Markdown.TagEvents
 {
     public class TagEvent
     {
@@ -65,7 +68,31 @@
         public bool IsEmpty()
             => string.IsNullOrEmpty(this.Content);
 
-        public bool IsSideUnknown()
-            => Side == TagSide.Unknown;
+        public void ConvertToWord()
+        {
+            Side = TagSide.None;
+            Name = TagName.Word;
+        }
+
+        public void ConvertToRightHeader()
+        {
+            Side = TagSide.Right;
+            Name = TagName.Header;
+        }
+
+        public bool IsNewLine()
+            => Name == TagName.NewLine;
+
+        public bool IsHeader()
+            => Name == TagName.Header;
+
+        public bool HasLeftSide()
+            => Side == TagSide.Left;
+
+        internal bool HasRightSide()
+            => Side == TagSide.Right;
+
+        public bool HasNoSide()
+            => Side == TagSide.None;
     }
 }

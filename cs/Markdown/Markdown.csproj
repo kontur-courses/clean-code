@@ -58,15 +58,13 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="MarkdownTests\TagInteractionParserShould.cs" />
     <Compile Include="MarkdownTests\UnderlinerParserCorrectorShould.cs" />
     <Compile Include="MarkdownTests\EscapingTagParserShould.cs" />
     <Compile Include="MarkdownTests\HeaderTagParserShould.cs" />
     <Compile Include="MarkdownTests\TaginizerShould.cs" />
     <Compile Include="MarkdownTests\UnderlineTagParserShould.cs" />
-    <Compile Include="MdParser.cs" />
-    <Compile Include="MarkdownTests\MdParserShould.cs" />
     <Compile Include="State.cs" />
-    <Compile Include="Sign.cs" />
     <Compile Include="TagEvents\TagEvent.cs" />
     <Compile Include="TagEvents\TagSide.cs" />
     <Compile Include="Md.cs" />
