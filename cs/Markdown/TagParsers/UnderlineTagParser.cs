@@ -62,7 +62,15 @@ namespace Markdown.TagParsers
             {
                 state = State.CheckClosingContext;
             }
-            MakeStandartStateChanging(tagEvent);
+            switch (tagEvent.Name)
+            {
+                case TagName.Whitespace:
+                    state = State.Whitespace;
+                    break;
+                case TagName.NewLine:
+                    state = State.NewLine;
+                    break;
+            }
         }
 
         private void ProcessStateCheckClosingContext(TagEvent currentTag, int tagIndex)
@@ -93,7 +101,7 @@ namespace Markdown.TagParsers
         {
             if (tagEvent.Name == currentUnderliner)
                 MakeUnderlineOpeningAndChangeStateToFinding(tagEvent);
-            else
+            else 
                 MakeStandartStateChanging(tagEvent);
         }
 

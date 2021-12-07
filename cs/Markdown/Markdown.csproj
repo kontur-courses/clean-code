@@ -61,6 +61,7 @@
     <Compile Include="MarkdownTests\EscapingTagParserShould.cs" />
     <Compile Include="MarkdownTests\HeaderTagParserShould.cs" />
     <Compile Include="MarkdownTests\TaginizerShould.cs" />
+    <Compile Include="MarkdownTests\UnderlineTagParserShould.cs" />
     <Compile Include="MdParser.cs" />
     <Compile Include="MarkdownTests\MdParserShould.cs" />
     <Compile Include="State.cs" />
