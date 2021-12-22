@@ -1,12 +1,12 @@
-﻿using System;
-
-namespace MarkdownTask
+﻿namespace MarkdownTask
 {
     public class Md
     {
         public string Render(string mdText)
         {
-            throw new NotImplementedException();
+            var a = new SingleHighlightTagSearcher();
+            var s = a.SearchForTags(mdText);
+            return mdText;
         }
     }
 }
