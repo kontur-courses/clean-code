@@ -16,6 +16,16 @@ namespace MarkdownTaskTests.SearchersTests
             searcher = new StrongTagSearcher();
         }
 
+        [TestCase("text")]
+        [TestCase("")]
+        [TestCase("text__")]
+        [TestCase("__text")]
+        public void Searcher_ShouldNotDefineAnyTags(string mdText)
+        {
+            var actualResult = searcher.SearchForTags(mdText);
+            actualResult.Should().HaveCount(0);
+        }
+
         [Test]
         public void Searcher_ShouldCorrectlyDefineSingleTag(
             [ValueSource(nameof(CasesForStrongTag))]
@@ -31,6 +41,18 @@ namespace MarkdownTaskTests.SearchersTests
         [Test]
         public void Searcher_ShouldCorrectlyDefineMultipleTag(
             [ValueSource(nameof(CasesForMultipleStrongTag))]
+            Tuple<string, List<Tag>> testCase)
+        {
+            var mdText = testCase.Item1;
+            var expectedResult = testCase.Item2;
+
+            var actualResult = searcher.SearchForTags(mdText);
+            actualResult.Should().BeEquivalentTo(expectedResult);
+        }
+
+        [Test]
+        public void Searcher_ShouldNotDefineOpenedTag(
+            [ValueSource(nameof(CasesForOpenedStrongTag))]
             Tuple<string, List<Tag>> testCase)
         {
             var mdText = testCase.Item1;
@@ -75,6 +97,19 @@ namespace MarkdownTaskTests.SearchersTests
             {
                 new Tag(0, 8, TagType.Strong),
                 new Tag(9, 8, TagType.Strong)
+            });
+        }
+
+        private static IEnumerable<Tuple<string, List<Tag>>> CasesForOpenedStrongTag()
+        {
+            yield return Tuple.Create("__te__x__t", new List<Tag>
+            {
+                new Tag(0, 6, TagType.Strong)
+            });
+
+            yield return Tuple.Create("__some__ __text", new List<Tag>
+            {
+                new Tag(0, 8, TagType.Strong)
             });
         }
     }

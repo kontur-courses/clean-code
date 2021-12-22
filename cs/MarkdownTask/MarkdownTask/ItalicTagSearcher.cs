@@ -15,7 +15,12 @@ namespace MarkdownTask
             while (currentPosition < mdText.Length)
             {
                 if (mdText[currentPosition] == TagSign)
-                    result.Add(GetTagFromCurrentPosition(mdText));
+                {
+                    var tag = GetTagFromCurrentPosition(mdText);
+                    if (tag is null)
+                        continue;
+                    result.Add(tag);
+                }
 
                 currentPosition++;
             }
@@ -27,17 +32,22 @@ namespace MarkdownTask
         {
             var startPos = currentPosition;
             var length = 1;
+            var tagOpened = true;
             currentPosition++;
 
             while (currentPosition < mdText.Length)
             {
                 length++;
                 if (mdText[currentPosition] == TagSign)
+                {
+                    tagOpened = false;
                     break;
+                }
+
                 currentPosition++;
             }
 
-            return new Tag(startPos, length, TagType.Italic);
+            return tagOpened ? null : new Tag(startPos, length, TagType.Italic);
         }
     }
 }

@@ -17,7 +17,13 @@ namespace MarkdownTask
                 if (mdText[currentPosition] == '_')
                     if (currentPosition + 1 < mdText.Length
                         && mdText[currentPosition + 1] == '_')
-                        result.Add(GetTagFromCurrentPosition(mdText));
+                    {
+                        var tag = GetTagFromCurrentPosition(mdText);
+                        if (tag is null)
+                            continue;
+
+                        result.Add(tag);
+                    }
 
                 currentPosition++;
             }
@@ -29,6 +35,7 @@ namespace MarkdownTask
         {
             var startPos = currentPosition;
             var length = 2;
+            var tagOpened = true;
             currentPosition += 2;
 
             while (currentPosition < mdText.Length)
@@ -39,13 +46,14 @@ namespace MarkdownTask
                         && mdText[currentPosition + 1] == '_')
                     {
                         length++;
+                        tagOpened = false;
                         break;
                     }
 
                 currentPosition++;
             }
 
-            return new Tag(startPos, length, TagType.Strong);
+            return tagOpened ? null : new Tag(startPos, length, TagType.Strong);
         }
     }
 }
