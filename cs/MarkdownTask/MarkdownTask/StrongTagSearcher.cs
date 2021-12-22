@@ -19,10 +19,8 @@ namespace MarkdownTask
                         && mdText[currentPosition + 1] == '_')
                     {
                         var tag = GetTagFromCurrentPosition(mdText);
-                        if (tag is null)
-                            continue;
-
-                        result.Add(tag);
+                        if (tag is not null)
+                            result.Add(tag);
                     }
 
                 currentPosition++;

@@ -16,10 +16,16 @@ namespace MarkdownTask
             {
                 if (mdText[currentPosition] == TagSign)
                 {
-                    var tag = GetTagFromCurrentPosition(mdText);
-                    if (tag is null)
-                        continue;
-                    result.Add(tag);
+                    if (IsPossibleOpenTag(mdText))
+                    {
+                        var tag = GetTagFromCurrentPosition(mdText);
+                        if (tag is not null)
+                            result.Add(tag);
+                    }
+                    else
+                    {
+                        currentPosition++;
+                    }
                 }
 
                 currentPosition++;
@@ -38,6 +44,8 @@ namespace MarkdownTask
             while (currentPosition < mdText.Length)
             {
                 length++;
+                if (mdText[currentPosition] == ' ')
+                    break;
                 if (mdText[currentPosition] == TagSign)
                 {
                     tagOpened = false;
@@ -48,6 +56,12 @@ namespace MarkdownTask
             }
 
             return tagOpened ? null : new Tag(startPos, length, TagType.Italic);
+        }
+
+        private bool IsPossibleOpenTag(string mdText)
+        {
+            return currentPosition + 1 < mdText.Length
+                   && mdText[currentPosition + 1] != ' ' && mdText[currentPosition + 1] != '_';
         }
     }
 }

@@ -20,14 +20,40 @@ namespace MarkdownTaskTests.SearchersTests
         [TestCase("")]
         [TestCase("text_")]
         [TestCase("_text")]
+        [TestCase("__text__")]
         public void Searcher_ShouldNotDefineAnyTags(string mdText)
         {
             var actualResult = searcher.SearchForTags(mdText);
             actualResult.Should().HaveCount(0);
         }
 
+        [TestCase("_ text_")]
+        [TestCase("_text _")]
+        public void Searcher_ShouldNotDefineTag_WhenSpaceBeforeOrAfterTag(string mdText)
+        {
+            var actualResult = searcher.SearchForTags(mdText);
+            actualResult.Should().HaveCount(0);
+        }
+
         [Test]
-        public void Searcher_ShouldCorrectlyDefineSingleTag(
+        public void Searcher_ShouldNotDefineTag_WhenTagInDifferentWords()
+        {
+            var mdText = "so_me te_xt";
+            var actualResult = searcher.SearchForTags(mdText);
+            actualResult.Should().HaveCount(0);
+        }
+
+        [TestCase("__")]
+        [TestCase("___")]
+        [TestCase("____")]
+        public void Searcher_ShouldNotDefineTag_IfTagNotWrapSomething(string mdText)
+        {
+            var actualResult = searcher.SearchForTags(mdText);
+            actualResult.Should().HaveCount(0);
+        }
+
+        [Test]
+        public void Searcher_ShouldCorrectlyDefineTag_InDifferentPartsOfWord(
             [ValueSource(nameof(CasesForItalicTag))]
             Tuple<string, List<Tag>> testCase)
         {
@@ -39,7 +65,7 @@ namespace MarkdownTaskTests.SearchersTests
         }
 
         [Test]
-        public void Searcher_ShouldCorrectlyDefineMultipleTag(
+        public void Searcher_ShouldCorrectlyDefineTags_WhenMoreThatOneTag(
             [ValueSource(nameof(CasesForMultipleItalicTag))]
             Tuple<string, List<Tag>> testCase)
         {
@@ -51,7 +77,7 @@ namespace MarkdownTaskTests.SearchersTests
         }
 
         [Test]
-        public void Searcher_ShouldNotDefineOpenedTag(
+        public void Searcher_ShouldNotDefineTag_IfTagIsOpened(
             [ValueSource(nameof(CasesForOpenedItalicTag))]
             Tuple<string, List<Tag>> testCase)
         {
