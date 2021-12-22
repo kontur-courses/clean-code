@@ -2,7 +2,7 @@
 {
     public enum TagType
     {
-        SingleHighlight,
-        DoubleHighlight
+        Italic,
+        Strong
     }
 }

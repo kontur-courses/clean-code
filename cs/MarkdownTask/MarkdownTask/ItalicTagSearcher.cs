@@ -2,7 +2,7 @@
 
 namespace MarkdownTask
 {
-    public class SingleHighlightTagSearcher : ITagSearcher
+    public class ItalicTagSearcher : ITagSearcher
     {
         private const char TagSign = '_';
         private int currentPosition;
@@ -37,7 +37,7 @@ namespace MarkdownTask
                 currentPosition++;
             }
 
-            return new Tag(startPos, length, TagType.SingleHighlight);
+            return new Tag(startPos, length, TagType.Italic);
         }
     }
 }
