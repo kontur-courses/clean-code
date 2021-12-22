@@ -52,6 +52,14 @@ namespace MarkdownTaskTests.SearchersTests
             actualResult.Should().HaveCount(0);
         }
 
+        [TestCase("text_1_")]
+        [TestCase("text_1_2")]
+        public void Searcher_ShouldNotDefineTag_IfTagWrapNumbers(string mdText)
+        {
+            var actualResult = searcher.SearchForTags(mdText);
+            actualResult.Should().HaveCount(0);
+        }
+
         [Test]
         public void Searcher_ShouldCorrectlyDefineTag_InDifferentPartsOfWord(
             [ValueSource(nameof(CasesForItalicTag))]

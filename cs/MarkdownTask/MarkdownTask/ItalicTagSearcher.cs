@@ -44,6 +44,8 @@ namespace MarkdownTask
             while (currentPosition < mdText.Length)
             {
                 length++;
+                if (mdText[currentPosition] >= 48 && mdText[currentPosition] <= 57)
+                    break;
                 if (mdText[currentPosition] == ' ')
                     break;
                 if (mdText[currentPosition] == TagSign)
