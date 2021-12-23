@@ -1,6 +1,7 @@
 ﻿using System.Collections.Generic;
+using MarkdownTask.Tags;
 
-namespace MarkdownTask
+namespace MarkdownTask.TagSearchers
 {
     public class HeaderTagSearcher : ITagSearcher
     {
@@ -43,11 +44,13 @@ namespace MarkdownTask
 
         private bool IsPossibleOpenTag(string mdText)
         {
+            const int requiredCountOfNewLineChars = 2;
+
             if (currentPosition == 0)
                 return true;
 
             var isTagAtEndOfText = currentPosition + TagPrefix.Length >= mdText.Length;
-            var isAbleToLookupBeforeTag = currentPosition - 2 >= 0;
+            var isAbleToLookupBeforeTag = currentPosition - requiredCountOfNewLineChars >= 0;
 
             if (isTagAtEndOfText || !isAbleToLookupBeforeTag)
                 return false;

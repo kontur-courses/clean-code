@@ -1,4 +1,4 @@
-﻿namespace MarkdownTask
+﻿namespace MarkdownTask.Tags
 {
     public class Tag
     {
@@ -9,8 +9,8 @@
             Type = type;
         }
 
-        public int StartsAt { get; set; }
-        public int Length { get; set; }
-        public TagType Type { get; set; }
+        public int StartsAt { get; }
+        public int Length { get; }
+        public TagType Type { get; }
     }
 }

@@ -1,4 +1,6 @@
-﻿namespace MarkdownTask
+﻿using MarkdownTask.TagSearchers;
+
+namespace MarkdownTask
 {
     public class Md
     {

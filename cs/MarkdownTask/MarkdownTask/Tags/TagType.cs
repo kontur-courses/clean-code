@@ -1,4 +1,4 @@
-﻿namespace MarkdownTask
+﻿namespace MarkdownTask.Tags
 {
     public enum TagType
     {

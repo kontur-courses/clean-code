@@ -1,6 +1,7 @@
 ﻿using System.Collections.Generic;
+using MarkdownTask.Tags;
 
-namespace MarkdownTask
+namespace MarkdownTask.TagSearchers
 {
     public class StrongTagSearcher : ITagSearcher
     {
@@ -11,7 +12,7 @@ namespace MarkdownTask
         public List<Tag> SearchForTags(string mdText)
         {
             PrepareToSearch();
-
+            mdText = mdText.Trim();
             var result = new List<Tag>();
 
             for (; currentPosition < mdText.Length; currentPosition++)
@@ -30,6 +31,11 @@ namespace MarkdownTask
             return result;
         }
 
+        private void PrepareToSearch()
+        {
+            currentPosition = 0;
+        }
+
         private string GetFullPrefix(string mdText)
         {
             return currentPosition + 1 < mdText.Length
@@ -37,9 +43,16 @@ namespace MarkdownTask
                 : "" + mdText[currentPosition];
         }
 
-        private void PrepareToSearch()
+        private bool IsPossibleOpenTag(string mdText)
         {
-            currentPosition = 0;
+            if (currentPosition + TagPrefix.Length >= mdText.Length)
+                return false;
+
+            var nextCharIsValid = !char.IsWhiteSpace(mdText[currentPosition + TagPrefix.Length])
+                                  && !TagPrefix.Contains("" + mdText[currentPosition + TagPrefix.Length])
+                                  && !char.IsNumber(mdText[currentPosition + TagPrefix.Length]);
+
+            return nextCharIsValid;
         }
 
         private Tag GetTagFromCurrentPosition(string mdText)
@@ -68,18 +81,6 @@ namespace MarkdownTask
         private bool IsTagStillAbleExist(char currentChar)
         {
             return !char.IsWhiteSpace(currentChar) && !char.IsNumber(currentChar);
-        }
-
-        private bool IsPossibleOpenTag(string mdText)
-        {
-            if (currentPosition + TagPrefix.Length >= mdText.Length)
-                return false;
-
-            var nextCharIsValid = !char.IsWhiteSpace(mdText[currentPosition + TagPrefix.Length])
-                                  && !TagPrefix.Contains("" + mdText[currentPosition + TagPrefix.Length])
-                                  && !char.IsNumber(mdText[currentPosition + TagPrefix.Length]);
-
-            return nextCharIsValid;
         }
     }
 }
