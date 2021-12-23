@@ -18,7 +18,8 @@ namespace MarkdownTaskTests.SearchersTests
 
         [TestCase("text")]
         [TestCase("")]
-        [TestCase("text__")]
+        [TestCase("text_")]
+        [TestCase("_text_")]
         [TestCase("__text")]
         public void Searcher_ShouldNotDefineAnyTags(string mdText)
         {
@@ -26,8 +27,41 @@ namespace MarkdownTaskTests.SearchersTests
             actualResult.Should().HaveCount(0);
         }
 
+        [TestCase("__ text__")]
+        [TestCase("__text __")]
+        public void Searcher_ShouldNotDefineTag_WhenSpaceBeforeOrAfterTag(string mdText)
+        {
+            var actualResult = searcher.SearchForTags(mdText);
+            actualResult.Should().HaveCount(0);
+        }
+
         [Test]
-        public void Searcher_ShouldCorrectlyDefineSingleTag(
+        public void Searcher_ShouldNotDefineTag_WhenTagInDifferentWords()
+        {
+            var mdText = "so__me te__xt";
+            var actualResult = searcher.SearchForTags(mdText);
+            actualResult.Should().HaveCount(0);
+        }
+
+        [TestCase("__")]
+        [TestCase("___")]
+        [TestCase("____")]
+        public void Searcher_ShouldNotDefineTag_IfTagNotWrapSomething(string mdText)
+        {
+            var actualResult = searcher.SearchForTags(mdText);
+            actualResult.Should().HaveCount(0);
+        }
+
+        [TestCase("text__1__")]
+        [TestCase("text__1__2")]
+        public void Searcher_ShouldNotDefineTag_IfTagWrapNumbers(string mdText)
+        {
+            var actualResult = searcher.SearchForTags(mdText);
+            actualResult.Should().HaveCount(0);
+        }
+
+        [Test]
+        public void Searcher_ShouldCorrectlyDefineTag_InDifferentPartsOfWord(
             [ValueSource(nameof(CasesForStrongTag))]
             Tuple<string, List<Tag>> testCase)
         {
@@ -39,7 +73,7 @@ namespace MarkdownTaskTests.SearchersTests
         }
 
         [Test]
-        public void Searcher_ShouldCorrectlyDefineMultipleTag(
+        public void Searcher_ShouldCorrectlyDefineTags_WhenMoreThatOneTag(
             [ValueSource(nameof(CasesForMultipleStrongTag))]
             Tuple<string, List<Tag>> testCase)
         {
@@ -51,7 +85,7 @@ namespace MarkdownTaskTests.SearchersTests
         }
 
         [Test]
-        public void Searcher_ShouldNotDefineOpenedTag(
+        public void Searcher_ShouldNotDefineTag_IfTagIsOpened(
             [ValueSource(nameof(CasesForOpenedStrongTag))]
             Tuple<string, List<Tag>> testCase)
         {

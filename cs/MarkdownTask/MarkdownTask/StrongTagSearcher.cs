@@ -4,54 +4,86 @@ namespace MarkdownTask
 {
     public class StrongTagSearcher : ITagSearcher
     {
-        private const string TagSign = "__";
         private int currentPosition;
+
+        public string TagPrefix => "__";
 
         public List<Tag> SearchForTags(string mdText)
         {
+            PrepareToSearch();
+
             var result = new List<Tag>();
-            currentPosition = 0;
 
-            while (currentPosition < mdText.Length)
-            {
-                if (mdText[currentPosition] == '_')
-                    if (currentPosition + 1 < mdText.Length
-                        && mdText[currentPosition + 1] == '_')
-                    {
-                        var tag = GetTagFromCurrentPosition(mdText);
-                        if (tag is not null)
-                            result.Add(tag);
-                    }
-
-                currentPosition++;
-            }
+            for (; currentPosition < mdText.Length; currentPosition++)
+                if (TagPrefix.StartsWith("" + mdText[currentPosition]))
+                {
+                    var fullPrefix = GetFullPrefix(mdText);
+                    if (fullPrefix == TagPrefix)
+                        if (IsPossibleOpenTag(mdText))
+                        {
+                            var tag = GetTagFromCurrentPosition(mdText);
+                            if (tag is not null)
+                                result.Add(tag);
+                        }
+                    //else
+                    //{
+                    //    currentPosition += 2;
+                    //}
+                }
 
             return result;
+        }
+
+        private string GetFullPrefix(string mdText)
+        {
+            return currentPosition + 1 < mdText.Length
+                ? "" + mdText[currentPosition] + mdText[currentPosition + 1]
+                : "" + mdText[currentPosition];
+        }
+
+        private void PrepareToSearch()
+        {
+            currentPosition = 0;
         }
 
         private Tag GetTagFromCurrentPosition(string mdText)
         {
             var startPos = currentPosition;
-            var length = 2;
-            var tagOpened = true;
-            currentPosition += 2;
+            var length = TagPrefix.Length;
+            currentPosition += TagPrefix.Length;
 
-            while (currentPosition < mdText.Length)
+            for (; currentPosition < mdText.Length; currentPosition++)
             {
                 length++;
-                if (mdText[currentPosition] == '_')
+                if (!IsTagStillAbleExist(mdText[currentPosition]))
+                    return null;
+                if (TagPrefix.StartsWith("" + mdText[currentPosition]))
                     if (currentPosition + 1 < mdText.Length
-                        && mdText[currentPosition + 1] == '_')
+                        && TagPrefix.EndsWith("" + mdText[currentPosition + 1]))
                     {
                         length++;
-                        tagOpened = false;
-                        break;
+                        return new Tag(startPos, length, TagType.Strong);
                     }
-
-                currentPosition++;
             }
 
-            return tagOpened ? null : new Tag(startPos, length, TagType.Strong);
+            return null;
+        }
+
+        private bool IsTagStillAbleExist(char currentChar)
+        {
+            return !char.IsWhiteSpace(currentChar) && !char.IsNumber(currentChar);
+        }
+
+        private bool IsPossibleOpenTag(string mdText)
+        {
+            if (currentPosition + TagPrefix.Length >= mdText.Length)
+                return false;
+
+            var nextCharIsValid = !char.IsWhiteSpace(mdText[currentPosition + TagPrefix.Length])
+                                  && !TagPrefix.Contains("" + mdText[currentPosition + TagPrefix.Length])
+                                  && !char.IsNumber(mdText[currentPosition + TagPrefix.Length]);
+
+            return nextCharIsValid;
         }
     }
 }

@@ -4,8 +4,8 @@ namespace MarkdownTask
 {
     public class ItalicTagSearcher : ITagSearcher
     {
-        private const string ItalicTag = "_";
         private int currentPosition;
+        public string TagPrefix => "_";
 
         public List<Tag> SearchForTags(string mdText)
         {
@@ -27,7 +27,7 @@ namespace MarkdownTask
         private Tag GetTagFromCurrentPosition(string mdText)
         {
             var startPos = currentPosition;
-            var length = ItalicTag.Length;
+            var length = TagPrefix.Length;
             currentPosition++;
 
             for (; currentPosition < mdText.Length; currentPosition++)
@@ -44,7 +44,7 @@ namespace MarkdownTask
 
         private bool IsCharItalicTag(char ch)
         {
-            return "" + ch == ItalicTag;
+            return "" + ch == TagPrefix;
         }
 
         private bool IsPossibleOpenItalicTag(string mdText)
