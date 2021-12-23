@@ -2,16 +2,15 @@
 
 namespace MarkdownTask
 {
-    public class StrongTagSearcher : ITagSearcher
+    public class HeaderTagSearcher : ITagSearcher
     {
         private int currentPosition;
-
-        public string TagPrefix => "__";
+        public string TagPrefix => "# ";
 
         public List<Tag> SearchForTags(string mdText)
         {
             PrepareToSearch();
-
+            mdText = mdText.Trim();
             var result = new List<Tag>();
 
             for (; currentPosition < mdText.Length; currentPosition++)
@@ -30,6 +29,11 @@ namespace MarkdownTask
             return result;
         }
 
+        private void PrepareToSearch()
+        {
+            currentPosition = 0;
+        }
+
         private string GetFullPrefix(string mdText)
         {
             return currentPosition + 1 < mdText.Length
@@ -37,9 +41,21 @@ namespace MarkdownTask
                 : "" + mdText[currentPosition];
         }
 
-        private void PrepareToSearch()
+        private bool IsPossibleOpenTag(string mdText)
         {
-            currentPosition = 0;
+            if (currentPosition == 0)
+                return true;
+
+            var isTagAtEndOfText = currentPosition + TagPrefix.Length >= mdText.Length;
+            var isAbleToLookupBeforeTag = currentPosition - 2 >= 0;
+
+            if (isTagAtEndOfText || !isAbleToLookupBeforeTag)
+                return false;
+
+            var isDoubleNewLineBeforeTag = mdText[currentPosition - 1] == '\n'
+                                           && mdText[currentPosition - 2] == '\n';
+
+            return isDoubleNewLineBeforeTag;
         }
 
         private Tag GetTagFromCurrentPosition(string mdText)
@@ -51,35 +67,13 @@ namespace MarkdownTask
             for (; currentPosition < mdText.Length; currentPosition++)
             {
                 length++;
-                if (!IsTagStillAbleExist(mdText[currentPosition]))
-                    return null;
-                if (TagPrefix.StartsWith("" + mdText[currentPosition]))
+                if (mdText[currentPosition] == '\n')
                     if (currentPosition + 1 < mdText.Length
-                        && TagPrefix.EndsWith("" + mdText[currentPosition + 1]))
-                    {
-                        length++;
-                        return new Tag(startPos, length, TagType.Strong);
-                    }
+                        && mdText[currentPosition + 1] == '\n')
+                        return new Tag(startPos, length, TagType.Header);
             }
 
-            return null;
-        }
-
-        private bool IsTagStillAbleExist(char currentChar)
-        {
-            return !char.IsWhiteSpace(currentChar) && !char.IsNumber(currentChar);
-        }
-
-        private bool IsPossibleOpenTag(string mdText)
-        {
-            if (currentPosition + TagPrefix.Length >= mdText.Length)
-                return false;
-
-            var nextCharIsValid = !char.IsWhiteSpace(mdText[currentPosition + TagPrefix.Length])
-                                  && !TagPrefix.Contains("" + mdText[currentPosition + TagPrefix.Length])
-                                  && !char.IsNumber(mdText[currentPosition + TagPrefix.Length]);
-
-            return nextCharIsValid;
+            return new Tag(startPos, length, TagType.Header);
         }
     }
 }

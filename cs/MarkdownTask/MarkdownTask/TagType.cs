@@ -3,6 +3,7 @@
     public enum TagType
     {
         Italic,
-        Strong
+        Strong,
+        Header
     }
 }
