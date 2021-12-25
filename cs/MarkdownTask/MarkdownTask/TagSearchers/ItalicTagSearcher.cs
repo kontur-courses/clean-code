@@ -15,15 +15,24 @@ namespace MarkdownTask.TagSearchers
             var result = new List<Tag>();
 
             for (; currentPosition < mdText.Length; currentPosition++)
-                if (IsCharItalicTag(mdText[currentPosition]))
-                    if (IsPossibleOpenItalicTag(mdText))
-                    {
-                        var tag = GetTagFromCurrentPosition(mdText);
-                        if (tag is not null)
-                            result.Add(tag);
-                    }
+                if (TagPrefix.StartsWith("" + mdText[currentPosition]))
+                {
+                    var fullPrefix = GetFullPrefix(mdText);
+                    if (TagPrefix == fullPrefix)
+                        if (IsPossibleOpenItalicTag(mdText))
+                        {
+                            var tag = GetTagFromCurrentPosition(mdText);
+                            if (tag is not null)
+                                result.Add(tag);
+                        }
+                }
 
             return result;
+        }
+
+        private string GetFullPrefix(string mdText)
+        {
+            return "" + mdText[currentPosition];
         }
 
         private void PrepareToSearch()
