@@ -22,37 +22,13 @@ namespace MarkdownTask
                 var tag = tags.FirstOrDefault(tag => tag.StartsAt == currentPos);
 
                 if (tag == null)
-                {
-                    if (currentPos + 1 >= mdText.Length)
-                    {
-                        htmlText.Append(mdText[currentPos]);
-                        htmlText = CloseAllHeaders(htmlText);
-                    }
+                    htmlText = CloseHeaderOrAppendChar(mdText, htmlText);
 
-                    else if (mdText[currentPos] == '\n' && mdText[currentPos + 1] == '\n')
-                    {
-                        htmlText = CloseLastOpenedHeader(htmlText);
-                        htmlText = AddNewLines(mdText, htmlText);
-                    }
+                else if (tag.TagStyleInfo.Type == TagType.Header)
+                    htmlText = OpenHeaderTag(htmlText, tag);
 
-                    else
-                    {
-                        htmlText.Append(mdText[currentPos]);
-                    }
-
-                    continue;
-                }
-
-                if (tag.TagStyleInfo.Type == TagType.Header)
-                {
-                    htmlText.Append(HtmlStyleKeeper.Styles[tag.TagStyleInfo.Type].TagPrefix);
-                    currentPos += tag.TagStyleInfo.TagPrefix.Length - 1;
-                    openedHeaderTagsCount++;
-                }
                 else
-                {
                     htmlText.Append(GetHtmlTag(mdText, tag));
-                }
             }
 
             htmlText = CloseAllHeaders(htmlText);
@@ -65,21 +41,41 @@ namespace MarkdownTask
             openedHeaderTagsCount = 0;
         }
 
+        private StringBuilder CloseHeaderOrAppendChar(string mdText, StringBuilder htmlText)
+        {
+            return IsHeaderClosing(mdText)
+                ? AddNewLines(mdText, CloseAllHeaders(htmlText))
+                : htmlText.Append(mdText[currentPos]);
+        }
+
+        private bool IsHeaderClosing(string mdText)
+        {
+            return mdText[currentPos] == '\n'
+                   && currentPos + 1 < mdText.Length
+                   && mdText[currentPos + 1] == '\n';
+        }
+
+        private StringBuilder OpenHeaderTag(StringBuilder htmlText, Tag tag)
+        {
+            htmlText.Append(HtmlStyleKeeper.Styles[tag.TagStyleInfo.Type].TagPrefix);
+            currentPos += tag.TagStyleInfo.TagPrefix.Length - 1;
+            openedHeaderTagsCount++;
+
+            return htmlText;
+        }
+
         private StringBuilder CloseAllHeaders(StringBuilder htmlText)
         {
-            while (openedHeaderTagsCount > 0)
-                CloseLastOpenedHeader(htmlText);
+            while (openedHeaderTagsCount > 0) htmlText = CloseLastOpenedHeader(htmlText);
 
             return htmlText;
         }
 
         private StringBuilder CloseLastOpenedHeader(StringBuilder htmlText)
         {
-            if (openedHeaderTagsCount == 0)
-                return htmlText;
+            if (openedHeaderTagsCount == 0) return htmlText;
 
-            var htmlHeaderAffix = HtmlStyleKeeper.Styles[TagType.Header].TagAffix;
-            htmlText.Append(htmlHeaderAffix);
+            htmlText.Append(HtmlStyleKeeper.Styles[TagType.Header].TagAffix);
             openedHeaderTagsCount--;
 
             return htmlText;
@@ -103,24 +99,24 @@ namespace MarkdownTask
             var htmlTag = new StringBuilder();
             var htmlStyle = HtmlStyleKeeper.Styles[tag.TagStyleInfo.Type];
             var tagContent = GetTagContent(mdText, tag);
-
             htmlTag.Append(htmlStyle.TagPrefix).Append(tagContent).Append(htmlStyle.TagAffix);
 
-            var tagStyleInfo = tag.TagStyleInfo;
-            currentPos += tagStyleInfo.TagPrefix.Length +
+            currentPos += tag.TagStyleInfo.TagPrefix.Length +
                 tagContent.Length +
-                tagStyleInfo.TagAffix.Length - 1;
+                tag.TagStyleInfo.TagAffix.Length - 1;
 
             return htmlTag.ToString();
         }
 
         private string GetTagContent(string mdText, Tag tag)
         {
-            var contentBuilder = new StringBuilder();
-            for (var i = tag.ContentStartsAt; i < tag.ContentStartsAt + tag.ContentLength; i++)
-                contentBuilder.Append(mdText[i]);
+            var content = new StringBuilder();
+            for (var i = tag.ContentStartsAt;
+                i < tag.ContentStartsAt + tag.ContentLength;
+                i++)
+                content.Append(mdText[i]);
 
-            return contentBuilder.ToString();
+            return content.ToString();
         }
     }
 }

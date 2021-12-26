@@ -28,6 +28,14 @@ namespace MarkdownTaskTests
             act.Should().NotThrow<NotImplementedException>();
         }
 
+        [TestCase("", "")]
+        [TestCase("text", "text")]
+        public void Render_ShouldCorrectRender_TextWithoutTags(string mdText, string expectedResult)
+        {
+            var actualResult = md.Render(mdText);
+            actualResult.Should().Be(expectedResult);
+        }
+
         [TestCase("_text_", @"<em>text</em>")]
         [TestCase("_te_xt", @"<em>te</em>xt")]
         [TestCase("t_ex_t", @"t<em>ex</em>t")]
