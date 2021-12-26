@@ -124,9 +124,11 @@ namespace MarkdownTask
                 if (innerTag == null)
                 {
                     content.Append(mdText[currentPos]);
+                    continue;
                 }
-                //var innerTagContent = GetInnerHtmlTag(mdText, innerTag);
-                //content.Append(innerTagContent);
+
+                var innerTagContent = GetInnerHtmlTag(mdText, innerTag);
+                content.Append(innerTagContent);
             }
 
             return content.ToString();
@@ -144,6 +146,15 @@ namespace MarkdownTask
             //currentPos += tagContent.Length - 1 + tag.TagStyleInfo.TagAffix.Length - 1;
 
             return htmlTag.ToString();
+        }
+
+        private string GetInnerTagContent(string mdText, Tag tag)
+        {
+            var content = new StringBuilder();
+            for (; currentPos < tag.ContentStartsAt + tag.ContentLength; currentPos++)
+                content.Append(mdText[currentPos]);
+
+            return content.ToString();
         }
     }
 }
