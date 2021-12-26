@@ -22,13 +22,20 @@ namespace MarkdownTask
                 var tag = tags.FirstOrDefault(tag => tag.StartsAt == currentPos);
 
                 if (tag == null)
+                {
                     htmlText = CloseHeaderOrAppendChar(mdText, htmlText);
+                }
 
                 else if (tag.TagStyleInfo.Type == TagType.Header)
+                {
                     htmlText = OpenHeaderTag(htmlText, tag);
+                }
 
                 else
+                {
                     htmlText.Append(GetHtmlTag(mdText, tag));
+                    currentPos--;
+                }
             }
 
             htmlText = CloseAllHeaders(htmlText);
@@ -96,14 +103,14 @@ namespace MarkdownTask
 
         private string GetHtmlTag(string mdText, Tag tag)
         {
+            currentPos = tag.ContentStartsAt;
+
             var htmlTag = new StringBuilder();
             var htmlStyle = HtmlStyleKeeper.Styles[tag.TagStyleInfo.Type];
             var tagContent = GetTagContent(mdText, tag);
             htmlTag.Append(htmlStyle.TagPrefix).Append(tagContent).Append(htmlStyle.TagAffix);
 
-            currentPos += tag.TagStyleInfo.TagPrefix.Length +
-                tagContent.Length +
-                tag.TagStyleInfo.TagAffix.Length - 1;
+            currentPos += tag.TagStyleInfo.TagAffix.Length;
 
             return htmlTag.ToString();
         }
@@ -111,12 +118,32 @@ namespace MarkdownTask
         private string GetTagContent(string mdText, Tag tag)
         {
             var content = new StringBuilder();
-            for (var i = tag.ContentStartsAt;
-                i < tag.ContentStartsAt + tag.ContentLength;
-                i++)
-                content.Append(mdText[i]);
+            for (; currentPos < tag.ContentStartsAt + tag.ContentLength; currentPos++)
+            {
+                var innerTag = tag.NextTag?.StartsAt == currentPos ? tag.NextTag : null;
+                if (innerTag == null)
+                {
+                    content.Append(mdText[currentPos]);
+                }
+                //var innerTagContent = GetInnerHtmlTag(mdText, innerTag);
+                //content.Append(innerTagContent);
+            }
 
             return content.ToString();
+        }
+
+        private string GetInnerHtmlTag(string mdText, Tag tag)
+        {
+            currentPos = tag.ContentStartsAt;
+
+            var htmlTag = new StringBuilder();
+            var htmlStyle = HtmlStyleKeeper.Styles[tag.TagStyleInfo.Type];
+            var tagContent = GetTagContent(mdText, tag);
+            htmlTag.Append(htmlStyle.TagPrefix).Append(tagContent).Append(htmlStyle.TagAffix);
+
+            //currentPos += tagContent.Length - 1 + tag.TagStyleInfo.TagAffix.Length - 1;
+
+            return htmlTag.ToString();
         }
     }
 }
