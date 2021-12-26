@@ -67,7 +67,7 @@ namespace MarkdownTaskTests.SearchersTests
 
             yield return Tuple.Create("# __first__ paragraph\n\n# _second_ paragraph", new List<Tag>
             {
-                new Tag(0, 22, HeaderStyleInfo),
+                new Tag(0, 21, HeaderStyleInfo),
                 new Tag(2, 9, StrongStyleInfo),
                 new Tag(23, 20, HeaderStyleInfo),
                 new Tag(25, 8, ItalicStyleInfo)

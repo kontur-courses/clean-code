@@ -9,10 +9,12 @@ namespace MarkdownTask
     public class Converter
     {
         private int currentPos;
+        private int openedHeaderTagsCount;
 
         public string ConvertMdToHtml(string mdText, List<Tag> tags)
         {
             PrepareToConvert();
+
             var htmlText = new StringBuilder();
 
             for (; currentPos < mdText.Length; currentPos++)
@@ -21,19 +23,79 @@ namespace MarkdownTask
 
                 if (tag == null)
                 {
-                    htmlText.Append(mdText[currentPos]);
+                    if (currentPos + 1 >= mdText.Length)
+                    {
+                        htmlText.Append(mdText[currentPos]);
+                        htmlText = CloseAllHeaders(htmlText);
+                    }
+
+                    else if (mdText[currentPos] == '\n' && mdText[currentPos + 1] == '\n')
+                    {
+                        htmlText = CloseLastOpenedHeader(htmlText);
+                        htmlText = AddNewLines(mdText, htmlText);
+                    }
+
+                    else
+                    {
+                        htmlText.Append(mdText[currentPos]);
+                    }
+
                     continue;
                 }
 
-                htmlText.Append(GetHtmlTag(mdText, tag));
+                if (tag.TagStyleInfo.Type == TagType.Header)
+                {
+                    htmlText.Append(HtmlStyleKeeper.Styles[tag.TagStyleInfo.Type].TagPrefix);
+                    currentPos += tag.TagStyleInfo.TagPrefix.Length - 1;
+                    openedHeaderTagsCount++;
+                }
+                else
+                {
+                    htmlText.Append(GetHtmlTag(mdText, tag));
+                }
             }
 
+            htmlText = CloseAllHeaders(htmlText);
             return htmlText.ToString();
         }
 
         private void PrepareToConvert()
         {
             currentPos = 0;
+            openedHeaderTagsCount = 0;
+        }
+
+        private StringBuilder CloseAllHeaders(StringBuilder htmlText)
+        {
+            while (openedHeaderTagsCount > 0)
+                CloseLastOpenedHeader(htmlText);
+
+            return htmlText;
+        }
+
+        private StringBuilder CloseLastOpenedHeader(StringBuilder htmlText)
+        {
+            if (openedHeaderTagsCount == 0)
+                return htmlText;
+
+            var htmlHeaderAffix = HtmlStyleKeeper.Styles[TagType.Header].TagAffix;
+            htmlText.Append(htmlHeaderAffix);
+            openedHeaderTagsCount--;
+
+            return htmlText;
+        }
+
+        private StringBuilder AddNewLines(string mdText, StringBuilder htmlText)
+        {
+            while (currentPos < mdText.Length && mdText[currentPos] == '\n')
+            {
+                htmlText.Append(mdText[currentPos]);
+                currentPos++;
+            }
+
+            currentPos--;
+
+            return htmlText;
         }
 
         private string GetHtmlTag(string mdText, Tag tag)
@@ -41,10 +103,8 @@ namespace MarkdownTask
             var htmlTag = new StringBuilder();
             var htmlStyle = HtmlStyleKeeper.Styles[tag.TagStyleInfo.Type];
             var tagContent = GetTagContent(mdText, tag);
-            htmlTag
-                .Append(htmlStyle.TagPrefix)
-                .Append(tagContent)
-                .Append(htmlStyle.TagAffix);
+
+            htmlTag.Append(htmlStyle.TagPrefix).Append(tagContent).Append(htmlStyle.TagAffix);
 
             var tagStyleInfo = tag.TagStyleInfo;
             currentPos += tagStyleInfo.TagPrefix.Length +

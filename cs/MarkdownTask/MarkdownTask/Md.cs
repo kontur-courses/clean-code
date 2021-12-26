@@ -14,7 +14,10 @@ namespace MarkdownTask
 
         public string Render(string mdText)
         {
-            var tags = searchers.SelectMany(searcher => searcher.SearchForTags(mdText)).ToList();
+            var tags = searchers
+                .SelectMany(searcher => searcher.SearchForTags(mdText))
+                .OrderBy(tag => tag.StartsAt)
+                .ToList();
             var htmlText = new Converter().ConvertMdToHtml(mdText, tags);
             return htmlText;
         }

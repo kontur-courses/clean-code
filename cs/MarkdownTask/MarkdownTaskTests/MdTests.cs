@@ -48,5 +48,24 @@ namespace MarkdownTaskTests
 
             actualResult.Should().Be(expectedResult);
         }
+
+        [TestCase("# text", "<h1>text</h1>")]
+        [TestCase("# some\n\n# text", "<h1>some</h1>\n\n<h1>text</h1>")]
+        public void Render_ShouldCorrectRender_HeaderTag(string mdText, string expectedResult)
+        {
+            var actualResult = md.Render(mdText);
+
+            actualResult.Should().Be(expectedResult);
+        }
+
+        [TestCase("# _some_ __text__", "<h1><em>some</em> <strong>text</strong></h1>")]
+        [TestCase("# _some_\n\n# __text__", "<h1><em>some</em></h1>\n\n<h1><strong>text</strong></h1>")]
+        [TestCase("__some__ _text_\n\n# paragraph", "<strong>some</strong> <em>text</em>\n\n<h1>paragraph</h1>")]
+        public void Render_ShouldCorrectRender_SequenceOfTags(string mdText, string expectedResult)
+        {
+            var actualResult = md.Render(mdText);
+
+            actualResult.Should().Be(expectedResult);
+        }
     }
 }

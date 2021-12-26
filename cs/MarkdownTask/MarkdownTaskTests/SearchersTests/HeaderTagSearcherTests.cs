@@ -51,7 +51,7 @@ namespace MarkdownTaskTests.SearchersTests
 
             yield return Tuple.Create("# some\n\n# text", new List<Tag>
             {
-                new Tag(0, 7, StyleInfo),
+                new Tag(0, 6, StyleInfo),
                 new Tag(8, 6, StyleInfo)
             });
         }
