@@ -1,6 +1,6 @@
 ﻿using MarkdownTask.Tags;
 
-namespace MarkdownTask
+namespace MarkdownTask.Styles
 {
     public class StyleInfo
     {

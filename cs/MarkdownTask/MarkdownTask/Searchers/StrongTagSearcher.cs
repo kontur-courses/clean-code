@@ -1,7 +1,8 @@
 ﻿using System.Collections.Generic;
+using MarkdownTask.Styles;
 using MarkdownTask.Tags;
 
-namespace MarkdownTask.TagSearchers
+namespace MarkdownTask.Searchers
 {
     public class StrongTagSearcher : ITagSearcher
     {

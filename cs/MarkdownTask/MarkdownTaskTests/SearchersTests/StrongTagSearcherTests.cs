@@ -1,9 +1,9 @@
 ﻿using System;
 using System.Collections.Generic;
 using FluentAssertions;
-using MarkdownTask;
+using MarkdownTask.Searchers;
+using MarkdownTask.Styles;
 using MarkdownTask.Tags;
-using MarkdownTask.TagSearchers;
 using NUnit.Framework;
 
 namespace MarkdownTaskTests.SearchersTests

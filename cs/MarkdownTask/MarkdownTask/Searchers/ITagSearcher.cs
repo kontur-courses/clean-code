@@ -1,7 +1,7 @@
 ﻿using System.Collections.Generic;
 using MarkdownTask.Tags;
 
-namespace MarkdownTask.TagSearchers
+namespace MarkdownTask.Searchers
 {
     public interface ITagSearcher
     {

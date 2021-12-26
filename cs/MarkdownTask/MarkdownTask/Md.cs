@@ -1,4 +1,4 @@
-﻿using MarkdownTask.TagSearchers;
+﻿using MarkdownTask.Searchers;
 
 namespace MarkdownTask
 {

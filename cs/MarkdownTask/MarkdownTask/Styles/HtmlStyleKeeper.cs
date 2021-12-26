@@ -1,18 +1,18 @@
 ﻿using System.Collections.Generic;
 using MarkdownTask.Tags;
 
-namespace MarkdownTask
+namespace MarkdownTask.Styles
 {
-    public class MdStyleKeeper
+    public class HtmlStyleKeeper
     {
         private static readonly StyleInfo Italic =
-            new("_", "_", TagType.Italic);
+            new(@"<em>", @"</em>", TagType.Italic);
 
         private static readonly StyleInfo Strong =
-            new("__", "__", TagType.Strong);
+            new(@"<strong>", @"</strong>", TagType.Strong);
 
         private static readonly StyleInfo Header =
-            new("# ", "", TagType.Header);
+            new(@"<h1>", @"</h1>", TagType.Header);
 
         public static readonly Dictionary<TagType, StyleInfo> Styles = new()
         {

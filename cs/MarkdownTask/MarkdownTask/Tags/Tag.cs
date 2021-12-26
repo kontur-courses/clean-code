@@ -1,19 +1,9 @@
-﻿namespace MarkdownTask.Tags
+﻿using MarkdownTask.Styles;
+
+namespace MarkdownTask.Tags
 {
     public class Tag
     {
-        public Tag(
-            int startsAt, int tagLength,
-            int contentStartsAt, int contentLength,
-            StyleInfo tagStyleInfo)
-        {
-            StartsAt = startsAt;
-            ContentStartsAt = contentStartsAt;
-            ContentLength = contentLength;
-            TagLength = tagLength;
-            TagStyleInfo = tagStyleInfo;
-        }
-
         public Tag(int startsAt, int tagLength, StyleInfo styleInfo)
         {
             StartsAt = startsAt;

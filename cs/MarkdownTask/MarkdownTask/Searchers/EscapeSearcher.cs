@@ -1,6 +1,6 @@
 ﻿using System.Collections.Generic;
 
-namespace MarkdownTask
+namespace MarkdownTask.Searchers
 {
     public class EscapeSearcher
     {
