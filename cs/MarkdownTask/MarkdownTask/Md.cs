@@ -1,4 +1,5 @@
-﻿using System.Linq;
+﻿using System.Collections.Generic;
+using System.Linq;
 using MarkdownTask.Searchers;
 using MarkdownTask.Tags;
 
@@ -27,8 +28,19 @@ namespace MarkdownTask
                 .ExcludeContaining(TagType.Italic, TagType.Strong)
                 .InspectTags(tags);
 
+            inspectedTags = inspectedTags.Count == 0 ? inspectedTags : LinkTags(inspectedTags);
+
             var htmlText = new Converter().ConvertMdToHtml(mdText, inspectedTags);
             return htmlText;
+        }
+
+        private List<Tag> LinkTags(List<Tag> tags)
+        {
+            for (var i = 0; i < tags.Count - 1; i++)
+                tags[i].SetNextTag(tags[i + 1]);
+
+            tags[tags.Count - 1].SetNextTag(null);
+            return tags;
         }
     }
 }

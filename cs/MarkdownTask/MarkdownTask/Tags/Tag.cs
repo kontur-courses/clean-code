@@ -17,7 +17,13 @@ namespace MarkdownTask.Tags
         public int ContentStartsAt { get; }
         public int ContentLength { get; }
         public int TagLength { get; }
+        public Tag NextTag { get; private set; }
         public StyleInfo TagStyleInfo { get; }
+
+        public void SetNextTag(Tag nextTag)
+        {
+            NextTag = nextTag;
+        }
 
         public bool Contains(Tag otherTag)
         {
