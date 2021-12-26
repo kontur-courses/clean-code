@@ -18,5 +18,23 @@ namespace MarkdownTask.Tags
         public int ContentLength { get; }
         public int TagLength { get; }
         public StyleInfo TagStyleInfo { get; }
+
+        public bool Contains(Tag otherTag)
+        {
+            return StartsAt <= otherTag.StartsAt
+                   && StartsAt + TagLength >= otherTag.StartsAt + otherTag.TagLength;
+        }
+
+        public bool IntersectsWith(Tag otherTag)
+        {
+            var isThisOtherSequence = StartsAt > otherTag.StartsAt
+                                      && StartsAt < otherTag.StartsAt + otherTag.TagLength
+                                      && StartsAt + TagLength > otherTag.StartsAt + otherTag.TagLength;
+            var isOtherThisSequence = StartsAt < otherTag.StartsAt
+                                      && StartsAt + TagLength > otherTag.StartsAt
+                                      && StartsAt + TagLength < otherTag.StartsAt + otherTag.TagLength;
+
+            return isThisOtherSequence || isOtherThisSequence;
+        }
     }
 }

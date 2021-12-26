@@ -75,5 +75,23 @@ namespace MarkdownTaskTests
 
             actualResult.Should().Be(expectedResult);
         }
+
+        [TestCase("_some__te_xt__", "_some__te_xt__")]
+        [TestCase("__text_so__me_", "__text_so__me_")]
+        public void Render_ShouldNotRender_IntersectedTags(string mdText, string expectedResult)
+        {
+            var actualResult = md.Render(mdText);
+
+            actualResult.Should().Be(expectedResult);
+        }
+
+        [TestCase("__out_in_out__", "<strong>out<em>in</em>out</strong>")]
+        [TestCase("_out__in__out_", "<em>out__in__out</em>")]
+        public void Render_ShouldCorrectRender_ContainedTags(string mdText, string expectedResult)
+        {
+            var actualResult = md.Render(mdText);
+
+            actualResult.Should().Be(expectedResult);
+        }
     }
 }

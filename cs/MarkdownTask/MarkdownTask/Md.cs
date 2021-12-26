@@ -1,15 +1,18 @@
 ﻿using System.Linq;
 using MarkdownTask.Searchers;
+using MarkdownTask.Tags;
 
 namespace MarkdownTask
 {
     public class Md
     {
         private readonly ITagSearcher[] searchers;
+        private readonly TagsInspector tagsInspector;
 
         public Md(ITagSearcher[] searchers)
         {
             this.searchers = searchers;
+            tagsInspector = new TagsInspector();
         }
 
         public string Render(string mdText)
@@ -18,7 +21,13 @@ namespace MarkdownTask
                 .SelectMany(searcher => searcher.SearchForTags(mdText))
                 .OrderBy(tag => tag.StartsAt)
                 .ToList();
-            var htmlText = new Converter().ConvertMdToHtml(mdText, tags);
+
+            var inspectedTags = tagsInspector
+                .ExcludeIntersection(TagType.Italic, TagType.Strong)
+                .ExcludeContaining(TagType.Italic, TagType.Strong)
+                .InspectTags(tags);
+
+            var htmlText = new Converter().ConvertMdToHtml(mdText, inspectedTags);
             return htmlText;
         }
     }

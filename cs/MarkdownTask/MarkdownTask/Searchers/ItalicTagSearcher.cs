@@ -67,7 +67,7 @@ namespace MarkdownTask.Searchers
                 length++;
                 if (!IsTagStillAbleExist(mdText[currentPosition]))
                     return null;
-                if (mdText[currentPosition] == KeyChar)
+                if (IsPossibleCloseTag(mdText))
                     return new Tag(startPos, length, styleInfo);
             }
 
@@ -77,6 +77,20 @@ namespace MarkdownTask.Searchers
         private bool IsTagStillAbleExist(char currentChar)
         {
             return !char.IsWhiteSpace(currentChar) && !char.IsNumber(currentChar);
+        }
+
+        private bool IsPossibleCloseTag(string mdText)
+        {
+            var isTagClosedAtEndOfText = mdText[currentPosition] == KeyChar
+                                         && currentPosition + 1 >= mdText.Length;
+            if (isTagClosedAtEndOfText)
+                return true;
+
+
+            return mdText[currentPosition] == KeyChar
+                   && mdText[currentPosition - 1] != KeyChar
+                   && currentPosition + 1 < mdText.Length
+                   && mdText[currentPosition + 1] != KeyChar;
         }
     }
 }

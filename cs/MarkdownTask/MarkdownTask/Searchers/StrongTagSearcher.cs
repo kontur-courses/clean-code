@@ -70,7 +70,7 @@ namespace MarkdownTask.Searchers
                     return null;
                 if (mdText[currentPosition] == KeyChar)
                     if (currentPosition + 1 < mdText.Length
-                        && mdText[currentPosition] == KeyChar)
+                        && mdText[currentPosition + 1] == KeyChar)
                     {
                         length++;
                         return new Tag(startPos, length, styleInfo);
