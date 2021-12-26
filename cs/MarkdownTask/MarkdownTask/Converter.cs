@@ -110,7 +110,7 @@ namespace MarkdownTask
             var tagContent = GetTagContent(mdText, tag);
             htmlTag.Append(htmlStyle.TagPrefix).Append(tagContent).Append(htmlStyle.TagAffix);
 
-            currentPos += tag.TagStyleInfo.TagAffix.Length;
+            currentPos = tag.ContentStartsAt + tag.ContentLength + tag.TagStyleInfo.TagAffix.Length;
 
             return htmlTag.ToString();
         }
@@ -127,32 +127,10 @@ namespace MarkdownTask
                     continue;
                 }
 
-                var innerTagContent = GetInnerHtmlTag(mdText, innerTag);
+                var innerTagContent = GetHtmlTag(mdText, innerTag);
                 content.Append(innerTagContent);
+                currentPos--;
             }
-
-            return content.ToString();
-        }
-
-        private string GetInnerHtmlTag(string mdText, Tag tag)
-        {
-            currentPos = tag.ContentStartsAt;
-
-            var htmlTag = new StringBuilder();
-            var htmlStyle = HtmlStyleKeeper.Styles[tag.TagStyleInfo.Type];
-            var tagContent = GetTagContent(mdText, tag);
-            htmlTag.Append(htmlStyle.TagPrefix).Append(tagContent).Append(htmlStyle.TagAffix);
-
-            //currentPos += tagContent.Length - 1 + tag.TagStyleInfo.TagAffix.Length - 1;
-
-            return htmlTag.ToString();
-        }
-
-        private string GetInnerTagContent(string mdText, Tag tag)
-        {
-            var content = new StringBuilder();
-            for (; currentPos < tag.ContentStartsAt + tag.ContentLength; currentPos++)
-                content.Append(mdText[currentPos]);
 
             return content.ToString();
         }
