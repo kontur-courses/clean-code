@@ -11,12 +11,14 @@ namespace MarkdownTaskTests.SearchersTests
     public class HeaderTagSearcherTests
     {
         private static readonly StyleInfo StyleInfo = MdStyleKeeper.Styles[TagType.Header];
+        private EscapeSearcher escapeSearcher;
         private ITagSearcher searcher;
 
         [OneTimeSetUp]
         public void OneTimeSetUp()
         {
             searcher = new HeaderTagSearcher();
+            escapeSearcher = new EscapeSearcher();
         }
 
         [TestCase("")]
@@ -25,7 +27,8 @@ namespace MarkdownTaskTests.SearchersTests
         [TestCase("some # text")]
         public void Searcher_ShouldNotDefineAnyTags(string mdText)
         {
-            var actualResult = searcher.SearchForTags(mdText);
+            var escapedChars = escapeSearcher.GetPositionOfEscapingSlashes(mdText);
+            var actualResult = searcher.SearchForTags(mdText, escapedChars);
             actualResult.Should().HaveCount(0);
         }
 
@@ -36,8 +39,9 @@ namespace MarkdownTaskTests.SearchersTests
         {
             var mdText = testCase.Item1;
             var expectedResult = testCase.Item2;
+            var escapedChars = escapeSearcher.GetPositionOfEscapingSlashes(mdText);
 
-            var actualResult = searcher.SearchForTags(mdText);
+            var actualResult = searcher.SearchForTags(mdText, escapedChars);
 
             actualResult.Should().BeEquivalentTo(expectedResult);
         }

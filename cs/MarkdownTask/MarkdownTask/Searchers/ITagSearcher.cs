@@ -5,6 +5,6 @@ namespace MarkdownTask.Searchers
 {
     public interface ITagSearcher
     {
-        List<Tag> SearchForTags(string mdText);
+        List<Tag> SearchForTags(string mdText, List<int> escapedChars);
     }
 }

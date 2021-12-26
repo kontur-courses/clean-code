@@ -11,7 +11,7 @@ namespace MarkdownTask
         private int currentPos;
         private int openedHeaderTagsCount;
 
-        public string ConvertMdToHtml(string mdText, List<Tag> tags)
+        public string ConvertMdToHtml(string mdText, List<Tag> tags, List<int> escapedChars)
         {
             PrepareToConvert();
 
@@ -19,6 +19,9 @@ namespace MarkdownTask
 
             for (; currentPos < mdText.Length; currentPos++)
             {
+                if (escapedChars.Contains(currentPos))
+                    continue;
+
                 var tag = tags.FirstOrDefault(tag => tag.StartsAt == currentPos);
 
                 if (tag == null)
@@ -33,7 +36,7 @@ namespace MarkdownTask
 
                 else
                 {
-                    htmlText.Append(GetHtmlTag(mdText, tag));
+                    htmlText.Append(GetHtmlTag(mdText, tag, escapedChars));
                     currentPos--;
                 }
             }
@@ -101,13 +104,13 @@ namespace MarkdownTask
             return htmlText;
         }
 
-        private string GetHtmlTag(string mdText, Tag tag)
+        private string GetHtmlTag(string mdText, Tag tag, List<int> escapedChars)
         {
             currentPos = tag.ContentStartsAt;
 
             var htmlTag = new StringBuilder();
             var htmlStyle = HtmlStyleKeeper.Styles[tag.TagStyleInfo.Type];
-            var tagContent = GetTagContent(mdText, tag);
+            var tagContent = GetTagContent(mdText, tag, escapedChars);
             htmlTag.Append(htmlStyle.TagPrefix).Append(tagContent).Append(htmlStyle.TagAffix);
 
             currentPos = tag.ContentStartsAt + tag.ContentLength + tag.TagStyleInfo.TagAffix.Length;
@@ -115,11 +118,14 @@ namespace MarkdownTask
             return htmlTag.ToString();
         }
 
-        private string GetTagContent(string mdText, Tag tag)
+        private string GetTagContent(string mdText, Tag tag, List<int> escapedChars)
         {
             var content = new StringBuilder();
             for (; currentPos < tag.ContentStartsAt + tag.ContentLength; currentPos++)
             {
+                if (escapedChars.Contains(currentPos))
+                    continue;
+
                 var innerTag = tag.NextTag?.StartsAt == currentPos ? tag.NextTag : null;
                 if (innerTag == null)
                 {
@@ -127,7 +133,7 @@ namespace MarkdownTask
                     continue;
                 }
 
-                var innerTagContent = GetHtmlTag(mdText, innerTag);
+                var innerTagContent = GetHtmlTag(mdText, innerTag, escapedChars);
                 content.Append(innerTagContent);
                 currentPos--;
             }

@@ -10,7 +10,7 @@ namespace MarkdownTask.Searchers
         private readonly StyleInfo styleInfo = MdStyleKeeper.Styles[TagType.Italic];
         private int currentPosition;
 
-        public List<Tag> SearchForTags(string mdText)
+        public List<Tag> SearchForTags(string mdText, List<int> escapedChars)
         {
             PrepareToSearch();
             mdText = mdText.Trim();
@@ -21,7 +21,7 @@ namespace MarkdownTask.Searchers
                 {
                     var fullPrefix = GetFullPrefix(mdText);
                     if (fullPrefix == styleInfo.TagPrefix)
-                        if (IsPossibleOpenItalicTag(mdText))
+                        if (IsPossibleOpenItalicTag(mdText, escapedChars))
                         {
                             var tag = GetTagFromCurrentPosition(mdText);
                             if (tag is not null)
@@ -42,9 +42,12 @@ namespace MarkdownTask.Searchers
             currentPosition = 0;
         }
 
-        private bool IsPossibleOpenItalicTag(string mdText)
+        private bool IsPossibleOpenItalicTag(string mdText, List<int> escapedChars)
         {
             if (currentPosition + 1 >= mdText.Length)
+                return false;
+
+            if (currentPosition > 0 && escapedChars.Contains(currentPosition - 1))
                 return false;
 
             var nextCharIsValid = !char.IsNumber(mdText[currentPosition + 1])
@@ -53,7 +56,19 @@ namespace MarkdownTask.Searchers
 
             return currentPosition - 1 < 0
                 ? nextCharIsValid
-                : nextCharIsValid && mdText[currentPosition - 1] != KeyChar;
+                : nextCharIsValid && IsPreviousCharValid(mdText, escapedChars);
+        }
+
+        private bool IsPreviousCharValid(string mdText, List<int> escapedChars)
+        {
+            var isPreviousCharKeyChar = currentPosition - 1 >= 0 && mdText[currentPosition - 1] == KeyChar;
+            var isCharBeforePreviousEscaped = currentPosition - 2 >= 0
+                                              && escapedChars.Contains(currentPosition - 2);
+
+            var isPreviousCharValid = isPreviousCharKeyChar && isCharBeforePreviousEscaped
+                                      || !isPreviousCharKeyChar;
+
+            return isPreviousCharValid;
         }
 
         private Tag GetTagFromCurrentPosition(string mdText)

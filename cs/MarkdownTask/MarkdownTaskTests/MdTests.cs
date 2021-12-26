@@ -93,5 +93,16 @@ namespace MarkdownTaskTests
 
             actualResult.Should().Be(expectedResult);
         }
+
+        [TestCase(@"\_text\_", "_text_")]
+        [TestCase(@"\\_text\\_", @"\<em>text\</em>")]
+        [TestCase(@"\__text_", "_<em>text</em>")]
+        [TestCase(@"te\xt", @"te\xt")]
+        public void Render_ShouldCorrectRender_WithEscape(string mdText, string expectedResult)
+        {
+            var actualResult = md.Render(mdText);
+
+            actualResult.Should().Be(expectedResult);
+        }
     }
 }

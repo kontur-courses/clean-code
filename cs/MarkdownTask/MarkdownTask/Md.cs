@@ -18,8 +18,9 @@ namespace MarkdownTask
 
         public string Render(string mdText)
         {
+            var escapedChars = new EscapeSearcher().GetPositionOfEscapingSlashes(mdText);
             var tags = searchers
-                .SelectMany(searcher => searcher.SearchForTags(mdText))
+                .SelectMany(searcher => searcher.SearchForTags(mdText, escapedChars))
                 .OrderBy(tag => tag.StartsAt)
                 .ToList();
 
@@ -30,7 +31,7 @@ namespace MarkdownTask
 
             inspectedTags = inspectedTags.Count == 0 ? inspectedTags : LinkTags(inspectedTags);
 
-            var htmlText = new Converter().ConvertMdToHtml(mdText, inspectedTags);
+            var htmlText = new Converter().ConvertMdToHtml(mdText, inspectedTags, escapedChars);
             return htmlText;
         }
 

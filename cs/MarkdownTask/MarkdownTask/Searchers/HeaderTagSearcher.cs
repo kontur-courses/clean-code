@@ -10,7 +10,7 @@ namespace MarkdownTask.Searchers
         private readonly StyleInfo styleInfo = MdStyleKeeper.Styles[TagType.Header];
         private int currentPosition;
 
-        public List<Tag> SearchForTags(string mdText)
+        public List<Tag> SearchForTags(string mdText, List<int> escapedChars)
         {
             PrepareToSearch();
             mdText = mdText.Trim();
@@ -21,7 +21,7 @@ namespace MarkdownTask.Searchers
                 {
                     var fullPrefix = GetFullPrefix(mdText);
                     if (fullPrefix == styleInfo.TagPrefix)
-                        if (IsPossibleOpenTag(mdText))
+                        if (IsPossibleOpenTag(mdText, escapedChars))
                         {
                             var tag = GetTagFromCurrentPosition(mdText);
                             if (tag is not null)
@@ -44,12 +44,15 @@ namespace MarkdownTask.Searchers
                 : "" + mdText[currentPosition];
         }
 
-        private bool IsPossibleOpenTag(string mdText)
+        private bool IsPossibleOpenTag(string mdText, List<int> escapedChars)
         {
             const int requiredCountOfNewLineChars = 2;
 
             if (currentPosition == 0)
                 return true;
+
+            if (escapedChars.Contains(currentPosition - 1))
+                return false;
 
             var isTagAtEndOfText = currentPosition + styleInfo.TagPrefix.Length >= mdText.Length;
             var isAbleToLookupBeforeTag = currentPosition - requiredCountOfNewLineChars >= 0;
