@@ -5,8 +5,9 @@ namespace MarkdownTask.TagSearchers
 {
     public class ItalicTagSearcher : ITagSearcher
     {
+        private const char KeyChar = '_';
+        private readonly StyleInfo styleInfo = MdStyleKeeper.Styles[TagType.Italic];
         private int currentPosition;
-        public string TagPrefix => "_";
 
         public List<Tag> SearchForTags(string mdText)
         {
@@ -15,10 +16,10 @@ namespace MarkdownTask.TagSearchers
             var result = new List<Tag>();
 
             for (; currentPosition < mdText.Length; currentPosition++)
-                if (TagPrefix.StartsWith("" + mdText[currentPosition]))
+                if (mdText[currentPosition] == KeyChar)
                 {
                     var fullPrefix = GetFullPrefix(mdText);
-                    if (TagPrefix == fullPrefix)
+                    if (fullPrefix == styleInfo.TagPrefix)
                         if (IsPossibleOpenItalicTag(mdText))
                         {
                             var tag = GetTagFromCurrentPosition(mdText);
@@ -40,11 +41,6 @@ namespace MarkdownTask.TagSearchers
             currentPosition = 0;
         }
 
-        private bool IsCharItalicTag(char ch)
-        {
-            return "" + ch == TagPrefix;
-        }
-
         private bool IsPossibleOpenItalicTag(string mdText)
         {
             if (currentPosition + 1 >= mdText.Length)
@@ -52,17 +48,17 @@ namespace MarkdownTask.TagSearchers
 
             var nextCharIsValid = !char.IsNumber(mdText[currentPosition + 1])
                                   && !char.IsWhiteSpace(mdText[currentPosition + 1])
-                                  && !IsCharItalicTag(mdText[currentPosition + 1]);
+                                  && mdText[currentPosition + 1] != KeyChar;
 
             return currentPosition - 1 < 0
                 ? nextCharIsValid
-                : nextCharIsValid && !IsCharItalicTag(mdText[currentPosition - 1]);
+                : nextCharIsValid && mdText[currentPosition - 1] != KeyChar;
         }
 
         private Tag GetTagFromCurrentPosition(string mdText)
         {
             var startPos = currentPosition;
-            var length = TagPrefix.Length;
+            var length = styleInfo.TagPrefix.Length;
             currentPosition++;
 
             for (; currentPosition < mdText.Length; currentPosition++)
@@ -70,8 +66,8 @@ namespace MarkdownTask.TagSearchers
                 length++;
                 if (!IsTagStillAbleExist(mdText[currentPosition]))
                     return null;
-                if (IsCharItalicTag(mdText[currentPosition]))
-                    return new Tag(startPos, length, TagType.Italic);
+                if (mdText[currentPosition] == KeyChar)
+                    return new Tag(startPos, length, styleInfo);
             }
 
             return null;

@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using FluentAssertions;
+using MarkdownTask;
 using MarkdownTask.Tags;
 using MarkdownTask.TagSearchers;
 using NUnit.Framework;
@@ -9,6 +10,7 @@ namespace MarkdownTaskTests.SearchersTests
 {
     public class HeaderTagSearcherTests
     {
+        private static readonly StyleInfo StyleInfo = MdStyleKeeper.Styles[TagType.Header];
         private ITagSearcher searcher;
 
         [OneTimeSetUp]
@@ -44,13 +46,13 @@ namespace MarkdownTaskTests.SearchersTests
         {
             yield return Tuple.Create("# text", new List<Tag>
             {
-                new Tag(0, 6, TagType.Header)
+                new Tag(0, 6, StyleInfo)
             });
 
             yield return Tuple.Create("# some\n\n# text", new List<Tag>
             {
-                new Tag(0, 7, TagType.Header),
-                new Tag(8, 6, TagType.Header)
+                new Tag(0, 7, StyleInfo),
+                new Tag(8, 6, StyleInfo)
             });
         }
     }

@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using FluentAssertions;
+using MarkdownTask;
 using MarkdownTask.Tags;
 using MarkdownTask.TagSearchers;
 using NUnit.Framework;
@@ -10,6 +11,10 @@ namespace MarkdownTaskTests.SearchersTests
 {
     public class SearchersCompositionTests
     {
+        private static readonly StyleInfo ItalicStyleInfo = MdStyleKeeper.Styles[TagType.Italic];
+        private static readonly StyleInfo StrongStyleInfo = MdStyleKeeper.Styles[TagType.Strong];
+        private static readonly StyleInfo HeaderStyleInfo = MdStyleKeeper.Styles[TagType.Header];
+
         private List<ITagSearcher> searchers;
 
         [OneTimeSetUp]
@@ -49,23 +54,23 @@ namespace MarkdownTaskTests.SearchersTests
         {
             yield return Tuple.Create("_some_ __text__", new List<Tag>
             {
-                new Tag(0, 6, TagType.Italic),
-                new Tag(7, 8, TagType.Strong)
+                new Tag(0, 6, ItalicStyleInfo),
+                new Tag(7, 8, StrongStyleInfo)
             });
 
             yield return Tuple.Create("# __new__ _paragraph_", new List<Tag>
             {
-                new Tag(0, 21, TagType.Header),
-                new Tag(2, 7, TagType.Strong),
-                new Tag(10, 11, TagType.Italic)
+                new Tag(0, 21, HeaderStyleInfo),
+                new Tag(2, 7, StrongStyleInfo),
+                new Tag(10, 11, ItalicStyleInfo)
             });
 
             yield return Tuple.Create("# __first__ paragraph\n\n# _second_ paragraph", new List<Tag>
             {
-                new Tag(0, 22, TagType.Header),
-                new Tag(2, 9, TagType.Strong),
-                new Tag(23, 20, TagType.Header),
-                new Tag(25, 8, TagType.Italic)
+                new Tag(0, 22, HeaderStyleInfo),
+                new Tag(2, 9, StrongStyleInfo),
+                new Tag(23, 20, HeaderStyleInfo),
+                new Tag(25, 8, ItalicStyleInfo)
             });
         }
     }

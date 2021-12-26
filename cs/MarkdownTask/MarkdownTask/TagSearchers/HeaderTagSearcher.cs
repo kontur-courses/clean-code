@@ -5,8 +5,9 @@ namespace MarkdownTask.TagSearchers
 {
     public class HeaderTagSearcher : ITagSearcher
     {
+        private const char KeyChar = '#';
+        private readonly StyleInfo styleInfo = MdStyleKeeper.Styles[TagType.Header];
         private int currentPosition;
-        public string TagPrefix => "# ";
 
         public List<Tag> SearchForTags(string mdText)
         {
@@ -15,10 +16,10 @@ namespace MarkdownTask.TagSearchers
             var result = new List<Tag>();
 
             for (; currentPosition < mdText.Length; currentPosition++)
-                if (TagPrefix.StartsWith("" + mdText[currentPosition]))
+                if (mdText[currentPosition] == KeyChar)
                 {
                     var fullPrefix = GetFullPrefix(mdText);
-                    if (fullPrefix == TagPrefix)
+                    if (fullPrefix == styleInfo.TagPrefix)
                         if (IsPossibleOpenTag(mdText))
                         {
                             var tag = GetTagFromCurrentPosition(mdText);
@@ -49,7 +50,7 @@ namespace MarkdownTask.TagSearchers
             if (currentPosition == 0)
                 return true;
 
-            var isTagAtEndOfText = currentPosition + TagPrefix.Length >= mdText.Length;
+            var isTagAtEndOfText = currentPosition + styleInfo.TagPrefix.Length >= mdText.Length;
             var isAbleToLookupBeforeTag = currentPosition - requiredCountOfNewLineChars >= 0;
 
             if (isTagAtEndOfText || !isAbleToLookupBeforeTag)
@@ -64,8 +65,8 @@ namespace MarkdownTask.TagSearchers
         private Tag GetTagFromCurrentPosition(string mdText)
         {
             var startPos = currentPosition;
-            var length = TagPrefix.Length;
-            currentPosition += TagPrefix.Length;
+            var length = styleInfo.TagPrefix.Length;
+            currentPosition += styleInfo.TagPrefix.Length;
 
             for (; currentPosition < mdText.Length; currentPosition++)
             {
@@ -73,10 +74,10 @@ namespace MarkdownTask.TagSearchers
                 if (mdText[currentPosition] == '\n')
                     if (currentPosition + 1 < mdText.Length
                         && mdText[currentPosition + 1] == '\n')
-                        return new Tag(startPos, length, TagType.Header);
+                        break;
             }
 
-            return new Tag(startPos, length, TagType.Header);
+            return new Tag(startPos, length, styleInfo);
         }
     }
 }

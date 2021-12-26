@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using FluentAssertions;
+using MarkdownTask;
 using MarkdownTask.Tags;
 using MarkdownTask.TagSearchers;
 using NUnit.Framework;
@@ -9,6 +10,7 @@ namespace MarkdownTaskTests.SearchersTests
 {
     public class StrongTagSearcherTests
     {
+        private static readonly StyleInfo StyleInfo = MdStyleKeeper.Styles[TagType.Strong];
         private ITagSearcher searcher;
 
         [OneTimeSetUp]
@@ -101,22 +103,22 @@ namespace MarkdownTaskTests.SearchersTests
         {
             yield return Tuple.Create("__text__", new List<Tag>
             {
-                new Tag(0, 8, TagType.Strong)
+                new Tag(0, 8, StyleInfo)
             });
 
             yield return Tuple.Create("__te__xt", new List<Tag>
             {
-                new Tag(0, 6, TagType.Strong)
+                new Tag(0, 6, StyleInfo)
             });
 
             yield return Tuple.Create("t__ex__t", new List<Tag>
             {
-                new Tag(1, 6, TagType.Strong)
+                new Tag(1, 6, StyleInfo)
             });
 
             yield return Tuple.Create("te__xt__", new List<Tag>
             {
-                new Tag(2, 6, TagType.Strong)
+                new Tag(2, 6, StyleInfo)
             });
         }
 
@@ -124,14 +126,14 @@ namespace MarkdownTaskTests.SearchersTests
         {
             yield return Tuple.Create("__so__me te__xt__", new List<Tag>
             {
-                new Tag(0, 6, TagType.Strong),
-                new Tag(11, 6, TagType.Strong)
+                new Tag(0, 6, StyleInfo),
+                new Tag(11, 6, StyleInfo)
             });
 
             yield return Tuple.Create("__some__ __text__", new List<Tag>
             {
-                new Tag(0, 8, TagType.Strong),
-                new Tag(9, 8, TagType.Strong)
+                new Tag(0, 8, StyleInfo),
+                new Tag(9, 8, StyleInfo)
             });
         }
 
@@ -139,12 +141,12 @@ namespace MarkdownTaskTests.SearchersTests
         {
             yield return Tuple.Create("__te__x__t", new List<Tag>
             {
-                new Tag(0, 6, TagType.Strong)
+                new Tag(0, 6, StyleInfo)
             });
 
             yield return Tuple.Create("__some__ __text", new List<Tag>
             {
-                new Tag(0, 8, TagType.Strong)
+                new Tag(0, 8, StyleInfo)
             });
         }
     }

@@ -5,9 +5,9 @@ namespace MarkdownTask.TagSearchers
 {
     public class StrongTagSearcher : ITagSearcher
     {
+        private const char KeyChar = '_';
+        private readonly StyleInfo styleInfo = MdStyleKeeper.Styles[TagType.Strong];
         private int currentPosition;
-
-        public string TagPrefix => "__";
 
         public List<Tag> SearchForTags(string mdText)
         {
@@ -16,10 +16,10 @@ namespace MarkdownTask.TagSearchers
             var result = new List<Tag>();
 
             for (; currentPosition < mdText.Length; currentPosition++)
-                if (TagPrefix.StartsWith("" + mdText[currentPosition]))
+                if (mdText[currentPosition] == KeyChar)
                 {
                     var fullPrefix = GetFullPrefix(mdText);
-                    if (fullPrefix == TagPrefix)
+                    if (fullPrefix == styleInfo.TagPrefix)
                         if (IsPossibleOpenTag(mdText))
                         {
                             var tag = GetTagFromCurrentPosition(mdText);
@@ -45,12 +45,13 @@ namespace MarkdownTask.TagSearchers
 
         private bool IsPossibleOpenTag(string mdText)
         {
-            if (currentPosition + TagPrefix.Length >= mdText.Length)
+            if (currentPosition + styleInfo.TagPrefix.Length >= mdText.Length)
                 return false;
 
-            var nextCharIsValid = !char.IsWhiteSpace(mdText[currentPosition + TagPrefix.Length])
-                                  && !TagPrefix.Contains("" + mdText[currentPosition + TagPrefix.Length])
-                                  && !char.IsNumber(mdText[currentPosition + TagPrefix.Length]);
+            var nextCharIsValid = !char.IsWhiteSpace(mdText[currentPosition + styleInfo.TagPrefix.Length])
+                                  && !styleInfo.TagPrefix.Contains("" +
+                                                                   mdText[currentPosition + styleInfo.TagPrefix.Length])
+                                  && !char.IsNumber(mdText[currentPosition + styleInfo.TagPrefix.Length]);
 
             return nextCharIsValid;
         }
@@ -58,20 +59,20 @@ namespace MarkdownTask.TagSearchers
         private Tag GetTagFromCurrentPosition(string mdText)
         {
             var startPos = currentPosition;
-            var length = TagPrefix.Length;
-            currentPosition += TagPrefix.Length;
+            var length = styleInfo.TagPrefix.Length;
+            currentPosition += styleInfo.TagPrefix.Length;
 
             for (; currentPosition < mdText.Length; currentPosition++)
             {
                 length++;
                 if (!IsTagStillAbleExist(mdText[currentPosition]))
                     return null;
-                if (TagPrefix.StartsWith("" + mdText[currentPosition]))
+                if (mdText[currentPosition] == KeyChar)
                     if (currentPosition + 1 < mdText.Length
-                        && TagPrefix.EndsWith("" + mdText[currentPosition + 1]))
+                        && mdText[currentPosition] == KeyChar)
                     {
                         length++;
-                        return new Tag(startPos, length, TagType.Strong);
+                        return new Tag(startPos, length, styleInfo);
                     }
             }
 

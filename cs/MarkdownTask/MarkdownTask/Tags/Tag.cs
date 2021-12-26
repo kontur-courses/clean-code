@@ -2,15 +2,31 @@
 {
     public class Tag
     {
-        public Tag(int startsAt, int length, TagType type)
+        public Tag(
+            int startsAt, int tagLength,
+            int contentStartsAt, int contentLength,
+            StyleInfo tagStyleInfo)
         {
             StartsAt = startsAt;
-            Length = length;
-            Type = type;
+            ContentStartsAt = contentStartsAt;
+            ContentLength = contentLength;
+            TagLength = tagLength;
+            TagStyleInfo = tagStyleInfo;
+        }
+
+        public Tag(int startsAt, int tagLength, StyleInfo styleInfo)
+        {
+            StartsAt = startsAt;
+            TagLength = tagLength;
+            ContentStartsAt = startsAt + styleInfo.TagPrefix.Length;
+            ContentLength = tagLength - styleInfo.TagPrefix.Length - styleInfo.TagAffix.Length;
+            TagStyleInfo = styleInfo;
         }
 
         public int StartsAt { get; }
-        public int Length { get; }
-        public TagType Type { get; }
+        public int ContentStartsAt { get; }
+        public int ContentLength { get; }
+        public int TagLength { get; }
+        public StyleInfo TagStyleInfo { get; }
     }
 }
