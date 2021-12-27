@@ -10,14 +10,12 @@ namespace MarkdownTaskTests.SearchersTests
 {
     public class ItalicTagSearcherTests
     {
-        private static readonly StyleInfo StyleInfo = MdStyleKeeper.Styles[TagType.Italic];
+        private static readonly TagStyleInfo TagStyleInfo = MdStyleKeeper.Styles[TagType.Italic];
         private EscapeSearcher escapeSearcher;
-        private ITagSearcher searcher;
 
         [OneTimeSetUp]
         public void OneTimeSetUp()
         {
-            searcher = new ItalicTagSearcher();
             escapeSearcher = new EscapeSearcher();
         }
 
@@ -28,9 +26,10 @@ namespace MarkdownTaskTests.SearchersTests
         [TestCase("__text__")]
         public void Searcher_ShouldNotDefineAnyTags(string mdText)
         {
+            var searcher = new ItalicTagSearcher(mdText);
             var escapedChars = escapeSearcher.GetPositionOfEscapingSlashes(mdText);
 
-            var actualResult = searcher.SearchForTags(mdText, escapedChars);
+            var actualResult = searcher.SearchForTags(escapedChars);
             actualResult.Should().HaveCount(0);
         }
 
@@ -38,9 +37,10 @@ namespace MarkdownTaskTests.SearchersTests
         [TestCase("_text _")]
         public void Searcher_ShouldNotDefineTag_WhenSpaceBeforeOrAfterTag(string mdText)
         {
+            var searcher = new ItalicTagSearcher(mdText);
             var escapedChars = escapeSearcher.GetPositionOfEscapingSlashes(mdText);
 
-            var actualResult = searcher.SearchForTags(mdText, escapedChars);
+            var actualResult = searcher.SearchForTags(escapedChars);
             actualResult.Should().HaveCount(0);
         }
 
@@ -48,9 +48,10 @@ namespace MarkdownTaskTests.SearchersTests
         public void Searcher_ShouldNotDefineTag_WhenTagInDifferentWords()
         {
             var mdText = "so_me te_xt";
+            var searcher = new ItalicTagSearcher(mdText);
             var escapedChars = escapeSearcher.GetPositionOfEscapingSlashes(mdText);
 
-            var actualResult = searcher.SearchForTags(mdText, escapedChars);
+            var actualResult = searcher.SearchForTags(escapedChars);
             actualResult.Should().HaveCount(0);
         }
 
@@ -59,9 +60,10 @@ namespace MarkdownTaskTests.SearchersTests
         [TestCase("____")]
         public void Searcher_ShouldNotDefineTag_IfTagNotWrapSomething(string mdText)
         {
+            var searcher = new ItalicTagSearcher(mdText);
             var escapedChars = escapeSearcher.GetPositionOfEscapingSlashes(mdText);
 
-            var actualResult = searcher.SearchForTags(mdText, escapedChars);
+            var actualResult = searcher.SearchForTags(escapedChars);
             actualResult.Should().HaveCount(0);
         }
 
@@ -69,9 +71,10 @@ namespace MarkdownTaskTests.SearchersTests
         [TestCase("text_1_2")]
         public void Searcher_ShouldNotDefineTag_IfTagWrapNumbers(string mdText)
         {
+            var searcher = new ItalicTagSearcher(mdText);
             var escapedChars = escapeSearcher.GetPositionOfEscapingSlashes(mdText);
 
-            var actualResult = searcher.SearchForTags(mdText, escapedChars);
+            var actualResult = searcher.SearchForTags(escapedChars);
             actualResult.Should().HaveCount(0);
         }
 
@@ -82,9 +85,10 @@ namespace MarkdownTaskTests.SearchersTests
         {
             var mdText = testCase.Item1;
             var expectedResult = testCase.Item2;
+            var searcher = new ItalicTagSearcher(mdText);
             var escapedChars = escapeSearcher.GetPositionOfEscapingSlashes(mdText);
 
-            var actualResult = searcher.SearchForTags(mdText, escapedChars);
+            var actualResult = searcher.SearchForTags(escapedChars);
             actualResult.Should().BeEquivalentTo(expectedResult);
         }
 
@@ -95,9 +99,10 @@ namespace MarkdownTaskTests.SearchersTests
         {
             var mdText = testCase.Item1;
             var expectedResult = testCase.Item2;
+            var searcher = new ItalicTagSearcher(mdText);
             var escapedChars = escapeSearcher.GetPositionOfEscapingSlashes(mdText);
 
-            var actualResult = searcher.SearchForTags(mdText, escapedChars);
+            var actualResult = searcher.SearchForTags(escapedChars);
             actualResult.Should().BeEquivalentTo(expectedResult);
         }
 
@@ -108,9 +113,10 @@ namespace MarkdownTaskTests.SearchersTests
         {
             var mdText = testCase.Item1;
             var expectedResult = testCase.Item2;
+            var searcher = new ItalicTagSearcher(mdText);
             var escapedChars = escapeSearcher.GetPositionOfEscapingSlashes(mdText);
 
-            var actualResult = searcher.SearchForTags(mdText, escapedChars);
+            var actualResult = searcher.SearchForTags(escapedChars);
             actualResult.Should().BeEquivalentTo(expectedResult);
         }
 
@@ -118,22 +124,22 @@ namespace MarkdownTaskTests.SearchersTests
         {
             yield return Tuple.Create("_text_", new List<Tag>
             {
-                new Tag(0, 6, StyleInfo)
+                new Tag(0, 6, TagStyleInfo)
             });
 
             yield return Tuple.Create("_te_xt", new List<Tag>
             {
-                new Tag(0, 4, StyleInfo)
+                new Tag(0, 4, TagStyleInfo)
             });
 
             yield return Tuple.Create("t_ex_t", new List<Tag>
             {
-                new Tag(1, 4, StyleInfo)
+                new Tag(1, 4, TagStyleInfo)
             });
 
             yield return Tuple.Create("te_xt_", new List<Tag>
             {
-                new Tag(2, 4, StyleInfo)
+                new Tag(2, 4, TagStyleInfo)
             });
         }
 
@@ -141,14 +147,14 @@ namespace MarkdownTaskTests.SearchersTests
         {
             yield return Tuple.Create("_so_me te_xt_", new List<Tag>
             {
-                new Tag(0, 4, StyleInfo),
-                new Tag(9, 4, StyleInfo)
+                new Tag(0, 4, TagStyleInfo),
+                new Tag(9, 4, TagStyleInfo)
             });
 
             yield return Tuple.Create("_some_ _text_", new List<Tag>
             {
-                new Tag(0, 6, StyleInfo),
-                new Tag(7, 6, StyleInfo)
+                new Tag(0, 6, TagStyleInfo),
+                new Tag(7, 6, TagStyleInfo)
             });
         }
 
@@ -156,12 +162,12 @@ namespace MarkdownTaskTests.SearchersTests
         {
             yield return Tuple.Create("_te_x_t", new List<Tag>
             {
-                new Tag(0, 4, StyleInfo)
+                new Tag(0, 4, TagStyleInfo)
             });
 
             yield return Tuple.Create("_some_ _text", new List<Tag>
             {
-                new Tag(0, 6, StyleInfo)
+                new Tag(0, 6, TagStyleInfo)
             });
         }
     }

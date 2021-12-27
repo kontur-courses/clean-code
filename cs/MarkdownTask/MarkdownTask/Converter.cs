@@ -29,7 +29,7 @@ namespace MarkdownTask
                     htmlText = CloseHeaderOrAppendChar(mdText, htmlText);
                 }
 
-                else if (tag.TagStyleInfo.Type == TagType.Header)
+                else if (tag.TagTagStyleInfo.Type == TagType.Header)
                 {
                     htmlText = OpenHeaderTag(htmlText, tag);
                 }
@@ -67,8 +67,8 @@ namespace MarkdownTask
 
         private StringBuilder OpenHeaderTag(StringBuilder htmlText, Tag tag)
         {
-            htmlText.Append(HtmlStyleKeeper.Styles[tag.TagStyleInfo.Type].TagPrefix);
-            currentPos += tag.TagStyleInfo.TagPrefix.Length - 1;
+            htmlText.Append(HtmlStyleKeeper.Styles[tag.TagTagStyleInfo.Type].TagPrefix);
+            currentPos += tag.TagTagStyleInfo.TagPrefix.Length - 1;
             openedHeaderTagsCount++;
 
             return htmlText;
@@ -109,11 +109,11 @@ namespace MarkdownTask
             currentPos = tag.ContentStartsAt;
 
             var htmlTag = new StringBuilder();
-            var htmlStyle = HtmlStyleKeeper.Styles[tag.TagStyleInfo.Type];
+            var htmlStyle = HtmlStyleKeeper.Styles[tag.TagTagStyleInfo.Type];
             var tagContent = GetTagContent(mdText, tag, escapedChars);
             htmlTag.Append(htmlStyle.TagPrefix).Append(tagContent).Append(htmlStyle.TagAffix);
 
-            currentPos = tag.ContentStartsAt + tag.ContentLength + tag.TagStyleInfo.TagAffix.Length;
+            currentPos = tag.ContentStartsAt + tag.ContentLength + tag.TagTagStyleInfo.TagAffix.Length;
 
             return htmlTag.ToString();
         }

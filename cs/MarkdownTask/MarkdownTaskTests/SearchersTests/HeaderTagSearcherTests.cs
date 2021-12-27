@@ -10,14 +10,12 @@ namespace MarkdownTaskTests.SearchersTests
 {
     public class HeaderTagSearcherTests
     {
-        private static readonly StyleInfo StyleInfo = MdStyleKeeper.Styles[TagType.Header];
+        private static readonly TagStyleInfo TagStyleInfo = MdStyleKeeper.Styles[TagType.Header];
         private EscapeSearcher escapeSearcher;
-        private ITagSearcher searcher;
 
         [OneTimeSetUp]
         public void OneTimeSetUp()
         {
-            searcher = new HeaderTagSearcher();
             escapeSearcher = new EscapeSearcher();
         }
 
@@ -27,8 +25,10 @@ namespace MarkdownTaskTests.SearchersTests
         [TestCase("some # text")]
         public void Searcher_ShouldNotDefineAnyTags(string mdText)
         {
+            var searcher = new HeaderTagSearcher(mdText);
             var escapedChars = escapeSearcher.GetPositionOfEscapingSlashes(mdText);
-            var actualResult = searcher.SearchForTags(mdText, escapedChars);
+
+            var actualResult = searcher.SearchForTags(escapedChars);
             actualResult.Should().HaveCount(0);
         }
 
@@ -39,9 +39,10 @@ namespace MarkdownTaskTests.SearchersTests
         {
             var mdText = testCase.Item1;
             var expectedResult = testCase.Item2;
+            var searcher = new HeaderTagSearcher(mdText);
             var escapedChars = escapeSearcher.GetPositionOfEscapingSlashes(mdText);
 
-            var actualResult = searcher.SearchForTags(mdText, escapedChars);
+            var actualResult = searcher.SearchForTags(escapedChars);
 
             actualResult.Should().BeEquivalentTo(expectedResult);
         }
@@ -50,13 +51,13 @@ namespace MarkdownTaskTests.SearchersTests
         {
             yield return Tuple.Create("# text", new List<Tag>
             {
-                new Tag(0, 6, StyleInfo)
+                new Tag(0, 6, TagStyleInfo)
             });
 
             yield return Tuple.Create("# some\n\n# text", new List<Tag>
             {
-                new Tag(0, 6, StyleInfo),
-                new Tag(8, 6, StyleInfo)
+                new Tag(0, 6, TagStyleInfo),
+                new Tag(8, 6, TagStyleInfo)
             });
         }
     }

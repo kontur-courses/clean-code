@@ -4,13 +4,13 @@ namespace MarkdownTask.Tags
 {
     public class Tag
     {
-        public Tag(int startsAt, int tagLength, StyleInfo styleInfo)
+        public Tag(int startsAt, int tagLength, TagStyleInfo tagStyleInfo)
         {
             StartsAt = startsAt;
             TagLength = tagLength;
-            ContentStartsAt = startsAt + styleInfo.TagPrefix.Length;
-            ContentLength = tagLength - styleInfo.TagPrefix.Length - styleInfo.TagAffix.Length;
-            TagStyleInfo = styleInfo;
+            ContentStartsAt = startsAt + tagStyleInfo.TagPrefix.Length;
+            ContentLength = tagLength - tagStyleInfo.TagPrefix.Length - tagStyleInfo.TagAffix.Length;
+            TagTagStyleInfo = tagStyleInfo;
         }
 
         public int StartsAt { get; }
@@ -18,7 +18,7 @@ namespace MarkdownTask.Tags
         public int ContentLength { get; }
         public int TagLength { get; }
         public Tag NextTag { get; private set; }
-        public StyleInfo TagStyleInfo { get; }
+        public TagStyleInfo TagTagStyleInfo { get; }
 
         public void SetNextTag(Tag nextTag)
         {

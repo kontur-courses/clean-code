@@ -4,26 +4,28 @@ using MarkdownTask.Tags;
 
 namespace MarkdownTask.Searchers
 {
-    public class HeaderTagSearcher : ITagSearcher
+    public class HeaderTagSearcher : TagSearcher
     {
         private const char KeyChar = '#';
-        private readonly StyleInfo styleInfo = MdStyleKeeper.Styles[TagType.Header];
-        private int currentPosition;
+        private readonly TagStyleInfo tagStyleInfo = MdStyleKeeper.Styles[TagType.Header];
 
-        public List<Tag> SearchForTags(string mdText, List<int> escapedChars)
+        public HeaderTagSearcher(string mdText) : base(mdText)
         {
-            PrepareToSearch();
-            mdText = mdText.Trim();
+        }
+
+        public override List<Tag> SearchForTags(List<int> escapedChars)
+        {
+            base.PrepareToSearch();
             var result = new List<Tag>();
 
-            for (; currentPosition < mdText.Length; currentPosition++)
-                if (mdText[currentPosition] == KeyChar)
+            for (; CurrentPosition < MdText.Length; CurrentPosition++)
+                if (MdText[CurrentPosition] == KeyChar)
                 {
-                    var fullPrefix = GetFullPrefix(mdText);
-                    if (fullPrefix == styleInfo.TagPrefix)
-                        if (IsPossibleOpenTag(mdText, escapedChars))
+                    var fullPrefix = GetFullPrefix(MdText);
+                    if (fullPrefix == tagStyleInfo.TagPrefix)
+                        if (IsPossibleOpenTag(MdText, escapedChars))
                         {
-                            var tag = GetTagFromCurrentPosition(mdText);
+                            var tag = GetTagFromCurrentPosition(MdText);
                             if (tag is not null)
                                 result.Add(tag);
                         }
@@ -32,59 +34,54 @@ namespace MarkdownTask.Searchers
             return result;
         }
 
-        private void PrepareToSearch()
-        {
-            currentPosition = 0;
-        }
-
         private string GetFullPrefix(string mdText)
         {
-            return currentPosition + 1 < mdText.Length
-                ? "" + mdText[currentPosition] + mdText[currentPosition + 1]
-                : "" + mdText[currentPosition];
+            return CurrentPosition + 1 < mdText.Length
+                ? "" + mdText[CurrentPosition] + mdText[CurrentPosition + 1]
+                : "" + mdText[CurrentPosition];
         }
 
         private bool IsPossibleOpenTag(string mdText, List<int> escapedChars)
         {
             const int requiredCountOfNewLineChars = 2;
 
-            if (currentPosition == 0)
+            if (CurrentPosition == 0)
                 return true;
 
-            if (escapedChars.Contains(currentPosition - 1))
+            if (escapedChars.Contains(CurrentPosition - 1))
                 return false;
 
-            var isTagAtEndOfText = currentPosition + styleInfo.TagPrefix.Length >= mdText.Length;
-            var isAbleToLookupBeforeTag = currentPosition - requiredCountOfNewLineChars >= 0;
+            var isTagAtEndOfText = CurrentPosition + tagStyleInfo.TagPrefix.Length >= mdText.Length;
+            var isAbleToLookupBeforeTag = CurrentPosition - requiredCountOfNewLineChars >= 0;
 
             if (isTagAtEndOfText || !isAbleToLookupBeforeTag)
                 return false;
 
-            var isDoubleNewLineBeforeTag = mdText[currentPosition - 1] == '\n'
-                                           && mdText[currentPosition - 2] == '\n';
+            var isDoubleNewLineBeforeTag = mdText[CurrentPosition - 1] == '\n'
+                                           && mdText[CurrentPosition - 2] == '\n';
 
             return isDoubleNewLineBeforeTag;
         }
 
         private Tag GetTagFromCurrentPosition(string mdText)
         {
-            var startPos = currentPosition;
-            var length = styleInfo.TagPrefix.Length;
-            currentPosition += styleInfo.TagPrefix.Length;
+            var startPos = CurrentPosition;
+            var length = tagStyleInfo.TagPrefix.Length;
+            CurrentPosition += tagStyleInfo.TagPrefix.Length;
 
-            for (; currentPosition < mdText.Length; currentPosition++)
+            for (; CurrentPosition < mdText.Length; CurrentPosition++)
             {
                 length++;
-                if (mdText[currentPosition] == '\n')
-                    if (currentPosition + 1 < mdText.Length
-                        && mdText[currentPosition + 1] == '\n')
+                if (mdText[CurrentPosition] == '\n')
+                    if (CurrentPosition + 1 < mdText.Length
+                        && mdText[CurrentPosition + 1] == '\n')
                     {
                         length--;
                         break;
                     }
             }
 
-            return new Tag(startPos, length, styleInfo);
+            return new Tag(startPos, length, tagStyleInfo);
         }
     }
 }

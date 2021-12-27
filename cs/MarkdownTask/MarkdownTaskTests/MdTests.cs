@@ -8,23 +8,13 @@ namespace MarkdownTaskTests
 {
     public class MdTests
     {
-        private Md md;
-
-        [SetUp]
-        public void Setup()
-        {
-            md = new Md(new ITagSearcher[]
-            {
-                new HeaderTagSearcher(),
-                new StrongTagSearcher(),
-                new ItalicTagSearcher()
-            });
-        }
-
         [Test]
         public void Render_ShouldBeImplemented()
         {
+            var md = GetMd(string.Empty);
+
             Action act = () => md.Render(string.Empty);
+
             act.Should().NotThrow<NotImplementedException>();
         }
 
@@ -32,7 +22,10 @@ namespace MarkdownTaskTests
         [TestCase("text", "text")]
         public void Render_ShouldCorrectRender_TextWithoutTags(string mdText, string expectedResult)
         {
+            var md = GetMd(mdText);
+
             var actualResult = md.Render(mdText);
+
             actualResult.Should().Be(expectedResult);
         }
 
@@ -42,7 +35,10 @@ namespace MarkdownTaskTests
         [TestCase("te_xt_", @"te<em>xt</em>")]
         public void Render_ShouldCorrectRender_EmTag(string mdText, string expectedResult)
         {
+            var md = GetMd(mdText);
+
             var actualResult = md.Render(mdText);
+
             actualResult.Should().Be(expectedResult);
         }
 
@@ -52,6 +48,8 @@ namespace MarkdownTaskTests
         [TestCase("te__xt__", @"te<strong>xt</strong>")]
         public void Render_ShouldCorrectRender_StrongTag(string mdText, string expectedResult)
         {
+            var md = GetMd(mdText);
+
             var actualResult = md.Render(mdText);
 
             actualResult.Should().Be(expectedResult);
@@ -61,6 +59,8 @@ namespace MarkdownTaskTests
         [TestCase("# some\n\n# text", "<h1>some</h1>\n\n<h1>text</h1>")]
         public void Render_ShouldCorrectRender_HeaderTag(string mdText, string expectedResult)
         {
+            var md = GetMd(mdText);
+
             var actualResult = md.Render(mdText);
 
             actualResult.Should().Be(expectedResult);
@@ -71,6 +71,8 @@ namespace MarkdownTaskTests
         [TestCase("__some__ _text_\n\n# paragraph", "<strong>some</strong> <em>text</em>\n\n<h1>paragraph</h1>")]
         public void Render_ShouldCorrectRender_SequenceOfTags(string mdText, string expectedResult)
         {
+            var md = GetMd(mdText);
+
             var actualResult = md.Render(mdText);
 
             actualResult.Should().Be(expectedResult);
@@ -80,6 +82,8 @@ namespace MarkdownTaskTests
         [TestCase("__text_so__me_", "__text_so__me_")]
         public void Render_ShouldNotRender_IntersectedTags(string mdText, string expectedResult)
         {
+            var md = GetMd(mdText);
+
             var actualResult = md.Render(mdText);
 
             actualResult.Should().Be(expectedResult);
@@ -89,6 +93,8 @@ namespace MarkdownTaskTests
         [TestCase("_out__in__out_", "<em>out__in__out</em>")]
         public void Render_ShouldCorrectRender_ContainedTags(string mdText, string expectedResult)
         {
+            var md = GetMd(mdText);
+
             var actualResult = md.Render(mdText);
 
             actualResult.Should().Be(expectedResult);
@@ -100,9 +106,21 @@ namespace MarkdownTaskTests
         [TestCase(@"te\xt", @"te\xt")]
         public void Render_ShouldCorrectRender_WithEscape(string mdText, string expectedResult)
         {
+            var md = GetMd(mdText);
+
             var actualResult = md.Render(mdText);
 
             actualResult.Should().Be(expectedResult);
+        }
+
+        private Md GetMd(string mdText)
+        {
+            return new Md(new ITagSearcher[]
+            {
+                new HeaderTagSearcher(mdText),
+                new StrongTagSearcher(mdText),
+                new ItalicTagSearcher(mdText)
+            });
         }
     }
 }

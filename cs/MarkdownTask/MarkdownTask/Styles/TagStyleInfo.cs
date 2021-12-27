@@ -2,13 +2,13 @@
 
 namespace MarkdownTask.Styles
 {
-    public class StyleInfo
+    public class TagStyleInfo
     {
         public readonly string TagAffix;
         public readonly string TagPrefix;
         public readonly TagType Type;
 
-        public StyleInfo(string tagPrefix, string tagAffix, TagType type)
+        public TagStyleInfo(string tagPrefix, string tagAffix, TagType type)
         {
             TagPrefix = tagPrefix;
             TagAffix = tagAffix;

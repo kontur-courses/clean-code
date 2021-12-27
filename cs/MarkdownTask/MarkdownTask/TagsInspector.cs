@@ -82,15 +82,15 @@ namespace MarkdownTask
             IEnumerable<Tag> tags,
             (TagType first, TagType second) types)
         {
-            var isExistTagsOfFirstType = tags.Any(tag => tag.TagStyleInfo.Type == types.first);
-            var isExistTagsOfSecondType = tags.Any(tag => tag.TagStyleInfo.Type == types.second);
+            var isExistTagsOfFirstType = tags.Any(tag => tag.TagTagStyleInfo.Type == types.first);
+            var isExistTagsOfSecondType = tags.Any(tag => tag.TagTagStyleInfo.Type == types.second);
 
             return !isExistTagsOfFirstType || !isExistTagsOfSecondType;
         }
 
         private IEnumerable<Tag> GetTagsOfType(IEnumerable<Tag> tags, TagType type)
         {
-            return tags.Where(tag => tag.TagStyleInfo.Type == type);
+            return tags.Where(tag => tag.TagTagStyleInfo.Type == type);
         }
     }
 }

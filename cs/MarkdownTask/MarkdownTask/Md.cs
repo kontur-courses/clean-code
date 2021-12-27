@@ -20,7 +20,7 @@ namespace MarkdownTask
         {
             var escapedChars = new EscapeSearcher().GetPositionOfEscapingSlashes(mdText);
             var tags = searchers
-                .SelectMany(searcher => searcher.SearchForTags(mdText, escapedChars))
+                .SelectMany(searcher => searcher.SearchForTags(escapedChars))
                 .OrderBy(tag => tag.StartsAt)
                 .ToList();
 
