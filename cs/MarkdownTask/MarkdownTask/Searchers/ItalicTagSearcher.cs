@@ -36,7 +36,7 @@ namespace MarkdownTask.Searchers
             if (CurrentPosition + tagStyleInfo.TagPrefix.Length >= MdText.Length)
                 return false;
 
-            if (CurrentPosition > 0 && EscapedChars.Contains(CurrentPosition - 1))
+            if (IsPreviousCharEscapeChar())
                 return false;
 
             var nextCharIsValid = !char.IsNumber(MdText[CurrentPosition + 1])
@@ -73,19 +73,18 @@ namespace MarkdownTask.Searchers
 
             for (; CurrentPosition < MdText.Length; CurrentPosition++)
             {
-                length++;
-                if (!IsTagStillAbleExist(MdText[CurrentPosition]))
+                if (IsCharNumberOrWhitespace(MdText[CurrentPosition]))
                     return null;
                 if (IsPossibleCloseTag())
+                {
+                    length += tagStyleInfo.TagPrefix.Length;
                     return new Tag(startPos, length, tagStyleInfo);
+                }
+
+                length++;
             }
 
             return null;
-        }
-
-        private bool IsTagStillAbleExist(char currentChar)
-        {
-            return !char.IsWhiteSpace(currentChar) && !char.IsNumber(currentChar);
         }
 
         private bool IsPossibleCloseTag()
@@ -95,11 +94,10 @@ namespace MarkdownTask.Searchers
             if (isTagClosedAtEndOfText)
                 return true;
 
-
             return MdText[CurrentPosition] == KeyChar
-                   && MdText[CurrentPosition - 1] != KeyChar
                    && CurrentPosition + 1 < MdText.Length
-                   && MdText[CurrentPosition + 1] != KeyChar;
+                   && MdText[CurrentPosition + 1] != KeyChar
+                   && MdText[CurrentPosition - 1] != KeyChar;
         }
     }
 }

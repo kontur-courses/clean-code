@@ -41,5 +41,11 @@ namespace MarkdownTask.Searchers
 
             return prefix.ToString();
         }
+
+        protected bool IsCharNumberOrWhitespace(char currentChar)
+        {
+            return char.IsWhiteSpace(currentChar)
+                   || char.IsNumber(currentChar);
+        }
     }
 }

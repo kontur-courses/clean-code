@@ -61,14 +61,12 @@ namespace MarkdownTask.Searchers
 
             for (; CurrentPosition < MdText.Length; CurrentPosition++)
             {
-                length++;
                 if (MdText[CurrentPosition] == '\n')
                     if (CurrentPosition + 1 < MdText.Length
                         && MdText[CurrentPosition + 1] == '\n')
-                    {
-                        length--;
                         break;
-                    }
+
+                length++;
             }
 
             return new Tag(startPos, length, tagStyleInfo);
