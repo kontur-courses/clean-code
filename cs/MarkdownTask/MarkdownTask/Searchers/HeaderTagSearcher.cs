@@ -9,11 +9,11 @@ namespace MarkdownTask.Searchers
         private const char KeyChar = '#';
         private readonly TagStyleInfo tagStyleInfo = MdStyleKeeper.Styles[TagType.Header];
 
-        public HeaderTagSearcher(string mdText) : base(mdText)
+        public HeaderTagSearcher(string mdText, List<int> escapedChars) : base(mdText, escapedChars)
         {
         }
 
-        public override List<Tag> SearchForTags(List<int> escapedChars)
+        public override List<Tag> SearchForTags()
         {
             base.PrepareToSearch();
             var result = new List<Tag>();
@@ -21,9 +21,9 @@ namespace MarkdownTask.Searchers
             for (; CurrentPosition < MdText.Length; CurrentPosition++)
                 if (MdText[CurrentPosition] == KeyChar)
                     if (GetFullPrefix(tagStyleInfo) == tagStyleInfo.TagPrefix)
-                        if (IsPossibleOpenTag(MdText, escapedChars))
+                        if (IsPossibleOpenTag())
                         {
-                            var tag = GetTagFromCurrentPosition(MdText);
+                            var tag = GetTagFromCurrentPosition();
                             if (tag is not null)
                                 result.Add(tag);
                         }
@@ -31,40 +31,40 @@ namespace MarkdownTask.Searchers
             return result;
         }
 
-        private bool IsPossibleOpenTag(string mdText, List<int> escapedChars)
+        private bool IsPossibleOpenTag()
         {
             const int requiredCountOfNewLineChars = 2;
 
             if (CurrentPosition == 0)
                 return true;
 
-            if (escapedChars.Contains(CurrentPosition - 1))
+            if (EscapedChars.Contains(CurrentPosition - 1))
                 return false;
 
-            var isTagAtEndOfText = CurrentPosition + tagStyleInfo.TagPrefix.Length >= mdText.Length;
+            var isTagAtEndOfText = CurrentPosition + tagStyleInfo.TagPrefix.Length >= MdText.Length;
             var isAbleToLookupBeforeTag = CurrentPosition - requiredCountOfNewLineChars >= 0;
 
             if (isTagAtEndOfText || !isAbleToLookupBeforeTag)
                 return false;
 
-            var isDoubleNewLineBeforeTag = mdText[CurrentPosition - 1] == '\n'
-                                           && mdText[CurrentPosition - 2] == '\n';
+            var isDoubleNewLineBeforeTag = MdText[CurrentPosition - 1] == '\n'
+                                           && MdText[CurrentPosition - 2] == '\n';
 
             return isDoubleNewLineBeforeTag;
         }
 
-        private Tag GetTagFromCurrentPosition(string mdText)
+        private Tag GetTagFromCurrentPosition()
         {
             var startPos = CurrentPosition;
             var length = tagStyleInfo.TagPrefix.Length;
             CurrentPosition += tagStyleInfo.TagPrefix.Length;
 
-            for (; CurrentPosition < mdText.Length; CurrentPosition++)
+            for (; CurrentPosition < MdText.Length; CurrentPosition++)
             {
                 length++;
-                if (mdText[CurrentPosition] == '\n')
-                    if (CurrentPosition + 1 < mdText.Length
-                        && mdText[CurrentPosition + 1] == '\n')
+                if (MdText[CurrentPosition] == '\n')
+                    if (CurrentPosition + 1 < MdText.Length
+                        && MdText[CurrentPosition + 1] == '\n')
                     {
                         length--;
                         break;

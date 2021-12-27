@@ -16,8 +16,8 @@ namespace MarkdownTaskTests.SearchersTests
         private static readonly TagStyleInfo HeaderTagStyleInfo = MdStyleKeeper.Styles[TagType.Header];
         private EscapeSearcher escapeSearcher;
 
-        [OneTimeSetUp]
-        public void OneTimeSetUp()
+        [SetUp]
+        public void SetUp()
         {
             escapeSearcher = new EscapeSearcher();
         }
@@ -37,22 +37,22 @@ namespace MarkdownTaskTests.SearchersTests
 
         private List<Tag> GetTagsComposition(string mdText)
         {
-            var escapedChars = escapeSearcher.GetPositionOfEscapingSlashes(mdText);
             var searchers = GetSearchers(mdText);
             return searchers
                 .SelectMany(searcher => searcher
-                    .SearchForTags(escapedChars))
+                    .SearchForTags())
                 .OrderBy(tag => tag.StartsAt)
                 .ToList();
         }
 
         private ITagSearcher[] GetSearchers(string mdText)
         {
+            var escapedChars = escapeSearcher.GetPositionOfEscapingSlashes(mdText);
             return new ITagSearcher[]
             {
-                new HeaderTagSearcher(mdText),
-                new ItalicTagSearcher(mdText),
-                new StrongTagSearcher(mdText)
+                new HeaderTagSearcher(mdText, escapedChars),
+                new ItalicTagSearcher(mdText, escapedChars),
+                new StrongTagSearcher(mdText, escapedChars)
             };
         }
 

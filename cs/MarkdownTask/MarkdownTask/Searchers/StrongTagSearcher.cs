@@ -9,11 +9,11 @@ namespace MarkdownTask.Searchers
         private const char KeyChar = '_';
         private readonly TagStyleInfo tagStyleInfo = MdStyleKeeper.Styles[TagType.Strong];
 
-        public StrongTagSearcher(string mdText) : base(mdText)
+        public StrongTagSearcher(string mdText, List<int> escapedChars) : base(mdText, escapedChars)
         {
         }
 
-        public override List<Tag> SearchForTags(List<int> escapedChars)
+        public override List<Tag> SearchForTags()
         {
             base.PrepareToSearch();
             var result = new List<Tag>();
@@ -22,9 +22,9 @@ namespace MarkdownTask.Searchers
 
                 if (MdText[CurrentPosition] == KeyChar)
                     if (GetFullPrefix(tagStyleInfo) == tagStyleInfo.TagPrefix)
-                        if (IsPossibleOpenTag(MdText, escapedChars))
+                        if (IsPossibleOpenTag())
                         {
-                            var tag = GetTagFromCurrentPosition(MdText);
+                            var tag = GetTagFromCurrentPosition();
                             if (tag is not null)
                                 result.Add(tag);
                         }
@@ -32,38 +32,38 @@ namespace MarkdownTask.Searchers
             return result;
         }
 
-        private bool IsPossibleOpenTag(string mdText, List<int> escapedChars)
+        private bool IsPossibleOpenTag()
         {
-            if (CurrentPosition + tagStyleInfo.TagPrefix.Length >= mdText.Length)
+            if (CurrentPosition + tagStyleInfo.TagPrefix.Length >= MdText.Length)
                 return false;
 
-            if (CurrentPosition > 0 && escapedChars.Contains(CurrentPosition - 1))
+            if (CurrentPosition > 0 && EscapedChars.Contains(CurrentPosition - 1))
                 return false;
 
-            var nextCharIsValid = !char.IsWhiteSpace(mdText[CurrentPosition + tagStyleInfo.TagPrefix.Length])
+            var nextCharIsValid = !char.IsWhiteSpace(MdText[CurrentPosition + tagStyleInfo.TagPrefix.Length])
                                   && !tagStyleInfo.TagPrefix.Contains("" +
-                                                                      mdText[
+                                                                      MdText[
                                                                           CurrentPosition +
                                                                           tagStyleInfo.TagPrefix.Length])
-                                  && !char.IsNumber(mdText[CurrentPosition + tagStyleInfo.TagPrefix.Length]);
+                                  && !char.IsNumber(MdText[CurrentPosition + tagStyleInfo.TagPrefix.Length]);
 
             return nextCharIsValid;
         }
 
-        private Tag GetTagFromCurrentPosition(string mdText)
+        private Tag GetTagFromCurrentPosition()
         {
             var startPos = CurrentPosition;
             var length = tagStyleInfo.TagPrefix.Length;
             CurrentPosition += tagStyleInfo.TagPrefix.Length;
 
-            for (; CurrentPosition < mdText.Length; CurrentPosition++)
+            for (; CurrentPosition < MdText.Length; CurrentPosition++)
             {
                 length++;
-                if (!IsTagStillAbleExist(mdText[CurrentPosition]))
+                if (!IsTagStillAbleExist(MdText[CurrentPosition]))
                     return null;
-                if (mdText[CurrentPosition] == KeyChar)
-                    if (CurrentPosition + 1 < mdText.Length
-                        && mdText[CurrentPosition + 1] == KeyChar)
+                if (MdText[CurrentPosition] == KeyChar)
+                    if (CurrentPosition + 1 < MdText.Length
+                        && MdText[CurrentPosition + 1] == KeyChar)
                     {
                         length++;
                         return new Tag(startPos, length, tagStyleInfo);

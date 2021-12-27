@@ -8,6 +8,14 @@ namespace MarkdownTaskTests
 {
     public class MdTests
     {
+        private EscapeSearcher escapeSearcher;
+
+        [SetUp]
+        public void Setup()
+        {
+            escapeSearcher = new EscapeSearcher();
+        }
+
         [Test]
         public void Render_ShouldBeImplemented()
         {
@@ -115,11 +123,12 @@ namespace MarkdownTaskTests
 
         private Md GetMd(string mdText)
         {
+            var escapedChars = escapeSearcher.GetPositionOfEscapingSlashes(mdText);
             return new Md(new ITagSearcher[]
             {
-                new HeaderTagSearcher(mdText),
-                new StrongTagSearcher(mdText),
-                new ItalicTagSearcher(mdText)
+                new HeaderTagSearcher(mdText, escapedChars),
+                new StrongTagSearcher(mdText, escapedChars),
+                new ItalicTagSearcher(mdText, escapedChars)
             });
         }
     }

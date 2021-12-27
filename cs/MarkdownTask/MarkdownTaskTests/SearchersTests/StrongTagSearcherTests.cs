@@ -26,10 +26,10 @@ namespace MarkdownTaskTests.SearchersTests
         [TestCase("__text")]
         public void Searcher_ShouldNotDefineAnyTags(string mdText)
         {
-            var searcher = new StrongTagSearcher(mdText);
             var escapedChars = escapeSearcher.GetPositionOfEscapingSlashes(mdText);
+            var searcher = new StrongTagSearcher(mdText, escapedChars);
 
-            var actualResult = searcher.SearchForTags(escapedChars);
+            var actualResult = searcher.SearchForTags();
             actualResult.Should().HaveCount(0);
         }
 
@@ -37,10 +37,10 @@ namespace MarkdownTaskTests.SearchersTests
         [TestCase("__text __")]
         public void Searcher_ShouldNotDefineTag_WhenSpaceBeforeOrAfterTag(string mdText)
         {
-            var searcher = new StrongTagSearcher(mdText);
             var escapedChars = escapeSearcher.GetPositionOfEscapingSlashes(mdText);
+            var searcher = new StrongTagSearcher(mdText, escapedChars);
 
-            var actualResult = searcher.SearchForTags(escapedChars);
+            var actualResult = searcher.SearchForTags();
             actualResult.Should().HaveCount(0);
         }
 
@@ -48,10 +48,10 @@ namespace MarkdownTaskTests.SearchersTests
         public void Searcher_ShouldNotDefineTag_WhenTagInDifferentWords()
         {
             var mdText = "so__me te__xt";
-            var searcher = new StrongTagSearcher(mdText);
             var escapedChars = escapeSearcher.GetPositionOfEscapingSlashes(mdText);
+            var searcher = new StrongTagSearcher(mdText, escapedChars);
 
-            var actualResult = searcher.SearchForTags(escapedChars);
+            var actualResult = searcher.SearchForTags();
             actualResult.Should().HaveCount(0);
         }
 
@@ -60,10 +60,10 @@ namespace MarkdownTaskTests.SearchersTests
         [TestCase("____")]
         public void Searcher_ShouldNotDefineTag_IfTagNotWrapSomething(string mdText)
         {
-            var searcher = new StrongTagSearcher(mdText);
             var escapedChars = escapeSearcher.GetPositionOfEscapingSlashes(mdText);
+            var searcher = new StrongTagSearcher(mdText, escapedChars);
 
-            var actualResult = searcher.SearchForTags(escapedChars);
+            var actualResult = searcher.SearchForTags();
             actualResult.Should().HaveCount(0);
         }
 
@@ -71,10 +71,10 @@ namespace MarkdownTaskTests.SearchersTests
         [TestCase("text__1__2")]
         public void Searcher_ShouldNotDefineTag_IfTagWrapNumbers(string mdText)
         {
-            var searcher = new StrongTagSearcher(mdText);
             var escapedChars = escapeSearcher.GetPositionOfEscapingSlashes(mdText);
+            var searcher = new StrongTagSearcher(mdText, escapedChars);
 
-            var actualResult = searcher.SearchForTags(escapedChars);
+            var actualResult = searcher.SearchForTags();
             actualResult.Should().HaveCount(0);
         }
 
@@ -85,10 +85,10 @@ namespace MarkdownTaskTests.SearchersTests
         {
             var mdText = testCase.Item1;
             var expectedResult = testCase.Item2;
-            var searcher = new StrongTagSearcher(mdText);
             var escapedChars = escapeSearcher.GetPositionOfEscapingSlashes(mdText);
+            var searcher = new StrongTagSearcher(mdText, escapedChars);
 
-            var actualResult = searcher.SearchForTags(escapedChars);
+            var actualResult = searcher.SearchForTags();
             actualResult.Should().BeEquivalentTo(expectedResult);
         }
 
@@ -99,10 +99,10 @@ namespace MarkdownTaskTests.SearchersTests
         {
             var mdText = testCase.Item1;
             var expectedResult = testCase.Item2;
-            var searcher = new StrongTagSearcher(mdText);
             var escapedChars = escapeSearcher.GetPositionOfEscapingSlashes(mdText);
+            var searcher = new StrongTagSearcher(mdText, escapedChars);
 
-            var actualResult = searcher.SearchForTags(escapedChars);
+            var actualResult = searcher.SearchForTags();
             actualResult.Should().BeEquivalentTo(expectedResult);
         }
 
@@ -113,10 +113,10 @@ namespace MarkdownTaskTests.SearchersTests
         {
             var mdText = testCase.Item1;
             var expectedResult = testCase.Item2;
-            var searcher = new StrongTagSearcher(mdText);
             var escapedChars = escapeSearcher.GetPositionOfEscapingSlashes(mdText);
+            var searcher = new StrongTagSearcher(mdText, escapedChars);
 
-            var actualResult = searcher.SearchForTags(escapedChars);
+            var actualResult = searcher.SearchForTags();
             actualResult.Should().BeEquivalentTo(expectedResult);
         }
 

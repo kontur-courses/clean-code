@@ -8,15 +8,17 @@ namespace MarkdownTask.Searchers
 {
     public class TagSearcher : ITagSearcher
     {
+        protected readonly List<int> EscapedChars;
         protected readonly string MdText;
         protected int CurrentPosition;
 
-        protected TagSearcher(string mdText)
+        protected TagSearcher(string mdText, List<int> escapedChars)
         {
             MdText = mdText.Trim();
+            EscapedChars = escapedChars;
         }
 
-        public virtual List<Tag> SearchForTags(List<int> escapedChars)
+        public virtual List<Tag> SearchForTags()
         {
             throw new NotImplementedException();
         }
