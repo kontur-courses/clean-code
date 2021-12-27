@@ -21,25 +21,15 @@ namespace MarkdownTask.Searchers
             for (; CurrentPosition < MdText.Length; CurrentPosition++)
 
                 if (MdText[CurrentPosition] == KeyChar)
-                {
-                    var fullPrefix = GetFullPrefix(MdText);
-                    if (fullPrefix == tagStyleInfo.TagPrefix)
+                    if (GetFullPrefix(tagStyleInfo) == tagStyleInfo.TagPrefix)
                         if (IsPossibleOpenTag(MdText, escapedChars))
                         {
                             var tag = GetTagFromCurrentPosition(MdText);
                             if (tag is not null)
                                 result.Add(tag);
                         }
-                }
 
             return result;
-        }
-
-        private string GetFullPrefix(string mdText)
-        {
-            return CurrentPosition + 1 < mdText.Length
-                ? "" + mdText[CurrentPosition] + mdText[CurrentPosition + 1]
-                : "" + mdText[CurrentPosition];
         }
 
         private bool IsPossibleOpenTag(string mdText, List<int> escapedChars)

@@ -29,7 +29,13 @@ namespace MarkdownTask.Searchers
         protected virtual string GetFullPrefix(TagStyleInfo styleInfo)
         {
             var prefix = new StringBuilder();
-            for (var i = 0; i < styleInfo.TagPrefix.Length; i++) prefix.Append(MdText[i]);
+            for (var i = 0; i < styleInfo.TagPrefix.Length; i++)
+            {
+                if (CurrentPosition + i >= MdText.Length)
+                    break;
+                prefix.Append(MdText[CurrentPosition + i]);
+            }
+
 
             return prefix.ToString();
         }

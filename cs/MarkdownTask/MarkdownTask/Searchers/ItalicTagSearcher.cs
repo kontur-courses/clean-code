@@ -20,23 +20,15 @@ namespace MarkdownTask.Searchers
 
             for (; CurrentPosition < MdText.Length; CurrentPosition++)
                 if (MdText[CurrentPosition] == KeyChar)
-                {
-                    var fullPrefix = GetFullPrefix(MdText);
-                    if (fullPrefix == tagStyleInfo.TagPrefix)
+                    if (GetFullPrefix(tagStyleInfo) == tagStyleInfo.TagPrefix)
                         if (IsPossibleOpenItalicTag(MdText, escapedChars))
                         {
                             var tag = GetTagFromCurrentPosition(MdText);
                             if (tag is not null)
                                 result.Add(tag);
                         }
-                }
 
             return result;
-        }
-
-        private string GetFullPrefix(string mdText)
-        {
-            return "" + mdText[CurrentPosition];
         }
 
         private bool IsPossibleOpenItalicTag(string mdText, List<int> escapedChars)
