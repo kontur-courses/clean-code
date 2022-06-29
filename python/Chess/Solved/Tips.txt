@@ -1,0 +1,6 @@
+SRP: чтение Board - лишняя ответственность
+DataFlow: поле с ChessStatus следует убрать
+Naming: calculateChessStatus - после рефакторинга можно дать более хорошее имя
+ReusableCode: PerformTemporaryMove - можно использовать готовый код
+Composability: сделать методы универсальными, а не только для White
+Decomposition: выделение hasMovesFor или getAllMovesOf(color)
