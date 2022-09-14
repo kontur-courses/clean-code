@@ -1,4 +1,7 @@
-from control_digit import get_digits_from_least_significant, sum_with_weights
+from control_digit import (
+    get_digits_from_least_significant,
+    sum_with_weights,
+)
 
 
 def snils(number: int) -> int:

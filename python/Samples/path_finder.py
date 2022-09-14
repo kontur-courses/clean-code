@@ -27,24 +27,24 @@ class PathFinder:
         maze_points = [Point(x, y) for x in range(max_x) for y in range(max_y)]
         MAZE["insideMaze"], MAZE["isFree"] = maze_points, maze_points
 
-    @staticmethod
-    def get_path_to_target(start: Point, target: Point):
+    def get_path_to_target(self, start: Point, target: Point):
+        global PREV
+        PREV = {}
         source = start
         while source:
             if not PREV.get(str(source)):
-                PREV[str(source)] = PathFinder.get_next_step_to_target(source, target)
+                PREV[str(source)] = self.get_next_step_to_target(source, target)
             if PREV[str(source)]:
                 yield PREV[str(source)]
             source = PREV[str(source)]
 
-    @staticmethod
-    def get_next_step_to_target(source: Point, target: Point):
+    def get_next_step_to_target(self, source: Point, target: Point):
         global QUEUE, USED
         QUEUE = [target, ]
         USED = [target, ]
         while len(QUEUE) > 0:
             point = QUEUE.pop(0)
-            for neighbour in PathFinder.get_neighbours(point):
+            for neighbour in self.get_neighbours(point):
                 if neighbour in USED:
                     continue
                 if neighbour == source:

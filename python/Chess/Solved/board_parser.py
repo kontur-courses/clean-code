@@ -4,9 +4,11 @@ from board import Board
 from piece import Piece
 from piece_color import PieceColor
 
+from typing import List, Union, NoReturn
+
 
 class BoardParser:
-    def parse_board(self, lines):
+    def parse_board(self, lines: List[List[str]]) -> Union[Board, NoReturn]:
         if len(lines) != 8:
             raise Exception("Should be exactly 8 lines")
 
