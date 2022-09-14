@@ -27,24 +27,22 @@ class PathFinder:
         maze_points = [Point(x, y) for x in range(max_x) for y in range(max_y)]
         return maze_points, maze_points
 
-    @staticmethod
-    def get_path_to_target(maze: Maze, start: Point, target: Point):
+    def get_path_to_target(self, maze: Maze, start: Point, target: Point):
         prev = {}
         source = start
         while source:
             if not prev.get(str(source)):
-                prev[str(source)] = PathFinder.get_next_step_to_target(maze, source, target)
+                prev[str(source)] = self.get_next_step_to_target(maze, source, target)
             if prev[str(source)]:
                 yield prev[str(source)]
             source = prev[str(source)]
 
-    @staticmethod
-    def get_next_step_to_target(maze: Maze, source: Point, target: Point):
+    def get_next_step_to_target(self, maze: Maze, source: Point, target: Point):
         queue = [target, ]
         used = [target, ]
         while len(queue) > 0:
             point = queue.pop(0)
-            for neighbour in PathFinder.get_neighbours(point, maze):
+            for neighbour in self.get_neighbours(point, maze):
                 if neighbour in used:
                     continue
                 if neighbour == source:

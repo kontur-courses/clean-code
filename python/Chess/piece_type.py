@@ -26,7 +26,7 @@ class PieceType:
         distance = 1
 
         while distance:
-            to = location_from + (direction * distance)
+            to = location_from + direction * distance
             if not board.contains(to):
                 break
             destination_piece = board.get_piece(to)
