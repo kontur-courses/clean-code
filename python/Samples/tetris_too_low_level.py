@@ -1,27 +1,20 @@
 class TetrisTooLowLevel:
-    def __init__(self, width, height, is_filled):
+    def __init__(self, width, height, filled):
         self.width = width
         self.height = height
-        self.is_filled = is_filled
+        self.filled = filled
 
     def clear_full_lines(self):
         for y in range(self.height):
-            count = 0
-            full_y = 0
+            full = all(self.filled[y])
+            if not full: continue
+
+            for yy in range(y, self.height-1):
+                for x in range(self.width):
+                    self.filled[yy][x] = self.filled[yy + 1][x]
 
             for x in range(self.width):
-                if self.is_filled[x][y]:
-                    count += 1
-                    if count == self.width:
-                        full_y = y
-
-            if count == self.width:
-                for yy in range(full_y, self.height):
-                    for x in range(self.width):
-                        self.is_filled[x][yy] = self.is_filled[x][yy + 1]
-
-                for x in range(self.width):
-                    self.is_filled[x][self.height] = False
+                self.filled[self.height-1][x] = False
 
     def clear_full_lines_refactored(self, score):
         for line_index in range(1, self.height + 1):
