@@ -14,10 +14,8 @@ namespace Markdown
             var index = 0;
             while (index < line.Length)
             {
-
                 tokensList.Add(AddTokens(index, line));
                 index = AddTokens(index, line).GetIndexNextToToken();
-
             }
 
             return tokensList;
@@ -50,8 +48,8 @@ namespace Markdown
                     trueLine.Append(line[index + 1]);
                     index++;
                 }
-                else trueLine.Append(line[index]);
-
+                else 
+                    trueLine.Append(line[index]);
                 index++;
             }
 

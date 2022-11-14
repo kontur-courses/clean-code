@@ -10,6 +10,7 @@ namespace Markdown
     {
         public Md()
         {
+
         }
 
         public string Render(string MarkdownString)
