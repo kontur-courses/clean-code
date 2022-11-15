@@ -15,7 +15,6 @@ namespace Markdown
                 ["__"]= new HtmlTag("strong"),
                 ["# "]= new HtmlTag("title")
             };
-
         public HtmlTag HtmlTag;
         public int Index;
         public Tag(string mdTag,int index)

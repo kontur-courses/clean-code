@@ -16,7 +16,7 @@ namespace Markdown
         public string Render(string MarkdownString)
         {
             var tokenList = TokenParser.ParseLine(MarkdownString);
-            
+            MarkdownParser.GetArrayWithMdTags(MarkdownString);
             return MarkdownString;
         }
     }
