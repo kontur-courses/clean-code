@@ -4,42 +4,39 @@ namespace Markdown
 {
     public class Parser
     {
-        List<Token> curComTokens = new List<Token>();
-        Stack<Concatination> openConcs;
-        Token curToken;
-
         private int charCount;
         private int curPos;
 
-        string text;
+        public string text;
 
-        public Parser(string markdownText)
+        public Parser()
+        {
+        }
+
+        public string ParseMdToHTML(string markdownText)
         {
             text = markdownText;
             charCount = markdownText.Length;
-            openConcs = new Stack<Concatination>();
-            openConcs.Push(new Concatination(ConcType.main));
+            var concs = GrabConcat();
+            var htmlText = HtmlBuilder.ConvertConcsToHTML(concs);
+            return htmlText;
         }
 
-        public Stack<Concatination> Parse()
+        private Stack<Concatination> GrabConcat()
         {
-            GrabConcat();
-            return openConcs;
-        }
+            curPos = 0;
+            var openConcs = new Stack<Concatination>();
+            openConcs.Push(new Concatination(ConcType.Main, curPos));
 
-        void GrabConcat()
-        {
             while (curPos != charCount)
             {
-                NextToken();
-                var token = curToken;
+                var token = NextToken(); ;
 
-                if (token is ModifierToken)
+                if (token is ModifierToken mergeToken)
                 {
                     var lastModifierToken = openConcs.Peek();
-                    var tok = (ModifierToken)token;
 
-                    if(lastModifierToken.concType == tok.type)
+                    if (lastModifierToken.concType == mergeToken.type)
                     {
                         var curConc = openConcs.Pop();
                         var parentConc = openConcs.Peek();
@@ -47,7 +44,7 @@ namespace Markdown
                     }
                     else
                     {
-                        var newModifier = new Concatination(tok.type);
+                        var newModifier = new Concatination(mergeToken.type, curPos);
                         openConcs.Push(newModifier);
                     }
                 }
@@ -57,47 +54,57 @@ namespace Markdown
                     currentConc.AddTokens(token);
                 }
             }
+
+            return openConcs;
         }
 
-        void NextToken()
+        private Token NextToken()
         {
-            if (this.text[curPos] == '_' && 
-                this.text[curPos + 1] == '_')
+            Token curToken;
+
+            switch (text[curPos])
             {
-                curToken = new ModifierToken(ConcType.bold);
-                MovePosition(2);
-                return;
+                case '_':
+                    {
+                        if (text[curPos + 1] == '_')
+                        {
+                            curToken = new ModifierToken(ConcType.Bold);
+                            MovePosition(2);
+                            return curToken;
+                        }
+                        curToken = new ModifierToken(ConcType.Italic);
+                        MovePosition(1);
+                        return curToken;
+                    }
+
+                case '#':
+                    {
+                        curToken = new ModifierToken(ConcType.Title);
+                        MovePosition(1);
+                        return curToken;
+                    }
+
+                default:
+                    {
+                        string tokenText = string.Empty;
+
+                        while (curPos != charCount && this.text[curPos] != '_' && text[curPos] != '#')
+                        {
+                            tokenText += text[curPos];
+                            curPos++;
+                        }
+
+                        curToken = new CommonToken(tokenText, curPos - tokenText.Length);
+                        break;
+                    }
             }
 
-            if (this.text[curPos] == '_')
-            {
-                curToken = new ModifierToken(ConcType.italic);
-                MovePosition(1);
-                return;
-            }
-
-            if (this.text[curPos] == '#')
-            {
-                curToken = new ModifierToken(ConcType.title);
-                MovePosition(1);
-                return;
-            }
-
-            string tokenText = string.Empty;
-
-            while (curPos != charCount && this.text[curPos] != '_' && this.text[curPos] != '#')
-            {
-                tokenText += this.text[curPos];
-                curPos++;
-            }
-
-            curToken = new CommonToken(tokenText, curPos - tokenText.Length);
+            return curToken;
         }
 
-        void MovePosition(int steps)
+        private void MovePosition(int steps)
         {
             curPos += steps;
         }
     }
-
 }

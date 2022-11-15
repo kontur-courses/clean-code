@@ -2,9 +2,9 @@
 {
     public enum ConcType
     {
-        main,
-        title,
-        bold,
-        italic
+        Main = 0,
+        Title = 1,
+        Bold = 2,
+        Italic = 1
     }
 }

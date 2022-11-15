@@ -7,8 +7,8 @@ namespace Markdown
     {
         public string Render(string markdownText)
         {
-            var parser = new Parser(markdownText);
-            return HtmlBuilder.ConvertMarkdownToHTML(parser.Parse());
+            var parser = new Parser();
+            return parser.ParseMdToHTML(markdownText);
         }
     }
 }

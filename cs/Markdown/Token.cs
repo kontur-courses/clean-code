@@ -2,5 +2,6 @@
 {
     public class Token
     {
+        public int Length;
     }
 }

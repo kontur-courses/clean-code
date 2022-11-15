@@ -5,14 +5,16 @@ namespace Markdown
     public class Concatination
     {
         public List<Concatination> innerConcs;
-        List<Token> tokens;
+        public List<Token> tokens;
         public ConcType concType;
+        public int startPos;
 
-        public Concatination(ConcType type)
+        public Concatination(ConcType type, int startPos)
         {
             innerConcs = new List<Concatination>();
             tokens = new List<Token>();
             concType = type;
+            this.startPos = startPos;
         }
 
         public void AddTokens(Token token)

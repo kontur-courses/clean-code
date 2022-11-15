@@ -7,6 +7,7 @@
         public CommonToken(string text, int startIndex)
         {
             this.text = text;
+            Length = text.Length;
         }
     }
 }
