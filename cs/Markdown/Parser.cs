@@ -6,19 +6,18 @@ namespace Markdown
     {
         private int charCount;
         private int curPos;
-        private Dictionary<ConcType, int> lettersQuantity;
+        private Dictionary<ConcType, string> lettersQuantity;
         private List<Token> allTokens;
         private Dictionary<Token, ConcType> tokensWithModify;
         public string text;
 
         public Parser()
         {
-            lettersQuantity = new Dictionary<ConcType, int>()
+            lettersQuantity = new Dictionary<ConcType, string>()
             {
-                [ConcType.Main] = 0,
-                [ConcType.Title] = 1,
-                [ConcType.Bold] = 2,
-                [ConcType.Italic] = 1
+                [ConcType.Title] = "#",
+                [ConcType.Bold] = "__",
+                [ConcType.Italic] = "_"
             };
 
             allTokens = new List<Token>();
@@ -85,27 +84,54 @@ namespace Markdown
         private Token NextToken()
         {
             Token curToken;
+            var ch = text[curPos];
 
-            switch (text[curPos])
+            switch (ch)
             {
                 case '_':
                     {
-                        if (ModifierInWord() && 
-                            WordHaveSameMod() && 
-                            curPos + 1 != charCount && text[curPos + 1] == '_')
+                        if (curPos + 1 != charCount && text[curPos + 1] == ch)
                         {
-                            curToken = new ModifierToken(ConcType.Bold, curPos);
-                            MovePosition(2);
-                            return curToken;
+                            if ((WordStartsWithModifier() || ModifierInWord(ConcType.Bold)) &&
+                            WordHaveSameMod(ConcType.Bold))
+                            {
+                                curToken = new ModifierToken(ConcType.Bold, curPos);
+                                MovePosition(2);
+                                return curToken;
+                            }
+                            else if (WordStartsWithModifier() && !WordHaveSameMod(ConcType.Bold))
+                            {
+                                curToken = new ModifierToken(ConcType.Bold, curPos);
+                                MovePosition(2);
+                                return curToken;
+                            }
+                            if (ModifierInWord(ConcType.Bold) && !WordHaveSameMod(ConcType.Bold))
+                            {
+                                break;
+                            }
                         }
-                        else if (ModifierInWord() && !WordHaveSameMod())
+                        else
                         {
-                            break;
+                            if ((WordStartsWithModifier() || ModifierInWord(ConcType.Italic)) &&
+                            WordHaveSameMod(ConcType.Italic))
+                            {
+                                curToken = new ModifierToken(ConcType.Italic, curPos);
+                                MovePosition(1);
+                                return curToken;
+                            }
+                            else if (WordStartsWithModifier() && !WordHaveSameMod(ConcType.Italic))
+                            {
+                                curToken = new ModifierToken(ConcType.Italic, curPos);
+                                MovePosition(1);
+                                return curToken;
+                            }
+                            if (ModifierInWord(ConcType.Italic) && !WordHaveSameMod(ConcType.Italic))
+                            {
+                                break;
+                            }
                         }
 
-                        curToken = new ModifierToken(ConcType.Italic, curPos);
-                        MovePosition(1);
-                        return curToken;
+                        break;
                     }
 
                 case '#':
@@ -131,30 +157,47 @@ namespace Markdown
 
             return curToken;
         }
-
-        private bool ModifierInWord()
+        private bool WordStartsWithModifier()
         {
-            return (text[curPos + 1] != ' ' && text[curPos + 2] != ' ');
+            return (curPos == 0 || text[curPos - 1] == ' ');
         }
 
-        private bool WordHaveSameMod()
+        private bool ModifierInWord(ConcType type)
         {
-            var index = 1;
-            var currentChar = text[curPos];
-
-            while(curPos + index != charCount && currentChar != ' ')
+            if (WordStartsWithModifier())
             {
-                currentChar = text[curPos + index];
-
-                if (currentChar == text[curPos])
-                {
-                    return true;
-                }
-
-                index++;
+                return false;
             }
 
-            return false;
+            if (type is ConcType.Bold)
+            {
+                return (text[curPos + 2] != ' ');
+            }
+
+            return (text[curPos + 1] != ' ');
+        }
+
+        private bool WordHaveSameMod(ConcType type)
+        {
+            var currentChar = text[curPos];
+            var modLetters = lettersQuantity[type];
+            var startIndex = curPos;
+            var endIndex = curPos;
+
+            while (startIndex != 0 && text[startIndex] != ' ')
+            {
+                startIndex--;
+            }
+
+            while (text[endIndex] != ' ')
+            {
+                endIndex++;
+            }
+
+            var word = text.Substring(startIndex, endIndex - startIndex);
+
+            var inCount = word.Split(modLetters);
+            return (inCount.Length > 2);
         }
 
         private void MovePosition(int steps)
