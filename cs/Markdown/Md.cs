@@ -9,9 +9,4 @@ public class Md
     {
         throw new NotImplementedException();
     }
-
-    private bool IsEscapeSymbolBeforeMarkdownSymbol(string text, int indexOfEscapeSymbol)
-    {
-        throw new NotImplementedException();
-    }
 }
