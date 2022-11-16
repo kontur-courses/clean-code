@@ -8,6 +8,7 @@ namespace Markdown
         public List<Token> tokens;
         public ConcType concType;
         public int startPos;
+        public bool IsClosed;
 
         public Concatination(ConcType type, int startPos)
         {

@@ -2,6 +2,7 @@
 {
     public class Token
     {
-        public int Length;
+        public int length;
+        public int startIndex;
     }
 }

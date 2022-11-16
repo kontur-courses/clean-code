@@ -7,10 +7,11 @@ namespace Markdown
     {
         public ConcType type;
 
-        public ModifierToken(ConcType type)
+        public ModifierToken(ConcType type, int startIndex)
         {
             this.type = type;
-            Length = (int) type;
+            length = (int) type;
+            this.startIndex = startIndex;
         }
     }
 }

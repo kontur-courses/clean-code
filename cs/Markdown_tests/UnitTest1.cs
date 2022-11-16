@@ -17,18 +17,28 @@ namespace Markdown_tests
 
         }
 
-        //[Test]
-        //public void Italic()
-        //{
-        //    var concs = parser.ParseMdToHTML(@"Текст, _окруженный с двух сторон_ одинарными символами подчерка");
-
-
-        //}
+        [Test]
+        public void Italic()
+        {
+            var concs = parser.ParseMdToHTML(@"Текст, _окруженный с двух сторон_ одинарными символами подчерка");
+        }
 
         [Test]
         public void InnerItalic()
         {
             var concs = parser.ParseMdToHTML(@"Внутри __двойного выделения _одинарное_ тоже__ работает.");
+        }
+
+        [Test]
+        public void InnerItalicInOneWordOnBoard()
+        {
+            var concs = parser.ParseMdToHTML(@"Внутри __двойного выделения _одинарн_ое тоже__ работает.");
+        }
+
+        [Test]
+        public void InnerItalicInOneWord()
+        {
+            var concs = parser.ParseMdToHTML(@"Внутри __двойного выделения од_инарн_ое тоже__ работает.");
         }
 
         [Test]
@@ -41,7 +51,7 @@ namespace Markdown_tests
         [Test]
         public void Test2()
         {
-            var concs = parser.ParseMdToHTML(@"__Непарные_ символы в рамках одного абзаца не считаются выделением.");
+            var concs = parser.ParseMdToHTML(@"__Непарные_ символы в рамках одного абзаца не _считаются_ выделением.");
 
         }
 
@@ -86,6 +96,12 @@ namespace Markdown_tests
         public void DifferentWords()
         {
             var concs = parser.ParseMdToHTML(@"В то же время выделение в ра_зных сл_овах не работает.");
+        }
+        
+        [Test]
+        public void DifferentWordsAndRightWrap()
+        {
+            var concs = parser.ParseMdToHTML(@"Строка _состоит из верного открывающего символа, не_верного слово_сочетания и верного закрывающего_");
         }
 
         [Test]
