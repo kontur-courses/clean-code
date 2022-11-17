@@ -1,4 +1,5 @@
-﻿using Markdown.Readers;
+﻿using System;
+using Markdown.Readers;
 using Markdown.Readers.Implementation;
 using Markdown.Translators;
 using Markdown.Translators.Implementation;
@@ -7,8 +8,8 @@ namespace Markdown;
 
 public class Markdown
 {
-    private IReader reader;
-    private ITranslator translator;
+    private readonly IReader reader;
+    private readonly ITranslator translator;
 
     public Markdown()
     {
