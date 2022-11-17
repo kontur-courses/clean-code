@@ -2,14 +2,13 @@ using MarkdownRenderer.Abstractions;
 
 namespace MarkdownRenderer.Implementations.Elements;
 
-public class ParagraphElement : IElement, 
-    IStorageOf<ItalicElement>, IStorageOf<PlainText>, IStorageOf<StrongElement>
+public class StrongElement : IElement, IStorageOf<ItalicElement>, IStorageOf<PlainText>
 {
     public string RawContent { get; }
     private readonly List<IElement> _nestedElements = new();
     public IEnumerable<IElement> NestedElements => _nestedElements;
 
-    public ParagraphElement(string rawContent)
+    public StrongElement(string rawContent)
     {
         RawContent = rawContent;
     }

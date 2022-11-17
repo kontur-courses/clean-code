@@ -4,6 +4,8 @@ public abstract class DefaultElementParser : IElementParser
 {
     public abstract Type ParsingElementType { get; }
     public abstract ElementParseType ParseType { get; }
+    string IElementParser.Prefix => "";
+    string IElementParser.Postfix => "";
 
     bool IElementParser.IsElementStart(string content, int index)
     {

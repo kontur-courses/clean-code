@@ -7,6 +7,8 @@ public abstract class MarkdownElementParser<TElem> : IElementParser
 {
     public Type ParsingElementType => typeof(TElem);
     public abstract ElementParseType ParseType { get; }
+    public abstract string Prefix { get; }
+    public abstract string Postfix { get; }
     public abstract bool IsElementStart(string content, int index);
 
     public abstract bool IsElementEnd(string content, int index);
@@ -18,5 +20,5 @@ public abstract class MarkdownElementParser<TElem> : IElementParser
         return result;
     }
 
-    public abstract bool TryParseElement(string content, Token contentToken, out TElem? italicElement);
+    public abstract bool TryParseElement(string content, Token contentToken, out TElem? element);
 }

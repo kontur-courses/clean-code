@@ -30,92 +30,98 @@ public class DocumentParser
     public IElement ParseContent(string content)
     {
         var line = _defaultLineElementParser.ParseElement(content, new Token(0, content.Length - 1));
-        ParseNestedElements(line);
+        ParseInlineElements(content, line);
         return line;
     }
 
-    private void ParseNestedElements(IElement parent)
+    private void ParseInlineElements(string content, IElement parent)
     {
-        var content = parent.RawContent;
-        var start = 0;
-        while (start < content.Length)
+        var openedParsers = new Dictionary<IElementParser, int>();
+        var closedTokens = new SortedDictionary<ContentToken, IElement>(
+            new LambdaComparer<Token>((token1, token2) => token1.Start - token2.Start));
+
+        for (var i = 0; i < content.Length; i++)
         {
-            // var parser = _specialInlineElementsParsers
-            //     .FirstOrDefault(parser => parser.IsElementStart(content, start));
-            // if (
-            //     parser is null ||
-            //     !content.TryReadToken(start, parser.IsElementEnd, out var token) ||
-            //     !parser.TryParseElement(content, token!, out var el)
-            // )
-            // {
-            //     token = content.TryReadToken(
-            //         start,
-            //         (s, i) => _specialInlineElementsParsers.Any(p => p.IsElementStart(s, i)),
-            //         out token
-            //     )
-            //         ? new Token(start, token!.End - 1)
-            //         : new Token(start, content.Length - 1);
-            //     var element = _defaultInlineElementParser.ParseElement(content, token);
-            //     start = token.End + 1;
-            //     parent.AddNestedElement(element);
-            // }
-            // else
-            // {
-            //     parent.AddNestedElement(el!);
-            //     ParseNestedElements(el!);
-            //     start = token!.End + 1;
-            // }
-
-            if (TryParseSpecialElement(content, start, parent, out var element, out var rawLength))
+            var closedParser = openedParsers.Keys.FirstOrDefault(parser => parser.IsElementEnd(content, i));
+            if (closedParser is not null)
             {
-                ParseNestedElements(element!);
-            }
-            else
-            {
-                element = ParseDefaultElement(content, start, parent, out rawLength);
+                var start = openedParsers[closedParser];
+                var closedToken = new ContentToken(
+                    start, i,
+                    start + closedParser.Prefix.Length,
+                    i - closedParser.Postfix.Length
+                );
+                if (closedParser.TryParseElement(content, closedToken, out var element))
+                {
+                    closedTokens[closedToken] = element!;
+                    openedParsers.Remove(closedParser);
+                    continue;
+                }
             }
 
-            parent.AddNestedElement(element!);
-            start += (int) rawLength!;
+            var opened = _specialInlineElementsParsers.FirstOrDefault(parser => parser.IsElementStart(content, i));
+            if (opened is not null && !openedParsers.ContainsKey(opened))
+                openedParsers[opened] = i;
+        }
+
+        foreach (var intersecting in GetIntersections(closedTokens.Keys).ToHashSet())
+            closedTokens.Remove((ContentToken) intersecting);
+
+        ParseNestedElements(parent, content, closedTokens);
+    }
+
+
+    private static IEnumerable<Token> GetIntersections(IReadOnlyCollection<Token> startSortedTokens)
+    {
+        foreach (var token1 in startSortedTokens)
+        {
+            foreach (var token2 in startSortedTokens)
+            {
+                if (token1 == token2)
+                    break;
+                if (token2.End < token1.Start || token2.End > token1.End)
+                    continue;
+
+                yield return token1;
+                yield return token2;
+            }
         }
     }
 
-    private bool TryParseSpecialElement(
-        string content, int start,
+    private void ParseNestedElements(
         IElement parent,
-        out IElement? element,
-        out int? rawLength
+        string content,
+        IReadOnlyDictionary<ContentToken, IElement> tokens,
+        int start = 0, int? parentEnd = null
     )
     {
+        parentEnd ??= content.Length - 1;
+
+        foreach (var (token, element) in tokens)
+        {
+            if (token.Start < start || !parent.CanContainNested(element.GetType()))
+                continue;
+            if (token.End > parentEnd)
+                break;
+
+            if (TryParseDefaultElement(content, start, token.Start - 1, out var defElement))
+                parent.AddNestedElement(defElement!);
+
+            parent.AddNestedElement(element);
+            ParseNestedElements(element, content, tokens, token.ContentStart, token.ContentEnd);
+            start = token.End + 1;
+        }
+
+        if (TryParseDefaultElement(content, start, parentEnd.Value, out var result))
+            parent.AddNestedElement(result!);
+    }
+
+    private bool TryParseDefaultElement(string content, int start, int end, out IElement? element)
+    {
         element = null;
-        rawLength = null;
-
-        var parser = _specialInlineElementsParsers.FirstOrDefault(parser => parser.IsElementStart(content, start));
-        if (parser is null || !parent.CanContainNested(parser.ParsingElementType))
+        if (start > end)
             return false;
-
-        if (
-            !content.TryReadToken(start, parser.IsElementEnd, out var token) ||
-            !parser.TryParseElement(content, token!, out element)
-        )
-            return false;
-
-        rawLength = token!.Length;
+        element = _defaultInlineElementParser.ParseElement(content, new Token(start, end));
         return true;
-    }
-
-    private IElement ParseDefaultElement(string content, int start, IElement parent, out int? rawLength)
-    {
-        if (!content.TryReadToken(start, (s, i) => IsSpecialElementStart(s, i, parent), out var token))
-            token = new Token(start, content.Length);
-        token = new Token(token!.Start, token.End - 1);
-        rawLength = token.Length;
-        return _defaultInlineElementParser.ParseElement(content, token);
-    }
-
-    private bool IsSpecialElementStart(string content, int i, IElement parent)
-    {
-        var parser = _specialInlineElementsParsers.FirstOrDefault(p => p.IsElementStart(content, i));
-        return parser is not null && parent.CanContainNested(parser.ParsingElementType);
     }
 }

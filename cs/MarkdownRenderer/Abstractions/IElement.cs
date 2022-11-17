@@ -7,7 +7,8 @@ public interface IElement
 
     public bool CanContainNested(Type nestedType)
     {
-        return typeof(IStorageOf<>).MakeGenericType(nestedType).IsAssignableFrom(GetType());
+        return typeof(IElement).IsAssignableFrom(nestedType) &&
+               typeof(IStorageOf<>).MakeGenericType(nestedType).IsAssignableFrom(GetType());
     }
 
     void AddNestedElement(IElement nested);
