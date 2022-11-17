@@ -2,40 +2,55 @@ using MarkdownRenderer.Abstractions;
 
 namespace MarkdownRenderer.Implementations.MarkdownParsers;
 
-public abstract class MarkdownInlineParser<TElem> : MarkdownElementParser<TElem>
+public abstract class MarkdownSpecialInlineElementParser<TElem> : ISpecialInlineElementParser
     where TElem : IElement
 {
-    public override ElementParseType ParseType => ElementParseType.Inline;
-    public abstract override string Prefix { get; }
-    public abstract override string Postfix { get; }
+    public Type ParsingElementType => typeof(TElem);
+
+    public abstract string Prefix { get; }
+
+    public abstract string Postfix { get; }
 
     protected abstract Func<string, TElem> ElementCreator { get; }
 
-    public override bool IsElementStart(string content, int index)
+    public virtual bool IsElementStart(string content, int index)
     {
         if (index + Prefix.Length + Postfix.Length >= content.Length)
             return false;
         if (Prefix.Where((c, i) => content[index + i] != c).Any())
             return false;
-        if (content[index + Prefix.Length] is ' ' or '_')
-            return false;
 
-        return index == 0 || content[index - 1] is not '_';
+        return content[index + Prefix.Length] is not ' ';
     }
 
-    public override bool IsElementEnd(string content, int index)
+    public virtual bool IsElementEnd(string content, int index)
     {
         if (index - (Prefix.Length + Postfix.Length) < 0)
             return false;
         if (Postfix.Where((_, i) => content[index - Postfix.Length + i + 1] != Postfix[i]).Any())
             return false;
-        if (content[index - Postfix.Length] is ' ' or '_')
-            return false;
 
-        return index + 1 >= content.Length || content[index + 1] is not '_';
+        return content[index - Postfix.Length] is not ' ';
     }
 
-    public override bool TryParseElement(string content, Token contentToken, out TElem? element)
+    IElement IInlineElementParser.ParseElement(string content, Token token) =>
+        ParseElement(content, token);
+
+    public TElem ParseElement(string content, Token contentToken)
+    {
+        if (!TryParseElement(content, contentToken, out var element))
+            throw new ArgumentException("Unable to parse!");
+        return element!;
+    }
+
+    bool ISpecialInlineElementParser.TryParseElement(string content, Token contentToken, out IElement? element)
+    {
+        var result = TryParseElement(content, contentToken, out var tElement);
+        element = tElement;
+        return result;
+    }
+
+    public virtual bool TryParseElement(string content, Token contentToken, out TElem? element)
     {
         element = default;
         if (!IsElementStart(content, contentToken.Start) || !IsElementEnd(content, contentToken.End))
@@ -52,11 +67,11 @@ public abstract class MarkdownInlineParser<TElem> : MarkdownElementParser<TElem>
         )
             return false;
 
-        element = ElementCreator(content);
+        element = ElementCreator(rawContent);
         return true;
     }
 
-    private static bool IsSelectionInsideWord(string content, Token contentToken)
+    protected static bool IsSelectionInsideWord(string content, Token contentToken)
     {
         if (contentToken.Start > 0 && content[contentToken.Start - 1] != ' ')
             return true;

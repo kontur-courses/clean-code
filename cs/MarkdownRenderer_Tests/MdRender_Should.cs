@@ -31,6 +31,10 @@ public class MdRender_Should
     [TestCase("____", ExpectedResult = "____", TestName = "Empty string inside strong")]
     [TestCase("_a _b c_ d_", ExpectedResult = "<em>a _b c</em> d_", TestName = "Italic intersections")]
     [TestCase("__ab _cd__ ef_", ExpectedResult = "__ab _cd__ ef_", TestName = "Italic strong intersections")]
+    [TestCase("# header", ExpectedResult = "<h1>header</h1>", TestName = "Header element")]
+    [TestCase("# Заголовок __с _разными_ символами__",
+        ExpectedResult = "<h1>Заголовок <strong>с <em>разными</em> символами</strong></h1>",
+        TestName = "Header with nested elements")]
     public string ReturnCorrectRenderResult(string sourceMd) =>
         markdown.Render(sourceMd);
 }

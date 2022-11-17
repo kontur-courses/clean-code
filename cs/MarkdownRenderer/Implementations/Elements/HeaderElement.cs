@@ -2,10 +2,10 @@ using MarkdownRenderer.Abstractions;
 
 namespace MarkdownRenderer.Implementations.Elements;
 
-public class ParagraphElement : StandardElement,
+public class HeaderElement : StandardElement,
     IStorageOf<ItalicElement>, IStorageOf<PlainText>, IStorageOf<StrongElement>
 {
-    public ParagraphElement(string rawContent) : base(rawContent)
+    public HeaderElement(string rawContent) : base(rawContent)
     {
     }
 }

@@ -5,11 +5,7 @@ public interface IElement
     string RawContent { get; }
     IEnumerable<IElement> NestedElements { get; }
 
-    public bool CanContainNested(Type nestedType)
-    {
-        return typeof(IElement).IsAssignableFrom(nestedType) &&
-               typeof(IStorageOf<>).MakeGenericType(nestedType).IsAssignableFrom(GetType());
-    }
+    public bool CanContainNested(Type nestedType);
 
     void AddNestedElement(IElement nested);
 }

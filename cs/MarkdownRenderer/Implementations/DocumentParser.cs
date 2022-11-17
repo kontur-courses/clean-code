@@ -4,39 +4,61 @@ namespace MarkdownRenderer.Implementations;
 
 public class DocumentParser
 {
-    private readonly DefaultElementParser _defaultInlineElementParser;
-    private readonly HashSet<IElementParser> _specialInlineElementsParsers;
+    private readonly IInlineElementParser _defaultInlineElementParser;
+    private readonly IReadOnlyCollection<ISpecialInlineElementParser> _specialInlineElementsParsers;
 
-    private readonly DefaultElementParser _defaultLineElementParser;
-    private readonly HashSet<IElementParser> _specialLineElementsParsers;
+    private readonly ILineElementParser _defaultLineElementParser;
+    private readonly IReadOnlyCollection<ISpecialLineElementParser> _specialLineElementsParsers;
 
     public DocumentParser(IEnumerable<IElementParser> parsers)
     {
-        var parsersDict = parsers
-            .GroupBy(parser => parser.ParseType)
-            .ToDictionary(group => group.Key);
+        var inlineSpecialParsers = new HashSet<ISpecialInlineElementParser>();
+        var lineSpecialParsers = new HashSet<ISpecialLineElementParser>();
+        foreach (var parser in parsers)
+        {
+            switch (parser)
+            {
+                case ISpecialInlineElementParser specialInlineParser:
+                    inlineSpecialParsers.Add(specialInlineParser);
+                    break;
+                case ISpecialLineElementParser specialLineParser:
+                    lineSpecialParsers.Add(specialLineParser);
+                    break;
+                case IInlineElementParser defaultInlineParser:
+                    if (_defaultInlineElementParser is not null)
+                        throw new ArgumentException("Should be only one default inline element parser!");
+                    _defaultInlineElementParser = defaultInlineParser;
+                    break;
+                case ILineElementParser defaultLineParser:
+                    if (_defaultLineElementParser is not null)
+                        throw new ArgumentException("Should be only one default line element parser!");
+                    _defaultLineElementParser = defaultLineParser;
+                    break;
+            }
+        }
 
-        _specialInlineElementsParsers = parsersDict[ElementParseType.Inline].ToHashSet();
-        _defaultInlineElementParser = (DefaultElementParser) _specialInlineElementsParsers
-            .Single(parser => parser is DefaultElementParser);
-        _specialInlineElementsParsers.Remove(_defaultInlineElementParser);
-
-        _specialLineElementsParsers = parsersDict[ElementParseType.Line].ToHashSet();
-        _defaultLineElementParser = (DefaultElementParser) _specialLineElementsParsers
-            .Single(parser => parser is DefaultElementParser);
-        _specialLineElementsParsers.Remove(_defaultLineElementParser);
+        if (_defaultInlineElementParser is null || _defaultLineElementParser is null)
+            throw new ArgumentException("Default parsers should be assigned!");
+        _specialInlineElementsParsers = inlineSpecialParsers;
+        _specialLineElementsParsers = lineSpecialParsers;
     }
 
-    public IElement ParseContent(string content)
+    public IElement ParseContentLine(string content)
     {
-        var line = _defaultLineElementParser.ParseElement(content, new Token(0, content.Length - 1));
-        ParseInlineElements(content, line);
+        var specialLineParser = _specialLineElementsParsers.FirstOrDefault(parser => parser.Match(content));
+        var line = specialLineParser is null
+            ? _defaultLineElementParser.ParseElement(content)
+            : specialLineParser.ParseElement(content);
+
+        ParseInlineElements(line);
         return line;
     }
 
-    private void ParseInlineElements(string content, IElement parent)
+    private void ParseInlineElements(IElement lineElement)
     {
-        var openedParsers = new Dictionary<IElementParser, int>();
+        var content = lineElement.RawContent;
+
+        var openedParsers = new Dictionary<ISpecialInlineElementParser, int>();
         var closedTokens = new SortedDictionary<ContentToken, IElement>(
             new LambdaComparer<Token>((token1, token2) => token1.Start - token2.Start));
 
@@ -67,7 +89,7 @@ public class DocumentParser
         foreach (var intersecting in GetIntersections(closedTokens.Keys).ToHashSet())
             closedTokens.Remove((ContentToken) intersecting);
 
-        ParseNestedElements(parent, content, closedTokens);
+        ParseNestedElements(lineElement, content, closedTokens);
     }
 
 

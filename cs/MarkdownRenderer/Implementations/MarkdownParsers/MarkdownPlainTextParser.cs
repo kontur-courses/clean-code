@@ -3,13 +3,13 @@ using MarkdownRenderer.Implementations.Elements;
 
 namespace MarkdownRenderer.Implementations.MarkdownParsers;
 
-public class MarkdownPlainTextParser : DefaultElementParser
+public class MarkdownPlainTextParser : IInlineElementParser
 {
-    public override Type ParsingElementType { get; } = typeof(PlainText);
-    public override ElementParseType ParseType => ElementParseType.Inline;
+    public Type ParsingElementType { get; } = typeof(PlainText);
 
-    public override PlainText ParseElement(string content, Token contentToken)
-    {
-        return new PlainText(content.Substring(contentToken));
-    }
+    IElement IInlineElementParser.ParseElement(string content, Token contentToken) =>
+        ParseElement(content, contentToken);
+
+    public PlainText ParseElement(string content, Token contentToken) =>
+        new(content.Substring(contentToken));
 }

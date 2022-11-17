@@ -20,7 +20,7 @@ public class DocumentConverter
 
     public string Convert(string source)
     {
-        var element = _documentParser.ParseContent(source);
+        var element = _documentParser.ParseContentLine(source);
         return _renderers[element.GetType()].Render(element, _renderers);
     }
 }

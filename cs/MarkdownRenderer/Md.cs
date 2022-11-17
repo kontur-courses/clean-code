@@ -12,6 +12,7 @@ public class Md
             new IElementParser[]
             {
                 new MarkdownParagraphParser(),
+                new MarkdownHeaderParser(),
                 new MarkdownPlainTextParser(),
                 new MarkdownItalicParser(),
                 new MarkdownStrongParser()
@@ -19,6 +20,7 @@ public class Md
             new IElementRenderer[]
             {
                 new HtmlParagraphRenderer(),
+                new HtmlHeaderRenderer(),
                 new HtmlPlainTextRenderer(),
                 new HtmlItalicRenderer(),
                 new HtmlStrongRenderer()
