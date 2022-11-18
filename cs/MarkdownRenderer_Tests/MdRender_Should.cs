@@ -1,7 +1,5 @@
 using System.Globalization;
-using FluentAssertions;
 using MarkdownRenderer;
-using NUnit.Framework.Internal;
 
 // ReSharper disable StringLiteralTypo
 
