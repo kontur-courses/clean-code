@@ -61,6 +61,8 @@ public class MdRender_Should
     [TestCase("[a b c](ab.cd)", @"<a href=""ab.cd"">a b c</a>", TestName = "Title with spaces")]
     [TestCase("_[abc](ab.cd)_", @"<em><a href=""ab.cd"">abc</a></em>", TestName = "Inside italic")]
     [TestCase("__[a](ab.cd)__", @"<strong><a href=""ab.cd"">a</a></strong>", TestName = "Inside strong")]
+    [TestCase("[](ab.cd)", @"<a href=""ab.cd""></a>", TestName = "Empty title")]
+    [TestCase("[abc]]()", "[abc]]()", TestName = "Empty destination")]
     [TestCase("[abc](a b.cd)", "[abc](a b.cd)", TestName = "Space inside")]
     [TestCase("[abc] (ab.cd)", "[abc] (ab.cd)", TestName = "Space between detination and title")]
     [TestCase("[abc]](ab.cd)", "[abc]](ab.cd)", TestName = "Bad braces placing")]
