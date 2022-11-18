@@ -1,6 +1,7 @@
 using System.Globalization;
 using FluentAssertions;
 using MarkdownRenderer;
+using NUnit.Framework.Internal;
 
 // ReSharper disable StringLiteralTypo
 
@@ -53,6 +54,18 @@ public class MdRender_Should
         TestName = "Header with nested inline elements")]
     [TestCase("# abc\ndef\n# ghi", "<h1>abc</h1>\ndef\n<h1>ghi</h1>", TestName = "Headers and paragraphs mix")]
     public void ReturnCorrectRenderResult_OnHeaderTags(string source, string expected)
+    {
+        _markdown.Render(source).Should().Be(expected);
+    }
+
+    [TestCase("\\_abc\\_", "_abc_", TestName = "Italic escaped")]
+    [TestCase("\\__abc\\__", "__abc__", TestName = "Strong escaped")]
+    [TestCase("\\\\_abc_", "\\<em>abc</em>", TestName = "Self escaped")]
+    [TestCase("ab\\c\\d", "ab\\c\\d", TestName = "Not disapper if nothing escape")]
+    [TestCase("\\# abc", "# abc", TestName = "Header escape")]
+    [TestCase("\\#abc", "\\#abc", TestName = "Not disapper if header tag without space")]
+    [TestCase("\\\\\\_abc_", "\\_abc_", TestName = "Tripple escape")]
+    public void ReturnCorrectRenderResult_OnEscapeCharacters(string source, string expected)
     {
         _markdown.Render(source).Should().Be(expected);
     }

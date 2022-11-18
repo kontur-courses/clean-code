@@ -4,7 +4,7 @@ using MarkdownRenderer.Abstractions.Elements;
 namespace MarkdownRenderer.Implementations.Elements;
 
 public class ParagraphElement : StandardElement,
-    IStorageOf<ItalicElement>, IStorageOf<PlainText>, IStorageOf<StrongElement>
+    IStorageOf<ItalicElement>, IStorageOf<PlainText>, IStorageOf<StrongElement>, IStorageOf<EscapeSequenceElement>
 {
     public ParagraphElement(string rawContent) : base(rawContent)
     {

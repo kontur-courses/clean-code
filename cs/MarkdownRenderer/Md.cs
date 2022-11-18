@@ -18,6 +18,7 @@ public class Md
         new ParallelDocumentConverter(
             new DefaultLineParser(new IElementParser[]
                 {
+                    new MarkdownEscapeSequenceParser(),
                     new MarkdownParagraphParser(),
                     new MarkdownHeaderParser(),
                     new MarkdownPlainTextParser(),
@@ -27,6 +28,7 @@ public class Md
             ),
             new DefaultLineRenderer(new IElementRenderer[]
                 {
+                    new HtmlEscapeSequenceRenderer(),
                     new HtmlParagraphRenderer(),
                     new HtmlHeaderRenderer(),
                     new HtmlPlainTextRenderer(),

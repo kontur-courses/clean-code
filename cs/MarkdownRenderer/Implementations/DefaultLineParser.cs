@@ -7,6 +7,8 @@ namespace MarkdownRenderer.Implementations;
 
 public class DefaultLineParser : ILineParser
 {
+    private readonly IEscapeSequenceElementParser? _escapeSequenceParser;
+
     private readonly IInlineElementParser _defaultInlineElementParser;
     private readonly IReadOnlyCollection<ISpecialInlineElementParser> _specialInlineElementsParsers;
 
@@ -21,6 +23,11 @@ public class DefaultLineParser : ILineParser
         {
             switch (parser)
             {
+                case IEscapeSequenceElementParser escapeSequenceParser:
+                    if (_escapeSequenceParser is not null)
+                        throw new ArgumentException("Should be only one escape sequence parser!");
+                    _escapeSequenceParser = escapeSequenceParser;
+                    break;
                 case ISpecialInlineElementParser specialInlineParser:
                     inlineSpecialParsers.Add(specialInlineParser);
                     break;
@@ -44,6 +51,18 @@ public class DefaultLineParser : ILineParser
             throw new ArgumentException("Default parsers should be assigned!");
         _specialInlineElementsParsers = inlineSpecialParsers;
         _specialLineElementsParsers = lineSpecialParsers;
+
+        if (_escapeSequenceParser is not null)
+            SetEscapingSequences();
+    }
+
+    private void SetEscapingSequences()
+    {
+        var escapingSequences = _specialInlineElementsParsers
+            .SelectMany(parser => new[] {parser.Prefix, parser.Postfix})
+            .Concat(_specialLineElementsParsers.SelectMany(parser => new[] {parser.Prefix, parser.Postfix}))
+            .Where(sequence => !string.IsNullOrWhiteSpace(sequence));
+        _escapeSequenceParser?.SetEscapingSequences(escapingSequences);
     }
 
     public IElement ParseContentLine(string content)
@@ -67,6 +86,19 @@ public class DefaultLineParser : ILineParser
 
         for (var i = 0; i < content.Length; i++)
         {
+            if (_escapeSequenceParser is not null &&
+                _escapeSequenceParser.TryGetEscapingSequenceToken(content, i, out var escapeToken)
+               )
+            {
+                var contentToken = new ContentToken(
+                    escapeToken!.Start, escapeToken.End,
+                    escapeToken.Start + 1, escapeToken.End
+                );
+                closedTokens[contentToken] = _escapeSequenceParser.ParseElement(content, contentToken);
+                i = contentToken.ContentEnd;
+                continue;
+            }
+
             if (TryCloseParser(openedParsers, closedTokens, content, i))
                 continue;
 
@@ -141,7 +173,9 @@ public class DefaultLineParser : ILineParser
             if (token.End > end)
                 break;
 
-            if (TryParseDefaultElement(content, start, token.Start - 1, out var element))
+            if (parent.CanContainNested(_defaultInlineElementParser.ParsingElementType) &&
+                TryParseDefaultElement(content, start, token.Start - 1, out var element)
+               )
                 parent.AddNestedElement(element!);
 
             parent.AddNestedElement(nestedElement);
@@ -149,7 +183,8 @@ public class DefaultLineParser : ILineParser
             start = token.End + 1;
         }
 
-        if (TryParseDefaultElement(content, start, end.Value, out var result))
+        if (parent.CanContainNested(_defaultInlineElementParser.ParsingElementType) &&
+            TryParseDefaultElement(content, start, end.Value, out var result))
             parent.AddNestedElement(result!);
     }
 
