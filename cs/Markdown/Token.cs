@@ -1,28 +1,30 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Text;
 
 namespace Markdown
 {
     /// <summary>
-    /// Хранит в себе кусок текста, который оформляется одним способом
+    /// Хранит в данные об участке текста, который оформляется одним способом
     /// </summary>
     public class Token
     {
-        public readonly int Length; // Длина всего участка строки
-        public readonly int Position; // Позиция в исходной строке
-        public readonly TextType Type; // Тип текста, в который нужно оформить
-        public readonly int TagLength; // Длина тэга форматирования
-        public int NextIndex { get; } // Индекс исходной строки, следующий после конца токена
+        public readonly int Length;
+        public readonly int Position;
+        public readonly TextType Type;
+        public readonly Tag Tag;
 
-        private readonly List<Token> internalTokens; // Список потомков в дереве токенов
-        
-        public Token(int length, int position, TextType type, int tagLength)
+        public int NextIndex => Position + Length;
+
+        private readonly List<Token> internalTokens;
+
+        public Token(int position, int length, Tag tag, TextType type)
         {
             Length = length;
             Position = position;
             Type = type;
-            TagLength = tagLength;
+            Tag = tag;
             internalTokens = new List<Token>();
         }
 
@@ -30,15 +32,35 @@ namespace Markdown
         /// Метод, который возаращает значение токена, преобразую тип оформления в тэк по переданному правилу
         /// </summary>
         /// <param name="tagConverter">Функция, которая преобразует тип текста в обрамляющие тэги</param>
+        /// <param name="originalString">Строка, по которой строилсь дерево токенов</param>
         /// <returns>Текст токена, обрамлённый тегами</returns>
-        public string GetValue(Func<TextType, Tag> tagConverter)
+        public string GetValue(Func<TextType, Tag> tagConverter, string originalString)
         {
-            throw new NotImplementedException();
+            var builder = new StringBuilder();
+            var newTag = tagConverter(Type);
+            var startIndex = Position + Tag.Open.Length;
+            
+            builder.Append(newTag.Open);
+            foreach (var token in internalTokens.OrderBy(token => token.Position))
+            {
+                builder.Append(originalString.Substring(startIndex, token.Position - startIndex));
+                builder.Append(token.GetValue(tagConverter, originalString));
+                startIndex = token.NextIndex;
+            }
+            builder.Append(originalString.Substring(startIndex, Length - Tag.Close.Length - (startIndex - Position)));
+            builder.Append(newTag.Close);
+            
+            return builder.ToString();
         }
 
         public void AddInternalToken(Token token)
         {
             internalTokens.Add(token);
+        }
+
+        public bool RemoveInternalToken(Token token)
+        {
+            return internalTokens.Remove(token);
         }
     }
 }

@@ -1,16 +1,15 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 
 namespace Markdown
 {
-    public class HTMLWriter
+    public static class HtmlWriter
     {
-        public readonly Dictionary<TextType, Tag> Tags = new Dictionary<TextType, Tag>()
+        private static readonly Dictionary<TextType, Tag> Tags = new Dictionary<TextType, Tag>()
         {
-            { TextType.Bold, new Tag("<strong>", "</strong>")},
-            { TextType.Italic, new Tag("<i>", "</i>")},
             { TextType.Default, new Tag("", "")},
-            { TextType.Heading, new Tag("<h1>", "<h1>")},
+            { TextType.Italic, new Tag("<em>", "</em>")},
+            { TextType.Bold, new Tag("<strong>", "</strong>")},
+            { TextType.Heading, new Tag("<h1>", "</h1>")},
         };
         
         /// <summary>
@@ -22,8 +21,14 @@ namespace Markdown
         /// <returns>Строка в html форматировании</returns>
         public static string CreateHtmlFromTokens(Token rootToken, string originalText)
         {
-            // token.GetValue(type => tags[type])
-            throw new NotImplementedException();
+            return rootToken.GetValue(ConvertTextTypeToHtmlTag, originalText);
+        }
+
+        private static Tag ConvertTextTypeToHtmlTag(TextType textType)
+        {
+            return Tags.ContainsKey(textType)
+                ? Tags[textType]
+                : new Tag("", ""); 
         }
     }
 }

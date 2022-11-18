@@ -1,4 +1,5 @@
 ﻿using Markdown.Handlers;
+using Markdown.Parsers;
 
 namespace Markdown
 {
@@ -13,9 +14,10 @@ namespace Markdown
         {
             var mdStringParser = new TokenTreeCreator(
                 new BoldTagMdParser(),
-                new ItalicTagMdParser());
+                new ItalicTagMdParser(),
+                new HeadingMdParser());
             var rootToken = mdStringParser.GetRootToken(mdText);
-            return HTMLWriter.CreateHtmlFromTokens(rootToken, mdText);
+            return HtmlWriter.CreateHtmlFromTokens(rootToken, mdText);
         }
     }
 }

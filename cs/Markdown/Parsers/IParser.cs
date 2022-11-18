@@ -1,7 +1,7 @@
 ﻿
-namespace Markdown.Handlers
+namespace Markdown.Parsers
 {
-    public interface IHandler
+    public interface IParser
     {
         /// <summary>
         /// Пытается обработать участок строки, начинающийся с командного символа
