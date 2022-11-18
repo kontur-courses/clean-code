@@ -6,19 +6,23 @@ using System.Threading.Tasks;
 
 namespace Markdown
 {
-    public class Token
+    public class Token:IToken
     {
-        public readonly int Length;
-        public readonly TokenType TokensType;
-        public readonly int Position;
-        public readonly string Value;
+      
+        public TokenType TokensType;
+        public int Position { get; set; }
+        public int Length { get; set; }
 
-        public Token(string value, int position, int length,TokenType type)
+        public Token(int position, int length)
         {
-            TokensType = type;
             Position = position;
             Length = length;
-            Value = value;
+        }
+        public Token(int position, int length,TokenType type)
+        {
+            Position = position;
+            Length = length;
+            TokensType=type;
         }
 
         public override bool Equals(object obj)
@@ -28,10 +32,7 @@ namespace Markdown
             return Equals((Token)obj);
         }
 
-        protected bool Equals(Token other)
-        {
-            return Length == other.Length && Position == other.Position && string.Equals(Value, other.Value);
-        }
+       
         public int GetIndexNextToToken()
         {
             return Position + Length;

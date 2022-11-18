@@ -14,6 +14,8 @@ namespace Markdown
         [TestCase("_text_", "<em>text</em>",TestName = "Simple em test with one tag")]
         [TestCase("_text_ _text_", "<em>text</em> <em>text</em>", TestName = "Simple em test with two tags in row")]
         [TestCase("__txt_ __text_", "<em>text</em> <em>text</em>", TestName = "Simple eeem test with two tags in row")]
+        [TestCase("__txt\\_ \\__te  xt_fef123_e 3_3", "<em>text</em> <em>text</em>", TestName = "displayed")]
+        [TestCase("_3  __", "<em>text</em> <em>text</em>", TestName = "digits")]
         public void EmTagTests(string mdString,string htmlString)
         {
             var md = new Md();

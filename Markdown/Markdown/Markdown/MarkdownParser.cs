@@ -16,40 +16,31 @@ namespace Markdown
 
     }
 
-    internal static class MarkdownParser
+    public static class MarkdownParser
     {
         public static List<Token> GetArrayWithMdTags(string stringWithTags)
         {
             var mdTags = new HashSet<string>() { "# ", "__", "_", "\\" };
             var tokenList= new List<Token>();
-            var type = TokenType.defaultToken;
             foreach (var tag in mdTags)
-            {
-                type = type.GetTokenType(tag);
-                var fallIndexes= tokenList.GetBusyIndexes();
-                foreach (var indexOfTag in tag.GetIndexInLine(stringWithTags))
-                {
-                    if(!fallIndexes.Contains(indexOfTag))
-                        tokenList.Add(new Token(tag, indexOfTag, tag.Length, type));
-                }
-            }
+                AddTokenTag(stringWithTags, tag, tokenList);
             return tokenList;
         }
 
-        private static TokenType GetTokenType(this TokenType type, string tag)
+        private static void AddTokenTag(string stringWithTags, string tag, List<Token> tokenList)
         {
-            type = tag switch
+             
+            var busyIndexes = tokenList.GetBusyIndexes();
+            foreach (var indexOfTag in tag.GetIndexInLine(stringWithTags))
             {
-                "# " => TokenType.header,
-                "__" => TokenType.strong,
-                "_" => TokenType.em,
-                "\\" => TokenType.displayed,
-                _ => type
-            };
-            return type;
+                if (!busyIndexes.Contains(indexOfTag))
+                    tokenList.Add(new Token(indexOfTag, tag.Length));
+            }
         }
 
-        private static List<int> GetBusyIndexes(this List<Token> tokenList)
+       
+
+        private static List<int> GetBusyIndexes(this IEnumerable<Token> tokenList)
         {
             return tokenList
                 .SelectMany(token => Enumerable.Range(token.Position, token.Length))
@@ -68,11 +59,15 @@ namespace Markdown
             }
             return listIndexes;
         }
-
-
-
-
-
+        public static TextToken GetTextTokenBetweenTagTokens(this string mdText, Token first, Token second)
+        {
+            var startText = first.Position+first.Length;
+            var len = second.Position - startText;
+            var token= new TextToken(len, startText);
+            if (mdText.Substring(startText,len).Contains(" "))
+                token.HaveSpaces=true;
+            return token;
+        }
 
     }
 }
