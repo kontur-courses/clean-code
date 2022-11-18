@@ -13,16 +13,24 @@ public abstract class StandardElement : IElement
         RawContent = rawContent;
 
         var thisType = GetType();
-        if (!CachedValidNestedTypes.ContainsKey(thisType))
-            CachedValidNestedTypes[thisType] = thisType.GetInterfaces()
-                .Where(interfaceType => interfaceType.IsGenericType)
-                .Where(interfaceType => interfaceType.GetGenericTypeDefinition() == typeof(IStorageOf<>))
-                .Select(interfaceType => interfaceType.GetGenericArguments().First())
-                .ToHashSet();
+        lock (CachedValidNestedTypes)
+        {
+            if (!CachedValidNestedTypes.ContainsKey(thisType))
+                CachedValidNestedTypes[thisType] = thisType.GetInterfaces()
+                    .Where(interfaceType => interfaceType.IsGenericType)
+                    .Where(interfaceType => interfaceType.GetGenericTypeDefinition() == typeof(IStorageOf<>))
+                    .Select(interfaceType => interfaceType.GetGenericArguments().First())
+                    .ToHashSet();
+        }
     }
 
-    public bool CanContainNested(Type nestedType) =>
-        CachedValidNestedTypes[GetType()].Contains(nestedType);
+    public bool CanContainNested(Type nestedType)
+    {
+        lock (CachedValidNestedTypes)
+        {
+            return CachedValidNestedTypes[GetType()].Contains(nestedType);
+        }
+    }
 
     public void AddNestedElement(IElement nested) =>
         _nestedElements.Add(nested);
