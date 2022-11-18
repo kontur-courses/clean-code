@@ -4,7 +4,7 @@ namespace Markdown
 {
     public static class HtmlBuilder
     {
-        public static string ConvertConcsToHTML(Stack<Concatination> concs)
+        public static string ConvertConcsToHTML(List<Token> concs)
         {
             return "";
         }

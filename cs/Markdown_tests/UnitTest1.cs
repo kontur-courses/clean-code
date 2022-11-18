@@ -81,6 +81,12 @@ namespace Markdown_tests
         }
 
         [Test]
+        public void TripleSlash()
+        {
+            var concs = parser.ParseMdToHTML(@"\\\_вот это не будет выделено тегом_");
+        }
+
+        [Test]
         public void ConcatinationWithDigits()
         {
             var concs = parser.ParseMdToHTML(@"Подчерки внутри текста c цифрами_12_3 не считаются выделением и должны оставаться символами подчерка.");
@@ -111,18 +117,6 @@ namespace Markdown_tests
         }
 
         [Test]
-        public void TextWithEnter()
-        {
-            var concs = parser.ParseMdToHTML("Текст с \n переносом строки");
-        }
-
-        [Test]
-        public void TextWithEnterAndModifier()
-        {
-            var concs = parser.ParseMdToHTML("Текст с _\n_ переносом строки и модификатором italic");
-        }
-
-        [Test]
         public void ModifierAfterSpace()
         {
             var concs = parser.ParseMdToHTML(@"Подчерки, заканчивающие выделение, должны следовать за непробельным символом. Иначе эти _подчерки _не считаются_ окончанием выделения и остаются просто символами подчерка.");
@@ -150,12 +144,6 @@ namespace Markdown_tests
         public void Title()
         {
             var concs = parser.ParseMdToHTML(@"# Этот абзац должен преобразоваться в <h1> Этот абзац должен преобразоваться в </h1>");
-        }
-
-        [Test]
-        public void TitleWithCommonText()
-        {
-            var concs = parser.ParseMdToHTML("# Этот абзац должен преобразоваться \n а это другой абзац, преобразовываться не должен.");
         }
 
         [Test]
