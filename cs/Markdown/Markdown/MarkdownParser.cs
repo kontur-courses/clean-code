@@ -16,7 +16,7 @@ namespace Markdown
             return textWithHtmlTags;
         }
 
-        private static List<(int openTag, int closeTag, int lenTag)> GetIndexTags(string text)
+        private static List<(int openTagIndex, int closeTagIndex, int lenTag)> GetIndexTags(string text)
         {
             return new List<(int, int, int)>();
         }
