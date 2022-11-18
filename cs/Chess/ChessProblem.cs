@@ -28,12 +28,20 @@
                     board.Set(locTo, old);
                 }
             }
+
+            ChessStatus = UpdateChessStatus(isCheck, hasMoves);
+        }
+
+        private static ChessStatus UpdateChessStatus(bool isCheck, bool hasMoves)
+        {
             if (isCheck)
                 if (hasMoves)
-                    ChessStatus = ChessStatus.Check;
-                else ChessStatus = ChessStatus.Mate;
-            else if (hasMoves) ChessStatus = ChessStatus.Ok;
-            else ChessStatus = ChessStatus.Stalemate;
+                    return ChessStatus.Check;
+                else return ChessStatus.Mate;
+
+            if (hasMoves) return ChessStatus.Ok;
+
+            return  ChessStatus.Stalemate;
         }
 
         // check — это шах
@@ -42,17 +50,29 @@
             var isCheck = false;
             foreach (var loc in board.GetPieces(PieceColor.Black))
             {
-                var piece = board.GetPiece(loc);
-                var moves = piece.GetMoves(loc, board);
-                foreach (var destination in moves)
-                {
-                    if (Piece.Is(board.GetPiece(destination),
-                                 PieceColor.White, PieceType.King))
-                        isCheck = true;
-                }
+                isCheck = IsCheck(loc, isCheck);
             }
-            if (isCheck) return true;
-            return false;
+
+            return isCheck;
+        }
+
+
+        private static bool IsCheck(Location loc, bool isCheck)
+        {
+            var piece = board.GetPiece(loc);
+            var moves = piece.GetMoves(loc, board);
+            foreach (var destination in moves)
+            {
+                if (IsKingInLocation(destination))
+                    isCheck = true;
+            }
+
+            return isCheck;
+        }
+
+        private static bool IsKingInLocation(Location destination)
+        {
+            return Piece.Is(board.GetPiece(destination), PieceColor.White, PieceType.King);
         }
     }
 }

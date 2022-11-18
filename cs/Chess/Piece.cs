@@ -26,6 +26,6 @@ namespace Chess
             piece != null && piece.Color == color;
 
         public static bool Is(Piece piece, PieceColor color, PieceType pieceType) =>
-            Is(piece, color) && piece.PieceType == pieceType;
+            Is(piece, color)  && piece.PieceType == pieceType;
     }
 }

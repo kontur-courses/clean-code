@@ -10,6 +10,7 @@ namespace Chess
         public static readonly PieceType Queen = new PieceType(true, 'Q', new Location(1, 1), new Location(1, 0), new Location(0, 1));
         public static readonly PieceType Bishop = new PieceType(true, 'B', new Location(1, 1));
         public static readonly PieceType Knight = new PieceType(false, 'N', new Location(2, 1), new Location(1, 2));
+        //нет пешек
 
         private readonly Location[] directions;
         private readonly bool infinit;
