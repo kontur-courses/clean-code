@@ -1,31 +1,38 @@
 using MarkdownRenderer.Abstractions;
+using MarkdownRenderer.Abstractions.ElementsParsers;
+using MarkdownRenderer.Implementations;
 using MarkdownRenderer.Implementations.HtmlRenderers;
 using MarkdownRenderer.Implementations.MarkdownParsers;
+using MarkdownRenderer.Implementations.MarkdownParsers.SpecialInlineParsers;
+using MarkdownRenderer.Implementations.MarkdownParsers.SpecialLineParsers;
+using IElementRenderer = MarkdownRenderer.Abstractions.ElementsRenderers.IElementRenderer;
 
 namespace MarkdownRenderer;
 
 public class Md
 {
-    public string Render(string mdSource)
-    {
-        var converter = new DocumentConverter(
-            new IElementParser[]
-            {
-                new MarkdownParagraphParser(),
-                new MarkdownHeaderParser(),
-                new MarkdownPlainTextParser(),
-                new MarkdownItalicParser(),
-                new MarkdownStrongParser()
-            },
-            new IElementRenderer[]
-            {
-                new HtmlParagraphRenderer(),
-                new HtmlHeaderRenderer(),
-                new HtmlPlainTextRenderer(),
-                new HtmlItalicRenderer(),
-                new HtmlStrongRenderer()
-            }
+    public string Render(string mdSource) =>
+        CreateConverter().Convert(mdSource);
+
+    private IDocumentsConverter CreateConverter() =>
+        new ParallelDocumentConverter(
+            new DefaultLineParser(new IElementParser[]
+                {
+                    new MarkdownParagraphParser(),
+                    new MarkdownHeaderParser(),
+                    new MarkdownPlainTextParser(),
+                    new MarkdownItalicParser(),
+                    new MarkdownStrongParser()
+                }
+            ),
+            new DefaultLineRenderer(new IElementRenderer[]
+                {
+                    new HtmlParagraphRenderer(),
+                    new HtmlHeaderRenderer(),
+                    new HtmlPlainTextRenderer(),
+                    new HtmlItalicRenderer(),
+                    new HtmlStrongRenderer()
+                }
+            )
         );
-        return converter.Convert(mdSource);
-    }
 }

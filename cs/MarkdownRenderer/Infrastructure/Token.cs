@@ -1,4 +1,4 @@
-namespace MarkdownRenderer;
+namespace MarkdownRenderer.Infrastructure;
 
 public class Token
 {

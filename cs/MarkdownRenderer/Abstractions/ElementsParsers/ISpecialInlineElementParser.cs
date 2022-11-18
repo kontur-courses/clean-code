@@ -1,4 +1,7 @@
-namespace MarkdownRenderer.Abstractions;
+using MarkdownRenderer.Abstractions.Elements;
+using MarkdownRenderer.Infrastructure;
+
+namespace MarkdownRenderer.Abstractions.ElementsParsers;
 
 public interface ISpecialInlineElementParser : ISpecialElementParser, IInlineElementParser
 {

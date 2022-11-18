@@ -1,8 +1,11 @@
 using MarkdownRenderer.Abstractions;
+using MarkdownRenderer.Abstractions.Elements;
+using MarkdownRenderer.Abstractions.ElementsParsers;
+using MarkdownRenderer.Infrastructure;
 
 namespace MarkdownRenderer.Implementations;
 
-public class DocumentParser
+public class DefaultLineParser : ILineParser
 {
     private readonly IInlineElementParser _defaultInlineElementParser;
     private readonly IReadOnlyCollection<ISpecialInlineElementParser> _specialInlineElementsParsers;
@@ -10,7 +13,7 @@ public class DocumentParser
     private readonly ILineElementParser _defaultLineElementParser;
     private readonly IReadOnlyCollection<ISpecialLineElementParser> _specialLineElementsParsers;
 
-    public DocumentParser(IEnumerable<IElementParser> parsers)
+    public DefaultLineParser(IEnumerable<IElementParser> parsers)
     {
         var inlineSpecialParsers = new HashSet<ISpecialInlineElementParser>();
         var lineSpecialParsers = new HashSet<ISpecialLineElementParser>();

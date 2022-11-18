@@ -1,6 +1,6 @@
 using MarkdownRenderer.Implementations.Elements;
 
-namespace MarkdownRenderer.Implementations.MarkdownParsers;
+namespace MarkdownRenderer.Implementations.MarkdownParsers.SpecialInlineParsers;
 
 public class MarkdownStrongParser : MarkdownSpecialInlineElementParser<StrongElement>
 {

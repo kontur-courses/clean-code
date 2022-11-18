@@ -1,4 +1,4 @@
-namespace MarkdownRenderer.Abstractions;
+namespace MarkdownRenderer.Abstractions.ElementsParsers;
 
 public interface IElementParser
 {

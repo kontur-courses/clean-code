@@ -1,6 +1,7 @@
-using MarkdownRenderer.Abstractions;
+using MarkdownRenderer.Abstractions.Elements;
+using MarkdownRenderer.Abstractions.ElementsParsers;
 
-namespace MarkdownRenderer.Implementations.MarkdownParsers;
+namespace MarkdownRenderer.Implementations.MarkdownParsers.SpecialLineParsers;
 
 public abstract class MarkdownSpecialLineElementParser<TElem> : ISpecialLineElementParser
     where TElem : IElement

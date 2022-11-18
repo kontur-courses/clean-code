@@ -1,3 +1,5 @@
+using System.Globalization;
+using FluentAssertions;
 using MarkdownRenderer;
 
 // ReSharper disable StringLiteralTypo
@@ -6,35 +8,96 @@ namespace MarkdownRenderer_Tests;
 
 public class MdRender_Should
 {
-    private Md markdown = null!;
+    private Md _markdown = null!;
 
     [SetUp]
     public void Setup()
     {
-        markdown = new Md();
+        _markdown = new Md();
     }
 
-    [TestCase("abcd", ExpectedResult = "abcd", TestName = "Simple text")]
-    [TestCase("_abcd_", ExpectedResult = "<em>abcd</em>", TestName = "Italic one word")]
-    [TestCase("_ab cd_", ExpectedResult = "<em>ab cd</em>", TestName = "Italic some words")]
-    [TestCase("a_bc_d", ExpectedResult = "a<em>bc</em>d", TestName = "Italic inside word")]
-    [TestCase("a_1b_c", ExpectedResult = "a_1b_c", TestName = "Italic inside word with digits")]
-    [TestCase("_ab cd_ef", ExpectedResult = "_ab cd_ef", TestName = "Italic inside word with spaces")]
-    [TestCase("ab _c_", ExpectedResult = "ab <em>c</em>", TestName = "Italic two words")]
-    [TestCase(" _c_", ExpectedResult = " <em>c</em>", TestName = "Italic with space before")]
-    [TestCase("__strong__", ExpectedResult = "<strong>strong</strong>", TestName = "Strong one word")]
-    [TestCase("__ab _cd_ ef__", ExpectedResult = "<strong>ab <em>cd</em> ef</strong>",
-        TestName = "Italic inside strong")]
-    [TestCase("_ab __cd__ ef_", ExpectedResult = "<em>ab __cd__ ef</em>", TestName = "Strong inside italic")]
-    [TestCase("__abc_", ExpectedResult = "__abc_", TestName = "Not paired tags")]
-    [TestCase("__", ExpectedResult = "__", TestName = "Empty string inside italic")]
-    [TestCase("____", ExpectedResult = "____", TestName = "Empty string inside strong")]
-    [TestCase("_a _b c_ d_", ExpectedResult = "<em>a _b c</em> d_", TestName = "Italic intersections")]
-    [TestCase("__ab _cd__ ef_", ExpectedResult = "__ab _cd__ ef_", TestName = "Italic strong intersections")]
-    [TestCase("# header", ExpectedResult = "<h1>header</h1>", TestName = "Header element")]
-    [TestCase("# Заголовок __с _разными_ символами__",
-        ExpectedResult = "<h1>Заголовок <strong>с <em>разными</em> символами</strong></h1>",
-        TestName = "Header with nested elements")]
-    public string ReturnCorrectRenderResult(string sourceMd) =>
-        markdown.Render(sourceMd);
+    [TestCase("", TestName = "Empty line")]
+    [TestCase("\n\n\n", TestName = "Empty multiline")]
+    [TestCase("abcd", TestName = "Simple text")]
+    [TestCase("ab\ncd\nef", TestName = "Simple multiline text")]
+    public void ReturnTheSame_OnSourceWithoutTags(string source)
+    {
+        _markdown.Render(source).Should().Be(source);
+    }
+
+    [TestCaseSource(nameof(BuildDefaultInlineTestCaseDataSource), new object[] {"_", "em", "italic"})]
+    public void ReturnCorrectRenderResult_OnItalicTags(string source, string expectedResult)
+    {
+        _markdown.Render(source).Should().Be(expectedResult);
+    }
+
+    [TestCaseSource(nameof(BuildDefaultInlineTestCaseDataSource), new object[] {"__", "strong", "strong"})]
+    public void ReturnCorrectRenderResult_OnStrongTags(string source, string expectedResult)
+    {
+        _markdown.Render(source).Should().Be(expectedResult);
+    }
+
+    [TestCase("__ab _cd_ ef__", "<strong>ab <em>cd</em> ef</strong>", TestName = "Italic inside strong")]
+    [TestCase("_ab __cd__ ef_", "<em>ab __cd__ ef</em>", TestName = "Strong inside italic")]
+    [TestCase("__abc_", "__abc_", TestName = "Not paired tags")]
+    [TestCase("__ab _cd__ ef_", "__ab _cd__ ef_", TestName = "Italic strong intersections")]
+    public void ReturnCorrectRenderResult_OnCombinedInlineTags(string source, string expected)
+    {
+        _markdown.Render(source).Should().Be(expected);
+    }
+
+    [TestCase("# abc", "<h1>abc</h1>", TestName = "Only header")]
+    [TestCase("#abc", "#abc", TestName = "Headers without space after tag")]
+    [TestCase(" # abc", " # abc", TestName = "Header with space before tag")]
+    [TestCase("# abc __def _ghi_ jkl__", "<h1>abc <strong>def <em>ghi</em> jkl</strong></h1>",
+        TestName = "Header with nested inline elements")]
+    [TestCase("# abc\ndef\n# ghi", "<h1>abc</h1>\ndef\n<h1>ghi</h1>", TestName = "Headers and paragraphs mix")]
+    public void ReturnCorrectRenderResult_OnHeaderTags(string source, string expected)
+    {
+        _markdown.Render(source).Should().Be(expected);
+    }
+
+    private static IEnumerable<TestCaseData> BuildDefaultInlineTestCaseDataSource(string sourceTag, string resultTag,
+        string tagName)
+    {
+        var lowerTagName = tagName.ToLower();
+        var titleTagName = CultureInfo.CurrentCulture.TextInfo.ToTitleCase(lowerTagName);
+
+        yield return new TestCaseData($"{sourceTag}{sourceTag}", $"{sourceTag}{sourceTag}")
+            .SetName($"Empty {lowerTagName} tags");
+
+        yield return new TestCaseData($"{sourceTag}abcd{sourceTag}", $"<{resultTag}>abcd</{resultTag}>")
+            .SetName($"{titleTagName} one word");
+
+        yield return new TestCaseData($"{sourceTag}ab cd ef{sourceTag}", $"<{resultTag}>ab cd ef</{resultTag}>")
+            .SetName($"Some words inside {lowerTagName}");
+
+        yield return new TestCaseData($"ab {sourceTag}cd{sourceTag} ef", $"ab <{resultTag}>cd</{resultTag}> ef")
+            .SetName($"{titleTagName} inside plain text");
+
+        yield return new TestCaseData($"a{sourceTag}bc{sourceTag}d", $"a<{resultTag}>bc</{resultTag}>d")
+            .SetName($"{titleTagName} inside word");
+
+        yield return new TestCaseData($"{sourceTag}ab cd{sourceTag}ef", $"{sourceTag}ab cd{sourceTag}ef")
+            .SetName($"{titleTagName} inside word with spaces");
+
+        yield return new TestCaseData($"a{sourceTag}b2c{sourceTag}d", $"a{sourceTag}b2c{sourceTag}d")
+            .SetName($"{titleTagName} inside word with digits");
+
+        yield return new TestCaseData($" {sourceTag}x{sourceTag} ", $" <{resultTag}>x</{resultTag}> ")
+            .SetName($"{titleTagName} with spaces before and after");
+
+        yield return new TestCaseData(
+                $"{sourceTag}a {sourceTag}b c{sourceTag} d{sourceTag}",
+                $"<{resultTag}>a {sourceTag}b c</{resultTag}> d{sourceTag}")
+            .SetName($"{titleTagName} tags intersections");
+
+        yield return new TestCaseData($"{sourceTag}ab\ncd{sourceTag}", $"{sourceTag}ab\ncd{sourceTag}")
+            .SetName($"{titleTagName} tag pair on other line");
+
+        yield return new TestCaseData(
+                $"{sourceTag}abcd{sourceTag}\n{sourceTag}efgh{sourceTag}",
+                $"<{resultTag}>abcd</{resultTag}>\n<{resultTag}>efgh</{resultTag}>")
+            .SetName($"{titleTagName} multiline");
+    }
 }

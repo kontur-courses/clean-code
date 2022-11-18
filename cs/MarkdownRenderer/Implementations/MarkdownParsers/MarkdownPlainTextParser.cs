@@ -1,5 +1,8 @@
 using MarkdownRenderer.Abstractions;
+using MarkdownRenderer.Abstractions.Elements;
+using MarkdownRenderer.Abstractions.ElementsParsers;
 using MarkdownRenderer.Implementations.Elements;
+using MarkdownRenderer.Infrastructure;
 
 namespace MarkdownRenderer.Implementations.MarkdownParsers;
 
