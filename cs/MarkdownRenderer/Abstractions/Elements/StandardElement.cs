@@ -32,6 +32,10 @@ public abstract class StandardElement : IElement
         }
     }
 
-    public void AddNestedElement(IElement nested) =>
+    public void AddNestedElement(IElement nested)
+    {
+        if (!CanContainNested(nested.GetType()))
+            throw new ArgumentException($"{GetType().Name} cannot contain element {nested.GetType().Name}");
         _nestedElements.Add(nested);
+    }
 }

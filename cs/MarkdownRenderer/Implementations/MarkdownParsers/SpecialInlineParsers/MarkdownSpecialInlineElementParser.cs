@@ -55,9 +55,9 @@ public abstract class MarkdownSpecialInlineElementParser<TElem> : ISpecialInline
     public virtual bool TryParseElement(string content, Token contentToken, out TElem? element)
     {
         element = default;
-        if (!IsElementStart(content, contentToken.Start) || !IsElementEnd(content, contentToken.End))
-            return false;
         if (contentToken.Length < Prefix.Length + Postfix.Length + 1)
+            return false;
+        if (!IsElementStart(content, contentToken.Start) || !IsElementEnd(content, contentToken.End))
             return false;
 
         var rawContent = content.Substring(

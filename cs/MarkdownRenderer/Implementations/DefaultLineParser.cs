@@ -190,7 +190,7 @@ public class DefaultLineParser : ILineParser
 
     private bool TryParseDefaultElement(string content, int start, int end, out IElement? element)
     {
-        element = null;
+        element = default;
         if (start > end)
             return false;
         element = _defaultInlineElementParser.ParseElement(content, new Token(start, end));

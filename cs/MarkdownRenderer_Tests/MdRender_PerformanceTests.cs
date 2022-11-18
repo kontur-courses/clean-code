@@ -30,17 +30,23 @@ public class MdRender_PerformanceTests
     [Test]
     public void RenderWorksFast_OnLineWithNestedTags()
     {
-        var content = new StringBuilder(10020)
+        var content = new StringBuilder(10050)
             .Append("# ")
-            .Append(GetRandomLetters().Take(2000).ToArray())
+            .Append(GetRandomLetters().Take(1500).ToArray())
             .Append("__")
-            .Append(GetRandomLetters().Take(2000).ToArray())
+            .Append(GetRandomLetters().Take(1000).ToArray())
             .Append('_')
-            .Append(GetRandomLetters().Take(2000).ToArray())
+            .Append(GetRandomLetters().Take(1000).ToArray())
+            .Append('<')
+            .Append(GetRandomLetters().Take(1500).ToArray())
+            .Append('.')
+            .Append(GetRandomLetters().Take(1500).ToArray())
+            .Append('>')
+            .Append(GetRandomLetters().Take(1000).ToArray())
             .Append('_')
-            .Append(GetRandomLetters().Take(2000).ToArray())
+            .Append(GetRandomLetters().Take(1000).ToArray())
             .Append("__")
-            .Append(GetRandomLetters().Take(2000).ToArray());
+            .Append(GetRandomLetters().Take(1500).ToArray());
 
         TestExecutionTime(content.ToString());
     }
@@ -48,7 +54,7 @@ public class MdRender_PerformanceTests
     [Test]
     public void RenderWorksFast_OnLinesWithRandomPlacedTags()
     {
-        var tags = new[] {"_", "__", "\\", "\\n"};
+        var tags = new[] {"_", "__", "\\", "\\n", "<", ">", "[", "]", "(", ")"};
         var content = new StringBuilder(10000);
         using (var randomLettersEnumerator = GetRandomLetters().GetEnumerator())
         {
@@ -65,7 +71,7 @@ public class MdRender_PerformanceTests
         TestExecutionTime(content.ToString());
     }
 
-    private void TestExecutionTime(string content, int maxDurationInMilliseconds = 50) =>
+    private void TestExecutionTime(string content, int maxDurationInMilliseconds = 100) =>
         _markdown.ExecutionTimeOf(md => md.Render(content)).Should()
             .BeLessOrEqualTo(maxDurationInMilliseconds.Milliseconds());
 

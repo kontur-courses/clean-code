@@ -25,15 +25,16 @@ public class MdRender_Should
     }
 
     [TestCaseSource(nameof(BuildDefaultInlineTestCaseDataSource), new object[] {"_", "em", "italic"})]
-    public void ReturnCorrectRenderResult_OnItalicTags(string source, string expectedResult)
+    public void ReturnCorrectRenderResult_OnItalicTags(string source, string expected
+    )
     {
-        _markdown.Render(source).Should().Be(expectedResult);
+        _markdown.Render(source).Should().Be(expected);
     }
 
     [TestCaseSource(nameof(BuildDefaultInlineTestCaseDataSource), new object[] {"__", "strong", "strong"})]
-    public void ReturnCorrectRenderResult_OnStrongTags(string source, string expectedResult)
+    public void ReturnCorrectRenderResult_OnStrongTags(string source, string expected)
     {
-        _markdown.Render(source).Should().Be(expectedResult);
+        _markdown.Render(source).Should().Be(expected);
     }
 
     [TestCase("__ab _cd_ ef__", "<strong>ab <em>cd</em> ef</strong>", TestName = "Italic inside strong")]
@@ -41,6 +42,29 @@ public class MdRender_Should
     [TestCase("__abc_", "__abc_", TestName = "Not paired tags")]
     [TestCase("__ab _cd__ ef_", "__ab _cd__ ef_", TestName = "Italic strong intersections")]
     public void ReturnCorrectRenderResult_OnCombinedInlineTags(string source, string expected)
+    {
+        _markdown.Render(source).Should().Be(expected);
+    }
+
+    [TestCase("<ab.cd>", @"<a href=""ab.cd"">ab.cd</a>", TestName = "Simple link")]
+    [TestCase("<ab.cd/ef>", @"<a href=""ab.cd/ef"">ab.cd/ef</a>", TestName = "Two level link")]
+    [TestCase("_<ab.cd>_", @"<em><a href=""ab.cd"">ab.cd</a></em>", TestName = "Inside italic")]
+    [TestCase("__<ab.cd>__", @"<strong><a href=""ab.cd"">ab.cd</a></strong>", TestName = "Inside strong")]
+    [TestCase("<a b.cd>", "<a b.cd>", TestName = "Space inside destination")]
+    public void ReturnCorrectResult_OnSimpleLinkTags(string source, string expected)
+    {
+        _markdown.Render(source).Should().Be(expected);
+    }
+
+    [TestCase("[abc](ab.cd)", @"<a href=""ab.cd"">abc</a>", TestName = "Titled link")]
+    [TestCase("[abc](ab.cd/ef)", @"<a href=""ab.cd/ef"">abc</a>", TestName = "Two level titled link")]
+    [TestCase("[a b c](ab.cd)", @"<a href=""ab.cd"">a b c</a>", TestName = "Title with spaces")]
+    [TestCase("_[abc](ab.cd)_", @"<em><a href=""ab.cd"">abc</a></em>", TestName = "Inside italic")]
+    [TestCase("__[a](ab.cd)__", @"<strong><a href=""ab.cd"">a</a></strong>", TestName = "Inside strong")]
+    [TestCase("[abc](a b.cd)", "[abc](a b.cd)", TestName = "Space inside")]
+    [TestCase("[abc] (ab.cd)", "[abc] (ab.cd)", TestName = "Space between detination and title")]
+    [TestCase("[abc]](ab.cd)", "[abc]](ab.cd)", TestName = "Bad braces placing")]
+    public void ReturnCorrectResult_OnTitledLinkTags(string source, string expected)
     {
         _markdown.Render(source).Should().Be(expected);
     }

@@ -19,7 +19,7 @@ public class MarkdownEscapeSequenceParser : IEscapeSequenceElementParser
 
     public bool TryGetEscapingSequenceToken(string content, int escapeCharacterPos, out Token? token)
     {
-        token = null;
+        token = default;
         if (content[escapeCharacterPos] != EscapeCharacter)
             return false;
         var escapingSequence = _escapingSequences

@@ -23,7 +23,9 @@ public class Md
                     new MarkdownHeaderParser(),
                     new MarkdownPlainTextParser(),
                     new MarkdownItalicParser(),
-                    new MarkdownStrongParser()
+                    new MarkdownStrongParser(),
+                    new MarkdownSimpleLinkParser(),
+                    new MarkdownTitledLinkParser()
                 }
             ),
             new DefaultLineRenderer(new IElementRenderer[]
@@ -33,7 +35,8 @@ public class Md
                     new HtmlHeaderRenderer(),
                     new HtmlPlainTextRenderer(),
                     new HtmlItalicRenderer(),
-                    new HtmlStrongRenderer()
+                    new HtmlStrongRenderer(),
+                    new HtmlLinkRenderer()
                 }
             )
         );
