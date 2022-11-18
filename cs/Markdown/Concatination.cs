@@ -6,11 +6,11 @@ namespace Markdown
     {
         public List<Concatination> innerConcs;
         public List<Token> tokens;
-        public ConcType concType;
+        public Mod concType;
         public int startPos;
         public bool IsClosed;
 
-        public Concatination(ConcType type, int startPos)
+        public Concatination(Mod type, int startPos)
         {
             innerConcs = new List<Concatination>();
             tokens = new List<Token>();

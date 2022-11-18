@@ -1,10 +1,11 @@
 ﻿namespace Markdown
 {
-    public enum ConcType
+    public enum Mod
     {
-        Main,
+        Common,
         Title,
         Bold,
-        Italic
+        Italic,
+        Slash
     }
 }

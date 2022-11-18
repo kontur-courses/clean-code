@@ -1,165 +1,193 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
+using System.Linq;
 
 namespace Markdown
 {
     public class Parser
     {
         private int charCount;
-        private int curPos;
-        private Dictionary<ConcType, int> lettersQuantity;
+        private Dictionary<string, Mod> symbols;
         private List<Token> allTokens;
-        private Dictionary<Token, ConcType> tokensWithModify;
+        private Dictionary<Token, Mod> tokensWithModify;
         public string text;
 
         public Parser()
         {
-            lettersQuantity = new Dictionary<ConcType, int>()
+            symbols = new Dictionary<string, Mod>()
             {
-                [ConcType.Main] = 0,
-                [ConcType.Title] = 1,
-                [ConcType.Bold] = 2,
-                [ConcType.Italic] = 1
+                [""] = Mod.Common,
+                ["#"] = Mod.Title,
+                ["__"] = Mod.Bold,
+                ["_"] = Mod.Italic,
+                ["\\"] = Mod.Slash
             };
 
             allTokens = new List<Token>();
-            tokensWithModify = new Dictionary<Token, ConcType>();
+            tokensWithModify = new Dictionary<Token, Mod>();
         }
 
         public string ParseMdToHTML(string markdownText)
         {
             text = markdownText;
             charCount = markdownText.Length;
-            var concs = GrabConcat();
+            var concs = TikenizeText(markdownText);
             var htmlText = HtmlBuilder.ConvertConcsToHTML(concs);
             return htmlText;
         }
 
-        private Stack<Concatination> GrabConcat()
+        private List<Token> TikenizeText(string text)
         {
-            curPos = 0;
-            var openConcs = new Stack<Concatination>();
-            openConcs.Push(new Concatination(ConcType.Main, curPos));
-
-            while (curPos != charCount)
+            var tokens = new Stack<Token>();
+            var curPos = 0;
+            for (var i = 0; i < text.Length; i++)
             {
-                var token = NextToken();
-                tokensWithModify.Add(token, ConcType.Main);
+                var curSym = text[i];
 
-                if (token is ModifierToken mergeToken)
+                if (symbols.ContainsKey(curSym.ToString()))
                 {
-                    var lastModifierToken = openConcs.Peek();
+                    Token curToken;
 
-                    if (lastModifierToken.concType == mergeToken.type)
+                    if (i != curPos)
                     {
-                        var curConc = openConcs.Pop();
-                        curConc.tokens.Add(token);
-                        curConc.IsClosed = true;
+                        tokens.Push(new Token(curPos, i - 1, Mod.Common, false));
+                    }
 
-                        var parentConc = openConcs.Peek();
-                        parentConc.innerConcs.Add(curConc);
-
-                        foreach (var tok in curConc.tokens)
-                        {
-                            tokensWithModify[tok] = mergeToken.type;
-                        }
+                    if (curPos + 1 != text.Length && text[i] == '_' && text[i + 1] == '_')
+                    {
+                        curToken = new Token(i, i + 1, Mod.Bold);
+                        i++;
+                    }
+                    else if (text[i] == '\\')
+                    {
+                        curToken = new Token(i, i, Mod.Slash, false);
                     }
                     else
                     {
-                        var newConc = new Concatination(mergeToken.type, curPos);
-                        newConc.tokens.Add(token);
-                        openConcs.Push(newConc);
+                        curToken = new Token(i, i, symbols[curSym.ToString()]);
                     }
 
-                }
-                else if (token is CommonToken)
-                {
-                    var typeOfToken = openConcs.Peek().concType;
-                    var currentConc = openConcs.Peek();
-                    currentConc.AddTokens(token);
+                    tokens.TryPop(out var lastToken);
+                    var redefTokens = RedefineTokens(lastToken, curToken, text);
+
+                    foreach (var redefTok in redefTokens)
+                    {
+                        tokens.Push(redefTok);
+                    }
+
+                    curPos = i + 1;
                 }
             }
 
-            return openConcs;
+            if (curPos < text.Length)
+            {
+                tokens.Push(new Token(curPos, text.Length, Mod.Common, false));
+            }
+
+            return tokens.Reverse().ToList();
         }
 
-        private Token NextToken()
+        private List<Token> RedefineTokens(Token last, Token current, string text)
         {
-            Token curToken;
+            var redefTokens = new List<Token>();
 
-            switch (text[curPos])
+            switch (current.modType)
             {
-                case '_':
+                case Mod.Italic:
                     {
-                        if (ModifierInWord() && 
-                            WordHaveSameMod() && 
-                            curPos + 1 != charCount && text[curPos + 1] == '_')
-                        {
-                            curToken = new ModifierToken(ConcType.Bold, curPos);
-                            MovePosition(2);
-                            return curToken;
-                        }
-                        else if (ModifierInWord() && !WordHaveSameMod())
-                        {
-                            break;
-                        }
-
-                        curToken = new ModifierToken(ConcType.Italic, curPos);
-                        MovePosition(1);
-                        return curToken;
+                        redefTokens = GetRedefTokensWithItalicOrBold(last, current);
+                        return redefTokens;
                     }
 
-                case '#':
+                case Mod.Bold:
                     {
-                        curToken = new ModifierToken(ConcType.Title, curPos);
-                        MovePosition(1);
-                        return curToken;
+                        redefTokens = GetRedefTokensWithItalicOrBold(last, current);
+                        return redefTokens;
+                    }
+
+                case Mod.Slash:
+                    {
+                        if (last == null)
+                        {
+                            redefTokens.Add(current);
+                            return redefTokens;
+                        }
+                        else if(last.modType == Mod.Slash)
+                        {
+                            redefTokens.Add(new Token(current.startInd, current.endInd, Mod.Common, false));
+                            return redefTokens;
+                        }
+
+                        redefTokens.Add(last);
+                        redefTokens.Add(current);
+                        return redefTokens;
+                    }
+
+                case Mod.Title:
+                    {
+                        if (last != null)
+                        {
+                            redefTokens.Add(current);
+                        }
+                        else if (last.modType == Mod.Slash)
+                        {
+                            redefTokens.Add(new Token(current.startInd, current.endInd, Mod.Common, false));
+                        }
+                        else
+                        {
+                            var endPos = current.startInd;
+
+                            while (endPos != text.Length && text[endPos] != '\n')
+                            {
+                                endPos++;
+                            }
+
+                            var redTok = new Token(current.startInd, endPos, Mod.Title, false);
+
+                            if (last != null)
+                            {
+                                redefTokens.Add(last);
+                            }
+
+                            redefTokens.Add(redTok);
+                        }
+
+                        return redefTokens;
+                    }
+
+                case Mod.Common:
+                    {
+                        redefTokens.Add(last);
+                        redefTokens.Add(current);
+                        return redefTokens;
                     }
 
                 default:
                         break;
             }
 
-            string tokenText = string.Empty;
+            return redefTokens;
+        }
 
-            while (curPos != charCount && this.text[curPos] != '_' && text[curPos] != '#')
+        public List<Token> GetRedefTokensWithItalicOrBold(Token last, Token current)
+        {
+            var redefTokens = new List<Token>();
+
+             if (last == null)
             {
-                tokenText += text[curPos];
-                curPos++;
+                redefTokens.Add(current);
+            }
+            else if (last.modType == Mod.Slash)
+            {
+                redefTokens.Add(new Token(current.startInd, current.endInd, Mod.Common, false));
+            }
+            else
+            {
+                redefTokens.Add(last);
+                redefTokens.Add(current);
             }
 
-            curToken = new CommonToken(tokenText, curPos - tokenText.Length);
-
-            return curToken;
-        }
-
-        private bool ModifierInWord()
-        {
-            return (text[curPos + 1] != ' ' && text[curPos + 2] != ' ');
-        }
-
-        private bool WordHaveSameMod()
-        {
-            var index = 1;
-            var currentChar = text[curPos];
-
-            while(curPos + index != charCount && currentChar != ' ')
-            {
-                currentChar = text[curPos + index];
-
-                if (currentChar == text[curPos])
-                {
-                    return true;
-                }
-
-                index++;
-            }
-
-            return false;
-        }
-
-        private void MovePosition(int steps)
-        {
-            curPos += steps;
+            return redefTokens;
         }
     }
 }
