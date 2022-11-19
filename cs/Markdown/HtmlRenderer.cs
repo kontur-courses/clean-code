@@ -3,7 +3,7 @@ using Markdown.Primitives;
 
 namespace Markdown;
 
-public class HtmlPenderer : IRenderer
+public class HtmlRenderer : IRenderer
 {
     public string Render(IEnumerable<TagNode> tagNodes)
     {
