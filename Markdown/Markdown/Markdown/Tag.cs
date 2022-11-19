@@ -11,8 +11,8 @@ namespace Markdown
         public static readonly Dictionary<string, HtmlTag> Tags =
             new Dictionary<string, HtmlTag>
             {
-                ["_"] = new HtmlTag("em"),
-                ["__"]= new HtmlTag("strong"),
+                ["_"] = new HtmlTag("Italic"),
+                ["__"]= new HtmlTag("Strong"),
                 ["# "]= new HtmlTag("title")
             };
         public HtmlTag HtmlTag;

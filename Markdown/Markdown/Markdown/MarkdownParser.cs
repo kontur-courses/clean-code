@@ -6,13 +6,18 @@ using System.Threading.Tasks;
 
 namespace Markdown
 {
+    public enum TokenElement
+    {
+        Open=0, Close=1,
+        Default=2, Unknown = 3,
+    }
     public enum TokenType
     {
-        defaultToken = 0,
-        strong = 1,
-        header = 2,
-        em= 3,
-        displayed= 4,
+        Default = 0,
+        Strong = 1,
+        Header = 2,
+        Italic= 3,
+        Field= 4,
 
     }
 
@@ -59,13 +64,13 @@ namespace Markdown
             }
             return listIndexes;
         }
-        public static TextToken GetTextTokenBetweenTagTokens(this string mdText, Token first, Token second)
+        public static Token GetTextTokenBetweenTagTokens(this string mdText, Token first, Token second)
         {
             var startText = first.Position+first.Length;
             var len = second.Position - startText;
-            var token= new TextToken(len, startText);
-            if (mdText.Substring(startText,len).Contains(" "))
-                token.HaveSpaces=true;
+            var token= new Token(startText, len);
+            //if (mdText.Substring(startText,len).Contains(" "))
+            //    token.HaveSpaces=true;
             return token;
         }
 

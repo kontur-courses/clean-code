@@ -6,14 +6,10 @@ using System.Threading.Tasks;
 
 namespace Markdown
 {
-    internal class Md
-    {
-        public Md()
-        {
+    static class Md
+    { 
 
-        }
-
-        public string Render(string MarkdownString)
+        public static string Render(string MarkdownString)
         {
             
             TokenParser.AddText(MarkdownString);
