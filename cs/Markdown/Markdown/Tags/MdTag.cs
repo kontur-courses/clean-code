@@ -1,13 +1,13 @@
 namespace Markdown
 {
-    public class HtmlTag : ITag
+    public class MdTag : ITag
     {
         public string OpenTag { get; }
         public string CloseTag { get; }
         
         public bool HasCloseTag => CloseTag != String.Empty;
         
-        public HtmlTag(string tag, bool hasCloseTag)
+        public MdTag(string tag, bool hasCloseTag)
         {
             OpenTag = $"<{tag}>";
             if (hasCloseTag)
