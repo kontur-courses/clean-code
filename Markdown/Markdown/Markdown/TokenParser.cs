@@ -9,34 +9,79 @@ namespace Markdown
 {
     public static class TokenParser
     {
-        private static char[] digits = new []{'0','1','2','3','4','5','6','7','8','9'};
-        public static void DoSomething(string md)
+        private static char[] digits = new[] { '0', '1', '2', '3', '4', '5', '6', '7', '8', '9' };
+        public static List<Tuple<Token, Token>> CreatePairs(string md)
         {
-            var tokens = AddText(md);
-            foreach (var token in tokens)
+            var tokens = GetTokens(md);
+            var stack = new Stack<Token>();
+            var listPair= new List<Tuple<Token,Token>>();
+            for (int i = 0; i < tokens.Count; i++)
             {
+                var token = tokens[i];
+                if (token.Element == TokenElement.Default || token.Type == TokenType.Default)
+                    continue;
+
+                if (stack.Any() && stack.Peek().Type == token.Type&& stack.Peek().Element!=token.Element)
+                {
+                    var stackTag = stack.Pop();
+                    var openTag = stackTag.Element == TokenElement.Open ? stackTag: token;
+                    var closeTag = stackTag.Element == TokenElement.Close ? stackTag : token;
+                    listPair.Add(new Tuple<Token, Token>(openTag,closeTag));
+                }
+                else
+                    stack.Push(token);
+
             }
+            return listPair;
         }
 
-        public static List<Token> AddText(string mdString)
+        public static IEnumerable<Token> RemoveStrongInItalics(this IEnumerable<Token> tokens)
         {
-            var c = mdString.Length;
+            var lastOpenIsItalics = false;
+            foreach (var token in tokens.OrderBy(x=>x.Position))
+            {
+                if (token.Type == TokenType.Italic)
+                {
+                    if(token.Element == TokenElement.Close)
+                        lastOpenIsItalics = false;
+                    else
+                    {
+                        lastOpenIsItalics = true;
+                    }
+                }
+                if (lastOpenIsItalics&& token.Type==TokenType.Strong)
+                {
+                    token.ToDefault();
+                    yield return token;
+                    continue;
+                }
+
+
+                yield return token;
+            }
+
+        }
+        public static List<Token> GetTokens(string mdString)
+        {
+             
             var tokenList = MarkdownParser.GetArrayWithMdTags(mdString).OrderBy(tag => tag.Position).ToList();
             var tokens = new List<Token>();
             var firstToken = mdString
                 .GetTextTokenBetweenTagTokens(new Token(0, 0), tokenList[0]);
             if (firstToken.Length > 0)
                 tokens.Add(firstToken);
-            var token=tokenList[0];
+            var token = tokenList[0];
             for (var i = 0; i < tokenList.Count; i++)
             {
-                if (AddTextTokens(mdString, i, tokenList, tokens)) 
+                if (AddTextTokens(mdString, i, tokenList, tokens))
                     continue;
                 token = CreateToken(mdString, tokenList, i, tokens);
             }
-            tokens.Add(mdString.GetTextTokenBetweenTagTokens(token,new Token(mdString.Length,0)));
-            return tokens.RemoveFields().RemoveDigits(mdString).CreatePairTokens(mdString).ToList();
+            tokens.Add(mdString.GetTextTokenBetweenTagTokens(token, new Token(mdString.Length, 0)));
+            tokens= tokens.RemoveFields().RemoveDigits(mdString).RemoveSingleTokens(mdString).RemoveStrongInItalics().ToList();
+            return tokens;
         }
+
 
         private static Token CreateToken(string mdString, List<Token> tokenList, int i, List<Token> tokens)
         {
@@ -65,29 +110,29 @@ namespace Markdown
             return false;
         }
 
-        public static IEnumerable<Token> CreatePairTokens(this IEnumerable< Token> tokens,string md)
+        public static IEnumerable<Token> RemoveSingleTokens(this IEnumerable<Token> tokens, string md)
         {
             var unknownTags = new Stack<Token>();
-            var stackTokens= new Stack<Token>();
+            var stackTokens = new Stack<Token>();
             foreach (var token in tokens)
             {
                 if (token.Type == TokenType.Default)
                 {
-                    foreach (var textToken in GetTextToken(md, token, unknownTags)) 
+                    foreach (var textToken in GetTextToken(md, token, unknownTags))
                         yield return textToken;
                     yield return token;
                     continue;
                 }
 
-                foreach (var tokenMd in EnumerableTokens(md, token, stackTokens, unknownTags)) 
+                foreach (var tokenMd in EnumerableTokens(md, token, stackTokens, unknownTags))
                     yield return tokenMd;
             }
 
-            foreach (var singleToken in ToStringTokensWithoutPair(stackTokens, unknownTags)) 
+            foreach (var singleToken in ToStringTokensWithoutPair(stackTokens, unknownTags))
                 yield return singleToken;
 
         }
-
+         
         private static IEnumerable<Token> ToStringTokensWithoutPair(Stack<Token> stackTokens, Stack<Token> unknownTags)
         {
             foreach (var token in stackTokens.Concat(unknownTags))
@@ -114,13 +159,12 @@ namespace Markdown
         private static IEnumerable<Token> GetTextToken(string md, Token token, Stack<Token> unknownTags)
         {
             var mdStringBetweenTags = md.Substring(token.Position, token.Length);
-            if (mdStringBetweenTags.Contains(' '))
+            if (!mdStringBetweenTags.Contains(' ')) 
+                yield break;
+            foreach (var unknownTag in unknownTags)
             {
-                foreach (var unknownTag in unknownTags)
-                {
-                    unknownTag.ToDefault();
-                    yield return unknownTag;
-                }
+                unknownTag.ToDefault();
+                yield return unknownTag;
             }
         }
 
@@ -163,7 +207,7 @@ namespace Markdown
                     if (!md.Substring(tagsStack.Peek().End + 1,
                             token.Position - tagsStack.Peek().End - 1).Contains(' '))
                     {
-                        token.Element =TokenElement.Close;
+                        token.Element = TokenElement.Close;
                         yield return tagsStack.Pop();
                         yield return token;
                     }
@@ -187,11 +231,11 @@ namespace Markdown
 
 
 
-        public static bool CheckForWhiteSpacesInTextTokens(Token firstToken,Token secondToken,string md)
+        public static bool CheckForWhiteSpacesInTextTokens(Token firstToken, Token secondToken, string md)
         {
             if (firstToken.InText(md) && secondToken.InText(md))
             {
-                if(md.GetTextTokenBetweenTagTokens(firstToken, secondToken).CreateString(md).Contains(' '))
+                if (md.GetTextTokenBetweenTagTokens(firstToken, secondToken).CreateString(md).Contains(' '))
                     return false;
             }
             return true;
@@ -214,13 +258,13 @@ namespace Markdown
         public static IEnumerable<Token> RemoveFields(this List<Token> tokens)
         {
             var field = false;
-            var count= tokens.Count;
+            var count = tokens.Count;
             for (var i = 0; i < count; i++)
             {
                 var token = tokens[i];
                 if (field)
                 {
-                    field=false;
+                    field = false;
                     token.ToDefault();
                     yield return token;
                     continue;
@@ -242,8 +286,15 @@ namespace Markdown
             foreach (var token in tokens)
             {
                 if (token.Type == TokenType.Default)
+                {
                     yield return token;
-                if (!HaveDigit(mdString, token)) continue;
+                    continue;
+                }
+                if (!HaveDigit(mdString, token))
+                {
+                    yield return token;
+                    continue;
+                }
                 token.ToDefault();
                 yield return token;
             }
@@ -276,4 +327,4 @@ namespace Markdown
 
     }
 }
-            
+

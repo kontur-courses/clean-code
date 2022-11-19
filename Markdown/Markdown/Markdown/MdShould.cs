@@ -16,10 +16,10 @@ namespace Markdown
             TestName = "Simple bold test")]
         [TestCase("\\_Вот это\\_", "_Вот это_",
             TestName = "Simple eeem test with two tags in row")]
-        [TestCase("# Заголовок __с _разными_ символами__", "<Italic>text</Italic> <Italic>text</Italic>",
+        [TestCase("# Заголовок _с __разными__ символами_", "<Italic>text</Italic> <Italic>text</Italic>",
             TestName = "Field")]
         [TestCase("# Заголовок _с __разными__ символами_", "<Italic>text</Italic> <Italic>text</Italic>", TestName = "digits")]
-        
+
         public void EmTagTests(string mdString, string htmlString)
         {
             var result = Md.Render(mdString);
@@ -33,5 +33,5 @@ namespace Markdown
             Md.Render(mdString).Should().Be("<h1>markdown <em>test</em> sentence</strong></h1>");
         }
     }
-    
+
 }

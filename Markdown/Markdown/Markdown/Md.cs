@@ -12,7 +12,7 @@ namespace Markdown
         public static string Render(string MarkdownString)
         {
             
-            TokenParser.AddText(MarkdownString);
+            TokenParser.CreatePairs(MarkdownString);
             return MarkdownString;
         }
     }

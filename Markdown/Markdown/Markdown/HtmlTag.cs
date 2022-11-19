@@ -14,12 +14,12 @@ namespace Markdown
         {
             StartTag = $@"<{tag}>/";
             EndTag = $@"/<{tag}>";
-            
+
         }
-            
+
         public static string CreateHtmlString(string stringForHtml, HtmlTag htmlTag)
-        { 
-            return htmlTag.StartTag+stringForHtml+htmlTag.EndTag;
+        {
+            return htmlTag.StartTag + stringForHtml + htmlTag.EndTag;
         }
     }
 }
