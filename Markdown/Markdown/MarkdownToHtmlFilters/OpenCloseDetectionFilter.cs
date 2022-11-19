@@ -32,9 +32,6 @@ public class OpenCloseDetectionFilter : AbstractFilter
             }
         }
 
-        /*foreach (var tag in openedTags)
-            tokens[tag.index].TokensType = TokenType.Text;*/
-
         return tokens;
     }
 }

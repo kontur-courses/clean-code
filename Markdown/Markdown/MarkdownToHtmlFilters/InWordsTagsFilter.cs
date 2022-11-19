@@ -29,8 +29,7 @@ public class InWordsTagsFilter : AbstractFilter
             var openingIsAtSide = IsAtSide(tokens, i, true);
             var endingIsAtSide = IsAtSide(tokens, ending, false);
 
-            if ( /*_word word_ is OK:*/
-                (openingIsAtSide && endingIsAtSide) || HasOnlyTextBeforeEnding(tokens, i, ending))
+            if ((openingIsAtSide && endingIsAtSide) || HasOnlyTextBeforeEnding(tokens, i, ending))
             {
                 tokens[i].IsOpening = true;
                 tokens[ending].IsOpening = false;
