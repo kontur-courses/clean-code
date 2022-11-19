@@ -18,11 +18,11 @@ public class LinkElement : IElement
         Title = title ?? destination;
     }
 
-    public bool CanContainNested(Type nestedType) => false;
-
     public void AddNestedElement(IElement nested) =>
         throw new InvalidOperationException($"{nameof(LinkElement)} cannot contain nested elements.");
-    
+
+    public bool CanContainNested(Type nestedType) => false;
+
     public static bool IsUriCorrect(string destination)
     {
         if (!destination.Contains("://"))

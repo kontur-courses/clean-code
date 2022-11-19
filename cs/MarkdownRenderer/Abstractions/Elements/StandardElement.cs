@@ -18,7 +18,7 @@ public abstract class StandardElement : IElement
             if (!CachedValidNestedTypes.ContainsKey(thisType))
                 CachedValidNestedTypes[thisType] = thisType.GetInterfaces()
                     .Where(interfaceType => interfaceType.IsGenericType)
-                    .Where(interfaceType => interfaceType.GetGenericTypeDefinition() == typeof(IStorageOf<>))
+                    .Where(interfaceType => interfaceType.GetGenericTypeDefinition() == typeof(IContainerFor<>))
                     .Select(interfaceType => interfaceType.GetGenericArguments().First())
                     .ToHashSet();
         }

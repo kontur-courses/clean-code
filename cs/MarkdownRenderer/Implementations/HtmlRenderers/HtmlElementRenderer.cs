@@ -1,5 +1,4 @@
 using System.Text;
-using MarkdownRenderer.Abstractions;
 using MarkdownRenderer.Abstractions.Elements;
 using MarkdownRenderer.Abstractions.ElementsRenderers;
 using IElementRenderer = MarkdownRenderer.Abstractions.ElementsRenderers.IElementRenderer;
@@ -17,8 +16,8 @@ public abstract class HtmlElementRenderer<TElem> : IElementRenderer
     string IElementRenderer.Render(IElement elem, IRenderersProvider renderersProvider) =>
         elem switch
         {
-            null => throw new ArgumentNullException(nameof(elem)),
             TElem tElement => Render(tElement, renderersProvider),
+            null => throw new ArgumentNullException(nameof(elem)),
             _ => throw new InvalidOperationException(
                 $"Unable to render element of type: {elem.GetType()} using this renderer")
         };
@@ -28,6 +27,7 @@ public abstract class HtmlElementRenderer<TElem> : IElementRenderer
         var result = new StringBuilder();
 
         result.Append(OpeningTag);
+
         foreach (var nestedElement in elem.NestedElements)
         {
             var renderer = renderersProvider.GetElementRenderer(nestedElement);

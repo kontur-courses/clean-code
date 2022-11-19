@@ -13,6 +13,6 @@ public class DefaultLineRenderer : ILineRenderer
         _renderersProvider = new DefaultRenderersProvider(renderers);
     }
 
-    public string RenderLine(IElement lineElement) => 
+    public string RenderLine(IElement lineElement) =>
         _renderersProvider.GetElementRenderer(lineElement).Render(lineElement, _renderersProvider);
 }

@@ -19,7 +19,7 @@ public class ParallelDocumentConverter : IDocumentsConverter
         var parsedLines = source.Split("\n")
             .AsParallel()
             .AsOrdered()
-            .Select(_lineParser.ParseContentLine)
+            .Select(_lineParser.ParseLineContent)
             .Select(_lineRenderer.RenderLine);
 
         return string.Join("\n", parsedLines);

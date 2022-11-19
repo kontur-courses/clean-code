@@ -3,7 +3,7 @@ using MarkdownRenderer.Abstractions.Elements;
 namespace MarkdownRenderer.Implementations.Elements;
 
 public class EscapeSequenceElement : StandardElement,
-    IStorageOf<PlainText>
+    IContainerFor<PlainText>
 {
     public EscapeSequenceElement(string rawContent) : base(rawContent)
     {

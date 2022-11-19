@@ -1,5 +1,3 @@
-using System.Text.RegularExpressions;
-using System.Text.Unicode;
 using MarkdownRenderer.Implementations.Elements;
 using MarkdownRenderer.Infrastructure;
 
@@ -14,6 +12,7 @@ public class MarkdownSimpleLinkParser : MarkdownSpecialInlineElementParser<LinkE
     public override bool TryParseElement(string content, Token contentToken, out LinkElement? element)
     {
         element = default;
+
         if (contentToken.Length < Prefix.Length + Postfix.Length + 1)
             return false;
         if (!IsElementStart(content, contentToken.Start) || !IsElementEnd(content, contentToken.End))

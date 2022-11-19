@@ -1,6 +1,6 @@
 namespace MarkdownRenderer.Abstractions.Elements;
 
-public interface IStorageOf<TElem>
+public interface IContainerFor<TElem>
     where TElem : IElement
 {
 }

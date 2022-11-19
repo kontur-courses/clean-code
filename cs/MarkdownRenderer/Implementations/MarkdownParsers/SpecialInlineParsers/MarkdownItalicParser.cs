@@ -11,6 +11,7 @@ public class MarkdownItalicParser : MarkdownSpecialInlineElementParser<ItalicEle
     {
         if (!base.IsElementStart(content, index))
             return false;
+
         return content[index + Prefix.Length] is not '_' &&
                (index == 0 || content[index - 1] is not '_');
     }

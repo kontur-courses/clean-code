@@ -1,8 +1,7 @@
 using MarkdownRenderer.Implementations.Elements;
-using MarkdownRenderer.Implementations.MarkdownParsers.SpecialInlineParsers;
 using MarkdownRenderer.Infrastructure;
 
-namespace MarkdownRenderer.Implementations.MarkdownParsers;
+namespace MarkdownRenderer.Implementations.MarkdownParsers.SpecialInlineParsers;
 
 public class MarkdownTitledLinkParser : MarkdownSpecialInlineElementParser<LinkElement>
 {
@@ -25,17 +24,23 @@ public class MarkdownTitledLinkParser : MarkdownSpecialInlineElementParser<LinkE
     {
         title = default;
         destination = default;
+
         if (linkContent.Length < 5)
             return false;
+
         if (!IsElementStart(linkContent, 0) || !IsElementEnd(linkContent, linkContent.Length - 1))
             return false;
+
         var titleClosingBraceIndex = linkContent.IndexOf(']');
         if (titleClosingBraceIndex == -1)
             return false;
-        title = linkContent[1..titleClosingBraceIndex];
+        
         if (linkContent[titleClosingBraceIndex + 1] != '(')
             return false;
+
+        title = linkContent[1..titleClosingBraceIndex];
         destination = linkContent[(titleClosingBraceIndex + 2)..^1];
+
         return LinkElement.IsUriCorrect(destination);
     }
 }

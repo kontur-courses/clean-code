@@ -49,6 +49,7 @@ public class DefaultLineParser : ILineParser
 
         if (_defaultInlineElementParser is null || _defaultLineElementParser is null)
             throw new ArgumentException("Default parsers should be assigned!");
+
         _specialInlineElementsParsers = inlineSpecialParsers;
         _specialLineElementsParsers = lineSpecialParsers;
 
@@ -62,10 +63,11 @@ public class DefaultLineParser : ILineParser
             .SelectMany(parser => new[] {parser.Prefix, parser.Postfix})
             .Concat(_specialLineElementsParsers.SelectMany(parser => new[] {parser.Prefix, parser.Postfix}))
             .Where(sequence => !string.IsNullOrWhiteSpace(sequence));
+
         _escapeSequenceParser?.SetEscapingSequences(escapingSequences);
     }
 
-    public IElement ParseContentLine(string content)
+    public IElement ParseLineContent(string content)
     {
         var specialLineParser = _specialLineElementsParsers.FirstOrDefault(parser => parser.Match(content));
         var line = specialLineParser is null
@@ -86,9 +88,10 @@ public class DefaultLineParser : ILineParser
 
         for (var i = 0; i < content.Length; i++)
         {
-            if (_escapeSequenceParser is not null &&
+            if (
+                _escapeSequenceParser is not null &&
                 _escapeSequenceParser.TryGetEscapingSequenceToken(content, i, out var escapeToken)
-               )
+            )
             {
                 var contentToken = new ContentToken(
                     escapeToken!.Start, escapeToken.End,
@@ -102,8 +105,8 @@ public class DefaultLineParser : ILineParser
             if (TryCloseParser(openedParsers, closedTokens, content, i))
                 continue;
 
-            var openedParser =
-                _specialInlineElementsParsers.FirstOrDefault(parser => parser.IsElementStart(content, i));
+            var openedParser = _specialInlineElementsParsers
+                .FirstOrDefault(parser => parser.IsElementStart(content, i));
             if (openedParser is not null && !openedParsers.ContainsKey(openedParser))
                 openedParsers[openedParser] = i;
         }
@@ -161,30 +164,33 @@ public class DefaultLineParser : ILineParser
         IElement parent,
         string content,
         IReadOnlyDictionary<ContentToken, IElement> tokens,
-        int start = 0, int? end = null
+        int parseStart = 0, int? parseEnd = null
     )
     {
-        end ??= content.Length - 1;
+        parseEnd ??= content.Length - 1;
 
         foreach (var (token, nestedElement) in tokens)
         {
-            if (token.Start < start || !parent.CanContainNested(nestedElement.GetType()))
+            if (token.Start < parseStart || !parent.CanContainNested(nestedElement.GetType()))
                 continue;
-            if (token.End > end)
+            if (token.End > parseEnd)
                 break;
 
-            if (parent.CanContainNested(_defaultInlineElementParser.ParsingElementType) &&
-                TryParseDefaultElement(content, start, token.Start - 1, out var element)
-               )
+            if (
+                parent.CanContainNested(_defaultInlineElementParser.ParsingElementType) &&
+                TryParseDefaultElement(content, parseStart, token.Start - 1, out var element)
+            )
                 parent.AddNestedElement(element!);
 
             parent.AddNestedElement(nestedElement);
             ParseNestedElements(nestedElement, content, tokens, token.ContentStart, token.ContentEnd);
-            start = token.End + 1;
+            parseStart = token.End + 1;
         }
 
-        if (parent.CanContainNested(_defaultInlineElementParser.ParsingElementType) &&
-            TryParseDefaultElement(content, start, end.Value, out var result))
+        if (
+            parent.CanContainNested(_defaultInlineElementParser.ParsingElementType) &&
+            TryParseDefaultElement(content, parseStart, parseEnd.Value, out var result)
+        )
             parent.AddNestedElement(result!);
     }
 

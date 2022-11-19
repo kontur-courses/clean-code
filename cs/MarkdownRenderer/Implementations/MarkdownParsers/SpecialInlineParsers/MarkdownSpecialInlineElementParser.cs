@@ -63,6 +63,7 @@ public abstract class MarkdownSpecialInlineElementParser<TElem> : ISpecialInline
         var rawContent = content.Substring(
             contentToken.Start + Prefix.Length,
             contentToken.Length - (Prefix.Length + Postfix.Length));
+
         if (
             IsSelectionInsideWord(content, contentToken) &&
             rawContent.Any(symbol => char.IsDigit(symbol) || symbol == ' ')

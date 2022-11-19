@@ -24,6 +24,7 @@ public abstract class MarkdownSpecialLineElementParser<TElem> : ISpecialLineElem
     {
         if (!TryParseElement(content, out var element))
             throw new ArgumentException("Unable to parse!");
+
         return element!;
     }
 

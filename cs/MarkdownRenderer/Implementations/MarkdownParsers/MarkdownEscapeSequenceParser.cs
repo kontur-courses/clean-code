@@ -22,12 +22,13 @@ public class MarkdownEscapeSequenceParser : IEscapeSequenceElementParser
         token = default;
         if (content[escapeCharacterPos] != EscapeCharacter)
             return false;
+
         var escapingSequence = _escapingSequences
             .Where(sequence => escapeCharacterPos + sequence.Length < content.Length)
             .Where(
                 sequence => sequence
                     .Where((c, i) => content[escapeCharacterPos + 1 + i] != c)
-                    .Any() == false
+                    .Any() is false
             )
             .DefaultIfEmpty()
             .MaxBy(sequence => sequence?.Length ?? 0);
@@ -42,10 +43,12 @@ public class MarkdownEscapeSequenceParser : IEscapeSequenceElementParser
     public IElement ParseElement(string content, Token token)
     {
         if (content[token.Start] != EscapeCharacter)
-            throw new ArgumentException("Unable to parse!");
+            throw new ArgumentException("Incorrect escaping sequence. Unable to parse!");
+
         var rawContent = content.Substring(token.Start + 1, token.Length - 1);
         if (!_escapingSequences.Contains(rawContent))
-            throw new ArgumentException("Unable to parse!");
+            throw new ArgumentException("Incorrect escaping sequence. Unable to parse!");
+
         return new EscapeSequenceElement(rawContent);
     }
 }

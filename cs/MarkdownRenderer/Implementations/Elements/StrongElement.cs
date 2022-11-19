@@ -1,10 +1,10 @@
-using MarkdownRenderer.Abstractions;
 using MarkdownRenderer.Abstractions.Elements;
 
 namespace MarkdownRenderer.Implementations.Elements;
 
 public class StrongElement : StandardElement,
-    IStorageOf<ItalicElement>, IStorageOf<PlainText>, IStorageOf<EscapeSequenceElement>, IStorageOf<LinkElement>
+    IContainerFor<PlainText>, IContainerFor<ItalicElement>, 
+    IContainerFor<LinkElement>, IContainerFor<EscapeSequenceElement>
 {
     public StrongElement(string rawContent) : base(rawContent)
     {

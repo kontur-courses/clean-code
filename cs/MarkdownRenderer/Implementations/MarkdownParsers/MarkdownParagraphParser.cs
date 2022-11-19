@@ -1,4 +1,3 @@
-using MarkdownRenderer.Abstractions;
 using MarkdownRenderer.Abstractions.Elements;
 using MarkdownRenderer.Abstractions.ElementsParsers;
 using MarkdownRenderer.Implementations.Elements;
