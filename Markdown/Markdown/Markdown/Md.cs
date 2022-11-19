@@ -12,8 +12,9 @@ namespace Markdown
         public static string Render(string MarkdownString)
         {
             
-            TokenParser.CreatePairs(MarkdownString);
-            return MarkdownString;
+            var tokens=TokenParser.GetTokens(MarkdownString);
+            var htmlString = HtmlParser.Parse(tokens, MarkdownString);
+            return htmlString;
         }
     }
 }

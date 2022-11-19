@@ -6,14 +6,14 @@ using System.Threading.Tasks;
 
 namespace Markdown
 {
-    internal class HtmlTag
+    public class HtmlTag
     {
         public readonly string StartTag;
         public readonly string EndTag;
         public HtmlTag(string tag)
         {
-            StartTag = $@"<{tag}>/";
-            EndTag = $@"/<{tag}>";
+            StartTag = $@"\<{tag}>";
+            EndTag = $@"\</{tag}>";
 
         }
 

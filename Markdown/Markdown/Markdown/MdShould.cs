@@ -16,7 +16,7 @@ namespace Markdown
             TestName = "Simple bold test")]
         [TestCase("\\_Вот это\\_", "_Вот это_",
             TestName = "Simple eeem test with two tags in row")]
-        [TestCase("# Заголовок _с __разными__ символами_", "<Italic>text</Italic> <Italic>text</Italic>",
+        [TestCase("# Заголовок __с _разными_ символами__ #", "\\<h1>Заголовок \\<strong>с \\<em>разными\\</em> символами\\</strong>\\</h1>",
             TestName = "Field")]
         [TestCase("# Заголовок _с __разными__ символами_", "<Italic>text</Italic> <Italic>text</Italic>", TestName = "digits")]
 
