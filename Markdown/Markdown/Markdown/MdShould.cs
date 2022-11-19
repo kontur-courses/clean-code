@@ -11,14 +11,12 @@ namespace Markdown
     [TestFixture]
     public class MdShould
     {
-        [TestCase("Текст, _окруженный с двух сторон_", "Текст, \\<em>окруженный с двух сторон\\</em>", TestName = "Simple Italic test with one tag")]
-        [TestCase("__Выделенный двумя символами текст__", "<strong> Выделенный двумя символами текст </strong>",
-            TestName = "Simple bold test")]
-        [TestCase("\\_Вот это\\_", "_Вот это_",
-            TestName = "Simple eeem test with two tags in row")]
-        [TestCase("# Заголовок __с _разными_ символами__ #", "\\<h1>Заголовок \\<strong>с \\<em>разными\\</em> символами\\</strong>\\</h1>",
-            TestName = "Field")]
-        [TestCase("# Заголовок _с __разными__ символами_", "<Italic>text</Italic> <Italic>text</Italic>", TestName = "digits")]
+
+        [TestCase("# Заголовок __с _разными_ символами__\n",
+            "\\<h1>Заголовок \\<strong>с \\<em>разными\\</em> символами\\</strong>\\</h1>",
+            TestName = "Base test")]
+        [TestCase("Заголовок _с __разными__ символами_", "Заголовок \\<em>с __разными__ символами\\</em>",
+            TestName = "incorrect input")]
 
         public void EmTagTests(string mdString, string htmlString)
         {
@@ -29,9 +27,8 @@ namespace Markdown
         [Test]
         public void Test()
         {
-            var mdString = "# markdown _test_ sentence__";
-            Md.Render(mdString).Should().Be("<h1>markdown <em>test</em> sentence</strong></h1>");
+            var mdString = "# markdown _test_ sentence__\n";
+            Md.Render(mdString).Should().Be("\\<h1>markdown \\<em>test\\</em> sentence__\\</h1>");
         }
     }
-
 }

@@ -8,16 +8,19 @@ namespace Markdown
 {
     public enum TokenElement
     {
-        Open=0, Close=1,
-        Default=2, Unknown = 3,
+        Open = 0,
+        Close = 1,
+        Default = 2,
+        Unknown = 3,
     }
+
     public enum TokenType
     {
         Default = 0,
         Strong = 1,
         Header = 2,
-        Italic= 3,
-        Field= 4,
+        Italic = 3,
+        Field = 4,
 
     }
 
@@ -25,8 +28,8 @@ namespace Markdown
     {
         public static List<Token> GetArrayWithMdTags(string stringWithTags)
         {
-            var mdTags = new HashSet<string>() { "# ", "__", "_", "\\" };
-            var tokenList= new List<Token>();
+            var mdTags = new HashSet<string>() { "# ", "\n", "__", "_", "\\" };
+            var tokenList = new List<Token>();
             foreach (var tag in mdTags)
                 AddTokenTag(stringWithTags, tag, tokenList);
             return tokenList;
@@ -34,7 +37,7 @@ namespace Markdown
 
         private static void AddTokenTag(string stringWithTags, string tag, List<Token> tokenList)
         {
-             
+
             var busyIndexes = tokenList.GetBusyIndexes();
             foreach (var indexOfTag in tag.GetIndexInLine(stringWithTags))
             {
@@ -43,18 +46,16 @@ namespace Markdown
             }
         }
 
-       
-
         private static List<int> GetBusyIndexes(this IEnumerable<Token> tokenList)
         {
             return tokenList
                 .SelectMany(token => Enumerable.Range(token.Position, token.Length))
-                .ToList();  
+                .ToList();
         }
 
         public static HashSet<int> GetIndexInLine(this string tag, string line)
         {
-            var listIndexes= new HashSet<int>();
+            var listIndexes = new HashSet<int>();
             for (var i = 0; i < line.Length; i += tag.Length)
             {
                 i = line.IndexOf(tag, i);
@@ -62,19 +63,18 @@ namespace Markdown
                     break;
                 listIndexes.Add(i);
             }
+
             return listIndexes;
         }
+
         public static Token GetTextTokenBetweenTagTokens(this string mdText, Token first, Token second)
         {
-            var startText = first.Position+first.Length;
+            var startText = first.Position + first.Length;
             var len = second.Position - startText;
-            var token= new Token(startText, len);
+            var token = new Token(startText, len);
             //if (mdText.Substring(startText,len).Contains(" "))
             //    token.HaveSpaces=true;
             return token;
         }
-
-        
-
     }
 }

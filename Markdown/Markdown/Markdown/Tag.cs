@@ -12,12 +12,14 @@ namespace Markdown
             new Dictionary<string, HtmlTag>
             {
                 ["_"] = new HtmlTag("Italic"),
-                ["__"]= new HtmlTag("Strong"),
-                ["# "]= new HtmlTag("title")
+                ["__"] = new HtmlTag("Strong"),
+                ["# "] = new HtmlTag("h1")
             };
+
         public HtmlTag HtmlTag;
         public int Index;
-        public Tag(string mdTag,int index)
+
+        public Tag(string mdTag, int index)
         {
             HtmlTag = Tags[mdTag];
             Index = index;
