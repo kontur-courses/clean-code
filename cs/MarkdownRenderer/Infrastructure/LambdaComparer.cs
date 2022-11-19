@@ -11,11 +11,11 @@ public class LambdaComparer<T> : IComparer<T>
 
     public int Compare(T? x, T? y)
     {
-        if (x is null) 
+        if (x is null)
             throw new ArgumentNullException(nameof(x));
-        if (y is null) 
+        if (y is null)
             throw new ArgumentNullException(nameof(y));
-        
+
         return _compareFunction(x, y);
     }
 }

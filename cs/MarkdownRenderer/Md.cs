@@ -1,43 +1,31 @@
+using Castle.MicroKernel.Registration;
+using Castle.MicroKernel.Resolvers.SpecializedResolvers;
+using Castle.Windsor;
 using MarkdownRenderer.Abstractions;
-using MarkdownRenderer.Abstractions.ElementsParsers;
-using MarkdownRenderer.Implementations;
-using MarkdownRenderer.Implementations.HtmlRenderers;
-using MarkdownRenderer.Implementations.MarkdownParsers;
-using MarkdownRenderer.Implementations.MarkdownParsers.SpecialInlineParsers;
-using MarkdownRenderer.Implementations.MarkdownParsers.SpecialLineParsers;
-using IElementRenderer = MarkdownRenderer.Abstractions.ElementsRenderers.IElementRenderer;
 
 namespace MarkdownRenderer;
 
 public class Md
 {
     public string Render(string mdSource) =>
-        CreateConverter().Convert(mdSource);
+        GetConverter().Convert(mdSource);
 
-    private IDocumentsConverter CreateConverter() =>
-        new ParallelDocumentConverter(
-            new DefaultLineParser(new IElementParser[]
-                {
-                    new MarkdownEscapeSequenceParser(),
-                    new MarkdownParagraphParser(),
-                    new MarkdownHeaderParser(),
-                    new MarkdownPlainTextParser(),
-                    new MarkdownItalicParser(),
-                    new MarkdownStrongParser(),
-                    new MarkdownSimpleLinkParser(),
-                    new MarkdownTitledLinkParser()
-                }
-            ),
-            new DefaultLineRenderer(new IElementRenderer[]
-                {
-                    new HtmlEscapeSequenceRenderer(),
-                    new HtmlParagraphRenderer(),
-                    new HtmlHeaderRenderer(),
-                    new HtmlPlainTextRenderer(),
-                    new HtmlItalicRenderer(),
-                    new HtmlStrongRenderer(),
-                    new HtmlLinkRenderer()
-                }
-            )
+    private static IDocumentsConverter GetConverter()
+    {
+        using var container = new WindsorContainer();
+
+        var kernel = container.Kernel;
+        kernel.Resolver.AddSubResolver(new CollectionResolver(kernel, true));
+
+        container.Register(
+            Classes.FromAssemblyContaining<IDocumentsConverter>()
+                .Where(component =>
+                    component.Namespace is not null && component.Namespace.Contains(nameof(Implementations)))
+                .WithService.AllInterfaces()
+                .LifestyleSingleton()
         );
+
+        var converter = container.Resolve<IDocumentsConverter>();
+        return converter;
+    }
 }
