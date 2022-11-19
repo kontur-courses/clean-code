@@ -20,23 +20,31 @@ namespace Markdown
 
         public static List<Token> AddText(string mdString)
         {
+            var c = mdString.Length;
             var tokenList = MarkdownParser.GetArrayWithMdTags(mdString).OrderBy(tag => tag.Position).ToList();
             var tokens = new List<Token>();
             var firstToken = mdString
                 .GetTextTokenBetweenTagTokens(new Token(0, 0), tokenList[0]);
             if (firstToken.Length > 0)
                 tokens.Add(firstToken);
+            var token=tokenList[0];
             for (var i = 0; i < tokenList.Count; i++)
             {
                 if (AddTextTokens(mdString, i, tokenList, tokens)) 
                     continue;
-                var token = tokenList[i];
-                token.Type = GetTokenType(mdString.Substring(token.Position, token.Length));
-                token.Element = token.GetElementInText(mdString);
-                tokens.Add(token);
+                token = CreateToken(mdString, tokenList, i, tokens);
             }
+            tokens.Add(mdString.GetTextTokenBetweenTagTokens(token,new Token(mdString.Length,0)));
+            return tokens.RemoveFields().RemoveDigits(mdString).CreatePairTokens(mdString).ToList();
+        }
 
-            return tokens.RemoveFields().RemoveDigits(mdString).ToList();
+        private static Token CreateToken(string mdString, List<Token> tokenList, int i, List<Token> tokens)
+        {
+            var token = tokenList[i];
+            token.Type = GetTokenType(mdString.Substring(token.Position, token.Length));
+            token.Element = token.GetElementInText(mdString);
+            tokens.Add(token);
+            return token;
         }
 
         private static bool AddTextTokens(string mdString, int i, List<Token> tokenList, List<Token> tokens)
@@ -57,22 +65,151 @@ namespace Markdown
             return false;
         }
 
-        public static IEnumerable<Token> CreatePairTokens(this List<Token> tokens)
+        public static IEnumerable<Token> CreatePairTokens(this IEnumerable< Token> tokens,string md)
         {
-            Token previous;
-            var first = true;
-            foreach (var token in tokens.Where(t=>t.Type!=TokenType.Default))
+            var unknownTags = new Stack<Token>();
+            var stackTokens= new Stack<Token>();
+            foreach (var token in tokens)
             {
-                previous= token;
-                if(first)
+                if (token.Type == TokenType.Default)
                 {
-                    first=false;
+                    foreach (var textToken in GetTextToken(md, token, unknownTags)) 
+                        yield return textToken;
+                    yield return token;
                     continue;
                 }
 
-                yield break;
+                foreach (var tokenMd in EnumerableTokens(md, token, stackTokens, unknownTags)) 
+                    yield return tokenMd;
+            }
+
+            foreach (var singleToken in ToStringTokensWithoutPair(stackTokens, unknownTags)) 
+                yield return singleToken;
+
+        }
+
+        private static IEnumerable<Token> ToStringTokensWithoutPair(Stack<Token> stackTokens, Stack<Token> unknownTags)
+        {
+            foreach (var token in stackTokens.Concat(unknownTags))
+            {
+                token.ToDefault();
+                yield return token;
             }
         }
+
+        private static IEnumerable<Token> EnumerableTokens(string md, Token token, Stack<Token> stackTokens, Stack<Token> unknownTags)
+        {
+            if (token.Element == TokenElement.Open)
+                stackTokens.Push(token);
+            else if (token.Element == TokenElement.Close)
+                foreach (var closeTag in stackTokens.CloseTags(unknownTags, token))
+                    yield return closeTag;
+            else if (token.Element == TokenElement.Unknown)
+                foreach (var closeTag in unknownTags.UnknownTags(md, stackTokens, token))
+                    yield return closeTag;
+            else
+                yield return token;
+        }
+
+        private static IEnumerable<Token> GetTextToken(string md, Token token, Stack<Token> unknownTags)
+        {
+            var mdStringBetweenTags = md.Substring(token.Position, token.Length);
+            if (mdStringBetweenTags.Contains(' '))
+            {
+                foreach (var unknownTag in unknownTags)
+                {
+                    unknownTag.ToDefault();
+                    yield return unknownTag;
+                }
+            }
+        }
+
+        private static IEnumerable<Token> CloseTags(this Stack<Token> stackTags, Stack<Token> unknownStackTags,
+            Token token)
+        {
+            if (stackTags.Count <= 0)
+            {
+                if (unknownStackTags.Count > 0 && unknownStackTags.Peek().Type == token.Type)
+                {
+                    unknownStackTags.Peek().Element = TokenElement.Open;
+                    yield return unknownStackTags.Pop();
+                    yield return token;
+                    yield break;
+                }
+                token.ToDefault();
+                yield return token;
+                yield break;
+            }
+
+            var last = stackTags.Pop();
+            if (last.Type != token.Type)
+            {
+                last.ToDefault();
+                token.ToDefault();
+            }
+
+            yield return last;
+            yield return token;
+        }
+
+
+        private static IEnumerable<Token> UnknownTags(this Stack<Token> undefinedStackTags, string md,
+            Stack<Token> tagsStack, Token token)
+        {
+            if (undefinedStackTags.Count == 0)
+            {
+                if (tagsStack.Count > 0 && tagsStack.Peek().Type == token.Type)
+                {
+                    if (!md.Substring(tagsStack.Peek().End + 1,
+                            token.Position - tagsStack.Peek().End - 1).Contains(' '))
+                    {
+                        token.Element =TokenElement.Close;
+                        yield return tagsStack.Pop();
+                        yield return token;
+                    }
+                    else
+                        undefinedStackTags.Push(token);
+                }
+                else
+                    undefinedStackTags.Push(token);
+            }
+            else if (undefinedStackTags.Peek().Type == token.Type)
+            {
+                undefinedStackTags.Peek().Element = TokenElement.Open;
+                token.Element = TokenElement.Close;
+                yield return undefinedStackTags.Pop();
+                yield return token;
+            }
+            else
+                undefinedStackTags.Push(token);
+        }
+
+
+
+
+        public static bool CheckForWhiteSpacesInTextTokens(Token firstToken,Token secondToken,string md)
+        {
+            if (firstToken.InText(md) && secondToken.InText(md))
+            {
+                if(md.GetTextTokenBetweenTagTokens(firstToken, secondToken).CreateString(md).Contains(' '))
+                    return false;
+            }
+            return true;
+        }
+
+        public static bool InText(this Token token, string md)
+        {
+            if (token.Position > 0 && token.Position + token.Length + 1 < md.Length)
+            {
+                if (md[token.Position - 1] != ' ' && md[token.Position + token.Length + 1] != ' ')
+                {
+                    return true;
+                }
+            }
+            return false;
+        }
+
+
 
         public static IEnumerable<Token> RemoveFields(this List<Token> tokens)
         {

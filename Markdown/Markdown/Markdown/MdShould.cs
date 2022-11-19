@@ -11,14 +11,14 @@ namespace Markdown
     [TestFixture]
     public class MdShould
     {
-        [TestCase("_text_ _ _text_", "<Italic>text</Italic>", TestName = "Simple Italic test with one tag")]
-        [TestCase("_text\\_ _text_", "<Italic>text</Italic> <Italic>text</Italic>",
-            TestName = "11Simple Italic test with two tags in row")]
-        [TestCase("__txt_ __text_", "<Italic>text</Italic> <Italic>text</Italic>",
+        [TestCase("Текст, _окруженный с двух сторон_", "Текст, \\<em>окруженный с двух сторон\\</em>", TestName = "Simple Italic test with one tag")]
+        [TestCase("__Выделенный двумя символами текст__", "<strong> Выделенный двумя символами текст </strong>",
+            TestName = "Simple bold test")]
+        [TestCase("\\_Вот это\\_", "_Вот это_",
             TestName = "Simple eeem test with two tags in row")]
-        [TestCase("__txt\\_ \\__te  xt_fef123_e 3_3", "<Italic>text</Italic> <Italic>text</Italic>",
+        [TestCase("# Заголовок __с _разными_ символами__", "<Italic>text</Italic> <Italic>text</Italic>",
             TestName = "Field")]
-        [TestCase("_3  __", "<Italic>text</Italic> <Italic>text</Italic>", TestName = "digits")]
+        [TestCase("# Заголовок _с __разными__ символами_", "<Italic>text</Italic> <Italic>text</Italic>", TestName = "digits")]
         
         public void EmTagTests(string mdString, string htmlString)
         {

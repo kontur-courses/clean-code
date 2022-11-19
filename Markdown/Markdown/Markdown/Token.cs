@@ -13,7 +13,7 @@ namespace Markdown
 
         public TokenType Type;
         public TokenElement Element;
-        public bool isText = false;
+ 
         public int Position { get; set; }
         public int Length { get; set; }
         public int End => Position + Length - 1;
@@ -56,23 +56,32 @@ namespace Markdown
             return Position + Length;
         }
 
-        private static readonly List<char?> BlackListForOpen = new() { '\n', '\r' };
+        
         private static readonly List<char?> BlackListForClose = new() { ' ', null };
+        private static readonly HashSet<char?> BlackListForOpen = new() { ' ', null, '\\', '\n', '\r' };
 
         public TokenElement GetElementInText(string mdString)
         {
-            char? charBeforeTag = Position == 0 ? null : mdString[Position - 1];
-            char? charAfterTag = Position < mdString.Length - Length ? mdString[Position + Length] : null;
-            if (BlackListForOpen.Contains(charAfterTag) || BlackListForClose.Contains(charAfterTag))
+            char? charBeforeTag = null;
+            char? charAfterTag = null;
+            if (Position >= 1)
+                charBeforeTag = mdString[Position - 1];
+            if (Position + Length < mdString.Length)
+                charAfterTag = mdString[Position + Length];
+            if (BlackListForOpen.Contains(charAfterTag))
             {
-                if (BlackListForClose.Contains(charBeforeTag))
-                    return TokenElement.Default;
-                return TokenElement.Close;
+                return BlackListForClose.Contains(charBeforeTag)
+                    ? TokenElement.Default
+                    : TokenElement.Close;
             }
+            return BlackListForClose.Contains(charBeforeTag)
+                ? TokenElement.Open
+                : TokenElement.Unknown;
+        }
+        public string CreateString(string md)
+        {
+            return md.Substring(Position, Length);
 
-            if (BlackListForClose.Contains(charBeforeTag))
-                return TokenElement.Open;
-            return TokenElement.Unknown;
         }
     }
 }
