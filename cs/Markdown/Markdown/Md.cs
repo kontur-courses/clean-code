@@ -7,15 +7,20 @@ public class Md
     public string Render(string mdstring)
     {
         tree = new TokenTree(mdstring);
-        foreach (var token in Tokenize(mdstring).OrderByDescending(token => token.rightBorder - token.leftBorder))
+        foreach (var token in Tokenize(mdstring))
         {
             tree.TryAddToken(token);
         }
+
         return tree.ToHTMLString();
     }
 
     public List<TagToken> Tokenize(string mdstring)
     {
-        return new List<TagToken>();
+        var result = new List<TagToken>();
+        // string tokenization //
+        return result
+            .OrderByDescending(token => token.rightBorder - token.leftBorder)
+            .ToList();
     }
 }

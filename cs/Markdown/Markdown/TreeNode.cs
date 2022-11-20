@@ -9,14 +9,16 @@ public class TreeNode : IComparable
     public int LeftBorder => token.leftBorder;
     public int RightBorder => token.rightBorder;
     public Tag Tag => token.tag;
-    
+
     public string body;
 
     public bool IsLeaf => children.Count() == 0;
 
     public TreeNode(TagToken token) => this.token = token;
 
-    public TreeNode(int leftBorder, int rightBorder, Tag tag):this(new TagToken(leftBorder, rightBorder, tag)){}
+    public TreeNode(int leftBorder, int rightBorder, Tag tag) : this(new TagToken(leftBorder, rightBorder, tag))
+    {
+    }
 
     public bool TryAddToken(TagToken token) => TryAddToken(token.leftBorder, token.rightBorder, token.tag);
 
@@ -32,11 +34,11 @@ public class TreeNode : IComparable
             .Where(node => node.LeftBorder <= left && right <= node.RightBorder);
         if (nodesThatContainNew.Count() > 1)
             throw new Exception();
-        if(nodesThatContainNew.Count() == 1)
+        if (nodesThatContainNew.Count() == 1)
         {
             return nodesThatContainNew.First().TryAddToken(left, right, tag);
         }
-        
+
         var canAddAsChildToCurrentNode = children
             .All(node => node.RightBorder <= left || right <= node.LeftBorder);
         if (canAddAsChildToCurrentNode)
@@ -62,11 +64,11 @@ public class TreeNode : IComparable
         var b = mdstring.Substring(LeftBorder + Tag.OpenMdTag.Length,
             RightBorder - LeftBorder - Tag.CloseMdTag.Length);
         body = Tag.OpenHTMLTag
-               + mdstring.Substring(LeftBorder + Tag.OpenMdTag.Length, RightBorder-LeftBorder - Tag.CloseMdTag.Length)
+               + mdstring.Substring(LeftBorder + Tag.OpenMdTag.Length, RightBorder - LeftBorder - Tag.CloseMdTag.Length)
                + Tag.CloseHTMLTag;
     }
 
-    public void AddMissingNodes()
+    public void AddEmptyNodes()
     {
         children.Sort();
         int i = 0;
@@ -74,9 +76,10 @@ public class TreeNode : IComparable
         foreach (var child in children)
         {
             newChildren.Add(new(i, child.LeftBorder, new EmptyTag()));
-            child.AddMissingNodes();
+            child.AddEmptyNodes();
             i = child.RightBorder + 1;
         }
+
         children.AddRange(newChildren);
         children.Sort();
     }
