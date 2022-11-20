@@ -1,6 +1,6 @@
-﻿using Markdown.Token;
+﻿using Markdown.Tokens;
 
-namespace Markdown.PushdownAutomaton.Interfaces
+namespace Markdown.Automaton.Interfaces
 {
     public interface IPushdownAutomaton
     {
