@@ -6,15 +6,25 @@ namespace Markdown
     {
         public string OpenTag { get; }
         public string CloseTag { get; }
+        public int OpenTagIndex { get; }
+        public int CloseTagIndex { get; }
         
         public bool HasCloseTag => CloseTag != String.Empty;
         
-        public MdTag(string tag, bool hasCloseTag)
+        public MdTag(string tag, int openTagIndex): 
+            this(tag, false, openTagIndex, -1) { }
+
+        public MdTag(string tag, int openTagIndex, int closeTagIndex): 
+            this(tag, true, openTagIndex, closeTagIndex) { }
+
+        private MdTag(string tag, bool hasCloseTag, int openTagIndex, int closeTagIndex)
         {
-            OpenTag = $"<{tag}>";
+            OpenTag = tag;
+            OpenTagIndex = openTagIndex;
+            CloseTagIndex = closeTagIndex;
             if (hasCloseTag)
-                CloseTag = $"/{tag}";
-            else 
+                CloseTag = tag;
+            else
                 CloseTag = String.Empty;
         }
         
