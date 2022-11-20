@@ -4,9 +4,9 @@ namespace Markdown
 {
     public class MarkdownParser : ITagsParser<MdTag>
     {
-        public Dictionary<MdTag, (int startTagIndex, int closeTagIndex)> GetIndexesTags(string text)
+        public List<MdTag> GetIndexesTags(string text)
         {
-            return new Dictionary<MdTag, (int, int)>();
+            return new List<MdTag>();
         }
     }
 }

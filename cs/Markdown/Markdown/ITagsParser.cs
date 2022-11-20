@@ -4,6 +4,6 @@ namespace Markdown
 {
     public interface ITagsParser<T> where T: Tag
     {
-        public Dictionary<T, (int startTagIndex, int closeTagIndex)> GetIndexesTags(string text);
+        public List<T> GetIndexesTags(string text);
     }
 }

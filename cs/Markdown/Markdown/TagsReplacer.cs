@@ -15,7 +15,7 @@ namespace Markdown
             _tagToTag = tagToTag;
         }
 
-        public string ReplaceTagOnHtml(Dictionary<T, (int startTagIndex, int closeTagIndex)> tags, string text)
+        public string ReplaceTagOnHtml(List<T> tags, string text)
         {
             return String.Empty;
         }
