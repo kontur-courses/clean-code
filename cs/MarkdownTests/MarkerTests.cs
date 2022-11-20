@@ -1,4 +1,4 @@
-using System.Diagnostics;
+п»їusing System.Diagnostics;
 using FluentAssertions;
 using Markdown;
 using NUnit.Framework;
@@ -57,12 +57,12 @@ namespace MarkdownTests
             double time2;
             var marker = new Marker();
 
-            //прогреваю
+            //РїСЂРѕРіСЂРµРІР°СЋ
             marker.Mark(ingot);
             marker.Mark(ingot);
             marker.Mark(ingot);
             marker.Mark(ingot);
-            //прогреваю
+            //РїСЂРѕРіСЂРµРІР°СЋ
 
             var sw = Stopwatch.StartNew();
             marker.Mark(n2);
