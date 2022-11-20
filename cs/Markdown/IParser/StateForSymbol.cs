@@ -6,10 +6,10 @@
     public enum SymbolType
     {
         Default,
-        Underscore,
+        Underscore = '_',
         DoubleUnderscore,
-        HashSymbol,
-        Slash
+        HashSymbol = '#',
+        Slash = '/',
     }
 }
 

@@ -10,8 +10,7 @@
         
         public string Render(string markdownText)
         {
-            var htmlText = "";
-            return htmlText;
+            return _handler.Handle(markdownText);
         }
         
         private string ConvertToHtml(string text)
