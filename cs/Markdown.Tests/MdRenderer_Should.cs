@@ -2,13 +2,13 @@ using FluentAssertions;
 
 namespace Markdown.Tests;
 
-public class Tests
+public class MdRenderer_Should
 {
-    private Md mdRenderer;
+    private MdRenderer mdRenderer;
     [SetUp]
     public void Setup()
     {
-        mdRenderer = new Md();
+        mdRenderer = new MdRenderer();
     }
 
     [Test]

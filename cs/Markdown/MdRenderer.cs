@@ -3,19 +3,19 @@ using Markdown.Indexer;
 
 namespace Markdown;
 
-public class Md
+public class MdRenderer
 {
     public string Render(string text)
     {
-        if (text == null)
+        if (string.IsNullOrEmpty(text))
         {
-            throw new ArgumentException("text can't be null");
+            return text;
         }
 
         var lines = text.Split("\n");
         var converter = new HtmlConverter();
-        var indexer = new TagIndexer();
-        var htmlLines = lines.Select(line => converter.Convert(line, indexer.IndexTags(line)));
+        var mdFinder = new MdTagFinder();
+        var htmlLines = lines.Select(line => converter.ConvertToMyMarkup(line, mdFinder.FindTags(line)));
         return string.Join("\n", htmlLines);
     }
 }

@@ -1,8 +1,10 @@
-﻿namespace Markdown.Converter;
+﻿using Markdown.Tags;
 
-public class HtmlConverter : IConverter
+namespace Markdown.Converter;
+
+public class HtmlConverter : IMarkupConverter
 {
-    public string Convert(string original, IEnumerable<TagPosition> tagsSpots)
+    public string ConvertToMyMarkup(string original, IEnumerable<Tag> tags)
     {
         throw new NotImplementedException();
     }
