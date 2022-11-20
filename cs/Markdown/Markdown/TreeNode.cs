@@ -62,9 +62,9 @@ public class TreeNode : IComparable
     public void CalculateBody(string mdstring)
     {
         var b = mdstring.Substring(LeftBorder + Tag.OpenMdTag.Length,
-            RightBorder - LeftBorder - Tag.CloseMdTag.Length);
+            RightBorder - LeftBorder - Tag.CloseMdTag.Length - Tag.OpenMdTag.Length + 1);
         body = Tag.OpenHTMLTag
-               + mdstring.Substring(LeftBorder + Tag.OpenMdTag.Length, RightBorder - LeftBorder - Tag.CloseMdTag.Length)
+               + b
                + Tag.CloseHTMLTag;
     }
 
@@ -75,7 +75,7 @@ public class TreeNode : IComparable
         var newChildren = new List<TreeNode>();
         foreach (var child in children)
         {
-            newChildren.Add(new(i, child.LeftBorder, new EmptyTag()));
+            newChildren.Add(new(i, child.LeftBorder - 1, new EmptyTag()));
             child.AddEmptyNodes();
             i = child.RightBorder + 1;
         }
