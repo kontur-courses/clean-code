@@ -11,6 +11,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Samples", "Samples\Samples.
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Markdown", "Markdown\Markdown.csproj", "{A42CD51E-2292-4FAA-B35B-C78CE6E4FEC4}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Markdown.Tests", "Markdown.Tests\Markdown.Tests.csproj", "{95C988F2-3504-40A1-AC76-BFDC276D62EB}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -33,5 +35,9 @@ Global
 		{A42CD51E-2292-4FAA-B35B-C78CE6E4FEC4}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{A42CD51E-2292-4FAA-B35B-C78CE6E4FEC4}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{A42CD51E-2292-4FAA-B35B-C78CE6E4FEC4}.Release|Any CPU.Build.0 = Release|Any CPU
+		{95C988F2-3504-40A1-AC76-BFDC276D62EB}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{95C988F2-3504-40A1-AC76-BFDC276D62EB}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{95C988F2-3504-40A1-AC76-BFDC276D62EB}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{95C988F2-3504-40A1-AC76-BFDC276D62EB}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 EndGlobal
