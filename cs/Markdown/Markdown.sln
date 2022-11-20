@@ -2,6 +2,8 @@
 Microsoft Visual Studio Solution File, Format Version 12.00
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Markdown", "Markdown\Markdown.csproj", "{A697DD52-8861-4F64-BA3C-1DF38ED1874B}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MarkdownTests", "MarkdownTests\MarkdownTests.csproj", "{1741D586-041F-47C3-835D-583094DD51EF}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -12,5 +14,9 @@ Global
 		{A697DD52-8861-4F64-BA3C-1DF38ED1874B}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{A697DD52-8861-4F64-BA3C-1DF38ED1874B}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{A697DD52-8861-4F64-BA3C-1DF38ED1874B}.Release|Any CPU.Build.0 = Release|Any CPU
+		{1741D586-041F-47C3-835D-583094DD51EF}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{1741D586-041F-47C3-835D-583094DD51EF}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{1741D586-041F-47C3-835D-583094DD51EF}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{1741D586-041F-47C3-835D-583094DD51EF}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 EndGlobal
