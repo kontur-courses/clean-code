@@ -4,8 +4,7 @@ namespace Markdown
 {
     public class HtmlTag : Tag
     {
-
-        private HtmlTag(string tag, bool hasCloseTag)
+        public HtmlTag(string tag, bool hasCloseTag)
         {
             OpenTag = $"<{tag}>";
             if (hasCloseTag)

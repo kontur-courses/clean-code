@@ -4,7 +4,7 @@ namespace Markdown
 {
     public class MdTag : Tag
     {
-        private MdTag(string tag, bool hasCloseTag)
+        public MdTag(string tag, bool hasCloseTag)
         {
             OpenTag = tag;
             if (hasCloseTag)
