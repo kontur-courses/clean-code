@@ -1,3 +1,5 @@
+using System;
+
 namespace Markdown
 {
     public class HtmlTag : ITag

@@ -1,3 +1,6 @@
+using System.Collections.Generic;
+using System;
+
 namespace Markdown
 {
     public class Replacer<T> where T: ITag

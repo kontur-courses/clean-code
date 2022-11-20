@@ -1,3 +1,5 @@
+using System.Collections.Generic;
+
 namespace Markdown
 {
     public class MarkdownParser : IParser<MdTag>
