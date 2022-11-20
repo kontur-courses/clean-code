@@ -2,10 +2,9 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
-using Markdown.Parsers.Tags;
-using Markdown.Parsers.Tags.Enum;
-using Markdown.Parsers.Tags.Html;
-using Markdown.Parsers.Tags.Markdown;
+using Markdown.Parsers.Tokens;
+using Markdown.Parsers.Tokens.Tags.Enum;
+using Markdown.Parsers.Tokens.Tags.Markdown;
 using NUnit.Framework;
 
 
@@ -17,7 +16,7 @@ namespace Markdown
         [Test]
         public void ConvertMarkdownToHtml()
         {
-            var a = new List<ITag>
+            var a = new List<IToken>
             {
                 new MdItalicTag(TagPosition.Start),
                 new MdTextTag("abc"),

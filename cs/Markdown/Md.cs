@@ -1,18 +1,14 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using Markdown.Renders;
-using Markdown.Parsers;
+﻿using Markdown.Parsers;
+using Markdown.Renderers;
 
 namespace Markdown
 {
     public class Md
     {
-        private readonly IRender render;
-        public Md(IRender render)
+        private readonly IRenderer renderer;
+        public Md(IRenderer renderer)
         {
-            this.render = render;
+            this.renderer = renderer;
         }
 
         public string Render(string markdownText)
@@ -21,9 +17,8 @@ namespace Markdown
                 return markdownText;
 
             var markdownParser = new MarkdownParser(markdownText);
-            var markdownTextTags = markdownParser.GetTags();
-            var htmlTextTags = markdownTextTags.ConvertAll(tag=>tag.ToHtml());
-            return render.Render(htmlTextTags);
+            var parsedDocument = markdownParser.GetParsedDocument();
+            return renderer.Render(parsedDocument);
         }
     }
 }

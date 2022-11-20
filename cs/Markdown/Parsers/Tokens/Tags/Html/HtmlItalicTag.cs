@@ -1,10 +1,10 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Text;
-using Markdown.Parsers.Tags.Enum;
-using Markdown.Parsers.Tags.Markdown;
+using Markdown.Parsers.Tokens.Tags.Enum;
+using Markdown.Parsers.Tokens.Tags.Markdown;
 
-namespace Markdown.Parsers.Tags.Html
+namespace Markdown.Parsers.Tokens.Tags.Html
 {
     public class HtmlItalicTag : HtmlPairedTag
     {
@@ -12,6 +12,6 @@ namespace Markdown.Parsers.Tags.Html
         {
         }
 
-        public override ITag ToMarkdown() => new MdItalicTag(position);
+        public override IToken ToMarkdown() => new MdItalicTag(position);
     }
 }
