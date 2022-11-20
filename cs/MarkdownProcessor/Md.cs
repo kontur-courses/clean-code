@@ -7,6 +7,6 @@ public class Md
     private IMarkdownTag? tree = null;
     public string Render(string text)
     {
-        throw new NotImplementedException();
+        return text;
     }
 }
