@@ -3,7 +3,7 @@ using Markdown.Indexer;
 
 namespace Markdown;
 
-public class MdRenderer
+public class MarkdownRenderer
 {
     public string Render(string text)
     {
@@ -11,11 +11,10 @@ public class MdRenderer
         {
             return text;
         }
-
-        var lines = text.Split("\n");
+        var lines = text.Replace("\r\n", "\n").Split( "\n");
         var converter = new HtmlConverter();
-        var mdFinder = new MdTagFinder();
-        var htmlLines = lines.Select(line => converter.ConvertToMyMarkup(line, mdFinder.FindTags(line)));
+        var markdownFinder = new MarkdownTagFinder();
+        var htmlLines = lines.Select(line => converter.ConvertToHtml(line, markdownFinder.FindTags(line)));
         return string.Join("\n", htmlLines);
     }
 }

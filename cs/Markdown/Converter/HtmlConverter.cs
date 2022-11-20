@@ -2,9 +2,9 @@
 
 namespace Markdown.Converter;
 
-public class HtmlConverter : IMarkupConverter
+public class HtmlConverter : IHtmlConverter
 {
-    public string ConvertToMyMarkup(string original, IEnumerable<Tag> tags)
+    public string ConvertToHtml(string original, IEnumerable<Tag> tags)
     {
         throw new NotImplementedException();
     }

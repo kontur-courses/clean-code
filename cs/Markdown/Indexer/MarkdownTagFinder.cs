@@ -2,7 +2,7 @@
 
 namespace Markdown.Indexer;
 
-public class MdTagFinder : ITagFinder
+public class MarkdownTagFinder : ITagFinder
 {
     public IEnumerable<Tag> FindTags(string line)
     {
