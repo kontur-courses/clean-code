@@ -1,24 +1,42 @@
-﻿namespace Markdown
+﻿using Markdown.Interfaces;
+using Markdown.MarkerInnerClasses;
+
+namespace Markdown
 {
     public class Marker
     {
-        private TagFider finder = new();
-        private UnpairedTagsRemover remover = new();
-        private TagSwitcher switcher = new();
+        private readonly ITagsFinder finder;
+        private readonly ITagsFilter filter;
+        private readonly ITagsSwitcher switcher;
 
-        public string Mark(String text)
+        public Marker(ITagsFinder finder, ITagsFilter filter, ITagsSwitcher switcher)
         {
-            string[] paragraphs = text.Split(
+            this.finder = finder;
+            this.filter = filter;
+            this.switcher = switcher;
+        }
+
+        public Marker()
+        {
+            finder = new TagsFinder();
+            filter = new TagsFilter();
+            switcher = new TagsSwitcher();
+        }
+
+        public string Mark(string text)
+        {
+            var paragraphs = text.Split(
                 new string[] { "\r\n" },
                 StringSplitOptions.None
             );
             var result = new string[paragraphs.Length];
-            for (int i = 0; i<paragraphs.Length-1; i++)
+            for (int i = 0; i < paragraphs.Length; i++)
             {
                 var tags = finder.CreateTagList(paragraphs[i]);
-                tags = remover.FilterTags(tags, paragraphs[i]);
-                result[i] = switcher.Switch(tags, paragraphs[i]);
-            };
+                tags = filter.FilterTags(tags, paragraphs[i]);
+                result[i] = switcher.SwitchTags(tags, paragraphs[i]);
+            }
+
             return string.Join("\r\n", result);
         }
     }
