@@ -28,5 +28,10 @@ namespace Markdown
             IgnoreAsTag = true;
             return this;
         }
+
+        public void SetNext(Token next)
+        {
+            Next = next;
+        }
     }
 }

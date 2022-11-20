@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Text;
 using Markdown.Tags;
 
@@ -26,7 +27,7 @@ namespace Markdown
             if (text == string.Empty)
                 return text;
             var tokenizer = new Tokenizer(this, text).ParseToTokens();
-            return Format(tokenizer.First);
+            return Format(tokenizer.tokens.First?.Value);
         }
 
         private string Format(Token startToken)
@@ -53,6 +54,21 @@ namespace Markdown
             }
             token = token?.Next;
             return result;
+        }
+
+        public bool IsStartOfTag(char value)
+        {
+            return tagFormats.Keys.Any(t =>t.StartsWith(value));
+        }
+
+        public bool IsStartOfTag(string value)
+        {
+            return tagFormats.Keys.Any(t => t.StartsWith(value));
+        }
+
+        public bool IsShieldSymbol(char value)
+        {
+            return value == '\\' || IsStartOfTag(value);
         }
     }
 }
