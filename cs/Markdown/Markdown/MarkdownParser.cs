@@ -2,7 +2,7 @@ using System.Collections.Generic;
 
 namespace Markdown
 {
-    public class MarkdownParser : IParser<MdTag>
+    public class MarkdownParser : ITagsParser<MdTag>
     {
         public Dictionary<MdTag, (int startTagIndex, int closeTagIndex)> GetIndexesTags(string text)
         {
