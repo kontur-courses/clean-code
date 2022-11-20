@@ -5,14 +5,14 @@ namespace Markdown.PushdownAutomaton
 {
     internal class PushdownAutomaton : IPushdownAutomaton
     {
-        public IPushdownAutomatonStateTransitionTable transitionTable { get; }
+        public ITransitionFunction TransitionFunction{ get; }
         private readonly Stack<IToken> stack;
 
         public PushdownAutomaton(
-            PushdownAutomatonStateTransitionTable transitionTable,
+            TransitionFunction transitionFunction,
             Stack<IToken> stack)
         {
-            this.transitionTable = transitionTable;
+            TransitionFunction = transitionFunction;
             this.stack = stack;
         }
 

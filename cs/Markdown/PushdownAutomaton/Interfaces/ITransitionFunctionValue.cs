@@ -2,10 +2,9 @@
 
 namespace Markdown.PushdownAutomaton.Interfaces
 {
-    public interface IPushdownAutomatonTransitionCondition
+    internal interface ITransitionFunctionValue
     {
-        IToken InputValue { get; }
-        IToken StackTop { get; }
+        IToken NewCondition { get; }
         IToken NewStackElements { get; }
     }
 }
