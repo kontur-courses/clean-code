@@ -2,129 +2,124 @@
 using System.Collections.Generic;
 using System.Text;
 using System.Linq;
+using System.Net.NetworkInformation;
 
 namespace Markdown
 {
     public class Md
     {
+        private readonly Dictionary<TagType, TagInfo> tags;
+
+        public Md()
+        {
+            tags = new Dictionary<TagType, TagInfo>
+            {
+                [TagType.OneUnderscore] = new TagInfo("_", "<em>", "</em>"),
+                [TagType.TwoUnderscore] = new TagInfo("__", "<strong>", "</strong>"),
+                [TagType.Header] = new TagInfo("# ", "<h1>", "</h1>"),
+                [TagType.Paragraph] = new TagInfo("", "<p>", "</p>")
+            };
+        }
+
         public string Render(string str)
         {
             var partsText = DivideIntoParts(str);
             var htmlStr = new StringBuilder();
-            htmlStr.Append("<p>");
+            htmlStr.Append(tags[TagType.Paragraph].SymbolOpen);
             var headerClosed = "";
-            foreach (var item in partsText)
+            for (var i=0;i<partsText.Count;i++)
             {
-                if (item.Tag is null || item.Tag.Status==TagStatus.NoOpen)
-                    htmlStr.Append(item.Text);
-                else if (item.Tag.TagType == TagType.OneUnderscore && item.Tag.Status == TagStatus.Open)
+                if (partsText[i].Tag is null || partsText[i].Tag.Status == TagStatus.NoOpen)
+                    htmlStr.Append(partsText[i].Text);
+                
+                else if (partsText[i].Tag.TagType == TagType.OneUnderscore ||
+                         partsText[i].Tag.TagType == TagType.TwoUnderscore)
                 {
-                    InteractionTagOne(item.Tag);
-                    htmlStr.Append(item.Tag.Status == TagStatus.Open ? "<em>" : item.Text);
+                    if (partsText[i].Tag.Status == TagStatus.Open)
+                    {
+                        var tag = InteractionTag(partsText[i].Tag, partsText, i + 1);
+                        htmlStr.Append(tag.Status == TagStatus.Open ? tags[tag.TagType].SymbolOpen : partsText[i].Text);
+                    }
+                    else
+                        htmlStr.Append(tags[partsText[i].Tag.TagType].SymbolClose);
                 }
-                else if (item.Tag.TagType == TagType.OneUnderscore && item.Tag.Status == TagStatus.Close)
-                    htmlStr.Append("</em>");
-                else if (item.Tag.TagType == TagType.TwoUnderscore && item.Tag.Status == TagStatus.Open)
+
+                else if (partsText[i].Tag.TagType == TagType.Header)
                 {
-                    InteractionTagTwo(item.Tag);
-                    htmlStr.Append(item.Tag.Status == TagStatus.Open ? "<strong>" : item.Text);
-                }
-                else if (item.Tag.TagType == TagType.TwoUnderscore && item.Tag.Status == TagStatus.Close)
-                    htmlStr.Append("</strong>");
-                else if (item.Tag.TagType == TagType.Header)
-                {
-                    htmlStr.Append("<h1>");
-                    headerClosed += "</h1>";
+                    htmlStr.Append(tags[TagType.Header].SymbolOpen);
+                    headerClosed += tags[TagType.Header].SymbolClose;
                 }
             }
-            htmlStr.Append(headerClosed+"</p>");
+            htmlStr.Append(headerClosed + tags[TagType.Paragraph].SymbolClose);
             return htmlStr.ToString();
         }
 
-        void InteractionTagOne(Tag tag)
+        private Tag InteractionTag(Tag tag, List<PartText> partsText, int numberText)
         {
             var countTag = 0;
-            foreach (var innerTag in tag.InnerTag)
+            var closedTagNumber=0;
+            for (var i = numberText; i < partsText.Count; i++)
             {
-                if (innerTag.Status != TagStatus.NoOpen)
+                if(!(partsText[i].Tag is null) && partsText[i].Tag.TagType==tag.TagType && partsText[i].Tag.Status != TagStatus.NoOpen)
+                {
+                    closedTagNumber = i;
+                    break;
+                }
+                else if (!(partsText[i].Tag is null) && partsText[i].Tag.Status != TagStatus.NoOpen)
                     countTag++;
             }
-            foreach (var innerTag in tag.InnerTag)
-            {
-                if (innerTag.Status == TagStatus.Open)
-                    innerTag.ClosedTag.Status = TagStatus.NoOpen;
-                innerTag.Status = TagStatus.NoOpen;
-            }
-            if (countTag%2==1)
-            {
-                tag.Status = TagStatus.NoOpen;
-                tag.ClosedTag.Status = TagStatus.NoOpen;
-            }
-        }
 
-        void InteractionTagTwo(Tag tag)
-        {
-            var countTag = 0;
-            foreach (var innerTag in tag.InnerTag)
+            if (countTag % 2 == 1 || tag.TagType == TagType.OneUnderscore)
             {
-                if (innerTag.Status != TagStatus.NoOpen)
-                    countTag++;
+                for (var i = numberText; i < closedTagNumber; i++)
+                {
+                    if (!(partsText[i].Tag is null))
+                    {
+                        if (partsText[i].Tag.Status == TagStatus.Open)
+                            partsText[i].Tag.ClosedTag.Status = TagStatus.NoOpen;
+                        partsText[i].Tag.Status = TagStatus.NoOpen;
+                    }
+                }
             }
+
             if (countTag % 2 == 1)
             {
-                foreach (var innerTag in tag.InnerTag)
-                {
-                    if (innerTag.Status == TagStatus.Open)
-                        innerTag.ClosedTag.Status = TagStatus.NoOpen;
-                    innerTag.Status = TagStatus.NoOpen;
-                }
-
                 tag.Status = TagStatus.NoOpen;
                 tag.ClosedTag.Status = TagStatus.NoOpen;
             }
+            return tag;
         }
 
-
-        public List<PartText> DivideIntoParts(string str)
+        private List<PartText> DivideIntoParts(string str)
         {
             var partsText = new List<PartText>();
-            Tag lastOpen = new Tag(TagType.OneUnderscore,TagStatus.NoOpen);
-            Tag lastOpenTwo = new Tag(TagType.TwoUnderscore,TagStatus.NoOpen);
+            var lastOpen = new Tag(TagType.OneUnderscore, TagStatus.NoOpen);
+            var lastOpenTwo = new Tag(TagType.TwoUnderscore, TagStatus.NoOpen);
             var htmlStr = new StringBuilder();
             for (var i = 0; i < str.Length; i++)
             {
                 if (i == str.Length - 1 && !(lastOpen.Status == TagStatus.Open && IsEnd(str[i - 1], str[i])))
-                {
                     htmlStr.Append(str[i]);
-                }
 
                 else if (str[i] == '#' && char.IsWhiteSpace(str[i + 1]))
                 {
-                    partsText.Add(new PartText("#", new Tag(TagType.Header)));
+                    partsText.Add(new PartText("# ", new Tag(TagType.Header)));
                     i++;
                 }
+
                 else if (lastOpenTwo.Status == TagStatus.Open && str[i] == '_' && i < str.Length-1  && IsEnd(str[i - 1], str[i + 1]))
                 {
+                    i++;
                     partsText.Add(new PartText(htmlStr.ToString()));
                     htmlStr.Clear();
-                    if (i < str.Length - 2 && char.IsLetter(str[i + 2]))
+                    if (i < str.Length - 1 && char.IsLetter(str[i + 1]))
                         lastOpenTwo.HasLetterAfter = true;
-                    if (!lastOpenTwo.HasLetterAfter && !lastOpenTwo.HasLetterBefore || !lastOpenTwo.HasSpaceBetween)
-                    {
-                        var tag = new Tag(TagType.TwoUnderscore,TagStatus.Close, lastOpenTwo);
-                        partsText.Add(new PartText("__", tag));
-                        lastOpenTwo.ClosedTag = tag;
+                    var tag = GetClosedTag(lastOpenTwo);
+                    if (!(tag is null))
                         lastOpenTwo = tag;
-                        i++;
-                        if (lastOpen.Status == TagStatus.Open)
-                            lastOpen.InnerTag.Add(tag);
-                    }
-                    else
-                    {
-                        partsText.Add(new PartText("__"));
-                        lastOpenTwo.Status = TagStatus.NoOpen;
-                    }
+                    partsText.Add(new PartText("__", tag));
                 }
+
                 else if ((lastOpenTwo.Status == TagStatus.NoOpen || lastOpenTwo.Status == TagStatus.Close) && str[i] == '_' 
                          && i < str.Length-2  && IsBegin(str[i + 1], str[i + 2]))
                 {
@@ -136,31 +131,20 @@ namespace Markdown
                         lastOpenTwo.HasLetterBefore = true;
                     partsText.Add(new PartText("__", lastOpenTwo));
                     i++;
-                    if (lastOpen.Status == TagStatus.Open)
-                        lastOpen.InnerTag.Add(tag);
                 }
 
                 else if (lastOpen.Status == TagStatus.Open && IsEnd(str[i - 1], str[i]))
                 {
                     partsText.Add(new PartText(htmlStr.ToString()));
                     htmlStr.Clear();
-                    if(i != str.Length - 1 && char.IsLetter(str[i + 1]))
+                    if(i < str.Length - 1 && char.IsLetter(str[i + 1]))
                         lastOpen.HasLetterAfter = true;
-                    if (!lastOpen.HasLetterAfter && !lastOpen.HasLetterBefore || !lastOpen.HasSpaceBetween)
-                    {
-                        var tag = new Tag(TagType.OneUnderscore,TagStatus.Close, lastOpen);
-                        partsText.Add(new PartText("_", tag));
-                        lastOpen.ClosedTag = tag;
+                    var tag = GetClosedTag(lastOpen);
+                    if (!(tag is null))
                         lastOpen = tag;
-                        if (lastOpenTwo.Status == TagStatus.Open)
-                            lastOpenTwo.InnerTag.Add(tag);
-                    }
-                    else
-                    {
-                        partsText.Add(new PartText("_"));
-                        lastOpen.Status = TagStatus.NoOpen;
-                    }
+                    partsText.Add(new PartText("_", tag));
                 }
+
                 else if ((lastOpen.Status == TagStatus.NoOpen || lastOpen.Status == TagStatus.Close) && IsBegin(str[i], str[i+1]))
                 {
                     partsText.Add(new PartText(htmlStr.ToString()));
@@ -170,14 +154,14 @@ namespace Markdown
                     if (i != 0 && char.IsLetter(str[i - 1]))
                         lastOpen.HasLetterBefore = true;
                     partsText.Add(new PartText("_", lastOpen));
-                    if (lastOpenTwo.Status == TagStatus.Open)
-                        lastOpenTwo.InnerTag.Add(tag); 
                 }
+
                 else if (IsEscaped(str[i], str[i + 1]))
                 {
                     htmlStr.Append(str[i + 1]);
                     i++;
                 }
+
                 else 
                 {
                     htmlStr.Append(str[i]);
@@ -195,6 +179,19 @@ namespace Markdown
             if (lastOpenTwo.Status == TagStatus.Open)
                 lastOpenTwo.Status = TagStatus.NoOpen;
             return partsText;
+        }
+
+        private Tag GetClosedTag(Tag lastOpen) 
+        {
+            Tag tag = null;
+            if (!lastOpen.HasLetterAfter && !lastOpen.HasLetterBefore || !lastOpen.HasSpaceBetween)
+            {
+                tag = new Tag(lastOpen.TagType, TagStatus.Close, lastOpen);
+                lastOpen.ClosedTag = tag;
+            }
+            else
+                lastOpen.Status = TagStatus.NoOpen;
+            return tag;
         }
 
         private bool IsBegin(char ch, char nextCh)

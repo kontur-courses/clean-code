@@ -7,18 +7,16 @@ namespace Markdown
 {
     public class PartText
     {
+        public string Text { get; set; }
+        public Tag Tag { get; set; }
         public PartText(string text, Tag tag)
         {
             Text = text;
             Tag = tag;
         }
-        public PartText(string text)
+        public PartText(string text) : this(text,null)
         {
-            Text = text;
         }
-
-        public string Text { get; set; }
-        public Tag Tag { get; set; }
     }
 
 }
