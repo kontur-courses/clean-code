@@ -1,32 +1,24 @@
 ﻿namespace MarkdownProcessor.Markdown;
 
-public class Italic : IMarkdownTag
+public class Italic : ITag
 {
-    public Italic(IMarkdownTag parent, int startIndex)
+    public Italic(int startIndex)
     {
-        Parent = parent;
         StartIndex = startIndex;
     }
 
-    public static TextType Type => TextType.Italic;
-    public static string MarkdownSign => "_";
+    public ITagMarkdownConfig Config { get; } = new ItalicConfig();
     public int StartIndex { get; }
-    public int EndIndex { get; } = 0;
-    public IMarkdownTag Parent { get; }
-    public IEnumerable<IMarkdownTag> Children { get; } = new List<IMarkdownTag>();
+    public int EndIndex { get; set; } = 0;
+    public IEnumerable<ITag> Children { get; } = new List<ITag>();
     public bool Closed { get; } = false;
 
-    public bool TryCreate(IMarkdownTag tree)
+    public Token? RunTokenDownOfTree(Token token)
     {
         throw new NotImplementedException();
     }
 
-    public int RunSymbolDownOfTree()
-    {
-        throw new NotImplementedException();
-    }
-
-    public int RunTagDownOfTree()
+    public ITag? RunTagDownOfTree(ITag tag)
     {
         throw new NotImplementedException();
     }
