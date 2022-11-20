@@ -3,7 +3,7 @@ using System;
 
 namespace Markdown
 {
-    public class Replacer<T> where T: ITag
+    public class Replacer<T> where T: Tag
     {
         private readonly
             Dictionary<MdTag, HtmlTag> _markdownToHtml = new Dictionary<MdTag, HtmlTag>();
