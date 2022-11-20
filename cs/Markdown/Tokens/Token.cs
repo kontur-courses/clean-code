@@ -1,8 +1,10 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using Markdown.Tags;
 
 namespace Markdown.Tokens
 {
@@ -11,15 +13,16 @@ namespace Markdown.Tokens
         public TokenType Type { get; }
 
         public int Start { get; }
-        public int End { get; }
 
-        public int Length => End - Start + 1;
+        public int Length { get; }
 
-        public Token(TokenType type, int start, int end)
+        public int End => Start + Length - 1;
+
+        public Token(TokenType type, int start, int length)
         {
             Type = type;
             Start = start;
-            End = end;
+            Length = length;
         }
     }
 }

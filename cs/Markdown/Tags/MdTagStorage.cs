@@ -8,11 +8,14 @@ namespace Markdown.Tags
 {
     public class MdTagStorage : TagStorage
     {
-        private static readonly List<ITag> Tags = new List<ITag>()
+        public MdTagStorage()
         {
-            new Tag(TagType.Header, "*", "\n"),
-            new Tag(TagType.Italic, "_", "_"),
-            new Tag(TagType.Strong, "__", "__")
-        };
+            Tags = new List<ITag>()
+            {
+                new Token(TagType.Header, "*", "\n"),
+                new Token(TagType.Italic, "_", "_"),
+                new Token(TagType.Strong, "__", "__")
+            };
+        }
     }
 }

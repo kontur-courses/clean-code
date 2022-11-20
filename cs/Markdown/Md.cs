@@ -9,13 +9,12 @@ namespace Markdown
 {
     public class Md
     {
-        private readonly IConverter converter;
+        private readonly IConverter converter = new MarkdownToHtmlConverter();
 
-        public Md(IConverter converter)
+        public Md()
         {
-            this.converter = converter;
-
         }
+
         public string Render(string markdownText)
         {
             return converter.Convert(markdownText);
