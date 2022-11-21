@@ -1,0 +1,22 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MrakdaunV1", "MrakdaunV1\MrakdaunV1.csproj", "{7936A0DA-38ED-4A75-8141-91EAD5C4C1CC}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MrakdaunV1Tests", "MrakdaunV1Tests\MrakdaunV1Tests.csproj", "{9772E06F-B558-4AF7-B4E9-6DF66511BDCF}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{7936A0DA-38ED-4A75-8141-91EAD5C4C1CC}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{7936A0DA-38ED-4A75-8141-91EAD5C4C1CC}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{7936A0DA-38ED-4A75-8141-91EAD5C4C1CC}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{7936A0DA-38ED-4A75-8141-91EAD5C4C1CC}.Release|Any CPU.Build.0 = Release|Any CPU
+		{9772E06F-B558-4AF7-B4E9-6DF66511BDCF}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{9772E06F-B558-4AF7-B4E9-6DF66511BDCF}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{9772E06F-B558-4AF7-B4E9-6DF66511BDCF}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{9772E06F-B558-4AF7-B4E9-6DF66511BDCF}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+EndGlobal
