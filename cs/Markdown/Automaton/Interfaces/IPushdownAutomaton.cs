@@ -1,12 +1,12 @@
-﻿using Markdown.Tokens;
+﻿using System.Collections.Generic;
 
 namespace Markdown.Automaton.Interfaces
 {
     public interface IPushdownAutomaton
     {
-        ITransitionFunction TransitionFunction { get; }
-        private static Stack<IToken> stack = null!;
+        TransitionFunction TransitionFunction { get; }
+        private static Stack<string> stack;
 
-        public bool Run(IToken[] tokens);
+        public bool Run(char[] tokens);
     }
 }

@@ -1,14 +1,10 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿using System.Collections.Generic;
 
-namespace Markdown.PushdownAutomaton.Interfaces
+namespace Markdown.Automaton.Interfaces
 {
     public interface ITransitionFunction
     {
-        Dictionary<ITransitionFunctionArgument, ITransitionFunctionValue> Transitions { get; }
+        Dictionary<TransitionFunctionArgument, TransitionFunctionValue> Transitions { get; }
         public ITransitionFunctionValue GetFunctionValue(ITransitionFunctionArgument argument);
     }
 }

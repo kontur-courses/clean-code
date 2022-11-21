@@ -1,15 +1,12 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using Markdown.PushdownAutomaton.Interfaces;
+﻿using System.Collections.Generic;
+using Markdown.Automaton.Interfaces;
+using System;
 
-namespace Markdown.PushdownAutomaton
+namespace Markdown.Automaton
 {
-    internal class TransitionFunction : ITransitionFunction
+    public class TransitionFunction : ITransitionFunction
     {
-        public Dictionary<ITransitionFunctionArgument, ITransitionFunctionValue> Transitions { get; }
+        public Dictionary<TransitionFunctionArgument, TransitionFunctionValue> Transitions { get; }
 
         public ITransitionFunctionValue GetFunctionValue(ITransitionFunctionArgument argument)
         {
@@ -17,7 +14,7 @@ namespace Markdown.PushdownAutomaton
         }
 
         public TransitionFunction(
-            Dictionary<ITransitionFunctionArgument, ITransitionFunctionValue> transitions)
+            Dictionary<TransitionFunctionArgument, TransitionFunctionValue> transitions)
         {
             Transitions = transitions;
         }

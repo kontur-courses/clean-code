@@ -1,11 +1,9 @@
-﻿using Markdown.Token;
-
-namespace Markdown.PushdownAutomaton.Interfaces
+﻿namespace Markdown.Automaton.Interfaces
 {
-    internal interface ITransitionFunctionArgument
+    public interface ITransitionFunctionArgument
     {
-        IToken CurrentState { get; }
-        IToken InputToken { get; }
-        IToken StackTop { get; }
+        string CurrentState { get; }
+        string InputToken { get; }
+        string StackTop { get; }
     }
 }
