@@ -102,7 +102,7 @@ namespace Markdown.MarkerLogic
             var result = new List<TagInfo>();
             var shards = paragraph.Split("](");
             var position = 0;
-            for (int i = 0; i < shards.Length - 1; i++)
+            for (var i = 0; i < shards.Length - 1; i++)
             {
                 var haveStart = shards[i].LastIndexOf('[');
 
