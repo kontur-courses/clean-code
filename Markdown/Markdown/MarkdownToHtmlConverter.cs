@@ -1,15 +1,15 @@
-﻿namespace Markdown;
+﻿using System.Text;
+
+namespace Markdown;
 
 public class MarkdownToHtmlConverter
 {
     public static readonly Dictionary<string, TokenType> MarkdownTags = new()
     {
         // Order matters
-        [@"\"] = TokenType.Escape,
         ["# "] = TokenType.Header,
         ["__"] = TokenType.Bold,
         ["_"] = TokenType.Italic,
-        [" "] = TokenType.Space
     };
 
     private static readonly Dictionary<(TokenType type, bool isOpening), string> HtmlTags = new()
@@ -22,12 +22,8 @@ public class MarkdownToHtmlConverter
         [(TokenType.Italic, false)] = "</em>"
     };
 
-    public static List<Token> Convert(List<Token> tokens)
+    public static List<TokenBase> ToHtml(StringBuilder text, List<TokenBase> tokens)
     {
-        foreach (var t in tokens.Where(t =>
-                     t.TokensType is not (TokenType.Text or TokenType.Space or TokenType.Escape)))
-            t.Text = HtmlTags[(t.TokensType, t.IsOpening)];
-
         return tokens;
     }
 }

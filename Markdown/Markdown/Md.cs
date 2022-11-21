@@ -1,25 +1,20 @@
 ﻿using System.Text;
-using Markdown.MarkdownToHtmlFilters;
+using Markdown.Tokens;
 
 namespace Markdown;
 
 public class Md
 {
-    private readonly List<AbstractFilter> filters;
+    private readonly List<TokenBase> tokensToCheck;
 
     public Md()
     {
-        filters = new List<AbstractFilter>
+        tokensToCheck = new List<TokenBase>
         {
             // Order matters
-            new NumericWordsFilter(),
-            new TagRepeatFilter(),
-            new EscapeFilter(),
-            new CloseSingleTags(),
-            new InWordsTagsFilter(),
-            new OpenCloseDetectionFilter(),
-            new UnclosedToText(),
-            new BoldInsideItalicFilter()
+            new HeaderTokenBase(),
+            new BoldTokenBase(),
+            new ItalicTokenBase()
         };
     }
 
@@ -39,14 +34,8 @@ public class Md
         return result.ToString();
     }
 
-    public StringBuilder RenderLine(List<Token> tokens, StringBuilder? buffer = null)
+    public StringBuilder RenderLine(List<TokenBase> tokens, StringBuilder? buffer = null)
     {
-        buffer ??= new StringBuilder();
-        filters.ForEach(filter => filter.Filter(tokens));
-        MarkdownToHtmlConverter.Convert(tokens);
-        foreach (var token in tokens)
-            buffer.Append(token.Text);
-
         return buffer;
     }
 }
