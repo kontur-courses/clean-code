@@ -13,6 +13,22 @@ namespace MarkDownUnitTests
     public class TokenReaderTests
     {
         [TestMethod]
+        public void Read_ReturnsInputText_WhenThereAreNoTags()
+        {
+            var inputText = "Text without tags";
+
+            var reader = new TokenReader(new MdTagStorage());
+
+            var tokens = reader.Read(inputText);
+
+            tokens.Should().BeEquivalentTo(new[]
+                {
+                    new Token(TokenType.Text, 0, inputText.Length),
+                }
+            );
+        }
+
+        [TestMethod]
         public void Read_ReturnsValidTokensList_WhenTextIsWithHeaderMarkdownTag()
         {
             var inputText = "# Simple header\n";
@@ -23,8 +39,8 @@ namespace MarkDownUnitTests
 
             tokens.Should().BeEquivalentTo(new[]
                 {
-                    new TagToken(TokenType.Tag, 0, 1, SubTagOrder.Opening),
-                    new Token(TokenType.Text, 1, 14),
+                    new TagToken(TokenType.Tag, 0, 2, SubTagOrder.Opening),
+                    new Token(TokenType.Text, 2, 13),
                     new TagToken(TokenType.Tag, 15, 1, SubTagOrder.Closing),
                 }
             );
@@ -75,8 +91,6 @@ namespace MarkDownUnitTests
         {
             var inputText = "Some __bold__ and _italic_ text";
 
-            var chars = inputText.ToCharArray();
-
             var reader = new TokenReader(new MdTagStorage());
 
             var tokens = reader.Read(inputText);
@@ -95,5 +109,25 @@ namespace MarkDownUnitTests
                 }
             );
         }
+
+        [TestCase("One _unpaired opening italic tag", TestName = "Opening italic tag")]
+        [TestCase("One unpaired_ closing italic tag", TestName = "Closing italic tag")]
+        [TestCase("One __unpaired opening bold tag", TestName = "Opening bold tag")]
+        [TestCase("One unpaired__ closing bold tag", TestName = "Closing bold tag")]
+        [TestCase("# One unpaired opening header tag", TestName = "Opening header tag")]
+        [TestCase("One unpaired closing header tag\n", TestName = "Closing header tag")]
+        public void Read_ReturnsInputText_WhenThereIsOneUnpairedTag(string inputText)
+        {
+            var reader = new TokenReader(new MdTagStorage());
+
+            var tokens = reader.Read(inputText);
+
+            tokens.Should().BeEquivalentTo(new[]
+                {
+                    new Token(TokenType.Text, 0, inputText.Length),
+                }
+            );
+        }
+
     }
 }

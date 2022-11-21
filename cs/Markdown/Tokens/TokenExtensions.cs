@@ -36,5 +36,7 @@ namespace Markdown.Tokens
 
             tokens.AddTextBetween(tagToken, new Token(TokenType.Text, tagToken.End + textLength + 1, 1));
         }
+
+
     }
 }

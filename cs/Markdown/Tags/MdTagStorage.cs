@@ -12,7 +12,7 @@ namespace Markdown.Tags
         {
             Tags = new List<ITag>()
             {
-                new Token(TagType.Header, "#", "\n"),
+                new Token(TagType.Header, "# ", "\n"),
                 new Token(TagType.Italic, "_", "_"),
                 new Token(TagType.Strong, "__", "__")
             };

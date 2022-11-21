@@ -41,7 +41,7 @@ namespace Markdown.Tokens
 
                 foreach (var tagToken in tagTokens)
                 {
-                    if (positionsWithTag.Contains(tagToken.Start)) 
+                    if (positionsWithTag.Contains(tagToken.Start))
                         continue;
 
                     for (var j = tagToken.Start; j <= tagToken.End; j++)
@@ -50,6 +50,8 @@ namespace Markdown.Tokens
                     result.Add(tagToken);
                 }
             }
+
+            result.RemoveUnpaired();
 
             return result.OrderBy(token => token.Start).ToList();
         }
@@ -83,6 +85,9 @@ namespace Markdown.Tokens
 
         private List<Token> GetTextTokens(string line, List<TagToken> tagTokens)
         {
+            if (!tagTokens.Any())
+                return new List<Token> {new Token(TokenType.Text, 0, line.Length)};
+
             var textTokens = new List<Token>();
 
             textTokens.AddTextFromBeginningUpToTag(tagTokens.First());
