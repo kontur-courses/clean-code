@@ -8,7 +8,7 @@ namespace Markdown
         {
             OpenTag = $"<{tag}>";
             if (hasCloseTag)
-                CloseTag = $"/{tag}";
+                CloseTag = $"</{tag}>";
             else
                 CloseTag = String.Empty;
         }

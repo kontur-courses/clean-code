@@ -6,8 +6,8 @@ namespace Markdown
     {
         public string OpenTag { get; protected set; }
         public string CloseTag { get; protected set; }
-        public int OpenTagIndex { get; protected set; }
-        public int CloseTagIndex { get; protected set; }
+        public int OpenTagIndex;
+        public int CloseTagIndex;
         
         public bool HasCloseTag => CloseTag != String.Empty;
         public abstract string CreateStringWithTag(string str);

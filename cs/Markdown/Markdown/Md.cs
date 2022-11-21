@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Linq;
 
 namespace Markdown
 {
@@ -7,17 +8,17 @@ namespace Markdown
     {
         public string Render(string text)
         {
-            var parser = new MarkdownParser();
             var tagToTag = new Dictionary<MdTag, HtmlTag>()
             {
-                {new MdTag("_", true), new HtmlTag("em", true)},
-                {new MdTag("__", true), new HtmlTag("strong", true)}
+                {new MdTag("__", true), new HtmlTag("strong", true)},
+                {new MdTag("_", true), new HtmlTag("em", true)}
             };
+            var parser = new MarkdownParser(tagToTag.Keys.ToList());
             var replacer = new TagsReplacer<MdTag, HtmlTag>(tagToTag);
             
             var indexesTags = parser.GetIndexesTags(text);
-            var stringWithHtmlTags = replacer.ReplaceTagOnHtml(indexesTags, text);
-            return String.Empty;
+            var stringWithHtmlTags = replacer.ReplaceTag(indexesTags, text);
+            return stringWithHtmlTags;
         }
     }
 }
