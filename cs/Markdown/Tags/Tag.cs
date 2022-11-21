@@ -1,6 +1,4 @@
-﻿using Markdown.Enums;
-
-namespace Markdown.Tags
+﻿namespace Markdown.Tags
 {
     public class Tag : ITag
     {

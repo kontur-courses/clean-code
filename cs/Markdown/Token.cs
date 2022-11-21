@@ -1,5 +1,4 @@
 ﻿using System.Collections.Generic;
-using Markdown.Enums;
 using Markdown.Tags;
 
 namespace Markdown
@@ -8,15 +7,13 @@ namespace Markdown
     {
         public string Name;
         public ITag Tag;
-        public TagState State;
         public string Content = "";
         public List<Token> Children = new ();
 
-        public Token(string name, ITag tag, TagState state)
+        public Token(string name, ITag tag)
         {
             Name = name;
             Tag = tag;
-            State = state;
         }
     }
 }

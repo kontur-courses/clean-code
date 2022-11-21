@@ -2,17 +2,24 @@
 
 namespace Markdown
 {
-    public static class Renderer
+    public class Renderer
     {
-        public static string Render<TParser>(string markdownText)
-            where TParser : ITokenParser, new()
+        private readonly ITokenParser tokenParser;
+        private readonly IBuilder builder;
+        public Renderer(ITokenParser tokenParser, IBuilder builder)
+        {
+            this.tokenParser = tokenParser;
+            this.builder = builder;
+        }
+        
+        public string Render(string markdownText)
         {
             if (string.IsNullOrEmpty(markdownText))
                 return markdownText;
             
-            var tokens = new TParser().Parse(markdownText);
-            
-            return Builder.Build(tokens);
+            var tokens = tokenParser.Parse(markdownText);
+
+            return builder.Build(tokens);
         }
     }
 }
