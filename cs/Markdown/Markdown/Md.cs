@@ -10,8 +10,8 @@ namespace Markdown
         {
             var tagToTag = new Dictionary<MdTag, HtmlTag>()
             {
-                {new MdTag("__", true), new HtmlTag("strong", true)},
                 {new MdTag("_", true), new HtmlTag("em", true)},
+                {new MdTag("__", true), new HtmlTag("strong", true)},
                 {new MdTag("#", false), new HtmlTag("h1", true)}
             };
             var parser = new MarkdownParser(tagToTag.Keys.ToList());

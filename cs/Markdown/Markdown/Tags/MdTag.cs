@@ -11,6 +11,8 @@ namespace Markdown
                 CloseTag = tag;
             else
                 CloseTag = String.Empty;
+            OpenTagIndex = -1;
+            CloseTagIndex = -1;
         }
         
         public override string CreateStringWithTag(string str)
