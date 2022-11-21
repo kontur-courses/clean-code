@@ -17,6 +17,7 @@ namespace MarkdownTests
 
         [TestCase("_text_", "<em>text</em>")]
         [TestCase("__text__", "<strong>text</strong>")]
+        [TestCase("#text", "<h1>text</h1>")]
         public void Test1(string text, string exp)
         {
             var result = _md.Render(text);

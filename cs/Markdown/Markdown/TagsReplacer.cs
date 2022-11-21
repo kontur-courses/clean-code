@@ -42,14 +42,14 @@ namespace Markdown
                 
                 var strWithoutTag = 
                     text.Substring(tag.OpenTagIndex + tag.OpenTag.Length, 
-                        tag.CloseTagIndex - tag.OpenTagIndex);
+                        tag.CloseTagIndex - (tag.OpenTagIndex + tag.OpenTagIndex + tag.OpenTag.Length));
                 
                 builder.Append(_tagToTag[tag].OpenTag);
                 builder.Append(strWithoutTag);
                 builder.Append(_tagToTag[tag].CloseTag);
 
-                var oldTextLength = text.Length;
-                text = text.Substring(0, tag.OpenTagIndex) + builder + text.Substring(tag.CloseTagIndex + tag.CloseTag.Length * 2);
+                text = text.Substring(0, tag.OpenTagIndex) + 
+                       builder + text.Substring(tag.CloseTagIndex + tag.CloseTag.Length);
                 builder.Clear();
             }
 

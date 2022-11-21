@@ -26,11 +26,15 @@ namespace Markdown
         private void TagIsFind(MdTag tag, ref string text)
         {
             tag.OpenTagIndex = text.IndexOf(tag.OpenTag, StringComparison.Ordinal);
-            text = text.Substring(tag.OpenTagIndex + tag.OpenTag.Length);
             if (tag.HasCloseTag)
-                tag.CloseTagIndex = text.IndexOf(tag.CloseTag, StringComparison.Ordinal);
+                tag.CloseTagIndex = text.LastIndexOf(tag.CloseTag, StringComparison.Ordinal);
             else
-                tag.CloseTagIndex = text.IndexOf('\n');
+            {
+                if (text.IndexOf('\n') == -1)
+                    tag.CloseTagIndex = text.Length;
+                else
+                    tag.CloseTagIndex = text.IndexOf('\n');
+            }
             
             text = text.Substring(tag.CloseTagIndex + tag.CloseTag.Length);
         }
