@@ -36,7 +36,7 @@ namespace Markdown.MarkerLogic
 
             paragraph = sb.ToString();
             result.AddRange(FindPairedTags(paragraph, TagType.Emphasis, "_"));
-            result.AddRange(FindPictureTags(paragraph));
+            result.AddRange(FindTagsWithInnerText(paragraph, TagType.Picture, '!'));
             RemoveTagsInPictures(result);
             SwitchTagsOrder(result);
             result.Sort();
@@ -97,7 +97,7 @@ namespace Markdown.MarkerLogic
             return info;
         }
 
-        private static IEnumerable<TagInfo> FindPictureTags(string paragraph)
+        private static IEnumerable<TagInfo> FindTagsWithInnerText(string paragraph, TagType type, char startingChar)
         {
             var result = new List<TagInfo>();
             var shards = paragraph.Split("](");
@@ -106,7 +106,7 @@ namespace Markdown.MarkerLogic
             {
                 var haveStart = shards[i].LastIndexOf('[');
 
-                if (haveStart == -1 || shards[i][haveStart - 1] != '!')
+                if (haveStart == -1 || shards[i][haveStart - 1] != startingChar)
                     continue;
                 var startingPosition = position + haveStart - 1;
 
@@ -116,7 +116,7 @@ namespace Markdown.MarkerLogic
                     continue;
                 if (IsEscaped(shards[i][..(haveStart - 1)]))
                 {
-                    result.Add(new TagInfo(startingPosition, TagType.Picture, isEscaped: true));
+                    result.Add(new TagInfo(startingPosition, type, isEscaped: true));
                     position += shards[i].Length + 2 * (i + 1);
                     continue;
                 }
@@ -124,7 +124,7 @@ namespace Markdown.MarkerLogic
                 var end = position + haveEnd + 1;
                 var length = end + 2 + (shards[i].Length - startingPosition);
                 var content = shards[i + 1][..haveEnd];
-                result.Add(new TagInfo(startingPosition, TagType.Picture, length, content: content));
+                result.Add(new TagInfo(startingPosition, type, length, content: content));
                 position += shards[i].Length + 2 * (i + 1);
             }
 
