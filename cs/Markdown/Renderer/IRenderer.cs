@@ -1,9 +1,7 @@
-﻿using System.Collections.Generic;
-
-namespace Markdown
+﻿namespace Markdown
 {
     public interface IRenderer<TTag>
     {
-        public IToken<TTag>[] Render(IEnumerable<IRule> rules);
+        public IToken<TTag>[] Render(IRules rules);
     }
 }

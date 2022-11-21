@@ -2,19 +2,15 @@
 {
     internal class Program
     {
-        static void Main(string[] args)
+        static void Main()
         {
-            //var tokenizer = new DefaultTokenizer<MarkdownTag>();
-            //var renderer = new DefaultRenderer<HTMLTag>();
-            //var markdownText = string.Empty;
+            var tokenizer = new DefaultTokenizer<MarkdownTag>();
+            var renderer = new DefaultRenderer<HTMLTag>();
+            var rules = new DefaultRules();
 
-            //var result = new Md()
-            //    .SetTokenizer(tokenizer)
-            //    .SetRenderer(renderer)
-            //    .SetRule(HTMLTag.Emphasys, new Rule((tag) => MarkdownTag.Italic))
-            //    .SetRule(HTMLTag.Strong, new Rule((tag) => MarkdownTag.Bold))
-            //    .SetRule(HTMLTag.Heading(1), new Rule((tag) => MarkdownTag.Heading(1)))
-            //    .Render(markdownText);
+            var md = new Md(tokenizer, renderer, rules);
+            var markdownText = string.Empty;
+            md.Render(markdownText);
         }
     }
 }
