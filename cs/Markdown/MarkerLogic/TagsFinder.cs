@@ -24,16 +24,17 @@ namespace Markdown.MarkerLogic
             paragraph = sb.ToString();
             result.AddRange(FindPairedTags(paragraph, TagType.Strong, "__"));
 
-            var notEscapedStarters = result.Where(x => !x.IsEscaped && x.CanBeStarter && !x.CanBeEnder).ToList();
+            var notEscapedStarters = result.Where(x => !x.IsEscaped && x.Type == TagType.Strong).ToList();
 
             foreach (var tag in notEscapedStarters)
             {
-                sb[tag.Position] = ' ';
-                sb[tag.Position + 1] = ' ';
+                var atWordBeginning = tag.CanBeStarter && !tag.CanBeEnder;
+                var replacement = atWordBeginning ? ' ' : 'a';
+                sb[tag.Position] = replacement;
+                sb[tag.Position + 1] = replacement;
             }
 
             paragraph = sb.ToString();
-            paragraph = paragraph.Replace("__", "aa");
             result.AddRange(FindPairedTags(paragraph, TagType.Emphasis, "_"));
             result.AddRange(FindPictureTags(paragraph));
             RemoveTagsInPictures(result);
