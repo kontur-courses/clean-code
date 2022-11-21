@@ -4,8 +4,6 @@ namespace Markdown
 {
     internal class WordOperator
     {
-        private static readonly char[] digits = { '0', '1', '2', '3', '4', '5', '6', '7', '8', '9' };
-
         public static string GetWordAtPosition(string paragraph, int position)
         {
             var firstHalf = paragraph[..position];
@@ -17,7 +15,7 @@ namespace Markdown
             return (firstHalf + secondHalf).Trim();
         }
 
-        public static bool IsWordContainsDigits(string word) => digits.Any(x => word.Contains(x));
+        public static bool IsWordContainsDigits(string word) => word.Any(x => x >= '0' && x <= '9');
 
         public static bool InDifferentWords(string paragraph, TagInfo start, TagInfo end)
         {

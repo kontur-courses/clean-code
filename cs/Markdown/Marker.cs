@@ -1,6 +1,5 @@
 ﻿using Markdown.Interfaces;
-using Markdown.MarkerInnerClasses;
-
+using Markdown.MarkerLogic;
 namespace Markdown
 {
     public class Marker

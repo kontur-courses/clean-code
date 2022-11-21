@@ -2,7 +2,7 @@
 using Markdown.Interfaces;
 using Markdown.TagClasses;
 
-namespace Markdown.MarkerInnerClasses
+namespace Markdown.MarkerLogic
 {
     public class TagsFinder : ITagsFinder
     {
@@ -43,7 +43,7 @@ namespace Markdown.MarkerInnerClasses
         }
 
 
-        private TagInfo? GetHeaderInfo(string paragraph)
+        private static TagInfo? GetHeaderInfo(string paragraph)
         {
             if (!paragraph.Contains('#'))
                 return null;
@@ -61,7 +61,7 @@ namespace Markdown.MarkerInnerClasses
             return null;
         }
 
-        private List<TagInfo> FindPairedTags(string paragraph, TagType type, string tag)
+        private static IEnumerable<TagInfo> FindPairedTags(string paragraph, TagType type, string tag)
         {
             var position = 0;
             List<TagInfo> info = new();
@@ -96,7 +96,7 @@ namespace Markdown.MarkerInnerClasses
             return info;
         }
 
-        private List<TagInfo> FindPictureTags(string paragraph)
+        private static IEnumerable<TagInfo> FindPictureTags(string paragraph)
         {
             var result = new List<TagInfo>();
             var shards = paragraph.Split("](");
@@ -130,18 +130,21 @@ namespace Markdown.MarkerInnerClasses
             return result;
         }
 
-        private void RemoveTagsInPictures(List<TagInfo> tags)
+        private static void RemoveTagsInPictures(ICollection<TagInfo> tags)
         {
-            var pics = tags.Where(x => x.Type == TagType.Picture && !x.IsEscaped).ToList();
-            foreach (var pic in pics)
+            var tagsListsPics = tags.Where(x => x.Type == TagType.Picture && !x.IsEscaped)
+                .ToList()
+                .Select(pic => tags
+                    .Where(x => x.Position > pic.Position && x.Position < pic.Position + pic.Length)
+                    .ToList());
+
+            foreach (var innerTags in tagsListsPics)
             {
-                var innerTags = tags.Where(x => x.Position > pic.Position && x.Position < pic.Position + pic.Length)
-                    .ToList();
                 innerTags.ForEach(x => tags.Remove(x));
             }
         }
 
-        private void SwitchTagsOrder(List<TagInfo> tags)
+        private static void SwitchTagsOrder(IReadOnlyCollection<TagInfo> tags)
         {
             var strongEnders = tags
                 .Where(x => !x.IsEscaped && x.CanBeEnder && x.Type == TagType.Strong).ToList();
@@ -159,7 +162,7 @@ namespace Markdown.MarkerInnerClasses
             });
         }
 
-        private bool IsEscaped(string shard)
+        private static bool IsEscaped(string shard)
         {
             var lengthBefore = shard.Length;
             var lengthAfter = shard.TrimEnd('\\').Length;

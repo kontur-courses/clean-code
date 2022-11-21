@@ -5,8 +5,14 @@ using NUnit.Framework;
 
 namespace MarkdownTests
 {
+    [TestFixture]
     public class MarkerTests
     {
+        private Marker marker;
+
+        [SetUp]
+        public void InitMarker() => marker = new Marker();
+
         [TestCase("_a_", ExpectedResult = "<em>a</em>", Description = "Emphasis should be placed")]
         [TestCase("__a__", ExpectedResult = "<strong>a</strong>", Description = "Strong should be placed")]
         [TestCase("#a", ExpectedResult = "<h1>a</h1>", Description = "Header should be placed")]
@@ -38,8 +44,6 @@ namespace MarkdownTests
             Description = "Paragraph can have all markers")]
         public string Mark_PutStringWithBasicConditionReplacement_ShouldReplaceItAsSpecified(string input)
         {
-            var marker = new Marker();
-
             var result = marker.Mark(input);
 
             return result;
@@ -48,14 +52,13 @@ namespace MarkdownTests
         [Test]
         [Description("(2n)^2 > (n^2)*3")]
         public void
-            Mark_TimeFromMarkingTwoStringsWhereOneBiggerThanAnotherTwoTimes_FirstTimeMultiplidByThree_ShouldBeHigherThanSecondTime()
+            Mark_MarksTwoStringsWhereOneIsHalfAsLong_TimeSpendedOnShorterMultiplyByThree_ShouldBeLongerThanTimeSpendedOnLongerString()
         {
             var n = @"__a___a___a___a_";
             var n2 = @"__a___a___a___a_ __a___a___a___a_";
             var ingot = @"_aa__a__asd__sd_--_1a__3_a_ __a__b_a_a__a_";
             double time1;
             double time2;
-            var marker = new Marker();
 
             //прогреваю
             marker.Mark(ingot);
@@ -80,7 +83,6 @@ namespace MarkdownTests
         [TestCase("___aa___", ExpectedResult = "<strong><em>aa</em></strong>")]
         public string Mark_PutInconclusiveMarkers_ShouldHaveTendencyToPutEmphasisIntoStrong(string input)
         {
-            var marker = new Marker();
 
             var result = marker.Mark(input);
 
@@ -91,7 +93,6 @@ namespace MarkdownTests
         [TestCase("__aa___aa_", ExpectedResult = "<strong>aa</strong><em>aa</em>")]
         public string Mark_PutInconclusiveMarkers_ShouldHaveTendencyToNotCreateIntersections(string input)
         {
-            var marker = new Marker();
 
             var result = marker.Mark(input);
 
@@ -102,7 +103,6 @@ namespace MarkdownTests
         public void Mark_PutingChainedIntersections_ShouldIgnoreAllOfThem()
         {
             var text = "__a _a a__ __a a_ a__";
-            var marker = new Marker();
 
             var result = marker.Mark(text);
 
@@ -114,7 +114,6 @@ namespace MarkdownTests
         {
             var text = "__a _a _a a_ a__ a_";
             var expectedResult = "__a <em>a _a a</em> a__ a_";
-            var marker = new Marker();
 
             var result = marker.Mark(text);
 
@@ -126,7 +125,6 @@ namespace MarkdownTests
         {
             var text = @"__a \_a a__ a_";
             var expectedResult = @"<strong>a _a a</strong> a_";
-            var marker = new Marker();
 
             var result = marker.Mark(text);
 
@@ -137,7 +135,6 @@ namespace MarkdownTests
         {
             var text = @"a![AA](bb)";
             var expectedResult = @"a<picture>bb</picture>";
-            var marker = new Marker();
 
             var result = marker.Mark(text);
 
@@ -148,7 +145,6 @@ namespace MarkdownTests
         {
             var text = @"a\![AA](_bb_) aaaa a![AAA](_bb_)aaaa";
             var expectedResult = @"a![AA](<em>bb</em>) aaaa a<picture>_bb_</picture>aaaa";
-            var marker = new Marker();
 
             var result = marker.Mark(text);
 
@@ -159,7 +155,6 @@ namespace MarkdownTests
         {
             var text = @"a[AA](bb) aaaa a![AAA](bbaaaa";
             var expectedResult = @"a[AA](bb) aaaa a![AAA](bbaaaa";
-            var marker = new Marker();
 
             var result = marker.Mark(text);
 

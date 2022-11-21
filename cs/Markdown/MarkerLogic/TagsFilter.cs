@@ -1,7 +1,7 @@
 ﻿using Markdown.Interfaces;
 using Markdown.TagClasses;
 
-namespace Markdown.MarkerInnerClasses
+namespace Markdown.MarkerLogic
 {
     public class TagsFilter : ITagsFilter
     {
@@ -45,8 +45,8 @@ namespace Markdown.MarkerInnerClasses
             return result;
         }
 
-        private bool HaveIntersects(List<TagInfo> tags, string paragraph, TagInfo start, TagInfo end,
-            List<TagInfo> result)
+        private static bool HaveIntersects(List<TagInfo> tags, string paragraph, TagInfo start, TagInfo end,
+            ICollection<TagInfo> result)
         {
             var results = false;
             var innerStarters = tags.Where(x => x.Position > start.Position && x.Position < end.Position)
@@ -91,7 +91,7 @@ namespace Markdown.MarkerInnerClasses
             return results;
         }
 
-        private bool TryFindFirstValidPair(List<TagInfo> tags, string paragraph, TagInfo start, out TagInfo end)
+        private static bool TryFindFirstValidPair(IReadOnlyCollection<TagInfo> tags, string paragraph, TagInfo start, out TagInfo end)
         {
             end = new TagInfo();
             var endTags = tags
@@ -120,7 +120,7 @@ namespace Markdown.MarkerInnerClasses
             return false;
         }
 
-        private void TrySwitchPosition(List<TagInfo> tags, TagInfo tag)
+        private static void TrySwitchPosition(IEnumerable<TagInfo> tags, TagInfo tag)
         {
             var competitiveStrong = tags.FirstOrDefault(x => x.Type == TagType.Strong
                                                              && x.InMiddle()
