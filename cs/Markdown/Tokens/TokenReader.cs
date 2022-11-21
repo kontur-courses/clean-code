@@ -33,44 +33,54 @@ namespace Markdown.Tokens
         {
             var result = new List<TagToken>();
 
-            foreach (var tag in tagStorage.Tags)
-            {
-                var tagTokens = GetTagTokens(inputText, tag);
+            var positionsWithTag = new HashSet<int>();
 
-                result.AddRange(tagTokens);
+            foreach (var tag in tagStorage.Tags.OrderByDescending(tag => tag.OpeningSubTag.Length))
+            {
+                var tagTokens = GetTagTokensForSpecificTag(inputText, tag);
+
+                foreach (var tagToken in tagTokens)
+                {
+                    if (positionsWithTag.Contains(tagToken.Start)) 
+                        continue;
+
+                    for (var j = tagToken.Start; j <= tagToken.End; j++)
+                        positionsWithTag.Add(j);
+
+                    result.Add(tagToken);
+                }
             }
 
             return result.OrderBy(token => token.Start).ToList();
         }
 
-        private List<TagToken> GetTagTokens(string line, ITag tag)
+        private List<TagToken> GetTagTokensForSpecificTag(string line, ITag tag)
         {
             var tagTokens = new List<TagToken>();
 
-            var subTagSequence = new Stack<SubTagOrder>();
+            var isOpeningTag = true;
 
             for (var i = 0; i < line.Length;)
             {
-                if (subTagSequence.Count == 0 || subTagSequence.Peek() == SubTagOrder.Closing)
-                    subTagSequence.Push(SubTagOrder.Opening);
-                else
-                    subTagSequence.Push(SubTagOrder.Closing);
+                var subTagOrder = isOpeningTag ? SubTagOrder.Opening : SubTagOrder.Closing;
 
-                var subTag = tag.GetSubTag(subTagSequence.Peek());
+                var subTag = tag.GetSubTag(subTagOrder);
 
                 var subTagIndex = line.IndexOf(subTag, i, StringComparison.Ordinal);
 
                 if (subTagIndex == -1)
                     break;
 
-                tagTokens.Add(new TagToken(TokenType.Tag, subTagIndex, subTag.Length, subTagSequence.Peek()));
+                tagTokens.Add(new TagToken(TokenType.Tag, subTagIndex, subTag.Length, subTagOrder));
 
                 i = subTagIndex + subTag.Length;
+
+                isOpeningTag = !isOpeningTag;
             }
 
             return tagTokens;
         }
-         
+
         private List<Token> GetTextTokens(string line, List<TagToken> tagTokens)
         {
             var textTokens = new List<Token>();
