@@ -8,10 +8,10 @@ namespace MarkdownTests
     [TestFixture]
     public class MarkerTests
     {
-        private Marker marker;
+        private Marker sut;
 
         [SetUp]
-        public void InitMarker() => marker = new Marker();
+        public void InitMarker() => sut = new Marker();
 
         [TestCase("_a_", ExpectedResult = "<em>a</em>", Description = "Emphasis should be placed")]
         [TestCase("__a__", ExpectedResult = "<strong>a</strong>", Description = "Strong should be placed")]
@@ -44,7 +44,7 @@ namespace MarkdownTests
             Description = "Paragraph can have all markers")]
         public string Mark_PutStringWithBasicConditionReplacement_ShouldReplaceItAsSpecified(string input)
         {
-            var result = marker.Mark(input);
+            var result = sut.Mark(input);
 
             return result;
         }
@@ -61,18 +61,18 @@ namespace MarkdownTests
             double time2;
 
             //прогреваю
-            marker.Mark(ingot);
-            marker.Mark(ingot);
-            marker.Mark(ingot);
-            marker.Mark(ingot);
+            sut.Mark(ingot);
+            sut.Mark(ingot);
+            sut.Mark(ingot);
+            sut.Mark(ingot);
             //прогреваю
 
             var sw = Stopwatch.StartNew();
-            marker.Mark(n2);
+            sut.Mark(n2);
             sw.Stop();
             time2 = sw.Elapsed.TotalMilliseconds;
             sw.Restart();
-            marker.Mark(n);
+            sut.Mark(n);
             sw.Stop();
             time1 = sw.Elapsed.TotalMilliseconds;
 
@@ -84,7 +84,7 @@ namespace MarkdownTests
         public string Mark_PutInconclusiveMarkers_ShouldHaveTendencyToPutEmphasisIntoStrong(string input)
         {
 
-            var result = marker.Mark(input);
+            var result = sut.Mark(input);
 
             return result;
         }
@@ -94,7 +94,7 @@ namespace MarkdownTests
         public string Mark_PutInconclusiveMarkers_ShouldHaveTendencyToNotCreateIntersections(string input)
         {
 
-            var result = marker.Mark(input);
+            var result = sut.Mark(input);
 
             return result;
         }
@@ -104,7 +104,7 @@ namespace MarkdownTests
         {
             var text = "__a _a a__ __a a_ a__";
 
-            var result = marker.Mark(text);
+            var result = sut.Mark(text);
 
             result.Should().Be(text);
         }
@@ -115,7 +115,7 @@ namespace MarkdownTests
             var text = "__a _a _a a_ a__ a_";
             var expectedResult = "__a <em>a _a a</em> a__ a_";
 
-            var result = marker.Mark(text);
+            var result = sut.Mark(text);
 
             result.Should().Be(expectedResult);
         }
@@ -126,7 +126,7 @@ namespace MarkdownTests
             var text = @"__a \_a a__ a_";
             var expectedResult = @"<strong>a _a a</strong> a_";
 
-            var result = marker.Mark(text);
+            var result = sut.Mark(text);
 
             result.Should().Be(expectedResult);
         }
@@ -136,7 +136,7 @@ namespace MarkdownTests
             var text = @"a![AA](bb)";
             var expectedResult = @"a<picture>bb</picture>";
 
-            var result = marker.Mark(text);
+            var result = sut.Mark(text);
 
             result.Should().Be(expectedResult);
         }
@@ -146,7 +146,7 @@ namespace MarkdownTests
             var text = @"a\![AA](_bb_) aaaa a![AAA](_bb_)aaaa";
             var expectedResult = @"a![AA](<em>bb</em>) aaaa a<picture>_bb_</picture>aaaa";
 
-            var result = marker.Mark(text);
+            var result = sut.Mark(text);
 
             result.Should().Be(expectedResult);
         }
@@ -156,7 +156,7 @@ namespace MarkdownTests
             var text = @"a[AA](bb) aaaa a![AAA](bbaaaa";
             var expectedResult = @"a[AA](bb) aaaa a![AAA](bbaaaa";
 
-            var result = marker.Mark(text);
+            var result = sut.Mark(text);
 
             result.Should().Be(expectedResult);
         }
