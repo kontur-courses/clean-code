@@ -36,8 +36,10 @@ public class HtmlTokenRenderer : ITokenRenderer
 		return htmlTextBuilder.ToString();
 	}
 
-	private IToken RenderToken(IToken nestingTokens)
+	private IToken RenderToken(IToken token)
 	{
-		throw new NotImplementedException();
+		if (token.nestingTokens != null) /*return string.Empty;*/ throw new NotImplementedException();
+
+		return token;
 	}
 }
