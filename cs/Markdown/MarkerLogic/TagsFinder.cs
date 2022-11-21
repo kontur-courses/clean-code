@@ -1,30 +1,50 @@
 ﻿using System.Text;
 using Markdown.Interfaces;
 using Markdown.TagClasses;
+using Markdown.TagClasses.ITagInterfaces;
 
 namespace Markdown.MarkerLogic
 {
     public class TagsFinder : ITagsFinder
     {
-        public List<TagInfo> CreateTagList(string paragraph)
+        public List<ITag> CreateTagList(string paragraph)
         {
-            var result = new List<TagInfo>();
+            var result = new List<ITag>();
             var header = GetHeaderInfo(paragraph);
-            var sb = new StringBuilder(paragraph);
+
             if (header is not null)
             {
                 result.Add(header);
-
-                if (!header.IsEscaped)
-                {
-                    sb[0] = ' ';
-                }
+                paragraph = HideHeader(header, paragraph);
             }
 
-            paragraph = sb.ToString();
             result.AddRange(FindPairedTags(paragraph, TagType.Strong, "__"));
+            paragraph = HideStrongTags(result, paragraph);
+            result.AddRange(FindPairedTags(paragraph, TagType.Emphasis, "_"));
+            result.AddRange(FindTagsWithInnerText(paragraph, TagType.Picture, '!'));
+            RemoveTagsInPictures(result);
+            SwitchTagsOrder(result);
+            result.Sort();
+            return result;
+        }
 
-            var notEscapedStarters = result.Where(x => !x.IsEscaped && x.Type == TagType.Strong).ToList();
+        private string HideHeader(HeaderTag header, string paragraph)
+        {
+            var sb = new StringBuilder(paragraph);
+            if (!header.IsEscaped)
+            {
+                sb[0] = ' ';
+                paragraph = sb.ToString();
+            }
+
+            return paragraph;
+        }
+
+        private string HideStrongTags(List<ITag> tags, string paragraph)
+        {
+            var sb = new StringBuilder(paragraph);
+            var notEscapedStarters = tags.Where(x => !x.IsEscaped && x.Type == TagType.Strong).Select(x => (PairedTag)x)
+                .ToList();
 
             foreach (var tag in notEscapedStarters)
             {
@@ -34,17 +54,10 @@ namespace Markdown.MarkerLogic
                 sb[tag.Position + 1] = replacement;
             }
 
-            paragraph = sb.ToString();
-            result.AddRange(FindPairedTags(paragraph, TagType.Emphasis, "_"));
-            result.AddRange(FindTagsWithInnerText(paragraph, TagType.Picture, '!'));
-            RemoveTagsInPictures(result);
-            SwitchTagsOrder(result);
-            result.Sort();
-            return result;
+            return sb.ToString();
         }
 
-
-        private static TagInfo? GetHeaderInfo(string paragraph)
+        private static HeaderTag? GetHeaderInfo(string paragraph)
         {
             if (!paragraph.Contains('#'))
                 return null;
@@ -52,20 +65,20 @@ namespace Markdown.MarkerLogic
             var lineBeforeTag = paragraph.Split('#')[0];
             if (lineBeforeTag.Length == 0)
             {
-                var header = new TagInfo(0, TagType.Header);
+                var header = new HeaderTag(0, TagType.Header);
                 return header;
             }
 
             if (lineBeforeTag.Length == 1 && IsEscaped(lineBeforeTag))
-                return new TagInfo(1, TagType.Header, isEscaped: true);
+                return new HeaderTag(1, TagType.Header, isEscaped: true);
 
             return null;
         }
 
-        private static IEnumerable<TagInfo> FindPairedTags(string paragraph, TagType type, string tag)
+        private static IEnumerable<PairedTag> FindPairedTags(string paragraph, TagType type, string tag)
         {
             var position = 0;
-            List<TagInfo> info = new();
+            List<PairedTag> info = new();
             var paragraphShards = paragraph.Split(tag);
             if (paragraphShards.Length == 1)
                 return info;
@@ -74,7 +87,7 @@ namespace Markdown.MarkerLogic
                 position += paragraphShards[i].Length + (i == 0 ? 0 : tag.Length);
                 if (IsEscaped(paragraphShards[i]))
                 {
-                    info.Add(new TagInfo(position, type, isEscaped: true));
+                    info.Add(new PairedTag(position, type, isEscaped: true));
                     continue;
                 }
 
@@ -85,21 +98,21 @@ namespace Markdown.MarkerLogic
 
                 if (canBeStarter ^ canBeEnder)
                 {
-                    info.Add(new TagInfo(position, type, 0, canBeStarter, canBeEnder));
+                    info.Add(new PairedTag(position, type, canBeStarter, canBeEnder));
                     continue;
                 }
 
                 var word = WordOperator.GetWordAtPosition(paragraph, position);
                 if (!WordOperator.IsWordContainsDigits(word))
-                    info.Add(new TagInfo(position, type, 0, canBeStarter, canBeEnder));
+                    info.Add(new PairedTag(position, type, canBeStarter, canBeEnder));
             }
 
             return info;
         }
 
-        private static IEnumerable<TagInfo> FindTagsWithInnerText(string paragraph, TagType type, char startingChar)
+        private static IEnumerable<ITag> FindTagsWithInnerText(string paragraph, TagType type, char startingChar)
         {
-            var result = new List<TagInfo>();
+            var result = new List<ITag>();
             var shards = paragraph.Split("](");
             var position = 0;
             for (var i = 0; i < shards.Length - 1; i++)
@@ -116,7 +129,7 @@ namespace Markdown.MarkerLogic
                     continue;
                 if (IsEscaped(shards[i][..(haveStart - 1)]))
                 {
-                    result.Add(new TagInfo(startingPosition, type, isEscaped: true));
+                    result.Add(new TextTag(startingPosition, type, 0, isEscaped: true));
                     position += shards[i].Length + 2 * (i + 1);
                     continue;
                 }
@@ -124,16 +137,17 @@ namespace Markdown.MarkerLogic
                 var end = position + haveEnd + 1;
                 var length = end + 2 + (shards[i].Length - startingPosition);
                 var content = shards[i + 1][..haveEnd];
-                result.Add(new TagInfo(startingPosition, type, length, content: content));
+                result.Add(new TextTag(startingPosition, type, length, content: content));
                 position += shards[i].Length + 2 * (i + 1);
             }
 
             return result;
         }
 
-        private static void RemoveTagsInPictures(ICollection<TagInfo> tags)
+        private static void RemoveTagsInPictures(ICollection<ITag> tags)
         {
             var tagsListsPics = tags.Where(x => x.Type == TagType.Picture && !x.IsEscaped)
+                .OfType<TextTag>()
                 .ToList()
                 .Select(pic => tags
                     .Where(x => x.Position > pic.Position && x.Position < pic.Position + pic.Length)
@@ -145,11 +159,13 @@ namespace Markdown.MarkerLogic
             }
         }
 
-        private static void SwitchTagsOrder(IReadOnlyCollection<TagInfo> tags)
+        private static void SwitchTagsOrder(IReadOnlyCollection<ITag> tags)
         {
             var strongEnders = tags
+                .OfType<PairedTag>()
                 .Where(x => !x.IsEscaped && x.CanBeEnder && x.Type == TagType.Strong).ToList();
             var emphasisEnders = tags
+                .OfType<PairedTag>()
                 .Where(x => !x.IsEscaped && x.CanBeEnder && !x.CanBeStarter && x.Type == TagType.Emphasis).ToList();
             strongEnders.ForEach(s =>
             {

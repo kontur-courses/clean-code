@@ -1,32 +1,38 @@
 ﻿using Markdown.Interfaces;
 using Markdown.TagClasses;
+using Markdown.TagClasses.ITagInterfaces;
 
 namespace Markdown.MarkerLogic
 {
     public class TagsFilter : ITagsFilter
     {
-        public List<TagInfo> FilterTags(List<TagInfo> tags, string paragraph)
+        public List<ITag> FilterTags(List<ITag> tags, string paragraph)
         {
-            var result = new List<TagInfo>();
+            var result = new List<ITag>();
             result.AddRange(tags.Where(x => x.IsEscaped || x.Type is TagType.Header or TagType.Picture).ToList());
-            var start = tags.FirstOrDefault(x => x.CanBeStarter);
+
+            var pairedTags = tags.OfType<PairedTag>()
+                .ToList();
+
+            var start = pairedTags
+                .FirstOrDefault(x => x.CanBeStarter);
             if (start is null)
                 return result;
             while (start is not null)
             {
-                var isInvalidStartPoint = !TryFindFirstValidPair(tags, paragraph, start, out var end)
+                var isInvalidStartPoint = !TryFindFirstValidPair(pairedTags, paragraph, start, out var end)
                                           || start.InMiddle() && WordOperator.InDifferentWords(paragraph, start, end);
                 if (isInvalidStartPoint)
                 {
-                    tags.Remove(start);
-                    start = tags.FirstOrDefault(x => x.CanBeStarter
-                                                     && !x.InPair
-                                                     && !x.IsEscaped);
+                    pairedTags.Remove(start);
+                    start = pairedTags.FirstOrDefault(x => x.CanBeStarter
+                                                           && !x.InPair
+                                                           && !x.IsEscaped);
                     continue;
                 }
 
                 end.InPair = true;
-                if (!HaveIntersects(tags, paragraph, start, end, result))
+                if (!HaveIntersects(pairedTags, paragraph, start, end, result))
                 {
                     start.CanBeEnder = false;
                     end.CanBeStarter = false;
@@ -36,31 +42,38 @@ namespace Markdown.MarkerLogic
 
                 tags.Remove(start);
                 tags.Remove(end);
-                start = tags.FirstOrDefault(x => x.CanBeStarter
-                                                 && !x.InPair
-                                                 && !x.IsEscaped);
+
+                start = tags.OfType<PairedTag>()
+                    .FirstOrDefault(x => x.CanBeStarter
+                                         && !x.InPair
+                                         && !x.IsEscaped);
             }
 
 
             return result;
         }
 
-        private static bool HaveIntersects(List<TagInfo> tags, string paragraph, TagInfo start, TagInfo end,
-            ICollection<TagInfo> result)
+        private static bool HaveIntersects(List<PairedTag> tags, string paragraph, PairedTag start, PairedTag end,
+            ICollection<ITag> result)
         {
             var results = false;
+
             var innerStarters = tags.Where(x => x.Position > start.Position && x.Position < end.Position)
                 .Where(x => x.CanBeStarter && !x.InPair && !x.IsEscaped)
                 .ToList();
-            innerStarters.Where(x => !x.CanBeEnder).ToList().ForEach(x => x.InPair = true);
+
+            innerStarters.Where(x => !x.CanBeEnder)
+                .ToList()
+                .ForEach(x => x.InPair = true);
+
             foreach (var innerStart in innerStarters)
             {
                 innerStart.InPair = true;
                 var isIntersectLocal = false;
 
                 var isInvalidStartPoint = !TryFindFirstValidPair(tags, paragraph, innerStart, out var innerEnd)
-                                          || start.InMiddle() &&
-                                          WordOperator.InDifferentWords(paragraph, innerStart, innerEnd);
+                                          || start.InMiddle()
+                                          && WordOperator.InDifferentWords(paragraph, innerStart, innerEnd);
                 if (isInvalidStartPoint)
                 {
                     tags.Remove(innerStart);
@@ -91,15 +104,15 @@ namespace Markdown.MarkerLogic
             return results;
         }
 
-        private static bool TryFindFirstValidPair(IReadOnlyCollection<TagInfo> tags, string paragraph, TagInfo start, out TagInfo end)
+        private static bool TryFindFirstValidPair(IReadOnlyCollection<PairedTag> tags, string paragraph,
+            PairedTag start, out PairedTag end)
         {
-            end = new TagInfo();
-            var endTags = tags
-                .Where(x => x.CanBeEnder
-                            && x.Position > start.Position
-                            && x.Type == start.Type
-                            && !x.InPair
-                            && !x.IsEscaped)
+            end = new PairedTag();
+            var endTags = tags.Where(x => x.CanBeEnder
+                                          && x.Position > start.Position
+                                          && x.Type == start.Type
+                                          && !x.InPair
+                                          && !x.IsEscaped)
                 .ToList();
             if (endTags.Count == 0)
                 return false;
@@ -120,7 +133,7 @@ namespace Markdown.MarkerLogic
             return false;
         }
 
-        private static void TrySwitchPosition(IEnumerable<TagInfo> tags, TagInfo tag)
+        private static void TrySwitchPosition(IEnumerable<PairedTag> tags, PairedTag tag)
         {
             var competitiveStrong = tags.FirstOrDefault(x => x.Type == TagType.Strong
                                                              && x.InMiddle()

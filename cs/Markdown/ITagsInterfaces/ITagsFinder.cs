@@ -1,9 +1,9 @@
-﻿using Markdown.TagClasses;
+﻿using Markdown.TagClasses.ITagInterfaces;
 
 namespace Markdown.Interfaces
 {
     public interface ITagsFinder
     {
-        public List<TagInfo> CreateTagList(string paragraph);
+        public List<ITag> CreateTagList(string paragraph);
     }
 }

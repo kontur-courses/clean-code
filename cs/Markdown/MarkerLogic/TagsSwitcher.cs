@@ -1,12 +1,13 @@
 ﻿using System.Text;
 using Markdown.Interfaces;
 using Markdown.TagClasses;
+using Markdown.TagClasses.ITagInterfaces;
 
 namespace Markdown.MarkerLogic
 {
     public class TagsSwitcher : ITagsSwitcher
     {
-        public string SwitchTags(List<TagInfo> tags, string paragraph)
+        public string SwitchTags(List<ITag> tags, string paragraph)
         {
             tags.Sort();
 
@@ -29,7 +30,7 @@ namespace Markdown.MarkerLogic
             return result.ToString();
         }
 
-        private static void AdjustPositions(IEnumerable<TagInfo> tags, TagInfo tag)
+        private static void AdjustPositions(IEnumerable<ITag> tags, ITag tag)
         {
             if (tag.IsEscaped)
             {
@@ -41,7 +42,7 @@ namespace Markdown.MarkerLogic
                 .ForEach(x => x.Position += tag.GetHtmlTag().Length - tag.Length);
         }
 
-        private static void SwitchTag(StringBuilder paragraph, TagInfo tag)
+        private static void SwitchTag(StringBuilder paragraph, ITag tag)
         {
             if (tag.IsEscaped)
             {
