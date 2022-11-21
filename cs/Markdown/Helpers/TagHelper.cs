@@ -1,6 +1,3 @@
-using System;
-using System.Collections.Generic;
-
 namespace Markdown.Helpers;
 
 public static class TagHelper

@@ -1,5 +1,4 @@
-﻿using System;
-using Markdown.Readers;
+﻿using Markdown.Readers;
 using Markdown.Readers.Implementation;
 using Markdown.Translators;
 using Markdown.Translators.Implementation;
