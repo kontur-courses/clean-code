@@ -2,7 +2,7 @@ namespace Markdown.Tags.Implementation;
 
 public class Header : ITag
 {
-    public string MarkdownName => "#";
+    public string BeforeTranslateName => "#";
     public string TranslateName => "!!!Header!!!";
-    public string HtmlName => "h1";
+    public string AfterTranslateName => "h1";
 }

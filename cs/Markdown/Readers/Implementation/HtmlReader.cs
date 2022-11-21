@@ -22,7 +22,7 @@ public class HtmlReader : IReader
         foreach (var tag in tags)
         {
             var translatorValue = TagHelper.GetHtmlFormat(tag.TranslateName);
-            var htmlValue = TagHelper.GetHtmlFormat(tag.HtmlName);
+            var htmlValue = TagHelper.GetHtmlFormat(tag.AfterTranslateName);
             markdownInput = markdownInput.Replace(translatorValue.start, htmlValue.start);
             markdownInput = markdownInput.Replace(translatorValue.end, htmlValue.end);
         }

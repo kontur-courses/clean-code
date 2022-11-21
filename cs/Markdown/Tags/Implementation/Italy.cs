@@ -2,7 +2,7 @@ namespace Markdown.Tags.Implementation;
 
 public class Italy : ITag
 {
-    public string MarkdownName => "_";
+    public string BeforeTranslateName => "_";
     public string TranslateName => "!!!Italy!!!";
-    public string HtmlName => "em";
+    public string AfterTranslateName => "em";
 }

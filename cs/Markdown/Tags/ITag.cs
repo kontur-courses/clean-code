@@ -2,7 +2,7 @@ namespace Markdown.Tags;
 
 public interface ITag
 {
-    public string MarkdownName { get; }
+    public string BeforeTranslateName { get; }
     public string TranslateName { get; }
-    public string HtmlName { get; }
+    public string AfterTranslateName { get; }
 }
