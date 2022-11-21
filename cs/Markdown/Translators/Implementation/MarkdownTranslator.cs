@@ -5,12 +5,12 @@ namespace Markdown.Translators.Implementation;
 
 public class MarkdownTranslator : ITranslator
 {
-    private List<ITag> tags;
+    private List<ITag?> tags;
     private Stack<ITag> stackOfTags;
 
     public MarkdownTranslator()
     {
-        tags = TagHelper.GetAllTags<ITag>();
+        tags = TagHelper.GetAllTags<ITag>()!.ToList();
         stackOfTags = new Stack<ITag>();
     }
     

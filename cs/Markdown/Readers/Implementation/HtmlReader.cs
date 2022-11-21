@@ -14,7 +14,7 @@ public class HtmlReader : IReader
 
     public HtmlReader()
     {
-        tags = TagHelper.GetAllTags<ITag>();
+        tags = TagHelper.GetAllTags<ITag>()!.ToList()!;
     }
     
     public string Reader(string markdownInput)
