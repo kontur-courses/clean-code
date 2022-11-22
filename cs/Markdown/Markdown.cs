@@ -25,7 +25,7 @@ public class Markdown
     public string Render(string markdownInput)
     {
         if (string.IsNullOrEmpty(markdownInput))
-            throw new ArgumentNullException();
+            throw new ArgumentException();
 
         return reader.Reader(translator.Translate(markdownInput));
     }
