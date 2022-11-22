@@ -77,20 +77,22 @@ public class MdRender_Should
     [TestCase("# abc __def _ghi_ jkl__", "<h1>abc <strong>def <em>ghi</em> jkl</strong></h1>",
         TestName = "Header with nested inline elements")]
     [TestCase("# abc\ndef\n# ghi", "<h1>abc</h1>\ndef\n<h1>ghi</h1>", TestName = "Headers and paragraphs mix")]
+    [TestCase("# abc\r\n# cde", "<h1>abc</h1>\r\n<h1>cde</h1>", TestName = @"Headers with \r\n splitter")]
     public void ReturnCorrectRenderResult_OnHeaderTags(string source, string expected)
     {
         _markdown.Render(source).Should().Be(expected);
     }
 
-    [TestCase("\\_abc\\_", "_abc_", TestName = "Italic escaped")]
-    [TestCase("\\__abc\\__", "__abc__", TestName = "Strong escaped")]
-    [TestCase("\\<abc.ru>", "<abc.ru>", TestName = "Simple link escaped")]
-    [TestCase("\\[abc](abc.ru)", "[abc](abc.ru)", TestName = "Titled link escaped")]
-    [TestCase("\\\\_abc_", "\\<em>abc</em>", TestName = "Self escaped")]
-    [TestCase("ab\\c\\d", "ab\\c\\d", TestName = "Not disapper if nothing escape")]
-    [TestCase("\\# abc", "# abc", TestName = "Header escape")]
-    [TestCase("\\#abc", "\\#abc", TestName = "Not disapper if header tag without space")]
-    [TestCase("\\\\\\_abc_", "\\_abc_", TestName = "Tripple escape")]
+    [TestCase(@"\_abc\_", "_abc_", TestName = "Italic escaped")]
+    [TestCase(@"\__abc\__", "__abc__", TestName = "Strong escaped")]
+    [TestCase(@"\<abc.ru>", "<abc.ru>", TestName = "Simple link escaped")]
+    [TestCase(@"\[abc](abc.ru)", "[abc](abc.ru)", TestName = "Titled link escaped")]
+    [TestCase(@"\\_abc_", @"\<em>abc</em>", TestName = "Self escaped")]
+    [TestCase(@"ab\c\d", @"ab\c\d", TestName = "Not disapper if nothing escape")]
+    [TestCase(@"\# abc", "# abc", TestName = "Header escape")]
+    [TestCase(@"\#abc", @"\#abc", TestName = "Not disapper if header tag without space")]
+    [TestCase(@"\\\_abc_", @"\_abc_", TestName = "Tripple escape")]
+    [TestCase(@"\__abc_", "_<em>abc</em>", TestName = "Escape only first symbol")]
     public void ReturnCorrectRenderResult_OnEscapeCharacters(string source, string expected)
     {
         _markdown.Render(source).Should().Be(expected);

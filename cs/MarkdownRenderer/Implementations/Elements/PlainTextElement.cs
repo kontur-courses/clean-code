@@ -2,20 +2,18 @@ using MarkdownRenderer.Abstractions.Elements;
 
 namespace MarkdownRenderer.Implementations.Elements;
 
-public class PlainText : IElement
+public class PlainTextElement : IElement
 {
     public string Content { get; }
     string IElement.RawContent => Content;
 
     IEnumerable<IElement> IElement.NestedElements =>
-        throw new InvalidOperationException($"{nameof(PlainText)} cannot contain nested elements.");
-
-    public bool CanContainNested(Type nestedType) => false;
+        throw new InvalidOperationException($"{nameof(PlainTextElement)} cannot contain nested elements.");
 
     public void AddNestedElement(IElement nested) =>
-        throw new InvalidOperationException($"{nameof(PlainText)} cannot contain nested elements.");
+        throw new InvalidOperationException($"{nameof(PlainTextElement)} cannot contain nested elements.");
 
-    public PlainText(string content)
+    public PlainTextElement(string content)
     {
         Content = content;
     }

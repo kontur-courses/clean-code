@@ -2,9 +2,7 @@ using MarkdownRenderer.Abstractions.Elements;
 
 namespace MarkdownRenderer.Implementations.Elements;
 
-public class ParagraphElement : StandardElement,
-    IContainerFor<PlainText>, IContainerFor<ItalicElement>, IContainerFor<StrongElement>, 
-    IContainerFor<LinkElement>, IContainerFor<EscapeSequenceElement>
+public class ParagraphElement : StandardElement
 {
     public ParagraphElement(string rawContent) : base(rawContent)
     {

@@ -15,8 +15,12 @@ public class DefaultLineParser : ILineParser
     private readonly ILineElementParser _defaultLineElementParser;
     private readonly IReadOnlyCollection<ISpecialLineElementParser> _specialLineElementsParsers;
 
-    public DefaultLineParser(IEnumerable<IElementParser> parsers)
+    private readonly IElementsNestingRules _nestingRules;
+
+    public DefaultLineParser(IEnumerable<IElementParser> parsers, IElementsNestingRules nestingRules)
     {
+        _nestingRules = nestingRules;
+
         var inlineSpecialParsers = new HashSet<ISpecialInlineElementParser>();
         var lineSpecialParsers = new HashSet<ISpecialLineElementParser>();
         foreach (var parser in parsers)
@@ -102,13 +106,14 @@ public class DefaultLineParser : ILineParser
                 continue;
             }
 
-            if (TryCloseParser(openedParsers, closedTokens, content, i))
+            if (TryCloseParser(openedParsers, closedTokens, content, i, out var closedParser))
+            {
+                i += closedParser!.Postfix.Length - 1;
                 continue;
+            }
 
-            var openedParser = _specialInlineElementsParsers
-                .FirstOrDefault(parser => parser.IsElementStart(content, i));
-            if (openedParser is not null && !openedParsers.ContainsKey(openedParser))
-                openedParsers[openedParser] = i;
+            if (TryOpenParser(content, i, openedParsers, out var openedParser))
+                i += openedParser!.Prefix.Length - 1;
         }
 
         foreach (var intersecting in GetIntersections(closedTokens.Keys).ToHashSet())
@@ -120,10 +125,10 @@ public class DefaultLineParser : ILineParser
     private static bool TryCloseParser(
         IDictionary<ISpecialInlineElementParser, int> openedParsers,
         IDictionary<ContentToken, IElement> closedTokens,
-        string content, int index
+        string content, int index, out ISpecialInlineElementParser? closedParser
     )
     {
-        var closedParser = openedParsers.Keys.FirstOrDefault(parser => parser.IsElementEnd(content, index));
+        closedParser = openedParsers.Keys.FirstOrDefault(parser => parser.IsElementEnd(content, index));
         if (closedParser is null)
             return false;
 
@@ -139,6 +144,24 @@ public class DefaultLineParser : ILineParser
 
         openedParsers.Remove(closedParser);
         closedTokens[closedToken] = element!;
+        return true;
+    }
+
+    private bool TryOpenParser(
+        string content, int i,
+        IDictionary<ISpecialInlineElementParser, int> openedParsers,
+        out ISpecialInlineElementParser? openedParser
+    )
+    {
+        openedParser = _specialInlineElementsParsers
+            .Where(parser => parser.IsElementStart(content, i))
+            .DefaultIfEmpty()
+            .MaxBy(parser => parser?.Prefix.Length ?? 0);
+
+        if (openedParser is null || openedParsers.ContainsKey(openedParser))
+            return false;
+
+        openedParsers[openedParser] = i;
         return true;
     }
 
@@ -171,13 +194,13 @@ public class DefaultLineParser : ILineParser
 
         foreach (var (token, nestedElement) in tokens)
         {
-            if (token.Start < parseStart || !parent.CanContainNested(nestedElement.GetType()))
+            if (token.Start < parseStart || !_nestingRules.CanContainNested(parent, nestedElement))
                 continue;
             if (token.End > parseEnd)
                 break;
 
             if (
-                parent.CanContainNested(_defaultInlineElementParser.ParsingElementType) &&
+                _nestingRules.CanContainNested(parent, _defaultInlineElementParser.ParsingElementType) &&
                 TryParseDefaultElement(content, parseStart, token.Start - 1, out var element)
             )
                 parent.AddNestedElement(element!);
@@ -188,7 +211,7 @@ public class DefaultLineParser : ILineParser
         }
 
         if (
-            parent.CanContainNested(_defaultInlineElementParser.ParsingElementType) &&
+            _nestingRules.CanContainNested(parent, _defaultInlineElementParser.ParsingElementType) &&
             TryParseDefaultElement(content, parseStart, parseEnd.Value, out var result)
         )
             parent.AddNestedElement(result!);

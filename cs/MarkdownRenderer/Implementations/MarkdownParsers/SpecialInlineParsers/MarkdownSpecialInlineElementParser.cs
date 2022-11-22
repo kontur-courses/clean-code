@@ -29,7 +29,7 @@ public abstract class MarkdownSpecialInlineElementParser<TElem> : ISpecialInline
     {
         if (index - (Prefix.Length + Postfix.Length) < 0)
             return false;
-        if (Postfix.Where((_, i) => content[index - Postfix.Length + i + 1] != Postfix[i]).Any())
+        if (Postfix.Where((c, i) => content[index - Postfix.Length + i + 1] != c).Any())
             return false;
 
         return content[index - Postfix.Length] is not ' ';

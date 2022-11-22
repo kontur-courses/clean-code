@@ -5,5 +5,4 @@ public interface IElement
     string RawContent { get; }
     IEnumerable<IElement> NestedElements { get; }
     void AddNestedElement(IElement nested);
-    public bool CanContainNested(Type nestedType);
 }

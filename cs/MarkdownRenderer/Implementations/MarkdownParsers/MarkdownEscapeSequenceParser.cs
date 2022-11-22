@@ -31,7 +31,7 @@ public class MarkdownEscapeSequenceParser : IEscapeSequenceElementParser
                     .Any() is false
             )
             .DefaultIfEmpty()
-            .MaxBy(sequence => sequence?.Length ?? 0);
+            .MinBy(sequence => sequence?.Length ?? 0);
 
         if (escapingSequence is null)
             return false;

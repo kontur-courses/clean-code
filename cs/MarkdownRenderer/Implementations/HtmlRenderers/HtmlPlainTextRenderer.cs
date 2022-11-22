@@ -3,10 +3,10 @@ using MarkdownRenderer.Implementations.Elements;
 
 namespace MarkdownRenderer.Implementations.HtmlRenderers;
 
-public class HtmlPlainTextRenderer : HtmlElementRenderer<PlainText>
+public class HtmlPlainTextRenderer : HtmlElementRenderer<PlainTextElement>
 {
     protected override string TagText => null!;
 
-    public override string Render(PlainText elem, IRenderersProvider renderersProvider) => 
+    public override string Render(PlainTextElement elem, IRenderersProvider renderersProvider) => 
         elem.Content;
 }

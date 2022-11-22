@@ -1,4 +1,6 @@
+using System.Text;
 using MarkdownRenderer.Abstractions;
+using MarkdownRenderer.Infrastructure;
 
 namespace MarkdownRenderer.Implementations;
 
@@ -16,12 +18,16 @@ public class ParallelDocumentConverter : IDocumentsConverter
 
     public string Convert(string source)
     {
-        var parsedLines = source.Split("\n")
+        var parsedLines = source.EnhancedSplit("\n", "\r\n")
             .AsParallel()
             .AsOrdered()
-            .Select(_lineParser.ParseLineContent)
-            .Select(_lineRenderer.RenderLine);
+            .Select(line => (_lineParser.ParseLineContent(line.SplitPart), line.SplitterAfter))
+            .Select(line => (_lineRenderer.RenderLine(line.Item1), line.SplitterAfter));
 
-        return string.Join("\n", parsedLines);
+        var result = new StringBuilder();
+        foreach (var parsedLine in parsedLines)
+            result.Append(parsedLine.Item1).Append(parsedLine.SplitterAfter);
+
+        return result.ToString();
     }
 }
