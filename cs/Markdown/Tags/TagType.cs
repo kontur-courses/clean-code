@@ -5,5 +5,6 @@ public enum TagType
     Bold,
     Italic,
     Header,
-    NotATag
+    NotATag,
+    EscapedSymbol
 }

@@ -5,9 +5,9 @@ public class Tag
     public TagType Type { get; }
     public TagPosition Position { get; }
 
-    public Tag(TagPosition tag, TagType type)
+    public Tag(TagPosition position, TagType type)
     {
-        Position = tag;
+        Position = position;
         Type = type;
     }
 }

@@ -1,6 +1,6 @@
 ﻿using Markdown.Tags;
 
-namespace Markdown.Indexer;
+namespace Markdown.Finder;
 
 public interface ITagFinder
 {
