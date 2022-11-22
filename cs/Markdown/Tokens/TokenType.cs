@@ -2,8 +2,9 @@
 {
     public enum TokenType
     {
+        Escape,
         Text,
         Tag,
-        Escape
+        Undefined
     }
 }

@@ -1,15 +1,10 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using Markdown.Tags;
+﻿using System.Collections.Generic;
 
 namespace Markdown.Tokens
 {
     public static class TokenExtensions
     {
-        public static void AddTextBetween(this List<Token> tokens, Token previous, Token next)
+        public static void AddTextBetween(this List<TypedToken> tokens, TypedToken previous, TypedToken next)
         {
             if (next.Start == previous.End + 1)
                 return;
@@ -18,25 +13,23 @@ namespace Markdown.Tokens
 
             var length = next.Start - previous.End - 1;
 
-            tokens.Add(new Token(TokenType.Text, start, length));
+            tokens.Add(new TypedToken(start, length, TokenType.Text));
         }
 
-        public static void AddTextFromBeginningUpToTag(this List<Token> tokens, TagToken tagToken)
+        public static void AddTextFromBeginningUpToTag(this List<TypedToken> tokens, TagToken tagToken)
         {
             if (tagToken.Start == 0)
                 return;
 
-            tokens.AddTextBetween(new Token(TokenType.Text, 0, 0), tagToken);
+            tokens.AddTextBetween(new TypedToken(0, 0, TokenType.Text), tagToken);
         }
 
-        public static void AddTextAfterTag(this List<Token> tokens, TagToken tagToken, int textLength)
+        public static void AddTextAfterTag(this List<TypedToken> tokens, TagToken tagToken, int textLength)
         {
             if (textLength <= 0)
                 return;
 
-            tokens.AddTextBetween(tagToken, new Token(TokenType.Text, tagToken.End + textLength + 1, 1));
+            tokens.AddTextBetween(tagToken, new TypedToken(tagToken.End + textLength + 1, 1, TokenType.Text));
         }
-
-
     }
 }

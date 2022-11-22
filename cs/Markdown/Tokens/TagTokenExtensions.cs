@@ -9,28 +9,43 @@ namespace Markdown.Tokens
 {
     public static class TagTokenExtensions
     {
-        public static void RemoveUnpaired(this List<TagToken> tokens)
+        //public static List<TagToken> RemoveEscaped(this List<TagToken> tokens, string text)
+        //{
+
+        //}
+
+        public static List<TagToken> RemoveUnpaired(this List<TagToken> tokens)
         {
             var stack = new Stack<TagToken>();
 
             foreach (var token in tokens)
             {
+                var tagToken = token as TagToken;
+
+                if (tagToken == null)
+                    continue;
+
                 if (!stack.Any())
                 {
-                    stack.Push(token);
+                    stack.Push(tagToken);
                     continue;
                 }
 
-                var previousToken = stack.Peek();
+                var previousToken = stack.Peek() as TagToken;
 
-                if (previousToken.Type == token.Type && previousToken.Order == SubTagOrder.Opening)
+                if (previousToken == null)
+                    continue;
+
+                if (previousToken.TagType == tagToken.TagType && previousToken.Order == SubTagOrder.Opening)
                     stack.Pop();
                 else
-                    stack.Push(token);
+                    stack.Push(tagToken);
             }
 
             foreach (var unpairedToken in stack)
                 tokens.Remove(unpairedToken);
+
+            return tokens;
         }
     }
 }

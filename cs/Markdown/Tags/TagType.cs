@@ -11,5 +11,6 @@ namespace Markdown.Tags
         Header,
         Italic,
         Strong,
+        Undefined
     }
 }

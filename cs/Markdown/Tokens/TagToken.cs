@@ -7,13 +7,16 @@ using Markdown.Tags;
 
 namespace Markdown.Tokens
 {
-    public class TagToken : Token
+    public class TagToken : TypedToken
     {
         public SubTagOrder Order { get; }
 
-        public TagToken(TokenType type, int start, int length, SubTagOrder order) 
-            : base(type, start, length)
+        public TagType TagType { get; }
+
+        public TagToken(int start, int length, TagType tagType, SubTagOrder order) 
+            : base(start, length, TokenType.Tag)
         {
+            TagType = tagType;
             Order = order;
         }
     }

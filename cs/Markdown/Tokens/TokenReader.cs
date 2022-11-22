@@ -14,20 +14,25 @@ namespace Markdown.Tokens
             this.tagStorage = tagStorage;
         }
 
-        public IReadOnlyList<Token> Read(string inputText)
+        public IReadOnlyList<TypedToken> Read(string inputText)
         {
-            var result = new List<Token>();
+            var result = new List<TypedToken>();
 
             var tagTokens = GetTagTokens(inputText);
 
-            var textTokens = GetTextTokens(inputText, tagTokens);
-
             result.AddRange(tagTokens);
+
+            var escapeTokens = GetEscapeTokens(inputText);
+
+            result.AddRange(escapeTokens);
+
+            var textTokens = GetTextTokens(inputText, tagTokens);
 
             result.AddRange(textTokens);
 
             return result.OrderBy(token => token.Start).ToList();
         }
+
 
         private List<TagToken> GetTagTokens(string inputText)
         {
@@ -51,9 +56,7 @@ namespace Markdown.Tokens
                 }
             }
 
-            result.RemoveUnpaired();
-
-            return result.OrderBy(token => token.Start).ToList();
+            return result.OrderBy(token => token.Start).ToList().RemoveUnpaired();
         }
 
         private List<TagToken> GetTagTokensForSpecificTag(string line, ITag tag)
@@ -73,7 +76,7 @@ namespace Markdown.Tokens
                 if (subTagIndex == -1)
                     break;
 
-                tagTokens.Add(new TagToken(TokenType.Tag, subTagIndex, subTag.Length, subTagOrder));
+                tagTokens.Add(new TagToken(subTagIndex, subTag.Length, tag.Type, subTagOrder));
 
                 i = subTagIndex + subTag.Length;
 
@@ -83,12 +86,33 @@ namespace Markdown.Tokens
             return tagTokens;
         }
 
-        private List<Token> GetTextTokens(string line, List<TagToken> tagTokens)
+        private List<TypedToken> GetEscapeTokens(string line)
+        {
+            var escapeTokens = new List<TypedToken>();
+
+            var escapeCharacter = tagStorage.EscapeCharacter;
+
+            for (var i = 0; i < line.Length;)
+            {
+                var escapeCharacterIndex = line.IndexOf(escapeCharacter, i, StringComparison.Ordinal);
+
+                if (escapeCharacterIndex == -1)
+                    break;
+
+                escapeTokens.Add(new TypedToken(escapeCharacterIndex, escapeCharacter.Length, TokenType.Escape));
+
+                i = escapeCharacterIndex + escapeCharacter.Length;
+            }
+
+            return escapeTokens;
+        }
+
+        private List<TypedToken> GetTextTokens(string line, List<TagToken> tagTokens)
         {
             if (!tagTokens.Any())
-                return new List<Token> {new Token(TokenType.Text, 0, line.Length)};
+                return new List<TypedToken> { new TypedToken(0, line.Length, TokenType.Text) };
 
-            var textTokens = new List<Token>();
+            var textTokens = new List<TypedToken>();
 
             textTokens.AddTextFromBeginningUpToTag(tagTokens.First());
 
@@ -101,7 +125,7 @@ namespace Markdown.Tokens
 
             textTokens.AddTextAfterTag(tagTokens.Last(), textLength);
 
-            return textTokens.OrderBy(token => token.Start).ToList();
+            return textTokens;
         }
 
     }

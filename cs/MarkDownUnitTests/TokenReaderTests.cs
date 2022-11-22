@@ -5,7 +5,7 @@ using Markdown.Tags;
 using Markdown.Tokens;
 using NUnit.Framework;
 using FluentAssertions;
-using Token = Markdown.Tokens.Token;
+using Token = Markdown.Tokens.TypedToken;
 
 namespace MarkDownUnitTests
 {
@@ -23,7 +23,7 @@ namespace MarkDownUnitTests
 
             tokens.Should().BeEquivalentTo(new[]
                 {
-                    new Token(TokenType.Text, 0, inputText.Length),
+                    new Token(0, inputText.Length, TokenType.Text),
                 }
             );
         }
@@ -39,9 +39,9 @@ namespace MarkDownUnitTests
 
             tokens.Should().BeEquivalentTo(new[]
                 {
-                    new TagToken(TokenType.Tag, 0, 2, SubTagOrder.Opening),
-                    new Token(TokenType.Text, 2, 13),
-                    new TagToken(TokenType.Tag, 15, 1, SubTagOrder.Closing),
+                    new TagToken(0, 2, TagType.Header,SubTagOrder.Opening),
+                    new Token(2, 13, TokenType.Text),
+                    new TagToken(15, 1,TagType.Header, SubTagOrder.Closing),
                 }
             );
         }
@@ -57,11 +57,11 @@ namespace MarkDownUnitTests
 
             tokens.Should().BeEquivalentTo(new[]
                 {
-                    new Token(TokenType.Text, 0, 5),
-                    new TagToken(TokenType.Tag, 5, 1, SubTagOrder.Opening),
-                    new Token(TokenType.Text, 6, 6),
-                    new TagToken(TokenType.Tag, 12, 1, SubTagOrder.Closing),
-                    new Token(TokenType.Text, 13, 5)
+                    new Token(0, 5, TokenType.Text),
+                    new TagToken(5, 1, TagType.Italic,SubTagOrder.Opening),
+                    new Token(6, 6,TokenType.Text),
+                    new TagToken(12, 1, TagType.Italic,SubTagOrder.Closing),
+                    new Token(13, 5, TokenType.Text)
                 }
             );
         }
@@ -77,11 +77,11 @@ namespace MarkDownUnitTests
 
             tokens.Should().BeEquivalentTo(new[]
                 {
-                    new Token(TokenType.Text, 0, 5),
-                    new TagToken(TokenType.Tag, 5, 2, SubTagOrder.Opening),
-                    new Token(TokenType.Text, 7, 4),
-                    new TagToken(TokenType.Tag, 11, 2, SubTagOrder.Closing),
-                    new Token(TokenType.Text, 13, 5)
+                    new Token(0, 5, TokenType.Text),
+                    new TagToken(5, 2,TagType.Strong, SubTagOrder.Opening),
+                    new Token(7, 4, TokenType.Text),
+                    new TagToken(11, 2, TagType.Strong, SubTagOrder.Closing),
+                    new Token(13, 5, TokenType.Text)
                 }
             );
         }
@@ -97,15 +97,15 @@ namespace MarkDownUnitTests
 
             tokens.Should().BeEquivalentTo(new[]
                 {
-                    new Token(TokenType.Text, 0, 5),
-                    new TagToken(TokenType.Tag, 5, 2, SubTagOrder.Opening),
-                    new Token(TokenType.Text, 7, 4),
-                    new TagToken(TokenType.Tag, 11, 2, SubTagOrder.Closing),
-                    new Token(TokenType.Text, 13, 5),
-                    new TagToken(TokenType.Tag, 18, 1, SubTagOrder.Opening),
-                    new Token(TokenType.Text, 19, 6),
-                    new TagToken(TokenType.Tag, 25, 1, SubTagOrder.Closing),
-                    new Token(TokenType.Text, 26, 5)
+                    new Token(0, 5, TokenType.Text),
+                    new TagToken(5, 2,TagType.Strong, SubTagOrder.Opening),
+                    new Token(7, 4, TokenType.Text),
+                    new TagToken(11, 2,TagType.Strong, SubTagOrder.Closing),
+                    new Token(13, 5, TokenType.Text),
+                    new TagToken(18, 1,TagType.Italic, SubTagOrder.Opening),
+                    new Token(19, 6, TokenType.Text),
+                    new TagToken( 25, 1,TagType.Italic, SubTagOrder.Closing),
+                    new Token(26, 5, TokenType.Text)
                 }
             );
         }
@@ -124,10 +124,44 @@ namespace MarkDownUnitTests
 
             tokens.Should().BeEquivalentTo(new[]
                 {
-                    new Token(TokenType.Text, 0, inputText.Length),
+                    new Token(0, inputText.Length, TokenType.Text)
                 }
             );
         }
 
+        [TestMethod]
+        public void Read_ReturnsValidTokensList_WhenUnpairedTagAndFullTag()
+        {
+            var inputText = "Unpaired_ italic tag and __bold__ tag";
+
+            var reader = new TokenReader(new MdTagStorage());
+
+            var tokens = reader.Read(inputText);
+
+            tokens.Should().BeEquivalentTo(new[]
+                {
+                    new Token(0, 25, TokenType.Text),
+                    new TagToken(25, 2,TagType.Strong, SubTagOrder.Opening),
+                    new Token(27, 4, TokenType.Text),
+                    new TagToken(31, 2, TagType.Strong,SubTagOrder.Closing),
+                    new Token(33, 4, TokenType.Text),
+                }
+            );
+        }
+
+
+        [TestCase(@"One \_escaped\_ italic tag", TestName = "Escaped italic tag")]
+        public void Read_ReturnsInputText_WhenTagIsEscaped(string inputText)
+        {
+            var reader = new TokenReader(new MdTagStorage());
+
+            var tokens = reader.Read(inputText);
+
+            tokens.Should().BeEquivalentTo(new[]
+                {
+                    new Token(0, inputText.Length - 2, TokenType.Text),
+                }
+            );
+        }
     }
 }

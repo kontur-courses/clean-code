@@ -12,9 +12,9 @@ namespace Markdown.Tags
         {
             Tags = new List<ITag>()
             {
-                new Token(TagType.Header, "<h1>", "</h1>"),
-                new Token(TagType.Italic, "<em>", "</em>"),
-                new Token(TagType.Strong, "<strong>", "</strong>")
+                new Tag(TagType.Header, "<h1>", "</h1>"),
+                new Tag(TagType.Italic, "<em>", "</em>"),
+                new Tag(TagType.Strong, "<strong>", "</strong>")
             };
         }
     }

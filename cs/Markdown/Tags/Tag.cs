@@ -6,13 +6,13 @@ using System.Threading.Tasks;
 
 namespace Markdown.Tags
 {
-    public class Token : ITag
+    public class Tag : ITag
     {
         public TagType Type { get; }
         public string OpeningSubTag { get; }
         public string ClosingSubTag { get; }
 
-        public Token(TagType type, string opening, string closing)
+        public Tag(TagType type, string opening, string closing)
         {
             Type = type;
             OpeningSubTag = opening;
