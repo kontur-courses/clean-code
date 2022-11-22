@@ -15,7 +15,7 @@ namespace Markdown
             return (firstHalf + secondHalf).Trim();
         }
 
-        public static bool IsWordContainsDigits(string word) => word.Any(x => x >= '0' && x <= '9');
+        public static bool IsWordContainsDigits(string word) => word.Any(x => x is >= '0' and <= '9');
 
         public static bool InDifferentWords(string paragraph, PairedTag start, PairedTag end)
         {

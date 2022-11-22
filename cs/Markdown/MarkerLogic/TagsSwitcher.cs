@@ -1,5 +1,5 @@
 ﻿using System.Text;
-using Markdown.Interfaces;
+using Markdown.ITagsInterfaces;
 using Markdown.TagClasses;
 using Markdown.TagClasses.ITagInterfaces;
 

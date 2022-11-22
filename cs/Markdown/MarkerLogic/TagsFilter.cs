@@ -1,4 +1,4 @@
-﻿using Markdown.Interfaces;
+﻿using Markdown.ITagsInterfaces;
 using Markdown.TagClasses;
 using Markdown.TagClasses.ITagInterfaces;
 
@@ -116,15 +116,13 @@ namespace Markdown.MarkerLogic
                 .ToList();
             if (endTags.Count == 0)
                 return false;
+            var possibleEnders = endTags.Where(possibleEnd =>
+                !possibleEnd.InMiddle() || !WordOperator.InDifferentWords(paragraph, start, possibleEnd));
 
-            foreach (var possibleEnd in endTags)
+            foreach (var possibleEnd in possibleEnders)
             {
-                if (possibleEnd.InMiddle() && WordOperator.InDifferentWords(paragraph, start, possibleEnd))
-                    continue;
                 if (possibleEnd.InMiddle() && possibleEnd.Type == TagType.Emphasis)
-                {
                     TrySwitchPosition(tags, possibleEnd);
-                }
 
                 end = possibleEnd;
                 return true;

@@ -1,7 +1,6 @@
-﻿using Markdown.TagClasses;
-using Markdown.TagClasses.ITagInterfaces;
+﻿using Markdown.TagClasses.ITagInterfaces;
 
-namespace Markdown.Interfaces
+namespace Markdown.ITagsInterfaces
 {
     public interface ITagsSwitcher
     {

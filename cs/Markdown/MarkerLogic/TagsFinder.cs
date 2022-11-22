@@ -1,5 +1,5 @@
 ﻿using System.Text;
-using Markdown.Interfaces;
+using Markdown.ITagsInterfaces;
 using Markdown.TagClasses;
 using Markdown.TagClasses.ITagInterfaces;
 
@@ -28,19 +28,17 @@ namespace Markdown.MarkerLogic
             return result;
         }
 
-        private string HideHeader(HeaderTag header, string paragraph)
+        private static string HideHeader(ITag header, string paragraph)
         {
             var sb = new StringBuilder(paragraph);
-            if (!header.IsEscaped)
-            {
-                sb[0] = ' ';
-                paragraph = sb.ToString();
-            }
+            if (header.IsEscaped)
+                return paragraph;
 
-            return paragraph;
+            sb[0] = ' ';
+            return sb.ToString();
         }
 
-        private string HideStrongTags(List<ITag> tags, string paragraph)
+        private static string HideStrongTags(IEnumerable<ITag> tags, string paragraph)
         {
             var sb = new StringBuilder(paragraph);
             var notEscapedStarters = tags.Where(x => !x.IsEscaped && x.Type == TagType.Strong).Select(x => (PairedTag)x)
@@ -64,10 +62,7 @@ namespace Markdown.MarkerLogic
 
             var lineBeforeTag = paragraph.Split('#')[0];
             if (lineBeforeTag.Length == 0)
-            {
-                var header = new HeaderTag(0, TagType.Header);
-                return header;
-            }
+                return new HeaderTag(0, TagType.Header);
 
             if (lineBeforeTag.Length == 1 && IsEscaped(lineBeforeTag))
                 return new HeaderTag(1, TagType.Header, isEscaped: true);
@@ -78,16 +73,15 @@ namespace Markdown.MarkerLogic
         private static IEnumerable<PairedTag> FindPairedTags(string paragraph, TagType type, string tag)
         {
             var position = 0;
-            List<PairedTag> info = new();
             var paragraphShards = paragraph.Split(tag);
             if (paragraphShards.Length == 1)
-                return info;
+                yield break;
             for (var i = 0; i < paragraphShards.Length - 1; i++)
             {
                 position += paragraphShards[i].Length + (i == 0 ? 0 : tag.Length);
                 if (IsEscaped(paragraphShards[i]))
                 {
-                    info.Add(new PairedTag(position, type, isEscaped: true));
+                    yield return new PairedTag(position, type, isEscaped: true);
                     continue;
                 }
 
@@ -98,38 +92,35 @@ namespace Markdown.MarkerLogic
 
                 if (canBeStarter ^ canBeEnder)
                 {
-                    info.Add(new PairedTag(position, type, canBeStarter, canBeEnder));
+                    yield return new PairedTag(position, type, canBeStarter, canBeEnder);
                     continue;
                 }
 
                 var word = WordOperator.GetWordAtPosition(paragraph, position);
                 if (!WordOperator.IsWordContainsDigits(word))
-                    info.Add(new PairedTag(position, type, canBeStarter, canBeEnder));
+                    yield return new PairedTag(position, type, canBeStarter, canBeEnder);
             }
-
-            return info;
         }
 
         private static IEnumerable<ITag> FindTagsWithInnerText(string paragraph, TagType type, char startingChar)
         {
-            var result = new List<ITag>();
             var shards = paragraph.Split("](");
             var position = 0;
             for (var i = 0; i < shards.Length - 1; i++)
             {
-                var haveStart = shards[i].LastIndexOf('[');
+                var startPosition = shards[i].LastIndexOf('[');
 
-                if (haveStart == -1 || shards[i][haveStart - 1] != startingChar)
+                if (startPosition == -1 || shards[i][startPosition - 1] != startingChar)
                     continue;
-                var startingPosition = position + haveStart - 1;
+                var startingPosition = position + startPosition - 1;
 
 
                 var haveEnd = shards[i + 1].IndexOf(')');
                 if (haveEnd == -1)
                     continue;
-                if (IsEscaped(shards[i][..(haveStart - 1)]))
+                if (IsEscaped(shards[i][..(startPosition - 1)]))
                 {
-                    result.Add(new TextTag(startingPosition, type, 0, isEscaped: true));
+                    yield return new TextTag(startingPosition, type, 0, isEscaped: true);
                     position += shards[i].Length + 2 * (i + 1);
                     continue;
                 }
@@ -137,11 +128,9 @@ namespace Markdown.MarkerLogic
                 var end = position + haveEnd + 1;
                 var length = end + 2 + (shards[i].Length - startingPosition);
                 var content = shards[i + 1][..haveEnd];
-                result.Add(new TextTag(startingPosition, type, length, content: content));
+                yield return new TextTag(startingPosition, type, length, content: content);
                 position += shards[i].Length + 2 * (i + 1);
             }
-
-            return result;
         }
 
         private static void RemoveTagsInPictures(ICollection<ITag> tags)
@@ -170,12 +159,10 @@ namespace Markdown.MarkerLogic
             strongEnders.ForEach(s =>
             {
                 var afterStrong = emphasisEnders.FirstOrDefault(e => e.Position == s.Position + 2);
-                if (afterStrong is not null)
-                {
-                    s.Position += 1;
-                    afterStrong.Position -= 2;
-                    s.CanBeStarter = false;
-                }
+                if (afterStrong is null) return;
+                s.Position += 1;
+                afterStrong.Position -= 2;
+                s.CanBeStarter = false;
             });
         }
 

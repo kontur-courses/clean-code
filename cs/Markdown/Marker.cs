@@ -1,4 +1,4 @@
-﻿using Markdown.Interfaces;
+﻿using Markdown.ITagsInterfaces;
 using Markdown.MarkerLogic;
 namespace Markdown
 {
