@@ -10,20 +10,12 @@ namespace Markdown.MarkerLogic
         public string SwitchTags(List<ITag> tags, string paragraph)
         {
             tags.Sort();
-
             var result = new StringBuilder(paragraph);
+
             foreach (var tag in tags)
             {
                 SwitchTag(result, tag);
                 AdjustPositions(tags, tag);
-            }
-
-            var header = tags.FirstOrDefault(x => !x.IsEscaped && x.Type == TagType.Header);
-            if (header is not null)
-            {
-                result.Remove(0, 1);
-                result.Insert(0, "<h1>");
-                result.Append("</h1>");
             }
 
             result.Replace(@"\\", @"\");
@@ -52,6 +44,8 @@ namespace Markdown.MarkerLogic
 
             paragraph.Remove(tag.Position, tag.Length);
             paragraph.Insert(tag.Position, tag.GetHtmlTag());
+            if (tag.Type is TagType.Header)
+                paragraph.Append("</h1>");
         }
     }
 }

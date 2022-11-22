@@ -1,4 +1,5 @@
 ﻿using Markdown.TagClasses.ITagInterfaces;
+using System.Diagnostics;
 
 namespace Markdown.TagClasses
 {
@@ -22,12 +23,9 @@ namespace Markdown.TagClasses
             Position = pos;
             Type = type;
             IsEscaped = isEscaped;
-            Length = 0;
+            Length = 1;
         }
 
-        public string GetHtmlTag()
-        {
-            return "";
-        }
+        public string GetHtmlTag() => "<h1>";
     }
 }
