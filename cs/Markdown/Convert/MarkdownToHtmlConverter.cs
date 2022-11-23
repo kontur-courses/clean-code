@@ -11,7 +11,6 @@ public class MarkdownToHtmlConverter : IConverter
         { MarkdownTags.Bold, HtmlTags.Bold },
         { MarkdownTags.Italics, HtmlTags.Italics },
         { MarkdownTags.Heading, HtmlTags.Heading },
-        { MarkdownTags.Empty, HtmlTags.Empty },
     };
 
     public string Convert(string text)
