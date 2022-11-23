@@ -29,11 +29,6 @@ namespace Markdown
 
         [TestCase("_italic_", ExpectedResult = "<em>italic</em>", TestName = "{m}_WhenThereIsAWordInsideItalic")]
         [TestCase("__text__", ExpectedResult = "<strong>text</strong>", TestName = "{m}_WhenThereIsAWordInsideStrong")]
-        //[TestCase("x _x x_ x", ExpectedResult = "x <em>x x</em> x", TestName = "{m}_ParseItalic_WhenSpacesAround")]
-        //[TestCase("_x __x__ x_", ExpectedResult = "<em>x x x</em>", TestName = "{m}_DisableItalicInStrong_WhenStrongIsInItalic")]
-        //[TestCase("_exam_ple", ExpectedResult = "<em>exam</em>ple", TestName = "{m}_MakeItalicABeginningPartOfWord")]
-        //[TestCase("ex_am_ple", ExpectedResult = "ex<em>am</em>ple", TestName = "{m}_MakeItalicAMiddlePartOfWord")]
-        //[TestCase("exam_ple_", ExpectedResult = "exam<em>ple</em>", TestName = "{m}_MakeItalicATailPartOfWord")]
         public string Should_EnableHighlight(string input)
         {
             return parser.Render(input);
