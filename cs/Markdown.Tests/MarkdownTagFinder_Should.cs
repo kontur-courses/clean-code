@@ -48,12 +48,13 @@ public class MarkdownTagFinder_Should
         htmlText.Count.Should().Be(1);
     }
     
-    [TestCase("__B_o_ld__", 0, 9)]
-    [TestCase("text __with _italic_ word__", 5, 24)]
-    public void FindTags_ShouldNotCount_ItalicInsideBold(string line, int start, int end)
+    [TestCase("__B_o_ld__", 2)]
+    [TestCase("text __with _italic_ word__", 2)]
+    [TestCase("text __with _italic_ _italic_ _italic_ word__", 4)]
+    public void FindTags_ShouldСount_ItalicInsideBold(string line, int count)
     {
         var htmlText =  markdownFinder.FindTags(line).ToList();
-        htmlText.Count.Should().Be(2);
+        htmlText.Count.Should().Be(count);
     }
 
     [Test]
@@ -122,6 +123,21 @@ public class MarkdownTagFinder_Should
         htmlText.Count.Should().Be(count);
     }
     
+    [TestCase("__word __", 0)]
+    [TestCase("__word __word__", 1)]
+    public void FindTags_ShouldIgnore_WhiteSpacedTag(string line, int count)
+    {
+        var htmlText =  markdownFinder.FindTags(line).ToList();
+        htmlText.Count.Should().Be(count);
+    }
+    
+    [TestCase("# _sequence_ with __a __lot__ of t_a_gs __wo_r_d1 _word2_ _word3_ da__", 5)]
+    public void FindTags_ShouldWorkCorrect_WithALotOfTags(string line, int count)
+    {
+        var htmlText =  markdownFinder.FindTags(line).ToList();
+        htmlText.Count.Should().Be(count);
+    }
+    
     [TestCase("# header")]
     [TestCase("# header__with__tag")]
     [TestCase("# header__with__ _two_ tags")]
@@ -129,5 +145,17 @@ public class MarkdownTagFinder_Should
     {
         var htmlText =  markdownFinder.FindTags(line).ToList();
         htmlText.First().Should().BeEquivalentTo(new Tag(new TagPosition(0,line.Length-1), TagType.Header));
+    }
+    
+    [Test]
+    public void FindTags_ShouldWorkCorrect_InExampleLine()
+    {
+        var htmlText =  markdownFinder.FindTags("# Заголовок __с _разными_ символами__").ToList();
+        htmlText.Should().BeEquivalentTo(new List<Tag>
+        {
+            new(new TagPosition(0, 36), TagType.Header), 
+            new(new TagPosition(13, 36), TagType.Bold),
+            new(new TagPosition(16, 24), TagType.Italic)
+        });
     }
 }

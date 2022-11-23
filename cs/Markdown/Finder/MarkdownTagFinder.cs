@@ -49,8 +49,7 @@ public class MarkdownTagFinder : ITagFinder
                 }
             }
         }
-
-
+        
         return foundedTags;
     }
 
@@ -81,6 +80,12 @@ public class MarkdownTagFinder : ITagFinder
             if (CanBeAdded(tag))
             {
                 foundedTags.Add(tag);
+            }
+            else if (poppedTags.Count > 0 && poppedTags.Peek() == tagType)
+            {
+                poppedTags.Dequeue();
+                needClosingTag.Push(tagType);
+                needClosingTagIndexes.Push(i);
             }
         }
     }
