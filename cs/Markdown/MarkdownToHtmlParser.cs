@@ -8,7 +8,6 @@ namespace Markdown
     internal enum TokenType
     {
         Text,
-        Numbers,
         Space,
         Newline,
         Sharp,
@@ -26,6 +25,8 @@ namespace Markdown
     {
         public virtual TokenType Type { get; set; }
         public string Text { get; set; }
+
+        public static Token EmptyText => new Token() { Type = TokenType.Text, Text = string.Empty };
     }
 
     internal class ObjectOpenToken : Token
@@ -52,46 +53,46 @@ namespace Markdown
 
         private static readonly char[] reservedSymbols = new char[]
         {
-         ' ',
-         '\n',
-         '_',
-         '#'
+            ' ',
+            '\n',
+            '_',
+            '#'
         };
 
         private static readonly char[] shouldBeShieldSymbols = reservedSymbols.Where(c => c != ' ').Append(shieldSymbol).ToArray();
 
         private static readonly Dictionary<char, TokenType> reservedSymbolTokenType = new Dictionary<char, TokenType>()
-      {
-         { reservedSymbols[0], TokenType.Space },
-         { reservedSymbols[1], TokenType.Newline },
-         { reservedSymbols[3], TokenType.Sharp }
-      };
+        {
+           { reservedSymbols[0], TokenType.Space },
+           { reservedSymbols[1], TokenType.Newline },
+           { reservedSymbols[3], TokenType.Sharp }
+        };
 
-        private static readonly Dictionary<TokenObjectType, List<TokenObjectType>> objectsCanBeInsideOtherObject = new Dictionary<TokenObjectType, List<TokenObjectType>>()
-      {
-         { TokenObjectType.Strong, new List<TokenObjectType>() { TokenObjectType.Italic } },
-         { TokenObjectType.Header, new List<TokenObjectType>() { TokenObjectType.Italic, TokenObjectType.Strong } }
-      };
+        private static readonly Dictionary<TokenObjectType, List<TokenObjectType>> nestedObjectTypes = new Dictionary<TokenObjectType, List<TokenObjectType>>()
+        {
+           { TokenObjectType.Strong, new List<TokenObjectType>() { TokenObjectType.Italic } },
+           { TokenObjectType.Header, new List<TokenObjectType>() { TokenObjectType.Italic, TokenObjectType.Strong } }
+        };
 
         private readonly Dictionary<TokenObjectType, bool> objectOpen = new Dictionary<TokenObjectType, bool>()
-      {
-         { TokenObjectType.Italic, false },
-         { TokenObjectType.Strong, false },
-         { TokenObjectType.Header, false }
-      };
+        {
+           { TokenObjectType.Italic, false },
+           { TokenObjectType.Strong, false },
+           { TokenObjectType.Header, false }
+        };
 
         private readonly Dictionary<TokenObjectType, ObjectOpenCloseStrings> openCloseObjectStrings = new Dictionary<TokenObjectType, ObjectOpenCloseStrings>()
-      {
-         { TokenObjectType.Italic, new ObjectOpenCloseStrings() { Open = "_", Close = "_" } },
-         { TokenObjectType.Strong, new ObjectOpenCloseStrings() { Open = "__", Close = "__" } },
-         { TokenObjectType.Header, new ObjectOpenCloseStrings() { Open = "# ", Close = "\n" } }
-      };
+        {
+           { TokenObjectType.Italic, new ObjectOpenCloseStrings() { Open = "_", Close = "_" } },
+           { TokenObjectType.Strong, new ObjectOpenCloseStrings() { Open = "__", Close = "__" } },
+           { TokenObjectType.Header, new ObjectOpenCloseStrings() { Open = "# ", Close = "\n" } }
+        };
 
         public List<Token> ParseToTokens(string input)
         {
             var tokens = CreateTokens(input);
-            tokens = ValidateServiceTokens(tokens);
-            tokens = ResolveTokenIntersections(tokens);
+            tokens = ValidateObjectTokens(tokens);
+            tokens = ResolveObjectTokenIntersections(tokens);
             return tokens;
         }
 
@@ -203,7 +204,7 @@ namespace Markdown
             return new Token() { Type = reservedSymbolTokenType[symbols[0]], Text = tokenText };
         }
 
-        private static List<Token> ValidateServiceTokens(List<Token> tokens)
+        private static List<Token> ValidateObjectTokens(List<Token> tokens)
         {
             for (int openingTokenIndex = 0; openingTokenIndex < tokens.Count; openingTokenIndex++)
             {
@@ -216,12 +217,7 @@ namespace Markdown
                                                                   (token as ObjectCloseToken)!.ObjectType == currentToken.ObjectType);
                 if (closingTokenIndex < 0)
                 {
-                    tokens[openingTokenIndex] = new Token()
-                    {
-                        Type = TokenType.Text,
-                        Text = currentToken.Text
-                    };
-
+                    tokens[openingTokenIndex] = new Token() { Type = TokenType.Text, Text = currentToken.Text };
                     continue;
                 }
 
@@ -268,7 +264,7 @@ namespace Markdown
                                                         token => token.Type == TokenType.Space) > 0;
 
                 if (openingTokenIndex == 0 && (hasSpacesBetween && !hasTextOnTheRight || !hasSpacesBetween && hasTextOnTheRight) ||
-                   closingTokenIndex == tokens.Count - 1 && (!hasTextOnTheLeft && hasSpacesBetween || hasTextOnTheLeft && !hasSpacesBetween))
+                    closingTokenIndex == tokens.Count - 1 && (!hasTextOnTheLeft && hasSpacesBetween || hasTextOnTheLeft && !hasSpacesBetween))
                 {
                     continue;
                 }
@@ -291,12 +287,12 @@ namespace Markdown
                 if (!hasTextOnTheLeft && !hasTextOnTheRight)
                     continue;
 
-                if (tokens.FindIndex(openingTokenIndex,
-                                     closingTokenIndex - openingTokenIndex + 1,
-                                     token => token.Type == TokenType.Text && token.Text.Any(c => !char.IsDigit(c))) >= 0)
-                {
+                var hasNotOnlyNumbersInside = tokens.FindIndex(openingTokenIndex,
+                                                               closingTokenIndex - openingTokenIndex + 1,
+                                                               token => token.Type == TokenType.Text &&
+                                                                        token.Text.Any(c => !char.IsDigit(c))) >= 0;
+                if (hasNotOnlyNumbersInside)
                     continue;
-                }
 
                 tokens[openingTokenIndex] = new Token() { Type = TokenType.Text, Text = currentToken.Text };
                 tokens[closingTokenIndex] = new Token() { Type = TokenType.Text, Text = closingToken.Text };
@@ -305,89 +301,85 @@ namespace Markdown
             return tokens;
         }
 
-        private static List<Token> ResolveTokenIntersections(List<Token> tokens)
+        private static List<Token> ResolveObjectTokenIntersections(List<Token> tokens)
         {
-            var objectTokens = tokens.Where(token => token is ObjectOpenToken || token is ObjectCloseToken)
-                                           .ToArray();
+            var objectTokens = tokens.Where(token => token is ObjectOpenToken || token is ObjectCloseToken).ToArray();
             var objectTokenPositions = objectTokens.Select(token => tokens.IndexOf(token)).ToArray();
 
-            var stack = new List<(TokenObjectType ObjectType, int OpeningTokenIndex)>();
+            var objectStack = new List<(TokenObjectType ObjectType, int OpeningTokenIndex)>();
 
             int stackOpeningTokenIndex;
-            int stackClosingTokenIndex;
+            int stackCloseTokenIndex;
             TokenObjectType currentStackObjectType;
 
             for (int currentTokenIndex = 0; currentTokenIndex < objectTokens.Length; currentTokenIndex++)
             {
-                var currentToken = objectTokens[currentTokenIndex] as ObjectOpenToken;
-                if (currentToken != null)
+                if (objectTokens[currentTokenIndex] is ObjectOpenToken)
                 {
-                    var canObjectBeOpenedInsideLast = stack.Count < 1 || objectsCanBeInsideOtherObject.ContainsKey(stack.Last().ObjectType) &&
-                                                                         objectsCanBeInsideOtherObject[stack.Last().ObjectType].Contains(currentToken.ObjectType);
+                    var currentOpenToken = objectTokens[currentTokenIndex] as ObjectOpenToken;
 
-                    if (canObjectBeOpenedInsideLast)
+                    var canOpened = objectStack.Count < 1 ||
+                                    nestedObjectTypes.TryGetValue(objectStack.Last().ObjectType, out var objectTypes) &&
+                                    objectTypes.Contains(currentOpenToken.ObjectType);
+
+                    if (canOpened)
                     {
-                        stack.Add((currentToken.ObjectType, currentTokenIndex));
+                        objectStack.Add((currentOpenToken.ObjectType, currentTokenIndex));
                         continue;
                     }
 
-                    (currentStackObjectType, stackOpeningTokenIndex) = stack.Last();
+                    (currentStackObjectType, stackOpeningTokenIndex) = objectStack.Last();
 
-                    var closingCurrentTokenIndex = Array.FindIndex(objectTokens,
-                                                                   currentTokenIndex,
-                                                                   token => token is ObjectCloseToken &&
-                                                                            (token as ObjectCloseToken)!.ObjectType == currentToken.ObjectType);
+                    var currentCloseTokenIndex = GetCloseObjectTokenIndex(objectTokens,
+                                                                          currentTokenIndex,
+                                                                          currentOpenToken.ObjectType);
 
-                    tokens[objectTokenPositions[currentTokenIndex]] = new Token() { Type = TokenType.Text, Text = string.Empty };
-                    tokens[objectTokenPositions[closingCurrentTokenIndex]] = new Token() { Type = TokenType.Text, Text = string.Empty };
+                    tokens[objectTokenPositions[currentTokenIndex]] = Token.EmptyText;
+                    tokens[objectTokenPositions[currentCloseTokenIndex]] = Token.EmptyText;
 
-                    stackClosingTokenIndex = Array.FindIndex(objectTokens,
-                                                             currentTokenIndex,
-                                                             token => token is ObjectCloseToken &&
-                                                                      (token as ObjectCloseToken)!.ObjectType == currentStackObjectType);
-
-                    if (stackClosingTokenIndex < closingCurrentTokenIndex)
+                    stackCloseTokenIndex = GetCloseObjectTokenIndex(objectTokens, currentTokenIndex, currentStackObjectType);
+                    if (stackCloseTokenIndex < currentCloseTokenIndex)
                     {
-                        tokens[objectTokenPositions[stackOpeningTokenIndex]] = new Token() { Type = TokenType.Text, Text = string.Empty };
-                        tokens[objectTokenPositions[stackClosingTokenIndex]] = new Token() { Type = TokenType.Text, Text = string.Empty };
+                        tokens[objectTokenPositions[stackOpeningTokenIndex]] = Token.EmptyText;
+                        tokens[objectTokenPositions[stackCloseTokenIndex]] = Token.EmptyText;
                     }
 
                     continue;
                 }
 
-                (currentStackObjectType, stackOpeningTokenIndex) = stack.Last();
+                (currentStackObjectType, stackOpeningTokenIndex) = objectStack.Last();
 
                 var currentCloseToken = (objectTokens[currentTokenIndex] as ObjectCloseToken)!;
                 if (currentCloseToken.ObjectType == currentStackObjectType)
                 {
-                    stack.Remove((currentStackObjectType, stackOpeningTokenIndex));
+                    objectStack.Remove((currentStackObjectType, stackOpeningTokenIndex));
                     continue;
                 }
 
-                stackClosingTokenIndex = Array.FindIndex(objectTokens,
-                                                         currentTokenIndex,
-                                                         token => token is ObjectCloseToken &&
-                                                                  (token as ObjectCloseToken)!.ObjectType == currentStackObjectType);
+                var currentOpeningTokenIndex = objectStack.FindLastIndex(pair => pair.ObjectType == currentCloseToken.ObjectType);
+                if (currentOpeningTokenIndex < 0)
+                    continue;
 
-                var currentOpeningTokenIndex = Array.FindLastIndex(objectTokens,
-                                                                   currentTokenIndex,
-                                                                   token => token is ObjectOpenToken &&
-                                                                            (token as ObjectOpenToken)!.ObjectType ==
-                                                                                  currentCloseToken.ObjectType);
-
-                if (currentOpeningTokenIndex < stackOpeningTokenIndex || currentTokenIndex > stackClosingTokenIndex)
+                stackCloseTokenIndex = GetCloseObjectTokenIndex(objectTokens, currentTokenIndex, currentStackObjectType);
+                if (currentOpeningTokenIndex < stackOpeningTokenIndex || currentTokenIndex > stackCloseTokenIndex)
                 {
-                    tokens[objectTokenPositions[stackOpeningTokenIndex]] = new Token() { Type = TokenType.Text, Text = string.Empty };
-                    tokens[objectTokenPositions[stackClosingTokenIndex]] = new Token() { Type = TokenType.Text, Text = string.Empty };
+                    tokens[objectTokenPositions[stackOpeningTokenIndex]] = Token.EmptyText;
+                    tokens[objectTokenPositions[stackCloseTokenIndex]] = Token.EmptyText;
                 }
 
-                tokens[objectTokenPositions[currentOpeningTokenIndex]] = new Token() { Type = TokenType.Text, Text = string.Empty };
-                tokens[objectTokenPositions[currentTokenIndex]] = new Token() { Type = TokenType.Text, Text = string.Empty };
+                tokens[objectTokenPositions[currentOpeningTokenIndex]] = Token.EmptyText;
+                tokens[objectTokenPositions[currentTokenIndex]] = Token.EmptyText;
 
-                stack.Remove((currentCloseToken.ObjectType, currentOpeningTokenIndex));
+                objectStack.Remove((currentCloseToken.ObjectType, currentOpeningTokenIndex));
             }
 
             return tokens;
+        }
+
+        private static int GetCloseObjectTokenIndex(Token[] tokens, int start, TokenObjectType type)
+        {
+            return Array.FindIndex(tokens, start, token => token is ObjectCloseToken &&
+                                                           (token as ObjectCloseToken)!.ObjectType == type);
         }
     }
 
@@ -397,11 +389,11 @@ namespace Markdown
         private const string closeTagFormat = "</{0}>";
 
         private static readonly Dictionary<TokenObjectType, string> objectTagBodies = new Dictionary<TokenObjectType, string>()
-      {
-          { TokenObjectType.Italic, "em" },
-          { TokenObjectType.Strong, "strong" },
-          { TokenObjectType.Header, "h1" },
-      };
+        {
+            { TokenObjectType.Italic, "em" },
+            { TokenObjectType.Strong, "strong" },
+            { TokenObjectType.Header, "h1" },
+        };
 
         public static string GetHtmlTextFromTokens(List<Token> tokens)
         {
