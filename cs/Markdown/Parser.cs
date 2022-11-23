@@ -2,7 +2,7 @@
 
 public class Parser
 {
-    public Dictionary<string, List<string>> Parse(string text)
+    public List<ParsedString> Parse(string text)
     {
         return new();
     }
