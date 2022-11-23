@@ -7,6 +7,7 @@ namespace Markdown.MarkerLogic
 {
     public class TagsFinder : ITagsFinder
     {
+        private const char FillerSymbol = 'a';
         public List<ITag> CreateTagList(string paragraph)
         {
             var result = new List<ITag>();
@@ -47,7 +48,7 @@ namespace Markdown.MarkerLogic
             foreach (var tag in notEscapedStarters)
             {
                 var atWordBeginning = tag.CanBeStarter && !tag.CanBeEnder;
-                var replacement = atWordBeginning ? ' ' : 'a';
+                var replacement = atWordBeginning ? ' ' : FillerSymbol;
                 sb[tag.Position] = replacement;
                 sb[tag.Position + 1] = replacement;
             }
