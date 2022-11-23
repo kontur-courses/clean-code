@@ -1,18 +1,16 @@
-﻿using Microsoft.VisualStudio.TestTools.UnitTesting;
-using System;
-using Markdown;
+﻿using NUnit;
 using Markdown.Tags;
 using Markdown.Tokens;
-using NUnit.Framework;
 using FluentAssertions;
-using Token = Markdown.Tokens.TypedToken;
+using NUnit.Framework;
+
 
 namespace MarkDownUnitTests
 {
-    [TestClass]
+    [TestFixture]
     public class TokenReaderTests
     {
-        [TestMethod]
+        [Test]
         public void Read_ReturnsInputText_WhenThereAreNoTags()
         {
             var inputText = "Text without tags";
@@ -23,12 +21,12 @@ namespace MarkDownUnitTests
 
             tokens.Should().BeEquivalentTo(new[]
                 {
-                    new Token(0, inputText.Length, TokenType.Text),
+                    new TypedToken(0, inputText.Length, TokenType.Text),
                 }
             );
         }
 
-        [TestMethod]
+        [Test]
         public void Read_ReturnsValidTokensList_WhenTextIsWithHeaderMarkdownTag()
         {
             var inputText = "# Simple header\n";
@@ -46,7 +44,7 @@ namespace MarkDownUnitTests
             );
         }
 
-        [TestMethod]
+        [Test]
         public void Read_ReturnsValidTokensList_WhenTextIsWithItalicMarkdownTag()
         {
             var inputText = "Some _italic_ text";
@@ -66,7 +64,7 @@ namespace MarkDownUnitTests
             );
         }
 
-        [TestMethod]
+        [Test]
         public void Read_ReturnsValidTokensList_WhenTextIsWithBoldMarkdownTag()
         {
             var inputText = "Some __bold__ text";
@@ -86,7 +84,7 @@ namespace MarkDownUnitTests
             );
         }
 
-        [TestMethod]
+        [Test]
         public void Read_ReturnsValidTokensList_WhenTextIsWithItalicAndBoldMarkdownTag()
         {
             var inputText = "Some __bold__ and _italic_ text";
@@ -110,7 +108,7 @@ namespace MarkDownUnitTests
             );
         }
 
-        [TestMethod]
+        [Test]
         public void Read_ReturnsValidTokensList_WhenTextIsWithUnpairedOpeningItalicTag()
         {
             var inputText = "One _unpaired opening italic tag";
@@ -128,7 +126,7 @@ namespace MarkDownUnitTests
             );
         }
 
-        [TestMethod]
+        [Test]
         public void Read_ReturnsValidTokensList_WhenTextIsWithUnpairedClosingItalicTag()
         {
             var inputText = "One unpaired_ closing italic tag";
@@ -146,7 +144,7 @@ namespace MarkDownUnitTests
             );
         }
 
-        [TestMethod]
+        [Test]
         public void Read_ReturnsValidTokensList_WhenTextIsWithUnpairedOpeningBoldTag()
         {
             var inputText = "One __unpaired opening bold tag";
@@ -164,7 +162,7 @@ namespace MarkDownUnitTests
             );
         }
 
-        [TestMethod]
+        [Test]
         public void Read_ReturnsValidTokensList_WhenTextIsWithUnpairedClosingBoldTag()
         {
             var inputText = "One unpaired__ closing bold tag";
@@ -182,7 +180,7 @@ namespace MarkDownUnitTests
             );
         }
 
-        [TestMethod]
+        [Test]
         public void Read_ReturnsValidTokensList_WhenTextIsWithUnpairedOpeningHeaderTag()
         {
             var inputText = "# One unpaired opening header tag";
@@ -199,7 +197,7 @@ namespace MarkDownUnitTests
             );
         }
 
-        [TestMethod]
+        [Test]
         public void Read_ReturnsValidTokensList_WhenTextIsWithUnpairedTagAndFullTag()
         {
             var inputText = "Unpaired_ italic tag and __bold__ tag";
@@ -221,7 +219,7 @@ namespace MarkDownUnitTests
             );
         }
 
-        [TestMethod]
+        [Test]
         public void Read_ReturnsValidTokensList_WhenTextIsWithEscapedTag()
         {
             var inputText = @"One \_escaped\_ italic tag";
@@ -241,7 +239,7 @@ namespace MarkDownUnitTests
             );
         }
 
-        [TestMethod]
+        [Test]
         public void Read_ReturnsValidTokensList_WhenTextIsWithDoubleEscapedCharacter()
         {
             var inputText = @"Double \\escaped character";
@@ -259,7 +257,7 @@ namespace MarkDownUnitTests
             );
         }
 
-        [TestMethod]
+        [Test]
         public void Read_ReturnsValidTokensList_WhenTextIsWithEscapeInsideWord()
         {
             var inputText = @"Escape insi\de word";

@@ -1,66 +1,35 @@
 ﻿using System.Collections.Generic;
-using System.Linq;
-using Markdown.Tags;
 
 namespace Markdown.Tokens
 {
     public static class TypedTokenExtensions
     {
-        public static List<TypedToken> RemoveEscaped(this List<TypedToken> tokens)
+        public static void AddTextBetween(this List<TypedToken> tokens, TypedToken previous, TypedToken next)
         {
-            var count = tokens.Count;
+            if (next.Start == previous.End + 1)
+                return;
 
-            var indexesToRemove = new List<int>();
+            var start = previous.End + 1;
 
-            for (var i = 1; i < count; i++)
-            {
-                if (tokens[i - 1].Type != TokenType.Escape)
-                    continue;
+            var length = next.Start - previous.End - 1;
 
-                if (tokens[i].Type == TokenType.Text)
-                {
-                    tokens[i - 1].SwitchToTextToken();
-                    continue;
-                }
-
-                indexesToRemove.Add(i - 1);
-
-                tokens[i].SwitchToTextToken();
-            }
-
-            for (var i = indexesToRemove.Count - 1; i >= 0; i--)
-                tokens.RemoveAt(indexesToRemove[i]);
-
-            return tokens;
+            tokens.Add(new TypedToken(start, length, TokenType.Text));
         }
 
-        public static List<TypedToken> RemoveUnpaired(this List<TypedToken> tokens)
+        public static void AddTextFromBeginningUpToTag(this List<TypedToken> tokens, TypedToken tagToken)
         {
-            var tagTokensStack = new Stack<TypedToken>();
+            if (tagToken.Start == 0)
+                return;
 
-            foreach (var token in tokens)
-            {
-                if (token.Type != TokenType.Tag)
-                    continue;
+            tokens.AddTextBetween(new TypedToken(0, 0, TokenType.Text), tagToken);
+        }
 
-                if (!tagTokensStack.Any())
-                {
-                    tagTokensStack.Push(token);
-                    continue;
-                }
+        public static void AddTextAfterTag(this List<TypedToken> tokens, TypedToken tagToken, int textLength)
+        {
+            if (textLength <= 0)
+                return;
 
-                var previousTagToken = tagTokensStack.Peek();
-
-                if (previousTagToken.TagType == token.TagType && previousTagToken.Order == SubTagOrder.Opening)
-                    tagTokensStack.Pop();
-                else
-                    tagTokensStack.Push(token);
-            }
-
-            foreach (var unpairedTagToken in tagTokensStack)
-                unpairedTagToken.SwitchToTextToken();
-
-            return tokens;
+            tokens.AddTextBetween(tagToken, new TypedToken(tagToken.End + textLength + 1, 1, TokenType.Text));
         }
     }
 }

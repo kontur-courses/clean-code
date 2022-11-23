@@ -18,15 +18,11 @@ namespace Markdown.Tokens
         {
             var result = new List<TypedToken>();
 
-            var tagTokens = GetTagTokens(inputText);
-
-            var escapeTokens = GetEscapeTokens(inputText);
-
             var textControlTokens = new List<TypedToken>();
 
-            textControlTokens.AddRange(tagTokens);
+            textControlTokens.AddRange(GetTagTokens(inputText));
 
-            textControlTokens.AddRange(escapeTokens);
+            textControlTokens.AddRange(GetEscapeTokens(inputText));
 
             var textTokens = GetTextTokens(inputText, textControlTokens.OrderBy(token => token.Start).ToList());
 
@@ -35,11 +31,6 @@ namespace Markdown.Tokens
             result.AddRange(textTokens);
 
             return result.OrderBy(token => token.Start).ToList().RemoveEscaped().RemoveUnpaired();
-
-            //TODO
-            //Разобрать кучу коллекций тегов
-            // Переделать тесты, так как непарные теги будут отдельным текстовым токеном
-            // Переделать коллекции на IEnumerable;
         }
 
 
