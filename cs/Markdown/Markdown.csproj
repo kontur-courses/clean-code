@@ -56,8 +56,7 @@
     <Compile Include="Tags\TagStorage.cs" />
     <Compile Include="Tags\Tag.cs" />
     <Compile Include="Tags\TagType.cs" />
-    <Compile Include="Tokens\TagToken.cs" />
-    <Compile Include="Tokens\TagTokenExtensions.cs" />
+    <Compile Include="Tokens\TypedTokenExtensions.cs" />
     <Compile Include="Tokens\Token.cs" />
     <Compile Include="Tokens\TypedToken.cs" />
     <Compile Include="Tokens\TokenExtensions.cs" />

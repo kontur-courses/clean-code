@@ -20,23 +20,32 @@ namespace Markdown.Tokens
 
             var tagTokens = GetTagTokens(inputText);
 
-            result.AddRange(tagTokens);
-
             var escapeTokens = GetEscapeTokens(inputText);
 
-            result.AddRange(escapeTokens);
+            var textControlTokens = new List<TypedToken>();
 
-            var textTokens = GetTextTokens(inputText, tagTokens);
+            textControlTokens.AddRange(tagTokens);
+
+            textControlTokens.AddRange(escapeTokens);
+
+            var textTokens = GetTextTokens(inputText, textControlTokens.OrderBy(token => token.Start).ToList());
+
+            result.AddRange(textControlTokens);
 
             result.AddRange(textTokens);
 
-            return result.OrderBy(token => token.Start).ToList();
+            return result.OrderBy(token => token.Start).ToList().RemoveEscaped().RemoveUnpaired();
+
+            //TODO
+            //Разобрать кучу коллекций тегов
+            // Переделать тесты, так как непарные теги будут отдельным текстовым токеном
+            // Переделать коллекции на IEnumerable;
         }
 
 
-        private List<TagToken> GetTagTokens(string inputText)
+        private List<TypedToken> GetTagTokens(string inputText)
         {
-            var result = new List<TagToken>();
+            var result = new List<TypedToken>();
 
             var positionsWithTag = new HashSet<int>();
 
@@ -56,12 +65,12 @@ namespace Markdown.Tokens
                 }
             }
 
-            return result.OrderBy(token => token.Start).ToList().RemoveUnpaired();
+            return result;
         }
 
-        private List<TagToken> GetTagTokensForSpecificTag(string line, ITag tag)
+        private List<TypedToken> GetTagTokensForSpecificTag(string line, ITag tag)
         {
-            var tagTokens = new List<TagToken>();
+            var tagTokens = new List<TypedToken>();
 
             var isOpeningTag = true;
 
@@ -76,7 +85,7 @@ namespace Markdown.Tokens
                 if (subTagIndex == -1)
                     break;
 
-                tagTokens.Add(new TagToken(subTagIndex, subTag.Length, tag.Type, subTagOrder));
+                tagTokens.Add(new TypedToken(subTagIndex, subTag.Length, TokenType.Tag, tag.Type, subTagOrder));
 
                 i = subTagIndex + subTag.Length;
 
@@ -107,7 +116,7 @@ namespace Markdown.Tokens
             return escapeTokens;
         }
 
-        private List<TypedToken> GetTextTokens(string line, List<TagToken> tagTokens)
+        private List<TypedToken> GetTextTokens(string line, List<TypedToken> tagTokens)
         {
             if (!tagTokens.Any())
                 return new List<TypedToken> { new TypedToken(0, line.Length, TokenType.Text) };

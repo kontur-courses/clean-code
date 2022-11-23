@@ -16,7 +16,7 @@ namespace Markdown.Tokens
             tokens.Add(new TypedToken(start, length, TokenType.Text));
         }
 
-        public static void AddTextFromBeginningUpToTag(this List<TypedToken> tokens, TagToken tagToken)
+        public static void AddTextFromBeginningUpToTag(this List<TypedToken> tokens, TypedToken tagToken)
         {
             if (tagToken.Start == 0)
                 return;
@@ -24,7 +24,7 @@ namespace Markdown.Tokens
             tokens.AddTextBetween(new TypedToken(0, 0, TokenType.Text), tagToken);
         }
 
-        public static void AddTextAfterTag(this List<TypedToken> tokens, TagToken tagToken, int textLength)
+        public static void AddTextAfterTag(this List<TypedToken> tokens, TypedToken tagToken, int textLength)
         {
             if (textLength <= 0)
                 return;
