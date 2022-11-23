@@ -10,4 +10,9 @@ public class Tag
         Position = position;
         Type = type;
     }
+
+    public (SingleTag,SingleTag) ConvertToPairOfSingleTags()
+    {
+        throw new NotImplementedException();
+    }
 }

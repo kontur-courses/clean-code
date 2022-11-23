@@ -1,4 +1,5 @@
 ﻿using System.Text;
+using Markdown.Extensions;
 using Markdown.Tags;
 
 namespace Markdown.Converter;
@@ -6,45 +7,52 @@ namespace Markdown.Converter;
 public class HtmlConverter : IHtmlConverter
 {
     private StringBuilder htmlStringBuilder;
+    private int shift;
+    private string original;
+
+    private Dictionary<TagType, string> openingTags = new()
+    {
+        { TagType.Bold, "<strong>" }, { TagType.Italic, "<em>" },
+        { TagType.Header, "<h1>" }, { TagType.EscapedSymbol, "" }
+    };
+
+    private Dictionary<TagType, string> closingTags = new()
+    {
+        { TagType.Bold, "</strong>" }, { TagType.Italic, "</em>" },
+        { TagType.Header, "</h1>" }, { TagType.EscapedSymbol, "" }
+    };
+
     public string ConvertToHtml(string original, IEnumerable<Tag> tags)
     {
         htmlStringBuilder = new StringBuilder(original);
-        tags = tags.OrderByDescending(tag => tag.Position.End);
-        var shift = 0;
+        var singleTags = tags.ConvertToSingleTags();
+        shift = 0;
+        this.original = original;
 
-        foreach (var tag in tags)
+        foreach (var tag in singleTags)
         {
-            switch (tag.Type)
-            {
-                case TagType.EscapedSymbol:
-                    htmlStringBuilder.Remove(tag.Position.Start + shift, 1);
-                    shift--;
-                    break;
-                case TagType.Italic:
-                    htmlStringBuilder.Remove(tag.Position.Start + shift, 1);
-                    htmlStringBuilder.Insert(tag.Position.Start + shift, "<em>");
-                    shift += 3;
-                    htmlStringBuilder.Remove(tag.Position.End + shift, 1);
-                    htmlStringBuilder.Insert(tag.Position.End + shift, "</em>");
-                    break;
-                case TagType.Bold:
-                    shift--;
-                    htmlStringBuilder.Remove(tag.Position.Start + shift, 2);
-                    htmlStringBuilder.Insert(tag.Position.Start + shift, "<strong>");
-                    shift += 6;
-                    htmlStringBuilder.Remove(tag.Position.End + shift, 2);
-                    htmlStringBuilder.Insert(tag.Position.End  + shift, "</strong>");
-                    break;
-                case TagType.Header:
-                    htmlStringBuilder.Remove(tag.Position.Start + shift, 1);
-                    htmlStringBuilder.Insert(tag.Position.Start + shift, "<h1>");
-                    shift += 3;
-                    htmlStringBuilder.Remove(tag.Position.End + shift, 1);
-                    htmlStringBuilder.Insert(tag.Position.End + shift, "</h1>");
-                    break;
-            }
+            ReplaceTag(tag);
         }
 
         return htmlStringBuilder.ToString();
+    }
+
+    private void ReplaceTag(SingleTag tag)
+    {
+        var symCount = 1;
+        if (tag.Type == TagType.Bold)
+        {
+            symCount = 2;
+            shift--;
+        }
+        if (tag.Type == TagType.Header && tag.IsClosing)
+        {
+            symCount = 0;
+            shift++;
+        }
+        var tagString = tag.IsClosing ? closingTags[tag.Type] : openingTags[tag.Type];
+        htmlStringBuilder.Remove(tag.Index + shift, symCount);
+        htmlStringBuilder.Insert(tag.Index + shift, tagString);
+        shift = htmlStringBuilder.Length - original.Length;
     }
 }
