@@ -8,9 +8,9 @@ public class DefaultLineRenderer : ILineRenderer
 {
     private readonly IRenderersProvider _renderersProvider;
 
-    public DefaultLineRenderer(IEnumerable<IElementRenderer> renderers)
+    public DefaultLineRenderer(IRenderersProvider renderersProvider)
     {
-        _renderersProvider = new DefaultRenderersProvider(renderers);
+        _renderersProvider = renderersProvider;
     }
 
     public string RenderLine(IElement lineElement) =>
