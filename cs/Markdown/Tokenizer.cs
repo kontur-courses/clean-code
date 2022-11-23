@@ -42,8 +42,10 @@ namespace Markdown
                     for (; i < text.Length && markdown.IsStartOfTag(tagBuilder.ToString() + text[i]); i++)
                         tagBuilder.Append(text[i]);
                     AddToken(TokenType.Tag, tagBuilder.ToString(), tokenIndex);
+                    currentType = GetTokenOnIndex(i);
                     tokenIndex = i;
                     builder.Clear();
+                    i--;
                     continue;
                 }
 

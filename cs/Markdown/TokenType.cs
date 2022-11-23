@@ -2,6 +2,7 @@
 
 namespace Markdown
 {
+    [Flags]
     public enum TokenType
     {
         Undefined = 1 << 0,

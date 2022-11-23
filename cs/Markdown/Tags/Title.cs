@@ -1,10 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-
-namespace Markdown.Tags
+﻿namespace Markdown.Tags
 {
     public class Title : Tag
     {
@@ -14,8 +8,9 @@ namespace Markdown.Tags
 
         protected override string FormatTag(Token start, Token end, string strBetween)
         {
-            //TODO
-            return $"<h1>{strBetween}</h1>";
+            if (start.Next?.Type != TokenType.Space)
+                return $"{start.Value}{strBetween}";
+            return $"<h1>{strBetween[1..]}</h1>" + (end?.Type == TokenType.BreakLine ? "\n" : "");
         }
 
         protected override Token FindEnd(Token start)

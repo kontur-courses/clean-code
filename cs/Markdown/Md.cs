@@ -8,10 +8,12 @@ namespace Markdown
 {
     public class Md
     {
+        public readonly HashSet<string> dfsTags;
         private readonly Dictionary<string, Tag> tagFormats;
 
         public Md()
         {
+            dfsTags = new HashSet<string>();
             tagFormats = new Dictionary<string, Tag>()
             {
                 {new BoldText(this).Identifier, new BoldText(this)},
@@ -46,7 +48,10 @@ namespace Markdown
             string result;
             if (token.Type == TokenType.Tag && !token.IgnoreAsTag)
             {
-                result = tagFormats[token.Value].Format(token, out token);
+                dfsTags.Add(token.Value);
+                result = tagFormats[token.Value].Format(token, out var newToken);
+                dfsTags.Remove(token.Value);
+                token = newToken;
             }
             else
             {
