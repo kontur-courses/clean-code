@@ -73,70 +73,87 @@ public class DefaultLineParser : ILineParser
 
     public IElement ParseLineContent(string content)
     {
-        var specialLineParser = _specialLineElementsParsers.FirstOrDefault(parser => parser.Match(content));
-        var line = specialLineParser is null
-            ? _defaultLineElementParser.ParseElement(content)
-            : specialLineParser.ParseElement(content);
+        var lineElement = ParseLineElement(content, out var inlineContentToken);
 
-        ParseInlineElements(line);
-        return line;
+        ParseInlineElements(lineElement, content.Substring(inlineContentToken));
+        return lineElement;
     }
 
-    private void ParseInlineElements(IElement lineElement)
+    private IElement ParseLineElement(string content, out ContentToken inlineContentToken)
     {
-        var content = lineElement.RawContent;
+        inlineContentToken = new ContentToken(0, content.Length - 1, 0, 0);
+        var specialLineParser = _specialLineElementsParsers.FirstOrDefault(parser => parser.Match(content));
+        if (specialLineParser is null)
+            return _defaultLineElementParser.ParseElement(content);
 
-        var openedParsers = new Dictionary<ISpecialInlineElementParser, int>();
-        var closedTokens = new SortedDictionary<ContentToken, IElement>(
-            new LambdaComparer<Token>((token1, token2) => token1.Start - token2.Start));
+        inlineContentToken = new ContentToken(
+            0, content.Length - 1,
+            specialLineParser.Prefix.Length, specialLineParser.Postfix.Length
+        );
+        return specialLineParser.ParseElement(content);
+    }
 
-        for (var i = 0; i < content.Length; i++)
-        {
-            if (
-                _escapeSequenceParser is not null &&
-                _escapeSequenceParser.TryGetEscapingSequenceToken(content, i, out var escapeToken)
-            )
-            {
-                var contentToken = new ContentToken(
-                    escapeToken!.Start, escapeToken.End,
-                    escapeToken.Start + 1, escapeToken.End
-                );
-                closedTokens[contentToken] = _escapeSequenceParser.ParseElement(content, contentToken);
-                i = contentToken.ContentEnd;
-                continue;
-            }
-
-            if (TryCloseParser(openedParsers, closedTokens, content, i, out var closedParser))
-            {
-                i += closedParser!.Postfix.Length - 1;
-                continue;
-            }
-
-            if (TryOpenParser(content, i, openedParsers, out var openedParser))
-                i += openedParser!.Prefix.Length - 1;
-        }
+    private void ParseInlineElements(IElement lineElement, string content)
+    {
+        var closedTokens = ParseTokens(content);
 
         foreach (var intersecting in GetIntersections(closedTokens.Keys).ToHashSet())
             closedTokens.Remove((ContentToken) intersecting);
 
-        ParseNestedElements(lineElement, content, closedTokens);
+        foreach (var nestedElement in ParseNestedElements(content, closedTokens, lineElement))
+            lineElement.AddNested(nestedElement);
     }
 
-    private static bool TryCloseParser(
-        IDictionary<ISpecialInlineElementParser, int> openedParsers,
+    private SortedDictionary<ContentToken, IElement> ParseTokens(string content)
+    {
+        var openedParsers = new Dictionary<ISpecialInlineElementParser, int>();
+        var closedTokens = new SortedDictionary<ContentToken, IElement>(
+            new LambdaComparer<ContentToken>((token1, token2) => token1.Start - token2.Start));
+
+        for (var i = 0; i < content.Length; i++)
+        {
+            if (TryParseEscapeSequence(closedTokens, content, i, out var sequenceToken))
+                i = sequenceToken!.ContentEnd;
+            else if (TryCloseParser(openedParsers, closedTokens, content, i, out var closedParser))
+                i += closedParser!.Postfix.Length - 1;
+            else if (TryOpenParser(content, i, openedParsers, out var openedParser))
+                i += openedParser!.Prefix.Length - 1;
+        }
+
+        return closedTokens;
+    }
+
+    private bool TryParseEscapeSequence(
         IDictionary<ContentToken, IElement> closedTokens,
-        string content, int index, out ISpecialInlineElementParser? closedParser
+        string content, int i,
+        out ContentToken? sequenceToken
     )
     {
-        closedParser = openedParsers.Keys.FirstOrDefault(parser => parser.IsElementEnd(content, index));
+        sequenceToken = default;
+        if (
+            _escapeSequenceParser is null ||
+            !_escapeSequenceParser.TryGetEscapingSequenceToken(content, i, out sequenceToken)
+        )
+            return false;
+
+        closedTokens[sequenceToken!] = _escapeSequenceParser.ParseElement(content, sequenceToken!);
+        return true;
+    }
+
+    private bool TryCloseParser(
+        IDictionary<ISpecialInlineElementParser, int> openedParsers,
+        IDictionary<ContentToken, IElement> closedTokens,
+        string content, int i, out ISpecialInlineElementParser? closedParser
+    )
+    {
+        closedParser = openedParsers.Keys.FirstOrDefault(parser => parser.IsElementEnd(content, i));
         if (closedParser is null)
             return false;
 
         var start = openedParsers[closedParser];
         var closedToken = new ContentToken(
-            start, index,
-            start + closedParser.Prefix.Length,
-            index - closedParser.Postfix.Length
+            start, i,
+            closedParser.Prefix.Length, closedParser.Postfix.Length
         );
 
         if (!closedParser.TryParseElement(content, closedToken, out var element))
@@ -183,44 +200,41 @@ public class DefaultLineParser : ILineParser
         }
     }
 
-    private void ParseNestedElements(
-        IElement parent,
+    private IEnumerable<IElement> ParseNestedElements(
         string content,
         IReadOnlyDictionary<ContentToken, IElement> tokens,
+        IElement parent,
         int parseStart = 0, int? parseEnd = null
     )
     {
         parseEnd ??= content.Length - 1;
 
-        foreach (var (token, nestedElement) in tokens)
+        foreach (var (token, element) in tokens)
         {
-            if (token.Start < parseStart || !_nestingRules.CanContainNested(parent, nestedElement))
+            if (token.Start < parseStart || !_nestingRules.CanContainNested(parent, element))
                 continue;
             if (token.End > parseEnd)
                 break;
 
-            if (
-                _nestingRules.CanContainNested(parent, _defaultInlineElementParser.ParsingElementType) &&
-                TryParseDefaultElement(content, parseStart, token.Start - 1, out var element)
-            )
-                parent.AddNestedElement(element!);
+            if (TryParseDefElement(content, parseStart, token.Start - 1, parent, out var defElement))
+                yield return defElement!;
 
-            parent.AddNestedElement(nestedElement);
-            ParseNestedElements(nestedElement, content, tokens, token.ContentStart, token.ContentEnd);
+            foreach (var nested in ParseNestedElements(content, tokens, element, token.ContentStart, token.ContentEnd))
+                element.AddNested(nested);
+
+            yield return element;
+
             parseStart = token.End + 1;
         }
 
-        if (
-            _nestingRules.CanContainNested(parent, _defaultInlineElementParser.ParsingElementType) &&
-            TryParseDefaultElement(content, parseStart, parseEnd.Value, out var result)
-        )
-            parent.AddNestedElement(result!);
+        if (TryParseDefElement(content, parseStart, parseEnd.Value, parent, out var result))
+            yield return result!;
     }
 
-    private bool TryParseDefaultElement(string content, int start, int end, out IElement? element)
+    private bool TryParseDefElement(string content, int start, int end, IElement parent, out IElement? element)
     {
         element = default;
-        if (start > end)
+        if (!_nestingRules.CanContainNested(parent, _defaultInlineElementParser.ParsingElementType) || start > end)
             return false;
         element = _defaultInlineElementParser.ParseElement(content, new Token(start, end));
         return true;

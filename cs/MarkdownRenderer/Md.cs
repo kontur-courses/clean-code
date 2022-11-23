@@ -7,8 +7,15 @@ namespace MarkdownRenderer;
 
 public class Md
 {
+    private static readonly IDocumentsConverter Converter;
+
+    static Md()
+    {
+        Converter = GetConverter();
+    }
+
     public string Render(string mdSource) =>
-        GetConverter().Convert(mdSource);
+        Converter.Convert(mdSource);
 
     private static IDocumentsConverter GetConverter()
     {

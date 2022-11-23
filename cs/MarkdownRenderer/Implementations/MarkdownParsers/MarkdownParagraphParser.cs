@@ -9,8 +9,7 @@ public class MarkdownParagraphParser : ILineElementParser
     public Type ParsingElementType { get; } = typeof(ParagraphElement);
 
     IElement ILineElementParser.ParseElement(string content) =>
-        ParseElement(content);
+        ParseElement();
 
-    public ParagraphElement ParseElement(string content) =>
-        new(content);
+    public ParagraphElement ParseElement() => new();
 }

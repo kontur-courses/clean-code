@@ -4,7 +4,4 @@ namespace MarkdownRenderer.Implementations.Elements;
 
 public class StrongElement : StandardElement
 {
-    public StrongElement(string rawContent) : base(rawContent)
-    {
-    }
 }

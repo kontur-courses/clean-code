@@ -6,48 +6,49 @@ namespace MarkdownRenderer.Implementations;
 
 public class StandardElementsNestingRules : IElementsNestingRules
 {
-    private readonly IReadOnlyDictionary<Type, IReadOnlySet<Type>> _rules = new Dictionary<Type, IReadOnlySet<Type>>
-    {
+    private static readonly IReadOnlyDictionary<Type, IReadOnlySet<Type>> Rules =
+        new Dictionary<Type, IReadOnlySet<Type>>
         {
-            typeof(PlainTextElement), new HashSet<Type>()
-        },
-        {
-            typeof(LinkElement), new HashSet<Type>()
-        },
-        {
-            typeof(EscapeSequenceElement), new HashSet<Type>
             {
-                typeof(PlainTextElement)
-            }
-        },
-        {
-            typeof(ItalicElement), new HashSet<Type>
+                typeof(PlainTextElement), new HashSet<Type>()
+            },
             {
-                typeof(PlainTextElement), typeof(LinkElement), typeof(EscapeSequenceElement)
-            }
-        },
-        {
-            typeof(StrongElement), new HashSet<Type>
+                typeof(LinkElement), new HashSet<Type>()
+            },
             {
-                typeof(PlainTextElement), typeof(LinkElement),
-                typeof(EscapeSequenceElement), typeof(ItalicElement)
-            }
-        },
-        {
-            typeof(ParagraphElement), new HashSet<Type>
+                typeof(EscapeSequenceElement), new HashSet<Type>
+                {
+                    typeof(PlainTextElement)
+                }
+            },
             {
-                typeof(PlainTextElement), typeof(LinkElement),
-                typeof(EscapeSequenceElement), typeof(ItalicElement), typeof(StrongElement)
-            }
-        },
-        {
-            typeof(HeaderElement), new HashSet<Type>
+                typeof(ItalicElement), new HashSet<Type>
+                {
+                    typeof(PlainTextElement), typeof(LinkElement), typeof(EscapeSequenceElement)
+                }
+            },
             {
-                typeof(PlainTextElement), typeof(LinkElement),
-                typeof(EscapeSequenceElement), typeof(ItalicElement), typeof(StrongElement)
+                typeof(StrongElement), new HashSet<Type>
+                {
+                    typeof(PlainTextElement), typeof(LinkElement),
+                    typeof(EscapeSequenceElement), typeof(ItalicElement)
+                }
+            },
+            {
+                typeof(ParagraphElement), new HashSet<Type>
+                {
+                    typeof(PlainTextElement), typeof(LinkElement),
+                    typeof(EscapeSequenceElement), typeof(ItalicElement), typeof(StrongElement)
+                }
+            },
+            {
+                typeof(HeaderElement), new HashSet<Type>
+                {
+                    typeof(PlainTextElement), typeof(LinkElement),
+                    typeof(EscapeSequenceElement), typeof(ItalicElement), typeof(StrongElement)
+                }
             }
-        }
-    };
+        };
 
     public bool CanContainNested(IElement parent, IElement nested) =>
         CanContainNested(parent.GetType(), nested.GetType());
@@ -60,7 +61,7 @@ public class StandardElementsNestingRules : IElementsNestingRules
 
     public bool CanContainNested(Type parent, Type nested)
     {
-        if (!_rules.TryGetValue(parent, out var nesting))
+        if (!Rules.TryGetValue(parent, out var nesting))
             throw new ArgumentException($"No rules provided for element of type: {parent.Name}");
         return nesting.Contains(nested);
     }

@@ -6,5 +6,5 @@ public class MarkdownHeaderParser : MarkdownSpecialLineElementParser<HeaderEleme
 {
     public override string Prefix => "# ";
     public override string Postfix => "";
-    protected override Func<string, HeaderElement> ElementCreator { get; } = content => new HeaderElement(content);
+    protected override Func<HeaderElement> ElementCreator { get; } = () => new HeaderElement();
 }

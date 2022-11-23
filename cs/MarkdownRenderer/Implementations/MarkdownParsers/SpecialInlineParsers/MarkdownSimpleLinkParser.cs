@@ -7,9 +7,9 @@ public class MarkdownSimpleLinkParser : MarkdownSpecialInlineElementParser<LinkE
 {
     public override string Prefix => "<";
     public override string Postfix => ">";
-    protected override Func<string, LinkElement> ElementCreator => null!;
+    protected override Func<LinkElement> ElementCreator => null!;
 
-    public override bool TryParseElement(string content, Token contentToken, out LinkElement? element)
+    public override bool TryParseElement(string content, ContentToken contentToken, out LinkElement? element)
     {
         element = default;
 
@@ -18,10 +18,7 @@ public class MarkdownSimpleLinkParser : MarkdownSpecialInlineElementParser<LinkE
         if (!IsElementStart(content, contentToken.Start) || !IsElementEnd(content, contentToken.End))
             return false;
 
-        var destination = content.Substring(
-            contentToken.Start + Prefix.Length,
-            contentToken.Length - (Prefix.Length + Postfix.Length)
-        );
+        var destination = content.Substring(contentToken);
 
         if (!LinkElement.IsUriCorrect(destination))
             return false;

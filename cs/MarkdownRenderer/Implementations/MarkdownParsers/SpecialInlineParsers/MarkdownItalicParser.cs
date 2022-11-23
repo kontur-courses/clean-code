@@ -16,5 +16,5 @@ public class MarkdownItalicParser : MarkdownSpecialInlineElementParser<ItalicEle
                (index + 1 >= content.Length || content[index + 1] is not '_');
     }
 
-    protected override Func<string, ItalicElement> ElementCreator { get; } = content => new ItalicElement(content);
+    protected override Func<ItalicElement> ElementCreator { get; } = () => new ItalicElement();
 }

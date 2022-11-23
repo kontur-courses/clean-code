@@ -7,13 +7,13 @@ public class MarkdownTitledLinkParser : MarkdownSpecialInlineElementParser<LinkE
 {
     public override string Prefix => "[";
     public override string Postfix => ")";
-    protected override Func<string, LinkElement> ElementCreator => null!;
+    protected override Func<LinkElement> ElementCreator => null!;
 
-    public override bool TryParseElement(string content, Token contentToken, out LinkElement? element)
+    public override bool TryParseElement(string content, ContentToken contentToken, out LinkElement? element)
     {
         element = default;
 
-        if (!TryParseLinkParts(content.Substring(contentToken), out var title, out var destination))
+        if (!TryParseLinkParts(content.Substring((Token) contentToken), out var title, out var destination))
             return false;
 
         element = new LinkElement(destination!, title!);
@@ -34,7 +34,7 @@ public class MarkdownTitledLinkParser : MarkdownSpecialInlineElementParser<LinkE
         var titleClosingBraceIndex = linkContent.IndexOf(']');
         if (titleClosingBraceIndex == -1)
             return false;
-        
+
         if (linkContent[titleClosingBraceIndex + 1] != '(')
             return false;
 

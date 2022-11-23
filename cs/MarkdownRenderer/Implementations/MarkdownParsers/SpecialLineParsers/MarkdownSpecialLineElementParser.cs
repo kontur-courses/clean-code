@@ -12,7 +12,7 @@ public abstract class MarkdownSpecialLineElementParser<TElem> : ISpecialLineElem
 
     public abstract string Postfix { get; }
 
-    protected abstract Func<string, TElem> ElementCreator { get; }
+    protected abstract Func<TElem> ElementCreator { get; }
 
     public virtual bool Match(string line) =>
         line.StartsWith(Prefix) && line.EndsWith(Postfix);
@@ -41,9 +41,7 @@ public abstract class MarkdownSpecialLineElementParser<TElem> : ISpecialLineElem
         if (!Match(content))
             return false;
 
-        var rawContent = content.Substring(Prefix.Length, content.Length - (Prefix.Length + Postfix.Length));
-
-        element = ElementCreator(rawContent);
+        element = ElementCreator();
         return true;
     }
 }

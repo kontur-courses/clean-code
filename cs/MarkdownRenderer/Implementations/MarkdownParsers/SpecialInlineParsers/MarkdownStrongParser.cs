@@ -16,5 +16,5 @@ public class MarkdownStrongParser : MarkdownSpecialInlineElementParser<StrongEle
                (index + 1 >= content.Length || content[index + 1] is not '_');
     }
 
-    protected override Func<string, StrongElement> ElementCreator { get; } = content => new StrongElement(content);
+    protected override Func<StrongElement> ElementCreator { get; } = () => new StrongElement();
 }

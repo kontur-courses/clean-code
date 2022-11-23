@@ -7,5 +7,5 @@ public interface ISpecialInlineElementParser : ISpecialElementParser, IInlineEle
 {
     bool IsElementStart(string content, int index);
     bool IsElementEnd(string content, int index);
-    bool TryParseElement(string content, Token token, out IElement? element);
+    bool TryParseElement(string content, ContentToken token, out IElement? element);
 }

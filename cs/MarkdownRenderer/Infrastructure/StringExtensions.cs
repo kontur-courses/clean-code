@@ -4,6 +4,9 @@ public static class StringExtensions
 {
     public static string Substring(this string source, Token token) =>
         source.Substring(token.Start, token.Length);
+    
+    public static string Substring(this string source, ContentToken token) =>
+        source.Substring(token.ContentStart, token.ContentLength);
 
     public static IEnumerable<(string SplitPart, string SplitterAfter)> EnhancedSplit(
         this string source, params string[] splitters

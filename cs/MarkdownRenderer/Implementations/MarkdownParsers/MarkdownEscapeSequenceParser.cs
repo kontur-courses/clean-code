@@ -10,6 +10,7 @@ public class MarkdownEscapeSequenceParser : IEscapeSequenceElementParser
     public Type ParsingElementType { get; } = typeof(EscapeSequenceElement);
 
     public char EscapeCharacter => '\\';
+
     private IReadOnlySet<string> _escapingSequences = new HashSet<string> {"\\"};
 
     public void SetEscapingSequences(IEnumerable<string> escapingSequences)
@@ -17,7 +18,7 @@ public class MarkdownEscapeSequenceParser : IEscapeSequenceElementParser
         _escapingSequences = escapingSequences.Concat(new[] {"\\"}).ToHashSet();
     }
 
-    public bool TryGetEscapingSequenceToken(string content, int escapeCharacterPos, out Token? token)
+    public bool TryGetEscapingSequenceToken(string content, int escapeCharacterPos, out ContentToken? token)
     {
         token = default;
         if (content[escapeCharacterPos] != EscapeCharacter)
@@ -36,19 +37,19 @@ public class MarkdownEscapeSequenceParser : IEscapeSequenceElementParser
         if (escapingSequence is null)
             return false;
 
-        token = new Token(escapeCharacterPos, escapeCharacterPos + escapingSequence.Length);
+        token = new ContentToken(escapeCharacterPos, escapeCharacterPos + escapingSequence.Length, 1, 0);
         return true;
     }
 
-    public IElement ParseElement(string content, Token token)
+    public IElement ParseElement(string content, ContentToken token)
     {
         if (content[token.Start] != EscapeCharacter)
             throw new ArgumentException("Incorrect escaping sequence. Unable to parse!");
 
-        var rawContent = content.Substring(token.Start + 1, token.Length - 1);
+        var rawContent = content.Substring(token);
         if (!_escapingSequences.Contains(rawContent))
             throw new ArgumentException("Incorrect escaping sequence. Unable to parse!");
 
-        return new EscapeSequenceElement(rawContent);
+        return new EscapeSequenceElement();
     }
 }

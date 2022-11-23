@@ -1,5 +1,6 @@
 using MarkdownRenderer.Abstractions.Elements;
 using MarkdownRenderer.Abstractions.ElementsParsers;
+using MarkdownRenderer.Implementations.Elements;
 using MarkdownRenderer.Infrastructure;
 
 namespace MarkdownRenderer.Implementations.MarkdownParsers.SpecialInlineParsers;
@@ -13,7 +14,7 @@ public abstract class MarkdownSpecialInlineElementParser<TElem> : ISpecialInline
 
     public abstract string Postfix { get; }
 
-    protected abstract Func<string, TElem> ElementCreator { get; }
+    protected abstract Func<TElem> ElementCreator { get; }
 
     public virtual bool IsElementStart(string content, int index)
     {
@@ -35,24 +36,28 @@ public abstract class MarkdownSpecialInlineElementParser<TElem> : ISpecialInline
         return content[index - Postfix.Length] is not ' ';
     }
 
-    IElement IInlineElementParser.ParseElement(string content, Token token) =>
-        ParseElement(content, token);
+    IElement IInlineElementParser.ParseElement(string content, Token token)
+    {
+        if (token is ContentToken contentToken)
+            return ParseElement(content, contentToken);
+        return ParseElement(content, new ContentToken(token.Start, token.End, Prefix.Length, Postfix.Length));
+    }
 
-    public TElem ParseElement(string content, Token contentToken)
+    public TElem ParseElement(string content, ContentToken contentToken)
     {
         if (!TryParseElement(content, contentToken, out var element))
             throw new ArgumentException("Unable to parse!");
         return element!;
     }
 
-    bool ISpecialInlineElementParser.TryParseElement(string content, Token contentToken, out IElement? element)
+    bool ISpecialInlineElementParser.TryParseElement(string content, ContentToken contentToken, out IElement? element)
     {
         var result = TryParseElement(content, contentToken, out var tElement);
         element = tElement;
         return result;
     }
 
-    public virtual bool TryParseElement(string content, Token contentToken, out TElem? element)
+    public virtual bool TryParseElement(string content, ContentToken contentToken, out TElem? element)
     {
         element = default;
         if (contentToken.Length < Prefix.Length + Postfix.Length + 1)
@@ -60,9 +65,7 @@ public abstract class MarkdownSpecialInlineElementParser<TElem> : ISpecialInline
         if (!IsElementStart(content, contentToken.Start) || !IsElementEnd(content, contentToken.End))
             return false;
 
-        var rawContent = content.Substring(
-            contentToken.Start + Prefix.Length,
-            contentToken.Length - (Prefix.Length + Postfix.Length));
+        var rawContent = content.Substring(contentToken);
 
         if (
             IsSelectionInsideWord(content, contentToken) &&
@@ -70,7 +73,7 @@ public abstract class MarkdownSpecialInlineElementParser<TElem> : ISpecialInline
         )
             return false;
 
-        element = ElementCreator(rawContent);
+        element = ElementCreator();
         return true;
     }
 

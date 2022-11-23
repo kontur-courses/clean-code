@@ -2,13 +2,8 @@ using MarkdownRenderer.Abstractions.Elements;
 
 namespace MarkdownRenderer.Implementations.Elements;
 
-public class LinkElement : IElement
+public class LinkElement : StandardElement
 {
-    string IElement.RawContent => null!;
-
-    IEnumerable<IElement> IElement.NestedElements =>
-        throw new InvalidOperationException($"{nameof(LinkElement)} cannot contain nested elements.");
-
     public string Destination { get; }
     public string Title { get; }
 
@@ -17,9 +12,6 @@ public class LinkElement : IElement
         Destination = destination;
         Title = title ?? destination;
     }
-
-    public void AddNestedElement(IElement nested) =>
-        throw new InvalidOperationException($"{nameof(LinkElement)} cannot contain nested elements.");
 
     public static bool IsUriCorrect(string destination)
     {
