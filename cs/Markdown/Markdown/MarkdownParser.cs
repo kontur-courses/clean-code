@@ -75,6 +75,14 @@ namespace Markdown
                 HasEqualNeighbors(tag, openTagIndex, text))
                 return false;
 
+            if (IsValidIndex(text, openTagIndex - 1) &&
+                text[openTagIndex - 1] == '\\')
+                return false;
+
+            if (IsValidIndex(text, closeTagIndex - 1) &&
+                text[closeTagIndex - 1] == '\\')
+                return false;
+
             return true;
         }
 
@@ -88,6 +96,13 @@ namespace Markdown
                                 x.CloseTagIndex == tags.closeTagIndex ||
                                 x.OpenTagIndex == tags.closeTagIndex ||
                                 x.CloseTagIndex  == tags.openTagIndex);
+        }
+
+        private bool IsValidIndex(string text, int index)
+        {
+            if (index < 0 || index >= text.Length)
+                return false;
+            return true;
         }
 
         private bool HasEqualNeighbors(MdTag tag, int index, string text)
