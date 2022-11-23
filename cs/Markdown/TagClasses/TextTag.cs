@@ -2,7 +2,7 @@
 
 namespace Markdown.TagClasses
 {
-    internal class TextTag : ITextTag
+    public class TextTag : ITextTag
     {
         public string Source { get; set; }
         public string Name { get; set; }
