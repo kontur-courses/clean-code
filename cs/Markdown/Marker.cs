@@ -1,5 +1,5 @@
 ﻿using Markdown.ITagsInterfaces;
-using Markdown.MarkerLogic;
+
 namespace Markdown
 {
     public class Marker
@@ -13,13 +13,6 @@ namespace Markdown
             this.finder = finder;
             this.filter = filter;
             this.switcher = switcher;
-        }
-
-        public Marker()
-        {
-            finder = new TagsFinder();
-            filter = new TagsFilter();
-            switcher = new TagsSwitcher();
         }
 
         public string Mark(string text)
