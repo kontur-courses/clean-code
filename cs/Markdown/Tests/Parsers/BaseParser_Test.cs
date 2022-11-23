@@ -89,7 +89,7 @@ namespace Markdown.Tests.Parsers
         {
         }
 
-        public override Token TryHandleTag(int position, string text)
+        public override Token TryParseTag(int position, string text)
         {
             throw new System.NotImplementedException();
         }

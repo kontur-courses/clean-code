@@ -15,7 +15,8 @@ namespace Markdown
             var mdStringParser = new TokenTreeCreator(
                 new BoldTagMdParser(),
                 new ItalicTagMdParser(),
-                new HeadingMdParser());
+                new HeadingMdParser(),
+                new LinkMdParser());
             var rootToken = mdStringParser.GetRootToken(mdText);
             return HtmlWriter.CreateHtmlFromTokens(rootToken, mdText);
         }

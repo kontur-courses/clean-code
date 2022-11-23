@@ -23,7 +23,7 @@ namespace Markdown
         {
             var closeTagPositions = new SortedStack<(int, int)>();
             var tokensStack = new Stack<Token>();
-            var rootToken = new Token(0, text.Length, MdTags.Default, TextType.Default);
+            var rootToken = new Token(0, text.Length, MdTags.Default, TextType.VirtualAllText);
             SaveToken(rootToken, tokensStack, closeTagPositions);
 
             for (var i = 0; i < text.Length; i++)
@@ -74,7 +74,8 @@ namespace Markdown
 
         private static bool AttachmentIsForbidden(Token currentToken, Token parentToken)
         {
-            return currentToken.Type == TextType.Bold && parentToken.Type == TextType.Italic;
+            if (currentToken.Type == TextType.Bold && parentToken.Type == TextType.Italic) return true;
+            return parentToken.Type == TextType.Link;
         }
 
         private static bool IntersectionRemoved(Token currentToken, Stack<Token> tokensStack)
@@ -90,7 +91,7 @@ namespace Markdown
         {
             return parsers
                 .Select(handler => handler
-                    .TryHandleTag(index, text))
+                    .TryParseTag(index, text))
                 .FirstOrDefault(token => token != null);
         }
     }

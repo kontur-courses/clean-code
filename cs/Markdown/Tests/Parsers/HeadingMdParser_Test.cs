@@ -28,14 +28,14 @@ namespace Markdown.Tests.Parsers
         [TestCase("", 1)]
         public void TryHandleTag_ShouldReturnNull_WhenNotHeading(string text, int position)
         {
-            sut.TryHandleTag(position, text).Should().BeNull();
+            sut.TryParseTag(position, text).Should().BeNull();
         }
 
         [Test]
         public void TryHandleTag_ShouldReturnShortToken_WhenTextHasNotEndl_AndStartsFromZeroPosition()
         {
             const string text = "# Heading";
-            var token = sut.TryHandleTag(0, text);
+            var token = sut.TryParseTag(0, text);
             token.Should().NotBeNull();
             token.Position.Should().Be(0);
             token.Length.Should().Be(text.Length);
@@ -46,7 +46,7 @@ namespace Markdown.Tests.Parsers
         public void TryHandleTag_ShouldReturnShortToken_WhenTextHasNotEndl_AndStartsAfterEndl()
         {
             const string text = "text\n# Heading";
-            var token = sut.TryHandleTag(5, text);
+            var token = sut.TryParseTag(5, text);
             token.Should().NotBeNull();
             token.Position.Should().Be(5);
             token.Length.Should().Be(9);
@@ -57,7 +57,7 @@ namespace Markdown.Tests.Parsers
         public void TryHandleTag_ShouldReturnShortToken_WhenTextHasEndl_AndStartsAfterEndl()
         {
             const string text = "text\n# Heading text\ntext";
-            var token = sut.TryHandleTag(5, text);
+            var token = sut.TryParseTag(5, text);
             token.Should().NotBeNull();
             token.Position.Should().Be(5);
             token.Length.Should().Be(14);
@@ -68,7 +68,7 @@ namespace Markdown.Tests.Parsers
         [TestCase("text # Not heading", 5)]
         public void TryHandleTag_ShouldReturnNull_WhenIncorrectTagUsing(string text, int position)
         {
-            sut.TryHandleTag(position, text).Should().BeNull();
+            sut.TryParseTag(position, text).Should().BeNull();
         }
     }
 }

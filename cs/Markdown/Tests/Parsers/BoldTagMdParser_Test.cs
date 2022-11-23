@@ -27,7 +27,7 @@ namespace Markdown.Tests.Parsers
         [TestCase("_")]
         public void TryHandleTag_ShouldReturnNull_WhenAnotherTag(string textWithIncorrectTag)
         {
-            sut.TryHandleTag(0, textWithIncorrectTag)
+            sut.TryParseTag(0, textWithIncorrectTag)
                 .Should().BeNull();
         }
 
@@ -41,7 +41,7 @@ namespace Markdown.Tests.Parsers
         public void TryHandleTag_ShouldReturnToken_WhenBoldTag(
             string textWithBoldSubtext, int startPosition, int subtextLengthWithTags)
         {
-            var actualToken = sut.TryHandleTag(startPosition, textWithBoldSubtext);
+            var actualToken = sut.TryParseTag(startPosition, textWithBoldSubtext);
             actualToken.Should().NotBeNull();
             actualToken.Length.Should().Be(subtextLengthWithTags);
             actualToken.Position.Should().Be(startPosition);
@@ -58,7 +58,7 @@ namespace Markdown.Tests.Parsers
         public void TryHandleTag_ShouldReturnNull_WhenIncorrectTagUsing(
             string text, int startPosition)
         {
-            sut.TryHandleTag(startPosition, text)
+            sut.TryParseTag(startPosition, text)
                 .Should().BeNull();
         }
 
@@ -66,7 +66,7 @@ namespace Markdown.Tests.Parsers
         public void TryHandleTag_ShouldReturnNull_WhenShieldedCloseTag()
         {
             const string text = "__text\\__";
-            sut.TryHandleTag(0, text)
+            sut.TryParseTag(0, text)
                 .Should().BeNull();
         }
 
@@ -74,10 +74,10 @@ namespace Markdown.Tests.Parsers
         public void TryHandleTag_ShouldReturnTag_WithCorrectValue()
         {
             const string text = "text __with bold__ subtext, and w__or__d";
-            sut.TryHandleTag(5, text)
+            sut.TryParseTag(5, text)
                 .GetValue(type => new Tag("", ""), text)
                 .Should().Be("with bold");
-            sut.TryHandleTag(33, text)
+            sut.TryParseTag(33, text)
                 .GetValue(type => new Tag("", ""), text)
                 .Should().Be("or");
         }

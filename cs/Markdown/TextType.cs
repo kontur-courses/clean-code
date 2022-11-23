@@ -2,9 +2,11 @@
 {
     public enum TextType
     {
+        VirtualAllText,
         Default,
         Bold,
         Italic,
-        Heading
+        Heading,
+        Link
     }
 }

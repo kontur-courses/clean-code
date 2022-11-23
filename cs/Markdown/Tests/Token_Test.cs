@@ -51,10 +51,10 @@ namespace Markdown.Tests
                 .Should().Be("this is <i>italic <b>bold1</b> <b>bold2</b></i> text");
         }
 
-        private static Tag ConvertFunction(TextType textType)
+        private static Tag ConvertFunction(Token token)
         {
             // ReSharper disable once SwitchStatementHandlesSomeKnownEnumValuesWithDefault
-            switch (textType)
+            switch (token.Type)
             {
                 case TextType.Default:
                     return new Tag("", "");

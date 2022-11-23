@@ -14,21 +14,17 @@
         /// <param name="position">Позиция начала предполагаемого заголовка (Начинается с 0)</param>
         /// <param name="text">Текст, в котором проверяется наличие заголовка</param>
         /// <returns>Token, если присутствует заголовок; null - если другой тег</returns>
-        public override Token TryHandleTag(int position, string text)
+        public override Token TryParseTag(int position, string text)
         {
-            if (!HasThisToken(position, text)) return null;
+            if (!HasThisTagOpening(position, text)) return null;
             if (!IsFirstOnLine(position, text)) return null;
             var headingEnd = text.IndexOf('\n', position);
             var headingLength = headingEnd == -1
                 ? text.Length - position
                 : headingEnd - position;
-            return new Token(position, headingLength, MdTags.Heading, TextType.Heading);
-        }
-
-        private static bool IsFirstOnLine(int position, string text)
-        {
-            if (position == 0) return true;
-            return text[position - 1] == '\n';
+            return IsEmptySelection(position, headingEnd)
+                ? null
+                : new Token(position, headingLength, Tag, TextType.Heading);
         }
     }
 }

@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Text;
 
 namespace Markdown
 {
@@ -11,13 +12,19 @@ namespace Markdown
                               "   _text_ - курсив\n" +
                               "   __text__ - жирный\n" +
                               "   # text - заголовок\n" +
-                              "\nДля остановки введите \"stop\"\n");
+                              "   [text](link)\n" +
+                              "\nДля остановки и получения результата введите \"stop\"\n");
+            
+            var sb = new StringBuilder();
             while (true)
             {
                 var mdText = Console.ReadLine();
                 if (mdText == "stop") break;
-                Console.WriteLine(Md.Render(mdText));
+                sb.Append(mdText);
+                sb.Append('\n');
             }
+            
+            Console.WriteLine(Md.Render(sb.ToString()));
         }
     }
 }

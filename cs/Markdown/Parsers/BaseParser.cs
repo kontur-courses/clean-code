@@ -16,7 +16,7 @@
         /// <param name="position">Позиция, на которой находится командный символ</param>
         /// <param name="text">Строка, в которой происходит парсинг</param>
         /// <returns>Token, если удалось обработать тэг; null, если обработчик его не поддерживает</returns>
-        public abstract Token TryHandleTag(int position, string text);
+        public abstract Token TryParseTag(int position, string text);
         
         /// <summary>
         /// Метод, который является подобием ДКА и помогает следить за состоянием поиска закрывающего тега
@@ -60,11 +60,17 @@
             return char.IsDigit(text[end + 1]) && char.IsDigit(text[end - tag.Close.Length]);
         }
         
-        protected bool HasThisToken(int position, string text)
+        protected bool HasThisTagOpening(int position, string text)
         {
             if (position + tag.Open.Length >= text.Length)
                 return false;
             return text.Substring(position, tag.Open.Length) == tag.Open;
+        }
+        
+        protected static bool IsFirstOnLine(int position, string text)
+        {
+            if (position == 0) return true;
+            return text[position - 1] == '\n';
         }
     }
 }

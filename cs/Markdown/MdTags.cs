@@ -6,5 +6,6 @@
         public static readonly Tag Bold = new Tag("__", "__");
         public static readonly Tag Default = new Tag("", "");
         public static readonly Tag Heading = new Tag("# ", "");
+        public static readonly Tag Link = new Tag("[", ")");
     }
 }

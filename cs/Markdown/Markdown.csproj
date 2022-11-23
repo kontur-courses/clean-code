@@ -78,6 +78,7 @@
         <Reference Include="System.Xml.Linq" />
     </ItemGroup>
     <ItemGroup>
+        <Compile Include="LinkToken.cs" />
         <Compile Include="MdTags.cs" />
         <Compile Include="Parsers\BaseParser.cs" />
         <Compile Include="Parsers\BoldTagMdParser.cs" />
@@ -85,20 +86,22 @@
         <Compile Include="Parsers\ItalicTagMdParser.cs" />
         <Compile Include="HtmlWriter.cs" />
         <Compile Include="Md.cs" />
+        <Compile Include="Parsers\LinkMdParser.cs" />
         <Compile Include="Program.cs" />
         <Compile Include="SortedStack.cs" />
         <Compile Include="Tests\HtmlWriter_Test.cs" />
+        <Compile Include="Tests\LinkToken_Test.cs" />
         <Compile Include="Tests\Md_Test.cs" />
         <Compile Include="Tests\Parsers\BaseParser_Test.cs" />
         <Compile Include="Tests\Parsers\BoldTagMdParser_Test.cs" />
         <Compile Include="Tests\Parsers\HeadingMdParser_Test.cs" />
         <Compile Include="Tests\Parsers\ItalicTagMdParser_Test.cs" />
+        <Compile Include="Tests\Parsers\LinkMdParser_Test.cs" />
         <Compile Include="Tests\TokenTreeCreator_Test.cs" />
         <Compile Include="Tests\Token_Test.cs" />
         <Compile Include="TokenTreeCreator.cs" />
         <Compile Include="Parsers\IParser.cs" />
         <Compile Include="Tag.cs" />
-        <Compile Include="Tests\MdTest.cs" />
         <Compile Include="TextType.cs" />
         <Compile Include="Token.cs" />
     </ItemGroup>

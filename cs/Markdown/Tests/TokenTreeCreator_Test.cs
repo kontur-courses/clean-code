@@ -30,7 +30,7 @@ namespace Markdown.Tests
             rootToken.Should().NotBeNull();
             rootToken.Length.Should().Be(text.Length);
             rootToken.Position.Should().Be(0);
-            rootToken.Type.Should().Be(TextType.Default);
+            rootToken.Type.Should().Be(TextType.VirtualAllText);
             rootToken.GetInternalTokens().Count.Should().Be(0);
         }
 
@@ -47,7 +47,7 @@ namespace Markdown.Tests
             rootToken.Should().NotBeNull();
             rootToken.Length.Should().Be(text.Length);
             rootToken.Position.Should().Be(0);
-            rootToken.Type.Should().Be(TextType.Default);
+            rootToken.Type.Should().Be(TextType.VirtualAllText);
             rootToken.GetInternalTokens().Count.Should().Be(0);
         }
 

@@ -15,9 +15,9 @@ namespace Markdown.Parsers
         /// <param name="position">Позиция начала предполагаемого тега</param>
         /// <param name="text">Текст, в котором проверяется наличие курсива</param>
         /// <returns>Token, если в тексте курсив; null - если другой тег</returns>
-        public override Token TryHandleTag(int position, string text)
+        public override Token TryParseTag(int position, string text)
         {
-            if (!HasThisToken(position, text)) return null;
+            if (!HasThisTagOpening(position, text)) return null;
             if (NextCharAfterTag_IsSpaceOrEndLine(position, text, Tag.Open)) return null;
             
             var openInWord = IsOpenInWord(position, text);

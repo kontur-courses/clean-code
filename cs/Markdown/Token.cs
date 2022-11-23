@@ -34,13 +34,11 @@ namespace Markdown
         /// <param name="tagConverter">Функция, которая преобразует тип текста в обрамляющие тэги</param>
         /// <param name="originalString">Строка, по которой строилсь дерево токенов</param>
         /// <returns>Текст токена, обрамлённый тегами</returns>
-        public string GetValue(Func<TextType, Tag> tagConverter, string originalString)
+        public virtual string GetValue(Func<Token, Tag> tagConverter, string originalString)
         {
             var builder = new StringBuilder();
-            var newTag = tagConverter(Type);
             var startIndex = Position + Tag.Open.Length;
             
-            builder.Append(newTag.Open);
             foreach (var token in internalTokens.OrderBy(token => token.Position))
             {
                 builder.Append(originalString.Substring(startIndex, token.Position - startIndex));
@@ -48,6 +46,9 @@ namespace Markdown
                 startIndex = token.NextIndex;
             }
             builder.Append(originalString.Substring(startIndex, Length - Tag.Close.Length - (startIndex - Position)));
+            
+            var newTag = tagConverter(this);
+            builder.Insert(0, newTag.Open);
             builder.Append(newTag.Close);
             
             return builder.ToString();

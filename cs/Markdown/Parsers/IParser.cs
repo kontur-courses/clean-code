@@ -9,6 +9,6 @@ namespace Markdown.Parsers
         /// <param name="position">Позиция, на которой находится командный символ</param>
         /// <param name="text">Строка, в которой происходит парсинг</param>
         /// <returns>Token, если удалось обработать тэг; null, если обработчик его не поддерживает</returns>
-        Token TryHandleTag(int position, string text);
+        Token TryParseTag(int position, string text);
     }
 }
