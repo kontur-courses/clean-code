@@ -28,25 +28,25 @@ namespace MarkdownTests
         private void InitializeValuesTags(string text)
         {
             if (text == "_text_")
-                _valuesTagsIndexes.AddRange(new (int, int)[] {(0, 5), (-1, -1), (-1, -1)});
+                _valuesTagsIndexes.AddRange(new (int, int)[] {(0, 5)});
             if (text == "__text__")
-                _valuesTagsIndexes.AddRange(new (int, int)[] {(-1, -1), (0, 6), (-1, -1)});
+                _valuesTagsIndexes.AddRange(new (int, int)[] {(0, 6)});
             if (text == "#text")
-                _valuesTagsIndexes.AddRange(new (int, int)[] {(-1, -1), (-1, -1), (0, 5)});
+                _valuesTagsIndexes.AddRange(new (int, int)[] {(0, 5)});
             if (text == "#text\n and text")
-                _valuesTagsIndexes.AddRange(new (int, int)[] {(-1, -1), (-1, -1), (0, 5)});
+                _valuesTagsIndexes.AddRange(new (int, int)[] {(0, 5)});
 
             
             if (text == "_text___text__")
-                _valuesTagsIndexes.AddRange(new (int, int)[]{(0, 5), (6, 12), (-1, -1)});
+                _valuesTagsIndexes.AddRange(new (int, int)[]{(0, 5), (6, 12)});
             if(text == "__text___text_")
-                _valuesTagsIndexes.AddRange(new (int, int)[]{(8, 13), (0, 6), (-1, -1)});
+                _valuesTagsIndexes.AddRange(new (int, int)[]{(0, 6), (8, 13)});
             if(text == "#text\n_text_")
-                _valuesTagsIndexes.AddRange(new (int, int)[]{(6, 11), (-1, -1), (0, 5)});
+                _valuesTagsIndexes.AddRange(new (int, int)[]{(6, 11), (0, 5)});
             if(text == "#text_text_")
-                _valuesTagsIndexes.AddRange(new (int, int)[]{(5, 10), (-1, -1), (0, text.Length)});
+                _valuesTagsIndexes.AddRange(new (int, int)[]{(5, 10), (0, text.Length)});
             if(text == "__text__#text_text_")
-                _valuesTagsIndexes.AddRange(new (int, int)[]{(13, 18), (0, 6), (8, text.Length)});
+                _valuesTagsIndexes.AddRange(new (int, int)[]{(0, 6), (13, 18)});
         }
         
         [TestCase("_text_")]
@@ -62,12 +62,8 @@ namespace MarkdownTests
 
         private void CheckReturnedIndexes(List<MdTag> findedTags)
         {
-            //italic tag (_)
-            CheckReturnedIndex(findedTags[0], _valuesTagsIndexes[0].openTagIndex, _valuesTagsIndexes[0].closeTagIndex);
-            //strong tag (__)
-            CheckReturnedIndex(findedTags[1], _valuesTagsIndexes[1].openTagIndex, _valuesTagsIndexes[1].closeTagIndex);
-            //header tag (#)
-            CheckReturnedIndex(findedTags[2], _valuesTagsIndexes[2].openTagIndex, _valuesTagsIndexes[2].closeTagIndex);
+            for(int i = 0; i < findedTags.Count; i++)
+                CheckReturnedIndex(findedTags[i], _valuesTagsIndexes[i].openTagIndex, _valuesTagsIndexes[i].closeTagIndex);
         }
 
         private void CheckReturnedIndex(MdTag tag, int openTagIndex, int closeTagIndex)

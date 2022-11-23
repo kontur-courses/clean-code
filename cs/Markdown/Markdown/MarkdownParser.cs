@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Text;
 
 namespace Markdown
@@ -17,86 +18,92 @@ namespace Markdown
         
         public List<MdTag> GetIndexesTags(string text)
         {
-            _text = text;
-            foreach (var tag in _tags)
-            {
-                var index = TryGetOpenTagIndex(tag);
-                while(index != -1)
-                {
-                    TagIsFind(tag, index);
-                    index = TryGetOpenTagIndex(tag);
-                }
-            }
+            var findedTags = new List<MdTag>();
             
-            return _tags;
-        }
-
-        private int TryGetOpenTagIndex(MdTag tag)
-        {
-            if (!_text.Contains(tag.OpenTag))
-                return -1;
-            var index = -1;
-            for (int i = 0; i < _text.Length; i++)
+            for (int i = 0; i < text.Length; i++)
             {
-                if (_text[i] != tag.OpenTag[0])
-                    continue;
-                if (tag.OpenTag.Length > _text.Length - i)
-                    break;
-
-                if (_text[i + 1] == tag.OpenTag[0] && tag.OpenTag.Length == 1)
+                foreach (var tag in _tags)
                 {
-                    i++;
-                    if (i == _text.Length - 1)
-                        return -1;
-                    continue;
+                    var openTagIndex = text.IndexOf(tag.OpenTag, i, StringComparison.Ordinal);
+                    var closeTagIndex = TryGetCloseTagIndex(tag, text, openTagIndex);
+                    if (AreIndexesAlreadyUse(findedTags, (openTagIndex, closeTagIndex)))
+                        continue;
+                    if (IsTagIndexes(tag, openTagIndex, closeTagIndex, text))
+                        findedTags.Add(new MdTag(tag.OpenTag, tag.HasCloseTag, openTagIndex, closeTagIndex));
                 }
-
-                index = i;
-                for (int j = 0; j < tag.OpenTag.Length; j++)
-                {
-                    if (_text[i + j] != tag.OpenTag[j])
-                        index = -1;
-                }
-                break;
             }
-            return index;
+            return findedTags;
         }
-
-        private void TagIsFind(MdTag tag, int openTagIndex)
+        
+        private int TryGetCloseTagIndex(MdTag tag, string text, int openTagIndex)
         {
-            tag.OpenTagIndex = openTagIndex;
+            if (openTagIndex == -1)
+                return -1;
+            
             if (!tag.HasCloseTag)
             {
-                if (_text.IndexOf('\n') == -1)
-                    tag.CloseTagIndex = _text.Length;
-                else
-                    tag.CloseTagIndex = _text.IndexOf('\n');
+                if (text.IndexOf('\n', openTagIndex) == -1)
+                    return text.Length;
+                return text.IndexOf('\n', openTagIndex);
             }
-            else
-            {
-                int i = openTagIndex + 1;
-                if (tag.OpenTag.Length > 1)
-                    i++;
-                for (; i < _text.Length; i++)
-                {
-                    if (_text[i] != tag.OpenTag[0])
-                        continue;
-                    tag.CloseTagIndex = i;
-                    break;
-                }
-            }
-            RefactorString(tag);
+
+            //Следующий индекс элемента после тега
+            if (openTagIndex + tag.OpenTag.Length + 1 > text.Length)
+                return -1;
+            
+            return text.IndexOf(tag.OpenTag, openTagIndex + tag.OpenTag.Length + 1, StringComparison.Ordinal);
+        }
+        
+        private bool IsTagIndexes(MdTag tag, int openTagIndex, int closeTagIndex ,string text)
+        {
+            if(openTagIndex == -1 || closeTagIndex == -1)
+                return false;
+            
+            // #
+            if (!tag.HasCloseTag && text[0] != tag.OpenTag[0])
+                return false;
+            
+            // Если после тега нет символов, то это не открывающий тег
+            if (text.Length < openTagIndex + 1)
+                return false;
+
+            //Если дальше такой же тег, то это не открывающий тег
+            if (openTagIndex + tag.OpenTag.Length == closeTagIndex) 
+                return false;
+
+            if (tag.IsSimpleTag() && HasEqualNeighbors(tag, closeTagIndex, text) &&
+                HasEqualNeighbors(tag, openTagIndex, text))
+                return false;
+
+            return true;
         }
 
-        private void RefactorString(MdTag tag)
+        private bool AreIndexesAlreadyUse(List<MdTag> findedTags, (int openTagIndex, int closeTagIndex) tags)
         {
-            var oldLength = _text.Length;
-            _text = _text.Substring(0, tag.OpenTagIndex) + _text.Substring(tag.CloseTagIndex + tag.CloseTag.Length);
+            return findedTags.Any(x => x.OpenTagIndex + x.OpenTag.Length - 1 == tags.openTagIndex ||
+                                x.CloseTagIndex + x.OpenTag.Length - 1 == tags.closeTagIndex ||
+                                x.OpenTagIndex + x.OpenTag.Length - 1 == tags.closeTagIndex ||
+                                x.CloseTagIndex + x.OpenTag.Length - 1 == tags.openTagIndex || 
+                                x.OpenTagIndex == tags.openTagIndex ||
+                                x.CloseTagIndex == tags.closeTagIndex ||
+                                x.OpenTagIndex == tags.closeTagIndex ||
+                                x.CloseTagIndex  == tags.openTagIndex);
+        }
 
-            var builder = new StringBuilder();
-            for (int i = 0; i < oldLength - _text.Length; i++)
-                builder.Append('a');
-            _text = _text.Insert(tag.OpenTagIndex, builder.ToString());
+        private bool HasEqualNeighbors(MdTag tag, int index, string text)
+        {
+            for (var i = -tag.OpenTag.Length; i <= tag.OpenTag.Length; i += tag.OpenTag.Length * 2)
+            {
+                if (index + i >= text.Length || index + i < 0
+                || index >= text.Length || index < 0)
+                    continue;
+                if (index + i < 0 || i == 0)
+                    continue;
+                if (text[index + i] == text[index])
+                    return true;
+            }
+        
+            return false;
         }
     }
 }
