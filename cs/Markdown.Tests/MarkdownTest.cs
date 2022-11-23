@@ -60,4 +60,30 @@ public class Tests
     {
         markdown!.Render(mdInput).Should().Be(result);
     }
+
+    [TestCase("__Some _word #hi")]
+    [TestCase("__Some _word #")]
+    [TestCase("__Some word")]
+    [TestCase("Some word_")]
+    [TestCase("Some _ word")]
+    [TestCase("Some word _")]
+    [TestCase("Some _word _")]
+    public void Renderer_MarkdownTagsWithoutClose_InputLine(string mdInput)
+    {
+        markdown!.Render(mdInput).Should().Be(mdInput);
+    }
+
+    [TestCase("Some ____word #hi")]
+    [TestCase("Some word ____ #hi")]
+    [TestCase("Some wo____rd #hi")]
+    public void Renderer_ClearLineInTags_InputLine(string mdInput)
+    {
+        markdown!.Render(mdInput).Should().Be(mdInput);
+    }
+
+    [TestCase("Some __word _hi__ something_ text")]
+    public void Renderer_IntersectionTags_InputLine(string mdInput)
+    {
+        markdown!.Render(mdInput).Should().Be(mdInput);
+    }
 }
