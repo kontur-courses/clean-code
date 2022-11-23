@@ -75,8 +75,6 @@ namespace Markdown.MarkerLogic
         {
             var position = 0;
             var paragraphShards = paragraph.Split(tag);
-            if (paragraphShards.Length == 1)
-                yield break;
             for (var i = 0; i < paragraphShards.Length - 1; i++)
             {
                 position += paragraphShards[i].Length + (i == 0 ? 0 : tag.Length);
