@@ -8,10 +8,7 @@ namespace MarkdownTests
     [TestFixture]
     public class MarkerTests
     {
-        private Marker sut;
-
-        [SetUp]
-        public void InitMarker() => sut = new Marker();
+        private Marker sut = new();
 
         [TestCase("_a_", ExpectedResult = "<em>a</em>", Description = "Emphasis should be placed")]
         [TestCase("__a__", ExpectedResult = "<strong>a</strong>", Description = "Strong should be placed")]
