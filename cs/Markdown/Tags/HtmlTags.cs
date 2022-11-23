@@ -2,8 +2,11 @@
 
 public class HtmlTags
 {
-    public static Tag Empty => new Tag("", "");
-    public static Tag Bold => new Tag("<strong>", "</strong>");
-    public static Tag Italics => new Tag("<em>", "</em>");
-    public static Tag Heading => new Tag("<h1>", "</h2>");
+    public static Tag Bold => _bold ??= new Tag("<strong>", "</strong>");
+    public static Tag Italics => _italics ??= new Tag("<em>", "</em>");
+    public static Tag Heading => _heading ??= new Tag("<h1>", "</h1>");
+
+    private static Tag? _bold;
+    private static Tag? _italics;
+    private static Tag? _heading;
 }
