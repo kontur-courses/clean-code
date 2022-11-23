@@ -1,6 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Text;
+﻿using System.Collections.Generic;
 
 namespace Markdown
 {
@@ -30,16 +28,15 @@ namespace Markdown
 
         public string ParseMdToHTML(string markdownText)
         {
-            var text = markdownText;
             var tokenizer = new Tokenizer(separators);
 
             var toks = tokenizer.TikenizeText(markdownText);
 
-            var analyzer = new TokenAnalyzer(text);
+            var analyzer = new TokenAnalyzer(markdownText);
             var verifyTokens = analyzer.LeadToSpecification(toks);
 
-            var htmlBuilder = new HtmlBuilder(htmlAnalogs, text);
-            htmlBuilder.LoadModulesInBuilder(verifyTokens);
+            var htmlBuilder = new HtmlBuilder(htmlAnalogs, markdownText);
+            htmlBuilder.ConvertTokensToHtml(verifyTokens);
 
             var html = htmlBuilder.GetHtml();
             return html;

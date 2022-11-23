@@ -1,7 +1,4 @@
-﻿using System;
-using System.Globalization;
-
-namespace Markdown
+﻿namespace Markdown
 {
     public class Md
     {

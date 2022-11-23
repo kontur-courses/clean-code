@@ -16,12 +16,12 @@ namespace Markdown
             builder = new StringBuilder(text.Length);
         }
 
-        public void LoadModulesInBuilder(List<Token> verifiedModules)
+        public void ConvertTokensToHtml(List<Token> verifiedModules)
         {
             foreach (var module in verifiedModules)
             {
-                var startInd = module.startInd;
-                var moduleLenght = module.endInd - module.startInd + 1;
+                var startInd = module.StartInd;
+                var moduleLenght = module.EndInd - module.StartInd + 1;
                 string moduleText;
 
                 switch (module.modType)
@@ -60,7 +60,7 @@ namespace Markdown
             var htmlAnalog = htmlAnalogs[module.modType];
             string moduleText;
 
-            if (module.IsOpen) moduleText = $"<{htmlAnalog}>";
+            if (module.isOpen) moduleText = $"<{htmlAnalog}>";
             else moduleText = $"</{htmlAnalog}>";
 
             return moduleText;

@@ -2,22 +2,22 @@
 {
     public class Token
     {
-        public int startInd;
-        public int endInd;
+        public readonly int StartInd;
+        public readonly int EndInd;
         public Mod modType;
-        public bool IsOpen;
+        public bool isOpen;
 
         public Token(int startInd, int endInd, Mod modType = Mod.Common, bool IsOpen = true)
         {
-            this.startInd = startInd;
-            this.endInd = endInd;
+            this.StartInd = startInd;
+            this.EndInd = endInd;
             this.modType = modType;
-            this.IsOpen = IsOpen;
+            this.isOpen = IsOpen;
         }
 
         public void Close()
         {
-            IsOpen = false;
+            isOpen = false;
         }
     }
 }

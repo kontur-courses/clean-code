@@ -1,21 +1,24 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Linq;
+using static System.Net.Mime.MediaTypeNames;
 
 namespace Markdown
 {
     public class Tokenizer
     {
         private Dictionary<string, Mod> symbols;
+        private string text;
+        private Stack<Token> tokens;
 
         public Tokenizer(Dictionary<string, Mod> separatorSymbols)
         {
             symbols = separatorSymbols;
         }
 
-        public List<Token> TikenizeText(string text)
+        public List<Token> TikenizeText(string mdText)
         {
-            var tokens = new Stack<Token>();
+            text = mdText;
+            tokens = new Stack<Token>();
             var curPos = 0;
             for (var i = 0; i < text.Length; i++)
             {
@@ -25,10 +28,7 @@ namespace Markdown
                 {
                     Token curToken;
 
-                    if (i != curPos)
-                    {
-                        tokens.Push(new Token(curPos, i - 1, Mod.Common, false));
-                    }
+                    if (i != curPos) AddCommonToken(curPos, i - 1);
 
                     if (i + 1 != text.Length && text[i] == '_' && text[i + 1] == '_')
                     {
@@ -44,100 +44,85 @@ namespace Markdown
                         curToken = new Token(i, i, symbols[curSym.ToString()]);
                     }
 
-                    tokens.TryPop(out var lastToken);
-                    var redefTokens = RedefineTokens(lastToken, curToken, text);
-
-                    foreach (var redefTok in redefTokens)
-                    {
-                        tokens.Push(redefTok);
-                    }
-
+                    RedefineStack(tokens, curToken);
                     curPos = i + 1;
                 }
             }
 
-            if (curPos < text.Length)
-            {
-                tokens.Push(new Token(curPos, text.Length, Mod.Common, false));
-            }
+            if (curPos < text.Length) AddCommonToken(curPos, text.Length);
 
             return tokens.Reverse().ToList();
+        }
+
+        private void AddCommonToken(int startPos, int endPos)
+        {
+            tokens.Push(new Token(startPos, endPos, Mod.Common, false));
+        }
+
+        private void RedefineStack(Stack<Token> tokens, Token curToken)
+        {
+            tokens.TryPop(out var lastToken);
+            var redefTokens = RedefineTokens(lastToken, curToken, text);
+
+            foreach (var redefTok in redefTokens)
+            {
+                tokens.Push(redefTok);
+            }
         }
 
         private List<Token> RedefineTokens(Token last, Token current, string text)
         {
             var redefTokens = new List<Token>();
 
-            switch (current.modType)
+            return current.modType switch
             {
-                case Mod.Italic:
-                    {
-                        redefTokens = GetRedefTokensWithItalicOrBold(last, current);
-                        return redefTokens;
-                    }
+                Mod.Italic => GetRedefTokensWithItalicOrBold(last, current),
+                Mod.Bold => GetRedefTokensWithItalicOrBold(last, current),
+                Mod.Slash => GetRedefTokensWithSlash(last, current),
+                Mod.Title => GetRedefTokensWithTitle(last, current, text),
+                Mod.Common => GetRedefTokensWithCommon(last, current),
+                _ => new List<Token>()
+            };
+        }
 
-                case Mod.Bold:
-                    {
-                        redefTokens = GetRedefTokensWithItalicOrBold(last, current);
-                        return redefTokens;
-                    }
+        private List<Token> GetRedefTokensWithCommon(Token last, Token current)
+        {
+            var redefTokens = new List<Token>();
 
-                case Mod.Slash:
-                    {
-                        if (last == null)
-                        {
-                            redefTokens.Add(current);
-                            return redefTokens;
-                        }
-                        else if(last.modType == Mod.Slash)
-                        {
-                            redefTokens.Add(new Token(current.startInd, current.endInd, Mod.Common, false));
-                            return redefTokens;
-                        }
+            redefTokens.Add(last);
+            redefTokens.Add(current);
 
-                        redefTokens.Add(last);
-                        redefTokens.Add(current);
-                        return redefTokens;
-                    }
+            return redefTokens;
+        }
 
-                case Mod.Title:
-                    {
-                        var endPos = current.startInd;
+        private List<Token> GetRedefTokensWithTitle(Token last, Token current, string text)
+        {
+            var redefTokens = new List<Token>();
+            var endPos = current.StartInd;
 
-                        while (endPos != text.Length && text[endPos] != '\n')
-                        {
-                            endPos++;
-                        }
+            while (endPos != text.Length && text[endPos] != '\n')
+            {
+                endPos++;
+            }
 
-                        if (last == null)
-                        {
-                            redefTokens.Add(new Token(current.startInd, endPos, Mod.Title));
-                        }
-                        else if (last.modType == Mod.Slash)
-                        {
-                            redefTokens.Add(new Token(current.startInd, current.endInd, Mod.Common));
-                        }
-                        else
-                        {
-                            var redTok = new Token(current.startInd, endPos, Mod.Title);
+            if (last == null)
+            {
+                redefTokens.Add(new Token(current.StartInd, endPos, Mod.Title));
+            }
+            else if (last.modType == Mod.Slash)
+            {
+                redefTokens.Add(new Token(current.StartInd, current.EndInd, Mod.Common));
+            }
+            else
+            {
+                var redTok = new Token(current.StartInd, endPos, Mod.Title);
 
-                            if (last != null)
-                            {
-                                redefTokens.Add(last);
-                            }
+                if (last != null)
+                {
+                    redefTokens.Add(last);
+                }
 
-                            redefTokens.Add(redTok);
-                        }
-
-                        return redefTokens;
-                    }
-
-                case Mod.Common:
-                    {
-                        redefTokens.Add(last);
-                        redefTokens.Add(current);
-                        return redefTokens;
-                    }
+                redefTokens.Add(redTok);
             }
 
             return redefTokens;
@@ -147,13 +132,13 @@ namespace Markdown
         {
             var redefTokens = new List<Token>();
 
-             if (last == null)
+            if (last == null)
             {
                 redefTokens.Add(current);
             }
             else if (last.modType == Mod.Slash)
             {
-                redefTokens.Add(new Token(current.startInd, current.endInd, Mod.Common, false));
+                redefTokens.Add(new Token(current.StartInd, current.EndInd, Mod.Common, false));
             }
             else
             {
@@ -161,6 +146,26 @@ namespace Markdown
                 redefTokens.Add(current);
             }
 
+            return redefTokens;
+        }
+
+        private List<Token> GetRedefTokensWithSlash(Token last, Token current)
+        {
+            var redefTokens = new List<Token>();
+
+            if (last == null)
+            {
+                redefTokens.Add(current);
+                return redefTokens;
+            }
+            else if (last.modType == Mod.Slash)
+            {
+                redefTokens.Add(new Token(current.StartInd, current.EndInd, Mod.Common, false));
+                return redefTokens;
+            }
+
+            redefTokens.Add(last);
+            redefTokens.Add(current);
             return redefTokens;
         }
     }

@@ -1,6 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Text;
+﻿using System.Collections.Generic;
 
 namespace Markdown
 {
@@ -29,64 +27,92 @@ namespace Markdown
 
                 if (curModule.modType != Mod.Common)
                 {
-                    openModules.TryPeek(out var lastModule);
-
-                    if (lastModule != null && lastModule.modType == curModule.modType)
-                    {
-                        if (curModule.startInd - lastModule.endInd == 1)
-                        {
-                            curModule.Close();
-                            lastModule.Close();
-                            curModule.modType = Mod.Common;
-                            lastModule.modType = Mod.Common;
-                        }
-                        else if (IsModuleInWord(lastModule) && 
-                            IsModuleInWord(curModule) && 
-                            IsModulesInSameWord(lastModule, curModule))
-                        {
-                            CorrectBoldInclusion(curModule);
-                            curModule.Close();
-                            openModules.Pop();
-                            verifiedModules.Push(curModule);
-                        }
-                        else if (IsModuleInWord(curModule) &&
-                            !IsModulesInSameWord(lastModule, curModule))
-                        {
-                            curModule.modType = Mod.Common;
-                            curModule.Close();
-                        }
-                        else if(IsClosingModule(curModule))
-                        {
-                            CorrectBoldInclusion(curModule);
-                            curModule.Close();
-                            openModules.Pop();
-                            verifiedModules.Push(curModule);
-                        }
-                        else
-                        {
-                            curModule.modType = Mod.Common;
-                        }
-                    }
-                    else
-                    {
-                        if (IsOpeningModule(curModule) || IsModuleInWord(curModule))
-                        {
-                            verifiedModules.Push(curModule);
-                            openModules.Push(curModule);
-                        }
-                        else
-                        {
-                            CorrectIntersect(curModule);
-
-                            curModule.modType = Mod.Common;
-                            curModule.Close();
-                        }
-                    }
+                    ValidConcatination(curModule);
                 }
             }
 
             SolveUnverifiedModules();
             return preTokens;
+        }
+
+        private void ValidConcatination(Token curModule)
+        {
+            openModules.TryPeek(out var lastModule);
+
+            if (lastModule != null && lastModule.modType == curModule.modType)
+            {
+                HandingConcatinationClosure(lastModule, curModule);
+            }
+            else
+            {
+                HandingConcatinationOpen(curModule);
+            }
+        }
+
+        private void HandingConcatinationOpen(Token curModule)
+        {
+            if (IsOpeningModule(curModule) || IsModuleInWord(curModule))
+            {
+                verifiedModules.Push(curModule);
+                openModules.Push(curModule);
+            }
+            else
+            {
+                CorrectIntersect(curModule);
+                ChangeModType(Mod.Common, curModule);
+                CloseModules(curModule);
+            }
+        }
+
+        private void HandingConcatinationClosure(Token lastModule, Token curModule)
+        {
+            if (curModule.StartInd - lastModule.EndInd == 1)
+            {
+                CloseModules(lastModule, curModule);
+                ChangeModType(Mod.Common, lastModule, curModule);
+            }
+            else if (IsModuleInWord(lastModule) &&
+                IsModuleInWord(curModule) &&
+                IsModulesInSameWord(lastModule, curModule))
+            {
+                CorrectBoldInclusion(curModule);
+                CloseModules(curModule);
+                openModules.Pop();
+                verifiedModules.Push(curModule);
+            }
+            else if (IsModuleInWord(curModule) &&
+                !IsModulesInSameWord(lastModule, curModule))
+            {
+                ChangeModType(Mod.Common, curModule);
+                CloseModules(curModule);
+            }
+            else if (IsClosingModule(curModule))
+            {
+                CorrectBoldInclusion(curModule);
+                CloseModules(curModule);
+                openModules.Pop();
+                verifiedModules.Push(curModule);
+            }
+            else
+            {
+                ChangeModType(Mod.Common, curModule);
+            }
+        }
+
+        private void CloseModules(params Token[] tokens)
+        {
+            foreach (var token in tokens)
+            {
+                token.Close();
+            }
+        }
+
+        private void ChangeModType(Mod newModType, params Token[] tokens)
+        {
+            foreach (var token in tokens)
+            {
+                token.modType = newModType;
+            }
         }
 
         private void CorrectIntersect(Token curModule)
@@ -99,11 +125,9 @@ namespace Markdown
                 if (preLastMod.modType == curModule.modType)
                 {
                     openModules.Pop();
-                    preLastMod.Close();
-                    lastMod.Close();
-
-                    preLastMod.modType = Mod.Common;
-                    lastMod.modType = Mod.Common;
+                    
+                    CloseModules(preLastMod, lastMod);
+                    ChangeModType(Mod.Common, preLastMod, lastMod);
                 }
             }
         }
@@ -118,7 +142,7 @@ namespace Markdown
                 {
                     if (isStackHasOpenTitle)
                     {
-                        module.Close();
+                        CloseModules(module);
                         isStackHasOpenTitle = false;
                     }
                     else
@@ -128,15 +152,15 @@ namespace Markdown
                 }
                 else
                 {
-                    module.modType = Mod.Common;
+                    ChangeModType(Mod.Common, module);
                 }
             }
 
             if (isStackHasOpenTitle)
             {
                 verifiedModules.TryPeek(out var lastModule);
-                var closingToken = new Token(lastModule.endInd + 1,
-                    lastModule.endInd + 1,
+                var closingToken = new Token(lastModule.EndInd + 1,
+                    lastModule.EndInd + 1,
                     Mod.Title,
                     false);
                 verifiedModules.Push(closingToken);
@@ -146,8 +170,8 @@ namespace Markdown
 
         private bool IsModuleInWord(Token module)
         {
-            if ((module.startInd > 0 && text[module.startInd - 1] != ' ') && 
-                (module.endInd + 1 < text.Length && text[module.endInd + 1] != ' '))
+            if ((module.StartInd > 0 && text[module.StartInd - 1] != ' ') && 
+                (module.EndInd + 1 < text.Length && text[module.EndInd + 1] != ' '))
             {
                 return true;
             }
@@ -157,7 +181,7 @@ namespace Markdown
 
         private bool IsModulesInSameWord(Token first, Token second)
         {
-            var subString = text.Substring(first.endInd, second.startInd - first.endInd);
+            var subString = text.Substring(first.EndInd, second.StartInd - first.EndInd);
 
             if (subString.Contains(' '))
             {
@@ -169,8 +193,8 @@ namespace Markdown
 
         private bool IsOpeningModule(Token curModule)
         {
-            if (curModule.startInd == 0 || 
-                text[curModule.startInd - 1] == ' ')
+            if (curModule.StartInd == 0 || 
+                text[curModule.StartInd - 1] == ' ')
             {
                 return true;
             }
@@ -180,8 +204,8 @@ namespace Markdown
 
         private bool IsClosingModule(Token curModule)
         {
-            if (curModule.endInd + 1 == text.Length ||
-                text[curModule.endInd - 1] != ' ')
+            if (curModule.EndInd + 1 == text.Length ||
+                text[curModule.EndInd - 1] != ' ')
             {
                 return true;
             }
@@ -199,9 +223,8 @@ namespace Markdown
                 var first = verifiedModules.Pop();
                 var second = verifiedModules.Pop();
 
-                first.modType = Mod.Common;
-                first.Close();
-                second.modType = Mod.Common;
+                CloseModules(first);
+                ChangeModType(Mod.Common, first, second);
             }
         }
        
@@ -211,21 +234,21 @@ namespace Markdown
             {
                 if (token.modType == Mod.Bold || token.modType == Mod.Italic)
                 {
-                    var startInd = token.startInd;
-                    var endInd = token.endInd;
+                    var startInd = token.StartInd;
+                    var endInd = token.EndInd;
 
                     if ((startInd > 0 && char.IsDigit(text[startInd - 1])) ||
                         (endInd + 1 < text.Length && char.IsDigit(text[endInd + 1])))
                     {
-                        token.modType = Mod.Common;
-                        token.Close();
+                        CloseModules(token);
+                        ChangeModType(Mod.Common, token);
                     }
                 }
 
                 if (token.modType == Mod.Slash)
                 {
-                    token.modType = Mod.Common;
-                    token.Close();
+                    CloseModules(token);
+                    ChangeModType(Mod.Common, token);
                 }
             }
         }
