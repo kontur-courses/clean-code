@@ -4,16 +4,18 @@ namespace Markdown.TagClasses
 {
     internal class TextTag : ITextTag
     {
-        public string Content { get; set; }
+        public string Source { get; set; }
+        public string Name { get; set; }
         public int Position { get; set; }
         public int Length { get; set; }
         public bool IsEscaped { get; set; }
         public TagType Type { get; set; }
 
-        public TextTag(int pos, TagType type, int length, bool isEscaped = false, string content = "")
+        public TextTag(int pos, TagType type, int length, bool isEscaped = false, string src = "", string name = "")
         {
             Position = pos;
-            Content = content;
+            Source = src;
+            Name = name;
             Type = type;
             IsEscaped = isEscaped;
             Length = length;
@@ -27,6 +29,6 @@ namespace Markdown.TagClasses
             throw new ArgumentException("Object is not a ITag");
         }
 
-        public string GetHtmlTag() => $"<picture>{Content}</picture>";
+        public string GetHtmlTag() => $@"<p><img src=""{Source}"" alt=""{Name}""></p>";
     }
 }

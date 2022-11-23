@@ -2,6 +2,7 @@
 {
     internal interface ITextTag : ITag
     {
-        public string Content { get; set; }
+        public string Source { get; set; }
+        public string Name { get; set; }
     }
 }

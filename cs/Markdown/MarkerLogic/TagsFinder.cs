@@ -8,6 +8,7 @@ namespace Markdown.MarkerLogic
     public class TagsFinder : ITagsFinder
     {
         private const char FillerSymbol = 'a';
+
         public List<ITag> CreateTagList(string paragraph)
         {
             var result = new List<ITag>();
@@ -126,8 +127,9 @@ namespace Markdown.MarkerLogic
 
                 var end = position + haveEnd + 1;
                 var length = end + 2 + (shards[i].Length - startingPosition);
-                var content = shards[i + 1][..haveEnd];
-                yield return new TextTag(startingPosition, type, length, content: content);
+                var source = shards[i + 1][..haveEnd];
+                var name = shards[i][(startPosition + 1)..];
+                yield return new TextTag(startingPosition, type, length, src: source, name: name);
                 position += shards[i].Length + 2 * (i + 1);
             }
         }
