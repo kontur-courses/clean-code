@@ -1,11 +1,10 @@
 ﻿using System.Text;
-using Markdown.Parser;
 using Markdown.Tags;
 using Markdown.Token;
 
 namespace Markdown.Parse;
 
-public class MarkdownParser : IParser
+public class MarkdownMarkupParser : IMarkupParser
 {
     private readonly HashSet<char> specialChars = new() { '_', '#' };
     private readonly HashSet<Tag> tagsThatCloseOnNewLine = new() { MarkdownTags.Heading };

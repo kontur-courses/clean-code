@@ -1,8 +1,8 @@
 ﻿using Markdown.Token;
 
-namespace Markdown.Parser;
+namespace Markdown.Parse;
 
-public interface IParser
+public interface IMarkupParser
 {
     public TokenTree Parse(string text);
 }

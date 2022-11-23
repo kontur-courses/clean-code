@@ -4,7 +4,7 @@ using Markdown.Token;
 
 namespace Markdown.Render;
 
-public class Renderer : IRenderer
+public class TokenRenderer : ITokenRenderer
 {
     public string Render(TokenTree tree, Dictionary<Tag, Tag> rules)
     {
