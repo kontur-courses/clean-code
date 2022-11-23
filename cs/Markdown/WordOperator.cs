@@ -1,8 +1,8 @@
-﻿using Markdown.TagClasses;
+﻿using Markdown.TagClasses.ITagInterfaces;
 
 namespace Markdown
 {
-    internal class WordOperator
+    public class WordOperator
     {
         public static string GetWordAtPosition(string paragraph, int position)
         {
@@ -17,7 +17,7 @@ namespace Markdown
 
         public static bool IsWordContainsDigits(string word) => word.Any(x => x is >= '0' and <= '9');
 
-        public static bool InDifferentWords(string paragraph, PairedTag start, PairedTag end)
+        public static bool InDifferentWords(string paragraph, IPairedTag start, IPairedTag end)
         {
             var length = end.Position - start.Position;
             var word = paragraph.Substring(start.Position, length);
