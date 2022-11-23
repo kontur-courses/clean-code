@@ -53,4 +53,11 @@ public class Tests
     {
         markdown!.Render(mdInput).Should().Be(result);
     }
+
+    [TestCase("__Some words _with tags__", "<strong>Some words _with tags</strong>")]
+    [TestCase("#Some __words _with tags#", "<h1>Some __words _with tags</h1>")]
+    public void Renderer_MarkdownTagWithOneCharTagInside_LineWithHtmlAndOneTagInside(string mdInput, string result)
+    {
+        markdown!.Render(mdInput).Should().Be(result);
+    }
 }

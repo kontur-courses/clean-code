@@ -39,7 +39,7 @@ public class MarkdownTranslator : ITranslator
             else if (currentTag is not null && stackOfTags.Peek().Tag == currentTag)
             {
                 var previewTag = stackOfTags.Pop();
-                ReplaceByIndex(stackOfTags, previewTag.Tag, previewTag.Index);
+                ReplaceByIndex(previewTag.Tag, previewTag.Index);
             }
             else
                 sb.Append(input[index]);
@@ -61,21 +61,21 @@ public class MarkdownTranslator : ITranslator
 
     private string GetToken()
     {
-        if (text[point] == ' ')
+        var token = IsLetter(point) ? ReadForNow(IsLetter) : ReadForNow(IsTag);
+        if (token == string.Empty)
             return text[point++].ToString();
         
-        var token = IsLetter(point) ? ReadForNow(IsLetter) : ReadForNow(IsTag);
         var tag = tags.FirstOrDefault(tag => tag!.SourceName == token);
         if (tag is not null && stackOfTags.Count == 0 ||
-            tag is not null && stackOfTags.Peek().Tag != tag)
+            tag is not null && stackOfTags.All(tagWith => tagWith.Tag != tag))
         {
             stackOfTags.Push(new TagWithIndex(tag, point - tag.SourceName.Length));
             return string.Empty;
         }
-        if (tag is not null && stackOfTags.Peek().Tag == tag)
+        if (tag is not null && stackOfTags.Any(tagWith => tagWith.Tag == tag))
         {
-            var previewTag = stackOfTags.Pop();
-            ReplaceByIndex(stackOfTags, previewTag.Tag, previewTag.Index);
+            var previewTag = stackOfTags.First(tagWith => tagWith.Tag == tag);
+            ReplaceByIndex(previewTag.Tag, previewTag.Index);
             return string.Empty;
         }
 
@@ -103,11 +103,17 @@ public class MarkdownTranslator : ITranslator
         return symbols.ToString();
     }
 
-    private void ReplaceByIndex(IEnumerable<TagWithIndex> tags, ITag tag, int index)
+    private void ReplaceByIndex(ITag tag, int index)
     {
         var insertIndex = index;
-        foreach (var previousTag in tags)
-            insertIndex -= previousTag.Tag.SourceName.Length;
+        if (stackOfTags.Peek().Tag == tag)
+        {
+            foreach (var previousTag in stackOfTags.Where(tagWith => tagWith.Tag != tag))
+                insertIndex -= previousTag.Tag.SourceName.Length;
+            stackOfTags.Pop();
+        }
+        else
+            PasteSourceNames(stackOfTags, tag);
         
         var translateName = TagHelper.GetHtmlFormat(tag.TranslateName);
         // TODO: Change 5 to Const
@@ -118,6 +124,15 @@ public class MarkdownTranslator : ITranslator
         sb.Insert(insertIndex + indexPreviewItems, translateName.start);
         sb.Append(translateName.end);
         tagsInLine.Add(new TagWithIndex(tag, index));
+    }
+
+    private void PasteSourceNames(IEnumerable<TagWithIndex> tags, ITag tag)
+    {
+        var index = tag.SourceName.Length + tagsInLine.Sum(tagWith => tagWith.Tag.TranslateName.Length);
+        foreach (var item in tags.Where(tagWith => tagWith.Tag != tag).Reverse())
+            sb.Insert(item.Index - index, item.Tag.SourceName);
+        
+        stackOfTags = new Stack<TagWithIndex>();
     }
 }
 
