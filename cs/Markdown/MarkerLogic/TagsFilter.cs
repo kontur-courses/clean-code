@@ -9,7 +9,7 @@ namespace Markdown.MarkerLogic
         public List<ITag> FilterTags(List<ITag> tags, string paragraph)
         {
             var result = new List<ITag>();
-            result.AddRange(tags.Where(x => x.IsEscaped || x.Type is TagType.Header or TagType.Picture).ToList());
+            result.AddRange(tags.Where(x => x.IsEscaped || x is not PairedTag).ToList());
 
             var pairedTags = tags.OfType<PairedTag>()
                 .ToList();
