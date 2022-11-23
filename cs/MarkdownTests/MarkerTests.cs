@@ -1,6 +1,7 @@
 ﻿using System.Diagnostics;
 using FluentAssertions;
 using Markdown;
+using Markdown.MarkerLogic;
 using NUnit.Framework;
 
 namespace MarkdownTests
@@ -8,7 +9,7 @@ namespace MarkdownTests
     [TestFixture]
     public class MarkerTests
     {
-        private Marker sut = new();
+        private readonly Marker sut = new( new TagsFinder(),new TagsFilter(), new TagsSwitcher());
 
         [TestCase("_a_", ExpectedResult = "<em>a</em>", Description = "Emphasis should be placed")]
         [TestCase("__a__", ExpectedResult = "<strong>a</strong>", Description = "Strong should be placed")]
@@ -80,7 +81,6 @@ namespace MarkdownTests
         [TestCase("___aa___", ExpectedResult = "<strong><em>aa</em></strong>")]
         public string Mark_PutInconclusiveMarkers_ShouldHaveTendencyToPutEmphasisIntoStrong(string input)
         {
-
             var result = sut.Mark(input);
 
             return result;
@@ -90,7 +90,6 @@ namespace MarkdownTests
         [TestCase("__aa___aa_", ExpectedResult = "<strong>aa</strong><em>aa</em>")]
         public string Mark_PutInconclusiveMarkers_ShouldHaveTendencyToNotCreateIntersections(string input)
         {
-
             var result = sut.Mark(input);
 
             return result;
@@ -131,7 +130,7 @@ namespace MarkdownTests
         public void Mark_PutPictureTag_ShouldTagIt()
         {
             var text = @"a![AA](bb)";
-            var expectedResult = @"a<picture>bb</picture>";
+            var expectedResult = @"a<p><img src=""bb"" alt=""AA""></p>";
 
             var result = sut.Mark(text);
 
@@ -141,7 +140,7 @@ namespace MarkdownTests
         public void Mark_PutPictureTagWithEscape_ShouldTagItCorrectly()
         {
             var text = @"a\![AA](_bb_) aaaa a![AAA](_bb_)aaaa";
-            var expectedResult = @"a![AA](<em>bb</em>) aaaa a<picture>_bb_</picture>aaaa";
+            var expectedResult = @"a![AA](<em>bb</em>) aaaa a<p><img src=""_bb_"" alt=""AAA""></p>aaaa";
 
             var result = sut.Mark(text);
 
