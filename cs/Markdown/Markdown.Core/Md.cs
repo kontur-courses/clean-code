@@ -1,21 +1,15 @@
-﻿using Markdown.Core.Interfaces;
+﻿using System.Text;
 
 namespace Markdown.Core
 {
     public class Md
-    {   
-        private readonly IMdTokenizer _mdTokenizer;
-        private readonly IMdRender _mpRender;
-        private readonly IMdParser _mdParser;
-
-        public Md(IMdTokenizer mdTokenizer, IMdParser mdParser, IMdRender mdRender)
+    {
+        public Md()
         {
-            _mdTokenizer = mdTokenizer;
-            _mdParser = mdParser;
-            _mpRender = mdRender;
+          
         }
 
-        public string Render(string mdText)
+        public string Render(string input)
         {
             throw new NotImplementedException();
         }

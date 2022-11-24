@@ -1,5 +1,5 @@
-﻿using Markdown.Core;
-using Markdown.Core.Helpers;
+﻿using System;
+using Markdown.Core;
 
 namespace Markdown.Sandbox
 {
@@ -7,8 +7,9 @@ namespace Markdown.Sandbox
     {
         public static void Main()
         {
-            var markdown = new Md(new MdTokenizer(), new MdParser(), new MdRender());
-            markdown.Render("#123");
+            var markdown = new Md();
+            Console.WriteLine(markdown.Render("#123"));
+            Console.WriteLine(markdown.Render("_123_"));
         }
     }
 }
