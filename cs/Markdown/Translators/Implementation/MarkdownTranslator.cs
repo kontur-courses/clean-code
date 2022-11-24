@@ -7,6 +7,7 @@ namespace Markdown.Translators.Implementation;
 
 public class MarkdownTranslator : ITranslator
 {
+    private const int OpenCloseTagLength = 5;
     private List<ITag?> tags;
     private Stack<TagWithIndex> stackOfTags;
     private StringBuilder sb;
@@ -47,9 +48,18 @@ public class MarkdownTranslator : ITranslator
     private string GetToken()
     {
         var token = IsLetter(point) ? ReadForNow(IsLetter) : ReadForNow(IsTag);
-        point += token.Length;
-        if (token == string.Empty)
+        if (token == "" && text[point] != '\\')
             return text[point++].ToString();
+        if (text[point] == '\\')
+        {
+            token = ReadForNow(IsTag, point + 1, text);
+            point += token.Length + 1;
+            if (token == "") 
+                token = "\\";
+            
+            return token;
+        }
+        point += token.Length;
         
         var tag = tags.FirstOrDefault(tag => tag!.SourceName == token);
         if (tag is not null && stackOfTags.Count == 0 && IsCorrectStart(stackOfTags, tag, point) ||
@@ -137,10 +147,9 @@ public class MarkdownTranslator : ITranslator
             PasteSourceNames(stackOfTags, tag);
 
         var translateName = TagHelper.GetHtmlFormat(tag!.TranslateName);
-        // TODO: Change 5 to Const
         var indexPreviewItems = tagsInLine
             .Where(tagWithIndex => tagWithIndex.Index < index)
-            .Sum(item => item.Tag!.TranslateName.Length * 2 + 5 - item.Tag.SourceName.Length * 2);
+            .Sum(item => item.Tag!.TranslateName.Length * 2 + OpenCloseTagLength - item.Tag.SourceName.Length * 2);
 
         sb.Insert(insertIndex + indexPreviewItems, translateName.start);
         sb.Append(translateName.end);

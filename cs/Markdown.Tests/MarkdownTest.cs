@@ -105,4 +105,12 @@ public class Tests
     {
         markdown!.Render(mdInput).Should().Be(result);
     }
+
+    [TestCase("\\_Some \\_text", "_Some _text")]
+    [TestCase("\\Some \\_text", "\\Some _text")]
+    [TestCase("\\Some \\__text", "\\Some __text")]
+    public void Renderer_ScreeningTags_LineWithoutScreeningSymbols(string mdInput, string result)
+    {
+        markdown!.Render(mdInput).Should().Be(result);
+    }
 }
