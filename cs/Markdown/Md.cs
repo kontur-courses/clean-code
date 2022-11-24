@@ -6,7 +6,14 @@ namespace Markdown
     {
         public string Render(string text)
         {
-            return "";
+            var characterLevelTokenizer = new CharacterLevelTokenizer();
+            var tagLevelTokenizer = new TagLevelTokenizer();
+            var semanticLeveTokenizer = new SemanticLevelTokenizer();
+            var tokensToHtmlConverter = new TokensToHTMLConverter();
+            var characterTokenList = characterLevelTokenizer.Tokenize(text);
+            var tagTokenList = tagLevelTokenizer.Tokenize(characterTokenList);
+            var semanticTokenList = semanticLeveTokenizer.Tokenize(tagTokenList);
+            return tokensToHtmlConverter.Convert(semanticTokenList);
         }
     }
 }

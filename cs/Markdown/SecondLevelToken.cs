@@ -3,12 +3,12 @@
     public class SecondLevelToken
     {
         private string tokenValue;
-        private FirstTokenType tokenType;
-        
-        public SecondLevelToken(string tokenValue, FirstTokenType tokenType)
+        private SecondLevelTokenType levelTokenType;
+
+        public SecondLevelToken(string tokenValue, SecondLevelTokenType levelTokenType)
         {
             this.tokenValue = tokenValue;
-            this.tokenType = tokenType;
+            this.levelTokenType = levelTokenType;
         }
 
         public string GetTokenValue()
@@ -16,9 +16,14 @@
             return tokenValue;
         }
 
-        public FirstTokenType FirstTokenType()
+        public SecondLevelTokenType GetSecondTokenType()
         {
-            return tokenType;
+            return levelTokenType;
+        }
+
+        public void ChangeTokenType(SecondLevelTokenType newTokenType)
+        {
+            levelTokenType = newTokenType;
         }
     }
 }

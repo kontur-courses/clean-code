@@ -3,12 +3,12 @@
     public class FirstLevelToken
     {
         private string tokenValue;
-        private FirstTokenType tokenType;
+        private FirstLevelTokenType levelTokenType;
         
-        public FirstLevelToken(string tokenValue, FirstTokenType tokenType)
+        public FirstLevelToken(string tokenValue, FirstLevelTokenType levelTokenType)
         {
             this.tokenValue = tokenValue;
-            this.tokenType = tokenType;
+            this.levelTokenType = levelTokenType;
         }
 
         public string GetTokenValue()
@@ -16,9 +16,14 @@
             return tokenValue;
         }
 
-        public FirstTokenType FirstTokenType()
+        public FirstLevelTokenType GetFirstTokenType()
         {
-            return tokenType;
+            return levelTokenType;
+        }
+
+        public void PutNewFirstLevelType(FirstLevelTokenType newFirstLevelType)
+        {
+            this.levelTokenType = newFirstLevelType;
         }
     }
 }

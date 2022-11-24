@@ -1,12 +1,12 @@
 ﻿namespace Markdown
 {
-    public enum FirstTokenType
+    public enum FirstLevelTokenType
     {
         String,
+        StringWithNumbers,
         Space,
         Underscore, //нижнее подчёркивание
         Lattice, //решётка
         Backslash, //обратный слэш
-        NewLine
     }
 }
