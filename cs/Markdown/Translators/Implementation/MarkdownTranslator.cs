@@ -76,9 +76,6 @@ public class MarkdownTranslator : ITranslator
         tags.Where(tag => tag?.SourceName.Length >= tagIndexTo + 1)
             .Count(tag => tag?.SourceName[..(tagIndexTo + 1)] == myText.Substring(textIndexFrom, tagIndexTo + 1)) > 0;
 
-    // private bool IsTag(int index) =>
-    //     tags.Any(tag => tag!.SourceName[0] == text[index]);
-
     private string ReadForNow(Func<int, bool> func)
     {
         var symbols = new StringBuilder();
@@ -102,7 +99,7 @@ public class MarkdownTranslator : ITranslator
         var startIndex = index;
         var tagIndex = 0;
         var symbols = new StringBuilder();
-        while (index < text.Length)
+        while (index < currentText.Length)
         {
             if (!func(startIndex, index, tagIndex, currentText))
                 return symbols.ToString();
@@ -123,6 +120,7 @@ public class MarkdownTranslator : ITranslator
         {
             foreach (var previousTag in stackOfTags.Where(tagWith => tagWith.Tag != tag))
                 insertIndex -= previousTag.Tag!.SourceName.Length;
+            
             stackOfTags.Pop();
         }
         else if (CheckIntersections(tag!, point))
@@ -159,10 +157,11 @@ public class MarkdownTranslator : ITranslator
         stackOfTags = new Stack<TagWithIndex>();
     }
 
-    private bool IsCorrectStart(IEnumerable<TagWithIndex> tags, ITag? tag, int index)
+    private bool IsCorrectStart(Stack<TagWithIndex> tags, ITag? tag, int index)
     {
-        if (index < text.Length && IsLetter(index))
-            return true;
+        if (index < text.Length && IsLetter(index)) 
+            return tags.Count <= 0 || tags.Peek().Tag!.SourceName != "_" || tag.SourceName != "__";
+
         return false;
     }
 

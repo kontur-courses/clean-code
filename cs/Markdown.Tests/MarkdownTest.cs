@@ -47,8 +47,10 @@ public class Tests
     
     [TestCase("_Some word #with# tags_", "<em>Some word <h1>with</h1> tags</em>")]
     [TestCase("#Some _word with_ tags#", "<h1>Some <em>word with</em> tags</h1>")]
+    [TestCase("__Some _word with_ tags__", "<strong>Some <em>word with</em> tags</strong>")]
+    [TestCase("_Some __word with__ tags_", "<em>Some __word with__ tags</em>")]
     [TestCase("#Some _word __with a lot__ of_ tags#", 
-        "<h1>Some <em>word <strong>with a lot</strong> of</em> tags</h1>")]
+        "<h1>Some <em>word __with a lot__ of</em> tags</h1>")]
     public void Renderer_MarkdownTagInside_LineWithHtml(string mdInput, string result)
     {
         markdown!.Render(mdInput).Should().Be(result);
