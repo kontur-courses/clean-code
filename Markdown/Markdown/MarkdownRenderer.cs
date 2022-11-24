@@ -1,4 +1,5 @@
-﻿using Markdown.LocalMarkdown;
+﻿using System.ComponentModel.DataAnnotations;
+using Markdown.LocalMarkdown;
 using System.Text;
 
 namespace Markdown
@@ -16,11 +17,23 @@ namespace Markdown
             var actionList = new MarkdownActionType[line.Length];
             for (int i = 0; i < line.Length; i++)
             {
+                LocalMarkdownMaker mdMaker = null;
                 if (line[i] == '_')
                 {
-                    var c = new CursiveMarkdownMaker(line, i, line.Length - 1);
-                    c.MakeSubstringMarkdown(actionList);
-                    i = c.EndIndex;
+                    if (i + 1 < line.Length && line[i + 1] == '_')
+                    {
+                        mdMaker = new BoldMarkdownMaker(line, i, line.Length - 1);
+                    }
+                    else
+                    {
+                        mdMaker = new CursiveMarkdownMaker(line, i, line.Length - 1);
+                    }
+                }
+
+                if (mdMaker != null)
+                {
+                    mdMaker.MakeSubstringMarkdown(actionList);
+                    i = mdMaker.EndIndex;
                 }
             }
 
@@ -37,6 +50,9 @@ namespace Markdown
                     case MarkdownActionType.None:
                         if (!triggers.Contains(line[i]))
                             sb.Append(line[i]);
+                        break;
+                    case MarkdownActionType.NotRendered:
+                        continue;
                         break;
                     default:
                         sb.Append(MarkdownToHTMLTagConverter.GetTagByMarkdownAction(actionList[i]));

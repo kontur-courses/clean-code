@@ -10,7 +10,9 @@
         private static Dictionary<MarkdownActionType, string> dict = new Dictionary<MarkdownActionType, string>()
         {
             {MarkdownActionType.OpenCursive, "<em>"},
-            {MarkdownActionType.CloseCursive, @"<\em>"}
+            {MarkdownActionType.CloseCursive, @"<\em>"},
+            {MarkdownActionType.OpenBold, "<strong>"},
+            {MarkdownActionType.CloseBold, @"<\strong>"}
         };
     }
 }
