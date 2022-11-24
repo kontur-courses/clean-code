@@ -1,8 +1,10 @@
-﻿namespace Markdown.Tags
+﻿using System.Collections.Generic;
+
+namespace Markdown.Tags
 {
     public class Title : Tag
     {
-        public Title(Md md) : base(md, "#")
+        public Title(Md md) : base(md, "#", new HashSet<char>())
         {
         }
 

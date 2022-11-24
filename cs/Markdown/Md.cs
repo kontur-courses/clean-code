@@ -19,6 +19,7 @@ namespace Markdown
                 {new BoldText(this).Identifier, new BoldText(this)},
                 {new ItalicText(this).Identifier, new ItalicText(this)},
                 {new Title(this).Identifier, new Title(this)},
+                {new Link(this).Identifier, new Link(this)},
             };
         }
 
@@ -46,6 +47,13 @@ namespace Markdown
         internal string FormatToken(ref Token token)
         {
             string result;
+            if (token.Type == TokenType.Tag && !tagFormats.ContainsKey(token.Value))
+            {
+                result = token.Value;
+                token = token.Next;
+                return result;
+            }
+
             if (token.Type == TokenType.Tag && !token.IgnoreAsTag)
             {
                 dfsTags.Add(token.Value);
@@ -69,6 +77,16 @@ namespace Markdown
         public bool IsStartOfTag(string value)
         {
             return tagFormats.Keys.Any(t => t.StartsWith(value));
+        }
+
+        public Tag GetBySpecialSymbol(char symbol)
+        {
+            foreach (var kv in tagFormats)
+            {
+                if (kv.Value.SpecialSymbols.Contains(symbol))
+                    return kv.Value;
+            }
+            return null;
         }
 
         public bool IsShieldSymbol(char value)

@@ -49,6 +49,20 @@ namespace Markdown
                     continue;
                 }
 
+                var specTag = markdown.GetBySpecialSymbol(text[i]);
+                if (specTag != null)
+                {
+                    if (builder.Length > 0)
+                    {
+                        AddToken(currentType, builder.ToString(), tokenIndex);
+                        builder.Clear();
+                    }
+                    AddToken(TokenType.Tag, text[i].ToString(), i);
+                    currentType = TokenType.Tag;
+                    continue;
+                }
+
+
                 var type = GetTokenOnIndex(i);
                 if (currentType != type)
                 {

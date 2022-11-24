@@ -1,21 +1,23 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
 using System.Text;
-using System.Threading.Tasks;
 
 namespace Markdown.Tags
 {
     public abstract class Tag
     {
         public readonly Md Markdown;
-        public string Identifier { get; }
 
-        protected Tag(Md md, string identifier)
+        protected Tag(Md md, string identifier, HashSet<char> specialSymbols)
         {
             Markdown = md;
             Identifier = identifier;
+            SpecialSymbols = specialSymbols;
         }
+
+        public string Identifier { get; }
+
+        public HashSet<char> SpecialSymbols { get; }
 
         public virtual string Format(Token start, out Token next)
         {
@@ -46,24 +48,20 @@ namespace Markdown.Tags
                 start.IgnoreTag();
                 return start.Next;
             }
+
             var current = start.Next;
 
             while (current != null && (current.Value != start.Value
-                                       || current.Value == start.Value && current.Previous?.Type == TokenType.Space))
+                                       || (current.Value == start.Value && current.Previous?.Type == TokenType.Space)))
             {
                 if (current.Type == TokenType.Tag)
                 {
-                    if (current.Previous?.Type == TokenType.Space && start.Value == current.Value)
-                    {
-                        current.IgnoreTag();
-                    }
+                    if (current.Previous?.Type == TokenType.Space && start.Value == current.Value) current.IgnoreTag();
+
+                    if (identifiers.Count > 0 && identifiers.Peek().Value == current.Value)
+                        identifiers.Pop();
                     else
-                    {
-                        if (identifiers.Count > 0 && identifiers.Peek().Value == current.Value)
-                            identifiers.Pop();
-                        else
-                            identifiers.Push(current);
-                    }
+                        identifiers.Push(current);
                 }
 
                 current = current.Next;
@@ -85,8 +83,8 @@ namespace Markdown.Tags
 
                 identifiers.Pop();
             }
-            return current?.IgnoreTag();
 
+            return current?.IgnoreTag();
         }
 
         protected virtual string FormatTag(Token start, Token end, string strBetween)
