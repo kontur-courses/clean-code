@@ -8,7 +8,6 @@ namespace Markdown
     {
         OneUnderscore,
         TwoUnderscore,
-        Header,
-        Paragraph
+        Header
     }
 }
