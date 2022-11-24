@@ -1,10 +1,4 @@
 ﻿using Markdown.Tokens;
-using Newtonsoft.Json.Linq;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace Markdown.Markdown
 {
@@ -13,7 +7,7 @@ namespace Markdown.Markdown
         Open = 0,
         Close = 1,
         Default = 2,
-        Unknown = 3,
+        Unknown = 3
     }
 
     public enum TokenType
@@ -23,36 +17,35 @@ namespace Markdown.Markdown
         Header = 2,
         Italic = 3,
         Field = 4,
-
+        Image = 5,
+        Unseen = 6
     }
 
     public static class MarkdownParser
     {
-        public static List<Token> GetArrayWithMdTags(string stringWithTags)
+        public static List<Token> GetListWithMdTags(string stringWithTags)
         {
-            var mdTags = new HashSet<string>() { "# ", "\n", "__", "_", "\\" };
+            if (string.IsNullOrEmpty(stringWithTags))
+                throw new ArgumentNullException("String for parse token must not be null or empty");
+            var mdTags = new HashSet<string>() { "# ", "\n", "**", "__", "_", "\\" };
             var tokenList = new List<Token>();
             foreach (var tag in mdTags)
-            {
-
                 AddTokenTag(stringWithTags, tag, tokenList);
-            }
             return tokenList;
         }
 
         private static void AddTokenTag(string stringWithTags, string tag, List<Token> tokenList)
         {
             var busyIndexes = tokenList.GetBusyIndexes();
-            foreach (var indexOfTag in tag.GetIndexInLine(stringWithTags))
+            foreach (var indexOfTag in tag.GetIndexInLine(stringWithTags)
+                         .Where(indexOfTag => !busyIndexes.Contains(indexOfTag)))
             {
-                if (busyIndexes.Contains(indexOfTag)) continue;
                 GetToken(stringWithTags, tag, tokenList, busyIndexes, indexOfTag);
             }
         }
 
         private static void GetToken(string stringWithTags, string tag, List<Token> tokenList, List<int> busyIndexes, int indexOfTag)
         {
-
             var token = new Token(indexOfTag, tag.Length, GetTokenType(tag));
             token.Element = token.GetElementInText(stringWithTags);
             tokenList.Add(token);
@@ -79,7 +72,7 @@ namespace Markdown.Markdown
             return listIndexes;
         }
 
-        public static Token FromGetTokenTo(this Token firstToken, Token secondToken)
+        public static Token GetTokenBetween(this Token firstToken, Token secondToken)
         {
             var startText = firstToken.Position + firstToken.Length;
             var len = secondToken.Position - startText;
@@ -93,6 +86,7 @@ namespace Markdown.Markdown
             {
                 "# " => TokenType.Header,
                 "\n" => TokenType.Header,
+                "**" => TokenType.Image,
                 "__" => TokenType.Strong,
                 "_" => TokenType.Italic,
                 "\\" => TokenType.Field,

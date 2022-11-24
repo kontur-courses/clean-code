@@ -1,62 +1,44 @@
-﻿using System;
-using System.Collections;
-using System.Collections.Generic;
-using System.Diagnostics.Metrics;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using Markdown.Markdown;
+﻿using Markdown.Markdown;
 
 namespace Markdown.Tokens
 {
     public class Token : IToken
     {
-
+        private static readonly List<char?> BlackListForClose = new() { ' ', null };
+        private static readonly HashSet<char?> BlackListForOpen = new() { ' ', null, '\\', '\n', '\r' };
         public TokenType Type;
         public TokenElement Element;
-
         public int Position { get; set; }
         public int Length { get; set; }
         public int End => Position + Length - 1;
 
+
         public Token(int position, int length)
         {
+            if (position < 0)
+                throw new ArgumentOutOfRangeException($"position{position} must be positive");
             Position = position;
             Length = length;
         }
 
         public Token(int position, int length, TokenType type)
         {
+            if (position < 0)
+                throw new ArgumentOutOfRangeException($"position {position} must be positive");
             Position = position;
             Length = length;
             Type = type;
         }
 
-        public Token(int position, int length, TokenType type, TokenElement element)
-        {
-            Position = position;
-            Length = length;
-            Type = type;
-            Element = element;
-        }
-
-        public override bool Equals(object obj)
-        {
-            if ((Token)obj == null)
-                return false;
-            return Equals((Token)obj);
-        }
-
-        public void ToDefault()
+        public void SetToDefault()
         {
             Type = TokenType.Default;
         }
 
-
-
-
-        private static readonly List<char?> BlackListForClose = new() { ' ', null };
-        private static readonly HashSet<char?> BlackListForOpen = new() { ' ', null, '\\', '\n', '\r' };
+        public void SetToUnsee()
+        {
+            Type = TokenType.Unseen;
+        }
 
         public TokenElement GetElementInText(string mdString)
         {
@@ -72,14 +54,15 @@ namespace Markdown.Tokens
                     ? TokenElement.Default
                     : TokenElement.Close;
             }
+
             return BlackListForClose.Contains(charBeforeTag)
                 ? TokenElement.Open
                 : TokenElement.Unknown;
         }
-        public string CreateString(string md)
-        {
-            return md.Substring(Position, Length);
 
+        public ReadOnlySpan<char> CreateString(string md)
+        {
+            return md.AsSpan(Position, Length);
         }
     }
 }

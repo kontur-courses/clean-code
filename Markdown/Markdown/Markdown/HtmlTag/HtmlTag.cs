@@ -13,9 +13,17 @@ namespace Markdown.HtmlTag
 
         public HtmlTag(string tag)
         {
+            if (string.IsNullOrEmpty(tag))
+                throw new ArgumentNullException("Tag must be with arguments");
             StartTag = $@"\<{tag}>";
             EndTag = $@"\</{tag}>";
-
+        }
+        public HtmlTag(string startTag, string endTag)
+        {
+            if (string.IsNullOrEmpty(startTag) || string.IsNullOrEmpty(endTag))
+                throw new ArgumentNullException("Tag must be with arguments");
+            StartTag = startTag;
+            EndTag = endTag;
         }
 
         public static string CreateHtmlString(string stringForHtml, HtmlTag htmlTag)

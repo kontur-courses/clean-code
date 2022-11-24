@@ -1,11 +1,4 @@
 ﻿using Markdown.Markdown;
-using Newtonsoft.Json.Linq;
-using System;
-using System.Collections.Generic;
-using System.Collections.ObjectModel;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace Markdown.Tokens
 {
@@ -15,6 +8,8 @@ namespace Markdown.Tokens
 
         public static List<Token> Filter(this List<Token> tokens, string MarkdownString)
         {
+            if (tokens.Count == 0)
+                throw new ArgumentException("Empty tokens must not been filtered");
             return tokens
                 .RemoveFields()
                 .RemoveDigits(MarkdownString)
@@ -22,30 +17,25 @@ namespace Markdown.Tokens
                 .RemoveStrongInItalics()
                 .ToList();
         }
+
         private static IEnumerable<Token> RemoveFields(this List<Token> tokens)
         {
-            var field = false;
             var count = tokens.Count;
             for (var i = 0; i < count; i++)
             {
-                var token = tokens[i];
-                if (field)
+
+                if (tokens[i].Type != TokenType.Field)
                 {
-                    field = false;
-                    token.ToDefault();
-                    yield return token;
+                    yield return tokens[i];
                     continue;
                 }
-
-                if (token.Type != TokenType.Field)
-                {
-                    yield return token;
-                    continue;
-                }
-
-                token.ToDefault();
+                tokens[i].SetToDefault();
                 if (i + 1 < count && tokens[i + 1].Type != TokenType.Default)
-                    field = true;
+                {
+                    tokens[i].SetToUnsee();
+                    tokens[i + 1].SetToDefault();
+                }
+                yield return tokens[i];
             }
         }
 
@@ -65,7 +55,7 @@ namespace Markdown.Tokens
                     continue;
                 }
 
-                token.ToDefault();
+                token.SetToDefault();
                 yield return token;
             }
         }
@@ -73,7 +63,7 @@ namespace Markdown.Tokens
         private static IEnumerable<Token> RemoveStrongInItalics(this IEnumerable<Token> tokens)
         {
             var lastOpenIsItalics = false;
-           
+
             foreach (var token in tokens.OrderBy(x => x.Position))
             {
                 if (token.Type == TokenType.Italic)
@@ -88,7 +78,7 @@ namespace Markdown.Tokens
 
                 if (lastOpenIsItalics && token.Type == TokenType.Strong)
                 {
-                    token.ToDefault();
+                    token.SetToDefault();
                     yield return token;
                     continue;
                 }
@@ -96,7 +86,6 @@ namespace Markdown.Tokens
 
                 yield return token;
             }
-
         }
 
         private static bool HaveDigit(string MdString, Token token)
@@ -107,11 +96,6 @@ namespace Markdown.Tokens
                 digits.Contains(MdString[token.Position + token.Length]))
                 return true;
             return false;
-            //return ((token.Position - 1 > 0 && digits.Contains(MdString[token.Position - 1]))
-            //        ||(token.Position + token.Length < MdString.Length && 
-            //           digits.Contains(MdString[token.Position + token.Length]))) && false;
         }
-
-
     }
 }

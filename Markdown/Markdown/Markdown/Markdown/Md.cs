@@ -1,21 +1,18 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using Markdown.HtmlTag;
+﻿using Markdown.HtmlTag;
 using Markdown.Tokens;
 
 namespace Markdown.Markdown
 {
     static class Md
     {
-        public static string Render(string MarkdownString)
+        public static string Render(string markdownString)
         {
-            var tokenList = MarkdownParser.GetArrayWithMdTags(MarkdownString).OrderBy(tag => tag.Position).ToList();
-            var tokens = TokenParser.GetTokens(tokenList, MarkdownString.Length);
-            tokens = tokens.Filter(MarkdownString);
-            var htmlString = HtmlParser.Parse(tokens, MarkdownString);
+            if (string.IsNullOrEmpty(markdownString))
+                throw new ArgumentNullException("String for render must not be null or empty");
+            var tokenList = MarkdownParser.GetListWithMdTags(markdownString).OrderBy(tag => tag.Position).ToList();
+            var tokens = TokenParser.GetTokens(tokenList, markdownString.Length);
+            tokens = tokens.Filter(markdownString);
+            var htmlString = HtmlParser.Parse(tokens.DistinctBy(x => x.Position).ToList(), markdownString);
             return htmlString;
         }
     }
