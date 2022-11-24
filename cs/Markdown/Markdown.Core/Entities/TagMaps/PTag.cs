@@ -2,7 +2,7 @@
 
 namespace Markdown.Core.Entities.TagMaps
 {
-    internal class PTag : BaseTag
+    public class PTag : BaseTag
     {
         private const string Prefix = "<p>";
         private const string Postfix = "</p>";

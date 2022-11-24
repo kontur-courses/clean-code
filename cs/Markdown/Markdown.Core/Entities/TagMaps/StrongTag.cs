@@ -2,10 +2,10 @@
 
 namespace Markdown.Core.Entities.TagMaps
 {
-    internal class StrongTag : BaseTagDelimiter
-    {
-        protected override int Priority => 2;
-        protected override int DelimiterLenght => 1;
+    public class StrongTag : BaseTagDelimiter
+    {        
+        protected override int DelimiterLenght => 2;
+        protected override int Priority => 1;
         protected override string Prefix => "<strong>";
         protected override string Postfix => "</strong>";
         public StrongTag()

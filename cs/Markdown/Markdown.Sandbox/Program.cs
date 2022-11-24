@@ -1,5 +1,4 @@
 ﻿using System;
-using Markdown.Core;
 
 namespace Markdown.Sandbox
 {
@@ -7,7 +6,7 @@ namespace Markdown.Sandbox
     {
         public static void Main()
         {
-            var markdown = new Md();
+            var markdown = new Core.Md();
             Console.WriteLine(markdown.Render("*qweqwe*"));
             Console.WriteLine(markdown.Render("_123_"));
         }

@@ -2,7 +2,7 @@
 
 namespace Markdown.Core.Entities.TagMaps
 {
-    internal class HeaderTag : BaseTag
+    public class HeaderTag : BaseTag
     {
         protected override int Priority => 1;
 

@@ -2,7 +2,7 @@
 
 namespace Markdown.Core.Entities.Abstract
 {
-    internal abstract class BaseTagDelimiter : BaseTag
+    public abstract class BaseTagDelimiter : BaseTag
     {
         protected abstract int DelimiterLenght { get; }
         protected abstract string Prefix { get; }

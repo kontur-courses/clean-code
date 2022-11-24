@@ -2,7 +2,7 @@
 
 namespace Markdown.Core.Entities.TagMaps
 {
-    internal class EmTag : BaseTagDelimiter
+    public class EmTag : BaseTagDelimiter
     {
         protected override int DelimiterLenght => 1;
         protected override int Priority => 0;

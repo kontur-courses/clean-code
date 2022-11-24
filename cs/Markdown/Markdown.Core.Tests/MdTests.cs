@@ -6,7 +6,7 @@ namespace Markdown.Core.Tests
 {
     public class MdTests
     {
-        private Md markdown;
+        private readonly Md _markdown = new Md();
         private readonly string[] _testText = 
         {
             "*qwe**asd**rty*\n",
@@ -17,11 +17,6 @@ namespace Markdown.Core.Tests
             "### hello world\n"
         };
 
-        [SetUp]
-        public void Setup()
-        {
-            markdown = new Md();
-        }
         [TestCase(100, 1000)]
         [TestCase(1000, 4000)]
         [TestCase(3000, 9000)]
@@ -35,7 +30,6 @@ namespace Markdown.Core.Tests
 
             double case1Time = GetRenderTime(firstText);
             double case2Time = GetRenderTime(secondText);
-
             (case1Time / case2Time).Should().BeLessOrEqualTo(6);
         }
 
@@ -66,9 +60,9 @@ namespace Markdown.Core.Tests
 
         private string GetNestedTag(int maxLevel)
         {
-            if (maxLevel == 0)
-                return "";
-            return $"_oui {maxLevel} m  " + _testText[maxLevel % _testText.Length] + GetNestedTag(maxLevel - 1) + "qwe_";
+            return maxLevel == 0 ? 
+                "" : 
+                $"_qwe {maxLevel} qwe {_testText[maxLevel % _testText.Length] + GetNestedTag(maxLevel - 1)} qwe_";
         }
 
         private long GetRenderTime(string input)
@@ -76,7 +70,7 @@ namespace Markdown.Core.Tests
             var sw = new Stopwatch();
 
             sw.Start();
-            markdown.Render(input);
+            _markdown.Render(input);
             sw.Stop();
 
             return sw.ElapsedMilliseconds;
