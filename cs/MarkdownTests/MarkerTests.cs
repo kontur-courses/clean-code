@@ -130,7 +130,7 @@ namespace MarkdownTests
         public void Mark_PutPictureTag_ShouldTagIt()
         {
             var text = @"a![AA](bb)";
-            var expectedResult = @"a<p><img src=""bb"" alt=""AA""></p>";
+            var expectedResult = @"a<img src=""bb"" alt=""AA"">";
 
             var result = sut.Mark(text);
 
@@ -140,7 +140,7 @@ namespace MarkdownTests
         public void Mark_PutPictureTagWithEscape_ShouldTagItCorrectly()
         {
             var text = @"a\![AA](_bb_) aaaa a![AAA](_bb_)aaaa";
-            var expectedResult = @"a![AA](<em>bb</em>) aaaa a<p><img src=""_bb_"" alt=""AAA""></p>aaaa";
+            var expectedResult = @"a![AA](<em>bb</em>) aaaa a<img src=""_bb_"" alt=""AAA"">aaaa";
 
             var result = sut.Mark(text);
 

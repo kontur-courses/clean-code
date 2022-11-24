@@ -29,6 +29,6 @@ namespace Markdown.TagClasses
             throw new ArgumentException("Object is not a ITag");
         }
 
-        public string GetHtmlTag() => $@"<p><img src=""{Source}"" alt=""{Name}""></p>";
+        public string GetHtmlTag() => $@"<img src=""{Source}"" alt=""{Name}"">";
     }
 }
