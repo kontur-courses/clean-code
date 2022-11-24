@@ -1,3 +1,4 @@
+using System.Text;
 using Markdown.Helpers;
 using Markdown.Tags;
 
@@ -25,6 +26,20 @@ public class HtmlReader : IReader
             var htmlValue = TagHelper.GetHtmlFormat(tag.ResultName);
             markdownInput = markdownInput.Replace(translatorValue.start, htmlValue.start);
             markdownInput = markdownInput.Replace(translatorValue.end, htmlValue.end);
+            
+            var substringFrom = markdownInput.IndexOf(htmlValue.start, StringComparison.Ordinal);
+            var substringTo = markdownInput.IndexOf(htmlValue.end, StringComparison.Ordinal);
+
+            if (substringFrom < 0 || substringTo < 0)
+                continue;
+
+            substringFrom += htmlValue.start.Length;
+            var startToSub = markdownInput.Substring(0, substringFrom);
+            var subToFinish = markdownInput.Substring(substringTo);
+            var substring = markdownInput.Substring(startToSub.Length,
+                markdownInput.Length - startToSub.Length - subToFinish.Length);
+
+            markdownInput = $"{startToSub}{tag.MakeTransformations(substring)}{subToFinish}";
         }
 
         return markdownInput;

@@ -113,4 +113,12 @@ public class Tests
     {
         markdown!.Render(mdInput).Should().Be(result);
     }
+
+    [TestCase("*A B C D*", "<numeric>\n1. A\n2. B\n3. C\n4. D\n</numeric>")]
+    [TestCase("_Please_, choice __the__ number: *Correct Maybe Incorrect*", 
+        "<em>Please</em>, choice <strong>the</strong> number: <numeric>\n1. Correct\n2. Maybe\n3. Incorrect\n</numeric>")]
+    public void Renderer_NumericTag_LineWithNumbers(string mdInput, string result)
+    {
+        markdown!.Render(mdInput).Should().Be(result);
+    }
 }
