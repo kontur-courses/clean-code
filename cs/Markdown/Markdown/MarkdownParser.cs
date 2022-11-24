@@ -1,40 +1,52 @@
 using System;
 using System.Collections.Generic;
+using System.ComponentModel.Design;
 using System.Linq;
-using System.Text;
+using Microsoft.VisualBasic.CompilerServices;
 
 namespace Markdown
 {
     public class MarkdownParser : ITagsParser<MdTag>
     {
         private List<MdTag> _tags;
-        private string _text;
-        
+        private List<MdTag> _findedTags;
+
         public MarkdownParser(List<MdTag> tags)
         {
             _tags = new List<MdTag>();
             _tags.AddRange(tags);
+            _findedTags = new List<MdTag>();
         }
         
         public List<MdTag> GetIndexesTags(string text)
         {
-            var findedTags = new List<MdTag>();
-            
             for (int i = 0; i < text.Length; i++)
             {
                 foreach (var tag in _tags)
                 {
-                    var openTagIndex = text.IndexOf(tag.OpenTag, i, StringComparison.Ordinal);
+                    var openTagIndex = TryGetOpenTagIndex(tag, text, i);
                     var closeTagIndex = TryGetCloseTagIndex(tag, text, openTagIndex);
-                    if (AreIndexesAlreadyUse(findedTags, (openTagIndex, closeTagIndex)))
-                        continue;
                     if (IsTagIndexes(tag, openTagIndex, closeTagIndex, text))
-                        findedTags.Add(new MdTag(tag.OpenTag, tag.HasCloseTag, openTagIndex, closeTagIndex));
+                        _findedTags.Add(new MdTag(tag.OpenTag, tag.HasCloseTag, openTagIndex, closeTagIndex));
                 }
             }
-            return findedTags;
+            
+            CheckIntersection();
+
+            return _findedTags.OrderBy(x => x.OpenTagIndex).ToList();
         }
-        
+
+        private int TryGetOpenTagIndex(MdTag tag, string text, int start)
+        {
+            var openTagIndex =
+                text.IndexOf(tag.OpenTag, start, StringComparison.Ordinal);
+            
+            while(IsIndexAlreadyUse(openTagIndex))
+                openTagIndex = text.IndexOf(tag.OpenTag, openTagIndex + 1, StringComparison.Ordinal);
+            
+            return openTagIndex;
+        }
+
         private int TryGetCloseTagIndex(MdTag tag, string text, int openTagIndex)
         {
             if (openTagIndex == -1)
@@ -50,8 +62,45 @@ namespace Markdown
             //Следующий индекс элемента после тега
             if (openTagIndex + tag.OpenTag.Length + 1 > text.Length)
                 return -1;
+
+            var closeTagIndex =
+                text.IndexOf(tag.OpenTag, openTagIndex + tag.OpenTag.Length + 1, StringComparison.Ordinal);
             
-            return text.IndexOf(tag.OpenTag, openTagIndex + tag.OpenTag.Length + 1, StringComparison.Ordinal);
+            while(IsIndexAlreadyUse(closeTagIndex))
+                closeTagIndex = text.IndexOf(tag.OpenTag, closeTagIndex + 1, StringComparison.Ordinal);
+            
+            return closeTagIndex;
+        }
+
+        private void CheckIntersection()
+        {
+            var tagsWithoutHeaderTag = _findedTags
+                .Select(x => x)
+                .Where(x => x.OpenTag[0] == '_')
+                .ToList();
+
+            var toRemoveTags = new List<MdTag>();
+            foreach (var tag in tagsWithoutHeaderTag)
+            {
+                foreach (var tag1 in tagsWithoutHeaderTag)
+                {
+                    if(tag == tag1)
+                        continue;
+                    if (tag.OpenTag != tag1.OpenTag)
+                    {
+                        if ((tag.OpenTagIndex > tag1.OpenTagIndex &&
+                            tag1.CloseTagIndex < tag.CloseTagIndex) ||
+                            (tag1.OpenTagIndex > tag.OpenTagIndex &&
+                             tag.CloseTagIndex < tag1.CloseTagIndex))
+                        {
+                            toRemoveTags.Add(tag);
+                            toRemoveTags.Add(tag1);
+                        }
+                    }
+                }
+            }
+            foreach(var toRemove in toRemoveTags)
+                _findedTags.Remove(toRemove);
         }
         
         private bool IsTagIndexes(MdTag tag, int openTagIndex, int closeTagIndex ,string text)
@@ -67,37 +116,77 @@ namespace Markdown
             if (text.Length < openTagIndex + 1)
                 return false;
 
-            //Если дальше такой же тег, то это не открывающий тег
+            //Если дальше закрывающий тег, то это не считается тегом
             if (openTagIndex + tag.OpenTag.Length == closeTagIndex) 
                 return false;
-
-            if (tag.IsSimpleTag() && HasEqualNeighbors(tag, closeTagIndex, text) &&
-                HasEqualNeighbors(tag, openTagIndex, text))
+            
+            if (tag.IsSimpleTag() && (HasEqualNeighbors(tag, openTagIndex, text) ||
+                                      HasEqualNeighbors(tag, closeTagIndex, text)))
+                return false;
+            
+            //За подчерками, начинающими выделение, должен следовать непробельный символ
+            if (tag.HasCloseTag &&
+                IsValidIndex(text, openTagIndex + 1) &&
+                text[openTagIndex + 1] == ' ')
+                return false;
+            
+            //Подчерки, заканчивающие выделение, должны следовать за непробельным символом
+            if (tag.HasCloseTag &&
+                text[closeTagIndex - 1] == ' ')
                 return false;
 
-            if (IsValidIndex(text, openTagIndex - 1) &&
-                text[openTagIndex - 1] == '\\')
+            //Выделение в разных словах не работает
+            if (IsIndexInsideAWord(openTagIndex, text) &&
+                IsIndexInsideAWord(closeTagIndex, text)
+                && text.Substring(openTagIndex, closeTagIndex - openTagIndex).Contains(' '))
                 return false;
 
-            if (IsValidIndex(text, closeTagIndex - 1) &&
-                text[closeTagIndex - 1] == '\\')
+            //Подчерки внутри текста c цифрами не считаются выделением и должны оставаться символами подчерка.
+            if (IsIndexInsideAWord(openTagIndex, text) &&
+                IsIndexInsideAWord(closeTagIndex, text)
+                && int.TryParse(text.Substring(openTagIndex + tag.OpenTag.Length, closeTagIndex - (openTagIndex + tag.OpenTag.Length)), out _))
+                return false;
+
+            if (IsPreviousSlash(openTagIndex, closeTagIndex, text))
                 return false;
 
             return true;
         }
+        
 
-        private bool AreIndexesAlreadyUse(List<MdTag> findedTags, (int openTagIndex, int closeTagIndex) tags)
+        //Проверка на экранирующий символ
+        private bool IsPreviousSlash(int openTagIndex, int closeTagIndex, string text)
         {
-            return findedTags.Any(x => x.OpenTagIndex + x.OpenTag.Length - 1 == tags.openTagIndex ||
-                                x.CloseTagIndex + x.OpenTag.Length - 1 == tags.closeTagIndex ||
-                                x.OpenTagIndex + x.OpenTag.Length - 1 == tags.closeTagIndex ||
-                                x.CloseTagIndex + x.OpenTag.Length - 1 == tags.openTagIndex || 
-                                x.OpenTagIndex == tags.openTagIndex ||
-                                x.CloseTagIndex == tags.closeTagIndex ||
-                                x.OpenTagIndex == tags.closeTagIndex ||
-                                x.CloseTagIndex  == tags.openTagIndex);
+            var temp = openTagIndex - 1;
+            var IsSlashOpenTag = false;
+            while (IsValidIndex(text, temp) &&
+                   text[temp] == '\\')
+            {
+                IsSlashOpenTag = !IsSlashOpenTag;
+                temp -= 1;
+            }
+
+            temp = closeTagIndex - 1;
+            var IsSlashCloseTag = false;
+            while (IsValidIndex(text, temp) &&
+                   text[temp] == '\\')
+            {
+                IsSlashCloseTag = !IsSlashCloseTag;
+                temp -= 1;
+            }
+
+            return IsSlashOpenTag || IsSlashCloseTag;
         }
 
+        //Найден ли уже тег с таким индексом
+        private bool IsIndexAlreadyUse(int index)
+        {
+            return _findedTags.Any(x => x.OpenTagIndex + x.OpenTag.Length - 1 == index ||
+                                x.CloseTagIndex + x.OpenTag.Length - 1 == index || 
+                                x.OpenTagIndex == index ||
+                                x.CloseTagIndex  == index);
+        }
+        
         private bool IsValidIndex(string text, int index)
         {
             if (index < 0 || index >= text.Length)
@@ -109,16 +198,34 @@ namespace Markdown
         {
             for (var i = -tag.OpenTag.Length; i <= tag.OpenTag.Length; i += tag.OpenTag.Length * 2)
             {
-                if (index + i >= text.Length || index + i < 0
-                || index >= text.Length || index < 0)
+                if(!IsValidIndex(text, index + i) || !IsValidIndex(text, index))
                     continue;
                 if (index + i < 0 || i == 0)
+                    continue;
+                if(IsIndexAlreadyUse(index + i))
                     continue;
                 if (text[index + i] == text[index])
                     return true;
             }
         
             return false;
+        }
+
+        private bool IsIndexInsideAWord(int index, string text)
+        {
+            var IsIndsideAWord = true;
+            for (var i = -1; i <= 1; i += 2)
+            {
+                if (index + i >= text.Length || index + i < 0
+                                             || index >= text.Length || index < 0)
+                    continue;
+                if (index + i < 0 || i == 0)
+                    continue;
+                if (!Char.IsLetter(text[index + i]) && !Char.IsDigit(text[index + i]))
+                    IsIndsideAWord = false;
+            }
+        
+            return IsIndsideAWord;
         }
     }
 }
