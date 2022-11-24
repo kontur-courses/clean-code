@@ -66,7 +66,81 @@ namespace MarkdownTests
 
             var result = sut.SwitchTags(tags, text);
 
-            result.Should().Be($@"a<p><img src=""bb"" alt=""AA""></p>a");
+            result.Should().Be($@"a<img src=""bb"" alt=""AA"">a");
+        }
+
+        [Test]
+        public void SwitchTags_AddEscapedPictureTag_ShouldOnlyRemoveEscapeSymbol()
+        {
+            var text = @"\![AA](bb)a";
+            var tags = new List<ITag>
+            {
+                new TextTag(1, TagType.Picture, 9, true, "bb", "AA"),
+            };
+
+            var result = sut.SwitchTags(tags, text);
+
+            result.Should().Be(@"![AA](bb)a");
+        }
+
+        [Test]
+        public void SwitchTags_AddManyTags_ShouldCorrectlyAdjustOtherTagsPositions()
+        {
+            var text = @"#_aa_ __bb__ _cc_";
+            var tags = new List<ITag>
+            {
+                new HeaderTag(0, TagType.Header),
+                new PairedTag(1, TagType.Emphasis, true),
+                new PairedTag(4, TagType.Emphasis, false, true),
+                new PairedTag(6, TagType.Strong, true),
+                new PairedTag(10, TagType.Strong, false, true),
+                new PairedTag(13, TagType.Emphasis, true),
+                new PairedTag(16, TagType.Emphasis, false, true),
+            };
+
+            var result = sut.SwitchTags(tags, text);
+
+            result.Should().Be(@"<h1><em>aa</em> <strong>bb</strong> <em>cc</em></h1>");
+        }
+
+        [Test]
+        public void SwitchTags_RemovingEscapesFromEscapedTags_ShouldCorrectlyAdjustOtherTagsPositions()
+        {
+            var text = @"#_aa_ \__bb\__ _cc_";
+            var tags = new List<ITag>
+            {
+                new HeaderTag(0, TagType.Header),
+                new PairedTag(1, TagType.Emphasis, true),
+                new PairedTag(4, TagType.Emphasis, false, true),
+                new PairedTag(7, TagType.Strong, isEscaped: true),
+                new PairedTag(12, TagType.Strong, isEscaped: true),
+                new PairedTag(15, TagType.Emphasis, true),
+                new PairedTag(18, TagType.Emphasis, false, true),
+            };
+
+            var result = sut.SwitchTags(tags, text);
+
+            result.Should().Be(@"<h1><em>aa</em> __bb__ <em>cc</em></h1>");
+        }
+
+        [Test]
+        public void SwitchTags_AddEscapedSlashes_ShouldRemoveEscapes()
+        {
+            var text = @"#\\_aa_ \__bb\__ \\_cc_";
+            var tags = new List<ITag>
+            {
+                new HeaderTag(0, TagType.Header),
+                new PairedTag(3, TagType.Emphasis, true),
+                new PairedTag(6, TagType.Emphasis, false, true),
+                new PairedTag(9, TagType.Strong, isEscaped: true),
+                new PairedTag(14, TagType.Strong, isEscaped: true),
+                new PairedTag(19, TagType.Emphasis, true),
+                new PairedTag(22, TagType.Emphasis, false, true),
+            };
+
+            var result = sut.SwitchTags(tags, text);
+
+            result.Should().Be(@"<h1>\<em>aa</em> __bb__ \<em>cc</em></h1>");
         }
     }
 }
