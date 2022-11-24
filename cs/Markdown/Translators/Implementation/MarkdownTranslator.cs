@@ -8,10 +8,10 @@ namespace Markdown.Translators.Implementation;
 public class MarkdownTranslator : ITranslator
 {
     private const int OpenCloseTagLength = 5;
-    private List<ITag?> tags;
+    private readonly List<ITag?> tags;
     private Stack<TagWithIndex> stackOfTags;
     private StringBuilder sb;
-    private List<TagWithIndex> tagsInLine;
+    private readonly List<TagWithIndex> tagsInLine;
     private string text;
     private int point;
 
@@ -23,7 +23,7 @@ public class MarkdownTranslator : ITranslator
         stackOfTags = new Stack<TagWithIndex>();
         text = string.Empty;
     }
-    
+
     public string Translate(string input)
     {
         stackOfTags = new Stack<TagWithIndex>();
@@ -38,10 +38,10 @@ public class MarkdownTranslator : ITranslator
         {
             sb.Append(GetToken());
         }
-        
+
         if (stackOfTags.Count != 0)
             PasteSourceNames(stackOfTags, null);
-        
+
         return sb.ToString();
     }
 
@@ -54,21 +54,25 @@ public class MarkdownTranslator : ITranslator
         {
             token = ReadForNow(IsTag, point + 1, text);
             point += token.Length + 1;
-            if (token == "") 
+            if (token == "")
                 token = "\\";
-            
+
             return token;
         }
+
         point += token.Length;
-        
+
         var tag = tags.FirstOrDefault(tag => tag!.SourceName == token);
         if (tag is not null && stackOfTags.Count == 0 && IsCorrectStart(stackOfTags, tag, point) ||
-            tag is not null && stackOfTags.All(tagWith => tagWith.Tag != tag) && IsCorrectStart(stackOfTags, tag, point))
+            tag is not null && stackOfTags.All(tagWith => tagWith.Tag != tag) &&
+            IsCorrectStart(stackOfTags, tag, point))
         {
             stackOfTags.Push(new TagWithIndex(tag, point - tag.SourceName.Length));
             return string.Empty;
         }
-        if (tag is not null && stackOfTags.Any(tagWith => tagWith.Tag == tag) && IsCorrectEnding(stackOfTags, tag, point))
+
+        if (tag is not null && stackOfTags.Any(tagWith => tagWith.Tag == tag) &&
+            IsCorrectEnding(tag, point))
         {
             var previewTag = stackOfTags.First(tagWith => tagWith.Tag == tag);
             ReplaceByIndex(previewTag.Tag, previewTag.Index);
@@ -80,7 +84,7 @@ public class MarkdownTranslator : ITranslator
 
     private bool IsLetter(int index) =>
         char.GetUnicodeCategory(text[index]) == UnicodeCategory.UppercaseLetter ||
-               char.GetUnicodeCategory(text[index]) == UnicodeCategory.LowercaseLetter;
+        char.GetUnicodeCategory(text[index]) == UnicodeCategory.LowercaseLetter;
 
     private bool IsTag(int textIndexFrom, int textIndexTo, int tagIndexTo, string myText) =>
         tags.Where(tag => tag?.SourceName.Length >= tagIndexTo + 1)
@@ -89,7 +93,7 @@ public class MarkdownTranslator : ITranslator
     private bool IsNumber(int index) =>
         char.GetUnicodeCategory(text[index]) == UnicodeCategory.LetterNumber;
 
-    private string ReadForNow(Func<int, bool> func, int index, string currentText)
+    private static string ReadForNow(Func<int, bool> func, int index, string currentText)
     {
         var symbols = new StringBuilder();
         var currentPoint = index;
@@ -106,11 +110,11 @@ public class MarkdownTranslator : ITranslator
 
     private string ReadForNow(Func<int, bool> func) => ReadForNow(func, point, text);
 
-    private string ReadForNow(Func<int, int, int, string, bool> func, int index, string currentText)
+    private static string ReadForNow(Func<int, int, int, string, bool> func, int index, string currentText)
     {
         if (index < 0)
             return string.Empty;
-        
+
         var startIndex = index;
         var tagIndex = 0;
         var symbols = new StringBuilder();
@@ -133,9 +137,9 @@ public class MarkdownTranslator : ITranslator
         var insertIndex = index;
         if (stackOfTags.Peek().Tag == tag)
         {
-            foreach (var previousTag in stackOfTags.Where(tagWith => tagWith.Tag != tag))
-                insertIndex -= previousTag.Tag!.SourceName.Length;
-            
+            insertIndex = stackOfTags.Where(tagWith => tagWith.Tag != tag).Aggregate(insertIndex,
+                (current, previousTag) => current - previousTag.Tag!.SourceName.Length);
+
             stackOfTags.Pop();
         }
         else if (CheckIntersections(tag!, point))
@@ -156,22 +160,23 @@ public class MarkdownTranslator : ITranslator
         tagsInLine.Add(new TagWithIndex(tag, index));
     }
 
-    private void PasteSourceNames(IEnumerable<TagWithIndex> tags, ITag? tag, bool needAppendTag = false)
+    private void PasteSourceNames(IEnumerable<TagWithIndex> tagsWith, ITag? tag, bool needAppendTag = false)
     {
         var index = tagsInLine.Sum(tagWith => tagWith.Tag is not null ? tagWith.Tag.TranslateName.Length : default);
         if (tag is not null)
             index += tag.SourceName.Length;
-        
-        foreach (var item in tags.Where(tagWith => tagWith.Tag != tag).Reverse())
+
+        var tagWithIndices = tagsWith.ToList();
+        foreach (var item in tagWithIndices.Where(tagWith => tagWith.Tag != tag).Reverse())
             sb.Insert(item.Index - index, item.Tag?.SourceName);
 
         if (needAppendTag)
-            sb.Append(tags.Last().Tag.SourceName);
-        
+            sb.Append(tagWithIndices.Last().Tag?.SourceName);
+
         stackOfTags = new Stack<TagWithIndex>();
     }
 
-    private bool IsCorrectStart(Stack<TagWithIndex> tags, ITag? tag, int index)
+    private bool IsCorrectStart(Stack<TagWithIndex> tagsStack, ITag? tag, int index)
     {
         if (index < text.Length && IsLetter(index))
         {
@@ -180,12 +185,12 @@ public class MarkdownTranslator : ITranslator
             index += lettersNext.Length;
             var isNeedsTag = ReadForNow(IsTag, index, text);
 
-            if ((isNeedsTag == tag.SourceName || isNeedsTag == "" && startIndex - 1 < 0 ||
-                 startIndex - 1 >= 0 && !IsLetter(startIndex - 1)) && (tags.Count <= 0 ||
-                                                                       tags.Peek().Tag!.SourceName != "_" ||
-                                                                       tag.SourceName != "__" || index - 1 < 0 ||
+            if ((isNeedsTag == tag?.SourceName || isNeedsTag == "" && startIndex - 1 < 0 ||
+                 startIndex - 1 >= 0 && !IsLetter(startIndex - 1)) && (tagsStack.Count <= 0 ||
+                                                                       tagsStack.Peek().Tag!.SourceName != "_" ||
+                                                                       tag?.SourceName != "__" || index - 1 < 0 ||
                                                                        IsNumber(index - 1) || index + 1 > text.Length ||
-                                                                       IsNumber(index + 1))) 
+                                                                       IsNumber(index + 1)))
                 return true;
         }
         else
@@ -194,28 +199,14 @@ public class MarkdownTranslator : ITranslator
         return false;
     }
 
-    private bool IsCorrectEnding(IEnumerable<TagWithIndex> tags, ITag? tag, int index)
-    {
-        if (index - (tag!.SourceName.Length + 1) >= 0 && IsLetter(index - (tag.SourceName.Length + 1)))
-        {
-            return true;
-        }
-        return false;
-    }
+    private bool IsCorrectEnding(ITag? tag, int index) =>
+        index - (tag!.SourceName.Length + 1) >= 0 && IsLetter(index - (tag.SourceName.Length + 1));
 
-    private bool CheckIntersections(ITag tag, int currentIndex)
-    {
-        foreach (var tagWithIndex in stackOfTags)
-        {
-            if (tagWithIndex.Tag == tag)
-                continue;
-            
-            var subString = text.Substring(currentIndex, text.Length - currentIndex);
-            var tagStartedFrom = subString.IndexOf(tagWithIndex.Tag!.SourceName, StringComparison.Ordinal);
-            if (ReadForNow(IsTag, tagStartedFrom, subString) == tagWithIndex.Tag.SourceName)
-                return true;
-        }
-
-        return false;
-    }
+    private bool CheckIntersections(ITag tag, int currentIndex) =>
+        (from tagWithIndex in stackOfTags
+            where tagWithIndex.Tag != tag
+            let subString = text.Substring(currentIndex, text.Length - currentIndex)
+            let tagStartedFrom = subString.IndexOf(tagWithIndex.Tag!.SourceName, StringComparison.Ordinal)
+            where ReadForNow(IsTag, tagStartedFrom, subString) == tagWithIndex.Tag.SourceName
+            select tagWithIndex).Any();
 }
