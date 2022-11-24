@@ -1,7 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Text;
-using Markdown.Parsers;
+﻿using Markdown.Parsers;
 
 namespace Markdown.Renderers
 {

@@ -1,7 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Text;
-using Markdown.Parsers.Tokens.Tags.Enum;
 
 namespace Markdown.Parsers.Tokens.Tags
 {
@@ -15,6 +12,7 @@ namespace Markdown.Parsers.Tokens.Tags
             return position > 0 && data[position - 1] == '\\';
         }
 
+        //TODO: проверка идет последнего символа, не нужно грузить всю строку
         public virtual bool IsValidTag(string data, int position)
         {
             throw new NotImplementedException();

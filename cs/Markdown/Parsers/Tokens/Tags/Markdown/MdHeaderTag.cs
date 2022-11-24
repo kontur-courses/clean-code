@@ -1,8 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Text;
-
-namespace Markdown.Parsers.Tokens.Tags.Markdown
+﻿namespace Markdown.Parsers.Tokens.Tags.Markdown
 {
     public class MdHeaderTag : Tag
     {
@@ -10,10 +6,11 @@ namespace Markdown.Parsers.Tokens.Tags.Markdown
         {
 
         }
+
         public override bool IsValidTag(string data, int position)
         {
-            position++;
-            return data.Length > position && char.IsWhiteSpace(data, position);
+            return 
+                data.Length > position && (char.IsWhiteSpace(data, position) || data.Length - 1 == position);
         }
     }
 }

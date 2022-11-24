@@ -4,7 +4,6 @@ using System.Linq;
 using Markdown.Parsers.Tokens;
 using Markdown.Parsers.Tokens.Tags;
 using Markdown.Parsers.Tokens.Tags.Enum;
-using Markdown.Parsers.Tokens.Tags.Html;
 using Markdown.Parsers.Tokens.Tags.Markdown;
 
 
@@ -12,82 +11,98 @@ namespace Markdown.Parsers
 {
     public class MarkdownParser
     {
+        private readonly MdTags mdTags = MdTags.GetInstance();
         private readonly ParsedDocument document = new ParsedDocument();
-        private readonly Queue<IToken> opendTokens = new Queue<IToken>();
-        private readonly HashSet<char> serviceSymbols = new HashSet<char>();
+        private readonly List<IToken> openedTokens = new List<IToken>();
 
-        private int position;
+        private int currentPosition;
+        private readonly string currentLine;
+        private char currentSymbol => currentLine[currentPosition];
+        private bool nextCharOutsideLine => currentPosition == currentLine.Length;
+
+        private List<IToken> tokens;
         //TODO: new line as \r\n
         private readonly NewLineToken newLineToken = new NewLineToken();
         public MarkdownParser(string markdownText)
         {
-            PrepareServiceSymbols();
             var lines = markdownText.Split(newLineToken.ToString());
-            foreach (var line in lines)
+            foreach (var parsedLine in lines)
             {
-                var lineTokens = TransformToTokens(line);
-                document.TextBlocks.Append(new ParsedTextBlock(lineTokens));
+                currentLine = parsedLine;
+                var lineTokens = TransformToTokens();
+                document.TextBlocks.Add(new ParsedTextBlock(lineTokens));
             }
         }
 
-        private void PrepareServiceSymbols()
+        private List<IToken> TransformToTokens()
         {
-            var possibleTags = new List<Tag>()
+            tokens = new List<IToken>();
+            currentPosition = 0;
+
+            while (!nextCharOutsideLine)
+                tokens.Add(GetNextToken());
+
+            DeleteNotValidTagsIn(tokens);
+
+            return tokens;
+        }
+
+        private IToken GetNextToken()
+        {
+            return mdTags.IsServiceSymbol(currentSymbol) ? 
+                GetServiceTag() : 
+                GetTextToken();
+        }
+
+        //TODO: переделать
+        private IToken GetServiceTag()
+        {
+            var text = ReadWithCheck(symbol => !mdTags.IsServiceSymbol(symbol));
+            if (!mdTags.IsTag(text))
+                return new TextToken(text);
+            var lastOpeningTag = openedTokens.LastOrDefault(el=>el.ToString() == text);
+            var tag = mdTags.CreateTagFor(text,
+                lastOpeningTag is null ? TagPosition.Start : TagPosition.End);
+
+            var isCommentedTag = tag.IsCommentedTag(currentLine, currentPosition - text.Length);
+            if (isCommentedTag || !tag.IsValidTag(currentLine, currentPosition))
             {
-                new MdBoldTag(TagPosition.Any),
-                new MdItalicTag(TagPosition.Any),
-                new MdHeaderTag()
-            };
-            foreach (var tag in possibleTags)
-            {
-                foreach (var symbol in tag.ToString())
-                {
-                    serviceSymbols.Add(symbol);
-                }
+                if (isCommentedTag)
+                    tokens.Remove(tokens.Last());
+                return tag.ToText();
             }
-        }
-
-        private List<IToken> TransformToTokens(string line)
-        {
-            var tags = new List<IToken>();
-            position = 0;
-
-            do
+            else if(tag is PairedTag)
             {
-                tags.Add(GetNextTagOf(line));
-            } 
-            while (position++ < line.Length);
-
-            DeleteNotValidTagsIn(tags);
-
-            tags.Add(newLineToken); // TODO: как не добавить лишний таг в конце, но не испортить код?
-
-            return tags;
+                if (lastOpeningTag is null)
+                    openedTokens.Add(tag); //взять верхний подходящий
+                else
+                    openedTokens.Remove(lastOpeningTag);
+                
+            }
+            return tag;
         }
 
-        private IToken GetNextTagOf(string line)
+        private IToken GetTextToken()
         {
-            return IsServiceSymbol(line[position]) ? 
-                GetServiceTag(line) : 
-                GetTextTag(line);
+            var text = ReadWithCheck(symbol => mdTags.IsServiceSymbol(symbol));
+            return new TextToken(text);
         }
 
-        private bool IsServiceSymbol(char symbol) =>
-            serviceSymbols.Contains(symbol);
-
-        private IToken GetServiceTag(string line) =>
-            throw new NotImplementedException();
-
-        private IToken GetTextTag(string line) =>
-            throw new NotImplementedException();
-
-        private void DeleteNotValidTagsIn(List<IToken> tags)
+        private string ReadWithCheck(Func<char, bool> IsEnd)
         {
-            for (int i = 0; i < tags.Count; i++)
-                if (opendTokens.Contains(tags[i]))
-                    tags[i] = tags[i].ToText();
+            var startPosition = currentPosition;
+            while (!nextCharOutsideLine && !IsEnd(currentSymbol)) 
+                currentPosition++;
+            return currentLine.Substring(startPosition, currentPosition - startPosition);
+        }
 
-            opendTokens.Clear();
+        private void DeleteNotValidTagsIn(List<IToken> tokens)
+        {
+            for (int i = 0; i < tokens.Count; i++)
+                if (openedTokens.Contains(tokens[i]))
+                    tokens[i] = tokens[i].ToText();
+
+            openedTokens.Clear();
         }
 
         public ParsedDocument GetParsedDocument() => document;
