@@ -88,4 +88,12 @@ public class Tests
     {
         markdown!.Render(mdInput).Should().Be(mdInput);
     }
+
+    [TestCase("Some 1_3 words", "Some 1_3 words")]
+    [TestCase("Some _13 words", "Some _13 words")]
+    [TestCase("S_ome _13 wor_ds", "S<em>ome _13 wor</em>ds")]
+    public void Renderer_TagsBetweenNumbers_TagsNotChangedBetweenNumbers(string mdInput, string result)
+    {
+        markdown!.Render(mdInput).Should().Be(result);
+    }
 }

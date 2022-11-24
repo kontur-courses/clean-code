@@ -76,6 +76,9 @@ public class MarkdownTranslator : ITranslator
         tags.Where(tag => tag?.SourceName.Length >= tagIndexTo + 1)
             .Count(tag => tag?.SourceName[..(tagIndexTo + 1)] == myText.Substring(textIndexFrom, tagIndexTo + 1)) > 0;
 
+    private bool IsNumber(int index) =>
+        char.GetUnicodeCategory(text[index]) == UnicodeCategory.LetterNumber;
+
     private string ReadForNow(Func<int, bool> func)
     {
         var symbols = new StringBuilder();
@@ -159,8 +162,9 @@ public class MarkdownTranslator : ITranslator
 
     private bool IsCorrectStart(Stack<TagWithIndex> tags, ITag? tag, int index)
     {
-        if (index < text.Length && IsLetter(index)) 
-            return tags.Count <= 0 || tags.Peek().Tag!.SourceName != "_" || tag.SourceName != "__";
+        if (index < text.Length && IsLetter(index))
+            return tags.Count <= 0 || tags.Peek().Tag!.SourceName != "_" || tag.SourceName != "__" || index - 1 < 0 ||
+                   IsNumber(index - 1) || index + 1 > text.Length || IsNumber(index + 1);
 
         return false;
     }
