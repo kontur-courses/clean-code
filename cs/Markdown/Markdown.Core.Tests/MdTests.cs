@@ -1,14 +1,13 @@
-using System.Diagnostics;
 using System.Text;
 using FluentAssertions;
+using System.Diagnostics;
 
 namespace Markdown.Core.Tests
 {
     public class MdTests
     {
         private Md markdown;
-
-        private string[] textLines = new[]
+        private readonly string[] _testText = 
         {
             "*qwe**asd**rty*\n",
             "_qqqq __zxc_ qq__\n\n",
@@ -31,8 +30,6 @@ namespace Markdown.Core.Tests
         [TestCase(30000, 100000)]
         public void Render_IsLinearExecTime_ShouldBeTrue(int linesCountCase1, int linesCountCase2)
         {
-            const double deviation = 0.05;
-
             var firstText = GetText(linesCountCase1, 1);
             var secondText = GetText(linesCountCase2, 1);
 
@@ -71,7 +68,7 @@ namespace Markdown.Core.Tests
         {
             if (maxLevel == 0)
                 return "";
-            return $"_oui {maxLevel} m  " + textLines[maxLevel % textLines.Length] + GetNestedTag(maxLevel - 1) + "qwe_";
+            return $"_oui {maxLevel} m  " + _testText[maxLevel % _testText.Length] + GetNestedTag(maxLevel - 1) + "qwe_";
         }
 
         private long GetRenderTime(string input)

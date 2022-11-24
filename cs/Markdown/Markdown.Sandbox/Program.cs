@@ -8,7 +8,7 @@ namespace Markdown.Sandbox
         public static void Main()
         {
             var markdown = new Md();
-            Console.WriteLine(markdown.Render("#123"));
+            Console.WriteLine(markdown.Render("*qweqwe*"));
             Console.WriteLine(markdown.Render("_123_"));
         }
     }
