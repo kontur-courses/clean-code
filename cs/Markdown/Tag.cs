@@ -2,20 +2,30 @@
 
 public class Tag
 {
-    private readonly PatternTree _pattern;
+    private readonly PatternTree[] _patterns;
+    private readonly string _name;
 
-    private readonly IReplaceRule _replaceRule;
+    public string Name => _name;
+    public PatternTree[] Patterns => _patterns;
 
-    public Tag(PatternTree pattern, IReplaceRule replaceRule)
+
+    public Tag(string name, PatternTree[] patterns)
     {
-        _pattern = pattern;
-        _replaceRule = replaceRule;
+        _name = name;
+        _patterns = patterns;
     }
 
-    public PatternTree? CheckFirstCharMatch(Token token)
+
+    public List<PatternTree> CheckFirstCharMatch(Token token)
     {
         //проверяем, что первый символ подходит под наш паттерн и возвращаем дальнейшее дерево, из которого создадим Match
+        var matches = new List<PatternTree>(_patterns.Length);
+        foreach (var patternTree in _patterns)
+        {
+            if (patternTree.CheckFirstState(token) == MatchState.TokenMatch)
+                matches.Add(patternTree.CopyPatternTree());
+        }
 
-        return null;
+        return matches;
     }
 }
