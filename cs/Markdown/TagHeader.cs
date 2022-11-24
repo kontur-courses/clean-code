@@ -29,19 +29,19 @@ namespace Markdown
             return true;
         }
 
-        public Tag GetClosedTag(char nextCh = ' ')
+        public List<Tag> GetClosedTag(char nextCh = ' ')
         {
             var tag = new Tag(TagType.Header, TagInfo, TagStatus.Close);
             Tag.ClosedTag = tag;
             Tag = tag;
-            return tag;
+            return new List<Tag> { tag };
         }
 
-        public Tag GetOpenTag(char prevCh)
+        public List<Tag> GetOpenTag(char prevCh)
         {
             var tag = new Tag(TagType.Header, TagInfo, TagStatus.Open);
             Tag = tag;
-            return tag;
+            return new List<Tag> { tag };
         }
     }
 }

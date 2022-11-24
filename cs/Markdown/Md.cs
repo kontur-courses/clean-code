@@ -17,7 +17,8 @@ namespace Markdown
             {
                 ["__"] = new TagTwoUnderscore(),
                 ["_"] = new TagOneUnderscore(),
-                ["# "] = new TagHeader()
+                ["# "] = new TagHeader(),
+                [" *"] = new TagUnnumberedList()
             };
         }
 
@@ -57,8 +58,9 @@ namespace Markdown
                         partsText.Add(new PartText(text.ToString()));
                         text.Clear();
                     }
-                    partsText.Add(partText);
-                    i += partText.Text.Length - 1;
+
+                    partsText = partsText.Concat(partText).ToList();
+                    i += partText[0].Text.Length - 1;
                 }
             }
 
@@ -67,7 +69,7 @@ namespace Markdown
 
             var part = MakePartWithCloseTag();
             if (!(part is null))
-                partsText.Add(part);
+                partsText = partsText.Concat(part).ToList();
 
             return partsText;
         }
@@ -75,11 +77,11 @@ namespace Markdown
         private bool IsEscaped(char ch, char nextCh)
         {
             if (ch != '\\') return false;
-            var chCanEscaped = new[] { '\\', '_', '#' };
+            var chCanEscaped = new[] { '\\', '_', '#','*' };
             return chCanEscaped.Any(x => x == nextCh);
         }
 
-        private PartText TryGetPartTextWithTag(string str, int position)
+        private List<PartText> TryGetPartTextWithTag(string str, int position)
         {
             var twoChar = string.Concat(str[position], str[position + 1]);
             foreach (var tagType in tags.OrderByDescending(t => t.Key.Length))
@@ -89,11 +91,15 @@ namespace Markdown
                     var tag = tagType.Value;
                     position += tagType.Key.Length - 1;
                     if (tag.Tag.Status == TagStatus.Open && tag.IsEnd(str[position - tagType.Key.Length]))
-                        return new PartText(tagType.Key, tag.GetClosedTag(str[position + 1]));
-                    else if (tag.Tag.Status != TagStatus.Open && tag.IsBegin(str[position + 1]))
-                        return new PartText(tagType.Key, tag.GetOpenTag(str[position - tagType.Key.Length]));
+                    {
+                        return tag.GetClosedTag(str[position + 1])
+                            .Select(t => new PartText(t.TagInfo.Symbol, t)).ToList();
+                    }
+                    else if ((tag.Tag.Status != TagStatus.Open || tag.ShouldClose == false) && tag.IsBegin(str[position + 1]))
+                        return tag.GetOpenTag(str[position - tagType.Key.Length])
+                            .Select(t => new PartText(t.TagInfo.Symbol, t)).ToList();
                     else
-                        return new PartText(tagType.Key);
+                        return new List<PartText> { new PartText(tagType.Key)};
                 }
             }
             return null;
@@ -108,7 +114,7 @@ namespace Markdown
             }
         }
 
-        private PartText MakePartWithCloseTag()
+        private List<PartText> MakePartWithCloseTag()
         {
             foreach (var tag in tags)
             {
@@ -117,7 +123,8 @@ namespace Markdown
                     if (tag.Value.ShouldClose)
                         tag.Value.Tag.Status = TagStatus.NoOpen;
                     else
-                        return new PartText(tag.Key, tag.Value.GetClosedTag());
+                        return tag.Value.GetClosedTag()
+                            .Select(t => new PartText(t.TagInfo.Symbol, t)).ToList();
                 }
             }
             return null;
@@ -157,7 +164,7 @@ namespace Markdown
                 foreach (var innerTag in innerTags)
                 {
                     if (innerTag.Status == TagStatus.Open)
-                        innerTag.ClosedTag.Status = TagStatus.NoOpen;
+                        innerTag.ClosedTag.Status = TagStatus.NoOpen;              
                     innerTag.Status = TagStatus.NoOpen;
                 }
             }

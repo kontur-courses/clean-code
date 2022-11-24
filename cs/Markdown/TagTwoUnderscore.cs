@@ -29,29 +29,30 @@ namespace Markdown
         {
             return (!char.IsWhiteSpace(prevCh) && prevCh != '_');
         }
-        public Tag GetClosedTag(char nextCh)
+        public List<Tag> GetClosedTag(char nextCh)
         {
             if (char.IsLetter(nextCh))
                 Tag.IsLetterAfter = true;
-            Tag tag = null;
             if (!Tag.IsLetterAfter && !Tag.IsLetterBefore || !Tag.IsSpaceBetween)
             {
-                tag = new Tag(Tag.TagType, TagInfo, TagStatus.Close);
+                var tag = new Tag(Tag.TagType, TagInfo, TagStatus.Close);
                 Tag.ClosedTag = tag;
                 Tag = tag;
+                return new List<Tag> { tag };
             }
             else
                 Tag.Status = TagStatus.NoOpen;
-            return tag;
+
+            return new List<Tag> { new Tag(Tag.TagType, TagInfo, TagStatus.NoOpen) };
         }
 
-        public Tag GetOpenTag(char prevCh)
+        public List<Tag> GetOpenTag(char prevCh)
         {
             var tag = new Tag(TagType.TwoUnderscore, TagInfo, TagStatus.Open);
             Tag = tag;
             if (char.IsLetter(prevCh))
                 Tag.IsLetterBefore = true;
-            return tag;
+            return new List<Tag>{ tag };
         }
     }
 }

@@ -8,6 +8,8 @@ namespace Markdown
     {
         OneUnderscore,
         TwoUnderscore,
-        Header
+        Header,
+        UnnumberedList,
+        UnnumberedLisItem
     }
 }

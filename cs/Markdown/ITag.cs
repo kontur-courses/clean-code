@@ -11,9 +11,9 @@ namespace Markdown
         public bool IsEnd(char prevCh);
         public bool IsBegin(char nextCh);
 
-        public Tag GetClosedTag(char nextCh = ' ');
+        public List<Tag> GetClosedTag(char nextCh = ' ');
 
-        public Tag GetOpenTag(char prevCh);
+        public List<Tag> GetOpenTag(char prevCh);
         public bool ShouldClose { get; }
         public void SetIsSpaceBetween();
     }
