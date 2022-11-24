@@ -8,7 +8,8 @@ public class HtmlRenderer
     private readonly Dictionary<TextType, string> tagNames = new()
     {
         { TextType.Italic, "em" },
-        { TextType.Bold, "strong" }
+        { TextType.Bold, "strong" },
+        { TextType.FirstHeader, "h1" }
     };
 
     public string Render(IEnumerable<ITag> tags, StringBuilder stringBuilder)
@@ -18,8 +19,10 @@ public class HtmlRenderer
         var replacements = new List<(int, string, string)>();
         foreach (var tag in tags)
         {
-            replacements.Add((tag.StartIndex, tag.Config.Sign, $"<{tagNames[tag.Config.TextType]}>"));
-            replacements.Add((tag.EndIndex, tag.Config.Sign, $"</{tagNames[tag.Config.TextType]}>"));
+            replacements.Add(
+                (tag.OpeningToken.TagFirstCharIndex, tag.Config.OpeningSign, $"<{tagNames[tag.Config.TextType]}>"));
+            replacements.Add((tag.ClosingToken.TagFirstCharIndex, tag.Config.ClosingSign,
+                $"</{tagNames[tag.Config.TextType]}>"));
         }
 
         var indexOffset = 0;
@@ -29,6 +32,6 @@ public class HtmlRenderer
             indexOffset += r.Item3.Length - r.Item2.Length;
         }
 
-        return sb.ToString();
+        return sb.ToString().Trim();
     }
 }

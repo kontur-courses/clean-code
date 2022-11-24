@@ -2,10 +2,11 @@
 
 public interface ITagMarkdownConfig
 {
-    public string Sign { get; }
+    public string OpeningSign { get; }
+
+    public string ClosingSign { get; }
+
     public TextType TextType { get; }
 
-    public ITag? TryCreate(Token token);
-
-    public bool IsClosingToken(Token token);
+    public ITag? CreateOrNull(Token token);
 }

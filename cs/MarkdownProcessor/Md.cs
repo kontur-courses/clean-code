@@ -5,132 +5,86 @@ namespace MarkdownProcessor;
 
 public class Md
 {
-    private readonly Dictionary<string, ITagMarkdownConfig> configs =
-        new ITagMarkdownConfig[] { new ItalicConfig(), new BoldConfig() }
-            .ToDictionary(c => c.Sign);
+    private readonly Dictionary<string, ITagMarkdownConfig> openedTokens = new()
+    {
+        { "_", new ItalicConfig() },
+        { "__", new BoldConfig() },
+        { "# ", new FirstHeaderConfig() }
+    };
 
-    private ITag? tree = null;
+    private readonly HashSet<string> tokensValues = new() { "_", "__", "# ", " ", "\n" };
 
     public string Render(string text)
     {
         var result = new StringBuilder();
-        var paragraphs = text.Split('\n');
+        var paragraphs = text.Split("\n");
 
         var closedTags = new List<ITag>();
-        var paragraphIterator = 0;
         foreach (var paragraph in paragraphs)
         {
-            var tokens = new List<Token>();
-            string? assembledTag = null;
-            var backslash = false;
-            foreach (var symbol in paragraph)
-            {
-                if (backslash)
+            var tags = new List<ITag>();
+            foreach (var token in ExtractTokens(paragraph + '\n', result, tokensValues))
+                if (tags.Count == 0 || tags.Last().Closed)
                 {
-                    if (!(symbol == '\\' || configs.Any(t => t.Key.StartsWith(symbol))))
-                        result.Append('\\');
-                    result.Append(symbol);
+                    if (!openedTokens.ContainsKey(token.Value)) continue;
 
-                    backslash = false;
-                    continue;
-                }
-
-                if (symbol == '\\')
-                {
-                    backslash = true;
-                    continue;
-                }
-
-                if (assembledTag is null)
-                {
-                    if (configs.Any(t => t.Key.StartsWith(symbol)))
-                        assembledTag = symbol.ToString();
+                    var nullableTag = openedTokens[token.Value].CreateOrNull(token);
+                    if (nullableTag is not null) tags.Add(nullableTag);
                 }
                 else
                 {
-                    if (configs.Any(t => t.Key.StartsWith(assembledTag + symbol)))
-                    {
-                        assembledTag += symbol.ToString();
-                    }
-                    else
-                    {
-                        if (configs.ContainsKey(assembledTag))
-                        {
-                            var tagFirstCharIndex = result.Length - assembledTag.Length;
-                            char? charBefore = tagFirstCharIndex == 0
-                                ? null
-                                : paragraph[tagFirstCharIndex - 1 - paragraphIterator];
-                            tokens.Add(new Token(
-                                configs[assembledTag],
-                                tagFirstCharIndex,
-                                charBefore,
-                                symbol));
-                        }
+                    var nullableToken = tags.Last().RunTokenDownOfTree(token);
+                    if (nullableToken is null) continue;
 
-                        assembledTag = null;
-                    }
+                    if (!openedTokens.ContainsKey(token.Value)) continue;
+
+                    var nullableTag = openedTokens[token.Value].CreateOrNull(token);
+                    if (nullableTag is not null) tags.Last().RunTagDownOfTree(nullableTag);
                 }
 
-                result.Append(symbol);
-            }
 
-            if (assembledTag is not null && configs.ContainsKey(assembledTag))
-            {
-                var tagFirstCharIndex = result.Length - assembledTag.Length;
-                Console.WriteLine((tagFirstCharIndex - 1 - paragraphIterator, paragraph.Length));
-                char? charBefore = tagFirstCharIndex == 0 ? null : paragraph[tagFirstCharIndex - 1 - paragraphIterator];
-                tokens.Add(new Token(
-                    configs[assembledTag],
-                    tagFirstCharIndex,
-                    charBefore,
-                    null));
-            }
-
-            ITag? openedItalic = null;
-            ITag? openedBold = null;
-
-            foreach (var token in tokens)
-            {
-                Console.WriteLine(openedBold);
-                Console.WriteLine(openedItalic);
-                switch (token.Config.TextType)
-                {
-                    case TextType.Italic:
-                        if (openedItalic is null)
-                        {
-                            openedItalic = token.Config.TryCreate(token);
-                        }
-                        else if (token.Config.IsClosingToken(token))
-                        {
-                            openedItalic.EndIndex = token.TagFirstCharIndex;
-                            closedTags.Add(openedItalic);
-                            openedItalic = null;
-                        }
-
-                        break;
-                    case TextType.Bold:
-                        if (openedBold is null)
-                        {
-                            if (openedItalic is null)
-                                openedBold = token.Config.TryCreate(token);
-                        }
-                        else if (token.Config.IsClosingToken(token))
-                        {
-                            openedBold.EndIndex = token.TagFirstCharIndex;
-                            closedTags.Add(openedBold);
-                            openedBold = null;
-                        }
-
-                        break;
-                }
-            }
-
-            result.Append('\n');
-            paragraphIterator = result.Length;
+            closedTags.AddRange(tags
+                .Concat(tags.SelectMany(GetAllChildren))
+                .Where(t => t.Closed)
+                .ToArray());
         }
 
-        result.Remove(result.Length - 1, 1);
-        Console.WriteLine(closedTags.Count);
         return new HtmlRenderer().Render(closedTags, result);
+    }
+
+    private static IEnumerable<ITag> GetAllChildren(ITag tag)
+    {
+        return tag.Children.Concat(tag.Children.SelectMany(GetAllChildren));
+    }
+
+    private static IEnumerable<Token> ExtractTokens(string text, StringBuilder resultText, IEnumerable<string> tokens)
+    {
+        var tokensList = tokens.Distinct().OrderByDescending(s => s).ToArray();
+        for (var i = 0; i < text.Length; i++)
+        {
+            if (text[i] == '\\')
+                if (i + 1 < text.Length && (text[i + 1] == '\\' || tokensList.Any(t => t.StartsWith(text[i + 1]))))
+                {
+                    resultText.Append(text[++i]);
+                    continue;
+                }
+
+            var token = tokensList
+                .FirstOrDefault(t => i + t.Length <= text.Length &&
+                                     t.StartsWith(text[i]) &&
+                                     text.Substring(i, t.Length) == t);
+            if (token != null)
+            {
+                char? before = i == 0 ? null : text[i - 1];
+                char? after = i + token.Length >= text.Length ? null : text[i + token.Length];
+                yield return new Token(resultText.Length, token, before, after);
+                resultText.Append(token);
+                i += token.Length - 1;
+            }
+            else
+            {
+                resultText.Append(text[i]);
+            }
+        }
     }
 }
