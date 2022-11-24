@@ -1,41 +1,24 @@
 ﻿using System.Text;
-using Markdown.Tokens;
 
 namespace Markdown;
 
 public class Md
 {
-    private readonly List<TokenBase> tokensToCheck;
-
-    public Md()
-    {
-        tokensToCheck = new List<TokenBase>
-        {
-            // Order matters
-            new HeaderTokenBase(),
-            new BoldTokenBase(),
-            new ItalicTokenBase()
-        };
-    }
-
     public string Render(string text)
     {
         var result = new StringBuilder();
 
         var i = 0;
-        var lines = MarkdownParser.Parse(text);
+        var lines = text.Split('\n');
+        var converter = new MarkdownToHtmlConverter();
         foreach (var line in lines)
         {
-            RenderLine(line, result);
-            if (i++ != lines.Count - 1)
+            var tokens = MarkdownParser.ParseLine(line);
+            result.Append(converter.ToHtml(line, tokens));
+            if (i++ != lines.Length - 1)
                 result.Append('\n');
         }
 
         return result.ToString();
-    }
-
-    public StringBuilder RenderLine(List<TokenBase> tokens, StringBuilder? buffer = null)
-    {
-        return buffer;
     }
 }

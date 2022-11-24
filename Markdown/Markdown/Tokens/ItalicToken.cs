@@ -1,13 +1,6 @@
 ﻿namespace Markdown.Tokens;
 
-public class ItalicTokenBase : DoubleTokenBase
+public class ItalicToken : DoubleToken
 {
-    public ItalicTokenBase(TokenBase? parent = null) : base("_", "_", TokenType.Italic, parent)
-    {
-    }
-
-    public override bool CanStartsHere(string text , int start)
-    {
-        return base.CanStartsHere(text , start) && /*ToDo*/Parent.TokenType != TokenType.Italic;
-    }
+    public ItalicToken(Token? parent = null) : base("_", "_", TokenType.Italic, parent) { }
 }

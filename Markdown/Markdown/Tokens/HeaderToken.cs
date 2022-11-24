@@ -1,13 +1,13 @@
 ﻿namespace Markdown.Tokens;
 
-public class HeaderTokenBase : SingleTokenBase
+public class HeaderToken : Token
 {
-    public HeaderTokenBase(TokenBase? parent = null) : base("# ", TokenType.Header, parent)
+    public HeaderToken() : base("# ", string.Empty, TokenType.Header) { }
+    
+    public override bool CanStartsHere(string text, int index)
     {
-    }
-
-    public override bool CanStartsHere(string text, int start)
-    {
-        return base.CanStartsHere(text, start) && start == 0;
+        return base.CanStartsHere(text, index) && index == 0;
     }
 }
+
+  
