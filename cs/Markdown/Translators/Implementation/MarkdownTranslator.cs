@@ -219,15 +219,3 @@ public class MarkdownTranslator : ITranslator
         return false;
     }
 }
-
-public class TagWithIndex
-{
-    public ITag? Tag;
-    public int Index;
-
-    public TagWithIndex(ITag? tag, int index)
-    {
-        Tag = tag;
-        Index = index;
-    }
-}
