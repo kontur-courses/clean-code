@@ -1,12 +1,10 @@
-using System.Security.Cryptography;
-using NUnit.Framework;
-using Markdown;
 using FluentAssertions;
+using NUnit.Framework;
 
-namespace Tests
+namespace MarkdownTests
 {
     [TestFixture]
-    public class Tests
+    public class CursiveTests
     {
         [SetUp]
         public void Setup()
@@ -16,8 +14,22 @@ namespace Tests
         [Test]
         public void BasicCursive()
         {
-            Md.Render("Text _with_ text")
+            Markdown.Markdown.Render("Text _with_ text")
                 .Should().Be(@"Text <em>with<\em> text");
+        }
+
+        [Test]
+        public void BasicCursive_With_InconsistentCursive()
+        {
+            Markdown.Markdown.Render("Text _with_ text _ab")
+                .Should().Be(@"Text <em>with<\em> text _ab");
+        }
+
+        [Test]
+        public void AllLine_Is_Cursive()
+        {
+            Markdown.Markdown.Render("_abbbac_")
+                .Should().Be(@"<em>abbbac<\em>");
         }
     }
 }
