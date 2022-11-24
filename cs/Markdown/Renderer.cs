@@ -12,12 +12,12 @@ namespace Markdown
             this.builder = builder;
         }
         
-        public string Render(string markdownText)
+        public string Render(string data)
         {
-            if (string.IsNullOrEmpty(markdownText))
-                return markdownText;
+            if (string.IsNullOrEmpty(data))
+                return data;
             
-            var tokens = tokenParser.Parse(markdownText);
+            var tokens = tokenParser.Parse(data);
 
             return builder.Build(tokens);
         }

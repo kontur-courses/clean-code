@@ -1,4 +1,6 @@
-﻿using Markdown.Html;
+﻿using System;
+using System.IO;
+using Markdown.Html;
 using Markdown.Interfaces;
 using Microsoft.Extensions.DependencyInjection;
 
@@ -6,6 +8,9 @@ namespace Markdown
 {
     class Program
     {
+        private static readonly string ProjectDirectory 
+            = Directory.GetParent(Environment.CurrentDirectory).Parent.Parent.FullName;
+        
         static void Main()
         {
             var serviceCollection = new ServiceCollection();
@@ -14,9 +19,11 @@ namespace Markdown
             serviceCollection.AddSingleton<Renderer>();
             var serviceProvider = serviceCollection.BuildServiceProvider();
 
-            var markdownText = "";
+            var markdownText = File.ReadAllText(string.Concat(ProjectDirectory, @"\test.md"));
             var renderer = serviceProvider.GetService<Renderer>();
-            renderer?.Render(markdownText);
+            var htmlText = renderer?.Render(markdownText);
+            
+            Console.WriteLine(htmlText);
         }
     }
 }
