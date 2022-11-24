@@ -17,8 +17,6 @@ namespace Markdown
             action.Should().Throw<ArgumentException>();
         }
 
-
-        
         [TestCase("a_a a_", ExpectedResult = "a_a a_", TestName = "{m}_WhenThereIsATextBeforeOpeningUnderscore")]
         [TestCase("_a a_a", ExpectedResult = "_a a_a", TestName = "{m}_WhenThereIsATextAfterClosingUnderscore")]
         [TestCase("a_a a_a", ExpectedResult = "a_a a_a", TestName = "{m}_WhenThereIsASpaceBetweenUnderscores_AndTextAround")]
@@ -56,6 +54,15 @@ namespace Markdown
         [TestCase("_ test_", ExpectedResult = "_ test_", TestName = "{m}_DisableItalic_WhenThereIsASpaceAfterOpeningUnderscore")]
         [TestCase("__text _text__ text_", ExpectedResult = "text text text", TestName = "{m}_DisableHighlighting_WhenItIntersects")]
         [TestCase("____", ExpectedResult = "____", TestName = "{m}_DisableHighlighting_WhenThereIsAEmptyStringInStrong")]
+        [TestCase("# header\n", ExpectedResult = "<h1>header</h1>", TestName = "{m}_ParseHeader")]
+        [TestCase("# header _italic_ __strong__\n", ExpectedResult = "<h1>header <em>italic</em> <strong>strong</strong></h1>",
+                                                    TestName = "{m}_ParseHeaderWithItalicAndStrong")]
+        [TestCase("# __strong with _italic_ text__\n", ExpectedResult = "<h1><strong>strong with <em>italic</em> text</strong></h1>",
+                                                       TestName = "{m}_ParseHeaderWithItalicInsideStrong")]
+        [TestCase("# _italic __strong_ intersection__\n", ExpectedResult = "<h1>italic strong intersection</h1>",
+                                                          TestName = "{m}_ResolveItalicAndStrongIntersectionInsideHeader")]
+        [TestCase("# _italic\n_", ExpectedResult = "italic", TestName = "{m}_ResolveHeaderAndItalicIntersection")]
+        [TestCase("text# header\n", ExpectedResult = "text# header\n", TestName = "{m}_DisableHeader_WhenThereIsn'tNewlineBeforeIt")]
         public string Should(string input)
         {
             return parser.Render(input);
