@@ -56,6 +56,14 @@ namespace MarkdownTests
         [TestCase("# ", "<h1></h1>")] // ориентировался на поведение обычного маркдауна
         [TestCase("#", "<h1></h1>")] // ориентировался на поведение обычного маркдауна
         [TestCase("a #", "a #")] // ориентировался на поведение обычного маркдауна
+        [TestCase("_ab_ad", "<em>ab</em>ad")]
+        [TestCase("a_b_ad", "a<em>b</em>ad")]
+        [TestCase("a_bad_", "a<em>bad</em>")]
+        [TestCase("__bold a_bad_ bold__", "<strong>bold a<em>bad</em> bold</strong>")]
+        [TestCase("__bold a_b_ad bold__", "<strong>bold a<em>b</em>ad bold</strong>")]
+        [TestCase("__bold _ab_ad bold__", "<strong>bold <em>ab</em>ad bold</strong>")]
+
+
         public void MarkdownRenderShould_Correspond(string text, string expected)
         {
             var html = MarkdownRender.Render(new HtmlRender(), text);
