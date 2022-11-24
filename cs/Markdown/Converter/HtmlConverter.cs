@@ -10,13 +10,13 @@ public class HtmlConverter : IHtmlConverter
     private int shift;
     private string original;
 
-    private Dictionary<TagType, string> openingTags = new()
+    private Dictionary<TagType, string> openingHtmlTags = new()
     {
         { TagType.Bold, "<strong>" }, { TagType.Italic, "<em>" },
         { TagType.Header, "<h1>" }, { TagType.EscapedSymbol, "" }
     };
 
-    private Dictionary<TagType, string> closingTags = new()
+    private Dictionary<TagType, string> closingHtmlTags = new()
     {
         { TagType.Bold, "</strong>" }, { TagType.Italic, "</em>" },
         { TagType.Header, "</h1>" }, { TagType.EscapedSymbol, "" }
@@ -50,7 +50,7 @@ public class HtmlConverter : IHtmlConverter
             symCount = 0;
             shift++;
         }
-        var tagString = tag.IsClosing ? closingTags[tag.Type] : openingTags[tag.Type];
+        var tagString = tag.IsClosing ? closingHtmlTags[tag.Type] : openingHtmlTags[tag.Type];
         htmlStringBuilder.Remove(tag.Index + shift, symCount);
         htmlStringBuilder.Insert(tag.Index + shift, tagString);
         shift = htmlStringBuilder.Length - original.Length;

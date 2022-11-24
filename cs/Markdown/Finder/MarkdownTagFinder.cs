@@ -95,7 +95,11 @@ public class MarkdownTagFinder : ITagFinder
         var shift = tag.Type == TagType.Italic ? 1 : 2;
         var subString = origin.Substring(tag.Position.Start + 1, tag.Position.End - tag.Position.Start - 1);
         if (char.IsDigit(origin[tag.Position.End - shift]) || char.IsWhiteSpace(origin[tag.Position.End - shift]) ||
-            poppedTags.Dequeue() == differentType[tag.Type]) return false;
+            poppedTags.Dequeue() == differentType[tag.Type])
+        {
+            return false;
+        }
+
         if (tag.Position.End < origin.Length - 1 && !char.IsWhiteSpace(origin[tag.Position.End + 1]) &&
             subString.Any(char.IsWhiteSpace))
         {

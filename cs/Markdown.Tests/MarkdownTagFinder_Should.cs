@@ -74,7 +74,7 @@ public class MarkdownTagFinder_Should
     
     [TestCase("_It__a_ a__")]
     [TestCase("__It_a__a_")]
-    public void FindTags_ShouldNotFind_CrossoverTags(string line)
+    public void FindTags_ShouldNotFind_IntersectingTags(string line)
     {
         var htmlText =  markdownFinder.FindTags(line).ToList();
         htmlText.Should().BeEmpty();
