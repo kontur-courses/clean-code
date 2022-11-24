@@ -1,8 +1,6 @@
 using System;
 using System.Collections.Generic;
-using System.ComponentModel.Design;
 using System.Linq;
-using Microsoft.VisualBasic.CompilerServices;
 
 namespace Markdown
 {
@@ -86,16 +84,23 @@ namespace Markdown
                 {
                     if(tag == tag1)
                         continue;
-                    if (tag.OpenTag != tag1.OpenTag)
+
+                    if (tag.OpenTag != "_" || tag1.OpenTag != "__")
+                        continue;
+                    
+                    if ((tag.OpenTagIndex > tag1.OpenTagIndex &&
+                         tag1.CloseTagIndex < tag.CloseTagIndex) ||
+                        (tag1.OpenTagIndex > tag.OpenTagIndex &&
+                         tag.CloseTagIndex < tag1.CloseTagIndex))
                     {
-                        if ((tag.OpenTagIndex > tag1.OpenTagIndex &&
-                            tag1.CloseTagIndex < tag.CloseTagIndex) ||
-                            (tag1.OpenTagIndex > tag.OpenTagIndex &&
-                             tag.CloseTagIndex < tag1.CloseTagIndex))
-                        {
-                            toRemoveTags.Add(tag);
-                            toRemoveTags.Add(tag1);
-                        }
+                        toRemoveTags.Add(tag);
+                        toRemoveTags.Add(tag1);
+                    }
+                        
+                    if (tag.OpenTagIndex < tag1.OpenTagIndex &&
+                        tag.CloseTagIndex > tag1.CloseTagIndex)
+                    {
+                        toRemoveTags.Add(tag1);
                     }
                 }
             }
@@ -158,24 +163,24 @@ namespace Markdown
         private bool IsPreviousSlash(int openTagIndex, int closeTagIndex, string text)
         {
             var temp = openTagIndex - 1;
-            var IsSlashOpenTag = false;
+            var isSlashOpenTag = false;
             while (IsValidIndex(text, temp) &&
                    text[temp] == '\\')
             {
-                IsSlashOpenTag = !IsSlashOpenTag;
+                isSlashOpenTag = !isSlashOpenTag;
                 temp -= 1;
             }
 
             temp = closeTagIndex - 1;
-            var IsSlashCloseTag = false;
+            var isSlashCloseTag = false;
             while (IsValidIndex(text, temp) &&
                    text[temp] == '\\')
             {
-                IsSlashCloseTag = !IsSlashCloseTag;
+                isSlashCloseTag = !isSlashCloseTag;
                 temp -= 1;
             }
 
-            return IsSlashOpenTag || IsSlashCloseTag;
+            return isSlashOpenTag || isSlashCloseTag;
         }
 
         //Найден ли уже тег с таким индексом
@@ -189,9 +194,7 @@ namespace Markdown
         
         private bool IsValidIndex(string text, int index)
         {
-            if (index < 0 || index >= text.Length)
-                return false;
-            return true;
+            return index >= 0 && index < text.Length;
         }
 
         private bool HasEqualNeighbors(MdTag tag, int index, string text)
@@ -213,19 +216,18 @@ namespace Markdown
 
         private bool IsIndexInsideAWord(int index, string text)
         {
-            var IsIndsideAWord = true;
-            for (var i = -1; i <= 1; i += 2)
+            var isInsideAWord = true;
+            for (var i = -1; i < 2; i += 2)
             {
-                if (index + i >= text.Length || index + i < 0
-                                             || index >= text.Length || index < 0)
+                if (!IsValidIndex(text, index + i) || !IsValidIndex(text, index))
                     continue;
                 if (index + i < 0 || i == 0)
                     continue;
-                if (!Char.IsLetter(text[index + i]) && !Char.IsDigit(text[index + i]))
-                    IsIndsideAWord = false;
+                if (!Char.IsLetterOrDigit(text[index + i]))
+                    isInsideAWord = false;
             }
         
-            return IsIndsideAWord;
+            return isInsideAWord;
         }
     }
 }

@@ -50,6 +50,8 @@ namespace MarkdownTests
                 _valuesTagsIndexes.AddRange(new (int, int)[]{(2, 31)});
             if(text == "Внутри __двойного выделения _одинарное_ тоже__ работает")
                 _valuesTagsIndexes.AddRange(new (int, int)[]{(7, 44), (28, 38)});
+            if(text == "Но не наоборот — внутри _одинарного __двойное__ не_ работает")
+                _valuesTagsIndexes.AddRange(new (int, int)[]{(24, 50)});
             if(text == "__a_b__")
                 _valuesTagsIndexes.AddRange(new (int, int)[]{(0, 5)});
         }
@@ -85,6 +87,7 @@ namespace MarkdownTests
         [TestCase(@"#_text\_ and_ text")]
         [TestCase(@"\\_вот это будет выделено тегом_")]
         [TestCase("Внутри __двойного выделения _одинарное_ тоже__ работает")]
+        [TestCase("Но не наоборот — внутри _одинарного __двойное__ не_ работает")]
         [TestCase("__a_b__")]
         public void MarkdownParser_GetIndexesTags_MultipleTags(string text)
         {
