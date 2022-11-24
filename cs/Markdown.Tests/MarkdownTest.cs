@@ -91,8 +91,17 @@ public class Tests
 
     [TestCase("Some 1_3 words", "Some 1_3 words")]
     [TestCase("Some _13 words", "Some _13 words")]
-    [TestCase("S_ome _13 wor_ds", "S<em>ome _13 wor</em>ds")]
+    [TestCase("S_ome _13 wor_ds", "S_ome _13 wor_ds")]
+    [TestCase("_Some _13 words_", "<em>Some _13 words</em>")]
     public void Renderer_TagsBetweenNumbers_TagsNotChangedBetweenNumbers(string mdInput, string result)
+    {
+        markdown!.Render(mdInput).Should().Be(result);
+    }
+
+    [TestCase("Some _wd_f", "Some <em>wd</em>f")]
+    [TestCase("So_me wd_f", "So_me wd_f")]
+    [TestCase("Lo_fd_s", "Lo<em>fd</em>s")]
+    public void Renderer_TagsInWord_TagsChanged(string mdInput, string result)
     {
         markdown!.Render(mdInput).Should().Be(result);
     }

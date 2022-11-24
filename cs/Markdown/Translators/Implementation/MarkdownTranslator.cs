@@ -79,20 +79,22 @@ public class MarkdownTranslator : ITranslator
     private bool IsNumber(int index) =>
         char.GetUnicodeCategory(text[index]) == UnicodeCategory.LetterNumber;
 
-    private string ReadForNow(Func<int, bool> func)
+    private string ReadForNow(Func<int, bool> func, int index, string currentText)
     {
         var symbols = new StringBuilder();
-        var currentPoint = point;
-        while (currentPoint < text.Length)
+        var currentPoint = index;
+        while (currentPoint < currentText.Length)
         {
             if (!func(currentPoint))
                 return symbols.ToString();
-            symbols.Append(text[currentPoint]);
+            symbols.Append(currentText[currentPoint]);
             currentPoint++;
         }
 
         return symbols.ToString();
     }
+
+    private string ReadForNow(Func<int, bool> func) => ReadForNow(func, point, text);
 
     private string ReadForNow(Func<int, int, int, string, bool> func, int index, string currentText)
     {
@@ -163,8 +165,22 @@ public class MarkdownTranslator : ITranslator
     private bool IsCorrectStart(Stack<TagWithIndex> tags, ITag? tag, int index)
     {
         if (index < text.Length && IsLetter(index))
-            return tags.Count <= 0 || tags.Peek().Tag!.SourceName != "_" || tag.SourceName != "__" || index - 1 < 0 ||
-                   IsNumber(index - 1) || index + 1 > text.Length || IsNumber(index + 1);
+        {
+            var startIndex = index - 1;
+            var lettersNext = ReadForNow(IsLetter, index, text);
+            index += lettersNext.Length;
+            var isNeedsTag = ReadForNow(IsTag, index, text);
+
+            if ((isNeedsTag == tag.SourceName || isNeedsTag == "" && startIndex - 1 < 0 ||
+                 startIndex - 1 >= 0 && !IsLetter(startIndex - 1)) && (tags.Count <= 0 ||
+                                                                       tags.Peek().Tag!.SourceName != "_" ||
+                                                                       tag.SourceName != "__" || index - 1 < 0 ||
+                                                                       IsNumber(index - 1) || index + 1 > text.Length ||
+                                                                       IsNumber(index + 1))) 
+                return true;
+        }
+        else
+            return false;
 
         return false;
     }
@@ -172,7 +188,9 @@ public class MarkdownTranslator : ITranslator
     private bool IsCorrectEnding(IEnumerable<TagWithIndex> tags, ITag? tag, int index)
     {
         if (index - (tag!.SourceName.Length + 1) >= 0 && IsLetter(index - (tag.SourceName.Length + 1)))
+        {
             return true;
+        }
         return false;
     }
 
