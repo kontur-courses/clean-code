@@ -10,9 +10,9 @@ namespace Markdown.Enums
     public enum TokenType
     {
         Text,
-        WhiteSpace,
         Header,
         Italic,
-        Strong
+        Strong,
+        Slash
     }
 }
