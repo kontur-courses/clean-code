@@ -2,6 +2,8 @@
 using System.Text;
 using System.Linq;
 using System.Text.RegularExpressions;
+using static System.Net.Mime.MediaTypeNames;
+using Markdown;
 
 namespace Markdown
 {
@@ -11,72 +13,47 @@ namespace Markdown
 
         public Md()
         {
-
-            var underlinesContentRules = new List<Func<Tag, bool, string, bool>>
-            {
-                (tag, isPartial, text) =>
-                    text[0] != ' ' && text[text.Length-1] != ' ',
-                (tag, isPartial, text) =>
-                    !text
-                        .All(char.IsNumber),
-                (tag, isPartial, text) =>
-                    !isPartial || !text.Any(char.IsWhiteSpace),
-            };
-            var tags = new List<Tag>
-            {
-                new Tag("__", "__", "strong", underlinesContentRules,
-                    new List<Func<Token, List<Token>, bool>>
-                    {
-                        (token, tokens) => token.FindParent(tokens)?.Tag.HtmlTag != "em",
-                        (token, tokens) => !tokens.Any(t => t.IntersectsWith(token)),
-                    }),
-
-                new Tag("_", "_", "em", underlinesContentRules,
-                    new List<Func<Token, List<Token>, bool>>
-                    {
-                        (token, tokens) => !tokens.Any(t => t.IntersectsWith(token)),
-                    }),
-
-                new Tag("# ", Environment.NewLine, "h1",
-                    new List<Func<Tag, bool, string, bool>>
-                    {
-
-                    }, new List<Func<Token, List<Token>, bool>>
-                    {
-
-                    }),
-            };
-            parser = new TokenParser(tags);
+            parser = new TokenParser();
         }
 
         public string Render(string text)
         {
-            var tokens = parser.ParseTokens(text);
-            return GetResultString(text, tokens);
+            var res = new StringBuilder();
+            foreach (var line in text.Split(Environment.NewLine))
+            {
+                var tokens = parser.ParseTokens(line + Environment.NewLine);
+                AddTagsToTextAndAddToBuilder(res, line + Environment.NewLine, tokens);
+                if (!res.EndsWith(Environment.NewLine))
+                    res.Append(Environment.NewLine);
+            }
+            res.Remove(res.Length - Environment.NewLine.Length, Environment.NewLine.Length);
+
+            RemoveShielding(res, parser.Tags.Select(t => t.OpenMark));
+            return res.ToString();
         }
 
-        private string GetResultString(string text, List<Token> tokens)
+        private void AddTagsToTextAndAddToBuilder(StringBuilder builder, string text, List<Token> tokens)
         {
-            var result = new StringBuilder();
             var index = 0;
             while (index < text.Length)
             {
                 var (target, tag, mark) = GetClosestIndex(index, tokens);
                 target = Math.Min(target, text.Length);
-                result.Append(text.Substring(index, target - index));
-                result.Append(tag);
+                builder.Append(text.AsSpan(index, target - index));
+                builder.Append(tag);
                 index += target - index + mark.Length;
-                if (mark == Environment.NewLine && index < text.Length)
-                    result.Append(Environment.NewLine);
             }
 
             if (index < text.Length)
-                result.Append(text.Substring(index, text.Length - index));
+                builder.Append(text.AsSpan(index, text.Length - index));
+        }
 
-            result
-                .Replace(@"\_", "_")
+        private void RemoveShielding(StringBuilder builder, IEnumerable<string> marks)
+        {
+            foreach (var mark in marks)
+                builder.Replace($@"\{mark}", $"{mark}");
+            builder
                 .Replace(@"\\", @"\");
-            return result.ToString();
         }
 
         private (int, string, string) GetClosestIndex(int index, List<Token> tokens)
