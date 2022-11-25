@@ -85,6 +85,7 @@ public class MdTests
     [TestCaseSource(nameof(GetSpecificationText))]
     public void Should_BeLinear(string input)
     {
+        const int repeatCount = 25;
         var sw = new Stopwatch();
         sw.Reset();
 
@@ -95,13 +96,13 @@ public class MdTests
         var elapsed = sw.Elapsed.Ticks;
         sw.Reset();
 
-        var text = Enumerable.Repeat(input, 10).ToString();
+        var text = Enumerable.Repeat(input, repeatCount).ToString();
 
         sw.Start();
         converter.Render(text!);
         sw.Stop();
 
-        Assert.That(sw.Elapsed.Ticks / elapsed, Is.LessThanOrEqualTo(10));
+        Assert.That(sw.Elapsed.Ticks / elapsed, Is.LessThanOrEqualTo(repeatCount));
     }
 
     private static IEnumerable<string> GetSpecificationText()
