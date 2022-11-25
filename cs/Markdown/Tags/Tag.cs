@@ -1,26 +1,43 @@
-﻿namespace Markdown.Tags;
+﻿using Markdown.Token;
 
-public class Tag
+namespace Markdown.Tags;
+
+public abstract record Tag(string Opening, string Closing)
 {
-    public string Opening { get; }
-    public string Closing { get; }
+    public abstract bool ClosesOnNewLine { get; }
+    public abstract bool CanIntersect { get; }
+    public abstract bool IsValidOpening(Stack<TokenTree> stack, string text, int position);
+    public abstract bool IsValidClosing(Stack<TokenTree> stack, string text, int position);
+
+    public virtual bool IsOpeningSequence(string text, int position)
+    {
+        if (position + Opening.Length - 1 >= text.Length) return false;
+
+        return !Opening.Where((t, i) => text[position + i] != t).Any();
+    }
     
-    public Tag(string opening, string closing)
+    public virtual bool IsClosingSequence(string text, int position)
     {
-        Opening = opening;
-        Closing = closing;
+        if (position + Closing.Length - 1 >= text.Length) return false;
+
+        return !Closing.Where((t, i) => text[position + i] != t).Any();
     }
 
-    public override bool Equals(object? obj)
+    protected bool TryGetNextChar(string text, int position, string sequence, out char result)
     {
-        if (obj is not Tag other) return false;
-        if (ReferenceEquals(this, obj)) return true;
+        result = '\0';
+        if (position + sequence.Length >= text.Length) return false;
 
-        return Opening == other.Opening && Closing == other.Closing;
+        result = text[position + sequence.Length];
+        return true;
     }
-
-    public override int GetHashCode()
+    
+    protected bool TryGetPreviousChar(string text, int position, string sequence, out char result)
     {
-        return (Opening, Closing).GetHashCode();
+        result = '\0';
+        if (position - 1 < 0) return false;
+
+        result = text[position - 1];
+        return true;
     }
 }

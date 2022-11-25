@@ -1,6 +1,8 @@
 ﻿using Markdown.Parse;
 using Markdown.Render;
 using Markdown.Tags;
+using Markdown.Tags.HtmlTags;
+using Markdown.Tags.MarkdownTags;
 
 namespace Markdown;
 
@@ -8,9 +10,9 @@ public class Md : IMarkupRenderer
 {
     private readonly Dictionary<Tag, Tag> renderingRules = new Dictionary<Tag, Tag>
     {
-        { MarkdownTags.Bold, HtmlTags.Bold },
-        { MarkdownTags.Italics, HtmlTags.Italics },
-        { MarkdownTags.Heading, HtmlTags.Heading },
+        { MarkdownTagProvider.Bold, HtmlTagProvider.Bold },
+        { MarkdownTagProvider.Italics, HtmlTagProvider.Italics },
+        { MarkdownTagProvider.Heading, HtmlTagProvider.Heading },
     };
     
     public string Render(string text)
