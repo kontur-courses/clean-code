@@ -1,6 +1,4 @@
-﻿using MarkdownProcessor.Tags;
-
-namespace MarkdownProcessor.Tags;
+﻿namespace MarkdownProcessor.Tags;
 
 public class Italic : HighlightTextPairTag, ITag
 {

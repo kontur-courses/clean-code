@@ -1,6 +1,4 @@
-﻿using MarkdownProcessor.Tags;
-
-namespace MarkdownProcessor.Tags;
+﻿namespace MarkdownProcessor.Tags;
 
 public class FirstHeader : ITag
 {
@@ -11,7 +9,7 @@ public class FirstHeader : ITag
 
     public ITagMarkdownConfig Config { get; } = new FirstHeaderConfig();
     public Token OpeningToken { get; }
-    public Token ClosingToken { get; set; }
+    public Token ClosingToken { get; private set; }
     public List<ITag> Children { get; } = new();
     public bool Closed { get; private set; }
 

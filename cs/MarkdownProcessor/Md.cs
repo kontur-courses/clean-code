@@ -41,7 +41,7 @@ public class Md
                 {
                     var nullableToken = tags.Last().RunTokenDownOfTree(token);
                     if (nullableToken is null) continue;
-                    
+
                     var nullableTag = openedTokens.GetValueOrDefault(token.Value)?.CreateOrNull(token);
                     if (nullableTag is not null) tags.Last().RunTagDownOfTree(nullableTag);
                 }
@@ -75,11 +75,11 @@ public class Md
                 resultText.Append(text[i]);
                 continue;
             }
-            
+
             char? before = i == 0 ? null : text[i - 1];
             char? after = i + matchedToken.Length >= text.Length ? null : text[i + matchedToken.Length];
             yield return new Token(resultText.Length, matchedToken, before, after);
-            
+
             resultText.Append(matchedToken);
             i += matchedToken.Length - 1;
         }
