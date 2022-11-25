@@ -10,18 +10,16 @@ namespace MrakdaunV1.MrakdounEngine
     {
         public CharState[] GetParsedStates(List<TokenPart> tokenParts, CharState[] charStates, string text)
         {
-            //var charStates = charStatesOld.Clone() as CharState[];
-
             if (charStates is null)
                 throw new NullReferenceException(nameof(charStates));
 
+            // из всех тегов берем только курсивные
             List<TokenPart> listOfItalicTokenParts = tokenParts
                 .Where(p => p.Type == TokenPartType.Italic)
                 .ToList();
 
             for (int i = 0; i < listOfItalicTokenParts.Count; i++)
             {
-                // на одном теге далеко не уедешь, поэтому просто запомним, что он есть
                 if (i == 0)
                     continue;
 
@@ -36,6 +34,7 @@ namespace MrakdaunV1.MrakdounEngine
                 var sliceHasDelimeters =
                     text.ContainsDelimeters(prevTokenPart.Index, currentTokenPart.Index);
 
+                // продолжаем парсинг только если такая возможность есть
                 if (!currentTokenPart.IsPossiblePairWith(prevTokenPart, sliceHasDelimeters))
                     continue;
 

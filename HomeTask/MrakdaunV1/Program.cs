@@ -79,8 +79,9 @@ __Непарные_ символы в рамках одного абзаца н�
 превратится в:
 
 &lt;h1>Заголовок &lt;strong>с &lt;em>разными&lt;/em> символами&lt;/strong>&lt;/h1>";
-
+            
             var engine = new MrakdaunEngine();
+            Console.WriteLine(engine.GetCharStatesString(engine.GetParsedTextStates(text)));
             File.WriteAllText("a.html", engine.GetParsedText(text));
         }
     }

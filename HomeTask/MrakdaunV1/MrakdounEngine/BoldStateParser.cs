@@ -10,18 +10,16 @@ namespace MrakdaunV1.MrakdounEngine
     {
         public CharState[] GetParsedStates(List<TokenPart> tokenParts, CharState[] charStates, string text)
         {
-            //var charStates = charStatesOld.Clone() as CharState[];
-
             if (charStates is null)
                 throw new NullReferenceException(nameof(charStates));
 
+            // из всех тегов берем только жирные
             List<TokenPart> listOfBoldTokenParts = tokenParts
                 .Where(p => p.Type == TokenPartType.Bold)
                 .ToList();
 
             for (int i = 0; i < listOfBoldTokenParts.Count; i++)
             {
-                // на одном теге далеко не уедешь, поэтому просто запомним, что он есть
                 if (i == 0)
                     continue;
 
@@ -48,7 +46,7 @@ namespace MrakdaunV1.MrakdounEngine
                     currentTokenPart, prevTokenPart,
                     CharState.Italic, charStates);
 
-                // жир имеет шансы на валидность, если:
+                // жирный тег может существовать только в таких случаях:
                 // 1) в нем нет курсива
                 // 2) курсив есть, но по бокам курсива нет (нет коллизий)
                 if (sliceNotContainsItalic || sliceContainsItalicButNoCollisions)
@@ -56,6 +54,7 @@ namespace MrakdaunV1.MrakdounEngine
                     if (!currentTokenPart.IsPossiblePairWith(prevTokenPart, sliceHasDelimeters))
                         continue;
 
+                    // помечаем весь текст как жирный + спецсимволы на теги тоже проставим
                     for (var c = 0;
                         c < currentTokenPart.Index - prevTokenPart.Index + 2;
                         c++)
@@ -66,16 +65,18 @@ namespace MrakdaunV1.MrakdounEngine
                     charStates[prevTokenPart.Index] |= CharState.Special;
                     charStates[prevTokenPart.Index + 1] |= CharState.Special;
                 }
-                // если же коллизии есть, то надо игнорить жир + убрать курсивное выделение
                 else
                 {
-                    // если вообще все символы курсивные, то мы имеем дело с жиром внутри курсива, в целом
-                    // это валидно, просто игнорим
+                    // если вообще все символы курсивные, то мы имеем дело
+                    // с жиром внутри курсива, такое поведение допустимо, курсив
+                    // удалять не нужно
                     if (AllStatesBetweenTokenPartsContainsFlag(
                         currentTokenPart, prevTokenPart,
                         CharState.Italic, charStates))
                         continue;
 
+                    
+                    // удаляем курсив в зависимости от того, есть ли коллизия слева или справа
                     if (charStates[prevTokenPart.Index].HasFlag(CharState.Italic))
                         StartCleaningItalicFromIndex(prevTokenPart.Index, charStates);
 
@@ -87,6 +88,9 @@ namespace MrakdaunV1.MrakdounEngine
             return charStates;
         }
 
+        /// <summary>
+        /// Метод вернет true только если все символы между тегами имеют нужный стейт
+        /// </summary>
         private bool AllStatesBetweenTokenPartsContainsFlag(
             TokenPart current,
             TokenPart prev,
@@ -97,6 +101,9 @@ namespace MrakdaunV1.MrakdounEngine
                 .All(cs => cs.HasFlag(flag));
         }
 
+        /// <summary>
+        /// Метод вернет true только если хоть один символ между тегами имеет нужный стейт
+        /// </summary>
         private bool AnyStatesBetweenTokenPartsContainsFlag(
             TokenPart current,
             TokenPart prev,
@@ -107,6 +114,9 @@ namespace MrakdaunV1.MrakdounEngine
                 .Any(cs => cs.HasFlag(flag));
         }
 
+        /// <summary>
+        /// Метод вернет true только если все символы между тегами НЕ имеют нужного стейта
+        /// </summary>
         private bool AllStatesBetweenTokenPartsDontContainsFlag(
             TokenPart current,
             TokenPart prev,
@@ -117,6 +127,9 @@ namespace MrakdaunV1.MrakdounEngine
                 .All(cs => !cs.HasFlag(flag));
         }
 
+        /// <summary>
+        /// Метод убирает стейт курсива
+        /// </summary>
         private void StartCleaningItalicFromIndex(int currentIndex, CharState[] charStates)
         {
             // Очищаем курсив влево

@@ -1,5 +1,6 @@
 ﻿using System.Collections.Generic;
 using MrakdaunV1.Enums;
+using MrakdaunV1.MrakdounEngine;
 
 namespace MrakdaunV1.Interfaces
 {

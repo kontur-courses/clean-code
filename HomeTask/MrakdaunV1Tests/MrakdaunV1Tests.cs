@@ -2,6 +2,7 @@ using System;
 using System.Text;
 using FluentAssertions;
 using MrakdaunV1;
+using MrakdaunV1.MrakdounEngine;
 using NUnit.Framework;
 
 namespace MrakdaunV1Tests
@@ -16,7 +17,6 @@ namespace MrakdaunV1Tests
         {
             _engine = new MrakdaunEngine();
         }
-
 
         [TestCase("_a\na_", "_ _ _ _ _", TestName = "в разных строках нет выделения")]
         [TestCase("____", "_ _ _ _", TestName = "пустой текст в жире как 4 земли")]
@@ -41,7 +41,6 @@ namespace MrakdaunV1Tests
         [TestCase("_b __aa b_ _b aa__ b_", "_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _", TestName = "вообще нет выделения")]
         [TestCase("__aa_aa__aa_", "_ _ _ _ _ _ _ _ _ _ _ _", TestName = "ничего (пересечение)")]
         [TestCase("__aaa _aa__ a aa_", "_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _", TestName = "ничего (пересечение) 2")]
-
         public void Engine_ShouldCorrectParse_ItalicAndStrong(string text, string answer)
         {
             _engine.GetCharStatesString(_engine.GetParsedTextStates(text)).Should().Be(answer);
@@ -71,6 +70,15 @@ namespace MrakdaunV1Tests
         public void Engine_ShouldCorrectParse_Header(string text, string answer)
         {
             _engine.GetCharStatesString(_engine.GetParsedTextStates(text)).Should().Be(answer);
+        }
+        
+        [TestCase("", "")]
+        [TestCase("_a_", "<em>a</em>")]
+        [TestCase("__a__", "<strong>a</strong>")]
+        [TestCase("# Заголовок __с _разными_ символами__", "<h1>Заголовок <strong>с <em>разными</em>  символами</h1></strong>")]
+        public void HtmlRenderer_ShouldParseCorrectly(string text, string answer)
+        {
+            _engine.GetParsedText(text).Should().Be(answer);
         }
 
         [Test]

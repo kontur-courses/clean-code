@@ -1,0 +1,18 @@
+{
+  "version": 2,
+  "dgSpecHash": "IU21hyOV4BeJUWrE1vCSjET63/v9Pm1zR/LYS2jmwvTMlzwoxxjNH3+ErmgUx9UVHiBWvGX9Bwn72pkLKm9peQ==",
+  "success": true,
+  "projectFilePath": "C:\\Users\\katya\\Desktop\\kontur\\SHPORA\\shpora-tdd\\tagcloud\\MrakdaunV1\\MrakdaunV1\\MrakdaunV1.csproj",
+  "expectedPackageFiles": [
+    "C:\\Users\\katya\\.nuget\\packages\\coverlet.collector\\3.2.0\\coverlet.collector.3.2.0.nupkg.sha512",
+    "C:\\Users\\katya\\.nuget\\packages\\fluentassertions\\6.8.0\\fluentassertions.6.8.0.nupkg.sha512",
+    "C:\\Users\\katya\\.nuget\\packages\\microsoft.netcore.platforms\\1.1.0\\microsoft.netcore.platforms.1.1.0.nupkg.sha512",
+    "C:\\Users\\katya\\.nuget\\packages\\netstandard.library\\2.0.0\\netstandard.library.2.0.0.nupkg.sha512",
+    "C:\\Users\\katya\\.nuget\\packages\\nunit\\3.13.3\\nunit.3.13.3.nupkg.sha512",
+    "C:\\Users\\katya\\.nuget\\packages\\nunit.analyzers\\3.5.0\\nunit.analyzers.3.5.0.nupkg.sha512",
+    "C:\\Users\\katya\\.nuget\\packages\\nunit3testadapter\\4.3.1\\nunit3testadapter.4.3.1.nupkg.sha512",
+    "C:\\Users\\katya\\.nuget\\packages\\system.configuration.configurationmanager\\4.4.0\\system.configuration.configurationmanager.4.4.0.nupkg.sha512",
+    "C:\\Users\\katya\\.nuget\\packages\\system.security.cryptography.protecteddata\\4.4.0\\system.security.cryptography.protecteddata.4.4.0.nupkg.sha512"
+  ],
+  "logs": []
+}
