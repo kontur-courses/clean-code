@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Linq;
 
 namespace Markdown.DataStructures
 {
@@ -12,19 +13,18 @@ namespace Markdown.DataStructures
             RootToken = new Token(null, null, 0, false);
         }
 
-        public void AddToken(Token parent)
+        public void AddToken(Token token)
         {
-            throw new NotImplementedException();
+            token.Parent.Children.Add(token);
         }
 
         public void RemoveToken(Token token)
         {
-            throw new NotImplementedException();
+            if (token.Children.Count > 0)
+                foreach (var child in token.Children)
+                    token.Parent.Children.Add(child);
+            token.Parent.Children.Remove(token);
         }
 
-        public IEnumerable<Token> GetAllTokens(Token token)
-        {
-            throw new NotImplementedException();
-        }
     }
 }
