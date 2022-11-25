@@ -1,5 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Linq;
 using NUnit.Framework;
 using FluentAssertions;
@@ -9,7 +8,7 @@ namespace MarkdownTests
 {
     public class ParserTests
     {
-        private ITagsParser<MdTag> _parser;
+        private ITagsParser<MdTagWithIndex> _parser;
         private List<MdTag> _tags;
         private List<(int openTagIndex, int closeTagIndex)> _valuesTagsIndexes;
 
@@ -69,7 +68,7 @@ namespace MarkdownTests
             CheckReturnedIndexes(findedTags.ToList());
         }
 
-        private void CheckReturnedIndexes(List<MdTag> findedTags)
+        private void CheckReturnedIndexes(List<MdTagWithIndex> findedTags)
         {
             findedTags.Count.Should().Be(_valuesTagsIndexes.Count);
             for (int i = 0; i < findedTags.Count; i++)
@@ -77,7 +76,7 @@ namespace MarkdownTests
                     _valuesTagsIndexes[i].closeTagIndex);
         }
 
-        private void CheckReturnedIndex(MdTag tag, int openTagIndex, int closeTagIndex)
+        private void CheckReturnedIndex(MdTagWithIndex tag, int openTagIndex, int closeTagIndex)
         {
             tag.OpenTagIndex.Should().Be(openTagIndex);
             tag.CloseTagIndex.Should().Be(closeTagIndex);
@@ -112,17 +111,6 @@ namespace MarkdownTests
         {
             var findedTags = _parser.GetIndexesTags(text);
             findedTags.Count().Should().Be(0);
-        }
-
-        private MdTag GetTagFromList(List<MdTag> tags, string openTag)
-        {
-            foreach (var tag in tags)
-            {
-                if (tag.OpenTag == openTag)
-                    return tag;
-            }
-
-            throw new ArgumentException("Tag not found");
         }
     }
 }

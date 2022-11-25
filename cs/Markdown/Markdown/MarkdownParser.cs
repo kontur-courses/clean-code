@@ -4,18 +4,18 @@ using System.Linq;
 
 namespace Markdown
 {
-    public class MarkdownParser : ITagsParser<MdTag>
+    public class MarkdownParser : ITagsParser<MdTagWithIndex>
     {
         private List<MdTag> _tags;
-        private List<MdTag> _findedTags;
+        private List<MdTagWithIndex> _findedTags;
 
         public MarkdownParser(IEnumerable<MdTag> tags)
         {
             _tags = new List<MdTag>(tags);
-            _findedTags = new List<MdTag>();
+            _findedTags = new List<MdTagWithIndex>();
         }
 
-        public IEnumerable<MdTag> GetIndexesTags(string text)
+        public IEnumerable<MdTagWithIndex> GetIndexesTags(string text)
         {
             for (int i = 0; i < text.Length; i++)
             {
@@ -24,7 +24,7 @@ namespace Markdown
                     var openTagIndex = TryGetOpenTagIndex(tag, text, i);
                     var closeTagIndex = TryGetCloseTagIndex(tag, text, openTagIndex);
                     if (IsTagIndexes(tag, openTagIndex, closeTagIndex, text))
-                        _findedTags.Add(new MdTag(tag.OpenTag, tag.HasCloseTag, openTagIndex, closeTagIndex));
+                        _findedTags.Add(new MdTagWithIndex(tag, openTagIndex, closeTagIndex));
                 }
             }
 
@@ -76,7 +76,7 @@ namespace Markdown
                 .Where(x => x.OpenTag[0] == '_')
                 .ToList();
 
-            var toRemoveTags = new List<MdTag>();
+            var toRemoveTags = new List<MdTagWithIndex>();
             foreach (var tag in tagsWithoutHeaderTag)
             {
                 foreach (var tag1 in tagsWithoutHeaderTag)
@@ -125,8 +125,8 @@ namespace Markdown
             if (openTagIndex + tag.OpenTag.Length == closeTagIndex)
                 return false;
 
-            if (tag.IsSimpleTag() && (HasEqualNeighbors(tag, openTagIndex, text) ||
-                                      HasEqualNeighbors(tag, closeTagIndex, text)))
+            if (tag.OpenTag.Length == 1 && (HasEqualNeighbors(tag, openTagIndex, text) ||
+                                            HasEqualNeighbors(tag, closeTagIndex, text)))
                 return false;
 
             //За подчерками, начинающими выделение, должен следовать непробельный символ

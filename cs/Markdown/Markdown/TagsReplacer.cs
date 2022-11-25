@@ -16,7 +16,8 @@ namespace Markdown
             _tagToTag = tagToTag;
         }
 
-        public string ReplaceTag(IEnumerable<T> tags, string text)
+        public string ReplaceTag<TIndex>(IEnumerable<TIndex> tags, string text)
+            where TIndex : TagWithIndex
         {
             var actions = new Dictionary<Type, Func<string>>
             {
@@ -29,7 +30,8 @@ namespace Markdown
             return actions[typeof(T)]();
         }
 
-        private string ReplaceMdTag(IEnumerable<T> tags, string text)
+        private string ReplaceMdTag<TIndex>(IEnumerable<TIndex> tags, string text)
+            where TIndex : TagWithIndex
         {
             var builder = new StringBuilder();
             foreach (var tag in tags)
@@ -56,7 +58,8 @@ namespace Markdown
             return text;
         }
 
-        private (string, string) GetOpenAndCloseTag(T a)
+        private (string, string) GetOpenAndCloseTag<TIndex>(TIndex a)
+            where TIndex : TagWithIndex
         {
             foreach (var tag in _tagToTag)
             {
@@ -67,7 +70,9 @@ namespace Markdown
             throw new ArgumentException("Tag not found");
         }
 
-        private void ShiftTeg(IEnumerable<T> tags, T currentTag, int openTagLength, int closeTagLength)
+        private void ShiftTeg<TIndex>(IEnumerable<TIndex> tags, TIndex currentTag, int openTagLength,
+            int closeTagLength)
+            where TIndex : TagWithIndex
         {
             foreach (var tag in tags)
             {
