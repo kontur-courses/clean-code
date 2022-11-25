@@ -5,7 +5,7 @@ using NUnit.Framework;
 namespace Markdown.Tests;
 
 [TestFixture]
-[Parallelizable]
+[Parallelizable(ParallelScope.Children)]
 public class MdTests
 {
     [TestCase("# heading", "<h1>heading</h1>")]
