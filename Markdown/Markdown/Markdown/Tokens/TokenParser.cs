@@ -5,7 +5,7 @@ namespace Markdown.Tokens
 {
     public static class TokenParser
     {
-        public static List<Token> GetTokens(List<Token> tokenList, int endIndex)
+        public static IList<Token> GetTokens(List<Token> tokenList, int endIndex)
         {
             if (endIndex <= 0)
                 throw new ArgumentException("End index must be positive and greater than zero");

@@ -3,7 +3,7 @@ using Markdown.Tokens;
 
 namespace Markdown.Markdown
 {
-    static class Md
+    public static class Md
     {
         public static string Render(string markdownString)
         {
@@ -12,7 +12,7 @@ namespace Markdown.Markdown
             var tokenList = MarkdownParser.GetListWithMdTags(markdownString).OrderBy(tag => tag.Position).ToList();
             var tokens = TokenParser.GetTokens(tokenList, markdownString.Length);
             tokens = tokens.Filter(markdownString);
-            var htmlString = HtmlParser.Parse(tokens.DistinctBy(x => x.Position).ToList(), markdownString);
+            var htmlString = HtmlParser.Parse(tokens, markdownString);
             return htmlString;
         }
     }
