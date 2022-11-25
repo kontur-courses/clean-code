@@ -17,7 +17,7 @@ namespace Markdown
 
         public IEnumerable<MdTagWithIndex> GetIndexesTags(string text)
         {
-            for (int i = 0; i < text.Length; i++)
+            for (var i = 0; i < text.Length; i++)
             {
                 foreach (var tag in _tags)
                 {
