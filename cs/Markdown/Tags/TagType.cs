@@ -6,5 +6,6 @@ public enum TagType
     Italic,
     Header,
     NotATag,
-    EscapedSymbol
+    EscapedSymbol,
+    MarkedListItem
 }

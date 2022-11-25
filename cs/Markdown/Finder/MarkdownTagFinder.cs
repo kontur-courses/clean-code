@@ -7,13 +7,15 @@ public class MarkdownTagFinder : ITagFinder
     private Stack<TagType> needClosingTag = new();
     private Stack<int> needClosingTagIndexes = new();
     private Queue<TagType> poppedTags = new();
+    private List<Tag> uncertainTags = new();
     private int realIndex;
     private string origin;
     private List<Tag> foundedTags = new();
+
     private Dictionary<TagType, TagType> differentType = new()
     {
-        {TagType.Bold, TagType.Italic},
-        {TagType.Italic, TagType.Bold}
+        { TagType.Bold, TagType.Italic },
+        { TagType.Italic, TagType.Bold }
     };
 
     public IEnumerable<Tag> FindTags(string line)
@@ -22,6 +24,10 @@ public class MarkdownTagFinder : ITagFinder
         if (line.StartsWith("# "))
         {
             foundedTags.Add(new Tag(new TagPosition(0, line.Length - 1), TagType.Header));
+        }
+        else if (line.StartsWith("* "))
+        {
+            foundedTags.Add(new Tag(new TagPosition(0, line.Length - 1), TagType.MarkedListItem));
         }
 
         for (; realIndex < line.Length; realIndex++)
@@ -35,6 +41,7 @@ public class MarkdownTagFinder : ITagFinder
                         foundedTags.Add(new Tag(new TagPosition(realIndex, realIndex), TagType.EscapedSymbol));
                         realIndex++;
                     }
+
                     continue;
                 case '_':
                 {
@@ -49,7 +56,8 @@ public class MarkdownTagFinder : ITagFinder
                 }
             }
         }
-        
+
+        foundedTags.AddRange(uncertainTags);
         return foundedTags;
     }
 
@@ -57,6 +65,7 @@ public class MarkdownTagFinder : ITagFinder
     {
         needClosingTag.Clear();
         needClosingTagIndexes.Clear();
+        uncertainTags.Clear();
         poppedTags.Clear();
         realIndex = 0;
         foundedTags.Clear();
@@ -68,7 +77,7 @@ public class MarkdownTagFinder : ITagFinder
         var (popped, index) = FindOpeningTag(tagType, i);
         if (popped == TagType.NotATag)
         {
-            if (i < origin.Length - 1 && !char.IsDigit(origin[i + 1]) && !char.IsWhiteSpace(origin[i + 1]))
+            if (i < origin.Length - 1 && !char.IsWhiteSpace(origin[i + 1]))
             {
                 needClosingTag.Push(tagType);
                 needClosingTagIndexes.Push(i);
@@ -79,6 +88,11 @@ public class MarkdownTagFinder : ITagFinder
             var tag = new Tag(new TagPosition(index, i), tagType);
             if (CanBeAdded(tag))
             {
+                if (tag.Type == TagType.Italic)
+                {
+                    uncertainTags.Clear();
+                }
+
                 foundedTags.Add(tag);
             }
             else if (poppedTags.Count > 0 && poppedTags.Peek() == tagType)
@@ -94,8 +108,16 @@ public class MarkdownTagFinder : ITagFinder
     {
         var shift = tag.Type == TagType.Italic ? 1 : 2;
         var subString = origin.Substring(tag.Position.Start + 1, tag.Position.End - tag.Position.Start - 1);
-        if (char.IsDigit(origin[tag.Position.End - shift]) || char.IsWhiteSpace(origin[tag.Position.End - shift]) ||
+        if (char.IsDigit(origin[tag.Position.End - shift]) && origin.Length > tag.Position.End + 1 &&
+            !char.IsWhiteSpace(origin[tag.Position.End + 1]) ||
+            char.IsWhiteSpace(origin[tag.Position.End - shift]) ||
             poppedTags.Dequeue() == differentType[tag.Type])
+        {
+            return false;
+        }
+
+        if (tag.Position.Start - shift > 0 && char.IsDigit(origin[tag.Position.Start + 1]) &&
+            !char.IsWhiteSpace(origin[tag.Position.Start - shift]))
         {
             return false;
         }
@@ -108,9 +130,11 @@ public class MarkdownTagFinder : ITagFinder
 
         if (tag.Type == TagType.Bold && needClosingTag.Contains(differentType[tag.Type]))
         {
+            uncertainTags.Add(tag);
             return false;
         }
-        return !subString.Any(char.IsDigit);
+
+        return true;
     }
 
     private (TagType, int) FindOpeningTag(TagType tagType, int i)

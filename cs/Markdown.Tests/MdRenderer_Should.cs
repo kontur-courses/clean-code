@@ -46,7 +46,7 @@ public class MdRenderer_Should
         var htmlText = markdownRenderer.Render(line);
         htmlText.Should().BeEquivalentTo(expected);
     }
-    
+
     [TestCase("\\\\__bold__", "\\<strong>bold</strong>")]
     [TestCase("\\__bold__", "__bold__")]
     [TestCase("\\_italic_", "_italic_")]
@@ -66,15 +66,23 @@ public class MdRenderer_Should
         var htmlText = markdownRenderer.Render(line);
         htmlText.Should().BeEquivalentTo(expected);
     }
-    
-    [TestCase("# _sequence_ with __a __lot__ of t_a_gs __wo_r_d1 _word2_ _word3_ da__",
-        "<h1> <em>sequence</em> with __a <strong>lot</strong> of t<em>a</em>gs __wo<em>r</em>d1 _word2_ _word3_ da__</h1>")]
+
+    [TestCase("# _sequence_ with __a __lot__ of t_a_gs __wo_r_d_1_ _word2_ _word3_ da__",
+        "<h1> <em>sequence</em> with __a <strong>lot</strong> of t<em>a</em>gs <strong>wo<em>r</em>d_1_ <em>word2</em> <em>word3</em> da</strong></h1>")]
     public void WorkCorrect_WithHardCases(string line, string expected)
     {
         var htmlText = markdownRenderer.Render(line);
         htmlText.Should().BeEquivalentTo(expected);
     }
-    
+
+    [TestCase("__123__", "<strong>123</strong>")]
+    [TestCase("_12_ __34__", "<em>12</em> <strong>34</strong>")]
+    public void WorkCorrect_WithLinesWithOnlyDigits(string line, string expected)
+    {
+        var htmlText = markdownRenderer.Render(line);
+        htmlText.Should().BeEquivalentTo(expected);
+    }
+
     [TestCase("tags",
         "tags")]
     [TestCase("long text without tags, <tag></tag>",
@@ -84,7 +92,7 @@ public class MdRenderer_Should
         var htmlText = markdownRenderer.Render(line);
         htmlText.Should().BeEquivalentTo(expected);
     }
-    
+
     [Test]
     public void WorkCorrect_WithEmptyString()
     {

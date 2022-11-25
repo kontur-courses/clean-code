@@ -11,7 +11,9 @@ public class MarkdownRenderer
         {
             return text;
         }
-        var lines = text.Replace("\r\n", "\n").Split( "\n");
+
+        var separators = new[] { "\r\n", "\n" };
+        var lines = text.Split(separators, StringSplitOptions.RemoveEmptyEntries);
         var converter = new HtmlConverter();
         var markdownFinder = new MarkdownTagFinder();
         var htmlLines = lines.Select(line => converter.ConvertToHtml(line, markdownFinder.FindTags(line)));

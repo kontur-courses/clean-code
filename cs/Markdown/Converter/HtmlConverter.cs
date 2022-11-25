@@ -13,13 +13,15 @@ public class HtmlConverter : IHtmlConverter
     private Dictionary<TagType, string> openingHtmlTags = new()
     {
         { TagType.Bold, "<strong>" }, { TagType.Italic, "<em>" },
-        { TagType.Header, "<h1>" }, { TagType.EscapedSymbol, "" }
+        { TagType.Header, "<h1>" }, { TagType.EscapedSymbol, "" },
+        { TagType.MarkedListItem, "<li>" }
     };
 
     private Dictionary<TagType, string> closingHtmlTags = new()
     {
         { TagType.Bold, "</strong>" }, { TagType.Italic, "</em>" },
-        { TagType.Header, "</h1>" }, { TagType.EscapedSymbol, "" }
+        { TagType.Header, "</h1>" }, { TagType.EscapedSymbol, "" },
+        { TagType.MarkedListItem, "</li>" }
     };
 
     public string ConvertToHtml(string original, IEnumerable<Tag> tags)
@@ -28,7 +30,7 @@ public class HtmlConverter : IHtmlConverter
         var singleTags = tags.ConvertToSingleTags();
         shift = 0;
         this.original = original;
-
+        
         foreach (var tag in singleTags)
         {
             ReplaceTag(tag);
@@ -45,11 +47,13 @@ public class HtmlConverter : IHtmlConverter
             symCount = 2;
             shift--;
         }
-        if (tag.Type == TagType.Header && tag.IsClosing)
+
+        if (tag.Type is TagType.Header or TagType.MarkedListItem && tag.IsClosing)
         {
             symCount = 0;
             shift++;
         }
+
         var tagString = tag.IsClosing ? closingHtmlTags[tag.Type] : openingHtmlTags[tag.Type];
         htmlStringBuilder.Remove(tag.Index + shift, symCount);
         htmlStringBuilder.Insert(tag.Index + shift, tagString);
