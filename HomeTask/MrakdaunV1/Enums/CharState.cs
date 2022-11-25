@@ -8,6 +8,7 @@ namespace MrakdaunV1.Enums
         Default = 0,
         Special = 1,
         Italic = 2,
-        Bold = 4
+        Bold = 4,
+        Header1 = 8
     }
 }

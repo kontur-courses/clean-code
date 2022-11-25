@@ -2,18 +2,19 @@
 using System.Collections.Generic;
 using System.Linq;
 using MrakdaunV1.Enums;
+using MrakdaunV1.Interfaces;
 
-namespace MrakdaunV1.Interfaces
+namespace MrakdaunV1.MrakdounEngine
 {
     public class BoldStateParser : IStateParser
     {
-        public CharState[] GetParsedStates(List<TokenPart> tokenParts, CharState[] charStatesOld, string text)
+        public CharState[] GetParsedStates(List<TokenPart> tokenParts, CharState[] charStates, string text)
         {
-            var charStates = charStatesOld.Clone() as CharState[];
+            //var charStates = charStatesOld.Clone() as CharState[];
 
             if (charStates is null)
                 throw new NullReferenceException(nameof(charStates));
-            
+
             List<TokenPart> listOfBoldTokenParts = tokenParts
                 .Where(p => p.Type == TokenPartType.Bold)
                 .ToList();
@@ -24,125 +25,111 @@ namespace MrakdaunV1.Interfaces
                 if (i == 0)
                     continue;
 
+                var currentTokenPart = listOfBoldTokenParts[i];
+                var prevTokenPart = listOfBoldTokenParts[i - 1];
+
                 // если предыдущий тег был использован в паре с предпредыдущим, то его использовать не надо
-                if ((charStates[listOfBoldTokenParts[i - 1].Index] & CharState.Special) == CharState.Special)
+                if (charStates[prevTokenPart.Index].HasFlag(CharState.Special | CharState.Bold))
                     continue;
 
                 // есть ли разделители (пробелы) между текущим и предыдущим тегами?
                 var sliceHasDelimeters =
                     text.ContainsDelimeters(
-                        listOfBoldTokenParts[i - 1].Index,
-                        listOfBoldTokenParts[i].Index);
+                        prevTokenPart.Index, currentTokenPart.Index);
 
-                var currnetTokPosType = listOfBoldTokenParts[i].PositionType;
-                var prevPosType = listOfBoldTokenParts[i - 1].PositionType;
+                var sliceContainsItalicButNoCollisions = (AnyStatesBetweenTokenPartsContainsFlag(
+                                                              currentTokenPart, prevTokenPart,
+                                                              CharState.Italic, charStates)
+                                                          && !charStates[prevTokenPart.Index].HasFlag(CharState.Italic)
+                                                          && !charStates[currentTokenPart.Index]
+                                                              .HasFlag(CharState.Italic));
 
+                var sliceNotContainsItalic = AllStatesBetweenTokenPartsDontContainsFlag(
+                    currentTokenPart, prevTokenPart,
+                    CharState.Italic, charStates);
 
-                // Абсолютно конченый IF
                 // жир имеет шансы на валидность, если:
                 // 1) в нем нет курсива
-                // 2) курсив есть, но по бокам курсива точно нет (нет коллизий)
-                if (
-                    charStates.Skip(listOfBoldTokenParts[i - 1].Index)
-                        .Take(listOfBoldTokenParts[i].Index - listOfBoldTokenParts[i - 1].Index)
-                        .All(cs => (cs & CharState.Italic) != CharState.Italic)
-                    || (charStates.Skip(listOfBoldTokenParts[i - 1].Index)
-                            .Take(listOfBoldTokenParts[i].Index - listOfBoldTokenParts[i - 1].Index)
-                            .Any(cs => (cs & CharState.Italic) == CharState.Italic)
-                        && (charStates[listOfBoldTokenParts[i - 1].Index] & CharState.Italic) !=
-                        CharState.Italic
-                        && (charStates[listOfBoldTokenParts[i].Index] & CharState.Italic) !=
-                        CharState.Italic))
+                // 2) курсив есть, но по бокам курсива нет (нет коллизий)
+                if (sliceNotContainsItalic || sliceContainsItalicButNoCollisions)
                 {
-                    // 4 проверки - 4 условия существования валидной пары тегов
-                    // 1 - тег до и после слов, хоть убейся, но будет валиден всегда
-                    // 2, 3 и 4 случаи так или иначе задействуют часть в слове, а тут нужно учесть,
-                    // что это не должно быть число, а также слово должно быть одно, без разделителей (пробел)
-                    if ((currnetTokPosType == TokenPartPositionType.AfterWord
-                         && prevPosType == TokenPartPositionType.BeforeWord)
-                        || (currnetTokPosType == TokenPartPositionType.InsideTheWord
-                            && prevPosType == TokenPartPositionType.BeforeWord
-                            && !sliceHasDelimeters
-                            && !listOfBoldTokenParts[i].IsInsideTheNumber)
-                        || (currnetTokPosType == TokenPartPositionType.InsideTheWord
-                            && prevPosType == TokenPartPositionType.InsideTheWord
-                            && !sliceHasDelimeters
-                            && !listOfBoldTokenParts[i].IsInsideTheNumber
-                            && !listOfBoldTokenParts[i - 1].IsInsideTheNumber)
-                        || (currnetTokPosType == TokenPartPositionType.AfterWord
-                            && prevPosType == TokenPartPositionType.InsideTheWord
-                            && !sliceHasDelimeters
-                            && !listOfBoldTokenParts[i - 1].IsInsideTheNumber))
-                    {
-                        for (var c = 0;
-                            c < listOfBoldTokenParts[i].Index - listOfBoldTokenParts[i - 1].Index + 2;
-                            c++)
-                            charStates[c + listOfBoldTokenParts[i - 1].Index] |= CharState.Bold;
+                    if (!currentTokenPart.IsPossiblePairWith(prevTokenPart, sliceHasDelimeters))
+                        continue;
 
-                        charStates[listOfBoldTokenParts[i].Index] |= CharState.Special;
-                        charStates[listOfBoldTokenParts[i].Index + 1] |= CharState.Special;
-                        charStates[listOfBoldTokenParts[i - 1].Index] |= CharState.Special;
-                        charStates[listOfBoldTokenParts[i - 1].Index + 1] |= CharState.Special;
-                    }
+                    for (var c = 0;
+                        c < currentTokenPart.Index - prevTokenPart.Index + 2;
+                        c++)
+                        charStates[c + prevTokenPart.Index] |= CharState.Bold;
+
+                    charStates[currentTokenPart.Index] |= CharState.Special;
+                    charStates[currentTokenPart.Index + 1] |= CharState.Special;
+                    charStates[prevTokenPart.Index] |= CharState.Special;
+                    charStates[prevTokenPart.Index + 1] |= CharState.Special;
                 }
                 // если же коллизии есть, то надо игнорить жир + убрать курсивное выделение
                 else
                 {
                     // если вообще все символы курсивные, то мы имеем дело с жиром внутри курсива, в целом
                     // это валидно, просто игнорим
-                    if (
-                        charStates.Skip(listOfBoldTokenParts[i - 1].Index)
-                            .Take(listOfBoldTokenParts[i].Index - listOfBoldTokenParts[i - 1].Index)
-                            .All(cs => (cs & CharState.Italic) == CharState.Italic))
+                    if (AllStatesBetweenTokenPartsContainsFlag(
+                        currentTokenPart, prevTokenPart,
+                        CharState.Italic, charStates))
                         continue;
 
-                    /*
-                         * Сейчас сложная ситуация - в жирном есть курсив и надо понять,
-                         * где пересечения + обнулить его
-                         */
+                    if (charStates[prevTokenPart.Index].HasFlag(CharState.Italic))
+                        StartCleaningItalicFromIndex(prevTokenPart.Index, charStates);
 
-                    var numOfCollisions = 0;
-                    numOfCollisions += ((charStates[listOfBoldTokenParts[i - 1].Index] & CharState.Italic) ==
-                                        CharState.Italic)
-                        ? 1
-                        : 0;
-                    numOfCollisions += ((charStates[listOfBoldTokenParts[i].Index] & CharState.Italic) ==
-                                        CharState.Italic)
-                        ? 1
-                        : 0;
-
-                    while (numOfCollisions != 0)
-                    {
-                        var isCollisionFromLeft = ((charStates[listOfBoldTokenParts[i - 1].Index] & CharState.Italic) ==
-                                                   CharState.Italic);
-
-                        // Произошло пересечение с левой границей
-                        // Запускаем обнулялку влево и вправо
-                        var currentIndex = isCollisionFromLeft
-                            ? listOfBoldTokenParts[i - 1].Index
-                            : listOfBoldTokenParts[i].Index;
-
-                        while ((charStates[currentIndex] & CharState.Special) != CharState.Special)
-                        {
-                            charStates[currentIndex--] &= ~CharState.Italic;
-                        }
-
-                        charStates[currentIndex] &= ~(CharState.Italic | CharState.Special);
-
-                        currentIndex = isCollisionFromLeft ? listOfBoldTokenParts[i - 1].Index : listOfBoldTokenParts[i].Index;
-                        while ((charStates[currentIndex] & CharState.Special) != CharState.Special)
-                        {
-                            charStates[currentIndex++] &= ~CharState.Italic;
-                        }
-
-                        charStates[currentIndex] &= ~(CharState.Italic | CharState.Special);
-
-                        numOfCollisions--;
-                    }
+                    if (charStates[currentTokenPart.Index].HasFlag(CharState.Italic))
+                        StartCleaningItalicFromIndex(currentTokenPart.Index, charStates);
                 }
             }
 
             return charStates;
+        }
+
+        private bool AllStatesBetweenTokenPartsContainsFlag(
+            TokenPart current,
+            TokenPart prev,
+            CharState flag, CharState[] charStates)
+        {
+            return charStates.Skip(prev.Index)
+                .Take(current.Index - prev.Index)
+                .All(cs => cs.HasFlag(flag));
+        }
+
+        private bool AnyStatesBetweenTokenPartsContainsFlag(
+            TokenPart current,
+            TokenPart prev,
+            CharState flag, CharState[] charStates)
+        {
+            return charStates.Skip(prev.Index)
+                .Take(current.Index - prev.Index)
+                .Any(cs => cs.HasFlag(flag));
+        }
+
+        private bool AllStatesBetweenTokenPartsDontContainsFlag(
+            TokenPart current,
+            TokenPart prev,
+            CharState flag, CharState[] charStates)
+        {
+            return charStates.Skip(prev.Index)
+                .Take(current.Index - prev.Index)
+                .All(cs => !cs.HasFlag(flag));
+        }
+
+        private void StartCleaningItalicFromIndex(int currentIndex, CharState[] charStates)
+        {
+            // Очищаем курсив влево
+            var counter = currentIndex;
+            while (!charStates[counter].HasFlag(CharState.Special))
+                charStates[counter--] &= ~CharState.Italic;
+            charStates[counter] &= ~(CharState.Italic | CharState.Special);
+
+            // Очищаем курсив вправо
+            counter = currentIndex;
+            while (!charStates[counter].HasFlag(CharState.Special))
+                charStates[counter++] &= ~CharState.Italic;
+            charStates[counter] &= ~(CharState.Italic | CharState.Special);
         }
     }
 }

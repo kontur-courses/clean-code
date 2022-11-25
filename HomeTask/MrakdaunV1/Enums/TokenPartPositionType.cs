@@ -2,9 +2,9 @@
 {
     public enum TokenPartPositionType
     {
-        InsideTheWord,//None,
-        BeforeWord,//FromLeft,
-        AfterWord,//FromRight,
-        HasSpacesInBothDirections//Both
+        InsideTheWord,
+        BeforeWord,
+        AfterWord,
+        HasSpacesInBothDirections
     }
 }

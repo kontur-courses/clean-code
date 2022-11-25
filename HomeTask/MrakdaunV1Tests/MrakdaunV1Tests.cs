@@ -1,4 +1,5 @@
 using System;
+using System.Text;
 using FluentAssertions;
 using MrakdaunV1;
 using NUnit.Framework;
@@ -9,13 +10,16 @@ namespace MrakdaunV1Tests
     public class Tests
     {
         private static MrakdaunEngine _engine;
-            
+
         [SetUp]
         public void Setup()
         {
             _engine = new MrakdaunEngine();
         }
 
+
+        [TestCase("_a\na_", "_ _ _ _ _", TestName = "в разных строках нет выделения")]
+        [TestCase("____", "_ _ _ _", TestName = "пустой текст в жире как 4 земли")]
         [TestCase("__aaaa__", "BS BS B B B B BS BS", TestName = "выделить все слово жирным")]
         [TestCase("_a_", "IS I IS", TestName = "выделить все слово")]
         [TestCase("_aa_aa", "IS I I IS _ _", TestName = "выделить часть слова")]
@@ -38,9 +42,52 @@ namespace MrakdaunV1Tests
         [TestCase("__aa_aa__aa_", "_ _ _ _ _ _ _ _ _ _ _ _", TestName = "ничего (пересечение)")]
         [TestCase("__aaa _aa__ a aa_", "_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _", TestName = "ничего (пересечение) 2")]
 
-        public void GetParsedText_ShouldGive_CorrectAnswer(string text, string answer)
+        public void Engine_ShouldCorrectParse_ItalicAndStrong(string text, string answer)
         {
-            _engine.GetParsedText(text).Should().Be(answer);
+            _engine.GetCharStatesString(_engine.GetParsedTextStates(text)).Should().Be(answer);
+        }
+
+        [TestCase(@"\_a_", "S _ _ _", TestName = "тест экранирования 1")]
+        [TestCase(@"\_a_a_", "S _ _ IS I IS", TestName = "тест экранирования 2")]
+        [TestCase(@"\\", "S _", TestName = "экранирование слеша")]
+        [TestCase(@"\\_a_", "S _ IS I IS", TestName = "экранирования слеша 2")]
+        [TestCase(@"\\_a a_", "S _ IS I I I IS", TestName = "экранирования слеша 3")]
+        [TestCase(@"\__a__", "S _ _ _ _ _", TestName = "экранирование ломает нормальный жир")]
+        [TestCase(@"\__a_", "S _ IS I IS", TestName = "экранирование чинит курсив")]
+        [TestCase(@"a\a", "_ _ _", TestName = "экранирования нет")]
+        [TestCase(@"_a\a_", "IS I I I IS", TestName = "экранирования не должно нисего сломать")]
+        [TestCase(@"a\ a", "_ _ _ _", TestName = "экранирования нет (даже у разделителя)")]
+        public void Engine_ShouldCorrectParse_Screen(string text, string answer)
+        {
+            _engine.GetCharStatesString(_engine.GetParsedTextStates(text)).Should().Be(answer);
+        }
+
+        [TestCase("# a __a _a_ a__\n", "SH1 SH1 H1 H1 BSH1 BSH1 BH1 BH1 BISH1 BIH1 BISH1 BH1 BH1 BSH1 BSH1 _", TestName = "Заголовок с разными символами")]
+        [TestCase("# __aa _bb_ aa__", "SH1 SH1 BSH1 BSH1 BH1 BH1 BH1 BISH1 BIH1 BIH1 BISH1 BH1 BH1 BH1 BSH1 BSH1", TestName = "Заголовок не ломает остальную разметку")]
+        [TestCase("a# aa", "_ _ _ _ _", TestName = "Тег заголовка не первый в строке")]
+        [TestCase("#aaa", "_ _ _ _", TestName = "Заголовка нет, потому что нет пробела")]
+        [TestCase("# aaa", "SH1 SH1 H1 H1 H1", TestName = "Обычный вариант заголовка")]
+        [TestCase("# aa\na", "SH1 SH1 H1 H1 _ _", TestName = "Остутствие заголовка на новой строке")]
+        public void Engine_ShouldCorrectParse_Header(string text, string answer)
+        {
+            _engine.GetCharStatesString(_engine.GetParsedTextStates(text)).Should().Be(answer);
+        }
+
+        [Test]
+        [Timeout(5000)]
+        public void TestPerformance50K()
+        {
+            StringBuilder sb = new();
+            for (int i = 0; i < 1000; i++)
+            {
+                sb.Append("aa _aaa_ a");
+                sb.Append("__aa_a__a_");
+                sb.Append(@"aaa \_aa_a");
+                sb.Append("__aa_a__a_");
+                sb.Append(@"aaa \_aa_a");
+            }
+            Action a = () => _engine.GetParsedText(sb.ToString());
+            a.Should().NotThrow();
         }
     }
 }
