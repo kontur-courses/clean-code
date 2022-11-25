@@ -10,15 +10,25 @@ namespace MarkdownProcessorTests;
 [Parallelizable(ParallelScope.All)]
 public class Md_Should
 {
+    private readonly IRenderer renderer = new HtmlRenderer(new Dictionary<TextType, string>
+    {
+        { TextType.Italic, "em" },
+        { TextType.Bold, "strong" },
+        { TextType.FirstHeader, "h1" }
+    });
+
+    private readonly Md md = new(new ITagMarkdownConfig[]
+    {
+        new ItalicConfig(),
+        new BoldConfig(),
+        new FirstHeaderConfig()
+    });
+
     [TestCase("_word word_", "<em>word word</em>", TestName = "Single underline to italic text")]
     [TestCase("__word word__", "<strong>word word</strong>", TestName = "Double underline to bold text")]
     [TestCase("_word word", "_word word", TestName = "Unclosed italic tag dont work")]
     [TestCase("__word word", "__word word", TestName = "Unclosed bold tag dont work")]
     [TestCase("_word word__", "_word word__", TestName = "Double underline dont close single")]
-    [TestCase(@"\_word word_", "_word word_", TestName = "Backslash shield symbol")]
-    [TestCase(@"_word word\__", "<em>word word_</em>", TestName = "Backslash shield only one symbol")]
-    [TestCase(@"\word word", @"\word word", TestName = "Backslash not shield not special symbol")]
-    [TestCase(@"__word word\\__", @"<strong>word word\</strong>", TestName = "Backslash shield backslash")]
     [TestCase("__word _word_ word__", "<strong>word <em>word</em> word</strong>",
         TestName = "Italic tag work in bold tag")]
     [TestCase("_word __word__ word_", "<em>word __word__ word</em>",
@@ -37,6 +47,24 @@ public class Md_Should
     [TestCase("_word _", "_word _", TestName = "Before closing tag should be a non-blank symbol")]
     [TestCase("__word _word__ word_", "__word _word__ word_", TestName = "Intersecting tags don't work")]
     [TestCase("____", "____", TestName = "Tags dont work on blank string")]
+    public void Render_ReturnCorrectHTMLText_OnBoldAndItalic(string text, string expected)
+    {
+        var html = md.Render(text, renderer);
+
+        html.Should().Be(expected);
+    }
+
+    [TestCase(@"\_word word_", "_word word_", TestName = "Backslash shield symbol")]
+    [TestCase(@"_word word\__", "<em>word word_</em>", TestName = "Backslash shield only one symbol")]
+    [TestCase(@"\word word", @"\word word", TestName = "Backslash not shield not special symbol")]
+    [TestCase(@"__word word\\__", @"<strong>word word\</strong>", TestName = "Backslash shield backslash")]
+    public void Render_ReturnCorrectHTMLText_OnBackslash(string text, string expected)
+    {
+        var html = md.Render(text, renderer);
+
+        html.Should().Be(expected);
+    }
+
     [TestCase("# header", "<h1>header</h1>", TestName = "Hashtag with space start header")]
     [TestCase("#header", "#header", TestName = "Hashtag with no space dont start header")]
     [TestCase("# header\nword", "<h1>header</h1>word", TestName = "Escape stop header")]
@@ -45,15 +73,10 @@ public class Md_Should
     [TestCase("# header __header__", "<h1>header <strong>header</strong></h1>",
         TestName = "Bold tag work inside header")]
     [TestCase("not # header", "not # header", TestName = "Header only on paragraph start")]
-    public void Render_ReturnCorrectHTMLText(string text, string expected)
+    public void Render_ReturnCorrectHTMLText_OnHeader(string text, string expected)
     {
-        var md = new Md(new ITagMarkdownConfig[] {new ItalicConfig(), new BoldConfig(), new FirstHeaderConfig()});
-        var renderer = new HtmlRenderer(new Dictionary<TextType, string>
-        {
-            { TextType.Italic, "em" },
-            { TextType.Bold, "strong" },
-            { TextType.FirstHeader, "h1" }
-        });
-        md.Render(text, renderer).Should().Be(expected);
+        var html = md.Render(text, renderer);
+
+        html.Should().Be(expected);
     }
 }
