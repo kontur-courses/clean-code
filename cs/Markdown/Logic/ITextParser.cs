@@ -8,6 +8,7 @@ namespace Markdown.Logic
         /// <summary>
         /// Возвращает список токенов, построенных согласно спецификации языка Markdown
         /// </summary>
-        IEnumerable<Token> Parse(string text);
+        ///
+        TokensTree Parse(string text);
     }
 }

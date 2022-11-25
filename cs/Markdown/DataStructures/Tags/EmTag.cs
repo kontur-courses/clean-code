@@ -1,3 +1,5 @@
+using System;
+
 namespace Markdown.DataStructures
 {
     public class EmTag : ITag

@@ -11,8 +11,10 @@ namespace Markdown.DataStructures
         public int StartIndex { get; }
         public int EndIndex { get; set; }
         public bool StartsInsideWord { get; }
+        public bool EndsInsideWord { get; set; }
 
-        public Token(ITag tag, Token parent, int startIndex, bool startsInsideWord)
+        public bool ContainsSpaces { get; set; }
+        public Token(ITag tag, Token parent, int startIndex, bool startsInsideWord = false)
         {
             Children = new List<Token>();
             Tag = tag;

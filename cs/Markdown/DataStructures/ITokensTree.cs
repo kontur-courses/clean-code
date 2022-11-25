@@ -10,16 +10,12 @@ namespace Markdown.DataStructures
         /// <summary>
         /// Добавляет токен в дерево
         /// </summary>
-        void AddToken(Token parent);
+        void AddToken(Token token);
 
         /// <summary>
         /// Удаляет токен из дерева
         /// </summary>
         void RemoveToken(Token token);
 
-        /// <summary>
-        /// Возвращает последовательность всех токенов в правильном порядке
-        /// </summary>
-        IEnumerable<Token> GetAllTokens(Token token);
     }
 }

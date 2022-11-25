@@ -33,7 +33,7 @@ namespace Markdown.Logic
         /// </summary>
         /// <param name="text"></param>
         /// <returns>Корневой токен дерева</returns>
-        public Token Parse(string text)
+        public TokensTree Parse(string text)
         {
             var currentIndex = 0;
             tokensTree.RootToken.EndIndex = text.Length - 1;
@@ -47,7 +47,7 @@ namespace Markdown.Logic
             }
 
             HandleParagraphSymbolOrEndText(currentIndex);
-            return tokensTree.RootToken;
+            return tokensTree;
         }
 
         private void HandleSymbol(string text, int index)
@@ -57,7 +57,7 @@ namespace Markdown.Logic
                 case '#':
                     HandleHashSymbol(index);
                     break;
-                case '/':
+                case '\\':
                     HandleEscapeSymbol(text, index);
                     break;
                 case '\n':
@@ -92,7 +92,7 @@ namespace Markdown.Logic
         private void HandleEscapeSymbol(string text, int index)
         {
             var indexToCheck = index + 1;
-            var specialSymbols = new[] {'_', '/', '#'};
+            var specialSymbols = new[] {'_', '\\', '#'};
             if (indexToCheck >= text.Length)
                 return;
             if (!specialSymbols.Contains(text[indexToCheck])) return;
@@ -112,7 +112,7 @@ namespace Markdown.Logic
             if (SkipCurrentTag(tagType)) return;
             Token token;
             if (openedTokens.Count == 0)
-                token = new Token(tagType, tokensTree.RootToken, index + tagType.MarkdownName.Length);
+                token = new Token(tagType, tokensTree.RootToken, index + tagType.MarkdownName.Length, startsInsideWord);
             else
             {
                 if (openedTokens.Peek().Tag.MarkdownName == tagType.MarkdownName)
@@ -202,7 +202,7 @@ namespace Markdown.Logic
         /// </summary>
         private bool SkipCurrentTag(ITag tag)
         {
-            if (tag.OpeningTag == "<em>" && emToSkip > 0)
+            if (tag.OpeningTag == "<em>skip" && emToSkip > 0)
             {
                 emToSkip--;
                 return true;

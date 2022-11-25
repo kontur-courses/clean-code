@@ -8,6 +8,6 @@ namespace Markdown.Logic
         /// <summary>
         /// Из последовательности токенов собирает строку с html
         /// </summary>
-        string Build(string text, IEnumerable<Token> tokens, List<int> escapeSymbolsIndexes);
+        string Build(string text, TokensTree tree, List<int> escapeSymbolsIndexes);
     }
 }

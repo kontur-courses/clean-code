@@ -10,5 +10,7 @@ namespace Markdown.DataStructures
         int StartIndex { get; }
         int EndIndex { get; set; }
         bool StartsInsideWord { get; }
+        bool EndsInsideWord { get; set; }
+        bool ContainsSpaces { get; set; }
     }
 }

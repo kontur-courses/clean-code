@@ -1,4 +1,5 @@
 using System;
+using Markdown.Logic;
 
 namespace Markdown
 {
@@ -6,7 +7,9 @@ namespace Markdown
     {
         public string Render(string text)
         {
-            throw new NotImplementedException();
+            var parser = new TextParser();
+            var tokenTree = parser.Parse(text);
+            return new HTMLBuilder().Build(text, tokenTree, parser.IndexesEscapeCharacters);
         }
     }
 }
