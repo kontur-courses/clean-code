@@ -1,12 +1,12 @@
 ﻿using System.Text;
-using Markdown.Tags;
+using Markdown.Convert;
 using Markdown.Token;
 
 namespace Markdown.Render;
 
 public class TokenRenderer : ITokenRenderer
 {
-    public string Render(TokenTree tree, Dictionary<Tag, Tag> rules)
+    public string Render(TokenTree tree, ITagConverter converter)
     {
         string opening;
         string closing;
@@ -18,7 +18,7 @@ public class TokenRenderer : ITokenRenderer
         }
         else if (tree.Closed)
         {
-            var tag = tree.Valid ? rules[tree.Tag] : tree.Tag;
+            var tag = tree.Valid ? converter.Convert(tree.Tag) : tree.Tag;
             opening = tag.Opening;
             closing = tag.Closing;
         }
@@ -34,7 +34,7 @@ public class TokenRenderer : ITokenRenderer
         stringBuilder.Append(opening);
         foreach (var child in tree.Children)
         {
-            stringBuilder.Append(Render(child, rules));
+            stringBuilder.Append(Render(child, converter));
         }
         stringBuilder.Append(closing);
 
