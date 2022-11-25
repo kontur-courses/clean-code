@@ -1,4 +1,5 @@
 ﻿using FluentAssertions;
+using Markdown.Tests;
 using NUnit.Framework;
 
 namespace Markdown.Tests;
@@ -14,36 +15,17 @@ public class Md_Should
         _markdown = new Md();
     }
     
-    [TestCase("_a_", @"\<em>a\</em>", TestName = TestNames.ReplaceItalicTag)]
-    [TestCase("__a__", @"\<strong>a\</strong>", TestName = TestNames.ReplaceBoldTag)]
-    [TestCase("__a_b_c__", @"\<strong>a\<em>b\</em>c\</strong>", TestName = TestNames.ReplaceItalicTagInsideBoldTag)]
-    [TestCase("_a__b__c_", @"\<em>a__b__c\</em>", TestName = TestNames.ReplaceBoldTagInsideItalicTag)]
-    [TestCase("_a1_2b", @"_a1_2b", TestName = TestNames.ReplaceTagInsideWordWithNumbersIsNotWorks)]
-    [TestCase("_a_b", @"\<em>a\</em>b", TestName = TestNames.ReplaceTagInsideWordIsWorks)]
-    [TestCase("a_a b_b", @"a_a b_b", TestName = TestNames.ReplaceTagInDifferentWordsIsNotWorks)]
-    [TestCase("a_ b_", @"a_ b_", TestName = TestNames.ReplaceOpenTagSymbolMustBeNotFree)]
-    [TestCase("a _b _c", @"a _b _c", TestName = TestNames.ReplaceCloseTagSymbolMustBeNotFree)]
-    [TestCase("__a _b__ c_", @"__a _b__ c_", TestName = TestNames.ReplaceIntersectsSymbolsIsNotWorks)]
-    [TestCase("____ a __", @"____ a __", TestName = TestNames.ReplaceSymbolsOnTheSidesOfEmptyStringIsNotWorks)]
-    [TestCase("_a", "_a", TestName = TestNames.ReplaceSymbolsOnTheSidesOfEmptyStringIsNotWorks)]
-    [TestCase("a_", "a_", TestName = TestNames.ReplaceSymbolsOnTheSidesOfEmptyStringIsNotWorks)]
-    [TestCase("_a b_c", "_a b_c", TestName = TestNames.ReplaceSymbolsOnTheSidesOfEmptyStringIsNotWorks)]
-    [TestCase("a_b c_", "a_b c_", TestName = TestNames.ReplaceSymbolsOnTheSidesOfEmptyStringIsNotWorks)]
-    [TestCase("__a _b_ _c_ d__", @"\<strong>a \<em>b\</em> \<em>c\</em> d\</strong>", TestName = TestNames.ReplaceSymbolsOnTheSidesOfEmptyStringIsNotWorks)]
-    [TestCase("___a___", @"\<strong>\<em>a\</em>\</strong>", TestName = TestNames.ReplaceSymbolsOnTheSidesOfEmptyStringIsNotWorks)]
-    [TestCase("____a____", @"____a____", TestName = TestNames.ReplaceSymbolsOnTheSidesOfEmptyStringIsNotWorks)]
-    [TestCase("__a __ b__", @"\<strong>a __ b\</strong>", TestName = TestNames.ReplaceSymbolsOnTheSidesOfEmptyStringIsNotWorks)]
-    [TestCase("_a _ b_", @"\<em>a _ b\</em>", TestName = TestNames.ReplaceSymbolsOnTheSidesOfEmptyStringIsNotWorks)]
-    [TestCase(@"\_a\_", @"_a_", TestName = TestNames.ReplaceSymbolsOnTheSidesOfEmptyStringIsNotWorks)]
-    [TestCase(@"\__a\__", @"__a__", TestName = TestNames.ReplaceSymbolsOnTheSidesOfEmptyStringIsNotWorks)]
-    [TestCase(@"\\_a\\_", @"\<em>a\</em>", TestName = TestNames.ReplaceSymbolsOnTheSidesOfEmptyStringIsNotWorks)]
-    [TestCase(@"\\__a\\__", @"\<strong>a\</strong>", TestName = TestNames.ReplaceSymbolsOnTheSidesOfEmptyStringIsNotWorks)]
-    [TestCase(@"#a", @"\<h1>a\</h1>", TestName = TestNames.ReplaceSymbolsOnTheSidesOfEmptyStringIsNotWorks)]
-    [TestCase("a\n#a", "a\n" + @"\<h1>a\</h1>", TestName = TestNames.ReplaceSymbolsOnTheSidesOfEmptyStringIsNotWorks)]
-    [TestCase(@"#_a_ __b__", @"\<h1>\<em>a\</em> \<strong>b\</strong>\</h1>", TestName = TestNames.ReplaceSymbolsOnTheSidesOfEmptyStringIsNotWorks)]
-    [TestCase("#_a_ \n__b__", @"\<h1>\<em>a\</em>\</h1>" + "\n" + @"\<strong>b\</strong>", TestName = TestNames.ReplaceSymbolsOnTheSidesOfEmptyStringIsNotWorks)]
-    [TestCase("#_a_\n__b__", @"\<h1>\<em>a\</em>\</h1>" + "\n" + @"\<strong>b\</strong>", TestName = TestNames.ReplaceSymbolsOnTheSidesOfEmptyStringIsNotWorks)]
-    [TestCase("$a$", @"\<a>a\</a>", TestName = TestNames.ReplaceSymbolsOnTheSidesOfEmptyStringIsNotWorks)]
+    [TestCase("Hello, _world_!", @"Hello, \<em>world\</em>!", TestName = TestNames.ReplaceItalicTag)]
+    [TestCase("Hello, __world__!", @"Hello, \<strong>world\</strong>!", TestName = TestNames.ReplaceBoldTag)]
+    [TestCase("Some __text for _test_ logic__", @"Some \<strong>text for \<em>test\</em> logic\</strong>", TestName = TestNames.ReplaceItalicTagInsideBoldTag)]
+    [TestCase("Some _text for __test__ logic_", @"Some \<em>text for __test__ logic\</em>", TestName = TestNames.ReplaceBoldTagInsideItalicTag)]
+    [TestCase("Some _tex1_2t", @"Some _tex1_2t", TestName = TestNames.ReplaceTagInsideWordWithNumbersIsNotWorks)]
+    [TestCase("Some _tex_t", @"Some \<em>tex\</em>t", TestName = TestNames.ReplaceTagInsideWordIsWorks)]
+    [TestCase("So_me tex_t", @"So_me tex_t", TestName = TestNames.ReplaceTagInDifferentWordsIsNotWorks)]
+    [TestCase("Some_ text_ for test", @"Some_ text_ for test", TestName = TestNames.ReplaceOpenTagSymbolMustBeNotFree)]
+    [TestCase("Some _text for _test", @"Some text_ for _test", TestName = TestNames.ReplaceCloseTagSymbolMustBeNotFree)]
+    [TestCase("Some __text _for__ test_", @"Some __text _for__ test_", TestName = TestNames.ReplaceIntersectsSymbolsIsNotWorks)]
+    [TestCase("Some text ____ for __ test", @"Some text ____ for __ test", TestName = TestNames.ReplaceSymbolsOnTheSidesOfEmptyStringIsNotWorks)]
     public void Render_ValidParams_ShouldBe(string sourceText, string expectationText)
     {
         _markdown
