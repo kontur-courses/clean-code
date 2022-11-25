@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
 using NUnit.Framework;
 using FluentAssertions;
 using Markdown;
@@ -65,7 +66,7 @@ namespace MarkdownTests
         {
             InitializeValuesTags(text);
             var findedTags = _parser.GetIndexesTags(text);
-            CheckReturnedIndexes(findedTags);
+            CheckReturnedIndexes(findedTags.ToList());
         }
 
         private void CheckReturnedIndexes(List<MdTag> findedTags)
@@ -94,7 +95,7 @@ namespace MarkdownTests
         {
             InitializeValuesTags(text);
             var findedTags = _parser.GetIndexesTags(text);
-            CheckReturnedIndexes(findedTags);
+            CheckReturnedIndexes(findedTags.ToList());
         }
 
         [TestCase("__")]
@@ -110,7 +111,7 @@ namespace MarkdownTests
         public void MarkdownParser_GetIndexesTags_ShouldReturnEmptyArray(string text)
         {
             var findedTags = _parser.GetIndexesTags(text);
-            findedTags.Count.Should().Be(0);
+            findedTags.Count().Should().Be(0);
         }
 
         private MdTag GetTagFromList(List<MdTag> tags, string openTag)

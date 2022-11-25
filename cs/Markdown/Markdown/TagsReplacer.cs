@@ -16,7 +16,7 @@ namespace Markdown
             _tagToTag = tagToTag;
         }
 
-        public string ReplaceTag(List<T> tags, string text)
+        public string ReplaceTag(IEnumerable<T> tags, string text)
         {
             var actions = new Dictionary<Type, Func<string>>
             {
@@ -29,7 +29,7 @@ namespace Markdown
             return actions[typeof(T)]();
         }
 
-        private string ReplaceMdTag(List<T> tags, string text)
+        private string ReplaceMdTag(IEnumerable<T> tags, string text)
         {
             var builder = new StringBuilder();
             foreach (var tag in tags)
@@ -67,7 +67,7 @@ namespace Markdown
             throw new ArgumentException("Tag not found");
         }
 
-        private void ShiftTeg(List<T> tags, T currentTag, int openTagLength, int closeTagLength)
+        private void ShiftTeg(IEnumerable<T> tags, T currentTag, int openTagLength, int closeTagLength)
         {
             foreach (var tag in tags)
             {

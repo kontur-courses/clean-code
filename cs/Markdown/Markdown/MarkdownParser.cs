@@ -9,14 +9,13 @@ namespace Markdown
         private List<MdTag> _tags;
         private List<MdTag> _findedTags;
 
-        public MarkdownParser(List<MdTag> tags)
+        public MarkdownParser(IEnumerable<MdTag> tags)
         {
-            _tags = new List<MdTag>();
-            _tags.AddRange(tags);
+            _tags = new List<MdTag>(tags);
             _findedTags = new List<MdTag>();
         }
 
-        public List<MdTag> GetIndexesTags(string text)
+        public IEnumerable<MdTag> GetIndexesTags(string text)
         {
             for (int i = 0; i < text.Length; i++)
             {
@@ -31,7 +30,7 @@ namespace Markdown
 
             CheckIntersection();
 
-            return _findedTags.OrderBy(x => x.OpenTagIndex).ToList();
+            return _findedTags.OrderBy(x => x.OpenTagIndex);
         }
 
         private int TryGetOpenTagIndex(MdTag tag, string text, int start)

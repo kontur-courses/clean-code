@@ -1,5 +1,4 @@
 using System.Collections.Generic;
-using System.Linq;
 
 namespace Markdown
 {
@@ -13,7 +12,7 @@ namespace Markdown
                 {new MdTag("__", true), new HtmlTag("strong", true)},
                 {new MdTag("#", false), new HtmlTag("h1", true)}
             };
-            var parser = new MarkdownParser(tagToTag.Keys.ToList());
+            var parser = new MarkdownParser(tagToTag.Keys);
             var replacer = new TagsReplacer<MdTag, HtmlTag>(tagToTag);
 
             var indexesTags = parser.GetIndexesTags(text);
