@@ -1,4 +1,3 @@
-using System;
 using System.Collections.Generic;
 using System.Linq;
 
@@ -16,7 +15,7 @@ namespace Markdown
             };
             var parser = new MarkdownParser(tagToTag.Keys.ToList());
             var replacer = new TagsReplacer<MdTag, HtmlTag>(tagToTag);
-            
+
             var indexesTags = parser.GetIndexesTags(text);
             var stringWithHtmlTags = replacer.ReplaceTag(indexesTags, text);
             return stringWithHtmlTags;
