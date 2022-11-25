@@ -9,10 +9,20 @@
             var markdown = new Markdown();
             for (int i = 0; i < line.Length; i++)
             {
-                convertedLines.Add(MarkdownRenderer.RenderLine(line[i]));
+                convertedLines.Add(RenderLine(line[i]));
             }
 
             return string.Join('\n', convertedLines);
+        }
+
+        private static string RenderLine(string line)
+        {
+            var stringFormat = SpecialStringFormat.ConvertLineToFormat(line)
+                .SetPrimaryMarkdown()
+                .DisapproveEmpty()
+                .DisapproveStartsOrEndsWithSpace();
+
+            return stringFormat.ConvertFromFormat();
         }
     }
 }

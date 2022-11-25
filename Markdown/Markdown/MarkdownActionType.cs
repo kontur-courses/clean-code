@@ -3,9 +3,6 @@
 internal enum MarkdownActionType
 {
     None,
-    NotRendered,
-    OpenCursive,
-    CloseCursive,
-    OpenBold,
-    CloseBold,
+    Open,
+    Close
 }
