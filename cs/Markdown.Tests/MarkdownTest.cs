@@ -23,8 +23,7 @@ public class Tests
     }
 
     [TestCase("_Something_", "<em>Something</em>")]
-    [TestCase("__Something__", "<em>Something</em>")]
-    [TestCase("__ \\ Something__", "<em>Something</em>")]
+    [TestCase("__Something__", "<strong>Something</strong>")]
     [TestCase("#Something#", "<h1>Something</h1>")]
     public void Renderer_OneCharMarkdownTag_LineWithHtml(string mdInput, string result)
     {
