@@ -10,19 +10,6 @@ namespace Markdown
 {
     public static class StringExtensions
     {
-        public static int FindChar(this string source, char ch, int startIndex, int step)
-        {
-            var ind = startIndex;
-            while (ind > 0 && ind < source.Length)
-            {
-                if (source[ind] == ch)
-                    break;
-                ind += step;
-            }
-
-            return ind;
-        }
-
         public static bool TryGetChar(this string source, int index, out char ch)
         {
             if (index >= 0 && index < source.Length)
@@ -34,29 +21,20 @@ namespace Markdown
             ch = '?';
             return false;
         }
-
-        public static int[] AllIndicesOf(this string source, string substring)
+        
+        public static bool ContainsItOnIndex(this string source, string substring, int index)
         {
-            var indices = new List<int>();
-            int index = source.IndexOf(substring, 0);
-            while (index > -1)
-            {
-                indices.Add(index);
-                index = source.IndexOf(substring, index + substring.Length);
-            }
-            return indices.ToArray();
-        }
+            if (index + substring.Length > source.Length)
+                return false;
 
-        public static int CountOfCharBeforeIndex(this string source, char ch, int ind)
-        {
-            var count = 0;
-            while (source.TryGetChar(ind - 1, out var actual) && actual == ch)
+            var i = 0;
+            while (index < source.Length && i < substring.Length)
             {
-                count++;
-                ind--;
+                if (source[index++] != substring[i++])
+                    return false;
             }
 
-            return count;
+            return true;
         }
     }
 }
