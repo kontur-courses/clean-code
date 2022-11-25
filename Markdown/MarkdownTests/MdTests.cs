@@ -44,10 +44,10 @@ public class MdTests
 	}
 
 	[TestCase("_abc_def", "<em>abc</em>def")]
-	[TestCase("a_bcde_f", "a<em>bc>de</em>f")]
+	[TestCase("a_bcde_f", "a<em>bcde</em>f")]
 	[TestCase("abc_def_", "abc<em>def</em>")]
 	[TestCase("__abc__def", "<strong>abc</strong>def")]
-	[TestCase("a__bcde__f", "a<strong>bc>de</strong>f")]
+	[TestCase("a__bcde__f", "a<strong>bcde</strong>f")]
 	[TestCase("abc__def__", "abc<strong>def</strong>")]
 	public void Render_ShouldRender_WithTagsInPartOfWord(string mdText, string expected)
 	{

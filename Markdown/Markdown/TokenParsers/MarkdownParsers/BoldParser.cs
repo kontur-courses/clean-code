@@ -29,7 +29,7 @@ public class BoldParser : IMarkdownTagParser
 				var isParsed = TryParseTag(i, out var endPosition);
 				if (!isParsed) continue;
 
-				result.Add(new MdToken(text, i + 2, endPosition - 1, TokenType.Bold));
+				result.Add(new MdToken(text, i + 2, endPosition, TokenType.Bold));
 				i = endPosition;
 			}
 

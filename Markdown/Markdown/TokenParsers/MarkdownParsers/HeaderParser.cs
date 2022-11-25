@@ -12,6 +12,6 @@ public class HeaderParser : IMarkdownTagParser
 		if (paragraphEnd - paragraphStart < 3) return emptyList;
 		if (text[paragraphStart] != '#' && text[paragraphStart + 1] != ' ') return emptyList;
 
-		return new List<MdToken> { new(text, paragraphStart + 2, paragraphEnd - 1, TokenType.Header) };
+		return new List<MdToken> { new(text, paragraphStart + 2, paragraphEnd, TokenType.Header) };
 	}
 }

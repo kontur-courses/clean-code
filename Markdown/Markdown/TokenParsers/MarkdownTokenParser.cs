@@ -62,13 +62,13 @@ public class MarkdownTokenParser : ITokenParser
 		for (var i = 1; i < paragraphsStartPositions.Count; i++)
 		{
 			var paragraphStart = paragraphsStartPositions[i - 1];
-			var paragraphEnd = paragraphsStartPositions[i] - ParagraphSplitter.Length - 1;
+			var paragraphEnd = paragraphsStartPositions[i] - ParagraphSplitter.Length;
 			paragraphTokens = ParseParagraphTokens(text, paragraphStart, paragraphEnd);
 
 			currentToken.nextToken = MergeTokens(paragraphTokens, text, paragraphStart, paragraphEnd);
 			currentToken = currentToken.nextToken;
 			currentToken.nextToken =
-				new MdToken(ParagraphSplitter, 0, ParagraphSplitter.Length - 1, TokenType.PlainText);
+				new MdToken(ParagraphSplitter, 0, ParagraphSplitter.Length, TokenType.PlainText);
 		}
 
 		paragraphTokens = ParseParagraphTokens(
@@ -77,9 +77,9 @@ public class MarkdownTokenParser : ITokenParser
 			text.Length);
 
 		if (paragraphTokens.Count == 0)
-			return new MdToken(text, paragraphsStartPositions.Last(), text.Length - 1, TokenType.PlainText);
+			return new MdToken(text, paragraphsStartPositions.Last(), text.Length, TokenType.PlainText);
 		currentToken.nextToken =
-			MergeTokens(paragraphTokens, text, paragraphsStartPositions.Last(), text.Length - 1);
+			MergeTokens(paragraphTokens, text, paragraphsStartPositions.Last(), text.Length);
 
 		return result;
 	}
@@ -169,7 +169,7 @@ public class MarkdownTokenParser : ITokenParser
 	private void ResolveIntersection(MdToken prevToken, MdToken currentToken, MdToken token)
 	{
 		var tag = markdownTags[currentToken.Type];
-		var start = prevToken.End + 1;
+		var start = prevToken.End;
 		var end = currentToken.End + tag.WithEnd.Length;
 		var nextToken = currentToken.nextToken;
 
@@ -186,9 +186,9 @@ public class MarkdownTokenParser : ITokenParser
 		var start = currentToken.Start;
 		var end = currentToken.End;
 		var left = new MdToken(currentToken.SourceText, start,
-			splitter.Start - markdownTags[splitter.Type].WithStart.Length - 1,
+			splitter.Start - markdownTags[splitter.Type].WithStart.Length,
 			currentToken.Type);
-		var right = new MdToken(currentToken.SourceText, splitter.End + markdownTags[splitter.Type].WithEnd.Length + 1,
+		var right = new MdToken(currentToken.SourceText, splitter.End + markdownTags[splitter.Type].WithEnd.Length,
 			end,
 			currentToken.Type);
 

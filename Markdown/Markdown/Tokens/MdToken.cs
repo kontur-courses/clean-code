@@ -14,7 +14,7 @@ public class MdToken : IToken
 	public int Start { get; }
 	public int End { get; }
 
-	public string Value => Start == End ? string.Empty : SourceText.Substring(Start, End - Start + 1);
+	public string Value => Start >= End ? string.Empty : SourceText.Substring(Start, End - Start);
 
 	public TokenType Type { get; }
 

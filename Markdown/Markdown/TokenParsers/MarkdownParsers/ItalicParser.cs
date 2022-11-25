@@ -29,7 +29,7 @@ public class ItalicParser : IMarkdownTagParser
 				var isParsed = TryParseTag(i, out var endPosition);
 				if (!isParsed) continue;
 
-				result.Add(new MdToken(text, i + 1, endPosition - 1, TokenType.Italic));
+				result.Add(new MdToken(text, i + 1, endPosition, TokenType.Italic));
 				i = endPosition;
 			}
 
