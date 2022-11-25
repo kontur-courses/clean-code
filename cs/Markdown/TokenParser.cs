@@ -34,11 +34,11 @@ namespace Markdown
                                   || text.TryGetChar(endInd + tag.CloseMark.Length, out var ch2)
                                   && !char.IsWhiteSpace(ch2))
                                 || !token.CustomBools["hasSpace"]),
-        (tag, token, ch) =>
+        (tag, token, text, index) =>
                         {
-                            if (char.IsWhiteSpace(ch))
+                            if (char.IsWhiteSpace(text[index]))
                                 token.ChangeCustomBool("hasSpace", true);
-                            if (char.IsLetter(ch))
+                            if (char.IsLetter(text[index]))
                                 token.ChangeCustomBool("hasLetter", true);
                             return false;
                         },
@@ -62,11 +62,11 @@ namespace Markdown
                                || text.TryGetChar(endInd + tag.CloseMark.Length, out var ch2)
                                && !char.IsWhiteSpace(ch2))
                              || !token.CustomBools["hasSpace"]),
-        (tag, token, ch) =>
+        (tag, token, text, index) =>
                         {
-                            if (char.IsWhiteSpace(ch))
+                            if (char.IsWhiteSpace(text[index]))
                                 token.ChangeCustomBool("hasSpace", true);
-                            if (char.IsLetter(ch))
+                            if (char.IsLetter(text[index]))
                                 token.ChangeCustomBool("hasLetter", true);
                             return false;
                         },
@@ -76,15 +76,45 @@ namespace Markdown
                     Array.Empty<string>(),
                     (tag, token, text, startInd) =>
                         {
-                            for (int i = startInd; i > 0; i--)
+                            for (int i = startInd - 1; i >= 0; i--)
                                 if (!char.IsWhiteSpace(text[i]))
                                     return false;
                             return true;
                         },
                     (tag, token, text, endInd) => true,
                     (tag, token, text, endInd) => true,
-                    (tag, token, ch) => false,
-                    new List<Func<Token, List<Token>, bool>>())
+                    (tag, token, text, index) => false,
+                    new List<Func<Token, List<Token>, bool>>()),
+
+                new Tag("[", ")", "a",
+          new [] { "hasSpace" },
+            (tag, token, text, startInd) => true,
+            (tag, token, text, endInd) => true,
+            (tag, token, text, endInd) => true,
+        (tag, token, text, index) => 
+                            text[index] == ']' && text.TryGetChar(index + 1, out var ch) 
+                                               && ch !='(',  
+        new List<Func<Token, List<Token>, bool>>(),
+            new Dictionary<string, Func<string, int, string>>
+            {
+                {"href", (text, start) =>
+                {
+                    var href = new StringBuilder();
+                    start++;
+                    while(text[start] != ']')
+                        href.Append(text[start++]);
+                    return href.ToString();
+                }}
+            },
+              (text, startInd) =>
+              {
+                  while (text[startInd] != ']')
+                      startInd++;
+                  var content = new StringBuilder();
+                  while (text[startInd++] != ')')
+                      content.Append(text[startInd]);
+                  return content.ToString();
+              }),
             };
         }
 
@@ -121,7 +151,7 @@ namespace Markdown
 
                 if (!IsMarkHere(text, i, out var tag, out var isStart))
                 {
-                    if (current.ProcessChar(text[i]))
+                    if (current.ProcessChar(text, i))
                         current = current.Parent;
                     continue;
                 }

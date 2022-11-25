@@ -37,9 +37,9 @@ namespace Markdown
                    || other.StartOpenMark > StartOpenMark && other.StartOpenMark < EndCloseMark && other.EndCloseMark > EndCloseMark;
         }
 
-        public bool ProcessChar(char ch)
+        public bool ProcessChar(string text, int index)
         {
-            return  Tag != null! && Tag.CharProcessingRule(Tag, this, ch);
+            return  Tag != null! && Tag.CharProcessingRule(Tag, this, text, index);
         }
 
         public void ChangeCustomBool(string boolName, bool state)
@@ -107,6 +107,23 @@ namespace Markdown
             }
 
             return null!;
+        }
+
+        public string GetProperties(string text, ref int startInd)
+        {
+            if (Tag.PropertiesAndTheirReceiving == null!)
+                return "";
+            var properties = new StringBuilder();
+            foreach (var pair in Tag.PropertiesAndTheirReceiving)
+            {
+                properties.Append(" ");
+                var value = pair.Value(text, startInd);
+                startInd += value.Length;
+                properties.Append($"{pair.Key}=\"{value}\"");
+            }
+
+            startInd += 2;
+            return properties.ToString();
         }
     }
 }

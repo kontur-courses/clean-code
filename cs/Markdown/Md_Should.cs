@@ -206,6 +206,36 @@ namespace Markdown
         }
 
         [Test]
+        public void Render_ShouldTag_Url()
+        {
+            var text = "[URL](google.com)";
+
+            var res = md.Render(text);
+
+            res.Should().Be("<a href=\"URL\">google.com</a>");
+        }
+
+        [Test]
+        public void Render_ShouldNotTag_IncorrectUrl()
+        {
+            var text = "[URL] (google.com)";
+             
+            var res = md.Render(text);
+
+            res.Should().Be("[URL] (google.com)");
+        }
+
+        [Test]
+        public void Render_ShouldCorrectTag_AnotherMixedTest()
+        {
+            var text = "_asdas _asaaa asdsad_ __asdasd [URL](google.com)__";
+
+            var res = md.Render(text);
+
+            res.Should().Be("_asdas <em>asaaa asdsad</em> <strong>asdasd <a href=\"URL\">google.com</a></strong>");
+        }
+
+        [Test]
         public void Render_ShouldWorkFast()
         {
             var sw = new Stopwatch();
