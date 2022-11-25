@@ -14,8 +14,12 @@ public class MdTest
         md = new Md();
     }
 
-    [TestCase("_a_", "<em>a</em>")]
-    [TestCase("_a_ _b_", "<em>a</em> <em>b</em>")]
+    [TestCase("", "", TestName = "EmptyStringTest")]
+    [TestCase("a", "a", TestName = "TextWithoutTag")]
+    [TestCase("_a_", "<em>a</em>", TestName = "OneSimpleTag")]
+    [TestCase("_a_ _b_", "<em>a</em> <em>b</em>", TestName = "TwoSimpleTag")]
+    [TestCase("_a__b_", "<em>a</em><em>b</em>", TestName = "TwoSimpleTagWithoutSpace")]
+    [TestCase("_a_ _b_ _c_", "<em>a</em> <em>b</em> <em>c</em>", TestName = "ThreeSimpleTag")]
     public void EmTagTest(string mdstring, string result)
     {
         md.Render(mdstring)

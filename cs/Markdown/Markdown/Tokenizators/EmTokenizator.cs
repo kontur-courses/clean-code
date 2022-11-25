@@ -46,7 +46,7 @@ public class EmTokenizator : Tokenizator
                 startIndex + i,
                 startIndex + j + CloseTag.Length - 1,
                 new EmTag()));
-            UpdateUsedIndexes(i, j);
+            UpdateUsedIndexes(startIndex + i, startIndex + j);
             i = j + 1;
         }
     }
@@ -67,7 +67,7 @@ public class EmTokenizator : Tokenizator
             j = mdstring.IndexOf(CloseTag + " ", i + 1);
             while (usedIndexes.Contains(j) && j != -1)
             {
-                j = mdstring.IndexOf(OpenTag, j);
+                j = mdstring.IndexOf(OpenTag, j + 1);
             }
 
             if (j == -1)
