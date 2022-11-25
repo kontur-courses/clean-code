@@ -1,9 +1,4 @@
-﻿using System.Diagnostics;
-using System.Text;
-using System.Linq;
-using System.Text.RegularExpressions;
-using static System.Net.Mime.MediaTypeNames;
-using Markdown;
+﻿using System.Text;
 
 namespace Markdown
 {
@@ -37,7 +32,7 @@ namespace Markdown
             var index = 0;
             while (index < text.Length)
             {
-                var (token, isStart) = GetClosestIndex(index, tokens);
+                var (token, isStart) = GetClosestToken(index, tokens);
                 if (token == null!)  break;
 
                 var target = isStart ? 
@@ -63,7 +58,7 @@ namespace Markdown
                 .Replace(@"\\", @"\");
         }
 
-        private (Token, bool) GetClosestIndex(int index, List<Token> tokens)
+        private (Token, bool) GetClosestToken(int index, List<Token> tokens)
         {
             var closest = int.MaxValue;
             Token res = null!;
