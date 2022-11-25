@@ -10,6 +10,5 @@ namespace Markdown
         public int CloseTagIndex;
 
         public bool HasCloseTag => CloseTag != String.Empty;
-        public abstract string CreateStringWithTag(string str);
     }
 }
