@@ -32,6 +32,7 @@ public class MarkdownTranslator : ITranslator
 
     public string Translate(string input)
     {
+        var isInsideItaly = false;
         textWithTranslate = new StringBuilder();
         stackOfTags = new Stack<TagWithIndex>();
         while (index < input.Length)
@@ -45,7 +46,14 @@ public class MarkdownTranslator : ITranslator
         foreach (var tag in stackOfTags)
         {
             if (tagsOpenCloseCounter[tag.Tag!].startCount == tagsOpenCloseCounter[tag.Tag!].endCount)
+            {
+                if (tag.Tag!.SourceName == "__" && isInsideItaly)
+                    continue;
+
+                if (tag.Tag!.SourceName == "_")
+                    isInsideItaly = !isInsideItaly;
                 ReplaceMdTag(tag);
+            }
             else
                 tagsOpenCloseCounter[tag.Tag!] = (tagsOpenCloseCounter[tag.Tag!].startCount - 1,
                     tagsOpenCloseCounter[tag.Tag!].endCount);
@@ -109,14 +117,14 @@ public class MarkdownTranslator : ITranslator
         if (IsLetter(text[index]))
             return ReadForNow(IsLetter, text);
 
-        return IsTag(text[index], index) ? ReadForNow(IsTag, index, text) : ReadForNow(IsSpecialSymbol, text);
+        return IsStartTagChar(text[index]) ? ReadForNow(IsStartTagChar, text) : ReadForNow(IsSpecialSymbol, text);
     }
 
     private static bool IsLetter(char symbol) => char.IsLetter(symbol);
 
-    private static bool IsSpecialSymbol(char symbol) => !IsLetter(symbol) && !IsTag(symbol, 0);
+    private static bool IsSpecialSymbol(char symbol) => !IsLetter(symbol) && !IsStartTagChar(symbol);
 
-    private static bool IsTag(char symbol, int index) => StartCharOfTags!.Contains(symbol);
+    private static bool IsStartTagChar(char symbol) => StartCharOfTags!.Contains(symbol);
 
     private bool IsTag(int textIndexFrom, int textIndexTo, int tagIndexTo, string myText) => // TODO: Change
         tags.Where(tag => tag.Value?.SourceName.Length >= tagIndexTo + 1)
@@ -166,30 +174,6 @@ public class MarkdownTranslator : ITranslator
             tagWithIndex.IsStartedTag ? translateName.start : translateName.end,
             tagWithIndex.Index, tagWithIndex.Tag.SourceName.Length);
     }
-
-    // private bool IsCorrectStart(Stack<TagWithIndex> tagsStack, ITag? tag, int currentIndex, string text)
-    // {
-    //     if (currentIndex < text.Length && IsLetter(text[currentIndex]))
-    //     {
-    //         var startIndex = currentIndex - 1;
-    //         var lettersNext = ReadForNow(IsLetter, currentIndex, text);
-    //         currentIndex += lettersNext.Length;
-    //         var isNeedsTag = ReadForNow(IsTag, currentIndex, text);
-    //
-    //         if ((isNeedsTag == tag?.SourceName || isNeedsTag == "" && startIndex - 1 < 0 ||
-    //              startIndex - 1 >= 0 && !IsLetter(text[startIndex - 1])) && (tagsStack.Count <= 0 ||
-    //                                                                          tagsStack.Peek().Tag!.SourceName != "_" ||
-    //                                                                          tagsStack.Peek().IsStartedTag is false ||
-    //                                                                          tag?.SourceName != "__" ||
-    //                                                                          currentIndex - 1 < 0 ||
-    //                                                                          IsNumber(text[currentIndex - 1]) ||
-    //                                                                          currentIndex + 1 > text.Length ||
-    //                                                                          IsNumber(text[currentIndex + 1]))) 
-    //             return true;
-    //     }
-    //
-    //     return false;
-    // }
 
     private static bool IsCorrectStart(ITag? tag, int currentIndex, string text)
     {
