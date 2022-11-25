@@ -14,27 +14,32 @@ namespace Markdown.Tokens
             this.tagStorage = tagStorage;
         }
 
-        public IReadOnlyList<TypedToken> Read(string inputText)
+        public IReadOnlyList<TypedToken> Read(string text)
         {
             var result = new List<TypedToken>();
 
             var textControlTokens = new List<TypedToken>();
 
-            textControlTokens.AddRange(GetTagTokens(inputText));
+            textControlTokens.AddRange(GetTagTokens(text));
 
-            textControlTokens.AddRange(GetEscapeTokens(inputText));
+            textControlTokens.AddRange(GetEscapeTokens(text));
 
-            var textTokens = GetTextTokens(inputText, textControlTokens.OrderBy(token => token.Start).ToList());
+            var textTokens = GetTextTokens(text, textControlTokens.OrderBy(token => token.Start).ToList());
 
             result.AddRange(textControlTokens);
 
             result.AddRange(textTokens);
 
-            return result.OrderBy(token => token.Start).ToList().RemoveEscaped().RemoveUnpaired();
+            return result
+                .OrderBy(token => token.Start)
+                .ToList()
+                .RemoveEscapedTags()
+                .RemoveUnpairedTags()
+                .RemoveTagsWithInvalidContentBetween(text)
+                .RemoveTagsWithInvalidNesting(tagStorage);
         }
 
-
-        private List<TypedToken> GetTagTokens(string inputText)
+        private List<TypedToken> GetTagTokens(string text)
         {
             var result = new List<TypedToken>();
 
@@ -42,7 +47,7 @@ namespace Markdown.Tokens
 
             foreach (var tag in tagStorage.Tags.OrderByDescending(tag => tag.OpeningSubTag.Length))
             {
-                var tagTokens = GetTagTokensForSpecificTag(inputText, tag);
+                var tagTokens = tag.Type == TagType.Header ? ParseHeaderTag(text, tag) : ParseInlineTag(text, tag);
 
                 foreach (var tagToken in tagTokens)
                 {
@@ -52,35 +57,65 @@ namespace Markdown.Tokens
                     for (var j = tagToken.Start; j <= tagToken.End; j++)
                         positionsWithTag.Add(j);
 
-                    result.Add(tagToken);
+                    if ((tag.IsValid(text, tagToken.Order, tagToken.Start)))
+                        result.Add(tagToken);
                 }
             }
 
             return result;
         }
 
-        private List<TypedToken> GetTagTokensForSpecificTag(string line, ITag tag)
+        private List<TypedToken> ParseHeaderTag(string text, ITag tag)
         {
             var tagTokens = new List<TypedToken>();
 
-            var isOpeningTag = true;
+            var subTagOrder = SubTagOrder.Closing;
 
-            for (var i = 0; i < line.Length;)
+            for (var i = 0; i < text.Length;)
             {
-                var subTagOrder = isOpeningTag ? SubTagOrder.Opening : SubTagOrder.Closing;
+                subTagOrder = subTagOrder == SubTagOrder.Closing ? SubTagOrder.Opening : SubTagOrder.Closing;
 
                 var subTag = tag.GetSubTag(subTagOrder);
 
-                var subTagIndex = line.IndexOf(subTag, i, StringComparison.Ordinal);
+                var subTagIndex = text.IndexOf(subTag, i, StringComparison.Ordinal);
+
+                if (subTagIndex == -1 && subTagOrder == SubTagOrder.Opening)
+                    break;
+
+                if (subTagIndex == -1 && subTagOrder == SubTagOrder.Closing)
+                {
+                    tagTokens.Add(new TypedToken(tag, subTagOrder, text.Length));
+                    break;
+                }
+
+                tagTokens.Add(new TypedToken(tag, subTagOrder, subTagIndex));
+
+                i = subTagIndex + subTag.Length;
+            }
+
+            return tagTokens;
+        }
+
+        private List<TypedToken> ParseInlineTag(string text, ITag tag)
+        {
+            var tagTokens = new List<TypedToken>();
+
+            var subTagOrder = SubTagOrder.Closing;
+
+            for (var i = 0; i < text.Length;)
+            {
+                subTagOrder = subTagOrder == SubTagOrder.Closing ? SubTagOrder.Opening : SubTagOrder.Closing;
+
+                var subTag = tag.GetSubTag(subTagOrder);
+
+                var subTagIndex = text.IndexOf(subTag, i, StringComparison.Ordinal);
 
                 if (subTagIndex == -1)
                     break;
 
-                tagTokens.Add(new TypedToken(subTagIndex, subTag.Length, TokenType.Tag, tag.Type, subTagOrder));
+                tagTokens.Add(new TypedToken(tag, subTagOrder, subTagIndex));
 
                 i = subTagIndex + subTag.Length;
-
-                isOpeningTag = !isOpeningTag;
             }
 
             return tagTokens;

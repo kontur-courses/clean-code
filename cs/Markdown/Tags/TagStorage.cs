@@ -6,6 +6,8 @@ namespace Markdown.Tags
     {
         public List<ITag> Tags { get; protected set; }
 
+        public Dictionary<TagType, HashSet<TagType>> ForbiddenTagNestings { get; protected set; }
+
         public string EscapeCharacter => "\\" ;
 
         public string GetSubTag(TagType tagType, SubTagOrder order)
@@ -13,6 +15,17 @@ namespace Markdown.Tags
             var tag = Tags.Find(t => t.Type == tagType);
 
             return order == SubTagOrder.Opening ? tag.OpeningSubTag : tag.ClosingSubTag;
+        }
+
+        public bool IsForbiddenTagNesting(TagType outerTagType, TagType innerTagType)
+        {
+            if (ForbiddenTagNestings.TryGetValue(outerTagType, out HashSet<TagType> forbiddenTagsToNesting))
+            {
+                if (forbiddenTagsToNesting.Contains(innerTagType))
+                    return true;
+            }
+
+            return false;
         }
     }
 }

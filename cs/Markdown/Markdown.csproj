@@ -56,6 +56,9 @@
     <Compile Include="Tags\TagStorage.cs" />
     <Compile Include="Tags\Tag.cs" />
     <Compile Include="Tags\TagType.cs" />
+    <Compile Include="TagValidator\HeaderTagValidator.cs" />
+    <Compile Include="TagValidator\InlineTagValidator.cs" />
+    <Compile Include="TagValidator\ITagValidator.cs" />
     <Compile Include="Tokens\TypedTokenListExtensions.cs" />
     <Compile Include="Tokens\Token.cs" />
     <Compile Include="Tokens\TypedToken.cs" />

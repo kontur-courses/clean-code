@@ -28,17 +28,18 @@ namespace MarkDownUnitTests
         [TestCase("Text without tags", "Text without tags", TestName = "Text without tags")]
         [TestCase("Some _italic_ text", "Some <em>italic</em> text", TestName = "Text with italic tags")]
         [TestCase("Some __bold__ text", "Some <strong>bold</strong> text", TestName = "Text with bold tags")]
-        [TestCase("# Simple header\n", "<h1>Simple header</h1>", TestName = "Text with header tags")]
-        [TestCase("_italic_ tag and __bold__ tags", "<em>italic</em> tag and <strong>bold</strong> tags", TestName = "Text with two not intersecting tags")]
+        [TestCase("# Simple header\n", "<h1>Simple header</h1>", TestName = "Text with header tags")]/////
+        [TestCase("Header tag# inside text\n", "Header tag# inside text\n", TestName = "Header tag inside text doesn't work")]////////
+        [TestCase("_italic_ tag and __bold__ tags", "<em>italic</em> tag and <strong>bold</strong> tags", TestName = "Text with two not intersecting tags")] 
         [TestCase("Italic _unpaired tags", "Italic _unpaired tags", TestName = "Unpaired italic tag doesn't work")]
         [TestCase("Bold __unpaired tags", "Bold __unpaired tags", TestName = "Unpaired bold tag doesn't work")]
-        [TestCase("# Header unpaired tags", "# Header unpaired tags", TestName = "Unpaired header tag doesn't work")]
+        [TestCase("# Header unpaired tags", "<h1>Header unpaired tags</h1>", TestName = "Unpaired opening header tag works")]//////
         [TestCase("Unpaired _italic and __bold tags", "Unpaired _italic and __bold tags", TestName = "Two unpaired tags don't work")]
         [TestCase(@"Escaped \_italic\_ tags", "Escaped _italic_ tags", TestName = "Escaped tag doesn't work")]
         [TestCase(@"Double \\escaped character", @"Double \escaped character", TestName = "Double escape-character escape himself")]
         [TestCase(@"Escape character insi\de word", @"Escape character insi\de word", TestName = "Escape character inside word doesn't work")]
         [TestCase("__bold _italic_ bold__", "<strong>bold <em>italic</em> bold</strong>", TestName = "Italic tags between bold tags work")]
-        [TestCase("_italic __bold__ italic_", "_italic __bold__ italic_", TestName = "Bold tags between italic tags don't work")]
+        [TestCase("_italic __bold__ italic_", "<em>italic __bold__ italic</em>", TestName = "Bold tags between italic tags don't work")]
         [TestCase("_italic __bold italic_ bold__", "_italic __bold italic_ bold__", TestName = "Intersecting bold and italic tags don't work")]
         [TestCase("_Ita_lic tags", "<em>Ita</em>lic tags", TestName = "Italic tags work in the beginning of word")]
         [TestCase("I_ta_lic tags", "I<em>ta</em>lic tags", TestName = "Italic tags work in the middle of word")]
@@ -55,7 +56,9 @@ namespace MarkDownUnitTests
         [TestCase("Space before closing __bold __ tag", "Space before closing __bold __ tag", TestName = "Bold closing tag doesn't work when space before")]
         [TestCase("Bold tag inside digits _123_45", "Bold tag inside digits _123_45", TestName = "Bold tags inside digits don't work")]
         [TestCase("Bold tags around ____ empty string", "Bold tags around ____ empty string", TestName = "Tags around empty string don't work")]
-        //[TestCase("", "", TestName = "")]
+        [TestCase("# Header with __bold and _italic_ tags__\n", 
+                "<h1>Header with <strong>bold and <em>italic</em> tags</strong></h1>", 
+                TestName = "Text with headers and two not intersecting tags")]
         public void Convert_ReturnsConvertedToHtmlText_WhenTextWithMdTags (string inputText, string convertedText)
         {
             var actualConvertedText = converter.Convert(inputText);

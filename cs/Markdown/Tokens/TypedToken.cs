@@ -19,6 +19,14 @@ namespace Markdown.Tokens
             Order = order;
         }
 
+        public TypedToken(ITag tag, SubTagOrder order, int start)
+        : base(start, tag.GetSubTag(order).Length)
+        {
+            Type = TokenType.Tag;
+            TagType = tag.Type;
+            Order = order;
+        }
+
         public void SwitchToTextToken()
         {
             this.Type = TokenType.Text;

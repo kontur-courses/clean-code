@@ -1,8 +1,5 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿using System.Collections.Generic;
+using Markdown.TagValidator;
 
 namespace Markdown.Tags
 {
@@ -10,11 +7,16 @@ namespace Markdown.Tags
     {
         public MdTagStorage()
         {
-            Tags = new List<ITag>()
+            Tags = new List<ITag>
             {
-                new Tag(TagType.Header, "# ", "\n"),
-                new Tag(TagType.Italic, "_", "_"),
-                new Tag(TagType.Strong, "__", "__")
+                new Tag(TagType.Header, "# ", "\n", new HeaderTagValidator()),
+                new Tag(TagType.Italic, "_", "_", new InlineTagValidator()),
+                new Tag(TagType.Strong, "__", "__", new InlineTagValidator())
+            };
+
+            ForbiddenTagNestings = new Dictionary<TagType, HashSet<TagType>>
+            {
+                { TagType.Italic, new HashSet<TagType> { TagType.Strong } }
             };
         }
     }
