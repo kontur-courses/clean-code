@@ -44,7 +44,7 @@ public static class MdRules
         var father = stack.Count > 0 ? stack.Peek() : root;
         return GetPossibleIntersections(tag)
             .Any(intersection => father.Children
-                .Where(child => child.IsTaggedWith(intersection) && child.Closed)
+                .Where(child => child.Tag == intersection && child.Closed)
                 .Any(child => child.HasChildrenWithOpenTag(tag)));
     }
 

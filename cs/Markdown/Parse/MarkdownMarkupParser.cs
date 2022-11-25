@@ -86,7 +86,7 @@ public class MarkdownMarkupParser : IMarkupParser
             var intersectionFound = false;
             foreach (var child in father.TaggedChildren())
             {
-                if (!child.IsTaggedWith(intersection) || !child.Closed) continue;
+                if (child.Tag != intersection || !child.Closed) continue;
                 if (!child.HasChildrenWithOpenTag(tag)) continue;
                 child.Invalidate();
                 intersectionFound = true;
@@ -131,7 +131,7 @@ public class MarkdownMarkupParser : IMarkupParser
         if (stack.Count < 2) return;
         
         var currentLevel = stack.Pop();
-        while (!currentLevel.IsTaggedWith(tag))
+        while (currentLevel.Tag != tag)
         {
             currentLevel.Invalidate();
             if (stack.Count == 1)
@@ -164,7 +164,7 @@ public class MarkdownMarkupParser : IMarkupParser
         TokenTree currentNode, int currentIndex)
     {
         return MdRules.IsValidClosing(tag, stack, text, currentIndex) 
-               && (currentNode.IsTaggedWith(tag) 
-                   || stack.Any(node => node.IsTaggedWith(tag) && !node.Closed));
+               && (currentNode.Tag == tag
+                   || stack.Any(node => node.Tag == tag && !node.Closed));
     }
 }

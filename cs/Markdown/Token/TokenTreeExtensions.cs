@@ -4,11 +4,6 @@ namespace Markdown.Token;
 
 public static class TokenTreeExtensions
 {
-    public static bool IsTaggedWith(this TokenTree tree, Tag tag)
-    {
-        return tree.Tag != null && tree.Tag.Equals(tag);
-    }
-
     public static IEnumerable<TokenTree> TaggedChildren(this TokenTree tree)
     {
         return tree.Children.Where(child => child.Tag != null);
@@ -18,6 +13,6 @@ public static class TokenTreeExtensions
     {
         return tree.TaggedChildren()
             .Where(child => !child.Closed)
-            .Any(child => child.IsTaggedWith(tag));
+            .Any(child => child.Tag == tag);
     }
 }
