@@ -19,6 +19,8 @@ public class HtmlRenderer : IRenderer
         var replacements = new List<(int, string, string)>();
         foreach (var tag in tags)
         {
+            if (!tagNames.ContainsKey(tag.Config.TextType)) continue;
+            
             replacements.Add((
                 tag.OpeningToken.TagFirstCharIndex,
                 tag.Config.OpeningSign,
