@@ -120,9 +120,7 @@ public class MarkdownTranslator : ITranslator
         return IsStartTagChar(text[index]) ? ReadForNow(IsStartTagChar, text) : ReadForNow(IsSpecialSymbol, text);
     }
 
-
     private string ReadForNow(Func<char, bool> func, string text) => ReadForNow(func, index, text);
-
 
     private void ReplaceMdTag(TagWithIndex tagWithIndex)
     {
@@ -131,7 +129,6 @@ public class MarkdownTranslator : ITranslator
             tagWithIndex.IsStartedTag ? translateName.start : translateName.end,
             tagWithIndex.Index, tagWithIndex.Tag.SourceName.Length);
     }
-
 
     private bool CheckIntersections(ITag tag, ITag? previousTag, int currentIndex, string text)
     {
@@ -143,7 +140,7 @@ public class MarkdownTranslator : ITranslator
         return ReadForNow(IsTag, nextTagStartedFrom, substring) == previousTag.SourceName;
     }
 
-    private bool IsTag(int textIndexFrom, int textIndexTo, int tagIndexTo, string myText) =>
+    private bool IsTag(int textIndexFrom, int tagIndexTo, string myText) =>
         tags.Where(tag => tag.Value?.SourceName.Length >= tagIndexTo + 1)
             .Count(tag =>
                 tag.Value?.SourceName[..(tagIndexTo + 1)] == myText.Substring(textIndexFrom, tagIndexTo + 1)) > 0;
@@ -164,20 +161,18 @@ public class MarkdownTranslator : ITranslator
                previousIndex > 0 && !IsLetter(text[previousIndex]);
     }
 
-    private static string ReadForNow(Func<int, int, int, string, bool> func, int index, string currentText)
+    private static string ReadForNow(Func<int, int, string, bool> func, int index, string currentText)
     {
         if (index < 0)
             return string.Empty;
 
-        var startIndex = index;
         var tagIndex = 0;
         var symbols = new StringBuilder();
         while (index < currentText.Length)
         {
-            if (!func(startIndex, index, tagIndex, currentText))
+            if (!func(index, tagIndex, currentText))
                 return symbols.ToString();
             symbols.Append(currentText[index]);
-            index++;
             tagIndex++;
         }
 
@@ -203,7 +198,6 @@ public class MarkdownTranslator : ITranslator
     private static bool IsSpecialSymbol(char symbol) => !IsLetter(symbol) && !IsStartTagChar(symbol);
 
     private static bool IsStartTagChar(char symbol) => StartCharOfTags!.Contains(symbol);
-
 
     private static bool PreviousValueIsScreen(int currentIndex, string text) =>
         currentIndex - 1 >= 0 && text[currentIndex - 1] == '\\';
