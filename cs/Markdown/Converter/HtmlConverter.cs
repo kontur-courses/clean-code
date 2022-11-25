@@ -9,6 +9,7 @@ public class HtmlConverter : IHtmlConverter
     private StringBuilder htmlStringBuilder;
     private int shift;
     private string original;
+    private bool hasStartedMarkedList;
 
     private Dictionary<TagType, string> openingHtmlTags = new()
     {
@@ -24,19 +25,33 @@ public class HtmlConverter : IHtmlConverter
         { TagType.MarkedListItem, "</li>" }
     };
 
-    public string ConvertToHtml(string original, IEnumerable<Tag> tags)
+    public IEnumerable<string> ConvertToHtml(string[] lines, List<IEnumerable<Tag>> tags)
     {
-        htmlStringBuilder = new StringBuilder(original);
-        var singleTags = tags.ConvertToSingleTags();
-        shift = 0;
-        this.original = original;
-        
-        foreach (var tag in singleTags)
+        var htmlStrings = new List<string>();
+        hasStartedMarkedList = false;
+        for (var i = 0; i < lines.Length; i++)
         {
-            ReplaceTag(tag);
+            var line = lines[i];
+            var lineTags = tags[i];
+            htmlStringBuilder = new StringBuilder(line);
+            var singleTags = lineTags.ConvertToSingleTags();
+            shift = 0;
+            original = line;
+            HandleMarkedList(singleTags);
+            foreach (var tag in singleTags)
+            {
+                ReplaceTag(tag);
+            }
+
+            htmlStrings.Add(htmlStringBuilder.ToString());
         }
 
-        return htmlStringBuilder.ToString();
+        if (hasStartedMarkedList)
+        {
+            htmlStrings.Add("</ul>");
+        }
+
+        return htmlStrings;
     }
 
     private void ReplaceTag(SingleTag tag)
@@ -58,5 +73,22 @@ public class HtmlConverter : IHtmlConverter
         htmlStringBuilder.Remove(tag.Index + shift, symCount);
         htmlStringBuilder.Insert(tag.Index + shift, tagString);
         shift = htmlStringBuilder.Length - original.Length;
+    }
+
+    private void HandleMarkedList(List<SingleTag> singleTags)
+    {
+        if (singleTags.Count > 0 && singleTags.First().Type == TagType.MarkedListItem && !hasStartedMarkedList)
+        {
+            hasStartedMarkedList = true;
+            htmlStringBuilder.Insert(0, "<ul>\n");
+            shift = htmlStringBuilder.Length - original.Length;
+        }
+        else if ((singleTags.Count == 0 ||
+                  (singleTags.Count > 0 && singleTags.First().Type != TagType.MarkedListItem)) && hasStartedMarkedList)
+        {
+            hasStartedMarkedList = false;
+            htmlStringBuilder.Insert(0, "</ul>\n");
+            shift = htmlStringBuilder.Length - original.Length;
+        }
     }
 }

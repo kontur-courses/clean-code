@@ -75,6 +75,15 @@ public class MdRenderer_Should
         htmlText.Should().BeEquivalentTo(expected);
     }
 
+    [TestCase("_an_\n_lm_", "<em>an</em>\n<em>lm</em>")]
+    [TestCase("_an_ \n _lm_", "<em>an</em> \n <em>lm</em>")]
+    [TestCase("_an_b\nm_lm_", "<em>an</em>b\nm<em>lm</em>")]
+    public void WorkCorrect_WithManyStrings(string line, string expected)
+    {
+        var htmlText = markdownRenderer.Render(line);
+        htmlText.Should().BeEquivalentTo(expected);
+    }
+
     [TestCase("__123__", "<strong>123</strong>")]
     [TestCase("_12_ __34__", "<em>12</em> <strong>34</strong>")]
     public void WorkCorrect_WithLinesWithOnlyDigits(string line, string expected)
@@ -83,11 +92,21 @@ public class MdRenderer_Should
         htmlText.Should().BeEquivalentTo(expected);
     }
 
-    [TestCase("tags",
-        "tags")]
-    [TestCase("long text without tags, <tag></tag>",
-        "long text without tags, <tag></tag>")]
+    [TestCase("tags", "tags")]
+    [TestCase("long text without tags, <tag></tag>", "long text without tags, <tag></tag>")]
     public void WorkCorrect_WithTextWOTags(string line, string expected)
+    {
+        var htmlText = markdownRenderer.Render(line);
+        htmlText.Should().BeEquivalentTo(expected);
+    }
+
+    [TestCase("* tags", "<ul>\n<li> tags</li>\n</ul>")]
+    [TestCase("* long text in marked list item ", "<ul>\n<li> long text in marked list item </li>\n</ul>")]
+    [TestCase("* tags\n*", "<ul>\n<li> tags</li>\n</ul>\n*")]
+    [TestCase("* tags \n* tags1 \n* tags2 ", "<ul>\n<li> tags </li>\n<li> tags1 </li>\n<li> tags2 </li>\n</ul>")]
+    [TestCase("* item \n _not_ an item \n* __item__ ",
+        "<ul>\n<li> item </li>\n</ul>\n <em>not</em> an item \n<ul>\n<li> <strong>item</strong> </li>\n</ul>")]
+    public void WorkCorrect_WithMarkedLists(string line, string expected)
     {
         var htmlText = markdownRenderer.Render(line);
         htmlText.Should().BeEquivalentTo(expected);

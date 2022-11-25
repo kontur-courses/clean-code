@@ -16,7 +16,8 @@ public class MarkdownRenderer
         var lines = text.Split(separators, StringSplitOptions.RemoveEmptyEntries);
         var converter = new HtmlConverter();
         var markdownFinder = new MarkdownTagFinder();
-        var htmlLines = lines.Select(line => converter.ConvertToHtml(line, markdownFinder.FindTags(line)));
+        var tags = lines.Select(line => markdownFinder.FindTags(line)).ToList();
+        var htmlLines = converter.ConvertToHtml(lines, tags);
         return string.Join("\n", htmlLines);
     }
 }

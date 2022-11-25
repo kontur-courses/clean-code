@@ -30,10 +30,10 @@ public class MarkdownTagFinder_Should
         var htmlText = markdownFinder.FindTags(line).ToList();
         htmlText.Should().BeEmpty();
     }
-  
+
     [TestCase("__123__")]
     [TestCase("_123_")]
-    public void FindTags_ShouldNotCount_WordsWithOnlyDigits(string line)
+    public void FindTags_ShouldCount_WordsWithOnlyDigits(string line)
     {
         var htmlText = markdownFinder.FindTags(line).ToList();
         htmlText.Should().NotBeEmpty();
@@ -59,7 +59,7 @@ public class MarkdownTagFinder_Should
     [TestCase("__B_o_ld__", 2)]
     [TestCase("text __with _italic_ word__", 2)]
     [TestCase("text __with _italic_ _italic_ _italic_ word__", 4)]
-    public void FindTags_ShouldСount_ItalicInsideBold(string line, int count)
+    public void FindTags_ShouldCount_ItalicInsideBold(string line, int count)
     {
         var htmlText = markdownFinder.FindTags(line).ToList();
         htmlText.Count.Should().Be(count);
@@ -163,11 +163,11 @@ public class MarkdownTagFinder_Should
         htmlText.Count.Should().Be(count);
         htmlText.All(tag => tag.Type == type).Should().BeTrue();
     }
-    
-    [TestCase("* ABC QWERTY",  1)]
-    [TestCase("* _ABC_",  2)]
-    [TestCase("* __QWERTY__",  2)]
-    [TestCase("* _ABC_ __QWERTY__",  3)]
+
+    [TestCase("* ABC QWERTY", 1)]
+    [TestCase("* _ABC_", 2)]
+    [TestCase("* __QWERTY__", 2)]
+    [TestCase("* _ABC_ __QWERTY__", 3)]
     public void FindTags_ShouldFind_MarkedListTags(string line, int count)
     {
         var htmlText = markdownFinder.FindTags(line).ToList();

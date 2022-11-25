@@ -4,5 +4,5 @@ namespace Markdown.Converter;
 
 public interface IHtmlConverter
 {
-    public string ConvertToHtml(string original, IEnumerable<Tag> tags);
+    public IEnumerable<string> ConvertToHtml(string[] original, List<IEnumerable<Tag>> tags);
 }

@@ -68,7 +68,7 @@ public class MarkdownTagFinder : ITagFinder
         uncertainTags.Clear();
         poppedTags.Clear();
         realIndex = 0;
-        foundedTags.Clear();
+        foundedTags = new();
         origin = line;
     }
 
