@@ -7,6 +7,7 @@
             var convertedLine = specialStringFormat.ConvertedLine;
             var operationalCharacters = specialStringFormat.OperationalCharacters;
             var Actions = new MarkdownAction[convertedLine.Length];
+            var ActionPairs = specialStringFormat.ActionPairs = new List<Tuple<int, int>>();
 
             int openCursiveIndex = -1;
             int openBoldIndex = -1;
@@ -23,6 +24,7 @@
                                 new MarkdownAction(MarkdownActionType.Open, openCursiveIndex, i);
                             Actions[i] =
                                 new MarkdownAction(MarkdownActionType.Close, i, openCursiveIndex);
+                            ActionPairs.Add(new Tuple<int, int>(openCursiveIndex, i));
                             openCursiveIndex = -1;
                         }
                     }
@@ -36,6 +38,7 @@
                                 new MarkdownAction(MarkdownActionType.Open, openBoldIndex, i);
                             Actions[i] =
                                 new MarkdownAction(MarkdownActionType.Close, i, openBoldIndex);
+                            ActionPairs.Add(new Tuple<int, int>(openBoldIndex, i));
                             openBoldIndex = -1;
                         }
                     }

@@ -10,6 +10,8 @@ namespace Markdown
 
         public MarkdownAction[] Actions { get; set; }
 
+        public List<Tuple<int, int>> ActionPairs { get; set; }
+
         private SpecialStringFormat()
         {
         }

@@ -23,6 +23,7 @@
                 .DisapproveEmpty()
                 .DisapproveBoldInCursive()
                 .DisapproveWithDigits()
+                .DisapproveInDifferentWordParts()
                 .DisapproveStartsOrEndsWithSpace();
 
             return stringFormat.ConvertFromFormat();

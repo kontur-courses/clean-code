@@ -33,5 +33,37 @@ namespace MarkdownTests
             Markdown.Markdown.Render("Text __abc 1 abc__ Text")
                 .Should().Be(@"Text __abc 1 abc__ Text");
         }
+
+        [Test]
+        public void Bold_In_Different_Words_Parts()
+        {
+            Markdown.Markdown.Render("Tex__t te__xt")
+                .Should().Be(@"Tex__t te__xt");
+        }
+
+        [Test]
+        public void Bold_In_Word_Beginning()
+        {
+            Markdown.Markdown.Render("abc __te__xt")
+                .Should().Be(@"abc <strong>te<\strong>xt");
+            Markdown.Markdown.Render("__te__xt")
+                .Should().Be(@"<strong>te<\strong>xt");
+        }
+
+        [Test]
+        public void Bold_In_Word_Ending()
+        {
+            Markdown.Markdown.Render("te__xt__")
+                .Should().Be(@"te<strong>xt<\strong>");
+            Markdown.Markdown.Render("te__xt__ abc")
+                .Should().Be(@"te<strong>xt<\strong> abc");
+        }
+
+        [Test]
+        public void Bold_In_Word_Middle()
+        {
+            Markdown.Markdown.Render("t__ex__t")
+                .Should().Be(@"t<strong>ex<\strong>t");
+        }
     }
 }
