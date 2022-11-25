@@ -2,66 +2,96 @@
 
 public class EmTokenizator : Tokenizator
 {
+    private HashSet<int> usedIndexes;
+    private List<TagToken> result;
     public string OpenTag => MarkdownEmTag.OpenMdTag;
     public string CloseTag => MarkdownEmTag.CloseMdTag;
 
     public List<TagToken> Tokenize(string mdstring)
     {
-        List<TagToken> result = new();
-        HashSet<int> usedIndexes = new();
+        result = new();
+        usedIndexes = new();
         var words = mdstring.Split();
+        var startIndex = 0;
         foreach (var word in words)
         {
-            if (!word.Contains("_"))
-                continue;
-            int i = 0, j;
-            while (true)
-            {
-                i = mdstring.IndexOf(OpenTag, i);
-                if (i == -1)
-                    break;
-                j = mdstring.IndexOf(CloseTag, i + 1);
-                if (j == -1)
-                    break;
-                result.Add(new TagToken(
-                    i,
-                    j + CloseTag.Length - 1,
-                    new EmTag()));
-                usedIndexes.Add(i);
-                usedIndexes.Add(j);
-                i = j + 1;
-            }
+            GetTokensFromWord(word, startIndex);
+            startIndex += word.Length + 1;
         }
 
-        int k = mdstring.IndexOf(" " + OpenTag, 0), l;
+        GetAnotherTokens(mdstring);
+        return result;
+    }
+
+    public void GetTokensFromWord(string word, int startIndex)
+    {
+        if (!word.Contains("_"))
+            return;
+        int i = 0, j;
         while (true)
         {
-            while (usedIndexes.Contains(k)
-                   && k != -1)
-            {
-                k = mdstring.IndexOf(OpenTag, k);
-            }
-
-            if (k == -1)
+            i = word.IndexOf(OpenTag, i);
+            if (i == -1)
                 break;
-
-            l = mdstring.IndexOf(CloseTag + " ", k + 1);
-            while (usedIndexes.Contains(l)
-                   && l != -1)
-            {
-                l = mdstring.IndexOf(OpenTag, l);
-            }
-
-            if (l == -1)
+            j = word.IndexOf(CloseTag, i + 1);
+            if (j == -1)
                 break;
+            if (j - i == 1)
+            {
+                i = j;
+                continue;
+            }
 
             result.Add(new TagToken(
-                k + 1,
-                l + CloseTag.Length,
+                startIndex + i,
+                startIndex + j + CloseTag.Length - 1,
                 new EmTag()));
-            k = l + 1;
+            UpdateUsedIndexes(i, j);
+            i = j + 1;
         }
+    }
 
-        return result;
+    public void GetAnotherTokens(string mdstring)
+    {
+        int i = mdstring.IndexOf(" " + OpenTag, 0), j;
+        while (true)
+        {
+            while (usedIndexes.Contains(i + 1) && i != -1)
+            {
+                i = mdstring.IndexOf(OpenTag, i);
+            }
+
+            if (i == -1)
+                break;
+
+            j = mdstring.IndexOf(CloseTag + " ", i + 1);
+            while (usedIndexes.Contains(j) && j != -1)
+            {
+                j = mdstring.IndexOf(OpenTag, j);
+            }
+
+            if (j == -1)
+                break;
+
+            if (j - i == 1)
+            {
+                i = j;
+                continue;
+            }
+
+            result.Add(new TagToken(
+                i + 1,
+                j + CloseTag.Length,
+                new EmTag()));
+            i = j + 1;
+        }
+    }
+
+    public void UpdateUsedIndexes(int openTagIndex, int closeTagIndex)
+    {
+        for (int i = 0; i < OpenTag.Length; i++)
+            usedIndexes.Add(openTagIndex + i);
+        for (int i = 0; i < OpenTag.Length; i++)
+            usedIndexes.Add(closeTagIndex + i);
     }
 }

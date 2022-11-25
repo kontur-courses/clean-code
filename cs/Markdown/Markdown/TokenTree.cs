@@ -19,9 +19,8 @@ public class TokenTree
 
     public void AddTokens(IEnumerable<TagToken> tokens)
     {
-        tokens
-            .OrderByDescending(token => token.rightBorder - token.leftBorder)
-            .Select(token => TryAddToken(token));
+        foreach (var token in tokens.OrderByDescending(token => token.rightBorder - token.leftBorder))
+            TryAddToken(token);
     }
 
     public string ToHTMLString()
