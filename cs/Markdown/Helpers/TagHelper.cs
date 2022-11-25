@@ -12,5 +12,5 @@ public static class TagHelper
             .Where(type => type.GetInterfaces().Contains(typeof(T)))
             .Select(item => (T) Activator.CreateInstance(item)!);
 
-    public static (string start, string end) GetHtmlFormat(string tagName) => ($"<{tagName}>", $"</{tagName}>");
+    public static (string start, string end) GetOpenClosePattern(string tagName) => ($"<{tagName}>", $"</{tagName}>");
 }

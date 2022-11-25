@@ -22,11 +22,11 @@ public class HtmlReader : IReader
     {
         foreach (var tag in tags)
         {
-            var translatorValue = TagHelper.GetHtmlFormat(tag.TranslateName);
-            var htmlValue = TagHelper.GetHtmlFormat(tag.ResultName);
+            var translatorValue = TagHelper.GetOpenClosePattern(tag.TranslateName);
+            var htmlValue = TagHelper.GetOpenClosePattern(tag.ResultName);
             markdownInput = markdownInput.Replace(translatorValue.start, htmlValue.start);
             markdownInput = markdownInput.Replace(translatorValue.end, htmlValue.end);
-            
+
             var substringFrom = markdownInput.IndexOf(htmlValue.start, StringComparison.Ordinal);
             var substringTo = markdownInput.IndexOf(htmlValue.end, StringComparison.Ordinal);
 
@@ -34,12 +34,8 @@ public class HtmlReader : IReader
                 continue;
 
             substringFrom += htmlValue.start.Length;
-            var startToSub = markdownInput.Substring(0, substringFrom);
-            var subToFinish = markdownInput.Substring(substringTo);
-            var substring = markdownInput.Substring(startToSub.Length,
-                markdownInput.Length - startToSub.Length - subToFinish.Length);
-
-            markdownInput = $"{startToSub}{tag.MakeTransformations(substring)}{subToFinish}";
+            var substring = markdownInput.Substring(substringFrom, substringTo - substringFrom);
+            markdownInput = markdownInput.Replace(substring, tag.MakeTransformations(substring));
         }
 
         return markdownInput;
