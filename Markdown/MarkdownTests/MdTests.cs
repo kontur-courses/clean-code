@@ -12,7 +12,7 @@ public class MdTests
 	{
 		markdown = new Md();
 	}
-
+	
 	private Md markdown;
 
 	[TestCase("__Bold__", "<strong>Bold</strong>", TestName = "Bold tag")]
@@ -21,7 +21,11 @@ public class MdTests
 	[TestCase("aaa __Bold__ aaa", "aaa <strong>Bold</strong> aaa", TestName = "Bold tag in text")]
 	[TestCase("aaa _Italic_ aaa", "aaa <em>Italic</em> aaa", TestName = "Italic tag in text")]
 	[TestCase("# Header aaa", "<h1>Header aaa</h1>", TestName = "Top level header tag with spaces")]
-	public void Render_ShouldReturnHTMLText_WithCorrectMdText(string mdText, string expected)
+	[TestCase(
+		"# Header aaa\r\n\r\n__Second _para_graph__",
+		"<h1>Header aaa</h1>\r\n\r\n<strong>Second <em>para</em>graph</strong>", 
+		TestName = "Two paragraphs")]
+	public void Render_ShouldReturnHTMLText_WithCorrectText(string mdText, string expected)
 	{
 		var result = markdown.Render(mdText);
 
@@ -29,14 +33,46 @@ public class MdTests
 	}
 
 	[TestCase(
-		"выделение в ра_зных сл_овах не работает",
-		"выделение в ра_зных сл_овах не работает",
-		TestName = "выделение в разных словах")]
+		"no space _ before_ opening tag",
+		"no space _ before_ opening tag",
+		TestName = "No space before opening em tag")]
+	[TestCase(
+		"no space _after _ closing tag",
+		"no space _after _ closing tag",
+		TestName = "No space before closing em tag")]
+	[TestCase(
+		"no space__ before__ opening tag",
+		"no space__ before__ opening tag",
+		TestName = "No space before opening strong tag")]
+	[TestCase(
+		"no space __after __ closing tag",
+		"no space __after __ closing tag",
+		TestName = "No space before closing strong tag")]
+	[TestCase(
+		"Ta_gs beginnin_g or e__nding in d__ifferent words",
+		"Ta_gs beginnin_g or e__nding in d__ifferent words",
+		TestName = "Tags beginning or ending in different words")]
 	[TestCase(
 		"__tags _inter__ sect_ ions",
 		"__tags _inter__ sect_ ions",
 		TestName = "Tags intersections")]
-	public void Render_ShouldNotRender_WithIncorrectMdTags(string mdText, string expected)
+	[TestCase(
+		"__",
+		"__",
+		TestName = "Em tag without value")]
+	[TestCase(
+		"____",
+		"____",
+		TestName = "Em tag without value")]
+	[TestCase(
+		"abcd # abcd",
+		"abcd # abcd",
+		TestName = "Header not at the beginning")]
+	[TestCase(
+		"__Unclosed_ tags",
+		"__Unclosed_ tags",
+		TestName = "Unclosed tags")]
+	public void Render_ShouldNotRender_WithIncorrectTags(string mdText, string expected)
 	{
 		var result = markdown.Render(mdText);
 
@@ -57,6 +93,7 @@ public class MdTests
 	}
 
 	[TestCase(" _1abc1_ ", " _1abc1_ ")]
+	[TestCase(" _a1b1c_ ", " _a1b1c_ ")]
 	public void Render_ShouldNotRender_WithDigitsInTags(string mdText, string expected)
 	{
 		var result = markdown.Render(mdText);
@@ -65,8 +102,8 @@ public class MdTests
 	}
 
 	[TestCase(
-		"Внутри __двойного выделения _одинарное_ тоже__ работает",
-		"Внутри <strong>двойного выделения <em>одинарное</em> тоже</strong> работает",
+		"Italic __can be _nesting_ in bold__",
+		"Italic <strong>can be <em>nesting</em> in bold</strong>",
 		TestName = "Italic can be nesting in bold")]
 	[TestCase(
 		"# Header __can _contain_ nesting__ tags",
@@ -83,6 +120,10 @@ public class MdTests
 		"Внутри _одинарного выделения __двойное__ не_ работает",
 		"Внутри <em>одинарного выделения __двойное__ не</em> работает",
 		TestName = "Bold can't be nesting in italic")]
+	[TestCase(
+		"# First header # second header",
+		"<h1>First header # second header</h1>",
+		TestName = "Header in header")]
 	public void Render_ShouldNotRenderTags_WithIncorrectNestingTags(string mdText, string expected)
 	{
 		var result = markdown.Render(mdText);
