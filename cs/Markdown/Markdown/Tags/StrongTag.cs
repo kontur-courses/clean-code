@@ -2,8 +2,8 @@
 
 public class StrongTag : Tag
 {
-    public string OpenHTMLTag => "<strong>";
-    public string CloseHTMLTag => "</strong>";
-    public string OpenMdTag => "__";
-    public string CloseMdTag => "__";
+    public string OpenHTMLTag => HTMLStrongTag.OpenHTMLTag;
+    public string CloseHTMLTag => HTMLStrongTag.CloseHTMLTag;
+    public string OpenMdTag => MarkdownStrongTag.OpenMdTag;
+    public string CloseMdTag => MarkdownStrongTag.CloseMdTag;
 }
