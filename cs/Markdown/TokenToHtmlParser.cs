@@ -21,21 +21,16 @@ namespace Markdown
 
             foreach (var token in tokens)
             {
-                if (token is ObjectOpenToken)
+                if(!(token is ObjectToken))
                 {
-                    htmlText.AppendFormat(openTagFormat, objectTagBodies[(token as ObjectOpenToken)!.ObjectType]);
+                    htmlText.Append(token.Text);
                     continue;
                 }
 
-                if (token is ObjectCloseToken)
-                {
-                    htmlText.AppendFormat(closeTagFormat, objectTagBodies[(token as ObjectCloseToken)!.ObjectType]);
-                    continue;
-                }
-
-                htmlText.Append(token.Text);
+                var objectToken = token as ObjectToken;
+                htmlText.AppendFormat(objectToken.IsClose ? closeTagFormat : openTagFormat,
+                                      objectTagBodies[objectToken.ObjectType]);
             }
-
             return htmlText.ToString();
         }
     }

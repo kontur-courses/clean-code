@@ -10,7 +10,9 @@ namespace Markdown
                 throw new ArgumentException($"nameof{input} can't be null or empty");
 
             var markdownParser = new MarkdownToTokenParser();
-            var tokens = markdownParser.ParseToTokens(input);
+            var tokens = markdownParser.ParseToTokens(input)
+                                       .ValidateObjectTokens()
+                                       .ResolveObjectIntersections();
             return TokenToHtmlParser.GetHtmlTextFromTokens(tokens);
         }
     }
