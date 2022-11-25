@@ -29,7 +29,7 @@ namespace Markdown
                    || other.StartOpenMark > StartOpenMark && other.StartOpenMark < EndCloseMark && other.EndCloseMark > EndCloseMark;
         }
 
-        public bool ProcessChar(string text, int index)
+        public bool CheckCharAndGetIsIncorrectToken(string text, int index)
         {
             return  Tag != null! && Tag.CharProcessingRule(Tag, this, text, index);
         }

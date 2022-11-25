@@ -142,7 +142,7 @@ namespace Markdown
 
                 if (!IsMarkHere(text, i, out var tag, out var isStart))
                 {
-                    if (current.ProcessChar(text, i))
+                    if (current.CheckCharAndGetIsIncorrectToken(text, i))
                         current = current.Parent;
                     continue;
                 }
