@@ -11,7 +11,7 @@ namespace MarkdownTests
         private ITagsParser<MdTag> _parser;
         private List<MdTag> _tags;
         private List<(int openTagIndex, int closeTagIndex)> _valuesTagsIndexes;
-        
+
         [SetUp]
         public void SetUp()
         {
@@ -37,25 +37,25 @@ namespace MarkdownTests
                 _valuesTagsIndexes.AddRange(new (int, int)[] {(0, 5)});
             if (text == @"#_text\_ and_ text")
                 _valuesTagsIndexes.AddRange(new (int, int)[] {(0, text.Length)});
-            if(text == "_нач_але, и в сер_еди_не, и в кон_це._")
+            if (text == "_нач_але, и в сер_еди_не, и в кон_це._")
                 _valuesTagsIndexes.AddRange(new (int, int)[] {(0, 4), (17, 21), (33, 37)});
-            
-            if(text == "#text\n_text_")
-                _valuesTagsIndexes.AddRange(new (int, int)[]{(0, 5), (6, 11)});
-            if(text == "#text_text_")
-                _valuesTagsIndexes.AddRange(new (int, int)[]{(0, text.Length), (5, 10)});
-            if(text == "# Заголовок __с _разными_ символами__")
-                _valuesTagsIndexes.AddRange(new (int, int)[]{(0, 37), (12, 35), (16, 24)});
-            if(text == @"\\_вот это будет выделено тегом_")
-                _valuesTagsIndexes.AddRange(new (int, int)[]{(2, 31)});
-            if(text == "Внутри __двойного выделения _одинарное_ тоже__ работает")
-                _valuesTagsIndexes.AddRange(new (int, int)[]{(7, 44), (28, 38)});
-            if(text == "Но не наоборот — внутри _одинарного __двойное__ не_ работает")
-                _valuesTagsIndexes.AddRange(new (int, int)[]{(24, 50)});
-            if(text == "__a_b__")
-                _valuesTagsIndexes.AddRange(new (int, int)[]{(0, 5)});
+
+            if (text == "#text\n_text_")
+                _valuesTagsIndexes.AddRange(new (int, int)[] {(0, 5), (6, 11)});
+            if (text == "#text_text_")
+                _valuesTagsIndexes.AddRange(new (int, int)[] {(0, text.Length), (5, 10)});
+            if (text == "# Заголовок __с _разными_ символами__")
+                _valuesTagsIndexes.AddRange(new (int, int)[] {(0, 37), (12, 35), (16, 24)});
+            if (text == @"\\_вот это будет выделено тегом_")
+                _valuesTagsIndexes.AddRange(new (int, int)[] {(2, 31)});
+            if (text == "Внутри __двойного выделения _одинарное_ тоже__ работает")
+                _valuesTagsIndexes.AddRange(new (int, int)[] {(7, 44), (28, 38)});
+            if (text == "Но не наоборот — внутри _одинарного __двойное__ не_ работает")
+                _valuesTagsIndexes.AddRange(new (int, int)[] {(24, 50)});
+            if (text == "__a_b__")
+                _valuesTagsIndexes.AddRange(new (int, int)[] {(0, 5)});
         }
-        
+
         [TestCase("_text_")]
         [TestCase("__text__")]
         [TestCase("#text")]
@@ -71,8 +71,9 @@ namespace MarkdownTests
         private void CheckReturnedIndexes(List<MdTag> findedTags)
         {
             findedTags.Count.Should().Be(_valuesTagsIndexes.Count);
-            for(int i = 0; i < findedTags.Count; i++)
-                CheckReturnedIndex(findedTags[i], _valuesTagsIndexes[i].openTagIndex, _valuesTagsIndexes[i].closeTagIndex);
+            for (int i = 0; i < findedTags.Count; i++)
+                CheckReturnedIndex(findedTags[i], _valuesTagsIndexes[i].openTagIndex,
+                    _valuesTagsIndexes[i].closeTagIndex);
         }
 
         private void CheckReturnedIndex(MdTag tag, int openTagIndex, int closeTagIndex)
@@ -80,7 +81,7 @@ namespace MarkdownTests
             tag.OpenTagIndex.Should().Be(openTagIndex);
             tag.CloseTagIndex.Should().Be(closeTagIndex);
         }
-        
+
         [TestCase("#text\n_text_")]
         [TestCase("#text_text_")]
         [TestCase("# Заголовок __с _разными_ символами__")]
@@ -103,14 +104,15 @@ namespace MarkdownTests
         [TestCase("Иначе эти _подчерки _не считаются")]
         [TestCase("Иначе эти_ подчерки_ не считаются")]
         [TestCase("__Непарные_ символы в рамках одного абзаца не считаются выделением.")]
-        [TestCase("Подчерки внутри текста c цифрами_12_3 не считаются выделением и должны оставаться символами подчерка.")]
+        [TestCase(
+            "Подчерки внутри текста c цифрами_12_3 не считаются выделением и должны оставаться символами подчерка.")]
         [TestCase("В случае __пересечения _двойных__ и одинарных_ подчерков ни один из них не считается выделением.")]
         public void MarkdownParser_GetIndexesTags_ShouldReturnEmptyArray(string text)
         {
             var findedTags = _parser.GetIndexesTags(text);
             findedTags.Count.Should().Be(0);
         }
-        
+
         private MdTag GetTagFromList(List<MdTag> tags, string openTag)
         {
             foreach (var tag in tags)
