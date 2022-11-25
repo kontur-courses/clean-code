@@ -13,11 +13,12 @@ public class MarkdownTranslator : ITranslator
     private int deleteScreenSymbolsCount;
     private readonly Dictionary<string, ITag?> tags;
 
-    private readonly Dictionary<ITag?, (int startCount, int endCount)> tagsOpenCloseCounter = new();
+    private readonly Dictionary<ITag, (int startCount, int endCount)> tagsOpenCloseCounter = new();
 
     public MarkdownTranslator()
     {
         tags = new Dictionary<string, ITag?>();
+        textWithTranslate = new StringBuilder();
 
         foreach (var item in TagHelper.GetAllTags<ITag>()!)
         {
@@ -43,11 +44,11 @@ public class MarkdownTranslator : ITranslator
 
         foreach (var tag in stackOfTags)
         {
-            if (tagsOpenCloseCounter[tag.Tag].startCount == tagsOpenCloseCounter[tag.Tag].endCount)
+            if (tagsOpenCloseCounter[tag.Tag!].startCount == tagsOpenCloseCounter[tag.Tag!].endCount)
                 ReplaceMdTag(tag);
             else
-                tagsOpenCloseCounter[tag.Tag] = (tagsOpenCloseCounter[tag.Tag].startCount - 1,
-                    tagsOpenCloseCounter[tag.Tag].endCount);
+                tagsOpenCloseCounter[tag.Tag!] = (tagsOpenCloseCounter[tag.Tag!].startCount - 1,
+                    tagsOpenCloseCounter[tag.Tag!].endCount);
         }
 
         return textWithTranslate.ToString();
@@ -68,20 +69,22 @@ public class MarkdownTranslator : ITranslator
         if (stackOfTags.Count > 0)
             previousTag = stackOfTags.Peek().Tag;
         
-        if (IsCorrectStart(stackOfTags, tag, index, text) && isStart && !PreviousValueIsScreen(startIndex, text))
+        if (IsCorrectStart(tag, index, text) && isStart && !PreviousValueIsScreen(startIndex, text))
         {
             stackOfTags.Push(new TagWithIndex(tag, startIndex, true));
-            tagsOpenCloseCounter[tag] = (tagsOpenCloseCounter[tag].startCount + 1, tagsOpenCloseCounter[tag].endCount);
+            tagsOpenCloseCounter[tag!] =
+                (tagsOpenCloseCounter[tag!].startCount + 1, tagsOpenCloseCounter[tag!].endCount);
         }
         else if (IsCorrectEnding(tag, index, text) && !isStart && !CheckIntersections(tag!, previousTag, index, text) &&
                  !PreviousValueIsScreen(startIndex, text)) 
         {
             stackOfTags.Push(new TagWithIndex(tag, startIndex, false));
-            tagsOpenCloseCounter[tag] = (tagsOpenCloseCounter[tag].startCount, tagsOpenCloseCounter[tag].endCount + 1);
+            tagsOpenCloseCounter[tag!] =
+                (tagsOpenCloseCounter[tag!].startCount, tagsOpenCloseCounter[tag!].endCount + 1);
         }
         else if (CheckIntersections(tag!, previousTag, index, text) && !isStart)
         {
-            tagsOpenCloseCounter.Reboot();
+            tagsOpenCloseCounter!.Reboot();
             stackOfTags.Clear();
         }
         else if (PreviousValueIsScreen(startIndex, text))
@@ -99,7 +102,7 @@ public class MarkdownTranslator : ITranslator
         currentIndex - 1 >= 0 && text[currentIndex - 1] == '\\';
 
     private bool TagMostBeStart(ITag? tag) =>
-        tagsOpenCloseCounter[tag].startCount <= tagsOpenCloseCounter[tag].endCount;
+        tagsOpenCloseCounter[tag!].startCount <= tagsOpenCloseCounter[tag!].endCount;
 
     private string GetNextToken(string text)
     {
@@ -119,8 +122,6 @@ public class MarkdownTranslator : ITranslator
         tags.Where(tag => tag.Value?.SourceName.Length >= tagIndexTo + 1)
             .Count(tag =>
                 tag.Value?.SourceName[..(tagIndexTo + 1)] == myText.Substring(textIndexFrom, tagIndexTo + 1)) > 0;
-
-    private static bool IsNumber(char symbol) => char.IsNumber(symbol);
 
     private static string ReadForNow(Func<char, bool> func, int index, string currentText)
     {
@@ -166,28 +167,41 @@ public class MarkdownTranslator : ITranslator
             tagWithIndex.Index, tagWithIndex.Tag.SourceName.Length);
     }
 
-    private bool IsCorrectStart(Stack<TagWithIndex> tagsStack, ITag? tag, int currentIndex, string text)
+    // private bool IsCorrectStart(Stack<TagWithIndex> tagsStack, ITag? tag, int currentIndex, string text)
+    // {
+    //     if (currentIndex < text.Length && IsLetter(text[currentIndex]))
+    //     {
+    //         var startIndex = currentIndex - 1;
+    //         var lettersNext = ReadForNow(IsLetter, currentIndex, text);
+    //         currentIndex += lettersNext.Length;
+    //         var isNeedsTag = ReadForNow(IsTag, currentIndex, text);
+    //
+    //         if ((isNeedsTag == tag?.SourceName || isNeedsTag == "" && startIndex - 1 < 0 ||
+    //              startIndex - 1 >= 0 && !IsLetter(text[startIndex - 1])) && (tagsStack.Count <= 0 ||
+    //                                                                          tagsStack.Peek().Tag!.SourceName != "_" ||
+    //                                                                          tagsStack.Peek().IsStartedTag is false ||
+    //                                                                          tag?.SourceName != "__" ||
+    //                                                                          currentIndex - 1 < 0 ||
+    //                                                                          IsNumber(text[currentIndex - 1]) ||
+    //                                                                          currentIndex + 1 > text.Length ||
+    //                                                                          IsNumber(text[currentIndex + 1]))) 
+    //             return true;
+    //     }
+    //
+    //     return false;
+    // }
+
+    private static bool IsCorrectStart(ITag? tag, int currentIndex, string text)
     {
-        if (currentIndex < text.Length && IsLetter(text[currentIndex]))
-        {
-            var startIndex = currentIndex - 1;
-            var lettersNext = ReadForNow(IsLetter, currentIndex, text);
-            currentIndex += lettersNext.Length;
-            var isNeedsTag = ReadForNow(IsTag, currentIndex, text);
-
-            if ((isNeedsTag == tag?.SourceName || isNeedsTag == "" && startIndex - 1 < 0 ||
-                 startIndex - 1 >= 0 && !IsLetter(text[startIndex - 1])) && (tagsStack.Count <= 0 ||
-                                                                             tagsStack.Peek().Tag!.SourceName != "_" ||
-                                                                             tagsStack.Peek().IsStartedTag is false ||
-                                                                             tag?.SourceName != "__" ||
-                                                                             currentIndex - 1 < 0 ||
-                                                                             IsNumber(text[currentIndex - 1]) ||
-                                                                             currentIndex + 1 > text.Length ||
-                                                                             IsNumber(text[currentIndex + 1]))) 
-                return true;
-        }
-
-        return false;
+        if (currentIndex >= text.Length || !IsLetter(text[currentIndex])) 
+            return false;
+        
+        var previousIndex = currentIndex - tag!.SourceName.Length - 1;
+        var substringFromTag = text.Substring(currentIndex, text.Length - currentIndex);
+        var substrings = substringFromTag.Split(" ");
+            
+        return substrings[0].Contains(tag.SourceName) || previousIndex == -1 ||
+               previousIndex > 0 && !IsLetter(text[previousIndex]);
     }
 
     private static bool IsCorrectEnding(ITag? tag, int currentIndex, string text) =>

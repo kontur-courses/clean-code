@@ -1,5 +1,10 @@
 using System;
+using System.Diagnostics;
+using System.Linq;
+using System.Runtime;
 using FluentAssertions;
+using Markdown.Readers.Implementation;
+using Markdown.Translators.Implementation;
 using NUnit.Framework;
 
 namespace Markdown.Tests;
@@ -7,7 +12,7 @@ namespace Markdown.Tests;
 public class Tests
 {
     private Markdown? markdown;
-    
+
     [SetUp]
     public void Setup()
     {
@@ -29,7 +34,7 @@ public class Tests
     {
         markdown!.Render(mdInput).Should().Be(result);
     }
-    
+
     [Test]
     public void Renderer_TwoCharsMarkdownTag_LineWithHtml()
     {
@@ -45,12 +50,12 @@ public class Tests
     {
         markdown!.Render(mdInput).Should().Be(result);
     }
-    
+
     [TestCase("_Some word #with# tags_", "<em>Some word <h1>with</h1> tags</em>")]
     [TestCase("#Some _word with_ tags#", "<h1>Some <em>word with</em> tags</h1>")]
     [TestCase("__Some _word with_ tags__", "<strong>Some <em>word with</em> tags</strong>")]
     [TestCase("_Some __word with__ tags_", "<em>Some __word with__ tags</em>")]
-    [TestCase("#Some _word __with a lot__ of_ tags#", 
+    [TestCase("#Some _word __with a lot__ of_ tags#",
         "<h1>Some <em>word __with a lot__ of</em> tags</h1>")]
     public void Renderer_MarkdownTagInside_LineWithHtml(string mdInput, string result)
     {
@@ -84,7 +89,7 @@ public class Tests
         markdown!.Render(mdInput).Should().Be(mdInput);
     }
 
-    [TestCase("Some __word _hi__ something_ text")]
+    [TestCase("Some __word _hi i__ something_ text")]
     public void Renderer_IntersectionTags_InputLine(string mdInput)
     {
         markdown!.Render(mdInput).Should().Be(mdInput);
@@ -116,10 +121,33 @@ public class Tests
     }
 
     [TestCase("*A B C D*", "<numeric>\n1. A\n2. B\n3. C\n4. D\n</numeric>")]
-    [TestCase("_Please_, choice __the__ number: *Correct Maybe Incorrect*", 
+    [TestCase("_Please_, choice __the__ number: *Correct Maybe Incorrect*",
         "<em>Please</em>, choice <strong>the</strong> number: <numeric>\n1. Correct\n2. Maybe\n3. Incorrect\n</numeric>")]
     public void Renderer_NumericTag_LineWithNumbers(string mdInput, string result)
     {
         markdown!.Render(mdInput).Should().Be(result);
+    }
+
+    [TestCase("#Some Words#")]
+    [TestCase("#A lot of __texts _continue_ with letters__ f _efw_ __s_go_ dfsa _gr_r__\r\n")]
+    public void Should_BeLinear(string input)
+    {
+        const int repeatCount = 10;
+        var sw = new Stopwatch();
+        sw.Reset();
+
+        sw.Start();
+        markdown!.Render(input);
+        sw.Stop();
+        var elapsed = sw.Elapsed.Ticks;
+        sw.Reset();
+
+        var text = Enumerable.Repeat(input, repeatCount).ToString();
+
+        sw.Start();
+        markdown.Render(text!);
+        sw.Stop();
+
+        Assert.That(sw.Elapsed.Ticks / elapsed, Is.LessThanOrEqualTo(repeatCount));
     }
 }
