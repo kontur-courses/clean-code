@@ -6,13 +6,16 @@ namespace Markdown
 {
     public class Tokenizer
     {
+        private Ranges linkRanges;
         private Dictionary<string, Mod> symbols;
         private string text;
         private Stack<Token> tokens;
+        private HashSet<int> linkBorderlineIndexes;
 
         public Tokenizer(Dictionary<string, Mod> separatorSymbols)
         {
             symbols = separatorSymbols;
+            linkRanges = new Ranges();
         }
 
         public List<Token> TikenizeText(string mdText)
@@ -23,6 +26,12 @@ namespace Markdown
             for (var i = 0; i < text.Length; i++)
             {
                 var curSym = text[i];
+
+                if (linkRanges.IsIndexInRange(i))
+                {
+                    curPos = i + 1;
+                    continue;
+                }
 
                 if (symbols.ContainsKey(curSym.ToString()))
                 {
@@ -76,11 +85,13 @@ namespace Markdown
 
             return current.modType switch
             {
-                Mod.Italic => GetRedefTokensWithItalicOrBold(last, current),
-                Mod.Bold => GetRedefTokensWithItalicOrBold(last, current),
+                Mod.Italic => GetRedefTokensWithBasicMods(last, current),
+                Mod.Bold => GetRedefTokensWithBasicMods(last, current),
                 Mod.Slash => GetRedefTokensWithSlash(last, current),
                 Mod.Title => GetRedefTokensWithTitle(last, current, text),
                 Mod.Common => GetRedefTokensWithCommon(last, current),
+                Mod.LinkName => GetRedefTokensWithName(last, current),
+                Mod.LinkUrl => GetRedefTokensWithUrl(last, current),
                 _ => new List<Token>()
             };
         }
@@ -128,7 +139,7 @@ namespace Markdown
             return redefTokens;
         }
 
-        private List<Token> GetRedefTokensWithItalicOrBold(Token last, Token current)
+        private List<Token> GetRedefTokensWithBasicMods(Token last, Token current)
         {
             var redefTokens = new List<Token>();
 
@@ -167,6 +178,76 @@ namespace Markdown
             redefTokens.Add(last);
             redefTokens.Add(current);
             return redefTokens;
+        }
+        private List<Token> GetRedefTokensWithUrl(Token last, Token current)
+        {
+            var redefTokens = new List<Token>();
+
+            if (last == null || text[current.StartInd - 1] != ']')
+            {
+                redefTokens.Add(last);
+                redefTokens.Add(new Token(current.StartInd, current.EndInd, Mod.Common, false));
+                return redefTokens;
+            }
+
+            redefTokens.Add(last);
+
+            return ValidRedefTokensToEndChar(redefTokens, current, ')');
+        }
+
+        private List<Token> GetRedefTokensWithName(Token last, Token current)
+        {
+            var redefTokens = new List<Token>();
+
+            if (last == null)
+            {
+                return ValidRedefTokensToEndChar(redefTokens, current, ']');
+            }
+            else if (last.modType == Mod.Slash)
+            {
+                redefTokens.Add(new Token(current.StartInd, current.EndInd, Mod.Common, false));
+                return redefTokens;
+            }
+
+            redefTokens.Add(last);
+            return ValidRedefTokensToEndChar(redefTokens, current, ']');
+        }
+
+        private List<Token> ValidRedefTokensToEndChar(List<Token> currentList, Token current, char closingChar)
+        {
+            var end = FindClosingChar(current.StartInd, closingChar);
+
+            if (current.StartInd == end)
+            {
+                currentList.Add(new Token(current.StartInd, end, Mod.Common, false));
+            }
+            else
+            {
+                currentList.Add(new Token(current.StartInd, end, current.modType));
+                linkRanges.AddRange(current.StartInd, end);
+            }
+
+            return currentList;
+        }
+
+        private int FindClosingChar(int start, char expectedChar)
+        {
+            var endInd = 0;
+
+            for (endInd = start; endInd < text.Length; endInd++)
+            {
+                if (text[endInd] == expectedChar)
+                {
+                    break;
+                }
+            }
+
+            if (endInd == text.Length && text[endInd - 1] != expectedChar)
+            {
+                endInd = start;
+            }
+
+            return endInd;
         }
     }
 }

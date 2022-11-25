@@ -6,7 +6,7 @@ using System.Collections.Generic;
 namespace Markdown_tests
 {
     [TestFixture]
-    public class TokenizeShould
+    public class TokenizerShould
     {
         private Tokenizer tokenizer;    
 
@@ -19,7 +19,9 @@ namespace Markdown_tests
                 ["#"] = Mod.Title,
                 ["__"] = Mod.Bold,
                 ["_"] = Mod.Italic,
-                ["\\"] = Mod.Slash
+                ["\\"] = Mod.Slash,
+                ["["] = Mod.LinkName,
+                ["("] = Mod.LinkUrl
             };
 
             tokenizer = new Tokenizer(separators);
@@ -89,6 +91,23 @@ namespace Markdown_tests
             {
                 new Token(0, 6, Mod.Title),
                 new Token(1, 6, Mod.Common, false)
+            };
+
+            current.Should().BeEquivalentTo(expected);
+        }
+
+        [Test]
+        public void Tokenize_LinkInText_ShouldReturnLinkTokens()
+        {
+            var testString = @"text [link name](www.link.com) text";
+
+            var current = tokenizer.TikenizeText(testString);
+            var expected = new List<Token>()
+            {
+                new Token(0, 4, Mod.Common, false),
+                new Token(5, 15, Mod.LinkName),
+                new Token(16, 29, Mod.LinkUrl),
+                new Token(30, 35, Mod.Common, false),
             };
 
             current.Should().BeEquivalentTo(expected);

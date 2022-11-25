@@ -15,7 +15,9 @@ namespace Markdown
                 ["#"] = Mod.Title,
                 ["__"] = Mod.Bold,
                 ["_"] = Mod.Italic,
-                ["\\"] = Mod.Slash
+                ["\\"] = Mod.Slash,
+                ["["] = Mod.LinkName,
+                ["("] = Mod.LinkUrl
             };
 
             htmlAnalogs = new Dictionary<Mod, string>()
@@ -23,6 +25,7 @@ namespace Markdown
                 [Mod.Title] = "h1",
                 [Mod.Bold] = "strong",
                 [Mod.Italic] = "em",
+                [Mod.LinkName] = "a href=",
             };
         }
 

@@ -6,6 +6,8 @@
         Title,
         Bold,
         Italic,
-        Slash
+        Slash,
+        LinkName,
+        LinkUrl,
     }
 }

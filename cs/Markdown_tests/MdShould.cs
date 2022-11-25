@@ -66,6 +66,19 @@ namespace Markdown_tests
         [TestCase(@"# title __bold _italic_ bold__",
             @"<h1> title <strong>bold <em>italic</em> bold</strong></h1>", 
             TestName = "{m}_TitleWithModifiers")]
+        [TestCase(@"text [link name](www.link.com) text",
+            @"text <a href=""www.link.com"">link name</a> text",
+            TestName = "{m}_LinkInText")]
+        [TestCase(@"text [link name](www.l_in_k.com) text",
+            @"text <a href=""www.l_in_k.com"">link name</a> text",
+            TestName = "{m}_LinkWithItalic")]
+        [TestCase(@"text \[link name](www.link.com) text",
+            @"text [link name](www.link.com) text",
+            TestName = "{m}_LinkWithStartSlash")]
+        [TestCase(@"text [link name] (www.link.com) text",
+            @"text [link name] (www.link.com) text",
+            TestName = "{m}_NonValidLink")]
+
         public void Md_CommonInput_ShouldBeExpected(string md, string exp)
         {
             var markdown = new Md();

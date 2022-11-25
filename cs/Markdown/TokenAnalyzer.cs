@@ -1,4 +1,6 @@
-﻿using System.Collections.Generic;
+﻿using Microsoft.VisualBasic;
+using System.Collections.Generic;
+using System.Linq;
 
 namespace Markdown
 {
@@ -8,6 +10,7 @@ namespace Markdown
         private Stack<Token> openModules;
         private Stack<Token> verifiedModules;
         private List<Token> preTokens;
+        private Token linkNameToken;
 
         public TokenAnalyzer(string text)
         {
@@ -25,14 +28,43 @@ namespace Markdown
             {
                 var curModule = preTokens[i];
 
-                if (curModule.modType != Mod.Common)
+                if (curModule.modType == Mod.LinkName)
+                {
+                    linkNameToken = curModule;
+                }
+                else if (curModule.modType == Mod.LinkUrl)
+                {
+                    if (linkNameToken == null)
+                    {
+                        CastToSimpleType(curModule);
+                    }
+                    else
+                    {
+                        linkNameToken = null;
+                    }
+                }
+                else if (curModule.modType != Mod.Common)
                 {
                     ValidConcatination(curModule);
                 }
             }
 
+            if (linkNameToken != null)
+            {
+                CastToSimpleType(linkNameToken);
+            }
+
             SolveUnverifiedModules();
             return preTokens;
+        }
+
+        private void CastToSimpleType(params Token[] modules)
+        {
+            foreach (var module in modules)
+            {
+                module.Close();
+                module.modType = Mod.Common;
+            }
         }
 
         private void ValidConcatination(Token curModule)
@@ -59,9 +91,108 @@ namespace Markdown
             else
             {
                 CorrectIntersect(curModule);
-                ChangeModType(Mod.Common, curModule);
-                CloseModules(curModule);
+                CastToSimpleType(curModule);
             }
+        }
+
+        private void СhangeStackAccordingNewLink(Token curModule)
+        {
+            Token openModule;
+
+            switch (curModule.modType)
+            {
+                case Mod.LinkName:
+
+                    break;
+
+                case Mod.LinkUrl:
+                    break;
+            }
+
+            if (curModule.modType == Mod.LinkName)
+            {
+                do 
+                {
+                    openModule = openModules.Pop();
+
+                    if (openModule.modType != Mod.LinkName)
+                    {
+                        CastToSimpleType(openModule);
+                    }
+                }
+                while (openModule.modType != Mod.LinkName);
+
+                verifiedModules.Push(openModule);
+            }
+
+            if (curModule.modType == Mod.LinkUrl)
+            {
+                do
+                {
+                    openModule = verifiedModules.Pop();
+
+                    if (openModule.modType != Mod.LinkUrl)
+                    {
+                        ChangeModType(Mod.Common, openModule);
+                        CloseModules(openModule);
+                    }
+                }
+                while (openModule.modType != Mod.LinkUrl);
+
+                verifiedModules.Push(openModule);
+            }
+
+            verifiedModules.Push(curModule);
+        }
+
+        private void ClearIntermediateModules(Stack<Token> modules, Token curModule)
+        {
+            Token openModule;
+
+            do
+            {
+                openModule = modules.Pop();
+
+                if (openModule.modType != Mod.LinkUrl)
+                {
+                    ChangeModType(Mod.Common, openModule);
+                    CloseModules(openModule);
+                }
+            }
+            while (openModule.modType != Mod.LinkUrl);
+
+            verifiedModules.Push(openModule);
+        }
+
+        private void FindOpenModifierAndIgnorBetween(Mod startMod)
+        {
+            Token openModule;
+
+            do
+            {
+                openModule = openModules.Pop();
+
+                if (openModule.modType != startMod)
+                {
+                    ChangeModType(Mod.Common, openModule);
+                    CloseModules(openModule);
+                }
+            }
+            while (openModule.modType != startMod);
+        }
+
+        private bool IsLinkClosingModule(Token curModule)
+        {
+            if (curModule.modType == Mod.LinkName && openModules.Any(x => x.modType == Mod.LinkName))
+            {
+                return true;    
+            }
+            else if (curModule.modType == Mod.LinkUrl && openModules.Any(x => x.modType == Mod.LinkUrl))
+            {
+                return true;
+            }
+
+            return false;
         }
 
         private void HandingConcatinationClosure(Token lastModule, Token curModule)

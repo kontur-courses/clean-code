@@ -15,6 +15,8 @@
             this.isOpen = IsOpen;
         }
 
+        public Token(){}
+
         public void Close()
         {
             isOpen = false;
