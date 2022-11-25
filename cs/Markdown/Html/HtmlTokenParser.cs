@@ -15,7 +15,7 @@ namespace Markdown.Html
 
         private readonly char[] signs =
         {
-            ',', '.', '!', '?', ' ', '—', '-', ':', '#'
+            ',', '.', '!', '?', ' ', '—', '-', ':', '#', '\\'
         };
 
         private int Index { get; set; } = 0;
@@ -47,6 +47,7 @@ namespace Markdown.Html
             while (Index < line.Length)
             {
                 var symbol = line[Index];
+
                 if (char.IsLetter(symbol) || char.IsDigit(symbol) || signs.Contains(symbol))
                 {
                     if (CheckAndUpdateTokenIfInDifferentWords(symbol, token))
@@ -55,18 +56,14 @@ namespace Markdown.Html
                     {
                         if (htmlTag.Equals(token.Tag))
                             return token;
-
-                        AddTokenOrIgnoreIt(token, line, htmlTag, tagString);
-                        
+                        token.TryAddToken(ParseLine(new Token(TokenType.Nested, htmlTag, token), line));
                         tagString = string.Empty;
                         continue;
                     }
                     if (TryAddTextToken(token, line)) 
                         continue;
-
                     if (IsNumberInHighlightingTag(symbol, token.Parent.Tag))
                         token.Parent.ToTextToken();
-                    
                     token.Content += symbol;
                 }
                 else if (token.Type == TokenType.Text)
@@ -83,14 +80,6 @@ namespace Markdown.Html
             return char.IsDigit(symbol) && Tag.IsHighlightingTag(tag);
         }
 
-        private void AddTokenOrIgnoreIt(Token token, string line, ITag htmlTag, string tagString)
-        {
-            if (IsNeedIgnoreTag(token.Tag, htmlTag))
-                token.Childrens[^1].Content += tagString;
-            else
-                token.TryAddToken(ParseLine(new Token(TokenType.Nested, htmlTag, token), line));
-        }
-
         private Token ProcessWhenLineEnd(Token token, string tagString, string line)
         {
             if (!string.IsNullOrEmpty(tagString))
@@ -98,7 +87,7 @@ namespace Markdown.Html
                 if (TryCreateHtmlTag(tagString, out var tag) != null)
                     if (token.Tag.Equals(tag))
                         return token;
-                token.Childrens.Add(ParseLine(new Token(TokenType.Text, Tag.Empty, token)
+                token.TryAddToken(ParseLine(new Token(TokenType.Text, Tag.Empty, token)
                 {
                     Content = tagString
                 }, line));
@@ -115,17 +104,6 @@ namespace Markdown.Html
             if (token.Type == TokenType.Text) return false;
             token.TryAddToken(ParseLine(new Token(TokenType.Text, Tag.Empty, token), line));
             return true;
-        }
-
-        private bool IsNeedIgnoreTag(ITag firstHtmlTag, ITag secondHtmlTag)
-        {
-            var firstMarkdownTag = MarkdownToHtml.Rules.TryGetKeyByValue(firstHtmlTag);
-            var secondMarkdownTag = MarkdownToHtml.Rules.TryGetKeyByValue(secondHtmlTag);
-            
-            if (firstMarkdownTag != null && secondHtmlTag != null)
-                return firstMarkdownTag.NeedTagIgnore(secondMarkdownTag);
-
-            return false;
         }
 
         private ITag TryCreateHtmlTag(string tagString, out ITag tag)

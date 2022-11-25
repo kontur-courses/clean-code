@@ -10,7 +10,6 @@ namespace Markdown
         public TokenType Type;
         public ITag Tag;
         public string Content = "";
-        public int StopIndex = 0;
         public Token Parent;
         public List<Token> Childrens = new ();
 
@@ -30,7 +29,7 @@ namespace Markdown
             Childrens.Add(token); return true;
         }
 
-        public Token ToTextToken()
+        public Token ToTextToken(bool needClosingMarkup = false)
         {
             if (Type == TokenType.Text)
                 return this;
@@ -42,7 +41,10 @@ namespace Markdown
             
             foreach (var children in Childrens)
                 Content += children.Content;
-            
+
+            if (needClosingMarkup && markdownTag != null)
+                Content += markdownTag.Closing;
+
             Childrens.Clear();
             
             Type = TokenType.Text;

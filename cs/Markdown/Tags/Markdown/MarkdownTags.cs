@@ -4,12 +4,14 @@
     {
         public static Tag Heading => new Tag("#");
 
-        public static Tag Italics => new Tag("_")
+        public static Tag Italics => new Tag("_", "_")
         {
             IgnoredTags = new[] { Bold }
         };
 
-        public static Tag Bold => new Tag("__");
-        
+        public static Tag Bold => new Tag("__", "__");
+
+        public static Tag Link => new Tag("[]()");
+
     }
 }
