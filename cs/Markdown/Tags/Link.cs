@@ -17,7 +17,7 @@ namespace Markdown.Tags
             while (current != null && !(current.Type == TokenType.Tag && current.Value == "]"))
                 if (current.Type == TokenType.Tag)
                 {
-                    text += Markdown.FormatToken(ref current);
+                    text += Markdown.FormatTokenAndMoveToNext(ref current);
                 }
                 else
                 {

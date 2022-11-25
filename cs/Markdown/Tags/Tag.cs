@@ -31,7 +31,7 @@ namespace Markdown.Tags
             {
                 if (current == end)
                     break;
-                builder.Append(Markdown.FormatToken(ref current));
+                builder.Append(Markdown.FormatTokenAndMoveToNext(ref current));
             }
 
             next = current;

@@ -12,7 +12,7 @@ namespace Markdown
         public string Value { get; }
         public int StartIndex { get; }
         public Token Previous { get; }
-        public Token Next { get; set; }
+        public Token Next { get; private set; }
         public bool IgnoreAsTag { get; private set; }
 
         public Token(TokenType type, string value, int startIndex, Token previous)

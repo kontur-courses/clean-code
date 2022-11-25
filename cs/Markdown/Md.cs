@@ -40,11 +40,11 @@ namespace Markdown
             var next = startToken;
             var resultStr = new StringBuilder();
             while (next != null)
-                resultStr.Append(FormatToken(ref next));
+                resultStr.Append(FormatTokenAndMoveToNext(ref next));
             return resultStr.ToString();
         }
 
-        internal string FormatToken(ref Token token)
+        internal string FormatTokenAndMoveToNext(ref Token token)
         {
             string result;
             if (token.Type == TokenType.Tag && !tagFormats.ContainsKey(token.Value))

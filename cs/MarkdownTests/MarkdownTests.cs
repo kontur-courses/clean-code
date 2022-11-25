@@ -1,6 +1,8 @@
-﻿using System.Diagnostics;
+﻿using System;
+using System.Diagnostics;
 using System.Text;
 using FluentAssertions;
+using FluentAssertions.Execution;
 using Markdown;
 using NUnit.Framework;
 
@@ -84,18 +86,34 @@ namespace MarkdownTests
             result.Should().Be(html);
         }
 
-        [TestCase(10_000, 3000)]
-        public void Render_ShouldBeFast(int count, int maxMilliseconds)
+        [Test]
+        public void Render_ShouldBeFast()
         {
             var sb = new StringBuilder("# Заголовок __с _разными_ символами__ \n");
-            for (var i = 1; i < count; i++)
+            for (var i = 1; i < 100; i++)
                 sb.Append("a_a_ b__a_a_b__  __a_a__a_a__a_a__a__a__a_a_a_a_a__a_a_a_a_a__a__a__a");
+            using (new AssertionScope())
+            {
+                var text = sb.ToString();
+                var lastTime = Time(() => md.Render(text));
+                for (var i = 0; i < 5; i++)
+                {
+                    sb.Append(sb);
+                    text = sb.ToString();
+                    var newTime = Time(() => md.Render(text));
+                    var delta = newTime / lastTime;
+                    lastTime = newTime;
+                    delta.Should().BeInRange(0.5, 2.5);
+                }
+            }
+        }
 
-            var test = sb.ToString();
-            var sw = Stopwatch.StartNew();
-            md.Render(test);
-            sw.Stop();
-            sw.ElapsedMilliseconds.Should().BeLessOrEqualTo(maxMilliseconds);
+        private double Time(Action action)
+        {
+            var stopwatch = Stopwatch.StartNew();
+            action();
+            stopwatch.Stop();
+            return stopwatch.ElapsedMilliseconds;
         }
 
 
