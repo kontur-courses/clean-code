@@ -49,19 +49,19 @@ public class MdTests
 	[TestCase(
 		"no space _ before_ opening tag",
 		"no space _ before_ opening tag",
-		TestName = "No space before opening em tag")]
+		TestName = "Space after opening em tag")]
 	[TestCase(
 		"no space _after _ closing tag",
 		"no space _after _ closing tag",
-		TestName = "No space before closing em tag")]
+		TestName = "Space before closing em tag")]
 	[TestCase(
-		"no space__ before__ opening tag",
-		"no space__ before__ opening tag",
-		TestName = "No space before opening strong tag")]
+		"no space __ before__ opening tag",
+		"no space __ before__ opening tag",
+		TestName = "Space after opening strong tag")]
 	[TestCase(
 		"no space __after __ closing tag",
 		"no space __after __ closing tag",
-		TestName = "No space before closing strong tag")]
+		TestName = "Space before closing strong tag")]
 	[TestCase(
 		"Ta_gs beginnin_g or e__nding in d__ifferent words",
 		"Ta_gs beginnin_g or e__nding in d__ifferent words",

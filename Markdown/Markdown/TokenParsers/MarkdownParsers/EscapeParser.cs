@@ -23,11 +23,10 @@ public class EscapeParser : IMarkdownTagParser
 		{
 			if (text.Substring(i, escapeTag.Open.Length) != escapeTag.Open) continue;
 
-			if (CheckEscaping(text, i + escapeTag.Open.Length, paragraphEnd, out var endIndex))
-			{
-				result.Add(new MdToken(text, i, endIndex - 1, TokenType.Escape));
-				i = endIndex;
-			}
+			if (!CheckEscaping(text, i + escapeTag.Open.Length, paragraphEnd, out var endIndex)) continue;
+
+			result.Add(new MdToken(text, i, endIndex - 1, TokenType.Escape));
+			i = endIndex;
 		}
 
 		return result;
@@ -39,24 +38,25 @@ public class EscapeParser : IMarkdownTagParser
 
 		foreach (var tag in tags)
 		{
-			if (startIndex + tag.Open.Length > paragraphEnd) continue;
-
-			if (text.Substring(startIndex, tag.Open.Length) == tag.Open)
-			{
-				endIndex = startIndex + tag.Open.Length;
-				return true;
-			}
+			if (CheckTagPart(text, paragraphEnd, startIndex, tag.Open, out endIndex)) return true;
 
 			if (tag.Close is null) continue;
-			if (startIndex + tag.Close.Length > paragraphEnd) continue;
 
-			if (text.Substring(startIndex, tag.Close.Length) == tag.Close)
-			{
-				endIndex = startIndex + tag.Close.Length;
-				return true;
-			}
+			return CheckTagPart(text, paragraphEnd, startIndex, tag.Close, out endIndex);
 		}
 
 		return false;
+	}
+
+	private bool CheckTagPart(string text, int paragraphEnd, int startIndex, string partPattern, out int endIndex)
+	{
+		endIndex = startIndex;
+
+		if (startIndex + partPattern.Length > paragraphEnd) return false;
+
+		if (text.Substring(startIndex, partPattern.Length) != partPattern) return false;
+
+		endIndex = startIndex + partPattern.Length;
+		return true;
 	}
 }

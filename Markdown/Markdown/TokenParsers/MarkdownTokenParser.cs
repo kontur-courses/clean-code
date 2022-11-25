@@ -10,11 +10,10 @@ public class MarkdownTokenParser : ITokenParser
 	private readonly Dictionary<TokenType, MarkdownTag> markdownTags;
 
 	private readonly Dictionary<TokenType, IMarkdownTagParser> parsers;
-	private readonly Dictionary<MarkdownTag, TokenType> tokenTypes;
 
 	public MarkdownTokenParser()
 	{
-		tokenTypes = new Dictionary<MarkdownTag, TokenType>
+		var tokenTypes = new Dictionary<MarkdownTag, TokenType>
 		{
 			{ new MarkdownTag("__"), TokenType.Bold },
 			{ new MarkdownTag("_"), TokenType.Italic },
@@ -88,9 +87,8 @@ public class MarkdownTokenParser : ITokenParser
 
 	private Dictionary<TokenType, List<MdToken>> ParseParagraphTokens(string text, int paragraphStart, int paragraphEnd)
 	{
-		
 		var escapeTokens = escapeParser.ParseParagraph(text, paragraphStart, paragraphEnd);
-		var paragraphTokens = new Dictionary<TokenType, List<MdToken>>(){ { TokenType.Escape, escapeTokens} };
+		var paragraphTokens = new Dictionary<TokenType, List<MdToken>> { { TokenType.Escape, escapeTokens } };
 
 		foreach (var (tokenType, parser) in parsers)
 		{
@@ -160,15 +158,6 @@ public class MarkdownTokenParser : ITokenParser
 
 	private void FindPlace(ref MdToken prevToken, ref MdToken currentToken, MdToken token)
 	{
-		//if (currentToken.Start <= token.Start && currentToken.End > token.Start) return;
-		//if (currentToken.nextToken is null) return;
-
-		//var next = currentToken.nextToken as MdToken;
-		//FindPlace(ref currentToken, ref next, token);
-
-		//prevToken = currentToken;
-		//currentToken = currentToken.nextToken as MdToken;
-
 		while (currentToken.nextToken is not null)
 		{
 			if (currentToken.Start <= token.Start && currentToken.End > token.Start) return;
@@ -179,7 +168,6 @@ public class MarkdownTokenParser : ITokenParser
 
 	private bool IntersectWithOtherToken(MdToken currentToken, MdToken token)
 	{
-		//var start1 = Math.Min(currentToken.Start, token.End)
 		return currentToken.End < token.End;
 	}
 
@@ -199,7 +187,6 @@ public class MarkdownTokenParser : ITokenParser
 
 	private void InsertTokenInText(MdToken splitter, ref MdToken currentToken, MdToken? prevToken)
 	{
-		//if (currentToken.nestingTokens is not null) throw new ArgumentException();
 		if (currentToken.Type is not TokenType.PlainText) throw new ArgumentException();
 		if (splitter.Type is TokenType.Escape)
 		{
@@ -216,9 +203,11 @@ public class MarkdownTokenParser : ITokenParser
 
 		var right = new MdToken(currentToken.SourceText, splitter.End + markdownTags[splitter.Type].Close?.Length ?? 0,
 			end,
-			currentToken.Type);
+			currentToken.Type)
+		{
+			nextToken = currentToken.nextToken
+		};
 
-		right.nextToken = currentToken.nextToken;
 		splitter.nextToken = right;
 		left.nextToken = splitter;
 
@@ -260,9 +249,11 @@ public class MarkdownTokenParser : ITokenParser
 
 		var right = new MdToken(currentToken.SourceText, splitter.End + markdownTags[splitter.Type].Close?.Length ?? 0,
 			end,
-			currentToken.Type);
+			currentToken.Type)
+		{
+			nextToken = currentToken.nextToken
+		};
 
-		right.nextToken = currentToken.nextToken;
 		splitter.nextToken = right;
 		left.nextToken = splitter;
 
@@ -271,10 +262,15 @@ public class MarkdownTokenParser : ITokenParser
 		if (prevToken != null) prevToken.nextToken = left;
 	}
 
-	public void AddNestingToken(MdToken token, ref MdToken main)
+	private void AddNestingToken(MdToken token, ref MdToken main)
 	{
-		if (token.Type == TokenType.Header) throw new ArgumentException();
-		if (token.Type == TokenType.Bold && main.Type == TokenType.Italic) return;
+		switch (token.Type)
+		{
+			case TokenType.Header:
+				throw new ArgumentException();
+			case TokenType.Bold when main.Type == TokenType.Italic:
+				return;
+		}
 
 		if (main.nestingTokens == null)
 		{
