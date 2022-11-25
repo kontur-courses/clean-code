@@ -2,17 +2,17 @@
 
 public class HtmlTag
 {
-    public HtmlTag(string withStart, string withEnd)
+    public HtmlTag(string open, string close)
     {
-        WithStart = withStart;
-        WithEnd = withEnd;
+        Open = open;
+        Close = close;
     }
 
     public HtmlTag(string name) : this($"<{name}>", $"</{name}>")
     {
     }
 
-    public string WithStart { get; }
+    public string Open { get; }
 
-    public string WithEnd { get; }
+    public string Close { get; }
 }

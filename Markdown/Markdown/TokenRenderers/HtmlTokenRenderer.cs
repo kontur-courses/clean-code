@@ -35,11 +35,18 @@ public class HtmlTokenRenderer : ITokenRenderer
 
 	private string RenderToken(IToken token)
 	{
+		if (token.Type == TokenType.Escape) return RenderEscapeToken(token);
 		var tag = htmlTags[token.Type];
 
 		var value = token.nestingTokens == null ? token.Value : RenderNestingTokens(token);
 
-		return $"{tag.WithStart}{value}{tag.WithEnd}";
+		return $"{tag.Open}{value}{tag.Close}";
+	}
+
+	private string RenderEscapeToken(IToken token)
+	{
+		if (token.Value.Length < 2) return "";
+		return token.Value.Substring(1, token.Value.Length - 1);
 	}
 
 	private string RenderNestingTokens(IToken token)
@@ -51,7 +58,7 @@ public class HtmlTokenRenderer : ITokenRenderer
 		{
 			var value = nestedToken.nestingTokens == null ? nestedToken.Value : RenderNestingTokens(nestedToken);
 			var tag = htmlTags[nestedToken.Type];
-			result.Append($"{tag.WithStart}{value}{tag.WithEnd}");
+			result.Append($"{tag.Open}{value}{tag.Close}");
 
 			nestedToken = nestedToken.nextToken;
 		}

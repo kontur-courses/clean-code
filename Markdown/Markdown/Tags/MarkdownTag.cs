@@ -2,19 +2,19 @@
 
 public class MarkdownTag
 {
-	public MarkdownTag(string withStart, string withEnd)
+	public MarkdownTag(string open, string? close)
 	{
-		WithStart = withStart;
-		WithEnd = withEnd;
+		Open = open;
+		Close = close;
 	}
 
 	public MarkdownTag(string name) : this(name, name)
 	{
 	}
 
-	public string WithStart { get; }
+	public string Open { get; }
 
-	public string WithEnd { get; }
+	public string? Close { get; }
 
 	//public static MarkdownTag Italic => new("_");
 	//public static MarkdownTag Bold => new("__");
@@ -23,11 +23,11 @@ public class MarkdownTag
 	public override bool Equals(object? obj)
 	{
 		if (obj is not MarkdownTag other) return false;
-		return WithStart.Equals(other.WithStart) && WithEnd.Equals(other.WithEnd);
+		return Open.Equals(other.Open) && Close.Equals(other.Close);
 	}
 
 	public override int GetHashCode()
 	{
-		return $"{WithStart}{WithEnd}".GetHashCode();
+		return $"{Open}{Close}".GetHashCode();
 	}
 }

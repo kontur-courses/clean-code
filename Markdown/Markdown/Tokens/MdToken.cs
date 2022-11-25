@@ -5,7 +5,7 @@ public class MdToken : IToken
 	public MdToken(string sourceText, int start, int end, TokenType type)
 	{
 		SourceText = sourceText;
-		Start = start;
+		Start = Math.Max(0, start);
 		End = end;
 		Type = type;
 	}
@@ -14,7 +14,16 @@ public class MdToken : IToken
 	public int Start { get; }
 	public int End { get; }
 
-	public string Value => Start >= End ? string.Empty : SourceText.Substring(Start, End - Start);
+	public string Value
+	{
+		get
+		{
+			if (Start == End) return String.Empty;
+			if (Start == 0) return SourceText.Substring(Start, End);
+			if (Type == TokenType.Escape) return SourceText.Substring(Start, End - Start + 1);
+			return SourceText.Substring(Start, End - Start);
+		}
+	}
 
 	public TokenType Type { get; }
 

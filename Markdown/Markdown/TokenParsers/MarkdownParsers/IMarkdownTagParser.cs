@@ -4,5 +4,7 @@ namespace Markdown.TokenParsers.MarkdownParsers;
 
 public interface IMarkdownTagParser
 {
-	public List<MdToken> ParseParagraph(string text, int paragraphStart, int paragraphEnd);
+	public static char EscapeSymbol => '/';
+
+	public List<MdToken> ParseParagraph(string text, int paragraphStart, int paragraphEnd, List<MdToken> escapeTokens);
 }

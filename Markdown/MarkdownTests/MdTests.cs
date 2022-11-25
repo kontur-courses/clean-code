@@ -23,14 +23,28 @@ public class MdTests
 	[TestCase("# Header aaa", "<h1>Header aaa</h1>", TestName = "Top level header tag with spaces")]
 	[TestCase(
 		"# Header aaa\r\n\r\n__Second _para_graph__",
-		"<h1>Header aaa</h1>\r\n\r\n<strong>Second <em>para</em>graph</strong>", 
+		"<h1>Header aaa</h1>\r\n\r\n<strong>Second <em>para</em>graph</strong>",
 		TestName = "Two paragraphs")]
-	public void Render_ShouldReturnHTMLText_WithCorrectText(string mdText, string expected)
+	public void Render_ShouldReturnHTMLText_WithCorrectTags(string mdText, string expected)
 	{
 		var result = markdown.Render(mdText);
 
 		result.Should().Be(expected);
 	}
+
+	[TestCase("/__Bold/__", "__Bold__", TestName = "Bold tag")]
+	[TestCase("/_Italic/_", "_Italic_", TestName = "Italic tag")]
+	[TestCase("/# Header", "# Header", TestName = "Top level header tag")]
+	[TestCase("/_", "_", TestName = "only one italic tag")]
+	[TestCase("/__", "__", TestName = "only one bold tag")]
+	[TestCase("/# ", "# ", TestName = "only one header tag")]
+	public void Render_ShouldNotRenderEscapedTags_WithCorrectTags(string mdText, string expected)
+	{
+		var result = markdown.Render(mdText);
+
+		result.Should().Be(expected);
+	}
+
 
 	[TestCase(
 		"no space _ before_ opening tag",
@@ -63,7 +77,7 @@ public class MdTests
 	[TestCase(
 		"____",
 		"____",
-		TestName = "Em tag without value")]
+		TestName = "Strong tag without value")]
 	[TestCase(
 		"abcd # abcd",
 		"abcd # abcd",
@@ -117,8 +131,8 @@ public class MdTests
 	}
 
 	[TestCase(
-		"Внутри _одинарного выделения __двойное__ не_ работает",
-		"Внутри <em>одинарного выделения __двойное__ не</em> работает",
+		"aa _bbb c __dddd__ e_ ff",
+		"aa <em>bbb c __dddd__ e</em> ff",
 		TestName = "Bold can't be nesting in italic")]
 	[TestCase(
 		"# First header # second header",

@@ -4,20 +4,30 @@ namespace Markdown.TokenParsers.MarkdownParsers;
 
 public class BoldParser : IMarkdownTagParser
 {
+	private List<MdToken> escapeTokens;
 	private int paragraphEnd;
 	private int paragraphStart;
 	private string text;
 
-	public static char EscapeSymbol => '/';
-
-	public List<MdToken> ParseParagraph(string text, int paragraphStart, int paragraphEnd)
+	public List<MdToken> ParseParagraph(string text, int paragraphStart, int paragraphEnd, List<MdToken> escapeTokens)
 	{
 		this.text = text;
 		this.paragraphStart = paragraphStart;
 		this.paragraphEnd = paragraphEnd;
+		this.escapeTokens = escapeTokens;
+		var currentEscapeToken = escapeTokens.FirstOrDefault();
 		var result = new List<MdToken>();
 
 		for (var i = paragraphStart; i < paragraphEnd - 2; i++)
+		{
+			while (currentEscapeToken?.Start < i) currentEscapeToken = currentEscapeToken?.nextToken as MdToken;
+
+			if (currentEscapeToken?.Start == i)
+			{
+				i = currentEscapeToken.End;
+				continue;
+			}
+
 			if (text[i] == '_' && text[i + 1] == '_')
 			{
 				if (text[i + 2] == ' ')
@@ -32,6 +42,7 @@ public class BoldParser : IMarkdownTagParser
 				result.Add(new MdToken(text, i + 2, endPosition, TokenType.Bold));
 				i = endPosition;
 			}
+		}
 
 		return result;
 	}
@@ -53,8 +64,18 @@ public class BoldParser : IMarkdownTagParser
 		endPosition = startPosition;
 		var containSpaces = false;
 
+		var currentEscapeToken = escapeTokens.FirstOrDefault();
+
 		for (var i = startPosition + 1; i < paragraphEnd - 1; i++)
 		{
+			while (currentEscapeToken?.Start < i) currentEscapeToken = currentEscapeToken?.nextToken as MdToken;
+
+			if (currentEscapeToken?.Start == i)
+			{
+				i = currentEscapeToken.End;
+				continue;
+			}
+
 			var symbol = text[i];
 
 			if (char.IsDigit(symbol)) return false;

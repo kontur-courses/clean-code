@@ -5,5 +5,6 @@ public enum TokenType
 	PlainText,
 	Italic,
 	Bold,
-	Header
+	Header,
+	Escape
 }

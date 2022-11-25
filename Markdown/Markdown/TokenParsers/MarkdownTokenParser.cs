@@ -6,11 +6,11 @@ namespace Markdown.TokenParsers;
 
 public class MarkdownTokenParser : ITokenParser
 {
+	private readonly EscapeParser escapeParser;
 	private readonly Dictionary<TokenType, MarkdownTag> markdownTags;
 
 	private readonly Dictionary<TokenType, IMarkdownTagParser> parsers;
 	private readonly Dictionary<MarkdownTag, TokenType> tokenTypes;
-
 
 	public MarkdownTokenParser()
 	{
@@ -18,7 +18,8 @@ public class MarkdownTokenParser : ITokenParser
 		{
 			{ new MarkdownTag("__"), TokenType.Bold },
 			{ new MarkdownTag("_"), TokenType.Italic },
-			{ new MarkdownTag("# ", $"{Environment.NewLine}{Environment.NewLine}"), TokenType.Header }
+			{ new MarkdownTag("# ", $"{Environment.NewLine}{Environment.NewLine}"), TokenType.Header },
+			{ new MarkdownTag("/", null), TokenType.Escape }
 		};
 
 		markdownTags = tokenTypes.ToDictionary(pair => pair.Value, pair => pair.Key);
@@ -29,6 +30,7 @@ public class MarkdownTokenParser : ITokenParser
 			{ TokenType.Bold, new BoldParser() },
 			{ TokenType.Header, new HeaderParser() }
 		};
+		escapeParser = new EscapeParser(markdownTags[TokenType.Escape], markdownTags.Values);
 	}
 
 	private static string ParagraphSplitter => $"{Environment.NewLine}{Environment.NewLine}";
@@ -47,7 +49,7 @@ public class MarkdownTokenParser : ITokenParser
 		for (var i = 0; i < text.Length - ParagraphSplitter.Length - 1; i++)
 		{
 			var window = text.Substring(i, ParagraphSplitter.Length);
-			if (window == ParagraphSplitter) result.Add(i + ParagraphSplitter.Length + 1);
+			if (window == ParagraphSplitter) result.Add(i + ParagraphSplitter.Length);
 		}
 
 		return result;
@@ -55,46 +57,48 @@ public class MarkdownTokenParser : ITokenParser
 
 	private IToken ParseParagraphs(string text, IReadOnlyList<int> paragraphsStartPositions)
 	{
-		IToken result = new MdToken(text, 0, 0, TokenType.PlainText);
-		var currentToken = result;
+		IToken root = new MdToken(text, 0, 0, TokenType.PlainText);
+		var currentToken = root;
 
-		Dictionary<TokenType, List<MdToken>> paragraphTokens;
 		for (var i = 1; i < paragraphsStartPositions.Count; i++)
 		{
 			var paragraphStart = paragraphsStartPositions[i - 1];
 			var paragraphEnd = paragraphsStartPositions[i] - ParagraphSplitter.Length;
-			paragraphTokens = ParseParagraphTokens(text, paragraphStart, paragraphEnd);
-
-			currentToken.nextToken = MergeTokens(paragraphTokens, text, paragraphStart, paragraphEnd);
-			currentToken = currentToken.nextToken;
-			currentToken.nextToken =
-				new MdToken(ParagraphSplitter, 0, ParagraphSplitter.Length, TokenType.PlainText);
+			ParseParagraph(currentToken, text, paragraphStart, paragraphEnd);
 		}
 
-		paragraphTokens = ParseParagraphTokens(
-			text,
-			paragraphsStartPositions.Last(),
-			text.Length);
+		ParseParagraph(currentToken, text, paragraphsStartPositions.Last(), text.Length);
 
-		if (paragraphTokens.Count == 0)
-			return new MdToken(text, paragraphsStartPositions.Last(), text.Length, TokenType.PlainText);
-		currentToken.nextToken =
-			MergeTokens(paragraphTokens, text, paragraphsStartPositions.Last(), text.Length);
-
-		return result;
+		return root;
 	}
 
-	private Dictionary<TokenType, List<MdToken>> ParseParagraphTokens(string text, int paragraphStartPosition,
-		int paragraphEndPosition)
+	private void ParseParagraph(IToken currentToken, string text, int paragraphStart, int paragraphEnd)
 	{
-		var paragraphTokens = new Dictionary<TokenType, List<MdToken>>();
+		var paragraphTokens = ParseParagraphTokens(text, paragraphStart, paragraphEnd);
+
+		currentToken.nextToken = MergeTokens(paragraphTokens, text, paragraphStart, paragraphEnd);
+		currentToken = currentToken.nextToken;
+
+		if (paragraphEnd == text.Length) return;
+
+		currentToken.nextToken =
+			new MdToken(ParagraphSplitter, 0, ParagraphSplitter.Length, TokenType.PlainText);
+	}
+
+
+	private Dictionary<TokenType, List<MdToken>> ParseParagraphTokens(string text, int paragraphStart, int paragraphEnd)
+	{
+		
+		var escapeTokens = escapeParser.ParseParagraph(text, paragraphStart, paragraphEnd);
+		var paragraphTokens = new Dictionary<TokenType, List<MdToken>>(){ { TokenType.Escape, escapeTokens} };
 
 		foreach (var (tokenType, parser) in parsers)
 		{
 			var tokens = parser.ParseParagraph(
 				text,
-				paragraphStartPosition,
-				paragraphEndPosition);
+				paragraphStart,
+				paragraphEnd,
+				escapeTokens);
 
 			if (tokens.Count == 0) continue;
 
@@ -107,7 +111,7 @@ public class MarkdownTokenParser : ITokenParser
 	private IToken MergeTokens(Dictionary<TokenType, List<MdToken>> tokens, string text, int paragraphStartPosition,
 		int paragraphEndPosition)
 	{
-		if (tokens.Count == 0) throw new ArgumentException("Needed at least one token");
+		if (tokens.Count == 0) new MdToken(text, paragraphStartPosition, text.Length, TokenType.PlainText);
 		var result = new MdToken(text, paragraphStartPosition, paragraphEndPosition, TokenType.PlainText);
 
 		if (tokens.ContainsKey(TokenType.Header))
@@ -121,7 +125,9 @@ public class MarkdownTokenParser : ITokenParser
 		}
 
 		var orderedTokens = new List<MdToken>();
+
 		foreach (var (tokenType, parsedTokens) in tokens) orderedTokens.AddRange(parsedTokens);
+
 		orderedTokens = orderedTokens.OrderBy(t => t.Start).ToList();
 		AddTokens(orderedTokens, ref result);
 
@@ -154,41 +160,105 @@ public class MarkdownTokenParser : ITokenParser
 
 	private void FindPlace(ref MdToken prevToken, ref MdToken currentToken, MdToken token)
 	{
-		if (currentToken.Start <= token.Start && currentToken.End > token.Start) return;
-		if (currentToken.nextToken is null) return;
+		//if (currentToken.Start <= token.Start && currentToken.End > token.Start) return;
+		//if (currentToken.nextToken is null) return;
 
-		prevToken = currentToken;
-		currentToken = currentToken.nextToken as MdToken;
+		//var next = currentToken.nextToken as MdToken;
+		//FindPlace(ref currentToken, ref next, token);
+
+		//prevToken = currentToken;
+		//currentToken = currentToken.nextToken as MdToken;
+
+		while (currentToken.nextToken is not null)
+		{
+			if (currentToken.Start <= token.Start && currentToken.End > token.Start) return;
+			prevToken = currentToken;
+			currentToken = currentToken.nextToken as MdToken;
+		}
 	}
 
-	private bool IntersectWithOtherToken(MdToken currentMdToken, MdToken mdToken)
+	private bool IntersectWithOtherToken(MdToken currentToken, MdToken token)
 	{
-		return currentMdToken.End < mdToken.End;
+		//var start1 = Math.Min(currentToken.Start, token.End)
+		return currentToken.End < token.End;
 	}
 
 	private void ResolveIntersection(MdToken prevToken, MdToken currentToken, MdToken token)
 	{
 		var tag = markdownTags[currentToken.Type];
 		var start = prevToken.End;
-		var end = currentToken.End + tag.WithEnd.Length;
+		var end = currentToken.End + tag.Close?.Length ?? 0;
 		var nextToken = currentToken.nextToken;
 
-		currentToken = new MdToken(currentToken.SourceText, start, end, TokenType.PlainText);
-		currentToken.nextToken = nextToken;
+		currentToken = new MdToken(currentToken.SourceText, start, end, TokenType.PlainText)
+		{
+			nextToken = nextToken
+		};
 		prevToken.nextToken = currentToken;
 	}
 
 	private void InsertTokenInText(MdToken splitter, ref MdToken currentToken, MdToken? prevToken)
 	{
-		if (currentToken.nestingTokens is not null) throw new ArgumentException();
+		//if (currentToken.nestingTokens is not null) throw new ArgumentException();
 		if (currentToken.Type is not TokenType.PlainText) throw new ArgumentException();
+		if (splitter.Type is TokenType.Escape)
+		{
+			InsertEscapeToken(splitter, ref currentToken, prevToken);
+			return;
+		}
 
 		var start = currentToken.Start;
 		var end = currentToken.End;
+
 		var left = new MdToken(currentToken.SourceText, start,
-			splitter.Start - markdownTags[splitter.Type].WithStart.Length,
+			splitter.Start - markdownTags[splitter.Type].Open.Length,
 			currentToken.Type);
-		var right = new MdToken(currentToken.SourceText, splitter.End + markdownTags[splitter.Type].WithEnd.Length,
+
+		var right = new MdToken(currentToken.SourceText, splitter.End + markdownTags[splitter.Type].Close?.Length ?? 0,
+			end,
+			currentToken.Type);
+
+		right.nextToken = currentToken.nextToken;
+		splitter.nextToken = right;
+		left.nextToken = splitter;
+
+		currentToken = left;
+
+		if (prevToken != null) prevToken.nextToken = left;
+	}
+
+	private void InsertEscapeToken(MdToken splitter, ref MdToken currentToken, MdToken? prevToken)
+	{
+		if (splitter.Start == 0)
+		{
+			splitter.nextToken = new MdToken(currentToken.SourceText, currentToken.Start + splitter.End,
+				currentToken.End, currentToken.Type);
+			currentToken = splitter;
+
+			return;
+		}
+
+		if (splitter.End == currentToken.SourceText.Length - 1)
+		{
+			currentToken = new MdToken(currentToken.SourceText, currentToken.Start, splitter.Start,
+				currentToken.Type)
+			{
+				nextToken = splitter
+			};
+
+			if (prevToken != null) prevToken.nextToken = currentToken;
+
+			return;
+		}
+
+		var start = currentToken.Start;
+		var end = currentToken.End;
+
+		var left = new MdToken(currentToken.SourceText, start,
+			splitter.Start - markdownTags[splitter.Type].Open.Length,
+			currentToken.Type);
+
+		var right = new MdToken(currentToken.SourceText, splitter.End + markdownTags[splitter.Type].Close?.Length ?? 0,
 			end,
 			currentToken.Type);
 

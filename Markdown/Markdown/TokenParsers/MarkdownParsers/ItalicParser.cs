@@ -4,20 +4,30 @@ namespace Markdown.TokenParsers.MarkdownParsers;
 
 public class ItalicParser : IMarkdownTagParser
 {
+	private List<MdToken> escapeTokens;
 	private int paragraphEnd;
 	private int paragraphStart;
 	private string text;
 
-	public static char EscapeSymbol => '/';
-
-	public List<MdToken> ParseParagraph(string text, int paragraphStart, int paragraphEnd)
+	public List<MdToken> ParseParagraph(string text, int paragraphStart, int paragraphEnd, List<MdToken> escapeTokens)
 	{
 		this.text = text;
 		this.paragraphStart = paragraphStart;
 		this.paragraphEnd = paragraphEnd;
+		this.escapeTokens = escapeTokens;
+		var currentEscapeToken = escapeTokens.FirstOrDefault();
 		var result = new List<MdToken>();
 
 		for (var i = paragraphStart; i < paragraphEnd - 1; i++)
+		{
+			while (currentEscapeToken?.Start < i) currentEscapeToken = currentEscapeToken?.nextToken as MdToken;
+
+			if (currentEscapeToken?.Start == i)
+			{
+				i = currentEscapeToken.End;
+				continue;
+			}
+
 			if (text[i] == '_')
 			{
 				if (text[i + 1] == '_' || text[i + 1] == ' ')
@@ -32,6 +42,7 @@ public class ItalicParser : IMarkdownTagParser
 				result.Add(new MdToken(text, i + 1, endPosition, TokenType.Italic));
 				i = endPosition;
 			}
+		}
 
 		return result;
 	}
@@ -44,6 +55,10 @@ public class ItalicParser : IMarkdownTagParser
 
 		if (startPosition > 0 && char.IsDigit(text[startPosition - 1])) return false;
 
+		if (startPosition > 0)
+			if (startPosition == 1 && text[startPosition - 1] == IMarkdownTagParser.EscapeSymbol)
+				return false;
+
 		var canContainSpaces = startPosition == paragraphStart || text[startPosition - 1] == ' ';
 		return TryParseEnding(canContainSpaces, startPosition + 1, out endPosition);
 	}
@@ -53,8 +68,18 @@ public class ItalicParser : IMarkdownTagParser
 		endPosition = startPosition;
 		var containSpaces = false;
 
+		var currentEscapeToken = escapeTokens.FirstOrDefault();
+
 		for (var i = startPosition + 1; i < paragraphEnd; i++)
 		{
+			while (currentEscapeToken?.Start < i) currentEscapeToken = currentEscapeToken?.nextToken as MdToken;
+
+			if (currentEscapeToken?.Start == i)
+			{
+				i = currentEscapeToken.End;
+				continue;
+			}
+
 			var symbol = text[i];
 
 			if (char.IsDigit(symbol)) return false;
