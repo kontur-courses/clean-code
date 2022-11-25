@@ -1,3 +1,5 @@
+using System.Diagnostics;
+using System.Text;
 using FluentAssertions;
 using MarkdownProcessor;
 using MarkdownProcessor.Renderer;
@@ -78,5 +80,41 @@ public class Md_Should
         var html = md.Render(text, renderer);
 
         html.Should().Be(expected);
+    }
+
+    [Test]
+    public void Render_IsLinearAlgorithm()
+    {
+        const string line = "# header with _italic_ and __bold__";
+        var manyLines = new StringBuilder();
+        for (var i = 0; i < 10000; i++) manyLines.AppendLine(line);
+        var times = new int[9];
+
+        var sb = new StringBuilder(manyLines.ToString(), 100000);
+        _ = md.Render(sb.ToString(), renderer);
+        var sw = new Stopwatch();
+        for (var i = 0; i < 9; i++)
+        {
+            sb.Append(manyLines);
+            times[i] = MakeMeasurement(sb.ToString(), sw);
+        }
+
+        GetIncreases(times).Should().AllSatisfy(d => d.Should().BeApproximately(0, 0.25));
+    }
+
+    private int MakeMeasurement(string text, Stopwatch sw)
+    {
+        sw.Reset();
+        sw.Start();
+        _ = md.Render(text, renderer);
+        sw.Stop();
+        return (int)sw.ElapsedMilliseconds;
+    }
+
+    private static IEnumerable<double> GetIncreases(int[] times)
+    {
+        var increases = times
+            .Skip(1).Select((t, i) => (double)times[i] / t).ToArray();
+        return increases.Select(i => i - increases[0]);
     }
 }
