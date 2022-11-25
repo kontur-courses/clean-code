@@ -4,19 +4,16 @@
     {
         public static SpecialStringFormat DisapproveEmpty(this SpecialStringFormat lineFormat)
         {
-            var actions = lineFormat.Actions;
             var line = lineFormat.ConvertedLine;
+            var actions = lineFormat.Actions;
 
-            for (int i = 0; i < line.Length; i++)
+            foreach (var pair in lineFormat.ActionPairs)
             {
-                var act = actions[i];
-                if (act.ActionType == MarkdownActionType.Open && act.Approved)
+                if (!actions[pair.Item1].Approved) continue;
+                if (pair.Item1 == pair.Item2 - 1)
                 {
-                    if (act.PairIndex - act.SelfIndex == 1)
-                    {
-                        actions[i].Approved = false;
-                        actions[actions[i].PairIndex].Approved = false;
-                    }
+                    actions[pair.Item1].Approved = false;
+                    actions[pair.Item2].Approved = false;
                 }
             }
 
@@ -25,19 +22,16 @@
 
         public static SpecialStringFormat DisapproveStartsOrEndsWithSpace(this SpecialStringFormat lineFormat)
         {
-            var actions = lineFormat.Actions;
             var line = lineFormat.ConvertedLine;
+            var actions = lineFormat.Actions;
 
-            for (int i = 0; i < line.Length; i++)
+            foreach (var pair in lineFormat.ActionPairs)
             {
-                var act = actions[i];
-                if (act.ActionType == MarkdownActionType.Open && act.Approved)
+                if (!actions[pair.Item1].Approved) continue;
+                if (line[pair.Item1 + 1] == ' ' || line[pair.Item2 - 1] == ' ')
                 {
-                    if (line[act.SelfIndex + 1] == ' ' || line[act.PairIndex - 1] == ' ')
-                    {
-                        actions[i].Approved = false;
-                        actions[actions[i].PairIndex].Approved = false;
-                    }
+                    actions[pair.Item1].Approved = false;
+                    actions[pair.Item2].Approved = false;
                 }
             }
 
@@ -46,37 +40,20 @@
 
         public static SpecialStringFormat DisapproveWithDigits(this SpecialStringFormat lineFormat)
         {
-            var openBrackets = new List<MarkdownAction>();
-            var actions = lineFormat.Actions;
             var line = lineFormat.ConvertedLine;
+            var actions = lineFormat.Actions;
 
-            for (int i = 0; i < line.Length; i++)
+            foreach (var pair in lineFormat.ActionPairs)
             {
-                var act = actions[i];
-                if (act.ActionType == MarkdownActionType.Open && act.Approved)
+                if (!actions[pair.Item1].Approved) continue;
+                for (int i = pair.Item1; i <= pair.Item2; i++)
                 {
-                    openBrackets.Add(act);
-                }
-                else if (act.ActionType == MarkdownActionType.Close && act.Approved)
-                {
-                    foreach (var ma in openBrackets)
+                    if (line[i] >= '0' && line[i] <= '9')
                     {
-                        if (ma.SelfIndex == act.PairIndex)
-                        {
-                            openBrackets.Remove(ma);
-                            break;
-                        }
+                        actions[pair.Item1].Approved = false;
+                        actions[pair.Item2].Approved = false;
+                        break;
                     }
-                }
-                else if (line[i] >= '0' && line[i] <= '9')
-                {
-                    foreach (var ma in openBrackets)
-                    {
-                        actions[ma.SelfIndex].Approved = false;
-                        actions[ma.PairIndex].Approved = false;
-                    }
-
-                    openBrackets.Clear();
                 }
             }
 
