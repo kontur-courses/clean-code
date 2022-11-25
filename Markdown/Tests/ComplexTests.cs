@@ -3,7 +3,7 @@ using System.Text;
 using FluentAssertions;
 using NUnit.Framework;
 
-namespace Tests
+namespace MarkdownTests
 {
     [TestFixture]
     internal class ComplexTests

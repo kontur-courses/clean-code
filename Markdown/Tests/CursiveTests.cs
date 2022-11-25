@@ -31,5 +31,12 @@ namespace MarkdownTests
             Markdown.Markdown.Render("_abbbac_")
                 .Should().Be(@"<em>abbbac<\em>");
         }
+
+        [Test]
+        public void Digits_In_Cursive()
+        {
+            Markdown.Markdown.Render("Text _abc 1 abc_ text")
+                .Should().Be(@"Text _abc 1 abc_ text");
+        }
     }
 }

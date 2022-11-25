@@ -1,7 +1,7 @@
 ﻿using FluentAssertions;
 using NUnit.Framework;
 
-namespace Tests
+namespace MarkdownTests
 {
     [TestFixture]
     internal class BoldTests
@@ -25,6 +25,13 @@ namespace Tests
         {
             Markdown.Markdown.Render("__abbbac__")
                 .Should().Be(@"<strong>abbbac<\strong>");
+        }
+
+        [Test]
+        public void Digits_In_Bold()
+        {
+            Markdown.Markdown.Render("Text __abc 1 abc__ Text")
+                .Should().Be(@"Text __abc 1 abc__ Text");
         }
     }
 }

@@ -22,6 +22,7 @@
                 .DisapproveIntersectingPairs()
                 .DisapproveEmpty()
                 .DisapproveBoldInCursive()
+                .DisapproveWithDigits()
                 .DisapproveStartsOrEndsWithSpace();
 
             return stringFormat.ConvertFromFormat();
