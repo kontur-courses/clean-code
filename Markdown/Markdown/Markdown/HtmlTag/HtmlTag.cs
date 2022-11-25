@@ -1,10 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-
-namespace Markdown.HtmlTag
+﻿namespace Markdown.HtmlTag
 {
     public class HtmlTag
     {
@@ -24,11 +18,6 @@ namespace Markdown.HtmlTag
                 throw new ArgumentNullException("Tag must be with arguments");
             StartTag = startTag;
             EndTag = endTag;
-        }
-
-        public static string CreateHtmlString(string stringForHtml, HtmlTag htmlTag)
-        {
-            return htmlTag.StartTag + stringForHtml + htmlTag.EndTag;
         }
     }
 }

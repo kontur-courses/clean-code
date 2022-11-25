@@ -12,7 +12,7 @@ namespace Markdown.Tokens
                 throw new ArgumentException("End index must be positive and greater than zero");
             var MdTokens = ArrayMdTokens.ToList();
             if (MdTokens.Select(x => x.Length).Contains(0))
-                throw new ArgumentNullException("Token list must not contains zero lenght tokens");
+                throw new ArgumentNullException("Token list must not contain zero lenght tokens");
             var tokens = new List<Token>();
             var token = new Token(0, 0);
             if (MdTokens.Count != 0)

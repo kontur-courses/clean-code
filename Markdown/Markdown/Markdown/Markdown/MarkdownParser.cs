@@ -2,27 +2,6 @@
 
 namespace Markdown.Markdown
 {
-    public enum TokenElement
-    {
-        Open = 0,
-        Close = 1,
-        Default = 2,
-        Unknown = 3
-    }
-
-    public enum TokenType
-    {
-        Default = 0,
-        Strong = 1,
-        Header = 2,
-        Italic = 3,
-        Field = 4,
-        Image = 5,
-        Unseen = 6,
-        ImageDescription = 7,
-        ImageStart = 8,
-    }
-
     public static class MarkdownParser
     {
         public static Token[] GetArrayWithMdTags(string stringWithTags)

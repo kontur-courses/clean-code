@@ -1,7 +1,5 @@
-﻿using Markdown.Markdown;
-using Markdown.Tokens;
+﻿using Markdown.Tokens;
 using System.Text;
-using FluentAssertions;
 
 namespace Markdown.HtmlTag
 {
@@ -17,26 +15,41 @@ namespace Markdown.HtmlTag
             for (var index = 0; index < tokens.Count; index++)
             {
                 var token = tokens[index];
-                switch (token.Type)
-                {
-                    case TokenType.Image:
-                        htmlString.Append($"<img src=\"{token.PathForImage}\" alt=\"{token.DescriptionForImage}\">");
-                        break;
-                    case TokenType.Default:
-                        htmlString.Append(token.CreateString(md));
-                        break;
-                    case TokenType.Unseen:
-                        break;
-                    default:
-                        {
-                            var tag = GetTagFromToken(token);
-                            htmlString.Append(token.Element == TokenElement.Open ? tag.StartTag : tag.EndTag);
-                            break;
-                        }
-                }
+                if (AddImageToken(token, htmlString)) 
+                    continue;
+                AddSimpleTag(md, token, htmlString);
             }
 
             return htmlString.ToString();
+        }
+
+        private static void AddSimpleTag(string md, Token token, StringBuilder htmlString)
+        {
+            switch (token.Type)
+            {
+                case TokenType.Default:
+                    htmlString.Append(token.CreateString(md));
+                    break;
+                case TokenType.Unseen:
+                    break;
+                default:
+                {
+                    var tag = GetTagFromToken(token);
+                    htmlString.Append(token.Element == TokenElement.Open ? tag.StartTag : tag.EndTag);
+                    break;
+                }
+            }
+        }
+
+        private static bool AddImageToken(Token token, StringBuilder htmlString)
+        {
+            if (token is ImageToken imageToken)
+            {
+                htmlString.Append($"<img src=\"{imageToken.PathForImage}\" alt=\"{imageToken.DescriptionForImage}\">");
+                return true;
+            }
+
+            return false;
         }
 
         public static HtmlTag GetTagFromToken(Token token)

@@ -11,7 +11,7 @@ namespace Markdown.Tokens
             var stackTokens = new Stack<Token>();
             foreach (var token in tokens)
             {
-                if (token.Type == TokenType.Header|| token.IsImage() || token.Type==TokenType.Unseen)
+                if (token.Type == TokenType.Header || token.IsImage() || token.Type == TokenType.Unseen)
                 {
                     yield return token;
                     continue;

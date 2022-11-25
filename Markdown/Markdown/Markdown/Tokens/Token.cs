@@ -1,9 +1,7 @@
-﻿using System.Security.Cryptography;
-using Markdown.Markdown;
-
-namespace Markdown.Tokens
+﻿namespace Markdown.Tokens
 {
-    public class Token : IToken
+
+    public class Token
     {
         private static readonly List<char?> BlackListForClose = new() { ' ', null };
         private static readonly HashSet<char?> BlackListForOpen = new() { ' ', null, '\\', '\n', '\r' };
@@ -13,10 +11,7 @@ namespace Markdown.Tokens
         public int Position { get; set; }
         public int Length { get; set; }
         public int End => Position + Length - 1;
-
-        public string DescriptionForImage;
-        public string PathForImage;
-
+ 
         public Token(int position, int length)
         {
             if (position < 0)
@@ -36,12 +31,7 @@ namespace Markdown.Tokens
 
         public Token(int position, string description, string path)
         {
-            if (position < 0)
-                throw new ArgumentOutOfRangeException($"position {position} must be positive");
-            Position = position;
-            DescriptionForImage = description;
-            PathForImage = path;
-            Type = TokenType.Image;
+            Position= position;
         }
 
         public void SetToDefault()

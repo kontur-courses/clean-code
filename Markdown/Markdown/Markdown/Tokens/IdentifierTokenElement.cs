@@ -1,6 +1,4 @@
-﻿using Markdown.Markdown;
-
-namespace Markdown.Tokens
+﻿namespace Markdown.Tokens
 {
     public static class IdentifierTokenElement
     {

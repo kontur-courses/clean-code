@@ -116,9 +116,9 @@ namespace Markdown.Tokens
                     else
                         images[i].SetToDefault();
                 }
-                else if (images[i].Type != TokenType.Unseen)
-                    images[i].SetToDefault();
+                else if (images[i].Type != TokenType.Unseen) images[i].SetToDefault();
             }
+
             return tokens.OrderBy(x => x.Position).ToList();
         }
 
@@ -139,7 +139,7 @@ namespace Markdown.Tokens
             var description = images[i + 1].GetTokenBetween(images[i + 2]).CreateString(mdString)
                 .ToString();
             var path = images[i + 3].GetTokenBetween(images[i + 4]).CreateString(mdString).ToString();
-            tokens.Add(new Token(position, description, path));
+            tokens.Add(new ImageToken(position, description, path));
         }
     }
 }
