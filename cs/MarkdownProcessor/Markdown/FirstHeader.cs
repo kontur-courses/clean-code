@@ -24,17 +24,22 @@ public class FirstHeader : ITag
             token = nullableToken.Value;
         }
 
-        if (token.Value != Config.ClosingSign) return token;
+        if (token.Value == Config.ClosingSign)
+        {
+            ClosingToken = token;
+            Closed = true;
+            return null;
+        }
 
-        ClosingToken = token;
-        Closed = true;
-        return null;
+        return token;
     }
 
     public void RunTagDownOfTree(ITag tag)
     {
-        if (tag is FirstHeader) return;
+        if (tag is not (Bold or Italic)) return;
+        
         if (Closed) throw new InvalidOperationException();
+        
         if (Children.Any() && !Children.Last().Closed)
             Children.Last().RunTagDownOfTree(tag);
         else
