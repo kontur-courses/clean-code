@@ -7,48 +7,47 @@ public class Md
     private StringBuilder _html;
     private ReplaceTagInspector _inspector;
     private TagConfiguration _currentTagConfiguration;
-    private List<TagConfiguration> _tagConfigurations;
-    private List<TagConfiguration> _tagConfigurationsNeedClosure;
+    private Dictionary<string, TagConfiguration> _tagConfigurations;
+    private Dictionary<string, bool> _tagConfigurationsNeedClosure;
     private string _currentSymbol;
 
     public Md()
     {
         _inspector = new ReplaceTagInspector();
-        _tagConfigurations = new TagConfigurationList().TagConfigurations;
-        _tagConfigurationsNeedClosure = new List<TagConfiguration>();
-        //_titleCloseTagsIndexes = new List<int>();
+        _tagConfigurationsNeedClosure = new Dictionary<string, bool>();
     }
     
-    public string Render(string markdown)
+    public string Render(string markdown, Dictionary<string, TagConfiguration> tagsConfigurations)
     {
+        if (string.IsNullOrEmpty(markdown))
+            throw new ArgumentException("Invalid string for parse");
+        
         _html = new StringBuilder(markdown);
+        _tagConfigurations = tagsConfigurations;
         _html.Append("  ");
-
+        
         for (var i = 0; i < _html.Length - 1; i++)
         {
-            _currentSymbol = DefineCurrentReplaceSymbol(i);
+            _currentSymbol = DefineCurrentReplaceSymbol(i); 
             
             if (HasTagWithSymbol(_currentSymbol))
             {
                 _currentTagConfiguration = FindTagBySymbol(_currentSymbol);
                 var isTitle = IsTitle(i);
-
-                if (!isTitle)
+                
+                if (IsScreen(i))
                 {
-                    if (IsScreen(i))
-                    {
-                        var countOfScreens = PrepareScreensSymbols(i);
-                        if (countOfScreens % 2 != 0)
-                            continue;
-                            
-                        i -= countOfScreens;
-                    }
-                    
-                    if (!CanReplaceTag(i))
-                    {
-                        i += _currentSymbol.Length;
+                    var countOfScreens = PrepareScreensSymbols(i);
+                    if (countOfScreens % 2 != 0)
                         continue;
-                    }
+
+                    i -= countOfScreens;
+                }
+                
+                if (!isTitle && !CanReplaceTag(i))
+                {
+                    i += _currentSymbol.Length;
+                    continue;
                 }
 
                 var tagToReplace = DefineReplaceTag();
@@ -58,7 +57,7 @@ public class Md
                     PutTitleCloseTag(i);
             }
         }
-
+        
         return _html.ToString().TrimEnd();
     }
 
@@ -106,39 +105,39 @@ public class Md
         var endOfParagraph = index;
         while (endOfParagraph < _html.Length - 1)
         {
-            if (_html[endOfParagraph].Equals('\n'))
+            if (_html[endOfParagraph] == '\n')
                 break;
             endOfParagraph++;
         }
 
         _html.Insert(endOfParagraph, " ");
         ReplaceSymbol(endOfParagraph, FindTagBySymbol("#").CloseTag);
-        if (_html[endOfParagraph - 1].Equals(' '))
+        if (_html[endOfParagraph - 1] == ' ')
             _html.Remove(endOfParagraph - 1, 1);
     }
 
     private int PrepareScreensSymbols(int index)
     {
         var countOfScreens = 0;
-        while (index - 1 >= 0 && _html[index - 1].Equals('\\'))
+        do
         {
             _html.Remove(index - 1, 1);
             index--;
             countOfScreens++;
-        }
+        } while (index - 1 >= 0 && _html[index - 1] == '\\');
         
         return countOfScreens;
     }
 
     private bool HasEqualNeighbors(int index)
     {
-        return _html[index + 1].Equals(_html[index]);
+        return _html[index + 1] == _html[index];
     }
     
     private int GetIndexOfSpaceAfterOpenTag(int openTagIndex)
     {
         for (var i = openTagIndex + _currentTagConfiguration.Symbol.Length; i < _html.Length - 1; i++)
-            if (_html[i].Equals(' '))
+            if (_html[i] == ' ')
                 return i;
 
         return -1;
@@ -178,7 +177,7 @@ public class Md
             if (IsTriple(i))
                 symbol = _currentTagConfiguration.Symbol;
             
-            if (symbol.Equals(_currentTagConfiguration.Symbol))
+            if (symbol == _currentTagConfiguration.Symbol)
                 return GetEndOfPlentyIndex(i);
 
             if (HasTagWithSymbol(symbol))
@@ -190,14 +189,14 @@ public class Md
 
     private int GetEndOfPlentyIndex(int index)
     {
-        if (_currentTagConfiguration.Symbol.Equals("_"))
+        if (_currentTagConfiguration.Symbol == "_")
             return index;
         if (index == -1)
             return -1;
 
         for (var i = index + 1; i < _html.Length - 1; i++)
         {
-            if (!_html[i].Equals('_'))
+            if (_html[i] != '_')
                 return i - _currentTagConfiguration.Symbol.Length;
         }
 
@@ -207,9 +206,9 @@ public class Md
     private void ChangeTagConfigurationClosureFlag()
     {
         if (NeedClosure(_currentTagConfiguration))
-            _tagConfigurationsNeedClosure.Remove(_currentTagConfiguration);
+            _tagConfigurationsNeedClosure.Remove(_currentTagConfiguration.Symbol);
         else 
-            _tagConfigurationsNeedClosure.Add(_currentTagConfiguration);
+            _tagConfigurationsNeedClosure.Add(_currentTagConfiguration.Symbol, true);
     }
     
     private string DefineReplaceTag()
@@ -221,12 +220,12 @@ public class Md
     
     private bool IsCorrectCloseTagSymbol(int closeTagIndex)
     {
-        return !_html[closeTagIndex - 1].Equals(' '); 
+        return _html[closeTagIndex - 1] != ' '; 
     }
 
     private bool IsScreen(int index)
     {
-        return index - 1 >= 0 && _html[index - 1].Equals('\\');
+        return index - 1 >= 0 && _html[index - 1] == '\\' && HasTagWithSymbol(DefineCurrentReplaceSymbol(index));
     }
     
     private bool IsTriple(int i)
@@ -245,7 +244,7 @@ public class Md
         
         for (var i = index + _currentTagConfiguration.Symbol.Length; i < closeTagIdx; i++)
         {
-            if (_html[i].Equals('_'))
+            if (_html[i] == '_')
                 countOfOtherTags++;
         }
         
@@ -264,22 +263,27 @@ public class Md
     
     private bool IsTitle(int index)
     {
-        var isBeginingOfParagraph = index == 0 || _html[index - 1].Equals('\n');
-        return isBeginingOfParagraph && _html[index].Equals('#');
+        var i = 0;
+        var countOfScreens = 0;
+        while ((index - i >= 0) && _html[index - i] == '\\')
+            countOfScreens++;
+        
+        var isBeginingOfParagraph = index == 0 || _html[index - 1] == '\n' || countOfScreens % 2 == 0;
+        return isBeginingOfParagraph && _html[index] == '#';
     }
-    
+
     private bool NeedClosure(TagConfiguration tagConfiguration)
     {
-        return _tagConfigurationsNeedClosure.Contains(tagConfiguration);
+        return _tagConfigurationsNeedClosure.ContainsKey(tagConfiguration.Symbol);
     }
 
     private bool HasTagWithSymbol(string symbol)
     {
-        return _tagConfigurations.Any(tag => tag.Symbol.Equals(symbol));
+        return _tagConfigurations.ContainsKey(symbol);
     }
     
     private TagConfiguration FindTagBySymbol(string symbol)
     {
-        return _tagConfigurations.Where(tag => tag.Symbol.Equals(symbol)).First();
+        return _tagConfigurations[symbol];
     }
 }

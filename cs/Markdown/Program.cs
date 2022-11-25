@@ -1,6 +1,3 @@
-﻿using Markdown;
+﻿// See https://aka.ms/new-console-template for more information
 
-var md = new Md();
-
-Console.WriteLine(md.Render("___A___"));
-
+using Markdown;

@@ -4,11 +4,11 @@ namespace Markdown;
 
 public class ReplaceTagInspectorConfig
 {
-    public StringBuilder Text;
-    public TagConfiguration TagConfiguration;
-    public int Index;
-    public List<Func<int, bool>> CustomConditions;
-    public bool NeedClosure;
+    public readonly StringBuilder Text;
+    public readonly TagConfiguration TagConfiguration;
+    public readonly int Index;
+    public readonly List<Func<int, bool>> CustomConditions;
+    public readonly bool NeedClosure;
 
     public ReplaceTagInspectorConfig(StringBuilder text, TagConfiguration tagConfiguration, int index, List<Func<int, bool>> customConditions, bool needClosure)
     {

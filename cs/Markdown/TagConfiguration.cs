@@ -2,16 +2,14 @@
 
 public class TagConfiguration
 {
-    public string Symbol;
-    public string OpenTag;
-    public string CloseTag;
-    public int ClosePriority;
+    public readonly string Symbol;
+    public readonly string OpenTag;
+    public readonly string CloseTag;
 
-    public TagConfiguration(string symbol, string openTag, string closeTag, int closePriority)
+    public TagConfiguration(string symbol, string openTag, string closeTag)
     {
         Symbol = symbol;
         OpenTag = openTag;
         CloseTag = closeTag;
-        ClosePriority = closePriority;
     }
 }
