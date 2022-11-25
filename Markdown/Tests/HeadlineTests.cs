@@ -24,5 +24,26 @@ namespace Tests
             Markdown.Markdown.Render("#Text _with_ __text__")
                 .Should().Be(@"<h1>Text <em>with<\em> <strong>text<\strong><\h1>");
         }
+
+        [Test]
+        public void Headline_With_Simple_Sharp()
+        {
+            Markdown.Markdown.Render("#Text #")
+                .Should().Be(@"<h1>Text #<\h1>");
+        }
+
+        [Test]
+        public void Headline_With_Slash_AndSharp()
+        {
+            Markdown.Markdown.Render(@"#Text \#")
+                .Should().Be(@"<h1>Text \#<\h1>");
+        }
+
+        [Test]
+        public void Escaped_Sharp()
+        {
+            Markdown.Markdown.Render(@"\#Text")
+                .Should().Be(@"#Text");
+        }
     }
 }

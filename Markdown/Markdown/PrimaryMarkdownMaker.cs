@@ -11,6 +11,13 @@
 
             int openCursiveIndex = -1;
             int openBoldIndex = -1;
+
+            if (convertedLine[0] == '#' && operationalCharacters[0])
+            {
+                Actions[0] = new MarkdownAction(MarkdownActionType.Open, 0, convertedLine.Length - 1);
+                Actions[^1] = new MarkdownAction(MarkdownActionType.Close, convertedLine.Length - 1, 0);
+            }
+
             for (int i = 0; i < convertedLine.Length; i++)
             {
                 if (operationalCharacters[i] && Actions[i].ActionType == MarkdownActionType.None)
