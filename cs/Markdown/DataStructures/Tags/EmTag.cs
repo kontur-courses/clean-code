@@ -7,5 +7,6 @@ namespace Markdown.DataStructures
         public string OpeningTag => "<em>";
         public string ClosingTag => "</em>";
         public string MarkdownName => "_";
+        public string TagContent => "";
     }
 }

@@ -67,11 +67,52 @@ namespace Markdown.Logic
                     var startsInsideWord = index > 0 && IsLetter(text[index - 1]);
                     HandleUnderscore(text, index, startsInsideWord);
                     break;
+                case '[':
+                    var token = HandleLinkTag(text, index);
+                    if (token != null)
+                    {
+                        tokensTree.AddToken(token);
+                        symbolsToSkip += token.Tag.MarkdownName.Length;
+                    }
+
+                    break;
                 case ' ':
                     if (openedTokens.Count != 0)
                         openedTokens.Peek().ContainsSpaces = true;
                     break;
             }
+        }
+
+        private Token HandleLinkTag(string text, int index)
+        {
+            var startIndex = index;
+            var linkName = "";
+            var link = "";
+            if (text.IndexOf(']') != -1)
+            {
+                linkName = text.Substring(startIndex + 1, text.IndexOf(']') - startIndex - 1);
+                index += linkName.Length + 2;
+                if (text[index] != '(')
+                    return null;
+                index++;
+                if (text.IndexOf(')') != -1)
+                {
+                    link = text.Substring(index, text.IndexOf(')') - index);
+                    return CreateLinkTag(link, linkName, startIndex);
+                }
+            }
+
+            return null;
+        }
+
+        private Token CreateLinkTag(string link, string linkName, int startIndex)
+        {
+            var tag = new LinkTag();
+            tag.Link = link;
+            tag.LinkName = linkName;
+            if (openedTokens.Count != 0)
+                return new Token(tag, openedTokens.Peek(), startIndex + 4 + link.Length + link.Length);
+            return new Token(tag, tokensTree.RootToken, startIndex + 4 + link.Length + linkName.Length);
         }
 
         /// <summary>

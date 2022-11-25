@@ -18,13 +18,17 @@ namespace Markdown.Logic
         public void Dfs(string text, Token token, List<int> escapeSymbolsIndexes, StringBuilder builder)
         {
             if (token.Tag != null)
-            builder.Append(token.Tag.OpeningTag);
+            {
+                builder.Append(token.Tag.OpeningTag);
+                builder.Append(token.Tag.TagContent);
+            }
+
             for (int i = token.StartIndex; i <= token.EndIndex; i++)
             {
                 if (escapeSymbolsIndexes.Contains(i))
                     continue;
                 var child = token.Children.FirstOrDefault(c => c.StartIndex - c.Tag.MarkdownName.Length == i);
-                if (child!=null)
+                if (child != null)
                 {
                     Dfs(text, child, escapeSymbolsIndexes, builder);
                     i = child.EndIndex + child.Tag.MarkdownName.Length;
