@@ -1,7 +1,5 @@
 ﻿using System.Collections.Generic;
-using System.Collections.Immutable;
 using System.Text;
-using Markdown.Enums;
 using Markdown.Interfaces;
 
 namespace Markdown.Html
