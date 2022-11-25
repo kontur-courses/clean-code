@@ -1,4 +1,6 @@
-﻿namespace MarkdownProcessor.Markdown;
+﻿using MarkdownProcessor.Tags;
+
+namespace MarkdownProcessor.Tags;
 
 public class FirstHeader : ITag
 {

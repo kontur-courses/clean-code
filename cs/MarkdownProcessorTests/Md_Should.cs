@@ -1,6 +1,7 @@
 using FluentAssertions;
 using MarkdownProcessor;
-using MarkdownProcessor.Markdown;
+using MarkdownProcessor.Renderer;
+using MarkdownProcessor.Tags;
 using NUnit.Framework;
 
 namespace MarkdownProcessorTests;

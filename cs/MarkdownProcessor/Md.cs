@@ -1,5 +1,6 @@
 ﻿using System.Text;
-using MarkdownProcessor.Markdown;
+using MarkdownProcessor.Renderer;
+using MarkdownProcessor.Tags;
 
 namespace MarkdownProcessor;
 

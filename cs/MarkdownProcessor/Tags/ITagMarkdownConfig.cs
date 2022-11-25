@@ -1,4 +1,4 @@
-﻿namespace MarkdownProcessor.Markdown;
+﻿namespace MarkdownProcessor.Tags;
 
 public interface ITagMarkdownConfig
 {

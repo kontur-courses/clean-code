@@ -1,7 +1,7 @@
 ﻿using System.Text;
-using MarkdownProcessor.Markdown;
+using MarkdownProcessor.Tags;
 
-namespace MarkdownProcessor;
+namespace MarkdownProcessor.Renderer;
 
 public class HtmlRenderer : IRenderer
 {
