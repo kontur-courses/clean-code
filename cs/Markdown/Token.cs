@@ -1,24 +1,34 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Linq;
+using System.Reflection.Metadata.Ecma335;
 using System.Text;
 using System.Threading.Tasks;
+using Markdown;
+using Newtonsoft.Json.Linq;
 
 namespace Markdown
 {
     public class Token
     {
         public Tag Tag;
+        public Token Parent;
         public int StartOpenMark;
         public int EndCloseMark;
-        public int TextStart => StartOpenMark + Tag.OpenMark.Length - 1;
-        public int TextEnd => EndCloseMark - Tag.CloseMark.Length;
+        public Dictionary<string, bool> CustomBools;
 
-        public Token(Tag tag, int startOpenMark = -1, int endCloseMark = -1)
+        public Token(Tag tag, Token parent, int startOpenMark = -1, int endCloseMark = -1)
         {
             Tag = tag;
+            Parent = parent;
             StartOpenMark = startOpenMark;
             EndCloseMark = endCloseMark;
+
+            CustomBools = new Dictionary<string, bool>();
+            if (tag == null!) return;
+            foreach (var name in tag?.CustomBoolNames)
+                CustomBools[name] = false;
         }
 
         public bool IntersectsWith(Token other)
@@ -27,19 +37,76 @@ namespace Markdown
                    || other.StartOpenMark > StartOpenMark && other.StartOpenMark < EndCloseMark && other.EndCloseMark > EndCloseMark;
         }
 
-        public Token FindParent(List<Token> tokens)
+        public bool ProcessChar(char ch)
         {
-            Token parent = null!;
-            foreach (var t in tokens)
+            return  Tag != null! && Tag.CharProcessingRule(Tag, this, ch);
+        }
+
+        public void ChangeCustomBool(string boolName, bool state)
+        {
+            var cur = this;
+            while (cur.Tag != null!)
             {
-                if (t.StartOpenMark >= StartOpenMark || t.EndCloseMark <= EndCloseMark) 
+                if (!cur.CustomBools.ContainsKey(boolName))
+                {
+                    cur = cur.Parent;
                     continue;
-                if (parent == null! || t.StartOpenMark > parent.StartOpenMark && t.StartOpenMark < StartOpenMark 
-                        && t.EndCloseMark < parent.EndCloseMark && t.EndCloseMark > EndCloseMark)
-                    parent = t;
+                }
+                if (cur.CustomBools[boolName] == state) break;
+
+                cur.CustomBools[boolName] = true;
+                cur = cur.Parent;
+            }
+        }
+
+        public Token? TryOpenChildToken(Tag tag, string text, ref int startIndex)
+        {
+            Token child;
+            if (tag.OpenMarkRule(tag, this, text, startIndex))
+            {
+                child = new Token(tag, this, startIndex);
+                startIndex += tag.OpenMark.Length - 1;
+                return child;
+            }
+            child = null!;
+            return this;
+        }
+
+        public bool TryCloseToken(Tag tag, string text, ref int endIndex, List<Token> tokens)
+        {
+            if (!tag.CloseMarkRule(tag, this, text, endIndex))
+                return false;
+
+            var token = FindTokenWithTag(tag);
+            if (token != null && tag.TokenCloseRule(tag, token, text, endIndex))
+            {
+                token.EndCloseMark = endIndex + tag.CloseMark.Length - 1;
+                if (token.IntersectsWith(token.Parent))
+                {
+                    tokens.Remove(token.Parent);
+                    token.Parent = token.Parent.Parent;
+                    token.EndCloseMark = -1;
+                    return false;
+                }
+                endIndex += tag.CloseMark.Length - 1;
+                tokens.Add(token);
+                return true;
             }
 
-            return parent;
+            return false;
+        }
+
+        private Token? FindTokenWithTag(Tag tag)
+        {
+            var cur = this;
+            while (cur.Tag != null!)
+            {
+                if (cur.Tag.Equals(tag))
+                    return cur;
+                cur = cur.Parent;
+            }
+
+            return null!;
         }
     }
 }

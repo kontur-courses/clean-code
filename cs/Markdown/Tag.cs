@@ -1,7 +1,8 @@
-﻿using System;
+﻿using Markdown;
+using Newtonsoft.Json.Linq;
+using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Reflection.Metadata.Ecma335;
 using System.Text;
 using System.Threading.Tasks;
 using static System.Net.Mime.MediaTypeNames;
@@ -10,35 +11,43 @@ namespace Markdown
 {
     public class Tag
     {
-        public static List<Func<Tag, bool, string, bool>> DefaultTextContentRules = new List<Func<Tag, bool, string, bool>>
-        {
-            (tag, isPartial, text) =>
-                !text
-                    .Any(e => e == '\n'),
-            (tag, isPartial, text) =>
-                !text
-                    .All(char.IsWhiteSpace),
-        };
         public static List<Func<Token, List<Token>, bool>> DefaultTagInteractionRules = new List<Func<Token, List<Token>, bool>>
         {
-
+            
         };
 
         public string OpenMark;
         public string CloseMark;
         public string HtmlTag;
-        public List<Func<Tag, bool, string, bool>> TextContentRules;
         public List<Func<Token, List<Token>, bool>> TagInteractionRules;
+        public Func<Tag, Token, string, int, bool> OpenMarkRule;
+        public Func<Tag, Token, string, int, bool> CloseMarkRule;
+        public Func<Tag, Token, string, int, bool> TokenCloseRule;
+        public Func<Tag, Token,  char, bool> CharProcessingRule;
+        public string[] CustomBoolNames;
 
         public Tag(string openMark, string closeMark, string htmlTag,
-            List<Func<Tag, bool, string, bool>> textContentRules, 
+            string[] customBoolNames,
+            Func<Tag, Token, string, int, bool> openMarkRule,
+            Func<Tag, Token, string, int, bool> closeMarkRule,
+            Func<Tag, Token, string, int, bool> tokenCloseRule,
+            Func<Tag, Token, char, bool> charProcessingRule,
             List<Func<Token, List<Token>, bool>> tagInteractionRules)
         {
             OpenMark = openMark;
             CloseMark = closeMark;
             HtmlTag = htmlTag;
-            TextContentRules = Tag.DefaultTextContentRules.Concat(textContentRules).ToList();
+            CustomBoolNames = customBoolNames;
+            OpenMarkRule = openMarkRule;
+            CloseMarkRule = closeMarkRule;
+            TokenCloseRule = tokenCloseRule;
+            CharProcessingRule = charProcessingRule;
             TagInteractionRules = Tag.DefaultTagInteractionRules.Concat(tagInteractionRules).ToList();
+        }
+
+        public override bool Equals(object? obj)
+        {
+            return (obj as Tag)?.HtmlTag == HtmlTag;
         }
     }
 }
