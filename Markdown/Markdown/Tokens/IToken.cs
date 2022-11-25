@@ -6,7 +6,7 @@ public interface IToken
 
 	public TokenType Type { get; }
 
-	public IToken nextToken { get; set; }
+	public IToken? nextToken { get; set; }
 
-	public IToken nestingTokens { get; set; }
+	public IToken? nestingTokens { get; set; }
 }

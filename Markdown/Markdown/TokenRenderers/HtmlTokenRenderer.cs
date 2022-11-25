@@ -25,10 +25,7 @@ public class HtmlTokenRenderer : ITokenRenderer
 
 		while (token != null)
 		{
-			var tag = htmlTags[token.Type];
-
-			var renderedToken = RenderToken(token);
-			htmlTextBuilder.Append($"{tag.WithStart}{renderedToken.Value}{tag.WithEnd}");
+			htmlTextBuilder.Append(RenderToken(token));
 
 			token = token.nextToken;
 		}
@@ -36,10 +33,29 @@ public class HtmlTokenRenderer : ITokenRenderer
 		return htmlTextBuilder.ToString();
 	}
 
-	private IToken RenderToken(IToken token)
+	private string RenderToken(IToken token)
 	{
-		if (token.nestingTokens != null) /*return string.Empty;*/ throw new NotImplementedException();
+		var tag = htmlTags[token.Type];
 
-		return token;
+		var value = token.nestingTokens == null ? token.Value : RenderNestingTokens(token);
+
+		return $"{tag.WithStart}{value}{tag.WithEnd}";
+	}
+
+	private string RenderNestingTokens(IToken token)
+	{
+		var result = new StringBuilder();
+		var nestedToken = token.nestingTokens;
+
+		while (nestedToken is not null)
+		{
+			var value = nestedToken.nestingTokens == null ? nestedToken.Value : RenderNestingTokens(nestedToken);
+			var tag = htmlTags[nestedToken.Type];
+			result.Append($"{tag.WithStart}{value}{tag.WithEnd}");
+
+			nestedToken = nestedToken.nextToken;
+		}
+
+		return result.ToString();
 	}
 }
