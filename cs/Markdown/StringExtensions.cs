@@ -18,7 +18,7 @@ namespace Markdown
                 return true;
             }
 
-            ch = '?';
+            ch = default(char);
             return false;
         }
         
