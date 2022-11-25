@@ -11,8 +11,6 @@ namespace Markdown.Html
 {
     public class HtmlTokenParser : ITokenParser
     {
-        private readonly List<Token> tokens;
-
         private readonly char[] signs =
         {
             ',', '.', '!', '?', ' ', '—', '-', ':', '#', '\\'
@@ -20,13 +18,10 @@ namespace Markdown.Html
 
         private int Index { get; set; } = 0;
 
-        public HtmlTokenParser()
-        {
-            tokens = new List<Token>();
-        }
-
         public IEnumerable<Token> Parse(string data)
         {
+            var tokens = new List<Token>();
+            
             var dataLines = data.Split("\r\n");
 
             foreach (var line in dataLines)
@@ -117,13 +112,12 @@ namespace Markdown.Html
         {
             var tag = new Tag(line[0].ToString());
 
-            if (tag.Equals(MarkdownTags.Heading) && line[1] == ' ')
-            {
-                Index = 2;
-                return new Token(TokenType.Root, HtmlTags.Heading, null);
-            }
+            if (!tag.Equals(MarkdownTags.Heading) || line[1] != ' ')
+                return new Token(TokenType.Root, HtmlTags.LineBreak, null);
             
-            return new Token(TokenType.Root, HtmlTags.LineBreak, null);
+            Index = 2;
+            return new Token(TokenType.Root, HtmlTags.Heading, null);
+
         }
 
         private bool CheckAndUpdateTokenIfInDifferentWords(char symbol, Token token)

@@ -6,10 +6,10 @@ namespace Markdown.Html
 {
     public class HtmlBuilder : IBuilder
     {
-        private readonly StringBuilder htmlTextBuilder = new ();
-
         public string Build(IEnumerable<Token> tokens)
         {
+            var htmlTextBuilder = new StringBuilder();
+            
             foreach (var token in tokens)
                 htmlTextBuilder.Append(BuildToken(token));
 

@@ -15,14 +15,14 @@ namespace Markdown
         {
             var serviceCollection = new ServiceCollection();
             serviceCollection.AddScoped<ITokenParser, HtmlTokenParser>();
-            serviceCollection.AddScoped<IBuilder, HtmlBuilder>();
+            serviceCollection.AddSingleton<IBuilder, HtmlBuilder>();
             serviceCollection.AddSingleton<Renderer>();
             var serviceProvider = serviceCollection.BuildServiceProvider();
 
             var markdownText = File.ReadAllText(string.Concat(ProjectDirectory, @"\test.md"));
             var renderer = serviceProvider.GetService<Renderer>();
             var htmlText = renderer?.Render(markdownText);
-            
+
             Console.WriteLine(htmlText);
         }
     }
