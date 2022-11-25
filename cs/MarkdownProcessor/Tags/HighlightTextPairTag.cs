@@ -1,70 +1,40 @@
 ﻿namespace MarkdownProcessor.Tags;
 
-public abstract class HighlightTextPairTag : ITag
+public abstract class HighlightTextPairTag : Tag
 {
     private bool corrupted;
     private bool processedWhiteSpace;
 
-    protected HighlightTextPairTag(Token openingToken)
+    protected HighlightTextPairTag(Token openingToken) : base(openingToken)
     {
-        OpeningToken = openingToken;
     }
 
-    public abstract ITagMarkdownConfig Config { get; }
-    public Token OpeningToken { get; }
-    public Token ClosingToken { get; private set; }
-    public List<ITag> Children { get; } = new();
-    public bool Closed { get; private set; }
-
-    public Token? RunTokenDownOfTree(Token token)
+    protected override bool StopRunToken(Token token)
     {
-        if (Closed) throw new InvalidOperationException();
-
-        if (corrupted) return token;
-
         if (string.IsNullOrWhiteSpace(token.Value)) processedWhiteSpace = true;
 
-        if (Children.Any() && !Children.Last().Closed)
-        {
-            var nullableToken = Children.Last().RunTokenDownOfTree(token);
-            if (nullableToken is null) return nullableToken;
-            token = nullableToken.Value;
-        }
+        return corrupted;
+    }
 
-        if (IsClosingToken(token))
-        {
-            if (Children.All(t => t.Closed))
-            {
-                ClosingToken = token;
-                Closed = true;
-                return null;
-            }
+    protected override bool StopRunTag(Tag tag)
+    {
+        return corrupted || ForbiddenChild(tag);
+    }
 
+    protected abstract bool ForbiddenChild(Tag tag);
+
+    protected override bool IsClosingToken(Token token)
+    {
+        var isClosingToken = token.Value == Config.ClosingSign &&
+                             !token.BeforeIsSpace &&
+                             !token.BetweenDigits &&
+                             !BlankStringBetweenToken(OpeningToken, token) &&
+                             !(processedWhiteSpace && HighlightWordPart(OpeningToken, token));
+
+        if (isClosingToken && Children.Any(t => !t.Closed))
             corrupted = true;
-        }
 
-        return token;
-    }
-
-    public void RunTagDownOfTree(ITag tag)
-    {
-        if (corrupted) return;
-
-        if (Closed) throw new InvalidOperationException();
-
-        if (Children.Any() && !Children.Last().Closed)
-            Children.Last().RunTagDownOfTree(tag);
-        else
-            Children.Add(tag);
-    }
-
-    private bool IsClosingToken(Token token)
-    {
-        return token.Value == Config.ClosingSign &&
-               !token.BeforeIsSpace &&
-               !token.BetweenDigits &&
-               !BlankStringBetweenToken(OpeningToken, token) &&
-               !(processedWhiteSpace && HighlightWordPart(OpeningToken, token));
+        return isClosingToken && !corrupted;
     }
 
     private static bool BlankStringBetweenToken(Token opening, Token closing)

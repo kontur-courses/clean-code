@@ -2,18 +2,18 @@
 
 public class TagsTree
 {
-    private readonly List<ITag> children = new();
+    private readonly List<Tag> children = new();
 
     private readonly Dictionary<string, ITagMarkdownConfig> openingTokens;
 
-    private readonly List<ITag> processedChildren = new();
+    private readonly List<Tag> processedChildren = new();
 
     public TagsTree(Dictionary<string, ITagMarkdownConfig> openingTokens)
     {
         this.openingTokens = openingTokens;
     }
 
-    public IEnumerable<ITag> ClosedTags => processedChildren
+    public IEnumerable<Tag> ClosedTags => processedChildren
         .Concat(processedChildren.SelectMany(GetAllChildren))
         .Concat(children)
         .Concat(children.SelectMany(GetAllChildren))
@@ -45,7 +45,7 @@ public class TagsTree
         }
     }
 
-    private static IEnumerable<ITag> GetAllChildren(ITag tag)
+    private static IEnumerable<Tag> GetAllChildren(Tag tag)
     {
         return tag.Children.Concat(tag.Children.SelectMany(GetAllChildren));
     }

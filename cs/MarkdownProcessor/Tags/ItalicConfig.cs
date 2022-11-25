@@ -6,7 +6,7 @@ public class ItalicConfig : ITagMarkdownConfig
     public string ClosingSign => OpeningSign;
     public TextType TextType => TextType.Italic;
 
-    public ITag? CreateOrNull(Token token)
+    public Tag? CreateOrNull(Token token)
     {
         return token.AfterIsSpace || token.BetweenDigits ? null : new Italic(token);
     }

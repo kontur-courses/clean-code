@@ -5,5 +5,5 @@ namespace MarkdownProcessor.Renderer;
 
 public interface IRenderer
 {
-    public string Render(IEnumerable<ITag> tags, StringBuilder text);
+    public string Render(IEnumerable<Tag> tags, StringBuilder text);
 }

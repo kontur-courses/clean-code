@@ -1,48 +1,26 @@
 ﻿namespace MarkdownProcessor.Tags;
 
-public class FirstHeader : ITag
+public class FirstHeader : Tag
 {
-    public FirstHeader(Token openingToken)
+    public FirstHeader(Token openingToken) : base(openingToken)
     {
-        OpeningToken = openingToken;
     }
 
-    public ITagMarkdownConfig Config { get; } = new FirstHeaderConfig();
-    public Token OpeningToken { get; }
-    public Token ClosingToken { get; private set; }
-    public List<ITag> Children { get; } = new();
-    public bool Closed { get; private set; }
+    public override ITagMarkdownConfig Config { get; } = new FirstHeaderConfig();
 
-    public Token? RunTokenDownOfTree(Token token)
+
+    protected override bool StopRunToken(Token token)
     {
-        if (Closed) throw new InvalidOperationException();
-
-        if (Children.Any() && !Children.Last().Closed)
-        {
-            var nullableToken = Children.Last().RunTokenDownOfTree(token);
-            if (nullableToken is null) return nullableToken;
-            token = nullableToken.Value;
-        }
-
-        if (token.Value == Config.ClosingSign)
-        {
-            ClosingToken = token;
-            Closed = true;
-            return null;
-        }
-
-        return token;
+        return false;
     }
 
-    public void RunTagDownOfTree(ITag tag)
+    protected override bool StopRunTag(Tag tag)
     {
-        if (tag is not (Bold or Italic)) return;
+        return tag is not (Bold or Italic);
+    }
 
-        if (Closed) throw new InvalidOperationException();
-
-        if (Children.Any() && !Children.Last().Closed)
-            Children.Last().RunTagDownOfTree(tag);
-        else
-            Children.Add(tag);
+    protected override bool IsClosingToken(Token token)
+    {
+        return token.Value == Config.ClosingSign;
     }
 }

@@ -8,5 +8,5 @@ public interface ITagMarkdownConfig
 
     public TextType TextType { get; }
 
-    public ITag? CreateOrNull(Token token);
+    public Tag? CreateOrNull(Token token);
 }

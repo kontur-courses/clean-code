@@ -12,7 +12,7 @@ public class HtmlRenderer : IRenderer
         tagNames = textTypeToTagName;
     }
 
-    public string Render(IEnumerable<ITag> tags, StringBuilder text)
+    public string Render(IEnumerable<Tag> tags, StringBuilder text)
     {
         var replacements = new List<(int, string, string)>();
         foreach (var tag in tags)

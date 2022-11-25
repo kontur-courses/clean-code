@@ -1,6 +1,6 @@
 ﻿namespace MarkdownProcessor.Tags;
 
-public class Italic : HighlightTextPairTag, ITag
+public class Italic : HighlightTextPairTag
 {
     public Italic(Token openingToken) : base(openingToken)
     {
@@ -8,9 +8,8 @@ public class Italic : HighlightTextPairTag, ITag
 
     public override ITagMarkdownConfig Config { get; } = new ItalicConfig();
 
-    public new void RunTagDownOfTree(ITag tag)
+    protected override bool ForbiddenChild(Tag tag)
     {
-        if (tag is Bold) return;
-        base.RunTagDownOfTree(tag);
+        return tag is Bold;
     }
 }
