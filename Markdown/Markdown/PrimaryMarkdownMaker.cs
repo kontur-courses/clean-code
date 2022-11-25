@@ -8,24 +8,36 @@
             var operationalCharacters = specialStringFormat.OperationalCharacters;
             var Actions = new MarkdownAction[convertedLine.Length];
 
+            int openCursiveIndex = -1;
+            int openBoldIndex = -1;
             for (int i = 0; i < convertedLine.Length; i++)
             {
                 if (operationalCharacters[i] && Actions[i].ActionType == MarkdownActionType.None)
                 {
-                    int indx = FindPairAction(convertedLine, i);
-                    if (indx == -1)
+                    if (convertedLine[i] == '_')
                     {
-                        Actions[i] = new MarkdownAction(i);
-                        Actions[i].Approved = false;
+                        if (openCursiveIndex == -1) openCursiveIndex = i;
+                        else
+                        {
+                            Actions[openCursiveIndex] =
+                                new MarkdownAction(MarkdownActionType.Open, openCursiveIndex, i);
+                            Actions[i] =
+                                new MarkdownAction(MarkdownActionType.Close, i, openCursiveIndex);
+                            openCursiveIndex = -1;
+                        }
                     }
-                    else
+
+                    if (convertedLine[i] == ';')
                     {
-                        Actions[i] = new MarkdownAction(MarkdownActionType.Open, i, indx);
-                        Actions[indx] = new MarkdownAction(MarkdownActionType.Close, indx, i);
-
-
-                        Actions[i] = new MarkdownAction(MarkdownActionType.Open, i, indx);
-                        Actions[indx] = new MarkdownAction(MarkdownActionType.Close, indx, i);
+                        if (openBoldIndex == -1) openBoldIndex = i;
+                        else
+                        {
+                            Actions[openBoldIndex] =
+                                new MarkdownAction(MarkdownActionType.Open, openBoldIndex, i);
+                            Actions[i] =
+                                new MarkdownAction(MarkdownActionType.Close, i, openBoldIndex);
+                            openBoldIndex = -1;
+                        }
                     }
                 }
                 else if (Actions[i].ActionType == MarkdownActionType.None)
@@ -34,18 +46,20 @@
                 }
             }
 
-            specialStringFormat.Actions = Actions;
-            return specialStringFormat;
-        }
-
-        private static int FindPairAction(string specialString, int startIndex)
-        {
-            for (int i = startIndex + 1; i < specialString.Length; i++)
+            if (openCursiveIndex != -1)
             {
-                if (specialString[i] == specialString[startIndex]) return i;
+                Actions[openCursiveIndex] = new MarkdownAction(openCursiveIndex);
+                Actions[openCursiveIndex].Approved = false;
             }
 
-            return -1;
+            if (openBoldIndex != -1)
+            {
+                Actions[openBoldIndex] = new MarkdownAction(openBoldIndex);
+                Actions[openBoldIndex].Approved = false;
+            }
+
+            specialStringFormat.Actions = Actions;
+            return specialStringFormat;
         }
     }
 }

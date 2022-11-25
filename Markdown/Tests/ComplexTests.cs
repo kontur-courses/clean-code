@@ -48,7 +48,7 @@ namespace MarkdownTests
             Random r = new Random(123);
             StringBuilder sb = new StringBuilder();
 
-            for (int i = 0; i < 10000000; i++)
+            for (int i = 0; i < 1000000; i++)
             {
                 int n = r.Next(0, 10);
                 if (n == 0) sb.Append('_');
