@@ -43,6 +43,27 @@ public class MdTests
 		result.Should().Be(expected);
 	}
 
+	[TestCase("_abc_def", "<em>abc</em>def")]
+	[TestCase("a_bcde_f", "a<em>bc>de</em>f")]
+	[TestCase("abc_def_", "abc<em>def</em>")]
+	[TestCase("__abc__def", "<strong>abc</strong>def")]
+	[TestCase("a__bcde__f", "a<strong>bc>de</strong>f")]
+	[TestCase("abc__def__", "abc<strong>def</strong>")]
+	public void Render_ShouldRender_WithTagsInPartOfWord(string mdText, string expected)
+	{
+		var result = markdown.Render(mdText);
+
+		result.Should().Be(expected);
+	}
+
+	[TestCase(" _1abc1_ ", " _1abc1_ ")]
+	public void Render_ShouldNotRender_WithDigitsInTags(string mdText, string expected)
+	{
+		var result = markdown.Render(mdText);
+
+		result.Should().Be(expected);
+	}
+
 	[TestCase(
 		"Внутри __двойного выделения _одинарное_ тоже__ работает",
 		"Внутри <strong>двойного выделения <em>одинарное</em> тоже</strong> работает",
