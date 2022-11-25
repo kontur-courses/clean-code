@@ -12,6 +12,8 @@ namespace Markdown
 
         public List<Tuple<int, int>> ActionPairs { get; set; }
 
+        private bool isH1 = false;
+
         private SpecialStringFormat()
         {
         }
@@ -22,6 +24,7 @@ namespace Markdown
         {
             var sb = new StringBuilder();
             bool escapeSymbol = false;
+            bool h1 = false;
             var operationalCharacters = new bool[originalLine.Length];
 
             for (int i = 0; i < originalLine.Length; i++)
@@ -46,7 +49,7 @@ namespace Markdown
                         escapeSymbol = true;
                     }
                     else if (originalLine[i] == '_' && sb.Length > 0 &&
-                             operationalCharacters[sb.Length - 1])
+                             operationalCharacters[sb.Length - 1] && sb[^1] == '_')
                     {
                         sb[^1] = ';';
                     }
@@ -54,6 +57,10 @@ namespace Markdown
                     {
                         sb.Append('_');
                         operationalCharacters[sb.Length - 1] = true;
+                    }
+                    else if (i == 0 && originalLine[0] == '#')
+                    {
+                        h1 = true;
                     }
                     else
                     {
@@ -65,12 +72,14 @@ namespace Markdown
             var sFormat = new SpecialStringFormat();
             sFormat.ConvertedLine = sb.ToString();
             sFormat.OperationalCharacters = operationalCharacters;
+            sFormat.isH1 = h1;
             return sFormat;
         }
 
         public string ConvertFromFormat()
         {
             var sb = new StringBuilder();
+            if (isH1) sb.Append(MarkdownTagToHTMLConverter.GetTagByMarkdownAction(MarkdownActionType.Open, '#'));
             for (int i = 0; i < ConvertedLine.Length; i++)
             {
                 if (OperationalCharacters[i] && !Actions[i].Approved)
@@ -82,6 +91,7 @@ namespace Markdown
                     sb.Append(ConvertedLine[i]);
             }
 
+            if (isH1) sb.Append(MarkdownTagToHTMLConverter.GetTagByMarkdownAction(MarkdownActionType.Close, '#'));
             return sb.ToString();
         }
 

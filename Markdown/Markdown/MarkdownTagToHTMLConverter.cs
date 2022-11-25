@@ -12,12 +12,14 @@
         {
             {'_', "<em>"},
             {';', "<strong>"},
+            {'#', "<h1>"}
         };
 
         private static readonly Dictionary<char, string> CloseBrackets = new Dictionary<char, string>()
         {
             {'_', @"<\em>"},
-            {';', @"<\strong>"}
+            {';', @"<\strong>"},
+            {'#', @"<\h1>"}
         };
     }
 }
