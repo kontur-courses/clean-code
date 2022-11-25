@@ -1,13 +1,6 @@
 ﻿namespace Markdown.Tokens;
 
-public class HeaderToken : Token
+public class HeaderToken : LineToken
 {
-    public HeaderToken() : base("# ", string.Empty, TokenType.Header) { }
-    
-    public override bool CanStartsHere(string text, int index)
-    {
-        return base.CanStartsHere(text, index) && index == 0;
-    }
+    public HeaderToken() : base(TokenType.Header, "# ", string.Empty) { }
 }
-
-  

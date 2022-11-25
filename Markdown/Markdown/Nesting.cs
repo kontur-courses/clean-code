@@ -9,28 +9,35 @@ public static class Nesting
     {
         new BoldInItalicFilter()
     };
-    
-    public static void ExcludeNestedOfType<T>(Token token) where  T : Token
+
+    public static void ExcludeNestedOfType<T>(Token token) where T : Token
     {
         for (var i = 0; i < token.NestedTokens.Count; i++)
         {
             var nested = token.NestedTokens[i];
             if (nested is not T) continue;
-            token.NestedTokens.Insert(i, new TextToken { FirstPosition = nested.FirstPosition, Length = nested.Opening.Length });
+
+            var tokenText = TextToken.ToText(nested);
+            token.NestedTokens.Insert(i, tokenText.Opening);
 
             var ts = token.NestedTokens.Where(x => x is T).ToList();
             token.NestedTokens.RemoveAll(x => x is T);
             token.NestedTokens.ForEach(ExcludeNestedOfType<T>);
             foreach (var t in ts)
             {
+                t.Parent = token;
                 token.NestedTokens.InsertRange(i + 1, t.NestedTokens);
                 i += t.NestedTokens.Count;
             }
-            token.NestedTokens.Insert(i + 1, new TextToken
-            {
-                FirstPosition = nested.LastPosition - nested.Opening.Length + (nested.Opening.Length == 0 ? 0 : 1), 
-                Length = nested.Ending.Length
-            });
+
+            token.NestedTokens.Insert(i + 1, tokenText.Ending);
         }
+    }
+
+    public static void AddToToken(Token token, Token wrapper)
+    {
+        wrapper.Parent = token.Parent;
+        token.Parent = wrapper;
+        wrapper.NestedTokens.Add(token);
     }
 }

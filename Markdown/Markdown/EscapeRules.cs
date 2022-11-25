@@ -1,6 +1,4 @@
-﻿using System.Text;
-
-namespace Markdown;
+﻿namespace Markdown;
 
 public static class EscapeRules
 {
@@ -8,6 +6,7 @@ public static class EscapeRules
 
     public static bool IsNotEscaped(string text, int index)
     {
-        return !text.IsInBound(index) || !text.IsInBound(index - 1) || text[index - 1] != Character || !IsNotEscaped(text, index - 1);
+        return !text.IsInBound(index) || !text.IsInBound(index - 1) || text[index - 1] != Character ||
+               !IsNotEscaped(text, index - 1);
     }
 }

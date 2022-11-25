@@ -22,6 +22,7 @@ public class MdTests
     [TestCaseSource(nameof(EscapeTests))]
     [TestCaseSource(nameof(HierarchyTests))]
     [TestCaseSource(nameof(InWordsInteractionTests))]
+    [TestCaseSource(nameof(UnorderedListTests))]
     public void Render_Format_OnTest(string input, string? expected = null)
     {
         md.Render(input).Should().Be(expected ?? input);
@@ -81,6 +82,14 @@ public class MdTests
         new TestCaseData("cl__ass__", "cl<strong>ass</strong>").SetName("Double underscore works at the end of a word"),
         new TestCaseData("hell_o cl_ass", "hell_o cl_ass").SetName("Italic selection does not work in different words"),
         new TestCaseData("hell__o cl__ass", "hell__o cl__ass").SetName("Bold selection does not work in different words")
+    };
+    
+    private static TestCaseData[] UnorderedListTests =
+    {
+        new TestCaseData("- First item", "<ul><li>First item</li></ul>").SetName("Single line unordered list"),
+        new TestCaseData("- First item\n- Second item", "<ul><li>First item</li><li>Second item</li></ul>").SetName("Multiline unordered list"),
+        new TestCaseData("First - item", "First - item").SetName("Unordered list can be only at the start of line"),
+        new TestCaseData("- First - item", "<ul><li>First - item</li></ul>").SetName("Unordered list character in the middle of item")
     };
     
     [TestCase(1000,"# Header with __bold__ characters")]

@@ -7,5 +7,7 @@ public enum TokenType
     Line,
     Header,
     Bold,
-    Italic
+    Italic,
+    UnorderedList,
+    UnorderedListItem
 }

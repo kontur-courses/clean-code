@@ -6,22 +6,23 @@ public static class MarkdownParser
 {
     public static LineToken ParseLine(string line)
     {
-        var root = new LineToken(line);
+        var root = new LineToken { Length = line.Length };
         for (var i = 0; i < line.Length; i++)
         {
             if (line[i] == EscapeRules.Character)
             {
                 if (i + 1 >= line.Length || TokenSelector.SelectLongestSuitableToken(line, i + 1) is null)
-                    IncludeInTextToken(i, root);
+                    IncludeInTextToken(line.AsSpan(i, 1), root);
                 else
                 {
-                    root.NestedTokens.Add(new EscapeToken { FirstPosition = i });
-                    IncludeInTextToken(i + 1, root);
+                    root.NestedTokens.Add(new EscapeToken());
+                    IncludeInTextToken(line.AsSpan(i + 1, 1), root);
                     i++;
                 }
+
                 continue;
             }
-            
+
             var token = TokenSelector.SelectLongestSuitableToken(line, i);
             if (token is not null)
             {
@@ -29,17 +30,17 @@ public static class MarkdownParser
                     i = root.NestedTokens[^1].LastPosition;
                 else
                 {
-                    IncludeInTextToken(i, root, token.Opening.Length);
+                    IncludeInTextToken(line.AsSpan(i, token.Opening.Length), root);
                     i += token.Opening.Length - 1;
                 }
             }
             else
-                IncludeInTextToken(i, root);
+                IncludeInTextToken(line.AsSpan(i, 1), root);
         }
-        
+
         foreach (var nestingFilter in Nesting.Filters)
             nestingFilter.Filter(root);
-        
+
         return root;
     }
 
@@ -59,24 +60,31 @@ public static class MarkdownParser
             if (!TryEndSingleToken(line, index, token))
                 return false;
         }
-        
+
         parentToken?.NestedTokens.Add(token);
         return true;
     }
-    
-    private static void IncludeInTextToken(int index, Token parent, int length = 1)
+
+    private static void IncludeInTextToken(ReadOnlySpan<char> text, Token parent)
     {
         if (parent.NestedTokens.Count > 0 && parent.NestedTokens[^1] is TextToken)
-            parent.NestedTokens[^1].Length += length;
+        {
+            var a = (TextToken)parent.NestedTokens[^1];
+            a.Text.Append(text);
+        }
         else
-            parent.NestedTokens.Add(new TextToken { FirstPosition = index, Length = length });
+        {
+            var token = new TextToken();
+            token.Text.Append(text);
+            parent.NestedTokens.Add(token);
+        }
     }
-    
+
     private static Token? TryGetStartingToken(string line, int index, Token? token, Token? parent)
     {
         if (!token?.CanStartsHere(line, index) ?? true)
             return null;
-        
+
         token.FirstPosition = index;
         token.Parent = parent;
         return token;
@@ -92,12 +100,12 @@ public static class MarkdownParser
             if (TryBuildToken(line, i, tokenToBuild, token))
                 i = token.NestedTokens[^1].LastPosition;
             else
-                IncludeInTextToken(i, token);
+                IncludeInTextToken(line.AsSpan(i, 1), token);
         }
 
         return true;
     }
-    
+
     private static bool TryEndDoubleToken(string line, int index, Token token)
     {
         var canBeCreated = true;
@@ -114,6 +122,7 @@ public static class MarkdownParser
                     i += longestSuitableStart.Opening.Length - 1;
                     canBeCreated = false;
                 }
+
                 continue;
             }
 
@@ -122,10 +131,10 @@ public static class MarkdownParser
                 token.Length = i + token.Ending.Length - token.FirstPosition;
                 return canBeCreated;
             }
-            
-            IncludeInTextToken(i, token);
+
+            IncludeInTextToken(line.AsSpan(i, 1), token);
         }
-        
+
         return false;
     }
 }

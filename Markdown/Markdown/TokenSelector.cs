@@ -9,9 +9,10 @@ public static class TokenSelector
         new HeaderToken(),
         new BoldToken(),
         new ItalicToken(),
-        new EscapeToken()
+        new EscapeToken(),
+        new UnorderedListItem()
     };
-    
+
     public static Token? SelectLongestSuitableToken(string line, int index)
     {
         var tokensToCheck = Tokens;
