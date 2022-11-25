@@ -1,4 +1,6 @@
-﻿using FluentAssertions;
+﻿using System;
+using System.Text;
+using FluentAssertions;
 using NUnit.Framework;
 
 namespace Tests
@@ -37,6 +39,26 @@ namespace Tests
         {
             Markdown.Markdown.Render("Text __with _text_ and__")
                 .Should().Be(@"Text <strong>with <em>text<\em> and<\strong>");
+        }
+
+
+        [Test, MaxTime(2000)]
+        public void TimeTest()
+        {
+            Random r = new Random(123);
+            StringBuilder sb = new StringBuilder();
+
+            for (int i = 0; i < 10000000; i++)
+            {
+                int n = r.Next(0, 10);
+                if (n == 0) sb.Append('_');
+                else if (n == 1) sb.Append("__");
+                else if (n == 2) sb.Append(' ');
+                else sb.Append('a');
+            }
+
+            string s = Markdown.Markdown.Render(sb.ToString());
+            Assert.Pass();
         }
     }
 }
