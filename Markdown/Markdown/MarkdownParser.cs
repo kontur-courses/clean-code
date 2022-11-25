@@ -11,7 +11,14 @@ public static class MarkdownParser
         {
             if (line[i] == EscapeRules.Character)
             {
-                i++;
+                if (i + 1 >= line.Length || TokenSelector.SelectLongestSuitableToken(line, i + 1) is null)
+                    IncludeInTextToken(i, root);
+                else
+                {
+                    root.NestedTokens.Add(new EscapeToken { FirstPosition = i });
+                    IncludeInTextToken(i + 1, root);
+                    i++;
+                }
                 continue;
             }
             
@@ -21,8 +28,13 @@ public static class MarkdownParser
                 if (TryBuildToken(line, i, token, root))
                     i = root.NestedTokens[^1].LastPosition;
                 else
+                {
+                    IncludeInTextToken(i, root, token.Opening.Length);
                     i += token.Opening.Length - 1;
+                }
             }
+            else
+                IncludeInTextToken(i, root);
         }
         
         foreach (var nestingFilter in Nesting.Filters)
@@ -41,14 +53,23 @@ public static class MarkdownParser
         {
             if (!TryEndDoubleToken(line, index, token))
                 return false;
-        } 
+        }
         else
         {
             if (!TryEndSingleToken(line, index, token))
                 return false;
         }
+        
         parentToken?.NestedTokens.Add(token);
         return true;
+    }
+    
+    private static void IncludeInTextToken(int index, Token parent, int length = 1)
+    {
+        if (parent.NestedTokens.Count > 0 && parent.NestedTokens[^1] is TextToken)
+            parent.NestedTokens[^1].Length += length;
+        else
+            parent.NestedTokens.Add(new TextToken { FirstPosition = index, Length = length });
     }
     
     private static Token? TryGetStartingToken(string line, int index, Token? token, Token? parent)
@@ -70,6 +91,8 @@ public static class MarkdownParser
             var tokenToBuild = TryGetStartingToken(line, i, longestSuitableStart, token);
             if (TryBuildToken(line, i, tokenToBuild, token))
                 i = token.NestedTokens[^1].LastPosition;
+            else
+                IncludeInTextToken(i, token);
         }
 
         return true;
@@ -90,8 +113,8 @@ public static class MarkdownParser
                 {
                     i += longestSuitableStart.Opening.Length - 1;
                     canBeCreated = false;
-                    continue;
                 }
+                continue;
             }
 
             if (token.CanEndsHere(line, i))
@@ -99,6 +122,8 @@ public static class MarkdownParser
                 token.Length = i + token.Ending.Length - token.FirstPosition;
                 return canBeCreated;
             }
+            
+            IncludeInTextToken(i, token);
         }
         
         return false;

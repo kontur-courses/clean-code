@@ -25,12 +25,8 @@ public class Token
     public int FirstPosition { get; set; }
 
     public int LastPosition => FirstPosition + Length - 1;
-    
-    public bool HasStartPosition => FirstPosition >= 0;
-    
+
     public int Length  { get; set; }
-    
-    public bool HasEndPosition => Length >= 0;
 
     public virtual bool CanStartsHere(string text, int index)
     {

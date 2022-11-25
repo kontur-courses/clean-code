@@ -62,6 +62,7 @@ public class MdTests
     {
         new TestCaseData("__Kill _me_ please__", "<strong>Kill <em>me</em> please</strong>").SetName("Inside a double selection, a single selection also works"),
         new TestCaseData("_Kill __me__ please_", "<em>Kill __me__ please</em>").SetName("Inside single selection double selection not working"),
+        new TestCaseData(@"_Kill __me\_dps\_gm__ please_", "_Kill __me_dps_gm__ please_").SetName("Save nested tag if double selection inside single selection"),
         new TestCaseData("C_r__o_s__s", "C_r__o_s__s").SetName("Single-Double: On the intersection of double and single underscores, none of them are considered highlighted"),
         new TestCaseData("C__r_o__s_s", "C__r_o__s_s").SetName("Double-Single: On the intersection of double and single underscores, none of them are considered highlighted"),
         new TestCaseData("__Hello_", "__Hello_").SetName("Double-Single: Unpaired characters within the same paragraph are not considered"),

@@ -8,7 +8,8 @@ public static class TokenSelector
     {
         new HeaderToken(),
         new BoldToken(),
-        new ItalicToken()
+        new ItalicToken(),
+        new EscapeToken()
     };
     
     public static Token? SelectLongestSuitableToken(string line, int index)

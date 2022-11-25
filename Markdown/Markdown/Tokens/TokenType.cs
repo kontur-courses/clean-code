@@ -2,6 +2,8 @@
 
 public enum TokenType
 {
+    Escape,
+    Text,
     Line,
     Header,
     Bold,
