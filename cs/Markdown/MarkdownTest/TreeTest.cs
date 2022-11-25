@@ -38,10 +38,5 @@ public class TreeTest
         res
             .Should()
             .BeEquivalentTo(new[] { true, true, true, false });
-        tree.GetLeafs()
-            .Select(node => node.LeftBorder)
-            .ToArray()
-            .Should()
-            .BeEquivalentTo(new[] { 2, 5 });
     }
 }

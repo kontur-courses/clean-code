@@ -1,86 +1,134 @@
-﻿namespace Markdown;
+﻿using System.Text;
+
+namespace Markdown;
 
 public class TreeNode : IComparable
 {
     private TagToken token;
-
-    private List<TreeNode> children = new();
-    public List<TreeNode> Children => children;
     public int LeftBorder => token.leftBorder;
     public int RightBorder => token.rightBorder;
     public Tag Tag => token.tag;
-
     public string body;
+
+    private List<TreeNode> children = new();
+    public List<TreeNode> Children => children;
+
+    public string MdTaggedBody
+    {
+        get
+        {
+            string s;
+            if (IsLeaf)
+            {
+                s = body.Substring(Tag.OpenMdTag.Length,
+                    body.Length - Tag.CloseMdTag.Length - Tag.OpenMdTag.Length);
+            }
+            else
+            {
+                AddEmptyNodes();
+                var builder = new StringBuilder();
+                foreach (var child in children)
+                    builder.Append(child.MdTaggedBody);
+                s = builder.ToString();
+            }
+
+            return Tag.OpenHTMLTag
+                   + s
+                   + Tag.CloseHTMLTag;
+        }
+    }
 
     public bool IsLeaf => children.Count() == 0;
 
-    public TreeNode(TagToken token) => this.token = token;
+    public TreeNode(TagToken token, string body)
+    {
+        this.token = token;
+        this.body = body;
+    }
 
-    public TreeNode(int leftBorder, int rightBorder, Tag tag) : this(new TagToken(leftBorder, rightBorder, tag))
+    public TreeNode(int leftBorder, int rightBorder, Tag tag, string body) : this(
+        new TagToken(leftBorder, rightBorder, tag), body)
     {
     }
 
     public bool TryAddToken(TagToken token) => TryAddToken(token.leftBorder, token.rightBorder, token.tag);
 
+    public void AddChild(TagToken token) =>
+        AddChild(token.leftBorder, token.rightBorder, token.tag);
+
+    private void AddChild(int leftBorder, int rightBorder, Tag tag)
+    {
+        children.Add(
+            new TreeNode(
+                leftBorder,
+                rightBorder,
+                tag,
+                body.Substring(
+                    leftBorder - LeftBorder,
+                    rightBorder - leftBorder + 1))
+        );
+    }
+
     public bool TryAddToken(int left, int right, Tag tag)
     {
+        //Если лист
         if (IsLeaf)
         {
-            children.Add(new TreeNode(left, right, tag));
+            AddChild(new TagToken(left, right, tag));
             return true;
         }
 
-        var nodesThatContainNew = children
-            .Where(node => node.LeftBorder <= left && right <= node.RightBorder);
-        if (nodesThatContainNew.Count() > 1)
-            throw new Exception();
-        if (nodesThatContainNew.Count() == 1)
+        //Если границы совпадают TODO: надо ли?
+        if (LeftBorder == left && RightBorder == right)
         {
-            return nodesThatContainNew.First().TryAddToken(left, right, tag);
+            token.tag = tag;
+            return true;
         }
 
+        //Если вложен в ноду
+        var nodeThatContainNew = children
+            .Where(node => node.LeftBorder <= left && right <= node.RightBorder);
+        if (nodeThatContainNew.Count() > 1)
+            throw new Exception();
+        if (nodeThatContainNew.Count() == 1)
+        {
+            return nodeThatContainNew.First().TryAddToken(left, right, tag);
+        }
+
+        //Если может быть добавлен как потомок к текущей ноде
         var canAddAsChildToCurrentNode = children
             .All(node => node.RightBorder <= left || right <= node.LeftBorder);
         if (canAddAsChildToCurrentNode)
         {
-            children.Add(new TreeNode(left, right, tag));
+            AddChild(new TagToken(left, right, tag));
             return true;
         }
 
+        //Во всех остальных случаях
         return false;
     }
 
-    public void SortNodes()
-    {
-        children.Sort();
-        foreach (var child in children)
-        {
-            child.SortNodes();
-        }
-    }
-
-    public void CalculateBody(string mdstring)
-    {
-        var b = mdstring.Substring(LeftBorder + Tag.OpenMdTag.Length,
-            RightBorder - LeftBorder - Tag.CloseMdTag.Length - Tag.OpenMdTag.Length + 1);
-        body = Tag.OpenHTMLTag
-               + b
-               + Tag.CloseHTMLTag;
-    }
-
-    public void AddEmptyNodes()
+    private void AddEmptyNodes()
     {
         children.Sort();
         int i = 0;
-        var newChildren = new List<TreeNode>();
+        var newChildrenTokens = new List<TagToken>();
         foreach (var child in children)
         {
-            newChildren.Add(new(i, child.LeftBorder - 1, new EmptyTag()));
+            if (i == child.LeftBorder)
+            {
+                i = child.RightBorder + 1;
+                continue;
+            }
+
+            newChildrenTokens.Add(new TagToken(i, child.LeftBorder - 1, new EmptyTag()));
             child.AddEmptyNodes();
             i = child.RightBorder + 1;
         }
 
-        children.AddRange(newChildren);
+        foreach (var token in newChildrenTokens)
+            AddChild(token);
+
         children.Sort();
     }
 

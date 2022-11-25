@@ -6,54 +6,26 @@ namespace Markdown;
 public class TokenTree
 {
     private TreeNode root;
-    private string body;
+    //TODO: правила взаимодействия теггов
 
     public TokenTree(string mdstring)
     {
-        root = new TreeNode(0, mdstring.Length - 1, new EmptyTag());
-        body = mdstring;
+        root = new TreeNode(0, mdstring.Length - 1, new EmptyTag(), mdstring);
     }
 
     public bool TryAddToken(int left, int right, Tag tag) => root.TryAddToken(left, right, tag);
 
     public bool TryAddToken(TagToken token) => TryAddToken(token.leftBorder, token.rightBorder, token.tag);
 
-    public IEnumerable<TreeNode> GetLeafs()
+    public void AddTokens(IEnumerable<TagToken> tokens)
     {
-        return GetLeafs(root);
-    }
-
-    public IEnumerable<TreeNode> GetLeafs(TreeNode root)
-    {
-        foreach (TreeNode childNode in root.Children)
-        {
-            if (childNode.IsLeaf)
-                yield return childNode;
-            foreach (TreeNode node in GetLeafs(childNode))
-            {
-                yield return node;
-            }
-        }
+        tokens
+            .OrderByDescending(token => token.rightBorder - token.leftBorder)
+            .Select(token => TryAddToken(token));
     }
 
     public string ToHTMLString()
     {
-        CalculateBodies();
-        var builder = new StringBuilder();
-        foreach (var leaf in GetLeafs())
-        {
-            builder.Append(leaf.body);
-        }
-
-        return builder.ToString();
-    }
-
-    public void CalculateBodies()
-    {
-        root.AddEmptyNodes();
-        foreach (var leaf in GetLeafs())
-        {
-            leaf.CalculateBody(body);
-        }
+        return root.MdTaggedBody;
     }
 }
