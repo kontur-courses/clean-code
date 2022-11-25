@@ -15,8 +15,7 @@ namespace Markdown
             var parser = new MarkdownParser(tagToTag.Keys);
             var replacer = new TagsReplacer<MdTag, HtmlTag>(tagToTag);
 
-            var indexesTags = parser.GetIndexesTags(text);
-            var stringWithHtmlTags = replacer.ReplaceTag(indexesTags, text);
+            var stringWithHtmlTags = replacer.ReplaceTag(parser.GetIndexesTags(text), text);
             return stringWithHtmlTags;
         }
     }
