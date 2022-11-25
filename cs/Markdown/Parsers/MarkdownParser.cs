@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Text;
 using Markdown.Parsers.Tokens;
 using Markdown.Parsers.Tokens.Tags;
 using Markdown.Parsers.Tokens.Tags.Enum;
@@ -42,14 +43,14 @@ namespace Markdown.Parsers
             while (!nextCharOutsideLine)
                 tokens.Add(GetNextToken());
 
-            DeleteNotValidTagsIn(tokens);
+            DeleteNotValidTags();
 
             return tokens;
         }
 
         private IToken GetNextToken()
         {
-            return mdTags.IsServiceSymbol(currentSymbol) ? 
+            return mdTags.IsTagStart(currentSymbol) ? 
                 GetServiceTag() : 
                 GetTextToken();
         }
@@ -60,10 +61,15 @@ namespace Markdown.Parsers
             var text = ReadWithCheck(symbol => !mdTags.IsServiceSymbol(symbol));
             if (!mdTags.IsTag(text))
                 return new TextToken(text);
-            var lastOpeningTag = openedTokens.LastOrDefault(el=>el.ToString() == text);
+            var lastOpeningTag = openedTokens.LastOrDefault(el=>el.ToString() == text) as MdPairedTag;
             var tag = mdTags.CreateTagFor(text,
                 lastOpeningTag is null ? TagPosition.Start : TagPosition.End);
-
+            if (tag is MdHeaderTag)
+                currentPosition++;
+            else if(tag is MdPairedTag)
+            {
+                (tag as MdPairedTag).IntoWord = char.IsSymbol(currentLine[currentPosition - text.Length]);
+            }
             var isCommentedTag = tag.IsCommentedTag(currentLine, currentPosition - text.Length);
             if (isCommentedTag || !tag.IsValidTag(currentLine, currentPosition))
             {
@@ -71,8 +77,13 @@ namespace Markdown.Parsers
                     tokens.Remove(tokens.Last());
                 return tag.ToText();
             }
-            else if(tag is PairedTag)
+            else if(tag is MdPairedTag)
             {
+                if(lastOpeningTag != null && lastOpeningTag.IntoWord)
+                {
+
+                }
+
                 if (lastOpeningTag is null)
                     openedTokens.Add(tag); //взять верхний подходящий
                 else
@@ -84,7 +95,7 @@ namespace Markdown.Parsers
 
         private IToken GetTextToken()
         {
-            var text = ReadWithCheck(symbol => mdTags.IsServiceSymbol(symbol));
+            var text = ReadWithCheck(symbol => mdTags.IsTagStart(symbol));
             return new TextToken(text);
         }
 
@@ -96,7 +107,7 @@ namespace Markdown.Parsers
             return currentLine.Substring(startPosition, currentPosition - startPosition);
         }
 
-        private void DeleteNotValidTagsIn(List<IToken> tokens)
+        private void DeleteNotValidTags()
         {
             for (int i = 0; i < tokens.Count; i++)
                 if (openedTokens.Contains(tokens[i]))

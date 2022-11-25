@@ -9,8 +9,8 @@
 
         public override bool IsValidTag(string data, int position)
         {
-            return 
-                data.Length > position && (char.IsWhiteSpace(data, position) || data.Length - 1 == position);
+            return
+                data.Length > position;// (char.IsWhiteSpace(data, position) || data.Length - 1 == position);
         }
     }
 }

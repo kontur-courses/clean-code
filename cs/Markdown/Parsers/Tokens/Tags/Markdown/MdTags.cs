@@ -9,6 +9,7 @@ namespace Markdown.Parsers.Tokens.Tags.Markdown
         private static MdTags instance;
         private readonly Dictionary<string, Func<TagPosition, Tag>> mdTagDictionary = new Dictionary<string, Func<TagPosition, Tag>>();
         private readonly HashSet<char> serviceSymbols = new HashSet<char>();
+        private readonly HashSet<char> tagStartSymbols = new HashSet<char>();
 
         private MdTags()
         {
@@ -19,16 +20,18 @@ namespace Markdown.Parsers.Tokens.Tags.Markdown
 
             foreach (var tag in mdTagDictionary)
             {
+                tagStartSymbols.Add(tag.Key[0]);
                 foreach (var symbol in tag.Key)
                 {
-                    serviceSymbols.Add(symbol);
+                    //TODO: delete? if(symbol != ' ')
+                        serviceSymbols.Add(symbol);
                 }
             }
         }
 
         public static MdTags GetInstance()
         {
-            return instance ??= new MdTags();
+            return instance ?? (instance = new MdTags());
         }
 
         public Tag CreateTagFor(string text, TagPosition tagPosition = TagPosition.Any) =>
@@ -39,5 +42,9 @@ namespace Markdown.Parsers.Tokens.Tags.Markdown
 
         public bool IsServiceSymbol(char symbol) =>
             serviceSymbols.Contains(symbol);
+
+        public bool IsTagStart(char symbol) =>
+            tagStartSymbols.Contains(symbol);
+
     }
 }

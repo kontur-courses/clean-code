@@ -1,6 +1,8 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 using Markdown.Parsers.Tokens;
+using Markdown.Parsers.Tokens.Tags;
 using Markdown.Parsers.Tokens.Tags.Enum;
 using Markdown.Parsers.Tokens.Tags.Html;
 using Markdown.Parsers.Tokens.Tags.Markdown;
@@ -9,9 +11,9 @@ namespace Markdown.Parsers
 {
     public class ParsedTextBlock
     {
-        public IEnumerable<IToken> Tokens { get; }
+        public List<IToken> Tokens { get; }
 
-        public ParsedTextBlock(IEnumerable<IToken> tokens)
+        public ParsedTextBlock(List<IToken> tokens)
         {
             Tokens = tokens;
         }
@@ -19,11 +21,10 @@ namespace Markdown.Parsers
         public string ToHtml()
         {
             var htmlTokens = new List<IToken>();
-            if (Tokens.FirstOrDefault() is MdHeaderTag)
+
+            if (Tokens.FirstOrDefault(el => el is MdHeaderTag) is Tag headerTag)
             {
-                htmlTokens.Add(new HtmlHeaderTag(TagPosition.Start));
-                htmlTokens.AddRange(Tokens.Skip(2).Select(token => token.ToHtml()));
-                htmlTokens.Add(new HtmlHeaderTag(TagPosition.End));
+                htmlTokens = ToHtmlWithReplaceSingleTagToPairedTag(headerTag, tagPosition => new HtmlHeaderTag(tagPosition));
             }
             else
             {
@@ -32,5 +33,17 @@ namespace Markdown.Parsers
             return string.Join(null, htmlTokens.Select(e => e.ToString()));
         }
 
+
+
+        private List<IToken> ToHtmlWithReplaceSingleTagToPairedTag(Tag tag, Func<TagPosition, PairedTag> pairedTagCtor)
+        {
+            var tagPosition = Tokens.IndexOf(tag);
+            var htmlTokens = new List<IToken>();
+            htmlTokens.AddRange(Tokens.Take(tagPosition).Select(token => token.ToHtml()));
+            htmlTokens.Add(pairedTagCtor(TagPosition.Start));
+            htmlTokens.AddRange(Tokens.Skip(tagPosition + 1).Select(token => token.ToHtml()));
+            htmlTokens.Add(pairedTagCtor(TagPosition.End));
+            return htmlTokens;
+        }
     }
 }
