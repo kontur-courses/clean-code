@@ -23,11 +23,11 @@ namespace Markdown.Logic
             {
                 if (escapeSymbolsIndexes.Contains(i))
                     continue;
-                if (token.Children.Any(c => c.StartIndex - c.Tag.MarkdownName.Length == i))
+                var child = token.Children.FirstOrDefault(c => c.StartIndex - c.Tag.MarkdownName.Length == i);
+                if (child!=null)
                 {
-                    var f = token.Children.First(c => c.StartIndex - c.Tag.MarkdownName.Length == i);
-                    Dfs(text, f, escapeSymbolsIndexes, builder);
-                    i = f.EndIndex + f.Tag.MarkdownName.Length;
+                    Dfs(text, child, escapeSymbolsIndexes, builder);
+                    i = child.EndIndex + child.Tag.MarkdownName.Length;
                 }
                 else
                     builder.Append(text[i]);
