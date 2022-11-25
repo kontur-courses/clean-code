@@ -20,6 +20,10 @@ public readonly struct Token
     public bool BetweenDigits => Before.HasValue && After.HasValue &&
                                  digits.Contains(Before.Value) && digits.Contains(After.Value);
 
+    public bool BeforeIsSpace => string.IsNullOrWhiteSpace(Before.ToString());
+
+    public bool AfterIsSpace => string.IsNullOrWhiteSpace(After.ToString());
+
     public override string ToString()
     {
         return $"Token{(TagFirstCharIndex, Before, Value, After)}";

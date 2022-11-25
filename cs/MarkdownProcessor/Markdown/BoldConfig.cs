@@ -8,10 +8,6 @@ public class BoldConfig : ITagMarkdownConfig
 
     public ITag? CreateOrNull(Token token)
     {
-        var afterIsSpace = string.IsNullOrWhiteSpace(token.After.ToString());
-
-        return afterIsSpace || token.BetweenDigits
-            ? null
-            : new Bold(token, !string.IsNullOrWhiteSpace(token.Before.ToString()));
+        return token.AfterIsSpace || token.BetweenDigits ? null : new Bold(token);
     }
 }
