@@ -1,5 +1,6 @@
 using FluentAssertions;
 using MarkdownProcessor;
+using MarkdownProcessor.Markdown;
 using NUnit.Framework;
 
 namespace MarkdownProcessorTests;
@@ -45,7 +46,13 @@ public class Md_Should
     [TestCase("not # header", "not # header", TestName = "Header only on paragraph start")]
     public void Render_ReturnCorrectHTMLText(string text, string expected)
     {
-        var md = new Md();
-        md.Render(text).Should().Be(expected);
+        var md = new Md(new ITagMarkdownConfig[] {new ItalicConfig(), new BoldConfig(), new FirstHeaderConfig()});
+        var renderer = new HtmlRenderer(new Dictionary<TextType, string>
+        {
+            { TextType.Italic, "em" },
+            { TextType.Bold, "strong" },
+            { TextType.FirstHeader, "h1" }
+        });
+        md.Render(text, renderer).Should().Be(expected);
     }
 }

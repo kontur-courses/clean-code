@@ -37,9 +37,9 @@ public class FirstHeader : ITag
     public void RunTagDownOfTree(ITag tag)
     {
         if (tag is not (Bold or Italic)) return;
-        
+
         if (Closed) throw new InvalidOperationException();
-        
+
         if (Children.Any() && !Children.Last().Closed)
             Children.Last().RunTagDownOfTree(tag);
         else

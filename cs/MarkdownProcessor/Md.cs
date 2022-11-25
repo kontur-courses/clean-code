@@ -5,16 +5,23 @@ namespace MarkdownProcessor;
 
 public class Md
 {
-    private readonly Dictionary<string, ITagMarkdownConfig> openedTokens = new()
+    private readonly Dictionary<string, ITagMarkdownConfig> openedTokens;
+
+    private readonly string[] tokensValues;
+
+    public Md(IEnumerable<ITagMarkdownConfig> configs)
     {
-        { "_", new ItalicConfig() },
-        { "__", new BoldConfig() },
-        { "# ", new FirstHeaderConfig() }
-    };
+        var configsArray = configs.ToArray();
+        openedTokens = configsArray.ToDictionary(c => c.OpeningSign);
+        tokensValues = configsArray
+            .SelectMany(c => new[] { c.OpeningSign, c.ClosingSign })
+            .Concat(new[] { " ", "\n" })
+            .Distinct()
+            .OrderByDescending(s => s)
+            .ToArray();
+    }
 
-    private readonly HashSet<string> tokensValues = new() { "_", "__", "# ", " ", "\n" };
-
-    public string Render(string text)
+    public string Render(string text, IRenderer renderer)
     {
         var result = new StringBuilder();
         var paragraphs = text.Split("\n");
@@ -49,7 +56,7 @@ public class Md
                 .ToArray());
         }
 
-        return new HtmlRenderer().Render(closedTags, result);
+        return renderer.Render(closedTags, result);
     }
 
     private static IEnumerable<ITag> GetAllChildren(ITag tag)
@@ -57,19 +64,18 @@ public class Md
         return tag.Children.Concat(tag.Children.SelectMany(GetAllChildren));
     }
 
-    private static IEnumerable<Token> ExtractTokens(string text, StringBuilder resultText, IEnumerable<string> tokens)
+    private static IEnumerable<Token> ExtractTokens(string text, StringBuilder resultText, string[] tokens)
     {
-        var tokensList = tokens.Distinct().OrderByDescending(s => s).ToArray();
         for (var i = 0; i < text.Length; i++)
         {
             if (text[i] == '\\')
-                if (i + 1 < text.Length && (text[i + 1] == '\\' || tokensList.Any(t => t.StartsWith(text[i + 1]))))
+                if (i + 1 < text.Length && (text[i + 1] == '\\' || tokens.Any(t => t.StartsWith(text[i + 1]))))
                 {
                     resultText.Append(text[++i]);
                     continue;
                 }
 
-            var token = tokensList
+            var token = tokens
                 .FirstOrDefault(t => i + t.Length <= text.Length &&
                                      t.StartsWith(text[i]) &&
                                      text.Substring(i, t.Length) == t);

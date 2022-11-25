@@ -49,12 +49,12 @@ public abstract class HighlightTextPairTag : ITag
     public void RunTagDownOfTree(ITag tag)
     {
         if (corrupted) return;
-        
+
         if (Closed) throw new InvalidOperationException();
 
         if (Children.Any() && !Children.Last().Closed)
             Children.Last().RunTagDownOfTree(tag);
-        else 
+        else
             Children.Add(tag);
     }
 
