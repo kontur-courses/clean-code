@@ -78,7 +78,7 @@ public class TreeNode : IComparable
             return true;
         }
 
-        //Если границы совпадают TODO: надо ли?
+        //Если границы совпадают TODO: проверить необходимость
         if (LeftBorder == left && RightBorder == right)
         {
             token.tag = tag;
