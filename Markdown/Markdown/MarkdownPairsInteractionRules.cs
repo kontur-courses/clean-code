@@ -35,5 +35,37 @@
 
             return lineFormat;
         }
+
+        public static SpecialStringFormat DisapproveBoldInCursive(this SpecialStringFormat lineFormat)
+        {
+            var openBrackets = new List<MarkdownAction>();
+            var actions = lineFormat.Actions;
+            var line = lineFormat.ConvertedLine;
+
+            for (int i = 0; i < line.Length; i++)
+            {
+                var act = actions[i];
+
+
+                if (act.ActionType == MarkdownActionType.Open && act.Approved)
+                {
+                    if (openBrackets.Count != 0 && line[i] == ';')
+                    {
+                        actions[act.SelfIndex].Approved = false;
+                        actions[act.PairIndex].Approved = false;
+                    }
+                    else
+                    {
+                        openBrackets.Add(act);
+                    }
+                }
+                else if (act.ActionType == MarkdownActionType.Close && act.Approved)
+                {
+                    openBrackets.RemoveAt(openBrackets.Count - 1);
+                }
+            }
+
+            return lineFormat;
+        }
     }
 }

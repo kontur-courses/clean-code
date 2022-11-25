@@ -21,6 +21,7 @@
                 .SetPrimaryMarkdown()
                 .DisapproveIntersectingPairs()
                 .DisapproveEmpty()
+                .DisapproveBoldInCursive()
                 .DisapproveStartsOrEndsWithSpace();
 
             return stringFormat.ConvertFromFormat();
