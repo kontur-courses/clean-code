@@ -7,13 +7,12 @@ namespace Markdown.HtmlTag
 {
     public static class HtmlParser
     {
-        
+
         public static string Parse(IList<Token> tokens, string md)
         {
             if (tokens.LastOrDefault().End + 1 != md.Length)
                 throw new ArgumentOutOfRangeException("String for HTML parse have not all tokens");
             var htmlString = new StringBuilder();
-
 
             for (var index = 0; index < tokens.Count; index++)
             {
@@ -29,22 +28,15 @@ namespace Markdown.HtmlTag
                     case TokenType.Unseen:
                         break;
                     default:
-                    {
-                        var tag = GetTagFromToken(token);
-                        htmlString.Append(token.Element == TokenElement.Open ? tag.StartTag : tag.EndTag);
-                        break;
-                    }
+                        {
+                            var tag = GetTagFromToken(token);
+                            htmlString.Append(token.Element == TokenElement.Open ? tag.StartTag : tag.EndTag);
+                            break;
+                        }
                 }
             }
 
             return htmlString.ToString();
-        }
-
-        private static void AppendToken(string md, Token token, StringBuilder htmlString)
-        {
-             
-           
-            
         }
 
         public static HtmlTag GetTagFromToken(Token token)

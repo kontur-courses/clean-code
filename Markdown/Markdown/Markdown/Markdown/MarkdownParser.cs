@@ -19,8 +19,8 @@ namespace Markdown.Markdown
         Field = 4,
         Image = 5,
         Unseen = 6,
-        ImageDescription= 7,
-        ImageStart= 8,
+        ImageDescription = 7,
+        ImageStart = 8,
     }
 
     public static class MarkdownParser
@@ -29,7 +29,7 @@ namespace Markdown.Markdown
         {
             if (string.IsNullOrEmpty(stringWithTags))
                 throw new ArgumentNullException("String for parse token must not be null or empty");
-            var mdTags = new HashSet<string>() { "# ", "\n", "!","[","]","(",")", "__", "_", "\\" };
+            var mdTags = new HashSet<string> { "# ", "\n", "!", "[", "]", "(", ")", "__", "_", "\\" };
             var tokenList = new List<Token>();
             foreach (var tag in mdTags)
                 AddTokenTag(stringWithTags, tag, tokenList);
@@ -42,11 +42,11 @@ namespace Markdown.Markdown
             foreach (var indexOfTag in tag.GetIndexInLine(stringWithTags)
                          .Where(indexOfTag => !busyIndexes.Contains(indexOfTag)))
             {
-                GetToken(stringWithTags, tag, tokenList, busyIndexes, indexOfTag);
+                GetToken(stringWithTags, tag, tokenList, indexOfTag);
             }
         }
 
-        private static void GetToken(string stringWithTags, string tag, List<Token> tokenList, List<int> busyIndexes, int indexOfTag)
+        private static void GetToken(string stringWithTags, string tag, List<Token> tokenList, int indexOfTag)
         {
             var token = new Token(indexOfTag, tag.Length, GetTokenType(tag));
             token.Element = token.GetElementInText(stringWithTags);
@@ -88,11 +88,11 @@ namespace Markdown.Markdown
             {
                 "# " => TokenType.Header,
                 "\n" => TokenType.Header,
-                "!"=>TokenType.ImageStart,
-                "["=> TokenType.ImageDescription,
-                "]"=> TokenType.ImageDescription,
-                "("=> TokenType.Image,
-                ")"=> TokenType.Image,
+                "!" => TokenType.ImageStart,
+                "[" => TokenType.ImageDescription,
+                "]" => TokenType.ImageDescription,
+                "(" => TokenType.Image,
+                ")" => TokenType.Image,
                 "__" => TokenType.Strong,
                 "_" => TokenType.Italic,
                 "\\" => TokenType.Field,

@@ -78,7 +78,5 @@ namespace Markdown.Tokens
         {
             return md.AsSpan(Position, Length);
         }
-
-        
     }
 }
