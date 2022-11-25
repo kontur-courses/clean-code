@@ -10,105 +10,113 @@ public class MarkdownTranslator : ITranslator
     private const int OpenCloseTagLength = 5;
     private readonly List<ITag?> tags;
     private Stack<TagWithIndex> stackOfTags;
-    private StringBuilder sb;
+    private StringBuilder textWithTranslate;
     private readonly List<TagWithIndex> tagsInLine;
-    private string text;
-    private int point;
+    private int index;
+    private static List<char> startCharOfTags;
 
     public MarkdownTranslator()
     {
         tags = TagHelper.GetAllTags<ITag>()!.ToList();
-        sb = new StringBuilder();
         tagsInLine = new List<TagWithIndex>();
         stackOfTags = new Stack<TagWithIndex>();
-        text = string.Empty;
+        startCharOfTags = tags.Select(tag => tag!.SourceName[0]).ToList();
     }
 
     public string Translate(string input)
     {
+        textWithTranslate = new StringBuilder();
         stackOfTags = new Stack<TagWithIndex>();
-        text = input;
-        return GetTranslate();
-    }
-
-    private string GetTranslate()
-    {
-        sb = new StringBuilder();
-        while (point < text.Length)
+        while (index < input.Length)
         {
-            sb.Append(GetToken());
+            var token = GetNextToken(input);
+            index += token.Length;
+            
+            textWithTranslate.Append(ParseToken(token));
         }
 
         if (stackOfTags.Count != 0)
             PasteSourceNames(stackOfTags, null);
 
-        return sb.ToString();
+        return textWithTranslate.ToString();
     }
 
-    private string GetToken()
+    private string ParseToken(string token)
     {
-        var token = IsLetter(point) ? ReadForNow(IsLetter) : ReadForNow(IsTag);
-        if (token == "" && text[point] != '\\')
-            return text[point++].ToString();
-        if (text[point] == '\\')
-        {
-            token = ReadForNow(IsTag, point + 1, text);
-            point += token.Length + 1;
-            if (token == "")
-                token = "\\";
-
-            return token;
-        }
-
-        point += token.Length;
-
-        var tag = tags.FirstOrDefault(tag => tag!.SourceName == token);
-        if (tag is not null && stackOfTags.Count == 0 && IsCorrectStart(stackOfTags, tag, point) ||
-            tag is not null && stackOfTags.All(tagWith => tagWith.Tag != tag) &&
-            IsCorrectStart(stackOfTags, tag, point))
-        {
-            stackOfTags.Push(new TagWithIndex(tag, point - tag.SourceName.Length));
-            return string.Empty;
-        }
-
-        if (tag is not null && stackOfTags.Any(tagWith => tagWith.Tag == tag) &&
-            IsCorrectEnding(tag, point))
-        {
-            var previewTag = stackOfTags.First(tagWith => tagWith.Tag == tag);
-            ReplaceByIndex(previewTag.Tag, previewTag.Index);
-            return string.Empty;
-        }
-
         return token;
     }
 
-    private bool IsLetter(int index) =>
-        char.GetUnicodeCategory(text[index]) == UnicodeCategory.UppercaseLetter ||
-        char.GetUnicodeCategory(text[index]) == UnicodeCategory.LowercaseLetter;
+    private string GetNextToken(string text)
+    {
+        // var token = IsLetter(text[index]) ? ReadForNow(IsLetter, text) : ReadForNow(IsTag, text);
+        
+        if (IsLetter(text[index]))
+            return ReadForNow(IsLetter, text);
+        if (IsTag(text[index], index))
+            return ReadForNow(IsTag, index, text);
+        return ReadForNow(IsSpecialSymbol, text);
+
+        // if (token == "" && text[index] != '\\')
+        //     return text[index++].ToString();
+        // if (text[index] == '\\')
+        // {
+        //     token = ReadForNow(IsTag, index + 1, text);
+        //     index += token.Length + 1;
+        //     if (token == "")
+        //         token = "\\";
+        //
+        //     return token;
+        // }
+
+        // index += token.Length;
+
+        // var tag = tags.FirstOrDefault(tag => tag!.SourceName == token);
+        // if (tag is not null && stackOfTags.Count == 0 && IsCorrectStart(stackOfTags, tag, index) ||
+        //     tag is not null && stackOfTags.All(tagWith => tagWith.Tag != tag) &&
+        //     IsCorrectStart(stackOfTags, tag, index))
+        // {
+        //     stackOfTags.Push(new TagWithIndex(tag, index - tag.SourceName.Length));
+        //     return string.Empty;
+        // }
+        //
+        // if (tag is not null && stackOfTags.Any(tagWith => tagWith.Tag == tag) &&
+        //     IsCorrectEnding(tag, index))
+        // {
+        //     var previewTag = stackOfTags.First(tagWith => tagWith.Tag == tag);
+        //     ReplaceByIndex(previewTag.Tag, previewTag.Index);
+        //     return string.Empty;
+        // }
+        //
+        // return token;
+    }
+
+    private static bool IsLetter(char symbol) => char.IsLetter(symbol);
+
+    private static bool IsSpecialSymbol(char symbol) => !IsLetter(symbol) && !IsTag(symbol, 0);
+
+    private static bool IsTag(char symbol, int index) => startCharOfTags.Contains(symbol);
 
     private bool IsTag(int textIndexFrom, int textIndexTo, int tagIndexTo, string myText) =>
         tags.Where(tag => tag?.SourceName.Length >= tagIndexTo + 1)
             .Count(tag => tag?.SourceName[..(tagIndexTo + 1)] == myText.Substring(textIndexFrom, tagIndexTo + 1)) > 0;
 
-    private bool IsNumber(int index) =>
-        char.GetUnicodeCategory(text[index]) == UnicodeCategory.LetterNumber;
+    private static bool IsNumber(char symbol) => char.IsNumber(symbol);
 
-    private static string ReadForNow(Func<int, bool> func, int index, string currentText)
+    private static string ReadForNow(Func<char, bool> func, int index, string currentText)
     {
         var symbols = new StringBuilder();
-        var currentPoint = index;
-        while (currentPoint < currentText.Length)
+        while (index < currentText.Length)
         {
-            if (!func(currentPoint))
+            if (!func(currentText[index]))
                 return symbols.ToString();
-            symbols.Append(currentText[currentPoint]);
-            currentPoint++;
+            symbols.Append(currentText[index]);
+            index++;
         }
 
         return symbols.ToString();
     }
 
-    private string ReadForNow(Func<int, bool> func) => ReadForNow(func, point, text);
+    private string ReadForNow(Func<char, bool> func, string text) => ReadForNow(func, index, text);
 
     private static string ReadForNow(Func<int, int, int, string, bool> func, int index, string currentText)
     {
@@ -130,11 +138,9 @@ public class MarkdownTranslator : ITranslator
         return symbols.ToString();
     }
 
-    private string ReadForNow(Func<int, int, int, string, bool> func) => ReadForNow(func, point, text);
-
-    private void ReplaceByIndex(ITag? tag, int index)
+    private void ReplaceByIndex(ITag? tag, int currentIndex, string text)
     {
-        var insertIndex = index;
+        var insertIndex = currentIndex;
         if (stackOfTags.Peek().Tag == tag)
         {
             insertIndex = stackOfTags.Where(tagWith => tagWith.Tag != tag).Aggregate(insertIndex,
@@ -142,7 +148,7 @@ public class MarkdownTranslator : ITranslator
 
             stackOfTags.Pop();
         }
-        else if (CheckIntersections(tag!, point))
+        else if (CheckIntersections(tag!, currentIndex, text))
         {
             PasteSourceNames(stackOfTags, null, true);
             return;
@@ -152,45 +158,45 @@ public class MarkdownTranslator : ITranslator
 
         var translateName = TagHelper.GetHtmlFormat(tag!.TranslateName);
         var indexPreviewItems = tagsInLine
-            .Where(tagWithIndex => tagWithIndex.Index < index)
+            .Where(tagWithIndex => tagWithIndex.Index < currentIndex)
             .Sum(item => item.Tag!.TranslateName.Length * 2 + OpenCloseTagLength - item.Tag.SourceName.Length * 2);
 
-        sb.Insert(insertIndex + indexPreviewItems, translateName.start);
-        sb.Append(translateName.end);
-        tagsInLine.Add(new TagWithIndex(tag, index));
+        textWithTranslate.Insert(insertIndex + indexPreviewItems, translateName.start);
+        textWithTranslate.Append(translateName.end);
+        tagsInLine.Add(new TagWithIndex(tag, currentIndex));
     }
 
     private void PasteSourceNames(IEnumerable<TagWithIndex> tagsWith, ITag? tag, bool needAppendTag = false)
     {
-        var index = tagsInLine.Sum(tagWith => tagWith.Tag is not null ? tagWith.Tag.TranslateName.Length : default);
+        var sumOfIndex = tagsInLine.Sum(tagWith => tagWith.Tag is not null ? tagWith.Tag.TranslateName.Length : default);
         if (tag is not null)
-            index += tag.SourceName.Length;
+            sumOfIndex += tag.SourceName.Length;
 
         var tagWithIndices = tagsWith.ToList();
         foreach (var item in tagWithIndices.Where(tagWith => tagWith.Tag != tag).Reverse())
-            sb.Insert(item.Index - index, item.Tag?.SourceName);
+            textWithTranslate.Insert(item.Index - sumOfIndex, item.Tag?.SourceName);
 
         if (needAppendTag)
-            sb.Append(tagWithIndices.Last().Tag?.SourceName);
+            textWithTranslate.Append(tagWithIndices.Last().Tag?.SourceName);
 
         stackOfTags = new Stack<TagWithIndex>();
     }
 
-    private bool IsCorrectStart(Stack<TagWithIndex> tagsStack, ITag? tag, int index)
+    private bool IsCorrectStart(Stack<TagWithIndex> tagsStack, ITag? tag, int currentIndex, string text)
     {
-        if (index < text.Length && IsLetter(index))
+        if (currentIndex < text.Length && IsLetter(text[currentIndex]))
         {
-            var startIndex = index - 1;
-            var lettersNext = ReadForNow(IsLetter, index, text);
-            index += lettersNext.Length;
-            var isNeedsTag = ReadForNow(IsTag, index, text);
+            var startIndex = currentIndex - 1;
+            var lettersNext = ReadForNow(IsLetter, currentIndex, text);
+            currentIndex += lettersNext.Length;
+            var isNeedsTag = ReadForNow(IsTag, currentIndex, text);
 
             if ((isNeedsTag == tag?.SourceName || isNeedsTag == "" && startIndex - 1 < 0 ||
-                 startIndex - 1 >= 0 && !IsLetter(startIndex - 1)) && (tagsStack.Count <= 0 ||
+                 startIndex - 1 >= 0 && !IsLetter(text[startIndex - 1])) && (tagsStack.Count <= 0 ||
                                                                        tagsStack.Peek().Tag!.SourceName != "_" ||
-                                                                       tag?.SourceName != "__" || index - 1 < 0 ||
-                                                                       IsNumber(index - 1) || index + 1 > text.Length ||
-                                                                       IsNumber(index + 1)))
+                                                                       tag?.SourceName != "__" || currentIndex - 1 < 0 ||
+                                                                       IsNumber(text[currentIndex - 1]) || currentIndex + 1 > text.Length ||
+                                                                       IsNumber(text[currentIndex + 1])))
                 return true;
         }
         else
@@ -199,10 +205,10 @@ public class MarkdownTranslator : ITranslator
         return false;
     }
 
-    private bool IsCorrectEnding(ITag? tag, int index) =>
-        index - (tag!.SourceName.Length + 1) >= 0 && IsLetter(index - (tag.SourceName.Length + 1));
+    private bool IsCorrectEnding(ITag? tag, int currentIndex, string text) =>
+        currentIndex - (tag!.SourceName.Length + 1) >= 0 && IsLetter(text[currentIndex - (tag.SourceName.Length + 1)]);
 
-    private bool CheckIntersections(ITag tag, int currentIndex) =>
+    private bool CheckIntersections(ITag tag, int currentIndex, string text) =>
         (from tagWithIndex in stackOfTags
             where tagWithIndex.Tag != tag
             let subString = text.Substring(currentIndex, text.Length - currentIndex)
