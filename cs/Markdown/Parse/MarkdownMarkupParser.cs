@@ -42,7 +42,7 @@ public class MarkdownMarkupParser : IMarkupParser
                 continue;
             }
             
-            var tag = MdRules.ParseTag(stack, currentNode, line, i, out var nextIndex);
+            var tag = MdRules.ParseTag(stack, line, i, out var nextIndex);
 
             if (IsClosing(line, tag, stack, currentNode, i))
             {

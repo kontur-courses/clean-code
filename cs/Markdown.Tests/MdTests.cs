@@ -19,8 +19,8 @@ public class MdTests
 
     [TestCase("# heading _italics_", "<h1>heading <em>italics</em></h1>")]
     [TestCase("# heading __bold__", "<h1>heading <strong>bold</strong></h1>")]
-    [TestCase("__bold _italics___", "<strong>bold <em>italics</em></strong>")]
-    [TestCase("# heading __bold _italics___", "<h1>heading <strong>bold <em>italics</em></strong></h1>")]
+    [TestCase("__bold _italics_ bold__", "<strong>bold <em>italics</em> bold</strong>")]
+    [TestCase("# heading __bold _italics_ bold__", "<h1>heading <strong>bold <em>italics</em> bold</strong></h1>")]
     public void Should_RenderNestedTags(string input, string expectedResult)
     {
         var converter = new Md();

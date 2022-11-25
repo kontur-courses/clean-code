@@ -48,51 +48,30 @@ public static class MdRules
                 .Any(child => child.HasChildrenWithOpenTag(tag)));
     }
 
-    public static Tag ParseTag(Stack<TokenTree> stack, TokenTree currentNode, string text, int position, out int newPosition)
+    public static Tag ParseTag(Stack<TokenTree> stack, string text, int position, out int newPosition)
     {
-        newPosition = position;
-        switch (text[position])
+        foreach (var tag in SupportedTags.OrderByDescending(tag => tag.Opening.Length))
         {
-            case '_':
-                if (position + 1 >= text.Length || text[position + 1] != '_')
-                    return MarkdownTagProvider.Italics;
-        
-                if (position + 2 < text.Length && text[position + 1] == '_' && text[position + 2] == '_')
-                {
-                    if (currentNode.IsTaggedWith(MarkdownTagProvider.Bold))
-                    {
-                        newPosition++;
-                        return MarkdownTagProvider.Bold;
-                    }
-        
-                    if (currentNode.IsTaggedWith(MarkdownTagProvider.Italics))
-                    {
-                        return MarkdownTagProvider.Italics;
-                    }
-        
-                    foreach (var tree in stack)
-                    {
-                        if (tree.IsTaggedWith(MarkdownTagProvider.Bold))
-                        {
-                            newPosition++;
-                            return MarkdownTagProvider.Bold;
-                        }
-        
-                        if (tree.IsTaggedWith(MarkdownTagProvider.Italics))
-                        {
-                            return MarkdownTagProvider.Italics;
-                        }
-                    }
-                }
-        
-                newPosition++;
-                return MarkdownTagProvider.Bold;
-            case '#' when position + 1 < text.Length && text[position + 1] == ' ':
-                newPosition++;
-                return MarkdownTagProvider.Heading;
-            default:
-                throw new NotSupportedException();
+            if (tag.IsOpeningSequence(text, position))
+            {
+                newPosition = tag.Opening.Length > 1 ? position + tag.Opening.Length - 1 : position;
+                return tag;
+            }
         }
+
+        var openTags = stack
+            .Where(node => node.Tag != null)
+            .Select(node => node.Tag!);
+        foreach (var tag in openTags)
+        {
+            if (tag.IsClosingSequence(text, position))
+            {
+                newPosition = tag.Closing.Length > 1 ? position + tag.Closing.Length - 1 : position;
+                return tag;
+            }
+        }
+        
+        throw new NotSupportedException();
     }
 
     public static bool IsValidOpening(Tag tag, Stack<TokenTree> stack, string text, int position)
