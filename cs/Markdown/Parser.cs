@@ -2,7 +2,7 @@
 
 namespace Markdown
 {
-    public class Parser
+    public class Parser : IParser
     {
         private Dictionary<string, Mod> separators;
         private Dictionary<Mod, string> htmlAnalogs;
@@ -32,7 +32,6 @@ namespace Markdown
         public string ParseMdToHTML(string markdownText)
         {
             var tokenizer = new Tokenizer(separators);
-
             var toks = tokenizer.TikenizeText(markdownText);
 
             var analyzer = new TokenAnalyzer(markdownText);
@@ -40,8 +39,8 @@ namespace Markdown
 
             var htmlBuilder = new HtmlBuilder(htmlAnalogs, markdownText);
             htmlBuilder.ConvertTokensToHtml(verifyTokens);
-
             var html = htmlBuilder.GetHtml();
+
             return html;
         }
     }

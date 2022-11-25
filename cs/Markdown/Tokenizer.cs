@@ -1,4 +1,5 @@
 ﻿using System.Collections.Generic;
+using System.Globalization;
 using System.Linq;
 using static System.Net.Mime.MediaTypeNames;
 
@@ -10,7 +11,7 @@ namespace Markdown
         private Dictionary<string, Mod> symbols;
         private string text;
         private Stack<Token> tokens;
-        private HashSet<int> linkBorderlineIndexes;
+        private int textInd;
 
         public Tokenizer(Dictionary<string, Mod> separatorSymbols)
         {
@@ -23,38 +24,20 @@ namespace Markdown
             text = mdText;
             tokens = new Stack<Token>();
             var curPos = 0;
-            for (var i = 0; i < text.Length; i++)
+            for (textInd = 0; textInd < text.Length; textInd++)
             {
-                var curSym = text[i];
+                var curSym = text[textInd];
 
-                if (linkRanges.IsIndexInRange(i))
+                if (linkRanges.IsIndexInRange(textInd))
                 {
-                    curPos = i + 1;
+                    curPos = textInd + 1;
                     continue;
                 }
 
                 if (symbols.ContainsKey(curSym.ToString()))
                 {
-                    Token curToken;
-
-                    if (i != curPos) AddCommonToken(curPos, i - 1);
-
-                    if (i + 1 != text.Length && text[i] == '_' && text[i + 1] == '_')
-                    {
-                        curToken = new Token(i, i + 1, Mod.Bold);
-                        i++;
-                    }
-                    else if (text[i] == '\\')
-                    {
-                        curToken = new Token(i, i, Mod.Slash, false);
-                    }
-                    else
-                    {
-                        curToken = new Token(i, i, symbols[curSym.ToString()]);
-                    }
-
-                    RedefineStack(tokens, curToken);
-                    curPos = i + 1;
+                    AddNewToken(curPos);
+                    curPos = textInd + 1;
                 }
             }
 
@@ -63,11 +46,29 @@ namespace Markdown
             return tokens.Reverse().ToList();
         }
 
-        private void AddCommonToken(int startPos, int endPos)
+        private void AddNewToken(int curPos)
         {
-            tokens.Push(new Token(startPos, endPos, Mod.Common, false));
-        }
+            var curSym = text[textInd];
+            Token curToken;
 
+            if (textInd != curPos) AddCommonToken(curPos, textInd - 1);
+
+            if (textInd + 1 != text.Length && text[textInd] == '_' && text[textInd + 1] == '_')
+            {
+                curToken = new Token(textInd, textInd + 1, Mod.Bold);
+                textInd++;
+            }
+            else if (text[textInd] == '\\')
+            {
+                curToken = new Token(textInd, textInd, Mod.Slash, false);
+            }
+            else
+            {
+                curToken = new Token(textInd, textInd, symbols[curSym.ToString()]);
+            }
+
+            RedefineStack(tokens, curToken);
+        }
         private void RedefineStack(Stack<Token> tokens, Token curToken)
         {
             tokens.TryPop(out var lastToken);
@@ -122,7 +123,8 @@ namespace Markdown
             }
             else if (last.modType == Mod.Slash)
             {
-                redefTokens.Add(new Token(current.StartInd, current.EndInd, Mod.Common));
+
+                redefTokens.Add(new Token(current.StartInd, current.EndInd, Mod.Common, false));
             }
             else
             {
@@ -217,20 +219,20 @@ namespace Markdown
         {
             var end = FindClosingChar(current.StartInd, closingChar);
 
-            if (current.StartInd == end)
+            if (end == null)
             {
-                currentList.Add(new Token(current.StartInd, end, Mod.Common, false));
+                currentList.Add(new Token(current.StartInd, current.StartInd, Mod.Common, false));
             }
             else
             {
-                currentList.Add(new Token(current.StartInd, end, current.modType));
-                linkRanges.AddRange(current.StartInd, end);
+                currentList.Add(new Token(current.StartInd, (int)end, current.modType));
+                linkRanges.AddRange(current.StartInd, (int)end);
             }
 
             return currentList;
         }
 
-        private int FindClosingChar(int start, char expectedChar)
+        private int? FindClosingChar(int start, char expectedChar)
         {
             var endInd = 0;
 
@@ -244,10 +246,14 @@ namespace Markdown
 
             if (endInd == text.Length && text[endInd - 1] != expectedChar)
             {
-                endInd = start;
+                return null;
             }
 
             return endInd;
+        }
+        private void AddCommonToken(int startPos, int endPos)
+        {
+            tokens.Push(new Token(startPos, endPos, Mod.Common, false));
         }
     }
 }

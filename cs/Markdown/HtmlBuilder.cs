@@ -24,7 +24,6 @@ namespace Markdown
             foreach (var module in verifiedModules)
             {
                 string moduleText;
-                int linkNameModuleInd = 0;
 
                 switch (module.modType)
                 {
@@ -62,7 +61,8 @@ namespace Markdown
 
         private string GetLinkModuleText(Token module)
         {
-            var linkName = text.Substring(curLinkNameModule.StartInd + 1, curLinkNameModule.EndInd - curLinkNameModule.StartInd - 1);
+            var linkName = text.Substring(curLinkNameModule.StartInd + 1, 
+                curLinkNameModule.EndInd - curLinkNameModule.StartInd - 1);
             var linkUrl = text.Substring(module.StartInd + 1, module.EndInd - module.StartInd - 1);
 
             var html = $"<a href=\"{linkUrl}\">{linkName}</a>";
@@ -81,11 +81,6 @@ namespace Markdown
             return moduleText;
         }
 
-        public string GetHtml()
-        {
-            return builder.ToString();
-        }
-
         private string GetHtmlModuleText(Token module)
         {
             var htmlAnalog = htmlAnalogs[module.modType];
@@ -95,6 +90,10 @@ namespace Markdown
             else moduleText = $"</{htmlAnalog}>";
 
             return moduleText;
+        }
+        public string GetHtml()
+        {
+            return builder.ToString();
         }
     }
 }

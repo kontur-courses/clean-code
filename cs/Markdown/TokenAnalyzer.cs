@@ -34,14 +34,8 @@ namespace Markdown
                 }
                 else if (curModule.modType == Mod.LinkUrl)
                 {
-                    if (linkNameToken == null)
-                    {
-                        CastToSimpleType(curModule);
-                    }
-                    else
-                    {
-                        linkNameToken = null;
-                    }
+                    if (linkNameToken == null) curModule.CastToCommonType();
+                    else linkNameToken = null;
                 }
                 else if (curModule.modType != Mod.Common)
                 {
@@ -49,22 +43,10 @@ namespace Markdown
                 }
             }
 
-            if (linkNameToken != null)
-            {
-                CastToSimpleType(linkNameToken);
-            }
+            if (linkNameToken != null) linkNameToken.CastToCommonType();
 
             SolveUnverifiedModules();
             return preTokens;
-        }
-
-        private void CastToSimpleType(params Token[] modules)
-        {
-            foreach (var module in modules)
-            {
-                module.Close();
-                module.modType = Mod.Common;
-            }
         }
 
         private void ValidConcatination(Token curModule)
@@ -91,158 +73,41 @@ namespace Markdown
             else
             {
                 CorrectIntersect(curModule);
-                CastToSimpleType(curModule);
+                curModule.CastToCommonType();
             }
-        }
-
-        private void СhangeStackAccordingNewLink(Token curModule)
-        {
-            Token openModule;
-
-            switch (curModule.modType)
-            {
-                case Mod.LinkName:
-
-                    break;
-
-                case Mod.LinkUrl:
-                    break;
-            }
-
-            if (curModule.modType == Mod.LinkName)
-            {
-                do 
-                {
-                    openModule = openModules.Pop();
-
-                    if (openModule.modType != Mod.LinkName)
-                    {
-                        CastToSimpleType(openModule);
-                    }
-                }
-                while (openModule.modType != Mod.LinkName);
-
-                verifiedModules.Push(openModule);
-            }
-
-            if (curModule.modType == Mod.LinkUrl)
-            {
-                do
-                {
-                    openModule = verifiedModules.Pop();
-
-                    if (openModule.modType != Mod.LinkUrl)
-                    {
-                        ChangeModType(Mod.Common, openModule);
-                        CloseModules(openModule);
-                    }
-                }
-                while (openModule.modType != Mod.LinkUrl);
-
-                verifiedModules.Push(openModule);
-            }
-
-            verifiedModules.Push(curModule);
-        }
-
-        private void ClearIntermediateModules(Stack<Token> modules, Token curModule)
-        {
-            Token openModule;
-
-            do
-            {
-                openModule = modules.Pop();
-
-                if (openModule.modType != Mod.LinkUrl)
-                {
-                    ChangeModType(Mod.Common, openModule);
-                    CloseModules(openModule);
-                }
-            }
-            while (openModule.modType != Mod.LinkUrl);
-
-            verifiedModules.Push(openModule);
-        }
-
-        private void FindOpenModifierAndIgnorBetween(Mod startMod)
-        {
-            Token openModule;
-
-            do
-            {
-                openModule = openModules.Pop();
-
-                if (openModule.modType != startMod)
-                {
-                    ChangeModType(Mod.Common, openModule);
-                    CloseModules(openModule);
-                }
-            }
-            while (openModule.modType != startMod);
-        }
-
-        private bool IsLinkClosingModule(Token curModule)
-        {
-            if (curModule.modType == Mod.LinkName && openModules.Any(x => x.modType == Mod.LinkName))
-            {
-                return true;    
-            }
-            else if (curModule.modType == Mod.LinkUrl && openModules.Any(x => x.modType == Mod.LinkUrl))
-            {
-                return true;
-            }
-
-            return false;
         }
 
         private void HandingConcatinationClosure(Token lastModule, Token curModule)
         {
             if (curModule.StartInd - lastModule.EndInd == 1)
             {
-                CloseModules(lastModule, curModule);
-                ChangeModType(Mod.Common, lastModule, curModule);
+                lastModule.CastToCommonType();
+                curModule.CastToCommonType();
             }
             else if (IsModuleInWord(lastModule) &&
                 IsModuleInWord(curModule) &&
                 IsModulesInSameWord(lastModule, curModule))
             {
                 CorrectBoldInclusion(curModule);
-                CloseModules(curModule);
+                curModule.Close();
                 openModules.Pop();
                 verifiedModules.Push(curModule);
             }
             else if (IsModuleInWord(curModule) &&
                 !IsModulesInSameWord(lastModule, curModule))
             {
-                ChangeModType(Mod.Common, curModule);
-                CloseModules(curModule);
+                curModule.CastToCommonType();
             }
             else if (IsClosingModule(curModule))
             {
                 CorrectBoldInclusion(curModule);
-                CloseModules(curModule);
+                curModule.Close();
                 openModules.Pop();
                 verifiedModules.Push(curModule);
             }
             else
             {
-                ChangeModType(Mod.Common, curModule);
-            }
-        }
-
-        private void CloseModules(params Token[] tokens)
-        {
-            foreach (var token in tokens)
-            {
-                token.Close();
-            }
-        }
-
-        private void ChangeModType(Mod newModType, params Token[] tokens)
-        {
-            foreach (var token in tokens)
-            {
-                token.modType = newModType;
+                curModule.CastToCommonType();
             }
         }
 
@@ -256,9 +121,8 @@ namespace Markdown
                 if (preLastMod.modType == curModule.modType)
                 {
                     openModules.Pop();
-                    
-                    CloseModules(preLastMod, lastMod);
-                    ChangeModType(Mod.Common, preLastMod, lastMod);
+                    preLastMod.CastToCommonType();
+                    lastMod.CastToCommonType();
                 }
             }
         }
@@ -273,7 +137,7 @@ namespace Markdown
                 {
                     if (isStackHasOpenTitle)
                     {
-                        CloseModules(module);
+                        module.Close();
                         isStackHasOpenTitle = false;
                     }
                     else
@@ -283,7 +147,7 @@ namespace Markdown
                 }
                 else
                 {
-                    ChangeModType(Mod.Common, module);
+                    module.CastToCommonType();
                 }
             }
 
@@ -354,8 +218,8 @@ namespace Markdown
                 var first = verifiedModules.Pop();
                 var second = verifiedModules.Pop();
 
-                CloseModules(first);
-                ChangeModType(Mod.Common, first, second);
+                first.CastToCommonType();
+                second.CastToCommonType();
             }
         }
        
@@ -371,15 +235,13 @@ namespace Markdown
                     if ((startInd > 0 && char.IsDigit(text[startInd - 1])) ||
                         (endInd + 1 < text.Length && char.IsDigit(text[endInd + 1])))
                     {
-                        CloseModules(token);
-                        ChangeModType(Mod.Common, token);
+                        token.CastToCommonType();
                     }
                 }
 
                 if (token.modType == Mod.Slash)
                 {
-                    CloseModules(token);
-                    ChangeModType(Mod.Common, token);
+                    token.CastToCommonType();
                 }
             }
         }

@@ -78,7 +78,6 @@ namespace Markdown_tests
         [TestCase(@"text [link name] (www.link.com) text",
             @"text [link name] (www.link.com) text",
             TestName = "{m}_NonValidLink")]
-
         public void Md_CommonInput_ShouldBeExpected(string md, string exp)
         {
             var markdown = new Md();

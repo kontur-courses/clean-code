@@ -21,5 +21,16 @@
         {
             isOpen = false;
         }
+
+        public void ChangeModType(Mod modType)
+        {
+            this.modType = modType;
+        }
+
+        public void CastToCommonType()
+        {
+            Close();
+            ChangeModType(Mod.Common);
+        }
     }
 }
