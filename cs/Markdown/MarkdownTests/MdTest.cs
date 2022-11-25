@@ -7,21 +7,14 @@ namespace MarkdownTests
 {
     public class MdTest
     {
-        private Md _md;
-
-        [SetUp]
-        public void Setup()
-        {
-            _md = new Md();
-        }
-
         [TestCase("", "")]
         [TestCase("_text_", "<em>text</em>", TestName = "Курсив")]
         [TestCase("__text__", "<strong>text</strong>", TestName = "Полужирный тег")]
         [TestCase("#text", "<h1>text</h1>", TestName = "Заголовок")]
         public void Render_SimpleTests_ShouldBeExpected(string text, string exp)
         {
-            var result = _md.Render(text);
+            var md = new Md();
+            var result = md.Render(text);
             result.Should().BeEquivalentTo(exp);
         }
 
@@ -57,7 +50,8 @@ namespace MarkdownTests
             TestName = "Пересекающиеся теги")]
         public void Render_MultipleTags_ShouldBeExpected(string text, string exp)
         {
-            var result = _md.Render(text);
+            var md = new Md();
+            var result = md.Render(text);
             result.Should().BeEquivalentTo(exp);
         }
 
@@ -66,7 +60,8 @@ namespace MarkdownTests
         [TestCase(@"text t\ext\ \text\", TestName = "Слеш без тегов")]
         public void Render_ShouldReturnText(string text)
         {
-            var result = _md.Render(text);
+            var md = new Md();
+            var result = md.Render(text);
             result.Should().BeEquivalentTo(text);
         }
     }
