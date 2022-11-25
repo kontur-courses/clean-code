@@ -84,7 +84,8 @@ namespace Markdown.Tokens
                     continue;
                 }
 
-                if (!IsEmptyStringBetweenTokens(previousTagToken, token) && !IsTagTokensInsideDifferentWords(text, previousTagToken, token))
+                if (!IsEmptyStringBetweenTokens(previousTagToken, token) &&
+                    !IsTagTokensInsideDifferentWords(text, previousTagToken, token))
                 {
                     tagTokensStack.Pop();
                     continue;
@@ -141,25 +142,19 @@ namespace Markdown.Tokens
 
         private static bool IsTagTokensInsideDifferentWords(string text, TypedToken previous, TypedToken next)
         {
-
-            //if (previous.Start == 0 && next.End + 1 == text.Length) // дополнить условие с символом перевода строки
-            //    return false;
-
             if (IsTagBeforeWord(text, previous) && IsTagAfterWord(text, next))
                 return false;
 
             for (var i = previous.End + 1; i < next.Start; i++)
-            {
                 if (char.IsWhiteSpace(text[i]))
                     return true;
-            }
 
             return false;
         }
 
         private static bool IsTagBeforeWord(string text, TypedToken token)
         {
-            var separators = new HashSet<char> {'\n', ' '};
+            var separators = new HashSet<char> { '\n', ' ' };
 
             return token.Start == 0 || separators.Contains(text[token.Start - 1]);
         }
@@ -171,5 +166,4 @@ namespace Markdown.Tokens
             return token.End == text.Length - 1 || separators.Contains(text[token.End + 1]);
         }
     }
-
 }

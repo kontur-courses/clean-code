@@ -1,26 +1,20 @@
-﻿    using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-    using System.Xml.Schema;
-    using Markdown.TagValidator;
+﻿using Markdown.TagValidator;
 
-    namespace Markdown.Tags
+namespace Markdown.Tags
 {
     public class Tag : ITag
     {
         public TagType Type { get; }
         public string OpeningSubTag { get; }
         public string ClosingSubTag { get; }
-        public ITagValidator Validator { get; }
+        private readonly ITagValidator validator;
 
         public Tag(TagType type, string opening, string closing, ITagValidator validator)
         {
             Type = type;
             OpeningSubTag = opening;
             ClosingSubTag = closing;
-            Validator = validator;
+            this.validator = validator;
         }
 
         public string GetSubTag(SubTagOrder order)
@@ -33,7 +27,7 @@ using System.Threading.Tasks;
 
         public bool IsValid(string text, SubTagOrder order, int start)
         {
-            return Validator.IsValid(text, this, order, start);
+            return validator.IsValid(text, this, order, start);
         }
     }
 }

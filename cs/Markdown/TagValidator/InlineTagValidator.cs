@@ -1,5 +1,4 @@
-﻿using System;
-using Markdown.Tags;
+﻿using Markdown.Tags;
 
 namespace Markdown.TagValidator
 {

@@ -4,7 +4,6 @@
     {
         Escape,
         Text,
-        Tag,
-        Undefined
+        Tag
     }
 }

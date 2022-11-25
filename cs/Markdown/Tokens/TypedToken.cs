@@ -1,17 +1,11 @@
-﻿using System.Runtime.CompilerServices;
-using Markdown.Tags;
+﻿using Markdown.Tags;
 
 namespace Markdown.Tokens
 {
     public class TypedToken : Token
     {
-        public TokenType Type { get; set; }
-
-        public SubTagOrder Order { get; set; }
-
-        public TagType TagType { get; set; }
-
-        public TypedToken(int start, int length, TokenType type, TagType tagType = TagType.Undefined, SubTagOrder order = SubTagOrder.Undefined)
+        public TypedToken(int start, int length, TokenType type, TagType tagType = TagType.Undefined,
+            SubTagOrder order = SubTagOrder.Undefined)
             : base(start, length)
         {
             Type = type;
@@ -20,18 +14,24 @@ namespace Markdown.Tokens
         }
 
         public TypedToken(ITag tag, SubTagOrder order, int start)
-        : base(start, tag.GetSubTag(order).Length)
+            : base(start, tag.GetSubTag(order).Length)
         {
             Type = TokenType.Tag;
             TagType = tag.Type;
             Order = order;
         }
 
+        public TokenType Type { get; set; }
+
+        public SubTagOrder Order { get; set; }
+
+        public TagType TagType { get; set; }
+
         public void SwitchToTextToken()
         {
-            this.Type = TokenType.Text;
-            this.TagType = TagType.Undefined;
-            this.Order = SubTagOrder.Undefined;
+            Type = TokenType.Text;
+            TagType = TagType.Undefined;
+            Order = SubTagOrder.Undefined;
         }
     }
 }

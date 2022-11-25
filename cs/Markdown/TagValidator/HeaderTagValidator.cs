@@ -1,13 +1,9 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿using System.Collections.Generic;
 using Markdown.Tags;
 
 namespace Markdown.TagValidator
 {
-    public class HeaderTagValidator: ITagValidator
+    public class HeaderTagValidator : ITagValidator
     {
         private readonly HashSet<char?> acceptableSymbolsBeforeOpening = new HashSet<char?> { null, '\n' };
 

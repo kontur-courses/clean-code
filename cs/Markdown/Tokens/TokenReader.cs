@@ -57,7 +57,7 @@ namespace Markdown.Tokens
                     for (var j = tagToken.Start; j <= tagToken.End; j++)
                         positionsWithTag.Add(j);
 
-                    if ((tag.IsValid(text, tagToken.Order, tagToken.Start)))
+                    if (tag.IsValid(text, tagToken.Order, tagToken.Start))
                         result.Add(tagToken);
                 }
             }
@@ -151,10 +151,7 @@ namespace Markdown.Tokens
 
             textTokens.AddTextFromBeginningUpToTag(tagTokens.First());
 
-            for (var i = 0; i < tagTokens.Count - 1; i++)
-            {
-                textTokens.AddTextBetween(tagTokens[i], tagTokens[i + 1]);
-            }
+            for (var i = 0; i < tagTokens.Count - 1; i++) textTokens.AddTextBetween(tagTokens[i], tagTokens[i + 1]);
 
             var textLength = line.Length - tagTokens.Last().End - 1;
 
@@ -162,6 +159,5 @@ namespace Markdown.Tokens
 
             return textTokens;
         }
-
     }
 }

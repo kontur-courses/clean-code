@@ -1,5 +1,4 @@
-﻿using NUnit;
-using Markdown.Tags;
+﻿using Markdown.Tags;
 using Markdown.Tokens;
 using FluentAssertions;
 using NUnit.Framework;
@@ -37,9 +36,9 @@ namespace MarkDownUnitTests
 
             tokens.Should().BeEquivalentTo(new[]
                 {
-                    new TypedToken(0, 2,TokenType.Tag, TagType.Header,SubTagOrder.Opening),
+                    new TypedToken(0, 2, TokenType.Tag, TagType.Header, SubTagOrder.Opening),
                     new TypedToken(2, 13, TokenType.Text),
-                    new TypedToken(15, 1,TokenType.Tag, TagType.Header, SubTagOrder.Closing),
+                    new TypedToken(15, 1, TokenType.Tag, TagType.Header, SubTagOrder.Closing),
                 }
             );
         }
@@ -56,9 +55,9 @@ namespace MarkDownUnitTests
             tokens.Should().BeEquivalentTo(new[]
                 {
                     new TypedToken(0, 5, TokenType.Text),
-                    new TypedToken(5, 1,TokenType.Tag, TagType.Italic,SubTagOrder.Opening),
-                    new TypedToken(6, 6,TokenType.Text),
-                    new TypedToken(12, 1,TokenType.Tag, TagType.Italic,SubTagOrder.Closing),
+                    new TypedToken(5, 1, TokenType.Tag, TagType.Italic, SubTagOrder.Opening),
+                    new TypedToken(6, 6, TokenType.Text),
+                    new TypedToken(12, 1, TokenType.Tag, TagType.Italic, SubTagOrder.Closing),
                     new TypedToken(13, 5, TokenType.Text)
                 }
             );
@@ -76,7 +75,7 @@ namespace MarkDownUnitTests
             tokens.Should().BeEquivalentTo(new[]
                 {
                     new TypedToken(0, 5, TokenType.Text),
-                    new TypedToken(5, 2, TokenType.Tag,TagType.Strong, SubTagOrder.Opening),
+                    new TypedToken(5, 2, TokenType.Tag, TagType.Strong, SubTagOrder.Opening),
                     new TypedToken(7, 4, TokenType.Text),
                     new TypedToken(11, 2, TokenType.Tag, TagType.Strong, SubTagOrder.Closing),
                     new TypedToken(13, 5, TokenType.Text)
@@ -96,13 +95,13 @@ namespace MarkDownUnitTests
             tokens.Should().BeEquivalentTo(new[]
                 {
                     new TypedToken(0, 5, TokenType.Text),
-                    new TypedToken(5, 2,TokenType.Tag,TagType.Strong, SubTagOrder.Opening),
+                    new TypedToken(5, 2, TokenType.Tag, TagType.Strong, SubTagOrder.Opening),
                     new TypedToken(7, 4, TokenType.Text),
-                    new TypedToken(11, 2,TokenType.Tag,TagType.Strong, SubTagOrder.Closing),
+                    new TypedToken(11, 2, TokenType.Tag, TagType.Strong, SubTagOrder.Closing),
                     new TypedToken(13, 5, TokenType.Text),
-                    new TypedToken(18, 1,TokenType.Tag,TagType.Italic, SubTagOrder.Opening),
+                    new TypedToken(18, 1, TokenType.Tag, TagType.Italic, SubTagOrder.Opening),
                     new TypedToken(19, 6, TokenType.Text),
-                    new TypedToken( 25, 1,TokenType.Tag,TagType.Italic, SubTagOrder.Closing),
+                    new TypedToken(25, 1, TokenType.Tag, TagType.Italic, SubTagOrder.Closing),
                     new TypedToken(26, 5, TokenType.Text)
                 }
             );
@@ -137,9 +136,7 @@ namespace MarkDownUnitTests
 
             tokens.Should().BeEquivalentTo(new[]
                 {
-                    new TypedToken(0, 12, TokenType.Text),
-                    new TypedToken(12, 1, TokenType.Text),
-                    new TypedToken(13, 19, TokenType.Text),
+                    new TypedToken(0, 32, TokenType.Text)
                 }
             );
         }
@@ -173,9 +170,7 @@ namespace MarkDownUnitTests
 
             tokens.Should().BeEquivalentTo(new[]
                 {
-                    new TypedToken(0, 12, TokenType.Text),
-                    new TypedToken(12, 2, TokenType.Text),
-                    new TypedToken(14, 17, TokenType.Text),
+                    new TypedToken(0, 31, TokenType.Text),
                 }
             );
         }
@@ -191,8 +186,9 @@ namespace MarkDownUnitTests
 
             tokens.Should().BeEquivalentTo(new[]
                 {
-                    new TypedToken(0, 2, TokenType.Text),
+                    new TypedToken(0, 2, TokenType.Tag, TagType.Header, SubTagOrder.Opening),
                     new TypedToken(2, 31, TokenType.Text),
+                    new TypedToken(33, 1, TokenType.Tag, TagType.Header, SubTagOrder.Closing)
                 }
             );
         }
@@ -208,12 +204,10 @@ namespace MarkDownUnitTests
 
             tokens.Should().BeEquivalentTo(new[]
                 {
-                    new TypedToken(0, 8, TokenType.Text),
-                    new TypedToken(8, 1, TokenType.Text),
-                    new TypedToken(9, 16, TokenType.Text),
-                    new TypedToken(25, 2,TokenType.Tag,TagType.Strong, SubTagOrder.Opening),
+                    new TypedToken(0, 25, TokenType.Text),
+                    new TypedToken(25, 2, TokenType.Tag, TagType.Strong, SubTagOrder.Opening),
                     new TypedToken(27, 4, TokenType.Text),
-                    new TypedToken(31, 2,TokenType.Tag, TagType.Strong,SubTagOrder.Closing),
+                    new TypedToken(31, 2, TokenType.Tag, TagType.Strong, SubTagOrder.Closing),
                     new TypedToken(33, 4, TokenType.Text),
                 }
             );
@@ -231,10 +225,10 @@ namespace MarkDownUnitTests
             tokens.Should().BeEquivalentTo(new[]
                 {
                     new TypedToken(0, 4, TokenType.Text),
-                    new TypedToken(5,1,TokenType.Text),
-                    new TypedToken(6,7,TokenType.Text),
-                    new TypedToken(14,1,TokenType.Text),
-                    new TypedToken(15,11,TokenType.Text)
+                    new TypedToken(5, 1, TokenType.Text),
+                    new TypedToken(6, 7, TokenType.Text),
+                    new TypedToken(14, 1, TokenType.Text),
+                    new TypedToken(15, 11, TokenType.Text)
                 }
             );
         }
@@ -251,8 +245,8 @@ namespace MarkDownUnitTests
             tokens.Should().BeEquivalentTo(new[]
                 {
                     new TypedToken(0, 7, TokenType.Text),
-                    new TypedToken(8,1,TokenType.Text),
-                    new TypedToken(9,17,TokenType.Text)
+                    new TypedToken(8, 1, TokenType.Text),
+                    new TypedToken(9, 17, TokenType.Text)
                 }
             );
         }
@@ -269,8 +263,8 @@ namespace MarkDownUnitTests
             tokens.Should().BeEquivalentTo(new[]
                 {
                     new TypedToken(0, 11, TokenType.Text),
-                    new TypedToken(11,1,TokenType.Text),
-                    new TypedToken(12,7,TokenType.Text)
+                    new TypedToken(11, 1, TokenType.Text),
+                    new TypedToken(12, 7, TokenType.Text)
                 }
             );
         }
