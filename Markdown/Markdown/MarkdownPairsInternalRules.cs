@@ -1,6 +1,4 @@
-﻿using System.Security.AccessControl;
-
-namespace Markdown
+﻿namespace Markdown
 {
     internal static class MarkdownPairsInternalRules
     {

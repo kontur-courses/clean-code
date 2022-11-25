@@ -7,6 +7,7 @@
             var convertedLine = specialStringFormat.ConvertedLine;
             var operationalCharacters = specialStringFormat.OperationalCharacters;
             var Actions = new MarkdownAction[convertedLine.Length];
+
             for (int i = 0; i < convertedLine.Length; i++)
             {
                 if (operationalCharacters[i] && Actions[i].ActionType == MarkdownActionType.None)

@@ -1,6 +1,4 @@
-﻿using System.Text;
-
-namespace Markdown
+﻿namespace Markdown
 {
     internal static class MarkdownTagToHTMLConverter
     {

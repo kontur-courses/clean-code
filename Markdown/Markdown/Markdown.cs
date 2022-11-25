@@ -19,6 +19,7 @@
         {
             var stringFormat = SpecialStringFormat.ConvertLineToFormat(line)
                 .SetPrimaryMarkdown()
+                .DisapproveIntersectingPairs()
                 .DisapproveEmpty()
                 .DisapproveStartsOrEndsWithSpace();
 
