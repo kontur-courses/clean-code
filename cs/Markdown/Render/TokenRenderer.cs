@@ -18,16 +18,9 @@ public class TokenRenderer : ITokenRenderer
         }
         else if (tree.Closed)
         {
-            if (tree.Valid)
-            {
-                opening = rules[tree.Tag].Opening;
-                closing = rules[tree.Tag].Closing;
-            }
-            else
-            {
-                opening = tree.Tag.Opening;
-                closing = tree.Tag.Closing;
-            }
+            var tag = tree.Valid ? rules[tree.Tag] : tree.Tag;
+            opening = tag.Opening;
+            closing = tag.Closing;
         }
         else
         {
