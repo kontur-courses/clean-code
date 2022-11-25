@@ -25,15 +25,15 @@ namespace Markdown.Markdown
 
     public static class MarkdownParser
     {
-        public static List<Token> GetListWithMdTags(string stringWithTags)
+        public static Token[] GetArrayWithMdTags(string stringWithTags)
         {
             if (string.IsNullOrEmpty(stringWithTags))
                 throw new ArgumentNullException("String for parse token must not be null or empty");
             var mdTags = new HashSet<string> { "# ", "\n", "!", "[", "]", "(", ")", "__", "_", "\\" };
-            var tokenList = new List<Token>();
+            var mdTokens = new List<Token>();
             foreach (var tag in mdTags)
-                AddTokenTag(stringWithTags, tag, tokenList);
-            return tokenList;
+                AddTokenTag(stringWithTags, tag, mdTokens);
+            return mdTokens.OrderBy(x=>x.Position).ToArray();
         }
 
         private static void AddTokenTag(string stringWithTags, string tag, List<Token> tokenList)

@@ -5,31 +5,32 @@ namespace Markdown.Tokens
 {
     public static class TokenParser
     {
-        public static IList<Token> GetTokens(List<Token> tokenList, int endIndex)
+        public static Token[] GetTokens(Token[] ArrayMdTokens, int endIndex)
         {
+            
             if (endIndex <= 0)
                 throw new ArgumentException("End index must be positive and greater than zero");
-
-            if (tokenList.Select(x => x.Length).Contains(0))
+            var MdTokens = ArrayMdTokens.ToList();
+            if (MdTokens.Select(x => x.Length).Contains(0))
                 throw new ArgumentNullException("Token list must not contains zero lenght tokens");
             var tokens = new List<Token>();
             var token = new Token(0, 0);
-            if (tokenList.Count != 0)
+            if (MdTokens.Count != 0)
             {
-                var firstToken = new Token(0, 0).GetTokenBetween(tokenList[0]);
+                var firstToken = new Token(0, 0).GetTokenBetween(MdTokens[0]);
                 if (firstToken.Length > 0)
                     tokens.Add(firstToken);
-                token = tokenList[0];
+                token = MdTokens[0];
             }
-            for (var i = 0; i < tokenList.Count; i++)
+            for (var i = 0; i < MdTokens.Count; i++)
             {
                 if (i > 0)
-                    CreateTextToken(tokenList, i, tokens, token);
-                token = tokenList[i];
+                    CreateTextToken(MdTokens, i, tokens, token);
+                token = MdTokens[i];
                 tokens.Add(token);
             }
             tokens.Add(token.GetTokenBetween(new Token(endIndex, 0)));
-            return tokens;
+            return tokens.ToArray();
         }
 
         private static void CreateTextToken(List<Token> tokenList, int i, List<Token> tokens, Token token)

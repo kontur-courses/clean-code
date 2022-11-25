@@ -9,10 +9,9 @@ namespace Markdown.Markdown
         {
             if (string.IsNullOrEmpty(markdownString))
                 throw new ArgumentNullException("String for render must not be null or empty");
-            var markdownTokens = MarkdownParser.GetListWithMdTags(markdownString).OrderBy(token => token.Position).ToList();
+            var markdownTokens = MarkdownParser.GetArrayWithMdTags(markdownString);
             var tokens = TokenParser.GetTokens(markdownTokens, markdownString.Length);
-            tokens = tokens.Filter(markdownString);
-            return HtmlParser.Parse(tokens, markdownString);
+            return HtmlParser.Parse(tokens.Filter(markdownString), markdownString);
         }
     }
 }

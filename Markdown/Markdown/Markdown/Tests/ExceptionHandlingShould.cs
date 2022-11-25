@@ -21,7 +21,7 @@ namespace Markdown.Tests
         [TestCase(null, TestName = "parse string is null")]
         public void ThrowException_WhenParseMarkdownTokenStringIsNullOrEmpty(string nullString)
         {
-            Action resultAction = () => MarkdownParser.GetListWithMdTags(nullString);
+            Action resultAction = () => MarkdownParser.GetArrayWithMdTags(nullString);
             resultAction.Should().Throw<ArgumentNullException>();
         }
 
@@ -29,7 +29,7 @@ namespace Markdown.Tests
         public void ThrowException_WhenTokenParserHaveEmptyToken()
         {
             var tokens = new List<Token>() { new Token(0, 2), new Token(2, 0) };
-            Action resultAction = () => TokenParser.GetTokens(tokens, 2);
+            Action resultAction = () => TokenParser.GetTokens(tokens.ToArray(), 2);
             resultAction.Should().Throw<ArgumentNullException>();
         }
 
@@ -38,7 +38,7 @@ namespace Markdown.Tests
         public void ThrowException_WhenTokenParserHaveNotEndIndex(int endIndex)
         {
             var tokens = new List<Token>() { new Token(0, 2), new Token(2, 2) };
-            Action resultAction = () => TokenParser.GetTokens(tokens, endIndex);
+            Action resultAction = () => TokenParser.GetTokens(tokens.ToArray(), endIndex);
             resultAction.Should().Throw<ArgumentException>();
         }
 
