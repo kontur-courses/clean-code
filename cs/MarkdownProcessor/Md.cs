@@ -69,29 +69,38 @@ public class Md
     {
         for (var i = 0; i < text.Length; i++)
         {
-            if (text[i] == '\\')
-                if (i + 1 < text.Length && (text[i + 1] == '\\' || tokens.Any(t => t.StartsWith(text[i + 1]))))
-                {
-                    resultText.Append(text[++i]);
-                    continue;
-                }
-
-            var token = tokens
-                .FirstOrDefault(t => i + t.Length <= text.Length &&
-                                     t.StartsWith(text[i]) &&
-                                     text.Substring(i, t.Length) == t);
-            if (token != null)
+            if (text[i] == '\\' && i + 1 < text.Length && ShieldedSymbol(text[i + 1], tokens))
             {
-                char? before = i == 0 ? null : text[i - 1];
-                char? after = i + token.Length >= text.Length ? null : text[i + token.Length];
-                yield return new Token(resultText.Length, token, before, after);
-                resultText.Append(token);
-                i += token.Length - 1;
+                resultText.Append(text[++i]);
+                continue;
             }
-            else
+
+            var matchedToken = tokens.FirstOrDefault(t => Match(t, i, text));
+
+            if (matchedToken is null)
             {
                 resultText.Append(text[i]);
+                continue;
             }
+            
+            char? before = i == 0 ? null : text[i - 1];
+            char? after = i + matchedToken.Length >= text.Length ? null : text[i + matchedToken.Length];
+            yield return new Token(resultText.Length, matchedToken, before, after);
+            
+            resultText.Append(matchedToken);
+            i += matchedToken.Length - 1;
         }
+    }
+
+    private static bool ShieldedSymbol(char c, IEnumerable<string> tokens)
+    {
+        return c == '\\' || tokens.Any(t => t.StartsWith(c));
+    }
+
+    private static bool Match(string expression, int index, string text)
+    {
+        return index + expression.Length <= text.Length &&
+               expression.StartsWith(text[index]) &&
+               text.Substring(index, expression.Length) == expression;
     }
 }
