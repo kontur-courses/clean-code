@@ -4,8 +4,10 @@ namespace Markdown
 {
     public class MdTag : Tag
     {
-        public MdTag(string tag, bool hasCloseTag): 
-            this(tag, hasCloseTag, -1, -1) { }
+        public MdTag(string tag, bool hasCloseTag) :
+            this(tag, hasCloseTag, -1, -1)
+        {
+        }
 
         public MdTag(string tag, bool hasCloseTag, int openTagIndex, int closeTagIndex)
         {
@@ -22,7 +24,7 @@ namespace Markdown
         {
             return OpenTag.Length == 1;
         }
-        
+
         public override string CreateStringWithTag(string str)
         {
             return String.Empty;

@@ -12,7 +12,7 @@ namespace Markdown
             else
                 CloseTag = String.Empty;
         }
-        
+
         public override string CreateStringWithTag(string str)
         {
             return String.Empty;
