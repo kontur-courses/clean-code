@@ -68,7 +68,7 @@
                         }
                     }
                 }
-                else if (line[i] >= '1' && line[i] <= '9')
+                else if (line[i] >= '0' && line[i] <= '9')
                 {
                     foreach (var ma in openBrackets)
                     {
