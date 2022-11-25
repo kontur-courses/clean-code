@@ -68,8 +68,8 @@
             foreach (var pair in lineFormat.ActionPairs)
             {
                 if (!actions[pair.Item1].Approved) continue;
-                if ((pair.Item1 != 0 && line[pair.Item1 - 1] != ' ') ||
-                    (pair.Item2 != line.Length - 1 && line[pair.Item2 + 1] != ' '))
+                if ((pair.Item1 != 0 && line[pair.Item1 - 1] != ' ' && line[pair.Item1 - 1] != '#') ||
+                    (pair.Item2 != line.Length - 1 && line[pair.Item2 + 1] != ' ' && line[pair.Item2 + 1] != '#'))
                 {
                     for (int i = pair.Item1; i <= pair.Item2; i++)
                     {
