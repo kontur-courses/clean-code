@@ -106,7 +106,7 @@ namespace Markdown
             var text = @"_подчерк _не считается_";
             var res = md.Render(text);
 
-            res.Should().Be(@"<em>подчерк _не считается</em>");
+            res.Should().Be(@"_подчерк <em>не считается</em>");
         }
 
         [Test]
@@ -175,18 +175,34 @@ namespace Markdown
         }
 
         [Test]
-        public void Render_ShouldCorrectTag_WithMixedText()
+        public void Render_ShouldNotTag_HeadingWithCharsBeforeOpenMark()
         {
-            var text = @"# Смешанный _текст_, __вроде _должно_ работать__, но _я __не__ уверен_
-возможны # неполадки. _неоконченный тег
-тут закончил_ __ __
-\# парочка э\кранирований \_тегов_ \_\_фыв_ _часть\__1_";
+            var text = @"1231# Заголовок";
             var res = md.Render(text);
 
-            res.Should().Be(@"<h1>Смешанный <em>текст</em>, <strong>вроде <em>должно</em> работать</strong>, но <em>я __не__ уверен</em></h1>
-возможны # неполадки. _неоконченный тег
-тут закончил_ __ __
-\# парочка э\кранирований _тегов_ __фыв_ <em>часть_</em>1_");
+            res.Should().Be(@"1231# Заголовок");
+        }
+
+        [Test]
+        public void Render_ShouldCorrectTag_WithMixedText()
+        {
+            var lines = new string[]
+            {
+                @"# Смешанный _текст_, __вроде _должно_ работать__ но _я __не__ уверен_",
+                "возможны # неполадки. _неоконченный тег",
+                "тут закончил_ __ __",
+                @"\# парочка э\кранирований \_тегов_ \_\_фыв_ _часть\__1_",
+            };
+
+            var text = string.Join(Environment.NewLine, lines);
+            var res = md.Render(text);
+
+            res.Should().Be(
+                string.Join(Environment.NewLine, new[] {
+                @"<h1>Смешанный <em>текст</em>, <strong>вроде <em>должно</em> работать</strong> но <em>я __не__ уверен</em></h1>",
+                "возможны # неполадки. _неоконченный тег",
+                "тут закончил_ __ __",
+                @"# парочка э\кранирований _тегов_ __фыв_ <em>часть_</em>1_"}));
         }
 
         [Test]
@@ -194,10 +210,31 @@ namespace Markdown
         {
             var sw = new Stopwatch();
             var res = new List<TimeSpan>();
-            string text = "";
-            for (int i = 64000; i <= 512000; i*=2)
+            var count = 5;
+            for (int i = 0; i < count; i++) 
+                res.Add(new TimeSpan());
+            for (int i = 0; i <= count + 2; i++)
             {
-                text = GetRandomString(i);
+                var temp = GetTestResult(32000, 512000, 2);
+                if (i > 1)
+                    for (int j = 0; j < res.Count(); j++)
+                        res[j] += temp[j];
+            }
+
+            for (int i = 0; i < res.Count(); i++)
+                res[i] /= count;
+
+            for (int i = 1; i < res.Count; i++)
+                (res[i].Ticks / res[i - 1].Ticks).Should().BeLessThan(4);
+        }
+
+        private List<TimeSpan> GetTestResult(int startCharCount, int endCharCount, int multiplayer)
+        {
+            var sw = new Stopwatch();
+            var res = new List<TimeSpan>();
+            for (int i = startCharCount; i <= endCharCount; i *= multiplayer)
+            {
+                var text = GetRandomString(i);
                 sw.Start();
                 md.Render(text);
                 sw.Stop();
@@ -205,15 +242,14 @@ namespace Markdown
                 sw.Reset();
             }
 
-            for (int i = 1; i < res.Count; i++)
-                (res[i].Ticks / res[i - 1].Ticks).Should().BeLessThan(4);
+            return res;
         }
 
         private string GetRandomString(int length)
         {
             var variants = new List<string>()
             {
-                " ", "_", "__", "\\", "# ", "#", //"\n",
+                " ", "_", "__", "\\", "# ", "#", "\n",
             };
             for(int i ='a';i<'z';i++)
                 variants.Add(((char) i).ToString());
