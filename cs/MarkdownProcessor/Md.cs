@@ -6,14 +6,14 @@ namespace MarkdownProcessor;
 
 public class Md
 {
-    private readonly Dictionary<string, ITagMarkdownConfig> openedTokens;
+    private readonly Dictionary<string, ITagMarkdownConfig> openingTokens;
 
     private readonly string[] tokensValues;
 
     public Md(IEnumerable<ITagMarkdownConfig> configs)
     {
         var configsArray = configs.ToArray();
-        openedTokens = configsArray.ToDictionary(c => c.OpeningSign);
+        openingTokens = configsArray.ToDictionary(c => c.OpeningSign);
         tokensValues = configsArray
             .SelectMany(c => new[] { c.OpeningSign, c.ClosingSign })
             .Concat(new[] { " ", "\n" })
@@ -25,37 +25,12 @@ public class Md
     public string Render(string text, IRenderer renderer)
     {
         var result = new StringBuilder();
-        var paragraphs = text.Split("\n");
 
-        var closedTags = new List<ITag>();
-        foreach (var paragraph in paragraphs)
-        {
-            var tags = new List<ITag>();
-            foreach (var token in ExtractTokens(paragraph + '\n', result, tokensValues))
-                if (tags.Count == 0 || tags.Last().Closed)
-                {
-                    var nullableTag = openedTokens.GetValueOrDefault(token.Value)?.CreateOrNull(token);
-                    if (nullableTag is not null) tags.Add(nullableTag);
-                }
-                else
-                {
-                    var nullableToken = tags.Last().RunTokenDownOfTree(token);
-                    if (nullableToken is null) continue;
+        var tree = new TagsTree(openingTokens);
+        var tokens = ExtractTokens(text + '\n', result, tokensValues);
+        tree.ProcessTokens(tokens);
 
-                    var nullableTag = openedTokens.GetValueOrDefault(token.Value)?.CreateOrNull(token);
-                    if (nullableTag is not null) tags.Last().RunTagDownOfTree(nullableTag);
-                }
-
-
-            closedTags.AddRange(tags.Concat(tags.SelectMany(GetAllChildren)).Where(t => t.Closed));
-        }
-
-        return renderer.Render(closedTags, result);
-    }
-
-    private static IEnumerable<ITag> GetAllChildren(ITag tag)
-    {
-        return tag.Children.Concat(tag.Children.SelectMany(GetAllChildren));
+        return renderer.Render(tree.ClosedTags, result);
     }
 
     private static IEnumerable<Token> ExtractTokens(string text, StringBuilder resultText, string[] tokens)
