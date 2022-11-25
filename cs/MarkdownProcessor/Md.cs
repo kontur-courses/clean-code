@@ -34,27 +34,20 @@ public class Md
             foreach (var token in ExtractTokens(paragraph + '\n', result, tokensValues))
                 if (tags.Count == 0 || tags.Last().Closed)
                 {
-                    if (!openedTokens.ContainsKey(token.Value)) continue;
-
-                    var nullableTag = openedTokens[token.Value].CreateOrNull(token);
+                    var nullableTag = openedTokens.GetValueOrDefault(token.Value)?.CreateOrNull(token);
                     if (nullableTag is not null) tags.Add(nullableTag);
                 }
                 else
                 {
                     var nullableToken = tags.Last().RunTokenDownOfTree(token);
                     if (nullableToken is null) continue;
-
-                    if (!openedTokens.ContainsKey(token.Value)) continue;
-
-                    var nullableTag = openedTokens[token.Value].CreateOrNull(token);
+                    
+                    var nullableTag = openedTokens.GetValueOrDefault(token.Value)?.CreateOrNull(token);
                     if (nullableTag is not null) tags.Last().RunTagDownOfTree(nullableTag);
                 }
 
 
-            closedTags.AddRange(tags
-                .Concat(tags.SelectMany(GetAllChildren))
-                .Where(t => t.Closed)
-                .ToArray());
+            closedTags.AddRange(tags.Concat(tags.SelectMany(GetAllChildren)).Where(t => t.Closed));
         }
 
         return renderer.Render(closedTags, result);
