@@ -2,7 +2,7 @@
 {
     internal static class MarkdownPairsInteractionRules
     {
-        public static SpecialStringFormat DisapproveIntersectingPairs(this SpecialStringFormat lineFormat)
+        public static void DisapproveIntersectingPairs(SpecialStringFormat lineFormat)
         {
             var openBrackets = new List<MarkdownAction>();
             var actions = lineFormat.Actions;
@@ -32,8 +32,6 @@
                     openBrackets.Add(act);
                 }
             }
-
-            return lineFormat;
         }
 
         public static SpecialStringFormat DisapproveBoldInCursive(this SpecialStringFormat lineFormat)

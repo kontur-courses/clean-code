@@ -17,10 +17,10 @@
 
         private static string RenderLine(string line)
         {
-            var stringFormat = SpecialStringFormat.ConvertLineToFormat(line)
-                .SetPrimaryMarkdown()
-                .DisapproveIntersectingPairs()
-                .DisapproveEmpty()
+            var stringFormat = SpecialStringFormat.ConvertLineToFormat(line);
+            PrimaryMarkdownMaker.SetPrimaryMarkdown(stringFormat);
+            MarkdownPairsInteractionRules.DisapproveIntersectingPairs(stringFormat);
+            stringFormat.DisapproveEmpty()
                 .DisapproveBoldInCursive()
                 .DisapproveWithDigits()
                 .DisapproveInDifferentWordParts()

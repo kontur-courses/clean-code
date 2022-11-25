@@ -2,7 +2,7 @@
 {
     internal static class PrimaryMarkdownMaker
     {
-        public static SpecialStringFormat SetPrimaryMarkdown(this SpecialStringFormat specialStringFormat)
+        public static void SetPrimaryMarkdown(SpecialStringFormat specialStringFormat)
         {
             var convertedLine = specialStringFormat.ConvertedLine;
             var operationalCharacters = specialStringFormat.OperationalCharacters;
@@ -69,7 +69,6 @@
             }
 
             specialStringFormat.Actions = Actions;
-            return specialStringFormat;
         }
     }
 }
