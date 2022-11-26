@@ -14,15 +14,13 @@ public static class ParserExtensions
             stringBuilder.Append(prefix);
 
         foreach (var element in token.Children)
-        {
             stringBuilder.Append(
                 parsers[element.Type].Parse(element));
-        }
 
         if (!string.IsNullOrEmpty(postfix))
             stringBuilder.Append(postfix);
         var result = stringBuilder.ToString();
-        var isEmpty = result == prefix+postfix;
+        var isEmpty = result == prefix + postfix;
         return isEmpty ? string.Empty : result;
     }
 }

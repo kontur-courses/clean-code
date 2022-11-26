@@ -7,7 +7,8 @@ public class EndReadHeaderTransition : Transition
     public override bool When(State state)
     {
         return state.Parent.Type == TokenType.Header &&
-            state.Process.IsOneOf(ProcessState.ReadHeader, ProcessState.EndReadBoldText, ProcessState.EndReadItalicText, ProcessState.EndReadPlainText) 
+            state.Process.IsOneOf(ProcessState.ReadHeader, ProcessState.EndReadBoldText, ProcessState.EndReadItalicText,
+                ProcessState.EndReadPlainText)
             && state.IsEndOfLine();
     }
 

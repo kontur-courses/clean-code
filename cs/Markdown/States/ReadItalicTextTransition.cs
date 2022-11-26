@@ -4,7 +4,8 @@ public class ReadItalicTextTransition : Transition
 {
     public override bool When(State state)
     {
-        return (state.Process.IsOneOf(ProcessState.EndReadPlainText, ProcessState.EndReadBoldText, ProcessState.ReadHeader,
+        return (state.Process.IsOneOf(ProcessState.EndReadPlainText, ProcessState.EndReadBoldText,
+                ProcessState.ReadHeader,
                 ProcessState.ReadParagraph, ProcessState.ReadBoldText) && state.Input == "_")
             || state.Process == ProcessState.ReadItalicText;
     }

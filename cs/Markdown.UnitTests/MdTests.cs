@@ -1,4 +1,6 @@
+using System.Diagnostics;
 using FluentAssertions;
+using NUnit.Framework.Interfaces;
 
 namespace Markdown.UnitTests;
 
@@ -8,10 +10,41 @@ public class MdTests
     [SetUp]
     public void Setup()
     {
-        mdHtml = Md.Html();
+        traceFileName = Path.GetTempFileName();
+        streamWriter = new(traceFileName);
+        tracer = new(streamWriter);
+        mdHtml = Md.Html(tracer);
+    }
+
+    [TearDown]
+    public void TearDown()
+    {
+        var currentContext = TestContext.CurrentContext;
+        if (currentContext.Result.Outcome.Status == TestStatus.Failed)
+        {
+            streamWriter.Dispose();
+            var traceFileInfo = new FileInfo(traceFileName);
+            if (traceFileInfo.Length > 10_000_000)
+            {
+                File.Delete(traceFileName);
+                return;
+            }
+
+            var failedTestDirectory = Path.Combine(currentContext.TestDirectory, "failed-tests-md");
+            var failedTestFileName = Path.Combine(failedTestDirectory,
+                $"{currentContext.Test.MethodName}-{currentContext.Test.ID}-{Random.Shared.Next(100, 1000)}.log");
+
+            Directory.CreateDirectory(failedTestDirectory);
+            File.Copy(traceFileName, failedTestFileName);
+            File.Delete(traceFileName);
+            Console.Error.WriteLine($"Log for this failed test located at {failedTestFileName}");
+        }
     }
 
     private Md mdHtml = null!;
+    private string traceFileName = null!;
+    private StreamWriter streamWriter = null!;
+    private DebugTracer tracer = null!;
 
     [TestCase("", "")]
     [TestCase("\n", "")]
@@ -67,5 +100,28 @@ _abc_ abc", "<h1><strong>abc</strong></h1><p><em>abc</em> abc</p>")]
         var actualHtml = mdHtml.Render(inputMd);
 
         actualHtml.Should().BeEquivalentTo(expectedHtml);
+    }
+
+    [Test]
+    public void Render_OofNDifficulty_ShortAndLongMarkdown()
+    {
+        var shortMd = @"# Markdown
+В fork-е этого репозитория создай проект __M__ark_down_ и реализуй метод __Render__ класса _Md_.
+Он принимает в качестве аргумента текст в __markdown__-подобной разметке, и возвращает строку с _html-кодом_ этого текста согласно спецификации.";
+        var longCount = 5;
+        var longMd = string.Join("\n", Enumerable.Repeat(shortMd, longCount));
+
+        var stopwatch = new Stopwatch();
+        stopwatch.Start();
+        _ = mdHtml.Render(shortMd);
+        stopwatch.Stop();
+        var shortMdTime = stopwatch.Elapsed;
+        stopwatch.Restart();
+        _ = mdHtml.Render(longMd);
+        stopwatch.Stop();
+        var longMdTime = stopwatch.Elapsed;
+        var shortPartInLongMd = longMdTime / longCount;
+
+        shortPartInLongMd.Should().BeLessThan(shortMdTime);
     }
 }

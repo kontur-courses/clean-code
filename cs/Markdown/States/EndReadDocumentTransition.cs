@@ -6,7 +6,8 @@ public class EndReadDocumentTransition : Transition
 {
     public override bool When(State state)
     {
-        return state.Process.IsOneOf(ProcessState.EndReadParagraph, ProcessState.EndReadHeader, ProcessState.ReadDocument)
+        return state.Process.IsOneOf(ProcessState.EndReadParagraph, ProcessState.EndReadHeader,
+                ProcessState.ReadDocument)
             && state.EndOfFile && state.Parent.Type == TokenType.Document;
     }
 

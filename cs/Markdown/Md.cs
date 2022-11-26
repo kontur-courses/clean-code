@@ -5,16 +5,49 @@ using Markdown.Tokens;
 
 namespace Markdown;
 
+public interface ITracer
+{
+    public void TraceState(State state);
+
+    public void TraceTransition(Transition transition);
+}
+
+public class DebugTracer : ITracer
+{
+    private readonly TextWriter writer;
+
+    public DebugTracer(TextWriter writer)
+    {
+        this.writer = writer;
+    }
+
+    public void TraceState(State state)
+    {
+        writer.WriteLine();
+        writer.WriteLine(state.ToString());
+        writer.WriteLine();
+    }
+
+    public void TraceTransition(Transition transition)
+    {
+        writer.WriteLine();
+        writer.WriteLine(transition.ToString());
+        writer.WriteLine();
+    }
+}
+
 public class Md
 {
     private readonly ITokenParser documentParser;
+    private readonly ITracer? tracer;
 
-    public Md(ITokenParser documentParser)
+    public Md(ITokenParser documentParser, ITracer? tracer = null)
     {
         this.documentParser = documentParser;
+        this.tracer = tracer;
     }
 
-    public static Md Html()
+    public static Md Html(ITracer? tracer)
     {
         var parsers = new Dictionary<TokenType, ITokenParser>
         {
@@ -25,7 +58,7 @@ public class Md
         parsers.Add(TokenType.Header, new HtmlHeaderParser(parsers));
         parsers.Add(TokenType.Paragraph, new HtmlParagraphParser(parsers));
         var documentParser = new DocumentParser(parsers);
-        return new(documentParser);
+        return new(documentParser, tracer);
     }
 
     public string Render(string markdown)
@@ -57,30 +90,27 @@ public class Md
 
         while (state.Process != ProcessState.EndReadDocument)
         {
-            Console.WriteLine(state);
+            tracer?.TraceState(state);
             DoTransition(transitions, state);
-            Console.WriteLine(state);
+            tracer?.TraceState(state);
         }
 
-        Console.WriteLine("End");
-        Console.WriteLine(state);
-        Console.WriteLine();
+
+        tracer?.TraceState(state);
 
         var html = documentParser.Parse(state.Document);
-
-        Console.WriteLine(html);
 
         return html;
     }
 
-    private static void DoTransition(IEnumerable<Transition> transitions, State state)
+    private void DoTransition(IEnumerable<Transition> transitions, State state)
     {
         var transition =
             transitions.FirstOrDefault(x => state.IgnoredTransitions.All(t => t.transition != x) && x.When(state));
         if (transition is null)
             throw new ApplicationException(
                 $"Cannot parse markdown, transition not found for state {state}");
-        Console.WriteLine($"Transition: {transition}");
+        tracer?.TraceTransition(transition);
         transition.Do(state);
     }
 }

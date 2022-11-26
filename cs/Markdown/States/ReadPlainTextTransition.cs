@@ -4,7 +4,8 @@ public class ReadPlainTextTransition : Transition
 {
     public override bool When(State state)
     {
-        return state.Process.IsOneOf(ProcessState.ReadParagraph, ProcessState.ReadHeader, ProcessState.ReadPlainText, ProcessState.ReadBoldText,
+        return state.Process.IsOneOf(ProcessState.ReadParagraph, ProcessState.ReadHeader, ProcessState.ReadPlainText,
+            ProcessState.ReadBoldText,
             ProcessState.EndReadItalicText, ProcessState.EndReadPlainText, ProcessState.EndReadBoldText);
     }
 
