@@ -1,18 +1,13 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using Markdown.Enums;
+﻿using Markdown.Enums;
 
-namespace Markdown.Tokens
+namespace Markdown.Tokens;
+
+public class Tag : Token
 {
-    public class Tag:Token
+    public Tag(int start, int end, TokenType type, TagStatus status) : base(start, end, type)
     {
-        public TagStatus Status { get; set; }
-        public Tag(int start, int end, TokenType type, TagStatus status) : base(start, end, type)
-        {
-            Status = status;
-        }
+        Status = status;
     }
+
+    public TagStatus Status { get; set; }
 }

@@ -1,14 +1,7 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿namespace Markdown.Enums;
 
-namespace Markdown.Enums
+public enum TagStatus
 {
-    public enum TagStatus
-    {
-        Open,
-        Close
-    }
+    Open,
+    Close
 }
