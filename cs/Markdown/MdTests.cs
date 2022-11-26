@@ -1,7 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Text;
-using Markdown.Renderers;
+﻿using Markdown.Renderers;
 using NUnit.Framework;
 
 namespace Markdown
@@ -27,7 +24,7 @@ namespace Markdown
 
 
         [TestCase("внутри текста c цифрами_12_3 не считаются выделением", ExpectedResult = "внутри текста c цифрами_12_3 не считаются выделением", TestName = "inside text with numbers")]
-        [TestCase("text ___text_", ExpectedResult = "text ___text_", TestName = "blink string")]
+        [TestCase("text ___ text_", ExpectedResult = "text ___ text_", TestName = "blink string")]
         [TestCase("text_ text_ ", ExpectedResult = "text_ text_ ", TestName = "after each tag space")]
         [TestCase("_text text _text", ExpectedResult = "_text text _text", TestName = "end tag before symbol")]
         [TestCase("text _text text", ExpectedResult = "text _text text", TestName = "exist only start tag")]
@@ -40,11 +37,11 @@ namespace Markdown
         public string MdRender_ConvertBoldText_When(string markdownText) =>
             MdRender(markdownText);
 
-        [TestCase(@"\_text\_", ExpectedResult = @"\_text\_", TestName = "single comment")]
+        [TestCase(@"\_text\_", ExpectedResult = @"_text_", TestName = "single comment")]
         public string MdRender_ConvertCommentedTags_When(string markdownText) =>
             MdRender(markdownText);
 
-        [TestCase(@"\\_text\\_", ExpectedResult = @"\\_text\\_", TestName = "double comment")]
+        [TestCase(@"\\_text\\_", ExpectedResult = @"\<em>text\</em>", TestName = "double comment")]
         public string MdRender_NotConvertCommentedTags_When(string markdownText) =>
             MdRender(markdownText);
 

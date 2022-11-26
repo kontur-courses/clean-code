@@ -1,4 +1,5 @@
 ﻿using System;
+using Markdown.Parsers.Tokens.Tags.Markdown;
 
 namespace Markdown.Parsers.Tokens.Tags
 {
@@ -7,10 +8,9 @@ namespace Markdown.Parsers.Tokens.Tags
         protected Tag(string data) : base(data)
         {
         }
-        public virtual bool IsCommentedTag(string data, int position)
-        {
-            return position > 0 && data[position - 1] == '\\';
-        }
+
+        //public virtual bool IsCommentedTag(IToken token)
+
 
         //TODO: проверка идет последнего символа, не нужно грузить всю строку
         public virtual bool IsValidTag(string data, int position)

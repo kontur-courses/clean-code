@@ -17,7 +17,8 @@ namespace Markdown.Parsers.Tokens.Tags.Markdown
             mdTagDictionary.Add(new MdItalicTag(TagPosition.Any).ToString(), p => new MdItalicTag(p));
 
             mdTagDictionary.Add(new MdHeaderTag().ToString(), p => new MdHeaderTag());
-
+            mdTagDictionary.Add(new MdCommentTag().ToString(), p => new MdCommentTag());
+            
             foreach (var tag in mdTagDictionary)
             {
                 tagStartSymbols.Add(tag.Key[0]);

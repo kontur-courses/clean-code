@@ -58,25 +58,27 @@ namespace Markdown.Parsers
         //TODO: переделать
         private IToken GetServiceTag()
         {
-            var text = ReadWithCheck(symbol => !mdTags.IsServiceSymbol(symbol));
+            var text = ReadWithCheck(t => !mdTags.IsTag(t));
             if (!mdTags.IsTag(text))
                 return new TextToken(text);
             var lastOpeningTag = openedTokens.LastOrDefault(el=>el.ToString() == text) as MdPairedTag;
             var tag = mdTags.CreateTagFor(text,
                 lastOpeningTag is null ? TagPosition.Start : TagPosition.End);
-            if (tag is MdHeaderTag)
-                currentPosition++;
-            else if(tag is MdPairedTag)
+
+            if(tag is MdPairedTag)
             {
                 (tag as MdPairedTag).IntoWord = char.IsSymbol(currentLine[currentPosition - text.Length]);
             }
-            var isCommentedTag = tag.IsCommentedTag(currentLine, currentPosition - text.Length);
-            if (isCommentedTag || !tag.IsValidTag(currentLine, currentPosition))
+
+            var isThisTagCommented = tokens.LastOrDefault() is MdCommentTag;
+            if (isThisTagCommented || !tag.IsValidTag(currentLine, currentPosition))
             {
-                if (isCommentedTag)
+                if (isThisTagCommented)
                     tokens.Remove(tokens.Last());
                 return tag.ToText();
             }
+            else if(tag is MdHeaderTag)
+                currentPosition++;
             else if(tag is MdPairedTag)
             {
                 if(lastOpeningTag != null && lastOpeningTag.IntoWord)
@@ -99,10 +101,21 @@ namespace Markdown.Parsers
             return new TextToken(text);
         }
 
-        private string ReadWithCheck(Func<char, bool> IsEnd)
+        private string ReadWithCheck(Func<string, bool> isSomeText)
         {
             var startPosition = currentPosition;
-            while (!nextCharOutsideLine && !IsEnd(currentSymbol)) 
+            string text = "";
+            while (!nextCharOutsideLine &&
+                   !isSomeText(currentLine.Substring(startPosition, currentPosition - startPosition + 1)))
+                currentPosition++;
+
+            return currentLine.Substring(startPosition, currentPosition - startPosition);
+        }
+        
+        private string ReadWithCheck(Func<char, bool> isEnd)
+        {
+            var startPosition = currentPosition;
+            while (!nextCharOutsideLine && !isEnd(currentSymbol)) 
                 currentPosition++;
             return currentLine.Substring(startPosition, currentPosition - startPosition);
         }
