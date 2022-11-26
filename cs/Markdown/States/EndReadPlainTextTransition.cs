@@ -6,8 +6,8 @@ public class EndReadPlainTextTransition : Transition
 {
     public override bool When(State state)
     {
-        return state.Process == ProcessState.ReadPlainText && (state.Input.IsOneOf("_", "__") ||
-            state.IsEndOfLine());
+        return state.Process == ProcessState.ReadPlainText && (
+            state.IsEndOfLine() || state.Input.IsOneOf("_", "__"));
     }
 
     public override void Do(State state)

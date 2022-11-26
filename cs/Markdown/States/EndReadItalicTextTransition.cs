@@ -6,7 +6,7 @@ public class EndReadItalicTextTransition : Transition
 {
     public override bool When(State state)
     {
-        return state.Process == ProcessState.ReadItalicText && state.Input.IsOneOf("_");
+        return state.Process == ProcessState.ReadItalicText && state.Input == "_";
     }
 
     public override void Do(State state)

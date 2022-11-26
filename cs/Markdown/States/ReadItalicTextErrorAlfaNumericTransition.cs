@@ -4,7 +4,7 @@ public class ReadItalicTextErrorAlfaNumericTransition : Transition
 {
     public override bool When(State state)
     {
-        return state.Process == ProcessState.ReadItalicText && state.Input.IsOneOf("_") &&
+        return state.Process == ProcessState.ReadItalicText && state.Input == "_" &&
             state.ValueBuilder.AsEnumerable().Skip(1).All(char.IsDigit);
     }
 

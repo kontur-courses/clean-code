@@ -7,8 +7,8 @@ public class EndReadBoldTextTransition : Transition
     public override bool When(State state)
     {
         return state.Input == "__" &&
-            state.Process.IsOneOf(ProcessState.EndReadPlainText, ProcessState.EndReadItalicText) &&
-            state.Parent.Type == TokenType.Bold;
+            state.Parent.Type == TokenType.Bold &&
+            state.Process.IsOneOf(ProcessState.EndReadPlainText, ProcessState.EndReadItalicText);
     }
 
     public override void Do(State state)

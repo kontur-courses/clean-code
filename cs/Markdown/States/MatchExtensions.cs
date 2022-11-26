@@ -9,6 +9,10 @@ public static class MatchExtensions
         return items.Any(item => item.Equals(element));
     }
 
+    public static bool IsOneOfContainerToken(this ProcessState processState)
+    {
+        return processState is ProcessState.ReadDocument or ProcessState.EndReadHeader or ProcessState.EndReadParagraph;
+    }
 
     public static bool IsNotOneOf<T>(this T element, params T[] items) where T : notnull
     {

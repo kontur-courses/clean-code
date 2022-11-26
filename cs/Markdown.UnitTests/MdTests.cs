@@ -107,7 +107,7 @@ _abc_ abc", "<h1><strong>abc</strong></h1><p><em>abc</em> abc</p>")]
     [Test]
     public void Render_OofNDifficulty_ShortAndLongMarkdown()
     {
-        // Пояснение - мини бенчмарк, не AAA
+        // Пояснение - мини бенчмарк, не AAA, может упасть - данные не всегда проходят хоть и входные данные детерминированны
         var shortMd = @"# Markdown
 В fork-е этого репозитория создай проект __M__ark_down_ и реализуй метод __Render__ класса _Md_.
 Он принимает в качестве аргумента текст в __markdown__-подобной разметке, и возвращает строку с _html-кодом_ этого текста согласно спецификации.";
@@ -116,15 +116,15 @@ _abc_ abc", "<h1><strong>abc</strong></h1><p><em>abc</em> abc</p>")]
         var shortTimes = new List<TimeSpan>();
         var longTimes = new List<TimeSpan>();
         mdHtml = Md.Html(null);
-        
-        const int warmupCount = 10;
+
+        const int warmupCount = 100;
         for (var i = 0; i < warmupCount; i++)
         {
             _ = mdHtml.Render(shortMd);
             _ = mdHtml.Render(longMd);
         }
 
-        const int actualCount = 10;
+        const int actualCount = 500;
         var stopwatch = new Stopwatch();
         for (var i = 0; i < actualCount; i++)
         {
@@ -144,6 +144,6 @@ _abc_ abc", "<h1><strong>abc</strong></h1><p><em>abc</em> abc</p>")]
         var longNanoseconds = longTimes.Average(x => x.TotalNanoseconds);
 
         var shortPartInLongMd = longNanoseconds / longCount;
-        shortPartInLongMd.Should().BeLessOrEqualTo(shortNanoseconds * 1.1);
+        shortPartInLongMd.Should().BeLessOrEqualTo(shortNanoseconds);
     }
 }

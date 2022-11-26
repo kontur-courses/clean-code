@@ -5,37 +5,6 @@ using Markdown.Tokens;
 
 namespace Markdown;
 
-public interface ITracer
-{
-    public void TraceState(State state);
-
-    public void TraceTransition(Transition transition);
-}
-
-public class DebugTracer : ITracer
-{
-    private readonly TextWriter writer;
-
-    public DebugTracer(TextWriter writer)
-    {
-        this.writer = writer;
-    }
-
-    public void TraceState(State state)
-    {
-        writer.WriteLine();
-        writer.WriteLine(state.ToString());
-        writer.WriteLine();
-    }
-
-    public void TraceTransition(Transition transition)
-    {
-        writer.WriteLine();
-        writer.WriteLine(transition.ToString());
-        writer.WriteLine();
-    }
-}
-
 public class Md
 {
     private readonly ITokenParser documentParser;
@@ -95,7 +64,7 @@ public class Md
         }
 
         tracer?.TraceState(state);
-        
+
         var html = documentParser.Parse(state.Document);
 
         return html;

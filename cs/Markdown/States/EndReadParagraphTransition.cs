@@ -6,9 +6,10 @@ public class EndReadParagraphTransition : Transition
 {
     public override bool When(State state)
     {
-        return state.Process.IsOneOf(ProcessState.EndReadPlainText, ProcessState.EndReadItalicText,
-                ProcessState.EndReadBoldText) &&
-            state.IsEndOfLine() && state.Parent.Type == TokenType.Paragraph;
+        return
+            state.IsEndOfLine() && state.Parent.Type == TokenType.Paragraph && state.Process.IsOneOf(
+                ProcessState.EndReadPlainText, ProcessState.EndReadItalicText,
+                ProcessState.EndReadBoldText);
     }
 
     public override void Do(State state)

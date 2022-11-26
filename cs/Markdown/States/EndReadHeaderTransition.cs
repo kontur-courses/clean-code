@@ -6,10 +6,10 @@ public class EndReadHeaderTransition : Transition
 {
     public override bool When(State state)
     {
-        return state.Parent.Type == TokenType.Header &&
+        return state.Parent.Type == TokenType.Header
+            && state.IsEndOfLine() &&
             state.Process.IsOneOf(ProcessState.ReadHeader, ProcessState.EndReadBoldText, ProcessState.EndReadItalicText,
-                ProcessState.EndReadPlainText)
-            && state.IsEndOfLine();
+                ProcessState.EndReadPlainText);
     }
 
     public override void Do(State state)

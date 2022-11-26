@@ -6,8 +6,7 @@ public class ReadParagraphTransition : Transition
 {
     public override bool When(State state)
     {
-        return state.Process.IsOneOf(ProcessState.ReadDocument) &&
-            state.Input.IsNotOneOf("\n", " ", "\0") && !state.IsEndOfLine();
+        return state.Process == ProcessState.ReadDocument && !state.IsEndOfLine();
     }
 
     public override void Do(State state)

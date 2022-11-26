@@ -4,8 +4,7 @@ public class ReadDocumentTransition : Transition
 {
     public override bool When(State state)
     {
-        return state.Process.IsOneOf(ProcessState.ReadDocument, ProcessState.EndReadParagraph,
-                ProcessState.EndReadHeader) &&
+        return state.Process.IsOneOfContainerToken() &&
             string.IsNullOrWhiteSpace(state.Input);
     }
 

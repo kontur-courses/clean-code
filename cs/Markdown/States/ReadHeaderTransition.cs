@@ -6,7 +6,7 @@ public class ReadHeaderTransition : Transition
 {
     public override bool When(State state)
     {
-        return state.Process.IsOneOf(ProcessState.ReadDocument) && !state.IsEndOfLine() && state.Input == "# ";
+        return state.Process == ProcessState.ReadDocument && state.Input == "# ";
     }
 
     public override void Do(State state)
