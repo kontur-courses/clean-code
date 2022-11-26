@@ -92,12 +92,10 @@ public class Md
         {
             tracer?.TraceState(state);
             DoTransition(transitions, state);
-            tracer?.TraceState(state);
         }
 
-
         tracer?.TraceState(state);
-
+        
         var html = documentParser.Parse(state.Document);
 
         return html;

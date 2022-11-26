@@ -26,7 +26,6 @@ public class ReadItalicTextTransition : Transition
         }
 
         state.ProcessTo(ProcessState.ReadItalicText);
-        state.ValueBuilder.Append(state.Input);
-        state.MoveNext();
+        state.ReadInput();
     }
 }

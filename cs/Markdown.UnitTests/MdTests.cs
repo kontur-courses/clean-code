@@ -62,6 +62,8 @@ abc_12_3", "<p><em>abc</em></p><p>abc</p><p>abc_12_3</p>")]
 abc", "<p>_abc</p><p>abc</p>")]
     [TestCase(@"_a_b_c
 a_bc", "<p><em>a</em>b_c</p><p>a_bc</p>")]
+    [TestCase("\\__abc_\\_", "<p>_<em>abc</em>_</p>")]
+    [TestCase("__\\_abc\\___", "<p><strong>_abc_</strong></p>")]
     [TestCase("_abc_", "<p><em>abc</em></p>")]
     [TestCase("_abc_ abc", "<p><em>abc</em> abc</p>")]
     [TestCase("a_b_c abc", "<p>a<em>b</em>c abc</p>")]
@@ -105,23 +107,43 @@ _abc_ abc", "<h1><strong>abc</strong></h1><p><em>abc</em> abc</p>")]
     [Test]
     public void Render_OofNDifficulty_ShortAndLongMarkdown()
     {
+        // Пояснение - мини бенчмарк, не AAA
         var shortMd = @"# Markdown
 В fork-е этого репозитория создай проект __M__ark_down_ и реализуй метод __Render__ класса _Md_.
 Он принимает в качестве аргумента текст в __markdown__-подобной разметке, и возвращает строку с _html-кодом_ этого текста согласно спецификации.";
-        var longCount = 5;
+        const int longCount = 20;
         var longMd = string.Join("\n", Enumerable.Repeat(shortMd, longCount));
+        var shortTimes = new List<TimeSpan>();
+        var longTimes = new List<TimeSpan>();
+        mdHtml = Md.Html(null);
+        
+        const int warmupCount = 10;
+        for (var i = 0; i < warmupCount; i++)
+        {
+            _ = mdHtml.Render(shortMd);
+            _ = mdHtml.Render(longMd);
+        }
 
+        const int actualCount = 10;
         var stopwatch = new Stopwatch();
-        stopwatch.Start();
-        _ = mdHtml.Render(shortMd);
-        stopwatch.Stop();
-        var shortMdTime = stopwatch.Elapsed;
-        stopwatch.Restart();
-        _ = mdHtml.Render(longMd);
-        stopwatch.Stop();
-        var longMdTime = stopwatch.Elapsed;
-        var shortPartInLongMd = longMdTime / longCount;
+        for (var i = 0; i < actualCount; i++)
+        {
+            stopwatch.Restart();
+            _ = mdHtml.Render(shortMd);
+            stopwatch.Stop();
+            var shortMdTime = stopwatch.Elapsed;
+            shortTimes.Add(shortMdTime);
+            stopwatch.Restart();
+            _ = mdHtml.Render(longMd);
+            stopwatch.Stop();
+            var longMdTime = stopwatch.Elapsed;
+            longTimes.Add(longMdTime);
+        }
 
-        shortPartInLongMd.Should().BeLessThan(shortMdTime);
+        var shortNanoseconds = shortTimes.Average(x => x.TotalNanoseconds);
+        var longNanoseconds = longTimes.Average(x => x.TotalNanoseconds);
+
+        var shortPartInLongMd = longNanoseconds / longCount;
+        shortPartInLongMd.Should().BeLessOrEqualTo(shortNanoseconds * 1.1);
     }
 }

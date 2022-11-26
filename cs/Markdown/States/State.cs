@@ -10,7 +10,9 @@ public class State
     private readonly SortedSet<string> specialSequences = new()
     {
         "__",
-        "# "
+        "# ",
+        "\\_",
+        "\\#"
     };
 
     public State(string markdown)
