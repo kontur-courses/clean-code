@@ -139,7 +139,7 @@ public class MdTests
 	[TestCase(
 		"__aa _a_ _a_ aa__",
 		"<strong>aa <em>a</em> <em>a</em> aa</strong>",
-		TestName = "Multiply nesting")]
+		TestName = "Multiple nesting")]
 	public void Render_ShouldRenderTags_WithCorrectNestingTags(string mdText, string expected)
 	{
 		var result = markdown.Render(mdText);
