@@ -13,5 +13,10 @@ public enum ProcessState
     EndReadBoldText,
     EndReadDocument,
     ReadHeader,
-    EndReadHeader
+    EndReadHeader,
+
+    ReadUnorderedList,
+    ReadUnorderedListItem,
+    EndReadUnorderedListItem,
+    EndReadUnorderedList
 }

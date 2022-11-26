@@ -6,9 +6,9 @@ public class ReadBoldTextTransition : Transition
 {
     public override bool When(State state)
     {
-        return state.Input == "__" && state.Process.IsOneOf(ProcessState.ReadParagraph, ProcessState.ReadHeader,
-            ProcessState.EndReadBoldText,
-            ProcessState.EndReadItalicText, ProcessState.EndReadPlainText);
+        return state.Input == "__"
+            && state.Parent.Type != TokenType.Bold
+            && state.Process.IsStateForPlaceTextualToken();
     }
 
     public override void Do(State state)

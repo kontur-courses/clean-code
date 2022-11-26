@@ -4,6 +4,17 @@ namespace Markdown.States;
 
 public static class MatchExtensions
 {
+    public static bool IsStateForPlaceTextualToken(this ProcessState state)
+    {
+        return state is ProcessState.ReadParagraph or
+            ProcessState.ReadHeader or
+            ProcessState.ReadBoldText or
+            ProcessState.ReadUnorderedListItem or
+            ProcessState.EndReadBoldText or
+            ProcessState.EndReadItalicText or
+            ProcessState.EndReadPlainText;
+    }
+
     public static bool IsOneOf<T>(this T element, params T[] items) where T : notnull
     {
         return items.Any(item => item.Equals(element));
@@ -11,7 +22,8 @@ public static class MatchExtensions
 
     public static bool IsOneOfContainerToken(this ProcessState processState)
     {
-        return processState is ProcessState.ReadDocument or ProcessState.EndReadHeader or ProcessState.EndReadParagraph;
+        return processState is ProcessState.ReadDocument or ProcessState.EndReadHeader or ProcessState.EndReadParagraph
+            or ProcessState.EndReadUnorderedList;
     }
 
     public static bool IsNotOneOf<T>(this T element, params T[] items) where T : notnull
