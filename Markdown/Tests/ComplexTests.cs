@@ -1,7 +1,6 @@
-﻿using System;
-using System.Text;
-using FluentAssertions;
+﻿using FluentAssertions;
 using NUnit.Framework;
+using System.Text;
 
 namespace MarkdownTests
 {
@@ -45,16 +44,11 @@ namespace MarkdownTests
         [Test, MaxTime(3000)]
         public void TimeTest()
         {
-            Random r = new Random(123);
             StringBuilder sb = new StringBuilder();
 
-            for (int i = 0; i < 1000000; i++)
+            for (int i = 0; i < 250000; i++)
             {
-                int n = r.Next(0, 10);
-                if (n == 0) sb.Append('_');
-                else if (n == 1) sb.Append("__");
-                else if (n == 2) sb.Append(' ');
-                else sb.Append('a');
+                sb.Append("_a_ ");
             }
 
             string s = Markdown.Markdown.Render(sb.ToString());
