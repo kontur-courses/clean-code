@@ -6,21 +6,21 @@ namespace Markdown;
 
 public class TokenTyper : ITokenTyper<TokenType>
 {
-    private readonly string line;
+    private readonly string _line;
 
-    private readonly HashSet<char> serviceSymbols = new() { '\\', '_', '#' };
+    private static readonly IReadOnlySet<char> ServiceSymbols = new HashSet<char> { '\\', '_', '#' };
 
     private readonly ITagCondition<TokenType> tagCondition;
 
     public TokenTyper(string line, ITagCondition<TokenType> condition)
     {
-        this.line = line;
+        this._line = line;
         tagCondition = condition;
     }
 
     public TokenType GetSymbolType(int index)
     {
-        switch (line[index])
+        switch (_line[index])
         {
             case '_':
                 if (IsDoubleUnderscore(index))
@@ -34,7 +34,7 @@ public class TokenTyper : ITokenTyper<TokenType>
 
                 break;
             case '\\':
-                if (index + 1 < line.Length && serviceSymbols.Contains(line[index + 1]))
+                if (index + 1 < _line.Length && ServiceSymbols.Contains(_line[index + 1]))
                     return TokenType.Slash;
                 break;
             case '#':
@@ -48,9 +48,7 @@ public class TokenTyper : ITokenTyper<TokenType>
 
     private bool IsDoubleUnderscore(int index)
     {
-        if (!line.HasElementAt(index+1))
-            return false;
-        if (line.HasElementAt(index + 1) && line[index + 1] != '_')
+        if (!_line.HasElementAt(index + 1) || _line[index + 1] != '_')
             return false;
 
         if (TagInMiddleOfNumber(index, index + 1))
@@ -58,13 +56,11 @@ public class TokenTyper : ITokenTyper<TokenType>
 
         if (DoubleUnderscoreInMiddleOfWorld(index))
             return tagCondition.GetTagOpenStatus(TokenType.Strong)
-                ? line.UntilEndOfWordHasChar(index - 2, '_', true)
-                : line.UntilEndOfWordHasChar(index + 2, '_');
+                ? _line.UntilEndOfWordHasChar(index - 2, '_', true)
+                : _line.UntilEndOfWordHasChar(index + 2, '_');
 
-
-
-        return (!tagCondition.GetTagOpenStatus(TokenType.Strong) && line.IsOpenTag(index)) ||
-                   (tagCondition.GetTagOpenStatus(TokenType.Strong) && line.IsCloseTag(index));
+        return (!tagCondition.GetTagOpenStatus(TokenType.Strong) && _line.IsOpenTag(index)) ||
+               (tagCondition.GetTagOpenStatus(TokenType.Strong) && _line.IsCloseTag(index));
     }
 
     private bool IsUnderscore(int index)
@@ -74,37 +70,37 @@ public class TokenTyper : ITokenTyper<TokenType>
 
         if (tagCondition.GetTagOpenStatus(TokenType.Italic))
             return
-                (UnderscoreInMiddleOfWorld(index) && line.UntilEndOfWordHasChar(index - 1, '_', true)) ||
-                (line.IsCloseTag(index) && line[index-1] != '_' && !(line.HasElementAt(index+1) && line[index+1] != ' '));
+                (UnderscoreInMiddleOfWorld(index) && _line.UntilEndOfWordHasChar(index - 1, '_', true)) ||
+                (_line.IsCloseTag(index) && _line[index-1] != '_' && !(_line.HasElementAt(index+1) && _line[index+1] != ' '));
 
 
         return
-            (line.IsOpenTag(index) && (index == 0 || line[index - 1] == ' ' || line[index - 1] == '\\')) ||
-            (line.CharInMiddleOfWord(index) && line.UntilEndOfWordHasChar(index + 1, '_'));
+            (_line.IsOpenTag(index) && (index == 0 || _line[index - 1] == ' ' || _line[index - 1] == '\\')) ||
+            (_line.CharInMiddleOfWord(index) && _line.UntilEndOfWordHasChar(index + 1, '_'));
     }
 
     private bool TagInMiddleOfNumber(int start, int end)
     {
-        return line.CharInMiddleOfWord(start)
-               && char.IsDigit(line[start - 1])
-               && char.IsDigit(line[end + 1]);
+        return _line.CharInMiddleOfWord(start)
+               && char.IsDigit(_line[start - 1])
+               && char.IsDigit(_line[end + 1]);
     }
 
     private bool DoubleUnderscoreInMiddleOfWorld(int index)
     {
-        if(!line.CharInMiddleOfWord(index))
+        if(!_line.CharInMiddleOfWord(index))
             return false;
 
-        return !serviceSymbols.Contains(line[index - 1]) && (line.HasElementAt(index + 2) &&
-                                                             !serviceSymbols.Contains(line[index + 2]) &&
-                                                             line[index + 2] != ' ');
+        return !ServiceSymbols.Contains(_line[index - 1]) && (_line.HasElementAt(index + 2) &&
+                                                             !ServiceSymbols.Contains(_line[index + 2]) &&
+                                                             _line[index + 2] != ' ');
     }
 
     private bool UnderscoreInMiddleOfWorld(int index)
     {
-        if (!line.CharInMiddleOfWord(index))
+        if (!_line.CharInMiddleOfWord(index))
             return false;
 
-        return !serviceSymbols.Contains(line[index - 1]) && !serviceSymbols.Contains(line[index + 1]);
+        return !ServiceSymbols.Contains(_line[index - 1]) && !ServiceSymbols.Contains(_line[index + 1]);
     }
 }

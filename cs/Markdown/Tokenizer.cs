@@ -71,8 +71,8 @@ public class Tokenizer : ITokenizer
                     tokenFirst.Type == tokenSecond.Type && tokenFirst.Status != tokenSecond.Status &&
                     tokenFirst.Status == TagStatus.Open)
                 {
-                    tokens[i] = TagToText(tokens[i] as Tag);
-                    tokens[i + 1] = TagToText(tokens[i + 1] as Tag);
+                    tokens[i] = TagToText(tokenFirst);
+                    tokens[i + 1] = TagToText(tokenSecond);
                 }
     }
 
