@@ -1,39 +1,90 @@
 ﻿using System.Text;
 using Markdown.Enums;
-using Markdown.Exstensions;
 using Markdown.Interfaces;
-using Markdown.Interfacess;
 using Markdown.Tokens;
 
-namespace Markdown
+namespace Markdown;
+
+public class Tokenizer : ITokenizer
 {
-    public class Tokenizer<T>
-    where T : Enum
+    private string line;
+    private ITagCondition<TokenType> tagCondition;
+    private ITokenBuilder tokenBuilder;
+    private ITokenSetter<TokenType> tokenSeter;
+    private ITokenTyper<TokenType> tokenTyper;
+
+    public void Init(string line)
     {
-        private readonly ITokenTyper<T> _tokenTyper;
-        private readonly ITokenSetter<T> _tokenSeter;
-        private readonly string line;
-        public Tokenizer(string line, ITokenSetter<T> tokenSeter, ITokenTyper<T> tokenTyper)
+        this.line = line;
+        tagCondition = new TagCondition();
+        tokenBuilder = new TokenBuilder(tagCondition);
+        tokenTyper = new TokenTyper(line, tagCondition);
+        tokenSeter = new TokenSetter(tokenBuilder);
+    }
+
+    public List<Token> TokenizeLine()
+    {
+        var tokens = new List<Token>();
+        var stringBuilder = new StringBuilder();
+        for (var i = 0; i < line.Length; i++)
         {
-            this.line = line;
-            _tokenSeter = tokenSeter;
-            _tokenTyper = tokenTyper;
+            var type = tokenTyper.GetSymbolType(i);
+            if (TagsIntersects(type))
+            {
+                CloseTags(tokens);
+                tokenSeter.SetToken(tokens, TokenType.Text, ref i, line, stringBuilder);
+            }
+            else
+            {
+                tokenSeter.SetToken(tokens, type, ref i, line, stringBuilder);
+            }
         }
 
-        public List<Token> TokenizeLine()
+        CloseTags(tokens);
+        DeleteEmptyTags(tokens);
+        return tokens;
+    }
+
+
+    private void CloseTags(List<Token> tokens)
+    {
+        CloseTag(tokens, TokenType.Italic);
+        CloseTag(tokens, TokenType.Strong);
+    }
+
+    private void CloseTag(List<Token> tokens, TokenType type)
+    {
+        if (tagCondition.GetTagOpenStatus(type))
         {
-            var tokens = new List<Token>();
-            var stringBuilder = new StringBuilder();
-            for (int i = 0; i < line.Length; i++)
-            {
-                var current = line[i];
-                var type = _tokenTyper.GetSymbolType(i);
-                _tokenSeter.SetToken(tokens,type,ref i,line,stringBuilder);
-            }
-            _tokenSeter.CloseTags(tokens);
-            _tokenSeter.DeleteEmptyTags(tokens);
-            return tokens;
+            var token = tokens.First(x => x.Start == tagCondition.GetOpenIndex(type));
+            var index = tokens.IndexOf(token);
+            tokens[index] = new Text(token.Start, token.End, TokenType.Text, tagCondition.GetTag(type));
+            tagCondition.CloseTag(type);
         }
     }
-}
 
+    private void DeleteEmptyTags(List<Token> tokens)
+    {
+        for (var i = 0; i < tokens.Count; i++)
+            if (i + 1 != tokens.Count && tokens[i] is Tag && tokens[i + 1] is Tag)
+                if (tokens[i + 1] is Tag tokenSecond && tokens[i] is Tag tokenFirst &&
+                    tokenFirst.Type == tokenSecond.Type && tokenFirst.Status != tokenSecond.Status &&
+                    tokenFirst.Status == TagStatus.Open)
+                {
+                    tokens[i] = TagToText(tokens[i] as Tag);
+                    tokens[i + 1] = TagToText(tokens[i + 1] as Tag);
+                }
+    }
+
+    private Text TagToText(Tag tag)
+    {
+        return tokenBuilder.GetText(tag.Start, tagCondition.GetTag(tag.Type));
+    }
+
+    private bool TagsIntersects(TokenType type)
+    {
+        if (type != TokenType.Strong)
+            return false;
+        return tagCondition.GetTagOpenStatus(TokenType.Italic) && tagCondition.GetTagOpenStatus(TokenType.Strong);
+    }
+}
