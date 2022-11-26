@@ -6,5 +6,6 @@ public enum TokenType
 	Italic,
 	Bold,
 	Header,
-	Escape
+	Escape,
+	Link
 }

@@ -21,10 +21,6 @@ public class MarkdownTag
 
 	public TokenType Type { get; }
 
-	//public static MarkdownTag Italic => new("_");
-	//public static MarkdownTag Bold => new("__");
-	//public static MarkdownTag Header => new("# ", string.Empty);
-
 	public override bool Equals(object? obj)
 	{
 		if (obj is not MarkdownTag other) return false;

@@ -18,6 +18,8 @@ public class MdTests
 	[TestCase("__Bold__", "<strong>Bold</strong>", TestName = "Bold tag")]
 	[TestCase("_Italic_", "<em>Italic</em>", TestName = "Italic tag")]
 	[TestCase("# Header", "<h1>Header</h1>", TestName = "Top level header tag")]
+	[TestCase("(abcd)", "<a href=\"abcd\">", TestName = "Link tag")]
+	[TestCase("aa (abcd)  bb", "aa <a href=\"abcd\">  bb", TestName = "Link tag")]
 	[TestCase("aaa __Bold__ aaa", "aaa <strong>Bold</strong> aaa", TestName = "Bold tag in text")]
 	[TestCase("aaa _Italic_ aaa", "aaa <em>Italic</em> aaa", TestName = "Italic tag in text")]
 	[TestCase("# Header aaa", "<h1>Header aaa</h1>", TestName = "Top level header tag with spaces")]
@@ -35,6 +37,7 @@ public class MdTests
 	[TestCase("/__Bold/__", "__Bold__", TestName = "Bold tag")]
 	[TestCase("/_Italic/_", "_Italic_", TestName = "Italic tag")]
 	[TestCase("/# Header", "# Header", TestName = "Top level header tag")]
+	//[TestCase("/[Link/]", "[Link]", TestName = "Link tag")]
 	[TestCase("/_", "_", TestName = "only one italic tag")]
 	[TestCase("/__", "__", TestName = "only one bold tag")]
 	[TestCase("/# ", "# ", TestName = "only one header tag")]
@@ -79,6 +82,10 @@ public class MdTests
 		"____",
 		TestName = "Strong tag without value")]
 	[TestCase(
+		"[]",
+		"[]",
+		TestName = "Link tag without value")]
+	[TestCase(
 		"abcd # abcd",
 		"abcd # abcd",
 		TestName = "Header not at the beginning")]
@@ -108,7 +115,9 @@ public class MdTests
 
 	[TestCase(" _1abc1_ ", " _1abc1_ ")]
 	[TestCase(" _a1b1c_ ", " _a1b1c_ ")]
-	public void Render_ShouldNotRender_WithDigitsInTags(string mdText, string expected)
+	[TestCase(" 1_abc_ ", " 1_abc_ ")]
+	[TestCase(" _abc_1 ", " _abc_1 ")]
+	public void Render_ShouldNotRender_WithDigitsInsideTags(string mdText, string expected)
 	{
 		var result = markdown.Render(mdText);
 

@@ -18,7 +18,8 @@ public class MarkdownTokenParser : ITokenParser
 			{ new MarkdownTag("__", TokenType.Bold), TokenType.Bold },
 			{ new MarkdownTag("_", TokenType.Italic), TokenType.Italic },
 			{ new MarkdownTag("# ", $"{Environment.NewLine}{Environment.NewLine}", TokenType.Header), TokenType.Header },
-			{ new MarkdownTag("/", null, TokenType.Escape), TokenType.Escape }
+			{ new MarkdownTag("/", null, TokenType.Escape), TokenType.Escape },
+			{ new MarkdownTag("(", ")", TokenType.Link), TokenType.Link }
 		};
 
 		markdownTags = tokenTypes.ToDictionary(pair => pair.Value, pair => pair.Key);
@@ -27,7 +28,8 @@ public class MarkdownTokenParser : ITokenParser
 		{
 			{ TokenType.Italic, new DoubleTagParser(markdownTags[TokenType.Italic], "__") },
 			{ TokenType.Bold, new DoubleTagParser(markdownTags[TokenType.Bold]) },
-			{ TokenType.Header, new HeaderParser() }
+			{ TokenType.Header, new HeaderParser() },
+			{ TokenType.Link, new DoubleTagParser(markdownTags[TokenType.Link])}
 		};
 		escapeParser = new EscapeParser(markdownTags[TokenType.Escape], markdownTags.Values);
 	}
