@@ -42,7 +42,7 @@ public class EscapeParser : IMarkdownTagParser
 
 			if (tag.Close is null) continue;
 
-			return CheckTagPart(text, paragraphEnd, startIndex, tag.Close, out endIndex);
+			if(CheckTagPart(text, paragraphEnd, startIndex, tag.Close, out endIndex)) return true;
 		}
 
 		return false;
