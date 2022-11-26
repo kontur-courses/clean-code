@@ -1,47 +1,103 @@
 using System;
-using System.Security.Cryptography;
-using Markdown.Interfaces;
+using System.Diagnostics;
+using System.Text;
 using NUnit.Framework;
+using NUnit.Framework.Interfaces;
+using FluentAssertions;
 
-namespace Markdown.Tests
+namespace Markdown.Tests;
+
+public class Tests
 {
-    public class Tests
+    public Md Md { get; set; }
+
+    [SetUp]
+    public void Setup()
     {
-        public Md md;
-        [SetUp]
-        public void Setup()
+        Md = new Md(new HtmlConverter(), new Tokenizer());
+    }
+
+    [TestCase("_text text text_", ExpectedResult = "<em>text text text</em>", TestName = "TextInItalicTag")]
+    [TestCase("__text text text__", ExpectedResult = "<strong>text text text</strong>", TestName = "TextInStrongTag")]
+    [TestCase("#a\n", ExpectedResult = "<h1>a</h1>\n", TestName = "HeaderTag")]
+    [TestCase("_12_3", ExpectedResult = "_12_3", TestName = "Italic_In_Numbers_Not_Tagged")]
+    [TestCase("__12__3", ExpectedResult = "__12__3", TestName = "Strong_In_Numbers_Not_Tagged")]
+    [TestCase("__", ExpectedResult = "__", TestName = "EmptyItalicTag")]
+    [TestCase("____", ExpectedResult = "____", TestName = "EmptyStrongTag")]
+    [TestCase("в _нач_але", ExpectedResult = "в <em>нач</em>але", TestName = "Italic_Tagged_Part_Word_At_Start")]
+    [TestCase("сер_еди_не", ExpectedResult = "сер<em>еди</em>не", TestName = "Italic_Tagged_Part_Word_At_Middle")]
+    [TestCase("кон_це_", ExpectedResult = "кон<em>це</em>", TestName = "Italic_Tagged_Part_Word_At_End")]
+    [TestCase("ра_зных сл_овах", ExpectedResult = "ра_зных сл_овах", TestName = "Italic_Not_Tagged_If_Tags_InDifferentWords")]
+    [TestCase("в __нач__але", ExpectedResult = "в <strong>нач</strong>але", TestName = "Strong_Tagged_Part_Word_At_Start")]
+    [TestCase("сер__еди__не", ExpectedResult = "сер<strong>еди</strong>не", TestName = "Strong_Tagged_Part_Word_At_Middle")]
+    [TestCase("кон__це__", ExpectedResult = "кон<strong>це</strong>", TestName = "Strong_Tagged_Part_Word_At_End")]
+    [TestCase("ра__зных сл__овах", ExpectedResult = "ра__зных сл__овах", TestName = "Strong_Not_Tagged_If_Tags_InDifferentWords")]
+
+    public string RenderTest(string line)
+    {
+        var result = Md.Render(line);
+        return result;
+    }
+    [TestCase("__text _text_ text__", ExpectedResult = "<strong>text <em>text</em> text</strong>", TestName = "Italic_In_Strong_Tagged")]
+    [TestCase("_text __text__ text_", ExpectedResult = "<em>text __text__ text</em>", TestName = "Strong_In_Italic_Not_Tagged")]
+    [TestCase("__text _text__ text_", ExpectedResult = "__text _text__ text_", TestName = "Intersections_StrongT_And_Italic_NotTagged")]
+    [TestCase("__text_", ExpectedResult = "__text_", TestName = "Unpaired_Characters_Not_Considered_Tags")]
+    [TestCase("#Header __text _text_ text__", ExpectedResult = "<h1>Header <strong>text <em>text</em> text</strong></h1>", TestName = "Header_Can_Contain_Other_Markup_Elements")]
+    public string Render_TagInteractionTest(string line)
+    {
+        var result = Md.Render(line);
+        return result;
+    }
+    [TestCase(@"\_text text\_", ExpectedResult = "_text text_", TestName = "{m}_Escape_Tag")]
+    [TestCase(@"te\xt text\ \text", ExpectedResult = @"te\xt text\ \text", TestName = "{m}_Disappear_Only_If_Shielding")]
+    [TestCase(@"\\_text\\_", ExpectedResult = "<em>text</em>", TestName = "{m}_Shielding_Shielding_Chars")]
+    public string Render_Shielding_Should(string line)
+    {
+        var result = Md.Render(line);
+
+        return result;
+    }
+    [Test]
+    public void Render_Should_Fail_OnNull()
+    {
+        Action action = () => Md.Render(null);
+        action.Should().Throw<ArgumentNullException>();
+    }
+
+    [TearDown]
+    public void TearDown()
+    {
+        if (TestContext.CurrentContext.Result.Outcome.Status == TestStatus.Failed)
         {
-            md = new Md(new HtmlConverter());
+            var str = (string)TestContext.CurrentContext.Test.Arguments[0]!;
+            TestContext.WriteLine("Input string: {0}", str);
+            TestContext.WriteLine("Output string: {0}", Md.Render(str));
         }
-        [TestCase("_text text text_", ExpectedResult = "<em>text text text</em>", TestName = "{m}_Return_TextInItalicTag_OnSingleUnderscores")]
-        [TestCase("__text text text__", ExpectedResult = "<strong>text text text</strong>", TestName = "{m}_Return_Text_In_StrongTag_On_DoubleUnderscores")]
-        [TestCase("#a\n", ExpectedResult = "<h1>a</h1>\n", TestName = "{m}Return_Text_in_h1_Tag_On_Line_Starts_With_Sharp")]
-        [TestCase(@"\_¬от это\_", ExpectedResult = "_¬от это_", TestName = "{m}_Return_Text_With_Shielding_Tag")]
-        [TestCase(@"сим\волы экранировани€\ \должны остатьс€.\", ExpectedResult = @"сим\волы экранировани€\ \должны остатьс€.\", TestName = "Escaping_Char_Not_Disappear_From_Result_Unless_It_Escapes")]
-        [TestCase(@"\\_вот это будет выделено тегом\\_", ExpectedResult = "<em>вот это будет выделено тегом</em>", TestName = "Escape_Char_Can_Escaped")]
-        [TestCase("_12_3", ExpectedResult = "_12_3" , TestName = "Underscores_In_Text_With_Numbers_Not_Tagged")]
-        [TestCase("____", ExpectedResult = "____", TestName = "TagSymbols_On_EmptyText_Still_Symbols")]
-        [TestCase("в _нач_але", ExpectedResult = "в <em>нач</em>але", TestName = "{m}_Tagged_Part_Word_At_Start")]
-        [TestCase("сер_еди_не", ExpectedResult = "сер<em>еди</em>не", TestName = "{m}_Tagged_Part_Word_At_Middle")]
-        [TestCase("кон_це_", ExpectedResult = "кон<em>це</em>", TestName = "{m}_Tagged_Part_Word_At_End")]
-        [TestCase("ра_зных сл_овах", ExpectedResult = "ра_зных сл_овах", TestName = "Tagged_In_Different_Words_Not_Work.")]
-        [TestCase("__пересечени€ _двойных__ и одинарных_", ExpectedResult = "__пересечени€ _двойных__ и одинарных_", TestName = "Intersections_DoubleUnderscores_And_SingleUnderscores_NotTagged")]
-        [TestCase("__Ќепарные_ символы", ExpectedResult = "__Ќепарные_ символы", TestName = "Unpaired_Characters_Not_Considered_Tags")]
-        [TestCase("#«аголовок __с _разными_ символами__", ExpectedResult = "<h1>«аголовок <strong>с <em>разными</em> символами</strong></h1>", TestName = "Header_Can_Contain_Other_Markup_Elements")]
-        [TestCase("_aaa__b__ccc_", ExpectedResult = "<em>aaa</em><em>b</em><em>ccc</em>", TestName = "{m}_DoubleUnderscoreInUnderscore")]
-        [TestCase("__a_b___", ExpectedResult = "<strong>a<em>b</em></strong>", TestName = "{m}_UnderscoreInDoubleUnderscore")]
-        [TestCase("#__a_b___\n", ExpectedResult = "<h1><strong>a<em>b</em></strong></h1>\n", TestName = "{m}_TagsInHeader")]
-        public string Render_Should(string line)
+    }
+
+    [Test]
+    public void PerformanceTest()
+    {
+        var sb = new StringBuilder();
+        var line = @"#_aa_ __b__ /_a/_";
+        sb.AppendLine(line);
+        var stopwatch= new Stopwatch();
+        stopwatch.Start();
+        Md.Render(sb.ToString());
+        stopwatch.Stop();
+
+        var time = stopwatch.ElapsedTicks;
+
+        for (int i = 0; i < 5; i++)
         {
-            var result = md.Render(line);
-            TestContext.WriteLine(result);
-            return result;
-        }
-        [Test]
-        public void Render_Should_Fail_OnNull()
-        {
-            Action action = () => md.Render(null);
-            Assert.Throws<ArgumentNullException>(() => action());
+            sb.Append(line);
+            stopwatch.Start();
+            Md.Render(sb.ToString());
+            stopwatch.Stop();
+
+            var current = stopwatch.ElapsedTicks;
+            time.Should().BeLessThan(current);
+            time = current;
         }
     }
 }
