@@ -21,11 +21,11 @@ public class MdTests
 	[TestCase("__Bold__", "<strong>Bold</strong>", TestName = "Bold tag")]
 	[TestCase("_Italic_", "<em>Italic</em>", TestName = "Italic tag")]
 	[TestCase("# Header", "<h1>Header</h1>", TestName = "Top level header tag")]
-	[TestCase("(abcd)", "<a href=\"abcd\">", TestName = "Link tag")]
+	[TestCase("(abcd)", "<a href=\"abcd\"></a>", TestName = "Link tag")]
 	[TestCase("aaa __Bold__ aaa", "aaa <strong>Bold</strong> aaa", TestName = "Bold tag in text")]
 	[TestCase("aaa _Italic_ aaa", "aaa <em>Italic</em> aaa", TestName = "Italic tag in text")]
 	[TestCase("# Header aaa", "<h1>Header aaa</h1>", TestName = "Top level header tag with spaces")]
-	[TestCase("aa (abcd)  bb", "aa <a href=\"abcd\">  bb", TestName = "Link tag in text")]
+	[TestCase("aa (abcd)  bb", "aa <a href=\"abcd\"></a>  bb", TestName = "Link tag in text")]
 	[TestCase(
 		"# Header aaa\r\n\r\n__Second _para_graph__",
 		"<h1>Header aaa</h1>\r\n\r\n<strong>Second <em>para</em>graph</strong>",
@@ -160,7 +160,7 @@ public class MdTests
 		TestName = "Header in header")]
 	[TestCase(
 		"a (__aaa__ aa _aa_ a aaaaa)",
-		"a <a href=\"__aaa__ aa _aa_ a aaaaa\">",
+		"a <a href=\"__aaa__ aa _aa_ a aaaaa\"></a>",
 		TestName = "Link tag can't contain other tags")]
 	public void Render_ShouldNotRenderTags_WithIncorrectNestingTags(string mdText, string expected)
 	{
@@ -184,7 +184,7 @@ public class MdTests
 		sw.Stop();
 		var mdRendererTimeElapsed = sw.Elapsed;
 
-		mdRendererTimeElapsed.Milliseconds.Should().BeLessThan(slowMethodTimeElapsed.Milliseconds);
+		mdRendererTimeElapsed.Should().BeLessThan(slowMethodTimeElapsed);
 	}
 
 	public static IEnumerable<TestCaseData> LongTextSource()
@@ -192,6 +192,7 @@ public class MdTests
 		var rnd = new Random();
 		var textSize = 500_000;
 		var result = new StringBuilder(textSize);
+		result.Append("# ");
 		var counter = 0;
 		while (counter < textSize)
 		{

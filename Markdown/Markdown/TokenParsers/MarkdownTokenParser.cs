@@ -1,5 +1,4 @@
-﻿using System.Runtime.InteropServices.ComTypes;
-using Markdown.Tags;
+﻿using Markdown.Tags;
 using Markdown.TokenParsers.MarkdownParsers;
 using Markdown.Tokens;
 
@@ -14,13 +13,15 @@ public class MarkdownTokenParser : ITokenParser
 
 	public MarkdownTokenParser()
 	{
-		
 		parsers = new Dictionary<TokenType, IMarkdownTagParser>
 		{
 			{ TokenType.Italic, new DoubleTagParser(new MarkdownTag("_", TokenType.Italic), "__") },
 			{ TokenType.Bold, new DoubleTagParser(new MarkdownTag("__", TokenType.Bold)) },
-			{ TokenType.Header, new HeaderParser(new MarkdownTag("# ", $"{Environment.NewLine}{Environment.NewLine}", TokenType.Header)) },
-			{ TokenType.Link, new DoubleTagParser(new MarkdownTag("(", ")", TokenType.Link))}
+			{
+				TokenType.Header,
+				new HeaderParser(new MarkdownTag("# ", $"{Environment.NewLine}{Environment.NewLine}", TokenType.Header))
+			},
+			{ TokenType.Link, new DoubleTagParser(new MarkdownTag("(", ")", TokenType.Link)) }
 		};
 
 		markdownTags = parsers.ToDictionary(pair => pair.Key, pair => pair.Value.Tag);
@@ -145,10 +146,10 @@ public class MarkdownTokenParser : ITokenParser
 		foreach (var token in tokens)
 		{
 			(prevToken, currentToken) = FindPlace(prevToken, currentToken, token);
-			
+
 			if (currentToken is null)
 			{
-				if(prevToken is not null)
+				if (prevToken is not null)
 					prevToken.nextToken = token;
 				currentToken = token;
 				continue;
@@ -160,16 +161,17 @@ public class MarkdownTokenParser : ITokenParser
 				continue;
 			}
 
-			currentToken = currentToken.Type == TokenType.PlainText 
-				? InsertTokenInText(token, currentToken, prevToken) 
+			currentToken = currentToken.Type == TokenType.PlainText
+				? InsertTokenInText(token, currentToken, prevToken)
 				: AddNestingToken(token, currentToken);
-			
+
 			if (prevToken is null) result = currentToken;
 			prevToken = currentToken;
 		}
 	}
 
-	private (MdToken? prevToken, MdToken? currentToken) FindPlace(MdToken? prevToken, MdToken? currentToken, MdToken token)
+	private (MdToken? prevToken, MdToken? currentToken) FindPlace(MdToken? prevToken, MdToken? currentToken,
+		MdToken token)
 	{
 		while (currentToken is not null)
 		{
@@ -198,14 +200,14 @@ public class MarkdownTokenParser : ITokenParser
 			nextToken = nextToken
 		};
 
-		if(prevToken is not null) prevToken.nextToken = currentToken;
+		if (prevToken is not null) prevToken.nextToken = currentToken;
 	}
 
 	private MdToken InsertTokenInText(MdToken splitter, MdToken currentToken, MdToken? prevToken)
 	{
 		if (currentToken.Type is not TokenType.PlainText) throw new ArgumentException();
-		return splitter.Type is not TokenType.Escape 
-			? InsertToken(splitter, currentToken, prevToken) 
+		return splitter.Type is not TokenType.Escape
+			? InsertToken(splitter, currentToken, prevToken)
 			: InsertEscapeToken(splitter, currentToken, prevToken);
 	}
 
@@ -230,7 +232,6 @@ public class MarkdownTokenParser : ITokenParser
 		if (prevToken != null) prevToken.nextToken = currentToken;
 
 		return currentToken;
-
 	}
 
 	private MdToken InsertToken(MdToken splitter, MdToken currentToken, MdToken? prevToken)
@@ -239,13 +240,13 @@ public class MarkdownTokenParser : ITokenParser
 		var end = currentToken.End;
 
 		var left = new MdToken(
-			currentToken.SourceText, 
+			currentToken.SourceText,
 			start,
 			splitter.Start - markdownTags[splitter.Type].Open.Length,
 			currentToken.Type);
 
 		var right = new MdToken(
-			currentToken.SourceText, 
+			currentToken.SourceText,
 			splitter.End + markdownTags[splitter.Type].Close?.Length ?? 0,
 			end,
 			currentToken.Type)
@@ -292,8 +293,8 @@ public class MarkdownTokenParser : ITokenParser
 			main.nestingTokens.nextToken as MdToken,
 			token);
 
-		return place.Type is TokenType.PlainText 
-			? InsertTokenInText(token, place, prevToken) 
+		return place.Type is TokenType.PlainText
+			? InsertTokenInText(token, place, prevToken)
 			: InsertToken(token, place, prevToken);
 	}
 }

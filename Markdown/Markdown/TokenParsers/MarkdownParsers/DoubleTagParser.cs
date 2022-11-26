@@ -6,7 +6,6 @@ namespace Markdown.TokenParsers.MarkdownParsers;
 public class DoubleTagParser : IMarkdownTagParser
 {
 	private readonly string? competingTagPattern;
-	//private readonly MarkdownTag tag;
 	private List<MdToken> escapeTokens;
 	private int paragraphEnd;
 	private int paragraphStart;

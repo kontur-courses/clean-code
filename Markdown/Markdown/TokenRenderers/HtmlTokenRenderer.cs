@@ -15,7 +15,7 @@ public class HtmlTokenRenderer : ITokenRenderer
 			{ TokenType.Bold, new HtmlTag("strong") },
 			{ TokenType.Header, new HtmlTag("h1") },
 			{ TokenType.Italic, new HtmlTag("em") },
-			{ TokenType.Link, new HtmlTag("<a href=\"", "\">") },
+			{ TokenType.Link, new HtmlTag("<a href=\"", "\"></a>") },
 			{ TokenType.PlainText, new HtmlTag(string.Empty, string.Empty) }
 		};
 	}
@@ -58,7 +58,8 @@ public class HtmlTokenRenderer : ITokenRenderer
 		while (nestedToken is not null)
 		{
 			var value = nestedToken.nestingTokens == null ? nestedToken.Value : RenderNestingTokens(nestedToken);
-			//if (nestedToken.Type == TokenType.Escape) return RenderEscapeToken(nestedToken);
+			if (nestedToken.Type == TokenType.Escape) return RenderEscapeToken(nestedToken);
+
 			var tag = htmlTags[nestedToken.Type];
 			result.Append($"{tag.Open}{value}{tag.Close}");
 
