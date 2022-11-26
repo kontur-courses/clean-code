@@ -1,5 +1,8 @@
-﻿using FluentAssertions;
+﻿using System.Diagnostics;
+using System.Text;
+using FluentAssertions;
 using Markdown;
+using Microsoft.VisualStudio.TestPlatform.ObjectModel;
 using NUnit.Framework;
 
 namespace MarkdownTests;
@@ -164,5 +167,62 @@ public class MdTests
 		var result = markdown.Render(mdText);
 
 		result.Should().Be(expected);
+	}
+
+	[TestCaseSource(nameof(LongTextSource))]
+	public void Render_PerformanceTest(string text)
+	{
+		var sw = new Stopwatch();
+
+		sw.Start();
+		DoSomethingSlow(text);
+		sw.Stop();
+		var slowMethodTimeElapsed = sw.Elapsed;
+		
+		sw.Restart();
+		var result = markdown.Render(text);
+		sw.Stop();
+		var mdRendererTimeElapsed = sw.Elapsed;
+
+		mdRendererTimeElapsed.Milliseconds.Should().BeLessThan(slowMethodTimeElapsed.Milliseconds);
+	}
+
+	public static IEnumerable<TestCaseData> LongTextSource()
+	{
+		var rnd = new Random();
+		var textSize = 500_000;
+		var result = new StringBuilder(textSize);
+		var counter = 0;
+		while (counter < textSize)
+		{
+			if (rnd.Next(0, 100) == 100)
+			{
+				result.Append($"{Environment.NewLine}{Environment.NewLine}");
+				counter += $"{Environment.NewLine}{Environment.NewLine}".Length;
+			}
+
+			result.Append((char)rnd.Next(35, 122));
+			counter++;
+		}
+
+		yield return new TestCaseData(result.ToString()).SetName($"Text with {textSize} symbols");
+	}
+
+	private void DoSomethingSlow(string text)
+	{
+		var counter = 0;
+		//O(n * log(n)^2)
+		for (var i = 0; i < text.Length; i++)
+		{
+			for (var j = 1; j < text.Length; j*=2)
+			{
+				counter++;
+				for (var c = 1; c < text.Length; c *= 2)
+				{
+					counter++;
+				}
+			}
+			
+		}
 	}
 }

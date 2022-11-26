@@ -263,7 +263,13 @@ public class MarkdownTokenParser : ITokenParser
 
 	private MdToken AddNestingToken(MdToken token, MdToken main)
 	{
-		if (main.Type is TokenType.Link) return main;
+		switch (main.Type)
+		{
+			case TokenType.Link:
+				return main;
+			case TokenType.Escape:
+				return main;
+		}
 
 		switch (token.Type)
 		{
