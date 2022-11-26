@@ -1,20 +1,25 @@
-﻿namespace Markdown.Tags;
+﻿using Markdown.Tokens;
+
+namespace Markdown.Tags;
 
 public class MarkdownTag
 {
-	public MarkdownTag(string open, string? close)
+	public MarkdownTag(string open, string? close, TokenType type)
 	{
 		Open = open;
 		Close = close;
+		Type = type;
 	}
 
-	public MarkdownTag(string name) : this(name, name)
+	public MarkdownTag(string name, TokenType type) : this(name, name, type)
 	{
 	}
 
 	public string Open { get; }
 
 	public string? Close { get; }
+
+	public TokenType Type { get; }
 
 	//public static MarkdownTag Italic => new("_");
 	//public static MarkdownTag Bold => new("__");

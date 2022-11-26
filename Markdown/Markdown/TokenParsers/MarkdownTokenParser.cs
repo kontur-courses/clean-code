@@ -15,18 +15,18 @@ public class MarkdownTokenParser : ITokenParser
 	{
 		var tokenTypes = new Dictionary<MarkdownTag, TokenType>
 		{
-			{ new MarkdownTag("__"), TokenType.Bold },
-			{ new MarkdownTag("_"), TokenType.Italic },
-			{ new MarkdownTag("# ", $"{Environment.NewLine}{Environment.NewLine}"), TokenType.Header },
-			{ new MarkdownTag("/", null), TokenType.Escape }
+			{ new MarkdownTag("__", TokenType.Bold), TokenType.Bold },
+			{ new MarkdownTag("_", TokenType.Italic), TokenType.Italic },
+			{ new MarkdownTag("# ", $"{Environment.NewLine}{Environment.NewLine}", TokenType.Header), TokenType.Header },
+			{ new MarkdownTag("/", null, TokenType.Escape), TokenType.Escape }
 		};
 
 		markdownTags = tokenTypes.ToDictionary(pair => pair.Value, pair => pair.Key);
 
 		parsers = new Dictionary<TokenType, IMarkdownTagParser>
 		{
-			{ TokenType.Italic, new ItalicParser() },
-			{ TokenType.Bold, new BoldParser() },
+			{ TokenType.Italic, new DoubleTagParser(markdownTags[TokenType.Italic], "__") },
+			{ TokenType.Bold, new DoubleTagParser(markdownTags[TokenType.Bold]) },
 			{ TokenType.Header, new HeaderParser() }
 		};
 		escapeParser = new EscapeParser(markdownTags[TokenType.Escape], markdownTags.Values);
@@ -63,15 +63,15 @@ public class MarkdownTokenParser : ITokenParser
 		{
 			var paragraphStart = paragraphsStartPositions[i - 1];
 			var paragraphEnd = paragraphsStartPositions[i] - ParagraphSplitter.Length;
-			ParseParagraph(currentToken, text, paragraphStart, paragraphEnd);
+			ParseParagraph(ref currentToken, text, paragraphStart, paragraphEnd);
 		}
 
-		ParseParagraph(currentToken, text, paragraphsStartPositions.Last(), text.Length);
+		ParseParagraph(ref currentToken, text, paragraphsStartPositions.Last(), text.Length);
 
 		return root;
 	}
 
-	private void ParseParagraph(IToken currentToken, string text, int paragraphStart, int paragraphEnd)
+	private void ParseParagraph(ref IToken currentToken, string text, int paragraphStart, int paragraphEnd)
 	{
 		var paragraphTokens = ParseParagraphTokens(text, paragraphStart, paragraphEnd);
 
@@ -82,6 +82,7 @@ public class MarkdownTokenParser : ITokenParser
 
 		currentToken.nextToken =
 			new MdToken(ParagraphSplitter, 0, ParagraphSplitter.Length, TokenType.PlainText);
+		currentToken = currentToken.nextToken;
 	}
 
 
@@ -194,26 +195,7 @@ public class MarkdownTokenParser : ITokenParser
 			return;
 		}
 
-		var start = currentToken.Start;
-		var end = currentToken.End;
-
-		var left = new MdToken(currentToken.SourceText, start,
-			splitter.Start - markdownTags[splitter.Type].Open.Length,
-			currentToken.Type);
-
-		var right = new MdToken(currentToken.SourceText, splitter.End + markdownTags[splitter.Type].Close?.Length ?? 0,
-			end,
-			currentToken.Type)
-		{
-			nextToken = currentToken.nextToken
-		};
-
-		splitter.nextToken = right;
-		left.nextToken = splitter;
-
-		currentToken = left;
-
-		if (prevToken != null) prevToken.nextToken = left;
+		InsertToken(splitter, ref currentToken, prevToken);
 	}
 
 	private void InsertEscapeToken(MdToken splitter, ref MdToken currentToken, MdToken? prevToken)
@@ -240,14 +222,23 @@ public class MarkdownTokenParser : ITokenParser
 			return;
 		}
 
+		InsertToken(splitter, ref currentToken, prevToken);
+	}
+
+	private void InsertToken(MdToken splitter, ref MdToken currentToken, MdToken? prevToken)
+	{
 		var start = currentToken.Start;
 		var end = currentToken.End;
 
-		var left = new MdToken(currentToken.SourceText, start,
+		var left = new MdToken(
+			currentToken.SourceText, 
+			start,
 			splitter.Start - markdownTags[splitter.Type].Open.Length,
 			currentToken.Type);
 
-		var right = new MdToken(currentToken.SourceText, splitter.End + markdownTags[splitter.Type].Close?.Length ?? 0,
+		var right = new MdToken(
+			currentToken.SourceText, 
+			splitter.End + markdownTags[splitter.Type].Close?.Length ?? 0,
 			end,
 			currentToken.Type)
 		{
