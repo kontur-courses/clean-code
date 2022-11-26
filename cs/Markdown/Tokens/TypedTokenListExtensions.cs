@@ -32,7 +32,7 @@ namespace Markdown.Tokens
             return tokens;
         }
 
-        public static List<TypedToken> RemoveUnpairedTags(this List<TypedToken> tokens)
+        public static List<TypedToken> SwitchToTextUnpairedTags(this List<TypedToken> tokens)
         {
             var tagTokensStack = new Stack<TypedToken>();
 
@@ -61,7 +61,7 @@ namespace Markdown.Tokens
             return tokens;
         }
 
-        public static List<TypedToken> RemoveTagsWithInvalidContentBetween(this List<TypedToken> tokens, string text)
+        public static List<TypedToken> SwitchToTextTagsWithInvalidContentBetween(this List<TypedToken> tokens, string text)
         {
             var tagTokensStack = new Stack<TypedToken>();
 
@@ -98,7 +98,7 @@ namespace Markdown.Tokens
             return tokens;
         }
 
-        public static List<TypedToken> RemoveTagsWithInvalidNesting(this List<TypedToken> tokens, TagStorage tagStorage)
+        public static List<TypedToken> SwitchTextTagsWithInvalidNesting(this List<TypedToken> tokens, TagStorage tagStorage)
         {
             var tagTokensStack = new Stack<TypedToken>();
 

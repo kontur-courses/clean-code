@@ -47,6 +47,8 @@
     <Compile Include="Converter\Converter.cs" />
     <Compile Include="Converter\MarkdownToHtmlConverter.cs" />
     <Compile Include="Md.cs" />
+    <Compile Include="Parser\ITagParser.cs" />
+    <Compile Include="Parser\TagParser.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Tags\HtmlTagStorage.cs" />
