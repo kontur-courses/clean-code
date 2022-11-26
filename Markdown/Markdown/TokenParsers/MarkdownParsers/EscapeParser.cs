@@ -5,14 +5,17 @@ namespace Markdown.TokenParsers.MarkdownParsers;
 
 public class EscapeParser : IMarkdownTagParser
 {
-	private readonly MarkdownTag escapeTag;
 	private readonly IEnumerable<MarkdownTag> tags;
 
-	public EscapeParser(MarkdownTag escapeTag, IEnumerable<MarkdownTag> tags)
+	public EscapeParser(MarkdownTag tag, IEnumerable<MarkdownTag> tags)
 	{
-		this.escapeTag = escapeTag;
-		this.tags = tags;
+		Tag = tag;
+		this.tags = tags
+			.OrderByDescending(t => t.Open.Length)
+			.ThenByDescending(t => t.Close?.Length);
 	}
+
+	public MarkdownTag Tag { get; }
 
 	public List<MdToken> ParseParagraph(string text, int paragraphStart, int paragraphEnd,
 		List<MdToken> escapeTokens = null)
@@ -21,9 +24,9 @@ public class EscapeParser : IMarkdownTagParser
 
 		for (var i = paragraphStart; i < paragraphEnd; i++)
 		{
-			if (text.Substring(i, escapeTag.Open.Length) != escapeTag.Open) continue;
+			if (text.Substring(i, Tag.Open.Length) != Tag.Open) continue;
 
-			if (!CheckEscaping(text, i + escapeTag.Open.Length, paragraphEnd, out var endIndex)) continue;
+			if (!CheckEscaping(text, i + Tag.Open.Length, paragraphEnd, out var endIndex)) continue;
 
 			result.Add(new MdToken(text, i, endIndex - 1, TokenType.Escape));
 			i = endIndex;

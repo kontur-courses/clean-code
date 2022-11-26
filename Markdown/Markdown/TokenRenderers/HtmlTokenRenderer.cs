@@ -58,6 +58,7 @@ public class HtmlTokenRenderer : ITokenRenderer
 		while (nestedToken is not null)
 		{
 			var value = nestedToken.nestingTokens == null ? nestedToken.Value : RenderNestingTokens(nestedToken);
+			//if (nestedToken.Type == TokenType.Escape) return RenderEscapeToken(nestedToken);
 			var tag = htmlTags[nestedToken.Type];
 			result.Append($"{tag.Open}{value}{tag.Close}");
 

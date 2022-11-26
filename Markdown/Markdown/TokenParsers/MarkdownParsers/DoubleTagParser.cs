@@ -6,7 +6,7 @@ namespace Markdown.TokenParsers.MarkdownParsers;
 public class DoubleTagParser : IMarkdownTagParser
 {
 	private readonly string? competingTagPattern;
-	private readonly MarkdownTag tag;
+	//private readonly MarkdownTag tag;
 	private List<MdToken> escapeTokens;
 	private int paragraphEnd;
 	private int paragraphStart;
@@ -15,9 +15,11 @@ public class DoubleTagParser : IMarkdownTagParser
 	public DoubleTagParser(MarkdownTag tag, string? competingTagPattern = null)
 	{
 		if (tag.Close is null) throw new ArgumentException();
-		this.tag = tag;
+		Tag = tag;
 		this.competingTagPattern = competingTagPattern;
 	}
+
+	public MarkdownTag Tag { get; }
 
 	public List<MdToken> ParseParagraph(string text, int paragraphStart, int paragraphEnd, List<MdToken> escapeTokens)
 	{
@@ -28,26 +30,26 @@ public class DoubleTagParser : IMarkdownTagParser
 		var currentEscapeToken = escapeTokens.FirstOrDefault();
 		var result = new List<MdToken>();
 
-		for (var i = paragraphStart; i < paragraphEnd - tag.Open.Length; i++)
+		for (var i = paragraphStart; i < paragraphEnd - Tag.Open.Length; i++)
 		{
 			if (CheckEscaping(currentEscapeToken, ref i)) continue;
 
 			if (CheckCompetingTag(ref i)) continue;
 
-			var tagWindow = text.Substring(i, tag.Open.Length);
+			var tagWindow = text.Substring(i, Tag.Open.Length);
 
-			if (tagWindow != tag.Open) continue;
+			if (tagWindow != Tag.Open) continue;
 
-			var indexAfterWindow = i + tag.Open.Length;
+			var indexAfterWindow = i + Tag.Open.Length;
 			if (CheckSymbol(indexAfterWindow, ' '))
 			{
-				i += tag.Open.Length;
+				i += Tag.Open.Length;
 				continue;
 			}
 
 			if (!TryParseTag(i, out var endPosition)) continue;
 
-			result.Add(new MdToken(text, i + tag.Open.Length, endPosition, tag.Type));
+			result.Add(new MdToken(text, i + Tag.Open.Length, endPosition, Tag.Type));
 			i = endPosition;
 		}
 
@@ -58,13 +60,13 @@ public class DoubleTagParser : IMarkdownTagParser
 	{
 		endPosition = startPosition;
 
-		if (startPosition >= paragraphEnd - 2 * tag.Close.Length) return false;
+		if (startPosition >= paragraphEnd - 2 * Tag.Close.Length) return false;
 
 		if (CheckSymbol(startPosition - 1, char.IsDigit)) return false;
 
 		var canContainSpaces = startPosition == paragraphStart || text[startPosition - 1] == ' ';
 
-		return TryParseEnding(canContainSpaces, startPosition + tag.Open.Length, out endPosition);
+		return TryParseEnding(canContainSpaces, startPosition + Tag.Open.Length, out endPosition);
 	}
 
 	private bool TryParseEnding(bool canContainSpaces, int startPosition, out int endPosition)
@@ -74,7 +76,7 @@ public class DoubleTagParser : IMarkdownTagParser
 
 		var currentEscapeToken = escapeTokens.FirstOrDefault();
 
-		for (var i = startPosition; i < paragraphEnd - (tag.Close.Length - 1); i++)
+		for (var i = startPosition; i < paragraphEnd - (Tag.Close.Length - 1); i++)
 		{
 			if (CheckEscaping(currentEscapeToken, ref i)) continue;
 
@@ -92,13 +94,13 @@ public class DoubleTagParser : IMarkdownTagParser
 
 			if (CheckCompetingTag(ref i)) continue;
 
-			var window = text.Substring(i, tag.Close.Length);
-			if (window != tag.Close) continue;
+			var window = text.Substring(i, Tag.Close.Length);
+			if (window != Tag.Close) continue;
 
 			var indexBeforeWindow = i - 1;
 			if (CheckSymbol(indexBeforeWindow, ' ')) continue;
 
-			var indexAfterWindow = i + tag.Close.Length;
+			var indexAfterWindow = i + Tag.Close.Length;
 			if (CheckSymbol(indexAfterWindow, char.IsDigit)) return false;
 
 			if (CheckSymbol(indexAfterWindow, ch => ch != ' ' && containSpaces)) return false;

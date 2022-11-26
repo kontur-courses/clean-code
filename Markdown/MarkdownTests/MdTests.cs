@@ -19,10 +19,10 @@ public class MdTests
 	[TestCase("_Italic_", "<em>Italic</em>", TestName = "Italic tag")]
 	[TestCase("# Header", "<h1>Header</h1>", TestName = "Top level header tag")]
 	[TestCase("(abcd)", "<a href=\"abcd\">", TestName = "Link tag")]
-	[TestCase("aa (abcd)  bb", "aa <a href=\"abcd\">  bb", TestName = "Link tag")]
 	[TestCase("aaa __Bold__ aaa", "aaa <strong>Bold</strong> aaa", TestName = "Bold tag in text")]
 	[TestCase("aaa _Italic_ aaa", "aaa <em>Italic</em> aaa", TestName = "Italic tag in text")]
 	[TestCase("# Header aaa", "<h1>Header aaa</h1>", TestName = "Top level header tag with spaces")]
+	[TestCase("aa (abcd)  bb", "aa <a href=\"abcd\">  bb", TestName = "Link tag in text")]
 	[TestCase(
 		"# Header aaa\r\n\r\n__Second _para_graph__",
 		"<h1>Header aaa</h1>\r\n\r\n<strong>Second <em>para</em>graph</strong>",
@@ -50,28 +50,28 @@ public class MdTests
 
 
 	[TestCase(
-		"no space _ before_ opening tag",
-		"no space _ before_ opening tag",
+		"aa aaa _ aa_ aaa",
+		"aa aaa _ aa_ aaa",
 		TestName = "Space after opening em tag")]
 	[TestCase(
-		"no space _after _ closing tag",
-		"no space _after _ closing tag",
+		"aa aaa _aa _ aaa",
+		"aa aaa _aa _ aaa",
 		TestName = "Space before closing em tag")]
 	[TestCase(
-		"no space __ before__ opening tag",
-		"no space __ before__ opening tag",
+		"aa aaa __ aa__ aaa",
+		"aa aaa __ aa__ aaa",
 		TestName = "Space after opening strong tag")]
 	[TestCase(
-		"no space __after __ closing tag",
-		"no space __after __ closing tag",
+		"aa aaa __aa __ aaa",
+		"aa aaa __aa __ aaa",
 		TestName = "Space before closing strong tag")]
 	[TestCase(
-		"Ta_gs beginnin_g or e__nding in d__ifferent words",
-		"Ta_gs beginnin_g or e__nding in d__ifferent words",
+		"aa_aa aa_aa bb c__ccc cc c__c cc",
+		"aa_aa aa_aa bb c__ccc cc c__c cc",
 		TestName = "Tags beginning or ending in different words")]
 	[TestCase(
-		"__tags _inter__ sect_ ions",
-		"__tags _inter__ sect_ ions",
+		"__aaa _aaa__ a_ aaaaaa",
+		"__aaa _aaa__ a_ aaaaaa",
 		TestName = "Tags intersections")]
 	[TestCase(
 		"__",
@@ -125,12 +125,12 @@ public class MdTests
 	}
 
 	[TestCase(
-		"Italic __can be _nesting_ in bold__",
-		"Italic <strong>can be <em>nesting</em> in bold</strong>",
+		"a __aaa a _aa_ a aaaaa__",
+		"a <strong>aaa a <em>aa</em> a aaaaa</strong>",
 		TestName = "Italic can be nesting in bold")]
 	[TestCase(
-		"# Header __can _contain_ nesting__ tags",
-		"<h1>Header <strong>can <em>contain</em> nesting</strong> tags</h1>",
+		"# aaaa __aaa _a_ a__ aaa",
+		"<h1>aaaa <strong>aaa <em>a</em> a</strong> aaa</h1>",
 		TestName = "Header can contain nesting tags")]
 	public void Render_ShouldRenderTags_WithCorrectNestingTags(string mdText, string expected)
 	{
