@@ -92,10 +92,7 @@ namespace Markdown
                                                                closeTokenIndex - openTokenIndex + 1,
                                                                token => token.Type == TokenType.Text &&
                                                                         token.Text.Any(c => !char.IsDigit(c))) >= 0;
-            if (hasNotOnlyNumbersInside)
-                return true;
-
-            return false;
+            return hasNotOnlyNumbersInside;
         }
 
         public static List<Token> ResolveObjectTokenIntersections(List<Token> tokens)

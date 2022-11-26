@@ -78,7 +78,7 @@ namespace Markdown
                 symbolIndex += token.Text.Length - 1;
             }
 
-            var lastSymbol = input.Last();
+            var lastSymbol = input[symbolIndex];
             if (!reservedSymbols.Contains(lastSymbol))
             {
                 buffer.Append(lastSymbol);
