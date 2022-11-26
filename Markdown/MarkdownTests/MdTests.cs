@@ -74,6 +74,10 @@ public class MdTests
 		"__aaa _aaa__ a_ aaaaaa",
 		TestName = "Tags intersections")]
 	[TestCase(
+		"__aaa (aaa__ a) aaaaaa",
+		"__aaa (aaa__ a) aaaaaa",
+		TestName = "Tags intersections")]
+	[TestCase(
 		"__",
 		"__",
 		TestName = "Em tag without value")]
@@ -90,8 +94,8 @@ public class MdTests
 		"abcd # abcd",
 		TestName = "Header not at the beginning")]
 	[TestCase(
-		"__Unclosed_ tags",
-		"__Unclosed_ tags",
+		"__Unclosed_ (tags",
+		"__Unclosed_ (tags",
 		TestName = "Unclosed tags")]
 	public void Render_ShouldNotRender_WithIncorrectTags(string mdText, string expected)
 	{
@@ -132,6 +136,10 @@ public class MdTests
 		"# aaaa __aaa _a_ a__ aaa",
 		"<h1>aaaa <strong>aaa <em>a</em> a</strong> aaa</h1>",
 		TestName = "Header can contain nesting tags")]
+	[TestCase(
+		"__aa _a_ _a_ aa__",
+		"<strong>aa <em>a</em> <em>a</em> aa</strong>",
+		TestName = "Multiply nesting")]
 	public void Render_ShouldRenderTags_WithCorrectNestingTags(string mdText, string expected)
 	{
 		var result = markdown.Render(mdText);
@@ -147,6 +155,10 @@ public class MdTests
 		"# First header # second header",
 		"<h1>First header # second header</h1>",
 		TestName = "Header in header")]
+	[TestCase(
+		"a (__aaa__ aa _aa_ a aaaaa)",
+		"a <a href=\"__aaa__ aa _aa_ a aaaaa\">",
+		TestName = "Link tag can't contain other tags")]
 	public void Render_ShouldNotRenderTags_WithIncorrectNestingTags(string mdText, string expected)
 	{
 		var result = markdown.Render(mdText);
