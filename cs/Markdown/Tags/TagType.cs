@@ -5,6 +5,8 @@
         Header,
         Italic,
         Strong,
-        Undefined
+        Undefined,
+        UnorderedListItem,
+        UnorderedList
     }
 }

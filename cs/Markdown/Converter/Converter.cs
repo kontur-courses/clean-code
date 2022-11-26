@@ -25,7 +25,7 @@ namespace Markdown.Converter
             foreach (var token in tokens)
             {
                 if (token.Type == TokenType.Text)
-                    convertedText.Append(inputText.Substring(token.Start, token.Length));
+                    convertedText.Append(inputText.Substring(token.Start, token.Length)); 
 
                 if (token.Type == TokenType.Tag)
                     convertedText.Append(GetConvertedSubTag(token));

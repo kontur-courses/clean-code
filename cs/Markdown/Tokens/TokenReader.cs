@@ -1,4 +1,5 @@
 ﻿using System;
+using System.CodeDom;
 using System.Collections.Generic;
 using System.Linq;
 using Markdown.Tags;
@@ -47,7 +48,23 @@ namespace Markdown.Tokens
 
             foreach (var tag in tagStorage.Tags.OrderByDescending(tag => tag.OpeningSubTag.Length))
             {
-                var tagTokens = tag.Type == TagType.Header ? ParseHeaderTag(text, tag) : ParseInlineTag(text, tag);
+                if (tag.OpeningSubTag == "" || tag.ClosingSubTag == "")
+                    continue;
+
+                var tagTokens = new List<TypedToken>();
+
+                if (tag.Type == TagType.Header)
+                {
+                    tagTokens = ParseLineTagTokens(text, tag);
+                }
+                else if (tag.Type == TagType.Italic || tag.Type == TagType.Strong)
+                {
+                    tagTokens = ParseInlineTagTokens(text, tag);
+                }
+                else
+                {
+                    tagTokens = ParseUnorderedListTagsTokens(text, tag);
+                }
 
                 foreach (var tagToken in tagTokens)
                 {
@@ -65,7 +82,38 @@ namespace Markdown.Tokens
             return result;
         }
 
-        private List<TypedToken> ParseHeaderTag(string text, ITag tag)
+        private List<TypedToken> ParseUnorderedListTagsTokens(string text, ITag tag)
+        {
+            if (tagStorage.GetSubTag(TagType.UnorderedList, SubTagOrder.Opening) != "")
+                return ParseLineTagTokens(text, tag);
+
+            var listItemTagTokens = ParseLineTagTokens(text, tag);
+
+            if (listItemTagTokens.Count == 0)
+                return listItemTagTokens;
+
+            var first = listItemTagTokens[0];
+
+            var last = listItemTagTokens[listItemTagTokens.Count - 1];
+
+            listItemTagTokens.Add(new TypedToken(
+                                            first.Start - 1,
+                                            1,
+                                            TokenType.Tag,
+                                            TagType.UnorderedList,
+                                            SubTagOrder.Opening));
+
+            listItemTagTokens.Add(new TypedToken(
+                                            last.End + 1,
+                                            1,
+                                            TokenType.Tag,
+                                            TagType.UnorderedList,
+                                            SubTagOrder.Closing));
+
+            return listItemTagTokens;
+        }
+
+        private List<TypedToken> ParseLineTagTokens(string text, ITag tag)
         {
             var tagTokens = new List<TypedToken>();
 
@@ -96,7 +144,7 @@ namespace Markdown.Tokens
             return tagTokens;
         }
 
-        private List<TypedToken> ParseInlineTag(string text, ITag tag)
+        private List<TypedToken> ParseInlineTagTokens(string text, ITag tag)
         {
             var tagTokens = new List<TypedToken>();
 
@@ -121,15 +169,15 @@ namespace Markdown.Tokens
             return tagTokens;
         }
 
-        private List<TypedToken> GetEscapeTokens(string line)
+        private List<TypedToken> GetEscapeTokens(string text)
         {
             var escapeTokens = new List<TypedToken>();
 
             var escapeCharacter = tagStorage.EscapeCharacter;
 
-            for (var i = 0; i < line.Length;)
+            for (var i = 0; i < text.Length;)
             {
-                var escapeCharacterIndex = line.IndexOf(escapeCharacter, i, StringComparison.Ordinal);
+                var escapeCharacterIndex = text.IndexOf(escapeCharacter, i, StringComparison.Ordinal);
 
                 if (escapeCharacterIndex == -1)
                     break;
@@ -142,18 +190,19 @@ namespace Markdown.Tokens
             return escapeTokens;
         }
 
-        private List<TypedToken> GetTextTokens(string line, List<TypedToken> tagTokens)
+        private List<TypedToken> GetTextTokens(string text, List<TypedToken> tagTokens)
         {
             if (!tagTokens.Any())
-                return new List<TypedToken> { new TypedToken(0, line.Length, TokenType.Text) };
+                return new List<TypedToken> { new TypedToken(0, text.Length, TokenType.Text) };
 
             var textTokens = new List<TypedToken>();
 
             textTokens.AddTextFromBeginningUpToTag(tagTokens.First());
 
-            for (var i = 0; i < tagTokens.Count - 1; i++) textTokens.AddTextBetween(tagTokens[i], tagTokens[i + 1]);
+            for (var i = 0; i < tagTokens.Count - 1; i++)
+                textTokens.AddTextBetween(tagTokens[i], tagTokens[i + 1]);
 
-            var textLength = line.Length - tagTokens.Last().End - 1;
+            var textLength = text.Length - tagTokens.Last().End - 1;
 
             textTokens.AddTextAfterTag(tagTokens.Last(), textLength);
 

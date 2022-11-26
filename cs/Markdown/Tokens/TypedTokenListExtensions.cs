@@ -67,7 +67,7 @@ namespace Markdown.Tokens
 
             foreach (var token in tokens)
             {
-                if (token.Type != TokenType.Tag || token.TagType == TagType.Header)
+                if (token.Type != TokenType.Tag)
                     continue;
 
                 if (!tagTokensStack.Any())
@@ -84,7 +84,7 @@ namespace Markdown.Tokens
                     continue;
                 }
 
-                if (!IsEmptyStringBetweenTokens(previousTagToken, token) &&
+                if (!IsTagAroundEmptyString(previousTagToken, token) &&
                     !IsTagTokensInsideDifferentWords(text, previousTagToken, token))
                 {
                     tagTokensStack.Pop();
@@ -135,9 +135,12 @@ namespace Markdown.Tokens
             return tokens;
         }
 
-        private static bool IsEmptyStringBetweenTokens(TypedToken previous, TypedToken next)
+        private static bool IsTagAroundEmptyString(TypedToken previous, TypedToken next)
         {
-            return previous.End + 1 == next.Start;
+            if (previous.Order == SubTagOrder.Opening && next.Order == SubTagOrder.Closing)
+                return previous.End + 1 == next.Start;
+
+            return false;
         }
 
         private static bool IsTagTokensInsideDifferentWords(string text, TypedToken previous, TypedToken next)
@@ -154,16 +157,16 @@ namespace Markdown.Tokens
 
         private static bool IsTagBeforeWord(string text, TypedToken token)
         {
-            var separators = new HashSet<char> { '\n', ' ' };
+            var separators = new HashSet<char> { '\n', ' ', '*', '_', ':' };
 
             return token.Start == 0 || separators.Contains(text[token.Start - 1]);
         }
 
         private static bool IsTagAfterWord(string text, TypedToken token)
         {
-            var separators = new HashSet<char> { '\r', '\n', ' ' };
+            var separators = new HashSet<char> { '\r', '\n', ' ', '*', '_' };
 
-            return token.End == text.Length - 1 || separators.Contains(text[token.End + 1]);
+            return token.End >= text.Length - 1 || separators.Contains(text[token.End + 1]);
         }
     }
 }

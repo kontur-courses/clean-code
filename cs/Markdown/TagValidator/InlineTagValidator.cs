@@ -9,7 +9,7 @@ namespace Markdown.TagValidator
             if (order == SubTagOrder.Opening)
                 return IsOpeningValid(text, tag, start);
 
-            return IsClosingValid(text, tag, start);
+            return IsClosingValid(text, start);
         }
 
         private bool IsOpeningValid(string text, ITag tag, int start)
@@ -21,7 +21,7 @@ namespace Markdown.TagValidator
             return !IsSymbolDigitOrWhiteSpace(nextSymbol);
         }
 
-        private bool IsClosingValid(string text, ITag tag, int start)
+        private bool IsClosingValid(string text, int start)
         {
             var previousIndex = start - 1;
 

@@ -7,7 +7,5 @@ namespace Markdown.Converter
         public MarkdownToHtmlConverter() : base(new MdTagStorage(), new HtmlTagStorage())
         {
         }
-
-
     }
 }

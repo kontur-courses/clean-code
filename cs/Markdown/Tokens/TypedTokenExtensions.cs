@@ -6,7 +6,7 @@ namespace Markdown.Tokens
     {
         public static void AddTextBetween(this List<TypedToken> tokens, TypedToken previous, TypedToken next)
         {
-            if (next.Start == previous.End + 1)
+            if (next.Start == previous.End + 1 || next.Length == 0)
                 return;
 
             var start = previous.End + 1;
