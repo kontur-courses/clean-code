@@ -12,14 +12,14 @@ namespace MarkdownTests
         }
 
         [Test]
-        public void BasicEscape()
+        public void Render_ShouldRenderEscapableSymbol_WhenEscaped()
         {
             Markdown.Markdown.Render(@"\# \\ \_ \_\_")
                 .Should().Be(@"# \ _ __");
         }
 
         [Test]
-        public void EscapeInMarkdown()
+        public void Render_ShouldRenderWrap_WhenContainsEscapedSymbols()
         {
             Markdown.Markdown.Render(@"#\# _a \_ b_ __a \_\_ b__")
                 .Should().Be(@"<h1>\# <em>a _ b<\em> <strong>a __ b<\strong><\h1>");

@@ -9,7 +9,7 @@ namespace MarkdownTests
     internal class ComplexTests
     {
         [Test]
-        public void BoldAndCursiveItersect()
+        public void Render_ShouldNotRenderBoldANdCursive_WhenIntersect()
         {
             Markdown.Markdown.Render("Text _with __text_ and__")
                 .Should().Be(@"Text _with __text_ and__");
@@ -28,14 +28,14 @@ namespace MarkdownTests
         }
 
         [Test]
-        public void BoldInCursive()
+        public void Render_ShouldNotRenderBold_WhenInCursive()
         {
             Markdown.Markdown.Render("Text _with __text__ and_")
                 .Should().Be(@"Text <em>with __text__ and<\em>");
         }
 
         [Test]
-        public void CursiveInBold()
+        public void Render_ShouldRenderCursive_WhenInBold()
         {
             Markdown.Markdown.Render("Text __with _text_ and__")
                 .Should().Be(@"Text <strong>with <em>text<\em> and<\strong>");

@@ -7,42 +7,42 @@ namespace MarkdownTests
     internal class BoldTests
     {
         [Test]
-        public void BasicBold()
+        public void Render_ShouldRender_BasicBold()
         {
             Markdown.Markdown.Render("Text __with__ text")
                 .Should().Be(@"Text <strong>with<\strong> text");
         }
 
         [Test]
-        public void BasicBold_With_InconsistentBold()
+        public void Render_ShouldNotRenderBold_WhenInconsistent()
         {
             Markdown.Markdown.Render("Text __with__ text __ab")
                 .Should().Be(@"Text <strong>with<\strong> text __ab");
         }
 
         [Test]
-        public void AllLine_Is_Bold()
+        public void Render_ShouldRenderBold_WhenAllLineIsBold()
         {
             Markdown.Markdown.Render("__abbbac__")
                 .Should().Be(@"<strong>abbbac<\strong>");
         }
 
         [Test]
-        public void Digits_In_Bold()
+        public void Render_ShouldBotRenderBold_WhenContainsDigits()
         {
             Markdown.Markdown.Render("Text __abc 1 abc__ Text")
                 .Should().Be(@"Text __abc 1 abc__ Text");
         }
 
         [Test]
-        public void Bold_In_Different_Words_Parts()
+        public void Render_ShouldNotRenderBold_WhenContainsPartsOfDifferentWords()
         {
             Markdown.Markdown.Render("Tex__t te__xt")
                 .Should().Be(@"Tex__t te__xt");
         }
 
         [Test]
-        public void Bold_In_Word_Beginning()
+        public void Render_ShouldRenderBold_WhenContainsOnlyBeginningOfOneWord()
         {
             Markdown.Markdown.Render("abc __te__xt")
                 .Should().Be(@"abc <strong>te<\strong>xt");
@@ -51,7 +51,7 @@ namespace MarkdownTests
         }
 
         [Test]
-        public void Bold_In_Word_Ending()
+        public void Render_ShouldRenderBold_WhenContainsOnlyEndingOfOneWord()
         {
             Markdown.Markdown.Render("te__xt__")
                 .Should().Be(@"te<strong>xt<\strong>");
@@ -60,7 +60,7 @@ namespace MarkdownTests
         }
 
         [Test]
-        public void Bold_In_Word_Middle()
+        public void Render_ShouldRenderBold_WhenContainsOnlyMiddlePartOfOneWord()
         {
             Markdown.Markdown.Render("t__ex__t")
                 .Should().Be(@"t<strong>ex<\strong>t");

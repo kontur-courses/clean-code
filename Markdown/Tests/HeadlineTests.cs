@@ -12,35 +12,35 @@ namespace MarkdownTests
         }
 
         [Test]
-        public void BasicHeadline()
+        public void Render_ShouldRenderHeadline()
         {
             Markdown.Markdown.Render("#Text")
                 .Should().Be(@"<h1>Text<\h1>");
         }
 
         [Test]
-        public void Headline_With_Cursive_And_Bold()
+        public void Render_ShouldRenderCursiveAndBold_WhenInHeadline()
         {
             Markdown.Markdown.Render("#Text _with_ __text__")
                 .Should().Be(@"<h1>Text <em>with<\em> <strong>text<\strong><\h1>");
         }
 
         [Test]
-        public void Headline_With_Simple_Sharp()
+        public void Render_ShouldRenderSharpSymbol_WhenNotLeading()
         {
             Markdown.Markdown.Render("#Text #")
                 .Should().Be(@"<h1>Text #<\h1>");
         }
 
         [Test]
-        public void Headline_With_Slash_AndSharp()
+        public void Render_ShouldRenderSlash_WhenBeforeNotLeadingSharp()
         {
             Markdown.Markdown.Render(@"#Text \#")
                 .Should().Be(@"<h1>Text \#<\h1>");
         }
 
         [Test]
-        public void Escaped_Sharp()
+        public void Render_ShouldNotRenderHeadlineAndSlash_WhenLeadingSharpIsEscaped()
         {
             Markdown.Markdown.Render(@"\#Text")
                 .Should().Be(@"#Text");
