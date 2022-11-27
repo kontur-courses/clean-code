@@ -6,7 +6,7 @@ namespace Markdown.Core.Entities.TagMaps
     {
         protected override int Priority => 1;
 
-        public override Token TryGetToken(string input, int startPos)
+        public override Token? TryGetToken(string input, int startPos)
         {
             var i = startPos;
             for (; i < input.Length && char.IsWhiteSpace(input[i]); i++)
@@ -26,9 +26,15 @@ namespace Markdown.Core.Entities.TagMaps
             return new Token(value, $"<h{level}>", $"</h{level}>", Priority, i - startPos, false);
         }
 
+        /// <summary>
+        /// Get the header level
+        /// </summary>
+        /// <param name="input"></param>
+        /// <param name="i"></param>
+        /// <returns>If correct header, return header level from 1 to 6, else return 0 </returns>
         private static int GetLevel(string input, ref int i)
         {
-            int level = 0;
+            var level = 0;
             while (i < input.Length && input[i] == '#')
             {
                 level++;
@@ -41,6 +47,12 @@ namespace Markdown.Core.Entities.TagMaps
             return level;
         }
 
+        /// <summary>
+        /// Get header string content
+        /// </summary>
+        /// <param name="input"></param>
+        /// <param name="i"></param>
+        /// <returns>Return value of header</returns>
         private static string GetValue(string input, ref int i)
         {
             int valueStartIndex = i, valueEndIndex = 0;

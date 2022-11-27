@@ -4,6 +4,7 @@ using Markdown.Core.Entities.TagMaps;
 
 namespace Markdown.Core.Tests
 {
+    [Parallelizable(ParallelScope.Self)]
     internal class EmTagTests
     {
         private readonly EmTag _emTag = new EmTag();

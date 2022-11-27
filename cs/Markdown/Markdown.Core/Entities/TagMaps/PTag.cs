@@ -8,7 +8,7 @@ namespace Markdown.Core.Entities.TagMaps
         private const string Postfix = "</p>";
         protected override int Priority => 0;
 
-        public override Token TryGetToken(string input, int startPos)
+        public override Token? TryGetToken(string input, int startPos)
         {
             string res;
 

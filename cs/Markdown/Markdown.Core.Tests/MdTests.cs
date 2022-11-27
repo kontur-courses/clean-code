@@ -4,6 +4,7 @@ using System.Diagnostics;
 
 namespace Markdown.Core.Tests
 {
+    [Parallelizable(ParallelScope.Self)]
     public class MdTests
     {
         private readonly Md _markdown = new Md();

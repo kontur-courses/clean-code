@@ -39,7 +39,7 @@ namespace Markdown.Core
                 var token = registers
                     .Select(r => r.TryGetToken(input, i))
                     .Where(t => t != null)
-                    .MaxBy(t => t.Priority);
+                    .MaxBy(t => t?.Priority);
 
                 if (token != null)
                 {

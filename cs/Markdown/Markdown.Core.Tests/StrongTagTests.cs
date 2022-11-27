@@ -4,6 +4,7 @@ using Markdown.Core.Entities.TagMaps;
 
 namespace Markdown.Core.Tests
 {
+    [Parallelizable(ParallelScope.Self)]
     internal class StrongTagTests
     {
         private readonly StrongTag _strongTag = new StrongTag();

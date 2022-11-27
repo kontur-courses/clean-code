@@ -4,6 +4,7 @@ using Markdown.Core.Entities.TagMaps;
 
 namespace Markdown.Core.Tests
 {
+    [Parallelizable(ParallelScope.Self)]
     internal class HeaderTagTests
     {
         private readonly HeaderTag _headerTag = new HeaderTag();
