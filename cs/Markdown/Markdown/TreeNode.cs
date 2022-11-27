@@ -58,19 +58,25 @@ public class TreeNode : IComparable
 
     private void AddChild(int leftBorder, int rightBorder, Tag tag)
     {
-        children.Add(
-            new TreeNode(
-                leftBorder,
-                rightBorder,
-                tag,
-                body.Substring(
-                    leftBorder - LeftBorder,
-                    rightBorder - leftBorder + 1))
-        );
+        var newNode = new TreeNode(
+            leftBorder,
+            rightBorder,
+            tag,
+            body.Substring(
+                leftBorder - LeftBorder,
+                rightBorder - leftBorder + 1));
+        children.Add(newNode);
     }
 
     public bool TryAddToken(int left, int right, Tag tag)
     {
+        //Если совпадает
+        if (left == LeftBorder && right == RightBorder)
+        {
+            token.tag = tag;
+            return true;
+        }
+
         //Если лист
         if (IsLeaf)
         {
@@ -78,7 +84,7 @@ public class TreeNode : IComparable
             return true;
         }
 
-        //Если вложен в ноду
+        //Если вложен в дочернюю ноду
         var nodeThatContainNew = children
             .Where(node => node.LeftBorder <= left && right <= node.RightBorder);
         if (nodeThatContainNew.Count() > 1)
