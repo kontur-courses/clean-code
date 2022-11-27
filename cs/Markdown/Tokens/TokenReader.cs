@@ -10,12 +10,9 @@ namespace Markdown.Tokens
     {
         private readonly TagStorage tagStorage;
 
-        private readonly TagParser tagParser;
-
         public TokenReader(TagStorage tagStorage)
         {
             this.tagStorage = tagStorage;
-            this.tagParser = new TagParser(tagStorage);
         }
 
         public IReadOnlyList<TypedToken> Read(string text)
@@ -54,7 +51,7 @@ namespace Markdown.Tokens
                 if (tag.OpeningSubTag == "" || tag.ClosingSubTag == "")
                     continue;
 
-                var tagTokens = tagParser.Parse(text, tag);
+                var tagTokens = ParseTag(text, tag);
 
                 foreach (var tagToken in tagTokens)
                 {
@@ -70,6 +67,23 @@ namespace Markdown.Tokens
             }
 
             return result;
+        }
+
+        private List<TypedToken> ParseTag(string text, ITag tag)
+        {
+            switch (tag.Type)
+            {
+                case TagType.Header:
+                    return new LineTagParser(tagStorage).Parse(text, tag);
+                case TagType.Italic:
+                case TagType.Strong:
+                    return new InlineTagParser(tagStorage).Parse(text, tag);
+                case TagType.UnorderedList:
+                case TagType.UnorderedListItem:
+                    return new UnorderedListTagParser(tagStorage).Parse(text, tag);
+                default:
+                    return new List<TypedToken>();
+            }
         }
 
         private List<TypedToken> GetEscapeTokens(string text)

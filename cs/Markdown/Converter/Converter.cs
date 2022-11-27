@@ -24,11 +24,15 @@ namespace Markdown.Converter
 
             foreach (var token in tokens)
             {
-                if (token.Type == TokenType.Text)
-                    convertedText.Append(inputText.Substring(token.Start, token.Length)); 
-
-                if (token.Type == TokenType.Tag)
-                    convertedText.Append(GetConvertedSubTag(token));
+                switch (token.Type)
+                {
+                    case TokenType.Text:
+                        convertedText.Append(inputText.Substring(token.Start, token.Length));
+                        break;
+                    case TokenType.Tag:
+                        convertedText.Append(GetConvertedSubTag(token));
+                        break;
+                }
             }
 
             return convertedText.ToString();
@@ -36,10 +40,7 @@ namespace Markdown.Converter
 
         private string GetConvertedSubTag(TypedToken tagToken)
         {
-            if (tagToken.Type != TokenType.Tag)
-                return "";
-
-            return targetTags.GetSubTag(tagToken.TagType, tagToken.Order);
+            return tagToken.Type != TokenType.Tag ? "" : targetTags.GetSubTag(tagToken.TagType, tagToken.Order);
         }
     }
 }
