@@ -20,15 +20,11 @@ public class MdTests
     public void TearDown()
     {
         var currentContext = TestContext.CurrentContext;
-        if (currentContext.Result.Outcome.Status == TestStatus.Failed)
+        
+        streamWriter.Dispose();
+        var traceFileInfo = new FileInfo(traceFileName);
+        if (currentContext.Result.Outcome.Status == TestStatus.Failed && traceFileInfo.Length < 1_000_000_000)
         {
-            streamWriter.Dispose();
-            var traceFileInfo = new FileInfo(traceFileName);
-            if (traceFileInfo.Length > 10_000_000)
-            {
-                File.Delete(traceFileName);
-                return;
-            }
 
             var failedTestDirectory = Path.Combine(currentContext.TestDirectory, "failed-tests-md");
             var failedTestFileName = Path.Combine(failedTestDirectory,
@@ -36,9 +32,9 @@ public class MdTests
 
             Directory.CreateDirectory(failedTestDirectory);
             File.Copy(traceFileName, failedTestFileName);
-            File.Delete(traceFileName);
             Console.Error.WriteLine($"Log for this failed test located at {failedTestFileName}");
         }
+        traceFileInfo.Delete();
     }
 
     private Md mdHtml = null!;
