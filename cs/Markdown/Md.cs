@@ -24,6 +24,8 @@ public class Md
             { TokenType.Plain, new HtmlTextParser() }
         };
         parsers.Add(TokenType.Bold, new HtmlBoldTextParser(parsers));
+        parsers.Add(TokenType.UnorderedListItem, new HtmlUnorderedListItemParser(parsers));
+        parsers.Add(TokenType.UnorderedList, new HtmlUnorderedListParser(parsers));
         parsers.Add(TokenType.Header, new HtmlHeaderParser(parsers));
         parsers.Add(TokenType.Paragraph, new HtmlParagraphParser(parsers));
         var documentParser = new DocumentParser(parsers);
@@ -45,9 +47,13 @@ public class Md
             new EndReadItalicTextTransition(),
             new EndReadPlainTextTransition(),
             new EndReadBoldTextTransition(),
+            new EndReadUnorderedListItemTransition(),
+            new EndReadUnorderedListTransition(),
             new EndReadHeaderTransition(),
             new EndReadParagraphTransition(),
             new EndReadDocumentTransition(),
+            new ReadUnorderedListTransition(),
+            new ReadUnorderedListItemTransition(),
             new ReadHeaderTransition(),
             new ReadParagraphTransition(),
             new ReadBoldTextTransition(),

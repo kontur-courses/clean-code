@@ -7,5 +7,7 @@ public enum TokenType
     Bold,
     Italic,
     Plain,
-    Document
+    Document,
+    UnorderedListItem,
+    UnorderedList
 }

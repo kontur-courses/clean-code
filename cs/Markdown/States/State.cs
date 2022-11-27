@@ -12,7 +12,9 @@ public class State
         "__",
         "# ",
         "\\_",
-        "\\#"
+        "\\#",
+        "\\-",
+        "- "
     };
 
     public State(string markdown)

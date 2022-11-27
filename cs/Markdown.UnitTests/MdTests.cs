@@ -50,6 +50,8 @@ public class MdTests
     [TestCase("\n", "")]
     [TestCase("\r\n", "")]
     [TestCase("\r", "")]
+
+    //Paragraph
     [TestCase("abc", "<p>abc</p>")]
     [TestCase(@"abc
 abc", "<p>abc</p><p>abc</p>")]
@@ -81,6 +83,8 @@ a_bc", "<p><em>a</em>b_c</p><p>a_bc</p>")]
     [TestCase("ab__c a__bc", "<p>ab__c a__bc</p>")]
     [TestCase("__abc__ __a_b_c abc__", "<p><strong>abc</strong> <strong>a<em>b</em>c abc</strong></p>")]
     [TestCase("__abc_", "<p>__abc_</p>")]
+
+    //Header
     [TestCase("# abc", "<h1>abc</h1>")]
     [TestCase("# __abc__", "<h1><strong>abc</strong></h1>")]
     [TestCase("# __abc__ abc", "<h1><strong>abc</strong> abc</h1>")]
@@ -97,6 +101,19 @@ abc", "<h1><strong>abc</strong> <em>abc</em></h1><p>abc</p>")]
 _abc_", "<h1><strong>abc</strong></h1><p><em>abc</em></p>")]
     [TestCase(@"# __abc__
 _abc_ abc", "<h1><strong>abc</strong></h1><p><em>abc</em> abc</p>")]
+
+    // Unordered list
+    [TestCase("- abc", "<ul><li>abc</li></ul>")]
+    [TestCase(@"- abc
+- _abc_
+- __abc__", "<ul><li>abc</li><li><em>abc</em></li><li><strong>abc</strong></li></ul>")]
+    [TestCase(@"# abc
+- abc
+- _abc_
+- __abc__
+abc", "<h1>abc</h1><ul><li>abc</li><li><em>abc</em></li><li><strong>abc</strong></li></ul><p>abc</p>")]
+    [TestCase(@"- abc
+\- abc", @"<ul><li>abc</li></ul><p>- abc</p>")]
     public void Render_ExpectedHtml_InputMd(string inputMd, string expectedHtml)
     {
         var actualHtml = mdHtml.Render(inputMd);
@@ -110,8 +127,12 @@ _abc_ abc", "<h1><strong>abc</strong></h1><p><em>abc</em> abc</p>")]
         // Пояснение - мини бенчмарк, не AAA, может упасть - данные не всегда проходят хоть и входные данные детерминированны
         var shortMd = @"# Markdown
 В fork-е этого репозитория создай проект __M__ark_down_ и реализуй метод __Render__ класса _Md_.
-Он принимает в качестве аргумента текст в __markdown__-подобной разметке, и возвращает строку с _html-кодом_ этого текста согласно спецификации.";
-        const int longCount = 20;
+Он принимает в качестве аргумента текст в __markdown__-подобной разметке, и возвращает строку с _html-кодом_ этого текста согласно спецификации.
+- Проведи начальное проектирование: зафиксируй классы и их методы в коде (а также связи между классами), но не пиши внутренности методов
+- Покажи декомпозицию наставнику, получи обратную связь
+- После этого приступай к реализации методов, используя TDD
+- Помни, твой алгоритм должен работать быстро — линейно или почти линейно от размера входа. Не забудь написать такой тест!";
+        const int longCount = 100;
         var longMd = string.Join("\n", Enumerable.Repeat(shortMd, longCount));
         var shortTimes = new List<TimeSpan>();
         var longTimes = new List<TimeSpan>();
@@ -124,7 +145,7 @@ _abc_ abc", "<h1><strong>abc</strong></h1><p><em>abc</em> abc</p>")]
             _ = mdHtml.Render(longMd);
         }
 
-        const int actualCount = 500;
+        const int actualCount = 1000;
         var stopwatch = new Stopwatch();
         for (var i = 0; i < actualCount; i++)
         {
