@@ -53,37 +53,36 @@ public class EmTokenizator : Tokenizator
 
     public void GetAnotherTokens(string mdstring)
     {
-        int i = mdstring.IndexOf(" " + OpenTag, 0), j;
-        while (true)
+        Stack<int> stack = new();
+        for (int i = 0; i < mdstring.Length; i++)
         {
-            while (usedIndexes.Contains(i + 1) && i != -1)
+            // var s = mdstring.Substring(i, OpenTag.Length + 1);
+            if (i + OpenTag.Length < mdstring.Length
+                && mdstring[i + OpenTag.Length] != ' '
+                && (i == 0
+                    && mdstring.Substring(i, OpenTag.Length) == OpenTag
+                    || mdstring.Substring(i, OpenTag.Length + 1) == " " + OpenTag)
+                && !Contains(i + 1, OpenTag.Length))
             {
-                i = mdstring.IndexOf(OpenTag, i);
+                stack.Push(i);
             }
 
-            if (i == -1)
-                break;
-
-            j = mdstring.IndexOf(CloseTag + " ", i + 1);
-            while (usedIndexes.Contains(j) && j != -1)
+            // var t = mdstring.Substring(i, CloseTag.Length + 1);
+            if (i != 0
+                && i + CloseTag.Length - 1 < mdstring.Length
+                && mdstring[i - 1] != ' '
+                && (i == mdstring.Length - CloseTag.Length
+                    && mdstring.Substring(i, CloseTag.Length) == CloseTag
+                    || mdstring.Substring(i, CloseTag.Length + 1) == CloseTag + " ")
+                && !Contains(i, CloseTag.Length))
             {
-                j = mdstring.IndexOf(OpenTag, j + 1);
+                var j = stack.Pop();
+                result.Add(new TagToken(
+                    j,
+                    i + CloseTag.Length - 1,
+                    new EmTag()));
+                UpdateUsedIndexes(j, i);
             }
-
-            if (j == -1)
-                break;
-
-            if (j - i == 1)
-            {
-                i = j;
-                continue;
-            }
-
-            result.Add(new TagToken(
-                i + 1,
-                j + CloseTag.Length,
-                new EmTag()));
-            i = j + 1;
         }
     }
 
@@ -93,5 +92,16 @@ public class EmTokenizator : Tokenizator
             usedIndexes.Add(openTagIndex + i);
         for (int i = 0; i < OpenTag.Length; i++)
             usedIndexes.Add(closeTagIndex + i);
+    }
+
+    public bool Contains(int i, int tagLength)
+    {
+        for (int j = 0; j < tagLength; j++)
+        {
+            if (usedIndexes.Contains(i + j))
+                return true;
+        }
+
+        return false;
     }
 }
