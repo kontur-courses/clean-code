@@ -42,12 +42,14 @@ public class MarkdownTokenParser : ITokenParser
 
 	private List<int> GetParagraphsStartPositions(string text)
 	{
-		var result = new List<int> { 0 };
+		var result = new List<int>();
 
-		for (var i = 0; i < text.Length - ParagraphSplitter.Length - 1; i++)
+		var paragraphs = text.Split(ParagraphSplitter);
+		var index = 0;
+		foreach (var paragraph in paragraphs)
 		{
-			var window = text.Substring(i, ParagraphSplitter.Length);
-			if (window == ParagraphSplitter) result.Add(i + ParagraphSplitter.Length);
+			result.Add(index);
+			index += paragraph.Length + ParagraphSplitter.Length;
 		}
 
 		return result;
