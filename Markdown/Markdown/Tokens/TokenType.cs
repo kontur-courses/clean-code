@@ -7,5 +7,7 @@ public enum TokenType
 	Bold,
 	Header,
 	Escape,
-	Link
+	Link,
+	LinkDescription,
+	Container
 }

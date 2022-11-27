@@ -20,11 +20,13 @@ public class MdTests
 	[TestCase("__Bold__", "<strong>Bold</strong>", TestName = "Bold tag")]
 	[TestCase("_Italic_", "<em>Italic</em>", TestName = "Italic tag")]
 	[TestCase("# Header", "<h1>Header</h1>", TestName = "Top level header tag")]
-	[TestCase("(abcd)", "<a href=\"abcd\"></a>", TestName = "Link tag")]
+	[TestCase("[aaa](abcd)", "<a href=\"abcd\">aaa</a>", TestName = "Link tag")]
 	[TestCase("aaa __Bold__ aaa", "aaa <strong>Bold</strong> aaa", TestName = "Bold tag in text")]
 	[TestCase("aaa _Italic_ aaa", "aaa <em>Italic</em> aaa", TestName = "Italic tag in text")]
 	[TestCase("# Header aaa", "<h1>Header aaa</h1>", TestName = "Top level header tag with spaces")]
-	[TestCase("aa (abcd)  bb", "aa <a href=\"abcd\"></a>  bb", TestName = "Link tag in text")]
+	[TestCase("aa [aa](abcd) bb", "aa <a href=\"abcd\">aa</a> bb", TestName = "Link tag in text")]
+	[TestCase("[](abcd)", "<a href=\"abcd\"></a>", TestName = "Empty link description")]
+	[TestCase("[aaa]()", "<a href=\"\">aaa</a>", TestName = "Empty link")]
 	[TestCase(
 		"# Header aaa\r\n\r\n__Second _para_graph__",
 		"<h1>Header aaa</h1>\r\n\r\n<strong>Second <em>para</em>graph</strong>",
@@ -74,11 +76,11 @@ public class MdTests
 	[TestCase(
 		"__aaa _aaa__ a_ aaaaaa",
 		"__aaa _aaa__ a_ aaaaaa",
-		TestName = "Tags intersections")]
+		TestName = "Strong intersect with italic")]
 	[TestCase(
-		"__aaa (aaa__ a) aaaaaa",
-		"__aaa (aaa__ a) aaaaaa",
-		TestName = "Tags intersections")]
+		"__aaa [a](aaa__a) aaa__aaa",
+		"__aaa <a href=\"aaa__a\">a</a> aaa__aaa",
+		TestName = "Strong intersect with link")]
 	[TestCase(
 		"__",
 		"__",
@@ -99,6 +101,9 @@ public class MdTests
 		"__Unclosed_ (tags",
 		"__Unclosed_ (tags",
 		TestName = "Unclosed tags")]
+	[TestCase("[aa aa](abcd)", "[aa aa](abcd)", TestName = "Space in link description")]
+	[TestCase("[aaaa](ab cd)", "[aaaa](ab cd)", TestName = "Space in link")]
+	[TestCase("[aaaa] (abcd)", "[aaaa] (abcd)", TestName = "Space between description and link")]
 	public void Render_ShouldNotRender_WithIncorrectTags(string mdText, string expected)
 	{
 		var result = markdown.Render(mdText);
@@ -158,8 +163,8 @@ public class MdTests
 		"<h1>First header # second header</h1>",
 		TestName = "Header in header")]
 	[TestCase(
-		"a (__aaa__ aa _aa_ a aaaaa)",
-		"a <a href=\"__aaa__ aa _aa_ a aaaaa\"></a>",
+		"a [a](__aaa__aa_aa_aaaaaa)",
+		"a <a href=\"__aaa__aa_aa_aaaaaa\">a</a>",
 		TestName = "Link tag can't contain other tags")]
 	public void Render_ShouldNotRenderTags_WithIncorrectNestingTags(string mdText, string expected)
 	{

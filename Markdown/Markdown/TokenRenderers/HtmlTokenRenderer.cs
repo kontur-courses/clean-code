@@ -15,7 +15,9 @@ public class HtmlTokenRenderer : ITokenRenderer
 			{ TokenType.Bold, new HtmlTag("strong") },
 			{ TokenType.Header, new HtmlTag("h1") },
 			{ TokenType.Italic, new HtmlTag("em") },
-			{ TokenType.Link, new HtmlTag("<a href=\"", "\"></a>") },
+			{ TokenType.Link, new HtmlTag("<a href=\"", "\">") },
+			{ TokenType.LinkDescription, new HtmlTag(string.Empty, "</a>") },
+			{ TokenType.Container, new HtmlTag(string.Empty, string.Empty) },
 			{ TokenType.PlainText, new HtmlTag(string.Empty, string.Empty) }
 		};
 	}

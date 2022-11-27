@@ -21,10 +21,17 @@ public class MarkdownTokenParser : ITokenParser
 				TokenType.Header,
 				new HeaderParser(new MarkdownTag("# ", $"{Environment.NewLine}{Environment.NewLine}", TokenType.Header))
 			},
-			{ TokenType.Link, new DoubleTagParser(new MarkdownTag("(", ")", TokenType.Link)) }
+			//{ TokenType.Link, new DoubleTagParser(new MarkdownTag("(", ")", TokenType.Link)) }
+			{ TokenType.Container, 
+				new LinkParser(new MarkdownTag("", "", TokenType.Container),
+				new MarkdownTag("(", ")", TokenType.Link),
+				new MarkdownTag("[", "]", TokenType.LinkDescription)
+				) }
 		};
 
 		markdownTags = parsers.ToDictionary(pair => pair.Key, pair => pair.Value.Tag);
+		markdownTags.Add(TokenType.Link, new MarkdownTag("(", ")", TokenType.Link));
+		markdownTags.Add(TokenType.LinkDescription, new MarkdownTag("[", "]", TokenType.LinkDescription));
 
 		escapeParser = new EscapeParser(new MarkdownTag("\\", null, TokenType.Escape), markdownTags.Values);
 
@@ -271,6 +278,8 @@ public class MarkdownTokenParser : ITokenParser
 			case TokenType.Link:
 				return main;
 			case TokenType.Escape:
+				return main;
+			case TokenType.Container:
 				return main;
 		}
 
