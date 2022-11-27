@@ -42,7 +42,7 @@ namespace Markdown.Parsers
 
             while (!nextCharOutsideLine)
                 tokens.Add(GetNextToken());
-
+            
             DeleteNotValidTags();
 
             return tokens;
@@ -58,7 +58,9 @@ namespace Markdown.Parsers
         //TODO: переделать
         private IToken GetServiceTag()
         {
-            var text = ReadWithCheck(t => !mdTags.IsTag(t));
+            //var text = ReadWithCheck(t => !mdTags.IsTag(t));
+            var text = ReadWithCheck(startPosition => !mdTags.IsTag(
+                currentLine.Substring(startPosition, currentPosition - startPosition + 1)));
             if (!mdTags.IsTag(text))
                 return new TextToken(text);
             var lastOpeningTag = openedTokens.LastOrDefault(el=>el.ToString() == text) as MdPairedTag;
@@ -89,33 +91,36 @@ namespace Markdown.Parsers
                 if (lastOpeningTag is null)
                     openedTokens.Add(tag); //взять верхний подходящий
                 else
+                {
+                    if (lastOpeningTag is MdItalicTag)
+                    {
+                        for (int idx = tokens.IndexOf(lastOpeningTag); idx < tokens.Count; idx++)
+                        {
+                            if (tokens[idx] is MdBoldTag)
+                            {
+                                if (openedTokens.Contains(tokens[idx]))
+                                    openedTokens.Remove(tokens[idx]);
+                                tokens[idx] = tokens[idx].ToText();
+                            }
+                        }
+                    }
                     openedTokens.Remove(lastOpeningTag);
-                
+                }
+
             }
             return tag;
         }
 
         private IToken GetTextToken()
         {
-            var text = ReadWithCheck(symbol => mdTags.IsTagStart(symbol));
+            var text = ReadWithCheck(symbol => mdTags.IsTagStart(currentSymbol));
             return new TextToken(text);
         }
 
-        private string ReadWithCheck(Func<string, bool> isSomeText)
+        private string ReadWithCheck(Func<int, bool> isStillSearchedData)
         {
             var startPosition = currentPosition;
-            string text = "";
-            while (!nextCharOutsideLine &&
-                   !isSomeText(currentLine.Substring(startPosition, currentPosition - startPosition + 1)))
-                currentPosition++;
-
-            return currentLine.Substring(startPosition, currentPosition - startPosition);
-        }
-        
-        private string ReadWithCheck(Func<char, bool> isEnd)
-        {
-            var startPosition = currentPosition;
-            while (!nextCharOutsideLine && !isEnd(currentSymbol)) 
+            while (!nextCharOutsideLine && !isStillSearchedData(startPosition))
                 currentPosition++;
             return currentLine.Substring(startPosition, currentPosition - startPosition);
         }

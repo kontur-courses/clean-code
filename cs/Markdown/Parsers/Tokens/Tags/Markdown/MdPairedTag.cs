@@ -12,8 +12,10 @@ namespace Markdown.Parsers.Tokens.Tags.Markdown
 
         public override bool IsValidTag(string data, int position)
         {
-            return this.position == TagPosition.End ||
-                   position == data.Length - 1;
+            return position == data.Length - 1 ||
+                   this.position == TagPosition.Start && data.Length > position && char.IsLetter(data[position]) ||
+                   this.position == TagPosition.End && ((position - text.Length >=0 && char.IsLetter(data[position - text.Length])) ||
+                                                        IntoWord == IntoWord);//TODO: проверить эти условия
         }
     }
 }
