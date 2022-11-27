@@ -2,7 +2,7 @@
 
 namespace Markdown
 {
-    public class Renderer
+    public class Renderer : IRenderer
     {
         private readonly ITokenParser tokenParser;
         private readonly IBuilder builder;

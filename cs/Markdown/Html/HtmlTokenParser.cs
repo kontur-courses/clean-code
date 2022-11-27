@@ -1,6 +1,7 @@
 ﻿using System.Collections.Generic;
 using System.Linq;
 using Markdown.Enums;
+using Markdown.Extensions;
 using Markdown.Interfaces;
 using Markdown.Rules;
 using Markdown.Tags;
@@ -45,7 +46,7 @@ namespace Markdown.Html
 
                 if (char.IsLetter(symbol) || char.IsDigit(symbol) || signs.Contains(symbol))
                 {
-                    if (CheckAndUpdateTokenIfInDifferentWords(symbol, token))
+                    if (token.CheckAndUpdateTokenIfInDifferentWords(symbol))
                         return null;
                     if (TryCreateHtmlTag(tagString, out var htmlTag) != null)
                     {
@@ -57,7 +58,7 @@ namespace Markdown.Html
                     }
                     if (TryAddTextToken(token, line)) 
                         continue;
-                    if (IsNumberInHighlightingTag(symbol, token.Parent.Tag))
+                    if (token.Parent.Tag.IsNumberInHighlightingTag(symbol))
                         token.Parent.ToTextToken();
                     token.Content += symbol;
                 }
@@ -68,11 +69,6 @@ namespace Markdown.Html
                 Index += 1;
             }
             return ProcessWhenLineEnd(token, tagString, line);
-        }
-
-        private bool IsNumberInHighlightingTag(char symbol, ITag tag)
-        {
-            return char.IsDigit(symbol) && Tag.IsHighlightingTag(tag);
         }
 
         private Token ProcessWhenLineEnd(Token token, string tagString, string line)
@@ -118,17 +114,6 @@ namespace Markdown.Html
             Index = 2;
             return new Token(TokenType.Root, HtmlTags.Heading, null);
 
-        }
-
-        private bool CheckAndUpdateTokenIfInDifferentWords(char symbol, Token token)
-        {
-            if (!char.IsWhiteSpace(symbol)) return false;
-            if (token.Parent == null || !Tag.IsHighlightingTag(token.Parent.Tag)) return false;
-
-            token.Parent.Childrens.Add(token);
-            token.Parent.ToTextToken();
-            
-            return true;
         }
     }
 }
