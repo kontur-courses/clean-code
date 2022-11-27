@@ -14,7 +14,7 @@ namespace Markdown
         static void Main()
         {
             var serviceCollection = new ServiceCollection();
-            serviceCollection.AddScoped<ITokenParser, HtmlTokenParser>();
+            serviceCollection.AddSingleton<ITokenParser, HtmlTokenParser>();
             serviceCollection.AddSingleton<IBuilder, HtmlBuilder>();
             serviceCollection.AddSingleton<Renderer>();
             var serviceProvider = serviceCollection.BuildServiceProvider();

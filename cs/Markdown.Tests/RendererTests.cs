@@ -8,20 +8,16 @@ namespace Markdown.Tests;
 public class RendererTests
 {
     private Renderer renderer;
+    private ITokenParser tokenParser;
     private IBuilder builder;
 
     public RendererTests()
     {
-       builder = new HtmlBuilder();
-    }
-
-    [SetUp]
-    public void SetUp()
-    {
-        var tokenParser = new HtmlTokenParser();
+        tokenParser = new HtmlTokenParser();
+        builder = new HtmlBuilder();
         renderer = new Renderer(tokenParser, builder);
     }
-    
+
     [TestCase("abcdefg", TestName = "Word without tags", ExpectedResult = "<p>abcdefg</p>")]
     [TestCase("# H", TestName = "Heading with white space", ExpectedResult = "<h1>H</h1>")]
     [TestCase("_A_", TestName="Cursive", ExpectedResult = "<p><em>A</em></p>")]
