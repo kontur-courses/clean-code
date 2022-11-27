@@ -7,9 +7,9 @@ namespace Markdown.Tests;
 [TestFixture]
 public class RendererTests
 {
-    private Renderer renderer;
-    private ITokenParser tokenParser;
-    private IBuilder builder;
+    private readonly IRenderer renderer;
+    private readonly ITokenParser tokenParser;
+    private readonly IBuilder builder;
 
     public RendererTests()
     {
