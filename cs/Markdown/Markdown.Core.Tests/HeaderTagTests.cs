@@ -7,7 +7,7 @@ namespace Markdown.Core.Tests
     [Parallelizable(ParallelScope.Self)]
     internal class HeaderTagTests
     {
-        private readonly HeaderTag _headerTag = new HeaderTag();
+        private readonly HeaderTag _sut = new HeaderTag();
 
         [TestCase("# qwe", "qwe", 1)]
         [TestCase("#### qwe", "qwe", 4)]
@@ -22,7 +22,7 @@ namespace Markdown.Core.Tests
         [TestCase("### qwerty   ", "qwerty", 3)]
         public void TryGetToken_CorrectInputCases_ShouldBeEqual(string input, string value, int level)
         {
-            var res = _headerTag.TryGetToken(input, 0);
+            var res = _sut.TryGetToken(input, 0);
             res.Should().BeEquivalentTo(new Token(value, $"<h{level}>", $"</h{level}>", 1, input.Length, false));
         }
 
@@ -32,7 +32,7 @@ namespace Markdown.Core.Tests
         [TestCase("    # qwe")]
         public void TryGetToken_IncorrectInputCases_ShouldBeNull(string input)
         {
-            _headerTag.TryGetToken(input, 0).Should().BeNull();
+            _sut.TryGetToken(input, 0).Should().BeNull();
         }
     }
 }

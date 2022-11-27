@@ -7,7 +7,7 @@ namespace Markdown.Core.Tests
     [Parallelizable(ParallelScope.Self)]
     internal class EmTagTests
     {
-        private readonly EmTag _emTag = new EmTag();
+        private readonly EmTag _sut = new EmTag();
         
         [TestCase("*qwe rty*", 0, "qwe rty")]
         [TestCase("*(*qwe*)*", 0, "(*qwe*)")]
@@ -16,7 +16,7 @@ namespace Markdown.Core.Tests
         [TestCase("1*2*34", 1, "2")]
         public void TryGetToken_CorrectInputCases_ShouldBeEqual(string input, int startPos, string val)
         {
-            var res = _emTag.TryGetToken(input, startPos);
+            var res = _sut.TryGetToken(input, startPos);
             res.Should().BeEquivalentTo(new Token(val, "<em>", "</em>", 0, val.Length + 2, true));
         }
 
@@ -27,7 +27,7 @@ namespace Markdown.Core.Tests
         [TestCase("_qwe*")]
         public void TryGetToken_IncorrectInputCases_ShouldBeNull(string input)
         {
-            _emTag.TryGetToken(input, 0).Should().BeNull();
+            _sut.TryGetToken(input, 0).Should().BeNull();
         }
     }
 }

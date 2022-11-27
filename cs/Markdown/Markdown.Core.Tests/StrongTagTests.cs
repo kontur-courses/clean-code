@@ -7,7 +7,7 @@ namespace Markdown.Core.Tests
     [Parallelizable(ParallelScope.Self)]
     internal class StrongTagTests
     {
-        private readonly StrongTag _strongTag = new StrongTag();
+        private readonly StrongTag _sut = new StrongTag();
             
         [TestCase("**qwe rty**", 0, "qwe rty")]
         [TestCase("qwe**rty**", 3, "rty")]
@@ -16,7 +16,7 @@ namespace Markdown.Core.Tests
         [TestCase("__qwerty__", 0, "qwerty")]
         public void TryGetToken_CorrectInputCases_ShouldBeEqual(string input, int startPos, string val)
         {
-            var res = _strongTag.TryGetToken(input, startPos);
+            var res = _sut.TryGetToken(input, startPos);
             res.Should().BeEquivalentTo(new Token(val, "<strong>", "</strong>", 1, val.Length + 4, true));
         }
 
@@ -25,7 +25,7 @@ namespace Markdown.Core.Tests
         [TestCase("** qwe rty**", 0)]
         public void TryGetToken_IncorrectInputCases_ShouldBeNull(string input, int startPos)
         {
-           _strongTag.TryGetToken(input, startPos).Should().BeNull();
+           _sut.TryGetToken(input, startPos).Should().BeNull();
         }
     }
 }

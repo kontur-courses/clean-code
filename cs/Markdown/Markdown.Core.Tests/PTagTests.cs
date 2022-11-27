@@ -7,7 +7,7 @@ namespace Markdown.Core.Tests
     [Parallelizable(ParallelScope.Self)]
     internal class PTagTests
     {
-        private readonly PTag _pTag = new PTag();
+        private readonly PTag _sut = new PTag();
         
         [TestCase("qwerty any text", 0, "qwerty any text")]
         [TestCase("1__2__34", 0, "1__2__34")]
@@ -18,7 +18,7 @@ namespace Markdown.Core.Tests
         [TestCase("__\"qwe\"__", 0, "__\"qwe\"__")]
         public void TryGetToken_CorrectInputCases_ShouldBeEqual(string input, int startPos, string val)
         {
-            var res = _pTag.TryGetToken(input, startPos);
+            var res = _sut.TryGetToken(input, startPos);
             res.Should().BeEquivalentTo(new Token(val, "<p>", "</p>", 0, input.Length, true));
         }
 
@@ -26,7 +26,7 @@ namespace Markdown.Core.Tests
         [TestCase("\n", 0)]
         public void TryGetToken_IncorrectInputCases_ShouldBeNull(string input, int startPos)
         {
-            var res = _pTag.TryGetToken(input, startPos);
+            var res = _sut.TryGetToken(input, startPos);
             res.Should().BeEquivalentTo(new Token("", "", "", 0, input.Length, true));
         }
     }

@@ -7,7 +7,7 @@ namespace Markdown.Core.Tests
     [Parallelizable(ParallelScope.Self)]
     public class MdTests
     {
-        private readonly Md _markdown = new Md();
+        private readonly Md _sut = new Md();
         private readonly string[] _testText = 
         {
             "*qwe**asd**rty*\n",
@@ -71,7 +71,7 @@ namespace Markdown.Core.Tests
             var sw = new Stopwatch();
 
             sw.Start();
-            _markdown.Render(input);
+            _sut.Render(input);
             sw.Stop();
 
             return sw.ElapsedMilliseconds;
