@@ -5,16 +5,12 @@ namespace Markdown.TokenParsers.MarkdownParsers;
 
 internal class LinkParser : IMarkdownTagParser
 {
-	private List<MdToken> escapeTokens;
-	private MdToken currentEscapeToken;
-	private int paragraphEnd;
-	private int paragraphStart;
-	private string text;
-
-	public MarkdownTag Tag { get; }
+	private readonly MarkdownTag linkDescriptionTag;
 
 	private readonly MarkdownTag linkTag;
-	private readonly MarkdownTag linkDescriptionTag;
+	private MdToken currentEscapeToken;
+	private int paragraphEnd;
+	private string text;
 
 	public LinkParser(MarkdownTag containerTag, MarkdownTag linkTag, MarkdownTag linkDescriptionTag)
 	{
@@ -23,13 +19,13 @@ internal class LinkParser : IMarkdownTagParser
 		this.linkDescriptionTag = linkDescriptionTag;
 	}
 
+	public MarkdownTag Tag { get; }
+
 	public List<MdToken> ParseParagraph(string text, int paragraphStart, int paragraphEnd, List<MdToken> escapeTokens)
 	{
 		this.text = text;
-		this.paragraphStart = paragraphStart;
 		this.paragraphEnd = paragraphEnd;
-		this.escapeTokens = escapeTokens;
-		this.currentEscapeToken = escapeTokens.FirstOrDefault();
+		currentEscapeToken = escapeTokens.FirstOrDefault();
 		var result = new List<MdToken>();
 
 		var index = paragraphStart;
@@ -43,7 +39,6 @@ internal class LinkParser : IMarkdownTagParser
 
 			index++;
 		}
-		
 
 		return result;
 	}
@@ -63,9 +58,9 @@ internal class LinkParser : IMarkdownTagParser
 
 		parsedLink.nextToken = parsedLinkDescription;
 		containerToken = new MdToken(
-			text, 
-			parsedLinkDescription.Start - linkDescriptionTag.Open.Length, 
-			parsedLink.End + linkTag.Close?.Length ?? 0, 
+			text,
+			parsedLinkDescription.Start - linkDescriptionTag.Open.Length,
+			parsedLink.End + linkTag.Close?.Length ?? 0,
 			TokenType.Container)
 		{
 			nestingTokens = parsedLink
@@ -112,19 +107,5 @@ internal class LinkParser : IMarkdownTagParser
 
 		currentIndex = currentEscapeToken.End;
 		return true;
-	}
-
-	private bool CheckSymbol(int symbolIndex, char symbolIs)
-	{
-		return CheckSymbol(symbolIndex, ch => ch == symbolIs);
-	}
-
-	private bool CheckSymbol(int symbolIndex, Func<char, bool> pattern)
-	{
-		if (symbolIndex <= 0) return false;
-		if (symbolIndex >= paragraphEnd) return false;
-
-		var symbol = text[symbolIndex];
-		return pattern(symbol);
 	}
 }

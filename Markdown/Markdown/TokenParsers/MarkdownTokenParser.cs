@@ -21,12 +21,13 @@ public class MarkdownTokenParser : ITokenParser
 				TokenType.Header,
 				new HeaderParser(new MarkdownTag("# ", $"{Environment.NewLine}{Environment.NewLine}", TokenType.Header))
 			},
-			//{ TokenType.Link, new DoubleTagParser(new MarkdownTag("(", ")", TokenType.Link)) }
-			{ TokenType.Container, 
+			{
+				TokenType.Container,
 				new LinkParser(new MarkdownTag("", "", TokenType.Container),
-				new MarkdownTag("(", ")", TokenType.Link),
-				new MarkdownTag("[", "]", TokenType.LinkDescription)
-				) }
+					new MarkdownTag("(", ")", TokenType.Link),
+					new MarkdownTag("[", "]", TokenType.LinkDescription)
+				)
+			}
 		};
 
 		markdownTags = parsers.ToDictionary(pair => pair.Key, pair => pair.Value.Tag);
