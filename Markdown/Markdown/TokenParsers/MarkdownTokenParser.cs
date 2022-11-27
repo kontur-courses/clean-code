@@ -26,7 +26,7 @@ public class MarkdownTokenParser : ITokenParser
 
 		markdownTags = parsers.ToDictionary(pair => pair.Key, pair => pair.Value.Tag);
 
-		escapeParser = new EscapeParser(new MarkdownTag("/", null, TokenType.Escape), markdownTags.Values);
+		escapeParser = new EscapeParser(new MarkdownTag("\\", null, TokenType.Escape), markdownTags.Values);
 
 		markdownTags.Add(TokenType.Escape, escapeParser.Tag);
 	}

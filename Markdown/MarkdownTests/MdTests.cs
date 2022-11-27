@@ -2,7 +2,6 @@
 using System.Text;
 using FluentAssertions;
 using Markdown;
-using Microsoft.VisualStudio.TestPlatform.ObjectModel;
 using NUnit.Framework;
 
 namespace MarkdownTests;
@@ -37,13 +36,13 @@ public class MdTests
 		result.Should().Be(expected);
 	}
 
-	[TestCase("/__Bold/__", "__Bold__", TestName = "Bold tag")]
-	[TestCase("/_Italic/_", "_Italic_", TestName = "Italic tag")]
-	[TestCase("/# Header", "# Header", TestName = "Top level header tag")]
-	[TestCase("/(Link/)", "(Link)", TestName = "Link tag")]
-	[TestCase("/_", "_", TestName = "only one italic tag")]
-	[TestCase("/__", "__", TestName = "only one bold tag")]
-	[TestCase("/# ", "# ", TestName = "only one header tag")]
+	[TestCase("\\__Bold\\__", "__Bold__", TestName = "Bold tag")]
+	[TestCase("\\_Italic\\_", "_Italic_", TestName = "Italic tag")]
+	[TestCase("\\# Header", "# Header", TestName = "Top level header tag")]
+	[TestCase("\\(Link\\)", "(Link)", TestName = "Link tag")]
+	[TestCase("\\_", "_", TestName = "only one italic tag")]
+	[TestCase("\\__", "__", TestName = "only one bold tag")]
+	[TestCase("\\# ", "# ", TestName = "only one header tag")]
 	public void Render_ShouldNotRenderEscapedTags_WithCorrectTags(string mdText, string expected)
 	{
 		var result = markdown.Render(mdText);
