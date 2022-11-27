@@ -17,8 +17,6 @@ namespace Markdown.Html
             ',', '.', '!', '?', ' ', '—', '-', ':', '#', '\\'
         };
 
-        private int Index { get; set; } = 0;
-
         public IEnumerable<Token> Parse(string data)
         {
             var tokens = new List<Token>();
@@ -29,8 +27,11 @@ namespace Markdown.Html
             {
                 if (string.IsNullOrEmpty(line)) continue;
                 
-                Index = 0;
                 var rootToken = GetRootToken(line);
+                
+                if (Equals(rootToken.Tag, HtmlTags.Heading))
+                    rootToken.Index = 2;
+                
                 tokens.Add(ParseLine(rootToken, line));
             }
 
@@ -40,9 +41,10 @@ namespace Markdown.Html
         private Token ParseLine(Token token, string line)
         {
             var tagString = string.Empty;
-            while (Index < line.Length)
+                
+            while (token.Index < line.Length)
             {
-                var symbol = line[Index];
+                var symbol = line[token.Index];
 
                 if (char.IsLetter(symbol) || char.IsDigit(symbol) || signs.Contains(symbol))
                 {
@@ -66,7 +68,7 @@ namespace Markdown.Html
                     return token;
                 else
                     tagString += symbol;
-                Index += 1;
+                token.Index += 1;
             }
             return ProcessWhenLineEnd(token, tagString, line);
         }
@@ -111,7 +113,6 @@ namespace Markdown.Html
             if (!tag.Equals(MarkdownTags.Heading) || line[1] != ' ')
                 return new Token(TokenType.Root, HtmlTags.LineBreak, null);
             
-            Index = 2;
             return new Token(TokenType.Root, HtmlTags.Heading, null);
 
         }

@@ -10,6 +10,7 @@ namespace Markdown
         public TokenType Type;
         public ITag Tag;
         public string Content = "";
+        public int Index;
         public Token Parent;
         public List<Token> Childrens = new ();
 
@@ -18,14 +19,18 @@ namespace Markdown
             Type = type;
             Tag = tag;
             Parent = parent;
+            Index = parent?.Index ?? 0;
         }
 
         public bool TryAddToken(Token token)
         {
-            if (token == null) return false;
+            if (token == null)
+                return false;
 
             if (Tag.NeedTagIgnore(token.Tag)) return false;
 
+            Index = token.Index;
+            
             Childrens.Add(token); return true;
         }
 
