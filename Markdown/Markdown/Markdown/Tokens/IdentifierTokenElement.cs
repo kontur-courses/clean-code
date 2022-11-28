@@ -2,26 +2,7 @@
 {
     public static class IdentifierTokenElement
     {
-        public static IEnumerable<Token> CloseTags(this Stack<Token> stackTags, Stack<Token> unknownStackTags,
-            Token token)
-        {
-            if (stackTags.Count <= 0)
-            {
-                foreach (var pairTokens in GetPairs(unknownStackTags, token)) 
-                    yield return pairTokens;
-                yield break;
-            }
-            var last = stackTags.Pop();
-            if (last.Type != token.Type)
-            {
-                last.SetToDefault();
-                token.SetToDefault();
-            }
-            yield return last;
-            yield return token;
-        }
-
-        private static IEnumerable<Token> GetPairs(Stack<Token> unknownStackTags, Token token)
+        public static IEnumerable<Token> GetPairs(Stack<Token> unknownStackTags, Token token)
         {
             if (unknownStackTags.Count > 0 && unknownStackTags.Peek().Type == token.Type)
             {
@@ -38,29 +19,9 @@
             unknownStackTags.Peek().Element = TokenElement.Open;
             yield return unknownStackTags.Pop();
             yield return token;
-            
         }
 
-        public static IEnumerable<Token> UnknownTags(this Stack<Token> undefinedStackTags, string md,
-            Stack<Token> tagsStack, Token token)
-        {
-            if (undefinedStackTags.Count == 0)
-            {
-                foreach (var unknownTags in AddUndefinedToken(undefinedStackTags, md, tagsStack, token)) 
-                    yield return unknownTags;
-            }
-            else if (undefinedStackTags.Peek().Type == token.Type)
-            {
-                undefinedStackTags.Peek().Element = TokenElement.Open;
-                token.Element = TokenElement.Close;
-                yield return undefinedStackTags.Pop();
-                yield return token;
-            }
-            else
-                undefinedStackTags.Push(token);
-        }
-
-        private static IEnumerable<Token> AddUndefinedToken(Stack<Token> undefinedStackTags, string md, Stack<Token> tagsStack, Token token)
+        public static IEnumerable<Token> AddUndefinedToken(Stack<Token> undefinedStackTags, string md, Stack<Token> tagsStack, Token token)
         {
             if (tagsStack.Count > 0 && tagsStack.Peek().Type == token.Type)
             {
@@ -76,6 +37,28 @@
             }
             else
                 undefinedStackTags.Push(token);
+        }
+        public static IEnumerable<Token> TokensWithPair(string md, Token token, Stack<Token> stackTokens,
+            Stack<Token> unknownTags)
+        {
+            switch (token.Element)
+            {
+                case TokenElement.Open:
+                    stackTokens.Push(token);
+                    break;
+                case TokenElement.Close:
+                    foreach (var closeTag in stackTokens.CloseTags(unknownTags, token))
+                        yield return closeTag;
+                    break;
+                case TokenElement.Unknown:
+                    foreach (var unknownTag in unknownTags.UnknownTags(md, stackTokens, token))
+                        yield return unknownTag;
+                    break;
+                case TokenElement.Default:
+                default:
+                    yield return token;
+                    break;
+            }
         }
     }
 }

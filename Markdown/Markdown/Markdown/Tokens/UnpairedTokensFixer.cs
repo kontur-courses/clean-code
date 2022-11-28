@@ -28,7 +28,7 @@
                     yield break;
                 }
 
-                foreach (var tokenMd in TokensWithPair(markdownString, token, stackTokens, unknownTags))
+                foreach (var tokenMd in IdentifierTokenElement.TokensWithPair(markdownString, token, stackTokens, unknownTags))
                     yield return tokenMd;
             }
             else
@@ -40,29 +40,6 @@
             foreach (var textToken in GetTextTokenInDifferentWords(markdownString, token, unknownTags))
                 yield return textToken;
             yield return token;
-        }
-
-        private static IEnumerable<Token> TokensWithPair(string md, Token token, Stack<Token> stackTokens,
-            Stack<Token> unknownTags)
-        {
-            switch (token.Element)
-            {
-                case TokenElement.Open:
-                    stackTokens.Push(token);
-                    break;
-                case TokenElement.Close:
-                    foreach (var closeTag in stackTokens.CloseTags(unknownTags, token))
-                        yield return closeTag;
-                    break;
-                case TokenElement.Unknown:
-                    foreach (var unknownTag in unknownTags.UnknownTags(md, stackTokens, token))
-                        yield return unknownTag;
-                    break;
-                case TokenElement.Default:
-                default:
-                    yield return token;
-                    break;
-            }
         }
 
         private static IEnumerable<Token> GetTextTokenInDifferentWords(string md, Token token, Stack<Token> unknownTags)
