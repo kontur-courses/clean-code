@@ -41,8 +41,7 @@ namespace Markdown.Tokens
         }
         public static bool IsImage(this Token imageToken)
         {
-            if (imageToken.Type == TokenType.Image || imageToken.Type == TokenType.ImageDescription ||
-                imageToken.Type == TokenType.ImageStart)
+            if (imageToken.Type is TokenType.Image or TokenType.ImageDescription or TokenType.ImageStart)
                 return true;
             return false;
         }
@@ -77,10 +76,7 @@ namespace Markdown.Tokens
                 
                 if (token.Type == TokenType.Italic)
                 {
-                    if (token.Element == TokenElement.Close)
-                        lastOpenIsItalics = false;
-                    else
-                        lastOpenIsItalics = true;
+                    lastOpenIsItalics = token.Element != TokenElement.Close;
                 }
 
                 if (lastOpenIsItalics && token.Type == TokenType.Strong)
@@ -99,10 +95,8 @@ namespace Markdown.Tokens
         {
             if (token.Position - 1 >= 0 && digits.Contains(MdString[token.Position - 1]))
                 return true;
-            if (token.Position + token.Length < MdString.Length &&
-                digits.Contains(MdString[token.Position + token.Length]))
-                return true;
-            return false;
+            return token.Position + token.Length < MdString.Length &&
+                   digits.Contains(MdString[token.Position + token.Length]);
         }
         public static IList<Token> InitializeImage(this IList<Token> tokens, string mdString)
         {
@@ -122,14 +116,14 @@ namespace Markdown.Tokens
             return tokens.OrderBy(x => x.Position).ToList();
         }
 
-        private static bool IsImage(int i, List<Token> images)
+        private static bool IsImage(int i, IReadOnlyList<Token> images)
         {
             return i + 4 < images.Count && images[i + 1].Type == TokenType.ImageDescription &&
                    images[i + 2].Type == TokenType.ImageDescription && images[i + 3].Type == TokenType.Image &&
                    images[i + 4].Type == TokenType.Image && images[i].End + 1 == images[i + 1].Position && images[i + 2].End + 1 == images[i + 3].Position;
         }
 
-        private static void AddImageToken(IList<Token> tokens, string mdString, List<Token> images, int i)
+        private static void AddImageToken(IList<Token> tokens, string mdString, IReadOnlyList<Token> images, int i)
         {
             foreach (var token in tokens.Select(x => x)
                          .Where(x => x.Position >= images[i].Position

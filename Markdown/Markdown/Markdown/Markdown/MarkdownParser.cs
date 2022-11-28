@@ -4,11 +4,12 @@ namespace Markdown.Markdown
 {
     public static class MarkdownParser
     {
+        public static HashSet<string> mdTags= new HashSet<string> { "# ", "\n", "!", "[", "]", "(", ")", "__", "_", "\\" };
         public static Token[] GetArrayWithMdTags(string stringWithTags)
         {
             if (string.IsNullOrEmpty(stringWithTags))
                 throw new ArgumentNullException("String for parse token must not be null or empty");
-            var mdTags = new HashSet<string> { "# ", "\n", "!", "[", "]", "(", ")", "__", "_", "\\" };
+        
             var mdTokens = new List<Token>();
             foreach (var tag in mdTags)
                 AddTokenTag(stringWithTags, tag, mdTokens);
