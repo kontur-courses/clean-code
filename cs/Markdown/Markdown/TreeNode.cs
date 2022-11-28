@@ -110,20 +110,23 @@ public class TreeNode : IComparable
     private void AddEmptyNodes()
     {
         children.Sort();
-        int i = 0;
+        int i = Tag.OpenMdTag.Length;
         var newChildrenTokens = new List<TagToken>();
+        // var taglessBody = body.Substring(token.tag.OpenMdTag.Length, )
         foreach (var child in children)
         {
-            if (i == child.LeftBorder)
+            if (i >= child.LeftBorder)
             {
                 i = child.RightBorder + 1;
                 continue;
             }
 
             newChildrenTokens.Add(new TagToken(i, child.LeftBorder - 1, new EmptyTag()));
-            child.AddEmptyNodes();
             i = child.RightBorder + 1;
         }
+
+        if (i < body.Length - Tag.CloseMdTag.Length - 1)
+            newChildrenTokens.Add(new TagToken(i, body.Length - Tag.CloseMdTag.Length - 1, new EmptyTag()));
 
         foreach (var token in newChildrenTokens)
             AddChild(token);
