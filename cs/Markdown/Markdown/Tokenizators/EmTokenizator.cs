@@ -25,7 +25,7 @@ public class EmTokenizator : Tokenizator
 
     public void GetTokensFromWord(string word, int startIndex)
     {
-        if (!word.Contains("_"))
+        if (!(word.Contains(OpenTag) && word.Contains(CloseTag)))
             return;
         int i = 0, j;
         while (true)
@@ -56,18 +56,15 @@ public class EmTokenizator : Tokenizator
         Stack<int> stack = new();
         for (int i = 0; i < mdstring.Length; i++)
         {
-            // var s = mdstring.Substring(i, OpenTag.Length + 1);
             if (i + OpenTag.Length < mdstring.Length
                 && mdstring[i + OpenTag.Length] != ' '
-                && (i == 0
-                    && mdstring.Substring(i, OpenTag.Length) == OpenTag
-                    || mdstring.Substring(i, OpenTag.Length + 1) == " " + OpenTag)
-                && !Contains(i + 1, OpenTag.Length))
+                && (mdstring.Substring(i, OpenTag.Length) == OpenTag
+                    && (i == 0 || mdstring[i - 1] == ' '))
+                && !Contains(i, OpenTag.Length))
             {
                 stack.Push(i);
             }
 
-            // var t = mdstring.Substring(i, CloseTag.Length + 1);
             if (i != 0
                 && i + CloseTag.Length - 1 < mdstring.Length
                 && mdstring[i - 1] != ' '
@@ -77,6 +74,8 @@ public class EmTokenizator : Tokenizator
                 && !Contains(i, CloseTag.Length))
             {
                 var j = stack.Pop();
+                if (i - j == 1)
+                    continue;
                 result.Add(new TagToken(
                     j,
                     i + CloseTag.Length - 1,
