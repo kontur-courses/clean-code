@@ -4,7 +4,7 @@ namespace Markdown.Markdown
 {
     public static class MarkdownParser
     {
-        public static HashSet<string> mdTags= new HashSet<string> { "# ", "\n", "!", "[", "]", "(", ")", "__", "_", "\\" };
+        private static HashSet<string> mdTags= new() { "# ", "\n", "!", "[", "]", "(", ")", "__", "_", "\\" };
         public static Token[] GetArrayWithMdTags(string stringWithTags)
         {
             if (string.IsNullOrEmpty(stringWithTags))
