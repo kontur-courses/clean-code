@@ -161,6 +161,6 @@ abc", "<h1>abc</h1><ul><li>abc</li><li><em>abc</em></li><li><strong>abc</strong>
         var longNanoseconds = longTimes.Average(x => x.TotalNanoseconds);
 
         var shortPartInLongMd = longNanoseconds / longCount;
-        shortPartInLongMd.Should().BeLessOrEqualTo(shortNanoseconds);
+        shortPartInLongMd.Should().BeLessOrEqualTo(shortNanoseconds * 1.1);
     }
 }
