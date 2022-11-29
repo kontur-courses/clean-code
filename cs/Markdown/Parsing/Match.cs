@@ -11,14 +11,14 @@ public class Match
     public bool IsSuccess { get; private set; }
 
     private StringBuilder _text;
-    public IMdTag SourceGeneralMdTag { get; private set; }
+    public IMdTag SourceMdTag { get; private set; }
     public string Text => _text.ToString();
 
-    public Match(IMdTag sourceGeneralMdTag, int startPosition, PatternTree pattern)
+    public Match(IMdTag sourceMdTag, int startPosition, PatternTree pattern)
     {
         _text = new StringBuilder();
         _pattern = pattern;
-        SourceGeneralMdTag = sourceGeneralMdTag;
+        SourceMdTag = sourceMdTag;
         StartPosition = startPosition;
     }
 

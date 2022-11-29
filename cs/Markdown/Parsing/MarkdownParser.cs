@@ -83,14 +83,15 @@ public class MarkdownParser
                 if (textSb.Length != 0)
                     document.AddNode(new PlaintextDocumentNode(textSb));
 
-                if (fullMatch!.SourceGeneralMdTag.CanBeParsed)
+                var clearMatchFullText = fullMatch.SourceMdTag.ClearText(fullMatch.Text);
+                if (fullMatch!.SourceMdTag.CanBeParsed)
                 {
-                    var parsedDoc = Parse(fullMatch.Text);
-                    document.AddNode(new MatchedDocumentNode(fullMatch!.SourceGeneralMdTag.Name, parsedDoc.Document.Nodes));
+                    var parsedDoc = Parse(clearMatchFullText);
+                    document.AddNode(new MatchedDocumentNode(fullMatch!.SourceMdTag.Name, parsedDoc.Document.Nodes));
                 }
                 else
                 {
-                    document.AddNode(new MatchedDocumentNode(fullMatch!.SourceGeneralMdTag.Name, new PlaintextDocumentNode(fullMatch.Text)));
+                    document.AddNode(new MatchedDocumentNode(fullMatch!.SourceMdTag.Name, new PlaintextDocumentNode(clearMatchFullText)));
                 }
 
                 textSb = new StringBuilder();

@@ -8,6 +8,8 @@ public class MatchedDocumentNode : IDocumentNode
 
     private readonly string _tagId;
 
+    public string TagId => _tagId;
+
     public MatchedDocumentNode(string tagId, List<IDocumentNode> childNodes)
     {
         _tagId = tagId;

@@ -11,7 +11,7 @@ using NUnit.Framework;
 namespace MarkdownTests;
 
 [TestFixture]
-public class MarkdownParserTests
+public class MarkdownParserItalicTagTests
 {
     private MarkdownParser? _mdParser;
 
@@ -33,10 +33,6 @@ public class MarkdownParserTests
     [TestCase("test_fgdf_uljkl", "_fgdf_", TestName = "Тег в середине слова")]
     public void Parse_ItalicTag_RightMatch(string sourceText, string matchText)
     {
-        var res = new Md(_mdParser!.Tags.ToList(), new HtmlMdRenderer());
-
-        var resultRender = res.Render(sourceText);
-
         var matches = _mdParser!.ParseToMatches(sourceText);
 
         using (new AssertionScope())
