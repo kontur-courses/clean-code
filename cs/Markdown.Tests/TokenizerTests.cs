@@ -30,9 +30,9 @@ public class TokenizerTests
         act.Should().Throw<ArgumentException>();
     }
 
-    [TestCase("T", TestName = "{m}One character")]
-    [TestCase("Text", TestName = "{m}One word")]
-    [TestCase("Some text", TestName = "{m}Several words")]
+    [TestCase("T", TestName = "{m}OneCharacter")]
+    [TestCase("Text", TestName = "{m}OneWord")]
+    [TestCase("Some text", TestName = "{m}SeveralWords")]
     public void Tokenize_ReturnTextToken_On(string text)
     {
         var tokens = tokenizer.Tokenize(text);

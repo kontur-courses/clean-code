@@ -5,7 +5,14 @@ namespace Markdown;
 
 public class Tokenizer : ITokenizer
 {
-    private int currentIndex = 0;
+    private static HashSet<char> _specials = new HashSet<char>
+    {
+        Characters.Underline,
+        Characters.NewLine,
+        Characters.Escape
+    };
+    
+    private int currentIndex;
     private bool isNewLine = true;
 
     private string text;
@@ -69,7 +76,7 @@ public class Tokenizer : ITokenizer
     {
         int start = currentIndex;
         int end = currentIndex + 1;
-        while (end < text.Length && !Characters.Specials.Contains(text[end]))
+        while (end < text.Length && !_specials.Contains(text[end]))
         {
             end++;
         }

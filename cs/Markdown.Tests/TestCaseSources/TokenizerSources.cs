@@ -20,27 +20,27 @@ public static class TokenizerSources
         yield return new TestCaseData(value, new Token[]
         {
             Tokens.Text(value)
-        }).SetName($"{methodName}{value}");
+        }).SetName($"{methodName} {value}");
         yield return new TestCaseData($"{value} text", new Token[]
         {
             token,
             Tokens.Text("text"),
-        }).SetName($"{methodName}{value} text");
+        }).SetName($"{methodName} {value} text");
         yield return new TestCaseData($"{value}text", new Token[]
         {
             Tokens.Text($"{value}text"),
-        }).SetName($"{methodName}{value}text");
+        }).SetName($"{methodName} {value}text");
         yield return new TestCaseData($"text{value}", new Token[]
         {
             Tokens.Text($"text{value}"),
-        }).SetName($"{methodName}text{value}");
+        }).SetName($"{methodName} text{value}");
         yield return new TestCaseData($"text\n{value} text", new Token[]
         {
             Tokens.Text("text"),
             Tokens.NewLine,
             Tokens.Header1,
             Tokens.Text("text")
-        }).SetName($"{methodName}text\n{value} text");
+        }).SetName($"{methodName} text\n{value} text");
     }
 
     private static IEnumerable<TestCaseData> GetFormattingTests(Token token)
@@ -50,22 +50,22 @@ public static class TokenizerSources
         yield return new TestCaseData(value, new Token[]
         {
             token
-        }).SetName($"{methodName}{value}");
+        }).SetName($"{methodName} {value}");
         yield return new TestCaseData($"prefix{value}", new Token[]
         {
             Tokens.Text("prefix"),
             token
-        }).SetName($"{methodName}prefix{value}");
+        }).SetName($"{methodName} prefix{value}");
         yield return new TestCaseData($"{value}suffix", new Token[]
         {
             token,
             Tokens.Text("suffix"),
-        }).SetName($"{methodName}{value}suffix");
+        }).SetName($"{methodName} {value}suffix");
         yield return new TestCaseData($"{value}text{value}", new Token[]
         {
             token,
             Tokens.Text("text"),
             token,
-        }).SetName($"{methodName}{value}text{value}");
+        }).SetName($"{methodName} {value}text{value}");
     }
 }
