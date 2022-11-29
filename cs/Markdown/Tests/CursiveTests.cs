@@ -1,4 +1,6 @@
-﻿[TestFixture]
+﻿using System.Text;
+
+[TestFixture]
 public class CursiveTests
 {
     [SetUp]

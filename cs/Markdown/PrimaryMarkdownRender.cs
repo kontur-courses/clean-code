@@ -20,6 +20,8 @@ internal static class PrimaryMarkdownMaker
 
         for (int i = 0; i < convertedLine.Length; i++)
         {
+            if(actions[i] == null)
+                actions[i] = new MarkdownAction(i);
             if (operationalCharacters[i] && actions[i].ActionType == MarkdownActionType.None)
             {
                 if (convertedLine[i] == '_')
