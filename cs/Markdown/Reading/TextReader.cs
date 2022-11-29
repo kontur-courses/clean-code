@@ -1,4 +1,4 @@
-﻿namespace Markdown;
+﻿namespace Markdown.Reading;
 
 public class TextReader
 {
@@ -20,14 +20,14 @@ public class TextReader
     {
         if (_position == -1)
         {
-            Current = new Token('\0', _position);
+            Current = new Token('\0', _position, true);
             _position++;
             return true;
         }
 
         if (_position == _text.Length)
         {
-            Current = new Token('\0', _position);
+            Current = new Token('\0', _position, true);
             _position++;
             return true;
         }

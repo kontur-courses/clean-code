@@ -1,4 +1,4 @@
-﻿namespace Markdown;
+﻿namespace Markdown.Render;
 
 public interface  IReplaceRule
 {

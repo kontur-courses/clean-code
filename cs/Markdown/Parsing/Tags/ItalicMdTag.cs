@@ -1,24 +1,23 @@
-﻿using Markdown.Parsing;
+﻿namespace Markdown.Parsing.Tags;
 
-namespace Markdown;
-
-public static class TagsCreator
+public class ItalicMdTag : GeneralMdTag
 {
-    public static List<GeneralMdTag> CreateDefaultTags()
+    public ItalicMdTag() : base("_", CreatePatterns(), '_')
     {
-        return new List<GeneralMdTag>()
+    }
+
+    private static PatternTree[] CreatePatterns()
+    {
+        return new[]
         {
-            CreateItalicTag()
+            FirstItalicPattern(), SecondItalicPattern()
         };
     }
 
 
-    public static GeneralMdTag CreateItalicTag()
+    public override string ClearText(string text)
     {
-        return new GeneralMdTag("_", new[]
-        {
-            FirstItalicPattern(), SecondItalicPattern()
-        }, '_');
+        return text.Trim('_');
     }
 
 
@@ -64,7 +63,6 @@ public static class TagsCreator
 
         return new PatternTree(rootNode);
     }
-
 
     private static PatternTree SecondItalicPattern()
     {

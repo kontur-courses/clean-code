@@ -1,4 +1,4 @@
-﻿namespace Markdown;
+﻿namespace Markdown.Parsing;
 
 public enum StateNodeType : int
 {

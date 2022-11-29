@@ -1,6 +1,7 @@
 ﻿using System.Text;
+using Markdown.Reading;
 
-namespace Markdown;
+namespace Markdown.Parsing;
 
 public class Match
 {
@@ -10,14 +11,14 @@ public class Match
     public bool IsSuccess { get; private set; }
 
     private StringBuilder _text;
-    public Tag SourceTag { get; private set; }
+    public IMdTag SourceGeneralMdTag { get; private set; }
     public string Text => _text.ToString();
 
-    public Match(Tag sourceTag, int startPosition, PatternTree pattern)
+    public Match(IMdTag sourceGeneralMdTag, int startPosition, PatternTree pattern)
     {
         _text = new StringBuilder();
         _pattern = pattern;
-        SourceTag = sourceTag;
+        SourceGeneralMdTag = sourceGeneralMdTag;
         StartPosition = startPosition;
     }
 

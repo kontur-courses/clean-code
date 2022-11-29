@@ -1,4 +1,6 @@
-﻿namespace Markdown;
+﻿using Markdown.Reading;
+
+namespace Markdown.Parsing;
 
 public class StateNode
 {

@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using FluentAssertions;
 using FluentAssertions.Execution;
 using Markdown;
+using Markdown.Reading;
 using NUnit.Framework;
 
 namespace MarkdownTests;
@@ -77,12 +78,12 @@ public class TextReaderTests
         var expectedTokens = new List<Token>();
         var actualTokens = new List<Token>();
 
-        expectedTokens.Add(new Token('\0', -1));
+        expectedTokens.Add(new Token('\0', -1, true));
         expectedTokens.Add(new Token('t', 0));
         expectedTokens.Add(new Token('e', 1));
         expectedTokens.Add(new Token('x', 2));
         expectedTokens.Add(new Token('t', 3));
-        expectedTokens.Add(new Token('\0', 4));
+        expectedTokens.Add(new Token('\0', 4, true));
 
         while (reader.ReadNextToken())
         {

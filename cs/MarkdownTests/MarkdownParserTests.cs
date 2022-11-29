@@ -3,6 +3,9 @@ using System.Linq;
 using FluentAssertions;
 using FluentAssertions.Execution;
 using Markdown;
+using Markdown.Parsing;
+using Markdown.Parsing.Tags;
+using Markdown.Render;
 using NUnit.Framework;
 
 namespace MarkdownTests;
@@ -15,9 +18,9 @@ public class MarkdownParserTests
     [SetUp]
     public void Setup()
     {
-        var italicTag = TagsCreator.CreateItalicTag();
+        var italicTag = new ItalicMdTag();
 
-        _mdParser = new MarkdownParser(new List<Tag>()
+        _mdParser = new MarkdownParser(new List<IMdTag>()
         {
             italicTag
         });
@@ -30,12 +33,16 @@ public class MarkdownParserTests
     [TestCase("test_fgdf_uljkl", "_fgdf_", TestName = "Тег в середине слова")]
     public void Parse_ItalicTag_RightMatch(string sourceText, string matchText)
     {
-        _mdParser!.Parse(sourceText);
+        var res = new Md(_mdParser!.Tags.ToList(), new HtmlMdRenderer());
+
+        var resultRender = res.Render(sourceText);
+
+        var matches = _mdParser!.ParseToMatches(sourceText);
 
         using (new AssertionScope())
         {
-            _mdParser.Matches.Count.Should().Be(1);
-            _mdParser.Matches[0].Text.Should().Be(matchText);
+            matches.Count.Should().Be(1);
+            matches[0].Text.Should().Be(matchText);
         }
     }
 
@@ -43,8 +50,8 @@ public class MarkdownParserTests
     [TestCase("test_qwerty123 тест13тест qwe_asdf", TestName = "Цифры внутри тегов _ в разных словах")]
     public void Parse_ItalicTagWithNums_NotRightMatch(string sourceText)
     {
-        _mdParser!.Parse(sourceText);
-        _mdParser.Matches.Count.Should().Be(0);
+        var matches = _mdParser!.ParseToMatches(sourceText);
+        matches.Count.Should().Be(0);
     }
 
 
@@ -53,51 +60,51 @@ public class MarkdownParserTests
     [TestCase("test_asdf\r\nasdad_qwerty", TestName = "Теги на разных строках(абзацах) разделенных \\r\\n")]
     public void Parse_ItalicTagOnDifferentLines_NotRightMatch(string sourceText)
     {
-        _mdParser!.Parse(sourceText);
-        _mdParser.Matches.Count.Should().Be(0);
+        var matches = _mdParser!.ParseToMatches(sourceText);
+        matches.Count.Should().Be(0);
     }
 
     [TestCase("__Непарные_ символы в рамках одного абзаца не считаются выделением", TestName = "Непарные начальные символы в рамках одного абзаца не считаются выделением")]
     [TestCase("_Непарные__ символы в рамках одного абзаца не считаются выделением", TestName = "Непарные конечные символы в рамках одного абзаца не считаются выделением")]
     public void Parse_ItalicTagNotPairTags_NotRightMatch(string sourceText)
     {
-        _mdParser!.Parse(sourceText);
-        _mdParser.Matches.Count.Should().Be(0);
+        var matches = _mdParser!.ParseToMatches(sourceText);
+        matches.Count.Should().Be(0);
     }
 
     [Test]
     public void Parse_ItalicThreeTags_MatchFirst()
     {
-        _mdParser!.Parse("_testfgdf_uljkl_");
+        var matches = _mdParser!.ParseToMatches("_testfgdf_uljkl_");
 
         using (new AssertionScope())
         {
-            _mdParser.Matches.Count.Should().Be(1);
-            _mdParser.Matches[0].Text.Should().Be("_testfgdf_");
+            matches.Count.Should().Be(1);
+            matches[0].Text.Should().Be("_testfgdf_");
         }
     }
 
     [Test]
     public void Parse_SpaceAfterStartItalicTag_NotRightMatch()
     {
-        _mdParser!.Parse("_ testfgdf_");
+        var matches = _mdParser!.ParseToMatches("_ testfgdf_");
 
-        _mdParser.Matches.Count.Should().Be(0);
+        matches.Count.Should().Be(0);
     }
 
     [Test]
     public void Parse_ItalicTagsInMiddleOfDifferentWords_NotRightMatch()
     {
-        _mdParser!.Parse("В то же время выделение в ра_зных сл_овах не работает.");
+        var matches = _mdParser!.ParseToMatches("В то же время выделение в ра_зных сл_овах не работает.");
 
-        _mdParser.Matches.Count.Should().Be(0);
+        matches.Count.Should().Be(0);
     }
 
     [Test]
     public void Parse_ItalicTagsWithEmptyString_NotRightMatch()
     {
-        _mdParser!.Parse("__");
+        var matches = _mdParser!.ParseToMatches("__");
 
-        _mdParser.Matches.Count.Should().Be(0);
+        matches.Count.Should().Be(0);
     }
 }
