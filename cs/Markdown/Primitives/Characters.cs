@@ -7,11 +7,8 @@ public static class Characters
     public const char NewLine = '\n';
     public const char Escape = '\\';
     public const char WhiteSpace = ' ';
-
-    public static HashSet<char> Specials = new HashSet<char>
-    {
-        Underline,
-        NewLine,
-        Escape
-    };
+    public const char OpenSquareBracket = '[';
+    public const char CloseSquareBracket = ']';
+    public const char OpenCircleBracket = '(';
+    public const char CloseCircleBracket = ')';
 }

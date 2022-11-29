@@ -2,7 +2,9 @@
 
 public enum TagType
 {
-    Italic,
+    Text,
     Bold,
-    Header1
+    Italic,
+    Header1,
+    Link
 }
