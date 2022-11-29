@@ -5,10 +5,10 @@ namespace Markdown;
 public class Md
 {
     private readonly ITokenizer tokenizer;
-    private readonly ITokenParser parser;
+    private readonly ITokenCollectionParser parser;
     private readonly IRenderer renderer;
 
-    public Md(ITokenizer tokenizer, ITokenParser parser, IRenderer renderer)
+    public Md(ITokenizer tokenizer, ITokenCollectionParser parser, IRenderer renderer)
     {
         this.tokenizer = tokenizer;
         this.parser = parser;
