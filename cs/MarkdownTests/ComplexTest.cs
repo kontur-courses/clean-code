@@ -1,6 +1,6 @@
 ﻿using System.Text;
 
-namespace Markdown.Tests;
+namespace MarkdownTests;
 
 [TestFixture]
 internal class ComplexTests

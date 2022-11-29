@@ -2,11 +2,11 @@
 
 internal static class MarkdownPairsInteractionRules
 {
-    public static void DisapproveIntersectingPairs(SpecialStringFormat lineFormat)
+    public static SpecialStringFormat DisapproveIntersectingPairs(SpecialStringFormat specialStringFormat)
     {
+        var newFormat = new SpecialStringFormat(specialStringFormat);
         var openBrackets = new List<MarkdownAction>();
-        var actions = lineFormat.Actions;
-        var line = lineFormat.ConvertedLine;
+        var actions = newFormat.Actions;
 
         foreach (var act in actions)
         {
@@ -31,6 +31,8 @@ internal static class MarkdownPairsInteractionRules
                 openBrackets.Add(act);
             }
         }
+
+        return newFormat;
     }
 
     public static SpecialStringFormat DisapproveBoldInCursive(this SpecialStringFormat lineFormat)
@@ -41,17 +43,27 @@ internal static class MarkdownPairsInteractionRules
         foreach (var pair in lineFormat.ActionPairs)
         {
             if (!actions[pair.Item1].Approved || line[pair.Item1] != '_') continue;
-            for (int i = pair.Item1; i <= pair.Item2; i++)
-            {
-                if (actions[i].ActionType == MarkdownActionType.Open && actions[i].Approved && line[i] == ';')
-                {
-                    actions[i].Approved = false;
-                    actions[actions[i].PairIndex].Approved = false;
-                    break;
-                }
-            }
+            lineFormat = CheckBoldInCursive(lineFormat, pair);
         }
 
         return lineFormat;
+    }
+
+    private static SpecialStringFormat CheckBoldInCursive(SpecialStringFormat lineFormat, Tuple<int,int> pair)
+    {
+        var newFormat = new SpecialStringFormat(lineFormat);
+        var line = newFormat.ConvertedLine;
+        var actions = newFormat.Actions;
+        for (int i = pair.Item1; i <= pair.Item2; i++)
+        {
+            if (actions[i].ActionType == MarkdownActionType.Open && actions[i].Approved && line[i] == ';')
+            {
+                actions[i].Approved = false;
+                actions[actions[i].PairIndex].Approved = false;
+                break;
+            }
+        }
+
+        return newFormat;
     }
 }

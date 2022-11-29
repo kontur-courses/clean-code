@@ -22,8 +22,9 @@ internal class SpecialStringFormat
 
     public List<Tuple<int, int>> ActionPairs { get; set; }
 
-    public SpecialStringFormat(string originalLine)
+    public static SpecialStringFormat getStringFormat(string originalLine)
     {
+        var specialStringFormat = new SpecialStringFormat();
         var sb = new StringBuilder();
         bool escapeSymbol = false;
         bool h1 = false;
@@ -86,8 +87,21 @@ internal class SpecialStringFormat
             operationalCharacters[sb.Length - 1] = true;
         }
 
-        ConvertedLine = sb.ToString();
-        OperationalCharacters = operationalCharacters;
+        specialStringFormat.ConvertedLine = sb.ToString();
+        specialStringFormat.OperationalCharacters = operationalCharacters;
+        return specialStringFormat;
+    }
+
+    public SpecialStringFormat()
+    {
+    }
+
+    public SpecialStringFormat(SpecialStringFormat origin)
+    {
+        ConvertedLine = origin.ConvertedLine;
+        OperationalCharacters = origin.OperationalCharacters;
+        Actions = origin.Actions;
+        ActionPairs = origin.ActionPairs;
     }
 
     public string ConvertFromFormat()

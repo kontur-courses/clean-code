@@ -1,7 +1,4 @@
-﻿using NUnit.Framework;
-using FluentAssertions;
-
-namespace Markdown.Tests;
+﻿namespace MarkdownTests;
 
 [TestFixture]
 internal class BoldTests

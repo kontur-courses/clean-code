@@ -2,12 +2,13 @@
 
 internal static class PrimaryMarkdownMaker
 {
-    public static void SetPrimaryMarkdown(SpecialStringFormat specialStringFormat)
+    public static SpecialStringFormat SetPrimaryMarkdown(SpecialStringFormat specialStringFormat)
     {
-        var convertedLine = specialStringFormat.ConvertedLine;
-        var operationalCharacters = specialStringFormat.OperationalCharacters;
+        var newFormat = new SpecialStringFormat(specialStringFormat);
+        var convertedLine = newFormat.ConvertedLine;
+        var operationalCharacters = newFormat.OperationalCharacters;
         var actions = new MarkdownAction[convertedLine.Length];
-        var actionPairs = specialStringFormat.ActionPairs = new List<Tuple<int, int>>();
+        var actionPairs = newFormat.ActionPairs = new List<Tuple<int, int>>();
 
         int openCursiveIndex = -1;
         int openBoldIndex = -1;
@@ -70,6 +71,7 @@ internal static class PrimaryMarkdownMaker
             actions[openBoldIndex].Approved = false;
         }
 
-        specialStringFormat.Actions = actions;
+        newFormat.Actions = actions;
+        return newFormat;
     }
 }

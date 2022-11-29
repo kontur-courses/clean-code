@@ -1,7 +1,4 @@
-﻿using System.Text;
-
-namespace Markdown;
-
+﻿namespace Markdown;
 public class Md
 {
 
@@ -19,10 +16,10 @@ public class Md
 
     private static string ConvertLine(string line)
     {
-        var specialStringFormat = new SpecialStringFormat(line);
-        PrimaryMarkdownMaker.SetPrimaryMarkdown(specialStringFormat);
-        MarkdownPairsInteractionRules.DisapproveIntersectingPairs(specialStringFormat);
-        specialStringFormat.DisapproveEmpty()
+        var specialStringFormat = SpecialStringFormat.getStringFormat(line);
+        specialStringFormat = PrimaryMarkdownMaker.SetPrimaryMarkdown(specialStringFormat);
+        specialStringFormat = MarkdownPairsInteractionRules.DisapproveIntersectingPairs(specialStringFormat);
+        specialStringFormat = specialStringFormat.DisapproveEmpty()
             .DisapproveBoldInCursive()
             .DisapproveWithDigits()
             .DisapproveInDifferentWordParts()

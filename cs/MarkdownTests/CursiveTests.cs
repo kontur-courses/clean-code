@@ -1,5 +1,4 @@
-﻿using System.Text;
-
+﻿namespace MarkdownTests;
 [TestFixture]
 public class CursiveTests
 {
