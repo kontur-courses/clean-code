@@ -78,18 +78,20 @@ namespace Markdown
                 symbolIndex += token.Text.Length - 1;
             }
 
-            var lastSymbol = input[symbolIndex];
-            if (!reservedSymbols.Contains(lastSymbol))
+            Token lastServiceToken = null;
+            if(symbolIndex < input.Length)
             {
-                buffer.Append(lastSymbol);
-                symbolIndex++;
+                var lastSymbol = input[symbolIndex];
+                if (!reservedSymbols.Contains(lastSymbol))
+                    buffer.Append(lastSymbol);
+                else lastServiceToken = ParseServiceToken(lastSymbol, '\0');
             }
 
             if (buffer.Length > 0)
                 tokens.Add(Token.CreateTextToken(buffer.ToString()));
 
-            if (symbolIndex != input.Length)
-                tokens.Add(ParseServiceToken(lastSymbol, '\0'));
+            if (lastServiceToken != null)
+                tokens.Add(lastServiceToken);
 
             return tokens;
         }
