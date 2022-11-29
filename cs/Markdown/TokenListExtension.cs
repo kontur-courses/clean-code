@@ -8,12 +8,12 @@ namespace Markdown
     {
         public static List<Token> ValidateObjectTokens(this List<Token> tokens)
         {
-            return MarkdownTokenAnalyzer.ValidateObjectTokens(tokens);
+            return MarkdownTokenValidator.ValidateObjectTokens(tokens);
         }
 
         public static List<Token> ResolveObjectIntersections(this List<Token> tokens)
         {
-            return MarkdownTokenAnalyzer.ResolveObjectTokenIntersections(tokens);
+            return MarkdownObjectIntersectionResolver.ResolveObjectTokenIntersections(tokens);
         }
     }
 }
