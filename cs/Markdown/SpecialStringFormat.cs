@@ -25,73 +25,78 @@ internal class SpecialStringFormat
     public static SpecialStringFormat getStringFormat(string originalLine)
     {
         var specialStringFormat = new SpecialStringFormat();
-        var sb = new StringBuilder();
-        bool escapeSymbol = false;
-        bool h1 = false;
-        var operationalCharacters = new bool[originalLine.Length + 1];
+        HelperToRender helperToRender = new HelperToRender(originalLine);
         for (int i = 0; i < originalLine.Length; i++)
         {
-            if (escapeSymbol)
+            if (helperToRender.escapeSymbol)
             {
                 if (EscapableCharacters.Contains(originalLine[i]))
                 {
-                    sb.Append(originalLine[i]);
+                    helperToRender.sb.Append(originalLine[i]);
                 }
                 else if (originalLine[i] == '#' && i == 1)
                 {
-                    sb.Append('#');
+                    helperToRender.sb.Append('#');
                 }
                 else
                 {
-                    sb.Append('\\');
-                    sb.Append(originalLine[i]);
+                    helperToRender.sb.Append('\\');
+                    helperToRender.sb.Append(originalLine[i]);
                 }
 
-                escapeSymbol = false;
+                helperToRender.escapeSymbol = false;
             }
             else
             {
-                switch (originalLine[i])
-                {
-                    case '\\':
-                        escapeSymbol = true;
-                        break;
-                    case '_':
-                        if (sb.Length > 0 && operationalCharacters[sb.Length - 1] && sb[^1] == '_') sb[^1] = ';';
-                        else
-                        {
-                            sb.Append('_');
-                            operationalCharacters[sb.Length - 1] = true;
-                        }
-
-                        break;
-                    case '#':
-                        sb.Append('#');
-                        if (i == 0)
-                        {
-                            h1 = true;
-                            operationalCharacters[0] = true;
-                        }
-
-                        break;
-                    default:
-                        sb.Append(originalLine[i]);
-                        break;
-                }
+                helperToRender = CheckPrefix(helperToRender, originalLine, i);
             }
         }
 
-        if (h1)
+        if (helperToRender.h1)
         {
-            sb.Append('#');
-            operationalCharacters[sb.Length - 1] = true;
+            helperToRender.sb.Append('#');
+            helperToRender.operationalCharacters[helperToRender.sb.Length - 1] = true;
         }
 
-        specialStringFormat.ConvertedLine = sb.ToString();
-        specialStringFormat.OperationalCharacters = operationalCharacters;
+        specialStringFormat.ConvertedLine = helperToRender.sb.ToString();
+        specialStringFormat.OperationalCharacters = helperToRender.operationalCharacters;
         return specialStringFormat;
     }
 
+    private static HelperToRender CheckPrefix(HelperToRender helperToRender, string originalLine, int index)
+    {
+        HelperToRender newHelper = helperToRender;
+        switch (originalLine[index])
+        {
+            case '\\':
+                helperToRender.escapeSymbol = true;
+                break;
+            case '_':
+                if (newHelper.sb.Length > 0 && newHelper.operationalCharacters[newHelper.sb.Length - 1] 
+                                         && newHelper.sb[^1] == '_') newHelper.sb[^1] = ';';
+                else
+                {
+                    newHelper.sb.Append('_');
+                    helperToRender.operationalCharacters[newHelper.sb.Length - 1] = true;
+                }
+
+                break;
+            case '#':
+                newHelper.sb.Append('#');
+                if (index == 0)
+                {
+                    helperToRender.h1 = true;
+                    helperToRender.operationalCharacters[0] = true;
+                }
+
+                break;
+            default:
+                newHelper.sb.Append(originalLine[index]);
+                break;
+        }
+
+        return newHelper;
+    }
     public SpecialStringFormat()
     {
     }
