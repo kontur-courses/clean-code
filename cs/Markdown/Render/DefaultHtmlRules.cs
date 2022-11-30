@@ -6,7 +6,8 @@ public static class DefaultHtmlReplaceRules
     {
         return new List<IReplaceRule>()
         {
-            new TagReplaceRule("_", "<em>", "</em>")
+            new TagReplaceRule("_", "<em>", "</em>"),
+            new TagReplaceRule("__", "<strong>", "</strong>"),
         };
     }
 }

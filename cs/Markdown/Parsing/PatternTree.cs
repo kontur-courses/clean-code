@@ -4,30 +4,62 @@ namespace Markdown.Parsing;
 
 public class PatternTree
 {
-    private StateNode currentStateNode;
+    private List<StateNode> currentStateNodes;
 
-    public StateNodeType StateNodeType => currentStateNode.StateNodeType;
 
-    public PatternTree(StateNode rootStateNode)
+    public PatternTree(StateNode rootStateNodes)
     {
-        currentStateNode = rootStateNode;
+        currentStateNodes = new List<StateNode>()
+        {
+            rootStateNodes
+        };
     }
 
+    private PatternTree(List<StateNode> rootStateNodes)
+    {
+        currentStateNodes = rootStateNodes;
+    }
+
+    public List<StateNodeType> GetCurrentStateNodeTypes()
+    {
+        return currentStateNodes.Select(x => x.StateNodeType).ToList();
+    }
 
     public MatchState CheckToken(Token token)
     {
-        var checkResult = currentStateNode.CheckToken!(token);
-        if (checkResult == NodeCheckResult.SuccessToSelf)
+        var children = new List<StateNode>();
+        var states = new List<MatchState>();
+        foreach (var currentNode in currentStateNodes)
         {
-            return MatchState.TokenMatch;
+            var checkResult = currentNode.CheckToken!(token);
+            if (checkResult == NodeCheckResult.SuccessToSelf)
+            {
+                children.Add(currentNode);
+                if (currentNode.ChildNode != null)
+                    children.Add(currentNode.ChildNode);
+
+                states.Add(MatchState.TokenMatch);
+                continue;
+            }
+
+            if (checkResult == NodeCheckResult.Success)
+            {
+                children.Add(currentNode.ChildNode!);
+                states.Add(MatchState.TokenMatch);
+            }
+
+            if (checkResult == NodeCheckResult.NotSuccess)
+            {
+                states.Add(MatchState.NotSuccess);
+            }
         }
 
-        if (checkResult == NodeCheckResult.NotSuccess)
+        currentStateNodes = children;
+
+        if (states.All(x => x == MatchState.NotSuccess))
             return MatchState.NotSuccess;
 
-        currentStateNode = currentStateNode.ChildNode!;
-
-        if (currentStateNode.EndNode)
+        if (children.Any(x => x.EndNode))
             return MatchState.FullMatch;
 
         return MatchState.TokenMatch;
@@ -35,12 +67,18 @@ public class PatternTree
 
     public MatchState CheckFirstState(Token token)
     {
-        var checkResult = currentStateNode.CheckToken!(token);
-        return checkResult == NodeCheckResult.NotSuccess ? MatchState.NotSuccess : MatchState.TokenMatch;
+        foreach (var node in currentStateNodes)
+        {
+            var checkResult = node.CheckToken!(token);
+            if (checkResult != NodeCheckResult.NotSuccess)
+                return MatchState.TokenMatch;
+        }
+
+        return MatchState.NotSuccess;
     }
 
     public PatternTree CopyPatternTree()
     {
-        return new PatternTree(currentStateNode);
+        return new PatternTree(currentStateNodes);
     }
 }

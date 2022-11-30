@@ -20,11 +20,22 @@ public class HtmlMdRenderer : IMdRenderer
     {
         var sbFull = new StringBuilder();
         sbFull.Append("<!doctype html> <html lang=\"en\"> <body>");
-        foreach (var node in objectModel.Nodes)
+        var sbBody = RenderNodesRecursive(objectModel.Nodes);
+        sbFull.Append(sbBody);
+        sbFull.Append("</body> </html>");
+        return sbFull.ToString();
+    }
+
+    private StringBuilder RenderNodesRecursive(List<IDocumentNode> nodes)
+    {
+        var sbFull = new StringBuilder();
+        foreach (var node in nodes)
         {
             if (node is MatchedDocumentNode matchedNode)
             {
-                sbFull.Append(_replaceRules.TryGetValue(matchedNode.TagId, out var tagReplaceRule) ? tagReplaceRule.ApplyRule(matchedNode.GetText()) : node.GetText());
+                var sbChildren = RenderNodesRecursive(matchedNode.ChildNodes);
+
+                sbFull.Append(_replaceRules.TryGetValue(matchedNode.TagId, out var tagReplaceRule) ? tagReplaceRule.ApplyRule(sbChildren.ToString()) : sbChildren.ToString());
             }
             else
             {
@@ -32,7 +43,6 @@ public class HtmlMdRenderer : IMdRenderer
             }
         }
 
-        sbFull.Append("</body> </html>");
-        return sbFull.ToString();
+        return sbFull;
     }
 }

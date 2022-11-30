@@ -1,4 +1,5 @@
-﻿using System.Text;
+﻿using System.Runtime.InteropServices.ComTypes;
+using System.Text;
 
 namespace Markdown.MarkdownDocument;
 
@@ -9,6 +10,8 @@ public class MatchedDocumentNode : IDocumentNode
     private readonly string _tagId;
 
     public string TagId => _tagId;
+
+    public List<IDocumentNode> ChildNodes => _childNodes;
 
     public MatchedDocumentNode(string tagId, List<IDocumentNode> childNodes)
     {

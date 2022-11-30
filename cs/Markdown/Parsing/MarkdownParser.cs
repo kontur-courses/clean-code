@@ -75,6 +75,9 @@ public class MarkdownParser
                 }
             }
 
+            if (!currentToken.IsNull)
+                textSb.Append(currentToken.Symbol);
+
             var fullMatchFound = CheckMatchesInProcess(matches, processMatches, currentToken, out var fullMatch);
             if (fullMatchFound)
             {
@@ -96,9 +99,6 @@ public class MarkdownParser
 
                 textSb = new StringBuilder();
             }
-
-            if (!currentToken.IsNull)
-                textSb.Append(currentToken.Symbol);
         }
 
         if (textSb.Length != 0)
@@ -153,14 +153,14 @@ public class MarkdownParser
     //проверять что не пересекаются
     private static bool NotIntersectWithExist(List<Match> matches, Match matchToCheckState)
     {
-        foreach (var match in matches)
-        {
-            if (match.StartPosition <= matchToCheckState.StartPosition &&
-                match.StartPosition + match.Lenght >= matchToCheckState.StartPosition)
-            {
-                return false;
-            }
-        }
+        // foreach (var match in matches)
+        // {
+        //     if (match.StartPosition <= matchToCheckState.StartPosition &&
+        //         match.StartPosition + match.Lenght >= matchToCheckState.StartPosition)
+        //     {
+        //         return false;
+        //     }
+        // }
 
         return true;
     }

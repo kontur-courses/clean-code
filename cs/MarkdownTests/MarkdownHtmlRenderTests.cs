@@ -18,10 +18,12 @@ public class MarkdownHtmlRenderTests
     public void SetUp()
     {
         var italicTag = new ItalicMdTag();
+        var boldTag = new BoldMdTag();
 
         var mdParser = new MarkdownParser(new List<IMdTag>()
         {
-            italicTag
+            italicTag,
+            boldTag
         });
 
         _md = new Md(mdParser!.Tags.ToList(), new HtmlMdRenderer(DefaultHtmlReplaceRules.CreateDefaultRules()));
@@ -36,5 +38,19 @@ public class MarkdownHtmlRenderTests
     {
         var resultRender = _md!.Render(sourceText);
         resultRender.Should().Contain(matchText);
+    }
+
+    [TestCase("__testfs gdfgsd fgвфыв df__", "<strong>testfs gdfgsd fgвфыв df</strong>", TestName = "Последовательность слов, разделенных пробелами")]
+    public void Parse_BoldTag_RightMatch(string sourceText, string matchText)
+    {
+        var resultRender = _md!.Render(sourceText);
+        resultRender.Should().Contain(matchText);
+    }
+    
+    [Test]
+    public void Parse_ItalicTagInsideBold_NotRightMatch()
+    {
+        var resultRender = _md!.Render("___asdasd___");
+        resultRender.Should().Contain("<strong><em>asdasd</em></strong>");
     }
 }

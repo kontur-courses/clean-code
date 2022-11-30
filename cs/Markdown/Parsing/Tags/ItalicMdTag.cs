@@ -33,23 +33,23 @@ public class ItalicMdTag : GeneralMdTag
             return NodeCheckResult.NotSuccess;
         });
 
-        var middleNodeSecond = new StateNode(lookaheadNode, token =>
+        var firstEnd = new StateNode(lookaheadNode, token =>
         {
             if (token.Symbol == '_')
                 return NodeCheckResult.Success;
 
-            return char.IsLetter(token.Symbol) || char.IsWhiteSpace(token.Symbol)
-                ? NodeCheckResult.SuccessToSelf
-                : NodeCheckResult.NotSuccess;
+            return NodeCheckResult.NotSuccess;
         });
 
-        var middleNodeFirst = new StateNode(middleNodeSecond, token =>
-        {
-            if (token.Symbol == '_')
-                return NodeCheckResult.NotSuccess;
+        var middleNodeThird = new StateNode(firstEnd, token => char.IsLetter(token.Symbol)
+            ? NodeCheckResult.SuccessToSelf
+            : NodeCheckResult.NotSuccess);
 
-            return char.IsLetter(token.Symbol) ? NodeCheckResult.Success : NodeCheckResult.NotSuccess;
-        });
+        var middleNodeSecond = new StateNode(middleNodeThird, token => char.IsLetter(token.Symbol) || token.Symbol == ' '
+            ? NodeCheckResult.SuccessToSelf
+            : NodeCheckResult.NotSuccess);
+
+        var middleNodeFirst = new StateNode(middleNodeSecond, token => char.IsLetter(token.Symbol) ? NodeCheckResult.Success : NodeCheckResult.NotSuccess);
 
         var stateNode = new StateNode(middleNodeFirst, StateNodeType.StartPosition, token => token.Symbol == '_' ? NodeCheckResult.Success : NodeCheckResult.NotSuccess);
 
@@ -70,15 +70,17 @@ public class ItalicMdTag : GeneralMdTag
 
         var lookaheadNode = new StateNode(endNode, StateNodeType.Lookahead, token => token.Symbol == '_' ? NodeCheckResult.NotSuccess : NodeCheckResult.Success);
 
-        var middleNodeSecond = new StateNode(lookaheadNode, token =>
+        var firstEndTag = new StateNode(lookaheadNode, token =>
         {
             if (token.Symbol == '_')
                 return NodeCheckResult.Success;
 
-            return char.IsLetter(token.Symbol)
-                ? NodeCheckResult.SuccessToSelf
-                : NodeCheckResult.NotSuccess;
+            return NodeCheckResult.NotSuccess;
         });
+
+        var middleNodeSecond = new StateNode(firstEndTag, token => char.IsLetter(token.Symbol)
+            ? NodeCheckResult.SuccessToSelf
+            : NodeCheckResult.NotSuccess);
 
         var middleNodeFirst = new StateNode(middleNodeSecond, token =>
         {

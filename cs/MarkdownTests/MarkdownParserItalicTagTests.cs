@@ -71,7 +71,7 @@ public class MarkdownParserItalicTagTests
     [Test]
     public void Parse_ItalicThreeTags_MatchFirst()
     {
-        var matches = _mdParser!.ParseToMatches("_testfgdf_uljkl_");
+        var matches = _mdParser!.ParseToMatches("_testfgdf_uljkl__");
 
         using (new AssertionScope())
         {
@@ -84,6 +84,14 @@ public class MarkdownParserItalicTagTests
     public void Parse_SpaceAfterStartItalicTag_NotRightMatch()
     {
         var matches = _mdParser!.ParseToMatches("_ testfgdf_");
+
+        matches.Count.Should().Be(0);
+    }
+
+    [Test]
+    public void Parse_SpaceBeforeEndItalicTag_NotRightMatch()
+    {
+        var matches = _mdParser!.ParseToMatches("_testfgdf _");
 
         matches.Count.Should().Be(0);
     }
