@@ -1,16 +1,15 @@
 ﻿using Markdown.Interfaces;
 
-namespace Markdown.Morphemes
+namespace Markdown.PairTags
 {
-    public class PrefixHeader : IMorpheme
+    public class OpeningHeader : IPairTag
     {
-        public string View => "#";
+        public string ViewTag => "#";
 
-        public Tags Tag => Tags.Header;
-        
+        public Tag Tag => Tag.Header;
+
         public TagType TagType => TagType.Open;
 
-        public MorphemeType MorphemeType => MorphemeType.Prefix;
 
         public bool CheckForCompliance(string textContext, int position)
         {

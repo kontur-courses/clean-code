@@ -15,34 +15,31 @@ namespace MarkdownTests
         public void Render_ShouldWorkFast()
         {
             var sw = new Stopwatch();
-            var res = new List<TimeSpan>();
-            var render = new HtmlRender();
-            for (var i = 64000; i <= 2048 * 1000; i *= 2)
+            var results = new List<TimeSpan>();
+            var mdRender = new MarkdownRenderer(new HtmlTranslator());
+            for (var length = 64000; length <= 512 * 1000; length *= 2)
             {
-                var text = GetRandomString(i);
+                var text = GetRandomString(length);
                 sw.Start();
-                MarkdownRender.Render(render, text);
+                mdRender.Render(text);
                 sw.Stop();
-                res.Add(sw.Elapsed);
+                results.Add(sw.Elapsed);
                 sw.Reset();
             }
 
-            for (var i = 1; i < res.Count; i++)
-                (res[i].Ticks / res[i - 1].Ticks).Should().BeLessThan(4);
+            for (var i = 1; i < results.Count; i++)
+                (results[i].Ticks / results[i - 1].Ticks).Should().BeLessThan(4);
         }
 
         private string GetRandomString(int length)
         {
-            var variants = new List<string>()
+            var variants = new List<string>
             {
-                " ", "_", "__", "\\", "# ", "#", "a", "b", "c", "d"
+                " ", "_", "__", "\\", "[", "]", "(", ")", "  ", Environment.NewLine, "!"
             };
             var text = new StringBuilder();
             var rnd = new Random();
-            for (var i = 0; i < length; i++)
-            {
-                text.Append(variants[rnd.Next(variants.Count)]);
-            }
+            for (var i = 0; i < length; i++) text.Append(variants[rnd.Next(variants.Count)]);
             return text.ToString();
         }
     }

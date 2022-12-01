@@ -1,17 +1,11 @@
 ﻿namespace Markdown.Interfaces
 {
-    public interface ITag : IWord
+    public interface ITag
     {
-        Tags Tag { get; }
+        Tag Tag { get; }
 
         TagType TagType { get; }
-    }
 
-    public enum TagType
-    {
-        None,
-        Open,
-        Close,
-        Single,
+        public string ViewTag { get; }
     }
 }

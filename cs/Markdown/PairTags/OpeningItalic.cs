@@ -1,16 +1,15 @@
 ﻿using Markdown.Interfaces;
 
-namespace Markdown.Morphemes
+namespace Markdown.PairTags
 {
-    public class PrefixItalic : IMorpheme
+    public class OpeningItalic : IPairTag
     {
-        public string View => "_";
-        
-        public Tags Tag => Tags.Italic;
+        public string ViewTag => "_";
+
+        public Tag Tag => Tag.Italic;
 
         public TagType TagType => TagType.Open;
 
-        public MorphemeType MorphemeType => MorphemeType.Prefix;
 
         public bool CheckForCompliance(string textContext, int position)
         {
@@ -23,8 +22,8 @@ namespace Markdown.Morphemes
             if (textContext[position + 1] == '_')
                 return false;
 
-            if (char.IsDigit(textContext[position + 1]) || position - 1 >= 0
-                && char.IsDigit(textContext[position - 1]))
+            if (char.IsDigit(textContext[position + 1])
+                || (position - 1 >= 0 && char.IsDigit(textContext[position - 1])))
                 return false;
 
             return true;

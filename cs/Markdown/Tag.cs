@@ -1,6 +1,6 @@
 ﻿namespace Markdown
 {
-    public enum Tags
+    public enum Tag
     {
         None,
         Italic,

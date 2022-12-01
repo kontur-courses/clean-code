@@ -1,9 +1,7 @@
 ﻿namespace Markdown.Interfaces
 {
-    public interface IMorpheme : ITag
+    public interface IPairTag : ITag
     {
         bool CheckForCompliance(string textContext, int position);
-
-        MorphemeType MorphemeType { get; }
     }
 }

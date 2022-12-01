@@ -1,15 +1,14 @@
 ﻿using Markdown.Interfaces;
 
-namespace Markdown.Morphemes
+namespace Markdown.PairTags
 {
-    public class PostfixBold : IMorpheme
+    public class ClosingBold : IPairTag
     {
-        public string View => "__";
+        public string ViewTag => "__";
 
-        public Tags Tag => Tags.Bold;
+        public Tag Tag => Tag.Bold;
         public TagType TagType => TagType.Close;
 
-        public MorphemeType MorphemeType => MorphemeType.Postfix;
 
         public bool CheckForCompliance(string textContext, int position)
         {
@@ -22,8 +21,8 @@ namespace Markdown.Morphemes
             if (char.IsWhiteSpace(textContext[position - 1]))
                 return false;
 
-            if (position + 2 < textContext.Length
-                && char.IsDigit(textContext[position + 2]) || (char.IsDigit(textContext[position - 1])))
+            if ((position + 2 < textContext.Length
+                 && char.IsDigit(textContext[position + 2])) || char.IsDigit(textContext[position - 1]))
                 return false;
 
             return true;
