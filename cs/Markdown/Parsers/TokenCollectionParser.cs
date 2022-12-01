@@ -48,7 +48,7 @@ public class TokenCollectionParser : ITokenCollectionParser
     }
 
 
-    public bool TryFlushContextsUntil(out TokenContext resultContext, Func<TokenContext, bool> isStopper)
+    public bool TryFlushContextsUntil(out TokenContext tokenContext, Func<TokenContext, bool> isStopper)
     {
         if (isStopper == null)
         {
@@ -62,14 +62,14 @@ public class TokenCollectionParser : ITokenCollectionParser
             {
                 var node = Tokens.Text(string.Join("", stack)).ToTagNode();
                 context.AddChild(node);
-                resultContext = context;
+                tokenContext = context;
                 return true;
             }
 
             stack.Push(context.ToText());
         }
 
-        resultContext = null!;
+        tokenContext = null!;
         return false;
     }
 
@@ -168,7 +168,7 @@ public class TokenCollectionParser : ITokenCollectionParser
         return contexts.Any(predicate);
     }
 
-    private static IEnumerable<TagNode> CombineTextTagNodes(IEnumerable<TagNode> nodes)
+    private IEnumerable<TagNode> CombineTextTagNodes(IEnumerable<TagNode> nodes)
     {
         var sb = new StringBuilder();
         foreach (var node in nodes)

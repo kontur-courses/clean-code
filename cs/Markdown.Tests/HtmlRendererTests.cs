@@ -11,24 +11,24 @@ namespace Markdown.Tests;
 [FixtureLifeCycle(LifeCycle.InstancePerTestCase)]
 public class HtmlRendererTests
 {
-    private HtmlRenderer sut;
+    private HtmlRenderer renderer;
 
     [SetUp]
     public void SetUp()
     {
-        sut = new HtmlRenderer();
+        renderer = new HtmlRenderer();
     }
 
     [Test]
     public void Render_ShouldThrowException_WhenTokensIsNull()
     {
-        Assert.Throws<ArgumentNullException>(() => sut.Render(null));
+        Assert.Throws<ArgumentNullException>(() => renderer.Render(null));
     }
 
     [Test]
     public void Render_ShouldReturnEmptyString_WhenTokensIsEmpty()
     {
-        var html = sut.Render(Array.Empty<TagNode>());
+        var html = renderer.Render(Array.Empty<TagNode>());
 
         html.Should().Be(string.Empty);
     }
@@ -38,7 +38,7 @@ public class HtmlRendererTests
     {
         var node = Tags.Text("Text").ToTagNode();
 
-        var html = sut.Render(new[] { node });
+        var html = renderer.Render(new[] { node });
 
         html.Should().Be("Text");
     }
@@ -48,7 +48,7 @@ public class HtmlRendererTests
     {
         var node = new TagNode(Tags.Italic(Tokens.Italic.Value), Tags.Text("Text").ToTagNode());
 
-        var html = sut.Render(new[] { node });
+        var html = renderer.Render(new[] { node });
 
         html.Should().Be("<em>Text</em>");
     }
@@ -58,7 +58,7 @@ public class HtmlRendererTests
     {
         var node = new TagNode(Tags.Bold(Tokens.Bold.Value), Tags.Text("Text").ToTagNode());
 
-        var html = sut.Render(new[] { node });
+        var html = renderer.Render(new[] { node });
 
         html.Should().Be("<strong>Text</strong>");
     }
@@ -68,7 +68,7 @@ public class HtmlRendererTests
     {
         var node = new TagNode(Tags.Header1(Tokens.Header1.Value), Tags.Text("Text").ToTagNode());
 
-        var html = sut.Render(new[] { node });
+        var html = renderer.Render(new[] { node });
 
         html.Should().Be("<h1>Text</h1>");
     }
@@ -83,7 +83,7 @@ public class HtmlRendererTests
             Tags.Text("C").ToTagNode()
         });
 
-        var html = sut.Render(new[] { node });
+        var html = renderer.Render(new[] { node });
 
         html.Should().Be("<h1>A<em>Italic</em>C</h1>");
     }
@@ -93,7 +93,7 @@ public class HtmlRendererTests
     {
         var node = new TagNode(Tags.Link("link"), Tags.Text("Text").ToTagNode());
 
-        var html = sut.Render(new[] { node });
+        var html = renderer.Render(new[] { node });
 
         html.Should().Be("<a href=\"link\">Text</a>");
     }

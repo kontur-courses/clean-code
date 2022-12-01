@@ -5,7 +5,7 @@ namespace Markdown;
 
 public class Tokenizer : ITokenizer
 {
-    private static HashSet<char> _specials = new HashSet<char>
+    private static HashSet<char> _specialSymbols = new HashSet<char>
     {
         Characters.Underline,
         Characters.NewLine,
@@ -74,9 +74,9 @@ public class Tokenizer : ITokenizer
 
     private Token TokenizeText()
     {
-        int start = currentIndex;
-        int end = currentIndex + 1;
-        while (end < text.Length && !_specials.Contains(text[end]))
+        var start = currentIndex;
+        var end = currentIndex + 1;
+        while (end < text.Length && !_specialSymbols.Contains(text[end]))
         {
             end++;
         }
