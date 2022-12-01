@@ -68,9 +68,8 @@ public class EmTokenizator : Tokenizator
             if (i != 0
                 && i + CloseTag.Length - 1 < mdstring.Length
                 && mdstring[i - 1] != ' '
-                && (i == mdstring.Length - CloseTag.Length
-                    && mdstring.Substring(i, CloseTag.Length) == CloseTag
-                    || mdstring.Substring(i, CloseTag.Length + 1) == CloseTag + " ")
+                && (mdstring.Substring(i, CloseTag.Length) == CloseTag
+                    && (i == mdstring.Length - CloseTag.Length || mdstring[i + CloseTag.Length] == ' '))
                 && !Contains(i, CloseTag.Length))
             {
                 var j = stack.Pop();

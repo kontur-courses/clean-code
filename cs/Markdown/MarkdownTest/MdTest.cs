@@ -25,17 +25,19 @@ public class MdTest
     [TestCase("_a _bc_ _bc_ d_", "<em>a <em>bc</em> <em>bc</em> d</em>", TestName = "NestedTags")]
     public void EmTagTest(string mdstring, string result)
     {
-        // md.Render(mdstring)
-        //     .Should()
-        //     .Be(result);
+        md.Render(mdstring)
+            .Should()
+            .Be(result);
+        md = new Md();
         md.Render(" " + mdstring)
             .Should()
             .Be(" " + result);
-        // md.Render(mdstring+" ")
-        //     .Should()
-        //     .Be(result+" ");
-        // md.Render(" "+mdstring+" ")
-        //     .Should()
-        //     .Be(" "+result+" ");
+        md = new Md();
+        md.Render(mdstring + " ")
+            .Should()
+            .Be(result + " ");
+        md.Render(" " + mdstring + " ")
+            .Should()
+            .Be(" " + result + " ");
     }
 }

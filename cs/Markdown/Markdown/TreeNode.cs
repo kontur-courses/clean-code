@@ -124,7 +124,7 @@ public class TreeNode : IComparable
             i = child.RightBorder + 1;
         }
 
-        if (i <= RightBorder - Tag.CloseMdTag.Length - 1)
+        if (i <= RightBorder - Tag.CloseMdTag.Length)
             newChildrenTokens.Add(new TagToken(i, RightBorder - Tag.CloseMdTag.Length, new EmptyTag()));
 
         foreach (var token in newChildrenTokens)
