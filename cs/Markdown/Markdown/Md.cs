@@ -15,7 +15,11 @@ public class Md
     {
         var result = new List<TagToken>();
         // string tokenization
-        result.AddRange(new EmTokenizator().Tokenize(mdstring));
+        var strongTokenizator = new StrongTokenizator();
+        result.AddRange(strongTokenizator.Tokenize(mdstring));
+        var emTokenizator = new EmTokenizator(strongTokenizator.UsedIndexes);
+        result.AddRange(emTokenizator.Tokenize(mdstring));
+
         return result;
     }
 }

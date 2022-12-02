@@ -2,21 +2,26 @@
 
 public class SimpleTagTokenizator : Tokenizator
 {
-    private HashSet<int> usedIndexes;
+    public HashSet<int> UsedIndexes { get; set; }
     private List<TagToken> result;
     public virtual string OpenTag => throw new Exception("MD tag not specified");
     public virtual string CloseTag => throw new Exception("MD tag not specified");
+    public virtual Tag Tag => throw new Exception("Tag not specified");
 
     public SimpleTagTokenizator()
     {
+        UsedIndexes = new();
+        result = new();
     }
 
-    public SimpleTagTokenizator(HashSet<int> usedIndexes) => this.usedIndexes = usedIndexes;
+    public SimpleTagTokenizator(HashSet<int> usedIndexes)
+    {
+        UsedIndexes = usedIndexes;
+        result = new();
+    }
 
     public List<TagToken> Tokenize(string mdstring)
     {
-        result = new();
-        usedIndexes = new();
         var words = mdstring.Split();
         var startIndex = 0;
         foreach (var word in words)
@@ -37,21 +42,35 @@ public class SimpleTagTokenizator : Tokenizator
         while (true)
         {
             i = word.IndexOf(OpenTag, i);
+            while (UsedIndexes.Contains(startIndex + i))
+            {
+                i = word.IndexOf(OpenTag, i + 1);
+                if (i == -1)
+                    break;
+            }
+
             if (i == -1)
                 break;
             j = word.IndexOf(CloseTag, i + 1);
+            while (UsedIndexes.Contains(startIndex + j))
+            {
+                j = word.IndexOf(CloseTag, j + 1);
+                if (j == -1)
+                    break;
+            }
+
             if (j == -1)
                 break;
             if (j - i == 1)
             {
-                i = j;
+                i = j + 1;
                 continue;
             }
 
             result.Add(new TagToken(
                 startIndex + i,
                 startIndex + j + CloseTag.Length - 1,
-                new EmTag()));
+                Tag));
             UpdateUsedIndexes(startIndex + i, startIndex + j);
             i = j + 1;
         }
@@ -76,7 +95,8 @@ public class SimpleTagTokenizator : Tokenizator
                 && mdstring[i - 1] != ' '
                 && (mdstring.Substring(i, CloseTag.Length) == CloseTag
                     && (i == mdstring.Length - CloseTag.Length || mdstring[i + CloseTag.Length] == ' '))
-                && !Contains(i, CloseTag.Length))
+                && !Contains(i, CloseTag.Length)
+                && stack.Count > 0)
             {
                 var j = stack.Pop();
                 if (i - j == 1)
@@ -84,7 +104,7 @@ public class SimpleTagTokenizator : Tokenizator
                 result.Add(new TagToken(
                     j,
                     i + CloseTag.Length - 1,
-                    new EmTag()));
+                    Tag));
                 UpdateUsedIndexes(j, i);
             }
         }
@@ -93,16 +113,16 @@ public class SimpleTagTokenizator : Tokenizator
     public void UpdateUsedIndexes(int openTagIndex, int closeTagIndex)
     {
         for (int i = 0; i < OpenTag.Length; i++)
-            usedIndexes.Add(openTagIndex + i);
-        for (int i = 0; i < OpenTag.Length; i++)
-            usedIndexes.Add(closeTagIndex + i);
+            UsedIndexes.Add(openTagIndex + i);
+        for (int i = 0; i < CloseTag.Length; i++)
+            UsedIndexes.Add(closeTagIndex + i);
     }
 
     public bool Contains(int i, int tagLength)
     {
         for (int j = 0; j < tagLength; j++)
         {
-            if (usedIndexes.Contains(i + j))
+            if (UsedIndexes.Contains(i + j))
                 return true;
         }
 
