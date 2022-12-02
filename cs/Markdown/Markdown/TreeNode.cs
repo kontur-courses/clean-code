@@ -90,7 +90,10 @@ public class TreeNode : IComparable
         if (left == LeftBorder && right == RightBorder)
         {
             token.tag = tag;
-            return true;
+            if (TokenTree.Rule.NodeMayBeAdded(this))
+                return true;
+            token.tag = new EmptyTag();
+            return false;
         }
 
         //Если лист

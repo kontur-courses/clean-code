@@ -18,6 +18,7 @@ public class MdTest
     [TestCase("a", "a", TestName = "TextWithoutTag")]
     [TestCase("_", "_", TestName = "SingleTag")]
     [TestCase("__", "__", TestName = "TwoUnderscores")]
+    [TestCase("_1_", "_1_", TestName = "ContainNumbersTest")]
     [TestCase("_a_", "<em>a</em>", TestName = "OneEmTag")]
     [TestCase("_a_ _b_", "<em>a</em> <em>b</em>", TestName = "TwoEmTags")]
     [TestCase("_a__b_", "<em>a</em><em>b</em>", TestName = "TwoEmTagsWithoutSpace")]
@@ -41,7 +42,8 @@ public class MdTest
             .Be(" " + result + " ");
     }
 
-    [TestCase("__a__", "<strong>a</strong>")]
+
+    [TestCase("__a__", "<strong>a</strong>", TestName = "OneStrongTags")]
     [TestCase("__a__ __b__", "<strong>a</strong> <strong>b</strong>", TestName = "TwoStrongTags")]
     [TestCase("__a____b__", "<strong>a</strong><strong>b</strong>", TestName = "TwoStrongTagWithoutSpaces")]
     [TestCase("__a__ __b__ __c__", "<strong>a</strong> <strong>b</strong> <strong>c</strong>",

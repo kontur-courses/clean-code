@@ -45,12 +45,9 @@ public class TokenInteractionRule
         while (parent != null)
         {
             var parentTagType = parent.Tag.GetType();
-            if (shouldNotContain.ContainsKey(parentTagType))
-            {
-                if (shouldNotContain[parentTagType] == nodeTagType)
-                    return false;
-            }
-
+            if (shouldNotContain.ContainsKey(parentTagType)
+                && shouldNotContain[parentTagType] == nodeTagType)
+                return false;
             parent = parent.Parent;
         }
 
