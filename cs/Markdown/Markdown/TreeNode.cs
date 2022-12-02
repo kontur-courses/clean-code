@@ -7,7 +7,13 @@ public class TreeNode : IComparable
     private TagToken token;
     public int LeftBorder => token.leftBorder;
     public int RightBorder => token.rightBorder;
-    public Tag Tag => token.tag;
+
+    public Tag Tag
+    {
+        get => token.tag;
+        set => token.tag = value;
+    }
+
     public string body;
 
     public TreeNode Parent { get; private set; }
@@ -118,6 +124,16 @@ public class TreeNode : IComparable
         if (canAddAsChildToCurrentNode)
         {
             return TryAddChild(new TagToken(left, right, tag));
+        }
+
+        //Если пересекается с несколькими нодами
+        var intersections = children
+            .Where(node => (node.LeftBorder < left && left < node.RightBorder)
+                           || (node.LeftBorder < right && right < node.RightBorder));
+        if (intersections.Count() > 0)
+        {
+            foreach (var node in intersections)
+                node.Tag = new EmptyTag();
         }
 
         //Во всех остальных случаях

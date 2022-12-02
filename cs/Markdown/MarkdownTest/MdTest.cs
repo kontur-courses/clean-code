@@ -42,7 +42,7 @@ public class MdTest
             .Be(" " + result + " ");
     }
 
-
+    [TestCase("____", "____", TestName = "OnlyUnderscores")]
     [TestCase("__a__", "<strong>a</strong>", TestName = "OneStrongTags")]
     [TestCase("__a__ __b__", "<strong>a</strong> <strong>b</strong>", TestName = "TwoStrongTags")]
     [TestCase("__a____b__", "<strong>a</strong><strong>b</strong>", TestName = "TwoStrongTagWithoutSpaces")]
@@ -68,10 +68,22 @@ public class MdTest
 
     [TestCase("__a _b_ c__", "<strong>a <em>b</em> c</strong>")]
     [TestCase("_a __b__ c_", "<em>a __b__ c</em>")]
+    [TestCase("__a _b__ c_", "__a _b__ c_")]
     public void TagInteractionTest(string mdstring, string result)
     {
         md.Render(mdstring)
             .Should()
             .Be(result);
+        md = new Md();
+        md.Render(" " + mdstring)
+            .Should()
+            .Be(" " + result);
+        md = new Md();
+        md.Render(mdstring + " ")
+            .Should()
+            .Be(result + " ");
+        md.Render(" " + mdstring + " ")
+            .Should()
+            .Be(" " + result + " ");
     }
 }

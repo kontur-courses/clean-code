@@ -51,7 +51,7 @@ public class SimpleTagTokenizator : Tokenizator
 
             if (i == -1)
                 break;
-            j = word.IndexOf(CloseTag, i + 1);
+            j = word.IndexOf(CloseTag, i + OpenTag.Length);
             while (UsedIndexes.Contains(startIndex + j))
             {
                 j = word.IndexOf(CloseTag, j + 1);
@@ -61,9 +61,10 @@ public class SimpleTagTokenizator : Tokenizator
 
             if (j == -1)
                 break;
-            if (j - i == 1)
+            if (j - i == OpenTag.Length)
             {
                 i = j + 1;
+                UpdateUsedIndexes(i, j);
                 continue;
             }
 
@@ -99,8 +100,12 @@ public class SimpleTagTokenizator : Tokenizator
                 && stack.Count > 0)
             {
                 var j = stack.Pop();
-                if (i - j == 1)
+                if (i - j == OpenTag.Length)
+                {
+                    UpdateUsedIndexes(j, i);
                     continue;
+                }
+
                 result.Add(new TagToken(
                     j,
                     i + CloseTag.Length - 1,
