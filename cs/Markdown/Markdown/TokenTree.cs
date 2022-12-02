@@ -8,7 +8,6 @@ public class TokenTree
 {
     public TreeNode Root { get; private set; }
 
-    //TODO: правила взаимодействия теггов
     public static TokenInteractionRule Rule { get; private set; }
 
     public TokenTree(string mdstring) : this(mdstring, new TokenInteractionRule())

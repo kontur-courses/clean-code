@@ -7,7 +7,8 @@ public class Md
     public string Render(string mdstring)
     {
         var rule = new TokenInteractionRule()
-            .TagShouldNotContainContent<EmTag>(new[] { "0", "1", "2", "3", "4", "5", "6", "7", "8", "9" });
+            .TagShouldNotContainContent<EmTag>("0123456789")
+            .TagShouldNotBeContainedAnother<EmTag, StrongTag>();
         tree = new TokenTree(mdstring, rule);
         tree.AddTokens(Tokenize(mdstring));
         return tree.ToHTMLString();

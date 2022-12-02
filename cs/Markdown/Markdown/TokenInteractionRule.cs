@@ -2,8 +2,8 @@
 
 public class TokenInteractionRule
 {
-    private Dictionary<Tag, Tag> shouldNotContain;
-    private Dictionary<Tag, string[]> shouldNotContainContent;
+    private Dictionary<Type, Type> shouldNotContain;
+    private Dictionary<Type, string[]> shouldNotContainContent;
 
     public TokenInteractionRule()
     {
@@ -15,16 +15,19 @@ public class TokenInteractionRule
         where ParentTag : Tag, new()
         where ChildTag : Tag, new()
     {
-        shouldNotContain.Add(new ParentTag(), new ChildTag());
+        shouldNotContain.Add(typeof(ParentTag), typeof(ChildTag));
         return this;
     }
 
     public TokenInteractionRule TagShouldNotContainContent<T>(string[] content)
         where T : Tag, new()
     {
-        shouldNotContainContent[new T()] = content;
+        shouldNotContainContent[typeof(T)] = content;
         return this;
     }
+
+    public TokenInteractionRule TagShouldNotContainContent<T>(string content)
+        where T : Tag, new() => TagShouldNotContainContent<T>(content.Select(c => c.ToString()).ToArray());
 
     public bool NodeMayBeAdded(TreeNode node)
     {
@@ -38,11 +41,16 @@ public class TokenInteractionRule
         if (shouldNotContain.Count == 0)
             return true;
         var parent = node.Parent;
+        var nodeTagType = node.Tag.GetType();
         while (parent != null)
         {
-            if (shouldNotContain.ContainsKey(parent.Tag)
-                && shouldNotContain[parent.Tag] == node.Tag)
-                return false;
+            var parentTagType = parent.Tag.GetType();
+            if (shouldNotContain.ContainsKey(parentTagType))
+            {
+                if (shouldNotContain[parentTagType] == nodeTagType)
+                    return false;
+            }
+
             parent = parent.Parent;
         }
 
@@ -53,8 +61,8 @@ public class TokenInteractionRule
     {
         if (shouldNotContainContent.Count == 0)
             return true;
-        var tag = node.Tag;
-        return !(shouldNotContainContent.ContainsKey(tag)
-                 && shouldNotContainContent[tag].Any(s => node.TaglessBody.Contains(s)));
+        var tagType = node.Tag.GetType();
+        return !(shouldNotContainContent.ContainsKey(tagType)
+                 && shouldNotContainContent[tagType].Any(s => node.TaglessBody.Contains(s)));
     }
 }

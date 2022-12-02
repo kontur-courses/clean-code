@@ -28,7 +28,7 @@ public class TreeNode : IComparable
             }
             else
             {
-                AddEmptyNodes();
+                AddEmptyNodesAndSort();
                 var builder = new StringBuilder();
                 foreach (var child in children)
                     builder.Append(child.MdTaggedBody);
@@ -121,7 +121,7 @@ public class TreeNode : IComparable
         return false;
     }
 
-    private void AddEmptyNodes()
+    private void AddEmptyNodesAndSort()
     {
         children.Sort();
         int i = LeftBorder + Tag.OpenMdTag.Length;

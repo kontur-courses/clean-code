@@ -63,4 +63,13 @@ public class MdTest
             .Should()
             .Be(" " + result + " ");
     }
+
+    [TestCase("__a _b_ c__", "<strong>a <em>b</em> c</strong>")]
+    [TestCase("_a __b__ c_", "<em>a __b__ c</em>")]
+    public void TagInteractionTest(string mdstring, string result)
+    {
+        md.Render(mdstring)
+            .Should()
+            .Be(result);
+    }
 }
