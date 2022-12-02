@@ -26,35 +26,13 @@ public class MdTest
     [TestCase("_a _bc_ _bc_ d_", "<em>a <em>bc</em> <em>bc</em> d</em>", TestName = "NestedTags")]
     public void EmTagTest(string mdstring, string result)
     {
-        md.Render(mdstring)
-            .Should()
-            .Be(result);
-        md.Render(" " + mdstring)
-            .Should()
-            .Be(" " + result);
-        md.Render(mdstring + " ")
-            .Should()
-            .Be(result + " ");
-        md.Render(" " + mdstring + " ")
-            .Should()
-            .Be(" " + result + " ");
+        TestMd(mdstring, result);
     }
 
     [TestCase("#asd\n", "<h1>asd</h1>")]
     public void HeaderTagTest(string mdstring, string result)
     {
-        md.Render(mdstring)
-            .Should()
-            .Be(result);
-        md.Render(" " + mdstring)
-            .Should()
-            .Be(" " + result);
-        md.Render(mdstring + " ")
-            .Should()
-            .Be(result + " ");
-        md.Render(" " + mdstring + " ")
-            .Should()
-            .Be(" " + result + " ");
+        TestMd(mdstring, result);
     }
 
     [TestCase("____", "____", TestName = "OnlyUnderscores")]
@@ -65,18 +43,7 @@ public class MdTest
         TestName = "ThreeStrongTags")]
     public void StrongTagTest(string mdstring, string result)
     {
-        md.Render(mdstring)
-            .Should()
-            .Be(result);
-        md.Render(" " + mdstring)
-            .Should()
-            .Be(" " + result);
-        md.Render(mdstring + " ")
-            .Should()
-            .Be(result + " ");
-        md.Render(" " + mdstring + " ")
-            .Should()
-            .Be(" " + result + " ");
+        TestMd(mdstring, result);
     }
 
     [TestCase("__a_", "__a_", TestName = "NonPairTags")]
@@ -85,6 +52,11 @@ public class MdTest
     [TestCase("__a _b__ c_", "__a _b__ c_", TestName = "TagsIntersection")]
     [TestCase("#_a_ __b__\n", "<h1><em>a</em> <strong>b</strong></h1>", TestName = "TagsInHeaderTag")]
     public void TagInteractionTest(string mdstring, string result)
+    {
+        TestMd(mdstring, result);
+    }
+
+    public void TestMd(string mdstring, string result)
     {
         md.Render(mdstring)
             .Should()
