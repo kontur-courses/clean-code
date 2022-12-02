@@ -29,11 +29,9 @@ public class MdTest
         md.Render(mdstring)
             .Should()
             .Be(result);
-        md = new Md();
         md.Render(" " + mdstring)
             .Should()
             .Be(" " + result);
-        md = new Md();
         md.Render(mdstring + " ")
             .Should()
             .Be(result + " ");
@@ -53,11 +51,9 @@ public class MdTest
         md.Render(mdstring)
             .Should()
             .Be(result);
-        md = new Md();
         md.Render(" " + mdstring)
             .Should()
             .Be(" " + result);
-        md = new Md();
         md.Render(mdstring + " ")
             .Should()
             .Be(result + " ");
@@ -66,19 +62,18 @@ public class MdTest
             .Be(" " + result + " ");
     }
 
-    [TestCase("__a _b_ c__", "<strong>a <em>b</em> c</strong>")]
-    [TestCase("_a __b__ c_", "<em>a __b__ c</em>")]
-    [TestCase("__a _b__ c_", "__a _b__ c_")]
+    [TestCase("__a_", "__a_", TestName = "NonPairTags")]
+    [TestCase("__a _b_ c__", "<strong>a <em>b</em> c</strong>", TestName = "EmInStrong")]
+    [TestCase("_a __b__ c_", "<em>a __b__ c</em>", TestName = "StrongImEm")]
+    [TestCase("__a _b__ c_", "__a _b__ c_", TestName = "TagsIntersection")]
     public void TagInteractionTest(string mdstring, string result)
     {
         md.Render(mdstring)
             .Should()
             .Be(result);
-        md = new Md();
         md.Render(" " + mdstring)
             .Should()
             .Be(" " + result);
-        md = new Md();
         md.Render(mdstring + " ")
             .Should()
             .Be(result + " ");

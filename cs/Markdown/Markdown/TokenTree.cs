@@ -34,29 +34,4 @@ public class TokenTree
     {
         return Root.MdTaggedBody;
     }
-
-    public TreeNode FindParent(TreeNode node)
-    {
-        if (node == Root)
-            return null;
-        foreach (var n in AllNodes())
-        {
-            if (n.Children.Contains(n))
-                return n;
-        }
-
-        return null;
-    }
-
-    public IEnumerable<TreeNode> AllNodes() => AllNodes(Root);
-
-    public IEnumerable<TreeNode> AllNodes(TreeNode node)
-    {
-        foreach (var n in node.Children)
-        {
-            yield return n;
-            foreach (var n1 in AllNodes(n))
-                yield return n1;
-        }
-    }
 }

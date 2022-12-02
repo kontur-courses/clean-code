@@ -63,8 +63,8 @@ public class SimpleTagTokenizator : Tokenizator
                 break;
             if (j - i == OpenTag.Length)
             {
+                UpdateUsedIndexes(startIndex + i, startIndex + j);
                 i = j + 1;
-                UpdateUsedIndexes(i, j);
                 continue;
             }
 
