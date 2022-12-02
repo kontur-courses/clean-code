@@ -22,6 +22,8 @@ public class Md
         result.AddRange(strongTokenizator.Tokenize(mdstring));
         var emTokenizator = new EmTokenizator(strongTokenizator.UsedIndexes);
         result.AddRange(emTokenizator.Tokenize(mdstring));
+        var headerTokenizator = new HeaderTokenizator();
+        result.AddRange(headerTokenizator.Tokenize(mdstring));
 
         return result;
     }

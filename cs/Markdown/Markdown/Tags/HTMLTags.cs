@@ -11,3 +11,9 @@ public static class HTMLStrongTag
     public static string OpenHTMLTag => "<strong>";
     public static string CloseHTMLTag => "</strong>";
 }
+
+public static class HTMLHeaderTag
+{
+    public static string OpenHTMLTag => "<h1>";
+    public static string CloseHTMLTag => "</h1>";
+}

@@ -40,6 +40,23 @@ public class MdTest
             .Be(" " + result + " ");
     }
 
+    [TestCase("#asd\n", "<h1>asd</h1>")]
+    public void HeaderTagTest(string mdstring, string result)
+    {
+        md.Render(mdstring)
+            .Should()
+            .Be(result);
+        md.Render(" " + mdstring)
+            .Should()
+            .Be(" " + result);
+        md.Render(mdstring + " ")
+            .Should()
+            .Be(result + " ");
+        md.Render(" " + mdstring + " ")
+            .Should()
+            .Be(" " + result + " ");
+    }
+
     [TestCase("____", "____", TestName = "OnlyUnderscores")]
     [TestCase("__a__", "<strong>a</strong>", TestName = "OneStrongTags")]
     [TestCase("__a__ __b__", "<strong>a</strong> <strong>b</strong>", TestName = "TwoStrongTags")]
@@ -66,6 +83,7 @@ public class MdTest
     [TestCase("__a _b_ c__", "<strong>a <em>b</em> c</strong>", TestName = "EmInStrong")]
     [TestCase("_a __b__ c_", "<em>a __b__ c</em>", TestName = "StrongImEm")]
     [TestCase("__a _b__ c_", "__a _b__ c_", TestName = "TagsIntersection")]
+    [TestCase("#_a_ __b__\n", "<h1><em>a</em> <strong>b</strong></h1>", TestName = "TagsInHeaderTag")]
     public void TagInteractionTest(string mdstring, string result)
     {
         md.Render(mdstring)

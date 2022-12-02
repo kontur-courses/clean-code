@@ -1,12 +1,13 @@
 ﻿namespace Markdown;
 
-public class SimpleTagTokenizator : Tokenizator
+public class SimpleTagTokenizator : ITokenizator
 {
     public HashSet<int> UsedIndexes { get; set; }
     private List<TagToken> result;
-    public virtual string OpenTag => throw new Exception("MD tag not specified");
-    public virtual string CloseTag => throw new Exception("MD tag not specified");
     public virtual Tag Tag => throw new Exception("Tag not specified");
+    public string OpenTag => Tag.CloseMdTag;
+    public string CloseTag => Tag.CloseMdTag;
+
 
     public SimpleTagTokenizator()
     {

@@ -10,7 +10,5 @@ public class EmTokenizator : SimpleTagTokenizator
     {
     }
 
-    public override string OpenTag => MarkdownEmTag.OpenMdTag;
-    public override string CloseTag => MarkdownEmTag.CloseMdTag;
     public override Tag Tag => new EmTag();
 }
