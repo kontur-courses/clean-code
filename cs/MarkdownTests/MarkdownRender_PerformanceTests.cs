@@ -8,7 +8,6 @@ using NUnit.Framework;
 
 namespace MarkdownTests
 {
-    //TODO add tests
     public class MarkdownRender_PerformanceTests
     {
         [Test]

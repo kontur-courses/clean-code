@@ -19,7 +19,6 @@ namespace Markdown
 
         private static readonly HashSet<char> SpecialSymbols = new() { '#', '_', '(', ')', '[', ']', '!' };
 
-        //TODO refactoring
         public static List<ITag> SplitWordIntoTags(string word)
         {
             var result = new List<ITag>();
@@ -40,7 +39,6 @@ namespace Markdown
 
             return AnalyzerSequence.AnalyzeWord(result);
         }
-
 
         private static (ITag tag, int EndIndex) DefineMorpheme(string context, int position, ITag lastPrefix)
         {

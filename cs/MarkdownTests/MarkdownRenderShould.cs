@@ -4,7 +4,6 @@ using NUnit.Framework;
 
 namespace MarkdownTests
 {
-    //TODO refactoring test: delete ReturnTextWhenNoTags and divide tests into subgroups
     public class MarkdownRenderShould
     {
         [Test]

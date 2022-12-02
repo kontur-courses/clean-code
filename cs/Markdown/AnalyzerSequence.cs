@@ -20,6 +20,35 @@ namespace Markdown
             return AnalyzeSequence(word);
         }
 
+        public static List<ITag> AnalyzeSequence(IReadOnlyList<ITag> sequence)
+        {
+            var openTagIndexes = new Stack<int>();
+            var resultSequence = new List<ITag>();
+
+            for (var i = 0; i < sequence.Count; i++)
+            {
+                if ((sequence[i].TagType == TagType.Close && !IsTagHasBeenOpened(sequence, sequence[i], openTagIndexes))
+                    || IsBoldTagInItalicTag(sequence, openTagIndexes, i)
+                    || (sequence[i].TagType == TagType.Open && sequence[i].Tag == Tag.Header && i != 0))
+                {
+                    resultSequence.Add(new Word(sequence[i].ViewTag));
+                    if (!IsBoldTagInItalicTag(sequence, openTagIndexes, i) &&
+                        !IsTagHasBeenOpened(sequence, sequence[i], openTagIndexes))
+                        BreakNoCloseTag(resultSequence, openTagIndexes);
+                    continue;
+                }
+
+                if (sequence[i].TagType == TagType.Open)
+                    openTagIndexes.Push(i);
+                if (sequence[i].TagType == TagType.Close)
+                    openTagIndexes.Pop();
+                resultSequence.Add(sequence[i]);
+            }
+
+            BreakNoCloseTag(resultSequence, openTagIndexes);
+            return resultSequence;
+        }
+
         private static bool IsHeader(IReadOnlyList<ITag> word)
         {
             return word.Count == 1 && word[0].Tag == Tag.Header;
@@ -69,35 +98,6 @@ namespace Markdown
             var set = new HashSet<int>(Enumerable.Range(0, open.Count));
 
             return open.Select(i => set.Contains(i)).All(b => b);
-        }
-
-        public static List<ITag> AnalyzeSequence(IReadOnlyList<ITag> sequence)
-        {
-            var openTagIndexes = new Stack<int>();
-            var result = new List<ITag>();
-
-            for (var i = 0; i < sequence.Count; i++)
-            {
-                if ((sequence[i].TagType == TagType.Close && !IsTagHasBeenOpened(sequence, sequence[i], openTagIndexes))
-                    || IsBoldTagInItalicTag(sequence, openTagIndexes, i)
-                    || (sequence[i].TagType == TagType.Open && sequence[i].Tag == Tag.Header && i != 0))
-                {
-                    result.Add(new Word(sequence[i].ViewTag));
-                    if (!IsBoldTagInItalicTag(sequence, openTagIndexes, i) &&
-                        !IsTagHasBeenOpened(sequence, sequence[i], openTagIndexes))
-                        BreakNoCloseTag(result, openTagIndexes);
-                    continue;
-                }
-
-                if (sequence[i].TagType == TagType.Open)
-                    openTagIndexes.Push(i);
-                if (sequence[i].TagType == TagType.Close)
-                    openTagIndexes.Pop();
-                result.Add(sequence[i]);
-            }
-
-            BreakNoCloseTag(result, openTagIndexes);
-            return result;
         }
 
         private static bool IsSequenceConsistsOnlyTags(IReadOnlyList<ITag> word)
