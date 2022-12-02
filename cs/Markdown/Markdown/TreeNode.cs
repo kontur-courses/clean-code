@@ -10,8 +10,12 @@ public class TreeNode : IComparable
     public Tag Tag => token.tag;
     public string body;
 
+    public TreeNode Parent { get; private set; }
     private List<TreeNode> children = new();
     public List<TreeNode> Children => children;
+
+    public string TaglessBody => body.Substring(Tag.OpenMdTag.Length,
+        body.Length - Tag.CloseMdTag.Length - Tag.OpenMdTag.Length);
 
     public string MdTaggedBody
     {
@@ -20,8 +24,7 @@ public class TreeNode : IComparable
             string s;
             if (IsLeaf)
             {
-                s = body.Substring(Tag.OpenMdTag.Length,
-                    body.Length - Tag.CloseMdTag.Length - Tag.OpenMdTag.Length);
+                s = TaglessBody;
             }
             else
             {
@@ -40,32 +43,45 @@ public class TreeNode : IComparable
 
     public bool IsLeaf => children.Count() == 0;
 
-    public TreeNode(TagToken token, string body)
+    public TreeNode(TreeNode parent, TagToken token, string body)
     {
+        Parent = parent;
         this.token = token;
         this.body = body;
     }
 
+    public TreeNode(TreeNode parent, int leftBorder, int rightBorder, Tag tag, string body) : this(
+        parent, new TagToken(leftBorder, rightBorder, tag), body)
+    {
+    }
+
     public TreeNode(int leftBorder, int rightBorder, Tag tag, string body) : this(
-        new TagToken(leftBorder, rightBorder, tag), body)
+        null, new TagToken(leftBorder, rightBorder, tag), body)
     {
     }
 
     public bool TryAddToken(TagToken token) => TryAddToken(token.leftBorder, token.rightBorder, token.tag);
 
-    public void AddChild(TagToken token) =>
-        AddChild(token.leftBorder, token.rightBorder, token.tag);
+    public bool TryAddChild(TagToken token) =>
+        TryAddChild(token.leftBorder, token.rightBorder, token.tag);
 
-    private void AddChild(int leftBorder, int rightBorder, Tag tag)
+    private bool TryAddChild(int leftBorder, int rightBorder, Tag tag)
     {
         var newNode = new TreeNode(
+            this,
             leftBorder,
             rightBorder,
             tag,
             body.Substring(
                 leftBorder - LeftBorder,
                 rightBorder - leftBorder + 1));
-        children.Add(newNode);
+        if (TokenTree.Rule.NodeMayBeAdded(newNode))
+        {
+            children.Add(newNode);
+            return true;
+        }
+
+        return false;
     }
 
     public bool TryAddToken(int left, int right, Tag tag)
@@ -80,8 +96,7 @@ public class TreeNode : IComparable
         //Если лист
         if (IsLeaf)
         {
-            AddChild(new TagToken(left, right, tag));
-            return true;
+            return TryAddChild(new TagToken(left, right, tag));
         }
 
         //Если вложен в дочернюю ноду
@@ -99,8 +114,7 @@ public class TreeNode : IComparable
             .All(node => node.RightBorder <= left || right <= node.LeftBorder);
         if (canAddAsChildToCurrentNode)
         {
-            AddChild(new TagToken(left, right, tag));
-            return true;
+            return TryAddChild(new TagToken(left, right, tag));
         }
 
         //Во всех остальных случаях
@@ -128,7 +142,7 @@ public class TreeNode : IComparable
             newChildrenTokens.Add(new TagToken(i, RightBorder - Tag.CloseMdTag.Length, new EmptyTag()));
 
         foreach (var token in newChildrenTokens)
-            AddChild(token);
+            TryAddChild(token);
 
         children.Sort();
     }
