@@ -15,10 +15,10 @@ namespace Markdown
             return md.Render(markdownText);
         }
 
-        [TestCase("t, _t t t_ t", ExpectedResult = "t, <em>t t t</em> t", TestName = "text between tags")]
-        [TestCase("в _нач_але", ExpectedResult = "в <em>нач</em>але", TestName = "one tag in word start")]
+        [TestCase("t, _t t t_ t", ExpectedResult = "t, <em>t t t</em> t", TestName = "some text between tags")]
+        [TestCase("в _нач_але", ExpectedResult = "в <em>нач</em>але", TestName = "one tag in word start and other in mid")]
         [TestCase("в сер_еди_не", ExpectedResult = "в сер<em>еди</em>не", TestName = "two tag into word")]
-        [TestCase("в кон_це._", ExpectedResult = "в кон<em>це.</em>", TestName = "one tag in word end")]
+        [TestCase("в кон_це._", ExpectedResult = "в кон<em>це.</em>", TestName = "one tag into word and other in word end")]
         public string MdRender_ConvertItalicText_When(string markdownText) =>
             MdRender(markdownText);
 
@@ -51,7 +51,7 @@ namespace Markdown
         [TestCase(@"\__t_t___t__", ExpectedResult = @"__t_t___t__", TestName = "Text4")]
         [TestCase("t _t __t__ t_ t", ExpectedResult = @"t <em>t __t__ t</em> t", TestName = "bold inside italic")]
         [TestCase("t __t _t_ t__ t", ExpectedResult = @"t <strong>t <em>t</em> t</strong> t", TestName = "Italic inside bold")]
-        [TestCase("t _t t __t t_ t__ t", ExpectedResult = "t _t t __t t_ t__ t", TestName = "one tag start before end other and end after")]
+        [TestCase("t _t t __t t_ t__ t", ExpectedResult = "t <em>t t __t t</em> t__ t", TestName = "one tag start before end other and end after")]
         [TestCase(@"Здесь сим\волы экранирования\ \должны остаться.\", ExpectedResult = @"Здесь сим\волы экранирования\ \должны остаться.\", TestName = "Comment 2")]
         [TestCase(@"\_Вот это\_, не должно выделиться тегом <em>", ExpectedResult = @"_Вот это_, не должно выделиться тегом <em>", TestName = "Comment 1")]
         public string MdRender_ConvertTextWithDifferentTags_When(string markdownText) =>

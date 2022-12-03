@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Net.Mime;
 using System.Text;
 using Markdown.Parsers.Tokens;
 using Markdown.Parsers.Tokens.Tags;
@@ -30,12 +31,12 @@ namespace Markdown.Parsers
             foreach (var parsedLine in lines)
             {
                 currentLine = parsedLine;
-                var lineTokens = TransformToTokens();
+                var lineTokens = TransformCurrentLineToTokens();
                 document.TextBlocks.Add(new ParsedTextBlock(lineTokens));
             }
         }
 
-        private List<IToken> TransformToTokens()
+        private List<IToken> TransformCurrentLineToTokens()
         {
             tokens = new List<IToken>();
             currentPosition = 0;
@@ -50,27 +51,33 @@ namespace Markdown.Parsers
 
         private IToken GetNextToken()
         {
-            return mdTags.IsTagStart(currentSymbol) ? 
-                GetServiceTag() : 
-                GetTextToken();
+            return mdTags.IsTagStart(currentSymbol) 
+                ? GetServiceTag() 
+                : GetTextToken();
         }
 
         //TODO: переделать
         private IToken GetServiceTag()
         {
-            //var text = ReadWithCheck(t => !mdTags.IsTag(t));
             var text = ReadWithCheck(startPosition => !mdTags.IsTag(
                 currentLine.Substring(startPosition, currentPosition - startPosition + 1)));
+
             if (!mdTags.IsTag(text))
                 return new TextToken(text);
+
             var lastOpeningTag = openedTokens.LastOrDefault(el=>el.ToString() == text) as MdPairedTag;
+
             var tag = mdTags.CreateTagFor(text,
                 lastOpeningTag is null ? TagPosition.Start : TagPosition.End);
 
-            if(tag is MdPairedTag)
-            {
-                (tag as MdPairedTag).IntoWord = char.IsSymbol(currentLine[currentPosition - text.Length]);
-            }
+            return ServiceTag(tag, lastOpeningTag);
+        }
+
+        private IToken ServiceTag(Tag tag, MdPairedTag lastOpeningTag = null)
+        {
+            if (tag is MdPairedTag pairedTag)
+                pairedTag.CheckInWord(currentLine, currentPosition);
+            
 
             var isThisTagCommented = tokens.LastOrDefault() is MdCommentTag;
             if (isThisTagCommented || !tag.IsValidTag(currentLine, currentPosition))
@@ -79,19 +86,16 @@ namespace Markdown.Parsers
                     tokens.Remove(tokens.Last());
                 return tag.ToText();
             }
-            else if(tag is MdHeaderTag)
+            else if (tag is MdHeaderTag)
                 currentPosition++;
-            else if(tag is MdPairedTag)
+            else if (tag is MdPairedTag)
             {
-                if(lastOpeningTag != null && lastOpeningTag.IntoWord)
-                {
-
-                }
-
                 if (lastOpeningTag is null)
                     openedTokens.Add(tag); //взять верхний подходящий
                 else
                 {
+                    lastOpeningTag.Pair = tag;
+                    (tag as MdPairedTag).Pair = lastOpeningTag;
                     if (lastOpeningTag is MdItalicTag)
                     {
                         for (int idx = tokens.IndexOf(lastOpeningTag); idx < tokens.Count; idx++)
@@ -100,14 +104,37 @@ namespace Markdown.Parsers
                             {
                                 if (openedTokens.Contains(tokens[idx]))
                                     openedTokens.Remove(tokens[idx]);
+                                else
+                                {
+                                    var pair = (tokens[idx] as PairedTag).Pair;
+                                    for (int i = 0; i < tokens.Count; i++)
+                                    {
+                                        if (tokens[i] == pair)
+                                        {
+                                            tokens[i] = tokens[i].ToText();
+                                            break;
+                                        }
+                                    }
+                                }
+
                                 tokens[idx] = tokens[idx].ToText();
                             }
                         }
                     }
+
+                    if (lastOpeningTag?.IntoWord == true || lastOpeningTag == tokens.FirstOrDefault())
+                    {
+                        var lastToken = tokens.LastOrDefault();
+                        if (!(lastToken is TextToken) || !(lastToken as TextToken).IsWord())
+                        {
+                            return tag.ToText();
+                        }
+                    }
+
                     openedTokens.Remove(lastOpeningTag);
                 }
-
             }
+
             return tag;
         }
 
@@ -117,10 +144,10 @@ namespace Markdown.Parsers
             return new TextToken(text);
         }
 
-        private string ReadWithCheck(Func<int, bool> isStillSearchedData)
+        private string ReadWithCheck(Func<int, bool> stillInterestingStartingWith)
         {
             var startPosition = currentPosition;
-            while (!nextCharOutsideLine && !isStillSearchedData(startPosition))
+            while (!nextCharOutsideLine && !stillInterestingStartingWith(startPosition))
                 currentPosition++;
             return currentLine.Substring(startPosition, currentPosition - startPosition);
         }
