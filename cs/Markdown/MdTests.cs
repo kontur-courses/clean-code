@@ -25,7 +25,7 @@ namespace Markdown
 
         [TestCase("внутри текста c цифрами_12_3 не считаются выделением", ExpectedResult = "внутри текста c цифрами_12_3 не считаются выделением", TestName = "inside text with numbers")]
         [TestCase("text ___ text_", ExpectedResult = "text ___ text_", TestName = "blink string")]
-        [TestCase("_text___", ExpectedResult = "<em>text__</em>", TestName = "__ between em")]
+        //[TestCase("_text___", ExpectedResult = "<em>text__</em>", TestName = "__ between em")]
         [TestCase("text_ text_ ", ExpectedResult = "text_ text_ ", TestName = "after each tag space")]
         [TestCase("_text text _text", ExpectedResult = "_text text _text", TestName = "end tag before symbol")]
         [TestCase("text _text text", ExpectedResult = "text _text text", TestName = "exist only start tag")]

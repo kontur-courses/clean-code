@@ -7,10 +7,10 @@
 
         }
 
-        public override bool IsValidTag(string data, int position)
+        public override bool IsValidTag(string currentLine, int position)
         {
             return
-                data.Length > position && (char.IsWhiteSpace(data, position) || data.Length - 1 == position);
+                currentLine.Length > position && (char.IsWhiteSpace(currentLine, position) || currentLine.Length - 1 == position);
         }
     }
 }

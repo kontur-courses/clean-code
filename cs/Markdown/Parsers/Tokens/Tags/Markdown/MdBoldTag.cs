@@ -11,9 +11,9 @@ namespace Markdown.Parsers.Tokens.Tags.Markdown
 
         public override IToken ToHtml() => new HtmlBoldTag(position);
 
-        public override bool IsValidTag(string data, int position)
+        public override bool IsValidTag(string currentLine, int position)
         {
-            return base.IsValidTag(data, position);
+            return base.IsValidTag(currentLine, position);
         }
     }
 }

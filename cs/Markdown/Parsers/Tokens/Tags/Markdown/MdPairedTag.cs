@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Reflection.Metadata;
 using Markdown.Parsers.Tokens.Tags.Enum;
+using Markdown.Extensions;
 
 namespace Markdown.Parsers.Tokens.Tags.Markdown
 {
@@ -12,21 +13,22 @@ namespace Markdown.Parsers.Tokens.Tags.Markdown
 
         }
 
-        public override bool IsValidTag(string data, int position)
+        public override bool IsValidTag(string currentLine, int currentPosition)
         {
-            return position == data.Length - 1 ||
-                   this.position == TagPosition.Start && data.Length > position && char.IsLetter(data[position]) ||
-                   this.position == TagPosition.End && ((position - text.Length >=0 && char.IsLetter(data[position - text.Length])) ||
-                                                        IntoWord == IntoWord);//TODO: проверить эти условия
+            return position == TagPosition.Start && currentLine.IsLetter(currentPosition)
+                   || position == TagPosition.End && (currentPosition == text.Length
+                                                      || currentLine.IsLetter(GetPreviousPosition(currentPosition))
+                                                      || MdCommentTag.IsCommented(currentLine, currentPosition))
+                   && (currentPosition == currentLine.Length || currentLine[currentPosition] != '_');
         }
 
         public void CheckInWord(string currentLine, int currentPosition)
         {
-            var previousPosition = currentPosition - text.Length - 1;
-            IntoWord = previousPosition >= 0
-                       && char.IsLetter(currentLine[previousPosition])
-                       && currentPosition < currentLine.Length
-                       && char.IsLetter(currentLine[currentPosition]);
+            IntoWord = currentLine.IsLetter(GetPreviousPosition(currentPosition))
+                       && currentLine.IsLetter(currentPosition);
         }
+
+        private int GetPreviousPosition(int currentPosition) => 
+            currentPosition - text.Length - 1;
     }
 }

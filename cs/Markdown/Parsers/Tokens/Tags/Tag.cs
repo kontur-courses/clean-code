@@ -9,11 +9,7 @@ namespace Markdown.Parsers.Tokens.Tags
         {
         }
 
-        //public virtual bool IsCommentedTag(IToken token)
-
-
-        //TODO: проверка идет последнего символа, не нужно грузить всю строку
-        public virtual bool IsValidTag(string data, int position)
+        public virtual bool IsValidTag(string currentLine, int position)
         {
             throw new NotImplementedException();
         }
