@@ -1,4 +1,6 @@
-﻿using Markdown.Renderers;
+﻿using System.IO;
+using Markdown.Renderers;
+using Microsoft.VisualStudio.TestPlatform.PlatformAbstractions;
 using NUnit.Framework;
 
 namespace Markdown
@@ -71,5 +73,16 @@ namespace Markdown
         [TestCase("#_text_", ExpectedResult = "#<em>text</em>", TestName = "header tag without space before tag")]
         public string MdRender_NotConvertHeaderText_When(string markdownText) =>
             MdRender(markdownText);
+
+        [TestCase(@"..\..\..\..\..\Markdown.md")]
+        [TestCase(@"..\..\..\..\..\MarkdownSpec.md")]
+        public void MdRender_MdFileToHtml(string path)
+        {
+            var mdSpec = File.ReadAllText(path);
+            using (var htmlMdSpec = File.CreateText(Path.ChangeExtension(path, ".html")))
+            {
+                htmlMdSpec.WriteLine(MdRender(mdSpec));
+            }
+        }
     }
 }
