@@ -24,12 +24,12 @@ namespace Markdown
 
 
         [TestCase("внутри текста c цифрами_12_3 не считаются выделением", ExpectedResult = "внутри текста c цифрами_12_3 не считаются выделением", TestName = "inside text with numbers")]
-        [TestCase("text ___ text_", ExpectedResult = "text ___ text_", TestName = "blink string")]
-        //[TestCase("_text___", ExpectedResult = "<em>text__</em>", TestName = "__ between em")]
-        [TestCase("text_ text_ ", ExpectedResult = "text_ text_ ", TestName = "after each tag space")]
+        [TestCase("_text___", ExpectedResult = "_text___", TestName = "blink string")]
+        [TestCase("text_ text_", ExpectedResult = "text_ text_", TestName = "after each tag space")]
         [TestCase("_text text _text", ExpectedResult = "_text text _text", TestName = "end tag before symbol")]
         [TestCase("text _text text", ExpectedResult = "text _text text", TestName = "exist only start tag")]
         [TestCase("text t_ext te_xt", ExpectedResult = "text t_ext te_xt", TestName = "tags into different words")]
+        [TestCase("text t_ext ___te_xt", ExpectedResult = "text t_ext ___te_xt", TestName = "tags into different words with ___")]
         public string MdRender_NotConvertItalicText_When(string markdownText) =>
             MdRender(markdownText);
 
@@ -52,6 +52,7 @@ namespace Markdown
         [TestCase("t _t __t__ t_ t", ExpectedResult = @"t <em>t __t__ t</em> t", TestName = "bold inside italic")]
         [TestCase("t __t _t_ t__ t", ExpectedResult = @"t <strong>t <em>t</em> t</strong> t", TestName = "Italic inside bold")]
         [TestCase("t _t t __t t_ t__ t", ExpectedResult = "t <em>t t __t t</em> t__ t", TestName = "one tag start before end other and end after")]
+        [TestCase("__t _t t __t t_ _t t __t t_ t__ t", ExpectedResult = "<strong>t <em>t t __t t</em> <em>t t __t t</em> t</strong> t", TestName = "mix")]
         [TestCase(@"Здесь сим\волы экранирования\ \должны остаться.\", ExpectedResult = @"Здесь сим\волы экранирования\ \должны остаться.\", TestName = "Comment 2")]
         [TestCase(@"\_Вот это\_, не должно выделиться тегом <em>", ExpectedResult = @"_Вот это_, не должно выделиться тегом <em>", TestName = "Comment 1")]
         public string MdRender_ConvertTextWithDifferentTags_When(string markdownText) =>
