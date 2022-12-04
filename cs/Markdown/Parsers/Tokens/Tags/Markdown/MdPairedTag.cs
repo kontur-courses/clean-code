@@ -9,7 +9,13 @@ namespace Markdown.Parsers.Tokens.Tags.Markdown
     public abstract class MdPairedTag : PairedTag
     {
         public bool IntoWord { get; private set; }
-        protected MdPairedTag(MdPairedTag startTag, string data) : 
+
+        protected MdPairedTag(MdParsingLine context, string data) :
+            this(context?.OpenedTokens.LastOrDefault(el => el.ToString() == data) as MdPairedTag, data)
+        {
+        }
+
+        private MdPairedTag(MdPairedTag startTag, string data) : 
             base(startTag == null ? TagPosition.Start : TagPosition.End, data)
         {
             if(startTag != null)
@@ -23,7 +29,31 @@ namespace Markdown.Parsers.Tokens.Tags.Markdown
         {
         }
 
-        public override bool IsValidTag(string currentLine, int currentPosition)
+        public override bool IsValidTag(MdParsingLine context)
+        {
+            if (!IsValidTag(context.Line, context.CurrentPosition))
+                return false;
+            else
+            {
+                CheckInWord(context.Line, context.CurrentPosition);
+
+                if (Pair is null)
+                    context.OpenedTokens.Add(this);
+                else
+                {
+                    ProcessIntersections(context.Tokens, context.OpenedTokens);
+
+                    if (Pair is MdPairedTag { IntoWord: true } && !IsIntoWord(context.Tokens))
+                        return false;
+
+                    context.OpenedTokens.Remove(Pair);
+                }
+            }
+
+            return true;
+        }
+
+        protected override bool IsValidTag(string currentLine, int currentPosition)
         {
             return Position == TagPosition.Start && IsValidTagStartPosition(currentLine, currentPosition)
                    || Position == TagPosition.End && IsValidTagEndPosition(currentLine, currentPosition);

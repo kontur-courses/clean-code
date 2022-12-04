@@ -7,15 +7,23 @@ namespace Markdown.Parsers.Tokens.Tags.Markdown
     {
         public MdHeaderTag() : base("#")
         {
-
         }
 
-
-        public override bool IsValidTag(string currentLine, int position)
+        public override bool IsValidTag(MdParsingLine context)
         {
-            return Regex.IsMatch(currentLine.Substring(0, position - Text.Length), @"\s*") 
+            if (!IsValidTag(context.Line, context.CurrentPosition))
+                return false;
+            else
+            {
+                context.CurrentPosition++;
+                return true;
+            }
+        }
+
+        protected override bool IsValidTag(string currentLine, int position)
+        {
+            return Regex.IsMatch(currentLine.Substring(0, position - Text.Length), @"\s*")
                    && currentLine.IsWhiteSpaceIn(position);
         }
-        
     }
 }

@@ -13,7 +13,7 @@ namespace Markdown.Parsers.Tokens.Tags.Markdown
 
         public override IToken ToHtml() => new TextToken(Text);
 
-        public override bool IsValidTag(string currentLine, int position) => true;
+        protected override bool IsValidTag(string currentLine, int position) => true;
 
         public static bool IsCommented(string text, int beforePosition)
         {
