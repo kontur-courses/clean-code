@@ -9,6 +9,6 @@ namespace Markdown.Parsers.Tokens.Tags.Html
         }
 
         public override string ToString() =>
-            position == TagPosition.Start ? text : text.Insert(1, "/");
+            Position == TagPosition.Start ? Text : Text.Insert(1, "/");
     }
 }

@@ -1,4 +1,5 @@
 using System;
+using Markdown.Extensions;
 
 namespace Markdown.Parsers.Tokens.Tags.Markdown
 {
@@ -17,7 +18,7 @@ namespace Markdown.Parsers.Tokens.Tags.Markdown
         public static bool IsCommented(string text, int beforePosition)
         {
             var startPosition = beforePosition - commentText.Length - 1;
-            return startPosition >= 0
+            return text.IsInside(startPosition)
                    && text.AsSpan(startPosition).StartsWith(commentText);
         }
     }

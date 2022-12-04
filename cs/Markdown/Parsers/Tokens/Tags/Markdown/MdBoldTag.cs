@@ -5,15 +5,14 @@ namespace Markdown.Parsers.Tokens.Tags.Markdown
 {
     public class MdBoldTag : MdPairedTag
     {
-        public MdBoldTag(TagPosition position) : base(position, "__")
+        public MdBoldTag(MdPairedTag startTag) : base(startTag, "__")
         {
         }
 
-        public override IToken ToHtml() => new HtmlBoldTag(position);
-
-        public override bool IsValidTag(string currentLine, int position)
+        public MdBoldTag(TagPosition tagPosition) : base(tagPosition, "__")
         {
-            return base.IsValidTag(currentLine, position);
         }
+
+        public override IToken ToHtml() => new HtmlBoldTag(Position);
     }
 }

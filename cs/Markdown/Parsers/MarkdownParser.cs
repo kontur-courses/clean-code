@@ -1,11 +1,8 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Net.Mime;
-using System.Text;
 using Markdown.Parsers.Tokens;
 using Markdown.Parsers.Tokens.Tags;
-using Markdown.Parsers.Tokens.Tags.Enum;
 using Markdown.Parsers.Tokens.Tags.Markdown;
 
 
@@ -62,80 +59,68 @@ namespace Markdown.Parsers
             var text = ReadWithCheck(startPosition => !mdTags.IsTag(
                 currentLine.Substring(startPosition, currentPosition - startPosition + 1)));
 
+            //TODO: delete
             if (!mdTags.IsTag(text))
                 return new TextToken(text);
 
-            var lastOpeningTag = openedTokens.LastOrDefault(el=>el.ToString() == text) as MdPairedTag;
+            var lastOpeningPairedTag = openedTokens.LastOrDefault(el=>el.ToString() == text) as MdPairedTag;
 
-            var tag = mdTags.CreateTagFor(text,
-                lastOpeningTag is null ? TagPosition.Start : TagPosition.End);
+            var tag = mdTags.CreateTagFor(text, lastOpeningPairedTag);
 
-            return ServiceTag(tag, lastOpeningTag);
+            return ServiceTag(tag);
         }
 
-        private IToken ServiceTag(Tag tag, MdPairedTag lastOpeningTag = null)
+        private IToken ServiceTag(Tag tag)
         {
-            if (tag is MdPairedTag pairedTag)
-                pairedTag.CheckInWord(currentLine, currentPosition);
-            
+            if (!tag.IsValidTag(currentLine, currentPosition))
+                return tag.ToText();
 
-            var isThisTagCommented = tokens.LastOrDefault() is MdCommentTag;
-            if (isThisTagCommented || !tag.IsValidTag(currentLine, currentPosition))
+            if (tokens.LastOrDefault() is MdCommentTag)
             {
-                if (isThisTagCommented)
-                    tokens.Remove(tokens.Last());
+                tokens.Remove(tokens.Last());
                 return tag.ToText();
             }
-            else if (tag is MdHeaderTag)
+
+            if (tag is MdHeaderTag)
                 currentPosition++;
-            else if (tag is MdPairedTag)
+            else if (tag is MdPairedTag pairedTag)
             {
-                if (lastOpeningTag is null)
+                pairedTag.CheckInWord(currentLine, currentPosition);
+
+                if (pairedTag.Pair is null)
                     openedTokens.Add(tag); //взять верхний подходящий
                 else
                 {
-                    lastOpeningTag.Pair = tag;
-                    (tag as MdPairedTag).Pair = lastOpeningTag;
-                    if (lastOpeningTag is MdItalicTag)
-                    {
-                        for (int idx = tokens.IndexOf(lastOpeningTag); idx < tokens.Count; idx++)
-                        {
-                            if (tokens[idx] is MdBoldTag)
-                            {
-                                if (openedTokens.Contains(tokens[idx]))
-                                    openedTokens.Remove(tokens[idx]);
-                                else
-                                {
-                                    var pair = (tokens[idx] as PairedTag).Pair;
-                                    for (int i = 0; i < tokens.Count; i++)
-                                    {
-                                        if (tokens[i] == pair)
-                                        {
-                                            tokens[i] = tokens[i].ToText();
-                                            break;
-                                        }
-                                    }
-                                }
+                    PairedTagIntersectionProcessing(pairedTag);
 
-                                tokens[idx] = tokens[idx].ToText();
-                            }
-                        }
-                    }
+                    if(pairedTag.Pair is MdPairedTag { IntoWord: true } && !pairedTag.IsIntoWord(tokens))
+                        return tag.ToText();
 
-                    if (lastOpeningTag?.IntoWord == true || lastOpeningTag == tokens.FirstOrDefault())
-                    {
-                        var lastToken = tokens.LastOrDefault();
-                        if (!(lastToken is TextToken) || !(lastToken as TextToken).IsWord())
-                        {
-                            return tag.ToText();
-                        }
-                    }
-
-                    openedTokens.Remove(lastOpeningTag);
+                    openedTokens.Remove(pairedTag.Pair);
                 }
             }
 
             return tag;
+        }
+
+        private void PairedTagIntersectionProcessing(PairedTag tag)
+        {
+            if (!(tag.Pair is MdItalicTag))
+                return;
+
+            for (int idx = tokens.IndexOf(tag.Pair); idx < tokens.Count; idx++)
+            {
+                if (tokens[idx] is MdBoldTag boldTag)
+                {
+                    if (openedTokens.Contains(boldTag))
+                        openedTokens.Remove(boldTag);
+                    else
+                        openedTokens.Add(boldTag.Pair);
+
+                    tokens[idx] = tokens[idx].ToText();
+                }
+            }
+
         }
 
         private IToken GetTextToken()
@@ -144,20 +129,21 @@ namespace Markdown.Parsers
             return new TextToken(text);
         }
 
-        private string ReadWithCheck(Func<int, bool> stillInterestingStartingWith)
+        private string ReadWithCheck(Func<int, bool> stillAcceptableStartingFrom)
         {
             var startPosition = currentPosition;
-            while (!nextCharOutsideLine && !stillInterestingStartingWith(startPosition))
+            while (!nextCharOutsideLine && !stillAcceptableStartingFrom(startPosition))
                 currentPosition++;
             return currentLine.Substring(startPosition, currentPosition - startPosition);
         }
 
         private void DeleteNotValidTags()
         {
-            for (int i = 0; i < tokens.Count; i++)
-                if (openedTokens.Contains(tokens[i]))
-                    tokens[i] = tokens[i].ToText();
-
+            foreach (var token in openedTokens)
+            {
+                var idx = tokens.FindIndex(el => el == token);
+                tokens[idx] = tokens[idx].ToText();
+            }
             openedTokens.Clear();
         }
 

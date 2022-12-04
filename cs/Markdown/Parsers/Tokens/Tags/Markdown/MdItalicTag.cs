@@ -5,15 +5,13 @@ namespace Markdown.Parsers.Tokens.Tags.Markdown
 {
     public class MdItalicTag : MdPairedTag
     {
-        public MdItalicTag(TagPosition position) : base(position, "_")
+        public MdItalicTag(MdPairedTag startTag) : base(startTag, "_")
+        {
+        }
+        public MdItalicTag(TagPosition tagPosition) : base(tagPosition, "_")
         {
         }
 
-        public override IToken ToHtml() => new HtmlItalicTag(position);
-
-        public override bool IsValidTag(string currentLine, int position)
-        {
-            return base.IsValidTag(currentLine, position);
-        }
+        public override IToken ToHtml() => new HtmlItalicTag(Position);
     }
 }

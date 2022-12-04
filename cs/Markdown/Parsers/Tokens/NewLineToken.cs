@@ -4,7 +4,6 @@
     {
         public NewLineToken() : base("\n")
         {
-
         }
     }
 }

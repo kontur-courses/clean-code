@@ -1,5 +1,4 @@
 ﻿using System;
-using Markdown.Parsers.Tokens.Tags.Markdown;
 
 namespace Markdown.Parsers.Tokens.Tags
 {

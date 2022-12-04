@@ -9,6 +9,6 @@ namespace Markdown.Parsers.Tokens.Tags.Html
         {
         }
 
-        public override IToken ToMarkdown() => new MdBoldTag(position);
+        public override IToken ToMarkdown() => new MdBoldTag(Position);
     }
 }

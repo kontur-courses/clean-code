@@ -1,5 +1,4 @@
-﻿using Markdown.Parsers.Tokens.Tags.Enum;
-using System;
+﻿using System;
 using System.Collections.Generic;
 
 namespace Markdown.Parsers.Tokens.Tags.Markdown
@@ -7,14 +6,14 @@ namespace Markdown.Parsers.Tokens.Tags.Markdown
     public class MdTags
     {
         private static MdTags instance;
-        private readonly Dictionary<string, Func<TagPosition, Tag>> mdTagDictionary = new Dictionary<string, Func<TagPosition, Tag>>();
+        private readonly Dictionary<string, Func<MdPairedTag, Tag>> mdTagDictionary = new Dictionary<string, Func<MdPairedTag, Tag>>();
         private readonly HashSet<char> serviceSymbols = new HashSet<char>();
         private readonly HashSet<char> tagStartSymbols = new HashSet<char>();
 
         private MdTags()
         {
-            mdTagDictionary.Add(new MdBoldTag(TagPosition.Any).ToString(), p => new MdBoldTag(p));
-            mdTagDictionary.Add(new MdItalicTag(TagPosition.Any).ToString(), p => new MdItalicTag(p));
+            mdTagDictionary.Add(new MdBoldTag(null).ToString(), startTag => new MdBoldTag(startTag));
+            mdTagDictionary.Add(new MdItalicTag(null).ToString(), startTag => new MdItalicTag(startTag));
 
             mdTagDictionary.Add(new MdHeaderTag().ToString(), p => new MdHeaderTag());
             mdTagDictionary.Add(new MdCommentTag().ToString(), p => new MdCommentTag());
@@ -24,8 +23,7 @@ namespace Markdown.Parsers.Tokens.Tags.Markdown
                 tagStartSymbols.Add(tag.Key[0]);
                 foreach (var symbol in tag.Key)
                 {
-                    //TODO: delete? if(symbol != ' ')
-                        serviceSymbols.Add(symbol);
+                    serviceSymbols.Add(symbol);
                 }
             }
         }
@@ -35,9 +33,8 @@ namespace Markdown.Parsers.Tokens.Tags.Markdown
             return instance ?? (instance = new MdTags());
         }
 
-        public Tag CreateTagFor(string text, TagPosition tagPosition = TagPosition.Any) =>
-            mdTagDictionary[text].Invoke(tagPosition);
-        
+        public Tag CreateTagFor(string text, MdPairedTag startTag = null) =>
+            mdTagDictionary[text].Invoke(startTag);
 
         public bool IsTag(string text) => mdTagDictionary.ContainsKey(text);
 
