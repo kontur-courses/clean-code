@@ -10,11 +10,11 @@ namespace Markdown.Parsers.Tokens
         {
         }
 
-        public override IToken ToHtml() => new HtmlTextToken(text);
+        public override IToken ToHtml() => new HtmlTextToken(Text);
 
-        public override IToken ToMarkdown() => new MdTextToken(text);
+        public override IToken ToMarkdown() => new MdTextToken(Text);
 
-        public bool IsWord() => !text.ToCharArray().Any(c => char.IsWhiteSpace(c) || char.IsDigit(c));
+        public bool IsWord() => !Text.ToCharArray().Any(c => char.IsWhiteSpace(c) || char.IsDigit(c));
         
     }
 }

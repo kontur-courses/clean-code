@@ -66,7 +66,7 @@ namespace Markdown.Parsers
             var lastOpeningPairedTag = openedTokens.LastOrDefault(el=>el.ToString() == text) as MdPairedTag;
 
             var tag = mdTags.CreateTagFor(text, lastOpeningPairedTag);
-
+            //text, currentLine, currentPosition, tokens, openedTokens
             return ServiceTag(tag);
         }
 
@@ -88,10 +88,10 @@ namespace Markdown.Parsers
                 pairedTag.CheckInWord(currentLine, currentPosition);
 
                 if (pairedTag.Pair is null)
-                    openedTokens.Add(tag); //взять верхний подходящий
+                    openedTokens.Add(tag);
                 else
                 {
-                    PairedTagIntersectionProcessing(pairedTag);
+                    pairedTag.ProcessIntersections(tokens, openedTokens);
 
                     if(pairedTag.Pair is MdPairedTag { IntoWord: true } && !pairedTag.IsIntoWord(tokens))
                         return tag.ToText();
@@ -101,26 +101,6 @@ namespace Markdown.Parsers
             }
 
             return tag;
-        }
-
-        private void PairedTagIntersectionProcessing(PairedTag tag)
-        {
-            if (!(tag.Pair is MdItalicTag))
-                return;
-
-            for (int idx = tokens.IndexOf(tag.Pair); idx < tokens.Count; idx++)
-            {
-                if (tokens[idx] is MdBoldTag boldTag)
-                {
-                    if (openedTokens.Contains(boldTag))
-                        openedTokens.Remove(boldTag);
-                    else
-                        openedTokens.Add(boldTag.Pair);
-
-                    tokens[idx] = tokens[idx].ToText();
-                }
-            }
-
         }
 
         private IToken GetTextToken()
@@ -139,11 +119,9 @@ namespace Markdown.Parsers
 
         private void DeleteNotValidTags()
         {
-            foreach (var token in openedTokens)
-            {
-                var idx = tokens.FindIndex(el => el == token);
+            foreach (var idx in openedTokens.Select(token => tokens.FindIndex(el => el == token)))
                 tokens[idx] = tokens[idx].ToText();
-            }
+
             openedTokens.Clear();
         }
 

@@ -4,16 +4,16 @@ namespace Markdown.Parsers.Tokens
 {
     public abstract class Token : IToken
     {
-        protected readonly string text;
+        protected readonly string Text;
 
         protected Token(string data)
         {
-            text = data;
+            Text = data;
         }
 
-        public override string ToString() => text;
+        public override string ToString() => Text;
 
-        public virtual IToken ToText() => new TextToken(text);
+        public virtual IToken ToText() => new TextToken(Text);
 
         public virtual IToken ToHtml()
         {

@@ -5,10 +5,10 @@ namespace Markdown.Parsers.Tokens.Tags
     public abstract class PairedTag : Tag
     {
         public PairedTag Pair { get; protected set; }
-        protected TagPosition position;
+        protected TagPosition Position;
         protected PairedTag(TagPosition tagPosition, string data) : base(data)
         {
-            position = tagPosition;
+            Position = tagPosition;
         }
     }
 }

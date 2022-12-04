@@ -25,8 +25,8 @@ namespace Markdown.Parsers.Tokens.Tags.Markdown
 
         public override bool IsValidTag(string currentLine, int currentPosition)
         {
-            return position == TagPosition.Start && IsValidTagStartPosition(currentLine, currentPosition)
-                   || position == TagPosition.End && IsValidTagEndPosition(currentLine, currentPosition);
+            return Position == TagPosition.Start && IsValidTagStartPosition(currentLine, currentPosition)
+                   || Position == TagPosition.End && IsValidTagEndPosition(currentLine, currentPosition);
         }
 
         private bool IsValidTagStartPosition(string currentLine, int currentPosition)
@@ -48,7 +48,7 @@ namespace Markdown.Parsers.Tokens.Tags.Markdown
         public void CheckInWord(string currentLine, int currentPosition)
         {
             var previousPosition = GetPreviousPosition(currentPosition);
-            IntoWord = position == TagPosition.Start 
+            IntoWord = Position == TagPosition.Start 
                        && !currentLine.IsWhiteSpaceIn(previousPosition)
                        && !MdCommentTag.IsCommented(currentLine, currentPosition)
                        && !currentLine.IsWhiteSpaceIn(currentPosition)
@@ -57,7 +57,7 @@ namespace Markdown.Parsers.Tokens.Tags.Markdown
 
         public bool IsIntoWord(List<IToken> tokens)
         {
-            if (position != TagPosition.End)
+            if (Position != TagPosition.End)
                 throw new InvalidOperationException();
 
             var lastToken = tokens.LastOrDefault() as TextToken;
@@ -66,7 +66,26 @@ namespace Markdown.Parsers.Tokens.Tags.Markdown
             return lastToken?.IsWord() == true && isStartTagBeforeLastToken;
         }
 
+        public void ProcessIntersections(List<IToken> tokens, List<IToken> openedTokens)
+        {
+            if (!(this is MdItalicTag) || this.Position != TagPosition.End)
+                return;
+
+            for (int idx = tokens.IndexOf(Pair); idx < tokens.Count; idx++)
+            {
+                if (tokens[idx] is MdBoldTag boldTag)
+                {
+                    if (openedTokens.Contains(boldTag))
+                        openedTokens.Remove(boldTag);
+                    else
+                        openedTokens.Add(boldTag.Pair);
+
+                    tokens[idx] = tokens[idx].ToText();
+                }
+            }
+        }
+
         private int GetPreviousPosition(int currentPosition) => 
-            currentPosition - text.Length - 1;
+            currentPosition - Text.Length - 1;
     }
 }

@@ -11,7 +11,7 @@ namespace Markdown.Parsers.Tokens.Tags.Markdown
             
         }
 
-        public override IToken ToHtml() => new TextToken(text);
+        public override IToken ToHtml() => new TextToken(Text);
 
         public override bool IsValidTag(string currentLine, int position) => true;
 
