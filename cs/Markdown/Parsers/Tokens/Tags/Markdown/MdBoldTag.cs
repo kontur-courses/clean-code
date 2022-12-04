@@ -5,7 +5,7 @@ namespace Markdown.Parsers.Tokens.Tags.Markdown
 {
     public class MdBoldTag : MdPairedTag
     {
-        public MdBoldTag(MdParsingLine context = null) : base(context, "__")
+        public MdBoldTag(MarkdownParsingLine context = null) : base(context, "__")
         {
         }
 

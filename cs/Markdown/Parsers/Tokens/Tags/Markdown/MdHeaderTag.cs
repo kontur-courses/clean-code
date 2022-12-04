@@ -9,7 +9,7 @@ namespace Markdown.Parsers.Tokens.Tags.Markdown
         {
         }
 
-        public override bool IsValidTag(MdParsingLine context)
+        public override bool TryToValidate(MarkdownParsingLine context)
         {
             if (!IsValidTag(context.Line, context.CurrentPosition))
                 return false;
@@ -22,7 +22,7 @@ namespace Markdown.Parsers.Tokens.Tags.Markdown
 
         protected override bool IsValidTag(string currentLine, int position)
         {
-            return Regex.IsMatch(currentLine.Substring(0, position - Text.Length), @"\s*")
+            return Regex.IsMatch(currentLine[..(position - Text.Length)], @"\s*")
                    && currentLine.IsWhiteSpaceIn(position);
         }
     }

@@ -13,7 +13,7 @@ namespace Markdown.Parsers
             var lines = markdownText.Split(newLineToken.ToString());
             foreach (var line in lines)
             {
-                var parsingLine = new MdParsingLine(line);
+                var parsingLine = new MarkdownParsingLine(line);
                 var lineTokens = parsingLine.Parse();
                 document.TextBlocks.Add(new ParsedTextBlock(lineTokens));
             }

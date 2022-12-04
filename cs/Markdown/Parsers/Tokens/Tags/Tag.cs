@@ -8,7 +8,7 @@ namespace Markdown.Parsers.Tokens.Tags
         {
         }
 
-        public virtual bool IsValidTag(MdParsingLine context) =>
+        public virtual bool TryToValidate(MarkdownParsingLine context) =>
             IsValidTag(context.Line, context.CurrentPosition);
 
         protected virtual bool IsValidTag(string currentLine, int position)

@@ -1,6 +1,5 @@
 ﻿using System.IO;
 using Markdown.Renderers;
-using Microsoft.VisualStudio.TestPlatform.PlatformAbstractions;
 using NUnit.Framework;
 
 namespace Markdown
@@ -74,15 +73,18 @@ namespace Markdown
         public string MdRender_NotConvertHeaderText_When(string markdownText) =>
             MdRender(markdownText);
 
-        [TestCase(@"..\..\..\..\..\Markdown.md")]
-        [TestCase(@"..\..\..\..\..\MarkdownSpec.md")]
-        public void MdRender_MdFileToHtml(string path)
+        [TestCase(@"..\..\..\..\..\Markdown.md", TestName = "Markdown.md")]
+        [TestCase(@"..\..\..\..\..\MarkdownSpec.md", TestName = "MarkdownSpec.md")]
+        public void MdRender_MdFileToHtml_CreatesFor(string path)
         {
             var mdSpec = File.ReadAllText(path);
-            using (var htmlMdSpec = File.CreateText(Path.ChangeExtension(path, ".html")))
+            var htmlFile = Path.ChangeExtension(path, ".html");
+            File.Delete(htmlFile);
+            using (var htmlMdSpec = File.CreateText(htmlFile))
             {
                 htmlMdSpec.WriteLine(MdRender(mdSpec));
             }
+            Assert.IsTrue(File.Exists(htmlFile));
         }
     }
 }

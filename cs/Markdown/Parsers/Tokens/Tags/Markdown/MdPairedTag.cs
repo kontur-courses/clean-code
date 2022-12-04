@@ -10,7 +10,7 @@ namespace Markdown.Parsers.Tokens.Tags.Markdown
     {
         public bool IntoWord { get; private set; }
 
-        protected MdPairedTag(MdParsingLine context, string data) :
+        protected MdPairedTag(MarkdownParsingLine context, string data) :
             this(context?.OpenedTokens.LastOrDefault(el => el.ToString() == data) as MdPairedTag, data)
         {
         }
@@ -29,7 +29,7 @@ namespace Markdown.Parsers.Tokens.Tags.Markdown
         {
         }
 
-        public override bool IsValidTag(MdParsingLine context)
+        public override bool TryToValidate(MarkdownParsingLine context)
         {
             if (!IsValidTag(context.Line, context.CurrentPosition))
                 return false;
@@ -75,7 +75,7 @@ namespace Markdown.Parsers.Tokens.Tags.Markdown
                 && !currentLine.Is(mdTags.IsServiceSymbol, currentPosition);
         }
 
-        public void CheckInWord(string currentLine, int currentPosition)
+        private void CheckInWord(string currentLine, int currentPosition)
         {
             var previousPosition = GetPreviousPosition(currentPosition);
             IntoWord = Position == TagPosition.Start 
@@ -85,7 +85,7 @@ namespace Markdown.Parsers.Tokens.Tags.Markdown
                        && currentLine.IsInside(previousPosition);
         }
 
-        public bool IsIntoWord(List<IToken> tokens)
+        private bool IsIntoWord(List<IToken> tokens)
         {
             if (Position != TagPosition.End)
                 throw new InvalidOperationException();
@@ -96,7 +96,7 @@ namespace Markdown.Parsers.Tokens.Tags.Markdown
             return lastToken?.IsWord() == true && isStartTagBeforeLastToken;
         }
 
-        public void ProcessIntersections(List<IToken> tokens, List<IToken> openedTokens)
+        private void ProcessIntersections(List<IToken> tokens, List<IToken> openedTokens)
         {
             if (!(this is MdItalicTag) || this.Position != TagPosition.End)
                 return;

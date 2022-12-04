@@ -7,7 +7,7 @@ namespace Markdown.Parsers.Tokens.Tags.Markdown
     public class MdTags
     {
         private static MdTags instance;
-        private readonly Dictionary<string, Func<MdParsingLine, Tag>> mdTagDictionary = new Dictionary<string, Func<MdParsingLine, Tag>>();
+        private readonly Dictionary<string, Func<MarkdownParsingLine, Tag>> mdTagDictionary = new Dictionary<string, Func<MarkdownParsingLine, Tag>>();
         private readonly HashSet<char> serviceSymbols = new HashSet<char>();
         private readonly HashSet<char> tagStartSymbols = new HashSet<char>();
 
@@ -30,7 +30,7 @@ namespace Markdown.Parsers.Tokens.Tags.Markdown
         public static MdTags GetInstance() =>
             instance ?? (instance = new MdTags());
 
-        public IToken TryToCreateTagFor(string text, MdParsingLine context)
+        public IToken TryToCreateTagFor(string text, MarkdownParsingLine context)
         {
             var tag = mdTagDictionary[text].Invoke(context);
 
@@ -40,7 +40,7 @@ namespace Markdown.Parsers.Tokens.Tags.Markdown
                 return tag.ToText();
             }
 
-            if (tag.IsValidTag(context))
+            if (tag.TryToValidate(context))
                 return tag; 
             else
                 return tag.ToText();

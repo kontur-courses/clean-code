@@ -5,7 +5,7 @@ namespace Markdown.Parsers.Tokens.Tags.Markdown
 {
     public class MdItalicTag : MdPairedTag
     {
-        public MdItalicTag(MdParsingLine context = null) : base(context, "_")
+        public MdItalicTag(MarkdownParsingLine context = null) : base(context, "_")
         {
         }
         public MdItalicTag(TagPosition tagPosition) : base(tagPosition, "_")

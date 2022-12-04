@@ -2,7 +2,7 @@
 
 namespace Markdown.Parsers.Tokens.Tags.Html
 {
-    public class HtmlParagraphTag : PairedTag
+    public class HtmlParagraphTag : HtmlPairedTag
     {
         public HtmlParagraphTag(TagPosition position) : base(position, "<p>")
         {

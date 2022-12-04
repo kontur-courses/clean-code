@@ -6,7 +6,7 @@ using Markdown.Parsers.Tokens.Tags.Markdown;
 
 namespace Markdown.Parsers
 {
-    public class MdParsingLine
+    public class MarkdownParsingLine
     {
         public List<IToken> OpenedTokens { get; private set; }
         public List<IToken> Tokens { get; private set; }
@@ -18,7 +18,7 @@ namespace Markdown.Parsers
         private char currentSymbol => Line[CurrentPosition];
         private bool nextCharOutsideLine => CurrentPosition == Line.Length;
 
-        public MdParsingLine(string line)
+        public MarkdownParsingLine(string line)
         {
             this.Line = line;
         }
