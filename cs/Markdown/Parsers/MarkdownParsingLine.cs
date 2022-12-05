@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using Markdown.Extensions;
 using Markdown.Parsers.Tokens;
 using Markdown.Parsers.Tokens.Tags.Markdown;
 
@@ -69,7 +70,7 @@ namespace Markdown.Parsers
         {
             var openedTokenIndexes = OpenedTokens.Select(token => Tokens.FindIndex(el => el == token));
             foreach (var idx in openedTokenIndexes)
-                Tokens[idx] = Tokens[idx].ToText();
+                Tokens.ToTextAt(idx);
 
             OpenedTokens.Clear();
         }

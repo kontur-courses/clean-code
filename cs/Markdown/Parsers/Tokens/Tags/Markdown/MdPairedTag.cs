@@ -8,7 +8,7 @@ namespace Markdown.Parsers.Tokens.Tags.Markdown
 {
     public abstract class MdPairedTag : PairedTag
     {
-        public bool IntoWord { get; private set; }
+        private bool intoWord;
 
         protected MdPairedTag(MarkdownParsingLine context, string data) :
             this(context?.OpenedTokens.LastOrDefault(el => el.ToString() == data) as MdPairedTag, data)
@@ -41,7 +41,7 @@ namespace Markdown.Parsers.Tokens.Tags.Markdown
                     context.OpenedTokens.Add(this);
                 else
                 {
-                    if (Pair is MdPairedTag { IntoWord: true } && !IsIntoWord(context.Tokens))
+                    if (Pair is MdPairedTag { intoWord: true } && !IsIntoWord(context.Tokens))
                         return false;
 
                     context.OpenedTokens.Remove(Pair);
@@ -79,7 +79,7 @@ namespace Markdown.Parsers.Tokens.Tags.Markdown
         private void CheckInWord(string currentLine, int currentPosition)
         {
             var previousPosition = GetPreviousPosition(currentPosition);
-            IntoWord = Position == TagPosition.Start 
+            intoWord = Position == TagPosition.Start 
                        && !currentLine.IsWhiteSpaceIn(previousPosition)
                        && !MdCommentTag.IsCommented(currentLine, currentPosition)
                        && !currentLine.IsWhiteSpaceIn(currentPosition)
@@ -101,30 +101,26 @@ namespace Markdown.Parsers.Tokens.Tags.Markdown
         {
             if (this.Position != TagPosition.End)
                 return false;
-
             var startOuterTagIdx = tokens.IndexOf(Pair);
-            for (int endIdxOfInnerTag = startOuterTagIdx + 1; endIdxOfInnerTag < tokens.Count; endIdxOfInnerTag++)
+            for (int endInnerTagIdx = startOuterTagIdx + 1; endInnerTagIdx < tokens.Count; endInnerTagIdx++)
             {
-                if (tokens[endIdxOfInnerTag] is MdPairedTag { Position: TagPosition.End } pairedTag)
+                if (tokens[endInnerTagIdx] is MdPairedTag { Position: TagPosition.End } pairedTag)
                 {
                     var startInnerTagIdx = tokens.IndexOf(pairedTag.Pair);
                     if (startOuterTagIdx > startInnerTagIdx)
                     {
-                        tokens[startOuterTagIdx] = tokens[startOuterTagIdx].ToText();
-                        tokens[startInnerTagIdx] = tokens[startInnerTagIdx].ToText();
-                        tokens[endIdxOfInnerTag] = tokens[endIdxOfInnerTag].ToText();
+                        tokens.ToTextAt(startOuterTagIdx);
+                        tokens.ToTextAt(startInnerTagIdx);
+                        tokens.ToTextAt(endInnerTagIdx);
                         return true;
-
                     }
                     else if (pairedTag is MdBoldTag)
                     {
-                        tokens[startInnerTagIdx] = tokens[startInnerTagIdx].ToText();
-                        tokens[endIdxOfInnerTag] = tokens[endIdxOfInnerTag].ToText();
+                        tokens.ToTextAt(startInnerTagIdx);
+                        tokens.ToTextAt(endInnerTagIdx);
                     }
-
                 }
             }
-
             return false;
         }
 
