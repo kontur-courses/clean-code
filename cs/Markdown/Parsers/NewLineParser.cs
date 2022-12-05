@@ -6,9 +6,9 @@ namespace Markdown.Parsers;
 
 public class NewLineParser : ITokenParser
 {
-    private readonly TokenCollectionParser mainParser;
+    private readonly InnerParser mainParser;
 
-    public NewLineParser(TokenCollectionParser mainParser)
+    public NewLineParser(InnerParser mainParser)
     {
         this.mainParser = mainParser;
     }

@@ -6,9 +6,9 @@ namespace Markdown.Parsers;
 
 public class Header1Parser : ITokenParser
 {
-    private readonly TokenCollectionParser mainParser;
+    private readonly InnerParser mainParser;
 
-    public Header1Parser(TokenCollectionParser mainParser)
+    public Header1Parser(InnerParser mainParser)
     {
         this.mainParser = mainParser;
     }

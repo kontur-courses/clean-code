@@ -6,7 +6,7 @@ namespace Markdown.Parsers;
 
 public class ItalicParser : UnderlineParser, ITokenParser
 {
-    public ItalicParser(TokenCollectionParser mainParser) : base(mainParser)
+    public ItalicParser(InnerParser mainParser) : base(mainParser)
     {
     }
 

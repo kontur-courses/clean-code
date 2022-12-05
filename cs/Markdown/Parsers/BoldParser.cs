@@ -5,7 +5,7 @@ namespace Markdown.Parsers;
 
 public class BoldParser : UnderlineParser, ITokenParser
 {
-    public BoldParser(TokenCollectionParser mainParser) : base(mainParser)
+    public BoldParser(InnerParser mainParser) : base(mainParser)
     {
     }
     

@@ -7,9 +7,9 @@ namespace Markdown.Parsers;
 
 public class LinkParser : ITokenParser
 {
-    private readonly TokenCollectionParser mainParser;
+    private readonly InnerParser mainParser;
 
-    public LinkParser(TokenCollectionParser mainParser)
+    public LinkParser(InnerParser mainParser)
     {
         this.mainParser = mainParser;
     }

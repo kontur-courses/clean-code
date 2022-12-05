@@ -5,9 +5,9 @@ namespace Markdown.Parsers;
 
 public abstract class UnderlineParser
 {
-    private TokenCollectionParser mainParser;
+    private InnerParser mainParser;
 
-    protected UnderlineParser(TokenCollectionParser mainParser)
+    protected UnderlineParser(InnerParser mainParser)
     {
         this.mainParser = mainParser;
     }
@@ -18,21 +18,7 @@ public abstract class UnderlineParser
         {
             if (CanCloseContext(context, token))
             {
-                if (context.Children.All(n => n.Tag.Type == TagType.Text))
-                {
-                    var textParts = context.Children.Select(n => n.Tag.Value);
-
-                    var text = string.Join("", textParts);
-
-                    return IsNeedParseAsText(context, text)
-                        ? Tokens.Text(string.Join("", new[] { token, Tokens.Text(text), token }.Select(x => x.Value)))
-                            .ToTagNode()
-                        : new TagNode(token.ToTag(), Tokens.Text(text).ToTagNode());
-                }
-
-                return TryParseNonText(context, out var node)
-                    ? node
-                    : new TagNode(token.ToTag(), context.Children.ToArray());
+                return CloseContext(token, context);
             }
 
             mainParser.PushContext(context);
@@ -48,6 +34,26 @@ public abstract class UnderlineParser
 
         return token.ToTextToken().ToTagNode();
     }
+
+    private TagNode CloseContext(Token token, TokenContext context)
+    {
+        if (context.Children.All(n => n.Tag.Type == TagType.Text))
+        {
+            var textParts = context.Children.Select(n => n.Tag.Value);
+
+            var text = string.Join("", textParts);
+
+            return IsNeedParseAsText(context, text)
+                ? Tokens.Text(string.Join("", new[] { token, Tokens.Text(text), token }.Select(x => x.Value)))
+                    .ToTagNode()
+                : new TagNode(token.ToTag(), Tokens.Text(text).ToTagNode());
+        }
+
+        return TryParseNonText(context, out var node)
+            ? node
+            : new TagNode(token.ToTag(), context.Children.ToArray());
+    }
+
 
     private bool CanCloseContext(TokenContext tokenContext, Token token)
     {

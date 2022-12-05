@@ -6,9 +6,9 @@ namespace Markdown.Parsers;
 
 public class EscapeParser : ITokenParser
 {
-    private readonly TokenCollectionParser mainParser;
+    private readonly InnerParser mainParser;
 
-    public EscapeParser(TokenCollectionParser mainParser)
+    public EscapeParser(InnerParser mainParser)
     {
         this.mainParser = mainParser;
     }
