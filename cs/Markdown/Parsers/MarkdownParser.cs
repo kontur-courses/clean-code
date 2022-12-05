@@ -1,4 +1,4 @@
-﻿using Markdown.Parsers.Tokens;
+﻿using System;
 
 namespace Markdown.Parsers
 {
@@ -6,11 +6,9 @@ namespace Markdown.Parsers
     {
         private readonly ParsedDocument document = new ParsedDocument();
 
-        //TODO: new line as \r\n
-        private readonly NewLineToken newLineToken = new NewLineToken();
         public MarkdownParser(string markdownText)
         {
-            var lines = markdownText.Split(newLineToken.ToString());
+            var lines = markdownText.Split(Environment.NewLine);
             foreach (var line in lines)
             {
                 var parsingLine = new MarkdownParsingLine(line);

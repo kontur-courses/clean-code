@@ -11,24 +11,26 @@ namespace Markdown.Parsers
 {
     public class ParsedTextBlock
     {
-        public List<IToken> Tokens { get; }
+        private readonly List<IToken> tokens;
 
         public ParsedTextBlock(List<IToken> tokens)
         {
-            Tokens = tokens;
+            this.tokens = tokens;
         }
 
         public string ToHtml()
         {
             var htmlTokens = new List<IToken>();
 
-            if (Tokens.FirstOrDefault(el => el is MdHeaderTag) is Tag headerTag)
+            if (tokens.FirstOrDefault(el => el is MdHeaderTag) is Tag headerTag)
             {
                 htmlTokens = ToHtmlWithReplaceSingleTagToPairedTag(headerTag, tagPosition => new HtmlHeaderTag(tagPosition));
             }
             else
             {
-                htmlTokens.AddRange(Tokens.Select(token => token.ToHtml()));
+                //htmlTokens.Add(new HtmlParagraphTag(TagPosition.End));
+                htmlTokens.AddRange(tokens.Select(token => token.ToHtml()));
+                //htmlTokens.Add(new HtmlParagraphTag(TagPosition.End));
             }
             return string.Join(null, htmlTokens.Select(e => e.ToString()));
         }
@@ -37,11 +39,11 @@ namespace Markdown.Parsers
 
         private List<IToken> ToHtmlWithReplaceSingleTagToPairedTag(Tag tag, Func<TagPosition, PairedTag> pairedTagCtor)
         {
-            var tagPosition = Tokens.IndexOf(tag);
+            var tagPosition = tokens.IndexOf(tag);
             var htmlTokens = new List<IToken>();
-            htmlTokens.AddRange(Tokens.Take(tagPosition).Select(token => token.ToHtml()));
+            htmlTokens.AddRange(tokens.Take(tagPosition).Select(token => token.ToHtml()));
             htmlTokens.Add(pairedTagCtor(TagPosition.Start));
-            htmlTokens.AddRange(Tokens.Skip(tagPosition + 1).Select(token => token.ToHtml()));
+            htmlTokens.AddRange(tokens.Skip(tagPosition + 1).Select(token => token.ToHtml()));
             htmlTokens.Add(pairedTagCtor(TagPosition.End));
             return htmlTokens;
         }

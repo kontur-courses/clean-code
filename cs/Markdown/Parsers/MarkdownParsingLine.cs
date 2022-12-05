@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using Markdown.Extensions;
 using Markdown.Parsers.Tokens;
+using Markdown.Parsers.Tokens.Markdown;
 using Markdown.Parsers.Tokens.Tags.Markdown;
 
 namespace Markdown.Parsers
@@ -33,46 +34,55 @@ namespace Markdown.Parsers
             while (!nextCharOutsideLine)
                 Tokens.Add(GetNextToken());
 
-            DeleteNotValidTags();
-
+            Tokens.ToTextThatContainedIn(OpenedTokens);
+            OpenedTokens.Clear();
             return Tokens;
         }
         
         private IToken GetNextToken()
         {
             return mdTags.IsTagStart(currentSymbol)
-                ? GetServiceTag()
-                : GetTextToken();
+                ? GetTag()
+                : GetToken();
         }
 
-        private IToken GetServiceTag()
+        private IToken GetTag()
         {
-            var text = ReadWithCheck(startPosition => !mdTags.IsTag(
+            var text = ReadLineWhile(startPosition => !mdTags.IsTag(
                 Line[startPosition..(CurrentPosition+1)]));
-            return mdTags.TryToCreateTagFor(text, this);
+
+            return IsActiveComment() ? Comment(text) : mdTags.TryToCreateTagFor(text, this);
         }
 
-        private IToken GetTextToken()
+        private IToken GetToken()
         {
-            var text = ReadWithCheck(symbol => mdTags.IsTagStart(currentSymbol));
+            string text;
+            if (MdCommentToken.IsStart(currentSymbol))
+            {
+                text = currentSymbol.ToString();
+                CurrentPosition++;
+                return IsActiveComment() ? Comment(text) : new MdCommentToken();
+            }
+
+            text = ReadLineWhile(symbol => 
+                mdTags.IsTagStart(currentSymbol) || MdCommentToken.IsStart(currentSymbol));
             return new TextToken(text);
         }
 
-        private string ReadWithCheck(Func<int, bool> stillAcceptableStartingFrom)
+        private bool IsActiveComment() => Tokens.LastOrDefault() is MdCommentToken;
+
+        private IToken Comment(string text)
+        {
+            Tokens.Remove(Tokens.Last());
+            return new TextToken(text);
+        }
+
+        private string ReadLineWhile(Func<int, bool> stillAcceptableStartingFrom)
         {
             var startPosition = CurrentPosition;
             while (!nextCharOutsideLine && !stillAcceptableStartingFrom(startPosition))
                 CurrentPosition++;
             return Line[startPosition..CurrentPosition];
-        }
-
-        private void DeleteNotValidTags()
-        {
-            var openedTokenIndexes = OpenedTokens.Select(token => Tokens.FindIndex(el => el == token));
-            foreach (var idx in openedTokenIndexes)
-                Tokens.ToTextAt(idx);
-
-            OpenedTokens.Clear();
         }
     }
 }

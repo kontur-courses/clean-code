@@ -4,9 +4,6 @@ namespace Markdown.Extensions
 {
     public static class StringExtensions
     {
-        public static bool IsEnd(this string text, int position) =>
-            position == text.Length - 1;
-
         public static bool IsInside(this string text, int position) =>
             0 <= position && position < text.Length;
 

@@ -1,5 +1,5 @@
-﻿using Markdown.Extensions;
-using System.Text.RegularExpressions;
+﻿using System.Linq;
+using Markdown.Extensions;
 
 namespace Markdown.Parsers.Tokens.Tags.Markdown
 {
@@ -22,7 +22,8 @@ namespace Markdown.Parsers.Tokens.Tags.Markdown
 
         protected override bool IsValidTag(string currentLine, int position)
         {
-            return Regex.IsMatch(currentLine[..(position - Text.Length)], @"\s*")
+            int count = position - Text.Length;
+            return (count == 0 || Enumerable.Range(0, count).Any(currentLine.IsWhiteSpaceIn))
                    && currentLine.IsWhiteSpaceIn(position);
         }
     }

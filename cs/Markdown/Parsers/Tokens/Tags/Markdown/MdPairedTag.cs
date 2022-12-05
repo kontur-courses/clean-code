@@ -3,6 +3,7 @@ using Markdown.Parsers.Tokens.Tags.Enum;
 using Markdown.Extensions;
 using System.Collections.Generic;
 using System.Linq;
+using Markdown.Parsers.Tokens.Markdown;
 
 namespace Markdown.Parsers.Tokens.Tags.Markdown
 {
@@ -13,16 +14,27 @@ namespace Markdown.Parsers.Tokens.Tags.Markdown
         protected MdPairedTag(MarkdownParsingLine context, string data) :
             this(context?.OpenedTokens.LastOrDefault(el => el.ToString() == data) as MdPairedTag, data)
         {
+            if (context == null) 
+                return;
+
+            var previousPosition = GetPreviousPosition(context.CurrentPosition);
+            intoWord = Position == TagPosition.Start
+                       && !context.Line.IsWhiteSpaceIn(previousPosition)
+                       && !MdCommentToken.IsCommented(context.Line, context.CurrentPosition)
+                       && !context.Line.IsWhiteSpaceIn(context.CurrentPosition)
+                       && context.Line.IsInside(previousPosition);
         }
+
+        private int GetPreviousPosition(int currentPosition) =>
+            currentPosition - Text.Length - 1;
 
         private MdPairedTag(MdPairedTag startTag, string data) : 
             base(startTag == null ? TagPosition.Start : TagPosition.End, data)
         {
-            if(startTag != null)
-            {
-                Pair = startTag;
-                startTag.Pair = this;
-            }
+            if (startTag == null) 
+                return;
+            Pair = startTag;
+            startTag.Pair = this;
         }
 
         protected MdPairedTag(TagPosition tagPosition, string data) : base(tagPosition, data)
@@ -33,24 +45,19 @@ namespace Markdown.Parsers.Tokens.Tags.Markdown
         {
             if (!IsValidTag(context.Line, context.CurrentPosition))
                 return false;
+
+            if (Pair is null)
+                context.OpenedTokens.Add(this);
             else
             {
-                CheckInWord(context.Line, context.CurrentPosition);
+                if (Pair is MdPairedTag { intoWord: true } && !IsIntoWord(context.Tokens))
+                    return false;
 
-                if (Pair is null)
-                    context.OpenedTokens.Add(this);
-                else
-                {
-                    if (Pair is MdPairedTag { intoWord: true } && !IsIntoWord(context.Tokens))
-                        return false;
+                context.OpenedTokens.Remove(Pair);
 
-                    context.OpenedTokens.Remove(Pair);
-
-                    if (HasIntersections(context.Tokens))
-                        return false;
-                }
+                if (HasIntersections(context.Tokens))
+                    return false;
             }
-
             return true;
         }
 
@@ -71,19 +78,9 @@ namespace Markdown.Parsers.Tokens.Tags.Markdown
         {
             var mdTags = MdTags.GetInstance();
             var previousPosition = GetPreviousPosition(currentPosition);
-            return  !currentLine.IsWhiteSpaceIn(previousPosition)
-                && (!currentLine.Is(mdTags.IsServiceSymbol, previousPosition) || MdCommentTag.IsCommented(currentLine, currentPosition))
-                && !currentLine.Is(mdTags.IsServiceSymbol, currentPosition);
-        }
-
-        private void CheckInWord(string currentLine, int currentPosition)
-        {
-            var previousPosition = GetPreviousPosition(currentPosition);
-            intoWord = Position == TagPosition.Start 
-                       && !currentLine.IsWhiteSpaceIn(previousPosition)
-                       && !MdCommentTag.IsCommented(currentLine, currentPosition)
-                       && !currentLine.IsWhiteSpaceIn(currentPosition)
-                       && currentLine.IsInside(previousPosition);
+            return !currentLine.IsWhiteSpaceIn(previousPosition) 
+                   && !currentLine.Is(mdTags.IsServiceSymbol, previousPosition) 
+                   && !currentLine.Is(mdTags.IsServiceSymbol, currentPosition);
         }
 
         private bool IsIntoWord(List<IToken> tokens)
@@ -123,8 +120,5 @@ namespace Markdown.Parsers.Tokens.Tags.Markdown
             }
             return false;
         }
-
-        private int GetPreviousPosition(int currentPosition) => 
-            currentPosition - Text.Length - 1;
     }
 }

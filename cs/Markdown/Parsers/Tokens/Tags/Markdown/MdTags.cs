@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
 
 namespace Markdown.Parsers.Tokens.Tags.Markdown
 {
@@ -17,7 +16,6 @@ namespace Markdown.Parsers.Tokens.Tags.Markdown
             mdTagDictionary.Add(new MdItalicTag().ToString(), context => new MdItalicTag(context));
 
             mdTagDictionary.Add(new MdHeaderTag().ToString(), context => new MdHeaderTag());
-            mdTagDictionary.Add(new MdCommentTag().ToString(), context => new MdCommentTag());
             
             foreach (var tag in mdTagDictionary)
             {
@@ -27,23 +25,16 @@ namespace Markdown.Parsers.Tokens.Tags.Markdown
             }
         }
 
-        public static MdTags GetInstance() =>
-            instance ?? (instance = new MdTags());
+        public static MdTags GetInstance() => 
+            instance ??= new MdTags();
 
         public IToken TryToCreateTagFor(string text, MarkdownParsingLine context)
         {
             var tag = mdTagDictionary[text].Invoke(context);
 
-            if (context.Tokens.LastOrDefault() is MdCommentTag)
-            {
-                context.Tokens.Remove(context.Tokens.Last());
-                return tag.ToText();
-            }
-
-            if (tag.TryToValidate(context))
-                return tag; 
-            else
-                return tag.ToText();
+            return tag.TryToValidate(context) 
+                ? tag 
+                : tag.ToText();
         }
 
         public bool IsTag(string text) => 

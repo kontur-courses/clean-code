@@ -1,5 +1,4 @@
 ﻿using System.IO;
-using Markdown.Parsers.Tokens.Tags.Markdown;
 using Markdown.Renderers;
 using NUnit.Framework;
 
@@ -77,8 +76,8 @@ namespace Markdown
         public string MdRender_NotConvertHeaderText_When(string markdownText) =>
             MdRender(markdownText);
 
-        [TestCase(@"..\..\..\..\..\Markdown.md", TestName = "Markdown.md")]
-        [TestCase(@"..\..\..\..\..\MarkdownSpec.md", TestName = "MarkdownSpec.md")]
+        [TestCase(@"..\..\..\..\..\Markdown.md", TestName = "Markdown")]
+        [TestCase(@"..\..\..\..\..\MarkdownSpec.md", TestName = "MarkdownSpec")]
         public void MdRender_MdFileToHtml_CreatesFor(string path)
         {
             var mdSpec = File.ReadAllText(path);
@@ -89,16 +88,6 @@ namespace Markdown
                 htmlMdSpec.WriteLine(MdRender(mdSpec));
             }
             Assert.IsTrue(File.Exists(htmlFile));
-        }
-
-        [Test]
-        public void CheckThis()
-        {
-            var a = new MdBoldTag();
-            var b = new MdItalicTag();
-            var c = new MdItalicTag();
-            Assert.IsTrue(b.GetType() == c.GetType());
-            Assert.IsFalse(a.GetType() == b.GetType());
         }
     }
 }
