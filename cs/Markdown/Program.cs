@@ -1,11 +1,10 @@
-﻿namespace Markdown
+﻿namespace Markdown;
+
+public class Program
 {
-    public class Program
+    public static void Main(string[] args)
     {
-        public static void Main(string[] args)
-        {
-            var md = new Md(new ParsersHandler());
-            md.Render("_Hello world_");
-        }
+        var md = new Md(new Parser());
+        md.Render("_Hello world_");
     }
 }

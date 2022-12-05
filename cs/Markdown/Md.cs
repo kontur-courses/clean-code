@@ -1,22 +1,16 @@
-﻿namespace Markdown
+﻿namespace Markdown;
+
+public class Md
 {
-    public class Md
+    private readonly Parser _handler;
+
+    public Md(Parser handler)
     {
-        private readonly ParsersHandler _handler;
-        public Md(ParsersHandler handler)
-        {
-            _handler = handler;
-        }
-        
-        public string Render(string markdownText)
-        {
-            return _handler.Handle(markdownText);
-        }
-        
-        private string ConvertToHtml(string text)
-        {
-            throw new NotImplementedException();
-        }
+        _handler = handler;
+    }
+
+    public string Render(string markdownText)
+    {
+        return _handler.Parse(markdownText);
     }
 }
-
