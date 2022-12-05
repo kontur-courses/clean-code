@@ -9,7 +9,9 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "ControlDigit", "ControlDigi
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Samples", "Samples\Samples.csproj", "{C3EF41D7-50EF-4CE1-B30A-D1D81C93D7FA}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Markdown", "Markdown\Markdown.csproj", "{37C558B7-2A5D-4D64-96A2-0C3A66E531FE}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Markdown", "Markdown\Markdown.csproj", "{37C558B7-2A5D-4D64-96A2-0C3A66E531FE}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MarkdownTests", "MarkdownTests\MarkdownTests.csproj", "{5FF44684-1B86-4DFE-AA68-B14CB06BDBD2}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -33,6 +35,10 @@ Global
 		{37C558B7-2A5D-4D64-96A2-0C3A66E531FE}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{37C558B7-2A5D-4D64-96A2-0C3A66E531FE}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{37C558B7-2A5D-4D64-96A2-0C3A66E531FE}.Release|Any CPU.Build.0 = Release|Any CPU
+		{5FF44684-1B86-4DFE-AA68-B14CB06BDBD2}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{5FF44684-1B86-4DFE-AA68-B14CB06BDBD2}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{5FF44684-1B86-4DFE-AA68-B14CB06BDBD2}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{5FF44684-1B86-4DFE-AA68-B14CB06BDBD2}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

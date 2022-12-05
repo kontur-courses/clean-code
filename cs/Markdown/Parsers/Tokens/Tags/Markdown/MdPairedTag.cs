@@ -9,7 +9,7 @@ namespace Markdown.Parsers.Tokens.Tags.Markdown
 {
     public abstract class MdPairedTag : PairedTag
     {
-        private bool intoWord;
+        private readonly bool intoWord;
 
         protected MdPairedTag(MarkdownParsingLine context, string data) :
             this(context?.OpenedTokens.LastOrDefault(el => el.ToString() == data) as MdPairedTag, data)
