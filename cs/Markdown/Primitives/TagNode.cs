@@ -34,12 +34,9 @@ public class TagNode
 
     public override bool Equals(object? obj)
     {
-        if (obj is TagNode node)
-        {
-            return Tag == node.Tag && Children.SequenceEqual(node.Children);
-        }
-
-        return false;
+        return obj is TagNode node
+               && Tag == node.Tag
+               && Children.SequenceEqual(node.Children);
     }
 
     public override int GetHashCode()
