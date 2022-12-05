@@ -79,26 +79,26 @@ public class MarkdownParser
                 textSb.Append(currentToken.Symbol);
 
             var fullMatchFound = CheckMatchesInProcess(matches, processMatches, currentToken, out var fullMatch);
-            if (fullMatchFound)
+            if (!fullMatchFound) continue;
+
+            matches.Add(fullMatch!);
+            
+            textSb.Remove(fullMatch!.StartPosition, fullMatch.Lenght);
+            if (textSb.Length != 0)
+                document.AddNode(new PlaintextDocumentNode(textSb));
+
+            var clearMatchFullText = fullMatch.SourceMdTag.ClearText(fullMatch.Text);
+            if (fullMatch!.SourceMdTag.CanBeParsed)
             {
-                matches.Add(fullMatch!);
-                textSb.Remove(fullMatch!.StartPosition, fullMatch.Lenght);
-                if (textSb.Length != 0)
-                    document.AddNode(new PlaintextDocumentNode(textSb));
-
-                var clearMatchFullText = fullMatch.SourceMdTag.ClearText(fullMatch.Text);
-                if (fullMatch!.SourceMdTag.CanBeParsed)
-                {
-                    var parsedDoc = Parse(clearMatchFullText);
-                    document.AddNode(new MatchedDocumentNode(fullMatch!.SourceMdTag.Name, parsedDoc.Document.Nodes));
-                }
-                else
-                {
-                    document.AddNode(new MatchedDocumentNode(fullMatch!.SourceMdTag.Name, new PlaintextDocumentNode(clearMatchFullText)));
-                }
-
-                textSb = new StringBuilder();
+                var parsedDoc = Parse(clearMatchFullText);
+                document.AddNode(new MatchedDocumentNode(fullMatch!.SourceMdTag.Name, parsedDoc.Document.Nodes));
             }
+            else
+            {
+                document.AddNode(new MatchedDocumentNode(fullMatch!.SourceMdTag.Name, new PlaintextDocumentNode(clearMatchFullText)));
+            }
+
+            textSb = new StringBuilder();
         }
 
         if (textSb.Length != 0)
@@ -153,14 +153,14 @@ public class MarkdownParser
     //проверять что не пересекаются
     private static bool NotIntersectWithExist(List<Match> matches, Match matchToCheckState)
     {
-        // foreach (var match in matches)
-        // {
-        //     if (match.StartPosition <= matchToCheckState.StartPosition &&
-        //         match.StartPosition + match.Lenght >= matchToCheckState.StartPosition)
-        //     {
-        //         return false;
-        //     }
-        // }
+        foreach (var match in matches)
+        {
+            if (match.StartPosition <= matchToCheckState.StartPosition &&
+                match.StartPosition + match.Lenght >= matchToCheckState.StartPosition)
+            {
+                return false;
+            }
+        }
 
         return true;
     }

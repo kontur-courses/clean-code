@@ -11,7 +11,7 @@ public class BoldMdTag : GeneralMdTag
     {
         return new[]
         {
-            FirstBoldPattern(), SecondBoldPattern()
+            FirstBoldPattern(), SecondBoldPattern(), ThirdBoldPattern()
         };
     }
 
@@ -19,7 +19,6 @@ public class BoldMdTag : GeneralMdTag
     public override string ClearText(string text)
     {
         return text.Remove(text.Length - 2, 2).Remove(0, 2);
-        // return text.Remove(text.Length - 3, 2).Remove(0, 2);
     }
 
 
@@ -58,13 +57,7 @@ public class BoldMdTag : GeneralMdTag
                 : NodeCheckResult.NotSuccess;
         });
 
-        var middleNodeFirst = new StateNode(middleNodeSecond, token =>
-        {
-            // if (token.Symbol == '_')
-            //     return NodeCheckResult.NotSuccess;
-
-            return char.IsLetterOrDigit(token.Symbol) ? NodeCheckResult.Success : NodeCheckResult.NotSuccess;
-        });
+        var middleNodeFirst = new StateNode(middleNodeSecond, token => { return char.IsLetterOrDigit(token.Symbol) ? NodeCheckResult.Success : NodeCheckResult.NotSuccess; });
 
         var secondStartTag = new StateNode(middleNodeFirst, token => token.Symbol == '_' ? NodeCheckResult.Success : NodeCheckResult.NotSuccess);
         var startNode = new StateNode(secondStartTag, StateNodeType.StartPosition, token => token.Symbol == '_' ? NodeCheckResult.Success : NodeCheckResult.NotSuccess);
@@ -93,13 +86,7 @@ public class BoldMdTag : GeneralMdTag
         });
 
         var secondEndTag = new StateNode(lookaheadNode, token => token.Symbol == '_' ? NodeCheckResult.Success : NodeCheckResult.NotSuccess);
-        var firstEnd = new StateNode(secondEndTag, token =>
-        {
-            if (token.Symbol == '_')
-                return NodeCheckResult.Success;
-
-            return NodeCheckResult.NotSuccess;
-        });
+        var firstEnd = new StateNode(secondEndTag, token => token.Symbol == '_' ? NodeCheckResult.Success : NodeCheckResult.NotSuccess);
 
         var middleNodeFirst = new StateNode(firstEnd, token =>
         {
@@ -110,9 +97,8 @@ public class BoldMdTag : GeneralMdTag
         });
 
         var secondStartTag = new StateNode(middleNodeFirst, token => token.Symbol == '_' ? NodeCheckResult.Success : NodeCheckResult.NotSuccess);
-        var startNode = new StateNode(secondStartTag, StateNodeType.StartPosition, token => token.Symbol == '_' ? NodeCheckResult.Success : NodeCheckResult.NotSuccess);
-
-        var rootNode = new StateNode(startNode, StateNodeType.Lookbehind, token =>
+        var startNodeTag = new StateNode(secondStartTag, StateNodeType.StartPosition, token => token.Symbol == '_' ? NodeCheckResult.Success : NodeCheckResult.NotSuccess);
+        var rootNode = new StateNode(startNodeTag, StateNodeType.Lookbehind, token =>
         {
             if (token.Symbol == '\0' || token.Symbol == ' ' || token.Symbol == '\n' || token.Symbol == '\r')
                 return NodeCheckResult.Success;
@@ -126,17 +112,15 @@ public class BoldMdTag : GeneralMdTag
     private static PatternTree ThirdBoldPattern()
     {
         var endNode = new StateNode(true);
-        var secondEndTagNode = new StateNode(endNode, token => token.Symbol == '_' ? NodeCheckResult.Success : NodeCheckResult.NotSuccess);
 
-        var middleNodeSecond = new StateNode(secondEndTagNode, token =>
-        {
-            if (token.Symbol == '_')
-                return NodeCheckResult.Success;
+        var lookaheadNode = new StateNode(endNode, StateNodeType.Lookahead, token => token.Symbol == '_' ? NodeCheckResult.NotSuccess : NodeCheckResult.Success);
 
-            return char.IsLetter(token.Symbol)
-                ? NodeCheckResult.SuccessToSelf
-                : NodeCheckResult.NotSuccess;
-        });
+        var secondEndTag = new StateNode(lookaheadNode, token => token.Symbol == '_' ? NodeCheckResult.Success : NodeCheckResult.NotSuccess);
+        var firstEndTag = new StateNode(secondEndTag, token => token.Symbol == '_' ? NodeCheckResult.Success : NodeCheckResult.NotSuccess);
+
+        var middleNodeSecond = new StateNode(firstEndTag, token => char.IsLetter(token.Symbol)
+            ? NodeCheckResult.SuccessToSelf
+            : NodeCheckResult.NotSuccess);
 
         var middleNodeFirst = new StateNode(middleNodeSecond, token =>
         {
@@ -146,11 +130,42 @@ public class BoldMdTag : GeneralMdTag
             return char.IsLetter(token.Symbol) ? NodeCheckResult.Success : NodeCheckResult.NotSuccess;
         });
 
-        var startPositionSecondNode = new StateNode(middleNodeFirst,
-            token => token.Symbol == '_' ? NodeCheckResult.Success : NodeCheckResult.NotSuccess);
-        var startPositionNode = new StateNode(startPositionSecondNode, StateNodeType.StartPosition,
-            token => token.Symbol == '_' ? NodeCheckResult.Success : NodeCheckResult.NotSuccess);
+        var startNodeTagSecond = new StateNode(middleNodeFirst, token => token.Symbol == '_' ? NodeCheckResult.Success : NodeCheckResult.NotSuccess);
+        var startNodeTagFirst = new StateNode(startNodeTagSecond, StateNodeType.StartPosition, token => token.Symbol == '_' ? NodeCheckResult.Success : NodeCheckResult.NotSuccess);
 
-        return new PatternTree(startPositionNode);
+
+        return new PatternTree(startNodeTagFirst);
     }
+
+    //
+    // private static PatternTree ThirdBoldPattern2()
+    // {
+    //     var endNode = new StateNode(true);
+    //     var secondEndTagNode = new StateNode(endNode, token => token.Symbol == '_' ? NodeCheckResult.Success : NodeCheckResult.NotSuccess);
+    //
+    //     var middleNodeSecond = new StateNode(secondEndTagNode, token =>
+    //     {
+    //         if (token.Symbol == '_')
+    //             return NodeCheckResult.Success;
+    //
+    //         return char.IsLetter(token.Symbol)
+    //             ? NodeCheckResult.SuccessToSelf
+    //             : NodeCheckResult.NotSuccess;
+    //     });
+    //
+    //     var middleNodeFirst = new StateNode(middleNodeSecond, token =>
+    //     {
+    //         if (token.Symbol == '_')
+    //             return NodeCheckResult.NotSuccess;
+    //
+    //         return char.IsLetter(token.Symbol) ? NodeCheckResult.Success : NodeCheckResult.NotSuccess;
+    //     });
+    //
+    //     var startPositionSecondNode = new StateNode(middleNodeFirst,
+    //         token => token.Symbol == '_' ? NodeCheckResult.Success : NodeCheckResult.NotSuccess);
+    //     var startPositionNode = new StateNode(startPositionSecondNode, StateNodeType.StartPosition,
+    //         token => token.Symbol == '_' ? NodeCheckResult.Success : NodeCheckResult.NotSuccess);
+    //
+    //     return new PatternTree(startPositionNode);
+    // }
 }

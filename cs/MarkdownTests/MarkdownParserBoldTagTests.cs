@@ -46,7 +46,7 @@ public class MarkdownParserBoldTagTests
     {
         var matches = _mdParser!.ParseToMatches(sourceText);
 
-        matches.Count.Should().Be(0);
+        matches.Count.Should().Be(1);
     }
 
 
@@ -76,7 +76,7 @@ public class MarkdownParserBoldTagTests
         using (new AssertionScope())
         {
             matches.Count.Should().Be(1);
-            matches[0].Text.Should().Be("__testfgdf__uljkl__");
+            matches[0].Text.Should().Be("__testfgdf__");
         }
     }
 
