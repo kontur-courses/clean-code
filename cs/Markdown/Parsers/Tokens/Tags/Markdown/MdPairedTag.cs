@@ -41,12 +41,13 @@ namespace Markdown.Parsers.Tokens.Tags.Markdown
                     context.OpenedTokens.Add(this);
                 else
                 {
-                    ProcessIntersections(context.Tokens, context.OpenedTokens);
-
                     if (Pair is MdPairedTag { IntoWord: true } && !IsIntoWord(context.Tokens))
                         return false;
 
                     context.OpenedTokens.Remove(Pair);
+
+                    if (HasIntersections(context.Tokens))
+                        return false;
                 }
             }
 
@@ -96,23 +97,35 @@ namespace Markdown.Parsers.Tokens.Tags.Markdown
             return lastToken?.IsWord() == true && isStartTagBeforeLastToken;
         }
 
-        private void ProcessIntersections(List<IToken> tokens, List<IToken> openedTokens)
+        private bool HasIntersections(List<IToken> tokens)
         {
-            if (!(this is MdItalicTag) || this.Position != TagPosition.End)
-                return;
+            if (this.Position != TagPosition.End)
+                return false;
 
-            for (int idx = tokens.IndexOf(Pair); idx < tokens.Count; idx++)
+            var startOuterTagIdx = tokens.IndexOf(Pair);
+            for (int endIdxOfInnerTag = startOuterTagIdx + 1; endIdxOfInnerTag < tokens.Count; endIdxOfInnerTag++)
             {
-                if (tokens[idx] is MdBoldTag boldTag)
+                if (tokens[endIdxOfInnerTag] is MdPairedTag { Position: TagPosition.End } pairedTag)
                 {
-                    if (openedTokens.Contains(boldTag))
-                        openedTokens.Remove(boldTag);
-                    else
-                        openedTokens.Add(boldTag.Pair);
+                    var startInnerTagIdx = tokens.IndexOf(pairedTag.Pair);
+                    if (startOuterTagIdx > startInnerTagIdx)
+                    {
+                        tokens[startOuterTagIdx] = tokens[startOuterTagIdx].ToText();
+                        tokens[startInnerTagIdx] = tokens[startInnerTagIdx].ToText();
+                        tokens[endIdxOfInnerTag] = tokens[endIdxOfInnerTag].ToText();
+                        return true;
 
-                    tokens[idx] = tokens[idx].ToText();
+                    }
+                    else if (pairedTag is MdBoldTag)
+                    {
+                        tokens[startInnerTagIdx] = tokens[startInnerTagIdx].ToText();
+                        tokens[endIdxOfInnerTag] = tokens[endIdxOfInnerTag].ToText();
+                    }
+
                 }
             }
+
+            return false;
         }
 
         private int GetPreviousPosition(int currentPosition) => 

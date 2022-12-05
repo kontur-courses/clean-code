@@ -1,4 +1,5 @@
 ﻿using System.IO;
+using Markdown.Parsers.Tokens.Tags.Markdown;
 using Markdown.Renderers;
 using NUnit.Framework;
 
@@ -52,8 +53,11 @@ namespace Markdown
         [TestCase(@"\__t_t___t__", ExpectedResult = @"__t_t___t__", TestName = "Text4")]
         [TestCase("t _t __t__ t_ t", ExpectedResult = @"t <em>t __t__ t</em> t", TestName = "bold inside italic")]
         [TestCase("t __t _t_ t__ t", ExpectedResult = @"t <strong>t <em>t</em> t</strong> t", TestName = "Italic inside bold")]
-        [TestCase("t _t t __t t_ t__ t", ExpectedResult = "t <em>t t __t t</em> t__ t", TestName = "one tag start before end other and end after")]
-        [TestCase("__t _t t __t t_ _t t __t t_ t__ t", ExpectedResult = "<strong>t <em>t t __t t</em> <em>t t __t t</em> t</strong> t", TestName = "mix")]
+        [TestCase("t _t t __t t_ t__ t", ExpectedResult = "t _t t __t t_ t__ t", TestName = "one tag start before end other and end after")]
+        [TestCase("__t _t t__ t t_ _t t__ t t_ t__ t", ExpectedResult = "__t _t t__ t t_ <em>t t__ t t</em> t__ t", TestName = "mix2")]
+        [TestCase("__t _t t__ t t_ _t t__ t t_ t t", ExpectedResult = "__t _t t__ t t_ <em>t t__ t t</em> t t", TestName = "mix")]
+        [TestCase("_t __t t_ t t__ _t __t t_ t t__ t", ExpectedResult = "_t __t t_ t t__ _t __t t_ t t__ t", TestName = "mix3")]
+        [TestCase("_t __t t_ t t__ __t t_ t t__ t t", ExpectedResult = "_t __t t_ t t__ <strong>t t_ t t</strong> t t", TestName = "mix4")]
         [TestCase(@"Здесь сим\волы экранирования\ \должны остаться.\", ExpectedResult = @"Здесь сим\волы экранирования\ \должны остаться.\", TestName = "Comment 2")]
         [TestCase(@"\_Вот это\_, не должно выделиться тегом <em>", ExpectedResult = @"_Вот это_, не должно выделиться тегом <em>", TestName = "Comment 1")]
         public string MdRender_ConvertTextWithDifferentTags_When(string markdownText) =>
@@ -85,6 +89,16 @@ namespace Markdown
                 htmlMdSpec.WriteLine(MdRender(mdSpec));
             }
             Assert.IsTrue(File.Exists(htmlFile));
+        }
+
+        [Test]
+        public void CheckThis()
+        {
+            var a = new MdBoldTag();
+            var b = new MdItalicTag();
+            var c = new MdItalicTag();
+            Assert.IsTrue(b.GetType() == c.GetType());
+            Assert.IsFalse(a.GetType() == b.GetType());
         }
     }
 }
