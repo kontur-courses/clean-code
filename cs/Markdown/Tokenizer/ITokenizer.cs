@@ -1,7 +1,9 @@
-﻿namespace Markdown
+﻿using System.Collections.Generic;
+
+namespace Markdown
 {
-    public interface ITokenizer<TTag>
+    public interface ITokenizer
     {
-        public IToken<TTag>[] Tokenize();
+        public IEnumerable<IToken> Tokenize();
     }
 }

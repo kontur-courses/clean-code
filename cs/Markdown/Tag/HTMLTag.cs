@@ -1,19 +1,21 @@
-﻿using System;
-
-namespace Markdown
+﻿namespace Markdown
 {
     public class HTMLTag : ITag
     {
-        public static HTMLTag Strong = new HTMLTag(0, nameof(Strong), "strong");
-        public static HTMLTag Emphasys = new HTMLTag(1, nameof(Emphasys), "em");
-        public static Func<int, HTMLTag> Heading = (level) 
-            => new HTMLTag(0, nameof(Heading), $"h{level}");
+        public readonly static HTMLTag Strong = new HTMLTag("<strong>", "</strong>");
+        public readonly static HTMLTag Emphasys = new HTMLTag("<em>", "</em>");
+        public readonly static HTMLTag Heading = new HTMLTag("<h1>", "</h1>");
 
-        public string Markup { get; }
+        public string Opening { get; }
+        public string Closing { get; }
+        public bool IsSelfClosing => Closing != null;
+        public bool CanNesting { get; }
 
-        public HTMLTag(int id, string name, string markup)
+        private HTMLTag(string opening, string closing, bool canNesting = true)
         {
-            Markup = markup;
+            Opening = opening;
+            Closing = closing;
+            CanNesting = canNesting;
         }
     }
 }

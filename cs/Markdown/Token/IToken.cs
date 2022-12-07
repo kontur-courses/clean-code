@@ -1,8 +1,10 @@
-﻿namespace Markdown
+﻿using System;
+
+namespace Markdown
 {
-    public interface IToken<TTag>
+    public interface IToken : ICloneable
     {
-        public TTag Tag { get; }
+        public TokenType Type { get; }
         public TagState TagState { get; }
         public string Content { get; }
     }

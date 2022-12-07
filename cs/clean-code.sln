@@ -9,7 +9,9 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "ControlDigit", "ControlDigi
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Samples", "Samples\Samples.csproj", "{C3EF41D7-50EF-4CE1-B30A-D1D81C93D7FA}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Markdown", "Markdown\Markdown.csproj", "{7026C20C-E584-4C0C-B22B-3078C2BA55B8}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Markdown", "Markdown\Markdown.csproj", "{7026C20C-E584-4C0C-B22B-3078C2BA55B8}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MarkdownTests", "MarkdownTests\MarkdownTests.csproj", "{57583A02-D226-46BF-8BA3-2CE02A66A127}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -33,6 +35,10 @@ Global
 		{7026C20C-E584-4C0C-B22B-3078C2BA55B8}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{7026C20C-E584-4C0C-B22B-3078C2BA55B8}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{7026C20C-E584-4C0C-B22B-3078C2BA55B8}.Release|Any CPU.Build.0 = Release|Any CPU
+		{57583A02-D226-46BF-8BA3-2CE02A66A127}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{57583A02-D226-46BF-8BA3-2CE02A66A127}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{57583A02-D226-46BF-8BA3-2CE02A66A127}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{57583A02-D226-46BF-8BA3-2CE02A66A127}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

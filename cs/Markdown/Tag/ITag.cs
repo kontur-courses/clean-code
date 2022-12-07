@@ -2,6 +2,9 @@
 {
     public interface ITag
     {
-        public string Markup { get; }
+        string Opening { get; }
+        string Closing { get; }
+        bool IsSelfClosing { get; }
+        bool CanNesting { get; }
     }
 }

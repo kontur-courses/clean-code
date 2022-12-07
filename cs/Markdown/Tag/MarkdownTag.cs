@@ -1,19 +1,21 @@
-﻿using System;
-
-namespace Markdown
+﻿namespace Markdown
 {
     public class MarkdownTag : ITag
     {
-        public static MarkdownTag Italic = new MarkdownTag(0, nameof(Italic), "_");
-        public static MarkdownTag Bold = new MarkdownTag(1, nameof(Bold), "__");
-        public static Func<int, MarkdownTag> Heading = (level) 
-            => new MarkdownTag(2, nameof(Heading), new string('*', level));
+        public readonly static MarkdownTag Italic = new MarkdownTag("_", "_", false);
+        public readonly static MarkdownTag Bold = new MarkdownTag("__", "__");
+        public readonly static MarkdownTag Heading = new MarkdownTag("#", "");
 
-        public string Markup { get; }
+        public string Opening { get; }
+        public string Closing { get; }
+        public bool IsSelfClosing => Closing == string.Empty;
+        public bool CanNesting { get; }
 
-        public MarkdownTag(int id, string name, string markup)
+        public MarkdownTag(string opening, string closing, bool canNesting = true)
         {
-            Markup = markup;
+            Opening = opening;
+            Closing = closing;
+            CanNesting = canNesting;
         }
     }
 }

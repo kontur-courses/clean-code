@@ -2,8 +2,9 @@
 {
     public enum TagState
     {
+        Undefined,
         Opening,
-        SelfClosing,
         Closing,
+        SelfClosing,
     }
 }

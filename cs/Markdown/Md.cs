@@ -1,26 +1,18 @@
-﻿using System;
-
-namespace Markdown
+﻿namespace Markdown
 {
-    public class Md<TagOut, TagIn> 
-        where TagOut : MarkdownTag
-        where TagIn : ITag
+    public class Md
     {
-        public IRules Rules { get; }
-        public ITokenizer<TagOut> Tokenizer { get; }
-        public IRenderer<TagIn> Renderer { get; }
-
-        public Md(ITokenizer<TagOut> tokenizer, IRenderer<TagIn> renderer,
-            IRules rules)
+        public string Render(string text)
         {
-            Tokenizer = tokenizer;
-            Renderer = renderer;
-            Rules = rules;
-        }
+            var tokenizer = new Tokenizer(text);
+            var handler = new Handler();
+            var builder = new Builder();
 
-        public string Render(string markdownText)
-        {
-            throw new NotImplementedException();
+            var rawTokens = tokenizer.Tokenize();
+            var handledTokens = handler.Handle(rawTokens);
+            var build = builder.Build(handledTokens);
+
+            return build;
         }
     }
 }
