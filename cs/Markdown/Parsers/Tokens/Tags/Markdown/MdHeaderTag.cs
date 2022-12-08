@@ -13,11 +13,9 @@ namespace Markdown.Parsers.Tokens.Tags.Markdown
         {
             if (!IsValidTag(context.Line, context.CurrentPosition))
                 return false;
-            else
-            {
-                context.CurrentPosition++;
-                return true;
-            }
+
+            context.CurrentPosition++;
+            return true;
         }
 
         protected override bool IsValidTag(string currentLine, int position)

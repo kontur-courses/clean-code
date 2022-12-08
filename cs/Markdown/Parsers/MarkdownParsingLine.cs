@@ -22,7 +22,7 @@ namespace Markdown.Parsers
 
         public MarkdownParsingLine(string line)
         {
-            this.Line = line;
+            Line = line;
         }
 
         public List<IToken> Parse()

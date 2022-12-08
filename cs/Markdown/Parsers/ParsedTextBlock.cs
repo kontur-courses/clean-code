@@ -28,9 +28,7 @@ namespace Markdown.Parsers
             }
             else
             {
-                //htmlTokens.Add(new HtmlParagraphTag(TagPosition.End));
                 htmlTokens.AddRange(tokens.Select(token => token.ToHtml()));
-                //htmlTokens.Add(new HtmlParagraphTag(TagPosition.End));
             }
             return string.Join(null, htmlTokens.Select(e => e.ToString()));
         }
