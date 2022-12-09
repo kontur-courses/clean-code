@@ -1,11 +1,11 @@
 ﻿using System.Collections.Generic;
 using System.Linq;
 
-namespace Markdown
+namespace Markdown.Tag
 {
     public static class Tags
     {
-        private static IList<ITag> RegisteredTags { get; }
+        private static readonly IList<ITag> RegisteredTags;
 
         static Tags()
         {
@@ -26,7 +26,7 @@ namespace Markdown
         {
             var type = typeof(T);
             return RegisteredTags
-                .Where(tag => type.IsAssignableFrom(tag.GetType()))
+                .Where(tag => type.IsInstanceOfType(tag))
                 .Cast<T>();
         }
     }

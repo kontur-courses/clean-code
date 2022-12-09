@@ -2,13 +2,12 @@
 
 namespace Markdown
 {
-    public class Program
+    public static class Program
     {
         public static void Main()
         {
-            var markdownText = @"";
-            var md = new Md();
-            Console.WriteLine(md.Render(markdownText));
+            const string markdownText = @"";
+            Console.WriteLine(Md.Render(markdownText));
         }
     }
 }

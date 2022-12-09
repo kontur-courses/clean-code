@@ -1,32 +1,27 @@
-﻿using System;
+﻿using Markdown.Enums;
+using Markdown.Tag;
+using System;
 using System.Linq;
 
-namespace Markdown
+namespace Markdown.Extensions
 {
     public static class StringExtension
     {
-        public static bool IsTag(this string tag) => IsTag<ITag>(tag);
-
-        public static bool IsTag(this string tag, TagState tagState)
-            => IsTag<ITag>(tag, tagState);
-
-        public static bool IsTag<T>(this string tag) where T : ITag
+        public static bool IsTag<T>(this string value) where T : ITag
         {
             return Tags.GetAll<T>()
-                .Any(t => t.Opening == tag || t.Closing == tag);
+                .Any(t => t.Opening == value || t.Closing == value);
         }
 
-        public static bool IsTag<T>(this string tag, TagState tagState) where T : ITag
+        public static bool IsTag<T>(this string value, TagState tagState) where T : ITag
         {
-            Func<T, bool> condition = default;
-            switch (tagState)
+            Func<T, bool> condition = tagState switch
             {
-                case TagState.Opening: 
-                    condition = (t) => t.Opening == tag; break;
-                case TagState.Closing:
-                    condition = (t) => t.Closing == tag; break;
-            }
-            return Tags.GetAll<T>().Any(condition);
+                TagState.Opening => (t) => t.Opening == value,
+                TagState.Closing => (t) => t.Closing == value,
+                _ => default
+            };
+            return condition != null && Tags.GetAll<T>().Any(condition);
         }
 
         public static bool IsTag<T>(this string value, T tag) where T : ITag

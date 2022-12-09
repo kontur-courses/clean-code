@@ -1,17 +1,17 @@
-﻿namespace Markdown
+﻿namespace Markdown.Tag
 {
-    public class HTMLTag : ITag
+    public class HtmlTag : ITag
     {
-        public readonly static HTMLTag Strong = new HTMLTag("<strong>", "</strong>");
-        public readonly static HTMLTag Emphasys = new HTMLTag("<em>", "</em>");
-        public readonly static HTMLTag Heading = new HTMLTag("<h1>", "</h1>");
+        public static readonly HtmlTag Strong = new HtmlTag("<strong>", "</strong>");
+        public static readonly HtmlTag Emphasis = new HtmlTag("<em>", "</em>");
+        public static readonly HtmlTag Heading = new HtmlTag("<h1>", "</h1>");
 
         public string Opening { get; }
         public string Closing { get; }
         public bool IsSelfClosing => Closing != null;
         public bool CanNesting { get; }
 
-        private HTMLTag(string opening, string closing, bool canNesting = true)
+        private HtmlTag(string opening, string closing, bool canNesting = true)
         {
             Opening = opening;
             Closing = closing;

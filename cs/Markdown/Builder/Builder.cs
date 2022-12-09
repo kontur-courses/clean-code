@@ -1,22 +1,17 @@
-﻿using System.Collections.Generic;
+﻿using Markdown.TokenNamespace;
+using System.Collections.Generic;
 using System.Text;
 
-namespace Markdown
+namespace Markdown.BuilderNamespace
 {
     public class Builder : IBuilder
     {
         public string Build(IEnumerable<IToken> tokens)
         {
             var stringBuilder = new StringBuilder();
-            var prevToken = default(IToken);
             foreach (var token in tokens)
             {
-                var content = token.Content;
-                if (prevToken != null && prevToken.TagState == TagState.SelfClosing)
-                    content = token.Content.TrimStart(' ');
-
-                stringBuilder.Append(content);
-                prevToken = token;
+                stringBuilder.Append(token.Content);
             }
             return stringBuilder.ToString();
         }

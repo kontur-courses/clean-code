@@ -1,6 +1,7 @@
-﻿using System.Collections.Generic;
+﻿using Markdown.TokenNamespace;
+using System.Collections.Generic;
 
-namespace Markdown
+namespace Markdown.HandlerNamespace
 {
     public interface IHandler
     {

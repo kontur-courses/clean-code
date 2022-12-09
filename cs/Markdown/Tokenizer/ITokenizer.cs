@@ -1,6 +1,7 @@
 ﻿using System.Collections.Generic;
+using Markdown.TokenNamespace;
 
-namespace Markdown
+namespace Markdown.TokenizerNamespace
 {
     public interface ITokenizer
     {

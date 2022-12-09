@@ -1,6 +1,7 @@
-﻿using System;
+﻿using Markdown.Enums;
+using System;
 
-namespace Markdown
+namespace Markdown.TokenNamespace
 {
     public interface IToken : ICloneable
     {

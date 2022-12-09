@@ -1,17 +1,23 @@
 ﻿using System;
 using System.Collections.Generic;
+using Markdown.Enums;
+using Markdown.Extensions;
+using Markdown.Tag;
+using Markdown.TokenNamespace;
 
-namespace Markdown
+namespace Markdown.TokenizerNamespace
 {
     public class Tokenizer : ITokenizer
     {
         private int index;
+        private string content;
         private readonly string text;
         private readonly IList<IToken> tokens;
 
         public Tokenizer(string text)
         {
             index = 0;
+            content = string.Empty;
             this.text = text;
             tokens = new List<IToken>();
         }
@@ -23,10 +29,12 @@ namespace Markdown
             {
                 var ch = text[index];
 
-                if (Environment.NewLine.StartsWith(ch))
+                if (ch.IsNewLine())
                     AddToken(TokenType.LineBreak);
                 else if (ch.IsTagStart<MarkdownTag>())
                     AddToken(TokenType.Tag);
+                else if (ch.IsEscapeCharacter())
+                    AddToken(TokenType.Escape);
                 else
                     AddToken(TokenType.Text);
             }
@@ -37,16 +45,8 @@ namespace Markdown
 
         private void AddToken(TokenType tokenType)
         {
-            var content = string.Empty;
-            Func<bool> stop = () => true;
-
-            if (tokenType == TokenType.Text)
-                stop = () => text[index].IsTagStart<MarkdownTag>()
-                || Environment.NewLine.StartsWith(text[index]);
-            else if (tokenType == TokenType.Tag)
-                stop = () => !(content + text[index]).IsPossibleTag<MarkdownTag>();
-            else if (tokenType == TokenType.LineBreak)
-                stop = () => content == Environment.NewLine;
+            content = string.Empty;
+            var stop = GetTokenStop(tokenType);
 
             for (; index < text.Length; index++)
             {
@@ -59,6 +59,19 @@ namespace Markdown
                 content += text[index];
             }
             tokens.Add(new Token(tokenType, content));
+        }
+
+        private Func<bool> GetTokenStop(TokenType tokenType)
+        {
+            return tokenType switch
+            {
+                TokenType.Text => () => text[index].IsTagStart<MarkdownTag>() ||
+                                        text[index].IsNewLine() || text[index].IsEscapeCharacter(),
+                TokenType.Tag => () => !(content + text[index]).IsPossibleTag<MarkdownTag>(),
+                TokenType.LineBreak => () => content == "\n",
+                TokenType.Escape => () => content == @"\",
+                _ => () => true
+            };
         }
     }
 }

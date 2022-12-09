@@ -1,8 +1,12 @@
-﻿namespace Markdown
+﻿using Markdown.BuilderNamespace;
+using Markdown.HandlerNamespace;
+using Markdown.TokenizerNamespace;
+
+namespace Markdown
 {
-    public class Md
+    public static class Md
     {
-        public string Render(string text)
+        public static string Render(string text)
         {
             var tokenizer = new Tokenizer(text);
             var handler = new Handler();

@@ -1,4 +1,6 @@
-﻿namespace Markdown
+﻿using Markdown.Enums;
+
+namespace Markdown.TokenNamespace
 {
     public class Token : IToken
     {
