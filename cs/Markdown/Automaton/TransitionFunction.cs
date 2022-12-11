@@ -6,7 +6,7 @@ namespace Markdown.Automaton
 {
     public class TransitionFunction : ITransitionFunction
     {
-        public Dictionary<TransitionFunctionArgument, TransitionFunctionValue> Transitions { get; }
+        public Dictionary<ITransitionFunctionArgument, ITransitionFunctionValue> Transitions { get; }
 
         public ITransitionFunctionValue GetFunctionValue(ITransitionFunctionArgument argument)
         {
@@ -14,10 +14,9 @@ namespace Markdown.Automaton
         }
 
         public TransitionFunction(
-            Dictionary<TransitionFunctionArgument, TransitionFunctionValue> transitions)
+            Dictionary<ITransitionFunctionArgument, ITransitionFunctionValue> transitions)
         {
             Transitions = transitions;
         }
-
     }
 }

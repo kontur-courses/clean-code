@@ -4,13 +4,19 @@ namespace Markdown.Automaton
 {
     public class TransitionFunctionValue : ITransitionFunctionValue
     {
-        public string NewState { get; }
+        public int NewState { get; }
         public string[] NewStackElements { get; }
 
-        public TransitionFunctionValue(string newState, string[] newStackElements)
+        public TransitionFunctionValue(int newState, string[] newStackElements)
         {
             NewState = newState;
             NewStackElements = newStackElements;
+        }
+
+        public TransitionFunctionValue(int newState, string newStackElement)
+        {
+            NewState = newState;
+            NewStackElements = new[] {newStackElement};
         }
     }
 }

@@ -5,11 +5,11 @@ namespace Markdown.Automaton
 {
     public class TransitionFunctionArgument : ITransitionFunctionArgument
     {
-        public string CurrentState { get; }
+        public int CurrentState { get; }
         public string InputToken { get; }
-        public string StackTop { get; }
+        public string? StackTop { get; set; }
 
-        public TransitionFunctionArgument(string currentState, string inputToken, string stackTop)
+        public TransitionFunctionArgument(int currentState, string inputToken, string? stackTop)
         {
             CurrentState = currentState;
             InputToken = inputToken;
@@ -17,9 +17,9 @@ namespace Markdown.Automaton
         }
     }
 
-    public class TransitionFunctionArgumentComparer : EqualityComparer<TransitionFunctionArgument>
+    public class TransitionFunctionArgumentComparer : EqualityComparer<ITransitionFunctionArgument>
     {
-        public override bool Equals(TransitionFunctionArgument? arg1, TransitionFunctionArgument? arg2)
+        public override bool Equals(ITransitionFunctionArgument? arg1, ITransitionFunctionArgument? arg2)
         {
             if (arg1 == null && arg2 == null)
                 return true;
@@ -35,11 +35,10 @@ namespace Markdown.Automaton
             return false;
         }
 
-        public override int GetHashCode(TransitionFunctionArgument argument)
+        public override int GetHashCode(ITransitionFunctionArgument argument)
         {
             int hCode = argument.InputToken.GetHashCode() ^
-                        argument.CurrentState.GetHashCode() ^
-                        argument.StackTop.GetHashCode();
+                        argument.CurrentState.GetHashCode();
             return hCode.GetHashCode();
         }
     }
