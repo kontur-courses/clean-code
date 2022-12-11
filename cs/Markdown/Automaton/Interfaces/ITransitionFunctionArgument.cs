@@ -2,8 +2,8 @@
 {
     public interface ITransitionFunctionArgument
     {
-        string CurrentState { get; }
+        int CurrentState { get; }
         string InputToken { get; }
-        string StackTop { get; }
+        string? StackTop { get; set; }
     }
 }

@@ -4,9 +4,8 @@ namespace Markdown.Automaton.Interfaces
 {
     public interface IPushdownAutomaton
     {
-        TransitionFunction TransitionFunction { get; }
-        private static Stack<string> stack;
-
-        public bool Run(char[] tokens);
+        public List<IAutomatonPart> Parts { get; }
+        private static Stack<string> Stack { get; set; }
+        public void Run(string tokens);
     }
 }
