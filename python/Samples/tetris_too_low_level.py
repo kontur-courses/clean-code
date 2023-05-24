@@ -7,7 +7,8 @@ class TetrisTooLowLevel:
     def clear_full_lines(self):
         for y in range(self.height):
             full = all(self.filled[y])
-            if not full: continue
+            if not full:
+                continue
 
             for yy in range(y, self.height-1):
                 for x in range(self.width):
