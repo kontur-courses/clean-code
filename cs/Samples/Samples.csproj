@@ -2,8 +2,12 @@
 
     <PropertyGroup>
         <LangVersion>8</LangVersion>
-        <TargetFramework>netcoreapp3.1</TargetFramework>
+        <TargetFramework>net6</TargetFramework>
         <AppendTargetFrameworkToOutputPath>false</AppendTargetFrameworkToOutputPath>
     </PropertyGroup>
+
+    <ItemGroup>
+      <PackageReference Include="NUnit3TestAdapter" Version="4.4.2" />
+    </ItemGroup>
 
 </Project>
