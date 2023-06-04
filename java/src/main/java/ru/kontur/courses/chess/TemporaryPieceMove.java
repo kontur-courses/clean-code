@@ -17,11 +17,12 @@ public class TemporaryPieceMove implements Closeable {
     }
 
     public void undo() {
-        board.set()
+        board.set(from, board.getPiece(to));
+        board.set(to, oldDestinationPiece);
     }
 
     @Override
-    public void close() throws IOException {
+    public void close() {
         undo();
     }
 }

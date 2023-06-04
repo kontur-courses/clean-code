@@ -1,7 +1,9 @@
 package ru.kontur.courses.chess;
 
 import java.util.ArrayList;
+import java.util.Iterator;
 import java.util.function.Supplier;
+import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 public class Board {
@@ -11,11 +13,24 @@ public class Board {
         this.cells = cells;
     }
 
-    public Stream<Location> getPieces(PieceColor color) {
-        contains()
+    public Iterable<Location> getPieces(PieceColor color) {
+        return allBoards().filter(it -> Piece.is(getPiece(it), color)).collect(Collectors.toList());
     }
 
+    public Piece getPiece(Location location) {
+        return contains(location) ? cells[location.y()][location.x()] : null;
+    }
 
+    public void set(Location location, Piece cell) {
+        cells[location.y()][location.x()] = cell;
+    }
+
+    public TemporaryPieceMove performTemporaryMove(Location from, Location to) {
+        var old = getPiece(to);
+        set(to, getPiece(from));
+        set(from, null);
+        return new TemporaryPieceMove(this, from, to, old);
+    }
 
     public Stream<Location> allBoards() {
         var result = new ArrayList<Location>();
@@ -28,7 +43,7 @@ public class Board {
     }
 
     public boolean contains(Location loc) {
-        return loc.x >= 0 && loc.y < cells[0].length &&
-                loc.y >= 0 && loc.y < cells.length;
+        return loc.x() >= 0 && loc.x() < cells[0].length &&
+                loc.y() >= 0 && loc.y() < cells.length;
     }
 }
