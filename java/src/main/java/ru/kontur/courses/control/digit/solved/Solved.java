@@ -36,7 +36,7 @@ public class Solved {
     private static List<Integer> getDigitsFromLeastSignificant(long number) {
         var result = new ArrayList<Integer>();
         do {
-            result.add((int) number % 10);
+            result.add((int) (number % 10));
             number /= 10;
         } while (number > 0);
 
