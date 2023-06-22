@@ -3,7 +3,7 @@ package ru.kontur.courses.control.digit.upc;
 import org.junit.jupiter.api.Test;
 
 public class UpcPerfomanceTests {
-    private static int calculateUpcFact(long number) {
+    private static int calculateUpcFast(long number) {
         int sum = 0;
         int factor = 3;
         do
@@ -21,12 +21,12 @@ public class UpcPerfomanceTests {
     }
 
     @Test
-    public void upcPerfomance() {
+    public void upcPerformance() {
         var count = 10000000;
         var sw = System.currentTimeMillis();
 
         for (int i = 0; i < count; i++)
-            calculateUpcFact(12345678L);
+            calculateUpcFast(12345678L);
         System.out.println("DoWhile "+(System.currentTimeMillis()-sw));
         sw = System.currentTimeMillis();
         for (int i = 0; i < count; i++)

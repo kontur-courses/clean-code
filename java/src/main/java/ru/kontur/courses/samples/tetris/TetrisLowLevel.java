@@ -42,14 +42,14 @@ public class TetrisLowLevel {
     }
 
     private void addEmptyLineOnTop() {
-        throw new RuntimeException();
+        throw new UnsupportedOperationException();
     }
 
     private void shiftLinesDown(int lineIndex) {
-        throw new RuntimeException("" + lineIndex);
+        throw new UnsupportedOperationException(Integer.toString(lineIndex));
     }
 
     private boolean lineIsFull(int y) {
-        throw new RuntimeException("" + y);
+        throw new UnsupportedOperationException(Integer.toString(y));
     }
 }
