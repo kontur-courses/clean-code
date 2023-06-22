@@ -6,7 +6,6 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.util.Arrays;
 import java.util.Objects;
-import java.util.stream.Collectors;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
@@ -38,7 +37,7 @@ public class ChessProblemTest {
         var resource = Thread.currentThread().getContextClassLoader().getResource("chessTests");
         assert resource != null;
         var dir = new File(resource.toURI());
-        var inFiles = Arrays.stream(Objects.requireNonNull(dir.listFiles())).filter(it -> it.getName().contains(".in")).collect(Collectors.toList());
+        var inFiles = Arrays.stream(Objects.requireNonNull(dir.listFiles())).filter(it -> it.getName().contains(".in")).toList();
         for (var file : inFiles) {
             var in = new FileInputStream(file);
             var boardLines = new String(in.readAllBytes()).split("\n");

@@ -1,19 +1,18 @@
 package ru.kontur.courses.samples.tetris;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.HashSet;
 import java.util.List;
-import java.util.stream.Collectors;
+import java.util.Set;
 
 //good abstraction level
 public class Field {
 
-    private final HashSet<Integer>[] filledCellsLineByLine;
+    private final List<Set<Integer>> filledCellsLineByLine;
     private final int height, width;
     private final int score;
 
-    public Field(int width, int height, HashSet<Integer>[] filledCellsLineByLine, int score) {
+    public Field(int width, int height, List<Set<Integer>> filledCellsLineByLine, int score) {
         this.width = width;
         this.height = height;
         this.score = score;
@@ -27,17 +26,17 @@ public class Field {
         return new Field(width, height, newLinesArray, score + clearedLinesCount);
     }
 
-    private HashSet<Integer>[] createNewLinesArray(int emptyLinesCount, List<HashSet<Integer>> nonEmptyLines) {
-        var list = new ArrayList<HashSet<Integer>>();
+    private List<Set<Integer>> createNewLinesArray(int emptyLinesCount, List<Set<Integer>> nonEmptyLines) {
+        var list = new ArrayList<Set<Integer>>();
         for (int i = 0; i < emptyLinesCount; i++) {
             list.add(new HashSet<>());
         }
 
         nonEmptyLines.addAll(list);
-        return (HashSet<Integer>[]) nonEmptyLines.toArray();
+        return nonEmptyLines;
     }
 
-    private List<HashSet<Integer>> getAllNotFullLines() {
-        return Arrays.stream(filledCellsLineByLine).filter(it -> it.size() != width).collect(Collectors.toList());
+    private List<Set<Integer>> getAllNotFullLines() {
+        return filledCellsLineByLine.stream().filter(it -> it.size() != width).toList();
     }
 }

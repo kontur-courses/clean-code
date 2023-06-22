@@ -1,7 +1,6 @@
 package ru.kontur.courses.chess;
 
 import java.util.*;
-import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 public class PieceType {
@@ -20,10 +19,10 @@ public class PieceType {
         this.sign = sign;
         this.directions = union(
                 union(
-                        union(directions, Arrays.stream(directions).map(it -> new Location(-it.x(), it.y())).collect(Collectors.toList())),
-                        Arrays.stream(directions).map(it -> new Location(it.x(), -it.y())).collect(Collectors.toList())
+                        union(directions, Arrays.stream(directions).map(it -> new Location(-it.x(), it.y())).toList()),
+                        Arrays.stream(directions).map(it -> new Location(it.x(), -it.y())).toList()
                 ),
-                Arrays.stream(directions).map(it -> new Location(-it.x(), -it.y())).collect(Collectors.toList())
+                Arrays.stream(directions).map(it -> new Location(-it.x(), -it.y())).toList()
         );
     }
 

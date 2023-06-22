@@ -1,9 +1,6 @@
 package ru.kontur.courses.chess;
 
 import java.util.ArrayList;
-import java.util.Iterator;
-import java.util.function.Supplier;
-import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 public class Board {
@@ -14,7 +11,7 @@ public class Board {
     }
 
     public Iterable<Location> getPieces(PieceColor color) {
-        return allBoards().filter(it -> Piece.is(getPiece(it), color)).collect(Collectors.toList());
+        return allBoards().filter(it -> Piece.is(getPiece(it), color)).toList();
     }
 
     public Piece getPiece(Location location) {
