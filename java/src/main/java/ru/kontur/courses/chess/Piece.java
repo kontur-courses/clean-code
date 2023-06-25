@@ -1,7 +1,5 @@
 package ru.kontur.courses.chess;
 
-import java.util.stream.Collectors;
-
 public class Piece {
     public final PieceColor color;
     public final PieceType pieceType;
@@ -12,7 +10,7 @@ public class Piece {
     }
 
     public Iterable<Location> getMoves(Location location, Board board) {
-        return pieceType.getMoves(location, board).collect(Collectors.toList());
+        return pieceType.getMoves(location, board).toList();
     }
 
     @Override

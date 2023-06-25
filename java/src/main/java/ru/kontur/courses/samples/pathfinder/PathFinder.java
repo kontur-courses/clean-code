@@ -3,8 +3,6 @@ package ru.kontur.courses.samples.pathfinder;
 import java.awt.*;
 import java.util.*;
 import java.util.List;
-import java.util.stream.Collectors;
-import java.util.stream.Stream;
 
 public class PathFinder {
     public static Maze maze;
@@ -12,9 +10,10 @@ public class PathFinder {
     private static final Set<Point> used = new HashSet<>();
 
     public static void generateRandomMaze() {
+        /* maze = ... */
     }
 
-    public static Point getNExtStepToTarget(Point source, Point target) {
+    public static Point getNextStepToTarget(Point source, Point target) {
         queue.clear();
         used.clear();
         queue.add(target);
@@ -33,10 +32,16 @@ public class PathFinder {
     }
 
     private static List<Point> getNeighbours(Point point) {
-        return Arrays.stream(new Point[]{
-                new Point(1, 0), new Point(-1, 0), new Point(0, 1), new Point(0, -1)
-        }).map(it -> new Point(point.x + it.x, point.y + it.y)).filter(
-                it -> maze.insideMaze(it)
-        ).filter(it -> maze.isFree(it)).collect(Collectors.toList());
+        return Arrays
+                .stream(new Point[]{
+                        new Point(1, 0),
+                        new Point(-1, 0),
+                        new Point(0, 1),
+                        new Point(0, -1)
+                })
+                .map(it -> new Point(point.x + it.x, point.y + it.y))
+                .filter(it -> maze.insideMaze(it))
+                .filter(it -> maze.isFree(it))
+                .toList();
     }
 }

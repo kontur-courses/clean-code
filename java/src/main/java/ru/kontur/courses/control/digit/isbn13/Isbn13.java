@@ -1,7 +1,7 @@
 package ru.kontur.courses.control.digit.isbn13;
 
-public class Isb13 {
-    public static int CalculateIsbn13(long number) {
+public class Isbn13 {
+    public static int calculateIsbn13(long number) {
         int sum = 0;
         int factor = 1;
         do {

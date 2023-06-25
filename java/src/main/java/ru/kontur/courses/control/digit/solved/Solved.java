@@ -3,12 +3,11 @@ package ru.kontur.courses.control.digit.solved;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
-import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
 public class Solved {
     public static int calculateSnils(long number) {
-        var sum = sumWithWeights(getDigitsFromLeastSignificant(number), IntStream.rangeClosed(1, 9).boxed().collect(Collectors.toList())) % 101;
+        var sum = sumWithWeights(getDigitsFromLeastSignificant(number), IntStream.rangeClosed(1, 9).boxed().toList()) % 101;
 
         return sum == 100 ? 0 : sum;
     }
@@ -50,6 +49,6 @@ public class Solved {
     public static <A, B> List<Map.Entry<A, B>> zipJava9(List<A> as, List<B> bs) {
         return IntStream.range(0, Math.min(as.size(), bs.size()))
                 .mapToObj(i -> Map.entry(as.get(i), bs.get(i)))
-                .collect(Collectors.toList());
+                .toList();
     }
 }
