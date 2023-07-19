@@ -1,10 +1,15 @@
-import glob
-from dataclasses import dataclass
+from enum import Enum
 
 
-@dataclass
-class ChessStatus:
-    ok = "ok"
-    check = "check"  # шах
-    stalemate = "stalemate"  # пат
-    mate = "mate"  # мат
+class ChessStatus(Enum):
+    OK = "ok"
+    """Никто не проиграл и не выиграл"""
+
+    CHECK = "check"
+    """Шах"""
+
+    STALEMATE = "stalemate"
+    """Пат"""
+
+    MATE = "mate"
+    """Мат"""

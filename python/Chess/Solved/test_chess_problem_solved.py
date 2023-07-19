@@ -4,6 +4,7 @@ import unittest
 from chess_problem_solved import ChessProblem
 from board_parser import BoardParser
 from piece_color import PieceColor
+from chess_status import ChessStatus
 
 
 def read_board_lines_from_file(filename):
@@ -27,8 +28,8 @@ class TestChessProblem(unittest.TestCase):
     def execute_test_on_file(self, filename):
         board = BoardParser().parse_board(read_board_lines_from_file(filename))
         expected_answer = read_answer_from_file(filename.replace(".in", ".ans"))
-        white_status = ChessProblem(board).get_status_for(PieceColor.white)
-        self.assertEqual(expected_answer, white_status)
+        white_status = ChessProblem(board).get_status_for(PieceColor.WHITE)
+        self.assertEqual(ChessStatus(expected_answer), white_status)
 
 
 if __name__ == "__main__":

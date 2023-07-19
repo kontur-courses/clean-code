@@ -28,7 +28,7 @@ class BoardParser:
 
     def parse_piece(self, piece_sign: str):
         color = (
-            PieceColor.white if re.search(r"[A-Z]", piece_sign) else PieceColor.black
+            PieceColor.WHITE if re.search(r"[A-Z]", piece_sign) else PieceColor.BLACK
         )
         piece_type = self.parse_piece_type(piece_sign.upper())
         return Piece(piece_type, color) if piece_type else None
