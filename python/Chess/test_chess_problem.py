@@ -29,12 +29,12 @@ class TestChessProblem(unittest.TestCase):
         ]
         ChessProblem.load_from(board_lines)
         ChessProblem.calculate_chess_status()
-        self.assertEqual(ChessStatus.check, ChessProblem.chess_status)
+        self.assertEqual(ChessStatus.CHECK, ChessProblem.chess_status)
 
         # Now check that internal board modifications during the first call
         # do not change answer
         ChessProblem.calculate_chess_status()
-        self.assertEqual(ChessStatus.check, ChessProblem.chess_status)
+        self.assertEqual(ChessStatus.CHECK, ChessProblem.chess_status)
 
     def test_all(self):
         tests_count = 0
@@ -48,7 +48,7 @@ class TestChessProblem(unittest.TestCase):
         ChessProblem.load_from(board_lines)
         expected_answer = read_answer_from_file(f"{filename.split('.')[0]}.ans")
         ChessProblem.calculate_chess_status()
-        self.assertEqual(expected_answer, ChessProblem.chess_status)
+        self.assertEqual(ChessStatus(expected_answer), ChessProblem.chess_status)
 
 
 if __name__ == "__main__":

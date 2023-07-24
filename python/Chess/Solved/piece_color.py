@@ -1,7 +1,6 @@
-from dataclasses import dataclass
+from enum import Enum
 
 
-@dataclass
-class PieceColor:
-    white = "white"
-    black = "black"
+class PieceColor(Enum):
+    WHITE = "white"
+    BLACK = "black"

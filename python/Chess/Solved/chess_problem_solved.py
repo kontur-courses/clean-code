@@ -19,9 +19,9 @@ class ChessProblem:
         is_check = self.is_check_for(color)
         has_moves = self.has_safe_moves_for(color)
         if is_check:
-            return ChessStatus.check if has_moves else ChessStatus.mate
+            return ChessStatus.CHECK if has_moves else ChessStatus.MATE
         else:
-            return ChessStatus.ok if has_moves else ChessStatus.stalemate
+            return ChessStatus.OK if has_moves else ChessStatus.STALEMATE
 
     def is_attack_king(self, move: ChessMove, color: PieceColor) -> bool:
         piece = self.board.get_piece(move.loc_to)
@@ -57,4 +57,4 @@ class ChessMove:
 
 
 def invert_color(color: PieceColor) -> PieceColor:
-    return PieceColor.black if color == PieceColor.white else PieceColor.white
+    return PieceColor.BLACK if color == PieceColor.WHITE else PieceColor.WHITE

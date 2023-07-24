@@ -18,7 +18,7 @@ class ChessProblem:
         is_check = ChessProblem.is_check_for_white()
         has_movies = False
 
-        for loc_from in ChessProblem.board.get_pieces(PieceColor.white):
+        for loc_from in ChessProblem.board.get_pieces(PieceColor.WHITE):
             for loc_to in ChessProblem.board.get_piece(loc_from).get_moves(
                 loc_from, ChessProblem.board
             ):
@@ -32,25 +32,25 @@ class ChessProblem:
 
         if is_check:
             if has_movies:
-                ChessProblem.chess_status = ChessStatus.check  # шах
+                ChessProblem.chess_status = ChessStatus.CHECK  # шах
             else:
-                ChessProblem.chess_status = ChessStatus.mate  # мат
+                ChessProblem.chess_status = ChessStatus.MATE  # мат
         elif has_movies:
-            ChessProblem.chess_status = ChessStatus.ok
+            ChessProblem.chess_status = ChessStatus.OK
         else:
-            ChessProblem.chess_status = ChessStatus.stalemate  # пат
+            ChessProblem.chess_status = ChessStatus.STALEMATE  # пат
 
     # check — это шах
     @staticmethod
     def is_check_for_white():
         is_check = False
-        for loc in ChessProblem.board.get_pieces(PieceColor.black):
+        for loc in ChessProblem.board.get_pieces(PieceColor.BLACK):
             piece = ChessProblem.board.get_piece(loc)
             moves = piece.get_moves(loc, ChessProblem.board)
             for destination in moves:
                 destination_piece = ChessProblem.board.get_piece(destination)
                 if destination_piece and destination_piece.is_equal(
-                    PieceColor.white, piece_type.King
+                    PieceColor.WHITE, piece_type.King
                 ):
                     is_check = True
         if is_check:
