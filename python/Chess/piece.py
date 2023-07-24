@@ -17,7 +17,7 @@ class Piece:
 
     def __str__(self):
         c = f" {self.piece_type}" if self.piece_type else " ."
-        return c.lower() if self.color == PieceColor.black else c
+        return c.lower() if self.color == PieceColor.BLACK else c
 
     def is_equal(self, color: PieceColor, piece_type: PieceType):
         is_color_equal = self.color == color
