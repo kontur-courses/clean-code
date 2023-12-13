@@ -24,4 +24,31 @@ public class Token
     {
         return TokenType.Representation(IsClosingTag);
     }
+    
+    public override bool Equals(object? obj)
+    {
+        if (obj is null || GetType() != obj.GetType())
+            return false;
+        if (this == obj)
+            return true;
+        
+        var other = (Token)obj;
+        return GetValue().Equals(other.GetValue()) && 
+               IsClosingTag == other.IsClosingTag && 
+               StartingIndex == other.StartingIndex && 
+               Length == other.Length;
+    }
+
+    public override int GetHashCode()
+    {
+        unchecked
+        {
+            var hash = 17;
+            hash = hash * 23 + GetValue().GetHashCode();
+            hash = hash * 23 + IsClosingTag.GetHashCode();
+            hash = hash * 23 + StartingIndex.GetHashCode();
+            hash = hash * 23 + Length.GetHashCode();
+            return hash;
+        }
+    }
 }

@@ -9,12 +9,13 @@ public class MarkdownLexer : ILexer
     private readonly Dictionary<string, ITokenType> registeredTokenTypes = new();
 
     private readonly ITokenValidator validator;
-    
+
     public MarkdownLexer(ITokenValidator validator)
+
     {
         this.validator = validator;
     }
-    
+
     public IReadOnlyDictionary<string, ITokenType> RegisteredTokenTypes
         => registeredTokenTypes.AsReadOnly();
 
@@ -38,48 +39,84 @@ public class MarkdownLexer : ILexer
             throw new ArgumentException("Token type representation cannot be null.");
     }
 
-    //# __test__ _line_ asd d 
+
     public List<Token> Tokenize(string line)
     {
         if (line is null or "")
             throw new ArgumentException("Input parameter cannot be null or empty string.");
-        
+
         var initialRegisteredTokens = PlaceRegisteredTokens(line);
         var validatedRegisteredTokens = validator.RemoveInvalidTokens(initialRegisteredTokens);
         var registeredTokensWithText = JoinTokensWithText(validatedRegisteredTokens, line);
-        
+
         return registeredTokensWithText;
     }
 
-    private List<Token> JoinTokensWithText(List<Token> validatedRegisteredTokensPos, string line)
+    //# __test__ _line_ asd d
+    private static List<Token> JoinTokensWithText(List<Token> validatedRegisteredTokens, string line)
     {
-        throw new NotImplementedException();
+        var joinedWithText = new List<Token>();
+        var lastIndex = 0;
+
+        foreach (var registeredToken in validatedRegisteredTokens)
+        {
+            var currentSubstrLength = registeredToken.StartingIndex - lastIndex;
+            if (currentSubstrLength > 0)
+            {
+                joinedWithText.Add(new Token(
+                    new TextToken(line.Substring(lastIndex, currentSubstrLength)),
+                    false,
+                    lastIndex,
+                    currentSubstrLength));
+            }
+
+            joinedWithText.Add(registeredToken);
+            lastIndex = registeredToken.StartingIndex + registeredToken.Length;
+        }
+        
+        var lastLineLength = line.Length - lastIndex;
+        if (lastLineLength - 1 > 0)
+        {
+            joinedWithText.Add(new Token(
+                new TextToken(line.Substring(lastIndex, lastLineLength)),
+                false,
+                lastIndex,
+                lastLineLength));
+        }
+
+        return joinedWithText;
     }
 
     private List<Token> PlaceRegisteredTokens(string line)
     {
         var registeredTokens = new List<Token>();
-        var typeToPositions = new Dictionary<string, List<int>>();
-        foreach (var tokenType in registeredTokenTypes)
-            typeToPositions[tokenType.Key] = new List<int>();
-        
+        var placedTokensNumber = registeredTokenTypes
+            .ToDictionary(type => type.Key, _ => 0);
+
         var currentIndex = -1;
-        //text _em text_ text
-        
-        foreach (var tokenType in registeredTokenTypes)
+        var occupiedPositions = new HashSet<int>();
+        foreach (var tokenType in registeredTokenTypes.OrderByDescending(t => t.Key.Length))
         {
             while ((currentIndex = line.IndexOf(tokenType.Key, currentIndex + 1, StringComparison.Ordinal)) != -1)
             {
-                typeToPositions[tokenType.Key].Add(currentIndex);
-                
+                if (occupiedPositions.Contains(currentIndex))
+                    continue;
+
+                placedTokensNumber[tokenType.Key]++;
+
                 registeredTokens.Add(new Token(
                     registeredTokenTypes[tokenType.Key],
-                    typeToPositions[tokenType.Key].Count % 2 == 0,
+                    tokenType.Value.ValueSupportsClosingTag && placedTokensNumber[tokenType.Key] % 2 == 0,
                     currentIndex,
                     tokenType.Key.Length));
+
+                for (var toOccupy = 0; toOccupy < tokenType.Key.Length; toOccupy++)
+                    occupiedPositions.Add(currentIndex + toOccupy);
             }
         }
 
-        return registeredTokens;
+        return registeredTokens
+            .OrderBy(t => t.StartingIndex)
+            .ToList();
     }
 }
