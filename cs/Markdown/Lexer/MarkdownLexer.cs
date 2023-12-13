@@ -11,7 +11,6 @@ public class MarkdownLexer : ILexer
     private readonly ITokenValidator validator;
 
     public MarkdownLexer(ITokenValidator validator)
-
     {
         this.validator = validator;
     }
@@ -52,7 +51,7 @@ public class MarkdownLexer : ILexer
         return registeredTokensWithText;
     }
 
-    //# __test__ _line_ asd d
+
     private static List<Token> JoinTokensWithText(List<Token> validatedRegisteredTokens, string line)
     {
         var joinedWithText = new List<Token>();
@@ -62,27 +61,17 @@ public class MarkdownLexer : ILexer
         {
             var currentSubstrLength = registeredToken.StartingIndex - lastIndex;
             if (currentSubstrLength > 0)
-            {
-                joinedWithText.Add(new Token(
-                    new TextToken(line.Substring(lastIndex, currentSubstrLength)),
-                    false,
-                    lastIndex,
-                    currentSubstrLength));
-            }
+                joinedWithText.Add(new Token(new TextToken(line.Substring(lastIndex, currentSubstrLength)), false,
+                    lastIndex, currentSubstrLength));
 
             joinedWithText.Add(registeredToken);
             lastIndex = registeredToken.StartingIndex + registeredToken.Length;
         }
-        
+
         var lastLineLength = line.Length - lastIndex;
         if (lastLineLength - 1 > 0)
-        {
-            joinedWithText.Add(new Token(
-                new TextToken(line.Substring(lastIndex, lastLineLength)),
-                false,
-                lastIndex,
+            joinedWithText.Add(new Token(new TextToken(line.Substring(lastIndex, lastLineLength)), false, lastIndex,
                 lastLineLength));
-        }
 
         return joinedWithText;
     }
@@ -93,20 +82,19 @@ public class MarkdownLexer : ILexer
         var placedTokensNumber = registeredTokenTypes
             .ToDictionary(type => type.Key, _ => 0);
 
-        var currentIndex = -1;
         var occupiedPositions = new HashSet<int>();
         foreach (var tokenType in registeredTokenTypes.OrderByDescending(t => t.Key.Length))
         {
-            while ((currentIndex = line.IndexOf(tokenType.Key, currentIndex + 1, StringComparison.Ordinal)) != -1)
+            var currentIndex = -1;
+            while ((currentIndex = GetNextIndexOf(line, tokenType.Key, currentIndex)) != -1)
             {
-                if (occupiedPositions.Contains(currentIndex))
+                if (occupiedPositions.Contains(currentIndex) ||
+                    BeginningSemanticsNotFulfilled(tokenType.Value.HasLineBeginningSemantics, currentIndex))
                     continue;
-
-                placedTokensNumber[tokenType.Key]++;
 
                 registeredTokens.Add(new Token(
                     registeredTokenTypes[tokenType.Key],
-                    tokenType.Value.ValueSupportsClosingTag && placedTokensNumber[tokenType.Key] % 2 == 0,
+                    tokenType.Value.ValueSupportsClosingTag && ++placedTokensNumber[tokenType.Key] % 2 == 0,
                     currentIndex,
                     tokenType.Key.Length));
 
@@ -119,4 +107,10 @@ public class MarkdownLexer : ILexer
             .OrderBy(t => t.StartingIndex)
             .ToList();
     }
+
+    private static bool BeginningSemanticsNotFulfilled(bool hasBeginningSemantics, int currentIndex)
+        => hasBeginningSemantics && currentIndex != 0;
+
+    private static int GetNextIndexOf(string line, string substr, int currentIndex)
+        => line.IndexOf(substr, currentIndex + 1, StringComparison.Ordinal);
 }

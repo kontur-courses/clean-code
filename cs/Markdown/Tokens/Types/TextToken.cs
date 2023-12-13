@@ -10,6 +10,8 @@ public class TextToken : ITokenType
     }
 
     public bool ValueSupportsClosingTag => false;
-    
+
+    public bool HasLineBeginningSemantics => false;
+
     public string Representation(bool isClosingTag) => Value;
 }
