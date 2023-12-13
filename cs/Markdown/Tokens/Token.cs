@@ -6,16 +6,22 @@ public class Token
 {
     public ITokenType TokenType { get; }
 
-    private readonly bool isClosingTag;
+    public bool IsClosingTag { get; }
 
-    public Token(ITokenType tokenType, bool isClosingTag)
+    public int StartingIndex { get; }
+
+    public int Length { get; }
+
+    public Token(ITokenType tokenType, bool isClosingTag, int startingIndex, int length)
     {
         TokenType = tokenType;
-        this.isClosingTag = isClosingTag;
+        IsClosingTag = isClosingTag;
+        StartingIndex = startingIndex;
+        Length = length;
     }
 
     public string GetValue()
     {
-        return TokenType.Representation(isClosingTag);
+        return TokenType.Representation(IsClosingTag);
     }
 }

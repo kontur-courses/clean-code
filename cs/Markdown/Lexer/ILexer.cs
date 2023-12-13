@@ -4,5 +4,5 @@ namespace Markdown.Lexer;
 
 public interface ILexer
 {
-    IEnumerable<Token> Tokenize(string line);
+    List<Token> Tokenize(string line);
 }

@@ -9,5 +9,7 @@ public class TextToken : ITokenType
         Value = value;
     }
 
+    public bool ValueSupportsClosingTag => false;
+    
     public string Representation(bool isClosingTag) => Value;
 }
