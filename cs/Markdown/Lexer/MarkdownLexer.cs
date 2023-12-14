@@ -10,11 +10,16 @@ public class MarkdownLexer : ILexer
 
     private readonly ITokenFilter filter;
 
-    private readonly IEscapeSymbolFilter escapeSymbolFilter;
-    
-    public MarkdownLexer(ITokenFilter filter, IEscapeSymbolFilter escapeSymbolFilter)
+    private readonly char escapeSymbol;
+
+    private readonly HashSet<int> escapeSymbolsPosToRemove = new();
+
+    public IReadOnlySet<int> EscapeSymbolsPosToRemove
+        => escapeSymbolsPosToRemove;
+
+    public MarkdownLexer(ITokenFilter filter, char escapeSymbol)
     {
-        this.escapeSymbolFilter = escapeSymbolFilter;
+        this.escapeSymbol = escapeSymbol;
         this.filter = filter;
     }
 
@@ -47,14 +52,40 @@ public class MarkdownLexer : ILexer
         if (line is null or "")
             throw new ArgumentException("Input parameter cannot be null or empty string.");
 
-        //TODO: отфильтровать escape-символы через escapeSymbolFilter
-        var initialRegisteredTokens = PlaceRegisteredTokens(line);
+        var escapedEscapeSymbolsPos = GetEscapedEscapeSymbolsPositions(line);
+        var initialRegisteredTokens = PlaceRegisteredTokens(line, escapedEscapeSymbolsPos);
         var filteredRegisteredTokens = filter.FilterTokens(initialRegisteredTokens, line);
         var registeredTokensWithText = JoinTokensWithText(filteredRegisteredTokens, line);
 
         return registeredTokensWithText;
     }
 
+    private bool IsEscapeSymbolEscaped(int prevPos, int currPos, string line)
+        => prevPos != -1 && line[currPos] == escapeSymbol && prevPos == currPos - 1;
+
+    private IReadOnlySet<int> GetEscapedEscapeSymbolsPositions(string line)
+    {
+        var lastEscapeIndex = -1;
+        var result = new HashSet<int>();
+
+        for (var i = 0; i < line.Length; i++)
+        {
+            if (IsEscapeSymbolEscaped(lastEscapeIndex, i, line))
+            {
+                result.Add(lastEscapeIndex);
+                escapeSymbolsPosToRemove.Add(lastEscapeIndex);
+                result.Add(i);
+                lastEscapeIndex = -1;
+                continue;
+            }
+
+            if (line[i] == escapeSymbol)
+                lastEscapeIndex = line[i];
+            else lastEscapeIndex = -1;
+        }
+
+        return result;
+    }
 
     private static List<Token> JoinTokensWithText(List<Token> validatedRegisteredTokens, string line)
     {
@@ -80,7 +111,12 @@ public class MarkdownLexer : ILexer
         return joinedWithText;
     }
 
-    private List<Token> PlaceRegisteredTokens(string line)
+    private bool IsTokenEscaped(string line, int currentIndex, IReadOnlySet<int> escapedEscapeSymbolsPos)
+        => currentIndex != 0
+           && line[currentIndex - 1] == escapeSymbol
+           && !escapedEscapeSymbolsPos.Contains(currentIndex - 1);
+
+    private List<Token> PlaceRegisteredTokens(string line, IReadOnlySet<int> escapedEscapeSymbolsPos)
     {
         var registeredTokens = new List<Token>();
         var placedTokensNumber = registeredTokenTypes
@@ -95,6 +131,13 @@ public class MarkdownLexer : ILexer
                 if (occupiedPositions.Contains(currentIndex) ||
                     BeginningSemanticsNotFulfilled(tokenType.Value.HasLineBeginningSemantics, currentIndex))
                     continue;
+
+                if (IsTokenEscaped(line, currentIndex, escapedEscapeSymbolsPos))
+                {
+                    occupiedPositions.Add(currentIndex);
+                    escapeSymbolsPosToRemove.Add(currentIndex);
+                    continue;
+                }
 
                 registeredTokens.Add(new Token(
                     registeredTokenTypes[tokenType.Key],

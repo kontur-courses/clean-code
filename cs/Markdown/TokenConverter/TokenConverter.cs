@@ -4,7 +4,7 @@ namespace Markdown.TokenConverter;
 
 public class TokenConverter : ITokenConverter
 {
-    public string ConvertToString(char tokenSeparator, List<Token> tokens)
+    public string ConvertToString(char tokenSeparator, List<Token> tokens, IReadOnlySet<int> symbolsPosToRemove)
     {
         throw new NotImplementedException();
     }

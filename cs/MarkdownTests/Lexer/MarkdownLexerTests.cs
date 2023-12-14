@@ -16,14 +16,14 @@ public class MarkdownLexerTests
     [SetUp]
     public void SetUp()
     {
-        emptyLexer = new MarkdownLexer(filter, new MarkdownEscapeFilter());
+        emptyLexer = new MarkdownLexer(filter, '\\');
     }
 
     [OneTimeSetUp]
     public void OneTimeSetUp()
     {
         filter = new MarkdownFilter();
-        lexer = new MarkdownLexerBuilder(filter, new MarkdownEscapeFilter())
+        lexer = new MarkdownLexerBuilder(filter, '\\')
             .WithTokenType("_", new EmphasisToken())
             .WithTokenType("__", new StrongToken())
             .WithTokenType("# ", new HeaderToken())
@@ -114,6 +114,23 @@ public class MarkdownLexerTests
         CollectionAssert.AreEqual(expected, result);
     }
 
+    [Test]
+    public void Tokenize_ReturnsCorrectResult_WithEscapeSymbols()
+    {
+        var result = lexer.Tokenize(@"\\\__sk \_asd_ \df");
+
+        var expected = new List<Token>
+        {
+            new(new TextToken(@"\\\_"), false, 0, 4),
+            new(new EmphasisToken(), false, 4, 1),
+            new(new TextToken(@"sk \_asd"), false, 5, 8),
+            new(new EmphasisToken(), true, 13, 1),
+            new(new TextToken(@" \df"), false, 14, 4)
+        };
+        
+        CollectionAssert.AreEqual(expected, result);
+    }
+    
     private static void EnsureExpectedTokenAt(IReadOnlyList<Token> tokens, int index, string value)
     {
         tokens[index].GetValue()

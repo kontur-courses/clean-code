@@ -7,9 +7,9 @@ public class MarkdownLexerBuilder
 {
     private readonly MarkdownLexer markdownLexer;
 
-    public MarkdownLexerBuilder(ITokenFilter filter, IEscapeSymbolFilter escapeSymbolFilter)
+    public MarkdownLexerBuilder(ITokenFilter filter, char escapeSymbol)
     {
-        markdownLexer = new MarkdownLexer(filter, escapeSymbolFilter);
+        markdownLexer = new MarkdownLexer(filter, escapeSymbol);
     }
     
     public MarkdownLexerBuilder WithTokenType(string typeSymbol, ITokenType type)
