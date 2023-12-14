@@ -4,7 +4,7 @@ using Markdown.Tokens;
 
 namespace Markdown.Builders;
 
-public class TagTokensBuilder: ITokensBuilder<Tag>
+public class TagTokensBuilder : ITokensBuilder<Tag>
 {
     private readonly ITagsMapper _tagsMapper;
 

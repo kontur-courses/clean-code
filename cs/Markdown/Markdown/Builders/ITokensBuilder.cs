@@ -1,10 +1,9 @@
-﻿using Markdown.Interfaces;
+﻿using Markdown.Tags;
 using Markdown.Tokens;
 
-namespace Markdown.Builders
+namespace Markdown.Builders;
+
+public interface ITokensBuilder<T> where T : IConvertableToString
 {
-    public interface ITokensBuilder<T> where T : IConvertableToString
-    {
-        string Build(List<IToken<T>> tokens);
-    }
+    string Build(List<IToken<T>> tokens);
 }

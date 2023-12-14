@@ -1,4 +1,4 @@
-﻿using Markdown.Interfaces;
+﻿using Markdown.Tags;
 
 namespace Markdown.Tokens;
 

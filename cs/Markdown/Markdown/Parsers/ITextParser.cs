@@ -1,10 +1,9 @@
-﻿using Markdown.Interfaces;
+﻿using Markdown.Tags;
 using Markdown.Tokens;
 
-namespace Markdown.Parsers
+namespace Markdown.Parsers;
+
+public interface ITextParser<T> where T : IConvertableToString
 {
-    public interface ITextParser<T> where T : IConvertableToString
-    {
-        List<IToken<T>> ParseText(string text);
-    }
+    List<IToken<T>> ParseText(string text);
 }

@@ -1,13 +1,13 @@
-﻿using Markdown.Tokens;
+﻿using System.Collections.Immutable;
 using Markdown.Tags;
-using System.Collections.Immutable;
+using Markdown.Tokens;
 
 namespace Markdown.Parsers;
 
 public class MarkdownParser : ITextParser<Tag>
 {
-    private readonly HashSet<string> _tags;
     private readonly HashSet<string> _escapeCharacters;
+    private readonly HashSet<string> _tags;
     private readonly ImmutableDictionary<TagDefenition, string> _tagsDefenitions;
 
     public MarkdownParser(HashSet<string> escapeCharacters, ImmutableDictionary<TagDefenition, string> tagsDefenitions)

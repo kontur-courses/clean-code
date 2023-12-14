@@ -1,17 +1,15 @@
-﻿using Markdown.Interfaces;
+﻿namespace Markdown.Tags;
 
-namespace Markdown.Tags;
-
-public class Tag: IConvertableToString
+public class Tag : IConvertableToString
 {
-    public TagType TagType { get; }
-    public string Value { get; }
-
     public Tag(string value, TagType tagType)
     {
         Value = value;
         TagType = tagType;
     }
+
+    public TagType TagType { get; }
+    public string Value { get; }
 
     public override string ToString()
     {

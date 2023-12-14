@@ -1,9 +1,8 @@
-﻿namespace Markdown.Tags
+﻿namespace Markdown.Tags;
+
+public enum TagDefenition
 {
-    public enum TagDefenition
-    {
-        Header,
-        Italic,
-        Strong
-    }
+    Header,
+    Italic,
+    Strong
 }
