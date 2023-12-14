@@ -1,8 +1,8 @@
-﻿using Markdown.Tag;
+﻿using Markdown.Tags;
 
 namespace Markdown.TagsMappers;
 
 public interface ITagsMapper
 {
-    string Map(ITag tag);
+    string Map(Tag tag);
 }

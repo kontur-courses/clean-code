@@ -1,8 +1,10 @@
-﻿namespace Markdown.Tokens;
+﻿using Markdown.Interfaces;
 
-public interface IToken
+namespace Markdown.Tokens;
+
+public interface IToken<T> where T : IConvertableToString
 {
-    string Value { get; }
+    T Value { get; }
     int StartIndex { get; }
     int EndIndex { get; }
 }

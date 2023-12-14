@@ -1,24 +1,24 @@
-﻿using Markdown.Tag;
+﻿using Markdown.Tags;
 
 namespace Markdown.TagsMappers;
 
 public class MarkdownToHtmlTagsMapper : ITagsMapper
 {
-    private readonly Dictionary<string, string> _markdownToHtmlClosingTags = new();
-    private readonly Dictionary<string, string> _markdownToHtmlOpenTags = new();
+    private readonly Dictionary<string, string> _markdownToHtmlClosingTags;
+    private readonly Dictionary<string, string> _markdownToHtmlOpenTags;
 
-    public string Map(ITag tag)
+    public MarkdownToHtmlTagsMapper()
     {
         throw new NotImplementedException();
     }
 
-    public bool CheckIfMarkdownTag(string tag)
+    public string Map(Tag tag)
     {
-        return _markdownToHtmlClosingTags.ContainsKey(tag) || _markdownToHtmlOpenTags.ContainsKey(tag);
+        throw new NotImplementedException();
     }
 
-    public int GetMarkdownTagMaxLength()
+    private bool CheckIfTag(string tag)
     {
-        throw new NotSupportedException();
+        throw new NotImplementedException();
     }
 }

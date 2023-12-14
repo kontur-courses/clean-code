@@ -1,16 +1,18 @@
 ﻿using Markdown.Builders;
 using Markdown.Parsers;
+using Markdown.Tags;
+using Markdown.TagsMappers;
 
 namespace Markdown;
 
 public static class Markdown
 {
-    public static string Render(string text)
+    public static string Render(string text, ITextParser<Tag> parser)
     {
-        var parser = new TextParser();
-        var builder = new MarkdownToHtmlBuilder();
+        var mapper = new MarkdownToHtmlTagsMapper();
+        var builder = new TagTokensBuilder(mapper);
 
-        var textTokens = parser.ParseMarkdownText(text);
+        var textTokens = parser.ParseText(text);
 
         return builder.Build(textTokens);
     }
