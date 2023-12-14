@@ -1,10 +1,9 @@
 ﻿using System.Collections;
-using System.Text;
 using FluentAssertions;
+using Markdown.Filter;
 using Markdown.Lexer;
 using Markdown.Tokens;
 using Markdown.Tokens.Types;
-using Markdown.Validator;
 
 namespace MarkdownTests.Lexer;
 
@@ -12,23 +11,22 @@ public class MarkdownLexerTests
 {
     private MarkdownLexer emptyLexer = null!;
     private MarkdownLexer lexer = null!;
-    private MarkdownValidator validator = null!;
+    private MarkdownFilter filter = null!;
 
     [SetUp]
     public void SetUp()
     {
-        emptyLexer = new MarkdownLexer(validator);
+        emptyLexer = new MarkdownLexer(filter, new MarkdownEscapeFilter());
     }
 
     [OneTimeSetUp]
     public void OneTimeSetUp()
     {
-        validator = new MarkdownValidator();
-        lexer = new MarkdownLexerBuilder(validator)
+        filter = new MarkdownFilter();
+        lexer = new MarkdownLexerBuilder(filter, new MarkdownEscapeFilter())
             .WithTokenType("_", new EmphasisToken())
             .WithTokenType("__", new StrongToken())
             .WithTokenType("# ", new HeaderToken())
-            .WithTokenType("###### ", new BigHeaderToken())
             .Build();
     }
 
@@ -80,23 +78,6 @@ public class MarkdownLexerTests
 
         EnsureExpectedTokenAt(result, 0, "line without matching tokens");
         EnsureExpectedCollectionSize(result, 1);
-    }
-
-    [Test]
-    public void Tokenize_Experiment()
-    {
-        var result = lexer.Tokenize("###### tre _wd_");
-
-        var expected = new List<Token>
-        {
-            new(new BigHeaderToken(), false, 0, 7),
-            new(new TextToken("tre "), false, 7, 4),
-            new(new EmphasisToken(), false, 11, 1),
-            new(new TextToken("wd"), false, 12, 2),
-            new(new EmphasisToken(), true, 14, 1)
-        };
-
-        CollectionAssert.AreEqual(expected, result);
     }
 
     [Test]

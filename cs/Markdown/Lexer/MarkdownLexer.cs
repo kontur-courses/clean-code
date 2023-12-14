@@ -1,6 +1,6 @@
-﻿using Markdown.Tokens;
+﻿using Markdown.Filter;
+using Markdown.Tokens;
 using Markdown.Tokens.Types;
-using Markdown.Validator;
 
 namespace Markdown.Lexer;
 
@@ -8,11 +8,14 @@ public class MarkdownLexer : ILexer
 {
     private readonly Dictionary<string, ITokenType> registeredTokenTypes = new();
 
-    private readonly ITokenValidator validator;
+    private readonly ITokenFilter filter;
 
-    public MarkdownLexer(ITokenValidator validator)
+    private readonly IEscapeSymbolFilter escapeSymbolFilter;
+    
+    public MarkdownLexer(ITokenFilter filter, IEscapeSymbolFilter escapeSymbolFilter)
     {
-        this.validator = validator;
+        this.escapeSymbolFilter = escapeSymbolFilter;
+        this.filter = filter;
     }
 
     public IReadOnlyDictionary<string, ITokenType> RegisteredTokenTypes
@@ -44,9 +47,10 @@ public class MarkdownLexer : ILexer
         if (line is null or "")
             throw new ArgumentException("Input parameter cannot be null or empty string.");
 
+        //TODO: отфильтровать escape-символы через escapeSymbolFilter
         var initialRegisteredTokens = PlaceRegisteredTokens(line);
-        var validatedRegisteredTokens = validator.RemoveInvalidTokens(initialRegisteredTokens);
-        var registeredTokensWithText = JoinTokensWithText(validatedRegisteredTokens, line);
+        var filteredRegisteredTokens = filter.FilterTokens(initialRegisteredTokens, line);
+        var registeredTokensWithText = JoinTokensWithText(filteredRegisteredTokens, line);
 
         return registeredTokensWithText;
     }

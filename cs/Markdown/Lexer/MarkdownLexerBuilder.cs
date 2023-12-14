@@ -1,5 +1,5 @@
-﻿using Markdown.Tokens.Types;
-using Markdown.Validator;
+﻿using Markdown.Filter;
+using Markdown.Tokens.Types;
 
 namespace Markdown.Lexer;
 
@@ -7,9 +7,9 @@ public class MarkdownLexerBuilder
 {
     private readonly MarkdownLexer markdownLexer;
 
-    public MarkdownLexerBuilder(ITokenValidator validator)
+    public MarkdownLexerBuilder(ITokenFilter filter, IEscapeSymbolFilter escapeSymbolFilter)
     {
-        markdownLexer = new MarkdownLexer(validator);
+        markdownLexer = new MarkdownLexer(filter, escapeSymbolFilter);
     }
     
     public MarkdownLexerBuilder WithTokenType(string typeSymbol, ITokenType type)
