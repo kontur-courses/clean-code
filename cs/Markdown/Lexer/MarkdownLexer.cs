@@ -14,6 +14,7 @@ public class MarkdownLexer : ILexer
 
     private readonly HashSet<int> escapeSymbolsPosToRemove = new();
 
+    //TODO: убрать эту логику в TokenConverter
     public IReadOnlySet<int> EscapeSymbolsPosToRemove
         => escapeSymbolsPosToRemove;
 
@@ -80,7 +81,7 @@ public class MarkdownLexer : ILexer
             }
 
             if (line[i] == escapeSymbol)
-                lastEscapeIndex = line[i];
+                lastEscapeIndex = i;
             else lastEscapeIndex = -1;
         }
 
@@ -141,7 +142,7 @@ public class MarkdownLexer : ILexer
 
                 registeredTokens.Add(new Token(
                     registeredTokenTypes[tokenType.Key],
-                    tokenType.Value.ValueSupportsClosingTag && ++placedTokensNumber[tokenType.Key] % 2 == 0,
+                    tokenType.Value.SupportsClosingTag && ++placedTokensNumber[tokenType.Key] % 2 == 0,
                     currentIndex,
                     tokenType.Key.Length));
 

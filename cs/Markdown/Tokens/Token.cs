@@ -4,25 +4,27 @@ namespace Markdown.Tokens;
 
 public class Token
 {
-    public ITokenType TokenType { get; }
+    public bool IsMarkedForDeletion { get; set; }
 
-    public bool IsClosingTag { get; }
+    public ITokenType Type { get; }
+
+    public bool IsClosingTag { get; set; }
 
     public int StartingIndex { get; }
 
     public int Length { get; }
 
-    public Token(ITokenType tokenType, bool isClosingTag, int startingIndex, int length)
+    public Token(ITokenType type, bool isClosingTag, int startingIndex, int length)
     {
-        TokenType = tokenType;
+        Type = type;
         IsClosingTag = isClosingTag;
         StartingIndex = startingIndex;
         Length = length;
     }
 
-    public string GetValue()
+    public string GetRepresentation()
     {
-        return TokenType.Representation(IsClosingTag);
+        return Type.Representation(IsClosingTag);
     }
     
     public override bool Equals(object? obj)
@@ -33,7 +35,7 @@ public class Token
             return true;
         
         var other = (Token)obj;
-        return GetValue().Equals(other.GetValue()) && 
+        return GetRepresentation().Equals(other.GetRepresentation()) && 
                IsClosingTag == other.IsClosingTag && 
                StartingIndex == other.StartingIndex && 
                Length == other.Length;
@@ -44,7 +46,7 @@ public class Token
         unchecked
         {
             var hash = 17;
-            hash = hash * 23 + GetValue().GetHashCode();
+            hash = hash * 23 + GetRepresentation().GetHashCode();
             hash = hash * 23 + IsClosingTag.GetHashCode();
             hash = hash * 23 + StartingIndex.GetHashCode();
             hash = hash * 23 + Length.GetHashCode();

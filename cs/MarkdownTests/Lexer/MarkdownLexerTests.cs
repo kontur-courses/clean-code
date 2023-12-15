@@ -121,19 +121,29 @@ public class MarkdownLexerTests
 
         var expected = new List<Token>
         {
-            new(new TextToken(@"\\\_"), false, 0, 4),
-            new(new EmphasisToken(), false, 4, 1),
-            new(new TextToken(@"sk \_asd"), false, 5, 8),
-            new(new EmphasisToken(), true, 13, 1),
-            new(new TextToken(@" \df"), false, 14, 4)
+            new(new TextToken(@"\\\__sk \_asd_ \df"), false, 0, 18)
         };
         
         CollectionAssert.AreEqual(expected, result);
     }
-    
+
+    [Test]
+    public void Tokenize_ReturnsCorrectResult_WithNestedTags()
+    {
+        var result = lexer.Tokenize("_e __text__ e_");
+
+        var expected = new List<Token>
+        {
+            new(new EmphasisToken(), false, 0, 1),
+            new(new TextToken("e __text__ e"), false, 1, 12),
+            new(new EmphasisToken(), true, 13, 1)
+        };
+        
+        CollectionAssert.AreEqual(expected, result);
+    }
     private static void EnsureExpectedTokenAt(IReadOnlyList<Token> tokens, int index, string value)
     {
-        tokens[index].GetValue()
+        tokens[index].GetRepresentation()
             .Should()
             .Be(value);
     }

@@ -9,7 +9,7 @@ public class TextToken : ITokenType
         Value = value;
     }
 
-    public bool ValueSupportsClosingTag => false;
+    public bool SupportsClosingTag => false;
 
     public bool HasLineBeginningSemantics => false;
 
