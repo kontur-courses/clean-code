@@ -64,7 +64,7 @@ public class LexerTest
             .SetName("TwoDoubleUnderScore_DividedByWord"),
         new TestCaseData(
                 "___",
-                new[] { SyntaxKind.DoubleUnderscore, SyntaxKind.DoubleUnderscore }
+                new[] { SyntaxKind.DoubleUnderscore, SyntaxKind.SingleUnderscore }
             )
             .SetName("TwoDoubleUnderScoreAndUnderscoreInRow"),
     };

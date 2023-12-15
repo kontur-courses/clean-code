@@ -22,7 +22,7 @@ public class Parser
 
     private Token Current => Peek(0);
     
-    public SyntaxNode[] Parse()
+    public SyntaxNode Parse()
     {
         var stack = new Stack<SyntaxNode>();
         while (position < tokens.Length)
@@ -83,7 +83,7 @@ public class Parser
                             children.Add(child);
                             if (child.Type == NodeType.OpenStrongTag)
                             {
-                                children.Reverse();//TODO: fix
+                                children.Reverse();
                                 stack.Push(new StrongBodyNode(children));
                                 break;
                             }
@@ -94,7 +94,8 @@ public class Parser
             position++;
         }
 
-        return stack.Reverse().ToArray();
+        return new BodyTag(NodeType.Root, stack.Reverse().ToArray());
+        //return stack.Reverse().ToArray();
     }
     
 }

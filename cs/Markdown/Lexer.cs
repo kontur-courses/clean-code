@@ -52,7 +52,7 @@ public class Lexer
             {
                 var start = position;
                 var letters = new List<char>();
-                while (char.IsLetter(Current) || Current == '\\')
+                while (Current != '_' && Current != '#' && Current != ' ' && Current != '\0' || Current == '\\')
                 {
                     if (Current == '\\')
                         position++;
