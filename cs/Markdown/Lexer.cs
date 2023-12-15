@@ -23,7 +23,6 @@ public class Lexer
 
     public IEnumerable<Token> GetTokens()
     {
-        //TODO: переделать условие
         while (Current != '\0'){
             if (char.IsWhiteSpace(Current))
             {
@@ -35,7 +34,6 @@ public class Lexer
                 var tokenText = text.Substring(start, length);
                 yield return new Token(SyntaxKind.Whitespace, start, tokenText);
             }
-            //TODO: case
             if (Current == '_')
             {
                 var start = position;
@@ -54,11 +52,7 @@ public class Lexer
             {
                 var start = position;
                 var letters = new List<char>();
-                if (Current == '\\') 
-                    position++;
-                letters.Add(Current);
-                position++;
-                while (char.IsLetter(Current))
+                while (char.IsLetter(Current) || Current == '\\')
                 {
                     if (Current == '\\')
                         position++;

@@ -43,6 +43,11 @@ public class LexerTest
             )
             .SetName("TwoDoubleUnderscore"),
         new TestCaseData(
+                "__a__",
+                new[] { SyntaxKind.DoubleUnderscore, SyntaxKind.Text, SyntaxKind.DoubleUnderscore }
+            )
+            .SetName("TwoDoubleUnderScore_DividedBySingleLetterWord"),
+        new TestCaseData(
                 "__ __",
                 new[] { SyntaxKind.DoubleUnderscore, SyntaxKind.Whitespace, SyntaxKind.DoubleUnderscore }
             )
@@ -58,10 +63,10 @@ public class LexerTest
             )
             .SetName("TwoDoubleUnderScore_DividedByWord"),
         new TestCaseData(
-                "__a__",
-                new[] { SyntaxKind.DoubleUnderscore, SyntaxKind.Text, SyntaxKind.DoubleUnderscore }
+                "___",
+                new[] { SyntaxKind.DoubleUnderscore, SyntaxKind.DoubleUnderscore }
             )
-            .SetName("TwoDoubleUnderScore_DividedBySingleLetterWord"),
+            .SetName("TwoDoubleUnderScoreAndUnderscoreInRow"),
     };
 
     public static TestCaseData[] rightTexts =
@@ -82,13 +87,14 @@ public class LexerTest
             .SetName("ShieldedUnderscore"),
         new TestCaseData(@"\__", new[] { "_" })
             .SetName("ShieldedUnderscoreAndSingleUnderscore"),
+        new TestCaseData(@"\___", new[] { "_" })
+            .SetName("ShieldedUnderscoreAndDoubleUnderscore"),
         new TestCaseData(@"_\__", new[] { "_" })
             .SetName("ShieldedUnderscoreBetweenSingleUnderscores"),
         new TestCaseData(@"\_\_", new[] { "__" })
             .SetName("TwoShieldedUnderscoresInRow"),
     };
-
-    //TODO: shielded что по неймнигу
+    
     [TestCaseSource(nameof(rightKindsData))]
     public void ParseRightKindsOrder(string expression, SyntaxKind[] kinds)
     {
