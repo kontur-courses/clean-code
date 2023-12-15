@@ -3,7 +3,7 @@ using Markdown.Token;
 
 namespace Markdown.Processor;
 
-public class Processor
+public class Processor : IProcessor
 {
     private readonly string text;
     private readonly ISyntax syntax;
@@ -33,6 +33,7 @@ public class Processor
             {
                 skipCycle = false;
                 i++;
+                continue;
             }
             
             if (text[i] == '#' && TryParseSharp(i, out var sharp))
@@ -45,6 +46,9 @@ public class Processor
             } else if (text[i] == '_' && TryParseUnderline(i, out var underline))
             {
                 tags.Add(underline);
+            } else if (text[i] == '\\')
+            {
+                tags.Add(new MarkdownToken(i, syntax.GetTagType("\\"), 1));
             }
 
             i++;
@@ -55,7 +59,30 @@ public class Processor
 
     private IList<IToken> RemoveEscapedTags(IList<IToken> tags)
     {
-        return tags;
+        var result = new List<IToken>();
+        var i = 0;
+        var skipCycle = false;
+        while (i < tags.Count)
+        {
+            if (skipCycle)
+            {
+                skipCycle = false;
+                i++;
+                continue;
+            }
+
+            if (tags[i].Type == syntax.GetTagType("\\"))
+            {
+                skipCycle = true;
+                i++;
+                continue;
+            }
+            
+            result.Add(tags[i]);
+
+            i++;
+        }
+        return result;
     }
 
     private IList<IToken> RemoveNonPairTags(IList<IToken> tags)

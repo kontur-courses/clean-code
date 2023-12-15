@@ -13,7 +13,7 @@ public class Syntax : ISyntax
 
     private readonly Dictionary<string, TagType> markdownToTagType = new Dictionary<string, TagType>
     {
-        { "#", TagType.Header }, { "_", TagType.Italic }, { "__", TagType.Bold }
+        { "#", TagType.Header }, { "_", TagType.Italic }, { "__", TagType.Bold }, { "\\", TagType.Escape }
     };
 
     public ITag ConvertTag(TagType type)

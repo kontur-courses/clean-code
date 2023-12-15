@@ -5,7 +5,7 @@ using Markdown.Token;
 
 namespace MarkdownTests;
 
-public class Tests
+public class Processor_Should
 {
     private ISyntax syntax;
 
@@ -30,7 +30,7 @@ public class Tests
     [Test]
     public void Parse_Underline()
     {
-        var expected = new List<MarkdownToken>()
+        var expected = new List<MarkdownToken>
         {
             new MarkdownToken(0, TagType.Italic, 1), new MarkdownToken(5, TagType.Italic, 1),
             new MarkdownToken(8, TagType.Italic, 1), new MarkdownToken(11, TagType.Italic, 1)
@@ -45,13 +45,29 @@ public class Tests
     [Test]
     public void Parse_DoubleUnderline()
     {
-        var expected = new List<MarkdownToken>()
+        var expected = new List<MarkdownToken>
         {
             new MarkdownToken(0, TagType.Bold, 2), new MarkdownToken(6, TagType.Bold, 2),
             new MarkdownToken(12, TagType.Bold, 2), new MarkdownToken(20, TagType.Bold, 2)
         };
         var text = "__text__with__double__underline";
-        
+
+        var sut = new Processor(text, syntax);
+
+        sut.ParseTags().Should().BeEquivalentTo(expected);
+    }
+
+    [Test]
+    public void Parse_Miscellaneous_Tags()
+    {
+        var expected = new List<MarkdownToken>
+        {
+            new MarkdownToken(0, TagType.Header, 1), new MarkdownToken(5, TagType.Bold, 2),
+            new MarkdownToken(7, TagType.Italic, 1), new MarkdownToken(12, TagType.Italic, 1),
+            new MarkdownToken(22, TagType.Bold, 2)
+        };
+        var text = "#Text___with_different__tags\\__";
+
         var sut = new Processor(text, syntax);
 
         sut.ParseTags().Should().BeEquivalentTo(expected);

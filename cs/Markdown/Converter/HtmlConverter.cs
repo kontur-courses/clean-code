@@ -3,7 +3,7 @@ using Markdown.Token;
 
 namespace Markdown.Converter;
 
-public class HtmlConverter
+public class HtmlConverter : IConverter
 {
     private ISyntax syntax;
     
