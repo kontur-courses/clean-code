@@ -1,37 +1,38 @@
-﻿using System;
-using System.Text;
+﻿using System.Text;
 
 namespace Markdown
 {
     public class Italic : IHtmlTagCreator
     {
-        private readonly string italicChar = "_";
+        private const string ItalicChar = "_";
 
-        public StringBuilder GetHtmlTag(string markdownText, int openTagIndex)
+        public (StringBuilder, int) GetHtmlTag(string markdownText, int openTagIndex)
         {
-            var closingTagIndex = FindClosingTagIndex(markdownText);
+            var closingTagIndex = FindClosingTagIndex(markdownText, openTagIndex + 1);
             var htmlTag = CreateHtmlTag(markdownText, openTagIndex, closingTagIndex);
 
-            throw new NotImplementedException();
+            return (htmlTag, closingTagIndex);
         }
 
         private StringBuilder CreateHtmlTag(string markdownText, int openTagIndex, int closingTagIndex)
         {
-            throw new NotImplementedException();
+            var htmlTag = new StringBuilder(markdownText);
+
+            htmlTag.Remove(closingTagIndex, 1);
+            htmlTag.Insert(closingTagIndex, "</em>");
+            htmlTag.Remove(openTagIndex, 1);
+            htmlTag.Insert(openTagIndex, "<em>");
+
+            return htmlTag;
         }
 
-        private int FindClosingTagIndex(string markdownText)
+        private int FindClosingTagIndex(string markdownText, int openTagIndex)
         {
-            ProcessAnotherTag(markdownText);
+            for (var i = openTagIndex; i < markdownText.Length; i++)
+                if (markdownText[i] == '_')
+                    return i;
 
-            throw new NotImplementedException();
-        }
-
-        private StringBuilder ProcessAnotherTag(string markdownText)
-        {
-            var intersection = new Intersection(italicChar);
-
-            throw new NotImplementedException();
+            return -1;
         }
     }
 }

@@ -1,4 +1,7 @@
 ﻿using NUnit.Framework;
+using Markdown;
+using FluentAssertions;
+using System.Diagnostics;
 
 namespace MarkdownTest
 {
@@ -6,9 +9,13 @@ namespace MarkdownTest
     public class BoldTests
     {
         [Test]
-        public void DoSomething_WhenSomething()
+        public void WhenPassBoldSymbol_ShouldConvertToStrongHtml()
         {
+            Md md = new Md();
 
+            var actual = md.Render("__Test__");
+
+            actual.Should().Be("<strong>Test</strong>");
         }
     }
 }

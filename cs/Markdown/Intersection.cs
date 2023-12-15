@@ -1,17 +1,9 @@
-﻿namespace Markdown
+﻿namespace Markdown;
+
+public class Intersection
 {
-    public class Intersection
+    public bool HaveIntersection(string markdownText, string currentOpenTag, int index)
     {
-        private string openParentTag;
-
-        public Intersection(string openParentTag)
-        {
-            this.openParentTag = openParentTag;
-        }
-
-        public bool HaveIntersection(string markdownText, string currentOpenTag, int index)
-        {
-            return false;
-        }
+        return false;
     }
 }

@@ -1,37 +1,76 @@
-﻿using System;
-using System.Text;
+﻿using System.Text;
 
 namespace Markdown
 {
     public class Bold : IHtmlTagCreator
     {
-        private readonly string boldChar = "__";
+        private const string BoldChar = "__";
 
-        public StringBuilder GetHtmlTag(string markdownText, int openTagIndex)
+        public (StringBuilder, int) GetHtmlTag(string markdownText, int openTagIndex)
         {
-            var closingTagIndex = FindClosingTagIndex(markdownText);
-            var htmlTag = CreateHtmlTag(markdownText, openTagIndex, closingTagIndex);
+            var tag = FindClosingTagIndex(markdownText, openTagIndex + 1);
+            var htmlTag = tag.Item1;
+            var closingTagIndex = tag.Item2;
 
-            throw new NotImplementedException();
+            if (closingTagIndex == -1)
+                return (htmlTag, htmlTag.Length);
+
+            htmlTag = CreateHtmlTag(htmlTag.ToString(), openTagIndex, closingTagIndex);
+
+            return (htmlTag, closingTagIndex + 1);
         }
 
         private StringBuilder CreateHtmlTag(string markdownText, int openTagIndex, int closingTagIndex)
         {
-            throw new NotImplementedException();
+            var htmlTag = new StringBuilder(markdownText);
+
+            htmlTag.Remove(closingTagIndex, 2);
+            htmlTag.Insert(closingTagIndex, "</strong>");
+            htmlTag.Remove(openTagIndex, 2);
+            htmlTag.Insert(openTagIndex, "<strong>");
+
+            return htmlTag;
         }
 
-        private int FindClosingTagIndex(string markdownText)
+        private (StringBuilder, int) FindClosingTagIndex(string markdownText, int openTagIndex)
         {
-            ProcessAnotherTag(markdownText);
+            var htmlTag = new StringBuilder(markdownText);
+            var nestedTadIndex = 0;
 
-            throw new NotImplementedException();
+            for (var i = openTagIndex; i < markdownText.Length; i++)
+            {
+                if (i + 1 >= markdownText.Length)
+                    continue;
+
+                if (i + 1 < markdownText.Length &&
+                    markdownText[i] == '_' && markdownText[i + 1] == '_')
+                    return (htmlTag, i);
+
+                if (markdownText[i] == '_' && markdownText[i - 1] != '_' && markdownText[i + 1] != '_')
+                {
+                    if (nestedTadIndex == i)
+                        continue;
+
+                    var tag = ProcessAnotherTag(markdownText, i);
+                    htmlTag = tag.Item1;
+                    nestedTadIndex = tag.Item2;
+
+                    markdownText = htmlTag.ToString();
+                    i = nestedTadIndex;
+                }
+            }
+
+            return (htmlTag, -1);
         }
 
-        private StringBuilder ProcessAnotherTag(string markdownText)
+        private (StringBuilder, int) ProcessAnotherTag(string markdownText, int i)
         {
-            Intersection intersection = new Intersection(boldChar);
+            var italic = new Italic();
+            var tag = italic.GetHtmlTag(markdownText, i);
+            var htmlText = tag.Item1;
+            i = tag.Item2;
 
-            throw new NotImplementedException();
+            return (htmlText, i);
         }
     }
 }

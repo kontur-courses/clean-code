@@ -4,6 +4,6 @@ namespace Markdown
 {
     public interface IHtmlTagCreator
     {
-        StringBuilder GetHtmlTag(string markdownText, int openTagIndex);
+        (StringBuilder, int) GetHtmlTag(string markdownText, int openTagIndex);
     }
 }
