@@ -8,7 +8,7 @@ namespace MarkdownTest
     public class MdTests
     {
         [Test]
-        public void WhenItalicTagInsertBoldTag_ShouldReturnTwoTags()
+        public void WhenItalicTagInsideBoldTag_ShouldReturnTwoTags()
         {
             Md md = new Md();
 

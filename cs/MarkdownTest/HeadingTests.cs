@@ -26,5 +26,15 @@ namespace MarkdownTest
 
             actual.Should().Be("<h1> <strong>Test</strong></h1>");
         }
+
+        [Test]
+        public void WhenPassHeadingSymbolWithBoldInsertAndItalicInsert_ShouldConvertToH1Html()
+        {
+            Md md = new Md();
+
+            var actual = md.Render("# __Te_s_t__");
+
+            actual.Should().Be("<h1> <strong>Te<em>s</em>t</strong></h1>");
+        }
     }
 }

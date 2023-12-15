@@ -1,11 +1,9 @@
 ﻿using System.Text;
 
-namespace Markdown
+namespace Markdown.Tags
 {
     public class Bold : IHtmlTagCreator
     {
-        private const string BoldChar = "__";
-
         public (StringBuilder, int) GetHtmlTag(string markdownText, int openTagIndex)
         {
             var tag = FindClosingTagIndex(markdownText, openTagIndex + 1);

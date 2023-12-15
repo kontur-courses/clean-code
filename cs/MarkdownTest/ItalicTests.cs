@@ -26,5 +26,15 @@ namespace MarkdownTest
 
             actual.Should().Be("<em>нач</em>але");
         }
+
+        [Test]
+        public void WhenBoldInsideItalicsTag_ShouldConvertToEmHtml()
+        {
+            Md md = new Md();
+
+            var actual = md.Render("_одинарного __двойное__ не_");
+
+            actual.Should().Be("<em>одинарного __двойное__ не</em>");
+        }
     }
 }

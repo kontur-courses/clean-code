@@ -1,11 +1,9 @@
 ﻿using System.Text;
 
-namespace Markdown
+namespace Markdown.Tags
 {
     public class Heading : IHtmlTagCreator
     {
-        private const string HeadingChar = "#";
-
         public (StringBuilder, int) GetHtmlTag(string markdownText, int openTagIndex)
         {
             var tag = CreateHtmlTag(markdownText, openTagIndex);

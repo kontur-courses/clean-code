@@ -1,11 +1,9 @@
 ﻿using System.Text;
 
-namespace Markdown
+namespace Markdown.Tags
 {
     public class Italic : IHtmlTagCreator
     {
-        private const string ItalicChar = "_";
-
         public (StringBuilder, int) GetHtmlTag(string markdownText, int openTagIndex)
         {
             var closingTagIndex = FindClosingTagIndex(markdownText, openTagIndex + 1);
@@ -29,8 +27,13 @@ namespace Markdown
         private int FindClosingTagIndex(string markdownText, int openTagIndex)
         {
             for (var i = openTagIndex; i < markdownText.Length; i++)
-                if (markdownText[i] == '_')
+            {
+                if (markdownText[i] == '_' && i + 1 >= markdownText.Length || markdownText[i - 1] < 0)
                     return i;
+                
+                if (markdownText[i] == '_' && markdownText[i - 1] != '_' && markdownText[i + 1] != '_')
+                    return i;
+            }
 
             return -1;
         }
