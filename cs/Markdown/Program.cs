@@ -1,8 +1,8 @@
 ﻿// For manual testing.
 
-using Markdown;
+using Markdown.Tokens;
 
-var text = @"# Hello!\n My \_name\_ is __Grigory__";
+var text = @"__ Hello, my _name_ is __Grigory__. \nI am 1_9_ y.o.__ __";
 var tokens = Tokenizer.CollectTokens(text);
 
 Console.WriteLine();

@@ -1,22 +1,10 @@
+using Markdown.Helpers;
 using System.Text;
 
-namespace Markdown;
+namespace Markdown.Tokens;
 
 public static class Tokenizer
 {
-    private static readonly Dictionary<string, Tag> tagTemplates;
-
-    static Tokenizer()
-    {
-        tagTemplates = new Dictionary<string, Tag>
-        {
-            { "__", new Tag("__", "<strong>", "</strong>", true) },
-            { "_", new Tag("_", "<em>", "</em>", true) },
-            { "# ", new Tag("# ", "<h1>", "</h1>", false) },
-            { "\\n", new Tag("\\n", string.Empty, string.Empty, false) }
-        };
-    }
-
     public static List<Token> CollectTokens(string text)
     {
         var tokens = new List<Token>();
@@ -34,9 +22,9 @@ public static class Tokenizer
                 continue;
             }
 
-            var possibleToken = TryGetTokenOnPosition(text, i);
+            var tagToken = TryGetTagTokenOnPosition(i, text);
 
-            if (possibleToken != null)
+            if (tagToken != null)
             {
                 if (collector.Length > 0)
                 {
@@ -44,8 +32,8 @@ public static class Tokenizer
                     collector.Clear();
                 }
 
-                tokens.Add(possibleToken);
-                i += possibleToken.Tag!.GlobalMark.Length - 1;
+                tokens.Add(tagToken);
+                i += tagToken.Tag!.Info.GlobalMark.Length - 1;
 
                 continue;
             }
@@ -59,23 +47,16 @@ public static class Tokenizer
         return tokens;
     }
 
-    private static Token? TryGetTokenOnPosition(string text, int position)
+    private static Token? TryGetTagTokenOnPosition(int position, string text)
     {
         Token? foundToken = null;
+        
+        var prefix = string.Concat(text[position], text[position + 1]);
+        var foundTag = TagHelper.GetInstanceViaMark(prefix, position);
 
-        foreach (var mark in tagTemplates.Keys)
-        {
-            var prefix = string.Concat(text[position], text[position + 1]);
-
-            if (!prefix.StartsWith(mark))
-                continue;
-
-            var foundTag = tagTemplates[mark].Clone() as Tag;
+        if (foundTag != null)
             foundToken = new Token(position, foundTag);
-
-            break;
-        }
-
+        
         return foundToken;
     }
 
@@ -86,13 +67,13 @@ public static class Tokenizer
             return 0;
 
         var lastToken = tokens[^1];
-        var lastTokenMark = lastToken.Tag!.GlobalMark;
+        var lastTokenMark = lastToken.Tag!.Info.GlobalMark;
 
         return lastToken.Position + lastTokenMark.Length;
     }
 
     private static bool IsEscaped(char previous, char current)
     {
-        return previous == '\\' && current is '_' or '#' or '\\';
+        return previous == '\\' && TagHelper.AvailableMarks.Contains(current);
     }
 }
