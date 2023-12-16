@@ -1,4 +1,5 @@
-﻿using FluentAssertions;
+﻿using System.Text;
+using FluentAssertions;
 using Markdown.Filter;
 using Markdown.Lexer;
 using Markdown.Renderer;
@@ -26,9 +27,15 @@ public class MarkdownRendererTests
         renderer = new MarkdownRenderer(lexer, tokenConverter);
     }
 
-    [Test, Timeout(5000)] // подобрать timeout
+    [Test, Timeout(3200)]
     public void Render_HasSufficientPerformance_OnLongInputText()
     {
+        var text = new StringBuilder();
+        
+        for (var i = 0; i < 15000; i++)
+            text.Append("_a_ ");
+        
+        renderer.Render(text.ToString());
     }
 
     [TestCase(null)]
