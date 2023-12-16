@@ -2,7 +2,7 @@
 
 public class WhitespaceNode : SimpleTag
 {
-    public WhitespaceNode(string text) : base(NodeType.WhitespaceNode, text)
+    public WhitespaceNode(string text) : base(text)
     {
     }
 }

@@ -11,17 +11,6 @@ public class Lexer
         position = 0;
     }
 
-    private char Current
-    {
-        get
-        {
-            if (position >= text.Length)
-                return '\0';
-            return text[position];
-        }
-    }
-
-    //TODO: current = peek(0)
     private char Peek(int offset)
     {
         var index = position + offset;
@@ -29,6 +18,8 @@ public class Lexer
             return '\0';
         return text[index];
     }
+
+    private char Current => Peek(0);
 
     public IEnumerable<Token> GetTokens()
     {

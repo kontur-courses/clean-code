@@ -5,5 +5,6 @@ public enum SyntaxKind
     Whitespace,
     SingleUnderscore,
     Text,
-    DoubleUnderscore
+    DoubleUnderscore,
+    Hash
 }

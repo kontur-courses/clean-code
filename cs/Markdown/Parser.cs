@@ -1,4 +1,4 @@
-﻿using System.Net.Mime;
+﻿using System.Collections;
 
 namespace Markdown;
 
@@ -7,10 +7,12 @@ public class Parser
     private readonly Token[] tokens;
     private int position;
 
+    private Stack<SyntaxNode> stack;
+    private Stack<(SyntaxNode, int)> openTagStack;
+
     public Parser(Token[] tokens)
     {
         this.tokens = tokens;
-        position = 0;
     }
 
     private Token Peek(int offset)
@@ -29,102 +31,51 @@ public class Parser
 
     public SyntaxNode Parse()
     {
-        var stack = new Stack<SyntaxNode>();
-        int openEmTagIndex = -1, openStrongTagIndex = -1;
-        //TODO: stack of opened tags?
+        stack = new Stack<SyntaxNode>();
+        openTagStack = new Stack<(SyntaxNode, int)>();
+        position = 0;
+
+        List<SyntaxNode>? children;
         while (position < tokens.Length)
         {
-            List<SyntaxNode>? children;
             switch (Current.Kind)
             {
                 case SyntaxKind.Text:
                     stack.Push(new TextNode(Current.Text));
                     break;
                 case SyntaxKind.Whitespace:
-                    if (openEmTagIndex != -1 && openEmTagIndex != 0)
-                    {
-                        if (tokens[openEmTagIndex - 1].Kind != SyntaxKind.Whitespace)
-                            openEmTagIndex = -1;
-                    }
-
-                    if (openStrongTagIndex != -1 && openStrongTagIndex != 0)
-                    {
-                        if (tokens[openStrongTagIndex - 1].Kind != SyntaxKind.Whitespace)
-                            openStrongTagIndex = -1;
-                    }
-
+                    CloseUnusedTags();
                     stack.Push(new TextNode(Current.Text));
                     break;
                 case SyntaxKind.SingleUnderscore:
-                    if (openEmTagIndex == -1)
-                    {
-                        openEmTagIndex = position;
-                        stack.Push(new OpenEmNode(Current.Text));
+                    if (TryOpenBodyWith(new OpenEmNode(Current.Text)))
                         break;
-                    }
-
-                    if (Previous.Kind == SyntaxKind.Whitespace)
-                    {
-                        stack.Push(new TextNode(Current.Text));
-                        break;
-                    }
-
-                    if (openStrongTagIndex != -1 && openEmTagIndex < openStrongTagIndex)
-                    {
-                        stack.Push(new TextNode(Current.Text));
-                        openStrongTagIndex = -1;
-                        openEmTagIndex = -1;
-                        break;
-                    }
 
                     stack.Push(new CloseEmNode(Current.Text));
                     children = new List<SyntaxNode>();
                     while (true)
                     {
                         var child = stack.Pop();
+                        if (child is StrongBodyNode)
+                            child = new TextNode(child.Text);
                         children.Add(child);
-                        if (child.Type == NodeType.OpenEmTag)
+                        if (child is OpenEmNode)
                             break;
                     }
 
-                    children.Reverse();
-                    if (children
-                        .Where(child => child.Type != NodeType.OpenEmTag && child.Type != NodeType.CloseEmTag)
-                        .SelectMany(child => child.Text)
-                        .All(char.IsDigit)
-                       )
-                    {
-                        stack.Push(new TextNode(string.Join("", children.Select(child => child.Text))));
-                    }
-                    else
-                    {
-                        //TODO: textify
-                        stack.Push(new EmBodyNode(children));
-                    }
+                    openTagStack.Pop();
 
-                    openEmTagIndex = -1;
+                    children.Reverse();
+                    children = children.TextifyInnerTags().ToList();
+                    if (children.IsOnlyDigitsInInnerTextTags())
+                        stack.Push(new TextNode(string.Join("", children.Select(child => child.Text))));
+                    else
+                        stack.Push(new EmBodyNode(children));
+
                     break;
                 case SyntaxKind.DoubleUnderscore:
-                    if (openStrongTagIndex == -1)
-                    {
-                        openStrongTagIndex = position;
-                        stack.Push(new OpenStrongNode(Current.Text));
+                    if (TryOpenBodyWith(new OpenStrongNode(Current.Text)))
                         break;
-                    }
-
-                    if (Previous.Kind == SyntaxKind.Whitespace)
-                    {
-                        stack.Push(new TextNode(Current.Text));
-                        break;
-                    }
-
-                    if (openStrongTagIndex != -1 && openStrongTagIndex < openEmTagIndex)
-                    {
-                        stack.Push(new TextNode(Current.Text));
-                        openStrongTagIndex = -1;
-                        openEmTagIndex = -1;
-                        break;
-                    }
 
                     stack.Push(new CloseStrongNode(Current.Text));
                     children = new List<SyntaxNode>();
@@ -132,37 +83,108 @@ public class Parser
                     {
                         var child = stack.Pop();
                         children.Add(child);
-                        if (child.Type == NodeType.OpenStrongTag)
+                        if (child is OpenStrongNode)
                             break;
                     }
+
+                    openTagStack.Pop();
 
                     children.Reverse();
                     if (children.Count == 2)
                         stack.Push(new TextNode(children[0].Text + children[1].Text));
-                    else if (openEmTagIndex != -1 && openEmTagIndex < openStrongTagIndex)
-                    {
+                    else if (children.IsOnlyDigitsInInnerTextTags())
                         stack.Push(new TextNode(string.Join("", children.Select(child => child.Text))));
-                    }
                     else
-                        //TODO: textify
-                        stack.Push(new StrongBodyNode(children));
+                        stack.Push(new StrongBodyNode(children.TextifyInnerTags()));
 
-                    openStrongTagIndex = -1;
                     break;
             }
 
             position++;
         }
 
-        return new BodyTag(NodeType.Root, stack.Select(node =>
+        return new BodyTag(stack.Reverse().TextifyTags());
+    }
+
+    private void CloseUnusedTags()
+    {
+        var unclosedTags = new Stack<(SyntaxNode, int)>();
+        while (openTagStack.Count > 0)
+        {
+            var (node, nodeTokenIndex) = openTagStack.Pop();
+            switch (node)
             {
-                if (node is TextNode || node is WhitespaceNode || node is BodyTag)
-                    return node;
-                return new TextNode(node.Text);
-            })
-            .Reverse()
-            .ToArray()
-        );
-        //return stack.Reverse().ToArray();
+                case OpenEmNode:
+                case OpenStrongNode:
+                    if (nodeTokenIndex == 0 || tokens[nodeTokenIndex - 1].Kind == SyntaxKind.Whitespace)
+                        unclosedTags.Push((node, nodeTokenIndex));
+                    break;
+                default:
+                    unclosedTags.Push((node, nodeTokenIndex));
+                    break;
+            }
+        }
+
+        foreach (var tag in unclosedTags)
+            openTagStack.Push(tag);
+    }
+
+    private bool TryOpenBodyWith(SimpleTag node)
+    {
+        if (openTagStack.All(pair => pair.Item1.GetType() != node.GetType()))
+        {
+            stack.Push(node);
+            openTagStack.Push((node, position));
+            return true;
+        }
+
+        if (openTagStack.Peek().Item1.GetType() != node.GetType())
+        {
+            var deleted = openTagStack.Pop().Item1;
+            stack.Push(new TextNode(Current.Text));
+            while (deleted.GetType() != node.GetType())
+                deleted = openTagStack.Pop().Item1;
+            return true;
+        }
+
+        if (Previous.Kind == SyntaxKind.Whitespace)
+        {
+            stack.Push(new TextNode(Current.Text));
+            return true;
+        }
+
+        return false;
+    }
+}
+
+public static class Extensions
+{
+    public static IEnumerable<SyntaxNode> TextifyInnerTags(this IEnumerable<SyntaxNode> nodes)
+    {
+        yield return nodes.First();
+        foreach (var node in nodes.Skip(1).Take(nodes.Count() - 2).TextifyTags())
+            yield return node;
+        yield return nodes.Last();
+    }
+
+    public static IEnumerable<SyntaxNode> TextifyTags(this IEnumerable<SyntaxNode> nodes)
+    {
+        foreach (var node in nodes)
+        {
+            if (node is TextNode || node is WhitespaceNode || node is BodyTag)
+                yield return node;
+            else
+                yield return new TextNode(node.Text);
+        }
+    }
+
+    public static bool IsOnlyDigitsInInnerTextTags(this IEnumerable<SyntaxNode> nodes)
+    {
+        return nodes
+            .Skip(1)
+            .Take(nodes.Count() - 2)
+            .Where(node => node is TextNode)
+            .SelectMany(node => node.Text)
+            .All(char.IsDigit);
     }
 }
