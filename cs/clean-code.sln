@@ -11,6 +11,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Samples", "Samples\Samples.
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MarkDown", "MarkDown\MarkDown.csproj", "{EC6CFB36-AACF-482E-813C-B49D6E16FBA7}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MarkDownTests", "MarkDownTests\MarkDownTests.csproj", "{9FEA26B2-338F-4612-A969-D82E66B78EBD}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -33,5 +35,9 @@ Global
 		{EC6CFB36-AACF-482E-813C-B49D6E16FBA7}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{EC6CFB36-AACF-482E-813C-B49D6E16FBA7}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{EC6CFB36-AACF-482E-813C-B49D6E16FBA7}.Release|Any CPU.Build.0 = Release|Any CPU
+		{9FEA26B2-338F-4612-A969-D82E66B78EBD}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{9FEA26B2-338F-4612-A969-D82E66B78EBD}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{9FEA26B2-338F-4612-A969-D82E66B78EBD}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{9FEA26B2-338F-4612-A969-D82E66B78EBD}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 EndGlobal

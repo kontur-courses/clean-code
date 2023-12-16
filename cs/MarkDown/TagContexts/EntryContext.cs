@@ -1,3 +1,4 @@
+using System.Collections.Immutable;
 using System.Text;
 using MarkDown.Enums;
 using MarkDown.Interfaces;
@@ -5,13 +6,17 @@ using MarkDown.Tags;
 
 namespace MarkDown.TagContexts;
 
-public class HeaderContext : TagContext
+public class EntryContext : TagContext
 {
-    public HeaderContext(int startIndex, TagContext tagContext, Tag creator) : base(startIndex, tagContext, creator)
+    public EntryContext(int startIndex, TagContext? context, Tag creator) : base(startIndex, context, creator)
+    {
+    }
+    
+    public EntryContext(Tag creator) : base(0, null, creator)
     {
     }
 
-    // public override TagName TagName => TagName.Header;
+    // public override TagName TagName => TagName.Entry;
 
     protected override void HandleSymbolItself(char symbol)
     {
@@ -19,31 +24,24 @@ public class HeaderContext : TagContext
 
     public override (int start, int end) ConvertToHtml(string text, StringBuilder sb, MarkDownEnvironment environment)
     {
-        var start = StartIndex + Creator.MarkDownOpen.Length;
-        sb.Append(Creator.HtmlOpen);
+        var start = StartIndex;
         
         foreach (var context in InnerContexts
                      .Where(context => context.Closed))
         {
             var (newStart, newEnd) = context.ConvertToHtml(text, sb, environment);
             sb.Append(text.AsSpan(start, newStart - start));
-            start = newEnd + 1;
+            start = newEnd;
         }
         
-        sb.Append(text.AsSpan(start, CloseIndex - start + 1));
-
-        sb.Append(Creator.HtmlClose);
+        if (start < text.Length)
+            sb.Append(text.AsSpan(start, CloseIndex - start));
         
-        return (StartIndex, CloseIndex + Creator.MarkDownClose.Length);
+        return (StartIndex, CloseIndex);
     }
 
     public override void CloseSingleTags(int closeIndex)
     {
-        parent.CloseSingleTags(closeIndex);
-        
-        if (Closed)
-            return;
-        
-        CloseIndex = closeIndex;
+        Closed = true;
     }
 }

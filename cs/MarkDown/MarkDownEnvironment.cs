@@ -1,44 +1,71 @@
-using MarkDown.Abstracts;
 using MarkDown.Enums;
-using MarkDown.TagCreators;
+using MarkDown.Tags;
 
 namespace MarkDown;
 
 public class MarkDownEnvironment
 {
-    private readonly Dictionary<TagName, Tag> markDownTags;
-    private readonly Dictionary<Tag, List<TagName>> unsupportedForTag = new();
+    private readonly Dictionary<TagName, Tag> markDownTags = new();
+    private readonly Dictionary<TagName, List<TagName>> unsupportedForTag = new();
 
-    public MarkDownEnvironment(string text)
+    public MarkDownEnvironment()
     {
-        markDownTags = new Dictionary<TagName, Tag>
-        {
-            [TagName.Header] = new Header(this)
-        };
+        AddNewTagForMarkDown(new HeaderTag(this));
+        AddNewTagForMarkDown(new EntryTag(this));
     }
 
     public void AddNewTagForMarkDown(Tag tag)
     {
-        throw new NotImplementedException();
+        markDownTags[tag.TagName] = tag;
     }
 
-    public bool CanGetTagCreator(int start, out Tag tag)
+    public bool CanGetTagCreator(string text, int position, out Tag openTag)
     {
-        throw new NotImplementedException();
+        openTag = null;
+        
+        foreach (var tag in markDownTags.Values)
+            if (tag.CanCreateContext(text, position))
+                openTag = tag;
+
+        return openTag is not null;
     }
 
-    public void AddUnsupportedInnersFor(Tag tag, params TagName[] unsupported)
+    // public bool CanCreateContext(ITagContext nowContext, TagName tagName)
+    // {
+    //     if (unsupportedForTag.TryGetValue(nowContext.tagName, out var unsupported))
+    //         return !unsupported.Contains(tagName);
+    //
+    //     return true;
+    // }
+
+    public bool CanGetCloseTag(string text, int position, out List<Tag> closeTags)
     {
-        if (unsupportedForTag.TryGetValue(tag, out var types))
+        closeTags = new List<Tag>();
+        
+        foreach (var tag in markDownTags.Values)
+            if (tag.IsClosePosition(text, position))
+                closeTags.Add(tag);
+
+        return closeTags.Count > 0;
+    }
+
+    public Tag GetTagByName(TagName tagName)
+    {
+        return markDownTags[tagName];
+    }
+
+    public void AddUnsupportedInnersFor(TagName tagName, params TagName[] unsupported)
+    {
+        if (unsupportedForTag.TryGetValue(tagName, out var types))
             types.AddRange(unsupported);
         else
-            unsupportedForTag[tag] = new List<TagName>(unsupported);
+            unsupportedForTag[tagName] = new List<TagName>(unsupported);
     }
 
-    public IEnumerable<Tag> GetUnsupportedInnersFor(Tag tag)
+    public IEnumerable<TagName> GetUnsupportedInnersFor(TagName tagName)
     {
-        return unsupportedForTag.TryGetValue(tag, out var tags) 
-            ? tags.Select(e => markDownTags[e])
-            : Enumerable.Empty<Tag>();
+        return unsupportedForTag.TryGetValue(tagName, out var tags) 
+            ? tags
+            : Enumerable.Empty<TagName>();
     }
 }
