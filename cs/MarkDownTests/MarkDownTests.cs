@@ -1,5 +1,3 @@
-using Microsoft.VisualStudio.TestPlatform.ObjectModel;
-
 namespace MarkDownTests;
 
 public class MarkDownTests

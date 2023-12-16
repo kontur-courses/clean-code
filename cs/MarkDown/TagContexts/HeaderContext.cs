@@ -1,6 +1,4 @@
 using System.Text;
-using MarkDown.Enums;
-using MarkDown.Interfaces;
 using MarkDown.Tags;
 
 namespace MarkDown.TagContexts;
@@ -10,8 +8,6 @@ public class HeaderContext : TagContext
     public HeaderContext(int startIndex, TagContext tagContext, Tag creator) : base(startIndex, tagContext, creator)
     {
     }
-
-    // public override TagName TagName => TagName.Header;
 
     protected override void HandleSymbolItself(char symbol)
     {

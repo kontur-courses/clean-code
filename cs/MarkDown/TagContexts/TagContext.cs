@@ -3,7 +3,7 @@ using System.Text;
 using MarkDown.Enums;
 using MarkDown.Tags;
 
-namespace MarkDown.Interfaces;
+namespace MarkDown.TagContexts;
 
 public abstract class TagContext
 {
@@ -25,8 +25,6 @@ public abstract class TagContext
     public bool Closed { get; protected set; }
     
     public bool CanClose { get; protected set; } = true;
-    
-    // public abstract TagName TagName { get; }
 
     public bool TryClose(TagName tagCloseName, int closeIndex)
     {

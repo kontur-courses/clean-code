@@ -1,7 +1,4 @@
-using System.Collections.Immutable;
 using System.Text;
-using MarkDown.Enums;
-using MarkDown.Interfaces;
 using MarkDown.Tags;
 
 namespace MarkDown.TagContexts;
@@ -15,8 +12,6 @@ public class EntryContext : TagContext
     public EntryContext(Tag creator) : base(0, null, creator)
     {
     }
-
-    // public override TagName TagName => TagName.Entry;
 
     protected override void HandleSymbolItself(char symbol)
     {

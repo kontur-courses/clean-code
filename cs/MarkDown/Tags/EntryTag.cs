@@ -1,5 +1,4 @@
 using MarkDown.Enums;
-using MarkDown.Interfaces;
 using MarkDown.TagContexts;
 
 namespace MarkDown.Tags;

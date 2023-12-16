@@ -1,5 +1,5 @@
 using MarkDown.Enums;
-using MarkDown.Interfaces;
+using MarkDown.TagContexts;
 
 namespace MarkDown.Tags;
 
@@ -18,7 +18,6 @@ public abstract class Tag
     public abstract string HtmlClose { get; }
     public abstract string MarkDownOpen { get; }
     public abstract string MarkDownClose { get; }
-    // protected abstract bool CanCancelContext { get; }
 
     public abstract TagContext CreateContext(int startIndex, TagContext parentContext);
 
