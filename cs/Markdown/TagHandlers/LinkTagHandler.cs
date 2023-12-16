@@ -1,29 +1,25 @@
 ﻿namespace Markdown.TagHandlers;
 
-public class LinkTagHandler: BaseTagHandler, ITagHandler
+public class LinkTagHandler : BaseTagHandler, ITagHandler
 {
-    public LinkTagHandler(): base("[...](...)")
+    public LinkTagHandler() : base("[]()", "<a>")
     {
-        NestedTagHandlers = new ITagHandler[]
-        {
-
-        };
+        NestedTagHandlers = Array.Empty<ITagHandler>();
     }
-    
-    public string HtmlTag => $"<a>";
 
     protected override ITagHandler[] NestedTagHandlers { get; }
-    public override bool StartsWithTag(string s, int startIndex)
+
+    public override bool StartsWithTag(string text, int startIndex)
     {
-        return s[startIndex] == Tag[0];
+        return text[startIndex] == MdTag[0];
     }
 
-    public override bool IsValid(string s, int startIndex = 0)
+    public override bool IsValid(string text, int startIndex = 0)
     {
         throw new NotImplementedException();
     }
 
-    public override int FindEndTagProcessing(string s, int startIndex)
+    public override int FindEndTagProcessing(string text, int startIndex)
     {
         throw new NotImplementedException();
     }
@@ -33,12 +29,10 @@ public class LinkTagHandler: BaseTagHandler, ITagHandler
         throw new NotImplementedException();
     }
 
-    protected override string Format(string s) // [..](link) 
+    protected override string Format(string s)
     {
-        if (!IsValid(s))
-            throw new ArgumentException();
+        ValidateInput(s, 0);
         var parts = s.Split(']');
-        if (parts.Length != 2) throw new FormatException();
         var text = parts[0][1..];
         var link = parts[1][..^1];
         return $"<a href=\"${link}\">{text}</a>";

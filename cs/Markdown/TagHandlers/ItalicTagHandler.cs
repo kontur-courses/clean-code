@@ -1,40 +1,16 @@
-﻿namespace Markdown.TagHandlers;
+﻿using NUnit.Framework.Internal;
 
-public class ItalicTagHandler: BaseTagHandler, ITagHandler
+namespace Markdown.TagHandlers;
+
+public class ItalicTagHandler: PairedTagsHandler, ITagHandler
 {
-    public ItalicTagHandler() : base("_")
+    public ItalicTagHandler() : base("_", "<em>")
     {
         NestedTagHandlers = new ITagHandler[]
         {
-            
+            new LinkTagHandler()
         };
     }
 
     protected override ITagHandler[] NestedTagHandlers { get; }
-
-    public override bool StartsWithTag(string s, int startIndex)
-    {
-        return s[startIndex..].StartsWith(Tag);
-
-    }
-
-    public override bool IsValid(string s, int startIndex = 0)
-    {
-        throw new NotImplementedException();
-    }
-
-    public override int FindEndTagProcessing(string s, int startIndex)
-    {
-        throw new NotImplementedException();
-    }
-
-    protected override string GetInnerContent(string s, int startIndex)
-    {
-        throw new NotImplementedException();
-    }
-
-    protected override string Format(string s)
-    {
-        throw new NotImplementedException();
-    }
 }

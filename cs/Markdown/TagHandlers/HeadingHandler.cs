@@ -2,7 +2,7 @@
 
 public class HeadingHandler : BaseTagHandler, ITagHandler
 {
-    public HeadingHandler() : base("#")
+    public HeadingHandler() : base("#", "<h1>")
     {
         NestedTagHandlers = new ITagHandler[]
         {
@@ -14,35 +14,26 @@ public class HeadingHandler : BaseTagHandler, ITagHandler
 
     protected override ITagHandler[] NestedTagHandlers { get; }
 
-    public override bool StartsWithTag(string s, int startIndex)
+    public override bool IsValid(string text, int startIndex = 0)
     {
-        return s[startIndex..].StartsWith(Tag);
-    }
-
-    public override bool IsValid(string s, int startIndex = 0)
-    {
-        if (startIndex < 0 || startIndex >= s.Length)
-            throw new ArgumentOutOfRangeException();
-        if (string.IsNullOrWhiteSpace(s)) return false;
-        if (startIndex != 0 && s[startIndex - 1] != '\n')
+        if (string.IsNullOrWhiteSpace(text)
+            || startIndex < 0 || startIndex >= text.Length
+            || (startIndex != 0 && text[startIndex - 1] != '\n'))
             return false;
-        return StartsWithTag(s, startIndex) && char.IsWhiteSpace(s[startIndex + 1]);
+
+        return StartsWithTag(text, startIndex) && char.IsWhiteSpace(text[startIndex + 1]);
     }
 
-    public override int FindEndTagProcessing(string s, int startIndex)
+    public override int FindEndTagProcessing(string text, int startIndex)
     {
-        if (!IsValid(s, startIndex))
-            throw new ArgumentException();
-        var end = s.IndexOf('\n', startIndex + 1);
-        return end != -1
-            ? end
-            : s.Length;
+        ValidateInput(text, startIndex);
+        var end = text.IndexOf('\n', startIndex + 1);
+        return end != -1 ? end : text.Length;
     }
 
     protected override string GetInnerContent(string s, int startIndex)
     {
-        if (!IsValid(s, startIndex))
-            throw new ArgumentException();
+        ValidateInput(s, startIndex);
         var end = FindEndTagProcessing(s, startIndex);
         var newIndex = startIndex + 1;
         return s[newIndex..end].Trim();
@@ -50,6 +41,7 @@ public class HeadingHandler : BaseTagHandler, ITagHandler
 
     protected override string Format(string s)
     {
-        return $"<h1>{GetInnerContent(s, 0).Trim()}</h1>";
+        var closingTag = HtmlTag.Insert(1, "/");
+        return $"{HtmlTag}{GetInnerContent(s, 0).Trim()}{closingTag}";
     }
 }

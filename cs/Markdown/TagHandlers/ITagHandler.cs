@@ -2,13 +2,15 @@
 
 public interface ITagHandler
 {
-    public string Render(string s, int startIndex = 0);
+    public string MdTag { get; }
     
-    public string Tag { get; }
+    public string HtmlTag { get; }
 
-    public bool StartsWithTag(string s, int startIndex = 0);
+    public string Render(string text, int startIndex = 0);
 
-    public bool IsValid(string s, int startIndex = 0);
+    public bool StartsWithTag(string text, int startIndex = 0);
+
+    public bool IsValid(string text, int startIndex = 0);
     
-    public int FindEndTagProcessing(string s, int startIndex = 0);
+    public int FindEndTagProcessing(string text, int startIndex = 0);
 }

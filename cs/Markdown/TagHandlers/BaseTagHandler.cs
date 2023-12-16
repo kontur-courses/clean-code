@@ -2,42 +2,75 @@
 
 public abstract class BaseTagHandler : ITagHandler
 {
-    protected BaseTagHandler(string tag)
+    protected BaseTagHandler(string mdTag, string htmlTag)
     {
-        Tag = tag;
+        if (!htmlTag.StartsWith("<") || !htmlTag.EndsWith(">"))
+            throw new ArgumentException();
+        MdTag = mdTag;
+        HtmlTag = htmlTag;
     }
 
-    public string Tag { get; }
+    public string MdTag { get; }
+    public string HtmlTag { get; }
 
     protected abstract ITagHandler[] NestedTagHandlers { get; }
 
-    public string Render(string s, int startIndex = 0)
+    public string Render(string text, int startIndex = 0)
     {
-        if (StartsWithTag(s, startIndex) && IsValid(s, startIndex) && !SymbolIsEscaped(s, startIndex))
-        {
-            var endTagIndex = FindEndTagProcessing(s, startIndex);
-            var innerContent = GetInnerContent(s, startIndex);
-            var renderedInnerContent = Md.Render(innerContent, NestedTagHandlers);
-            var processedText = s[startIndex..endTagIndex].Replace(innerContent, renderedInnerContent);
-            return Format(processedText) + s[endTagIndex..];
-        }
-        return s;
+        if (!StartsWithTag(text, startIndex) || !IsValid(text, startIndex))
+            return text;
+        var endTagIndex = FindEndTagProcessing(text, startIndex);
+        var processedText = RenderAndReplaceInnerContent(text, startIndex, endTagIndex);
+
+        if (IntersectsWithAnyTags(text, startIndex, endTagIndex))
+            return processedText + text[endTagIndex..];
+        return Format(processedText) + text[endTagIndex..];
     }
 
-    public abstract bool StartsWithTag(string s, int startIndex);
+    private string RenderAndReplaceInnerContent(string text, int startIndex, int endIndex)
+    {
+        var innerContent = GetInnerContent(text, startIndex);
+        var renderedInnerContent = Md.Render(innerContent, NestedTagHandlers);
+        return text[startIndex..endIndex].Replace(innerContent, renderedInnerContent);
+    }
 
-    public abstract bool IsValid(string s, int startIndex = 0);
+    private bool IntersectsWithAnyTags(string text, int startIndex, int endIndex)
+    {
+        for (var i = startIndex; i < endIndex;)
+        {
+            var handler = Md.FindHandler(text, i, NestedTagHandlers);
+            if (handler != null)
+            {
+                var innerEndIndex = handler.FindEndTagProcessing(text, i);
+                if (innerEndIndex > endIndex)
+                    return true;
+                i += handler.MdTag.Length;
+            }
+            else
+            {
+                i++;
+            }
+        }
 
-    public abstract int FindEndTagProcessing(string s, int startIndex);
+        return false;
+    }
+
+    public void ValidateInput(string s, int startIndex)
+    {
+        if (!IsValid(s, startIndex))
+            throw new ArgumentException();
+    }
+
+    public virtual bool StartsWithTag(string text, int startIndex)
+    {
+        return text[startIndex..].StartsWith(MdTag);
+    }
+
+    public abstract bool IsValid(string text, int startIndex = 0);
+
+    public abstract int FindEndTagProcessing(string text, int startIndex);
 
     protected abstract string GetInnerContent(string s, int startIndex);
 
     protected abstract string Format(string s);
-
-    public static bool SymbolIsEscaped(string s, int index)
-    {
-        if (index < 0 || index >= s.Length)
-            throw new ArgumentOutOfRangeException();
-        return index != 0 && s[index - 1] == '\\';
-    }
 }
