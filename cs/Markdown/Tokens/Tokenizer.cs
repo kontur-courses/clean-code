@@ -5,9 +5,16 @@ using System.Text;
 
 namespace Markdown.Tokens;
 
-public static class Tokenizer
+public class Tokenizer
 {
-    public static List<Token> CollectTokens(string text)
+    private MD markdownContext;
+    
+    public Tokenizer(MD markdownContext)
+    {
+        this.markdownContext = markdownContext;
+    }
+    
+    public List<Token> CollectTokens(string text)
     {
         var tokens = new List<Token>();
         var collector = new StringBuilder();
@@ -58,12 +65,12 @@ public static class Tokenizer
         return tokens;
     }
 
-    private static Token? TryGetTagTokenOnPosition(int position, string text)
+    private Token? TryGetTagTokenOnPosition(int position, string text)
     {
         Token? foundToken = null;
         
         var prefix = string.Concat(text[position], text[position + 1]);
-        var foundTag = TagHelper.GetInstanceViaMark(prefix);
+        var foundTag = markdownContext.GetInstanceViaMark(prefix);
 
         if (foundTag == null) 
             return foundToken;
