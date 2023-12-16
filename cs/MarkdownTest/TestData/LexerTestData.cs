@@ -1,11 +1,36 @@
-using FluentAssertions;
-using Markdown;
+﻿using Markdown;
 
-namespace MarkdownTest;
+namespace MarkdownTest.TestData;
 
-public class LexerTest
+public class LexerTestData
 {
-    public static TestCaseData[] rightKindsData =
+    public static TestCaseData[] RightTexts =
+    {
+        new TestCaseData("a", new[] { "a" })
+            .SetName("SingleLetterWords"),
+        new TestCaseData("abc", new[] { "abc" })
+            .SetName("SingleWord"),
+        new TestCaseData("ab_cd", new[] { "ab", "cd" })
+            .SetName("TwoWords_SeparatedBySingleUnderscore"),
+        new TestCaseData("ab__cd", new[] { "ab", "cd" })
+            .SetName("TwoWords_SeparatedByDoubleUnderscore"),
+        new TestCaseData("ab cd", new[] { "ab", "cd" })
+            .SetName("TwoWords_SeparatedByWhitespace"),
+        new TestCaseData("abc__def_ghi jkl", new[] { "abc", "def", "ghi", "jkl" })
+            .SetName("ThreeWords_SeparatedByDifferentTags"),
+        new TestCaseData(@"\_", new[] { "_" })
+            .SetName("ShieldedUnderscore"),
+        new TestCaseData(@"\__", new[] { "_" })
+            .SetName("ShieldedUnderscoreAndSingleUnderscore"),
+        new TestCaseData(@"\___", new[] { "_" })
+            .SetName("ShieldedUnderscoreAndDoubleUnderscore"),
+        new TestCaseData(@"_\__", new[] { "_" })
+            .SetName("ShieldedUnderscoreBetweenSingleUnderscores"),
+        new TestCaseData(@"\_\_", new[] { "__" })
+            .SetName("TwoShieldedUnderscoresInRow"),
+    };
+
+    public static TestCaseData[] RightKindsData =
     {
         new TestCaseData(
                 "_",
@@ -67,52 +92,10 @@ public class LexerTest
                 new[] { SyntaxKind.DoubleUnderscore, SyntaxKind.SingleUnderscore }
             )
             .SetName("TwoDoubleUnderScoreAndUnderscoreInRow"),
+        new TestCaseData(
+                "#abc\n",
+                new[] { SyntaxKind.Hash, SyntaxKind.Text, SyntaxKind.NewLine }
+            )
+            .SetName("HashWordAndNewLine"),
     };
-
-    public static TestCaseData[] rightTexts =
-    {
-        new TestCaseData("a", new[] { "a" })
-            .SetName("SingleLetterWords"),
-        new TestCaseData("abc", new[] { "abc" })
-            .SetName("SingleWord"),
-        new TestCaseData("ab_cd", new[] { "ab", "cd" })
-            .SetName("TwoWords_SeparatedBySingleUnderscore"),
-        new TestCaseData("ab__cd", new[] { "ab", "cd" })
-            .SetName("TwoWords_SeparatedByDoubleUnderscore"),
-        new TestCaseData("ab cd", new[] { "ab", "cd" })
-            .SetName("TwoWords_SeparatedByWhitespace"),
-        new TestCaseData("abc__def_ghi jkl", new[] { "abc", "def", "ghi", "jkl" })
-            .SetName("ThreeWords_SeparatedByDifferentTags"),
-        new TestCaseData(@"\_", new[] { "_" })
-            .SetName("ShieldedUnderscore"),
-        new TestCaseData(@"\__", new[] { "_" })
-            .SetName("ShieldedUnderscoreAndSingleUnderscore"),
-        new TestCaseData(@"\___", new[] { "_" })
-            .SetName("ShieldedUnderscoreAndDoubleUnderscore"),
-        new TestCaseData(@"_\__", new[] { "_" })
-            .SetName("ShieldedUnderscoreBetweenSingleUnderscores"),
-        new TestCaseData(@"\_\_", new[] { "__" })
-            .SetName("TwoShieldedUnderscoresInRow"),
-    };
-    
-    [TestCaseSource(nameof(rightKindsData))]
-    public void ParseRightKindsOrder(string expression, SyntaxKind[] kinds)
-    {
-        var lexer = new Lexer(expression);
-        lexer.GetTokens()
-            .Select(tok => tok.Kind)
-            .Should()
-            .BeEquivalentTo(kinds);
-    }
-
-    [TestCaseSource(nameof(rightTexts))]
-    public void ParseWordsFromText(string expression, string[] words)
-    {
-        var lexer = new Lexer(expression);
-        lexer.GetTokens()
-            .Where(tok => tok.Kind == SyntaxKind.Text)
-            .Select(tok => tok.Text)
-            .Should()
-            .BeEquivalentTo(words);
-    }
 }

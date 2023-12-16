@@ -1,6 +1,6 @@
 ﻿namespace Markdown;
 
-public class CloseStrongNode : SimpleTag
+public class CloseStrongNode : SimpleNode
 {
     public CloseStrongNode(string text) : base(text)
     {

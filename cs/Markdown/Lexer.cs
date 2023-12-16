@@ -25,7 +25,12 @@ public class Lexer
     {
         while (Current != '\0')
         {
-            if (char.IsWhiteSpace(Current))
+            if (Current == '\n')
+            {
+                yield return new Token(SyntaxKind.NewLine, position, "\n");
+                position++;
+            }
+            else if (char.IsWhiteSpace(Current))
             {
                 var start = position;
                 while (char.IsWhiteSpace(Current))
@@ -35,8 +40,7 @@ public class Lexer
                 var tokenText = text.Substring(start, length);
                 yield return new Token(SyntaxKind.Whitespace, start, tokenText);
             }
-
-            if (Current == '_')
+            else if (Current == '_')
             {
                 var start = position;
                 position++;
@@ -50,11 +54,17 @@ public class Lexer
                     yield return new Token(SyntaxKind.SingleUnderscore, start, "_");
                 }
             }
+            else if (Current == '#')
+            {
+                yield return new Token(SyntaxKind.Hash, position, "#");
+                position++;
+            }
             else
             {
                 var start = position;
                 var letters = new List<char>();
-                while (Current != '_' && Current != '#' && Current != ' ' && Current != '\0' || Current == '\\')
+                while (Current != '_' && Current != '#' && Current != ' ' && Current != '\0' && Current != '\n' ||
+                       Current == '\\')
                 {
                     if (Current == '\\')
                     {

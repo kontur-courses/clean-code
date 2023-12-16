@@ -47,6 +47,33 @@ public class Parser
                     CloseUnusedTags();
                     stack.Push(new TextNode(Current.Text));
                     break;
+                case SyntaxKind.NewLine:
+                    if (!openTagStack.Any(pair => pair.Item1 is OpenHeaderNode))
+                    {
+                        stack.Push(new TextNode(Current.Text));
+                        break;
+                    }
+
+                    openTagStack.Clear();
+
+                    children = new List<SyntaxNode>();
+                    while (true)
+                    {
+                        var child = stack.Pop();
+                        children.Add(child);
+                        if (children is OpenHeaderNode)
+                            break;
+                    }
+
+                    children.Reverse();
+
+                    stack.Push(new HeaderBodyNode(children.TextifyInnerTags()));
+                    break;
+                case SyntaxKind.Hash:
+                    var header = new OpenHeaderNode(Current.Text);
+                    stack.Push(header);
+                    openTagStack.Push((header, position));
+                    break;
                 case SyntaxKind.SingleUnderscore:
                     if (TryOpenBodyWith(new OpenEmNode(Current.Text)))
                         break;
@@ -103,7 +130,28 @@ public class Parser
             position++;
         }
 
-        return new BodyTag(stack.Reverse().TextifyTags());
+        ResolveUnusedOpenedTags();
+
+        return new BodyNode(stack.Reverse().TextifyTags());
+    }
+
+    public void ResolveUnusedOpenedTags()
+    {
+        if (openTagStack.Any(pair => pair.Item1 is OpenHeaderNode))
+        {
+            var children = new List<SyntaxNode>() { new CloseHeaderNode("") };
+            while (true)
+            {
+                var child = stack.Pop();
+                children.Add(child);
+                if (child is OpenHeaderNode)
+                    break;
+            }
+
+            children.Reverse();
+
+            stack.Push(new HeaderBodyNode(children.TextifyInnerTags()));
+        }
     }
 
     private void CloseUnusedTags()
@@ -129,7 +177,7 @@ public class Parser
             openTagStack.Push(tag);
     }
 
-    private bool TryOpenBodyWith(SimpleTag node)
+    private bool TryOpenBodyWith(SimpleNode node)
     {
         if (openTagStack.All(pair => pair.Item1.GetType() != node.GetType()))
         {
@@ -171,7 +219,7 @@ public static class Extensions
     {
         foreach (var node in nodes)
         {
-            if (node is TextNode || node is WhitespaceNode || node is BodyTag)
+            if (node is TextNode || node is BodyNode)
                 yield return node;
             else
                 yield return new TextNode(node.Text);

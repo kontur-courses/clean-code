@@ -1,6 +1,6 @@
 ﻿namespace Markdown;
 
-public class StrongBodyNode : BodyTag
+public class StrongBodyNode : BodyNode
 {
     public StrongBodyNode(IEnumerable<SyntaxNode> children) : base(children)
     {
