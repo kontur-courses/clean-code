@@ -2,9 +2,9 @@
 
 namespace Markdown.Tokens
 {
-    public class MarkdownToken
+    public class Token : IToken
     {
-        public MarkdownToken(string content, int start, int length, TagType tag)
+        public Token(string content, int start, int length, Tag tag)
         { 
             Content = content;
             Start = start;
@@ -12,7 +12,7 @@ namespace Markdown.Tokens
             Tag = tag;
         }
 
-        public TagType Tag { get; }
+        public Tag Tag { get; }
         public string Content { get; }
         public int Start { get; }
         public int Length { get; }

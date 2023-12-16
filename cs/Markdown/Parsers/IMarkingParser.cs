@@ -2,7 +2,7 @@
 
 namespace Markdown.Parsers
 {
-    public interface IParser
+    public interface IMarkingParser
     {
         IEnumerable<IToken> ParseText(string text);
     }

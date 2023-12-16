@@ -1,38 +1,23 @@
 ﻿using Markdown.Generators;
 using Markdown.Parsers;
-using Markdown.Tags;
 
 namespace Markdown
 {
     public class MarkdownToHtmlConverter
     {
-        private readonly IGenerator htmlGenerator;
-        private readonly IParser markdownParser;
-        private readonly Dictionary<string, TagType> supportedMarkdownTags = new Dictionary<string, TagType>
-        {
-            {"_", TagType.Italic},
-            {"__", TagType.Strong},
-            {"# ", TagType.Header},
-            {"", TagType.None}
-        };
-        private readonly Dictionary<TagType, string> supportedHtmlTags = new Dictionary<TagType, string>
-        {
-            {TagType.None, ""},
-            {TagType.Strong, "strong"},
-            {TagType.Italic, "em"},
-            {TagType.Header, "h1"}
-        };
+        private readonly IMarkingGenerator htmlGenerator;
+        private readonly IMarkingParser markdownParser;
 
-
-        public MarkdownToHtmlConverter()
+        public MarkdownToHtmlConverter(IMarkingParser markingParser, IMarkingGenerator markingGenerator)
         {
-            markdownParser = new MarkdownParser(supportedMarkdownTags);
-            htmlGenerator = new HtmlGenerator(supportedHtmlTags);
+            markdownParser = markingParser;
+            htmlGenerator = markingGenerator;
         }
 
         public string Convert(string text)
         {
-            throw new NotImplementedException();
+            var tokens = markdownParser.ParseText(text);
+            return htmlGenerator.Generate(tokens);
         }
     }
 }

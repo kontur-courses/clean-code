@@ -2,7 +2,7 @@
 
 namespace Markdown.Generators
 {
-    public interface IGenerator
+    public interface IMarkingGenerator
     {
         string Generate(IEnumerable<IToken> tokens);
     }

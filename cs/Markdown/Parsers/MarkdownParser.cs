@@ -3,13 +3,15 @@ using Markdown.Tokens;
 
 namespace Markdown.Parsers
 {
-    public class MarkdownParser : IParser
+    public class MarkdownParser : IMarkingParser
     {
-        private readonly IDictionary<string, TagType> tags;
+        private readonly Dictionary<string, Tag> supportedTags;
+        private readonly HashSet<char> symbolsToShield;
 
-        public MarkdownParser(IDictionary<string, TagType> tags) 
+        public MarkdownParser(HashSet<char> symbolsToShield)
         {
-            this.tags = tags;
+            supportedTags = TagCreator.GetAllSupportedTags();
+            this.symbolsToShield = symbolsToShield;
         }
 
         public IEnumerable<IToken> ParseText(string text)
