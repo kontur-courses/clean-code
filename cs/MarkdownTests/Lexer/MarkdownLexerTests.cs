@@ -30,30 +30,30 @@ public class MarkdownLexerTests
             .WithTokenType("# ", new HeaderToken())
             .Build();
     }
-
-    [Test]
-    [TestCaseSource(typeof(TestCases.LexerTestCases), nameof(TestCases.LexerTestCases.InvalidParametersTestCases))]
-    public void RegisterTokenType_ThrowsArgumentException_OnInvalidParameters(LexerTestData testData)
+    
+    [TestCaseSource(typeof(LexerTestCases), nameof(LexerTestCases.InvalidParametersTests))]
+    public void RegisterTokenType_ThrowsArgumentException_OnInvalidParameters(LexerRegisterTokenTestData registerTokenTestData)
     {
-        Assert.Throws<ArgumentException>(() => emptyLexer.RegisterTokenType(testData.TypeSymbol, testData.TokenType));
+        Assert.Throws<ArgumentException>(() 
+            => emptyLexer.RegisterTokenType(registerTokenTestData.TypeSymbol, registerTokenTestData.TokenType));
     }
 
     [Test]
     public void RegisterTokenType_CorrectlyRegistersType_OnCorrectInput()
     {
-        emptyLexer.RegisterTokenType("_", LexerTestData.ValidType);
+        emptyLexer.RegisterTokenType("_", LexerRegisterTokenTestData.ValidType);
 
         emptyLexer.RegisteredTokenTypes["_"]
             .Should()
-            .Be(LexerTestData.ValidType);
+            .Be(LexerRegisterTokenTestData.ValidType);
     }
 
     [Test]
     public void RegisterTokenType_ThrowsArgumentException_OnDuplicateRegistrations()
     {
-        emptyLexer.RegisterTokenType("_", LexerTestData.ValidType);
+        emptyLexer.RegisterTokenType("_", LexerRegisterTokenTestData.ValidType);
 
-        Assert.Throws<ArgumentException>(() => emptyLexer.RegisterTokenType("_", LexerTestData.ValidType));
+        Assert.Throws<ArgumentException>(() => emptyLexer.RegisterTokenType("_", LexerRegisterTokenTestData.ValidType));
     }
 
     [TestCase(null)]
@@ -80,68 +80,25 @@ public class MarkdownLexerTests
         EnsureExpectedTokenAt(result, 0, "line without matching tokens");
         EnsureExpectedCollectionSize(result, 1);
     }
-
-    [Test]
-    public void Tokenize_ReturnsCorrectResult_WhenNoValidationRequired()
+    
+    [TestCaseSource(typeof(LexerTestCases), nameof(LexerTestCases.NoValidationTests))]
+    public void Tokenize_ReturnsCorrectResult_WhenNoValidationRequired(LexerLogicTestData testData)
     {
-        var result = lexer.Tokenize("# __text strong__ ordinary_italic_ sometext");
-
-        var expected = new List<Token>
-        {
-            new(new HeaderToken(), false, 0, 2),
-            new(new StrongToken(), false, 2, 2),
-            new(new TextToken("text strong"), false, 4, 11),
-            new(new StrongToken(), true, 15, 2),
-            new(new TextToken(" ordinary"), false, 17, 9),
-            new(new EmphasisToken(), false, 26, 1),
-            new(new TextToken("italic"), false, 27, 6),
-            new(new EmphasisToken(), true, 33, 1),
-            new(new TextToken(" sometext"), false, 34, 9)
-        };
-
-        CollectionAssert.AreEqual(expected, result);
+        AssertTokenizeReturnsCorrectResult(testData);
     }
 
-    [Test]
-    public void Tokenize_DoesNotRegisterHeaderTag_WhenHeaderTagIsNotInTheBeginning()
+    [TestCaseSource(typeof(LexerTestCases), nameof(LexerTestCases.EscapeSymbolsTests))]
+    public void Tokenize_ReturnsCorrectResult_WithEscapeSymbols(LexerLogicTestData testData)
     {
-        var result = lexer.Tokenize("asd# fgf");
-
-        var expected = new List<Token>
-        {
-            new(new TextToken("asd# fgf"), false, 0, 8)
-        };
-
-        CollectionAssert.AreEqual(expected, result);
+        AssertTokenizeReturnsCorrectResult(testData);
     }
 
-    [Test]
-    public void Tokenize_ReturnsCorrectResult_WithEscapeSymbols()
+    [TestCaseSource(typeof(LexerTestCases), nameof(LexerTestCases.TextTokenTests))]
+    public void Tokenize_ReturnsCorrectTextTokens_WhenValidationIsRequired(LexerLogicTestData testData)
     {
-        var result = lexer.Tokenize(@"\\\__sk \_asd_ \df");
-
-        var expected = new List<Token>
-        {
-            new(new TextToken(@"\\\__sk \_asd_ \df"), false, 0, 18)
-        };
-        
-        CollectionAssert.AreEqual(expected, result);
+        AssertTokenizeReturnsCorrectResult(testData);
     }
-
-    [Test]
-    public void Tokenize_ReturnsCorrectResult_WithNestedTags()
-    {
-        var result = lexer.Tokenize("_e __text__ e_");
-
-        var expected = new List<Token>
-        {
-            new(new EmphasisToken(), false, 0, 1),
-            new(new TextToken("e __text__ e"), false, 1, 12),
-            new(new EmphasisToken(), true, 13, 1)
-        };
-        
-        CollectionAssert.AreEqual(expected, result);
-    }
+    
     private static void EnsureExpectedTokenAt(IReadOnlyList<Token> tokens, int index, string value)
     {
         tokens[index].GetRepresentation()
@@ -154,5 +111,11 @@ public class MarkdownLexerTests
         collection.Count
             .Should()
             .Be(expectedSize);
+    }
+    
+    private void AssertTokenizeReturnsCorrectResult(LexerLogicTestData testData)
+    {
+        var result = lexer.Tokenize(testData.Line);
+        CollectionAssert.AreEqual(testData.Expected, result);
     }
 }

@@ -3,7 +3,7 @@ using NSubstitute;
 
 namespace MarkdownTests.Lexer.TestCases;
 
-public class LexerTestData
+public class LexerRegisterTokenTestData
 {
     public string TypeSymbol { get; }
     public ITokenType TokenType { get; }
@@ -11,7 +11,7 @@ public class LexerTestData
     public static readonly ITokenType ValidType;
     public static readonly ITokenType InvalidType;
 
-    static LexerTestData()
+    static LexerRegisterTokenTestData()
     {
         ValidType = Substitute.For<ITokenType>();
         ValidType.Representation(Arg.Any<bool>()).Returns("<em>");
@@ -20,7 +20,7 @@ public class LexerTestData
         InvalidType.Representation(Arg.Any<bool>()).Returns((string) null!);
     }
         
-    public LexerTestData(string typeSymbol, ITokenType tokenType)
+    public LexerRegisterTokenTestData(string typeSymbol, ITokenType tokenType)
     {
         TypeSymbol = typeSymbol;
         TokenType = tokenType;

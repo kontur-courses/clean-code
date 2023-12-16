@@ -257,4 +257,16 @@ public class FilterTestCases
             );
         }
     }
+
+    public static IEnumerable EmptyInputTests
+    {
+        get
+        {
+            yield return new FilterTestData(
+                "",
+                new List<Token>(),
+                new List<Token>()
+            );
+        }
+    }
 }
