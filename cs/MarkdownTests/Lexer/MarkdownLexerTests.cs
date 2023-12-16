@@ -30,11 +30,12 @@ public class MarkdownLexerTests
             .WithTokenType("# ", new HeaderToken())
             .Build();
     }
-    
+
     [TestCaseSource(typeof(LexerTestCases), nameof(LexerTestCases.InvalidParametersTests))]
-    public void RegisterTokenType_ThrowsArgumentException_OnInvalidParameters(LexerRegisterTokenTestData registerTokenTestData)
+    public void RegisterTokenType_ThrowsArgumentException_OnInvalidParameters(
+        LexerRegisterTokenTestData registerTokenTestData)
     {
-        Assert.Throws<ArgumentException>(() 
+        Assert.Throws<ArgumentException>(()
             => emptyLexer.RegisterTokenType(registerTokenTestData.TypeSymbol, registerTokenTestData.TokenType));
     }
 
@@ -80,7 +81,7 @@ public class MarkdownLexerTests
         EnsureExpectedTokenAt(result.Tokens, 0, "line without matching tokens");
         EnsureExpectedCollectionSize(result.Tokens, 1);
     }
-    
+
     [TestCaseSource(typeof(LexerTestCases), nameof(LexerTestCases.NoValidationTests))]
     public void Tokenize_ReturnsCorrectResult_WhenNoValidationRequired(LexerLogicTestData testData)
     {
@@ -98,7 +99,7 @@ public class MarkdownLexerTests
     {
         AssertTokenizeReturnsCorrectResult(testData);
     }
-    
+
     private static void EnsureExpectedTokenAt(IReadOnlyList<Token> tokens, int index, string value)
     {
         tokens[index].GetRepresentation()
@@ -112,7 +113,7 @@ public class MarkdownLexerTests
             .Should()
             .Be(expectedSize);
     }
-    
+
     private void AssertTokenizeReturnsCorrectResult(LexerLogicTestData testData)
     {
         var result = lexer.Tokenize(testData.Line);
