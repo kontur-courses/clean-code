@@ -1,4 +1,6 @@
+using Markdown.Extensions;
 using Markdown.Helpers;
+using Markdown.Tags;
 using System.Text;
 
 namespace Markdown.Tokens;
@@ -10,11 +12,11 @@ public static class Tokenizer
         var tokens = new List<Token>();
         var collector = new StringBuilder();
 
-        text += " ";
+        text = " " + text + " ";
 
-        for (var i = 0; i < text.Length - 1; i++)
+        for (var i = 1; i < text.Length - 1; i++)
         {
-            if (IsEscaped(text[i], text[i + 1]))
+            if (text[i + 1].IsEscapedBy(text[i]))
             {
                 collector.Append(text[i + 1]);
                 i += 1;
@@ -28,7 +30,7 @@ public static class Tokenizer
             {
                 if (collector.Length > 0)
                 {
-                    tokens.Add(new Token(GetPositionOffset(tokens), text: collector.ToString()));
+                    tokens.Add(new Token(text: collector.ToString()));
                     collector.Clear();
                 }
 
@@ -42,7 +44,16 @@ public static class Tokenizer
         }
 
         if (collector.Length > 0)
-            tokens.Add(new Token(GetPositionOffset(tokens), text: collector.ToString()));
+            tokens.Add(new Token(text: collector.ToString()));
+        
+        // 1-st filter
+        tokens.AcceptBrokenFilter();
+        
+        // 2-nd filter
+        tokens.SetTokenTypes();
+        
+        // 3-rd filter
+        tokens.MarkOpenCloseTags();
 
         return tokens;
     }
@@ -52,28 +63,16 @@ public static class Tokenizer
         Token? foundToken = null;
         
         var prefix = string.Concat(text[position], text[position + 1]);
-        var foundTag = TagHelper.GetInstanceViaMark(prefix, position);
+        var foundTag = TagHelper.GetInstanceViaMark(prefix);
 
-        if (foundTag != null)
-            foundToken = new Token(position, foundTag);
+        if (foundTag == null) 
+            return foundToken;
         
+        var context = new ContextInfo(position, text);
+
+        foundTag.Context = context;
+        foundToken = new Token(foundTag);
+
         return foundToken;
-    }
-
-    // Usable for text-type tokens.
-    private static int GetPositionOffset(List<Token> tokens)
-    {
-        if (tokens.Count == 0)
-            return 0;
-
-        var lastToken = tokens[^1];
-        var lastTokenMark = lastToken.Tag!.Info.GlobalMark;
-
-        return lastToken.Position + lastTokenMark.Length;
-    }
-
-    private static bool IsEscaped(char previous, char current)
-    {
-        return previous == '\\' && TagHelper.AvailableMarks.Contains(current);
     }
 }

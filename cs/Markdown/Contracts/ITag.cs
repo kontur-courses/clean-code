@@ -4,9 +4,11 @@ namespace Markdown.Contracts;
 
 public interface ITag
 {
-    public TagStatus Status { get; set; } 
+    public TagStatus Status { get; set; }
     public TagType Type { get; }
     public TagInfo Info { get; }
-    public int ContainerPosition { get; init; }
-    public void ChangeStatusIfBroken(string context);
+    public char PreviousChar => Context.Text[Context.Position - 1];
+    public char NextChar => Context.Text[Context.Position + Info.GlobalMark.Length];
+    public ContextInfo Context { get; set; }
+    public void ChangeStatusIfBroken();
 }

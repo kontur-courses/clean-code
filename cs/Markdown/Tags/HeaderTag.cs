@@ -5,18 +5,19 @@ namespace Markdown.Tags;
 public class HeaderTag : ITag
 {
     public TagStatus Status { get; set; }
+    public ContextInfo Context { get; set; }
     public TagType Type => TagType.Header;
     public TagInfo Info => new("# ", "<h1>", "</h1>");
-    public int ContainerPosition { get; init; }
 
-    public void ChangeStatusIfBroken(string context)
+    public void ChangeStatusIfBroken()
     {
-        if (context.Length == Info.GlobalMark.Length || ContainerPosition == 0)
+        for (var i = 0; i < Context.Position; i++)
+        {
+            if (char.IsWhiteSpace(Context.Text[i])) 
+                continue;
+            
+            Status = TagStatus.Broken;
             return;
-
-        if (string.IsNullOrWhiteSpace(context[..ContainerPosition]))
-            return;
-
-        Status = TagStatus.Broken;
+        }
     }
 }

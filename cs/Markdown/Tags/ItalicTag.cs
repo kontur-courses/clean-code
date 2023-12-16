@@ -6,13 +6,13 @@ namespace Markdown.Tags;
 public class ItalicTag : ITag
 {
     public TagStatus Status { get; set; }
+    public ContextInfo Context { get; set; }
     public TagType Type => TagType.Italic;
     public TagInfo Info => new("_", "<em>", "</em>");
-    public int ContainerPosition { get; init; }
 
-    public void ChangeStatusIfBroken(string context)
+    public void ChangeStatusIfBroken()
     {
-        if (!TagHelper.IsUnderscoreTagBroken(context, this))
+        if (!TagHelper.IsUnderscoreTagBroken(this))
             return;
 
         Status = TagStatus.Broken;

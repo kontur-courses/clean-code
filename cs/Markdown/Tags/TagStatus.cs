@@ -1,8 +1,9 @@
-namespace Markdown;
+namespace Markdown.Tags;
 
 public enum TagStatus
 {
-    Opening,
-    Closing,
+    Undefined,
+    Open,
+    Close,
     Broken
 }
