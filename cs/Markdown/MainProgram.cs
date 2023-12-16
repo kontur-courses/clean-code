@@ -1,9 +1,4 @@
-﻿using System.Diagnostics;
-using System.Diagnostics.CodeAnalysis;
-using System.Drawing;
-using System.Drawing.Imaging;
-
-namespace Markdown;
+﻿namespace Markdown;
 
 public class MainProgram
 {
