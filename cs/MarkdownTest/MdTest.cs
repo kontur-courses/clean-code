@@ -3,7 +3,7 @@ using Markdown;
 
 namespace MarkdownTest;
 
-public class HTMLEvaluatorTest
+public class MdTest
 {
     public static TestCaseData[] Examples =
     {
@@ -29,7 +29,7 @@ public class HTMLEvaluatorTest
         ),
         new TestCaseData(
             "Внутри __двойного выделения _одинарное_ тоже__ работает.",
-            "Внутри <strong>двойного выделения <em>одинарное<em> тоже<strong> работает."
+            "Внутри <strong>двойного выделения <em>одинарное</em> тоже</strong> работает."
         ),
         new TestCaseData(
             "Но не наоборот — внутри _одинарного __двойное__ не_ работает.",
@@ -57,7 +57,7 @@ public class HTMLEvaluatorTest
         ),
         new TestCaseData(
             "Подчерки, заканчивающие выделение, должны следовать за непробельным символом. Иначе эти _подчерки _не считаются_ окончанием выделения \nи остаются просто символами подчерка.",
-            "Подчерки, заканчивающие выделение, должны следовать за непробельным символом. Иначе эти _подчерки _не считаются_ окончанием выделения \nи остаются просто символами подчерка."
+            "Подчерки, заканчивающие выделение, должны следовать за непробельным символом. Иначе эти <em>подчерки _не считаются</em> окончанием выделения \nи остаются просто символами подчерка."
         ),
         new TestCaseData(
             "В случае __пересечения _двойных__ и одинарных_ подчерков ни один из них не считается выделением.",
@@ -72,18 +72,12 @@ public class HTMLEvaluatorTest
             "<h1> Заголовок <strong>с <em>разными</em> символами</strong></h1>"
         )*/
     };
-    
+
     [TestCaseSource(nameof(Examples))]
     public void Test(string md, string html)
     {
-        var lexer = new Lexer(md);
-        var tokens = lexer.GetTokens().ToArray();
-        var parser = new Parser(tokens);
-        var eval = new HTMLEvaluator();
-        var tree = parser.Parse();
-        var result = eval
-            .Evaluate(tree);
-        result
+        new Md()
+            .Render(md)
             .Should()
             .Be(html);
     }
