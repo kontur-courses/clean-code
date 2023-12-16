@@ -3,13 +3,13 @@
     public class ItalicTag : ITag
     {
         public TagType Type { get; } = TagType.Italic;
-        public string StartTag { get; } = "_";
-        public string? EndTag { get; } = "_";
         public int Position { get; }
+        public bool IsEndTag { get; }
 
-        public ItalicTag(int position)
+        public ItalicTag(int position, bool isEndTag = false)
         {
             Position = position;
+            IsEndTag = isEndTag;
         }
     }
 }

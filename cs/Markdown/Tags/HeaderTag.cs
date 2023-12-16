@@ -2,14 +2,14 @@
 {
     public class HeaderTag : ITag
     {
-        public  TagType Type { get; } = TagType.Header;
-        public  string StartTag { get; } = "# ";
-        public  string EndTag { get; } = null;
+        public TagType Type { get; } = TagType.Header;
         public int Position { get; }
-        
-        public HeaderTag(int position)
+        public bool IsEndTag { get; }
+
+        public HeaderTag(int position, bool isEndTag = false)
         {
             Position = position;
+            IsEndTag = isEndTag;
         }
     }
 }
