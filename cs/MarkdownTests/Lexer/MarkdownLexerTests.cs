@@ -68,8 +68,8 @@ public class MarkdownLexerTests
     {
         var result = emptyLexer.Tokenize("line without tokens");
 
-        EnsureExpectedTokenAt(result, 0, "line without tokens");
-        EnsureExpectedCollectionSize(result, 1);
+        EnsureExpectedTokenAt(result.Tokens, 0, "line without tokens");
+        EnsureExpectedCollectionSize(result.Tokens, 1);
     }
 
     [Test]
@@ -77,8 +77,8 @@ public class MarkdownLexerTests
     {
         var result = lexer.Tokenize("line without matching tokens");
 
-        EnsureExpectedTokenAt(result, 0, "line without matching tokens");
-        EnsureExpectedCollectionSize(result, 1);
+        EnsureExpectedTokenAt(result.Tokens, 0, "line without matching tokens");
+        EnsureExpectedCollectionSize(result.Tokens, 1);
     }
     
     [TestCaseSource(typeof(LexerTestCases), nameof(LexerTestCases.NoValidationTests))]
@@ -116,6 +116,6 @@ public class MarkdownLexerTests
     private void AssertTokenizeReturnsCorrectResult(LexerLogicTestData testData)
     {
         var result = lexer.Tokenize(testData.Line);
-        CollectionAssert.AreEqual(testData.Expected, result);
+        CollectionAssert.AreEqual(testData.Expected, result.Tokens);
     }
 }
