@@ -111,11 +111,12 @@ public class MarkdownFilter : ITokenFilter
         Token? pair = null;
         if (tokens[tokenIndex].IsClosingTag && tokenIndex != 0)
         {
-            for (var i = 0; i < tokenIndex; i++)
+            for (var i = tokenIndex - 1; i >= 0; i--)
             {
-                if (!tokens[i].IsClosingTag &&
-                    TokenTypeEqualityComparer.Equals(tokens[i].Type, tokens[tokenIndex].Type))
-                    pair = tokens[i];
+                if (tokens[i].IsClosingTag || !TokenTypeEqualityComparer.Equals(tokens[i].Type, tokens[tokenIndex].Type))
+                    continue;
+                pair = tokens[i];
+                break;
             }
         }
 

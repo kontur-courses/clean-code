@@ -27,12 +27,12 @@ public class MarkdownRendererTests
         renderer = new MarkdownRenderer(lexer, tokenConverter);
     }
 
-    [Test, Timeout(3200)]
+    [Test, Timeout(1000)]
     public void Render_HasSufficientPerformance_OnLongInputText()
     {
         var text = new StringBuilder();
         
-        for (var i = 0; i < 15000; i++)
+        for (var i = 0; i < 250000; i++)
             text.Append("_a_ ");
         
         renderer.Render(text.ToString());
