@@ -101,7 +101,7 @@ public class MarkdownFilter : ITokenFilter
         return DeleteMarkedTokens(tokens);
     }
 
-    private static Token? FindTokenPair(int tokenIndex, List<Token> tokens) // tokensOfSameType
+    private static Token? FindTokenPair(int tokenIndex, List<Token> tokens)
     {
         if (tokenIndex < 0 || tokenIndex >= tokens.Count)
             throw new IndexOutOfRangeException("Provided tokenIndex was out of range.");
@@ -131,14 +131,6 @@ public class MarkdownFilter : ITokenFilter
         }
 
         return pair;
-/*
-        if (tokensOfSameType[tokenIndex].IsClosingTag && tokenIndex != 0 && !tokensOfSameType[tokenIndex - 1].IsClosingTag)
-            return tokensOfSameType[tokenIndex - 1];
-        if (!tokensOfSameType[tokenIndex].IsClosingTag && tokenIndex != tokensOfSameType.Count - 1 && tokensOfSameType[tokenIndex + 1].IsClosingTag)
-            return tokensOfSameType[tokenIndex + 1];
-
-        return null;
-*/
     }
 
     private static bool IsPrecededBySymbol(Token token, string line, Func<char, bool> condition)

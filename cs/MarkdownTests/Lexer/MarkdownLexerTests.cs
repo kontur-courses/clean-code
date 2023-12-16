@@ -4,6 +4,7 @@ using Markdown.Filter;
 using Markdown.Lexer;
 using Markdown.Tokens;
 using Markdown.Tokens.Types;
+using MarkdownTests.Lexer.TestCases;
 
 namespace MarkdownTests.Lexer;
 
@@ -31,8 +32,8 @@ public class MarkdownLexerTests
     }
 
     [Test]
-    [TestCaseSource(typeof(RegisterTokenTypeTestCases), nameof(RegisterTokenTypeTestCases.InvalidParametersTestCases))]
-    public void RegisterTokenType_ThrowsArgumentException_OnInvalidParameters(RegisterTokenTypeTestData testData)
+    [TestCaseSource(typeof(TestCases.LexerTestCases), nameof(TestCases.LexerTestCases.InvalidParametersTestCases))]
+    public void RegisterTokenType_ThrowsArgumentException_OnInvalidParameters(LexerTestData testData)
     {
         Assert.Throws<ArgumentException>(() => emptyLexer.RegisterTokenType(testData.TypeSymbol, testData.TokenType));
     }
@@ -40,19 +41,19 @@ public class MarkdownLexerTests
     [Test]
     public void RegisterTokenType_CorrectlyRegistersType_OnCorrectInput()
     {
-        emptyLexer.RegisterTokenType("_", RegisterTokenTypeTestData.ValidType);
+        emptyLexer.RegisterTokenType("_", LexerTestData.ValidType);
 
         emptyLexer.RegisteredTokenTypes["_"]
             .Should()
-            .Be(RegisterTokenTypeTestData.ValidType);
+            .Be(LexerTestData.ValidType);
     }
 
     [Test]
     public void RegisterTokenType_ThrowsArgumentException_OnDuplicateRegistrations()
     {
-        emptyLexer.RegisterTokenType("_", RegisterTokenTypeTestData.ValidType);
+        emptyLexer.RegisterTokenType("_", LexerTestData.ValidType);
 
-        Assert.Throws<ArgumentException>(() => emptyLexer.RegisterTokenType("_", RegisterTokenTypeTestData.ValidType));
+        Assert.Throws<ArgumentException>(() => emptyLexer.RegisterTokenType("_", LexerTestData.ValidType));
     }
 
     [TestCase(null)]
