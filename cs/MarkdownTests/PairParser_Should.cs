@@ -17,7 +17,7 @@ public class PairParser_Should
     [TestCase("_Lorem ipsum dolor_")]
     [TestCase("__Lorem ipsum dolor__")]
     [TestCase("# Lorem ipsum dolor\n")]
-    public void ParseTagPairsParsesOneTagPair(string inputString)
+    public void GetTagsToRenderParsesOneTagPair(string inputString)
     {
         var tagsToRender = parser.GetTagsToRender(inputString);
         tagsToRender.Should().HaveCount(2); 
@@ -25,28 +25,28 @@ public class PairParser_Should
     }
 
     [Test]
-    public void ParseTagPairsSkipsEscapedTags()
+    public void GetTagsToRenderSkipsEscapedTags()
     {
         var tagsToRender = parser.GetTagsToRender("\\_Lorem_ ipsum _dolor_ sit amet").ToArray();
         tagsToRender.Should().HaveCount(3);
     }
 
     [Test]
-    public void ParseTagPairsEscapesOnlyTags()
+    public void GetTagsToRenderEscapesOnlyTags()
     {
         var tagsToRender = parser.GetTagsToRender("_Lorem_ ipsum _do\\lor_ sit amet");
         tagsToRender.Should().HaveCount(4);
     }
 
     [Test]
-    public void ParseTagPairsEscapesEscapedTags()
+    public void GetTagsToRenderEscapesEscapedTags()
     {
         var tagsToRender = parser.GetTagsToRender("\\\\_Lorem ipsum_ _dolor_ sit amet");
         tagsToRender.Should().HaveCount(5);
     }
 
     [Test]
-    public void ParseTagPairsParsesInsideWords()
+    public void GetTagsToRenderParsesInsideWords()
     {
         var tagsToRender = parser.GetTagsToRender("_Lor_em ip_s_um dol_or._");
         tagsToRender.Should().HaveCount(6);
@@ -59,28 +59,28 @@ public class PairParser_Should
     [TestCase("Lorem__ ipsum__", TestName = "WrongOpenedTags")]
     [TestCase("Lorem __ipsum __sit", TestName = "WrongClosedTags")]
     [TestCase("____ __", TestName = "EmptyTagPair")]
-    public void ParseTagPairsSkips(string testingString)
+    public void GetTagsToRenderSkips(string testingString)
     {
         var tagsToRender = parser.GetTagsToRender(testingString);
         tagsToRender.Should().HaveCount(0);
     }
 
     [Test]
-    public void ParseTagPairsParsesItalicInBold()
+    public void GetTagsToRenderParsesItalicInBold()
     {
         var tagsToRender = parser.GetTagsToRender("Lorem __ipsum _dolor_ sit__");
         tagsToRender.Should().HaveCount(4);
     }
 
     [Test]
-    public void ParseTagPairsSkipsBoldInItalic()
+    public void GetTagsToRenderSkipsBoldInItalic()
     {
         var tagsToRender = parser.GetTagsToRender("Lorem _ipsum __dolor__ sit_");
         tagsToRender.Should().HaveCount(2);
     }
 
     [Test]
-    public void ParseTagPairsParsesMultiplePairsInHeader()
+    public void GetTagsToRenderParsesMultiplePairsInHeader()
     {
         var tagPairs = parser.GetTagsToRender("# Lorem __ipsum _sit_ amet__\n");
         tagPairs.Should().HaveCount(6);
