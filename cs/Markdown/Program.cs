@@ -1,16 +1,10 @@
 ﻿using Markdown;
-using Markdown.Tags;
 
-var processor = new MD();
+var text = @"# _Billie Jean_ is ___ not my __lover__\n
+             She's #just# a __girl__ # ____ who __cl_aim_s _that_ I am the one__\n
+             # But the __kid \_\_is\_\_ not my son__\\n
+             # She __says _I am__ the_ one, but the _kid is __not__ my son_";
 
-processor.AddFactoryFor("__", () => new BoldTag());
-processor.AddFactoryFor("_", () => new ItalicTag());
-processor.AddFactoryFor("# ", () => new HeaderTag());
-processor.AddFactoryFor("\\n", () => new NewlineTag());
+//text = @"Символ экранирования тоже можно экранировать: \\_вот это будет выделено тегом_ ";
 
-var text = @"# _Billie Jean_ is not my __lover__\n
-                   She's #just# a __girl__ # who __claims _that_ I am the one__\n
-                   # But the __kid \_\_is\_\_ not my son__\\n
-                   # She __says _I am__ the_ one, but the _kid is __not__ my son_";
-
-Console.WriteLine(processor.Render(text));
+Console.WriteLine(MD.Render(text));

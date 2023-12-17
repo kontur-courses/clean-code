@@ -1,41 +1,15 @@
-using Markdown.Contracts;
 using Markdown.Tags;
 using Markdown.Tokens;
 using System.Text;
 
 namespace Markdown;
 
-public class MD
+public static class MD
 {
-    private readonly Dictionary<string, Func<ITag>> tagFactory = new();
-    private readonly Tokenizer tokenizer;
-
-    public MD()
+    public static string Render(string text)
     {
-        tokenizer = new Tokenizer(this);
-    }
-
-    public string Render(string text)
-    {
-        var tokens = tokenizer.CollectTokens(text);
+        var tokens = Tokenizer.CollectTokens(text);
         return CombineString(tokens);
-    }
-
-    public void AddFactoryFor(string mark, Func<ITag> creationMethod)
-    {
-        if (mark == null)
-            throw new NullReferenceException("Tag mark can't be null");
-
-        tagFactory.Add(mark, creationMethod);
-    }
-
-    public ITag? GetInstanceViaMark(string mark)
-    {
-        foreach (var tagMark in tagFactory.Keys)
-            if (mark.StartsWith(tagMark))
-                return tagFactory[tagMark]();
-
-        return null;
     }
 
     private static string CombineString(IList<Token> tokens)

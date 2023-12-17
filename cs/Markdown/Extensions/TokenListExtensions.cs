@@ -13,8 +13,11 @@ public static class TokenListExtensions
         {
             var tokenTag = token.Tag!;
 
-            tokenTag.SetTagStatus();
-            tokenTag.ChangeStatusIfBroken();
+            if (tokenTag.Status != TagStatus.Broken)
+            {
+                tokenTag.SetTagStatus();
+                tokenTag.ChangeStatusIfBroken();
+            }
 
             switch (tokenTag.Status)
             {
@@ -42,6 +45,7 @@ public static class TokenListExtensions
                     if (!stack.TryPeek(out var picked))
                     {
                         tokenTag.Status = TagStatus.Open;
+                        stack.Push(token);
                     }
                     else if (picked.Tag!.Status == TagStatus.Open && tokenTag.IsClosingFor(picked.Tag))
                     {
@@ -50,13 +54,12 @@ public static class TokenListExtensions
                     }
                     else if (tokenTag.Type == TagType.Newline)
                     {
+                        tokenTag.Status = TagStatus.Open;
+
                         foreach (var innerToken in stack)
                         {
                             if (innerToken.Tag!.Type == TagType.Newline)
-                            {
-                                tokenTag.Status = TagStatus.Open;
                                 break;
-                            }
 
                             if (!tokenTag.IsClosingFor(innerToken.Tag!))
                                 continue;
@@ -105,24 +108,6 @@ public static class TokenListExtensions
 
             if (insideItalic && tagToken.Type == TagType.Bold)
                 tagToken.Status = TagStatus.Broken;
-        }
-    }
-
-    public static void FilterEmptyTags(this IList<Token> tokens)
-    {
-        for (var i = 0; i < tokens.Count - 1; i++)
-        {
-            var current = tokens[i].Tag;
-            var next = tokens[i + 1].Tag;
-
-            if (current == null || next == null)
-                continue;
-
-            if (current.Type != next.Type)
-                continue;
-
-            current.Status = TagStatus.Broken;
-            next.Status = TagStatus.Broken;
         }
     }
 }
