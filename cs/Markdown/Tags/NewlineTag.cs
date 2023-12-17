@@ -7,10 +7,14 @@ public class NewlineTag : ITag
     public TagStatus Status { get; set; }
     public ContextInfo Context { get; set; }
     public TagType Type => TagType.Newline;
-    public TagInfo Info => new("\\n", string.Empty, string.Empty);
+    public TagInfo Info => new("\\n", "<br/>", "</h1><br/>");
 
-    // This tag can't be broken :)
     public void ChangeStatusIfBroken()
     {
+    }
+
+    bool ITag.IsClosingFor(ITag another)
+    {
+        return another.Type == TagType.Header;
     }
 }

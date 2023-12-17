@@ -1,5 +1,4 @@
 using Markdown.Extensions;
-using Markdown.Helpers;
 using Markdown.Tags;
 using System.Text;
 
@@ -7,19 +6,19 @@ namespace Markdown.Tokens;
 
 public class Tokenizer
 {
-    private MD markdownContext;
-    
+    private readonly MD markdownContext;
+
     public Tokenizer(MD markdownContext)
     {
         this.markdownContext = markdownContext;
     }
-    
+
     public List<Token> CollectTokens(string text)
     {
         var tokens = new List<Token>();
         var collector = new StringBuilder();
 
-        text = " " + text + " ";
+        text = " " + text + "\\n ";
 
         for (var i = 1; i < text.Length - 1; i++)
         {
@@ -52,15 +51,13 @@ public class Tokenizer
 
         if (collector.Length > 0)
             tokens.Add(new Token(text: collector.ToString()));
-        
-        // 1-st filter
-        tokens.AcceptBrokenFilter();
-        
-        // 2-nd filter
-        tokens.SetTokenTypes();
-        
-        // 3-rd filter
-        tokens.MarkOpenCloseTags();
+
+        var tagTokens = tokens
+            .Where(token => token.Tag != null)
+            .ToList();
+
+        tagTokens.DetermineTagStatuses();
+        tagTokens.FilterIntersections();
 
         return tokens;
     }
@@ -68,13 +65,13 @@ public class Tokenizer
     private Token? TryGetTagTokenOnPosition(int position, string text)
     {
         Token? foundToken = null;
-        
+
         var prefix = string.Concat(text[position], text[position + 1]);
         var foundTag = markdownContext.GetInstanceViaMark(prefix);
 
-        if (foundTag == null) 
+        if (foundTag == null)
             return foundToken;
-        
+
         var context = new ContextInfo(position, text);
 
         foundTag.Context = context;

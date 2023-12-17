@@ -1,4 +1,3 @@
-using Markdown.Contracts;
 using Markdown.Tags;
 using Markdown.Tokens;
 
@@ -6,142 +5,106 @@ namespace Markdown.Extensions;
 
 public static class TokenListExtensions
 {
-    public static void AcceptBrokenFilter(this IList<Token> tokens)
-    {
-        var prefilter = tokens.Where(token => token.Tag != null);
-
-        foreach (var token in prefilter)
-        {
-            token.Tag!.ChangeStatusIfBroken();
-        }
-    }
-
-    public static void MarkOpenCloseTags(this IList<Token> tokens)
+    public static void DetermineTagStatuses(this IList<Token> tokens)
     {
         var stack = new Stack<Token>();
-        var prefilter = tokens
-            .Where(token => token.Tag != null)
-            .Where(token => token.Tag!.Status != TagStatus.Broken);
 
-        foreach (var token in prefilter)
+        foreach (var token in tokens)
         {
             var tokenTag = token.Tag!;
 
-            if (tokenTag.Status == TagStatus.Open)
+            tokenTag.SetTagStatus();
+            tokenTag.ChangeStatusIfBroken();
+
+            switch (tokenTag.Status)
             {
-                stack.Push(token);
-            }
-            
-            else if (tokenTag.Status == TagStatus.Close)
-            {
-                if (!stack.TryPeek(out var picked))
-                {
+                case TagStatus.Broken:
+                    continue;
+
+                case TagStatus.Open:
                     stack.Push(token);
+                    break;
+
+                case TagStatus.Close:
+                {
+                    if (!stack.TryPeek(out var pickedToken))
+                        stack.Push(token);
+                    else if (pickedToken.Tag!.Status == TagStatus.Open && pickedToken.Tag.IsClosingFor(tokenTag))
+                        stack.Pop();
+                    else
+                        stack.Push(token);
+
+                    break;
                 }
 
-                else if (picked.Tag!.Status == TagStatus.Open
-                    && picked.Tag!.Info.GlobalMark == tokenTag.Info.GlobalMark)
+                case TagStatus.Undefined:
                 {
-                    stack.Pop();
+                    if (!stack.TryPeek(out var picked))
+                    {
+                        tokenTag.Status = TagStatus.Open;
+                    }
+                    else if (picked.Tag!.Status == TagStatus.Open && tokenTag.IsClosingFor(picked.Tag))
+                    {
+                        tokenTag.Status = TagStatus.Close;
+                        stack.Pop();
+                    }
+                    else if (tokenTag.Type == TagType.Newline)
+                    {
+                        foreach (var innerToken in stack)
+                        {
+                            if (innerToken.Tag!.Type == TagType.Newline)
+                            {
+                                tokenTag.Status = TagStatus.Open;
+                                break;
+                            }
+
+                            if (!tokenTag.IsClosingFor(innerToken.Tag!))
+                                continue;
+
+                            tokenTag.Status = TagStatus.Close;
+                            break;
+                        }
+
+                        stack.Push(token);
+                    }
+                    else
+                    {
+                        tokenTag.Status = TagStatus.Open;
+                        stack.Push(token);
+                    }
+
+                    break;
                 }
 
-                else
-                {
-                    stack.Push(token);
-                }
-            }
-            
-            else if (tokenTag.Status == TagStatus.Undefined)
-            {
-                if (!stack.TryPeek(out var picked))
-                {
-                    tokenTag.Status = TagStatus.Open;
-                }
-                
-                else if (picked.Tag!.Status == TagStatus.Open 
-                         && picked.Tag!.Info.GlobalMark == tokenTag.Info.GlobalMark)
-                {
-                    token.Tag!.Status = TagStatus.Close;
-                    stack.Pop();
-                }
-
-                else
-                {
-                    token.Tag!.Status = TagStatus.Open;
-                    stack.Push(token);
-                }
+                default:
+                    throw new Exception("Unknown tag status");
             }
         }
 
         while (stack.Count != 0)
-            stack.Pop().Tag!.Status = TagStatus.Broken;
+        {
+            var popped = stack.Pop().Tag!;
 
+            if (popped.Type is TagType.Header or TagType.Newline)
+                continue;
+
+            popped.Status = TagStatus.Broken;
+        }
+    }
+
+    public static void FilterIntersections(this IList<Token> tokens)
+    {
         var insideItalic = false;
 
-        foreach (var token in tokens
-                     .Where(token => token.Tag != null)
-                     .Where(token => token.Tag!.Status != TagStatus.Broken))
+        foreach (var token in tokens.Where(token => token.Tag!.Status != TagStatus.Broken))
         {
             var tagToken = token.Tag!;
 
             if (tagToken.Type == TagType.Italic)
-            {
-                if (insideItalic)
-                    insideItalic = false;
-                else
-                    insideItalic = true;
-                
-                continue;
-            }
+                insideItalic = !insideItalic;
 
-            if (insideItalic)
-            {
-                if (tagToken.Type == TagType.Bold)
-                {
-                    tagToken.Status = TagStatus.Broken;
-                }
-                
-                else if (tagToken.Type == TagType.Italic)
-                    insideItalic = false;
-            }
-        }
-    }
-
-    public static void SetTokenTypes(this IList<Token> tokens)
-    {
-        var prefilter = tokens
-            .Where(token => token.Tag != null && token.Tag!.Status != TagStatus.Broken);
-
-        foreach (var token in prefilter)
-        {
-            var tag = token.Tag!;
-
-            if (tag.Type == TagType.Bold || tag.Type == TagType.Italic)
-            {
-                var offset = tag.Info.GlobalMark.Length;
-                var prevChar = tag.PreviousChar;
-                var nextChar = tag.NextChar;
-
-                if (char.IsWhiteSpace(prevChar) && !char.IsWhiteSpace(nextChar))
-                {
-                    tag.Status = TagStatus.Open;
-                }
-
-                else if (!char.IsWhiteSpace(prevChar) && char.IsWhiteSpace(nextChar))
-                {
-                    tag.Status = TagStatus.Close;
-                }
-            }
-
-            else if (tag.Type == TagType.Header)
-            {
-                tag.Status = TagStatus.Open;
-            }
-            
-            else if (tag.Type == TagType.Newline)
-            {
-                tag.Status = TagStatus.Close;
-            }
+            if (insideItalic && tagToken.Type == TagType.Bold)
+                tagToken.Status = TagStatus.Broken;
         }
     }
 }

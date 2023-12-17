@@ -11,13 +11,31 @@ public class HeaderTag : ITag
 
     public void ChangeStatusIfBroken()
     {
-        for (var i = 0; i < Context.Position; i++)
+        var text = Context.Text;
+        var idx = Context.Position;
+
+        while (--idx > -1)
         {
-            if (char.IsWhiteSpace(Context.Text[i])) 
+            if (char.IsWhiteSpace(text[idx]))
                 continue;
-            
-            Status = TagStatus.Broken;
+
+            if (string.Concat(text[idx - 1], text[idx]) != "\\n")
+                break;
+
+            var count = 0;
+
+            idx -= 2;
+
+            while (idx > -1 && text[idx--] == '\\')
+                count++;
+
+            if (count % 2 == 1)
+                break;
+
             return;
         }
+
+        if (idx > -1)
+            Status = TagStatus.Broken;
     }
 }
