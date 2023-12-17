@@ -21,22 +21,22 @@ public class MarkdownLexer : ILexer
     public IReadOnlyDictionary<string, ITokenType> RegisteredTokenTypes
         => registeredTokenTypes.AsReadOnly();
 
-    public void RegisterTokenType(string typeSymbol, ITokenType type)
+    public void RegisterTokenType(ITokenType type)
     {
-        ValidateRegisterArguments(typeSymbol, type);
-
-        if (registeredTokenTypes.ContainsKey(typeSymbol))
+        ValidateRegisterArguments(type);
+        
+        if (registeredTokenTypes.ContainsKey(type.Value))
             throw new ArgumentException("The given type symbol has already been registered.");
-        registeredTokenTypes.Add(typeSymbol, type);
+        registeredTokenTypes.Add(type.Value, type);
     }
 
     // ReSharper disable once ParameterOnlyUsedForPreconditionCheck.Local
-    private static void ValidateRegisterArguments(string typeSymbol, ITokenType type)
+    private static void ValidateRegisterArguments(ITokenType type)
     {
-        if (typeSymbol is null or "")
-            throw new ArgumentException("Type symbol cannot be null or an empty string.");
         if (type is null)
             throw new ArgumentException("Token type cannot be null");
+        if (type.Value is null or "")
+            throw new ArgumentException("Type value cannot be null or an empty string.");
         if (type.Representation(true) is null || type.Representation(false) is null)
             throw new ArgumentException("Token type representation cannot be null.");
     }

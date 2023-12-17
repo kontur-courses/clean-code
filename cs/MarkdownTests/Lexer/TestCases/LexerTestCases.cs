@@ -10,10 +10,10 @@ public class LexerTestCases
     {
         get
         {
-            yield return new LexerRegisterTokenTestData(null!, LexerRegisterTokenTestData.ValidType);
-            yield return new LexerRegisterTokenTestData("", LexerRegisterTokenTestData.ValidType);
-            yield return new LexerRegisterTokenTestData("_", LexerRegisterTokenTestData.InvalidType);
-            yield return new LexerRegisterTokenTestData("_", null!);
+            yield return new LexerRegisterTokenTestData(LexerRegisterTokenTestData.InvalidTypeWithNullValue);
+            yield return new LexerRegisterTokenTestData(LexerRegisterTokenTestData.InvalidTypeWithEmptyValue);
+            yield return new LexerRegisterTokenTestData(LexerRegisterTokenTestData.InvalidTypeWithNullRepresentation);
+            yield return new LexerRegisterTokenTestData(null!);
         }
     }
 

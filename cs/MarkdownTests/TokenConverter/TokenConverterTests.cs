@@ -16,9 +16,9 @@ public class TokenConverterTests
     public void OneTimeSetUp()
     {
         lexer = new MarkdownLexerBuilder(new MarkdownFilter(), '\\')
-            .WithTokenType("_", new EmphasisToken())
-            .WithTokenType("__", new StrongToken())
-            .WithTokenType("# ", new HeaderToken())
+            .WithTokenType(new EmphasisToken())
+            .WithTokenType(new StrongToken())
+            .WithTokenType(new HeaderToken())
             .Build();
         
         converter = new MarkdownTokenConverter();

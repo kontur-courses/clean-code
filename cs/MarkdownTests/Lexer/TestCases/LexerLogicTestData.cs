@@ -1,5 +1,4 @@
-﻿using System.Collections;
-using Markdown.Tokens;
+﻿using Markdown.Tokens;
 
 namespace MarkdownTests.Lexer.TestCases;
 

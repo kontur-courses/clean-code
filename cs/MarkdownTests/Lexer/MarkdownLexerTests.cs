@@ -25,9 +25,9 @@ public class MarkdownLexerTests
     {
         filter = new MarkdownFilter();
         lexer = new MarkdownLexerBuilder(filter, '\\')
-            .WithTokenType("_", new EmphasisToken())
-            .WithTokenType("__", new StrongToken())
-            .WithTokenType("# ", new HeaderToken())
+            .WithTokenType(new EmphasisToken())
+            .WithTokenType(new StrongToken())
+            .WithTokenType(new HeaderToken())
             .Build();
     }
 
@@ -36,25 +36,26 @@ public class MarkdownLexerTests
         LexerRegisterTokenTestData registerTokenTestData)
     {
         Assert.Throws<ArgumentException>(()
-            => emptyLexer.RegisterTokenType(registerTokenTestData.TypeSymbol, registerTokenTestData.TokenType));
+            => emptyLexer.RegisterTokenType(registerTokenTestData.TokenType));
     }
 
     [Test]
     public void RegisterTokenType_CorrectlyRegistersType_OnCorrectInput()
     {
-        emptyLexer.RegisterTokenType("_", LexerRegisterTokenTestData.ValidType);
+        var type = new EmphasisToken();
+        emptyLexer.RegisterTokenType(type);
 
         emptyLexer.RegisteredTokenTypes["_"]
             .Should()
-            .Be(LexerRegisterTokenTestData.ValidType);
+            .Be(type);
     }
 
     [Test]
     public void RegisterTokenType_ThrowsArgumentException_OnDuplicateRegistrations()
     {
-        emptyLexer.RegisterTokenType("_", LexerRegisterTokenTestData.ValidType);
+        emptyLexer.RegisterTokenType(LexerRegisterTokenTestData.ValidType);
 
-        Assert.Throws<ArgumentException>(() => emptyLexer.RegisterTokenType("_", LexerRegisterTokenTestData.ValidType));
+        Assert.Throws<ArgumentException>(() => emptyLexer.RegisterTokenType(LexerRegisterTokenTestData.ValidType));
     }
 
     [TestCase(null)]

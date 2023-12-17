@@ -12,9 +12,9 @@ public class MarkdownLexerBuilder
         markdownLexer = new MarkdownLexer(filter, escapeSymbol);
     }
     
-    public MarkdownLexerBuilder WithTokenType(string typeSymbol, ITokenType type)
+    public MarkdownLexerBuilder WithTokenType(ITokenType type)
     {
-        markdownLexer.RegisterTokenType(typeSymbol, type);
+        markdownLexer.RegisterTokenType(type);
         return this;
     }
 

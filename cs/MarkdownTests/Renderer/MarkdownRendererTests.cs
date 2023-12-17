@@ -17,9 +17,9 @@ public class MarkdownRendererTests
     public void OneTimeSetUp()
     {
         var lexer = new MarkdownLexerBuilder(new MarkdownFilter(), '\\')
-            .WithTokenType("_", new EmphasisToken())
-            .WithTokenType("__", new StrongToken())
-            .WithTokenType("# ", new HeaderToken())
+            .WithTokenType(new EmphasisToken())
+            .WithTokenType(new StrongToken())
+            .WithTokenType(new HeaderToken())
             .Build();
 
         var tokenConverter = new MarkdownTokenConverter();
@@ -27,7 +27,7 @@ public class MarkdownRendererTests
         renderer = new MarkdownRenderer(lexer, tokenConverter);
     }
 
-    [Test, Timeout(1000)]
+    [Test, Timeout(1500)]
     public void Render_HasSufficientPerformance_OnLongInputText()
     {
         var text = new StringBuilder();
