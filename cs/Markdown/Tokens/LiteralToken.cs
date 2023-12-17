@@ -1,15 +1,17 @@
 ﻿namespace Markdown.Tokens;
 
-public class LiteralToken
+public class LiteralToken:Token
 {
-    public string TagWrapper { get; private set; } = "";
-    public string Designation { get; private set; } = "";
-    public bool IsCanContainAnotherTags { get; private set; }
-    public IEnumerable<IToken> Content{ get; private set; }
-    public string TextContent { get; private set; }
+    protected override string TagWrapper { get; } = "";
+    protected override string Separator { get; } = "";
+    protected override bool IsCanContainAnotherTags { get; } = false;
+    protected override bool IsSingleSeparator { get; } = true;
+    public string Content { get; private set; }
 
-    public override string ToString()
+    public LiteralToken(int openingIndex,int closingIndex,string content):base(openingIndex,closingIndex)
     {
-        return TextContent;
+        Content = content;
     }
+    
+
 }

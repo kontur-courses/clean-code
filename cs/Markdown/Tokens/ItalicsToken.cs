@@ -1,15 +1,13 @@
 ﻿namespace Markdown.Tokens;
 
-public class ItalicsToken:IToken
+public class ItalicsToken:Token
 {
-    public string TagWrapper { get; private set; } = "strong";
-    public string Designation { get; private set; } = "__";
-    public bool IsCanContainAnotherTags { get; private set; }
-    public IEnumerable<IToken> Content{ get; private set; }
-    public string TextContent { get; private set; }
+    protected override string TagWrapper { get; } = "/<em>";
+    protected override string Separator { get; } = "_";
+    protected override bool IsCanContainAnotherTags { get; } = false;
+    protected override bool IsSingleSeparator { get; } = true;
+    
+    public ItalicsToken(int openingIndex, int closingIndex) : base(openingIndex, closingIndex) {}
 
-    public override string ToString()
-    {
-        return $"<{TagWrapper}>{HtmlBuilder.HtmlBuilder.ConvertToHtml(Content)}</{TagWrapper}>";
-    }
+    
 }

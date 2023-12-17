@@ -1,15 +1,11 @@
 ﻿namespace Markdown.Tokens;
 
-public class BoldToken:IToken
+public class BoldToken:Token
 {
-    public string TagWrapper { get; private set; } = "strong";
-    public string Designation { get; private set; } = "__";
-    public bool IsCanContainAnotherTags { get; private set; }
-    public IEnumerable<IToken> Content{ get; private set; }
-    public string TextContent { get; private set; }
-
-    public override string ToString()
-    {
-        return $"<{TagWrapper}>{HtmlBuilder.HtmlBuilder.ConvertToHtml(Content)}</{TagWrapper}>";
-    }
+    protected override string TagWrapper { get; } = "/<strong>";
+    protected override string Separator { get; } = "__";
+    protected override bool IsCanContainAnotherTags { get; } = true;
+    protected override bool IsSingleSeparator { get; } = true;
+    public BoldToken(int openingIndex, int closingIndex) : base(openingIndex,closingIndex){}
+    
 }
