@@ -19,20 +19,18 @@ namespace Markdown
             { TagType.Header, "</h>" }
         };
 
-        public static string InsertNewTags((string paragraph, List<ITag> tags) paragraphInfo)
+        public static string InsertTags(ParsedText parsedText)
         {
             var sb = new StringBuilder();
             var prevTagPos = 0;
-            foreach (var tag in paragraphInfo.tags)
+            foreach (var tag in parsedText.tags)
             {
-                if (tag.Position > paragraphInfo.paragraph.Length)
-                    throw new ArgumentException("Tag position cannot be outside paragraph", nameof(paragraphInfo.tags));
-                sb.Append(paragraphInfo.paragraph.AsSpan(prevTagPos, tag.Position - prevTagPos));
+                sb.Append(parsedText.paragraph.AsSpan(prevTagPos, tag.Position - prevTagPos));
                 sb.Append(tag.IsEndTag ? endTags[tag.Type] : startTags[tag.Type]);
                 prevTagPos = tag.Position;
             }
 
-            sb.Append(paragraphInfo.paragraph.AsSpan(prevTagPos, paragraphInfo.paragraph.Length - prevTagPos));
+            sb.Append(parsedText.paragraph.AsSpan(prevTagPos, parsedText.paragraph.Length - prevTagPos));
             return sb.ToString();
         }
     }
