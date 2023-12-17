@@ -49,14 +49,12 @@ public static class Tokenizer
                     var previous = tokens[^2];
 
                     if (previous.Tag != null && previous.Tag.Type == tagToken.Tag!.Type)
-                    {
                         // Filters cases: ____ or __ 
                         if (previous.Tag.Type != TagType.Newline)
                         {
                             previous.Tag.Status = TagStatus.Broken;
                             tagToken.Tag.Status = TagStatus.Broken;
                         }
-                    }
                 }
 
                 i += tagToken.Tag!.Info.GlobalMark.Length - 1;

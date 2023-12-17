@@ -50,6 +50,19 @@ public static class TokenListExtensions
                     else if (picked.Tag!.Status == TagStatus.Open && tokenTag.IsClosingFor(picked.Tag))
                     {
                         tokenTag.Status = TagStatus.Close;
+
+                        if (tokenTag.Type is TagType.Bold or TagType.Italic)
+                        {
+                            var start = picked.Tag!.Context.Position;
+                            var finish = tokenTag.Context.Position;
+
+                            if (IsWhiteSpaceBetweenPositions(start, finish, tokenTag.Context.Text))
+                            {
+                                picked.Tag.Status = TagStatus.Broken;
+                                tokenTag.Status = TagStatus.Broken;
+                            }
+                        }
+
                         stack.Pop();
                     }
                     else if (tokenTag.Type == TagType.Newline)
@@ -109,5 +122,14 @@ public static class TokenListExtensions
             if (insideItalic && tagToken.Type == TagType.Bold)
                 tagToken.Status = TagStatus.Broken;
         }
+    }
+
+    private static bool IsWhiteSpaceBetweenPositions(int start, int end, string text)
+    {
+        for (var i = start; i < end; i++)
+            if (char.IsWhiteSpace(text[i]))
+                return true;
+
+        return false;
     }
 }
