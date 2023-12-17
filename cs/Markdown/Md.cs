@@ -1,28 +1,45 @@
 using System.Collections.ObjectModel;
+using Markdown.Tags;
 
 namespace Markdown;
 
 public class Md
 {
-    private readonly Dictionary<string, string> mdToHtmlConversion = new()
-    {
-        { "_", "<em>" },
-        { "__", "<strong>" },
-        { "#", "\\<h1>" }
-    };
+    private readonly List<ITag> mdToHtmlConversion = new();
 
-    public ReadOnlyDictionary<string, string> MToHtmlConversion => mdToHtmlConversion.AsReadOnly();
+    public ReadOnlyCollection<ITag> MToHtmlConversion => mdToHtmlConversion.AsReadOnly();
 
-    public Md(string[] tags)
+    public Md()
     {
-        foreach (var tag in mdToHtmlConversion.Keys)
-            if (!tags.Contains(tag))
-                mdToHtmlConversion.Remove(tag);
+        mdToHtmlConversion.Add(new EmTag());
+        mdToHtmlConversion.Add(new StrongTag());
+        mdToHtmlConversion.Add(new HeaderTag());
+    }
+
+    public Md(params Tag[] tags)
+    {
+        foreach (var tag in tags)
+            switch (tag)
+            {
+                case Tag.EmTag:
+                    mdToHtmlConversion.Add(new EmTag());
+                    break;
+                case Tag.StrongTag:
+                    mdToHtmlConversion.Add(new StrongTag());
+                    break;
+                case Tag.HeaderTag:
+                    mdToHtmlConversion.Add(new HeaderTag());
+                    break;
+                default:
+                    throw new ArgumentOutOfRangeException();
+            }
     }
 
     // _some string_ => <em>some string</em>
     public string Render(string markdownText)
     {
-        return new TagTextConverter().ToHTMLCode(markdownText);
+        var highlighted = new TagsHighlighter().HighlightMdTags(markdownText);
+
+        return new HighlightedTagsConverter().ToHTMLCode(highlighted);
     }
 }

@@ -7,7 +7,12 @@ public static class StringExtensions
         throw new NotImplementedException();
     }
 
-    public static bool IsStartOfParagraph(this string text, int idx)
+    public static bool IsOpenOfParagraph(this string text, int idx)
+    {
+        throw new NotImplementedException();
+    }
+    
+    public static int CloseIndexOfParagraph(this string text, int idx)
     {
         throw new NotImplementedException();
     }
