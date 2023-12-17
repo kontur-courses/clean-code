@@ -107,4 +107,22 @@ public static class TokenListExtensions
                 tagToken.Status = TagStatus.Broken;
         }
     }
+
+    public static void FilterEmptyTags(this IList<Token> tokens)
+    {
+        for (var i = 0; i < tokens.Count - 1; i++)
+        {
+            var current = tokens[i].Tag;
+            var next = tokens[i + 1].Tag;
+
+            if (current == null || next == null)
+                continue;
+
+            if (current.Type != next.Type)
+                continue;
+
+            current.Status = TagStatus.Broken;
+            next.Status = TagStatus.Broken;
+        }
+    }
 }

@@ -58,6 +58,7 @@ public class Tokenizer
 
         tagTokens.DetermineTagStatuses();
         tagTokens.FilterIntersections();
+        tokens.FilterEmptyTags();
 
         return tokens;
     }
