@@ -26,18 +26,18 @@ public class Token
     {
         return Type.Representation(IsClosingTag);
     }
-    
+
     public override bool Equals(object? obj)
     {
         if (obj is null || GetType() != obj.GetType())
             return false;
         if (this == obj)
             return true;
-        
-        var other = (Token)obj;
-        return GetRepresentation().Equals(other.GetRepresentation()) && 
-               IsClosingTag == other.IsClosingTag && 
-               StartingIndex == other.StartingIndex && 
+
+        var other = (Token) obj;
+        return GetRepresentation().Equals(other.GetRepresentation()) &&
+               IsClosingTag == other.IsClosingTag &&
+               StartingIndex == other.StartingIndex &&
                Length == other.Length;
     }
 

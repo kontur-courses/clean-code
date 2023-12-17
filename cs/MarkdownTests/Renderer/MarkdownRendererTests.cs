@@ -31,10 +31,10 @@ public class MarkdownRendererTests
     public void Render_HasSufficientPerformance_OnLongInputText()
     {
         var text = new StringBuilder();
-        
+
         for (var i = 0; i < 250000; i++)
             text.Append("_a_ ");
-        
+
         renderer.Render(text.ToString());
     }
 

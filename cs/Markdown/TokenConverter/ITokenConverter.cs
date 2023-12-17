@@ -1,5 +1,4 @@
 ﻿using Markdown.Lexer;
-using Markdown.Tokens;
 
 namespace Markdown.TokenConverter;
 

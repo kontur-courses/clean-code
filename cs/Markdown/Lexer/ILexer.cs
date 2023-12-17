@@ -1,6 +1,4 @@
-﻿using Markdown.Tokens;
-
-namespace Markdown.Lexer;
+﻿namespace Markdown.Lexer;
 
 public interface ILexer
 {

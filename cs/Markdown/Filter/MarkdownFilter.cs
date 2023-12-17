@@ -38,7 +38,7 @@ public class MarkdownFilter : ITokenFilter
 
         return DeleteMarkedTokens(tokens);
     }
-    
+
     private static List<Token> FilterPairTagsIntersection(List<Token> tokens)
     {
         var pairTags = GetPairTags(tokens);
@@ -113,7 +113,8 @@ public class MarkdownFilter : ITokenFilter
         {
             for (var i = tokenIndex - 1; i >= 0; i--)
             {
-                if (tokens[i].IsClosingTag || !TokenTypeEqualityComparer.Equals(tokens[i].Type, tokens[tokenIndex].Type))
+                if (tokens[i].IsClosingTag ||
+                    !TokenTypeEqualityComparer.Equals(tokens[i].Type, tokens[tokenIndex].Type))
                     continue;
                 pair = tokens[i];
                 break;

@@ -11,7 +11,7 @@ public class LexerRegisterTokenTestData
     public static readonly ITokenType InvalidTypeWithNullRepresentation;
     public static readonly ITokenType InvalidTypeWithNullValue;
     public static readonly ITokenType InvalidTypeWithEmptyValue;
-    
+
     static LexerRegisterTokenTestData()
     {
         ValidType = Substitute.For<ITokenType>();
@@ -23,12 +23,12 @@ public class LexerRegisterTokenTestData
 
         InvalidTypeWithEmptyValue = Substitute.For<ITokenType>();
         InvalidTypeWithEmptyValue.Value.Returns("");
-        
+
         InvalidTypeWithNullRepresentation = Substitute.For<ITokenType>();
         InvalidTypeWithNullRepresentation.Value.Returns("_");
         InvalidTypeWithNullRepresentation.Representation(Arg.Any<bool>()).Returns((string) null!);
     }
-        
+
     public LexerRegisterTokenTestData(ITokenType tokenType)
     {
         TokenType = tokenType;

@@ -243,16 +243,16 @@ public class FilterTestCases
                 "_a_ __sd __a__",
                 new List<Token>
                 {
-                    new( new EmphasisToken(), false, 0, 1),
-                    new( new EmphasisToken(), true, 2, 1),
-                    new( new StrongToken(), false, 4, 2),
-                    new( new StrongToken(), true, 9, 2),
-                    new( new StrongToken(), false, 12, 2)
+                    new(new EmphasisToken(), false, 0, 1),
+                    new(new EmphasisToken(), true, 2, 1),
+                    new(new StrongToken(), false, 4, 2),
+                    new(new StrongToken(), true, 9, 2),
+                    new(new StrongToken(), false, 12, 2)
                 },
                 new List<Token>
                 {
-                    new( new EmphasisToken(), false, 0, 1),
-                    new( new EmphasisToken(), true, 2, 1)
+                    new(new EmphasisToken(), false, 0, 1),
+                    new(new EmphasisToken(), true, 2, 1)
                 }
             );
         }

@@ -11,7 +11,7 @@ public class MarkdownLexerBuilder
     {
         markdownLexer = new MarkdownLexer(filter, escapeSymbol);
     }
-    
+
     public MarkdownLexerBuilder WithTokenType(ITokenType type)
     {
         markdownLexer.RegisterTokenType(type);

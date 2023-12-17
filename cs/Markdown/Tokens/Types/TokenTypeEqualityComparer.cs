@@ -8,9 +8,9 @@ public class TokenTypeEqualityComparer : IEqualityComparer<ITokenType>
         if (ReferenceEquals(x, null)) return false;
         if (ReferenceEquals(y, null)) return false;
         if (x.GetType() != y.GetType()) return false;
-        
-        return x.Value == y.Value 
-               && x.SupportsClosingTag == y.SupportsClosingTag 
+
+        return x.Value == y.Value
+               && x.SupportsClosingTag == y.SupportsClosingTag
                && x.HasLineBeginningSemantics == y.HasLineBeginningSemantics;
     }
 

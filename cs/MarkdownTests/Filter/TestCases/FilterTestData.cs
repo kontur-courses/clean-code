@@ -5,7 +5,7 @@ namespace MarkdownTests.Filter.TestCases;
 public class FilterTestData
 {
     public string Line { get; }
-    
+
     public List<Token> Tokens { get; }
 
     public List<Token> Expected { get; }

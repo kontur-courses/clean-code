@@ -11,7 +11,7 @@ public class TokenConverterTests
 {
     private MarkdownTokenConverter converter = null!;
     private MarkdownLexer lexer = null!;
-    
+
     [OneTimeSetUp]
     public void OneTimeSetUp()
     {
@@ -20,10 +20,10 @@ public class TokenConverterTests
             .WithTokenType(new StrongToken())
             .WithTokenType(new HeaderToken())
             .Build();
-        
+
         converter = new MarkdownTokenConverter();
     }
-    
+
     [TestCase(@"\\\__sk \_asd_ \df", @"\__sk _asd_ \df")]
     [TestCase(@"\\_a_", @"\<em>a</em>")]
     [TestCase(@"\\\\_", @"\\_")]
@@ -38,7 +38,7 @@ public class TokenConverterTests
     {
         AssertConvertToStringReturnsCorrectResult(initial, expected);
     }
-    
+
     private void AssertConvertToStringReturnsCorrectResult(string initial, string expected)
     {
         var result = converter.ConvertToString(lexer.Tokenize(initial));

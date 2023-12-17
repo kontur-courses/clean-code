@@ -19,7 +19,7 @@ public class MarkdownFilterTests
     {
         AssertFilterTokensReturnsCorrectResult(filterTestData);
     }
-    
+
     [TestCaseSource(typeof(FilterTestCases), nameof(FilterTestCases.EmptyLinesTests))]
     public void FilterTokens_ReturnsCorrectResult_OnEmptyLines(FilterTestData filterTestData)
     {
@@ -61,13 +61,13 @@ public class MarkdownFilterTests
     {
         AssertFilterTokensReturnsCorrectResult(filterTestData);
     }
-    
+
     [TestCaseSource(typeof(FilterTestCases), nameof(FilterTestCases.UnpairedTagsTests))]
     public void FilterTokens_RemovesIncorrectTangs_WhenTagsAreUnpaired(FilterTestData filterTestData)
     {
         AssertFilterTokensReturnsCorrectResult(filterTestData);
     }
-    
+
     private void AssertFilterTokensReturnsCorrectResult(FilterTestData data)
     {
         var result = filter.FilterTokens(data.Tokens, data.Line);

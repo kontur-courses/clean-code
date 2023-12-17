@@ -24,7 +24,7 @@ public class MarkdownLexer : ILexer
     public void RegisterTokenType(ITokenType type)
     {
         ValidateRegisterArguments(type);
-        
+
         if (registeredTokenTypes.ContainsKey(type.Value))
             throw new ArgumentException("The given type symbol has already been registered.");
         registeredTokenTypes.Add(type.Value, type);
@@ -40,7 +40,7 @@ public class MarkdownLexer : ILexer
         if (type.Representation(true) is null || type.Representation(false) is null)
             throw new ArgumentException("Token type representation cannot be null.");
     }
-    
+
     public TokenizeResult Tokenize(string line)
     {
         if (line is null or "")
