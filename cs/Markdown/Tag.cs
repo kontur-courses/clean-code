@@ -2,16 +2,23 @@
 
 public class Tag
 {
-    public string markdownOpening { get; private set; }
-    public string markdownClosing { get; private set; }
-    public string htmlKeyword { get; private set; }
-    public string tagOpen => throw new NotImplementedException(); // <htmlKeyword>
-    public string tagClose => throw new NotImplementedException(); // </htmlKeyword>
+    public string Name { get; private set; }
+    public string? MarkdownOpening { get; private set; }
+    public string? MarkdownClosing { get; private set; }
+    public string? HtmlKeyword { get; private set; }
+    public string TagOpen => $"<{HtmlKeyword}>"; 
+    public string TagClose => $"</{HtmlKeyword}>";
 
-    public Tag(string markdownOpening, string markdownClosing, string htmlKeyword)
+    public Tag(string name, string markdownOpening, string markdownClosing, string htmlKeyword)
     {
-        this.markdownOpening = markdownOpening;
-        this.markdownClosing = markdownClosing;
-        this.htmlKeyword = htmlKeyword;
+        Name = name;
+        MarkdownOpening = markdownOpening;
+        MarkdownClosing = markdownClosing;
+        HtmlKeyword = htmlKeyword;
+    }
+
+    public override string ToString()
+    {
+        return Name;
     }
 }

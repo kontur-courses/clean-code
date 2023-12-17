@@ -1,7 +1,7 @@
 ﻿namespace MarkdownTests;
 
 [TestFixture]
-public class Md_Should
+public class Markdown_Should
 {
     
 }

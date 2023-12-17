@@ -1,7 +1,7 @@
 ﻿namespace MarkdownTests;
 
 [TestFixture]
-public class Wrapper_Should
+public class Renderer_Should
 {
     
 }
