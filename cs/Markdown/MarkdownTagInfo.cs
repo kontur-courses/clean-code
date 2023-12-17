@@ -12,6 +12,7 @@ namespace Markdown
         public int StartIndex { get; set; }
         public int EndIndex { get; set; }
         public bool WhitespacesBefore { get; set; }
+        public bool IsNewLine { get; set; }
         public bool InNumber { get; set; }
         public bool InWord { get; set; }
         public bool IsOpening { get; set; }
@@ -20,6 +21,11 @@ namespace Markdown
         public MarkdownTagInfo(Tag tag = null)
         {
             Tag = tag;
+        }
+
+        public override string ToString()
+        {
+            return $"{Tag} {StartIndex}";
         }
     }
 }
