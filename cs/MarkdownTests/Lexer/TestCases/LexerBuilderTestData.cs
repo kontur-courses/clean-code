@@ -3,21 +3,16 @@ using NSubstitute;
 
 namespace MarkdownTests.Lexer.TestCases;
 
-public class LexerRegisterTokenTestData
+public class LexerBuilderTestData
 {
     public ITokenType TokenType { get; }
 
-    public static readonly ITokenType ValidType;
     public static readonly ITokenType InvalidTypeWithNullRepresentation;
     public static readonly ITokenType InvalidTypeWithNullValue;
     public static readonly ITokenType InvalidTypeWithEmptyValue;
 
-    static LexerRegisterTokenTestData()
+    static LexerBuilderTestData()
     {
-        ValidType = Substitute.For<ITokenType>();
-        ValidType.Value.Returns("_");
-        ValidType.Representation(Arg.Any<bool>()).Returns("<em>");
-
         InvalidTypeWithNullValue = Substitute.For<ITokenType>();
         InvalidTypeWithNullValue.Value.Returns((string) null!);
 
@@ -29,7 +24,7 @@ public class LexerRegisterTokenTestData
         InvalidTypeWithNullRepresentation.Representation(Arg.Any<bool>()).Returns((string) null!);
     }
 
-    public LexerRegisterTokenTestData(ITokenType tokenType)
+    public LexerBuilderTestData(ITokenType tokenType)
     {
         TokenType = tokenType;
     }

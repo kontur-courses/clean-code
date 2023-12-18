@@ -12,33 +12,20 @@ public class MarkdownLexer : ILexer
 
     private readonly char escapeSymbol;
 
-    public MarkdownLexer(ITokenFilter filter, char escapeSymbol)
+    public MarkdownLexer(ITokenFilter filter, IReadOnlySet<ITokenType> tokenTypes, char escapeSymbol = '\\')
     {
         this.escapeSymbol = escapeSymbol;
-        this.filter = filter;
+        this.filter = filter ?? throw new ArgumentException("Filter cannot be null.");
+        RegisterTokenTypes(tokenTypes);
     }
 
     public IReadOnlyDictionary<string, ITokenType> RegisteredTokenTypes
         => registeredTokenTypes.AsReadOnly();
 
-    public void RegisterTokenType(ITokenType type)
+    private void RegisterTokenTypes(IReadOnlySet<ITokenType> tokenTypes)
     {
-        ValidateRegisterArguments(type);
-
-        if (registeredTokenTypes.ContainsKey(type.Value))
-            throw new ArgumentException("The given type symbol has already been registered.");
-        registeredTokenTypes.Add(type.Value, type);
-    }
-
-    // ReSharper disable once ParameterOnlyUsedForPreconditionCheck.Local
-    private static void ValidateRegisterArguments(ITokenType type)
-    {
-        if (type is null)
-            throw new ArgumentException("Token type cannot be null");
-        if (type.Value is null or "")
-            throw new ArgumentException("Type value cannot be null or an empty string.");
-        if (type.Representation(true) is null || type.Representation(false) is null)
-            throw new ArgumentException("Token type representation cannot be null.");
+        foreach (var tokenType in tokenTypes)
+            registeredTokenTypes.Add(tokenType.Value, tokenType);
     }
 
     public TokenizeResult Tokenize(string line)

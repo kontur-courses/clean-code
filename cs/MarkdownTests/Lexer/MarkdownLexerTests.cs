@@ -10,64 +10,50 @@ namespace MarkdownTests.Lexer;
 
 public class MarkdownLexerTests
 {
-    private MarkdownLexer emptyLexer = null!;
     private MarkdownLexer lexer = null!;
-    private MarkdownFilter filter = null!;
-
-    [SetUp]
-    public void SetUp()
-    {
-        emptyLexer = new MarkdownLexer(filter, '\\');
-    }
+    private readonly MarkdownFilter filter = new();
 
     [OneTimeSetUp]
     public void OneTimeSetUp()
     {
-        filter = new MarkdownFilter();
-        lexer = new MarkdownLexerBuilder(filter, '\\')
+        lexer = new MarkdownLexerBuilder(filter)
             .WithTokenType(new EmphasisToken())
             .WithTokenType(new StrongToken())
             .WithTokenType(new HeaderToken())
             .Build();
     }
 
-    [TestCaseSource(typeof(LexerTestCases), nameof(LexerTestCases.InvalidParametersTests))]
-    public void RegisterTokenType_ThrowsArgumentException_OnInvalidParameters(
-        LexerRegisterTokenTestData registerTokenTestData)
+    [Test]
+    public void Constructor_ThrowsArgumentException_WhenFilterIsNull()
     {
-        Assert.Throws<ArgumentException>(()
-            => emptyLexer.RegisterTokenType(registerTokenTestData.TokenType));
+        Assert.Throws<ArgumentException>(() => lexer = new MarkdownLexer(null!, new HashSet<ITokenType>()));
     }
 
     [Test]
-    public void RegisterTokenType_CorrectlyRegistersType_OnCorrectInput()
+    public void Constructor_CorrectlyRegistersType_OnCorrectInput()
     {
         var type = new EmphasisToken();
-        emptyLexer.RegisterTokenType(type);
 
-        emptyLexer.RegisteredTokenTypes["_"]
+        var singleTypeLexer = new MarkdownLexerBuilder(filter)
+            .WithTokenType(type)
+            .Build();
+
+        singleTypeLexer.RegisteredTokenTypes["_"]
             .Should()
             .Be(type);
-    }
-
-    [Test]
-    public void RegisterTokenType_ThrowsArgumentException_OnDuplicateRegistrations()
-    {
-        emptyLexer.RegisterTokenType(LexerRegisterTokenTestData.ValidType);
-
-        Assert.Throws<ArgumentException>(() => emptyLexer.RegisterTokenType(LexerRegisterTokenTestData.ValidType));
     }
 
     [TestCase(null)]
     [TestCase("")]
     public void Tokenize_ThrowsArgumentException_OnInvalidInputString(string line)
     {
-        Assert.Throws<ArgumentException>(() => emptyLexer.Tokenize(line));
+        Assert.Throws<ArgumentException>(() => lexer.Tokenize(line));
     }
 
     [Test]
     public void Tokenize_ReturnsOnlyLineItself_OnZeroRegisteredTokenTypes()
     {
+        var emptyLexer = new MarkdownLexer(filter, new HashSet<ITokenType>());
         var result = emptyLexer.Tokenize("line without tokens");
 
         EnsureExpectedTokenAt(result.Tokens, 0, "line without tokens");

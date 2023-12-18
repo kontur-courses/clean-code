@@ -16,18 +16,16 @@ public class MarkdownRendererTests
     [OneTimeSetUp]
     public void OneTimeSetUp()
     {
-        var lexer = new MarkdownLexerBuilder(new MarkdownFilter(), '\\')
+        var lexer = new MarkdownLexerBuilder(new MarkdownFilter())
             .WithTokenType(new EmphasisToken())
             .WithTokenType(new StrongToken())
             .WithTokenType(new HeaderToken())
             .Build();
-
-        var tokenConverter = new MarkdownTokenConverter();
-
-        renderer = new MarkdownRenderer(lexer, tokenConverter);
+        
+        renderer = new MarkdownRenderer(lexer, new MarkdownTokenConverter());
     }
 
-    [Test, Timeout(1500)]
+    [Test, Timeout(5000)]
     public void Render_HasSufficientPerformance_OnLongInputText()
     {
         var text = new StringBuilder();

@@ -6,17 +6,6 @@ namespace MarkdownTests.Lexer.TestCases;
 
 public class LexerTestCases
 {
-    public static IEnumerable InvalidParametersTests
-    {
-        get
-        {
-            yield return new LexerRegisterTokenTestData(LexerRegisterTokenTestData.InvalidTypeWithNullValue);
-            yield return new LexerRegisterTokenTestData(LexerRegisterTokenTestData.InvalidTypeWithEmptyValue);
-            yield return new LexerRegisterTokenTestData(LexerRegisterTokenTestData.InvalidTypeWithNullRepresentation);
-            yield return new LexerRegisterTokenTestData(null!);
-        }
-    }
-
     public static IEnumerable NoValidationTests
     {
         get

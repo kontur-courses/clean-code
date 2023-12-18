@@ -15,7 +15,7 @@ public class TokenConverterTests
     [OneTimeSetUp]
     public void OneTimeSetUp()
     {
-        lexer = new MarkdownLexerBuilder(new MarkdownFilter(), '\\')
+        lexer = new MarkdownLexerBuilder(new MarkdownFilter())
             .WithTokenType(new EmphasisToken())
             .WithTokenType(new StrongToken())
             .WithTokenType(new HeaderToken())
