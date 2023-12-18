@@ -15,6 +15,8 @@ namespace Markdown.Tags
         private StringBuilder CreateHtmlTag(string markdownText, int openTagIndex, int closingTagIndex)
         {
             var htmlTag = new StringBuilder(markdownText);
+            if (openTagIndex + 1 == closingTagIndex)
+                return htmlTag;
 
             htmlTag.Remove(closingTagIndex, 1);
             htmlTag.Insert(closingTagIndex, "</em>");
@@ -28,6 +30,9 @@ namespace Markdown.Tags
         {
             for (var i = openTagIndex; i < markdownText.Length; i++)
             {
+                if (char.IsDigit(markdownText[i]))
+                    return i;
+
                 if (markdownText[i] == '_' && i + 1 >= markdownText.Length || markdownText[i - 1] < 0)
                     return i;
                 

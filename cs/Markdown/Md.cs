@@ -5,7 +5,7 @@ namespace Markdown
 {
     public class Md
     {
-        private readonly Heading heading = new();
+        private readonly HeadingHandler heading = new();
         private readonly Bold bold = new();
         private readonly Italic italic = new();
 
@@ -15,6 +15,9 @@ namespace Markdown
 
             for (var i = 0; i < markdownText.Length; i++)
             {
+                if (char.IsDigit(markdownText[i]))
+                    return htmlText.ToString();
+
                 if (markdownText[i] == '#')
                 {
                     var tag = heading.GetHtmlTag(markdownText, i);

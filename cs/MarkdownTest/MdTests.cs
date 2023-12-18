@@ -7,24 +7,29 @@ namespace MarkdownTest
     [TestFixture]
     public class MdTests
     {
-        [Test]
-        public void WhenItalicTagInsideBoldTag_ShouldReturnTwoTags()
+        private Md sut;
+
+        [SetUp]
+        public void Init()
         {
-            Md md = new Md();
-
-            var actual = md.Render("__двойного выделения _одинарное_ тоже__");
-
-            actual.Should().Be("<strong>двойного выделения <em>одинарное</em> тоже</strong>");
+            sut = new Md();
         }
 
-        [Test]
-        public void WhenPassUnpairedSymbols_ShouldNotChangAnything()
+        private static TestCaseData[] mdTestsCases =
         {
-            Md md = new Md();
+            new TestCaseData("__двойного _одинарное_ тоже__", "<strong>двойного <em>одинарное</em> тоже</strong>").SetName("ItalicTagInsideBoldTag"),
+            new TestCaseData("__разные выделения_", "__разные выделения_").SetName("PassUnpairedSymbols"),
+            new TestCaseData("# _Test_", "<h1> <em>Test</em></h1>").SetName("italicInsideHeading"),
+            new TestCaseData("__abc__ _abc_ _abc_ __abc__", "<strong>abc</strong> <em>abc</em> <em>abc</em> <strong>abc</strong>").SetName("MultipleTagsInARow")
+        };
 
-            var actual = md.Render("__разные выделения_");
+        [Test]
+        [TestCaseSource(nameof(mdTestsCases))]
+        public void WhenItalicTagInsideBoldTag_ShouldReturnTwoTags(string input, string expected)
+        {
+            var actual = sut.Render(input);
 
-            actual.Should().Be("__разные выделения_");
+            actual.Should().Be(expected);
         }
     }
 }

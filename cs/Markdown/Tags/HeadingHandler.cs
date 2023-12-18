@@ -2,7 +2,7 @@
 
 namespace Markdown.Tags
 {
-    public class Heading : IHtmlTagCreator
+    public class HeadingHandler : IHtmlTagCreator
     {
         public (StringBuilder, int) GetHtmlTag(string markdownText, int openTagIndex)
         {

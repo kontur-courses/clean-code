@@ -7,34 +7,28 @@ namespace MarkdownTest
     [TestFixture]
     public class HeadingTests
     {
-        [Test]
-        public void WhenPassHeadingSymbol_ShouldConvertToH1Html()
+        private Md sut;
+
+        [SetUp]
+        public void Init()
         {
-            Md md = new Md();
-
-            var actual = md.Render("# Test");
-
-            actual.Should().Be("<h1> Test</h1>");
+            sut = new Md();
         }
 
-        [Test]
-        public void WhenPassHeadingSymbolWithBoldInsert_ShouldConvertToH1Html()
+        private static TestCaseData[] headingTestCases =
         {
-            Md md = new Md();
-
-            var actual = md.Render("# __Test__");
-
-            actual.Should().Be("<h1> <strong>Test</strong></h1>");
-        }
+            new TestCaseData("# Test", "<h1> Test</h1>").SetName("PassHeadingSymbol"),
+            new TestCaseData("# __Test__", "<h1> <strong>Test</strong></h1>").SetName("PassHeadingSymbolWithBoldInside"),
+            new TestCaseData("# __Te_s_t__", "<h1> <strong>Te<em>s</em>t</strong></h1>").SetName("PassHeadingSymbolWithBoldAndItalicInside"),
+        };
 
         [Test]
-        public void WhenPassHeadingSymbolWithBoldInsertAndItalicInsert_ShouldConvertToH1Html()
+        [TestCaseSource(nameof(headingTestCases))]
+        public void WhenPassArguments_ShouldConvertToCorrectHtml(string input, string expected)
         {
-            Md md = new Md();
+            var actual = sut.Render(input);
 
-            var actual = md.Render("# __Te_s_t__");
-
-            actual.Should().Be("<h1> <strong>Te<em>s</em>t</strong></h1>");
+            actual.Should().Be(expected);
         }
     }
 }

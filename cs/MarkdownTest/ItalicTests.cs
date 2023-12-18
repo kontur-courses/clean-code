@@ -7,34 +7,28 @@ namespace MarkdownTest
     [TestFixture]
     public class ItalicTests
     {
-        [Test]
-        public void WhenPassItalicSymbol_ShouldConvertToEmHtml()
+        private Md sut;
+
+        [SetUp]
+        public void Init()
         {
-            Md md = new Md();
-
-            var actual = md.Render("_Test_");
-
-            actual.Should().Be("<em>Test</em>");
+            sut = new Md();
         }
 
-        [Test]
-        public void WhenItalicsInPartOfWord_ShouldConvertToEmHtml()
+        private static TestCaseData[] italicTestCases =
         {
-            Md md = new Md();
-
-            var actual = md.Render("_нач_але");
-
-            actual.Should().Be("<em>нач</em>але");
-        }
+            new TestCaseData("_Test_", "<em>Test</em>").SetName("PassItalicSymbol"),
+            new TestCaseData("_нач_але", "<em>нач</em>але").SetName("ItalicsInPartOfWord"),
+            new TestCaseData("_одинарного __двойное__ не_", "<em>одинарного __двойное__ не</em>").SetName("BoldInsideItalicsTag"),
+        };
 
         [Test]
-        public void WhenBoldInsideItalicsTag_ShouldConvertToEmHtml()
+        [TestCaseSource(nameof(italicTestCases))]
+        public void WhenPassArguments_ShouldConvertToCorrectHtml(string input, string expected)
         {
-            Md md = new Md();
+            var actual = sut.Render(input);
 
-            var actual = md.Render("_одинарного __двойное__ не_");
-
-            actual.Should().Be("<em>одинарного __двойное__ не</em>");
+            actual.Should().Be(expected);
         }
     }
 }

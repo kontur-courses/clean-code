@@ -6,9 +6,9 @@ namespace Markdown.Tags
     {
         public (StringBuilder, int) GetHtmlTag(string markdownText, int openTagIndex)
         {
-            var tag = FindClosingTagIndex(markdownText, openTagIndex + 1);
-            var htmlTag = tag.Item1;
-            var closingTagIndex = tag.Item2;
+            var newTag = FindClosingTagIndex(markdownText, openTagIndex + 1);
+            var htmlTag = newTag.tag;
+            var closingTagIndex = newTag.index;
 
             if (closingTagIndex == -1)
                 return (htmlTag, htmlTag.Length);
@@ -30,7 +30,7 @@ namespace Markdown.Tags
             return htmlTag;
         }
 
-        private (StringBuilder, int) FindClosingTagIndex(string markdownText, int openTagIndex)
+        private (StringBuilder tag, int index) FindClosingTagIndex(string markdownText, int openTagIndex)
         {
             var htmlTag = new StringBuilder(markdownText);
             var nestedTadIndex = 0;
