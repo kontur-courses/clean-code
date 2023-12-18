@@ -70,4 +70,55 @@ public class TagsHighlighterTests
 
         actual.Should().BeEquivalentTo(expected);
     }
+
+    [Test]
+    public void IgnoreTagWithShielding()
+    {
+        tagsHighlighter.MarkdownText = "\\_a_";
+
+        var actual = new List<PairTagInfo>();
+
+        tagsHighlighter.FindPairTagIndexes(new EmTag(), ref actual);
+
+        actual.Should().BeEmpty();
+    }
+
+    [Test]
+    public void SingleTagsIndexesDictCheck()
+    {
+        var tags = new List<ITag> { new HeaderTag() };
+        var actualTagsHighlighter = new TagsHighlighter(tags)
+        {
+            MarkdownText = "#"
+        };
+
+        var actual = actualTagsHighlighter.SingleTagsIndexes();
+
+        var expected = new Dictionary<ISingleTag, List<int>>
+        {
+            { (ISingleTag)tags[0], new List<int> { 0 } }
+        };
+
+        actual.Should().BeEquivalentTo(expected);
+    }
+
+    [Test]
+    public void PairTagsIndexesDictCheck()
+    {
+        var tags = new List<ITag> { new EmTag(), new StrongTag() };
+        var actualTagsHighlighter = new TagsHighlighter(tags)
+        {
+            MarkdownText = "_a_ __b__"
+        };
+
+        var actual = actualTagsHighlighter.PairTagsIndexes();
+
+        var expected = new Dictionary<IPairTag, List<PairTagInfo>>
+        {
+            { (IPairTag)tags[0], new List<PairTagInfo> { new((0, 2)) } },
+            { (IPairTag)tags[1], new List<PairTagInfo> { new((4, 7)) } }
+        };
+
+        actual.Should().BeEquivalentTo(expected);
+    }
 }

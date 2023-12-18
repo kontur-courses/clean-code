@@ -17,7 +17,7 @@ public class TagsHighlighter(IEnumerable<ITag> tags)
     {
         var singleTagsIndexes = new Dictionary<ISingleTag, List<int>>();
 
-        foreach (var tag in tags.Where(tag => tag.GetType() == typeof(ISingleTag)))
+        foreach (var tag in tags.Where(tag => tag.GetType().GetInterface(nameof(ISingleTag)) != null))
         {
             var tagInfos = new List<int>();
 
@@ -34,9 +34,12 @@ public class TagsHighlighter(IEnumerable<ITag> tags)
         for (var i = 0; i < MarkdownText.Length; i++)
         {
             var tagIdx = MarkdownText.IndexOf(tag.Md, i, StringComparison.Ordinal);
-            
+
             if (tagIdx == -1)
                 return;
+
+            if (MarkdownText.IsShielded(tagIdx))
+                continue;
 
             if (MarkdownText.IsSingleTag(tag, tagIdx))
             {
@@ -50,7 +53,7 @@ public class TagsHighlighter(IEnumerable<ITag> tags)
     {
         var pairTagsIndexes = new Dictionary<IPairTag, List<PairTagInfo>>();
 
-        foreach (var tag in tags.Where(tag => tag.GetType() == typeof(IPairTag)))
+        foreach (var tag in tags.Where(tag => tag.GetType().GetInterface(nameof(IPairTag)) != null))
         {
             var tagInfos = new List<PairTagInfo>();
 
@@ -58,10 +61,13 @@ public class TagsHighlighter(IEnumerable<ITag> tags)
 
             pairTagsIndexes.Add((IPairTag)tag, tagInfos);
         }
+        
+        // RemoveIntersectStrongAndEmTags(ref pairTagsIndexes);
+        // RemoveStrongInsideEmTags(ref pairTagsIndexes);
 
         return pairTagsIndexes;
     }
-
+    
     public void FindPairTagIndexes(ITag tag, ref List<PairTagInfo> tagInfos)
     {
         var openIdx = -1;
@@ -71,6 +77,9 @@ public class TagsHighlighter(IEnumerable<ITag> tags)
 
             if (tagIdx == -1)
                 return;
+
+            if (MarkdownText.IsShielded(tagIdx))
+                continue;
 
             if (MarkdownText.IsPairTag(tag, tagIdx, openIdx == -1))
             {
@@ -93,14 +102,12 @@ public class TagsHighlighter(IEnumerable<ITag> tags)
         }
     }
 
-    private void RemoveIntersectStrongAndEmTags(ref (EmTag, List<PairTagInfo>) emTagInfo,
-        ref (StrongTag, List<PairTagInfo>) strongTagInfo)
+    private void RemoveIntersectStrongAndEmTags(ref Dictionary<IPairTag, List<PairTagInfo>> pairTagsIndexes)
     {
         throw new NotImplementedException();
     }
 
-    private void RemoveStrongInsideEmTags(ref (EmTag, List<PairTagInfo>) emTagInfo,
-        ref (StrongTag, List<PairTagInfo>) pairTagInfo)
+    private void RemoveStrongInsideEmTags(ref Dictionary<IPairTag, List<PairTagInfo>> pairTagsIndexes)
     {
         throw new NotImplementedException();
     }

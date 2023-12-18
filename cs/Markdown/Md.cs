@@ -26,6 +26,8 @@ public class Md
     {
         var highlighted = new TagsHighlighter(tags).HighlightMdTags(markdownText);
 
+        highlighted = highlighted.ReplaceShieldSequence();
+
         return new HighlightedTagsConverter().ToHTMLCode(highlighted);
     }
 }
