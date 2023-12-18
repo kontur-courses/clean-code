@@ -35,7 +35,9 @@ public class MarkdownLexer : ILexer
 
         var escapedEscapeSymbolsPos = GetEscapedEscapeSymbolsPositions(line);
         var initialRegisteredTokens = PlaceRegisteredTokens(line, escapedEscapeSymbolsPos);
+        
         var filteredRegisteredTokens = filter.FilterTokens(initialRegisteredTokens.Tokens, line);
+        
         var registeredTokensWithText = JoinTokensWithText(filteredRegisteredTokens, line);
 
         return new TokenizeResult(registeredTokensWithText, initialRegisteredTokens.EscapeSymbolsPos);
