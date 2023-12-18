@@ -1,4 +1,5 @@
 ﻿using Markdown.Tokens;
+using Markdown.Tokens.Decorators;
 using Markdown.Tokens.Utils;
 
 namespace Markdown.Filter.MarkdownFilters;
@@ -13,13 +14,13 @@ public class DifferentWordsFilter : TokenFilterChain
                || TokenUtils.IsInWord(first, line))
            && TokenUtils.HasSymbolInBetween(line, ' ', first.StartingIndex, second.StartingIndex);
     
-    public override List<Token> Handle(List<Token> tokens, string line)
+    public override List<TokenFilteringDecorator> Handle(List<TokenFilteringDecorator> tokens, string line)
     {
-        var types = TokenUtils.CreatePairedTypesDictionary(tokens);
+        var types = FilteringUtils.CreatePairedTypesDictionary(tokens);
 
         foreach (var type in types)
         {
-            Token? opening = null;
+            TokenFilteringDecorator? opening = null;
             foreach (var token in type.Value)
             {
                 if (AreInDifferentWords(opening!, token, line))
@@ -34,6 +35,6 @@ public class DifferentWordsFilter : TokenFilterChain
             }
         }
 
-        return base.Handle(TokenUtils.DeleteMarkedTokens(tokens), line);
+        return base.Handle(FilteringUtils.DeleteMarkedTokens(tokens), line);
     }
 }

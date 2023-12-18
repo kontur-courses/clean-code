@@ -1,4 +1,5 @@
 ﻿using Markdown.Tokens;
+using Markdown.Tokens.Decorators;
 using Markdown.Tokens.Types;
 using Markdown.Tokens.Utils;
 
@@ -29,7 +30,7 @@ public class NestedFilter : TokenFilterChain
                && token4.IsClosingTag;
     }
     
-    public override List<Token> Handle(List<Token> tokens, string line)
+    public override List<TokenFilteringDecorator> Handle(List<TokenFilteringDecorator> tokens, string line)
     {
         for (var i = 0; i < tokens.Count - 3; i++)
         {
@@ -39,6 +40,6 @@ public class NestedFilter : TokenFilterChain
             tokens[i + 2].IsMarkedForDeletion = true;
         }
 
-        return base.Handle(TokenUtils.DeleteMarkedTokens(tokens), line);
+        return base.Handle(FilteringUtils.DeleteMarkedTokens(tokens), line);
     }
 }

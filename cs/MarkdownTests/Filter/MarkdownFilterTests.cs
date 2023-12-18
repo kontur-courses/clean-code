@@ -1,4 +1,5 @@
 ﻿using Markdown.Filter;
+using Markdown.Filter.MarkdownFilters;
 using MarkdownTests.Filter.TestCases;
 
 namespace MarkdownTests.Filter;

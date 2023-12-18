@@ -1,4 +1,5 @@
 ﻿using Markdown.Tokens;
+using Markdown.Tokens.Decorators;
 using Markdown.Tokens.Utils;
 
 namespace Markdown.Filter.MarkdownFilters;
@@ -16,9 +17,9 @@ public class PairTagsIntersectionFilter : TokenFilterChain
                && token4.IsClosingTag;
     }
     
-    public override List<Token> Handle(List<Token> tokens, string line)
+    public override List<TokenFilteringDecorator> Handle(List<TokenFilteringDecorator> tokens, string line)
     {
-        var pairTags = TokenUtils.GetPairedTokens(tokens);
+        var pairTags = FilteringUtils.GetPairedTokens(tokens);
 
         for (var i = 0; i < pairTags.Count - 3; i++)
         {
@@ -31,6 +32,6 @@ public class PairTagsIntersectionFilter : TokenFilterChain
             pairTags[i + 3].IsMarkedForDeletion = true;
         }
 
-        return base.Handle(TokenUtils.DeleteMarkedTokens(tokens), line);
+        return base.Handle(FilteringUtils.DeleteMarkedTokens(tokens), line);
     }
 }

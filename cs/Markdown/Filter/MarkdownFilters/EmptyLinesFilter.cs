@@ -1,4 +1,5 @@
 ﻿using Markdown.Tokens;
+using Markdown.Tokens.Decorators;
 using Markdown.Tokens.Utils;
 
 namespace Markdown.Filter.MarkdownFilters;
@@ -12,9 +13,9 @@ public class EmptyLinesFilter : TokenFilterChain
            && !first.IsClosingTag && second.IsClosingTag
            && first.StartingIndex + first.Length == second.StartingIndex;
     
-    public override List<Token> Handle(List<Token> tokens, string line)
+    public override List<TokenFilteringDecorator> Handle(List<TokenFilteringDecorator> tokens, string line)
     {
-        Token? lastValidToken = null;
+        TokenFilteringDecorator? lastValidToken = null;
         foreach (var currentToken in tokens.Where(currentToken => currentToken.Type.SupportsClosingTag))
         {
             if (TokensEncloseEmptyLine(lastValidToken!, currentToken))
@@ -28,6 +29,6 @@ public class EmptyLinesFilter : TokenFilterChain
             lastValidToken = currentToken;
         }
 
-        return base.Handle(TokenUtils.DeleteMarkedTokens(tokens), line);
+        return base.Handle(FilteringUtils.DeleteMarkedTokens(tokens), line);
     }
 }

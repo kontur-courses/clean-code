@@ -1,5 +1,6 @@
 ﻿using FluentAssertions;
 using Markdown.Filter;
+using Markdown.Filter.MarkdownFilters;
 using Markdown.Lexer;
 using Markdown.TokenConverter;
 using Markdown.Tokens.Types;

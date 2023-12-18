@@ -1,6 +1,7 @@
 ﻿using System.Text;
 using FluentAssertions;
 using Markdown.Filter;
+using Markdown.Filter.MarkdownFilters;
 using Markdown.Lexer;
 using Markdown.Renderer;
 using Markdown.TokenConverter;

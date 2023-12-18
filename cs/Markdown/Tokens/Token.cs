@@ -4,8 +4,6 @@ namespace Markdown.Tokens;
 
 public class Token
 {
-    public bool IsMarkedForDeletion { get; set; }
-
     public ITokenType Type { get; }
 
     public bool IsClosingTag { get; set; }
@@ -20,6 +18,17 @@ public class Token
         IsClosingTag = isClosingTag;
         StartingIndex = startingIndex;
         Length = length;
+    }
+
+    public Token(Token token)
+    {
+        if (token is null)
+            throw new ArgumentException("Provided token is null");
+
+        Type = token.Type;
+        IsClosingTag = token.IsClosingTag;
+        StartingIndex = token.StartingIndex;
+        Length = token.Length;
     }
 
     public string GetRepresentation()

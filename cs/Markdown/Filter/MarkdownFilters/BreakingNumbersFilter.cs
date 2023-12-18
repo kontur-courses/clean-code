@@ -1,4 +1,4 @@
-﻿using Markdown.Tokens;
+﻿using Markdown.Tokens.Decorators;
 using Markdown.Tokens.Utils;
 
 namespace Markdown.Filter.MarkdownFilters;
@@ -6,9 +6,9 @@ namespace Markdown.Filter.MarkdownFilters;
 //удаляет пару открывающийся/закрывающийся тег, если между ними пустая строка
 public class BreakingNumbersFilter : TokenFilterChain
 {
-    private static void ReassignTagPairs(List<Token> tokens)
+    private static void ReassignTagPairs(List<TokenFilteringDecorator> tokens)
     {
-        var types = TokenUtils.CreatePairedTypesDictionary(tokens);
+        var types = FilteringUtils.CreatePairedTypesDictionary(tokens);
 
         foreach (var type in types)
         {
@@ -21,14 +21,14 @@ public class BreakingNumbersFilter : TokenFilterChain
         }
     }
     
-    public override List<Token> Handle(List<Token> tokens, string line)
+    public override List<TokenFilteringDecorator> Handle(List<TokenFilteringDecorator> tokens, string line)
     {
         foreach (var token in tokens.Where(currentToken => currentToken.Type.SupportsClosingTag))
             if (TokenUtils.IsTokenSurroundedWith(token, line, char.IsDigit, false))
                 token.IsMarkedForDeletion = true;
 
-        var result = TokenUtils.DeleteMarkedTokens(tokens);
+        var result = FilteringUtils.DeleteMarkedTokens(tokens);
         ReassignTagPairs(result);
-        return base.Handle(TokenUtils.DeleteMarkedTokens(tokens), line);
+        return base.Handle(FilteringUtils.DeleteMarkedTokens(tokens), line);
     }
 }

@@ -1,12 +1,11 @@
-﻿using Markdown.Filter.MarkdownFilters;
-using Markdown.Tokens;
+﻿using Markdown.Tokens;
 using Markdown.Tokens.Types;
 
-namespace Markdown.Filter;
+namespace Markdown.Filter.MarkdownFilters;
 
-public class MarkdownFilter : ITokenFilter
+public class MarkdownFilter : TokenFilterBase
 {
-    public List<Token> FilterTokens(List<Token> tokens, string line)
+    public override List<Token> FilterTokens(List<Token> tokens, string line)
     {
         var chain = new TokenFilterChain();
         
@@ -17,7 +16,9 @@ public class MarkdownFilter : ITokenFilter
             .SetNext(new SpaceInterruptionFilter())
             .SetNext(new PairTagsIntersectionFilter())
             .SetNext(new UnpairedTagsFilter());
-
-        return chain.Handle(tokens, line);
+        
+        var result = chain.Handle(PackTokensForFiltering(tokens), line);
+        
+        return UnpackFilteredTokens(result);
     }
 }
