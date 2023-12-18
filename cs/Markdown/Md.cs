@@ -1,44 +1,30 @@
-using System.Collections.ObjectModel;
 using Markdown.Tags;
 
 namespace Markdown;
 
 public class Md
 {
-    private readonly List<ITag> mdToHtmlConversion = new();
-
-    public ReadOnlyCollection<ITag> MToHtmlConversion => mdToHtmlConversion.AsReadOnly();
+    private readonly List<ITag> tags;
 
     public Md()
     {
-        mdToHtmlConversion.Add(new EmTag());
-        mdToHtmlConversion.Add(new StrongTag());
-        mdToHtmlConversion.Add(new HeaderTag());
+        tags = new List<ITag>
+        {
+            new EmTag(),
+            new StrongTag(),
+            new HeaderTag()
+        };
     }
 
-    public Md(params Tag[] tags)
+    public Md(params ITag[] tags)
     {
-        foreach (var tag in tags)
-            switch (tag)
-            {
-                case Tag.EmTag:
-                    mdToHtmlConversion.Add(new EmTag());
-                    break;
-                case Tag.StrongTag:
-                    mdToHtmlConversion.Add(new StrongTag());
-                    break;
-                case Tag.HeaderTag:
-                    mdToHtmlConversion.Add(new HeaderTag());
-                    break;
-                default:
-                    throw new ArgumentOutOfRangeException();
-            }
+        this.tags = new List<ITag>(tags);
     }
 
     // _some string_ => <em>some string</em>
     public string Render(string markdownText)
     {
-        var highlighted = new TagsHighlighter().HighlightMdTags(markdownText);
+        var highlighted = new TagsHighlighter(tags).HighlightMdTags(markdownText);
 
         return new HighlightedTagsConverter().ToHTMLCode(highlighted);
     }
