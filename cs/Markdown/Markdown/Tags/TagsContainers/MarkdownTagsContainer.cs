@@ -4,16 +4,16 @@ namespace Markdown.Tags.TagsContainers;
 
 public static class MarkdownTagsContainer
 {
-    private static readonly ImmutableDictionary<TagDefenition, string> _tags =
+    private static readonly ImmutableDictionary<TagDefinition, string> _tags =
         ImmutableDictionary.CreateRange(
             new[]
             {
-                KeyValuePair.Create(TagDefenition.Italic, "_"),
-                KeyValuePair.Create(TagDefenition.Header, "# "),
-                KeyValuePair.Create(TagDefenition.Strong, "__")
+                KeyValuePair.Create(TagDefinition.Italic, "_"),
+                KeyValuePair.Create(TagDefinition.Header, "# "),
+                KeyValuePair.Create(TagDefinition.Strong, "__")
             });
 
-    public static ImmutableDictionary<TagDefenition, string> GetTags()
+    public static ImmutableDictionary<TagDefinition, string> GetTags()
     {
         return _tags;
     }

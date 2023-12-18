@@ -23,18 +23,26 @@ public class MarkdownToHtmlTagsMapper : ITagsMapper
 
     public string Map(Tag tag)
     {
-        throw new NotImplementedException();
+        if (CheckIfTag(tag.Value))
+        {
+            if (tag.TagType == TagType.OpenTag)
+                return _markdownToHtmlOpenTags[tag.Value];
+            if (tag.TagType == TagType.ClosingTag)
+                return _markdownToHtmlClosingTags[tag.Value];
+        }
+
+        return tag.Value;
     }
 
     private bool CheckIfTag(string tag)
     {
-        throw new NotImplementedException();
+        return _markdownToHtmlClosingTags.ContainsKey(tag) || _markdownToHtmlOpenTags.ContainsKey(tag);
     }
 
-    public void BuildTagsConnections(
-        ImmutableDictionary<TagDefenition, string> markdownTags,
-        ImmutableDictionary<TagDefenition, string> htmlOpenTags,
-        ImmutableDictionary<TagDefenition, string> htmlClosingTags)
+    private void BuildTagsConnections(
+        ImmutableDictionary<TagDefinition, string> markdownTags,
+        ImmutableDictionary<TagDefinition, string> htmlOpenTags,
+        ImmutableDictionary<TagDefinition, string> htmlClosingTags)
     {
         foreach (var markdownTag in markdownTags)
         {

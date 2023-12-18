@@ -1,4 +1,5 @@
-﻿using Markdown.Tags;
+﻿using System.Text;
+using Markdown.Tags;
 using Markdown.TagsMappers;
 using Markdown.Tokens;
 
@@ -15,6 +16,13 @@ public class TagTokensBuilder : ITokensBuilder<Tag>
 
     public string Build(List<IToken<Tag>> tokens)
     {
-        throw new NotImplementedException();
+        var result = new StringBuilder();
+        foreach (var token in tokens)
+        {
+            var mappedToken = _tagsMapper.Map(token.Value);
+            result.Append(mappedToken);
+        }
+
+        return result.ToString();
     }
 }

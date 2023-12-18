@@ -14,4 +14,9 @@ public class TagToken : IToken<Tag>
     public int StartIndex { get; }
     public int EndIndex { get; }
     public Tag Value { get; }
+
+    public override string ToString()
+    {
+        return Value.ToString();
+    }
 }

@@ -8,7 +8,7 @@ public class Tag : IConvertableToString
         TagType = tagType;
     }
 
-    public TagType TagType { get; }
+    public TagType TagType { get; set; }
     public string Value { get; }
 
     public override string ToString()

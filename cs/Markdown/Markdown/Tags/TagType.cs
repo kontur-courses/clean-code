@@ -4,5 +4,6 @@ public enum TagType
 {
     OpenTag,
     ClosingTag,
-    Ignored
+    Ignored,
+    Undefined
 }
