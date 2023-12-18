@@ -6,7 +6,7 @@ public class Token
 {
     public ITokenType Type { get; }
 
-    public bool IsClosingTag { get; set; }
+    public bool IsClosingTag { get; }
 
     public int StartingIndex { get; }
 

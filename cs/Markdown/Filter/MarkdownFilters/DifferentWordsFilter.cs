@@ -18,10 +18,10 @@ public class DifferentWordsFilter : TokenFilterChain
     {
         var types = FilteringUtils.CreatePairedTypesDictionary(tokens);
 
-        foreach (var type in types)
+        foreach (var (_, type) in types)
         {
             TokenFilteringDecorator? opening = null;
-            foreach (var token in type.Value)
+            foreach (var token in type)
             {
                 if (AreInDifferentWords(opening!, token, line))
                 {

@@ -30,10 +30,10 @@ public class MarkdownLexer : ILexer
 
     public TokenizeResult Tokenize(string line)
     {
-        if (line is null or "")
-            throw new ArgumentException("Input parameter cannot be null or empty string.");
+        if (line is null)
+            throw new ArgumentException("Input parameter cannot be null.");
 
-        var escapedEscapeSymbolsPos = GetEscapedEscapeSymbolsPositions(line);
+        var escapedEscapeSymbolsPos = EscapeSymbolProcessor.GetEscapedEscapeSymbolsPositions(line, escapeSymbol);
         var initialRegisteredTokens = PlaceRegisteredTokens(line, escapedEscapeSymbolsPos);
         
         var filteredRegisteredTokens = filter.FilterTokens(initialRegisteredTokens.Tokens, line);
@@ -41,32 +41,6 @@ public class MarkdownLexer : ILexer
         var registeredTokensWithText = JoinTokensWithText(filteredRegisteredTokens, line);
 
         return new TokenizeResult(registeredTokensWithText, initialRegisteredTokens.EscapeSymbolsPos);
-    }
-
-    private bool IsEscapeSymbolEscaped(int prevPos, int currPos, string line)
-        => prevPos != -1 && line[currPos] == escapeSymbol && prevPos == currPos - 1;
-
-    private IReadOnlyDictionary<int, bool> GetEscapedEscapeSymbolsPositions(string line)
-    {
-        var lastEscapeIndex = -1;
-        var positionToEscapeMarker = new Dictionary<int, bool>();
-
-        for (var i = 0; i < line.Length; i++)
-        {
-            if (IsEscapeSymbolEscaped(lastEscapeIndex, i, line))
-            {
-                positionToEscapeMarker.Add(lastEscapeIndex, true);
-                positionToEscapeMarker.Add(i, false);
-                lastEscapeIndex = -1;
-                continue;
-            }
-
-            if (line[i] == escapeSymbol)
-                lastEscapeIndex = i;
-            else lastEscapeIndex = -1;
-        }
-
-        return positionToEscapeMarker;
     }
 
     private static List<Token> JoinTokensWithText(List<Token> validatedRegisteredTokens, string line)
@@ -106,13 +80,13 @@ public class MarkdownLexer : ILexer
 
         var escapeSymbolsPos = escapedEscapeSymbolsPos.ToDictionary(e => e.Key, e => e.Value);
         var occupiedPositions = new HashSet<int>();
-        foreach (var tokenType in registeredTokenTypes.OrderByDescending(t => t.Key.Length))
+        foreach (var (tokenValue, tokenType) in registeredTokenTypes.OrderByDescending(t => t.Key.Length))
         {
             var currentIndex = -1;
-            while ((currentIndex = GetNextIndexOf(line, tokenType.Key, currentIndex)) != -1)
+            while ((currentIndex = GetNextIndexOf(line, tokenValue, currentIndex)) != -1)
             {
                 if (occupiedPositions.Contains(currentIndex) ||
-                    BeginningSemanticsNotFulfilled(tokenType.Value.HasLineBeginningSemantics, currentIndex))
+                    BeginningSemanticsNotFulfilled(tokenType.HasLineBeginningSemantics, currentIndex))
                     continue;
 
                 if (IsTokenEscaped(line, currentIndex, escapeSymbolsPos))
@@ -123,12 +97,12 @@ public class MarkdownLexer : ILexer
                 }
 
                 registeredTokens.Add(new Token(
-                    registeredTokenTypes[tokenType.Key],
-                    tokenType.Value.SupportsClosingTag && ++placedTokensNumber[tokenType.Key] % 2 == 0,
+                    registeredTokenTypes[tokenValue],
+                    tokenType.SupportsClosingTag && ++placedTokensNumber[tokenValue] % 2 == 0,
                     currentIndex,
-                    tokenType.Key.Length));
+                    tokenValue.Length));
 
-                for (var toOccupy = 0; toOccupy < tokenType.Key.Length; toOccupy++)
+                for (var toOccupy = 0; toOccupy < tokenValue.Length; toOccupy++)
                     occupiedPositions.Add(currentIndex + toOccupy);
             }
         }

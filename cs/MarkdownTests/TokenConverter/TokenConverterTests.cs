@@ -1,29 +1,14 @@
 ﻿using FluentAssertions;
-using Markdown.Filter;
-using Markdown.Filter.MarkdownFilters;
 using Markdown.Lexer;
 using Markdown.TokenConverter;
-using Markdown.Tokens.Types;
 
 namespace MarkdownTests.TokenConverter;
 
 [TestFixture]
 public class TokenConverterTests
 {
-    private MarkdownTokenConverter converter = null!;
-    private MarkdownLexer lexer = null!;
-
-    [OneTimeSetUp]
-    public void OneTimeSetUp()
-    {
-        lexer = new MarkdownLexerBuilder(new MarkdownFilter())
-            .WithTokenType(new EmphasisToken())
-            .WithTokenType(new StrongToken())
-            .WithTokenType(new HeaderToken())
-            .Build();
-
-        converter = new MarkdownTokenConverter();
-    }
+    private readonly MarkdownTokenConverter converter = new();
+    private readonly MarkdownLexer lexer = TestDataFactory.Lexer;
 
     [TestCase(@"\\\__sk \_asd_ \df", @"\__sk _asd_ \df")]
     [TestCase(@"\\_a_", @"\<em>a</em>")]

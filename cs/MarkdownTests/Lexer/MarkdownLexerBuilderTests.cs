@@ -1,5 +1,4 @@
-﻿using Markdown.Filter;
-using Markdown.Filter.MarkdownFilters;
+﻿using Markdown.Filter.MarkdownFilters;
 using Markdown.Lexer;
 using MarkdownTests.Lexer.TestCases;
 

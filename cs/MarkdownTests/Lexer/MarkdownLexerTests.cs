@@ -1,6 +1,5 @@
 ﻿using System.Collections;
 using FluentAssertions;
-using Markdown.Filter;
 using Markdown.Filter.MarkdownFilters;
 using Markdown.Lexer;
 using Markdown.Tokens;
@@ -11,18 +10,8 @@ namespace MarkdownTests.Lexer;
 
 public class MarkdownLexerTests
 {
-    private MarkdownLexer lexer = null!;
+    private MarkdownLexer lexer = TestDataFactory.Lexer;
     private readonly MarkdownFilter filter = new();
-
-    [OneTimeSetUp]
-    public void OneTimeSetUp()
-    {
-        lexer = new MarkdownLexerBuilder(filter)
-            .WithTokenType(new EmphasisToken())
-            .WithTokenType(new StrongToken())
-            .WithTokenType(new HeaderToken())
-            .Build();
-    }
 
     [Test]
     public void Constructor_ThrowsArgumentException_WhenFilterIsNull()
@@ -43,12 +32,11 @@ public class MarkdownLexerTests
             .Should()
             .Be(type);
     }
-
-    [TestCase(null)]
-    [TestCase("")]
-    public void Tokenize_ThrowsArgumentException_OnInvalidInputString(string line)
+    
+    [Test]
+    public void Tokenize_ThrowsArgumentException_WhenInputStringIsNull()
     {
-        Assert.Throws<ArgumentException>(() => lexer.Tokenize(line));
+        Assert.Throws<ArgumentException>(() => lexer.Tokenize(null!));
     }
 
     [Test]

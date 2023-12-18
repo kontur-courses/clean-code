@@ -1,30 +1,14 @@
 ﻿using System.Text;
 using FluentAssertions;
-using Markdown.Filter;
-using Markdown.Filter.MarkdownFilters;
-using Markdown.Lexer;
 using Markdown.Renderer;
 using Markdown.TokenConverter;
-using Markdown.Tokens.Types;
 
 namespace MarkdownTests.Renderer;
 
 [TestFixture]
 public class MarkdownRendererTests
 {
-    private MarkdownRenderer renderer = null!;
-
-    [OneTimeSetUp]
-    public void OneTimeSetUp()
-    {
-        var lexer = new MarkdownLexerBuilder(new MarkdownFilter())
-            .WithTokenType(new EmphasisToken())
-            .WithTokenType(new StrongToken())
-            .WithTokenType(new HeaderToken())
-            .Build();
-        
-        renderer = new MarkdownRenderer(lexer, new MarkdownTokenConverter());
-    }
+    private readonly MarkdownRenderer renderer = new(TestDataFactory.Lexer, new MarkdownTokenConverter());
 
     [Test, Timeout(5000)]
     public void Render_HasSufficientPerformance_OnLongInputText()
@@ -32,16 +16,15 @@ public class MarkdownRendererTests
         var text = new StringBuilder();
 
         for (var i = 0; i < 250000; i++)
-            text.Append("_a_ ");
+            text.Append("_a_ __2 _ ");
 
         renderer.Render(text.ToString());
     }
 
-    [TestCase(null)]
-    [TestCase("")]
-    public void Render_ThrowsArgumentException_OnNullOrEmptyParameters(string text)
+    [Test]
+    public void Render_ThrowsArgumentException_WhenTextIsNull()
     {
-        Assert.Throws<ArgumentException>(() => renderer.Render(text));
+        Assert.Throws<ArgumentException>(() => renderer.Render(null!));
     }
 
     [TestCase("__a__ text\n_a_", "<strong>a</strong> text\n<em>a</em>")]

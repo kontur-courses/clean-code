@@ -16,8 +16,8 @@ public class MarkdownRenderer : IMarkdownRenderer
 
     public string Render(string text)
     {
-        if (text is null or "")
-            throw new ArgumentException("Input parameter cannot be null or empty string.");
+        if (text is null)
+            throw new ArgumentException("Input parameter cannot be null.");
 
         var lines = text.Split(new[] {"\r\n", "\n"}, StringSplitOptions.RemoveEmptyEntries);
 

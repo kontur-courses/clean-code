@@ -1,5 +1,4 @@
-﻿using Markdown.Filter;
-using Markdown.Filter.MarkdownFilters;
+﻿using Markdown.Filter.MarkdownFilters;
 using MarkdownTests.Filter.TestCases;
 
 namespace MarkdownTests.Filter;
@@ -7,13 +6,7 @@ namespace MarkdownTests.Filter;
 [TestFixture]
 public class MarkdownFilterTests
 {
-    private MarkdownFilter filter = null!;
-
-    [OneTimeSetUp]
-    public void OneTimeSetUp()
-    {
-        filter = new MarkdownFilter();
-    }
+    private readonly MarkdownFilter filter = new ();
 
     [TestCaseSource(typeof(FilterTestCases), nameof(FilterTestCases.EmptyInputTests))]
     public void FilterTokens_ReturnsEmptyList_IfInputIsEmpty(FilterTestData filterTestData)

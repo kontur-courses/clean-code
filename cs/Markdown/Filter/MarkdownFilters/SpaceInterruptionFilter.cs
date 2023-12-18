@@ -10,15 +10,15 @@ public class SpaceInterruptionFilter : TokenFilterChain
     {
         var types = FilteringUtils.CreatePairedTypesDictionary(tokens);
 
-        foreach (var type in types)
+        foreach (var (_, value) in types)
         {
-            for (var i = 0; i < type.Value.Count; i++)
+            for (var i = 0; i < value.Count; i++)
             {
-                if (!type.Value[i].IsClosingTag && TokenUtils.IsFollowedBySymbol(type.Value[i], line, char.IsWhiteSpace))
-                    FilteringUtils.FindPairAndMarkBothForDeletion(i, type.Value);
+                if (!value[i].IsClosingTag && TokenUtils.IsFollowedBySymbol(value[i], line, char.IsWhiteSpace))
+                    FilteringUtils.FindPairAndMarkBothForDeletion(i, value);
 
-                if (type.Value[i].IsClosingTag && TokenUtils.IsPrecededBySymbol(type.Value[i], line, char.IsWhiteSpace))
-                    FilteringUtils.FindPairAndMarkBothForDeletion(i, type.Value);
+                if (value[i].IsClosingTag && TokenUtils.IsPrecededBySymbol(value[i], line, char.IsWhiteSpace))
+                    FilteringUtils.FindPairAndMarkBothForDeletion(i, value);
             }
         }
 
