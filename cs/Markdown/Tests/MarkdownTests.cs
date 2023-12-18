@@ -1,5 +1,5 @@
 ﻿using FluentAssertions;
-using Markdown.Parsers;
+using Markdown.Parsers.Markdown;
 using Markdown.Tags;
 using Markdown.Tags.TagsContainers;
 using NUnit.Framework;
@@ -43,9 +43,11 @@ namespace Tests
 
         private static readonly IEnumerable<TestCaseData> RenderTagsInDifferentPartsOfWords = new[]
         {
-            new TestCaseData(@"тэ_ги в раз_ных словах").Returns(@"тэ_ги в раз_ных словах")
+            new TestCaseData(@"тэ_ги в раз_ных словах")
+            .Returns(@"тэ_ги в раз_ных словах")
             .SetName("WithNotMappedTagsInDifferentWords"),
-            new TestCaseData(@"тэги в се_ре_дине одного слова").Returns(@"тэги в се\<em>ре\</em>дине одного слова")
+            new TestCaseData(@"тэги в се_ре_дине одного слова")
+            .Returns(@"тэги в се\<em>ре\</em>дине одного слова")
             .SetName("WithMappedTagsInsideOneWord"),
             new TestCaseData(@"тэги в начале и _сере_дине одного слова")
             .Returns(@"тэги в начале и \<em>сере\</em>дине одного слова")
