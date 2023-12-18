@@ -3,7 +3,6 @@ using Markdown.Tags;
 using Markdown.Tags.TagsContainers;
 using Markdown.Tokens;
 using System.Collections.Immutable;
-using System.Diagnostics;
 
 namespace Markdown.Parsers.Markdown.Rules
 {
