@@ -4,6 +4,6 @@ namespace Markdown.Generators
 {
     public interface IMarkingGenerator
     {
-        string Generate(IEnumerable<IToken> tokens);
+        string Generate(IEnumerable<IToken> tokens, string text);
     }
 }

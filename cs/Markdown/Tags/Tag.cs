@@ -2,18 +2,23 @@
 {
     public class Tag
     {
-        public Tag(string openValue, string closeValue, string htmlValue)
+        public Tag(string value, string htmlValue, bool isOpen = true)
         {
-            OpenValue = openValue;
-            CloseValue = closeValue;
+            Value = value;
             HtmlValue = htmlValue;
-            TagType = GetTagTypeByOpenValue(openValue);
+            TagType = GetTagTypeByOpenValue(value);
+            IsOpen = isOpen;
         }
-
-        public string OpenValue { get; }
-        public string CloseValue { get; }
+        
+        public bool IsOpen { get; set; }
+        public string Value { get; }
         public string HtmlValue { get; }
         public TagType TagType { get; }
+
+        public string CreateHtmlTag(bool isOpen)
+        {
+            return isOpen ? $"<{HtmlValue}>" : $"</{HtmlValue}>";
+        }
 
         private TagType GetTagTypeByOpenValue(string openValue)
         {
@@ -22,7 +27,7 @@
                 "_" => TagType.Italic,
                 "__" => TagType.Strong,
                 "# " => TagType.Header,
-                "" => TagType.None,
+                "\n" => TagType.Header,
                 _ => throw new ArgumentException($"Can't find tag by this open value: {openValue}"),
             };
         }

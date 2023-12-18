@@ -17,7 +17,8 @@ namespace Markdown
         public string Convert(string text)
         {
             var tokens = markdownParser.ParseText(text);
-            return htmlGenerator.Generate(tokens);
+            var htmlResult = htmlGenerator.Generate(tokens, text);
+            return htmlResult;
         }
     }
 }

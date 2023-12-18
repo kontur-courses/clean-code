@@ -4,9 +4,8 @@ namespace Markdown.Tokens
 {
     public interface IToken
     {
-        public Tag Tag { get; }
-        public string Content { get; }
-        public int Start { get; }
-        public int Length { get; }
+        public string Content { get; set; }
+        public TokenType Type { get; set; }
+        public int StartPosition { get; set; }
     }
 }

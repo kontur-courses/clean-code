@@ -1,20 +1,16 @@
-﻿using Markdown.Tags;
-
-namespace Markdown.Tokens
+﻿namespace Markdown.Tokens
 {
     public class Token : IToken
     {
-        public Token(string content, int start, int length, Tag tag)
-        { 
+        public Token(string content, TokenType tokenType, int startPosition)
+        {
             Content = content;
-            Start = start;
-            Length = length;
-            Tag = tag;
+            Type = tokenType;
+            StartPosition = startPosition;
         }
 
-        public Tag Tag { get; }
-        public string Content { get; }
-        public int Start { get; }
-        public int Length { get; }
+        public string Content { get; set; }
+        public TokenType Type { get; set; }
+        public int StartPosition { get; set; }
     }
 }

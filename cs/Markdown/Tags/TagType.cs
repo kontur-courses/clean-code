@@ -2,7 +2,6 @@
 {
     public enum TagType 
     {
-        None, 
         Strong, 
         Italic,
         Header
