@@ -4,49 +4,68 @@ namespace Markdown.Tags
 {
     public class HeadingHandler : IHtmlTagCreator
     {
-        public (StringBuilder, int) GetHtmlTag(string markdownText, int openTagIndex)
+        private FindTagSettings settings = new FindTagSettings(true, true, true);
+        public Tag GetHtmlTag(string markdownText, int openTagIndex)
         {
-            var tag = CreateHtmlTag(markdownText, openTagIndex);
-            var htmlTag = tag.Item1;
+            var correct = IsCorrectOpenTag(markdownText, openTagIndex);
 
-            var nestedTag = ProcessAnotherTag(htmlTag.ToString(), openTagIndex + 3);
-            htmlTag = nestedTag.Item1;
+            if (!correct)
+                return new Tag(new StringBuilder(markdownText), openTagIndex);
 
-            return (htmlTag, nestedTag.Item2);
+            var closingIndex = FindClosingTagIndex(markdownText, openTagIndex + 1);
+
+            var tag = CreateHtmlTag(markdownText, openTagIndex, closingIndex.index);
+            var htmlTag = tag.Text;
+
+            return new Tag(htmlTag, openTagIndex);
         }
 
-        private (StringBuilder, int) CreateHtmlTag(string markdownText, int openTagIndex)
+        private bool IsCorrectOpenTag(string markdownText, int openTagIndex)
+        {
+            if (openTagIndex == 0 || markdownText[openTagIndex - 1] == '\n')
+                return true;
+
+            return false;
+        }
+
+        private (string tag, int index) FindClosingTagIndex(string markdownText, int openTagIndex)
+        {
+            for (var i = openTagIndex; i < markdownText.Length; i++)
+            {
+                if (i + 1 >= markdownText.Length)
+                    continue;
+
+                if (markdownText[i] == '\n')
+                    return (markdownText, i);
+
+                var newTag = TagFinder.FindTag(markdownText, i, settings);
+
+                if (newTag == null)
+                    continue;
+
+                if (newTag.Index == i)
+                    continue;
+
+                markdownText = newTag.Text.ToString();
+                i = newTag.Index;
+                //markdownText = htmlTag.ToString();
+
+            }
+
+            return (markdownText, -1);
+        }
+
+        private Tag CreateHtmlTag(string markdownText, int openTagIndex, int closingIndex)
         {
             var htmlTag = new StringBuilder(markdownText);
 
             htmlTag.Remove(openTagIndex, 1);
             htmlTag.Insert(openTagIndex, "<h1>");
-            htmlTag.Insert(htmlTag.Length, "</h1>");
+            htmlTag.Insert(closingIndex == -1 ? htmlTag.Length : closingIndex, "</h1>");
 
-            return (htmlTag, htmlTag.Length);
+            return new Tag(htmlTag, htmlTag.Length);
         }
 
-        private (StringBuilder, int) ProcessAnotherTag(string markdownText, int index)
-        {
-            var htmlTag = new StringBuilder(markdownText);
-            var closedIndex = 0;
-
-            for (var i = index; i < markdownText.Length; i++)
-            {
-                if (i + 1 >= markdownText.Length)
-                    continue;
-
-                if (markdownText[i] == '_' && markdownText[i + 1] == '_')
-                {
-                    var bold = new Bold();
-                    var tag = bold.GetHtmlTag(markdownText, i);
-                    htmlTag = tag.Item1;
-                    i = tag.Item2;
-                    closedIndex = i;
-                }
-            }
-
-            return (htmlTag, closedIndex);
-        }
+        public bool IsHeadingTagSymbol(string markdownText, int i) => markdownText[i] == '#';
     }
 }

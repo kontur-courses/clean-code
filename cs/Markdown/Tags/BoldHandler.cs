@@ -2,22 +2,28 @@
 
 namespace Markdown.Tags
 {
-    public class Bold : IHtmlTagCreator
+    public class BoldHandler : IHtmlTagCreator
     {
-        public (StringBuilder, int) GetHtmlTag(string markdownText, int openTagIndex)
+        private Md md = new();
+        private FindTagSettings settings = new FindTagSettings(false, false, true);
+
+        public Tag GetHtmlTag(string markdownText, int openTagIndex)
         {
-            var newTag = FindClosingTagIndex(markdownText, openTagIndex + 1);
+            var newTag = FindClosingTagIndex(markdownText, openTagIndex + 2);
             var htmlTag = newTag.tag;
             var closingTagIndex = newTag.index;
 
             if (closingTagIndex == -1)
-                return (htmlTag, htmlTag.Length);
+                return new Tag(htmlTag, htmlTag.Length);
 
             htmlTag = CreateHtmlTag(htmlTag.ToString(), openTagIndex, closingTagIndex);
 
-            return (htmlTag, closingTagIndex + 1);
+            return new Tag(htmlTag, closingTagIndex + 14);
         }
 
+        internal bool IsBoldTagSymbol(string markdownText, int i) => 
+            i + 1 < markdownText.Length && markdownText[i] == '_' && markdownText[i + 1] == '_';
+        
         private StringBuilder CreateHtmlTag(string markdownText, int openTagIndex, int closingTagIndex)
         {
             var htmlTag = new StringBuilder(markdownText);
@@ -33,29 +39,29 @@ namespace Markdown.Tags
         private (StringBuilder tag, int index) FindClosingTagIndex(string markdownText, int openTagIndex)
         {
             var htmlTag = new StringBuilder(markdownText);
-            var nestedTadIndex = 0;
+            //var nestedTadIndex = 0;
 
             for (var i = openTagIndex; i < markdownText.Length; i++)
             {
                 if (i + 1 >= markdownText.Length)
                     continue;
 
-                if (i + 1 < markdownText.Length &&
-                    markdownText[i] == '_' && markdownText[i + 1] == '_')
+                if (IsBoldTagSymbol(markdownText, i))
                     return (htmlTag, i);
 
-                if (markdownText[i] == '_' && markdownText[i - 1] != '_' && markdownText[i + 1] != '_')
-                {
-                    if (nestedTadIndex == i)
-                        continue;
+                var newTag = TagFinder.FindTag(markdownText, i, settings);
+                //   Tag tag1 = new Tag();
 
-                    var tag = ProcessAnotherTag(markdownText, i);
-                    htmlTag = tag.Item1;
-                    nestedTadIndex = tag.Item2;
+                if (newTag == null)
+                    continue;
 
-                    markdownText = htmlTag.ToString();
-                    i = nestedTadIndex;
-                }
+                if (newTag.Index == i)
+                    continue;
+
+                htmlTag = newTag.Text;
+                i = newTag.Index;
+                markdownText = htmlTag.ToString();
+
             }
 
             return (htmlTag, -1);
@@ -63,10 +69,10 @@ namespace Markdown.Tags
 
         private (StringBuilder, int) ProcessAnotherTag(string markdownText, int i)
         {
-            var italic = new Italic();
+            var italic = new ItalicHandler();
             var tag = italic.GetHtmlTag(markdownText, i);
-            var htmlText = tag.Item1;
-            i = tag.Item2;
+            var htmlText = tag.Text;
+            i = tag.Index;
 
             return (htmlText, i);
         }
