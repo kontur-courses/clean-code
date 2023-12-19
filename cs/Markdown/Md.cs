@@ -1,24 +1,28 @@
-﻿using Markdown.Tags;
+﻿using System.Text;
+using Markdown.TagHandlers;
 
 namespace Markdown
 {
     public class Md
     {
-        private FindTagSettings settings = new(true, true, true);
+        private readonly FindTagSettings settings = new(true, true, true);
+
         public string Render(string markdownText)
         {
-            for (var i = 0; i < markdownText.Length; i++)
-            {
-                var tag1 = TagFinder.FindTag(markdownText, i, settings);
+            var htmlText = new StringBuilder(markdownText);
 
-                if (tag1 == null)
+            for (var i = 0; i < htmlText!.Length; i++)
+            {
+                var tag = TagFinder.FindTag(htmlText, i, settings);
+
+                if (tag == null)
                     continue;
 
-                markdownText = tag1.Text.ToString();
-                i = tag1.Index;
+                htmlText = tag.Text;
+                i = tag.Index;
             }
 
-            return markdownText;
+            return htmlText.ToString();
         }
     }
 }
