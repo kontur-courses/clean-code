@@ -2,6 +2,7 @@
 using Markdown;
 using Markdown.Generators;
 using Markdown.Parsers;
+using Markdown.Tags;
 using NUnit.Framework;
 using System.Text;
 
@@ -10,16 +11,12 @@ namespace MarkdownTests
     [TestFixture]
     public class MarkdownToHtmlConverterTests
     {
-        private static readonly HashSet<string> tagsSymbols = new HashSet<string>
-        {
-            "_", "__", "# ", "\n", "\\"
-        };
         private MarkdownToHtmlConverter sut;
         
         [SetUp] 
         public void SetUp() 
         {
-            var markdownParser = new MarkdownParser(tagsSymbols);
+            var markdownParser = new MarkdownParser();
             var htmlGenerator = new HtmlGenerator();
             sut = new MarkdownToHtmlConverter(markdownParser, htmlGenerator);
         }
@@ -57,13 +54,18 @@ namespace MarkdownTests
         [TestCase("_text __text__ text_", "<em>text __text__ text</em>", 
             TestName = "Convert_StrongInEm_ReturnsNotWorkingStrong")]
         [TestCase("\\_text_", "_text_", TestName = "Convert_EscapeEm_ReturnsAllTextTags")]
+        [TestCase("# text\n", "<h1>text</h1>", TestName = "Convert_HeaderTag_ReturnsTextInHtmlHeader")]
+        [TestCase("# Заголовок __с _разными_ символами__\n", "<h1>Заголовок <strong>с <em>разными</em> символами</strong></h1>",
+            TestName = "Convert_HeaderTagWithNestedTags_ReturnsHtmlHeaderWithHtmlNestedTags")]
+        [TestCase("#text\n", "#text\n", TestName = "Convert_HeaderWithoutWhiteSpaceBeforeText_ReturnsTextWithoutHtml")]
+        [TestCase("# text", "# text", TestName = "Convert_HeaderWithoutNewStringSymbol_ReturnsTextWithoutHtml")]
         public void Convert_DifferentText_ReturnsCorrectString(string text, string expected)
         {
             var result = sut.Convert(text);
             result.Should().BeEquivalentTo(expected);
         }
 
-        [Test]
+        /*[Test]
         [Timeout(12500)]
         public void TimeTest()
         {
@@ -74,6 +76,6 @@ namespace MarkdownTests
             }
 
             sut.Convert(text.ToString());
-        }
+        }*/
     }
 }

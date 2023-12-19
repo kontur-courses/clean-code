@@ -140,6 +140,37 @@ namespace MarkdownTests
                 new Token(" t", TokenType.Text, 10),
                 new Token("__", TokenType.Tag, 12),
             }).SetName("ParseText_ItalicInStrong_ReturnsStrongAndItalicTagTokens"),
+
+            new TestCaseData("[text](text)", new Token[]
+            {
+                new Token("[", TokenType.Tag, 0),
+                new Token("text", TokenType.Text, 1),
+                new Token("]", TokenType.Tag, 5),
+                new Token("(", TokenType.Tag, 6),
+                new Token("text", TokenType.Text, 7),
+                new Token(")", TokenType.Tag, 11),
+            }).SetName("ParseText_LinkTags_ReturnsCorrectTokenTags"),
+
+            new TestCaseData("[text]text)", new Token[]
+            {
+                new Token("[", TokenType.Text, 0),
+                new Token("text", TokenType.Text, 1),
+                new Token("]", TokenType.Text, 5),
+                new Token("text", TokenType.Text, 6),
+                new Token(")", TokenType.Text, 10),
+            }).SetName("ParseText_LinkTagsWithoutLinkOpenTag_ReturnsAllTextTokens"),
+
+            new TestCaseData("[text](_text_)", new Token[]
+            {
+                new Token("[", TokenType.Tag, 0),
+                new Token("text", TokenType.Text, 1),
+                new Token("]", TokenType.Tag, 5),
+                new Token("(", TokenType.Tag, 6),
+                new Token("_", TokenType.Text, 7),
+                new Token("text", TokenType.Text, 8),
+                new Token("_", TokenType.Text, 12),
+                new Token(")", TokenType.Tag, 13),
+            }).SetName("ParseText_ItalicInLink_ReturnsItalicTokensInText")
         };
     }
 }

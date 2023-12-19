@@ -17,7 +17,7 @@ namespace Markdown.Generators
                 }
                 else
                 {
-                    var tag = TagInfo.GetTagByMarkdownValue(token.Content);
+                    TagInfo.SupportedTags.TryGetValue(token.Content, out var tag);
                     result.Append(tag?.CreateHtmlTag(TagInfo.IsOpenTag(token, text)));
                 }
             }

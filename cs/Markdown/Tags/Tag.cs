@@ -28,6 +28,10 @@
                 "__" => TagType.Strong,
                 "# " => TagType.Header,
                 "\n" => TagType.Header,
+                "[" => TagType.LinkDescription,
+                "]" => TagType.LinkDescription,
+                "(" => TagType.Link,
+                ")" => TagType.Link,
                 _ => throw new ArgumentException($"Can't find tag by this open value: {openValue}"),
             };
         }

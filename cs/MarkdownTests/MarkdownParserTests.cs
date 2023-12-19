@@ -9,15 +9,11 @@ namespace MarkdownTests
     public class MarkdownParserTests
     {
         private MarkdownParser sut;
-        private static readonly HashSet<string> tagsSymbols = new HashSet<string>
-        {
-            "_", "__", "# ", "\n", "\\"
-        };
 
         [SetUp]
         public void SetUp()
         {
-            sut = new MarkdownParser(tagsSymbols);
+            sut = new MarkdownParser();
         }
 
         [TestCase("", TestName = "ParseText_EmptyString_ThrowsArgumentException")]

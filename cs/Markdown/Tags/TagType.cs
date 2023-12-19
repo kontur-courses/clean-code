@@ -4,6 +4,8 @@
     {
         Strong, 
         Italic,
-        Header
+        Header,
+        Link,
+        LinkDescription
     }
 }

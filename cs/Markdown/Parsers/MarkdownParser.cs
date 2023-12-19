@@ -9,9 +9,9 @@ namespace Markdown.Parsers
         private int currentPosition;
         private readonly HashSet<string> tagsSymbols;
 
-        public MarkdownParser(HashSet<string> tagsSymbols)
+        public MarkdownParser()
         {
-            this.tagsSymbols = tagsSymbols;
+            tagsSymbols = TagInfo.tagsSymbols;
         }
 
         public IEnumerable<IToken> ParseText(string text)
@@ -25,8 +25,10 @@ namespace Markdown.Parsers
             tokens = ChangeTypeForIncorrectTags(tokens, text);
             tokens = ChangeTypeForNonPairTokens(tokens, text);
             tokens = CombineStrongTags(tokens, text);
-            tokens = ChangeTypeForNonPairTokens(tokens, text);
-            tokens = ChangeTypeForNestedTokens(tokens, TagType.Italic, TagType.Strong);
+            var tagsToChange = new HashSet<TagType> { TagType.Strong };
+            tokens = ChangeTypeForNestedTokens(tokens, TagType.Italic, tagsToChange);
+            tagsToChange = new HashSet<TagType>(TagInfo.SupportedTags.Values.Select(t => t.TagType));
+            tokens = ChangeTypeForNestedTokens(tokens, TagType.Link, tagsToChange);
             return tokens;
         }
 
@@ -152,7 +154,7 @@ namespace Markdown.Parsers
             var openTagType = GetTokenTagType(openToken);
             var closeTagType = GetTokenTagType(closeToken);
             if (openTagType == closeTagType) return;
-            if (openTagType == TagType.Header)
+            if (openTagType == TagType.Header || openTagType == TagType.Link || openTagType == TagType.LinkDescription)
             {
                 incorrectTags.Add(closeToken);
                 openTags.Push(openToken);
@@ -174,8 +176,8 @@ namespace Markdown.Parsers
         private void AddIncorrectTagsIfHaveDigitsBetweenTokens(IToken firstToken, IToken secondToken, 
             string text, List<IToken> tokens)
         {
-            var firstTag = TagInfo.GetTagByMarkdownValue(firstToken.Content);
-            var secondTag = TagInfo.GetTagByMarkdownValue(secondToken.Content);
+            TagInfo.SupportedTags.TryGetValue(firstToken.Content, out var firstTag);
+            TagInfo.SupportedTags.TryGetValue(secondToken.Content, out var secondTag);
             if (IsHaveDigits(firstToken.StartPosition, secondToken.StartPosition, text)
                 && firstTag?.TagType == secondTag?.TagType && firstTag?.TagType == TagType.Italic)
             {
@@ -230,7 +232,8 @@ namespace Markdown.Parsers
             (IToken Token, Tag? Tag) tokenAndTag = (token, null);
             if (token.Type == TokenType.Tag)
             {
-                tokenAndTag.Tag = TagInfo.GetTagByMarkdownValue(token.Content);
+                TagInfo.SupportedTags.TryGetValue(token.Content, out var tag);
+                tokenAndTag.Tag = tag;
             }
             else
             {
@@ -242,12 +245,14 @@ namespace Markdown.Parsers
         private bool IsPreviousTokenCloseAndPrePreviousOpen(IToken? previous, IToken? prePrevious, string text)
         {
             return !TagInfo.IsOpenTag(previous, text) && TagInfo.IsOpenTag(prePrevious, text)
-                    && TagInfo.GetTagByMarkdownValue(previous?.Content)?.TagType 
-                    == TagInfo.GetTagByMarkdownValue(prePrevious?.Content)?.TagType;
+                    && previous != null && prePrevious != null
+                    && TagInfo.SupportedTags.TryGetValue(previous.Content, out var previousTag)
+                    && TagInfo.SupportedTags.TryGetValue(prePrevious.Content, out var prePreviousTag)
+                    && previousTag.TagType == prePreviousTag.TagType;
         }
 
         private IEnumerable<IToken> ChangeTypeForNestedTokens(IEnumerable<IToken> tokens,
-            TagType outer, TagType nested)
+            TagType outer, HashSet<TagType> nested)
         {
             var result = new List<IToken>(tokens);
             var tagTokens = GetAllTagTokens(tokens).ToList();
@@ -290,18 +295,21 @@ namespace Markdown.Parsers
             return result;
         }
 
-        private void ChangeTypesToTextForTagType(IEnumerable<IToken> tokens, TagType? type)
+        private void ChangeTypesToTextForTagType(IEnumerable<IToken> tokens, HashSet<TagType> types)
         {
             foreach (var token in tokens) 
             {
-                if (GetTokenTagType(token) == type)
+                var tokenTagType = GetTokenTagType(token);
+                if (tokenTagType != null && types.Contains((TagType)tokenTagType))
                     token.Type = TokenType.Text;
             }
         }
 
         private TagType? GetTokenTagType(IToken? token)
         {
-            return TagInfo.GetTagByMarkdownValue(token?.Content)?.TagType;
+            if (token == null) return null;
+            TagInfo.SupportedTags.TryGetValue(token.Content, out var tag);
+            return tag?.TagType;
         }
 
         private bool IsCanStopCreateToken(TokenType tokenType, char currentSymbol, string previousSymbols)
