@@ -27,9 +27,9 @@ public class MarkdownLexerBuilder
     private static void ValidateTokenType(ITokenType type)
     {
         if (type is null)
-            throw new ArgumentException("Token type cannot be null");
-        if (type.Value is null or "")
-            throw new ArgumentException("Type value cannot be null or an empty string.");
+            throw new ArgumentException("Token type cannot be null.");
+        if (type.Value is null)
+            throw new ArgumentException("Type value cannot be null.");
         if (type.Representation(true) is null || type.Representation(false) is null)
             throw new ArgumentException("Token type representation cannot be null.");
     }

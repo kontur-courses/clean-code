@@ -34,10 +34,26 @@ public class MarkdownRendererTests
     [TestCase("\n", "")]
     public void Render_ReturnsCorrectResult_OnMultipleLines(string initial, string expected)
     {
+        AssertRenderedStringReturnedCorrectResult(initial, expected);
+    }
+
+    [TestCase("__wasd__ \n#header", "<strong>wasd</strong> \n#header")]
+    [TestCase("__wasd__ # header", "<strong>wasd</strong> # header")]
+    [TestCase("#Заголовок _с разными_ __символами__", "#Заголовок <em>с разными</em> <strong>символами</strong>")]
+    [TestCase("# _wasd_", "<h1><em>wasd</em></h1>")]
+    [TestCase(@"\\_a_ _12_ a __a__", @"\<em>a</em> <em>12</em> a <strong>a</strong>")]
+    [TestCase(@"_ a_ _a_ _a _ \d", @"_ a_ <em>a</em> _a _ \d")]
+    public void Render_ReturnsCorrectResult_OnComplexInputText(string initial, string expected)
+    {
+        AssertRenderedStringReturnedCorrectResult(initial, expected);
+    }
+
+    private void AssertRenderedStringReturnedCorrectResult(string initial, string expected)
+    {
         var result = renderer.Render(initial);
 
         result
             .Should()
             .Be(expected);
     }
-}
+}   

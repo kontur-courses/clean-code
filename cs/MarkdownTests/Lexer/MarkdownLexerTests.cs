@@ -59,21 +59,21 @@ public class MarkdownLexerTests
     }
 
     [TestCaseSource(typeof(LexerTestCases), nameof(LexerTestCases.NoValidationTests))]
-    public void Tokenize_ReturnsCorrectResult_WhenNoValidationRequired(LexerLogicTestData testData)
+    public List<Token> Tokenize_ReturnsCorrectResult_WhenNoValidationRequired(string line)
     {
-        AssertTokenizeReturnsCorrectResult(testData);
+        return lexer.Tokenize(line).Tokens;
     }
 
     [TestCaseSource(typeof(LexerTestCases), nameof(LexerTestCases.EscapeSymbolsTests))]
-    public void Tokenize_ReturnsCorrectResult_WithEscapeSymbols(LexerLogicTestData testData)
+    public List<Token> Tokenize_ReturnsCorrectResult_WithEscapeSymbols(string line)
     {
-        AssertTokenizeReturnsCorrectResult(testData);
+        return lexer.Tokenize(line).Tokens;
     }
 
     [TestCaseSource(typeof(LexerTestCases), nameof(LexerTestCases.TextTokenTests))]
-    public void Tokenize_ReturnsCorrectTextTokens_WhenValidationIsRequired(LexerLogicTestData testData)
+    public List<Token> Tokenize_ReturnsCorrectTextTokens_WhenValidationIsRequired(string line)
     {
-        AssertTokenizeReturnsCorrectResult(testData);
+        return lexer.Tokenize(line).Tokens;
     }
 
     private static void EnsureExpectedTokenAt(IReadOnlyList<Token> tokens, int index, string value)
@@ -88,11 +88,5 @@ public class MarkdownLexerTests
         collection.Count
             .Should()
             .Be(expectedSize);
-    }
-
-    private void AssertTokenizeReturnsCorrectResult(LexerLogicTestData testData)
-    {
-        var result = lexer.Tokenize(testData.Line);
-        CollectionAssert.AreEqual(testData.Expected, result.Tokens);
     }
 }

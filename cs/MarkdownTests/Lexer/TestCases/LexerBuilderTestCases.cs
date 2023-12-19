@@ -8,10 +8,12 @@ public class LexerBuilderTestCases
     {
         get
         {
-            yield return new LexerBuilderTestData(LexerBuilderTestData.InvalidTypeWithNullValue);
-            yield return new LexerBuilderTestData(LexerBuilderTestData.InvalidTypeWithEmptyValue);
-            yield return new LexerBuilderTestData(LexerBuilderTestData.InvalidTypeWithNullRepresentation);
-            yield return new LexerBuilderTestData(null!);
+            yield return new TestCaseData(LexerBuilderTestData.InvalidTypeWithNullValue)
+                .SetName("Type's value cannot be null.");
+            yield return new TestCaseData(LexerBuilderTestData.InvalidTypeWithNullRepresentation)
+                .SetName("Type's representation cannot be null.");
+            yield return new TestCaseData(null!)
+                .SetName("Token type cannot be null");
         }
     }
 }

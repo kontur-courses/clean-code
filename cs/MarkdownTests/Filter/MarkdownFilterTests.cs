@@ -1,4 +1,5 @@
 ﻿using Markdown.Filter.MarkdownFilters;
+using Markdown.Tokens;
 using MarkdownTests.Filter.TestCases;
 
 namespace MarkdownTests.Filter;
@@ -9,62 +10,56 @@ public class MarkdownFilterTests
     private readonly MarkdownFilter filter = new ();
 
     [TestCaseSource(typeof(FilterTestCases), nameof(FilterTestCases.EmptyInputTests))]
-    public void FilterTokens_ReturnsEmptyList_IfInputIsEmpty(FilterTestData filterTestData)
+    public List<Token> FilterTokens_ReturnsEmptyList_IfInputIsEmpty(string line, List<Token> tokens)
     {
-        AssertFilterTokensReturnsCorrectResult(filterTestData);
+        return filter.FilterTokens(tokens, line);
     }
 
     [TestCaseSource(typeof(FilterTestCases), nameof(FilterTestCases.EmptyLinesTests))]
-    public void FilterTokens_ReturnsCorrectResult_OnEmptyLines(FilterTestData filterTestData)
+    public List<Token> FilterTokens_ReturnsCorrectResult_OnEmptyLines(string line, List<Token> tokens)
     {
-        AssertFilterTokensReturnsCorrectResult(filterTestData);
+        return filter.FilterTokens(tokens, line);
     }
 
     [TestCaseSource(typeof(FilterTestCases), nameof(FilterTestCases.PartOfWordTests))]
-    public void FilterTokens_ReturnsCorrectResult_OnTokensSurroundingPartsOfAWord(FilterTestData filterTestData)
+    public List<Token> FilterTokens_ReturnsCorrectResult_OnTokensSurroundingPartsOfAWord(string line, List<Token> tokens)
     {
-        AssertFilterTokensReturnsCorrectResult(filterTestData);
+        return filter.FilterTokens(tokens, line);
     }
 
     [TestCaseSource(typeof(FilterTestCases), nameof(FilterTestCases.SpaceInterruptionTests))]
-    public void FilterTokens_ReturnsCorrectResult_OnTokensInterruptedBySpace(FilterTestData filterTestData)
+    public List<Token> FilterTokens_ReturnsCorrectResult_OnTokensInterruptedBySpace(string line, List<Token> tokens)
     {
-        AssertFilterTokensReturnsCorrectResult(filterTestData);
+        return filter.FilterTokens(tokens, line);
     }
 
     [TestCaseSource(typeof(FilterTestCases), nameof(FilterTestCases.BreakingNumbersTests))]
-    public void FilterTokens_ReturnsCorrectResult_OnTokenBreakingANumber(FilterTestData filterTestData)
+    public List<Token> FilterTokens_ReturnsCorrectResult_OnTokenBreakingANumber(string line, List<Token> tokens)
     {
-        AssertFilterTokensReturnsCorrectResult(filterTestData);
+        return filter.FilterTokens(tokens, line);
     }
 
     [TestCaseSource(typeof(FilterTestCases), nameof(FilterTestCases.DifferentWordsTests))]
-    public void FilterTokens_ReturnsCorrectResult_OnTokensInDifferentWords(FilterTestData filterTestData)
+    public List<Token> FilterTokens_ReturnsCorrectResult_OnTokensInDifferentWords(string line, List<Token> tokens)
     {
-        AssertFilterTokensReturnsCorrectResult(filterTestData);
+        return filter.FilterTokens(tokens, line);
     }
 
     [TestCaseSource(typeof(FilterTestCases), nameof(FilterTestCases.NestedTagsTests))]
-    public void FilterTokens_ReturnsCorrectResult_WithNestedTags(FilterTestData filterTestData)
+    public List<Token> FilterTokens_ReturnsCorrectResult_WithNestedTags(string line, List<Token> tokens)
     {
-        AssertFilterTokensReturnsCorrectResult(filterTestData);
+        return filter.FilterTokens(tokens, line);
     }
 
     [TestCaseSource(typeof(FilterTestCases), nameof(FilterTestCases.IntersectingTagsTests))]
-    public void FilterTokens_RemovesIncorrectTags_WhenTagsIntersect(FilterTestData filterTestData)
+    public List<Token> FilterTokens_RemovesIncorrectTags_WhenTagsIntersect(string line, List<Token> tokens)
     {
-        AssertFilterTokensReturnsCorrectResult(filterTestData);
+        return filter.FilterTokens(tokens, line);
     }
 
     [TestCaseSource(typeof(FilterTestCases), nameof(FilterTestCases.UnpairedTagsTests))]
-    public void FilterTokens_RemovesIncorrectTangs_WhenTagsAreUnpaired(FilterTestData filterTestData)
+    public List<Token> FilterTokens_RemovesIncorrectTangs_WhenTagsAreUnpaired(string line, List<Token> tokens)
     {
-        AssertFilterTokensReturnsCorrectResult(filterTestData);
-    }
-
-    private void AssertFilterTokensReturnsCorrectResult(FilterTestData data)
-    {
-        var result = filter.FilterTokens(data.Tokens, data.Line);
-        CollectionAssert.AreEqual(data.Expected, result);
+        return filter.FilterTokens(tokens, line);
     }
 }
