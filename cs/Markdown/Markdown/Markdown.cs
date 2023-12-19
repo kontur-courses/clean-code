@@ -1,6 +1,6 @@
 ﻿using Markdown.Builders;
 using Markdown.Parsers;
-using Markdown.Tags;
+using Markdown.Tags.TextTag;
 using Markdown.TagsMappers;
 
 namespace Markdown;

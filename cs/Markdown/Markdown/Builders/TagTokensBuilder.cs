@@ -1,5 +1,5 @@
 ﻿using System.Text;
-using Markdown.Tags;
+using Markdown.Tags.TextTag;
 using Markdown.TagsMappers;
 using Markdown.Tokens;
 

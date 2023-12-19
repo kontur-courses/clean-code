@@ -1,0 +1,256 @@
+﻿using Markdown.Extensions;
+using Markdown.Tags.TagsContainers;
+using Markdown.Tags.TagsContainers.Rules.MarkdownRules;
+using Markdown.Tags.TextTag;
+using Markdown.Tokens;
+
+namespace Markdown.Parsers.TagsParsers.Markdown;
+
+public class MarkdownParser : ITextParser<Tag>
+{
+    private static readonly int _tagMaxLength = TagsContainer.GetMarkdownTags().Keys.Max(tag => tag.Length);
+    private static readonly Dictionary<string, ITag> _tags = TagsContainer.GetMarkdownTags();
+    private readonly HashSet<string> _escapeCharacters;
+
+    public MarkdownParser(HashSet<string> escapeCharacters)
+    {
+        _escapeCharacters = escapeCharacters;
+    }
+
+    public List<IToken<Tag>> ParseText(string text)
+    {
+        var paragraphs = text.Split("\n");
+        var tokens = new List<IToken<Tag>>();
+        foreach (var paragraph in paragraphs)
+        {
+            var paragraphTokens = ParseParagraph(paragraph);
+            var paragraphSortedTokens = SortTokens(paragraphTokens, paragraph.Length);
+            tokens.AddRange(paragraphSortedTokens);
+        }
+
+        return tokens;
+    }
+
+    private Dictionary<int, TagToken> ParseParagraph(string paragraph)
+    {
+        var previousTags = new Stack<TagToken>();
+        var parsedTokens = new Dictionary<int, TagToken>();
+        var textStartIndex = 0;
+        for (var currentIndexInParagraph = 0; currentIndexInParagraph < paragraph.Length; currentIndexInParagraph++)
+        for (var tagLength = _tagMaxLength; tagLength > 0; tagLength--)
+        {
+            if (tagLength + currentIndexInParagraph > paragraph.Length) continue;
+
+            var currentText = paragraph.Substring(currentIndexInParagraph, tagLength);
+            if (IsTag(currentText) || IsEscapeCharacter(currentText))
+            {
+                var textTokenBeforeTag = GetTextToken(textStartIndex, currentIndexInParagraph, paragraph);
+                AddTextToken(textTokenBeforeTag, parsedTokens);
+                var currentTag = GetTag(currentIndexInParagraph, tagLength, paragraph);
+                AddTag(currentTag, previousTags, parsedTokens);
+                textStartIndex = tagLength + currentIndexInParagraph;
+                currentIndexInParagraph = currentIndexInParagraph + tagLength - 1;
+                break;
+            }
+        }
+
+        AddTextToken(GetTextToken(textStartIndex, paragraph.Length, paragraph), parsedTokens);
+        AddNotPairedTags(previousTags, parsedTokens);
+
+        return parsedTokens;
+    }
+
+    private static bool IsTag(string tag)
+    {
+        return _tags.ContainsKey(tag);
+    }
+
+    private static void AddTextToken(TagToken textToken, Dictionary<int, TagToken> parsedTokens)
+    {
+        if (string.IsNullOrEmpty(textToken.ToString()))
+            return;
+
+        parsedTokens.Add(textToken.StartIndex, textToken);
+    }
+
+    private static TagToken GetTextToken(int textStartIndex, int currentIndexInParagrapgh, string paragraph)
+    {
+        var tokenStartIndexInParagraph = textStartIndex;
+        var tokenEndIndexInParagraph = currentIndexInParagrapgh - textStartIndex;
+        var tokenText = paragraph.Substring(tokenStartIndexInParagraph, tokenEndIndexInParagraph);
+        var token = new TagToken(
+            textStartIndex,
+            currentIndexInParagrapgh - 1,
+            new Tag(tokenText, TagType.Ignored));
+
+        return token;
+    }
+
+    private static TagToken GetTag(int startIndex, int tagLength, string text)
+    {
+        var endIndex = startIndex + tagLength - 1;
+        var tagValue = text.Substring(startIndex, tagLength);
+        var tagType = GetTagType(tagValue, startIndex, endIndex, text);
+        var tag = new Tag(tagValue, tagType);
+        var token = new TagToken(startIndex, endIndex, tag);
+
+        return token;
+    }
+
+    private static TagType GetTagType(string tag, int startIndex, int endIndex, string text)
+    {
+        var tagType = TagType.Undefined;
+        var isPreviousIndexInParagraphRange = startIndex - 1 >= 0;
+        var isNextIndexInParagraphRange = endIndex + 2 <= text.Length;
+        var nextSymbol = isNextIndexInParagraphRange ? text[endIndex + 1] : CharExtension.Emptyhar;
+        var previousSymbol = isPreviousIndexInParagraphRange ? text[startIndex - 1] : CharExtension.Emptyhar;
+        var tagRules = IsTag(tag) ? _tags[tag].MarkdownRules : null;
+
+        if (!IsTag(tag))
+            return tagType;
+        if (tagRules.IsTagIgnoredBySymbol(previousSymbol) || tagRules.IsTagIgnoredBySymbol(nextSymbol))
+            tagType = TagType.Ignored;
+        else if (tagRules.IsTagOpen(previousSymbol, nextSymbol))
+            tagType = TagType.OpenTag;
+        else if (tagRules.IsTagClosing(previousSymbol, nextSymbol))
+            tagType = TagType.ClosingTag;
+
+        return tagType;
+    }
+
+    private static bool IsTagsPared(TagToken firstTag, TagToken secondTag, Dictionary<int, TagToken> parsedTokens)
+    {
+        var isTagsNotIgnored = firstTag.Value.TagType != TagType.Ignored && secondTag.Value.TagType != TagType.Ignored;
+        if (isTagsNotIgnored &&
+            _tags[firstTag.ToString()].MarkdownRules.IsTagsPaired(firstTag, secondTag, parsedTokens))
+        {
+            firstTag.Value.TagType = TagType.OpenTag;
+            secondTag.Value.TagType = TagType.ClosingTag;
+            return true;
+        }
+
+        return false;
+    }
+
+    private bool IsEscapeCharacter(string character)
+    {
+        return _escapeCharacters.Contains(character);
+    }
+
+    private void AddTag(TagToken currentTag, Stack<TagToken> previousTags, Dictionary<int, TagToken> parsedTokens)
+    {
+        if (!previousTags.TryPeek(out var previousTag))
+        {
+            previousTags.Push(currentTag);
+        }
+        else if (IsEscapeCharacter(previousTag.ToString()))
+        {
+            AddEscapeCharacter(currentTag, previousTags, parsedTokens);
+        }
+        else if (currentTag.Value.TagType == TagType.Ignored)
+        {
+            parsedTokens.Add(currentTag.StartIndex, currentTag);
+        }
+        else if (IsTagsPared(previousTag, currentTag, parsedTokens))
+        {
+            UpdateTagsBeforeAdding(previousTag, currentTag);
+            previousTags.Pop();
+            parsedTokens.Add(previousTag.StartIndex, previousTag);
+            parsedTokens.Add(currentTag.StartIndex, currentTag);
+            UpdateNestedTags(currentTag, previousTag, parsedTokens);
+        }
+        else
+        {
+            previousTags.Push(currentTag);
+        }
+    }
+
+    private void AddEscapeCharacter(TagToken currentTag, Stack<TagToken> previousTags,
+        Dictionary<int, TagToken> parsedTokens)
+    {
+        var previousTag = previousTags.Pop();
+        if (previousTag.EndIndex + 1 == currentTag.StartIndex)
+        {
+            currentTag.Value.TagType = TagType.Ignored;
+            parsedTokens.Add(previousTag.StartIndex, currentTag);
+        }
+        else
+        {
+            if (IsEscapeCharacter(currentTag.ToString()))
+                previousTags.Push(currentTag);
+            parsedTokens.Add(previousTag.StartIndex, previousTag);
+        }
+    }
+
+    private static void UpdateTagsBeforeAdding(TagToken firstTag, TagToken secondTag)
+    {
+        if (_tags[firstTag.ToString()].MarkdownRules.IsTagsIgnored(firstTag, secondTag))
+        {
+            firstTag.Value.TagType = TagType.Ignored;
+            secondTag.Value.TagType = TagType.Ignored;
+        }
+    }
+
+    private static void UpdateNestedTags(TagToken currentTag, TagToken previousTag,
+        Dictionary<int, TagToken> parsedTokens)
+    {
+        var nestedTagsToIgnore = _tags[currentTag.ToString()].AllowedNestedTags;
+        var nextTag = parsedTokens[previousTag.EndIndex + 1];
+        while (nextTag != currentTag)
+        {
+            var nextTagValue = nextTag.ToString();
+            if (IsTag(nextTagValue) && !nestedTagsToIgnore.Contains(_tags[nextTagValue].Definition))
+                nextTag.Value.TagType = TagType.Ignored;
+            nextTag = parsedTokens[nextTag.EndIndex + 1];
+        }
+    }
+
+    private static void AddNotPairedTags(Stack<TagToken> tags, Dictionary<int, TagToken> parsedTokens)
+    {
+        while (tags.Count > 0)
+        {
+            var tag = tags.Pop();
+            if (!IsTag(tag.ToString()) || !_tags[tag.ToString()].IsMarkdownTagSingle)
+                tag.Value.TagType = TagType.Ignored;
+
+            parsedTokens.Add(tag.StartIndex, tag);
+        }
+    }
+
+    private static List<TagToken> SortTokens(Dictionary<int, TagToken> parsedTokens, int paragraphLength)
+    {
+        var sortedTokens = new List<TagToken>(parsedTokens.Count);
+        var closingTokens = new Dictionary<int, TagToken>();
+        var startIndex = 0;
+
+        while (true)
+        {
+            if (closingTokens.ContainsKey(startIndex))
+                sortedTokens.Add(closingTokens[startIndex]);
+
+            if (!parsedTokens.ContainsKey(startIndex))
+                break;
+            var token = parsedTokens[startIndex];
+            sortedTokens.Add(token);
+            startIndex = token.EndIndex + 1;
+
+            var closingTag = GetClosingTag(token, paragraphLength);
+            if (closingTag != null)
+                closingTokens.Add(closingTag.StartIndex, closingTag);
+        }
+
+        return sortedTokens;
+    }
+
+    private static TagToken GetClosingTag(TagToken token, int paragraphLength)
+    {
+        var tokenText = token.ToString();
+        if (!IsTag(tokenText))
+            return null;
+
+        var tag = _tags[tokenText];
+        if (!tag.IsMarkdownTagSingle || token.Value.TagType != TagType.OpenTag)
+            return null;
+        return ((IMarkdownSingleTagRules)tag.MarkdownRules).GetClosingTag(tag, paragraphLength);
+    }
+}

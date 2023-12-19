@@ -1,4 +1,4 @@
-﻿namespace Markdown.Tags;
+﻿namespace Markdown.Tags.TextTag;
 
 public interface IConvertableToString
 {
