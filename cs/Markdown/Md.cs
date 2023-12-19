@@ -15,7 +15,7 @@ namespace Markdown
             {
                 var tag = TagFinder.FindTag(htmlText, i, settings);
 
-                if (tag == null)
+                if (tag == null || tag.Text == null)
                     continue;
 
                 htmlText = tag.Text;

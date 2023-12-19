@@ -7,14 +7,27 @@ namespace MarkdownTest
     [TestFixture]
     public class BoldTests
     {
-        [Test]
-        public void WhenPassBoldSymbol_ShouldConvertToStrongHtml()
+        private Md sut;
+
+        [SetUp]
+        public void Init()
         {
-            Md md = new Md();
+            sut = new Md();
+        }
 
-            var actual = md.Render("__Test__");
+        private static TestCaseData[] boldTestCases =
+        {
+            new TestCaseData("__Test__", "<strong>Test</strong>").SetName("PassItalicSymbol"),
+            new TestCaseData("__два _один_ может__", "<strong>два <em>один</em> может</strong>").SetName("BoldInsideItalicsTag"),
+            new TestCaseData("\\__Вот это\\__", "__Вот это__").SetName("EscapedBoldSymbol"),
+        };
 
-            actual.Should().Be("<strong>Test</strong>");
+        [TestCaseSource(nameof(boldTestCases))]
+        public void WhenPassBoldSymbol_ShouldConvertToStrongHtml(string input, string expected)
+        {
+            var actual = sut.Render(input);
+
+            actual.Should().Be(expected);
         }
     }
 }

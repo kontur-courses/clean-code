@@ -20,6 +20,7 @@ namespace MarkdownTest
             new TestCaseData("# Test", "<h1> Test</h1>").SetName("PassHeadingSymbol"),
             new TestCaseData("# __Test__", "<h1> <strong>Test</strong></h1>").SetName("PassHeadingSymbolWithBoldInside"),
             new TestCaseData("# __Te_s_t__", "<h1> <strong>Te<em>s</em>t</strong></h1>").SetName("PassHeadingSymbolWithBoldAndItalicInside"),
+            new TestCaseData("\\#Вот это", "#Вот это").SetName("EscapedHeadingSymbol"),
         };
 
         [Test]

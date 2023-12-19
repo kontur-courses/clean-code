@@ -24,7 +24,9 @@ namespace MarkdownTest
             new TestCaseData("#abcabc \n#abcabc", "<h1>abcabc</h1> \n<h1>abcabc</h1>").SetName("TwoHeadingsWithNewLineSymbol"),
             new TestCaseData("цифрами_12_3", "цифрами_12_3").SetName("digitsInsideWord"),
             new TestCaseData("__abc__ #abc", "<strong>abc</strong> #abc").SetName("HeadingInPartOfWord"),
-            new TestCaseData("__abc__ \n#abc","<strong>abc</strong> \n<h1>abc</h1>").SetName("HeadingWithNewLineSymbol")
+            new TestCaseData("__abc__ \n#abc","<strong>abc</strong> \n<h1>abc</h1>").SetName("HeadingWithNewLineSymbol"),
+            new TestCaseData("__text","__text").SetName("ClosingTagIsMissing"),
+            new TestCaseData("text_","text_").SetName("OpenTagIsMissing")
         };
 
         [TestCaseSource(nameof(mdTestCases))]
