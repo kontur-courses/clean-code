@@ -16,5 +16,6 @@ namespace Markdown
 
         public StringBuilder? Text;
         public int Index;
+        public List<Tag> NestedTags = new();
     }
 }

@@ -30,34 +30,38 @@ namespace Markdown.TagHandlers
 
         private Tag FindClosingTagIndex(StringBuilder markdownText, int openTagIndex)
         {
+            var resultTag = new Tag(markdownText, -1);
+
             for (var i = openTagIndex; i < markdownText.Length; i++)
             {
                 if (i + 1 >= markdownText.Length)
                     continue;
 
                 if (markdownText[i] == '\n')
-                    return new Tag(markdownText, i - 1);
-
+                {
+                    resultTag.Index = i - 1;
+                    return resultTag;
+                }
+            
                 var newTag = TagFinder.FindTag(markdownText, i, settings);
 
                 if (newTag == null || newTag!.Text == null)
                     continue;
-
+              
+                resultTag.NestedTags.Add(newTag);
+                
                 if (newTag.Index == i)
                     continue;
 
                 markdownText = newTag.Text;
                 i = newTag.Index;
-                //markdownText = htmlTag.ToString();
-
             }
 
-            return new(markdownText, -1);
+            return resultTag;
         }
 
         private Tag CreateHtmlTag(StringBuilder markdownText, int openTagIndex, int closingIndex)
         {
-            //  var htmlTag = new StringBuilder(markdownText);
             markdownText.Insert(closingIndex == -1 ? markdownText.Length : closingIndex, "</h1>");
             markdownText.Remove(openTagIndex, 1);
             markdownText.Insert(openTagIndex, "<h1>");

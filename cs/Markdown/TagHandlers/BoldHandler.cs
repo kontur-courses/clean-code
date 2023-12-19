@@ -10,8 +10,8 @@ namespace Markdown.TagHandlers
         public Tag GetHtmlTag(StringBuilder markdownText, int openTagIndex)
         {
             var newTag = FindClosingTagIndex(markdownText, openTagIndex + 2);
-            var htmlTag = newTag.tag;
-            var closingTagIndex = newTag.index;
+            var htmlTag = newTag.Text;
+            var closingTagIndex = newTag.Index;
 
             if (closingTagIndex == -1)
                 return new Tag(htmlTag, htmlTag!.Length);
@@ -34,29 +34,37 @@ namespace Markdown.TagHandlers
             return markdownText;
         }
 
-        private (StringBuilder? tag, int index) FindClosingTagIndex(StringBuilder markdownText, int openTagIndex)
+        private Tag FindClosingTagIndex(StringBuilder markdownText, int openTagIndex)
         {
+            var resultTag = new Tag(markdownText, -1);
+
             for (var i = openTagIndex; i < markdownText.Length; i++)
             {
                 if (i + 1 >= markdownText.Length)
                     continue;
 
                 if (IsBoldTagSymbol(markdownText, i))
-                    return (markdownText, i);
+                {
+                    resultTag.Index = i;
+                    return resultTag;
+                }
 
                 var newTag = TagFinder.FindTag(markdownText, i, settings);
 
                 if (newTag == null || newTag.Text == null)
                     continue;
 
+                resultTag.NestedTags.Add(newTag);
+
                 if (newTag.Index == i)
                     continue;
 
                 markdownText = newTag.Text;
                 i = newTag.Index;
+                resultTag.Index = i;
             }
 
-            return (markdownText, -1);
+            return resultTag;
         }
 
         private (StringBuilder, int) ProcessAnotherTag(StringBuilder markdownText, int i)
