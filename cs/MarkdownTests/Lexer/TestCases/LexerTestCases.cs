@@ -35,6 +35,37 @@ public class LexerTestCases
                         new(new TextToken("asd# fgf"), false, 0, 8)
                     })
                 .SetName("Doesnt render header tag if it's not in the beginning of the line.");
+
+            yield return new TestCaseData(
+                    "asd* fgf")
+                .Returns(
+                    new List<Token>
+                    {
+                        new(new TextToken("asd* fgf"), false, 0, 8)
+                    })
+                .SetName("Doesnt render bulleted tag if it's not in the beginning of the line.");
+
+            yield return new TestCaseData(
+                    "* _a_")
+                .Returns(
+                    new List<Token>
+                    {
+                        new(new BulletedToken(), false, 0, 2),
+                        new(new EmphasisToken(), false, 2, 1),
+                        new(new TextToken("a"), false, 3, 1),
+                        new(new EmphasisToken(), true, 4, 1)
+                    })
+                .SetName("Renders bulleted tag with other tags.");
+
+            yield return new TestCaseData(
+                    "* # a")
+                .Returns(
+                    new List<Token>
+                    {
+                        new(new BulletedToken(), false, 0, 2),
+                        new(new TextToken("# a"), false, 2, 3)
+                    })
+                .SetName("Does not render both bulleted and header tokens when placed back to back.");
         }
     }
 

@@ -10,5 +10,6 @@ public static class TestDataFactory
         .WithTokenType(new EmphasisToken())
         .WithTokenType(new StrongToken())
         .WithTokenType(new HeaderToken())
+        .WithTokenType(new BulletedToken())
         .Build();
 }
