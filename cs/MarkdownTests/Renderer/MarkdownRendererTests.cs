@@ -48,6 +48,14 @@ public class MarkdownRendererTests
         AssertRenderedStringReturnedCorrectResult(initial, expected);
     }
 
+    [TestCase("* text _a_\n* text", "<ul><li>text <em>a</em></li>\n<li>text</li></ul>")]
+    [TestCase("* text", "<ul><li>text</li></ul>")]
+    [TestCase("* text\n_a_\n* text", "<ul><li>text</li></ul>\n<em>a</em>\n<ul><li>text</li></ul>")]
+    public void Render_ReturnsCorrectResult_WithCrossLineTags(string initial, string expected)
+    {
+        AssertRenderedStringReturnedCorrectResult(initial, expected);
+    }
+    
     private void AssertRenderedStringReturnedCorrectResult(string initial, string expected)
     {
         var result = renderer.Render(initial);
