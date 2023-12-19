@@ -53,7 +53,6 @@ namespace Markdown.TagHandlers
                 if (newTag.Index == i)
                     continue;
 
-                markdownText = newTag.Text;
                 i = newTag.Index;
             }
 
