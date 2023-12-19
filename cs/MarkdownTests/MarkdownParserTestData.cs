@@ -170,7 +170,45 @@ namespace MarkdownTests
                 new Token("text", TokenType.Text, 8),
                 new Token("_", TokenType.Text, 12),
                 new Token(")", TokenType.Tag, 13),
-            }).SetName("ParseText_ItalicInLink_ReturnsItalicTokensInText")
+            }).SetName("ParseText_ItalicInLink_ReturnsItalicTokensInText"),
+
+            new TestCaseData("[_text_](text)", new Token[]
+            {
+                new Token("[", TokenType.Tag, 0),
+                new Token("_", TokenType.Tag, 1),
+                new Token("text", TokenType.Text, 2),
+                new Token("_", TokenType.Tag, 6),
+                new Token("]", TokenType.Tag, 7),
+                new Token("(", TokenType.Tag, 8),
+                new Token("text", TokenType.Text, 9),
+                new Token(")", TokenType.Tag, 13),
+            }).SetName("ParseText_ItalicInLinkDescription_ReturnsTagInDescription"),
+
+            new TestCaseData("[_text](text_)", new Token[]
+            {
+                new Token("[", TokenType.Tag, 0),
+                new Token("_", TokenType.Text, 1),
+                new Token("text", TokenType.Text, 2),
+                new Token("]", TokenType.Tag, 6),
+                new Token("(", TokenType.Tag, 7),
+                new Token("text", TokenType.Text, 8),
+                new Token("_", TokenType.Text, 12),
+                new Token(")", TokenType.Tag, 13),
+            }).SetName("ParseText_ItalicLinkBetweenLinkTags_ReturnsItalicTokenInText"),
+
+            new TestCaseData("[[(text)]](text)", new Token[]
+            {
+                new Token("[", TokenType.Tag, 0),
+                new Token("[", TokenType.Text, 1),
+                new Token("(", TokenType.Text, 2),
+                new Token("text", TokenType.Text, 3),
+                new Token(")", TokenType.Text, 7),
+                new Token("]", TokenType.Text, 8),
+                new Token("]", TokenType.Tag, 9),
+                new Token("(", TokenType.Tag, 10),
+                new Token("text", TokenType.Text, 11),
+                new Token(")", TokenType.Tag, 15),
+            }).SetName("ParseText_SomeBracketsInDescriptionLink_ReturnsThisBracketsInText")
         };
     }
 }

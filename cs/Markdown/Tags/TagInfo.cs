@@ -82,7 +82,8 @@ namespace Markdown.Tags
             if (position - 1 >= 0 && position - 1 < text.Length
                 && text[position - 1] == text[position])
                 return IsStrongOrItalicOpenTag(position - 1, text);
-            return (position == 0 || char.IsWhiteSpace(text[position - 1]))
+            return (position == 0 || char.IsWhiteSpace(text[position - 1])
+                    || tagsSymbols.Contains(text[position - 1].ToString()))
                     && position != text.Length - 1 
                     && !char.IsWhiteSpace(text[position + 1]);
         }
@@ -93,7 +94,8 @@ namespace Markdown.Tags
                 && text[position + 1] == text[position])
                 return IsStrongOrItalicCloseTag(position + 1, text);
             return (position == text.Length - 1 || 
-                    char.IsWhiteSpace(text[position + 1]))
+                    char.IsWhiteSpace(text[position + 1])
+                    || tagsSymbols.Contains(text[position + 1].ToString()))
                     && position != 0 && !char.IsWhiteSpace(text[position - 1]);
         }
 
@@ -101,14 +103,16 @@ namespace Markdown.Tags
         {
             return position + 1 < text.Length && position + 1 > 1 
                    && SupportedTags.TryGetValue(text[position + 1].ToString(), out var tag)
-                   && tag.TagType == TagType.Link;
+                   && tag.TagType == TagType.Link
+                   && tag.IsOpen;
         }
 
         public static bool IsLinkOpenTag(int position, string text)
         {
             return position - 1 < text.Length - 1 && position - 1 > 0 
                    && SupportedTags.TryGetValue(text[position - 1].ToString(), out var tag)
-                   && tag.TagType == TagType.LinkDescription;
+                   && tag.TagType == TagType.LinkDescription
+                   && !tag.IsOpen;
         }
     }
 }

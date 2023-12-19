@@ -69,7 +69,7 @@ namespace Markdown.Parsers
             var result = new List<IToken>();
             foreach (var token in tokens)
             {
-                if (previousToken != null &&  previousToken.Type == TokenType.Escape)
+                if (previousToken != null && previousToken.Type == TokenType.Escape)
                 {
                     if (token.Type != TokenType.Text)
                     {
@@ -148,19 +148,23 @@ namespace Markdown.Parsers
             return resultTokens;
         }
 
-        private void SolveOpenAndCloseTags(IToken openToken, IToken closeToken, 
+        private void SolveOpenAndCloseTags(IToken openToken, IToken closeToken,
             List<IToken> incorrectTags, Stack<IToken> openTags)
         {
             var openTagType = GetTokenTagType(openToken);
             var closeTagType = GetTokenTagType(closeToken);
+            openTags.TryPeek(out var previousOpenToken);
+            var previousOpenTagType = GetTokenTagType(previousOpenToken);
             if (openTagType == closeTagType) return;
-            if (openTagType == TagType.Header || openTagType == TagType.Link || openTagType == TagType.LinkDescription)
+            if ((openTagType == TagType.Header || openTagType == TagType.Link || openTagType == TagType.LinkDescription)
+                && closeTagType != TagType.Header && closeTagType != TagType.Link && closeTagType != TagType.LinkDescription)
             {
                 incorrectTags.Add(closeToken);
                 openTags.Push(openToken);
             }
-            else if (closeTagType == TagType.Header && openTags.TryPeek(out var previousOpenToken)
-                    && GetTokenTagType(previousOpenToken) == TagType.Header)
+            else if (closeTagType == TagType.Header && previousOpenTagType == closeTagType
+                    || (closeTagType == TagType.Link || closeTagType == TagType.LinkDescription)
+                    && previousOpenTagType == closeTagType)
             {
                 incorrectTags.Add(openToken);
                 openTags.Pop();

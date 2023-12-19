@@ -2,7 +2,6 @@
 using Markdown;
 using Markdown.Generators;
 using Markdown.Parsers;
-using Markdown.Tags;
 using NUnit.Framework;
 using System.Text;
 
@@ -59,14 +58,36 @@ namespace MarkdownTests
             TestName = "Convert_HeaderTagWithNestedTags_ReturnsHtmlHeaderWithHtmlNestedTags")]
         [TestCase("#text\n", "#text\n", TestName = "Convert_HeaderWithoutWhiteSpaceBeforeText_ReturnsTextWithoutHtml")]
         [TestCase("# text", "# text", TestName = "Convert_HeaderWithoutNewStringSymbol_ReturnsTextWithoutHtml")]
+        [TestCase("[text](text)", "<a href=\"text\">text</a>",
+            TestName = "Convert_LinkWithDescription_ReturnsLinkInText")]
+        [TestCase("[]()", "<a href=\"\"></a>", TestName = "Convert_EmptyLink_ReturnsTagWithEmptyLinkAndDescription")]
+        [TestCase("[_text_](text)", "<a href=\"text\"><em>text</em></a>", 
+            TestName = "Convert_EmInLinkDescription_ReturnsLinkInText")]
+        [TestCase("[[(text)]](text)", "<a href=\"text\">[(text)]</a>",
+            TestName = "Convert_BracketsInLink_ReturnsLinkWithBracketsInDescription")]
+        [TestCase("_[text_](text)", "_<a href=\"text\">text_</a>",
+            TestName = "Convert_TagsOutOfLink_ReturnsTagInString")]
+        [TestCase("[text](_text_)", "<a href=\"_text_\">text</a>",
+            TestName = "Convert_TagInLink_ReturnsTagInString")]
+        [TestCase("[text] (text)", "[text] (text)", TestName = "Convert_SpaceBetweenDescriptionAndLink_ReturnsAllText")]
+        [TestCase("[text][text](text)", "[text]<a href=\"text\">text</a>",
+            TestName = "Convert_TwoDescriptions_ReturnsFirstLinkAsText")]
+        [TestCase("[text](text)(text)", "<a href=\"text\">text</a>(text)",
+            TestName = "Convert_TwoLinks_ReturnsSecondLinkAsText")]
+        [TestCase("[[text](text)]", "[<a href=\"text\">text</a>]", 
+            TestName = "Convert_LinkInBrackets_ReturnsBracketsAsTextAndHtmlLink")]
+        [TestCase("[text](text) text [text](text)", "<a href=\"text\">text</a> text <a href=\"text\">text</a>",
+            TestName = "Convert_TwoLinksInRowAndTextBetweenIt_ReturnsTwoLinksWithTextBetweenIt")]
+        [TestCase("# [text](text)\n", "<h1><a href=\"text\">text</a></h1>", 
+            TestName = "Convert_LinkInHeader_ReturnsLinkHtmlInHeaderHtml")]
         public void Convert_DifferentText_ReturnsCorrectString(string text, string expected)
         {
             var result = sut.Convert(text);
             result.Should().BeEquivalentTo(expected);
         }
 
-        /*[Test]
-        [Timeout(12500)]
+        [Test]
+        [Timeout(10000)]
         public void TimeTest()
         {
             var text = new StringBuilder();
@@ -76,6 +97,6 @@ namespace MarkdownTests
             }
 
             sut.Convert(text.ToString());
-        }*/
+        }
     }
 }
