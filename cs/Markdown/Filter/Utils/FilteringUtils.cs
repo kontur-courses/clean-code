@@ -1,6 +1,7 @@
 ﻿using Markdown.Tokens.Decorators;
+using Markdown.Tokens.Utils;
 
-namespace Markdown.Tokens.Utils;
+namespace Markdown.Filter.Utils;
 
 public static class FilteringUtils
 {

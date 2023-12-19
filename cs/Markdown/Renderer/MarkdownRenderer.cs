@@ -14,6 +14,7 @@ public class MarkdownRenderer : IMarkdownRenderer
         this.tokenConverter = tokenConverter;
     }
 
+    //TODO: добавить cross-line рендер для тегов, работающих в разных строках (<ul>)
     public string Render(string text)
     {
         if (text is null)

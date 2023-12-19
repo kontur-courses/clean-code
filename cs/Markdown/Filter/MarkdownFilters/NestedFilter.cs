@@ -1,4 +1,5 @@
-﻿using Markdown.Tokens;
+﻿using Markdown.Filter.Utils;
+using Markdown.Tokens;
 using Markdown.Tokens.Decorators;
 using Markdown.Tokens.Types;
 using Markdown.Tokens.Utils;
