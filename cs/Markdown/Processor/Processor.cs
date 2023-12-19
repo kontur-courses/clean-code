@@ -1,58 +1,58 @@
-﻿using Markdown.Syntax;
+﻿using System.Text;
+using Markdown.Syntax;
 using Markdown.Token;
 
 namespace Markdown.Processor;
 
 public class Processor : IProcessor
 {
-    private readonly string text;
+    private readonly string source;
     private readonly ISyntax syntax;
+    private readonly IReadOnlyDictionary<string, Func<int, IToken>> stringToToken;
 
-    public Processor(string text, ISyntax syntax)
+    public Processor(string source, ISyntax syntax)
     {
-        this.text = text;
+        this.source = source;
         this.syntax = syntax;
+        stringToToken = syntax.StringToToken;
     }
 
     public IList<IToken> ParseTags()
     {
         var tags = FindAllTags();
         tags = RemoveEscapedTags(tags);
-        tags = RemoveNonPairTags(tags);
-        return GetValidTags(tags);
+        tags = ValidateTagPositioning(tags);
+        return tags;
     }
 
     private IList<IToken> FindAllTags()
     {
         var tags = new List<IToken>();
-        var i = 0;
-        var skipCycle = false;
-        while (i < text.Length)
+        var possibleTag = new StringBuilder();
+        for (var i = 0; i < source.Length; i++)
         {
-            if (skipCycle)
+            if (stringToToken.Keys.Any(s => s.StartsWith(possibleTag.ToString() + source[i])))
             {
-                skipCycle = false;
-                i++;
+                possibleTag.Append(source[i]);
                 continue;
             }
             
-            if (text[i] == '#' && TryParseSharp(i, out var sharp))
-            {
-                tags.Add(sharp);
-            } else if (text[i] == '_' && TryParseDoubleUnderline(i, out var doubleUnderline))
-            {
-                tags.Add(doubleUnderline);
-                skipCycle = true;
-            } else if (text[i] == '_' && TryParseUnderline(i, out var underline))
-            {
-                tags.Add(underline);
-            } else if (text[i] == '\\')
-            {
-                tags.Add(new MarkdownToken(i, syntax.GetTagType("\\"), 1));
-            }
+            if (source[i] == '\n')
+                possibleTag.Clear();
 
-            i++;
+            var tag = possibleTag.ToString();
+            
+            if (stringToToken.ContainsKey(tag))
+                tags.Add(stringToToken[tag].Invoke(i-tag.Length));
+            
+            possibleTag.Clear();
+            
+            if (stringToToken.Keys.Any(s => s.StartsWith(possibleTag.ToString() + source[i])))
+                possibleTag.Append(source[i]);
         }
+        
+        if (possibleTag.Length > 0)
+            tags.Add(stringToToken[possibleTag.ToString()].Invoke(source.Length-possibleTag.Length));
 
         return tags;
     }
@@ -60,68 +60,48 @@ public class Processor : IProcessor
     private IList<IToken> RemoveEscapedTags(IList<IToken> tags)
     {
         var result = new List<IToken>();
-        var i = 0;
-        var skipCycle = false;
-        while (i < tags.Count)
+        var isEscaped = false;
+        foreach (var tag in tags)
         {
-            if (skipCycle)
+            if (isEscaped)
             {
-                skipCycle = false;
-                i++;
-                continue;
-            }
-
-            if (tags[i].Type == syntax.GetTagType("\\"))
-            {
-                skipCycle = true;
-                i++;
+                isEscaped = false;
                 continue;
             }
             
-            result.Add(tags[i]);
-
-            i++;
+            if (tag.GetType() == syntax.EscapeToken)
+                isEscaped = true;
+            else
+                result.Add(tag);
         }
+
         return result;
     }
 
-    private IList<IToken> RemoveNonPairTags(IList<IToken> tags)
+    private IList<IToken> ValidateTagPositioning(IList<IToken> tags)
     {
-        return tags;
-    }
-
-    private IList<IToken> GetValidTags(IList<IToken> tags)
-    {
-        return tags;
-    }
-
-    private bool TryParseSharp(int position, out IToken token)
-    {
-        if (position == 0 || text[position - 1] == '\n')
+        var result = new List<IToken>();
+        var openedTags = new Dictionary<string, IToken>();
+        
+        foreach (var tag in tags)
         {
-            token = new MarkdownToken(position, syntax.GetTagType(text[position].ToString()), 1);
-            return true;
+            if (openedTags.ContainsKey(tag.Separator))
+            {
+                tag.IsClosed = true;
+                if (tag.IsValid(source) && tag.IsValidPositioned(openedTags[tag.Separator], source))
+                {
+                    result.Add(openedTags[tag.Separator]);
+                    result.Add(tag);
+                    openedTags.Remove(tag.Separator);
+                }
+            }
+            else if (tag.IsValid(source))
+            {
+                if (tag.IsPair)
+                    openedTags[tag.Separator] = tag;
+            }
         }
 
-        token = null;
-        return false;
-    }
-
-    private bool TryParseUnderline(int position, out IToken token)
-    {
-        token = new MarkdownToken(position, syntax.GetTagType(text[position].ToString()), 1);
-        return true;
-    }
-
-    private bool TryParseDoubleUnderline(int position, out IToken token)
-    {
-        if (position < text.Length - 1 && text[position + 1] == '_')
-        {
-            token = new MarkdownToken(position, syntax.GetTagType("__"), 2);
-            return true;
-        }
-
-        token = null;
-        return false;
+        return result;
     }
 }

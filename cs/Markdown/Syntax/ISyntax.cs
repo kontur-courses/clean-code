@@ -5,6 +5,7 @@ namespace Markdown.Syntax;
 
 public interface ISyntax
 {
-    ITag ConvertTag(TagType type);
-    TagType GetTagType(string tag);
+    ITag ConvertTag(Type type);
+    IReadOnlyDictionary<string, Func<int, IToken>> StringToToken { get; }
+    Type EscapeToken { get; }
 }

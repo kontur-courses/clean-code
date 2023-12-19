@@ -12,7 +12,7 @@ public class Processor_Should
     [OneTimeSetUp]
     public void Setup()
     {
-        syntax = new Syntax();
+        syntax = new MarkdownSyntax();
     }
 
     [Test]
