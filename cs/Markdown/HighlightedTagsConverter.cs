@@ -14,35 +14,28 @@ public class HighlightedTagsConverter(HashSet<ITag> tags)
     {
         var htmlString = new StringBuilder(highlighted.MarkdownText);
 
+        var sortedTagIndexes = new List<(ITag tag, bool isCLose, int idx)>();
         foreach (var tag in tags)
         {
-            if (tag.GetType().GetInterface(nameof(ISingleTag)) != null)
+            foreach (var pairTagInfo in highlighted.TagsIndexes[tag.GetType()])
             {
-                IEnumerable<int> indexes = highlighted.SingleTagsIndexes[tag.GetType()];
-                foreach (var idx in indexes.Reverse())
-                {
-                    htmlString.Remove(idx, tag.Md.Length);
-                    htmlString.Insert(idx, tag.Html);
+                sortedTagIndexes.Add((tag, false, pairTagInfo.OpenIdx));
+                sortedTagIndexes.Add((tag, true, pairTagInfo.CloseIdx));
+            }
+        }
 
-                    if (tag.GetType() == typeof(HeaderTag))
-                    {
-                        var closeIndexOfParagraph = htmlString.ToString().CloseIndexOfParagraph(idx);
-                        htmlString.Insert(closeIndexOfParagraph, tag.Html.Insert(1, "/"));
-                    }
-                }
-            }
-            else
+        foreach (var tagInfo in sortedTagIndexes.OrderByDescending(i => i.idx))
+        {
+            if (tagInfo.tag.GetType() == typeof(HeaderTag) && tagInfo.isCLose)
             {
-                IEnumerable<PairTagInfo> indexes = highlighted.PairTagsIndexes[tag.GetType()];
-                foreach (var pairTagInfo in indexes.Reverse())
-                {
-                    htmlString.Remove(pairTagInfo.CloseIdx, tag.Md.Length);
-                    htmlString.Insert(pairTagInfo.CloseIdx, tag.Html.Insert(1, "/"));
-                    
-                    htmlString.Remove(pairTagInfo.OpenIdx, tag.Md.Length);
-                    htmlString.Insert(pairTagInfo.OpenIdx, tag.Html);
-                }
+                htmlString.Insert(tagInfo.idx, tagInfo.tag.Html.Insert(1, "/"));
+                continue;
             }
+
+            htmlString.Remove(tagInfo.idx, tagInfo.tag.Md.Length);
+            htmlString.Insert(tagInfo.idx, tagInfo.isCLose
+                ? tagInfo.tag.Html.Insert(1, "/")
+                : tagInfo.tag.Html);
         }
 
         return htmlString.ToString();

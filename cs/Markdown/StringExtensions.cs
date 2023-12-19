@@ -5,13 +5,11 @@ namespace Markdown;
 
 public static class StringExtensions
 {
-    public static bool IsSingleTag(this string text, ITag tag, int idx)
+    public static bool IsTag(this string text, ITag tag, int idx, bool isOpen)
     {
-        return tag.GetType() == typeof(HeaderTag) && text.IsOpenOfParagraph(idx);
-    }
+        if (tag.GetType() == typeof(HeaderTag))
+            return text.IsOpenOfParagraph(idx);
 
-    public static bool IsPairTag(this string text, ITag tag, int idx, bool isOpen)
-    {
         if (idx == 0)
         {
             if (text.Length <= tag.Md.Length || (tag.GetType() == typeof(EmTag) && text[tag.Md.Length] == '_'))

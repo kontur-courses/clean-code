@@ -9,54 +9,18 @@ public class TagsHighlighter(IEnumerable<ITag> tags)
     public HighlightedData HighlightMdTags(string markdownText)
     {
         MarkdownText = markdownText;
-        return new HighlightedData(markdownText, SingleTagsIndexes(), PairTagsIndexes());
+        return new HighlightedData(markdownText, TagsIndexes());
     }
 
-    public Dictionary<Type, List<int>> SingleTagsIndexes()
-    {
-        var singleTagsIndexes = new Dictionary<Type, List<int>>();
-
-        foreach (var tag in tags.Where(tag => tag.GetType().GetInterface(nameof(ISingleTag)) != null))
-        {
-            var tagInfos = new List<int>();
-
-            FindSingleTagIndexes(tag, ref tagInfos);
-
-            singleTagsIndexes.Add(tag.GetType(), tagInfos);
-        }
-
-        return singleTagsIndexes;
-    }
-
-    public void FindSingleTagIndexes(ITag tag, ref List<int> tagInfos)
-    {
-        for (var i = 0; i < MarkdownText.Length; i++)
-        {
-            var tagIdx = MarkdownText.IndexOf(tag.Md, i, StringComparison.Ordinal);
-
-            if (tagIdx == -1)
-                return;
-
-            if (MarkdownText.IsShielded(tagIdx))
-                continue;
-
-            if (MarkdownText.IsSingleTag(tag, tagIdx))
-            {
-                tagInfos.Add(tagIdx);
-                i = tagIdx;
-            }
-        }
-    }
-
-    public Dictionary<Type, List<PairTagInfo>> PairTagsIndexes()
+    public Dictionary<Type, List<PairTagInfo>> TagsIndexes()
     {
         var pairTagsIndexes = new Dictionary<Type, List<PairTagInfo>>();
 
-        foreach (var tag in tags.Where(tag => tag.GetType().GetInterface(nameof(IPairTag)) != null))
+        foreach (var tag in tags)
         {
             var tagInfos = new List<PairTagInfo>();
 
-            FindPairTagIndexes(tag, ref tagInfos);
+            FindTagIndexes(tag, ref tagInfos);
 
             pairTagsIndexes.Add(tag.GetType(), tagInfos);
         }
@@ -71,7 +35,7 @@ public class TagsHighlighter(IEnumerable<ITag> tags)
         return pairTagsIndexes;
     }
 
-    public void FindPairTagIndexes(ITag tag, ref List<PairTagInfo> tagInfos)
+    public void FindTagIndexes(ITag tag, ref List<PairTagInfo> tagInfos)
     {
         var openIdx = -1;
         for (var i = 0; i < MarkdownText.Length; i++)
@@ -84,10 +48,23 @@ public class TagsHighlighter(IEnumerable<ITag> tags)
             if (MarkdownText.IsShielded(tagIdx))
                 continue;
 
-            if (MarkdownText.IsPairTag(tag, tagIdx, openIdx == -1))
+            if (MarkdownText.IsTag(tag, tagIdx, openIdx == -1))
             {
                 if (openIdx == -1)
+                {
                     openIdx = tagIdx;
+
+                    if (tag.GetType() == typeof(HeaderTag))
+                    {
+                        tagIdx = MarkdownText.CloseIndexOfParagraph(tagIdx);
+
+                        tagInfos.Add(new PairTagInfo(openIdx, tagIdx));
+                        openIdx = -1;
+
+                        i = tagIdx;
+                        continue;
+                    }
+                }
                 else
                 {
                     if (tagIdx - openIdx <= tag.Md.Length)

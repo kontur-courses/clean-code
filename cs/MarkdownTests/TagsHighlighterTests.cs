@@ -28,7 +28,7 @@ public class TagsHighlighterTests
 
         var actual = new List<PairTagInfo>();
 
-        tagsHighlighter.FindPairTagIndexes(new EmTag(), ref actual);
+        tagsHighlighter.FindTagIndexes(new EmTag(), ref actual);
 
         var expected = new List<PairTagInfo>
         {
@@ -46,7 +46,7 @@ public class TagsHighlighterTests
 
         var actual = new List<PairTagInfo>();
 
-        tagsHighlighter.FindPairTagIndexes(new StrongTag(), ref actual);
+        tagsHighlighter.FindTagIndexes(new StrongTag(), ref actual);
 
         var expected = new List<PairTagInfo>
         {
@@ -62,11 +62,11 @@ public class TagsHighlighterTests
     {
         tagsHighlighter.MarkdownText = "#asfsf asf gewg e\t #asxf # \n#.";
 
-        var actual = new List<int>();
+        var actual = new List<PairTagInfo>();
 
-        tagsHighlighter.FindSingleTagIndexes(new HeaderTag(), ref actual);
+        tagsHighlighter.FindTagIndexes(new HeaderTag(), ref actual);
 
-        var expected = new List<int> { 0, 28 };
+        var expected = new List<PairTagInfo> { new(0, 28) };
 
         actual.Should().BeEquivalentTo(expected);
     }
@@ -78,7 +78,7 @@ public class TagsHighlighterTests
 
         var actual = new List<PairTagInfo>();
 
-        tagsHighlighter.FindPairTagIndexes(new EmTag(), ref actual);
+        tagsHighlighter.FindTagIndexes(new EmTag(), ref actual);
 
         actual.Should().BeEmpty();
     }
@@ -87,7 +87,7 @@ public class TagsHighlighterTests
     public void SingleTagsIndexesDictCheck()
     {
         tagsHighlighter.MarkdownText = "#";
-        var actual = tagsHighlighter.SingleTagsIndexes();
+        var actual = tagsHighlighter.TagsIndexes();
 
         var expected = new Dictionary<Type, List<int>>
         {
@@ -101,7 +101,7 @@ public class TagsHighlighterTests
     public void PairTagsIndexesDictCheck()
     {
         tagsHighlighter.MarkdownText = "_a_ __b__";
-        var actual = tagsHighlighter.PairTagsIndexes();
+        var actual = tagsHighlighter.TagsIndexes();
 
         var expected = new Dictionary<Type, List<PairTagInfo>>
         {
@@ -117,7 +117,7 @@ public class TagsHighlighterTests
     {
         tagsHighlighter.MarkdownText = "__пересечения _двойных__ и одинарных_";
 
-        var actual = tagsHighlighter.PairTagsIndexes();
+        var actual = tagsHighlighter.TagsIndexes();
 
         tagsHighlighter.RemoveIntersectStrongAndEmTags(ref actual);
 
@@ -135,7 +135,7 @@ public class TagsHighlighterTests
     {
         tagsHighlighter.MarkdownText = "внутри _одинарного __двойное__ не_ работает";
 
-        var actual = tagsHighlighter.PairTagsIndexes();
+        var actual = tagsHighlighter.TagsIndexes();
 
         tagsHighlighter.RemoveStrongInsideEmTags(ref actual);
 

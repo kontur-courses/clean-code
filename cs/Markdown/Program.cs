@@ -1,5 +1,3 @@
 ﻿using Markdown;
-using Markdown.Tags;
 
-Console.WriteLine(new Md(new HeaderTag())
-    .Render("# Заголовок __с _разными_ символами__"));
+Console.WriteLine(new Md().Render("# Заголовок __с _разными_ символами__"));
