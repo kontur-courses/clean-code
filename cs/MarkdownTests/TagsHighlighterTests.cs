@@ -32,8 +32,8 @@ public class TagsHighlighterTests
 
         var expected = new List<PairTagInfo>
         {
-            new((0, 4)),
-            new((14, 29)),
+            new(0, 4),
+            new(14, 29),
         };
 
         actual.Should().BeEquivalentTo(expected);
@@ -50,8 +50,8 @@ public class TagsHighlighterTests
 
         var expected = new List<PairTagInfo>
         {
-            new((0, 4)),
-            new((7, 18))
+            new(0, 4),
+            new(7, 18)
         };
 
         actual.Should().BeEquivalentTo(expected);
@@ -86,17 +86,12 @@ public class TagsHighlighterTests
     [Test]
     public void SingleTagsIndexesDictCheck()
     {
-        var tags = new List<ITag> { new HeaderTag() };
-        var actualTagsHighlighter = new TagsHighlighter(tags)
-        {
-            MarkdownText = "#"
-        };
+        tagsHighlighter.MarkdownText = "#";
+        var actual = tagsHighlighter.SingleTagsIndexes();
 
-        var actual = actualTagsHighlighter.SingleTagsIndexes();
-
-        var expected = new Dictionary<ISingleTag, List<int>>
+        var expected = new Dictionary<Type, List<int>>
         {
-            { (ISingleTag)tags[0], new List<int> { 0 } }
+            { typeof(HeaderTag), new List<int> { 0 } }
         };
 
         actual.Should().BeEquivalentTo(expected);
@@ -105,18 +100,49 @@ public class TagsHighlighterTests
     [Test]
     public void PairTagsIndexesDictCheck()
     {
-        var tags = new List<ITag> { new EmTag(), new StrongTag() };
-        var actualTagsHighlighter = new TagsHighlighter(tags)
+        tagsHighlighter.MarkdownText = "_a_ __b__";
+        var actual = tagsHighlighter.PairTagsIndexes();
+
+        var expected = new Dictionary<Type, List<PairTagInfo>>
         {
-            MarkdownText = "_a_ __b__"
+            { typeof(EmTag), new List<PairTagInfo> { new(0, 2) } },
+            { typeof(StrongTag), new List<PairTagInfo> { new(4, 7) } }
         };
 
-        var actual = actualTagsHighlighter.PairTagsIndexes();
+        actual.Should().BeEquivalentTo(expected);
+    }
 
-        var expected = new Dictionary<IPairTag, List<PairTagInfo>>
+    [Test]
+    public void IgnoreIntersectionStrongAndEmTags()
+    {
+        tagsHighlighter.MarkdownText = "__пересечения _двойных__ и одинарных_";
+
+        var actual = tagsHighlighter.PairTagsIndexes();
+
+        tagsHighlighter.RemoveIntersectStrongAndEmTags(ref actual);
+
+        var expected = new Dictionary<Type, List<PairTagInfo>>
         {
-            { (IPairTag)tags[0], new List<PairTagInfo> { new((0, 2)) } },
-            { (IPairTag)tags[1], new List<PairTagInfo> { new((4, 7)) } }
+            { typeof(EmTag), new List<PairTagInfo>() },
+            { typeof(StrongTag), new List<PairTagInfo>() }
+        };
+
+        actual.Should().BeEquivalentTo(expected);
+    }
+
+    [Test]
+    public void IgnoreStrongInsideEmTag()
+    {
+        tagsHighlighter.MarkdownText = "внутри _одинарного __двойное__ не_ работает";
+
+        var actual = tagsHighlighter.PairTagsIndexes();
+
+        tagsHighlighter.RemoveStrongInsideEmTags(ref actual);
+
+        var expected = new Dictionary<Type, List<PairTagInfo>>
+        {
+            { typeof(EmTag), new List<PairTagInfo> { new(7, 33) } },
+            { typeof(StrongTag), new List<PairTagInfo>() }
         };
 
         actual.Should().BeEquivalentTo(expected);

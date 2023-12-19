@@ -6,16 +6,15 @@ public class TagsHighlighter(IEnumerable<ITag> tags)
 {
     public string MarkdownText { get; set; }
 
-    public string HighlightMdTags(string markdownText)
+    public HighlightedData HighlightMdTags(string markdownText)
     {
         MarkdownText = markdownText;
-
-        throw new NotImplementedException();
+        return new HighlightedData(markdownText, SingleTagsIndexes(), PairTagsIndexes());
     }
 
-    public Dictionary<ISingleTag, List<int>> SingleTagsIndexes()
+    public Dictionary<Type, List<int>> SingleTagsIndexes()
     {
-        var singleTagsIndexes = new Dictionary<ISingleTag, List<int>>();
+        var singleTagsIndexes = new Dictionary<Type, List<int>>();
 
         foreach (var tag in tags.Where(tag => tag.GetType().GetInterface(nameof(ISingleTag)) != null))
         {
@@ -23,7 +22,7 @@ public class TagsHighlighter(IEnumerable<ITag> tags)
 
             FindSingleTagIndexes(tag, ref tagInfos);
 
-            singleTagsIndexes.Add((ISingleTag)tag, tagInfos);
+            singleTagsIndexes.Add(tag.GetType(), tagInfos);
         }
 
         return singleTagsIndexes;
@@ -49,9 +48,9 @@ public class TagsHighlighter(IEnumerable<ITag> tags)
         }
     }
 
-    public Dictionary<IPairTag, List<PairTagInfo>> PairTagsIndexes()
+    public Dictionary<Type, List<PairTagInfo>> PairTagsIndexes()
     {
-        var pairTagsIndexes = new Dictionary<IPairTag, List<PairTagInfo>>();
+        var pairTagsIndexes = new Dictionary<Type, List<PairTagInfo>>();
 
         foreach (var tag in tags.Where(tag => tag.GetType().GetInterface(nameof(IPairTag)) != null))
         {
@@ -59,15 +58,19 @@ public class TagsHighlighter(IEnumerable<ITag> tags)
 
             FindPairTagIndexes(tag, ref tagInfos);
 
-            pairTagsIndexes.Add((IPairTag)tag, tagInfos);
+            pairTagsIndexes.Add(tag.GetType(), tagInfos);
         }
-        
-        // RemoveIntersectStrongAndEmTags(ref pairTagsIndexes);
-        // RemoveStrongInsideEmTags(ref pairTagsIndexes);
+
+        if (tags.Any(tag => tag.GetType().GetInterface(nameof(EmTag)) != null
+                            && tag.GetType().GetInterface(nameof(StrongTag)) != null))
+        {
+            RemoveIntersectStrongAndEmTags(ref pairTagsIndexes);
+            RemoveStrongInsideEmTags(ref pairTagsIndexes);
+        }
 
         return pairTagsIndexes;
     }
-    
+
     public void FindPairTagIndexes(ITag tag, ref List<PairTagInfo> tagInfos)
     {
         var openIdx = -1;
@@ -93,7 +96,7 @@ public class TagsHighlighter(IEnumerable<ITag> tags)
                         continue;
                     }
 
-                    tagInfos.Add(new PairTagInfo((openIdx, tagIdx)));
+                    tagInfos.Add(new PairTagInfo(openIdx, tagIdx));
                     openIdx = -1;
                 }
 
@@ -102,13 +105,65 @@ public class TagsHighlighter(IEnumerable<ITag> tags)
         }
     }
 
-    private void RemoveIntersectStrongAndEmTags(ref Dictionary<IPairTag, List<PairTagInfo>> pairTagsIndexes)
+    public void RemoveIntersectStrongAndEmTags(ref Dictionary<Type, List<PairTagInfo>> pairTagsIndexes)
     {
-        throw new NotImplementedException();
+        var emTagInfos = pairTagsIndexes[typeof(EmTag)];
+        var strongTagInfos = pairTagsIndexes[typeof(StrongTag)];
+
+        var i = 0;
+        var j = 0;
+        while (true)
+        {
+            if (i >= emTagInfos.Count) break;
+            if (j >= strongTagInfos.Count) break;
+
+            var emTagInfo = emTagInfos[i];
+            var strongTagInfo = strongTagInfos[j];
+
+            if (emTagInfo.OpenIdx > strongTagInfo.OpenIdx && emTagInfo.OpenIdx < strongTagInfo.CloseIdx &&
+                emTagInfo.CloseIdx > strongTagInfo.CloseIdx)
+            {
+                emTagInfos.RemoveAt(i);
+                strongTagInfos.RemoveAt(j);
+                continue;
+            }
+
+            if (strongTagInfo.OpenIdx > emTagInfo.OpenIdx && strongTagInfo.OpenIdx < emTagInfo.CloseIdx &&
+                strongTagInfo.CloseIdx > emTagInfo.CloseIdx)
+            {
+                emTagInfos.RemoveAt(i);
+                strongTagInfos.RemoveAt(j);
+                continue;
+            }
+
+            if (emTagInfo.OpenIdx < strongTagInfo.OpenIdx) i++;
+            else j++;
+        }
     }
 
-    private void RemoveStrongInsideEmTags(ref Dictionary<IPairTag, List<PairTagInfo>> pairTagsIndexes)
+    public void RemoveStrongInsideEmTags(ref Dictionary<Type, List<PairTagInfo>> pairTagsIndexes)
     {
-        throw new NotImplementedException();
+        var emTagInfos = pairTagsIndexes[typeof(EmTag)];
+        var strongTagInfos = pairTagsIndexes[typeof(StrongTag)];
+
+        var i = 0;
+        var j = 0;
+        while (true)
+        {
+            if (i >= emTagInfos.Count) break;
+            if (j >= strongTagInfos.Count) break;
+
+            var emTagInfo = emTagInfos[i];
+            var strongTagInfo = strongTagInfos[j];
+
+            if (emTagInfo.OpenIdx < strongTagInfo.OpenIdx && emTagInfo.CloseIdx > strongTagInfo.CloseIdx)
+            {
+                strongTagInfos.RemoveAt(j);
+                continue;
+            }
+
+            if (emTagInfo.OpenIdx < strongTagInfo.OpenIdx) i++;
+            else j++;
+        }
     }
 }

@@ -55,7 +55,7 @@ public static class StringExtensions
         return count % 2 == 1;
     }
 
-    public static string ReplaceShieldSequence(this string text)
+    public static string ReplaceShieldSequences(this string text)
     {
         var sb = new StringBuilder(text);
 
@@ -96,6 +96,6 @@ public static class StringExtensions
             if (text[idx] == '\n')
                 return idx;
 
-        return -1;
+        return text.Length;
     }
 }

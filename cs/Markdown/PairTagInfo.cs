@@ -1,6 +1,7 @@
 namespace Markdown;
 
-public class PairTagInfo((int openIdx, int closeIdx) tagIndexes)
+public class PairTagInfo(int openIdx, int closeIdx)
 {
-    public (int openIdx, int closeIdx) TagIndexes => tagIndexes;
+    public int OpenIdx => openIdx;
+    public int CloseIdx => closeIdx;
 }

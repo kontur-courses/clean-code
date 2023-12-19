@@ -13,6 +13,6 @@ public class StringExtensionsTests
     [TestCase(@"\\\a", @"\a")]
     public void ReplaceShieldingChars(string text, string expected)
     {
-        text.ReplaceShieldSequence().Should().Be(expected);
+        text.ReplaceShieldSequences().Should().Be(expected);
     }
 }

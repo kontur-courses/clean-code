@@ -4,11 +4,11 @@ namespace Markdown;
 
 public class Md
 {
-    private readonly List<ITag> tags;
+    private readonly HashSet<ITag> tags;
 
     public Md()
     {
-        tags = new List<ITag>
+        tags = new HashSet<ITag>
         {
             new EmTag(),
             new StrongTag(),
@@ -18,16 +18,16 @@ public class Md
 
     public Md(params ITag[] tags)
     {
-        this.tags = new List<ITag>(tags);
+        this.tags = new HashSet<ITag>(tags);
     }
 
     // _some string_ => <em>some string</em>
     public string Render(string markdownText)
     {
         var highlighted = new TagsHighlighter(tags).HighlightMdTags(markdownText);
+        
+        var converted = new HighlightedTagsConverter(tags).ToHTMLCode(highlighted);
 
-        highlighted = highlighted.ReplaceShieldSequence();
-
-        return new HighlightedTagsConverter().ToHTMLCode(highlighted);
+        return converted.ReplaceShieldSequences();
     }
 }
