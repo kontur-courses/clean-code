@@ -6,7 +6,7 @@ namespace MarkdownTests;
 
 public class Parser_Should
 {
-    private static Tag[] tags = {new BoldTag(), new EscapeTag(), new HeaderTag(), new ItalicTag()};
+    private static Tag[] tags = {new BoldTag(), new EscapeTag(), new HeaderTag(), new ItalicTag(), new NewLineTag(), new ListElement()};
     private Parser parser;
 
     [SetUp]

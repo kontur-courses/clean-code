@@ -4,7 +4,7 @@ public class HeaderTag : Tag
 {
     public override string Name => "Header";
     public override string MarkdownOpening => "# ";
-    public override string MarkdownClosing => "\n";
+    public override string MarkdownClosing => null;
     public override string HtmlTagOpen => "<h1>";
     public override string HtmlTagClose => "</h1>";
     public override bool ShouldHavePair => true;
@@ -26,7 +26,8 @@ public class HeaderTag : Tag
 
     public override bool CanBePairedWith(string markdownText, int currentTagStartIndex, Tag? otherTag, int otherTagEndIndex)
     {
-        return otherTag.GetType() == this.GetType() && otherTag.IsMarkdownClosing(markdownText, otherTagEndIndex);
+        var isTypeOfTag = otherTag as NewLineTag;
+        return isTypeOfTag != null;
     }
 
     public override bool CantBeInsideTags(IEnumerable<Tag> tagsContext)

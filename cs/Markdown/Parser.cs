@@ -3,7 +3,7 @@ using Markdown.TagClasses;
 
 namespace Markdown;
 
-public class Parser
+public class Parser : IParser
 {
     private IEnumerable<Tag> tags;
 
@@ -23,14 +23,11 @@ public class Parser
     public List<MarkdownTagInfo> FindTags(string markdownText)
     {
         var tagsIndexes = new List<MarkdownTagInfo>();
-        var seenWhitespace = false;
         for (int i = 0; i < markdownText.Length; i++)
         {
             var tag = FindTag(markdownText, i);
-            seenWhitespace = char.IsWhiteSpace(markdownText[i]) ? true : seenWhitespace;
             if (tag == null) continue;
 
-            seenWhitespace = false;
             tagsIndexes.Add(tag);
             i = tag.EndIndex;
         }
@@ -77,17 +74,20 @@ public class Parser
             }
             var tagsInStack = tagsStack.TryPeek(out var lastTagInfo);
 
-            if (tagsInStack 
-                && lastTagInfo.Tag.CanBePairedWith(markdownText, lastTagInfo.StartIndex, 
+            if (tagsInStack
+                && lastTagInfo.Tag.CanBePairedWith(markdownText, lastTagInfo.StartIndex,
                                                     currentTagInfo.Tag, currentTagInfo.EndIndex))
             {
+                tagsStack.Pop();
                 if (currentTagInfo.Tag.CantBeInsideTags(tagsStack.Select(tagInfo => tagInfo.Tag).ToArray()))
-                {
-                    tagsStack.Pop();
                     continue;
-                }
-                renderTags.Add(tagsStack.Pop().OpeningVariant());
-                renderTags.Add(currentTagInfo);
+
+                renderTags.Add(lastTagInfo.Tag.TakePairTag ? 
+                    new MarkdownTagInfo(currentTagInfo.Tag, lastTagInfo.StartIndex, lastTagInfo.EndIndex).OpeningVariant() 
+                    : lastTagInfo.OpeningVariant());
+                renderTags.Add(currentTagInfo.Tag.TakePairTag 
+                    ? new MarkdownTagInfo(lastTagInfo.Tag, currentTagInfo.StartIndex, currentTagInfo.EndIndex) 
+                    : currentTagInfo);
             }
 
             else if (tagsInStack && currentTagInfo.Tag.IsMarkdownClosing(markdownText, currentTagInfo.EndIndex))

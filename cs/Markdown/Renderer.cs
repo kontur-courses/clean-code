@@ -1,9 +1,8 @@
 ﻿using System.Text;
-using Markdown.TagClasses;
 
 namespace Markdown;
 
-public class Renderer
+public class Renderer : IRenderer
 {
     public string RenderHtmlTags(IEnumerable<MarkdownTagInfo> renderTags, string markdownText)
     {

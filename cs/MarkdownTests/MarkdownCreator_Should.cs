@@ -7,7 +7,7 @@ namespace MarkdownTests;
 [TestFixture]
 public class MarkdownCreator_Should
 {
-    private static Tag[] tags = { new BoldTag(), new EscapeTag(), new HeaderTag(), new ItalicTag() };
+    private static Tag[] tags = { new BoldTag(), new EscapeTag(), new HeaderTag(), new ItalicTag(), new ListElement(), new NewLineTag()};
     private Parser parser;
     private Renderer renderer;
     private MarkdownCreator markdownCreator;
@@ -39,6 +39,14 @@ public class MarkdownCreator_Should
         return outputString;
     }
 
+    [Test]
+    public void MarkdownTextMarkdownsUnorderedList()
+    {
+        var inputString = "# Cats\n\tCute\n\tCool\n\tCat\n";
+        var expectedString = "<h1>Cats <ul><li>Cute</li><li>Cool</li><li>Cat</li></ul></h1>";
+        var outputString = markdownCreator.MarkdownText(inputString);
+        outputString.Should().Be(expectedString);
+    }
 
     [Test]
     [Timeout(1000)]
@@ -46,7 +54,13 @@ public class MarkdownCreator_Should
     {
         var text = File.ReadAllText(Path.Combine(TestContext.CurrentContext.TestDirectory, "LinearTestData.txt"));
 
-        var outputString = markdownCreator.MarkdownText(text);
+        var selectedTags = new Tag[]
+        {
+            new BoldTag(), new EscapeTag(), new HeaderTag(), new ItalicTag(), new ListElement(), new WindowsNewLineTag()
+        };
+        var myMarkdownCreator = new MarkdownCreator(new Parser(selectedTags), renderer);
+
+        var outputString = myMarkdownCreator.MarkdownText(text);
         var expectedResult = File.ReadAllText(Path.Combine(TestContext.CurrentContext.TestDirectory, "LinearTestExpectedOutput.txt"));
         outputString.Should().Be(expectedResult);
     }

@@ -6,6 +6,7 @@ public abstract class Tag
     public abstract string MarkdownOpening { get; }
     public abstract string MarkdownClosing { get; }
     public abstract bool ShouldHavePair { get; }
+    public virtual bool TakePairTag => false;
     public virtual string HtmlTagOpen => $"<{Name}>";
     public virtual string HtmlTagClose => $"</{Name}>";
 
@@ -15,7 +16,7 @@ public abstract class Tag
             return false;
 
         var leftSpace = startIndex < 1 || char.IsWhiteSpace(markdownText[startIndex - 1]);
-        var rightNotWhiteSpace = startIndex < markdownText.Length - MarkdownOpening.Length 
+        var rightNotWhiteSpace = startIndex < markdownText.Length - MarkdownOpening.Length
                                  && !char.IsWhiteSpace(markdownText[startIndex + MarkdownOpening.Length]);
 
         return leftSpace && rightNotWhiteSpace;
@@ -26,9 +27,9 @@ public abstract class Tag
         if (InNumber(markdownText, endIndex))
             return false;
 
-        var leftNotWhiteSpace = endIndex > MarkdownClosing.Length - 1 
+        var leftNotWhiteSpace = endIndex > MarkdownClosing.Length - 1
                                 && !char.IsWhiteSpace(markdownText[endIndex - MarkdownClosing.Length]);
-        var rightSpace = endIndex <= markdownText.Length - 1 
+        var rightSpace = endIndex <= markdownText.Length - 1
                          || char.IsWhiteSpace(markdownText[endIndex + 1]);
 
         return leftNotWhiteSpace && rightSpace;

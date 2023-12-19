@@ -2,10 +2,10 @@
 
 public class MarkdownCreator
 {
-    private readonly Parser parser;
-    private readonly Renderer renderer;
+    private readonly IParser parser;
+    private readonly IRenderer renderer;
 
-    public MarkdownCreator(Parser parser, Renderer renderer)
+    public MarkdownCreator(IParser parser, IRenderer renderer)
     {
         this.parser = parser;
         this.renderer = renderer;
