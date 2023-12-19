@@ -6,5 +6,6 @@ public interface ITokenType
     public bool SupportsClosingTag { get; }
     public bool HasLineBeginningSemantics { get; }
     public bool HasPredefinedValue { get; }
+    public TagPair? OuterTag { get; }
     public string Representation(bool isClosingTag);
 }

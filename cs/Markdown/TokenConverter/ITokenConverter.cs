@@ -4,5 +4,5 @@ namespace Markdown.TokenConverter;
 
 public interface ITokenConverter
 {
-    string ConvertToString(TokenizeResult tokenizeResult);
+    TokenConversionResult ConvertToString(TokenizeResult tokenizeResult);
 }

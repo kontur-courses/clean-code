@@ -1,6 +1,7 @@
 ﻿using FluentAssertions;
 using Markdown.Lexer;
 using Markdown.TokenConverter;
+using Markdown.Tokens.Types;
 
 namespace MarkdownTests.TokenConverter;
 
@@ -25,11 +26,20 @@ public class TokenConverterTests
         AssertConvertToStringReturnsCorrectResult(initial, expected);
     }
 
+    [Test]
+    public void ConvertToString_ReturnsCorrectOuterTag_WithTokenSupportingOuterTags()
+    {
+        var result = converter.ConvertToString(lexer.Tokenize("* _a_"));
+        
+        result.OuterTag?
+            .Should()
+            .Be(BulletedToken.BulletedTokenOuterTag);
+    }
     private void AssertConvertToStringReturnsCorrectResult(string initial, string expected)
     {
         var result = converter.ConvertToString(lexer.Tokenize(initial));
 
-        result
+        result.ConvertedTokens
             .Should()
             .Be(expected);
     }

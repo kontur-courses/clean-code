@@ -14,7 +14,6 @@ public class MarkdownRenderer : IMarkdownRenderer
         this.tokenConverter = tokenConverter;
     }
 
-    //TODO: добавить cross-line рендер для тегов, работающих в разных строках (<ul>)
     public string Render(string text)
     {
         if (text is null)
@@ -26,9 +25,42 @@ public class MarkdownRenderer : IMarkdownRenderer
             .Select(RenderLine)
             .ToList();
 
-        return string.Join('\n', renderedLines);
+        return string.Join('\n', AddOuterTags(renderedLines));
     }
 
-    private string RenderLine(string line)
+    private static string[] AddOuterTags(List<TokenConversionResult> lines)
+    {
+        var withOuterTags = new string[lines.Count];
+        var indexes = OuterTagsProcessor.GetPositionsWithOuterTags(lines);
+        
+        var isOpeningTag = true;
+        foreach (var index in indexes)
+        {
+            if (isOpeningTag)
+            {
+                withOuterTags[index] = lines[index].OuterTag!.OpeningTag + lines[index].ConvertedTokens;
+                isOpeningTag = false;
+                continue;
+            }
+            
+            if (withOuterTags[index] is not null)
+                withOuterTags[index] += lines[index].OuterTag!.ClosingTag;
+            else
+                withOuterTags[index] = lines[index].ConvertedTokens + lines[index].OuterTag!.ClosingTag;
+
+            isOpeningTag = true;
+        }
+        
+        for (var i = 0; i < lines.Count; i++)
+        {
+            if (withOuterTags[i] is not null)
+                continue;
+            withOuterTags[i] = lines[i].ConvertedTokens;
+        }
+
+        return withOuterTags;
+    }
+
+    private TokenConversionResult RenderLine(string line)
         => tokenConverter.ConvertToString(lexer.Tokenize(line));
 }
