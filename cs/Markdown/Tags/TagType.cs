@@ -4,6 +4,7 @@
     {
         Bold,
         Italic,
-        Header
+        Header,
+        Shield
     }
 }
