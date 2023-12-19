@@ -72,20 +72,21 @@ public class Parser
             var currentTagInfo = tagsList[i];
             if (!currentTagInfo.Tag.ShouldHavePair)
             {
-                renderTags.Add(currentTagInfo);
+                renderTags.Add(currentTagInfo.OpeningVariant());
                 continue;
             }
             var tagsInStack = tagsStack.TryPeek(out var lastTagInfo);
 
-            if (tagsInStack && lastTagInfo.Tag.CanBePairedWith(markdownText, lastTagInfo.StartIndex, currentTagInfo.Tag,
-                    currentTagInfo.StartIndex))
+            if (tagsInStack 
+                && lastTagInfo.Tag.CanBePairedWith(markdownText, lastTagInfo.StartIndex, 
+                                                    currentTagInfo.Tag, currentTagInfo.EndIndex))
             {
                 if (currentTagInfo.Tag.CantBeInsideTags(tagsStack.Select(tagInfo => tagInfo.Tag).ToArray()))
                 {
                     tagsStack.Pop();
                     continue;
                 }
-                renderTags.Add(tagsStack.Pop());
+                renderTags.Add(tagsStack.Pop().OpeningVariant());
                 renderTags.Add(currentTagInfo);
             }
 

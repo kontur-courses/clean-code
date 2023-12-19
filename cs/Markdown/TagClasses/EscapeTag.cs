@@ -5,7 +5,7 @@ public class EscapeTag : Tag
     public override string Name => "Escape";
     public override string MarkdownOpening => "\\";
     public override string MarkdownClosing => null;
-    public override string HtmlTagOpen => null;
+    public override string HtmlTagOpen => "";
     public override string HtmlTagClose => null;
     public override bool ShouldHavePair => false;
 
@@ -24,7 +24,7 @@ public class EscapeTag : Tag
         throw new NotImplementedException();
     }
 
-    public override bool CanBePairedWith(string markdownText, int currentTagStartIndex, Tag? otherTag, int otherTagStartIndex)
+    public override bool CanBePairedWith(string markdownText, int currentTagStartIndex, Tag? otherTag, int otherTagEndIndex)
     {
         throw new NotImplementedException();
     }

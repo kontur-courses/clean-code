@@ -5,9 +5,9 @@ public abstract class Tag
     public abstract string Name { get; }
     public abstract string MarkdownOpening { get; }
     public abstract string MarkdownClosing { get; }
-    public abstract string HtmlTagOpen { get; }
-    public abstract string HtmlTagClose { get; }
     public abstract bool ShouldHavePair { get; }
+    public virtual string HtmlTagOpen => $"<{Name}>";
+    public virtual string HtmlTagClose => $"</{Name}>";
 
     public virtual bool IsMarkdownOpening(string markdownText, int startIndex)
     {
@@ -27,9 +27,9 @@ public abstract class Tag
             return false;
 
         var leftNotWhiteSpace = endIndex > MarkdownClosing.Length - 1 
-                                && !char.IsWhiteSpace(markdownText[endIndex - 1]);
-        var rightSpace = endIndex >= markdownText.Length - MarkdownClosing.Length 
-                         || char.IsWhiteSpace(markdownText[endIndex + MarkdownClosing.Length]);
+                                && !char.IsWhiteSpace(markdownText[endIndex - MarkdownClosing.Length]);
+        var rightSpace = endIndex <= markdownText.Length - 1 
+                         || char.IsWhiteSpace(markdownText[endIndex + 1]);
 
         return leftNotWhiteSpace && rightSpace;
     }
@@ -40,17 +40,18 @@ public abstract class Tag
     }
 
     public virtual bool CanBePairedWith(string markdownText, int currentTagStartIndex, Tag? otherTag,
-        int otherTagStartIndex)
+        int otherTagEndIndex)
     {
         if (otherTag.GetType() != this.GetType())
             return false;
 
 
         var insideStart = currentTagStartIndex + MarkdownOpening.Length;
+        var insideEnd = otherTagEndIndex - MarkdownClosing.Length + 1;
 
-        var betweenTags = markdownText.Substring(insideStart, otherTagStartIndex - insideStart);
+        var betweenTags = markdownText.Substring(insideStart, insideEnd - insideStart);
 
-        if (otherTag.InWord(markdownText, otherTagStartIndex))
+        if (otherTag.InWord(markdownText, insideEnd))
         {
             var checkForSpaces = betweenTags.Contains(' ');
             return !checkForSpaces;
@@ -59,7 +60,7 @@ public abstract class Tag
         if (betweenTags.Length < 1)
             return false;
 
-        return otherTag.IsMarkdownClosing(markdownText, otherTagStartIndex);
+        return otherTag.IsMarkdownClosing(markdownText, otherTagEndIndex);
     }
 
     public abstract bool CantBeInsideTags(IEnumerable<Tag> tagsContext);
@@ -68,8 +69,9 @@ public abstract class Tag
     {
         return startIndex > 0
                && startIndex < markdownText.Length - MarkdownOpening.Length
-               && (char.IsLetter(markdownText[startIndex - 1]) || char.IsPunctuation(markdownText[startIndex - 1]))
-               && (char.IsLetter(markdownText[startIndex + MarkdownOpening.Length]) || char.IsPunctuation(markdownText[startIndex + MarkdownOpening.Length]));
+               && (char.IsLetter(markdownText[startIndex - 1]) || markdownText[startIndex - 1] == '\\')
+               && (char.IsLetter(markdownText[startIndex + MarkdownOpening.Length])
+                   || markdownText[startIndex + MarkdownOpening.Length] == '\\');
     }
 
     public bool InNumber(string markdownText, int startIndex)

@@ -14,7 +14,7 @@ public class MarkdownCreator
     public string MarkdownText(string markdownText)
     {
         var tagsToRender = parser.GetTagsToRender(markdownText);
-        var renderedText = renderer.RenderTags(tagsToRender, markdownText);
+        var renderedText = renderer.RenderHtmlTags(tagsToRender, markdownText);
         return renderedText;
     }
 }

@@ -24,9 +24,9 @@ public class HeaderTag : Tag
         return IsMarkdownOpening(markdownText, startIndex);
     }
 
-    public override bool CanBePairedWith(string markdownText, int currentTagStartIndex, Tag? otherTag, int otherTagStartIndex)
+    public override bool CanBePairedWith(string markdownText, int currentTagStartIndex, Tag? otherTag, int otherTagEndIndex)
     {
-        return otherTag.GetType() == this.GetType() && otherTag.IsMarkdownClosing(markdownText, otherTagStartIndex);
+        return otherTag.GetType() == this.GetType() && otherTag.IsMarkdownClosing(markdownText, otherTagEndIndex);
     }
 
     public override bool CantBeInsideTags(IEnumerable<Tag> tagsContext)
