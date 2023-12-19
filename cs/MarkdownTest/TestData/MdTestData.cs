@@ -67,6 +67,10 @@ public class MdTestData
         new TestCaseData(
             "# Заголовок __с _разными_ символами__",
             "<h1> Заголовок <strong>с <em>разными</em> символами</strong></h1>"
-        ).SetName("HeaderWithInnerTags")
+        ).SetName("HeaderWithInnerTags"),
+        new TestCaseData(
+            "[Текст помещённый в тэг link, ведущий на главную страницу google](https://www.google.com/)",
+            "<a href=\"https://www.google.com/\">Текст помещённый в тэг link, ведущий на главную страницу google</a>"
+        ).SetName("LinkTag"),
     };
 }

@@ -1,13 +1,17 @@
-﻿namespace Markdown;
+﻿using Markdown.Link;
+
+namespace Markdown;
 
 public class HTMLEvaluator : IEvaluator
 {
     public string Evaluate(SyntaxNode root)
     {
-        if (root is BodyNode)
+        if (root is RootNode)
             return string.Join("", root.Children.Select(child => Evaluate(child)));
-
-        if (root is not SimpleNode) throw new ArgumentException("Wrong node type");
+        if (root is LinkNode linkNode)
+            return $"<a href=\"{linkNode.Source}\">{linkNode.Text}</a>";
+        if (root is TaggedBodyNode)
+            return string.Join("", root.Children.Select(child => Evaluate(child)));
 
         switch (root)
         {

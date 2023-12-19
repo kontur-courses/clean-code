@@ -7,5 +7,9 @@ public enum SyntaxKind
     Text,
     DoubleUnderscore,
     Hash,
-    NewLine
+    NewLine,
+    OpenSquareBracket,
+    CloseSquareBracket,
+    OpenRoundBracket,
+    CloseRoundBracket
 }

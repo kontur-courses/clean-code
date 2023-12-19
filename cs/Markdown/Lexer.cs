@@ -1,8 +1,14 @@
-﻿namespace Markdown;
+﻿using System.Collections.Immutable;
+
+namespace Markdown;
 
 public class Lexer
 {
     private readonly string text;
+
+    private const string specialSymbols = "_#()[]\n\t ";
+    private const string escapableSymbols = "_#()[]\\";
+
     private int position;
 
     public Lexer(string text)
@@ -20,64 +26,76 @@ public class Lexer
     }
 
     private char Current => Peek(0);
+    private char Next => Peek(1);
 
     public IEnumerable<Token> GetTokens()
     {
         while (Current != '\0')
         {
-            if (Current == '\n')
+            switch (Current)
             {
-                yield return new Token(SyntaxKind.NewLine, position, "\n");
-                position++;
-            }
-            else if (char.IsWhiteSpace(Current))
-            {
-                var start = position;
-                while (char.IsWhiteSpace(Current))
-                    position++;
+                case '\n':
+                    yield return new Token(SyntaxKind.NewLine, position, "\n");
+                    break;
+                case ' ':
+                case '\t':
+                {
+                    var start = position;
+                    while (Next == ' ' || Next == '\t')
+                        position++;
 
-                var length = position - start;
-                var tokenText = text.Substring(start, length);
-                yield return new Token(SyntaxKind.Whitespace, start, tokenText);
-            }
-            else if (Current == '_')
-            {
-                var start = position;
-                position++;
-                if (Current == '_')
-                {
-                    position++;
-                    yield return new Token(SyntaxKind.DoubleUnderscore, start, "__");
+                    var length = position - start + 1;
+                    var tokenText = text.Substring(start, length);
+                    yield return new Token(SyntaxKind.Whitespace, start, tokenText);
+                    break;
                 }
-                else
+                case '[':
+                    yield return new Token(SyntaxKind.OpenSquareBracket, position, "[");
+                    break;
+                case ']':
+                    yield return new Token(SyntaxKind.CloseSquareBracket, position, "]");
+                    break;
+                case '(':
+                    yield return new Token(SyntaxKind.OpenRoundBracket, position, "(");
+                    break;
+                case ')':
+                    yield return new Token(SyntaxKind.CloseRoundBracket, position, ")");
+                    break;
+                case '#':
+                    yield return new Token(SyntaxKind.Hash, position, "#");
+                    break;
+                case '_':
                 {
-                    yield return new Token(SyntaxKind.SingleUnderscore, start, "_");
-                }
-            }
-            else if (Current == '#')
-            {
-                yield return new Token(SyntaxKind.Hash, position, "#");
-                position++;
-            }
-            else
-            {
-                var start = position;
-                var letters = new List<char>();
-                while (Current != '_' && Current != '#' && Current != ' ' && Current != '\0' && Current != '\n' ||
-                       Current == '\\')
-                {
-                    if (Current == '\\')
+                    var start = position;
+                    if (Next == '_')
                     {
-                        if (Peek(1) == '_' || Peek(1) == '\\')
+                        position++;
+                        yield return new Token(SyntaxKind.DoubleUnderscore, start, "__");
+                    }
+                    else
+                        yield return new Token(SyntaxKind.SingleUnderscore, start, "_");
+
+                    break;
+                }
+                default:
+                {
+                    var start = position;
+                    var letters = new List<char>();
+                    while (Current != '\0' && (!specialSymbols.Contains(Current) || Current == '\\'))
+                    {
+                        if (Current == '\\' && escapableSymbols.Contains(Next))
                             position++;
+
+                        letters.Add(Current);
+                        position++;
                     }
 
-                    letters.Add(Current);
-                    position++;
+                    yield return new Token(SyntaxKind.Text, start, new string(letters.ToArray()));
+                    continue;
                 }
-
-                yield return new Token(SyntaxKind.Text, start, new string(letters.ToArray()));
             }
+
+            position++;
         }
     }
 }

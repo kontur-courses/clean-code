@@ -97,5 +97,15 @@ public class LexerTestData
                 new[] { SyntaxKind.Hash, SyntaxKind.Text, SyntaxKind.NewLine }
             )
             .SetName("HashWordAndNewLine"),
+        new TestCaseData(
+                "(abc)",
+                new[] { SyntaxKind.OpenRoundBracket, SyntaxKind.Text, SyntaxKind.CloseRoundBracket }
+            )
+            .SetName("WordBetweenRoundBrackets"),
+        new TestCaseData(
+                "[abc]",
+                new[] { SyntaxKind.OpenSquareBracket, SyntaxKind.Text, SyntaxKind.CloseSquareBracket }
+            )
+            .SetName("WordBetweenSquareBrackets")
     };
 }

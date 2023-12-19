@@ -1,4 +1,7 @@
 ﻿using System.Collections;
+using Markdown.Link;
+using Markdown.LinkSource;
+using Markdown.LinkText;
 
 namespace Markdown;
 
@@ -55,49 +58,76 @@ public class Parser
                     }
 
                     openTagStack.Clear();
-
-                    children = new List<SyntaxNode>();
-                    while (true)
-                    {
-                        var child = stack.Pop();
-                        children.Add(child);
-                        if (children is OpenHeaderNode)
-                            break;
-                    }
-
-                    children.Reverse();
-
-                    stack.Push(new HeaderBodyNode(children.TextifyInnerTags()));
+                    stack.Push(new CloseHeaderNode(Current.Text));
+                    children = PopStackUntilFind<OpenHeaderNode>().ToList();
+                    stack.Push(new HeaderTaggedBodyNode(children));
                     break;
                 case SyntaxKind.Hash:
                     var header = new OpenHeaderNode(Current.Text);
                     stack.Push(header);
                     openTagStack.Push((header, position));
                     break;
+                case SyntaxKind.OpenSquareBracket:
+                    var openLinkTextNode = new OpenLinkTextNode(Current.Text);
+                    stack.Push(openLinkTextNode);
+                    openTagStack.Push((openLinkTextNode, position));
+                    break;
+                case SyntaxKind.CloseSquareBracket:
+                    if (openTagStack.Peek().Item1 is not OpenLinkTextNode)
+                    {
+                        stack.Push(new TextNode(Current.Text));
+                        break;
+                    }
+
+                    openTagStack.Pop();
+
+                    stack.Push(new CloseLinkTextNode(Current.Text));
+                    children = PopStackUntilFind<OpenLinkTextNode>().ToList();
+                    stack.Push(new LinkTextTaggedBody(children));
+                    break;
+                case SyntaxKind.OpenRoundBracket:
+                    if (stack.Peek() is not LinkTextTaggedBody)
+                    {
+                        stack.Push(new TextNode(Current.Text));
+                        break;
+                    }
+
+                    var openLinkSourceNode = new OpenLinkSourceNode(Current.Text);
+                    stack.Push(openLinkSourceNode);
+                    openTagStack.Push((openLinkSourceNode, position));
+                    break;
+                case SyntaxKind.CloseRoundBracket:
+                    if (openTagStack.Peek().Item1 is not OpenLinkSourceNode)
+                    {
+                        stack.Push(new TextNode(Current.Text));
+                        break;
+                    }
+
+                    openTagStack.Pop();
+
+                    stack.Push(new CloseLinkSourceNode(Current.Text));
+                    children = PopStackUntilFind<OpenLinkSourceNode>().ToList();
+                    var linkSourceNode = new LinkSourceTaggedBody(children);
+
+                    if (stack.Peek() is LinkTextTaggedBody)
+                        stack.Push(new LinkNode(new[] { stack.Pop(), linkSourceNode }));
+                    else
+                        stack.Push(new TextNode(linkSourceNode.Text));
+                    break;
                 case SyntaxKind.SingleUnderscore:
                     if (TryOpenBodyWith(new OpenEmNode(Current.Text)))
                         break;
 
                     stack.Push(new CloseEmNode(Current.Text));
-                    children = new List<SyntaxNode>();
-                    while (true)
-                    {
-                        var child = stack.Pop();
-                        if (child is StrongBodyNode)
-                            child = new TextNode(child.Text);
-                        children.Add(child);
-                        if (child is OpenEmNode)
-                            break;
-                    }
-
+                    children = PopStackUntilFind<OpenEmNode>()
+                        .Select(child => child is StrongTaggedBodyNode ? new TextNode(child.Text) : child)
+                        .ToList();
                     openTagStack.Pop();
 
-                    children.Reverse();
-                    children = children.TextifyInnerTags().ToList();
                     if (children.IsOnlyDigitsInInnerTextTags())
                         stack.Push(new TextNode(string.Join("", children.Select(child => child.Text))));
                     else
-                        stack.Push(new EmBodyNode(children));
+                        stack.Push(new EmTaggedBodyNode(children));
 
                     break;
                 case SyntaxKind.DoubleUnderscore:
@@ -105,26 +135,19 @@ public class Parser
                         break;
 
                     stack.Push(new CloseStrongNode(Current.Text));
-                    children = new List<SyntaxNode>();
-                    while (true)
-                    {
-                        var child = stack.Pop();
-                        children.Add(child);
-                        if (child is OpenStrongNode)
-                            break;
-                    }
-
+                    children = PopStackUntilFind<OpenStrongNode>().ToList();
                     openTagStack.Pop();
 
-                    children.Reverse();
                     if (children.Count == 2)
                         stack.Push(new TextNode(children[0].Text + children[1].Text));
                     else if (children.IsOnlyDigitsInInnerTextTags())
                         stack.Push(new TextNode(string.Join("", children.Select(child => child.Text))));
                     else
-                        stack.Push(new StrongBodyNode(children.TextifyInnerTags()));
+                        stack.Push(new StrongTaggedBodyNode(children));
 
                     break;
+                default:
+                    throw new Exception("Unhandled token");
             }
 
             position++;
@@ -132,7 +155,7 @@ public class Parser
 
         ResolveUnusedOpenedTags();
 
-        return new BodyNode(stack.Reverse().TextifyTags());
+        return new RootNode(stack.Reverse().TextifyTags());
     }
 
     public void ResolveUnusedOpenedTags()
@@ -150,8 +173,24 @@ public class Parser
 
             children.Reverse();
 
-            stack.Push(new HeaderBodyNode(children.TextifyInnerTags()));
+            stack.Push(new HeaderTaggedBodyNode(children));
         }
+    }
+
+    private IEnumerable<SyntaxNode> PopStackUntilFind<TNode>()
+        where TNode : SyntaxNode
+    {
+        var list = new List<SyntaxNode>();
+        while (true)
+        {
+            var child = stack.Pop();
+            list.Add(child);
+            if (child is TNode)
+                break;
+        }
+
+        list.Reverse();
+        return list.TextifyInnerTags();
     }
 
     private void CloseUnusedTags()
@@ -202,37 +241,5 @@ public class Parser
         }
 
         return false;
-    }
-}
-
-public static class Extensions
-{
-    public static IEnumerable<SyntaxNode> TextifyInnerTags(this IEnumerable<SyntaxNode> nodes)
-    {
-        yield return nodes.First();
-        foreach (var node in nodes.Skip(1).Take(nodes.Count() - 2).TextifyTags())
-            yield return node;
-        yield return nodes.Last();
-    }
-
-    public static IEnumerable<SyntaxNode> TextifyTags(this IEnumerable<SyntaxNode> nodes)
-    {
-        foreach (var node in nodes)
-        {
-            if (node is TextNode || node is BodyNode)
-                yield return node;
-            else
-                yield return new TextNode(node.Text);
-        }
-    }
-
-    public static bool IsOnlyDigitsInInnerTextTags(this IEnumerable<SyntaxNode> nodes)
-    {
-        return nodes
-            .Skip(1)
-            .Take(nodes.Count() - 2)
-            .Where(node => node is TextNode)
-            .SelectMany(node => node.Text)
-            .All(char.IsDigit);
     }
 }
