@@ -1,11 +1,12 @@
 ﻿using FluentAssertions;
 using Markdown;
+using Markdown.TagClasses;
 
 namespace MarkdownTests;
 
-public class PairParser_Should
+public class Parser_Should
 {
-    private static Tag[] tags = Tags.GetAllTags().ToArray();
+    private static Tag[] tags = {new BoldTag(), new EscapeTag(), new HeaderTag(), new ItalicTag()};
     private Parser parser;
 
     [SetUp]
@@ -20,7 +21,7 @@ public class PairParser_Should
     public void GetTagsToRenderParsesOneTagPair(string inputString)
     {
         var tagsToRender = parser.GetTagsToRender(inputString);
-        tagsToRender.Should().HaveCount(2); 
+        tagsToRender.Should().HaveCount(2);
         tagsToRender.First().StartIndex.Should().Be(0);
     }
 
@@ -41,7 +42,7 @@ public class PairParser_Should
     [Test]
     public void GetTagsToRenderEscapesEscapedTags()
     {
-        var tagsToRender = parser.GetTagsToRender("\\\\_Lorem ipsum_ _dolor_ sit amet");
+        var tagsToRender = parser.GetTagsToRender("\\\\_Lorem ipsum_ _dolor_ sit amet ");
         tagsToRender.Should().HaveCount(5);
     }
 

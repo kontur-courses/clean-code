@@ -1,12 +1,13 @@
 ﻿using FluentAssertions;
 using Markdown;
+using Markdown.TagClasses;
 
 namespace MarkdownTests;
 
 [TestFixture]
 public class MarkdownCreator_Should
 {
-    private static Tag[] tags = Tags.GetAllTags().ToArray();
+    private static Tag[] tags = { new BoldTag(), new EscapeTag(), new HeaderTag(), new ItalicTag() };
     private Parser parser;
     private Renderer renderer;
     private MarkdownCreator markdownCreator;
