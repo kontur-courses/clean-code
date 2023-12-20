@@ -4,10 +4,6 @@ namespace Markdown
 {
     public class Tag
     {
-        public Tag()
-        {
-        }
-
         public Tag(StringBuilder? markdownText, int index)
         {
             Text = markdownText;

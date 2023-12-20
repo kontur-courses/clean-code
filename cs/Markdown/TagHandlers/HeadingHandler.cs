@@ -4,7 +4,7 @@ namespace Markdown.TagHandlers
 {
     public class HeadingHandler : IHtmlTagCreator
     {
-        private FindTagSettings settings = new FindTagSettings(true, true, true);
+        private FindTagSettings settings = new(true, true, true);
         public Tag GetHtmlTag(StringBuilder markdownText, int openTagIndex, string? parentClosingTag)
         {
             var correct = IsCorrectOpenTag(markdownText, openTagIndex);
@@ -20,14 +20,9 @@ namespace Markdown.TagHandlers
             return new Tag(htmlTag, tag.Index);
         }
 
-        private bool IsCorrectOpenTag(StringBuilder markdownText, int openTagIndex)
-        {
-            if (openTagIndex == 0 || markdownText[openTagIndex - 1] == '\n')
-                return true;
-
-            return false;
-        }
-
+        private bool IsCorrectOpenTag(StringBuilder markdownText, int openTagIndex) =>
+            openTagIndex == 0 || markdownText[openTagIndex - 1] == '\n';
+        
         private Tag FindClosingTagIndex(StringBuilder markdownText, int openTagIndex)
         {
             var resultTag = new Tag(markdownText, -1);
@@ -49,9 +44,6 @@ namespace Markdown.TagHandlers
                     continue;
               
                 resultTag.NestedTags.Add(newTag);
-                
-                if (newTag.Index == i)
-                    continue;
 
                 i = newTag.Index;
             }

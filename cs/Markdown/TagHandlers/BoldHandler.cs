@@ -32,7 +32,7 @@ namespace Markdown.TagHandlers
 
         private StringBuilder? CreateHtmlTag(StringBuilder? markdownText, int openTagIndex, int closingTagIndex)
         {
-            markdownText!.Remove(closingTagIndex, 2);
+            markdownText.Remove(closingTagIndex, 2);
             markdownText.Insert(closingTagIndex, "</strong>");
             markdownText.Remove(openTagIndex, 2);
             markdownText.Insert(openTagIndex, "<strong>");
@@ -73,7 +73,6 @@ namespace Markdown.TagHandlers
                     continue;
 
                 resultTag.NestedTags.Add(newTag);
-
                 markdownText = newTag.Text;
                 i = newTag.Index;
                 correctPartOfWord = true;

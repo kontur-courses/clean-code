@@ -14,9 +14,6 @@ namespace Markdown
         {
             Tag tag;
 
-            if (char.IsDigit(markdownText[i]))
-                return new Tag(markdownText, i);
-
             if (IsScreening(markdownText, i) && IsScreening(markdownText, i - 1))
             {
                 markdownText.Remove(i - 2, 2);
@@ -57,12 +54,9 @@ namespace Markdown
                     return null;
 
                 tag = Italic.GetHtmlTag(markdownText, i, closingtagParent);
+                if (tag!= null)
+                    htmlText = tag.Text;
 
-                if (tag == null)
-                    return null;
-
-                htmlText = tag.Text;
-                i = tag.Index;
                 return tag;
             }
 

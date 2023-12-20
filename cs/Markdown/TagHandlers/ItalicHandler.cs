@@ -8,7 +8,7 @@ namespace Markdown.TagHandlers
         private const int MdTagLength = 2;
         private const int HtmlTagLength = 9;
 
-        public Tag GetHtmlTag(StringBuilder markdownText, int openTagIndex, string? parentClosingTag)
+        public Tag? GetHtmlTag(StringBuilder markdownText, int openTagIndex, string? parentClosingTag)
         {
             var closingTagIndex = FindClosingTagIndex(markdownText, openTagIndex + 1, parentClosingTag);
 
@@ -53,15 +53,15 @@ namespace Markdown.TagHandlers
             {
                 if (markdownText[i] == ' ')
                     oneWord = false;
-    
+
                 if (char.IsDigit(markdownText[i]))
                     return i;
 
                 if (IsItalicTagSymbol(markdownText, i) && TagSettings.IsCorrectClosingSymbol(markdownText, i, Italic))
                 {
-                    if (!oneWord && TagSettings.IsHalfOfWord(markdownText, i)) 
+                    if (!oneWord && TagSettings.IsHalfOfWord(markdownText, i))
                         return -1;
-                    
+
                     return i;
                 }
 
@@ -71,7 +71,7 @@ namespace Markdown.TagHandlers
                     else
                     {
                         var newTag = bold.GetHtmlTag(markdownText, i, "_");
-                        i = newTag.Index;                   
+                        i = newTag.Index;
                     }
             }
 
