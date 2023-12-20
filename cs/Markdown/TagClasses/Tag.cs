@@ -1,14 +1,15 @@
-﻿namespace Markdown.TagClasses;
+﻿using Markdown.TagClasses.TagModels;
+
+namespace Markdown.TagClasses;
 
 public abstract class Tag
 {
-    public abstract string Name { get; }
-    public abstract string MarkdownOpening { get; }
-    public abstract string MarkdownClosing { get; }
-    public abstract bool ShouldHavePair { get; }
-    public virtual bool TakePairTag => false;
-    public virtual string HtmlTagOpen => $"<{Name}>";
-    public virtual string HtmlTagClose => $"</{Name}>";
+    public readonly TagModel Model;
+
+    public Tag(TagModel model)
+    {
+        Model = model;
+    }
 
     public virtual bool IsMarkdownOpening(string markdownText, int startIndex)
     {
@@ -16,8 +17,8 @@ public abstract class Tag
             return false;
 
         var leftSpace = startIndex < 1 || char.IsWhiteSpace(markdownText[startIndex - 1]);
-        var rightNotWhiteSpace = startIndex < markdownText.Length - MarkdownOpening.Length
-                                 && !char.IsWhiteSpace(markdownText[startIndex + MarkdownOpening.Length]);
+        var rightNotWhiteSpace = startIndex < markdownText.Length - Model.MarkdownOpening.Length
+                                 && !char.IsWhiteSpace(markdownText[startIndex + Model.MarkdownOpening.Length]);
 
         return leftSpace && rightNotWhiteSpace;
     }
@@ -27,8 +28,8 @@ public abstract class Tag
         if (InNumber(markdownText, endIndex))
             return false;
 
-        var leftNotWhiteSpace = endIndex > MarkdownClosing.Length - 1
-                                && !char.IsWhiteSpace(markdownText[endIndex - MarkdownClosing.Length]);
+        var leftNotWhiteSpace = endIndex > Model.MarkdownClosing.Length - 1
+                                && !char.IsWhiteSpace(markdownText[endIndex - Model.MarkdownClosing.Length]);
         var rightSpace = endIndex <= markdownText.Length - 1
                          || char.IsWhiteSpace(markdownText[endIndex + 1]);
 
@@ -47,8 +48,8 @@ public abstract class Tag
             return false;
 
 
-        var insideStart = currentTagStartIndex + MarkdownOpening.Length;
-        var insideEnd = otherTagEndIndex - MarkdownClosing.Length + 1;
+        var insideStart = currentTagStartIndex + Model.MarkdownOpening.Length;
+        var insideEnd = otherTagEndIndex - Model.MarkdownClosing.Length + 1;
 
         var betweenTags = markdownText.Substring(insideStart, insideEnd - insideStart);
 
@@ -64,25 +65,28 @@ public abstract class Tag
         return otherTag.IsMarkdownClosing(markdownText, otherTagEndIndex);
     }
 
-    public abstract bool CantBeInsideTags(IEnumerable<Tag> tagsContext);
+    public virtual bool CantBeInsideTags(IEnumerable<Tag> tagsContext)
+    {
+        return false;
+    }
 
     public bool InWord(string markdownText, int startIndex)
     {
         return startIndex > 0
-               && startIndex < markdownText.Length - MarkdownOpening.Length
+               && startIndex < markdownText.Length - Model.MarkdownOpening.Length
                && (char.IsLetter(markdownText[startIndex - 1]) || markdownText[startIndex - 1] == '\\')
-               && (char.IsLetter(markdownText[startIndex + MarkdownOpening.Length])
-                   || markdownText[startIndex + MarkdownOpening.Length] == '\\');
+               && (char.IsLetter(markdownText[startIndex + Model.MarkdownOpening.Length])
+                   || markdownText[startIndex + Model.MarkdownOpening.Length] == '\\');
     }
 
     public bool InNumber(string markdownText, int startIndex)
     {
         var leftNumber = startIndex > 0 && char.IsNumber(markdownText[startIndex - 1]);
         var leftLetter = startIndex > 0 && char.IsLetter(markdownText[startIndex - 1]);
-        var rightNumber = startIndex < markdownText.Length - MarkdownOpening.Length
-                          && char.IsNumber(markdownText[startIndex + MarkdownOpening.Length]);
-        var rightLetter = startIndex < markdownText.Length - MarkdownOpening.Length
-                          && char.IsLetter(markdownText[startIndex + MarkdownOpening.Length]);
+        var rightNumber = startIndex < markdownText.Length - Model.MarkdownOpening.Length
+                          && char.IsNumber(markdownText[startIndex + Model.MarkdownOpening.Length]);
+        var rightLetter = startIndex < markdownText.Length - Model.MarkdownOpening.Length
+                          && char.IsLetter(markdownText[startIndex + Model.MarkdownOpening.Length]);
 
         return ((leftLetter && rightNumber)
                    || (leftNumber && rightLetter)
@@ -91,6 +95,6 @@ public abstract class Tag
 
     public override string ToString()
     {
-        return Name;
+        return Model.ToString();
     }
 }

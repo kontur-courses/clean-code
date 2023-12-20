@@ -1,13 +1,12 @@
-﻿namespace Markdown.TagClasses;
+﻿using Markdown.TagClasses.TagModels;
+
+namespace Markdown.TagClasses;
 
 public class EscapeTag : Tag
 {
-    public override string Name => "Escape";
-    public override string MarkdownOpening => "\\";
-    public override string MarkdownClosing => null;
-    public override string HtmlTagOpen => "";
-    public override string HtmlTagClose => null;
-    public override bool ShouldHavePair => false;
+    public EscapeTag() : base(new EscapeModel())
+    {
+    }
 
     public override bool IsMarkdownOpening(string markdownText, int startIndex)
     {

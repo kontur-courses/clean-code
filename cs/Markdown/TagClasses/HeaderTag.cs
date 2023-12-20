@@ -1,13 +1,12 @@
-﻿namespace Markdown.TagClasses;
+﻿using Markdown.TagClasses.TagModels;
+
+namespace Markdown.TagClasses;
 
 public class HeaderTag : Tag
 {
-    public override string Name => "Header";
-    public override string MarkdownOpening => "# ";
-    public override string MarkdownClosing => null;
-    public override string HtmlTagOpen => "<h1>";
-    public override string HtmlTagClose => "</h1>";
-    public override bool ShouldHavePair => true;
+    public HeaderTag() : base(new HeaderModel())
+    {
+    }
 
     public override bool IsMarkdownOpening(string markdownText, int startIndex)
     {
@@ -28,10 +27,5 @@ public class HeaderTag : Tag
     {
         var isTypeOfTag = otherTag as NewLineTag;
         return isTypeOfTag != null;
-    }
-
-    public override bool CantBeInsideTags(IEnumerable<Tag> tagsContext)
-    {
-        return false;
     }
 }

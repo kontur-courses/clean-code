@@ -18,7 +18,7 @@ public class Renderer : IRenderer
             }
             else
             {
-                stringBuilder.Append(tagInfo.IsOpening ? tagInfo.Tag.HtmlTagOpen : tagInfo.Tag.HtmlTagClose);
+                stringBuilder.Append(tagInfo.IsOpening ? tagInfo.Tag.Model.HtmlTagOpen : tagInfo.Tag.Model.HtmlTagClose);
                 i = tagInfo.EndIndex;
                 if (++tagIndex < tagsToRender.Length)
                     tagInfo = tagsToRender[tagIndex];

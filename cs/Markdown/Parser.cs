@@ -67,7 +67,7 @@ public class Parser : IParser
         for (int i = 0; i < tagsList.Count; i++)
         {
             var currentTagInfo = tagsList[i];
-            if (!currentTagInfo.Tag.ShouldHavePair)
+            if (!currentTagInfo.Tag.Model.ShouldHavePair)
             {
                 renderTags.Add(currentTagInfo.OpeningVariant());
                 continue;
@@ -82,10 +82,10 @@ public class Parser : IParser
                 if (currentTagInfo.Tag.CantBeInsideTags(tagsStack.Select(tagInfo => tagInfo.Tag).ToArray()))
                     continue;
 
-                renderTags.Add(lastTagInfo.Tag.TakePairTag ? 
+                renderTags.Add(lastTagInfo.Tag.Model.TakePairTag ? 
                     new MarkdownTagInfo(currentTagInfo.Tag, lastTagInfo.StartIndex, lastTagInfo.EndIndex).OpeningVariant() 
                     : lastTagInfo.OpeningVariant());
-                renderTags.Add(currentTagInfo.Tag.TakePairTag 
+                renderTags.Add(currentTagInfo.Tag.Model.TakePairTag 
                     ? new MarkdownTagInfo(lastTagInfo.Tag, currentTagInfo.StartIndex, currentTagInfo.EndIndex) 
                     : currentTagInfo);
             }
@@ -129,8 +129,8 @@ public class Parser : IParser
     {
         foreach (var tag in tags)
         {
-            if (tag.MarkdownOpening != null && tag.MarkdownOpening.StartsWith(substring)
-                || tag.MarkdownClosing != null && tag.MarkdownClosing.StartsWith(substring))
+            if (tag.Model.MarkdownOpening != null && tag.Model.MarkdownOpening.StartsWith(substring)
+                || tag.Model.MarkdownClosing != null && tag.Model.MarkdownClosing.StartsWith(substring))
                 return true;
         }
         return false;
@@ -144,11 +144,11 @@ public class Parser : IParser
 
     private Tag? FindTagByOpening(string markdownOpening)
     {
-        return tags.FirstOrDefault(tag => tag.MarkdownOpening != null && tag.MarkdownOpening == markdownOpening);
+        return tags.FirstOrDefault(tag => tag.Model.MarkdownOpening != null && tag.Model.MarkdownOpening == markdownOpening);
     }
 
     private Tag? FindTagByClosing(string markdownClosing)
     {
-        return tags.FirstOrDefault(tag => tag.MarkdownClosing != null && tag.MarkdownClosing == markdownClosing);
+        return tags.FirstOrDefault(tag => tag.Model.MarkdownClosing != null && tag.Model.MarkdownClosing == markdownClosing);
     }
 }

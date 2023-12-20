@@ -7,7 +7,7 @@ namespace MarkdownTests;
 [TestFixture]
 public class MarkdownCreator_Should
 {
-    private static Tag[] tags = { new BoldTag(), new EscapeTag(), new HeaderTag(), new ItalicTag(), new ListElement(), new NewLineTag()};
+    private static Tag[] tags = { new BoldTag(), new EscapeTag(), new HeaderTag(), new ItalicTag(), new ListElement(), new NewLineTag("\n")};
     private Parser parser;
     private Renderer renderer;
     private MarkdownCreator markdownCreator;
@@ -56,7 +56,7 @@ public class MarkdownCreator_Should
 
         var selectedTags = new Tag[]
         {
-            new BoldTag(), new EscapeTag(), new HeaderTag(), new ItalicTag(), new ListElement(), new WindowsNewLineTag()
+            new BoldTag(), new EscapeTag(), new HeaderTag(), new ItalicTag(), new ListElement(), new NewLineTag("\r\n")
         };
         var myMarkdownCreator = new MarkdownCreator(new Parser(selectedTags), renderer);
 
