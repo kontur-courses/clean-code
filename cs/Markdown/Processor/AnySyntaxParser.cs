@@ -1,4 +1,5 @@
-﻿using System.Runtime.InteropServices.JavaScript;
+﻿using System.Data;
+using System.Runtime.InteropServices.JavaScript;
 using System.Text;
 using Markdown.Syntax;
 using Markdown.Token;
@@ -38,8 +39,11 @@ public class AnySyntaxParser : IParser
                 continue;
             }
 
-            if (source[i] == '\n')
+            if (source[i].ToString() == syntax.NewLineSeparator)
+            {
                 possibleTag.Clear();
+                tags.Add(syntax.StringToToken[syntax.NewLineSeparator.ToString()].Invoke(i));
+            }
 
             var tag = possibleTag.ToString();
 
@@ -96,19 +100,31 @@ public class AnySyntaxParser : IParser
 
         foreach (var tag in tags)
         {
+            if (tag.Separator == syntax.NewLineSeparator)
+            {
+                openedTags.Clear();
+                continue;
+            }
+
             if (openedTags.ContainsKey(tag.Separator))
             {
                 tag.IsClosed = true;
                 if (tag.IsValid(source) && tag.IsPairedTokenValidPositioned(openedTags[tag.Separator], source))
                 {
+                    if (openedTags.Values.Any(token =>
+                            (!token.IsClosed && token.Position > openedTags[tag.Separator].Position)))
+                    {
+                        openedTags.Clear();
+                        continue;
+                    }
                     result.Add(openedTags[tag.Separator]);
                     result.Add(tag);
                     openedTags.Remove(tag.Separator);
                 }
             }
-            else if (!(syntax.UnsupportedTags.ContainsKey(tag.Separator) &&
-                       syntax.UnsupportedTags[tag.Separator].Any(t => openedTags.ContainsKey(t)) &&
-                       tag.IsValid(source)))
+            else if (tag.IsValid(source) && !(syntax.UnsupportedTags.ContainsKey(tag.Separator) &&
+                                              syntax.UnsupportedTags[tag.Separator]
+                                                  .Any(t => openedTags.ContainsKey(t))))
             {
                 if (tag.IsPair)
                     openedTags[tag.Separator] = tag;

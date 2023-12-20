@@ -21,6 +21,6 @@ public class Processor_Should
         var sut = new AnySyntaxParser(input, syntax);
         var tokens = sut.ParseTokens();
 
-        tokens.Should().BeEquivalentTo(expectedTokens);
+        tokens.Should().BeEquivalentTo(expectedTokens, options => options.Including(token => token.Position));
     }
 }

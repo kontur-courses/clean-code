@@ -20,28 +20,6 @@ public class ItalicToken : IToken
 
     public bool IsValid(string source)
     {
-        if (IsClosed && IsValidClose(source))
-        {
-            return true;
-        }
-
-        if (!IsClosed && IsValidOpen(source))
-        {
-            return true;
-        }
-
-        return false;
-    }
-
-    public bool IsValidOpen(string source)
-    {
-        return Position == 0 || (source.Length - 1 >= Position + Length && source[Position + Length] != ' ' &&
-                                 !char.IsDigit(source[Position - 1]));
-    }
-
-    public bool IsValidClose(string source)
-    {
-        return !(source[Position - 1] == ' ' ||
-                 source.Length - 1 >= Position + Length && char.IsDigit(source[Position + Length]));
+        return (IsClosed && this.IsValidClose(source)) || (!IsClosed && this.IsValidOpen(source));
     }
 }
