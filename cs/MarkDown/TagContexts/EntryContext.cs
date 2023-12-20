@@ -24,9 +24,9 @@ public class EntryContext : TagContext
         foreach (var context in InnerContexts
                      .Where(context => context.Closed))
         {
-            var (newStart, newEnd) = context.ConvertToHtml(text, sb, environment);
-            sb.Append(text.AsSpan(start, newStart - start));
-            start = newEnd;
+            var (innerStart, innerEnd) = context.ConvertToHtml(text, sb, environment);
+            sb.Insert(0, text.AsSpan(start, innerStart - start));
+            start = innerEnd;
         }
         
         if (start < text.Length)
@@ -38,5 +38,6 @@ public class EntryContext : TagContext
     public override void CloseSingleTags(int closeIndex)
     {
         Closed = true;
+        CloseIndex = closeIndex;
     }
 }

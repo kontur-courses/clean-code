@@ -54,6 +54,24 @@ public abstract class TagContext
         parent?.HandleSymbol(symbol);
     }
 
+    public TagContext SwitchToOpenContext()
+    {
+        if (!Closed || InnerContexts.Any(e => !e.Closed))
+            return this;
+        
+        var nowParent = parent;
+        
+        while (nowParent is not null)
+        {
+            if (!nowParent.Closed)
+                return nowParent;
+
+            nowParent = nowParent.parent;
+        }
+
+        return this;
+    }
+
     protected abstract void HandleSymbolItself(char symbol);
 
     public abstract (int start, int end) ConvertToHtml(string text, StringBuilder sb, MarkDownEnvironment environment);

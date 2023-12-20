@@ -30,15 +30,7 @@ public class MarkDownEnvironment
         return openTag is not null;
     }
 
-    // public bool CanCreateContext(ITagContext nowContext, TagName tagName)
-    // {
-    //     if (unsupportedForTag.TryGetValue(nowContext.tagName, out var unsupported))
-    //         return !unsupported.Contains(tagName);
-    //
-    //     return true;
-    // }
-
-    public bool CanGetCloseTag(string text, int position, out List<Tag> closeTags)
+    public bool CanGetCloseTags(string text, int position, out List<Tag> closeTags)
     {
         closeTags = new List<Tag>();
         

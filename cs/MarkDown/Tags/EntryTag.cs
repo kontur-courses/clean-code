@@ -32,6 +32,6 @@ public class EntryTag : Tag
 
     public override bool IsClosePosition(string text, int position)
     {
-        return text.Length == position + 1;
+        return false;
     }
 }

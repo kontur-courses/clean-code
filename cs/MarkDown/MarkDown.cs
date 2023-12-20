@@ -17,6 +17,28 @@ public class MarkDown
         {
             nowContext.HandleSymbol(mdText[i]);
             
+            if (environment.CanGetCloseTags(mdText, i, out var closeTags))
+            {
+                var maxCloseLength = 0;
+                var isAnyClosed = false;
+                    
+                foreach (var closeTag in closeTags)
+                {
+                    if (nowContext.TryClose(closeTag.TagName, i))
+                    {
+                        maxCloseLength = Math.Max(maxCloseLength, closeTag.MarkDownClose.Length);
+                        isAnyClosed = true;
+                        nowContext = nowContext.SwitchToOpenContext();
+                    }
+                }
+                
+                if (isAnyClosed)
+                {
+                    i += closeTags.Max(e => e.MarkDownClose.Length);
+                    continue;
+                }
+            }
+            
             if (environment.CanGetTagCreator(mdText, i, out var openTag))
             {
                 var newContext = openTag.CreateContext(i, nowContext);
@@ -27,19 +49,9 @@ public class MarkDown
                 i += openTag.MarkDownOpen.Length - 1;
                 continue;
             }
-
-            if (environment.CanGetCloseTag(mdText, i, out var closeTags))
-            {
-                foreach (var closeTag in closeTags)
-                {
-                    nowContext.TryClose(closeTag.TagName, i);
-                }
-                
-                i += closeTags.Max(e => e.MarkDownClose.Length);
-            }
         }
 
-        nowContext.CloseSingleTags(mdText.Length - 1);
+        nowContext.CloseSingleTags(mdText.Length);
 
         return entryContext;
     }

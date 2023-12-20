@@ -31,7 +31,6 @@ public class HeaderTag : Tag
 
     public override bool IsClosePosition(string text, int position)
     {
-        return position == text.Length - 1
-               || text[position + 1].ToString().Equals(System.Environment.NewLine);
+        return text[position].ToString().Equals(System.Environment.NewLine);
     }
 }

@@ -21,12 +21,12 @@ public class HeaderContext : TagContext
         foreach (var context in InnerContexts
                      .Where(context => context.Closed))
         {
-            var (newStart, newEnd) = context.ConvertToHtml(text, sb, environment);
-            sb.Append(text.AsSpan(start, newStart - start));
-            start = newEnd + 1;
+            var (innerStart, innerEnd) = context.ConvertToHtml(text, sb, environment);
+            sb.Insert(0, text.AsSpan(start, innerStart - start));
+            start = innerEnd;
         }
         
-        sb.Append(text.AsSpan(start, CloseIndex - start + 1));
+        sb.Append(text.AsSpan(start, CloseIndex - start));
 
         sb.Append(Creator.HtmlClose);
         
@@ -41,5 +41,6 @@ public class HeaderContext : TagContext
             return;
         
         CloseIndex = closeIndex;
+        Closed = true;
     }
 }
