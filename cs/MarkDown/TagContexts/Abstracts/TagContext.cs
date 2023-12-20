@@ -112,29 +112,14 @@ public abstract class TagContext
         int nearestParentCloseIndex,
         IEnumerable<int> screeningIndexes)
     {
-        var start = StartIndex;
         var showInHtml = Closed && !HasUnsupportedParents(environment) && !IsIntersected;
-        
-        if (IsScreened)
-        {
-            start += IsScreenedStart ? 1 : 0;
-            start += TagFactory.MarkDownOpen.Length;
-            sb.Append(TagFactory.MarkDownOpen);
-        }
-        
-        if (showInHtml && !IsScreened)
-        {
-            start += TagFactory.MarkDownOpen.Length;
-            sb.Append(TagFactory.HtmlOpen);
-        }
+        var start = AppendStart(showInHtml, sb);
         
         foreach (var context in innerContexts)
         {
             var beforeInner = sb.Length;
             var (innerStart, innerEnd) = context.CreateHtml(
-                text, 
-                sb, 
-                environment, 
+                text, sb, environment, 
                 showInHtml ? CloseIndex : nearestParentCloseIndex,
                 screeningIndexes);
 
@@ -149,7 +134,34 @@ public abstract class TagContext
                          showInHtml ? CloseIndex : nearestParentCloseIndex,
                          screeningIndexes))
                 sb.Append(text.AsSpan(part.start, part.end - part.start));
+
+        var end = AppendEnd(showInHtml, nearestParentCloseIndex, sb);
         
+        return (StartIndex, end);
+    }
+
+    private int AppendStart(bool showInHtml, StringBuilder sb)
+    {
+        var start = StartIndex;
+        
+        if (IsScreened)
+        {
+            start += IsScreenedStart ? 1 : 0;
+            start += TagFactory.MarkDownOpen.Length;
+            sb.Append(TagFactory.MarkDownOpen);
+        }
+        
+        if (showInHtml && !IsScreened)
+        {
+            start += TagFactory.MarkDownOpen.Length;
+            sb.Append(TagFactory.HtmlOpen);
+        }
+
+        return start;
+    }
+
+    private int AppendEnd(bool showInHtml, int nearestParentCloseIndex, StringBuilder sb)
+    {
         if (showInHtml)
         {
             if (IsScreened)
@@ -165,8 +177,10 @@ public abstract class TagContext
             else
                 sb.Append(TagFactory.HtmlClose);
         }
-        
-        return (StartIndex, showInHtml ? CloseIndex + TagFactory.MarkDownClose.Length : nearestParentCloseIndex);
+
+        return showInHtml
+            ? CloseIndex + TagFactory.MarkDownClose.Length
+            : nearestParentCloseIndex;
     }
 
     private IEnumerable<(int start, int end)> GetPartsWithoutScreening(int start, int end, IEnumerable<int> screeningIndexes)

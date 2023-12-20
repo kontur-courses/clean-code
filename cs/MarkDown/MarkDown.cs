@@ -19,61 +19,95 @@ public class MarkDown
         for (var i = 0; i < mdText.Length; i++)
         {
             nowContext.HandleSymbol(mdText[i]);
-            
-            if (environment.CanGetCloseTags(mdText, i, out var closeTags))
-            {
-                var maxCloseLength = 0;
-                var isAnyClosed = false;
-                    
-                foreach (var closeTag in closeTags)
-                {
-                    if (nowContext.TryClose(closeTag.TagName, i, out var closedContext, isScreened))
-                    {
-                        maxCloseLength = Math.Max(maxCloseLength, closeTag.MarkDownClose.Length);
-                        isAnyClosed = true;
 
-                        if (closedContext is ResetContext resetContext)
-                        {
-                            nowContext = resetContext.SwitchToOpenContext();
-                        }
-                    }
-                }
-                
-                if (isAnyClosed)
-                {
-                    i += closeTags.Max(e => e.MarkDownClose.Length) - 1;
-                    continue;
-                }
-            }
-            
-            if (environment.CanGetTagCreator(mdText, i, out var openTag))
+            var (isClosed, closeLength, newOpenContext) = CloseContextIfPossible(
+                mdText, i, nowContext, isScreened, environment);
+
+            if (isClosed)
             {
-                var newContext = openTag.CreateContext(mdText, i, nowContext, isScreened);
-                nowContext.AddInnerContext(newContext);
-                
-                nowContext = newContext;
-            
-                i += openTag.MarkDownOpen.Length - 1;
+                i += closeLength;
                 continue;
             }
-            
-            if (mdText[i] == '\\')
+
+            var (isOpened, openLength, newContext) = OpenContextIfPossible(
+                mdText, i, nowContext, isScreened, environment);
+
+            if (isOpened)
             {
-                if (isScreened)
-                {
-                    screeningIndexes.Add(i);
-                    isScreened = false;
-                }
-                else
-                    isScreened = true;
+                i += openLength;
+                nowContext = newContext;
+                continue;
             }
-            else
-                isScreened = false;
+
+            isScreened = HandleScreening(mdText, i, isScreened, screeningIndexes);
         }
 
         nowContext.CloseSingleTags(mdText.Length);
 
         return (entryContext, screeningIndexes);
+    }
+
+    private static (bool isClosed, int closeLength, TagContext newOpenContext) CloseContextIfPossible(
+        string mdText, 
+        int i, 
+        TagContext nowContext,
+        bool isScreened,
+        MarkDownEnvironment environment)
+    {
+        var isAnyClosed = false;
+        var newContext = nowContext;
+        var maxCloseLength = 0;
+
+        if (environment.CanGetCloseTags(mdText, i, out var closeTags))
+        {
+            foreach (var closeTag in closeTags)
+            {
+                if (nowContext.TryClose(closeTag.TagName, i, out var closedContext, isScreened))
+                {
+                    maxCloseLength = Math.Max(maxCloseLength, closeTag.MarkDownClose.Length);
+                    isAnyClosed = true;
+
+                    if (closedContext is ResetContext resetContext) 
+                        newContext = resetContext.SwitchToOpenContext();
+                }
+            }
+                
+            if (isAnyClosed) 
+                maxCloseLength = closeTags.Max(e => e.MarkDownClose.Length) - 1;
+        }
+
+        return (isAnyClosed, maxCloseLength, newContext);
+    }
+
+    private static (bool isOpened, int openLength, TagContext newContext) OpenContextIfPossible(
+        string mdText,
+        int i,
+        TagContext nowContext,
+        bool isScreened,
+        MarkDownEnvironment environment)
+    {
+        if (environment.CanGetTagCreator(mdText, i, out var openTag))
+        {
+            var newContext = openTag.CreateContext(mdText, i, nowContext, isScreened);
+            nowContext.AddInnerContext(newContext);
+            
+            return (true, openTag.MarkDownOpen.Length - 1, newContext);
+        }
+
+        return (false, 0, nowContext);
+    }
+
+    private static bool HandleScreening(
+        string mdText,
+        int i,
+        bool isScreened,
+        List<int> screeningIndexes)
+    {
+        if (mdText[i] != '\\') return false;
+        if (!isScreened) return true;
+        
+        screeningIndexes.Add(i);
+        return false;
     }
     
     public static string GenerateHtml(string mdText, MarkDownEnvironment environment)

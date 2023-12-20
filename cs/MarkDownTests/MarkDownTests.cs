@@ -17,6 +17,7 @@ public class MarkDownTests
     [TestCase(" # a \n", " # a \n", TestName = "IsCreatedWhenIncorrectStart")]
     [TestCase("# __a__\n", "<h1><strong>a</strong></h1>", TestName = "SupportsAnotherTagsInsideWhenNewLineAtTheEnd")]
     [TestCase("# __a__", "<h1><strong>a</strong></h1>", TestName = "SupportsAnotherTagsInsideWhenNoNewLineAtTheEnd")]
+    [TestCase("# __a _b_ c__", "<h1><strong>a <em>b</em> c</strong></h1>", TestName = "SupportsMultipleTagsInside")]
     public void GenerateHtml_Header(string markdown, string expected)
     {
         MarkDown.MarkDown.GenerateHtml(markdown, markDownEnv)

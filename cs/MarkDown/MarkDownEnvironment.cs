@@ -7,7 +7,6 @@ namespace MarkDown;
 public class MarkDownEnvironment
 {
     private readonly Dictionary<TagName, TagFactory> markDownTags = new();
-    // private readonly Dictionary<TagName, List<TagName>> unsupportedForTag = new();
     private readonly Dictionary<TagFactory, List<TagName>> unsupportedParentsForTag = new();
 
     public MarkDownEnvironment()
@@ -55,14 +54,6 @@ public class MarkDownEnvironment
         return markDownTags[tagName];
     }
 
-    // public void AddUnsupportedInnersFor(TagName tagName, params TagName[] unsupported)
-    // {
-    //     if (unsupportedForTag.TryGetValue(tagName, out var types))
-    //         types.AddRange(unsupported);
-    //     else
-    //         unsupportedForTag[tagName] = new List<TagName>(unsupported);
-    // }
-
     public void AddUnsupportedParentsFor(TagFactory tagFactory, params TagName[] unsupported)
     {
         if (unsupportedParentsForTag.TryGetValue(tagFactory, out var tags))
@@ -77,11 +68,4 @@ public class MarkDownEnvironment
             ? tags
             : Enumerable.Empty<TagName>();
     }
-
-    // public IEnumerable<TagName> GetUnsupportedInnersFor(TagName tagName)
-    // {
-    //     return unsupportedForTag.TryGetValue(tagName, out var tags) 
-    //         ? tags
-    //         : Enumerable.Empty<TagName>();
-    // }
 }
