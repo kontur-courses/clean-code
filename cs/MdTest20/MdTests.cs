@@ -1,5 +1,7 @@
+using System.Diagnostics;
 using FluentAssertions;
 using Markdown;
+using Markdown.Tags;
 
 namespace MdTest20;
 
@@ -7,9 +9,85 @@ public class MdTests
 {
     private Md sut;
 
+    private readonly Dictionary<string, TagType> tagDictionary = new()
+    {
+        { "_", TagType.Italic },
+        { "__", TagType.Bold },
+        { "# ", TagType.Heading },
+        { "\n", TagType.LineBreaker },
+        { "\r\n", TagType.LineBreaker },
+        { "* ", TagType.Bulleted }
+    };
+
     [SetUp]
     public void Setup()
     {
+        sut = new Md(tagDictionary);
+    }
+
+    private static IEnumerable<TestCaseData> ConstructorParserExpectedTokenList => new[]
+    {
+        new TestCaseData("text",
+                new List<Token> { new("text", null, TokenType.Text), new("\n", null, TokenType.LineBreaker) })
+            .SetName("Text without Tags"),
+        new TestCaseData("_tex_t",
+                new List<Token>
+                {
+                    new("_", Tag.CreateTag(TagType.Italic, "_", null, "t"), TokenType.Tag),
+                    new("tex", null, TokenType.Text),
+                    new("_", Tag.CreateTag(TagType.Italic, "_", new Token("tex", null, TokenType.Text), null),
+                        TokenType.Tag),
+                    new("t", null, TokenType.Text),
+                    new("\n", null, TokenType.LineBreaker)
+                })
+            .SetName("Text with Italic Tags"),
+        new TestCaseData(@"_text\_",
+                new List<Token>
+                {
+                    new("_", Tag.CreateTag(TagType.Italic, "_", null, "t"), TokenType.Tag),
+                    new("text", null, TokenType.Text),
+                    new(@"\", null, TokenType.Escape),
+                    new("_", null, TokenType.Text),
+                    new("\n", null, TokenType.LineBreaker)
+                })
+            .SetName("Text with Escape Tags"),
+        new TestCaseData(@"te\\xt",
+                new List<Token>
+                {
+                    new("te", null, TokenType.Text),
+                    new(@"\", null, TokenType.Escape),
+                    new(@"\", null, TokenType.Text),
+                    new("xt", null, TokenType.Text),
+                    new("\n", null, TokenType.LineBreaker)
+                })
+            .SetName("Text with double Escape Tags"),
+        new TestCaseData(@"te\xt",
+                new List<Token>
+                {
+                    new("te", null, TokenType.Text),
+                    new(@"\", null, TokenType.Text),
+                    new("xt", null, TokenType.Text),
+                    new("\n", null, TokenType.LineBreaker)
+                })
+            .SetName("Escape Tags in Text"),
+        new TestCaseData("__tex_t",
+                new List<Token>
+                {
+                    new("__", Tag.CreateTag(TagType.Bold, "__", null, "t"), TokenType.Tag),
+                    new("tex", null, TokenType.Text),
+                    new("_", Tag.CreateTag(TagType.Italic, "_", new Token("tex", null, TokenType.Text), null),
+                        TokenType.Tag),
+                    new("t", null, TokenType.Text),
+                    new("\n", null, TokenType.LineBreaker)
+                })
+            .SetName("Tag Mix in Text")
+    };
+
+    [TestCaseSource(nameof(ConstructorParserExpectedTokenList))]
+    public void Parse_ShouldReturnItalicToken_WhenThereIsItalicToken(string text, List<Token> expectedTokens)
+    {
+        var parser = new Parser(tagDictionary);
+        parser.Parse(text).Should().BeEquivalentTo(expectedTokens);
     }
 
     [TestCase("_text_", "<em>text</em>", TestName = "Italic")]
@@ -21,7 +99,6 @@ public class MdTests
     [TestCase("_1a_", "_1a_", TestName = "Mixes text is not italic")]
     public void Render_HandleItalicText_ShouldBeExpected(string text, string expected)
     {
-        var sut = new Md();
         sut.Render(text).Should().Be(expected);
     }
 
@@ -32,7 +109,6 @@ public class MdTests
     [TestCase(@"_\te\xt_", @"<em>\te\xt</em>", TestName = " escaped character after tag")]
     public void EscapeTagTests(string text, string expected)
     {
-        var sut = new Md();
         sut.Render(text).Should().Be(expected);
     }
 
@@ -45,7 +121,6 @@ public class MdTests
     [TestCase("__11__", "__11__", TestName = "digit no Bold")]
     public void Render_HandleBoldText_ShouldBeExpected(string text, string expected)
     {
-        var sut = new Md();
         sut.Render(text).Should().Be(expected);
     }
 
@@ -63,7 +138,6 @@ public class MdTests
     [TestCase("____ text", "____ text", TestName = "Empty between paired tags")]
     public void Render_HandleTextWithPairedTags_ShouldBeExpected(string text, string expected)
     {
-        var sut = new Md();
         sut.Render(text).Should().Be(expected);
     }
 
@@ -73,12 +147,11 @@ public class MdTests
     [TestCase("# _text_\n", "<h1><em>text</em></h1>")]
     [TestCase("# _text_\r\n", "<h1><em>text</em></h1>")]
     [TestCase("# _text\r\n_hello_\r\n", "<h1>_text</h1>\n<em>hello</em>")]
-    public void HeaderTagTests(string text, string expected)
+    public void Render_HeaderTagTestsShouldBeExpected(string text, string expected)
     {
-        var sut = new Md();
-        var tg = sut.Render(text);
-        tg.Should().Be(expected);
+        sut.Render(text).Should().Be(expected);
     }
+
     [TestCase(@"\\* a", @"\* a", TestName = "Double screen Bulleted")]
     [TestCase("* _text_\n", "<li><em>text</em></li>")]
     [TestCase("* # _text_\r\n", "<li><h1><em>text</em></h1></li>")]
@@ -86,8 +159,32 @@ public class MdTests
     [TestCase("# * _text\r\n* _hello_\r\n", "<h1>* _text</h1>\n<li><em>hello</em></li>")]
     public void Render_BulletedTagTests_ShouldBeExpected(string text, string expected)
     {
-        var sut = new Md();
-        var tg = sut.Render(text);
-        tg.Should().Be(expected);
+        sut.Render(text).Should().Be(expected);
+    }
+
+    [Test]
+    public void LinearTimeComlexityTest()
+    {
+        const int linearCoefficient = 2;
+        var mdExpression = "# I'm __living__ life do or _die_, what can I say\n" +
+                           "* I'm 23 now will I ever live to see 24\n" +
+                           "* The way things is going I don't know\n" +
+                           "* # Tell m_e wh_y are we so blind to see\n" +
+                           "__That the ones we hurt are you and me.__";
+        var stopwatch = new Stopwatch();
+        stopwatch.Start();
+        sut.Render(mdExpression);
+        stopwatch.Stop();
+        var previous = stopwatch.ElapsedTicks;
+        for (var i = 0; i < 5; i++)
+        {
+            mdExpression += mdExpression;
+            stopwatch.Restart();
+            sut.Render(mdExpression);
+            stopwatch.Stop();
+
+            Assert.That(stopwatch.ElapsedTicks / previous, Is.LessThanOrEqualTo(linearCoefficient));
+            previous = stopwatch.ElapsedTicks;
+        }
     }
 }
