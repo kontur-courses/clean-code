@@ -6,14 +6,6 @@ namespace Markdown
 {
     public static class Md
     {
-        private static readonly Dictionary<TagType, string> mdTags = new()
-        {
-            { TagType.Header, "# " },
-            { TagType.Bold, "__" },
-            { TagType.Italic, "_" },
-            { TagType.Escape, "\\" }
-        };
-
         private static readonly Dictionary<string, TagType> mdTagsTranslator = new()
         {
             { "# ", TagType.Header },
@@ -49,6 +41,8 @@ namespace Markdown
                 HandleSymbol(tokens, paragraph, currentIndex);
                 currentIndex += tokens[^1].Content.Length;
             }
+            if (tokens.FirstOrDefault()?.Content == "# ")
+                tokens.Add(new Token(TokenType.Tag, "# "));
 
             return tokens;
         }
@@ -117,7 +111,7 @@ namespace Markdown
         private static bool IsBoldOrItalicClose(List<Token> tokens, int index)
         {
             return index - 1 > 0 && tokens[index - 1].TokenType is not TokenType.Space &&
-                   (index + 1 >= tokens.Count || tokens[index + 1].TokenType is TokenType.Space);
+                   (index + 1 >= tokens.Count || tokens[index + 1].Content is " " or "# " );
         }
         private static bool IsBoldOrItalicOpen(List<Token> tokens, int index)
         {
@@ -136,7 +130,11 @@ namespace Markdown
 
         public static List<Token> EscapeNonPairTokens(this List<Token> tokens)
         {
+            var hasHeader = tokens.FirstOrDefault()?.Content is "# ";
             var resultTokens = new List<Token>();
+            if (hasHeader)
+                resultTokens.Add(tokens[0]);
+            tokens = tokens.Skip(1).SkipLast(1).ToList();
             var openTags = new Stack<Token>();
             var incorrectTags = new List<Token>();
             for (var index = 0; index < tokens.Count; index++)
@@ -144,7 +142,8 @@ namespace Markdown
                 var token = tokens[index];
                 resultTokens.Add(token);
                 if (token.TokenType is TokenType.Text or TokenType.Space) continue;
-                if (token.Content is "_" or "__" && IsBoldOrItalicOpen(tokens, index))
+                if (token.Content is "_" or "__" && IsBoldOrItalicOpen(tokens, index) ||
+                    token.Content is "# ")
                 {
                     openTags.Push(token);
                 }
@@ -163,6 +162,8 @@ namespace Markdown
 
             incorrectTags.AddRange(openTags);
             ChangeTypesForIncorrectTokens(incorrectTags);
+            if (hasHeader)
+                resultTokens.Add(new Token(TokenType.Tag, "# "));
             return resultTokens;
         }
         private static void ChangeTypesForIncorrectTokens(List<Token> incorrectTags)
@@ -205,6 +206,7 @@ namespace Markdown
             var paragraph = new StringBuilder();
             var isItalicOpen = false;
             var isBoldOpen = false;
+            var isHeaderOpen = false;
             foreach (var token in tokens)
             {
                 if (token.TokenType is TokenType.Text or TokenType.Space)
@@ -213,23 +215,25 @@ namespace Markdown
                     continue;
                 }
 
-                CreateTag(result, token, paragraph.Length, isItalicOpen, isBoldOpen);
+                CreateTag(result, token, paragraph.Length, isItalicOpen, isBoldOpen, isHeaderOpen);
                 if (result[^1].Type is TagType.Italic)
                     isItalicOpen = !result[^1].IsEndTag;
                 else if (result[^1].Type is TagType.Bold)
                     isBoldOpen = !result[^1].IsEndTag;
+                else if (result[^1].Type is TagType.Header)
+                    isHeaderOpen = !result[^1].IsEndTag;
             }
 
             return new ParsedText(paragraph.ToString(), result);
         }
 
         private static void CreateTag(List<ITag> result, Token token, int position, bool shouldCloseItalic,
-            bool shouldCloseBold)
+            bool shouldCloseBold, bool shouldCloseHeader)
         {
             switch (mdTagsTranslator[token.Content])
             {
                 case TagType.Header:
-                    result.Add(new HeaderTag(position));
+                    result.Add(new HeaderTag(position, shouldCloseHeader));
                     break;
                 case TagType.Italic:
                     result.Add(new ItalicTag(position, shouldCloseItalic));

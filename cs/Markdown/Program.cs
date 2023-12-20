@@ -4,7 +4,7 @@
     {
         public static void Main(string[] args)
         {
-            Console.WriteLine(Md.Render("# Заголовок __с _разными_ символами__"));
+            Console.WriteLine(Md.Render("# __Заголовок__ с _разными_ символами__"));
         }
     }
 }

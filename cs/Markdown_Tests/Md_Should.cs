@@ -23,7 +23,7 @@ namespace Markdown_Tests
         [Test]
         public void Header()
         {
-            var str = "__З__";
+            var str = "# __З__";
             var expected = "_abob2a";
             var res = Md.GetTokens(str).EscapeTags().EscapeInvalidTokens().EscapeNonPairTokens();
             ;
