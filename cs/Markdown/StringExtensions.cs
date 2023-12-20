@@ -20,10 +20,7 @@ public static class StringExtensions
 
         if (text.Length <= idx + tag.Md.Length)
         {
-            if (tag.GetType() == typeof(EmTag) && text[idx - 1] == '_')
-                return false;
-
-            if (isOpen)
+            if (isOpen || (tag.GetType() == typeof(EmTag) && text[idx - 1] == '_'))
                 return false;
 
             return text[idx - 1] != ' ';
@@ -42,7 +39,7 @@ public static class StringExtensions
     public static bool IsShielded(this string text, int idx)
     {
         var count = 0;
-        for (var i = idx - 1; i >= 0; i++)
+        for (var i = idx - 1; i >= 0; i--)
         {
             if (text[i] == '\\')
                 count++;
@@ -64,10 +61,9 @@ public static class StringExtensions
                 count++;
             else if (count != 0)
             {
+                sb.Remove(i - count / 2, count / 2);
                 if (count % 2 == 1)
-                    sb.Remove(i - 1 - count / 2, 1 + count / 2);
-                else
-                    sb.Remove(i - count / 2, count / 2);
+                    sb.Remove(i - 1 - count / 2, 1);
 
                 count = 0;
             }
@@ -83,7 +79,7 @@ public static class StringExtensions
         return sb.ToString();
     }
 
-    private static bool IsOpenOfParagraph(this string text, int idx)
+    public static bool IsOpenOfParagraph(this string text, int idx)
     {
         return idx == 0 || text[idx - 1] == '\n';
     }
@@ -91,8 +87,8 @@ public static class StringExtensions
     public static int CloseIndexOfParagraph(this string text, int idx)
     {
         for (var i = idx + 1; i < text.Length; i++)
-            if (text[idx] == '\n')
-                return idx;
+            if (text[i] == '\n')
+                return i;
 
         return text.Length;
     }

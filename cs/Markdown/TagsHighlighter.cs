@@ -4,11 +4,16 @@ namespace Markdown;
 
 public class TagsHighlighter(IEnumerable<ITag> tags)
 {
-    public string MarkdownText { get; set; }
+    private string markdownText;
+
+    public TagsHighlighter(IEnumerable<ITag> tags, string markdownText) : this(tags)
+    {
+        this.markdownText = markdownText;
+    }
 
     public HighlightedData HighlightMdTags(string markdownText)
     {
-        MarkdownText = markdownText;
+        this.markdownText = markdownText;
         return new HighlightedData(markdownText, TagsIndexes());
     }
 
@@ -38,17 +43,17 @@ public class TagsHighlighter(IEnumerable<ITag> tags)
     public void FindTagIndexes(ITag tag, ref List<PairTagInfo> tagInfos)
     {
         var openIdx = -1;
-        for (var i = 0; i < MarkdownText.Length; i++)
+        for (var i = 0; i < markdownText.Length; i++)
         {
-            var tagIdx = MarkdownText.IndexOf(tag.Md, i, StringComparison.Ordinal);
+            var tagIdx = markdownText.IndexOf(tag.Md, i, StringComparison.Ordinal);
 
             if (tagIdx == -1)
                 return;
 
-            if (MarkdownText.IsShielded(tagIdx))
+            if (markdownText.IsShielded(tagIdx))
                 continue;
 
-            if (MarkdownText.IsTag(tag, tagIdx, openIdx == -1))
+            if (markdownText.IsTag(tag, tagIdx, openIdx == -1))
             {
                 if (openIdx == -1)
                 {
@@ -56,11 +61,8 @@ public class TagsHighlighter(IEnumerable<ITag> tags)
 
                     if (tag.GetType() == typeof(HeaderTag))
                     {
-                        tagIdx = MarkdownText.CloseIndexOfParagraph(tagIdx);
-
-                        tagInfos.Add(new PairTagInfo(openIdx, tagIdx));
+                        tagInfos.Add(new PairTagInfo(openIdx, markdownText.CloseIndexOfParagraph(tagIdx)));
                         openIdx = -1;
-
                         i = tagIdx;
                         continue;
                     }
@@ -76,9 +78,9 @@ public class TagsHighlighter(IEnumerable<ITag> tags)
                     tagInfos.Add(new PairTagInfo(openIdx, tagIdx));
                     openIdx = -1;
                 }
-
-                i = tagIdx;
             }
+
+            i = tagIdx;
         }
     }
 

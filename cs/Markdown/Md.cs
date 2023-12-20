@@ -21,7 +21,6 @@ public class Md
         this.tags = new HashSet<ITag>(tags);
     }
 
-    // _some string_ => <em>some string</em>
     public string Render(string markdownText)
     {
         var highlighted = new TagsHighlighter(tags).HighlightMdTags(markdownText);

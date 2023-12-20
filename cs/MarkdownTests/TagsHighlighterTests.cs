@@ -6,25 +6,16 @@ namespace MarkdownTests;
 
 public class TagsHighlighterTests
 {
-    private TagsHighlighter tagsHighlighter;
-
-    [SetUp]
-    public void Setup()
-    {
-        var tags = new List<ITag>
-        {
-            new EmTag(),
-            new StrongTag(),
-            new HeaderTag()
-        };
-
-        tagsHighlighter = new TagsHighlighter(tags);
-    }
-
     [Test]
     public void FindOnlyTagIndexesEm()
     {
-        tagsHighlighter.MarkdownText = "_agd_ __asd__ _a__asd_s fa2_4_";
+        var tagsHighlighter = new TagsHighlighter(
+            new HashSet<ITag>
+            {
+                new EmTag(),
+                new StrongTag()
+            },
+            "_agd_ __asd__ _a__asd_s fa2_4_");
 
         var actual = new List<PairTagInfo>();
 
@@ -42,7 +33,13 @@ public class TagsHighlighterTests
     [Test]
     public void FindOnlyTagIndexesStrong()
     {
-        tagsHighlighter.MarkdownText = "___a__ __b__as __a__ c__";
+        var tagsHighlighter = new TagsHighlighter(
+            new HashSet<ITag>
+            {
+                new EmTag(),
+                new StrongTag()
+            },
+            "___a__ __b__as __a__ c__");
 
         var actual = new List<PairTagInfo>();
 
@@ -60,13 +57,18 @@ public class TagsHighlighterTests
     [Test]
     public void FindCorrectHeaderPosition()
     {
-        tagsHighlighter.MarkdownText = "#asfsf asf gewg e\t #asxf # \n#.";
+        var tagsHighlighter = new TagsHighlighter(
+            new HashSet<ITag>
+            {
+                new HeaderTag()
+            },
+            "asfsf asf gewg e\t #asxf # \n# a");
 
         var actual = new List<PairTagInfo>();
 
         tagsHighlighter.FindTagIndexes(new HeaderTag(), ref actual);
 
-        var expected = new List<PairTagInfo> { new(0, 28) };
+        var expected = new List<PairTagInfo> { new(27, 30) };
 
         actual.Should().BeEquivalentTo(expected);
     }
@@ -74,7 +76,12 @@ public class TagsHighlighterTests
     [Test]
     public void IgnoreTagWithShielding()
     {
-        tagsHighlighter.MarkdownText = "\\_a_";
+        var tagsHighlighter = new TagsHighlighter(
+            new HashSet<ITag>
+            {
+                new EmTag()
+            },
+            "\\_a_");
 
         var actual = new List<PairTagInfo>();
 
@@ -84,29 +91,42 @@ public class TagsHighlighterTests
     }
 
     [Test]
-    public void SingleTagsIndexesDictCheck()
+    public void HeaderIndexesDictCheck()
     {
-        tagsHighlighter.MarkdownText = "#";
+        var tagsHighlighter = new TagsHighlighter(
+            new HashSet<ITag>
+            {
+                new HeaderTag()
+            },
+            "# ");
+
         var actual = tagsHighlighter.TagsIndexes();
 
-        var expected = new Dictionary<Type, List<int>>
+        var expected = new Dictionary<Type, List<PairTagInfo>>
         {
-            { typeof(HeaderTag), new List<int> { 0 } }
+            { typeof(HeaderTag), new List<PairTagInfo> { new(0, 2) } }
         };
 
         actual.Should().BeEquivalentTo(expected);
     }
 
     [Test]
-    public void PairTagsIndexesDictCheck()
+    public void TagsIndexesDictCheck()
     {
-        tagsHighlighter.MarkdownText = "_a_ __b__";
+        var tagsHighlighter = new TagsHighlighter(
+            new HashSet<ITag>
+            {
+                new EmTag(),
+                new StrongTag()
+            },
+            "_a_ __b__");
+
         var actual = tagsHighlighter.TagsIndexes();
 
         var expected = new Dictionary<Type, List<PairTagInfo>>
         {
             { typeof(EmTag), new List<PairTagInfo> { new(0, 2) } },
-            { typeof(StrongTag), new List<PairTagInfo> { new(4, 7) } }
+            { typeof(StrongTag), new List<PairTagInfo> { new(4, 7) } },
         };
 
         actual.Should().BeEquivalentTo(expected);
@@ -115,7 +135,13 @@ public class TagsHighlighterTests
     [Test]
     public void IgnoreIntersectionStrongAndEmTags()
     {
-        tagsHighlighter.MarkdownText = "__пересечения _двойных__ и одинарных_";
+        var tagsHighlighter = new TagsHighlighter(
+            new HashSet<ITag>
+            {
+                new EmTag(),
+                new StrongTag()
+            },
+            "__пересечения _двойных__ и одинарных_");
 
         var actual = tagsHighlighter.TagsIndexes();
 
@@ -133,7 +159,13 @@ public class TagsHighlighterTests
     [Test]
     public void IgnoreStrongInsideEmTag()
     {
-        tagsHighlighter.MarkdownText = "внутри _одинарного __двойное__ не_ работает";
+        var tagsHighlighter = new TagsHighlighter(
+            new HashSet<ITag>
+            {
+                new EmTag(),
+                new StrongTag()
+            },
+            "внутри _одинарного __двойное__ не_ работает");
 
         var actual = tagsHighlighter.TagsIndexes();
 

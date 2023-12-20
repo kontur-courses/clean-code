@@ -14,17 +14,17 @@ public class HighlightedTagsConverter(HashSet<ITag> tags)
     {
         var htmlString = new StringBuilder(highlighted.MarkdownText);
 
-        var sortedTagIndexes = new List<(ITag tag, bool isCLose, int idx)>();
+        var tagInfoTuples = new List<(ITag tag, bool isCLose, int idx)>();
         foreach (var tag in tags)
         {
             foreach (var pairTagInfo in highlighted.TagsIndexes[tag.GetType()])
             {
-                sortedTagIndexes.Add((tag, false, pairTagInfo.OpenIdx));
-                sortedTagIndexes.Add((tag, true, pairTagInfo.CloseIdx));
+                tagInfoTuples.Add((tag, false, pairTagInfo.OpenIdx));
+                tagInfoTuples.Add((tag, true, pairTagInfo.CloseIdx));
             }
         }
 
-        foreach (var tagInfo in sortedTagIndexes.OrderByDescending(i => i.idx))
+        foreach (var tagInfo in tagInfoTuples.OrderByDescending(i => i.idx))
         {
             if (tagInfo.tag.GetType() == typeof(HeaderTag) && tagInfo.isCLose)
             {
