@@ -28,10 +28,14 @@ public class MarkdownTests
             .SetName("SurrondedByTwoStrongTags"),
         new TestCaseData("в __середине__ текста").Returns(@"в <strong>середине</strong> текста")
             .SetName("WithTwoStrongTagsInTheMiddle"),
-        new TestCaseData("_1 подчеркивание цифр снуражи текста_").Returns(@"<em>1 подчеркивание цифр снуражи текста</em>")
-            .SetName("WithMappedEmTagUnderliningNumberOutsideText"),
-        new TestCaseData("__подчеркивание цифр снуражи текста 1__").Returns(@"<strong>подчеркивание цифр снуражи текста 1</strong>")
-            .SetName("WithMappedStrongTagUnderliningNumberOutsideText"),
+        new TestCaseData("_1подчеркивание цифр снуражи текста_").Returns(@"<em>1подчеркивание цифр снуражи текста</em>")
+            .SetName("WithMappedEmTagUnderliningNumberOutsideTextAtStart"),
+        new TestCaseData("_подчеркивание цифр снуражи текста1_").Returns(@"<em>подчеркивание цифр снуражи текста1</em>")
+            .SetName("WithMappedEmTagUnderliningNumberOutsideTextAtEnd"),
+        new TestCaseData("__1подчеркивание цифр снуражи текста__").Returns(@"<strong>1подчеркивание цифр снуражи текста</strong>")
+            .SetName("WithMappedStrongTagUnderliningNumberOutsideTextAtStart"),
+        new TestCaseData("__подчеркивание цифр снуражи текста1__").Returns(@"<strong>подчеркивание цифр снуражи текста1</strong>")
+            .SetName("WithMappedStrongTagUnderliningNumberOutsideTextAtEnd"),
     };
 
     private static readonly IEnumerable<TestCaseData> RenderNotMappedTags = new[]
