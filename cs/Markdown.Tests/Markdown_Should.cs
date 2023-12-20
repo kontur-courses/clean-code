@@ -3,11 +3,21 @@ using FluentAssertions;
 using NUnit.Framework;
 using Markdown.Converter;
 using Markdown.TokenSearcher;
+using System.Diagnostics;
 
 namespace Markdown.Tests
 {
     public class Markdown_Should
     {
+        private Markdown mdProcessor;
+
+        [SetUp]
+        public void Init()
+        {
+            var converter = new HtmlConverter();
+            var tokenSearcher = new MarkdownTokenSearcher();
+            mdProcessor = new Markdown(tokenSearcher, converter);
+        }
 
         [TestCase(null, TestName = "Throw argument exception when string is null")]
         [TestCase("", TestName = "Throw argument exception when string is empty")]
@@ -15,10 +25,7 @@ namespace Markdown.Tests
         {
             Action action = () => 
             {
-                var converter = new HtmlConverter();
-                var tokenSearcher = new MarkdownTokenSearcher();
-                var md = new Markdown(tokenSearcher, converter);
-                var htmlText = md.Render(markdownText);
+                var htmlText = mdProcessor.Render(markdownText);
             };
 
             action.Should().Throw<ArgumentException>();
@@ -116,10 +123,31 @@ namespace Markdown.Tests
             TestName = "Correct conversion if the escaping character escapes the header tag")]
         public void Correct_Render_When_ValidInputString(string markdownText, string htmlText)
         {
-            var converter = new HtmlConverter();
-            var tokenSearcher = new MarkdownTokenSearcher();
-            var md = new Markdown(tokenSearcher, converter);
-            md.Render(markdownText).Should().Be(htmlText);
+            mdProcessor.Render(markdownText).Should().Be(htmlText);
+        }
+
+        [Test]
+        public void RenderForLinearTimeComplexity()
+        {
+            var mdTestText = "# Перед образом __горит__ _зеленая_ лампадка\n" +
+                "_через __всю комнату__ от угла до угла_ __тянется веревка__\n" +
+                "# __на которой висят__ пеленки _и большие_ черные панталоны";
+            var linearCoefficient = 2;
+            var timeMeter = new Stopwatch();
+            timeMeter.Start();
+            mdProcessor.Render(mdTestText);
+            timeMeter.Stop();
+            var previous = timeMeter.ElapsedTicks;
+            for (var i = 0; i < 5; i++)
+            {
+                mdTestText += mdTestText;
+                timeMeter.Restart();
+                mdProcessor.Render(mdTestText);
+                timeMeter.Stop();
+
+                Assert.That(timeMeter.ElapsedTicks / previous, Is.LessThanOrEqualTo(linearCoefficient));
+                previous = timeMeter.ElapsedTicks;
+            }
         }
     }
 }
