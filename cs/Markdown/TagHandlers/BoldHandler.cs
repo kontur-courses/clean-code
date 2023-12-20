@@ -9,12 +9,12 @@ namespace Markdown.TagHandlers
         private const int MdTagLength = 4;
         private const int HtmlTagLength = 17;
 
-        internal bool IsBoldTagSymbol(StringBuilder markdownText, int i) =>
+        public bool IsBoldTagSymbol(StringBuilder markdownText, int i) =>
             i + 1 < markdownText.Length && markdownText[i] == Bold && markdownText[i + 1] == Bold;
 
-        public Tag GetHtmlTag(StringBuilder markdownText, int openTagIndex)
+        public Tag GetHtmlTag(StringBuilder markdownText, int openTagIndex, string? parentClosingTag)
         {
-            var newTag = FindClosingTagIndex(markdownText, openTagIndex + 2);
+            var newTag = FindClosingTagIndex(markdownText, openTagIndex + 2, parentClosingTag);
             var htmlTag = newTag.Text;
             var closingTagIndex = newTag.Index;
 
@@ -37,11 +37,10 @@ namespace Markdown.TagHandlers
             return markdownText;
         }
 
-        private Tag FindClosingTagIndex(StringBuilder markdownText, int openTagIndex)
+        private Tag FindClosingTagIndex(StringBuilder markdownText, int openTagIndex, string closParTag)
         {
             var resultTag = new Tag(markdownText, -1);
             var correctPartOfWord = true;
-            var closingTagFound = false;
 
             for (var i = openTagIndex; i < markdownText.Length; i++)
             {
@@ -56,8 +55,6 @@ namespace Markdown.TagHandlers
 
                 if (IsBoldTagSymbol(markdownText, i) && TagSettings.IsCorrectClosingSymbol(markdownText, i, Bold))
                 {
-                    closingTagFound = true;
-
                     if (!correctPartOfWord && TagSettings.IsHalfOfWord(markdownText, i))
                     {
                         resultTag.Index = -1;
@@ -68,16 +65,21 @@ namespace Markdown.TagHandlers
                     return resultTag;
                 }
 
-                var newTag = TagFinder.FindTag(markdownText, i, settings);
+                if (closParTag == "_")
+                {
+                    ItalicHandler italic = new ItalicHandler();
+                    if (italic.IsItalicTagSymbol(markdownText, i))
+                       return resultTag;
+                }
+
+                var newTag = TagFinder.FindTag(markdownText, i, settings, "__");
                 if (newTag?.Text == null)
                     continue;
 
                 resultTag.NestedTags.Add(newTag);
 
-                //if (!closingTagFound)
-                //    return resultTag;
 
-                //  markdownText = newTag.Text;
+                markdownText = newTag.Text;
                 i = newTag.Index;
                 correctPartOfWord = true;
             }

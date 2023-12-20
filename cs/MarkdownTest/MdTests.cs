@@ -1,4 +1,5 @@
-﻿using FluentAssertions;
+﻿using System.Diagnostics;
+using FluentAssertions;
 using Markdown;
 using NUnit.Framework;
 
@@ -29,7 +30,8 @@ namespace MarkdownTest
             new TestCaseData("__text","__text").SetName("ClosingTagIsMissing"),
             new TestCaseData("text_","text_").SetName("OpenTagIsMissing"),
             new TestCaseData("start_ stop_","start_ stop_").SetName("SpaceSymbolAfterOpeningTag"),
-            new TestCaseData("start_stop _","start_stop _").SetName("SpaceSymbolBeforeClosingTag")
+            new TestCaseData("start_stop _","start_stop _").SetName("SpaceSymbolBeforeClosingTag"),
+            new TestCaseData("__пересечения _двойных__ и одинарных_", "__пересечения _двойных__ и одинарных_").SetName("gggg"),
         };
 
         [TestCaseSource(nameof(mdTestCases))]
@@ -38,6 +40,42 @@ namespace MarkdownTest
             var actual = sut?.Render(input);
 
             actual.Should().Be(expected);
+        }
+
+        [Test]
+        public void TestToCheckComplexity()
+        {
+            for (var i = 0; i < 10; i++)
+                sut.Render("__двойного _одинарное_ тоже__");
+
+            var string1 = "";
+            var string2 = "";
+
+            for (var i = 0; i < 10; i++)
+                string1 += "__двойного _одинарное_ тоже__";
+
+            for (var i = 0; i < 100; i++)
+                string2 += "__двойного _одинарное_ тоже__";
+
+            var sw = Stopwatch.StartNew();
+            for (var i = 0; i < 5; i++)
+                 sut.Render(string1);
+            sw.Stop();
+
+            var timeSpan1 = sw.Elapsed / 5;
+
+            var sw2 = Stopwatch.StartNew();
+            for (var i = 0; i < 5; i++)
+                 sut.Render(string2);
+            sw2.Stop();
+
+            var timeSpan2 = sw2.Elapsed / 5;
+            
+            var r1 = timeSpan1 / string1.Length;
+            var r2 = timeSpan2 / string2.Length;
+
+            var b = r1 == r2;
+
         }
     }
 }

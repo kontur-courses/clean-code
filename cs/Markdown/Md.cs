@@ -13,7 +13,7 @@ namespace Markdown
 
             for (var i = 0; i < htmlText!.Length; i++)
             {
-                var tag = TagFinder.FindTag(htmlText, i, settings);
+                var tag = TagFinder.FindTag(htmlText, i, settings, null);
 
                 if (tag == null || tag.Text == null)
                     continue;

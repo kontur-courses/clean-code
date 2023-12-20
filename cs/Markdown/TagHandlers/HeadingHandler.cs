@@ -5,7 +5,7 @@ namespace Markdown.TagHandlers
     public class HeadingHandler : IHtmlTagCreator
     {
         private FindTagSettings settings = new FindTagSettings(true, true, true);
-        public Tag GetHtmlTag(StringBuilder markdownText, int openTagIndex)
+        public Tag GetHtmlTag(StringBuilder markdownText, int openTagIndex, string? parentClosingTag)
         {
             var correct = IsCorrectOpenTag(markdownText, openTagIndex);
 
@@ -43,7 +43,7 @@ namespace Markdown.TagHandlers
                     return resultTag;
                 }
             
-                var newTag = TagFinder.FindTag(markdownText, i, settings);
+                var newTag = TagFinder.FindTag(markdownText, i, settings, "#");
 
                 if (newTag == null || newTag!.Text == null)
                     continue;

@@ -8,12 +8,12 @@ namespace Markdown.TagHandlers
         private const int MdTagLength = 2;
         private const int HtmlTagLength = 9;
 
-        public Tag GetHtmlTag(StringBuilder markdownText, int openTagIndex)
+        public Tag GetHtmlTag(StringBuilder markdownText, int openTagIndex, string? parentClosingTag)
         {
-            var closingTagIndex = FindClosingTagIndex(markdownText, openTagIndex + 1);
+            var closingTagIndex = FindClosingTagIndex(markdownText, openTagIndex + 1, parentClosingTag);
 
             if (closingTagIndex == -1)
-                return new Tag();
+                return null;
 
             var htmlTag = CreateHtmlTag(markdownText, openTagIndex, closingTagIndex);
             var newHtmlTagLength = closingTagIndex + (HtmlTagLength - MdTagLength);
@@ -44,9 +44,10 @@ namespace Markdown.TagHandlers
             return markdownText;
         }
 
-        private int FindClosingTagIndex(StringBuilder markdownText, int openTagIndex)
+        private int FindClosingTagIndex(StringBuilder markdownText, int openTagIndex, string parentClosingTag)
         {
             var oneWord = true;
+            BoldHandler bold = new BoldHandler();
 
             for (var i = openTagIndex; i < markdownText.Length; i++)
             {
@@ -63,6 +64,10 @@ namespace Markdown.TagHandlers
                     
                     return i;
                 }
+
+                if (bold.IsBoldTagSymbol(markdownText, i))
+                    if (parentClosingTag == "__")
+                        return -1;
             }
 
             return -1;

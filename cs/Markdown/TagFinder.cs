@@ -10,7 +10,7 @@ namespace Markdown
         private static readonly ItalicHandler Italic = new();
         private static StringBuilder? htmlText;
 
-        public static Tag? FindTag(StringBuilder markdownText, int i, FindTagSettings settings)
+        public static Tag? FindTag(StringBuilder markdownText, int i, FindTagSettings settings, string? closingtagParent)
         {
             Tag tag;
 
@@ -28,7 +28,7 @@ namespace Markdown
                 if (IsScreening(markdownText, i))
                     return new Tag(markdownText.Remove(i - 1, 1), i);
 
-                tag = Heading.GetHtmlTag(markdownText, i);
+                tag = Heading.GetHtmlTag(markdownText, i, closingtagParent);
                 htmlText = tag.Text;
                 i = tag.Index;
                 return new Tag(htmlText, i);
@@ -42,7 +42,7 @@ namespace Markdown
                 if (!TagSettings.IsCorrectOpenSymbol(markdownText, i))
                     return null;
 
-                tag = Bold.GetHtmlTag(markdownText, i);
+                tag = Bold.GetHtmlTag(markdownText, i, closingtagParent);
                 htmlText = tag.Text;
                 i = tag.Index;
                 return new Tag(htmlText, i);
@@ -56,10 +56,14 @@ namespace Markdown
                 if (!TagSettings.IsCorrectOpenSymbol(markdownText, i))
                     return null;
 
-                tag = Italic.GetHtmlTag(markdownText, i);
+                tag = Italic.GetHtmlTag(markdownText, i, closingtagParent);
+
+                if (tag == null)
+                    return null;
+
                 htmlText = tag.Text;
                 i = tag.Index;
-                return new Tag(htmlText, i);
+                return tag;
             }
 
             return null;
