@@ -15,8 +15,9 @@ public class Program
             {"\r\n", TagType.LineBreaker}
             
         };
-        var text = "_text_" + "\r\n";
+        var text = "* _text_\n";
         var sut = new Md(tagDictionary);
-        Console.WriteLine(sut.Render(text));
+        var t= sut.Render(text);
+        Console.WriteLine(t);
     }
 }

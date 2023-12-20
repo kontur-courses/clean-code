@@ -16,7 +16,7 @@ public class Md
     {
         var lines = text.Split(new[] {"\r\n", "\n",  }, StringSplitOptions.None);
         var result = new StringBuilder();
-        foreach (var line in lines)
+        foreach (var line in lines.Where(line => line != string.Empty))
         {
             var parser = new Parser(tagDictionary).Parse(line);
             var Renderer = new Renderer();

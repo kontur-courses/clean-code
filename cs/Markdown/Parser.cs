@@ -7,73 +7,73 @@ public class Parser
 {
     private readonly Dictionary<string, TagType> tagDictionary;
     private List<Token> list;
-    private string text;
     private Token previousToken;
 
     public Parser(Dictionary<string, TagType> tagDictionary)
     {
-        this.tagDictionary =  tagDictionary;
+        this.tagDictionary = tagDictionary;
     }
 
     public List<Token> Parse(string text)
     {
-        this.text = text;
+        var previousStatus = TokenType.Undefined;
+        var content = new StringBuilder();
         list = new List<Token>();
         for (var index = 0; index < text.Length; index++)
         {
-            if (IsTagStart(text[index].ToString())){
-                AddToken(TokenType.Tag, ref index);
+            var status = DetermineTokenType(text[index].ToString(), content.ToString());
+
+            if (previousStatus == TokenType.Undefined || status == previousStatus
+                && (status == TokenType.Text 
+                    || (status == TokenType.Escape && content.ToString() != @"\") 
+                    || IsTagSequenceEnd(content.ToString(), text[index].ToString())))
+                
+            {
+                content.Append(text[index]);
+                
+            }
+            else
+            {
+                HandleEscapeTag(ref previousStatus);
+                AddToken(previousStatus, content.ToString(), text[index].ToString());
+                index--;
+                content.Clear();
             }
 
-            else if (text[index].ToString() == @"\"){
-                AddToken(TokenType.Escape, ref index);
-            }
-
-            else{
-                AddToken(TokenType.Text, ref index);
-            }
+            previousStatus = status;
         }
-
+        HandleEscapeTag(ref previousStatus);
+        AddToken(previousStatus, content.ToString(), "");
         list.Add(new Token("\n", null, TokenType.LineBreaker));
         return list;
     }
 
-    private void AddToken(TokenType status, ref int index)
+    private void AddToken(TokenType status, string content, string nextChar)
     {
         Token token;
-        var content = new StringBuilder();
-        var loopStopCondition = GetLoopStopCondition(status, content);
-        while (index < text.Length && loopStopCondition(text[index]))
-        {
-            content.Append(text[index]);
-            index++;
-        }
-        HandleEscapeTag(ref status);
         if (status == TokenType.Tag)
         {
-            var nextChar = index == text.Length ? "" : text[index].ToString();
-            var tag = Tag.CreateTag(tagDictionary[content.ToString()], content.ToString(), previousToken, nextChar);
-            token = new Token(content.ToString(), tag, status);
+            var tag = Tag.CreateTag(tagDictionary[content], content, previousToken, nextChar);
+            token = new Token(content, tag, status);
             previousToken = token;
             list.Add(token);
         }
         else
         {
-            token = new Token(content.ToString(), null, status);
+            token = new Token(content, null, status);
             list.Add(token);
         }
+
         previousToken = token;
-        index--;
     }
 
-    private Func<char, bool> GetLoopStopCondition(TokenType status, StringBuilder content)
+    private TokenType DetermineTokenType(string currentChar, string content)
     {
-        return status switch
+        return currentChar switch
         {
-            TokenType.Text => currentChar => !IsTagStart(currentChar.ToString()) && currentChar.ToString() != @"\",
-            TokenType.Tag => currentChar => IsTagSequenceEnd(content.ToString(), currentChar),
-            TokenType.Escape => _ => content.ToString() == string.Empty,
-            _ => _ => true
+            _ when IsTagStart(currentChar) || IsTagSequenceEnd(content, currentChar) => TokenType.Tag,
+            @"\" => TokenType.Escape,
+            _ => TokenType.Text
         };
     }
 
@@ -87,7 +87,7 @@ public class Parser
         return tagDictionary.Any(tag => tag.Key == content);
     }
 
-    private bool IsTagSequenceEnd(string currentContent, char currentChar)
+    private bool IsTagSequenceEnd(string currentContent, string currentChar)
     {
         return IsTagStart(currentContent + currentChar) || IsTag(currentContent + currentChar);
     }

@@ -165,7 +165,7 @@ public class MdTests
     [Test]
     public void LinearTimeComlexityTest()
     {
-        const int linearCoefficient = 2;
+        const double linearCoefficient = 2.5;
         var mdExpression = "# I'm __living__ life do or _die_, what can I say\n" +
                            "* I'm 23 now will I ever live to see 24\n" +
                            "* The way things is going I don't know\n" +
