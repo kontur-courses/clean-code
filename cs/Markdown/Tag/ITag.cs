@@ -2,6 +2,6 @@
 
 public interface ITag
 {
-    string Start { get; }
-    string End { get; }
+    string OpeningSeparator { get; }
+    string CloseSeparator { get; }
 }

@@ -2,12 +2,12 @@
 
 public class HtmlTag : ITag
 {
-    public string Start { get; }
-    public string End { get; }
+    public string OpeningSeparator { get; }
+    public string CloseSeparator { get; }
 
-    public HtmlTag(string start, string end)
+    public HtmlTag(string openingSeparator, string endingSeparator)
     {
-        Start = start;
-        End = end;
+        OpeningSeparator = openingSeparator;
+        CloseSeparator = endingSeparator;
     }
 }

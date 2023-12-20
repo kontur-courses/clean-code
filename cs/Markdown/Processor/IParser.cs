@@ -2,7 +2,7 @@
 
 namespace Markdown.Processor;
 
-public interface IProcessor
+public interface IParser
 {
-    IList<IToken> ParseTags();
+    IList<IToken> ParseTokens();
 }

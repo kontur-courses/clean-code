@@ -10,7 +10,7 @@ public static class TokenExtensions
 
     private static bool IsEmpty(this IToken token, IToken openingToken)
     {
-        return token.Position - (openingToken.Position + openingToken.Length) != 0;
+        return token.Position - (openingToken.Position + openingToken.Length) == 0;
     }
 
     private static bool IsBetweenDigits(this IToken token, IToken openingToken, string source)

@@ -15,61 +15,12 @@ public class Processor_Should
         syntax = new MarkdownSyntax();
     }
 
-    [Test]
-    public void Parse_Headers()
+    [TestCaseSource(typeof(AnySyntaxParserTestCases), nameof(AnySyntaxParserTestCases.ParseTokenTestCases))]
+    public void ParseTokenTest(string input, IEnumerable<IToken> expectedTokens)
     {
-        var expected = new List<MarkdownToken>()
-            { new MarkdownToken(0, TagType.Header, 1), new MarkdownToken(9, TagType.Header, 1) };
-        var text = "#Header1\n#header2";
+        var sut = new AnySyntaxParser(input, syntax);
+        var tokens = sut.ParseTokens();
 
-        var sut = new Processor(text, syntax);
-
-        sut.ParseTags().Should().BeEquivalentTo(expected);
-    }
-
-    [Test]
-    public void Parse_Underline()
-    {
-        var expected = new List<MarkdownToken>
-        {
-            new MarkdownToken(0, TagType.Italic, 1), new MarkdownToken(5, TagType.Italic, 1),
-            new MarkdownToken(8, TagType.Italic, 1), new MarkdownToken(11, TagType.Italic, 1)
-        };
-        var text = "_text_wi_th_underlines";
-
-        var sut = new Processor(text, syntax);
-
-        sut.ParseTags().Should().BeEquivalentTo(expected);
-    }
-
-    [Test]
-    public void Parse_DoubleUnderline()
-    {
-        var expected = new List<MarkdownToken>
-        {
-            new MarkdownToken(0, TagType.Bold, 2), new MarkdownToken(6, TagType.Bold, 2),
-            new MarkdownToken(12, TagType.Bold, 2), new MarkdownToken(20, TagType.Bold, 2)
-        };
-        var text = "__text__with__double__underline";
-
-        var sut = new Processor(text, syntax);
-
-        sut.ParseTags().Should().BeEquivalentTo(expected);
-    }
-
-    [Test]
-    public void Parse_Miscellaneous_Tags()
-    {
-        var expected = new List<MarkdownToken>
-        {
-            new MarkdownToken(0, TagType.Header, 1), new MarkdownToken(5, TagType.Bold, 2),
-            new MarkdownToken(7, TagType.Italic, 1), new MarkdownToken(12, TagType.Italic, 1),
-            new MarkdownToken(22, TagType.Bold, 2)
-        };
-        var text = "#Text___with_different__tags\\__";
-
-        var sut = new Processor(text, syntax);
-
-        sut.ParseTags().Should().BeEquivalentTo(expected);
+        tokens.Should().BeEquivalentTo(expectedTokens);
     }
 }

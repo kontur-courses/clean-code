@@ -5,20 +5,20 @@ using Markdown.Token;
 
 namespace Markdown.Processor;
 
-public class Processor : IProcessor
+public class AnySyntaxParser : IParser
 {
     private readonly string source;
     private readonly ISyntax syntax;
     private readonly IReadOnlyDictionary<string, Func<int, IToken>> stringToToken;
 
-    public Processor(string source, ISyntax syntax)
+    public AnySyntaxParser(string source, ISyntax syntax)
     {
         this.source = source;
         this.syntax = syntax;
         stringToToken = syntax.StringToToken;
     }
 
-    public IList<IToken> ParseTags()
+    public IList<IToken> ParseTokens()
     {
         var tags = FindAllTags();
         tags = RemoveEscapedTags(tags);
@@ -62,17 +62,28 @@ public class Processor : IProcessor
     {
         var result = new List<IToken>();
         var isEscaped = false;
+        var escapeIndex = -1;
+        IToken escapeToken = null;
         foreach (var tag in tags)
         {
             if (isEscaped)
             {
                 isEscaped = false;
-                continue;
+                if (tag.Position == escapeIndex + 1)
+                {
+                    result.Add(escapeToken);
+                    continue;
+                }
             }
 
             if (tag.GetType() == syntax.EscapeToken)
+            {
                 isEscaped = true;
-            result.Add(tag);
+                escapeIndex = tag.Position;
+                escapeToken = tag;
+            }
+            else
+                result.Add(tag);
         }
 
         return result;

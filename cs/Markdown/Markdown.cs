@@ -8,8 +8,8 @@ public class Markdown
 {
     public string Render(string text, ISyntax syntax)
     {
-        var processor = new Processor.Processor(text, syntax);
-        var tagTokens = processor.ParseTags();
+        var processor = new Processor.AnySyntaxParser(text, syntax);
+        var tagTokens = processor.ParseTokens();
         var converter = new HtmlConverter(syntax);
         return converter.ConvertTags(tagTokens, text);
     }
