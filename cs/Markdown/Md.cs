@@ -1,19 +1,17 @@
 using System.Text;
+using Markdown.Extensions;
 
 namespace Markdown;
 
 public class Md
 {
-    Dictionary<string, TagType> tagDictionary = new Dictionary<string, TagType>()
+    private Dictionary<string, TagType> tagDictionary;
+
+    public Md(Dictionary<string, TagType> tagDictionary)
     {
-        {"_", TagType.Italic},
-        {"__", TagType.Bold},
-        {"# ", TagType.Heading},
-        {"\n", TagType.LineBreaker},
-        {"\r\n", TagType.LineBreaker},
-        {"* ", TagType.Bulleted}
-            
-    };
+        this.tagDictionary = tagDictionary;
+    }
+
     public string Render(string text)
     {
         var lines = text.Split(new[] {"\r\n", "\n",  }, StringSplitOptions.None);
@@ -22,7 +20,7 @@ public class Md
         {
             var parser = new Parser(tagDictionary).Parse(line);
             var Renderer = new Renderer();
-            result.Append(Builder.Build(Renderer.HandleTokens(parser)));
+            result.Append(Renderer.HandleTokens(parser).ConcatenateToString());
         }
 
         return result.ToString().Trim('\n');

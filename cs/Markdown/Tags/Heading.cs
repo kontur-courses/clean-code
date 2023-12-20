@@ -5,19 +5,18 @@ public class Heading : Tag
     protected override Tag CreateTag(string content, Token previousToken, string nextChar)
     {
         IsPaired = false;
-        ConvertTo = "<h1>";
-        ClosingTag = "</h1>";
-        TokenType = TagType.Heading;
-        Content = content;
+        ReplacementForOpeningTag = "<h1>";
+        ReplacementForClosingTag = "</h1>";
+        TagType = TagType.Heading;
+        TagContent = content;
         Status = TagStatus.Block;
-        PreviousToken = previousToken;
-        BlockToken();
+        BlockToken(previousToken);
         return this;
     }
 
-    protected virtual void BlockToken()
+    protected virtual void BlockToken(Token previousToken)
     {
-        if (PreviousToken == null || (PreviousToken.Tag != null && PreviousToken.Tag.TokenType != TagType.Bulleted))
+        if (previousToken == null || (previousToken.Tag != null && previousToken.Tag.TagType != TagType.Bulleted))
         {
             Status = TagStatus.SelfClosing;
         }

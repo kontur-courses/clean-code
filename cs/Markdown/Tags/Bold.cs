@@ -1,19 +1,20 @@
 namespace Markdown.Tags;
 
-public class  Bold : PairedTags
+public class Bold : PairedTags
 {
     protected override Tag CreateTag(string content, Token previousToken, string nextChar)
     {
         IsPaired = true;
-        ConvertTo = "<strong>";
-        ClosingTag = "</strong>";
-        TokenType = TagType.Bold;
-        Content = content;
+        ReplacementForOpeningTag = "<strong>";
+        ReplacementForClosingTag = "</strong>";
+        TagType = TagType.Bold;
+        TagContent = content;
         Status = TagStatus.Undefined;
         PreviousToken = previousToken;
+
         OpenTag(nextChar);
-        var c = PreviousToken != null ? previousToken.Content : "";
-        IsTagWordBoundary(c , nextChar);
+        IsTagWordBoundary(PreviousToken?.Content ?? "", nextChar);
+
         return this;
     }
 }

@@ -5,19 +5,18 @@ public class Bulleted : Heading
     protected override Tag CreateTag(string content, Token previousToken, string nextChar)
     {
         IsPaired = false;
-        ConvertTo = "<li>";
-        ClosingTag = "</li>";
-        TokenType = TagType.Heading;
-        Content = content;
+        ReplacementForOpeningTag = "<li>";
+        ReplacementForClosingTag = "</li>";
+        TagType = TagType.Heading;
+        TagContent = content;
         Status = TagStatus.SelfClosing;
-        PreviousToken = previousToken;
-        BlockToken();
+        BlockToken(previousToken);
         return this;
     }
 
-    protected override void BlockToken()
+    protected override void BlockToken(Token previousToken)
     {
-        if (PreviousToken != null)
+        if (previousToken != null)
         {
             Status = TagStatus.Block;
         }

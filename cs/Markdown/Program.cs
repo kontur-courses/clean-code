@@ -2,7 +2,7 @@
 
 namespace Markdown;
 
-public class MainProgram
+public class Program
 {
     public static void Main(string[] args)
     {
@@ -16,7 +16,7 @@ public class MainProgram
             
         };
         var text = "_text_" + "\r\n";
-        var sut = new Md();
+        var sut = new Md(tagDictionary);
         Console.WriteLine(sut.Render(text));
     }
 }
