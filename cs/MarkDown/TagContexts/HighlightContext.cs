@@ -7,7 +7,8 @@ public class HighlightContext : TagContext
 {
     private bool IsInWord { get; }
 
-    public HighlightContext(int startIndex, bool isInWord, TagContext? parent, TagFactory tagFactory) : base(startIndex, parent, tagFactory)
+    public HighlightContext(int startIndex, bool isInWord, TagContext? parent, TagFactory tagFactory, bool isScreened) 
+        : base(startIndex, parent, tagFactory, isScreened)
     {
         IsInWord = isInWord;
     }
@@ -20,6 +21,6 @@ public class HighlightContext : TagContext
 
     public override void CloseSingleTags(int closeIndex)
     {
-        parent?.CloseSingleTags(closeIndex);
+        Parent?.CloseSingleTags(closeIndex);
     }
 }

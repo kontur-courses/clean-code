@@ -30,7 +30,7 @@ public abstract class TagFactory : IComparable<TagFactory>
     
     private readonly int hashCode;
 
-    public abstract TagContext CreateContext(string mdText, int startIndex, TagContext parentContext);
+    public abstract TagContext CreateContext(string mdText, int startIndex, TagContext parentContext, bool isScreened);
 
     public abstract bool CanCreateContext(string text, int position);
 

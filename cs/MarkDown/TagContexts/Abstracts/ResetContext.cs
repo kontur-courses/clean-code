@@ -5,20 +5,21 @@ namespace MarkDown.TagContexts.Abstracts;
 
 public abstract class ResetContext : TagContext
 {
-    protected ResetContext(int startIndex, TagContext? parent, TagFactory tagFactory) : base(startIndex, parent, tagFactory)
+    protected ResetContext(int startIndex, TagContext? parent, TagFactory tagFactory, bool isScreened) 
+        : base(startIndex, parent, tagFactory, isScreened)
     {
     }
     
     public TagContext SwitchToOpenContext()
     {
-        var nowParent = parent;
+        var nowParent = Parent;
         
         while (nowParent is not null)
         {
             if (!nowParent.Closed)
                 return nowParent;
 
-            nowParent = nowParent.parent;
+            nowParent = nowParent.Parent;
         }
 
         return this;

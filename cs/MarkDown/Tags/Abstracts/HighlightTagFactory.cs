@@ -9,11 +9,11 @@ public abstract class HighlightTagFactory : TagFactory
     {
     }
     
-    public override TagContext CreateContext(string mdText, int startIndex, TagContext parentContext)
+    public override TagContext CreateContext(string mdText, int startIndex, TagContext parentContext, bool isScreened)
     {
         var isInWord = startIndex > 0 && mdText[startIndex - 1] != ' ';
 
-        return new HighlightContext(startIndex, isInWord, parentContext, this);
+        return new HighlightContext(startIndex, isInWord, parentContext, this, isScreened);
     }
     
     public override bool CanCreateContext(string text, int position)

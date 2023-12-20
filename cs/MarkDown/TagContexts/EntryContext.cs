@@ -6,11 +6,12 @@ namespace MarkDown.TagContexts;
 
 public class EntryContext : TagContext
 {
-    public EntryContext(int startIndex, TagContext? context, TagFactory tagFactory) : base(startIndex, context, tagFactory)
+    public EntryContext(int startIndex, TagContext? context, TagFactory tagFactory, bool isScreened)
+        : base(startIndex, context, tagFactory, isScreened)
     {
     }
     
-    public EntryContext(TagFactory tagFactory) : base(0, null, tagFactory)
+    public EntryContext(TagFactory tagFactory) : base(0, null, tagFactory, false)
     {
     }
 
@@ -24,9 +25,13 @@ public class EntryContext : TagContext
         CloseIndex = closeIndex;
     }
 
-    public void CreateHtml(string mdText, StringBuilder sb, MarkDownEnvironment environment)
+    public void CreateHtml(
+        string mdText, 
+        StringBuilder sb,
+        MarkDownEnvironment environment, 
+        IEnumerable<int> screeningIndexes)
     {
         MarkIntersectedTags(new List<TagContext>());
-        CreateHtml(mdText, sb, environment, CloseIndex);
+        CreateHtml(mdText, sb, environment, CloseIndex, screeningIndexes);
     }
 }

@@ -18,9 +18,9 @@ public class HeaderTagFactory : TagFactory
     {
     }
 
-    public override HeaderContext CreateContext(string mdText, int startIndex, TagContext nowContext)
+    public override HeaderContext CreateContext(string mdText, int startIndex, TagContext nowContext, bool isScreened)
     {
-        return new HeaderContext(startIndex, nowContext, this);
+        return new HeaderContext(startIndex, nowContext, this, isScreened);
     }
 
     public override bool CanCreateContext(string text, int position)

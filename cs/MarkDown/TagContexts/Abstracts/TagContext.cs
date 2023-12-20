@@ -6,14 +6,15 @@ namespace MarkDown.TagContexts.Abstracts;
 
 public abstract class TagContext
 {
-    protected List<TagContext> InnerContexts = new();
-    protected internal readonly TagContext? parent;
+    private readonly List<TagContext> innerContexts = new();
+    protected internal readonly TagContext? Parent;
 
-    protected TagContext(int startIndex, TagContext? parent, TagFactory tagFactory)
+    protected TagContext(int startIndex, TagContext? parent, TagFactory tagFactory, bool isScreened)
     {
-        this.parent = parent;
-        StartIndex = startIndex;
+        Parent = parent;
+        StartIndex = isScreened ? startIndex - 1 : startIndex;
         TagFactory = tagFactory;
+        IsScreenedStart = isScreened;
     }
 
     public bool Closed { get; protected set; }
@@ -21,39 +22,48 @@ public abstract class TagContext
     protected bool ConsiderInCreatingHtml { get; set; } = true;
     private int StartIndex { get; init; }
     private TagFactory TagFactory { get; }
-    private bool isIntersected { get; set; }
+    private bool IsIntersected { get; set; }
+    private bool IsScreenedStart { get; }
+    private bool IsScreenedEnd { get; set; }
+    private bool IsScreened => IsScreenedEnd || IsScreenedStart;
     
-    public bool TryClose(TagName tagCloseName, int closeIndex, out TagContext closed)
+    public bool TryClose(TagName tagCloseName, int closeIndex, out TagContext closed, bool isScreened)
     {
         closed = this;
         
-        if (parent != null && parent.TryClose(tagCloseName, closeIndex, out closed))
+        if (Parent != null && Parent.TryClose(tagCloseName, closeIndex, out closed, isScreened))
             return true;
         
         if (Closed)
             return false;
+
+        var canClose = TagFactory.TagName == tagCloseName && ConsiderInCreatingHtml;
+
+        if (canClose)
+        {
+            Closed = canClose;
+            CloseIndex = closeIndex;
+            IsScreenedEnd = isScreened;
+        }
         
-        Closed = TagFactory.TagName == tagCloseName && ConsiderInCreatingHtml;
-        CloseIndex = closeIndex;
-        
-        return Closed;
+        return canClose;
     }
 
     public void AddInnerContext(TagContext tagContext)
     {
         if (!Closed)
         {
-            InnerContexts.Add(tagContext);
+            innerContexts.Add(tagContext);
             return;
         }
         
-        parent?.AddInnerContext(tagContext);
+        Parent?.AddInnerContext(tagContext);
     }
 
     public void HandleSymbol(char symbol)
     {
         HandleSymbolItself(symbol);
-        parent?.HandleSymbol(symbol);
+        Parent?.HandleSymbol(symbol);
     }
 
     private bool HasUnsupportedParents(MarkDownEnvironment environment)
@@ -61,42 +71,37 @@ public abstract class TagContext
         if (!Closed)
             return false;
         
-        var nowParent = parent;
+        var nowParent = Parent;
         var unsupported = environment.GetUnsupportedParentsFor(TagFactory);
 
         while (nowParent is not null)
         {
-            if (nowParent is HighlightContext
-                && nowParent.Closed
-                && nowParent.CloseIndex < CloseIndex)
-                return true;
-            
-            if (nowParent.Closed 
-                && nowParent.CloseIndex > StartIndex 
+            if (nowParent is {Closed: true, IsScreened: false}
+                && nowParent.CloseIndex > StartIndex
                 && unsupported.Any(e => e.Equals(nowParent.TagFactory.TagName)))
                 return true;
             
-            nowParent = nowParent.parent;
+            nowParent = nowParent.Parent;
         }
         
         return false;
     }
 
-    protected internal void MarkIntersectedTags(List<TagContext> previousClosed)
+    private protected void MarkIntersectedTags(List<TagContext> previousClosed)
     {
-        if (Closed && this is HighlightContext)
+        if (Closed && !IsScreened && this is HighlightContext)
         {
             for (var i = previousClosed.Count - 1; i >= 0; i--)
                 if (previousClosed[i].CloseIndex > StartIndex && CloseIndex > previousClosed[i].CloseIndex)
                 {
-                    isIntersected = true;
-                    previousClosed[i].isIntersected = true;
+                    IsIntersected = true;
+                    previousClosed[i].IsIntersected = true;
                 }
             
             previousClosed.Add(this);
         }
 
-        foreach (var innerContext in InnerContexts) 
+        foreach (var innerContext in innerContexts) 
             innerContext.MarkIntersectedTags(previousClosed);
     }
 
@@ -104,37 +109,78 @@ public abstract class TagContext
         string text, 
         StringBuilder sb, 
         MarkDownEnvironment environment, 
-        int nearestParentCloseIndex)
+        int nearestParentCloseIndex,
+        IEnumerable<int> screeningIndexes)
     {
         var start = StartIndex;
-        var showInHtml = Closed && !HasUnsupportedParents(environment) && !isIntersected;
-
-        if (showInHtml)
+        var showInHtml = Closed && !HasUnsupportedParents(environment) && !IsIntersected;
+        
+        if (IsScreened)
+        {
+            start += IsScreenedStart ? 1 : 0;
+            start += TagFactory.MarkDownOpen.Length;
+            sb.Append(TagFactory.MarkDownOpen);
+        }
+        
+        if (showInHtml && !IsScreened)
         {
             start += TagFactory.MarkDownOpen.Length;
             sb.Append(TagFactory.HtmlOpen);
         }
         
-        foreach (var context in InnerContexts)
+        foreach (var context in innerContexts)
         {
             var beforeInner = sb.Length;
             var (innerStart, innerEnd) = context.CreateHtml(
                 text, 
                 sb, 
                 environment, 
-                showInHtml ? CloseIndex : nearestParentCloseIndex);
-            
-            sb.Insert(beforeInner, text.AsSpan(start, innerStart - start));
+                showInHtml ? CloseIndex : nearestParentCloseIndex,
+                screeningIndexes);
+
+            foreach (var part in GetPartsWithoutScreening(start, innerStart, screeningIndexes)) 
+                sb.Insert(beforeInner, text.AsSpan(part.start, part.end - part.start));
             start = innerEnd;
         }
         
         if (start < text.Length)
-            sb.Append(text.AsSpan(start, (showInHtml ? CloseIndex : nearestParentCloseIndex) - start));
+            foreach (var part in GetPartsWithoutScreening(
+                         start, 
+                         showInHtml ? CloseIndex : nearestParentCloseIndex,
+                         screeningIndexes))
+                sb.Append(text.AsSpan(part.start, part.end - part.start));
         
         if (showInHtml)
-            sb.Append(TagFactory.HtmlClose);
+        {
+            if (IsScreened)
+            {
+                if (IsScreenedEnd)
+                {
+                    CloseIndex++;
+                    nearestParentCloseIndex++;
+                }
+                
+                sb.Append(TagFactory.MarkDownClose);
+            }
+            else
+                sb.Append(TagFactory.HtmlClose);
+        }
         
         return (StartIndex, showInHtml ? CloseIndex + TagFactory.MarkDownClose.Length : nearestParentCloseIndex);
+    }
+
+    private IEnumerable<(int start, int end)> GetPartsWithoutScreening(int start, int end, IEnumerable<int> screeningIndexes)
+    {
+        var nowStart = start;
+        var suitable = screeningIndexes.Where(e => e > start && e < end).ToArray();
+
+        for (var i = 0; i < suitable.Length; i++)
+        {
+            yield return (nowStart, suitable[i]);
+            nowStart = suitable[i] + 1;
+        }
+        
+        yield return (nowStart, end);
     }
 
     protected abstract void HandleSymbolItself(char symbol);

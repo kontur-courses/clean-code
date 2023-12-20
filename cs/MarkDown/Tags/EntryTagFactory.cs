@@ -17,9 +17,9 @@ public class EntryTagFactory : TagFactory
     public override string MarkDownOpen => "";
     public override string MarkDownClose => "";
     
-    public override TagContext CreateContext(string mdText, int startIndex, TagContext? nowContext)
+    public override TagContext CreateContext(string mdText, int startIndex, TagContext? nowContext, bool isScreened)
     {
-        return new EntryContext(startIndex, nowContext, this);
+        return new EntryContext(startIndex, nowContext, this, isScreened);
     }
     
     public EntryContext CreateContext()

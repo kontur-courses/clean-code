@@ -70,6 +70,12 @@ public class MarkDownTests
             .Be(expected);
     }
     
+    [TestCase("\\_a_", "_a_", TestName = "ScreeningEmTag")]
+    [TestCase("\\__a__", "__a__", TestName = "ScreeningStrongTag")]
+    [TestCase("\\_a __b__ c_", "_a <strong>b</strong> c_", TestName = "ScreeningWithStrongInsideEm")]
+    [TestCase("\\_a __b_ c__", "_a <strong>b_ c</strong>", TestName = "ScreeningIntersection")]
+    [TestCase(@"\\__a__", "\\<strong>a</strong>", TestName = "ScreeningOfScreening")]
+    [TestCase(@"__a \\_b_ c__", "<strong>a \\<em>b</em> c</strong>", TestName = "ScreeningOfScreeningInsideTags")]
     public void GenerateHtml_Supports(string markdown, string expected)
     {
         MarkDown.MarkDown.GenerateHtml(markdown, markDownEnv)

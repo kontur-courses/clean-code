@@ -5,7 +5,8 @@ namespace MarkDown.TagContexts;
 
 public class HeaderContext : ResetContext
 {
-    public HeaderContext(int startIndex, TagContext parentContext, TagFactory tagFactory) : base(startIndex, parentContext, tagFactory)
+    public HeaderContext(int startIndex, TagContext parentContext, TagFactory tagFactory, bool isScreened) 
+        : base(startIndex, parentContext, tagFactory, isScreened)
     {
     }
 
@@ -15,7 +16,7 @@ public class HeaderContext : ResetContext
 
     public override void CloseSingleTags(int closeIndex)
     {
-        parent?.CloseSingleTags(closeIndex);
+        Parent?.CloseSingleTags(closeIndex);
         
         if (Closed)
             return;
