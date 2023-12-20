@@ -5,7 +5,7 @@ using Markdown.Token;
 
 namespace MarkdownTests;
 
-public class MarkupConverter_Should
+public class MarkupConverterTests
 {
     private MarkupConverter sut;
 
@@ -16,7 +16,7 @@ public class MarkupConverter_Should
     }
 
     [TestCaseSource(typeof(MarkupConverterTestCases), nameof(MarkupConverterTestCases.RenderTestCases))]
-    public void ParseTokenTest(IList<IToken> tokens, string text, string expectedString)
+    public void MarkupConverter_Should(IList<IToken> tokens, string text, string expectedString)
     {
         var renderedString = sut.ConvertTags(tokens, text);
 

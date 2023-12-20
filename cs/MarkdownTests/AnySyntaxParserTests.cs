@@ -5,7 +5,7 @@ using Markdown.Token;
 
 namespace MarkdownTests;
 
-public class AnySyntaxParser_Should
+public class AnySyntaxParserTests
 {
     private ISyntax syntax;
     private IParser sut;
@@ -17,7 +17,7 @@ public class AnySyntaxParser_Should
     }
 
     [TestCaseSource(typeof(AnySyntaxParserTestCases), nameof(AnySyntaxParserTestCases.ParseTokenTestCases))]
-    public void ParseTokenTest(string input, IEnumerable<IToken> expectedTokens)
+    public void AnySyntaxParser_Should(string input, IEnumerable<IToken> expectedTokens)
     {
         var tokens = sut.ParseTokens(input);
 
