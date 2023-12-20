@@ -2,8 +2,7 @@
 
 public class ItalicTag : ITag
 {
-    public string HtmlTag => "em";
+    public string MdTag => "_";
     public bool IsPaired => true;
-    public string OpenTag => "_";
-    public string CloseTag => "_";
+    public HtmlTag HtmlTag => new() {Open = "<em>", Close = "</em>"};
 }

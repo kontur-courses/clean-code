@@ -2,8 +2,7 @@
 
 public interface ITag
 {
-    public string HtmlTag { get; }
+    public string MdTag { get; }
     public bool IsPaired { get; }
-    public string OpenTag { get; }
-    public string CloseTag { get; }
+    public HtmlTag HtmlTag { get; }
 }
