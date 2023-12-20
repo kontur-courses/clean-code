@@ -4,7 +4,7 @@ namespace Markdown.Tags.TagsContainers;
 
 public class ItalicTag : ITag
 {
-    public TagDefinition Definition => TagDefinition.Italic;
+    public TagType Definition => TagType.Italic;
 
     public string HtmlOpenTag => "<em>";
 
@@ -12,7 +12,7 @@ public class ItalicTag : ITag
 
     public string MarkdownTag => "_";
 
-    public HashSet<TagDefinition> AllowedNestedTags => new();
+    public HashSet<TagType> AllowedNestedTags => new();
 
     public bool IsMarkdownTagSingle => false;
 

@@ -11,9 +11,9 @@ public class MarkdownToHtmlTagsMapper : ITagsMapper
     {
         if (CheckIfTag(tag.Value))
         {
-            if (tag.TagType == TagType.OpenTag)
+            if (tag.TagType == TagStatus.OpenTag)
                 return _markdownTags[tag.Value].HtmlOpenTag;
-            if (tag.TagType == TagType.ClosingTag)
+            if (tag.TagType == TagStatus.ClosingTag)
                 return _markdownTags[tag.Value].HtmlClosingTag;
         }
 

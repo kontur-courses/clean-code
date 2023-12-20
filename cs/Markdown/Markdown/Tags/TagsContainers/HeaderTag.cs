@@ -4,7 +4,7 @@ namespace Markdown.Tags.TagsContainers;
 
 public class HeaderTag : ITag
 {
-    public TagDefinition Definition => TagDefinition.Header;
+    public TagType Definition => TagType.Header;
 
     public string HtmlOpenTag => "<h1>";
 
@@ -12,7 +12,7 @@ public class HeaderTag : ITag
 
     public string MarkdownTag => "# ";
 
-    public HashSet<TagDefinition> AllowedNestedTags => new() { TagDefinition.Italic, TagDefinition.Strong };
+    public HashSet<TagType> AllowedNestedTags => new() { TagType.Italic, TagType.Strong };
 
     public bool IsMarkdownTagSingle => true;
 

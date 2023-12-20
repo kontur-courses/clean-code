@@ -1,6 +1,6 @@
 ﻿namespace Markdown.Tags.TextTag;
 
-public enum TagType
+public enum TagStatus
 {
     OpenTag,
     ClosingTag,

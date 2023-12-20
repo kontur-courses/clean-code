@@ -2,13 +2,13 @@
 
 public class Tag : IConvertableToString
 {
-    public Tag(string value, TagType tagType)
+    public Tag(string value, TagStatus tagType)
     {
         Value = value;
         TagType = tagType;
     }
 
-    public TagType TagType { get; set; }
+    public TagStatus TagType { get; set; }
     public string Value { get; }
 
     public override string ToString()

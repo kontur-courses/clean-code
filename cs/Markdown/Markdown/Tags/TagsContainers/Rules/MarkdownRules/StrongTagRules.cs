@@ -7,11 +7,9 @@ namespace Markdown.Tags.TagsContainers.Rules.MarkdownRules;
 
 public class StrongTagRules : IMarkdownTagRules
 {
-    public TagDefinition Definition => TagDefinition.Strong;
-
-    public bool IsTagIgnoredBySymbol(char symbol, TagType tagType)
+    public bool IsTagIgnoredBySymbol(char symbol, TagStatus tagType)
     {
-        return char.IsDigit(symbol) && tagType == TagType.Undefined;
+        return char.IsDigit(symbol) && tagType == TagStatus.Undefined;
     }
 
     public bool IsTagOpen(char previousSymbol, char nextSymbol)
@@ -26,10 +24,10 @@ public class StrongTagRules : IMarkdownTagRules
 
     public bool IsTagsPaired(TagToken firstTag, TagToken secondTag, Dictionary<int, TagToken> parsedTokens)
     {
-        if ((firstTag.Value.TagType == TagType.Undefined || secondTag.Value.TagType == TagType.Undefined)
+        if ((firstTag.Value.TagType == TagStatus.Undefined || secondTag.Value.TagType == TagStatus.Undefined)
             && IsTagsInsideOneWord(firstTag, secondTag, parsedTokens))
             return true;
-        return firstTag.Value.TagType == TagType.OpenTag && secondTag.Value.TagType == TagType.ClosingTag;
+        return firstTag.Value.TagType == TagStatus.OpenTag && secondTag.Value.TagType == TagStatus.ClosingTag;
     }
 
     public bool IsTagsIgnored(TagToken firstTag, TagToken secondTag)

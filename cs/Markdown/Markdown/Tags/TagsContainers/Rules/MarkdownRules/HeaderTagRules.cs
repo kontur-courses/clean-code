@@ -6,14 +6,12 @@ namespace Markdown.Tags.TagsContainers.Rules.MarkdownRules;
 
 public class HeaderTagRules : IMarkdownSingleTagRules
 {
-    public TagDefinition Definition => TagDefinition.Header;
-
     public bool IsTagClosing(char previousSymbol, char nextSymbol)
     {
         return false;
     }
 
-    public bool IsTagIgnoredBySymbol(char symbol, TagType tagType)
+    public bool IsTagIgnoredBySymbol(char symbol, TagStatus tagType)
     {
         return false;
     }
@@ -37,7 +35,7 @@ public class HeaderTagRules : IMarkdownSingleTagRules
     {
         var startIndex = paragraphLength;
         var endIndex = startIndex + tag.MarkdownTag.Length;
-        var headerClosingToken = new TagToken(startIndex, endIndex, new Tag(tag.MarkdownTag, TagType.ClosingTag));
+        var headerClosingToken = new TagToken(startIndex, endIndex, new Tag(tag.MarkdownTag, TagStatus.ClosingTag));
         return headerClosingToken;
     }
 }

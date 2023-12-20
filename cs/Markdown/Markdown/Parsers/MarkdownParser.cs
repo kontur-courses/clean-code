@@ -44,7 +44,8 @@ public class MarkdownParser : ITextParser<Tag>
             var currentText = paragraph.Substring(currentIndexInParagraph, tagLength);
             if (IsTag(currentText) || IsEscapeCharacter(currentText))
             {
-                var textTokenBeforeTag = GetTextToken(textStartIndex, currentIndexInParagraph, paragraph);
+                var textTokenBeforeTag = new TagToken( textStartIndex, currentIndexInParagraph - 1, 
+                    new Tag(paragraph[textStartIndex..currentIndexInParagraph], TagStatus.Ignored));
                 AddTextToken(textTokenBeforeTag, parsedTokens);
                 var currentTag = GetTag(currentIndexInParagraph, tagLength, paragraph);
                 AddTag(currentTag, previousTags, parsedTokens);
@@ -54,7 +55,9 @@ public class MarkdownParser : ITextParser<Tag>
             }
         }
 
-        AddTextToken(GetTextToken(textStartIndex, paragraph.Length, paragraph), parsedTokens);
+        var lastTextToken = new TagToken(textStartIndex, paragraph.Length - 1,
+                    new Tag(paragraph[textStartIndex..paragraph.Length], TagStatus.Ignored));
+        AddTextToken(lastTextToken, parsedTokens);
         AddNotPairedTags(previousTags, parsedTokens);
 
         return parsedTokens;
@@ -73,19 +76,6 @@ public class MarkdownParser : ITextParser<Tag>
         parsedTokens.Add(textToken.StartIndex, textToken);
     }
 
-    private static TagToken GetTextToken(int textStartIndex, int currentIndexInParagrapgh, string paragraph)
-    {
-        var tokenStartIndexInParagraph = textStartIndex;
-        var tokenEndIndexInParagraph = currentIndexInParagrapgh - textStartIndex;
-        var tokenText = paragraph.Substring(tokenStartIndexInParagraph, tokenEndIndexInParagraph);
-        var token = new TagToken(
-            textStartIndex,
-            currentIndexInParagrapgh - 1,
-            new Tag(tokenText, TagType.Ignored));
-
-        return token;
-    }
-
     private static TagToken GetTag(int startIndex, int tagLength, string text)
     {
         var endIndex = startIndex + tagLength - 1;
@@ -97,35 +87,35 @@ public class MarkdownParser : ITextParser<Tag>
         return token;
     }
 
-    private static TagType GetTagType(string tag, int startIndex, int endIndex, string text)
+    private static TagStatus GetTagType(string tag, int startIndex, int endIndex, string text)
     {
-        var tagType = TagType.Undefined;
+        var tagType = TagStatus.Undefined;
         var isPreviousIndexInParagraphRange = startIndex - 1 >= 0;
         var isNextIndexInParagraphRange = endIndex + 2 <= text.Length;
-        var nextSymbol = isNextIndexInParagraphRange ? text[endIndex + 1] : CharExtension.Emptyhar;
-        var previousSymbol = isPreviousIndexInParagraphRange ? text[startIndex - 1] : CharExtension.Emptyhar;
+        var nextSymbol = isNextIndexInParagraphRange ? text[endIndex + 1] : CharExtension.EmptyChar;
+        var previousSymbol = isPreviousIndexInParagraphRange ? text[startIndex - 1] : CharExtension.EmptyChar;
         var tagRules = IsTag(tag) ? _tags[tag].MarkdownRules : null;
 
         if (!IsTag(tag))
-            return tagType;
+            return TagStatus.Ignored;
         else if (tagRules.IsTagOpen(previousSymbol, nextSymbol))
-            tagType = TagType.OpenTag;
+            tagType = TagStatus.OpenTag;
         else if (tagRules.IsTagClosing(previousSymbol, nextSymbol))
-            tagType = TagType.ClosingTag;
+            tagType = TagStatus.ClosingTag;
         else if (tagRules.IsTagIgnoredBySymbol(previousSymbol, tagType) || tagRules.IsTagIgnoredBySymbol(nextSymbol, tagType))
-            tagType = TagType.Ignored;
+            tagType = TagStatus.Ignored;
 
         return tagType;
     }
 
     private static bool IsTagsPared(TagToken firstTag, TagToken secondTag, Dictionary<int, TagToken> parsedTokens)
     {
-        var isTagsNotIgnored = firstTag.Value.TagType != TagType.Ignored && secondTag.Value.TagType != TagType.Ignored;
+        var isTagsNotIgnored = firstTag.Value.TagType != TagStatus.Ignored && secondTag.Value.TagType != TagStatus.Ignored;
         if (isTagsNotIgnored &&
             _tags[firstTag.ToString()].MarkdownRules.IsTagsPaired(firstTag, secondTag, parsedTokens))
         {
-            firstTag.Value.TagType = TagType.OpenTag;
-            secondTag.Value.TagType = TagType.ClosingTag;
+            firstTag.Value.TagType = TagStatus.OpenTag;
+            secondTag.Value.TagType = TagStatus.ClosingTag;
             return true;
         }
 
@@ -147,7 +137,7 @@ public class MarkdownParser : ITextParser<Tag>
         {
             AddEscapeCharacter(currentTag, previousTags, parsedTokens);
         }
-        else if (currentTag.Value.TagType == TagType.Ignored)
+        else if (currentTag.Value.TagType == TagStatus.Ignored)
         {
             parsedTokens.Add(currentTag.StartIndex, currentTag);
         }
@@ -171,7 +161,7 @@ public class MarkdownParser : ITextParser<Tag>
         var previousTag = previousTags.Pop();
         if (previousTag.EndIndex + 1 == currentTag.StartIndex)
         {
-            currentTag.Value.TagType = TagType.Ignored;
+            currentTag.Value.TagType = TagStatus.Ignored;
             parsedTokens.Add(previousTag.StartIndex, currentTag);
         }
         else
@@ -186,8 +176,8 @@ public class MarkdownParser : ITextParser<Tag>
     {
         if (_tags[firstTag.ToString()].MarkdownRules.IsTagsIgnored(firstTag, secondTag))
         {
-            firstTag.Value.TagType = TagType.Ignored;
-            secondTag.Value.TagType = TagType.Ignored;
+            firstTag.Value.TagType = TagStatus.Ignored;
+            secondTag.Value.TagType = TagStatus.Ignored;
         }
     }
 
@@ -200,7 +190,7 @@ public class MarkdownParser : ITextParser<Tag>
         {
             var nextTagValue = nextTag.ToString();
             if (IsTag(nextTagValue) && !nestedTagsToIgnore.Contains(_tags[nextTagValue].Definition))
-                nextTag.Value.TagType = TagType.Ignored;
+                nextTag.Value.TagType = TagStatus.Ignored;
             nextTag = parsedTokens[nextTag.EndIndex + 1];
         }
     }
@@ -211,7 +201,7 @@ public class MarkdownParser : ITextParser<Tag>
         {
             var tag = tags.Pop();
             if (!IsTag(tag.ToString()) || !_tags[tag.ToString()].IsMarkdownTagSingle)
-                tag.Value.TagType = TagType.Ignored;
+                tag.Value.TagType = TagStatus.Ignored;
 
             parsedTokens.Add(tag.StartIndex, tag);
         }
@@ -249,7 +239,7 @@ public class MarkdownParser : ITextParser<Tag>
             return null;
 
         var tag = _tags[tokenText];
-        if (!tag.IsMarkdownTagSingle || token.Value.TagType != TagType.OpenTag)
+        if (!tag.IsMarkdownTagSingle || token.Value.TagType != TagStatus.OpenTag)
             return null;
         return ((IMarkdownSingleTagRules)tag.MarkdownRules).GetClosingTag(tag, paragraphLength);
     }

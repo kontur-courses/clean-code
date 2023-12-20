@@ -1,6 +1,6 @@
 ﻿namespace Markdown.Tags.TagsContainers;
 
-public enum TagDefinition
+public enum TagType
 {
     Header,
     Italic,

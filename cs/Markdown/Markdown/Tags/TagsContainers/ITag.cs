@@ -4,7 +4,7 @@ namespace Markdown.Tags.TagsContainers;
 
 public interface ITag
 {
-    public TagDefinition Definition { get; }
+    public TagType Definition { get; }
 
     public string HtmlOpenTag { get; }
 
@@ -14,7 +14,7 @@ public interface ITag
 
     public bool IsMarkdownTagSingle { get; }
 
-    public HashSet<TagDefinition> AllowedNestedTags { get; }
+    public HashSet<TagType> AllowedNestedTags { get; }
 
     public IMarkdownTagRules MarkdownRules { get; }
 }

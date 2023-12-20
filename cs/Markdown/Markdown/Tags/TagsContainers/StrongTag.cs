@@ -4,7 +4,7 @@ namespace Markdown.Tags.TagsContainers;
 
 public class StrongTag : ITag
 {
-    public TagDefinition Definition => TagDefinition.Strong;
+    public TagType Definition => TagType.Strong;
 
     public string HtmlOpenTag => "<strong>";
 
@@ -12,7 +12,7 @@ public class StrongTag : ITag
 
     public string MarkdownTag => "__";
 
-    public HashSet<TagDefinition> AllowedNestedTags => new() { TagDefinition.Italic };
+    public HashSet<TagType> AllowedNestedTags => new() { TagType.Italic };
 
     public bool IsMarkdownTagSingle => false;
 
