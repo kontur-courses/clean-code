@@ -18,7 +18,7 @@ public class ItalicToken : IToken
         IsClosed = isClosed;
     }
 
-    public bool IsValid(string source)
+    public bool IsValid(string source, ref List<IToken> tokens)
     {
         return (IsClosed && this.IsValidClose(source)) || (!IsClosed && this.IsValidOpen(source));
     }

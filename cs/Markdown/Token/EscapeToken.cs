@@ -17,7 +17,7 @@ public class EscapeToken : IToken
         Position = position;
     }
 
-    public bool IsValid(string source)
+    public bool IsValid(string source, ref List<IToken> tokens)
     {
         return true;
     }

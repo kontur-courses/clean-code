@@ -109,7 +109,7 @@ public class AnySyntaxParser : IParser
             if (openedTags.ContainsKey(tag.Separator))
             {
                 tag.IsClosed = true;
-                if (tag.IsValid(source) && tag.IsPairedTokenValidPositioned(openedTags[tag.Separator], source))
+                if (tag.IsValid(source, ref result) && tag.IsPairedTokenValidPositioned(openedTags[tag.Separator], source))
                 {
                     if (openedTags.Values.Any(token =>
                             (!token.IsClosed && token.Position > openedTags[tag.Separator].Position)))
@@ -122,7 +122,7 @@ public class AnySyntaxParser : IParser
                     openedTags.Remove(tag.Separator);
                 }
             }
-            else if (tag.IsValid(source) && !(syntax.UnsupportedTags.ContainsKey(tag.Separator) &&
+            else if (tag.IsValid(source, ref result) && !(syntax.UnsupportedTags.ContainsKey(tag.Separator) &&
                                               syntax.UnsupportedTags[tag.Separator]
                                                   .Any(t => openedTags.ContainsKey(t))))
             {

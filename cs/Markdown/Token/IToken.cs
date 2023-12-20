@@ -8,5 +8,5 @@ public interface IToken
     string Separator { get; }
     bool IsPair { get; }
     bool IsClosed { get; set; }
-    bool IsValid(string source);
+    bool IsValid(string source, ref List<IToken> tokens);
 }

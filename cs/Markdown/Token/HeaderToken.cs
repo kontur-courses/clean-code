@@ -1,4 +1,6 @@
-﻿namespace Markdown.Token;
+﻿using System.Runtime.CompilerServices;
+
+namespace Markdown.Token;
 
 public class HeaderToken : IToken
 {
@@ -19,13 +21,14 @@ public class HeaderToken : IToken
         IsClosed = isClosed;
     }
 
-    public bool IsValid(string source)
+    public bool IsValid(string source, ref List<IToken> tokens)
     {
         if (Position == 0 || source[Position - 1] == '\n')
         {
             EndingPosition = source.IndexOf('\n', Position);
             if (EndingPosition < 0)
-                EndingPosition = source.Length - 1;
+                EndingPosition = source.Length;
+            tokens.Add(new HeaderToken(EndingPosition, true));
             return true;
         }
 

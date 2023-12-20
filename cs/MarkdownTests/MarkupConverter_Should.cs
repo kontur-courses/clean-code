@@ -7,12 +7,12 @@ namespace MarkdownTests;
 
 public class MarkupConverter_Should
 {
-    private HtmlConverter sut;
+    private MarkupConverter sut;
 
     [OneTimeSetUp]
     public void OneTimeSetUp()
     {
-        sut = new HtmlConverter(new MarkdownSyntax());
+        sut = new MarkupConverter(new MarkdownSyntax());
     }
 
     [TestCaseSource(typeof(MarkupConverterTestCases), nameof(MarkupConverterTestCases.RenderTestCases))]

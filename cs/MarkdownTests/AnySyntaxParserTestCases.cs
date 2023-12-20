@@ -43,12 +43,12 @@ public class AnySyntaxParserTestCases
             yield return new TestCaseData("1_1_1", new List<IToken>())
                 .SetName("ReturnEmptySequence_WhenThereIsItalicTokenInTextWithDigits");
 
-            yield return new TestCaseData("# a", new List<IToken>() { new HeaderToken(0) })
+            yield return new TestCaseData("# a", new List<IToken>() { new HeaderToken(0), new HeaderToken(3, true) })
                 .SetName("ReturnHeaderToken_WhenHeaderTokenProvided");
             yield return new TestCaseData("\\# a", new List<IToken>() { new EscapeToken(0) })
                 .SetName("ReturnEscapingToken_WhenEscapedTokenProvided");
             yield return new TestCaseData("# a\n# a",
-                    new List<IToken>() { new HeaderToken(0), new HeaderToken(4) })
+                    new List<IToken>() { new HeaderToken(0), new HeaderToken(3, true), new HeaderToken(4), new HeaderToken(7, true) })
                 .SetName("ReturnTwoHeaderTokens_TwoHeaderTokensProvided");
 
             yield return new TestCaseData("_a_", new List<IToken>() { new ItalicToken(0), new ItalicToken(2) })
@@ -80,7 +80,7 @@ public class AnySyntaxParserTestCases
                     {
                         new HeaderToken(0), new BoldToken(5),
                         new ItalicToken(7), new ItalicToken(12),
-                        new BoldToken(22), new EscapeToken(28)
+                        new BoldToken(22), new EscapeToken(28), new HeaderToken(31, true)
                     })
                 .SetName("ReturnMultipleTokens_WhenStringContainsMultipleTokens");
         }

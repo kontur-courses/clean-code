@@ -10,7 +10,7 @@ public class Markdown
     {
         var processor = new Processor.AnySyntaxParser(text, syntax);
         var tagTokens = processor.ParseTokens();
-        var converter = new HtmlConverter(syntax);
+        var converter = new MarkupConverter(syntax);
         return converter.ConvertTags(tagTokens, text);
     }
 }

@@ -16,17 +16,17 @@ public class MarkdownSyntax : ISyntax
         { new BoldToken(0).Separator, new List<string> { new ItalicToken(0).Separator } }
     };
 
-    private readonly Dictionary<string, ITag> tokenToTagConversion = new()
+    private readonly Dictionary<string, ITag> tokenSeparatorToHtml = new()
     {
-        { "#", new HtmlTag("<h1>", "</h1>\n") }, { "_", new HtmlTag("<em>", "</em>") },
-        { "__", new HtmlTag("<strong>", "</strong>") }, { "\\", new HtmlTag("", "") }
+        { "#", new HtmlTag("<h1>", "</h1>\n", true) }, { "_", new HtmlTag("<em>", "</em>", true) },
+        { "__", new HtmlTag("<strong>", "</strong>", true) }, { "\\", new HtmlTag("", "", false) }
     };
 
     public Type EscapeToken => typeof(EscapeToken);
     public string NewLineSeparator => new NewLineToken().Separator;
     public ITag ConvertTag(IToken token)
     {
-        return tokenToTagConversion[token.Separator];
+        return tokenSeparatorToHtml[token.Separator];
     }
 
     public IReadOnlyDictionary<string, IList<string>> UnsupportedTags => tagNotWorkingWithinTags;
