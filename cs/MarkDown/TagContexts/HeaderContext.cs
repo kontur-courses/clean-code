@@ -5,7 +5,7 @@ namespace MarkDown.TagContexts;
 
 public class HeaderContext : ResetContext
 {
-    public HeaderContext(int startIndex, TagContext parentContext, Tag tag) : base(startIndex, parentContext, tag)
+    public HeaderContext(int startIndex, TagContext parentContext, TagFactory tagFactory) : base(startIndex, parentContext, tagFactory)
     {
     }
 

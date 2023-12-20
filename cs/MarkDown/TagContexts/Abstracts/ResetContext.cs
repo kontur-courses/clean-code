@@ -5,7 +5,7 @@ namespace MarkDown.TagContexts.Abstracts;
 
 public abstract class ResetContext : TagContext
 {
-    protected ResetContext(int startIndex, TagContext? parent, Tag tag) : base(startIndex, parent, tag)
+    protected ResetContext(int startIndex, TagContext? parent, TagFactory tagFactory) : base(startIndex, parent, tagFactory)
     {
     }
     

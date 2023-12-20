@@ -5,7 +5,7 @@ using MarkDown.Tags.Abstracts;
 
 namespace MarkDown.Tags;
 
-public class HeaderTag : Tag
+public class HeaderTagFactory : TagFactory
 {
     public override TagName TagName => TagName.Header;
 
@@ -14,7 +14,7 @@ public class HeaderTag : Tag
     public override string MarkDownOpen => "# ";
     public override string MarkDownClose => System.Environment.NewLine;
 
-    public HeaderTag(MarkDownEnvironment environment) : base(environment)
+    public HeaderTagFactory(MarkDownEnvironment environment) : base(environment)
     {
     }
 

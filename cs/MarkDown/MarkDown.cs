@@ -9,7 +9,7 @@ public class MarkDown
 {
     private static EntryContext CreateContext(string mdText, MarkDownEnvironment environment)
     {
-        var entryTag = new EntryTag(environment);
+        var entryTag = new EntryTagFactory(environment);
         var entryContext = entryTag.CreateContext();
         
         TagContext nowContext = entryContext;

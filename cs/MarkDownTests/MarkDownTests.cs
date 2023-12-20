@@ -26,11 +26,51 @@ public class MarkDownTests
     
     [TestCase("__a__", "<strong>a</strong>", TestName = "CreatesTag")]
     [TestCase("a__a__ ", "a<strong>a</strong> ", TestName = "CreatesTagInWord")]
+    [TestCase("__a", "__a", TestName = "DoesNotCreateTagWithoutCloseSymbol")]
     [TestCase("a __bcd__ e", "a <strong>bcd</strong> e", TestName = "CreatesTagInPhrase")]
-    [TestCase("__a __", "__a __", TestName = "DoesNotCloseIncorrectTag")]
-    [TestCase("__ a__", "__ a__", TestName = "DoesNotOpenIncorrectTag")]
-    [TestCase("__a1__", "__a1__", TestName = "CannotOpenWithDigits")]
+    [TestCase("__a __", "__a __", TestName = "DoesNotCreateTagWhenSpaceBeforeClosing")]
+    [TestCase("a__b c__", "a__b c__", TestName = "DoesNotCreateTagWhenInDifferentWords")]
+    [TestCase("__ a__", "__ a__", TestName = "DoesNotCreateTagWhenSpaceAfterOpening")]
+    [TestCase("__a1__", "__a1__", TestName = "CannotCreateWithDigitsNearTag")]
+    [TestCase("__a1b__", "__a1b__", TestName = "CannotCreateWithDigitsInsideTag")]
+    [TestCase("__a _b_ c__", "<strong>a <em>b</em> c</strong>", TestName = "SupportsEmInside")]
+    [TestCase("__a _b c__", "<strong>a _b c</strong>", TestName = "SupportsNotClosedEm")]
     public void GenerateHtml_Strong(string markdown, string expected)
+    {
+        MarkDown.MarkDown.GenerateHtml(markdown, markDownEnv)
+            .Should()
+            .Be(expected);
+    }
+    
+    [TestCase("_a_", "<em>a</em>", TestName = "CreatesTag")]
+    [TestCase("a_a_ ", "a<em>a</em> ", TestName = "CreatesTagInWord")]
+    [TestCase("_a", "_a", TestName = "DoesNotCreateTagWithoutCloseSymbol")]
+    [TestCase("a _bcd_ e", "a <em>bcd</em> e", TestName = "CreatesTagInPhrase")]
+    [TestCase("_a _", "_a _", TestName = "DoesNotCreateTagWhenSpaceBeforeClosing")]
+    [TestCase("a_b c_", "a_b c_", TestName = "DoesNotCreateTagWhenInDifferentWords")]
+    [TestCase("_ a_", "_ a_", TestName = "DoesNotCreateTagWhenSpaceAfterOpening")]
+    [TestCase("_a1_", "_a1_", TestName = "CannotCreateWithDigitsNearTag")]
+    [TestCase("_a1b_", "_a1b_", TestName = "CannotCreateWithDigitsInsideTag")]
+    [TestCase("_a __b__ c_", "<em>a __b__ c</em>", TestName = "DoesNotSupportStrongInside")]
+    public void GenerateHtml_Em(string markdown, string expected)
+    {
+        MarkDown.MarkDown.GenerateHtml(markdown, markDownEnv)
+            .Should()
+            .Be(expected);
+    }
+    
+    [TestCase("__", "__", TestName = "CreateEmptyEmTag")]
+    [TestCase("____", "____", TestName = "CreateEmptyStrongTag")]
+    [TestCase("__a _b c__ d_", "__a _b c__ d_", TestName = "CreateIntersectingTags")]
+    [TestCase("_a __b c_ d__", "_a __b c_ d__", TestName = "CreateIntersectingTagsInAnotherOrder")]
+    public void GenerateHtml_DoesNot(string markdown, string expected)
+    {
+        MarkDown.MarkDown.GenerateHtml(markdown, markDownEnv)
+            .Should()
+            .Be(expected);
+    }
+    
+    public void GenerateHtml_Supports(string markdown, string expected)
     {
         MarkDown.MarkDown.GenerateHtml(markdown, markDownEnv)
             .Should()

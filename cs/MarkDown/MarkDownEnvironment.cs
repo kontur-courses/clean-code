@@ -6,35 +6,42 @@ namespace MarkDown;
 
 public class MarkDownEnvironment
 {
-    private readonly Dictionary<TagName, Tag> markDownTags = new();
-    private readonly Dictionary<TagName, List<TagName>> unsupportedForTag = new();
+    private readonly Dictionary<TagName, TagFactory> markDownTags = new();
+    // private readonly Dictionary<TagName, List<TagName>> unsupportedForTag = new();
+    private readonly Dictionary<TagFactory, List<TagName>> unsupportedParentsForTag = new();
 
     public MarkDownEnvironment()
     {
-        AddNewTagForMarkDown(new HeaderTag(this));
-        AddNewTagForMarkDown(new EntryTag(this));
-        AddNewTagForMarkDown(new StrongTag(this));
+        AddNewTagForMarkDown(new HeaderTagFactory(this));
+        AddNewTagForMarkDown(new EntryTagFactory(this));
+        AddNewTagForMarkDown(new StrongTagFactory(this));
+        AddNewTagForMarkDown(new EmTagFactory(this));
     }
 
-    public void AddNewTagForMarkDown(Tag tag)
+    private void AddNewTagForMarkDown(TagFactory tagFactory)
     {
-        markDownTags[tag.TagName] = tag;
+        markDownTags[tagFactory.TagName] = tagFactory;
     }
 
-    public bool CanGetTagCreator(string text, int position, out Tag openTag)
+    public bool CanGetTagCreator(string text, int position, out TagFactory openTagFactory)
     {
-        openTag = null;
+        openTagFactory = null;
         
-        foreach (var tag in markDownTags.Values)
-            if (tag.CanCreateContext(text, position))
-                openTag = tag;
+        foreach (var tag in markDownTags.Values.Where(tag => tag.CanCreateContext(text, position)))
+            if (openTagFactory != null)
+            {
+                if (openTagFactory.MarkDownOpen.Length < tag.MarkDownOpen.Length)
+                    openTagFactory = tag;
+            }
+            else
+                openTagFactory = tag;
 
-        return openTag is not null;
+        return openTagFactory is not null;
     }
 
-    public bool CanGetCloseTags(string text, int position, out List<Tag> closeTags)
+    public bool CanGetCloseTags(string text, int position, out List<TagFactory> closeTags)
     {
-        closeTags = new List<Tag>();
+        closeTags = new List<TagFactory>();
         
         foreach (var tag in markDownTags.Values)
             if (tag.IsClosePosition(text, position))
@@ -43,23 +50,38 @@ public class MarkDownEnvironment
         return closeTags.Count > 0;
     }
 
-    public Tag GetTagByName(TagName tagName)
+    public TagFactory GetTagByName(TagName tagName)
     {
         return markDownTags[tagName];
     }
 
-    public void AddUnsupportedInnersFor(TagName tagName, params TagName[] unsupported)
-    {
-        if (unsupportedForTag.TryGetValue(tagName, out var types))
-            types.AddRange(unsupported);
-        else
-            unsupportedForTag[tagName] = new List<TagName>(unsupported);
-    }
+    // public void AddUnsupportedInnersFor(TagName tagName, params TagName[] unsupported)
+    // {
+    //     if (unsupportedForTag.TryGetValue(tagName, out var types))
+    //         types.AddRange(unsupported);
+    //     else
+    //         unsupportedForTag[tagName] = new List<TagName>(unsupported);
+    // }
 
-    public IEnumerable<TagName> GetUnsupportedInnersFor(TagName tagName)
+    public void AddUnsupportedParentsFor(TagFactory tagFactory, params TagName[] unsupported)
     {
-        return unsupportedForTag.TryGetValue(tagName, out var tags) 
+        if (unsupportedParentsForTag.TryGetValue(tagFactory, out var tags))
+            tags.AddRange(unsupported);
+        else
+            unsupportedParentsForTag[tagFactory] = new List<TagName>(unsupported);
+    }
+    
+    public IEnumerable<TagName> GetUnsupportedParentsFor(TagFactory tagFactory)
+    {
+        return unsupportedParentsForTag.TryGetValue(tagFactory, out var tags) 
             ? tags
             : Enumerable.Empty<TagName>();
     }
+
+    // public IEnumerable<TagName> GetUnsupportedInnersFor(TagName tagName)
+    // {
+    //     return unsupportedForTag.TryGetValue(tagName, out var tags) 
+    //         ? tags
+    //         : Enumerable.Empty<TagName>();
+    // }
 }

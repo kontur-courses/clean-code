@@ -9,21 +9,20 @@ public abstract class TagContext
     protected List<TagContext> InnerContexts = new();
     protected internal readonly TagContext? parent;
 
-    protected TagContext(int startIndex, TagContext? parent, Tag tag)
+    protected TagContext(int startIndex, TagContext? parent, TagFactory tagFactory)
     {
         this.parent = parent;
         StartIndex = startIndex;
-        Tag = tag;
+        TagFactory = tagFactory;
     }
 
-    public int StartIndex { get; init; }
-    protected Tag Tag { get; }
-    public int CloseIndex { get; protected set; }
-    
     public bool Closed { get; protected set; }
+    protected int CloseIndex { get; set; }
+    protected bool ConsiderInCreatingHtml { get; set; } = true;
+    private int StartIndex { get; init; }
+    private TagFactory TagFactory { get; }
+    private bool isIntersected { get; set; }
     
-    public bool ConsiderInCreatingHtml { get; protected set; } = true;
-
     public bool TryClose(TagName tagCloseName, int closeIndex, out TagContext closed)
     {
         closed = this;
@@ -34,7 +33,7 @@ public abstract class TagContext
         if (Closed)
             return false;
         
-        Closed = Tag.TagName == tagCloseName && ConsiderInCreatingHtml;
+        Closed = TagFactory.TagName == tagCloseName && ConsiderInCreatingHtml;
         CloseIndex = closeIndex;
         
         return Closed;
@@ -57,6 +56,50 @@ public abstract class TagContext
         parent?.HandleSymbol(symbol);
     }
 
+    private bool HasUnsupportedParents(MarkDownEnvironment environment)
+    {
+        if (!Closed)
+            return false;
+        
+        var nowParent = parent;
+        var unsupported = environment.GetUnsupportedParentsFor(TagFactory);
+
+        while (nowParent is not null)
+        {
+            if (nowParent is HighlightContext
+                && nowParent.Closed
+                && nowParent.CloseIndex < CloseIndex)
+                return true;
+            
+            if (nowParent.Closed 
+                && nowParent.CloseIndex > StartIndex 
+                && unsupported.Any(e => e.Equals(nowParent.TagFactory.TagName)))
+                return true;
+            
+            nowParent = nowParent.parent;
+        }
+        
+        return false;
+    }
+
+    protected internal void MarkIntersectedTags(List<TagContext> previousClosed)
+    {
+        if (Closed && this is HighlightContext)
+        {
+            for (var i = previousClosed.Count - 1; i >= 0; i--)
+                if (previousClosed[i].CloseIndex > StartIndex && CloseIndex > previousClosed[i].CloseIndex)
+                {
+                    isIntersected = true;
+                    previousClosed[i].isIntersected = true;
+                }
+            
+            previousClosed.Add(this);
+        }
+
+        foreach (var innerContext in InnerContexts) 
+            innerContext.MarkIntersectedTags(previousClosed);
+    }
+
     protected (int start, int end) CreateHtml(
         string text, 
         StringBuilder sb, 
@@ -64,46 +107,37 @@ public abstract class TagContext
         int nearestParentCloseIndex)
     {
         var start = StartIndex;
+        var showInHtml = Closed && !HasUnsupportedParents(environment) && !isIntersected;
 
-        if (Closed)
+        if (showInHtml)
         {
-            start += Tag.MarkDownOpen.Length;
-            sb.Append(Tag.HtmlOpen);
+            start += TagFactory.MarkDownOpen.Length;
+            sb.Append(TagFactory.HtmlOpen);
         }
         
         foreach (var context in InnerContexts)
         {
-            var beforeInner = sb.Length == 0 ? sb.Length : sb.Length - 1;
+            var beforeInner = sb.Length;
             var (innerStart, innerEnd) = context.CreateHtml(
                 text, 
                 sb, 
                 environment, 
-                Closed ? CloseIndex : nearestParentCloseIndex);
+                showInHtml ? CloseIndex : nearestParentCloseIndex);
             
             sb.Insert(beforeInner, text.AsSpan(start, innerStart - start));
             start = innerEnd;
         }
         
         if (start < text.Length)
-            sb.Append(text.AsSpan(start, (Closed ? CloseIndex : nearestParentCloseIndex) - start));
+            sb.Append(text.AsSpan(start, (showInHtml ? CloseIndex : nearestParentCloseIndex) - start));
         
-        if (Closed)
-            sb.Append(Tag.HtmlClose);
+        if (showInHtml)
+            sb.Append(TagFactory.HtmlClose);
         
-        return (StartIndex, Closed ? CloseIndex + Tag.MarkDownClose.Length : nearestParentCloseIndex);
+        return (StartIndex, showInHtml ? CloseIndex + TagFactory.MarkDownClose.Length : nearestParentCloseIndex);
     }
 
     protected abstract void HandleSymbolItself(char symbol);
 
     public abstract void CloseSingleTags(int closeIndex);
-
-    
-    //todo убрать
-    public override int GetHashCode()
-    {
-        unchecked
-        {
-            return ((int) Tag.TagName * 397) ^ StartIndex;
-        }
-    }
 }

@@ -3,11 +3,11 @@ using MarkDown.Tags.Abstracts;
 
 namespace MarkDown.TagContexts;
 
-public class StrongContext : TagContext
+public class HighlightContext : TagContext
 {
     private bool IsInWord { get; }
-    
-    public StrongContext(int startIndex, bool isInWord, TagContext? parent, Tag tag) : base(startIndex, parent, tag)
+
+    public HighlightContext(int startIndex, bool isInWord, TagContext? parent, TagFactory tagFactory) : base(startIndex, parent, tagFactory)
     {
         IsInWord = isInWord;
     }

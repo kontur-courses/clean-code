@@ -6,11 +6,11 @@ namespace MarkDown.TagContexts;
 
 public class EntryContext : TagContext
 {
-    public EntryContext(int startIndex, TagContext? context, Tag tag) : base(startIndex, context, tag)
+    public EntryContext(int startIndex, TagContext? context, TagFactory tagFactory) : base(startIndex, context, tagFactory)
     {
     }
     
-    public EntryContext(Tag tag) : base(0, null, tag)
+    public EntryContext(TagFactory tagFactory) : base(0, null, tagFactory)
     {
     }
 
@@ -26,6 +26,7 @@ public class EntryContext : TagContext
 
     public void CreateHtml(string mdText, StringBuilder sb, MarkDownEnvironment environment)
     {
+        MarkIntersectedTags(new List<TagContext>());
         CreateHtml(mdText, sb, environment, CloseIndex);
     }
 }

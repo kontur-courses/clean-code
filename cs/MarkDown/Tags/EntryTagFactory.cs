@@ -5,9 +5,9 @@ using MarkDown.Tags.Abstracts;
 
 namespace MarkDown.Tags;
 
-public class EntryTag : Tag
+public class EntryTagFactory : TagFactory
 {
-    public EntryTag(MarkDownEnvironment environment) : base(environment)
+    public EntryTagFactory(MarkDownEnvironment environment) : base(environment)
     {
     }
 
