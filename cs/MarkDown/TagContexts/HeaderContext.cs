@@ -1,11 +1,11 @@
-using System.Text;
-using MarkDown.Tags;
+using MarkDown.TagContexts.Abstracts;
+using MarkDown.Tags.Abstracts;
 
 namespace MarkDown.TagContexts;
 
-public class HeaderContext : TagContext
+public class HeaderContext : ResetContext
 {
-    public HeaderContext(int startIndex, TagContext tagContext, Tag creator) : base(startIndex, tagContext, creator)
+    public HeaderContext(int startIndex, TagContext parentContext, Tag tag) : base(startIndex, parentContext, tag)
     {
     }
 
@@ -13,29 +13,9 @@ public class HeaderContext : TagContext
     {
     }
 
-    public override (int start, int end) ConvertToHtml(string text, StringBuilder sb, MarkDownEnvironment environment)
-    {
-        var start = StartIndex + Creator.MarkDownOpen.Length;
-        sb.Append(Creator.HtmlOpen);
-        
-        foreach (var context in InnerContexts
-                     .Where(context => context.Closed))
-        {
-            var (innerStart, innerEnd) = context.ConvertToHtml(text, sb, environment);
-            sb.Insert(0, text.AsSpan(start, innerStart - start));
-            start = innerEnd;
-        }
-        
-        sb.Append(text.AsSpan(start, CloseIndex - start));
-
-        sb.Append(Creator.HtmlClose);
-        
-        return (StartIndex, CloseIndex + Creator.MarkDownClose.Length);
-    }
-
     public override void CloseSingleTags(int closeIndex)
     {
-        parent.CloseSingleTags(closeIndex);
+        parent?.CloseSingleTags(closeIndex);
         
         if (Closed)
             return;

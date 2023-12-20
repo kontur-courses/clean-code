@@ -1,17 +1,18 @@
 using System.Text;
 using MarkDown.TagContexts;
+using MarkDown.TagContexts.Abstracts;
 using MarkDown.Tags;
 
 namespace MarkDown;
 
 public class MarkDown
 {
-    private static TagContext CreateContext(string mdText, MarkDownEnvironment environment)
+    private static EntryContext CreateContext(string mdText, MarkDownEnvironment environment)
     {
         var entryTag = new EntryTag(environment);
         var entryContext = entryTag.CreateContext();
         
-        var nowContext = entryContext;
+        TagContext nowContext = entryContext;
         
         for (var i = 0; i < mdText.Length; i++)
         {
@@ -24,24 +25,28 @@ public class MarkDown
                     
                 foreach (var closeTag in closeTags)
                 {
-                    if (nowContext.TryClose(closeTag.TagName, i))
+                    if (nowContext.TryClose(closeTag.TagName, i, out var closedContext))
                     {
                         maxCloseLength = Math.Max(maxCloseLength, closeTag.MarkDownClose.Length);
                         isAnyClosed = true;
-                        nowContext = nowContext.SwitchToOpenContext();
+
+                        if (closedContext is ResetContext resetContext)
+                        {
+                            nowContext = resetContext.SwitchToOpenContext();
+                        }
                     }
                 }
                 
                 if (isAnyClosed)
                 {
-                    i += closeTags.Max(e => e.MarkDownClose.Length);
+                    i += closeTags.Max(e => e.MarkDownClose.Length) - 1;
                     continue;
                 }
             }
             
             if (environment.CanGetTagCreator(mdText, i, out var openTag))
             {
-                var newContext = openTag.CreateContext(i, nowContext);
+                var newContext = openTag.CreateContext(mdText, i, nowContext);
                 nowContext.AddInnerContext(newContext);
                 
                 nowContext = newContext;
@@ -61,7 +66,7 @@ public class MarkDown
         var entryContext = CreateContext(mdText, environment);
         
         var sb = new StringBuilder();
-        entryContext.ConvertToHtml(mdText, sb, environment);
+        entryContext.CreateHtml(mdText, sb, environment);
 
         return sb.ToString();
     }

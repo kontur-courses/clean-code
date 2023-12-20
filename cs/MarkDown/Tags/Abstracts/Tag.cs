@@ -1,7 +1,7 @@
 using MarkDown.Enums;
-using MarkDown.TagContexts;
+using MarkDown.TagContexts.Abstracts;
 
-namespace MarkDown.Tags;
+namespace MarkDown.Tags.Abstracts;
 
 public abstract class Tag
 {
@@ -19,7 +19,7 @@ public abstract class Tag
     public abstract string MarkDownOpen { get; }
     public abstract string MarkDownClose { get; }
 
-    public abstract TagContext CreateContext(int startIndex, TagContext parentContext);
+    public abstract TagContext CreateContext(string mdText, int startIndex, TagContext parentContext);
 
     public abstract bool CanCreateContext(string text, int position);
 

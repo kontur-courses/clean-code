@@ -1,5 +1,6 @@
 using MarkDown.Enums;
 using MarkDown.Tags;
+using MarkDown.Tags.Abstracts;
 
 namespace MarkDown;
 
@@ -12,6 +13,7 @@ public class MarkDownEnvironment
     {
         AddNewTagForMarkDown(new HeaderTag(this));
         AddNewTagForMarkDown(new EntryTag(this));
+        AddNewTagForMarkDown(new StrongTag(this));
     }
 
     public void AddNewTagForMarkDown(Tag tag)

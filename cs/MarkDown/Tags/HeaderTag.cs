@@ -1,5 +1,7 @@
 using MarkDown.Enums;
 using MarkDown.TagContexts;
+using MarkDown.TagContexts.Abstracts;
+using MarkDown.Tags.Abstracts;
 
 namespace MarkDown.Tags;
 
@@ -16,7 +18,7 @@ public class HeaderTag : Tag
     {
     }
 
-    public override TagContext CreateContext(int startIndex, TagContext nowContext)
+    public override HeaderContext CreateContext(string mdText, int startIndex, TagContext nowContext)
     {
         return new HeaderContext(startIndex, nowContext, this);
     }

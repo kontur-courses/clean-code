@@ -1,5 +1,7 @@
 using MarkDown.Enums;
 using MarkDown.TagContexts;
+using MarkDown.TagContexts.Abstracts;
+using MarkDown.Tags.Abstracts;
 
 namespace MarkDown.Tags;
 
@@ -15,12 +17,12 @@ public class EntryTag : Tag
     public override string MarkDownOpen => "";
     public override string MarkDownClose => "";
     
-    public override TagContext CreateContext(int startIndex, TagContext? nowContext)
+    public override TagContext CreateContext(string mdText, int startIndex, TagContext? nowContext)
     {
         return new EntryContext(startIndex, nowContext, this);
     }
     
-    public TagContext CreateContext()
+    public EntryContext CreateContext()
     {
         return new EntryContext(this);
     }
