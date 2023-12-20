@@ -1,6 +1,6 @@
 namespace Markdown.Tags;
 
-public class Bulleted : Heading
+public class Bulleted : Tag
 {
     protected override Tag CreateTag(string content, Token previousToken, string nextChar)
     {
@@ -14,7 +14,7 @@ public class Bulleted : Heading
         return this;
     }
 
-    protected override void BlockToken(Token previousToken)
+    protected void BlockToken(Token previousToken)
     {
         if (previousToken != null)
         {
