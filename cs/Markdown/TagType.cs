@@ -5,5 +5,6 @@ public enum TagType
     Italic,
     Bold,
     Heading,
-    LineBreaker
+    LineBreaker,
+    Bulleted
 }

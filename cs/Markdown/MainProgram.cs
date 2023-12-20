@@ -1,12 +1,22 @@
-﻿namespace Markdown;
+﻿using System.Collections.Immutable;
+
+namespace Markdown;
 
 public class MainProgram
 {
     public static void Main(string[] args)
     {
-        var text = Console.ReadLine();
+        var tagDictionary = new Dictionary<string, TagType>()
+        {
+            {"_", TagType.Italic},
+            {"__", TagType.Bold},
+            {"# ", TagType.Heading},
+            {"\n", TagType.LineBreaker},
+            {"\r\n", TagType.LineBreaker}
+            
+        };
+        var text = "_text_" + "\r\n";
         var sut = new Md();
-        var parsedLine = sut.Render(text);
-        Console.WriteLine(parsedLine);
+        Console.WriteLine(sut.Render(text));
     }
 }

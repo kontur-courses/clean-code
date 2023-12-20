@@ -1,105 +1,86 @@
+using System.Diagnostics;
+using System.Text;
+using Markdown.Tags;
+
 namespace Markdown;
 
 public class Renderer
 {
-    private readonly Dictionary<string, string> htmlTagDict = Tags.HtmlTagDict;
-
-    private readonly Dictionary<string, Tag> tagDict = new()
-    {
-        { "__", new Tag(true, TagType.Bold, new[] { "_" }) },
-        { "_", new Tag(true, TagType.Italic) },
-        { "# ", new Tag(false, TagType.Heading) },
-        { "\n", new Tag(false, TagType.LineBreaker) },
-        { "\r\n", new Tag(false, TagType.LineBreaker) }
-    };
-
     private bool hasDigitText;
     private bool hasSpacesBetweenTags;
-    private Stack<Token>? stack;
+    private bool textBetweenTags;
+    private Tag PreviousTag;
+    private Stack<Tag>? stack;
 
     public List<Token> HandleTokens(List<Token> tokenList)
     {
-        stack = new Stack<Token>();
-        if (tokenList.All(x => x.Status != TokenStatus.Text)) return tokenList;
+        var closingSomeTags = string.Empty;
+        stack = new Stack<Tag>();
         foreach (var token in tokenList)
         {
-            if (token.Status == TokenStatus.Text)
+            switch (token.Type)
             {
-                if (!hasSpacesBetweenTags) hasSpacesBetweenTags = token.isSpaces;
-                if (!hasDigitText) hasDigitText = token.isDigitText;
-                continue;
+                case TokenType.Text:
+                    break;
+                case TokenType.Tag:
+                    if (token.Tag.IsPaired)
+                    {
+                        HandlePairedTag(token.Tag);
+                    }
+                    else
+                    {
+                        if (token.Tag.Status != TagStatus.Block)
+                        {
+                            token.Tag.Content = token.Tag.ConvertTo;
+                            closingSomeTags = token.Tag.ClosingTag + closingSomeTags;
+                        }
+                    }
+                    break;
+                case TokenType.Escape:
+                    token.Content = "";
+                    break;
+                case TokenType.LineBreaker:
+                    token.Content = closingSomeTags + token.Content;
+                    closingSomeTags = string.Empty;
+                    break;
+                default:
+                    throw new ArgumentOutOfRangeException();
             }
-
-            if (IsEscapeOrUnpairedTag(token))
-            {
-                token.Content = htmlTagDict[token.Content];
-                continue;
-            }
-
-            HandlePairedTag(token);
         }
-
         return tokenList;
     }
 
-    private void HandlePairedTag(Token token)
+    private void HandlePairedTag(Tag tag)
     {
-        if (!tagDict[token.Content].IsOpen)
+        if (tag.Status == TagStatus.Block) return;
+        if(tag.Status == TagStatus.Closing && PreviousTag == null) return;
+        if (tag.Status == TagStatus.Opening || PreviousTag == null || 
+            (PreviousTag.TokenType != tag.TokenType && PreviousTag.Status != TagStatus.Closing))
         {
-            OpenPairedTag(token, stack);
+            PreviousTag = tag;
+            OpenPairedTag(tag, stack);
             return;
         }
-
         stack.TryPeek(out var tokenPeek);
         if (tokenPeek == null) return;
-        if (tokenPeek.Content == token.Content &&
-            (!hasSpacesBetweenTags || IsTagWordBoundary(token, tokenPeek)))
-            ClosePairedTag(token);
-        else if (tokenPeek.Content != token.Content) ResetStack(token);
+        if (tokenPeek.TokenType == tag.TokenType)
+            ClosePairedTag(tag);
     }
 
-    private bool IsEscapeOrUnpairedTag(Token token)
+    private void OpenPairedTag(Tag tag, Stack<Tag> stack)
     {
-        return token.Status == TokenStatus.EscapeTag || !tagDict[token.Content].IsPaired;
+        tag.Status = TagStatus.Opening;
+        stack.Push(tag);
     }
 
-    private void OpenPairedTag(Token token, Stack<Token> stack)
-    {
-        tagDict[token.Content].IsOpen = true;
-        stack.Push(token);
-    }
-
-    private bool CheckBlockedTagsBeforeToken(Token token)
-    {
-        stack.TryPeek(out var prevtokenPeek);
-        return prevtokenPeek != null && tagDict[token.Content].BlockTags.Contains(prevtokenPeek.Content);
-    }
-
-    private void ClosePairedTag(Token token)
+    private void ClosePairedTag(Tag tag)
     {
         var tokenPeek = stack.Pop();
-        stack.TryPeek(out var prevtokenPeek);
-        if (CheckBlockedTagsBeforeToken(token) || hasDigitText)
-        {
-            hasDigitText = false;
-            tagDict[token.Content].IsOpen = false;
-            return;
-        }
-
-        tagDict[token.Content].IsOpen = false;
-        tokenPeek.Content = htmlTagDict[token.Content];
-        token.Content = $"</{tokenPeek.Content[1..]}";
-        hasSpacesBetweenTags = false;
+        tag.Status = TagStatus.Closing;
+        tokenPeek.Content = tag.Content = tag.ConvertTo;
+        tag.Content = tag.ClosingTag;
+        PreviousTag = tag;
     }
-
-    private void ResetStack(Token token)
-    {
-        stack.Clear();
-        stack.Push(token);
-    }
-
-    private static bool IsTagWordBoundary(Token token, Token tokenPeek)
-    {
-        return token.Last is "" or " " && tokenPeek.Last != " " && tokenPeek.Prev is "" or " " && token.Prev != " ";
-    }
+    
+    
 }

@@ -1,8 +1,9 @@
 namespace Markdown;
 
-public enum TokenStatus
+public enum TokenType
 {
     Tag,
     Text,
-    EscapeTag
+    Escape, 
+    LineBreaker
 }

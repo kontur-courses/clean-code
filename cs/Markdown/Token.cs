@@ -1,19 +1,16 @@
+using Markdown.Tags;
+
 namespace Markdown;
 
 public class Token
 {
-    public readonly string Last;
-    public readonly string Prev;
-    public string Content;
-    public bool isDigitText = false;
-    public bool isSpaces = false;
-    public TokenStatus Status;
-
-    public Token(string content, TokenStatus tagStatus, string prev = "", string last = "")
+    public  TokenType Type;
+    public  string Content;
+    public Tag? Tag;
+    public Token(string content, Tag? tag, TokenType type)
     {
-        Last = last;
-        Prev = prev;
-        Status = tagStatus;
         Content = content;
+        Type = type;
+        Tag = tag;
     }
 }

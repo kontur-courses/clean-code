@@ -1,20 +1,21 @@
 using System.Text;
+using Markdown.Tags;
 
 namespace Markdown;
 
 public class Parser
 {
-    private readonly Dictionary<string, Tag> tagDict;
+    private readonly Dictionary<string, TagType> tagDict;
     private bool hasDigit;
     private bool hasSpaces;
     private int index;
     private List<Token> list;
     private string text;
+    private Token previousToken;
 
-    public Parser(Dictionary<string, Tag> tagDict)
+    public Parser(Dictionary<string, TagType> tagDictionary)
     {
-        this.tagDict = tagDict;
-        list = new List<Token>();
+        this.tagDict =  tagDictionary;
     }
 
     public List<Token> Parse(string text)
@@ -23,15 +24,16 @@ public class Parser
         list = new List<Token>();
         index = 0;
         for (; index < text.Length; index++)
-            if (IsTagStart(text[index].ToString())) AddToken(TokenStatus.Tag);
+            if (IsTagStart(text[index].ToString())) AddToken(TokenType.Tag);
 
-            else if (text[index].ToString() == @"\") AddToken(TokenStatus.EscapeTag);
+            else if (text[index].ToString() == @"\") AddToken(TokenType.Escape);
 
-            else AddToken(TokenStatus.Text);
+            else AddToken(TokenType.Text);
+        list.Add(new Token("\n", null, TokenType.LineBreaker));
         return list;
     }
 
-    private void AddToken(TokenStatus status)
+    private void AddToken(TokenType status)
     {
         hasDigit = false;
         hasSpaces = false;
@@ -45,19 +47,31 @@ public class Parser
             content.Append(text[index]);
             index++;
         }
-
-        index--;
         HandleEscapeTag(ref status);
-        list.Add(GetToken(status, content, startIndex));
+        if (status == TokenType.Tag)
+        {
+            var nextChar = index == text.Length ? "" : text[index].ToString();
+            var tag = Tag.CreateTag(tagDict[content.ToString()], content.ToString(), previousToken, nextChar);
+            var token = new Token(content.ToString(), tag, status);
+            previousToken = token;
+            list.Add(token);
+        }
+        else
+        {
+            var token = new Token(content.ToString(), null, status);
+            list.Add(new Token(content.ToString(), null, status));
+            previousToken = token;
+        }
+        index--;
     }
 
-    private Func<char, bool> GetLoopStopCondition(TokenStatus status, StringBuilder content)
+    private Func<char, bool> GetLoopStopCondition(TokenType status, StringBuilder content)
     {
         return status switch
         {
-            TokenStatus.Text => currentChar => !IsTagStart(currentChar.ToString()) && currentChar.ToString() != @"\",
-            TokenStatus.Tag => currentChar => IsTagSequenceEnd(content.ToString(), currentChar),
-            TokenStatus.EscapeTag => _ => content.ToString() == string.Empty,
+            TokenType.Text => currentChar => !IsTagStart(currentChar.ToString()) && currentChar.ToString() != @"\",
+            TokenType.Tag => currentChar => IsTagSequenceEnd(content.ToString(), currentChar),
+            TokenType.Escape => _ => content.ToString() == string.Empty,
             _ => _ => true
         };
     }
@@ -79,27 +93,15 @@ public class Parser
 
     private bool IsEscapeTag()
     {
-        return list.Count > 0 && list.Last().Status == TokenStatus.EscapeTag;
+        return list.Count > 0 && list.Last().Type == TokenType.Escape;
     }
 
-    private void HandleEscapeTag(ref TokenStatus status)
+    private void HandleEscapeTag(ref TokenType status)
     {
         if (!IsEscapeTag()) return;
-        if (status is TokenStatus.Tag or TokenStatus.EscapeTag)
-            status = TokenStatus.Text;
+        if (status is TokenType.Tag or TokenType.Escape)
+            status = TokenType.Text;
         else
-            list.Last().Status = TokenStatus.Text;
-    }
-
-    private Token GetToken(TokenStatus status, StringBuilder content, int startIndex)
-    {
-        var followingChar = index == text.Length - 1 || status != TokenStatus.Tag ? "" : text[index + 1].ToString();
-        var precedingChar = startIndex == 0 || status != TokenStatus.Tag ? "" : text[startIndex - 1].ToString();
-        var token = new Token(content.ToString(), status, precedingChar, followingChar)
-        {
-            isDigitText = hasDigit,
-            isSpaces = hasSpaces
-        };
-        return token;
+            list.Last().Type = TokenType.Text;
     }
 }

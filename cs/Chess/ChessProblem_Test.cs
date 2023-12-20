@@ -19,7 +19,7 @@ namespace Chess
                 "    K   ",
                 " Q      ",
                 "        ",
-                "        ",
+                "        "
             };
             ChessProblem.LoadFrom(boardLines);
             ChessProblem.CalculateChessStatus();
@@ -40,6 +40,7 @@ namespace Chess
                 TestOnFile(filename);
                 testsCount++;
             }
+
             Console.WriteLine("Tests passed: " + testsCount);
         }
 
