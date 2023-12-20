@@ -5,7 +5,7 @@ using Markdown.Token;
 
 namespace MarkdownTests;
 
-public class Processor_Should
+public class AnySyntaxParser_Should
 {
     private ISyntax syntax;
 

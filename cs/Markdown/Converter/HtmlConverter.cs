@@ -1,4 +1,5 @@
-﻿using Markdown.Syntax;
+﻿using System.Text;
+using Markdown.Syntax;
 using Markdown.Token;
 
 namespace Markdown.Converter;
@@ -13,6 +14,12 @@ public class HtmlConverter : IConverter
     }
     public string ConvertTags(IList<IToken> tags, string source)
     {
-        throw new NotImplementedException();
+        var result = new StringBuilder();
+        var i = 0;
+
+        while (i < source.Length)
+        {
+            
+        }
     }
 }
