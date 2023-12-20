@@ -2,7 +2,7 @@
 
 public class MdTestData
 {
-    public static TestCaseData[] Examples =
+    public static TestCaseData[] SpecExamples =
     {
         new TestCaseData(
             "Текст, _окруженный с двух сторон_ одинарными символами подчерка,\nдолжен помещаться в HTML-тег <em>.",
@@ -71,6 +71,90 @@ public class MdTestData
         new TestCaseData(
             "[Текст помещённый в тэг link, ведущий на главную страницу google](https://www.google.com/)",
             "<a href=\"https://www.google.com/\">Текст помещённый в тэг link, ведущий на главную страницу google</a>"
+        ).SetName("LinkTag"),
+    };
+
+    public static TestCaseData[] Examples =
+    {
+        new TestCaseData(
+            "_abc def_",
+            "<em>abc def</em>"
+        ).SetName("SimpleEmTagging"),
+        new TestCaseData(
+            "__abc def__",
+            "<strong>abc def</strong>"
+        ).SetName("SimpleStrongTagging"),
+        new TestCaseData(
+            "\\_abc\\_",
+            "_abc_"
+        ).SetName("TagShielding"),
+        new TestCaseData(
+            "Back\\slash \\that not shielding\\",
+            "Back\\slash \\that not shielding\\"
+        ).SetName("ReverseSlashes_RemainItselfIfDoesNotShielding"),
+        new TestCaseData(
+            @"\\_abc_",
+            @"\<em>abc</em>"
+        ).SetName("ShieldingReverseSlash"),
+        new TestCaseData(
+            "__abc def _ghi_ jkl mno__",
+            "<strong>abc def <em>ghi</em> jkl mno</strong>"
+        ).SetName("EmInStrongWork"),
+        new TestCaseData(
+            "_abc def __ghi__ jkl mno_",
+            "<em>abc def __ghi__ jkl mno</em>"
+        ).SetName("StrongInEmDoesNotWork"),
+        new TestCaseData(
+            "_123_",
+            "_123_"
+        ).SetName("EmTaggingNumber_RemainUnderscores"),
+        new TestCaseData(
+            "__123__",
+            "__123__"
+        ).SetName("StrongTaggingNumber_RemainUnderscores"),
+        new TestCaseData(
+            "_abc_d e_fgh_i j_klm_",
+            "<em>abc</em>d e<em>fgh</em>i j<em>klm</em>"
+        ).SetName("TaggingInDifferentPartsOfWord"),
+        new TestCaseData(
+            "a_bc de_f",
+            "a_bc de_f"
+        ).SetName("TaggingInDifferentWordsDoesNotWork"),
+        new TestCaseData(
+            "__abc_",
+            "__abc_"
+        ).SetName("NotPairedSymbols_RemainIteself"),
+        new TestCaseData(
+            "ab_ cd_",
+            "ab_ cd_"
+        ).SetName("SingleUnderscoreWithWhitespaceAhead_RemainUnderscore"),
+        new TestCaseData(
+            "__ b__c",
+            "__ b__c"
+        ).SetName("DoubleUnderscoreWithWhitespaceAhead_RemainUnderscore"),
+        new TestCaseData(
+            "_ b_c",
+            "_ b_c"
+        ).SetName("DoubleUnderscoreWithWhitespaceAhead_RemainUnderscore"),
+        new TestCaseData(
+            "_abc _def ghi_",
+            "<em>abc _def ghi</em>"
+        ).SetName("SingleInderscore_RemainUnderscoreInEmTag"),
+        new TestCaseData(
+            "__abc _def__ ghi_",
+            "__abc _def__ ghi_"
+        ).SetName("TagsIntersection_RemainUnderscores"),
+        new TestCaseData(
+            "____",
+            "____"
+        ).SetName("TwoDoubleUnderscoresInRow_RemainUnderscores"),
+        new TestCaseData(
+            "# abc __def _ghi_ kjl__",
+            "<h1> abc <strong>def <em>ghi</em> kjl</strong></h1>"
+        ).SetName("HeaderWithInnerTags"),
+        new TestCaseData(
+            "[abc](https://www.example.com/)",
+            "<a href=\"https://www.example.com/\">abc</a>"
         ).SetName("LinkTag"),
     };
 }

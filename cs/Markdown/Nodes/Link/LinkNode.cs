@@ -10,7 +10,7 @@ public class LinkNode : TaggedBodyNode
     public string Text { get; private set; }
     public string Source { get; private set; }
 
-    public LinkNode(IEnumerable<SyntaxNode> children) : base(children)
+    public LinkNode(IEnumerable<SyntaxNode>? children) : base(children)
     {
         Text = (children.First() as LinkTextTaggedBody).InnerText;
         Source = (children.Last() as LinkSourceTaggedBody).InnerText;

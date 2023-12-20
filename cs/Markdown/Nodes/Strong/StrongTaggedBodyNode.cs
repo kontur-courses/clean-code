@@ -2,7 +2,7 @@
 
 public class StrongTaggedBodyNode : TaggedBodyNode
 {
-    public StrongTaggedBodyNode(IEnumerable<SyntaxNode> children) : base(children)
+    public StrongTaggedBodyNode(IEnumerable<SyntaxNode>? children) : base(children)
     {
     }
 

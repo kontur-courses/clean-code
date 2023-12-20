@@ -11,5 +11,6 @@ public enum SyntaxKind
     OpenSquareBracket,
     CloseSquareBracket,
     OpenRoundBracket,
-    CloseRoundBracket
+    CloseRoundBracket,
+    Unrecognized
 }

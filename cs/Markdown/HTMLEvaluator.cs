@@ -4,16 +4,19 @@ namespace Markdown;
 
 public class HTMLEvaluator : IEvaluator
 {
-    public string Evaluate(SyntaxNode root)
+    public string Evaluate(RootNode root)
     {
-        if (root is RootNode)
-            return string.Join("", root.Children.Select(child => Evaluate(child)));
-        if (root is LinkNode linkNode)
-            return $"<a href=\"{linkNode.Source}\">{linkNode.Text}</a>";
-        if (root is TaggedBodyNode)
-            return string.Join("", root.Children.Select(child => Evaluate(child)));
+        return string.Join("", root.Children.Select(Evaluate));
+    }
 
-        switch (root)
+    private string Evaluate(SyntaxNode node)
+    {
+        if (node is LinkNode linkNode)
+            return $"<a href=\"{linkNode.Source}\">{linkNode.Text}</a>";
+        if (node is TaggedBodyNode)
+            return string.Join("", node.Children.Select(Evaluate));
+
+        switch (node)
         {
             case OpenEmNode:
                 return "<em>";
@@ -28,7 +31,7 @@ public class HTMLEvaluator : IEvaluator
             case CloseHeaderNode:
                 return "</h1>";
             case TextNode:
-                return root.Text;
+                return node.Text;
             default:
                 throw new ArgumentException("Wrong node type");
         }

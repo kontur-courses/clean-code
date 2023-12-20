@@ -6,8 +6,7 @@ public class Lexer
 {
     private readonly string text;
 
-    private const string specialSymbols = "_#()[]\n\t ";
-    private const string escapableSymbols = "_#()[]\\";
+    private const string escapableSymbols = @"_#()[]\";
 
     private int position;
 
@@ -79,9 +78,15 @@ public class Lexer
                 }
                 default:
                 {
+                    if (!char.IsLetter(Current) && Current != '\\')
+                    {
+                        yield return new Token(SyntaxKind.Unrecognized, position, Current.ToString());
+                        break;
+                    }
+
                     var start = position;
                     var letters = new List<char>();
-                    while (Current != '\0' && (!specialSymbols.Contains(Current) || Current == '\\'))
+                    while (Current != '\0' && (char.IsLetter(Current) || Current == '\\'))
                     {
                         if (Current == '\\' && escapableSymbols.Contains(Next))
                             position++;

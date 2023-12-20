@@ -7,6 +7,7 @@ namespace MarkdownTest;
 
 public class MdTest
 {
+    [TestCaseSource(typeof(MdTestData), nameof(MdTestData.SpecExamples))]
     [TestCaseSource(typeof(MdTestData), nameof(MdTestData.Examples))]
     public void Test(string md, string html)
     {

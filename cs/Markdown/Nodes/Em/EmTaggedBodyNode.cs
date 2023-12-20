@@ -2,7 +2,7 @@
 
 public class EmTaggedBodyNode : TaggedBodyNode
 {
-    public EmTaggedBodyNode(IEnumerable<SyntaxNode> children) : base(children)
+    public EmTaggedBodyNode(IEnumerable<SyntaxNode>? children) : base(children)
     {
     }
 

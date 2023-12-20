@@ -2,5 +2,5 @@
 
 public interface IEvaluator
 {
-    string Evaluate(SyntaxNode root);
+    string Evaluate(RootNode root);
 }

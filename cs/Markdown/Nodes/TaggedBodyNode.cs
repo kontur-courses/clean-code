@@ -5,7 +5,7 @@ public abstract class TaggedBodyNode : SyntaxNode
     public abstract Type openTagType { get; }
     public abstract Type closeTagType { get; }
 
-    public TaggedBodyNode(IEnumerable<SyntaxNode> _children) : base(_children)
+    public TaggedBodyNode(IEnumerable<SyntaxNode>? _children) : base(_children)
     {
         var children = _children.ToArray();
         if (children.Count() < 2)

@@ -29,10 +29,11 @@ public class Parser
         return tokens[index];
     }
 
+    private Token Next => Peek(1);
     private Token Current => Peek(0);
     private Token Previous => Peek(-1);
 
-    public SyntaxNode Parse()
+    public RootNode Parse()
     {
         stack = new Stack<SyntaxNode>();
         openTagStack = new Stack<(SyntaxNode, int)>();
@@ -43,6 +44,7 @@ public class Parser
         {
             switch (Current.Kind)
             {
+                case SyntaxKind.Unrecognized:
                 case SyntaxKind.Text:
                     stack.Push(new TextNode(Current.Text));
                     break;
@@ -63,6 +65,12 @@ public class Parser
                     stack.Push(new HeaderTaggedBodyNode(children));
                     break;
                 case SyntaxKind.Hash:
+                    if (Next.Kind != SyntaxKind.Whitespace)
+                    {
+                        stack.Push(new TextNode(Current.Text));
+                        break;
+                    }
+
                     var header = new OpenHeaderNode(Current.Text);
                     stack.Push(header);
                     openTagStack.Push((header, position));
@@ -158,7 +166,7 @@ public class Parser
         return new RootNode(stack.Reverse().TextifyTags());
     }
 
-    public void ResolveUnusedOpenedTags()
+    private void ResolveUnusedOpenedTags()
     {
         if (openTagStack.Any(pair => pair.Item1 is OpenHeaderNode))
         {
@@ -203,7 +211,8 @@ public class Parser
             {
                 case OpenEmNode:
                 case OpenStrongNode:
-                    if (nodeTokenIndex == 0 || tokens[nodeTokenIndex - 1].Kind == SyntaxKind.Whitespace)
+                    if ((nodeTokenIndex == 0 || tokens[nodeTokenIndex - 1].Kind == SyntaxKind.Whitespace) &&
+                        tokens[nodeTokenIndex + 1].Kind != SyntaxKind.Whitespace)
                         unclosedTags.Push((node, nodeTokenIndex));
                     break;
                 default:

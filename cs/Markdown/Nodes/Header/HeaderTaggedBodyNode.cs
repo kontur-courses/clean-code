@@ -2,7 +2,7 @@
 
 public class HeaderTaggedBodyNode : TaggedBodyNode
 {
-    public HeaderTaggedBodyNode(IEnumerable<SyntaxNode> children) : base(children)
+    public HeaderTaggedBodyNode(IEnumerable<SyntaxNode>? children) : base(children)
     {
     }
 

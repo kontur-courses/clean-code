@@ -2,7 +2,7 @@
 
 public class LinkSourceTaggedBody : TaggedBodyNode
 {
-    public LinkSourceTaggedBody(IEnumerable<SyntaxNode> children) : base(children)
+    public LinkSourceTaggedBody(IEnumerable<SyntaxNode>? children) : base(children)
     {
     }
 

@@ -2,7 +2,7 @@
 
 public class RootNode : UntaggedBodyNode
 {
-    public RootNode(IEnumerable<SyntaxNode> children) : base(children)
+    public RootNode(IEnumerable<SyntaxNode>? children) : base(children)
     {
     }
 }

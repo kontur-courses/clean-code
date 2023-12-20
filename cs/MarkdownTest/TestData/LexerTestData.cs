@@ -93,10 +93,10 @@ public class LexerTestData
             )
             .SetName("TwoDoubleUnderScoreAndUnderscoreInRow"),
         new TestCaseData(
-                "#abc\n",
-                new[] { SyntaxKind.Hash, SyntaxKind.Text, SyntaxKind.NewLine }
+                "# abc\n",
+                new[] { SyntaxKind.Hash, SyntaxKind.Whitespace, SyntaxKind.Text, SyntaxKind.NewLine }
             )
-            .SetName("HashWordAndNewLine"),
+            .SetName("HashWhitespaceWordAndNewLine"),
         new TestCaseData(
                 "(abc)",
                 new[] { SyntaxKind.OpenRoundBracket, SyntaxKind.Text, SyntaxKind.CloseRoundBracket }
