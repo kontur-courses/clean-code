@@ -8,19 +8,19 @@ namespace Markdown.Processor;
 
 public class AnySyntaxParser : IParser
 {
-    private readonly string source;
+    private string source;
     private readonly ISyntax syntax;
     private readonly IReadOnlyDictionary<string, Func<int, IToken>> stringToToken;
 
-    public AnySyntaxParser(string source, ISyntax syntax)
+    public AnySyntaxParser(ISyntax syntax)
     {
-        this.source = source;
         this.syntax = syntax;
         stringToToken = syntax.StringToToken;
     }
 
-    public IList<IToken> ParseTokens()
+    public IList<IToken> ParseTokens(string source)
     {
+        this.source = source;
         var tags = FindAllTags();
         tags = RemoveEscapedTags(tags);
         tags = ValidateTagPositioning(tags);

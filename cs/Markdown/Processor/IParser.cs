@@ -4,5 +4,5 @@ namespace Markdown.Processor;
 
 public interface IParser
 {
-    IList<IToken> ParseTokens();
+    IList<IToken> ParseTokens(string source);
 }
