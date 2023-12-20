@@ -4,5 +4,6 @@ public enum TagType
 {
     Header,
     Italic,
-    Strong
+    Strong,
+    List
 }

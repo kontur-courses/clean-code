@@ -189,7 +189,7 @@ public class MarkdownParser : ITextParser<Tag>
         while (nextTag != currentTag)
         {
             var nextTagValue = nextTag.ToString();
-            if (IsTag(nextTagValue) && !nestedTagsToIgnore.Contains(_tags[nextTagValue].Definition))
+            if (IsTag(nextTagValue) && !nestedTagsToIgnore.Contains(_tags[nextTagValue].Type))
                 nextTag.Value.TagType = TagStatus.Ignored;
             nextTag = parsedTokens[nextTag.EndIndex + 1];
         }

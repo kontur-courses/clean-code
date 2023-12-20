@@ -4,7 +4,7 @@ namespace Markdown.Tags.TagsContainers;
 
 public class ItalicTag : ITag
 {
-    public TagType Definition => TagType.Italic;
+    public TagType Type => TagType.Italic;
 
     public string HtmlOpenTag => "<em>";
 

@@ -4,7 +4,7 @@ namespace Markdown.Tags.TagsContainers;
 
 public class HeaderTag : ITag
 {
-    public TagType Definition => TagType.Header;
+    public TagType Type => TagType.Header;
 
     public string HtmlOpenTag => "<h1>";
 

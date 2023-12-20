@@ -4,7 +4,7 @@ namespace Markdown.Tags.TagsContainers;
 
 public class StrongTag : ITag
 {
-    public TagType Definition => TagType.Strong;
+    public TagType Type => TagType.Strong;
 
     public string HtmlOpenTag => "<strong>";
 

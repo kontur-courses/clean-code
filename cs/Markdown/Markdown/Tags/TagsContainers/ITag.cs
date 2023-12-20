@@ -4,7 +4,7 @@ namespace Markdown.Tags.TagsContainers;
 
 public interface ITag
 {
-    public TagType Definition { get; }
+    public TagType Type { get; }
 
     public string HtmlOpenTag { get; }
 
