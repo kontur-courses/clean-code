@@ -5,7 +5,7 @@ namespace MarkDown.Tags;
 
 public class StrongTagFactory : HighlightTagFactory
 {
-    public StrongTagFactory(MarkDownEnvironment environment) : base(environment)
+    public StrongTagFactory(MarkDownEnvironment environment)
     {
         environment.AddUnsupportedParentsFor(this, TagName.Em);
     }

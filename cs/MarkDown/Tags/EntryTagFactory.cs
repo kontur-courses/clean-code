@@ -7,10 +7,6 @@ namespace MarkDown.Tags;
 
 public class EntryTagFactory : TagFactory
 {
-    public EntryTagFactory(MarkDownEnvironment environment) : base(environment)
-    {
-    }
-
     public override TagName TagName => TagName.Entry;
     public override string HtmlOpen => "";
     public override string HtmlClose => "";

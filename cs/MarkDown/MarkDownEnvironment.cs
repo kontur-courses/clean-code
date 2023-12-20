@@ -12,12 +12,12 @@ public class MarkDownEnvironment
 
     public MarkDownEnvironment()
     {
-        AddNewTagForMarkDown(new HeaderTagFactory(this));
-        AddNewTagForMarkDown(new EntryTagFactory(this));
+        AddNewTagForMarkDown(new HeaderTagFactory());
+        AddNewTagForMarkDown(new EntryTagFactory());
         AddNewTagForMarkDown(new StrongTagFactory(this));
-        AddNewTagForMarkDown(new EmTagFactory(this));
-        AddNewTagForMarkDown(new UlTagFactory(this));
-        AddNewTagForMarkDown(new UlLiTagFactory(this));
+        AddNewTagForMarkDown(new EmTagFactory());
+        AddNewTagForMarkDown(new UlTagFactory());
+        AddNewTagForMarkDown(new UlLiTagFactory());
     }
 
     private void AddNewTagForMarkDown(TagFactory tagFactory)

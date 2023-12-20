@@ -14,10 +14,6 @@ public class HeaderTagFactory : TagFactory
     public override string MarkDownOpen => "# ";
     public override string MarkDownClose => System.Environment.NewLine;
 
-    public HeaderTagFactory(MarkDownEnvironment environment) : base(environment)
-    {
-    }
-
     public override HeaderContext CreateContext(string mdText, int startIndex, TagContext nowContext, bool isScreened)
     {
         return new HeaderContext(startIndex, nowContext, this, isScreened);

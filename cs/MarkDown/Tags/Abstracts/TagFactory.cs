@@ -5,12 +5,8 @@ namespace MarkDown.Tags.Abstracts;
 
 public abstract class TagFactory : IComparable<TagFactory>
 {
-    protected readonly MarkDownEnvironment Environment;
-
-    protected TagFactory(MarkDownEnvironment environment)
+    protected TagFactory()
     {
-        Environment = environment;
-
         unchecked
         {
             hashCode = 11;

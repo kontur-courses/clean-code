@@ -5,10 +5,6 @@ namespace MarkDown.Tags.Abstracts;
 
 public abstract class HighlightTagFactory : TagFactory
 {
-    protected HighlightTagFactory(MarkDownEnvironment environment) : base(environment)
-    {
-    }
-    
     public override TagContext CreateContext(string mdText, int startIndex, TagContext parentContext, bool isScreened)
     {
         var isInWord = startIndex > 0 && mdText[startIndex - 1] != ' ';

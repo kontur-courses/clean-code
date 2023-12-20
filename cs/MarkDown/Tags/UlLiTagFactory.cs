@@ -7,10 +7,6 @@ namespace MarkDown.Tags;
 
 public class UlLiTagFactory : TagFactory
 {
-    public UlLiTagFactory(MarkDownEnvironment environment) : base(environment)
-    {
-    }
-
     public override TagName TagName => TagName.UlLi;
     public override string HtmlOpen => "<li>";
     public override string HtmlClose => "</li>";
@@ -42,16 +38,6 @@ public class UlLiTagFactory : TagFactory
 
     public override bool IsClosePosition(string text, int position)
     {
-        // if (position == 0)
-        //     return false;
-        //
-        // if (!text[position - 1].ToString().Equals(System.Environment.NewLine))
-        //     return false;
-        //
-        // if (position + 2 >= text.Length)
-        //     return true;
-        //
-        // return !LiOpens.Any(e => e.Equals(text.Substring(position, 2)));
         return text[position].ToString().Equals(System.Environment.NewLine);
     }
 }

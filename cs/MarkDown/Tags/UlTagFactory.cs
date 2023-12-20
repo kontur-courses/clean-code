@@ -7,10 +7,6 @@ namespace MarkDown.Tags;
 
 public class UlTagFactory : TagFactory
 {
-    public UlTagFactory(MarkDownEnvironment environment) : base(environment)
-    {
-    }
-
     public override TagName TagName => TagName.Ul;
     public override string HtmlOpen => "<ul>";
     public override string HtmlClose => "</ul>";

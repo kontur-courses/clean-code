@@ -9,7 +9,7 @@ public class MarkDown
 {
     private static (EntryContext, IEnumerable<int>) CreateContext(string mdText, MarkDownEnvironment environment)
     {
-        var entryTag = new EntryTagFactory(environment);
+        var entryTag = new EntryTagFactory();
         var entryContext = entryTag.CreateContext();
         var isScreened = false;
         var screeningIndexes = new List<int>();

@@ -5,10 +5,6 @@ namespace MarkDown.Tags;
 
 public class EmTagFactory : HighlightTagFactory
 {
-    public EmTagFactory(MarkDownEnvironment environment) : base(environment)
-    {
-    }
-
     public override TagName TagName => TagName.Em;
     public override string HtmlOpen => "<em>";
     public override string HtmlClose => "</em>";
