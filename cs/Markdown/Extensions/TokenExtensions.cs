@@ -13,6 +13,9 @@ public static class TokenExtensions
     {
         if (token.Tag.IsOpeningTag())
             blockTags = token.Tag.ExcludedTags ?? Array.Empty<TagType>();
-        else if (token.Tag.IsClosingTag()) blockTags = Array.Empty<TagType>();
+        else if (token.Tag.IsClosingTag())
+        {
+            blockTags = Array.Empty<TagType>();
+        }
     }
 }

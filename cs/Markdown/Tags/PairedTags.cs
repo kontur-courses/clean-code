@@ -13,6 +13,9 @@ public abstract class PairedTags : Tag
         if ((nextChar is "" or " " && (content == "" || content.Last() == ' ')) ||
             (PreviousToken is { Type: Markdown.TokenType.Tag } && PreviousToken.Tag.TagType == TagType))
             Status = TagStatus.Block;
-        else if (nextChar is "" or " " && !content.Any(char.IsDigit)) Status = TagStatus.Closing;
+        else if (nextChar is "" or " " && !content.Any(char.IsDigit))
+        {
+            Status = TagStatus.Closing;
+        }
     }
 }
