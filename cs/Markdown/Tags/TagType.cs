@@ -5,6 +5,6 @@
         Bold,
         Italic,
         Header,
-        Shield
+        Escape
     }
 }

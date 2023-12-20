@@ -19,5 +19,14 @@ namespace Markdown_Tests
             var result = Md.Render(input);
             result.Should().Be(expected);
         }
+
+        [Test]
+        public void Header()
+        {
+            var str = "__З__";
+            var expected = "_abob2a";
+            var res = Md.GetTokens(str).EscapeTags().EscapeInvalidTokens().EscapeNonPairTokens();
+            ;
+        }
     }
 }
