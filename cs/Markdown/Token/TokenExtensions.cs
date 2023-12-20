@@ -1,8 +1,8 @@
 ﻿namespace Markdown.Token;
 
-public static class PairedTokenExtensions
+public static class TokenExtensions
 {
-    public static bool IsValidPositioned(this IToken token, IToken openingToken, string source)
+    public static bool IsPairedTokenValidPositioned(this IToken token, IToken openingToken, string source)
     {
         return !(token.IsEmpty(openingToken) || token.IsBetweenDigits(openingToken, source) ||
                  token.IsInDifferentWords(openingToken, source));

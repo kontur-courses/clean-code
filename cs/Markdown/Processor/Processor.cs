@@ -1,4 +1,5 @@
-﻿using System.Text;
+﻿using System.Runtime.InteropServices.JavaScript;
+using System.Text;
 using Markdown.Syntax;
 using Markdown.Token;
 
@@ -36,23 +37,23 @@ public class Processor : IProcessor
                 possibleTag.Append(source[i]);
                 continue;
             }
-            
+
             if (source[i] == '\n')
                 possibleTag.Clear();
 
             var tag = possibleTag.ToString();
-            
+
             if (stringToToken.ContainsKey(tag))
-                tags.Add(stringToToken[tag].Invoke(i-tag.Length));
-            
+                tags.Add(stringToToken[tag].Invoke(i - tag.Length));
+
             possibleTag.Clear();
-            
+
             if (stringToToken.Keys.Any(s => s.StartsWith(possibleTag.ToString() + source[i])))
                 possibleTag.Append(source[i]);
         }
-        
+
         if (possibleTag.Length > 0)
-            tags.Add(stringToToken[possibleTag.ToString()].Invoke(source.Length-possibleTag.Length));
+            tags.Add(stringToToken[possibleTag.ToString()].Invoke(source.Length - possibleTag.Length));
 
         return tags;
     }
@@ -68,11 +69,10 @@ public class Processor : IProcessor
                 isEscaped = false;
                 continue;
             }
-            
+
             if (tag.GetType() == syntax.EscapeToken)
                 isEscaped = true;
-            else
-                result.Add(tag);
+            result.Add(tag);
         }
 
         return result;
@@ -82,26 +82,30 @@ public class Processor : IProcessor
     {
         var result = new List<IToken>();
         var openedTags = new Dictionary<string, IToken>();
-        
+
         foreach (var tag in tags)
         {
             if (openedTags.ContainsKey(tag.Separator))
             {
                 tag.IsClosed = true;
-                if (tag.IsValid(source) && tag.IsValidPositioned(openedTags[tag.Separator], source))
+                if (tag.IsValid(source) && tag.IsPairedTokenValidPositioned(openedTags[tag.Separator], source))
                 {
                     result.Add(openedTags[tag.Separator]);
                     result.Add(tag);
                     openedTags.Remove(tag.Separator);
                 }
             }
-            else if (tag.IsValid(source))
+            else if (!(syntax.UnsupportedTags.ContainsKey(tag.Separator) &&
+                       syntax.UnsupportedTags[tag.Separator].Any(t => openedTags.ContainsKey(t)) &&
+                       tag.IsValid(source)))
             {
                 if (tag.IsPair)
                     openedTags[tag.Separator] = tag;
+                else
+                    result.Add(tag);
             }
         }
 
-        return result;
+        return result.Select(token => token).OrderBy(token => token.Position).ToList();
     }
 }

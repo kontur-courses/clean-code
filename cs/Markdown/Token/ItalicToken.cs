@@ -6,9 +6,10 @@ public class ItalicToken : IToken
     private const bool HasPair = true;
 
     public int Length => TokenSeparator.Length;
-    public int Position { get; }
     public string Separator => TokenSeparator;
     public bool IsPair => HasPair;
+    public int Position { get; }
+    public int EndingPosition { get; private set; }
     public bool IsClosed { get; set; }
     
     public ItalicToken(int position, bool isClosed = false)

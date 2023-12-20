@@ -11,6 +11,11 @@ public class MarkdownSyntax : ISyntax
         { "\\", pos => new EscapeToken(pos) }
     };
 
+    private readonly Dictionary<string, IList<string>> tagNotWorkinWithinTags = new Dictionary<string, IList<string>>
+    {
+        { new BoldToken(0).Separator, new List<string> { new ItalicToken(0).Separator } }
+    };
+
     public Type EscapeToken => typeof(EscapeToken);
 
     public ITag ConvertTag(Type type)
@@ -18,5 +23,6 @@ public class MarkdownSyntax : ISyntax
         throw new NotImplementedException();
     }
 
+    public IReadOnlyDictionary<string, IList<string>> UnsupportedTags => tagNotWorkinWithinTags;
     public IReadOnlyDictionary<string, Func<int, IToken>> StringToToken => markdownToToken;
 }

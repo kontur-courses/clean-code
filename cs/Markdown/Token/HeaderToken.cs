@@ -6,11 +6,13 @@ public class HeaderToken : IToken
     private const bool HasPair = false;
 
     public int Length => TokenSeparator.Length;
-    public int Position { get; }
     public string Separator => TokenSeparator;
     public bool IsPair => HasPair;
+
+    public int Position { get; }
     public bool IsClosed { get; set; }
-    
+    public int EndingPosition { get; private set; }
+
     public HeaderToken(int position, bool isClosed = false)
     {
         Position = position;
@@ -19,6 +21,14 @@ public class HeaderToken : IToken
 
     public bool IsValid(string source)
     {
-        return Position == 0 || source[Position - 1] == '\n';
+        if (Position == 0 || source[Position - 1] == '\n')
+        {
+            EndingPosition = source.IndexOf('\n', Position);
+            if (EndingPosition < 0)
+                EndingPosition = source.Length - 1;
+            return true;
+        }
+
+        return false;
     }
 }
