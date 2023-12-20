@@ -7,15 +7,20 @@ namespace Markdown
     {
         private readonly FindTagSettings settings = new(true, true, true);
 
+        private TagFinder tagFinder = new(new List<IHtmlTagCreator>
+        {
+            new BoldHandler(), new HeadingHandler(), new ItalicHandler()
+        });
+
         public string Render(string markdownText)
         {
             var htmlText = new StringBuilder(markdownText);
 
-            for (var i = 0; i < htmlText!.Length; i++)
+            for (var i = 0; i < htmlText.Length; i++)
             {
-                var tag = TagFinder.FindTag(htmlText, i, settings, null);
+                var tag = tagFinder.FindTag(htmlText, i, settings, null);
 
-                if (tag == null || tag.Text == null)
+                if (tag?.Text == null)
                     continue;
 
                 htmlText = tag.Text;

@@ -9,8 +9,23 @@ namespace Markdown.TagHandlers
         private const int MdTagLength = 4;
         private const int HtmlTagLength = 17;
 
-        public bool IsBoldTagSymbol(StringBuilder markdownText, int i) =>
+        public bool IsTagSymbol(StringBuilder markdownText, int i) =>
             i + 1 < markdownText.Length && markdownText[i] == Bold && markdownText[i + 1] == Bold;
+
+        public Tag FindTag(StringBuilder markdownText, int currentIndex, FindTagSettings settings, string? closingTagParent)
+        {
+            if (settings.SearchForHeading && IsTagSymbol(markdownText, currentIndex))
+            {
+                var screeningSymbolsCount = TagFindHelper.ScreeningCheck(markdownText, currentIndex);
+
+                if (screeningSymbolsCount == 1)
+                    return new Tag(markdownText.Remove(currentIndex - 1, 1), currentIndex);
+                if (screeningSymbolsCount == 2)
+                    currentIndex -= 2;
+            }
+
+            return GetHtmlTag(markdownText, currentIndex, closingTagParent);
+        }
 
         public Tag GetHtmlTag(StringBuilder markdownText, int openTagIndex, string? parentClosingTag)
         {
@@ -30,7 +45,7 @@ namespace Markdown.TagHandlers
             return new Tag(htmlTag, newHtmlTagLength);
         }
 
-        private StringBuilder? CreateHtmlTag(StringBuilder? markdownText, int openTagIndex, int closingTagIndex)
+        private StringBuilder CreateHtmlTag(StringBuilder markdownText, int openTagIndex, int closingTagIndex)
         {
             markdownText.Remove(closingTagIndex, 2);
             markdownText.Insert(closingTagIndex, "</strong>");
@@ -42,9 +57,14 @@ namespace Markdown.TagHandlers
 
         public Tag FindClosingTagIndex(StringBuilder markdownText, int openTagIndex, string closParTag)
         {
+            TagFinder tagFinder = new(new List<IHtmlTagCreator>
+            {
+                new HeadingHandler(), new BoldHandler(), new ItalicHandler()
+            });
+
             var resultTag = new Tag(markdownText, -1);
             var correctPartOfWord = true;
-
+            
             for (var i = openTagIndex; i < markdownText.Length; i++)
             {
                 if (markdownText[i] == ' ' && markdownText[i - 1] != '>')
@@ -56,9 +76,9 @@ namespace Markdown.TagHandlers
                     return resultTag;
                 }
 
-                if (IsBoldTagSymbol(markdownText, i) && TagSettings.IsCorrectClosingSymbol(markdownText, i, Bold))
+                if (IsTagSymbol(markdownText, i) && TagFindHelper.IsCorrectClosingSymbol(markdownText, i, Bold))
                 {
-                    if (!correctPartOfWord && TagSettings.IsHalfOfWord(markdownText, i))
+                    if (!correctPartOfWord && TagFindHelper.IsHalfOfWord(markdownText, i))
                     {
                         resultTag.Index = -1;
                         return resultTag;
@@ -68,13 +88,14 @@ namespace Markdown.TagHandlers
                     return resultTag;
                 }
 
-                var newTag = TagFinder.FindTag(markdownText, i, settings, "__");
+                var newTag = tagFinder.FindTag(markdownText, i, settings, "__");
                 if (newTag?.Text == null)
                     continue;
 
                 resultTag.NestedTags.Add(newTag);
                 markdownText = newTag.Text;
                 i = newTag.Index;
+
                 correctPartOfWord = true;
             }
 

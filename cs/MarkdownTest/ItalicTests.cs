@@ -1,5 +1,4 @@
-﻿using FluentAssertions;
-using Markdown;
+﻿using Markdown;
 using NUnit.Framework;
 
 namespace MarkdownTest
@@ -17,22 +16,18 @@ namespace MarkdownTest
 
         private static TestCaseData[] italicTestCases =
         {
-            new TestCaseData("_Test_", "<em>Test</em>").SetName("PassItalicSymbol"),
-            new TestCaseData("_нач_але", "<em>нач</em>але").SetName("ItalicsInPartOfWord"),
-            new TestCaseData("_одинарного __двойное__ не_", "<em>одинарного __двойное__ не</em>").SetName("BoldInsideItalicsTag"),
-            new TestCaseData("\\_Вот это\\_", "_Вот это_").SetName("EscapedItalicSymbol"),
-            new TestCaseData("Здесь сим\\волы \\должны остаться.\\", "Здесь сим\\волы \\должны остаться.\\").SetName("EscapeSymbolThatDoesNotEscapeAnything"),
-            new TestCaseData("\\\\_вот это будет выделено тегом_", "<em>вот это будет выделено тегом</em>").SetName("EscapedEscapeSymbol"),
-            new TestCaseData("раз_ных сло_вах", "раз_ных сло_вах").SetName("ItalicTagOnHalfOfTwoDifferentWords"),
-            new TestCaseData("__", "__").SetName("EmptyStringInItalicTag"),
+            new TestCaseData("_Test_").Returns("<em>Test</em>").SetName("PassItalicSymbol"),
+            new TestCaseData("_нач_але").Returns("<em>нач</em>але").SetName("ItalicsInPartOfWord"),
+            new TestCaseData("_одинарного __двойное__ не_").Returns( "<em>одинарного __двойное__ не</em>").SetName("BoldInsideItalicsTag"),
+            new TestCaseData("\\_Вот это\\_").Returns("_Вот это_").SetName("EscapedItalicSymbol"),
+            new TestCaseData("Здесь сим\\волы \\должны остаться.\\").Returns("Здесь сим\\волы \\должны остаться.\\").SetName("EscapeSymbolThatDoesNotEscapeAnything"),
+            new TestCaseData("\\\\_вот это будет выделено тегом_").Returns("<em>вот это будет выделено тегом</em>").SetName("EscapedEscapeSymbol"),
+            new TestCaseData("раз_ных сло_вах").Returns("раз_ных сло_вах").SetName("ItalicTagOnHalfOfTwoDifferentWords"),
+            new TestCaseData("__").Returns("__").SetName("EmptyStringInItalicTag"),
         };
 
         [TestCaseSource(nameof(italicTestCases))]
-        public void WhenPassArguments_ShouldConvertToCorrectHtml(string input, string expected)
-        {
-            var actual = sut?.Render(input);
-
-            actual.Should().Be(expected);
-        }
+        public string WhenPassArguments_ShouldConvertToCorrectHtml(string input) =>
+            sut.Render(input);
     }
 }

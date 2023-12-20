@@ -17,19 +17,16 @@ namespace MarkdownTest
 
         private static TestCaseData[] boldTestCases =
         {
-            new TestCaseData("__Test__", "<strong>Test</strong>").SetName("PassItalicSymbol"),
-            new TestCaseData("__два _один_ может__", "<strong>два <em>один</em> может</strong>").SetName("BoldInsideItalicsTag"),
-            new TestCaseData("\\__Вот это\\__", "__Вот это__").SetName("EscapedBoldSymbol"),
-            new TestCaseData("____", "____").SetName("EmptyStringInBoldTag"),
-            new TestCaseData("раз__ных сло__вах", "раз__ных сло__вах").SetName("BoldTagOnHalfOfTwoDifferentWords")
+            new TestCaseData("__Test__").Returns("<strong>Test</strong>").SetName("PassItalicSymbol"),
+            new TestCaseData("__два _один_ может__").Returns("<strong>два <em>один</em> может</strong>").SetName("BoldInsideItalicsTag"),
+            new TestCaseData("\\__Вот это\\__").Returns("__Вот это__").SetName("EscapedBoldSymbol"),
+            new TestCaseData("____").Returns("____").SetName("EmptyStringInBoldTag"),
+            new TestCaseData("раз__ных сло__вах").Returns("раз__ных сло__вах").SetName("BoldTagOnHalfOfTwoDifferentWords")
         };
 
         [TestCaseSource(nameof(boldTestCases))]
-        public void WhenPassBoldSymbol_ShouldConvertToStrongHtml(string input, string expected)
-        {
-            var actual = sut?.Render(input);
+        public string WhenPassBoldSymbol_ShouldConvertToStrongHtml(string input) =>
+            sut.Render(input);
 
-            actual.Should().Be(expected);
-        }
     }
 }

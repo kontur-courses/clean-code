@@ -4,6 +4,9 @@ namespace Markdown.TagHandlers
 {
     public interface IHtmlTagCreator
     {
-        Tag GetHtmlTag(StringBuilder markdownText, int openTagIndex, string? parentClosingTag);
+        Tag FindTag(StringBuilder markdownText, int currentIndex, FindTagSettings settings,
+            string? closingTagParent);
+
+        bool IsTagSymbol(StringBuilder markdownText, int i);
     }
 }

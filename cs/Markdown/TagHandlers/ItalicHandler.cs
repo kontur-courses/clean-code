@@ -8,6 +8,31 @@ namespace Markdown.TagHandlers
         private const int MdTagLength = 2;
         private const int HtmlTagLength = 9;
 
+        public bool IsTagSymbol(StringBuilder markdownText, int i)
+        {
+            if (i > 0)
+                return
+                    (markdownText[i] == Italic && i + 1 >= markdownText.Length) ||
+                    (markdownText[i] == Italic && markdownText[i - 1] != Italic && markdownText[i + 1] != Italic);
+
+            return markdownText[i] == Italic;
+        }
+
+        public Tag FindTag(StringBuilder markdownText, int currentIndex, FindTagSettings settings, string? closingTagParent)
+        {
+            var screeningSymbolsCount = TagFindHelper.ScreeningCheck(markdownText, currentIndex);
+
+            if (screeningSymbolsCount == 1)
+                return new Tag(markdownText.Remove(currentIndex - 1, 1), currentIndex);
+            if (screeningSymbolsCount == 2)
+                currentIndex -= 2;
+
+            if (!TagFindHelper.IsCorrectOpenSymbol(markdownText, currentIndex))
+                return null;
+
+            return GetHtmlTag(markdownText, currentIndex, closingTagParent);
+        }
+
         public Tag? GetHtmlTag(StringBuilder markdownText, int openTagIndex, string? parentClosingTag)
         {
             var closingTagIndex = FindClosingTagIndex(markdownText, openTagIndex + 1, parentClosingTag);
@@ -19,16 +44,6 @@ namespace Markdown.TagHandlers
             var newHtmlTagLength = closingTagIndex + (HtmlTagLength - MdTagLength);
 
             return new Tag(htmlTag, newHtmlTagLength);
-        }
-
-        internal bool IsItalicTagSymbol(StringBuilder markdownText, int i)
-        {
-            if (i > 0)
-                return
-                    (markdownText[i] == Italic && i + 1 >= markdownText.Length) ||
-                    (markdownText[i] == Italic && markdownText[i - 1] != Italic && markdownText[i + 1] != Italic);
-
-            return markdownText[i] == Italic;
         }
 
         private StringBuilder? CreateHtmlTag(StringBuilder markdownText, int openTagIndex, int closingTagIndex)
@@ -57,15 +72,15 @@ namespace Markdown.TagHandlers
                 if (char.IsDigit(markdownText[i]))
                     return i;
 
-                if (IsItalicTagSymbol(markdownText, i) && TagSettings.IsCorrectClosingSymbol(markdownText, i, Italic))
+                if (IsTagSymbol(markdownText, i) && TagFindHelper.IsCorrectClosingSymbol(markdownText, i, Italic))
                 {
-                    if (!oneWord && TagSettings.IsHalfOfWord(markdownText, i))
+                    if (!oneWord && TagFindHelper.IsHalfOfWord(markdownText, i))
                         return -1;
 
                     return i;
                 }
 
-                if (bold.IsBoldTagSymbol(markdownText, i))
+                if (bold.IsTagSymbol(markdownText, i))
                     if (parentClosingTag == "__")
                         return -1;
                     else

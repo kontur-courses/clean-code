@@ -5,6 +5,25 @@ namespace Markdown.TagHandlers
     public class HeadingHandler : IHtmlTagCreator
     {
         private FindTagSettings settings = new(true, true, true);
+
+        public bool IsTagSymbol(StringBuilder markdownText, int currentIndex) =>
+            markdownText[currentIndex] == '#';
+
+        public Tag FindTag(StringBuilder markdownText, int currentIndex, FindTagSettings settings, string? closingTagParent)
+        {
+            if (settings.SearchForHeading && IsTagSymbol(markdownText, currentIndex))
+            {
+                var screeningSymbolsCount = TagFindHelper.ScreeningCheck(markdownText, currentIndex);
+
+                if (screeningSymbolsCount == 1)
+                    return new Tag(markdownText.Remove(currentIndex - 1, 1), currentIndex);
+                if (screeningSymbolsCount == 2)
+                    currentIndex -= 2;
+            }
+
+            return GetHtmlTag(markdownText, currentIndex, closingTagParent);
+        }
+
         public Tag GetHtmlTag(StringBuilder markdownText, int openTagIndex, string? parentClosingTag)
         {
             var correct = IsCorrectOpenTag(markdownText, openTagIndex);
@@ -37,12 +56,17 @@ namespace Markdown.TagHandlers
                     resultTag.Index = i - 1;
                     return resultTag;
                 }
-            
-                var newTag = TagFinder.FindTag(markdownText, i, settings, "#");
+
+                TagFinder tagFinder = new(new List<IHtmlTagCreator>
+                {
+                    new HeadingHandler(), new BoldHandler(), new ItalicHandler()
+                });
+
+                var newTag = tagFinder.FindTag(markdownText, i, settings, "#");
 
                 if (newTag == null || newTag!.Text == null)
                     continue;
-              
+
                 resultTag.NestedTags.Add(newTag);
 
                 i = newTag.Index;
@@ -59,7 +83,5 @@ namespace Markdown.TagHandlers
 
             return new Tag(markdownText, closingIndex == -1 ? markdownText.Length : closingIndex);
         }
-
-        public bool IsHeadingTagSymbol(StringBuilder markdownText, int i) => markdownText[i] == '#';
     }
 }
