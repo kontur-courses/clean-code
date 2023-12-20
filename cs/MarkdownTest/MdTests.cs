@@ -32,6 +32,7 @@ namespace MarkdownTest
             new TestCaseData("start_ stop_","start_ stop_").SetName("SpaceSymbolAfterOpeningTag"),
             new TestCaseData("start_stop _","start_stop _").SetName("SpaceSymbolBeforeClosingTag"),
             new TestCaseData("__пересечения _двойных__ и одинарных_", "__пересечения _двойных__ и одинарных_").SetName("gggg"),
+            new TestCaseData("_пересечения __двойных_ и одинарных__", "_пересечения __двойных_ и одинарных__").SetName("giggg"),
         };
 
         [TestCaseSource(nameof(mdTestCases))]
@@ -74,8 +75,7 @@ namespace MarkdownTest
             var r1 = timeSpan1 / string1.Length;
             var r2 = timeSpan2 / string2.Length;
 
-            var b = r1 == r2;
-
+            Assert.AreEqual(r1, r2);
         }
     }
 }

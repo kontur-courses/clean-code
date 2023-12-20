@@ -21,6 +21,9 @@ namespace Markdown.TagHandlers
             if (closingTagIndex == -1)
                 return new Tag(htmlTag, htmlTag!.Length);
 
+            if (parentClosingTag == "_")
+                return new Tag(htmlTag, closingTagIndex);
+
             htmlTag = CreateHtmlTag(htmlTag, openTagIndex, closingTagIndex);
             var newHtmlTagLength = closingTagIndex + (HtmlTagLength - MdTagLength);
 
@@ -37,7 +40,7 @@ namespace Markdown.TagHandlers
             return markdownText;
         }
 
-        private Tag FindClosingTagIndex(StringBuilder markdownText, int openTagIndex, string closParTag)
+        public Tag FindClosingTagIndex(StringBuilder markdownText, int openTagIndex, string closParTag)
         {
             var resultTag = new Tag(markdownText, -1);
             var correctPartOfWord = true;
@@ -65,19 +68,11 @@ namespace Markdown.TagHandlers
                     return resultTag;
                 }
 
-                if (closParTag == "_")
-                {
-                    ItalicHandler italic = new ItalicHandler();
-                    if (italic.IsItalicTagSymbol(markdownText, i))
-                       return resultTag;
-                }
-
                 var newTag = TagFinder.FindTag(markdownText, i, settings, "__");
                 if (newTag?.Text == null)
                     continue;
 
                 resultTag.NestedTags.Add(newTag);
-
 
                 markdownText = newTag.Text;
                 i = newTag.Index;

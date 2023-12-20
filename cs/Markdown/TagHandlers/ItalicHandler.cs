@@ -68,6 +68,11 @@ namespace Markdown.TagHandlers
                 if (bold.IsBoldTagSymbol(markdownText, i))
                     if (parentClosingTag == "__")
                         return -1;
+                    else
+                    {
+                        var newTag = bold.GetHtmlTag(markdownText, i, "_");
+                        i = newTag.Index;                   
+                    }
             }
 
             return -1;
