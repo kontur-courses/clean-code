@@ -29,7 +29,7 @@ public class MdTests
     {
         new TestCaseData("text",
                 new List<Token> { new("text", null, TokenType.Text), new("\n", null, TokenType.LineBreaker) })
-            .SetName("Text without Tags"),
+            .SetName("Parse_ShouldReturnText_WhenThereOnlyText"),
         new TestCaseData("_tex_t",
                 new List<Token>
                 {
@@ -40,17 +40,16 @@ public class MdTests
                     new("t", null, TokenType.Text),
                     new("\n", null, TokenType.LineBreaker)
                 })
-            .SetName("Text with Italic Tags"),
-        new TestCaseData(@"_text\_",
+            .SetName("Parse_ShouldReturnItalicToken_WhenThereIsItalicToken"),
+        new TestCaseData(@"text\_",
                 new List<Token>
                 {
-                    new("_", Tag.CreateTag(TagType.Italic, "_", null, "t"), TokenType.Tag),
                     new("text", null, TokenType.Text),
                     new(@"\", null, TokenType.Escape),
                     new("_", null, TokenType.Text),
                     new("\n", null, TokenType.LineBreaker)
                 })
-            .SetName("Text with Escape Tags"),
+            .SetName("Parse_ShouldReturnText_WhenThereIsEscapeTokenBeforeTagToken"),
         new TestCaseData(@"te\\xt",
                 new List<Token>
                 {
@@ -60,7 +59,7 @@ public class MdTests
                     new("xt", null, TokenType.Text),
                     new("\n", null, TokenType.LineBreaker)
                 })
-            .SetName("Text with double Escape Tags"),
+            .SetName("Parse_ShouldReturnDoubleEscapeToken_WhenThereIsDoubleEscapeTokenInText"),
         new TestCaseData(@"te\xt",
                 new List<Token>
                 {
@@ -69,7 +68,7 @@ public class MdTests
                     new("xt", null, TokenType.Text),
                     new("\n", null, TokenType.LineBreaker)
                 })
-            .SetName("Escape Tags in Text"),
+            .SetName("Parse_ShouldReturnEscapeToken_WhenThereIsEscapeToken"),
         new TestCaseData("__tex_t",
                 new List<Token>
                 {
@@ -84,79 +83,76 @@ public class MdTests
     };
 
     [TestCaseSource(nameof(ConstructorParserExpectedTokenList))]
-    public void Parse_ShouldReturnItalicToken_WhenThereIsItalicToken(string text, List<Token> expectedTokens)
+    public void Parse_ShouldReturnCorrectTokenList_PareSomeTokenList(string text, List<Token> expectedTokens)
     {
         var parser = new Parser(tagDictionary);
         parser.Parse(text).Should().BeEquivalentTo(expectedTokens);
     }
 
-    [TestCase("_text_", "<em>text</em>", TestName = "Italic")]
-    [TestCase("_te_xt", "<em>te</em>xt", TestName = "Italic tag end in text")]
-    [TestCase("te_xt_", "te<em>xt</em>", TestName = "Italic tag start in text")]
-    [TestCase("te_x_t", "te<em>x</em>t", TestName = "Italic tag in text")]
-    [TestCase("__a_b_c__", "<strong>a<em>b</em>c</strong>", TestName = "Italic in Bold")]
-    [TestCase("_1a_a1_", "_1a_a1_", TestName = "digit word not italic")]
-    [TestCase("_1a_", "_1a_", TestName = "Mixes text is not italic")]
+    [TestCase("_text_", "<em>text</em>", TestName = "Render_ShouldReturnItalicTags_WhenThereIsItalicTags")]
+    [TestCase("_te_xt", "<em>te</em>xt", TestName = "Render_ShouldReturnItalicTags_WhenThereIsItalicTagsInText")]
+    [TestCase("te_xt_", "te<em>xt</em>", TestName = "Render_ShouldReturnItalicTags_WhenThereIsItalicTagsOneTagInEnd")]
+    [TestCase("te_x_t", "te<em>x</em>t", TestName = "Render_ShouldReturnItalicTags_WhenThereIsItalicTwoTagsInText")]
+    [TestCase("__a_b_c__", "<strong>a<em>b</em>c</strong>", TestName = "Render_ShouldReturnItalicAndBoldTags_WhenThereIsItalicInBoldTags")]
+    [TestCase("_1a_a1_", "_1a_a1_", TestName = "Render_ShouldReturnText_WhenThereIsItalicInDigitText")]
+    [TestCase("_1a_", "_1a_", TestName = "Render_ShouldReturnText_WhenThereIsItalicInMixesText")]
     public void Render_HandleItalicText_ShouldBeExpected(string text, string expected)
     {
         sut.Render(text).Should().Be(expected);
     }
 
-    [TestCase(@"_te\\_ xt_", "<em>te\\</em> xt_", TestName = "double escaped character")]
-    [TestCase(@"\# _text", "# _text", TestName = " escaped character with header tag")]
-    [TestCase(@"_te\xt_", @"<em>te\xt</em>", TestName = " escaped character in text")]
-    [TestCase(@"\_te\xt_", @"_te\xt_", TestName = " escaped character ith opening tag")]
-    [TestCase(@"_\te\xt_", @"<em>\te\xt</em>", TestName = " escaped character after tag")]
+    [TestCase(@"_te\\_ xt_", "<em>te\\</em> xt_", TestName = "Render_ShouldReturnTextWithItalicTags_WhenThereIsDoubleEscapeInText")]
+    [TestCase(@"_te\xt_", @"<em>te\xt</em>", TestName = "Render_ShouldReturnTextWithItalicTags_WhenThereIsEscapeInText")]
+    [TestCase(@"\_te\xt_", @"_te\xt_", TestName = "Render_ShouldReturnText_WhenThereEscapeBlockedOpeningItalicTag")]
+    [TestCase(@"_\te\xt_", @"<em>\te\xt</em>", TestName = "Render_ShouldReturnWithTags_WhenThereEscapeAfterTag")]
     public void EscapeTagTests(string text, string expected)
     {
         sut.Render(text).Should().Be(expected);
     }
 
-    [TestCase("__text__", "<strong>text</strong>", TestName = "Bold")]
-    [TestCase("__tex__t", "<strong>tex</strong>t", TestName = "Bold tag end in text")]
-    [TestCase("te__xt__", "te<strong>xt</strong>", TestName = "Bold tag start in text")]
-    [TestCase("te__x__t", "te<strong>x</strong>t", TestName = "Bold tag in text")]
-    [TestCase("_a__b__c_", "<em>a__b__c</em>", TestName = "Bold In Italic")]
-    [TestCase("__a __ b__", @"<strong>a __ b</strong>", TestName = "Bold with lonely tag in middle")]
-    [TestCase("__11__", "__11__", TestName = "digit no Bold")]
+    [TestCase("__text__", "<strong>text</strong>", TestName = "Render_ShouldReturnTextWitBoldTags_WhenThereIsBoldTags")]
+    [TestCase("__tex__t", "<strong>tex</strong>t", TestName = "Render_ShouldReturnTextWitBoldTags_WhenThereIsBoldTagsInStartText")]
+    [TestCase("te__xt__", "te<strong>xt</strong>", TestName = "Render_ShouldReturnTextWitBoldTags_WhenThereIsBoldTagsInEndText")]
+    [TestCase("te__x__t", "te<strong>x</strong>t", TestName = "Render_ShouldReturnTextWitBoldTags_WhenThereIsBoldTagsInText")]
+    [TestCase("_a__b__c_", "<em>a__b__c</em>", TestName = "Render_ShouldReturnTextOnlyItalicTags_WhenThereIsBoldTagsInItalicTags")]
+    [TestCase("__a __ b__", @"<strong>a __ b</strong>", TestName = "Render_ShouldReturnTextWitBoldTags_WhenThereIsBoldTag")]
+    [TestCase("__11__", "__11__", TestName = "Render_ShouldReturnText_WhenThereIsItalicInDigitText")]
     public void Render_HandleBoldText_ShouldBeExpected(string text, string expected)
     {
         sut.Render(text).Should().Be(expected);
     }
 
-    [TestCase("a_a b_b", @"a_a b_b", TestName = "Different words")]
-    [TestCase("____", "____", TestName = "text Without any words")]
-    [TestCase("__ _a_ __", @"__ <em>a</em> __", TestName = "Triple symbol")]
-    [TestCase("a_ b_", @"a_ b_", TestName = "Invalid open symbol")]
-    [TestCase("_text__text_", "_text__text_", TestName = "tag intersection")]
-    [TestCase("_a", "_a", TestName = "Lonely open symbol")]
-    [TestCase("__u _b_ _c_ u__", @"<strong>u <em>b</em> <em>c</em> u</strong>", TestName = "Multiply italic in bold")]
-    [TestCase("a_", "a_", TestName = "Lonely close symbol")]
-    [TestCase("text", "text", TestName = "text without tags")]
-    [TestCase("text _", "text _", TestName = "space before closing tag")]
-    [TestCase("_ text", "_ text", TestName = "space after opening tag")]
-    [TestCase("____ text", "____ text", TestName = "Empty between paired tags")]
+    [TestCase("a_a b_b", @"a_a b_b", TestName = "Render_ShouldReturnText_WhenThereIsTagsInDifferentWords")]
+    [TestCase("____", "____", TestName = "Render_ShouldReturnText_WhenThereIsOnlyTags")]
+    [TestCase("__ _a_ __", @"__ <em>a</em> __", TestName = "Render_ShouldReturnTextOnlyItalicTags_WhenThereIsBlobTagsWithSpacesAroundEdges")]
+    [TestCase("a_ b_", @"a_ b_", TestName = "Render_ShouldReturnText_WhenThereIsInvalidOpeningTag")]
+    [TestCase("_text__text_", "_text__text_", TestName = "Render_ShouldReturnText_WhenThereIsTagIntersection")]
+    [TestCase("_a", "_a", TestName = "Render_ShouldReturnText_WhenThereIsOnlyOpeningTag")]
+    [TestCase("__u _b_ _c_ u__", @"<strong>u <em>b</em> <em>c</em> u</strong>", TestName = "Render_ShouldReturnTextWithTags_WhenThereIsMultiplyItalicInBold")]
+    [TestCase("a_", "a_", TestName = "Render_ShouldReturnText_WhenThereIsOnlyClosingTag")]
+    [TestCase("text", "text", TestName = "Render_ShouldReturnText_WhenThereIsOnlyText")]
+    [TestCase("text _", "text _", TestName = "Render_ShouldReturnText_WhenThereIsSpaceBeforeClosingTag")]
+    [TestCase("_ text", "_ text", TestName = "Render_ShouldReturnText_WhenThereIsSpaceAfterOpeningTag")]
+    [TestCase("____ text", "____ text", TestName = "Render_ShouldReturnText_WhenThereIsEmptyBetweenPairedTags")]
     public void Render_HandleTextWithPairedTags_ShouldBeExpected(string text, string expected)
     {
         sut.Render(text).Should().Be(expected);
     }
 
-    [TestCase(@"# a", @"<h1>a</h1>", TestName = "Title")]
-    [TestCase(@"\# a", @"# a", TestName = "Screen title")]
-    [TestCase(@"\\# a", @"\# a", TestName = "Double screen title")]
-    [TestCase("# _text_\n", "<h1><em>text</em></h1>")]
-    [TestCase("# _text_\r\n", "<h1><em>text</em></h1>")]
-    [TestCase("# _text\r\n_hello_\r\n", "<h1>_text</h1>\n<em>hello</em>")]
+    [TestCase(@"# a", @"<h1>a</h1>", TestName = "Render_ShouldReturnTextWithHeaderTag_WhenThereIsHeaderTag")]
+    [TestCase(@"\# a", @"# a", TestName = "Render_ShouldReturnText_WhenThereIsEscapeTagBeforeHeaderTag")]
+    [TestCase("# _text_\n", "<h1><em>text</em></h1>", TestName = "Render_ShouldReturnTextWithTags_WhenThereIsItalicTagsInHeaderTag")]
+    [TestCase("# _text_\r\n", "<h1><em>text</em></h1>", TestName = "Render_ShouldReturnTextWithTags_WhenThereIsAnotherTypeLineBreaker")]
+    [TestCase("# _text\r\n_hello_\r\n", "<h1>_text</h1>\n<em>hello</em>", TestName = "Render_ShouldReturnTextWithTags_WhenTransferringLineTagProcessingVeryBeginning")]
     public void Render_HeaderTagTestsShouldBeExpected(string text, string expected)
     {
         sut.Render(text).Should().Be(expected);
     }
 
-    [TestCase(@"\\* a", @"\* a", TestName = "Double screen Bulleted")]
-    [TestCase("* _text_\n", "<li><em>text</em></li>")]
-    [TestCase("* # _text_\r\n", "<li><h1><em>text</em></h1></li>")]
-    [TestCase("* _text\r\n* _hello_\r\n", "<li>_text</li>\n<li><em>hello</em></li>")]
-    [TestCase("# * _text\r\n* _hello_\r\n", "<h1>* _text</h1>\n<li><em>hello</em></li>")]
+    [TestCase(@"\\* a", @"\* a", TestName = "Render_ShouldReturnTextWithBulletedTag_WhenThereIsBulletedTag")]
+    [TestCase("* _text_\n", "<li><em>text</em></li>", TestName = "Render_ShouldReturnTextWithTags_WhenThereIsItalicTagInBulletedTag")]
+    [TestCase("* # _text_\r\n", "<li><h1><em>text</em></h1></li>", TestName = "Render_ShouldReturnTextWithTags_WhenThereIsHeaderTagInBulletedTag")]
+    [TestCase("# * _text\r\n* _hello_\r\n", "<h1>* _text</h1>\n<li><em>hello</em></li>", TestName = "Render_ShouldReturnTextHeaderTags_WhenThereIsBulletedTagInHeaderTag")]
     public void Render_BulletedTagTests_ShouldBeExpected(string text, string expected)
     {
         sut.Render(text).Should().Be(expected);
