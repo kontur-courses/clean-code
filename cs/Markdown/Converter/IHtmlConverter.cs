@@ -2,6 +2,6 @@
 {
     public interface IHtmlConverter
     {
-        string ConvertFromMarkdownToHtml(List<Token> tokens);
+        string ConvertFromMarkdownToHtml(string markdownText, List<Token> tokens);
     }
 }

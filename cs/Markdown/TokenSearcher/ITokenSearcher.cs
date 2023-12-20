@@ -2,6 +2,6 @@
 {
     public interface ITokenSearcher
     {
-        List<Token> FindTokens(string line);
+        List<Token> SearchTokens(string line);
     }
 }

@@ -1,4 +1,6 @@
-﻿namespace Markdown
+﻿using Markdown.Tags;
+
+namespace Markdown
 {
     public class Token
     {
@@ -7,7 +9,7 @@
         private readonly int endIndex;
         private readonly bool isSingleTag;
 
-        public Token(TagType type, bool isSingleTag , int startIndex, int endIndex)
+        public Token(TagType type, int startIndex, int endIndex, bool isSingleTag = false)
         {
             this.tagType = type;
             this.isSingleTag = isSingleTag;

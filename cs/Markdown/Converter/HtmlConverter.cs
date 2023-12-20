@@ -1,27 +1,57 @@
-﻿namespace Markdown.Converter
+﻿using System.Diagnostics.Tracing;
+using System.Text;
+using Markdown.Tags;
+
+namespace Markdown.Converter
 {
     public class HtmlConverter : IHtmlConverter
     {
-        private Dictionary<TagType, string> openingTags = new()
-        {
-            { TagType.Bold, "<strong>" },
-            { TagType.Italic, "<em>" },
-            { TagType.Header, "<h1>" },
-            { TagType.EscapedSymbol, "" },
-        };
+        private Dictionary<TagType, string> tagsMarkup = MarkdownConfig.HtmlTags;
 
-        private Dictionary<TagType, string> closingTags = new()
+        public string ConvertFromMarkdownToHtml(string markdownText, List<Token> tokens)
         {
-            { TagType.Bold, "</strong>" }, 
-            { TagType.Italic, "</em>" },
-            { TagType.Header, "</h1>" }, 
-            { TagType.EscapedSymbol, "" },
-        };
-        public string ConvertFromMarkdownToHtml(List<Token> tokens)
+            var htmlResultText = new StringBuilder(markdownText);
+            var htmlTags = ConvertToHtmlTags(tokens);
+            var shift = 0;
+
+            foreach (var tag in htmlTags)
+            {
+                var mdTaglength = 1;
+                if (tag.Type == TagType.Bold)
+                {
+                    mdTaglength = 2;
+                    shift--;
+                }
+                if (tag.IsClosing) 
+                {
+                    if (tag.Type == TagType.Header)
+                    {
+                        mdTaglength = 0;
+                        shift++;
+                    }
+                    else if (tag.Type == TagType.EscapedSymbol)
+                    {
+                        mdTaglength = 0;
+                        shift++;
+                    }
+                }
+                htmlResultText.Remove(tag.Index + shift, mdTaglength);
+                htmlResultText.Insert(tag.Index + shift, tag.GetMarkup());
+                shift = htmlResultText.Length - markdownText.Length;
+            }
+
+            return htmlResultText.ToString();
+        }
+
+        private List<HtmlTag> ConvertToHtmlTags(List<Token> tokens)
         {
-            //Тут я думаю проходиться по списку всех токенов и заменять md теги на html теги
-            //Возможно понадобиться добавлять новые методы
-            throw new NotImplementedException();
+            var htmlTags = new List<HtmlTag>();
+            foreach (var token in tokens)
+            {
+                htmlTags.Add(new HtmlTag(token.TagType, token.StartIndex, false, tagsMarkup[token.TagType]));
+                htmlTags.Add(new HtmlTag(token.TagType, token.EndIndex , true, tagsMarkup[token.TagType]));
+            }
+            return htmlTags.OrderBy(tag => tag.Index).ToList();
         }
     }
 }
