@@ -6,9 +6,9 @@ public class StrongTag : ITag
 {
     public TagDefinition Definition => TagDefinition.Strong;
 
-    public string HtmlOpenTag => "\\<strong>";
+    public string HtmlOpenTag => "<strong>";
 
-    public string HtmlClosingTag => "\\</strong>";
+    public string HtmlClosingTag => "</strong>";
 
     public string MarkdownTag => "__";
 

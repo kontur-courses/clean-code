@@ -9,9 +9,9 @@ public class StrongTagRules : IMarkdownTagRules
 {
     public TagDefinition Definition => TagDefinition.Strong;
 
-    public bool IsTagIgnoredBySymbol(char symbol)
+    public bool IsTagIgnoredBySymbol(char symbol, TagType tagType)
     {
-        return char.IsDigit(symbol);
+        return char.IsDigit(symbol) && tagType == TagType.Undefined;
     }
 
     public bool IsTagOpen(char previousSymbol, char nextSymbol)

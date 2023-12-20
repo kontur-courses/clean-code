@@ -6,9 +6,9 @@ public class HeaderTag : ITag
 {
     public TagDefinition Definition => TagDefinition.Header;
 
-    public string HtmlOpenTag => "\\<h1>";
+    public string HtmlOpenTag => "<h1>";
 
-    public string HtmlClosingTag => "\\</h1>";
+    public string HtmlClosingTag => "</h1>";
 
     public string MarkdownTag => "# ";
 

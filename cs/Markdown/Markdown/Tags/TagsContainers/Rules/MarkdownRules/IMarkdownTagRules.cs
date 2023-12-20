@@ -1,4 +1,5 @@
-﻿using Markdown.Tokens;
+﻿using Markdown.Tags.TextTag;
+using Markdown.Tokens;
 
 namespace Markdown.Tags.TagsContainers.Rules.MarkdownRules;
 
@@ -6,7 +7,7 @@ public interface IMarkdownTagRules
 {
     public TagDefinition Definition { get; }
 
-    public bool IsTagIgnoredBySymbol(char symbol);
+    public bool IsTagIgnoredBySymbol(char symbol, TagType tagType);
 
     public bool IsTagOpen(char previousSymbol, char nextSymbol);
 

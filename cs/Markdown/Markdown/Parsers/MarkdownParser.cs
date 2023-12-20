@@ -108,12 +108,12 @@ public class MarkdownParser : ITextParser<Tag>
 
         if (!IsTag(tag))
             return tagType;
-        if (tagRules.IsTagIgnoredBySymbol(previousSymbol) || tagRules.IsTagIgnoredBySymbol(nextSymbol))
-            tagType = TagType.Ignored;
         else if (tagRules.IsTagOpen(previousSymbol, nextSymbol))
             tagType = TagType.OpenTag;
         else if (tagRules.IsTagClosing(previousSymbol, nextSymbol))
             tagType = TagType.ClosingTag;
+        else if (tagRules.IsTagIgnoredBySymbol(previousSymbol, tagType) || tagRules.IsTagIgnoredBySymbol(nextSymbol, tagType))
+            tagType = TagType.Ignored;
 
         return tagType;
     }

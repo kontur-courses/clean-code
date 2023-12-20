@@ -6,9 +6,9 @@ public class ItalicTag : ITag
 {
     public TagDefinition Definition => TagDefinition.Italic;
 
-    public string HtmlOpenTag => "\\<em>";
+    public string HtmlOpenTag => "<em>";
 
-    public string HtmlClosingTag => "\\</em>";
+    public string HtmlClosingTag => "</em>";
 
     public string MarkdownTag => "_";
 

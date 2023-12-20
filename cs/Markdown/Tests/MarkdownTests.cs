@@ -20,22 +20,47 @@ public class MarkdownTests
 
     private static readonly IEnumerable<TestCaseData> RenderSimpleMappedTags = new[]
     {
-        new TestCaseData("_окруженный с двух сторон_").Returns(@"\<em>окруженный с двух сторон\</em>")
-            .SetName("SurrondedByTwoEmTags"),
-        new TestCaseData("окруженный _с двух сторон_").Returns(@"окруженный \<em>с двух сторон\</em>")
-            .SetName("SurrondedByTwoEmTags"),
-        new TestCaseData("__окруженный с двух сторон__").Returns(@"\<strong>окруженный с двух сторон\</strong>")
-            .SetName("SurrondedByTwoStrongTags")
+        new TestCaseData("_окруженный с двух сторон_").Returns(@"<em>окруженный с двух сторон</em>")
+            .SetName("SurrondedByTwoEmTagsFormStartToEnd"),
+        new TestCaseData("в _середине_ текста").Returns(@"в <em>середине</em> текста")
+            .SetName("WithTwoEmTagsInTheMiddle"),
+        new TestCaseData("__окруженный с двух сторон__").Returns(@"<strong>окруженный с двух сторон</strong>")
+            .SetName("SurrondedByTwoStrongTags"),
+        new TestCaseData("в __середине__ текста").Returns(@"в <strong>середине</strong> текста")
+            .SetName("WithTwoStrongTagsInTheMiddle"),
+        new TestCaseData("_1 подчеркивание цифр снуражи текста_").Returns(@"<em>1 подчеркивание цифр снуражи текста</em>")
+            .SetName("WithMappedEmTagUnderliningNumberOutsideText"),
+        new TestCaseData("__подчеркивание цифр снуражи текста 1__").Returns(@"<strong>подчеркивание цифр снуражи текста 1</strong>")
+            .SetName("WithMappedStrongTagUnderliningNumberOutsideText"),
     };
 
     private static readonly IEnumerable<TestCaseData> RenderNotMappedTags = new[]
     {
-        new TestCaseData("_1 подчеркивание цифр_").Returns(@"_1 подчеркивание цифр_")
-            .SetName("WithNotMappedTagNearNumbers"),
+        new TestCaseData("1_подчеркивание цифр внутри текста_").Returns(@"1_подчеркивание цифр внутри текста_")
+            .SetName("WithNotMappedEmTagUnderliningNumberInsideTextAtStart"),
+        new TestCaseData("_подчеркивание цифр внутри текста_1").Returns(@"_подчеркивание цифр внутри текста_1")
+            .SetName("WithNotMappedEmTagUnderliningNumberInsideTextAtEnd"),
+        new TestCaseData("_подчеркиван1_ие цифр внутри текста").Returns(@"_подчеркиван1_ие цифр внутри текста")
+            .SetName("WithNotMappedEmTagUnderliningNumberInMiddleOfText"),
+
+        new TestCaseData("1__подчеркивание цифр внутри текста__").Returns(@"1__подчеркивание цифр внутри текста__")
+            .SetName("WithNotMappedStrongTagUnderliningNumberInsideTextAtStart"),
+        new TestCaseData("__подчеркивание цифр внутри текста__1").Returns(@"__подчеркивание цифр внутри текста__1")
+            .SetName("WithNotMappedStrongTagUnderliningNumberInsideTextAtEnd"),
+        new TestCaseData("__подчеркиван1__ие цифр внутри текста").Returns(@"__подчеркиван1__ие цифр внутри текста")
+            .SetName("WithNotMappedStrongTagUnderliningNumberInMiddleOfText"),
+
+
         new TestCaseData("____ пустое выделение").Returns(@"____ пустое выделение")
-            .SetName("WithNotMappedTagsSurroundEmptyText"),
+            .SetName("WithNotMappedStrongTagsSurroundEmptyText"),
+        new TestCaseData("пустое__выделение").Returns(@"пустое__выделение")
+            .SetName("WithNotMappedEmTagsSurroundEmptyText"),
+
         new TestCaseData("__незакрытый тэг").Returns(@"__незакрытый тэг")
-            .SetName("WithNotMappedNotClosedTag"),
+            .SetName("WithNotMappedNotClosedStrongTag"),
+        new TestCaseData("незакрытый_ тэг").Returns(@"незакрытый_ тэг")
+            .SetName("WithNotMappedNotClosedEmTag"),
+
         new TestCaseData(@"тэг абзаца в # середине текста")
             .Returns(@"тэг абзаца в # середине текста")
             .SetName("WithNotMappedParagraphTagInTheMiddleOfText")
@@ -47,13 +72,13 @@ public class MarkdownTests
             .Returns(@"тэ_ги в раз_ных словах")
             .SetName("WithNotMappedTagsInDifferentWords"),
         new TestCaseData(@"тэги в се_ре_дине одного слова")
-            .Returns(@"тэги в се\<em>ре\</em>дине одного слова")
+            .Returns(@"тэги в се<em>ре</em>дине одного слова")
             .SetName("WithMappedTagsInsideOneWord"),
         new TestCaseData(@"тэги в начале и _сере_дине одного слова")
-            .Returns(@"тэги в начале и \<em>сере\</em>дине одного слова")
+            .Returns(@"тэги в начале и <em>сере</em>дине одного слова")
             .SetName("WithMappedTagsInTheStartAndMiddleOfOneWord"),
         new TestCaseData(@"тэги в конце и сере_дине_ одного слова")
-            .Returns(@"тэги в конце и сере\<em>дине\</em> одного слова")
+            .Returns(@"тэги в конце и сере<em>дине</em> одного слова")
             .SetName("WithMappedTagsInTheEndAndMiddleOfOneWord")
     };
 
@@ -61,7 +86,7 @@ public class MarkdownTests
     {
         new TestCaseData(@"экранируемый \_тэг_").Returns(@"экранируемый _тэг_")
             .SetName("WithNotMappedEscapedTag"),
-        new TestCaseData(@"экранируемая \\_экранизация_").Returns(@"экранируемая \\<em>экранизация\</em>")
+        new TestCaseData(@"экранируемая \\_экранизация_").Returns(@"экранируемая \<em>экранизация</em>")
             .SetName("WithDoubleEscapeCharacterNotEscapingTag"),
         new TestCaseData(@"не\экра\низац\ия").Returns(@"не\экра\низац\ия")
             .SetName("WithEscapeCharactersThatDoesNotEscape")
@@ -70,24 +95,24 @@ public class MarkdownTests
     private static readonly IEnumerable<TestCaseData> RenderNestedTags = new[]
     {
         new TestCaseData(@"Внутри __двойного выделения _одинарное_ тоже__ работает")
-            .Returns(@"Внутри \<strong>двойного выделения \<em>одинарное\</em> тоже\</strong> работает")
+            .Returns(@"Внутри <strong>двойного выделения <em>одинарное</em> тоже</strong> работает")
             .SetName("WithMappedTagsWhenEmInsideStrong"),
         new TestCaseData(@"внутри _одинарного __двойное__ не_ работает.")
-            .Returns(@"внутри \<em>одинарного __двойное__ не\</em> работает.")
+            .Returns(@"внутри <em>одинарного __двойное__ не</em> работает.")
             .SetName("WithNotMappedTagsWhenStrongInsideEm")
     };
 
     private static readonly IEnumerable<TestCaseData> RenderHeaders = new[]
     {
         new TestCaseData(@"# Абзац, начинающийся с")
-            .Returns(@"\<h1>Абзац, начинающийся с\</h1>")
+            .Returns(@"<h1>Абзац, начинающийся с</h1>")
             .SetName("WithMappedParagraphTag"),
         new TestCaseData(@"# Заголовок __с _разными_ символами__")
-            .Returns(@"\<h1>Заголовок \<strong>с \<em>разными\</em> символами\</strong>\</h1>")
+            .Returns(@"<h1>Заголовок <strong>с <em>разными</em> символами</strong></h1>")
             .SetName("WithMappedTagsInsideParagraph"),
         new TestCaseData("# Заголовок __с _разными_ символами__\n# Заголовок __с _разными_ символами__")
-            .Returns(@"\<h1>Заголовок \<strong>с \<em>разными\</em> символами\</strong>\</h1>"
-                     + @"\<h1>Заголовок \<strong>с \<em>разными\</em> символами\</strong>\</h1>")
+            .Returns(@"<h1>Заголовок <strong>с <em>разными</em> символами</strong></h1>"
+                     + @"<h1>Заголовок <strong>с <em>разными</em> символами</strong></h1>")
             .SetName("WithSeveralParagraphs")
     };
 

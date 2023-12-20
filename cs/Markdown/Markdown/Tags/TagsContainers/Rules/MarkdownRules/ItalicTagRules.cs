@@ -9,9 +9,9 @@ public class ItalicTagRules : IMarkdownTagRules
 {
     public TagDefinition Definition => TagDefinition.Italic;
 
-    public bool IsTagIgnoredBySymbol(char symbol)
+    public bool IsTagIgnoredBySymbol(char symbol, TagType tagType)
     {
-        return char.IsDigit(symbol);
+        return char.IsDigit(symbol) && tagType == TagType.Undefined;
     }
 
     public bool IsTagOpen(char previousSymbol, char nextSymbol)

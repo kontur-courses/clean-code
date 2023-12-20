@@ -13,7 +13,7 @@ public class HeaderTagRules : IMarkdownSingleTagRules
         return false;
     }
 
-    public bool IsTagIgnoredBySymbol(char symbol)
+    public bool IsTagIgnoredBySymbol(char symbol, TagType tagType)
     {
         return false;
     }
