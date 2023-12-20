@@ -1,4 +1,5 @@
 using MarkDown.Enums;
+using MarkDown.TagContexts.Abstracts;
 using MarkDown.Tags;
 using MarkDown.Tags.Abstracts;
 
@@ -15,6 +16,8 @@ public class MarkDownEnvironment
         AddNewTagForMarkDown(new EntryTagFactory(this));
         AddNewTagForMarkDown(new StrongTagFactory(this));
         AddNewTagForMarkDown(new EmTagFactory(this));
+        AddNewTagForMarkDown(new UlTagFactory(this));
+        AddNewTagForMarkDown(new UlLiTagFactory(this));
     }
 
     private void AddNewTagForMarkDown(TagFactory tagFactory)
@@ -22,11 +25,11 @@ public class MarkDownEnvironment
         markDownTags[tagFactory.TagName] = tagFactory;
     }
 
-    public bool CanGetTagCreator(string text, int position, out TagFactory openTagFactory)
+    public bool CanGetTagCreator(string text, int position, TagContext parentContext, out TagFactory openTagFactory)
     {
         openTagFactory = null;
         
-        foreach (var tag in markDownTags.Values.Where(tag => tag.CanCreateContext(text, position)))
+        foreach (var tag in markDownTags.Values.Where(tag => tag.CanCreateContext(text, position, parentContext)))
             if (openTagFactory != null)
             {
                 if (openTagFactory.MarkDownOpen.Length < tag.MarkDownOpen.Length)

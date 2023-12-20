@@ -27,7 +27,7 @@ public class EntryTagFactory : TagFactory
         return new EntryContext(this);
     }
 
-    public override bool CanCreateContext(string text, int position)
+    public override bool CanCreateContext(string text, int position, TagContext parentContext)
     {
         return false;
     }

@@ -9,6 +9,10 @@ public abstract class ResetContext : TagContext
         : base(startIndex, parent, tagFactory, isScreened)
     {
     }
+
+    protected override void HandleSymbolItself(char symbol)
+    {
+    }
     
     public TagContext SwitchToOpenContext()
     {
@@ -23,5 +27,16 @@ public abstract class ResetContext : TagContext
         }
 
         return this;
+    }
+    
+    public override void CloseSingleTags(int closeIndex)
+    {
+        Parent?.CloseSingleTags(closeIndex);
+        
+        if (Closed)
+            return;
+        
+        CloseIndex = closeIndex;
+        Closed = true;
     }
 }

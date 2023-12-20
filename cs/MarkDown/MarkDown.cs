@@ -26,6 +26,7 @@ public class MarkDown
             if (isClosed)
             {
                 i += closeLength;
+                nowContext = newOpenContext;
                 continue;
             }
 
@@ -86,12 +87,12 @@ public class MarkDown
         bool isScreened,
         MarkDownEnvironment environment)
     {
-        if (environment.CanGetTagCreator(mdText, i, out var openTag))
+        if (environment.CanGetTagCreator(mdText, i, nowContext, out var openTag))
         {
             var newContext = openTag.CreateContext(mdText, i, nowContext, isScreened);
             nowContext.AddInnerContext(newContext);
             
-            return (true, openTag.MarkDownOpen.Length - 1, newContext);
+            return (true, openTag.SkipIndexesAfterCreating, newContext);
         }
 
         return (false, 0, nowContext);
@@ -110,7 +111,7 @@ public class MarkDown
         return false;
     }
     
-    public static string GenerateHtml(string mdText, MarkDownEnvironment environment)
+    public static string RenderHtml(string mdText, MarkDownEnvironment environment)
     {
         var (entryContext, screeningIndexes) = CreateContext(mdText, environment);
         

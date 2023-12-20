@@ -27,12 +27,13 @@ public abstract class TagFactory : IComparable<TagFactory>
     public abstract string HtmlClose { get; }
     public abstract string MarkDownOpen { get; }
     public abstract string MarkDownClose { get; }
+    public virtual int SkipIndexesAfterCreating => MarkDownOpen.Length - 1;
     
     private readonly int hashCode;
 
     public abstract TagContext CreateContext(string mdText, int startIndex, TagContext parentContext, bool isScreened);
 
-    public abstract bool CanCreateContext(string text, int position);
+    public abstract bool CanCreateContext(string text, int position, TagContext parentContext);
 
     public abstract bool IsClosePosition(string text, int position);
 

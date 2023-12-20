@@ -9,19 +9,4 @@ public class HeaderContext : ResetContext
         : base(startIndex, parentContext, tagFactory, isScreened)
     {
     }
-
-    protected override void HandleSymbolItself(char symbol)
-    {
-    }
-
-    public override void CloseSingleTags(int closeIndex)
-    {
-        Parent?.CloseSingleTags(closeIndex);
-        
-        if (Closed)
-            return;
-        
-        CloseIndex = closeIndex;
-        Closed = true;
-    }
 }

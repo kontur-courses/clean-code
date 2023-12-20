@@ -23,7 +23,7 @@ public class HeaderTagFactory : TagFactory
         return new HeaderContext(startIndex, nowContext, this, isScreened);
     }
 
-    public override bool CanCreateContext(string text, int position)
+    public override bool CanCreateContext(string text, int position, TagContext parentContext)
     {
         if (position > 0 && text[position - 1].ToString() != System.Environment.NewLine)
             return false;

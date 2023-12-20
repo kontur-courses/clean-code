@@ -20,7 +20,7 @@ public abstract class TagContext
     public bool Closed { get; protected set; }
     protected int CloseIndex { get; set; }
     protected bool ConsiderInCreatingHtml { get; set; } = true;
-    private int StartIndex { get; init; }
+    private int StartIndex { get; }
     private TagFactory TagFactory { get; }
     private bool IsIntersected { get; set; }
     private bool IsScreenedStart { get; }
@@ -44,6 +44,7 @@ public abstract class TagContext
             Closed = canClose;
             CloseIndex = closeIndex;
             IsScreenedEnd = isScreened;
+            closed = this;
         }
         
         return canClose;

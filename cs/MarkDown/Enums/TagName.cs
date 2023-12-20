@@ -7,4 +7,6 @@ public enum TagName
     Header,
     Strong,
     Em,
+    Ul,
+    UlLi
 }

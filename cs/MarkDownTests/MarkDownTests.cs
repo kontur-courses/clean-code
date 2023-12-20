@@ -20,7 +20,7 @@ public class MarkDownTests
     [TestCase("# __a _b_ c__", "<h1><strong>a <em>b</em> c</strong></h1>", TestName = "SupportsMultipleTagsInside")]
     public void GenerateHtml_Header(string markdown, string expected)
     {
-        MarkDown.MarkDown.GenerateHtml(markdown, markDownEnv)
+        MarkDown.MarkDown.RenderHtml(markdown, markDownEnv)
             .Should()
             .Be(expected);
     }
@@ -38,7 +38,7 @@ public class MarkDownTests
     [TestCase("__a _b c__", "<strong>a _b c</strong>", TestName = "SupportsNotClosedEm")]
     public void GenerateHtml_Strong(string markdown, string expected)
     {
-        MarkDown.MarkDown.GenerateHtml(markdown, markDownEnv)
+        MarkDown.MarkDown.RenderHtml(markdown, markDownEnv)
             .Should()
             .Be(expected);
     }
@@ -55,7 +55,7 @@ public class MarkDownTests
     [TestCase("_a __b__ c_", "<em>a __b__ c</em>", TestName = "DoesNotSupportStrongInside")]
     public void GenerateHtml_Em(string markdown, string expected)
     {
-        MarkDown.MarkDown.GenerateHtml(markdown, markDownEnv)
+        MarkDown.MarkDown.RenderHtml(markdown, markDownEnv)
             .Should()
             .Be(expected);
     }
@@ -66,7 +66,7 @@ public class MarkDownTests
     [TestCase("_a __b c_ d__", "_a __b c_ d__", TestName = "CreateIntersectingTagsInAnotherOrder")]
     public void GenerateHtml_DoesNot(string markdown, string expected)
     {
-        MarkDown.MarkDown.GenerateHtml(markdown, markDownEnv)
+        MarkDown.MarkDown.RenderHtml(markdown, markDownEnv)
             .Should()
             .Be(expected);
     }
@@ -79,7 +79,19 @@ public class MarkDownTests
     [TestCase(@"__a \\_b_ c__", "<strong>a \\<em>b</em> c</strong>", TestName = "ScreeningOfScreeningInsideTags")]
     public void GenerateHtml_Supports(string markdown, string expected)
     {
-        MarkDown.MarkDown.GenerateHtml(markdown, markDownEnv)
+        MarkDown.MarkDown.RenderHtml(markdown, markDownEnv)
+            .Should()
+            .Be(expected);
+    }
+    
+    [TestCase("- a", "<ul><li>a</li></ul>", TestName = "CreatesTag")]
+    [TestCase("- a\n- b", "<ul><li>a</li><li>b</li></ul>", TestName = "CreatesMultipleLi's")]
+    [TestCase("- a\n+ b\n* c ", "<ul><li>a</li><li>b</li><li>c </li></ul>", TestName = "SupportsMultipleOpeners")]
+    [TestCase("- __a__", "<ul><li><strong>a</strong></li></ul>", TestName = "SupportsTagsInside")]
+    [TestCase("- \\__a__", "<ul><li>__a__</li></ul>", TestName = "SupportsScreeningInside")]
+    public void GenerateHtml_Ul(string markdown, string expected)
+    {
+        MarkDown.MarkDown.RenderHtml(markdown, markDownEnv)
             .Should()
             .Be(expected);
     }

@@ -4,7 +4,7 @@ using MarkDown.Tags.Abstracts;
 
 namespace MarkDown.TagContexts;
 
-public class EntryContext : TagContext
+public class EntryContext : ResetContext
 {
     public EntryContext(int startIndex, TagContext? context, TagFactory tagFactory, bool isScreened)
         : base(startIndex, context, tagFactory, isScreened)
@@ -13,16 +13,6 @@ public class EntryContext : TagContext
     
     public EntryContext(TagFactory tagFactory) : base(0, null, tagFactory, false)
     {
-    }
-
-    protected override void HandleSymbolItself(char symbol)
-    {
-    }
-
-    public override void CloseSingleTags(int closeIndex)
-    {
-        Closed = true;
-        CloseIndex = closeIndex;
     }
 
     public void CreateHtml(

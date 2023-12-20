@@ -16,7 +16,7 @@ public abstract class HighlightTagFactory : TagFactory
         return new HighlightContext(startIndex, isInWord, parentContext, this, isScreened);
     }
     
-    public override bool CanCreateContext(string text, int position)
+    public override bool CanCreateContext(string text, int position, TagContext parentContext)
     {
         if (position + MarkDownOpen.Length > text.Length)
             return false;
