@@ -1,6 +1,4 @@
-﻿using System.Runtime.CompilerServices;
-
-namespace Markdown.Token;
+﻿namespace Markdown.Token;
 
 public class HeaderToken : IToken
 {

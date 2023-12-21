@@ -13,7 +13,7 @@ public class AnySyntaxParserTests
     [OneTimeSetUp]
     public void Setup()
     {
-        sut = new AnySyntaxParser(new MarkdownSyntax());
+        sut = new AnySyntaxParser(new MarkdownToHtnlSyntax());
     }
 
     [TestCaseSource(typeof(AnySyntaxParserTestCases), nameof(AnySyntaxParserTestCases.ParseTokenTestCases))]

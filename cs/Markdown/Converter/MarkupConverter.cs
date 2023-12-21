@@ -25,7 +25,7 @@ public class MarkupConverter : IConverter
             if (!token.IsClosed)
             {
                 if (token.IsParametrized)
-                    tag.RenderParameters(token.Parameters, syntax.GetSupprtedTagParameters(token.Separator));
+                    tag.RenderParameters(token.Parameters, syntax.GetSupportedTagParameters(token.Separator));
                 result.Append(tag.OpeningSeparator);
             }
             else

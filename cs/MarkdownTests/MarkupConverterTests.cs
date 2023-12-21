@@ -12,7 +12,7 @@ public class MarkupConverterTests
     [OneTimeSetUp]
     public void OneTimeSetUp()
     {
-        sut = new MarkupConverter(new MarkdownSyntax());
+        sut = new MarkupConverter(new MarkdownToHtnlSyntax());
     }
 
     [TestCaseSource(typeof(MarkupConverterTestCases), nameof(MarkupConverterTestCases.RenderTestCases))]

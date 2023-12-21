@@ -3,7 +3,7 @@ using Markdown.Tag;
 
 namespace Markdown.Syntax;
 
-public class MarkdownSyntax : ISyntax
+public class MarkdownToHtnlSyntax : ISyntax
 {
     private readonly Dictionary<string, Func<int, IToken>> markdownToToken = new()
     {
@@ -25,7 +25,7 @@ public class MarkdownSyntax : ISyntax
         { "_", new HtmlTag("<em>", "</em>", true) },
         { "__", new HtmlTag("<strong>", "</strong>", true) },
         { "\\", new HtmlTag("", "", false) },
-        { "@", new HtmlTag("<img>", "", true)}
+        { "@", new HtmlTag("<img>", "", true) }
     };
 
     private readonly Dictionary<string, List<string>> supportedParameters = new()
@@ -44,7 +44,7 @@ public class MarkdownSyntax : ISyntax
     public IReadOnlyDictionary<string, IList<string>> TagCannotBeInsideTags => tagNotWorkingWithinTags;
     public IReadOnlyDictionary<string, Func<int, IToken>> StringToToken => markdownToToken;
 
-    public IList<string> GetSupprtedTagParameters(string tagSeparator)
+    public IList<string> GetSupportedTagParameters(string tagSeparator)
     {
         return supportedParameters[tagSeparator];
     }

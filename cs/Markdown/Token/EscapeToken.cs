@@ -14,7 +14,7 @@ public class EscapeToken : IToken
     public bool IsParametrized => false;
     public string Parameters { get; set; }
     public int Shift { get; set; }
-    
+
     public EscapeToken(int position)
     {
         Position = position;

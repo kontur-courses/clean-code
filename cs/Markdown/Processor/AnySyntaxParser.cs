@@ -1,6 +1,4 @@
-﻿using System.Data;
-using System.Runtime.InteropServices.JavaScript;
-using System.Text;
+﻿using System.Text;
 using Markdown.Syntax;
 using Markdown.Token;
 
@@ -109,7 +107,8 @@ public class AnySyntaxParser : IParser
             if (openedTags.ContainsKey(tag.Separator))
             {
                 tag.IsClosed = true;
-                if (tag.IsValid(source, ref result, openedTags[tag.Separator]) && tag.IsPairedTokenValidPositioned(openedTags[tag.Separator], source))
+                if (tag.IsValid(source, ref result, openedTags[tag.Separator]) &&
+                    tag.IsPairedTokenValidPositioned(openedTags[tag.Separator], source))
                 {
                     if (openedTags.Values.Any(token =>
                             (!token.IsClosed && token.Position > openedTags[tag.Separator].Position)))
@@ -117,14 +116,16 @@ public class AnySyntaxParser : IParser
                         openedTags.Clear();
                         continue;
                     }
+
                     result.Add(openedTags[tag.Separator]);
                     result.Add(tag);
                     openedTags.Remove(tag.Separator);
                 }
             }
-            else if (tag.IsValid(source, ref result, tag) && !(syntax.TagCannotBeInsideTags.ContainsKey(tag.Separator) &&
-                                              syntax.TagCannotBeInsideTags[tag.Separator]
-                                                  .Any(t => openedTags.ContainsKey(t))))
+            else if (tag.IsValid(source, ref result, tag) &&
+                     !(syntax.TagCannotBeInsideTags.ContainsKey(tag.Separator) &&
+                       syntax.TagCannotBeInsideTags[tag.Separator]
+                           .Any(t => openedTags.ContainsKey(t))))
             {
                 if (tag.IsPair)
                     openedTags[tag.Separator] = tag;

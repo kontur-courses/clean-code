@@ -4,7 +4,7 @@ public class ImageToken : IToken
 {
     private const string TokenSeparator = "@";
     private const bool HasPair = true;
-    
+
     public int Position { get; }
     public int EndingPosition { get; }
     public int Length => TokenSeparator.Length;
@@ -15,20 +15,20 @@ public class ImageToken : IToken
     public string Parameters { get; set; }
     public int Shift { get; set; }
 
-    public ImageToken(int position, bool isClosed=false)
+    public ImageToken(int position, bool isClosed = false)
     {
         Position = position;
         IsClosed = isClosed;
     }
-    
+
     public bool IsValid(string source, ref List<IToken> tokens, IToken currentToken)
     {
         if (!IsClosed)
             return true;
-        
-        if (source.Substring(currentToken.Position,  Position - currentToken.Position).Contains(' '))
+
+        if (source.Substring(currentToken.Position, Position - currentToken.Position).Contains(' '))
         {
-            Parameters = source.Substring(currentToken.Position+1, Position - currentToken.Position-1);
+            Parameters = source.Substring(currentToken.Position + 1, Position - currentToken.Position - 1);
             currentToken.Parameters = Parameters;
             currentToken.Shift = Parameters.Length;
             return true;

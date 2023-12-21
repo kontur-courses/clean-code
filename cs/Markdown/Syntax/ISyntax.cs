@@ -10,5 +10,5 @@ public interface ISyntax
     Type EscapeToken { get; }
     string NewLineSeparator { get; }
     IReadOnlyDictionary<string, IList<string>> TagCannotBeInsideTags { get; }
-    IList<string> GetSupprtedTagParameters(string tagSeparator);
+    IList<string> GetSupportedTagParameters(string tagSeparator);
 }
