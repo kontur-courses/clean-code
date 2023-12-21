@@ -2,7 +2,7 @@
 using Markdown.Syntax;
 using Markdown.Token;
 
-namespace Markdown.Processor;
+namespace Markdown.Parser;
 
 public class AnySyntaxParser : IParser
 {

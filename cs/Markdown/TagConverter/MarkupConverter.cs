@@ -2,7 +2,7 @@
 using Markdown.Syntax;
 using Markdown.Token;
 
-namespace Markdown.Converter;
+namespace Markdown.TagConverter;
 
 public class MarkupConverter : IConverter
 {

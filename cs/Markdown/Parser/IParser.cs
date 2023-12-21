@@ -1,6 +1,6 @@
 ﻿using Markdown.Token;
 
-namespace Markdown.Processor;
+namespace Markdown.Parser;
 
 public interface IParser
 {

@@ -14,6 +14,11 @@ public class NewLineToken : IToken
     public string Parameters { get; set; }
     public int Shift { get; set; }
 
+    public NewLineToken(int position)
+    {
+        Position = position;
+    }
+
     public bool IsValid(string source, ref List<IToken> tokens, IToken currentToken)
     {
         return true;

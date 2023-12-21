@@ -1,6 +1,6 @@
 ﻿using Markdown.Token;
 
-namespace Markdown.Converter;
+namespace Markdown.TagConverter;
 
 public interface IConverter
 {
