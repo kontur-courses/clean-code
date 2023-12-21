@@ -10,7 +10,7 @@ public class UnorderedListTag : ITag
 
     public string HtmlClosingTag => "</ul>";
 
-    public string MarkdownTag => "* ";
+    public string MarkdownTag => "*";
 
     public bool IsMarkdownTagSingle => false;
 

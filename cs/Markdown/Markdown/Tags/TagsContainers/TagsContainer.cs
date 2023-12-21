@@ -11,7 +11,8 @@ public static class TagsContainer
             new ItalicTag(),
             new StrongTag(),
             new HeaderTag(),
-            new UnorderedListComponentTag()
+            new UnorderedListComponentTag(),
+            new UnorderedListTag(),
         });
 
     public static List<ITag> GetTags()

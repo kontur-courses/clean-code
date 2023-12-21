@@ -55,7 +55,7 @@ public class MarkdownParser : ITextParser<Tag>
         if (!((IMarkdownBlockTagRules)blockTag.MarkdownRules).IsBlockOpening(previousTag, nextTag))
             return null;
 
-        return new TagToken(0, 0, new Tag(blockTag.HtmlOpenTag, TagStatus.Ignored));
+        return new TagToken(0, 0, new Tag(blockTag.MarkdownTag, TagStatus.OpenTag));
     }
 
     private static TagToken GetClosingBlockTag(List<IToken<Tag>> previousParagraphsTokens,
@@ -74,7 +74,7 @@ public class MarkdownParser : ITextParser<Tag>
         if (!((IMarkdownBlockTagRules)blockTag.MarkdownRules).IsBlockClosing(lastTag, nextTag))
             return null;
 
-        return new TagToken(0, 0, new Tag(blockTag.HtmlClosingTag, TagStatus.Ignored));
+        return new TagToken(0, 0, new Tag(blockTag.MarkdownTag, TagStatus.ClosingTag));
     }
 
     private Dictionary<int, TagToken> ParseParagraph(string paragraph)
