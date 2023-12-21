@@ -9,5 +9,6 @@ public interface ISyntax
     IReadOnlyDictionary<string, Func<int, IToken>> StringToToken { get; }
     Type EscapeToken { get; }
     string NewLineSeparator { get; }
-    IReadOnlyDictionary<string, IList<string>> UnsupportedTags { get; }
+    IReadOnlyDictionary<string, IList<string>> TagCannotBeInsideTags { get; }
+    IList<string> GetSupprtedTagParameters(string tagSeparator);
 }

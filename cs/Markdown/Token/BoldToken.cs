@@ -11,6 +11,9 @@ public class BoldToken : IToken
     public int Position { get; }
     public bool IsClosed { get; set; }
     public int EndingPosition { get; private set; }
+    public bool IsParametrized => false;
+    public string Parameters { get; set; }
+    public int Shift { get; set; }
     
     public BoldToken(int position, bool isClosed = false)
     {
@@ -18,7 +21,7 @@ public class BoldToken : IToken
         IsClosed = isClosed;
     }
 
-    public bool IsValid(string source, ref List<IToken> tokens)
+    public bool IsValid(string source, ref List<IToken> tokens, IToken currentToken)
     {
         return (IsClosed && this.IsValidClose(source)) || (!IsClosed && this.IsValidOpen(source));
     }

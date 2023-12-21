@@ -24,6 +24,8 @@ public class MarkupConverter : IConverter
             var tag = syntax.ConvertTag(token);
             if (!token.IsClosed)
             {
+                if (token.IsParametrized)
+                    tag.RenderParameters(token.Parameters, syntax.GetSupprtedTagParameters(token.Separator));
                 result.Append(tag.OpeningSeparator);
             }
             else
@@ -31,7 +33,7 @@ public class MarkupConverter : IConverter
                 result.Append(tag.CloseSeparator);
             }
 
-            prevIndex = token.Position + token.Length;
+            prevIndex = token.Position + token.Length + token.Shift;
         }
 
         if (prevIndex <= source.Length - 1)

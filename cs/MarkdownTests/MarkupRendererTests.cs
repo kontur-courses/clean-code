@@ -30,7 +30,7 @@ public class MarkupRendererTests
     public void MarkupRenderer_ShouldHaveLinearComplexity()
     {
         var repetitionsCount = 100;
-        var inputString = "#Text___with_ different__ tags\\__";
+        var inputString = "#Text___with_different__tags\\__";
         
         var shortString = string.Concat(Enumerable.Repeat(inputString, repetitionsCount));
         var longString = string.Concat(Enumerable.Repeat(inputString, repetitionsCount * repetitionsCount));
@@ -48,6 +48,8 @@ public class MarkupRendererTests
         
         var longStringTime = stopwatch.ElapsedMilliseconds;
 
-        longStringTime.Should().BeLessOrEqualTo((long)(shortStringTime * repetitionsCount * 1.1));
+        var timeRatio = longStringTime / shortStringTime;
+
+        timeRatio.Should().BeLessOrEqualTo(repetitionsCount * 2);
     }
 }

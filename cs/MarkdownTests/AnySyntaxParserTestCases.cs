@@ -73,6 +73,11 @@ public class AnySyntaxParserTestCases
                 .SetName("ReturnEscapingTokens_WhenItalicTokenIsEscaped");
             yield return new TestCaseData("\\\\a", new List<IToken>() { new EscapeToken(0) })
                 .SetName("ReturnEscapingToken_WhenEscapeTokenIsEscaped");
+            
+            yield return new TestCaseData("@aba caba@", new List<IToken>() { new ImageToken(0), new ImageToken(9, true) })
+                .SetName("ReturnLinkToken_WhenLinkToken");
+            yield return new TestCaseData("@#a__b__a c_a_ba@", new List<IToken>() { new ImageToken(0), new ImageToken(16, true) })
+                .SetName("ReturnLinkToken_WhenLinkTokenContainsTokens");
 
             yield return new TestCaseData(
                     "#Text___with_different__tags\\__",

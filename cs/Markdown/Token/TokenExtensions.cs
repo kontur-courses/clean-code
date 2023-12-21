@@ -18,6 +18,7 @@ public static class TokenExtensions
         var digitInLeft = openingToken.Position > 0 && char.IsDigit(source[openingToken.Position-1]);
         var digitInRight = token.Position + token.Length <= source.Length - 1 &&
                            char.IsDigit(source[token.Position + token.Length]);
+        
         return digitInLeft && digitInRight;
     }
 
@@ -26,7 +27,8 @@ public static class TokenExtensions
         var charInLeft = openingToken.Position > 0 && char.IsLetterOrDigit(source[openingToken.Position-1]);
         var charInRight = token.Position + token.Length <= source.Length - 1 &&
                           char.IsLetterOrDigit(source[token.Position + token.Length]);
-        return charInLeft && charInRight && source.Substring(openingToken.Position, token.Position).Contains(' ');
+        
+        return charInLeft && charInRight && source.Substring(openingToken.Position, source.Length - token.Position + 1).Contains(' ');
     }
 
     public static bool IsValidOpen(this IToken token, string source)

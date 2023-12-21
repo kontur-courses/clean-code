@@ -63,10 +63,15 @@ public class MarkupRendererTestCases
             yield return new TestCaseData("wo__rd__", "wo<strong>rd</strong>")
                 .SetName("ReturnCorrectString_WhenPartOfWordEmphasised");
             
+            yield return new TestCaseData("@aba caba@", "<img src=\"aba\" alt=\"caba\">")
+                .SetName("ReturnLinkToken_WhenLinkToken");
+            yield return new TestCaseData("@#a__b__a c_a_ba@", "<img src=\"#a__b__a\" alt=\"c_a_ba\">")
+                .SetName("ReturnLinkToken_WhenLinkTokenContainsTokens");
+            
             yield return new TestCaseData("\\__a_", "__a_")
                 .SetName("ReturnCorrectString_WhenEscapedTagsProvided");
-            yield return new TestCaseData("#Text___with_different__tags\\__",
-                    "<h1>Text<strong><em>with</em>different</strong>tags__</h1>\n")
+            yield return new TestCaseData("#Text___with_different__tags\\__@and img@",
+                    "<h1>Text<strong><em>with</em>different</strong>tags__<img src=\"and\" alt=\"img\"></h1>\n")
                 .SetName("ReturnCorrectString_WhenStringContainsMultipleTags");
         }
     }

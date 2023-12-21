@@ -10,7 +10,10 @@ public class NewLineToken : IToken
     public string Separator => TokenSeparator;
     public bool IsPair => HasPair;
     public bool IsClosed { get; set; }
-    public bool IsValid(string source, ref List<IToken> tokens)
+    public bool IsParametrized => false;
+    public string Parameters { get; set; }
+    public int Shift { get; set; }
+    public bool IsValid(string source, ref List<IToken> tokens, IToken currentToken)
     {
         return true;
     }

@@ -14,6 +14,9 @@ public class HeaderToken : IToken
     public int Position { get; }
     public bool IsClosed { get; set; }
     public int EndingPosition { get; private set; }
+    public bool IsParametrized => false;
+    public string Parameters { get; set; }
+    public int Shift { get; set; }
 
     public HeaderToken(int position, bool isClosed = false)
     {
@@ -21,7 +24,7 @@ public class HeaderToken : IToken
         IsClosed = isClosed;
     }
 
-    public bool IsValid(string source, ref List<IToken> tokens)
+    public bool IsValid(string source, ref List<IToken> tokens, IToken currentToken)
     {
         if (Position == 0 || source[Position - 1] == '\n')
         {
