@@ -2,21 +2,14 @@
 
 public class Tag
 {
-    public readonly string Symbol;
     public readonly int Position;
-    public readonly bool IsPaired;
-    public int Lenght => Symbol.Length;
+    public readonly TagInfo Name;
+    public readonly int Length;
 
-    public Tag(string symbol, int position, bool isPaired = true)
+    public Tag(TagInfo name, int position, int length)
     {
-        Symbol = symbol;
+        Name = name;
         Position = position;
-        IsPaired = isPaired;
-    }
-
-    public string BuildHtmlTag(bool isOpenTag)
-    {
-        var closeMark = isOpenTag ? "" : "/";
-        return Symbol == "\\" ? "" : $"<{closeMark}{TagConverter.ConvertMdToHtml(Symbol)}>";
+        Length = length;
     }
 }
