@@ -15,13 +15,15 @@ public class EntryContext : ResetContext
     {
     }
 
-    public void CreateHtml(
+    public string CreateHtml(
         string mdText, 
-        StringBuilder sb,
         MarkDownEnvironment environment, 
         IEnumerable<int> screeningIndexes)
     {
+        var sb = new StringBuilder();
         MarkIntersectedTags(new List<TagContext>());
         CreateHtml(mdText, sb, environment, CloseIndex, screeningIndexes);
+
+        return sb.ToString();
     }
 }

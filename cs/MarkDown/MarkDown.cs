@@ -21,9 +21,6 @@ public class MarkDown : IMarkdown
     {
         var contextInfo = contextCreator.GetFilledEntryContext(mdText);
         
-        var sb = new StringBuilder();
-        contextInfo.EntryContext.CreateHtml(mdText, sb, environment, contextInfo.ScreeningIndexes);
-
-        return sb.ToString();
+        return contextInfo.EntryContext.CreateHtml(mdText, environment, contextInfo.ScreeningIndexes);
     }
 }
