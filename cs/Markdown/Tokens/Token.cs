@@ -20,15 +20,8 @@ public class Token
         Length = length;
     }
 
-    public Token(Token token)
+    public Token(Token token) : this(token.Type, token.IsClosingTag, token.StartingIndex, token.Length)
     {
-        if (token is null)
-            throw new ArgumentException("Provided token is null");
-
-        Type = token.Type;
-        IsClosingTag = token.IsClosingTag;
-        StartingIndex = token.StartingIndex;
-        Length = token.Length;
     }
 
     public string GetRepresentation()

@@ -7,13 +7,6 @@ namespace Markdown.Filter.MarkdownFilters;
 
 public class EmptyLinesFilter : TokenFilterChain
 {
-    private static bool TokensEncloseEmptyLine(Token first, Token second)
-        => first is not null
-           && second is not null
-           && first.Type.Value == second.Type.Value
-           && !first.IsClosingTag && second.IsClosingTag
-           && first.StartingIndex + first.Length == second.StartingIndex;
-    
     public override List<TokenFilteringDecorator> Handle(List<TokenFilteringDecorator> tokens, string line)
     {
         TokenFilteringDecorator? lastValidToken = null;
@@ -32,4 +25,11 @@ public class EmptyLinesFilter : TokenFilterChain
 
         return base.Handle(FilteringUtils.DeleteMarkedTokens(tokens), line);
     }
+    
+    private static bool TokensEncloseEmptyLine(Token first, Token second)
+        => first is not null
+           && second is not null
+           && first.Type.Value == second.Type.Value
+           && !first.IsClosingTag && second.IsClosingTag
+           && first.StartingIndex + first.Length == second.StartingIndex;
 }

@@ -6,7 +6,9 @@ using Markdown.Tokens.Utils;
 
 namespace Markdown.Filter.MarkdownFilters;
 
-//удаляет пару открывающихся/закрывающихся тегов, если она находится внутри пары открывающихся/закрывающихся тегов другого типа
+/// <summary>
+/// Удаляет пару открывающихся/закрывающихся тегов, если она находится внутри пары открывающихся/закрывающихся тегов другого типа
+/// </summary>
 public class NestedFilter : TokenFilterChain
 {
     private readonly ITokenType inner;
@@ -16,19 +18,6 @@ public class NestedFilter : TokenFilterChain
     {
         this.inner = inner;
         this.outer = outer;
-    }
-    
-    private static bool ViolateNestingRules(Token token1, Token token2, Token token3, Token token4, ITokenType inner,
-        ITokenType outer)
-    {
-        return TokenUtils.TokenTypeEqualityComparer.Equals(token1.Type, outer)
-               && TokenUtils.TokenTypeEqualityComparer.Equals(token2.Type, inner)
-               && TokenUtils.TokenTypeEqualityComparer.Equals(token3.Type, inner)
-               && TokenUtils.TokenTypeEqualityComparer.Equals(token4.Type, outer)
-               && !token1.IsClosingTag
-               && !token2.IsClosingTag
-               && token3.IsClosingTag
-               && token4.IsClosingTag;
     }
     
     public override List<TokenFilteringDecorator> Handle(List<TokenFilteringDecorator> tokens, string line)
@@ -42,5 +31,18 @@ public class NestedFilter : TokenFilterChain
         }
 
         return base.Handle(FilteringUtils.DeleteMarkedTokens(tokens), line);
+    }
+    
+    private static bool ViolateNestingRules(Token token1, Token token2, Token token3, Token token4, ITokenType inner,
+        ITokenType outer)
+    {
+        return TokenUtils.TokenTypeEqualityComparer.Equals(token1.Type, outer)
+               && TokenUtils.TokenTypeEqualityComparer.Equals(token2.Type, inner)
+               && TokenUtils.TokenTypeEqualityComparer.Equals(token3.Type, inner)
+               && TokenUtils.TokenTypeEqualityComparer.Equals(token4.Type, outer)
+               && !token1.IsClosingTag
+               && !token2.IsClosingTag
+               && token3.IsClosingTag
+               && token4.IsClosingTag;
     }
 }

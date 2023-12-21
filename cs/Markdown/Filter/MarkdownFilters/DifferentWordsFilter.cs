@@ -5,16 +5,11 @@ using Markdown.Tokens.Utils;
 
 namespace Markdown.Filter.MarkdownFilters;
 
-//удаляет сразу всю пару открывающийся/закрывающийся тег, если хотя бы один из них находится полностью в другом слове
+/// <summary>
+/// Удаляет сразу всю пару открывающийся/закрывающийся тег, если хотя бы один из них находится полностью в другом слове
+/// </summary>
 public class DifferentWordsFilter : TokenFilterChain
 {
-    private static bool AreInDifferentWords(Token first, Token second, string line)
-        => first is not null
-           && second.IsClosingTag
-           && (TokenUtils.IsInWord(second, line)
-               || TokenUtils.IsInWord(first, line))
-           && TokenUtils.HasSymbolInBetween(line, ' ', first.StartingIndex, second.StartingIndex);
-    
     public override List<TokenFilteringDecorator> Handle(List<TokenFilteringDecorator> tokens, string line)
     {
         var types = FilteringUtils.CreatePairedTypesDictionary(tokens);
@@ -38,4 +33,12 @@ public class DifferentWordsFilter : TokenFilterChain
 
         return base.Handle(FilteringUtils.DeleteMarkedTokens(tokens), line);
     }
+    
+    
+    private static bool AreInDifferentWords(Token first, Token second, string line)
+        => first is not null
+           && second.IsClosingTag
+           && (TokenUtils.IsInWord(second, line)
+               || TokenUtils.IsInWord(first, line))
+           && TokenUtils.HasSymbolInBetween(line, ' ', first.StartingIndex, second.StartingIndex);
 }

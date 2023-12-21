@@ -7,17 +7,6 @@ namespace Markdown.Filter.MarkdownFilters;
 
 public class PairTagsIntersectionFilter : TokenFilterChain
 {
-    private static bool DifferentPairsIntersect(Token token1, Token token2, Token token3, Token token4)
-    {
-        return TokenUtils.TokenTypeEqualityComparer.Equals(token1.Type, token3.Type)
-               && TokenUtils.TokenTypeEqualityComparer.Equals(token2.Type, token4.Type)
-               && !TokenUtils.TokenTypeEqualityComparer.Equals(token1.Type, token2.Type)
-               && !token1.IsClosingTag
-               && !token2.IsClosingTag
-               && token3.IsClosingTag
-               && token4.IsClosingTag;
-    }
-    
     public override List<TokenFilteringDecorator> Handle(List<TokenFilteringDecorator> tokens, string line)
     {
         var pairTags = FilteringUtils.GetPairedTokens(tokens);
@@ -34,5 +23,16 @@ public class PairTagsIntersectionFilter : TokenFilterChain
         }
 
         return base.Handle(FilteringUtils.DeleteMarkedTokens(tokens), line);
+    }
+    
+    private static bool DifferentPairsIntersect(Token token1, Token token2, Token token3, Token token4)
+    {
+        return TokenUtils.TokenTypeEqualityComparer.Equals(token1.Type, token3.Type)
+               && TokenUtils.TokenTypeEqualityComparer.Equals(token2.Type, token4.Type)
+               && !TokenUtils.TokenTypeEqualityComparer.Equals(token1.Type, token2.Type)
+               && !token1.IsClosingTag
+               && !token2.IsClosingTag
+               && token3.IsClosingTag
+               && token4.IsClosingTag;
     }
 }

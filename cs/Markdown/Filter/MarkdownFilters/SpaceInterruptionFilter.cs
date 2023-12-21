@@ -4,7 +4,9 @@ using Markdown.Tokens.Utils;
 
 namespace Markdown.Filter.MarkdownFilters;
 
-//если в паре за откр. тегом следует пробел или перед закр. тегом идет пробел, то удаляем всю пару
+/// <summary>
+/// если в паре за откр. тегом следует пробел или перед закр. тегом идет пробел, то удаляем всю пару
+/// </summary>
 public class SpaceInterruptionFilter : TokenFilterChain
 {
     public override List<TokenFilteringDecorator> Handle(List<TokenFilteringDecorator> tokens, string line)
