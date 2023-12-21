@@ -9,7 +9,7 @@ namespace Markdown
 
         private TagFinder tagFinder = new(new List<IHtmlTagCreator>
         {
-            new BoldHandler(), new HeadingHandler(), new ItalicHandler()
+            new BoldHandler(), new HeadingHandler(), new ItalicHandler(), new BulletedListHandler()
         });
 
         public string Render(string markdownText)

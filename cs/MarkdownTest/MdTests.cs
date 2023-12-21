@@ -31,7 +31,7 @@ namespace MarkdownTest
             new TestCaseData("start_stop _").Returns("start_stop _").SetName("SpaceSymbolBeforeClosingTag"),
             new TestCaseData("__пересечения _двойных__ и одинарных_").Returns("__пересечения _двойных__ и одинарных_").SetName("IntersectionBoldAndItalicTag"),
             new TestCaseData("_пересечения __двойных_ и одинарных__").Returns("_пересечения __двойных_ и одинарных__").SetName("IntersectionItalicAndBoldTag"),
-            new TestCaseData("\\\\\\").Returns("\\\\\\").SetName("StringOfSlashes"),
+            new TestCaseData("\\\\\\").Returns("\\\\\\").SetName("StringOfSlashes")
         };
 
         [TestCaseSource(nameof(mdTestCases))]

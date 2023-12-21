@@ -48,9 +48,6 @@ namespace Markdown.TagHandlers
 
             for (var i = openTagIndex; i < markdownText.Length; i++)
             {
-                if (i + 1 >= markdownText.Length)
-                    continue;
-
                 if (markdownText[i] == '\n')
                 {
                     resultTag.Index = i - 1;
@@ -59,7 +56,7 @@ namespace Markdown.TagHandlers
 
                 TagFinder tagFinder = new(new List<IHtmlTagCreator>
                 {
-                    new HeadingHandler(), new BoldHandler(), new ItalicHandler()
+                    new HeadingHandler(), new BoldHandler(), new ItalicHandler(), new BulletedListHandler()
                 });
 
                 var newTag = tagFinder.FindTag(markdownText, i, settings, "#");
