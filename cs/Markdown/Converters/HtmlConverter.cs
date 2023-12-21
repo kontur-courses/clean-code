@@ -1,7 +1,7 @@
 ﻿using System.Text;
 using Markdown.Tags;
 
-namespace Markdown
+namespace Markdown.Converters
 {
     public abstract class HtmlConverter : Converter
     {
@@ -9,14 +9,14 @@ namespace Markdown
         {
             { TagType.Bold, "<strong>" },
             { TagType.Italic, "<em>" },
-            { TagType.Header, "<h>" }
+            { TagType.Header, "<h1>" }
         };
 
         private static readonly Dictionary<TagType, string> endTags = new()
         {
             { TagType.Bold, "</strong>" },
             { TagType.Italic, "</em>" },
-            { TagType.Header, "</h>" }
+            { TagType.Header, "</h1>" }
         };
 
         public static string InsertTags(ParsedText parsedText)

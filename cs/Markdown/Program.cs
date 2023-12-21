@@ -1,4 +1,6 @@
-﻿namespace Markdown
+﻿using Markdown.MdParsing;
+
+namespace Markdown
 {
     public static class Program
     {

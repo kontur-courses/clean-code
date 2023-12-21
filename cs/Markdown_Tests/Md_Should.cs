@@ -1,32 +1,24 @@
 using FluentAssertions;
 using Markdown;
+using Markdown.MdParsing;
 using NUnit.Framework;
 
 namespace Markdown_Tests
 {
     public class Md_Should
     {
-        [TestCaseSource(typeof(TestMdData), nameof(TestMdData.ItalicText))]
-        public void RenderItalicText_Correctly(string input, string expected)
+        [TestCaseSource(typeof(TestMdData), nameof(TestMdData.TestTextWithTags))]
+        public void RenderText_WithTags_Correctly(string input, string expected)
         {
             var result = Md.Render(input);
             result.Should().Be(expected);
         }
         
-        [TestCaseSource(typeof(TestMdData), nameof(TestMdData.BoldText))]
-        public void RenderBoldText_Correctly(string input, string expected)
+        [TestCaseSource(typeof(TestHtmlConverterData), nameof(TestHtmlConverterData.TextNoTags))]
+        public void RenderText_NoTags_Returns_Input(string input)
         {
             var result = Md.Render(input);
-            result.Should().Be(expected);
-        }
-
-        [Test]
-        public void Header()
-        {
-            var str = "# __З__";
-            var expected = "_abob2a";
-            var res = Md.GetTokens(str).EscapeTags().EscapeInvalidTokens().EscapeNonPairTokens();
-            ;
+            result.Should().Be(input);
         }
     }
 }

@@ -23,7 +23,7 @@ namespace Markdown_Tests
         {
             yield return new TestCaseData(
                 "some text", new List<ITag> { new HeaderTag(0), new HeaderTag(9, true) },
-                "<h>some text</h>"
+                "<h1>some text</h1>"
             ).SetName("Header_Tag");
             yield return new TestCaseData(
                 "some text", new List<ITag> { new ItalicTag(0), new ItalicTag(9, true) },
@@ -36,19 +36,19 @@ namespace Markdown_Tests
             yield return new TestCaseData(
                 "some text", new List<ITag>
                 {
-                    new BoldTag(0), new ItalicTag(0),
-                    new ItalicTag(9, true), new BoldTag(9, true)
+                    new BoldTag(0), new ItalicTag(1),
+                    new ItalicTag(8, true), new BoldTag(9, true)
                 },
-                "<strong><em>some text</em></strong>"
+                "<strong>s<em>ome tex</em>t</strong>"
             ).SetName("Bold_And_Italic_Tags");
             yield return new TestCaseData(
                 "some text", new List<ITag>
                 {
-                    new HeaderTag(0), new BoldTag(0), new ItalicTag(0),
-                    new ItalicTag(9, true), new BoldTag(9, true),
+                    new HeaderTag(0), new BoldTag(0), new ItalicTag(1),
+                    new ItalicTag(8, true), new BoldTag(9, true),
                     new HeaderTag(9, true)
                 },
-                "<h><strong><em>some text</em></strong></h>"
+                "<h1><strong>s<em>ome tex</em>t</strong></h1>"
             ).SetName("Header_Bold_And_Italic_Tags");
             yield return new TestCaseData(
                 "text with some tags", new List<ITag>
@@ -68,13 +68,13 @@ namespace Markdown_Tests
                 "text with some tags", new List<ITag>
                 {
                     new HeaderTag(0), new BoldTag(0), 
-                    new ItalicTag(0), new ItalicTag(4, true),
-                    new ItalicTag(5), new ItalicTag(9, true),
+                    new ItalicTag(1), new ItalicTag(3, true),
+                    new ItalicTag(5), new ItalicTag(8, true),
                     new BoldTag(9, true), new BoldTag(10),
                     new BoldTag(14, true), new BoldTag(15),
                     new BoldTag(19, true), new HeaderTag(19, true)
                 },
-                "<h><strong><em>text</em> <em>with</em></strong> <strong>some</strong> <strong>tags</strong></h>"
+                "<h1><strong>t<em>ex</em>t <em>wit</em>h</strong> <strong>some</strong> <strong>tags</strong></h1>"
             ).SetName("Multiple_Different_Tags_Inside_Text");
         }
     }

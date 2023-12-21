@@ -1,5 +1,6 @@
 ﻿using FluentAssertions;
 using Markdown;
+using Markdown.Converters;
 using Markdown.Tags;
 using NUnit.Framework;
 

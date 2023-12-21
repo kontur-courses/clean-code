@@ -1,6 +1,4 @@
-﻿using Markdown.Tags;
-
-namespace Markdown
+﻿namespace Markdown.Converters
 {
     public interface Converter
     {
