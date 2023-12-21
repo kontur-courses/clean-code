@@ -18,24 +18,30 @@ public class MarkdownTests
     private HashSet<string> _escapeCharacters;
     private MarkdownParser _parser;
 
-    private static readonly IEnumerable<TestCaseData> RenderSimpleMappedTags = new[]
+    private static readonly IEnumerable<TestCaseData> RenderStrongTags = new[]
+    {
+        new TestCaseData("__окруженный с двух сторон__").Returns(@"<strong>окруженный с двух сторон</strong>")
+            .SetName("SurrondedByTwoStrongTags"),
+        new TestCaseData("в __середине__ текста").Returns(@"в <strong>середине</strong> текста")
+            .SetName("WithTwoStrongTagsInTheMiddle"),
+        new TestCaseData("__1подчеркивание цифр снуражи текста__")
+            .Returns(@"<strong>1подчеркивание цифр снуражи текста</strong>")
+            .SetName("WithMappedStrongTagUnderliningNumberOutsideTextAtStart"),
+        new TestCaseData("__подчеркивание цифр снуражи текста1__")
+            .Returns(@"<strong>подчеркивание цифр снуражи текста1</strong>")
+            .SetName("WithMappedStrongTagUnderliningNumberOutsideTextAtEnd")
+    };
+
+    private static readonly IEnumerable<TestCaseData> RenderEmTags = new[]
     {
         new TestCaseData("_окруженный с двух сторон_").Returns(@"<em>окруженный с двух сторон</em>")
             .SetName("SurrondedByTwoEmTagsFormStartToEnd"),
         new TestCaseData("в _середине_ текста").Returns(@"в <em>середине</em> текста")
             .SetName("WithTwoEmTagsInTheMiddle"),
-        new TestCaseData("__окруженный с двух сторон__").Returns(@"<strong>окруженный с двух сторон</strong>")
-            .SetName("SurrondedByTwoStrongTags"),
-        new TestCaseData("в __середине__ текста").Returns(@"в <strong>середине</strong> текста")
-            .SetName("WithTwoStrongTagsInTheMiddle"),
         new TestCaseData("_1подчеркивание цифр снуражи текста_").Returns(@"<em>1подчеркивание цифр снуражи текста</em>")
             .SetName("WithMappedEmTagUnderliningNumberOutsideTextAtStart"),
         new TestCaseData("_подчеркивание цифр снуражи текста1_").Returns(@"<em>подчеркивание цифр снуражи текста1</em>")
-            .SetName("WithMappedEmTagUnderliningNumberOutsideTextAtEnd"),
-        new TestCaseData("__1подчеркивание цифр снуражи текста__").Returns(@"<strong>1подчеркивание цифр снуражи текста</strong>")
-            .SetName("WithMappedStrongTagUnderliningNumberOutsideTextAtStart"),
-        new TestCaseData("__подчеркивание цифр снуражи текста1__").Returns(@"<strong>подчеркивание цифр снуражи текста1</strong>")
-            .SetName("WithMappedStrongTagUnderliningNumberOutsideTextAtEnd"),
+            .SetName("WithMappedEmTagUnderliningNumberOutsideTextAtEnd")
     };
 
     private static readonly IEnumerable<TestCaseData> RenderNotMappedTags = new[]
@@ -67,7 +73,11 @@ public class MarkdownTests
 
         new TestCaseData(@"тэг абзаца в # середине текста")
             .Returns(@"тэг абзаца в # середине текста")
-            .SetName("WithNotMappedParagraphTagInTheMiddleOfText")
+            .SetName("WithNotMappedParagraphTagInTheMiddleOfText"),
+
+        new TestCaseData(@"тэг списка в * середине текста")
+            .Returns(@"тэг списка в * середине текста")
+            .SetName("WithNotMappedUnorderedTagInTheMiddleOfText")
     };
 
     private static readonly IEnumerable<TestCaseData> RenderTagsInDifferentPartsOfWords = new[]
@@ -120,11 +130,37 @@ public class MarkdownTests
             .SetName("WithSeveralParagraphs")
     };
 
+    private static readonly IEnumerable<TestCaseData> RenderUnorderedListTags = new[]
+    {
+        new TestCaseData("* список из одного элемента").Returns(@"<ul><li>список из одного элемента</li></ul>")
+            .SetName("WithUnorderedListOfOneElement"),
+        new TestCaseData("* список из двух элементов\n* список из двух элементов")
+            .Returns(@"<ul><li>список из двух элементов</li><li>список из двух элементов</li></ul>")
+            .SetName("WithUnorderedListOfTwoElements"),
+        new TestCaseData("* список из _одного_ элемента")
+            .Returns(@"<ul><li>список из <em>одного</em> элемента</li></ul>")
+            .SetName("WithUnorderedListWithEmTags"),
+        new TestCaseData("* список из __одного__ элемента")
+            .Returns(@"<ul><li>список из <strong>одного</strong> элемента</li></ul>")
+            .SetName("WithUnorderedListWithStrongTags"),
+        new TestCaseData("* список из 1одного1 элемента")
+            .Returns(@"<ul><li>список из 1одного1 элемента</li></ul>")
+            .SetName("WithUnorderedListWithNumbersInMiddleOfText"),
+        new TestCaseData("* 1список из одного элемента")
+            .Returns(@"<ul><li>1список из одного элемента</li></ul>")
+            .SetName("WithUnorderedListWithNumbersAtStart"),
+        new TestCaseData("* список из одного элемента1")
+            .Returns(@"<ul><li>список из одного элемента1</li></ul>")
+            .SetName("WithUnorderedListWithNumbersAtEnd")
+    };
+
+    [TestCaseSource(nameof(RenderEmTags))]
     [TestCaseSource(nameof(RenderHeaders))]
+    [TestCaseSource(nameof(RenderStrongTags))]
     [TestCaseSource(nameof(RenderNestedTags))]
     [TestCaseSource(nameof(RenderNotMappedTags))]
-    [TestCaseSource(nameof(RenderSimpleMappedTags))]
     [TestCaseSource(nameof(RenderEscapeCharacters))]
+    [TestCaseSource(nameof(RenderUnorderedListTags))]
     [TestCaseSource(nameof(RenderTagsInDifferentPartsOfWords))]
     public string Render_ShouldReturnText(string text)
     {

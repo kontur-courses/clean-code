@@ -17,4 +17,6 @@ public class ItalicTag : ITag
     public bool IsMarkdownTagSingle => false;
 
     public IMarkdownTagRules MarkdownRules => new ItalicTagRules();
+
+    public bool IsTagComponent => false;
 }

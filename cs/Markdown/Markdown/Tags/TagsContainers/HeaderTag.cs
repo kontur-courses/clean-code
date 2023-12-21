@@ -17,4 +17,6 @@ public class HeaderTag : ITag
     public bool IsMarkdownTagSingle => true;
 
     public IMarkdownTagRules MarkdownRules => new HeaderTagRules();
+
+    public bool IsTagComponent => false;
 }

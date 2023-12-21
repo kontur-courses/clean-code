@@ -1,4 +1,5 @@
 ﻿using System.Collections.Immutable;
+using Markdown.Tags.TagsContainers.ComponentTags;
 
 namespace Markdown.Tags.TagsContainers;
 
@@ -9,7 +10,8 @@ public static class TagsContainer
         {
             new ItalicTag(),
             new StrongTag(),
-            new HeaderTag()
+            new HeaderTag(),
+            new UnorderedListComponentTag()
         });
 
     public static List<ITag> GetTags()

@@ -24,11 +24,11 @@ public class ItalicTagRules : IMarkdownTagRules
 
     public bool IsTagsPaired(TagToken firstTag, TagToken secondTag, Dictionary<int, TagToken> parsedTokens)
     {
-        if ((firstTag.Value.TagType == TagStatus.Undefined || secondTag.Value.TagType == TagStatus.Undefined)
+        if ((firstTag.Value.TagStatus == TagStatus.Undefined || secondTag.Value.TagStatus == TagStatus.Undefined)
             && IsTagsInsideOneWord(firstTag, secondTag, parsedTokens))
             return true;
 
-        return firstTag.Value.TagType == TagStatus.OpenTag && secondTag.Value.TagType == TagStatus.ClosingTag;
+        return firstTag.Value.TagStatus == TagStatus.OpenTag && secondTag.Value.TagStatus == TagStatus.ClosingTag;
     }
 
     public bool IsTagsIgnored(TagToken firstTag, TagToken secondTag)

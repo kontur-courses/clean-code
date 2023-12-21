@@ -13,6 +13,7 @@ public interface ITag
     public string MarkdownTag { get; }
 
     public bool IsMarkdownTagSingle { get; }
+    public bool IsTagComponent { get; }
 
     public HashSet<TagType> AllowedNestedTags { get; }
 

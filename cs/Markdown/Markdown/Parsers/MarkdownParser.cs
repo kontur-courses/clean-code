@@ -1,5 +1,6 @@
 ﻿using Markdown.Extensions;
 using Markdown.Tags.TagsContainers;
+using Markdown.Tags.TagsContainers.ComponentTags;
 using Markdown.Tags.TagsContainers.Rules.MarkdownRules;
 using Markdown.Tags.TextTag;
 using Markdown.Tokens;
@@ -25,10 +26,55 @@ public class MarkdownParser : ITextParser<Tag>
         {
             var paragraphTokens = ParseParagraph(paragraph);
             var paragraphSortedTokens = SortTokens(paragraphTokens, paragraph.Length);
+            var openBlockTag = GetOpeningBlockTag(tokens, paragraphSortedTokens);
+            var closingBlockTag = GetClosingBlockTag(tokens, paragraphSortedTokens);
+            if (openBlockTag != null) tokens.Add(openBlockTag);
             tokens.AddRange(paragraphSortedTokens);
+            if (closingBlockTag != null) tokens.Add(closingBlockTag);
         }
 
+        var lastClosingBlockTag = GetClosingBlockTag(tokens, new List<TagToken>());
+        if (lastClosingBlockTag != null) tokens.Add(lastClosingBlockTag);
+
         return tokens;
+    }
+
+    private static TagToken GetOpeningBlockTag(List<IToken<Tag>> previousParagraphsTokens,
+        List<TagToken> newParagraphTokens)
+    {
+        var isNextTokenNotComponentTag = newParagraphTokens.Count == 0
+                                         || !IsTag(newParagraphTokens[0].ToString())
+                                         || !_tags[newParagraphTokens[0].ToString()].IsTagComponent;
+        if (isNextTokenNotComponentTag) return null;
+
+        var nextTag = _tags[newParagraphTokens[0].ToString()];
+        var blockTag = ((IComponentTag)nextTag).BlockTag;
+        ITag previousTag = null;
+        if (previousParagraphsTokens.Count != 0 && IsTag(previousParagraphsTokens.Last().ToString()))
+            previousTag = _tags[previousParagraphsTokens.Last().ToString()];
+        if (!((IMarkdownBlockTagRules)blockTag.MarkdownRules).IsBlockOpening(previousTag, nextTag))
+            return null;
+
+        return new TagToken(0, 0, new Tag(blockTag.HtmlOpenTag, TagStatus.Ignored));
+    }
+
+    private static TagToken GetClosingBlockTag(List<IToken<Tag>> previousParagraphsTokens,
+        List<TagToken> newParagraphTokens)
+    {
+        var isPreviousTokenNotComponentTag = previousParagraphsTokens.Count == 0
+                                             || !IsTag(previousParagraphsTokens.Last().ToString())
+                                             || !_tags[previousParagraphsTokens.Last().ToString()].IsTagComponent;
+        if (isPreviousTokenNotComponentTag) return null;
+
+        var lastTag = _tags[previousParagraphsTokens.Last().ToString()];
+        var blockTag = ((IComponentTag)lastTag).BlockTag;
+        ITag nextTag = null;
+        if (newParagraphTokens.Count != 0 && IsTag(newParagraphTokens[0].ToString()))
+            nextTag = _tags[newParagraphTokens[0].ToString()];
+        if (!((IMarkdownBlockTagRules)blockTag.MarkdownRules).IsBlockClosing(lastTag, nextTag))
+            return null;
+
+        return new TagToken(0, 0, new Tag(blockTag.HtmlClosingTag, TagStatus.Ignored));
     }
 
     private Dictionary<int, TagToken> ParseParagraph(string paragraph)
@@ -44,7 +90,7 @@ public class MarkdownParser : ITextParser<Tag>
             var currentText = paragraph.Substring(currentIndexInParagraph, tagLength);
             if (IsTag(currentText) || IsEscapeCharacter(currentText))
             {
-                var textTokenBeforeTag = new TagToken( textStartIndex, currentIndexInParagraph - 1, 
+                var textTokenBeforeTag = new TagToken(textStartIndex, currentIndexInParagraph - 1,
                     new Tag(paragraph[textStartIndex..currentIndexInParagraph], TagStatus.Ignored));
                 AddTextToken(textTokenBeforeTag, parsedTokens);
                 var currentTag = GetTag(currentIndexInParagraph, tagLength, paragraph);
@@ -56,7 +102,7 @@ public class MarkdownParser : ITextParser<Tag>
         }
 
         var lastTextToken = new TagToken(textStartIndex, paragraph.Length - 1,
-                    new Tag(paragraph[textStartIndex..paragraph.Length], TagStatus.Ignored));
+            new Tag(paragraph[textStartIndex..paragraph.Length], TagStatus.Ignored));
         AddTextToken(lastTextToken, parsedTokens);
         AddNotPairedTags(previousTags, parsedTokens);
 
@@ -98,11 +144,12 @@ public class MarkdownParser : ITextParser<Tag>
 
         if (!IsTag(tag))
             return TagStatus.Ignored;
-        else if (tagRules.IsTagOpen(previousSymbol, nextSymbol))
+        if (tagRules.IsTagOpen(previousSymbol, nextSymbol))
             tagType = TagStatus.OpenTag;
         else if (tagRules.IsTagClosing(previousSymbol, nextSymbol))
             tagType = TagStatus.ClosingTag;
-        else if (tagRules.IsTagIgnoredBySymbol(previousSymbol, tagType) || tagRules.IsTagIgnoredBySymbol(nextSymbol, tagType))
+        else if (tagRules.IsTagIgnoredBySymbol(previousSymbol, tagType) ||
+                 tagRules.IsTagIgnoredBySymbol(nextSymbol, tagType))
             tagType = TagStatus.Ignored;
 
         return tagType;
@@ -110,12 +157,13 @@ public class MarkdownParser : ITextParser<Tag>
 
     private static bool IsTagsPared(TagToken firstTag, TagToken secondTag, Dictionary<int, TagToken> parsedTokens)
     {
-        var isTagsNotIgnored = firstTag.Value.TagType != TagStatus.Ignored && secondTag.Value.TagType != TagStatus.Ignored;
+        var isTagsNotIgnored = firstTag.Value.TagStatus != TagStatus.Ignored &&
+                               secondTag.Value.TagStatus != TagStatus.Ignored;
         if (isTagsNotIgnored &&
             _tags[firstTag.ToString()].MarkdownRules.IsTagsPaired(firstTag, secondTag, parsedTokens))
         {
-            firstTag.Value.TagType = TagStatus.OpenTag;
-            secondTag.Value.TagType = TagStatus.ClosingTag;
+            firstTag.Value.TagStatus = TagStatus.OpenTag;
+            secondTag.Value.TagStatus = TagStatus.ClosingTag;
             return true;
         }
 
@@ -137,7 +185,7 @@ public class MarkdownParser : ITextParser<Tag>
         {
             AddEscapeCharacter(currentTag, previousTags, parsedTokens);
         }
-        else if (currentTag.Value.TagType == TagStatus.Ignored)
+        else if (currentTag.Value.TagStatus == TagStatus.Ignored)
         {
             parsedTokens.Add(currentTag.StartIndex, currentTag);
         }
@@ -161,7 +209,7 @@ public class MarkdownParser : ITextParser<Tag>
         var previousTag = previousTags.Pop();
         if (previousTag.EndIndex + 1 == currentTag.StartIndex)
         {
-            currentTag.Value.TagType = TagStatus.Ignored;
+            currentTag.Value.TagStatus = TagStatus.Ignored;
             parsedTokens.Add(previousTag.StartIndex, currentTag);
         }
         else
@@ -176,8 +224,8 @@ public class MarkdownParser : ITextParser<Tag>
     {
         if (_tags[firstTag.ToString()].MarkdownRules.IsTagsIgnored(firstTag, secondTag))
         {
-            firstTag.Value.TagType = TagStatus.Ignored;
-            secondTag.Value.TagType = TagStatus.Ignored;
+            firstTag.Value.TagStatus = TagStatus.Ignored;
+            secondTag.Value.TagStatus = TagStatus.Ignored;
         }
     }
 
@@ -190,7 +238,7 @@ public class MarkdownParser : ITextParser<Tag>
         {
             var nextTagValue = nextTag.ToString();
             if (IsTag(nextTagValue) && !nestedTagsToIgnore.Contains(_tags[nextTagValue].Type))
-                nextTag.Value.TagType = TagStatus.Ignored;
+                nextTag.Value.TagStatus = TagStatus.Ignored;
             nextTag = parsedTokens[nextTag.EndIndex + 1];
         }
     }
@@ -201,7 +249,7 @@ public class MarkdownParser : ITextParser<Tag>
         {
             var tag = tags.Pop();
             if (!IsTag(tag.ToString()) || !_tags[tag.ToString()].IsMarkdownTagSingle)
-                tag.Value.TagType = TagStatus.Ignored;
+                tag.Value.TagStatus = TagStatus.Ignored;
 
             parsedTokens.Add(tag.StartIndex, tag);
         }
@@ -224,7 +272,7 @@ public class MarkdownParser : ITextParser<Tag>
             sortedTokens.Add(token);
             startIndex = token.EndIndex + 1;
 
-            var closingTag = GetClosingTag(token, paragraphLength);
+            var closingTag = GetClosingTagForSingleTag(token, paragraphLength);
             if (closingTag != null)
                 closingTokens.Add(closingTag.StartIndex, closingTag);
         }
@@ -232,14 +280,14 @@ public class MarkdownParser : ITextParser<Tag>
         return sortedTokens;
     }
 
-    private static TagToken GetClosingTag(TagToken token, int paragraphLength)
+    private static TagToken GetClosingTagForSingleTag(TagToken token, int paragraphLength)
     {
         var tokenText = token.ToString();
         if (!IsTag(tokenText))
             return null;
 
         var tag = _tags[tokenText];
-        if (!tag.IsMarkdownTagSingle || token.Value.TagType != TagStatus.OpenTag)
+        if (!tag.IsMarkdownTagSingle || token.Value.TagStatus != TagStatus.OpenTag)
             return null;
         return ((IMarkdownSingleTagRules)tag.MarkdownRules).GetClosingTag(tag, paragraphLength);
     }

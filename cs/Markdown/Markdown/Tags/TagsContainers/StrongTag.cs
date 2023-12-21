@@ -17,4 +17,5 @@ public class StrongTag : ITag
     public bool IsMarkdownTagSingle => false;
 
     public IMarkdownTagRules MarkdownRules => new StrongTagRules();
+    public bool IsTagComponent => false;
 }
