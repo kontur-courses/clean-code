@@ -7,9 +7,9 @@ namespace Markdown.Tags.TagsContainers.Rules.MarkdownRules;
 
 public class StrongTagRules : IMarkdownTagRules
 {
-    public bool IsTagIgnoredBySymbol(char symbol, TagStatus tagType)
+    public bool IsTagIgnoredBySymbol(char symbol, TagStatus tagStatus)
     {
-        return char.IsDigit(symbol) && tagType == TagStatus.Undefined;
+        return char.IsDigit(symbol) && tagStatus == TagStatus.Undefined;
     }
 
     public bool IsTagOpen(char previousSymbol, char nextSymbol)

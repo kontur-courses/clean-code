@@ -126,16 +126,16 @@ public class MarkdownParser : ITextParser<Tag>
     {
         var endIndex = startIndex + tagLength - 1;
         var tagValue = text.Substring(startIndex, tagLength);
-        var tagType = GetTagType(tagValue, startIndex, endIndex, text);
-        var tag = new Tag(tagValue, tagType);
+        var tagStatus = GetTagStatus(tagValue, startIndex, endIndex, text);
+        var tag = new Tag(tagValue, tagStatus);
         var token = new TagToken(startIndex, endIndex, tag);
 
         return token;
     }
 
-    private static TagStatus GetTagType(string tag, int startIndex, int endIndex, string text)
+    private static TagStatus GetTagStatus(string tag, int startIndex, int endIndex, string text)
     {
-        var tagType = TagStatus.Undefined;
+        var tagStatus = TagStatus.Undefined;
         var isPreviousIndexInParagraphRange = startIndex - 1 >= 0;
         var isNextIndexInParagraphRange = endIndex + 2 <= text.Length;
         var nextSymbol = isNextIndexInParagraphRange ? text[endIndex + 1] : CharExtension.EmptyChar;
@@ -145,14 +145,14 @@ public class MarkdownParser : ITextParser<Tag>
         if (!IsTag(tag))
             return TagStatus.Ignored;
         if (tagRules.IsTagOpen(previousSymbol, nextSymbol))
-            tagType = TagStatus.OpenTag;
+            tagStatus = TagStatus.OpenTag;
         else if (tagRules.IsTagClosing(previousSymbol, nextSymbol))
-            tagType = TagStatus.ClosingTag;
-        else if (tagRules.IsTagIgnoredBySymbol(previousSymbol, tagType) ||
-                 tagRules.IsTagIgnoredBySymbol(nextSymbol, tagType))
-            tagType = TagStatus.Ignored;
+            tagStatus = TagStatus.ClosingTag;
+        else if (tagRules.IsTagIgnoredBySymbol(previousSymbol, tagStatus) ||
+                 tagRules.IsTagIgnoredBySymbol(nextSymbol, tagStatus))
+            tagStatus = TagStatus.Ignored;
 
-        return tagType;
+        return tagStatus;
     }
 
     private static bool IsTagsPared(TagToken firstTag, TagToken secondTag, Dictionary<int, TagToken> parsedTokens)

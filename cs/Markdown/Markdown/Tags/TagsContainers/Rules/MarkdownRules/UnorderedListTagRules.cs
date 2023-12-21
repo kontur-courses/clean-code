@@ -23,7 +23,7 @@ public class UnorderedListTagRules : IMarkdownBlockTagRules
         return false;
     }
 
-    public bool IsTagIgnoredBySymbol(char symbol, TagStatus tagType)
+    public bool IsTagIgnoredBySymbol(char symbol, TagStatus tagStatus)
     {
         return false;
     }

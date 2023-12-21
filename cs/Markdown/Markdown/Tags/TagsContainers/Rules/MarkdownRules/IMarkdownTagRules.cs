@@ -5,7 +5,7 @@ namespace Markdown.Tags.TagsContainers.Rules.MarkdownRules;
 
 public interface IMarkdownTagRules
 {
-    public bool IsTagIgnoredBySymbol(char symbol, TagStatus tagType);
+    public bool IsTagIgnoredBySymbol(char symbol, TagStatus tagStatus);
 
     public bool IsTagOpen(char previousSymbol, char nextSymbol);
 
