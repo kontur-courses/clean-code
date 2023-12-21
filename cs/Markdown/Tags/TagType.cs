@@ -6,6 +6,7 @@
         Italic,
         Header,
         Escape,
+        BulletedList,
         Unexpected
     }
 }

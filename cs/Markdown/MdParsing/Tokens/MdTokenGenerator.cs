@@ -13,11 +13,17 @@ namespace Markdown.MdParsing.Tokens
             paragraph[currentIndex] switch
             {
                 '#' => GetHashToken(paragraph, currentIndex),
+                '*' => GetStarToken(paragraph, currentIndex),
                 '\\' => GetEscapeToken(),
                 '_' => GetUnderscoreToken(paragraph, currentIndex),
                 ' ' => GetSpaceToken(),
                 _ => GetTextToken(paragraph, currentIndex)
             };
+        
+        private static Token GetStarToken(string paragraph, int currentIndex) =>
+            currentIndex != 0 || 2 > paragraph.Length || paragraph[1] != ' '
+                ? GetTextToken(paragraph, currentIndex)
+                : new Token(TokenType.Tag, "* ", TagType.BulletedList);
 
         private static Token GetHashToken(string paragraph, int currentIndex) =>
             currentIndex != 0 || 2 > paragraph.Length || paragraph[1] != ' '

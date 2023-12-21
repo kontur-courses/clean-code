@@ -15,12 +15,28 @@ namespace Markdown.MdParsing.Tokens
                 case TagType.Bold:
                     return IsBoldOrItalicOpen(tokens, index);
                 case TagType.Header:
-                    return IsHeaderOpen(index);
+                case TagType.BulletedList:
+                    return IsTagInStart(index);
                 default:
                     return true;
             }
         }
 
+        public static bool IsValidTagToken(List<Token> tokens, int index)
+        {
+            return tokens[index].TagType switch
+            {
+                TagType.Italic => IsValidItalic(tokens, index),
+                TagType.Bold => IsValidBold(tokens, index),
+                _ => true
+            };
+        }
+
+        public static bool OrderIsCorrect(Stack<Token> openedTokens, Token token)
+        {
+            return token.TagType != TagType.Bold || openedTokens.All(x => x.TagType != TagType.Italic);
+        }
+        
         private static bool IsPositionEven(List<Token> tokens, int index)
         {
             var currentPosition = index;
@@ -40,22 +56,7 @@ namespace Markdown.MdParsing.Tokens
             return countBefore % 2 == 0;
         }
 
-        private static bool IsHeaderOpen(int index) => index == 0;
-
-        public static bool IsValidTagToken(List<Token> tokens, int index)
-        {
-            return tokens[index].TagType switch
-            {
-                TagType.Italic => IsValidItalic(tokens, index),
-                TagType.Bold => IsValidBold(tokens, index),
-                _ => true
-            };
-        }
-
-        public static bool OrderIsCorrect(Stack<Token> openedTokens, Token token)
-        {
-            return token.TagType != TagType.Bold || openedTokens.All(x => x.TagType != TagType.Italic);
-        }
+        private static bool IsTagInStart(int index) => index == 0;
 
         private static bool IsValidBold(List<Token> tokens, int index)
         {

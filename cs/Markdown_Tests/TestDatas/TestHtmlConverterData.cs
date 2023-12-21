@@ -1,4 +1,5 @@
-﻿using Markdown.Tags;
+﻿using Markdown;
+using Markdown.Tags;
 using NUnit.Framework;
 
 namespace Markdown_Tests
@@ -67,7 +68,7 @@ namespace Markdown_Tests
             yield return new TestCaseData(
                 "text with some tags", new List<ITag>
                 {
-                    new HeaderTag(0), new BoldTag(0), 
+                    new HeaderTag(0), new BoldTag(0),
                     new ItalicTag(1), new ItalicTag(3, true),
                     new ItalicTag(5), new ItalicTag(8, true),
                     new BoldTag(9, true), new BoldTag(10),
@@ -76,6 +77,77 @@ namespace Markdown_Tests
                 },
                 "<h1><strong>t<em>ex</em>t <em>wit</em>h</strong> <strong>some</strong> <strong>tags</strong></h1>"
             ).SetName("Multiple_Different_Tags_Inside_Text");
+        }
+        public static IEnumerable<TestCaseData> TagsWithTextDifferentParagraphs()
+        {
+            yield return new TestCaseData(
+                new[]
+                {
+                    new ParsedText("some text", new List<ITag> { new HeaderTag(0), new HeaderTag(9, true) }),
+                    new ParsedText("some text", new List<ITag> { new HeaderTag(0), new HeaderTag(9, true) })
+                },
+                "<h1>some text</h1><h1>some text</h1>"
+            ).SetName("Same_Text_Two_Times_No_Lists");
+            yield return new TestCaseData(
+                new[]
+                {
+                    new ParsedText("some text", new List<ITag> { new BulletedListTag(0), new BulletedListTag(9, true) })
+                },
+                "<ul><li>some text</li></ul>"
+            ).SetName("List_One_Item");
+            yield return new TestCaseData(
+                new[]
+                {
+                    new ParsedText("some text",
+                        new List<ITag> { new BulletedListTag(0), new BulletedListTag(9, true) }),
+                    new ParsedText("some text",
+                        new List<ITag> { new BulletedListTag(0), new BulletedListTag(9, true) }),
+                    new ParsedText("some text",
+                        new List<ITag> { new BulletedListTag(0), new BulletedListTag(9, true) }),
+                    new ParsedText("some text", new List<ITag> { new BulletedListTag(0), new BulletedListTag(9, true) })
+                },
+                "<ul><li>some text</li><li>some text</li><li>some text</li><li>some text</li></ul>"
+            ).SetName("List_Some_Items");
+
+            yield return new TestCaseData(
+                new[]
+                {
+                    new ParsedText("some text",
+                        new List<ITag> { new BulletedListTag(0), new BulletedListTag(9, true) }),
+                    new ParsedText("some text",
+                        new List<ITag> { new BulletedListTag(0), new BulletedListTag(9, true) }),
+                    new ParsedText("some text", new List<ITag> { new HeaderTag(0), new HeaderTag(9, true) }),
+                    new ParsedText("some text", new List<ITag> { new BulletedListTag(0), new BulletedListTag(9, true) })
+                },
+                "<ul><li>some text</li><li>some text</li></ul><h1>some text</h1><ul><li>some text</li></ul>"
+            ).SetName("Some_Lists_Some_Items");
+
+            yield return new TestCaseData(
+                new[]
+                {
+                    new ParsedText("some text",
+                        new List<ITag> { new BulletedListTag(0), new BulletedListTag(9, true) }),
+                    new ParsedText("some text", new List<ITag>
+                    {
+                        new BulletedListTag(0), new BoldTag(0),
+                        new BoldTag(9, true), new BulletedListTag(9, true)
+                    }),
+                },
+                "<ul><li>some text</li><li><strong>some text</strong></li></ul>"
+            ).SetName("List_With_Bold_Tags");
+            yield return new TestCaseData(
+                new[]
+                {
+                    new ParsedText("some text",
+                        new List<ITag> { new BulletedListTag(0), new BulletedListTag(9, true) }),
+                    new ParsedText("some text", new List<ITag>
+                    {
+                        new BulletedListTag(0), new ItalicTag(0),
+                        new ItalicTag(9, true), new BulletedListTag(9, true)
+                    }),
+                },
+                "<ul><li>some text</li><li><em>some text</em></li></ul>"
+            ).SetName("List_With_Italic_Tags");
         }
     }
 }

@@ -67,6 +67,14 @@ namespace Markdown_Tests
                 .SetName("Italic_Starts_No_Pair_Inside_Bold");
             yield return new TestCaseData("__s _s__ _d_", "<strong>s _s</strong> <em>d</em>")
                 .SetName("Italic_Starts_No_Pair_Inside_Bold_No_Intersection");
+            yield return new TestCaseData("abo\nba", "aboba").SetName("DifferentParagraphs_NoTag");
+            yield return new TestCaseData("_abo\nba_", "_aboba_").SetName("DifferentParagraphs_PairedTags_Escaped");
+            yield return new TestCaseData("# abo\nba_", "<h1>abo</h1>ba_").SetName("DifferentParagraphs_HeaderCorrect");
+            yield return new TestCaseData("* biba", "<ul><li>biba</li></ul>").SetName("OneParagraph_ListCorrect");
+            yield return new TestCaseData(
+                "* biba\n* boba\n* bebebe",
+                "<ul><li>biba</li><li>boba</li><li>bebebe</li></ul>"
+            ).SetName("OneParagraph_ListCorrect");
         }
     }
 }

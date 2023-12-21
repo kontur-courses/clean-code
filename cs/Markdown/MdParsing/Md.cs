@@ -1,5 +1,4 @@
-﻿using System.Reflection.Metadata.Ecma335;
-using System.Text;
+﻿using System.Text;
 using Markdown.Converters;
 using Markdown.MdParsing.Tokens;
 using Markdown.Tags;
@@ -35,8 +34,8 @@ namespace Markdown.MdParsing
                 currentIndex += tokens[^1].Content.Length;
             }
 
-            if (tokens.FirstOrDefault()?.Content == "# ")
-                tokens.Add(new Token(TokenType.Tag, "# ", TagType.Header));
+            if (tokens.FirstOrDefault()?.TagType is TagType.Header or TagType.BulletedList)
+                tokens.Add(new Token(TokenType.Tag, tokens[0].Content, tokens[0].TagType));
 
             return tokens;
         }
@@ -219,26 +218,22 @@ namespace Markdown.MdParsing
                     continue;
                 }
 
-                CreateTag(result, token, paragraph.Length);
+                result.Add(GetNewTag(token, paragraph.Length));
             }
 
             return new ParsedText(paragraph.ToString(), result);
         }
 
-        private static void CreateTag(List<ITag> result, Token token, int position)
+        private static ITag GetNewTag(Token token, int position)
         {
-            switch (token.TagType)
+            return token.TagType switch
             {
-                case TagType.Header:
-                    result.Add(new HeaderTag(position, token.IsCloseTag));
-                    break;
-                case TagType.Italic:
-                    result.Add(new ItalicTag(position, token.IsCloseTag));
-                    break;
-                case TagType.Bold:
-                    result.Add(new BoldTag(position, token.IsCloseTag));
-                    break;
-            }
+                TagType.Header => new HeaderTag(position, token.IsCloseTag),
+                TagType.Italic => new ItalicTag(position, token.IsCloseTag),
+                TagType.Bold => new BoldTag(position, token.IsCloseTag),
+                TagType.BulletedList => new BulletedListTag(position, token.IsCloseTag),
+                _ => throw new NotImplementedException()
+            };
         }
 
         private static string[] SplitToParagraphs(this string text) => text.Split('\r', '\n');

@@ -21,5 +21,11 @@ namespace Markdown_Tests
         {
             htmlConverter.InsertTags([new ParsedText(paragraph, tags)]).Should().Be(expected);
         }
+
+        [TestCaseSource(typeof(TestHtmlConverterData), nameof(TestHtmlConverterData.TagsWithTextDifferentParagraphs))]
+        public void CorrectlyHandlesTagsWithTextFewParagraphs(ParsedText[] parsedTexts, string expected)
+        {
+            htmlConverter.InsertTags(parsedTexts).Should().Be(expected);
+        }
     }
 }
