@@ -1,35 +1,33 @@
-﻿namespace Markdown;
+﻿namespace Markdown.Nodes;
 
 public abstract class TaggedBodyNode : SyntaxNode
 {
-    public abstract Type openTagType { get; }
-    public abstract Type closeTagType { get; }
+    public abstract Type OpenTagType { get; }
+    public abstract Type CloseTagType { get; }
 
-    public TaggedBodyNode(IEnumerable<SyntaxNode>? _children) : base(_children)
+    public TaggedBodyNode(IEnumerable<SyntaxNode>? children) : base(children)
     {
-        var children = _children.ToArray();
-        if (children.Count() < 2)
+        if (children!.Count() < 2)
             throw new ArgumentException("Tagged body node must have at least 2 nodes");
-        var f = children.First();
-        if (children.First().GetType() != openTagType)
+        if (children.First().GetType() != OpenTagType)
             throw new ArgumentException(
-                $"Open child tag must have type {openTagType} but have {children.First().GetType()}");
-        if (children.Last().GetType() != closeTagType)
+                $"Open child tag must have type {OpenTagType} but have {children.First().GetType()}");
+        if (children.Last().GetType() != CloseTagType)
             throw new ArgumentException(
-                $"Close child tag must have type {closeTagType} but have {children.Last().GetType()}");
+                $"Close child tag must have type {CloseTagType} but have {children.Last().GetType()}");
     }
 
-    public override string Text => string.Join("", Children.Select(child => child.Text));
+    public override string Text => string.Join("", Children!.Select(child => child.Text));
 
     public string InnerText
     {
         get
         {
-            if (Children.Count() == 2)
+            if (Children!.Count() == 2)
                 return "";
-            return string.Join("", Children
+            return string.Join("", Children!
                 .Skip(1)
-                .Take(Children.Count() - 2)
+                .Take(Children!.Count() - 2)
                 .Select(child => child.Text));
         }
     }

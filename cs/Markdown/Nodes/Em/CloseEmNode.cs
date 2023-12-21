@@ -1,4 +1,4 @@
-﻿namespace Markdown;
+﻿namespace Markdown.Nodes.Em;
 
 public class CloseEmNode : SimpleNode
 {

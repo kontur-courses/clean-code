@@ -1,39 +1,42 @@
-﻿using Markdown.Link;
+﻿using Markdown.Nodes;
+using Markdown.Nodes.Em;
+using Markdown.Nodes.Header;
+using Markdown.Nodes.Link;
+using Markdown.Nodes.Strong;
 
 namespace Markdown;
 
-public class HTMLEvaluator : IEvaluator
+public class HtmlEvaluator : IEvaluator
 {
-    public string Evaluate(RootNode root)
+    public string EvaluateRoot(RootNode root)
     {
-        return string.Join("", root.Children.Select(Evaluate));
+        if (!root.Children!.Any())
+            return "";
+        return ChildrenEvaluation(root.Children!);
     }
 
-    private string Evaluate(SyntaxNode node)
-    {
-        if (node is LinkNode linkNode)
-            return $"<a href=\"{linkNode.Source}\">{linkNode.Text}</a>";
-        if (node is TaggedBodyNode)
-            return string.Join("", node.Children.Select(Evaluate));
+    public string EvaluateLink(LinkNode linkNode) =>
+        $"<a href=\"{ChildrenEvaluation(linkNode.Source.Children!)}\">{ChildrenEvaluation(linkNode.Text.Children!)}</a>";
 
-        switch (node)
-        {
-            case OpenEmNode:
-                return "<em>";
-            case CloseEmNode:
-                return "</em>";
-            case OpenStrongNode:
-                return "<strong>";
-            case CloseStrongNode:
-                return "</strong>";
-            case OpenHeaderNode:
-                return "<h1>";
-            case CloseHeaderNode:
-                return "</h1>";
-            case TextNode:
-                return node.Text;
-            default:
-                throw new ArgumentException("Wrong node type");
-        }
+    public string EvaluateString(TextNode textNode) => textNode.Text;
+
+    public string EvaluateStrong(StrongTaggedBodyNode strongTaggedBodyNode) =>
+        BaseEvaluation(strongTaggedBodyNode, "strong");
+
+    public string EvaluateHeader(HeaderTaggedBodyNode headerTaggedBodyNode) =>
+        BaseEvaluation(headerTaggedBodyNode, "h1");
+
+    public string EvaluateEm(EmTaggedBodyNode emTaggedBodyNode) => BaseEvaluation(emTaggedBodyNode, "em");
+
+    private string ChildrenEvaluation(IEnumerable<SyntaxNode> children)
+    {
+        return string.Join("", children.Select(child => child.Evaluate(this)));
+    }
+
+    private string BaseEvaluation(TaggedBodyNode node, string name)
+    {
+        if (node.Children == null)
+            return node.Evaluate(this);
+        return $"<{name}>{ChildrenEvaluation(node.Children)}</{name}>";
     }
 }

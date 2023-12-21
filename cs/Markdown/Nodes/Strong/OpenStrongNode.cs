@@ -1,4 +1,4 @@
-﻿namespace Markdown;
+﻿namespace Markdown.Nodes.Strong;
 
 public class OpenStrongNode : SimpleNode
 {

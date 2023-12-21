@@ -1,4 +1,4 @@
-﻿namespace Markdown;
+﻿namespace Markdown.Nodes.Header;
 
 public class OpenHeaderNode : SimpleNode
 {

@@ -1,4 +1,4 @@
-﻿namespace Markdown;
+﻿namespace Markdown.Nodes.Strong;
 
 public class StrongTaggedBodyNode : TaggedBodyNode
 {
@@ -6,6 +6,7 @@ public class StrongTaggedBodyNode : TaggedBodyNode
     {
     }
 
-    public override Type openTagType => typeof(OpenStrongNode);
-    public override Type closeTagType => typeof(CloseStrongNode);
+    public override Type OpenTagType => typeof(OpenStrongNode);
+    public override Type CloseTagType => typeof(CloseStrongNode);
+    public override string Evaluate(IEvaluator evaluator) => evaluator.EvaluateStrong(this);
 }

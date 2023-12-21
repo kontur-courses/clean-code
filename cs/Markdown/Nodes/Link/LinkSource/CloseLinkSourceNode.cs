@@ -1,4 +1,4 @@
-﻿namespace Markdown.LinkSource;
+﻿namespace Markdown.Nodes.Link.LinkSource;
 
 public class CloseLinkSourceNode : SimpleNode
 {

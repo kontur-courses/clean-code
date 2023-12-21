@@ -1,4 +1,4 @@
-﻿namespace Markdown;
+﻿namespace Markdown.Nodes;
 
 public class UntaggedBodyNode : SyntaxNode
 {
@@ -6,5 +6,7 @@ public class UntaggedBodyNode : SyntaxNode
     {
     }
 
-    public override string Text => string.Join("", Children);
+    public override string Text => string.Join("", Children!);
+
+    public override string Evaluate(IEvaluator evaluator) => "";
 }

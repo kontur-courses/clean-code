@@ -66,7 +66,7 @@ public class MdTestData
         ).SetName("TwoDoubleUnderscoresInRow_RemainUnderscores"),
         new TestCaseData(
             "# Заголовок __с _разными_ символами__",
-            "<h1> Заголовок <strong>с <em>разными</em> символами</strong></h1>"
+            "<h1>Заголовок <strong>с <em>разными</em> символами</strong></h1>"
         ).SetName("HeaderWithInnerTags"),
         new TestCaseData(
             "[Текст помещённый в тэг link, ведущий на главную страницу google](https://www.google.com/)",
@@ -150,11 +150,27 @@ public class MdTestData
         ).SetName("TwoDoubleUnderscoresInRow_RemainUnderscores"),
         new TestCaseData(
             "# abc __def _ghi_ kjl__",
-            "<h1> abc <strong>def <em>ghi</em> kjl</strong></h1>"
+            "<h1>abc <strong>def <em>ghi</em> kjl</strong></h1>"
         ).SetName("HeaderWithInnerTags"),
         new TestCaseData(
             "[abc](https://www.example.com/)",
             "<a href=\"https://www.example.com/\">abc</a>"
         ).SetName("LinkTag"),
+        new TestCaseData(
+            "[_abc_ __def__](https://www.example.com/)",
+            "<a href=\"https://www.example.com/\"><em>abc</em> <strong>def</strong></a>"
+        ).SetName("StyledLinkTagText"),
+        new TestCaseData(
+            "[a](_bc_)",
+            "<a href=\"_bc_\">a</a>"
+        ).SetName("StyleInLinkSourceNotAllow"),
+        new TestCaseData(
+            "a# bc\r\ncd# e",
+            "a# bc\r\ncd# e"
+        ).SetName("HeaderMustStartAfterNewLine"),
+        new TestCaseData(
+            "# ab# c",
+            "<h1>ab# c</h1>"
+        ).SetName("HashSymbolAfterHeaderStart"),
     };
 }

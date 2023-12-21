@@ -1,18 +1,21 @@
-﻿using Markdown.LinkSource;
-using Markdown.LinkText;
+﻿using Markdown.Nodes.Link.LinkSource;
+using Markdown.Nodes.Link.LinkText;
 
-namespace Markdown.Link;
+namespace Markdown.Nodes.Link;
 
 public class LinkNode : TaggedBodyNode
 {
-    public override Type openTagType => typeof(LinkTextTaggedBody);
-    public override Type closeTagType => typeof(LinkSourceTaggedBody);
-    public string Text { get; private set; }
-    public string Source { get; private set; }
+    public override Type OpenTagType => typeof(LinkTextTaggedBody);
+    public override Type CloseTagType => typeof(LinkSourceTaggedBody);
+    public LinkTextTaggedBody Text { get; private set; }
+
+    public LinkSourceTaggedBody Source { get; private set; }
 
     public LinkNode(IEnumerable<SyntaxNode>? children) : base(children)
     {
-        Text = (children.First() as LinkTextTaggedBody).InnerText;
-        Source = (children.Last() as LinkSourceTaggedBody).InnerText;
+        Text = children!.First() as LinkTextTaggedBody;
+        Source = children!.Last() as LinkSourceTaggedBody;
     }
+
+    public override string Evaluate(IEvaluator evaluator) => evaluator.EvaluateLink(this);
 }

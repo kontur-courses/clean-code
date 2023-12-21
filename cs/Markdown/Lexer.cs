@@ -1,12 +1,10 @@
-﻿using System.Collections.Immutable;
-
-namespace Markdown;
+﻿namespace Markdown;
 
 public class Lexer
 {
     private readonly string text;
 
-    private const string escapableSymbols = @"_#()[]\";
+    private const string EscapableSymbols = @"_#()[]\";
 
     private int position;
 
@@ -88,7 +86,7 @@ public class Lexer
                     var letters = new List<char>();
                     while (Current != '\0' && (char.IsLetter(Current) || Current == '\\'))
                     {
-                        if (Current == '\\' && escapableSymbols.Contains(Next))
+                        if (Current == '\\' && EscapableSymbols.Contains(Next))
                             position++;
 
                         letters.Add(Current);

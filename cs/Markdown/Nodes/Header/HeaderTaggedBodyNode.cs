@@ -1,4 +1,4 @@
-﻿namespace Markdown;
+﻿namespace Markdown.Nodes.Header;
 
 public class HeaderTaggedBodyNode : TaggedBodyNode
 {
@@ -6,6 +6,7 @@ public class HeaderTaggedBodyNode : TaggedBodyNode
     {
     }
 
-    public override Type openTagType => typeof(OpenHeaderNode);
-    public override Type closeTagType => typeof(CloseHeaderNode);
+    public override Type OpenTagType => typeof(OpenHeaderNode);
+    public override Type CloseTagType => typeof(CloseHeaderNode);
+    public override string Evaluate(IEvaluator evaluator) => evaluator.EvaluateHeader(this);
 }

@@ -1,7 +1,10 @@
-﻿using System.Collections;
-using Markdown.Link;
-using Markdown.LinkSource;
-using Markdown.LinkText;
+﻿using Markdown.Nodes;
+using Markdown.Nodes.Em;
+using Markdown.Nodes.Header;
+using Markdown.Nodes.Link;
+using Markdown.Nodes.Link.LinkSource;
+using Markdown.Nodes.Link.LinkText;
+using Markdown.Nodes.Strong;
 
 namespace Markdown;
 
@@ -11,7 +14,7 @@ public class Parser
     private int position;
 
     private Stack<SyntaxNode> stack;
-    private Stack<(SyntaxNode, int)> openTagStack;
+    private Stack<(SyntaxNode Node, int Index)> openTagStack;
 
     public Parser(Token[] tokens)
     {
@@ -36,7 +39,7 @@ public class Parser
     public RootNode Parse()
     {
         stack = new Stack<SyntaxNode>();
-        openTagStack = new Stack<(SyntaxNode, int)>();
+        openTagStack = new Stack<(SyntaxNode Node, int Index)>();
         position = 0;
 
         List<SyntaxNode>? children;
@@ -53,7 +56,7 @@ public class Parser
                     stack.Push(new TextNode(Current.Text));
                     break;
                 case SyntaxKind.NewLine:
-                    if (!openTagStack.Any(pair => pair.Item1 is OpenHeaderNode))
+                    if (!openTagStack.Any(pair => pair.Node is OpenHeaderNode))
                     {
                         stack.Push(new TextNode(Current.Text));
                         break;
@@ -65,15 +68,19 @@ public class Parser
                     stack.Push(new HeaderTaggedBodyNode(children));
                     break;
                 case SyntaxKind.Hash:
-                    if (Next.Kind != SyntaxKind.Whitespace)
+                    if (!(Next.Kind == SyntaxKind.Whitespace && (Previous.Kind == SyntaxKind.NewLine || position == 0)))
                     {
                         stack.Push(new TextNode(Current.Text));
                         break;
                     }
 
-                    var header = new OpenHeaderNode(Current.Text);
-                    stack.Push(header);
-                    openTagStack.Push((header, position));
+                    if (TryOpenBodyWith(new OpenHeaderNode(Current.Text + Next.Text)))
+                    {
+                        position++;
+                        break;
+                    }
+
+                    stack.Push(new TextNode(Current.Text));
                     break;
                 case SyntaxKind.OpenSquareBracket:
                     var openLinkTextNode = new OpenLinkTextNode(Current.Text);
@@ -81,7 +88,7 @@ public class Parser
                     openTagStack.Push((openLinkTextNode, position));
                     break;
                 case SyntaxKind.CloseSquareBracket:
-                    if (openTagStack.Peek().Item1 is not OpenLinkTextNode)
+                    if (openTagStack.Peek().Node is not OpenLinkTextNode)
                     {
                         stack.Push(new TextNode(Current.Text));
                         break;
@@ -105,7 +112,7 @@ public class Parser
                     openTagStack.Push((openLinkSourceNode, position));
                     break;
                 case SyntaxKind.CloseRoundBracket:
-                    if (openTagStack.Peek().Item1 is not OpenLinkSourceNode)
+                    if (openTagStack.Peek().Node is not OpenLinkSourceNode)
                     {
                         stack.Push(new TextNode(Current.Text));
                         break;
@@ -114,7 +121,12 @@ public class Parser
                     openTagStack.Pop();
 
                     stack.Push(new CloseLinkSourceNode(Current.Text));
-                    children = PopStackUntilFind<OpenLinkSourceNode>().ToList();
+                    children = PopStackUntilFind<OpenLinkSourceNode>()
+                        .Select(node =>
+                            node is not OpenLinkSourceNode && node is not CloseLinkSourceNode
+                                ? new TextNode(node.Text)
+                                : node)
+                        .ToList();
                     var linkSourceNode = new LinkSourceTaggedBody(children);
 
                     if (stack.Peek() is LinkTextTaggedBody)
@@ -168,7 +180,7 @@ public class Parser
 
     private void ResolveUnusedOpenedTags()
     {
-        if (openTagStack.Any(pair => pair.Item1 is OpenHeaderNode))
+        if (openTagStack.Any(pair => pair.Node is OpenHeaderNode))
         {
             var children = new List<SyntaxNode>() { new CloseHeaderNode("") };
             while (true)
@@ -227,19 +239,19 @@ public class Parser
 
     private bool TryOpenBodyWith(SimpleNode node)
     {
-        if (openTagStack.All(pair => pair.Item1.GetType() != node.GetType()))
+        if (openTagStack.All(pair => pair.Node.GetType() != node.GetType()))
         {
             stack.Push(node);
             openTagStack.Push((node, position));
             return true;
         }
 
-        if (openTagStack.Peek().Item1.GetType() != node.GetType())
+        if (openTagStack.Peek().Node.GetType() != node.GetType())
         {
-            var deleted = openTagStack.Pop().Item1;
+            var deleted = openTagStack.Pop().Node;
             stack.Push(new TextNode(Current.Text));
             while (deleted.GetType() != node.GetType())
-                deleted = openTagStack.Pop().Item1;
+                deleted = openTagStack.Pop().Node;
             return true;
         }
 

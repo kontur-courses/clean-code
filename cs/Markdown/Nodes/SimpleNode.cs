@@ -1,4 +1,4 @@
-﻿namespace Markdown;
+﻿namespace Markdown.Nodes;
 
 public class SimpleNode : SyntaxNode
 {
@@ -10,4 +10,5 @@ public class SimpleNode : SyntaxNode
     }
 
     public override string Text => text;
+    public override string Evaluate(IEvaluator evaluator) => "";
 }

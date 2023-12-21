@@ -1,4 +1,6 @@
-﻿namespace Markdown;
+﻿using Markdown.Nodes;
+
+namespace Markdown;
 
 public static class Extensions
 {

@@ -25,9 +25,11 @@ public class MdTest
         var md = new Md();
 
         var stopwatch = new Stopwatch();
+        GC.Collect();
         stopwatch.Start();
         md.Render(mdExpression);
         stopwatch.Stop();
+        GC.Collect();
 
         var previous = stopwatch.ElapsedTicks;
         long current;

@@ -1,4 +1,4 @@
-﻿namespace Markdown.LinkSource;
+﻿namespace Markdown.Nodes.Link.LinkSource;
 
 public class LinkSourceTaggedBody : TaggedBodyNode
 {
@@ -6,6 +6,7 @@ public class LinkSourceTaggedBody : TaggedBodyNode
     {
     }
 
-    public override Type openTagType => typeof(OpenLinkSourceNode);
-    public override Type closeTagType => typeof(CloseLinkSourceNode);
+    public override Type OpenTagType => typeof(OpenLinkSourceNode);
+    public override Type CloseTagType => typeof(CloseLinkSourceNode);
+    public override string Evaluate(IEvaluator evaluator) => "";
 }
