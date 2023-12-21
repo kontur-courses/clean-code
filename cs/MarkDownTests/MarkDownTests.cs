@@ -1,13 +1,17 @@
+using MarkDown.Interfaces;
+
 namespace MarkDownTests;
 
 public class MarkDownTests
 {
-    private MarkDownEnvironment markDownEnv;
+    private IMarkdown markdown;
     
     [SetUp]
     public void Setup()
     {
-        markDownEnv = new MarkDownEnvironment();
+        var environment = new MarkDownEnvironment();
+        var contextCreator = new MarkDownContextCreator(environment);
+        markdown = new MarkDown.MarkDown(environment, contextCreator);
     }
 
     [TestCase("\n# a", "\n<h1>a</h1>", TestName = "IsCreatedWhenNoNewLineAtTheEnd")]
@@ -17,9 +21,9 @@ public class MarkDownTests
     [TestCase("# __a__\n", "<h1><strong>a</strong></h1>", TestName = "SupportsAnotherTagsInsideWhenNewLineAtTheEnd")]
     [TestCase("# __a__", "<h1><strong>a</strong></h1>", TestName = "SupportsAnotherTagsInsideWhenNoNewLineAtTheEnd")]
     [TestCase("# __a _b_ c__", "<h1><strong>a <em>b</em> c</strong></h1>", TestName = "SupportsMultipleTagsInside")]
-    public void GenerateHtml_Header(string markdown, string expected)
+    public void GenerateHtml_Header(string mdString, string expected)
     {
-        MarkDown.MarkDown.RenderHtml(markdown, markDownEnv)
+        markdown.RenderHtml(mdString)
             .Should()
             .Be(expected);
     }
@@ -49,9 +53,9 @@ public class MarkDownTests
     [TestCase("____", "____", TestName = "DoesNotCreateEmptyStrongTag")]
     [TestCase("__a _b c__ d_", "__a _b c__ d_", TestName = "DoesNotCreateIntersectingTags")]
     [TestCase("_a __b c_ d__", "_a __b c_ d__", TestName = "DoesNotCreateIntersectingTagsInAnotherOrder")]
-    public void GenerateHtml(string markdown, string expected)
+    public void GenerateHtml(string mdString, string expected)
     {
-        MarkDown.MarkDown.RenderHtml(markdown, markDownEnv)
+        markdown.RenderHtml(mdString)
             .Should()
             .Be(expected);
     }
@@ -62,22 +66,22 @@ public class MarkDownTests
     [TestCase("\\_a __b_ c__", "_a <strong>b_ c</strong>", TestName = "ScreeningIntersection")]
     [TestCase(@"\\__a__", "\\<strong>a</strong>", TestName = "ScreeningOfScreening")]
     [TestCase(@"__a \\_b_ c__", "<strong>a \\<em>b</em> c</strong>", TestName = "ScreeningOfScreeningInsideTags")]
-    public void GenerateHtml_Supports(string markdown, string expected)
+    public void GenerateHtml_Supports(string mdString, string expected)
     {
-        MarkDown.MarkDown.RenderHtml(markdown, markDownEnv)
+        markdown.RenderHtml(mdString)
             .Should()
             .Be(expected);
     }
     
-    [TestCase("- a", "<ul><li>a</li></ul>", TestName = "LisIsCreated")]
-    [TestCase("- a\n- b", "<ul><li>a</li><li>b</li></ul>", TestName = "CreatesMultipleLi's")]
-    [TestCase("- a\n+ b\n* c ", "<ul><li>a</li><li>b</li><li>c </li></ul>", TestName = "SupportsMultipleLiOpeners")]
+    [TestCase("- a", "<ul><li>a</li></ul>", TestName = "CreatesUlLi")]
+    [TestCase("- a\n- b", "<ul><li>a</li><li>b</li></ul>", TestName = "CreatesMultipleUlLi's")]
+    [TestCase("- a\n+ b\n* c ", "<ul><li>a</li><li>b</li><li>c </li></ul>", TestName = "SupportsMultipleUlLiOpeners")]
     [TestCase("- __a__", "<ul><li><strong>a</strong></li></ul>", TestName = "SupportsTagsInside")]
     [TestCase("- \\__a__", "<ul><li>__a__</li></ul>", TestName = "SupportsScreeningInside")]
     [TestCase("# - a", "<h1>- a</h1>", TestName = "IsNotCreatedInInsideAnotherTag")]
-    public void GenerateHtml_Ul(string markdown, string expected)
+    public void GenerateHtml_Ul(string mdString, string expected)
     {
-        MarkDown.MarkDown.RenderHtml(markdown, markDownEnv)
+        markdown.RenderHtml(mdString)
             .Should()
             .Be(expected);
     }

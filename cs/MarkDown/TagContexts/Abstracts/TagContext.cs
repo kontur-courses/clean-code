@@ -189,10 +189,10 @@ public abstract class TagContext
         var nowStart = start;
         var suitable = screeningIndexes.Where(e => e > start && e < end).ToArray();
 
-        for (var i = 0; i < suitable.Length; i++)
+        foreach (var index in suitable)
         {
-            yield return (nowStart, suitable[i]);
-            nowStart = suitable[i] + 1;
+            yield return (nowStart, index);
+            nowStart = index + 1;
         }
         
         yield return (nowStart, end);

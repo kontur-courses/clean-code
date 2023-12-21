@@ -1,122 +1,28 @@
 using System.Text;
+using MarkDown.Interfaces;
 using MarkDown.TagContexts;
 using MarkDown.TagContexts.Abstracts;
 using MarkDown.Tags;
 
 namespace MarkDown;
 
-public class MarkDown
+public class MarkDown : IMarkdown
 {
-    private static (EntryContext, IEnumerable<int>) CreateContext(string mdText, MarkDownEnvironment environment)
+    private readonly MarkDownEnvironment environment;
+    private readonly IMarkDownContextCreator contextCreator;
+    
+    public MarkDown(MarkDownEnvironment environment, IMarkDownContextCreator contextCreator)
     {
-        var entryTag = new EntryTagFactory();
-        var entryContext = entryTag.CreateContext();
-        var isScreened = false;
-        var screeningIndexes = new List<int>();
-        
-        TagContext nowContext = entryContext;
-        
-        for (var i = 0; i < mdText.Length; i++)
-        {
-            nowContext.HandleSymbol(mdText[i]);
-
-            var (isClosed, closeLength, newOpenContext) = CloseContextIfPossible(
-                mdText, i, nowContext, isScreened, environment);
-
-            if (isClosed)
-            {
-                i += closeLength;
-                nowContext = newOpenContext;
-                continue;
-            }
-
-            var (isOpened, openLength, newContext) = OpenContextIfPossible(
-                mdText, i, nowContext, isScreened, environment);
-
-            if (isOpened)
-            {
-                i += openLength;
-                nowContext = newContext;
-                continue;
-            }
-
-            isScreened = HandleScreening(mdText, i, isScreened, screeningIndexes);
-        }
-
-        nowContext.CloseSingleTags(mdText.Length);
-
-        return (entryContext, screeningIndexes);
-    }
-
-    private static (bool isClosed, int closeLength, TagContext newOpenContext) CloseContextIfPossible(
-        string mdText, 
-        int i, 
-        TagContext nowContext,
-        bool isScreened,
-        MarkDownEnvironment environment)
-    {
-        var isAnyClosed = false;
-        var newContext = nowContext;
-        var maxCloseLength = 0;
-
-        if (environment.CanGetCloseTags(mdText, i, out var closeTags))
-        {
-            foreach (var closeTag in closeTags)
-            {
-                if (nowContext.TryClose(closeTag.TagName, i, out var closedContext, isScreened))
-                {
-                    maxCloseLength = Math.Max(maxCloseLength, closeTag.MarkDownClose.Length);
-                    isAnyClosed = true;
-
-                    if (closedContext is ResetContext resetContext) 
-                        newContext = resetContext.SwitchToOpenContext();
-                }
-            }
-                
-            if (isAnyClosed) 
-                maxCloseLength = closeTags.Max(e => e.MarkDownClose.Length) - 1;
-        }
-
-        return (isAnyClosed, maxCloseLength, newContext);
-    }
-
-    private static (bool isOpened, int openLength, TagContext newContext) OpenContextIfPossible(
-        string mdText,
-        int i,
-        TagContext nowContext,
-        bool isScreened,
-        MarkDownEnvironment environment)
-    {
-        if (environment.CanGetTagCreator(mdText, i, nowContext, out var openTag))
-        {
-            var newContext = openTag.CreateContext(mdText, i, nowContext, isScreened);
-            nowContext.AddInnerContext(newContext);
-            
-            return (true, openTag.SkipIndexesAfterCreating, newContext);
-        }
-
-        return (false, 0, nowContext);
-    }
-
-    private static bool HandleScreening(
-        string mdText,
-        int i,
-        bool isScreened,
-        List<int> screeningIndexes)
-    {
-        if (mdText[i] != '\\') return false;
-        if (!isScreened) return true;
-        
-        screeningIndexes.Add(i);
-        return false;
+        this.environment = environment;
+        this.contextCreator = contextCreator;
     }
     
-    public static string RenderHtml(string mdText, MarkDownEnvironment environment)
+    public string RenderHtml(string mdText)
     {
-        var (entryContext, screeningIndexes) = CreateContext(mdText, environment);
+        var contextInfo = contextCreator.GetFilledEntryContext(mdText);
         
         var sb = new StringBuilder();
-        entryContext.CreateHtml(mdText, sb, environment, screeningIndexes);
+        contextInfo.EntryContext.CreateHtml(mdText, sb, environment, contextInfo.ScreeningIndexes);
 
         return sb.ToString();
     }
