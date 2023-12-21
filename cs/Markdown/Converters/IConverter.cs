@@ -2,6 +2,6 @@
 {
     public interface IConverter
     {
-        public string InsertTags(ParsedText paragraphInfo);
+        public string InsertTags(ParsedText[] paragraphInfo);
     }
 }

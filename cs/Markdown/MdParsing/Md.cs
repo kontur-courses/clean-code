@@ -1,4 +1,5 @@
-﻿using System.Text;
+﻿using System.Reflection.Metadata.Ecma335;
+using System.Text;
 using Markdown.Converters;
 using Markdown.MdParsing.Tokens;
 using Markdown.Tags;
@@ -9,10 +10,9 @@ namespace Markdown.MdParsing
     public static class Md
     {
         public static string Render(string mdString) =>
-            string.Join(
-                "", mdString.SplitToParagraphs()
-                    .Select(ParseParagraph)
-                    .Select(new HtmlConverter().InsertTags)
+            new HtmlConverter().InsertTags(mdString.SplitToParagraphs()
+                .Select(ParseParagraph)
+                .ToArray()
             );
 
         private static ParsedText ParseParagraph(string paragraph)
