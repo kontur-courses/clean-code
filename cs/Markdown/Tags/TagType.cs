@@ -5,6 +5,7 @@
         Bold,
         Italic,
         Header,
-        Escape
+        Escape,
+        Unexpected
     }
 }

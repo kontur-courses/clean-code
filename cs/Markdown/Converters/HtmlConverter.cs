@@ -3,7 +3,7 @@ using Markdown.Tags;
 
 namespace Markdown.Converters
 {
-    public abstract class HtmlConverter : Converter
+    public class HtmlConverter : IConverter
     {
         private static readonly Dictionary<TagType, string> startTags = new()
         {
@@ -19,7 +19,7 @@ namespace Markdown.Converters
             { TagType.Header, "</h1>" }
         };
 
-        public static string InsertTags(ParsedText parsedText)
+        public string InsertTags(ParsedText parsedText)
         {
             var sb = new StringBuilder();
             var prevTagPos = 0;

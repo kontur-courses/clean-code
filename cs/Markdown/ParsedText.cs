@@ -9,7 +9,7 @@ namespace Markdown
         
         public ParsedText(string paragraph, List<ITag> tags)
         {
-            if (paragraph is null || tags is null || tags.Any(x => x is null))
+            if (paragraph is null || tags is null)
                 throw new ArgumentException("Arguments and tags can not be null");
             if (tags.Any(x => x.Position > paragraph.Length))
                 throw new ArgumentException("Tag position cannot be beyond paragraph", nameof(tags));

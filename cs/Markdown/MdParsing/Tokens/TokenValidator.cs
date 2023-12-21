@@ -44,7 +44,7 @@ namespace Markdown.MdParsing.Tokens
 
         public static bool IsValidTagToken(List<Token> tokens, int index)
         {
-            return Md.MdTagsTranslator[tokens[index].Content] switch
+            return tokens[index].TagType switch
             {
                 TagType.Italic => IsValidItalic(tokens, index),
                 TagType.Bold => IsValidBold(tokens, index),
@@ -52,11 +52,11 @@ namespace Markdown.MdParsing.Tokens
             };
         }
 
-        public static bool OrderIsCorrect(Stack<Token> tokens, Token token)
+        public static bool OrderIsCorrect(Stack<Token> openedTokens, Token token)
         {
-            return token.Content != "__" || tokens.All(x => x.Content != "_");
+            return token.TagType != TagType.Bold || openedTokens.All(x => x.TagType != TagType.Italic);
         }
-        
+
         private static bool IsValidBold(List<Token> tokens, int index)
         {
             return IsBoldOrItalicOpen(tokens, index) ^ IsBoldOrItalicClose(tokens, index);
@@ -102,11 +102,11 @@ namespace Markdown.MdParsing.Tokens
 
         private static bool IsNearNumber(List<Token> tokens, int index)
         {
-            return (index - 1 >= 0 && index + 1 < tokens.Count &&
-                    ((tokens[index - 1].TokenType is TokenType.Number &&
-                      tokens[index + 1].TokenType is not TokenType.Space) ||
-                     (tokens[index + 1].TokenType is TokenType.Number &&
-                      tokens[index - 1].TokenType is not TokenType.Space)));
+            return index - 1 >= 0 && index + 1 < tokens.Count &&
+                   ((tokens[index - 1].TokenType is TokenType.Number &&
+                     tokens[index + 1].TokenType is not TokenType.Space) ||
+                    (tokens[index + 1].TokenType is TokenType.Number &&
+                     tokens[index - 1].TokenType is not TokenType.Space));
         }
     }
 }

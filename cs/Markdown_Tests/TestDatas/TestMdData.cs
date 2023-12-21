@@ -35,7 +35,7 @@ namespace Markdown_Tests
             yield return new TestCaseData("__aboba_", "__aboba_").SetName("Escaped_Not_Paired_Tags");
             yield return new TestCaseData("_aboba_4_", "<em>aboba_4</em>")
                 .SetName("Escaped_Underlining_Word_With_Number");
-            
+
             yield return new TestCaseData("_abo_ba", "<em>abo</em>ba")
                 .SetName("Italic_Tag_In_Beginning_And_Inside_Same_Word");
             yield return new TestCaseData("ab_o_ba", "ab<em>o</em>ba")
@@ -46,14 +46,27 @@ namespace Markdown_Tests
                 .SetName("Italic_Tag_Inside_Different_Words_Escaped");
             yield return new TestCaseData("a__ b_ _o __ba", "a__ b_ _o __ba")
                 .SetName("Highlight_Starts_After_Non_Space_Ends_Before_Non_Space_Escaped");
-            yield return new TestCaseData("_a __bob_ a__", "_a __bob_ a__")
+            yield return new TestCaseData("__a _bob__ a_", "__a _bob__ a_")
                 .SetName("Escaped_Bold_Tag_Intersects_Italic");
-            yield return new TestCaseData("_a __bob__ a_", "_a __bob__ a_")
+            yield return new TestCaseData("_a __bob__ a_", "<em>a __bob__ a</em>")
                 .SetName("Escaped_Bold_Tag_Inside_Italic");
             yield return new TestCaseData(
                 "# Заголовок __с _разными_ символами__",
                 "<h1>Заголовок <strong>с <em>разными</em> символами</strong></h1>"
             ).SetName("Complex_Situation");
+            yield return new TestCaseData("_a __bob__", "_a <strong>bob</strong>")
+                .SetName("Escaped_Italic_Unpaired_Before_Bold");
+            yield return new TestCaseData("__a _bob__", "<strong>a _bob</strong>")
+                .SetName("Escaped_Italic_Unpaired_Inside_Bold");
+            yield return new TestCaseData("\\ _a_", "\\ <em>a</em>")
+                .SetName("Escape_Before_Space_Ignored");
+            yield return new TestCaseData("__s_ s__", "<strong>s_ s</strong>")
+                .SetName("Italic_Ends_No_Pair_Inside_Bold");
+            yield return new TestCaseData("__s_ __s", "__s_ __s").SetName("Italic_No_Pair_Inside_Bold_No_Pair");
+            yield return new TestCaseData("__s _s__", "<strong>s _s</strong>")
+                .SetName("Italic_Starts_No_Pair_Inside_Bold");
+            yield return new TestCaseData("__s _s__ _d_", "<strong>s _s</strong> <em>d</em>")
+                .SetName("Italic_Starts_No_Pair_Inside_Bold_No_Intersection");
         }
     }
 }

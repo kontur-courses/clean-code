@@ -9,7 +9,6 @@ namespace Markdown_Tests
         {
             yield return new TestCaseData(null, new List<ITag>()).SetName("Null_Paragraph");
             yield return new TestCaseData("", null).SetName("Null_Tags");
-            yield return new TestCaseData("", new List<ITag> { null }).SetName("Null_Tags_In_List");
         }
 
         public static IEnumerable<TestCaseData> TagBeyondParagraph()
