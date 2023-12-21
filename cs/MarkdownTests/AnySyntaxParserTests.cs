@@ -10,7 +10,7 @@ public class AnySyntaxParserTests
     private ISyntax syntax;
     private IParser sut;
 
-    [OneTimeSetUp]
+    [SetUp]
     public void Setup()
     {
         sut = new AnySyntaxParser(new MarkdownToHtnlSyntax());

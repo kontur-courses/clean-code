@@ -7,7 +7,7 @@ public class MarkdownToHtnlSyntax : ISyntax
 {
     private readonly Dictionary<string, Func<int, IToken>> markdownToToken = new()
     {
-        { "#", pos => new HeaderToken(pos) }, { "_", pos => new ItalicToken(pos) },
+        { "# ", pos => new HeaderToken(pos) }, { "_", pos => new ItalicToken(pos) },
         { "__", pos => new BoldToken(pos) }, { "\\", pos => new EscapeToken(pos) },
         { "\n", pos => new NewLineToken() }, { "@", pos => new ImageToken(pos) }
     };
@@ -15,13 +15,13 @@ public class MarkdownToHtnlSyntax : ISyntax
     private readonly Dictionary<string, IList<string>> tagNotWorkingWithinTags = new()
     {
         { "__", new List<string> { "_", "@" } }, { "_", new List<string> { "@" } },
-        { "#", new List<string> { "@" } }, { "\n", new List<string> { "@" } },
+        { "# ", new List<string> { "@" } }, { "\n", new List<string> { "@" } },
         { "\\", new List<string> { "@" } }
     };
 
     private readonly Dictionary<string, ITag> tokenSeparatorToHtml = new()
     {
-        { "#", new HtmlTag("<h1>", "</h1>\n", true) },
+        { "# ", new HtmlTag("<h1>", "</h1>\n", true) },
         { "_", new HtmlTag("<em>", "</em>", true) },
         { "__", new HtmlTag("<strong>", "</strong>", true) },
         { "\\", new HtmlTag("", "", false) },

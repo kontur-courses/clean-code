@@ -80,12 +80,12 @@ public class AnySyntaxParserTestCases
                 .SetName("ReturnLinkToken_WhenLinkTokenContainsTokens");
 
             yield return new TestCaseData(
-                    "#Text___with_different__tags\\__",
+                    "# Text___with_different__tags\\__",
                     new List<IToken>()
                     {
-                        new HeaderToken(0), new BoldToken(5),
-                        new ItalicToken(7), new ItalicToken(12),
-                        new BoldToken(22), new EscapeToken(28), new HeaderToken(31, true)
+                        new HeaderToken(0), new BoldToken(6),
+                        new ItalicToken(8), new ItalicToken(13),
+                        new BoldToken(23), new EscapeToken(29), new HeaderToken(32, true)
                     })
                 .SetName("ReturnMultipleTokens_WhenStringContainsMultipleTokens");
         }

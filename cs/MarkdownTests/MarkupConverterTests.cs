@@ -9,8 +9,8 @@ public class MarkupConverterTests
 {
     private MarkupConverter sut;
 
-    [OneTimeSetUp]
-    public void OneTimeSetUp()
+    [SetUp]
+    public void SetUp()
     {
         sut = new MarkupConverter(new MarkdownToHtnlSyntax());
     }

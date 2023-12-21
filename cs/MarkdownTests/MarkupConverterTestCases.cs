@@ -13,7 +13,7 @@ public class MarkupConverterTestCases
             yield return new TestCaseData(new List<IToken>(), "a", "a")
                 .SetName("ReturnSameString_WhenInputContainsNoTags");
 
-            yield return new TestCaseData(new List<IToken> { new HeaderToken(0), new HeaderToken(3, true) }, "# a", "<h1> a</h1>\n")
+            yield return new TestCaseData(new List<IToken> { new HeaderToken(0), new HeaderToken(3, true) }, "# a", "<h1>a</h1>\n")
                 .SetName("ReturnStringWithHeader_WhenHeaderTagProvided");
             yield return new TestCaseData(new List<IToken> { new BoldToken(0), new BoldToken(3, true) }, "__a__", "<strong>a</strong>")
                 .SetName("ReturnStringWithStrongTag_WhenStrongTagProvided");
@@ -24,9 +24,9 @@ public class MarkupConverterTestCases
 
             yield return new TestCaseData(new List<IToken>
                 {
-                    new HeaderToken(0), new BoldToken(5), new ItalicToken(7), new ItalicToken(12, true),
-                    new BoldToken(22, true), new EscapeToken(28), new HeaderToken(31, true)
-                }, "#Text___with_different__tags\\__", "<h1>Text<strong><em>with</em>different</strong>tags__</h1>\n")
+                    new HeaderToken(0), new BoldToken(6), new ItalicToken(8), new ItalicToken(13, true),
+                    new BoldToken(23, true), new EscapeToken(29), new HeaderToken(32, true)
+                }, "# Text___with_different__tags\\__", "<h1>Text<strong><em>with</em>different</strong>tags__</h1>\n")
                 .SetName("ReturnCorrectString_WhenStringContainsMultipleTags");
         }
     }

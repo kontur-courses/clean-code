@@ -11,8 +11,8 @@ public class MarkupRendererTests
 {
     private MarkupRenderer sut;
 
-    [OneTimeSetUp]
-    public void OneTimeSetUp()
+    [SetUp]
+    public void SetUp()
     {
         var syntax = new MarkdownToHtnlSyntax();
         sut = new MarkupRenderer(syntax, new AnySyntaxParser(syntax), new MarkupConverter(syntax));

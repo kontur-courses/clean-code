@@ -2,10 +2,10 @@
 
 public class HeaderToken : IToken
 {
-    private const string TokenSeparator = "#";
+    private const string TokenSeparator = "# ";
     private const bool HasPair = false;
 
-    public int Length => TokenSeparator.Length;
+    public int Length => IsClosed ? 1 : 2;
     public string Separator => TokenSeparator;
     public bool IsPair => HasPair;
 

@@ -11,9 +11,9 @@ public class MarkupRendererTestCases
             yield return new TestCaseData("a", "a")
                 .SetName("ReturnEmptyString_WhenNoTagsInInput");
             
-            yield return new TestCaseData("# a", "<h1> a</h1>\n")
+            yield return new TestCaseData("# a", "<h1>a</h1>\n")
                 .SetName("ReturnCorrectString_WhenHeaderProvided");
-            yield return new TestCaseData("# a\n# a\n# a\n", "<h1> a</h1>\n<h1> a</h1>\n<h1> a</h1>\n")
+            yield return new TestCaseData("# a\n# a\n# a\n", "<h1>a</h1>\n<h1>a</h1>\n<h1>a</h1>\n")
                 .SetName("ReturnCorrectString_WhenManySequencedHeadersProvided");
             
             yield return new TestCaseData("_a_", "<em>a</em>")
@@ -46,7 +46,7 @@ public class MarkupRendererTestCases
                 .SetName("ReturnCorrectString_WhenTagsIntersect");
             yield return new TestCaseData("__a\na__a", "__a\na__a")
                 .SetName("ReturnCorrectString_WhenTagsCloseOnNewline");
-            yield return new TestCaseData("# a\n", "<h1> a</h1>\n")
+            yield return new TestCaseData("# a\n", "<h1>a</h1>\n")
                 .SetName("ReturnCorrectString_WhenInputContainsHeaderWithNewLineChar");
             
             yield return new TestCaseData("_wo_rd", "<em>wo</em>rd")
@@ -70,7 +70,7 @@ public class MarkupRendererTestCases
             
             yield return new TestCaseData("\\__a_", "__a_")
                 .SetName("ReturnCorrectString_WhenEscapedTagsProvided");
-            yield return new TestCaseData("#Text___with_different__tags\\__@and img@",
+            yield return new TestCaseData("# Text___with_different__tags\\__@and img@",
                     "<h1>Text<strong><em>with</em>different</strong>tags__<img src=\"and\" alt=\"img\"></h1>\n")
                 .SetName("ReturnCorrectString_WhenStringContainsMultipleTags");
         }
