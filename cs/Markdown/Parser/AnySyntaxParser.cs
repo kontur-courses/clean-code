@@ -25,7 +25,7 @@ public class AnySyntaxParser : IParser
         return tags;
     }
 
-    private IList<IToken> FindAllTags()
+    public IList<IToken> FindAllTags()
     {
         var tags = new List<IToken>();
         var possibleTag = new StringBuilder();
@@ -60,7 +60,7 @@ public class AnySyntaxParser : IParser
         return tags;
     }
 
-    private IList<IToken> RemoveEscapedTags(IList<IToken> tags)
+    public IList<IToken> RemoveEscapedTags(IList<IToken> tags)
     {
         var result = new List<IToken>();
         var isEscaped = false;
@@ -91,7 +91,7 @@ public class AnySyntaxParser : IParser
         return result;
     }
 
-    private IList<IToken> ValidateTagPositioning(IList<IToken> tags)
+    public IList<IToken> ValidateTagPositioning(IList<IToken> tags)
     {
         var result = new List<IToken>();
         var openedTags = new Dictionary<string, IToken>();

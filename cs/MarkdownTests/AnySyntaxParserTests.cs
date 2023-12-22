@@ -8,18 +8,48 @@ namespace MarkdownTests;
 public class AnySyntaxParserTests
 {
     private ISyntax syntax;
-    private IParser sut;
+    private AnySyntaxParser sut;
 
-    [SetUp]
-    public void Setup()
+    [OneTimeSetUp]
+    public void OneTimeSetup()
     {
         sut = new AnySyntaxParser(new MarkdownToHtnlSyntax());
     }
 
     [TestCaseSource(typeof(AnySyntaxParserTestCases), nameof(AnySyntaxParserTestCases.ParseTokenTestCases))]
-    public void AnySyntaxParser_Should(string input, IEnumerable<IToken> expectedTokens)
+    public void ParseTokens_Should(string input, IEnumerable<IToken> expectedTokens)
     {
         var tokens = sut.ParseTokens(input);
+
+        tokens.Should().BeEquivalentTo(expectedTokens, options => options.Including(token => token.Position));
+    }
+    
+    [TestCaseSource(typeof(AnySyntaxParserTestCases), nameof(AnySyntaxParserTestCases.FindAllTagsTestCases))]
+    public void FindAllTags_Should(string input, IEnumerable<IToken> expectedTokens)
+    {
+        sut.ParseTokens(input);
+        
+        var tokens = sut.FindAllTags();
+
+        tokens.Should().BeEquivalentTo(expectedTokens, options => options.Including(token => token.Position));
+    }
+    
+    [TestCaseSource(typeof(AnySyntaxParserTestCases), nameof(AnySyntaxParserTestCases.RemoveEscapedTagsTestCases))]
+    public void RemoveEscapedTags_Should(string input, IList<IToken> tokensToParse, IEnumerable<IToken> expectedTokens)
+    {
+        sut.ParseTokens(input);
+        
+        var tokens = sut.RemoveEscapedTags(tokensToParse);
+
+        tokens.Should().BeEquivalentTo(expectedTokens, options => options.Including(token => token.Position));
+    }
+    
+    [TestCaseSource(typeof(AnySyntaxParserTestCases), nameof(AnySyntaxParserTestCases.ValidateTagPositioningTestCases))]
+    public void ValidateTagPositioning_Should(string input, IList<IToken> tokensToParse, IEnumerable<IToken> expectedTokens)
+    {
+        sut.ParseTokens(input);
+        
+        var tokens = sut.ValidateTagPositioning(tokensToParse);
 
         tokens.Should().BeEquivalentTo(expectedTokens, options => options.Including(token => token.Position));
     }

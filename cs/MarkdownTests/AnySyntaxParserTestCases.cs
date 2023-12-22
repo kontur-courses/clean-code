@@ -48,7 +48,8 @@ public class AnySyntaxParserTestCases
             yield return new TestCaseData("\\# a", new List<IToken>() { new EscapeToken(0) })
                 .SetName("ReturnEscapingToken_WhenEscapedTokenProvided");
             yield return new TestCaseData("# a\n# a",
-                    new List<IToken>() { new HeaderToken(0), new HeaderToken(3, true), new HeaderToken(4), new HeaderToken(7, true) })
+                    new List<IToken>()
+                        { new HeaderToken(0), new HeaderToken(3, true), new HeaderToken(4), new HeaderToken(7, true) })
                 .SetName("ReturnTwoHeaderTokens_TwoHeaderTokensProvided");
 
             yield return new TestCaseData("_a_", new List<IToken>() { new ItalicToken(0), new ItalicToken(2) })
@@ -73,10 +74,12 @@ public class AnySyntaxParserTestCases
                 .SetName("ReturnEscapingTokens_WhenItalicTokenIsEscaped");
             yield return new TestCaseData("\\\\a", new List<IToken>() { new EscapeToken(0) })
                 .SetName("ReturnEscapingToken_WhenEscapeTokenIsEscaped");
-            
-            yield return new TestCaseData("@aba caba@", new List<IToken>() { new ImageToken(0), new ImageToken(9, true) })
+
+            yield return new TestCaseData("@aba caba@",
+                    new List<IToken>() { new ImageToken(0), new ImageToken(9, true) })
                 .SetName("ReturnLinkToken_WhenLinkToken");
-            yield return new TestCaseData("@#a__b__a c_a_ba@", new List<IToken>() { new ImageToken(0), new ImageToken(16, true) })
+            yield return new TestCaseData("@#a__b__a c_a_ba@",
+                    new List<IToken>() { new ImageToken(0), new ImageToken(16, true) })
                 .SetName("ReturnLinkToken_WhenLinkTokenContainsTokens");
 
             yield return new TestCaseData(
@@ -88,6 +91,76 @@ public class AnySyntaxParserTestCases
                         new BoldToken(23), new EscapeToken(29), new HeaderToken(32, true)
                     })
                 .SetName("ReturnMultipleTokens_WhenStringContainsMultipleTokens");
+        }
+    }
+
+    public static IEnumerable<TestCaseData> FindAllTagsTestCases
+    {
+        get
+        {
+            yield return new TestCaseData(string.Empty, new List<IToken>())
+                .SetName("ReturnEmptySequence_WhenStringIsEmpty");
+            yield return new TestCaseData("a", new List<IToken>())
+                .SetName("ReturnEmptySequence_WhenNoTokensInText");
+            yield return new TestCaseData("____", new List<IToken> { new BoldToken(0), new BoldToken(2) })
+                .SetName("ReturnCorrectTokens_WhenManyTagsProvided");
+            yield return new TestCaseData("__a_a__a_",
+                    new List<IToken> { new BoldToken(0), new ItalicToken(3), new BoldToken(5), new ItalicToken(8) })
+                .SetName("ReturnCorrectTokens_WhenManyTagsProvided");
+            yield return new TestCaseData("__a _a", new List<IToken> { new BoldToken(0), new ItalicToken(4) })
+                .SetName("ReturnBoldTokenAndItalicToken_WhenBoldAndItalicProvided");
+            yield return new TestCaseData("\\__a\\__", new List<IToken>()
+                {
+                    new EscapeToken(0), new BoldToken(1), new EscapeToken(4), new BoldToken(5)
+                })
+                .SetName("ReturnEscapingTokens_WhenBoldTokenIsEscaped");
+            yield return new TestCaseData("\\# a", new List<IToken>() { new EscapeToken(0), new HeaderToken(1) })
+                .SetName("ReturnEscapeAndHeaderTokens_WhenEscapeAndHeaderProvided");
+            yield return new TestCaseData("\\\\a", new List<IToken>() { new EscapeToken(0), new EscapeToken(1) })
+                .SetName("ReturnTwoSequencedEscapeTokens_WhenEscapeTokenIsEscaped");
+        }
+    }
+
+    public static IEnumerable<TestCaseData> RemoveEscapedTagsTestCases
+    {
+        get
+        {
+            yield return new TestCaseData("\\\\a", new List<IToken> { new EscapeToken(0), new EscapeToken(1) },
+                    new List<IToken> { new EscapeToken(0) })
+                .SetName("ReturnOneEscapeToken_WhenEscapeTokenIsEscaped");
+            yield return new TestCaseData("__a_a__a_",
+                    new List<IToken> { new BoldToken(0), new ItalicToken(3), new BoldToken(5), new ItalicToken(8) },
+                    new List<IToken>{ new BoldToken(0), new ItalicToken(3), new BoldToken(5), new ItalicToken(8) })
+                .SetName("ReturnAllTokens_WhenBoldAndItalicIntersect");
+            yield return new TestCaseData("\\# a", new List<IToken> { new EscapeToken(0), new HeaderToken(1) },
+                    new List<IToken> { new EscapeToken(0) })
+                .SetName("ReturnOneEscapeToken_WhenItEscapesTag");
+            yield return new TestCaseData("__a _a", new List<IToken> { new BoldToken(0), new ItalicToken(4) },
+                    new List<IToken> { new BoldToken(0), new ItalicToken(4) })
+                .SetName("ReturnSameTokens_WhenNeitherIsEscaped");
+        }
+    }
+
+    public static IEnumerable<TestCaseData> ValidateTagPositioningTestCases
+    {
+        get
+        {
+            yield return new TestCaseData("__a_a__a_",
+                    new List<IToken> { new BoldToken(0), new ItalicToken(3), new BoldToken(5), new ItalicToken(8) },
+                    new List<IToken>())
+                .SetName("ReturnEmptySequence_WhenBoldAndItalicIntersect");
+            yield return new TestCaseData("# ab", new List<IToken>()
+                        { new HeaderToken(0) },
+                    new List<IToken>()
+                        { new HeaderToken(0), new HeaderToken(4, true) })
+                .SetName("ReturnClosedHeaderToken_WhenHeaderCorrect");
+            yield return new TestCaseData("_a_", new List<IToken>() { new ItalicToken(0), new ItalicToken(2) },
+                    new List<IToken>() { new ItalicToken(0), new ItalicToken(2) })
+                .SetName("ReturnItalicToken_WhenItalicTokenProvided");
+            yield return new TestCaseData("_a__a__a_",
+                    new List<IToken> { new ItalicToken(0), new BoldToken(2), new BoldToken(5), new ItalicToken(8) },
+                    new List<IToken>() { new ItalicToken(0), new ItalicToken(8) })
+                .SetName("ReturnItalicToken_WhenBoldTokenInsideItalicToken");
         }
     }
 }
