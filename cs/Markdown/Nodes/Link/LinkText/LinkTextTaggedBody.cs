@@ -8,5 +8,8 @@ public class LinkTextTaggedBody : TaggedBodyNode
 
     public override Type OpenTagType => typeof(OpenLinkTextNode);
     public override Type CloseTagType => typeof(CloseLinkTextNode);
-    public override string Evaluate(IEvaluator evaluator) => "";
+    public override string TagName { get; }
+
+    public override string ToString() =>
+        string.Join("", Children!.InnerElements().Select(child => child.ToString()));
 }

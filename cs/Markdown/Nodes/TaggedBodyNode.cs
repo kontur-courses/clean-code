@@ -17,7 +17,11 @@ public abstract class TaggedBodyNode : SyntaxNode
                 $"Close child tag must have type {CloseTagType} but have {children.Last().GetType()}");
     }
 
+    public abstract string TagName { get; }
     public override string Text => string.Join("", Children!.Select(child => child.Text));
+
+    public override string ToString() =>
+        $"<{TagName}>{string.Join("", Children!.InnerElements().Select(child => child.ToString()))}</{TagName}>";
 
     public string InnerText
     {

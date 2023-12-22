@@ -9,6 +9,4 @@ public abstract class SyntaxNode
     {
         Children = children;
     }
-
-    public abstract string Evaluate(IEvaluator evaluator);
 }

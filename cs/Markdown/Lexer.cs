@@ -32,7 +32,8 @@ public class Lexer
             switch (Current)
             {
                 case '\n':
-                    yield return new Token(SyntaxKind.NewLine, position, "\n");
+                case '\r':
+                    yield return new Token(SyntaxKind.NewLine, position, Current.ToString());
                     break;
                 case ' ':
                 case '\t':

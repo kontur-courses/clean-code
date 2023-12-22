@@ -8,5 +8,5 @@ public class StrongTaggedBodyNode : TaggedBodyNode
 
     public override Type OpenTagType => typeof(OpenStrongNode);
     public override Type CloseTagType => typeof(CloseStrongNode);
-    public override string Evaluate(IEvaluator evaluator) => evaluator.EvaluateStrong(this);
+    public override string TagName => "strong";
 }

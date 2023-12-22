@@ -7,9 +7,7 @@ public class Md
         var lexer = new Lexer(expression);
         var tokens = lexer.GetTokens().ToArray();
         var parser = new Parser(tokens);
-        var evaluator = new HtmlEvaluator();
         var tree = parser.Parse();
-        var result = evaluator.EvaluateRoot(tree);
-        return result;
+        return tree.ToString();
     }
 }

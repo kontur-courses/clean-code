@@ -6,5 +6,5 @@ public class TextNode : SimpleNode
     {
     }
 
-    public override string Evaluate(IEvaluator evaluator) => evaluator.EvaluateString(this);
+    public override string ToString() => Text;
 }

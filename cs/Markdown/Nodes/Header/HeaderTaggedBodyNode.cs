@@ -8,5 +8,5 @@ public class HeaderTaggedBodyNode : TaggedBodyNode
 
     public override Type OpenTagType => typeof(OpenHeaderNode);
     public override Type CloseTagType => typeof(CloseHeaderNode);
-    public override string Evaluate(IEvaluator evaluator) => evaluator.EvaluateHeader(this);
+    public override string TagName => "h1";
 }

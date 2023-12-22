@@ -172,5 +172,9 @@ public class MdTestData
             "# ab# c",
             "<h1>ab# c</h1>"
         ).SetName("HashSymbolAfterHeaderStart"),
+        new TestCaseData(
+            "# abc\r\n# cde",
+            "<h1>abc</h1>\r\n<h1>cde</h1>"
+        ).SetName("TwoHeadersThenLastUnclosed"),
     };
 }

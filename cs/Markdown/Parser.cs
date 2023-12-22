@@ -66,6 +66,7 @@ public class Parser
                     stack.Push(new CloseHeaderNode(Current.Text));
                     children = PopStackUntilFind<OpenHeaderNode>().ToList();
                     stack.Push(new HeaderTaggedBodyNode(children));
+                    stack.Push(new TextNode(Current.Text));
                     break;
                 case SyntaxKind.Hash:
                     if (!(Next.Kind == SyntaxKind.Whitespace && (Previous.Kind == SyntaxKind.NewLine || position == 0)))

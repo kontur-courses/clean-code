@@ -8,5 +8,5 @@ public class EmTaggedBodyNode : TaggedBodyNode
 
     public override Type OpenTagType => typeof(OpenEmNode);
     public override Type CloseTagType => typeof(CloseEmNode);
-    public override string Evaluate(IEvaluator evaluator) => evaluator.EvaluateEm(this);
+    public override string TagName => "em";
 }

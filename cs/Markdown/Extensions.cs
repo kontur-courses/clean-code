@@ -14,6 +14,15 @@ public static class Extensions
         yield return nodes.Last();
     }
 
+    public static IEnumerable<T> InnerElements<T>(this IEnumerable<T> enumerable)
+    {
+        if (enumerable.Count() < 2)
+            throw new ArgumentException("Should have at least 2 elements");
+        if (enumerable.Count() == 2)
+            return Enumerable.Empty<T>();
+        return enumerable.Skip(1).Take(enumerable.Count() - 2);
+    }
+
     public static IEnumerable<SyntaxNode>? TextifyTags(this IEnumerable<SyntaxNode> nodes)
     {
         foreach (var node in nodes)
