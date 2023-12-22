@@ -10,7 +10,6 @@ public class BoldToken : IToken
     public bool IsPair => HasPair;
     public int Position { get; }
     public bool IsClosed { get; set; }
-    public int EndingPosition { get; private set; }
     public bool IsParametrized => false;
     public string Parameters { get; set; }
     public int Shift { get; set; }

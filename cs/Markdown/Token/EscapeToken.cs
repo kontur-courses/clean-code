@@ -6,7 +6,6 @@ public class EscapeToken : IToken
     private const bool HasPair = false;
 
     public int Length => TokenSeparator.Length;
-    public int EndingPosition => Position;
     public string Separator => TokenSeparator;
     public bool IsPair => HasPair;
     public bool IsClosed { get; set; }

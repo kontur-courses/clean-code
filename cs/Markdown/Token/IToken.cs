@@ -3,7 +3,6 @@
 public interface IToken
 {
     int Position { get; }
-    int EndingPosition { get; }
     int Length { get; }
     string Separator { get; }
     bool IsPair { get; }

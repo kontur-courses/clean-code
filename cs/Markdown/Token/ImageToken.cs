@@ -6,7 +6,6 @@ public class ImageToken : IToken
     private const bool HasPair = true;
 
     public int Position { get; }
-    public int EndingPosition { get; }
     public int Length => TokenSeparator.Length;
     public string Separator => TokenSeparator;
     public bool IsPair => HasPair;

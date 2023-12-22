@@ -9,7 +9,6 @@ public class ItalicToken : IToken
     public string Separator => TokenSeparator;
     public bool IsPair => HasPair;
     public int Position { get; }
-    public int EndingPosition { get; private set; }
     public bool IsClosed { get; set; }
     public bool IsParametrized => false;
     public string Parameters { get; set; }

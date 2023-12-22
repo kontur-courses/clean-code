@@ -11,7 +11,6 @@ public class HeaderToken : IToken
 
     public int Position { get; }
     public bool IsClosed { get; set; }
-    public int EndingPosition { get; private set; }
     public bool IsParametrized => false;
     public string Parameters { get; set; }
     public int Shift { get; set; }
@@ -26,10 +25,10 @@ public class HeaderToken : IToken
     {
         if (Position == 0 || source[Position - 1] == '\n')
         {
-            EndingPosition = source.IndexOf('\n', Position);
-            if (EndingPosition < 0)
-                EndingPosition = source.Length;
-            tokens.Add(new HeaderToken(EndingPosition, true));
+            var endingPosition = source.IndexOf('\n', Position);
+            if (endingPosition < 0)
+                endingPosition = source.Length;
+            tokens.Add(new HeaderToken(endingPosition, true));
             return true;
         }
 
