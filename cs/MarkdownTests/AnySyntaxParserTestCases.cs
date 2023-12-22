@@ -130,7 +130,7 @@ public class AnySyntaxParserTestCases
                 .SetName("ReturnOneEscapeToken_WhenEscapeTokenIsEscaped");
             yield return new TestCaseData("__a_a__a_",
                     new List<IToken> { new BoldToken(0), new ItalicToken(3), new BoldToken(5), new ItalicToken(8) },
-                    new List<IToken>{ new BoldToken(0), new ItalicToken(3), new BoldToken(5), new ItalicToken(8) })
+                    new List<IToken> { new BoldToken(0), new ItalicToken(3), new BoldToken(5), new ItalicToken(8) })
                 .SetName("ReturnAllTokens_WhenBoldAndItalicIntersect");
             yield return new TestCaseData("\\# a", new List<IToken> { new EscapeToken(0), new HeaderToken(1) },
                     new List<IToken> { new EscapeToken(0) })
