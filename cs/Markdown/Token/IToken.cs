@@ -8,7 +8,7 @@ public interface IToken
     bool IsPair { get; }
     bool IsClosed { get; set; }
     bool IsParametrized { get; }
-    List<string> Parameters { get; set; }
-    int Shift { get; set; }
-    bool IsValid(string source, ref List<IToken> tokens, IToken currentToken);
+    List<string> Parameters { get; }
+    int TokenSymbolsShift { get; set; }
+    bool IsValid(string source, List<IToken> tokens, IToken currentToken);
 }

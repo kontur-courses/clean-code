@@ -48,6 +48,8 @@ public class MarkupRendererTestCases
                 .SetName("ReturnCorrectString_WhenTagsCloseOnNewline");
             yield return new TestCaseData("# a\n", "<h1>a</h1>\n")
                 .SetName("ReturnCorrectString_WhenInputContainsHeaderWithNewLineChar");
+            yield return new TestCaseData("# a\r\n", "<h1>a</h1>\n")
+                .SetName("ReturnCorrectString_WhenNewLineSymbolHasWindowsCulture");
 
             yield return new TestCaseData("_wo_rd", "<em>wo</em>rd")
                 .SetName("ReturnCorrectString_WhenPartOfWordEmphasised");

@@ -40,7 +40,7 @@ public class AnySyntaxParser : IParser
             if (source[i].ToString() == syntax.NewLineSeparator)
             {
                 possibleTag.Clear();
-                tags.Add(syntax.StringToToken[syntax.NewLineSeparator.ToString()].Invoke(i));
+                tags.Add(syntax.StringToToken[syntax.NewLineSeparator](i));
             }
 
             var tag = possibleTag.ToString();
@@ -60,7 +60,7 @@ public class AnySyntaxParser : IParser
         return tags;
     }
 
-    public IList<IToken> RemoveEscapedTags(IList<IToken> tags)
+    public IList<IToken> RemoveEscapedTags(IEnumerable<IToken> tags)
     {
         var result = new List<IToken>();
         var isEscaped = false;
@@ -91,7 +91,7 @@ public class AnySyntaxParser : IParser
         return result;
     }
 
-    public IList<IToken> ValidateTagPositioning(IList<IToken> tags)
+    public IList<IToken> ValidateTagPositioning(IEnumerable<IToken> tags)
     {
         var result = new List<IToken>();
         var openedTags = new Dictionary<string, IToken>();
@@ -104,27 +104,25 @@ public class AnySyntaxParser : IParser
                 continue;
             }
 
-            if (openedTags.ContainsKey(tag.Separator))
+            if (openedTags.TryGetValue(tag.Separator, out var openedToken))
             {
                 tag.IsClosed = true;
-                if (tag.IsValid(source, ref result, openedTags[tag.Separator]) &&
-                    tag.IsPairedTokenValidPositioned(openedTags[tag.Separator], source))
+                if (!tag.IsValid(source, result, openedToken) ||
+                    !tag.IsPairedTokenValidPositioned(openedToken, source)) continue;
+                if (TagIntersectsWithPreviousTokens(openedTags, tag))
                 {
-                    if (TagIntersectsWithPreviousTokens(openedTags, tag))
-                    {
-                        openedTags.Clear();
-                        continue;
-                    }
-
-                    result.Add(openedTags[tag.Separator]);
-                    
-                    if (!tag.IsParametrized)
-                        result.Add(tag);
-                    
-                    openedTags.Remove(tag.Separator);
+                    openedTags.Clear();
+                    continue;
                 }
+
+                result.Add(openedToken);
+                    
+                if (!tag.IsParametrized)
+                    result.Add(tag);
+                    
+                openedTags.Remove(tag.Separator);
             }
-            else if (tag.IsValid(source, ref result, tag) &&
+            else if (tag.IsValid(source, result, tag) &&
                      TagCanBeOpened(openedTags, tag))
             {
                 if (tag.IsPair)
@@ -137,16 +135,16 @@ public class AnySyntaxParser : IParser
         return result.Select(token => token).OrderBy(token => token.Position).ToList();
     }
 
-    private bool TagIntersectsWithPreviousTokens(Dictionary<string, IToken> openedTags, IToken tag)
+    private static bool TagIntersectsWithPreviousTokens(Dictionary<string, IToken> openedTags, IToken tag)
     {
         return openedTags.Values.Any(token =>
             (!token.IsClosed && token.Position > openedTags[tag.Separator].Position));
     }
 
-    private bool TagCanBeOpened(Dictionary<string, IToken> openedTags, IToken tag)
+    private bool TagCanBeOpened(IReadOnlyDictionary<string, IToken> openedTags, IToken tag)
     {
         return !(syntax.TagCannotBeInsideTags.ContainsKey(tag.Separator) &&
           syntax.TagCannotBeInsideTags[tag.Separator]
-              .Any(t => openedTags.ContainsKey(t)));
+              .Any(openedTags.ContainsKey));
     }
 }

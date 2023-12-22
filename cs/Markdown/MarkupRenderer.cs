@@ -20,7 +20,6 @@ public class MarkupRenderer
     public string Render(string text)
     {
         var tagTokens = parser.ParseTokens(text);
-        var converter = new MarkupConverter(syntax);
         return converter.ConvertTags(tagTokens, text);
     }
 }

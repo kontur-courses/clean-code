@@ -12,14 +12,14 @@ public class EscapeToken : IToken
     public int Position { get; }
     public bool IsParametrized => false;
     public List<string> Parameters { get; set; }
-    public int Shift { get; set; }
+    public int TokenSymbolsShift { get; set; }
 
     public EscapeToken(int position)
     {
         Position = position;
     }
 
-    public bool IsValid(string source, ref List<IToken> tokens, IToken currentToken)
+    public bool IsValid(string source, List<IToken> tokens, IToken currentToken)
     {
         return true;
     }

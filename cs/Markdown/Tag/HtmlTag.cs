@@ -18,7 +18,7 @@ public class HtmlTag : ITag
     public void RenderParameters(List<string> values, IList<string> parameters)
     {
         var result = new StringBuilder();
-        result.Append(OpeningSeparator.Substring(0, OpeningSeparator.Length - 1));
+        result.Append(OpeningSeparator[..^1]);
         for (var i = 0; i < parameters.Count; i++)
         {
             if (i >= values.Count)

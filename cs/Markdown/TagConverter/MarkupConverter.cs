@@ -33,7 +33,7 @@ public class MarkupConverter : IConverter
                 result.Append(tag.CloseSeparator);
             }
 
-            prevIndex = token.Position + token.Length + token.Shift;
+            prevIndex = token.Position + token.Length + token.TokenSymbolsShift;
         }
 
         if (prevIndex <= source.Length - 1)

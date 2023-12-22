@@ -50,6 +50,10 @@ public class AnySyntaxParserTestCases
                     new List<IToken>()
                         { new HeaderToken(0), new HeaderToken(3, true), new HeaderToken(4), new HeaderToken(7, true) })
                 .SetName("ReturnTwoHeaderTokens_TwoHeaderTokensProvided");
+            yield return new TestCaseData("# a\r\n# a",
+                    new List<IToken>()
+                        { new HeaderToken(0), new HeaderToken(3, true), new HeaderToken(5), new HeaderToken(8, true) })
+                .SetName("ReturnCorrectTokens_WhenNewLineSymbolHasWindowsCulture");
 
             yield return new TestCaseData("_a_", new List<IToken>() { new ItalicToken(0), new ItalicToken(2) })
                 .SetName("ReturnItalicToken_WhenItalicTokenProvided");

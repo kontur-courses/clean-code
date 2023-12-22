@@ -21,6 +21,9 @@ public class MarkupConverterTestCases
                 .SetName("ReturnStringWithEmphasisTag_WhenEmphasisTagProvided");
             yield return new TestCaseData(new List<IToken> { new EscapeToken(0) }, "\\_a_", "_a_")
                 .SetName("ReturnCorrectString_WhenTagWasScreened");
+            yield return new TestCaseData(new List<IToken> { new EscapeToken(0) }, "\\_a_", "_a_")
+                .SetName("ReturnCorrectString_WhenTagWasScreened");
+
 
             yield return new TestCaseData(new List<IToken>
                 {

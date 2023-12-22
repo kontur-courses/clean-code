@@ -11,14 +11,14 @@ public class NewLineToken : IToken
     public bool IsClosed { get; set; }
     public bool IsParametrized => false;
     public List<string> Parameters { get; set; }
-    public int Shift { get; set; }
+    public int TokenSymbolsShift { get; set; }
 
     public NewLineToken(int position)
     {
         Position = position;
     }
 
-    public bool IsValid(string source, ref List<IToken> tokens, IToken currentToken)
+    public bool IsValid(string source, List<IToken> tokens, IToken currentToken)
     {
         return true;
     }
