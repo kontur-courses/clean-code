@@ -11,9 +11,9 @@ public static class TokenExtensions
 
     public static void HandleTags(this Token token)
     {
-        if (token.Tag!.IsOpeningTag())
-            blockTags = token.Tag!.ExcludedTags ?? Array.Empty<TagType>();
-        else if (token.Tag!.IsClosingTag())
+        if (token.Tag != null && token.Tag.IsOpeningTag())
+            blockTags = token.Tag.ExcludedTags ?? Array.Empty<TagType>();
+        else if (token.Tag != null && token.Tag.IsClosingTag())
         {
             blockTags = Array.Empty<TagType>();
         }
