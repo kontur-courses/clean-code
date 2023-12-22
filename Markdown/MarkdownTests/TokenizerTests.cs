@@ -6,7 +6,7 @@ namespace MarkdownTests;
 public class TokenizerTests
 {
     [Test, TestCaseSource(nameof(TokenizeTestCases))]
-    public void Tokenize_ReturnsTextToken_OnTextOnly(string input, IEnumerable<MdToken> expected)
+    public void Tokenize_ReturnsTextToken_OnTextOnly(string input, IEnumerable<IToken> expected)
     {
         var tokenizer = new MdTokenizer(input);
 
@@ -18,11 +18,11 @@ public class TokenizerTests
     {
         get
         {
-            yield return new TestCaseData("abc", new MdToken[] { new("abc") });
-            yield return new TestCaseData("_", new MdToken[] { new(new ItalicTag()) });
-            yield return new TestCaseData("__", new MdToken[] { new(new BoldTag()) });
-            yield return new TestCaseData("# ", new MdToken[] { new(new HeaderTag()) });
-            yield return new TestCaseData("# ", new MdToken[] { new(new HeaderTag()) });
+            yield return new TestCaseData("abc", new MdTextToken[] { new("abc") });
+            yield return new TestCaseData("_", new MdTagToken[] { new(new ItalicTag(), new NeighboursContext(null, null)) });
+            yield return new TestCaseData("__", new MdTagToken[] { new(new BoldTag(), new NeighboursContext(null, null)) });
+            yield return new TestCaseData("# ", new MdTagToken[] { new(new HeaderTag(), new NeighboursContext(null, null)) });
+            yield return new TestCaseData("# ", new MdTagToken[] { new(new HeaderTag(), new NeighboursContext(null, null)) });
         }
     }
 }

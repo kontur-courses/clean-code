@@ -1,7 +1,6 @@
 ﻿namespace Markdown;
 
-public interface IToken<out TTag>
+public interface IToken
 {
-    public TTag? Tag { get; }
-    public string? Text { get; }
+    public string GetValue { get; }
 }

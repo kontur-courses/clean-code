@@ -1,7 +1,8 @@
 ﻿namespace Markdown;
 
-public enum TagStatus
+public enum Status
 {
+    Unset,
     Opened,
     Closed,
     Broken

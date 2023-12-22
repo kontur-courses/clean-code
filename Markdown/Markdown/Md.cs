@@ -11,20 +11,8 @@ public class Md
         return TranslateToHtml(tokenizer.Tokenize());
     }
 
-    private string TranslateToHtml(IEnumerable<MdToken> tokens)
+    private string TranslateToHtml(IEnumerable<IToken> tokens)
     {
-        var text = new StringBuilder();
-
-        foreach (var token in tokens)
-        {
-            if (token.Text != null)
-                text.Append(token.Text);
-            else
-            {
-                text.Append(token.Tag.HtmlTag.Open);
-            }
-        }
-
-        return text.ToString();
+        return string.Concat(tokens.Select(x => x.GetValue));
     }
 }
