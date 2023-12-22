@@ -18,7 +18,7 @@ namespace Markdown.TagHandlers
             return markdownText[i] == Italic;
         }
 
-        public Tag FindTag(StringBuilder markdownText, int currentIndex, FindTagSettings settings, string? closingTagParent)
+        public Tag? FindTag(StringBuilder markdownText, int currentIndex, FindTagSettings settings, string? closingTagParent)
         {
             var screeningSymbolsCount = TagFindHelper.ScreeningCheck(markdownText, currentIndex);
 
@@ -62,6 +62,7 @@ namespace Markdown.TagHandlers
         private int FindClosingTagIndex(StringBuilder markdownText, int openTagIndex, string parentClosingTag)
         {
             var oneWord = true;
+            var haveLetters = false;
             BoldHandler bold = new BoldHandler();
 
             for (var i = openTagIndex; i < markdownText.Length; i++)
@@ -69,15 +70,20 @@ namespace Markdown.TagHandlers
                 if (markdownText[i] == ' ')
                     oneWord = false;
 
-                if (char.IsDigit(markdownText[i]))
-                    return i;
+                if (char.IsLetter(markdownText[i]))
+                    haveLetters = true;
 
                 if (IsTagSymbol(markdownText, i) && TagFindHelper.IsCorrectClosingSymbol(markdownText, i, Italic))
                 {
                     if (!oneWord && TagFindHelper.IsHalfOfWord(markdownText, i))
                         return -1;
 
-                    return i;
+                    if (haveLetters)
+                    {
+                        return i;
+                    }
+
+                    return -1;
                 }
 
                 if (bold.IsTagSymbol(markdownText, i))

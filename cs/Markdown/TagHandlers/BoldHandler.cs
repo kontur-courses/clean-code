@@ -64,27 +64,35 @@ namespace Markdown.TagHandlers
 
             var resultTag = new Tag(markdownText, -1);
             var correctPartOfWord = true;
-            
+            var resultTagText = markdownText.ToString();
+            var haveLetters = false;
+
             for (var i = openTagIndex; i < markdownText.Length; i++)
             {
                 if (markdownText[i] == ' ' && markdownText[i - 1] != '>')
                     correctPartOfWord = false;
 
-                if (char.IsDigit(markdownText[i]))
-                {
-                    resultTag.Index = -1;
-                    return resultTag;
-                }
+                if (char.IsLetter(markdownText[i]))
+                    haveLetters = true;
 
                 if (IsTagSymbol(markdownText, i) && TagFindHelper.IsCorrectClosingSymbol(markdownText, i, Bold))
                 {
                     if (!correctPartOfWord && TagFindHelper.IsHalfOfWord(markdownText, i))
                     {
                         resultTag.Index = -1;
+                        if (closParTag == "_")
+                            resultTag.Text = new StringBuilder(resultTagText.Substring(0, i));
+                        else
+                            resultTag.Text = markdownText;
                         return resultTag;
                     }
 
-                    resultTag.Index = i;
+                    if (haveLetters)
+                    {
+                        resultTag.Index = i;
+                        return resultTag;
+                    }
+
                     return resultTag;
                 }
 
