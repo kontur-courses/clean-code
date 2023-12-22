@@ -6,7 +6,7 @@ public static class TokenListExtensions
 {
     private static bool InTag;
 
-    public static string ConcatenateToString(this List<Token> tokens)
+    public static string ConcatenateToString(this List<Token?> tokens)
     {
         var text = new StringBuilder();
 

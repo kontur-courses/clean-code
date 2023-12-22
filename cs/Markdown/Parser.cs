@@ -6,31 +6,31 @@ namespace Markdown;
 public class Parser
 {
     private readonly Dictionary<string, TagType> tagDictionary;
-    private List<Token> list;
-    private Token previousToken;
+    private List<Token?> list;
+    private Token? previousToken;
 
     public Parser(Dictionary<string, TagType> tagDictionary)
     {
         this.tagDictionary = tagDictionary;
     }
 
-    public List<Token> Parse(string text)
+    public List<Token?> Parse(string text)
     {
         var previousStatus = TokenType.Undefined;
         var content = new StringBuilder();
-        list = new List<Token>();
+        list = new List<Token?>();
         for (var index = 0; index < text.Length; index++)
         {
             var status = DetermineTokenType(text[index].ToString(), content.ToString());
 
-            if (previousStatus == TokenType.Undefined || status == previousStatus
-                && (status == TokenType.Text 
-                    || (status == TokenType.Escape && content.ToString() != @"\") 
-                    || IsTagSequenceEnd(content.ToString(), text[index].ToString())))
-                
+            if (previousStatus == TokenType.Undefined || 
+                (status == previousStatus
+                  && (status == TokenType.Text
+                  || (status == TokenType.Escape && content.ToString() != @"\")
+                  || (status == TokenType.Tag && IsTagSequenceEnd(content.ToString(),text[index].ToString())))))
+
             {
                 content.Append(text[index]);
-                
             }
             else
             {
@@ -42,6 +42,7 @@ public class Parser
 
             previousStatus = status;
         }
+
         HandleEscapeTag(ref previousStatus);
         AddToken(previousStatus, content.ToString(), "");
         list.Add(new Token("\n", null, TokenType.LineBreaker));
@@ -50,8 +51,8 @@ public class Parser
 
     private void AddToken(TokenType status, string content, string nextChar)
     {
-        Token token;
-        if (status == TokenType.Tag)
+        Token? token;
+        if (status == TokenType.Tag && IsTag(content))
         {
             var tag = Tag.CreateTag(tagDictionary[content], content, previousToken, nextChar);
             token = new Token(content, tag, status);
@@ -60,6 +61,7 @@ public class Parser
         }
         else
         {
+            status = status == TokenType.Tag ? TokenType.Text : status;
             token = new Token(content, null, status);
             list.Add(token);
         }

@@ -2,11 +2,12 @@ namespace Markdown.Tags;
 
 public class Heading : Tag
 {
-    protected override Tag CreateTag(string content, Token previousToken, string nextChar)
+    protected override Tag CreateTag(string content, Token? previousToken, string nextChar)
     {
         IsPaired = false;
-        ReplacementForOpeningTag = "<h1>";
-        ReplacementForClosingTag = "</h1>";
+        var nestingLevel = GetNestingLevel(content);
+        ReplacementForOpeningTag = $"<h{nestingLevel}>";
+        ReplacementForClosingTag = $"</h{nestingLevel}>";
         TagType = TagType.Heading;
         TagContent = content;
         Status = TagStatus.Block;
@@ -14,13 +15,14 @@ public class Heading : Tag
         return this;
     }
 
-    protected virtual void BlockToken(Token previousToken)
+    protected virtual void BlockToken(Token? previousToken)
     {
         if (previousToken == null || (previousToken.Tag != null && previousToken.Tag.TagType != TagType.Bulleted))
-        {
             Status = TagStatus.SelfClosing;
-        }
     }
-    
-    
+
+    private static int GetNestingLevel(string content)
+    {
+        return content.Length - 1;
+    }
 }

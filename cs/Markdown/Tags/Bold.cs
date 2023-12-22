@@ -2,7 +2,7 @@ namespace Markdown.Tags;
 
 public class Bold : PairedTags
 {
-    protected override Tag CreateTag(string content, Token previousToken, string nextChar)
+    protected override Tag CreateTag(string content, Token? previousToken, string nextChar)
     {
         IsPaired = true;
         ReplacementForOpeningTag = "<strong>";

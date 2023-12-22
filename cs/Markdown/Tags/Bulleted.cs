@@ -2,7 +2,7 @@ namespace Markdown.Tags;
 
 public class Bulleted : Tag
 {
-    protected override Tag CreateTag(string content, Token previousToken, string nextChar)
+    protected override Tag CreateTag(string content, Token? previousToken, string nextChar)
     {
         IsPaired = false;
         ReplacementForOpeningTag = "<li>";
@@ -14,7 +14,7 @@ public class Bulleted : Tag
         return this;
     }
 
-    protected void BlockToken(Token previousToken)
+    private void BlockToken(Token? previousToken)
     {
         if (previousToken != null)
         {

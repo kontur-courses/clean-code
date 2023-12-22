@@ -1,23 +1,22 @@
-﻿using System.Collections.Immutable;
-
-namespace Markdown;
+﻿namespace Markdown;
 
 public class Program
 {
     public static void Main(string[] args)
     {
-        var tagDictionary = new Dictionary<string, TagType>()
+        var tagDictionary = new Dictionary<string, TagType>
         {
-            {"_", TagType.Italic},
-            {"__", TagType.Bold},
-            {"# ", TagType.Heading},
-            {"\n", TagType.LineBreaker},
-            {"\r\n", TagType.LineBreaker}
-            
+            { "_", TagType.Italic },
+            { "__", TagType.Bold },
+            { "# ", TagType.Heading },
+            { "## ", TagType.Heading },
+            { "### ", TagType.Heading },
+            { "\n", TagType.LineBreaker },
+            { "\r\n", TagType.LineBreaker }
         };
-        var text = "* _text_\n";
+        const string text = "__abc__ \n### abc";
         var sut = new Md(tagDictionary);
-        var t= sut.Render(text);
+        var t = sut.Render(text);
         Console.WriteLine(t);
     }
 }

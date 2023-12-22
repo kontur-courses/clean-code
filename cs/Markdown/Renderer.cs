@@ -4,20 +4,20 @@ namespace Markdown;
 
 public class Renderer
 {
-    private Tag previousTag;
+    private Tag? previousTag;
     private Stack<Tag>? stack;
     private string closingSomeTags = string.Empty;
 
-    public List<Token> HandleTokens(List<Token> tokenList)
+    public List<Token?> HandleTokens(List<Token?> tokenList)
     {
         stack = new Stack<Tag>();
 
         foreach (var token in tokenList)
-            switch (token.Type)
+            switch (token!.Type)
             {
                 case TokenType.Text:
                     break;
-                case TokenType.Tag when token.Tag.IsPaired:
+                case TokenType.Tag when token.Tag!.IsPaired:
                     HandlePairedTag(token.Tag);
                     break;
                 case TokenType.Tag:
@@ -33,8 +33,9 @@ public class Renderer
                     token.Content = closingSomeTags + token.Content;
                     closingSomeTags = string.Empty;
                     break;
+                case TokenType.Undefined: break;
                 default:
-                    throw new ArgumentOutOfRangeException();
+                    throw new ArgumentOutOfRangeException(nameof(token.Type), "Unsupported in render token type");
             }
 
         return tokenList;
