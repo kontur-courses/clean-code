@@ -11,10 +11,11 @@ public class Program
             { "# ", TagType.Heading },
             { "## ", TagType.Heading },
             { "### ", TagType.Heading },
+            { "* ", TagType.Bulleted},
             { "\n", TagType.LineBreaker },
             { "\r\n", TagType.LineBreaker }
         };
-        const string text = "__abc__ \n### abc";
+        const string text = " _а djdjd __ала__а_";
         var sut = new Md(tagDictionary);
         var t = sut.Render(text);
         Console.WriteLine(t);

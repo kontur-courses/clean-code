@@ -11,7 +11,7 @@ public abstract class Tag
 
     public TagStatus Status = TagStatus.Undefined;
     public TagType TagType { get; set; }
-    public TagType[] ExcludedTags = null!;
+    public TagType[] ExcludedTags = Array.Empty<TagType>();
     protected Token? PreviousToken;
     protected abstract Tag CreateTag(string content, Token? previousToken, string nextChar);
 
