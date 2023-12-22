@@ -1,9 +1,8 @@
 ﻿using Markdown.Tokens;
 
-namespace Markdown.Parsers
+namespace Markdown.Parsers;
+
+public interface IMarkingParser
 {
-    public interface IMarkingParser
-    {
-        IEnumerable<IToken> ParseText(string text);
-    }
+    IList<IToken> ParseText(string text);
 }

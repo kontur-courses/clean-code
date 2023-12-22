@@ -1,34 +1,19 @@
 using FluentAssertions;
+using Markdown.Filters;
 using Markdown.Parsers;
 using Markdown.Tokens;
 using NUnit.Framework;
 
-namespace MarkdownTests
+namespace MarkdownTests;
+
+public class MarkdownParserTests
 {
-    [TestFixture]
-    public class MarkdownParserTests
+    private static MarkdownParser sut = new MarkdownParser(new TokenFilter());
+
+    [TestCaseSource(typeof(MarkdownParserTestData), nameof(MarkdownParserTestData.TestData))]
+    public void ParseText_WithDifferentCases_ReturnsCorrectTokens(string text, IEnumerable<Token> expected)
     {
-        private MarkdownParser sut;
-
-        [SetUp]
-        public void SetUp()
-        {
-            sut = new MarkdownParser();
-        }
-
-        [TestCase("", TestName = "ParseText_EmptyString_ThrowsArgumentException")]
-        [TestCase(null, TestName = "ParseText_StringIsNull_ThrowsArgumentException")]
-        public void ParseText_EmptyString_ThrowsArgumentException(string text)
-        {
-            var action = () => sut.ParseText(text).First();
-            action.Should().Throw<ArgumentException>();
-        }
-
-        [TestCaseSource(typeof(MarkdownParserTestData), nameof(MarkdownParserTestData.TestData))]
-        public void ParseText_WithDifferentCases_ReturnsCorrectTokens(string text, IEnumerable<Token> expected)
-        {
-            var result = sut.ParseText(text);
-            result.Should().BeEquivalentTo(expected);
-        }
+        var result = sut.ParseText(text);
+        result.Should().BeEquivalentTo(expected);
     }
 }

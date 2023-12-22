@@ -1,102 +1,101 @@
 ﻿using FluentAssertions;
 using Markdown;
+using Markdown.Filters;
 using Markdown.Generators;
 using Markdown.Parsers;
 using NUnit.Framework;
 using System.Text;
 
-namespace MarkdownTests
+namespace MarkdownTests;
+
+public class MarkdownToHtmlConverterTests
 {
-    [TestFixture]
-    public class MarkdownToHtmlConverterTests
+    private MarkdownToHtmlConverter sut;
+    
+    [SetUp] 
+    public void SetUp() 
     {
-        private MarkdownToHtmlConverter sut;
-        
-        [SetUp] 
-        public void SetUp() 
+        var markdownParser = new MarkdownParser(new TokenFilter());
+        var htmlGenerator = new HtmlGenerator();
+        sut = new MarkdownToHtmlConverter(markdownParser, htmlGenerator);
+    }
+
+    [TestCase("", TestName = "Empty string")]
+    [TestCase(null, TestName = "String is null")]
+    public void Convert_EmptyString_NotThrowsArgumentException(string text)
+    {
+        var action = () => sut.Convert(text);
+        action.Should().NotThrow<ArgumentException>();
+    }
+
+    [TestCase(@"\", @"\", TestName = "Only escape symbol")]
+    [TestCase(@"\\\text\\", @"\\text\", TestName = "Many escaped symbols")]
+    [TestCase(@"сим\волы экранирования\ \должны остаться.\", @"сим\волы экранирования\ \должны остаться.\",
+        TestName = "Many not escaped symbols")]
+    [TestCase("_12_", "_12_", TestName = "Digits in italic")]
+    [TestCase("_text_", "<em>text</em>", TestName = "Symple italic")]
+    [TestCase("_te_xt", "_te_xt", TestName = "Italic in word")]
+    [TestCase("te_xt tex_t", "te_xt tex_t", TestName = "Italic in different words")]
+    [TestCase("_ text_", "_ text_", TestName = "White space before italic tag")]
+    [TestCase("_text _", "_text _", TestName = "White space after italic tag")]
+    [TestCase("_text _text_", "_text <em>text</em>",
+        TestName = "non pair first open italic tag")]
+    [TestCase("_text_ text_", "<em>text</em> text_", TestName = "Non pair last italic tag")]
+    [TestCase("__text_", "_<em>text</em>", TestName = "Additional italic symbol")]
+    [TestCase("__text__", "<strong>text</strong>", TestName = "Simple strong tag")]
+    [TestCase("__ text__", "__ text__", TestName = "White space after open strong tag")]
+    [TestCase("__text __", "__text __", TestName = "White space before closed strong tag")]
+    [TestCase("__text text text__", "<strong>text text text</strong>", TestName = "Many words in strong tag")]
+    [TestCase("____text___", "_<strong><em>text</em></strong>", TestName = "Em in strong with additional symbol")]
+    [TestCase("____", "____", TestName = "Many underscores without text")]
+    [TestCase("__text _text_ text__", "<strong>text <em>text</em> text</strong>",
+        TestName = "Em in strong")]
+    [TestCase("_text __text__ text_", "<em>text __text__ text</em>", 
+        TestName = "Strong in em")]
+    [TestCase("\\_text_", "_text_", TestName = "Escaped open italic tag")]
+    [TestCase("# text\n", "<h1>text</h1>", TestName = "Simple header tag")]
+    [TestCase("# Заголовок __с _разными_ символами__\n", "<h1>Заголовок <strong>с <em>разными</em> символами</strong></h1>",
+        TestName = "Header with strong and italic in strong")]
+    [TestCase("#text\n", "#text\n", TestName = "Header without space before text")]
+    [TestCase("# text", "<h1>text</h1>", TestName = "Header without new string symbol")]
+    [TestCase("[text](text)", "<a href=\"text\">text</a>",
+        TestName = "Simple link")]
+    [TestCase("[]()", "<a href=\"\"></a>", TestName = "Empty link")]
+    [TestCase("[_text_](text)", "<a href=\"text\"><em>text</em></a>", 
+        TestName = "Em in link description")]
+    [TestCase("[[(text)]](text)", "<a href=\"text\">[(text)]</a>",
+        TestName = "Brackets in link")]
+    [TestCase("_[text_](text)", "_<a href=\"text\">text_</a>",
+        TestName = "Tags out of link")]
+    [TestCase("[text](_text_)", "<a href=\"_text_\">text</a>",
+        TestName = "Italic in link")]
+    [TestCase("[text] (text)", "[text] (text)", TestName = "Space between link and description")]
+    [TestCase("[text][text](text)", "[text]<a href=\"text\">text</a>",
+        TestName = "Two link descriptions")]
+    [TestCase("[text](text)(text)", "<a href=\"text\">text</a>(text)",
+        TestName = "Two links")]
+    [TestCase("[[text](text)]", "[<a href=\"text\">text</a>]", 
+        TestName = "Link and description in additional brackets")]
+    [TestCase("[text](text) text [text](text)", "<a href=\"text\">text</a> text <a href=\"text\">text</a>",
+        TestName = "Some links in row")]
+    [TestCase("# [text](text)\n", "<h1><a href=\"text\">text</a></h1>", 
+        TestName = "Header with link")]
+    public void Convert_DifferentText_ReturnsCorrectString(string text, string expected)
+    {
+        var result = sut.Convert(text);
+        result.Should().BeEquivalentTo(expected);
+    }
+
+    [Test]
+    [Timeout(10000)]
+    public void TimeTest()
+    {
+        var text = new StringBuilder();
+        for (var i = 0; i < 1000000; i++)
         {
-            var markdownParser = new MarkdownParser();
-            var htmlGenerator = new HtmlGenerator();
-            sut = new MarkdownToHtmlConverter(markdownParser, htmlGenerator);
+            text.Append("__text__");
         }
 
-        [TestCase("", TestName = "Convert_EmptyString_ThrowsArgumentException")]
-        [TestCase(null, TestName = "Convert_StringIsNull_ThrowsArgumentException")]
-        public void Convert_IncorrectString_ThrowsArgumentException(string text)
-        {
-            var action = () => sut.Convert(text);
-            action.Should().Throw<ArgumentException>();
-        }
-
-        [TestCase(@"\", @"\", TestName = "Convert_OneEscapeSymbol_ReturnsThisSymbol")]
-        [TestCase(@"\\\text\\", @"\\text\", TestName = "Convert_ManyEscapeSymbol_ReturnsNonEscapedSymbol")]
-        [TestCase(@"сим\волы экранирования\ \должны остаться.\", @"сим\волы экранирования\ \должны остаться.\",
-            TestName = "Convert_ManyNonEscapedSymbols_ReturnsThisSymbolsAsString")]
-        [TestCase("_12_", "_12_", TestName = "Convert_ItalicInDigits_ReturnsNonItalicDigits")]
-        [TestCase("_text_", "<em>text</em>", TestName = "Convert_TextInItalic_ReturnsItalicTags")]
-        [TestCase("_te_xt", "_te_xt", TestName = "Convert_ItalicInWord_ReturnsThisText")]
-        [TestCase("te_xt tex_t", "te_xt tex_t", TestName = "Convert_ItalicInDifferentWords_ReturnsThisText")]
-        [TestCase("_ text_", "_ text_", TestName = "Convert_WhiteSpaceBeforeItalicTag_ReturnsThisText")]
-        [TestCase("_text _", "_text _", TestName = "Convert_WhiteSpaceAfterItalicTag_ReturnsThisText")]
-        [TestCase("_text _text_", "_text <em>text</em>",
-            TestName = "Convert_NonPairFirstItalicTag_ReturnsFirstItalicSymbolInTextAndItalicTag")]
-        [TestCase("_text_ text_", "<em>text</em> text_", TestName = "Convert_WhiteSpaceAfterItalicTag_ReturnsThisText")]
-        [TestCase("__text_", "_<em>text</em>", TestName = "Convert_AdditionalItalicSymbol_ReturnsItalicTagWithAdditionalSymbolWithouItalic")]
-        [TestCase("__text__", "<strong>text</strong>", TestName = "Convert_WordStrongTag_ReturnsWordInHtmlStrongTag")]
-        [TestCase("__ text__", "__ text__", TestName = "Convert_StrongTagWithWhiteSpaceAfter_ReturnsThisString")]
-        [TestCase("__text __", "__text __", TestName = "Convert_StrongTagWithWhiteSpaceBefore_ReturnsThisString")]
-        [TestCase("__text text__", "<strong>text text</strong>", TestName = "Convert_StrongTagWithSomeWords_ReturnsWordsInTag")]
-        [TestCase("____text___", "_<strong><em>text</em></strong>", TestName = "Convert_EmInStrongWithExtraSymbol_ReturnsEmTagInStrongTag")]
-        [TestCase("____", "____", TestName = "Convert_ManyUnderscoresWithoutText_ReturnsAllTextTags")]
-        [TestCase("__text _text_ text__", "<strong>text <em>text</em> text</strong>",
-            TestName = "Convert_EmInStrong_ReturnsEmTagInStrongTag")]
-        [TestCase("_text __text__ text_", "<em>text __text__ text</em>", 
-            TestName = "Convert_StrongInEm_ReturnsNotWorkingStrong")]
-        [TestCase("\\_text_", "_text_", TestName = "Convert_EscapeEm_ReturnsAllTextTags")]
-        [TestCase("# text\n", "<h1>text</h1>", TestName = "Convert_HeaderTag_ReturnsTextInHtmlHeader")]
-        [TestCase("# Заголовок __с _разными_ символами__\n", "<h1>Заголовок <strong>с <em>разными</em> символами</strong></h1>",
-            TestName = "Convert_HeaderTagWithNestedTags_ReturnsHtmlHeaderWithHtmlNestedTags")]
-        [TestCase("#text\n", "#text\n", TestName = "Convert_HeaderWithoutWhiteSpaceBeforeText_ReturnsTextWithoutHtml")]
-        [TestCase("# text", "# text", TestName = "Convert_HeaderWithoutNewStringSymbol_ReturnsTextWithoutHtml")]
-        [TestCase("[text](text)", "<a href=\"text\">text</a>",
-            TestName = "Convert_LinkWithDescription_ReturnsLinkInText")]
-        [TestCase("[]()", "<a href=\"\"></a>", TestName = "Convert_EmptyLink_ReturnsTagWithEmptyLinkAndDescription")]
-        [TestCase("[_text_](text)", "<a href=\"text\"><em>text</em></a>", 
-            TestName = "Convert_EmInLinkDescription_ReturnsLinkInText")]
-        [TestCase("[[(text)]](text)", "<a href=\"text\">[(text)]</a>",
-            TestName = "Convert_BracketsInLink_ReturnsLinkWithBracketsInDescription")]
-        [TestCase("_[text_](text)", "_<a href=\"text\">text_</a>",
-            TestName = "Convert_TagsOutOfLink_ReturnsTagInString")]
-        [TestCase("[text](_text_)", "<a href=\"_text_\">text</a>",
-            TestName = "Convert_TagInLink_ReturnsTagInString")]
-        [TestCase("[text] (text)", "[text] (text)", TestName = "Convert_SpaceBetweenDescriptionAndLink_ReturnsAllText")]
-        [TestCase("[text][text](text)", "[text]<a href=\"text\">text</a>",
-            TestName = "Convert_TwoDescriptions_ReturnsFirstLinkAsText")]
-        [TestCase("[text](text)(text)", "<a href=\"text\">text</a>(text)",
-            TestName = "Convert_TwoLinks_ReturnsSecondLinkAsText")]
-        [TestCase("[[text](text)]", "[<a href=\"text\">text</a>]", 
-            TestName = "Convert_LinkInBrackets_ReturnsBracketsAsTextAndHtmlLink")]
-        [TestCase("[text](text) text [text](text)", "<a href=\"text\">text</a> text <a href=\"text\">text</a>",
-            TestName = "Convert_TwoLinksInRowAndTextBetweenIt_ReturnsTwoLinksWithTextBetweenIt")]
-        [TestCase("# [text](text)\n", "<h1><a href=\"text\">text</a></h1>", 
-            TestName = "Convert_LinkInHeader_ReturnsLinkHtmlInHeaderHtml")]
-        public void Convert_DifferentText_ReturnsCorrectString(string text, string expected)
-        {
-            var result = sut.Convert(text);
-            result.Should().BeEquivalentTo(expected);
-        }
-
-        [Test]
-        [Timeout(10000)]
-        public void TimeTest()
-        {
-            var text = new StringBuilder();
-            for (var i = 0; i < 1000000; i++)
-            {
-                text.Append("__text__");
-            }
-
-            sut.Convert(text.ToString());
-        }
+        sut.Convert(text.ToString());
     }
 }

@@ -1,9 +1,8 @@
-﻿namespace Markdown.Tokens
+﻿namespace Markdown.Tokens;
+
+public enum TokenType
 {
-    public enum TokenType
-    {
-        Text,
-        Tag,
-        Escape
-    }
+    Text,
+    Tag,
+    Escape
 }

@@ -1,9 +1,8 @@
 ﻿using Markdown.Tokens;
 
-namespace Markdown.Generators
+namespace Markdown.Generators;
+
+public interface IMarkingGenerator
 {
-    public interface IMarkingGenerator
-    {
-        string Generate(IEnumerable<IToken> tokens, string text);
-    }
+    string Generate(IEnumerable<IToken> tokens, string text);
 }
