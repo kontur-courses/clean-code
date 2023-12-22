@@ -11,7 +11,7 @@ public class BoldToken : IToken
     public int Position { get; }
     public bool IsClosed { get; set; }
     public bool IsParametrized => false;
-    public string Parameters { get; set; }
+    public List<string> Parameters { get; set; }
     public int Shift { get; set; }
 
     public BoldToken(int position, bool isClosed = false)

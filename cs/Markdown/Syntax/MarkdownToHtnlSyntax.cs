@@ -9,7 +9,9 @@ public class MarkdownToHtnlSyntax : ISyntax
     {
         { "# ", pos => new HeaderToken(pos) }, { "_", pos => new ItalicToken(pos) },
         { "__", pos => new BoldToken(pos) }, { "\\", pos => new EscapeToken(pos) },
-        { "\n", pos => new NewLineToken(pos) }, { "@", pos => new ImageToken(pos) }
+        { "\n", pos => new NewLineToken(pos) }, { "![", pos => new ImageToken(pos) },
+        { "]", pos => new ImageToken(pos) }, { "(", pos => new ImageToken(pos) },
+        { ")", pos => new ImageToken(pos) }
     };
 
     private static readonly Dictionary<string, IList<string>> TagNotWorkingWithinTags = new()

@@ -117,7 +117,10 @@ public class AnySyntaxParser : IParser
                     }
 
                     result.Add(openedTags[tag.Separator]);
-                    result.Add(tag);
+                    
+                    if (!tag.IsParametrized)
+                        result.Add(tag);
+                    
                     openedTags.Remove(tag.Separator);
                 }
             }

@@ -11,7 +11,7 @@ public class EscapeToken : IToken
     public bool IsClosed { get; set; }
     public int Position { get; }
     public bool IsParametrized => false;
-    public string Parameters { get; set; }
+    public List<string> Parameters { get; set; }
     public int Shift { get; set; }
 
     public EscapeToken(int position)

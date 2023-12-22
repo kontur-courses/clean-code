@@ -7,8 +7,7 @@ public class AnySyntaxParserTestCases
     public static IEnumerable<TestCaseData> ParseTokenTestCases
     {
         get
-        {
-            yield return new TestCaseData(string.Empty, new List<IToken>())
+        {yield return new TestCaseData(string.Empty, new List<IToken>())
                 .SetName("ReturnEmptySequence_WhenStringIsEmpty");
             yield return new TestCaseData("a", new List<IToken>())
                 .SetName("ReturnEmptySequence_WhenNoTokensInText");
@@ -75,11 +74,11 @@ public class AnySyntaxParserTestCases
             yield return new TestCaseData("\\\\a", new List<IToken>() { new EscapeToken(0) })
                 .SetName("ReturnEscapingToken_WhenEscapeTokenIsEscaped");
 
-            yield return new TestCaseData("@aba caba@",
-                    new List<IToken>() { new ImageToken(0), new ImageToken(9, true) })
+            yield return new TestCaseData("![aba](caba)",
+                    new List<IToken>() { new ImageToken(0) })
                 .SetName("ReturnLinkToken_WhenLinkToken");
-            yield return new TestCaseData("@#a__b__a c_a_ba@",
-                    new List<IToken>() { new ImageToken(0), new ImageToken(16, true) })
+            yield return new TestCaseData("![#a__b__a](c_a_ba)",
+                    new List<IToken>() { new ImageToken(0) })
                 .SetName("ReturnLinkToken_WhenLinkTokenContainsTokens");
 
             yield return new TestCaseData(

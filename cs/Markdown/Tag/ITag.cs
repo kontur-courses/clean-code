@@ -5,5 +5,5 @@ public interface ITag
     string OpeningSeparator { get; }
     string CloseSeparator { get; }
     bool IsPaired { get; }
-    void RenderParameters(string parametersValues, IList<string> parameters);
+    void RenderParameters(List<string> values, IList<string> parameters);
 }

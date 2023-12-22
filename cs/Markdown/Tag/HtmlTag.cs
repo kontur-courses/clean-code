@@ -15,14 +15,13 @@ public class HtmlTag : ITag
         IsPaired = isPaired;
     }
 
-    public void RenderParameters(string parametersValues, IList<string> parameters)
+    public void RenderParameters(List<string> values, IList<string> parameters)
     {
-        var values = parametersValues.Split(" ", parameters.Count);
         var result = new StringBuilder();
         result.Append(OpeningSeparator.Substring(0, OpeningSeparator.Length - 1));
         for (var i = 0; i < parameters.Count; i++)
         {
-            if (i >= values.Length)
+            if (i >= values.Count)
                 result.Append($" {parameters[i]}=\"\"");
             else result.Append($" {parameters[i]}=\"{values[i]}\"");
         }
