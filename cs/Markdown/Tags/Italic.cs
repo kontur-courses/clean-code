@@ -2,7 +2,7 @@ namespace Markdown.Tags;
 
 public class Italic : PairedTags
 {
-    protected override Tag CreateTag(string content, Token previousToken, string nextChar)
+    protected override Tag CreateTag(string content, Token? previousToken, string nextChar)
     {
         IsPaired = true;
         ReplacementForOpeningTag = "<em>";
