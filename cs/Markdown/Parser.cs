@@ -1,4 +1,5 @@
 using System.Text;
+using Markdown.Extensions;
 using Markdown.Tags;
 
 namespace Markdown;
@@ -6,7 +7,7 @@ namespace Markdown;
 public class Parser
 {
     private readonly Dictionary<string, TagType> tagDictionary;
-    private List<Token?> list;
+    private List<Token> list;
     private Token? previousToken;
 
     public Parser(Dictionary<string, TagType> tagDictionary)
@@ -14,11 +15,11 @@ public class Parser
         this.tagDictionary = tagDictionary;
     }
 
-    public List<Token?> Parse(string text)
+    public List<Token> Parse(string text)
     {
         var previousStatus = TokenType.Undefined;
         var content = new StringBuilder();
-        list = new List<Token?>();
+        list = new List<Token>();
         for (var index = 0; index < text.Length; index++)
         {
             var status = DetermineTokenType(text[index].ToString(), content.ToString());
@@ -27,7 +28,7 @@ public class Parser
                 (status == previousStatus
                   && (status == TokenType.Text
                   || (status == TokenType.Escape && content.ToString() != @"\")
-                  || (status == TokenType.Tag && IsTagSequenceEnd(content.ToString(),text[index].ToString())))))
+                  || (status == TokenType.Tag && content.ToString().IsTagSequenceEnd(text[index].ToString(), tagDictionary)))))
 
             {
                 content.Append(text[index]);
@@ -52,7 +53,7 @@ public class Parser
     private void AddToken(TokenType status, string content, string nextChar)
     {
         Token? token;
-        if (status == TokenType.Tag && IsTag(content))
+        if (status == TokenType.Tag && content.IsTag(tagDictionary))
         {
             var tag = Tag.CreateTag(tagDictionary[content], content, previousToken, nextChar);
             token = new Token(content, tag, status);
@@ -73,27 +74,11 @@ public class Parser
     {
         return currentChar switch
         {
-            _ when IsTagStart(currentChar) || IsTagSequenceEnd(content, currentChar) => TokenType.Tag,
+            _ when currentChar.IsTagStart(tagDictionary) || content.IsTagSequenceEnd(currentChar, tagDictionary) => TokenType.Tag,
             @"\" => TokenType.Escape,
             _ => TokenType.Text
         };
     }
-
-    private bool IsTagStart(string content)
-    {
-        return tagDictionary.Any(tag => tag.Key.StartsWith(content));
-    }
-
-    private bool IsTag(string content)
-    {
-        return tagDictionary.Any(tag => tag.Key == content);
-    }
-
-    private bool IsTagSequenceEnd(string currentContent, string currentChar)
-    {
-        return IsTagStart(currentContent + currentChar) || IsTag(currentContent + currentChar);
-    }
-
     private bool IsEscapeTag()
     {
         return list.Count > 0 && list.Last().Type == TokenType.Escape;

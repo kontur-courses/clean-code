@@ -8,12 +8,12 @@ public class Renderer
     private Stack<Tag>? stack;
     private string closingSomeTags = string.Empty;
 
-    public List<Token?> HandleTokens(List<Token?> tokenList)
+    public List<Token> HandleTokens(List<Token> tokenList)
     {
         stack = new Stack<Tag>();
 
         foreach (var token in tokenList)
-            switch (token!.Type)
+            switch (token.Type)
             {
                 case TokenType.Text:
                     break;
@@ -50,11 +50,11 @@ public class Renderer
         {
             previousTag = tag;
             tag.Status = TagStatus.Opening;
-            stack.Push(tag);
+            stack!.Push(tag);
             return;
         }
 
-        stack.TryPeek(out var tokenPeek);
+        stack!.TryPeek(out var tokenPeek);
         if (tokenPeek == null) return;
         if (tokenPeek.TagType == tag.TagType)
             ClosePairedTag(tag);
@@ -62,7 +62,7 @@ public class Renderer
 
     private void ClosePairedTag(Tag tag)
     {
-        var tokenPeek = stack.Pop();
+        var tokenPeek = stack!.Pop();
         tag.Status = TagStatus.Closing;
         tokenPeek.TagContent = tag.TagContent = tag.ReplacementForOpeningTag;
         tag.TagContent = tag.ReplacementForClosingTag;

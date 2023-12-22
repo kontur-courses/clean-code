@@ -4,9 +4,7 @@ namespace Markdown.Extensions;
 
 public static class TokenListExtensions
 {
-    private static bool InTag;
-
-    public static string ConcatenateToString(this List<Token?> tokens)
+    public static string ConcatenateToString(this List<Token> tokens)
     {
         var text = new StringBuilder();
 
@@ -14,7 +12,7 @@ public static class TokenListExtensions
             if (token.IsTagEligible())
             {
                 token.HandleTags();
-                text.Append(token.Tag.TagContent);
+                text.Append(token.Tag!.TagContent);
             }
             else
             {
