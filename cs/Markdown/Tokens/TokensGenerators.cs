@@ -6,13 +6,13 @@ public static class TokensGenerators
         new Dictionary<string, TokenGenerator>()
         {
             {"_", new TokenGenerator("_", false,
-                (int openIndex,int closeIndex)=>new ItalicsToken(openIndex,closeIndex))
+                (int openIndex)=>new ItalicsToken(openIndex))
             },
             {"__", new TokenGenerator("__",false,
-                (int openIndex,int closeIndex)=>new BoldToken(openIndex,closeIndex))
+                (int openIndex)=>new BoldToken(openIndex))
             },
             { "#", new TokenGenerator("#",true,
-                    (int openIndex,int closeIndex)=>new ParagraphToken(openIndex,closeIndex))
+                    (int openIndex)=>new ParagraphToken(openIndex))
             }
         };
 }
@@ -21,18 +21,18 @@ public class TokenGenerator
 {
     private readonly string separator;
     public readonly bool IsSingleSeparator;
-    public readonly Func<int, int, Token> CreateToken;
+    public readonly Func<int, Token> CreateToken;
     
-    public TokenGenerator(string separator,bool isSingleSeparator,Func<int,int,Token> createToken)
+    public TokenGenerator(string separator,bool isSingleSeparator,Func<int,Token> createToken)
     {
         this.separator = separator;
         IsSingleSeparator = isSingleSeparator;
         CreateToken = createToken;
     }
 
-    public int GetPreviosIndex(int index)
+    public int GetPreviousIndex(int index)
     {
-        return index - separator.Length - 1;
+        return index - separator.Length-1;
     }
 
     public int GetTokenStartIndex(int index)

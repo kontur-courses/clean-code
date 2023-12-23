@@ -4,6 +4,8 @@ public class Md
 {
     public string Render(string str)
     {
-        throw new NotImplementedException();
+        if (string.IsNullOrEmpty(str))
+            throw new ArgumentException();
+        return "";
     }
 }

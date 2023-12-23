@@ -5,51 +5,37 @@ namespace Markdown.Tokenizer;
 
 public class Tokenizer : ITokenizer
 {
-    private readonly Dictionary<string, int> tokensDictionary;
-    private readonly List<Token> tokenList;
-    private readonly StringBuilder literalTokenBuilder;
+    private readonly Dictionary<string, Token> tokensDictionary = new();
+    private readonly List<Token> tokenList = new();
+    private readonly StringBuilder literalTokenBuilder = new();
+    private readonly List<int> screeningIndex = new();
     private int literalIndex;
-
-    public Tokenizer()
-    {
-        tokensDictionary = new Dictionary<string, int>();
-        tokenList = new List<Token>();
-        literalTokenBuilder = new StringBuilder();
-    }
 
     public IEnumerable<Token> Tokenize(string str)
     {
-        var isScreening = false;
-        var screeningTxt = new StringBuilder();
+        if (string.IsNullOrEmpty(str))
+            throw new ArgumentException();
         var potentialToken = new StringBuilder();
         for (var i = 0; i < str.Length; i++)
         {
             var symbol = str[i];
 
+            if (symbol == '\n')
+                CloseAllOpenedTokensInTheEnd(i);
+
             if (symbol == '\\')
             {
-                isScreening = true;
+                if (screeningIndex.Contains(i - 1))
+                {
+                    screeningIndex.Remove(i - 1);
+                    literalTokenBuilder.Append(symbol);
+                    continue;
+                }
+                SaveLiteralToken(i-1,i+1);
+                screeningIndex.Add(i);
                 continue;
             }
 
-            if (isScreening)
-            {
-                if (TokensGenerators.TokenGenerators.Any(token => token.Key.StartsWith($"{screeningTxt}{symbol}")))
-                {
-                    screeningTxt.Append(symbol);
-                    continue;
-                }
-
-                if (TokensGenerators.TokenGenerators.ContainsKey($"{screeningTxt}"))
-                {
-                    literalTokenBuilder.Append(screeningTxt);
-                    screeningTxt.Clear();
-                }
-
-                isScreening = false;
-                literalTokenBuilder.Append(screeningTxt);
-            }
-            
             if (TokensGenerators.TokenGenerators.Any(token => token.Key.StartsWith($"{potentialToken}{symbol}")))
             {
                 potentialToken.Append(symbol);
@@ -61,33 +47,88 @@ public class Tokenizer : ITokenizer
                 CheckTokenAvailability($"{potentialToken}", i);
                 potentialToken.Clear();
             }
-            
+
             literalTokenBuilder.Append(potentialToken);
             potentialToken.Clear();
             literalTokenBuilder.Append(symbol);
         }
-        SaveLiteralToken(str.Length-1, str.Length);
+
+        if (potentialToken.Length > 0)
+            CheckTokenAvailability(potentialToken.ToString(), str.Length - 1);
+        CloseAllOpenedTokensInTheEnd(str.Length - 1);
+        AddNotImplementedScreening();
+        SaveLiteralToken(str.Length - 1, str.Length);
         return tokenList;
     }
-    
+
+
     private void CheckTokenAvailability(string separator, int index)
     {
         var tokenGenerator = TokensGenerators.TokenGenerators[separator];
+        var previousIndex = tokenGenerator.GetPreviousIndex(index);
+        var startTokenIndex = tokenGenerator.GetTokenStartIndex(index);
+        
+        if (CheckIsTokenScreening(previousIndex))
+        {
+            literalTokenBuilder.Append(separator);
+            
+            return;
+        }
+
         if (tokensDictionary.ContainsKey(separator))
         {
-            SaveLiteralToken(tokenGenerator.GetPreviosIndex(index), index);
-            tokenList.Add(tokenGenerator.CreateToken(tokensDictionary[separator], index-1));
+            SaveLiteralToken(previousIndex, index);
+            var token = tokensDictionary[separator];
+            token.CloseToken(index-1);
+            tokenList.Add(token);
             if (tokenGenerator.IsSingleSeparator)
             {
-                tokensDictionary[separator] = index;
+                tokensDictionary[separator] = tokenGenerator.CreateToken(startTokenIndex);
                 return;
             }
+
             tokensDictionary.Remove(separator);
+            return;
         }
-        else
+
+        tokensDictionary[separator] = tokenGenerator.CreateToken(startTokenIndex);
+        SaveLiteralToken(previousIndex, index);
+    }
+
+    private bool CheckIsTokenScreening(int index)
+    {
+        if (screeningIndex.Contains(index))
         {
-            tokensDictionary[separator] = tokenGenerator.GetTokenStartIndex(index);
-            SaveLiteralToken( tokenGenerator.GetPreviosIndex(index), index);
+            screeningIndex.Remove(index);
+            return true;
+        }
+
+        return false;
+    }
+
+    private void AddNotImplementedScreening()
+    {
+        foreach (var index in screeningIndex)
+        {
+            tokenList.Add(new LiteralToken(index, index, '\\'.ToString()));
+        }   
+    }
+
+    private void CloseAllOpenedTokensInTheEnd(int endIndex)
+    {
+        foreach (var token in tokensDictionary.Values)
+        {
+            if (token.IsTokenSingleSeparator())
+            {
+                token.CloseToken(endIndex);
+                tokenList.Add(token);
+                continue;
+            }
+
+            var literalToken = new LiteralToken(token.OpeningIndex,
+                token.OpeningIndex + token.GetSeparator().Length - 1,
+                token.GetSeparator());
+            tokenList.Add(literalToken);
         }
     }
 
@@ -98,12 +139,8 @@ public class Tokenizer : ITokenizer
             var literalToken = new LiteralToken(literalIndex, endIndex, literalTokenBuilder.ToString());
             tokenList.Add(literalToken);
         }
+
         literalTokenBuilder.Clear();
         literalIndex = newIndex;
-    }
-    
-    public IEnumerable<Token> CreateToken(IEnumerable<Token> tokens)
-    {
-        throw new NotImplementedException();
     }
 }
