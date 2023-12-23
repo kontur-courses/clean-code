@@ -3,16 +3,18 @@ using Markdown.Tokens;
 
 namespace Markdown.Filters;
 
-public class StrongTagsFilter : FilterBase
+public class StrongTagsFilter : IFilter
 {
     private readonly string text;
 
-    public StrongTagsFilter(FilterBase? nextFilter, string text) : base(nextFilter)
+    public StrongTagsFilter(string text)
     {
         this.text = text;
     }
 
-    public override IList<IToken> Filter(IList<IToken> tokens)
+    public int Order { get; } = 3;
+
+    public IList<IToken> Filter(IList<IToken> tokens)
     {
         (IToken? Token, Tag? Tag) previousTokenAndTag = (null, null);
         IToken? prePreviousTag = null;
@@ -38,8 +40,6 @@ public class StrongTagsFilter : FilterBase
                 prePreviousTag = previousTokenAndTag.Token;
             previousTokenAndTag = currentTokenAndTag;
         }
-        if (nextFilter != null)
-            return nextFilter.Filter(resultTokens);
         return resultTokens;
     }
 }

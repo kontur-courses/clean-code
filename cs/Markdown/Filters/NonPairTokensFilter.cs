@@ -3,15 +3,18 @@ using Markdown.Tokens;
 
 namespace Markdown.Filters;
 
-public class NonPairTokensFilter : FilterBase
+public class NonPairTokensFilter : IFilter
 {
     private readonly string text;
-    public NonPairTokensFilter(FilterBase? nextFilter, string text) : base(nextFilter)
+
+    public NonPairTokensFilter(string text)
     {
         this.text = text;
     }
 
-    public override IList<IToken> Filter(IList<IToken> tokens)
+    public int Order { get; } = 2;
+
+    public IList<IToken> Filter(IList<IToken> tokens)
     {
         var resultTokens = new List<IToken>();
         var openTags = new Stack<IToken>();
@@ -42,8 +45,6 @@ public class NonPairTokensFilter : FilterBase
 
         CloseSingleTagsAndAddIncorrectTokens(openTags, resultTokens, incorrectTags);
         ChangeTypesForIncorrectTokens(incorrectTags);
-        if (nextFilter != null)
-            return nextFilter.Filter(resultTokens);
         return resultTokens;
     }
 

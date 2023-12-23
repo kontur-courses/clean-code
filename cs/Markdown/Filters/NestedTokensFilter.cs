@@ -3,20 +3,20 @@ using Markdown.Tokens;
 
 namespace Markdown.Filters;
 
-internal class NestedTokensFilter : FilterBase
+internal class NestedTokensFilter : IFilter
 {
     private readonly TagType outer;
     private readonly HashSet<TagType> nested;
 
-    public NestedTokensFilter(FilterBase? nextFilter, 
-        TagType outer, 
-        HashSet<TagType> nested) : base(nextFilter)
+    public NestedTokensFilter(TagType outer, HashSet<TagType> nested)
     {
         this.outer = outer;
         this.nested = nested;
     }
 
-    public override IList<IToken> Filter(IList<IToken> tokens)
+    public int Order { get; } = 4;
+
+    public IList<IToken> Filter(IList<IToken> tokens)
     {
         var result = new List<IToken>(tokens);
         var tagTokens = GetAllTagTokens(tokens);
@@ -30,8 +30,6 @@ internal class NestedTokensFilter : FilterBase
                 ChangeTypesToTextForTagType(nestedTokens, nested);
             }
         }
-        if (nextFilter != null)
-            return nextFilter.Filter(result);
         return result;
     }
 

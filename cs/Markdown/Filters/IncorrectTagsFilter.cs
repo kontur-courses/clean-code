@@ -3,16 +3,18 @@ using Markdown.Tokens;
 
 namespace Markdown.Filters;
 
-internal class IncorrectTagsFilter : FilterBase
+internal class IncorrectTagsFilter : IFilter
 {
     private readonly string text;
 
-    public IncorrectTagsFilter(FilterBase? nextFilter, string text) : base(nextFilter)
+    public IncorrectTagsFilter(string text)
     {
         this.text = text;
     }
 
-    public override IList<IToken> Filter(IList<IToken> tokens)
+    public int Order { get; } = 1;
+
+    public IList<IToken> Filter(IList<IToken> tokens)
     {
         var result = new List<IToken>();
         foreach (var token in tokens)
@@ -22,8 +24,6 @@ internal class IncorrectTagsFilter : FilterBase
             if (!SupportedTags.IsValidTokenTag(token, text))
                 token.Type = TokenType.Text;
         }
-        if (nextFilter != null)
-            return nextFilter.Filter(result);
         return result;
     }
 }

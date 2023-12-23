@@ -12,19 +12,32 @@ public class MarkdownParser : IMarkingParser
         {
             return new List<IToken> { new Token("", TokenType.Text, 0) };
         }
+
         var splitter = new TextSplitter();
-        var splitedTokens = splitter.SplitOnTokens(text);
-        var tagsToChangeInStrong = new HashSet<TagType> { TagType.Strong };
+        var splittedTokens = splitter.SplitOnTokens(text);
+        var tagsToChangeInItalic = new HashSet<TagType> { TagType.Strong };
         var tagsToChangeInLink = new HashSet<TagType>(SupportedTags.Tags.Values.Select(t => t.TagType));
 
-        var nestedLinkTokensFilter = new NestedTokensFilter(null, TagType.Link, tagsToChangeInLink);
-        var nestedStrongInItalicTokensFilter = new NestedTokensFilter(nestedLinkTokensFilter,
-            TagType.Italic, tagsToChangeInStrong);
-        var strongTagFilter = new StrongTagsFilter(nestedStrongInItalicTokensFilter, text);
-        var nonPairsTokensFilter = new NonPairTokensFilter(strongTagFilter, text);
-        var incorrectTagsFilter = new IncorrectTagsFilter(nonPairsTokensFilter, text);
-        var escapedTagsFilter = new EscapedTagsFilter(incorrectTagsFilter);
+        var filters = CreateFilters(text, (TagType.Italic, tagsToChangeInItalic), (TagType.Link, tagsToChangeInLink));
+        IList<IToken> filtredTokens = splittedTokens.ToList();
+        foreach (var filter in filters.OrderBy(f => f.Order))
+            filtredTokens = filter.Filter(filtredTokens);
 
-        return escapedTagsFilter.Filter(splitedTokens.ToList());
+        return filtredTokens;
+    }
+
+    private List<IFilter> CreateFilters(string text, params (TagType, HashSet<TagType>)[] tagsToChange)
+    {
+        var filters = new List<IFilter>
+        {
+            new EscapedTagsFilter(),
+            new IncorrectTagsFilter(text),
+            new NonPairTokensFilter(text),
+            new StrongTagsFilter(text),
+        }; 
+        foreach (var tagToChange in tagsToChange)
+            filters.Add(new NestedTokensFilter(tagToChange.Item1, tagToChange.Item2));
+
+        return filters;
     }
 }

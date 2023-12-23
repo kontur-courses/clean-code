@@ -2,13 +2,11 @@
 
 namespace Markdown.Filters;
 
-public class EscapedTagsFilter : FilterBase
+public class EscapedTagsFilter : IFilter
 {
-    public EscapedTagsFilter(FilterBase? nextFilter) : base(nextFilter)
-    {
-    }
+    public int Order { get; } = 0;
 
-    public override IList<IToken> Filter(IList<IToken> tokens)
+    public IList<IToken> Filter(IList<IToken> tokens)
     {
         IToken? previousToken = null;
         var result = new List<IToken>();
@@ -45,8 +43,6 @@ public class EscapedTagsFilter : FilterBase
             previousToken.Type = TokenType.Text;
             result.Add(previousToken);
         }
-        if (nextFilter != null)
-            return nextFilter.Filter(result);
         return result;
     }
 }
