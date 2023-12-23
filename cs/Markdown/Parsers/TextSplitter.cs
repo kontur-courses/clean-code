@@ -7,11 +7,6 @@ public class TextSplitter
 {
     private int currentPosition;
 
-    public TextSplitter(int position)
-    {
-        currentPosition = position;
-    }
-
     public IEnumerable<IToken> SplitOnTokens(string text)
     {
         for (; currentPosition < text.Length; currentPosition++)

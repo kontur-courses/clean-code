@@ -2,7 +2,7 @@
 
 public interface IToken
 {
-    public string Content { get; set; }
-    public TokenType Type { get; set; }
-    public int StartPosition { get; set; }
+    string Content { get; set; }
+    TokenType Type { get; set; }
+    int StartPosition { get; set; }
 }

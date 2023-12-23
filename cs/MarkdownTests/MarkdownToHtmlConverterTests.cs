@@ -1,6 +1,5 @@
 ﻿using FluentAssertions;
 using Markdown;
-using Markdown.Filters;
 using Markdown.Generators;
 using Markdown.Parsers;
 using NUnit.Framework;
@@ -15,7 +14,7 @@ public class MarkdownToHtmlConverterTests
     [SetUp] 
     public void SetUp() 
     {
-        var markdownParser = new MarkdownParser(new TokenFilter());
+        var markdownParser = new MarkdownParser();
         var htmlGenerator = new HtmlGenerator();
         sut = new MarkdownToHtmlConverter(markdownParser, htmlGenerator);
     }
