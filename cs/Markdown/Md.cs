@@ -1,98 +1,67 @@
 ﻿using System.Text;
+using Markdown.Extensions;
 using Markdown.TagHandlers;
 
 namespace Markdown;
 
-public class Md
+public class Md : IMarkDown
 {
-    public ITagHandler[] tagHandlers;
-
-
-    public Md()
+    private readonly Dictionary<string, ITagHandler> handlers = new()
     {
-        tagHandlers = new ITagHandler[]
-        {
-            new HeadingHandler(),
-            new BoldTagHandler(),
-            new ItalicTagHandler(),
-            new LinkTagHandler(),
-        };
-    }
+        ["["] = new LinkHandler(),
+        ["#"] = new TopLevelHeadingHandler(),
+        ["_"] = new PairedTagHandler("_", "<em>"),
+        ["__"] = new PairedTagHandler("__", "<strong>"),
+    };
 
     public string Render(string text)
     {
-        return Render(text, tagHandlers);
-    }
+        if (text is null)
+            throw new ArgumentNullException(text);
 
-    public static string Render(string text, ITagHandler[] tagHandlers)
-    {
-        if (string.IsNullOrEmpty(text)) return "";
-
-        var builder = new StringBuilder();
+        var builder = new StringBuilder(text.Length);
         var index = 0;
         while (index < text.Length)
         {
-            if (IsEscaped(text, index))
+            if (text[index] is '\\')
             {
-                AppendEscapedCharacter(text, index, builder);
+                builder.AppendEscapedCharacter(text, index);
                 index += 2;
+
                 continue;
             }
 
-            if (TryHandleTag(text, index, tagHandlers, out var renderedContent, out var endIndex))
+            var substring = text[index..];
+            var handler = FindHandler(substring);
+            if (handler is not null && handler.CanTransform(substring))
             {
-                builder.Append(renderedContent);
-                index = endIndex;
+                var str = handler.Transform(substring);
+                var innerString = Render(str.GetInnerString());
+                str.ReplaceInnerString(innerString);
+                builder.Append(str.Content);
+                index += str.OldString.Length;
             }
             else
             {
                 builder.Append(text[index]);
-                index++;
+                index += 1;
             }
         }
 
         return builder.ToString();
     }
 
-    private static bool IsEscaped(string text, int index)
+    private ITagHandler? FindHandler(string text)
     {
-        return text[index] == '\\' && index < text.Length - 1;
-    }
+        if (text is null)
+            throw new ArgumentNullException(nameof(text));
 
-    private static void AppendEscapedCharacter(string text, int index, StringBuilder builder)
-    {
-        builder.Append(Escape(text.Substring(index, 2)));
-    }
+        if (2 <= text.Length && handlers.TryGetValue(text[..2], out var handler))
+            return handler;
 
-    private static bool TryHandleTag(string text, int index, ITagHandler[] tagHandlers, out string renderedContent, out int endIndex)
-    {
-        var tagHandler = FindHandler(text, index, tagHandlers);
-        if (tagHandler != null && tagHandler.IsValid(text, index))
-        {
-            endIndex = tagHandler.FindEndTagProcessing(text, index);
-            renderedContent = tagHandler.Render(text[..endIndex], index);
-            return true;
-        }
+        if (1 <= text.Length && handlers.TryGetValue(text[0].ToString(), out handler))
+            return handler;
 
-        renderedContent = null;
-        endIndex = -1;
-        return false;
-    }
-
-    public static ITagHandler? FindHandler(string text, int startIndex, ITagHandler[] tagHandlers)
-    {
-        return tagHandlers
-            .Where(x => x.StartsWithTag(text, startIndex))
-            .Where(x => x.IsValid(text, startIndex))
-            .OrderByDescending(x => x.MdTag.Length)
-            .FirstOrDefault();
-    }
-
-    public static string Escape(string s)
-    {
-        if (s == @"\\") return @"\";
-        if (s.StartsWith(@"\")) return s[1..];
-        return s;
+        return null;
     }
 }
-

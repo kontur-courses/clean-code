@@ -2,15 +2,9 @@
 
 public interface ITagHandler
 {
-    public string MdTag { get; }
-    
-    public string HtmlTag { get; }
+    public KeyValuePair<string, string> MdHtmlTagPair { get; }
 
-    public string Render(string text, int startIndex = 0);
+    public bool CanTransform(string text);
 
-    public bool StartsWithTag(string text, int startIndex = 0);
-
-    public bool IsValid(string text, int startIndex = 0);
-    
-    public int FindEndTagProcessing(string text, int startIndex = 0);
+    public StringManipulator Transform(string text);
 }

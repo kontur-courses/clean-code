@@ -1,53 +1,71 @@
-﻿namespace Markdown.TagHandlers;
+﻿using Markdown.Extensions;
 
-public abstract class PairedTagsHandler : BaseTagHandler
+namespace Markdown.TagHandlers;
+
+public class PairedTagHandler : ITagHandler
 {
-    protected PairedTagsHandler(string mdTag, string htmlTag) : base(mdTag, htmlTag)
+    public KeyValuePair<string, string> MdHtmlTagPair { get; }
+    public string ClosingHtmlTag => MdHtmlTagPair.Value.Insert(1, "/");
+
+    public PairedTagHandler(string mdTag, string htmlTag)
     {
+        if (mdTag.Length < 1)
+            throw new ArgumentException(nameof(mdTag));
+
+        MdHtmlTagPair = new KeyValuePair<string, string>(mdTag, htmlTag);
     }
 
-    public override bool IsValid(string s, int startIndex = 0)
-    {
-        return !string.IsNullOrWhiteSpace(s)
-               && startIndex >= 0
-               && startIndex < s.Length
-               && s.Length - startIndex - 1 >= MdTag.Length + 2
-               && StartsWithTag(s, startIndex)
-               && HasValidInnerContent(s, startIndex);
-    }
 
-    private bool HasValidInnerContent(string s, int startIndex)
+    public bool CanTransform(string text)
     {
-        var endIndex = s.Substring(startIndex + MdTag.Length).IndexOf(MdTag);
-        if (endIndex == -1)
+        var mdTag = MdHtmlTagPair.Key;
+        if (string.IsNullOrEmpty(text) || !text.StartsWith(mdTag))
             return false;
-        var inner = s.Substring(startIndex + MdTag.Length, endIndex);
-        return inner.Trim().Length > 0 && inner.Trim().Length == inner.Length;
+
+        var end = FindEnd(text);
+        if (end == -1)
+            return false;
+
+        var innerString = text.Substring(mdTag.Length, end - mdTag.Length * 2);
+        return innerString.Length != 0 && innerString.Trim().Length == innerString.Length;
     }
 
-    public override int FindEndTagProcessing(string s, int startIndex)
+    public StringManipulator Transform(string text)
     {
-        ValidateInput(s, startIndex);
-        for (var i = startIndex + MdTag.Length; i < s.Length; i++)
+        if (text is null)
+            throw new ArgumentNullException();
+
+        if (!CanTransform(text))
+            return StringManipulator.Default(text);
+
+        var htmlTag = MdHtmlTagPair.Value;
+        var end = FindEnd(text);
+        var transformed = htmlTag + GetInnerString(text) + ClosingHtmlTag;
+
+        return new StringManipulator(transformed, text[..end], htmlTag.Length,
+            transformed.Length - ClosingHtmlTag.Length);
+    }
+
+    private int FindEnd(string text)
+    {
+        var mdTag = MdHtmlTagPair.Key;
+        for (var i = mdTag.Length; i < text.Length; i++)
         {
-            var indexClosingTag = s[i..].IndexOf(MdTag);
-            if (indexClosingTag != -1)
-                return indexClosingTag + i + MdTag.Length;
+            if (!text.IsEscaped(i) && text[i..].StartsWith(mdTag))
+                return i + mdTag.Length;
         }
 
-        return s.Length;
+        return -1;
     }
 
-    protected override string GetInnerContent(string s, int startIndex)
+    private string GetInnerString(string text)
     {
-        ValidateInput(s, startIndex);
-        var end = FindEndTagProcessing(s, startIndex);
-        return s.Substring(startIndex + MdTag.Length, end - (startIndex + MdTag.Length) - MdTag.Length);
-    }
+        if (!CanTransform(text))
+            throw new ArgumentException(nameof(text));
 
-    protected override string Format(string s)
-    {
-        var closingTag = HtmlTag.Insert(1, "/");
-        return $"{HtmlTag}{GetInnerContent(s, 0)}{closingTag}";
+        var mdTag = MdHtmlTagPair.Key;
+        var end = FindEnd(text) - mdTag.Length;
+
+        return text[mdTag.Length..end];
     }
 }
