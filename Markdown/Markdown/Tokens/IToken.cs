@@ -2,5 +2,6 @@
 
 public interface IToken
 {
-    public string GetValue { get; }
+    public string Value { get; }
+    public int Length { get; }
 }

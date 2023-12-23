@@ -2,10 +2,11 @@
 
 public class MdTextToken : IToken
 {
-    public string GetValue { get; }
+    public string Value { get; }
+    public int Length => Value.Length;
 
     public MdTextToken(string text)
     {
-        GetValue = text;
+        Value = text;
     }
 }

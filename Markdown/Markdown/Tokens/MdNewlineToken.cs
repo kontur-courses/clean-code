@@ -2,5 +2,6 @@
 
 public class MdNewlineToken : IToken
 {
-    public string GetValue => "\n";
+    public string Value => "\n";
+    public int Length => 1;
 }

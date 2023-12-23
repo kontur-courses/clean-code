@@ -4,19 +4,19 @@ namespace Markdown;
 
 public class MdTokenizer
 {
-    private static Dictionary<string, ITag> dict;
+    private readonly SortedDictionary<string, Func<IToken>> registeredTokens = new();
     private readonly string text;
 
-    public MdTokenizer(string text)
+    public MdTokenizer(string text, IEnumerable<ITag> tags)
     {
         this.text = text;
-        dict = new Dictionary<string, ITag>();
-        dict.Add("_", new ItalicTag());
-        dict.Add("# ", new HeaderTag());
-        dict.Add("__", new BoldTag());
+        registeredTokens.Add("\\", () => new MdEscapeToken());
+        registeredTokens.Add("\n", () => new MdNewlineToken());
+        foreach (var tag in tags)
+            registeredTokens.Add(tag.MdTag, () => new MdTagToken(tag));
     }
 
-    public IEnumerable<IToken> Tokenize()
+    public List<IToken> Tokenize()
     {
         var textBuilder = new StringBuilder();
         var tokens = new List<IToken>();
@@ -24,106 +24,43 @@ public class MdTokenizer
         {
             if (TryTokenizeFrom(i, out var token))
             {
-                if (textBuilder.Length > 0)
-                {
-                    tokens.Add(new MdTextToken(textBuilder.ToString()));
-                    textBuilder.Clear();
-                }
+                AddAndClear(textBuilder, tokens);
 
+                if (token is MdTagToken tagToken)
+                    tagToken.Context = (text.ElementAtOrDefault(i - 1), text.ElementAtOrDefault(i + token.Length));
+                
                 tokens.Add(token);
-                i += token.Tag.MdTag.Length;
-            }
-            else if (text[i] == '\\')
-            {
-                if (textBuilder.Length > 0)
-                {
-                    tokens.Add(new MdTextToken(textBuilder.ToString()));
-                    textBuilder.Clear();
-                }
-                
-                tokens.Add(new MdEscapeToken());
-                i++;
-            }
-            else if (text[i] == '\n')
-            {
-                if (textBuilder.Length > 0)
-                {
-                    tokens.Add(new MdTextToken(textBuilder.ToString()));
-                    textBuilder.Clear();
-                }
-                
-                tokens.Add(new MdNewlineToken());
-                i++;
+                i += token.Length;
             }
             else textBuilder.Append(text[i++]);
         }
 
-        if (textBuilder.Length != 0)
-            tokens.Add(new MdTextToken(textBuilder.ToString()));
-
-
-
-
-        for (var i = 0; i < tokens.Count - 1; i++)
-        {
-            if (tokens[i] is MdEscapeToken && tokens[i + 1] is MdTagToken token)
-            {
-                token.SetStatus(Status.Broken);
-                tokens.RemoveAt(i);
-            }
-            else if (tokens[i] is MdEscapeToken && tokens[i + 1] is MdEscapeToken)
-            {
-                tokens.RemoveAt(i);
-            }
-            
-        }
-        
-        var stack = new Stack<MdTagToken>();
-        foreach (var tagToken in tokens.OfType<MdTagToken>())
-        {
-            if (tagToken.Status == Status.Broken)
-                continue;
-            if (stack.Count == 0)
-                stack.Push((MdTagToken)tagToken);
-            else
-            {
-                if (stack.Peek().Tag.MdTag == tagToken.Tag.MdTag)
-                {
-                    stack.Pop().SetStatus(Status.Opened);
-                    tagToken.SetStatus(Status.Closed);
-                }
-                else
-                {
-                    stack.Push(tagToken);
-                }
-            }
-        }
-
-        foreach (var token in stack)
-        {
-            token.SetStatus(Status.Broken);
-        }
+        AddAndClear(textBuilder, tokens);
+        tokens.Add(new MdEndOfTextToken());
 
         return tokens;
     }
 
-    private bool TryTokenizeFrom(int position, out MdTagToken token)
+    private void AddAndClear(StringBuilder textBuilder, List<IToken> tokens)
+    {
+        if (textBuilder.Length <= 0) return;
+        tokens.Add(new MdTextToken(textBuilder.ToString()));
+        textBuilder.Clear();
+    }
+
+    private bool TryTokenizeFrom(int position, out IToken token)
     {
         token = null;
-        var dasd = dict.Where(pairs => text[position..].StartsWith(pairs.Key)).ToArray();
-        if (dasd.Any())
+        var tokenTemplate = registeredTokens
+            .Where(pairs => text[position..].StartsWith(pairs.Key));
+        
+        if (tokenTemplate.Any())
         {
-            var tag = dasd.MaxBy(x => x.Value.MdTag.Length).Value;
-            var context = new NeighboursContext(ElementAtOrNull(position - 1), ElementAtOrNull(position + tag.MdTag.Length));
-            token = new MdTagToken(tag, context);
+            var newToken = tokenTemplate.Last().Value.Invoke();
+            token = newToken;
             return true;
         }
         
         return false;
-    }
-
-    private char? ElementAtOrNull(int position)
-    {
-        return position >= 0 && position < text.Length ? text[position] : null;
     }
 }
