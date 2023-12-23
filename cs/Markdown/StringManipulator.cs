@@ -9,10 +9,10 @@ public class StringManipulator
 
     public StringManipulator(string content, string oldString, int startInnerString, int endInnerString)
     {
-        if (startInnerString < 0 || content.Length <= startInnerString)
+        if (startInnerString < 0 || (content.Length <= startInnerString && content.Length is not 0))
             throw new ArgumentOutOfRangeException(nameof(startInnerString));
 
-        if (endInnerString < 0 || content.Length <= endInnerString || endInnerString < startInnerString)
+        if (endInnerString < 0 || content.Length < endInnerString || endInnerString < startInnerString)
             throw new ArgumentOutOfRangeException(nameof(endInnerString));
 
         Content = content;
