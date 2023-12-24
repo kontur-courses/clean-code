@@ -8,13 +8,17 @@ namespace MarkdownTask
 {
     public class Token
     {
-        public string HtmlTag;
-        public string MDTag;
-        public int start, length;
+        public readonly int Position;
+        public readonly TagInfo.TagType TagType;
+        public readonly TagInfo.Tag Tag;
+        public readonly int TagLength;
 
-        public Token(string html, string mdTag, int start, int length)
+        public Token(TagInfo.TagType tagType, int position, TagInfo.Tag tag, int tagLength)
         {
-
+            Position = position;
+            TagType = tagType;
+            Tag = tag;
+            TagLength = tagLength;
         }
     }
 }

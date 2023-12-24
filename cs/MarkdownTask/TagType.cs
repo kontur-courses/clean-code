@@ -6,8 +6,17 @@ using System.Threading.Tasks;
 
 namespace MarkdownTask
 {
-    public interface ITagParser
+    public enum TagType
     {
-        ICollection<Token> Parse(string markdown);
+        Header,
+        Strong,
+        Italic
+    }
+
+    public enum HtmlTag
+    {
+        h1,
+        em,
+        i
     }
 }

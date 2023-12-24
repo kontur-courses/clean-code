@@ -8,23 +8,24 @@ namespace MarkdownTask
 {
     internal class Markdown
     {
-        public readonly List<Token> tokens;
+        private readonly ITagParser[] Parsers;
 
-        ITagParser[] parsers =
+        public Markdown(ITagParser[] parsers)
         {
-            new HeadingTagParser(),
-            new ItalicTagParser(),
-            new StrongTagParser()
-        };
-        public Markdown()
-        {
-
+            Parsers = parsers;
         }
 
         public string Render(string markdownText)
         {
-            throw new NotImplementedException();
+            var tokens = new List<Token>();
+
+            foreach (var parser in Parsers)
+            {
+                tokens.AddRange(parser.Parse(markdownText));
+            };
+
+
+            return HtmlProcessor.Process(markdownText, tokens); ;
         }
-            
     }
 }
