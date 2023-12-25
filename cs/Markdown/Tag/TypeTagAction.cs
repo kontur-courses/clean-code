@@ -1,7 +1,8 @@
 ﻿namespace Markdown;
 
-public enum TypeActionMarkdown
+public enum TypeTagAction
 {
+    None,
     Open,
     Close
 }
