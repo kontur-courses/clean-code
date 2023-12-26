@@ -7,7 +7,8 @@ public class AnySyntaxParserTestCases
     public static IEnumerable<TestCaseData> ParseTokenTestCases
     {
         get
-        {yield return new TestCaseData(string.Empty, new List<IToken>())
+        {
+            yield return new TestCaseData(string.Empty, new List<IToken>())
                 .SetName("ReturnEmptySequence_WhenStringIsEmpty");
             yield return new TestCaseData("a", new List<IToken>())
                 .SetName("ReturnEmptySequence_WhenNoTokensInText");
@@ -19,7 +20,7 @@ public class AnySyntaxParserTestCases
                 .SetName("ReturnEmptySequence_WhenTokensIntersect");
             yield return new TestCaseData("__a _a", new List<IToken>())
                 .SetName("ReturnEmptySequence_WhenTwoUnpairedTokens");
-            yield return new TestCaseData("__a_a\r\na_a__a", new List<IToken>{ new NewLineToken(5) })
+            yield return new TestCaseData("__a_a\r\na_a__a", new List<IToken> { new NewLineToken(5) })
                 .SetName("ReturnNewLineToken_WhenOtherTokensCloseAtNextLine");
 
             yield return new TestCaseData("__ a__", new List<IToken>())
@@ -77,7 +78,7 @@ public class AnySyntaxParserTestCases
                 .SetName("ReturnEscapingTokens_WhenItalicTokenIsEscaped");
             yield return new TestCaseData("\\\\a", new List<IToken>() { new EscapeToken(0) })
                 .SetName("ReturnEscapingToken_WhenEscapeTokenIsEscaped");
-            
+
             yield return new TestCaseData("\n\n",
                     new List<IToken>() { new NewLineToken(0), new NewLineToken(1) })
                 .SetName("ReturnNewLineTokens_WhenNewLineSymbolsSequenced");
@@ -125,7 +126,7 @@ public class AnySyntaxParserTestCases
                 .SetName("ReturnEscapeAndHeaderTokens_WhenEscapeAndHeaderProvided");
             yield return new TestCaseData("\\\\a", new List<IToken>() { new EscapeToken(0), new EscapeToken(1) })
                 .SetName("ReturnTwoSequencedEscapeTokens_WhenEscapeTokenIsEscaped");
-            
+
             yield return new TestCaseData("\n\n",
                     new List<IToken>() { new NewLineToken(0), new NewLineToken(1) })
                 .SetName("ReturnTwoNewLineTokens_WhenTwoNewLineSymbolsProvided");

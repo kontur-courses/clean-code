@@ -6,13 +6,11 @@ namespace Markdown;
 
 public class MarkupRenderer
 {
-    private ISyntax syntax;
-    private IParser parser;
-    private IConverter converter;
+    private readonly IParser parser;
+    private readonly IConverter converter;
 
-    public MarkupRenderer(ISyntax syntax, IParser parser, IConverter converter)
+    public MarkupRenderer(IParser parser, IConverter converter)
     {
-        this.syntax = syntax;
         this.parser = parser;
         this.converter = converter;
     }

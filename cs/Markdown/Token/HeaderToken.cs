@@ -27,24 +27,21 @@ public class HeaderToken : IToken
 
     public bool IsValid(string source, List<IToken> tokens, IToken currentToken)
     {
-        if (Position == 0 || source[Position - 1] == '\n')
+        if (Position != 0 && source[Position - 1] != '\n')
+            return false;
+        var tagEndingLength = 1;
+        var endingPosition = source.IndexOf('\n', Position);
+        if (endingPosition > 0 && source[endingPosition - 1] == '\r')
         {
-            var tagEndingLength = 1;
-            var endingPosition = source.IndexOf('\n', Position);
-            if (endingPosition > 0 && source[endingPosition - 1] == '\r')
-            {
-                endingPosition--;
-                tagEndingLength = 2;
-            }
-
-            if (endingPosition < 0)
-                endingPosition = source.Length;
-
-            tokens.Add(new HeaderToken(endingPosition, true, tagEndingLength));
-
-            return true;
+            endingPosition--;
+            tagEndingLength = 2;
         }
 
-        return false;
+        if (endingPosition < 0)
+            endingPosition = source.Length;
+
+        tokens.Add(new HeaderToken(endingPosition, true, tagEndingLength));
+
+        return true;
     }
 }

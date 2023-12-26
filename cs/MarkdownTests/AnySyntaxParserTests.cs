@@ -7,13 +7,12 @@ namespace MarkdownTests;
 
 public class AnySyntaxParserTests
 {
-    private ISyntax syntax;
     private AnySyntaxParser sut;
 
     [OneTimeSetUp]
     public void OneTimeSetup()
     {
-        sut = new AnySyntaxParser(new MarkdownToHtnlSyntax());
+        sut = new AnySyntaxParser(new MarkdownToTokenSyntax());
     }
 
     [TestCaseSource(typeof(AnySyntaxParserTestCases), nameof(AnySyntaxParserTestCases.ParseTokenTestCases))]

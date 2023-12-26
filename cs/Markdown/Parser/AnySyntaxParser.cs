@@ -7,10 +7,10 @@ namespace Markdown.Parser;
 public class AnySyntaxParser : IParser
 {
     private string source;
-    private readonly ISyntax syntax;
+    private readonly IMarkupToTokenSyntax syntax;
     private readonly IReadOnlyDictionary<string, Func<int, IToken>> stringToToken;
 
-    public AnySyntaxParser(ISyntax syntax)
+    public AnySyntaxParser(IMarkupToTokenSyntax syntax)
     {
         this.syntax = syntax;
         stringToToken = syntax.StringToToken;
@@ -109,12 +109,12 @@ public class AnySyntaxParser : IParser
                     openedTags.Clear();
                     continue;
                 }
-                
+
                 AddTokenToResult(result, openedToken);
-                    
+
                 if (!tag.IsParametrized)
                     AddTokenToResult(result, tag);
-                    
+
                 openedTags.Remove(tag.Separator);
             }
             else if (tag.IsValid(source, result, tag) &&
@@ -133,8 +133,8 @@ public class AnySyntaxParser : IParser
     private bool TagCanBeOpened(IReadOnlyDictionary<string, IToken> openedTags, IToken tag)
     {
         return !(syntax.TagCannotBeInsideTags.ContainsKey(tag.Separator) &&
-          syntax.TagCannotBeInsideTags[tag.Separator]
-              .Any(openedTags.ContainsKey));
+                 syntax.TagCannotBeInsideTags[tag.Separator]
+                     .Any(openedTags.ContainsKey));
     }
 
     private static void AddTokenToResult(List<IToken> result, IToken token)

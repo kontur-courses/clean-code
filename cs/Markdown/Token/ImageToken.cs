@@ -18,11 +18,11 @@ public class ImageToken : IToken
     public bool IsParametrized => true;
     public List<string> Parameters { get; set; }
     public int TokenSymbolsShift { get; set; }
-    
-    public bool HasOpenedSource = false;
-    public bool HasClosedSource = false;
-    public bool HasOpenedDescription = false;
-    public int DescriptionPostition;
+
+    private bool hasOpenedSource = false;
+    private bool hasClosedSource = false;
+    private bool hasOpenedDescription = false;
+    private int descriptionPostition;
 
     public ImageToken(int position, bool isClosed = false)
     {
@@ -37,27 +37,28 @@ public class ImageToken : IToken
 
     private bool ValidateTag(string source, List<IToken> tokens, ImageToken currentToken)
     {
-        if (!currentToken.HasOpenedSource && source[Position] == ImageStartSymbol)
+        if (!currentToken.hasOpenedSource && source[Position] == ImageStartSymbol)
         {
-            currentToken.HasOpenedSource = true;
+            currentToken.hasOpenedSource = true;
             Parameters = new List<string>();
             return true;
         }
 
-        if (!currentToken.HasClosedSource && source[Position] == SourceEndingSymbol)
+        if (!currentToken.hasClosedSource && source[Position] == SourceEndingSymbol)
         {
-            currentToken.HasClosedSource = true;
-            currentToken.Parameters.Add(source.Substring(currentToken.Position + 2, Position - currentToken.Position - 2));
+            currentToken.hasClosedSource = true;
+            currentToken.Parameters.Add(source.Substring(currentToken.Position + 2,
+                Position - currentToken.Position - 2));
         }
-        else if (currentToken.HasClosedSource && source[Position] == DescriptionStartingSymbol)
+        else if (currentToken.hasClosedSource && source[Position] == DescriptionStartingSymbol)
         {
-            currentToken.HasOpenedDescription = true;
-            currentToken.DescriptionPostition = Position;
+            currentToken.hasOpenedDescription = true;
+            currentToken.descriptionPostition = Position;
         }
-        else if (currentToken.HasOpenedDescription && source[Position] == DescriptionEndingSymbol)
+        else if (currentToken.hasOpenedDescription && source[Position] == DescriptionEndingSymbol)
         {
-            currentToken.Parameters.Add(source.Substring(currentToken.DescriptionPostition + 1,
-                Position - currentToken.DescriptionPostition - 1));
+            currentToken.Parameters.Add(source.Substring(currentToken.descriptionPostition + 1,
+                Position - currentToken.descriptionPostition - 1));
             currentToken.TokenSymbolsShift = currentToken.Parameters[0].Length + currentToken.Parameters[1].Length + 4;
             return true;
         }

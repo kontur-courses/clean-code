@@ -6,9 +6,9 @@ namespace Markdown.TagConverter;
 
 public class MarkupConverter : IConverter
 {
-    private ISyntax syntax;
+    private ITokenToMarkupSyntax syntax;
 
-    public MarkupConverter(ISyntax syntax)
+    public MarkupConverter(ITokenToMarkupSyntax syntax)
     {
         this.syntax = syntax;
     }

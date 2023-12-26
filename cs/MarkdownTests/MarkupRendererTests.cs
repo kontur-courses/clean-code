@@ -14,8 +14,8 @@ public class MarkupRendererTests
     [OneTimeSetUp]
     public void OneTimeSetUp()
     {
-        var syntax = new MarkdownToHtnlSyntax();
-        sut = new MarkupRenderer(syntax, new AnySyntaxParser(syntax), new MarkupConverter(syntax));
+        sut = new MarkupRenderer(new AnySyntaxParser(new MarkdownToTokenSyntax()),
+            new MarkupConverter(new TokenToHtmlSyntax()));
     }
 
     [TestCaseSource(typeof(MarkupRendererTestCases), nameof(MarkupRendererTestCases.RenderTestCases))]
@@ -25,32 +25,32 @@ public class MarkupRendererTests
 
         renderedString.Should().Be(expectedString);
     }
-    
+
     [Test]
     public void MarkupRenderer_ShouldHaveLinearComplexity()
     {
         var repetitionsCount = 100;
         var inputString = "![aba](caba) Text___with_different__tags\\__";
         sut.Render(inputString);
-        
+
         var shortString = string.Concat(Enumerable.Repeat(inputString, repetitionsCount));
         var longString = string.Concat(Enumerable.Repeat(inputString, repetitionsCount * repetitionsCount));
-        
+
         GC.Collect();
         GC.WaitForPendingFinalizers();
         var stopwatch = new Stopwatch();
         stopwatch.Start();
         sut.Render(shortString);
         stopwatch.Stop();
-        
+
         var shortStringTime = stopwatch.ElapsedMilliseconds;
-        
+
         GC.Collect();
         GC.WaitForPendingFinalizers();
         stopwatch.Start();
         sut.Render(longString);
         stopwatch.Stop();
-        
+
         var longStringTime = stopwatch.ElapsedMilliseconds;
 
         var timeRatio = longStringTime / shortStringTime;
