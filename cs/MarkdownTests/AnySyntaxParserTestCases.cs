@@ -19,8 +19,8 @@ public class AnySyntaxParserTestCases
                 .SetName("ReturnEmptySequence_WhenTokensIntersect");
             yield return new TestCaseData("__a _a", new List<IToken>())
                 .SetName("ReturnEmptySequence_WhenTwoUnpairedTokens");
-            yield return new TestCaseData("__a_a\na_a__a", new List<IToken>())
-                .SetName("ReturnEmptySequence_WhenTokenClosesAtNextLine");
+            yield return new TestCaseData("__a_a\r\na_a__a", new List<IToken>{ new NewLineToken(5) })
+                .SetName("ReturnNewLineToken_WhenOtherTokensCloseAtNextLine");
 
             yield return new TestCaseData("__ a__", new List<IToken>())
                 .SetName("ReturnEmptySequence_WhenBoldTokenOpenedIncorrectly");
@@ -77,13 +77,17 @@ public class AnySyntaxParserTestCases
                 .SetName("ReturnEscapingTokens_WhenItalicTokenIsEscaped");
             yield return new TestCaseData("\\\\a", new List<IToken>() { new EscapeToken(0) })
                 .SetName("ReturnEscapingToken_WhenEscapeTokenIsEscaped");
+            
+            yield return new TestCaseData("\n\n",
+                    new List<IToken>() { new NewLineToken(0), new NewLineToken(1) })
+                .SetName("ReturnNewLineTokens_WhenNewLineSymbolsSequenced");
 
             yield return new TestCaseData("![aba](caba)",
                     new List<IToken>() { new ImageToken(0) })
-                .SetName("ReturnLinkToken_WhenLinkToken");
+                .SetName("ReturnImageToken_WhenImageToken");
             yield return new TestCaseData("![#a__b__a](c_a_ba)",
                     new List<IToken>() { new ImageToken(0) })
-                .SetName("ReturnLinkToken_WhenLinkTokenContainsTokens");
+                .SetName("ReturnImageToken_WhenImageTokenContainsTokens");
 
             yield return new TestCaseData(
                     "# Text___with_different__tags\\__",
@@ -121,6 +125,10 @@ public class AnySyntaxParserTestCases
                 .SetName("ReturnEscapeAndHeaderTokens_WhenEscapeAndHeaderProvided");
             yield return new TestCaseData("\\\\a", new List<IToken>() { new EscapeToken(0), new EscapeToken(1) })
                 .SetName("ReturnTwoSequencedEscapeTokens_WhenEscapeTokenIsEscaped");
+            
+            yield return new TestCaseData("\n\n",
+                    new List<IToken>() { new NewLineToken(0), new NewLineToken(1) })
+                .SetName("ReturnTwoNewLineTokens_WhenTwoNewLineSymbolsProvided");
         }
     }
 

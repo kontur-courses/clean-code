@@ -37,12 +37,6 @@ public class AnySyntaxParser : IParser
                 continue;
             }
 
-            if (source[i].ToString() == syntax.NewLineSeparator)
-            {
-                possibleTag.Clear();
-                tags.Add(syntax.StringToToken[syntax.NewLineSeparator](i));
-            }
-
             var tag = possibleTag.ToString();
 
             if (stringToToken.ContainsKey(tag))
@@ -98,9 +92,10 @@ public class AnySyntaxParser : IParser
 
         foreach (var tag in tags)
         {
-            if (tag.Separator == syntax.NewLineSeparator)
+            if (syntax.NewLineSeparators.Contains(tag.Separator))
             {
                 openedTags.Clear();
+                AddTokenToResult(result, tag);
                 continue;
             }
 
@@ -114,11 +109,11 @@ public class AnySyntaxParser : IParser
                     openedTags.Clear();
                     continue;
                 }
-
-                result.Add(openedToken);
+                
+                AddTokenToResult(result, openedToken);
                     
                 if (!tag.IsParametrized)
-                    result.Add(tag);
+                    AddTokenToResult(result, tag);
                     
                 openedTags.Remove(tag.Separator);
             }
@@ -128,17 +123,11 @@ public class AnySyntaxParser : IParser
                 if (tag.IsPair)
                     openedTags[tag.Separator] = tag;
                 else
-                    result.Add(tag);
+                    AddTokenToResult(result, tag);
             }
         }
 
         return result.Select(token => token).OrderBy(token => token.Position).ToList();
-    }
-
-    private static bool TagIntersectsWithPreviousTokens(Dictionary<string, IToken> openedTags, IToken tag)
-    {
-        return openedTags.Values.Any(token =>
-            (!token.IsClosed && token.Position > openedTags[tag.Separator].Position));
     }
 
     private bool TagCanBeOpened(IReadOnlyDictionary<string, IToken> openedTags, IToken tag)
@@ -146,5 +135,19 @@ public class AnySyntaxParser : IParser
         return !(syntax.TagCannotBeInsideTags.ContainsKey(tag.Separator) &&
           syntax.TagCannotBeInsideTags[tag.Separator]
               .Any(openedTags.ContainsKey));
+    }
+
+    private static void AddTokenToResult(List<IToken> result, IToken token)
+    {
+        if (result.Count == 0 || result.Last().Position < token.Position)
+            result.Add(token);
+        else if (result.Last().Position > token.Position)
+            result.Insert(result.Count - 1, token);
+    }
+
+    private static bool TagIntersectsWithPreviousTokens(Dictionary<string, IToken> openedTags, IToken tag)
+    {
+        return openedTags.Values.Any(token =>
+            (!token.IsClosed && token.Position > openedTags[tag.Separator].Position));
     }
 }

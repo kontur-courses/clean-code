@@ -54,7 +54,7 @@ public class ImageToken : IToken
             currentToken.HasOpenedDescription = true;
             currentToken.DescriptionPostition = Position;
         }
-        else if (currentToken.HasOpenedSource && source[Position] == DescriptionEndingSymbol)
+        else if (currentToken.HasOpenedDescription && source[Position] == DescriptionEndingSymbol)
         {
             currentToken.Parameters.Add(source.Substring(currentToken.DescriptionPostition + 1,
                 Position - currentToken.DescriptionPostition - 1));

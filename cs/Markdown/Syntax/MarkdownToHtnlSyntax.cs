@@ -11,7 +11,7 @@ public class MarkdownToHtnlSyntax : ISyntax
         { "__", pos => new BoldToken(pos) }, { "\\", pos => new EscapeToken(pos) },
         { "\n", pos => new NewLineToken(pos) }, { "![", pos => new ImageToken(pos) },
         { "]", pos => new ImageToken(pos) }, { "(", pos => new ImageToken(pos) },
-        { ")", pos => new ImageToken(pos) }, { "\r\n", pos => new NewLineToken(pos) }
+        { ")", pos => new ImageToken(pos) }, { "\r\n", pos => new NewLineToken(pos, "\r\n") }
     };
 
     private static readonly Dictionary<string, IList<string>> TagNotWorkingWithinTags = new()
@@ -32,11 +32,13 @@ public class MarkdownToHtnlSyntax : ISyntax
         { "_", () => new HtmlTag("<em>", "</em>", true) },
         { "__", () => new HtmlTag("<strong>", "</strong>", true) },
         { "\\", () => new HtmlTag("", "", false) },
-        { "@", () => new HtmlTag("<img>", "", false) }
+        { "@", () => new HtmlTag("<img>", "", false) },
+        { "\n", () => new HtmlTag("\n", "", false) },
+        { "\r\n", () => new HtmlTag("\r\n", "", false) }
     };
 
     public Type EscapeToken => typeof(EscapeToken);
-    public string NewLineSeparator => new NewLineToken(0).Separator;
+    public string[] NewLineSeparators => new[] { "\n", "\r\n" };
 
     public ITag ConvertTag(IToken token)
     {

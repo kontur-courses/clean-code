@@ -52,28 +52,28 @@ public class MarkupRendererTestCases
                 .SetName("ReturnCorrectString_WhenNewLineSymbolHasWindowsCulture");
 
             yield return new TestCaseData("_wo_rd", "<em>wo</em>rd")
-                .SetName("ReturnCorrectString_WhenPartOfWordEmphasised");
+                .SetName("ReturnCorrectString_WhenStartingPartOfWordEmphasised");
             yield return new TestCaseData("w_o_rd", "w<em>o</em>rd")
-                .SetName("ReturnCorrectString_WhenPartOfWordEmphasised");
+                .SetName("ReturnCorrectString_WhenMiddlePartOfWordEmphasised");
             yield return new TestCaseData("wo_rd_", "wo<em>rd</em>")
-                .SetName("ReturnCorrectString_WhenPartOfWordEmphasised");
+                .SetName("ReturnCorrectString_WhenEndingPartOfWordEmphasised");
 
             yield return new TestCaseData("__wo__rd", "<strong>wo</strong>rd")
-                .SetName("ReturnCorrectString_WhenPartOfWordEmphasised");
+                .SetName("ReturnCorrectString_WhenStartingPartOfWordBolded");
             yield return new TestCaseData("w__o__rd", "w<strong>o</strong>rd")
-                .SetName("ReturnCorrectString_WhenPartOfWordEmphasised");
+                .SetName("ReturnCorrectString_WhenMiddlePartOfWordBolded");
             yield return new TestCaseData("wo__rd__", "wo<strong>rd</strong>")
-                .SetName("ReturnCorrectString_WhenPartOfWordEmphasised");
+                .SetName("ReturnCorrectString_WhenEndingPartOfWordBolded");
 
             yield return new TestCaseData("![aba](caba)", "<img src=\"aba\" alt=\"caba\">")
-                .SetName("ReturnLinkToken_WhenLinkToken");
+                .SetName("ReturnLinkToken_WhenImageToken");
             yield return new TestCaseData("![#a__b__a](c_a_ba)", "<img src=\"#a__b__a\" alt=\"c_a_ba\">")
-                .SetName("ReturnLinkToken_WhenLinkTokenContainsTokens");
+                .SetName("ReturnLinkToken_WhenImageTokenContainsTokens");
 
             yield return new TestCaseData("\\__a_", "__a_")
                 .SetName("ReturnCorrectString_WhenEscapedTagsProvided");
-            yield return new TestCaseData("# Text___with_different__tags\\__![and](img)",
-                    "<h1>Text<strong><em>with</em>different</strong>tags__<img src=\"and\" alt=\"img\"></h1>\n")
+            yield return new TestCaseData("# Text___with_different__tags\\__\r\n![aba](caba)",
+                    "<h1>Text<strong><em>with</em>different</strong>tags__</h1>\n<img src=\"aba\" alt=\"caba\">")
                 .SetName("ReturnCorrectString_WhenStringContainsMultipleTags");
         }
     }
