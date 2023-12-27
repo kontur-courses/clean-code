@@ -23,8 +23,8 @@ public class MdTagToken : IToken
         return Status switch
         {
             Status.Broken => Tag.MdTag,
-            Status.Opened => Tag.HtmlTag.Open,
-            Status.Closed => Tag.HtmlTag.Close,
+            Status.Opened => Tag.HtmlTag,
+            Status.Closed => Tag.HtmlTag.Insert(1, "/"),
             _ => throw new InvalidOperationException("Status was unset before accessing")
         };
     }

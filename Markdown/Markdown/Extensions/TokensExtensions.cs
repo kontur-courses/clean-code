@@ -24,7 +24,7 @@ public static class TokensExtensions
                     else
                         ex.SetStatus(Status.Broken);   
                 }
-            else if (token is MdTagToken tagToken)
+            else if (token is MdTagToken tagToken) 
             {
                 if (tagToken.Status == Status.Broken)
                     continue;
@@ -40,26 +40,52 @@ public static class TokensExtensions
                     {
                         if (tagToken.Context.Item1 == ' ' || char.IsDigit(tagToken.Context.Item1) || char.IsDigit(tagToken.Context.Item2))
                             tagToken.SetStatus(Status.Broken);
-                        else if (tokens.FindIndex(x => x == tagToken) - tokens.FindIndex(x => x == lastOpened) == 1)
+                        else
                         {
-                            stack.Pop().SetStatus(Status.Broken);
-                            tagToken.SetStatus(Status.Broken);
+                            var i1 = tokens.FindIndex(x => x == tagToken);
+                            var i2 = tokens.FindIndex(x => x == lastOpened);
+                            var range = tokens.GetRange(i2 + 1, i1 - i2 - 1);
+                            if (range.Count == 0 || ((tagToken.Context.IsSurrounded() || lastOpened.Context.IsSurrounded()) && range.Any(x => x.Value.Contains(' '))))
+                            {
+                                stack.Pop().SetStatus(Status.Broken);
+                                tagToken.SetStatus(Status.Broken);
+                            }
+                            else 
+                            {
+                                stack.Pop().SetStatus(Status.Opened);
+                                tagToken.SetStatus(Status.Closed);
+                            }
                         }
-                        else 
-                        {
-                            stack.Pop().SetStatus(Status.Opened);
-                            tagToken.SetStatus(Status.Closed);
-                        }
-                    }
-                    else if (lastOpened.Tag is ItalicTag && tagToken.Tag is BoldTag)
-                    {
-                        tagToken.SetStatus(Status.Broken);
                     }
                     else stack.Push(tagToken);
                 }
             }
         }
 
+        var tags = tokens.Where(x => x is MdTagToken tag && tag.Status != Status.Broken && tag.Tag.GetType() != typeof(HeaderTag)).Select(x => (MdTagToken)x).ToArray();
+        for (var i = 0; i < tags.Length - 3; i++)
+        {
+            if (tags[i].Tag is BoldTag && tags[i + 1].Tag is ItalicTag && tags[i + 2].Tag is BoldTag &&
+                tags[i + 3].Tag is ItalicTag)
+            {
+                foreach (var mdTagToken in tags[i..(i + 3)])
+                {
+                    mdTagToken.SetStatus(Status.Broken);
+                }
+            }
+            else if (tags[i].Tag is ItalicTag && tags[i + 1].Tag is BoldTag && tags[i + 2].Tag is BoldTag &&
+                     tags[i + 3].Tag is ItalicTag)
+            {
+                tags[i + 1].SetStatus(Status.Broken);
+                tags[i + 2].SetStatus(Status.Broken);
+            }
+        }
+
         return tokens;
+    }
+
+    public static bool IsSurrounded(this (char, char) context)
+    {
+        return char.IsLetterOrDigit(context.Item1) && char.IsLetterOrDigit(context.Item2);
     }
 }
