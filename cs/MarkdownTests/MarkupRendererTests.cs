@@ -29,16 +29,17 @@ public class MarkupRendererTests
     [Test]
     public void MarkupRenderer_ShouldHaveLinearComplexity()
     {
-        var repetitionsCount = 100;
+        var repetitionsCount = 1000;
         var inputString = "![aba](caba) Text___with_different__tags\\__";
-        sut.Render(inputString);
 
         var shortString = string.Concat(Enumerable.Repeat(inputString, repetitionsCount));
-        var longString = string.Concat(Enumerable.Repeat(inputString, repetitionsCount * repetitionsCount));
+        var longString = string.Concat(Enumerable.Repeat(inputString, repetitionsCount * 100));
 
+        var stopwatch = new Stopwatch();
+        sut.Render(inputString);
+        
         GC.Collect();
         GC.WaitForPendingFinalizers();
-        var stopwatch = new Stopwatch();
         stopwatch.Start();
         sut.Render(shortString);
         stopwatch.Stop();
@@ -55,6 +56,6 @@ public class MarkupRendererTests
 
         var timeRatio = longStringTime / shortStringTime;
 
-        timeRatio.Should().BeLessOrEqualTo(repetitionsCount * 2);
+        timeRatio.Should().BeLessOrEqualTo(100 * 2);
     }
 }
