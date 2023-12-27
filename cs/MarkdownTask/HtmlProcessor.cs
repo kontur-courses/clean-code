@@ -1,10 +1,4 @@
-﻿using Newtonsoft.Json.Linq;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Security.Cryptography.X509Certificates;
-using System.Text;
-using System.Threading.Tasks;
+﻿using System.Text;
 
 namespace MarkdownTask
 {
@@ -12,39 +6,87 @@ namespace MarkdownTask
     {
         private static readonly Dictionary<TagInfo.TagType, string> htmlTags = new Dictionary<TagInfo.TagType, string>
         {
-            {TagInfo.TagType.Header, "h1" },
-            {TagInfo.TagType.Italic, "em" },
-            {TagInfo.TagType.Strong, "strong" },
+            {TagInfo.TagType.Header, "<h1>" },
+            {TagInfo.TagType.Italic, "<em>" },
+            {TagInfo.TagType.Strong, "<strong>" },
             {TagInfo.TagType.Empty, "" }
         };
 
-        public static string Process(string text, ICollection<Token> tokens)
+        private static ICollection<Token> FilterTokens(ICollection<Token> tokens)
         {
-            ;
-
-            var sb = new StringBuilder();
-
-            int head = 0;
-            int shift = 0;
+            var selected = new List<Token>();
+            var stack = new Stack<Token>();
+            var filterEdge = -1;
             foreach (var token in tokens.OrderBy(x => x.Position))
             {
-                if (token.TagType == TagInfo.TagType.Empty)
+                if (token.Position < filterEdge)
+                    continue;
+                else
+                    filterEdge = -1;
+
+                if (token.TagType != TagInfo.TagType.Italic && token.TagType != TagInfo.TagType.Strong)
                 {
-                    sb.Append(text.Substring(head, 1));
-                    head = token.Position + 1;
+                    selected.Add(token);
+                    if (token.TagType == TagInfo.TagType.Link)
+                        filterEdge = token.Position + token.TagLength;
                     continue;
                 }
 
-                sb.Append(text.Substring(head, token.Position - head));
-                string h = string.Format("</{0}>", htmlTags[token.TagType]);
-
                 if (token.Tag == TagInfo.Tag.Open)
-                    h = string.Format("<{0}>", htmlTags[token.TagType]);
-
-                sb.Append(h);
-                head = token.Position + token.TagLength;
+                {
+                    stack.Push(token);
+                }
+                else
+                {
+                    if (!stack.Any())
+                        continue;
+                    var stackTop = stack.Pop();
+                    if (stackTop.TagType == token.TagType)
+                    {
+                        if (token.TagType == TagInfo.TagType.Strong)
+                        {
+                            if (!stack.Any() || stack.Peek().TagType != TagInfo.TagType.Italic)
+                            {
+                                selected.Add(stackTop);
+                                selected.Add(token);
+                            }
+                        }
+                        else
+                        {
+                            selected.Add(stackTop);
+                            selected.Add(token);
+                        }
+                    }
+                }
             }
-            sb.Append(text.Substring(head, text.Length - head));
+
+            return selected.OrderBy(x => x.Position).ToList();
+        }
+
+        public static string Process(string text, ICollection<Token> tokens)
+        {
+
+            var sb = new StringBuilder(text);
+            var shift = 0;
+
+            foreach (var token in FilterTokens(tokens))
+            {
+                sb.Remove(token.Position + shift, token.TagLength);
+
+                if (token.TagType == TagInfo.TagType.Link)
+                {
+                    sb.Insert(token.Position + shift, LinkTagBuilder.Build(text.Substring(token.Position, token.TagLength)));
+                    shift = sb.Length - text.Length;
+                    continue;
+                }
+
+                var htmlTag = htmlTags[token.TagType];
+                if (token.Tag == TagInfo.Tag.Close)
+                    htmlTag = htmlTag.Insert(1, "/");
+
+                sb.Insert(token.Position + shift, htmlTag);
+                shift = sb.Length - text.Length;
+            }
 
             return sb.ToString();
         }

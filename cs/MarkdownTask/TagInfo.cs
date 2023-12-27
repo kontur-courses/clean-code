@@ -7,6 +7,7 @@
             Header,
             Strong,
             Italic,
+            Link,
             Empty
         }
 

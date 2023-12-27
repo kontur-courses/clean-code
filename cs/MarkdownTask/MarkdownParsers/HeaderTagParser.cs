@@ -1,10 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-
-namespace MarkdownTask
+﻿namespace MarkdownTask
 {
     public class HeaderTagParser : ITagParser
     {
@@ -20,10 +14,11 @@ namespace MarkdownTask
                 {
 
                     tokens.Add(new Token(TagInfo.TagType.Header, start, TagInfo.Tag.Open, 2));
-                    tokens.Add(new Token(TagInfo.TagType.Header, start + length, TagInfo.Tag.Close,0));
+                    tokens.Add(new Token(TagInfo.TagType.Header, start + length, TagInfo.Tag.Close, 0));
                 }
                 start += length;
             }
+
             return tokens;
         }
     }

@@ -1,104 +1,109 @@
-﻿using FluentAssertions.Equivalency;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Runtime.InteropServices;
-using System.Text;
-using System.Text.RegularExpressions;
-using System.Threading.Tasks;
-using static MarkdownTask.TagInfo;
+﻿using static MarkdownTask.TagInfo;
+
 
 namespace MarkdownTask
 {
     public class ItalicTagParser : ITagParser
     {
-        private readonly char tag = '_';
-        //private string[] escapeTags = { "__" };
-        //private string htmlTag = "em";
-
-        public List<Token> Parse(string text)
+        public ICollection<Token> Parse(string text)
         {
             var tokens = new List<Token>();
-            int start = -1;
-            bool inTag = false;
+            var opened = new Stack<Token>();
+            var inTag = false;
+            var startInMiddle = false;
+            var hitSpace = false;
+
+            if (text.Length <= 2)
+                return tokens;
 
             for (int i = 0; i < text.Length; i++)
             {
-                if (text[i] == '_')
+                if (text[i] == '\n')
                 {
-                    if (start == -1)
-                    {
-                        if (i == 0 || text[i - 1] == ' ')
-                        {
-                            start = i;
-                            inTag = true;
-                        }
-                    }
-                    else
-                    {
-                        if (i == text.Length - 1 || text[i + 1] == ' ')
-                        {
-                            var token = new Token(TagInfo.TagType.Italic,start,Tag.Open, i - start + 1);
-                            tokens.Add(token);
-                            start = -1;
-                            inTag = false;
-                        }
-                    }
+                    opened = new Stack<Token>();
+                    continue;
                 }
-                else if (inTag && char.IsDigit(text[i]))
+                if (text[i] == '\\')
                 {
-                    start = -1;
+                    i++;
+                    continue;
+                }
+
+                if (text[i] == '_' && i < text.Length - 1 && text[i + 1] == '_')
+                {
+                    i++;
+                    continue;
+                }
+
+                if (inTag && text[i] == ' ')
+                    hitSpace = true;
+
+                if (!inTag && IsOpeningTag(text, i))
+                {
+                    opened.Push(new Token(TagInfo.TagType.Italic, i, Tag.Open, 1));
+                    inTag = true;
+                    if (i == 0 || char.IsWhiteSpace(text[i - 1]) || text[i - 1] == '\\')
+                        startInMiddle = false;
+                    else
+                        startInMiddle = true;
+                    hitSpace = false;
+                }
+                else if (IsClosingTag(text, i))
+                {
+                    if (!opened.Any())
+                        continue;
+
+                    var o = opened.Pop();
+                    if (!startInMiddle || !hitSpace)
+                    {
+                        tokens.Add(o);
+                        tokens.Add(new Token(TagInfo.TagType.Italic, i, Tag.Close, 1));
+                    }
                     inTag = false;
+                    hitSpace = false;
                 }
             }
 
             return tokens;
         }
 
-        //public ICollection<Token> Parse(string markdown)
-        //{
-        //    var tokens = new List<Token>();
-        //    var opened = new Stack<int>();
+        private static bool IsOpeningTag(string text, int pos)
+        {
+            if (text[pos] != '_')
+                return false;
 
-        //    for (int i = 0; i < markdown.Length - 1; i++)
-        //    {
-        //        if (markdown[i] == '\n')
-        //        {
-        //            opened = new Stack<int>();
-        //            continue;
-        //        }
-        //        if (markdown[i] == '\\')
-        //        {
-        //            i++;
-        //            continue;
-        //        }
+            if (pos < text.Length - 1 && text[pos + 1] == '_')
+                return false;
 
-        //        if (markdown[i] == tag && !char.IsNumber(markdown[i + 1]))
-        //        {
-        //            if (opened.Any())
-        //            {
-        //                var o = opened.Pop();
-        //                if (i - o <= 1)
-        //                    continue;
-        //                tokens.Add(new Token(TagInfo.TagType.Italic, o, TagInfo.Tag.Open, 1));
-        //                tokens.Add(new Token(TagInfo.TagType.Italic, i, TagInfo.Tag.Close, 1));
-        //            }
-        //            else
-        //                opened.Push(i);
-        //        }
-        //    }
+            if (pos == 0)
+                return true;
 
-        //    if (opened.Any() && markdown.Last() == '_')
-        //    {
-        //        var o = opened.Pop();
-        //        if (markdown.Length - 1 - o > 1)
-        //        {
-        //            tokens.Add(new Token(TagInfo.TagType.Italic, o, TagInfo.Tag.Open, 1));
-        //            tokens.Add(new Token(TagInfo.TagType.Italic, markdown.Length - 1, TagInfo.Tag.Close, 1));
-        //        }
-        //    }
+            if (pos < text.Length - 1 && char.IsDigit(text[pos + 1]))
+                return false;
 
-        //    return tokens;
-        //}
+            if (char.IsLetter(text[pos - 1]) || char.IsWhiteSpace(text[pos - 1]) || text[pos - 1] == '\\')
+                return true;
+
+            return false;
+        }
+        private static bool IsClosingTag(string text, int pos)
+        {
+            if (text[pos] != '_')
+                return false;
+
+            if (pos < text.Length - 1 && text[pos + 1] == '_')
+                return false;
+
+            if (pos == text.Length - 1)
+                return true;
+
+            if (pos > 0 && (char.IsDigit(text[pos - 1]) || char.IsWhiteSpace(text[pos - 1])))
+                return false;
+
+            if (char.IsLetter(text[pos + 1]) || char.IsWhiteSpace(text[pos + 1]))
+                return true;
+
+            return false;
+        }
     }
 }

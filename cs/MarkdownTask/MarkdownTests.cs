@@ -1,9 +1,6 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using FluentAssertions;
+﻿using FluentAssertions;
+using FluentAssertions.Extensions;
+using MarkdownTask.MarkdownParsers;
 using NUnit.Framework;
 
 namespace MarkdownTask
@@ -15,9 +12,10 @@ namespace MarkdownTask
         [TestCase("_Italic text_", "<em>Italic text</em>", TestName = "Parse _ tag")]
         [TestCase("__Halfbold text__", "<strong>Halfbold text</strong>", TestName = "Parse __ tag")]
         [TestCase("# This is a header", "<h1>This is a header</h1>", TestName = "Parse '# ' tag")]
+        [TestCase("[Google](https://google.com)", "<a href=Google>https://google.com)</a>", TestName = "ParseLinkTag")]
         [TestCase("", "", TestName = "Parse empty string")]
-        [TestCase("# Header __with _different_ tags__", "<h1>Header <strong>with <em>different</em> tags</strong></h1>", TestName = "All tags together")]
-        [TestCase(@"\_Вот это\_, не должно выделиться тегом \<em>", @"_Вот это_, не должно выделиться тегом <em>", TestName = "Сharacter escaping")]
+        [TestCase("# Header __with _different_ tags__ [Google](https://google.com)", "<h1>Header <strong>with <em>different</em> tags</strong> <a href=Google>https://google.com)</a></h1>", TestName = "All tags together")]
+        [TestCase(@"\_Вот это\_, не должно выделиться тегом <em>", @"_Вот это_, не должно выделиться тегом <em>", TestName = "Сharacter escaping")]
         [TestCase(@"Здесь сим\волы экранирования\ \должны остаться.\", @"Здесь сим\волы экранирования\ \должны остаться.\", TestName = "Character escaping stay if escaspe nothing")]
         [TestCase(@"\\_вот это будет выделено тегом_ ", @"\<em>вот это будет выделено тегом</em> ", TestName = "Escaping escape char")]
         [TestCase("Внутри __двойного выделения _одинарное_ тоже__ работает", @"Внутри <strong>двойного выделения <em>одинарное</em> тоже</strong> работает", TestName = "Italic work inside strong")]
@@ -27,29 +25,43 @@ namespace MarkdownTask
         [TestCase("в ра_зных сл_овах", "в ра_зных сл_овах", TestName = "Selection not work in different words")]
         [TestCase("эти_ подчерки_ не считаются выделением", "эти_ подчерки_ не считаются выделением", TestName = "Opening tag should be before nonspace char")]
         [TestCase("эти _подчерки _ не считаются выделением", "эти _подчерки _ не считаются выделением", TestName = "Closing tag should be after nonspace char")]
-        [TestCase("случае __пересечения _двойных__ и одинарных_ подчерков", "случае __пересечения _двойных__ и одинарных_ подчерков", TestName = "Strong and italic tags intersection are not allowed")]
+        [TestCase("случае __пересечения _двойных__ и одинарных_ подчерков", "случае __пересечения _двойных__ и одинарных_ подчерков", TestName = "Tags intersection are not allowed")]
         [TestCase("____", "____", TestName = "Tags without text not parsed")]
+        [TestCase("[Goo_gle](https://goog_le.com)", "<a href=Goo_gle>https://goog_le.com)</a>", TestName = "Tags inside link markdown are ignored")]
+        [TestCase("_[Google](https://google.com)_", "<em><a href=Google>https://google.com)</a></em>", TestName = "Tags works outside link markdown")]
         public void Markdown_SimpleTags_ParsedCorrectly(string markdownString, string htmlString)
         {
             var md = new Markdown(new ITagParser[]{
                 new HeaderTagParser(),
                 new ItalicTagParser(),
-                new StrongTagParser()
+                new StrongTagParser(),
+                new EscapingParsing(),
+                new LinkTagParser()
             });
 
             md.Render(markdownString).Should().Be(htmlString);
         }
 
-        [TestCase("_aaaa __bbb__ cc_ ddd", "Simple text")]
-        public void Markdown_TagsIntersection_ParsedCorrectly(string markdownString, string htmlString)
+        [TestCase(500, TestName = "Markdown parsing should be fast")]
+        public void Markdown_Parsing_ShouldBeFast(int wordsCount)
         {
+            var textBlocks = new string[] { "text", "__ strong__", "_italic_" };
+
+            var text = new List<string>();
+            var rnd = new Random();
+            for (int i = 0; i < wordsCount; i++)
+            {
+                text.Add(textBlocks[rnd.Next(3)]);
+            }
+
             var md = new Markdown(new ITagParser[]
             {
                 new HeaderTagParser(),
                 new ItalicTagParser(),
                 new StrongTagParser()
             });
-        }
 
+            md.ExecutionTimeOf(s => s.Render(string.Join(" ", text))).Should().BeLessThanOrEqualTo(500.Milliseconds());
+        }
     }
 }
