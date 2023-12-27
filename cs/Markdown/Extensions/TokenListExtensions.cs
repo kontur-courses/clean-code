@@ -1,4 +1,5 @@
 using System.Text;
+using Markdown.Tokens;
 
 namespace Markdown.Extensions;
 
@@ -35,6 +36,7 @@ public static class TokenListExtensions
     {
         if (token.Tag != null && token.Tag.IsOpeningTag())
             blockTags.AddRange(token.Tag.ExcludedTags);
-        else if (token.Tag != null && token.Tag.IsClosingTag()) blockTags = new List<TagType>();
+        else if (token.Tag != null && token.Tag.IsClosingTag()) 
+            blockTags = new List<TagType>();
     }
 }

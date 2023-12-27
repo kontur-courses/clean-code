@@ -5,6 +5,5 @@ public enum TokenType
     Tag,
     Text,
     Escape, 
-    LineBreaker,
-    Undefined
+    LineBreaker
 }

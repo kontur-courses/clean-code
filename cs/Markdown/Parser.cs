@@ -1,30 +1,32 @@
 using System.Text;
 using Markdown.Extensions;
 using Markdown.Tags;
+using Markdown.Tokens;
 
 namespace Markdown;
 
-public class Parser
+public class Parser : IParser
 {
-    private readonly Dictionary<string, TagType> tagDictionary;
-    private List<Token> list;
+    private readonly Dictionary<string?, TagType> tagDictionary;
+    private List<Token> tokenList;
     private Token? previousToken;
 
-    public Parser(Dictionary<string, TagType> tagDictionary)
+    public Parser(Dictionary<string?, TagType> tagDictionary)
     {
         this.tagDictionary = tagDictionary;
     }
 
     public List<Token> Parse(string text)
     {
-        var previousStatus = TokenType.Undefined;
+        var isEscapeTagActive = false;
+        TokenType? previousStatus = null;
         var content = new StringBuilder();
-        list = new List<Token>();
+        tokenList = new List<Token>();
         for (var index = 0; index < text.Length; index++)
         {
             var status = DetermineTokenType(text[index].ToString(), content.ToString());
 
-            if (previousStatus == TokenType.Undefined || 
+            if (previousStatus == null || 
                 (status == previousStatus
                   && (status == TokenType.Text
                   || (status == TokenType.Escape && content.ToString() != @"\")
@@ -35,36 +37,46 @@ public class Parser
             }
             else
             {
-                HandleEscapeTag(ref previousStatus);
-                AddToken(previousStatus, content.ToString(), text[index].ToString());
+                AddToken((TokenType)previousStatus, content.ToString(), text[index].ToString());
                 index--;
                 content.Clear();
             }
 
             previousStatus = status;
+            if (!isEscapeTagActive && previousStatus == TokenType.Escape)
+            {
+                isEscapeTagActive = true;
+            }
         }
-
-        HandleEscapeTag(ref previousStatus);
-        AddToken(previousStatus, content.ToString(), "");
-        list.Add(new Token("\n", null, TokenType.LineBreaker));
-        return list;
+        
+        AddToken((TokenType)previousStatus!, content.ToString(), "");
+        tokenList.Add(new Token("\n", null, TokenType.LineBreaker));
+        return tokenList;
     }
 
-    private void AddToken(TokenType status, string content, string nextChar)
+    private void AddToken(TokenType status, string? content, string nextChar)
     {
         Token? token;
+        if (IsEscapeTagActive(previousToken))
+        {
+            if (status is TokenType.Tag or TokenType.Escape)
+                status = TokenType.Text;
+            else
+                previousToken.Type = TokenType.Text;
+        }
+
         if (status == TokenType.Tag && content.IsTag(tagDictionary))
         {
             var tag = Tag.CreateTag(tagDictionary[content], content, previousToken, nextChar);
             token = new Token(content, tag, status);
             previousToken = token;
-            list.Add(token);
+            tokenList.Add(token);
         }
         else
         {
             status = status == TokenType.Tag ? TokenType.Text : status;
             token = new Token(content, null, status);
-            list.Add(token);
+            tokenList.Add(token);
         }
 
         previousToken = token;
@@ -79,17 +91,8 @@ public class Parser
             _ => TokenType.Text
         };
     }
-    private bool IsEscapeTag()
+    private static bool IsEscapeTagActive(Token previousToken)
     {
-        return list.Count > 0 && list.Last().Type == TokenType.Escape;
-    }
-
-    private void HandleEscapeTag(ref TokenType status)
-    {
-        if (!IsEscapeTag()) return;
-        if (status is TokenType.Tag or TokenType.Escape)
-            status = TokenType.Text;
-        else
-            list.Last().Type = TokenType.Text;
+        return previousToken is { Type: TokenType.Escape };
     }
 }

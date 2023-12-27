@@ -5,9 +5,9 @@ namespace Markdown;
 
 public class Md
 {
-    private readonly Dictionary<string, TagType> tagDictionary;
+    private readonly Dictionary<string?, TagType> tagDictionary;
 
-    public Md(Dictionary<string, TagType> tagDictionary)
+    public Md(Dictionary<string?, TagType> tagDictionary)
     {
         this.tagDictionary = tagDictionary;
     }
@@ -19,7 +19,7 @@ public class Md
         foreach (var line in lines.Where(line => line != string.Empty))
         {
             var parser = new Parser(tagDictionary).Parse(line);
-            var renderer = new Renderer();
+            var renderer = new HtmlRenderer();
             result.Append(renderer.HandleTokens(parser).ConcatenateToString());
         }
 

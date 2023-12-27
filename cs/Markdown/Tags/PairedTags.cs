@@ -2,7 +2,13 @@ namespace Markdown.Tags;
 
 public abstract class PairedTags : Tag
 {
-    protected void OpenTag(string nextChar)
+    private static HashSet<string> wordBoundaries = new HashSet<string>()
+    {
+        " ",
+        ".",
+        "",
+    };
+    protected void OpenTag()
     {
         if (PreviousToken == null || PreviousToken.Content.Any(c => char.IsDigit(c) || char.IsWhiteSpace(c)))
             Status = TagStatus.Opening;
@@ -10,10 +16,12 @@ public abstract class PairedTags : Tag
 
     protected void IsTagWordBoundary(string content, string nextChar)
     {
-        if ((nextChar is "" or " " && (content == "" || content.Last() == ' ')) ||
+        if ((wordBoundaries.Contains(nextChar) && (content == "" || content.Last() == ' ')) ||
             (PreviousToken is { Type: TokenType.Tag } && PreviousToken.Tag!.TagType == TagType))
+        {
             Status = TagStatus.Block;
-        else if (nextChar is "" or " " && !content.Any(char.IsDigit))
+        }
+        else if (wordBoundaries.Contains(nextChar) && !content.Any(char.IsDigit))
         {
             Status = TagStatus.Closing;
         }
